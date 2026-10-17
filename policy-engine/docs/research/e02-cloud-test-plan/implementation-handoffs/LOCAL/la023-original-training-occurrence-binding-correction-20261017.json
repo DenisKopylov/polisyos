@@ -1,0 +1,89 @@
+{
+  "schema": "policyos.e02.local_candidate_handoff.v1",
+  "slice": "Both LA023 occurrence bindings corrected to the original whole training criterion",
+  "author_role": "local_candidate_author_not_G",
+  "candidate_branch": "codex/e02-unified-local-20261009",
+  "candidate": {
+    "base": "546bd772cda7a85fc14df2372935c22d25905043",
+    "sha": "9450de1671f1be66827ba787a1b547bc45c5484c",
+    "tree": "96ab15b4354607f23c3dc0e5000de2722adfd881",
+    "parents": [
+      "546bd772cda7a85fc14df2372935c22d25905043"
+    ],
+    "source_bytes_read_back_from_branch": true
+  },
+  "footprint": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/full-original-occurrence-current-evidence-index-20261016.json",
+      "sha256": "bcf2b83c9b1aa53deb62edd12548e7784abc41e1af9b34f4a17a6638f02c3d7a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/full-original-occurrence-reviewed-successor-proposals-20261017.json",
+      "sha256": "a38160cec8f6eb4e752d4008c4f3db39917891004b17c63b81f75ed9f73150c4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "sha256": "d9ab8d0814161071070cab99bd2f776614470c6358ea405854ddb119de211005"
+    }
+  ],
+  "criterion": "LA_r09 original lines1052\u20131083 span b06af2883398bbe4c039459613c259f92c15a4722d59b57dd28b6397f3e72ac3; repeated PLG02/PLG03 occurrences remain distinct. Signed-wealth/Gini is adjacent evidence and excluded from this criterion.",
+  "change": "Exactly four reviewed JSON value replacements plus recomputed successor catalog digest and current component-index digest; all other289rows, all291originalspans, ordered keys/history/B198 and outcome/closure fields preserved.",
+  "verification": {
+    "actual_canonical_binding_check": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la023-current-binding-adoption-r1-20261017/actual-binding-check.stdout.json",
+      "sha256": "cacf26a4f80b37ffe62fab2c6799cdcd5b75a1182338ddf4e770b842037a1392"
+    },
+    "application_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la023-current-binding-adoption-r1-20261017/application-readback.json",
+      "sha256": "c808448b503c18abc477be0cb4cd527c711ce78832ee5d541c21e8ef85c4f6f8"
+    },
+    "implementation_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la023-current-binding-adoption-r1-20261017/la023-current-binding-implementation-readback.json",
+      "sha256": "d866baca8a931d8ac60703a992a9ef980e20496f89d85065a15f3efd6fea42c4"
+    },
+    "reviewed_semantic_delta": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la023-plg03-current-binding-audit-independent-review-r1-20261017/review.json",
+      "sha256": "90a3adc424097ac08f69729301ac1982eb1f552619acd27542b2618eb821f222"
+    },
+    "full_integrity_and_drift_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la023-current-binding-integrity-r2-20261017/delivery-receipt-r2.json",
+      "sha256": "4915e79634f2c06d49ef077d5d71c301ba53fe1a390e74749e0a07384c8d3cb5"
+    },
+    "original_import_results_check": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la023-plg03-binding-correction-r1-20261017/import-results-check.json",
+      "sha256": "1597db64cb0f36c254322d6e3c0bc9b6f9d92c3b1b9f3ce75ec89a242bd7388d"
+    },
+    "counts": {
+      "occurrences": 291,
+      "ids": 282,
+      "other_rows_unchanged": 289,
+      "task_routes": 331,
+      "historical_proposed_closed_ids": 198,
+      "historical_proposed_closed_occurrences": 202,
+      "historical_ledger_closed_occurrences": 9
+    },
+    "corrupt_controls": "Candidate passes; altered actual row pointer and stale catalog digest fail the new metadata-integrity checker. Original R7 checker/manifests/outputs remain immutable for their historic cut; their expected rejection is retained, not relabeled as a product failure."
+  },
+  "bounded_runtime_evidence": "The separately committed 142779 six-test real-training/typed-refusal/CLI result remains additive bounded evidence. Row observation text at3d07 is retained; no whole original training acceptance or new current full-freeze claim.",
+  "limitations": [
+    "Metadata integrity is not capability verification.",
+    "Ordinary documentation commit hooks with Python SKIP do not establish Native green.",
+    "Full source/input/backend freeze and per-occurrence independent G adjudication remain pending."
+  ],
+  "proposal_fields": [
+    {
+      "id": "LA-023",
+      "occurrence": "PLG-02",
+      "proposal": "limited",
+      "next_check": "Entire original training criterion/dependencies beyond bounded real optimizer/CLI witness."
+    },
+    {
+      "id": "LA-023",
+      "occurrence": "PLG-03",
+      "proposal": "limited",
+      "next_check": "Same full training span, actual CLI numeric result and typed unsupported path, no adjacent Gini requirement."
+    }
+  ],
+  "closure_ids": [],
+  "formal_closures": []
+}

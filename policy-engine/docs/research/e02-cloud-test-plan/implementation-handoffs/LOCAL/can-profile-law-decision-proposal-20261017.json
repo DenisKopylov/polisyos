@@ -1,0 +1,219 @@
+{
+  "author_role": "local evidence-backed candidate; not a G ruling or ratification",
+  "authority_status_time_migration": {
+    "authority": "No issuer, legal authority, producer attestation, or profile-family authority is created.",
+    "migration": "No rewrite/readdressing of CAS. Any future history interpretation/reissue requires named store/namespace, artifact and selected view, raw bytes/digests, consumer/audience/time role, and reconstructible producer/rule provenance.",
+    "status": "Keep profile_identity_law=decision_pending; whole_LA021=verification_missing; profileless history and producer-event attestation=not_established; formal_closure_ids=[].",
+    "time": "No effective date, freshness, or currentness rule is introduced."
+  },
+  "capability_and_pattern_pass": {
+    "labels": [
+      "verification_missing"
+    ],
+    "relevant_patterns": [
+      "P06",
+      "P07",
+      "P10",
+      "P29",
+      "P32",
+      "P35",
+      "P37",
+      "P38",
+      "P40"
+    ],
+    "target": "Keep the actual semantic refusal test; do not let ordinary parity or a shared label stand in for accepted-format semantics."
+  },
+  "closure_ids": [],
+  "closure_state": "proposal_only; no finding closure asserted",
+  "criterion": {
+    "bundle": "CAN-01",
+    "finding_id": "LA-021",
+    "question": "Does shared identity polisyos.canon.json@0.2.0 promise one accepted typed-tag grammar across Core and IR, or identify common byte/profile mechanics while each strict facade retains its own accepted-tag policy? Decide only this persisted identity meaning.",
+    "task_id": "Q1",
+    "task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/Q1"
+  },
+  "criterion_binding_receipt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-q1-binding-correction-r1-20261017/binding-corrigendum.json",
+    "sha256": "1e866122a2e34484887bc03c0187e88d46bd483109eb1e87578a48c636c183e6"
+  },
+  "current_code_footprint": {
+    "evidence_denominator": "The prior 142779 source-pin recheck names 34 CAN rows. Rehashed against current HEAD b700, 33/34 match that prior frame; the sole changed path is the documentation-only failure-pattern register, updated in b700. No product-code or test pin changed. The older pinned CAN packet also has 33/34 hashes matching current bytes, with the same register path differing. See the exact 34-row current source-pin refresh.",
+    "existing_capability": "Shared primitives and strict reader checks are implemented; semantic profile law is pending; raw historical profile producer/intent attestation is not established.",
+    "key_paths": [
+      "policy-engine/src/polisyos/common/canonical.py",
+      "policy-engine/src/polisyos/common/canonical_profile.py",
+      "policy-engine/src/polisyos/common/hashing.py",
+      "policy-engine/src/polisyos/core/canon/canon_json.py",
+      "policy-engine/src/polisyos/core/artifacts/canonical_profile.py",
+      "policy-engine/src/polisyos/core/artifacts/store.py",
+      "policy-engine/src/polisyos/core/artifacts/ir_adapter.py",
+      "policy-engine/src/polisyos/ir/model_layer/canon.py",
+      "policy-engine/src/polisyos/ir/artifacts/io.py"
+    ]
+  },
+  "decision_id": "LA-021-1",
+  "formal_closure_ids": [],
+  "global_acceptance": false,
+  "independent_code_acceptance": {
+    "required_after_G": "A source-bound implementation review and behavioral verification must independently accept any code or migration. G selects semantics only; this proposal is not code approval.",
+    "separate_from_G": true
+  },
+  "input_pins": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-profile-canonical-law-decision-20261017.json",
+      "role": "CAN candidate packet",
+      "sha256": "e7d197a56726ca10f0fd36fdde7e4f40d7f478405bc292f42deb2f7eabe92848"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/g-can-r4-decision-handoff-independent-review-20261017/g-decision-handoff-draft.md",
+      "role": "independent handoff review",
+      "sha256": "faa1e4e7af14025119bcbb03e84958bbf53bfb8ae39641cdf6b277b13890332a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/g-can-r4-decision-handoff-independent-review-20261017/review-manifest.json",
+      "role": "review provenance and bounded disposition",
+      "sha256": "c0d0da6a73d2ecbcedcb9e422ea9cd3f34eb85ff087135bcf8f4ce89a3944e29"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/g-can-r4-decision-handoff-independent-review-20261017/source-pin-recheck.json",
+      "role": "53 declared CAN/R4 named source rows; current bytes match this recheck; not a whole-tree census",
+      "sha256": "13ff0ab723ec311215f20d3a3ae9873874a4e20540afa350a28d9f7957ac1803"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json",
+      "role": "Exact keyed task owner for the corrected Q1 binding; Q1.finding_ids joins LA-021.",
+      "sha256": "a37c75cfe09d33c1f50379d5bbfd04bdb728c990e832aec3bf19c0d17035734c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/g-decision-proposals-independent-review-r1-20261017/review.json",
+      "role": "Independent review finding the prior numeric pointer defect; prior draft remains immutable.",
+      "sha256": "cd738364e6c417ff09fb4b340dcf71494ba04c4dd94197eda9121cd34af2e4c0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-q1-binding-correction-r1-20261017/binding-corrigendum.json",
+      "role": "Append-only binding correction record; source input bytes remain unchanged.",
+      "sha256": "1e866122a2e34484887bc03c0187e88d46bd483109eb1e87578a48c636c183e6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-q1-binding-correction-r1-20261017/current-source-pin-refresh.json",
+      "role": "Fresh 34-row CAN source-pin readback at current b700 frame; not a new semantic review.",
+      "sha256": "228b7796c7d7f4f6118bc02064f06e93a7e406fc4c06884963c02fafa7973ce2"
+    }
+  ],
+  "property_vs_implementation": {
+    "divergent_case": "A real Core FileSystemCAS write persists an array_digest under polisyos.canon.json@0.2.0; Core reads it, while fresh IR semantic reading refuses the unknown tag. This is the deciding difference. Core low-level decode recognizes bytes_hex/float_hex, but public Core writes refuse non-roundtripping aliases; do not describe these as public writes.",
+    "implementation": "Common canonical/profile/hash mechanics are shared. Core and IR retain separate strict decoders and exact selected-profile/content/byte-conformance checks. CanonInfo stores no tag-family field.",
+    "predicate_classification": {
+      "byte_conformance": "recomputed",
+      "normative shared-label meaning": "not_established pending G",
+      "selected_view/content binding": "recomputed"
+    },
+    "property": "Meaning of persisted shared canonical profile identity: whether it asserts the same accepted typed-tag grammar across Core and IR."
+  },
+  "proposal_revision_id": "LA-021-1-task-binding-corrected-r1-20261017",
+  "prototype_and_falsifier": {
+    "acceptance_after_G": "For contextual identity, keep the actual persisted discriminator and refusal; prove exact raw selected-manifest view, profile/content hash and byte conformance, with strict missing-vs-malformed refusal. For a family identity, test old/new explicit family versions against golden bytes, hashes, exception identities, types, depth, numeric/date/null, and imports. The ten-value parity suite is insufficient.",
+    "cwd": "policy-engine",
+    "full_output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-can-actual-contract-investigation-20261017/contract_probe.stdout.json",
+    "full_output_sha256": "e422af7725fbaf3e68f05717303294a3a4dd8ab32d904992895d7884b8a3228c",
+    "real_discriminator_command": "env PYTHONPATH=\"$PWD/src\" PYTHONDONTWRITEBYTECODE=1 .venv/bin/python \"$RAW/contract_probe.py\"",
+    "result": "Actual persisted Core array_digest and fresh IR refusal. This receipt has no stable deployed CAS ID and was produced at baseline 514fc9; it was not rerun at proposal HEAD.",
+    "script_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-can-actual-contract-investigation-20261017/contract_probe.py",
+    "script_sha256": "5d68514add18411210b4bd4f5f0642d91106962160749a523523d218323a8931",
+    "suite_output_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-can-actual-contract-investigation-20261017/targeted-tests.stdout.txt",
+    "suite_output_sha256": "07f90dbdb240068b55e04f8a5b08b65d79641ddffa50b5458a8a8781fc431054",
+    "suite_result": "35 passed at baseline 514fc9; bounded controls only, not the full LA-021 golden corpus; not rerun here.",
+    "targeted_suite": {
+      "arguments": [
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "--basetemp=\"$RAW/pytest-tmp\"",
+        "tests/unit/core/artifacts/test_ir_adapter.py::test_ir_adapter_mapping_write_options_preserve_every_core_option_field",
+        "tests/unit/core/artifacts/test_ir_adapter.py::test_current_core_native_tags_round_trip_through_fresh_profiled_ir_reader",
+        "tests/unit/core/artifacts/test_ir_adapter.py::test_profileless_historical_cas_artifact_is_refused_before_bytes",
+        "tests/unit/core/artifacts/test_ir_adapter.py::test_ir_reader_rejects_raw_numeric_float_under_forbid_floats_profile",
+        "tests/unit/core/artifacts/test_ir_adapter.py::test_ir_reader_refuses_malformed_raw_profile_before_payload_bytes",
+        "tests/unit/core/artifacts/test_ir_adapter.py::test_core_put_json_preserves_array_digest_mapping_but_raw_ir_reader_refuses_it",
+        "tests/unit/core/artifacts/test_core_json_producer_conformance.py",
+        "tests/unit/core/artifacts/test_selected_profile_core_json.py::test_core_json_missing_profile_is_refused_before_selected_semantics",
+        "tests/unit/core/artifacts/test_selected_profile_core_json.py::test_core_unknown_profile_remains_an_exact_raw_only_candidate",
+        "tests/unit/core/artifacts/test_selected_profile_core_json.py::test_core_json_facade_returns_only_profile_conformant_selected_values",
+        "tests/unit/common/test_canonical_profile.py",
+        "tests/unit/ir/test_canon_hash_parity.py",
+        "tests/unit/runtime/http/test_declared_profile_api_refusal.py::test_semantic_views_refuse_selected_profile_mismatch_and_raw_accept_preserves_bytes"
+      ],
+      "cwd": "policy-engine",
+      "environment": "PYTHONPATH=src PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1",
+      "executable": ".venv/bin/python -m pytest",
+      "manifest_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-can-actual-contract-investigation-20261017/manifest.json",
+      "manifest_sha256": "a8627e6e2f35e279d748d91aeb44c510406465bec75ff87a931c8c1218dd97f5"
+    }
+  },
+  "recommended_G_choice_not_ratification": {
+    "choice": "Reuse current shared mechanics; interpret polisyos.canon.json@0.2.0 as common byte/profile mechanics and declared codec parameters, not a universal tag grammar. Keep contextual allowlists and unsupported-tag refusal.",
+    "not_decided": [
+      "profileless-history prevalence or rollout",
+      "producer-event attestation or issuer",
+      "profile currentness, authority, or migration",
+      "whole LA-021 acceptance"
+    ],
+    "why_narrow": "It resolves only the label semantics needed for this E02 boundary without broadening readers or rewriting persisted objects."
+  },
+  "reuse_extend_consolidate_build": [
+    {
+      "choice": "reuse",
+      "impact": "No schema, CAS-byte, artifact-ID, reader, or API migration. Does not claim cross-facade semantic interoperability.",
+      "order": 1,
+      "proposal": "Keep existing Common byte/profile/hash mechanics and strict Core/IR facades; state that equal 0.2.0 identity does not imply universal typed-tag acceptance. Unsupported cross-facade tags continue to refuse."
+    },
+    {
+      "choice": "extend",
+      "impact": "Requires additive CanonInfo/raw parser/adapter/reader/writer/API consumer and golden byte/hash/error/import compatibility matrix; preserve old bytes and addresses; do not infer family from reader defaults.",
+      "order": 2,
+      "proposal": "Only if G wants the label to encode tag families: name an explicit field or distinct versioned identity and define the legacy 0.2.0 meaning before implementation."
+    },
+    {
+      "choice": "consolidate",
+      "impact": "Does not settle persisted meaning.",
+      "order": 3,
+      "proposal": "Consolidate only mechanics already common to Common owners."
+    },
+    {
+      "choice": "build",
+      "impact": "No owner or production need is established.",
+      "order": 4,
+      "proposal": "Reject a new universal tag registry, negotiation layer, or authority subsystem for this question."
+    }
+  ],
+  "schema": "polisyos.e02.g_decision_handoff_proposal.v1",
+  "source_frame": {
+    "advance": {
+      "commit": "b700c1b434f2a64e51f09a74a5605d7c896fd1f3",
+      "effect_on_CAN_source_pins": "One documentation-only failure-pattern register pin changed; no CAN product or test pin changed.",
+      "parent": "142779e9956816d671bb33ff4a1e114db08d5414"
+    },
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "b700c1b434f2a64e51f09a74a5605d7c896fd1f3",
+    "repository": "PolicyOS local candidate",
+    "scope_note": "Named CAN source pins only; current frame b700. This is not a clean-tree, whole-worktree, global source-freeze, G acceptance, or closure claim.",
+    "supersedes_frame": {
+      "head": "142779e9956816d671bb33ff4a1e114db08d5414",
+      "tree": "e76942abe0683dabca6570057b7a87363cb109c2"
+    },
+    "tree": "cb3a79e75d8426798975a80df0fea5deea866ca9"
+  },
+  "source_pin_refresh": {
+    "can_path_count": 34,
+    "head": "b700c1b434f2a64e51f09a74a5605d7c896fd1f3",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-q1-binding-correction-r1-20261017/current-source-pin-refresh.json",
+    "sha256": "228b7796c7d7f4f6118bc02064f06e93a7e406fc4c06884963c02fafa7973ce2",
+    "tree": "cb3a79e75d8426798975a80df0fea5deea866ca9"
+  },
+  "status": "successor_proposal_for_independent_re_review_and_G_review",
+  "supersedes_proposal": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/g-decision-proposals-can-r4-runtime-replay-20261017/can-profile-law.json",
+    "scope": "new artifact identity; correct task-object binding and refresh current evidence frame only",
+    "sha256": "b19366ff95ff641120bf55e9d59d683d8ad4cb9862a0fb5c6b656c92ed27d921"
+  }
+}

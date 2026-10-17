@@ -1,0 +1,143 @@
+{
+  "binding_census": {
+    "findings": [
+      {
+        "location": "/criterion/task_pointer",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/g-decision-proposals-can-r4-runtime-replay-20261017/can-profile-law.json",
+        "resolves": false,
+        "value": "TASKS.json#/tasks/4"
+      },
+      {
+        "location": "/source_pins/1/pointer",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-profile-canonical-law-decision-20261017.json",
+        "resolves": false,
+        "task_id": "Q1",
+        "value": "#/tasks/4"
+      },
+      {
+        "location": "line 9 affected-source binding",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/g-can-r4-decision-handoff-independent-review-20261017/g-decision-handoff-draft.md",
+        "resolves": false,
+        "value": "TASKS.json#/tasks/4 (Q1)"
+      },
+      {
+        "location": "/drafts/0/binding_defect",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/g-decision-proposals-independent-review-r1-20261017/review.json",
+        "resolves_after_successor_correction": true,
+        "value": "submitted #/tasks/4; reviewer resolution #/tasks/Q1"
+      },
+      {
+        "location": "/inputs",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/g-can-r4-decision-handoff-independent-review-20261017/review-manifest.json",
+        "resolves": null,
+        "value": "Names TASKS.json as Q1/R4 task scope; no numeric JSON pointer field"
+      },
+      {
+        "location": "/rows",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/g-can-r4-decision-handoff-independent-review-20261017/source-pin-recheck.json",
+        "resolves": null,
+        "value": "Pins TASKS.json by path and bytes; no numeric JSON pointer field"
+      },
+      {
+        "location": "/tasks/Q1",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json",
+        "resolves": true,
+        "value": "Q1 object with finding_ids [LA-021]; tasks is a keyed object with no key 4"
+      }
+    ],
+    "scope": "Selected CAN candidate, its pinned CAN packet, the cited independent review, that review’s named CAN/R4 handoff files, the exact TASKS.json owner, DECISIONS.md context, and the cited LA-021 criterion source. No broad RAW search."
+  },
+  "closure_ids": [],
+  "correction_effect": "The successor changes only the task-object binding and current source-frame/pin metadata. It does not change the LA-021 criterion source/span, decision question, recommendation, authority/time/status limits, refusal semantics, or closure state.",
+  "corrigendum_id": "LA-021-CAN-Q1-task-binding-corrigendum-r1-20261017",
+  "current_source_pin_refresh": {
+    "current_frame_head": "b700c1b434f2a64e51f09a74a5605d7c896fd1f3",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-q1-binding-correction-r1-20261017/current-source-pin-refresh.json",
+    "rows": 34,
+    "sha256": "228b7796c7d7f4f6118bc02064f06e93a7e406fc4c06884963c02fafa7973ce2"
+  },
+  "immutable_records": [
+    {
+      "disposition": "Preserved unchanged as the prior candidate; superseded for this binding field only by the successor proposal.",
+      "field": "/criterion/task_pointer",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/g-decision-proposals-can-r4-runtime-replay-20261017/can-profile-law.json",
+      "recorded_value": "TASKS.json#/tasks/4",
+      "sha256": "b19366ff95ff641120bf55e9d59d683d8ad4cb9862a0fb5c6b656c92ed27d921"
+    },
+    {
+      "companion_field": "/source_pins/1/task_id",
+      "companion_value": "Q1",
+      "disposition": "Preserved unchanged as a frozen input; this row had the correct task ID but a non-resolving numeric pointer.",
+      "field": "/source_pins/1/pointer",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can-profile-canonical-law-decision-20261017.json",
+      "recorded_value": "#/tasks/4",
+      "sha256": "e7d197a56726ca10f0fd36fdde7e4f40d7f478405bc292f42deb2f7eabe92848"
+    },
+    {
+      "disposition": "Independent review receipt identifying the exact pointer defect and required successor correction.",
+      "field": "/drafts/0/binding_defect",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/g-decision-proposals-independent-review-r1-20261017/review.json",
+      "sha256": "cd738364e6c417ff09fb4b340dcf71494ba04c4dd94197eda9121cd34af2e4c0"
+    },
+    {
+      "disposition": "Historical review draft retained; it is not edited by this corrigendum.",
+      "field": "LA-021 affected-source line 9",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/g-can-r4-decision-handoff-independent-review-20261017/g-decision-handoff-draft.md",
+      "recorded_value": "TASKS.json#/tasks/4 (Q1)",
+      "sha256": "faa1e4e7af14025119bcbb03e84958bbf53bfb8ae39641cdf6b277b13890332a"
+    }
+  ],
+  "not_claimed": [
+    "No G decision or ratification.",
+    "No LA-021 closure or whole-finding acceptance.",
+    "No source, test, API, schema, or product-code modification.",
+    "No claim of profileless-history prevalence, producer attestation, currentness, or issuer authority."
+  ],
+  "owner_binding": {
+    "finding_join": {
+      "bundle": "CAN-01",
+      "candidate_finding_id": "LA-021",
+      "joined": true,
+      "task_finding_ids": [
+        "LA-021"
+      ],
+      "task_key": "Q1"
+    },
+    "full_source_pointer": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/Q1",
+    "json_pointer": "#/tasks/Q1",
+    "object_key": "Q1",
+    "original_criterion_source": {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "review_span": "990-1018",
+      "sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727",
+      "span_sha256": "0cc895faa293ba412a038698e2fa5209ec7c2a16575218a2e99ef6ec66d5cb3d"
+    },
+    "owner_file": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json",
+    "owner_file_sha256": "a37c75cfe09d33c1f50379d5bbfd04bdb728c990e832aec3bf19c0d17035734c",
+    "prior_CAN_source_frame": {
+      "head": "142779e9956816d671bb33ff4a1e114db08d5414",
+      "tree": "e76942abe0683dabca6570057b7a87363cb109c2"
+    },
+    "related_decision_source": {
+      "context": "Existing CAN/Core source-owner row; not a substitute for the keyed Q1-to-LA-021 join.",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/DECISIONS.md",
+      "sha256": "e88b59dd714a192e88ab674e2d1aba376c3881a336f89e88f6ec8093762e16df"
+    },
+    "resolution_method": "Resolve the keyed JSON object `tasks` by literal key `Q1`; the array-index interpretation `4` is invalid because `tasks` is a dict and no key `4` exists.",
+    "resolved_task": {
+      "finding_ids": [
+        "LA-021"
+      ],
+      "original_task_pointer": "policy-engine/docs/research/e02-cloud-test-plan/integration/connected-closeout-plan-2026-10-08/tasks.json#/tasks/Q1",
+      "title": "Select exact compatible source DAG/owner blobs"
+    },
+    "root_json_object": "tasks"
+  },
+  "schema": "polisyos.append_only_criterion_binding_corrigendum.v1",
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "b700c1b434f2a64e51f09a74a5605d7c896fd1f3",
+    "tree": "cb3a79e75d8426798975a80df0fea5deea866ca9"
+  },
+  "status": "append_only_successor_binding_correction; no source or G ruling"
+}

@@ -1,0 +1,381 @@
+{
+  "schema": "policyos.e02.local_candidate_handoff.v1",
+  "author_role": "local_candidate_author_not_G",
+  "slice": "Producer-bound N4/Scholar/demographic fixtures, current focused replay",
+  "candidate_branch": "codex/e02-unified-local-20261009",
+  "candidate": {
+    "base": "b700c1b434f2a64e51f09a74a5605d7c896fd1f3",
+    "sha": "546bd772cda7a85fc14df2372935c22d25905043",
+    "tree": "57a5fa1994a4a2799b52806f5406ffb948de43fd",
+    "parents": [
+      "b700c1b434f2a64e51f09a74a5605d7c896fd1f3"
+    ],
+    "source_bytes_read_back_from_branch": true,
+    "source_freeze": false
+  },
+  "footprint": [
+    {
+      "path": "policy-engine/tests/_helpers/controlled_candidate_profile.py",
+      "sha256": "cef9802fa4390b45b4bc129a4cd204f6658f7f390aac009eaac86683cae8126d"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+      "sha256": "90849670d8fe74c6d00f9bcf76f0201d84b7219cff4b0508a10f76126130855a"
+    },
+    {
+      "path": "policy-engine/tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py",
+      "sha256": "120e2a566661ce55c36371de341a4c0aa4407cc7d0de855a696ffe97dd1251bb"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_scl_03.py",
+      "sha256": "5bb9af9125482cfd10576efffdc40cd304a70fd698104823af46d66f4d44ced1"
+    },
+    {
+      "path": "policy-engine/tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py",
+      "sha256": "d1a397db36c9ee8c5110a2d5c5da3789de0061b5ac1c4cfccb8513bb64a8fffc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "sha256": "d316ec893bd1223cd7084c2115540f79f30a7bf72eee43f7860366d2fa191d97"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "sha256": "cde841451ae278a4eff7f5228d1ffbc142588e31cf78b51e822b51f0031b9094"
+    }
+  ],
+  "implementation_readback": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n4-scl-la032-reviewed-fixture-cohort-r1-20261017/fixture-version-source-margins-implementation-readback.json",
+    "sha256": "0f0c748ecbbcb8cfcb4625e798b90e2f46435b53eb2129d1d2149fc791aa517d"
+  },
+  "selected_input_profile_backend": "Controlled synthetic SKG/profile/NCM, cached Scholar raw payloads and demographic CAS inventory; existing locked own Python CPU environment, 2 light slots, 1 numerical thread per child, no heavy GP/model route. Exact argv/environment/process facts are retained in deciding outputs.",
+  "verification": {
+    "aggregate": {
+      "cases": 120,
+      "PASS": 103,
+      "FAIL": 17,
+      "ERROR": 0,
+      "SKIP": 0,
+      "phases": 360,
+      "phase_pass": 343,
+      "phase_fail": 17
+    },
+    "jobs": [
+      {
+        "label": "n4-owner-light",
+        "collected": 66,
+        "outcomes": {
+          "PASS": 54,
+          "FAIL": 12,
+          "SKIP": 0,
+          "ERROR": 0
+        },
+        "source_bound_command": {
+          "argv": [
+            "/usr/bin/time",
+            "-l",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "-B",
+            "-m",
+            "pytest",
+            "-c",
+            "pytest.ini",
+            "--rootdir",
+            ".",
+            "-o",
+            "addopts=",
+            "--import-mode=importlib",
+            "--strict-markers",
+            "-ra",
+            "-vv",
+            "--tb=short",
+            "-p",
+            "no:cacheprovider",
+            "-p",
+            "c05_actual_witness",
+            "--basetemp",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-546bd-n4-scl-la032-focused-wave-r1-20261017/n4-owner-light/pytest-basetemp",
+            "--junitxml",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-546bd-n4-scl-la032-focused-wave-r1-20261017/n4-owner-light/tests.junit.xml",
+            "tests/unit/runtime/quality/test_substrate_registry.py",
+            "tests/unit/runtime/quality/test_cycle_substrate.py::test_candidate_source_database_path_requires_canonical_descendant",
+            "tests/unit/runtime/quality/test_cycle_substrate.py::test_candidate_source_profile_n5_owner_v5_rederivation",
+            "tests/unit/runtime/quality/test_cycle_substrate.py::test_candidate_source_profile_v5_refuses_changed_selected_owner_rows",
+            "tests/unit/runtime/quality/test_recursive_generation_cycle.py::test_recursive_selected_profile_persists_v5_before_n4[fresh-v5]",
+            "tests/unit/runtime/quality/test_recursive_generation_cycle.py::test_recursive_selected_profile_persists_v5_before_n4[changed-owner-refuses]",
+            "tests/unit/runtime/quality/test_recursive_generation_cycle.py::test_recursive_selected_candidate_source_profile_requires_context_owner_before_n4",
+            "tests/unit/runtime/quality/test_recursive_generation_cycle.py::test_recursive_malformed_present_candidate_source_profile_does_not_fall_back",
+            "tests/unit/runtime/quality/test_recursive_generation_cycle.py::test_recursive_absent_candidate_source_profile_preserves_legacy_n4_path",
+            "tests/unit/runtime/quality/test_generation_cycle.py::test_joint_port_uses_runtime_store_for_context_selected_ncm_and_keeps_no_context_control",
+            "tests/unit/runtime/quality/test_generation_cycle.py::test_joint_port_falls_back_from_unbound_program_graph_to_owner_ncm",
+            "tests/unit/runtime/quality/test_generation_cycle.py::test_owner_program_graph_n5_state_handoff_removal_probe_keeps_markers_red",
+            "tests/unit/runtime/quality/test_generation_cycle.py::test_generation_cycle_serves_persisted_n5_into_default_n8_value_port",
+            "tests/unit/runtime/quality/test_generation_cycle.py::test_partial_static_ncm_interaction_reaches_candidate_n8_but_not_evalsafety",
+            "tests/unit/runtime/quality/test_generation_cycle.py::test_n8_recovers_persisted_blocker_after_lossy_simulation_projection",
+            "tests/unit/runtime/quality/test_generation_cycle.py::test_joint_port_blocks_context_selected_ncm_owned_by_another_tenant",
+            "tests/unit/runtime/quality/test_generation_cycle.py::test_joint_port_blocks_context_selected_ncm_absent_from_runtime_store",
+            "tests/unit/runtime/quality/test_generation_cycle.py::test_joint_port_blocks_selected_ncm_with_mismatched_manifest_schema",
+            "tests/unit/runtime/quality/test_generation_cycle.py::test_joint_port_refuses_selected_ncm_without_runtime_store",
+            "tests/unit/runtime/quality/test_generation_cycle.py::test_joint_port_reports_runtime_ncm_store_unavailability_as_typed_block",
+            "tests/unit/runtime/quality/test_recursive_generation_cycle.py::test_real_leaf_result_survives_later_independent_sibling_failure",
+            "tests/unit/runtime/quality/test_generation_cycle.py::test_controlled_selected_skg_source_binds_exact_fresh_owner_version"
+          ],
+          "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+          "timeout_seconds": 240,
+          "exit_code": 1,
+          "timed_out": false,
+          "seconds": 55.914
+        },
+        "deciding_outputs": [
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-546bd-n4-scl-la032-focused-wave-r1-20261017/n4-owner-light/request.json",
+            "sha256": "89f629d6f869d20f18aaf09f26cdac8640cb468eabcbd4231495407a5af4aa02"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-546bd-n4-scl-la032-focused-wave-r1-20261017/n4-owner-light/actual-results.json",
+            "sha256": "9c49968433b929810488e32f0de874efb94f2ae7605d7098028afac6343216ee"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-546bd-n4-scl-la032-focused-wave-r1-20261017/n4-owner-light/actual-test-and-source-witness.json",
+            "sha256": "0bf73cd8fdef6425ed8d77fce22daadca780de527d7ff63417ea0f9394a3ec16"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-546bd-n4-scl-la032-focused-wave-r1-20261017/n4-owner-light/tests.junit.xml",
+            "sha256": "ef92561063c46a8ec05f3a25853f26463fc49a8337d742e6d53f55824c41676f"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-546bd-n4-scl-la032-focused-wave-r1-20261017/n4-owner-light/supervisor-result.json",
+            "sha256": "6b8cbbff5b27c6fc80a98afe57802a15d7e4e2e0f6a512ca3982e85dd35be256"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-546bd-n4-scl-la032-focused-wave-r1-20261017/n4-owner-light/n4-owner-light.stdout.txt",
+            "sha256": "fb920615ee805edf2903a02a3a3f24755d6e8a2598545c58a251e6d36e5d1f62"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-546bd-n4-scl-la032-focused-wave-r1-20261017/n4-owner-light/n4-owner-light.stderr.txt",
+            "sha256": "79c6c3b8043c3e020a756baa2cc197a99a7b87d4255a68db76633820bdf96e44"
+          }
+        ],
+        "resource_measurement": {
+          "seconds": 56.062,
+          "peak_process_tree_rss_bytes": 1436057600,
+          "stop_reason": null,
+          "rss_cap_bytes": 3221225472,
+          "outer_wall_cap_seconds": 300,
+          "numerical_threads": 1
+        }
+      },
+      {
+        "label": "native-scl03",
+        "collected": 9,
+        "outcomes": {
+          "PASS": 4,
+          "FAIL": 5,
+          "SKIP": 0,
+          "ERROR": 0
+        },
+        "source_bound_command": {
+          "argv": [
+            "/usr/bin/time",
+            "-l",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "-B",
+            "-m",
+            "pytest",
+            "-c",
+            "pytest.ini",
+            "--rootdir",
+            ".",
+            "-o",
+            "addopts=",
+            "--import-mode=importlib",
+            "--strict-markers",
+            "-ra",
+            "-vv",
+            "--tb=short",
+            "-p",
+            "no:cacheprovider",
+            "-p",
+            "c05_actual_witness",
+            "--basetemp",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-546bd-n4-scl-la032-focused-wave-r1-20261017/native-scl03/pytest-basetemp",
+            "--junitxml",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-546bd-n4-scl-la032-focused-wave-r1-20261017/native-scl03/tests.junit.xml",
+            "tests/unit/remediation/test_scl_03.py"
+          ],
+          "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+          "timeout_seconds": 180,
+          "exit_code": 1,
+          "timed_out": false,
+          "seconds": 4.934
+        },
+        "deciding_outputs": [
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-546bd-n4-scl-la032-focused-wave-r1-20261017/native-scl03/request.json",
+            "sha256": "5fe38a58b02e7a45f35e443943d9626d583cb26f41acc9e2d706d14da7443213"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-546bd-n4-scl-la032-focused-wave-r1-20261017/native-scl03/actual-results.json",
+            "sha256": "a92f846e771245b6706f557bffccf5ecf38637e2b7ced9fb5e7cf4cf20a0e28a"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-546bd-n4-scl-la032-focused-wave-r1-20261017/native-scl03/actual-test-and-source-witness.json",
+            "sha256": "06b6c90e400f2a88e150a17bef2345604ddbcd4e3cf48c4b050f0821d480a429"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-546bd-n4-scl-la032-focused-wave-r1-20261017/native-scl03/tests.junit.xml",
+            "sha256": "e9949a765fbafdb494759a03358c1f6e66784f97ce437693f113be3cc98ae822"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-546bd-n4-scl-la032-focused-wave-r1-20261017/native-scl03/supervisor-result.json",
+            "sha256": "14742dfef1464a69c81d4c311a4e0ce175fb6508f2e7c62bd27505c6243be746"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-546bd-n4-scl-la032-focused-wave-r1-20261017/native-scl03/native-scl03.stdout.txt",
+            "sha256": "2f5a3d60213c912331a7126b303873e2a7cdb0c4b972f4b57b56a5c5dad2aa86"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-546bd-n4-scl-la032-focused-wave-r1-20261017/native-scl03/native-scl03.stderr.txt",
+            "sha256": "e7e12bc0b9d3fb1fd0a2793fb927c80de7c9d92fe53ad4cc8057d502c8a568e2"
+          }
+        ],
+        "resource_measurement": {
+          "seconds": 5.078,
+          "peak_process_tree_rss_bytes": 344522752,
+          "stop_reason": null,
+          "rss_cap_bytes": 3221225472,
+          "outer_wall_cap_seconds": 300,
+          "numerical_threads": 1
+        }
+      },
+      {
+        "label": "la032-demography",
+        "collected": 45,
+        "outcomes": {
+          "PASS": 45,
+          "FAIL": 0,
+          "SKIP": 0,
+          "ERROR": 0
+        },
+        "source_bound_command": {
+          "argv": [
+            "/usr/bin/time",
+            "-l",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "-B",
+            "-m",
+            "pytest",
+            "-c",
+            "pytest.ini",
+            "--rootdir",
+            ".",
+            "-o",
+            "addopts=",
+            "--import-mode=importlib",
+            "--strict-markers",
+            "-ra",
+            "-vv",
+            "--tb=short",
+            "-p",
+            "no:cacheprovider",
+            "-p",
+            "c05_actual_witness",
+            "--basetemp",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-546bd-n4-scl-la032-focused-wave-r1-20261017/la032-demography/pytest-basetemp",
+            "--junitxml",
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-546bd-n4-scl-la032-focused-wave-r1-20261017/la032-demography/tests.junit.xml",
+            "tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py"
+          ],
+          "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+          "timeout_seconds": 180,
+          "exit_code": 0,
+          "timed_out": false,
+          "seconds": 7.576
+        },
+        "deciding_outputs": [
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-546bd-n4-scl-la032-focused-wave-r1-20261017/la032-demography/request.json",
+            "sha256": "aed9fdac8c602754f43393421b783a310b7ee4a7dcae2a3369f7cc329fb0d626"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-546bd-n4-scl-la032-focused-wave-r1-20261017/la032-demography/actual-results.json",
+            "sha256": "4a73d8569d5b2f309eaaa5731a8fc13981709ae64b6bbf6d061b435f1d4a65bc"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-546bd-n4-scl-la032-focused-wave-r1-20261017/la032-demography/actual-test-and-source-witness.json",
+            "sha256": "d799e4362d92e406774c856b9b624ef4673c6a4c8fec7584c2626ec990646e9e"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-546bd-n4-scl-la032-focused-wave-r1-20261017/la032-demography/tests.junit.xml",
+            "sha256": "bb09cd75b3db8e39b9ed72b754691fdca7ee2c16d0409f726af6b051af22f610"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-546bd-n4-scl-la032-focused-wave-r1-20261017/la032-demography/supervisor-result.json",
+            "sha256": "4e5b4fdd8964612c50b0afea3b66f2851bf2b2923f1e403d77c481e5ca95379b"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-546bd-n4-scl-la032-focused-wave-r1-20261017/la032-demography/la032-demography.stdout.txt",
+            "sha256": "5e90a05ea4b16f125c2b4870c670105d7b060359f776f8968daf8367f5c66112"
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-546bd-n4-scl-la032-focused-wave-r1-20261017/la032-demography/la032-demography.stderr.txt",
+            "sha256": "c4c798528d2e182de4d321c2e124d2af9ff73776f5305081fe39754020b9ed86"
+          }
+        ],
+        "resource_measurement": {
+          "seconds": 7.744,
+          "peak_process_tree_rss_bytes": 625033216,
+          "stop_reason": null,
+          "rss_cap_bytes": 3221225472,
+          "outer_wall_cap_seconds": 300,
+          "numerical_threads": 1
+        }
+      }
+    ],
+    "independent_reconciliation": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-546bd-n4-scl-la032-focused-wave-independent-reconciliation-r1-20261017/reconciliation.json",
+      "sha256": "6c7daea578db0484149ea5ffd56765e88451a102fa5c627da76544b50f2b3765"
+    },
+    "pins": "117 exact source/harness pins per job, matched frozen tree or the two ignored support files; 1,826 unique loaded-source path/hash bindings match Git546bd, outside-own-source zero.",
+    "canonical_style": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n4-scl-la032-reviewed-fixture-cohort-r1-20261017/source-application-readback.json",
+      "sha256": "0856ee2236dd2b3df13b546b223ef84d0e94595de059f68c1ab69152b0e627a9"
+    },
+    "post_run_metadata_child": "9450de1671f1be66827ba787a1b547bc45c5484c changes only three occurrence-index JSON files; does not relabel the frozen execution as a run of that later HEAD."
+  },
+  "individual_boundaries": {
+    "N4": "54 PASS/12 FAIL. Fresh real producer/readback unit passes, exact SKG v1 identity is bound. Twelve consumers stop before WMR/N5 at controlled_wmr_slot_alias_not_established:firm_survival; no positive NCM chain from those tests is established.",
+    "SCL03": "4 PASS/5 FAIL: two producer-license expectations (public-web emitted despite CC-BY FetchResult input), three obsolete warning-text expectations (current strict intake raises structured violations). New source/test repair is a separate candidate and is not a post-fix pass.",
+    "LA032": "45 PASS. The member-damage test reaches positive real owner estimation, then missing/corrupt checks for all selected targets/priors/donor CAS members and restoration/source immutability. The prior near-boundary numerical nonconvergence is retained and not repaired by changing this fixture.",
+    "served_N4": "Changed integration test_generic_n4_child_profile_set_served.py is source-only in this commit; not collected by these120cases. Original two-meaningful-child/fresh-GET and selected sibling-failure route remain UNRUN at this source."
+  },
+  "adversarial_controls": "Source-backed unit/module controls as the complete case/phase witness; no additional independent runtime-removal mutation wave. LA032 negatives alter actual selected CAS bytes/availability while retaining the declared source/receipt bindings and require typed refusal.",
+  "independent_reviews": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n5-selected-ncm-owner-wiring-r5-version-bound-consumers-independent-review-20261017/review.json",
+      "sha256": "62f7f00f59519d3cb90ff2daa2fccfa2bb600d9efc75d7cd3193d20f50a7a7fc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-scl03-fixture-binding-independent-review-r3-20261017/review.json",
+      "sha256": "d51b3139461bf66e302e039f8c3133a269d0ce3aa7a66b35516453f8ea0f7954"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la032-demography-positive-margin-independent-review-r1-20261017/assessment.json",
+      "sha256": "e80a2ecb7e00d509e04f07425b9fa8f56d4626598f1d642cd9f7622d222241f5"
+    }
+  ],
+  "proposal_fields": [
+    {
+      "id": "LA-032",
+      "proposal": "limited",
+      "boundary": "All45 selected cases pass including the actual inventory-derived member missing/corruption consumer test; original whole-property/dependencies and numerical residual remain separate.",
+      "next_check": "Reconcile original LA032 span and all semantic/model dependencies, then independent composed/native/installed source-freeze replay; do not infer whole closure."
+    }
+  ],
+  "limitations": [
+    "No red is called inherited; P41 exact-slice zero-intersection proof is not established.",
+    "Full Native, Prepared B13/definingbaseline/3removals, N11generated-owner, Linux, exact installed wheel/rebuilt-sdist, browser, genuine production authority/currentness and final291 proposal remain pending.",
+    "Temporary exact source cut only; G code acceptance/publication/formal adjudication not claimed."
+  ],
+  "closure_ids": [],
+  "formal_closures": []
+}

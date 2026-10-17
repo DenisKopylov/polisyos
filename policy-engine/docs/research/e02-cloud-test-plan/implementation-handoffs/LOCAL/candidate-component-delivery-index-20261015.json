@@ -642,6 +642,22 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native-hardlink-source-snapshot-corrigendum-20261017.json",
       "sha256": "ccb27a1ec5fae944af878a7c2d18fac4c164f051315441a2a5be80959f473da2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/n4-scl-la032-producer-fixture-focused-wave-20261017.json",
+      "sha256": "cc86187622ec2d5f1fdc22a1e4894af376b00463aab15784a972ada6b8aac4bf"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/la023-original-training-occurrence-binding-correction-20261017.json",
+      "sha256": "3f19097f9449f056f9de02382094ad7b430ed4e02ecc4b9a8bcdd00067fe56e2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/can-profile-law-decision-proposal-20261017.json",
+      "sha256": "ea07c3feff7a5b214f5db50b6b11de4f7afc1422bbbce9a7f0d7fcd5b2601eef"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/can-profile-law-q1-binding-corrigendum-20261017.json",
+      "sha256": "1e866122a2e34484887bc03c0187e88d46bd483109eb1e87578a48c636c183e6"
     }
   ],
   "canonical_denominator_recomputed": {
@@ -693,14 +709,26 @@
   ],
   "retention": "Complete deciding outputs and removal controls are pinned by receipts under ignored LOCAL/raw on the candidate checkout. Tracked source is cited by path@sha/commit, not copied. Large RAW availability is local; no archive payload census or duplicate environment.",
   "latest_reconciled_source_cut": {
-    "head": "142779e9956816d671bb33ff4a1e114db08d5414",
-    "tree": "e76942abe0683dabca6570057b7a87363cb109c2",
+    "head": "546bd772cda7a85fc14df2372935c22d25905043",
+    "tree": "57a5fa1994a4a2799b52806f5406ffb948de43fd",
     "parents": [
-      "3d07f60e617e20814e7d5ba049a0b66d6db78974"
+      "b700c1b434f2a64e51f09a74a5605d7c896fd1f3"
     ],
+    "metadata_child": "9450de1671f1be66827ba787a1b547bc45c5484c",
+    "metadata_child_tree": "96ab15b4354607f23c3dc0e5000de2722adfd881",
     "tracked_source_clean_at_observation": true,
     "source_freeze": false,
-    "meaning": "Earlier observed_source_branch fields remain historical observations. This is the latest source cut, with 227 selected cases/212 PASS/15 FAIL/0 ERROR/0 SKIP; full closeout is pending. Mutable LEASES entry refreshed to current bytes; historical receipt source cuts are unchanged."
+    "meaning": "120-case focused replay:103PASS/17FAIL/0ERROR/0SKIP. LA03245PASS; N4actualowner versionunit now passes but12NCMconsumers fail missing selected firm_survival slot; SCL4PASS/5FAIL at real license forwarding/obsolete warning proxy. Full Native/composed/Linux/installed/browser/authority closeout remains pending. Earlier142227-case receipt remains a separate exact source cut, never added as closures. Both LA023occurrences bind their original training span; immutable historical states remain.",
+    "published_candidate_last_verified": {
+      "sha": "b700c1b434f2a64e51f09a74a5605d7c896fd1f3",
+      "tree": "cb3a79e75d8426798975a80df0fea5deea866ca9",
+      "readback": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-candidate-push-b700c1b434f2-20261015/remote-readback.json",
+        "sha256": "e978d65675691cdc3a42a8a3275fabcd2957bf942e9768b2caa3e2c814373626"
+      },
+      "G_remote_observed": "93d6aa62a8d236667fdf322a5fc17962523b185e",
+      "G_acceptance": false
+    }
   },
   "next_check": "Finish all coherent source companions and independent reviews, then explicit source/input/backend freeze and composed actual/native/Prepared B/Linux/installed/browser/read-only authentic closeout; refresh all 291 per-occurrence proposals without formal G adjudication."
 }

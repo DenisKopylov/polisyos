@@ -578,15 +578,6 @@ mode = "report_only"
 command = "uv run python tools/quality/validation/architecture_report_only_contracts.py --report module-size"
 
 [[gate]]
-id = "generated-artifact-contracts"
-family = "report-only"
-source_contract = "architecture/gates/report_only.toml"
-table = "gate"
-owner = "team-architecture"
-mode = "report_only"
-command = "uv run python tools/quality/validation/architecture_report_only_contracts.py --report generated-artifacts"
-
-[[gate]]
 id = "extension-points"
 family = "report-only"
 source_contract = "architecture/gates/report_only.toml"

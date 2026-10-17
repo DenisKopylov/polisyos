@@ -4992,5 +4992,50 @@
     "prechange_evidence": "cc627 exact controlled owner module: 3 passed, 1 failed at full NCM equality; source/test/inputs reconciled independently.",
     "postchange_verification": "Candidate Ruff/AST/apply-check only; unchanged canonical owner module replay immediately after source commit. No pass or closure claimed yet.",
     "closure_ids": []
+  },
+  "coordination_epoch_20261017_generated_schema_and_foundry_bindings": {
+    "slice_base": "227e6a6ac5c9929972b960ede44e86a8d7308e16",
+    "canonical_writer": "root only; direct agents prepare unique RAW candidates and independent reviews",
+    "mechanism_and_test_config_paths": [
+      "policy-engine/tools/devx/architecture/guardrails.py",
+      "policy-engine/tests/repo_quality/tools/test_architecture_phase3.py",
+      "policy-engine/tests/repo_quality/architecture/test_repository_sota_phase5_closeout.py",
+      "policy-engine/tests/repo_quality/architecture/test_repository_best_in_class_phase1_3_contracts.py",
+      "policy-engine/architecture/gates/report_only.toml",
+      "policy-engine/architecture/gates/index.toml",
+      "policy-engine/architecture/imports/dynamic.toml"
+    ],
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ],
+    "reviewed_application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-schema-foundry-reviewed-adoption-r2-20261017/application.json",
+      "sha256": "b39c9f89fb6f1f018cfa38a9d974c86bb19679b3d36ad9464b26428daf08121e"
+    },
+    "independent_reviews": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-generated-artifact-report-row-independent-review-r3-20261017/review.json",
+        "sha256": "ed1acaf71e83c215ff8d7555402755c601016ac92f3157ad6b90466259f7833f"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-foundry-dynamic-row-companion-r1-20261017/native-foundry-dynamic-row-independent-review-r2-20261017/review.json",
+        "sha256": "7960dd88f3dc709bb4bda5d9310f0652d581709d68632da73ffd51df8ca3610d"
+      }
+    ],
+    "property": "Validate raw generated-artifact projected TOML fields before coercion, derive field checks from the existing row dataclass, retain the active fail-closed generated-drift route and lifecycle decision-path check, and retire only its redundant report-only registry row. Rebind the two moved Foundry dynamic import rows to actual current call sites with unchanged target/whitelist/owner semantics.",
+    "P40_bucket": "Existing P32/P38 raw-schema coercion class is widened to the full 25-field projected row schema; source-registry identity drift is separately reconciled for both affected Foundry importer files.",
+    "cosmetic_companions": "Three reviewed Python postimages were formatted through canonical Ruff; complete ASTs compare equal and exact deltas/outputs are retained in the application packet.",
+    "verification": "Candidate behavioral source probes and independent bounded reviews; canonical four-file Ruff check/format pass. Actual pytest, malformed CLI, full collector/native gates and freshness remain pending after this source commit.",
+    "compute": {
+      "heavy_slots": 1,
+      "numerical_threads": 1,
+      "free_disk_kib_observed": 17785576,
+      "no_environment_or_source_copies": true
+    },
+    "expiry_dates_changed": false,
+    "waivers_added": false,
+    "closure_ids": [],
+    "source_freeze": false
   }
 }

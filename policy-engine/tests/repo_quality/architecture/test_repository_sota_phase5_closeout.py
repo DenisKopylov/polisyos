@@ -962,6 +962,9 @@ def test_phase6_5_exception_cleanup_registries_are_reviewable() -> None:
     generated_artifacts = _read_toml("architecture/generated_artifacts.toml")
     assert generated_artifacts["generated_artifacts"]["exception_policy"]
     assert generated_artifacts["generated_artifacts"]["exception_policy_issue"]
+    assert _contract_path_exists(
+        "docs/plans/active/REPOSITORY_LIFECYCLE_AND_OPS_TAXONOMY_DECISION.md"
+    )
     for family in generated_artifacts["family"]:
         _assert_fields(
             family,

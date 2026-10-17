@@ -772,18 +772,6 @@ allowed_targets = []
 notes = "User/plugin supplied module name; call site is inventoried for review."
 
 [[pattern]]
-id = "dynamic-bf0c1ffbeebe"
-pattern = "module_name"
-source_file = "src/polisyos/foundry/_registry.py"
-line = 316
-call = "importlib.import_module"
-owner = "team-foundry"
-target = "module_name"
-verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
-allowed_targets = []
-notes = "User/plugin supplied module name; call site is inventoried for review."
-
-[[pattern]]
 id = "dynamic-e9e1d4c4e7fd"
 pattern = "module_name"
 source_file = "src/polisyos/foundry/agent_sim/__init__.py"
@@ -880,10 +868,10 @@ allowed_targets = []
 notes = "User/plugin supplied module name; call site is inventoried for review."
 
 [[pattern]]
-id = "dynamic-5523a8ac19e0"
+id = "dynamic-b0acee5f85ad"
 pattern = "polisyos.foundry.methods.catalog.mechanism.runtime_registry"
 source_file = "src/polisyos/foundry/extensions/registry.py"
-line = 238
+line = 237
 call = "importlib.import_module"
 owner = "team-foundry"
 target = "polisyos.foundry.methods.catalog.mechanism.runtime_registry"
@@ -1004,6 +992,18 @@ id = "dynamic-e3cd9c3da133"
 pattern = "module_name"
 source_file = "src/polisyos/foundry/methods/catalog/causal/sensitivity_metrics.py"
 line = 164
+call = "importlib.import_module"
+owner = "team-foundry"
+target = "module_name"
+verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
+allowed_targets = []
+notes = "User/plugin supplied module name; call site is inventoried for review."
+
+[[pattern]]
+id = "dynamic-2cf4619cb3e2"
+pattern = "module_name"
+source_file = "src/polisyos/foundry/methods/catalog/mechanism/runtime_registry.py"
+line = 323
 call = "importlib.import_module"
 owner = "team-foundry"
 target = "module_name"

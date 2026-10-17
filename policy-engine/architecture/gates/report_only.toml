@@ -74,19 +74,6 @@ source_contracts = ["architecture/module_size_budget.toml"]
 target_fail_closed_not_before = "2026-10-01"
 
 [[gate]]
-id = "generated-artifact-contracts"
-area = "generated_artifacts"
-owner = "team-architecture"
-mode = "report_only"
-command = "uv run python tools/quality/validation/architecture_report_only_contracts.py --report generated-artifacts"
-evidence = "architecture/generated_artifacts.toml"
-source_contracts = [
-  "architecture/generated_artifacts.toml",
-  "docs/plans/active/REPOSITORY_LIFECYCLE_AND_OPS_TAXONOMY_DECISION.md",
-]
-target_fail_closed_not_before = "2026-10-01"
-
-[[gate]]
 id = "extension-points"
 area = "extension_points"
 owner = "team-architecture"

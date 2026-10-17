@@ -21,9 +21,11 @@ import sys
 import tempfile
 import tomllib
 from collections.abc import Callable, Iterator, Sequence
-from dataclasses import dataclass
+from dataclasses import MISSING, dataclass
+from dataclasses import field as dataclass_field
+from dataclasses import fields as dataclass_fields
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any, Literal, get_args, get_origin, get_type_hints
 
 import yaml
 
@@ -266,31 +268,182 @@ class ReadmeGateSubject:
 
 @dataclass(frozen=True)
 class GeneratedArtifactFamily:
-    family_id: str
+    family_id: str = dataclass_field(
+        metadata={"toml_name": "id", "toml_required": True, "toml_nonblank": True}
+    )
     label: str
-    owner: str
+    owner: str = dataclass_field(metadata={"toml_required": True, "toml_nonblank": True})
     approval_owner: str
-    lifecycle: str
-    generator: str
-    verifier: str
-    promotion_target: str
-    stale_output_behavior: str
+    lifecycle: str = dataclass_field(
+        metadata={
+            "toml_required": True,
+            "toml_nonblank": True,
+            "toml_enum": (
+                "source_committed",
+                "generated_committed",
+                "generated_ignored",
+                "runtime_ignored",
+                "scratch_ignored",
+            ),
+        }
+    )
+    generator: str = dataclass_field(metadata={"toml_required": True, "toml_nonblank": True})
+    verifier: str = dataclass_field(metadata={"toml_required": True, "toml_nonblank": True})
+    promotion_target: str = dataclass_field(metadata={"toml_required": True, "toml_nonblank": True})
+    stale_output_behavior: str = dataclass_field(
+        metadata={
+            "toml_required": True,
+            "toml_nonblank": True,
+            "toml_enum": ("fail", "warn", "cleanup_eligible", "ignored_by_policy", "block_release"),
+        }
+    )
     source_of_truth: str
-    outputs: tuple[Path, ...]
-    regenerate_commands: tuple[str, ...]
+    outputs: tuple[Path, ...] = dataclass_field(metadata={"toml_required": False})
+    regenerate_commands: tuple[str, ...] = dataclass_field(metadata={"toml_required": False})
     commit_policy: str
     freshness_rule: str
     drift_gate: str
-    workflow: Path | None
-    check_cwd: Path | None
-    check_command: tuple[str, ...] | None
-    check_git_diff_paths: tuple[Path, ...]
-    default_freshness_check: bool
-    output_probe_command: tuple[str, ...] | None
-    retention_days: int | None
+    workflow: Path | None = dataclass_field(metadata={"toml_required": False})
+    check_cwd: Path | None = dataclass_field(metadata={"toml_required": False})
+    check_command: tuple[str, ...] | None = dataclass_field(
+        metadata={"toml_required": False, "toml_command": True}
+    )
+    check_git_diff_paths: tuple[Path, ...] = dataclass_field(metadata={"toml_required": False})
+    default_freshness_check: bool = dataclass_field(metadata={"toml_required": False})
+    output_probe_command: tuple[str, ...] | None = dataclass_field(
+        metadata={"toml_required": False, "toml_command": True}
+    )
+    retention_days: int | None = dataclass_field(metadata={"toml_required": False})
     probe_input_roots: tuple[Path, ...] = ()
     probe_required_paths: tuple[Path, ...] = ()
     probe_runtime_paths: tuple[Path, ...] = ()
+
+
+@dataclass(frozen=True)
+class _GeneratedArtifactTomlField:
+    raw_name: str
+    attribute: str
+    toml_type: str
+    required: bool
+    nonblank: bool
+    enum_values: tuple[str, ...]
+
+
+class GeneratedArtifactManifestSchemaError(ValueError):
+    """Raised when a generated-artifact TOML row violates the typed source contract."""
+
+
+def _generated_artifact_toml_schema() -> tuple[_GeneratedArtifactTomlField, ...]:
+    """Derive raw TOML validation from the normalized row dataclass and its metadata."""
+    hints = get_type_hints(GeneratedArtifactFamily)
+    schema: list[_GeneratedArtifactTomlField] = []
+    for declaration in dataclass_fields(GeneratedArtifactFamily):
+        annotation = hints[declaration.name]
+        metadata = declaration.metadata
+        optional = type(None) in get_args(annotation)
+        defaulted = declaration.default is not MISSING or declaration.default_factory is not MISSING
+        required = bool(metadata.get("toml_required", not (optional or defaulted)))
+        raw_name = str(metadata.get("toml_name", declaration.name))
+        if metadata.get("toml_command"):
+            toml_type = "string-or-array[string]"
+        else:
+            annotation_args = get_args(annotation)
+            base = (
+                next(arg for arg in annotation_args if arg is not type(None))
+                if type(None) in annotation_args
+                else annotation
+            )
+            origin = get_origin(base)
+            if base in (str, Path):
+                toml_type = "string"
+            elif base is bool:
+                toml_type = "boolean"
+            elif base is int:
+                toml_type = "integer"
+            elif origin is tuple and get_args(base)[0] in (str, Path):
+                toml_type = "array[string]"
+            else:
+                raise TypeError(f"Unsupported generated-artifact TOML schema type: {annotation!r}")
+        schema.append(
+            _GeneratedArtifactTomlField(
+                raw_name=raw_name,
+                attribute=declaration.name,
+                toml_type=toml_type,
+                required=required,
+                nonblank=bool(metadata.get("toml_nonblank", False)),
+                enum_values=tuple(metadata.get("toml_enum", ())),
+            )
+        )
+    return tuple(schema)
+
+
+def _generated_artifact_field_spec(attribute: str) -> _GeneratedArtifactTomlField:
+    return next(item for item in _generated_artifact_toml_schema() if item.attribute == attribute)
+
+
+def _toml_value_type_name(value: object) -> str:
+    if isinstance(value, bool):
+        return "boolean"
+    if isinstance(value, str):
+        return "string"
+    if isinstance(value, int):
+        return "integer"
+    if isinstance(value, float):
+        return "float"
+    if isinstance(value, list):
+        return "array"
+    if isinstance(value, dict):
+        return "table"
+    return type(value).__name__
+
+
+def _toml_value_matches_schema(value: object, schema_field: _GeneratedArtifactTomlField) -> bool:
+    if schema_field.toml_type == "string":
+        return type(value) is str
+    if schema_field.toml_type == "boolean":
+        return type(value) is bool
+    if schema_field.toml_type == "integer":
+        return type(value) is int
+    if schema_field.toml_type == "array[string]":
+        return type(value) is list and all(type(item) is str for item in value)
+    if schema_field.toml_type == "string-or-array[string]":
+        return type(value) is str or (
+            type(value) is list and all(type(item) is str for item in value)
+        )
+    raise AssertionError(f"Unsupported generated-artifact schema type: {schema_field.toml_type}")
+
+
+def _validate_generated_artifact_toml_data(data: object) -> None:
+    if not isinstance(data, dict):
+        raise GeneratedArtifactManifestSchemaError("manifest root must be a TOML table")
+    families = data.get("family", [])
+    if type(families) is not list:
+        raise GeneratedArtifactManifestSchemaError("family must be an array of TOML tables")
+    schema = _generated_artifact_toml_schema()
+    for row_index, family in enumerate(families):
+        if type(family) is not dict:
+            raise GeneratedArtifactManifestSchemaError(f"family[{row_index}] must be a TOML table")
+        for field in schema:
+            if field.raw_name not in family:
+                if field.required:
+                    raise GeneratedArtifactManifestSchemaError(
+                        f"family[{row_index}].{field.raw_name} is required"
+                    )
+                continue
+            value = family[field.raw_name]
+            if not _toml_value_matches_schema(value, field):
+                raise GeneratedArtifactManifestSchemaError(
+                    f"family[{row_index}].{field.raw_name} expected {field.toml_type}; "
+                    f"got {_toml_value_type_name(value)}"
+                )
+            if field.nonblank and not value.strip():
+                raise GeneratedArtifactManifestSchemaError(
+                    f"family[{row_index}].{field.raw_name} must be a non-empty string"
+                )
+
+
+def _generated_artifact_allowed_values(attribute: str) -> set[str]:
+    return set(_generated_artifact_field_spec(attribute).enum_values)
 
 
 @dataclass(frozen=True)
@@ -439,6 +592,7 @@ def _parse_public_generated_artifact_families(path: Path) -> list[PublicGenerate
 def _parse_generated_artifacts(path: Path | bytes) -> list[GeneratedArtifactFamily]:
     """Parse generated-family records from an owner path or already-admitted bytes."""
     data = tomllib.loads(path.decode("utf-8")) if isinstance(path, bytes) else _read_toml(path)
+    _validate_generated_artifact_toml_data(data)
     families = data.get("family", [])
     results: list[GeneratedArtifactFamily] = []
     for item in families:
@@ -3460,20 +3614,8 @@ def _check_generated_artifact_manifest(
 ) -> list[GuardrailViolation]:
     violations: list[GuardrailViolation] = []
     seen_ids: set[str] = set()
-    allowed_lifecycles = {
-        "source_committed",
-        "generated_committed",
-        "generated_ignored",
-        "runtime_ignored",
-        "scratch_ignored",
-    }
-    allowed_stale_behaviors = {
-        "fail",
-        "warn",
-        "cleanup_eligible",
-        "ignored_by_policy",
-        "block_release",
-    }
+    allowed_lifecycles = _generated_artifact_allowed_values("lifecycle")
+    allowed_stale_behaviors = _generated_artifact_allowed_values("stale_output_behavior")
     for family in families:
         if family.family_id in seen_ids:
             violations.append(
@@ -3485,13 +3627,11 @@ def _check_generated_artifact_manifest(
                 )
             )
         seen_ids.add(family.family_id)
-        for field, value in (
-            ("lifecycle", family.lifecycle),
-            ("generator", family.generator),
-            ("verifier", family.verifier),
-            ("promotion_target", family.promotion_target),
-            ("stale_output_behavior", family.stale_output_behavior),
-        ):
+        for schema_field in _generated_artifact_toml_schema():
+            if not schema_field.nonblank:
+                continue
+            field = schema_field.raw_name
+            value = getattr(family, schema_field.attribute)
             if not value.strip():
                 violations.append(
                     GuardrailViolation(
@@ -5299,7 +5439,11 @@ def run_check(args: argparse.Namespace) -> int:
     expected_deep_import_baseline = render_deep_import_baseline_json(
         collect_deep_import_edges(public_policies)
     )
-    families = _parse_generated_artifacts(args.generated_manifest)
+    try:
+        families = _parse_generated_artifacts(args.generated_manifest)
+    except GeneratedArtifactManifestSchemaError as error:
+        print(f"Generated artifact manifest schema error: {error}", file=sys.stderr)
+        return 1
     expected_generated_md = render_generated_artifacts_markdown(families)
     guardrail_exceptions = _parse_guardrail_exceptions(args.exceptions)
 

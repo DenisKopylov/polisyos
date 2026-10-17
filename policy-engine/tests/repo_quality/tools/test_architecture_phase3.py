@@ -4,9 +4,11 @@ import argparse
 import ast
 import datetime as dt
 import os
+import re
 import subprocess
 import sys
 import textwrap
+import tomllib
 from dataclasses import replace
 from pathlib import Path
 
@@ -209,13 +211,9 @@ def test_supported_future_feature_grammar_is_passive_and_does_not_execute_facade
         tmp_path,
         monkeypatch,
         facade_source=(
-            f"from __future__ import {future_names}\n"
-            '__all__ = ["connectors"]\n'
-            "connectors = None\n"
+            f'from __future__ import {future_names}\n__all__ = ["connectors"]\nconnectors = None\n'
         ),
-        consumer_sources={
-            "consumer.py": "from polisyos.fabric import connectors as selected\n"
-        },
+        consumer_sources={"consumer.py": "from polisyos.fabric import connectors as selected\n"},
         child_names=("connectors",),
     )
 
@@ -230,12 +228,9 @@ def test_supported_future_import_alias_is_a_binding_but_unknown_feature_is_not(
         tmp_path,
         monkeypatch,
         facade_source=(
-            "from __future__ import annotations as compiler_flag\n"
-            '__all__ = ["compiler_flag"]\n'
+            'from __future__ import annotations as compiler_flag\n__all__ = ["compiler_flag"]\n'
         ),
-        consumer_sources={
-            "consumer.py": "from polisyos.fabric import compiler_flag as selected\n"
-        },
+        consumer_sources={"consumer.py": "from polisyos.fabric import compiler_flag as selected\n"},
         child_names=("compiler_flag",),
     )
     unknown_feature = ast.ImportFrom(
@@ -251,6 +246,7 @@ def test_supported_future_import_alias_is_a_binding_but_unknown_feature_is_not(
     assert not accepted
     with pytest.raises(SyntaxError, match="future feature not_a_supported_feature"):
         ast.parse("from __future__ import not_a_supported_feature\n")
+
 
 def test_supported_fromlist_resolves_child_fallback_and_direct_import(
     tmp_path: Path,
@@ -329,13 +325,8 @@ def test_supported_fromlist_rejects_a_bound_name_omitted_from_declared_exports(
     edges = _collect_temporary_fromlist_edges(
         tmp_path,
         monkeypatch,
-        facade_source=(
-            '__all__ = ["other"]\n'
-            "connectors = None\n"
-        ),
-        consumer_sources={
-            "consumer.py": "from polisyos.fabric import connectors as selected\n"
-        },
+        facade_source=('__all__ = ["other"]\nconnectors = None\n'),
+        consumer_sources={"consumer.py": "from polisyos.fabric import connectors as selected\n"},
         child_names=("connectors",),
     )
 
@@ -366,14 +357,8 @@ def test_supported_fromlist_rejects_ambiguous_direct_binding(
     edges = _collect_temporary_fromlist_edges(
         tmp_path,
         monkeypatch,
-        facade_source=(
-            '__all__ = ["connectors"]\n'
-            "connectors = None\n"
-            "connectors = None\n"
-        ),
-        consumer_sources={
-            "consumer.py": "from polisyos.fabric import connectors as selected\n"
-        },
+        facade_source=('__all__ = ["connectors"]\nconnectors = None\nconnectors = None\n'),
+        consumer_sources={"consumer.py": "from polisyos.fabric import connectors as selected\n"},
         child_names=("connectors",),
     )
 
@@ -394,9 +379,7 @@ def test_supported_fromlist_rejects_listed_lazy_name_without_static_binding(
             "def __getattr__(name):\n"
             "    return resolve_lazy_export(name)\n"
         ),
-        consumer_sources={
-            "consumer.py": "from polisyos.fabric import connectors as selected\n"
-        },
+        consumer_sources={"consumer.py": "from polisyos.fabric import connectors as selected\n"},
         child_names=("connectors",),
     )
 
@@ -486,8 +469,7 @@ def test_supported_fromlist_covers_relative_and_dynamic_star_forms(
     )
 
     unresolved = {
-        (edge.source_module, edge.target_module, edge.resolution_status)
-        for edge in edges
+        (edge.source_module, edge.target_module, edge.resolution_status) for edge in edges
     }
     assert (
         "polisyos.runtime.deep.relative",
@@ -514,8 +496,7 @@ def test_catalog_fromlist_children_are_not_hidden_by_supported_parent(
         for edge in current_deep_import_edges
         if edge.source_file
         == "src/polisyos/data_forge/domains/catalog/knowledge/acquisition_authority.py"
-        and edge.target_module
-        in {"polisyos.fabric.connectors", "polisyos.fabric.data_plane"}
+        and edge.target_module in {"polisyos.fabric.connectors", "polisyos.fabric.data_plane"}
     }
 
     assert candidates == {
@@ -1304,6 +1285,107 @@ def test_runtime_openapi_client_cannot_escape_default_check_by_removing_flag(
         violation.detail == "missing_default_freshness_check"
         for violation in guardrails._check_generated_artifact_manifest([family])
     )
+
+
+def _toml_assignment_end(block: str, value_start: int) -> int:
+    line_end = block.find("\n", value_start)
+    if line_end < 0:
+        line_end = len(block)
+    first_line = block[value_start:line_end]
+    if not first_line.lstrip().startswith("[") or "]" in first_line:
+        return min(line_end + 1, len(block))
+    closing = re.search(r"(?m)^\s*\]\s*(?:\n|$)", block[value_start:])
+    if closing is None:
+        raise AssertionError("unterminated multiline TOML array")
+    return value_start + closing.end()
+
+
+def _rewrite_generated_artifact_family_field(
+    source: str, *, family_id: str, field: str, value: str | None
+) -> str:
+    headers = list(re.finditer(r"(?m)^\[\[family\]\]\s*$", source))
+    for index, header in enumerate(headers):
+        end = headers[index + 1].start() if index + 1 < len(headers) else len(source)
+        block = source[header.start() : end]
+        id_match = re.search(r'(?m)^id\s*=\s*"([^"\n]+)"\s*$', block)
+        if id_match is None or id_match.group(1) != family_id:
+            continue
+        assignment = re.search(rf"(?m)^{re.escape(field)}\s*=\s*", block)
+        if assignment is None:
+            if value is None:
+                raise AssertionError(f"{field} missing from {family_id}")
+            changed = block.rstrip() + f"\n{field} = {value}\n\n"
+            return source[: header.start()] + changed + source[end:]
+        assignment_end = _toml_assignment_end(block, assignment.end())
+        replacement = "" if value is None else f"{field} = {value}\n"
+        changed = block[: assignment.start()] + replacement + block[assignment_end:]
+        return source[: header.start()] + changed + source[end:]
+    raise AssertionError(f"family not found: {family_id}")
+
+
+def _invalid_generated_artifact_toml_literals(schema_field) -> tuple[str, ...]:
+    if schema_field.toml_type == "string":
+        return ("true", "17", "{}", "[]")
+    if schema_field.toml_type == "boolean":
+        return ('"true"', "1", "{}", "[]")
+    if schema_field.toml_type == "integer":
+        return ("true", '"1"', "{}", "[]")
+    if schema_field.toml_type == "array[string]":
+        return ("true", "17", "{}", '"not-an-array"', "[1]", "[true]", "[{}]")
+    if schema_field.toml_type == "string-or-array[string]":
+        return ("true", "17", "{}", "[1]", "[true]", "[{}]")
+    raise AssertionError(f"unhandled schema type: {schema_field.toml_type}")
+
+
+def test_generated_artifact_manifest_validates_schema_before_coercion() -> None:
+    # Keep the current full family set valid, then mutate each schema field through TOML.
+    source = guardrails.DEFAULT_GENERATED_MANIFEST.read_text(encoding="utf-8")
+    manifest = tomllib.loads(source)
+    family_records = manifest["family"]
+    families = guardrails._parse_generated_artifacts(source.encode("utf-8"))
+    assert len(families) == len(family_records) == 110
+    assert guardrails._check_generated_artifact_manifest(families) == []
+
+    schema = guardrails._generated_artifact_toml_schema()
+    target_index = 0
+    target_id = family_records[target_index]["id"]
+    target_record = family_records[target_index]
+
+    required_fields = tuple(field for field in schema if field.required)
+    assert all(field.raw_name in target_record for field in required_fields)
+    for field in required_fields:
+        altered = _rewrite_generated_artifact_family_field(
+            source, family_id=target_id, field=field.raw_name, value=None
+        )
+        with pytest.raises(guardrails.GeneratedArtifactManifestSchemaError, match=field.raw_name):
+            guardrails._parse_generated_artifacts(altered.encode("utf-8"))
+
+    for field in schema:
+        for literal in _invalid_generated_artifact_toml_literals(field):
+            altered = _rewrite_generated_artifact_family_field(
+                source, family_id=target_id, field=field.raw_name, value=literal
+            )
+            with pytest.raises(
+                guardrails.GeneratedArtifactManifestSchemaError, match=field.raw_name
+            ):
+                guardrails._parse_generated_artifacts(altered.encode("utf-8"))
+
+    for field in schema:
+        if field.nonblank:
+            altered = _rewrite_generated_artifact_family_field(
+                source, family_id=target_id, field=field.raw_name, value='""'
+            )
+            with pytest.raises(
+                guardrails.GeneratedArtifactManifestSchemaError, match=field.raw_name
+            ):
+                guardrails._parse_generated_artifacts(altered.encode("utf-8"))
+        if field.enum_values:
+            altered = _rewrite_generated_artifact_family_field(
+                source, family_id=target_id, field=field.raw_name, value='"not_a_declared_value"'
+            )
+            parsed = guardrails._parse_generated_artifacts(altered.encode("utf-8"))
+            violations = guardrails._check_generated_artifact_manifest(parsed)
+            assert any(item.detail == f"invalid_{field.raw_name}" for item in violations)
 
 
 def test_runtime_openapi_snapshot_is_a_default_freshness_probe() -> None:

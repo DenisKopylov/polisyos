@@ -25,7 +25,9 @@ def test_phase1_3_package_contracts_are_primary_and_mirrored() -> None:
         ]
     } | {
         item["module"]
-        for item in _read_toml(REPO_ROOT / "architecture" / "public_surface" / "contract.toml")["package"]
+        for item in _read_toml(REPO_ROOT / "architecture" / "public_surface" / "contract.toml")[
+            "package"
+        ]
     }
     contract_modules = {contract["package"]["module"] for contract in contracts.values()}
 
@@ -84,7 +86,6 @@ def test_phase1_3_report_only_gates_have_owners_evidence_and_no_fail_closed_mode
         "package-contract-schema",
         "package-aggregate-mirror",
         "module-size-budget",
-        "generated-artifact-contracts",
         "extension-points",
         "runbook-coverage",
         "component-observability",
@@ -148,7 +149,9 @@ def test_phase1_3_requested_contract_surfaces_are_drafted_or_expanded() -> None:
     assert extension_points["phase_1_3_report_only_overlay"]["status"] == "report_only"
     assert extension_points["phase_1_3_extension_point"]
 
-    directory_contracts = _read_toml(REPO_ROOT / "architecture" / "policies" / "directory_contracts.toml")
+    directory_contracts = _read_toml(
+        REPO_ROOT / "architecture" / "policies" / "directory_contracts.toml"
+    )
     assert directory_contracts["phase_1_3_report_only_overlay"]["status"] == "report_only"
     assert {item["path"] for item in directory_contracts["phase_1_3_directory"]} >= {
         "architecture/packages",

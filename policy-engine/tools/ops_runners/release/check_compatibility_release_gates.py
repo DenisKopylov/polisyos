@@ -26,6 +26,7 @@ from tools.ops_runners.release.build_release_notes import (
 
 REPO_ROOT = repo_root_from(__file__)
 DEFAULT_POLICY = REPO_ROOT / "architecture" / "gates" / "compatibility_release.toml"
+PUBLIC_SURFACE_REVIEW_FIELD = "public_surface_inventory_reviewed"
 
 
 @dataclass(frozen=True)
@@ -1124,6 +1125,69 @@ def _required_fragment_field_is_missing(field: str, value: object) -> bool:
     return value in (None, "", [], {})
 
 
+def _validate_optional_boolean_fields(
+    record: dict[str, object],
+    field_names: tuple[str, ...],
+    *,
+    subject: str,
+    errors: list[Finding],
+) -> dict[str, bool]:
+    """Return supplied boolean values and report malformed optional fields."""
+    values: dict[str, bool] = {}
+    for field in field_names:
+        if field not in record:
+            continue
+        value = record[field]
+        if not isinstance(value, bool):
+            errors.append(
+                Finding(
+                    "fragment-schema",
+                    "error",
+                    subject,
+                    f"invalid `{field}`; expected a TOML boolean",
+                    repr(value),
+                )
+            )
+            continue
+        values[field] = value
+    return values
+
+
+def _optional_boolean_field_names(
+    value: object,
+    *,
+    field_scope: str,
+    subject: str,
+    errors: list[Finding],
+) -> tuple[str, ...]:
+    """Read a declared optional boolean field list without coercing its members."""
+    if not isinstance(value, list) or any(
+        not isinstance(field, str) or not field for field in value
+    ):
+        errors.append(
+            Finding(
+                "fragment-schema-policy",
+                "error",
+                subject,
+                f"{field_scope} must be a list of non-empty field names",
+                repr(value),
+            )
+        )
+        return ()
+    field_names = tuple(value)
+    if len(set(field_names)) != len(field_names):
+        errors.append(
+            Finding(
+                "fragment-schema-policy",
+                "error",
+                subject,
+                f"{field_scope} contains duplicate field names",
+                repr(field_names),
+            )
+        )
+    return field_names
+
+
 def _validate_fragments(
     repo_root: Path,
     policy: dict[str, Any],
@@ -1146,6 +1210,31 @@ def _validate_fragments(
     required_fragment_fields = tuple(
         str(field) for field in fragment_policy.get("required_fields", [])
     )
+    optional_root_boolean_fields = _optional_boolean_field_names(
+        fragment_policy.get("optional_root_boolean_fields"),
+        field_scope="optional_root_boolean_fields",
+        subject=_relative(fragment_policy_path, repo_root),
+        errors=errors,
+    )
+    optional_structured_boolean_fields = _optional_boolean_field_names(
+        fragment_policy.get("optional_structured_compatibility_boolean_fields"),
+        field_scope="optional_structured_compatibility_boolean_fields",
+        subject=_relative(fragment_policy_path, repo_root),
+        errors=errors,
+    )
+    if (
+        PUBLIC_SURFACE_REVIEW_FIELD not in optional_root_boolean_fields
+        or PUBLIC_SURFACE_REVIEW_FIELD not in optional_structured_boolean_fields
+    ):
+        errors.append(
+            Finding(
+                "fragment-schema-policy",
+                "error",
+                _relative(fragment_policy_path, repo_root),
+                "public-surface review marker must be declared boolean at root and structured compatibility scope",
+                PUBLIC_SURFACE_REVIEW_FIELD,
+            )
+        )
     typed_root_fields = {"id", "title", "type", "owner", "summary", "evidence"}
     if set(required_fragment_fields) != typed_root_fields:
         errors.append(
@@ -1209,6 +1298,12 @@ def _validate_fragments(
                         ),
                     )
                 )
+        root_optional_boolean_values = _validate_optional_boolean_fields(
+            fragment,
+            optional_root_boolean_fields,
+            subject=fragment_path,
+            errors=errors,
+        )
         fragment_type_value = fragment.get("type")
         fragment_type = (
             fragment_type_value.strip().lower() if isinstance(fragment_type_value, str) else ""
@@ -1262,6 +1357,12 @@ def _validate_fragments(
                 continue
             change = {str(key): value for key, value in raw_change.items()}
             subject = f"{fragment_path}:{change.get('id', '<missing-id>')}"
+            structured_optional_boolean_values = _validate_optional_boolean_fields(
+                change,
+                optional_structured_boolean_fields,
+                subject=subject,
+                errors=errors,
+            )
             for field in required:
                 if not str(change.get(field, "")).strip():
                     errors.append(
@@ -1321,8 +1422,9 @@ def _validate_fragments(
                     )
                 )
             if change_class == "python-public-api":
-                reviewed = bool(fragment.get("public_surface_inventory_reviewed")) or bool(
-                    change.get("public_surface_inventory_reviewed")
+                reviewed = (
+                    root_optional_boolean_values.get(PUBLIC_SURFACE_REVIEW_FIELD) is True
+                    or structured_optional_boolean_values.get(PUBLIC_SURFACE_REVIEW_FIELD) is True
                 )
                 if not reviewed:
                     errors.append(

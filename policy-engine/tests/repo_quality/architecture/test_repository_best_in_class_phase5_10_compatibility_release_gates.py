@@ -12,7 +12,7 @@ import pytest
 from tools.ops_runners.release import check_compatibility_release_gates as gates
 from tools.ops_runners.release.build_release_notes import load_fragments, render_release_notes
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
+REPO_ROOT = Path(os.environ.get("POLISYOS_PRODUCT_ROOT", Path(__file__).resolve().parents[3]))
 
 
 def test_phase5_10_compatibility_release_gate_contract_is_report_only() -> None:
@@ -784,3 +784,233 @@ def test_phase5_10_public_surface_notes_drift_fails_with_package_markers_retaine
     assert len(notes_errors) == 1
     assert report["public_surface_inventory_evidence"]["complete_verdict"] is True
     assert report["public_surface_inventory_evidence"]["predicate_status"] == "mismatch"
+
+
+PUBLIC_SURFACE_REVIEW_FIELD = "public_surface_inventory_reviewed"
+
+
+def _candidate_compatibility_policy(tmp_path: Path) -> Path:
+    policy = REPO_ROOT / "architecture/gates/compatibility_release.toml"
+    rendered = policy.read_text(encoding="utf-8")
+    old = 'release_fragment_policy = "ops/release/release-fragment-policy.toml"'
+    replacement = 'release_fragment_policy = "' + os.environ["RELEASE_FRAGMENT_POLICY_PATH"] + '"'
+    assert rendered.count(old) == 1
+    candidate_policy = tmp_path / "compatibility_release.toml"
+    candidate_policy.write_text(rendered.replace(old, replacement, 1), encoding="utf-8")
+    return candidate_policy
+
+
+def _build_review_report(tmp_path: Path, fragments: Path | None = None) -> dict[str, Any]:
+    return gates.build_report(
+        repo_root=REPO_ROOT,
+        policy_path=_candidate_compatibility_policy(tmp_path),
+        fragments_dir=fragments,
+    )
+
+
+def _review_marker_contract() -> tuple[tuple[str, ...], tuple[str, ...]]:
+    policy_path = Path(
+        os.environ.get(
+            "RELEASE_FRAGMENT_POLICY_PATH",
+            str(REPO_ROOT / "ops/release/release-fragment-policy.toml"),
+        )
+    )
+    policy = tomllib.loads(policy_path.read_text(encoding="utf-8"))["release_fragments"]
+    return (
+        tuple(policy["optional_root_boolean_fields"]),
+        tuple(policy["optional_structured_compatibility_boolean_fields"]),
+    )
+
+
+def _write_review_marker_fragment(
+    fragments: Path,
+    *,
+    root_literal: str | None = None,
+    structured_literal: str | None = None,
+    change_class: str = "python-public-api",
+) -> None:
+    fragments.mkdir(exist_ok=True)
+    root_marker = (
+        f"{PUBLIC_SURFACE_REVIEW_FIELD} = {root_literal}\n" if root_literal is not None else ""
+    )
+    structured_marker = (
+        f"{PUBLIC_SURFACE_REVIEW_FIELD} = {structured_literal}\n"
+        if structured_literal is not None
+        else ""
+    )
+    (fragments / "review-marker.toml").write_text(
+        f'''id = "review-marker-probe"
+title = "Review marker probe"
+type = "changed"
+owner = "team-architecture"
+summary = "Probe typed review marker handling."
+evidence = ["tests/example.py"]
+{root_marker}
+[[compatibility_change]]
+id = "public-api-change"
+change_class = "{change_class}"
+impact = "breaking"
+surface = "public API fixture"
+owner = "team-runtime"
+version_owner = "team-runtime"
+deprecation_window = "one major release"
+release_note = "Fixture public API change."
+{structured_marker}''',
+        encoding="utf-8",
+    )
+
+
+def _review_findings(report: dict[str, Any], check: str) -> list[dict[str, Any]]:
+    return [item for item in report["contract_errors"] if item["check"] == check]
+
+
+def test_optional_review_marker_contract_declares_root_and_structured_scopes() -> None:
+    root_fields, structured_fields = _review_marker_contract()
+
+    assert PUBLIC_SURFACE_REVIEW_FIELD in root_fields
+    assert PUBLIC_SURFACE_REVIEW_FIELD in structured_fields
+
+
+@pytest.mark.parametrize(
+    ("scope", "field"),
+    [
+        *(("root", field) for field in _review_marker_contract()[0]),
+        *(("structured", field) for field in _review_marker_contract()[1]),
+    ],
+)
+@pytest.mark.parametrize(
+    "literal",
+    [
+        '"false"',
+        '"true"',
+        '"reviewed"',
+        "0",
+        "1",
+        "-1",
+        "1.5",
+        "[]",
+        "[true]",
+        "{}",
+    ],
+)
+def test_optional_boolean_fields_reject_malformed_toml_values(
+    tmp_path: Path, scope: str, field: str, literal: str
+) -> None:
+    root_literal = literal if scope == "root" else None
+    structured_literal = literal if scope == "structured" else None
+    fragments = tmp_path / "fragments"
+    _write_review_marker_fragment(
+        fragments, root_literal=root_literal, structured_literal=structured_literal
+    )
+
+    report = _build_review_report(tmp_path, fragments)
+
+    malformed = [
+        item
+        for item in _review_findings(report, "fragment-schema")
+        if f"invalid `{field}`; expected a TOML boolean" == item["message"]
+    ]
+    assert len(malformed) == 1, report["contract_errors"]
+
+
+@pytest.mark.parametrize(
+    ("root_literal", "structured_literal", "expected_review_errors", "expected_schema_errors"),
+    [
+        (None, None, 1, 0),
+        ("false", None, 1, 0),
+        (None, "false", 1, 0),
+        ("true", None, 0, 0),
+        (None, "true", 0, 0),
+        ("false", "true", 0, 0),
+        ("true", "false", 0, 0),
+        ("true", '"false"', 0, 1),
+        ('"false"', "true", 0, 1),
+        ('"false"', "false", 1, 1),
+    ],
+)
+def test_public_surface_review_requires_valid_affirmative_marker_without_hiding_bad_scope(
+    tmp_path: Path,
+    root_literal: str | None,
+    structured_literal: str | None,
+    expected_review_errors: int,
+    expected_schema_errors: int,
+) -> None:
+    root_fields, structured_fields = _review_marker_contract()
+    assert PUBLIC_SURFACE_REVIEW_FIELD in root_fields
+    assert PUBLIC_SURFACE_REVIEW_FIELD in structured_fields
+    fragments = tmp_path / "fragments"
+    _write_review_marker_fragment(
+        fragments, root_literal=root_literal, structured_literal=structured_literal
+    )
+
+    report = _build_review_report(tmp_path, fragments)
+
+    assert len(_review_findings(report, "public-surface-review")) == expected_review_errors
+    schema_errors = [
+        item
+        for item in _review_findings(report, "fragment-schema")
+        if "public_surface_inventory_reviewed" in item["message"]
+    ]
+    assert len(schema_errors) == expected_schema_errors, report["contract_errors"]
+
+
+def test_malformed_optional_review_marker_is_rejected_on_non_public_change(
+    tmp_path: Path,
+) -> None:
+    root_fields, _ = _review_marker_contract()
+    assert PUBLIC_SURFACE_REVIEW_FIELD in root_fields
+    fragments = tmp_path / "fragments"
+    _write_review_marker_fragment(fragments, root_literal='"false"', change_class="internal")
+
+    report = _build_review_report(tmp_path, fragments)
+
+    assert not _review_findings(report, "public-surface-review")
+    assert any(
+        item["check"] == "fragment-schema"
+        and item["message"]
+        == "invalid `public_surface_inventory_reviewed`; expected a TOML boolean"
+        for item in report["contract_errors"]
+    )
+
+
+def test_current_unreleased_public_api_review_findings_are_preserved(tmp_path: Path) -> None:
+    report = _build_review_report(tmp_path)
+    findings = _review_findings(report, "public-surface-review")
+
+    expected = {
+        (
+            "2026-10-09-e02-c12-catalog-search-status.toml",
+            "catalog-result-search-status-fields-and-atomic-tool-envelope",
+        ),
+        (
+            "2026-10-14-lex-runtime-material-binding-candidate.toml",
+            "scientist-legal-tool-status-envelope",
+        ),
+        (
+            "2026-10-14-lex-runtime-material-binding-candidate.toml",
+            "legal-runtime-material-owner-api",
+        ),
+        (
+            "2026-10-17-scholar-contract-owner-consolidation.toml",
+            "scholar-contract-owner-consolidation",
+        ),
+    }
+    observed = set()
+    for item in findings:
+        fragment_path, _, change_id = item["subject"].rpartition(":")
+        observed.add((Path(fragment_path).name, change_id))
+
+    assert observed == expected, report["contract_errors"]
+    assert report["contract_error_count"] == 4, report["contract_errors"]
+    assert (
+        report["public_surface_inventory_evidence"]["predicate_basis"][
+            "public_surface_inventory_reviewed_flag"
+        ]
+        == "consumer_asserted"
+    )
+    assert (
+        report["public_surface_inventory_evidence"]["predicate_basis"][
+            "inventory_review_owner_identity"
+        ]
+        == "not_established"
+    )

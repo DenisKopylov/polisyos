@@ -5062,5 +5062,82 @@
     "source_freeze": false,
     "closure_ids": [],
     "boundary": "Preserve historical cc627 3P1F and 227e6 4P12phase results on exact frames; source handoffs and R13 proposal remain bounded and unaccepted; actual 1fa schema behavior excludes full freshness/native acceptance. Full-ID and composed closeout remain pending."
+  },
+  "coordination_epoch_20261017_reviewed_release_marker_and_config_selector_adoption": {
+    "slice_base": "2a6c30301dcfaee00a7b58898bde90f9f151d968",
+    "tree": "f4d03ff5731a5b3f35ed2078d248f36fdb65a33b",
+    "source_paths": {
+      "policy-engine/ops/release/release-fragment-policy.toml": {
+        "preimage_sha256": "d23c704803929d5f531424e61ca0c269d92b985f2cb1144d6674f3697985acbc",
+        "postimage_sha256": "015f88e58e8d2c77c329196211360ca20413f2e6f8946b350224133ba20dbd30"
+      },
+      "policy-engine/release-fragments/README.md": {
+        "preimage_sha256": "48a209ea6ee59d6389e1117e6a4fee395f715e99c8f2c2e34c1e6bd27477205e",
+        "postimage_sha256": "3149a0e1e24193bd0af0cdcaf5cc16c9851d647c981ab6608041baca576dc2b9"
+      },
+      "policy-engine/tools/ops_runners/release/check_compatibility_release_gates.py": {
+        "preimage_sha256": "e99502e3ff8a8928c4a80cbc152625c77686f01b471684eab9acb4ed8c1b8163",
+        "postimage_sha256": "02f5164a002819e326ebe5d095c7e4b3fab3dac2e62d3a23b64cf1424201f711"
+      },
+      "policy-engine/tests/repo_quality/architecture/test_repository_best_in_class_phase5_10_compatibility_release_gates.py": {
+        "preimage_sha256": "0ba1a81dd4b1cc11685b1225e2c87f922c9dbd79f4a43622ab5ae2c6fb7651a5",
+        "postimage_sha256": "b625caf9dc6331f96cb9f090d5b54164053e5f042800630cb836e8d6298a7eb5"
+      },
+      "policy-engine/tests/repo_quality/tools/test_tool_config_split.py": {
+        "preimage_sha256": "5c8058a69a8176d9e296a5d5836816715c528e8ddd23d0b3fee1ae3e7b579c76",
+        "postimage_sha256": "b9e984078e30d15ad3ece7558cf323811673017a274fd5307d37b033458a9a90"
+      },
+      "policy-engine/tools/devx/workspace/tool_configs.py": {
+        "preimage_sha256": "0775820494d13efa730130b24e9d2f90ec097c0c5e2e433836544534b2ad87d3",
+        "postimage_sha256": "f68b50223aedb22548c5776c687fe54bceb432de0bbff9bb83b9d6b0c6a92a07"
+      }
+    },
+    "patches": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-review-marker-contract-r1-20261017/candidate.patch",
+        "sha256": "524e8bcecfdb7267045264d34451be9cea49924be19940fe1b2650c21ebf54d0"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native166-tool-config-output-scope-r9-20261017/candidate.patch",
+        "sha256": "f65fcb2e126e4ac225c8030476ccb9659804426576742c5abcab59c9f836fae6"
+      }
+    ],
+    "independent_reviews": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-review-marker-independent-review-r2-20261017/review.json",
+        "sha256": "7b4c1a0cd8f06562661eb3ab02c7f95e1ec3ed216e18915b61dc4db1445408e9"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native166-tool-config-output-scope-r9-independent-review-20261017/review.json",
+        "sha256": "bc9034efb65c1a58df8b7f801b90111730d7e0a241cdbb326d36d31b585167a8"
+      }
+    ],
+    "canonical_writer": "root only",
+    "source_freeze": false,
+    "closure_ids": [],
+    "mechanisms": {
+      "release_optional_review_boolean_fields": "Validate raw supplied values at both contributing scopes before coercion; keep four present review errors and issuer/evidence not_established.",
+      "generator_output_collision_guard": "Protect all explicit system config selector paths regardless of GIT_CONFIG_NOSYSTEM; preserve previous complete input/output preflight and relative-root handling."
+    },
+    "verification_at_application": "Ruff check and format passed on all four Python files; post-commit actual focused runtime/gate checks remain next.",
+    "raw_aliases_verified_unchanged": 302,
+    "mandatory_companions": [
+      "LEASES.json",
+      "candidate-component-delivery-index-20261015.json",
+      "separate implementation/behavior handoff after source commit"
+    ],
+    "pattern_pass": {
+      "ids": [
+        "P29",
+        "P31",
+        "P32",
+        "P37",
+        "P38",
+        "P40",
+        "P41"
+      ],
+      "target": "Actual supplied-field typing and true generator input closure; no marker-based reviewer authority or narrowed Git toggle list.",
+      "acceptance": "Actual malformed field refusals and no-write collision controls; source-bound focused replay after source commit."
+    }
   }
 }

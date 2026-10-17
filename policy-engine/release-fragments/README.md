@@ -37,8 +37,11 @@ Optional but strongly encouraged fields:
   `requires_regeneration`, or `breaking_requires_consumer_action`; every supplied
   value must match the policy enum, and schema/OpenAPI or JS package compatibility
   entries must use a value other than `not_applicable`
-- `public_surface_inventory_reviewed`: true when a public-surface change has a
-  regenerated or explicitly reviewed inventory
+- `public_surface_inventory_reviewed`: optional TOML boolean at the fragment root
+  or in a structured compatibility change; when supplied it must be `true` or
+  `false`, and a `python-public-api` change requires an actual boolean `true` at
+  either scope. The marker is consumer-asserted: this checker does not authenticate
+  reviewer identity or independently establish that the inventory was reviewed.
 - `migration_docs` / `runbook_docs`: repo-relative paths that must exist before
   the release candidate is promoted
 

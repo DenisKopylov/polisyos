@@ -1430,3 +1430,1022 @@ def test_phase5_5_tool_config_split_contract_is_registered() -> None:
         "architecture/tooling/ruff/workspace_root.toml"
         in families["tool-config-split-generated-configs"]["outputs"]
     )
+
+
+def _write_postwrite_tool_config_fixture(path: Path, content: str) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(content, encoding="utf-8")
+
+
+def _build_postwrite_tool_config_fixture(
+    root: Path, *, new_owner_exists: bool, git_root: Path | None = None
+) -> None:
+    subprocess.run(["git", "init", "-q", str(git_root or root)], check=True)
+    _write_postwrite_tool_config_fixture(
+        root / "architecture/tooling/tool_config_split.toml",
+        """
+[mypy]
+root_config = "architecture/tooling/mypy/mypy.ini"
+base_config = "architecture/tooling/mypy/base.ini"
+generated_config = "architecture/tooling/mypy/generated.ini"
+override_fragments = ["architecture/tooling/mypy/overrides/current.ini"]
+
+[ruff]
+root_config = "architecture/tooling/ruff/ruff.toml"
+base_config = "architecture/tooling/ruff/base.toml"
+generated_config = "architecture/tooling/ruff/generated.toml"
+workspace_root_generated_config = "architecture/tooling/ruff/workspace_root.toml"
+workspace_root_prefix = "policy-engine"
+workspace_nested_ruff_config_filenames = [".ruff.toml", "ruff.toml", "pyproject.toml"]
+workspace_root_path_settings = []
+workspace_root_pattern_settings = []
+per_file_ignore_fragments = []
+product_root_settings = {}
+
+[mkdocs]
+root_config = "architecture/tooling/mkdocs/mkdocs.yml"
+base_config = "architecture/tooling/mkdocs/base.yml"
+exclude_docs_fragment = "architecture/tooling/mkdocs/exclude.yml"
+not_in_nav_fragment = "architecture/tooling/mkdocs/not-in-nav.yml"
+generated_config = "architecture/tooling/mkdocs/generated.yml"
+nav_fragments = []
+""",
+    )
+    _write_postwrite_tool_config_fixture(root / "architecture/tooling/mypy/base.ini", "[mypy]\n")
+    _write_postwrite_tool_config_fixture(
+        root / "architecture/tooling/mypy/overrides/current.ini",
+        "[mypy-polisyos.core.artifacts]\nignore_missing_imports = True\n",
+    )
+    _write_postwrite_tool_config_fixture(
+        root / "architecture/tooling/mypy/generated.ini", "[mypy-polisyos.lex.artifacts]\n"
+    )
+    _write_postwrite_tool_config_fixture(
+        root / "architecture/tooling/mypy/mypy.ini", "# generated root stub\n"
+    )
+    _write_postwrite_tool_config_fixture(
+        root / "architecture/tooling/ruff/base.toml", "[tool.ruff]\nline-length = 100\n"
+    )
+    _write_postwrite_tool_config_fixture(
+        root / "architecture/tooling/ruff/ruff.toml", "# old generated stub\n"
+    )
+    _write_postwrite_tool_config_fixture(
+        root / "architecture/tooling/ruff/generated.toml", "# old generated config\n"
+    )
+    _write_postwrite_tool_config_fixture(
+        root / "architecture/tooling/ruff/workspace_root.toml", "# old workspace config\n"
+    )
+    _write_postwrite_tool_config_fixture(
+        root / "architecture/tooling/mkdocs/base.yml", "site_name: Fixture\n"
+    )
+    _write_postwrite_tool_config_fixture(
+        root / "architecture/tooling/mkdocs/exclude.yml", "exclude_docs: ''\n"
+    )
+    _write_postwrite_tool_config_fixture(
+        root / "architecture/tooling/mkdocs/not-in-nav.yml", "not_in_nav: ''\n"
+    )
+    _write_postwrite_tool_config_fixture(
+        root / "architecture/tooling/mkdocs/mkdocs.yml", "# old generated stub\n"
+    )
+    _write_postwrite_tool_config_fixture(
+        root / "architecture/tooling/mkdocs/generated.yml", "# old generated config\n"
+    )
+    _write_postwrite_tool_config_fixture(
+        root / "architecture/tooling/static_analysis_overrides.toml",
+        """[tool_config_split]
+mypy_config = "architecture/tooling/mypy/generated.ini"
+ruff_config = "architecture/tooling/ruff/ruff.toml"
+
+[[override_scope]]
+id = "fixture-core-artifacts"
+tool = "mypy"
+pattern = "polisyos.core.artifacts"
+owner = "fixture-owner"
+permanent_rationale = "The synthetic fixture pins the current owner module."
+""",
+    )
+    if new_owner_exists:
+        _write_postwrite_tool_config_fixture(
+            root / "src/polisyos/core/artifacts/__init__.py", "VALUE = 1\n"
+        )
+
+
+def test_tool_config_write_mode_reports_real_postwrite_override_state(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _build_postwrite_tool_config_fixture(tmp_path, new_owner_exists=True)
+    monkeypatch.setattr(tool_configs, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(dead_overrides, "REPO_ROOT", tmp_path)
+    before = dead_overrides.build_report(tmp_path)
+    assert any(
+        finding["tool"] == "mypy"
+        and finding["check"] == "mypy-override-path"
+        and finding["subject"] == "polisyos.lex.artifacts"
+        for finding in before["findings"]
+    )
+
+    json_path = tmp_path / "reports/tool-configs.json"
+    assert tool_configs.main(["--json-output", str(json_path)]) == 0
+    payload = json.loads(json_path.read_text(encoding="utf-8"))
+    assert payload["status"] == "passed"
+    assert payload["drift_findings"] == []
+    assert payload["override_findings"] == []
+    assert dead_overrides.build_report(tmp_path)["findings"] == []
+    assert "[mypy-polisyos.core.artifacts]" in (
+        tmp_path / "architecture/tooling/mypy/generated.ini"
+    ).read_text(encoding="utf-8")
+
+    generated = tuple(tmp_path / relative for relative in payload["generated_files"])
+    current_bytes = {path: path.read_bytes() for path in generated}
+    check_json_path = tmp_path / "reports/tool-configs-check.json"
+    assert tool_configs.main(["--json-output", str(check_json_path), "--check"]) == 0
+    check_payload = json.loads(check_json_path.read_text(encoding="utf-8"))
+    assert check_payload["status"] == "passed"
+    assert check_payload["drift_findings"] == []
+    assert check_payload["override_findings"] == []
+    assert {path: path.read_bytes() for path in generated} == current_bytes
+
+
+def test_tool_config_write_mode_reports_new_invalid_override_after_write(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _build_postwrite_tool_config_fixture(tmp_path, new_owner_exists=False)
+    monkeypatch.setattr(tool_configs, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(dead_overrides, "REPO_ROOT", tmp_path)
+    json_path = tmp_path / "reports/tool-configs.json"
+
+    assert tool_configs.main(["--json-output", str(json_path)]) == 1
+    payload = json.loads(json_path.read_text(encoding="utf-8"))
+    assert payload["drift_findings"] == []
+    assert [(finding["check"], finding["subject"]) for finding in payload["override_findings"]] == [
+        ("mypy-override-path", "polisyos.core.artifacts")
+    ]
+
+
+def test_tool_config_check_mode_reports_current_state_without_rewriting(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _build_postwrite_tool_config_fixture(tmp_path, new_owner_exists=True)
+    monkeypatch.setattr(tool_configs, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(dead_overrides, "REPO_ROOT", tmp_path)
+    generated_paths = (
+        "architecture/tooling/mypy/generated.ini",
+        "architecture/tooling/ruff/ruff.toml",
+        "architecture/tooling/ruff/generated.toml",
+        "architecture/tooling/ruff/workspace_root.toml",
+        "architecture/tooling/mkdocs/mkdocs.yml",
+        "architecture/tooling/mkdocs/generated.yml",
+    )
+    generated = tuple(tmp_path / relative for relative in generated_paths)
+    current_bytes = {path: path.read_bytes() for path in generated}
+    json_path = tmp_path / "reports/tool-configs-check.json"
+
+    assert tool_configs.main(["--json-output", str(json_path), "--check"]) == 1
+    payload = json.loads(json_path.read_text(encoding="utf-8"))
+    assert payload["status"] == "failed"
+    assert payload["drift_findings"]
+    assert any(
+        finding["subject"] == "polisyos.lex.artifacts" for finding in payload["override_findings"]
+    )
+    assert {path: path.read_bytes() for path in generated} == current_bytes
+
+
+def test_tool_config_write_mode_refuses_report_output_collisions_before_any_write(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    _build_postwrite_tool_config_fixture(tmp_path, new_owner_exists=True)
+    monkeypatch.setattr(tool_configs, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(dead_overrides, "REPO_ROOT", tmp_path)
+
+    manifest = tmp_path / "architecture/tooling/tool_config_split.toml"
+    fragment = tmp_path / "architecture/tooling/mypy/overrides/current.ini"
+    metadata = tmp_path / "architecture/tooling/static_analysis_overrides.toml"
+    source_module = tmp_path / "src/polisyos/core/artifacts/__init__.py"
+    generated = tuple(item.path for item in tool_configs.render_files(tmp_path))
+    protected = (manifest, fragment, metadata, source_module, *generated)
+    before = {path: path.read_bytes() for path in protected}
+
+    report_alias = tmp_path / "reports/manifest-alias.toml"
+    report_alias.parent.mkdir(parents=True)
+    report_alias.symlink_to(manifest)
+    absent_outputs = (
+        tmp_path / "src/polisyos/new_module.py",
+        tmp_path / "architecture/new_module.py",
+        tmp_path / "workers/new-project/pyproject.toml",
+        tmp_path / "reports/tool-configs.json",
+    )
+    cases = (
+        (generated[1], ()),
+        (tmp_path / "architecture/tooling/mypy/overrides/../generated.ini", ("--check",)),
+        (manifest, ("--check",)),
+        (fragment, ()),
+        (metadata, ("--check",)),
+        (source_module, ()),
+        (absent_outputs[0], ("--check",)),
+        (absent_outputs[1], ()),
+        (absent_outputs[2], ()),
+        (report_alias, ("--check",)),
+    )
+
+    for output_path, mode_args in cases:
+        with pytest.raises(SystemExit) as error:
+            tool_configs.main(["--json-output", str(output_path), *mode_args])
+        assert error.value.code == 2
+        assert "--json-output" in capsys.readouterr().err
+        assert {path: path.read_bytes() for path in protected} == before
+        assert report_alias.is_symlink()
+        assert report_alias.resolve() == manifest.resolve()
+        assert all(not path.exists() for path in absent_outputs)
+
+
+def test_tool_config_write_mode_refuses_git_selector_input_collisions(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    _build_postwrite_tool_config_fixture(tmp_path, new_owner_exists=True)
+    monkeypatch.setattr(tool_configs, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(dead_overrides, "REPO_ROOT", tmp_path)
+
+    exclude_file = tmp_path.parent / f"{tmp_path.name}-git-excludes"
+    exclude_file.write_text("unused-selector-fixture-name\n", encoding="utf-8")
+    subprocess.run(
+        ["git", "-C", str(tmp_path), "config", "core.excludesFile", str(exclude_file)],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    subprocess.run(
+        ["git", "-C", str(tmp_path), "add", "-A"],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    generated = tuple(item.path for item in tool_configs.render_files(tmp_path))
+    existing_inputs = (
+        exclude_file,
+        tmp_path / ".git/config",
+        tmp_path / ".git/index",
+        tmp_path / ".git/info/exclude",
+        *generated,
+    )
+    before = {path: path.read_bytes() for path in existing_inputs}
+    nested_ignore = tmp_path / "nested/new/.gitignore"
+    cases = (
+        (tmp_path / ".gitignore", ()),
+        (nested_ignore, ("--check",)),
+        (tmp_path / ".git/config", ("--check",)),
+        (tmp_path / ".git/index", ()),
+        (tmp_path / ".git/info/exclude", ("--check",)),
+        (exclude_file, ()),
+    )
+
+    for output_path, mode_args in cases:
+        with pytest.raises(SystemExit) as error:
+            tool_configs.main(["--json-output", str(output_path), *mode_args])
+        assert error.value.code == 2
+        assert "--json-output" in capsys.readouterr().err
+        assert {path: path.read_bytes() for path in existing_inputs} == before
+        assert not (tmp_path / ".gitignore").exists()
+        assert not nested_ignore.exists()
+
+
+def test_tool_config_write_mode_refuses_metadata_manifest_alias_with_custom_manifest(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    _build_postwrite_tool_config_fixture(tmp_path, new_owner_exists=True)
+    metadata_path = tmp_path / "architecture/tooling/static_analysis_overrides.toml"
+    metadata_manifest = tmp_path / "architecture/tooling/metadata_manifest.toml"
+    custom_manifest = tmp_path / "architecture/tooling/custom_manifest.toml"
+    default_manifest = tmp_path / "architecture/tooling/tool_config_split.toml"
+    metadata_manifest.write_bytes(default_manifest.read_bytes())
+    custom_manifest.write_bytes(default_manifest.read_bytes())
+    metadata = metadata_path.read_text(encoding="utf-8")
+    metadata = metadata.replace(
+        "[tool_config_split]\n",
+        '[tool_config_split]\nmanifest = "architecture/tooling/metadata_manifest.toml"\n',
+        1,
+    )
+    metadata_path.write_text(metadata, encoding="utf-8")
+    monkeypatch.setattr(tool_configs, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(dead_overrides, "REPO_ROOT", tmp_path)
+
+    rendered = tool_configs.render_files(tmp_path, "architecture/tooling/custom_manifest.toml")
+    generated = tuple(item.path for item in rendered)
+    protected = (metadata_path, metadata_manifest, custom_manifest, *generated)
+    before = {path: path.read_bytes() for path in protected}
+
+    with pytest.raises(SystemExit) as error:
+        tool_configs.main(
+            [
+                "--manifest",
+                "architecture/tooling/custom_manifest.toml",
+                "--json-output",
+                str(metadata_manifest),
+            ]
+        )
+    assert error.value.code == 2
+    assert "--json-output" in capsys.readouterr().err
+    assert {path: path.read_bytes() for path in protected} == before
+
+
+def test_tool_config_write_mode_refuses_git_config_origin_collision(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    _build_postwrite_tool_config_fixture(tmp_path, new_owner_exists=True)
+    global_config = tmp_path.parent / f"{tmp_path.name}-git-config"
+    global_config.write_text(
+        f"[core]\n\texcludesFile = {tmp_path / 'global-excludes'}\n", encoding="utf-8"
+    )
+    (tmp_path / "global-excludes").write_text("unused-selector-fixture-name\n", encoding="utf-8")
+    monkeypatch.setenv("GIT_CONFIG_GLOBAL", str(global_config))
+    monkeypatch.setattr(tool_configs, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(dead_overrides, "REPO_ROOT", tmp_path)
+    generated = tuple(item.path for item in tool_configs.render_files(tmp_path))
+    protected = (global_config, tmp_path / "global-excludes", *generated)
+    before = {path: path.read_bytes() for path in protected}
+
+    with pytest.raises(SystemExit) as error:
+        tool_configs.main(["--json-output", str(global_config)])
+    assert error.value.code == 2
+    assert "--json-output" in capsys.readouterr().err
+    assert {path: path.read_bytes() for path in protected} == before
+
+
+def test_tool_config_write_mode_allows_separate_and_distinct_hardlink_report_paths(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _build_postwrite_tool_config_fixture(tmp_path, new_owner_exists=True)
+    monkeypatch.setattr(tool_configs, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(dead_overrides, "REPO_ROOT", tmp_path)
+
+    report_path = tmp_path / "reports/tool-configs.json"
+    assert tool_configs.main(["--json-output", str(report_path)]) == 0
+    assert json.loads(report_path.read_text(encoding="utf-8"))["status"] == "passed"
+
+    source_fragment = tmp_path / "architecture/tooling/mypy/base.ini"
+    original_fragment = source_fragment.read_bytes()
+    hardlink_report = tmp_path / "reports/hardlink-report.json"
+    hardlink_report.hardlink_to(source_fragment)
+    assert hardlink_report.stat().st_ino == source_fragment.stat().st_ino
+
+    generated = tuple(item.path for item in tool_configs.render_files(tmp_path))
+    generated_before = {path: path.read_bytes() for path in generated}
+    assert tool_configs.main(["--json-output", str(hardlink_report)]) == 0
+
+    assert json.loads(hardlink_report.read_text(encoding="utf-8"))["status"] == "passed"
+    assert source_fragment.read_bytes() == original_fragment
+    assert hardlink_report.stat().st_ino != source_fragment.stat().st_ino
+    assert {path: path.read_bytes() for path in generated} == generated_before
+
+
+def _clear_git_selection_environment(monkeypatch: pytest.MonkeyPatch) -> None:
+    for name in (
+        "GIT_COMMON_DIR",
+        "GIT_CONFIG_COUNT",
+        "GIT_CONFIG_GLOBAL",
+        "GIT_CONFIG_NOSYSTEM",
+        "GIT_CONFIG_PARAMETERS",
+        "GIT_CONFIG_SYSTEM",
+        "GIT_DIR",
+        "GIT_INDEX_FILE",
+        "GIT_WORK_TREE",
+    ):
+        monkeypatch.delenv(name, raising=False)
+
+
+def test_tool_config_write_mode_refuses_implicit_xdg_global_ignore_collision_and_checks_selection(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    home = tmp_path.parent / f"{tmp_path.name}-home"
+    xdg = tmp_path.parent / f"{tmp_path.name}-xdg"
+    default_ignore = xdg / "git/ignore"
+    default_ignore.parent.mkdir(parents=True)
+    default_ignore.write_text("nested/ignored/ruff.toml\n", encoding="utf-8")
+    _clear_git_selection_environment(monkeypatch)
+    monkeypatch.setenv("HOME", str(home))
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(xdg))
+    monkeypatch.setenv("GIT_CONFIG_NOSYSTEM", "1")
+
+    _build_postwrite_tool_config_fixture(tmp_path, new_owner_exists=True)
+    subprocess.run(["git", "-C", str(tmp_path), "add", "-A"], check=True, capture_output=True)
+    ignored = tmp_path / "nested/ignored/ruff.toml"
+    visible = tmp_path / "nested/visible/ruff.toml"
+    _write_postwrite_tool_config_fixture(ignored, "[tool.ruff]\nline-length = 91\n")
+    _write_postwrite_tool_config_fixture(visible, "[tool.ruff]\nline-length = 92\n")
+    monkeypatch.setattr(tool_configs, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(dead_overrides, "REPO_ROOT", tmp_path)
+
+    explicit_excludes = subprocess.run(
+        ["git", "config", "--null", "--get-all", "core.excludesFile"],
+        cwd=tmp_path,
+        check=False,
+        capture_output=True,
+    )
+    assert explicit_excludes.returncode == 1
+    ignored_result = subprocess.run(
+        ["git", "check-ignore", "--no-index", "-v", "nested/ignored/ruff.toml"],
+        cwd=tmp_path,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert ignored_result.returncode == 0
+    assert str(default_ignore) in ignored_result.stdout
+    selected = tool_configs._workspace_paths_named(tmp_path, ("ruff.toml",))
+    assert Path("nested/visible/ruff.toml") in selected
+    assert Path("nested/ignored/ruff.toml") not in selected
+
+    generated = tuple(item.path for item in tool_configs.render_files(tmp_path))
+    scope = tool_configs._tool_config_output_scope(
+        tmp_path, "architecture/tooling/tool_config_split.toml", tool_configs.render_files(tmp_path)
+    )
+    assert tool_configs._report_output_collision(tmp_path, default_ignore, *scope) is not None
+    before = {path: path.read_bytes() for path in (default_ignore, *generated)}
+    with pytest.raises(SystemExit) as error:
+        tool_configs.main(["--json-output", str(default_ignore)])
+    assert error.value.code == 2
+    assert "--json-output" in capsys.readouterr().err
+    assert {path: path.read_bytes() for path in (default_ignore, *generated)} == before
+
+
+def test_tool_config_write_mode_refuses_implicit_home_global_ignore_collision(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    home = tmp_path.parent / f"{tmp_path.name}-home"
+    default_ignore = home / ".config/git/ignore"
+    default_ignore.parent.mkdir(parents=True)
+    default_ignore.write_text("nested/home-ignored/ruff.toml\n", encoding="utf-8")
+    _clear_git_selection_environment(monkeypatch)
+    monkeypatch.setenv("HOME", str(home))
+    monkeypatch.delenv("XDG_CONFIG_HOME", raising=False)
+    monkeypatch.setenv("GIT_CONFIG_NOSYSTEM", "1")
+
+    _build_postwrite_tool_config_fixture(tmp_path, new_owner_exists=True)
+    subprocess.run(["git", "-C", str(tmp_path), "add", "-A"], check=True, capture_output=True)
+    nested = tmp_path / "nested/home-ignored/ruff.toml"
+    _write_postwrite_tool_config_fixture(nested, "[tool.ruff]\nline-length = 93\n")
+    monkeypatch.setattr(tool_configs, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(dead_overrides, "REPO_ROOT", tmp_path)
+
+    ignored_result = subprocess.run(
+        ["git", "check-ignore", "--no-index", "-v", "nested/home-ignored/ruff.toml"],
+        cwd=tmp_path,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert ignored_result.returncode == 0
+    assert str(default_ignore) in ignored_result.stdout
+    assert Path("nested/home-ignored/ruff.toml") not in tool_configs._workspace_paths_named(
+        tmp_path, ("ruff.toml",)
+    )
+    scope = tool_configs._tool_config_output_scope(
+        tmp_path, "architecture/tooling/tool_config_split.toml", tool_configs.render_files(tmp_path)
+    )
+    assert tool_configs._report_output_collision(tmp_path, default_ignore, *scope) is not None
+    before = default_ignore.read_bytes()
+
+    with pytest.raises(SystemExit) as error:
+        tool_configs.main(["--json-output", str(default_ignore)])
+    assert error.value.code == 2
+    assert "--json-output" in capsys.readouterr().err
+    assert default_ignore.read_bytes() == before
+
+
+def test_tool_config_write_mode_refuses_active_git_config_origins_and_alternate_index(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    home = tmp_path.parent / f"{tmp_path.name}-home"
+    xdg = tmp_path.parent / f"{tmp_path.name}-xdg"
+    system_config = tmp_path.parent / f"{tmp_path.name}-system.gitconfig"
+    include_config = tmp_path.parent / f"{tmp_path.name}-included.gitconfig"
+    global_config = xdg / "git/config"
+    home_global_config = home / ".gitconfig"
+    excludes = tmp_path.parent / f"{tmp_path.name}-included-excludes"
+    alternate_index = tmp_path.parent / f"{tmp_path.name}-alternate-index"
+    (global_config.parent).mkdir(parents=True)
+    home.mkdir(parents=True)
+    system_config.write_text("[probe]\nsystem = yes\n", encoding="utf-8")
+    global_config.write_text(
+        f"[include]\npath = {include_config}\n[probe]\nxdg = yes\n", encoding="utf-8"
+    )
+    home_global_config.write_text("[probe]\nhome = yes\n", encoding="utf-8")
+    include_config.write_text(
+        f"[core]\nexcludesFile = {excludes}\n[probe]\nincluded = yes\n",
+        encoding="utf-8",
+    )
+    excludes.write_text("unused-selector-fixture-name\n", encoding="utf-8")
+    _clear_git_selection_environment(monkeypatch)
+    monkeypatch.setenv("HOME", str(home))
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(xdg))
+    monkeypatch.setenv("GIT_CONFIG_SYSTEM", str(system_config))
+
+    _build_postwrite_tool_config_fixture(tmp_path, new_owner_exists=True)
+    subprocess.run(
+        ["git", "-C", str(tmp_path), "config", "extensions.worktreeConfig", "true"],
+        check=True,
+        capture_output=True,
+    )
+    subprocess.run(
+        ["git", "-C", str(tmp_path), "config", "--worktree", "probe.worktree", "yes"],
+        check=True,
+        capture_output=True,
+    )
+    monkeypatch.setenv("GIT_INDEX_FILE", str(alternate_index))
+    subprocess.run(["git", "-C", str(tmp_path), "add", "-A"], check=True, capture_output=True)
+    assert (
+        Path(
+            subprocess.run(
+                ["git", "-C", str(tmp_path), "rev-parse", "--git-path", "index"],
+                check=True,
+                capture_output=True,
+                text=True,
+            ).stdout.strip()
+        )
+        == alternate_index
+    )
+
+    origins = subprocess.run(
+        ["git", "-C", str(tmp_path), "config", "--null", "--show-origin", "--show-scope", "--list"],
+        check=True,
+        capture_output=True,
+    ).stdout
+    for path in (system_config, global_config, home_global_config, include_config):
+        assert f"file:{path}".encode() in origins
+    assert b"file:.git/config\x00" in origins
+    assert b"file:.git/config.worktree\x00" in origins
+    monkeypatch.setattr(tool_configs, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(dead_overrides, "REPO_ROOT", tmp_path)
+
+    generated = tuple(item.path for item in tool_configs.render_files(tmp_path))
+    local_config = tmp_path / ".git/config"
+    worktree_config = tmp_path / ".git/config.worktree"
+    protected = (
+        system_config,
+        global_config,
+        home_global_config,
+        include_config,
+        excludes,
+        local_config,
+        worktree_config,
+        alternate_index,
+        *generated,
+    )
+    before = {path: path.read_bytes() for path in protected}
+    scope = tool_configs._tool_config_output_scope(
+        tmp_path, "architecture/tooling/tool_config_split.toml", tool_configs.render_files(tmp_path)
+    )
+    for output_path in protected[: -len(generated)]:
+        assert tool_configs._report_output_collision(tmp_path, output_path, *scope) is not None
+    for output_path in protected[: -len(generated)]:
+        with pytest.raises(SystemExit) as error:
+            tool_configs.main(["--json-output", str(output_path)])
+        assert error.value.code == 2
+        assert "--json-output" in capsys.readouterr().err
+        assert {path: path.read_bytes() for path in protected} == before
+
+
+def test_tool_config_write_mode_resolves_relative_git_selector_paths_from_worktree_root(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    worktree_root = tmp_path / "workspace"
+    product_root = worktree_root / "policy-engine"
+    _clear_git_selection_environment(monkeypatch)
+    home = tmp_path / "isolated-home"
+    home.mkdir()
+    monkeypatch.setenv("HOME", str(home))
+    monkeypatch.setenv("GIT_CONFIG_SYSTEM", "selectors/relative-system.gitconfig")
+    monkeypatch.setenv("GIT_CONFIG_GLOBAL", "selectors/relative-global.gitconfig")
+
+    _build_postwrite_tool_config_fixture(
+        product_root, new_owner_exists=True, git_root=worktree_root
+    )
+    selector_dir = worktree_root / "selectors"
+    include_dir = selector_dir / "includes"
+    selector_dir.mkdir()
+    include_dir.mkdir()
+    system_config = selector_dir / "relative-system.gitconfig"
+    global_config = selector_dir / "relative-global.gitconfig"
+    system_include = include_dir / "system-include.gitconfig"
+    global_include = include_dir / "global-include.gitconfig"
+    excludes = worktree_root / "relative-excludes"
+    system_config.write_text(
+        "[core]\n\texcludesFile = relative-excludes\n"
+        "[include]\n\tpath = includes/system-include.gitconfig\n"
+        "[probe]\n\tsystem = worktree-root\n",
+        encoding="utf-8",
+    )
+    global_config.write_text(
+        "[include]\n\tpath = includes/global-include.gitconfig\n[probe]\n\tglobal = worktree-root\n",
+        encoding="utf-8",
+    )
+    system_include.write_text("[probe]\nsystem-include = worktree-root\n", encoding="utf-8")
+    global_include.write_text("[probe]\nglobal-include = worktree-root\n", encoding="utf-8")
+    excludes.write_text("policy-engine/nested/ignored/ruff.toml\n", encoding="utf-8")
+
+    product_selector_dir = product_root / "selectors"
+    product_include_dir = product_selector_dir / "includes"
+    product_include_dir.mkdir(parents=True)
+    product_system = product_selector_dir / system_config.name
+    product_global = product_selector_dir / global_config.name
+    product_system_include = product_include_dir / system_include.name
+    product_global_include = product_include_dir / global_include.name
+    product_excludes = product_root / excludes.name
+    product_system.write_text(
+        "[core]\n\texcludesFile = relative-excludes\n"
+        "[include]\n\tpath = includes/system-include.gitconfig\n"
+        "[probe]\n\tsystem = product-root\n",
+        encoding="utf-8",
+    )
+    product_global.write_text(
+        "[include]\n\tpath = includes/global-include.gitconfig\n[probe]\n\tglobal = product-root\n",
+        encoding="utf-8",
+    )
+    product_system_include.write_text("[probe]\nsystem-include = product-root\n", encoding="utf-8")
+    product_global_include.write_text("[probe]\nglobal-include = product-root\n", encoding="utf-8")
+    product_excludes.write_text("policy-engine/nested/visible/ruff.toml\n", encoding="utf-8")
+    ignored_config = product_root / "nested/ignored/ruff.toml"
+    visible_config = product_root / "nested/visible/ruff.toml"
+    _write_postwrite_tool_config_fixture(ignored_config, "[tool.ruff]\nline-length = 91\n")
+    _write_postwrite_tool_config_fixture(visible_config, "[tool.ruff]\nline-length = 92\n")
+
+    subprocess.run(["git", "-C", str(worktree_root), "add", "-A"], check=True, capture_output=True)
+    monkeypatch.setattr(tool_configs, "REPO_ROOT", product_root)
+    monkeypatch.setattr(dead_overrides, "REPO_ROOT", product_root)
+
+    def config_value(key: str) -> str:
+        result = subprocess.run(
+            ["git", "config", "--get", key],
+            cwd=product_root,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        assert result.returncode == 0, result.stderr
+        return result.stdout.strip()
+
+    assert config_value("probe.system") == "worktree-root"
+    assert config_value("probe.global") == "worktree-root"
+    assert config_value("probe.system-include") == "worktree-root"
+    assert config_value("probe.global-include") == "worktree-root"
+    ignored_result = subprocess.run(
+        ["git", "check-ignore", "--no-index", "-v", "nested/ignored/ruff.toml"],
+        cwd=product_root,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert ignored_result.returncode == 0
+    assert "relative-excludes:1:policy-engine/nested/ignored/ruff.toml" in ignored_result.stdout
+    selected = tool_configs._workspace_paths_named(
+        product_root, (".ruff.toml", "ruff.toml", "pyproject.toml")
+    )
+    assert Path("nested/visible/ruff.toml") in selected
+    assert Path("nested/ignored/ruff.toml") not in selected
+
+    rendered = tool_configs.render_files(product_root)
+    exact_paths, _source_roots, git_control_roots, _reserved = (
+        tool_configs._tool_config_output_scope(
+            product_root, "architecture/tooling/tool_config_split.toml", rendered
+        )
+    )
+    active_paths = {
+        worktree_root / ".git/config",
+        system_config,
+        global_config,
+        system_include,
+        global_include,
+        excludes,
+    }
+    product_twins = {
+        product_system,
+        product_global,
+        product_system_include,
+        product_global_include,
+        product_excludes,
+    }
+    assert active_paths <= exact_paths
+    assert exact_paths.isdisjoint(product_twins)
+    assert worktree_root / ".git" in git_control_roots
+
+    protected = (*active_paths, *product_twins, *(item.path for item in rendered))
+    before = {path: path.read_bytes() for path in protected}
+    with pytest.raises(SystemExit) as error:
+        tool_configs.main(["--json-output", str(global_config)])
+    assert error.value.code == 2
+    assert "--json-output" in capsys.readouterr().err
+    assert {path: path.read_bytes() for path in protected} == before
+
+    separate_output = worktree_root / "reports/tool-configs.json"
+    assert tool_configs.main(["--json-output", str(separate_output)]) == 0
+    assert json.loads(separate_output.read_text(encoding="utf-8"))["status"] == "passed"
+    assert {path: path.read_bytes() for path in active_paths} == {
+        path: before[path] for path in active_paths
+    }
+
+
+@pytest.mark.parametrize(
+    ("selector", "relative_home", "relative_xdg", "default_config"),
+    [
+        ("xdg", "unused-home", "relative-xdg", "relative-xdg/git/config"),
+        ("home", "relative-home", None, "relative-home/.gitconfig"),
+    ],
+)
+def test_tool_config_write_mode_resolves_relative_implicit_ignore_from_worktree_root(
+    selector: str,
+    relative_home: str,
+    relative_xdg: str | None,
+    default_config: str,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    worktree_root = tmp_path / "workspace"
+    product_root = worktree_root / "policy-engine"
+    _clear_git_selection_environment(monkeypatch)
+    monkeypatch.setenv("HOME", relative_home)
+    if relative_xdg is None:
+        monkeypatch.delenv("XDG_CONFIG_HOME", raising=False)
+        relative_ignore_root = Path(relative_home) / ".config"
+    else:
+        monkeypatch.setenv("XDG_CONFIG_HOME", relative_xdg)
+        relative_ignore_root = Path(relative_xdg)
+    monkeypatch.setenv("GIT_CONFIG_NOSYSTEM", "1")
+
+    _build_postwrite_tool_config_fixture(
+        product_root, new_owner_exists=True, git_root=worktree_root
+    )
+    default_config_path = worktree_root / default_config
+    default_config_path.parent.mkdir(parents=True, exist_ok=True)
+    default_config_path.write_text("[probe]\n\tsource = worktree-root\n", encoding="utf-8")
+    product_default_config_path = product_root / default_config
+    product_default_config_path.parent.mkdir(parents=True, exist_ok=True)
+    product_default_config_path.write_text("[probe]\n\tsource = product-root\n", encoding="utf-8")
+    ignore_path = worktree_root / relative_ignore_root / "git/ignore"
+    ignore_path.parent.mkdir(parents=True, exist_ok=True)
+    ignore_path.write_text("policy-engine/nested/ignored/ruff.toml\n", encoding="utf-8")
+    product_ignore = product_root / relative_ignore_root / "git/ignore"
+    product_ignore.parent.mkdir(parents=True, exist_ok=True)
+    product_ignore.write_text("policy-engine/nested/visible/ruff.toml\n", encoding="utf-8")
+    ignored_config = product_root / "nested/ignored/ruff.toml"
+    visible_config = product_root / "nested/visible/ruff.toml"
+    _write_postwrite_tool_config_fixture(ignored_config, "[tool.ruff]\nline-length = 91\n")
+    _write_postwrite_tool_config_fixture(visible_config, "[tool.ruff]\nline-length = 92\n")
+    subprocess.run(["git", "-C", str(worktree_root), "add", "-A"], check=True, capture_output=True)
+    monkeypatch.setattr(tool_configs, "REPO_ROOT", product_root)
+    monkeypatch.setattr(dead_overrides, "REPO_ROOT", product_root)
+
+    selected_default_config = subprocess.run(
+        ["git", "config", "--get", "probe.source"],
+        cwd=product_root,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert selected_default_config.returncode == 0, selected_default_config.stderr
+    assert selected_default_config.stdout.strip() == "worktree-root"
+
+    ignored_result = subprocess.run(
+        ["git", "check-ignore", "--no-index", "-v", "nested/ignored/ruff.toml"],
+        cwd=product_root,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert ignored_result.returncode == 0
+    assert "git/ignore:1:policy-engine/nested/ignored/ruff.toml" in ignored_result.stdout
+    selected = tool_configs._workspace_paths_named(
+        product_root, (".ruff.toml", "ruff.toml", "pyproject.toml")
+    )
+    assert Path("nested/visible/ruff.toml") in selected
+    assert Path("nested/ignored/ruff.toml") not in selected
+
+    rendered = tool_configs.render_files(product_root)
+    exact_paths, _source_roots, _git_control_roots, _reserved = (
+        tool_configs._tool_config_output_scope(
+            product_root, "architecture/tooling/tool_config_split.toml", rendered
+        )
+    )
+    assert ignore_path in exact_paths
+    assert default_config_path in exact_paths
+    assert product_ignore not in exact_paths
+    assert product_default_config_path not in exact_paths
+    protected = (
+        ignore_path,
+        default_config_path,
+        product_ignore,
+        product_default_config_path,
+        *(item.path for item in rendered),
+    )
+    before = {path: path.read_bytes() if path.exists() else None for path in protected}
+    with pytest.raises(SystemExit) as error:
+        tool_configs.main(["--json-output", str(ignore_path)])
+    assert error.value.code == 2
+    assert "--json-output" in capsys.readouterr().err
+    assert {path: path.read_bytes() if path.exists() else None for path in protected} == before
+
+    with pytest.raises(SystemExit) as error:
+        tool_configs.main(["--json-output", str(default_config_path)])
+    assert error.value.code == 2
+    assert "--json-output" in capsys.readouterr().err
+    assert {path: path.read_bytes() if path.exists() else None for path in protected} == before
+
+
+def test_tool_config_write_mode_refuses_unknown_git_config_origin_before_any_write(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _clear_git_selection_environment(monkeypatch)
+    _build_postwrite_tool_config_fixture(tmp_path, new_owner_exists=True)
+    monkeypatch.setattr(tool_configs, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(dead_overrides, "REPO_ROOT", tmp_path)
+    rendered = tool_configs.render_files(tmp_path)
+    before = {item.path: item.path.read_bytes() for item in rendered}
+    original_run = subprocess.run
+
+    def run_with_unknown_origin(args: object, *positional: object, **keyword: object) -> object:
+        if list(args) == ["git", "config", "--null", "--show-origin", "--show-scope", "--list"]:
+            return subprocess.CompletedProcess(
+                args, 0, stdout=b"global\0future:selector\0probe.source\nvalue\0", stderr=b""
+            )
+        return original_run(args, *positional, **keyword)
+
+    monkeypatch.setattr(subprocess, "run", run_with_unknown_origin)
+    with pytest.raises(ValueError, match="unsupported Git config origin"):
+        tool_configs.main([])
+    assert {item.path: item.path.read_bytes() for item in rendered} == before
+
+
+def test_tool_config_write_mode_refuses_empty_environment_selected_git_configs(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    home = tmp_path.parent / f"{tmp_path.name}-home"
+    xdg = tmp_path.parent / f"{tmp_path.name}-xdg"
+    system_config = tmp_path.parent / f"{tmp_path.name}-empty-system.gitconfig"
+    global_config = tmp_path.parent / f"{tmp_path.name}-empty-global.gitconfig"
+    home.mkdir(parents=True)
+    xdg.mkdir(parents=True)
+    system_config.write_bytes(b"")
+    global_config.write_bytes(b"")
+    _clear_git_selection_environment(monkeypatch)
+    monkeypatch.setenv("HOME", str(home))
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(xdg))
+    monkeypatch.setenv("GIT_CONFIG_SYSTEM", str(system_config))
+    monkeypatch.setenv("GIT_CONFIG_GLOBAL", str(global_config))
+
+    _build_postwrite_tool_config_fixture(tmp_path, new_owner_exists=True)
+    monkeypatch.setattr(tool_configs, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(dead_overrides, "REPO_ROOT", tmp_path)
+    origins = subprocess.run(
+        ["git", "-C", str(tmp_path), "config", "--null", "--show-origin", "--show-scope", "--list"],
+        check=True,
+        capture_output=True,
+    ).stdout
+    assert f"file:{system_config}".encode() not in origins
+    assert f"file:{global_config}".encode() not in origins
+    generated = tuple(item.path for item in tool_configs.render_files(tmp_path))
+    scope = tool_configs._tool_config_output_scope(
+        tmp_path, "architecture/tooling/tool_config_split.toml", tool_configs.render_files(tmp_path)
+    )
+    protected = (system_config, global_config, *generated)
+    before = {path: path.read_bytes() for path in protected}
+
+    for output_path in protected[:2]:
+        assert tool_configs._report_output_collision(tmp_path, output_path, *scope) is not None
+        with pytest.raises(SystemExit) as error:
+            tool_configs.main(["--json-output", str(output_path)])
+        assert error.value.code == 2
+        assert "--json-output" in capsys.readouterr().err
+        assert {path: path.read_bytes() for path in protected} == before
+
+
+@pytest.mark.parametrize(
+    "nosystem_value",
+    [None, "", "0", "false", "no", "off", "1", "true", "yes", "on"],
+    ids=["unset", "empty", "zero", "false", "no", "off", "one", "true", "yes", "on"],
+)
+def test_tool_config_write_mode_protects_explicit_empty_system_config_for_every_git_toggle(
+    nosystem_value: str | None,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """Protect an explicit system selector even when Git emits no origin row."""
+
+    _clear_git_selection_environment(monkeypatch)
+    home = tmp_path.parent / f"{tmp_path.name}-home"
+    xdg = tmp_path.parent / f"{tmp_path.name}-xdg"
+    home.mkdir()
+    xdg.mkdir()
+    system_config = tmp_path.parent / f"{tmp_path.name}-empty-system.gitconfig"
+    system_config.write_bytes(b"")
+    monkeypatch.setenv("HOME", str(home))
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(xdg))
+    monkeypatch.setenv("GIT_CONFIG_SYSTEM", str(system_config))
+    if nosystem_value is not None:
+        monkeypatch.setenv("GIT_CONFIG_NOSYSTEM", nosystem_value)
+
+    _build_postwrite_tool_config_fixture(tmp_path, new_owner_exists=True)
+    monkeypatch.setattr(tool_configs, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(dead_overrides, "REPO_ROOT", tmp_path)
+    origins = subprocess.run(
+        ["git", "config", "--null", "--show-origin", "--show-scope", "--list"],
+        cwd=tmp_path,
+        check=True,
+        capture_output=True,
+    ).stdout
+    assert f"file:{system_config}".encode() not in origins
+
+    generated = tuple(item.path for item in tool_configs.render_files(tmp_path))
+    scope = tool_configs._tool_config_output_scope(
+        tmp_path, "architecture/tooling/tool_config_split.toml", tool_configs.render_files(tmp_path)
+    )
+    protected = (system_config, *generated)
+    before = {path: path.read_bytes() for path in protected}
+    assert tool_configs._report_output_collision(tmp_path, system_config, *scope) is not None
+
+    with pytest.raises(SystemExit) as error:
+        tool_configs.main(["--json-output", str(system_config)])
+    assert error.value.code == 2
+    assert "--json-output" in capsys.readouterr().err
+    assert {path: path.read_bytes() for path in protected} == before
+
+
+@pytest.mark.parametrize(
+    ("nosystem_value", "system_is_read"),
+    [
+        (None, True),
+        ("", True),
+        ("0", True),
+        ("false", True),
+        ("no", True),
+        ("off", True),
+        ("1", False),
+        ("true", False),
+        ("yes", False),
+        ("on", False),
+    ],
+    ids=["unset", "empty", "zero", "false", "no", "off", "one", "true", "yes", "on"],
+)
+def test_tool_config_write_mode_git_nosystem_controls_match_git_boolean_semantics(
+    nosystem_value: str | None,
+    system_is_read: bool,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Pin our control matrix to Git's actual interpretation, not a local parser."""
+
+    _clear_git_selection_environment(monkeypatch)
+    system_config = tmp_path / "system.gitconfig"
+    global_config = tmp_path / "global.gitconfig"
+    system_config.write_text("[probe]\n\tsystem = selected\n", encoding="utf-8")
+    global_config.write_bytes(b"")
+    monkeypatch.setenv("GIT_CONFIG_SYSTEM", str(system_config))
+    monkeypatch.setenv("GIT_CONFIG_GLOBAL", str(global_config))
+    if nosystem_value is not None:
+        monkeypatch.setenv("GIT_CONFIG_NOSYSTEM", nosystem_value)
+
+    result = subprocess.run(
+        ["git", "config", "--get", "probe.system"],
+        cwd=tmp_path,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if system_is_read:
+        assert result.returncode == 0
+        assert result.stdout.strip() == "selected"
+    else:
+        assert result.returncode == 1
+        assert result.stdout == ""
+
+
+def test_tool_config_write_mode_refuses_malformed_git_nosystem_before_any_write(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """An invalid Git toggle fails closed before generation or report output."""
+
+    _clear_git_selection_environment(monkeypatch)
+    system_config = tmp_path.parent / f"{tmp_path.name}-malformed-system.gitconfig"
+    system_config.write_bytes(b"")
+    _build_postwrite_tool_config_fixture(tmp_path, new_owner_exists=True)
+    monkeypatch.setattr(tool_configs, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(dead_overrides, "REPO_ROOT", tmp_path)
+    rendered = tool_configs.render_files(tmp_path)
+    before = {item.path: item.path.read_bytes() for item in rendered}
+    system_before = system_config.read_bytes()
+    monkeypatch.setenv("GIT_CONFIG_SYSTEM", str(system_config))
+    monkeypatch.setenv("GIT_CONFIG_NOSYSTEM", "maybe")
+    git_probe = subprocess.run(
+        ["git", "config", "--list"],
+        cwd=tmp_path,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert git_probe.returncode != 0
+    assert "bad boolean environment value 'maybe'" in git_probe.stderr
+
+    with pytest.raises(RuntimeError, match="cannot enumerate workspace configs"):
+        tool_configs.main(["--json-output", str(system_config)])
+
+    assert system_config.read_bytes() == system_before
+    assert {item.path: item.path.read_bytes() for item in rendered} == before

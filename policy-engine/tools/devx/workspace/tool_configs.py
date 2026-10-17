@@ -638,16 +638,359 @@ def override_report_findings(repo_root: Path = REPO_ROOT) -> list[dict[str, Any]
     return list(report["findings"])
 
 
+def _repo_path(repo_root: Path, value: str | Path) -> Path:
+    path = Path(value)
+    return path if path.is_absolute() else repo_root / path
+
+
+def _git_worktree_root(repo_root: Path) -> Path:
+    """Return Git's worktree root for selector paths that Git roots there."""
+
+    result = subprocess.run(
+        ["git", "rev-parse", "--show-toplevel"],
+        cwd=repo_root,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        detail = result.stderr.strip()
+        raise ValueError(f"cannot resolve Git worktree root: {detail}")
+    path = Path(result.stdout.strip())
+    return path if path.is_absolute() else _repo_path(repo_root, path)
+
+
+def _git_config_path(repo_root: Path, value: str | Path, *, git_root: Path | None = None) -> Path:
+    """Resolve a Git config selector path using Git's worktree-relative base."""
+
+    path = Path(value).expanduser()
+    if path.is_absolute():
+        return path
+    root = git_root if git_root is not None else _git_worktree_root(repo_root)
+    return root / path
+
+
+def _git_config_input_paths(repo_root: Path, *, git_root: Path | None = None) -> set[Path]:
+    """Return config files Git actually reads plus active path-valued includes.
+
+    `git config --show-origin --show-scope --list` is the source of truth for
+    active system, global, local, worktree, and included config origins. The
+    environment and conventional global locations are also retained so an
+    output cannot create or replace a currently empty configured source.
+    """
+
+    git_root = git_root if git_root is not None else _git_worktree_root(repo_root)
+    result = subprocess.run(
+        ["git", "config", "--null", "--show-origin", "--show-scope", "--list"],
+        cwd=repo_root,
+        check=False,
+        capture_output=True,
+    )
+    if result.returncode != 0:
+        detail = os.fsdecode(result.stderr).strip()
+        raise ValueError(f"cannot resolve Git config selector sources: {detail}")
+
+    records = result.stdout.split(b"\0")
+    if records and records[-1] == b"":
+        records.pop()
+    if len(records) % 3:
+        raise ValueError("Git config source output is not a scope/origin/value sequence")
+
+    paths: set[Path] = set()
+    for scope_bytes, origin_bytes, record in zip(
+        records[::3], records[1::3], records[2::3], strict=True
+    ):
+        del scope_bytes  # Scope is retained in Git's output for validation, not path resolution.
+        origin = os.fsdecode(origin_bytes)
+        if not origin.startswith("file:") and origin != "command line:":
+            raise ValueError(f"unsupported Git config origin {origin!r}")
+        key_bytes, separator, value_bytes = record.partition(b"\n")
+        if not separator:
+            raise ValueError("Git config source record is missing its key/value separator")
+
+        origin_path: Path | None = None
+        if origin.startswith("file:"):
+            origin_value = origin.removeprefix("file:")
+            if not origin_value:
+                raise ValueError("Git config file origin is empty")
+            origin_path = _git_config_path(repo_root, Path(origin_value), git_root=git_root)
+            paths.add(origin_path)
+
+        key = os.fsdecode(key_bytes).casefold()
+        if key == "include.path" or (key.startswith("includeif.") and key.endswith(".path")):
+            value = os.fsdecode(value_bytes)
+            if value:
+                included_path = Path(value).expanduser()
+                if not included_path.is_absolute():
+                    base = origin_path.parent if origin_path is not None else git_root
+                    included_path = base / included_path
+                paths.add(included_path)
+
+    system_config = os.environ.get("GIT_CONFIG_SYSTEM")
+    if system_config:
+        # Protect the selected path even when Git emits no origin (for example,
+        # an empty file) or the current NOSYSTEM toggle suppresses reading it.
+        paths.add(_git_config_path(repo_root, system_config, git_root=git_root))
+
+    global_config = os.environ.get("GIT_CONFIG_GLOBAL")
+    if global_config:
+        paths.add(_git_config_path(repo_root, global_config, git_root=git_root))
+    else:
+        home = Path.home()
+        xdg_home_value = os.environ.get("XDG_CONFIG_HOME")
+        xdg_home = Path(xdg_home_value).expanduser() if xdg_home_value else home / ".config"
+        paths.add(_git_config_path(repo_root, xdg_home / "git/config", git_root=git_root))
+        paths.add(_git_config_path(repo_root, home / ".gitconfig", git_root=git_root))
+
+    return paths
+
+
+def _git_path_input(repo_root: Path, pathspec: str) -> Path:
+    """Resolve a Git-selected path, including environment-selected alternates."""
+
+    result = subprocess.run(
+        ["git", "rev-parse", "--git-path", pathspec],
+        cwd=repo_root,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        raise ValueError(f"cannot resolve Git selector path {pathspec}: {result.stderr}")
+    return _repo_path(repo_root, Path(result.stdout.strip()))
+
+
+def _implicit_global_ignore_path(repo_root: Path, *, git_root: Path | None = None) -> Path:
+    """Resolve Git's XDG/HOME global ignore fallback when no explicit override exists."""
+
+    xdg_home_value = os.environ.get("XDG_CONFIG_HOME")
+    xdg_home = Path(xdg_home_value).expanduser() if xdg_home_value else Path.home() / ".config"
+    return _git_config_path(repo_root, xdg_home / "git/ignore", git_root=git_root)
+
+
+def _tool_config_output_scope(
+    repo_root: Path,
+    manifest: str,
+    rendered: Sequence[RenderedFile],
+) -> tuple[set[Path], tuple[Path, ...], tuple[Path, ...], frozenset[str]]:
+    """Return the named inputs, scanned source roots, and discovered config names."""
+
+    from tools.ops_runners.reports import dead_overrides
+
+    manifest_data = load_manifest(repo_root, manifest)
+    exact_paths = {_repo_path(repo_root, manifest)}
+    for section_name, keys in (
+        ("mypy", ("base_config", "override_fragments")),
+        ("ruff", ("base_config", "per_file_ignore_fragments")),
+        (
+            "mkdocs",
+            ("base_config", "exclude_docs_fragment", "not_in_nav_fragment", "nav_fragments"),
+        ),
+    ):
+        section = manifest_data[section_name]
+        for key in keys:
+            value = section[key]
+            values = value if isinstance(value, list) else [value]
+            exact_paths.update(_repo_path(repo_root, item) for item in values)
+
+    ruff_filenames = tuple(manifest_data["ruff"]["workspace_nested_ruff_config_filenames"])
+    exact_paths.update(
+        _repo_path(repo_root, relative_path)
+        for relative_path in _workspace_paths_named(repo_root, ruff_filenames)
+    )
+    exact_paths.update(item.path for item in rendered)
+
+    report_defaults = dead_overrides.build_report.__kwdefaults__
+    metadata_config = (
+        report_defaults.get("metadata_config") if report_defaults is not None else None
+    )
+    if not isinstance(metadata_config, str):
+        raise ValueError("dead-override report metadata default is not a path")
+    metadata_path = _repo_path(repo_root, metadata_config)
+    metadata = tomllib.loads(metadata_path.read_text(encoding="utf-8"))
+    exact_paths.add(metadata_path)
+    split_metadata = metadata.get("tool_config_split", {})
+    if isinstance(split_metadata, dict):
+        metadata_manifest = split_metadata.get("manifest")
+        if metadata_manifest is not None:
+            if not isinstance(metadata_manifest, str) or not metadata_manifest:
+                raise ValueError("static-analysis metadata manifest is not a path")
+            exact_paths.add(_repo_path(repo_root, metadata_manifest))
+    for tool, fallback in (("mypy", "mypy.ini"), ("ruff", "ruff.toml")):
+        config = dead_overrides._default_tool_config(metadata, tool, fallback)
+        exact_paths.add(_repo_path(repo_root, config))
+
+    from tools.devx.workspace import _repo_hygiene
+
+    source_root_names = {
+        *dead_overrides.DEFAULT_SOURCE_ROOTS,
+        *_repo_hygiene.AUTHORED_PYTHON_LINT_SCOPE,
+        *_repo_hygiene.BENCHMARK_RESEARCH_SCOPE,
+    }
+    source_roots: set[Path] = set()
+    for name in source_root_names:
+        path = _repo_path(repo_root, name)
+        if path.suffix in {".py", ".pyi"}:
+            exact_paths.add(path)
+        else:
+            source_roots.add(path)
+    if repo_root.resolve(strict=False) == _repo_hygiene.PRODUCT_ROOT.resolve(strict=False):
+        exact_paths.update(
+            _repo_path(repo_root, path) for path in _repo_hygiene.evidence_python_files()
+        )
+
+    # The report's current Ruff input set is selected by Git's index, exclude
+    # rules, and active configuration. Keep those selector controls protected
+    # alongside the files they select.
+    git_root = _git_worktree_root(repo_root)
+    exact_paths.add(git_root / ".git")
+    git_control_roots: set[Path] = set()
+    for argument in ("--git-dir", "--git-common-dir"):
+        result = subprocess.run(
+            ["git", "rev-parse", argument],
+            cwd=repo_root,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        if result.returncode != 0:
+            raise ValueError(f"cannot resolve Git selector scope {argument}: {result.stderr}")
+        git_control_roots.add(_repo_path(repo_root, result.stdout.strip()))
+
+    exact_paths.update(_git_config_input_paths(repo_root, git_root=git_root))
+    exact_paths.add(_git_path_input(repo_root, "index"))
+
+    config_result = subprocess.run(
+        ["git", "config", "--null", "--show-origin", "--path", "--get-all", "core.excludesFile"],
+        cwd=repo_root,
+        check=False,
+        capture_output=True,
+    )
+    if config_result.returncode not in {0, 1}:
+        detail = os.fsdecode(config_result.stderr).strip()
+        raise ValueError(f"cannot resolve Git exclude selector inputs: {detail}")
+    config_items = config_result.stdout.split(b"\0")
+    if config_items and config_items[-1] == b"":
+        config_items.pop()
+    if len(config_items) % 2:
+        raise ValueError("Git exclude selector output is not an origin/value sequence")
+    if not config_items:
+        exact_paths.add(_implicit_global_ignore_path(repo_root, git_root=git_root))
+    for origin_bytes, value_bytes in zip(config_items[::2], config_items[1::2], strict=True):
+        origin = os.fsdecode(origin_bytes)
+        value = os.fsdecode(value_bytes)
+        if origin.startswith("file:"):
+            config_path = Path(origin.removeprefix("file:"))
+            exact_paths.add(_git_config_path(repo_root, config_path, git_root=git_root))
+        if value:
+            exact_paths.add(_git_config_path(repo_root, value, git_root=git_root))
+
+    reserved_names = frozenset((*ruff_filenames, ".gitignore"))
+    return (
+        exact_paths,
+        tuple(sorted(source_roots)),
+        tuple(sorted(git_control_roots)),
+        reserved_names,
+    )
+
+
+def _path_spellings(path: Path) -> tuple[Path, Path]:
+    """Return lexical and resolved paths for collision checks without inode aliasing."""
+
+    lexical = Path(os.path.abspath(path))
+    try:
+        resolved = lexical.resolve(strict=False)
+    except (OSError, RuntimeError) as error:
+        raise ValueError(f"cannot safely resolve report path {path}: {error}") from error
+    return lexical, resolved
+
+
+def _is_within(path: Path, root: Path) -> bool:
+    try:
+        path.relative_to(root)
+        return True
+    except ValueError:
+        return False
+
+
+def _report_output_collision(
+    repo_root: Path,
+    report_path: Path,
+    exact_paths: set[Path],
+    source_roots: tuple[Path, ...],
+    git_control_roots: tuple[Path, ...],
+    reserved_input_names: frozenset[str],
+) -> str | None:
+    """Reject JSON destinations that alias generator inputs or outputs."""
+
+    target = report_path if report_path.is_absolute() else repo_root / report_path
+    target_lexical, target_resolved = _path_spellings(target)
+    target_spellings = (target_lexical, target_resolved)
+    exact_spellings = {spelling for path in exact_paths for spelling in _path_spellings(path)}
+    for spelling in target_spellings:
+        if spelling in exact_spellings:
+            return f"aliases protected tool-config input/output {spelling}"
+
+    if target.suffix in {".py", ".pyi"}:
+        for source_root in source_roots:
+            root_spellings = _path_spellings(source_root)
+            if any(
+                _is_within(target_spelling, root_spelling)
+                for target_spelling in target_spellings
+                for root_spelling in root_spellings
+            ):
+                return f"falls within report source-root traversal {source_root}"
+
+    repo_spellings = _path_spellings(repo_root)
+    if target.name in reserved_input_names and any(
+        _is_within(target_spelling, repo_spelling)
+        for target_spelling in target_spellings
+        for repo_spelling in repo_spellings
+    ):
+        return f"would become a discovered workspace input named {target.name!r}"
+
+    for control_root in git_control_roots:
+        root_spellings = _path_spellings(control_root)
+        if any(
+            _is_within(target_spelling, root_spelling)
+            for target_spelling in target_spellings
+            for root_spelling in root_spellings
+        ):
+            return f"falls within Git selector-control scope {control_root}"
+    return None
+
+
 def _write_json(path: Path, payload: dict[str, Any]) -> None:
     target = path if path.is_absolute() else REPO_ROOT / path
     atomic_write_text(target, json.dumps(payload, indent=2, sort_keys=True) + "\n")
 
 
 def main(argv: Sequence[str] | None = None) -> int:
-    args = _build_parser().parse_args(argv)
+    parser = _build_parser()
+    args = parser.parse_args(argv)
     rendered = render_files(REPO_ROOT, args.manifest)
-    drift = check_drift(rendered)
-    override_findings = override_report_findings(REPO_ROOT)
+    exact_paths, source_roots, git_control_roots, reserved_input_names = _tool_config_output_scope(
+        REPO_ROOT, args.manifest, rendered
+    )
+    if args.json_output is not None:
+        collision = _report_output_collision(
+            REPO_ROOT,
+            args.json_output,
+            exact_paths,
+            source_roots,
+            git_control_roots,
+            reserved_input_names,
+        )
+        if collision is not None:
+            parser.error(f"--json-output {collision}")
+
+    if args.check:
+        drift = check_drift(rendered)
+        override_findings = override_report_findings(REPO_ROOT)
+    else:
+        write_rendered(rendered)
+        drift = check_drift(rendered)
+        override_findings = override_report_findings(REPO_ROOT)
 
     payload = {
         "status": "failed" if drift or override_findings else "passed",
@@ -674,7 +1017,11 @@ def main(argv: Sequence[str] | None = None) -> int:
                 )
         return 1 if drift or override_findings else 0
 
-    write_rendered(rendered)
+    if drift:
+        print("Generated configs, but generated files remain stale:", file=sys.stderr)
+        for finding in drift:
+            print(f"\n==> {finding['path']}", file=sys.stderr)
+            print(finding["diff"], file=sys.stderr)
     if override_findings:
         print("Generated configs, but override report still has findings:", file=sys.stderr)
         for finding in override_findings:
@@ -682,6 +1029,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 f"- {finding['check']} {finding['tool']} {finding['subject']}: {finding['detail']}",
                 file=sys.stderr,
             )
+    if drift or override_findings:
         return 1
     print("Generated split mypy, Ruff, and MkDocs configuration.")
     return 0

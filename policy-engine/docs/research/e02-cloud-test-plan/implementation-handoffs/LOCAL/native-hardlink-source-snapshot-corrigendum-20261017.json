@@ -1,0 +1,70 @@
+{
+  "schema": "policyos.e02.local_source_snapshot_incident.v1",
+  "author_role": "local_candidate_author_not_G",
+  "source_boundary": {
+    "branch": "codex/e02-unified-local-20261009",
+    "pre_application_head": "3d07f60e617e20814e7d5ba049a0b66d6db78974",
+    "implementation_commit": "142779e9956816d671bb33ff4a1e114db08d5414"
+  },
+  "cause": "Root applied intended Native postimages using in-place Path.write_bytes. Multiply-linked canonical files shared file objects with RAW source/config snapshot paths; the write changed those aliases too.",
+  "scope": {
+    "canonical_names": 45,
+    "affected_raw_snapshot_aliases": 302,
+    "total_link_names": 347,
+    "unlocated_link_names_after_inode_reconciliation": 0,
+    "raw_groups": "274 Scholar candidate-overlay aliases, 14 B61 candidate-source aliases and 14 B61 source-bound aliases. Exact set and denominator are in the pinned scope proof.",
+    "deciding_output_aliases": 0,
+    "limits": "Two unrelated B05 overlay directories were unreadable in the scoped walk; all links of the 45 affected inodes were nevertheless accounted for. No global disk/payload census or assertion about which snapshots an old execution consumed."
+  },
+  "custody_consequence": "The 302 RAW locators no longer identify their former frozen source bytes. Prior historical source qualifications using these locators require the pinned Git preimage, not present RAW bytes. This incident does not revoke a deciding output by assumption; the exact execution/source binding must be reconciled before reuse.",
+  "preservation": {
+    "all_45_original_source_preimages_available_in_exact_git_objects": true,
+    "old_raw_aliases_restored_or_rewritten": false,
+    "irrecomputable_deciding_outputs_lost_in_this_link_set": false,
+    "all_347_accounted_link_names_under_own_checkout": true,
+    "cross_checkout_census_performed": false,
+    "candidate_postimage_custody": "Exact Native101 postimage bytes remain in the 302 aliases for the 45 affected file objects. Seven current canonical files now have the later reviewed import-order delta; the committed composition source bytes are separately pinned by commit 142779 and its complete readback."
+  },
+  "repair": "Stopped the in-place writer, independently reconciled link counts and exact Git preimages, retained changed RAW snapshots and appended this corrigendum. Applied subsequent reviewed nondeletion patches through experimentally verified git apply inode replacement; all 302 known alias hashes were checked before/after. No reset/rebase/restore or partner-byte rewriting.",
+  "prevention_property": "A candidate source write cannot mutate an independently issued source snapshot. Check inode/link boundaries and transport behavior; a copied pathname is not independent custody.",
+  "falsifier": "Create a source and a hardlink snapshot, apply a differing reviewed postimage through the chosen transport, and require new source bytes with unchanged snapshot bytes. The retained probe demonstrates this for git apply; an in-place write violates it.",
+  "evidence": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native101-hardlink-partner-audit-r1-20261017/scope-inode-partners-r1.json",
+      "sha256": "5be44f9b30f148673a4649677a8118109c00b7bfba2ab978d4e52c2588bf3715"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native101-hardlink-partner-audit-r1-20261017/impact-classification-r1.json",
+      "sha256": "7842b32613e9d559773d234032ffaf5676c7e1bd37ca5f3f394aac9c0fe02410"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native101-hardlink-partner-audit-r1-20261017/audit-manifest-r1.json",
+      "sha256": "4a36211ae09e0c3153cd471a4c18e630cde8b6e9d46464d4346a327bc523acfd"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native101-hardlink-write-boundary-audit-r1-20261017/git-source-byte-availability.json",
+      "sha256": "1c575720d5d9fc37b0b3729a5007fa3c09e024350647a516821fe0f28d470ae4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hardlink-safe-git-apply-transport-probe-r1-20261017/result.json",
+      "sha256": "24e8fbbc9bdcd41998c363ea45c93123b6567df0c013392cb4bc895c1942d375"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-native-consumer-cohort-safe-apply-r3-20261017/application-readback.json",
+      "sha256": "ad1c608c295964ba18a03b1f0b45a8e6231cc4d134ac69c762ebda8a64d1e4ce"
+    }
+  ],
+  "pattern_pass": {
+    "ids": [
+      "P30",
+      "P31",
+      "P35",
+      "P38",
+      "P40"
+    ],
+    "bucket": "same source-custody/locator-versus-identity class; structural write-transport repair, no snapshot-by-snapshot restoration"
+  },
+  "closure_ids": [],
+  "formal_closures": [],
+  "review_precision_note": "This R2 draft qualifies the original candidate-postimage and checkout-classification wording; it does not rewrite the original incident evidence or any RAW alias."
+}

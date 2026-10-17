@@ -93,7 +93,7 @@
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
-      "sha256": "6d6ab95e76f66600724ec6ca5422a32e9c76083cc659f31f220b1c6048dd2d58",
+      "sha256": "8761436e9f4636ff9075bc49a47b326c3880c734073952c0698b2a980be0458f",
       "source_commit": "8932ed41bba94d724eae178c316baf59f5dbeebd",
       "record_type": "committed_coordination_snapshot",
       "previous_unqualified_digest": "1c2ae874ad7a12ac5c8ce69c580be992eef49a0ba58164893eff9a679a1ff9e5",
@@ -634,6 +634,14 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/b194-adaptive-persisted-fresh-consumer-r6-20261017.json",
       "sha256": "6ec720d2a4473df9e15cd1ce222c4a1acb82167994959253445074ac8bb00f46"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native-candidate-consumer-composition-bounded-wave-20261017.json",
+      "sha256": "e76f15795126e71dffc972e1d6d3cb793c2d2cd34c24657b929cc60ee08832c4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native-hardlink-source-snapshot-corrigendum-20261017.json",
+      "sha256": "ccb27a1ec5fae944af878a7c2d18fac4c164f051315441a2a5be80959f473da2"
     }
   ],
   "canonical_denominator_recomputed": {
@@ -684,5 +692,15 @@
     "Selected canonical checks now include five basedpyright-selector tests and four synthetic acquisition signer/currentness tests, each with Ruff green. The checker itself was not run. Original currentness refusal-cause loss remains under repair. The contributor command documentation passes its own style check; native R4 remains held for its initial-workspace counterexample, with R5 under independent preparation. These results do not change any finding outcome or establish the full native/composed/Linux/installed/browser freeze."
   ],
   "retention": "Complete deciding outputs and removal controls are pinned by receipts under ignored LOCAL/raw on the candidate checkout. Tracked source is cited by path@sha/commit, not copied. Large RAW availability is local; no archive payload census or duplicate environment.",
+  "latest_reconciled_source_cut": {
+    "head": "142779e9956816d671bb33ff4a1e114db08d5414",
+    "tree": "e76942abe0683dabca6570057b7a87363cb109c2",
+    "parents": [
+      "3d07f60e617e20814e7d5ba049a0b66d6db78974"
+    ],
+    "tracked_source_clean_at_observation": true,
+    "source_freeze": false,
+    "meaning": "Earlier observed_source_branch fields remain historical observations. This is the latest source cut, with 227 selected cases/212 PASS/15 FAIL/0 ERROR/0 SKIP; full closeout is pending. Mutable LEASES entry refreshed to current bytes; historical receipt source cuts are unchanged."
+  },
   "next_check": "Finish all coherent source companions and independent reviews, then explicit source/input/backend freeze and composed actual/native/Prepared B/Linux/installed/browser/read-only authentic closeout; refresh all 291 per-occurrence proposals without formal G adjudication."
 }

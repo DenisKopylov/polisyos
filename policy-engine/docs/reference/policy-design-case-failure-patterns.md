@@ -451,3 +451,11 @@ implemented.
 **Closure.** Sort those seven local import blocks, then run Ruff check and format against the complete final file set in its physical topology. When candidate additions/removals can affect package or module discovery, repeat the gate after composing that topology. Do not mask the result with a global import-order override.
 
 **Scope.** This is the same P38 proxy-gate class, not a new class or a P40 repair ladder. The seven-block style delta is independently reviewed and the full 20-file canonical Ruff check/format receipts pass. Runtime tests remain unrun; this note makes no runtime or N4 closure claim.
+
+### P30/P38 instance: source snapshots sharing writable inodes (2026-10-17)
+
+**Diagnostic question.** Can a source write change an independently issued snapshot through a hardlink? A distinct pathname and a previously recorded hash do not establish independent custody.
+
+**Divergent case.** An in-place candidate write changed 45 canonical file objects and their 302 RAW source/config aliases. The scoped inode reconciliation accounted for all 347 link names. No deciding-output alias was in that set; the original source bytes remain available in exact Git objects. The former RAW snapshot locators require a provenance corrigendum before reuse. See the [bounded incident and evidence](../research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native-hardlink-source-snapshot-corrigendum-20261017.json).
+
+**Closure move.** Preserve the observed snapshots, bind comparisons to recoverable Git preimages, and use a source-write transport that separates file objects. Check the known alias hashes before and after application. The retained two-file hardlink probe requires changed source bytes and unchanged snapshot bytes; in-place writes fail that property. Do not silently rewrite old snapshots to reconstruct their former identity. This is the existing custody/proxy class, not a new capability or a formal finding closure.

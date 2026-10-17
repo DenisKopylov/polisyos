@@ -1,0 +1,340 @@
+{
+  "record_type": "candidate_implementation_handoff",
+  "slice": "native-runtime-common-calibration-composition-20261017",
+  "author_role": "local_candidate_author_not_G",
+  "candidate_branch": "codex/e02-unified-local-20261009",
+  "slice_base": {
+    "sha": "2fa8a69c35b9b14eca51a1b02a99ba2f1df3b5fd",
+    "tree": "480027c4782b86e56b0493a9c150871537b67373"
+  },
+  "candidate": {
+    "sha": "20afa4bcf1270c2110abe8137781fecfacf8e183",
+    "tree": "ee5687d9ba49a85b19e9cdfe5dd15aa8de76093a",
+    "parents": [
+      "2fa8a69c35b9b14eca51a1b02a99ba2f1df3b5fd"
+    ],
+    "source_bytes_read_back_from_branch": true,
+    "full_present_footprint_sha256": {
+      "policy-engine/architecture/baselines/imports/deep_import.json": "0ca5e48d7cf7edfd08411515f737fadb5c4288b2fae0bb8abbf441607bcbc2ca",
+      "policy-engine/architecture/generated_artifacts.toml": "df4821adc237cf1faa8d327ca4a2b47e2d93ba23dd10480bc1c64dedb2c32d34",
+      "policy-engine/architecture/packages/calibration.toml": "35fb0ec9ae8e876d3e4022a3b5b34078dd7802a28148902375e9cb1e269081ec",
+      "policy-engine/architecture/packages/layout.toml": "f91ff5cd99eb08275e12ee180302f69723fbf6de43ae1d7d8fb3f44f0555bc4d",
+      "policy-engine/architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json": "9f491ca52dd4554636f922f197f707478b4b01767146318c15fadd5ac7a85228",
+      "policy-engine/architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_substrate_package_capability_inventory.json": "c239897fd3c70de50323f3aab3621c4e51e93a75808569e92f7b378dd6ac3fcb",
+      "policy-engine/architecture/public_surface/inventory.json": "cec4b9fe88826232ed389992f6da92e463bd110e93775fa64680636e05ef5713",
+      "policy-engine/architecture/tooling/ruff/per-file-ignores/80-runtime-core-ir.toml": "d37e208c5fe01620ad003114deace8763b0b04cb8e85e8701643d640c1df63c5",
+      "policy-engine/architecture/tooling/ruff/per-file-ignores/90-repository-tools.toml": "4e501384695fd976491f1fda57031ec6e96a34d81ef5ca1b3212ce436d0082f5",
+      "policy-engine/architecture/tooling/ruff/workspace_root.toml": "8b8bd7a0621466985c5dbcc86b6bb2bbe386841ea229c849439b48f67c0e816f",
+      "policy-engine/docs/adr/0005-abi-schema-gate-versioning.md": "b0eb9e7e4c4a2b4e13c792495db2611e35ac9be5e000b89b04bbc4eaa12ac68c",
+      "policy-engine/docs/adr/0108-ir-schema-catalog-and-reflection.md": "ddff2d64723712d7b759d97b667a7a1dced4dc7d1fd78eb8b9994df495c4269c",
+      "policy-engine/docs/explanation/adr-readings/adr-0005-abi-schema-gate-versioning.md": "051f702412e5adbd8cd4f0f770e7202329e8410d770b37bfb25956c4afeea915",
+      "policy-engine/docs/how-to/add-schema-backed-ir-type.md": "8abe058e01d30b2fc55d4dad6042f45bfcf3f4a44215e566051db4d3a437469a",
+      "policy-engine/docs/how-to/onboarding/backend-engineer.md": "a081dca1f3482034884fc3474d5ffe246085e4629a9c1e8a8dd47474135cac35",
+      "policy-engine/docs/plans/active/REPOSITORY_BEST_IN_CLASS_LAST_MILE_REMEDIATION_PLAN.md": "c98eaf7261912337fa0dc5e5e43488cab25492dd4ca7d2bfdd74375417ee2a8b",
+      "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/PolicyOS_Combined_Remediation_E02_Agent_Bundles.md": "64ef2c3fc21eb30ad8374efc48188694dc09b61845f1b0f38a4ed92f333650a8",
+      "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/SHA256SUMS": "ce13efc50b497844697025ac8a76d56ca418f6f0a3791bee71211f4eb5f32696",
+      "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundle_manifest.json": "3e175e181438da47cd9bff978cab7fd52f12d477ecab9d7bbdc1ecda94748678",
+      "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FRC-01.md": "3ca00627c4ad106464b951e2df8597259ddcd9b804e451d7fa19d2bee106bb4b",
+      "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/FRC-02.md": "507b3f8610dbb1e406e0ba38547c7ddf20e91fdcb52f844fa3c9da3cbabd82fa",
+      "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/PCL-01.md": "0e9d9e8c0e516385bf4a7a8b9efaf25b55c2cabcb637e95a5804534bf59dc4a2",
+      "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/dependency_graph.json": "527b62b286ec5ab10ac7e128cf55dd4fdacc74b6423ec3f1ed913d99e6c62ec6",
+      "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/relocation_map.json": "232667fa322e87623887d2eafea90a168763ae62821abb786f09b1db869f8ce3",
+      "policy-engine/docs/reference/fabric/connectors.md": "c1540e6ade3f7c83d8e6957c611e1c24746d8bbd17e5c2e92c5d8090dfeb85ff",
+      "policy-engine/docs/reference/generated-artifacts.md": "b651e25016c27150159704fa9333bcba691a1f253cdb24fd8dbf88610997f400",
+      "policy-engine/docs/reference/ir/analytics.md": "9de6cb91bf6216c9ee20743815f8ccbcd576b77a4823ac77ceb0593aa6578734",
+      "policy-engine/docs/reference/ir/index.md": "b43c18c540ff37ce3d17d7cee4cab836c967c2fc9aa9b0e16f21182376a0c489",
+      "policy-engine/release-fragments/unreleased/2026-10-05-predictive-calibration-inputs.toml": "8f1bb047d332d1473437da9ba6b6787fde6fa7c81dae30591e3a92686da946ed",
+      "policy-engine/release-fragments/unreleased/2026-10-09-e02-composed-api-artifact-consumers.toml": "cfc06c4560266c653c55b21d1a70b7873479163132da63156b90b842ac761cf1",
+      "policy-engine/release-fragments/unreleased/2026-10-10-calibration-ruff-debt-retirement.toml": "6da4cc27a96535ccb97a72bf9f1dcca5017b0e6da4288ab8d26d9ddc0529333c",
+      "policy-engine/release-fragments/unreleased/2026-10-17-common-env-parser-internal-route.toml": "f733ca8050a22f0348bf70da493294ba80e1cc2ff65e3dc25e9bd283549fe4ad",
+      "policy-engine/ruff.generated.toml": "91779059e24dc8db7c23cd93b4cc82eae472c4e838e09780d2fde74b43155146",
+      "policy-engine/schemas/README.md": "d1668d649a554cffef9d41d6a7d6f6d3253a505bc46e086ed2e4bcc6a36d9b02",
+      "policy-engine/schemas/snapshots/fabric/README.md": "b9d3ff16b581166571ae85ed100bfcb01f9c783ec4c019d24f3adcd8d951c2b9",
+      "policy-engine/schemas/snapshots/ir/README.md": "55ca0dac15358042ffdda5fb6d6398d3d10865758a7fa2bafcaeba23c05b4baf",
+      "policy-engine/src/polisyos/calibration/README.md": "42b2fcaf86396074a1b984167e7fccf8756644c957ef42462258977cd59fa220",
+      "policy-engine/src/polisyos/calibration/__init__.py": "c954e24883a1ae9b355b26c2513bbd2a71c41a55946e5b2595e337dfe5b9f786",
+      "policy-engine/src/polisyos/calibration/curve/__init__.py": "f728d338c60b866fba304bb77ac42290180112c3b1a9939625383aac6f3dadcb",
+      "policy-engine/src/polisyos/calibration/curve/_compute.py": "ca9f8332372cc85b0e1690fcf3647cc5bc1224b7fa43e002380054939ba0e6fc",
+      "policy-engine/src/polisyos/calibration/diagnostics/__init__.py": "87736e2f931721b24d13cc6c6eb0d5e15cb668e54da2e770a32311559d416e80",
+      "policy-engine/src/polisyos/calibration/diagnostics/adapters.py": "602144bdf6d7ef099a44d8b4b6f4fc0f75bc996859488d0b7d87d4b1a54df0c1",
+      "policy-engine/src/polisyos/calibration/diagnostics/continuous.py": "abde79ab0573b342b76886c81fb827784d257660477faf01e4019ae23a6fc59c",
+      "policy-engine/src/polisyos/calibration/diagnostics/multiclass.py": "a441c41418e6e39d8604689affd5eb3f64f5a6f4d6d0938e4cbd8263a250376e",
+      "policy-engine/src/polisyos/calibration/recalibration/__init__.py": "20e4d88e4de2ea3d0b6fa3e6fcaad114c2fd9ae7f6838d9b2cd07f4d83920cbd",
+      "policy-engine/src/polisyos/calibration/recalibration/_sklearn_compat.py": "88f5f768ededcf9367e97a68263792c86a361826e1e91ace99af1e14bd4526e5",
+      "policy-engine/src/polisyos/common/README.md": "0273868584bfa48f373e5bb6838da3eb38d9b5c11cbd2410f226c15b17da67a2",
+      "policy-engine/src/polisyos/common/config.py": "d9ccde94822072280eca3f73c2f9e1297ac155956d7f0a7ad0e69dc17ca43e68",
+      "policy-engine/src/polisyos/core/security/settings.py": "06288dc254efb0ddb46c8b76ec1e1ee59e4a9f1f36d58de5eb5e331da06a2d7b",
+      "policy-engine/src/polisyos/core/security/slsa/config.py": "d643b0e4889f2e4ad6cf8161113d9ecf84d951d811db781a49a5588af88a911b",
+      "policy-engine/src/polisyos/foundry/methods/catalog/econometrics/advanced.py": "55aa58ece994746fcedd8aee6c675f021827b944790301e34637852b406eb9d1",
+      "policy-engine/src/polisyos/runtime/manifest/__init__.py": "13cb0e6e12308ef2e2a3f5c926c366d549dbd9e05e2ffd6ab824a701a29786fe",
+      "policy-engine/src/polisyos/schemas/abi_models/__init__.py": "af07ead6baa59d9964b23e34b5e6d5bd2296bb89ee70cfa8ba143cf41b62fe68",
+      "policy-engine/src/polisyos/schemas/abi_models/catalog.py": "01b83592bc97d7bba8a7ed29b9a8b41da1339c65fed1f27d4161cd31028fb485",
+      "policy-engine/tests/fixtures/package_path_compatibility/runtime_abi_protocol4.json": "f781ebf403a265b822a3fe4eec22d0dd66adf06c0f5c8c84292481901331f83f",
+      "policy-engine/tests/repo_quality/architecture/test_repository_best_in_class_phase6_1_import_gate_conversion.py": "d0ba9af511840a6d70509fcc136fd876e1acaa48e39353d800011ee586a4af89",
+      "policy-engine/tests/repo_quality/tools/test_tool_config_split.py": "5c8058a69a8176d9e296a5d5836816715c528e8ddd23d0b3fee1ae3e7b579c76",
+      "policy-engine/tests/unit/calibration/test_package_rehome.py": "85175ea330c47c8a342fa67c3e74a07fe4afa04c62ad6792affc0ad237eb758e",
+      "policy-engine/tests/unit/common/mirror_contracts/test_env_parsing.py": "b2756e28ace7763e958529260c55441c10c52150e2c49e255fdbecd9456fc48e",
+      "policy-engine/tests/unit/common/test_config_bootstrap.py": "5d9126b5a90e741bbce6a4605e352262946418009e11a250046a936d809f0961",
+      "policy-engine/tests/unit/ir/test_schema_catalog.py": "f4ae6147efb804ebb9facfd14f060827c0c535e72f7bfae93bbe5de6550ce5f5",
+      "policy-engine/tests/unit/runtime/test_runtime_manifest_paths.py": "29276dd62752d47ff7c1838ec8b1a2e8d658c760a693b51d5d24cb73fe5596c2",
+      "policy-engine/tools/quality/diagnostics/README.md": "9a72a69bdea0941425449ff499600963a5cb386a84073f7def1442f0f84157bf",
+      "policy-engine/tools/quality/diagnostics/gen_schema.py": "b2005bc1d1272452723afc18e13a151593e782b97cdd9b5206cb62a83b32514a",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json": "57cf63affff480fb848fa34b821bece5cf67538654985ff058808378be9bbebb"
+    },
+    "retired_path_preimage_sha256": {
+      "policy-engine/src/polisyos/calibration/_sklearn_compat.py": "88f5f768ededcf9367e97a68263792c86a361826e1e91ace99af1e14bd4526e5",
+      "policy-engine/src/polisyos/calibration/adapters.py": "602144bdf6d7ef099a44d8b4b6f4fc0f75bc996859488d0b7d87d4b1a54df0c1",
+      "policy-engine/src/polisyos/calibration/continuous.py": "abde79ab0573b342b76886c81fb827784d257660477faf01e4019ae23a6fc59c",
+      "policy-engine/src/polisyos/calibration/curve.py": "3e4efb2865b8c2d1a7ed9d3263ae57a84560967f14caecb299716a9c462a04ee",
+      "policy-engine/src/polisyos/calibration/diagnostics.py": "87736e2f931721b24d13cc6c6eb0d5e15cb668e54da2e770a32311559d416e80",
+      "policy-engine/src/polisyos/calibration/multiclass.py": "a441c41418e6e39d8604689affd5eb3f64f5a6f4d6d0938e4cbd8263a250376e",
+      "policy-engine/src/polisyos/calibration/recalibration.py": "25880b1ecd3a104071ff42f7563ad9499b0f3e34d78e28de70de0b84ee27c3cb",
+      "policy-engine/src/polisyos/common/env_parsing.py": "90afe172cc0b46df9838e6c1f0eec656c62bd5d1e4162394e21cb58e9d8bb897",
+      "policy-engine/src/polisyos/runtime/manifest.py": "13cb0e6e12308ef2e2a3f5c926c366d549dbd9e05e2ffd6ab824a701a29786fe",
+      "policy-engine/src/polisyos/schemas/abi_models.py": "8c43d8085ee94fae96d7c560bb05b2e7b7b84a6f9fca64fd60bf32b46e0d153f"
+    }
+  },
+  "implementation": [
+    "Runtime manifest and ABI catalog now use substantive same-named packages; original five class FQNs and pickle resolution are retained and the live catalog consumer runs.",
+    "Common environment parsing is owned by existing common.config; bootstrap/security/caller routes use that owner.",
+    "Calibration uses curve, diagnostics and recalibration packages with real implementations; the two public curve classes retain natural FQNs/source identity and all public annotation targets resolve.",
+    "All source/test/config/generated-reference/plan/release companions in the75-path implementation are accounted for; remaining generator freshness is not claimed."
+  ],
+  "selected_input_profile_backend": {
+    "environment": "existing locked local .venv; canonical committed source",
+    "numerical_threads": 1,
+    "inputs": "Original protocol4 fixtures and controlled deterministic parser/catalog/calibration inputs; no scientific fit or production input currentness claim"
+  },
+  "real_chain": "Canonical public/runtime imports \u2192 actual manifest persistence/path refusal and bootstrap/parser consumers \u2192 old ABI pickle + live schema catalog; original calibration pickle \u2192 canonical classes \u2192 state/array/byte replay and ordinary recomputation.",
+  "verification": {
+    "canonical_behavior": {
+      "PASS": 24,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0
+    },
+    "pytest_seconds": 5.397,
+    "loaded_modules": 171,
+    "all_loaded_bytes_match_exact_branch": true,
+    "ruff_python_file_denominator": 24,
+    "ruff_check_exit": 0,
+    "ruff_format_exit": 0,
+    "authentic_calibration_pickle": {
+      "classes": [
+        "CalibrationPoint",
+        "CalibrationResult"
+      ],
+      "canonical_origins": true,
+      "original_source_identity_state_numeric_arrays_reserialization_and_recomputation_equal": true
+    },
+    "full_footprint_after_replay": {
+      "present": 65,
+      "retired_absent": 10,
+      "matched": true
+    },
+    "resource_peak_tree_rss_bytes": 422739968,
+    "deciding_command": [
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+      "-B",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native74-focused-wave-request-r1-20261017/root_supervisor.py"
+    ],
+    "command_definition_and_full_argv": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native74-focused-wave-request-r1-20261017/request.json",
+      "sha256": "72768d7f638340592300c271bd056203332c99965034a46ee4b242f40be3ed68"
+    },
+    "full_deciding_outputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native74-focused-wave-request-r1-20261017/request.json",
+        "sha256": "72768d7f638340592300c271bd056203332c99965034a46ee4b242f40be3ed68"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native74-focused-wave-request-r1-20261017/packet-manifest.json",
+        "sha256": "4fae7e3beee71f1bef76333a822ec3fc7cdb61101c881dd8b12164ac6fe589b7"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native74-focused-wave-request-r1-20261017/actual-results.json",
+        "sha256": "c954889d47dda07419243f0259032b9fab26de15c1e06637fe6830170830443e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native74-focused-wave-request-r1-20261017/supervisor-result.json",
+        "sha256": "89f6d425df5ac3aa888399d57b7ec7b872534c51a17780ad10fde7798927d706"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native74-focused-wave-request-r1-20261017/focused-wave.junit.xml",
+        "sha256": "22b81ba7bd6bde96f817085ef04a3baf4e8880b83ef82780cc72e94cb785c55a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native74-focused-wave-request-r1-20261017/actual-loaded-source-origins.json",
+        "sha256": "ab335ce3285ff9b5be3fc20bf4f32a2d01e45985d2bdfcc04e6b5bcfc29d1940"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native74-focused-wave-request-r1-20261017/candidate-overlay-pickle-readback-witness.json",
+        "sha256": "46ba8019e3fc0a8cdd0c902a241b43a69db9cc8ada004f0d89e639338e1e944a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native74-focused-wave-request-r1-20261017/ruff-cli-correction-r2.json",
+        "sha256": "264015faa375de67557799528d219802925deecffe296024be93321e76216a24"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native74-focused-wave-request-r1-20261017/native74-ruff-check.stdout.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native74-focused-wave-request-r1-20261017/native74-ruff-check.stderr.txt",
+        "sha256": "0fc3cae5a30fd883e22477569af49a14d9dacc95092fbf1b1313286fc6b4770f"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native74-focused-wave-request-r1-20261017/native74-ruff-format.stdout.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native74-focused-wave-request-r1-20261017/native74-ruff-format.stderr.txt",
+        "sha256": "35bac498846ae9bf02392c86304033663a2b7fb2483774cde848fc2fbbf25587"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native74-focused-wave-request-r1-20261017/native74-focused-runtime-common-calibration.stdout.txt",
+        "sha256": "d7d84836a3a9047cc32a8d7f580518ff8b6bc6316737e4e283aa0dd402e5a124"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native74-focused-wave-request-r1-20261017/native74-focused-runtime-common-calibration.stderr.txt",
+        "sha256": "bb5667c03f70ad2b7be6a0f70421c8cd4809981c6cc5b64ba0efa88e0779ecf5"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native74-focused-wave-request-r1-20261017/native74-authentic-calibration-pickle-witness.stdout.txt",
+        "sha256": "c309114d4a2684bb6a9bb412480159ac2e2c24cd72bb9a52414340017be9e019"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native74-focused-wave-request-r1-20261017/native74-authentic-calibration-pickle-witness.stderr.txt",
+        "sha256": "89292be9eea40b62e7208f3447f4a53dcdb06957620b14f77135611450f0d314"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native74-focused-wave-request-r1-20261017/native74-ruff-check-corrected-cli-r2.stdout.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native74-focused-wave-request-r1-20261017/native74-ruff-check-corrected-cli-r2.stderr.txt",
+        "sha256": "a9fb9337f0d1ceb60ec40b2e64da98d0a081dfd503847f038efb6db94870eab0"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native74-focused-wave-request-r1-20261017/native74-ruff-format-corrected-cli-r2.stdout.txt",
+        "sha256": "19c2e88957b1c3c58a4a7ed24fc196278e5a0541d48dc9f317a488583e59f74e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native74-focused-wave-request-r1-20261017/native74-ruff-format-corrected-cli-r2.stderr.txt",
+        "sha256": "c06846a484ba6f6c2891c718e98b5cd2b04b14c0622ecd41db75dca77d1063eb"
+      }
+    ],
+    "harness_correction": "Only move --no-cache after the subcommand; original parser errors retained; corrected two lint commands pass on unchanged full24 inputs. No repeated behavior wave.",
+    "pickle_manifest_field_qualification": "The unchanged provider witness field candidate_source_manifest_sha256 refers to its original Calibration R3 provider manifest, not this new75-path implementation. This postrun record binds canonical current origins and branch bytes separately.",
+    "phase_limit": "JUnit and verbose per-case outcomes retained; the origin-only plugin did not emit a separate all-phase inventory."
+  },
+  "adversarial_and_removal_boundary": {
+    "executed": [
+      "Invalid calibration diagnostic input refuses through actual package owner.",
+      "Manifest traversal, interrupted writes and pending audit recovery exercise real storage paths.",
+      "Original protocol4 fixtures must decode through the natural class module/FQN, not a __module__ rewrite."
+    ],
+    "not_run_here": "New remove-property/keep-markers mutants for the entire75-path composed bundle; provider controls retain their original source-specific qualification."
+  },
+  "layout_exception_configuration": {
+    "base_root_exception_count": 37,
+    "candidate_root_exception_count": 27,
+    "exact_retirements": [
+      "src/polisyos/calibration/_sklearn_compat.py",
+      "src/polisyos/calibration/adapters.py",
+      "src/polisyos/calibration/continuous.py",
+      "src/polisyos/calibration/curve.py",
+      "src/polisyos/calibration/diagnostics.py",
+      "src/polisyos/calibration/multiclass.py",
+      "src/polisyos/calibration/recalibration.py",
+      "src/polisyos/common/env_parsing.py",
+      "src/polisyos/runtime/manifest.py",
+      "src/polisyos/schemas/abi_models.py"
+    ],
+    "path": "policy-engine/architecture/packages/layout.toml",
+    "runtime_replay_exception_preserved": true,
+    "formal_finding_closure": false,
+    "remaining_expiry_dates_changed": false,
+    "issuer_or_waiver_created": false
+  },
+  "native_trash": {
+    "receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-composed-runtime-common-calibration-r1-20261017/bundle74-native-trash-progress-r6.json",
+      "sha256": "7452876ca319ae6392ff6dadfee78eb41d31978206540ec38c8bd16fc4315a2c"
+    },
+    "files_preserved": 10,
+    "first_transition": "Original JXA call moved one file then crashed; direct native Trash bytes/inode reconciled. The first API URL was not observed. Swift returned actual URLs for the remaining nine. Original incident retained.",
+    "permanent_deletion": false
+  },
+  "pattern_pass": {
+    "ids": [
+      "P06",
+      "P29",
+      "P31",
+      "P35",
+      "P38",
+      "P39",
+      "P40",
+      "P41"
+    ],
+    "target": "Physical owner relocation with original consumer identities and substance checked; count reduction alone is not acceptance.",
+    "P41": "No red classified inherited.",
+    "metadata_erratum": "Frozen composition decisions list Calibration layout span [61,103); actual patch span is [63,105). No code byte change follows from this correction."
+  },
+  "limitations": [
+    "Official schema/reference/public inventory and N11 generator check/drift controls are pending. Selected component tests are not global native green.",
+    "N11 finite source resolver R6 is independently HOLD for imported-module effects; it was not adopted by this source slice.",
+    "Remaining native layout/SOTA/typing/architecture/backend/wheel/rebuilt-sdist/Linux/browser and full composed gates need the final source/input/backend freeze.",
+    "No unsupported external consumer non-use, production authority/currentness, exception issuer, expiry renewal or formal G acceptance is inferred."
+  ],
+  "references": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-composed-runtime-common-calibration-r1-20261017/candidate-manifest.json",
+      "sha256": "e8f0b8ee660fcbeb439b07bd18262596f5716894ffff428ca541cc49af5cd8ac"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-composed-runtime-common-calibration-independent-review-r1-20261017/review.json",
+      "sha256": "a194b12b784a5f265b3af1470c2d2f83072fbf1006fcc0fd1fed901069cd4081"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native74-style-blocking-batch-r1-20261017/manifest.json",
+      "sha256": "0e75d8722b42674f1505de84cbbcbfff677e4d57664910226c435a32c28ae10b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native74-style-independent-review-r1-20261017/review.json",
+      "sha256": "0016d7b772a02d8cd5c5d5b33724f9a75182f7a29d775f9f749735d2edc7276a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-composed-runtime-common-calibration-r1-20261017/bundle74-resume-apply-readback-r6.json",
+      "sha256": "2ee355f86ce762ad96d3d90225078acdc1960c671ddb2a927d0a5476f4f0fac0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-composed-runtime-common-calibration-r1-20261017/bundle74-native-trash-progress-r6.json",
+      "sha256": "7452876ca319ae6392ff6dadfee78eb41d31978206540ec38c8bd16fc4315a2c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-composed-runtime-common-calibration-r1-20261017/native74-implementation-readback.json",
+      "sha256": "caf9f60aee8fdb6825015afe967cdf171ae2be74436c4626213b7b6def20cae4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native74-focused-wave-request-r1-20261017/root-postrun-readback.json",
+      "sha256": "ed9ad0dbffbe95541a77a98d77fa1d96fbd0de22dbe86622c8d578f0160b7e1d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native74-focused-wave-request-r1-20261017/request.json",
+      "sha256": "72768d7f638340592300c271bd056203332c99965034a46ee4b242f40be3ed68"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-candidate-push-20afa4bcf127-20261015/remote-readback.json",
+      "sha256": "278957c5b42ce5b9f1f2e5ddb6ffd73e5e9d5aa8393a5acc5939f9a599d1a2d0"
+    }
+  ],
+  "closure_ids": [],
+  "proposal_fields": {
+    "status": "bounded implemented candidate with selected canonical behavior verified; G acceptance pending",
+    "formal_closures_proposed": [],
+    "whole_property_ids": "Rebind original282 findings/291 occurrences individually in final proposal report; no automatic row closures."
+  },
+  "global_source_input_backend_freeze": false,
+  "next_check": "Compose reviewed companion slices, finish remaining engineering/explicit G choices, run official generators/check/drift plus one final composed/native/installed/backend wave and complete per-occurrence proposals."
+}

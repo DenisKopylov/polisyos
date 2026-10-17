@@ -93,7 +93,7 @@
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
-      "sha256": "c423301e4ecc3abffb3c66d15d3d7b7dee15b1b984b33c5cfde34ea94de04eeb",
+      "sha256": "57cf63affff480fb848fa34b821bece5cf67538654985ff058808378be9bbebb",
       "source_commit": "9e752c894684a21923312992c4dd6f8350270cc1",
       "record_type": "committed_coordination_snapshot",
       "previous_unqualified_digest": "1c2ae874ad7a12ac5c8ce69c580be992eef49a0ba58164893eff9a679a1ff9e5",
@@ -618,6 +618,10 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/runtime-source-root-composition-r11-20261017.json",
       "sha256": "6f6384f03ce5b9f7c55caa6357d4871061b621062136ffd237ed19986f0f4454"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native-runtime-common-calibration-composition-20261017.json",
+      "sha256": "18eeff1266c2da7ae64521b698222dfa076700f9a5411a4fa48e61160371ede7"
     }
   ],
   "canonical_denominator_recomputed": {

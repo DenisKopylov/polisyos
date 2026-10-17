@@ -42,7 +42,7 @@ class _StagedWorkerTraceSink:
         self.records: list[Any] = []
 
     def emit(self, rec: Any) -> None:
-        from polisyos.core.trace.record import TraceRecord
+        from polisyos.core.trace import TraceRecord
 
         if type(rec) is not TraceRecord:
             raise TypeError("timeout worker trace records must be typed")
@@ -51,7 +51,7 @@ class _StagedWorkerTraceSink:
     def emit_many(self, records: Sequence[Any]) -> None:
         """Stage a typed batch in order without touching the parent writer."""
         staged = list(records)
-        from polisyos.core.trace.record import TraceRecord
+        from polisyos.core.trace import TraceRecord
 
         if any(type(record) is not TraceRecord for record in staged):
             raise TypeError("timeout worker trace records must be typed")

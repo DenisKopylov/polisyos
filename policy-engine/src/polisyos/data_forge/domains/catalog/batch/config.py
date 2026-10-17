@@ -569,9 +569,9 @@ def _runtime_profile_input_coverage(
 
 def _capture_runtime_source_profile_snapshot() -> _RuntimeSourceProfileSnapshot:
     """Copy profiles once, then resolve every runtime input from those copies."""
-    from polisyos.fabric.connectors.base import ConnectionConfig
-    from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
-    from polisyos.fabric.connectors.profiles.resolver import (
+    from polisyos.fabric.connectors import (
+        ConnectionConfig,
+        SourceProfileRegistry,
         resolve_connection_config,
         resolve_execution_policy,
     )

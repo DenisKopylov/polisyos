@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
     from datetime import date
 
-from polisyos.common.timestamps import parse_iso_date
+from polisyos.common import timestamps as _common_timestamps_facade
 from polisyos.data_forge.read_api.legal import (
     current_legal_source_relation_disposition,
 )
@@ -21,6 +21,10 @@ from polisyos.lex.normpack.query_normalization import (
     legal_requirements_from_scenario_contract,
     normalize_lex_query_terms,
 )
+
+parse_iso_date = _common_timestamps_facade.parse_iso_date
+del _common_timestamps_facade
+
 
 SCHEMA_VERSION = "policyos.lex.normative_applicability_report.v1"
 _CANDIDATE_NORM_KEYS = frozenset(

@@ -14,12 +14,23 @@ from tools.ops_runners.runtime import canary_evidence
 from tools.ops_runners.runtime.canary_evidence import assemble_canary_evidence
 
 
+def test_generic_scorecard_refs_do_not_generate_passed_phase_barriers() -> None:
+    records = canary_evidence._generated_phase_barrier_records(
+        scorecard_runtime_refs={"quality_scorecard_ref": "sha256:" + "a" * 64},
+        run_id="run-a",
+        job_payload=complete_job_payload(),
+        run_payload=None,
+        canary_kind="production",
+    )
+
+    assert records == []
+
+
 def _scorecard(output_dir: Path) -> dict[str, object]:
     return json.loads(
-        (output_dir / "quality_evidence" / "quality_scorecard.json").read_text(
-            encoding="utf-8"
-        )
+        (output_dir / "quality_evidence" / "quality_scorecard.json").read_text(encoding="utf-8")
     )
+
 
 def test_canary_bundle_generated_quality_evidence_paths_cannot_mint_runtime_refs(
     tmp_path: Path,
@@ -46,6 +57,7 @@ def test_canary_bundle_generated_quality_evidence_paths_cannot_mint_runtime_refs
     production_ref = scorecard["evidence_refs"]["production_data_quality_report_ref"]
     assert production_ref != runtime_refs["production_data_quality_report_ref"]
     assert production_ref.startswith("sha256:")
+
 
 def test_quality_status_pass_in_input_progress_bundle_or_dashboard_is_projection_only(
     tmp_path: Path,
@@ -122,10 +134,7 @@ def test_serious_canary_evidence_dual_writes_legacy_migration_sandbox(
     assert authority_payload["authority_envelope"]["evidence_class"] == "authority_bearing"
     assert sandbox["status"] == "pass"
     assert sandbox["closeout_policy"]["legacy_satisfies_serious_gates"] is False
-    assert (
-        sandbox["dual_write_policy"]["required_consecutive_weekly_closeout_baselines"]
-        == 2
-    )
+    assert sandbox["dual_write_policy"]["required_consecutive_weekly_closeout_baselines"] == 2
 
 
 def test_silent_fallback_requires_degradation_ledger_before_canary_closeout(
@@ -201,8 +210,7 @@ def test_serious_canary_job_events_cover_aggregate_closeout_refs(tmp_path: Path)
     diagnostic_events = job["progress"]["details"]["diagnostic_events"]
 
     assert any(
-        event.get("ref_key") == "approval_packet_ref"
-        and event.get("artifact_ref") == approval_ref
+        event.get("ref_key") == "approval_packet_ref" and event.get("artifact_ref") == approval_ref
         for event in diagnostic_events
     )
 
@@ -219,9 +227,7 @@ def test_serious_canary_semantic_binding_ledger_is_reader_valid(tmp_path: Path) 
     )
 
     ledger = json.loads(
-        (output / "quality_evidence" / "semantic_binding_ledger.json").read_text(
-            encoding="utf-8"
-        )
+        (output / "quality_evidence" / "semantic_binding_ledger.json").read_text(encoding="utf-8")
     )
 
     assert deserialize_semantic_binding_ledger(ledger).semantic_binding_ref
@@ -270,8 +276,6 @@ def test_semantic_binding_closeout_sanitizer_removes_reader_forbidden_ref() -> N
         }
     }
 
-    sanitized = canary_evidence._quality_evidence_with_reader_valid_semantic_binding(
-        payload
-    )
+    sanitized = canary_evidence._quality_evidence_with_reader_valid_semantic_binding(payload)
 
     assert "semantic_binding_ledger_ref" not in sanitized["semantic_binding_ledger"]

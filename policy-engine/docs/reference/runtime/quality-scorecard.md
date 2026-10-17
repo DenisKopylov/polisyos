@@ -16,6 +16,23 @@ not manufacture missing evidence, convert candidate output into authority, or
 sign/authorize a public policy claim; approval and custody remain separate
 consumers.
 
+
+Canary-generated public exports remain persisted at the existing bundle path and are passed to
+scorecard candidate-firewall and audit consumers through a separate projection channel. Replay
+continuity freezes selected caller/loaded input surfaces before any canary-local report or
+projection is built. Request context, workflow state, job progress, and quality evidence are
+`consumer_asserted` diagnostic candidates, not admitted authority. Replay manifest, bundle,
+inspection, readiness, and export are observations: their refs stay in `surface_coverage`, and
+refs absent from the selected source candidates are reported as unbound. These observations cannot
+supply required or summarized refs. Consequently, an observation-only required ref causes the
+diagnostic continuity status to fail; G must adjudicate that observable status meaning before a
+public compatibility claim. A public-export schema or projection-only object on a source surface is
+refused, while its label never establishes producer provenance. A continuity-shaped record on a
+source surface contributes only its fixed artifact ref; on an observation surface its summary refs
+remain observations. Content-shape and fingerprint checks do not establish who emitted the record.
+Malformed embedded continuity data fails with a typed finding. Arbitrary markerless ref maps outside
+a known continuity slot remain a bounded diagnostic residual and cannot establish authority.
+
 ## Compatibility
 
 Existing readers may continue to use these original fields:
@@ -147,6 +164,27 @@ The control-plane job response projection also enforces these runtime-owned refs
 for completed jobs. A stale or fixture-authored scorecard that marks the gates
 as passing cannot promote a research, governed, or production job to
 `quality_status: pass` unless the refs are present in job progress.
+
+## Generated projection audit boundary
+
+`build_quality_scorecard` keeps its existing public signature and accepts evidence only through the
+ordinary selected-input/ref-validation path. Canary assembly persists its generated public export at
+`quality_evidence/public_export_bundle.json` for audit consumers; it does not feed that generated
+output back into scorecard evidence. Diagnostic SLO and evidence-spine consumers receive an audit
+view to measure redaction coverage and record the projection handoff, but neither view supplies an
+authority ref. Caller-supplied projection-shaped content remains ordinary `quality_evidence` and is
+validated there; a `projection_only` label does not bypass admission.
+
+## Phase-barrier owner and intent limits
+
+The live NL control-job producer persists an owner binding only after reconciling the admitted
+creation event and active lease. A normal control-job GET returns that persisted binding on the
+terminal response, but `build_quality_scorecard` receives a plain mapping and cannot verify its
+source. Its owner-scope and dependent intent gates therefore stay
+`phase_barrier_owner_scope_not_established`; matching fields do not prove a fresh terminal read.
+This does not supply a typed policy-time ref or the required phase-barrier ledger: the same-input
+closure remains `not_closed`, the run-intent binding is incomplete, and serious readiness remains
+blocked until those producer-owned artifacts and a source-verifiable consumer seam exist.
 
 ## Refs
 

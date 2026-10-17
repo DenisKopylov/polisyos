@@ -7,7 +7,7 @@ from typing import Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.core import contracts as core_contracts  # Pydantic runtime type
-from polisyos.core.contracts.control import LexSourceRelationRefusal
+from polisyos.core.contracts import LexSourceRelationRefusal
 from polisyos.lex.knowledge import LegalFactResult
 
 

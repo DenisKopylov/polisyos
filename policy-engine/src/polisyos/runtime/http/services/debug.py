@@ -58,12 +58,12 @@ from polisyos.core.contracts.runtime import (
     SimulationResultCandidateView,
 )
 from polisyos.core.trace import TraceRecord
+from polisyos.ir import CanonViolation
 from polisyos.ir import ModelQueryDataViewRequest as QueryDataViewRequest
+from polisyos.ir import get_json_artifact as get_ir_json_artifact
 from polisyos.ir.analytics import (
     DataViewRequest as AnalyticsDataViewRequest,
 )
-from polisyos.ir.artifacts.io import get_json_artifact as get_ir_json_artifact
-from polisyos.ir.model_layer.canon import CanonViolation
 from polisyos.scientist.orchestration.engine import BudgetLedgerProducerRunBinding, BudgetMiddleware
 from polisyos.scientist.validation.decision_validity import DecisionValidityService
 
@@ -1308,7 +1308,7 @@ class DebugService:
             if selection_issue is not None:
                 warnings.append(selection_issue)
         if data_snapshot_ref is not None:
-            from polisyos.core.contracts.fabric import DataSnapshot
+            from polisyos.core.contracts import DataSnapshot
 
             try:
                 selected_snapshot = validate_core_model_json_artifact(

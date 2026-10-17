@@ -95,7 +95,7 @@
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
-      "sha256": "5c571bdc55a35924df95f4167e8f03ff07cd4ebfbc672f6fcc6a2a7f6af9a046",
+      "sha256": "5dad1f4e2ce0f9c1c68fef6a1cb764239df6a9aa95e26c1a987da588a371bf2b",
       "record_type": "current_coordination_snapshot",
       "previous_unqualified_digest": "1c2ae874ad7a12ac5c8ce69c580be992eef49a0ba58164893eff9a679a1ff9e5",
       "qualification": "Current LEASES bytes are pinned by this digest and the containing index commit. historical_original_source_commit names only the first recorded B194 snapshot; it is not the source of the current lease bytes. Source and native verification remain separately scoped.",
@@ -775,22 +775,24 @@
   ],
   "retention": "Complete deciding outputs and removal controls are pinned by receipts under ignored LOCAL/raw on the candidate checkout. Tracked source is cited by path@sha/commit, not copied. Large RAW availability is local; no archive payload census or duplicate environment.",
   "latest_reconciled_source_cut": {
-    "head": "852b846315db54c1c2f7d0fb9cb0e75da96726e9",
-    "tree": "e04b2f76ab547f1dfb4cb9f6c84a54f24ccd7b77",
+    "head": "c5611db921ab48d07416e95746b85e189baa16c1",
+    "tree": "9f719813f6df9c8ca9312d9194b517573c3b6577",
     "parents": [
-      "0be2acdec09f4d4c224602bbad052bc6fe507cbe"
+      "852b846315db54c1c2f7d0fb9cb0e75da96726e9"
     ],
     "source_freeze": false,
     "tracked_source_clean_at_observation": false,
-    "pending_root_adoption_paths": [
-      "policy-engine/tests/unit/data_forge/domains/ukraine/test_demography_artifacts.py"
-    ],
-    "meaning": "Exact author-owned independently reviewed test preserved by normal commit. No byte restoration; nine historical RAW source aliases are qualified by the retained incident attribution. This observation names the actual precommit HEAD, not a future receipt commit.",
+    "pending_reviewed_composition_paths": 128,
+    "pending_application_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-common-owner-native-composition-r1-20261017/source-application.json",
+      "sha256": "fcc88e68fc9f5336a779fadd3b0bee1ed9e1af532149ccb7052846d222e73886"
+    },
     "prior_index_observation": {
-      "commit": "852b846315db54c1c2f7d0fb9cb0e75da96726e9",
+      "commit": "c5611db921ab48d07416e95746b85e189baa16c1",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
-      "sha256": "51dc3d42f4268a32be0c9c48269384efe21d251d1374221411a2c9d9072fcbd7"
-    }
+      "sha256": "b59445f30a81649ffbea03a1544f931d29fb9b208f2a44603c756bd070b8e1ab"
+    },
+    "meaning": "Actual precommit frame plus exact applied reviewed bytes. This record does not name a future receipt commit. Scanner R6 excluded after independent target-relevance falsifier; registry companion does not depend on it. Canonical behavior replay remains mandatory."
   },
   "next_check": "Finish independent reviews and root-controlled blocking fixes; freeze explicit source/profile/inputs, execute actual N4/V3 and composed/native/Linux/installed/browser/authentic consumers, then publish the full 291-occurrence proposal to independent G. No global closeout or formal closures are claimed."
 }

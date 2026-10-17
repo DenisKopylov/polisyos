@@ -16,10 +16,10 @@ from polisyos.core.artifacts import (
 from polisyos.foundry.methods import (
     OrdinalMultidimensionalPovertyEstimator,
 )
-from polisyos.ir import OrdinalPovertyReportRef
-from polisyos.ir.analytics.distributional import (
+from polisyos.ir import (
     OrdinalPovertyEstimate,
     OrdinalPovertyReport,
+    OrdinalPovertyReportRef,
     persist_ordinal_poverty_report,
 )
 from polisyos.scientist.orchestration.engine.context import ExecutionContext

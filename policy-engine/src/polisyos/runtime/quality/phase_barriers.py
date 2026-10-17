@@ -231,8 +231,7 @@ class PhaseBarrierRecord(BaseModel):
         barrier = PhaseBarrierId(data["barrier_id"])
         required = tuple(
             str(item)
-            for item in data.get("required_evidence")
-            or PHASE_BARRIER_REQUIRED_EVIDENCE[barrier]
+            for item in data.get("required_evidence") or PHASE_BARRIER_REQUIRED_EVIDENCE[barrier]
         )
         satisfied = tuple(str(item) for item in data.get("satisfied_evidence") or ())
         data["required_evidence"] = required
@@ -373,6 +372,149 @@ class PhaseBarrierRecord(BaseModel):
         return self.model_dump(mode="json")
 
 
+def _reconcile_phase_barrier_subjects(
+    barriers: Iterable[PhaseBarrierRecord],
+    *,
+    expected_run_id: str | None = None,
+    expected_tenant_id: str | None = None,
+    expected_profile: str | None = None,
+) -> tuple[PhaseBarrierRecord, ...]:
+    """Reconcile every candidate to one persisted run, tenant, and profile."""
+
+    records = tuple(barriers)
+    if not records:
+        return records
+
+    anchor = records[0]
+    for field in ("run_id", "tenant_id", "profile"):
+        expected = getattr(anchor, field)
+        for record in records[1:]:
+            if getattr(record, field) != expected:
+                raise PhaseBarrierError(
+                    "phase_barrier_scope_mismatch",
+                    f"Phase barrier candidates disagree on {field}.",
+                    field=field,
+                )
+
+    for field, expected in (
+        ("run_id", expected_run_id),
+        ("tenant_id", expected_tenant_id),
+        ("profile", expected_profile),
+    ):
+        if expected is not None and getattr(anchor, field) != expected:
+            raise PhaseBarrierError(
+                "phase_barrier_scope_mismatch",
+                f"Phase barrier candidates do not match the declared {field}.",
+                field=field,
+            )
+    return records
+
+
+_EXECUTION_OWNER_BINDING_FIELDS = frozenset(
+    {
+        "job_id",
+        "run_id",
+        "tenant_id",
+        "cell_id",
+        "requested_execution_profile",
+        "effective_execution_profile",
+        "attempt",
+        "lease_owner",
+    }
+)
+
+
+def _validated_execution_owner_binding(
+    value: object,
+    *,
+    expected: Mapping[str, object] | None = None,
+) -> dict[str, object] | None:
+    """Validate one persisted NL owner-binding projection and optional live identity."""
+
+    if not isinstance(value, Mapping) or not _EXECUTION_OWNER_BINDING_FIELDS.issubset(value):
+        return None
+    binding = {key: value[key] for key in _EXECUTION_OWNER_BINDING_FIELDS}
+    string_fields = _EXECUTION_OWNER_BINDING_FIELDS - {"attempt"}
+    if any(
+        not isinstance(binding.get(field), str)
+        or not str(binding[field]).strip()
+        or str(binding[field]) != str(binding[field]).strip()
+        for field in string_fields
+    ):
+        return None
+    attempt = binding.get("attempt")
+    if type(attempt) is not int or attempt < 1:
+        return None
+    if expected is not None:
+        for field, expected_value in expected.items():
+            if field not in _EXECUTION_OWNER_BINDING_FIELDS:
+                return None
+            actual = binding.get(field)
+            if type(actual) is not type(expected_value) or actual != expected_value:
+                return None
+    return binding
+
+
+def _execution_owner_binding_from_admission(
+    admission: object,
+    *,
+    expected_job_id: str,
+    expected_run_id: str,
+    expected_effective_profile: str | None = None,
+    expected_scope: Mapping[str, object] | None = None,
+) -> dict[str, object] | None:
+    """Project one live lease admission after reconciling its persisted owner scope.
+
+    Callers must obtain ``admission`` from the control store's
+    ``current_execution_job_admission`` resolver. The resulting mapping is a
+    transport projection; it is not accepted as proof without a consumer check.
+    """
+
+    job = getattr(admission, "job", None)
+    scope = getattr(admission, "scope", None)
+    if job is None or scope is None:
+        return None
+    if getattr(job, "state", None) != "running":
+        return None
+    if getattr(scope, "status", None) != "established":
+        return None
+    attempt = getattr(admission, "attempt", None)
+    if type(attempt) is not int or attempt < 1 or attempt != getattr(job, "attempt", None):
+        return None
+    raw = {
+        "job_id": getattr(job, "job_id", None),
+        "run_id": getattr(job, "run_id", None),
+        "tenant_id": getattr(scope, "tenant_id", None),
+        "cell_id": getattr(scope, "cell_id", None),
+        "requested_execution_profile": getattr(job, "requested_execution_profile", None),
+        "effective_execution_profile": getattr(job, "effective_execution_profile", None),
+        "attempt": attempt,
+        "lease_owner": getattr(job, "lease_owner", None),
+    }
+    expected: dict[str, object] = {
+        "job_id": expected_job_id,
+        "run_id": expected_run_id,
+    }
+    if expected_effective_profile is not None:
+        expected["effective_execution_profile"] = expected_effective_profile
+    for key, value in (expected_scope or {}).items():
+        if key in {"tenant_id", "cell_id"}:
+            expected[key] = value
+        else:
+            return None
+    return _validated_execution_owner_binding(raw, expected=expected)
+
+
+def _phase_barrier_owner_scope_not_established() -> PhaseBarrierError:
+    """Return the current typed refusal for absent producer-owned scope proof."""
+
+    return PhaseBarrierError(
+        "phase_barrier_owner_scope_not_established",
+        "No producer-owned phase-barrier scope bridge is established for serious authority.",
+        field="owner_scope",
+    )
+
+
 class PhaseBarrierLedger:
     """Append-only JSONL persistence for phase barrier records."""
 
@@ -413,11 +555,11 @@ class PhaseBarrierLedger:
         """Return the latest record for one run/barrier pair."""
 
         barrier = PhaseBarrierId(barrier_id)
-        matches = tuple(
-            record
-            for record in self.records_for_run(run_id)
-            if record.barrier_id is barrier
+        scoped = _reconcile_phase_barrier_subjects(
+            self.records_for_run(run_id),
+            expected_run_id=_non_empty(run_id),
         )
+        matches = tuple(record for record in scoped if record.barrier_id is barrier)
         return matches[-1] if matches else None
 
 
@@ -426,10 +568,11 @@ def latest_barrier_record(
     *,
     barriers: Iterable[PhaseBarrierRecord],
 ) -> PhaseBarrierRecord | None:
-    """Return the latest in-memory record for a barrier."""
+    """Return the latest candidate after reconciling the complete supplied set."""
 
     barrier = PhaseBarrierId(barrier_id)
-    matches = tuple(record for record in barriers if record.barrier_id is barrier)
+    scoped = _reconcile_phase_barrier_subjects(barriers)
+    matches = tuple(record for record in scoped if record.barrier_id is barrier)
     return matches[-1] if matches else None
 
 
@@ -468,7 +611,7 @@ def assert_barrier_passed(
     *,
     barriers: Iterable[PhaseBarrierRecord],
 ) -> PhaseBarrierRecord:
-    """Require a barrier to pass before an authority-upgrading transition."""
+    """Require candidate status to pass; this does not establish owner scope."""
 
     barrier = PhaseBarrierId(barrier_id)
     record = assert_barrier_closed(barrier, barriers=barriers)

@@ -7,8 +7,7 @@ from typing import TYPE_CHECKING, Protocol
 from polisyos.ir.analytics.causal import DataReadinessReport
 
 if TYPE_CHECKING:
-    from polisyos.ir import InterventionExpr, InterventionQuery
-    from polisyos.ir.analytics.causal_graph import CausalGraphModel
+    from polisyos.ir import CausalGraphModel, InterventionExpr, InterventionQuery
 
 
 class _CausalEngineStaticHelpers(Protocol):

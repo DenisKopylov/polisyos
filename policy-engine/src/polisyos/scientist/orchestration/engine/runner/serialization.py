@@ -32,9 +32,9 @@ from polisyos.scientist.orchestration.engine.error_semantics import emit_degrade
 from polisyos.scientist.orchestration.engine.protocol import NodeOutcome
 
 if TYPE_CHECKING:
-    from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.core.artifacts import ArtifactRef
     from polisyos.core.security import AccessScope
-    from polisyos.core.trace.record import TraceRecord
+    from polisyos.core.trace import TraceRecord
 
 try:
     import orjson
@@ -367,8 +367,8 @@ def serialize_worker_execution_receipt(
     records: list[TraceRecord],
 ) -> bytes:
     """Encode one timeout worker outcome with its staged RunContext receipt."""
-    from polisyos.core.artifacts.manifest import ArtifactRef
-    from polisyos.core.trace.record import TraceRecord
+    from polisyos.core.artifacts import ArtifactRef
+    from polisyos.core.trace import TraceRecord
 
     if type(owner_snapshot_ref) is not ArtifactRef:
         raise TypeError("Worker receipt owner snapshot must be an ArtifactRef")
@@ -398,8 +398,8 @@ def deserialize_worker_execution_receipt(
     data: bytes,
 ) -> tuple[bytes | None, dict[str, Any] | None, str, str, ArtifactRef, list[TraceRecord]]:
     """Decode and strictly validate one timeout worker execution receipt."""
-    from polisyos.core.artifacts.manifest import ArtifactRef
-    from polisyos.core.trace.record import TraceRecord
+    from polisyos.core.artifacts import ArtifactRef
+    from polisyos.core.trace import TraceRecord
 
     try:
         raw = _loads(_coerce_wire_bytes(data))

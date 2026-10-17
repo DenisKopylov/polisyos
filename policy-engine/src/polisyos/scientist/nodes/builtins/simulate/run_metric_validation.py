@@ -22,8 +22,8 @@ from polisyos.core.contracts.foundry import (
 from polisyos.core.contracts.scientist import (
     MetricValidationReportRef as CoreMetricValidationReportRef,
 )
+from polisyos.ir import InputRef as IRInputRef
 from polisyos.ir.analytics.metric_validation_report import persist_metric_validation_report
-from polisyos.ir.artifacts import InputRef as IRInputRef
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_METRIC_OBSERVATION_BUNDLE_REF,
     ARTIFACT_METRIC_VALIDATION_REPORT_REF,

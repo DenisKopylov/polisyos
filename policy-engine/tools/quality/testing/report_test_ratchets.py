@@ -7,12 +7,14 @@ import argparse
 import ast
 import hashlib
 import json
+import math
 import tomllib
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from polisyos.common.serialization import decode_json_object
 from tools.lib.fs import atomic_write_text
 from tools.lib.imports import repo_root_from
 
@@ -33,6 +35,7 @@ class PackageRatchetReport:
     loose_name_mirror_ratio: float
     strict_module_mirror_ratio_baseline: float | None
     loose_name_mirror_ratio_baseline: float | None
+    baseline_basis: dict[str, str]
     strict_module_mirror_ratio_delta: float | None
     loose_name_mirror_ratio_delta: float | None
     ratchet_floor: float
@@ -176,16 +179,170 @@ def _package_baseline_from_contract(package: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+_BASELINE_METRICS: dict[str, tuple[str, str]] = {
+    "source_module_count": ("source_module_count_baseline", "count"),
+    "strict_module_mirror_ratio": ("strict_mirror_ratio_baseline", "ratio"),
+    "loose_name_mirror_ratio": ("loose_mirror_ratio_baseline", "ratio"),
+    "property_test_file_count": ("property_test_file_count_baseline", "count"),
+}
+
+
+def _validate_baseline_metric(value: object, *, metric: str, source: str, kind: str) -> int | float:
+    if kind == "count":
+        if type(value) is not int or value < 0:
+            raise ValueError(
+                f"Invalid {source} baseline metric {metric}: expected a non-negative integer"
+            )
+        return value
+    if type(value) not in (int, float):
+        raise ValueError(
+            f"Invalid {source} baseline metric {metric}: expected a finite ratio from 0 to 1"
+        )
+    try:
+        numeric = float(value)
+    except (OverflowError, TypeError, ValueError) as exc:
+        raise ValueError(
+            f"Invalid {source} baseline metric {metric}: expected a finite ratio from 0 to 1"
+        ) from exc
+    if not math.isfinite(numeric) or not 0.0 <= numeric <= 1.0:
+        raise ValueError(
+            f"Invalid {source} baseline metric {metric}: expected a finite ratio from 0 to 1"
+        )
+    return numeric
+
+
+def _resolve_package_baseline(
+    package: dict[str, Any], inventory: dict[str, Any] | None
+) -> tuple[dict[str, int | float], dict[str, str]]:
+    if inventory is not None and not isinstance(inventory, dict):
+        raise ValueError("Invalid inventory baseline record: expected a mapping")
+
+    contract_values = _package_baseline_from_contract(package)
+    values: dict[str, int | float] = {}
+    basis: dict[str, str] = {}
+    for metric, (contract_key, kind) in _BASELINE_METRICS.items():
+        contract_value = contract_values.get(metric)
+        inventory_value = inventory.get(metric) if inventory is not None else None
+        validated_contract = (
+            _validate_baseline_metric(
+                contract_value,
+                metric=metric,
+                source="contract",
+                kind=kind,
+            )
+            if contract_value is not None
+            else None
+        )
+        validated_inventory = (
+            _validate_baseline_metric(
+                inventory_value,
+                metric=metric,
+                source="inventory",
+                kind=kind,
+            )
+            if inventory_value is not None
+            else None
+        )
+        if validated_inventory is not None:
+            values[metric] = validated_inventory
+            basis[metric] = "inventory"
+        elif validated_contract is not None:
+            values[metric] = validated_contract
+            basis[metric] = "contract_fallback"
+        else:
+            raise ValueError(
+                f"Missing test ratchet baseline metric {metric}: inventory and contract are unavailable"
+            )
+    return values, basis
+
+
+def _validate_baseline_rows(
+    rows: object,
+    *,
+    source: str,
+    identity_key: str,
+    metric_fields: dict[str, str],
+) -> dict[str, dict[str, Any]]:
+    if type(rows) is not list:
+        raise ValueError(f"Invalid {source} package rows: expected a list")
+
+    indexed: dict[str, dict[str, Any]] = {}
+    for index, row in enumerate(rows):
+        if type(row) is not dict:
+            raise ValueError(f"Invalid {source} package row {index}: expected a mapping")
+        identity = row.get(identity_key)
+        if type(identity) is not str or not identity.strip():
+            raise ValueError(
+                f"Invalid {source} package row {index}: {identity_key} must be a non-empty string"
+            )
+        if identity in indexed:
+            raise ValueError(f"Duplicate {source} package identity: {identity}")
+        for metric, field in metric_fields.items():
+            value = row.get(field)
+            if value is not None:
+                _validate_baseline_metric(
+                    value,
+                    metric=metric,
+                    source=source,
+                    kind=_BASELINE_METRICS[metric][1],
+                )
+        indexed[identity] = row
+    return indexed
+
+
+def _validate_baseline_contract(contract: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    if type(contract) is not dict:
+        raise ValueError("Invalid ratchet contract: expected a mapping")
+    test_ratchets = contract.get("test_ratchets")
+    if type(test_ratchets) is not dict:
+        raise ValueError("Invalid ratchet contract test_ratchets: expected a mapping")
+    baseline_inventory = test_ratchets.get("baseline_inventory")
+    if type(baseline_inventory) is not str or not baseline_inventory.strip():
+        raise ValueError("Invalid ratchet contract baseline_inventory: expected a non-empty path")
+
+    packages = _validate_baseline_rows(
+        contract.get("package_ratchet"),
+        source="contract",
+        identity_key="name",
+        metric_fields={
+            metric: contract_key for metric, (contract_key, _kind) in _BASELINE_METRICS.items()
+        },
+    )
+    if not packages:
+        raise ValueError("Invalid ratchet contract package_ratchet: expected at least one package")
+    return packages
+
+
+def _baseline_inventory_path(contract: dict[str, Any]) -> Path:
+    if type(contract) is not dict:
+        raise ValueError("Invalid ratchet contract: expected a mapping")
+    test_ratchets = contract.get("test_ratchets")
+    if type(test_ratchets) is not dict:
+        raise ValueError("Invalid ratchet contract test_ratchets: expected a mapping")
+    baseline_inventory = test_ratchets.get("baseline_inventory")
+    if type(baseline_inventory) is not str or not baseline_inventory.strip():
+        raise ValueError("Invalid ratchet contract baseline_inventory: expected a non-empty path")
+    return _repo_path(baseline_inventory)
+
+
 def _baseline_packages(contract: dict[str, Any]) -> dict[str, dict[str, Any]]:
-    baseline_path = _repo_path(str(contract["test_ratchets"].get("baseline_inventory", "")))
+    baseline_path = _baseline_inventory_path(contract)
     if not baseline_path.exists():
         return {}
-    payload = json.loads(baseline_path.read_text(encoding="utf-8"))
-    return {
-        str(package["package"]): package
-        for package in payload.get("mirror_ratios", {}).get("packages", [])
-        if isinstance(package, dict) and "package" in package
-    }
+    payload = decode_json_object(
+        baseline_path.read_bytes(),
+        source=str(baseline_path),
+        kind="inventory baseline",
+    )
+    mirror_ratios = payload.get("mirror_ratios")
+    if type(mirror_ratios) is not dict:
+        raise ValueError("Invalid inventory baseline mirror_ratios: expected a mapping")
+    return _validate_baseline_rows(
+        mirror_ratios.get("packages"),
+        source="inventory",
+        identity_key="package",
+        metric_fields={metric: metric for metric in _BASELINE_METRICS},
+    )
 
 
 def _repo_relative(path: Path) -> str:
@@ -223,11 +380,7 @@ def _iter_layer_local_conftests(pattern: str) -> list[Path]:
 def _iter_python_test_files() -> list[Path]:
     if not TEST_ROOT.exists():
         return []
-    return sorted(
-        path
-        for path in TEST_ROOT.rglob("*.py")
-        if "__pycache__" not in path.parts
-    )
+    return sorted(path for path in TEST_ROOT.rglob("*.py") if "__pycache__" not in path.parts)
 
 
 def _iter_imported_modules(tree: ast.AST) -> list[tuple[str, int]]:
@@ -283,12 +436,8 @@ def _find_helper_usages(
     helper_files: list[Path],
     shared_helper_root: Path,
 ) -> dict[str, list[dict[str, Any]]]:
-    usage: dict[str, list[dict[str, Any]]] = {
-        _repo_relative(path): [] for path in helper_files
-    }
-    helper_modules = {
-        path: _helper_module_names(path, shared_helper_root) for path in helper_files
-    }
+    usage: dict[str, list[dict[str, Any]]] = {_repo_relative(path): [] for path in helper_files}
+    helper_modules = {path: _helper_module_names(path, shared_helper_root) for path in helper_files}
     for python_file in _iter_python_test_files():
         tree = _read_python_ast(python_file)
         module_refs = _iter_imported_modules(tree) + _iter_pytest_plugin_modules(tree)
@@ -457,9 +606,7 @@ def _build_test_helper_topology_report(contract: dict[str, Any]) -> dict[str, An
     conftests = _iter_layer_local_conftests(str(helper_contract["layer_local_conftest_glob"]))
     helper_usages = _find_helper_usages(helper_files, shared_helper_root)
     unused_helpers = [
-        {"path": path}
-        for path, usages in sorted(helper_usages.items())
-        if not usages
+        {"path": path} for path, usages in sorted(helper_usages.items()) if not usages
     ]
     duplicate_factories = _find_duplicated_fixture_factories(conftests)
     registered_duplicates = _registered_duplicate_fixture_factories(contract)
@@ -540,7 +687,7 @@ def _build_package_report(
     property_root = _repo_path(property_path)
     source_modules = _iter_source_modules(source_root)
     loose_names = _loose_test_names(unit_root)
-    baseline = baseline or _package_baseline_from_contract(package)
+    baseline, baseline_basis = _resolve_package_baseline(package, baseline)
 
     strict_count = 0
     loose_count = 0
@@ -597,8 +744,7 @@ def _build_package_report(
         else strict_status
         if strict_status == "strict_regression"
         else property_status
-        if property_status.endswith("_regression")
-        or property_status == "required_missing"
+        if property_status.endswith("_regression") or property_status == "required_missing"
         else mirror_status
     )
 
@@ -625,6 +771,7 @@ def _build_package_report(
             if baseline.get("loose_name_mirror_ratio") is not None
             else None
         ),
+        baseline_basis=baseline_basis,
         strict_module_mirror_ratio_delta=strict_delta,
         loose_name_mirror_ratio_delta=_float_delta(
             loose_ratio,
@@ -659,15 +806,14 @@ def _build_package_report(
 
 def _build_payload(contract_path: Path) -> dict[str, Any]:
     contract = _load_toml(contract_path)
+    contract_packages = _validate_baseline_contract(contract)
     baselines = _baseline_packages(contract)
     helper_topology_report = (
-        _build_test_helper_topology_report(contract)
-        if "test_helper_topology" in contract
-        else None
+        _build_test_helper_topology_report(contract) if "test_helper_topology" in contract else None
     )
     reports = [
-        _build_package_report(package, baseline=baselines.get(str(package["name"])))
-        for package in sorted(contract.get("package_ratchet", []), key=lambda item: item["name"])
+        _build_package_report(package, baseline=baselines.get(package["name"]))
+        for package in sorted(contract_packages.values(), key=lambda item: item["name"])
     ]
     regressions = [report for report in reports if report.mirror_status == "floor_regression"]
     regression_exceptions = [
@@ -755,6 +901,10 @@ def _int_delta_text(value: int | None) -> str:
     return f"{value:+d}"
 
 
+def _baseline_basis_text(basis: dict[str, str]) -> str:
+    return "; ".join(f"{metric}={basis[metric]}" for metric in _BASELINE_METRICS)
+
+
 def _render_markdown(payload: dict[str, Any]) -> str:
     summary = payload["summary"]
     lines = [
@@ -794,15 +944,16 @@ def _render_markdown(payload: dict[str, Any]) -> str:
     lines.extend(
         [
             "",
-            "| package | mode | modules | strict mirror | loose mirror | floor | "
+            "| package | baseline basis | mode | modules | strict mirror | loose mirror | floor | "
             "property files | target | status |",
-            "|---|---|---:|---:|---:|---:|---:|---:|---|",
+            "|---|---|---:|---:|---:|---:|---:|---:|---:|---|",
         ]
     )
     for package in payload["packages"]:
         lines.append(
             "| "
             f"`{package['package']}` | "
+            f"`{_baseline_basis_text(package['baseline_basis'])}` | "
             f"`{package['package_mode']}` | "
             f"{package['source_module_count']} | "
             f"{_percent(package['strict_module_mirror_ratio'])} "
@@ -819,7 +970,8 @@ def _render_markdown(payload: dict[str, Any]) -> str:
         [
             "",
             "Gate note: this command exits non-zero with `--fail-on-regression` "
-            "when mirror or property coverage falls below its committed floor. "
+            "when loose mirror or property coverage falls below its committed floor, "
+            "or strict mirror coverage falls below its inventory/contract baseline. "
             "First-target gaps remain tracked until each package reaches its target.",
             "",
         ]

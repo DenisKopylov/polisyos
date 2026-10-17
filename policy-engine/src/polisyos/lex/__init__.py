@@ -229,13 +229,13 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
 
 
 if TYPE_CHECKING:
-    from polisyos.core.contracts.lex import (
+    from polisyos.core.contracts import (
         ChangeProposalRef as ChangeProposalRef,
     )
-    from polisyos.core.contracts.lex import (
+    from polisyos.core.contracts import (
         LegalEvaluationRequest as LegalEvaluationRequest,
     )
-    from polisyos.core.contracts.lex import (
+    from polisyos.core.contracts import (
         LegalReportRef as LegalReportRef,
     )
     from polisyos.data_forge.read_api.legal import (

@@ -14,15 +14,13 @@ from dataclasses import dataclass
 from enum import StrEnum
 from typing import TYPE_CHECKING, Any, Protocol, cast
 
-from polisyos.core.artifacts.canonical_profile import load_core_json_artifact
-from polisyos.core.artifacts.manifest import (
+from polisyos.core.artifacts import (
     ArtifactRef,
-    artifact_ref_identity_key,
-)
-from polisyos.core.artifacts.signing import (
     Ed25519Verifier,
     SignatureVerificationResult,
     SignatureVerificationStatus,
+    artifact_ref_identity_key,
+    load_core_json_artifact,
 )
 from polisyos.scientist.governance.human_review.decisions import (
     HUMAN_REVIEW_DECISION_KIND,
@@ -42,7 +40,7 @@ from polisyos.scientist.governance.human_review.packets import (
 )
 
 if TYPE_CHECKING:
-    from polisyos.core.artifacts.protocol import ArtifactStore
+    from polisyos.core.artifacts import ArtifactStore
 
 
 class _SignatureVerifyingStore(Protocol):

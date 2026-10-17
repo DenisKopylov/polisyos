@@ -6,12 +6,12 @@ from collections.abc import Callable
 from typing import Any, NamedTuple, Protocol
 
 from polisyos.core.components import (
+    ComponentEntry,
     ComponentKind,
     ComponentRegistry,
     HostAbi,
     validate_metadata,
 )
-from polisyos.core.components.registry import ComponentEntry
 
 from ._registry_errors import ConnectorAlreadyRegisteredError
 from .base import ConnectionConfig, SourceConnector

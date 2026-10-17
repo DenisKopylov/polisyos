@@ -237,7 +237,7 @@ class LocalWorkerPool:
 
 def _prepare_parent_receipt(task: NodeTask, parent_context: Any) -> dict[str, Any]:
     """Validate and freeze the exact local worker dispatch against its parent."""
-    from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.core.artifacts import ArtifactRef
     from polisyos.core.run.context import RunContext
     from polisyos.scientist.orchestration.engine.context import ExecutionContext
     from polisyos.scientist.orchestration.engine.runner.serialization import (

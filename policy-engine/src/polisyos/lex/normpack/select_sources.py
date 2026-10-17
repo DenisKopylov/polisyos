@@ -5,8 +5,8 @@ from __future__ import annotations
 from datetime import date
 from typing import TYPE_CHECKING, Any
 
+from polisyos.common import timestamps as _common_timestamps_facade
 from polisyos.common.logger import get_logger
-from polisyos.common.timestamps import latest_object_by_subject, parse_iso_date
 from polisyos.fabric.world import load_world_facts
 from polisyos.ir.world.abi import EdgeKind
 from polisyos.ir.world.predicates import WORLD_ARTIFACT_ID, WORLD_KIND, rel
@@ -25,6 +25,11 @@ if TYPE_CHECKING:
 
     from polisyos.core.artifacts.store import FileSystemCAS
     from polisyos.ir.world.doc import DocMeta
+
+latest_object_by_subject = _common_timestamps_facade.latest_object_by_subject
+parse_iso_date = _common_timestamps_facade.parse_iso_date
+del _common_timestamps_facade
+
 
 logger = get_logger(__name__)
 

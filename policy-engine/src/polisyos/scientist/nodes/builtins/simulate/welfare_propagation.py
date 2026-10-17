@@ -13,13 +13,12 @@ from polisyos.core.artifacts import (
     ensure_ir_artifact_store as _ensure_ir_artifact_store,
 )
 from polisyos.foundry.uncertainty import PropagationConfig
-from polisyos.ir import ArtifactRefModel, UncertaintyEnvelopeRef
-from polisyos.ir.analytics.uncertainty import (
+from polisyos.ir import (
+    ArtifactRefModel,
     UncertaintyEnvelope,
-    persist_uncertainty_envelope,
-)
-from polisyos.ir.analytics.welfare import (
+    UncertaintyEnvelopeRef,
     WelfareMethod,
+    persist_uncertainty_envelope,
 )
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.state import ExperimentState

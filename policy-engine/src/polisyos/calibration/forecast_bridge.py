@@ -29,6 +29,7 @@ from pydantic import (
     model_validator,
 )
 
+from polisyos.core.artifacts import ArtifactManifest as _CoreArtifactManifest
 from polisyos.core.artifacts import (
     artifact_manifest_profile_sha256 as _artifact_manifest_profile_sha256,
 )
@@ -41,17 +42,18 @@ from polisyos.core.artifacts import (
 from polisyos.core.artifacts.ir_adapter import (
     CoreToIRArtifactStoreAdapter as _CoreToIRArtifactStoreAdapter,
 )
-from polisyos.core.artifacts.manifest import ArtifactManifest as _CoreArtifactManifest
-from polisyos.ir import ArtifactRefModel, BacktestReportRef
-from polisyos.ir.analytics.backtest import BacktestReport, load_backtest_report
-from polisyos.ir.artifacts import (
+from polisyos.ir import (
     ArtifactID,
+    ArtifactRefModel,
     ArtifactStore,
+    BacktestReport,
+    BacktestReportRef,
+    CanonSpec,
     InputRef,
     get_json_artifact,
+    load_backtest_report,
     put_json_artifact,
 )
-from polisyos.ir.model_layer.canon import CanonSpec
 
 EmpiricalEvidenceKind = Literal["observed_interval_comparisons", "unavailable"]
 PredictiveAuthorityScope = Literal["predictive_only"]

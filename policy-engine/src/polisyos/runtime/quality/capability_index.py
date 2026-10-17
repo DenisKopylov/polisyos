@@ -22,13 +22,13 @@ from polisyos.core.contracts import (
 from polisyos.data_forge.domains.legal.contracts import (
     ThresholdAtom as LegalThresholdAtom,
 )
-from polisyos.data_forge.domains.legal.source_relation import (
+from polisyos.data_forge.kernel.io.generation_basis import build_generation_basis
+from polisyos.data_forge.read_api.legal import (
     LEGAL_SOURCE_RELATION_REFUSAL_CODE,
     LegalCandidateTrustTier,
     LegalSourceRelationRefusalCode,
     LegalSourceRelationStatus,
 )
-from polisyos.data_forge.kernel.io.generation_basis import build_generation_basis
 
 CAPABILITY_INDEX_SCHEMA_VERSION: Final[Literal["policyos.evidence_capability_index.v1"]] = (
     "policyos.evidence_capability_index.v1"

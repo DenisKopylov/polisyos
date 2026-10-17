@@ -34,8 +34,8 @@ from polisyos.core.security import (
     get_current_cell_id,
     get_current_tenant_id_or_none,
 )
+from polisyos.ir import ArtifactID as IRArtifactID
 from polisyos.ir import CausalGraphModelRef
-from polisyos.ir.artifacts.contracts import ArtifactID as IRArtifactID
 from polisyos.pdc import (
     WORLD_MODEL_RECORD_SCHEMA_V2_VERSION,
     SkgCausalPriorRef,
@@ -3244,7 +3244,7 @@ class ConfiguredCandidateSimulationContextAdmissionOwner:
             tenant_id=tenant_id,
             cell_id=cell_id,
         )
-        from polisyos.ir.analytics.ncm import candidate_ncm_spec_from_declaration
+        from polisyos.ir import candidate_ncm_spec_from_declaration
 
         ncm_ref = repository.persist_candidate_ncm_selected_view(
             ncm_spec=candidate_ncm_spec_from_declaration(declaration),
@@ -3368,7 +3368,7 @@ class ConfiguredCandidateSimulationContextAdmissionOwner:
                 candidate_levers=inputs.candidate_levers,
                 transport_context=inputs.transport_context,
             )
-            from polisyos.ir.analytics.ncm import candidate_ncm_spec_from_declaration
+            from polisyos.ir import candidate_ncm_spec_from_declaration
             from polisyos.runtime.quality.generation_source import (
                 GenerationSourceRepository,
             )

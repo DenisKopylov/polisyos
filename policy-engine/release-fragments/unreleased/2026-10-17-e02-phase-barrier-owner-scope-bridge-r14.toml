@@ -1,0 +1,37 @@
+id = "2026-10-17-e02-phase-barrier-owner-scope-bridge-r14"
+title = "Bind serious phase-barrier scope to the live NL job owner"
+type = "changed"
+component = "runtime-quality"
+owner = "team-policyos-runtime"
+summary = "The live NL control-job producer persists admitted lease-bound run scope through terminal progress, but the mapping-only scorecard cannot verify fresh-read provenance and keeps owner scope blocked."
+evidence = [
+  "tests/unit/runtime/http/test_nl_pipeline_materialization.py::test_nl_pipeline_updates_control_job_progress",
+  "tests/unit/runtime/http/test_nl_pipeline_materialization.py::test_nl_pipeline_refuses_legacy_job_without_admitted_execution_scope",
+  "tests/unit/runtime/quality/test_scorecard.py::test_scorecard_keeps_matching_owner_mapping_candidate",
+]
+compatibility = "No public function signature, serialized schema, or generated client changes. The scorecard receives a plain mapping and cannot verify that its owner fields came from a fresh terminal read, so the owner-scope gate remains phase_barrier_owner_scope_not_established even for a matching persisted binding. The persisted same-input closure remains not_closed without an actual typed time-context ref, and missing required barrier records continue to block readiness."
+change_class = "internal"
+surface_classification = "public_experimental: polisyos.runtime.quality"
+migration = "No caller-side signature migration. A profile string, producer label, request digest, or tenant default cannot supply owner proof. NL jobs retain the admitted creation-event and active-lease binding through their terminal attempt; the scorecard still requires a provenance-preserving consumer seam before it can establish owner scope."
+api = "The build_quality_scorecard public signature and DTO schemas remain unchanged. The bridge is internal to existing NL progress publication and scorecard payload consumption. Generated projections remain audit-only and are not passed back into scorecard evidence."
+limitations = "This bridge establishes current owner scope for the live NL execution path only. It does not create typed policy-time evidence, complete same-input closure, required phase-barrier records, external execution authority, or a positive scorecard. G acceptance and formal closure remain pending."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = [
+  "src/polisyos/runtime/quality/README.md",
+  "docs/reference/runtime/quality-scorecard.md",
+]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "phase-barrier-owner-scope-live-nl-bridge-r14"
+change_class = "internal"
+impact = "internal"
+surface = "internal: runtime-quality"
+owner = "team-policyos-runtime"
+version_owner = "team-policyos-runtime"
+deprecation_window = "not_applicable"
+release_note = "The live NL path persists the current admitted owner binding; generic scorecard inputs remain source-unverified and fail closed until a trusted fresh-read consumer is wired."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/runtime/quality/README.md"]
+runbook_docs = []

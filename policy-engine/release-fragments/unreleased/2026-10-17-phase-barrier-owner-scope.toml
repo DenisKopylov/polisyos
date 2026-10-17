@@ -1,0 +1,24 @@
+id = "2026-10-17-phase-barrier-owner-scope"
+title = "Keep serious phase-barrier owner scope source-verified"
+type = "changed"
+component = "runtime-quality"
+owner = "team-policyos-runtime"
+summary = "The live NL path persists a lease-bound owner binding, but the mapping-only scorecard cannot verify fresh-read provenance and keeps owner scope blocked while required typed artifacts remain absent."
+evidence = [
+  "tests/unit/runtime/quality/test_phase_barriers.py",
+  "tests/unit/runtime/quality/test_run_state.py",
+  "tests/unit/runtime/quality/test_scorecard.py",
+  "tests/unit/runtime/quality/test_assurance_case.py",
+  "tests/unit/runtime/http/test_nl_pipeline_materialization.py",
+  "tests/unit/runtime/http/test_nl_pipeline_cost_projection.py",
+]
+compatibility = "Existing status assertions remain usable for candidate diagnostics. The serious scorecard owner-scope and dependent intent gates fail closed because the public builder receives a plain mapping without verifiable fresh-read provenance; missing policy-time context, incomplete same-input closure, and missing required barrier records continue to block serious readiness."
+change_class = "python-public-api"
+surface_classification = "public_experimental: polisyos.runtime.quality"
+migration = "No caller-provided profile or self-reported producer label is accepted as owner proof. The live NL path persists an admitted binding, but the mapping-only scorecard will not mark owner scope established until a source-verifiable consumer seam exists; callers must still provide producer-owned typed time and barrier artifacts for serious closeout."
+api = "No facade exports or DTO schemas change. Existing public barrier status helpers reconcile all supplied candidate records before selecting a latest record; the scorecard public signature remains unchanged. The live owner binding is consumed through the existing job progress payload seam."
+limitations = "The persisted owner binding covers the current admitted NL job/run/tenant/requested-profile scope, but the generic scorecard cannot verify the fresh-read source and keeps the owner predicate not established. It does not establish an external execution receipt, policy-time context, same-input closure, or any passed phase-barrier record. No production currentness or authority claim is made."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/runtime/quality/README.md"]
+runbook_docs = []

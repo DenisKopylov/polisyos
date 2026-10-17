@@ -16,21 +16,19 @@ from polisyos.core.artifacts import (
 from polisyos.foundry.uncertainty import PropagationConfig
 from polisyos.ir import (
     ArtifactRefModel,
+    ChannelDecompositionTargetKind,
     DependenceStructureRef,
     GEUncertaintyBundleRef,
     UncertaintyEnvelopeRef,
-    WelfareSampleBundleRef,
-)
-from polisyos.ir.analytics import UncertaintyEnvelope
-from polisyos.ir.analytics.welfare import (
-    ChannelDecompositionTargetKind,
     WelfareIntervalSemantics,
     WelfareMethod,
     WelfareSampleBundle,
+    WelfareSampleBundleRef,
     WelfareStatus,
     build_channel_decomposition_ref,
     persist_welfare_sample_bundle,
 )
+from polisyos.ir.analytics import UncertaintyEnvelope
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 

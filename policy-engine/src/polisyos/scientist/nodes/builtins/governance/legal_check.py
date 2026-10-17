@@ -14,8 +14,8 @@ from polisyos.core.components import Capability, ComponentId, ComponentKind, Com
 from polisyos.core.contracts.foundry import SimulationResultRef
 from polisyos.core.contracts.lex import LegalEvaluationRequest
 from polisyos.core.contracts.trinity import ModelSpecRef, PolicySpecRef, TrinityBundleRef
+from polisyos.lex import NormPackBuildRequest
 from polisyos.lex.api import assemble_norm_pack, evaluate_legality
-from polisyos.lex.normpack.types import NormPackBuildRequest
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_SIMULATION_RESULT_REF,
     INPUT_MODEL_SPEC_REF,

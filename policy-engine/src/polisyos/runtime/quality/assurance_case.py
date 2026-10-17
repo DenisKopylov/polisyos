@@ -191,6 +191,8 @@ _NON_OVERRIDABLE_BLOCKER_CODES = frozenset(
         "hds_semantic_binding_missing",
         "hds_unallowed_fallback",
         "phase_barrier_record_malformed",
+        "phase_barrier_scope_mismatch",
+        "phase_barrier_owner_scope_not_established",
         "scorecard_identity_not_verified",
     }
 )
@@ -1845,8 +1847,12 @@ def _policy_design_case_authority_chain(authority: Mapping[str, Any]) -> dict[st
             "policy_design_case_runtime_quality_owner_required",
             "Policy Design Case authority must be owned by runtime quality.",
         )
+    blocker_optional_refs = frozenset({"same_input_closure_ref", "schema_compatibility_ref"})
     for key, code in _POLICY_DESIGN_REQUIRED_AUTHORITY_REFS.items():
-        value = _policy_design_required_text(authority.get(key), code)
+        raw_value = authority.get(key)
+        if role == "runtime_blocker" and key in blocker_optional_refs and raw_value is None:
+            continue
+        value = _policy_design_required_text(raw_value, code)
         if _looks_like_local_path(value):
             raise PolicyDesignCaseAuthorityError(
                 "policy_design_case_local_ref_not_authority",

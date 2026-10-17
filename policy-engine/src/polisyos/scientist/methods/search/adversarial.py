@@ -8,13 +8,13 @@ from typing import Any, Protocol, TypeGuard, runtime_checkable
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.core.artifacts import ArtifactStore
 from polisyos.core.artifacts.manifest import (
     ArtifactRef,
     InputRef,
     SchemaInfo,
     input_ref_from_artifact_ref,
 )
-from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.scientist import PlatformMetaEvaluationReportRef

@@ -23,13 +23,15 @@ from polisyos.core.contracts import (
     SimulationResult,
 )
 from polisyos.foundry.calibration import CalibrationReport
-from polisyos.ir import ArtifactRefModel, DependenceStructureRef, UncertaintyEnvelopeRef
-from polisyos.ir.analytics import EquilibriumMultiplicityWelfareAnnotation
-from polisyos.ir.analytics.dependence_structure import load_dependence_structure
-from polisyos.ir.analytics.uncertainty import (
+from polisyos.ir import (
+    ArtifactRefModel,
+    DependenceStructureRef,
     UncertaintyEnvelope,
+    UncertaintyEnvelopeRef,
+    load_dependence_structure,
     load_uncertainty_envelope,
 )
+from polisyos.ir.analytics import EquilibriumMultiplicityWelfareAnnotation
 from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_CALIBRATION_REPORT_REF,
     INPUT_DATA_SNAPSHOT_REF,

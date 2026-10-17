@@ -43,6 +43,7 @@ from polisyos.runtime.quality.assurance_case import PolicyDesignCaseAuthorityErr
 from polisyos.runtime.quality.authority_reconciliation import reconcile_authority_ref
 from polisyos.runtime.quality.design_problem import DesignProblem, DesignProblemAuthorityError
 from polisyos.runtime.quality.diagnostic_events import DIAGNOSTIC_EVENT_ARTIFACT_KIND
+from polisyos.runtime.quality.scorecard import _phase_barrier_gates
 from polisyos.scientist.orchestration.llm.gateway_client import GatewayLLMResponse, GatewayToolCall
 from polisyos.scientist.orchestration.llm.simulated_gateway import SimulatedGatewayLLMClient
 from polisyos.scientist.validation.policy_grounding import build_policy_grounding_matrix_report
@@ -254,6 +255,69 @@ def _intent_context(**overrides: Any) -> dict[str, Any]:
     }
     payload.update(overrides)
     return payload
+
+
+def _prepare_running_scoped_control_job(
+    store: Any,
+    *,
+    job_id: str,
+    run_id: str,
+    effective_profile: str,
+    context: dict[str, Any],
+    include_execution_scope: bool = True,
+) -> Any:
+    """Create and lease one control job with explicit fixture-owned scope."""
+
+    creation_event_payload: dict[str, Any] = {
+        "job_id": job_id,
+        "run_id": run_id,
+        "job_kind": "natural_language_run",
+        "pipeline_id": None,
+        "payload_ref": None,
+        "submitted_by": "tester",
+        "requested_execution_profile": effective_profile,
+        "effective_execution_profile": effective_profile,
+        "policy_flags": {},
+        "capability_manifest_ref": None,
+    }
+    if include_execution_scope:
+        tenant_id = context.get("tenant_id")
+        cell_id = context.get("cell_id")
+        if not isinstance(tenant_id, str) or not tenant_id.strip():
+            raise AssertionError("scoped fixture requires explicit tenant_id")
+        if not isinstance(cell_id, str) or not cell_id.strip():
+            raise AssertionError("scoped fixture requires explicit cell_id")
+        creation_event_payload["execution_scope"] = {
+            "schema_version": "polisyos.runtime.control_execution_scope.v1",
+            "status": "established",
+            "tenant_id": tenant_id,
+            "cell_id": cell_id,
+            "actor_subject": "tester",
+            "actor_authenticated": True,
+            "actor_roles": ["analyst"],
+        }
+    store.create_job(
+        job_id=job_id,
+        kind="natural_language_run",
+        run_id=run_id,
+        pipeline_id=None,
+        requested_execution_profile=effective_profile,
+        effective_execution_profile=effective_profile,
+        policy_flags={},
+        capability_manifest_ref=None,
+        payload_ref=None,
+        submitted_by="tester",
+        creation_event_payload=creation_event_payload,
+    )
+    worker_id = f"nl-test-worker:{job_id}"
+    leased = store.lease_next_job(worker_id=worker_id, lease_seconds=60)
+    if leased is None or leased.job_id != job_id:
+        raise AssertionError("scoped fixture job was not leased")
+    return store.job_execution_fence(
+        job_id=job_id,
+        worker_id=worker_id,
+        attempt=leased.attempt,
+    )
 
 
 class _FakeDesignProblemGateway:
@@ -1553,21 +1617,18 @@ def test_nl_pipeline_fails_unknown_serious_metric_before_workflow(
         registry_providers=_registry_providers(),
     )
     job_id = "job_unknown_metric"
-    service._control_store.create_job(
+    execution_fence = _prepare_running_scoped_control_job(
+        service._control_store,
         job_id=job_id,
-        kind="natural_language_run",
         run_id="R_nl_unknown_metric",
-        pipeline_id=None,
-        requested_execution_profile=None,
-        effective_execution_profile="research",
-        policy_flags={},
-        capability_manifest_ref=None,
-        payload_ref=None,
-        submitted_by="tester",
+        effective_profile="research",
+        context=_intent_context(
+            desired_outcome="msme_survivl_rate", query_outcome="msme_survivl_rate"
+        ),
     )
 
     try:
-        with pytest.raises(RuntimeError) as exc_info:
+        with pytest.raises(RuntimeError) as exc_info, execution_fence:
             service._execute_nl_pipeline_for_contract_testing(
                 run_id="R_nl_unknown_metric",
                 nl_request="Evaluate a serious MSME policy.",
@@ -2263,50 +2324,45 @@ def test_serious_nl_pipeline_persists_normative_applicability_report_ref(
         registry_providers=_registry_providers(),
     )
     job_id = "job_nl_normative"
-    service._control_store.create_job(
-        job_id=job_id,
-        kind="natural_language_run",
-        run_id="R_nl_normative",
-        pipeline_id=None,
-        requested_execution_profile=None,
-        effective_execution_profile="research",
-        policy_flags={},
-        capability_manifest_ref=None,
-        payload_ref=None,
-        submitted_by="tester",
-    )
-
     persisted_report: dict[str, Any] = {}
     persisted_quality_envelope: Any | None = None
     production_quality_input_ids: set[str] = set()
     normative_context = _normative_context()
     if change_as_of_on_retry:
         normative_context["as_of"] = _MutableAsOf(mutable_as_of)
+    execution_fence = _prepare_running_scoped_control_job(
+        service._control_store,
+        job_id=job_id,
+        run_id="R_nl_normative",
+        effective_profile="research",
+        context=normative_context,
+    )
     pipeline_error: Exception | None = None
     try:
         try:
-            service._execute_nl_pipeline(
-                run_id="R_nl_normative",
-                nl_request="Evaluate Ukraine MSME wartime support with legal constraints.",
-                context=normative_context,
-                domain_hint="Ukraine wartime MSME support policy",
-                data_source=None,
-                max_iterations=1,
-                llm_models=["simulated-qwen"],
-                max_parallel_models=1,
-                run_budget_usd=None,
-                per_model_budget_usd=None,
-                checkpoint_policy="strict",
-                execution_plan_ref=None,
-                execution_plan_payload=None,
-                stop_criteria_payload={},
-                governance_constraints_payload=[],
-                expected_outputs_payload=[],
-                control_job_id=job_id,
-                execution_profile="research",
-                allow_mock_fallback=False,
-                provider_preflight_payload={"status": "skipped", "reason": "simulation_mode"},
-            )
+            with execution_fence:
+                service._execute_nl_pipeline(
+                    run_id="R_nl_normative",
+                    nl_request="Evaluate Ukraine MSME wartime support with legal constraints.",
+                    context=normative_context,
+                    domain_hint="Ukraine wartime MSME support policy",
+                    data_source=None,
+                    max_iterations=1,
+                    llm_models=["simulated-qwen"],
+                    max_parallel_models=1,
+                    run_budget_usd=None,
+                    per_model_budget_usd=None,
+                    checkpoint_policy="strict",
+                    execution_plan_ref=None,
+                    execution_plan_payload=None,
+                    stop_criteria_payload={},
+                    governance_constraints_payload=[],
+                    expected_outputs_payload=[],
+                    control_job_id=job_id,
+                    execution_profile="research",
+                    allow_mock_fallback=False,
+                    provider_preflight_payload={"status": "skipped", "reason": "simulation_mode"},
+                )
         except Exception as exc:
             if not change_as_of_on_retry:
                 raise
@@ -2555,42 +2611,38 @@ def test_serious_nl_pipeline_conflict_check_uses_active_corpus_constraints(
         registry_providers=_registry_providers(),
     )
     job_id = "job_nl_active_corpus_conflict"
-    service._control_store.create_job(
+    execution_fence = _prepare_running_scoped_control_job(
+        service._control_store,
         job_id=job_id,
-        kind="natural_language_run",
         run_id="R_nl_active_corpus_conflict",
-        pipeline_id=None,
-        requested_execution_profile=None,
-        effective_execution_profile="research",
-        policy_flags={},
-        capability_manifest_ref=None,
-        payload_ref=None,
-        submitted_by="tester",
+        effective_profile="research",
+        context=context,
     )
 
     try:
-        result = service._execute_nl_pipeline(
-            run_id="R_nl_active_corpus_conflict",
-            nl_request="Evaluate Ukraine MSME wartime support with legal constraints.",
-            context=context,
-            domain_hint="Ukraine wartime MSME support policy",
-            data_source=None,
-            max_iterations=1,
-            llm_models=["simulated-qwen"],
-            max_parallel_models=1,
-            run_budget_usd=None,
-            per_model_budget_usd=None,
-            checkpoint_policy="strict",
-            execution_plan_ref=None,
-            execution_plan_payload=None,
-            stop_criteria_payload={},
-            governance_constraints_payload=[],
-            expected_outputs_payload=[],
-            control_job_id=job_id,
-            execution_profile="research",
-            allow_mock_fallback=False,
-            provider_preflight_payload={"status": "skipped", "reason": "simulation_mode"},
-        )
+        with execution_fence:
+            result = service._execute_nl_pipeline(
+                run_id="R_nl_active_corpus_conflict",
+                nl_request="Evaluate Ukraine MSME wartime support with legal constraints.",
+                context=context,
+                domain_hint="Ukraine wartime MSME support policy",
+                data_source=None,
+                max_iterations=1,
+                llm_models=["simulated-qwen"],
+                max_parallel_models=1,
+                run_budget_usd=None,
+                per_model_budget_usd=None,
+                checkpoint_policy="strict",
+                execution_plan_ref=None,
+                execution_plan_payload=None,
+                stop_criteria_payload={},
+                governance_constraints_payload=[],
+                expected_outputs_payload=[],
+                control_job_id=job_id,
+                execution_profile="research",
+                allow_mock_fallback=False,
+                provider_preflight_payload={"status": "skipped", "reason": "simulation_mode"},
+            )
         record = service._control_store.get_job(job_id)
         conflict_ref = result["conflict_check_ref"]
         conflict_report = from_canonical_bytes(
@@ -2672,42 +2724,38 @@ def test_serious_nl_pipeline_phase_24_persists_runtime_quality_refs_fail_closed(
     )
     job_id = f"job_phase_24_{execution_profile}"
     run_id = f"R_nl_phase_24_{execution_profile}"
-    service._control_store.create_job(
+    execution_fence = _prepare_running_scoped_control_job(
+        service._control_store,
         job_id=job_id,
-        kind="natural_language_run",
         run_id=run_id,
-        pipeline_id=None,
-        requested_execution_profile=None,
-        effective_execution_profile=execution_profile,
-        policy_flags={},
-        capability_manifest_ref=None,
-        payload_ref=None,
-        submitted_by="tester",
+        effective_profile=execution_profile,
+        context=context,
     )
 
     try:
-        result = service._execute_nl_pipeline(
-            run_id=run_id,
-            nl_request="Evaluate Ukraine MSME wartime support with production data.",
-            context=context,
-            domain_hint="Ukraine wartime MSME support policy",
-            data_source=None,
-            max_iterations=1,
-            llm_models=["simulated-qwen"],
-            max_parallel_models=1,
-            run_budget_usd=None,
-            per_model_budget_usd=None,
-            checkpoint_policy="strict",
-            execution_plan_ref=None,
-            execution_plan_payload=None,
-            stop_criteria_payload={"require_data_snapshot_or_bindings": True},
-            governance_constraints_payload=[],
-            expected_outputs_payload=[],
-            control_job_id=job_id,
-            execution_profile=execution_profile,
-            allow_mock_fallback=False,
-            provider_preflight_payload={"status": "skipped", "reason": "simulation_mode"},
-        )
+        with execution_fence:
+            result = service._execute_nl_pipeline(
+                run_id=run_id,
+                nl_request="Evaluate Ukraine MSME wartime support with production data.",
+                context=context,
+                domain_hint="Ukraine wartime MSME support policy",
+                data_source=None,
+                max_iterations=1,
+                llm_models=["simulated-qwen"],
+                max_parallel_models=1,
+                run_budget_usd=None,
+                per_model_budget_usd=None,
+                checkpoint_policy="strict",
+                execution_plan_ref=None,
+                execution_plan_payload=None,
+                stop_criteria_payload={"require_data_snapshot_or_bindings": True},
+                governance_constraints_payload=[],
+                expected_outputs_payload=[],
+                control_job_id=job_id,
+                execution_profile=execution_profile,
+                allow_mock_fallback=False,
+                provider_preflight_payload={"status": "skipped", "reason": "simulation_mode"},
+            )
         record = service._control_store.get_job(job_id)
         params = captured["payload"]["params"]
         details = record.progress["details"] if record is not None else {}
@@ -3404,48 +3452,51 @@ def test_production_data_canary_materializes_local_lane_without_external_fetch(
         registry_providers=_registry_providers(),
     )
     job_id = "job_production_data_lane"
-    service._control_store.create_job(
+    execution_fence = _prepare_running_scoped_control_job(
+        service._control_store,
         job_id=job_id,
-        kind="natural_language_run",
         run_id="R_nl_production_data_lane",
-        pipeline_id=None,
-        requested_execution_profile=None,
-        effective_execution_profile="research",
-        policy_flags={},
-        capability_manifest_ref=None,
-        payload_ref=None,
-        submitted_by="tester",
+        effective_profile="research",
+        context=_intent_context(
+            production_data_root=str(production_data_root),
+            query_outcome="msme_survival_rate",
+            query_treatment="wartime_credit_support",
+            requirements=["use_production_data_materialization"],
+            scenario_evidence_contract=scenario_evidence_contract,
+            scenario_evidence_contract_id=scenario_evidence_contract["contract_id"],
+        ),
     )
 
     try:
-        service._execute_nl_pipeline(
-            run_id="R_nl_production_data_lane",
-            nl_request="Evaluate Ukraine MSME wartime support with production data.",
-            context=_intent_context(
-                production_data_root=str(production_data_root),
-                query_outcome="msme_survival_rate",
-                query_treatment="wartime_credit_support",
-                requirements=["use_production_data_materialization"],
-                scenario_evidence_contract=scenario_evidence_contract,
-                scenario_evidence_contract_id=scenario_evidence_contract["contract_id"],
-            ),
-            domain_hint="Ukraine wartime MSME support policy",
-            data_source=None,
-            max_iterations=1,
-            llm_models=["simulated-qwen"],
-            max_parallel_models=1,
-            run_budget_usd=None,
-            per_model_budget_usd=None,
-            checkpoint_policy="strict",
-            execution_plan_ref=None,
-            execution_plan_payload=None,
-            stop_criteria_payload={"require_data_snapshot_or_bindings": True},
-            governance_constraints_payload=[],
-            expected_outputs_payload=[],
-            control_job_id=job_id,
-            allow_mock_fallback=False,
-            provider_preflight_payload={"status": "skipped", "reason": "simulation_mode"},
-        )
+        with execution_fence:
+            service._execute_nl_pipeline(
+                run_id="R_nl_production_data_lane",
+                nl_request="Evaluate Ukraine MSME wartime support with production data.",
+                context=_intent_context(
+                    production_data_root=str(production_data_root),
+                    query_outcome="msme_survival_rate",
+                    query_treatment="wartime_credit_support",
+                    requirements=["use_production_data_materialization"],
+                    scenario_evidence_contract=scenario_evidence_contract,
+                    scenario_evidence_contract_id=scenario_evidence_contract["contract_id"],
+                ),
+                domain_hint="Ukraine wartime MSME support policy",
+                data_source=None,
+                max_iterations=1,
+                llm_models=["simulated-qwen"],
+                max_parallel_models=1,
+                run_budget_usd=None,
+                per_model_budget_usd=None,
+                checkpoint_policy="strict",
+                execution_plan_ref=None,
+                execution_plan_payload=None,
+                stop_criteria_payload={"require_data_snapshot_or_bindings": True},
+                governance_constraints_payload=[],
+                expected_outputs_payload=[],
+                control_job_id=job_id,
+                allow_mock_fallback=False,
+                provider_preflight_payload={"status": "skipped", "reason": "simulation_mode"},
+            )
         record = service._control_store.get_job(job_id)
         production_quality_ref = captured["payload"]["params"]["auto_data_source_refs"][
             "production_data_quality_report_ref"
@@ -3706,42 +3757,38 @@ def test_serious_nl_pipeline_persists_foundry_method_report_from_final_state(
         registry_providers=_registry_providers(),
     )
     job_id = "job_foundry_method_report"
-    service._control_store.create_job(
+    execution_fence = _prepare_running_scoped_control_job(
+        service._control_store,
         job_id=job_id,
-        kind="natural_language_run",
         run_id="R_nl_method_report",
-        pipeline_id=None,
-        requested_execution_profile=None,
-        effective_execution_profile="research",
-        policy_flags={},
-        capability_manifest_ref=None,
-        payload_ref=None,
-        submitted_by="tester",
+        effective_profile="research",
+        context=_intent_context(),
     )
 
     try:
-        result = service._execute_nl_pipeline(
-            run_id="R_nl_method_report",
-            nl_request="Evaluate Ukraine MSME support using causal evidence.",
-            context=_intent_context(),
-            domain_hint="Ukraine wartime MSME support policy",
-            data_source=None,
-            max_iterations=1,
-            llm_models=["simulated-qwen"],
-            max_parallel_models=1,
-            run_budget_usd=None,
-            per_model_budget_usd=None,
-            checkpoint_policy="strict",
-            execution_plan_ref=None,
-            execution_plan_payload=None,
-            stop_criteria_payload={},
-            governance_constraints_payload=[],
-            expected_outputs_payload=[],
-            control_job_id=job_id,
-            execution_profile="research",
-            allow_mock_fallback=False,
-            provider_preflight_payload={"status": "skipped", "reason": "simulation_mode"},
-        )
+        with execution_fence:
+            result = service._execute_nl_pipeline(
+                run_id="R_nl_method_report",
+                nl_request="Evaluate Ukraine MSME support using causal evidence.",
+                context=_intent_context(),
+                domain_hint="Ukraine wartime MSME support policy",
+                data_source=None,
+                max_iterations=1,
+                llm_models=["simulated-qwen"],
+                max_parallel_models=1,
+                run_budget_usd=None,
+                per_model_budget_usd=None,
+                checkpoint_policy="strict",
+                execution_plan_ref=None,
+                execution_plan_payload=None,
+                stop_criteria_payload={},
+                governance_constraints_payload=[],
+                expected_outputs_payload=[],
+                control_job_id=job_id,
+                execution_profile="research",
+                allow_mock_fallback=False,
+                provider_preflight_payload={"status": "skipped", "reason": "simulation_mode"},
+            )
         record = service._control_store.get_job(job_id)
         report_ref = result["foundry_method_report_ref"]
         grounding_ref = result["policy_grounding_matrix_ref"]
@@ -4398,21 +4445,16 @@ def test_nl_pipeline_reports_gateway_failure_when_mock_fallback_is_disallowed(
         registry_providers=_registry_providers(),
     )
     job_id = "job_nl_gateway_failed"
-    service._control_store.create_job(
+    execution_fence = _prepare_running_scoped_control_job(
+        service._control_store,
         job_id=job_id,
-        kind="natural_language_run",
         run_id="R_nl_gateway_failed",
-        pipeline_id=None,
-        requested_execution_profile=None,
-        effective_execution_profile="research",
-        policy_flags={},
-        capability_manifest_ref=None,
-        payload_ref=None,
-        submitted_by="tester",
+        effective_profile="research",
+        context=_intent_context(),
     )
 
     try:
-        with pytest.raises(RuntimeError) as exc_info:
+        with pytest.raises(RuntimeError) as exc_info, execution_fence:
             service._execute_nl_pipeline(
                 run_id="R_nl_gateway_failed",
                 nl_request="Evaluate an MSME policy.",
@@ -4584,21 +4626,16 @@ def test_nl_pipeline_promotes_formalizer_structured_schema_failure(
         registry_providers=_registry_providers(),
     )
     job_id = "job_nl_formalizer_schema_failed"
-    service._control_store.create_job(
+    execution_fence = _prepare_running_scoped_control_job(
+        service._control_store,
         job_id=job_id,
-        kind="natural_language_run",
         run_id="R_nl_formalizer_schema_failed",
-        pipeline_id=None,
-        requested_execution_profile=None,
-        effective_execution_profile="research",
-        policy_flags={},
-        capability_manifest_ref=None,
-        payload_ref=None,
-        submitted_by="tester",
+        effective_profile="research",
+        context=_intent_context(),
     )
 
     try:
-        with pytest.raises(RuntimeError) as exc_info:
+        with pytest.raises(RuntimeError) as exc_info, execution_fence:
             service._execute_nl_pipeline(
                 run_id="R_nl_formalizer_schema_failed",
                 nl_request="Evaluate an MSME policy with a simulated model.",
@@ -4757,17 +4794,12 @@ def test_nl_pipeline_updates_control_job_progress(
         registry_providers=_registry_providers(),
     )
     job_id = "job_nl_progress"
-    service._control_store.create_job(
+    execution_fence = _prepare_running_scoped_control_job(
+        service._control_store,
         job_id=job_id,
-        kind="natural_language_run",
         run_id="R_nl_progress",
-        pipeline_id=None,
-        requested_execution_profile=None,
-        effective_execution_profile="dev",
-        policy_flags={},
-        capability_manifest_ref=None,
-        payload_ref=None,
-        submitted_by="tester",
+        effective_profile="dev",
+        context=_intent_context(requested_authority_level="dev"),
     )
     progress_write_errors: list[Exception] = []
     original_update_progress = service._control_store.update_progress_state
@@ -4786,28 +4818,47 @@ def test_nl_pipeline_updates_control_job_progress(
     )
 
     try:
-        service._execute_nl_pipeline(
-            run_id="R_nl_progress",
-            nl_request="Compare deterministic simulated model variants for MSME support.",
-            context=_intent_context(requested_authority_level="dev"),
-            domain_hint="Ukraine wartime MSME support policy",
-            data_source=None,
-            max_iterations=1,
-            llm_models=["simulated-qwen"],
-            max_parallel_models=1,
-            run_budget_usd=None,
-            per_model_budget_usd=None,
-            checkpoint_policy="strict",
-            execution_plan_ref=None,
-            execution_plan_payload=None,
-            stop_criteria_payload={},
-            governance_constraints_payload=[],
-            expected_outputs_payload=[],
-            control_job_id=job_id,
-            allow_mock_fallback=False,
-            provider_preflight_payload={"status": "skipped", "reason": "simulation_mode"},
-        )
-        record = service._control_store.get_job(job_id)
+        with execution_fence:
+            service._execute_nl_pipeline(
+                run_id="R_nl_progress",
+                nl_request="Compare deterministic simulated model variants for MSME support.",
+                context=_intent_context(requested_authority_level="dev"),
+                domain_hint="Ukraine wartime MSME support policy",
+                data_source=None,
+                max_iterations=1,
+                llm_models=["simulated-qwen"],
+                max_parallel_models=1,
+                run_budget_usd=None,
+                per_model_budget_usd=None,
+                checkpoint_policy="strict",
+                execution_plan_ref=None,
+                execution_plan_payload=None,
+                stop_criteria_payload={},
+                governance_constraints_payload=[],
+                expected_outputs_payload=[],
+                control_job_id=job_id,
+                allow_mock_fallback=False,
+                provider_preflight_payload={"status": "skipped", "reason": "simulation_mode"},
+            )
+            admission = service._control_store.current_execution_job_admission()
+            record = service._control_store.get_job(job_id)
+            assert record is not None
+            policy_intent_ref = record.progress["runtime_quality_refs"][
+                "policy_intent_envelope_ref"
+            ]
+            policy_intent = from_canonical_bytes(
+                service._artifact_store.get_bytes(ArtifactID(policy_intent_ref))
+            )
+            ledger_event = next(
+                event
+                for event in record.progress["diagnostic_events"]
+                if event.get("report_key") == "policy_design_capability_ledger"
+            )
+            authority_envelope = from_canonical_bytes(
+                service._artifact_store.get_bytes(
+                    ArtifactID(ledger_event["authority_envelope_ref"])
+                )
+            )
     finally:
         service.close()
 
@@ -4833,12 +4884,120 @@ def test_nl_pipeline_updates_control_job_progress(
         "status": "skipped",
         "reason": "simulation_mode",
     }
-    assert record.progress["runtime_diagnostic_event_status"] == "not_persisted"
-    assert record.progress["diagnostic_event_scope_status"] == "not_established"
-    assert (
-        record.progress["runtime_diagnostic_event_limitation_code"]
-        == "control_job_execution_binding_not_established"
+    assert admission.scope.status == "established"
+    assert admission.scope.tenant_id == "tenant-intent"
+    assert admission.scope.cell_id == "cell-intent"
+    owner_binding = record.progress["execution_owner_binding"]
+    assert owner_binding == {
+        "job_id": job_id,
+        "run_id": "R_nl_progress",
+        "tenant_id": "tenant-intent",
+        "cell_id": "cell-intent",
+        "requested_execution_profile": "dev",
+        "effective_execution_profile": "dev",
+        "attempt": 1,
+        "lease_owner": f"nl-test-worker:{job_id}",
+    }
+    assert record.progress["runtime_diagnostic_event_status"] == "persisted"
+    assert record.progress["diagnostic_event_scope_status"] == "established"
+    run_intent_binding = record.progress["run_intent_binding"]
+    assert run_intent_binding["policy_intent_ref"] == policy_intent_ref
+    assert run_intent_binding["time_context_ref"] is None
+    assert run_intent_binding["same_input_closure_ref"] is None
+    assert policy_intent["run_id"] == "R_nl_progress"
+    assert policy_intent["job_id"] == job_id
+    assert policy_intent["tenant_id"] == "tenant-intent"
+    closure = authority_envelope["same_input_closure"]
+    assert closure["status"] == "not_closed"
+    assert closure["policy_intent_ref"] == policy_intent_ref
+    assert closure["run_id"] == "R_nl_progress"
+    assert closure["job_id"] == job_id
+    assert closure["tenant_id"] == "tenant-intent"
+    assert closure["cell_id"] == "cell-intent"
+    assert closure["time_context_ref"] is None
+    assert closure["closure_sha256"] is None
+    gates = _phase_barrier_gates(
+        canary_kind="research",
+        run_id=record.run_id,
+        quality_evidence={},
+        job_payload={
+            "job_id": record.job_id,
+            "run_id": record.run_id,
+            "requested_execution_profile": str(record.requested_execution_profile),
+            "effective_execution_profile": str(record.effective_execution_profile),
+            "progress": record.progress,
+        },
+        run_payload=None,
     )
+    gate_status = {gate["name"]: gate for gate in gates}
+    assert gate_status["serious_phase_barrier_owner_scope"]["status"] == "fail"
+    assert gate_status["serious_phase_barrier_owner_scope"]["code"] == (
+        "phase_barrier_owner_scope_not_established"
+    )
+    assert gate_status["serious_phase_barrier_intent_binding"]["code"] == (
+        "run_intent_binding_incomplete"
+    )
+    assert "phase_barrier_missing" in {gate["code"] for gate in gates}
+
+
+def test_nl_pipeline_refuses_legacy_job_without_admitted_execution_scope(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    monkeypatch.setenv("POLISYOS_LLM_SIMULATION_MODE", "1")
+    _forbid_real_gateway_network(monkeypatch)
+    service = ControlPlaneService(
+        cas_root=tmp_path / "cas",
+        core_runs_root=tmp_path / "runs",
+        policy_resolver=RuntimeExecutionPolicyResolver(
+            default_profile="dev",
+            worker_backend="external",
+            state_store_backend="sqlite",
+            sqlite_path=str(tmp_path / "control-unscoped.sqlite3"),
+            postgres_dsn=None,
+        ),
+        registry_providers=_registry_providers(),
+    )
+    job_id = "job_nl_unscoped"
+    execution_fence = _prepare_running_scoped_control_job(
+        service._control_store,
+        job_id=job_id,
+        run_id="R_nl_unscoped",
+        effective_profile="dev",
+        context=_intent_context(requested_authority_level="dev"),
+        include_execution_scope=False,
+    )
+    try:
+        with execution_fence:
+            with pytest.raises(NaturalLanguagePipelineRefusalError) as exc_info:
+                service._execute_nl_pipeline(
+                    run_id="R_nl_unscoped",
+                    nl_request="Compare simulated policy variants for MSME support.",
+                    context=_intent_context(requested_authority_level="dev"),
+                    domain_hint="Ukraine wartime MSME support policy",
+                    data_source=None,
+                    max_iterations=1,
+                    llm_models=["simulated-qwen"],
+                    max_parallel_models=1,
+                    run_budget_usd=None,
+                    per_model_budget_usd=None,
+                    checkpoint_policy="strict",
+                    execution_plan_ref=None,
+                    execution_plan_payload=None,
+                    stop_criteria_payload={},
+                    governance_constraints_payload=[],
+                    expected_outputs_payload=[],
+                    control_job_id=job_id,
+                    execution_profile="dev",
+                )
+            record = service._control_store.get_job(job_id)
+    finally:
+        service.close()
+
+    assert exc_info.value.code == "control_job_execution_scope_not_established"
+    assert record is not None
+    assert record.progress.get("execution_owner_binding") is None
+    assert record.progress.get("runtime_quality_refs") is None
 
 
 def test_nl_pipeline_bridges_scientist_trace_events_to_control_progress(
@@ -4920,41 +5079,37 @@ def test_nl_pipeline_bridges_scientist_trace_events_to_control_progress(
         registry_providers=_registry_providers(),
     )
     job_id = "job_scientist_progress"
-    service._control_store.create_job(
+    execution_fence = _prepare_running_scoped_control_job(
+        service._control_store,
         job_id=job_id,
-        kind="natural_language_run",
         run_id="R_nl_scientist_progress",
-        pipeline_id=None,
-        requested_execution_profile=None,
-        effective_execution_profile="dev",
-        policy_flags={},
-        capability_manifest_ref=None,
-        payload_ref=None,
-        submitted_by="tester",
+        effective_profile="dev",
+        context=_intent_context(requested_authority_level="dev"),
     )
 
     try:
-        service._execute_nl_pipeline(
-            run_id="R_nl_scientist_progress",
-            nl_request="Compare deterministic simulated model variants for MSME support.",
-            context=_intent_context(requested_authority_level="dev"),
-            domain_hint="Ukraine wartime MSME support policy",
-            data_source=None,
-            max_iterations=1,
-            llm_models=["simulated-qwen"],
-            max_parallel_models=1,
-            run_budget_usd=None,
-            per_model_budget_usd=None,
-            checkpoint_policy="strict",
-            execution_plan_ref=None,
-            execution_plan_payload=None,
-            stop_criteria_payload={},
-            governance_constraints_payload=[],
-            expected_outputs_payload=[],
-            control_job_id=job_id,
-            allow_mock_fallback=False,
-            provider_preflight_payload={"status": "skipped", "reason": "simulation_mode"},
-        )
+        with execution_fence:
+            service._execute_nl_pipeline(
+                run_id="R_nl_scientist_progress",
+                nl_request="Compare deterministic simulated model variants for MSME support.",
+                context=_intent_context(requested_authority_level="dev"),
+                domain_hint="Ukraine wartime MSME support policy",
+                data_source=None,
+                max_iterations=1,
+                llm_models=["simulated-qwen"],
+                max_parallel_models=1,
+                run_budget_usd=None,
+                per_model_budget_usd=None,
+                checkpoint_policy="strict",
+                execution_plan_ref=None,
+                execution_plan_payload=None,
+                stop_criteria_payload={},
+                governance_constraints_payload=[],
+                expected_outputs_payload=[],
+                control_job_id=job_id,
+                allow_mock_fallback=False,
+                provider_preflight_payload={"status": "skipped", "reason": "simulation_mode"},
+            )
         record = service._control_store.get_job(job_id)
     finally:
         service.close()
@@ -5014,21 +5169,16 @@ def test_nl_pipeline_marks_progress_failed_when_scientist_raises(
         registry_providers=_registry_providers(),
     )
     job_id = "job_nl_progress_failed"
-    service._control_store.create_job(
+    execution_fence = _prepare_running_scoped_control_job(
+        service._control_store,
         job_id=job_id,
-        kind="natural_language_run",
         run_id="R_nl_progress_failed",
-        pipeline_id=None,
-        requested_execution_profile=None,
-        effective_execution_profile="dev",
-        policy_flags={},
-        capability_manifest_ref=None,
-        payload_ref=None,
-        submitted_by="tester",
+        effective_profile="dev",
+        context=_intent_context(requested_authority_level="dev"),
     )
 
     try:
-        with pytest.raises(RuntimeError, match="foundry execution aborted"):
+        with pytest.raises(RuntimeError, match="foundry execution aborted"), execution_fence:
             service._execute_nl_pipeline(
                 run_id="R_nl_progress_failed",
                 nl_request="Compare deterministic simulated model variants for MSME support.",

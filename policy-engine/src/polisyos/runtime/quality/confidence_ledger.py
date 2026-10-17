@@ -32,6 +32,7 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from enum import Enum
 from fractions import Fraction
+from importlib.machinery import SourceFileLoader
 from pathlib import Path
 from typing import Any, Literal, Self
 
@@ -102,6 +103,24 @@ type CertificateRole = Literal[
 type SessionAuthorityProvenance = Literal["canonical_repo", "verification"]
 type _DeploymentFileFence = tuple[str, int, int, int, int, int]
 type _DeploymentQuickFence = tuple[tuple[_DeploymentFileFence, ...], str]
+type _FacadeRuntimeBindingReference = tuple[
+    str,
+    str,
+    types.ModuleType,
+    str,
+    types.ModuleType,
+    str,
+    object,
+    str,
+    str,
+    types.ModuleType,
+    str,
+    str,
+    object,
+    types.FunctionType | None,
+    str | None,
+    object,
+]
 _LRU_CACHE_WRAPPER_TYPE = type(functools.lru_cache(maxsize=1)(lambda: None))
 
 
@@ -5658,10 +5677,17 @@ def _assert_loaded_runtime_matches_import_baseline(
 
     _require_import_time_identity_snapshot()
     _assert_ledger_artifact_contracts_current()
+    observed_binding_references: list[_FacadeRuntimeBindingReference] = []
     facade_projection, supplemental_closure = _source_facade_runtime_projection(
         repo_root,
         _derived_authority_import_closure(repo_root),
+        runtime_binding_references=observed_binding_references,
     )
+    if not _runtime_binding_references_match(
+        observed_binding_references,
+        _IMPORT_TIME_FACADE_RUNTIME_BINDING_REFERENCES,
+    ):
+        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
     runtime_closure = _combined_runtime_code_closure(
         _IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE,
         supplemental_closure,
@@ -5995,23 +6021,90 @@ def _literal_module_getattr_provider(
     if provider_index is None:
         provider_index = _literal_module_getattr_provider_index(tree)
         source_index.providers_by_content[source_bytes] = provider_index
-    if export_name in provider_index.invalid_exports or "*" in provider_index.invalid_exports:
-        raise ConfidenceLedgerError(
-            "canonical_loaded_runtime_mismatch",
-            f"non-literal repository re-export: {module_name}.{export_name}",
+
+    mapped_targets: set[tuple[str, str]] = set()
+    if provider_index.mapping_names:
+        source_maps, _invalid_maps = _static_facade_mapping_values(
+            tree,
+            provider_index.mapping_names,
         )
-    providers = provider_index.providers_by_export.get(export_name, frozenset())
-    if len(providers) > 1:
-        raise ConfidenceLedgerError(
-            "canonical_loaded_runtime_mismatch",
-            f"ambiguous repository re-export: {module_name}.{export_name}",
-        )
-    provider = next(iter(providers), None)
-    if provider is None and provider_index.generated_mapping_dispatch:
-        raise ConfidenceLedgerError(
-            "canonical_loaded_runtime_mismatch",
-            f"missing repository re-export binding: {module_name}.{export_name}",
-        )
+        for source_map in source_maps.values():
+            raw_target = source_map.get(export_name, _STATIC_FACADE_UNKNOWN)
+            if raw_target is _STATIC_FACADE_UNKNOWN:
+                continue
+            target = _literal_facade_provider_target(export_name, raw_target)
+            if target is None:
+                raise ConfidenceLedgerError(
+                    "canonical_loaded_runtime_mismatch",
+                    f"invalid source facade target: {module_name}.{export_name}",
+                )
+            target_module, target_symbol = target
+            if target_module.startswith("."):
+                if Path(relative).name != "__init__.py":
+                    raise ConfidenceLedgerError(
+                        "canonical_loaded_runtime_mismatch",
+                        f"relative repository re-export is not package-bound: "
+                        f"{module_name}.{export_name}",
+                    )
+                try:
+                    target_module = importlib.util.resolve_name(target_module, module_name)
+                except (ImportError, TypeError, ValueError) as exc:
+                    raise ConfidenceLedgerError(
+                        "canonical_loaded_runtime_mismatch",
+                        f"ambiguous relative repository re-export: {module_name}.{export_name}",
+                    ) from exc
+            mapped_targets.add((target_module, target_symbol))
+
+    mapped_symbol: str | None = None
+    if mapped_targets:
+        if len(mapped_targets) != 1:
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch",
+                f"ambiguous source facade map target: {module_name}.{export_name}",
+            )
+        provider, mapped_symbol = next(iter(mapped_targets))
+        indexed_providers = provider_index.providers_by_export.get(export_name, frozenset())
+        if indexed_providers:
+            normalized_providers: set[str] = set()
+            for indexed_provider in indexed_providers:
+                if indexed_provider.startswith("."):
+                    try:
+                        indexed_provider = importlib.util.resolve_name(
+                            indexed_provider,
+                            module_name,
+                        )
+                    except (ImportError, TypeError, ValueError) as exc:
+                        raise ConfidenceLedgerError(
+                            "canonical_loaded_runtime_mismatch",
+                            f"ambiguous repository re-export: {module_name}.{export_name}",
+                        ) from exc
+                normalized_providers.add(indexed_provider)
+            indexed_symbols = (provider_index.provider_symbols_by_export or {}).get(
+                export_name, frozenset({export_name})
+            )
+            if provider not in normalized_providers or mapped_symbol not in indexed_symbols:
+                raise ConfidenceLedgerError(
+                    "canonical_loaded_runtime_mismatch",
+                    f"source facade map differs from getter: {module_name}.{export_name}",
+                )
+    else:
+        if export_name in provider_index.invalid_exports or "*" in provider_index.invalid_exports:
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch",
+                f"non-literal repository re-export: {module_name}.{export_name}",
+            )
+        providers = provider_index.providers_by_export.get(export_name, frozenset())
+        if len(providers) > 1:
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch",
+                f"ambiguous repository re-export: {module_name}.{export_name}",
+            )
+        provider = next(iter(providers), None)
+        if provider is None and provider_index.generated_mapping_dispatch:
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch",
+                f"missing repository re-export binding: {module_name}.{export_name}",
+            )
     if provider is not None and provider.startswith("."):
         if Path(relative).name != "__init__.py":
             raise ConfidenceLedgerError(
@@ -6027,7 +6120,11 @@ def _literal_module_getattr_provider(
             ) from exc
     if provider is not None and _repository_module_root(provider) in {"polisyos", "tools"}:
         provider_symbols = provider_index.provider_symbols_by_export or {}
-        symbols = provider_symbols.get(export_name, frozenset({export_name}))
+        symbols = (
+            frozenset({mapped_symbol})
+            if mapped_symbol is not None
+            else provider_symbols.get(export_name, frozenset({export_name}))
+        )
         if len(symbols) != 1:
             raise ConfidenceLedgerError(
                 "canonical_loaded_runtime_mismatch",
@@ -7812,6 +7909,8 @@ def _literal_facade_value_projection(value: object) -> object:
 def _source_facade_runtime_projection(
     repo_root: Path,
     closure: tuple[tuple[str, str], ...],
+    *,
+    runtime_binding_references: list[_FacadeRuntimeBindingReference] | None = None,
 ) -> tuple[str, tuple[tuple[str, str], ...]]:
     """Reconcile loaded lazy facade maps and selected exports to source owners.
 
@@ -7833,8 +7932,38 @@ def _source_facade_runtime_projection(
         source_rows: dict[
             str, tuple[ast.Module, _LiteralModuleGetattrProviderIndex, dict[str, dict[str, object]]]
         ] = {}
+        runtime_scopes: dict[
+            str,
+            tuple[
+                dict[int, tuple[str, str]],
+                dict[str, ast.FunctionDef | ast.AsyncFunctionDef],
+                dict[str, types.CodeType | None],
+            ],
+        ] = {}
         facade_rows: list[dict[str, object]] = []
         supplemental_modules: dict[str, str] = {}
+
+        def resolve_source_target(
+            facade_name: str,
+            export_name: str,
+            raw_target: object,
+        ) -> tuple[str, str]:
+            target = _literal_facade_provider_target(export_name, raw_target)
+            if target is None:
+                raise ConfidenceLedgerError(
+                    "canonical_loaded_runtime_mismatch",
+                    f"source facade owner is ambiguous: {facade_name}.{export_name}",
+                )
+            provider_name, attribute = target
+            if provider_name.startswith("."):
+                try:
+                    provider_name = importlib.util.resolve_name(provider_name, facade_name)
+                except (ImportError, TypeError, ValueError) as exc:
+                    raise ConfidenceLedgerError(
+                        "canonical_loaded_runtime_mismatch",
+                        f"source facade owner is ambiguous: {facade_name}.{export_name}",
+                    ) from exc
+            return provider_name, attribute
 
         for module_name, relative_path in closure:
             source_path = (repo_root / relative_path).resolve()
@@ -7854,81 +7983,95 @@ def _source_facade_runtime_projection(
             maps: dict[str, dict[str, object]] = {}
             if mapping_names:
                 maps, invalid_maps = _static_facade_mapping_values(tree, mapping_names)
-                invalid_map_exports = set(provider_index.invalid_exports) & {
-                    export for mapping in maps.values() for export in mapping
-                }
-                if (
-                    invalid_maps
-                    or len(maps) != len(mapping_names)
-                    or "*" in provider_index.invalid_exports
-                    or invalid_map_exports
-                ):
+                if len(maps) != len(mapping_names):
                     raise ConfidenceLedgerError(
                         "canonical_loaded_runtime_mismatch",
                         f"unsupported source facade map: {module_name}",
                     )
-                map_owners: list[dict[str, str]] = []
+                try:
+                    for source_map in maps.values():
+                        _literal_facade_value_projection(source_map)
+                except (ConfidenceLedgerError, TypeError, ValueError) as exc:
+                    raise ConfidenceLedgerError(
+                        "canonical_loaded_runtime_mismatch",
+                        f"unsupported source facade map: {module_name}",
+                    ) from exc
+                map_owners: list[dict[str, object]] = []
                 provider_symbols = provider_index.provider_symbols_by_export or {}
                 for mapping_name, source_map in sorted(maps.items()):
+                    if type(source_map) is not dict:
+                        raise ConfidenceLedgerError(
+                            "canonical_loaded_runtime_mismatch",
+                            f"unsupported source facade map: {module_name}.{mapping_name}",
+                        )
                     for export, raw_target in sorted(source_map.items()):
-                        target = _literal_facade_provider_target(export, raw_target)
-                        providers = provider_index.providers_by_export.get(export, frozenset())
-                        symbols = provider_symbols.get(export, frozenset({export}))
-                        if (
-                            target is None
-                            or len(providers) != 1
-                            or len(symbols) != 1
-                            or type(export) is not str
-                        ):
+                        if type(export) is not str:
                             raise ConfidenceLedgerError(
                                 "canonical_loaded_runtime_mismatch",
-                                f"source facade owner is ambiguous: {module_name}.{export}",
+                                f"unsupported source facade export: {module_name}",
                             )
-                        target_module, target_symbol = target
-                        indexed_module = next(iter(providers))
-                        indexed_symbol = next(iter(symbols))
-                        try:
-                            if target_module.startswith("."):
-                                target_module = importlib.util.resolve_name(
-                                    target_module, module_name
+                        target_module, target_symbol = resolve_source_target(
+                            module_name,
+                            export,
+                            raw_target,
+                        )
+                        providers = provider_index.providers_by_export.get(
+                            export,
+                            frozenset(),
+                        )
+                        symbols = provider_symbols.get(export, frozenset())
+                        if providers:
+                            normalized_providers: set[str] = set()
+                            for indexed_module in providers:
+                                if indexed_module.startswith("."):
+                                    try:
+                                        indexed_module = importlib.util.resolve_name(
+                                            indexed_module,
+                                            module_name,
+                                        )
+                                    except (ImportError, TypeError, ValueError) as exc:
+                                        raise ConfidenceLedgerError(
+                                            "canonical_loaded_runtime_mismatch",
+                                            f"source facade owner is ambiguous: "
+                                            f"{module_name}.{export}",
+                                        ) from exc
+                                normalized_providers.add(indexed_module)
+                            if target_module not in normalized_providers:
+                                raise ConfidenceLedgerError(
+                                    "canonical_loaded_runtime_mismatch",
+                                    f"source facade owner differs from map: {module_name}.{export}",
                                 )
-                            if indexed_module.startswith("."):
-                                indexed_module = importlib.util.resolve_name(
-                                    indexed_module, module_name
-                                )
-                        except (ImportError, TypeError, ValueError) as exc:
+                        if symbols and target_symbol not in symbols:
                             raise ConfidenceLedgerError(
                                 "canonical_loaded_runtime_mismatch",
-                                f"source facade owner is ambiguous: {module_name}.{export}",
-                            ) from exc
-                        if indexed_module != target_module or indexed_symbol != target_symbol:
-                            raise ConfidenceLedgerError(
-                                "canonical_loaded_runtime_mismatch",
-                                f"source facade owner differs from map: {module_name}.{export}",
+                                f"source facade member differs from map: {module_name}.{export}",
                             )
                         provider_path = _repository_module_source(
                             repo_root,
                             target_module,
                             directory_entries=directory_entries,
                         )
-                        if provider_path is None or not _repository_module_exports_symbol(
-                            repo_root,
-                            target_module,
-                            target_symbol,
-                            directory_entries=directory_entries,
-                            source_index=source_index,
-                        ):
-                            raise ConfidenceLedgerError(
-                                "canonical_loaded_runtime_mismatch",
-                                "source facade target does not bind: "
-                                f"{target_module}.{target_symbol}",
+                        owner_verified = bool(
+                            provider_path is not None
+                            and _repository_module_exports_symbol(
+                                repo_root,
+                                target_module,
+                                target_symbol,
+                                directory_entries=directory_entries,
+                                source_index=source_index,
                             )
+                        )
                         map_owners.append(
                             {
                                 "export": export,
                                 "mapping": mapping_name,
                                 "provider": target_module,
-                                "provider_path": provider_path.as_posix(),
+                                "provider_path": (
+                                    provider_path.as_posix() if provider_path is not None else None
+                                ),
+                                "source_owner_status": (
+                                    "recomputed" if owner_verified else "not_established"
+                                ),
                                 "symbol": target_symbol,
                             }
                         )
@@ -7957,11 +8100,20 @@ def _source_facade_runtime_projection(
                         "relative_path": relative_path,
                         "maps": live_maps,
                         "map_owners": map_owners,
+                        "map_transfer_status": {
+                            name: ("recomputed" if name not in invalid_maps else "not_established")
+                            for name in sorted(maps)
+                        },
                     }
                 )
             source_rows[module_name] = (tree, provider_index, maps)
+            runtime_scopes[module_name] = _runtime_import_scope_index(
+                tree,
+                filename=relative_path,
+            )
 
         bindings_to_check: dict[tuple[str, str], tuple[str, str, bool]] = {}
+        selected_importers: dict[tuple[str, str], set[tuple[str, str, str, str, str]]] = {}
         for module_name, (_tree, _provider_index, maps) in source_rows.items():
             if not maps:
                 continue
@@ -7973,20 +8125,66 @@ def _source_facade_runtime_projection(
                 for export, raw_target in mapping.items():
                     if export not in namespace:
                         continue
-                    target = _literal_facade_provider_target(export, raw_target)
-                    if target is None:
-                        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+                    target = resolve_source_target(module_name, export, raw_target)
                     bindings_to_check[(module_name, export)] = (*target, False)
 
+        module_value_bindings: list[tuple[str, str, str, str]] = []
         for module_name, (tree, _provider_index, _maps) in source_rows.items():
             package = (
                 module_name
                 if Path(closure_by_name[module_name]).name == "__init__.py"
                 else module_name.rpartition(".")[0]
             )
+            scope_index, function_nodes, function_codes = runtime_scopes[module_name]
             for node in _runtime_ast_nodes(tree):
-                if not isinstance(node, ast.ImportFrom):
+                if not isinstance(node, (ast.Import, ast.ImportFrom)):
                     continue
+                scope_kind, scope_owner = scope_index.get(
+                    id(node), ("unsupported_scope", "<unknown>")
+                )
+                if isinstance(node, ast.Import):
+                    if scope_kind not in {"module", "function_local"}:
+                        if any(
+                            _repository_module_source(
+                                repo_root,
+                                alias.name,
+                                directory_entries=directory_entries,
+                            )
+                            is not None
+                            for alias in node.names
+                        ):
+                            raise ConfidenceLedgerError(
+                                "canonical_loaded_runtime_mismatch",
+                                f"unsupported source-module import scope: {module_name}",
+                            )
+                        continue
+                    for alias in node.names:
+                        if alias.asname is None:
+                            continue
+                        candidate = alias.name
+                        candidate_path = _repository_module_source(
+                            repo_root,
+                            candidate,
+                            directory_entries=directory_entries,
+                        )
+                        if candidate_path is None:
+                            continue
+                        if scope_kind == "function_local":
+                            owner = function_nodes.get(scope_owner)
+                            if owner is None or not _source_function_import_binding_is_unique(
+                                owner,
+                                owner_code=function_codes.get(scope_owner),
+                                local_name=alias.asname,
+                                import_node=node,
+                            ):
+                                raise ConfidenceLedgerError(
+                                    "canonical_loaded_runtime_mismatch",
+                                    "unsupported local source-module binding: "
+                                    f"{module_name}.{alias.asname}",
+                                )
+                            supplemental_modules[candidate] = candidate_path.as_posix()
+                    continue
+
                 base = _resolve_import_from_base(node, package)
                 if base is None or base not in source_rows:
                     continue
@@ -7999,53 +8197,321 @@ def _source_facade_runtime_projection(
                 for alias in node.names:
                     if alias.name == "*":
                         continue
+                    local_name = alias.asname or alias.name
                     candidate = f"{base}.{alias.name}"
-                    if (
-                        _repository_module_source(
+                    candidate_path = _repository_module_source(
+                        repo_root,
+                        candidate,
+                        directory_entries=directory_entries,
+                    )
+                    if candidate_path is not None:
+                        if scope_kind not in {"module", "function_local"}:
+                            raise ConfidenceLedgerError(
+                                "canonical_loaded_runtime_mismatch",
+                                "unsupported source-module import scope: "
+                                f"{module_name}.{local_name}",
+                            )
+                        if scope_kind == "function_local":
+                            owner = function_nodes.get(scope_owner)
+                            if owner is None or not _source_function_import_binding_is_unique(
+                                owner,
+                                owner_code=function_codes.get(scope_owner),
+                                local_name=local_name,
+                                import_node=node,
+                            ):
+                                raise ConfidenceLedgerError(
+                                    "canonical_loaded_runtime_mismatch",
+                                    "unsupported local source-module binding: "
+                                    f"{module_name}.{local_name}",
+                                )
+                            supplemental_modules[candidate] = candidate_path.as_posix()
+                        continue
+                    map_targets = {
+                        resolve_source_target(base, alias.name, source_map[alias.name])
+                        for source_map in base_maps.values()
+                        if alias.name in source_map
+                    }
+                    if map_targets:
+                        if len(map_targets) != 1:
+                            raise ConfidenceLedgerError(
+                                "canonical_loaded_runtime_mismatch",
+                                f"ambiguous source facade map: {base}.{alias.name}",
+                            )
+                        target_module, target_symbol = next(iter(map_targets))
+                    else:
+                        if (
+                            alias.name in base_index.invalid_exports
+                            or "*" in base_index.invalid_exports
+                        ):
+                            raise ConfidenceLedgerError(
+                                "canonical_loaded_runtime_mismatch",
+                                f"unresolved source facade export: {base}.{alias.name}",
+                            )
+                        providers = base_index.providers_by_export.get(alias.name, frozenset())
+                        if not providers:
+                            continue
+                        if len(providers) != 1:
+                            raise ConfidenceLedgerError(
+                                "canonical_loaded_runtime_mismatch",
+                                f"ambiguous source facade export: {base}.{alias.name}",
+                            )
+                        provider_module = next(iter(providers))
+                        raw_mapping = next(iter(base_maps.values()), {})
+                        raw_target = raw_mapping.get(alias.name, _STATIC_FACADE_UNKNOWN)
+                        target = (
+                            _literal_facade_provider_target(alias.name, raw_target)
+                            if raw_target is not _STATIC_FACADE_UNKNOWN
+                            else (provider_module, alias.name)
+                        )
+                        if target is None:
+                            raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+                        if target[0].startswith("."):
+                            try:
+                                target = (importlib.util.resolve_name(target[0], base), target[1])
+                            except (ImportError, TypeError, ValueError) as exc:
+                                raise ConfidenceLedgerError(
+                                    "canonical_loaded_runtime_mismatch",
+                                    f"ambiguous source facade provider: {base}.{alias.name}",
+                                ) from exc
+                        target_module, target_symbol = target
+                    if scope_kind == "function_local":
+                        owner = function_nodes.get(scope_owner)
+                        if owner is None or not _source_function_import_binding_is_unique(
+                            owner,
+                            owner_code=function_codes.get(scope_owner),
+                            local_name=local_name,
+                            import_node=node,
+                        ):
+                            raise ConfidenceLedgerError(
+                                "canonical_loaded_runtime_mismatch",
+                                f"unsupported local facade binding: {module_name}.{local_name}",
+                            )
+                        bindings_to_check[(base, alias.name)] = (target_module, target_symbol, True)
+                        selected_importers.setdefault((base, alias.name), set()).add(
+                            (module_name, local_name, scope_kind, scope_owner, str(node.lineno))
+                        )
+                    elif scope_kind != "module":
+                        raise ConfidenceLedgerError(
+                            "canonical_loaded_runtime_mismatch",
+                            f"unsupported selected import scope: {module_name}.{local_name}",
+                        )
+                    # Module-scope imports are admitted only through the later
+                    # source-order transfer, which records the final live binding.
+                    # A deleted temporary alias is not a consumer binding.
+
+        # Reconcile final module-level aliases from actual source transfer. A
+        # temporary package alias may be deleted after its selected member has
+        # been bound; only the final consumer binding is authoritative.
+        for module_name, (tree, _provider_index, _maps) in source_rows.items():
+            package = (
+                module_name
+                if Path(closure_by_name[module_name]).name == "__init__.py"
+                else module_name.rpartition(".")[0]
+            )
+            scope_index, _function_nodes, _function_codes = runtime_scopes[module_name]
+            state: dict[str, tuple[str, str, str | None, str]] = {}
+            invalid_state: set[str] = set()
+            deferred_global_reads: set[str] = set()
+            for statement in tree.body:
+                if isinstance(statement, (ast.Import, ast.ImportFrom)):
+                    if scope_index.get(id(statement), ("", ""))[0] != "module":
+                        continue
+                    if isinstance(statement, ast.Import):
+                        for alias in statement.names:
+                            if alias.asname is None:
+                                continue
+                            target_path = _repository_module_source(
+                                repo_root,
+                                alias.name,
+                                directory_entries=directory_entries,
+                            )
+                            if target_path is not None:
+                                state[alias.asname] = (
+                                    "module",
+                                    alias.name,
+                                    None,
+                                    str(statement.lineno),
+                                )
+                                invalid_state.discard(alias.asname)
+                            else:
+                                state.pop(alias.asname, None)
+                                invalid_state.add(alias.asname)
+                        continue
+                    base = _resolve_import_from_base(statement, package)
+                    if base is None or base not in source_rows:
+                        continue
+                    _base_tree, base_index, base_maps = source_rows[base]
+                    for alias in statement.names:
+                        if alias.name == "*":
+                            continue
+                        local_name = alias.asname or alias.name
+                        candidate = f"{base}.{alias.name}"
+                        candidate_path = _repository_module_source(
                             repo_root,
                             candidate,
                             directory_entries=directory_entries,
                         )
-                        is not None
-                    ):
-                        continue
-                    if (
-                        alias.name in base_index.invalid_exports
-                        or "*" in base_index.invalid_exports
-                    ):
-                        raise ConfidenceLedgerError(
-                            "canonical_loaded_runtime_mismatch",
-                            f"unresolved source facade export: {base}.{alias.name}",
-                        )
-                    providers = base_index.providers_by_export.get(alias.name, frozenset())
-                    if not providers:
-                        continue
-                    if len(providers) != 1:
-                        raise ConfidenceLedgerError(
-                            "canonical_loaded_runtime_mismatch",
-                            f"ambiguous source facade export: {base}.{alias.name}",
-                        )
-                    provider_module = next(iter(providers))
-                    raw_mapping = next(iter(base_maps.values()), {})
-                    raw_target = raw_mapping.get(alias.name, _STATIC_FACADE_UNKNOWN)
-                    target = (
-                        _literal_facade_provider_target(alias.name, raw_target)
-                        if raw_target is not _STATIC_FACADE_UNKNOWN
-                        else (provider_module, alias.name)
+                        if candidate_path is not None:
+                            state[local_name] = ("module", candidate, None, str(statement.lineno))
+                            invalid_state.discard(local_name)
+                            continue
+                        map_targets = {
+                            resolve_source_target(base, alias.name, source_map[alias.name])
+                            for source_map in base_maps.values()
+                            if alias.name in source_map
+                        }
+                        if map_targets:
+                            if len(map_targets) != 1:
+                                raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+                            provider_name, provider_symbol = next(iter(map_targets))
+                            state[local_name] = (
+                                "symbol",
+                                provider_name,
+                                provider_symbol,
+                                str(statement.lineno),
+                            )
+                            invalid_state.discard(local_name)
+                            continue
+                        providers = base_index.providers_by_export.get(alias.name, frozenset())
+                        if len(providers) == 1:
+                            provider_name = next(iter(providers))
+                            raw_mapping = next(iter(base_maps.values()), {})
+                            raw_target = raw_mapping.get(alias.name, _STATIC_FACADE_UNKNOWN)
+                            target = (
+                                _literal_facade_provider_target(alias.name, raw_target)
+                                if raw_target is not _STATIC_FACADE_UNKNOWN
+                                else (provider_name, alias.name)
+                            )
+                            if target is not None:
+                                if target[0].startswith("."):
+                                    target = (
+                                        importlib.util.resolve_name(target[0], base),
+                                        target[1],
+                                    )
+                                state[local_name] = (
+                                    "symbol",
+                                    target[0],
+                                    target[1],
+                                    str(statement.lineno),
+                                )
+                                invalid_state.discard(local_name)
+                            continue
+                        if local_name in state:
+                            state.pop(local_name, None)
+                            invalid_state.add(local_name)
+                    continue
+                if isinstance(statement, (ast.Assign, ast.AnnAssign)):
+                    value = statement.value
+                    targets = (
+                        statement.targets
+                        if isinstance(statement, ast.Assign)
+                        else [statement.target]
                     )
-                    if target is None:
+                    if len(targets) == 1 and isinstance(targets[0], ast.Name):
+                        local_name = targets[0].id
+                        resolved: tuple[str, str, str | None, str] | None = None
+                        if isinstance(value, ast.Name):
+                            resolved = state.get(value.id)
+                        elif (
+                            isinstance(value, ast.Attribute)
+                            and isinstance(value.value, ast.Name)
+                            and (module_state := state.get(value.value.id)) is not None
+                            and module_state[0] == "module"
+                        ):
+                            resolved = (
+                                "symbol",
+                                module_state[1],
+                                value.attr,
+                                str(statement.lineno),
+                            )
+                        if resolved is not None:
+                            state[local_name] = resolved
+                            invalid_state.discard(local_name)
+                            continue
+                        if local_name in state:
+                            state.pop(local_name, None)
+                            invalid_state.add(local_name)
+                        continue
+                    if any(
+                        isinstance(child, ast.Name) and child.id in state
+                        for child in ast.walk(statement)
+                    ):
+                        raise ConfidenceLedgerError(
+                            "canonical_loaded_runtime_mismatch",
+                            f"unsupported module alias assignment: {module_name}",
+                        )
+                    continue
+                if isinstance(statement, ast.Delete):
+                    for target in statement.targets:
+                        if isinstance(target, ast.Name):
+                            state.pop(target.id, None)
+                            invalid_state.discard(target.id)
+                            if target.id in deferred_global_reads:
+                                raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+                        elif any(
+                            isinstance(child, ast.Name) and child.id in state
+                            for child in ast.walk(target)
+                        ):
+                            raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+                    continue
+                if isinstance(statement, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+                    for child in ast.walk(statement):
+                        if (
+                            isinstance(child, ast.Name)
+                            and child.id in state
+                            and isinstance(child.ctx, ast.Load)
+                        ):
+                            deferred_global_reads.add(child.id)
+                    if statement.name in state:
+                        state.pop(statement.name, None)
+                        invalid_state.add(statement.name)
+                    continue
+                if isinstance(statement, ast.Expr) and isinstance(statement.value, ast.Constant):
+                    continue
+                if any(
+                    isinstance(child, ast.Name) and child.id in state
+                    for child in ast.walk(statement)
+                ):
+                    raise ConfidenceLedgerError(
+                        "canonical_loaded_runtime_mismatch",
+                        f"unsupported module alias use: {module_name}",
+                    )
+            if invalid_state & deferred_global_reads:
+                raise ConfidenceLedgerError(
+                    "canonical_loaded_runtime_mismatch",
+                    f"deferred module alias binding is unresolved: {module_name}",
+                )
+            if invalid_state:
+                module_module = sys.modules.get(module_name)
+                namespace = vars(module_module) if module_module is not None else {}
+                if any(name in namespace for name in invalid_state):
+                    raise ConfidenceLedgerError(
+                        "canonical_loaded_runtime_mismatch",
+                        f"module alias binding is unresolved: {module_name}",
+                    )
+            for local_name, binding in state.items():
+                if binding[0] == "module":
+                    module_value_bindings.append((module_name, local_name, binding[1], "<module>"))
+                elif binding[0] == "symbol" and binding[2] is not None:
+                    provider_path = _repository_module_source(
+                        repo_root,
+                        binding[1],
+                        directory_entries=directory_entries,
+                    )
+                    if provider_path is None:
                         raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
-                    if target[0].startswith("."):
-                        try:
-                            target = (importlib.util.resolve_name(target[0], base), target[1])
-                        except (ImportError, TypeError, ValueError) as exc:
-                            raise ConfidenceLedgerError(
-                                "canonical_loaded_runtime_mismatch",
-                                f"ambiguous source facade provider: {base}.{alias.name}",
-                            ) from exc
-                    bindings_to_check[(base, alias.name)] = (*target, True)
+                    if binding[1] not in closure_by_name:
+                        supplemental_modules[binding[1]] = provider_path.as_posix()
+                    bindings_to_check[(module_name, local_name)] = (
+                        binding[1],
+                        binding[2],
+                        True,
+                    )
+                    selected_importers.setdefault((module_name, local_name), set()).add(
+                        (module_name, local_name, "module_value", "<module>", binding[3])
+                    )
 
-        checked_bindings: list[dict[str, str]] = []
+        checked_bindings: list[dict[str, object]] = []
         for (facade_name, export), (provider_name, attribute, selected) in sorted(
             bindings_to_check.items()
         ):
@@ -8063,6 +8529,17 @@ def _source_facade_runtime_projection(
                 raise ConfidenceLedgerError(
                     "canonical_loaded_runtime_mismatch",
                     f"selected source facade provider is outside closure: {provider_name}",
+                )
+            if selected and not _repository_module_exports_symbol(
+                repo_root,
+                provider_name,
+                attribute,
+                directory_entries=directory_entries,
+                source_index=source_index,
+            ):
+                raise ConfidenceLedgerError(
+                    "canonical_loaded_runtime_mismatch",
+                    f"selected source facade provider does not bind: {provider_name}.{attribute}",
                 )
             provider_module = sys.modules.get(provider_name)
             facade_module = sys.modules.get(facade_name)
@@ -8116,6 +8593,104 @@ def _source_facade_runtime_projection(
                     )
             if provider_name not in closure_by_name:
                 supplemental_modules[provider_name] = provider_path.as_posix()
+            selected_import_rows: list[dict[str, str]] = []
+            if selected:
+                importer_rows = sorted(selected_importers.get((facade_name, export), set()))
+                if not importer_rows:
+                    raise ConfidenceLedgerError(
+                        "canonical_loaded_runtime_mismatch",
+                        f"selected source facade import is not bound: {facade_name}.{export}",
+                    )
+                for (
+                    importer_name,
+                    local_name,
+                    binding_scope,
+                    scope_owner,
+                    source_line,
+                ) in importer_rows:
+                    importer_module = sys.modules.get(importer_name)
+                    if importer_module is None:
+                        raise ConfidenceLedgerError(
+                            "canonical_loaded_runtime_mismatch",
+                            f"selected importer module is not loaded: {importer_name}",
+                        )
+                    owner_container: object = importer_module
+                    owner_binding: object = importer_module
+                    owner_callable: types.FunctionType | None = None
+                    owner_code_hash: str | None = None
+                    if binding_scope in {"module", "module_value"}:
+                        if (
+                            vars(importer_module).get(local_name, _STATIC_FACADE_UNKNOWN)
+                            is not provider_value
+                        ):
+                            raise ConfidenceLedgerError(
+                                "canonical_loaded_runtime_mismatch",
+                                f"selected importer binding differs: {importer_name}.{local_name}",
+                            )
+                    elif binding_scope == "function_local":
+                        importer_scope = runtime_scopes.get(importer_name)
+                        expected_owner_code = (
+                            importer_scope[2].get(scope_owner)
+                            if importer_scope is not None
+                            else None
+                        )
+                        owner_node = (
+                            importer_scope[1].get(scope_owner)
+                            if importer_scope is not None
+                            else None
+                        )
+                        owner_binding = _source_live_scope_owner(
+                            importer_module,
+                            importer_name,
+                            scope_owner,
+                            expected_code=expected_owner_code,
+                            source_node=owner_node,
+                            source_path=repo_root / closure_by_name[importer_name],
+                        )
+                        if owner_binding is None:
+                            raise ConfidenceLedgerError(
+                                "canonical_loaded_runtime_mismatch",
+                                f"selected importer owner differs from pinned source: "
+                                f"{importer_name}.{scope_owner}",
+                            )
+                        (
+                            owner_container,
+                            owner_binding,
+                            owner_callable,
+                            owner_code_hash,
+                        ) = owner_binding
+                    elif binding_scope != "function_local":
+                        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+                    selected_import_rows.append(
+                        {
+                            "module": importer_name,
+                            "name": local_name,
+                            "scope": binding_scope,
+                            "owner": scope_owner,
+                            "line": source_line,
+                        }
+                    )
+                    if runtime_binding_references is not None:
+                        runtime_binding_references.append(
+                            (
+                                facade_name,
+                                export,
+                                facade_module,
+                                provider_name,
+                                provider_module,
+                                attribute,
+                                provider_value,
+                                importer_name,
+                                local_name,
+                                importer_module,
+                                binding_scope,
+                                scope_owner,
+                                owner_container,
+                                owner_callable,
+                                owner_code_hash,
+                                owner_binding,
+                            )
+                        )
             checked_bindings.append(
                 {
                     "attribute": attribute,
@@ -8124,8 +8699,87 @@ def _source_facade_runtime_projection(
                     "provider": provider_name,
                     "provider_path": provider_path.as_posix(),
                     "selected": "true" if selected else "false",
+                    "importers": selected_import_rows,
                 }
             )
+
+        for importer_name, local_name, target_name, scope_owner in sorted(
+            set(module_value_bindings)
+        ):
+            target_path = _repository_module_source(
+                repo_root,
+                target_name,
+                directory_entries=directory_entries,
+            )
+            if target_path is None:
+                raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+            if target_name not in closure_by_name:
+                supplemental_modules[target_name] = target_path.as_posix()
+            importer_module = sys.modules.get(importer_name)
+            provider_module = sys.modules.get(target_name)
+            if importer_module is None or provider_module is None:
+                raise ConfidenceLedgerError(
+                    "canonical_loaded_runtime_mismatch",
+                    f"source module alias is not loaded: {importer_name}.{local_name}",
+                )
+            try:
+                loaded_module_path = Path(getattr(provider_module, "__file__", "")).resolve()
+                loaded_module_path.relative_to(repo_root.resolve())
+            except (OSError, TypeError, ValueError) as exc:
+                raise ConfidenceLedgerError(
+                    "canonical_loaded_runtime_mismatch",
+                    f"source module origin is invalid: {target_name}",
+                ) from exc
+            if loaded_module_path != target_path.resolve():
+                raise ConfidenceLedgerError(
+                    "canonical_loaded_runtime_mismatch",
+                    f"source module origin differs: {target_name}",
+                )
+            if vars(importer_module).get(local_name, _STATIC_FACADE_UNKNOWN) is not provider_module:
+                raise ConfidenceLedgerError(
+                    "canonical_loaded_runtime_mismatch",
+                    f"source module binding differs: {importer_name}.{local_name}",
+                )
+            checked_bindings.append(
+                {
+                    "facade": importer_name,
+                    "export": local_name,
+                    "provider": target_name,
+                    "provider_path": target_path.as_posix(),
+                    "selected": "true",
+                    "module_binding": "true",
+                    "importers": [
+                        {
+                            "module": importer_name,
+                            "name": local_name,
+                            "scope": "module_value",
+                            "owner": scope_owner,
+                            "line": "source-transfer",
+                        }
+                    ],
+                }
+            )
+            if runtime_binding_references is not None:
+                runtime_binding_references.append(
+                    (
+                        importer_name,
+                        local_name,
+                        importer_module,
+                        target_name,
+                        provider_module,
+                        "<module>",
+                        provider_module,
+                        importer_name,
+                        local_name,
+                        importer_module,
+                        "module_value",
+                        scope_owner,
+                        importer_module,
+                        None,
+                        None,
+                        importer_module,
+                    )
+                )
 
         for row in facade_rows:
             module = sys.modules.get(str(row["module"]))
@@ -8157,6 +8811,311 @@ def _source_facade_runtime_projection(
     finally:
         if token is not None:
             _ACTIVE_INTEGRITY_ANALYSIS.reset(token)
+
+
+def _source_live_scope_owner(
+    module: types.ModuleType,
+    module_name: str,
+    scope_owner: str,
+    *,
+    expected_code: types.CodeType | None,
+    source_node: ast.FunctionDef | ast.AsyncFunctionDef | None,
+    source_path: Path,
+) -> tuple[object, object, types.FunctionType, str] | None:
+    """Bind a local-import scope to its actual module or class callable owner."""
+
+    if expected_code is None or source_node is None:
+        return None
+    module_namespace = vars(module)
+    if type(module_namespace) is not dict:
+        return None
+    owner_parts = tuple(scope_owner.split("."))
+    if not owner_parts or any(not part for part in owner_parts):
+        return None
+    owner_container: object = module
+    if len(owner_parts) == 1:
+        if source_node.decorator_list:
+            return None
+        raw_callable = module_namespace.get(owner_parts[0])
+    elif len(owner_parts) == 2:
+        class_name, member_name = owner_parts
+        owner_container = module_namespace.get(class_name)
+        if type(owner_container) is not type:
+            return None
+        class_namespace = type.__getattribute__(owner_container, "__dict__")
+        if not isinstance(class_namespace, Mapping):
+            return None
+        if not (
+            type.__getattribute__(owner_container, "__module__") == module_name
+            and type.__getattribute__(owner_container, "__qualname__") == class_name
+        ):
+            return None
+        raw_callable = class_namespace.get(member_name)
+        decorator_names = tuple(
+            _decorator_expression_name(item) for item in source_node.decorator_list
+        )
+        expected_descriptor: type[object] | None
+        if not decorator_names:
+            expected_descriptor = types.FunctionType
+        elif decorator_names == ("classmethod",):
+            expected_descriptor = classmethod
+        elif decorator_names == ("staticmethod",):
+            expected_descriptor = staticmethod
+        else:
+            return None
+        if type(raw_callable) is not expected_descriptor:
+            return None
+        if type(raw_callable) in {classmethod, staticmethod}:
+            raw_callable = raw_callable.__func__
+    else:
+        return None
+    if not isinstance(raw_callable, types.FunctionType):
+        return None
+    actual_code = raw_callable.__code__
+    expected_code_hash = _content_hash(_normalize_code_object(expected_code))
+    actual_code_hash = _content_hash(_normalize_code_object(actual_code))
+    if not (
+        raw_callable.__globals__ is module_namespace
+        and raw_callable.__qualname__ == scope_owner
+        and actual_code.co_qualname == scope_owner
+        and expected_code.co_qualname == scope_owner
+        and Path(actual_code.co_filename).resolve() == source_path.resolve()
+        and actual_code_hash == expected_code_hash
+    ):
+        return None
+    return (
+        owner_container,
+        module_namespace.get(owner_parts[-1])
+        if len(owner_parts) == 1
+        else (type.__getattribute__(owner_container, "__dict__").get(owner_parts[-1])),
+        raw_callable,
+        actual_code_hash,
+    )
+
+
+def _runtime_binding_references_match(
+    observed: Iterable[_FacadeRuntimeBindingReference],
+    expected: tuple[_FacadeRuntimeBindingReference, ...],
+) -> bool:
+    """Require the selected facade/importer/provider objects to remain identical."""
+
+    key_indexes = (0, 1, 3, 5, 7, 8, 14)
+    object_indexes = (2, 4, 6, 9, 12, 13, 15)
+    observed_rows = tuple(sorted(observed, key=lambda item: (item[0], item[1], item[7], item[8])))
+    expected_rows = tuple(sorted(expected, key=lambda item: (item[0], item[1], item[7], item[8])))
+    if len(observed_rows) != len(expected_rows):
+        return False
+    for current, pinned in zip(observed_rows, expected_rows, strict=True):
+        if any(current[index] != pinned[index] for index in key_indexes):
+            return False
+        if any(current[index] is not pinned[index] for index in object_indexes):
+            return False
+    return True
+
+
+def _runtime_import_scope_index(
+    tree: ast.Module,
+    *,
+    filename: str = "<pinned-source>",
+) -> tuple[
+    dict[int, tuple[str, str]],
+    dict[str, ast.FunctionDef | ast.AsyncFunctionDef],
+    dict[str, types.CodeType | None],
+]:
+    """Index runtime imports by lexical owner and compiler-derived closure scope.
+
+    Only module imports and direct function or method locals have a binding
+    model here. Conditional imports, class-body imports, and nested callable
+    imports remain explicit unsupported scopes. The code-object index comes
+    from compiling the pinned AST; source is never executed.
+    """
+
+    import_scopes: dict[int, tuple[str, str]] = {}
+    functions: dict[str, ast.FunctionDef | ast.AsyncFunctionDef] = {}
+    function_codes: dict[str, types.CodeType | None] = {}
+
+    module_code = compile(tree, filename, "exec", dont_inherit=True)
+
+    def add_code(code: types.CodeType) -> None:
+        if code.co_name != "<module>":
+            owner_name = code.co_qualname.replace(".<locals>.", ".")
+            if owner_name in function_codes:
+                function_codes[owner_name] = None
+            else:
+                function_codes[owner_name] = code
+        for value in code.co_consts:
+            if isinstance(value, types.CodeType):
+                add_code(value)
+
+    add_code(module_code)
+
+    def walk(
+        node: ast.AST,
+        *,
+        scope_kind: str,
+        owner: tuple[str, ...],
+        controlled: bool = False,
+    ) -> None:
+        if isinstance(node, ast.If) and _is_type_checking_test(node.test):
+            for statement in node.orelse:
+                walk(statement, scope_kind=scope_kind, owner=owner, controlled=controlled)
+            return
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            for expression in (*node.decorator_list, *node.args.defaults, *node.args.kw_defaults):
+                if expression is not None:
+                    walk(expression, scope_kind=scope_kind, owner=owner, controlled=controlled)
+            if node.returns is not None:
+                walk(node.returns, scope_kind=scope_kind, owner=owner, controlled=controlled)
+            function_owner = (*owner, node.name)
+            functions[".".join(function_owner)] = node
+            if scope_kind in {"module", "class_local"} and not controlled:
+                body_scope = "function_local"
+            elif scope_kind in {"module", "class_local"}:
+                body_scope = "function_controlled"
+            else:
+                body_scope = "nested_callable"
+            for statement in node.body:
+                walk(statement, scope_kind=body_scope, owner=function_owner)
+            return
+        if isinstance(node, ast.ClassDef):
+            for expression in (*node.decorator_list, *node.bases, *node.keywords):
+                walk(expression, scope_kind=scope_kind, owner=owner, controlled=controlled)
+            class_owner = (*owner, node.name)
+            body_scope = (
+                "class_local" if scope_kind == "module" and not controlled else "nested_class"
+            )
+            for statement in node.body:
+                walk(statement, scope_kind=body_scope, owner=class_owner)
+            return
+        if isinstance(node, (ast.Import, ast.ImportFrom)):
+            indexed_scope = (
+                f"{scope_kind}_controlled"
+                if controlled and scope_kind in {"module", "function_local"}
+                else scope_kind
+            )
+            import_scopes[id(node)] = (indexed_scope, ".".join(owner) if owner else "<module>")
+            return
+        controls = (
+            ast.If,
+            ast.For,
+            ast.AsyncFor,
+            ast.While,
+            ast.With,
+            ast.AsyncWith,
+            ast.Try,
+            ast.TryStar,
+            ast.Match,
+        )
+        if isinstance(node, controls):
+            next_controlled = controlled or scope_kind in {"module", "function_local"}
+            for child in ast.iter_child_nodes(node):
+                walk(child, scope_kind=scope_kind, owner=owner, controlled=next_controlled)
+            return
+        for child in ast.iter_child_nodes(node):
+            walk(child, scope_kind=scope_kind, owner=owner, controlled=controlled)
+
+    walk(tree, scope_kind="module", owner=())
+    return import_scopes, functions, function_codes
+
+
+def _source_function_import_binding_is_unique(
+    owner: ast.FunctionDef | ast.AsyncFunctionDef,
+    *,
+    owner_code: types.CodeType | None,
+    local_name: str,
+    import_node: ast.Import | ast.ImportFrom,
+) -> bool:
+    """Require one uncaptured local import binding in the compiled source function."""
+
+    if (
+        owner_code is None
+        or owner_code.co_name != owner.name
+        or local_name not in owner_code.co_varnames
+        or local_name in owner_code.co_cellvars
+    ):
+        return False
+
+    arguments = (
+        *owner.args.posonlyargs,
+        *owner.args.args,
+        *owner.args.kwonlyargs,
+        *((owner.args.vararg,) if owner.args.vararg is not None else ()),
+        *((owner.args.kwarg,) if owner.args.kwarg is not None else ()),
+    )
+    if any(argument.arg == local_name for argument in arguments):
+        return False
+
+    writes: list[tuple[str, int, int, int]] = []
+    unsupported_scope_declaration = False
+
+    def write(name: str, node: ast.AST, ordinal: int = 0) -> None:
+        writes.append((name, getattr(node, "lineno", -1), getattr(node, "col_offset", -1), ordinal))
+
+    def walk(node: ast.AST, *, root: bool = False) -> None:
+        nonlocal unsupported_scope_declaration
+        if not root and isinstance(
+            node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef, ast.Lambda)
+        ):
+            if (
+                isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef))
+                and node.name == local_name
+            ):
+                write(local_name, node)
+            return
+        if isinstance(node, (ast.Global, ast.Nonlocal)) and local_name in node.names:
+            unsupported_scope_declaration = True
+        elif (
+            isinstance(node, ast.Name)
+            and node.id == local_name
+            and isinstance(node.ctx, (ast.Store, ast.Del))
+        ):
+            write(local_name, node)
+        elif isinstance(node, (ast.Import, ast.ImportFrom)):
+            for ordinal, alias in enumerate(node.names):
+                bound = alias.asname or (
+                    alias.name.split(".", 1)[0] if isinstance(node, ast.Import) else alias.name
+                )
+                if bound == local_name:
+                    write(local_name, node, ordinal)
+        elif (
+            (isinstance(node, ast.ExceptHandler) and node.name == local_name)
+            or (isinstance(node, ast.MatchAs) and node.name == local_name)
+            or (isinstance(node, ast.MatchStar) and node.name == local_name)
+            or (isinstance(node, ast.MatchMapping) and node.rest == local_name)
+        ):
+            write(local_name, node)
+        for child in ast.iter_child_nodes(node):
+            walk(child)
+
+    for statement in owner.body:
+        walk(statement)
+    import_alias_ordinal = next(
+        (
+            ordinal
+            for ordinal, alias in enumerate(import_node.names)
+            if (
+                alias.asname
+                or (
+                    alias.name.split(".", 1)[0]
+                    if isinstance(import_node, ast.Import)
+                    else alias.name
+                )
+            )
+            == local_name
+        ),
+        -1,
+    )
+    expected = (
+        local_name,
+        getattr(import_node, "lineno", -1),
+        getattr(import_node, "col_offset", -1),
+        import_alias_ordinal,
+    )
+    return (
+        not unsupported_scope_declaration
+        and writes.count(expected) == 1
+        and sum(row[0] == local_name for row in writes) == 1
+    )
 
 
 def _runtime_ast_nodes(node: ast.AST) -> Iterable[ast.AST]:
@@ -10251,46 +11210,69 @@ def _loaded_code_manifest_body(
             )
         spec = getattr(module, "__spec__", None)
         loader = getattr(spec, "loader", None)
-        get_code = getattr(loader, "get_code", None)
         origin = getattr(spec, "origin", None)
-        if not callable(get_code) or not isinstance(origin, str):
+        module_file = getattr(module, "__file__", None)
+        source_path = (repo_root / relative_path).resolve()
+        if (
+            not isinstance(loader, SourceFileLoader)
+            or not isinstance(origin, str)
+            or not isinstance(module_file, str)
+        ):
             raise ConfidenceLedgerError(
                 "canonical_loaded_runtime_mismatch",
-                f"loaded repository module has no code provenance: {module_name}",
+                f"loaded repository module has no source provenance: {module_name}",
             )
         try:
-            origin_relative = Path(origin).resolve().relative_to(repo_root).as_posix()
-            code = get_code(module_name)
-        except (ImportError, OSError, ValueError) as exc:
+            origin_path = Path(origin).resolve()
+            file_path = Path(module_file).resolve()
+            source_path.relative_to(repo_root.resolve())
+        except (OSError, TypeError, ValueError) as exc:
             raise ConfidenceLedgerError(
                 "canonical_loaded_runtime_mismatch",
                 f"loaded repository module provenance invalid: {module_name}",
             ) from exc
-        if origin_relative != relative_path or not isinstance(code, types.CodeType):
+        if origin_path != source_path or file_path != source_path:
             raise ConfidenceLedgerError(
                 "canonical_loaded_runtime_mismatch",
                 f"loaded repository module provenance invalid: {module_name}",
             )
-        source_path = (repo_root / relative_path).resolve()
         analysis = _active_integrity_analysis()
         if analysis is None:
             raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
         source_bytes = analysis.source_bytes(source_path)
+        try:
+            code = compile(
+                source_bytes,
+                str(source_path),
+                "exec",
+                dont_inherit=True,
+                optimize=sys.flags.optimize,
+            )
+        except (OverflowError, SyntaxError, TypeError, ValueError) as exc:
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch",
+                f"loaded repository source cannot be compiled: {module_name}",
+            ) from exc
+        if not isinstance(code, types.CodeType):
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch",
+                f"loaded repository source cannot be compiled: {module_name}",
+            )
         live_defined_code = _live_defined_code_manifest(
             module,
             module_name,
             source_path=source_path,
         )
-        loader_code_hashes = _loader_code_hashes_by_qualname(code)
+        source_code_hashes = _loader_code_hashes_by_qualname(code)
         live_loader_bindings: dict[str, object] = {}
         module_consistent = True
         for label, live_code in live_defined_code.items():
             code_qualname = str(live_code["code_qualname"])
             live_hash = str(live_code["normalized_code_hash"])
             defined_locally = bool(live_code["defined_locally"])
-            loader_hashes = loader_code_hashes.get(code_qualname, ()) if defined_locally else ()
+            source_hashes = source_code_hashes.get(code_qualname, ()) if defined_locally else ()
             matches_loader = (
-                live_hash in loader_hashes and bool(live_code["globals_match_module"])
+                live_hash in source_hashes and bool(live_code["globals_match_module"])
                 if defined_locally
                 else None
             )
@@ -10298,19 +11280,19 @@ def _loaded_code_manifest_body(
                 module_consistent = module_consistent and bool(matches_loader)
             live_loader_bindings[label] = {
                 **live_code,
-                "loader_normalized_code_hashes": list(loader_hashes),
+                "loader_normalized_code_hashes": list(source_hashes),
                 "matches_loader": matches_loader,
             }
         loader_owned_slots: dict[str, object] = {}
         for slot in _loader_owned_callable_slots(source_path):
-            expected_hashes = loader_code_hashes.get(slot.qualname, ())
+            expected_hashes = source_code_hashes.get(slot.qualname, ())
             row, matches_slot = _loader_owned_slot_binding(
                 module,
                 module_name,
                 source_path,
                 slot,
                 expected_hashes,
-                loader_code_hashes,
+                source_code_hashes,
             )
             module_consistent = module_consistent and matches_slot
             loader_owned_slots[slot.qualname] = row
@@ -10886,10 +11868,17 @@ def _assert_ledger_artifact_contracts_current(
         if _IMPORT_TIME_LOADED_CODE_MANIFEST:
             if _IMPORT_TIME_LOADED_CODE_CONSISTENT is not True:
                 raise ValueError("loaded authority code was not consistent at import")
+            observed_binding_references: list[_FacadeRuntimeBindingReference] = []
             facade_projection, supplemental_closure = _source_facade_runtime_projection(
                 _IMPORT_TIME_OWNER_ROOT,
                 _derived_authority_import_closure(_IMPORT_TIME_OWNER_ROOT),
+                runtime_binding_references=observed_binding_references,
             )
+            if not _runtime_binding_references_match(
+                observed_binding_references,
+                _IMPORT_TIME_FACADE_RUNTIME_BINDING_REFERENCES,
+            ):
+                raise ValueError("selected facade/importer binding differs from import snapshot")
             runtime_closure = _combined_runtime_code_closure(
                 _IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE,
                 supplemental_closure,
@@ -10927,6 +11916,7 @@ _IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE: tuple[tuple[str, str], ...] = ()
 _IMPORT_TIME_DEPLOYMENT_BASELINE: str | None = None
 _IMPORT_TIME_DEPLOYMENT_QUICK_FENCE: _DeploymentQuickFence = ()
 _IMPORT_TIME_FACADE_RUNTIME_PROJECTION = ""
+_IMPORT_TIME_FACADE_RUNTIME_BINDING_REFERENCES: tuple[_FacadeRuntimeBindingReference, ...] = ()
 _IMPORT_TIME_FACADE_SUPPLEMENTAL_CLOSURE: tuple[tuple[str, str], ...] = ()
 _IMPORT_TIME_RUNTIME_CODE_CLOSURE: tuple[tuple[str, str], ...] = ()
 _IMPORT_TIME_LOADED_CODE_MANIFEST = ""
@@ -10946,9 +11936,11 @@ if (
             _IMPORT_TIME_OWNER_ROOT
         )
         _import_authority_closure_modules(authority_import_closure)
+        facade_runtime_binding_references: list[_FacadeRuntimeBindingReference] = []
         facade_runtime_projection, facade_supplemental_closure = _source_facade_runtime_projection(
             _IMPORT_TIME_OWNER_ROOT,
             authority_import_closure,
+            runtime_binding_references=facade_runtime_binding_references,
         )
         runtime_code_closure = _combined_runtime_code_closure(
             authority_import_closure,
@@ -10975,6 +11967,12 @@ if (
         _IMPORT_TIME_DEPLOYMENT_BASELINE = deployment_baseline
         _IMPORT_TIME_DEPLOYMENT_QUICK_FENCE = deployment_quick_fence
         _IMPORT_TIME_FACADE_RUNTIME_PROJECTION = facade_runtime_projection
+        _IMPORT_TIME_FACADE_RUNTIME_BINDING_REFERENCES = tuple(
+            sorted(
+                facade_runtime_binding_references,
+                key=lambda item: (item[0], item[1], item[7], item[8], item[10], item[11]),
+            )
+        )
         _IMPORT_TIME_FACADE_SUPPLEMENTAL_CLOSURE = facade_supplemental_closure
         _IMPORT_TIME_RUNTIME_CODE_CLOSURE = runtime_code_closure
         _IMPORT_TIME_LOADED_CODE_MANIFEST = loaded_code_manifest

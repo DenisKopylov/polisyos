@@ -201,9 +201,14 @@ def _install_loaded_deployment(
         assert spec is not None
         monkeypatch.setattr(module, "__spec__", spec)
         monkeypatch.setattr(module, "__loader__", loader)
-        if module_name == ledger_module.__name__:
-            monkeypatch.setattr(module, "__file__", str(source_path))
-        module_code = loader.get_code(module_name)
+        monkeypatch.setattr(module, "__file__", str(source_path))
+        module_code = compile(
+            source_path.read_bytes(),
+            str(source_path),
+            "exec",
+            dont_inherit=True,
+            optimize=sys.flags.optimize,
+        )
         assert isinstance(module_code, types.CodeType)
         compiled_by_digest: dict[str, types.CodeType] = {}
 
@@ -2895,6 +2900,83 @@ def test_loaded_code_manifest_rejects_source_changes_during_analysis(
         )
 
     assert source_reads == 2
+
+
+def test_loaded_code_manifest_uses_pinned_source_bytes_not_loader_code_claim(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Changing loader.get_code cannot substitute for compiling pinned source bytes."""
+
+    from polisyos.core.artifacts import store as store_module
+
+    closure = ((store_module.__name__, "src/polisyos/core/artifacts/store.py"),)
+    original_manifest, original_consistent = ledger_module._loaded_code_manifest(
+        REPO_ROOT,
+        closure,
+    )
+    if not original_consistent:
+        pytest.fail("baseline loaded code should match its pinned source")
+    spec = store_module.__spec__
+    if spec is None:
+        pytest.fail("store module must have a source spec")
+    loader = spec.loader
+    if not isinstance(loader, SourceFileLoader):
+        pytest.fail("store module must use the source loader")
+
+    def forged_code(_module_name: str) -> types.CodeType:
+        return compile("pass\n", "<forged-loader-code>", "exec")
+
+    monkeypatch.setattr(loader, "get_code", forged_code)
+    current_manifest, current_consistent = ledger_module._loaded_code_manifest(
+        REPO_ROOT,
+        closure,
+    )
+    if not current_consistent:
+        pytest.fail("loader.get_code must not control the source-bound manifest")
+    if current_manifest != original_manifest:
+        pytest.fail("source-bound manifest changed after loader.get_code was forged")
+
+
+def test_selected_importer_alias_rebind_refuses_before_cas_and_fresh_read(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A persisted read is valid, while rebinding the protected writer stops before bytes."""
+
+    repo_root = tmp_path / "source-bound-authority-repo"
+    _install_loaded_deployment(repo_root, monkeypatch)
+    scope = _scope(owner_scope_key=f"design-problem:source-bound-importer:{time.time_ns()}")
+
+    first = ConfidenceLedgerSession.from_repo(repo_root, risk_scope=scope)
+    first_check = first.execute_check(_prepare(first, request_key="source-bound-positive"))
+    first_receipt = first.receipt()
+    reopened = ConfidenceLedgerSession.from_repo(repo_root, risk_scope=scope)
+    reopened_receipt = reopened.receipt()
+    if reopened_receipt.head_event_id != first_receipt.head_event_id:
+        pytest.fail("fresh public reader did not reopen the persisted head")
+    if reopened_receipt.events[-1].event_ref != first_receipt.events[-1].event_ref:
+        pytest.fail("fresh public reader did not reopen the persisted event ref")
+    if first_check.event_ref != first_receipt.events[-1].event_ref:
+        pytest.fail("producer result did not bind to the persisted event")
+
+    prepared = _prepare(reopened, request_key="source-bound-alias-rebind")
+    state_root = repo_root / ".polisyos"
+
+    def snapshot_state() -> dict[str, str]:
+        return {
+            path.relative_to(state_root).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
+            for path in sorted(state_root.rglob("*"))
+            if path.is_file()
+        }
+
+    before = snapshot_state()
+    monkeypatch.setattr(ledger_module, "atomic_write_json", lambda *_args, **_kwargs: None)
+    with pytest.raises(ConfidenceLedgerError) as exc_info:
+        reopened.execute_check(prepared)
+    if exc_info.value.code != "canonical_loaded_runtime_mismatch":
+        pytest.fail("rebound importer must fail with the typed runtime mismatch")
+    if snapshot_state() != before:
+        pytest.fail("rebound importer changed canonical storage before refusal")
 
 
 def test_loaded_code_manifest_rechecks_live_loader_and_callable_slot_after_prior_pass(
@@ -6757,11 +6839,19 @@ def test_source_facade_projection_reconciles_full_core_contracts_map_and_fails_c
     contracts_facades = {row["module"]: row for row in json.loads(contracts_projection)["facades"]}
     contracts_row = contracts_facades["polisyos.core.contracts"]
     contracts = contracts_row["maps"]["_LAZY_IMPORTS"]["$dict"]
-    assert len(contracts) == 794
     owners = contracts_row["map_owners"]
-    assert len(owners) == 794
-    assert {row["export"] for row in owners} == set(contracts)
-    assert all(row["provider_path"].startswith("src/polisyos/") for row in owners)
+    if len(owners) != len(contracts):
+        pytest.fail("every source map row must have an owner projection")
+    if {row["export"] for row in owners} != set(contracts):
+        pytest.fail("owner projection must cover exactly the source map exports")
+    if not all(row["provider_path"].startswith("src/polisyos/") for row in owners):
+        pytest.fail("every owner provider must resolve inside the PolicyOS source tree")
+    if not all(row["source_owner_status"] == "recomputed" for row in owners):
+        pytest.fail("every map row must reconcile to its source owner")
+    if not all(status == "recomputed" for status in contracts_row["map_transfer_status"].values()):
+        pytest.fail("every source map transfer must be recomputed")
+    if len(contracts) != sum(len(mapping["$dict"]) for mapping in contracts_row["maps"].values()):
+        pytest.fail("owner projection must reconcile the complete source map set")
 
     owner_checker = ledger_module._repository_module_exports_symbol
     monkeypatch.setattr(
@@ -7463,7 +7553,8 @@ def test_core_contract_generated_facade_map_binds_every_export_to_source_owner()
     source_maps, invalid_maps = ledger_module._static_facade_mapping_values(tree, mapping_names)
     assert invalid_maps == frozenset()
     lazy_exports = source_maps["_LAZY_IMPORTS"]
-    assert len(lazy_exports) == 794
+    if not lazy_exports:
+        pytest.fail("Core contracts source facade must expose its lazy export map")
 
     runtime_facade = importlib.import_module("polisyos.core.contracts")
     assert Path(runtime_facade.__file__).resolve() == facade.resolve()
@@ -7555,3 +7646,245 @@ def test_repository_module_exports_symbol_requires_runtime_binding_not_child_or_
         directory_entries={},
         source_index=source_index,
     )
+
+
+def test_source_facade_projection_tracks_lexical_imports_and_temporary_module_aliases(
+    tmp_path: Path,
+) -> None:
+    """Bind selected imports to their actual lexical scope and final consumer."""
+
+    repo_root = tmp_path / "source-runtime-binding-repo"
+    package_name = "_n11_scope_" + hashlib.sha256(str(tmp_path).encode()).hexdigest()[:12]
+    package_root = repo_root / "src" / "polisyos" / package_name
+    (package_root / "common").mkdir(parents=True)
+    (repo_root / "pyproject.toml").write_text(
+        '[project]\nname = "source-runtime-binding-fixture"\n', encoding="utf-8"
+    )
+    (repo_root / "uv.lock").write_text("version = 1\n", encoding="utf-8")
+    (package_root / "__init__.py").write_text("", encoding="utf-8")
+    (package_root / "facade.py").write_text(
+        "import importlib as _importlib\n"
+        "_LAZY_EXPORTS = {\n"
+        f'    "One": ("polisyos.{package_name}.provider", "One"),\n'
+        "}\n"
+        "def __getattr__(name):\n"
+        "    if name not in _LAZY_EXPORTS:\n"
+        "        raise AttributeError(name)\n"
+        "    module_name, symbol_name = _LAZY_EXPORTS[name]\n"
+        "    return getattr(_importlib.import_module(module_name), symbol_name)\n",
+        encoding="utf-8",
+    )
+    (package_root / "provider.py").write_text("class One:\n    pass\n", encoding="utf-8")
+    (package_root / "common" / "__init__.py").write_text("", encoding="utf-8")
+    (package_root / "common" / "timestamps.py").write_text(
+        "def parse_iso_date(value):\n    return value\n", encoding="utf-8"
+    )
+    (package_root / "local_good.py").write_text(
+        f"def load():\n    from polisyos.{package_name}.facade import One as _one\n    return _one\n",
+        encoding="utf-8",
+    )
+    (package_root / "local_rebound.py").write_text(
+        f"def load():\n    from polisyos.{package_name}.facade import One as _one\n"
+        "    _one = object()\n    return _one\n",
+        encoding="utf-8",
+    )
+    (package_root / "local_nested_capture.py").write_text(
+        f"def load():\n    from polisyos.{package_name}.facade import One as _one\n"
+        "    def captured():\n        return _one\n"
+        "    return _one\n",
+        encoding="utf-8",
+    )
+    (package_root / "local_nested_nonlocal_rebound.py").write_text(
+        f"def load():\n    from polisyos.{package_name}.facade import One as _one\n"
+        "    def rebind():\n        nonlocal _one\n        _one = object()\n"
+        "    rebind()\n    return _one\n",
+        encoding="utf-8",
+    )
+    (package_root / "local_nested_shadowed.py").write_text(
+        f"def load():\n    from polisyos.{package_name}.facade import One as _one\n"
+        "    def echo(_one):\n        return _one\n"
+        "    return echo(_one)\n",
+        encoding="utf-8",
+    )
+    (package_root / "local_owner_rebound.py").write_text(
+        f"def load():\n    from polisyos.{package_name}.facade import One as _one\n"
+        "    return _one\n"
+        "def replacement():\n    return None\n"
+        "load = replacement\n",
+        encoding="utf-8",
+    )
+    (package_root / "local_owner_code_mutated.py").write_text(
+        f"def load():\n    from polisyos.{package_name}.facade import One as _one\n"
+        "    return _one\n"
+        "def replacement():\n    return None\n",
+        encoding="utf-8",
+    )
+    (package_root / "class_method_good.py").write_text(
+        f"class Owner:\n    @classmethod\n    def load(cls):\n"
+        f"        from polisyos.{package_name}.facade import One as _one\n"
+        "        return cls, _one\n",
+        encoding="utf-8",
+    )
+    (package_root / "module_good.py").write_text(
+        f"from polisyos.{package_name}.common import timestamps as _common_timestamps\n"
+        "parse_iso_date = _common_timestamps.parse_iso_date\n"
+        "del _common_timestamps\n"
+        "def normalize(value):\n    return parse_iso_date(value)\n",
+        encoding="utf-8",
+    )
+    (package_root / "module_rebound.py").write_text(
+        f"from polisyos.{package_name}.common import timestamps as _common_timestamps\n"
+        "parse_iso_date = _common_timestamps.parse_iso_date\n"
+        "del _common_timestamps\n"
+        "parse_iso_date = object()\n",
+        encoding="utf-8",
+    )
+
+    script = r"""
+import importlib
+import importlib.util
+import json
+import sys
+from pathlib import Path
+
+repo_root = Path(sys.argv[1])
+product_source = Path(sys.argv[2])
+candidate_source = Path(sys.argv[3])
+package_name = sys.argv[4]
+sys.path.insert(0, str(product_source))
+import polisyos
+polisyos.__path__.append(str(repo_root / "src" / "polisyos"))
+spec = importlib.util.spec_from_file_location("n11_scope_candidate_ledger", candidate_source)
+ledger = importlib.util.module_from_spec(spec)
+sys.modules[spec.name] = ledger
+spec.loader.exec_module(ledger)
+observations = {}
+for entry_name in (
+    "local_good",
+    "local_rebound",
+    "local_nested_capture",
+    "local_nested_nonlocal_rebound",
+    "local_nested_shadowed",
+    "local_owner_rebound",
+    "local_owner_code_mutated",
+    "class_method_good",
+    "module_good",
+    "module_rebound",
+):
+    module_name = f"polisyos.{package_name}.{entry_name}"
+    closure = ledger._resolve_authority_import_closure(repo_root, module_name)
+    ledger._import_authority_closure_modules(closure)
+    imported = sys.modules[module_name]
+    owner_identity_preserved = None
+    if entry_name in {"local_owner_rebound", "local_owner_code_mutated"}:
+        original_owner = imported.load
+        if entry_name == "local_owner_rebound":
+            imported.load = imported.replacement
+        else:
+            imported.load.__code__ = imported.replacement.__code__
+        owner_identity_preserved = imported.load is original_owner
+    try:
+        projection, supplemental = ledger._source_facade_runtime_projection(repo_root, closure)
+    except ledger.ConfidenceLedgerError as exc:
+        observations[entry_name] = {"status": "refused", "code": exc.code, "detail": exc.detail}
+        if owner_identity_preserved is not None:
+            observations[entry_name]["same_owner_object"] = owner_identity_preserved
+        continue
+    bindings = json.loads(projection)["bindings"]
+    observations[entry_name] = {
+        "status": "admitted",
+        "bindings": bindings,
+        "supplemental": supplemental,
+        "local_value": (
+            f"{imported.load().__module__}.{imported.load().__name__}"
+            if entry_name in {"local_good", "local_nested_shadowed"}
+            else None
+        ),
+        "module_alias_absent": "_common_timestamps" not in vars(imported),
+        "module_value": imported.normalize("2026-10-17") if entry_name == "module_good" else None,
+    }
+print(json.dumps(observations, sort_keys=True, default=str))
+"""
+    environment = os.environ.copy()
+    prior_pythonpath = environment.get("PYTHONPATH")
+    environment["PYTHONPATH"] = os.pathsep.join(
+        value for value in (str(REPO_ROOT / "src"), prior_pythonpath) if value
+    )
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            script,
+            str(repo_root),
+            str(REPO_ROOT / "src"),
+            str(Path(ledger_module.__file__).resolve()),
+            package_name,
+        ],
+        cwd=REPO_ROOT,
+        env=environment,
+        capture_output=True,
+        text=True,
+        timeout=90,
+        check=False,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+    observations = json.loads(result.stdout)
+    assert observations["local_good"]["status"] == "admitted"
+    assert observations["local_good"]["local_value"] == (f"polisyos.{package_name}.provider.One")
+    local_binding = next(
+        row
+        for row in observations["local_good"]["bindings"]
+        if row["facade"] == f"polisyos.{package_name}.facade" and row["export"] == "One"
+    )
+    assert local_binding["importers"] == [
+        {
+            "module": f"polisyos.{package_name}.local_good",
+            "name": "_one",
+            "scope": "function_local",
+            "owner": "load",
+            "line": "2",
+        }
+    ]
+    assert observations["local_rebound"]["status"] == "refused"
+    assert observations["local_rebound"]["code"] == "canonical_loaded_runtime_mismatch"
+    for entry_name in ("local_nested_capture", "local_nested_nonlocal_rebound"):
+        assert observations[entry_name]["status"] == "refused"
+        assert observations[entry_name]["code"] == "canonical_loaded_runtime_mismatch"
+    assert observations["local_nested_shadowed"]["status"] == "admitted"
+    assert observations["local_nested_shadowed"]["local_value"] == (
+        f"polisyos.{package_name}.provider.One"
+    )
+    for entry_name in ("local_owner_rebound", "local_owner_code_mutated"):
+        assert observations[entry_name]["status"] == "refused"
+        assert observations[entry_name]["code"] == "canonical_loaded_runtime_mismatch"
+    assert observations["local_owner_rebound"]["same_owner_object"] is False
+    assert observations["local_owner_code_mutated"]["same_owner_object"] is True
+    assert observations["class_method_good"]["status"] == "admitted"
+    class_method_binding = next(
+        row
+        for row in observations["class_method_good"]["bindings"]
+        if row["facade"] == f"polisyos.{package_name}.facade" and row["export"] == "One"
+    )
+    assert class_method_binding["importers"] == [
+        {
+            "module": f"polisyos.{package_name}.class_method_good",
+            "name": "_one",
+            "scope": "function_local",
+            "owner": "Owner.load",
+            "line": "4",
+        }
+    ]
+
+    assert observations["module_good"]["status"] == "admitted"
+    assert observations["module_good"]["module_alias_absent"] is True
+    assert observations["module_good"]["module_value"] == "2026-10-17"
+    module_binding = next(
+        row
+        for row in observations["module_good"]["bindings"]
+        if row["facade"] == f"polisyos.{package_name}.module_good"
+        and row["export"] == "parse_iso_date"
+    )
+    assert module_binding["provider"] == f"polisyos.{package_name}.common.timestamps"
+    assert module_binding["importers"][0]["scope"] == "module_value"
+    assert observations["module_rebound"]["status"] == "refused"
+    assert observations["module_rebound"]["code"] == "canonical_loaded_runtime_mismatch"

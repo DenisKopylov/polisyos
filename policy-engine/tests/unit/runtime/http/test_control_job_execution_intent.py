@@ -1865,11 +1865,13 @@ async def test_simulate_only_served_worker_persists_computation_without_s8_or_pu
             "manifest_profile_sha256"
         )
         assert read_provenance["read_trace"]
-        assert read_provenance["read_trace"][-1]["canon_read_status"] == (
-            read_provenance["canon_read_status"]
+        assert (
+            read_provenance["read_trace"][-1]["canon_read_status"]
+            == (read_provenance["canon_read_status"])
         )
-        assert read_provenance["read_trace"][-1]["selected_artifact_id"] == (
-            selected_ref["artifact_id"]
+        assert (
+            read_provenance["read_trace"][-1]["selected_artifact_id"]
+            == (selected_ref["artifact_id"])
         )
         terminal_events = service._control_store.list_diagnostic_events(  # noqa: SLF001
             job_id=launch.job_id

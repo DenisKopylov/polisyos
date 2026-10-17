@@ -10,7 +10,7 @@ from uuid import uuid4
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
-from polisyos.core.artifacts.canonical_profile import artifact_ref_for_manifest
+from polisyos.core.artifacts import ArtifactStore, artifact_ref_for_manifest
 from polisyos.core.artifacts.manifest import (
     ArtifactManifest,
     ArtifactRef,
@@ -19,7 +19,6 @@ from polisyos.core.artifacts.manifest import (
     artifact_ref_identity_key,
     input_ref_from_artifact_ref,
 )
-from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec, to_canonical_bytes
 from polisyos.core.contracts.ic_verification import ICVerificationCertificateRef

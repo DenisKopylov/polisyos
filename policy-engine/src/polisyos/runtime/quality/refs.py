@@ -123,11 +123,7 @@ class QualityRefResolution:
     def to_evidence(self) -> dict[str, Any]:
         return {
             "status": (
-                "invalid"
-                if self.rejections
-                else "complete"
-                if not self.missing
-                else "missing"
+                "invalid" if self.rejections else "complete" if not self.missing else "missing"
             ),
             "required": list(REQUIRED_QUALITY_REF_KEYS),
             "refs": dict(self.refs),
@@ -453,10 +449,9 @@ class RuntimeQualityAuthorityRefs:
                     continue
                 safe_report_key = _safe_path_key(report_key)
                 report_path = f"$.quality_evidence.{safe_report_key}"
-                report_ref_keys = (
-                    _quality_ref_keys_from_mapping(report)
-                    | _quality_ref_keys_from_text(report_key)
-                )
+                report_ref_keys = _quality_ref_keys_from_mapping(
+                    report
+                ) | _quality_ref_keys_from_text(report_key)
                 if len(report_ref_keys) > 1:
                     rejections.extend(
                         _quality_ref_rejection(
@@ -515,9 +510,7 @@ class RuntimeQualityAuthorityRefs:
                         next(iter(envelope_ref_keys)) if len(envelope_ref_keys) == 1 else None
                     )
                     rejection_key = envelope_ref_key or "runtime_quality_refs"
-                    envelope_source = (
-                        f"quality_evidence.{safe_report_key}.authority_envelope"
-                    )
+                    envelope_source = f"quality_evidence.{safe_report_key}.authority_envelope"
                     envelope_path = f"{report_path}.authority_envelope"
                     if len(envelope_ref_keys) > 1:
                         rejections.extend(
@@ -537,9 +530,7 @@ class RuntimeQualityAuthorityRefs:
                                 source=envelope_source,
                                 path=envelope_path,
                                 reason=(
-                                    "explicit_null"
-                                    if envelope is None
-                                    else "unsupported_type"
+                                    "explicit_null" if envelope is None else "unsupported_type"
                                 ),
                                 value=envelope,
                             )
@@ -676,9 +667,7 @@ class RuntimeQualityAuthorityRefs:
         rejected_keys = {item.key for item in self.rejections}
         if rejected_keys & _UNSCOPED_QUALITY_REF_REJECTION_KEYS:
             return {}
-        return {
-            key: value for key, value in self.selected_refs.items() if key not in rejected_keys
-        }
+        return {key: value for key, value in self.selected_refs.items() if key not in rejected_keys}
 
     def missing_required(self) -> tuple[str, ...]:
         """Report required refs unavailable after malformed/conflicting input is rejected."""
@@ -696,6 +685,7 @@ class RuntimeQualityAuthorityRefs:
             "missing": list(self.missing_required()),
             "rejections": [item.to_evidence() for item in self.rejections],
         }
+
 
 def resolve_quality_refs(
     *,
@@ -761,9 +751,7 @@ def strip_rejected_quality_ref_inputs(
     ref, and it leaves unrelated payload fields intact for existing consumers.
     """
     rejected = frozenset(key for key in rejected_ref_keys if isinstance(key, str))
-    known_ref_keys = frozenset(
-        (*KNOWN_QUALITY_REF_KEYS, *report_body_ref_keys.values())
-    )
+    known_ref_keys = frozenset((*KNOWN_QUALITY_REF_KEYS, *report_body_ref_keys.values()))
     removed = object()
 
     def strip(value: Any) -> Any:
@@ -827,7 +815,35 @@ def _iter_quality_ref_matches(
             return
         elif hinted_keys:
             hinted_key = next(iter(hinted_keys))
-            if _is_report_body_mapping(payload):
+            report_body = _is_report_body_mapping(payload)
+            if report_body:
+                nested_only_aliases = tuple(
+                    alias
+                    for alias in _GENERIC_REF_VALUE_KEYS
+                    if alias not in _ref_aliases_for("report")
+                )
+                nested_values = {
+                    alias: payload[alias] for alias in nested_only_aliases if alias in payload
+                }
+                if nested_values:
+                    value, issues = _coerce_ref_value_details(nested_values)
+                    rejections.extend(
+                        _quality_ref_rejection(
+                            key=hinted_key,
+                            source=source,
+                            path=f"{path}{suffix}",
+                            reason=reason,
+                            value=issue_value if issue_value is not None else nested_values,
+                        )
+                        for reason, issue_value, suffix in issues
+                    )
+                    if value is not None:
+                        yield QualityRefMatch(
+                            key=hinted_key,
+                            value=value,
+                            source=source,
+                            path=path,
+                        )
                 yield from _iter_report_body_ref_matches(
                     payload,
                     ref_key=hinted_key,
@@ -835,25 +851,36 @@ def _iter_quality_ref_matches(
                     path=path,
                     rejections=rejections,
                 )
+                metadata = payload.get("metadata")
+                if isinstance(metadata, Mapping):
+                    yield from _iter_quality_ref_matches(
+                        metadata,
+                        source=source,
+                        path=f"{path}.metadata",
+                        rejections=rejections,
+                        known_ref_keys=known_ref_keys,
+                        report_body_ref_keys=body_roles,
+                    )
                 return
-            value, issues = _coerce_ref_value_details(payload)
-            rejections.extend(
-                _quality_ref_rejection(
-                    key=hinted_key,
-                    source=source,
-                    path=f"{path}{suffix}",
-                    reason=reason,
-                    value=issue_value if issue_value is not None else payload,
+            if any(key in payload for key in _GENERIC_REF_VALUE_KEYS):
+                value, issues = _coerce_ref_value_details(payload)
+                rejections.extend(
+                    _quality_ref_rejection(
+                        key=hinted_key,
+                        source=source,
+                        path=f"{path}{suffix}",
+                        reason=reason,
+                        value=issue_value if issue_value is not None else payload,
+                    )
+                    for reason, issue_value, suffix in issues
                 )
-                for reason, issue_value, suffix in issues
-            )
-            if value is not None:
-                yield QualityRefMatch(
-                    key=hinted_key,
-                    value=value,
-                    source=source,
-                    path=path,
-                )
+                if value is not None:
+                    yield QualityRefMatch(
+                        key=hinted_key,
+                        value=value,
+                        source=source,
+                        path=path,
+                    )
 
         for raw_key, value in payload.items():
             key = str(raw_key)
@@ -1005,10 +1032,8 @@ def _iter_quality_ref_matches(
             if (
                 key in known_ref_keys
                 and isinstance(value, Mapping)
-                and _is_report_body_mapping(
-                    value,
-                    registered_body=key.removesuffix("_ref") in QUALITY_REPORT_BODY_KEYS,
-                )
+                and not any(alias in value for alias in _GENERIC_REF_VALUE_KEYS)
+                and _is_report_body_mapping(value)
             ):
                 yield from _iter_report_body_ref_matches(
                     value,
@@ -1072,6 +1097,7 @@ def _iter_quality_ref_matches(
                 report_body_ref_keys=body_roles,
             )
 
+
 def _is_safe_quality_ref_rejection_record(value: Mapping[Any, Any]) -> bool:
     """Recognize redacted intake diagnostics so ref stripping preserves them."""
     fields = {
@@ -1086,8 +1112,7 @@ def _is_safe_quality_ref_rejection_record(value: Mapping[Any, Any]) -> bool:
     if set(value) != fields:
         return False
     if any(
-        not isinstance(value[name], str) or not value[name]
-        for name in fields - {"value_length"}
+        not isinstance(value[name], str) or not value[name] for name in fields - {"value_length"}
     ):
         return False
     digest = value["value_sha256"]
@@ -1130,15 +1155,12 @@ def _quality_ref_keys_from_text(
         return frozenset()
     normalized = text.replace("-", "_").casefold()
     exact_matches = {
-        ref_key
-        for ref_key in known_ref_keys
-        if normalized == ref_key.replace("-", "_").casefold()
+        ref_key for ref_key in known_ref_keys if normalized == ref_key.replace("-", "_").casefold()
     }
     exact_matches.update(
         ref_key
         for hint, ref_key in _QUALITY_REF_HINTS.items()
-        if ref_key in known_ref_keys
-        and normalized == hint.replace("-", "_").casefold()
+        if ref_key in known_ref_keys and normalized == hint.replace("-", "_").casefold()
     )
     exact_matches.update(
         ref_key
@@ -1341,11 +1363,7 @@ def _validated_authority_envelope_nullable_ref_fields(
 
 def _ref_aliases_for(context: str) -> tuple[str, ...]:
     """Return the registered aliases accepted by one ref intake context."""
-    return tuple(
-        alias
-        for alias, contexts in _REF_ALIAS_CONTEXTS.items()
-        if context in contexts
-    )
+    return tuple(alias for alias, contexts in _REF_ALIAS_CONTEXTS.items() if context in contexts)
 
 
 def _report_body_ref_aliases(ref_key: str) -> tuple[tuple[str, str], ...]:
@@ -1478,6 +1496,7 @@ def _quality_ref_rejection(
 def _sanitize_ref(value: str) -> str | None:
     normalized, _issues = _coerce_ref_value_details(value)
     return normalized
+
 
 def _missing_evidence(ref_key: str) -> dict[str, str]:
     return {

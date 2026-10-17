@@ -30,13 +30,15 @@ from polisyos.core.artifacts import (
 )
 from polisyos.core.canon import CanonSpec, to_canonical_bytes
 from polisyos.core.contracts import ApiMeta, DataSnapshotRef, RunDetails
-from polisyos.ir import ArtifactRefModel
-from polisyos.ir.analytics.backtest import (
+from polisyos.ir import (
+    ArtifactRefModel,
     BacktestReport,
+    InputRef,
     load_backtest_report,
+    normalize_artifact_ref,
     persist_backtest_report,
+    put_json_artifact,
 )
-from polisyos.ir.artifacts import InputRef, normalize_artifact_ref, put_json_artifact
 from polisyos.runtime.http.services.run_operation_idempotency import (
     RuntimeOperationIntentClaim,
     RuntimeOperationIntentKey,
@@ -1225,8 +1227,8 @@ def _load_association(store: ArtifactStore, ref: ArtifactRef) -> PredictiveCalib
         raise PredictiveCalibrationError("predictive_calibration_association_manifest_mismatch")
     if not store.verify(ref).ok:
         raise PredictiveCalibrationError("predictive_calibration_association_integrity_failed")
+    from polisyos.ir import CanonViolation
     from polisyos.ir.artifacts.io import _get_json_artifact_with_bytes
-    from polisyos.ir.model_layer.canon import CanonViolation
 
     try:
         payload, _raw_payload = _get_json_artifact_with_bytes(

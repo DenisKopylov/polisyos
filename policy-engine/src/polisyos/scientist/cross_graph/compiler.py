@@ -70,8 +70,8 @@ from polisyos.ir.governance.problem_frame import (
 )
 from polisyos.ir.registry.refs import LatentBridgeHypothesisRef
 from polisyos.ir.trinity import TrinityBundle
+from polisyos.lex import LexError
 from polisyos.lex.api import evaluate_transport_constraints
-from polisyos.lex.exception_taxonomy import LexError
 from polisyos.lex.legal_evaluation.transport_constraints import LegalConstraintSet
 from polisyos.scientist.cross_graph.alignment import (
     alignment_tokens,

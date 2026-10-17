@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel
 
-from polisyos.common.text import collapse_ws
+from polisyos.common import text as _common_text_facade
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.contracts.foundry import Metrics, SimulationResult
 from polisyos.ir.governance.policy_spec import ParameterSpec, PolicySpec
@@ -20,6 +20,9 @@ if TYPE_CHECKING:
     from polisyos.core.artifacts.store import FileSystemCAS
     from polisyos.core.contracts.lex import LegalEvaluationRequest
     from polisyos.core.contracts.trinity import PolicySpecRef
+
+collapse_ws = _common_text_facade.collapse_ws
+del _common_text_facade
 
 
 def _decimal_from_string(value: str) -> Decimal | None:

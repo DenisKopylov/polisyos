@@ -31,7 +31,7 @@ from polisyos.scientist.methods.search.adversarial import load_platform_meta_eva
 from polisyos.scientist.replay.verification import load_replay_verification_report
 
 if TYPE_CHECKING:
-    from polisyos.core.artifacts.protocol import ArtifactStore, CoreJSONArtifactStore
+    from polisyos.core.artifacts import ArtifactStore, CoreJSONArtifactStore
 
 PROMOTION_EVIDENCE_BUNDLE_SCHEMA_NAME = "polisyos.scientist.search.PromotionEvidenceBundle"
 
@@ -339,7 +339,7 @@ def _require_manifest(
 ) -> ArtifactManifest:
     if ref.manifest_profile_sha256 is None:
         raise ValueError(f"PromotionEvidenceBundle {role} requires a selected manifest profile.")
-    from polisyos.core.artifacts.canonical_profile import read_core_manifest_profile
+    from polisyos.core.artifacts import read_core_manifest_profile
 
     try:
         manifest, _declaration = read_core_manifest_profile(

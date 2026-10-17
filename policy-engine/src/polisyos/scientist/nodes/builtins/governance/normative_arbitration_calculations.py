@@ -17,29 +17,25 @@ from polisyos.core.artifacts import (
 )
 from polisyos.core.contracts import Metrics, SimulationResult
 from polisyos.ir import (
+    ArbitrationOption,
     ConstraintSpec,
+    HardConstraintAuditEntry,
     NormativeArbitrationPolicy,
+    NormativeAuditStatus,
     NormativeComparisonTarget,
     NormativeFrame,
+    NormativeModelCompleteness,
     NormativeOutcomeChannel,
+    PolicyOutcome,
     ProblemFrame,
+    RightsAuditEntry,
     StakeholderOutcomeBinding,
     StakeholderSpec,
-    UtilityDirection,
-)
-from polisyos.ir.analytics import DistributionalReport
-from polisyos.ir.analytics.normative_arbitration import (
-    ArbitrationOption,
-    HardConstraintAuditEntry,
-    NormativeAuditStatus,
-    NormativeModelCompleteness,
-    PolicyOutcome,
-    RightsAuditEntry,
     StakeholderUtilitySummary,
-)
-from polisyos.ir.analytics.uncertainty import (
+    UtilityDirection,
     load_simulation_result_uncertainty_admission,
 )
+from polisyos.ir.analytics import DistributionalReport
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 

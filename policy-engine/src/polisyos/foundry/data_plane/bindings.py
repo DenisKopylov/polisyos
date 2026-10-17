@@ -20,7 +20,11 @@ import numpy as np
 from pydantic import BaseModel, ConfigDict, ValidationError
 
 from polisyos.common.serialization import to_python_data
-from polisyos.core.artifacts import resolve_manifest_by_profile
+from polisyos.core.artifacts import (
+    ArtifactStore,
+    CoreJSONArtifactStore,
+    resolve_manifest_by_profile,
+)
 from polisyos.core.artifacts.manifest import (
     ArtifactManifest,
     ArtifactRef,
@@ -28,7 +32,6 @@ from polisyos.core.artifacts.manifest import (
     SchemaInfo,
     input_ref_from_artifact_ref,
 )
-from polisyos.core.artifacts.protocol import ArtifactStore, CoreJSONArtifactStore
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts import ValueOuterSet

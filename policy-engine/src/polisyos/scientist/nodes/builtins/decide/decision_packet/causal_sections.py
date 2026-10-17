@@ -13,16 +13,14 @@ from polisyos.ir import (
     CausalModelEnsembleRef,
     EvidenceBundleRef,
     KernelEstimatorSpecRef,
-)
-from polisyos.ir.analytics import CausalEffectReport
-from polisyos.ir.analytics.causal import (
+    load_bounds_bundle,
+    load_causal_evidence_bundle,
+    load_causal_model_ensemble,
+    load_kernel_estimator_spec,
     proof_bundle_from_transportability_result,
     transportability_proof_review_grade,
 )
-from polisyos.ir.analytics.causal_ensemble import load_causal_model_ensemble
-from polisyos.ir.analytics.evidence_bundle import load_causal_evidence_bundle
-from polisyos.ir.analytics.kernel_causal import load_kernel_estimator_spec
-from polisyos.ir.analytics.partial_identification import load_bounds_bundle
+from polisyos.ir.analytics import CausalEffectReport
 from polisyos.scientist.nodes.builtins.decide.decision_packet.validation import (
     _DECISION_PACKET_LOAD_ERRORS,
     _record_decision_packet_section_degraded,

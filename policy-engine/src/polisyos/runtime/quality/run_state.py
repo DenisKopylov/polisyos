@@ -11,6 +11,8 @@ from .phase_barriers import (
     PhaseBarrierId,
     PhaseBarrierRecord,
     PhaseBarrierViolation,
+    _phase_barrier_owner_scope_not_established,
+    _reconcile_phase_barrier_subjects,
     assert_barrier_passed,
 )
 
@@ -55,9 +57,7 @@ FAILED_RUN_STATES = frozenset(
 VALID_TRANSITIONS: dict[RunState, frozenset[RunState]] = {
     RunState.INITIALIZED: frozenset({RunState.INTENT_BOUND, RunState.BLOCKED}),
     RunState.INTENT_BOUND: frozenset({RunState.EVIDENCE_EMITTING, RunState.BLOCKED}),
-    RunState.EVIDENCE_EMITTING: frozenset(
-        {RunState.READY_FOR_SCORECARD, RunState.BLOCKED}
-    ),
+    RunState.EVIDENCE_EMITTING: frozenset({RunState.READY_FOR_SCORECARD, RunState.BLOCKED}),
     RunState.BLOCKED: frozenset({RunState.EVIDENCE_EMITTING}),
     RunState.READY_FOR_SCORECARD: frozenset({RunState.SCORED, RunState.BLOCKED}),
     RunState.SCORED: frozenset({RunState.READINESS_CLOSED, RunState.BLOCKED}),
@@ -197,6 +197,13 @@ class RunStateMachine:
             binding = intent_binding or self.snapshot.intent_binding
             _assert_binding_matches_snapshot(binding, self.snapshot)
             binding.require_complete()
+            previous_binding = self.snapshot.intent_binding
+            if previous_binding is not None and binding != previous_binding:
+                raise RunStateTransitionError(
+                    "run_intent_binding_mutated",
+                    "The intent binding cannot change after evidence emission starts.",
+                    field="intent_binding",
+                )
             self.snapshot = self.snapshot.with_state(
                 target_state,
                 intent_binding=binding,
@@ -205,12 +212,11 @@ class RunStateMachine:
 
         if target_state is RunState.READY_FOR_SCORECARD:
             _assert_snapshot_intent_bound(self.snapshot)
-            passed = _assert_scorecard_barriers_passed(barriers)
-            self.snapshot = self.snapshot.with_state(
-                target_state,
-                barrier_ids=tuple(record.barrier_id.value for record in passed),
+            _require_phase_barrier_authority(
+                self.snapshot,
+                barriers,
+                PhaseBarrierId.scorecard_required(),
             )
-            return self.snapshot
 
         if target_state is RunState.SCORED:
             _assert_scorecard_identity_verified(
@@ -225,10 +231,7 @@ class RunStateMachine:
             return self.snapshot
 
         if target_state is RunState.READINESS_CLOSED:
-            if not (
-                scorecard_identity_verified
-                or self.snapshot.scorecard_identity_verified
-            ):
+            if not (scorecard_identity_verified or self.snapshot.scorecard_identity_verified):
                 raise RunStateTransitionError(
                     "scorecard_identity_not_verified",
                     "Readiness cannot close before scorecard identity is verified.",
@@ -250,8 +253,7 @@ class RunStateMachine:
         if target_state in TERMINAL_RUN_STATES:
             _assert_terminal_projection_allowed(
                 target_state,
-                readiness_decision=readiness_decision
-                or self.snapshot.readiness_decision,
+                readiness_decision=readiness_decision or self.snapshot.readiness_decision,
                 publication_policy=publication_policy,
             )
             self.snapshot = self.snapshot.with_state(
@@ -298,8 +300,11 @@ def assert_final_decision_artifact_allowed(
             f"Final decision artifact compilation is blocked in {snapshot.state.value}.",
             barrier_id=PhaseBarrierId.FINAL_DECISION_ARTIFACT.value,
         )
-    for barrier in PhaseBarrierId.final_artifact_required():
-        assert_barrier_passed(barrier, barriers=barriers)
+    _require_phase_barrier_authority(
+        snapshot,
+        barriers,
+        PhaseBarrierId.final_artifact_required(),
+    )
 
 
 def assert_approval_readiness_projection_allowed(snapshot: RunStateSnapshot) -> None:
@@ -331,8 +336,11 @@ def assert_public_artifact_allowed(
             "Public artifacts require approved runtime authority state.",
             barrier_id=PhaseBarrierId.FINAL_COMPILER_GATES.value,
         )
-    for barrier in PhaseBarrierId.public_artifact_required():
-        assert_barrier_passed(barrier, barriers=barriers)
+    _require_phase_barrier_authority(
+        snapshot,
+        barriers,
+        PhaseBarrierId.public_artifact_required(),
+    )
 
 
 def assert_canary_bundle_closeout_allowed(
@@ -348,17 +356,31 @@ def assert_canary_bundle_closeout_allowed(
             f"Canary bundle closeout cannot upgrade {snapshot.state.value}.",
             barrier_id=PhaseBarrierId.CANARY_BUNDLE_CLOSEOUT.value,
         )
-    assert_barrier_passed(PhaseBarrierId.CANARY_BUNDLE_CLOSEOUT, barriers=barriers)
-
-
-def _assert_scorecard_barriers_passed(
-    barriers: Iterable[PhaseBarrierRecord],
-) -> tuple[PhaseBarrierRecord, ...]:
-    records = tuple(barriers)
-    return tuple(
-        assert_barrier_passed(barrier_id, barriers=records)
-        for barrier_id in PhaseBarrierId.scorecard_required()
+    _require_phase_barrier_authority(
+        snapshot,
+        barriers,
+        (PhaseBarrierId.CANARY_BUNDLE_CLOSEOUT,),
     )
+
+
+def _require_phase_barrier_authority(
+    snapshot: RunStateSnapshot,
+    barriers: Iterable[PhaseBarrierRecord],
+    required_barriers: tuple[PhaseBarrierId, ...],
+) -> None:
+    """Require a complete unchanged binding and every required barrier pass."""
+
+    binding = _assert_binding_matches_snapshot(snapshot.intent_binding, snapshot)
+    binding.require_complete()
+    records = _reconcile_phase_barrier_subjects(
+        barriers,
+        expected_run_id=snapshot.run_id,
+        expected_tenant_id=snapshot.tenant_id,
+        expected_profile=snapshot.requested_profile,
+    )
+    for barrier_id in required_barriers:
+        assert_barrier_passed(barrier_id, barriers=records)
+    raise _phase_barrier_owner_scope_not_established()
 
 
 def _assert_transition_allowed(current: RunState, target: RunState) -> None:

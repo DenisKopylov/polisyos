@@ -460,3 +460,31 @@ def test_policy_design_case_profile_rejects_cases_outside_runtime_quality_author
             effective_execution_profile="production",
             runtime_authority=runtime_authority,
         )
+
+
+@pytest.mark.parametrize(
+    "code",
+    [
+        "phase_barrier_scope_mismatch",
+        "phase_barrier_owner_scope_not_established",
+    ],
+)
+def test_assurance_case_keeps_phase_barrier_scope_defeaters_non_overridable(
+    code: str,
+) -> None:
+    scorecard = scorecard_for()
+    scorecard["quality_status"] = "pass"
+    scorecard["blocking_quality_failures"] = [
+        {
+            "code": code,
+            "message": "Phase-barrier scope cannot support authority.",
+            "evidence_ref": "quality_evidence/phase_barrier_records.json",
+            "next_action": "Wire producer-owned scope before serious closeout.",
+        }
+    ]
+
+    assurance_case = build_assurance_case_for_scorecard(scorecard)
+
+    assert assurance_case["claim"]["status"] == "blocked"
+    assert assurance_case["non_overridable_blockers"] == [code]
+    assert assurance_case["blockers"][0]["code"] == code

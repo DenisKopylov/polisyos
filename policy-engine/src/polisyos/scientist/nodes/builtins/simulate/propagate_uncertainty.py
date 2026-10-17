@@ -24,13 +24,13 @@ from polisyos.core.components import (
     ComponentKind,
     ComponentMetadata,
 )
+from polisyos.core.contracts import UncertaintyEnvelopeRef
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.contracts.foundry import (
     Metrics,
     SimulationResult,
     SimulationResultRef,
 )
-from polisyos.core.contracts.uncertainty import UncertaintyEnvelopeRef
 from polisyos.foundry.calibration.report import CalibrationReport
 from polisyos.foundry.uncertainty.config import PropagationConfig
 from polisyos.foundry.uncertainty.dispatcher import PropagationDispatcher

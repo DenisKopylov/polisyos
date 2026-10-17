@@ -23,6 +23,7 @@ if TYPE_CHECKING:
         logger,
         migrations,
         serialization,
+        text,
         timestamps,
     )
 
@@ -33,6 +34,7 @@ __all__ = [
     "logger",
     "migrations",
     "serialization",
+    "text",
     "timestamps",
 ]
 

@@ -30,10 +30,10 @@ from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.components import ENTRY_POINT_GROUP_FOUNDRY_METHODS
 from polisyos.core.components.bootstrap import build_components_index
-from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
-from polisyos.foundry.methods.components.bridge import (
+from polisyos.foundry.methods import (
     bootstrap_method_registry_from_components,
 )
+from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
 from polisyos.foundry.methods.exceptions import MethodNotFoundError
 from polisyos.foundry.methods.registry import MethodRegistry
 from polisyos.ir.analytics import PosteriorPointRole, PosteriorSummaryRef

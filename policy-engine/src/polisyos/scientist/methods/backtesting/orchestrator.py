@@ -47,7 +47,15 @@ from polisyos.core.contracts import (
     SimulationResult,
     SimulationResultRef,
 )
-from polisyos.ir import BacktestReportRef
+from polisyos.ir import (
+    BacktestReportRef,
+    IntervalSemantics,
+    UncertaintyEnvelope,
+    UncertaintySource,
+    combine_envelopes,
+    load_simulation_result_uncertainty_admission,
+)
+from polisyos.ir import CanonSpec as IRCanonSpec
 from polisyos.ir.analytics.backtest import (
     BacktestReport,
     BacktestScenario,
@@ -56,20 +64,12 @@ from polisyos.ir.analytics.backtest import (
     SystematicBias,
     persist_backtest_report,
 )
-from polisyos.ir.analytics.uncertainty import (
-    IntervalSemantics,
-    UncertaintyEnvelope,
-    UncertaintySource,
-    combine_envelopes,
-    load_simulation_result_uncertainty_admission,
-)
 from polisyos.ir.artifacts import (
     InputRef,
     normalize_artifact_ref,
     normalize_input_refs,
     put_json_artifact,
 )
-from polisyos.ir.model_layer.canon import CanonSpec as IRCanonSpec
 from polisyos.scientist import run_experiment
 from polisyos.scientist.adapters.foundry_bridge import DefaultFoundryPort
 from polisyos.scientist.methods.backtesting.evaluator import PredictionEvaluator

@@ -15,19 +15,19 @@ from typing import TYPE_CHECKING, Any
 import pandas as pd
 from pydantic import Field, field_validator, model_validator
 
-from polisyos.ir.governance.policy_spec import (
+from polisyos.ir import (
     CompiledLexIntervention as _CompiledLexIntervention,
 )
-from polisyos.ir.governance.policy_spec import (
+from polisyos.ir import (
+    IdentificationMode,
+    StrategicResponseChannel,
+    StrategicResponseSpecsBundle,
     TemporalInterventionSequence,
+    TrinityBundle,
 )
-from polisyos.ir.governance.schedule import ScheduleSpec
-from polisyos.ir.governance.selector_expr import SelectorExpr
+from polisyos.ir.governance import ScheduleSpec, SelectorExpr
 from polisyos.ir.kernel.base import ID_PATTERN, KernelModel
 from polisyos.ir.kernel.values import ParamValue
-from polisyos.ir.observation.bundles import StrategicResponseSpecsBundle
-from polisyos.ir.observation.contracts import IdentificationMode, StrategicResponseChannel
-from polisyos.ir.trinity import TrinityBundle
 
 if TYPE_CHECKING:
     from collections.abc import Iterable, Mapping, Sequence

@@ -7,29 +7,25 @@ from typing import TYPE_CHECKING, Any
 
 from polisyos.data_forge.read_api.catalog import PStarZResult
 from polisyos.ir import (
+    AlignmentCertificate,
+    AlignmentCertificateType,
+    AlignmentCertificationPolicy,
+    ContextProfile,
     DataGap,
+    OuterObjectiveResult,
     SelectionDiagram,
     SNode,
     SNodeOrigin,
     TransportabilityResult,
     TransportabilityStatus,
     TransportMode,
-)
-from polisyos.ir.analytics import CausalEffectReport, CausalGraphModel
-from polisyos.ir.analytics.alignment_certification import (
-    AlignmentCertificate,
-    AlignmentCertificateType,
-    AlignmentCertificationPolicy,
-    OuterObjectiveResult,
+    TransportPrivacyContext,
+    apply_transport_privacy_context,
+    compute_manski_bounds,
     compute_outer_objective,
     run_outer_search,
 )
-from polisyos.ir.analytics.context import ContextProfile
-from polisyos.ir.analytics.partial_identification import compute_manski_bounds
-from polisyos.ir.analytics.privacy_transportability import (
-    TransportPrivacyContext,
-    apply_transport_privacy_context,
-)
+from polisyos.ir.analytics import CausalEffectReport, CausalGraphModel
 from polisyos.lex import (
     ConstraintSeverity,
     LegalConstraint,

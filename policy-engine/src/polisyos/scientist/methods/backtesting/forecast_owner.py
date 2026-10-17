@@ -37,30 +37,24 @@ from polisyos.foundry.methods import (
     store_method_artifact,
 )
 from polisyos.ir import (
-    ArtifactRefModel,
-    BacktestReportRef,
-    ForecastingUncertaintyBundleRef,
-)
-from polisyos.ir.analytics.backtest import (
-    BacktestReport,
-    load_backtest_report,
-)
-from polisyos.ir.analytics.calibration_diagnostics import CalibrationDiagnosticsReport
-from polisyos.ir.analytics.forecasting_uncertainty import (
-    ForecastingUncertaintyBundle,
-    ForecastIntervalSemantics,
-    load_forecasting_uncertainty_bundle,
-    persist_forecasting_uncertainty_bundle,
-)
-from polisyos.ir.artifacts import (
     ArtifactID,
+    ArtifactRefModel,
     ArtifactStore,
+    BacktestReport,
+    BacktestReportRef,
+    CanonSpec,
+    ForecastingUncertaintyBundle,
+    ForecastingUncertaintyBundleRef,
+    ForecastIntervalSemantics,
     InputRef,
     get_json_artifact,
+    load_backtest_report,
+    load_forecasting_uncertainty_bundle,
     normalize_artifact_ref,
+    persist_forecasting_uncertainty_bundle,
     put_json_artifact,
 )
-from polisyos.ir.model_layer.canon import CanonSpec
+from polisyos.ir.analytics.calibration_diagnostics import CalibrationDiagnosticsReport
 from polisyos.scientist.methods.backtesting.orchestrator import (
     BacktestOrchestrator,
     TrustScreeningMode,

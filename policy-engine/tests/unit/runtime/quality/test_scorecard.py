@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import hashlib
+import inspect
 import json
 
 import pytest
@@ -23,6 +24,8 @@ from polisyos.runtime.quality.diagnostic_slos import (
 )
 from polisyos.runtime.quality.human_review import build_human_review_calibration_report
 from polisyos.runtime.quality.phase_barriers import PhaseBarrierId, PhaseBarrierRecord
+from polisyos.runtime.quality.public_export import build_public_export_bundle
+from polisyos.runtime.quality.refs import RuntimeQualityAuthorityRefs
 from polisyos.runtime.quality.report_registry import (
     QUALITY_REPORT_FILES,
     quality_report_ref_intake_registry,
@@ -30,6 +33,7 @@ from polisyos.runtime.quality.report_registry import (
 from polisyos.runtime.quality.scorecard import (
     POLICY_DESIGN_CASE_RUNTIME_REF_KEYS,
     QUALITY_REPORT_RUNTIME_REFS,
+    _phase_barrier_gates,
     build_quality_scorecard,
     normalize_quality_evidence,
 )
@@ -1015,8 +1019,9 @@ def test_runtime_quality_scorecard_builds_stage_scores_and_evidence_refs() -> No
     )
 
     assert scorecard["schema_version"] == "policyos.quality_scorecard.v1"
-    assert scorecard["quality_status"] == "pass"
-    assert scorecard["overall_score"] == 1.0
+    assert scorecard["quality_status"] == "fail"
+    assert "phase_barrier_owner_scope_not_established" in _blocking_codes(scorecard)
+    assert 0.99 < scorecard["overall_score"] < 1.0
     privacy_gate = next(
         gate
         for gate in scorecard["quality_gates"]
@@ -1040,7 +1045,10 @@ def test_runtime_quality_scorecard_builds_stage_scores_and_evidence_refs() -> No
         scorecard["evidence_refs"]["policy_grounding_matrix"]
         == "quality_evidence/policy_grounding_matrix.json"
     )
-    assert scorecard["approval_state"] == "approval_ready"
+    assert scorecard["approval_state"] == "quality_failed"
+    assert scorecard["approval_eligibility"]["eligible"] is False
+    assert scorecard["approval_eligibility"]["quality_status"] == "fail"
+    assert scorecard["approval_eligibility"]["blocking_gate_count"] > 0
     assert scorecard["performance_status"] == "pass"
 
 
@@ -1207,10 +1215,11 @@ def test_review_effectiveness_telemetry_cannot_block_without_mature_policy() -> 
         ),
     )
 
-    assert scorecard["quality_status"] == "pass"
+    assert scorecard["quality_status"] == "fail"
+    assert "phase_barrier_owner_scope_not_established" in _blocking_codes(scorecard)
     assert "human_review_calibration_present" not in _blocking_codes(scorecard)
     assert "serious_warn_scorecard_blocks_closeout" not in _blocking_codes(scorecard)
-    assert scorecard["approval_eligibility"]["eligible"] is True
+    assert scorecard["approval_eligibility"]["eligible"] is False
 
 
 def test_scorecard_consumes_calibration_behavior_as_future_readiness_cap() -> None:
@@ -1480,6 +1489,150 @@ def test_scorecard_blocks_unverified_hypothesis_candidate_for_dashboard_surfaces
     assert "candidate_firewall_candidate_unverified" in _blocking_codes(scorecard)
 
 
+def test_public_projection_in_quality_evidence_cannot_fill_refs_or_change_api() -> None:
+    assert (
+        "candidate_projection_surfaces" not in inspect.signature(build_quality_scorecard).parameters
+    )
+
+    quality_evidence = _complete_quality_evidence()
+    quality_evidence.pop("replay_manifest", None)
+    quality_evidence["hypothesis_ledger"] = {
+        "schema_version": "policyos.runtime.hypothesis_ledger.v1",
+        "run_id": "R_quality",
+        "job_id": "job-quality",
+        "entries": [
+            {
+                "candidate_id": "hypothesis-candidate:projection-channel",
+                "candidate_ref": "hypothesis-candidate:projection-channel",
+                "source_class": "llm_drafter",
+                "candidate_kind": "dashboard_summary_claim",
+                "target_authority_slots": ["projection_authority"],
+                "target_claim_ids": ["rec_projection"],
+                "prompt_fingerprint": "sha256:" + "1" * 64,
+                "tool_refs": ["tool-output:projection-channel"],
+                "repair_decision_lineage": ["repair:none"],
+                "admission_state": "candidate_unverified",
+            }
+        ],
+    }
+    job_payload = _complete_job_payload()
+    details = job_payload["progress"]["details"]
+    details["runtime_quality_refs"].pop("replay_manifest_ref", None)
+    details.pop("replay_manifest_ref", None)
+    projection_ref = _complete_runtime_refs()["replay_manifest_ref"]
+    projection = {
+        "authority_role": "projection_only",
+        "replay_manifest_ref": projection_ref,
+        "authority_envelope": authority_envelope_for(
+            report_key="replay_manifest",
+            ref_key="replay_manifest_ref",
+            ref_value=projection_ref,
+            run_id="R_quality",
+            job_id="job-quality",
+        ),
+        "claim_refs": ["hypothesis-candidate:projection-channel"],
+    }
+    projected_quality_evidence = {
+        **quality_evidence,
+        "public_export_bundle": projection,
+    }
+
+    without_projection = build_quality_scorecard(
+        canary_kind="production",
+        job_id="job-quality",
+        run_id="R_quality",
+        execution_status="completed",
+        job_payload=job_payload,
+        run_payload=None,
+        provider_preflight={"status": "passed"},
+        quality_evidence=quality_evidence,
+    )
+    with_projection = build_quality_scorecard(
+        canary_kind="production",
+        job_id="job-quality",
+        run_id="R_quality",
+        execution_status="completed",
+        job_payload=job_payload,
+        run_payload=None,
+        provider_preflight={"status": "passed"},
+        quality_evidence=projected_quality_evidence,
+    )
+
+    assert "replay_manifest_ref" not in without_projection["evidence_refs"]
+    assert with_projection["evidence_refs"] == without_projection["evidence_refs"]
+    assert with_projection["quality_status"] == "fail"
+    assert "candidate_firewall_candidate_unverified" in _blocking_codes(with_projection)
+    assert "candidate_firewall_candidate_unverified" in _blocking_codes(without_projection)
+
+
+def test_self_labeled_raw_public_projection_still_fails_ref_admission() -> None:
+    job_payload = _complete_job_payload()
+    details = job_payload["progress"]["details"]
+    assert isinstance(details, dict)
+    details.pop("replay_manifest_ref", None)
+    runtime_refs = details.get("runtime_quality_refs")
+    if isinstance(runtime_refs, dict):
+        runtime_refs.pop("replay_manifest_ref", None)
+
+    runtime_refs = _complete_runtime_refs()
+    replay_ref = runtime_refs["replay_manifest_ref"]
+    baseline_quality_evidence = _complete_quality_evidence()
+    baseline_quality_evidence.pop("replay_manifest", None)
+    quality_evidence = copy.deepcopy(baseline_quality_evidence)
+    replay_report = copy.deepcopy(_complete_quality_evidence()["replay_manifest"])
+    assert isinstance(replay_report, dict)
+    replay_report["replay_manifest_ref"] = replay_ref
+    replay_report["authority_envelope"] = authority_envelope_for(
+        report_key="replay_manifest",
+        ref_key="replay_manifest_ref",
+        ref_value=replay_ref,
+        run_id="R_quality",
+        job_id="job-quality",
+    )
+    projection = build_public_export_bundle(
+        run_id="R_quality",
+        title="Untrusted caller-supplied projection fixture",
+        artifacts={"replay_manifest": replay_report},
+        authority_envelopes=(replay_report["authority_envelope"],),
+    )
+    assert projection["authority_role"] == "projection_only"
+    quality_evidence["public_export_bundle"] = projection
+
+    intake = RuntimeQualityAuthorityRefs.from_runtime_payloads(
+        job_payload=job_payload,
+        run_payload=None,
+        quality_evidence=quality_evidence,
+    )
+    assert "replay_manifest_ref" not in intake.refs
+
+    without_projection = build_quality_scorecard(
+        canary_kind="production",
+        job_id="job-quality",
+        run_id="R_quality",
+        execution_status="completed",
+        job_payload=job_payload,
+        run_payload=None,
+        provider_preflight={"status": "passed"},
+        quality_evidence=baseline_quality_evidence,
+    )
+    with_projection = build_quality_scorecard(
+        canary_kind="production",
+        job_id="job-quality",
+        run_id="R_quality",
+        execution_status="completed",
+        job_payload=job_payload,
+        run_payload=None,
+        provider_preflight={"status": "passed"},
+        quality_evidence=quality_evidence,
+    )
+
+    assert "replay_manifest_ref" not in with_projection["evidence_refs"]
+    assert with_projection["evidence_refs"] == without_projection["evidence_refs"]
+    assert with_projection["quality_status"] == "fail"
+    gates = {gate["name"]: gate for gate in with_projection["quality_gates"]}
+    assert gates["replay_manifest_present"]["status"] == "fail"
+
+
 def test_source_truth_adapter_conflict_blocks_scorecard_input() -> None:
     raw_evidence = _complete_quality_evidence()
     semantic_payload = {
@@ -1636,6 +1789,144 @@ def test_serious_scorecard_requires_typed_source_truth_adapter_surfaces() -> Non
         for failure in scorecard["blocking_quality_failures"]
         if isinstance(failure, dict)
     } >= {"hds_adapter_surface_missing"}
+
+
+def test_scorecard_keeps_matching_owner_mapping_candidate() -> None:
+    job_payload = {
+        "job_id": "job-a",
+        "run_id": "run-a",
+        "state": "completed",
+        "requested_execution_profile": "production",
+        "effective_execution_profile": "production",
+        "progress": {
+            "execution_owner_binding": {
+                "job_id": "job-a",
+                "run_id": "run-a",
+                "tenant_id": "tenant-a",
+                "cell_id": "cell-a",
+                "requested_execution_profile": "production",
+                "effective_execution_profile": "production",
+                "attempt": 2,
+                "lease_owner": "worker-a",
+            },
+            "run_intent_binding": {
+                "run_id": "run-a",
+                "tenant_id": "tenant-a",
+                "requested_profile": "production",
+                "policy_intent_ref": _sha("a"),
+                "time_context_ref": None,
+                "same_input_closure_ref": None,
+            },
+        },
+    }
+
+    gates = _phase_barrier_gates(
+        canary_kind="production",
+        run_id="run-a",
+        quality_evidence={},
+        job_payload=job_payload,
+        run_payload=None,
+    )
+    owner_gate = next(gate for gate in gates if gate["name"] == "serious_phase_barrier_owner_scope")
+    intent_gate = next(
+        gate for gate in gates if gate["name"] == "serious_phase_barrier_intent_binding"
+    )
+
+    assert owner_gate["status"] == "fail"
+    assert owner_gate["code"] == "phase_barrier_owner_scope_not_established"
+    assert intent_gate["status"] == "fail"
+    assert intent_gate["code"] == "run_intent_binding_incomplete"
+    assert "phase_barrier_missing" in {gate["code"] for gate in gates}
+
+
+def test_scorecard_blocks_complete_self_consistent_owner_mappings() -> None:
+    owner = {
+        "job_id": "job-complete",
+        "run_id": "run-complete",
+        "tenant_id": "tenant-complete",
+        "cell_id": "cell-complete",
+        "requested_execution_profile": "production",
+        "effective_execution_profile": "production",
+        "attempt": 3,
+        "lease_owner": "worker-complete",
+    }
+    job_payload = {
+        "job_id": "job-complete",
+        "run_id": "run-complete",
+        "state": "completed",
+        "requested_execution_profile": "production",
+        "effective_execution_profile": "production",
+        "progress": {
+            "execution_owner_binding": owner,
+            "run_intent_binding": {
+                "run_id": "run-complete",
+                "tenant_id": "tenant-complete",
+                "requested_profile": "production",
+                "policy_intent_ref": _sha("policy-intent"),
+                "time_context_ref": _sha("policy-time"),
+                "same_input_closure_ref": _sha("same-input-closure"),
+            },
+        },
+    }
+    gates = _phase_barrier_gates(
+        canary_kind="production",
+        run_id="run-complete",
+        quality_evidence={},
+        job_payload=job_payload,
+        run_payload=None,
+    )
+    owner_gate = next(gate for gate in gates if gate["name"] == "serious_phase_barrier_owner_scope")
+    intent_gate = next(
+        gate for gate in gates if gate["name"] == "serious_phase_barrier_intent_binding"
+    )
+
+    assert owner_gate["status"] == "fail"
+    assert owner_gate["code"] == "phase_barrier_owner_scope_not_established"
+    assert intent_gate["status"] == "fail"
+    assert intent_gate["code"] == "phase_barrier_owner_scope_not_established"
+    assert "phase_barrier_owner_scope_reconciled" not in {gate["code"] for gate in gates}
+    assert "run_intent_binding_complete" not in {gate["code"] for gate in gates}
+
+
+def test_scorecard_rejects_barrier_profile_foreign_to_terminal_owner_binding() -> None:
+    owner = {
+        "job_id": "job-a",
+        "run_id": "run-a",
+        "tenant_id": "tenant-a",
+        "cell_id": "cell-a",
+        "requested_execution_profile": "production",
+        "effective_execution_profile": "production",
+        "attempt": 2,
+        "lease_owner": "worker-a",
+    }
+    foreign_records = [
+        PhaseBarrierRecord.pass_record(
+            barrier_id=barrier_id,
+            run_id="run-a",
+            tenant_id="tenant-a",
+            profile="governed",
+            evidence_refs=(_sha("a"),),
+        ).model_dump(mode="json")
+        for barrier_id in PhaseBarrierId.scorecard_required()
+    ]
+    gates = _phase_barrier_gates(
+        canary_kind="production",
+        run_id="run-a",
+        quality_evidence={"phase_barrier_records": foreign_records},
+        job_payload={
+            "job_id": "job-a",
+            "run_id": "run-a",
+            "requested_execution_profile": "production",
+            "effective_execution_profile": "production",
+            "progress": {"execution_owner_binding": owner},
+        },
+        run_payload=None,
+    )
+
+    assert "phase_barrier_scope_mismatch" in {gate["code"] for gate in gates}
+    owner_gate = next(gate for gate in gates if gate["name"] == "serious_phase_barrier_owner_scope")
+    assert owner_gate["status"] == "fail"
+    assert owner_gate["code"] == "phase_barrier_owner_scope_not_established"
 
 
 def test_serious_scorecard_requires_closed_phase_barriers() -> None:
@@ -2292,12 +2583,16 @@ def test_runtime_quality_scorecard_requires_override_for_performance_budget_fail
         quality_evidence=quality_evidence,
     )
 
-    assert scorecard["quality_status"] == "pass"
+    assert scorecard["quality_status"] == "fail"
+    assert "phase_barrier_owner_scope_not_established" in _blocking_codes(scorecard)
     assert scorecard["performance_status"] == "fail"
-    assert scorecard["approval_state"] == "override_required"
+    assert scorecard["approval_state"] == "quality_failed"
+    assert scorecard["approval_eligibility"]["eligible"] is False
     assert scorecard["approval_eligibility"]["requires_override"] is True
     assert scorecard["approval_eligibility"]["missing_override"] is True
-    assert scorecard["approval_eligibility"]["reasons"] == ["performance_budget_failed"]
+    assert scorecard["approval_eligibility"]["reasons"] == [
+        "phase_barrier_owner_scope_not_established"
+    ]
 
 
 def test_runtime_quality_scorecard_keeps_raw_override_markers_candidate_only() -> None:
@@ -2403,11 +2698,10 @@ def test_runtime_quality_scorecard_keeps_raw_override_markers_candidate_only() -
         )
         packet = build_production_approval_packet(scorecard=scorecard)
 
-        assert scorecard["quality_status"] == absent_scorecard["quality_status"] == "pass"
+        assert scorecard["quality_status"] == absent_scorecard["quality_status"] == "fail"
+        assert "phase_barrier_owner_scope_not_established" in _blocking_codes(scorecard)
         assert scorecard["performance_status"] == absent_scorecard["performance_status"] == "fail"
-        assert (
-            scorecard["approval_state"] == absent_scorecard["approval_state"] == "override_required"
-        )
+        assert scorecard["approval_state"] == absent_scorecard["approval_state"] == "quality_failed"
         assert scorecard["approval_eligibility"]["override_accepted"] is False
         assert scorecard["approval_eligibility"]["eligible"] is False
         assert scorecard["override_evidence"] == {"status": "candidate", "accepted": False}
@@ -2784,3 +3078,34 @@ def test_scorecard_rejects_every_canonical_report_role_before_consumption() -> N
     serialized = json.dumps(scorecard, sort_keys=True)
     assert all(value not in serialized for value in malformed_values)
     assert "scorecard-body-must-not-be-retained" not in serialized
+
+
+def test_serious_scorecard_reports_candidate_scope_mismatch_before_latest_selection() -> None:
+    raw_evidence = _complete_quality_evidence()
+    quality_evidence = normalize_quality_evidence(raw_evidence, canary_kind="production")
+    job_payload = _complete_job_payload()
+    details = job_payload["progress"]["details"]  # type: ignore[index]
+    assert isinstance(details, dict)
+    details["phase_barrier_records"] = [
+        PhaseBarrierRecord.pass_record(
+            barrier_id=PhaseBarrierId.POLICY_INTENT_CANONICALIZATION,
+            run_id="R_quality",
+            tenant_id="tenant-foreign",
+            profile="production",
+            evidence_refs=(_sha("b"),),
+        ).model_dump(mode="json")
+    ]
+
+    scorecard = build_quality_scorecard(
+        canary_kind="production",
+        job_id="job-quality",
+        run_id="R_quality",
+        execution_status="completed",
+        job_payload=job_payload,
+        run_payload=None,
+        provider_preflight={"status": "passed"},
+        quality_evidence=quality_evidence,
+    )
+
+    assert "phase_barrier_scope_mismatch" in _blocking_codes(scorecard)
+    assert "phase_barrier_owner_scope_not_established" in _blocking_codes(scorecard)

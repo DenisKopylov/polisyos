@@ -2072,7 +2072,7 @@ class WorkspaceLoop:
             ),
             canon_spec=CanonSpec(forbid_floats=False),
         )
-        from polisyos.core.contracts.foundry import Metrics
+        from polisyos.core.contracts import Metrics
 
         metrics_core_ref = store.put_json(
             {

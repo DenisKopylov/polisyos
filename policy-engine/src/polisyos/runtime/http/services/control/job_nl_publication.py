@@ -98,6 +98,47 @@ class ControlNLJobPublicationMixin:
             core_run_id=core_run_id,
             manifest_ref=core_manifest_ref,
         )
+        from polisyos.runtime.http.services.control_plane_store import (
+            ControlJobExecutionAdmissionError,
+            ControlJobLeaseLostError,
+        )
+        from polisyos.runtime.quality.phase_barriers import (
+            _execution_owner_binding_from_admission,
+            _validated_execution_owner_binding,
+        )
+        from polisyos.runtime.quality.run_state import RunIntentBinding
+
+        try:
+            current_admission = self._control_store.current_execution_job_admission()
+        except (ControlJobExecutionAdmissionError, ControlJobLeaseLostError) as exc:
+            raise ControlJobLeaseLostError("control_job_terminal_admission_not_current") from exc
+        expected_scope = {
+            "tenant_id": execution_scope.tenant_id,
+            "cell_id": execution_scope.cell_id,
+        }
+        current_owner_binding = _execution_owner_binding_from_admission(
+            current_admission,
+            expected_job_id=job.job_id,
+            expected_run_id=str(job.run_id or ""),
+            expected_effective_profile=job.effective_execution_profile,
+            expected_scope=expected_scope,
+        )
+        original_admission = context.admission
+        original_job = original_admission.job
+        if (
+            current_owner_binding is None
+            or current_admission.attempt != original_admission.attempt
+            or current_admission.job.lease_owner != original_job.lease_owner
+            or current_admission.scope != execution_scope
+        ):
+            raise ControlJobLeaseLostError("control_job_terminal_owner_binding_not_current")
+        current_progress = current_admission.job.progress
+        persisted_owner_binding = _validated_execution_owner_binding(
+            current_progress.get("execution_owner_binding"),
+            expected=current_owner_binding,
+        )
+        if persisted_owner_binding != current_owner_binding:
+            raise ControlJobLeaseLostError("control_job_terminal_progress_owner_binding_missing")
         progress = {
             "state": "completed",
             "phase": "natural_language_run",
@@ -113,7 +154,33 @@ class ControlNLJobPublicationMixin:
             "normative_disposition_artifact_ref": (normative_artifact_ref.model_dump(mode="json")),
             "normative_disposition": normative.model_dump(mode="json"),
             "promotion_refusal_reasons": list(refusal_reasons),
+            "execution_owner_binding": persisted_owner_binding,
         }
+        raw_intent_binding = current_progress.get("run_intent_binding")
+        if isinstance(raw_intent_binding, dict):
+            try:
+                intent_binding = RunIntentBinding.model_validate(raw_intent_binding)
+            except Exception:
+                intent_binding = None
+            if (
+                intent_binding is not None
+                and intent_binding.run_id == current_owner_binding["run_id"]
+                and intent_binding.tenant_id == current_owner_binding["tenant_id"]
+                and intent_binding.requested_profile
+                == current_owner_binding["requested_execution_profile"]
+            ):
+                progress["run_intent_binding"] = intent_binding.model_dump(mode="json")
+        for progress_key in (
+            "runtime_quality_refs",
+            "runtime_quality_artifact_refs",
+            "runtime_quality_projection",
+            "runtime_quality_diagnostic_events",
+            "diagnostic_event_log_ref",
+            "diagnostic_events",
+            "trust_boundary_attestations",
+        ):
+            if progress_key in current_progress:
+                progress[progress_key] = current_progress[progress_key]
         self._control_store.complete_job(
             job_id=job.job_id,
             run_id=str(job.run_id or ""),

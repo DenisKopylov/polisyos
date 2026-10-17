@@ -18,7 +18,9 @@ from polisyos.runtime.quality.run_state import (
     RunStateMachine,
     RunStateSnapshot,
     RunStateTransitionError,
+    assert_canary_bundle_closeout_allowed,
     assert_final_decision_artifact_allowed,
+    assert_public_artifact_allowed,
 )
 
 if TYPE_CHECKING:
@@ -189,3 +191,105 @@ def test_phase_barrier_records_are_persisted_as_runtime_ledger(tmp_path: Path) -
         )
         == record
     )
+
+
+@pytest.mark.parametrize("field", ["run_id", "tenant_id"])
+def test_scorecard_readiness_rejects_declared_snapshot_scope_mismatch(
+    field: str,
+) -> None:
+    machine = RunStateMachine(_snapshot())
+    foreign_records = tuple(
+        record.model_copy(update={field: f"foreign-{field}"})
+        for record in _scorecard_ready_barriers()
+    )
+
+    with pytest.raises(RunStateTransitionError) as error:
+        machine.transition_to(
+            RunState.READY_FOR_SCORECARD,
+            barriers=foreign_records,
+        )
+
+    assert error.value.code == "phase_barrier_scope_mismatch"
+    assert error.value.field == field
+    assert machine.snapshot.state is RunState.EVIDENCE_EMITTING
+
+
+def test_consistent_candidate_barriers_do_not_establish_owner_scope() -> None:
+    machine = RunStateMachine(_snapshot())
+
+    with pytest.raises(RunStateTransitionError) as error:
+        machine.transition_to(
+            RunState.READY_FOR_SCORECARD,
+            barriers=_scorecard_ready_barriers(),
+        )
+
+    assert error.value.code == "phase_barrier_owner_scope_not_established"
+    assert error.value.field == "owner_scope"
+    assert machine.snapshot.state is RunState.EVIDENCE_EMITTING
+
+
+def test_evidence_emitting_rejects_late_intent_binding_mutation() -> None:
+    machine = RunStateMachine(_snapshot())
+    changed = _intent_binding().model_copy(update={"policy_intent_ref": _cas("4")})
+
+    with pytest.raises(RunStateTransitionError) as error:
+        machine.transition_to(RunState.EVIDENCE_EMITTING, intent_binding=changed)
+
+    assert error.value.code == "run_intent_binding_mutated"
+    assert machine.snapshot.state is RunState.EVIDENCE_EMITTING
+
+
+def test_scorecard_readiness_rejects_expected_profile_mismatch() -> None:
+    machine = RunStateMachine(_snapshot())
+    foreign_records = tuple(
+        record.model_copy(update={"profile": "research"}) for record in _scorecard_ready_barriers()
+    )
+
+    with pytest.raises(RunStateTransitionError) as error:
+        machine.transition_to(
+            RunState.READY_FOR_SCORECARD,
+            barriers=foreign_records,
+        )
+
+    assert error.value.code == "phase_barrier_scope_mismatch"
+    assert error.value.field == "profile"
+    assert machine.snapshot.state is RunState.EVIDENCE_EMITTING
+
+
+def _invoke_artifact_consumer(
+    consumer: str,
+    snapshot: RunStateSnapshot,
+    barriers: tuple[PhaseBarrierRecord, ...],
+) -> None:
+    if consumer == "final":
+        assert_final_decision_artifact_allowed(snapshot, barriers=barriers)
+    elif consumer == "public":
+        assert_public_artifact_allowed(snapshot, barriers=barriers)
+    else:
+        assert_canary_bundle_closeout_allowed(snapshot, barriers=barriers)
+
+
+@pytest.mark.parametrize(
+    ("consumer", "state", "barrier_ids"),
+    [
+        ("final", RunState.SCORED, PhaseBarrierId.final_artifact_required()),
+        ("public", RunState.APPROVED, PhaseBarrierId.public_artifact_required()),
+        (
+            "canary",
+            RunState.APPROVED,
+            (PhaseBarrierId.CANARY_BUNDLE_CLOSEOUT,),
+        ),
+    ],
+)
+def test_artifact_consumers_refuse_candidate_only_barriers(
+    consumer: str,
+    state: RunState,
+    barrier_ids: tuple[PhaseBarrierId, ...],
+) -> None:
+    snapshot = _snapshot(state=state)
+    barriers = tuple(_passed_barrier(barrier_id) for barrier_id in barrier_ids)
+
+    with pytest.raises(RunStateTransitionError) as error:
+        _invoke_artifact_consumer(consumer, snapshot, barriers)
+
+    assert error.value.code == "phase_barrier_owner_scope_not_established"

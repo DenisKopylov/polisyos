@@ -8,15 +8,11 @@ from typing import Any
 
 from pydantic import Field, model_validator
 
-from polisyos.ir.governance.policy_spec import (
+from polisyos.ir import (
     CompiledLexIntervention as _CompiledLexIntervention,
 )
-from polisyos.ir.governance.policy_spec import (
-    InterventionSpec,
-    ParameterSpec,
-)
-from polisyos.ir.governance.schedule import ScheduleSpec
-from polisyos.ir.governance.selector_expr import SelectorExpr
+from polisyos.ir import IdentificationMode, ParameterSpec, StrategicResponseChannel
+from polisyos.ir.governance import InterventionSpec, ScheduleSpec, SelectorExpr
 from polisyos.ir.kernel.base import ID_PATTERN, KernelModel
 from polisyos.ir.kernel.values import (
     CountValue,
@@ -25,7 +21,6 @@ from polisyos.ir.kernel.values import (
     ParamValue,
     RateValue,
 )
-from polisyos.ir.observation.contracts import IdentificationMode, StrategicResponseChannel
 from polisyos.lex.interventions.artifacts import LexProvisionMappingRegistry
 
 

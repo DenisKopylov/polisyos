@@ -7,18 +7,18 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.core.artifacts import ArtifactStore
 from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
-from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.scientist import DownstreamUtilityReportRef
-from polisyos.foundry.methods.catalog.causal._id_contracts import (
-    IdentificationResult,
-    IdentificationStatus,
-)
 from polisyos.foundry.methods.catalog.causal.causal_engine import CausalEngine
 from polisyos.foundry.methods.catalog.causal.transport_engine import (
     solve_transportability,
+)
+from polisyos.foundry.methods.causal import (
+    IdentificationResult,
+    IdentificationStatus,
 )
 from polisyos.ir import AlgebraicAssumptionStatus, AlgebraicFalsificationScope
 from polisyos.ir.analytics.causal import CausalEffectReport, EstimationStatus

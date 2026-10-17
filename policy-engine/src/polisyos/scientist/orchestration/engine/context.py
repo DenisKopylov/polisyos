@@ -17,7 +17,7 @@ if TYPE_CHECKING:
         EpochCertificateIssuanceOwner,
     )
 
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts import ArtifactRef
 from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.contracts.fabric import DataSnapshotRef, DataViewRequestRef
 from polisyos.core.contracts.foundry import (

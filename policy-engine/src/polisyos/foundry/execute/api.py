@@ -33,7 +33,7 @@ from polisyos.core.artifacts.manifest import (
 from polisyos.core.artifacts.protocol import _require_return_selected_profile_writer
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
-from polisyos.core.contracts.fabric import DataSnapshot
+from polisyos.core.contracts import DataSnapshot
 from polisyos.core.contracts.foundry import (
     DerivedArtifact,
     EquilibriumMultiplicityReport,

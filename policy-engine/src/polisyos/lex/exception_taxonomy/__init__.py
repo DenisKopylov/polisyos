@@ -4,7 +4,11 @@ from __future__ import annotations
 
 from typing import Any
 
-from polisyos.core.errors import ErrorCategory, PolicyOSError
+from polisyos.core import errors as _core_errors_facade
+
+ErrorCategory = _core_errors_facade.ErrorCategory
+PolicyOSError = _core_errors_facade.PolicyOSError
+del _core_errors_facade
 
 
 class LexError(PolicyOSError):

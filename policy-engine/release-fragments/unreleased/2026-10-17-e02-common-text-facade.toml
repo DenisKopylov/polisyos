@@ -1,0 +1,38 @@
+id = "2026-10-17-e02-common-text-facade"
+title = "Expose Common text helpers through the lazy facade"
+type = "changed"
+component = "common"
+owner = "team-core"
+summary = "The Common lazy facade recognizes the existing text helper module while preserving the collapse_ws implementation and consumer function identity."
+evidence = [
+  "src/polisyos/common/__init__.py",
+  "src/polisyos/common/text.py",
+  "src/polisyos/common/README.md",
+  "tests/unit/common/test_package_rehome.py",
+  "tests/unit/common/test_lex_text.py",
+  "tests/property/lex/test_common_properties.py",
+  "tests/unit/architecture/test_source50_core_common_route_identity.py",
+]
+compatibility = "This is an additive supported child-module entrypoint. Existing Lex consumers keep the same collapse_ws function object; no function signature or normalization behavior changes."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.common.text"
+migration = "No migration is required for existing imports. New callers may import the text module through the Common root facade."
+api = "polisyos.common.text becomes an explicit lazy root-facade child and supported entrypoint; collapse_ws remains the module's existing public binding."
+limitations = "The generated public-surface inventory and rendered reference require regeneration and review in the canonical integration. This fragment deliberately keeps public_surface_inventory_reviewed = false."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/common/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "e02-common-text-facade"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.common.text"
+owner = "team-core"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "The Common lazy facade recognizes polisyos.common.text and preserves the existing collapse_ws function object used by Lex consumers."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["src/polisyos/common/README.md"]
+runbook_docs = []

@@ -8,8 +8,9 @@ from polisyos.core.artifacts import ArtifactRef
 from polisyos.core.artifacts import (
     ensure_ir_artifact_store as _ensure_ir_artifact_store,
 )
-from polisyos.ir import StrategicResponseBundleRef, StrategicSCMRef
-from polisyos.ir.analytics.strategic import (
+from polisyos.ir import (
+    StrategicResponseBundleRef,
+    StrategicSCMRef,
     load_mean_field_equilibrium_certificate,
     load_mean_field_macro_simulation_config,
     load_mean_field_perturbation_spec,

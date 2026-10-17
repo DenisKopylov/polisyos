@@ -12,7 +12,7 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.core.contracts.foundry import EnvironmentManifestRef
+from polisyos.core.contracts import EnvironmentManifestRef
 
 
 class ArtifactRef(BaseModel):

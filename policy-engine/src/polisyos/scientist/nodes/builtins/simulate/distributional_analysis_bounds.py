@@ -17,11 +17,12 @@ from polisyos.foundry.methods.causal import (
     POINTWISE_NON_UNIFORM_WARNING,
     DistributionalBoundsEngineMethod,
 )
-from polisyos.ir import DistributionalBoundsBundleRef, DistributionalDualCertificateRef
-from polisyos.ir.analytics.distributional import (
+from polisyos.ir import (
     DistributionalBoundsBundle,
+    DistributionalBoundsBundleRef,
     DistributionalBoundUniformity,
     DistributionalDualCertificate,
+    DistributionalDualCertificateRef,
     DistributionalFunctional,
     DistributionalProofTarget,
     attach_distributional_dual_certificate_ref,

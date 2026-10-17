@@ -2516,8 +2516,7 @@ class GenericCycleSimulationAdmissionOwner:
     def _verify_default_ncm(self, ref: ArtifactRef) -> None:
         """Load only the WMR-default NCM view through the public Core→IR adapter."""
         from polisyos.core.artifacts import ensure_ir_artifact_store
-        from polisyos.ir import NCMSpecRef
-        from polisyos.ir.analytics.ncm import load_ncm_spec
+        from polisyos.ir import NCMSpecRef, load_ncm_spec
 
         typed = NCMSpecRef.model_validate(ref.model_dump(mode="python"))
         load_ncm_spec(ensure_ir_artifact_store(self._store), typed)

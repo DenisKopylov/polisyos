@@ -35,21 +35,20 @@ from polisyos.foundry.execute.api import (
     _execution_input_basis_inventory,
 )
 from polisyos.foundry.uncertainty import PropagationConfig
-from polisyos.ir import TrinityBundle, UncertaintyType
-from polisyos.ir.analytics.welfare import (
+from polisyos.ir import (
+    ArtifactRefModel,
+    TrinityBundle,
+    UncertaintyType,
     WelfareBundle,
+    WelfareBundleRef,
     WelfareIntervalSemantics,
     WelfareMethod,
     WelfareSampleBundle,
+    WelfareSampleBundleRef,
     WelfareStatus,
+    get_json_artifact,
     load_welfare_bundle,
     load_welfare_sample_bundle,
-)
-from polisyos.ir.artifacts import get_json_artifact
-from polisyos.ir.registry.refs import (
-    ArtifactRefModel,
-    WelfareBundleRef,
-    WelfareSampleBundleRef,
 )
 from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
 

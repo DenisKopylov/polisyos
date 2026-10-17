@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
-from polisyos.common.serialization import to_python_data
+from polisyos.common import serialization as _common_serialization_facade
 from polisyos.core.artifacts import load_core_json_artifact
 from polisyos.core.artifacts.manifest import (
     ArtifactRef,
@@ -62,6 +62,10 @@ from polisyos.scientist.compute.runner import (
 
 if TYPE_CHECKING:
     from polisyos.ir.kernel.base import KernelModel
+
+to_python_data = _common_serialization_facade.to_python_data
+del _common_serialization_facade
+
 
 _LOGGER = logging.getLogger(__name__)
 

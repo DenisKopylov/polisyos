@@ -11,16 +11,18 @@ from typing import Protocol, runtime_checkable
 import jax
 import jax.numpy as jnp
 
-from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import (
+from polisyos.core import registry as _core_registry_facade
+from polisyos.core.artifacts import (
+    ArtifactID,
     ArtifactRef,
+    FileSystemCAS,
     InputRef,
+    PutOptions,
     SchemaInfo,
     input_ref_from_artifact_ref,
 )
-from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
-from polisyos.core.contracts.fabric import DataSnapshot
+from polisyos.core.contracts import DataSnapshot
 from polisyos.core.contracts.foundry import (
     CompileRequest,
     ExecPlan,
@@ -36,7 +38,6 @@ from polisyos.core.contracts.foundry import (
     ProgramGraph,
     StateSnapshotRef,
 )
-from polisyos.core.registry import build_default_registry_bundle, load_registry_bundle_content
 
 # Keep the README quickstart on the CPU path unless the caller explicitly chose
 # a different backend. This avoids common Apple Silicon / Metal surprises.
@@ -47,13 +48,13 @@ from polisyos.foundry.compile.api import compile as compile_foundry
 from polisyos.foundry.contracts.state import AgentState, GlobalState
 from polisyos.foundry.execute.api import execute as execute_foundry
 from polisyos.foundry.execute.executor import put_state_snapshot
-from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
-from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
-from polisyos.ir.governance.schedule import ScheduleSpec
-from polisyos.ir.governance.selector_expr import SelectorPredicate
-from polisyos.ir.model_layer.model_spec import ModelSpec
+from polisyos.ir import ModelSpec, PolicySpec, ProblemDomain, ProblemFrame, TrinityBundle
+from polisyos.ir.governance import InterventionSpec, ScheduleSpec, SelectorPredicate
 from polisyos.ir.model_layer.types import SelectorOperator
-from polisyos.ir.trinity import TrinityBundle
+
+build_default_registry_bundle = _core_registry_facade.build_default_registry_bundle
+load_registry_bundle_content = _core_registry_facade.load_registry_bundle_content
+del _core_registry_facade
 
 
 @dataclass(frozen=True, slots=True)

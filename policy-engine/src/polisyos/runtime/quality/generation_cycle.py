@@ -228,9 +228,9 @@ from polisyos.scientist.orchestration.workflows.engine_simple import SimpleLoopE
 if TYPE_CHECKING:
     from polisyos.core.contracts import CatalogRunProfile
     from polisyos.data_requirement import CapabilityRequirementResolution
+    from polisyos.foundry import MethodRouteConstraint
     from polisyos.foundry.methods import EstimandSpec
-    from polisyos.foundry.methods.selection.advisor import MethodRouteConstraint
-    from polisyos.ir.artifacts import ArtifactStore as IRArtifactStore
+    from polisyos.ir import ArtifactStore as IRArtifactStore
     from polisyos.pdc import ArtifactEnvelope
     from polisyos.runtime.quality.acquisition_executor import AdmissionPassport
     from polisyos.runtime.quality.acquisition_planner import AcquisitionOwnerArtifact
@@ -4742,8 +4742,7 @@ class JointSimulationPort:
     ) -> object:
         """Resolve an owner-provided NCM, refusing an absent model."""
 
-        from polisyos.ir import NCMSpecRef
-        from polisyos.ir.analytics.ncm import load_ncm_spec
+        from polisyos.ir import NCMSpecRef, load_ncm_spec
 
         refs = tuple(world_record.simulation_model_ref.ncm_refs)
         if selected_ncm_ref is not None:
@@ -4777,7 +4776,7 @@ class JointSimulationPort:
             elif selected_ncm_ref.manifest_profile_sha256 is not None:
                 raise WorldModelRecordError("joint_simulation_ncm_selected_ref_not_in_world_model")
             try:
-                from polisyos.ir.analytics.ncm import load_ncm_spec_selected_view
+                from polisyos.ir import load_ncm_spec_selected_view
 
                 return load_ncm_spec_selected_view(
                     _ensure_ir_artifact_store(store),
@@ -6061,8 +6060,8 @@ class FoundryValuePort:
                         candidate=candidate,
                         problem=problem,
                     )
-                    from polisyos.ir.artifacts import put_json_artifact
-                    from polisyos.ir.model_layer.canon import CanonSpec as IRCanonSpec
+                    from polisyos.ir import CanonSpec as IRCanonSpec
+                    from polisyos.ir import put_json_artifact
 
                     outer_ref = put_json_artifact(
                         ir_store,
@@ -8635,7 +8634,7 @@ class GenerationCycleController:
         """
         from polisyos.core import artifacts
         from polisyos.core.artifacts import load_core_json_artifact
-        from polisyos.fabric.retrieval.custody import FabricFetchReceipt
+        from polisyos.fabric import FabricFetchReceipt
         from polisyos.runtime.quality.data_forge_binding import (
             FABRIC_MEASUREMENT_ROOT_SCHEMA_VERSION,
             FabricMeasurementRootPayload,
@@ -14598,9 +14597,9 @@ def _produce_value_transport_run_basis(
 ) -> ValueArtifactBindingRefV1:
     """Persist the actual graph, request, diagram, and solver result as one run."""
     from polisyos.core.artifacts import ensure_ir_artifact_store, profile_bound_ref
+    from polisyos.ir import CanonSpec as IRCanonSpec
+    from polisyos.ir import put_json_artifact
     from polisyos.ir.analytics.transportability import persist_transportability_result
-    from polisyos.ir.artifacts import put_json_artifact
-    from polisyos.ir.model_layer.canon import CanonSpec as IRCanonSpec
     from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
 
     if not isinstance(cycle_substrate_context, CycleSubstrateContext):
@@ -17076,7 +17075,7 @@ def _value_input_ref(
     *,
     role: str,
 ) -> object:
-    from polisyos.ir.artifacts import InputRef
+    from polisyos.ir import InputRef
 
     ref = _value_artifact_ref(payload)
     return InputRef(
@@ -17087,7 +17086,7 @@ def _value_input_ref(
 
 
 def _value_load_ref_payload(store: IRArtifactStore, ref: ValueArtifactBindingRefV1) -> object:
-    from polisyos.ir.artifacts import get_json_artifact
+    from polisyos.ir import get_json_artifact
 
     return get_json_artifact(store, ref.model_dump(mode="python"))
 
@@ -17203,8 +17202,8 @@ def _value_owner_source_projection_intent(
 ) -> ValueOwnerMethodRunIntentV1:
     """Resolve, bind, and persist the explicit source-role profiles for N8."""
     from polisyos.core.artifacts import ensure_ir_artifact_store
-    from polisyos.ir.artifacts import put_json_artifact
-    from polisyos.ir.model_layer.canon import CanonSpec as IRCanonSpec
+    from polisyos.ir import CanonSpec as IRCanonSpec
+    from polisyos.ir import put_json_artifact
     from polisyos.runtime.quality.data_state_substrate import (
         l1_dcat_variable_availability,
     )
@@ -17699,14 +17698,14 @@ def _produce_value_owner_method_run_basis(
 
     from polisyos.core.artifacts import ensure_ir_artifact_store
     from polisyos.foundry.methods.backends import NumpyRunner
-    from polisyos.ir.analytics.causal import (
-        CausalEffectReport,
-        persist_causal_effect_report,
-    )
-    from polisyos.ir.analytics.uncertainty import NativeValueEstimandBinding
-    from polisyos.ir.artifacts import put_json_artifact
-    from polisyos.ir.model_layer.canon import (
+    from polisyos.ir import (
         CanonSpec as IRCanonSpec,
+    )
+    from polisyos.ir import (
+        CausalEffectReport,
+        NativeValueEstimandBinding,
+        persist_causal_effect_report,
+        put_json_artifact,
     )
     from polisyos.runtime.quality.generation_cycle import (
         ValueOwnerMethodRunnerRequestV1,
@@ -18057,16 +18056,16 @@ def _value_outer_set_from_owner_method_run_basis(
     import hashlib
 
     from polisyos.core.artifacts import ensure_ir_artifact_store
-    from polisyos.ir import CausalEffectReportRef
-    from polisyos.ir.analytics.causal import (
-        CausalEffectReport,
-        load_causal_effect_report,
-    )
-    from polisyos.ir.analytics.uncertainty import NativeValueEstimandBinding
-    from polisyos.ir.model_layer.canon import (
+    from polisyos.ir import (
         CanonSpec as IRCanonSpec,
     )
-    from polisyos.ir.model_layer.canon import (
+    from polisyos.ir import (
+        CausalEffectReport,
+        CausalEffectReportRef,
+        NativeValueEstimandBinding,
+        load_causal_effect_report,
+    )
+    from polisyos.ir import (
         to_canonical_bytes as to_ir_canonical_bytes,
     )
 

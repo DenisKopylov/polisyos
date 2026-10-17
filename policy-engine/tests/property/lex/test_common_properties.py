@@ -5,8 +5,10 @@ from datetime import date
 from hypothesis import given, settings
 from hypothesis import strategies as st
 
-from polisyos.common.text import collapse_ws
+from polisyos.common import text as common_text
 from polisyos.common.timestamps import parse_iso_date
+
+collapse_ws = common_text.collapse_ws
 
 
 @given(text=st.text(max_size=240))

@@ -28,7 +28,7 @@ import polisyos.core as core
 from polisyos.pdc import SubstrateLayer, gy_content_hash
 
 if TYPE_CHECKING:
-    from polisyos.core.artifacts.protocol import ArtifactStore, CoreJSONArtifactStore
+    from polisyos.core.artifacts import ArtifactStore, CoreJSONArtifactStore
     from polisyos.runtime.quality.data_forge_binding import (
         MeasurementRootExecutionBinding,
         ResolvedMeasurementRootEvidence,

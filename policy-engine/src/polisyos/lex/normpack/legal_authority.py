@@ -17,7 +17,7 @@ from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
     from datetime import date
 
-from polisyos.common.timestamps import parse_iso_date
+from polisyos.common import timestamps as _common_timestamps_facade
 from polisyos.data_forge.read_api.legal import (
     current_legal_source_relation_disposition,
 )
@@ -28,6 +28,10 @@ from polisyos.legal_requirement import (
     compile_legal_authority_requirements,
     normalize_legal_authority_type,
 )
+
+parse_iso_date = _common_timestamps_facade.parse_iso_date
+del _common_timestamps_facade
+
 
 LEGAL_AUTHORITY_REPORT_SCHEMA_VERSION = "policyos.lex.legal_authority_report.v1"
 LEGAL_AUTHORITY_RECORD_SCHEMA_VERSION = "policyos.lex.legal_authority_record.v1"

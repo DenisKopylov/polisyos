@@ -15,13 +15,15 @@ from polisyos.foundry.uncertainty import (
     calibration_covariance_blocks_agree_v1,
     preserve_singular_covariance,
 )
-from polisyos.ir import ArtifactRefModel, DependenceStructureRef, UncertaintyEnvelopeRef
-from polisyos.ir.analytics import WelfareMethod
-from polisyos.ir.analytics.uncertainty import (
+from polisyos.ir import (
+    ArtifactRefModel,
+    DependenceStructureRef,
     DistributionFamily,
     PosteriorSamplesCarrier,
     UncertaintyEnvelope,
+    UncertaintyEnvelopeRef,
 )
+from polisyos.ir.analytics import WelfareMethod
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 
 from .welfare_draws import _posterior_sample_probabilities

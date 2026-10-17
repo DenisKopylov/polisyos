@@ -1,0 +1,23 @@
+id = "2026-10-17-e02-canary-projection-channel"
+title = "Keep generated canary projections outside authority ref intake"
+type = "changed"
+component = "runtime-quality"
+owner = "team-policyos-runtime"
+summary = "Canary-generated public exports remain persisted audit projections while replay continuity freezes selected caller/loaded inputs and keeps output-only refs out of source evidence."
+evidence = [
+  "tests/unit/runtime/quality/test_scorecard.py",
+  "tests/unit/tools/test_canary_evidence.py",
+]
+compatibility = "The public build_quality_scorecard signature is unchanged. Canary-generated exports stay in the persisted audit bundle and audit-only consumers; they are not supplied to scorecard evidence. Replay continuity freezes selected caller/loaded request, workflow, job-progress, and quality-evidence inputs before local outputs; replay, bundle, inspection, readiness, and export refs remain observation-only and cannot satisfy required source refs. Observation-only required refs change the diagnostic continuity result to fail and remain pending G adjudication."
+change_class = "internal"
+surface_classification = "public_experimental: polisyos.runtime.quality"
+migration = "No public signature migration is required. A caller-supplied projection remains ordinary quality_evidence and does not bypass ref validation based on a projection_only label. Producers whose refs exist only on observation surfaces receive missing-source/unbound findings; they must supply genuine selected input refs or retain the limitation rather than relabeling a generated output."
+api = "No facade exports, DTO schemas, generated API inventory symbols, or build_quality_scorecard parameters change. Replay-continuity input/output shape remains unchanged; required and summarized refs come only from selected caller/loaded input surfaces. Observation refs remain in coverage and produce unbound findings; embedded continuity summaries on source surfaces cannot supply source refs, and fingerprints do not claim producer identity."
+limitations = "The canary producer persists generated projections for audit consumers, but this establishes no producer authority, currentness, publication, or positive scorecard basis. Continuity-record fingerprint checks establish content consistency only, not producer identity. Arbitrary markerless ref maps outside known continuity slots remain a bounded diagnostic residual. The diagnostic status behavior change for observation-only required refs remains pending independent G adjudication; G code acceptance remains false."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = [
+  "src/polisyos/runtime/quality/README.md",
+  "docs/reference/runtime/quality-scorecard.md",
+]
+runbook_docs = []

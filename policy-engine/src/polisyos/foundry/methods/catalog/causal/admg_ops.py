@@ -312,13 +312,12 @@ def canonical_scalar_selection_diagram(diagram: Any) -> Any:
     returns a detached diagram whose graph and S-nodes are the exact values
     consumed by the transport identifier.
     """
-    from polisyos.ir import SelectionDiagram, SNode
+    from polisyos.ir import ContextProfile, SelectionDiagram, SNode
     from polisyos.ir.analytics.causal_graph import (
         _canonical_model,
         _canonical_model_field_snapshot,
         _snapshot_canonical_value,
     )
-    from polisyos.ir.analytics.context import ContextProfile
 
     try:
         fields = _canonical_model_field_snapshot(diagram, SelectionDiagram)

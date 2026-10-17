@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.core.errors import ErrorCategory, PolicyOSError
+from polisyos.core import errors as _core_errors_facade
 
 if TYPE_CHECKING:
     from datetime import datetime
@@ -22,6 +22,10 @@ if TYPE_CHECKING:
         DocStructureOptions,
     )
     from polisyos.ir.loading.fact_log import FactSegmentManifest
+
+ErrorCategory = _core_errors_facade.ErrorCategory
+PolicyOSError = _core_errors_facade.PolicyOSError
+del _core_errors_facade
 
 
 class LexError(PolicyOSError):

@@ -1072,6 +1072,72 @@ class ControlJobAttemptPublicationMixin:
             },
             blocking_status="blocking",
         )
+        from polisyos.runtime.http.services.control_plane_store import (
+            ControlJobExecutionAdmissionError,
+            ControlJobLeaseLostError,
+        )
+        from polisyos.runtime.quality.phase_barriers import (
+            _execution_owner_binding_from_admission,
+            _validated_execution_owner_binding,
+        )
+        from polisyos.runtime.quality.run_state import RunIntentBinding
+
+        try:
+            current_admission = self._control_store.current_execution_job_admission()
+        except (ControlJobExecutionAdmissionError, ControlJobLeaseLostError):
+            current_admission = None
+        if current_admission is not None:
+            current_owner_binding = _execution_owner_binding_from_admission(
+                current_admission,
+                expected_job_id=job.job_id,
+                expected_run_id=str(job.run_id or ""),
+                expected_effective_profile=job.effective_execution_profile,
+                expected_scope={
+                    "tenant_id": execution_scope.tenant_id,
+                    "cell_id": execution_scope.cell_id,
+                },
+            )
+            if (
+                current_owner_binding is not None
+                and current_admission.attempt == job.attempt
+                and current_admission.job.lease_owner == job.lease_owner
+            ):
+                current_progress = current_admission.job.progress
+                persisted_owner_binding = _validated_execution_owner_binding(
+                    current_progress.get("execution_owner_binding"),
+                    expected=current_owner_binding,
+                )
+                if persisted_owner_binding == current_owner_binding:
+                    terminal_progress = dict(progress or {})
+                    terminal_progress["execution_owner_binding"] = persisted_owner_binding
+                    raw_intent_binding = current_progress.get("run_intent_binding")
+                    if isinstance(raw_intent_binding, dict):
+                        try:
+                            intent_binding = RunIntentBinding.model_validate(raw_intent_binding)
+                        except Exception:
+                            intent_binding = None
+                        if (
+                            intent_binding is not None
+                            and intent_binding.run_id == current_owner_binding["run_id"]
+                            and intent_binding.tenant_id == current_owner_binding["tenant_id"]
+                            and intent_binding.requested_profile
+                            == current_owner_binding["requested_execution_profile"]
+                        ):
+                            terminal_progress["run_intent_binding"] = intent_binding.model_dump(
+                                mode="json"
+                            )
+                    for progress_key in (
+                        "runtime_quality_refs",
+                        "runtime_quality_artifact_refs",
+                        "runtime_quality_projection",
+                        "runtime_quality_diagnostic_events",
+                        "diagnostic_event_log_ref",
+                        "diagnostic_events",
+                        "trust_boundary_attestations",
+                    ):
+                        if progress_key in current_progress:
+                            terminal_progress[progress_key] = current_progress[progress_key]
+                    progress = terminal_progress
         self._control_store.fail_job(
             job_id=job.job_id,
             capability_manifest_ref=capability_manifest_ref,

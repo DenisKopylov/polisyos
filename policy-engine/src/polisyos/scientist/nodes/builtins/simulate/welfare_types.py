@@ -28,13 +28,13 @@ from polisyos.ir import (
     GEUncertaintyBundleRef,
     UncertaintyEnvelopeRef,
     WelfareSampleBundleRef,
+    get_json_artifact,
 )
 from polisyos.ir.analytics import (
     DependenceStructure,
     UncertaintyEnvelope,
     WelfareMethod,
 )
-from polisyos.ir.artifacts import get_json_artifact
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_SIMULATION_RESULT_REF,
     ARTIFACT_WELFARE_BUNDLE_REF,

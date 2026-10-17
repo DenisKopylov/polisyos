@@ -6,11 +6,15 @@ from dataclasses import dataclass
 from decimal import Decimal, InvalidOperation
 from typing import TYPE_CHECKING, Any, Literal
 
-from polisyos.common.text import collapse_ws
+from polisyos.common import text as _common_text_facade
 
 if TYPE_CHECKING:
     from polisyos.ir.loading.norm_pack import NormRule
     from polisyos.lex.legal_evaluation.context_builder import RuleObservation
+
+collapse_ws = _common_text_facade.collapse_ws
+del _common_text_facade
+
 
 FindingStatus = Literal["PASS", "FAIL", "UNKNOWN", "NOT_APPLICABLE"]
 FindingSeverity = Literal["info", "warning", "blocker"]

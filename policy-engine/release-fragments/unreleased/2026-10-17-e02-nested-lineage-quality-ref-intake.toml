@@ -1,0 +1,21 @@
+id = "2026-10-17-e02-nested-lineage-quality-ref-intake"
+title = "Resolve registered quality refs inside role-hinted lineage nodes"
+type = "fixed"
+component = "runtime-quality"
+owner = "team-runtime"
+summary = "Registered role-hinted lineage containers are traversed for explicit nested quality-ref keys without treating the container as the ref value."
+evidence = [
+  "src/polisyos/runtime/quality/refs.py",
+  "tests/unit/runtime/quality/test_quality_refs.py",
+  "tests/unit/tools/test_canary_evidence.py",
+]
+compatibility = "No wire schema, report artifact, status, or authority rule changes. Explicit nested ref values continue through the existing validation and conflict checks; present malformed values remain rejected."
+change_class = "internal"
+surface_classification = "internal: registered runtime quality ref intake"
+migration = "No data migration is required."
+api = "The shared quality-ref intake now treats a single registered role hint without a recognized ref-value field as a container and recursively discovers explicit registered ref keys within it. A role hint alone does not create a ref."
+limitations = "Discovery remains candidate evidence. This change does not verify CAS content, issuer, profile, currentness, or authority, and does not expand the supported ref registry."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/runtime/quality/README.md"]
+runbook_docs = []

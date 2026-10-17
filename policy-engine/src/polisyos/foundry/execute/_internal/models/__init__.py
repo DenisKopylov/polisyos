@@ -11,6 +11,7 @@ import numpy as np
 from pydantic import BaseModel, Field
 
 from polisyos.common.canonical_profile import CanonicalProfileRefusalError
+from polisyos.core.artifacts import ArtifactStore, CoreJSONArtifactStore
 from polisyos.core.artifacts.environment import EnvironmentManifestRef
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import (
@@ -18,7 +19,6 @@ from polisyos.core.artifacts.manifest import (
     InputRef,
     input_ref_from_artifact_ref,
 )
-from polisyos.core.artifacts.protocol import ArtifactStore, CoreJSONArtifactStore
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import from_canonical_bytes as from_canonical_bytes
 from polisyos.core.contracts.foundry import ConstraintReportRef

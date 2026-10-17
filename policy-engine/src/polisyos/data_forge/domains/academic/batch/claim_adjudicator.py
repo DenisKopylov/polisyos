@@ -40,7 +40,7 @@ from polisyos.ir.analytics.literature import (
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from polisyos.core.artifacts.protocol import CoreJSONArtifactStore
+    from polisyos.core.artifacts import CoreJSONArtifactStore
     from polisyos.data_forge.domains.academic.batch.config import AcademicBatchConfig
 
 _INPUT_KIND = "data_forge.academic.claim_adjudication.input_batch"

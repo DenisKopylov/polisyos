@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import copy
 import json
+import tomllib
 from pathlib import Path
 from typing import Any
 
@@ -106,9 +107,7 @@ def test_readiness_payload_exposes_wave15_portfolio_design_contract_component(
     _patch_phase32_sources(monkeypatch)
 
     payload = gate.build_readiness_payload(repo_root=REPO_ROOT)
-    component = payload["component_results"][
-        "policy_design_evidence_portfolio_design_contract"
-    ]
+    component = payload["component_results"]["policy_design_evidence_portfolio_design_contract"]
 
     assert component["status"] == "pass"
     assert component["producer_guard"] == (
@@ -136,17 +135,16 @@ def test_readiness_payload_exposes_wave30_run_cost_proportionality_component(
     _patch_phase32_sources(monkeypatch)
 
     payload = gate.build_readiness_payload(repo_root=REPO_ROOT)
-    component = payload["component_results"][
-        "policy_design_run_cost_proportionality_contract"
-    ]
+    component = payload["component_results"]["policy_design_run_cost_proportionality_contract"]
 
     assert component["status"] == "pass"
     assert component["producer_guard"] == (
         "build_run_cost_proportionality_ledger_from_quality_context"
     )
     assert component["scorecard_gate"] == "policy_design_wave30_run_cost_proportionality"
-    assert "test_assemble_canary_evidence_projects_wave30_run_cost_ledger" in (
-        component["expected_verification_command"]
+    assert (
+        "test_assemble_canary_evidence_projects_wave30_run_cost_ledger"
+        in (component["expected_verification_command"])
     )
     assert component["coverage_metric"]["value"] >= 50.0
     assert component["coverage_metric"]["measurement_status"].startswith(("wave30", "wave31"))
@@ -169,9 +167,7 @@ def test_readiness_payload_exposes_wave31_best_in_class_benchmarking_component(
     _patch_phase32_sources(monkeypatch)
 
     payload = gate.build_readiness_payload(repo_root=REPO_ROOT)
-    component = payload["component_results"][
-        "policy_design_best_in_class_benchmarking_contract"
-    ]
+    component = payload["component_results"]["policy_design_best_in_class_benchmarking_contract"]
 
     assert component["status"] == "pass"
     assert component["validator"] == "validate_policy_benchmarking_record"
@@ -569,9 +565,7 @@ def test_readiness_rejects_static_only_producer_map_scorecard_even_if_status_pro
             "layer": "policy_design_case",
             "phase": "wave14_producer_scorecard_gates",
             "message": "Static producer maps cannot satisfy producer-owned runtime refs.",
-            "evidence_ref": (
-                "architecture/baselines/production_quality/evidence_inventory.json"
-            ),
+            "evidence_ref": ("architecture/baselines/production_quality/evidence_inventory.json"),
             "next_action": "Emit producer-owned runtime refs before readiness projection.",
         }
     )
@@ -654,6 +648,54 @@ def test_readiness_payload_covers_a7_a28_hds_substrate_invariants(monkeypatch) -
         "serious_effective_mode_allowed",
         "serious_phase_barriers_closed",
     } <= {gate_name for row in coverage for gate_name in row["minimum_closeout_gates"]}
+
+
+def test_phase_barrier_n9_mirrors_owner_and_intent_scorecard_gates() -> None:
+    invariant_doc = tomllib.loads(
+        (REPO_ROOT / "architecture/production_quality/invariant_registry.toml").read_text(
+            encoding="utf-8"
+        )
+    )
+    fitness_doc = tomllib.loads(
+        (REPO_ROOT / "architecture/production_quality/diagnostic_fitness_functions.toml").read_text(
+            encoding="utf-8"
+        )
+    )
+    invariant = next(
+        row for row in invariant_doc["invariants"] if row["invariant_id"] == "HDS-MCG-021"
+    )
+    fitness = next(
+        row
+        for row in fitness_doc["fitness_functions"]
+        if row["fitness_id"] == "fitness.hds-mcg-021.serious_phase_barriers_closed"
+    )
+    required_gates = {
+        "serious_phase_barriers_closed",
+        "serious_phase_barrier_owner_scope",
+        "serious_phase_barrier_intent_binding",
+    }
+    required_blockers = {
+        "phase_barrier_owner_scope_not_established",
+        "phase_barrier_scope_mismatch",
+        "phase_barrier_record_malformed",
+        "run_intent_binding_missing",
+        "run_intent_binding_incomplete",
+        "run_intent_binding_mutated",
+        "run_intent_binding_owner_scope_mismatch",
+        "run_intent_binding_scope_or_shape_invalid",
+    }
+
+    assert required_gates <= set(invariant["scorecard_gate_names"])
+    assert required_gates <= set(fitness["scorecard_gates"])
+    assert required_blockers <= set(invariant["non_overridable_blockers"])
+    assert {
+        "tests/unit/runtime/quality/test_scorecard.py::test_scorecard_rejects_barrier_profile_foreign_to_terminal_owner_binding",
+        "tests/unit/runtime/http/test_nl_pipeline_materialization.py::test_nl_pipeline_refuses_legacy_job_without_admitted_execution_scope",
+    } <= set(fitness["negative_tests"])
+    assert (
+        "tests/unit/runtime/http/test_nl_pipeline_materialization.py::test_nl_pipeline_updates_control_job_progress"
+        in set(fitness["proof_sources"])
+    )
 
 
 def test_cli_writes_json_and_require_passing(monkeypatch, tmp_path: Path) -> None:

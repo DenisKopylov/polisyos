@@ -1012,15 +1012,33 @@ required_schema_contracts = [
   "runtime_quality.run_state_snapshot.v1",
   "runtime_quality.phase_barrier_ledger.v1",
 ]
-scorecard_gate_names = ["execution_completed"]
+scorecard_gate_names = [
+  "execution_completed",
+  "serious_phase_barriers_closed",
+  "serious_phase_barrier_owner_scope",
+  "serious_phase_barrier_intent_binding",
+]
 readiness_check = "production_quality.phase_barriers_closed"
 approval_policy = "requires_verified_scorecard"
 override_policy = "not_overridable"
 non_overridable_blockers = [
   "authority_payload_mismatch",
+  "phase_barrier_record_malformed",
+  "phase_barrier_scope_mismatch",
   "phase_barrier_missing",
   "phase_barrier_skipped",
+  "phase_barrier_blocker_missing",
   "phase_barrier_blocked",
+  "phase_barrier_not_passed",
+  "phase_barrier_owner_scope_not_established",
+  "run_intent_binding_missing",
+  "run_intent_binding_incomplete",
+  "run_intent_binding_mutated",
+  "run_intent_binding_run_mismatch",
+  "run_intent_binding_tenant_mismatch",
+  "run_intent_binding_profile_mismatch",
+  "run_intent_binding_owner_scope_mismatch",
+  "run_intent_binding_scope_or_shape_invalid",
   "run_state_transition_invalid",
   "final_artifact_compilation_too_early",
 ]
@@ -1041,8 +1059,12 @@ consumers = [
   "runtime.dashboard_projection",
   "runtime.canary_packaging",
 ]
-next_diagnostic_command = "uv run pytest tests/unit/runtime/quality/test_run_state.py -q"
-negative_tests = ["tests/unit/runtime/quality/test_run_state.py::test_missing_phase_barrier_record_blocks_scorecard_readiness"]
+next_diagnostic_command = "uv run pytest tests/unit/runtime/quality/test_run_state.py tests/unit/runtime/quality/test_scorecard.py tests/unit/runtime/http/test_nl_pipeline_materialization.py -q"
+negative_tests = [
+  "tests/unit/runtime/quality/test_run_state.py::test_missing_phase_barrier_record_blocks_scorecard_readiness",
+  "tests/unit/runtime/quality/test_scorecard.py::test_scorecard_rejects_barrier_profile_foreign_to_terminal_owner_binding",
+  "tests/unit/runtime/http/test_nl_pipeline_materialization.py::test_nl_pipeline_refuses_legacy_job_without_admitted_execution_scope",
+]
 fallback_ledger_policy = "fail_closed"
 legacy_quarantine_policy = "legacy_quarantined_from_serious_closeout"
 semantic_binding_policy = "preserve_required_semantics"

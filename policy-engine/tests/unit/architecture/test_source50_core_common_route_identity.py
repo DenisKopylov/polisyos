@@ -357,6 +357,7 @@ MODULE_ATTRIBUTE_ROUTES = (
     ("polisyos.common", "logger"),
     ("polisyos.common", "migrations"),
     ("polisyos.common", "serialization"),
+    ("polisyos.common", "text"),
     ("polisyos.core", "errors"),
     ("polisyos.core", "registry"),
     ("polisyos.core", "run"),

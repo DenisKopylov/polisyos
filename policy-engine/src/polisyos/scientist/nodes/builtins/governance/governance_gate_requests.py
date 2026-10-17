@@ -442,9 +442,7 @@ def _transport_summary_from_state(
     state: ExperimentState,
 ) -> dict[str, Any] | None:
     from polisyos.core.artifacts import ensure_ir_artifact_store
-    from polisyos.ir.analytics.causal import CausalEffectReport
-    from polisyos.ir.artifacts import get_json_artifact
-    from polisyos.ir.registry.refs import CausalEffectReportRef
+    from polisyos.ir import CausalEffectReport, CausalEffectReportRef, get_json_artifact
 
     report_ref = state.artifacts_index.get(ARTIFACT_CAUSAL_REPORT_REF)
     if report_ref is None:

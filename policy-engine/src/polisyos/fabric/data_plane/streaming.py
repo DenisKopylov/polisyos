@@ -13,13 +13,13 @@ from math import floor
 from typing import TYPE_CHECKING, Any, Literal, Protocol, cast, runtime_checkable
 
 from polisyos.common.async_tools import run_blocking_async
+from polisyos.core.artifacts import ArtifactID
 from polisyos.core.artifacts.async_store import (
     AsyncArtifactStoreAdapter,
     AsyncFileSystemArtifactStore,
     ensure_async_artifact_store,
     is_async_artifact_store,
 )
-from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.protocol import matches_runtime_protocol
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions

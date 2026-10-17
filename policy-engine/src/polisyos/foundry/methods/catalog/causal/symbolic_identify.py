@@ -803,7 +803,7 @@ def _id_result_to_transport_result(
         from polisyos.foundry.methods.catalog.causal.capabilities import (
             build_causal_capability_contract,
         )
-        from polisyos.ir.analytics.causal_capabilities import (
+        from polisyos.ir import (
             CausalBackendId,
             CausalIdentificationFamily,
         )

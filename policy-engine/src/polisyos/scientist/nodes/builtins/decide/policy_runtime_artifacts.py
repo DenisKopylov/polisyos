@@ -23,17 +23,15 @@ from polisyos.core.contracts import (
     PriorKnowledgeBundleRef,
 )
 from polisyos.foundry.methods import AmbiguityCertificate
-from polisyos.ir.analytics import CausalEffectReport
-from polisyos.ir.analytics.causal_discovery import LatentDiscoveryBundle
-from polisyos.ir.analytics.cross_graph import (
+from polisyos.ir import (
     CrossGraphEvidenceProfile,
-    load_cross_graph_evidence_profile,
-)
-from polisyos.ir.analytics.distributional import (
     DistributionalReport,
+    LatentDiscoveryBundle,
+    load_cross_graph_evidence_profile,
     load_distributional_report,
+    load_uncertainty_envelope,
 )
-from polisyos.ir.analytics.uncertainty import load_uncertainty_envelope
+from polisyos.ir.analytics import CausalEffectReport
 from polisyos.ir.registry.refs import (
     CrossGraphEvidenceProfileRef,
     DistributionalReportRef,

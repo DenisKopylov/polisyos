@@ -7,10 +7,10 @@ from typing import Any
 
 from pydantic import Field
 
+from polisyos.ir import StrategicResponseChannel, StrategicResponseSpecsBundle
 from polisyos.ir.governance.policy_spec import PolicySearchLevel
 from polisyos.ir.kernel.base import KernelModel
-from polisyos.ir.observation.bundles import StrategicResponseSpec, StrategicResponseSpecsBundle
-from polisyos.ir.observation.contracts import StrategicResponseChannel
+from polisyos.ir.observation import StrategicResponseSpec
 
 
 class StrategicResponseRegistryEntry(KernelModel):

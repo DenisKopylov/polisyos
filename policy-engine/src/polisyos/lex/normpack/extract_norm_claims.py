@@ -8,8 +8,8 @@ from datetime import UTC, datetime
 from decimal import Decimal
 from typing import TYPE_CHECKING, Any
 
+from polisyos.common import text as _common_text_facade
 from polisyos.common.logger import get_logger
-from polisyos.common.text import collapse_ws
 from polisyos.fabric.claims import ClaimNormalizeOptions, normalize_claims
 from polisyos.fabric.claims.backends import resolve_extractor
 from polisyos.fabric.claims.canonicalize import canonical_unit, canonicalize_id
@@ -45,6 +45,10 @@ if TYPE_CHECKING:
     from polisyos.core.artifacts.store import FileSystemCAS
     from polisyos.ir.loading.fact_log import FactSegmentManifest
     from polisyos.ir.world.doc import DocMeta
+
+collapse_ws = _common_text_facade.collapse_ws
+del _common_text_facade
+
 
 logger = get_logger(__name__)
 

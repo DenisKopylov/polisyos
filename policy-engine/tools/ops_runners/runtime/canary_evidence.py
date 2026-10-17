@@ -99,7 +99,6 @@ from polisyos.runtime.quality.performance_budget import (
     build_canary_performance_budget,
     measure_cas_round_trip_samples,
 )
-from polisyos.runtime.quality.phase_barriers import PhaseBarrierId, PhaseBarrierRecord
 from polisyos.runtime.quality.producer_pipeline import (
     merge_producer_pipeline_quality_evidence_surfaces,
     run_requirement_spec_producer_pipeline,
@@ -1553,40 +1552,14 @@ def _generated_phase_barrier_records(
     run_payload: dict[str, Any] | None,
     canary_kind: str,
 ) -> list[dict[str, Any]]:
-    tenant_id = (
-        _nested_get(job_payload, "tenant_id")
-        or _nested_get(run_payload, "tenant_id")
-        or _nested_get(job_payload, "progress.details.tenant_id")
-        or _nested_get(run_payload, "progress.details.tenant_id")
-        or "tenant-default"
-    )
-    diagnostic_events = (
-        _nested_get(job_payload, "diagnostic_events")
-        or _nested_get(run_payload, "diagnostic_events")
-        or _nested_get(job_payload, "progress.details.diagnostic_events")
-        or _nested_get(run_payload, "progress.details.diagnostic_events")
-        or []
-    )
-    runtime_event_ref = None
-    if isinstance(diagnostic_events, list):
-        for event in diagnostic_events:
-            if isinstance(event, dict) and isinstance(event.get("runtime_event_ref"), str):
-                runtime_event_ref = event["runtime_event_ref"]
-                break
-    evidence_refs = [value for value in scorecard_runtime_refs.values() if value]
-    cas_ref = evidence_refs[0] if evidence_refs else None
-    return [
-        PhaseBarrierRecord.pass_record(
-            barrier_id=barrier_id,
-            run_id=str(run_id or "no-run"),
-            tenant_id=str(tenant_id or "tenant-default"),
-            profile=str(canary_kind or "production"),
-            evidence_refs=evidence_refs or ["quality_evidence/quality_scorecard.json"],
-            runtime_event_ref=runtime_event_ref,
-            cas_ref=cas_ref,
-        ).model_dump(mode="json")
-        for barrier_id in PhaseBarrierId.scorecard_required()
-    ]
+    """Do not synthesize passed barriers from generic scorecard references.
+
+    Only typed records produced by the owning phase-barrier producer may satisfy
+    serious readiness. When that producer is absent, the scorecard receives no
+    records and its existing required-barrier gates remain blocked.
+    """
+
+    return []
 
 
 def _source_truth_adapter_surfaces_from_quality_evidence(
@@ -4177,15 +4150,14 @@ def _quality_ref_resolution_rejections(
         if not isinstance(candidates, (list, tuple)):
             continue
         for candidate in candidates:
+
             def field_value(name: str, candidate_value: Any = candidate) -> Any:
                 if isinstance(candidate_value, Mapping):
                     return candidate_value.get(name)
                 return getattr(candidate_value, name, None)
 
             values = {
-                name: field_value(name)
-                if isinstance(field_value(name), str)
-                else "not_established"
+                name: field_value(name) if isinstance(field_value(name), str) else "not_established"
                 for name in string_fields
             }
             raw_length = field_value("value_length")
@@ -4196,8 +4168,6 @@ def _quality_ref_resolution_rejections(
             identity = (*tuple(row[name] for name in string_fields), row["value_length"])
             rows.setdefault(identity, row)
     return list(rows.values())
-
-
 
 
 def _rejected_quality_ref_keys(
@@ -4211,9 +4181,7 @@ def _rejected_quality_ref_keys(
         for row in rejections
         if isinstance(row.get("key"), str) and row["key"].endswith("_ref")
     }
-    has_unscoped_container_rejection = any(
-        row.get("key") in container_keys for row in rejections
-    )
+    has_unscoped_container_rejection = any(row.get("key") in container_keys for row in rejections)
     if has_unscoped_container_rejection:
         rejected_keys.update(QUALITY_REPORT_RUNTIME_REFS.values())
     return rejected_keys, has_unscoped_container_rejection
@@ -4224,9 +4192,7 @@ def _quality_ref_key_is_rejected(
     rejected_keys: set[str],
     has_unscoped_container_rejection: bool,
 ) -> bool:
-    return key in rejected_keys or (
-        has_unscoped_container_rejection and key.endswith("_ref")
-    )
+    return key in rejected_keys or (has_unscoped_container_rejection and key.endswith("_ref"))
 
 
 def _unrejected_quality_refs(
@@ -4243,9 +4209,7 @@ def _unrejected_quality_refs(
         for key, value in refs.items()
         if isinstance(key, str)
         and isinstance(value, str)
-        and not _quality_ref_key_is_rejected(
-            key, rejected_keys, has_unscoped_container_rejection
-        )
+        and not _quality_ref_key_is_rejected(key, rejected_keys, has_unscoped_container_rejection)
     }
 
 
@@ -4267,9 +4231,7 @@ def _unrejected_runtime_quality_refs(
         for key, value in refs.items()
         if isinstance(key, str)
         and isinstance(value, str)
-        and not _quality_ref_key_is_rejected(
-            key, rejected_keys, has_unscoped_container_rejection
-        )
+        and not _quality_ref_key_is_rejected(key, rejected_keys, has_unscoped_container_rejection)
     }
 
 
@@ -5133,12 +5095,38 @@ def assemble_canary_evidence(
         agents_payload,
     )
 
+    generated_candidate_projection_surfaces: dict[str, dict[str, Any]] = {}
+
     def admit_quality_evidence_payload(payload: dict[str, Any]) -> dict[str, Any]:
-        return _payload_without_rejected_quality_refs(
-            payload,
-            rejected_keys=rejected_quality_ref_keys,
-            has_unscoped_container_rejection=has_unscoped_ref_rejection,
-        ) or {}
+        return (
+            _payload_without_rejected_quality_refs(
+                payload,
+                rejected_keys=rejected_quality_ref_keys,
+                has_unscoped_container_rejection=has_unscoped_ref_rejection,
+            )
+            or {}
+        )
+
+    def build_generated_public_export_bundle(
+        *,
+        run_id: Any,
+        quality_evidence_payload: dict[str, Any],
+        quality_scorecard: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        projection = _public_export_bundle_from_quality_evidence(
+            run_id=run_id,
+            quality_evidence_payload=quality_evidence_payload,
+            quality_scorecard=quality_scorecard,
+        )
+        generated_candidate_projection_surfaces["public_export_bundle"] = projection
+        return projection
+
+    def audit_quality_evidence_with_candidate_projection(
+        payload: dict[str, Any],
+    ) -> dict[str, Any]:
+        """Expose generated projections to audit-only consumers without changing source evidence."""
+
+        return {**payload, **generated_candidate_projection_surfaces}
 
     admitted_quality_ref_refs = _unrejected_quality_refs(
         quality_ref_resolution,
@@ -5198,6 +5186,32 @@ def assemble_canary_evidence(
             observed_manifest=None,
             resolution_rejections=security_ref_resolution_rejections,
         )
+    # Freeze selected caller/loaded input mappings before any canary-local report,
+    # scorecard, scenario, handoff, SLO, export, or continuity output is produced.
+    # These are consumer-asserted diagnostic candidates, not admitted authority.
+    selected_caller_source_surfaces = {
+        "request_context": deepcopy(request_payload or {}),
+        "workflow_state": {
+            "job": deepcopy(job_payload or {}),
+            "run": deepcopy(run_payload or {}),
+            "agents": deepcopy(agents_payload or {}),
+            "timeline": deepcopy(timeline_payload or {}),
+            "lineage": deepcopy(lineage_payload or {}),
+        },
+        "job_progress": deepcopy(
+            _first_dict(
+                _nested_get(job_payload, "progress"),
+                _nested_get(run_payload, "progress"),
+                job_payload,
+                run_payload,
+            )
+            or {}
+        ),
+    }
+    selected_source_quality_evidence = {
+        **deepcopy(admitted_input_quality_evidence),
+        **deepcopy(loaded_quality_reports),
+    }
     dashboard_payload = _collect_dashboard_evidence(dashboard_evidence, env=env)
     production_data_evidence = _extract_production_data_evidence(
         job_payload=job_payload,
@@ -5206,9 +5220,7 @@ def assemble_canary_evidence(
         request_payload=request_payload,
     )
     security_assurance_report_ref = f"quality_evidence/{SECURITY_REPORT_FILE}"
-    supplied_security_report_ref = admitted_quality_ref_refs.get(
-        SECURITY_ASSURANCE_REPORT_REF_KEY
-    )
+    supplied_security_report_ref = admitted_quality_ref_refs.get(SECURITY_ASSURANCE_REPORT_REF_KEY)
     security_report_source_ref = (
         None
         if security_ref_resolution_rejections
@@ -5311,9 +5323,8 @@ def assemble_canary_evidence(
         security_report_for_payload = None
     elif isinstance(loaded_quality_reports.get("security_assurance_report"), dict):
         security_report_for_payload = loaded_quality_reports["security_assurance_report"]
-    elif (
-        serious_bundle
-        and isinstance(merged_quality_evidence.get("security_assurance_report"), dict)
+    elif serious_bundle and isinstance(
+        merged_quality_evidence.get("security_assurance_report"), dict
     ):
         security_report_for_payload = merged_quality_evidence["security_assurance_report"]
     else:
@@ -5825,16 +5836,16 @@ def assemble_canary_evidence(
     )
     quality_evidence_payload = admit_quality_evidence_payload(quality_evidence_payload)
     if serious_bundle:
-        quality_evidence_payload["public_export_bundle"] = (
-            _public_export_bundle_from_quality_evidence(
-                run_id=run_id,
-                quality_evidence_payload=quality_evidence_payload,
-            )
+        build_generated_public_export_bundle(
+            run_id=run_id,
+            quality_evidence_payload=quality_evidence_payload,
         )
         quality_evidence_payload.setdefault(
             "diagnostic_slo_report",
             build_diagnostic_slo_report_from_quality_context(
-                quality_evidence=quality_evidence_payload,
+                quality_evidence=audit_quality_evidence_with_candidate_projection(
+                    quality_evidence_payload
+                ),
                 required_report_keys=tuple(QUALITY_REPORT_RUNTIME_REFS),
                 required_runtime_ref_keys=tuple(QUALITY_REPORT_RUNTIME_REFS.values()),
                 runtime_refs=scorecard_runtime_refs,
@@ -5967,10 +5978,8 @@ def assemble_canary_evidence(
             rejected_keys=rejected_quality_ref_keys,
             has_unscoped_container_rejection=has_unscoped_ref_rejection,
         )
-        scorecard_quality_evidence_payload = _payload_without_rejected_quality_refs(
-            quality_evidence_payload,
-            rejected_keys=rejected_quality_ref_keys,
-            has_unscoped_container_rejection=has_unscoped_ref_rejection,
+        scorecard_quality_evidence_payload = admit_quality_evidence_payload(
+            quality_evidence_payload
         )
         quality_scorecard = build_quality_scorecard(
             canary_kind=canary_kind,
@@ -6008,12 +6017,10 @@ def assemble_canary_evidence(
             owner="team-assurance",
         )
         quality_evidence_payload = admit_quality_evidence_payload(quality_evidence_payload)
-        quality_evidence_payload["public_export_bundle"] = (
-            _public_export_bundle_from_quality_evidence(
-                run_id=run_id,
-                quality_evidence_payload=quality_evidence_payload,
-                quality_scorecard=quality_scorecard,
-            )
+        build_generated_public_export_bundle(
+            run_id=run_id,
+            quality_evidence_payload=quality_evidence_payload,
+            quality_scorecard=quality_scorecard,
         )
         quality_evidence_payload = admit_quality_evidence_payload(quality_evidence_payload)
         quality_evidence_payload["scenario_contract_propagation_graph"] = (
@@ -6034,7 +6041,9 @@ def assemble_canary_evidence(
         quality_evidence_payload["evidence_spine_handoff_ledger"] = (
             build_canary_evidence_handoff_ledger(
                 bundle_ref=str(bundle_dir),
-                quality_evidence_payload=quality_evidence_payload,
+                quality_evidence_payload=audit_quality_evidence_with_candidate_projection(
+                    quality_evidence_payload
+                ),
                 job_payload=job_payload,
                 run_payload=run_payload,
                 request_payload=request_payload,
@@ -6049,6 +6058,12 @@ def assemble_canary_evidence(
         else None
     )
     if serious_bundle:
+        # Reuse the frozen selected caller/loaded input surfaces. Locally generated
+        # reports and prior continuity records remain observation-plane data.
+        continuity_source_quality_evidence = deepcopy(selected_source_quality_evidence)
+        continuity_observation_replay_manifest = (
+            deepcopy(replay_manifest) if isinstance(replay_manifest, dict) else None
+        )
         replay_manifest_ref_rejected = _quality_ref_key_is_rejected(
             QUALITY_REPORT_RUNTIME_REFS["replay_manifest"],
             rejected_quality_ref_keys,
@@ -6071,34 +6086,17 @@ def assemble_canary_evidence(
             "approval_state": quality_scorecard.get("approval_state"),
             "orchestration_continuity_ref": NL_REPLAY_ORCHESTRATION_FILE_REF,
         }
-        continuity_request_context = {
-            **dict(request_payload or {}),
-            "orchestration_continuity_ref": NL_REPLAY_ORCHESTRATION_FILE_REF,
-        }
+        continuity_request_context = deepcopy(selected_caller_source_surfaces["request_context"])
         quality_evidence_payload[NL_REPLAY_ORCHESTRATION_RECORD_KEY] = (
             build_nl_replay_orchestration_continuity(
-                request_context=continuity_request_context,
-                workflow_state=(
-                    scorecard_run_payload or scorecard_job_payload or run_payload or job_payload
-                ),
-                job_progress=bundle_job_payload or scorecard_job_payload or job_payload,
-                replay_manifest=admit_quality_evidence_payload(quality_evidence_payload).get(
-                    "replay_manifest"
-                )
-                if isinstance(
-                    admit_quality_evidence_payload(quality_evidence_payload).get(
-                        "replay_manifest"
-                    ),
-                    dict,
-                )
-                else None,
-                bundle_payload=continuity_bundle_payload,
-                quality_evidence=admit_quality_evidence_payload(quality_evidence_payload),
+                request_context=deepcopy(continuity_request_context),
+                workflow_state=deepcopy(selected_caller_source_surfaces["workflow_state"]),
+                job_progress=deepcopy(selected_caller_source_surfaces["job_progress"]),
+                replay_manifest=deepcopy(continuity_observation_replay_manifest),
+                bundle_payload=deepcopy(continuity_bundle_payload),
+                quality_evidence=deepcopy(continuity_source_quality_evidence),
                 inspection_report=continuity_inspection_payload,
                 readiness_payload=continuity_readiness_payload,
-                export_payload=quality_evidence_payload.get("public_export_bundle")
-                if isinstance(quality_evidence_payload.get("public_export_bundle"), dict)
-                else None,
             )
         )
         if not replay_manifest_ref_rejected:
@@ -6112,30 +6110,31 @@ def assemble_canary_evidence(
                 baseline_manifest=quality_evidence_payload["replay_manifest"],
                 replay_manifest=dict(quality_evidence_payload["replay_manifest"]),
             )
-        quality_evidence_payload["public_export_bundle"] = (
-            _public_export_bundle_from_quality_evidence(
-                run_id=run_id,
-                quality_evidence_payload=admit_quality_evidence_payload(
-                    quality_evidence_payload
-                ),
-                quality_scorecard=quality_scorecard,
-            )
+        current_replay_observation = quality_evidence_payload.get("replay_manifest")
+        continuity_observation_replay_manifest = (
+            deepcopy(current_replay_observation)
+            if isinstance(current_replay_observation, dict)
+            else continuity_observation_replay_manifest
+        )
+        build_generated_public_export_bundle(
+            run_id=run_id,
+            quality_evidence_payload=admit_quality_evidence_payload(quality_evidence_payload),
+            quality_scorecard=quality_scorecard,
+        )
+        continuity_bundle_payload["previous_continuity_observation"] = deepcopy(
+            quality_evidence_payload[NL_REPLAY_ORCHESTRATION_RECORD_KEY]
         )
         quality_evidence_payload[NL_REPLAY_ORCHESTRATION_RECORD_KEY] = (
             build_nl_replay_orchestration_continuity(
-                request_context=continuity_request_context,
-                workflow_state=(
-                    scorecard_run_payload or scorecard_job_payload or run_payload or job_payload
-                ),
-                job_progress=bundle_job_payload or scorecard_job_payload or job_payload,
-                replay_manifest=admit_quality_evidence_payload(quality_evidence_payload).get(
-                    "replay_manifest"
-                ),
-                bundle_payload=continuity_bundle_payload,
-                quality_evidence=admit_quality_evidence_payload(quality_evidence_payload),
+                request_context=deepcopy(continuity_request_context),
+                workflow_state=deepcopy(selected_caller_source_surfaces["workflow_state"]),
+                job_progress=deepcopy(selected_caller_source_surfaces["job_progress"]),
+                replay_manifest=deepcopy(continuity_observation_replay_manifest),
+                bundle_payload=deepcopy(continuity_bundle_payload),
+                quality_evidence=deepcopy(continuity_source_quality_evidence),
                 inspection_report=continuity_inspection_payload,
                 readiness_payload=continuity_readiness_payload,
-                export_payload=quality_evidence_payload.get("public_export_bundle"),
+                export_payload=generated_candidate_projection_surfaces.get("public_export_bundle"),
             )
         )
         if not replay_manifest_ref_rejected:
@@ -6149,20 +6148,16 @@ def assemble_canary_evidence(
                 baseline_manifest=quality_evidence_payload["replay_manifest"],
                 replay_manifest=dict(quality_evidence_payload["replay_manifest"]),
             )
-        quality_evidence_payload["public_export_bundle"] = (
-            _public_export_bundle_from_quality_evidence(
-                run_id=run_id,
-                quality_evidence_payload=admit_quality_evidence_payload(
-                    quality_evidence_payload
-                ),
-                quality_scorecard=quality_scorecard,
-            )
+        build_generated_public_export_bundle(
+            run_id=run_id,
+            quality_evidence_payload=admit_quality_evidence_payload(quality_evidence_payload),
+            quality_scorecard=quality_scorecard,
         )
         quality_evidence_payload["evidence_spine_handoff_ledger"] = (
             build_canary_evidence_handoff_ledger(
                 bundle_ref=str(bundle_dir),
-                quality_evidence_payload=admit_quality_evidence_payload(
-                    quality_evidence_payload
+                quality_evidence_payload=audit_quality_evidence_with_candidate_projection(
+                    admit_quality_evidence_payload(quality_evidence_payload)
                 ),
                 job_payload=bundle_job_payload or job_payload,
                 run_payload=scorecard_run_payload,
@@ -6267,7 +6262,7 @@ def assemble_canary_evidence(
                 ),
                 "public_export_bundle": (
                     PUBLIC_EXPORT_BUNDLE_FILE
-                    if "public_export_bundle" in quality_evidence_payload
+                    if "public_export_bundle" in generated_candidate_projection_surfaces
                     else None
                 ),
                 NL_REPLAY_ORCHESTRATION_RECORD_KEY: (
@@ -6339,10 +6334,13 @@ def assemble_canary_evidence(
             quality_dir / "diagnostic_slo_report.json",
             quality_evidence_payload["diagnostic_slo_report"],
         )
-    if "public_export_bundle" in quality_evidence_payload:
+    generated_public_export_bundle = generated_candidate_projection_surfaces.get(
+        "public_export_bundle"
+    )
+    if generated_public_export_bundle is not None:
         _write_json(
             bundle_dir / PUBLIC_EXPORT_BUNDLE_FILE,
-            quality_evidence_payload["public_export_bundle"],
+            generated_public_export_bundle,
         )
     if NL_REPLAY_ORCHESTRATION_RECORD_KEY in quality_evidence_payload:
         _write_json(
@@ -6410,9 +6408,11 @@ def assemble_canary_evidence(
     )
     if quality_ref_resolution_rejections:
         existing_rejections = quality_ref_resolution_evidence.get("rejections", [])
-        merged_rejections = [
-            dict(item) for item in existing_rejections if isinstance(item, dict)
-        ] if isinstance(existing_rejections, list) else []
+        merged_rejections = (
+            [dict(item) for item in existing_rejections if isinstance(item, dict)]
+            if isinstance(existing_rejections, list)
+            else []
+        )
         seen_rejections = {
             tuple(
                 item.get(name)
@@ -6467,9 +6467,7 @@ def assemble_canary_evidence(
         quality_ref_resolution_evidence["sources"] = {
             key: source
             for key, source in resolution_sources.items()
-            if isinstance(key, str)
-            and key in admitted_resolution_refs
-            and isinstance(source, str)
+            if isinstance(key, str) and key in admitted_resolution_refs and isinstance(source, str)
         }
     resolution_matches = quality_ref_resolution_evidence.get("matches")
     if isinstance(resolution_matches, list):

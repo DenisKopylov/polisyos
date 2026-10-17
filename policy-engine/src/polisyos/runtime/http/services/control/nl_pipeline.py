@@ -2429,43 +2429,53 @@ class NaturalLanguageRunMixin:
         diagnostic_execution_scope = None
         diagnostic_worker_binding_established = False
         diagnostic_binding_limitation_code = "control_job_execution_scope_not_established"
+        runtime_quality_owner_binding: dict[str, object] | None = None
         if control_job_id is not None:
             control_store = getattr(self, "_control_store", None)
-            read_created_event = getattr(control_store, "get_job_created_event_payload", None)
-            if callable(read_created_event):
+            read_current_admission = getattr(control_store, "current_execution_job_admission", None)
+            if callable(read_current_admission):
                 from polisyos.runtime.http.services.control_plane_store import (
+                    ControlJobExecutionAdmissionError,
                     ControlJobLeaseLostError,
-                    _control_job_execution_scope_from_event,
+                )
+                from polisyos.runtime.quality.phase_barriers import (
+                    _execution_owner_binding_from_admission,
                 )
 
-                diagnostic_execution_scope = _control_job_execution_scope_from_event(
-                    read_created_event(control_job_id)
-                )
-                if diagnostic_execution_scope.status == "established":
+                try:
+                    current_admission = read_current_admission()
+                except (ControlJobExecutionAdmissionError, ControlJobLeaseLostError):
                     diagnostic_binding_limitation_code = (
                         "control_job_execution_binding_not_established"
                     )
-                current_job_reader = getattr(control_store, "current_execution_job_record", None)
-                if callable(current_job_reader):
-                    try:
-                        current_job = current_job_reader()
-                    except ControlJobLeaseLostError:
+                else:
+                    current_scope = current_admission.scope
+                    diagnostic_execution_scope = current_scope
+                    expected_scope: dict[str, object] = {}
+                    for scope_key in ("tenant_id", "cell_id"):
+                        supplied = context.get(scope_key)
+                        if isinstance(supplied, str) and supplied.strip():
+                            expected_scope[scope_key] = supplied.strip()
+                    runtime_quality_owner_binding = _execution_owner_binding_from_admission(
+                        current_admission,
+                        expected_job_id=control_job_id,
+                        expected_run_id=run_id,
+                        expected_effective_profile=execution_profile,
+                        expected_scope=expected_scope,
+                    )
+                    if runtime_quality_owner_binding is not None:
+                        diagnostic_worker_binding_established = True
                         diagnostic_binding_limitation_code = (
                             "control_job_execution_binding_not_established"
                         )
-                    else:
-                        diagnostic_worker_binding_established = (
-                            getattr(current_job, "job_id", None) == control_job_id
-                            and getattr(current_job, "run_id", None) == run_id
+                        execution_profile = str(
+                            runtime_quality_owner_binding["effective_execution_profile"]
                         )
-                        if diagnostic_execution_scope.status != "established":
-                            diagnostic_binding_limitation_code = (
-                                "control_job_execution_scope_not_established"
-                            )
-                        elif not diagnostic_worker_binding_established:
-                            diagnostic_binding_limitation_code = (
-                                "control_job_execution_binding_not_established"
-                            )
+        if runtime_quality_owner_binding is None:
+            raise NaturalLanguagePipelineRefusalError(
+                "control_job_execution_scope_not_established",
+                "Runtime quality authority requires the live lease and creation-event scope.",
+            )
         metric_taxonomy = build_production_metric_taxonomy()
         metric_taxonomy_evidence = metric_taxonomy.evidence()
         metric_taxonomy_diagnostics: list[dict[str, Any]] = []
@@ -2636,6 +2646,21 @@ class NaturalLanguageRunMixin:
                         return payload_ref
                 return _clean_runtime_text(runtime_quality_refs.get("semantic_binding_ledger_ref"))
 
+            def _runtime_quality_run_intent_binding() -> dict[str, Any]:
+                owner = runtime_quality_owner_binding
+                if owner is None:
+                    raise NaturalLanguagePipelineRefusalError(
+                        "control_job_execution_scope_not_established"
+                    )
+                return {
+                    "run_id": owner["run_id"],
+                    "tenant_id": owner["tenant_id"],
+                    "requested_profile": owner["requested_execution_profile"],
+                    "policy_intent_ref": runtime_quality_refs.get("policy_intent_envelope_ref"),
+                    "time_context_ref": None,
+                    "same_input_closure_ref": None,
+                }
+
             def _emit_job_progress(
                 *,
                 phase: str,
@@ -2676,6 +2701,8 @@ class NaturalLanguageRunMixin:
                     snapshot["selected_model_variant_id"] = selected_variant_id
                 if provider_preflight_payload:
                     snapshot["provider_preflight"] = _progress_json(provider_preflight_payload)
+                snapshot["execution_owner_binding"] = dict(runtime_quality_owner_binding)
+                snapshot["run_intent_binding"] = _runtime_quality_run_intent_binding()
                 if runtime_quality_refs:
                     snapshot["runtime_quality_refs"] = _progress_json(runtime_quality_refs)
                     snapshot.update(runtime_quality_refs)
@@ -4041,22 +4068,26 @@ class NaturalLanguageRunMixin:
                 )
                 return str(ref.artifact_id)
 
-            def _runtime_quality_identity_value(key: str, default: str) -> str:
-                value = context.get(key)
-                if isinstance(value, str) and value.strip():
-                    return value.strip()
-                nested = context.get("runtime_identity")
-                if isinstance(nested, Mapping):
-                    nested_value = nested.get(key)
-                    if isinstance(nested_value, str) and nested_value.strip():
-                        return nested_value.strip()
-                return default
+            def _runtime_quality_identity_value(key: str) -> str:
+                owner = runtime_quality_owner_binding
+                if owner is None:
+                    raise NaturalLanguagePipelineRefusalError(
+                        "control_job_execution_scope_not_established",
+                        "Runtime quality authority requires a verified current owner binding.",
+                    )
+                value = owner.get(key)
+                if not isinstance(value, str) or not value.strip():
+                    raise NaturalLanguagePipelineRefusalError(
+                        "control_job_execution_scope_not_established",
+                        f"Admitted runtime scope is missing {key}.",
+                    )
+                return value
 
             def _runtime_quality_job_id() -> str:
-                return str(control_job_id or "no-control-job")
+                return _runtime_quality_identity_value("job_id")
 
             def _runtime_quality_profile() -> str:
-                return str(execution_profile or "research")
+                return _runtime_quality_identity_value("effective_execution_profile")
 
             def _runtime_quality_attestations() -> list[dict[str, Any]]:
                 material_refs = {
@@ -4070,10 +4101,7 @@ class NaturalLanguageRunMixin:
                     or f"run:{run_id}:diagnostic_events",
                     "payload_bytes": "runtime.cas.payload_bytes",
                     "schema_identity": "runtime.cas.schema_identity",
-                    "tenant_identity": _runtime_quality_identity_value(
-                        "tenant_id",
-                        "tenant-default",
-                    ),
+                    "tenant_identity": _runtime_quality_identity_value("tenant_id"),
                     "prompt_ref": dict(runtime_quality_refs).get("prompt_tool_ledger_ref")
                     or f"run:{run_id}:prompt",
                     "model_policy": dict(runtime_quality_refs).get(
@@ -4229,112 +4257,37 @@ class NaturalLanguageRunMixin:
                 *,
                 input_refs: tuple[str, ...],
             ) -> dict[str, Any]:
-                def _context_ref(label: str, value: object) -> str | None:
-                    if value is None:
-                        return None
-                    if isinstance(value, str):
-                        text = value.strip()
-                        if not text:
-                            return None
-                        if text.startswith("sha256:"):
-                            return text
-                        return f"{label}:{_runtime_quality_payload_sha256({'value': text})}"
-                    if isinstance(value, Mapping) and not value:
-                        return None
-                    if isinstance(value, list) and not value:
-                        return None
-                    if isinstance(value, Mapping):
-                        return f"{label}:{_runtime_quality_payload_sha256(value)}"
-                    return f"{label}:{_runtime_quality_payload_sha256({'value': value})}"
+                """Carry actual source identities and refuse closure without typed policy time."""
 
-                target_context = context.get("target_context")
-                target_as_of = (
-                    target_context.get("as_of") if isinstance(target_context, Mapping) else None
+                owner = runtime_quality_owner_binding
+                if owner is None:
+                    raise NaturalLanguagePipelineRefusalError(
+                        "control_job_execution_scope_not_established"
+                    )
+                policy_intent_ref = _clean_runtime_text(
+                    runtime_quality_refs.get("policy_intent_envelope_ref")
                 )
-                evidence_context = context.get("production_data_evidence_context")
-                manifest_ref = (
-                    evidence_context.get("manifest_sha256")
-                    if isinstance(evidence_context, Mapping)
-                    else None
+                production_manifest_ref = _clean_runtime_text(
+                    runtime_quality_refs.get("production_data_quality_report_ref")
                 )
-                policy_intent_ref = _context_ref(
-                    "policy-intent",
-                    context.get("policy_intent_ref")
-                    or context.get("quality_scenario_id")
-                    or {
-                        "request": nl_request,
-                        "domain_hint": domain_hint,
-                        "query_outcome": context.get("query_outcome"),
-                        "query_treatment": context.get("query_treatment"),
-                    },
-                )
-                time_context_ref = _context_ref(
-                    "time-context",
-                    context.get("time_context_ref")
-                    or context.get("as_of")
-                    or target_as_of
-                    or context.get("time_context"),
-                )
-                production_data_manifest_ref = _context_ref(
-                    "production-data-manifest",
-                    context.get("production_data_manifest_ref")
-                    or manifest_ref
-                    or context.get("production_data_root"),
-                )
-                legal_snapshot_ref = _context_ref(
-                    "legal-snapshot",
-                    context.get("legal_snapshot_ref")
-                    or context.get("lex_candidate_norms")
-                    or context.get("target_context"),
-                )
-                method_plan_ref = _context_ref(
-                    "method-plan",
-                    context.get("method_plan_ref")
-                    or execution_plan_ref
-                    or context.get("expected_evidence_contract"),
-                )
-                provider_mode_ref = (
-                    "provider-mode:simulated"
-                    if os.getenv("POLISYOS_LLM_SIMULATION_MODE")
-                    else "provider-mode:runtime"
+                legal_snapshot_ref = _clean_runtime_text(
+                    runtime_quality_refs.get("normative_applicability_report_ref")
                 )
                 effective_mode_ref = f"runtime-mode:{_runtime_quality_profile()}"
-                closure_seed = {
-                    "run_id": run_id,
-                    "job_id": _runtime_quality_job_id(),
-                    "tenant_id": _runtime_quality_identity_value(
-                        "tenant_id",
-                        "tenant-default",
-                    ),
-                    "cell_id": _runtime_quality_identity_value("cell_id", "cell-default"),
-                    "execution_profile": _runtime_quality_profile(),
-                    "policy_intent_ref": policy_intent_ref,
-                    "time_context_ref": time_context_ref,
-                    "production_data_manifest_ref": production_data_manifest_ref,
-                    "legal_snapshot_ref": legal_snapshot_ref,
-                    "method_plan_ref": method_plan_ref,
-                    "provider_mode_ref": provider_mode_ref,
-                    "effective_mode_ref": effective_mode_ref,
-                }
                 return {
-                    "closure_id": f"{run_id}:runtime_quality",
-                    "status": "closed",
+                    "closure_id": f"{owner['run_id']}:runtime_quality",
+                    "status": "not_closed",
                     "policy_intent_ref": policy_intent_ref,
-                    "run_id": run_id,
-                    "job_id": _runtime_quality_job_id(),
-                    "tenant_id": _runtime_quality_identity_value(
-                        "tenant_id",
-                        "tenant-default",
-                    ),
-                    "cell_id": _runtime_quality_identity_value("cell_id", "cell-default"),
-                    "time_context_ref": time_context_ref,
-                    "production_data_manifest_ref": production_data_manifest_ref,
+                    "run_id": owner["run_id"],
+                    "job_id": owner["job_id"],
+                    "tenant_id": owner["tenant_id"],
+                    "cell_id": owner["cell_id"],
+                    "time_context_ref": None,
+                    "production_data_manifest_ref": production_manifest_ref,
                     "legal_snapshot_ref": legal_snapshot_ref,
-                    "method_plan_ref": method_plan_ref,
-                    "provider_mode_ref": provider_mode_ref,
                     "effective_mode_ref": effective_mode_ref,
                     "evidence_input_refs": input_refs,
-                    "closure_sha256": _runtime_quality_payload_sha256(closure_seed),
+                    "closure_sha256": None,
                 }
 
             def _record_runtime_quality_diagnostic_event(
@@ -4414,29 +4367,45 @@ class NaturalLanguageRunMixin:
                 same_input_closure = _runtime_quality_same_input_closure(
                     input_refs=input_ref_values,
                 )
+                closure_is_closed = (
+                    same_input_closure.get("status") == "closed"
+                    and bool(same_input_closure.get("closure_sha256"))
+                    and bool(same_input_closure.get("policy_intent_ref"))
+                    and bool(same_input_closure.get("time_context_ref"))
+                )
                 authority_identity_fields: dict[str, Any] = {
                     "evidence_id": f"runtime_quality_ref#{ref_key}",
                     "evidence_class": "authority_bearing",
-                    "authority_role": "producer_authority",
-                    "provenance_kind": "runtime_emitted",
+                    "authority_role": "producer_authority"
+                    if closure_is_closed
+                    else "runtime_blocker",
+                    "provenance_kind": "runtime_emitted"
+                    if closure_is_closed
+                    else "runtime_blocker",
                     "owner": "team-runtime",
                     "reader_contract": f"runtime_quality.{report_key}.v1",
                     "reader_contract_version": "1.0",
-                    "tenant_id": _runtime_quality_identity_value("tenant_id", "tenant-default"),
-                    "cell_id": _runtime_quality_identity_value("cell_id", "cell-default"),
-                    "run_id": run_id,
+                    "tenant_id": _runtime_quality_identity_value("tenant_id"),
+                    "cell_id": _runtime_quality_identity_value("cell_id"),
+                    "run_id": _runtime_quality_identity_value("run_id"),
                     "job_id": _runtime_quality_job_id(),
                     "trace_id": _runtime_quality_trace_id(),
                     "span_id": f"{report_key}:cas_write",
                     "parent_span_id": _runtime_quality_parent_span_id(),
-                    "requested_execution_profile": _runtime_quality_profile(),
+                    "requested_execution_profile": _runtime_quality_identity_value(
+                        "requested_execution_profile"
+                    ),
                     "effective_execution_profile": _runtime_quality_profile(),
                     "phase": phase,
                     "same_input_closure": same_input_closure,
                     "input_refs": list(input_ref_values),
                     "effective_mode_ref": f"runtime-mode:{_runtime_quality_profile()}",
                     "validation_status": _runtime_quality_validation_status(report_payload),
-                    "blocking_status": _runtime_quality_blocking_status(report_payload),
+                    "blocking_status": (
+                        _runtime_quality_blocking_status(report_payload)
+                        if closure_is_closed
+                        else "blocking"
+                    ),
                     "governance": _runtime_quality_governance_metadata(),
                     "semantic_binding_ref": _runtime_quality_semantic_binding_ref(
                         report_payload=report_payload,
@@ -4703,7 +4672,7 @@ class NaturalLanguageRunMixin:
                     intent_id=f"intent-{run_id}",
                     run_id=run_id,
                     job_id=_runtime_quality_job_id(),
-                    tenant_id=_runtime_quality_identity_value("tenant_id", "tenant-default"),
+                    tenant_id=_runtime_quality_identity_value("tenant_id"),
                     policy_problem=_intent_context_text(
                         "policy_problem",
                         "problem",
@@ -4859,33 +4828,38 @@ class NaturalLanguageRunMixin:
                     evidence_payload.get("runtime_event_manifest_profile_sha256")
                     or envelope_payload.get("runtime_event_manifest_profile_sha256")
                 )
-                same_input_closure_ref = _clean_runtime_text(
-                    closure_payload.get("closure_sha256")
-                    or evidence_payload.get("authority_envelope_ref")
+                closure_ref = _clean_runtime_text(envelope_payload.get("same_input_closure_ref"))
+                closure_is_closed = (
+                    closure_payload.get("status") == "closed"
+                    and bool(closure_payload.get("closure_sha256"))
+                    and bool(closure_payload.get("policy_intent_ref"))
+                    and bool(closure_payload.get("time_context_ref"))
+                    and bool(closure_ref)
                 )
-                effective_mode_ref = _clean_runtime_text(
-                    envelope_payload.get("effective_mode_ref")
-                    or closure_payload.get("effective_mode_ref")
-                    or f"runtime-mode:{_runtime_quality_profile()}"
-                )
-                schema_compatibility_ref = _clean_runtime_text(
-                    envelope_payload.get("schema_compatibility_ref")
-                    or evidence_payload.get("payload_sha256")
-                    or evidence_payload.get("authority_envelope_ref")
-                )
-                authority = {
-                    "authority_role": "producer_authority",
-                    "provenance_kind": "runtime_emitted",
-                    "cas_ref": ref_value or "runtime-quality:missing-cas-ref",
-                    "runtime_event_ref": runtime_event_ref
-                    or "runtime-quality:missing-runtime-event-ref",
-                    "same_input_closure_ref": same_input_closure_ref
-                    or "runtime-quality:missing-same-input-closure-ref",
-                    "effective_mode_ref": effective_mode_ref
-                    or f"runtime-mode:{_runtime_quality_profile()}",
-                    "schema_compatibility_ref": schema_compatibility_ref
-                    or "runtime-quality:missing-schema-compatibility-ref",
+                authority: dict[str, str] = {
+                    "authority_role": (
+                        "producer_authority" if closure_is_closed else "runtime_blocker"
+                    ),
+                    "provenance_kind": "runtime_emitted"
+                    if closure_is_closed
+                    else "runtime_blocker",
                 }
+                for key, value in (
+                    ("cas_ref", ref_value),
+                    ("runtime_event_ref", runtime_event_ref),
+                    (
+                        "effective_mode_ref",
+                        _clean_runtime_text(envelope_payload.get("effective_mode_ref")),
+                    ),
+                    (
+                        "schema_compatibility_ref",
+                        _clean_runtime_text(envelope_payload.get("schema_compatibility_ref")),
+                    ),
+                ):
+                    if value is not None:
+                        authority[key] = value
+                if closure_is_closed and closure_ref is not None:
+                    authority["same_input_closure_ref"] = closure_ref
                 if runtime_event_profile is not None:
                     authority["runtime_event_manifest_profile_sha256"] = runtime_event_profile
                 return authority
@@ -5016,7 +4990,7 @@ class NaturalLanguageRunMixin:
                 concept_payload = build_policy_design_case_concept_spine(
                     run_id=run_id,
                     job_id=_runtime_quality_job_id(),
-                    tenant_id=_runtime_quality_identity_value("tenant_id", "tenant-default"),
+                    tenant_id=_runtime_quality_identity_value("tenant_id"),
                     policy_intent_ref=intent_ref,
                     raw_user_terms=_policy_design_spine_terms(intent_payload),
                     generated_at=datetime.now(UTC),
@@ -5055,7 +5029,7 @@ class NaturalLanguageRunMixin:
                     jurisdiction_spine_ref=jurisdiction_seed_ref,
                     run_id=run_id,
                     job_id=_runtime_quality_job_id(),
-                    tenant_id=_runtime_quality_identity_value("tenant_id", "tenant-default"),
+                    tenant_id=_runtime_quality_identity_value("tenant_id"),
                     policy_intent_ref=intent_ref,
                     lex_normative_report=_policy_design_jurisdiction_seed_report(intent_payload),
                     runtime_authority={
@@ -5148,7 +5122,7 @@ class NaturalLanguageRunMixin:
                     case_id=f"pdc-{run_id}",
                     run_id=run_id,
                     job_id=_runtime_quality_job_id(),
-                    tenant_id=_runtime_quality_identity_value("tenant_id", "tenant-default"),
+                    tenant_id=_runtime_quality_identity_value("tenant_id"),
                     effective_execution_profile=_policy_intent_authority_level(
                         _runtime_quality_profile()
                     ),

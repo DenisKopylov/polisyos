@@ -44,14 +44,18 @@ follow the [measurement register decision](../../../docs/superpowers/specs/2026-
 
 ## Public API
 
-- Supported package entrypoints: `polisyos.common`, `polisyos.common.canonical`,
-  `polisyos.common.canonical_profile`, and `polisyos.common.hashing`.
+- Supported package entrypoints: `polisyos.common`, `polisyos.common.text`,
+  `polisyos.common.canonical`, `polisyos.common.canonical_profile`, and
+  `polisyos.common.hashing`.
+- `polisyos.common.text` provides pure shared whitespace normalization through
+  `collapse_ws`; existing Lex consumers retain that same function object through
+  the lazy root facade.
 - The canonical modules are the shared mechanics and strict selected-profile
   readers. They do not attest producer identity or authority; Core and IR keep
   their own profile-specific tags, exceptions, and admission rules.
 - Lazy facade exports from `src/polisyos/common/__init__.py` remain:
   `async_tools`, `config`, `jax_env`, `logger`, `migrations`,
-  `serialization`, `timestamps`.
+  `serialization`, `text`, `timestamps`.
 
 - Private environment parser functions remain in `config/__init__.py`; do not treat them as
   stable public surface without updating the facade and

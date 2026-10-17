@@ -7,16 +7,17 @@ from typing import Any
 
 from pydantic import Field
 
-from polisyos.ir.governance.policy_spec import (
+from polisyos.ir import (
     CompiledLexIntervention as _CompiledLexIntervention,
 )
-from polisyos.ir.governance.policy_spec import (
+from polisyos.ir import (
+    IdentificationMode,
+    StrategicResponseChannel,
     TemporalInterventionSequence,
     TemporalInterventionStep,
 )
 from polisyos.ir.kernel.base import ID_PATTERN, KernelModel
 from polisyos.ir.kernel.values import ParamValue
-from polisyos.ir.observation.contracts import IdentificationMode, StrategicResponseChannel
 
 
 class TemporalInterventionStepInput(KernelModel):

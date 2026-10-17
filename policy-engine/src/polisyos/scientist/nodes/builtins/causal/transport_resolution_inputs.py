@@ -26,27 +26,21 @@ from polisyos.foundry.methods.causal import (
     build_causal_capability_contract,
 )
 from polisyos.ir import (
+    CausalCapabilityContract,
     CausalCapabilityContractRef,
+    CausalGraphModel,
     CausalGraphModelRef,
     CausalModelEnsembleRef,
-)
-from polisyos.ir.analytics import CausalEffectReport
-from polisyos.ir.analytics.causal_capabilities import (
-    CausalCapabilityContract,
-    load_causal_capability_contract,
-    persist_causal_capability_contract,
-)
-from polisyos.ir.analytics.causal_ensemble import load_causal_model_ensemble
-from polisyos.ir.analytics.causal_graph import (
-    CausalGraphModel,
+    ContextProfile,
     PAGIdentificationPolicy,
-    load_causal_graph_model,
-)
-from polisyos.ir.analytics.context import ContextProfile
-from polisyos.ir.analytics.privacy_transportability import (
     TransportPrivacyContext,
     coerce_transport_privacy_context,
+    load_causal_capability_contract,
+    load_causal_graph_model,
+    load_causal_model_ensemble,
+    persist_causal_capability_contract,
 )
+from polisyos.ir.analytics import CausalEffectReport
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_CAPABILITY_CONTRACT_REF,
     ARTIFACT_CAUSAL_ENSEMBLE_REF,

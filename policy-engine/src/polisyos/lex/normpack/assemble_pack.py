@@ -13,8 +13,8 @@ from dataclasses import asdict
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
-from polisyos.common.text import collapse_ws
-from polisyos.common.timestamps import parse_iso_date
+from polisyos.common import text as _common_text_facade
+from polisyos.common import timestamps as _common_timestamps_facade
 from polisyos.core import errors as core_errors
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
@@ -100,6 +100,12 @@ if TYPE_CHECKING:
 
     from polisyos.fabric.io.db import SimulationDB
     from polisyos.ir.world.claim import Claim
+
+collapse_ws = _common_text_facade.collapse_ws
+del _common_text_facade
+parse_iso_date = _common_timestamps_facade.parse_iso_date
+del _common_timestamps_facade
+
 
 _ID_RE = re.compile(ID_PATTERN)
 

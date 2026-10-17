@@ -45,7 +45,7 @@ from .models import (
 )
 
 if TYPE_CHECKING:
-    from polisyos.core.artifacts.protocol import CoreJSONArtifactStore
+    from polisyos.core.artifacts import CoreJSONArtifactStore
 
 claim_promotion_policy = academic.claim_promotion_policy
 metric_is_improved = academic.metric_is_improved

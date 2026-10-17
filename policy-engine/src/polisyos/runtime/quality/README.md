@@ -1,6 +1,6 @@
 # Runtime Quality
 
-- Last updated: 2026-10-16
+- Last updated: 2026-10-17
 
 `polisyos.runtime.quality` owns Policy Design Case runtime-quality artifacts:
 the canonical quality-report role/file/ref map lives in `report_registry.py` so refs, scorecards, and canary assembly share one intake set.
@@ -11,6 +11,20 @@ This package may orchestrate producer-backed signals, but it does not make LLM
 output, corpus stubs, simulations, or historical priors into current evidence
 authority by itself. Those paths remain candidates, caps, context, or replay
 inputs until a producer-owned capability admits them.
+
+Phase-barrier records remain candidate diagnostics until each required record is
+produced and bound to the current run. The live NL control-job path persists an
+owner binding only after reconciling the admitted creation event and active
+lease. However, the scorecard builder accepts a plain mapping and cannot verify
+that the mapping came from a fresh terminal job read; its owner-scope and
+dependent intent gates therefore remain `phase_barrier_owner_scope_not_established`
+even when the normal route returns a matching persisted binding. Matching
+payload fields or a self-reported producer label cannot supply that missing
+source provenance. This bridge also does not produce a typed policy-time
+reference or the required phase-barrier ledger. Its same-input closure remains
+`not_closed`, the `RunIntentBinding` remains incomplete, and serious readiness
+stays blocked. The missing time and barrier producers/artifacts remain
+`producer_missing` and `artifact_missing`; standalone consumers fail closed.
 
 ## Runtime projection input boundaries
 
@@ -999,3 +1013,40 @@ consistency only; it establishes neither legal authority nor law truth and
 introduces no legal rule, permission criterion, or public schema field.
 
 For source-projection method runs, N8 stores the actual `ir.bounds_bundle.v1` output under the selected manifest profile and binds it to the owner profile, assignment, exact panel bytes, and runner request. The producer and fresh consumer preserve the engine's `ASSUMPTION_ONLY` tier, assumptions, and certificate references without promoting them; the current requested `ATE` / bundle `ate` relation is explicitly `bounds_estimand_relation_not_established` in the candidate set. The resulting `ValueOuterSet` remains `declared` and `search_only`, and the port still blocks it as `candidate_fixture_value_run_not_authority`; this does not establish causal authority, calibration, currentness, or promotion.
+
+## Canary-generated projection audit surfaces
+
+`build_quality_scorecard` keeps its existing public signature and reads selected caller evidence
+through its ordinary typed/ref-validation path. Canary-generated public exports are persisted in
+the audit bundle and are not passed back into scorecard evidence. The diagnostic SLO reader receives
+an ephemeral audit view to measure emitted redaction coverage, and the evidence-spine ledger records
+the projection file handoff; neither consumer returns the projection to ref admission.
+Caller-supplied projection-shaped content remains in ordinary quality-evidence intake and is
+validated there; `projection_only` labels do not bypass admission. The public bundle path remains
+`quality_evidence/public_export_bundle.json`. The replay-continuity bridge keeps
+its `export` endpoint in per-surface coverage, but computes required and summarized refs only
+from selected caller/loaded input surfaces: request context, workflow state, job progress, and
+quality evidence. These are `consumer_asserted` diagnostic candidates, not admitted authority.
+The canary freezes those inputs before creating any local scorecard, replay report, scenario,
+handoff, SLO, export, or continuity output. Replay manifest, bundle, inspection, readiness, and
+export remain observation surfaces: their refs stay visible in `surface_coverage` and unbound refs
+are reported, but they cannot fill missing source roles. An observation-only required ref therefore
+changes the diagnostic continuity result to `fail`; that status-semantic change remains for G to
+adjudicate before any public compatibility claim. The existing public-export schema and
+projection-only objects are refused on source surfaces; their schema or self-label is never
+producer provenance. An embedded continuity-shaped record contributes only its fixed artifact ref
+on source surfaces; on observation surfaces its summary refs stay observation-only. Structural and
+fingerprint checks bind content but do not establish who emitted it. Malformed embedded records
+and projection-only objects on source surfaces produce typed failures. The emitted public export
+remains available as an audit endpoint and is not fed back into scorecard ref admission. An
+arbitrary markerless ref map outside a known continuity slot remains a bounded diagnostic residual;
+its origin is `consumer_asserted` or `not_established` and it cannot establish authority.
+
+## Nested lineage quality refs
+
+Registered role hints on lineage nodes identify the candidate ref role; the node
+metadata remains a container and is searched for an explicit registered ref
+key. Nested values continue through the existing validation and conflict
+checks. A role hint alone does not create a ref, and malformed, null, or
+conflicting explicit values remain rejected. This intake change does not verify
+artifact content or grant authority.

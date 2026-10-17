@@ -18,12 +18,11 @@ from polisyos.core.contracts import (
     DecisionTriggerType,
     FreshnessMetadata,
 )
-from polisyos.ir import CausalSensitivityResultRef, NormativeArbitrationResultRef
-from polisyos.ir.analytics.normative_arbitration import (
+from polisyos.ir import (
+    CausalSensitivityResultRef,
     NormativeArbitrationResult,
+    NormativeArbitrationResultRef,
     load_normative_arbitration_result,
-)
-from polisyos.ir.analytics.sensitivity import (
     load_sensitivity_result,
     persist_sensitivity_analysis_bundle,
     sensitivity_analysis_bundle_from_result,

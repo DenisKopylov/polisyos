@@ -13,10 +13,10 @@ from polisyos.core.contracts import (
     SimulationResult,
     UncertaintyEnvelopeRef,
 )
-from polisyos.ir import normalize_artifact_ref
-from polisyos.ir.analytics.uncertainty import (
+from polisyos.ir import (
     load_simulation_result_uncertainty_admission,
     load_uncertainty_envelope,
+    normalize_artifact_ref,
 )
 from polisyos.scientist.nodes.builtins.decide.decision_packet.validation import (
     _DECISION_PACKET_LOAD_ERRORS,

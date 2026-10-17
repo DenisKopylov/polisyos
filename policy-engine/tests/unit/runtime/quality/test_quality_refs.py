@@ -256,7 +256,6 @@ def test_runtime_quality_refs_keep_explicit_selected_profile_and_reject_malforme
     assert malformed.unrejected_refs() == {}
 
 
-
 def test_runtime_authority_getters_reject_a_conflicted_required_role() -> None:
     valid_ref = _sha("b")
     conflicting_ref = _sha("c")
@@ -281,8 +280,7 @@ def test_runtime_authority_getters_reject_a_conflicted_required_role() -> None:
     assert "normative_applicability_report_ref" in refs.missing_required()
     assert refs.to_evidence()["refs"]["normative_applicability_report_ref"] == valid_ref
     assert any(
-        item.key == "normative_applicability_report_ref"
-        and item.reason == "conflicting_values"
+        item.key == "normative_applicability_report_ref" and item.reason == "conflicting_values"
         for item in refs.rejections
     )
 
@@ -337,13 +335,12 @@ def test_quality_ref_resolution_rejects_each_malformed_supplied_value() -> None:
         ("bad\nref", "control_character"),
         ("x" * 257, "value_too_long"),
         ({"artifact_id": None}, "explicit_null"),
+        ({"artifact_id": None, "status": "pass"}, "explicit_null"),
         ({"unknown": "not-a-ref"}, "malformed_mapping"),
         (["not-a-ref-string"], "unsupported_type"),
     )
     for value, expected_reason in cases:
-        resolution = resolve_quality_refs(
-            artifacts={"security_assurance_report_ref": value}
-        )
+        resolution = resolve_quality_refs(artifacts={"security_assurance_report_ref": value})
         assert len(resolution.rejections) == 1
         assert resolution.rejections[0].reason == expected_reason
         assert resolution.to_evidence()["status"] == "invalid"
@@ -373,8 +370,7 @@ def test_unrejected_resolution_refs_exclude_only_the_rejected_role() -> None:
 )
 def test_present_null_generic_report_alias_blocks_valid_runtime_ref(alias: str) -> None:
     runtime_refs = {
-        key: _sha(format(index, "x"))
-        for index, key in enumerate(KNOWN_QUALITY_REF_KEYS, start=1)
+        key: _sha(format(index, "x")) for index, key in enumerate(KNOWN_QUALITY_REF_KEYS, start=1)
     }
     refs = RuntimeQualityAuthorityRefs.from_runtime_payloads(
         job_payload={"runtime_quality_refs": runtime_refs},
@@ -425,15 +421,32 @@ def test_typed_authority_envelope_nullable_cas_ref_is_schema_defined_absence() -
     assert envelope["cas_ref"] is None
 
     refs = RuntimeQualityAuthorityRefs.from_runtime_payloads(
+        job_payload={
+            "runtime_quality_refs": {
+                "normative_applicability_report_ref": envelope["artifact_ref"],
+            }
+        },
+        quality_evidence={
+            "normative_applicability_report_ref": {
+                "authority_envelope": envelope,
+            }
+        },
+    )
+
+    assert refs.get("normative_applicability_report_ref") == envelope["artifact_ref"]
+    assert refs.sources["normative_applicability_report_ref"] == "job.runtime_quality_refs"
+    assert refs.rejections == ()
+
+    inline_only = RuntimeQualityAuthorityRefs.from_runtime_payloads(
         quality_evidence={
             "normative_applicability_report_ref": {
                 "authority_envelope": envelope,
             }
         }
     )
-
-    assert refs.get("normative_applicability_report_ref") == envelope["artifact_ref"]
-    assert refs.rejections == ()
+    assert inline_only.get("normative_applicability_report_ref") is None
+    assert "normative_applicability_report_ref" in inline_only.missing_required()
+    assert inline_only.rejections == ()
 
 
 def test_incomplete_authority_envelope_cannot_use_typed_nullable_cas_exception() -> None:
@@ -496,11 +509,7 @@ def test_unmodeled_null_alias_in_valid_authority_envelope_is_rejected() -> None:
 )
 def test_present_null_nested_generic_value_blocks_wrapper_candidate(null_key: str) -> None:
     valid_ref = _sha("b")
-    valid_key = next(
-        key
-        for key in _ref_aliases_for("nested")
-        if key != null_key
-    )
+    valid_key = next(key for key in _ref_aliases_for("nested") if key != null_key)
     refs = RuntimeQualityAuthorityRefs.from_runtime_payloads(
         job_payload={
             "runtime_quality_refs": {"normative_applicability_report_ref": valid_ref},
@@ -518,8 +527,7 @@ def test_present_null_nested_generic_value_blocks_wrapper_candidate(null_key: st
     assert refs.get("normative_applicability_report_ref") is None
     assert "normative_applicability_report_ref" in refs.missing_required()
     assert any(
-        item.key == "normative_applicability_report_ref"
-        and item.reason == "explicit_null"
+        item.key == "normative_applicability_report_ref" and item.reason == "explicit_null"
         for item in refs.rejections
     )
 
@@ -568,8 +576,7 @@ def test_present_null_deep_generic_alias_blocks_quality_resolution_admission(
     assert resolution.unrejected_refs() == {}
     assert resolution.to_evidence()["status"] == "invalid"
     assert any(
-        item.key == "normative_applicability_report_ref"
-        and item.reason == "explicit_null"
+        item.key == "normative_applicability_report_ref" and item.reason == "explicit_null"
         for item in resolution.rejections
     )
 
@@ -614,9 +621,7 @@ def test_runtime_ref_rejections_filter_by_role_and_preserve_clean_selected_refs(
         }
     )
 
-    assert any(
-        rejection.key == "security_assurance_report_ref" for rejection in refs.rejections
-    )
+    assert any(rejection.key == "security_assurance_report_ref" for rejection in refs.rejections)
     assert refs.get("security_assurance_report_ref") is None
     assert refs.get("normative_applicability_report_ref") == normative_ref
     assert refs.get_selected_ref("normative_applicability_report_ref") is not None
@@ -788,9 +793,7 @@ def test_canonical_report_registry_rejects_every_role_across_supported_sources()
 
     intake = RuntimeQualityAuthorityRefs.from_sources(source_payloads=source_payloads)
     for source_name in source_names:
-        source_rejections = {
-            item.key for item in intake.rejections if item.source == source_name
-        }
+        source_rejections = {item.key for item in intake.rejections if item.source == source_name}
         assert set(ref_keys) <= source_rejections, source_name
     assert set(ref_keys) <= {item.key for item in intake.rejections}
 
@@ -830,17 +833,13 @@ def test_ambiguous_registry_role_hints_reject_every_role_and_multirole_text() ->
     registry_roles = set(body_ref_keys.values()) & set(ref_keys)
     report_roles = tuple(
         dict.fromkeys(
-            role
-            for role in QUALITY_REPORT_RUNTIME_REFS.values()
-            if role in registry_roles
+            role for role in QUALITY_REPORT_RUNTIME_REFS.values() if role in registry_roles
         )
     )
     assert len(report_roles) >= 2
     first_role, second_role = report_roles[:2]
     first_report = next(
-        report_key
-        for report_key, role in QUALITY_REPORT_RUNTIME_REFS.items()
-        if role == first_role
+        report_key for report_key, role in QUALITY_REPORT_RUNTIME_REFS.items() if role == first_role
     )
     clean_refs = {first_role: _sha("a"), second_role: _sha("b")}
     malformed = "bad\nambiguous-role-ref"
@@ -856,11 +855,7 @@ def test_ambiguous_registry_role_hints_reject_every_role_and_multirole_text() ->
             "ambiguous_mapping": {"artifact_candidate": conflicting_hints},
         }
     )
-    ambiguous_rows = {
-        row.key
-        for row in intake.rejections
-        if row.reason == "ambiguous_role_hints"
-    }
+    ambiguous_rows = {row.key for row in intake.rejections if row.reason == "ambiguous_role_hints"}
     assert {first_role, second_role} <= ambiguous_rows
     assert first_role not in intake.unrejected_refs()
     assert second_role not in intake.unrejected_refs()
@@ -874,15 +869,11 @@ def test_ambiguous_registry_role_hints_reject_every_role_and_multirole_text() ->
     text_intake = RuntimeQualityAuthorityRefs.from_sources(
         source_payloads={
             "clean_sibling": {"runtime_quality_refs": clean_refs},
-            "ambiguous_text": {
-                "artifact_candidate": {"kind": multi_role_text, "ref": malformed}
-            },
+            "ambiguous_text": {"artifact_candidate": {"kind": multi_role_text, "ref": malformed}},
         }
     )
     text_rejections = {
-        row.key
-        for row in text_intake.rejections
-        if row.reason == "ambiguous_role_hints"
+        row.key for row in text_intake.rejections if row.reason == "ambiguous_role_hints"
     }
     assert {first_role, second_role} <= text_rejections
     assert first_role not in text_intake.unrejected_refs()
@@ -891,15 +882,11 @@ def test_ambiguous_registry_role_hints_reject_every_role_and_multirole_text() ->
     path_intake = RuntimeQualityAuthorityRefs.from_sources(
         source_payloads={
             "clean_sibling": {"runtime_quality_refs": clean_refs},
-            "ambiguous_path": {
-                f"candidate-{first_report}-{second_report}": {"ref": malformed}
-            },
+            "ambiguous_path": {f"candidate-{first_report}-{second_report}": {"ref": malformed}},
         }
     )
     path_rejections = {
-        row.key
-        for row in path_intake.rejections
-        if row.reason == "ambiguous_role_hints"
+        row.key for row in path_intake.rejections if row.reason == "ambiguous_role_hints"
     }
     assert {first_role, second_role} <= path_rejections
     assert first_role not in path_intake.unrejected_refs()
@@ -916,13 +903,12 @@ def test_ambiguous_registry_role_hints_reject_every_role_and_multirole_text() ->
         }
     )
     runtime_rejections = {
-        row.key
-        for row in runtime_payload_intake.rejections
-        if row.reason == "ambiguous_role_hints"
+        row.key for row in runtime_payload_intake.rejections if row.reason == "ambiguous_role_hints"
     }
     assert {first_role, second_role} <= runtime_rejections
     assert first_role not in runtime_payload_intake.unrejected_refs()
     assert second_role not in runtime_payload_intake.unrejected_refs()
+
 
 def test_runtime_payload_ref_intake_uses_every_canonical_role_and_alias() -> None:
     ref_keys, body_ref_keys = quality_report_ref_intake_registry()
@@ -972,6 +958,7 @@ def test_quality_role_labels_require_complete_alias_boundaries() -> None:
     assert intake.rejections == ()
     assert intake.unrejected_refs() == {role: valid_ref}
 
+
 def test_registered_report_body_matrix_accepts_markerless_content() -> None:
     from polisyos.runtime.quality.report_registry import QUALITY_REPORT_BODY_KEYS
 
@@ -991,9 +978,7 @@ def test_registered_report_body_matrix_accepts_markerless_content() -> None:
 def test_registered_runtime_report_body_without_markers_is_not_a_ref_wrapper() -> None:
     body = {"claims": [{"claim_id": "claim-1"}], "basis": {"count": 1}}
     intake = RuntimeQualityAuthorityRefs.from_sources(
-        source_payloads={
-            "quality_evidence": {"policy_grounding_matrix": body}
-        }
+        source_payloads={"quality_evidence": {"policy_grounding_matrix": body}}
     )
 
     assert intake.get("policy_grounding_matrix_ref") is None
@@ -1003,15 +988,12 @@ def test_registered_runtime_report_body_without_markers_is_not_a_ref_wrapper() -
 def test_registered_runtime_report_malformed_wrapper_stays_a_typed_refusal() -> None:
     intake = RuntimeQualityAuthorityRefs.from_sources(
         source_payloads={
-            "quality_evidence": {
-                "policy_grounding_matrix": {"artifact_id": "bad\nreport-ref"}
-            }
+            "quality_evidence": {"policy_grounding_matrix": {"artifact_id": "bad\nreport-ref"}}
         }
     )
 
     assert any(
-        item.key == "policy_grounding_matrix_ref"
-        and item.reason == "control_character"
+        item.key == "policy_grounding_matrix_ref" and item.reason == "control_character"
         for item in intake.rejections
     )
 
@@ -1031,8 +1013,7 @@ def test_registered_runtime_report_malformed_wrapper_with_unknown_field_is_refus
     assert intake.get("policy_grounding_matrix_ref") is None
     assert "policy_grounding_matrix_ref" not in intake.unrejected_refs()
     assert any(
-        item.key == "policy_grounding_matrix_ref"
-        and item.reason == "control_character"
+        item.key == "policy_grounding_matrix_ref" and item.reason == "control_character"
         for item in intake.rejections
     )
 
@@ -1084,17 +1065,14 @@ def test_registry_body_without_runtime_ref_has_no_synthetic_role() -> None:
     )
     malformed = RuntimeQualityAuthorityRefs.from_sources(
         source_payloads={
-            "quality_evidence": {
-                "golden_scenario_contract": {"artifact_id": _sha("f")}
-            }
+            "quality_evidence": {"golden_scenario_contract": {"artifact_id": _sha("f")}}
         }
     )
 
     assert valid.rejections == ()
     assert "golden_scenario_contract_ref" not in valid.refs
     assert any(
-        item.key == "golden_scenario_contract"
-        and item.reason == "malformed_report_body_wrapper"
+        item.key == "golden_scenario_contract" and item.reason == "malformed_report_body_wrapper"
         for item in malformed.rejections
     )
     assert "golden_scenario_contract_ref" not in malformed.refs
@@ -1108,9 +1086,7 @@ def test_report_body_cross_role_ref_is_candidate_data_not_runtime_authority() ->
             "normative_applicability_report_ref": cross_ref,
         }
     }
-    runtime_intake = RuntimeQualityAuthorityRefs.from_runtime_payloads(
-        quality_evidence=report_body
-    )
+    runtime_intake = RuntimeQualityAuthorityRefs.from_runtime_payloads(quality_evidence=report_body)
     candidate_intake = RuntimeQualityAuthorityRefs.from_sources(
         source_payloads={"quality_evidence": report_body}
     )
@@ -1129,8 +1105,7 @@ def test_runtime_report_body_explicit_refs_keep_registered_role_identity() -> No
     assert set(ref_keys) <= set(owner_aliases)
 
     expected = {
-        role_key: f"sha256:{index + 1:064x}"
-        for index, role_key in enumerate(sorted(ref_keys))
+        role_key: f"sha256:{index + 1:064x}" for index, role_key in enumerate(sorted(ref_keys))
     }
     quality_evidence: dict[str, object] = {}
     for owner_role, body_alias in sorted(owner_aliases.items()):
@@ -1152,3 +1127,183 @@ def test_runtime_report_body_explicit_refs_keep_registered_role_identity() -> No
     assert intake.rejections == ()
     assert intake.unrejected_refs() == {}
     assert candidate_intake.unrejected_refs() == expected
+
+
+@pytest.mark.parametrize(
+    "source_name",
+    ["job", "run", "agents", "timeline", "lineage", "request", "quality_evidence"],
+)
+def test_role_hinted_wrappers_recurse_for_every_registered_ref_key(source_name: str) -> None:
+    ref_keys, _ = quality_report_ref_intake_registry()
+    expected = {key: _sha(str(index % 10)) for index, key in enumerate(ref_keys)}
+    source_payloads = {
+        source_name: {
+            f"lineage_node_{index}": {
+                "kind": key,
+                "metadata": {key: expected[key]},
+            }
+            for index, key in enumerate(ref_keys)
+        }
+    }
+
+    intake = RuntimeQualityAuthorityRefs.from_sources(source_payloads=source_payloads)
+
+    assert intake.rejections == ()
+    assert intake.unrejected_refs() == expected
+
+
+def test_role_hinted_lineage_wrapper_is_not_a_ref_value() -> None:
+    ref_key = "policy_grounding_matrix_ref"
+    expected_ref = _sha("a")
+    lineage = {
+        "nodes": [
+            {
+                "kind": "scientist.policy_grounding_matrix",
+                "metadata": {ref_key: expected_ref},
+            }
+        ]
+    }
+
+    resolution = resolve_quality_refs(lineage=lineage)
+    intake = RuntimeQualityAuthorityRefs.from_sources(source_payloads={"lineage": lineage})
+
+    assert resolution.refs[ref_key] == expected_ref
+    assert resolution.rejections == ()
+    assert resolution.unrejected_refs() == {ref_key: expected_ref}
+    assert intake.rejections == ()
+    assert intake.unrejected_refs() == {ref_key: expected_ref}
+
+
+def test_role_hinted_wrapper_keeps_explicit_null_fail_closed() -> None:
+    ref_key = "policy_grounding_matrix_ref"
+    lineage = {
+        "nodes": [
+            {
+                "kind": "scientist.policy_grounding_matrix",
+                "metadata": {ref_key: None},
+            }
+        ]
+    }
+
+    resolution = resolve_quality_refs(lineage=lineage)
+    intake = RuntimeQualityAuthorityRefs.from_sources(source_payloads={"lineage": lineage})
+
+    assert any(
+        item.key == ref_key and item.reason == "explicit_null" for item in resolution.rejections
+    )
+    assert ref_key not in resolution.unrejected_refs()
+    assert any(item.key == ref_key and item.reason == "explicit_null" for item in intake.rejections)
+    assert ref_key not in intake.unrejected_refs()
+
+
+def test_role_hinted_wrapper_with_malformed_generic_value_stays_rejected() -> None:
+    ref_key = "policy_grounding_matrix_ref"
+    lineage = {
+        "nodes": [
+            {
+                "kind": "scientist.policy_grounding_matrix",
+                "artifact_id": None,
+                "metadata": {ref_key: _sha("a")},
+            }
+        ]
+    }
+
+    resolution = resolve_quality_refs(lineage=lineage)
+    intake = RuntimeQualityAuthorityRefs.from_sources(source_payloads={"lineage": lineage})
+
+    assert any(
+        item.key == ref_key and item.reason == "explicit_null" for item in resolution.rejections
+    )
+    assert ref_key not in resolution.unrejected_refs()
+    assert any(item.key == ref_key and item.reason == "explicit_null" for item in intake.rejections)
+    assert ref_key not in intake.unrejected_refs()
+
+
+def test_role_hinted_wrapper_without_nested_ref_stays_missing() -> None:
+    ref_key = "policy_grounding_matrix_ref"
+    lineage = {
+        "nodes": [
+            {
+                "kind": "scientist.policy_grounding_matrix",
+                "metadata": {"status": "pass"},
+            }
+        ]
+    }
+
+    resolution = resolve_quality_refs(lineage=lineage)
+    intake = RuntimeQualityAuthorityRefs.from_sources(source_payloads={"lineage": lineage})
+
+    assert ref_key not in resolution.refs
+    assert ref_key in resolution.missing
+    assert resolution.rejections == ()
+    assert ref_key not in intake.refs
+    assert intake.rejections == ()
+
+
+def test_role_hinted_report_wrapper_rejects_null_generic_value_and_reads_metadata() -> None:
+    ref_key = "policy_grounding_matrix_ref"
+    lineage = {
+        "nodes": [
+            {
+                "kind": "scientist.policy_grounding_matrix",
+                "status": "pass",
+                "artifact_id": None,
+                "metadata": {ref_key: _sha("d")},
+            }
+        ]
+    }
+
+    resolution = resolve_quality_refs(lineage=lineage)
+    intake = RuntimeQualityAuthorityRefs.from_sources(source_payloads={"lineage": lineage})
+
+    assert resolution.refs[ref_key] == _sha("d")
+    assert any(
+        item.key == ref_key and item.reason == "explicit_null" for item in resolution.rejections
+    )
+    assert resolution.unrejected_refs() == {}
+    assert any(item.key == ref_key and item.reason == "explicit_null" for item in intake.rejections)
+    assert intake.unrejected_refs() == {}
+
+
+def test_role_hinted_wrapper_conflicts_and_sibling_refs_stay_scoped() -> None:
+    ref_key = "policy_grounding_matrix_ref"
+    sibling_ref_key = "conflict_check_ref"
+    lineage = {
+        "nodes": [
+            {
+                "kind": "scientist.policy_grounding_matrix",
+                "metadata": {ref_key: _sha("a")},
+            },
+            {
+                "kind": "scientist.policy_grounding_matrix",
+                "metadata": {ref_key: _sha("b")},
+            },
+            {
+                "kind": "scientist.policy_grounding_matrix",
+                "metadata": {sibling_ref_key: "invalid\nref"},
+            },
+        ]
+    }
+
+    resolution = resolve_quality_refs(lineage=lineage)
+    intake = RuntimeQualityAuthorityRefs.from_sources(source_payloads={"lineage": lineage})
+
+    assert any(
+        item.key == ref_key and item.reason == "conflicting_values"
+        for item in resolution.rejections
+    )
+    assert any(
+        item.key == sibling_ref_key and item.reason == "control_character"
+        for item in resolution.rejections
+    )
+    assert any(
+        item.key == ref_key and item.reason == "conflicting_values" for item in intake.rejections
+    )
+    assert any(
+        item.key == sibling_ref_key and item.reason == "control_character"
+        for item in intake.rejections
+    )
+    assert ref_key not in resolution.unrejected_refs()
+    assert sibling_ref_key not in resolution.unrejected_refs()
+    assert ref_key not in intake.unrejected_refs()
+    assert sibling_ref_key not in intake.unrejected_refs()

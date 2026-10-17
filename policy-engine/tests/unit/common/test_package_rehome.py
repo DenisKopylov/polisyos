@@ -6,6 +6,9 @@ import ast
 import importlib
 import inspect
 import pickle
+import subprocess
+import sys
+import textwrap
 from pathlib import Path
 
 _PACKAGE_NAMES = ("async_tools", "config", "jax_env", "logger", "serialization", "timestamps")
@@ -57,6 +60,7 @@ _PUBLIC_DECLARATIONS = {
         "extract_llm_json",
         "extract_llm_json_object",
     },
+    "text": {"collapse_ws"},
     "timestamps": {
         "utc_now",
         "ensure_utc",
@@ -96,6 +100,7 @@ _EXPLICIT_ALL = {
         "strip_none",
         "to_python_data",
     },
+    "text": {"collapse_ws"},
     "timestamps": {
         "ensure_utc",
         "from_epoch_seconds",
@@ -160,3 +165,33 @@ def test_common_package_public_declarations_and_explicit_all_are_preserved() -> 
         importlib.import_module("polisyos.common.jax_env"), "should_default_cpu_backend"
     )
     assert not hasattr(importlib.import_module("polisyos.common.serialization"), "load_strict_json")
+
+
+def test_common_text_facade_is_lazy_and_removal_probe_rejects_missing_route() -> None:
+    """The child is lazy, and its actual binding is controlled by the facade list."""
+    script = textwrap.dedent(
+        """
+        import importlib
+        import sys
+
+        common = importlib.import_module("polisyos.common")
+        assert "polisyos.common.text" not in sys.modules
+        assert "text" in common.__all__
+
+        text_module = getattr(common, "text")
+        assert text_module is importlib.import_module("polisyos.common.text")
+        assert common.text is text_module
+
+        # Keep the module source available but remove the facade property.
+        common.__all__.remove("text")
+        common.__dict__.pop("text")
+        sys.modules.pop("polisyos.common.text")
+        try:
+            getattr(common, "text")
+        except AttributeError:
+            pass
+        else:
+            raise AssertionError("facade admitted a child absent from __all__")
+        """
+    )
+    subprocess.run([sys.executable, "-c", script], check=True, capture_output=True, text=True)

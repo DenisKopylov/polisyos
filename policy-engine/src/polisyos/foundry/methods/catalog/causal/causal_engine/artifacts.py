@@ -2982,10 +2982,11 @@ class CausalEngineArtifactsMixin:
         twin_network_result_ref = None
         if self._artifact_store is not None:
             from polisyos.core.artifacts import artifact_manifest_profile_sha256
-            from polisyos.ir import TwinNetworkResult, persist_twin_network_result
-            from polisyos.ir.analytics.structural_causal_model import (
+            from polisyos.ir import (
                 StructuralCausalModelSpec,
+                TwinNetworkResult,
                 persist_structural_causal_model_spec,
+                persist_twin_network_result,
             )
 
             scm_spec = (report_dependencies or {}).get("scm_spec")

@@ -171,6 +171,9 @@ from polisyos.runtime.quality.phase_barriers import (
     PhaseBarrierId,
     PhaseBarrierRecord,
     PhaseBarrierViolation,
+    _phase_barrier_owner_scope_not_established,
+    _reconcile_phase_barrier_subjects,
+    _validated_execution_owner_binding,
     assert_barrier_passed,
 )
 from polisyos.runtime.quality.policy_benchmarking import (
@@ -202,6 +205,7 @@ from polisyos.runtime.quality.run_cost_proportionality import (
     validate_run_cost_proportionality_blocker,
     validate_run_cost_proportionality_ledger,
 )
+from polisyos.runtime.quality.run_state import RunIntentBinding
 from polisyos.runtime.quality.schema_compat import (
     COMPATIBLE_DECISIONS,
     SCORECARD_REPORT_SCHEMA_FAMILY_ALIASES,
@@ -2571,24 +2575,13 @@ def _hypothesis_candidate_firewall_gates(
     ledger = quality_evidence.get(HYPOTHESIS_LEDGER_REPORT_KEY)
     if not isinstance(ledger, Mapping):
         return []
-    surfaces = (
-        (
-            "dashboard",
-            quality_evidence.get("dashboard_projection")
-            or quality_evidence.get("policy_design_case_projection")
-            or {},
-            ("projection_authority",),
-        ),
-        (
-            "public_export",
-            quality_evidence.get("public_export")
-            or quality_evidence.get("public_export_bundle")
-            or {},
-            ("projection_authority",),
-        ),
-        (
+    surface_specs = {
+        "dashboard_projection": ("dashboard", ("projection_authority",)),
+        "policy_design_case_projection": ("dashboard", ("projection_authority",)),
+        "public_export": ("public_export", ("projection_authority",)),
+        "public_export_bundle": ("public_export", ("projection_authority",)),
+        "claim_registry": (
             "claim_registry",
-            quality_evidence.get("claim_registry") or {},
             (
                 "claim_authority",
                 "legal_authority",
@@ -2596,7 +2589,11 @@ def _hypothesis_candidate_firewall_gates(
                 "method_authority",
             ),
         ),
-    )
+    }
+    surfaces: list[tuple[str, object, tuple[str, ...]]] = [
+        (surface, quality_evidence.get(key), slots)
+        for key, (surface, slots) in surface_specs.items()
+    ]
     gates: list[dict[str, Any]] = []
     for surface, payload, slots in surfaces:
         if not isinstance(payload, Mapping):
@@ -8797,6 +8794,7 @@ def _phase_barrier_records_from_payloads(
 def _phase_barrier_gates(
     *,
     canary_kind: str,
+    run_id: Any,
     quality_evidence: dict[str, Any],
     job_payload: dict[str, Any] | None,
     run_payload: dict[str, Any] | None,
@@ -8825,6 +8823,59 @@ def _phase_barrier_gates(
         ]
 
     gates: list[dict[str, Any]] = []
+    declared_run_id = run_id if isinstance(run_id, str) and run_id.strip() else None
+    job_progress = job_payload.get("progress") if isinstance(job_payload, dict) else None
+    if not isinstance(job_progress, dict):
+        job_progress = {}
+    raw_owner_binding = job_progress.get("execution_owner_binding")
+    if not isinstance(raw_owner_binding, dict) and isinstance(job_payload, dict):
+        raw_owner_binding = job_payload.get("execution_owner_binding")
+    expected_owner: dict[str, object] = {}
+    if isinstance(job_payload, dict):
+        for field in (
+            "job_id",
+            "requested_execution_profile",
+            "effective_execution_profile",
+        ):
+            value = job_payload.get(field)
+            if isinstance(value, str) and value.strip():
+                expected_owner[field] = value.strip()
+    if declared_run_id is not None:
+        expected_owner["run_id"] = declared_run_id
+    owner_binding = _validated_execution_owner_binding(
+        raw_owner_binding,
+        expected=expected_owner,
+    )
+    expected_tenant_id = str(owner_binding["tenant_id"]) if owner_binding is not None else None
+    expected_profile = (
+        str(owner_binding["requested_execution_profile"]) if owner_binding is not None else None
+    )
+    try:
+        records = _reconcile_phase_barrier_subjects(
+            records,
+            expected_run_id=declared_run_id,
+            expected_tenant_id=expected_tenant_id,
+            expected_profile=expected_profile,
+        )
+    except PhaseBarrierViolation as exc:
+        gates.append(
+            _gate(
+                name="serious_phase_barriers_closed",
+                stage="ops",
+                code=exc.code,
+                status="fail",
+                layer="phase_barriers",
+                phase=exc.field or "candidate_scope",
+                message=str(exc),
+                evidence_ref="quality_evidence/phase_barrier_records.json",
+                next_action=(
+                    "Reconcile all supplied phase-barrier records to the current admitted job, "
+                    "run, tenant, and requested profile before selecting a latest record."
+                ),
+            )
+        )
+        records = ()
+
     for barrier_id in PhaseBarrierId.scorecard_required():
         try:
             assert_barrier_passed(barrier_id, barriers=records)
@@ -8842,6 +8893,96 @@ def _phase_barrier_gates(
                     next_action=(
                         "Persist a passed phase barrier record or typed blocker "
                         f"for {barrier_id.value} before scorecard."
+                    ),
+                )
+            )
+
+    owner_error = _phase_barrier_owner_scope_not_established()
+    if owner_binding is None:
+        gates.append(
+            _gate(
+                name="serious_phase_barrier_owner_scope",
+                stage="ops",
+                code=owner_error.code,
+                status="fail",
+                layer="phase_barriers",
+                phase="owner_scope",
+                message=str(owner_error),
+                evidence_ref="quality_evidence/phase_barrier_records.json",
+                next_action=(
+                    "Persist the exact current lease-admission owner binding in the "
+                    "fresh job response."
+                ),
+            )
+        )
+    else:
+        gates.append(
+            _gate(
+                name="serious_phase_barrier_owner_scope",
+                stage="ops",
+                code=owner_error.code,
+                status="fail",
+                layer="phase_barriers",
+                phase="owner_scope",
+                message=(
+                    "The scorecard receives a mapping without source provenance; matching "
+                    "owner fields remain candidate and do not prove a fresh terminal read."
+                ),
+                evidence_ref="job_payload/progress/execution_owner_binding",
+                next_action=(
+                    "Keep owner scope blocked until a consumer can verify the persisted "
+                    "terminal job response from its source."
+                ),
+            )
+        )
+        raw_intent_binding = job_progress.get("run_intent_binding")
+        try:
+            intent_binding = RunIntentBinding.model_validate(raw_intent_binding)
+            if (
+                intent_binding.run_id != owner_binding["run_id"]
+                or intent_binding.tenant_id != owner_binding["tenant_id"]
+                or intent_binding.requested_profile != owner_binding["requested_execution_profile"]
+            ):
+                raise ValueError("run_intent_binding_owner_scope_mismatch")
+            intent_binding.require_complete()
+        except Exception as exc:
+            gates.append(
+                _gate(
+                    name="serious_phase_barrier_intent_binding",
+                    stage="ops",
+                    code=(
+                        exc.code
+                        if isinstance(exc, PhaseBarrierViolation)
+                        else "run_intent_binding_scope_or_shape_invalid"
+                    ),
+                    status="fail",
+                    layer="phase_barriers",
+                    phase="intent_binding",
+                    message=f"Current run intent is incomplete or mismatched: {exc}",
+                    evidence_ref="job_payload/progress/run_intent_binding",
+                    next_action=(
+                        "Resolve a typed policy-time source and persisted same-input closure; "
+                        "caller strings and request hashes do not close this gate."
+                    ),
+                )
+            )
+        else:
+            gates.append(
+                _gate(
+                    name="serious_phase_barrier_intent_binding",
+                    stage="ops",
+                    code=owner_error.code,
+                    status="fail",
+                    layer="phase_barriers",
+                    phase="intent_binding",
+                    message=(
+                        "The intent fields are structurally complete, but this mapping-only "
+                        "scorecard boundary cannot verify the fresh terminal owner source."
+                    ),
+                    evidence_ref="job_payload/progress/run_intent_binding",
+                    next_action=(
+                        "Resolve a source-verifiable owner binding before treating the intent "
+                        "refs as current for this terminal job."
                     ),
                 )
             )
@@ -10061,7 +10202,7 @@ def build_quality_scorecard(
         job_payload: Optional runtime job evidence.
         run_payload: Optional runtime run evidence.
         provider_preflight: Optional provider readiness evidence.
-        quality_evidence: Domain and runtime evidence to score.
+        quality_evidence: Domain and runtime evidence to score and validate for refs.
         quality_scorecard_ref: Optional persisted scorecard reference.
         quality_evidence_bundle_path: Optional evidence bundle path.
         artifact_store: Optional Core CAS store for resolving selected BERL bundle refs.
@@ -10192,6 +10333,7 @@ def build_quality_scorecard(
         ),
         *_phase_barrier_gates(
             canary_kind=canary_kind,
+            run_id=run_id,
             quality_evidence=quality_evidence,
             job_payload=job_payload,
             run_payload=run_payload,

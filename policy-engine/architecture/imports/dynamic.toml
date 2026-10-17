@@ -112,10 +112,10 @@ allowed_targets = []
 notes = "Dynamic pattern has no static in-repo target."
 
 [[pattern]]
-id = "dynamic-7f46b39a4944"
+id = "dynamic-c4e9d7be2e12"
 pattern = "f'{__name__}.{name}'"
 source_file = "src/polisyos/common/__init__.py"
-line = 44
+line = 46
 call = "importlib.import_module"
 owner = "team-architecture"
 target = "f'{__name__}.{name}'"
@@ -542,18 +542,6 @@ target = "module_name"
 verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
 allowed_targets = []
 notes = "User/plugin supplied module name; call site is inventoried for review."
-
-[[pattern]]
-id = "dynamic-47ac6520ff64"
-pattern = "json"
-source_file = "src/polisyos/data_forge/domains/legal/contracts.py"
-line = 403
-call = "__import__"
-owner = "team-architecture"
-target = "json"
-verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
-allowed_targets = []
-notes = "Dynamic pattern has no static in-repo target."
 
 [[pattern]]
 id = "dynamic-64c1f74b1dea"
@@ -1348,10 +1336,10 @@ allowed_targets = []
 notes = "Dynamic pattern has no static in-repo target."
 
 [[pattern]]
-id = "dynamic-4f16bc6ed8d7"
+id = "dynamic-7ba95c2f0db9"
 pattern = "module_name"
 source_file = "src/polisyos/lex/__init__.py"
-line = 192
+line = 432
 call = "importlib.import_module"
 owner = "team-architecture"
 target = "module_name"
@@ -1444,10 +1432,10 @@ allowed_targets = ["polisyos.scientist.validation.citation_faithfulness"]
 notes = "Fail-closed whitelist: every target must resolve."
 
 [[pattern]]
-id = "dynamic-b29d9392e396"
+id = "dynamic-96da3057614b"
 pattern = "module_name"
 source_file = "src/polisyos/runtime/quality/confidence_ledger.py"
-line = 5060
+line = 9177
 call = "importlib.import_module"
 owner = "team-architecture"
 target = "module_name"
@@ -2068,10 +2056,10 @@ allowed_targets = []
 notes = "Dynamic pattern has no static in-repo target."
 
 [[pattern]]
-id = "dynamic-26d02d1d2a1f"
+id = "dynamic-786e7f4b1357"
 pattern = "module_name"
 source_file = "src/polisyos/scientist/methods/advanced.py"
-line = 381
+line = 635
 call = "importlib.import_module"
 owner = "team-scientist"
 target = "module_name"

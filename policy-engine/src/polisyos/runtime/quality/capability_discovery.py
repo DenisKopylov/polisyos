@@ -65,8 +65,8 @@ if TYPE_CHECKING:
         CapabilityDiscoveryAuthorityResolver,
     )
     from polisyos.runtime.quality.capability_resolver import CapabilityExecutionResolver
-    from polisyos.scientist.agent.tools.registry import ToolRegistry
-    from polisyos.scientist.orchestration.engine.protocol import NodeSpec
+    from polisyos.scientist import ToolRegistry
+    from polisyos.scientist.orchestration.engine import NodeSpec
 
 CAPABILITY_DISCOVERY_RULE_VERSION = "policyos.ds10.discovery.v1"
 CAPABILITY_PROVIDER_REGISTRY_INDEX_REF = "runtime-quality:capability-provider-registry"
@@ -2607,7 +2607,7 @@ def _unpack_scientist_registry_source(source: object) -> tuple[object, tuple[str
 
 def _scientist_node_specs(registry: object) -> tuple[NodeSpec, ...]:
     """Read and validate public NodeSpec records from one registry snapshot."""
-    from polisyos.scientist.orchestration.engine.protocol import NodeSpec
+    from polisyos.scientist.orchestration.engine import NodeSpec
 
     list_specs = getattr(registry, "list", None)
     if not callable(list_specs):

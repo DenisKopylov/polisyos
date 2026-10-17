@@ -840,6 +840,46 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
         job_response = client.get(f"/api/v1/control/jobs/{job_id}")
         assert job_response.status_code == 200, job_response.text
         received_job = ControlJobResponse.model_validate(job_response.json())
+        from copy import deepcopy
+
+        from polisyos.runtime.quality.scorecard import build_quality_scorecard
+
+        received_payload = received_job.model_dump(mode="json")
+        persisted_job = ordinary_run["job"]
+        assert received_job.state == "completed"
+        received_owner = received_job.progress["execution_owner_binding"]
+        persisted_owner = persisted_job.progress["execution_owner_binding"]
+        assert received_owner == persisted_owner
+        assert received_owner["job_id"] == job_id
+        assert received_owner["run_id"] == str(job.run_id)
+
+        def _owner_gate(payload: dict[str, Any]) -> dict[str, Any]:
+            scorecard = build_quality_scorecard(
+                canary_kind="production",
+                job_id=job_id,
+                run_id=received_job.run_id,
+                execution_status=received_job.state,
+                job_payload=payload,
+                run_payload=None,
+                provider_preflight=None,
+                quality_evidence={},
+            )
+            return next(
+                gate
+                for gate in scorecard["quality_gates"]
+                if gate["name"] == "serious_phase_barrier_owner_scope"
+            )
+
+        fresh_gate = _owner_gate(received_payload)
+        assert fresh_gate["status"] == "fail"
+        assert fresh_gate["code"] == "phase_barrier_owner_scope_not_established"
+
+        forged_payload = deepcopy(received_payload)
+        forged_owner = forged_payload["progress"]["execution_owner_binding"]
+        forged_owner["lease_owner"] = "worker-forged-after-terminal-read"
+        forged_gate = _owner_gate(forged_payload)
+        assert forged_gate["status"] == "fail"
+        assert forged_gate["code"] == "phase_barrier_owner_scope_not_established"
         progress = received_job.progress
         assert progress["execution_intent_band"] == "candidate_only"
         assert progress["status"] == "candidate_limited"

@@ -4575,5 +4575,35 @@
     "P40_bounded_residual": "MatchMapping.rest helper omission is bounded by unsupported ast.Match refusal; standalone helper completeness is not authority. Independent route probe positive and shadows all refused and is explicitly inconclusive.",
     "verification": "GO focused full owning test module only; actual canonical unit wave and real Core794/L5 generation UNRUN at implementation boundary. No full Native/source freeze.",
     "closure_ids": []
+  },
+  "coordination_epoch_20261017_controlled_ncm_selected_slot_closure": {
+    "slice_base": "f5391627f56ac2fc06d5cfe04889f0a4941542b5",
+    "canonical_writer": "root only; agents RAW-only",
+    "mechanism_paths": [
+      "policy-engine/tests/_helpers/controlled_candidate_profile.py",
+      "policy-engine/tests/_helpers/generic_n4_served_replay.py",
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+      "policy-engine/tests/test_controlled_candidate_slot_closure.py"
+    ],
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ],
+    "candidate_closeout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n4-selected-owner-slot-closure-r1-20261017/receipts/candidate-closeout-r4.json",
+      "sha256": "12ea32313d9c78124256431ea5850778694620def68287fe0342d51d54fd89b7"
+    },
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n4-selected-owner-slot-closure-independent-review-20261017/review.json",
+      "sha256": "1b02e49332880809c5091574ef6ac0bd8d447077a6d23934a7e7a964ebeb9f75"
+    },
+    "property": "Test-support registry derives requested identities from selected policy and persisted toy NCM declaration/baseline; normalized binding collisions refuse; exact NCM ref is persisted before WMR and tenant-scoped readback. No global registry or production schema change.",
+    "P40_bucket": "Whole selected-registry/NCM closure class with explicit toy state-path/unit assumptions, not per-outcome aliasing or causal calibration.",
+    "verification": "Corrected owner test and full66 unit/served consumers UNRUN at source boundary. Prior harness attempts remain FAIL; final prior run proves only WMR persisted/freshread/equality before invalid candidate_only assertion.",
+    "limits": [
+      "Candidate authority_status remains limited and all source-time/measurement/causal-coupling blockers remain.",
+      "Other source cut N11 f539 currently has collection ERROR at Fabric.atomic_write_json; not inherited or green."
+    ],
+    "closure_ids": []
   }
 }

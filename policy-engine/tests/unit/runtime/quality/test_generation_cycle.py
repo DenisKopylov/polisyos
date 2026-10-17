@@ -2828,7 +2828,21 @@ def _owner_n5_case_with_selected_ncm_ref(
 
     if type(ncm_ref) is not ArtifactRef:
         raise TypeError("selected NCM fixture requires its typed persisted ArtifactRef")
-    problem, context, candidate = _cyc01_owner_bound_n5_case(runtime_hints=runtime_hints)
+    selected_hints = dict(runtime_hints or {})
+    if "joint_simulation_baseline_state" not in selected_hints:
+        from tests.unit.runtime.quality.test_joint_simulation_horizon import _request
+
+        default_request = _request()
+        default_outcomes = tuple(default_request.selected_outcomes)
+        if len(default_outcomes) != 1 or default_outcomes[0] not in default_request.baseline_state:
+            raise ValueError("selected_ncm_fixture_default_baseline_unavailable")
+        default_outcome = default_outcomes[0]
+        selected_hints["joint_simulation_baseline_state"] = {
+            default_outcome: default_request.baseline_state[default_outcome]
+        }
+    problem, context, candidate = _cyc01_owner_bound_n5_case(
+        runtime_hints=selected_hints,
+    )
     source_root = tmp_path / f"selected-ncm-world-{uuid4().hex}"
     selected_skg_source = _seed_controlled_selected_skg_source(
         source_root,
@@ -2848,6 +2862,10 @@ def _owner_n5_case_with_selected_ncm_ref(
         tenant_id="tenant-n5-owner",
         cell_id="cell-n5-owner",
         ncm_view_refs=(ArtifactRef.model_validate(ncm_ref.model_dump(mode="python")),),
+        candidate_baseline_state=problem.runtime_hints["joint_simulation_baseline_state"],
+        candidate_outcome_state_paths={
+            problem.outcome_of_interest.target_variable: "market.total_supply"
+        },
     )
     rebound_context, rebound_candidate = _rebind_owner_cycle_record(
         context, candidate, world_record

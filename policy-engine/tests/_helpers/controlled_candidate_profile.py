@@ -10,8 +10,9 @@ from __future__ import annotations
 import copy
 import hashlib
 import json
+import math
 import threading
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from decimal import Decimal
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -81,7 +82,7 @@ class ControlledCandidateGateway:
                     return
                 try:
                     request = json.loads(self.rfile.read(int(self.headers["Content-Length"])))
-                except (KeyError, TypeError, ValueError, json.JSONDecodeError):
+                except KeyError, TypeError, ValueError, json.JSONDecodeError:
                     self._send_json(400, {"error": "malformed_request"})
                     return
                 if not isinstance(request, dict):
@@ -434,6 +435,183 @@ _CONTROLLED_SLOT_ALIASES = {
 }
 
 
+def _controlled_auto_binding_id(slot_id: str) -> str:
+    """Mirror the data-plane auto-binding identifier for collision checks."""
+    return f"auto.{slot_id.replace('.', '_')}"
+
+
+def _controlled_resolve_policy_slot_ids(
+    policy_slot_ids: Sequence[str],
+) -> tuple[tuple[str, str], ...]:
+    """Preserve each requested identity and reject ambiguous fixture aliases."""
+    resolved: list[tuple[str, str]] = []
+    by_binding_id: dict[str, str] = {}
+    by_canonical_id: dict[str, str] = {}
+    for slot_id in policy_slot_ids:
+        if not isinstance(slot_id, str) or not slot_id.strip():
+            raise ValueError("controlled_wmr_policy_slot_id_invalid")
+        if any(selected_id == slot_id for selected_id, _ in resolved):
+            continue
+        canonical_id = _CONTROLLED_SLOT_ALIASES.get(slot_id, slot_id)
+        binding_id = _controlled_auto_binding_id(slot_id)
+        prior_binding_id = by_binding_id.get(binding_id)
+        if prior_binding_id is not None and prior_binding_id != slot_id:
+            raise ValueError(
+                "controlled_wmr_auto_binding_identity_collision:"
+                f"{prior_binding_id}:{slot_id}:{binding_id}"
+            )
+        prior_canonical_id = by_canonical_id.get(canonical_id)
+        if prior_canonical_id is not None and prior_canonical_id != slot_id:
+            raise ValueError(
+                "controlled_wmr_selected_slot_alias_collision:"
+                f"{prior_canonical_id}:{slot_id}:{canonical_id}"
+            )
+        by_binding_id[binding_id] = slot_id
+        by_canonical_id[canonical_id] = slot_id
+        resolved.append((slot_id, canonical_id))
+    return tuple(resolved)
+
+
+def _controlled_selected_slot_specs(
+    *,
+    policy_slot_ids: Sequence[str],
+    declared_ncm_outcomes: frozenset[str],
+    candidate_baseline_state: Mapping[str, object] | None,
+    candidate_outcome_state_paths: Mapping[str, str] | None,
+) -> dict[str, Any]:
+    """Build a selected-only registry from requested slots and a persisted NCM."""
+    from polisyos.ir.kernel import DEFAULT_SLOT_REGISTRY, SlotSpec, UnitRef
+
+    resolved = _controlled_resolve_policy_slot_ids(policy_slot_ids)
+    if not resolved:
+        raise ValueError("controlled_wmr_policy_slots_missing")
+    if candidate_baseline_state is not None and not isinstance(candidate_baseline_state, Mapping):
+        raise ValueError("controlled_wmr_candidate_baseline_state_invalid")
+    if candidate_outcome_state_paths is not None and not isinstance(
+        candidate_outcome_state_paths, Mapping
+    ):
+        raise ValueError("controlled_wmr_candidate_outcome_state_paths_invalid")
+    state_paths = dict(candidate_outcome_state_paths or {})
+    requested_ids = {slot_id for slot_id, _ in resolved}
+    if set(state_paths) - requested_ids:
+        raise ValueError("controlled_wmr_unselected_candidate_outcome_state_path")
+
+    specs: dict[str, Any] = {}
+    selected_state_paths: dict[str, str] = {}
+    for slot_id, canonical_id in resolved:
+        if canonical_id in DEFAULT_SLOT_REGISTRY.slots:
+            canonical_slot = DEFAULT_SLOT_REGISTRY.slots[canonical_id]
+            slot_spec = SlotSpec.model_validate(
+                {
+                    **canonical_slot.model_dump(mode="python"),
+                    "slot_id": slot_id,
+                    "unit": UnitRef(unit_id="synthetic_score"),
+                    "description": (
+                        "Controlled candidate-only binding copied from "
+                        f"{canonical_id}; measurement semantics are not established."
+                    ),
+                }
+            )
+        else:
+            baseline = (candidate_baseline_state or {}).get(slot_id)
+            state_path = state_paths.get(slot_id)
+            if slot_id not in declared_ncm_outcomes:
+                raise ValueError("controlled_wmr_ncm_outcome_not_declared:" + slot_id)
+            try:
+                baseline_is_finite = math.isfinite(float(baseline))
+            except OverflowError, TypeError, ValueError:
+                baseline_is_finite = False
+            if (
+                isinstance(baseline, bool)
+                or not isinstance(baseline, (int, float, Decimal))
+                or not baseline_is_finite
+            ):
+                raise ValueError("controlled_wmr_ncm_outcome_baseline_not_established:" + slot_id)
+            if not isinstance(state_path, str) or not state_path.strip():
+                raise ValueError("controlled_wmr_ncm_outcome_state_path_not_declared:" + slot_id)
+            template = DEFAULT_SLOT_REGISTRY.slots["global.tax_rate"]
+            slot_spec = SlotSpec.model_validate(
+                {
+                    **template.model_dump(mode="python"),
+                    "slot_id": slot_id,
+                    "unit": UnitRef(unit_id="synthetic_score"),
+                    "kind": "stock",
+                    "state_path": state_path,
+                    "description": (
+                        "Explicit candidate-only toy outcome input from the selected persisted "
+                        "NCM baseline; it carries no measurement or calibration claim."
+                    ),
+                    "reset_rule": "carry",
+                }
+            )
+        if slot_spec.state_path is not None:
+            prior_slot = selected_state_paths.get(slot_spec.state_path)
+            if prior_slot is not None and prior_slot != slot_id:
+                raise ValueError(
+                    "controlled_wmr_selected_state_path_collision:"
+                    f"{prior_slot}:{slot_id}:{slot_spec.state_path}"
+                )
+            selected_state_paths[slot_spec.state_path] = slot_id
+        specs[slot_id] = slot_spec
+    direct_outcome_ids = {
+        slot_id
+        for slot_id, canonical_id in resolved
+        if canonical_id not in DEFAULT_SLOT_REGISTRY.slots
+    }
+    if set(state_paths) != direct_outcome_ids:
+        raise ValueError("controlled_wmr_candidate_outcome_state_paths_mismatch")
+    if set(specs) != requested_ids:
+        raise ValueError("controlled_wmr_selected_slot_registry_incomplete")
+    return specs
+
+
+def _controlled_declared_ncm_outcomes(
+    *,
+    artifact_store: ArtifactStore,
+    ncm_view_refs: Sequence[Any],
+    tenant_id: str,
+    cell_id: str,
+) -> frozenset[str]:
+    """Read selected NCM declarations from their exact owner-persisted CAS refs."""
+    if not ncm_view_refs:
+        return frozenset()
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.ir.analytics.ncm import load_ncm_spec
+
+    declared: set[str] = set()
+    ir_store = _ensure_ir_artifact_store(artifact_store)
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        for ref in ncm_view_refs:
+            manifest = artifact_store.get_manifest(ref)
+            if (
+                getattr(manifest, "kind", None) != "ir.ncm_spec"
+                or getattr(manifest, "media_type", None) != "application/json"
+            ):
+                raise ValueError("controlled_wmr_selected_ncm_ref_kind_mismatch")
+            selected_ncm = load_ncm_spec(ir_store, ref)
+            equation_variables = {
+                equation.variable for equation in selected_ncm.structural_equations
+            }
+            declared.update(set(selected_ncm.endogenous_vars) & equation_variables)
+    return frozenset(declared)
+
+
+def _controlled_set_payload_path(payload: dict[str, Any], path: str, value: object) -> None:
+    """Set one explicitly declared candidate fixture path without overwriting a node."""
+    parts = path.split(".")
+    if any(not part for part in parts):
+        raise ValueError("controlled_wmr_candidate_outcome_state_path_invalid")
+    current = payload
+    for part in parts[:-1]:
+        child = current.setdefault(part, {})
+        if not isinstance(child, dict):
+            raise ValueError("controlled_wmr_candidate_outcome_state_path_conflict:" + path)
+        current = child
+    if parts[-1] in current:
+        raise ValueError("controlled_wmr_candidate_outcome_state_path_conflict:" + path)
+    current[parts[-1]] = value
+
+
 _CONTROLLED_SYNTHETIC_SKG_VERSION_ID = 1
 _CONTROLLED_SYNTHETIC_SKG_VERSION_COUNT = 1
 
@@ -686,6 +864,8 @@ def _materialize_controlled_world_model_build(
     tenant_id: str,
     cell_id: str,
     ncm_view_refs: Sequence[Any] = (),
+    candidate_baseline_state: Mapping[str, object] | None = None,
+    candidate_outcome_state_paths: Mapping[str, str] | None = None,
 ) -> Any:
     """Build a source-bound, limited WMR from real local owner artifacts.
 
@@ -719,8 +899,6 @@ def _materialize_controlled_world_model_build(
         DEFAULT_UNITS_REGISTRY,
         GenericUnit,
         SlotRegistry,
-        SlotSpec,
-        UnitRef,
         UnitsRegistry,
     )
     from polisyos.ir.model_layer.model_spec import ModelSpec
@@ -747,36 +925,25 @@ def _materialize_controlled_world_model_build(
         substrate_registry_ref.model_dump(mode="python")
     )
 
-    aliases: list[tuple[str, str]] = []
-    for slot_id in dict.fromkeys(str(item) for item in policy_slot_ids):
-        canonical_id = _CONTROLLED_SLOT_ALIASES.get(slot_id, slot_id)
-        if canonical_id not in DEFAULT_SLOT_REGISTRY.slots:
-            raise ValueError("controlled_wmr_slot_alias_not_established:" + slot_id)
-        aliases.append((slot_id, canonical_id))
-    if not aliases:
-        raise ValueError("controlled_wmr_policy_slots_missing")
-    controlled_slot_specs = dict(DEFAULT_SLOT_REGISTRY.slots)
-    for alias, canonical_id in aliases:
-        canonical_slot = DEFAULT_SLOT_REGISTRY.slots[canonical_id]
-        controlled_slot_specs[alias] = SlotSpec.model_validate(
-            {
-                **canonical_slot.model_dump(mode="python"),
-                "slot_id": alias,
-                "unit": UnitRef(unit_id="synthetic_score"),
-                "description": (
-                    "Controlled candidate-only binding copied from "
-                    f"{canonical_id}; measurement semantics are not established."
-                ),
-            }
-        )
+    declared_ncm_outcomes = _controlled_declared_ncm_outcomes(
+        artifact_store=artifact_store,
+        ncm_view_refs=ncm_view_refs,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+    )
+    controlled_slot_specs = _controlled_selected_slot_specs(
+        policy_slot_ids=policy_slot_ids,
+        declared_ncm_outcomes=declared_ncm_outcomes,
+        candidate_baseline_state=candidate_baseline_state,
+        candidate_outcome_state_paths=candidate_outcome_state_paths,
+    )
     controlled_slot_registry = SlotRegistry.model_validate(
         {
-            **DEFAULT_SLOT_REGISTRY.model_dump(mode="python"),
+            "schema_version": DEFAULT_SLOT_REGISTRY.schema_version,
             "slots": controlled_slot_specs,
             "notes": [
-                *DEFAULT_SLOT_REGISTRY.notes,
-                "Controlled fixture aliases are declared before WMR construction; "
-                "they carry no empirical or authority claim.",
+                "Selected fixture slots derive from the requested policy plus owner-read NCM refs; "
+                "all are candidate-only and carry no empirical or authority claim.",
             ],
         }
     )
@@ -872,19 +1039,25 @@ def _materialize_controlled_world_model_build(
 
     with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
         canon_spec = CanonSpec(forbid_floats=False)
-        payload_ref = artifact_store.put_json(
-            {
-                "agents": {
-                    "income": [1200.0],
-                    "is_employed": [True],
-                },
-                "cells": {
-                    "distress_score": [0.0],
-                    "employment": [1.0],
-                },
-                "government_balance": 0.0,
-                "tax_rate": 0.0,
+        payload = {
+            "agents": {
+                "income": [1200.0],
+                "is_employed": [True],
             },
+            "cells": {
+                "distress_score": [0.0],
+                "employment": [1.0],
+            },
+            "government_balance": 0.0,
+            "tax_rate": 0.0,
+        }
+        for slot_id, state_path in (candidate_outcome_state_paths or {}).items():
+            baseline = (candidate_baseline_state or {}).get(slot_id)
+            if slot_id not in controlled_slot_specs or baseline is None:
+                raise ValueError("controlled_wmr_candidate_outcome_input_unbound:" + slot_id)
+            _controlled_set_payload_path(payload, state_path, baseline)
+        payload_ref = artifact_store.put_json(
+            payload,
             PutOptions(kind="fabric.world_payload", media_type="application/json"),
             canon_spec=canon_spec,
             return_selected_profile=True,
@@ -957,7 +1130,7 @@ def _materialize_controlled_world_model_build(
             tx_time_scope=source_world_model_record.tx_time_scope,
             resolution=source_world_model_record.resolution,
             branch_mode=BranchMode.SCENARIO,
-            policy_slot_ids=tuple(alias for alias, _ in aliases),
+            policy_slot_ids=tuple(controlled_slot_specs),
             producer_ref=(
                 "tests._helpers.controlled_candidate_profile."
                 "materialize_controlled_world_model_record"
@@ -997,6 +1170,8 @@ def _materialize_controlled_world_model_record(
     tenant_id: str,
     cell_id: str,
     ncm_view_refs: Sequence[Any] = (),
+    candidate_baseline_state: Mapping[str, object] | None = None,
+    candidate_outcome_state_paths: Mapping[str, str] | None = None,
 ) -> Any:
     """Return the exact WMR from its owner build result for existing callers."""
 
@@ -1012,6 +1187,8 @@ def _materialize_controlled_world_model_record(
         tenant_id=tenant_id,
         cell_id=cell_id,
         ncm_view_refs=ncm_view_refs,
+        candidate_baseline_state=candidate_baseline_state,
+        candidate_outcome_state_paths=candidate_outcome_state_paths,
     )
     return built.record
 
@@ -1076,6 +1253,7 @@ def _build_configured_procurement_profile(
     cell_id: str,
     tmp_path: Path,
     selected_skg_source: ControlledSKGSourceSelection | None = None,
+    repo_root: Path | None = None,
 ) -> tuple[Any, Any, Any]:
     """Build a candidate profile from its exact owner-persisted WMR source."""
 
@@ -1104,7 +1282,11 @@ def _build_configured_procurement_profile(
     from polisyos.runtime.quality.joint_simulation_horizon import HorizonSpec
     from polisyos.runtime.quality.substrate_registry import persist_substrate_registry
 
-    _, base_context = _controlled_profile_cycle_basis(recorded_problem)
+    product_root = repo_root or REPO_ROOT
+    _, base_context = _controlled_profile_cycle_basis(
+        recorded_problem,
+        repo_root=product_root,
+    )
     outcome_variable = recorded_problem.outcome_of_interest.target_variable
     ncm = NCMSpec(
         endogenous_vars=["cells.distress_score", outcome_variable],
@@ -1154,6 +1336,13 @@ def _build_configured_procurement_profile(
             + ["global.tax_rate", "cells.distress_score", outcome_variable]
         )
     )
+    n5 = CandidateScenarioN5Config(
+        budget_ref="budget://r1/controlled-candidate-n5",
+        horizon=HorizonSpec(start=0, end=0, step=1),
+        baseline_state={"cells.distress_score": 0.0, outcome_variable: 0.0},
+        seed=11,
+        replications=2,
+    )
     with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
         ncm_ref = persist_ncm_spec(_ensure_ir_artifact_store(artifact_store), ncm)
         substrate_registry_ref = persist_substrate_registry(
@@ -1172,13 +1361,15 @@ def _build_configured_procurement_profile(
         tenant_id=tenant_id,
         cell_id=cell_id,
         ncm_view_refs=(ncm_ref,),
+        candidate_baseline_state=n5.baseline_state,
+        candidate_outcome_state_paths={outcome_variable: "market.total_supply"},
     )
     world = world_build.record
     context_inputs = CandidateSimulationContextInputs(
         substrate_registry=base_context.substrate_registry,
         selected_registry_entry_hashes=base_context.selected_registry_entry_hashes,
         world_model_record=world,
-        intervention_substrate=load_l6_intervention_substrate(REPO_ROOT),
+        intervention_substrate=load_l6_intervention_substrate(product_root),
         source_pack_content_hash=base_context.source_pack_content_hash,
         substrate_input_content_hash=base_context.substrate_input_content_hash,
     )
@@ -1189,13 +1380,6 @@ def _build_configured_procurement_profile(
         unit_id="synthetic_score",
         minimum=0,
         maximum=1,
-    )
-    n5 = CandidateScenarioN5Config(
-        budget_ref="budget://r1/controlled-candidate-n5",
-        horizon=HorizonSpec(start=0, end=0, step=1),
-        baseline_state={"cells.distress_score": 0.0, outcome_variable: 0.0},
-        seed=11,
-        replications=2,
     )
     fields = {
         "schema_version": "policyos.runtime.candidate_simulation_profile.v2",
@@ -1265,6 +1449,7 @@ def _configured_procurement_profile(
     cell_id: str,
     tmp_path: Path,
     selected_skg_source: ControlledSKGSourceSelection | None = None,
+    repo_root: Path | None = None,
 ) -> tuple[Any, Any]:
     """Return the profile and declaration from the exact owner-built WMR."""
 
@@ -1275,6 +1460,7 @@ def _configured_procurement_profile(
         cell_id=cell_id,
         tmp_path=tmp_path,
         selected_skg_source=selected_skg_source,
+        repo_root=repo_root,
     )
     return profile, declaration
 
@@ -1578,6 +1764,7 @@ def _controlled_profile_cycle_basis(
     problem_seed: DesignProblem,
     *,
     runtime_hints: dict[str, Any] | None = None,
+    repo_root: Path | None = None,
 ) -> tuple[DesignProblem, Any]:
     """Build only the owner-bound cycle context consumed by the profile fixture."""
     from polisyos.runtime.quality.cycle_substrate import build_cycle_substrate_context
@@ -1639,7 +1826,7 @@ def _controlled_profile_cycle_basis(
     )
     selected_hash = registry.entries[0].entry_content_hash
     world = _build_boundary_world_model_record(
-        repo_root=REPO_ROOT,
+        repo_root=repo_root or REPO_ROOT,
         problem=problem,
         outcome="firm_survival",
         policy_slot_ids=("agents.income", "government.balance", "firm_survival"),

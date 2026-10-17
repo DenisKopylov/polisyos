@@ -787,6 +787,9 @@ def _generic_profile_for_selection(
         hash_fn=gy_content_hash,
     )
     ncm = candidate_ncm_spec_from_declaration(declaration)
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        ncm_ref = persist_ncm_spec(ensure_ir_artifact_store(store), ncm)
+        ncm_ref = ArtifactRef.model_validate(ncm_ref.model_dump(mode="python"))
 
     base_context_inputs = base_profile.context_inputs
     base_world = base_context_inputs.world_model_record
@@ -806,10 +809,11 @@ def _generic_profile_for_selection(
         selected_skg_source=selected_skg_source,
         tenant_id=tenant_id,
         cell_id=cell_id,
+        ncm_view_refs=(ncm_ref,),
+        candidate_baseline_state=candidate_n5.baseline_state,
+        candidate_outcome_state_paths={outcome_variable: "market.total_supply"},
     )
     with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
-        ncm_ref = persist_ncm_spec(ensure_ir_artifact_store(store), ncm)
-        ncm_ref = ArtifactRef.model_validate(ncm_ref.model_dump(mode="python"))
         world = derive_candidate_scenario_world_model_record(
             materialized_base_world,
             ncm_artifact_ref=ncm_ref,

@@ -2086,6 +2086,7 @@ async def _run_controlled_simulate_only_job_fixture(
     )
     profile, model_declaration = _configured_procurement_profile(
         recorded_problem=problem,
+        tmp_path=tmp_path,
         artifact_store=store,
         tenant_id="tenant-fixture",
         cell_id="cell-fixture",

@@ -669,7 +669,7 @@ def _read_controlled_data_snapshot_source(
     return value
 
 
-def _materialize_controlled_world_model_record(
+def _materialize_controlled_world_model_build(
     *,
     source_world_model_record: Any,
     artifact_store: ArtifactStore,
@@ -681,6 +681,7 @@ def _materialize_controlled_world_model_record(
     selected_skg_source: ControlledSKGSourceSelection,
     tenant_id: str,
     cell_id: str,
+    ncm_view_refs: Sequence[Any] = (),
 ) -> Any:
     """Build a source-bound, limited WMR from real local owner artifacts.
 
@@ -695,7 +696,7 @@ def _materialize_controlled_world_model_record(
 
     from polisyos.core.artifacts import ArtifactRef, PutOptions
     from polisyos.core.canon import CanonSpec
-    from polisyos.core.registry import build_default_registry_bundle
+    from polisyos.core.registry import build_registry_bundle, load_registry_bundle_content
     from polisyos.data_forge.kernel.pipeline.manifests import write_publish_manifest
     from polisyos.data_forge.kernel.snapshot import finalize_snapshot
     from polisyos.fabric.world import (
@@ -704,7 +705,20 @@ def _materialize_controlled_world_model_record(
         WorldSnapshotWriteRequest,
         write_world_snapshot,
     )
-    from polisyos.ir.kernel import DEFAULT_SLOT_REGISTRY
+    from polisyos.ir.kernel import (
+        DEFAULT_CONSTRAINT_REGISTRY,
+        DEFAULT_MECHANISM_REGISTRY,
+        DEFAULT_MERGE_RULE_REGISTRY,
+        DEFAULT_METRIC_REGISTRY,
+        DEFAULT_SELECTOR_FIELD_REGISTRY,
+        DEFAULT_SLOT_REGISTRY,
+        DEFAULT_UNITS_REGISTRY,
+        GenericUnit,
+        SlotRegistry,
+        SlotSpec,
+        UnitRef,
+        UnitsRegistry,
+    )
     from polisyos.ir.model_layer.model_spec import ModelSpec
     from polisyos.pdc import WorldModelLimitations
     from polisyos.runtime.quality.substrate_registry import SubstrateRegistry
@@ -714,7 +728,6 @@ def _materialize_controlled_world_model_record(
         SkgCausalPriorRef,
         build_world_model_record,
         load_world_model_record,
-        world_model_record_content_hash,
     )
 
     if not selected_registry_entry_hashes:
@@ -738,7 +751,50 @@ def _materialize_controlled_world_model_record(
         aliases.append((slot_id, canonical_id))
     if not aliases:
         raise ValueError("controlled_wmr_policy_slots_missing")
-    canonical_slot_ids = tuple(dict.fromkeys(canonical for _, canonical in aliases))
+    controlled_slot_specs = dict(DEFAULT_SLOT_REGISTRY.slots)
+    for alias, canonical_id in aliases:
+        canonical_slot = DEFAULT_SLOT_REGISTRY.slots[canonical_id]
+        controlled_slot_specs[alias] = SlotSpec.model_validate(
+            {
+                **canonical_slot.model_dump(mode="python"),
+                "slot_id": alias,
+                "unit": UnitRef(unit_id="synthetic_score"),
+                "description": (
+                    "Controlled candidate-only binding copied from "
+                    f"{canonical_id}; measurement semantics are not established."
+                ),
+            }
+        )
+    controlled_slot_registry = SlotRegistry.model_validate(
+        {
+            **DEFAULT_SLOT_REGISTRY.model_dump(mode="python"),
+            "slots": controlled_slot_specs,
+            "notes": [
+                *DEFAULT_SLOT_REGISTRY.notes,
+                "Controlled fixture aliases are declared before WMR construction; "
+                "they carry no empirical or authority claim.",
+            ],
+        }
+    )
+    controlled_unit_registry = UnitsRegistry.model_validate(
+        {
+            **DEFAULT_UNITS_REGISTRY.model_dump(mode="python"),
+            "units": {
+                **DEFAULT_UNITS_REGISTRY.units,
+                "synthetic_score": GenericUnit(
+                    label="controlled candidate-fixture value",
+                    description=(
+                        "Candidate-only fixture unit; physical measurement semantics "
+                        "are not established."
+                    ),
+                ),
+            },
+            "notes": [
+                *DEFAULT_UNITS_REGISTRY.notes,
+                "synthetic_score is limited to controlled candidate fixtures.",
+            ],
+        }
+    )
 
     source_root = tmp_path / "controlled-candidate-source"
     snapshot_id = "controlled-candidate-source-v1"
@@ -834,7 +890,25 @@ def _materialize_controlled_world_model_record(
             payload_ref=payload_ref,
             snapshot_id=snapshot_id,
         )
-        registry_bundle = build_default_registry_bundle(artifact_store)
+        registry_bundle = build_registry_bundle(
+            artifact_store,
+            slot_registry=controlled_slot_registry,
+            merge_registry=DEFAULT_MERGE_RULE_REGISTRY,
+            mechanism_registry=DEFAULT_MECHANISM_REGISTRY,
+            constraint_registry=DEFAULT_CONSTRAINT_REGISTRY,
+            selector_field_registry=DEFAULT_SELECTOR_FIELD_REGISTRY,
+            metric_registry=DEFAULT_METRIC_REGISTRY,
+            units_registry=controlled_unit_registry,
+        )
+        persisted_registry = load_registry_bundle_content(
+            artifact_store,
+            registry_bundle.bundle_ref,
+        )
+        if (
+            persisted_registry.slot_registry != controlled_slot_registry
+            or persisted_registry.units_registry != controlled_unit_registry
+        ):
+            raise ValueError("controlled_wmr_registry_readback_mismatch")
 
     model_spec = ModelSpec(
         model_id="model_controlled_candidate_source",
@@ -879,7 +953,7 @@ def _materialize_controlled_world_model_record(
             tx_time_scope=source_world_model_record.tx_time_scope,
             resolution=source_world_model_record.resolution,
             branch_mode=BranchMode.SCENARIO,
-            policy_slot_ids=canonical_slot_ids,
+            policy_slot_ids=tuple(alias for alias, _ in aliases),
             producer_ref=(
                 "tests._helpers.controlled_candidate_profile."
                 "materialize_controlled_world_model_record"
@@ -888,64 +962,114 @@ def _materialize_controlled_world_model_record(
             required_substrate_families=selected_families,
             substrate_registry_artifact_ref=supplied_registry_ref,
             registry_bundle_artifact_ref=registry_bundle.bundle_ref,
-            ncm_view_refs=(),
+            ncm_refs=tuple(str(ref.artifact_id) for ref in ncm_view_refs),
+            ncm_view_refs=tuple(ncm_view_refs),
             limitations=WorldModelLimitations(
-                admissibility_blockers=("causal_coupling_not_established",)
+                admissibility_blockers=(
+                    "source_time_not_established",
+                    "source_to_target_measurement_contract_not_established",
+                    "causal_coupling_not_established",
+                )
             ),
             candidate_only=True,
         )
-        if load_world_model_record(artifact_store, built.record_ref) != built.record:
+        persisted_record = load_world_model_record(artifact_store, built.record_ref)
+        if persisted_record != built.record:
             raise ValueError("controlled_wmr_source_reader_mismatch")
 
-    canonical_bindings = {item.slot_id: item for item in built.record.policy_slot_map}
-    alias_bindings = tuple(
-        canonical_bindings[canonical_id].model_copy(
-            update={"slot_id": alias, "unit": "synthetic_score"}
-        )
-        for alias, canonical_id in aliases
-    )
-    foundry_binding_ref = built.record.foundry_binding_ref.model_copy(
-        update={
-            "state_slot_digest": gy_content_hash(
-                {
-                    "bound_state_snapshot_ref": str(
-                        built.record.foundry_binding_ref.bound_state_snapshot_ref
-                    ),
-                    "policy_slot_map": [item.model_dump(mode="json") for item in alias_bindings],
-                }
-            )
-        }
-    )
-    draft = built.record.model_copy(
-        update={
-            "policy_slot_map": alias_bindings,
-            "foundry_binding_ref": foundry_binding_ref,
-            "producer_ref": (
-                "tests._helpers.controlled_candidate_profile.candidate_only_slot_alias_projection"
-            ),
-        }
-    )
-    content_hash = world_model_record_content_hash(draft)
-    payload = draft.model_dump(mode="python")
-    payload.update(
-        {
-            "world_model_record_id": (
-                "world_model_record_" + content_hash.removeprefix("sha256:")[:16]
-            ),
-            "content_hash": content_hash,
-        }
-    )
-    return type(built.record).model_validate(payload)
+    return built
 
 
-def _configured_procurement_profile(
+def _materialize_controlled_world_model_record(
     *,
-    recorded_problem: object,
+    source_world_model_record: Any,
+    artifact_store: ArtifactStore,
+    tmp_path: Path,
+    substrate_registry: Any,
+    selected_registry_entry_hashes: Sequence[str],
+    substrate_registry_ref: Any,
+    policy_slot_ids: Sequence[str],
+    selected_skg_source: ControlledSKGSourceSelection,
+    tenant_id: str,
+    cell_id: str,
+) -> Any:
+    """Return the exact WMR from its owner build result for existing callers."""
+
+    built = _materialize_controlled_world_model_build(
+        source_world_model_record=source_world_model_record,
+        artifact_store=artifact_store,
+        tmp_path=tmp_path,
+        substrate_registry=substrate_registry,
+        selected_registry_entry_hashes=selected_registry_entry_hashes,
+        substrate_registry_ref=substrate_registry_ref,
+        policy_slot_ids=policy_slot_ids,
+        selected_skg_source=selected_skg_source,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+    )
+    return built.record
+
+
+def _seed_controlled_selected_skg_source(
+    tmp_path: Path,
+    *,
+    recorded_problem: DesignProblem,
+) -> ControlledSKGSourceSelection:
+    """Build a variable-identity-only SKG through its canonical owner.
+
+    The synthetic estimates admit variable identities for a controlled fixture;
+    they do not create causal claims or establish source authority.
+    """
+    from polisyos.data_forge.domains.academic.knowledge.types import (
+        EstimateCandidate,
+        WorkRecord,
+    )
+    from tests._helpers.academic_skg import build_synthetic_academic_skg_source
+
+    source_root = tmp_path / "controlled-candidate-source"
+    source_root.mkdir(parents=True, exist_ok=True)
+    db_path = source_root / "academic-skg.duckdb"
+    outcome_variable = recorded_problem.outcome_of_interest.target_variable
+    selected_slots = tuple(
+        dict.fromkeys(
+            [lever.target_slot for lever in recorded_problem.candidate_lever_space.candidate_levers]
+            + ["global.tax_rate", "government.balance", "cells.distress_score", outcome_variable]
+        )
+    )
+    variables = tuple(
+        dict.fromkeys(_CONTROLLED_SLOT_ALIASES.get(slot_id, slot_id) for slot_id in selected_slots)
+    )
+    record = WorkRecord(
+        id="controlled-candidate-source-v1",
+        title="Synthetic candidate variable-identity fixture",
+        abstract=(
+            "Synthetic fixture identities only; no causal or production claim is established."
+        ),
+        year=2026,
+        estimates=[
+            EstimateCandidate(
+                value=0.0,
+                pattern_name="controlled_candidate_variable_identity",
+                variable_hint=variable,
+            )
+            for variable in variables
+        ],
+        metadata={"synthetic": True, "fixture_scope": "candidate_only"},
+    )
+    build_synthetic_academic_skg_source(records=(record,), db_path=db_path)
+    return _capture_controlled_skg_source(db_path)
+
+
+def _build_configured_procurement_profile(
+    *,
+    recorded_problem: DesignProblem,
     artifact_store: ArtifactStore,
     tenant_id: str,
     cell_id: str,
-):
-    """Return a configured candidate profile and its explicit synthetic SCM."""
+    tmp_path: Path,
+    selected_skg_source: ControlledSKGSourceSelection | None = None,
+) -> tuple[Any, Any, Any]:
+    """Build a candidate profile from its exact owner-persisted WMR source."""
 
     from polisyos.core.security.tenant_context import tenant_scope
     from polisyos.ir.analytics.ncm import (
@@ -954,7 +1078,7 @@ def _configured_procurement_profile(
         StructuralEquation,
         persist_ncm_spec,
     )
-    from polisyos.pdc import gy_content_hash, world_model_record_content_hash
+    from polisyos.pdc import gy_content_hash
     from polisyos.runtime.quality.candidate_simulation import (
         CandidateScenarioN5Config,
         CandidateScenarioSetToRule,
@@ -966,15 +1090,13 @@ def _configured_procurement_profile(
     from polisyos.runtime.quality.cycle_substrate import (
         cycle_job_profile_selection_ref,
     )
-    from polisyos.runtime.quality.generation_cycle import (
-        _build_boundary_world_model_record,
-    )
     from polisyos.runtime.quality.intervention_substrate import (
         load_l6_intervention_substrate,
     )
     from polisyos.runtime.quality.joint_simulation_horizon import HorizonSpec
+    from polisyos.runtime.quality.substrate_registry import persist_substrate_registry
 
-    base_problem, base_context = _controlled_profile_cycle_basis(recorded_problem)
+    _, base_context = _controlled_profile_cycle_basis(recorded_problem)
     outcome_variable = recorded_problem.outcome_of_interest.target_variable
     ncm = NCMSpec(
         endogenous_vars=["cells.distress_score", outcome_variable],
@@ -1014,51 +1136,36 @@ def _configured_procurement_profile(
         independence_model="dag_markov",
         fit_method="synthetic_candidate_profile_fixture",
     )
-    with tenant_scope(
-        None,
-        tenant_id=tenant_id,
-        cell_id=cell_id,
-    ):
-        ncm_ref = persist_ncm_spec(_ensure_ir_artifact_store(artifact_store), ncm)
-
+    selected_source = selected_skg_source or _seed_controlled_selected_skg_source(
+        tmp_path,
+        recorded_problem=recorded_problem,
+    )
     candidate_slots = tuple(
         dict.fromkeys(
             [lever.target_slot for lever in recorded_problem.candidate_lever_space.candidate_levers]
             + ["global.tax_rate", "cells.distress_score", outcome_variable]
         )
     )
-    world = _build_boundary_world_model_record(
-        repo_root=REPO_ROOT,
-        problem=base_problem,
-        outcome=outcome_variable,
-        policy_slot_ids=candidate_slots,
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        ncm_ref = persist_ncm_spec(_ensure_ir_artifact_store(artifact_store), ncm)
+        substrate_registry_ref = persist_substrate_registry(
+            artifact_store,
+            base_context.substrate_registry,
+        )
+    world_build = _materialize_controlled_world_model_build(
+        source_world_model_record=base_context.world_model_record,
+        artifact_store=artifact_store,
+        tmp_path=tmp_path,
         substrate_registry=base_context.substrate_registry,
         selected_registry_entry_hashes=base_context.selected_registry_entry_hashes,
+        substrate_registry_ref=substrate_registry_ref,
+        policy_slot_ids=candidate_slots,
+        selected_skg_source=selected_source,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+        ncm_view_refs=(ncm_ref,),
     )
-    bindings = tuple(
-        item.model_copy(update={"unit": "synthetic_score"}) for item in world.policy_slot_map
-    )
-    foundry = world.foundry_binding_ref.model_copy(
-        update={
-            "state_slot_digest": gy_content_hash(
-                {
-                    "boundary": "state_slots",
-                    "slots": [item.model_dump(mode="json") for item in bindings],
-                }
-            )
-        }
-    )
-    draft = world.model_copy(update={"policy_slot_map": bindings, "foundry_binding_ref": foundry})
-    world = draft.model_copy(
-        update={
-            "content_hash": world_model_record_content_hash(draft),
-            "world_model_record_id": (
-                "world_model_record_"
-                + world_model_record_content_hash(draft).removeprefix("sha256:")[:16]
-            ),
-        }
-    )
-    world = _record_with_selected_ncm_ref(world, str(ncm_ref.artifact_id))
+    world = world_build.record
     context_inputs = CandidateSimulationContextInputs(
         substrate_registry=base_context.substrate_registry,
         selected_registry_entry_hashes=base_context.selected_registry_entry_hashes,
@@ -1136,6 +1243,30 @@ def _configured_procurement_profile(
                 declaration_draft.model_dump(mode="json", exclude={"content_hash"})
             ),
         }
+    )
+    if profile.context_inputs.world_model_record != world_build.record:
+        raise ValueError("controlled_candidate_profile_wmr_binding_mismatch")
+    return profile, declaration, world_build
+
+
+def _configured_procurement_profile(
+    *,
+    recorded_problem: DesignProblem,
+    artifact_store: ArtifactStore,
+    tenant_id: str,
+    cell_id: str,
+    tmp_path: Path,
+    selected_skg_source: ControlledSKGSourceSelection | None = None,
+) -> tuple[Any, Any]:
+    """Return the profile and declaration from the exact owner-built WMR."""
+
+    profile, declaration, _ = _build_configured_procurement_profile(
+        recorded_problem=recorded_problem,
+        artifact_store=artifact_store,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+        tmp_path=tmp_path,
+        selected_skg_source=selected_skg_source,
     )
     return profile, declaration
 
@@ -1427,22 +1558,6 @@ def _problem(problem_id: str = "generic_cycle_problem") -> DesignProblem:
             ]
         ),
     )
-
-
-def _record_with_selected_ncm_ref(record: Any, ncm_ref: str) -> Any:
-    """Rebind a fixture WMR to one selected NCM artifact without changing other fields."""
-
-    from polisyos.runtime.quality.world_model_record import world_model_record_content_hash
-
-    simulation_model_ref = record.simulation_model_ref.model_copy(update={"ncm_refs": (ncm_ref,)})
-    draft = record.model_copy(update={"simulation_model_ref": simulation_model_ref})
-    content_hash = world_model_record_content_hash(draft)
-    payload = draft.model_dump(mode="python")
-    payload["content_hash"] = content_hash
-    payload["world_model_record_id"] = (
-        f"world_model_record_{content_hash.removeprefix('sha256:')[:16]}"
-    )
-    return type(record).model_validate(payload)
 
 
 def _budget(max_usd: str = "5.0") -> BudgetState:

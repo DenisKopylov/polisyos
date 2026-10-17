@@ -20,9 +20,12 @@ from polisyos.runtime.quality.generation_source import (
 )
 from polisyos.scientist.orchestration.llm import factory as llm_factory
 from tests._helpers.controlled_candidate_profile import (
+    _build_configured_procurement_profile,
     _configured_procurement_profile,
     _controlled_procurement_recording,
     _current_compiler_problem,
+    _seed_controlled_selected_skg_source,
+    _validate_controlled_skg_source,
 )
 from tools.quality.validation import (
     check_layer3_gy_design_generation_contract as n4_contract,
@@ -247,7 +250,8 @@ def test_served_unknown_candidate_profile_keeps_persisted_n4_candidate(
         app = env["app"]
         with client:
             response = client.post(
-                "/api/v1/control/runs/nl", headers={"Idempotency-Key": "test-r216-387d7233b4d3452484f7a7d90baad73c"},
+                "/api/v1/control/runs/nl",
+                headers={"Idempotency-Key": "test-r216-387d7233b4d3452484f7a7d90baad73c"},
                 json={
                     "request": raw_request,
                     "llm_model": model_id,
@@ -487,12 +491,89 @@ def test_served_unrefreshable_profile_evidence_keeps_n4_and_blocks_n5(
         cas_root=cas_root,
         core_runs_root=cas_root / "runs",
     )
-    profile, declaration = _configured_procurement_profile(
+    selected_skg_source = _seed_controlled_selected_skg_source(
+        tmp_path,
         recorded_problem=recorded_problem,
+    )
+    profile, declaration, world_build = _build_configured_procurement_profile(
+        recorded_problem=recorded_problem,
+        tmp_path=tmp_path,
         artifact_store=runtime_api_context.store,
         tenant_id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
         cell_id="cell-a",
+        selected_skg_source=selected_skg_source,
     )
+    assert _validate_controlled_skg_source(selected_skg_source) == selected_skg_source
+    from polisyos.core.registry import load_registry_bundle_content
+    from polisyos.runtime.quality.cycle_substrate import (
+        ConfiguredCandidateSimulationContextAdmissionOwner,
+        CycleSubstrateContextOwnerError,
+    )
+    from polisyos.runtime.quality.world_model_record import (
+        load_world_model_record,
+        world_model_artifact_views,
+    )
+
+    with tenant_scope(None, tenant_id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", cell_id="cell-a"):
+        persisted_wmr = load_world_model_record(runtime_api_context.store, world_build.record_ref)
+        registry_content = load_registry_bundle_content(
+            runtime_api_context.store,
+            world_model_artifact_views(persisted_wmr).registry_bundle_ref,
+        )
+    assert persisted_wmr == world_build.record == profile.context_inputs.world_model_record
+    assert persisted_wmr.skg_causal_prior_ref.skg_snapshot_ref == selected_skg_source.snapshot_ref
+    assert persisted_wmr.skg_causal_prior_ref.skg_version_id == str(selected_skg_source.version_id)
+    expected_slots = {
+        lever.target_slot for lever in recorded_problem.candidate_lever_space.candidate_levers
+    } | {
+        "global.tax_rate",
+        "cells.distress_score",
+        recorded_problem.outcome_of_interest.target_variable,
+    }
+    assert expected_slots.issubset({binding.slot_id for binding in persisted_wmr.policy_slot_map})
+    assert persisted_wmr.authority_status == "limited"
+    assert {
+        "source_time_not_established",
+        "source_to_target_measurement_contract_not_established",
+        "causal_coupling_not_established",
+    }.issubset(persisted_wmr.limitations.admissibility_blockers)
+    registry_slots = registry_content.slot_registry.slots
+    for binding in persisted_wmr.policy_slot_map:
+        slot = registry_slots[binding.slot_id]
+        assert binding.state_path == slot.state_path
+        assert binding.unit == (slot.unit.unit_id if slot.unit is not None else None)
+        assert binding.entity_scope == slot.scope.value
+
+    projected_payload = persisted_wmr.model_dump(mode="json", exclude={"content_hash"})
+    projected_payload["producer_ref"] = "unpersisted_controlled_fixture_projection"
+    projected_payload["content_hash"] = gy_content_hash(projected_payload)
+    projected_wmr = type(persisted_wmr).model_validate(projected_payload)
+    assert projected_wmr.policy_slot_map == persisted_wmr.policy_slot_map
+    assert projected_wmr.content_hash != persisted_wmr.content_hash
+    with tenant_scope(None, tenant_id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", cell_id="cell-a"):
+        readback_wmr = load_world_model_record(runtime_api_context.store, world_build.record_ref)
+    assert readback_wmr == persisted_wmr
+    assert readback_wmr != projected_wmr
+
+    admission_owner = ConfiguredCandidateSimulationContextAdmissionOwner(
+        profiles=(profile,),
+        model_declarations=(declaration,),
+        store=runtime_api_context.store,
+    )
+    with (
+        tenant_scope(None, tenant_id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", cell_id="cell-a"),
+        pytest.raises(CycleSubstrateContextOwnerError) as admission_error,
+    ):
+        admission_owner.admit_context_for_acquired_world(
+            problem=recorded_problem,
+            profile_selection_ref=profile.profile_selection_ref,
+            world_model_record=persisted_wmr,
+            job_id="controlled-owner-readback-job",
+            run_id="controlled-owner-readback-run",
+            tenant_id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            cell_id="cell-a",
+        )
+    assert admission_error.value.code == ("candidate_simulation_acquisition_baseline_not_scalar")
     inputs = profile.context_inputs
     context_binding = cycle_substrate_context_binding_hash(
         design_problem_ref=cycle_job_design_problem_ref(recorded_problem),
@@ -554,7 +635,8 @@ def test_served_unrefreshable_profile_evidence_keeps_n4_and_blocks_n5(
         app = env["app"]
         with client:
             response = client.post(
-                "/api/v1/control/runs/nl", headers={"Idempotency-Key": "test-r216-3522d584f8ed410fa29d0f9bf70ae0e6"},
+                "/api/v1/control/runs/nl",
+                headers={"Idempotency-Key": "test-r216-3522d584f8ed410fa29d0f9bf70ae0e6"},
                 json={
                     "request": raw_request,
                     "llm_model": model_id,
@@ -742,6 +824,7 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
     )
     profile, model_declaration = _configured_procurement_profile(
         recorded_problem=recorded_problem,
+        tmp_path=tmp_path,
         artifact_store=runtime_api_context.store,
         tenant_id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
         cell_id="cell-a",
@@ -848,7 +931,8 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
     )
     with TestClient(app) as client:
         response = client.post(
-            "/api/v1/control/runs/nl", headers={"Idempotency-Key": "test-r216-7c23e38b50bb4fc5b6e2ec4f2dfbef9e"},
+            "/api/v1/control/runs/nl",
+            headers={"Idempotency-Key": "test-r216-7c23e38b50bb4fc5b6e2ec4f2dfbef9e"},
             json={
                 "request": raw_request,
                 "llm_model": model_id,
@@ -1005,9 +1089,7 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
             artifact_ref_identity_key(observation.simulation_result_ref)
         )
         assert "simulation_only_k_sim_not_world_evidence" in (served_observation.authority_blockers)
-        assert "simulation_effect_basis_not_established" in (
-            served_observation.authority_blockers
-        )
+        assert "simulation_effect_basis_not_established" in (served_observation.authority_blockers)
 
         assert input_record.authority_purpose == "candidate_scenario_n5_only"
         assert isinstance(input_record.n4_source_ref, ArtifactRef)
@@ -1467,12 +1549,11 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         )
         assert n5_result.uncertainty_kind == "K_sim"
         assert n5_result.diagnostics["effect_basis_status"] == "not_established"
-        assert n5_result.diagnostics["effect_basis"] == (
-            "outcome_minus_request_baseline_state"
-        )
+        assert n5_result.diagnostics["effect_basis"] == ("outcome_minus_request_baseline_state")
         assert n5_result.diagnostics["comparator_refs_status"] == "not_established"
-        assert "simulation_effect_basis_not_established" in (
-            n5_result.promotion_ready_value_packet["authority_blockers"]
+        assert (
+            "simulation_effect_basis_not_established"
+            in (n5_result.promotion_ready_value_packet["authority_blockers"])
         )
         assert n5_result.world_credal_state_before == n5_result.world_credal_state_after
         effects = [
@@ -1549,7 +1630,8 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         )
         n5_calls_before_foreign_ref = len(n5_calls)
         foreign_ref_response = client.post(
-            "/api/v1/control/runs/nl", headers={"Idempotency-Key": "test-r216-7920db2261c44c8dbecc2c81b7f69dcc"},
+            "/api/v1/control/runs/nl",
+            headers={"Idempotency-Key": "test-r216-7920db2261c44c8dbecc2c81b7f69dcc"},
             json={
                 "request": raw_request,
                 "llm_model": model_id,
@@ -1822,7 +1904,8 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         calls_before_drift = len(n5_calls)
         alter_next_compilation[0] = True
         second_response = client.post(
-            "/api/v1/control/runs/nl", headers={"Idempotency-Key": "test-r216-1f6518cf64aa4a638ec27651477a6322"},
+            "/api/v1/control/runs/nl",
+            headers={"Idempotency-Key": "test-r216-1f6518cf64aa4a638ec27651477a6322"},
             json={
                 "request": raw_request,
                 "llm_model": model_id,
@@ -1899,7 +1982,8 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         )
         calls_before_nonmatch = len(n5_calls)
         third_response = client.post(
-            "/api/v1/control/runs/nl", headers={"Idempotency-Key": "test-r216-4208fbae2cc546cdafe82eed49725d7f"},
+            "/api/v1/control/runs/nl",
+            headers={"Idempotency-Key": "test-r216-4208fbae2cc546cdafe82eed49725d7f"},
             json={
                 "request": raw_request,
                 "llm_model": model_id,
@@ -1947,15 +2031,15 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
             "manifest_profile_sha256"
         )
         assert scenario_read["read_trace"]
-        assert scenario_read["read_trace"][-1]["canon_read_status"] == (
-            scenario_read["canon_read_status"]
+        assert (
+            scenario_read["read_trace"][-1]["canon_read_status"]
+            == (scenario_read["canon_read_status"])
         )
-        assert scenario_read["read_trace"][-1]["selected_artifact_id"] == (
-            selected_scenario_ref["artifact_id"]
+        assert (
+            scenario_read["read_trace"][-1]["selected_artifact_id"]
+            == (selected_scenario_ref["artifact_id"])
         )
-        terminal_events = service._control_store.list_diagnostic_events(
-            job_id=third_job.job_id
-        )
+        terminal_events = service._control_store.list_diagnostic_events(job_id=third_job.job_id)
         completed_event = next(
             (
                 item
@@ -2048,7 +2132,8 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         )
         calls_before_persistence_refusal = len(n5_calls)
         fourth_response = client.post(
-            "/api/v1/control/runs/nl", headers={"Idempotency-Key": "test-r216-a543aeab5e6f4419b7dc6de0c0789cfd"},
+            "/api/v1/control/runs/nl",
+            headers={"Idempotency-Key": "test-r216-a543aeab5e6f4419b7dc6de0c0789cfd"},
             json={
                 "request": raw_request,
                 "llm_model": model_id,
@@ -2099,7 +2184,8 @@ def test_served_configured_profile_runs_real_n4_through_candidate_n5_and_rejects
         controllers_before_zero_budget = len(candidate_leaf_controllers)
         compiled_problems_before_zero_budget = len(compiled_problems)
         zero_budget_response = client.post(
-            "/api/v1/control/runs/nl", headers={"Idempotency-Key": "test-r216-474b45079dcc466497ce422066b2aa87"},
+            "/api/v1/control/runs/nl",
+            headers={"Idempotency-Key": "test-r216-474b45079dcc466497ce422066b2aa87"},
             json={
                 "request": raw_request,
                 "llm_model": model_id,

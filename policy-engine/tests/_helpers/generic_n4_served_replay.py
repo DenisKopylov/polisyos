@@ -11,7 +11,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal
 
-import duckdb
 import pytest
 
 from polisyos.core.security.tenant_context import tenant_scope
@@ -19,12 +18,14 @@ from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality.substrate_registry import CatalogServingSourcePaths
 from tests._helpers.controlled_candidate_profile import (
     ControlledSKGSourceSelection,
-    _capture_controlled_skg_source,
     _configured_procurement_profile,
     _controlled_procurement_recording,
     _current_compiler_problem,
     _materialize_controlled_world_model_record,
     _validate_controlled_skg_source,
+)
+from tests._helpers.controlled_candidate_profile import (
+    _seed_controlled_selected_skg_source as _build_candidate_only_skg_source,
 )
 from tools.quality.validation import (
     check_layer3_gy_design_generation_contract as n4_contract,
@@ -677,183 +678,14 @@ def _persist_compiled_run_with_incomplete_child_set(
 
 def _seed_controlled_selected_skg_source(
     tmp_path: Path,
-) -> ControlledSKGSourceSelection:
-    """Create a synthetic SKG snapshot and return its owner-resolved versioned ref."""
-    source_root = tmp_path / "controlled-candidate-source"
-    source_root.mkdir(parents=True, exist_ok=True)
-    db_path = source_root / "academic-skg.duckdb"
-    if db_path.exists() or db_path.with_name(db_path.name + ".wal").exists():
-        raise ValueError("controlled_selected_skg_seed_target_exists")
-    with duckdb.connect(str(db_path)) as con:
-        con.execute(
-            "CREATE TABLE ac_skg_variables (canonical_name VARCHAR, "
-            "approved_canonical_name VARCHAR, is_approved_canonical BOOLEAN, "
-            "resolution_method VARCHAR, resolution_confidence DOUBLE, mention_count INTEGER, "
-            "parent_name VARCHAR, approved_parent_name VARCHAR)"
-        )
-        con.execute(
-            "INSERT INTO ac_skg_variables VALUES "
-            "('global.tax_rate','global.tax_rate',TRUE,'controlled_fixture',0.95,5,NULL,NULL),"
-            "('government.balance','government.balance',TRUE,'controlled_fixture',0.95,5,NULL,NULL),"
-            "('cells.distress_score','cells.distress_score',TRUE,'controlled_fixture',0.95,5,NULL,NULL),"
-            "('cells.output','cells.output',TRUE,'controlled_fixture',0.95,5,NULL,NULL),"
-            "('cells.employment','cells.employment',TRUE,'controlled_fixture',0.95,5,NULL,NULL),"
-            "('agents.income','agents.income',TRUE,'controlled_fixture',0.95,5,NULL,NULL)"
-        )
-        con.execute(
-            "CREATE TABLE ac_skg_variable_synonyms (synonym VARCHAR, canonical_name VARCHAR, "
-            "method VARCHAR, confidence DOUBLE, approved BOOLEAN)"
-        )
-        con.execute(
-            "CREATE TABLE ac_skg_edges (edge_id VARCHAR, src VARCHAR, dst VARCHAR, "
-            "direction VARCHAR, n_articles INTEGER, evidence_strength VARCHAR, confidence DOUBLE, "
-            "candidate_layer VARCHAR, quality_signals_json VARCHAR)"
-        )
-        con.executemany(
-            "INSERT INTO ac_skg_edges VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            (
-                (
-                    "tax-balance",
-                    "global.tax_rate",
-                    "government.balance",
-                    "increases",
-                    3,
-                    "strong",
-                    0.9,
-                    "controlled",
-                    json.dumps(
-                        {
-                            "strong_design_evidence": {"any": True},
-                            "design_quality_tiers": [4],
-                        },
-                        sort_keys=True,
-                    ),
-                ),
-                (
-                    "distress-output",
-                    "cells.distress_score",
-                    "cells.output",
-                    "decreases",
-                    3,
-                    "strong",
-                    0.9,
-                    "controlled",
-                    json.dumps(
-                        {
-                            "strong_design_evidence": {"any": True},
-                            "design_quality_tiers": [4],
-                        },
-                        sort_keys=True,
-                    ),
-                ),
-            ),
-        )
-        con.execute(
-            "CREATE TABLE ac_skg_family_edges (family_edge_id VARCHAR, src_family VARCHAR, "
-            "dst_family VARCHAR, direction VARCHAR, n_articles INTEGER, n_claims INTEGER, "
-            "evidence_strength VARCHAR, confidence DOUBLE, direction_histogram_json VARCHAR, "
-            "design_tier_histogram_json VARCHAR, candidate_layer VARCHAR, quality_signals_json VARCHAR)"
-        )
-        con.execute(
-            "CREATE TABLE ac_skg_moderation_edges (moderation_id VARCHAR, base_cause VARCHAR, "
-            "base_effect VARCHAR, moderator VARCHAR, base_claim_id VARCHAR, direction_of_mod VARCHAR, "
-            "interaction_coeff DOUBLE, interaction_pvalue DOUBLE, evidence_count INTEGER, "
-            "confidence DOUBLE, match_quality VARCHAR, alignment_source VARCHAR, source_refs VARCHAR, "
-            "skg_version INTEGER)"
-        )
-        con.execute(
-            "CREATE TABLE ac_skg_contested_edges (contested_edge_id VARCHAR, src_family VARCHAR, "
-            "dst_family VARCHAR, dominant_direction VARCHAR, resolution_status VARCHAR, "
-            "runtime_support DOUBLE, confidence DOUBLE, positive_weight DOUBLE, negative_weight DOUBLE, "
-            "mixed_weight DOUBLE, direction_histogram_json VARCHAR, quality_signals_json VARCHAR, "
-            "claim_refs VARCHAR)"
-        )
-        con.execute("CREATE TABLE ac_causal_claims_raw (synthetic BOOLEAN)")
-        con.execute("INSERT INTO ac_causal_claims_raw VALUES (TRUE)")
-        con.execute(
-            "CREATE TABLE ac_causal_claims (id VARCHAR, work_id VARCHAR, cause VARCHAR, "
-            "effect VARCHAR, direction VARCHAR, mechanism VARCHAR, trust_score DOUBLE, strength VARCHAR)"
-        )
-        con.execute("CREATE TABLE ac_works (id VARCHAR, title VARCHAR, year INTEGER)")
-        con.execute("CREATE TABLE ac_skg_versions (version_id INTEGER)")
-        con.execute("INSERT INTO ac_skg_versions VALUES (7)")
-
-    selected_source = _capture_controlled_skg_source(db_path)
-    if selected_source.version_id != 7:
-        raise ValueError("controlled_selected_skg_snapshot_ref_unresolved")
-    return selected_source
-
-
-def _bind_profile_to_selected_skg_snapshot(
     *,
-    base_profile: Any,
-    base_declaration: Any,
-    selected_snapshot_ref: str,
-    selected_version_id: int,
-) -> tuple[Any, Any]:
-    """Rehash the typed candidate profile around the exact owner-selected SKG source."""
-    from polisyos.pdc import gy_content_hash, world_model_record_content_hash
-    from polisyos.runtime.quality.candidate_simulation import (
-        candidate_simulation_profile_ref,
+    recorded_problem: Any,
+) -> ControlledSKGSourceSelection:
+    """Use the canonical producer for a candidate-only variable-identity SKG."""
+    return _build_candidate_only_skg_source(
+        tmp_path,
+        recorded_problem=recorded_problem,
     )
-
-    world = base_profile.context_inputs.world_model_record
-    selected_prior = world.skg_causal_prior_ref.model_copy(
-        update={
-            "skg_snapshot_ref": selected_snapshot_ref,
-            "skg_version_id": str(selected_version_id),
-        }
-    )
-    draft_world = world.model_copy(
-        update={
-            "skg_causal_prior_ref": selected_prior,
-            "content_hash": "sha256:" + "0" * 64,
-        }
-    )
-    world_hash = world_model_record_content_hash(draft_world)
-    world_fields = draft_world.model_dump(mode="python")
-    world_fields.update(
-        {
-            "content_hash": world_hash,
-            "world_model_record_id": (
-                "world_model_record_" + world_hash.removeprefix("sha256:")[:16]
-            ),
-        }
-    )
-    selected_world = type(world).model_validate(world_fields)
-
-    context_inputs = base_profile.context_inputs.model_copy(
-        update={"world_model_record": selected_world}
-    )
-    profile_fields = base_profile.model_dump(mode="python", exclude={"content_hash"})
-    profile_fields["context_inputs"] = context_inputs
-    selected_profile = _hashed_model(
-        type(base_profile),
-        profile_fields,
-        hash_fn=gy_content_hash,
-    )
-
-    declaration_fields = base_declaration.model_dump(mode="python", exclude={"content_hash"})
-    declaration_fields.update(
-        {
-            "profile_config_ref": candidate_simulation_profile_ref(selected_profile),
-            "profile_content_hash": selected_profile.content_hash,
-        }
-    )
-    selected_declaration = _hashed_model(
-        type(base_declaration),
-        declaration_fields,
-        hash_fn=gy_content_hash,
-    )
-    if (
-        selected_world.content_hash == world.content_hash
-        or selected_profile.content_hash == base_profile.content_hash
-        or selected_declaration.content_hash == base_declaration.content_hash
-        or selected_declaration.profile_content_hash != selected_profile.content_hash
-        or selected_profile.context_inputs.world_model_record.skg_causal_prior_ref != selected_prior
-    ):
-        raise ValueError("controlled_selected_skg_profile_rebind_mismatch")
-    return selected_profile, selected_declaration
 
 
 def _generic_profile_for_selection(
@@ -1160,23 +992,28 @@ async def prepare_generic_n4_served_replay(
     else:
         cas_root = Path(runtime_api_context.cas_root)
 
-    selected_skg_source = _seed_controlled_selected_skg_source(tmp_path)
+    selected_skg_source = _seed_controlled_selected_skg_source(
+        tmp_path,
+        recorded_problem=recorded_problem,
+    )
     selected_skg_db_path = selected_skg_source.db_path
     selected_skg_version_id = selected_skg_source.version_id
     selected_skg_snapshot_ref = selected_skg_source.snapshot_ref
     source_identity_checkpoints = [_validate_controlled_skg_source(selected_skg_source).sha256]
     base_profile, base_declaration = _configured_procurement_profile(
         recorded_problem=recorded_problem,
+        tmp_path=tmp_path,
+        selected_skg_source=selected_skg_source,
         artifact_store=runtime_api_context.store,
         tenant_id=tenant_id,
         cell_id=cell_id,
     )
-    base_profile, base_declaration = _bind_profile_to_selected_skg_snapshot(
-        base_profile=base_profile,
-        base_declaration=base_declaration,
-        selected_snapshot_ref=selected_skg_snapshot_ref,
-        selected_version_id=selected_skg_version_id,
-    )
+    base_wmr = base_profile.context_inputs.world_model_record
+    if (
+        base_wmr.skg_causal_prior_ref.skg_snapshot_ref != selected_skg_snapshot_ref
+        or base_wmr.skg_causal_prior_ref.skg_version_id != str(selected_skg_version_id)
+    ):
+        raise AssertionError("controlled_n4_preflight_wmr_source_not_selected")
     base_inputs = base_profile.context_inputs
     if (
         base_inputs.world_model_record.skg_causal_prior_ref.skg_snapshot_ref

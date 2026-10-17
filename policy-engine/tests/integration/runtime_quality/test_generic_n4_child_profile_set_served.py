@@ -1008,8 +1008,11 @@ async def test_served_real_n4_children_keep_first_n5_after_later_sibling_failure
     malformed_db_path.parent.mkdir(parents=True)
     malformed_db_path.write_bytes(b"existing malformed DuckDB bytes")
     malformed_bytes = malformed_db_path.read_bytes()
-    with pytest.raises(ValueError, match="controlled_selected_skg_seed_target_exists"):
-        _seed_controlled_selected_skg_source(malformed_seed_root)
+    with pytest.raises(ValueError, match="synthetic_academic_skg_seed_target_exists"):
+        _seed_controlled_selected_skg_source(
+            malformed_seed_root,
+            recorded_problem=prepared.recorded_problem,
+        )
     assert malformed_db_path.read_bytes() == malformed_bytes
 
     import duckdb

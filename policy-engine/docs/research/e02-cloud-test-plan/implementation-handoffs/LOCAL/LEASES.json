@@ -4245,5 +4245,36 @@
     ],
     "closure_ids": [],
     "postapply_style_qualification": "Seven local importblocks in two tests sorted after physical new-helper topology changed Ruff first-party discovery; all20actual canonicalchecks pass; independent style9756b2ff pinned in separate receipt."
+  },
+  "coordination_epoch_20261017_wmr_owner_alias_before_persist_r3": {
+    "canonical_writer": "root",
+    "slice_base": "5679d3b6fe23fa336456f4a2efbd1457aa2db9b0",
+    "mechanism_paths": [
+      "policy-engine/tests/_helpers/controlled_candidate_profile.py",
+      "policy-engine/tests/_helpers/generic_n4_served_replay.py",
+      "policy-engine/tests/integration/runtime_quality/test_configured_candidate_simulation_served.py",
+      "policy-engine/tests/integration/runtime_quality/test_generic_credal_source_attempt_served.py",
+      "policy-engine/tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py",
+      "policy-engine/tests/unit/runtime/http/test_control_service_di.py"
+    ],
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "separate source-bound actual runtime receipt"
+    ],
+    "author_freeze": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n4-wmr-owner-alias-construction-r3-20261017/prototype-freeze-r3.json",
+      "sha256": "682234fda9d1846e8365bdcb1c1126edf336f52e93c6812dfdf0742ba5fd6b00"
+    },
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n4-wmr-owner-alias-r3-independent-review-20261017/review.md",
+      "sha256": "75925389be180700e2936871d16535d465071ee5a4c19912cfeb563725ed014f"
+    },
+    "property": "Controlled fixture registry aliases/units are declared before real WMR producer persistence; fresh CAS reads equal builder/profile record. Canonical graph producer seed collision retains existing bytes; allcaller signatures preserved.",
+    "limits": [
+      "Synthetic candidate input only; limited authority/unknown source-time measurement and causal coupling remain.",
+      "Rank1vector baseline still typedrefused; no elementselection/aggregation/refinement invented.",
+      "Served N4/N5 actual replay remains UNRUN. R1mirror divergence and R2HOLD retained as provenance."
+    ],
+    "closure_ids": []
   }
 }

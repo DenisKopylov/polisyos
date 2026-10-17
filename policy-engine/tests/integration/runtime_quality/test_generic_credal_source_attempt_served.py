@@ -113,6 +113,7 @@ def test_terminal_n4_attempt_stays_candidate_only_through_fresh_get(
     )
     base_profile, base_declaration = _configured_procurement_profile(
         recorded_problem=problem,
+        tmp_path=tmp_path,
         artifact_store=runtime_api_context.store,
         tenant_id=tenant_id,
         cell_id=cell_id,
@@ -159,14 +160,15 @@ def test_terminal_n4_attempt_stays_candidate_only_through_fresh_get(
     )
     with TestClient(app) as client:
         accepted_response = client.post(
-            "/api/v1/control/runs/nl", headers={"Idempotency-Key": "test-r216-18b79c44c24f4676a2ec907bc7954430"},
+            "/api/v1/control/runs/nl",
+            headers={"Idempotency-Key": "test-r216-18b79c44c24f4676a2ec907bc7954430"},
             json={
                 "request": problem.nl_provenance.raw_request,
                 "llm_model": model_id,
                 "context": {
-                    "evaluation_safety_attempt": _valid_intake_for_mode(
-                        "simulate_only"
-                    ).model_dump(mode="json")
+                    "evaluation_safety_attempt": _valid_intake_for_mode("simulate_only").model_dump(
+                        mode="json"
+                    )
                 },
             },
         )
@@ -193,11 +195,14 @@ def test_terminal_n4_attempt_stays_candidate_only_through_fresh_get(
             "compile_and_run_recursive_generation_cycle",
             observe_compile_route,
         )
-        assert dispatch_one_control_job(
-            store=service._control_store,
-            handler=service._process_control_job,
-            expected_job_id=accepted["job_id"],
-        ) == accepted["job_id"]
+        assert (
+            dispatch_one_control_job(
+                store=service._control_store,
+                handler=service._process_control_job,
+                expected_job_id=accepted["job_id"],
+            )
+            == accepted["job_id"]
+        )
         job = service._control_store.get_job(accepted["job_id"])
         assert job is not None and job.state == "completed"
         assert len(compiler_route_observations) == 1

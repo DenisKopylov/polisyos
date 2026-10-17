@@ -459,3 +459,11 @@ implemented.
 **Divergent case.** An in-place candidate write changed 45 canonical file objects and their 302 RAW source/config aliases. The scoped inode reconciliation accounted for all 347 link names. No deciding-output alias was in that set; the original source bytes remain available in exact Git objects. The former RAW snapshot locators require a provenance corrigendum before reuse. See the [bounded incident and evidence](../research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native-hardlink-source-snapshot-corrigendum-20261017.json).
 
 **Closure move.** Preserve the observed snapshots, bind comparisons to recoverable Git preimages, and use a source-write transport that separates file objects. Check the known alias hashes before and after application. The retained two-file hardlink probe requires changed source bytes and unchanged snapshot bytes; in-place writes fail that property. Do not silently rewrite old snapshots to reconstruct their former identity. This is the existing custody/proxy class, not a new capability or a formal finding closure.
+
+### P38 instance: pytest selection includes the physical candidate path (2026-10-17)
+
+**Property.** A focused replay must execute the intended test quantity on the actual candidate source, not a quantity changed by the evidence directory name.
+
+**Divergent case.** `pytest -k 'baseline or main_ or inventory_admits'` matched all 66 ratchet cases under a RAW parent containing `baseline`, but selected 58 at the canonical module path. The same test bytes therefore had different selected quantities. The composed replay retained both the canonical 58-case selector and the full canonical 66-case run, with exact node IDs and JUnit counts; see the [source-bound reconciliation](../research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native-ratchet-composed-actual-and-selector-correction-20261017.json).
+
+**Closure move.** Bind explicit canonical node IDs or run the full bounded module; retain the full selected IDs and result counts. A function-name filter alone is not a scope proof because pytest matches ancestor node IDs too. This is the existing P38 candidate-context class. It changes no ratchet floor, baseline, issuer decision or formal closure.

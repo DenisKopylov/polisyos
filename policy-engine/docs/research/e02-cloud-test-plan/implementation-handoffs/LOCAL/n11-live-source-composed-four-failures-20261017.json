@@ -1,0 +1,88 @@
+{
+  "bounded_diagnosis": {
+    "actual_facade_boundary": "The source helper rejects the existing polisyos.core.artifacts lazy export when it cannot derive a literal provider target. The package __getattr__ dispatch imports .canonical_profile and returns getattr(canonical_profile, name); runtime tests 3 and 4 show this fail-closed refusal for the four current function-local imports. This is an unsupported source-shape boundary, not missing external authority.",
+    "bucket": "same live source-owner binding/currentness class; do not repair by adding per-importer leaves",
+    "coverage_limit": "No selected test reached the intended persisted-CAS recovery or orphan-event assertions; Common's separately pinned 12 bridge rows are not covered by this N11 selector set.",
+    "next_review_boundary": "Review the generic facade-provider projection and live callable integrity fields as one binding/currentness mechanism; preserve fail-closed behavior for unsupported dispatch and do not treat these refusals as positive source-binding proof.",
+    "test1_boundary": "The synthetic literal-map fixture does not establish the real Core facade route; its expected local-good positive itself failed, and its refusal detail is not present in pytest output.",
+    "test2_boundary": "The selected live-default mutation control did not trigger the expected recheck refusal, so function-default mutation detection is not established by this composition."
+  },
+  "execution": {
+    "actual_results_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-r8-focused-projection-command-r1-20261017/actual-results.json",
+    "actual_results_sha256": "0c6c395b4c8a5b56d874f8491f64f1e271e6092d509ee81c15c645f5dc35b6f2",
+    "command_record_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-r8-focused-projection-command-r1-20261017/n11-r8-focused-projection-cas-guard.run.json",
+    "command_record_sha256": "ddbc71ac3fe42a07eca25f90644a6d9fbf11979a2a9964b7f5bb2b5b207ab976",
+    "diagnostic_facade_pin_not_in_request_path_map": {
+      "path": "policy-engine/src/polisyos/core/artifacts/__init__.py",
+      "sha256_readback": "7d9622f4c1a0383befaa12fdc906f25c2e1adb10703e93d24d7936ebf0f430d8"
+    },
+    "exit_code": 1,
+    "head_after": "b6f115016f87ac8fdea0d2e640f6c32f9ae6caaf",
+    "outer_time_max_resident_bytes": 981811200,
+    "outer_time_peak_memory_footprint_bytes": 875415040,
+    "outer_time_real_seconds": 11.36,
+    "outer_time_sys_seconds": 1.13,
+    "outer_time_user_seconds": 10.11,
+    "python": {
+      "base_prefix": "/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none",
+      "executable": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+      "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+      "prefix": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv",
+      "version": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]"
+    },
+    "request_bound_source_pins": {
+      "policy-engine/src/polisyos/runtime/quality/confidence_ledger.py": "37cc497f58ccdf880a9b64aefd56a661fb626bfb25af422bd28e540a451fdf53",
+      "policy-engine/tests/unit/runtime/quality/test_confidence_ledger.py": "28025532524d3b1133361a60c91915c649b6d777bf37958b8c92fd1b9df7babc"
+    },
+    "runner_seconds": 11.284,
+    "source_paths_unchanged": true,
+    "timed_out": false
+  },
+  "outputs": {
+    "junit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-r8-focused-projection-command-r1-20261017/tests.junit.xml",
+      "sha256": "ea45eda3931e9a9c2f7d36aa5708b9bcb5ed460edb92fc59a44812565cd27213"
+    },
+    "stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-r8-focused-projection-command-r1-20261017/n11-r8-focused-projection-cas-guard.stderr.txt",
+      "sha256": "93618b42b84493efe2fc7760f0629574908d1d602ed97bab1c8b621f035025b7"
+    },
+    "stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-r8-focused-projection-command-r1-20261017/n11-r8-focused-projection-cas-guard.stdout.txt",
+      "sha256": "b3a9ef6bc58fceb2f54c6b982879fdb5bbb69a5fccdb7190c3280fd30bbf7db2"
+    }
+  },
+  "request": {
+    "expected_head": "b6f115016f87ac8fdea0d2e640f6c32f9ae6caaf",
+    "expected_tree": "f73bd377fbfe692ad921296eb75ccd12b8af2d5c",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-r8-focused-projection-command-r1-20261017/request.json",
+    "sha256": "65786a6505c9ea951177445af1bbc3b6a1f903970cc3eabc732330af43d46412"
+  },
+  "results": [
+    {
+      "evidence": "pytest output gives the assertion and status but not the refusal detail",
+      "nodeid": "tests/unit/runtime/quality/test_confidence_ledger.py::test_source_facade_projection_tracks_lexical_imports_and_temporary_module_aliases",
+      "observed": "the synthetic local_good import was refused; assertion expected admitted",
+      "status": "failed"
+    },
+    {
+      "nodeid": "tests/unit/runtime/quality/test_confidence_ledger.py::test_integrity_assertion_rechecks_live_function_defaults_after_prior_pass",
+      "observed": "expected canonical_loaded_runtime_mismatch after live function-default mutation, but no exception was raised",
+      "status": "failed"
+    },
+    {
+      "exception": "canonical_loaded_runtime_mismatch: non-literal repository re-export: polisyos.core.artifacts.load_core_json_artifact",
+      "nodeid": "tests/unit/runtime/quality/test_confidence_ledger.py::test_crash_recovery_never_reexecutes_and_next_start_uses_fresh_ordinal",
+      "observed": "session construction stopped at import-time identity admission before CAS recovery",
+      "status": "failed"
+    },
+    {
+      "exception": "canonical_loaded_runtime_mismatch: non-literal repository re-export: polisyos.core.artifacts.load_core_json_artifact",
+      "nodeid": "tests/unit/runtime/quality/test_confidence_ledger.py::test_import_manifest_root_rebinding_cannot_hide_genuine_orphan_event_on_fresh_session",
+      "observed": "session construction stopped at import-time identity admission before orphan-event/fresh-session assertions",
+      "status": "failed"
+    }
+  ],
+  "schema": "n11-r8-focused-projection-independent-replay-review-r1",
+  "verdict": "HOLD"
+}

@@ -1,0 +1,218 @@
+{
+  "candidate": {
+    "after": {
+      "branch": "codex/e02-unified-local-20261009",
+      "head": "b6f115016f87ac8fdea0d2e640f6c32f9ae6caaf",
+      "pin_file": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/common-text-route-canonical-actual-b6f115-20261017/source-pins-after.json@145195f92b0b2ce18c137ffd69b1cea6d25c6b5b979ad019f5dfe3f1e4901a5c",
+      "tree": "f73bd377fbfe692ad921296eb75ccd12b8af2d5c"
+    },
+    "before": {
+      "branch": "codex/e02-unified-local-20261009",
+      "head": "b6f115016f87ac8fdea0d2e640f6c32f9ae6caaf",
+      "pin_file": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/common-text-route-canonical-actual-b6f115-20261017/source-pins-before.json@5c84993ac618e2630490c3aae1ee39b78c838537d81069fab190647a95a4f3c7",
+      "tree": "f73bd377fbfe692ad921296eb75ccd12b8af2d5c"
+    },
+    "candidate_postimage_count": 93,
+    "command_plan": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/common-text-route-canonical-focused-test-plan-20261017/command-plan.json@b3e27161377babe9e93309cf5cec8c3def9986be7ad5facbdeb35bb3316e0dee",
+    "independent_review_sha256": "b0207f33aff18cbb75b3a97b025aceefb726c182d8d76368463f2d115d90d673",
+    "manifest": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/common-text-route-composition-r1-20261017/manifest.json@695662fb05b4002a91dc004f7dab6e83b78bd743d788eeeb4c2fa70cf67cfa34",
+    "patch_sha256": "8371d3cc7576672a75db6b2cce3b84128bd9215e9ff4262d29d178f9540c2659",
+    "postimages_match_after": true,
+    "postimages_match_before": true,
+    "pre_to_post_candidate_input_changes": 0,
+    "tracked_worktree_clean_after": true,
+    "tracked_worktree_clean_before": true
+  },
+  "evidence_artifacts": [
+    {
+      "bytes": 4792,
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/common-text-route-canonical-actual-b6f115-20261017/run-request.json",
+      "sha256": "ec608dc7468ba967439d15d884facf5e9b08c5cf0a381211bcb2fdf867b3d756"
+    },
+    {
+      "bytes": 23290,
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/common-text-route-canonical-actual-b6f115-20261017/source-pins-before.json",
+      "sha256": "5c84993ac618e2630490c3aae1ee39b78c838537d81069fab190647a95a4f3c7"
+    },
+    {
+      "bytes": 23338,
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/common-text-route-canonical-actual-b6f115-20261017/source-pins-after.json",
+      "sha256": "145195f92b0b2ce18c137ffd69b1cea6d25c6b5b979ad019f5dfe3f1e4901a5c"
+    },
+    {
+      "bytes": 2666,
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/common-text-route-canonical-actual-b6f115-20261017/preflight-direct.stdout.txt",
+      "sha256": "5ab03dfcbbd768cbfdb7f8fdedd7e54bf490e347b943ce5b632b4dacc0954b36"
+    },
+    {
+      "bytes": 0,
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/common-text-route-canonical-actual-b6f115-20261017/preflight-direct.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1390,
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/common-text-route-canonical-actual-b6f115-20261017/run_candidate_tests.py",
+      "sha256": "a2751e87ba1770a5f80387153133c3f68d2a4c862428ae24d55ae5121e15a7fe"
+    },
+    {
+      "bytes": 1540,
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/common-text-route-canonical-actual-b6f115-20261017/runner-result.json",
+      "sha256": "90cd591025fb3d9a26eb948923e2bdf626a0f1341a242e9c142959f28485a449"
+    },
+    {
+      "bytes": 613,
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/common-text-route-canonical-actual-b6f115-20261017/pytest.stdout.txt",
+      "sha256": "da0718bd38d67b3b9334e605e6301db88d5b4a7719b950654cb4ba8b2aef74de"
+    },
+    {
+      "bytes": 0,
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/common-text-route-canonical-actual-b6f115-20261017/pytest.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 3104,
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/common-text-route-canonical-focused-test-plan-20261017/focused-common-routes.junit.xml",
+      "sha256": "f8902df85e915707917dcccfb094b6ea82816373a42fa36a9b7367f753f5971d"
+    }
+  ],
+  "execution": {
+    "child_argv": [
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+      "-B",
+      "-m",
+      "pytest",
+      "-p",
+      "no:cacheprovider",
+      "--junitxml",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/common-text-route-canonical-focused-test-plan-20261017/focused-common-routes.junit.xml",
+      "tests/unit/common/test_package_rehome.py::test_common_package_public_declarations_and_explicit_all_are_preserved",
+      "tests/unit/common/test_package_rehome.py::test_common_text_facade_is_lazy_and_removal_probe_rejects_missing_route",
+      "tests/unit/architecture/test_source50_core_common_route_identity.py::test_public_root_module_attribute_is_the_exact_child_module",
+      "tests/unit/common/test_lex_text.py::test_common_collapses_whitespace_without_touching_words",
+      "tests/unit/common/test_lex_text.py::test_lex_consumers_keep_the_common_function_object",
+      "tests/property/lex/test_common_properties.py::test_collapse_ws_is_idempotent_and_removes_runs"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "entrypoint_is_symlink_but_invoked_without_resolution": true,
+    "environment": {
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src:/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests",
+      "VECLIB_MAXIMUM_THREADS": "1"
+    },
+    "explicit_python_entrypoint": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+    "junit": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/common-text-route-canonical-focused-test-plan-20261017/focused-common-routes.junit.xml@f8902df85e915707917dcccfb094b6ea82816373a42fa36a9b7367f753f5971d",
+    "measurement_runner": {
+      "elapsed_seconds": 2.995955416932702,
+      "exit_status": 0,
+      "outer_executable": "/opt/homebrew/opt/python@3.14/bin/python3.14",
+      "peak_rss_bytes": 247742464,
+      "peak_rss_mib": 236.27,
+      "peak_rss_source": "resource.getrusage(RUSAGE_CHILDREN) after the direct pytest child exited on Darwin; measured, not OS-enforced",
+      "script": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/common-text-route-canonical-actual-b6f115-20261017/run_candidate_tests.py@a2751e87ba1770a5f80387153133c3f68d2a4c862428ae24d55ae5121e15a7fe",
+      "timeout_seconds": 90
+    },
+    "normal_source_imports_no_overlay": true,
+    "parallelism": 1,
+    "preflight_identity_probe": {
+      "polisyos.lex.legal_evaluation.backends.simple_v1": true,
+      "polisyos.lex.legal_evaluation.context_builder": true,
+      "polisyos.lex.normpack.assemble_pack": true,
+      "polisyos.lex.normpack.extract_norm_claims": true
+    },
+    "pytest_summary": {
+      "errors": 0,
+      "failures": 0,
+      "pytest_reported_seconds": 1.364,
+      "skipped": 0,
+      "tests": 13
+    },
+    "runtime": {
+      "pytest_origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest/__init__.py",
+      "pytest_version": "9.0.2",
+      "sys_base_prefix": "/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none",
+      "sys_executable": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+      "sys_prefix": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv"
+    },
+    "selectors": [
+      {
+        "node": "tests/unit/common/test_package_rehome.py::test_common_package_public_declarations_and_explicit_all_are_preserved",
+        "property": "Common facade public declarations and __all__ include exactly text.collapse_ws."
+      },
+      {
+        "node": "tests/unit/common/test_package_rehome.py::test_common_text_facade_is_lazy_and_removal_probe_rejects_missing_route",
+        "property": "A fresh child process confirms text is lazy, resolves to the canonical child module, and removal of the actual __all__ route produces AttributeError."
+      },
+      {
+        "node": "tests/unit/architecture/test_source50_core_common_route_identity.py::test_public_root_module_attribute_is_the_exact_child_module",
+        "property": "The public Common root attribute is the exact imported text child module."
+      },
+      {
+        "node": "tests/unit/common/test_lex_text.py::test_common_collapses_whitespace_without_touching_words",
+        "property": "collapse_ws output remains behavior-compatible on a direct sample."
+      },
+      {
+        "node": "tests/unit/common/test_lex_text.py::test_lex_consumers_keep_the_common_function_object",
+        "property": "Each of the four existing Lex importers retains the identical collapse_ws function object."
+      },
+      {
+        "node": "tests/property/lex/test_common_properties.py::test_collapse_ws_is_idempotent_and_removes_runs",
+        "property": "Existing Hypothesis property preserves collapse_ws idempotence and whitespace normalization."
+      }
+    ],
+    "source_origins": {
+      "common": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/common/__init__.py",
+      "common_text": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/common/text.py",
+      "lex_consumers": {
+        "polisyos.lex.legal_evaluation.backends.simple_v1": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/lex/legal_evaluation/backends/simple_v1.py",
+        "polisyos.lex.legal_evaluation.context_builder": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/lex/legal_evaluation/context_builder.py",
+        "polisyos.lex.normpack.assemble_pack": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/lex/normpack/assemble_pack.py",
+        "polisyos.lex.normpack.extract_norm_claims": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/lex/normpack/extract_norm_claims.py"
+      },
+      "pytest_helpers": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/_helpers/artifacts.py"
+    },
+    "stderr": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/common-text-route-canonical-actual-b6f115-20261017/pytest.stderr.txt@e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/common-text-route-canonical-actual-b6f115-20261017/pytest.stdout.txt@da0718bd38d67b3b9334e605e6301db88d5b4a7719b950654cb4ba8b2aef74de",
+    "test_files": [
+      {
+        "expected_postimage_bytes": 872,
+        "expected_postimage_sha256": "646db23283803e3ef3b38ff463f11212667f9411addfdb164135e959ff2f39b2",
+        "path": "policy-engine/tests/property/lex/test_common_properties.py"
+      },
+      {
+        "expected_postimage_bytes": 14198,
+        "expected_postimage_sha256": "1d941a8f2b2491116c2ff8d129dbc8b556804a70c5289aa4384c1661aa83122a",
+        "path": "policy-engine/tests/unit/architecture/test_source50_core_common_route_identity.py"
+      },
+      {
+        "expected_postimage_bytes": 1162,
+        "expected_postimage_sha256": "7ce9470a1fb8f3f19fe0771e2fad727a59ab7084de1836018719cfbc89db3a20",
+        "path": "policy-engine/tests/unit/common/test_lex_text.py"
+      },
+      {
+        "expected_postimage_bytes": 6944,
+        "expected_postimage_sha256": "06803266c4a241af31d7b0ea321a975595c7222d0aee51b8b35a1fb90d0a63e4",
+        "path": "policy-engine/tests/unit/common/test_package_rehome.py"
+      }
+    ],
+    "timeout_seconds": 90
+  },
+  "formal_closure_ids": [],
+  "limitations": [
+    "13 parametrized cases passed across six selectors; the route-identity selector expands to eight routes.",
+    "No full importer suite, generated inventory/reference regeneration, or complete Common93 deep-import reconciliation was run in this focused wave.",
+    "One non-blocking pytest configuration warning is recorded above."
+  ],
+  "schema": "policyos.canonical-focused-test-run-receipt.v1",
+  "scope": "Common.text lazy facade and the four existing Lex consumer routes only; not full Common93 or generated public-surface closure.",
+  "status": "focused_behavioral_checks_passed_with_nonblocking_runner_warning",
+  "warning": {
+    "cause": "The command plan disables pytest cacheprovider with -p no:cacheprovider while pytest.ini configures cache_dir.",
+    "count": 1,
+    "disposition": "Preserved as observed; no rerun. A warning-free repeat would require a separately authorized adjusted command that keeps cacheprovider enabled and redirects cache_dir into RAW.",
+    "impact": "No test failures; warning is command-induced and the command exercised the selected runtime behaviors.",
+    "text": "PytestConfigWarning: Unknown config option: cache_dir"
+  }
+}

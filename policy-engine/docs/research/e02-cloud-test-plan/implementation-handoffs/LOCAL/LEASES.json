@@ -6025,5 +6025,44 @@
     "G_acceptance": false,
     "closure_ids": [],
     "next_check": "Canonical Common/facade/importer behavior; N11 actual four local rows and twelve facade routes plus persistence/refusals; R15 real ordinary POST worker freshGET; native ratchet/report typed intake/route join; then batched blocking fixes and complete source/input/backend freeze."
+  },
+  "coordination_epoch_20261017_composed_actuals_pass_fail_error_delivery": {
+    "slice_base": "b6f115016f87ac8fdea0d2e640f6c32f9ae6caaf",
+    "canonical_writer": "root only; separate evidence delivery after implementation",
+    "payloads": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/common-owner-native-composition-source-and-actual-b6f-20261017.json",
+        "sha256": "e83c2ce2b646ef21c4995a48415b732ccd2b9fa4c9aa9120463ff651f837dec4"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/la032-whole-layout-adopted-actual-20261017.json",
+        "sha256": "3fb6c236f93204081f8e5e1e1977ab57383e5760b50e0debb93cdb48fb2ff749"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/common-facade-composed-actual-b6f-20261017.json",
+        "sha256": "4a338c9f485bf3c6101a3fc65bda0aa019cb756458fc23efbb9c8615edffe17a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native-ratchet-composed-actual-and-selector-correction-20261017.json",
+        "sha256": "1cdca22af76b2093f7bbe601e6fc31a16c38a68d8d7aadd47aa89d33f6e90348"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/n11-live-source-composed-four-failures-20261017.json",
+        "sha256": "e6dfd0dc190f0ee6b64f15f4030c0f2327b476e01caa0ad9d6c29b1de17d8ad5"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/phase-barrier-owner-composed-collection-error-20261017.json",
+        "sha256": "bf7c7a1491433b2c05c53f0076b340710d97eeace2b8ebaa12c8133648309659"
+      }
+    ],
+    "pattern_register_companion": {
+      "path": "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+      "sha256": "1c34476fcc90801535e83455d9cb16509fde1ef4027730a63664d072c229f689"
+    },
+    "source_profile_freeze": false,
+    "closure_ids": [],
+    "G_acceptance": false,
+    "actual_boundaries": "LA03213 PASS on c561; Common13 PASS on b6f; canonical ratchet selector58 and fullmodule66 PASS but actual ratchetCLI exits1; N11four FAIL; R15collectionERROR with zero producttestfunctions. These results are individually source-bound and are not a cumulative closure score.",
+    "next_check": "Batched internal owner/binding/typed-source repairs and independent reviews; then explicit source/input/backend freeze and full original-occurrence verification."
   }
 }

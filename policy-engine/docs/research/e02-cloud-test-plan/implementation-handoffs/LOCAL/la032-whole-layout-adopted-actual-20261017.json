@@ -1,0 +1,119 @@
+{
+  "record_type": "proposal-only LA032 post-commit actual test receipt",
+  "created_at_local": "2026-10-17",
+  "status": "test-only scoped verification; no closure or whole-capability claim",
+  "scope": {
+    "question": "Does the committed LA032 whole-layout test module pass on the exact normal adopted source, with the three producer implementation files unchanged?",
+    "property": "One complete demographic layout is selected as a unit across target, prior, and optional donor roles; incompatible cross-layout splicing and ambiguous complete layouts are refused.",
+    "p40_bucket": "Same whole-layout/source-selection class as the reviewed LA032 test delta; no new class or repair ladder.",
+    "closure_ids": []
+  },
+  "source_frame": {
+    "worktree": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "branch": "codex/e02-unified-local-20261009",
+    "head_before_and_after": "c5611db921ab48d07416e95746b85e189baa16c1",
+    "tree_before_and_after": "9f719813f6df9c8ca9312d9194b517573c3b6577",
+    "parent": "852b846315db54c1c2f7d0fb9cb0e75da96726e9",
+    "tracked_status": "git status --short --untracked-files=no was empty before and after; this does not assert untracked-tree cleanliness"
+  },
+  "exact_commit_footprint": [
+    "policy-engine/tests/unit/data_forge/domains/ukraine/test_demography_artifacts.py",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+  ],
+  "tested_module": {
+    "path": "policy-engine/tests/unit/data_forge/domains/ukraine/test_demography_artifacts.py",
+    "sha256": "be63e740d72a2170d32a04e33a13de37e79a6e47ec3fa394108ffea020adf5df",
+    "interpretation": "The implementation code was already committed separately; this commit adds the behavioral test module plus its lease/index records."
+  },
+  "production_source_pins": [
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/demography/__init__.py",
+      "sha256_before": "976623314261b34ef639e50c5351b446b279e0aea42675ebc2e3dc44fedc5436",
+      "sha256_after": "976623314261b34ef639e50c5351b446b279e0aea42675ebc2e3dc44fedc5436"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/ukraine/demography/source_inventory.py",
+      "sha256_before": "7173f64b3e24afecd43fa1d92d2478fbd2fd888bbe86ac8e6622439c76850068",
+      "sha256_after": "7173f64b3e24afecd43fa1d92d2478fbd2fd888bbe86ac8e6622439c76850068"
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/read_api/ukraine.py",
+      "sha256_before": "97ddaaa2a6e4dfbc2a2e3b7a1f505f72d67982d5360cc00a34fffc173867d8c7",
+      "sha256_after": "97ddaaa2a6e4dfbc2a2e3b7a1f505f72d67982d5360cc00a34fffc173867d8c7"
+    }
+  ],
+  "execution": {
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "executable": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+    "sys_prefix": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv",
+    "env": {
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTEST_ADDOPTS": ""
+    },
+    "command": "/usr/bin/time -l -o <RAW>/resource.txt /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python -B -m pytest -c pytest.ini --rootdir . -o addopts= --import-mode=importlib -q -p no:cacheprovider tests/unit/data_forge/domains/ukraine/test_demography_artifacts.py --junitxml=<RAW>/junit.xml",
+    "artifact_paths": {
+      "request": "request.txt",
+      "stdout": "stdout.txt",
+      "stderr": "stderr.txt",
+      "resource": "resource.txt",
+      "junit": "junit.xml",
+      "actual_exit_code": "exit_code.txt"
+    },
+    "artifact_sha256": {
+      "request": "a2eea3a3d0d523c988e0cf5d5ab0a4c945ab98ad49114ed1663d4ce3d711f5da",
+      "stdout": "0097c7d541c69feef847e957f6537e26e5bd41163ba0432d0d3cde5afc9b1632",
+      "stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "resource": "d22b3d9b27c52f39d95916f8487fa15ee03ca67153762f3adcc3d21c63dab21a",
+      "junit": "c78387879843f53fdd2d04721249f39e61f73ff258188f6f55638bd7a0380a7a",
+      "actual_exit_code": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+    }
+  },
+  "outcome": {
+    "exit_code": 0,
+    "junit_tests": 13,
+    "passed": 13,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "wall_seconds": 1.92,
+    "max_resident_bytes": 116621312,
+    "swaps": 0,
+    "warning": "One existing PytestConfigWarning: unknown config option cache_dir.",
+    "resource_limits": "Within the requested 30 second / 256 MiB bound."
+  },
+  "incident_and_author_scope": {
+    "incident_state": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/incidents/la032-canonical-unannounced-20261017/state.json",
+      "sha256": "bdaa1f2e149f72835965d8f64705dc5538f1bed81810dcc558399a0f7e1b0717",
+      "qualification": "This records the independent incident-time readback and says the capture itself did not mutate canonical bytes; it does not say no earlier author mutation occurred."
+    },
+    "author_admission": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la032-candidate-attribution-author-20261017.json",
+      "sha256": "0f9a2a92ac014b5f5d30170d589347b384636778e60fd3f7ce2e2cf5196781eb",
+      "summary": "Author admits five direct apply_patch writes and a canonical Ruff-format write to the test path before review; no recovery/restoration was attempted."
+    },
+    "polluted_alias_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/incidents/la032-canonical-unannounced-20261017/raw-hardlink-attribution.json",
+      "sha256": "76497e2d4e7c3408abac2be4e539c73737754af9119540fd61bd769ac12eec21",
+      "matching_raw_hardlink_alias_count": 9,
+      "details": "Exact alias paths are retained in the pinned receipt; it records the same inode/hash, no unlocated links, and says the incident capture did not mutate canonical bytes."
+    }
+  },
+  "immutable_historical_artifacts": {
+    "r1_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la032-layout-test-author-r1-20261017/manifest.json",
+      "sha256": "1eb4418445c32acffbd4350d0f2bd3cd230d1b30142adee2f1110f23a3650e3d"
+    },
+    "r2_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la032-layout-test-author-r2-20261017/manifest.json",
+      "sha256": "23ff96bff6dfb5852c88de769d66d0ad8eacecfbd14a2ee4d3711de4fe668b1b"
+    },
+    "qualification": "Historical RAW snapshots are left unchanged. Their earlier unapplied/candidate labels are not current adoption state; this receipt binds a fresh run to the committed HEAD."
+  },
+  "limits": [
+    "This verifies one committed test module and its three pinned producer source files only.",
+    "No production dataset, full suite, custody/currentness claim, or whole capability closure was tested.",
+    "The tracked worktree was clean after the run; untracked files were not enumerated."
+  ]
+}

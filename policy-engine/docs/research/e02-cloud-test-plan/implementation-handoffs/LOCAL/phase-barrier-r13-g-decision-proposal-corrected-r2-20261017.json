@@ -1,0 +1,251 @@
+{
+  "artifact_kind": "source_and_docs_only_decision_proposal",
+  "binding_sources": [
+    {
+      "constraint": "Accepted: intent_bound includes policy intent, tenant, requested profile, run id and time context; missing required barrier cannot support downstream authority.",
+      "path": "policy-engine/docs/adr/0148-serious-run-state-machine-and-phase-barriers.md",
+      "sha256": "b63dbb1df266ef4c63c1ed6754e81b8ea7e381eb4dcceafd9f77d9aad4ca96df"
+    },
+    {
+      "constraint": "Accepted: scorecard is not authority; readiness/approval consume persisted verified identity; override cannot turn missing authority into authority.",
+      "path": "policy-engine/docs/adr/0150-scorecard-readiness-approval-projection-boundaries.md",
+      "sha256": "50b988ea920e6aed5ca6968de4d4f713f9cd5c69ad391df3cf6afca6dd0d1d58"
+    },
+    {
+      "constraint": "polisyos.runtime.quality is public_experimental; callable compatibility changes require a release fragment and public inventory review.",
+      "path": "policy-engine/architecture/public_surface/contract.toml",
+      "sha256": "12efa8dffed10771aee97aecc6df69ddd8b460c72bbbb522c656f39d83329a94"
+    },
+    {
+      "finding": "No exact binding row for either choice; no formal decision ID is assigned by this proposal.",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/DECISIONS.md",
+      "sha256": "e88b59dd714a192e88ab674e2d1aba376c3881a336f89e88f6ec8093762e16df"
+    }
+  ],
+  "closure_ids": [],
+  "corrected_independent_assessment": {
+    "operational_escape": "No operational authority promotion escape is established in the R13 candidate. A candidate scorecard with the unconditional owner gate is quality_status=fail; current V2 resolution and publication require a passing, signed/current scorecard and additional bound inputs.",
+    "operational_interpretation": "Do not claim an operational approval/publication bypass. V1 may produce a historical-only approved_with_override projection when a valid typed override is provided (operational_authority=false; historical_only=true). The actual V2 resolver requires passing, signed/current quality and rejects the R13 fail scorecard; publication has a separate resolver-issued currentness check. The attempted in-memory probe did not reach its target because import stopped at canonical_loaded_runtime_mismatch on polisyos.fabric.atomic_write_json; result is UNRUN, not PASS or product failure.",
+    "override_correction": "The G proposal overstates a scorecard-builder path: its _approval_readiness helper has an override-accepted branch, but candidate _override_evidence always returns accepted=false; raw job/run override markers are deliberately downgraded. Separately, build_production_approval_packet can issue a V1 historical projection with approved_with_override for a valid explicit override. The new code phase_barrier_owner_scope_not_established is absent from the existing HDS-MCG-021 non_overridable_blockers list, so a sole owner-scope blocker could appear as approved_with_override on that historical projection if the normal phase barriers pass. V1 is operational_authority=false/historical_only=true; run_lifecycle and API keep it projection-only; V2 resolution still refuses the R13 fail scorecard. This is status/projection risk, not demonstrated authority escape.",
+    "probe": {
+      "attempted_probe": "One in-memory import of current build_production_approval_packet with a synthetic sole phase_barrier_owner_scope_not_established blocker and valid typed override; no file inputs or writes.",
+      "full_suite": "Not run. R13 243-case suite and both removal controls remain UNRUN.",
+      "result": "Probe did not reach the target function: package import failed during confidence_ledger import with canonical_loaded_runtime_mismatch: non-literal repository re-export polisyos.fabric.atomic_write_json. Treat as not executed, not as a product failure or PASS."
+    },
+    "residual_status_projection_risk": "The new owner-scope code is absent from HDS-MCG-021 non_overridable_blockers, so a sole owner-scope blocker may appear as approved_with_override on the V1 historical projection if other phase barriers pass. This is a status/projection risk, not demonstrated operational authority escape.",
+    "review_status": "HOLD_R13_source_adoption_pending_narrow_G_choice_and_owner_scope_bridge",
+    "runtime_status": "R13 full suite and removal controls UNRUN. The 243-node/226-pass/17-fail R3 result is historical, not current.",
+    "scope": "The R13 source composition is byte-coherent, but its new public candidate input and unconditional serious-owner-scope blocker implement unresolved semantics without a producer-to-consumer proof. Do not treat the prior composition GO as semantic acceptance or runtime evidence."
+  },
+  "exact_source_pins": [
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/scorecard.py",
+      "role": "current tracked scorecard preimage; exact verified hash is in R13 manifest",
+      "sha256": "014f6a122b4905adc9eb56ddbb99afa5d8b94908851053e552335ef8ed2d4058"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/invariants.py",
+      "role": "current invariant loader",
+      "sha256": "96c2be8b470077187438b2d8beac698dc51d3139c4f9cf9903b399b9f839383f"
+    },
+    {
+      "path": "policy-engine/architecture/production_quality/invariant_registry.toml",
+      "role": "HDS-MCG-021 permits phase_barrier_missing/skipped/blocked as non-overridable; does not contain phase_barrier_owner_scope_not_established",
+      "sha256": "23eede82fabd80dd454d9d9d313b03ffb94009c7ac4850015b1dedad7b2763a0"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_approval.py",
+      "role": "existing tests cover authority_cas_missing non-overridable, generic accepted override, and scorecard status; no exact new owner-scope blocker case.",
+      "sha256": "e4655462179e1bdc823553164bd5d327c369e52f24b0062a47900431b4fdc44e"
+    },
+    {
+      "path": "policy-engine/architecture/public_surface/contract.toml",
+      "role": "quality package is public_experimental; callable compatibility requires release fragment and inventory review",
+      "sha256": "12efa8dffed10771aee97aecc6df69ddd8b460c72bbbb522c656f39d83329a94"
+    },
+    {
+      "path": "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+      "role": "P37/P38/P40 criteria reviewed",
+      "sha256": "187f47cf818bd24861cec67d3daa33e584f437f09d50a6bd54e7caefb527d430"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/run_state.py",
+      "role": "RunIntentBinding already types run/tenant/requested_profile plus policy_intent_ref, time_context_ref, same_input_closure_ref; RunStateSnapshot is keyed to run/tenant/requested_profile and validates complete intent binding.",
+      "sha256": "0dce5214041e2d50ec5514dd499df15a61eb4ea69a53c70b358a8bdee58ed6bb"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/phase_barriers.py",
+      "role": "PhaseBarrierRecord has run_id, tenant_id, profile, created_at and producer fields. Its reconcile helper checks record-set agreement and optional expected run/tenant. Current scorecard gate supplies only expected run_id; no live requested-profile/intent/time binding is passed.",
+      "sha256": "1dd848c9aa47627f512dbcaee4df49814033e779d325e28dedad14ff713998ac"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/approval.py",
+      "role": "build_production_approval_packet is a projection builder; separate ProductionApprovalPacketResolver issues opaque currentness/issuance results.",
+      "sha256": "9d1a1c7ef833861de9af1404669398459020a0c41fe48a17799981d73fbc2a8e"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/human_decisions.py",
+      "role": "resolve_production_approval_inputs reloads signed scorecard/basis/decision record and checks digest, tenant/run, action, reservation, and time; it requires scorecard.quality_status to pass and approval_posture ready. R13 owner-scope failure sets quality_status=fail, so that route refuses before an operational approval can issue.",
+      "sha256": "74a82acb1ee0bba85113db79b18fb33b0621a24b24b608c9ff756e035dc616d0"
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/control.py",
+      "role": "ProductionApprovalPacket defaults operational_authority=false and historical_only=true; V2 shape alone is not the private resolver seal.",
+      "sha256": "2cb22126210c204fb77be7c253d16052bd815363a389d13e37b94d92a5282fc5"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/artifacts/decision_compiler.py",
+      "role": "publishable artifact gate independently requires a passing scorecard and resolver-issued approval currentness receipt; raw approval_ready is insufficient.",
+      "sha256": "79dc5a9031417f67717da472ecb980d75fb7509187a7727fa1716966d9bd23de"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/response_shapes.py",
+      "role": "serious projection is forced ineligible on quality_status=fail or authority gaps; stored packet references are labeled projection-only.",
+      "sha256": "49a5549e95b535c7ea090cdb21f4dfeb1dbc7c603a89fffdac3964e0aee10cd9"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "role": "persisted approval decisions are written back as approval_projection_only with approval_ready=false; operational consumers must rerun the resolver.",
+      "sha256": "6c66f2a13b3af06f34abeee80c0e2f2b0d7c49663b027ed3e0f6f6c65ef2daa3"
+    }
+  ],
+  "falsifier_plan": {
+    "historical_suite": {
+      "current_status": "historical R3 only; R13 full suite and both controls UNRUN",
+      "failures": 17,
+      "nodeids": 243,
+      "passes": 226
+    },
+    "runtime_probe_current_state": "UNRUN because import failed before target; rerun only under a corrected source-qualified harness if authorized.",
+    "source_removal_and_positive_controls": "Exact R13 code plus a real owner-scope positive; absent, cross-run, cross-tenant, wrong requested profile, stale time, and source-removal negatives; accepted typed override on the sole new blocker; then fresh V2 resolver and publishable/API consumer refusals for fail/limited candidate input."
+  },
+  "formal_decision_id": null,
+  "g_choices": [
+    {
+      "acceptance_signal": "Complete caller/export census and one source-bound producer→private caller→scorecard/consumer witness proving candidate surfaces cannot satisfy authority evidence or readiness. If G instead chooses the public keyword, attach release fragment and inventory review before adoption.",
+      "candidate": {
+        "effect": "Adds an optional keyword-only mapping that the hypothesis-candidate firewall screens; it is not merged into quality_evidence/evidence_refs. The output schema remains policyos.quality_scorecard.v1.",
+        "path": "policy-engine/src/polisyos/runtime/quality/scorecard.py",
+        "sha256": "90c70439690faab617b06954676dcbb11af47f975efba748e6144221905629a1"
+      },
+      "choice_key": "candidate_projection_surfaces_callable_compatibility",
+      "options": [
+        {
+          "choice": "public_optional_keyword",
+          "effect": "Existing calls remain source-compatible via the default, but the exported callable signature changes for reflection/wrapper consumers; contract requires release fragment and inventory review."
+        },
+        {
+          "choice": "private_existing_caller_or_defer",
+          "effect": "Keep the exported callable unchanged; use a private typed seam only after a real producer/caller/runnable consumer is identified. If none is found, defer the intake. Keep candidate bytes out of quality_evidence."
+        }
+      ],
+      "producer_consumer_finding": {
+        "candidate_projection_surfaces_source_hits": 0,
+        "hits": [
+          "scorecard.py definition and __all__",
+          "runtime/quality/__init__.py import and __all__"
+        ],
+        "literal_build_quality_scorecard_hits": 4,
+        "production_callsite": "none found in this literal source census; aliases/reflection remain not_established",
+        "scope": "all policy-engine/src/**/*.py; 2,782 Python files read"
+      },
+      "question": "Should candidate_projection_surfaces be exposed as a new optional keyword on the public_experimental build_quality_scorecard callable, or remain private to an existing caller/orchestration seam?",
+      "recommended_choice": "private_existing_caller_or_defer"
+    },
+    {
+      "acceptance_signal": "Real producer→persisted same-run scope→PhaseBarrierRecord→scorecard→V2/readiness consumer path. Positive scope and absent, cross-run, cross-tenant, wrong-profile, stale-time, source-removal and explicit-override negatives. Probe must reach the actual consumer and reconcile origins/results.",
+      "candidate_findings": {
+        "constant_gate": "The zero-argument helper always returns phase_barrier_owner_scope_not_established; the serious gate appends it unconditionally and does not reconcile tenant, requested profile, policy intent, time context, or same-input closure.",
+        "consumer_boundary": "Current R13 fail scorecard blocks V2 resolution and publication. V1 approved_with_override can be historical-only projection only. If the blocker is classified as required authority, use existing HDS-MCG-021 registry for non-overridable handling; no new subsystem.",
+        "existing_reuse": "RunIntentBinding/RunStateSnapshot already carry run, tenant, requested profile, policy_intent_ref, time_context_ref and same_input_closure_ref; PhaseBarrierRecord carries run, tenant, profile, created_at and producer. Reuse/bridge these existing contracts; do not invent a new issuer or enum.",
+        "source_p38": "If a valid owner-scoped same-run record is supplied, the zero-argument helper still emits phase_barrier_owner_scope_not_established. The implementation tests no property of that record. It is a conservative false refusal, not proof that the run lacks owner scope."
+      },
+      "choice_key": "serious_phase_barrier_owner_scope_source_and_projection",
+      "options": [
+        {
+          "choice": "blocking_scorecard_failure",
+          "effect": "Missing/mismatched producer scope remains a blocking failure for serious scorecard status. The diagnostic may still be emitted; V1 remains projection-only and V2/readiness/publication must refuse."
+        },
+        {
+          "choice": "limited_candidate_refusal_with_authority_block",
+          "effect": "Emit a typed candidate/refusal diagnostic carrying unknown scope, while readiness/approval/publication remain blocked until same-run producer scope is reconciled. No new status enum or authority inference."
+        }
+      ],
+      "question": "Should source work replace the constant refusal with a real producer-owned scope bridge through existing run-state/phase-barrier contracts, while choosing whether missing scope is shown as a limited candidate refusal or as a blocking scorecard failure?",
+      "recommended_choice": "Bridge the producer-owned scope through existing run-state and phase-barrier types, and permit only a limited typed candidate/refusal while that evidence is absent. Authority consumers remain fail-closed. The current constant helper is an honest conservative refusal for absent wiring but is not the final property predicate.",
+      "routine_engineering_vs_g": "Reusing existing owner contracts and wiring the producer bridge is routine engineering and does not require a new issuer. G choice is limited to the scorecard-facing severity/projection treatment; absent required authority remains non-promotable under ADR-0150."
+    }
+  ],
+  "input_artifacts": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase-barrier-r3-current-composition-r13-20261017/r13-composition-manifest.json",
+      "role": "Exact 19-path source composition manifest; R13 is unapplied.",
+      "sha256": "c1086f2cd3b3d2357e1ac08e19d8bc4644e274e18a5f460ce81cface072493a3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase-barrier-r3-current-composition-r13-20261017/composition-r13.patch",
+      "role": "Exact combined candidate patch; not applied by this packet.",
+      "sha256": "a2aad5960092b1ca9127d75d2dc9ceeaca7154bf989f9f718cab7a054b5198f1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase-barrier-r3-current-composition-r13-20261017/r13-wave-request.json",
+      "role": "Historical wave request; its 243 expected nodes are not a current result.",
+      "sha256": "b083675ecacda003c7871f07c663601c4679f339b83c4c2e0ecc198acbf3bfd7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase-barrier-r13-live-source-adoption-plan-3991-20261017/plan.json",
+      "role": "3991 source adoption/preimage plan; exact 19 path footprint and test/owner-generator limits.",
+      "sha256": "6f02cbfc4b838a7a82bcd453f0069b6ddf4ecc98bf7cfb9703d33eef913631f4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase-barrier-r13-independent-systemic-safety-review-r1-20261017/review-corrected.json",
+      "role": "Corrected independent systemic safety review; binds current source frame, source pins, status and corrected V1/V2 assessment.",
+      "sha256": "9c99ed714f4ca7e1030a7c3eaa9c43a2a6b3e12c4e8a6d26f8ac228109e5df4a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase-barrier-r13-g-semantic-decision-proposal-20261017/decision-proposal.json",
+      "role": "Prior immutable draft, superseded in semantic assessment only; preserved unchanged.",
+      "sha256": "9b45b33ccfe1c61c73f6f1e60d1c690daeb1621b146f1c9464e5db31541fd7cf"
+    }
+  ],
+  "limitations": [
+    "No tests or removal controls were run by this proposal author.",
+    "The independent in-memory probe did not reach the target due N11 import identity mismatch; it is UNRUN.",
+    "The 243 node count is historical only.",
+    "The proposal file is not a G decision, source adoption receipt, or closure."
+  ],
+  "no_new_issuer_or_claims": {
+    "authority_claims": "No operational escape established; no scorecard or historical projection is authority; no G acceptance or legal closure is asserted.",
+    "closure_ids": [],
+    "formal_decision_id": null,
+    "legal_relations": "Six remain search_candidate / verification_missing.",
+    "routine_reuse": "Use existing RunIntentBinding, RunStateSnapshot, PhaseBarrierRecord and invariant registry; have the owner bind the actual producer record. Do not create an issuer, default scope, or new enum."
+  },
+  "proposal_artifact_id": "phase-barrier-r13-g-decision-proposal-corrected-r2-20261017",
+  "proposal_scope": "Two bounded decisions only: public callable compatibility for candidate_projection_surfaces, and source-backed handling of producer-owned phase-barrier scope. No G acceptance, source adoption, new issuer, or formal closure is asserted.",
+  "schema": "policyos.e02.r13_g_decision_delivery_proposal.v2",
+  "source_filename_proposed_for_LOCAL": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/phase-barrier-r13-g-semantics-proposal-20261017.md",
+  "source_frame": {
+    "interpretation": "Independent reviewer readback: R13 is unapplied and all 19 target preimages still match; no global clean-worktree claim. Source frame is the reviewer’s captured frame, not a claim about later HEAD.",
+    "r13_candidate_posts": {
+      "candidate_postimages": 19,
+      "hash_and_size_verified": 19,
+      "mismatches": 0
+    },
+    "r13_targets": {
+      "live_equals_declared_and_3991_preimages": 19,
+      "mismatches": 0,
+      "target_paths": 19
+    },
+    "reviewed_live_head": "3c1c1f9ae155d3b0539b4c9ccdf11b3d195cfaf5",
+    "reviewed_live_tree": "2f5168a6f03ed62d0a80921b5ee865586bbef8c0",
+    "semantic_source_base": "3991d7c113090fab17a8374588c1a772964c9dc9"
+  },
+  "status": "PROPOSED_NOT_ACCEPTED",
+  "supersedes_prior_draft": {
+    "correction": "The prior draft overstated the inline scorecard override branch as an operational authority risk. Corrected assessment: candidate _override_evidence accepts no raw job/run override; V1 explicit valid override can yield only historical approved_with_override (operational_authority=false, historical_only=true); current V2 and publication reject R13 fail scorecard. Retain only the bounded V1 status/projection risk; operational escape is not established.",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase-barrier-r13-g-semantic-decision-proposal-20261017/decision-proposal.json",
+    "sha256": "9b45b33ccfe1c61c73f6f1e60d1c690daeb1621b146f1c9464e5db31541fd7cf"
+  },
+  "tracked_source_write_requested": false
+}

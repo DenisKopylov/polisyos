@@ -1,0 +1,54 @@
+{
+  "closure_ids": [],
+  "focused_test": {
+    "actual_witness": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-1fa15-generated-schema-actual-r1-20261017/run/actual-test-and-source-witness.json@9c3573d311559ee7fc43a737bed738f19daa1b5423bff019415c274c4ca0ed86",
+    "imports": "67 observed polisyos modules; no outside-own-source origins",
+    "input_hash_qualification": {
+      "field_discrepancy": "request.source_denominator.all_request_inputs is 6356, five greater than paths_sha256 length 6351; those five inputs are not identified by the request map. Do not claim a complete 6356-input hash reconciliation.",
+      "harness_pins": 3,
+      "mismatches": 0,
+      "missing": 0,
+      "pin_entries": 6351,
+      "tracked_pins": 6348
+    },
+    "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-1fa15-generated-schema-actual-r1-20261017/run/tests.junit.xml@b319ebdcaed230093c85af37b35c98e6c1449e14e80150b589860e357fc9e9ac",
+    "nodeid": "tests/repo_quality/tools/test_architecture_phase3.py::test_generated_artifact_manifest_validates_schema_before_coercion",
+    "request": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-1fa15-generated-schema-actual-r1-20261017/run/request.json@fb46d0d6158a5abb2aef96a064d3307378e28aa3e731dc8dd609d05b659648c8",
+    "result": "1 passed; 0 failures/errors/skips; collection/setup/call/teardown passed"
+  },
+  "independent_reviews": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-generated-artifact-report-row-independent-review-r3-20261017/review.json@ed1acaf71e83c215ff8d7555402755c601016ac92f3157ad6b90466259f7833f",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-foundry-dynamic-row-companion-r1-20261017/native-foundry-dynamic-row-independent-review-r2-20261017/review.json@7960dd88f3dc709bb4bda5d9310f0652d581709d68632da73ffd51df8ca3610d"
+  ],
+  "limitations": [
+    "Full architecture guardrails check with all generated checks enabled.",
+    "Generated artifact freshness or regeneration correctness.",
+    "Whole Native closure or formal E02 acceptance.",
+    "Hash coverage for the unexplained five entries implied by all_request_inputs."
+  ],
+  "malformed_cli": {
+    "fixture": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-generated-artifact-real-malformed-cli-1fa15c7-20261017/malformed-generated-artifacts.toml@31f7fe097359021bb67f55d619c5ecea34a3d438344945080ec2b6c8a2f80b44",
+    "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-generated-artifact-real-malformed-cli-1fa15c7-20261017/receipt.json@361d3363e0e029f3e7ea60587aa4ac2556a90c92a634f9e61f7498d37484dceb",
+    "result": "exit 1; rejects a single owner=true mutation with expected-string/got-boolean diagnostic; stdout empty",
+    "scope": "CLI used --skip-generated-checks; no freshness verdict"
+  },
+  "schema": "proposed-tracked-native-generated-artifact-schema-receipt/v1",
+  "source_adoption_ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-schema-foundry-reviewed-adoption-r2-20261017/application.json@b39c9f89fb6f1f018cfa38a9d974c86bb19679b3d36ad9464b26428daf08121e",
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "1fa15c7fa44f8ccd3fc979a359993184e8c86880",
+    "parent": "227e6a6ac5c9929972b960ede44e86a8d7308e16",
+    "tracked_product_worktree_clean": true,
+    "tree": "a65bba8e2fbc434825b4126257e8f34668a67112"
+  },
+  "source_paths_sha256": {
+    "policy-engine/architecture/gates/index.toml": "4e6a8ba024e00e4c90c1b37457fa089177f6b6c42fa9882314549d12d46164af",
+    "policy-engine/architecture/gates/report_only.toml": "dda5a9fd32690edfcd5013f12ec215749c792c2485e640ee7238ed0bd867d586",
+    "policy-engine/architecture/imports/dynamic.toml": "f783d926438de3ce4ba99fcc9ce70e2bb767f1f9f570199d645a621863644ff0",
+    "policy-engine/tests/repo_quality/architecture/test_repository_best_in_class_phase1_3_contracts.py": "be155ef321d7990315b18813319c33ced8cafda965f6b90fa9e415eefa29155c",
+    "policy-engine/tests/repo_quality/architecture/test_repository_sota_phase5_closeout.py": "64bf3aa7fa87fbaceaf1272b94e9e6e04beffbcc49840d8a097fec628da12fab",
+    "policy-engine/tests/repo_quality/tools/test_architecture_phase3.py": "d879e45cc599a158c1bfa2d1b71d497a30ef6bf6c00368a679962be323c97bc2",
+    "policy-engine/tools/devx/architecture/guardrails.py": "e62a7410d62711ec2c6c187d783ede614bb8759e458c54d55bb97ca19a1d2d8c"
+  },
+  "status": "bounded_independent_reviewed"
+}

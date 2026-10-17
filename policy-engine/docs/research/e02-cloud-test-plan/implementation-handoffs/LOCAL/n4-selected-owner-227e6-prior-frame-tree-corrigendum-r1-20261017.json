@@ -1,0 +1,91 @@
+{
+  "acceptance_boundary": {
+    "closure_ids": [],
+    "formal_G_acceptance": null,
+    "n11": "OPEN / not claimed by this delivery review",
+    "native_sota_full_gate": "UNRUN / OPEN",
+    "whole_n4": "HOLD / not claimed"
+  },
+  "closure_ids": [],
+  "lineage_correction": {
+    "basis": "The immutable corrigendum pins the Git object tree for cc627559ffe7c4401b03f25d873361e20cd2c246. The correction is to copied review lineage only; 227e6 run source frame/result remain unchanged. No issued artifact was overwritten.",
+    "correct_value": "e5449d3b4e607fa7914d23066ec2953f1348bcaa",
+    "field": "delta_from_prior_actual_run.prior_frame.tree",
+    "recorded_value": "e5449d3b4cdaaa887b2d6b5dd49c175956d65bd9",
+    "source_assessment": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-227e6-n4-actual-owner-independent-review-r1-20261017/assessment.json",
+      "sha256": "0d92602201a3fff862400ece9e255706bcf7d416b4b3bdffd750f2baa3ac5d32"
+    }
+  },
+  "n4_observations": {
+    "227e6": "Exact later selected-module result: 4 cases passed, 12/12 phases passed, no timeout. This demonstrates collection and pass only for that selected module/run; it does not establish whole-N4 or N11 acceptance.",
+    "3991_f539_collection_error": "A distinct prior zero-intended-cases collection error remains historical. The 227e6 four-case run establishes successful collection for its selected module only; do not report the older collection error as a current 227e6 failure.",
+    "historical_cc627": "Exact historical selected-module result: 3 passed, 1 failed. Keep as prior observation; its slice-base provenance is not_established."
+  },
+  "p40": "Same provenance-copy / receipt-boundary class: a copied prior-frame tree identifier was wrong. The correction is a bounded documentary addendum, not a new product behavior finding or acceptance claim.",
+  "payloads_proposed_for_exact_copy": [
+    {
+      "copy_bytes_exactly": true,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native166-implementation-handoff-20261017.json",
+      "sha256": "3bc4484ae3de84b30ffd2973242c9f9ba8947384c4f6d62b7945649779a4df99",
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native166-source-handoffs-r1-20261017/native166-implementation-handoff.json",
+      "source_sha256": "3bc4484ae3de84b30ffd2973242c9f9ba8947384c4f6d62b7945649779a4df99"
+    },
+    {
+      "copy_bytes_exactly": true,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/n11-sticky-failure-handoff-20261017.json",
+      "sha256": "a06b26e236a5d39f4a11b88003eb42b833e0c6cbeb97f4a8f8a5e87a82998817",
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native166-source-handoffs-r1-20261017/n11-sticky-failure-handoff.json",
+      "source_sha256": "a06b26e236a5d39f4a11b88003eb42b833e0c6cbeb97f4a8f8a5e87a82998817"
+    },
+    {
+      "copy_bytes_exactly": true,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/n4-selected-owner-actual-cc627-3p1f-r1-20261017.json",
+      "sha256": "81c861969d6d8ce2aa80d065ef83e95adfe2a6c5ca659fd13e611ca61a0b5ee1",
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-cc627-227e6-native-receipt-delivery-r1-20261017/n4-selected-owner-actual-cc627-3p1f-r1-20261017.json",
+      "source_sha256": "81c861969d6d8ce2aa80d065ef83e95adfe2a6c5ca659fd13e611ca61a0b5ee1"
+    },
+    {
+      "copy_bytes_exactly": true,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/n4-selected-owner-actual-227e6-r1-20261017.json",
+      "sha256": "6cc5b8cfa3ac90896bc8026e0cca5d4ff4e91f0a787f956cfb8d5c7b7900f7c6",
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-227e6-n4-actual-owner-independent-review-r1-20261017/proposed-tracked.json",
+      "source_sha256": "6cc5b8cfa3ac90896bc8026e0cca5d4ff4e91f0a787f956cfb8d5c7b7900f7c6"
+    },
+    {
+      "copy_bytes_exactly": true,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/phase-barrier-r13-g-decision-proposal-corrected-r2-20261017.json",
+      "sha256": "c14d5f47993986fb4a30a5c98e85fb098353ba02ce6fef741093d4807aeb3901",
+      "source": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase-barrier-r13-g-decision-delivery-packet-corrected-r2-20261017/proposal.json",
+      "source_sha256": "c14d5f47993986fb4a30a5c98e85fb098353ba02ce6fef741093d4807aeb3901"
+    }
+  ],
+  "proposed_tracked_addendum": {
+    "copy_bytes_exactly": true,
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/n4-selected-owner-227e6-prior-frame-tree-corrigendum-r1-20261017.json",
+    "proposed_index_entry": "Add one entry for this addendum to the component index when root serially composes the receipt commit; the current five-entry index draft remains unchanged.",
+    "purpose": "Bind the immutable five-payload delivery proposal to the later prior-frame tree corrigendum without rewriting the issued delivery bundle or review artifacts."
+  },
+  "review_basis": {
+    "corrigendum": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-227e6-n4-prior-frame-tree-corrigendum-r1-20261017/corrigendum.json",
+      "sha256": "845c87950f55df1f855fb65323b90c73b372f95b514e3d81b68ef9472762e0ec"
+    },
+    "corrigendum_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-227e6-n4-prior-frame-tree-corrigendum-r1-20261017/manifest.json",
+      "sha256": "6d4a369cf3ec8b4a3caddbb0ee36e3ea915aa621177beac6b8382fbab0836e24"
+    },
+    "delivery_bundle": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-cc627-227e6-native-receipt-delivery-r2-20261017/delivery-bundle.json",
+      "sha256": "db97f964a95cea63292c332ec7cb0c920bfb81582b2962a61ae701e4a1d86cce"
+    },
+    "result": "All four source pins matched on readback. The bundle draft and five proposed source payloads were unchanged; each source byte stream matched its declared SHA-256 and each of the five intended destinations was absent at review time.",
+    "unchanged_index_draft": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-cc627-227e6-native-receipt-delivery-r2-20261017/index-component-entries-draft.json",
+      "sha256": "aa25e6a0f93947b723ac5160e56fa8b979ac66cc3b3bad7331bd01fd937afe86"
+    }
+  },
+  "review_id": "root-cc627-227e6-delivery-corrigendum-addendum-independent-review-r1-20261017",
+  "schema": "policyos.native_receipt_delivery_corrigendum_addendum_review.v1",
+  "status": "BOUNDED_RECEIPT_DELIVERY_GO_WITH_CORRIGENDUM; RAW_ONLY; NO_PRODUCT_ACCEPTANCE_OR_CLOSURE"
+}

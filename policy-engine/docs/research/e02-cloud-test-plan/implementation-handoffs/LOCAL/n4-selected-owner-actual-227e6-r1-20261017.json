@@ -1,0 +1,51 @@
+{
+  "acceptance": {
+    "closure_ids": [],
+    "formal_g_acceptance": "not_claimed",
+    "whole_n4": "not_claimed"
+  },
+  "changed_mechanism": "The controlled candidate-profile test helper now constructs its NCM through candidate_ncm_spec_from_declaration, validates the shared profile/declaration parameters, and checks persisted readback against the same declaration projection.",
+  "evidence": {
+    "actual_results": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-227e6-n4-selected-owner-actual-r1-20261017/run/actual-results.json",
+      "sha256": "7cf07eeebadd50c1bb0026b4008a5e5713eba134534dfb45b6ac38d95bc9856c"
+    },
+    "junit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-227e6-n4-selected-owner-actual-r1-20261017/run/tests.junit.xml",
+      "sha256": "c9782c0e778584732fc37a726729cd4987af6a002ca87b8e07d6404e6003913d"
+    },
+    "request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-227e6-n4-selected-owner-actual-r1-20261017/run/request.json",
+      "sha256": "e13ec8320df13a4e3538bed12c25b0685988766e0f581f23a29bfaf966ac3adf"
+    },
+    "supervisor_result": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-227e6-n4-selected-owner-actual-r1-20261017/run/supervisor-result.json",
+      "sha256": "a4e509b06a91120736c62538519884500c12ac4fafd51bbdce4ea89c56cc18e1"
+    },
+    "test_and_source_witness": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-227e6-n4-selected-owner-actual-r1-20261017/run/actual-test-and-source-witness.json",
+      "sha256": "5bd4d5f5d1cde1b1250046075b646924e814948b120caf12c2cc750db33d0a46"
+    }
+  },
+  "p40_classification": "Same selected-NCM-versus-declaration producer/fixture mismatch class as the prior 3P1F run; this focused module result does not establish whole-class or whole-N4 closure.",
+  "request_text_defect": "Issued request.source_denominator.source_identity still says cc627 although all source/run frame pins resolve to 227e6; do not mutate the issued request.",
+  "result": {
+    "cases": 4,
+    "failed": 0,
+    "passed": 4,
+    "phases": 12,
+    "phases_passed": 12,
+    "pytest_exit_code": 0,
+    "supervisor_exit_code": 0,
+    "timed_out": false
+  },
+  "schema": "policyos.n4_selected_owner_actual_delta.v1",
+  "selected_module": "policy-engine/tests/test_controlled_candidate_slot_closure.py",
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "227e6a6ac5c9929972b960ede44e86a8d7308e16",
+    "parent": "cc627559ffe7c4401b03f25d873361e20cd2c246",
+    "tree": "e5d0ed5b624576678e57c856f21f39ba88ecff8d"
+  },
+  "status": "proposed_tracked_evidence_record"
+}

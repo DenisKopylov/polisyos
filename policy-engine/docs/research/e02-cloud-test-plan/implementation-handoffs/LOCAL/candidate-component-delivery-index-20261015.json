@@ -95,7 +95,7 @@
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
-      "sha256": "2c854db9b3b533911dfa8f15e26bf70cb4023536fb10d596c19d7de1dcc3d9eb",
+      "sha256": "0b77711120c91d30236119ad6427e85f3a5e64c260800ef31082dd3cc43da2f9",
       "record_type": "current_coordination_snapshot",
       "previous_unqualified_digest": "1c2ae874ad7a12ac5c8ce69c580be992eef49a0ba58164893eff9a679a1ff9e5",
       "qualification": "Current LEASES bytes are pinned by this digest and the containing index commit. historical_original_source_commit names only the first recorded B194 snapshot; it is not the source of the current lease bytes. Source and native verification remain separately scoped.",
@@ -672,6 +672,38 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/n4-selected-slot-actual-owner-collection-error-20261017.json",
       "sha256": "5fd069d0b0b78dd2cf27fc0ad65ffb26659ef9e323edc243b56525b974995824"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native166-implementation-handoff-20261017.json",
+      "sha256": "3bc4484ae3de84b30ffd2973242c9f9ba8947384c4f6d62b7945649779a4df99"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/n11-sticky-failure-handoff-20261017.json",
+      "sha256": "a06b26e236a5d39f4a11b88003eb42b833e0c6cbeb97f4a8f8a5e87a82998817"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/n4-selected-owner-actual-cc627-3p1f-r1-20261017.json",
+      "sha256": "81c861969d6d8ce2aa80d065ef83e95adfe2a6c5ca659fd13e611ca61a0b5ee1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/n4-selected-owner-actual-227e6-r1-20261017.json",
+      "sha256": "6cc5b8cfa3ac90896bc8026e0cca5d4ff4e91f0a787f956cfb8d5c7b7900f7c6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/phase-barrier-r13-g-decision-proposal-corrected-r2-20261017.json",
+      "sha256": "c14d5f47993986fb4a30a5c98e85fb098353ba02ce6fef741093d4807aeb3901"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/n4-selected-owner-227e6-prior-frame-tree-corrigendum-r1-20261017.json",
+      "sha256": "1a25a9b1c8bcd5f31b196ea8429a94d14cba56ef96bcb35912777e0085be1701"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native-generated-schema-foundry-actual-1fa15-r1-20261017.json",
+      "sha256": "881191e374f0c6ebd5e705f63d613651f129b27ac37840f8920fe2a208cbef56"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native-generated-schema-request-denominator-corrigendum-20261017.json",
+      "sha256": "2fe155b4b4a9b2ae4a2cfaf95c6a759dd60093ab03c02a4eee34cb62542fefc5"
     }
   ],
   "canonical_denominator_recomputed": {
@@ -723,26 +755,30 @@
   ],
   "retention": "Complete deciding outputs and removal controls are pinned by receipts under ignored LOCAL/raw on the candidate checkout. Tracked source is cited by path@sha/commit, not copied. Large RAW availability is local; no archive payload census or duplicate environment.",
   "latest_reconciled_source_cut": {
-    "head": "546bd772cda7a85fc14df2372935c22d25905043",
-    "tree": "57a5fa1994a4a2799b52806f5406ffb948de43fd",
+    "head": "1fa15c7fa44f8ccd3fc979a359993184e8c86880",
+    "tree": "a65bba8e2fbc434825b4126257e8f34668a67112",
     "parents": [
-      "b700c1b434f2a64e51f09a74a5605d7c896fd1f3"
+      "227e6a6ac5c9929972b960ede44e86a8d7308e16"
     ],
-    "metadata_child": "9450de1671f1be66827ba787a1b547bc45c5484c",
-    "metadata_child_tree": "96ab15b4354607f23c3dc0e5000de2722adfd881",
-    "tracked_source_clean_at_observation": true,
     "source_freeze": false,
-    "meaning": "120-case focused replay:103PASS/17FAIL/0ERROR/0SKIP. LA03245PASS; N4actualowner versionunit now passes but12NCMconsumers fail missing selected firm_survival slot; SCL4PASS/5FAIL at real license forwarding/obsolete warning proxy. Full Native/composed/Linux/installed/browser/authority closeout remains pending. Earlier142227-case receipt remains a separate exact source cut, never added as closures. Both LA023occurrences bind their original training span; immutable historical states remain.",
+    "tracked_source_clean_at_observation": true,
+    "prior_index_observation": {
+      "commit": "1fa15c7fa44f8ccd3fc979a359993184e8c86880",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "sha256": "a775e6ab12318fae1119cce2b7680ad759a7de2315285cdb7d943fa10c582edd",
+      "prior_reconciled_source_cut": "546bd772cda7a85fc14df2372935c22d25905043"
+    },
+    "meaning": "Native source composition cc627 and canonical NCM fixture helper 227e6 are delivered as separate handoffs. Exact 227e6 selected owner module 4P/12 phases follows historical cc627 3P1F. On 1fa15, strict raw-schema test 1P and malformed CLI rejection are independently reconciled; full freshness/native/whole N4 remain open. R13 stays an unaccepted proposal and R14 is still in preparation.",
     "published_candidate_last_verified": {
-      "sha": "b700c1b434f2a64e51f09a74a5605d7c896fd1f3",
-      "tree": "cb3a79e75d8426798975a80df0fea5deea866ca9",
+      "sha": "227e6a6ac5c9929972b960ede44e86a8d7308e16",
+      "tree": "e5d0ed5b624576678e57c856f21f39ba88ecff8d",
       "readback": {
-        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-candidate-push-b700c1b434f2-20261015/remote-readback.json",
-        "sha256": "e978d65675691cdc3a42a8a3275fabcd2957bf942e9768b2caa3e2c814373626"
+        "path": "raw/resume-candidate-push-227e6a6ac5c9-20261015/remote-readback.json",
+        "sha256": "5fa092ed9fc1de8728ff770952157866da61206d38c59915603a108264eb51ff"
       },
       "G_remote_observed": "93d6aa62a8d236667fdf322a5fc17962523b185e",
       "G_acceptance": false
     }
   },
-  "next_check": "Finish all coherent source companions and independent reviews, then explicit source/input/backend freeze and composed actual/native/Prepared B/Linux/installed/browser/read-only authentic closeout; refresh all 291 per-occurrence proposals without formal G adjudication."
+  "next_check": "Finish independent reviews and root-controlled blocking fixes; freeze explicit source/profile/inputs, execute actual N4/V3 and composed/native/Linux/installed/browser/authentic consumers, then publish the full 291-occurrence proposal to independent G. No global closeout or formal closures are claimed."
 }

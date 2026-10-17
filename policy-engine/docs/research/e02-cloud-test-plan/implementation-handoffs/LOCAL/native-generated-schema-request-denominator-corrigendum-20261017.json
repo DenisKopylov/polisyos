@@ -1,0 +1,42 @@
+{
+  "schema": "policyos.actual-replay-descriptive-field-corrigendum.v1",
+  "source_frame": {
+    "head": "1fa15c7fa44f8ccd3fc979a359993184e8c86880",
+    "tree": "a65bba8e2fbc434825b4126257e8f34668a67112",
+    "branch": "codex/e02-unified-local-20261009"
+  },
+  "request": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-1fa15-generated-schema-actual-r1-20261017/run/request.json",
+    "sha256": "fb46d0d6158a5abb2aef96a064d3307378e28aa3e731dc8dd609d05b659648c8"
+  },
+  "prior_template": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-227e6-n4-selected-owner-actual-r1-20261017/run/request.json",
+    "sha256": "e13ec8320df13a4e3538bed12c25b0685988766e0f581f23a29bfaf966ac3adf"
+  },
+  "cause": "Root reused the N4 request template and intentionally removed five production input pins for the native schema test, replacing its supervisor pin. The descriptive all_request_inputs count and harness wording were not rebuilt. The native request path/hash map and actual run frame are authoritative; both issued requests remain unchanged.",
+  "recomputed_complete_request_map": {
+    "total": 6351,
+    "tracked": 6348,
+    "raw_harness": 3,
+    "tracked_dot_py": 6304,
+    "tracked_dot_pyi": 5,
+    "tracked_other": 39,
+    "production_input_paths": 0,
+    "rehash_mismatches": 0
+  },
+  "corrected_descriptive_fields": {
+    "source_denominator.all_request_inputs": {
+      "recorded": 6356,
+      "correct": 6351
+    },
+    "source_denominator.harness": "Existing v2 runner and C05 witness unchanged. The copied native supervisor also changes the selected-node scope/label and timeout assertions, not only HEAD/tree/request paths; its exact source bytes are pinned in freeze/request. This is one selected strict-schema test, not a whole-module replay."
+  },
+  "independent_readback": {
+    "path": "raw/native-generated-artifact-schema-postadoption-independent-review-20261017/review.json",
+    "sha256": "5ff4b74fd7a88dbf33455fc69cb8ed86cf67d6b3bee96475eded7137edca151a"
+  },
+  "future_mint_rule": "Construct every denominator and scope field from the new request map/command; do not carry descriptive counts or whole-module wording forward from an older request.",
+  "p40": "Same copied-provenance/denominator description class. All source/count/scope fields in this newly minted request were audited; runtime predicate remains the exact path/hash map and actual test result, never the copied number.",
+  "result_boundary": "Selected strict-schema test passed; malformed CLI rejected; no freshness, whole-module, whole Native, production content, or G acceptance verdict.",
+  "closure_ids": []
+}

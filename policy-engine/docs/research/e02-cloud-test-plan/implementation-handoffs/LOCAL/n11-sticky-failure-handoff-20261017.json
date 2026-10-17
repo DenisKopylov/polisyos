@@ -1,0 +1,122 @@
+{
+  "schema": "policyos.e02.source_handoff_candidate.v1",
+  "identity": "n11-sticky-import-failure-source-handoff-r1-20261017",
+  "kind": "distinct_property_handoff_same_source_commit",
+  "status": "ONE_ISOLATED_CANDIDATE_TEST_PASS; WHOLE_N11_ACCEPTANCE_OPEN",
+  "source": {
+    "source_commit": "cc627559ffe7c4401b03f25d873361e20cd2c246",
+    "source_tree": "e5449d3b4e607fa7914d23066ec2953f1348bcaa",
+    "source_parent": "3c1c1f9ae155d3b0539b4c9ccdf11b3d195cfaf5",
+    "branch": "codex/e02-unified-local-20261009",
+    "remote_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-candidate-push-cc627559ffe7-20261015/remote-readback.json",
+      "sha256": "18a427631e2d633689c24cc1183332eea7564ec920e5d4bdf3bad0cc58f2d0bf"
+    },
+    "current_head_observed": "cc627559ffe7c4401b03f25d873361e20cd2c246",
+    "current_worktree_is_global_clean_freeze": false,
+    "note": "Tracked source is at the recorded commit; untracked LOCAL/RAW receipts remain in the worktree. No global source-freeze or formal G acceptance is claimed."
+  },
+  "related_task_binding": {
+    "source": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/DX0",
+    "formal_finding_ids": [],
+    "formal_closure_ids": [],
+    "note": "No separate N11 task/finding ID is invented in this handoff."
+  },
+  "property": {
+    "name": "sticky typed import-time identity failure blocks authority admission",
+    "candidate_behavior": "Import remains possible after a typed unavailable-identity capture failure; the failure snapshot stays unavailable and sticky, no retry or session/CAS/source-resolver side effects occur, canonical authority paths refuse, and N9 promotion remains blocked.",
+    "negative_semantic_assertions": [
+      "from_repo, constructor, _for_verification, and direct _initialize refuse",
+      "restoring source bytes does not establish the unavailable snapshot or trigger recapture",
+      "no registry, CAS, source-resolver, or state-root side effects occur",
+      "a forged authority projection is false and CanonicalN9PromotionPort refuses with canonical_loaded_runtime_mismatch",
+      "remove-property control propagates the typed import failure"
+    ]
+  },
+  "source_and_test_binding": {
+    "candidate_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-calibration-import-failure-boundary-r7-minimal-20261017/candidate-manifest.json",
+      "sha256": "d98edfc2864d93bbbc0b843456ed7dc86b8ec91d374e621645484a08cdaaeec4"
+    },
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-calibration-import-failure-boundary-independent-review-r7-20261017/review.json",
+      "sha256": "99647f9b9d9c459a247f8147eacf65d88a9d920d8752c0a8f3d24260bc507a78"
+    },
+    "review_verdict": "GO_FOR_COMPOSITION",
+    "candidate_base": {
+      "commit": "3c1c1f9ae155d3b0539b4c9ccdf11b3d195cfaf5",
+      "tree": "2f5168a6f03ed62d0a80921b5ee865586bbef8c0",
+      "parent": "3991d7c113090fab17a8374588c1a772964c9dc9",
+      "whole_worktree_clean": false
+    },
+    "candidate_file_bytes_match_shared_source_commit": true,
+    "matched_source_file": {
+      "path": "policy-engine/src/polisyos/runtime/quality/confidence_ledger.py",
+      "sha256": "3b21f7ea4e4f1cab61d6808d0681ca7c4b62b683b841234e748badb9deda4c38"
+    },
+    "matched_test_file": {
+      "path": "policy-engine/tests/unit/runtime/quality/test_confidence_ledger.py",
+      "sha256": "b1d92c1d59524bbf5b819e75304a3449a49180a9e708f3afd9525ae031c95cd0"
+    },
+    "candidate_overlay_context": "The focused run used a temporary isolated checkout copied from then-current product with these two candidate files overlaid. It is not a direct complete-module replay from a clean checkout of commit cc627559; only the candidate source/test byte identity is bound to that commit."
+  },
+  "focused_semantic_test": {
+    "status": "PASS_ONE_TEST_CANDIDATE_CONTEXT",
+    "command_record": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-calibration-import-failure-boundary-r7-minimal-20261017/focused-import-failure-final-command.json",
+      "sha256": "969c3f838f1cd92993d3feedeea8c1529c63e5b5a30893c963b6ad25445572ca"
+    },
+    "stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-calibration-import-failure-boundary-r7-minimal-20261017/focused-import-failure-final.stdout.txt",
+      "sha256": "b4720412df6e9f4880fee907a84bd3355b5e8df217d9d8cd37adad81a258fa54"
+    },
+    "stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-calibration-import-failure-boundary-r7-minimal-20261017/focused-import-failure-final.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "exit_code": 0,
+    "wall_seconds": 25.2,
+    "timeout_seconds": 55,
+    "output_verdict": "1 passed; the typed failure remained sticky and unavailable and the authority/removal controls behaved as specified.",
+    "static_checks": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-calibration-import-failure-boundary-r7-minimal-20261017/static-verification.json",
+      "sha256": "e3951d389a0d849242793c54491be41a8ed67c1bf7a1c73bd5a566bb620d3061"
+    },
+    "static_scope": "Canonical root Ruff check/format on the two exact candidate files, py_compile, and patch-apply check all passed.",
+    "positive_control_limit": "Successful-snapshot controls present in the module were not run by this targeted invocation."
+  },
+  "historical_whole_module_error": {
+    "status": "HISTORICAL_ERROR_AT_OLDER_SOURCE; NOT_CURRENT_CC_RESULT",
+    "source_commit": "f5391627f56ac2fc06d5cfe04889f0a4941542b5",
+    "source_tree": "365bc032a37922b633227e075ca60e22b1c98e8f",
+    "run_result": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-r7-actual-full-unit-wave-r1-20261017/run/actual-results.json",
+      "sha256": "4330ce00d32c9aa5ce89c998b3fc108bc548f234b06a6bf06e72ba5da5aba3e0"
+    },
+    "junit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-r7-actual-full-unit-wave-r1-20261017/run/tests.junit.xml",
+      "sha256": "2ce504f991e59ea9b58bc0e1810741f2787763ac1234933ba7b84f21716c7d5b"
+    },
+    "stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-r7-actual-full-unit-wave-r1-20261017/run/native-n11-r7-full-unit-module.stdout.txt",
+      "sha256": "262633c67fbb30ea37e2f87fe13b392b7024e541f4ef71c1c62b1cd4d5eefc4f"
+    },
+    "observed": "0 test items collected; 1 collection error: ConfidenceLedgerError canonical_loaded_runtime_mismatch: non-literal repository re-export: polisyos.fabric.atomic_write_json.",
+    "interpretation": "This proves the older f539 source had a collection failure. It does not attribute that failure to commit cc, whose changed two-file candidate was separately exercised by the single isolated test."
+  },
+  "current_acceptance_boundary": {
+    "complete_N11_module_at_commit_cc": "UNRUN",
+    "full_native_or_composed_suite": "UNRUN",
+    "N11_formal_closure": "NOT_ESTABLISHED",
+    "closure_ids": [],
+    "next_check": "On a final frozen source tree, run the complete owning test module and reconcile all collected test outcomes/imported source blobs; retain the successful-snapshot controls and current source-derived identity as part of that decision."
+  },
+  "pattern_pass": [
+    "P29",
+    "P35",
+    "P37",
+    "P38",
+    "P41"
+  ],
+  "closure_ids": []
+}

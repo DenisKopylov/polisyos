@@ -5037,5 +5037,30 @@
     "waivers_added": false,
     "closure_ids": [],
     "source_freeze": false
+  },
+  "coordination_epoch_20261017_native_and_n4_separate_receipt_delivery": {
+    "slice_base": "1fa15c7fa44f8ccd3fc979a359993184e8c86880",
+    "canonical_writer": "root only; receipt metadata separated from implementation commits cc627/227e6/1fa15",
+    "payload_paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native166-implementation-handoff-20261017.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/n11-sticky-failure-handoff-20261017.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/n4-selected-owner-actual-cc627-3p1f-r1-20261017.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/n4-selected-owner-actual-227e6-r1-20261017.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/phase-barrier-r13-g-decision-proposal-corrected-r2-20261017.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/n4-selected-owner-227e6-prior-frame-tree-corrigendum-r1-20261017.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native-generated-schema-foundry-actual-1fa15-r1-20261017.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native-generated-schema-request-denominator-corrigendum-20261017.json"
+    ],
+    "reviewed_bundle": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-cc627-227e6-native-receipt-delivery-r2-20261017/delivery-bundle.json",
+      "sha256": "db97f964a95cea63292c332ec7cb0c920bfb81582b2962a61ae701e4a1d86cce"
+    },
+    "independent_delivery_addendum": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-cc627-227e6-delivery-corrigendum-addendum-independent-review-r1-20261017/addendum-proposal.json",
+      "sha256": "1a25a9b1c8bcd5f31b196ea8429a94d14cba56ef96bcb35912777e0085be1701"
+    },
+    "source_freeze": false,
+    "closure_ids": [],
+    "boundary": "Preserve historical cc627 3P1F and 227e6 4P12phase results on exact frames; source handoffs and R13 proposal remain bounded and unaccepted; actual 1fa schema behavior excludes full freshness/native acceptance. Full-ID and composed closeout remain pending."
   }
 }

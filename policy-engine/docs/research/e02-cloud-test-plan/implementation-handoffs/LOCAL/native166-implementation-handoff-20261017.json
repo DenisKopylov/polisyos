@@ -1,0 +1,211 @@
+{
+  "schema": "policyos.e02.source_handoff_candidate.v1",
+  "identity": "native166-implementation-source-handoff-r1-20261017",
+  "kind": "source_implementation",
+  "status": "SOURCE_DELIVERED; SCOPED_EVIDENCE_RECONCILED; NATIVE_ACCEPTANCE_OPEN",
+  "source": {
+    "source_commit": "cc627559ffe7c4401b03f25d873361e20cd2c246",
+    "source_tree": "e5449d3b4e607fa7914d23066ec2953f1348bcaa",
+    "source_parent": "3c1c1f9ae155d3b0539b4c9ccdf11b3d195cfaf5",
+    "branch": "codex/e02-unified-local-20261009",
+    "remote_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-candidate-push-cc627559ffe7-20261015/remote-readback.json",
+      "sha256": "18a427631e2d633689c24cc1183332eea7564ec920e5d4bdf3bad0cc58f2d0bf"
+    },
+    "current_head_observed": "cc627559ffe7c4401b03f25d873361e20cd2c246",
+    "current_worktree_is_global_clean_freeze": false,
+    "note": "Tracked source is at the recorded commit; untracked LOCAL/RAW receipts remain in the worktree. No global source-freeze or formal G acceptance is claimed."
+  },
+  "task_binding": {
+    "source": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json#/tasks/DX0",
+    "formal_finding_ids": [],
+    "formal_closure_ids": [],
+    "native166_plan_count_is_not_the_source_delta_denominator": true
+  },
+  "source_delta": {
+    "basis": "git diff-tree --no-commit-id --name-status -r 3c1c1f9ae155d3b0539b4c9ccdf11b3d195cfaf5 cc627559ffe7c4401b03f25d873361e20cd2c246",
+    "actual_changed_path_count": 166,
+    "status_counts": {
+      "M": 102,
+      "A": 37,
+      "D": 27
+    },
+    "path_set_equals_commit_readback": true,
+    "complete_path_and_postimage_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native166-reviewed-implementation-boundary-r1-20261017/native166-reviewed-owner-and-import-failure-composition-readback.json",
+      "sha256": "5d98587fc17b1ab7c743c11726bfdb1f2313a24db16ab84c47bf022772ddb087"
+    },
+    "path_array_key": "paths",
+    "path_array_count": 166,
+    "source_sha256_postimage_count": 139,
+    "git_blob_sha256_matches_recomputed": 139,
+    "deleted_path_preimage_count": 27,
+    "retirement_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native166-canonical-adoption-r1-20261017/native-trash-receipt.json",
+      "sha256": "9e39fedbc138fad4c3ac8df9125877b840072fd3845200d840821ff3abdc7c17"
+    },
+    "interpretation": "The 166 count is the observed source commit diff. It is not inferred from the similarly named Native166 planning inventory."
+  },
+  "implementation_scope": {
+    "summary": "Substantive Common, Data Forge, Foundry, and Lex owner composition with source, tests, layout/architecture/configuration, release and documentation companions. Exact complete footprint is the Git diff path array in source_delta.complete_path_and_postimage_receipt.",
+    "source_commit_subject": "refactor(e02): compose native owners and preserve unavailable identity boundary",
+    "source_and_test_companions": [
+      "policy-engine/src/polisyos/runtime/quality/confidence_ledger.py",
+      "policy-engine/tests/unit/runtime/quality/test_confidence_ledger.py"
+    ],
+    "n11_property_is_reported_in_separate_handoff": true
+  },
+  "bounded_evidence": [
+    {
+      "claim": "Canonical configured Ruff check and format passed for the 93 selected Python target paths; the 93 target file bytes were read from the source commit and matched the worktree.",
+      "status": "PASS_SCOPED",
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native166-ruff-canonical-replay-r1-20261017/receipt.json",
+        "sha256": "8280214fd5a4526b3d21eb942a0c01fbe6943da5eb2c48902b96c9dcbcafb112"
+      },
+      "scope": {
+        "python_targets": 93,
+        "commit_blob_worktree_byte_matches": 93
+      },
+      "deciding_outputs": {
+        "check_stdout_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "check_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "format_stdout_sha256": "741e1f3b3d659eb327c8a578bdc75af2289f26d1e8cb5fb1d346708b547936fe",
+        "format_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "qualification": "The canonical replay was executed on the composed dirty source materialization at parent HEAD; the posthoc 93/93 blob check binds only those selected files to this commit, not the full source-quality gate."
+    },
+    {
+      "claim": "The separately authored Ruff companion set contains 33 changed source file objects and all 33 recorded postimages match the committed blobs.",
+      "status": "PASS_SCOPED",
+      "source_application_readback": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native166-ruff-source-application-r1-20261017/source-application-readback.json",
+        "sha256": "f3e12acb04ad528618b22ef7b1173433e4e4e7d024431734b6a7289919199f30"
+      },
+      "independent_candidate_validation": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native166-ruff-companions-r4-20261017/postimage-validation.json",
+        "sha256": "e029cc399a0d0b8f679e25624b82e727a03f3cde9cfed87176c42a613775f2b0"
+      },
+      "changed_file_object_count": 33,
+      "commit_blob_matches": 33
+    },
+    {
+      "claim": "Two changed Lex dynamic-import registry rows were recomputed from actual source AST rows, resolved to actual targets, and the real registry validator rejected both row removal and target drift while marker text remained.",
+      "status": "PASS_TWO_ROWS_ONLY",
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native166-f1-registry-source-application-r1-20261017/actual-two-bindings-result.json",
+        "sha256": "c6d25222e5d94db38e3ad3e7e9c50ad370d6a781785c9e231d3c217aa56250da"
+      },
+      "selected_row_count": 2,
+      "source_files": [
+        "src/polisyos/core/components/_cli_lex.py",
+        "src/polisyos/runtime/quality/intervention_substrate.py"
+      ],
+      "source_hashes_match_commit": true,
+      "positive_findings": [],
+      "remove_row_findings": [
+        "Finding(gate='dynamic_imports_gate', message='dynamic import call is not registered', detail=\"('src/polisyos/runtime/quality/intervention_substrate.py', 4045, 'importlib.import_module', 'polisyos.lex.interventions.artifacts')\")"
+      ],
+      "target_drift_findings": [
+        "Finding(gate='dynamic_imports_gate', message='registered dynamic import row differs from canonical collector', detail=\"('src/polisyos/core/components/_cli_lex.py', 32, 'importlib.import_module', 'polisyos.lex.normpack.types'): fields=['allowed_targets']\")",
+        "Finding(gate='dynamic_imports_gate', message='allowed dynamic import target does not resolve', detail='src/polisyos/core/components/_cli_lex.py:32 -> polisyos.lex.normpack.no_such_source_target_e02')"
+      ],
+      "whole_registry_status": "HOLD: original full report17ERROR retained; full source collector/native acceptance not established",
+      "additional_default_root_report": {
+        "receipt": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native166-same-source-dynamic-report-r1-20261017/result.json",
+          "sha256": "915180d458acc9b8fb8d00bb23a66c116090504150318a94b87991c37ad0efcf"
+        },
+        "report": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native166-same-source-dynamic-report-r1-20261017/report.json",
+          "sha256": "d95dc760b14767c6eb4ba5cc5c3715a404ce12e80784614e9a8ad7f2807e9d5f"
+        },
+        "status": "ERRORS_REMAIN",
+        "contract_error_count": 17,
+        "note": "Report-only run used default root; it is not a full dynamic-import acceptance pass."
+      }
+    },
+    {
+      "claim": "Official workspace tool-config check returned zero after a writer attempt diagnosed stale pre-state paths.",
+      "status": "PASS_CHECK_AFTER_PRIOR_ERROR; NOT_FINAL_NATIVE_ACCEPTANCE",
+      "writer_attempt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native166-official-tool-configs-r1-20261017/result.json",
+        "sha256": "ac2f67d5b1132d1647f63a5791a55db02ad38d34dc54e0d86da82aa09fd5c6e6"
+      },
+      "writer_stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native166-official-tool-configs-r1-20261017/stderr.txt",
+        "sha256": "a8be0286229a6225b6b2a0231c381aa98f2cafe5e5efcd913d8a05bd84682a34"
+      },
+      "check": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native166-official-tool-configs-check-r1-20261017/result.json",
+        "sha256": "9ddbd6125bafb3ef916ae31bc34bf3445d802b8362848b257ba39be77888ee50"
+      },
+      "qualification": "Both invocations ran against the dirty composed source materialization at parent HEAD, not a clean postcommit freeze."
+    },
+    {
+      "claim": "Guardrail sync produced four candidate outputs, but independent reconciliation found a later changed source input and held the deep-import baseline; these outputs remain unapplied.",
+      "status": "CANDIDATE_OUTPUTS_ONLY; DEEP_IMPORT_BASELINE_HOLD",
+      "producer_result": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native166-official-guardrails-sync-r1-20261017/result.json",
+        "sha256": "465dab79a5428df907c05e5fdbf64358643501ffbf8aff73a7e9541bbfea4e07"
+      },
+      "independent_review": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native166-official-guardrails-independent-review-r1-20261017/review.json",
+        "sha256": "a8cb1bc3c83e2fb9878c90e9b697d74bbb6d637433818e05cb4ff9865a63c2ac"
+      },
+      "candidate_outputs": [
+        {
+          "path": "architecture/public_surface/inventory.json",
+          "sha256": "19eb7b438bd5c3dd2d563ec8965156e5eff2f919cd71dc0014c6464966d737fe"
+        },
+        {
+          "path": "docs/reference/public-surface.md",
+          "sha256": "604f89d061e88f027fa17f59b8d719af7cbe9ef51adf1df4e6656371f09f0e9a"
+        },
+        {
+          "path": "docs/reference/generated-artifacts.md",
+          "sha256": "3012427e5120c8a7ec37a96ddce4c466c3e77c9e98e449ffb67f9609b48108ac"
+        },
+        {
+          "path": "architecture/baselines/imports/deep_import.json",
+          "sha256": "1e61e8aefde85ee0dadc6826d5f153680d0efa76c53b388c7de0110468cf9b9e"
+        }
+      ],
+      "qualification": "Exit 0 from sync is producer execution only. The independent review binds the candidate set to its run but identifies one changed input after generation; regenerate on final source freeze and review before adoption."
+    }
+  ],
+  "mandatory_open_gates": [
+    {
+      "gate": "full source-derived dynamic-import inventory and target-owner reconciliation",
+      "status": "OPEN; report-only result has 17 contract errors"
+    },
+    {
+      "gate": "official generated-state outputs on final frozen source",
+      "status": "OPEN; candidate outputs not applied; deep-import baseline held"
+    },
+    {
+      "gate": "full native SOTA row-by-row and removal probes",
+      "status": "UNRUN"
+    },
+    {
+      "gate": "composed/source consumer suite",
+      "status": "UNRUN"
+    },
+    {
+      "gate": "served/API/browser surface checks",
+      "status": "UNRUN"
+    },
+    {
+      "gate": "Linux and installed/archive/wheel checks",
+      "status": "UNRUN"
+    }
+  ],
+  "next_check": "Root-owned final source freeze, then regenerate and independently reconcile required official outputs; rerun the full source-derived report and target-ownership checks; perform the row-specific native, composed, served, Linux, installed/archive, and browser gates. Do not infer closure from the scoped passes above.",
+  "pattern_pass": [
+    "P35",
+    "P37",
+    "P38",
+    "P41"
+  ],
+  "closure_ids": []
+}

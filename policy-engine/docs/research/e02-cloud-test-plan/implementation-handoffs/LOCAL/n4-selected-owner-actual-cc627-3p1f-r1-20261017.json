@@ -1,0 +1,137 @@
+{
+  "schema": "policyos.native-n4-actual-receipt.v1",
+  "receipt_id": "N4-SELECTED-OWNER-ACTUAL-CC627-3P1F-20261017",
+  "status": "HISTORICAL_ACTUAL_3_PASSED_1_FAILED; ACCEPTANCE_OPEN",
+  "scope": "One selected-slot owner pytest module at exact source commit cc627; not the later 227 replay and not native/full N4 acceptance.",
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "commit": "cc627559ffe7c4401b03f25d873361e20cd2c246",
+    "tree": "e5449d3b4e607fa7914d23066ec2953f1348bcaa",
+    "parent": "3c1c1f9ae155d3b0539b4c9ccdf11b3d195cfaf5",
+    "tracked_source_matches_commit": true,
+    "global_source_freeze": false
+  },
+  "actual_result": {
+    "pytest_cases": 4,
+    "passed": 3,
+    "failed": 1,
+    "skipped": 0,
+    "phase_outcomes": {
+      "passed": 11,
+      "failed": 1,
+      "skipped": 0
+    },
+    "pytest_exit_code": 1,
+    "supervisor_exit_code": 0,
+    "timed_out": false,
+    "pytest_seconds": 14.725,
+    "failure_nodeid": "tests/test_controlled_candidate_slot_closure.py::test_owner_built_candidate_outcome_is_persisted_and_read_back",
+    "failure_assertion": "selected_ncm == candidate_ncm_spec_from_declaration(declaration)",
+    "diagnosis": "Fixture helper persisted a separately hand-built NCM that diverged from the declaration projection. Later equality-dependent persistence assertions did not run.",
+    "fixture_owner_integration_status": "not_established"
+  },
+  "exact_execution": {
+    "argv": [
+      "/usr/bin/time",
+      "-l",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+      "-B",
+      "-m",
+      "pytest",
+      "-c",
+      "pytest.ini",
+      "--rootdir",
+      ".",
+      "-o",
+      "addopts=",
+      "--import-mode=importlib",
+      "--strict-markers",
+      "-ra",
+      "-vv",
+      "--tb=short",
+      "-p",
+      "no:cacheprovider",
+      "-p",
+      "c05_actual_witness",
+      "--basetemp",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-cc627-n4-selected-owner-actual-r5-20261017/run/pytest-basetemp",
+      "--junitxml",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-cc627-n4-selected-owner-actual-r5-20261017/run/tests.junit.xml",
+      "tests/test_controlled_candidate_slot_closure.py"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "timeout_seconds": 180,
+    "exit_code": 1,
+    "timed_out": false,
+    "seconds": 14.725,
+    "request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-cc627-n4-selected-owner-actual-r5-20261017/run/request.json",
+      "sha256": "39ddc0799c1b261d6f41ef0bed439fe38619a0c412bf1282bc28c0d0651fe952"
+    }
+  },
+  "complete_output_locators": {
+    "actual_results": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-cc627-n4-selected-owner-actual-r5-20261017/run/actual-results.json",
+      "sha256": "0ef6b01296b6363678a90c278adec8bfcc8ba1dd22c53eb38ccf0df354ee8011"
+    },
+    "source_and_test_witness": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-cc627-n4-selected-owner-actual-r5-20261017/run/actual-test-and-source-witness.json",
+      "sha256": "2367e4def4d3eec944c46c604d4e1672ebc85341a19181ae51796187efff4f2d"
+    },
+    "pytest_run_record": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-cc627-n4-selected-owner-actual-r5-20261017/run/n4-selected-slot-full-owner-fixture.run.json",
+      "sha256": "07f04d0753c760db0fea6620b73a2e3033b6dd57a24b5f66764df7c4747344db"
+    },
+    "pytest_stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-cc627-n4-selected-owner-actual-r5-20261017/run/n4-selected-slot-full-owner-fixture.stdout.txt",
+      "sha256": "1dce5445655803e6575cf47206681d7bd3f1d0afd1c5ebd371b72c3ab1fe49e4"
+    },
+    "pytest_stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-cc627-n4-selected-owner-actual-r5-20261017/run/n4-selected-slot-full-owner-fixture.stderr.txt",
+      "sha256": "bbf79cc09541a23c2a8daec3c2230fd800175b73b9b2e93901521564306a47cd"
+    },
+    "junit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-cc627-n4-selected-owner-actual-r5-20261017/run/tests.junit.xml",
+      "sha256": "b99df2cfa16b4717dd666bd054cc7f5339dd259dc6bf45f09955d698ec1b60fb"
+    },
+    "supervisor_result": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-cc627-n4-selected-owner-actual-r5-20261017/run/supervisor-result.json",
+      "sha256": "59e6158e1cd150698287febfb43a1b0cd0f4c1303e049152f36730d2a0ca5b95"
+    },
+    "supervisor_stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-cc627-n4-selected-owner-actual-r5-20261017/run/supervisor.stdout.txt",
+      "sha256": "670acd7000d35014e583ebe218c1c7b7c47abf7639b8922e6d832e36ca082948"
+    },
+    "supervisor_stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-cc627-n4-selected-owner-actual-r5-20261017/run/supervisor.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "independent_reconciliation": {
+    "assessment": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-cc627-n4-actual-owner-independent-reconciliation-r1-20261017/assessment.json",
+      "sha256": "8b92feda1da8a19cbe44ea50a2a669b15c8aae213bde9ac8c88e0acd17911ef6"
+    },
+    "manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-cc627-n4-actual-owner-independent-reconciliation-r1-20261017/manifest.json",
+      "sha256": "88a3bfaccf476ee0e03f341b8cc59f7a72e2fc2c31e9b14b04fc4a2deebe5a3d"
+    },
+    "status": "RECONCILED_ACTUAL_TEST_FAILURE; no acceptance or closure",
+    "input_reconciliation": "6,356 request paths reconciled; full module result remained 3 passed / 1 failed."
+  },
+  "p40": {
+    "bucket": "SAME_CLASS_AS_CONTROLLED_CANDIDATE_NCM_DECLARATION_PROJECTION_MISMATCH",
+    "basis": "The helper-owned NCM disagreed with the canonical declaration projection; the later engineering candidate uses the canonical projector rather than a per-assertion adjustment."
+  },
+  "p41": {
+    "classification": "not_established relative to the N4 slice base",
+    "reason": "Reconciliation observed cc627 exactly but did not replay a base predating the N4 slice."
+  },
+  "closure_ids": [],
+  "formal_G_acceptance": null,
+  "limitations": [
+    "One selected test module only.",
+    "No positive empirical causal model, production profile, full N4/N5 capability closure, Native SOTA closeout, or global source freeze is established.",
+    "The 227 replay is a separate later source cut and does not rewrite this historical failure."
+  ]
+}

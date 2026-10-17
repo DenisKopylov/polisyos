@@ -3655,5 +3655,21 @@
     "review_boundary": "One-file documentation GO only; R4 native two-source mechanism remains HOLD for default-workspace false pass and is not adopted here.",
     "source_freeze": false,
     "closure_ids": []
+  },
+  "coordination_epoch_20261017_three_scoped_source_receipts": {
+    "owner": "root",
+    "base": "35c11f124e1547b4113523bd3065c59144053d0a",
+    "mechanism_paths": [],
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native-type-selector-canonical-current-delivery-20261017.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/acquisition-config-provider-canonical-current-delivery-20261017.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native-closeout-contributor-command-current-delivery-20261017.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json"
+    ],
+    "scope": "Receipt-only source/output delivery with exact historical run envelopes and no finding promotion. Index current local and previously published checkpoints reconciled independently.",
+    "RAW_references_revalidated": 34,
+    "source_freeze": false,
+    "closure_ids": []
   }
 }

@@ -1,0 +1,64 @@
+{
+  "schema": "policyos.e02.scoped-documentation-delivery.v1",
+  "source_commit": {
+    "sha": "35c11f124e1547b4113523bd3065c59144053d0a",
+    "tree": "d2b3eaa3c1ee446b7099688c938b91fc9f3acc08",
+    "parents": [
+      "92d501538c444dca1b6157c90a9c18507f5bd817"
+    ],
+    "footprint_sha256": {
+      "policy-engine/docs/reference/contributor-start-here.md": "2efe12010931edef0a11666bb1ede0dbea4ba15109462941f443dd8c6c019cc0",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json": "d1c95919e677ba15fea01ec4253cc916ebccefb865d5f8ba5bbe79e688761f50"
+    }
+  },
+  "property": "Restore the registered closeout recipe and distinguish contract-only from the full subprocess wave.",
+  "independent_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-sota-wiring-proxy-r4-independent-review-20261017/review.json",
+    "sha256": "3b06948ab123ba8d0f240e6b6d79190e1352eab0bf43a803b96f4604723003d1"
+  },
+  "review_boundary": "GO applies to contributor-start-here.md only; native R4 mechanism remains HOLD and is not adopted by this documentation commit.",
+  "actual_run": {
+    "request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-closeout-contributor-docs-adoption-20261017/request.json",
+      "sha256": "9772bcfe638f0e8c81ce8bd5a629ba01e2f95614fbbd94cfdcdd69a0ae1908a1"
+    },
+    "results": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-closeout-contributor-docs-adoption-20261017/actual-results.json",
+      "sha256": "d9f5eb2fb17b5e5a0418d38d0f0793159955e78496239a1159c98224292723ec"
+    },
+    "command_outputs": [
+      {
+        "label": "canonical-docs-style",
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-m",
+          "tools.cli",
+          "workspace",
+          "docs-style",
+          "docs/reference/contributor-start-here.md"
+        ],
+        "timeout_seconds": 180,
+        "exit_code": 0,
+        "timed_out": false,
+        "seconds": 3.817,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-closeout-contributor-docs-adoption-20261017/canonical-docs-style.stdout.txt",
+          "sha256": "9f20018092b692d805a0ac39fea73f43a59bf7d63b2eef63cac2567764cff8ef"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-closeout-contributor-docs-adoption-20261017/canonical-docs-style.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    ],
+    "deciding_result": "File-scoped docs-style exit 0, 3.817 seconds; this does not establish native SOTA green."
+  },
+  "readback": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-closeout-contributor-docs-adoption-20261017/native-closeout-contributor-docs-readback.json",
+    "sha256": "6cf787517724d82c49ce2760c60bde329b8f2b41a694cd2695e84f0fe3672992"
+  },
+  "closure_ids": [],
+  "proposals": [],
+  "source_freeze": false,
+  "formal_G_acceptance": null
+}

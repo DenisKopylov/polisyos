@@ -2,29 +2,21 @@
   "record_type": "intermediate_candidate_delivery_index",
   "observed_source_branch": {
     "branch": "codex/e02-unified-local-20261009",
-    "head": "718a54bc686e725f58a122d0c39b84a7c4737c52",
-    "tree": "4d4f5ff7169de2b073712bcf2d2d21ea6ca1144e",
+    "head": "35c11f124e1547b4113523bd3065c59144053d0a",
+    "tree": "d2b3eaa3c1ee446b7099688c938b91fc9f3acc08",
     "parents": [
-      "6edb6077a8d4e2c5a082cb99a9f82491ef728555"
+      "92d501538c444dca1b6157c90a9c18507f5bd817"
     ],
     "source_freeze": false,
-    "dirty_active_source": "Tracked source clean at718a; RAW active C05 warnings/retry types, NL host/API types, R9 module effects and N4 actual recursive V5 bridge await independent reviews/root adoption. ec8 C05 actual232PASS but format9/type55 diagnostics; BERL54PASS/Ruff3/strict1PASS. NL R7 actual61PASS3FAIL; corrected R8 fault reaches wrapped read, runtime guard fix718a delivered but coherent repeated64 pending. Native6errors after9TOML6edb; fullcloseout not established.",
-    "mutable_coordination_observations": [
-      {
-        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-parallel-coordination-20261015/root-owned-commits.json",
-        "historical_sha256": "2b6f68504bf568b6ee86b34ab904ea55750c9b3447b2785585219ad35228d524",
-        "current_sha256": "86bfb41604ba49282a39c569e1f616f19a9da25089a35ea250ae0d1ed75a6a4f",
-        "scope": "Mutable root coordination observation at stated earlier frame, not runtime input/current byte claim; historical snapshot not asserted available."
-      }
-    ],
+    "dirty_active_source": "Two attributed native verifier partials remain unchanged while reviewed R5 replacements are being prepared. N4 bridge, N8 candidate bounds, typed acquisition refusal cause, and wrapper retirement remain RAW proposals awaiting independent review and sequential root integration.",
     "published_candidate_last_verified": {
-      "sha": "ec8c7a046dc9fa9120bf2c3857dbd95e5c2b3ee7",
-      "tree": "d57db3d291808d2e435a22e67c6cb3c7a27edf13",
+      "sha": "7bb3468f52e605f807145ca7f5ad75d1cf758d30",
+      "tree": "e5508267eaa6670106638c9e9b832b2564b5c22b",
       "remote_readback": {
-        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-candidate-push-ec8c7a046dc9-20261015/remote-readback.json",
-        "sha256": "655de438f41dff173cc1f6123acea023c3927e4c3d7a7cdda45c09dd58b57de5",
-        "availability": "local ignored RAW; retained on this host"
-      }
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-candidate-push-7bb3468f52e6-20261015/remote-readback.json",
+        "sha256": "ec50d0c31369e72b8e819f174083f72ad8d12e48b3a13896003f75ed7b6ccd45"
+      },
+      "meaning": "Previously verified remote checkpoint; newer local source commits above await their next ordinary push."
     }
   },
   "G_checkpoint_last_remote_verified": {
@@ -576,6 +568,18 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/n8-assignment-refusal-fixture-canonical-current-delivery-20261017.json",
       "sha256": "20e9454f15e486b496aaf445d789a182c5f695db613319253164e9ac419f4e9d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native-type-selector-canonical-current-delivery-20261017.json",
+      "sha256": "4a12ce1dfb2214db12fb90a7be1437bde135e8e856b2b70211467735bd888d20"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/acquisition-config-provider-canonical-current-delivery-20261017.json",
+      "sha256": "e76f04f279fcb3883e8a3121f0a4938ddc31722fc051b0b285003d81cdec5662"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native-closeout-contributor-command-current-delivery-20261017.json",
+      "sha256": "5081c3f9f444f8d8c7dd33ae3eccf5b47ea7ec3e9cf799a2973c5a36a5d5d78e"
     }
   ],
   "canonical_denominator_recomputed": {
@@ -622,7 +626,8 @@
     "LegalR4 actual73-case canonical replay and selected4-source typing verified at6e872; no browser/production or completeTypeScriptconsumer input freeze. Firstsource admission error corrected as harness-owned, not inherited. GL3be full125PASS plus oneblankline Lexformat delta9e752 and independentASTproof734528 are separate frames; nofulllegalbundlepositive.",
     "N4 RAWrefusalconsumer reaches publicN4→V2GenerationSourceCAS→freshN6 preservinglimitedWMR atmissingatoms. Independent62ebbHOLD: canonicaltestpatch mismatch, tool-onlyproducerbridge, actualV5CASowner untested and staledocs are repairedtogether. No simulation/meaningfulchildren/fullKrefsource/authority closure; CAN/Kreflawchoices remainGpending.",
     "Current added records are individually scoped GL125+Lexstyle, BERL54, native6-errors, three explicit G choices and environment serialization erratum. No whole-property closure, current global source/input/backend freeze or composed/native/Linux/installed/browser acceptance follows. N4 R6 explicitly composed fixture lacks normal V5 runtime bridge; R7 wires existing recursive owner before canonical replay. V2/V6 source-present actual served tests remain UNRUN; exact original-capture monetary budget stop is held by unknown gateway settlements, alternatives investigated.",
-    "Scoped canonical additions: UI20P/Prettier, R9focused35P, C05strict12selected, NL67P+strict5selected andN8oneP. No overall runtime/native/Linux/installed/browser freeze or closure. R7 N4 whole-routeHOLD: GenericCycle root bypasses V5 guard; R8 commonowner bridge being authored. NativeR2/R3HOLD route/status context, R4wholeprofile design underway. FullcanonicalRuff selector is correct; realformatterdebt andtypingselectors under repair. Causalobsoletebacklog onlyretiredf925, remainingexpiryissuer/engineeringrows separatelyscoped."
+    "Scoped canonical additions: UI20P/Prettier, R9focused35P, C05strict12selected, NL67P+strict5selected andN8oneP. No overall runtime/native/Linux/installed/browser freeze or closure. R7 N4 whole-routeHOLD: GenericCycle root bypasses V5 guard; R8 commonowner bridge being authored. NativeR2/R3HOLD route/status context, R4wholeprofile design underway. FullcanonicalRuff selector is correct; realformatterdebt andtypingselectors under repair. Causalobsoletebacklog onlyretiredf925, remainingexpiryissuer/engineeringrows separatelyscoped.",
+    "Selected canonical checks now include five basedpyright-selector tests and four synthetic acquisition signer/currentness tests, each with Ruff green. The checker itself was not run. Original currentness refusal-cause loss remains under repair. The contributor command documentation passes its own style check; native R4 remains held for its initial-workspace counterexample, with R5 under independent preparation. These results do not change any finding outcome or establish the full native/composed/Linux/installed/browser freeze."
   ],
   "retention": "Complete deciding outputs and removal controls are pinned by receipts under ignored LOCAL/raw on the candidate checkout. Tracked source is cited by path@sha/commit, not copied. Large RAW availability is local; no archive payload census or duplicate environment.",
   "next_check": "Finish all coherent source companions and independent reviews, then explicit source/input/backend freeze and composed actual/native/Prepared B/Linux/installed/browser/read-only authentic closeout; refresh all 291 per-occurrence proposals without formal G adjudication."

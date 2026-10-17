@@ -1,0 +1,211 @@
+{
+  "schema": "policyos.e02.scoped-canonical-delivery.v1",
+  "record_type": "Separate receipt after the implementation commit; source and output identities remain tied to their original run.",
+  "delivery_context": {
+    "observed_source_commit_before_receipt": "35c11f124e1547b4113523bd3065c59144053d0a",
+    "supplier": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-type-acquisition-receipts-20261017/native-type-selector-adoption.json",
+      "sha256": "9fe27bc3b8ce76ee1e88e37201f7dd9440c52fbdf11fa3f0e16a61de2ccf868e"
+    },
+    "preparation_status": "The supplier packet status records RAW preparation history. The embedded exact implementation commit and root readback establish canonical delivery.",
+    "effective_test_cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "cwd_provenance": "The run command omitted cwd, so the pinned V2 run_request.py used its product-root default. Ruff records the explicit workspace root. No supplied cwd is asserted to have been captured where the command omitted it.",
+    "actual_run_context": "Source/test postimages were run before implementation commit with exact request pins. The two named native partials were included as actual worktree bytes; no pure Git-tree or global freeze is claimed.",
+    "receipt_availability": "Complete deciding outputs are retained in ignored RAW on this machine. This commit transports references, not the raw output files."
+  },
+  "proposal_packet": {
+    "actual_run": {
+      "actual_results": {
+        "bytes": 3425,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-type-selector-adoption-20261017/actual-results.json",
+        "sha256": "4bfd8fed830a3b8cc21d6508d524534d2e245be560687f72037d89e793701c48"
+      },
+      "commands": [
+        {
+          "argv": [
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "-m",
+            "pytest",
+            "tests/repo_quality/tools/test_core_runtime_basedpyright_scope.py",
+            "-q",
+            "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-type-selector-adoption-20261017/selector-junit.xml"
+          ],
+          "cwd_recorded": null,
+          "exit_code": 0,
+          "junit": {
+            "bytes": 1081,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-type-selector-adoption-20261017/selector-junit.xml",
+            "sha256": "3ea527125dc5a5f06c306a826c84be39f1bcbc0a3b71ebcd767fd49da1d595d8"
+          },
+          "label": "canonical-selector-five-tests",
+          "outer_seconds": 0.963,
+          "stderr": {
+            "bytes": 0,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-type-selector-adoption-20261017/canonical-selector-five-tests.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "stdout": {
+            "bytes": 80,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-type-selector-adoption-20261017/canonical-selector-five-tests.stdout.txt",
+            "sha256": "4d2df7a96ce4a667da3ccf295f2d16c728a65ed0e861a3baa919f7bb469b02b5"
+          },
+          "timed_out": false,
+          "timeout_seconds": 180
+        },
+        {
+          "argv": [
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "-m",
+            "ruff",
+            "check",
+            "--config",
+            "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+            "policy-engine/tools/devx/workspace/core_runtime_basedpyright.py",
+            "policy-engine/tests/repo_quality/tools/test_core_runtime_basedpyright_scope.py"
+          ],
+          "cwd_recorded": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+          "exit_code": 0,
+          "label": "canonical-selector-ruff",
+          "outer_seconds": 0.078,
+          "stderr": {
+            "bytes": 0,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-type-selector-adoption-20261017/canonical-selector-ruff.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "stdout": {
+            "bytes": 19,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-type-selector-adoption-20261017/canonical-selector-ruff.stdout.txt",
+            "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+          },
+          "timed_out": false,
+          "timeout_seconds": 60
+        }
+      ],
+      "environment_capture_limit": "exact selected fields from mapping passed to Popen; inherited unspecified process variables are not captured",
+      "input_path_hash_count": 7,
+      "input_scope": "Actual canonical focused basedpyright selector behavior only; known unrelated native partials retained, no typechecker or native-wide claim.",
+      "pytest_junit_summary": {
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "5",
+        "time": "0.064"
+      },
+      "request": {
+        "bytes": 2585,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-type-selector-adoption-20261017/request.json",
+        "sha256": "9f47d4c2281c18fe73651870adde247ad9a6c6988efb2b42def2508c55549f1f"
+      },
+      "selected_environment": {
+        "JAX_PLATFORMS": "cpu",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "src:.",
+        "VECLIB_MAXIMUM_THREADS": "1"
+      },
+      "source_paths_unchanged": true
+    },
+    "candidate_id": "native-type-selector-r2-source-bound-20261017",
+    "candidate_provenance": {
+      "P38_boundary": "This measures file type/existence and exact current curated argv. It does not establish canonical ownership or typing health. Path.is_file() follows symlinks to files; explicit paths and --skip-curated-extras retain their prior contracts.",
+      "P38_property": "Every member selected by the configured curated tuple resolves to an existing regular file; if any member is absent or an existing non-file, reject the whole default command before dispatching either checker invocation.",
+      "P40": {
+        "bounded_residual": "Owner identity and actual basedpyright type results remain outside this selector review; no recursive verifier ladder was opened.",
+        "bucket": "SAME_SELECTOR_PREFLIGHT_CLASS_LEVEL_2",
+        "finding": "R1 found a directory-kind escape in the selector preflight after missing-path rejection; this is one level deeper in the same selection/property class, not a new class.",
+        "outcome": "Targeted R2 selector behavior passes. This review records candidate-level evidence only and claims no formal closure or G acceptance.",
+        "response": "Widened the predicate over the complete 53-member curated source tuple, with no path blacklist. The independent source-derived census found the candidate tuple equals the test oracle, contains 53 unique paths, and all 53 currently resolve to files. Missing and directory falsifiers run before any subprocess dispatch."
+      },
+      "author_manifest": {
+        "bytes": 17828,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-type-selector-author-r2-20261017/manifest.json",
+        "sha256": "ed69474919d154d9da22b43911df8faf7c452866bafe53661b4d15829c94c7ed"
+      },
+      "cumulative_patch": {
+        "bytes": 10686,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-type-selector-author-r2-20261017/native-type-selector-r2-cumulative.patch",
+        "sha256": "d7dc09ed0d811d18cf53ff82c3ef1a3583db1ac1d98acadacca8e5f7c0db3b84"
+      },
+      "independent_review": {
+        "bytes": 14072,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-type-selector-independent-review-r2-20261017/review.json",
+        "sha256": "c98f64904b2ab8d682edd18fced965fa47f1ee6bca30c1da4ca796986d761873"
+      },
+      "review_scope": "Independent read-only review of frozen R2 candidate and its selector behavior. No canonical files/config/baselines changed; no Git operations beyond read-only status/history/diff checks.",
+      "review_status": "R2_TARGETED_REVIEW_PASSES_WITH_BOUNDED_SCOPE",
+      "source_postimage": {
+        "bytes": 6686,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-type-selector-author-r2-20261017/core_runtime_basedpyright.py",
+        "sha256": "92ffa7bca2fa790eeeed167b9394f10b0203565b4f6e9db224f451a5ba2dd1fc"
+      },
+      "test_postimage": {
+        "bytes": 6919,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-type-selector-author-r2-20261017/test_core_runtime_basedpyright_scope.py",
+        "sha256": "420a3d9b7e830ccdfe040e7f4f89b4c6ff59fcd05460dfa4bc874f855f61f44a"
+      }
+    },
+    "claim": "The curated selector validates every member of its 53-path configured tuple as a regular file before checker dispatch, preserving default root, skip, and explicit-path contracts.",
+    "known_retained_unrelated_inputs": [
+      {
+        "path": "policy-engine/tests/repo_quality/architecture/test_repository_sota_phase5_closeout.py",
+        "sha256": "75c6d9deee0efb7e52d327aacc235b904c49a47dcebf9f5289c216623ee611af"
+      },
+      {
+        "path": "policy-engine/tools/devx/workspace/repository_sota_closeout.py",
+        "sha256": "d9bc12df949fc935a31fe91e64f378eddebe6e3800cc3326c1ab09fa1299e994"
+      }
+    ],
+    "limits": [
+      "Five focused selector tests and Ruff passed; tests mock only subprocess.run while using real parsing, main, scope resolution, file predicate, argv, and dispatch order.",
+      "No actual basedpyright invocation, semantic typing result, full native suite, baseline update, or global source freeze is established.",
+      "Path.is_file() follows symlinks; this establishes file-kind/existence and argv behavior, not canonical ownership. --skip-curated-extras bypasses the curated preflight; explicit paths retain direct dispatch.",
+      "The two named unrelated native partials are retained inputs, not a pass claim."
+    ],
+    "proposal_only": {
+      "formal_closure_ids": [],
+      "global_index_mutation": false,
+      "individual_status_changes": [],
+      "source_freeze": false
+    },
+    "schema": "policyos.source-bound-handoff-receipt-candidate.v1",
+    "source_binding": {
+      "actual_request_matches_footprint": true,
+      "footprint": [
+        {
+          "path": "policy-engine/tools/devx/workspace/core_runtime_basedpyright.py",
+          "revision": "2b8060d8acd60eb93533a8f7f443002800ed00fc",
+          "sha256": "92ffa7bca2fa790eeeed167b9394f10b0203565b4f6e9db224f451a5ba2dd1fc"
+        },
+        {
+          "path": "policy-engine/tests/repo_quality/tools/test_core_runtime_basedpyright_scope.py",
+          "revision": "2b8060d8acd60eb93533a8f7f443002800ed00fc",
+          "sha256": "420a3d9b7e830ccdfe040e7f4f89b4c6ff59fcd05460dfa4bc874f855f61f44a"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+          "revision": "2b8060d8acd60eb93533a8f7f443002800ed00fc",
+          "sha256": "8c75126b4828bf9f00d3b5e0fe7d97de76480155dbb6ce0e54d3ad9ea6e9ef65"
+        }
+      ],
+      "implementation_commit": "2b8060d8acd60eb93533a8f7f443002800ed00fc",
+      "parent": "7bb3468f52e605f807145ca7f5ad75d1cf758d30",
+      "readback": {
+        "bytes": 1018,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-type-selector-adoption-20261017/native-type-selector-r2-readback.json",
+        "sha256": "040452168f49be14210a74f8610a3be37dbd7a98b293407881c2ab2f96ba8eee"
+      },
+      "repository": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+      "run_relation": "Focused run was recorded at expected parent HEAD. Request binds source/test/journal postimages; later commit readback confirms exact same hashes. Commit was not yet HEAD during this execution.",
+      "subject": "fix(devx): validate current curated basedpyright files before dispatch",
+      "tree": "c019a608bbaff48cbe0aa2a160d0ad917411cb30"
+    },
+    "status": "RAW_PROPOSAL_FOR_ROOT_RECEIPT_COMMIT"
+  },
+  "closure_ids": [],
+  "proposals": [],
+  "formal_G_acceptance": null,
+  "source_freeze": false
+}

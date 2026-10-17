@@ -1,0 +1,216 @@
+{
+  "schema": "policyos.e02.scoped-canonical-delivery.v1",
+  "record_type": "Separate receipt after the implementation commit; source and output identities remain tied to their original run.",
+  "delivery_context": {
+    "observed_source_commit_before_receipt": "35c11f124e1547b4113523bd3065c59144053d0a",
+    "supplier": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-type-acquisition-receipts-20261017/acquisition-config-provider-mirrors.json",
+      "sha256": "161bd1e5c172ea2b1e6513d46d5e0075e2b1911370dffe25a2b9cfc7338b90f9"
+    },
+    "preparation_status": "The supplier packet status records RAW preparation history. The embedded exact implementation commit and root readback establish canonical delivery.",
+    "effective_test_cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "cwd_provenance": "The run command omitted cwd, so the pinned V2 run_request.py used its product-root default. Ruff records the explicit workspace root. No supplied cwd is asserted to have been captured where the command omitted it.",
+    "actual_run_context": "Source/test postimages were run before implementation commit with exact request pins. The two named native partials were included as actual worktree bytes; no pure Git-tree or global freeze is claimed.",
+    "receipt_availability": "Complete deciding outputs are retained in ignored RAW on this machine. This commit transports references, not the raw output files."
+  },
+  "proposal_packet": {
+    "actual_run": {
+      "actual_results": {
+        "bytes": 3639,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-config-provider-mirrors-adoption-20261017/actual-results.json",
+        "sha256": "6bb5b50e6fe7a9525ff0b43499300c335dc4cf26ceac895f68d82558a451d872"
+      },
+      "commands": [
+        {
+          "argv": [
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "-m",
+            "pytest",
+            "tests/unit/runtime/http/services/test_acquisition_authority_configuration.py",
+            "tests/unit/runtime/http/services/test_acquisition_authority_provider.py",
+            "-q",
+            "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-config-provider-mirrors-adoption-20261017/junit.xml"
+          ],
+          "cwd_recorded": null,
+          "exit_code": 0,
+          "junit": {
+            "bytes": 985,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-config-provider-mirrors-adoption-20261017/junit.xml",
+            "sha256": "c179894116a461f5f171266f97414d61e8f92d5d42e9e01d3b0bf08136542aee"
+          },
+          "label": "canonical-acquisition-four-tests",
+          "outer_seconds": 13.824,
+          "stderr": {
+            "bytes": 0,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-config-provider-mirrors-adoption-20261017/canonical-acquisition-four-tests.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "stdout": {
+            "bytes": 80,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-config-provider-mirrors-adoption-20261017/canonical-acquisition-four-tests.stdout.txt",
+            "sha256": "c4b808d34f4db00b333696dec1f3a43a2887d8bfe0cb7af07a3cb98ff43a7830"
+          },
+          "timed_out": false,
+          "timeout_seconds": 180
+        },
+        {
+          "argv": [
+            "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+            "-m",
+            "ruff",
+            "check",
+            "--config",
+            "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+            "policy-engine/tests/unit/runtime/http/services/test_acquisition_authority_configuration.py",
+            "policy-engine/tests/unit/runtime/http/services/test_acquisition_authority_provider.py"
+          ],
+          "cwd_recorded": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+          "exit_code": 0,
+          "label": "canonical-acquisition-ruff",
+          "outer_seconds": 0.083,
+          "stderr": {
+            "bytes": 0,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-config-provider-mirrors-adoption-20261017/canonical-acquisition-ruff.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "stdout": {
+            "bytes": 19,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-config-provider-mirrors-adoption-20261017/canonical-acquisition-ruff.stdout.txt",
+            "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+          },
+          "timed_out": false,
+          "timeout_seconds": 60
+        }
+      ],
+      "environment_capture_limit": "exact selected fields from mapping passed to Popen; inherited unspecified process variables are not captured",
+      "input_path_hash_count": 7843,
+      "input_scope": "Actual canonical two acquisition mirror tests; complete tracked selected source/tests/tools/architecture plus test config and lock pinned. Known unrelated native2partials includedactualbytes. Synthetic signed currentness fixture only, no real institutional positive, no global source freeze.",
+      "pytest_junit_summary": {
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0",
+        "tests": "4",
+        "time": "0.769"
+      },
+      "request": {
+        "bytes": 1151026,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-config-provider-mirrors-adoption-20261017/request.json",
+        "sha256": "dfa1fb0eb95e44388cdf7a07483094c4dac2d320cb3eb3ff42ed7ecd6bfca475"
+      },
+      "selected_environment": {
+        "JAX_PLATFORMS": "cpu",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONPATH": "src:.",
+        "VECLIB_MAXIMUM_THREADS": "1"
+      },
+      "source_paths_unchanged": true
+    },
+    "candidate_id": "acquisition-config-provider-mirrors-r2-source-bound-20261017",
+    "candidate_provenance": {
+      "R1_independent_review": {
+        "bytes": 12083,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/runtime-mirror-acquisition-config-provider-independent-review-r1-20261017/review.json",
+        "sha256": "7580cbb20e8c99f0bc0e2a81b47b2a33804978f9c9546d9f07fae6d87082b317"
+      },
+      "R1_review_erratum": {
+        "bytes": 1278,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/runtime-mirror-acquisition-config-provider-independent-review-r1-20261017/review-erratum.json",
+        "sha256": "3da71d7c3a0447203589cd6766e184094505993559ca8f408561e95a60307e5d"
+      },
+      "R2_delta_review": {
+        "P40": "Same whole key-mapping assertion class as R1-F2; R2 widens the test to all four role bindings rather than adding a per-role patch. No new same-class escape found in this delta.",
+        "configuration_delta": "R2 replaces the label-set assertion with equality between the complete `attestation_state()['identity_bindings']` mapping and the four generated key_id\u2192identity pairs: owner, currentness, admission, decision. This directly resolves R1-F2 for the configuration test and covers the full role quantity through the same builder path.",
+        "provider_delta": "None. Provider test is byte-identical to R1; R1-F1 (provider collapses a currentness/owner-resolution failure to generic missing-contract/admission reasons) remains the declared bounded source-semantic limitation. R2 does not claim currentness-cause preservation, source repair, or authority closure.",
+        "r1_erratum": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/runtime-mirror-acquisition-config-provider-independent-review-r1-20261017/review-erratum.json",
+          "sha256": "3da71d7c3a0447203589cd6766e184094505993559ca8f408561e95a60307e5d"
+        },
+        "r1_review": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/runtime-mirror-acquisition-config-provider-independent-review-r1-20261017/review.json",
+          "sha256": "7580cbb20e8c99f0bc0e2a81b47b2a33804978f9c9546d9f07fae6d87082b317"
+        }
+      },
+      "R2_review_outcome": "GO_R2_DELTA",
+      "author_manifest": {
+        "bytes": 6071,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/runtime-mirror-acquisition-config-provider-author-r2-20261017/r2-manifest.json",
+        "sha256": "a1058dd82f6789ba659d3f4ccdfdf41cce3f15adec60e61ede68871762e10d9a"
+      },
+      "erratum_scope": "Corrects only the agent_action_authority.py source-pin hash in the R1 review; corrected source SHA is da9c3c9a2b766b138565f7a18ee18f7af8a50aee099d8be65617b359b345fec8. Reviewer states findings and test outputs are unaffected.",
+      "independent_R2_review": {
+        "bytes": 5644,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/runtime-mirror-acquisition-config-provider-independent-review-r2-20261017/review.json",
+        "sha256": "6de1f3fe2036a51b6ed749965944cd85b784a723eaeb94aff99d8cb19a5d5bf9"
+      },
+      "proposal_patch": {
+        "bytes": 14938,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/runtime-mirror-acquisition-config-provider-author-r2-20261017/proposal.patch",
+        "sha256": "ebe7f077955d8d44b707f7a9bf6fd5cf8005ce87b4e01ca024d9353f493d148a"
+      }
+    },
+    "claim": "Focused tests bind configured owner/currentness/admission/decision signer roles to generated key identities and persist refusal for a signed synthetic current=false mandate without admission/effect.",
+    "known_retained_unrelated_inputs": [
+      {
+        "path": "policy-engine/tests/repo_quality/architecture/test_repository_sota_phase5_closeout.py",
+        "sha256": "75c6d9deee0efb7e52d327aacc235b904c49a47dcebf9f5289c216623ee611af"
+      },
+      {
+        "path": "policy-engine/tools/devx/workspace/repository_sota_closeout.py",
+        "sha256": "d9bc12df949fc935a31fe91e64f378eddebe6e3800cc3326c1ab09fa1299e994"
+      }
+    ],
+    "limits": [
+      "Four focused tests and Ruff passed. Independent R2 delta reran the changed configuration test (3 passed); unchanged provider test was exercised in R1 four-test run.",
+      "All generated keys/evidence/current=false inputs are synthetic; no external institution, signer appointment, permission, custody, or currentness-positive claim is established.",
+      "Provider refusal still projects generic missing-contract/admission reasons after selected currentness/owner-resolution failure; typed original-cause preservation remains under repair. No diagnostic or authority-closure claim.",
+      "The pinned 7,843-path selected input map included the two named unrelated native partials; it is not a pure Git-tree or global source freeze. No full backend or whole protected-route closure claim."
+    ],
+    "proposal_only": {
+      "formal_closure_ids": [],
+      "global_index_mutation": false,
+      "individual_status_changes": [],
+      "source_freeze": false
+    },
+    "schema": "policyos.source-bound-handoff-receipt-candidate.v1",
+    "source_binding": {
+      "actual_request_matches_footprint": true,
+      "footprint": [
+        {
+          "path": "policy-engine/tests/unit/runtime/http/services/test_acquisition_authority_configuration.py",
+          "revision": "92d501538c444dca1b6157c90a9c18507f5bd817",
+          "sha256": "dd8c3824881d8df75a221d67e1cba941564c5a8e2f9cecb0f800f7e5894de017"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/services/test_acquisition_authority_provider.py",
+          "revision": "92d501538c444dca1b6157c90a9c18507f5bd817",
+          "sha256": "8329ced3aaafc44809dac3d33c4ca2137752be3c69da0c5d9786d743befdc737"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+          "revision": "92d501538c444dca1b6157c90a9c18507f5bd817",
+          "sha256": "fec42addbe65ec4a35d373bf123cc3c2df1915ea07df89293c9dd23933dd45ac"
+        }
+      ],
+      "implementation_commit": "92d501538c444dca1b6157c90a9c18507f5bd817",
+      "parent": "2b8060d8acd60eb93533a8f7f443002800ed00fc",
+      "readback": {
+        "bytes": 1087,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-acquisition-config-provider-mirrors-adoption-20261017/acquisition-config-provider-mirrors-readback.json",
+        "sha256": "df82fb337f3b743905bc986dc62be5310592b8ca51429197b1b6590c84c915e2"
+      },
+      "repository": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+      "run_relation": "Focused run was recorded at expected parent HEAD. The 7,843-path input map binds selected input files; later commit readback confirms exact target hashes. Commit was not yet HEAD during this execution.",
+      "subject": "test(runtime): exercise acquisition signer roles and noncurrent refusal",
+      "tree": "81c8594edb510df0bf1864e4bbaeff4246d399d6"
+    },
+    "status": "RAW_PROPOSAL_FOR_ROOT_RECEIPT_COMMIT"
+  },
+  "closure_ids": [],
+  "proposals": [],
+  "formal_G_acceptance": null,
+  "source_freeze": false
+}

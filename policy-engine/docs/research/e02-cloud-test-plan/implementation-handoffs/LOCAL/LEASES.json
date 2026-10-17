@@ -5169,5 +5169,26 @@
     "closure_ids": [],
     "boundary": "70 actual selected canonical tests across release and generator selectors; four current release review errors retained. LA-021 held; L5 deliberate missing target resolver/custody boundary and genuine supplier/G choice held. No whole native or V3 acceptance.",
     "next_check": "Finish independent blocking fixes and root composition; explicit source/input/backend freeze before composed/native/Linux/installed/browser/authentic closeout."
+  },
+  "coordination_epoch_20261017_la032_owned_test_preservation_adoption": {
+    "slice_base": "852b846315db54c1c2f7d0fb9cb0e75da96726e9",
+    "canonical_writer": "root normal adoption of exact author-attributed already-present test; no source restoration or recovery",
+    "mechanism_paths": [
+      "policy-engine/tests/unit/data_forge/domains/ukraine/test_demography_artifacts.py"
+    ],
+    "preimage_sha256": "d938e99602339a351dece1be4a9cb3a305bad82446f61b42954ee9d9df58ae96",
+    "postimage_sha256": "be63e740d72a2170d32a04e33a13de37e79a6e47ec3fa394108ffea020adf5df",
+    "review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la032-layout-test-independent-review-r1-20261017/assessment.json",
+      "sha256": "d566918ceae1cd244f7d2a022bf77c97f2761e74c19a618ade0d7c462b4e24cd"
+    },
+    "attribution": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la032-candidate-attribution-author-20261017.json",
+      "sha256": "0f9a2a92ac014b5f5d30170d589347b384636778e60fd3f7ce2e2cf5196781eb"
+    },
+    "provenance_correction": "R1/R2 unapplied and RAW-only labels were inaccurate. Author directly wrote canonical test; nine historical RAW source aliases share the changed inode. Those snapshot locators are not valid preimage receipts for this path; original source remains exact Git preimage. Preserve observed aliases, do not rewrite them.",
+    "closure_ids": [],
+    "source_freeze": false,
+    "next_check": "Fresh canonical 13-test module on committed source, separate evidence receipt; no original-ID or production custody closure."
   }
 }

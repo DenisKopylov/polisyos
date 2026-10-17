@@ -95,7 +95,7 @@
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
-      "sha256": "bf32119300d21233564f4f3107936667332aef302a87569af291329e672a87c2",
+      "sha256": "5c571bdc55a35924df95f4167e8f03ff07cd4ebfbc672f6fcc6a2a7f6af9a046",
       "record_type": "current_coordination_snapshot",
       "previous_unqualified_digest": "1c2ae874ad7a12ac5c8ce69c580be992eef49a0ba58164893eff9a679a1ff9e5",
       "qualification": "Current LEASES bytes are pinned by this digest and the containing index commit. historical_original_source_commit names only the first recorded B194 snapshot; it is not the source of the current lease bytes. Source and native verification remain separately scoped.",
@@ -775,29 +775,21 @@
   ],
   "retention": "Complete deciding outputs and removal controls are pinned by receipts under ignored LOCAL/raw on the candidate checkout. Tracked source is cited by path@sha/commit, not copied. Large RAW availability is local; no archive payload census or duplicate environment.",
   "latest_reconciled_source_cut": {
-    "head": "0be2acdec09f4d4c224602bbad052bc6fe507cbe",
-    "tree": "190a14043e2ae1619b0f72430399c2917900e41a",
+    "head": "852b846315db54c1c2f7d0fb9cb0e75da96726e9",
+    "tree": "e04b2f76ab547f1dfb4cb9f6c84a54f24ccd7b77",
     "parents": [
-      "2a6c30301dcfaee00a7b58898bde90f9f151d968"
+      "0be2acdec09f4d4c224602bbad052bc6fe507cbe"
     ],
     "source_freeze": false,
-    "tracked_source_clean_at_observation": true,
+    "tracked_source_clean_at_observation": false,
+    "pending_root_adoption_paths": [
+      "policy-engine/tests/unit/data_forge/domains/ukraine/test_demography_artifacts.py"
+    ],
+    "meaning": "Exact author-owned independently reviewed test preserved by normal commit. No byte restoration; nine historical RAW source aliases are qualified by the retained incident attribution. This observation names the actual precommit HEAD, not a future receipt commit.",
     "prior_index_observation": {
-      "commit": "0be2acdec09f4d4c224602bbad052bc6fe507cbe",
+      "commit": "852b846315db54c1c2f7d0fb9cb0e75da96726e9",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
-      "sha256": "a206ab87f19fede2be0b9d0db91b9e88350403f0dd344ab76ca952f1be194e07",
-      "prior_reconciled_source_cut": "1fa15c7fa44f8ccd3fc979a359993184e8c86880"
-    },
-    "meaning": "Six reviewed source/test/config/doc paths plus two handoff companions delivered in 0be; actual canonical release33 and generator37 selected tests pass. Full release report retains four review errors. LA-021 remains held. Actual L5 graph refuses an explicitly unresolved provenance target; current declaration bytes cannot supply the missing external content/identity semantics. Whole native/composed/installed/browser/authentic closeout remains pending.",
-    "published_candidate_last_verified": {
-      "sha": "0be2acdec09f4d4c224602bbad052bc6fe507cbe",
-      "tree": "190a14043e2ae1619b0f72430399c2917900e41a",
-      "readback": {
-        "path": "raw/resume-candidate-push-0be2acdec09f-20261015/remote-readback.json",
-        "sha256": "95931b79afe96e47b4536bf9aab940892a36fd64e384882bae0aa1cb1087a5a2"
-      },
-      "G_remote_observed": "93d6aa62a8d236667fdf322a5fc17962523b185e",
-      "G_acceptance": false
+      "sha256": "51dc3d42f4268a32be0c9c48269384efe21d251d1374221411a2c9d9072fcbd7"
     }
   },
   "next_check": "Finish independent reviews and root-controlled blocking fixes; freeze explicit source/profile/inputs, execute actual N4/V3 and composed/native/Linux/installed/browser/authentic consumers, then publish the full 291-occurrence proposal to independent G. No global closeout or formal closures are claimed."

@@ -1,0 +1,24 @@
+id = "2026-10-17-acquisition-provider-refusal-cause"
+title = "Preserve typed causes for selected acquisition authority refusals"
+type = "changed"
+component = "runtime"
+owner = "team-runtime"
+summary = "The acquisition authority provider carries bounded owner-resolution codes and selected CAS replay refs into the existing persisted refusal decision instead of clearing the selected contract ref and collapsing currentness or trust-role failures into a missing-contract reason."
+evidence = [
+  "src/polisyos/runtime/http/services/acquisition_authority_provider.py",
+  "src/polisyos/runtime/quality/agent_action_authority.py",
+  "tests/integration/core_runtime/test_acquisition_authority_provider.py",
+  "tests/unit/runtime/http/services/test_acquisition_authority_provider.py",
+  "tests/unit/runtime/quality/test_agent_action_authority.py",
+  "src/polisyos/runtime/http/services/README.md",
+]
+compatibility = "No public DTO or artifact schema changes. The new immutable internal carrier is keyed to the exact bound resource and only adds a refusal; it cannot establish authority. Input refs remain plain CAS IDs, and missing source IDs are not fabricated as manifest inputs."
+change_class = "internal"
+surface_classification = "internal_runtime_contract"
+migration = "No data migration. Existing absent-slot behavior remains the control path."
+api = "Provider-side selected-input refusals enter the existing authority decision and durable writer with a bounded code and selected replay IDs. Generic OSError from the direct provider preflight or signed-source resolver remains a dependency failure for the dispatch owner."
+limitations = "Local synthetic tests prove typed refusal and CAS binding only, not external institutional currentness or custody. The admission producer's independent persistence/error classification is unchanged; this change makes no broader outage-isolation claim. Full canonical test, type, and worker replay runs remain for root integration."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/runtime/http/services/README.md"]
+runbook_docs = []

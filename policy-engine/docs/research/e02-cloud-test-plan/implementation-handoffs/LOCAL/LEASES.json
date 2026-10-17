@@ -3742,5 +3742,26 @@
     },
     "state": "root applies reviewed finite static checkout-input profile; focused canonical replay pending; full native wave unrun",
     "known_other_working_delta": "N8 candidate source/test/README/release remain root-owned pending actual manifest-edge diagnosis; this lease is not a delivery or green claim"
+  },
+  "coordination_epoch_20261017_acquisition_refusal_cause_whole_mapping": {
+    "source_base_commit": "5a0ffe9ade252d74183060a561d0c3aac41f9f22",
+    "canonical_writer": "root",
+    "mechanism_paths": [
+      "policy-engine/src/polisyos/runtime/http/services/acquisition_authority_provider.py",
+      "policy-engine/src/polisyos/runtime/quality/agent_action_authority.py"
+    ],
+    "mandatory_companions": [
+      "policy-engine/tests/integration/core_runtime/test_acquisition_authority_provider.py",
+      "policy-engine/tests/unit/runtime/quality/test_agent_action_authority.py",
+      "policy-engine/tests/unit/runtime/http/services/test_acquisition_authority_provider.py",
+      "policy-engine/release-fragments/unreleased/2026-10-17-acquisition-provider-refusal-cause.toml",
+      "policy-engine/src/polisyos/runtime/http/services/README.md"
+    ],
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/acquisition-provider-refusal-cause-independent-review-r2-20261017/review.json",
+      "sha256": "4adf198be729388003cd8df4e2fb147575a851c3dc6bf135ef53317ec5fce8b7"
+    },
+    "scope": "preserve per-resource typed owner refusal cause; all non-None supplied mappings validated and copied, malformed input never absence; no authority/currentness positive created",
+    "state": "canonical focused verification pending; full native format debt retained for final agreed source batch"
   }
 }

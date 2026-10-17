@@ -27,7 +27,10 @@ from polisyos.runtime.http.mutation_policy import RuntimeIdempotencyStore
 from polisyos.runtime.http.permissions import RuntimePermission
 from polisyos.runtime.http.security import PolicyOSRole
 from polisyos.runtime.quality.authority import GovernanceMetadata
-from polisyos.runtime.quality.authority_reconciliation import reconcile_authority_ref
+from polisyos.runtime.quality.authority_reconciliation import (
+    AuthorityReconciliationError,
+    reconcile_authority_ref,
+)
 from polisyos.runtime.quality.candidate_firewall import (
     CandidateFirewallError,
     assert_no_candidate_authority_laundering,
@@ -492,12 +495,42 @@ class AgentActionAuthorityRecordingError(RuntimeError):
     """Raised when a decision cannot be content-bound before an external effect."""
 
 
+@dataclass(frozen=True, slots=True)
+class AgentActionAuthorityResolutionFailure:
+    """Typed, immutable source failure carried from provider intake to the gateway."""
+
+    code: str
+    replay_input_refs: tuple[str, ...] = ()
+
+    def __post_init__(self) -> None:
+        if (
+            type(self.code) is not str
+            or re.fullmatch(r"[A-Za-z0-9_-]{1,120}", self.code) is None
+        ):
+            raise ValueError("owner-resolution failure code must be a bounded token")
+        if type(self.replay_input_refs) is not tuple:
+            raise TypeError("owner-resolution replay refs must be a tuple")
+        if any(
+            type(ref) is not str or not _is_sha256(ref)
+            for ref in self.replay_input_refs
+        ):
+            raise ValueError(
+                "owner-resolution replay refs must be plain sha256 CAS IDs"
+            )
+        if len(self.replay_input_refs) != len(set(self.replay_input_refs)):
+            raise ValueError("owner-resolution replay refs must be unique")
+
+
 class AgentActionAuthorityOwnerResolutionError(ValueError):
     """Typed fail-closed error raised by the composition-root authority gateway."""
 
-    def __init__(self, code: str) -> None:
-        self.code = code
-        super().__init__(code)
+    def __init__(self, code: str, *, replay_input_refs: tuple[str, ...] = ()) -> None:
+        failure = AgentActionAuthorityResolutionFailure(
+            code=code, replay_input_refs=replay_input_refs
+        )
+        self.code = failure.code
+        self.replay_input_refs = failure.replay_input_refs
+        super().__init__(self.code)
 
 
 @final
@@ -520,7 +553,9 @@ class AgentActionAuthorityGateway:
         effect_bindings: tuple[AgentActionEffectBinding, ...],
         human_decision_refs_by_request_ref: Mapping[str, str] | None = None,
         human_decision_service: _HumanDecisionServiceProtocol | None = None,
-        human_decision_adapters_by_request_ref: Mapping[str, HumanDecisionGatewayAdapterInput]
+        human_decision_adapters_by_request_ref: Mapping[
+            str, HumanDecisionGatewayAdapterInput
+        ]
         | None = None,
         production_approval_resolver: object | None = None,
         _replay_decision_ref: str | None = None,
@@ -528,6 +563,9 @@ class AgentActionAuthorityGateway:
         decision_signer_identity: str | None = None,
         human_decision_information_refs: tuple[str, ...] | None = None,
         human_decision_disconfirming_refs: tuple[str, ...] | None = None,
+        owner_resolution_failures_by_resource_digest: (
+            Mapping[str, AgentActionAuthorityResolutionFailure] | None
+        ) = None,
     ) -> None:
         required_cas_capabilities = (
             "has",
@@ -576,6 +614,19 @@ class AgentActionAuthorityGateway:
         self._admission_producer_identity = admission_producer_identity
         self._write_context = write_context
         self._contract_refs = _frozen_ref_mapping(contract_refs_by_resource_digest)
+        self._owner_resolution_failures = _frozen_owner_resolution_failure_mapping(
+            {}
+            if owner_resolution_failures_by_resource_digest is None
+            else owner_resolution_failures_by_resource_digest
+        )
+        if self._owner_resolution_failures:
+            if bound_permission is None:
+                raise ValueError("owner-resolution failure requires a bound resource")
+            resource_digest = bound_permission.bound_resource.resource_digest
+            if set(self._owner_resolution_failures) != {resource_digest}:
+                raise ValueError(
+                    "owner-resolution failure must match the bound resource"
+                )
         self._mandate_authority_evidence_refs = _frozen_ref_mapping(
             mandate_authority_evidence_refs_by_owner_ref
         )
@@ -762,6 +813,11 @@ class AgentActionAuthorityGateway:
     ) -> ResolvedDelegationContract:
         """Resolve the owner-selected signed contract for one bound resource."""
 
+        failure = self._owner_resolution_failures.get(resource_digest)
+        if failure is not None:
+            raise AgentActionAuthorityOwnerResolutionError(
+                failure.code, replay_input_refs=failure.replay_input_refs
+            )
         ref = self._contract_refs.get(resource_digest)
         if ref is None:
             raise AgentActionAuthorityOwnerResolutionError("delegation_contract_not_persisted")
@@ -1402,6 +1458,26 @@ class AgentActionAuthorityGateway:
             payload = require_declared_profile(
                 read_core_json_artifact(self._artifact_store, artifact_id)
             )
+        except FileNotFoundError as exc:
+            raise AgentActionAuthorityOwnerResolutionError(
+                f"{failure_prefix}_authority_unverified"
+            ) from exc
+        except artifacts.ArtifactOwnershipError as exc:
+            raise AgentActionAuthorityOwnerResolutionError(
+                f"{failure_prefix}_authority_unverified"
+            ) from exc
+        except OSError:
+            # A store-wide dependency failure is not evidence that this selected
+            # source is invalid. Let the dispatch owner release/retry its claim.
+            raise
+        except AuthorityReconciliationError as exc:
+            if exc.details.get("error_kind") == "read_error":
+                # The reconciler deliberately strips backend exception text; retain
+                # only the bounded distinction between unavailable and invalid input.
+                raise OSError("authority_source_read_unavailable") from exc
+            raise AgentActionAuthorityOwnerResolutionError(
+                f"{failure_prefix}_authority_unverified"
+            ) from exc
         except Exception as exc:
             raise AgentActionAuthorityOwnerResolutionError(
                 f"{failure_prefix}_authority_unverified"
@@ -1685,12 +1761,14 @@ def _produce_decision(
 
     resolved: ResolvedDelegationContract | None = None
     contract: DelegationContract | None = None
+    resolution_input_refs: list[str] = []
     if bound_resource is not None:
         try:
             resolved = gateway.resolve_delegation_contract(bound_resource.resource_digest)
             contract = resolved.contract
         except AgentActionAuthorityOwnerResolutionError as exc:
             reasons.append(exc.code)
+            resolution_input_refs.extend(exc.replay_input_refs)
     else:
         reasons.append("delegation_contract_unavailable")
 
@@ -1944,6 +2022,7 @@ def _produce_decision(
         admission_ref=admission_ref,
         selected=selected,
         human_decision_record_ref=decision_record_ref,
+        additional_input_refs=tuple(resolution_input_refs),
     )
     case_id = contract.case_id if contract is not None else validated_invocation.workspace_id
     decision_binding = _exact_hash(
@@ -2401,8 +2480,10 @@ def _replay_refs(
     admission_ref: str | None,
     selected: DelegatedActionEnvelope | None,
     human_decision_record_ref: str | None,
+    additional_input_refs: tuple[str, ...] = (),
 ) -> tuple[str, ...]:
     refs = [operation_hash, invocation_hash, intent_hash]
+    refs.extend(additional_input_refs)
     if resolved is not None:
         refs.extend(
             (
@@ -2456,6 +2537,23 @@ def _decision_write_options(
             for ref in input_refs
         ],
     )
+
+
+def _frozen_owner_resolution_failure_mapping(
+    values: Mapping[str, AgentActionAuthorityResolutionFailure],
+) -> Mapping[str, AgentActionAuthorityResolutionFailure]:
+    if not isinstance(values, Mapping):
+        raise TypeError("owner-resolution failure mapping must be a mapping")
+    copied: dict[str, AgentActionAuthorityResolutionFailure] = {}
+    for key, failure in values.items():
+        if not isinstance(key, str) or not _is_sha256(key):
+            raise ValueError("owner-resolution failure key must be a resource digest")
+        if type(failure) is not AgentActionAuthorityResolutionFailure:
+            raise TypeError(
+                "owner-resolution failure values must use the typed carrier"
+            )
+        copied[key] = failure
+    return MappingProxyType(copied)
 
 
 def _frozen_ref_mapping(values: Mapping[str, str]) -> Mapping[str, str]:

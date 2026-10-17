@@ -7,7 +7,10 @@ from typing import TYPE_CHECKING, Any
 
 from polisyos.common.canonical_profile import require_declared_profile
 from polisyos.core import canon
-from polisyos.core.artifacts import read_core_json_artifact
+from polisyos.core.artifacts import (
+    ArtifactOwnershipError,
+    read_core_json_artifact,
+)
 from polisyos.runtime.http.deployment_security import (
     RuntimeDeploymentSecurity,
     require_factory_produced_deployment_security,
@@ -33,6 +36,7 @@ from polisyos.runtime.quality.agent_action_authority import (
     AgentActionAuthorityGateway,
     AgentActionAuthorityOwnerResolutionError,
     AgentActionAuthorityRecordingError,
+    AgentActionAuthorityResolutionFailure,
     AgentActionAuthorityWriteContext,
     AgentActionEffectBinding,
     agent_action_content_hash,
@@ -200,6 +204,38 @@ class ProductionAcquisitionAuthorityProvider:
         }
 
     @staticmethod
+    def _slot_replay_refs(
+        slot: AcquisitionMandateSlot,
+        *,
+        additional_refs: tuple[str, ...] = (),
+    ) -> tuple[str, ...]:
+        refs = [slot.delegation_contract_ref, slot.current_mandate_evidence_ref]
+        refs.extend(str(ref.artifact_id) for ref in slot.decision_information_refs)
+        refs.extend(str(ref.artifact_id) for ref in slot.decision_disconfirming_refs)
+        if slot.human_decision_record_ref is not None:
+            refs.append(slot.human_decision_record_ref)
+        refs.extend(additional_refs)
+        return tuple(dict.fromkeys(refs))
+
+    @staticmethod
+    def _owner_refusal_gateway(
+        options: dict[str, Any],
+        *,
+        resource_digest: str,
+        code: str,
+        replay_input_refs: tuple[str, ...],
+    ) -> AgentActionAuthorityGateway:
+        """Carry one exact provider refusal through the existing decision owner."""
+        refusal_options = dict(options)
+        refusal_options["owner_resolution_failures_by_resource_digest"] = {
+            resource_digest: AgentActionAuthorityResolutionFailure(
+                code=code,
+                replay_input_refs=replay_input_refs,
+            )
+        }
+        return AgentActionAuthorityGateway(**refusal_options)
+
+    @staticmethod
     def _require_slot_binding(
         gateway: AgentActionAuthorityGateway, slot: AcquisitionMandateSlot
     ) -> ResolvedDelegationContract:
@@ -239,7 +275,6 @@ class ProductionAcquisitionAuthorityProvider:
             human_decision_information_refs=(),
             human_decision_disconfirming_refs=(),
         )
-        information_valid = True
         if slot is not None:
             try:
                 for ref in slot.decision_information_refs:
@@ -257,30 +292,53 @@ class ProductionAcquisitionAuthorityProvider:
                 options["human_decision_disconfirming_refs"] = tuple(
                     str(ref.artifact_id) for ref in slot.decision_disconfirming_refs
                 )
-            except (KeyError, OSError, ValueError):
-                information_valid = False
-                options["contract_refs_by_resource_digest"] = {}
+            except (KeyError, FileNotFoundError, ArtifactOwnershipError, ValueError):
+                return self._owner_refusal_gateway(
+                    options,
+                    resource_digest=resource_digest,
+                    code="acquisition_decision_information_unverified",
+                    replay_input_refs=self._slot_replay_refs(slot),
+                )
         gateway = AgentActionAuthorityGateway(**options)
         if (
             slot is None
-            or not information_valid
             or authority.decision_signer is None
             or authority.signing_slot.signer is None
         ):
             return gateway
         try:
             resolved = self._require_slot_binding(gateway, slot)
-        except AgentActionAuthorityOwnerResolutionError:
-            # Keep canonical missing/currentness/signature refusals where possible;
-            # an independently trusted key in another role cannot act as this issuer.
-            options["contract_refs_by_resource_digest"] = {}
-            return AgentActionAuthorityGateway(**options)
-        operation, invocation, intent = AcquisitionActionService._action_tuple(closure, request)
-        selected_human_ref = request.human_decision_record_ref or slot.human_decision_record_ref
+        except AgentActionAuthorityOwnerResolutionError as exc:
+            return self._owner_refusal_gateway(
+                options,
+                resource_digest=resource_digest,
+                code=exc.code,
+                replay_input_refs=self._slot_replay_refs(
+                    slot,
+                    additional_refs=exc.replay_input_refs,
+                ),
+            )
+        operation, invocation, intent = AcquisitionActionService._action_tuple(
+            closure, request
+        )
+        selected_human_ref = (
+            request.human_decision_record_ref or slot.human_decision_record_ref
+        )
+        source_refs = self._slot_replay_refs(
+            slot,
+            additional_refs=(selected_human_ref,)
+            if selected_human_ref is not None
+            else (),
+        )
         try:
             if selected_human_ref is not None:
                 if self._human_decisions is None:
-                    return gateway
+                    return self._owner_refusal_gateway(
+                        options,
+                        resource_digest=resource_digest,
+                        code="acquisition_human_decision_service_unavailable",
+                        replay_input_refs=source_refs,
+                    )
                 record = self._human_decisions.read_record(
                     selected_human_ref,
                     tenant_id=closure.tenant_id,
@@ -292,14 +350,21 @@ class ProductionAcquisitionAuthorityProvider:
                     or source.permission_snapshot is None
                     or agent_action_content_hash(source.permission_snapshot)
                     != agent_action_permission_hash(bound_permission)
-                    or source.operation_content_hash != agent_action_content_hash(operation)
-                    or source.invocation_content_hash != agent_action_content_hash(invocation)
+                    or source.operation_content_hash
+                    != agent_action_content_hash(operation)
+                    or source.invocation_content_hash
+                    != agent_action_content_hash(invocation)
                     or source.intent_content_hash != agent_action_content_hash(intent)
                     or source.bound_resource_digest != resource_digest
                     or source.contract_ref != resolved.contract_cas_ref
                     or source.admission_bundle_ref is None
                 ):
-                    return gateway
+                    return self._owner_refusal_gateway(
+                        options,
+                        resource_digest=resource_digest,
+                        code="acquisition_human_decision_source_mismatch",
+                        replay_input_refs=source_refs,
+                    )
                 envelope = next(
                     row
                     for row in resolved.contract.action_envelopes
@@ -330,14 +395,58 @@ class ProductionAcquisitionAuthorityProvider:
                     admitted_at=datetime.now(UTC),
                 )
                 options["admission_refs_by_invocation_hash"] = receipt.invocation_refs
-        except (
-            AcquisitionAdmissionBundleBlocked,
-            HumanDecisionOperationalResolutionError,
-            AgentActionAuthorityRecordingError,
-            ValueError,
-            StopIteration,
-        ):
-            return gateway
+        except AcquisitionAdmissionBundleBlocked as exc:
+            return self._owner_refusal_gateway(
+                options,
+                resource_digest=resource_digest,
+                code=exc.code,
+                replay_input_refs=source_refs,
+            )
+        except HumanDecisionOperationalResolutionError as exc:
+            return self._owner_refusal_gateway(
+                options,
+                resource_digest=resource_digest,
+                code=exc.code,
+                replay_input_refs=source_refs,
+            )
+        except AgentActionAuthorityOwnerResolutionError as exc:
+            return self._owner_refusal_gateway(
+                options,
+                resource_digest=resource_digest,
+                code=exc.code,
+                replay_input_refs=self._slot_replay_refs(
+                    slot,
+                    additional_refs=(*source_refs, *exc.replay_input_refs),
+                ),
+            )
+        except AgentActionAuthorityRecordingError:
+            return self._owner_refusal_gateway(
+                options,
+                resource_digest=resource_digest,
+                code="acquisition_authority_source_unrecorded",
+                replay_input_refs=source_refs,
+            )
+        except (KeyError, FileNotFoundError, ArtifactOwnershipError):
+            return self._owner_refusal_gateway(
+                options,
+                resource_digest=resource_digest,
+                code="acquisition_authority_source_unverified",
+                replay_input_refs=source_refs,
+            )
+        except ValueError:
+            return self._owner_refusal_gateway(
+                options,
+                resource_digest=resource_digest,
+                code="acquisition_authority_source_unverified",
+                replay_input_refs=source_refs,
+            )
+        except StopIteration:
+            return self._owner_refusal_gateway(
+                options,
+                resource_digest=resource_digest,
+                code="acquisition_human_decision_envelope_unavailable",
+                replay_input_refs=source_refs,
+            )
         return AgentActionAuthorityGateway(**options)
 
     @staticmethod

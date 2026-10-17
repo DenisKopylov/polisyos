@@ -166,6 +166,11 @@ projections. Route handlers should stay thin and delegate behavior here.
   requests and durable workers. Each use reopens exact signed delegation,
   independent currentness, action permission, and human-decision custody; an empty
   or mismatched slot refuses. Neither configuration nor an LLM appoints an owner.
+  Selected decision-information failures now preserve the owner’s exact finite
+  refusal code and selected plain CAS-ID replay refs through the existing decision
+  writer. Whole-store read failures from this preflight or signed-source resolver
+  remain dependency failures; the change does not fabricate manifest profiles or
+  extend into the admission producer’s separate persistence/error path.
 - [`confidence_ledger_risk_spend_contracts.py`](confidence_ledger_risk_spend_contracts.py)
   owns the four-arm transport and replay binding;
   [`confidence_ledger_risk_spend_projection.py`](confidence_ledger_risk_spend_projection.py)

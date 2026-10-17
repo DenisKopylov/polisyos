@@ -610,6 +610,9 @@ def _admission_bundle(
     )
 
 
+_OWNER_RESOLUTION_FAILURES_NOT_SUPPLIED = object()
+
+
 def _prepare_gateway(
     harness: Harness,
     *,
@@ -636,6 +639,10 @@ def _prepare_gateway(
     mandate_authority_evidence_ref_override: str | None = None,
     mandate_authority_at: datetime = NOW,
     include_mandate_authority: bool = True,
+    owner_resolution_refusal_code: str | None = None,
+    owner_resolution_refusal_resource_digest: str = DIGEST,
+    owner_resolution_failures_override: Any = _OWNER_RESOLUTION_FAILURES_NOT_SUPPLIED,
+    artifact_store_override: object | None = None,
 ) -> tuple[object, str, str | None]:
     authority = _authority_module()
     owner_proof = bound_permission or _proof()
@@ -698,8 +705,18 @@ def _prepare_gateway(
             signer=harness.mandate_authority_signer,
             signer_identity=MANDATE_AUTHORITY_IDENTITY,
         )
+    owner_resolution_refusals = {}
+    if owner_resolution_refusal_code is not None:
+        owner_resolution_refusals[owner_resolution_refusal_resource_digest] = (
+            authority.AgentActionAuthorityResolutionFailure(
+                code=owner_resolution_refusal_code,
+                replay_input_refs=(contract_ref,),
+            )
+        )
+    if owner_resolution_failures_override is not _OWNER_RESOLUTION_FAILURES_NOT_SUPPLIED:
+        owner_resolution_refusals = owner_resolution_failures_override
     gateway = authority.AgentActionAuthorityGateway(
-        artifact_store=artifact_store or harness.store,
+        artifact_store=artifact_store_override or artifact_store or harness.store,
         event_log=harness.event_log,
         idempotency_store=harness.idempotency_store,
         artifact_verifier=harness.verifier,
@@ -714,6 +731,7 @@ def _prepare_gateway(
         human_decision_service=human_decision_service,
         human_decision_adapters_by_request_ref=human_decision_adapters or {},
         production_approval_resolver=production_approval_resolver,
+        owner_resolution_failures_by_resource_digest=owner_resolution_refusals,
     )
     return gateway, contract_ref, admission_ref
 
@@ -2780,3 +2798,319 @@ def test_legacy_v1_serialization_and_hash_remain_stable() -> None:
     assert authority.agent_action_content_hash(payload) == (
         "sha256:9b3628ad4efc5d85f9cf0c9e8adfc2e32062025a507323611459f3853fa38810"
     )
+
+
+class _UnavailableHasStore:
+    def __init__(self, delegate):
+        self._delegate = delegate
+        self.fail_has = True
+
+    def __getattr__(self, name):
+        return getattr(self._delegate, name)
+
+    def has(self, _ref):
+        if self.fail_has:
+            raise OSError("synthetic whole-CAS existence dependency failure")
+        return self._delegate.has(_ref)
+
+
+class _UnavailableReadStore:
+    def __init__(self, delegate):
+        self._delegate = delegate
+        self.fail_read = True
+
+    def __getattr__(self, name):
+        return getattr(self._delegate, name)
+
+    def get_bytes(self, _ref):
+        if self.fail_read:
+            raise OSError("synthetic whole-CAS read dependency failure")
+        return self._delegate.get_bytes(_ref)
+
+
+def test_owner_resolution_failure_preempts_valid_contract_and_binds_replay_refs(
+    tmp_path: Path,
+) -> None:
+    harness = _harness(tmp_path)
+    operation = _operation()
+    invocation = _invocation(operation)
+    intent = _intent()
+    effects: list[str] = []
+    gateway, contract_ref, _ = _prepare_gateway(
+        harness,
+        contract=_contract(_envelope()),
+        operation=operation,
+        invocation=invocation,
+        intent=intent,
+        bindings=(_binding(operation, effects),),
+        owner_resolution_refusal_code="acquisition_mandate_trust_role_mismatch",
+    )
+    decision = _produce(
+        gateway=gateway,
+        operation=operation,
+        invocation=invocation,
+        intent=intent,
+    )
+    assert decision.outcome == "refused"
+    assert "acquisition_mandate_trust_role_mismatch" in decision.refusal_reasons
+    assert "delegation_contract_not_persisted" not in decision.refusal_reasons
+    assert contract_ref in decision.replay_input_refs
+    assert decision.contract_ref is None
+    assert effects == []
+
+    persisted = gateway.persist_decision(decision)
+    loaded = gateway.load_persisted_decision(
+        str(persisted.write_result.cas_ref.artifact_id)
+    )
+    assert loaded.decision == decision
+    manifest = harness.store.get_manifest(persisted.write_result.cas_ref.artifact_id)
+    assert contract_ref in {str(row.artifact_id) for row in manifest.inputs}
+    assert all(row.manifest_profile_sha256 is None for row in manifest.inputs)
+
+
+class _FalsyOwnerResolutionFailureMap(dict[str, Any]):
+    def __bool__(self) -> bool:
+        return False
+
+
+def test_falsy_owner_resolution_failure_mapping_is_copied_and_persisted(
+    tmp_path: Path,
+) -> None:
+    authority = _authority_module()
+    harness = _harness(tmp_path)
+    operation = _operation()
+    invocation = _invocation(operation)
+    intent = _intent()
+    effects: list[str] = []
+    contract = _contract(_envelope())
+    contract_ref = _persist_signed(
+        harness,
+        contract,
+        kind=authority.DELEGATION_CONTRACT_ARTIFACT_KIND,
+        schema_name="polisyos.runtime.DelegationContract",
+        schema_version=LAYER2_S7_AGENT_ACTION_DELEGATION_SCHEMA_VERSION,
+        signer=harness.owner_signer,
+        signer_identity=MANDATE_OWNER_REF,
+    )
+    failure = authority.AgentActionAuthorityResolutionFailure(
+        code="acquisition_mandate_trust_role_mismatch",
+        replay_input_refs=(contract_ref,),
+    )
+    supplied = _FalsyOwnerResolutionFailureMap({DIGEST: failure})
+    assert len(supplied) == 1
+    assert not supplied
+
+    gateway, contract_ref, _ = _prepare_gateway(
+        harness,
+        contract=contract,
+        contract_ref_override=contract_ref,
+        operation=operation,
+        invocation=invocation,
+        intent=intent,
+        bindings=(_binding(operation, effects),),
+        owner_resolution_failures_override=supplied,
+    )
+    assert gateway._owner_resolution_failures is not supplied
+    assert len(gateway._owner_resolution_failures) == 1
+    supplied.clear()
+
+    decision = _produce(
+        gateway=gateway, operation=operation, invocation=invocation, intent=intent
+    )
+    assert decision.outcome == "refused"
+    assert "acquisition_mandate_trust_role_mismatch" in decision.refusal_reasons
+    assert "delegation_contract_not_persisted" not in decision.refusal_reasons
+    assert contract_ref in decision.replay_input_refs
+    persisted = gateway.persist_decision(decision)
+    loaded = gateway.load_persisted_decision(
+        str(persisted.write_result.cas_ref.artifact_id)
+    )
+    assert "acquisition_mandate_trust_role_mismatch" in loaded.decision.refusal_reasons
+    assert contract_ref in loaded.decision.replay_input_refs
+    assert effects == []
+
+
+@pytest.mark.parametrize("malformed", [0, False, [], object()])
+def test_non_mapping_owner_resolution_failure_values_are_rejected(
+    tmp_path: Path, malformed: Any
+) -> None:
+    harness = _harness(tmp_path)
+    operation = _operation()
+    invocation = _invocation(operation)
+    intent = _intent()
+    with pytest.raises(TypeError, match="mapping"):
+        _prepare_gateway(
+            harness,
+            contract=_contract(_envelope()),
+            operation=operation,
+            invocation=invocation,
+            intent=intent,
+            bindings=(_binding(operation, []),),
+            owner_resolution_failures_override=malformed,
+        )
+
+@pytest.mark.parametrize("invalid_entry", ["resource_key", "failure_value"])
+def test_falsy_owner_resolution_failure_mapping_validates_all_entries(
+    tmp_path: Path, invalid_entry: str
+) -> None:
+    authority = _authority_module()
+    harness = _harness(tmp_path)
+    operation = _operation()
+    invocation = _invocation(operation)
+    intent = _intent()
+    failure = authority.AgentActionAuthorityResolutionFailure(
+        code="acquisition_mandate_trust_role_mismatch",
+        replay_input_refs=(),
+    )
+    if invalid_entry == "resource_key":
+        supplied = _FalsyOwnerResolutionFailureMap({"not-a-resource-digest": failure})
+        expected_error = ValueError
+        expected_message = "resource digest"
+    else:
+        supplied = _FalsyOwnerResolutionFailureMap({DIGEST: object()})
+        expected_error = TypeError
+        expected_message = "typed carrier"
+    assert not supplied
+
+    with pytest.raises(expected_error, match=expected_message):
+        _prepare_gateway(
+            harness,
+            contract=_contract(_envelope()),
+            operation=operation,
+            invocation=invocation,
+            intent=intent,
+            bindings=(_binding(operation, []),),
+            owner_resolution_failures_override=supplied,
+        )
+
+
+def test_none_owner_resolution_failure_mapping_is_absence(tmp_path: Path) -> None:
+    harness = _harness(tmp_path)
+    operation = _operation()
+    invocation = _invocation(operation)
+    intent = _intent()
+    gateway, _, _ = _prepare_gateway(
+        harness,
+        contract=_contract(_envelope()),
+        operation=operation,
+        invocation=invocation,
+        intent=intent,
+        bindings=(_binding(operation, []),),
+        owner_resolution_failures_override=None,
+    )
+    assert gateway._owner_resolution_failures == {}
+    assert gateway.resolve_delegation_contract(DIGEST) is not None
+
+
+def test_owner_resolution_failure_rejects_malformed_resource_and_ref_carrier(
+    tmp_path: Path,
+) -> None:
+    authority = _authority_module()
+    with pytest.raises(ValueError, match="sha256"):
+        authority.AgentActionAuthorityResolutionFailure(
+            code="acquisition_mandate_trust_role_mismatch",
+            replay_input_refs=("runtime://not-a-cas-input",),
+        )
+
+    harness = _harness(tmp_path)
+    operation = _operation()
+    invocation = _invocation(operation)
+    intent = _intent()
+    with pytest.raises(ValueError, match="bound resource"):
+        _prepare_gateway(
+            harness,
+            contract=_contract(_envelope()),
+            operation=operation,
+            invocation=invocation,
+            intent=intent,
+            bindings=(_binding(operation, []),),
+            owner_resolution_refusal_code="acquisition_mandate_trust_role_mismatch",
+            owner_resolution_refusal_resource_digest="sha256:" + "0" * 64,
+        )
+
+
+def test_whole_cas_failure_keeps_dependency_error_and_releases_dispatch_reservation(
+    tmp_path: Path,
+) -> None:
+    harness = _harness(tmp_path)
+    operation = _operation()
+    invocation = _invocation(operation)
+    intent = _intent()
+    effects: list[str] = []
+    unavailable = _UnavailableHasStore(harness.store)
+    gateway, _, _ = _prepare_gateway(
+        harness,
+        contract=_contract(_envelope()),
+        operation=operation,
+        invocation=invocation,
+        intent=intent,
+        bindings=(_binding(operation, effects),),
+        owner_resolution_refusal_code="acquisition_mandate_trust_role_mismatch",
+        artifact_store_override=unavailable,
+    )
+    with pytest.raises(
+        OSError, match="synthetic whole-CAS existence dependency failure"
+    ):
+        _dispatch(
+            gateway=gateway,
+            operation=operation,
+            invocation=invocation,
+            intent=intent,
+        )
+    assert effects == []
+
+    unavailable.fail_has = False
+    decision = _assert_refused_with_zero_effect(
+        harness,
+        gateway=gateway,
+        operation=operation,
+        invocation=invocation,
+        intent=intent,
+        effects=effects,
+        expected_reason="acquisition_mandate_trust_role_mismatch",
+    )
+    assert "agent_action_invocation_already_consumed" not in decision.refusal_reasons
+
+
+def test_whole_cas_source_read_failure_releases_dispatch_reservation(
+    tmp_path: Path,
+) -> None:
+    harness = _harness(tmp_path)
+    operation = _operation()
+    invocation = _invocation(operation)
+    intent = _intent()
+    effects: list[str] = []
+    unavailable = _UnavailableReadStore(harness.store)
+    gateway, _, _ = _prepare_gateway(
+        harness,
+        contract=_contract(_envelope()),
+        operation=operation,
+        invocation=invocation,
+        intent=intent,
+        bindings=(_binding(operation, effects),),
+        artifact_store_override=unavailable,
+    )
+    assert gateway._artifact_store is unavailable
+    with pytest.raises(
+        OSError, match="authority_source_read_unavailable"
+    ) as source_error:
+        gateway.resolve_delegation_contract(DIGEST)
+    assert "synthetic" not in str(source_error.value)
+    with pytest.raises(OSError, match="authority_source_read_unavailable"):
+        _dispatch(
+            gateway=gateway,
+            operation=operation,
+            invocation=invocation,
+            intent=intent,
+        )
+    assert effects == []
+
+    unavailable.fail_read = False
+    result = _dispatch(
+        gateway=gateway,
+        operation=operation,
+        invocation=invocation,
+        intent=intent,
+    )
+    assert result == "search"
+    assert effects == ["search"]

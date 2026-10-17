@@ -592,3 +592,303 @@ def test_real_worker_replay_refuses_absent_decision_verification_appointment(tmp
         tmp_path, monkeypatch
     )
     assert observed
+
+
+_OWNER_IDENTITY = fixtures.MANDATE_OWNER_REF
+_CURRENTNESS_IDENTITY = fixtures.MANDATE_AUTHORITY_IDENTITY
+_ADMISSION_IDENTITY = fixtures.ADMISSION_IDENTITY
+_DECISION_IDENTITY = "service://runtime/acquisition-decision/provider-refusal-test"
+_ROUTE_ID = "sha256:" + "5" * 64
+
+
+def _write_keypair(tmp_path: Path, name: str):
+    from polisyos.core.artifacts.signing import KeyPair
+
+    pair = KeyPair.generate()
+    private_path = tmp_path / f"{name}.private.pem"
+    public_path = tmp_path / f"{name}.public.pem"
+    private_path.write_bytes(pair.private_pem())
+    public_path.write_bytes(pair.public_pem())
+    return pair, private_path, public_path
+
+
+class _ReadUnavailableCAS:
+    def __init__(self, delegate):
+        self._delegate = delegate
+
+    def __getattr__(self, name):
+        return getattr(self._delegate, name)
+
+    def get_bytes(self, _ref):
+        raise OSError("synthetic CAS read dependency failure")
+
+
+def _provider_with_selected_slot(
+    tmp_path: Path,
+    *,
+    current: bool = True,
+    wrong_currentness_role: bool = False,
+    information: str = "none",
+):
+    from datetime import timedelta
+
+    from polisyos.core.artifacts import ArtifactID, ArtifactRef
+    from polisyos.core.artifacts.signing import Ed25519Signer
+    from polisyos.runtime.http.services.acquisition_authority_configuration import (
+        AcquisitionAdmissionSignerConfig,
+        AcquisitionAuthorityConfig,
+        AcquisitionDecisionSignerConfig,
+        AcquisitionMandateSlot,
+    )
+    from polisyos.runtime.quality.agent_action_authority import (
+        CURRENT_MANDATE_OWNER_ARTIFACT_KIND,
+        CURRENT_MANDATE_OWNER_SCHEMA_VERSION,
+        DELEGATION_CONTRACT_ARTIFACT_KIND,
+        LAYER2_S7_AGENT_ACTION_DELEGATION_SCHEMA_VERSION,
+        CurrentMandateOwnerEvidence,
+    )
+
+    store, event_log, idempotency = fixtures._harness(tmp_path)
+    owner = _write_keypair(tmp_path, "owner")
+    current_signer = _write_keypair(tmp_path, "current")
+    admission = _write_keypair(tmp_path, "admission")
+    decision = _write_keypair(tmp_path, "decision")
+    contract_ref = fixtures._persist_signed(
+        store=store,
+        event_log=event_log,
+        payload=fixtures._contract(),
+        kind=DELEGATION_CONTRACT_ARTIFACT_KIND,
+        schema_name="polisyos.runtime.DelegationContract",
+        schema_version=LAYER2_S7_AGENT_ACTION_DELEGATION_SCHEMA_VERSION,
+        signer=Ed25519Signer(owner[0].private_key),
+        signer_identity=_OWNER_IDENTITY,
+    )
+    evidence_signer = owner if wrong_currentness_role else current_signer
+    evidence_identity = (
+        _OWNER_IDENTITY if wrong_currentness_role else _CURRENTNESS_IDENTITY
+    )
+    evidence = CurrentMandateOwnerEvidence(
+        evidence_id="mandate-authority.provider-refusal-test",
+        evidence_ref="institution://test-only/provider-refusal-head",
+        mandate_owner_ref=_OWNER_IDENTITY,
+        authority_purpose="agent_action_delegation",
+        current=current,
+        effective_from=fixtures.NOW - timedelta(hours=1),
+        effective_until=fixtures.NOW + timedelta(hours=1),
+        delegation_rule_version_ref=authority.AGENT_ACTION_AUTHORITY_RULE_VERSION,
+        evidence_signer_identity=evidence_identity,
+        verifier_provenance="independently_reconciled",
+        provenance_refs=("institution://test-only/synthetic-source",),
+    )
+    current_ref = fixtures._persist_signed(
+        store=store,
+        event_log=event_log,
+        payload=evidence,
+        kind=CURRENT_MANDATE_OWNER_ARTIFACT_KIND,
+        schema_name="polisyos.runtime.CurrentMandateOwnerEvidence",
+        schema_version=CURRENT_MANDATE_OWNER_SCHEMA_VERSION,
+        signer=Ed25519Signer(evidence_signer[0].private_key),
+        signer_identity=evidence_identity,
+    )
+
+    information_refs = ()
+    missing_information_ref = None
+    if information == "missing":
+        missing_information_ref = "sha256:" + "9" * 64
+        information_refs = (
+            ArtifactRef(
+                artifact_id=ArtifactID.model_validate(missing_information_ref),
+                kind="polisyos.test.acquisition-information",
+                media_type="application/json",
+            ),
+        )
+    elif information == "contract":
+        manifest = store.get_manifest(contract_ref)
+        information_refs = (
+            ArtifactRef(
+                artifact_id=ArtifactID.model_validate(contract_ref),
+                kind=manifest.kind,
+                media_type=manifest.media_type,
+            ),
+        )
+    elif information != "none":
+        raise ValueError(f"unsupported test information mode: {information}")
+
+    base = security.DeploymentSecurityConfig.from_mapping(_config_mapping(tmp_path))
+    acquisition_config = AcquisitionAuthorityConfig(
+        mandates=(
+            AcquisitionMandateSlot(
+                tenant_id=fixtures.TENANT_ID,
+                cell_id=fixtures.CELL_ID,
+                run_id=fixtures.RUN_ID,
+                route_id=_ROUTE_ID,
+                resource_digest=fixtures.RESOURCE_DIGEST,
+                delegation_contract_ref=contract_ref,
+                mandate_owner_ref=_OWNER_IDENTITY,
+                delegation_public_key_path=owner[2],
+                current_mandate_evidence_ref=current_ref,
+                current_mandate_signer_identity=_CURRENTNESS_IDENTITY,
+                current_mandate_public_key_path=current_signer[2],
+                verifier_provenance_ref="synthetic-test-only",
+                decision_information_refs=information_refs,
+            ),
+        ),
+        admission_signer=AcquisitionAdmissionSignerConfig(
+            signer_identity=_ADMISSION_IDENTITY,
+            private_key_path=admission[1],
+            public_key_path=admission[2],
+            verifier_provenance_ref="synthetic-test-only",
+        ),
+        decision_signer=AcquisitionDecisionSignerConfig(
+            signer_identity=_DECISION_IDENTITY,
+            private_key_path=decision[1],
+            public_key_path=decision[2],
+            verifier_provenance_ref="synthetic-test-only",
+        ),
+    )
+    deployment = security.build_deployment_security(
+        base.model_copy(update={"acquisition_authority": acquisition_config})
+    )
+    authority_store = _ReadUnavailableCAS(store) if information == "contract" else store
+    from polisyos.runtime.http.services.acquisition_authority_provider import (
+        ProductionAcquisitionAuthorityProvider,
+    )
+
+    provider = ProductionAcquisitionAuthorityProvider(
+        deployment_security=deployment,
+        artifact_store=authority_store,
+        event_log=event_log,
+        idempotency_store=idempotency,
+        execution_profile="governed",
+    )
+    return (
+        store,
+        event_log,
+        idempotency,
+        deployment,
+        provider,
+        contract_ref,
+        current_ref,
+        missing_information_ref,
+    )
+
+
+def _persist_provider_refusal(provider, store, monkeypatch):
+    monkeypatch.setattr(authority, "_utcnow", lambda: fixtures.NOW)
+    closure = _closure()
+    request = fixtures.ACQUISITION_REQUEST
+    proof = fixtures._proof()
+    effects: list[object] = []
+    gateway = provider.for_request(
+        closure=closure,
+        request=request,
+        job_id=fixtures.JOB_ID,
+        bound_permission=proof,
+        effect_handler=effects.append,
+    )
+    operation, invocation, intent = AcquisitionActionService._action_tuple(
+        closure, request
+    )
+    with authority.agent_action_authority_scope(gateway):
+        decision = authority.produce_agent_action_authority_decision(
+            bound_permission=proof,
+            operation=operation,
+            invocation=invocation,
+            intent=intent,
+        )
+        persisted = gateway.persist_decision(decision)
+    loaded = gateway.load_persisted_decision(
+        str(persisted.write_result.cas_ref.artifact_id)
+    )
+    assert effects == []
+    return (
+        decision,
+        loaded.decision,
+        store.get_manifest(persisted.write_result.cas_ref.artifact_id),
+    )
+
+
+def test_provider_persists_exact_currentness_refusal_for_configured_noncurrent_source(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    store, _, _, _, provider, contract_ref, current_ref, _ = (
+        _provider_with_selected_slot(tmp_path, current=False)
+    )
+    decision, loaded, manifest = _persist_provider_refusal(provider, store, monkeypatch)
+    assert decision.outcome == "refused"
+    assert "current_mandate_authority_not_established" in loaded.refusal_reasons
+    assert "delegation_contract_not_persisted" not in loaded.refusal_reasons
+    assert contract_ref in loaded.replay_input_refs
+    assert current_ref in loaded.replay_input_refs
+    manifest_inputs = {str(row.artifact_id): row for row in manifest.inputs}
+    assert contract_ref in manifest_inputs
+    assert current_ref in manifest_inputs
+    assert all(row.manifest_profile_sha256 is None for row in manifest.inputs)
+    assert "governed_admission_bundle_missing" in loaded.refusal_reasons
+
+
+def test_provider_persists_exact_refusal_for_valid_but_wrong_role_currentness(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    store, _, _, deployment, provider, contract_ref, current_ref, _ = (
+        _provider_with_selected_slot(tmp_path, wrong_currentness_role=True)
+    )
+    signature = store.verify_signature(
+        current_ref,
+        deployment.acquisition_authority.verifier,
+        strict_identity=True,
+    )
+    assert signature.status.value == "valid"
+    assert signature.signer_identity == _OWNER_IDENTITY
+    decision, loaded, manifest = _persist_provider_refusal(provider, store, monkeypatch)
+    assert decision.outcome == "refused"
+    assert "acquisition_mandate_trust_role_mismatch" in loaded.refusal_reasons
+    assert "delegation_contract_not_persisted" not in loaded.refusal_reasons
+    assert contract_ref in loaded.replay_input_refs
+    assert current_ref in loaded.replay_input_refs
+    manifest_refs = {str(row.artifact_id) for row in manifest.inputs}
+    assert {contract_ref, current_ref} <= manifest_refs
+    assert loaded.admission_bundle_ref is None
+
+
+def test_missing_selected_information_ref_persists_item_local_refusal_without_fake_input(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    store, _, _, _, provider, contract_ref, current_ref, missing_ref = (
+        _provider_with_selected_slot(tmp_path, information="missing")
+    )
+    assert missing_ref is not None
+    before = {str(value) for value in store.iter_artifact_ids()}
+    decision, loaded, manifest = _persist_provider_refusal(provider, store, monkeypatch)
+    assert decision.outcome == "refused"
+    assert "acquisition_decision_information_unverified" in loaded.refusal_reasons
+    assert "delegation_contract_not_persisted" not in loaded.refusal_reasons
+    assert contract_ref in loaded.replay_input_refs
+    assert current_ref in loaded.replay_input_refs
+    assert missing_ref in loaded.replay_input_refs
+    assert missing_ref not in {str(row.artifact_id) for row in manifest.inputs}
+    assert all(row.manifest_profile_sha256 is None for row in manifest.inputs)
+    assert loaded.admission_bundle_ref is None
+    new_ids = {str(value) for value in store.iter_artifact_ids()} - before
+    new_kinds = {store.get_manifest(value).kind for value in new_ids}
+    assert authority.AGENT_ACTION_ADMISSION_ARTIFACT_KIND not in new_kinds
+
+
+def test_general_cas_read_error_is_not_converted_to_item_local_refusal(
+    tmp_path: Path,
+) -> None:
+    store, _, _, _, provider, _, _, _ = _provider_with_selected_slot(
+        tmp_path, information="contract"
+    )
+    with pytest.raises(OSError, match="synthetic CAS read dependency failure"):
+        provider.for_request(
+            closure=_closure(),
+            request=fixtures.ACQUISITION_REQUEST,
+            job_id=fixtures.JOB_ID,
+            bound_permission=fixtures._proof(),
+            effect_handler=lambda _call: pytest.fail("no gateway should be returned"),
+        )
+    assert store.iter_artifact_ids()

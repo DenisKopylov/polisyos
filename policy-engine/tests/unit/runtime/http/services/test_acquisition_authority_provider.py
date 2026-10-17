@@ -167,7 +167,9 @@ def test_provider_persists_refusal_for_signed_noncurrent_mandate_without_admissi
     request = fixtures.ACQUISITION_REQUEST
     proof = fixtures._proof()
     effects: list[object] = []
-    before_provider_ids = {str(artifact_id) for artifact_id in store.iter_artifact_ids()}
+    before_provider_ids = {
+        str(artifact_id) for artifact_id in store.iter_artifact_ids()
+    }
     gateway = provider.for_request(
         closure=closure,
         request=request,
@@ -179,8 +181,12 @@ def test_provider_persists_refusal_for_signed_noncurrent_mandate_without_admissi
     # Provider rejected the signed-but-noncurrent source before writing any
     # admission artifact. This CAS is an isolated tmp_path fixture, not a
     # production store census.
-    assert {str(artifact_id) for artifact_id in store.iter_artifact_ids()} == before_provider_ids
-    operation, invocation, intent = AcquisitionActionService._action_tuple(closure, request)
+    assert {
+        str(artifact_id) for artifact_id in store.iter_artifact_ids()
+    } == before_provider_ids
+    operation, invocation, intent = AcquisitionActionService._action_tuple(
+        closure, request
+    )
     with authority.agent_action_authority_scope(gateway):
         refusal = authority.produce_agent_action_authority_decision(
             bound_permission=proof,
@@ -190,15 +196,26 @@ def test_provider_persists_refusal_for_signed_noncurrent_mandate_without_admissi
         )
         persisted = gateway.persist_decision(refusal)
 
-    loaded = gateway.load_persisted_decision(str(persisted.write_result.cas_ref.artifact_id))
+    loaded = gateway.load_persisted_decision(
+        str(persisted.write_result.cas_ref.artifact_id)
+    )
     assert loaded.durable_event_id
     assert loaded.decision.outcome == "refused"
     assert loaded.decision.admission_bundle_ref is None
-    assert "delegation_contract_not_persisted" in loaded.decision.refusal_reasons
+    assert (
+        "current_mandate_authority_not_established" in loaded.decision.refusal_reasons
+    )
+    assert "delegation_contract_not_persisted" not in loaded.decision.refusal_reasons
     assert "governed_admission_bundle_missing" in loaded.decision.refusal_reasons
+    assert contract_ref in loaded.decision.replay_input_refs
+    assert current_ref in loaded.decision.replay_input_refs
+    refusal_manifest = store.get_manifest(persisted.write_result.cas_ref.artifact_id)
+    refusal_inputs = {str(row.artifact_id) for row in refusal_manifest.inputs}
+    assert {contract_ref, current_ref} <= refusal_inputs
     assert effects == []
     new_kinds = {
         store.get_manifest(ArtifactID.model_validate(artifact_id)).kind
-        for artifact_id in {str(value) for value in store.iter_artifact_ids()} - before_provider_ids
+        for artifact_id in {str(value) for value in store.iter_artifact_ids()}
+        - before_provider_ids
     }
     assert AGENT_ACTION_ADMISSION_ARTIFACT_KIND not in new_kinds

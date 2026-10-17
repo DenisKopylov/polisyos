@@ -6348,5 +6348,36 @@
     "G_acceptance": false,
     "source_profile_freeze": false,
     "closure_ids": []
+  },
+  "coordination_epoch_20261018_dynamic_import_guarded_origin_r8": {
+    "slice_base": "04e4b376053b715f55c794dc0dc269de2f32b516",
+    "canonical_writer": "root only; exact reviewed patch, no in-place source mutation",
+    "mechanism_and_mandatory_test_paths": {
+      "policy-engine/tools/quality/validation/decomposition_preflight.py": {
+        "preimage": "3e121e19341953667b15bbb585447ba23c5207559afc8f3e4350aadd3d94323c",
+        "postimage": "093a2abea4ca23ba5d5dc609620d89815a686e5f76518f4bc5466ecdaae16dfc",
+        "role": "production static dynamic-import preflight"
+      },
+      "policy-engine/tests/repo_quality/architecture/test_decomposition_preflight_gates.py": {
+        "preimage": "235bb6ccb05009d2cb03e7e3d57f15b1d98b62903817fe91c93e958bb4edbe91",
+        "postimage": "ff10fbee820735febc1a70fe6b3bcedeb3ddfcf9df57e5e894bc94e00fea20ed",
+        "role": "behavioral semantic test companion"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-dynamic-import-r8-application-20261018/source-application.json",
+      "sha256": "0bbebfc74853e88893a3df619b78d4d5c9e7795ae6f43e693e9b7d4062702dfe"
+    },
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-dynamic-import-target-relevance-r8-independent-review-20261017/review.json",
+      "sha256": "797b4f1a88fa609c96a72d0fb4860667950e9e86b7970e0ca1c7bba4271c44b6"
+    },
+    "P40": "Same guarded value-origin class widened to the full bounded abstract transfer surface, not per-carrier or per-sink exceptions.",
+    "bounded_residual": "This remains the existing bounded static AST/value-transfer analysis, not a Python heap or general side-effect interpreter. User-defined method side effects and runtime mutation outside the selected source closure are not claimed as fully interpreted. Unknown results preserve importer ambiguity where derived from guarded values; actual dynamic-import selectors remain the enforcement boundary.",
+    "next_check": "Canonical selected importer tests and full source collector/gate on a consistent source freeze; benchmark HYG-04 has a distinct local caller walker and remains separately diagnosed.",
+    "runtime": "UNRUN on this composed source",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

@@ -631,6 +631,7 @@ class _DynamicImportBinding:
         "union",
         "string",
         "namespace",
+        "object",
         "type",
         "boolean",
         "none",
@@ -646,6 +647,54 @@ class _DynamicImportBinding:
     immutable: bool = False
     literal_key: object | None = None
     literal_key_known: bool = False
+
+
+def _dynamic_source_class_origins(
+    binding: _DynamicImportBinding,
+) -> frozenset[str]:
+    """Find source class objects carried by one bounded binding value."""
+    origins: set[str] = set()
+    pending = [binding]
+    seen: set[int] = set()
+    while pending:
+        current = pending.pop()
+        identity = id(current)
+        if identity in seen:
+            continue
+        seen.add(identity)
+        if (
+            current.kind == "other"
+            and current.origin_name is not None
+            and current.origin_name.startswith("polisyos.")
+        ):
+            origins.add(current.origin_name)
+        pending.extend(current.items or ())
+        pending.extend(current.values or ())
+        if current.receiver is not None:
+            pending.append(current.receiver)
+    return frozenset(origins)
+
+
+def _dynamic_source_object_origins(
+    binding: _DynamicImportBinding,
+) -> frozenset[str]:
+    """Find source class identities whose constructed instances are carried by a value."""
+    origins: set[str] = set()
+    pending = [binding]
+    seen: set[int] = set()
+    while pending:
+        current = pending.pop()
+        identity = id(current)
+        if identity in seen:
+            continue
+        seen.add(identity)
+        if current.kind == "object" and current.origin_name is not None:
+            origins.add(current.origin_name)
+        pending.extend(current.items or ())
+        pending.extend(current.values or ())
+        if current.receiver is not None:
+            pending.append(current.receiver)
+    return frozenset(origins)
 
 
 @dataclass(frozen=True, slots=True)
@@ -665,7 +714,26 @@ class _PendingDynamicImportScope:
 _DYNAMIC_UNKNOWN = _DynamicImportBinding("unknown")
 _DYNAMIC_OTHER = _DynamicImportBinding("other")
 _DYNAMIC_AMBIGUOUS = _DynamicImportBinding("ambiguous", guarded=True)
+_DYNAMIC_DEFERRED = _DynamicImportBinding("ambiguous")
 _DYNAMIC_NONE = _DynamicImportBinding("none")
+
+
+def _dynamic_join_with_guarded_origin(
+    bindings: Sequence[_DynamicImportBinding],
+    result: _DynamicImportBinding,
+    *,
+    trusted_result: bool = False,
+) -> _DynamicImportBinding:
+    """Keep importer uncertainty on a derived value unless its result is proven safe."""
+    if trusted_result or result.guarded or result.kind == "ambiguous":
+        return result
+    if not any(binding.guarded or binding.kind == "ambiguous" for binding in bindings):
+        return result
+    if result.kind in {"sequence", "iterable", "mapping", "object", "union"}:
+        return replace(result, guarded=True)
+    return _DYNAMIC_AMBIGUOUS
+
+
 _DYNAMIC_TYPE_CHECKING_MODULE_ORIGIN = "typing-type-checking-module"
 _DYNAMIC_TYPE_CHECKING_VALUE_ORIGIN = "typing-type-checking-value"
 _DYNAMIC_TYPE_CHECKING_MODULES = frozenset({"typing", "typing_extensions"})
@@ -854,18 +922,28 @@ def _dynamic_mapping_lookup(
     *,
     default: _DynamicImportBinding = _DYNAMIC_OTHER,
 ) -> _DynamicImportBinding:
-    if mapping.kind not in {"mapping", "namespace"}:
-        return _DYNAMIC_AMBIGUOUS if mapping.guarded else _DYNAMIC_OTHER
+    if mapping.kind not in {"mapping", "namespace", "object"}:
+        return _dynamic_join_with_guarded_origin(
+            (mapping, key),
+            _DYNAMIC_OTHER,
+        )
     if mapping.items is None or mapping.values is None:
-        return _DYNAMIC_AMBIGUOUS if mapping.guarded else _DYNAMIC_UNKNOWN
+        return _dynamic_join_with_guarded_origin(
+            (mapping, key),
+            _DYNAMIC_UNKNOWN,
+        )
     candidates = _dynamic_binding_alternatives(key)
     if candidates is None:
         if not mapping.immutable or mapping.values is None:
-            return _DYNAMIC_AMBIGUOUS if mapping.guarded else _DYNAMIC_UNKNOWN
+            return _dynamic_join_with_guarded_origin(
+                (mapping, key),
+                _DYNAMIC_UNKNOWN,
+            )
         possible_values = list(mapping.values)
         if default.kind != "other":
             possible_values.append(default)
-        return _dynamic_union_binding(possible_values)
+        result = _dynamic_union_binding(possible_values)
+        return _dynamic_join_with_guarded_origin((mapping, key, default), result)
     possible_values: list[_DynamicImportBinding] = []
     has_unmatched_candidate = False
     for candidate_key in candidates:
@@ -878,7 +956,15 @@ def _dynamic_mapping_lookup(
             has_unmatched_candidate = True
     if has_unmatched_candidate:
         possible_values.append(default)
-    return _join_dynamic_bindings(possible_values)
+    result = _join_dynamic_bindings(possible_values)
+    exact_key_selection = all(_dynamic_key_is_exact(candidate) for candidate in candidates) and (
+        not has_unmatched_candidate or _dynamic_binding_is_proven_nonimporter(default)
+    )
+    return _dynamic_join_with_guarded_origin(
+        (mapping, key, default),
+        result,
+        trusted_result=exact_key_selection,
+    )
 
 
 def _dynamic_attribute_binding(
@@ -891,10 +977,23 @@ def _dynamic_attribute_binding(
         if binding.name == "sys" and attribute == "modules":
             return _dynamic_sys_modules_binding()
         if binding.name == "builtins":
-            return _dynamic_builtin_binding(attribute)
-        return _dynamic_binding_for_import(binding.name, attribute)
+            return _dynamic_join_with_guarded_origin(
+                (binding,),
+                _dynamic_builtin_binding(attribute),
+                trusted_result=True,
+            )
+        return _dynamic_join_with_guarded_origin(
+            (binding,),
+            _dynamic_binding_for_import(binding.name, attribute),
+        )
     if binding.kind == "namespace":
         return _dynamic_mapping_lookup(binding, _dynamic_string_binding(attribute))
+    if binding.kind == "object":
+        return _dynamic_mapping_lookup(
+            binding,
+            _dynamic_string_binding(attribute),
+            default=_DYNAMIC_AMBIGUOUS,
+        )
     if binding.kind == "mapping":
         if attribute in {
             "get",
@@ -918,10 +1017,8 @@ def _dynamic_attribute_binding(
             return _DynamicImportBinding("ambiguous", candidate, guarded=True)
         if any(call_name.startswith(candidate + ".") for call_name in DYNAMIC_CALL_NAMES):
             return _DynamicImportBinding("ambiguous", candidate, guarded=True)
-        return _DYNAMIC_OTHER
-    if binding.guarded or binding.kind == "ambiguous":
-        return _DYNAMIC_AMBIGUOUS
-    return _DYNAMIC_OTHER
+        return _dynamic_join_with_guarded_origin((binding,), _DYNAMIC_OTHER)
+    return _dynamic_join_with_guarded_origin((binding,), _DYNAMIC_OTHER)
 
 
 def _join_dynamic_bindings(
@@ -929,18 +1026,19 @@ def _join_dynamic_bindings(
 ) -> _DynamicImportBinding:
     if not bindings:
         return _DYNAMIC_UNKNOWN
+    source_bindings = tuple(bindings)
     expanded = tuple(
         item
-        for binding in bindings
+        for binding in source_bindings
         for item in (
             binding.items if binding.kind == "union" and binding.items is not None else (binding,)
         )
     )
-    if expanded != tuple(bindings):
+    if expanded != source_bindings:
         bindings = expanded
     first = bindings[0]
     if all(binding == first for binding in bindings[1:]):
-        return first
+        return _dynamic_join_with_guarded_origin(source_bindings, first)
     if all(binding.kind == first.kind for binding in bindings[1:]) and first.kind in {
         "sequence",
         "iterable",
@@ -955,7 +1053,8 @@ def _join_dynamic_bindings(
                     for values in zip(*concrete_item_lists, strict=True)
                 )
                 if first.kind in {"sequence", "iterable"}:
-                    return _dynamic_sequence_binding(items, kind=first.kind)
+                    result = _dynamic_sequence_binding(items, kind=first.kind)
+                    return _dynamic_join_with_guarded_origin(source_bindings, result)
                 value_lists = [binding.values for binding in bindings]
                 if all(values is not None for values in value_lists):
                     concrete_value_lists = [values for values in value_lists if values is not None]
@@ -967,7 +1066,8 @@ def _join_dynamic_bindings(
                             _join_dynamic_bindings(tuple(joined_values))
                             for joined_values in zip(*concrete_value_lists, strict=True)
                         )
-                        return _dynamic_mapping_binding(items, values)
+                        result = _dynamic_mapping_binding(items, values)
+                        return _dynamic_join_with_guarded_origin(source_bindings, result)
     guarded_names = {
         binding.name
         for binding in bindings
@@ -979,10 +1079,11 @@ def _join_dynamic_bindings(
         )
     }
     if len(guarded_names) == 1:
-        return _DynamicImportBinding("ambiguous", next(iter(guarded_names)), guarded=True)
+        result = _DynamicImportBinding("ambiguous", next(iter(guarded_names)), guarded=True)
+        return _dynamic_join_with_guarded_origin(source_bindings, result)
     if any(binding.guarded or binding.kind == "ambiguous" for binding in bindings):
-        return _DYNAMIC_AMBIGUOUS
-    return _dynamic_union_binding(bindings)
+        return _dynamic_join_with_guarded_origin(source_bindings, _DYNAMIC_AMBIGUOUS)
+    return _dynamic_join_with_guarded_origin(source_bindings, _dynamic_union_binding(bindings))
 
 
 def _dynamic_sequence_binding(
@@ -1010,8 +1111,9 @@ def _dynamic_union_binding(
     origin_name: str | None = None,
 ) -> _DynamicImportBinding:
     """Represent a bounded finite set of possible abstract values."""
+    source_bindings = tuple(bindings)
     flattened: list[_DynamicImportBinding] = []
-    for binding in bindings:
+    for binding in source_bindings:
         candidates = (
             binding.items if binding.kind == "union" and binding.items is not None else (binding,)
         )
@@ -1019,32 +1121,36 @@ def _dynamic_union_binding(
             if candidate not in flattened:
                 flattened.append(candidate)
     if not flattened:
-        return _DYNAMIC_UNKNOWN
+        return _dynamic_join_with_guarded_origin(source_bindings, _DYNAMIC_UNKNOWN)
     if len(flattened) == 1:
-        return replace(
+        result = replace(
             flattened[0],
             component_names=component_names or flattened[0].component_names,
             origin_name=origin_name or flattened[0].origin_name,
         )
+        return _dynamic_join_with_guarded_origin(source_bindings, result)
     if len(flattened) > _DYNAMIC_COMPREHENSION_VALUE_LIMIT:
-        return (
+        result = (
             _DYNAMIC_AMBIGUOUS
             if any(item.guarded or item.kind == "ambiguous" for item in flattened)
             else _DYNAMIC_UNKNOWN
         )
+        return _dynamic_join_with_guarded_origin(source_bindings, result)
     if any(item.kind in {"unknown", "ambiguous"} for item in flattened):
-        return (
+        result = (
             _DYNAMIC_AMBIGUOUS
             if any(item.guarded or item.kind == "ambiguous" for item in flattened)
             else _DYNAMIC_UNKNOWN
         )
-    return _DynamicImportBinding(
+        return _dynamic_join_with_guarded_origin(source_bindings, result)
+    result = _DynamicImportBinding(
         "union",
         guarded=any(item.guarded for item in flattened),
         items=tuple(flattened),
         component_names=component_names,
         origin_name=origin_name,
     )
+    return _dynamic_join_with_guarded_origin(source_bindings, result)
 
 
 def _dynamic_binding_alternatives(
@@ -1158,6 +1264,25 @@ def _dynamic_binding_literal_key_value(
     return False, None
 
 
+def _dynamic_binding_is_proven_nonimporter(binding: _DynamicImportBinding) -> bool:
+    """Prove a bounded builtin value cannot carry a dynamic importer."""
+    if binding.guarded or binding.kind == "ambiguous":
+        return False
+    if binding.kind in {"string", "boolean", "none"}:
+        return True
+    literal_known, _ = _dynamic_binding_literal_key_value(binding)
+    if literal_known:
+        return True
+    if binding.kind in {"sequence", "iterable"} and binding.items is not None:
+        return all(_dynamic_binding_is_proven_nonimporter(item) for item in binding.items)
+    if binding.kind == "mapping" and binding.items is not None and binding.values is not None:
+        return all(
+            _dynamic_binding_is_proven_nonimporter(item)
+            for item in (*binding.items, *binding.values)
+        )
+    return False
+
+
 def _dynamic_key_is_exact(binding: _DynamicImportBinding) -> bool:
     """Return whether a finite registry key has a fully known hashable value."""
     return _dynamic_binding_literal_key_value(binding)[0]
@@ -1268,6 +1393,7 @@ class _DynamicImportSourceContext:
     identity: str
     members: tuple[_DynamicImportSourceMember, ...]
     type_checking_effects: tuple[tuple[str, frozenset[str]], ...] | None = None
+    source_class_effects: frozenset[str] | None = None
 
 
 def _dynamic_read_source_context(paths: Sequence[Path]) -> _DynamicImportSourceContext:
@@ -1292,6 +1418,114 @@ def _dynamic_read_source_context(paths: Sequence[Path]) -> _DynamicImportSourceC
     return _DynamicImportSourceContext(identity.hexdigest(), tuple(members))
 
 
+_DYNAMIC_LAZY_EXPORT_RESOLVER_FQN = "polisyos.ir.api.resolve_lazy_export"
+_DYNAMIC_SOURCE_CLASS_SAFE_EXTERNAL_BASES = frozenset({"pydantic.BaseModel", "typing.Generic"})
+_DYNAMIC_SOURCE_CLASS_HOOKS = frozenset(
+    {
+        "__call__",
+        "__delattr__",
+        "__get__",
+        "__getattribute__",
+        "__getattr__",
+        "__init__",
+        "__init_subclass__",
+        "__new__",
+        "__set__",
+        "__setattr__",
+        "__delete__",
+        "model_post_init",
+    }
+)
+
+
+def _dynamic_lazy_export_resolver_contract_matches(
+    node: ast.FunctionDef | ast.AsyncFunctionDef,
+) -> bool:
+    """Check the source-owned lazy export resolver's bounded lookup contract."""
+    if (
+        not isinstance(node, ast.FunctionDef)
+        or node.name != "resolve_lazy_export"
+        or node.decorator_list
+        or getattr(node, "type_params", ())
+        or node.args.posonlyargs
+        or [argument.arg for argument in node.args.args] != ["name"]
+        or [argument.arg for argument in node.args.kwonlyargs] != ["namespace", "exports"]
+        or node.args.vararg is not None
+        or node.args.kwarg is not None
+        or node.args.defaults
+        or any(default is not None for default in node.args.kw_defaults)
+    ):
+        return False
+
+    body = list(node.body)
+    if (
+        body
+        and isinstance(body[0], ast.Expr)
+        and isinstance(body[0].value, ast.Constant)
+        and isinstance(body[0].value.value, str)
+    ):
+        body.pop(0)
+    expected = ast.parse(
+        """\
+def resolve_lazy_export(name, *, namespace, exports):
+    try:
+        module_name, attr_name = exports[name]
+    except KeyError as exc:
+        module_name = namespace.get("__name__", "<unknown>")
+        raise AttributeError(f"module {module_name!r} has no attribute {name!r}") from exc
+    module = importlib.import_module(module_name)
+    value = getattr(module, attr_name)
+    namespace[name] = value
+    return value
+"""
+    ).body[0]
+    return ast.dump(ast.Module(body=body, type_ignores=[]), include_attributes=False) == ast.dump(
+        ast.Module(body=expected.body, type_ignores=[]), include_attributes=False
+    )
+
+
+def _dynamic_is_source_lazy_export_map(
+    module: str,
+    name: str,
+    expression: ast.AST,
+    binding: _DynamicImportBinding,
+) -> bool:
+    """Recognize one literal source-owned facade map without importing its owner."""
+    if (
+        module != "polisyos.ir.api"
+        or not name.endswith("_FACADE_EXPORTS")
+        or not isinstance(expression, ast.Dict)
+        or binding.kind != "mapping"
+        or binding.guarded
+        or binding.items is None
+        or binding.values is None
+    ):
+        return False
+    for key, value in zip(expression.keys, expression.values, strict=True):
+        if (
+            not isinstance(key, ast.Constant)
+            or not isinstance(key.value, str)
+            or not isinstance(value, ast.Tuple)
+            or len(value.elts) != 2
+            or any(
+                not isinstance(item, ast.Constant) or not isinstance(item.value, str)
+                for item in value.elts
+            )
+        ):
+            return False
+    return True
+
+
+def _dynamic_is_source_lazy_export_map_binding(binding: _DynamicImportBinding) -> bool:
+    return (
+        binding.kind == "mapping"
+        and not binding.guarded
+        and binding.origin_name is not None
+        and binding.origin_name.startswith("polisyos.ir.api.")
+        and binding.origin_name.endswith("_FACADE_EXPORTS")
+    )
+
+
 class _DynamicImportSourceBindings:
     """Resolve bounded source-owned exports without importing or executing source."""
 
@@ -1305,6 +1539,9 @@ class _DynamicImportSourceBindings:
         self.ambiguous_modules: set[str] = set()
         self.trees: dict[str, ast.Module | None] = {}
         self.environments: dict[str, dict[str, _DynamicImportBinding] | None] = {}
+        self.invalidated_source_classes: set[str] = set(
+            source_context.source_class_effects or () if source_context is not None else ()
+        )
         self.source_trees_by_path = (
             {member.path: member.tree for member in source_context.members}
             if source_context is not None
@@ -1321,6 +1558,12 @@ class _DynamicImportSourceBindings:
                 self.ambiguous_modules.add(module)
             else:
                 self.module_paths[module] = path
+
+    def invalidate_source_classes(self, source_names: Iterable[str]) -> None:
+        """Discard field summaries after source-visible class effects or escapes."""
+        self.invalidated_source_classes.update(
+            source_name for source_name in source_names if source_name.startswith("polisyos.")
+        )
 
     def import_binding(
         self,
@@ -1358,6 +1601,82 @@ class _DynamicImportSourceBindings:
             return self._export_binding(target_module, name, stack=stack)
         return _dynamic_binding_for_import(target_module, name)
 
+    def _resolve_lazy_export_call(
+        self,
+        node: ast.Call,
+        environment: Mapping[str, _DynamicImportBinding],
+        module: str,
+        stack: tuple[tuple[str, str], ...],
+        *,
+        callee: _DynamicImportBinding | None = None,
+    ) -> _DynamicImportBinding:
+        """Resolve one verified call through the source-owned lazy export map."""
+        if callee is None:
+            callee = self._expression_binding(node.func, environment, module, stack)
+        if (
+            callee.kind != "callable"
+            or callee.name != _DYNAMIC_LAZY_EXPORT_RESOLVER_FQN
+            or len(node.args) != 1
+            or any(keyword.arg is None for keyword in node.keywords)
+        ):
+            return _DYNAMIC_AMBIGUOUS
+
+        keywords = {keyword.arg: keyword.value for keyword in node.keywords}
+        if len(keywords) != len(node.keywords) or set(keywords) != {"namespace", "exports"}:
+            return _DYNAMIC_AMBIGUOUS
+
+        name = self._expression_binding(node.args[0], environment, module, stack)
+        if name.kind != "string" or name.name is None:
+            return _DYNAMIC_AMBIGUOUS
+
+        namespace = keywords["namespace"]
+        if (
+            not isinstance(namespace, ast.Call)
+            or not isinstance(namespace.func, ast.Name)
+            or namespace.func.id != "globals"
+            or namespace.args
+            or namespace.keywords
+        ):
+            return _DYNAMIC_AMBIGUOUS
+        namespace_callee = self._expression_binding(namespace.func, environment, module, stack)
+        if namespace_callee.kind != "callable" or namespace_callee.name != "builtins.globals":
+            return _DYNAMIC_AMBIGUOUS
+
+        exports = self._expression_binding(keywords["exports"], environment, module, stack)
+        if (
+            exports.kind != "mapping"
+            or exports.guarded
+            or exports.items is None
+            or exports.values is None
+            or not _dynamic_is_source_lazy_export_map_binding(exports)
+        ):
+            return _DYNAMIC_AMBIGUOUS
+        target = _dynamic_mapping_lookup(exports, name, default=_DYNAMIC_NONE)
+        if target.kind == "none":
+            return _DYNAMIC_NONE
+        if target.kind not in {"sequence", "iterable"} or target.items is None:
+            return _DYNAMIC_AMBIGUOUS
+        if len(target.items) != 2:
+            return _DYNAMIC_AMBIGUOUS
+        target_module, target_symbol = target.items
+        if (
+            target_module.kind != "string"
+            or target_module.name is None
+            or target_symbol.kind != "string"
+            or target_symbol.name is None
+        ):
+            return _DYNAMIC_AMBIGUOUS
+        path = self.module_paths.get(module)
+        if path is None:
+            return _DYNAMIC_AMBIGUOUS
+        return self.import_binding(
+            target_module.name,
+            target_symbol.name,
+            current_module=module,
+            is_package=path.name == "__init__.py",
+            stack=stack,
+        )
+
     def _has_module(self, module: str) -> bool:
         return module in self.module_paths and module not in self.ambiguous_modules
 
@@ -1379,6 +1698,772 @@ class _DynamicImportSourceBindings:
             tree = None
         self.trees[module] = tree
         return tree
+
+    def _source_import_identity(self, module: str, name: str) -> str | None:
+        """Return one module-level imported identity if the name stays unshadowed."""
+        tree = self._module_tree(module)
+        path = self.module_paths.get(module)
+        if tree is None or path is None:
+            return None
+        identity: str | None = None
+        is_package = path.name == "__init__.py"
+        for statement in tree.body:
+            if isinstance(statement, ast.Import):
+                for alias in statement.names:
+                    bound_name = alias.asname or alias.name.split(".", 1)[0]
+                    if bound_name == name:
+                        identity = alias.name if alias.asname else alias.name.split(".", 1)[0]
+            elif isinstance(statement, ast.ImportFrom):
+                imported_module = _runtime_relative_import(
+                    module,
+                    statement.module or "",
+                    statement.level,
+                    is_package=is_package,
+                )
+                for alias in statement.names:
+                    if alias.name == "*":
+                        continue
+                    if (alias.asname or alias.name) == name:
+                        identity = f"{imported_module}.{alias.name}"
+            elif isinstance(statement, (ast.Assign, ast.AnnAssign, ast.AugAssign, ast.Delete)):
+                targets = (
+                    statement.targets
+                    if isinstance(statement, ast.Assign | ast.Delete)
+                    else (statement.target,)
+                )
+                if any(name in self._simple_target_names(target) for target in targets):
+                    identity = None
+            elif isinstance(statement, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+                if statement.name == name:
+                    identity = None
+            elif isinstance(
+                statement,
+                (
+                    ast.If,
+                    ast.For,
+                    ast.AsyncFor,
+                    ast.While,
+                    ast.Try,
+                    ast.With,
+                    ast.AsyncWith,
+                    ast.Match,
+                ),
+            ) and name in self._nested_module_names(statement):
+                identity = None
+        return identity
+
+    def _source_class_definition(
+        self,
+        source_name: str,
+        *,
+        current_module: str,
+        current_environment: Mapping[str, _DynamicImportBinding],
+        stack: tuple[tuple[str, str], ...],
+    ) -> tuple[str, ast.ClassDef, Mapping[str, _DynamicImportBinding]] | None:
+        """Find a unique, still-bound source class by its fully qualified name."""
+        if source_name in self.invalidated_source_classes:
+            return None
+        source_module, separator, class_name = source_name.rpartition(".")
+        if not separator or not self._has_module(source_module):
+            return None
+        tree = self._module_tree(source_module)
+        if tree is None:
+            return None
+        definitions = [
+            node for node in tree.body if isinstance(node, ast.ClassDef) and node.name == class_name
+        ]
+        if len(definitions) != 1:
+            return None
+        environment = (
+            current_environment
+            if source_module == current_module
+            else self.environments.get(source_module)
+        )
+        if environment is None:
+            environment = self._module_environment(
+                source_module,
+                (*stack, (source_module, class_name)),
+            )
+        if environment is None:
+            return None
+        binding = environment.get(class_name)
+        if binding is None or binding.origin_name != source_name:
+            return None
+        return source_module, definitions[0], environment
+
+    def _source_class_has_effect(
+        self,
+        source_name: str,
+        *,
+        current_module: str,
+        current_environment: Mapping[str, _DynamicImportBinding],
+        stack: tuple[tuple[str, str], ...],
+        seen: frozenset[str] = frozenset(),
+    ) -> bool:
+        """Check whether a source class or any source base has an opaque effect."""
+        if source_name in self.invalidated_source_classes:
+            return True
+        if source_name in seen or len(seen) >= 24:
+            return True
+        definition = self._source_class_definition(
+            source_name,
+            current_module=current_module,
+            current_environment=current_environment,
+            stack=stack,
+        )
+        if definition is None:
+            return False
+        module, class_node, environment = definition
+        next_seen = seen | {source_name}
+        for base in class_node.bases:
+            base_expression = base.value if isinstance(base, ast.Subscript) else base
+            binding = self._expression_binding(base_expression, environment, module, stack)
+            if (
+                binding.origin_name is not None
+                and binding.origin_name.startswith("polisyos.")
+                and self._source_class_has_effect(
+                    binding.origin_name,
+                    current_module=module,
+                    current_environment=environment,
+                    stack=stack,
+                    seen=next_seen,
+                )
+            ):
+                return True
+        return False
+
+    @staticmethod
+    def _plain_dict_value_name(annotation: ast.AST | None) -> str | None:
+        """Return a plain ``dict`` value name without evaluating annotations."""
+        if (
+            not isinstance(annotation, ast.Subscript)
+            or not isinstance(annotation.value, ast.Name)
+            or annotation.value.id != "dict"
+            or not isinstance(annotation.slice, ast.Tuple)
+            or len(annotation.slice.elts) != 2
+            or not isinstance(annotation.slice.elts[1], ast.Name)
+        ):
+            return None
+        return annotation.slice.elts[1].id
+
+    def _source_class_dict_field(
+        self,
+        source_name: str,
+        field_name: str,
+        *,
+        current_module: str,
+        current_environment: Mapping[str, _DynamicImportBinding],
+        stack: tuple[tuple[str, str], ...],
+    ) -> tuple[ast.AST, str, Mapping[str, _DynamicImportBinding]] | None:
+        """Resolve a declared plain-dict field on a source-owned class."""
+        definition = self._source_class_definition(
+            source_name,
+            current_module=current_module,
+            current_environment=current_environment,
+            stack=stack,
+        )
+        if definition is None:
+            return None
+        module, class_node, environment = definition
+        if "dict" in environment:
+            return None
+        annotation = next(
+            (
+                statement.annotation
+                for statement in class_node.body
+                if isinstance(statement, ast.AnnAssign)
+                and isinstance(statement.target, ast.Name)
+                and statement.target.id == field_name
+            ),
+            None,
+        )
+        if self._plain_dict_value_name(annotation) is None:
+            return None
+        return annotation, module, environment
+
+    def _source_validator_loop_value_classes(
+        self,
+        module: str,
+        node: ast.FunctionDef | ast.AsyncFunctionDef,
+        class_node: ast.ClassDef,
+        environment: Mapping[str, _DynamicImportBinding],
+    ) -> dict[str, str]:
+        """Track loop values yielded by fields typed as source-owned dictionaries."""
+        class_name = f"{module}.{class_node.name}"
+        local_classes: dict[str, str] = {}
+        loops = sorted(
+            (
+                child
+                for statement in node.body
+                for child in ast.walk(statement)
+                if isinstance(child, ast.For)
+            ),
+            key=lambda child: (child.lineno, child.col_offset),
+        )
+        for _ in range(min(len(loops), 24)):
+            changed = False
+            for loop in loops:
+                if (
+                    not isinstance(loop.target, ast.Tuple | ast.List)
+                    or len(loop.target.elts) != 2
+                    or not all(isinstance(item, ast.Name) for item in loop.target.elts)
+                    or not isinstance(loop.iter, ast.Call)
+                    or not isinstance(loop.iter.func, ast.Attribute)
+                    or loop.iter.func.attr != "items"
+                    or loop.iter.args
+                    or loop.iter.keywords
+                    or not isinstance(loop.iter.func.value, ast.Attribute)
+                    or not isinstance(loop.iter.func.value.value, ast.Name)
+                ):
+                    continue
+                receiver = loop.iter.func.value
+                owner = receiver.value.id
+                if owner == node.args.args[0].arg:
+                    owner_class = class_name
+                else:
+                    owner_class = local_classes.get(owner)
+                if owner_class is None:
+                    continue
+                field = self._source_class_dict_field(
+                    owner_class,
+                    receiver.attr,
+                    current_module=module,
+                    current_environment=environment,
+                    stack=(),
+                )
+                if field is None:
+                    continue
+                annotation, _, owner_environment = field
+                value_name = self._plain_dict_value_name(annotation)
+                if value_name is None:
+                    continue
+                value_binding = owner_environment.get(value_name)
+                if (
+                    value_binding is None
+                    or value_binding.origin_name is None
+                    or not value_binding.origin_name.startswith("polisyos.")
+                ):
+                    continue
+                value_variable = loop.target.elts[1]
+                if local_classes.get(value_variable.id) != value_binding.origin_name:
+                    local_classes[value_variable.id] = value_binding.origin_name
+                    changed = True
+            if not changed:
+                break
+
+        stores: dict[str, int] = {}
+        for child in ast.walk(ast.Module(body=node.body, type_ignores=[])):
+            if isinstance(child, ast.Name) and isinstance(child.ctx, ast.Store):
+                stores[child.id] = stores.get(child.id, 0) + 1
+        return {
+            name: source_name
+            for name, source_name in local_classes.items()
+            if stores.get(name) == 1
+        }
+
+    def _source_boolean_helper_is_safe(
+        self,
+        module: str,
+        name: str,
+        environment: Mapping[str, _DynamicImportBinding],
+    ) -> bool:
+        """Admit only a pure, source-local boolean regex check used by a validator."""
+        tree = self._module_tree(module)
+        if tree is None:
+            return False
+        definitions = [
+            statement
+            for statement in tree.body
+            if isinstance(statement, ast.FunctionDef) and statement.name == name
+        ]
+        if len(definitions) != 1:
+            return False
+        helper = definitions[0]
+        if (
+            helper.decorator_list
+            or getattr(helper, "type_params", ())
+            or helper.args.posonlyargs
+            or len(helper.args.args) != 1
+            or helper.args.kwonlyargs
+            or helper.args.vararg is not None
+            or helper.args.kwarg is not None
+            or helper.args.defaults
+            or helper.args.kw_defaults
+            or not isinstance(helper.returns, ast.Name)
+            or helper.returns.id != "bool"
+            or len(helper.body) != 2
+            or not isinstance(helper.body[0], ast.Import)
+            or len(helper.body[0].names) != 1
+            or helper.body[0].names[0].name != "re"
+            or helper.body[0].names[0].asname is not None
+            or not isinstance(helper.body[1], ast.Return)
+            or not isinstance(helper.body[1].value, ast.Call)
+        ):
+            return False
+        returned = helper.body[1].value
+        if (
+            not isinstance(returned.func, ast.Name)
+            or returned.func.id != "bool"
+            or "bool" in environment
+            or len(returned.args) != 1
+            or returned.keywords
+        ):
+            return False
+        match_call = returned.args[0]
+        if (
+            not isinstance(match_call, ast.Call)
+            or not isinstance(match_call.func, ast.Attribute)
+            or not isinstance(match_call.func.value, ast.Name)
+            or match_call.func.value.id != "re"
+            or match_call.func.attr not in {"match", "fullmatch", "search"}
+            or len(match_call.args) not in {2, 3}
+            or match_call.keywords
+            or not isinstance(match_call.args[-1], ast.Name)
+            or match_call.args[-1].id != helper.args.args[0].arg
+        ):
+            return False
+        pattern = self._expression_binding(match_call.args[0], environment, module, ())
+        if pattern.kind != "string" or pattern.name is None:
+            return False
+        return len(match_call.args) == 2 or (
+            isinstance(match_call.args[2], ast.Constant) and type(match_call.args[2].value) is int
+        )
+
+    def _source_validator_is_value_preserving(
+        self,
+        module: str,
+        node: ast.FunctionDef | ast.AsyncFunctionDef,
+        class_node: ast.ClassDef,
+        environment: Mapping[str, _DynamicImportBinding],
+    ) -> bool:
+        """Accept a narrow after-validator that returns its input without mutation."""
+        if (
+            isinstance(node, ast.AsyncFunctionDef)
+            or len(node.decorator_list) != 1
+            or not isinstance(node.decorator_list[0], ast.Call)
+            or not isinstance(node.decorator_list[0].func, ast.Name)
+            or self._source_import_identity(module, node.decorator_list[0].func.id)
+            != "pydantic.model_validator"
+            or len(node.args.posonlyargs) + len(node.args.args) != 1
+            or node.args.kwonlyargs
+            or node.args.vararg is not None
+            or node.args.kwarg is not None
+            or node.args.defaults
+            or node.args.kw_defaults
+        ):
+            return False
+        decorator = node.decorator_list[0]
+        if (
+            len(decorator.args) != 0
+            or len(decorator.keywords) != 1
+            or decorator.keywords[0].arg != "mode"
+            or not isinstance(decorator.keywords[0].value, ast.Constant)
+            or decorator.keywords[0].value.value != "after"
+        ):
+            return False
+        parameter = (*node.args.posonlyargs, *node.args.args)[0].arg
+        body = ast.Module(body=node.body, type_ignores=[])
+        if any(
+            isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef, ast.Lambda))
+            for statement in node.body
+            for child in ast.walk(statement)
+            if child is not statement
+        ):
+            return False
+        returns = [child for child in ast.walk(body) if isinstance(child, ast.Return)]
+        if not returns or any(
+            not isinstance(statement.value, ast.Name) or statement.value.id != parameter
+            for statement in returns
+        ):
+            return False
+        field_annotations = {
+            statement.target.id: statement.annotation
+            for statement in class_node.body
+            if isinstance(statement, ast.AnnAssign) and isinstance(statement.target, ast.Name)
+        }
+        loop_value_classes = self._source_validator_loop_value_classes(
+            module,
+            node,
+            class_node,
+            environment,
+        )
+        for child in ast.walk(body):
+            if isinstance(
+                child, (ast.Import, ast.ImportFrom, ast.Global, ast.Nonlocal, ast.Delete)
+            ):
+                return False
+            if isinstance(child, ast.Assign) and any(
+                not isinstance(target, ast.Name) for target in child.targets
+            ):
+                return False
+            if isinstance(child, ast.AnnAssign) and not isinstance(child.target, ast.Name):
+                return False
+            if isinstance(child, ast.AugAssign) and not isinstance(child.target, ast.Name):
+                return False
+            if isinstance(child, ast.NamedExpr) and not isinstance(child.target, ast.Name):
+                return False
+            if not isinstance(child, ast.Call):
+                continue
+            function = child.func
+            if isinstance(function, ast.Name):
+                if function.id == "ValueError" and function.id not in environment:
+                    continue
+                if function.id in {"isinstance", "set", "sorted", "len", "bool"}:
+                    if function.id in environment:
+                        return False
+                    continue
+                helper = next(
+                    (
+                        statement
+                        for statement in self._module_tree(module).body
+                        if isinstance(statement, ast.FunctionDef) and statement.name == function.id
+                    ),
+                    None,
+                )
+                if helper is not None and self._source_boolean_helper_is_safe(
+                    module,
+                    function.id,
+                    environment,
+                ):
+                    continue
+                return False
+            if isinstance(function, ast.Attribute) and function.attr == "items":
+                receiver = function.value
+                if isinstance(receiver, ast.Attribute) and isinstance(receiver.value, ast.Name):
+                    if receiver.value.id == parameter:
+                        annotation = field_annotations.get(receiver.attr)
+                        if (
+                            "dict" not in environment
+                            and self._plain_dict_value_name(annotation) is not None
+                            and not child.args
+                            and not child.keywords
+                        ):
+                            continue
+                    elif receiver.value.id in loop_value_classes:
+                        if (
+                            self._source_class_dict_field(
+                                loop_value_classes[receiver.value.id],
+                                receiver.attr,
+                                current_module=module,
+                                current_environment=environment,
+                                stack=(),
+                            )
+                            is not None
+                            and not child.args
+                            and not child.keywords
+                        ):
+                            continue
+            return False
+        return True
+
+    def _source_class_is_summarizable(
+        self,
+        source_name: str,
+        *,
+        current_module: str,
+        current_environment: Mapping[str, _DynamicImportBinding],
+        stack: tuple[tuple[str, str], ...],
+        seen: frozenset[str] = frozenset(),
+    ) -> bool:
+        """Verify a source class hierarchy has no opaque construction/access hooks."""
+        if source_name in seen or len(seen) >= 24:
+            return False
+        definition = self._source_class_definition(
+            source_name,
+            current_module=current_module,
+            current_environment=current_environment,
+            stack=stack,
+        )
+        if definition is None:
+            return False
+        module, class_node, environment = definition
+        if class_node.decorator_list or class_node.keywords:
+            return False
+        for statement in class_node.body:
+            if isinstance(statement, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                if statement.name in _DYNAMIC_SOURCE_CLASS_HOOKS:
+                    return False
+                if statement.decorator_list and not self._source_validator_is_value_preserving(
+                    module,
+                    statement,
+                    class_node,
+                    environment,
+                ):
+                    return False
+            if isinstance(statement, (ast.Assign, ast.AnnAssign, ast.AugAssign, ast.Delete)):
+                targets = (
+                    statement.targets
+                    if isinstance(statement, ast.Assign | ast.Delete)
+                    else (statement.target,)
+                )
+                if any(
+                    name in _DYNAMIC_SOURCE_CLASS_HOOKS
+                    for target in targets
+                    for name in self._simple_target_names(target)
+                ):
+                    return False
+
+        next_seen = seen | {source_name}
+        for base in class_node.bases:
+            base_expression = base.value if isinstance(base, ast.Subscript) else base
+            if isinstance(base, ast.Subscript) and any(
+                isinstance(node, (ast.Call, ast.Lambda, ast.NamedExpr, ast.Await, ast.Yield))
+                for node in ast.walk(base.slice)
+            ):
+                return False
+            binding = self._expression_binding(
+                base_expression,
+                environment,
+                module,
+                stack,
+            )
+            if binding.origin_name is not None and binding.origin_name.startswith("polisyos."):
+                if not self._source_class_is_summarizable(
+                    binding.origin_name,
+                    current_module=module,
+                    current_environment=environment,
+                    stack=stack,
+                    seen=next_seen,
+                ):
+                    return False
+                continue
+            if isinstance(base_expression, ast.Name) and base_expression.id == "object":
+                if base_expression.id not in environment:
+                    continue
+            imported_base = (
+                self._source_import_identity(module, base_expression.id)
+                if isinstance(base_expression, ast.Name)
+                else None
+            )
+            if imported_base not in _DYNAMIC_SOURCE_CLASS_SAFE_EXTERNAL_BASES:
+                return False
+        return True
+
+    def _source_class_field_defaults(
+        self,
+        source_name: str,
+        *,
+        current_module: str,
+        current_environment: Mapping[str, _DynamicImportBinding],
+        stack: tuple[tuple[str, str], ...],
+        seen: frozenset[str] = frozenset(),
+    ) -> dict[str, _DynamicImportBinding] | None:
+        """Collect source-declared instance fields and defaults through safe bases."""
+        if source_name in seen or len(seen) >= 24:
+            return None
+        definition = self._source_class_definition(
+            source_name,
+            current_module=current_module,
+            current_environment=current_environment,
+            stack=stack,
+        )
+        if definition is None:
+            return None
+        module, class_node, environment = definition
+        result: dict[str, _DynamicImportBinding] = {}
+        next_seen = seen | {source_name}
+        for base in class_node.bases:
+            base_expression = base.value if isinstance(base, ast.Subscript) else base
+            binding = self._expression_binding(base_expression, environment, module, stack)
+            if binding.origin_name is not None and binding.origin_name.startswith("polisyos."):
+                inherited = self._source_class_field_defaults(
+                    binding.origin_name,
+                    current_module=module,
+                    current_environment=environment,
+                    stack=stack,
+                    seen=next_seen,
+                )
+                if inherited is None:
+                    return None
+                result.update(inherited)
+        for statement in class_node.body:
+            if not isinstance(statement, ast.AnnAssign) or not isinstance(
+                statement.target, ast.Name
+            ):
+                continue
+            result[statement.target.id] = self._source_model_field_default(
+                statement.value,
+                environment=environment,
+                module=module,
+                stack=stack,
+            )
+        return result
+
+    def _source_model_field_default(
+        self,
+        expression: ast.AST | None,
+        *,
+        environment: Mapping[str, _DynamicImportBinding],
+        module: str,
+        stack: tuple[tuple[str, str], ...],
+    ) -> _DynamicImportBinding:
+        """Summarize literal Pydantic field defaults without evaluating factories."""
+        if expression is None:
+            return _DYNAMIC_AMBIGUOUS
+        if not isinstance(expression, ast.Call) or not isinstance(expression.func, ast.Name):
+            return self._expression_binding(expression, environment, module, stack)
+        if (
+            self._source_import_identity(module, expression.func.id) != "pydantic.Field"
+            or expression.func.id not in environment
+            or (expression.args and expression.keywords)
+        ):
+            return _DYNAMIC_AMBIGUOUS
+        if expression.args:
+            default = expression.args[0]
+            if isinstance(default, ast.Constant) and default.value is Ellipsis:
+                return _DYNAMIC_AMBIGUOUS
+            return self._expression_binding(default, environment, module, stack)
+        keyword_defaults = [keyword for keyword in expression.keywords if keyword.arg == "default"]
+        if len(keyword_defaults) == 1:
+            return self._expression_binding(
+                keyword_defaults[0].value,
+                environment,
+                module,
+                stack,
+            )
+        factories = [keyword for keyword in expression.keywords if keyword.arg == "default_factory"]
+        if len(factories) != 1 or not isinstance(factories[0].value, ast.Name):
+            return _DYNAMIC_AMBIGUOUS
+        factory = factories[0].value.id
+        if factory == "dict" and factory not in environment:
+            return _dynamic_mapping_binding((), ())
+        if factory in {"list", "tuple", "set", "frozenset"} and factory not in environment:
+            return _dynamic_sequence_binding(
+                (),
+                kind="iterable" if factory in {"set", "frozenset"} else "sequence",
+            )
+        return _DYNAMIC_AMBIGUOUS
+
+    def _deferred_source_class_instance_binding(
+        self,
+        node: ast.Call,
+        source_name: str,
+        environment: Mapping[str, _DynamicImportBinding],
+        module: str,
+        stack: tuple[tuple[str, str], ...],
+        *,
+        argument_values: Mapping[str, _DynamicImportBinding] | None = None,
+        argument_bindings: Sequence[_DynamicImportBinding] | None = None,
+    ) -> _DynamicImportBinding:
+        """Keep unknown source-class fields unresolved until a consumer selects one."""
+        if argument_bindings is None:
+            values = [
+                self._expression_binding(argument, environment, module, stack)
+                for argument in node.args
+            ]
+            values.extend(
+                self._expression_binding(keyword.value, environment, module, stack)
+                for keyword in node.keywords
+            )
+        else:
+            values = list(argument_bindings)
+
+        fields: dict[str, _DynamicImportBinding] = {}
+        positional_count = len(node.args)
+        for index, keyword in enumerate(node.keywords):
+            if keyword.arg is None:
+                continue
+            value = (
+                argument_values[keyword.arg]
+                if argument_values is not None and keyword.arg in argument_values
+                else values[positional_count + index]
+            )
+            fields[keyword.arg] = replace(
+                _DYNAMIC_DEFERRED,
+                name=value.name,
+                guarded=value.guarded,
+                origin_name=value.origin_name,
+            )
+
+        keys = tuple(_dynamic_string_binding(name) for name in fields)
+        return _DynamicImportBinding(
+            "object",
+            source_name,
+            guarded=any(value.guarded for value in values),
+            items=keys,
+            values=tuple(fields.values()),
+        )
+
+    def _source_class_instance_binding(
+        self,
+        node: ast.Call,
+        source_name: str,
+        environment: Mapping[str, _DynamicImportBinding],
+        module: str,
+        stack: tuple[tuple[str, str], ...],
+        *,
+        argument_values: Mapping[str, _DynamicImportBinding] | None = None,
+        argument_bindings: Sequence[_DynamicImportBinding] | None = None,
+    ) -> _DynamicImportBinding:
+        """Summarize named fields, deferring opaque source-class fields to use sites."""
+        if not source_name.startswith("polisyos."):
+            return _DYNAMIC_AMBIGUOUS
+        if (
+            node.args
+            or any(keyword.arg is None for keyword in node.keywords)
+            or self._expression_binding(node.func, environment, module, stack).guarded
+            or not self._source_class_is_summarizable(
+                source_name,
+                current_module=module,
+                current_environment=environment,
+                stack=stack,
+            )
+        ):
+            return self._deferred_source_class_instance_binding(
+                node,
+                source_name,
+                environment,
+                module,
+                stack,
+                argument_values=argument_values,
+                argument_bindings=argument_bindings,
+            )
+        fields = self._source_class_field_defaults(
+            source_name,
+            current_module=module,
+            current_environment=environment,
+            stack=stack,
+        )
+        if fields is None:
+            return self._deferred_source_class_instance_binding(
+                node,
+                source_name,
+                environment,
+                module,
+                stack,
+                argument_values=argument_values,
+                argument_bindings=argument_bindings,
+            )
+        explicit: dict[str, _DynamicImportBinding] = {}
+        for keyword in node.keywords:
+            if keyword.arg is None or keyword.arg not in fields or keyword.arg in explicit:
+                return self._deferred_source_class_instance_binding(
+                    node,
+                    source_name,
+                    environment,
+                    module,
+                    stack,
+                    argument_values=argument_values,
+                    argument_bindings=argument_bindings,
+                )
+            explicit[keyword.arg] = (
+                argument_values[keyword.arg]
+                if argument_values is not None and keyword.arg in argument_values
+                else self._expression_binding(keyword.value, environment, module, stack)
+            )
+            if argument_values is not None and keyword.arg not in argument_values:
+                return _DYNAMIC_AMBIGUOUS
+        fields.update(explicit)
+        names = tuple(fields)
+        values = tuple(fields[name] for name in names)
+        return _DynamicImportBinding(
+            "object",
+            source_name,
+            guarded=any(value.guarded for value in values),
+            items=tuple(_dynamic_string_binding(name) for name in names),
+            values=values,
+            origin_name=source_name,
+        )
 
     def _export_binding(
         self,
@@ -1610,11 +2695,24 @@ class _DynamicImportSourceBindings:
 
             def visit_Call(self, node: ast.Call) -> None:
                 self._check_namespace_call(node)
-                if any(self._namespace_value(argument) for argument in node.args) or any(
-                    self._namespace_value(keyword.value) for keyword in node.keywords
-                ):
-                    self.rebound = True
                 callee = self_outer._expression_binding(node.func, environment, module, stack)
+                lazy_export_binding = (
+                    self_outer._resolve_lazy_export_call(
+                        node,
+                        environment,
+                        module,
+                        stack,
+                        callee=callee,
+                    )
+                    if callee.kind == "callable"
+                    and callee.name == _DYNAMIC_LAZY_EXPORT_RESOLVER_FQN
+                    else _DYNAMIC_AMBIGUOUS
+                )
+                if (
+                    any(self._namespace_value(argument) for argument in node.args)
+                    or any(self._namespace_value(keyword.value) for keyword in node.keywords)
+                ) and lazy_export_binding.kind in {"unknown", "ambiguous"}:
+                    self.rebound = True
                 if callee.kind == "callable" and callee.name in {
                     "builtins.eval",
                     "builtins.exec",
@@ -1757,7 +2855,14 @@ class _DynamicImportSourceBindings:
             right_binding = self._expression_binding(right, local_environment, module, stack)
             if isinstance(operation, (ast.In, ast.NotIn)):
                 found: bool | None = None
-                if right_binding.kind == "mapping" and right_binding.immutable:
+                source_owned_export_map = (
+                    isinstance(right, ast.Name)
+                    and right.id in local_environment
+                    and _dynamic_is_source_lazy_export_map_binding(right_binding)
+                )
+                if right_binding.kind == "mapping" and (
+                    right_binding.immutable or source_owned_export_map
+                ):
                     lookup = _dynamic_mapping_lookup(
                         right_binding,
                         left_binding,
@@ -1992,14 +3097,40 @@ class _DynamicImportSourceBindings:
                 value = self._expression_binding(statement.value, environment, module, stack)
                 for target in statement.targets:
                     for bound_name in self._simple_target_names(target):
+                        if _dynamic_is_source_lazy_export_map(
+                            module,
+                            bound_name,
+                            statement.value,
+                            value,
+                        ):
+                            value = replace(value, origin_name=f"{module}.{bound_name}")
                         environment[bound_name] = value
             elif isinstance(statement, ast.AnnAssign):
                 if statement.value is not None:
                     value = self._expression_binding(statement.value, environment, module, stack)
                     for bound_name in self._simple_target_names(statement.target):
+                        if _dynamic_is_source_lazy_export_map(
+                            module,
+                            bound_name,
+                            statement.value,
+                            value,
+                        ):
+                            value = replace(value, origin_name=f"{module}.{bound_name}")
                         environment[bound_name] = value
             elif isinstance(statement, ast.FunctionDef | ast.AsyncFunctionDef | ast.ClassDef):
-                environment[statement.name] = _DYNAMIC_OTHER
+                if module == "polisyos.ir.api" and statement.name == "resolve_lazy_export":
+                    environment[statement.name] = (
+                        _DynamicImportBinding("callable", _DYNAMIC_LAZY_EXPORT_RESOLVER_FQN)
+                        if _dynamic_lazy_export_resolver_contract_matches(statement)
+                        else _DYNAMIC_AMBIGUOUS
+                    )
+                elif isinstance(statement, ast.ClassDef):
+                    environment[statement.name] = replace(
+                        _DYNAMIC_OTHER,
+                        origin_name=f"{module}.{statement.name}",
+                    )
+                else:
+                    environment[statement.name] = _DYNAMIC_OTHER
             elif isinstance(
                 statement,
                 (
@@ -2142,6 +3273,16 @@ class _DynamicImportSourceBindings:
             return _dynamic_mapping_binding(keys, values)
         if isinstance(node, ast.Call):
             callee = self._expression_binding(node.func, environment, module, stack)
+            if callee.kind == "other" and callee.origin_name is not None:
+                return self._source_class_instance_binding(
+                    node,
+                    callee.origin_name,
+                    environment,
+                    module,
+                    stack,
+                )
+            if callee.kind == "callable" and callee.name == _DYNAMIC_LAZY_EXPORT_RESOLVER_FQN:
+                return self._resolve_lazy_export_call(node, environment, module, stack)
             if callee.kind == "callable" and callee.name == "mapping.get":
                 mapping = callee.receiver
                 if (
@@ -2888,6 +4029,7 @@ class _DynamicImportSourceScanner:
         self.sink_sites: list[_DynamicImportSite] = []
         self._module_environment: dict[str, _DynamicImportBinding] = {}
         self.source_context = source_context
+        self.future_annotations = False
         self._type_checking_invalidated_modules: set[str] = set()
         if source_context is None or source_context.type_checking_effects is None:
             # A one-file scan has not established the shared singleton's
@@ -2903,6 +4045,8 @@ class _DynamicImportSourceScanner:
         self._module_scope_info: Mapping[str, set[str]] = {}
         self._module_possible_rebindings: set[str] = set()
         self.source_bindings = source_bindings
+        if source_bindings is not None and source_context is not None:
+            source_bindings.invalidate_source_classes(source_context.source_class_effects or ())
         try:
             source_path.resolve().relative_to(SRC_ROOT.resolve())
             self.module_name: str | None = module_fqn_from_path(source_path)
@@ -2917,6 +4061,7 @@ class _DynamicImportSourceScanner:
         return entries, tuple(self.sink_sites)
 
     def scan(self, tree: ast.Module) -> list[dict[str, Any]]:
+        self.future_annotations = _future_annotations_enabled(tree)
         locals_, _, _ = _scope_local_bindings(tree.body)
         environment = {name: self._unknown_binding(name) for name in locals_}
         self._module_environment = environment
@@ -3034,6 +4179,24 @@ class _DynamicImportSourceScanner:
                 f"{self.relative_path}:{getattr(node, 'lineno', 1)}: guarded importer value "
                 f"escapes through {boundary}; value flow at this boundary is unsupported"
             )
+
+    def _check_annotation(
+        self,
+        node: ast.expr,
+        environment: dict[str, _DynamicImportBinding],
+        pending: list[_PendingDynamicImportScope],
+        scope_info: Mapping[str, set[str]],
+        boundary: str,
+    ) -> None:
+        """Keep deferred annotation names from acting like runtime value escapes.
+
+        The expression is still analyzed for importer calls a later annotation resolver
+        could evaluate, while guarded names are rejected only when the definition evaluates
+        the annotation immediately.
+        """
+        binding = self._expression_binding(node, environment, pending, scope_info)
+        if not self.future_annotations:
+            self._reject_guarded_escape(binding, node, boundary)
 
     def _scan_type_parameter_fields(
         self,
@@ -3156,6 +4319,19 @@ class _DynamicImportSourceScanner:
             return _dynamic_builtin_binding(name)
         return _DYNAMIC_OTHER
 
+    def _invalidate_source_class_effects(
+        self,
+        bindings: Iterable[_DynamicImportBinding],
+    ) -> None:
+        """Invalidate summaries whenever source class identities cross a call or store."""
+        if self.source_bindings is None:
+            return
+        origins = frozenset(
+            origin for binding in bindings for origin in _dynamic_source_class_origins(binding)
+        )
+        if origins:
+            self.source_bindings.invalidate_source_classes(origins)
+
     def _expression_binding(
         self,
         node: ast.AST,
@@ -3184,6 +4360,39 @@ class _DynamicImportSourceScanner:
                     literal_key=literal_key,
                     literal_key_known=True,
                 )
+        if isinstance(node, ast.UnaryOp):
+            operand = self._expression_binding(
+                node.operand,
+                environment,
+                pending,
+                scope_info,
+                comprehension_outer=comprehension_outer,
+            )
+            if isinstance(node.op, ast.Not):
+                return _dynamic_join_with_guarded_origin(
+                    (operand,),
+                    _DynamicImportBinding("boolean"),
+                    trusted_result=True,
+                )
+            return _dynamic_join_with_guarded_origin((operand,), _DYNAMIC_AMBIGUOUS)
+        if isinstance(node, ast.BinOp):
+            operands = (
+                self._expression_binding(
+                    node.left,
+                    environment,
+                    pending,
+                    scope_info,
+                    comprehension_outer=comprehension_outer,
+                ),
+                self._expression_binding(
+                    node.right,
+                    environment,
+                    pending,
+                    scope_info,
+                    comprehension_outer=comprehension_outer,
+                ),
+            )
+            return _dynamic_join_with_guarded_origin(operands, _DYNAMIC_AMBIGUOUS)
         if isinstance(node, ast.Name):
             return self._lookup(node.id, environment)
         if isinstance(node, ast.Attribute):
@@ -3195,6 +4404,20 @@ class _DynamicImportSourceScanner:
                 comprehension_outer=comprehension_outer,
             )
             if (
+                self.source_bindings is not None
+                and self.module_name is not None
+                and any(
+                    self.source_bindings._source_class_has_effect(
+                        origin,
+                        current_module=self.module_name,
+                        current_environment=environment,
+                        stack=(),
+                    )
+                    for origin in _dynamic_source_object_origins(base)
+                )
+            ):
+                return _DYNAMIC_AMBIGUOUS
+            if (
                 node.attr == "TYPE_CHECKING"
                 and _dynamic_type_checking_kind(base) == "typing_module"
             ):
@@ -3205,7 +4428,7 @@ class _DynamicImportSourceScanner:
                 ):
                     return self._unknown_binding(node.attr)
                 return _dynamic_type_checking_value_binding(str(owner))
-            return _dynamic_attribute_binding(base, node.attr)
+            return replace(_dynamic_attribute_binding(base, node.attr), receiver=base)
         if isinstance(node, (ast.Tuple, ast.List, ast.Set)):
             items: list[_DynamicImportBinding] = []
             shape_known = True
@@ -3363,7 +4586,74 @@ class _DynamicImportSourceScanner:
                 )
                 for keyword in node.keywords
             )
+            call_values = list(argument_bindings)
+            if isinstance(node.func, ast.Attribute) and callee.receiver is not None:
+                call_values.append(callee.receiver)
+            self._invalidate_source_class_effects(call_values)
             self._record_call(node, callee, argument_bindings)
+            if (
+                callee.kind == "other"
+                and callee.origin_name is not None
+                and callee.origin_name.startswith("polisyos.")
+                and self.source_bindings is not None
+                and self.module_name is not None
+            ):
+                source_environment = self.source_bindings._module_environment(
+                    self.module_name,
+                    (),
+                )
+                if source_environment is not None:
+                    if self.source_bindings._source_class_has_effect(
+                        callee.origin_name,
+                        current_module=self.module_name,
+                        current_environment=source_environment,
+                        stack=(),
+                    ):
+                        return self.source_bindings._deferred_source_class_instance_binding(
+                            node,
+                            callee.origin_name,
+                            source_environment,
+                            self.module_name,
+                            (),
+                            argument_bindings=argument_bindings,
+                        )
+                    guarded_input = any(
+                        binding.guarded or binding.kind == "ambiguous"
+                        for binding in argument_bindings
+                    )
+                    guarded_default = False
+                    if not guarded_input:
+                        defaults = self.source_bindings._source_class_field_defaults(
+                            callee.origin_name,
+                            current_module=self.module_name,
+                            current_environment=source_environment,
+                            stack=(),
+                        )
+                        guarded_default = defaults is not None and any(
+                            binding.guarded for binding in defaults.values()
+                        )
+                    if guarded_input or guarded_default:
+                        keyword_values = {
+                            keyword.arg: argument_bindings[len(node.args) + index]
+                            for index, keyword in enumerate(node.keywords)
+                            if keyword.arg is not None
+                        }
+                        constructed = self.source_bindings._source_class_instance_binding(
+                            node,
+                            callee.origin_name,
+                            source_environment,
+                            self.module_name,
+                            (),
+                            argument_values=keyword_values,
+                            argument_bindings=argument_bindings,
+                        )
+                        if constructed.kind == "object":
+                            return constructed
+                        self._reject_guarded_escape(
+                            _DYNAMIC_AMBIGUOUS,
+                            node,
+                            "a call argument",
+                        )
             if callee.kind == "callable" and callee.name == "types.MappingProxyType":
                 if len(argument_bindings) != 1 or node.keywords:
                     if any(
@@ -3399,7 +4689,15 @@ class _DynamicImportSourceScanner:
                     )
                 if len(argument_bindings) > 2 and not reflected.guarded:
                     reflected = _join_dynamic_bindings((reflected, argument_bindings[2]))
-                return reflected
+                return _dynamic_join_with_guarded_origin(
+                    argument_bindings[:2],
+                    reflected,
+                    trusted_result=(
+                        attribute_binding.kind == "string"
+                        and attribute_binding.name is not None
+                        and not attribute_binding.guarded
+                    ),
+                )
             if callee.kind == "callable" and callee.name in {
                 "builtins.globals",
                 "builtins.locals",
@@ -3443,9 +4741,14 @@ class _DynamicImportSourceScanner:
                 else:
                     items = None
                 if items is not None:
-                    return _dynamic_sequence_binding(
+                    result = _dynamic_sequence_binding(
                         items,
                         kind="iterable" if constructor in {"set", "frozenset"} else "sequence",
+                    )
+                    return _dynamic_join_with_guarded_origin(
+                        (iterable,),
+                        result,
+                        trusted_result=iterable.kind in {"mapping", "namespace"},
                     )
                 if iterable.guarded or iterable.kind == "ambiguous":
                     raise DynamicImportCollectionError(
@@ -3456,7 +4759,7 @@ class _DynamicImportSourceScanner:
             if callee.kind == "callable" and callee.name in {
                 f"builtins.{name}" for name in _DYNAMIC_CAPABILITY_PREDICATES
             }:
-                return _DYNAMIC_OTHER
+                return _DynamicImportBinding("boolean")
             if callee.kind == "type" and callee.name == "builtins.type":
                 if len(argument_bindings) > 1 or node.keywords:
                     if any(
@@ -3480,7 +4783,7 @@ class _DynamicImportSourceScanner:
                     return _dynamic_module_namespace_binding(namespace.name)
                 if namespace.kind == "mapping":
                     return namespace
-                return _DYNAMIC_AMBIGUOUS if namespace.guarded else _DYNAMIC_OTHER
+                return _dynamic_join_with_guarded_origin((namespace,), _DYNAMIC_OTHER)
             if callee.kind == "callable" and callee.name == "mapping.get":
                 receiver = callee.receiver
                 if receiver is None or not argument_bindings:
@@ -3541,29 +4844,34 @@ class _DynamicImportSourceScanner:
                 if receiver is None:
                     return _DYNAMIC_AMBIGUOUS
                 if callee.name == "mapping.values":
-                    return _dynamic_sequence_binding(
+                    result = _dynamic_sequence_binding(
                         receiver.values,
                         kind="iterable",
                         guarded=receiver.guarded,
                     )
+                    return _dynamic_join_with_guarded_origin((receiver,), result)
                 if callee.name == "mapping.keys":
-                    return _dynamic_sequence_binding(
+                    result = _dynamic_sequence_binding(
                         receiver.items,
                         kind="iterable",
+                    )
+                    return _dynamic_join_with_guarded_origin(
+                        (receiver,), result, trusted_result=True
                     )
                 keys = receiver.items
                 values = receiver.values
                 if keys is None or values is None:
-                    return _DYNAMIC_AMBIGUOUS if receiver.guarded else _DYNAMIC_UNKNOWN
+                    return _dynamic_join_with_guarded_origin((receiver,), _DYNAMIC_UNKNOWN)
                 pairs = tuple(
                     _dynamic_sequence_binding((key, value))
                     for key, value in zip(keys, values, strict=True)
                 )
-                return _dynamic_sequence_binding(
+                result = _dynamic_sequence_binding(
                     pairs,
                     kind="iterable",
                     guarded=receiver.guarded,
                 )
+                return _dynamic_join_with_guarded_origin((receiver,), result)
             for binding in argument_bindings:
                 self._reject_guarded_escape(binding, node, "a call argument")
             return _DYNAMIC_OTHER
@@ -3624,7 +4932,7 @@ class _DynamicImportSourceScanner:
         if isinstance(node, (ast.ListComp, ast.SetComp, ast.DictComp, ast.GeneratorExp)):
             return self._scan_comprehension(node, environment, pending, scope_info)
         if isinstance(node, ast.IfExp):
-            self._expression_binding(
+            test_value = self._expression_binding(
                 node.test,
                 environment,
                 pending,
@@ -3656,7 +4964,15 @@ class _DynamicImportSourceScanner:
                 and else_outer is not None
             ):
                 self._join_expression_paths(comprehension_outer, (body_outer, else_outer))
-            return _join_dynamic_bindings((body_value, else_value))
+            result = _join_dynamic_bindings((body_value, else_value))
+            return _dynamic_join_with_guarded_origin(
+                (test_value, body_value, else_value),
+                result,
+                trusted_result=(
+                    _dynamic_binding_is_proven_nonimporter(body_value)
+                    and _dynamic_binding_is_proven_nonimporter(else_value)
+                ),
+            )
         if isinstance(node, ast.BoolOp):
             paths: list[Mapping[str, _DynamicImportBinding]] = []
             outer_paths: list[Mapping[str, _DynamicImportBinding]] = []
@@ -3677,24 +4993,35 @@ class _DynamicImportSourceScanner:
             self._join_expression_paths(environment, paths)
             if comprehension_outer is not None and outer_paths:
                 self._join_expression_paths(comprehension_outer, outer_paths)
-            return _join_dynamic_bindings(values)
-        if isinstance(node, ast.Compare):
-            self._expression_binding(
-                node.left,
-                environment,
-                pending,
-                scope_info,
-                comprehension_outer=comprehension_outer,
+            result = _join_dynamic_bindings(values)
+            return _dynamic_join_with_guarded_origin(
+                values,
+                result,
+                trusted_result=all(
+                    _dynamic_binding_is_proven_nonimporter(value) for value in values
+                ),
             )
-            paths: list[Mapping[str, _DynamicImportBinding]] = []
-            outer_paths: list[Mapping[str, _DynamicImportBinding]] = []
-            for comparator in node.comparators:
+        if isinstance(node, ast.Compare):
+            operands = [
                 self._expression_binding(
-                    comparator,
+                    node.left,
                     environment,
                     pending,
                     scope_info,
                     comprehension_outer=comprehension_outer,
+                )
+            ]
+            paths: list[Mapping[str, _DynamicImportBinding]] = []
+            outer_paths: list[Mapping[str, _DynamicImportBinding]] = []
+            for comparator in node.comparators:
+                operands.append(
+                    self._expression_binding(
+                        comparator,
+                        environment,
+                        pending,
+                        scope_info,
+                        comprehension_outer=comprehension_outer,
+                    )
                 )
                 paths.append(environment.copy())
                 if comprehension_outer is not None:
@@ -3703,7 +5030,18 @@ class _DynamicImportSourceScanner:
                 self._join_expression_paths(environment, paths)
             if comprehension_outer is not None and outer_paths:
                 self._join_expression_paths(comprehension_outer, outer_paths)
-            return _DYNAMIC_OTHER
+            boolean_comparisons = (ast.Is, ast.IsNot, ast.In, ast.NotIn)
+            result_is_boolean = bool(node.ops) and isinstance(node.ops[-1], boolean_comparisons)
+            literal_operands = all(
+                _dynamic_binding_literal_key_value(operand)[0] for operand in operands
+            )
+            if result_is_boolean or literal_operands:
+                return _dynamic_join_with_guarded_origin(
+                    operands,
+                    _DynamicImportBinding("boolean"),
+                    trusted_result=True,
+                )
+            return _dynamic_join_with_guarded_origin(operands, _DYNAMIC_AMBIGUOUS)
         if isinstance(node, (ast.Yield, ast.YieldFrom)):
             value_node = getattr(node, "value", None)
             value = (
@@ -3978,12 +5316,19 @@ class _DynamicImportSourceScanner:
         return frozenset(str(item.name) for item in items)
 
     @staticmethod
-    def _iterable_element_binding(binding: _DynamicImportBinding) -> _DynamicImportBinding:
+    def _iterable_element_binding(
+        binding: _DynamicImportBinding,
+    ) -> _DynamicImportBinding:
         if binding.kind in {"sequence", "iterable", "mapping"}:
             if binding.items is not None:
-                return _join_dynamic_bindings(binding.items)
-            return _DYNAMIC_AMBIGUOUS if binding.guarded else _DYNAMIC_UNKNOWN
-        return _DYNAMIC_AMBIGUOUS if binding.guarded else _DYNAMIC_UNKNOWN
+                result = _join_dynamic_bindings(binding.items)
+                return _dynamic_join_with_guarded_origin(
+                    (binding,),
+                    result,
+                    trusted_result=binding.kind == "mapping",
+                )
+            return _dynamic_join_with_guarded_origin((binding,), _DYNAMIC_UNKNOWN)
+        return _dynamic_join_with_guarded_origin((binding,), _DYNAMIC_UNKNOWN)
 
     @staticmethod
     def _refinement_expression_binding(
@@ -4161,10 +5506,11 @@ class _DynamicImportSourceScanner:
                         zip(target.elts[:star_index], items[:star_index], strict=True)
                     )
                     middle_stop = len(items) - trailing_count if trailing_count else len(items)
+                    star_items = _dynamic_sequence_binding(items[star_index:middle_stop])
                     children_list.append(
                         (
                             target.elts[star_index],
-                            _dynamic_sequence_binding(items[star_index:middle_stop]),
+                            _dynamic_join_with_guarded_origin((value,), star_items),
                         )
                     )
                     if trailing_count:
@@ -4182,7 +5528,17 @@ class _DynamicImportSourceScanner:
                 children = ()
             if children:
                 for element, child_value in children:
-                    self._assign_target(element, child_value, environment, pending, scope_info)
+                    self._assign_target(
+                        element,
+                        _dynamic_join_with_guarded_origin(
+                            (value,),
+                            child_value,
+                            trusted_result=_dynamic_binding_is_proven_nonimporter(child_value),
+                        ),
+                        environment,
+                        pending,
+                        scope_info,
+                    )
                 return
             child_value = _DYNAMIC_AMBIGUOUS if value.guarded else _DYNAMIC_UNKNOWN
             for element in target.elts:
@@ -4199,11 +5555,13 @@ class _DynamicImportSourceScanner:
             return
         if isinstance(target, ast.Attribute):
             self._reject_guarded_escape(value, target, "attribute storage")
-            self._expression_binding(target.value, environment, pending, scope_info)
+            receiver = self._expression_binding(target.value, environment, pending, scope_info)
+            self._invalidate_source_class_effects((receiver, value))
             return
         if isinstance(target, ast.Subscript):
             base = self._expression_binding(target.value, environment, pending, scope_info)
             key = self._expression_binding(target.slice, environment, pending, scope_info)
+            self._invalidate_source_class_effects((base, value))
             if base.kind in {"mapping", "namespace"}:
                 is_scope_mapping = base.origin_name is not None and base.origin_name.startswith(
                     "scope:"
@@ -4391,15 +5749,21 @@ class _DynamicImportSourceScanner:
                 *((node.args.kwarg,) if node.args.kwarg else ()),
             ):
                 if argument.annotation is not None:
-                    binding = self._expression_binding(
-                        argument.annotation, environment, pending, scope_info
-                    )
-                    self._reject_guarded_escape(
-                        binding, argument.annotation, "a function annotation"
+                    self._check_annotation(
+                        argument.annotation,
+                        environment,
+                        pending,
+                        scope_info,
+                        "a function annotation",
                     )
             if node.returns is not None:
-                binding = self._expression_binding(node.returns, environment, pending, scope_info)
-                self._reject_guarded_escape(binding, node.returns, "a function annotation")
+                self._check_annotation(
+                    node.returns,
+                    environment,
+                    pending,
+                    scope_info,
+                    "a function annotation",
+                )
             environment[node.name] = _DYNAMIC_OTHER
             pending.append(_PendingDynamicImportScope(node, environment.copy()))
             return environment
@@ -4414,7 +5778,18 @@ class _DynamicImportSourceScanner:
             for keyword in node.keywords:
                 binding = self._expression_binding(keyword.value, environment, pending, scope_info)
                 self._reject_guarded_escape(binding, keyword.value, "a class definition")
-            environment[node.name] = _DYNAMIC_OTHER
+            source_tree = (
+                self.source_bindings._module_tree(self.module_name)
+                if self.source_bindings is not None and self.module_name is not None
+                else None
+            )
+            if source_tree is not None and any(statement is node for statement in source_tree.body):
+                environment[node.name] = replace(
+                    _DYNAMIC_OTHER,
+                    origin_name=f"{self.module_name}.{node.name}",
+                )
+            else:
+                environment[node.name] = _DYNAMIC_OTHER
             pending.append(_PendingDynamicImportScope(node, environment.copy()))
             return environment
         if isinstance(node, ast.Import):
@@ -4471,8 +5846,9 @@ class _DynamicImportSourceScanner:
                 self._assign_target(target, value, environment, pending, scope_info)
             return environment
         if isinstance(node, ast.AnnAssign):
-            annotation = self._expression_binding(node.annotation, environment, pending, scope_info)
-            self._reject_guarded_escape(annotation, node.annotation, "an annotation")
+            self._check_annotation(
+                node.annotation, environment, pending, scope_info, "an annotation"
+            )
             value = (
                 self._expression_binding(node.value, environment, pending, scope_info)
                 if node.value is not None
@@ -4492,7 +5868,16 @@ class _DynamicImportSourceScanner:
             self._assign_target(node.target, value, environment, pending, scope_info)
             return environment
         if isinstance(node, ast.Expr):
-            self._expression_binding(node.value, environment, pending, scope_info)
+            if isinstance(node.value, ast.Yield | ast.YieldFrom) and node.value.value is not None:
+                yielded = self._expression_binding(
+                    node.value.value,
+                    environment,
+                    pending,
+                    scope_info,
+                )
+                self._invalidate_source_class_effects((yielded,))
+            else:
+                self._expression_binding(node.value, environment, pending, scope_info)
             return environment
         if isinstance(node, ast.Delete):
             for target in node.targets:
@@ -4648,6 +6033,7 @@ class _DynamicImportSourceScanner:
                     raise DynamicImportCollectionError(
                         f"{self.relative_path}:{node.lineno}: guarded importer value escapes through a function return"
                     )
+                self._invalidate_source_class_effects((returned,))
             return environment
         if isinstance(node, ast.Raise):
             for expression in (
@@ -4737,12 +6123,17 @@ class _DynamicImportSourceScanner:
                     middle_stop = len(items) - trailing_count if trailing_count else len(items)
                     children_list: list[tuple[ast.AST, _DynamicImportBinding]] = []
                     children_list.extend(
-                        zip(pattern.patterns[:star_index], items[:star_index], strict=True)
+                        zip(
+                            pattern.patterns[:star_index],
+                            items[:star_index],
+                            strict=True,
+                        )
                     )
+                    star_items = _dynamic_sequence_binding(items[star_index:middle_stop])
                     children_list.append(
                         (
                             pattern.patterns[star_index],
-                            _dynamic_sequence_binding(items[star_index:middle_stop]),
+                            _dynamic_join_with_guarded_origin((value,), star_items),
                         )
                     )
                     if trailing_count:
@@ -4761,7 +6152,15 @@ class _DynamicImportSourceScanner:
             if children:
                 for child_pattern, child_value in children:
                     self._bind_match_pattern(
-                        child_pattern, child_value, environment, pending, scope_info
+                        child_pattern,
+                        _dynamic_join_with_guarded_origin(
+                            (value,),
+                            child_value,
+                            trusted_result=_dynamic_binding_is_proven_nonimporter(child_value),
+                        ),
+                        environment,
+                        pending,
+                        scope_info,
                     )
             elif value.guarded:
                 for name in self._pattern_names(pattern):
@@ -5012,7 +6411,8 @@ def collect_dynamic_imports() -> list[dict[str, Any]]:
         for module in scanner._type_checking_invalidated_modules:
             shared_effect_sources.setdefault(module, set()).add(member.relative_path)
 
-    if not shared_effect_sources:
+    shared_class_effects = frozenset(source_bindings.invalidated_source_classes)
+    if not shared_effect_sources and not shared_class_effects:
         entries = first_entries
     else:
         # A different selected source module may change the process-shared
@@ -5023,7 +6423,11 @@ def collect_dynamic_imports() -> list[dict[str, Any]]:
             (module, frozenset(source_paths))
             for module, source_paths in sorted(shared_effect_sources.items())
         )
-        complete_context = replace(source_context, type_checking_effects=effects)
+        complete_context = replace(
+            source_context,
+            type_checking_effects=effects,
+            source_class_effects=shared_class_effects,
+        )
         entries = []
         for member in source_context.members:
             entries.extend(

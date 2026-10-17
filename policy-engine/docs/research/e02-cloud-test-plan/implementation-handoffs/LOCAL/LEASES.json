@@ -3534,5 +3534,26 @@
     },
     "source_freeze": false,
     "closure_ids": []
+  },
+  "coordination_epoch_20261017_causal_obsolete_backlog_retirement": {
+    "owner": "root",
+    "base": "d3318348be5d5c820b4e7445074390cf68193711",
+    "mechanism_paths": [
+      "policy-engine/architecture/name_registry.toml"
+    ],
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "separate genuineindividualexpiry/nativeGproposalreceipt"
+    ],
+    "property": "Removeonlyrename_backlog[causal] whoseemptyplaceholderpremise nolongerholds; retainliveflatpublicfacade,canonicalcatalogandshared_name coverage. AcceptedADR/currentimports/actualall-depthcollisiongate supportcompatibility; nonamespace/code/import/export change.",
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-expired-debt-audit-independent-review-20261017-r2/review.json",
+      "sha256": "c1e1910f0f8dd1dcad987fbd5b4ca12c1fe826fc14aa0e5d0ed674d8b5bf6c71"
+    },
+    "native_expiry_boundary": "Frozenfullcensus35rowinstances,31phase6.5\u219230 forcausalonly; full35\u219234 proposedremainingrows. Noexpirydate/issuerchanged,nootherrowsclosed. Fullnative lateractualreplayrequired.",
+    "bounded_last_mile": "First-levelcollector doesnotpolice nestedcausal; all-depthnamegatepositive/removebothnegative isdiscriminator.",
+    "P41": "Noinheritedredclassification, known2nativepartialownsfullgatefailure untilcompletion.",
+    "source_freeze": false,
+    "closure_ids": []
   }
 }

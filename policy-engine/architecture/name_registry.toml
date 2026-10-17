@@ -581,16 +581,6 @@ owner = "team-foundry/team-scientist"
 target_phase = "5/6"
 sunset = "2026-10-01"
 
-[[rename_backlog]]
-name = "causal"
-packages = ["foundry"]
-locations = ["src/polisyos/foundry/methods/causal"]
-action = "Remove empty Foundry methods placeholder; foundry/methods/catalog/causal remains canonical."
-replacement = "src/polisyos/foundry/methods/catalog/causal"
-owner = "team-foundry"
-target_phase = "1A"
-sunset = "2026-06-15"
-
 [[phase0_4_name_decision]]
 name = "_internal"
 decision = "scoped_ok"

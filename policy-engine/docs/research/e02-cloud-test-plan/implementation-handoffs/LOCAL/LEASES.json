@@ -3763,5 +3763,23 @@
     },
     "scope": "preserve per-resource typed owner refusal cause; all non-None supplied mappings validated and copied, malformed input never absence; no authority/currentness positive created",
     "state": "canonical focused verification pending; full native format debt retained for final agreed source batch"
+  },
+  "coordination_epoch_20261017_acquisition_route_bundle_consumers": {
+    "source_base_commit": "7043dad951b33d73548e57944ee1350d72a2bd1a",
+    "canonical_writer": "root",
+    "mechanism_paths": [
+      "policy-engine/tests/unit/runtime/http/test_acquisitions.py",
+      "policy-engine/tests/unit/runtime/http/services/test_acquisition_admission_bundle.py"
+    ],
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json"
+    ],
+    "independent_delta_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/runtime-mirror-acquisition-route-bundle-independent-review-r2-20261017/review.json",
+      "sha256": "ee5cd9b568c4b06afcac592607edfa7586ce36d75cd4a89228b7c412efaddabd"
+    },
+    "composition_delta": "Author R2 reviewed test-only pending-state assertion on older source; current source now includes independently reviewed acquisition refusal-cause implementation7043dad with fresh20casePASS. Current root replay below tests actual composed provider source, not author old36-pin frame.",
+    "scope": "real protected POST and durable CAS/event bundle, controlled local inputs; no external effect/currentness/Gclosure",
+    "state": "fresh canonical pair+Ruff pending"
   }
 }

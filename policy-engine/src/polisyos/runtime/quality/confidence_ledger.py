@@ -5639,6 +5639,7 @@ def _deployment_identity_from_baseline(deployment_baseline: str) -> str:
         {
             "current_deployment": deployment_baseline,
             "authority_import_closure": _IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE,
+            "facade_runtime_projection": _IMPORT_TIME_FACADE_RUNTIME_PROJECTION,
             "loaded_code_manifest": _IMPORT_TIME_LOADED_CODE_MANIFEST,
         },
     )
@@ -5652,9 +5653,22 @@ def _assert_loaded_runtime_matches_import_baseline(
     """Reject authority if disk or runtime differs from the importing process."""
 
     _assert_ledger_artifact_contracts_current()
-    loaded_code_manifest, loaded_code_consistent = _loaded_code_manifest(
+    facade_projection, supplemental_closure = _source_facade_runtime_projection(
         repo_root,
         _derived_authority_import_closure(repo_root),
+    )
+    runtime_closure = _combined_runtime_code_closure(
+        _IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE,
+        supplemental_closure,
+    )
+    if (
+        facade_projection != _IMPORT_TIME_FACADE_RUNTIME_PROJECTION
+        or runtime_closure != _IMPORT_TIME_RUNTIME_CODE_CLOSURE
+    ):
+        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+    loaded_code_manifest, loaded_code_consistent = _loaded_code_manifest(
+        repo_root,
+        runtime_closure,
     )
     if (
         deployment_baseline or _deployment_baseline(repo_root)
@@ -5758,12 +5772,30 @@ def _deployment_relative_paths_from_closure(
     return (Path("pyproject.toml"), Path("uv.lock"), *source_paths)
 
 
+def _combined_runtime_code_closure(
+    closure: tuple[tuple[str, str], ...],
+    supplemental: tuple[tuple[str, str], ...],
+) -> tuple[tuple[str, str], ...]:
+    """Combine source-selected modules and source-bound cached-export owners."""
+
+    combined = dict(closure)
+    for module_name, relative_path in supplemental:
+        existing = combined.get(module_name)
+        if existing is not None and existing != relative_path:
+            raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+        combined[module_name] = relative_path
+    return tuple(sorted(combined.items()))
+
+
 @dataclass(frozen=True, slots=True)
 class _LiteralModuleGetattrProviderIndex:
     """Index literal PEP 562 providers found in one parsed source module."""
 
     providers_by_export: Mapping[str, frozenset[str]]
     invalid_exports: frozenset[str]
+    provider_symbols_by_export: Mapping[str, frozenset[str]] | None = None
+    generated_mapping_dispatch: bool = False
+    mapping_names: frozenset[str] = frozenset()
 
 
 @dataclass(slots=True)
@@ -5956,7 +5988,17 @@ def _literal_module_getattr_provider(
             f"ambiguous repository re-export: {module_name}.{export_name}",
         )
     provider = next(iter(providers), None)
+    if provider is None and provider_index.generated_mapping_dispatch:
+        raise ConfidenceLedgerError(
+            "canonical_loaded_runtime_mismatch",
+            f"missing repository re-export binding: {module_name}.{export_name}",
+        )
     if provider is not None and provider.startswith("."):
+        if Path(relative).name != "__init__.py":
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch",
+                f"relative repository re-export is not package-bound: {module_name}.{export_name}",
+            )
         try:
             provider = importlib.util.resolve_name(provider, module_name)
         except (ImportError, TypeError, ValueError) as exc:
@@ -5964,6 +6006,26 @@ def _literal_module_getattr_provider(
                 "canonical_loaded_runtime_mismatch",
                 f"ambiguous relative repository re-export: {module_name}.{export_name}",
             ) from exc
+    if provider is not None and _repository_module_root(provider) in {"polisyos", "tools"}:
+        provider_symbols = provider_index.provider_symbols_by_export or {}
+        symbols = provider_symbols.get(export_name, frozenset({export_name}))
+        if len(symbols) != 1:
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch",
+                f"ambiguous repository re-export binding: {module_name}.{export_name}",
+            )
+        provider_symbol = next(iter(symbols))
+        if not _repository_module_exports_symbol(
+            repo_root,
+            provider,
+            provider_symbol,
+            directory_entries=directory_entries,
+            source_index=source_index,
+        ):
+            raise ConfidenceLedgerError(
+                "canonical_loaded_runtime_mismatch",
+                f"repository re-export target does not bind: {provider}.{provider_symbol}",
+            )
     return provider
 
 
@@ -5987,8 +6049,12 @@ def _source_scope_nodes(
         pending.extend(reversed(children))
 
 
-def _source_scope_bound_names(nodes: Iterable[ast.AST]) -> frozenset[str]:
-    """Return names bound in a source scope, excluding nested definition bodies."""
+def _source_scope_bound_names(
+    nodes: Iterable[ast.AST],
+    *,
+    include_imports: bool = True,
+) -> frozenset[str]:
+    """Return names bound in one source scope, excluding nested definition bodies."""
 
     bound: set[str] = set()
     for node in _source_scope_nodes(nodes):
@@ -5996,10 +6062,13 @@ def _source_scope_bound_names(nodes: Iterable[ast.AST]) -> frozenset[str]:
             bound.add(node.id)
         elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
             bound.add(node.name)
-        elif isinstance(node, ast.Import):
+        elif isinstance(node, ast.Import) and include_imports:
             bound.update(alias.asname or alias.name.partition(".")[0] for alias in node.names)
-        elif isinstance(node, ast.ImportFrom):
+        elif isinstance(node, ast.ImportFrom) and include_imports:
             bound.update(alias.asname or alias.name for alias in node.names if alias.name != "*")
+        elif isinstance(node, (ast.ExceptHandler, ast.MatchAs, ast.MatchStar)):
+            if node.name is not None:
+                bound.add(node.name)
         elif isinstance(node, (ast.Global, ast.Nonlocal)):
             bound.update(node.names)
     return frozenset(bound)
@@ -6070,20 +6139,30 @@ def _literal_import_helper_bindings(
     tree: ast.Module,
     function: ast.FunctionDef | ast.AsyncFunctionDef,
 ) -> tuple[frozenset[str], frozenset[str]]:
-    """Find unconditional module-scope importlib aliases without local shadows."""
+    """Find direct importlib aliases without possible scope rebinding."""
 
     functions: set[str] = set()
     modules: set[str] = set()
-    module_import_counts: dict[str, int] = {}
-    for node in _source_scope_nodes(tree.body):
+    imported_bindings: dict[str, set[str]] = {}
+    module_scope = tuple(_source_scope_nodes(tree.body))
+    if any(
+        isinstance(node, ast.ImportFrom) and any(alias.name == "*" for alias in node.names)
+        for node in module_scope
+    ):
+        return frozenset(), frozenset()
+    for node in module_scope:
         if isinstance(node, ast.ImportFrom):
             for alias in node.names:
                 bound_name = alias.asname or alias.name
-                module_import_counts[bound_name] = module_import_counts.get(bound_name, 0) + 1
+                imported_bindings.setdefault(bound_name, set()).add(
+                    f"{node.module}.{alias.name}" if node.module else alias.name
+                )
         elif isinstance(node, ast.Import):
             for alias in node.names:
                 bound_name = alias.asname or alias.name.partition(".")[0]
-                module_import_counts[bound_name] = module_import_counts.get(bound_name, 0) + 1
+                imported_bindings.setdefault(bound_name, set()).add(
+                    alias.name if alias.asname else alias.name.partition(".")[0]
+                )
 
     for node in tree.body:
         if isinstance(node, ast.ImportFrom) and node.module == "importlib":
@@ -6092,19 +6171,16 @@ def _literal_import_helper_bindings(
             )
         elif isinstance(node, ast.Import):
             modules.update(
-                alias.asname or "importlib" for alias in node.names if alias.name == "importlib"
+                alias.asname or "importlib"
+                for alias in node.names
+                if alias.name == "importlib" or alias.name.startswith("importlib.")
+                if not alias.asname or alias.name == "importlib"
             )
 
-    module_stores = {
-        node.id
-        for node in _source_scope_nodes(tree.body)
-        if isinstance(node, ast.Name) and isinstance(node.ctx, (ast.Store, ast.Del))
-    }
-    local_stores = {
-        node.id
-        for node in _source_scope_nodes(function.body)
-        if isinstance(node, ast.Name) and isinstance(node.ctx, (ast.Store, ast.Del))
-    }
+    # Imports are inventoried separately above; every other binding form in
+    # this executable scope can replace the imported helper at runtime.
+    module_stores = _source_scope_bound_names(tree.body, include_imports=False)
+    local_stores = _source_scope_bound_names(function.body, include_imports=False)
     local_imports: set[str] = set()
     for node in _source_scope_nodes(function.body):
         if isinstance(node, ast.Import):
@@ -6129,63 +6205,11 @@ def _literal_import_helper_bindings(
         parameters.add(function.args.kwarg.arg)
     shadows = module_stores | local_stores | local_imports | parameters
     for alias in functions | modules:
-        if module_import_counts.get(alias) != 1 or alias in shadows:
+        expected_binding = "importlib.import_module" if alias in functions else "importlib"
+        if imported_bindings.get(alias) != {expected_binding} or alias in shadows:
             functions.discard(alias)
             modules.discard(alias)
     return frozenset(functions), frozenset(modules)
-
-
-def _literal_source_module_target(
-    call: ast.Call,
-    imported_functions: frozenset[str],
-    imported_modules: frozenset[str],
-    *,
-    builtin_import_unshadowed: bool,
-) -> tuple[bool, str | None]:
-    """Resolve a declared literal importlib or absolute __import__ target."""
-
-    function = call.func
-    imported_function = isinstance(function, ast.Name) and function.id in imported_functions
-    imported_module_function = (
-        isinstance(function, ast.Attribute)
-        and function.attr == "import_module"
-        and isinstance(function.value, ast.Name)
-        and function.value.id in imported_modules
-    )
-    builtin_import = (
-        builtin_import_unshadowed and isinstance(function, ast.Name) and function.id == "__import__"
-    )
-    if not (imported_function or imported_module_function or builtin_import):
-        return False, None
-    if not call.args or not isinstance(call.args[0], ast.Constant):
-        return True, None
-    target = call.args[0].value
-    if not isinstance(target, str):
-        return True, None
-    if target.startswith("."):
-        package = call.args[1] if len(call.args) > 1 else None
-        valid_package = isinstance(package, ast.Name) and package.id in {"__name__", "__package__"}
-        if not (imported_function or imported_module_function) or not valid_package:
-            return True, None
-    return True, target
-
-
-def _simple_assignment(node: ast.AST) -> tuple[str, ast.expr] | None:
-    """Return one simple assignment binding, excluding destructuring."""
-
-    if (
-        isinstance(node, ast.Assign)
-        and len(node.targets) == 1
-        and isinstance(node.targets[0], ast.Name)
-    ):
-        return node.targets[0].id, node.value
-    if (
-        isinstance(node, ast.AnnAssign)
-        and isinstance(node.target, ast.Name)
-        and node.value is not None
-    ):
-        return node.target.id, node.value
-    return None
 
 
 def _dynamic_getattr_name(node: ast.AST, parameter_name: str) -> bool:
@@ -6201,8 +6225,1456 @@ def _dynamic_getattr_name(node: ast.AST, parameter_name: str) -> bool:
     )
 
 
+_UNKNOWN_SOURCE_LITERAL = object()
+_STATIC_FACADE_UNKNOWN = _UNKNOWN_SOURCE_LITERAL
+
+
+def _literal_facade_mapping_names(tree: ast.Module) -> frozenset[str]:
+    """Return map names from the canonical bounded provider analysis."""
+
+    return _literal_module_getattr_provider_index(tree).mapping_names
+
+
+def _literal_facade_mapping_values(
+    tree: ast.Module,
+    mapping_names: frozenset[str],
+) -> tuple[dict[str, dict[str, object]], bool]:
+    """Compatibility facade over the canonical source-map effect transfer."""
+
+    maps, invalid = _static_facade_mapping_values(tree, mapping_names)
+    return maps, not invalid and len(maps) == len(mapping_names)
+
+
+def _literal_facade_provider_target(key: str, value: object) -> tuple[str, str] | None:
+    """Decode the supported module or ``(module, symbol)`` source-map value."""
+
+    if type(value) is str:
+        return value, key
+    if (
+        type(value) in {tuple, list}
+        and len(value) == 2
+        and all(type(item) is str for item in value)
+    ):
+        return value[0], value[1]
+    return None
+
+
+def _literal_source_expression(
+    node: ast.AST,
+    values: Mapping[str, object],
+    *,
+    depth: int = 0,
+) -> object:
+    """Evaluate the inert expression fragment used to construct facade maps."""
+
+    if depth > 80:
+        return _UNKNOWN_SOURCE_LITERAL
+    try:
+        return ast.literal_eval(node)
+    except (ValueError, TypeError, SyntaxError, MemoryError):
+        pass
+    if isinstance(node, ast.Name):
+        return values.get(node.id, _UNKNOWN_SOURCE_LITERAL)
+    if isinstance(node, (ast.List, ast.Tuple, ast.Set)):
+        items: list[object] = []
+        for element in node.elts:
+            value_node = element.value if isinstance(element, ast.Starred) else element
+            value = _literal_source_expression(value_node, values, depth=depth + 1)
+            if value is _UNKNOWN_SOURCE_LITERAL:
+                return _UNKNOWN_SOURCE_LITERAL
+            if isinstance(element, ast.Starred):
+                if type(value) not in {list, tuple, set, frozenset} or len(value) > 10000:
+                    return _UNKNOWN_SOURCE_LITERAL
+                items.extend(value)
+            else:
+                items.append(value)
+        if len(items) > 10000:
+            return _UNKNOWN_SOURCE_LITERAL
+        if isinstance(node, ast.List):
+            return items
+        if isinstance(node, ast.Tuple):
+            return tuple(items)
+        try:
+            return set(items)
+        except (TypeError, ValueError):
+            return _UNKNOWN_SOURCE_LITERAL
+    if isinstance(node, ast.Dict):
+        result: dict[object, object] = {}
+        for key_node, value_node in zip(node.keys, node.values, strict=True):
+            value = _literal_source_expression(value_node, values, depth=depth + 1)
+            if value is _UNKNOWN_SOURCE_LITERAL:
+                return _UNKNOWN_SOURCE_LITERAL
+            if key_node is None:
+                if type(value) is not dict or len(result) + len(value) > 10000:
+                    return _UNKNOWN_SOURCE_LITERAL
+                result.update(value)
+                continue
+            key = _literal_source_expression(key_node, values, depth=depth + 1)
+            if key is _UNKNOWN_SOURCE_LITERAL:
+                return _UNKNOWN_SOURCE_LITERAL
+            try:
+                result[key] = value
+            except (TypeError, ValueError):
+                return _UNKNOWN_SOURCE_LITERAL
+            if len(result) > 10000:
+                return _UNKNOWN_SOURCE_LITERAL
+        return result
+    if isinstance(node, ast.JoinedStr):
+        parts: list[str] = []
+        for value in node.values:
+            if isinstance(value, ast.Constant) and isinstance(value.value, str):
+                parts.append(value.value)
+                continue
+            if not (
+                isinstance(value, ast.FormattedValue)
+                and value.conversion == -1
+                and value.format_spec is None
+            ):
+                return _UNKNOWN_SOURCE_LITERAL
+            formatted = _literal_source_expression(
+                value.value,
+                values,
+                depth=depth + 1,
+            )
+            if type(formatted) not in {str, int, float, bool}:
+                return _UNKNOWN_SOURCE_LITERAL
+            parts.append(str(formatted))
+        return "".join(parts)
+    if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Add):
+        left = _literal_source_expression(node.left, values, depth=depth + 1)
+        right = _literal_source_expression(node.right, values, depth=depth + 1)
+        if isinstance(left, str) and isinstance(right, str):
+            return left + right
+        if isinstance(left, tuple) and isinstance(right, tuple):
+            return (*left, *right)
+        if isinstance(left, list) and isinstance(right, list):
+            return [*left, *right]
+    if isinstance(node, ast.Subscript):
+        value = _literal_source_expression(node.value, values, depth=depth + 1)
+        key = _literal_source_expression(node.slice, values, depth=depth + 1)
+        if isinstance(value, dict) and key is not _UNKNOWN_SOURCE_LITERAL:
+            return value.get(key, _UNKNOWN_SOURCE_LITERAL)
+        if isinstance(value, (tuple, list)) and isinstance(key, int):
+            try:
+                return value[key]
+            except IndexError:
+                return _UNKNOWN_SOURCE_LITERAL
+    if isinstance(node, ast.IfExp):
+        condition = _literal_source_expression(node.test, values, depth=depth + 1)
+        if type(condition) is bool:
+            return _literal_source_expression(
+                node.body if condition else node.orelse,
+                values,
+                depth=depth + 1,
+            )
+        return _UNKNOWN_SOURCE_LITERAL
+    if isinstance(node, ast.Compare) and len(node.ops) == 1 and len(node.comparators) == 1:
+        left = _literal_source_expression(node.left, values, depth=depth + 1)
+        right = _literal_source_expression(node.comparators[0], values, depth=depth + 1)
+        if left is _UNKNOWN_SOURCE_LITERAL or right is _UNKNOWN_SOURCE_LITERAL:
+            return _UNKNOWN_SOURCE_LITERAL
+        try:
+            if isinstance(node.ops[0], ast.Eq):
+                return left == right
+            if isinstance(node.ops[0], ast.In):
+                return left in right
+            if isinstance(node.ops[0], ast.NotIn):
+                return left not in right
+        except (TypeError, ValueError):
+            return _UNKNOWN_SOURCE_LITERAL
+    if isinstance(node, ast.DictComp):
+        result: dict[object, object] = {}
+
+        def bind_target(target: ast.AST, value: object, local: dict[str, object]) -> bool:
+            if isinstance(target, ast.Name):
+                local[target.id] = value
+                return True
+            if (
+                isinstance(target, (ast.Tuple, ast.List))
+                and isinstance(value, (tuple, list))
+                and len(target.elts) == len(value)
+            ):
+                return all(
+                    bind_target(item_target, item_value, local)
+                    for item_target, item_value in zip(target.elts, value, strict=True)
+                )
+            return False
+
+        remaining_steps = [10000]
+
+        def visit(index: int, local: dict[str, object]) -> bool:
+            if depth + index > 80 or index > len(node.generators):
+                return False
+            if index == len(node.generators):
+                remaining_steps[0] -= 1
+                if remaining_steps[0] < 0:
+                    return False
+                key = _literal_source_expression(node.key, local, depth=depth + 1)
+                value = _literal_source_expression(node.value, local, depth=depth + 1)
+                if key is _UNKNOWN_SOURCE_LITERAL or value is _UNKNOWN_SOURCE_LITERAL:
+                    return False
+                try:
+                    result[key] = value
+                except (TypeError, ValueError):
+                    return False
+                return len(result) <= 10000
+            generator = node.generators[index]
+            iterable = _literal_source_expression(generator.iter, local, depth=depth + 1)
+            if type(iterable) not in {tuple, list, dict} or len(iterable) > 10000:
+                return False
+            for item in iterable:
+                remaining_steps[0] -= 1
+                if remaining_steps[0] < 0:
+                    return False
+                nested = dict(local)
+                if not bind_target(generator.target, item, nested):
+                    return False
+                accepted = True
+                for condition in generator.ifs:
+                    condition_value = _literal_source_expression(
+                        condition,
+                        nested,
+                        depth=depth + 1,
+                    )
+                    if type(condition_value) is not bool:
+                        return False
+                    if not condition_value:
+                        accepted = False
+                        break
+                if accepted and not visit(index + 1, nested):
+                    return False
+            return True
+
+        if not node.generators or len(node.generators) > 80 or not visit(0, dict(values)):
+            return _UNKNOWN_SOURCE_LITERAL
+        return result
+    return _UNKNOWN_SOURCE_LITERAL
+
+
+def _literal_source_iteration(
+    node: ast.AST, values: Mapping[str, object]
+) -> tuple[object, ...] | None:
+    """Return a finite ordered literal iteration source without executing code."""
+
+    if (
+        isinstance(node, ast.Call)
+        and isinstance(node.func, ast.Attribute)
+        and node.func.attr == "items"
+        and not node.args
+        and not node.keywords
+    ):
+        source = _literal_source_expression(node.func.value, values)
+        if isinstance(source, dict) and len(source) <= 10000:
+            return tuple(source.items())
+        return None
+    source = _literal_source_expression(node, values)
+    if isinstance(source, (tuple, list)) and len(source) <= 10000:
+        return tuple(source)
+    return None
+
+
+def _source_target_names(target: ast.AST) -> tuple[str, ...]:
+    """Return names bound by one assignment target."""
+
+    if isinstance(target, ast.Name):
+        return (target.id,)
+    if isinstance(target, (ast.Tuple, ast.List)):
+        return tuple(name for item in target.elts for name in _source_target_names(item))
+    return ()
+
+
+def _static_facade_mapping_values(
+    tree: ast.Module,
+    mapping_names: frozenset[str],
+) -> tuple[dict[str, dict[str, object]], frozenset[str]]:
+    """Recompute bounded module-scope literal maps with expression-effect transfer."""
+
+    values: dict[str, object] = {}
+    invalid: set[str] = set()
+    supported_mapping_stores: set[int] = set()
+    type_checking_names: set[str] = set()
+    typing_module_names: set[str] = set()
+    future_annotations = any(
+        isinstance(statement, ast.ImportFrom)
+        and statement.module == "__future__"
+        and any(alias.name == "annotations" for alias in statement.names)
+        for statement in tree.body
+    )
+    lazy_annotations = future_annotations or sys.version_info[:2] == (3, 14)
+    module_bound_names = _source_scope_bound_names(tree.body)
+
+    def target_root_names(target: ast.AST) -> tuple[str, ...]:
+        if isinstance(target, ast.Name):
+            return (target.id,)
+        if isinstance(target, (ast.Tuple, ast.List)):
+            return tuple(name for item in target.elts for name in target_root_names(item))
+        if isinstance(target, (ast.Subscript, ast.Attribute)):
+            return target_root_names(target.value)
+        return ()
+
+    def clear_import_identity(name: str) -> None:
+        type_checking_names.discard(name)
+        typing_module_names.discard(name)
+
+    def assign_target(target: ast.AST, value: object) -> bool:
+        if isinstance(target, ast.Name):
+            clear_import_identity(target.id)
+            values[target.id] = value
+            if target.id in mapping_names:
+                supported_mapping_stores.add(id(target))
+                if type(value) is not dict:
+                    invalid.add(target.id)
+            return True
+        if isinstance(target, ast.Subscript) and isinstance(target.value, ast.Name):
+            mapping_name = target.value.id
+            current = values.get(mapping_name, _UNKNOWN_SOURCE_LITERAL)
+            key = _literal_source_expression(target.slice, values)
+            if (
+                type(current) is dict
+                and key is not _UNKNOWN_SOURCE_LITERAL
+                and value is not _UNKNOWN_SOURCE_LITERAL
+            ):
+                try:
+                    current[key] = value
+                except (TypeError, ValueError):
+                    invalid.add(mapping_name)
+                    return False
+                if mapping_name in mapping_names:
+                    supported_mapping_stores.add(id(target))
+                return True
+            if isinstance(current, (dict, list, set)):
+                # Nested mutable containers are outside the finite map-builder grammar;
+                # a stored map may be reachable through them.
+                invalid.update(mapping_names)
+            poison_name(mapping_name)
+            return False
+        if isinstance(target, ast.Subscript):
+            names = target_root_names(target.value)
+            for name in names:
+                poison_name(name)
+            invalid.update(mapping_names)
+            return False
+        if isinstance(target, (ast.Tuple, ast.List)) and isinstance(value, (tuple, list)):
+            if len(target.elts) != len(value):
+                return False
+            return all(
+                assign_target(item, part) for item, part in zip(target.elts, value, strict=True)
+            )
+        invalid.update(mapping_names)
+        return False
+
+    def written_names(node: ast.AST) -> set[str]:
+        """Return names whose current values may change in one bounded statement."""
+
+        names: set[str] = set()
+        for child in _source_scope_nodes((node,)):
+            if isinstance(child, ast.Name) and isinstance(child.ctx, (ast.Store, ast.Del)):
+                names.add(child.id)
+            elif isinstance(child, ast.Subscript) and isinstance(child.ctx, (ast.Store, ast.Del)):
+                names.update(target_root_names(child.value))
+            elif isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+                names.add(child.name)
+            elif isinstance(child, ast.Import):
+                names.update(alias.asname or alias.name.partition(".")[0] for alias in child.names)
+            elif isinstance(child, ast.ImportFrom):
+                names.update(
+                    alias.asname or alias.name for alias in child.names if alias.name != "*"
+                )
+            elif (
+                isinstance(child, ast.Call)
+                and isinstance(child.func, ast.Attribute)
+                and child.func.attr not in {"items", "keys", "values", "get", "copy"}
+                and isinstance(child.func.value, ast.Name)
+            ):
+                # Unknown receiver methods may mutate the receiver; only the small
+                # mapping-read surface used by the literal grammar is treated as pure.
+                names.add(child.func.value.id)
+        return names
+
+    def poison_name(name: str) -> None:
+        """Invalidate a written name and aliases to its mutable literal value."""
+
+        clear_import_identity(name)
+        value = values.get(name, _UNKNOWN_SOURCE_LITERAL)
+        affected = {name}
+        if isinstance(value, (dict, list, set)):
+            affected.update(alias for alias, candidate in values.items() if candidate is value)
+        for affected_name in affected:
+            values[affected_name] = _UNKNOWN_SOURCE_LITERAL
+            if affected_name in mapping_names:
+                invalid.add(affected_name)
+
+    def poison_all_maps() -> None:
+        """Mark every source-derived map unknown after an unmodeled expression effect."""
+
+        invalid.update(mapping_names)
+
+    def map_reaches_object(value: object, seen: set[int] | None = None) -> bool:
+        """Return whether a mutable object is reachable from a tracked provider map."""
+
+        if seen is None:
+            seen = set()
+        if id(value) in seen:
+            return False
+        seen.add(id(value))
+        if any(values.get(name) is value for name in mapping_names):
+            return True
+        if type(value) is dict:
+            return any(
+                map_reaches_object(key, seen) or map_reaches_object(item, seen)
+                for key, item in value.items()
+            )
+        if type(value) in {list, tuple, set, frozenset}:
+            return any(map_reaches_object(item, seen) for item in value)
+        return False
+
+    def transfer_exact_call(call: ast.Call) -> bool:
+        """Apply one call only when callee/receiver identity and arguments are proven."""
+
+        function = call.func
+        if (
+            isinstance(function, ast.Name)
+            and function.id == "frozenset"
+            and "frozenset" not in module_bound_names
+            and len(call.args) == 1
+            and not call.keywords
+        ):
+            source = _literal_source_expression(call.args[0], values)
+            return type(source) in {set, frozenset, tuple, list} and len(source) <= 10000
+
+        if not isinstance(function, ast.Attribute) or not isinstance(function.value, ast.Name):
+            return False
+        receiver_name = function.value.id
+        receiver = values.get(receiver_name, _UNKNOWN_SOURCE_LITERAL)
+        if receiver is _UNKNOWN_SOURCE_LITERAL:
+            return False
+
+        if (
+            function.attr == "items"
+            and type(receiver) is dict
+            and not call.args
+            and not call.keywords
+        ):
+            return True
+
+        if (
+            function.attr == "update"
+            and type(receiver) is dict
+            and len(call.args) == 1
+            and not call.keywords
+        ):
+            update = _literal_source_expression(call.args[0], values)
+            if type(update) is not dict or len(update) > 10000:
+                return False
+            if any(name in invalid and values.get(name) is receiver for name in mapping_names):
+                return False
+            receiver.update(update)
+            for name in mapping_names:
+                if values.get(name) is receiver:
+                    supported_mapping_stores.add(id(call))
+            return True
+
+        if (
+            function.attr == "extend"
+            and type(receiver) is list
+            and len(call.args) == 1
+            and not call.keywords
+            and not map_reaches_object(receiver)
+        ):
+            extension = _literal_source_expression(call.args[0], values)
+            if type(extension) not in {list, tuple} or len(extension) > 10000:
+                return False
+            receiver.extend(extension)
+            return True
+        return False
+
+    def inspect_runtime_expression(node: ast.AST) -> None:
+        """Transfer effects of expressions evaluated by module initialization."""
+
+        if isinstance(node, ast.Lambda):
+            for default in (*node.args.defaults, *node.args.kw_defaults):
+                if default is not None:
+                    inspect_runtime_expression(default)
+            return
+        if isinstance(node, ast.DictComp):
+            # A pure finite dict comprehension is admitted only when the exact
+            # literal evaluator resolves every iterable, filter, key, and value.
+            if type(_literal_source_expression(node, values)) is not dict:
+                poison_all_maps()
+            return
+        if isinstance(node, (ast.ListComp, ast.SetComp, ast.GeneratorExp)):
+            # These comprehension forms remain outside the finite map grammar.
+            poison_all_maps()
+            return
+        if isinstance(node, ast.NamedExpr):
+            inspect_runtime_expression(node.value)
+            poison_name(node.target.id) if isinstance(node.target, ast.Name) else None
+            poison_all_maps()
+            return
+        if isinstance(node, ast.Call):
+            if isinstance(node.func, ast.Attribute):
+                inspect_runtime_expression(node.func.value)
+            else:
+                inspect_runtime_expression(node.func)
+            for argument in node.args:
+                inspect_runtime_expression(argument)
+            for keyword in node.keywords:
+                inspect_runtime_expression(keyword.value)
+            if not transfer_exact_call(node):
+                poison_unsupported_effect(node)
+            return
+        if isinstance(node, ast.Attribute):
+            inspect_runtime_expression(node.value)
+            # A free attribute read can invoke module/object lookup behavior. The
+            # bounded grammar only permits attributes as part of a proven exact call.
+            poison_all_maps()
+            return
+        if isinstance(node, ast.Subscript):
+            inspect_runtime_expression(node.value)
+            inspect_runtime_expression(node.slice)
+            if _literal_source_expression(node, values) is _UNKNOWN_SOURCE_LITERAL:
+                poison_all_maps()
+            return
+        if isinstance(node, (ast.BinOp, ast.UnaryOp, ast.Compare, ast.BoolOp, ast.IfExp)):
+            for child in ast.iter_child_nodes(node):
+                if isinstance(child, ast.expr):
+                    inspect_runtime_expression(child)
+            if _literal_source_expression(node, values) is _UNKNOWN_SOURCE_LITERAL:
+                poison_all_maps()
+            return
+        if isinstance(node, ast.Dict):
+            for key, value in zip(node.keys, node.values, strict=True):
+                if key is None:
+                    poison_all_maps()
+                else:
+                    inspect_runtime_expression(key)
+                inspect_runtime_expression(value)
+            return
+        if isinstance(node, (ast.Tuple, ast.List, ast.Set)):
+            for item in node.elts:
+                inspect_runtime_expression(item)
+            if (
+                isinstance(node, ast.Set)
+                and _literal_source_expression(node, values) is _UNKNOWN_SOURCE_LITERAL
+            ):
+                poison_all_maps()
+            return
+        if isinstance(node, ast.JoinedStr):
+            for item in node.values:
+                if isinstance(item, ast.FormattedValue):
+                    inspect_runtime_expression(item.value)
+                    if item.format_spec is not None:
+                        inspect_runtime_expression(item.format_spec)
+                else:
+                    inspect_runtime_expression(item)
+            if _literal_source_expression(node, values) is _UNKNOWN_SOURCE_LITERAL:
+                poison_all_maps()
+            return
+        if isinstance(node, ast.FormattedValue):
+            inspect_runtime_expression(node.value)
+            if node.format_spec is not None:
+                inspect_runtime_expression(node.format_spec)
+            if _literal_source_expression(node, values) is _UNKNOWN_SOURCE_LITERAL:
+                poison_all_maps()
+            return
+        if isinstance(node, ast.Starred):
+            inspect_runtime_expression(node.value)
+            value = _literal_source_expression(node.value, values)
+            if type(value) not in {tuple, list, set, frozenset}:
+                poison_all_maps()
+            return
+        if isinstance(node, ast.expr):
+            if isinstance(node, (ast.Constant, ast.Name)):
+                return
+            poison_all_maps()
+
+    def inspect_target_effects(target: ast.AST) -> None:
+        """Inspect Python-evaluated receiver/index expressions in a store target."""
+
+        if isinstance(target, (ast.Tuple, ast.List)):
+            for item in target.elts:
+                inspect_target_effects(item)
+        elif isinstance(target, ast.Subscript):
+            inspect_runtime_expression(target.value)
+            inspect_runtime_expression(target.slice)
+        elif isinstance(target, ast.Attribute):
+            inspect_runtime_expression(target.value)
+            poison_all_maps()
+
+    def definition_time_expressions(node: ast.AST) -> tuple[ast.expr, ...]:
+        """Return decorator/default expressions executed while a definition is made."""
+
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            arguments = node.args
+            eager = [*node.decorator_list, *arguments.defaults]
+            eager.extend(default for default in arguments.kw_defaults if default is not None)
+            if not lazy_annotations:
+                eager.extend(
+                    annotation
+                    for argument in (
+                        *arguments.posonlyargs,
+                        *arguments.args,
+                        *arguments.kwonlyargs,
+                    )
+                    if (annotation := argument.annotation) is not None
+                )
+                if arguments.vararg is not None and arguments.vararg.annotation is not None:
+                    eager.append(arguments.vararg.annotation)
+                if arguments.kwarg is not None and arguments.kwarg.annotation is not None:
+                    eager.append(arguments.kwarg.annotation)
+                if node.returns is not None:
+                    eager.append(node.returns)
+            return tuple(eager)
+        if isinstance(node, ast.Lambda):
+            return tuple(
+                expression
+                for expression in (*node.args.defaults, *node.args.kw_defaults)
+                if expression is not None
+            )
+        return ()
+
+    def poison_unsupported_effect(node: ast.AST) -> None:
+        """Fail closed when unmodeled execution can affect module-level map state."""
+
+        scoped_nodes = tuple(_source_scope_nodes((node,)))
+        for name in written_names(node):
+            poison_name(name)
+        for child in scoped_nodes:
+            if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda)):
+                for expression in definition_time_expressions(child):
+                    inspect_runtime_expression(expression)
+            elif isinstance(child, ast.ClassDef):
+                # Class bodies execute immediately; no class-scope transfer is modeled.
+                poison_all_maps()
+        # An unknown branch may create an alias to any mutable literal read by an
+        # assignment, then mutate that alias later. Poison the source object too so a
+        # stale original name cannot still feed a provider map.
+        for child in scoped_nodes:
+            if (
+                isinstance(child, (ast.Assign, ast.AnnAssign, ast.NamedExpr))
+                and child.value is not None
+            ):
+                for value_node in _source_scope_nodes((child.value,)):
+                    if (
+                        isinstance(value_node, ast.Name)
+                        and isinstance(value_node.ctx, ast.Load)
+                        and isinstance(values.get(value_node.id), (dict, list, set))
+                    ):
+                        poison_name(value_node.id)
+        if any(
+            isinstance(child, ast.Subscript)
+            and isinstance(child.ctx, (ast.Store, ast.Del))
+            and not isinstance(child.value, ast.Name)
+            for child in scoped_nodes
+        ) or any(
+            isinstance(child, ast.Attribute) and isinstance(child.ctx, (ast.Store, ast.Del))
+            for child in scoped_nodes
+        ):
+            poison_all_maps()
+        if any(isinstance(child, ast.Call) for child in scoped_nodes):
+            # An opaque import-time call may mutate globals or a mutable input through an
+            # alias. The finite evaluator cannot prove that effect absent, so no derived
+            # provider map from this module remains authoritative.
+            poison_all_maps()
+
+    def bind_import(statement: ast.Import | ast.ImportFrom) -> None:
+        if isinstance(statement, ast.Import):
+            for alias in statement.names:
+                bound = alias.asname or alias.name.partition(".")[0]
+                clear_import_identity(bound)
+                values[bound] = _UNKNOWN_SOURCE_LITERAL
+                imported = alias.name if alias.asname else alias.name.partition(".")[0]
+                if imported == "typing":
+                    typing_module_names.add(bound)
+        else:
+            for alias in statement.names:
+                bound = alias.asname or alias.name
+                clear_import_identity(bound)
+                if alias.name == "*":
+                    poison_all_maps()
+                    continue
+                if (
+                    statement.module in {"typing", "typing_extensions"}
+                    and alias.name == "TYPE_CHECKING"
+                ):
+                    type_checking_names.add(bound)
+                    values[bound] = False
+                else:
+                    values[bound] = _UNKNOWN_SOURCE_LITERAL
+
+    def execute(statements: Iterable[ast.stmt]) -> None:
+        for statement in statements:
+            if isinstance(statement, ast.Assign):
+                inspect_runtime_expression(statement.value)
+                value = _literal_source_expression(statement.value, values)
+                for target in statement.targets:
+                    inspect_target_effects(target)
+                    if not assign_target(target, value):
+                        for name in _source_target_names(target):
+                            poison_name(name)
+            elif isinstance(statement, ast.AnnAssign):
+                if not lazy_annotations:
+                    inspect_runtime_expression(statement.annotation)
+                if statement.value is not None:
+                    inspect_runtime_expression(statement.value)
+                value = (
+                    _literal_source_expression(statement.value, values)
+                    if statement.value is not None
+                    else _UNKNOWN_SOURCE_LITERAL
+                )
+                inspect_target_effects(statement.target)
+                if not assign_target(statement.target, value):
+                    for name in _source_target_names(statement.target):
+                        poison_name(name)
+            elif isinstance(statement, ast.For):
+                inspect_runtime_expression(statement.iter)
+                members = _literal_source_iteration(statement.iter, values)
+                if members is None:
+                    poison_unsupported_effect(statement)
+                    poison_all_maps()
+                    continue
+                for member in members:
+                    inspect_target_effects(statement.target)
+                    assign_target(statement.target, member)
+                    execute(statement.body)
+                execute(statement.orelse)
+            elif isinstance(statement, ast.Expr):
+                inspect_runtime_expression(statement.value)
+            elif isinstance(statement, ast.If):
+                if (
+                    isinstance(statement.test, ast.Name)
+                    and statement.test.id in type_checking_names
+                ) or (
+                    isinstance(statement.test, ast.Attribute)
+                    and statement.test.attr == "TYPE_CHECKING"
+                    and isinstance(statement.test.value, ast.Name)
+                    and statement.test.value.id in typing_module_names
+                ):
+                    condition: object = False
+                else:
+                    inspect_runtime_expression(statement.test)
+                    condition = _literal_source_expression(statement.test, values)
+                if type(condition) is bool:
+                    execute(statement.body if condition else statement.orelse)
+                else:
+                    # An unknown truth test may execute user-defined __bool__, and an
+                    # unknown branch may mutate any map or one of its aliases.
+                    poison_unsupported_effect(statement)
+                    poison_all_maps()
+            elif isinstance(statement, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                if statement.decorator_list:
+                    # Applying a decorator invokes arbitrary code after evaluating it.
+                    for decorator in statement.decorator_list:
+                        inspect_runtime_expression(decorator)
+                    poison_all_maps()
+                decorator_ids = {id(expression) for expression in statement.decorator_list}
+                for expression in definition_time_expressions(statement):
+                    if id(expression) not in decorator_ids:
+                        inspect_runtime_expression(expression)
+                values[statement.name] = _UNKNOWN_SOURCE_LITERAL
+                clear_import_identity(statement.name)
+                if statement.name in mapping_names:
+                    invalid.add(statement.name)
+            elif isinstance(statement, ast.ClassDef):
+                for expression in (*statement.decorator_list, *statement.bases):
+                    inspect_runtime_expression(expression)
+                for keyword in statement.keywords:
+                    inspect_runtime_expression(keyword.value)
+                # Class body execution and metaclass hooks are outside this finite transfer.
+                poison_all_maps()
+                values[statement.name] = _UNKNOWN_SOURCE_LITERAL
+                clear_import_identity(statement.name)
+                if statement.name in mapping_names:
+                    invalid.add(statement.name)
+            elif isinstance(statement, (ast.Import, ast.ImportFrom)):
+                bind_import(statement)
+            elif isinstance(statement, ast.Delete):
+                for target in statement.targets:
+                    inspect_target_effects(target)
+                    if isinstance(target, ast.Name):
+                        poison_name(target.id)
+                        if target.id in mapping_names:
+                            invalid.add(target.id)
+                    else:
+                        poison_unsupported_effect(statement)
+                        poison_all_maps()
+            elif isinstance(statement, ast.AugAssign):
+                inspect_target_effects(statement.target)
+                inspect_runtime_expression(statement.value)
+                poison_unsupported_effect(statement)
+                poison_all_maps()
+            else:
+                poison_unsupported_effect(statement)
+                poison_all_maps()
+
+    execute(tree.body)
+
+    # A function can mutate a module table after its initializer ran. Only
+    # stores executed by the bounded module-scope interpreter count as proof.
+    for node in ast.walk(tree):
+        if (
+            isinstance(node, ast.Name)
+            and node.id in mapping_names
+            and isinstance(node.ctx, (ast.Store, ast.Del))
+        ):
+            if id(node) not in supported_mapping_stores:
+                invalid.add(node.id)
+        elif (
+            isinstance(node, ast.Subscript)
+            and isinstance(node.ctx, (ast.Store, ast.Del))
+            and isinstance(node.value, ast.Name)
+            and node.value.id in mapping_names
+            and id(node) not in supported_mapping_stores
+        ):
+            invalid.add(node.value.id)
+        elif isinstance(node, (ast.Assign, ast.AnnAssign)):
+            value = node.value
+            if isinstance(value, ast.Name) and value.id in mapping_names:
+                invalid.add(value.id)
+        elif isinstance(node, ast.Call):
+            for argument in (*node.args, *(keyword.value for keyword in node.keywords)):
+                if isinstance(argument, ast.Name) and argument.id in mapping_names:
+                    invalid.add(argument.id)
+            if (
+                isinstance(node.func, ast.Attribute)
+                and isinstance(node.func.value, ast.Name)
+                and node.func.value.id in mapping_names
+                and (
+                    node.func.attr not in {"items", "keys", "get", "update"}
+                    or (node.func.attr == "update" and id(node) not in supported_mapping_stores)
+                )
+            ):
+                invalid.add(node.func.value.id)
+
+    result = {name: values[name] for name in mapping_names if type(values.get(name)) is dict}
+    return result, frozenset(invalid)
+
+
+def _literal_mapping_import_call(
+    call: ast.Call,
+    mapping_names: frozenset[str],
+    imported_functions: frozenset[str],
+    imported_modules: frozenset[str],
+) -> str | None:
+    """Return the table name used by a trusted importlib map lookup."""
+
+    function = call.func
+    imported_function = isinstance(function, ast.Name) and function.id in imported_functions
+    imported_module_function = (
+        isinstance(function, ast.Attribute)
+        and function.attr == "import_module"
+        and isinstance(function.value, ast.Name)
+        and function.value.id in imported_modules
+    )
+    if not (imported_function or imported_module_function) or not call.args:
+        return None
+    target = call.args[0]
+    referenced_maps = {
+        child.value.id
+        for child in ast.walk(target)
+        if isinstance(child, ast.Subscript)
+        and isinstance(child.value, ast.Name)
+        and child.value.id in mapping_names
+    }
+    if len(referenced_maps) == 1:
+        return next(iter(referenced_maps))
+    if referenced_maps:
+        return "*"
+    return None
+
+
+def _literal_module_getattr_mapping_providers(
+    tree: ast.Module,
+    function: ast.FunctionDef | ast.AsyncFunctionDef,
+    parameter_name: str,
+    mapping_names: frozenset[str],
+    imported_functions: frozenset[str],
+    imported_modules: frozenset[str],
+) -> tuple[dict[str, set[str]], dict[str, set[str]], set[str], set[int]]:
+    """Bind source-map exports through bounded, provenance-preserving getter flow."""
+
+    scope = tuple(_source_scope_nodes(function.body))
+    function_bound_names = _source_scope_bound_names(function.body)
+    module_bound_names = _source_scope_bound_names(tree.body)
+    builtin_getattr_unshadowed = _literal_builtin_name_unshadowed(tree, function, "getattr")
+    builtin_globals_unshadowed = _literal_builtin_name_unshadowed(tree, function, "globals")
+
+    def is_import_call(node: ast.AST) -> bool:
+        if not isinstance(node, ast.Call):
+            return False
+        callee = node.func
+        if isinstance(callee, ast.Name):
+            return callee.id in imported_functions and callee.id not in function_bound_names
+        return bool(
+            isinstance(callee, ast.Attribute)
+            and callee.attr == "import_module"
+            and isinstance(callee.value, ast.Name)
+            and callee.value.id in imported_modules
+            and callee.value.id not in function_bound_names
+        )
+
+    referenced_maps = frozenset(
+        node.value.id
+        for node in scope
+        if isinstance(node, ast.Subscript)
+        and isinstance(node.value, ast.Name)
+        and node.value.id in mapping_names
+    )
+    # Reuse the module-initializer effect transfer for both map-backed and
+    # direct getters. The sentinel is watched by the same monotone transfer so
+    # an opaque executed initializer cannot silently rebind import aliases or
+    # the implicit package namespace used by a relative import.
+    namespace_effect_guard = "__polisyos_static_namespace_effect_guard__"
+    watched_names = mapping_names | {namespace_effect_guard, "__name__", "__package__"}
+    values_by_map, invalid_maps = _static_facade_mapping_values(tree, watched_names)
+    namespace_effect_unknown = namespace_effect_guard in invalid_maps
+    tables: dict[str, dict[str, object]] = {}
+    invalid: set[str] = set()
+    if namespace_effect_unknown:
+        invalid.add("*")
+    for mapping_name in referenced_maps:
+        table = values_by_map.get(mapping_name)
+        if (
+            mapping_name in function_bound_names
+            or mapping_name in invalid_maps
+            or not isinstance(table, dict)
+        ):
+            invalid.add("*")
+        else:
+            tables[mapping_name] = table
+
+    # Only unique, immutable source-owned string collections are used to decide
+    # name-domain branches. Mutable or multiply-bound values stay unknown.
+    module_constants: dict[str, frozenset[str]] = {}
+    module_scope = tuple(_source_scope_nodes(tree.body))
+    candidate_constants: dict[str, frozenset[str]] = {}
+    for statement in tree.body:
+        if isinstance(statement, ast.Assign) and len(statement.targets) == 1:
+            target, expression = statement.targets[0], statement.value
+        elif isinstance(statement, ast.AnnAssign):
+            target, expression = statement.target, statement.value
+        else:
+            continue
+        if not isinstance(target, ast.Name) or expression is None:
+            continue
+        values: object = _UNKNOWN_SOURCE_LITERAL
+        try:
+            literal = ast.literal_eval(expression)
+        except (ValueError, TypeError, SyntaxError, MemoryError):
+            literal = _UNKNOWN_SOURCE_LITERAL
+        if isinstance(literal, (tuple, frozenset)) and all(type(item) is str for item in literal):
+            values = frozenset(literal)
+        elif (
+            isinstance(expression, ast.Call)
+            and isinstance(expression.func, ast.Name)
+            and expression.func.id == "frozenset"
+            and expression.func.id not in module_bound_names
+            and len(expression.args) == 1
+            and not expression.keywords
+        ):
+            try:
+                frozen_input = ast.literal_eval(expression.args[0])
+            except (ValueError, TypeError, SyntaxError, MemoryError):
+                frozen_input = _UNKNOWN_SOURCE_LITERAL
+            if isinstance(frozen_input, (tuple, frozenset)) and all(
+                type(item) is str for item in frozen_input
+            ):
+                values = frozenset(frozen_input)
+        if isinstance(values, frozenset):
+            candidate_constants[target.id] = values
+    for name, values in candidate_constants.items():
+        stores = tuple(
+            node
+            for node in module_scope
+            if isinstance(node, ast.Name)
+            and node.id == name
+            and isinstance(node.ctx, (ast.Store, ast.Del))
+        )
+        if len(stores) == 1:
+            module_constants[name] = values
+
+    map_collection_tag = object()
+    map_value_tag = object()
+    map_component_tag = object()
+    module_tag = object()
+    attribute_tag = object()
+    providers: dict[str, set[str]] = {}
+    members: dict[str, set[str]] = {}
+    handled_getattrs: set[int] = set()
+    handled_imports: set[int] = set()
+
+    def is_tagged(value: object, tag: object, length: int) -> bool:
+        return isinstance(value, tuple) and len(value) == length and value[0] is tag
+
+    def mapped_import_target(
+        node: ast.AST,
+        environment: Mapping[str, object],
+        export_name: str,
+    ) -> object:
+        """Resolve one map-backed or explicit literal import in this flow state."""
+
+        if not isinstance(node, ast.Call) or not is_import_call(node) or node.keywords:
+            return _UNKNOWN_SOURCE_LITERAL
+        if len(node.args) not in {1, 2}:
+            return _UNKNOWN_SOURCE_LITERAL
+        selected = evaluate_expression(node.args[0], environment, export_name)
+        raw_target: object
+        selected_map: object
+        selected_export: object
+        if is_tagged(selected, map_value_tag, 4):
+            selected_map, selected_export, raw_target = selected[1], selected[2], selected[3]
+        elif is_tagged(selected, map_component_tag, 6):
+            _tag, selected_map, selected_export, parent, index, _component = selected
+            if type(index) is not int or index != 0 or type(parent) not in {tuple, list}:
+                return _UNKNOWN_SOURCE_LITERAL
+            raw_target = parent
+        elif type(selected) is str and len(node.args) == 1 and not selected.startswith("."):
+            # The direct-literal form is the same bounded transfer as map rows;
+            # it is not a legacy fallback and still requires a source-bound loader.
+            if namespace_effect_unknown:
+                return _UNKNOWN_SOURCE_LITERAL
+            handled_imports.add(id(node))
+            return (module_tag, None, export_name, selected, export_name)
+        elif (
+            type(selected) is str
+            and selected.startswith(".")
+            and len(node.args) == 2
+            and isinstance(node.args[1], ast.Name)
+            and node.args[1].id == "__name__"
+            and "__name__" not in module_bound_names
+            and "__package__" not in module_bound_names
+            and "__name__" not in function_bound_names
+            and "__package__" not in function_bound_names
+            and namespace_effect_guard not in invalid_maps
+        ):
+            # The relative package value is admitted only while the shared
+            # module-effect analysis preserves Python's implicit package binding.
+            handled_imports.add(id(node))
+            return (module_tag, None, export_name, selected, export_name)
+        else:
+            return _UNKNOWN_SOURCE_LITERAL
+        if type(raw_target) is str:
+            module_name, symbol_name = raw_target, export_name
+        elif (
+            type(raw_target) in {tuple, list}
+            and len(raw_target) == 2
+            and all(type(item) is str for item in raw_target)
+        ):
+            module_name, symbol_name = raw_target
+        else:
+            return _UNKNOWN_SOURCE_LITERAL
+        if len(node.args) != 1 or not module_name or module_name.startswith("."):
+            return _UNKNOWN_SOURCE_LITERAL
+        if type(selected_map) is not str or selected_export != export_name:
+            return _UNKNOWN_SOURCE_LITERAL
+        handled_imports.add(id(node))
+        return (module_tag, selected_map, selected_export, module_name, symbol_name)
+
+    def evaluate_expression(
+        node: ast.AST,
+        environment: Mapping[str, object],
+        export_name: str,
+    ) -> object:
+        if isinstance(node, ast.Name):
+            if node.id in environment:
+                return environment[node.id]
+            if node.id in values_by_map:
+                return (map_collection_tag, node.id, values_by_map[node.id])
+            if node.id in module_constants:
+                return module_constants[node.id]
+            return _UNKNOWN_SOURCE_LITERAL
+        if isinstance(node, ast.Constant):
+            return node.value
+        if isinstance(node, (ast.Tuple, ast.List, ast.Set)):
+            values: list[object] = []
+            for item in node.elts:
+                value = evaluate_expression(item, environment, export_name)
+                if value is _UNKNOWN_SOURCE_LITERAL:
+                    return _UNKNOWN_SOURCE_LITERAL
+                values.append(value)
+            if isinstance(node, ast.Tuple):
+                return tuple(values)
+            if isinstance(node, ast.Set):
+                try:
+                    return set(values)
+                except TypeError:
+                    return _UNKNOWN_SOURCE_LITERAL
+            return values
+        if isinstance(node, ast.Subscript):
+            container = evaluate_expression(node.value, environment, export_name)
+            key = evaluate_expression(node.slice, environment, export_name)
+            if is_tagged(container, map_collection_tag, 3):
+                table = container[2]
+                if type(key) is str and isinstance(table, dict) and key in table:
+                    return (map_value_tag, container[1], key, table[key])
+                return _UNKNOWN_SOURCE_LITERAL
+            if is_tagged(container, map_value_tag, 4):
+                target = container[3]
+                if (
+                    type(key) is int
+                    and type(target) in {tuple, list}
+                    and -len(target) <= key < len(target)
+                ):
+                    index = key if key >= 0 else len(target) + key
+                    return (
+                        map_component_tag,
+                        container[1],
+                        container[2],
+                        target,
+                        index,
+                        target[index],
+                    )
+                return _UNKNOWN_SOURCE_LITERAL
+            return _UNKNOWN_SOURCE_LITERAL
+        if isinstance(node, ast.UnaryOp) and isinstance(node.op, ast.Not):
+            value = evaluate_expression(node.operand, environment, export_name)
+            return not value if type(value) is bool else _UNKNOWN_SOURCE_LITERAL
+        if isinstance(node, ast.BoolOp):
+            values = [evaluate_expression(value, environment, export_name) for value in node.values]
+            booleans = [value if type(value) is bool else None for value in values]
+            if isinstance(node.op, ast.And):
+                if False in booleans:
+                    return False
+                return True if all(value is True for value in booleans) else _UNKNOWN_SOURCE_LITERAL
+            if isinstance(node.op, ast.Or):
+                if True in booleans:
+                    return True
+                return (
+                    False if all(value is False for value in booleans) else _UNKNOWN_SOURCE_LITERAL
+                )
+            return _UNKNOWN_SOURCE_LITERAL
+        if isinstance(node, ast.Compare) and len(node.ops) == 1 and len(node.comparators) == 1:
+            left = evaluate_expression(node.left, environment, export_name)
+            right = evaluate_expression(node.comparators[0], environment, export_name)
+            if left is _UNKNOWN_SOURCE_LITERAL or right is _UNKNOWN_SOURCE_LITERAL:
+                return _UNKNOWN_SOURCE_LITERAL
+            if is_tagged(right, map_collection_tag, 3):
+                right = right[2]
+            try:
+                if isinstance(node.ops[0], ast.Eq):
+                    return left == right
+                if isinstance(node.ops[0], ast.NotEq):
+                    return left != right
+                if isinstance(node.ops[0], ast.In):
+                    return left in right
+                if isinstance(node.ops[0], ast.NotIn):
+                    return left not in right
+            except (TypeError, ValueError):
+                return _UNKNOWN_SOURCE_LITERAL
+            return _UNKNOWN_SOURCE_LITERAL
+        if isinstance(node, ast.Call):
+            module = mapped_import_target(node, environment, export_name)
+            if is_tagged(module, module_tag, 5):
+                return module
+            if (
+                builtin_getattr_unshadowed
+                and isinstance(node.func, ast.Name)
+                and node.func.id == "getattr"
+                and node.func.id not in function_bound_names
+                and len(node.args) == 2
+                and not node.keywords
+            ):
+                owner = evaluate_expression(node.args[0], environment, export_name)
+                selected_name = evaluate_expression(node.args[1], environment, export_name)
+                if is_tagged(owner, module_tag, 5):
+                    map_name, selected_export, module_name, symbol_name = owner[1:]
+                    if (
+                        is_tagged(selected_name, map_component_tag, 6)
+                        and selected_name[1] == map_name
+                        and selected_name[2] == selected_export
+                        and selected_name[4] == 1
+                        and selected_name[5] == symbol_name
+                    ) or selected_name == symbol_name:
+                        handled_getattrs.add(id(node))
+                        return (attribute_tag, map_name, selected_export, module_name, symbol_name)
+            return _UNKNOWN_SOURCE_LITERAL
+        return _UNKNOWN_SOURCE_LITERAL
+
+    def expression_has_unmodeled_effect(
+        node: ast.AST,
+        environment: Mapping[str, object],
+        export_name: str,
+    ) -> bool:
+        """Refuse executed getter expressions outside the finite pure/call grammar."""
+
+        if isinstance(node, ast.Lambda):
+            return any(
+                expression_has_unmodeled_effect(default, environment, export_name)
+                for default in (*node.args.defaults, *node.args.kw_defaults)
+                if default is not None
+            )
+        if isinstance(node, (ast.ListComp, ast.SetComp, ast.DictComp, ast.GeneratorExp)):
+            return True
+        if isinstance(node, ast.Call):
+            if id(node) not in handled_imports and id(node) not in handled_getattrs:
+                return True
+            return any(
+                expression_has_unmodeled_effect(argument, environment, export_name)
+                for argument in node.args
+            ) or any(
+                expression_has_unmodeled_effect(keyword.value, environment, export_name)
+                for keyword in node.keywords
+            )
+        if isinstance(node, ast.Attribute):
+            # Attribute access can run a descriptor or module __getattr__; the
+            # only admitted callable attribute is covered by its recognized Call.
+            return True
+        if isinstance(node, ast.Subscript):
+            if evaluate_expression(node, environment, export_name) is _UNKNOWN_SOURCE_LITERAL:
+                return True
+            return expression_has_unmodeled_effect(
+                node.value, environment, export_name
+            ) or expression_has_unmodeled_effect(node.slice, environment, export_name)
+        if isinstance(node, ast.IfExp):
+            if expression_has_unmodeled_effect(node.test, environment, export_name):
+                return True
+            condition = evaluate_expression(node.test, environment, export_name)
+            if type(condition) is bool:
+                selected = node.body if condition else node.orelse
+                return expression_has_unmodeled_effect(selected, environment, export_name)
+            return expression_has_unmodeled_effect(
+                node.body, environment, export_name
+            ) or expression_has_unmodeled_effect(node.orelse, environment, export_name)
+        if isinstance(node, ast.BoolOp):
+            for value_node in node.values:
+                if expression_has_unmodeled_effect(value_node, environment, export_name):
+                    return True
+                value = evaluate_expression(value_node, environment, export_name)
+                if type(value) is bool and (
+                    (isinstance(node.op, ast.And) and not value)
+                    or (isinstance(node.op, ast.Or) and value)
+                ):
+                    break
+            return False
+        if isinstance(node, (ast.BinOp, ast.UnaryOp, ast.Compare)):
+            if evaluate_expression(node, environment, export_name) is _UNKNOWN_SOURCE_LITERAL:
+                return True
+            return any(
+                expression_has_unmodeled_effect(child, environment, export_name)
+                for child in ast.iter_child_nodes(node)
+                if isinstance(child, ast.expr)
+            )
+        if isinstance(node, (ast.Constant, ast.Name)):
+            return False
+        if isinstance(node, (ast.Tuple, ast.List, ast.Set)):
+            value = evaluate_expression(node, environment, export_name)
+            if value is _UNKNOWN_SOURCE_LITERAL:
+                return True
+            return any(
+                expression_has_unmodeled_effect(child, environment, export_name)
+                for child in node.elts
+            )
+        if isinstance(node, ast.Dict):
+            # Dict construction is outside the getter value grammar; an unknown
+            # mapping expansion can execute user-defined iteration and hashing.
+            return True
+        return True
+
+    def is_name_global_write(target: ast.AST) -> bool:
+        return bool(
+            builtin_globals_unshadowed
+            and isinstance(target, ast.Subscript)
+            and isinstance(target.ctx, ast.Store)
+            and isinstance(target.slice, ast.Name)
+            and target.slice.id == parameter_name
+            and isinstance(target.value, ast.Call)
+            and isinstance(target.value.func, ast.Name)
+            and target.value.func.id == "globals"
+            and not target.value.args
+            and not target.value.keywords
+        )
+
+    def bind_target(target: ast.AST, value: object, environment: dict[str, object]) -> bool:
+        if isinstance(target, ast.Name):
+            environment[target.id] = value
+            return True
+        if not isinstance(target, (ast.Tuple, ast.List)):
+            return False
+        if is_tagged(value, map_value_tag, 4):
+            raw = value[3]
+            if type(raw) not in {tuple, list} or len(raw) != len(target.elts):
+                return False
+            parts = tuple(
+                (map_component_tag, value[1], value[2], raw, index, item)
+                for index, item in enumerate(raw)
+            )
+        elif type(value) in {tuple, list} and len(value) == len(target.elts):
+            parts = value
+        else:
+            return False
+        return all(
+            bind_target(child, part, environment)
+            for child, part in zip(target.elts, parts, strict=True)
+        )
+
+    def execute_block(
+        statements: Iterable[ast.stmt],
+        states: list[tuple[dict[str, object], str, object]],
+        export_name: str,
+    ) -> list[tuple[dict[str, object], str, object]]:
+        current = states
+        for statement in statements:
+            next_states: list[tuple[dict[str, object], str, object]] = []
+            for environment, terminal, result in current:
+                if terminal:
+                    next_states.append((environment, terminal, result))
+                    continue
+                if isinstance(statement, ast.If):
+                    if expression_has_unmodeled_effect(statement.test, environment, export_name):
+                        next_states.append((environment, "unsupported", _UNKNOWN_SOURCE_LITERAL))
+                        continue
+                    condition = evaluate_expression(statement.test, environment, export_name)
+                    if type(condition) is bool:
+                        selected = statement.body if condition else statement.orelse
+                        next_states.extend(
+                            execute_block(
+                                selected,
+                                [(dict(environment), "", _UNKNOWN_SOURCE_LITERAL)],
+                                export_name,
+                            )
+                        )
+                    else:
+                        next_states.extend(
+                            execute_block(
+                                statement.body,
+                                [(dict(environment), "", _UNKNOWN_SOURCE_LITERAL)],
+                                export_name,
+                            )
+                        )
+                        if statement.orelse:
+                            next_states.extend(
+                                execute_block(
+                                    statement.orelse,
+                                    [(dict(environment), "", _UNKNOWN_SOURCE_LITERAL)],
+                                    export_name,
+                                )
+                            )
+                        else:
+                            next_states.append((dict(environment), "", _UNKNOWN_SOURCE_LITERAL))
+                    continue
+                if isinstance(statement, ast.Return):
+                    if statement.value is not None and expression_has_unmodeled_effect(
+                        statement.value, environment, export_name
+                    ):
+                        next_states.append((environment, "unsupported", _UNKNOWN_SOURCE_LITERAL))
+                        continue
+                    value = (
+                        None
+                        if statement.value is None
+                        else evaluate_expression(statement.value, environment, export_name)
+                    )
+                    next_states.append((environment, "return", value))
+                    continue
+                if isinstance(statement, ast.Raise):
+                    next_states.append((environment, "raise", _UNKNOWN_SOURCE_LITERAL))
+                    continue
+                if isinstance(statement, ast.Pass):
+                    next_states.append((environment, "", _UNKNOWN_SOURCE_LITERAL))
+                    continue
+                if (
+                    isinstance(statement, ast.Expr)
+                    and isinstance(statement.value, ast.Constant)
+                    and type(statement.value.value) is str
+                ):
+                    next_states.append((environment, "", _UNKNOWN_SOURCE_LITERAL))
+                    continue
+                if isinstance(statement, (ast.Assign, ast.AnnAssign)):
+                    if isinstance(statement, ast.AnnAssign) and statement.value is None:
+                        next_states.append((environment, "", _UNKNOWN_SOURCE_LITERAL))
+                        continue
+                    value_node = statement.value
+                    value = evaluate_expression(value_node, environment, export_name)
+                    if expression_has_unmodeled_effect(value_node, environment, export_name):
+                        next_states.append((environment, "unsupported", _UNKNOWN_SOURCE_LITERAL))
+                        continue
+                    targets = (
+                        statement.targets
+                        if isinstance(statement, ast.Assign)
+                        else [statement.target]
+                    )
+                    if len(targets) != 1:
+                        next_states.append((environment, "unsupported", _UNKNOWN_SOURCE_LITERAL))
+                        continue
+                    updated = dict(environment)
+                    target = targets[0]
+                    if bind_target(target, value, updated):
+                        next_states.append((updated, "", _UNKNOWN_SOURCE_LITERAL))
+                    elif is_name_global_write(target):
+                        if not (is_tagged(value, attribute_tag, 5) and value[2] == export_name):
+                            next_states.append(
+                                (environment, "unsupported", _UNKNOWN_SOURCE_LITERAL)
+                            )
+                        else:
+                            next_states.append((environment, "", _UNKNOWN_SOURCE_LITERAL))
+                    else:
+                        next_states.append((environment, "unsupported", _UNKNOWN_SOURCE_LITERAL))
+                    continue
+                next_states.append((environment, "unsupported", _UNKNOWN_SOURCE_LITERAL))
+            current = next_states
+            if len(current) > 256:
+                return [({}, "unsupported", _UNKNOWN_SOURCE_LITERAL)]
+        return current
+
+    candidate_exports: set[str] = set()
+    for _mapping_name, table in tables.items():
+        for export_name in table:
+            if type(export_name) is not str:
+                invalid.add("*")
+            else:
+                candidate_exports.add(export_name)
+    for statement in scope:
+        if isinstance(statement, ast.If):
+            candidate_exports.update(
+                _literal_getattr_dispatch_names(statement.test, parameter_name)
+            )
+    if not tables and not candidate_exports:
+        return {}, {}, invalid, set()
+    if invalid:
+        # Keep valid rows available for diagnostics, but a malformed candidate
+        # map blocks the facade projection as a whole through the wildcard.
+        pass
+
+    for export_name in candidate_exports:
+        states = execute_block(
+            function.body,
+            [({parameter_name: export_name}, "", _UNKNOWN_SOURCE_LITERAL)],
+            export_name,
+        )
+        targets: set[tuple[str, str]] = set()
+        accepted_return = False
+        unsupported = False
+        for _environment, terminal, result in states:
+            if terminal == "raise":
+                continue
+            if terminal != "return":
+                unsupported = True
+                continue
+            if (
+                is_tagged(result, attribute_tag, 5)
+                and result[2] == export_name
+                and (result[1] is None or result[1] in tables)
+                and type(result[3]) is str
+                and type(result[4]) is str
+            ):
+                accepted_return = True
+                targets.add((result[3], result[4]))
+            else:
+                unsupported = True
+        if not accepted_return or unsupported or len(targets) != 1:
+            invalid.add(export_name)
+            continue
+        module_name, symbol_name = next(iter(targets))
+        providers.setdefault(export_name, set()).add(module_name)
+        members.setdefault(export_name, set()).add(symbol_name)
+
+    if not builtin_getattr_unshadowed:
+        invalid.add("*")
+
+    return providers, members, invalid, handled_getattrs
+
+
 def _literal_module_getattr_provider_index(tree: ast.Module) -> _LiteralModuleGetattrProviderIndex:
-    """Index literal dictionaries and guarded source-declared lazy providers."""
+    """Index PEP 562 providers through one bounded source-value transfer."""
 
     mapping_names: set[str] = set()
     functions: list[ast.FunctionDef | ast.AsyncFunctionDef] = []
@@ -6210,147 +7682,462 @@ def _literal_module_getattr_provider_index(tree: ast.Module) -> _LiteralModuleGe
         if (
             isinstance(statement, (ast.FunctionDef, ast.AsyncFunctionDef))
             and statement.name == "__getattr__"
-            and statement.args.args
+            and (statement.args.posonlyargs or statement.args.args)
         ):
             functions.append(statement)
-            parameter = statement.args.args[0].arg
-            mapping_names.update(
-                node.value.id
-                for node in ast.walk(statement)
-                if isinstance(node, ast.Subscript)
-                and isinstance(node.value, ast.Name)
-                and isinstance(node.slice, ast.Name)
-                and node.slice.id == parameter
-            )
+    for function in functions:
+        for node in _source_scope_nodes(function.body):
+            if isinstance(node, ast.Subscript) and isinstance(node.value, ast.Name):
+                mapping_names.add(node.value.id)
 
     providers: dict[str, set[str]] = {}
+    provider_symbols: dict[str, set[str]] = {}
     invalid: set[str] = set()
-    for statement in tree.body:
-        if isinstance(statement, ast.Assign) and len(statement.targets) == 1:
-            target, value = statement.targets[0], statement.value
-        elif isinstance(statement, ast.AnnAssign):
-            target, value = statement.target, statement.value
-        else:
-            continue
-        if not (
-            isinstance(target, ast.Name)
-            and target.id in mapping_names
-            and isinstance(value, ast.Dict)
-        ):
-            continue
-        for key, row in zip(value.keys, value.values, strict=True):
-            if not (
-                isinstance(key, ast.Constant)
-                and isinstance(key.value, str)
-                and isinstance(row, (ast.Tuple, ast.List))
-                and row.elts
-            ):
-                continue
-            module = row.elts[0]
-            if isinstance(module, ast.Constant) and isinstance(module.value, str):
-                providers.setdefault(key.value, set()).add(module.value)
-            else:
-                invalid.add(key.value)
+    handled_getattrs: set[int] = set()
+    # A PEP 562 function is a dispatch surface even when it has no source map.
+    # Map rows, literal branches, and direct imports all flow through the same
+    # stateful evaluator below; absence of a map never selects an alternate
+    # scanner with a weaker namespace/effect model.
+    generated_mapping_dispatch = any(
+        isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name == "__getattr__"
+        for node in tree.body
+    )
+    if len(functions) > 1:
+        invalid.add("*")
 
     for function in functions:
-        parameter = function.args.args[0].arg
-        imported_functions, imported_modules = _literal_import_helper_bindings(tree, function)
-        builtin_getattr_unshadowed = _literal_builtin_name_unshadowed(tree, function, "getattr")
-        builtin_import_unshadowed = _literal_builtin_name_unshadowed(tree, function, "__import__")
-        nodes = tuple(_source_scope_nodes(function.body))
-        lookups = tuple(node for node in nodes if _dynamic_getattr_name(node, parameter))
-        calls_getattr = any(
-            isinstance(node, ast.Call)
-            and isinstance(node.func, ast.Name)
-            and node.func.id == "getattr"
-            for node in nodes
-        )
-        calls_import = any(
-            isinstance(node, ast.Call)
-            and isinstance(node.func, ast.Name)
-            and node.func.id == "__import__"
-            for node in nodes
-        )
-        if mapping_names and (
-            (calls_getattr and not builtin_getattr_unshadowed)
-            or (calls_import and not builtin_import_unshadowed)
-        ):
-            invalid.add("*")
-        if (calls_getattr and not builtin_getattr_unshadowed) or (
-            calls_import and not builtin_import_unshadowed
-        ):
-            invalid.add("*")
-        if lookups and not builtin_getattr_unshadowed:
+        parameters = (*function.args.posonlyargs, *function.args.args)
+        if not parameters:
             invalid.add("*")
             continue
-        handled: set[int] = set()
-        for branch in nodes:
-            if not isinstance(branch, ast.If):
-                continue
-            branch_lookups = tuple(
-                node
-                for node in _source_scope_nodes(branch.body, descend_into_ifs=False)
-                if _dynamic_getattr_name(node, parameter)
+        parameter = parameters[0].arg
+        imported_functions, imported_modules = _literal_import_helper_bindings(tree, function)
+        mapped_providers, mapped_symbols, mapped_invalid, mapped_getattrs = (
+            _literal_module_getattr_mapping_providers(
+                tree,
+                function,
+                parameter,
+                frozenset(mapping_names),
+                imported_functions,
+                imported_modules,
             )
-            if not branch_lookups:
-                continue
-            handled.update(id(node) for node in branch_lookups)
-            names = _literal_getattr_dispatch_names(branch.test, parameter)
-            if not names:
-                invalid.add("*")
-                continue
-            module_vars = {
-                call.args[0].id for call in branch_lookups if isinstance(call.args[0], ast.Name)
-            }
-            by_var: dict[str, set[str]] = {}
-            invalid_vars: set[str] = set()
-            for node in branch.body:
-                binding = _simple_assignment(node)
-                if binding is None or binding[0] not in module_vars:
-                    continue
-                variable, value = binding
-                if not isinstance(value, ast.Call):
-                    invalid_vars.add(variable)
-                    continue
-                recognized, module = _literal_source_module_target(
-                    value,
-                    imported_functions,
-                    imported_modules,
-                    builtin_import_unshadowed=builtin_import_unshadowed,
-                )
-                if not recognized or module is None:
-                    invalid_vars.add(variable)
-                    continue
-                by_var.setdefault(variable, set()).add(module)
-            for call in branch_lookups:
-                expr = call.args[0]
-                module = None
-                if isinstance(expr, ast.Name):
-                    possible = by_var.get(expr.id, set())
-                    if expr.id not in invalid_vars and len(possible) == 1:
-                        module = next(iter(possible))
-                elif isinstance(expr, ast.Call):
-                    recognized, module = _literal_source_module_target(
-                        expr,
-                        imported_functions,
-                        imported_modules,
-                        builtin_import_unshadowed=builtin_import_unshadowed,
-                    )
-                    if not recognized:
-                        module = None
-                if module is None:
-                    invalid.update(names)
-                else:
-                    for name in names:
-                        providers.setdefault(name, set()).add(module)
-        if any(id(call) not in handled for call in lookups):
+        )
+        for export_name, modules in mapped_providers.items():
+            providers.setdefault(export_name, set()).update(modules)
+        for export_name, symbols in mapped_symbols.items():
+            provider_symbols.setdefault(export_name, set()).update(symbols)
+        invalid.update(mapped_invalid)
+        handled_getattrs.update(mapped_getattrs)
+
+        dynamic_lookups = tuple(
+            node
+            for node in _source_scope_nodes(function.body)
+            if _dynamic_getattr_name(node, parameter)
+        )
+        if any(id(node) not in handled_getattrs for node in dynamic_lookups):
             invalid.add("*")
+
     return _LiteralModuleGetattrProviderIndex(
         providers_by_export=types.MappingProxyType(
             {name: frozenset(modules) for name, modules in providers.items()}
         ),
         invalid_exports=frozenset(invalid),
+        provider_symbols_by_export=types.MappingProxyType(
+            {name: frozenset(symbols) for name, symbols in provider_symbols.items()}
+        ),
+        generated_mapping_dispatch=generated_mapping_dispatch,
+        mapping_names=frozenset(mapping_names),
     )
+
+
+def _literal_facade_value_matches(expected: object, observed: object) -> bool:
+    """Compare source literals without Python's cross-type numeric equality."""
+
+    if type(expected) is not type(observed):
+        return False
+    if type(expected) is dict:
+        return bool(
+            set(expected) == set(observed)
+            and all(
+                type(key) is str and _literal_facade_value_matches(expected[key], observed[key])
+                for key in expected
+            )
+        )
+    if type(expected) in {tuple, list}:
+        return bool(
+            len(expected) == len(observed)
+            and all(
+                _literal_facade_value_matches(left, right)
+                for left, right in zip(expected, observed, strict=True)
+            )
+        )
+    return expected == observed
+
+
+def _literal_facade_value_projection(value: object) -> object:
+    """Encode supported map values with their concrete container types."""
+
+    if type(value) is dict:
+        return {
+            "$dict": {key: _literal_facade_value_projection(value[key]) for key in sorted(value)}
+        }
+    if type(value) is tuple:
+        return {"$tuple": [_literal_facade_value_projection(item) for item in value]}
+    if type(value) is list:
+        return {"$list": [_literal_facade_value_projection(item) for item in value]}
+    if value is None or type(value) in {str, int, float, bool}:
+        return {"type": type(value).__name__, "value": value}
+    raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+
+
+def _source_facade_runtime_projection(
+    repo_root: Path,
+    closure: tuple[tuple[str, str], ...],
+) -> tuple[str, tuple[tuple[str, str], ...]]:
+    """Reconcile loaded lazy facade maps and selected exports to source owners.
+
+    Source maps determine expected targets. The live mapping can only match that
+    projection; it never contributes a closure edge. Cached and source-selected
+    exports must be the exact object owned by the loaded, path-bound provider.
+    """
+
+    analysis = _active_integrity_analysis()
+    owns_analysis = analysis is None
+    token = None
+    if analysis is None:
+        analysis = _IntegrityAnalysisContext()
+        token = _ACTIVE_INTEGRITY_ANALYSIS.set(analysis)
+    try:
+        closure_by_name = dict(closure)
+        directory_entries: dict[Path, frozenset[str]] = {}
+        source_index = _AuthorityImportClosureSourceIndex({}, {})
+        source_rows: dict[
+            str, tuple[ast.Module, _LiteralModuleGetattrProviderIndex, dict[str, dict[str, object]]]
+        ] = {}
+        facade_rows: list[dict[str, object]] = []
+        supplemental_modules: dict[str, str] = {}
+
+        for module_name, relative_path in closure:
+            source_path = (repo_root / relative_path).resolve()
+            try:
+                source_bytes = analysis.source_bytes(source_path)
+                tree = source_index.parse(source_bytes, filename=relative_path)
+            except (OSError, SyntaxError, ValueError) as exc:
+                raise ConfidenceLedgerError(
+                    "canonical_loaded_runtime_mismatch",
+                    relative_path,
+                ) from exc
+            provider_index = source_index.providers_by_content.get(source_bytes)
+            if provider_index is None:
+                provider_index = _literal_module_getattr_provider_index(tree)
+                source_index.providers_by_content[source_bytes] = provider_index
+            mapping_names = provider_index.mapping_names
+            maps: dict[str, dict[str, object]] = {}
+            if mapping_names:
+                maps, invalid_maps = _static_facade_mapping_values(tree, mapping_names)
+                invalid_map_exports = set(provider_index.invalid_exports) & {
+                    export for mapping in maps.values() for export in mapping
+                }
+                if (
+                    invalid_maps
+                    or len(maps) != len(mapping_names)
+                    or "*" in provider_index.invalid_exports
+                    or invalid_map_exports
+                ):
+                    raise ConfidenceLedgerError(
+                        "canonical_loaded_runtime_mismatch",
+                        f"unsupported source facade map: {module_name}",
+                    )
+                map_owners: list[dict[str, str]] = []
+                provider_symbols = provider_index.provider_symbols_by_export or {}
+                for mapping_name, source_map in sorted(maps.items()):
+                    for export, raw_target in sorted(source_map.items()):
+                        target = _literal_facade_provider_target(export, raw_target)
+                        providers = provider_index.providers_by_export.get(export, frozenset())
+                        symbols = provider_symbols.get(export, frozenset({export}))
+                        if (
+                            target is None
+                            or len(providers) != 1
+                            or len(symbols) != 1
+                            or type(export) is not str
+                        ):
+                            raise ConfidenceLedgerError(
+                                "canonical_loaded_runtime_mismatch",
+                                f"source facade owner is ambiguous: {module_name}.{export}",
+                            )
+                        target_module, target_symbol = target
+                        indexed_module = next(iter(providers))
+                        indexed_symbol = next(iter(symbols))
+                        try:
+                            if target_module.startswith("."):
+                                target_module = importlib.util.resolve_name(
+                                    target_module, module_name
+                                )
+                            if indexed_module.startswith("."):
+                                indexed_module = importlib.util.resolve_name(
+                                    indexed_module, module_name
+                                )
+                        except (ImportError, TypeError, ValueError) as exc:
+                            raise ConfidenceLedgerError(
+                                "canonical_loaded_runtime_mismatch",
+                                f"source facade owner is ambiguous: {module_name}.{export}",
+                            ) from exc
+                        if indexed_module != target_module or indexed_symbol != target_symbol:
+                            raise ConfidenceLedgerError(
+                                "canonical_loaded_runtime_mismatch",
+                                f"source facade owner differs from map: {module_name}.{export}",
+                            )
+                        provider_path = _repository_module_source(
+                            repo_root,
+                            target_module,
+                            directory_entries=directory_entries,
+                        )
+                        if provider_path is None or not _repository_module_exports_symbol(
+                            repo_root,
+                            target_module,
+                            target_symbol,
+                            directory_entries=directory_entries,
+                            source_index=source_index,
+                        ):
+                            raise ConfidenceLedgerError(
+                                "canonical_loaded_runtime_mismatch",
+                                "source facade target does not bind: "
+                                f"{target_module}.{target_symbol}",
+                            )
+                        map_owners.append(
+                            {
+                                "export": export,
+                                "mapping": mapping_name,
+                                "provider": target_module,
+                                "provider_path": provider_path.as_posix(),
+                                "symbol": target_symbol,
+                            }
+                        )
+                facade_module = sys.modules.get(module_name)
+                if facade_module is None:
+                    raise ConfidenceLedgerError(
+                        "canonical_loaded_runtime_mismatch",
+                        f"authority facade module not loaded: {module_name}",
+                    )
+                namespace = vars(facade_module)
+                live_maps: dict[str, object] = {}
+                for mapping_name, expected_map in maps.items():
+                    observed = namespace.get(mapping_name, _STATIC_FACADE_UNKNOWN)
+                    if type(observed) is not dict or not _literal_facade_value_matches(
+                        expected_map,
+                        observed,
+                    ):
+                        raise ConfidenceLedgerError(
+                            "canonical_loaded_runtime_mismatch",
+                            f"loaded facade map differs from source: {module_name}.{mapping_name}",
+                        )
+                    live_maps[mapping_name] = _literal_facade_value_projection(expected_map)
+                facade_rows.append(
+                    {
+                        "module": module_name,
+                        "relative_path": relative_path,
+                        "maps": live_maps,
+                        "map_owners": map_owners,
+                    }
+                )
+            source_rows[module_name] = (tree, provider_index, maps)
+
+        bindings_to_check: dict[tuple[str, str], tuple[str, str, bool]] = {}
+        for module_name, (_tree, _provider_index, maps) in source_rows.items():
+            if not maps:
+                continue
+            facade_module = sys.modules.get(module_name)
+            if facade_module is None:
+                raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+            namespace = vars(facade_module)
+            for mapping in maps.values():
+                for export, raw_target in mapping.items():
+                    if export not in namespace:
+                        continue
+                    target = _literal_facade_provider_target(export, raw_target)
+                    if target is None:
+                        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+                    bindings_to_check[(module_name, export)] = (*target, False)
+
+        for module_name, (tree, _provider_index, _maps) in source_rows.items():
+            package = (
+                module_name
+                if Path(closure_by_name[module_name]).name == "__init__.py"
+                else module_name.rpartition(".")[0]
+            )
+            for node in _runtime_ast_nodes(tree):
+                if not isinstance(node, ast.ImportFrom):
+                    continue
+                base = _resolve_import_from_base(node, package)
+                if base is None or base not in source_rows:
+                    continue
+                _base_tree, base_index, base_maps = source_rows[base]
+                if any(alias.name == "*" for alias in node.names) and base_maps:
+                    raise ConfidenceLedgerError(
+                        "canonical_loaded_runtime_mismatch",
+                        f"wildcard lazy facade import is not source-selected: {base}",
+                    )
+                for alias in node.names:
+                    if alias.name == "*":
+                        continue
+                    candidate = f"{base}.{alias.name}"
+                    if (
+                        _repository_module_source(
+                            repo_root,
+                            candidate,
+                            directory_entries=directory_entries,
+                        )
+                        is not None
+                    ):
+                        continue
+                    if (
+                        alias.name in base_index.invalid_exports
+                        or "*" in base_index.invalid_exports
+                    ):
+                        raise ConfidenceLedgerError(
+                            "canonical_loaded_runtime_mismatch",
+                            f"unresolved source facade export: {base}.{alias.name}",
+                        )
+                    providers = base_index.providers_by_export.get(alias.name, frozenset())
+                    if not providers:
+                        continue
+                    if len(providers) != 1:
+                        raise ConfidenceLedgerError(
+                            "canonical_loaded_runtime_mismatch",
+                            f"ambiguous source facade export: {base}.{alias.name}",
+                        )
+                    provider_module = next(iter(providers))
+                    raw_mapping = next(iter(base_maps.values()), {})
+                    raw_target = raw_mapping.get(alias.name, _STATIC_FACADE_UNKNOWN)
+                    target = (
+                        _literal_facade_provider_target(alias.name, raw_target)
+                        if raw_target is not _STATIC_FACADE_UNKNOWN
+                        else (provider_module, alias.name)
+                    )
+                    if target is None:
+                        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+                    if target[0].startswith("."):
+                        try:
+                            target = (importlib.util.resolve_name(target[0], base), target[1])
+                        except (ImportError, TypeError, ValueError) as exc:
+                            raise ConfidenceLedgerError(
+                                "canonical_loaded_runtime_mismatch",
+                                f"ambiguous source facade provider: {base}.{alias.name}",
+                            ) from exc
+                    bindings_to_check[(base, alias.name)] = (*target, True)
+
+        checked_bindings: list[dict[str, str]] = []
+        for (facade_name, export), (provider_name, attribute, selected) in sorted(
+            bindings_to_check.items()
+        ):
+            provider_path = _repository_module_source(
+                repo_root,
+                provider_name,
+                directory_entries=directory_entries,
+            )
+            if provider_path is None:
+                raise ConfidenceLedgerError(
+                    "canonical_loaded_runtime_mismatch",
+                    f"source facade provider unavailable: {provider_name}",
+                )
+            if selected and closure_by_name.get(provider_name) != provider_path.as_posix():
+                raise ConfidenceLedgerError(
+                    "canonical_loaded_runtime_mismatch",
+                    f"selected source facade provider is outside closure: {provider_name}",
+                )
+            provider_module = sys.modules.get(provider_name)
+            facade_module = sys.modules.get(facade_name)
+            if provider_module is None or facade_module is None:
+                raise ConfidenceLedgerError(
+                    "canonical_loaded_runtime_mismatch",
+                    f"source facade binding is not loaded: {facade_name}.{export}",
+                )
+            provider_spec = getattr(provider_module, "__spec__", None)
+            provider_origin = getattr(provider_spec, "origin", None)
+            try:
+                loaded_provider_path = (
+                    Path(provider_origin).resolve().relative_to(repo_root.resolve())
+                )
+            except (OSError, TypeError, ValueError) as exc:
+                raise ConfidenceLedgerError(
+                    "canonical_loaded_runtime_mismatch",
+                    f"source facade provider origin invalid: {provider_name}",
+                ) from exc
+            if loaded_provider_path.as_posix() != provider_path.as_posix():
+                raise ConfidenceLedgerError(
+                    "canonical_loaded_runtime_mismatch",
+                    f"source facade provider origin differs: {provider_name}",
+                )
+            provider_namespace = vars(provider_module)
+            facade_namespace = vars(facade_module)
+            provider_value = provider_namespace.get(attribute, _STATIC_FACADE_UNKNOWN)
+            if provider_value is _STATIC_FACADE_UNKNOWN:
+                raise ConfidenceLedgerError(
+                    "canonical_loaded_runtime_mismatch",
+                    f"source facade provider binding is missing: {provider_name}.{attribute}",
+                )
+            cached = facade_namespace.get(export, _STATIC_FACADE_UNKNOWN)
+            if cached is not _STATIC_FACADE_UNKNOWN and cached is not provider_value:
+                raise ConfidenceLedgerError(
+                    "canonical_loaded_runtime_mismatch",
+                    f"cached source facade binding differs: {facade_name}.{export}",
+                )
+            if selected:
+                try:
+                    observed = getattr(facade_module, export)
+                except Exception as exc:
+                    raise ConfidenceLedgerError(
+                        "canonical_loaded_runtime_mismatch",
+                        f"source facade lookup failed: {facade_name}.{export}",
+                    ) from exc
+                if observed is not provider_value:
+                    raise ConfidenceLedgerError(
+                        "canonical_loaded_runtime_mismatch",
+                        f"source facade lookup owner differs: {facade_name}.{export}",
+                    )
+            if provider_name not in closure_by_name:
+                supplemental_modules[provider_name] = provider_path.as_posix()
+            checked_bindings.append(
+                {
+                    "attribute": attribute,
+                    "facade": facade_name,
+                    "export": export,
+                    "provider": provider_name,
+                    "provider_path": provider_path.as_posix(),
+                    "selected": "true" if selected else "false",
+                }
+            )
+
+        for row in facade_rows:
+            module = sys.modules.get(str(row["module"]))
+            if module is None:
+                raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+            _tree, _index, maps = source_rows[str(row["module"])]
+            for mapping_name, expected_map in maps.items():
+                observed = vars(module).get(mapping_name, _STATIC_FACADE_UNKNOWN)
+                if type(observed) is not dict or not _literal_facade_value_matches(
+                    expected_map,
+                    observed,
+                ):
+                    raise ConfidenceLedgerError(
+                        "canonical_loaded_runtime_mismatch",
+                        "loaded facade map changed during reconciliation: "
+                        f"{row['module']}.{mapping_name}",
+                    )
+        manifest = {
+            "facades": facade_rows,
+            "bindings": checked_bindings,
+        }
+        if owns_analysis:
+            analysis.assert_sources_unchanged()
+        return _canonical_json(manifest), tuple(sorted(supplemental_modules.items()))
+    except (OSError, TypeError, ValueError, AttributeError, SyntaxError) as exc:
+        if isinstance(exc, ConfidenceLedgerError):
+            raise
+        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch", str(exc)) from exc
+    finally:
+        if token is not None:
+            _ACTIVE_INTEGRITY_ANALYSIS.reset(token)
 
 
 def _runtime_ast_nodes(node: ast.AST) -> Iterable[ast.AST]:
@@ -6471,6 +8258,109 @@ def _repository_module_source(
             directory_entries=directory_entries,
         )
         else None
+    )
+
+
+def _module_scope_definite_bindings(tree: ast.Module) -> frozenset[str]:
+    """Return names definitely bound by supported module-scope statements."""
+
+    names: set[str] = set()
+
+    def visit(statements: Iterable[ast.stmt]) -> None:
+        for statement in statements:
+            if isinstance(statement, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+                names.add(statement.name)
+            elif isinstance(statement, (ast.Assign, ast.AnnAssign)):
+                if isinstance(statement, ast.AnnAssign) and statement.value is None:
+                    continue
+                targets = (
+                    statement.targets if isinstance(statement, ast.Assign) else (statement.target,)
+                )
+                for target in targets:
+                    names.update(_source_target_names(target))
+            elif isinstance(statement, ast.TypeAlias):
+                names.update(_source_target_names(statement.name))
+            elif isinstance(statement, ast.Import):
+                names.update(
+                    alias.asname or alias.name.partition(".")[0] for alias in statement.names
+                )
+            elif isinstance(statement, ast.ImportFrom):
+                names.update(
+                    alias.asname or alias.name for alias in statement.names if alias.name != "*"
+                )
+            elif isinstance(statement, ast.If):
+                if _is_type_checking_test(statement.test):
+                    visit(statement.orelse)
+                else:
+                    try:
+                        condition = ast.literal_eval(statement.test)
+                    except (ValueError, TypeError, SyntaxError, MemoryError):
+                        continue
+                    if type(condition) is bool:
+                        visit(statement.body if condition else statement.orelse)
+
+    visit(tree.body)
+    return frozenset(names)
+
+
+def _repository_module_exports_symbol(
+    repo_root: Path,
+    module_name: str,
+    symbol: str,
+    *,
+    directory_entries: dict[Path, frozenset[str]],
+    source_index: _AuthorityImportClosureSourceIndex,
+    visited: frozenset[tuple[str, str]] = frozenset(),
+) -> bool:
+    """Prove one facade target binds its requested name from repository source."""
+
+    key = (module_name, symbol)
+    if key in visited:
+        return False
+    relative = _repository_module_source(
+        repo_root,
+        module_name,
+        directory_entries=directory_entries,
+    )
+    if relative is None:
+        return False
+    try:
+        analysis = _active_integrity_analysis()
+        source_path = repo_root / relative
+        source_bytes = (
+            analysis.source_bytes(source_path) if analysis is not None else source_path.read_bytes()
+        )
+        tree = source_index.parse(source_bytes, filename=relative.as_posix())
+    except (OSError, SyntaxError):
+        return False
+    if symbol in _module_scope_definite_bindings(tree):
+        return True
+    provider_index = source_index.providers_by_content.get(source_bytes)
+    if provider_index is None:
+        provider_index = _literal_module_getattr_provider_index(tree)
+        source_index.providers_by_content[source_bytes] = provider_index
+    if symbol in provider_index.invalid_exports or "*" in provider_index.invalid_exports:
+        return False
+    providers = provider_index.providers_by_export.get(symbol, frozenset())
+    provider_symbols = provider_index.provider_symbols_by_export or {}
+    target_symbols = provider_symbols.get(symbol, frozenset({symbol}))
+    if len(providers) != 1 or len(target_symbols) != 1:
+        return False
+    provider = next(iter(providers))
+    if provider.startswith("."):
+        if Path(relative).name != "__init__.py":
+            return False
+        try:
+            provider = importlib.util.resolve_name(provider, module_name)
+        except (ImportError, TypeError, ValueError):
+            return False
+    return _repository_module_exports_symbol(
+        repo_root,
+        provider,
+        next(iter(target_symbols)),
+        directory_entries=directory_entries,
+        source_index=source_index,
+        visited=visited | {key},
     )
 
 
@@ -8977,9 +10867,22 @@ def _assert_ledger_artifact_contracts_current(
         if _IMPORT_TIME_LOADED_CODE_MANIFEST:
             if _IMPORT_TIME_LOADED_CODE_CONSISTENT is not True:
                 raise ValueError("loaded authority code was not consistent at import")
+            facade_projection, supplemental_closure = _source_facade_runtime_projection(
+                _IMPORT_TIME_OWNER_ROOT,
+                _derived_authority_import_closure(_IMPORT_TIME_OWNER_ROOT),
+            )
+            runtime_closure = _combined_runtime_code_closure(
+                _IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE,
+                supplemental_closure,
+            )
+            if (
+                facade_projection != _IMPORT_TIME_FACADE_RUNTIME_PROJECTION
+                or runtime_closure != _IMPORT_TIME_RUNTIME_CODE_CLOSURE
+            ):
+                raise ValueError("loaded facade map differs from its import-time source")
             loaded_code_manifest, loaded_code_consistent = loaded_code_manifest_fn(
                 _IMPORT_TIME_OWNER_ROOT,
-                _IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE,
+                runtime_closure,
             )
             if not loaded_code_consistent or loaded_code_evidence_projection_fn(
                 loaded_code_manifest
@@ -9000,6 +10903,8 @@ def _assert_ledger_artifact_contracts_current(
 
 
 _IMPORT_TIME_DEPLOYMENT_IDENTITY_REASON = "canonical_loaded_runtime_mismatch"
+_IMPORT_TIME_FACADE_RUNTIME_PROJECTION = ""
+_IMPORT_TIME_RUNTIME_CODE_CLOSURE: tuple[tuple[str, str], ...] = ()
 _IMPORT_TIME_OWNER_ROOT = _loaded_policy_engine_root()
 if (
     (_IMPORT_TIME_OWNER_ROOT / "pyproject.toml").is_file()
@@ -9016,11 +10921,22 @@ if (
     ) = _stable_deployment_snapshot(_IMPORT_TIME_OWNER_ROOT)
     _import_authority_closure_modules(_IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE)
     (
+        _IMPORT_TIME_FACADE_RUNTIME_PROJECTION,
+        _IMPORT_TIME_FACADE_SUPPLEMENTAL_CLOSURE,
+    ) = _source_facade_runtime_projection(
+        _IMPORT_TIME_OWNER_ROOT,
+        _IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE,
+    )
+    _IMPORT_TIME_RUNTIME_CODE_CLOSURE = _combined_runtime_code_closure(
+        _IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE,
+        _IMPORT_TIME_FACADE_SUPPLEMENTAL_CLOSURE,
+    )
+    (
         _IMPORT_TIME_LOADED_CODE_MANIFEST,
         _IMPORT_TIME_LOADED_CODE_CONSISTENT,
     ) = _loaded_code_manifest(
         _IMPORT_TIME_OWNER_ROOT,
-        _IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE,
+        _IMPORT_TIME_RUNTIME_CODE_CLOSURE,
     )
     if _deployment_quick_fence(_IMPORT_TIME_OWNER_ROOT) != _IMPORT_TIME_DEPLOYMENT_QUICK_FENCE:
         raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
@@ -9032,6 +10948,9 @@ else:
     _IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE = ()
     _IMPORT_TIME_DEPLOYMENT_BASELINE = None
     _IMPORT_TIME_DEPLOYMENT_QUICK_FENCE = ()
+    _IMPORT_TIME_FACADE_RUNTIME_PROJECTION = ""
+    _IMPORT_TIME_FACADE_SUPPLEMENTAL_CLOSURE = ()
+    _IMPORT_TIME_RUNTIME_CODE_CLOSURE = ()
     _IMPORT_TIME_LOADED_CODE_MANIFEST = ""
     _IMPORT_TIME_LOADED_CODE_CONSISTENT = False
     _IMPORT_TIME_DEPLOYMENT_IDENTITY_REASON = "packaged_deployment_identity_issuer_unavailable"

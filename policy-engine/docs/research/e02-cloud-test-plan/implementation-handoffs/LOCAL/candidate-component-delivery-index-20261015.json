@@ -93,7 +93,7 @@
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
-      "sha256": "4777d68b3fa5fa608d0ace7823d27220248a16d01d5e4401c0e7b45fe253ea57",
+      "sha256": "e2bc4dba77b30b0c1daebe5c01c5421f691a35824edb775e4d752d37b496590b",
       "source_commit": "8932ed41bba94d724eae178c316baf59f5dbeebd",
       "record_type": "committed_coordination_snapshot",
       "previous_unqualified_digest": "1c2ae874ad7a12ac5c8ce69c580be992eef49a0ba58164893eff9a679a1ff9e5",

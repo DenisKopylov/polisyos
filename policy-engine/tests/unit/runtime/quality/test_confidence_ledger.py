@@ -51,7 +51,21 @@ from polisyos.runtime.quality.confidence_ledger import (
     validate_confidence_ledger_receipt,
 )
 
-REPO_ROOT = Path(__file__).resolve().parents[4]
+
+def _test_source_root() -> Path:
+    """Find the product checkout when this test is staged in an evidence bundle."""
+
+    test_path = Path(__file__).resolve()
+    for parent in test_path.parents:
+        if (parent / "pyproject.toml").is_file() and (parent / "src/polisyos").is_dir():
+            return parent
+        product_root = parent / "policy-engine"
+        if (product_root / "pyproject.toml").is_file() and (product_root / "src/polisyos").is_dir():
+            return product_root
+    return test_path.parents[4]
+
+
+REPO_ROOT = _test_source_root()
 _HASH_1 = "sha256:" + "1" * 64
 _HASH_2 = "sha256:" + "2" * 64
 
@@ -1741,7 +1755,7 @@ def _write_literal_pep562_closure_repo(
     package_root.mkdir(parents=True)
     (package_root / "__init__.py").write_text("", encoding="utf-8")
     (package_root / "provider_one.py").write_text(
-        "class One:\n    pass\n",
+        "class One:\n    pass\nclass Two:\n    pass\n",
         encoding="utf-8",
     )
     (package_root / "provider_two.py").write_text(
@@ -1754,6 +1768,7 @@ def _write_literal_pep562_closure_repo(
     )
     facade_path = package_root / "facade.py"
     facade_path.write_text(
+        "from importlib import import_module as _load\n"
         "_EXPORTS: dict[str, tuple[str, str]] = {\n"
         '    "One": ("polisyos.provider_one", "One"),\n'
         "}\n"
@@ -1765,7 +1780,7 @@ def _write_literal_pep562_closure_repo(
         "        module_name, attribute_name = _EXPORTS[name]\n"
         "    else:\n"
         "        module_name, attribute_name = _ALIASES[name]\n"
-        "    module = __import__(module_name, fromlist=[attribute_name])\n"
+        "    module = _load(module_name)\n"
         "    return getattr(module, attribute_name)\n",
         encoding="utf-8",
     )
@@ -1996,7 +2011,7 @@ def _write_import_module_pep562_closure_repo(repo_root: Path) -> tuple[Path, Pat
         encoding="utf-8",
     )
     (facade / "provider_one.py").write_text(
-        "class One:\n    pass\nclass AliasOne:\n    pass\n",
+        "class One:\n    pass\nclass AliasOne:\n    pass\nclass Two:\n    pass\n",
         encoding="utf-8",
     )
     (facade / "provider_two.py").write_text("class Two:\n    pass\n", encoding="utf-8")
@@ -2010,10 +2025,10 @@ def _write_import_module_pep562_closure_repo(repo_root: Path) -> tuple[Path, Pat
         "import importlib as _importlib\n"
         "def __getattr__(name):\n"
         '    if name in {"One", "AliasOne"}:\n'
-        '        module = _load(".provider_one", __name__)\n'
+        '        module = _load("polisyos.facade.provider_one")\n'
         "        return getattr(module, name)\n"
         '    if name == "Two":\n'
-        '        module = _importlib.import_module(".provider_two", __name__)\n'
+        '        module = _importlib.import_module("polisyos.facade.provider_two")\n'
         "        return getattr(module, name)\n"
         "    raise AttributeError(name)\n",
         encoding="utf-8",
@@ -2060,9 +2075,9 @@ def test_authority_import_closure_provider_removal_keeps_markers_but_loses_edges
     markers = (
         "__getattr__",
         "_load",
-        ".provider_one",
+        "polisyos.facade.provider_one",
         "_importlib.import_module",
-        ".provider_two",
+        "polisyos.facade.provider_two",
         '"One", "AliasOne"',
     )
     assert all(marker in source for marker in markers)
@@ -2086,7 +2101,11 @@ def test_authority_import_closure_recomputes_dynamic_provider_after_equal_metada
     first = dict(ledger_module._resolve_authority_import_closure(repo, "polisyos.entry"))
     assert "polisyos.facade.provider_two" in first
     original = facade.read_bytes()
-    changed = original.replace(b'".provider_two"', b'".provider_one"', 1)
+    changed = original.replace(
+        b'"polisyos.facade.provider_two"',
+        b'"polisyos.facade.provider_one"',
+        1,
+    )
     assert changed != original and len(changed) == len(original)
     before = facade.stat()
     facade.write_bytes(changed)
@@ -2108,8 +2127,8 @@ def test_authority_import_closure_fails_closed_on_dynamic_import_module_provider
     )
     source = facade.read_text(encoding="utf-8")
     changed = source.replace(
-        '_load(".provider_one", __name__)',
-        "_load(provider_module_name, __name__)",
+        '_load("polisyos.facade.provider_one")',
+        "_load(provider_module_name)",
         1,
     )
     assert changed != source
@@ -2298,8 +2317,8 @@ def test_authority_import_closure_fails_closed_on_conditional_provider_assignmen
     )
     source = facade.read_text(encoding="utf-8")
     changed = source.replace(
-        '        module = _load(".provider_one", __name__)\n',
-        '        if provider_enabled:\n            module = _load(".provider_one", __name__)\n',
+        '        module = _load("polisyos.facade.provider_one")\n',
+        '        if provider_enabled:\n            module = _load("polisyos.facade.provider_one")\n',
         1,
     )
     assert changed != source
@@ -2328,19 +2347,21 @@ def test_authority_import_closure_fails_closed_on_shadowed_getattr(
         ledger_module._resolve_authority_import_closure(repo, "polisyos.entry")
 
 
-def test_authority_import_closure_fails_closed_on_shadowed_dunder_import(
+def test_authority_import_closure_fails_closed_when_importlib_alias_is_shadowed(
     tmp_path: Path,
 ) -> None:
-    """A local callable named __import__ cannot establish a literal provider edge."""
+    """A local binding cannot impersonate the imported importlib loader."""
 
     repo, facade = _write_import_module_pep562_closure_repo(
-        tmp_path / "shadowed-dunder-import-provider-repo"
+        tmp_path / "shadowed-importlib-alias-provider-repo"
     )
+    baseline = dict(ledger_module._resolve_authority_import_closure(repo, "polisyos.entry"))
+    assert baseline["polisyos.facade.provider_one"] == "src/polisyos/facade/provider_one.py"
+
     source = facade.read_text(encoding="utf-8")
     changed = source.replace(
-        '        module = _load(".provider_one", __name__)\n',
-        "        __import__ = choose_import\n"
-        '        module = __import__(".provider_one", __name__)\n',
+        '        module = _load("polisyos.facade.provider_one")\n',
+        '        _load = choose_import\n        module = _load("polisyos.facade.provider_one")\n',
         1,
     )
     assert changed != source
@@ -2349,21 +2370,274 @@ def test_authority_import_closure_fails_closed_on_shadowed_dunder_import(
         ledger_module._resolve_authority_import_closure(repo, "polisyos.entry")
 
 
+@pytest.mark.parametrize("route", ["map-free", "map-backed"])
+@pytest.mark.parametrize(
+    ("binding_kind", "module_binding"),
+    [
+        pytest.param("function", "def _load(name):\n    return None\n", id="function"),
+        pytest.param(
+            "async-function", "async def _load(name):\n    return None\n", id="async-function"
+        ),
+        pytest.param("class", "class _load:\n    pass\n", id="class"),
+        pytest.param(
+            "exception-capture",
+            "try:\n    raise RuntimeError\nexcept RuntimeError as _load:\n    pass\n",
+            id="exception-capture",
+        ),
+        pytest.param(
+            "match-capture",
+            'match "shadow":\n    case _load:\n        pass\n',
+            id="match-capture",
+        ),
+    ],
+)
+def test_authority_import_closure_rejects_module_scope_helper_rebinding(
+    tmp_path: Path,
+    route: str,
+    binding_kind: str,
+    module_binding: str,
+) -> None:
+    """Every executable module binding form invalidates a loader alias."""
+
+    if route == "map-free":
+        repo, facade = _write_import_module_pep562_closure_repo(
+            tmp_path / f"module-{binding_kind}-{route}"
+        )
+        baseline = dict(ledger_module._resolve_authority_import_closure(repo, "polisyos.entry"))
+        assert baseline["polisyos.facade.provider_one"] == ("src/polisyos/facade/provider_one.py")
+    else:
+        repo, facade = _write_literal_pep562_closure_repo(
+            tmp_path / f"module-{binding_kind}-{route}"
+        )
+        baseline = dict(ledger_module._resolve_authority_import_closure(repo, "polisyos.entry"))
+        assert baseline["polisyos.provider_one"] == "src/polisyos/provider_one.py"
+
+    source = facade.read_text(encoding="utf-8")
+    marker = "def __getattr__(name):\n"
+    assert source.count(marker) == 1
+    changed = source.replace(marker, module_binding + marker, 1)
+    assert changed != source
+    assert "from importlib import import_module as _load" in changed
+    assert "def __getattr__(name):" in changed
+    facade.write_text(changed, encoding="utf-8")
+
+    with pytest.raises(ConfidenceLedgerError, match="non-literal repository re-export"):
+        ledger_module._resolve_authority_import_closure(repo, "polisyos.entry")
+
+
+def test_source_scope_bound_names_covers_module_binding_forms_without_imports() -> None:
+    """The shared source-scope census includes non-Name binders and can exclude imports."""
+
+    tree = ast.parse(
+        "from importlib import import_module as _imported\n"
+        "def _function():\n    def _nested():\n        pass\n"
+        "async def _async_function():\n    pass\n"
+        "class _class:\n    pass\n"
+        "try:\n    pass\nexcept Exception as _exception_capture:\n    pass\n"
+        "match object():\n    case _match_capture:\n        pass\n"
+    )
+    names_without_imports = ledger_module._source_scope_bound_names(
+        tree.body,
+        include_imports=False,
+    )
+    names_with_imports = ledger_module._source_scope_bound_names(tree.body)
+    assert {
+        "_function",
+        "_async_function",
+        "_class",
+        "_exception_capture",
+        "_match_capture",
+    } <= names_without_imports
+    assert "_nested" not in names_without_imports
+    assert "_imported" not in names_without_imports
+    assert "_imported" in names_with_imports
+
+
+def test_authority_import_closure_rejects_unknown_star_import_binding() -> None:
+    """A star import cannot prove it leaves a selected loader alias untouched."""
+
+    tree = ast.parse(
+        "from importlib import import_module as _load\n"
+        "from polisyos.optional import *\n"
+        "def __getattr__(name):\n"
+        '    module = _load("polisyos.provider")\n'
+        "    return getattr(module, name)\n"
+    )
+    getter = next(
+        node
+        for node in tree.body
+        if isinstance(node, ast.FunctionDef) and node.name == "__getattr__"
+    )
+    assert ledger_module._literal_import_helper_bindings(tree, getter) == (frozenset(), frozenset())
+
+
 def test_authority_import_closure_fails_closed_when_literal_map_dispatcher_is_shadowed(
     tmp_path: Path,
 ) -> None:
-    """Literal map values do not prove a provider when builtin dispatch is shadowed."""
+    """Literal map values do not prove a provider when the admitted loader is shadowed."""
 
     repo, facade = _write_literal_pep562_closure_repo(tmp_path / "shadowed-map-dispatcher-repo")
+    baseline = dict(ledger_module._resolve_authority_import_closure(repo, "polisyos.entry"))
+    assert baseline["polisyos.provider_one"] == "src/polisyos/provider_one.py"
+
     source = facade.read_text(encoding="utf-8")
     changed = source.replace(
-        "    module = __import__(module_name, fromlist=[attribute_name])\n",
-        "    __import__ = choose_import\n"
-        "    module = __import__(module_name, fromlist=[attribute_name])\n",
+        "    module = _load(module_name)\n",
+        "    _load = choose_import\n    module = _load(module_name)\n",
         1,
     )
     assert changed != source
     facade.write_text(changed, encoding="utf-8")
+    with pytest.raises(ConfidenceLedgerError, match="non-literal repository re-export"):
+        ledger_module._resolve_authority_import_closure(repo, "polisyos.entry")
+
+
+@pytest.mark.parametrize(
+    "replacement",
+    [
+        pytest.param(
+            "module = choose_import(module_name)",
+            id="unrecognized-loader",
+        ),
+        pytest.param(
+            "module = __import__(module_name, fromlist=[attribute_name])",
+            id="builtin-import-has-different-return-semantics",
+        ),
+        pytest.param(
+            "module = _load(module_name, __name__)",
+            id="relative-package-argument-is-not-map-proof",
+        ),
+    ],
+)
+def test_literal_map_rows_do_not_authorize_unproven_getter_loader(
+    tmp_path: Path,
+    replacement: str,
+) -> None:
+    """Literal rows remain candidates until the supported importer flow returns them."""
+
+    repo, facade = _write_literal_pep562_closure_repo(tmp_path / "literal-map-unproven-loader")
+    source = facade.read_text(encoding="utf-8")
+    if replacement == "module = _load(module_name, __name__)":
+        source = source.replace('"polisyos.provider_one"', '".provider_one"')
+        source = source.replace('"polisyos.provider_two"', '".provider_two"')
+    anchor = "    module = _load(module_name)\n"
+    changed = source.replace(anchor, f"    {replacement}\n", 1)
+    assert changed != source
+    assert all(marker in changed for marker in ("_EXPORTS", "_ALIASES", "def __getattr__"))
+    facade.write_text(changed, encoding="utf-8")
+
+    with pytest.raises(ConfidenceLedgerError, match="non-literal repository re-export"):
+        ledger_module._resolve_authority_import_closure(repo, "polisyos.entry")
+
+
+def test_literal_map_rows_do_not_seed_provider_without_getter_binding(
+    tmp_path: Path,
+) -> None:
+    """Map markers and rows alone cannot bind a requested module attribute."""
+
+    repo, facade = _write_literal_pep562_closure_repo(
+        tmp_path / "literal-map-candidate-without-binding"
+    )
+    source = facade.read_text(encoding="utf-8")
+    marker = "def __getattr__(name):\n"
+    assert source.count(marker) == 1
+    source = source.replace(
+        marker,
+        marker
+        + '    if name == "One":\n'
+        + "        return object()\n"
+        + "    if False:\n"
+        + "        module = _load(_EXPORTS[name][0])\n"
+        + "        return getattr(module, name)\n",
+        1,
+    )
+    assert all(
+        marker in source for marker in ("_EXPORTS", "def __getattr__", "getattr(module, name)")
+    )
+    facade.write_text(source, encoding="utf-8")
+
+    with pytest.raises(ConfidenceLedgerError, match="non-literal repository re-export"):
+        ledger_module._resolve_authority_import_closure(repo, "polisyos.entry")
+
+
+def test_relative_direct_getter_requires_implicit_package_name_binding(
+    tmp_path: Path,
+) -> None:
+    """A spelling named ``__name__`` is not trusted if the module rebinds it."""
+
+    repo, facade, _providers = _write_core_profile_provider_closure_repo(
+        tmp_path / "relative-getter-rebound-package-name"
+    )
+    source = facade.read_text(encoding="utf-8")
+    marker = "from importlib import import_module\n"
+    changed = source.replace(marker, marker + '__name__ = "polisyos.counterfeit"\n', 1)
+    assert changed != source
+    assert 'import_module(".canonical_profile", __name__)' in changed
+    facade.write_text(changed, encoding="utf-8")
+
+    with pytest.raises(ConfidenceLedgerError, match="non-literal repository re-export"):
+        ledger_module._resolve_authority_import_closure(repo, "polisyos.entry")
+
+
+@pytest.mark.parametrize(
+    ("anchor", "mutation"),
+    [
+        pytest.param(
+            "from importlib import import_module\n",
+            'globals()["__name__"] = "polisyos.counterfeit"\n',
+            id="module-initializer",
+        ),
+        pytest.param(
+            "def __getattr__(name: str) -> Any:\n",
+            '    globals()["__name__"] = "polisyos.counterfeit"\n',
+            id="getter-execution",
+        ),
+    ],
+)
+def test_relative_direct_getter_rejects_namespace_write_through_globals(
+    tmp_path: Path,
+    anchor: str,
+    mutation: str,
+) -> None:
+    """A globals subscript cannot replace the implicit package owner unnoticed."""
+
+    repo, facade, _providers = _write_core_profile_provider_closure_repo(
+        tmp_path / "relative-getter-globals-package-write"
+    )
+    source = facade.read_text(encoding="utf-8")
+    changed = source.replace(anchor, anchor + mutation, 1)
+    assert changed != source
+    assert 'import_module(".canonical_profile", __name__)' in changed
+    facade.write_text(changed, encoding="utf-8")
+
+    with pytest.raises(ConfidenceLedgerError, match="non-literal repository re-export"):
+        ledger_module._resolve_authority_import_closure(repo, "polisyos.entry")
+
+
+def test_map_free_getter_refuses_nested_opaque_expression_effect(
+    tmp_path: Path,
+) -> None:
+    """An opaque nested call cannot be hidden by overwriting its result alias."""
+
+    repo, facade = _write_import_module_pep562_closure_repo(
+        tmp_path / "map-free-nested-opaque-effect"
+    )
+    source = facade.read_text(encoding="utf-8")
+    anchor = '        module = _load("polisyos.facade.provider_one")\n'
+    replacement = "        _discarded = (_opaque_mutator(),)\n        _discarded = ()\n" + anchor
+    changed = source.replace(anchor, replacement, 1)
+    assert changed != source
+    assert all(
+        marker in changed
+        for marker in (
+            "__getattr__",
+            "_load",
+            "polisyos.facade.provider_one",
+            "getattr(module, name)",
+        )
+    )
+    facade.write_text(changed, encoding="utf-8")
+
     with pytest.raises(ConfidenceLedgerError, match="non-literal repository re-export"):
         ledger_module._resolve_authority_import_closure(repo, "polisyos.entry")
 
@@ -6099,3 +6373,973 @@ def test_source_literal_contract_mode_and_existing_unknown_mode_are_distinct() -
 
     declared = ledger_module._source_ledger_contract_projection(source_bytes)
     assert declared == ledger_module._runtime_ledger_contract_projection()
+
+
+def _write_runtime_facade_map_fixture(
+    tmp_path: Path,
+    *,
+    mutate_during_import: bool,
+) -> tuple[Path, str, str]:
+    """Write a real-import fixture with one source-owned lazy export map."""
+
+    repo_root = tmp_path / "facade-map-runtime-repo"
+    package_name = "_n11_facade_" + hashlib.sha256(str(tmp_path).encode()).hexdigest()[:12]
+    package = repo_root / "src" / "polisyos" / package_name
+    package.mkdir(parents=True)
+    (repo_root / "pyproject.toml").write_text(
+        '[project]\nname = "facade-fixture"\n', encoding="utf-8"
+    )
+    (repo_root / "uv.lock").write_text("version = 1\n", encoding="utf-8")
+    (package / "__init__.py").write_text("", encoding="utf-8")
+    (package / "entry.py").write_text(
+        f"from polisyos.{package_name}.facade import One\n",
+        encoding="utf-8",
+    )
+    (package / "facade.py").write_text(
+        "from importlib import import_module as _load\n\n"
+        "_LAZY_EXPORTS = {\n"
+        f'    "One": ("polisyos.{package_name}.provider_one", "One"),\n'
+        "}\n\n"
+        "def __getattr__(name: str):\n"
+        "    if name not in _LAZY_EXPORTS:\n"
+        "        raise AttributeError(name)\n"
+        "    module_name, attribute_name = _LAZY_EXPORTS[name]\n"
+        "    module = _load(module_name)\n"
+        "    value = getattr(module, attribute_name)\n"
+        "    globals()[name] = value\n"
+        "    return value\n",
+        encoding="utf-8",
+    )
+    initializer = f"import polisyos.{package_name}.mutator\n" if mutate_during_import else ""
+    (package / "provider_one.py").write_text(
+        initializer + "class One:\n    pass\n",
+        encoding="utf-8",
+    )
+    (package / "provider_two.py").write_text("class One:\n    pass\n", encoding="utf-8")
+    if mutate_during_import:
+        (package / "mutator.py").write_text(
+            f"from polisyos.{package_name}.facade import _LAZY_EXPORTS\n"
+            "_LAZY_EXPORTS['One'] = "
+            f"('polisyos.{package_name}.provider_two', 'One')\n",
+            encoding="utf-8",
+        )
+    return repo_root, package_name, f"polisyos.{package_name}.entry"
+
+
+def test_source_facade_projection_rejects_import_initializer_map_mutation_in_fresh_process(
+    tmp_path: Path,
+) -> None:
+    """A closure initializer cannot replace a source-owned provider mapping."""
+
+    repo_root, package_name, entry_module = _write_runtime_facade_map_fixture(
+        tmp_path,
+        mutate_during_import=True,
+    )
+    script = r"""
+import ast
+import importlib.util
+import json
+import sys
+from pathlib import Path
+
+repo_root = Path(sys.argv[1])
+product_source = Path(sys.argv[2])
+candidate_source = Path(sys.argv[3])
+package_name = sys.argv[4]
+entry_module = sys.argv[5]
+sys.path.insert(0, str(product_source))
+import polisyos
+polisyos.__path__.append(str(repo_root / "src" / "polisyos"))
+spec = importlib.util.spec_from_file_location("r7_candidate_ledger", candidate_source)
+ledger = importlib.util.module_from_spec(spec)
+sys.modules[spec.name] = ledger
+spec.loader.exec_module(ledger)
+closure = ledger._resolve_authority_import_closure(repo_root, entry_module)
+ledger._import_authority_closure_modules(closure)
+facade_name = f"polisyos.{package_name}.facade"
+facade = sys.modules[facade_name]
+source = (repo_root / "src" / "polisyos" / package_name / "facade.py").read_bytes()
+tree = ast.parse(source)
+map_names = ledger._literal_facade_mapping_names(tree)
+source_maps, complete = ledger._literal_facade_mapping_values(tree, map_names)
+assert complete
+static_target = source_maps["_LAZY_EXPORTS"]["One"]
+live_target = vars(facade)["_LAZY_EXPORTS"]["One"]
+try:
+    ledger._source_facade_runtime_projection(repo_root, closure)
+except ledger.ConfidenceLedgerError as exc:
+    print(json.dumps({
+        "code": exc.code,
+        "closure_has_selected_provider": f"polisyos.{package_name}.provider_one" in dict(closure),
+        "closure_has_mutated_target": f"polisyos.{package_name}.provider_two" in dict(closure),
+        "live_target": live_target,
+        "static_target": static_target,
+    }, sort_keys=True))
+else:
+    raise AssertionError("runtime map mutation was admitted")
+"""
+    environment = os.environ.copy()
+    prior_pythonpath = environment.get("PYTHONPATH")
+    environment["PYTHONPATH"] = os.pathsep.join(
+        value for value in (str(REPO_ROOT / "src"), prior_pythonpath) if value
+    )
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            script,
+            str(repo_root),
+            str(REPO_ROOT / "src"),
+            str(Path(ledger_module.__file__).resolve()),
+            package_name,
+            entry_module,
+        ],
+        cwd=REPO_ROOT,
+        env=environment,
+        capture_output=True,
+        text=True,
+        timeout=90,
+        check=False,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+    observation = json.loads(result.stdout)
+    assert observation == {
+        "code": "canonical_loaded_runtime_mismatch",
+        "closure_has_selected_provider": True,
+        "closure_has_mutated_target": False,
+        "live_target": [f"polisyos.{package_name}.provider_two", "One"],
+        "static_target": [f"polisyos.{package_name}.provider_one", "One"],
+    }
+
+
+def test_source_facade_projection_reconciles_full_core_contracts_map_and_fails_closed_on_mutation(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """All Core contract exports bind to source and live map drift blocks reuse."""
+
+    closure = ledger_module._resolve_authority_import_closure(REPO_ROOT, ledger_module.__name__)
+    ledger_module._import_authority_closure_modules(closure)
+    projection, _supplemental = ledger_module._source_facade_runtime_projection(
+        REPO_ROOT,
+        closure,
+    )
+    facades = {row["module"]: row for row in json.loads(projection)["facades"]}
+    current_map_counts = {
+        module_name: sum(len(values["$dict"]) for values in row["maps"].values())
+        for module_name, row in facades.items()
+    }
+    assert current_map_counts == {
+        "polisyos.core": 118,
+        "polisyos.fabric": 58,
+        "polisyos.ir": 496,
+    }
+    contracts_closure = ledger_module._resolve_authority_import_closure(
+        REPO_ROOT,
+        (ledger_module.__name__, "polisyos.core.contracts"),
+    )
+    ledger_module._import_authority_closure_modules(contracts_closure)
+    contracts_projection, _contracts_supplemental = ledger_module._source_facade_runtime_projection(
+        REPO_ROOT,
+        contracts_closure,
+    )
+    contracts_facades = {row["module"]: row for row in json.loads(contracts_projection)["facades"]}
+    contracts_row = contracts_facades["polisyos.core.contracts"]
+    contracts = contracts_row["maps"]["_LAZY_IMPORTS"]["$dict"]
+    assert len(contracts) == 794
+    owners = contracts_row["map_owners"]
+    assert len(owners) == 794
+    assert {row["export"] for row in owners} == set(contracts)
+    assert all(row["provider_path"].startswith("src/polisyos/") for row in owners)
+
+    owner_checker = ledger_module._repository_module_exports_symbol
+    monkeypatch.setattr(
+        ledger_module,
+        "_repository_module_exports_symbol",
+        lambda *_args, **_kwargs: False,
+    )
+    with pytest.raises(ConfidenceLedgerError, match="canonical_loaded_runtime_mismatch"):
+        ledger_module._source_facade_runtime_projection(REPO_ROOT, contracts_closure)
+    monkeypatch.setattr(ledger_module, "_repository_module_exports_symbol", owner_checker)
+
+    facade = sys.modules["polisyos.core"]
+    source_path = REPO_ROOT / "src/polisyos/core/__init__.py"
+    source_text = source_path.read_text(encoding="utf-8")
+    live_map = vars(facade)["_LAZY_EXPORTS"]
+    original_map = dict(live_map)
+    export, original_target = next(iter(original_map.items()))
+    target = ledger_module._literal_facade_provider_target(export, original_target)
+    assert target is not None
+    assert "_LAZY_EXPORTS" in source_text and "import_module" in source_text
+    assert export in source_text and target[0] in source_text
+
+    monkeypatch.setattr(ledger_module, "_assert_ledger_artifact_contracts_current", lambda: None)
+    monkeypatch.setattr(ledger_module, "_IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE", closure)
+    try:
+        live_map[export] = (target[0], "_r7_wrong_cached_owner")
+        with pytest.raises(ConfidenceLedgerError, match="canonical_loaded_runtime_mismatch"):
+            ledger_module._assert_loaded_runtime_matches_import_baseline(REPO_ROOT)
+    finally:
+        live_map.clear()
+        live_map.update(original_map)
+
+    provider = importlib.import_module(target[0])
+    expected_value = vars(provider)[target[1]]
+    original_cached = vars(facade).get(export, ledger_module._STATIC_FACADE_UNKNOWN)
+    assert getattr(facade, export) is expected_value
+    try:
+        vars(facade)[export] = object()
+        with pytest.raises(ConfidenceLedgerError, match="canonical_loaded_runtime_mismatch"):
+            ledger_module._source_facade_runtime_projection(REPO_ROOT, closure)
+    finally:
+        if original_cached is ledger_module._STATIC_FACADE_UNKNOWN:
+            vars(facade).pop(export, None)
+        else:
+            vars(facade)[export] = original_cached
+
+
+# R8 restores the R6 whole-class behavioral controls alongside R7 projection tests.
+
+
+def _write_generated_mapping_pep562_closure_repo(repo_root: Path) -> tuple[Path, Path]:
+    """Write a source-only facade whose lazy map is built from literal groups."""
+
+    package = repo_root / "src/polisyos"
+    facade = package / "facade"
+    facade.mkdir(parents=True)
+    (package / "__init__.py").write_text("", encoding="utf-8")
+    (package / "entry.py").write_text(
+        "from polisyos.facade import One, AliasOne, Two\n",
+        encoding="utf-8",
+    )
+    (facade / "provider_one.py").write_text(
+        "class One:\n    pass\nclass AliasOne:\n    pass\n",
+        encoding="utf-8",
+    )
+    (facade / "provider_two.py").write_text("class Two:\n    pass\n", encoding="utf-8")
+    (facade / "provider_wrong.py").write_text("class Unrelated:\n    pass\n", encoding="utf-8")
+    facade_path = facade / "__init__.py"
+    facade_path.write_text(
+        "import importlib\n"
+        '_MODULE_SYMBOLS = {".provider_one": ("One", "AliasOne"), '
+        '".provider_two": ("Two",)}\n'
+        "_LAZY_IMPORTS = {}\n"
+        "for _relative, _symbols in _MODULE_SYMBOLS.items():\n"
+        '    _full = f"polisyos.facade{_relative}"\n'
+        "    for _symbol in _symbols:\n"
+        "        _LAZY_IMPORTS[_symbol] = _full\n"
+        "def __getattr__(name):\n"
+        "    if name not in _LAZY_IMPORTS:\n"
+        "        raise AttributeError(name)\n"
+        "    module = importlib.import_module(_LAZY_IMPORTS[name])\n"
+        "    value = getattr(module, name)\n"
+        "    return value\n",
+        encoding="utf-8",
+    )
+    return repo_root, facade_path
+
+
+def test_authority_import_closure_accepts_unknown_branch_when_all_returns_bind_same_export(
+    tmp_path: Path,
+) -> None:
+    """A bounded unknown branch is safe when every normal return is the same binding."""
+
+    repo, facade = _write_generated_mapping_pep562_closure_repo(
+        tmp_path / "generated-pep562-same-return-branches"
+    )
+    source = facade.read_text(encoding="utf-8")
+    anchor = "    return value\n"
+    replacement = "    if RUNTIME_OVERRIDE:\n        return value\n" + anchor
+    source = "from os import name as RUNTIME_OVERRIDE\n" + source
+    changed = source.replace(anchor, replacement, 1)
+    assert changed != source
+    facade.write_text(changed, encoding="utf-8")
+
+    closure = dict(ledger_module._resolve_authority_import_closure(repo, "polisyos.entry"))
+    assert closure["polisyos.facade.provider_one"] == "src/polisyos/facade/provider_one.py"
+
+
+@pytest.mark.parametrize(
+    "deferred",
+    [
+        pytest.param(
+            "def _deferred():\n    _opaque_call()\n",
+            id="function-body",
+        ),
+        pytest.param(
+            "_deferred = lambda: _opaque_call()\n",
+            id="lambda-body",
+        ),
+    ],
+)
+def test_authority_import_closure_does_not_execute_deferred_initializer_bodies(
+    tmp_path: Path,
+    deferred: str,
+) -> None:
+    """Deferred function and lambda bodies do not poison module initialization maps."""
+
+    repo, facade = _write_generated_mapping_pep562_closure_repo(
+        tmp_path / "generated-pep562-deferred-expression-body"
+    )
+    source = facade.read_text(encoding="utf-8")
+    marker = "_LAZY_IMPORTS = {}\n"
+    assert source.count(marker) == 1
+    source = source.replace(marker, deferred + marker, 1)
+    facade.write_text(source, encoding="utf-8")
+
+    closure = dict(ledger_module._resolve_authority_import_closure(repo, "polisyos.entry"))
+    assert closure["polisyos.facade.provider_one"] == "src/polisyos/facade/provider_one.py"
+    assert closure["polisyos.facade.provider_two"] == "src/polisyos/facade/provider_two.py"
+
+
+def test_authority_import_closure_keeps_same_selected_name_reassignment(
+    tmp_path: Path,
+) -> None:
+    """A provably identity-preserving parameter write keeps the selected binding."""
+
+    repo, facade = _write_generated_mapping_pep562_closure_repo(
+        tmp_path / "generated-pep562-same-selected-name"
+    )
+    source = facade.read_text(encoding="utf-8").replace(
+        "    module = importlib.import_module(_LAZY_IMPORTS[name])\n",
+        '    if name == "One":\n        name = "One"\n'
+        "    module = importlib.import_module(_LAZY_IMPORTS[name])\n",
+        1,
+    )
+    assert 'name = "One"' in source
+    facade.write_text(source, encoding="utf-8")
+
+    closure = dict(ledger_module._resolve_authority_import_closure(repo, "polisyos.entry"))
+    assert closure["polisyos.facade.provider_one"] == "src/polisyos/facade/provider_one.py"
+
+
+@pytest.mark.parametrize(
+    "intermediate_name",
+    [
+        "_full",
+        "_module",
+        "_MODULE_SYMBOLS alias",
+        "conditional mutable alias",
+        "nested mutable alias",
+    ],
+)
+def test_authority_import_closure_propagates_unknown_module_branch_intermediaries(
+    tmp_path: Path,
+    intermediate_name: str,
+) -> None:
+    """Unknown writes to map-building intermediaries cannot leave a stale map green."""
+
+    repo, facade = _write_generated_mapping_pep562_closure_repo(
+        tmp_path / f"generated-pep562-unknown-intermediate-{intermediate_name}"
+    )
+    source = facade.read_text(encoding="utf-8")
+    if intermediate_name == "nested mutable alias":
+        source = source.replace(
+            "_LAZY_IMPORTS = {}\n",
+            "_ALIAS = [_MODULE_SYMBOLS]\n"
+            "if RUNTIME_OVERRIDE:\n"
+            '    _ALIAS[0][".provider_one"] = ("Two",)\n'
+            "_LAZY_IMPORTS = {}\n",
+            1,
+        )
+    elif intermediate_name == "_MODULE_SYMBOLS alias":
+        source = source.replace(
+            "_LAZY_IMPORTS = {}\n",
+            "_ALIAS = _MODULE_SYMBOLS\n"
+            "if RUNTIME_OVERRIDE:\n"
+            '    _ALIAS[".provider_one"] = ("Two",)\n'
+            "_LAZY_IMPORTS = {}\n",
+            1,
+        )
+    elif intermediate_name == "conditional mutable alias":
+        source = source.replace(
+            "_LAZY_IMPORTS = {}\n",
+            "_ALIAS = None\n"
+            "if RUNTIME_OVERRIDE:\n"
+            "    _ALIAS = _MODULE_SYMBOLS\n"
+            "if True:\n"
+            '    _ALIAS[".provider_one"] = ("Two",)\n'
+            "_LAZY_IMPORTS = {}\n",
+            1,
+        )
+    else:
+        if intermediate_name == "_module":
+            source = source.replace("_full", "_module")
+        assignment = f'    {intermediate_name} = f"polisyos.facade{{_relative}}"\n'
+        assert source.count(assignment) == 1
+        source = source.replace(
+            assignment,
+            assignment
+            + "    if RUNTIME_OVERRIDE:\n"
+            + f'        {intermediate_name} = "polisyos.facade.provider_wrong"\n',
+            1,
+        )
+    assert "_LAZY_IMPORTS" in source and "getattr(module, name)" in source
+    facade.write_text(source, encoding="utf-8")
+
+    with pytest.raises(ConfidenceLedgerError, match="non-literal repository re-export"):
+        ledger_module._resolve_authority_import_closure(repo, "polisyos.entry")
+
+
+@pytest.mark.parametrize(
+    "initializer",
+    [
+        pytest.param("_result = _mutate_provider_map()\n", id="assignment-rhs"),
+        pytest.param("_result: object = _mutate_provider_map()\n", id="annotated-assignment-rhs"),
+        pytest.param("if _mutate_provider_map():\n    pass\n", id="branch-test"),
+        pytest.param("for _item in _mutate_provider_map():\n    pass\n", id="loop-iterable"),
+        pytest.param("_result = (_mutate_provider_map(),)\n", id="nested-container"),
+        pytest.param(
+            '_MODULE_SYMBOLS[_mutate_provider_map()] = ("One",)\n',
+            id="assignment-target-index",
+        ),
+        pytest.param(
+            "def _trigger(value=_mutate_provider_map()):\n    pass\n",
+            id="function-default",
+        ),
+        pytest.param(
+            "@(_mutate_provider_map() or (lambda value: value))\ndef _trigger():\n    pass\n",
+            id="function-decorator",
+        ),
+        pytest.param(
+            "_callback = lambda value=_mutate_provider_map(): None\n",
+            id="lambda-default",
+        ),
+    ],
+)
+def test_authority_import_closure_refuses_opaque_effect_in_evaluated_initializer_expression(
+    tmp_path: Path,
+    initializer: str,
+) -> None:
+    """Every evaluated opaque initializer call invalidates the derived provider map."""
+
+    repo, facade = _write_generated_mapping_pep562_closure_repo(
+        tmp_path / "generated-pep562-opaque-expression-effect"
+    )
+    provider_two = repo / "src/polisyos/facade/provider_two.py"
+    provider_two.write_text(
+        "class One:\n    pass\nclass AliasOne:\n    pass\nclass Two:\n    pass\n",
+        encoding="utf-8",
+    )
+    source = facade.read_text(encoding="utf-8")
+    marker = "_LAZY_IMPORTS = {}\n"
+    assert source.count(marker) == 1
+    prelude = (
+        "_ALIAS = _MODULE_SYMBOLS\n"
+        "def _mutate_provider_map():\n"
+        "    _ALIAS.clear()\n"
+        '    _ALIAS[".provider_two"] = ("One", "AliasOne", "Two")\n'
+        "    return ()\n"
+    )
+    source = source.replace(marker, prelude + initializer + marker, 1)
+    assert all(
+        item in source
+        for item in (
+            "_MODULE_SYMBOLS",
+            "_LAZY_IMPORTS",
+            "def __getattr__",
+            "getattr(module, name)",
+            "_ALIAS.clear()",
+        )
+    )
+    facade.write_text(source, encoding="utf-8")
+
+    with pytest.raises(ConfidenceLedgerError, match="non-literal repository re-export"):
+        ledger_module._resolve_authority_import_closure(repo, "polisyos.entry")
+
+
+@pytest.mark.parametrize(
+    "insertion",
+    [
+        "before_selected_return",
+        "after_selected_return_value",
+        "unknown_alternate_return",
+    ],
+)
+def test_authority_import_closure_rejects_alternate_normal_return_for_mapped_export(
+    tmp_path: Path,
+    insertion: str,
+) -> None:
+    """Every reachable normal return for a mapped name must preserve its provider."""
+
+    repo, facade = _write_generated_mapping_pep562_closure_repo(
+        tmp_path / f"generated-pep562-alternate-return-{insertion}"
+    )
+    source = facade.read_text(encoding="utf-8")
+    if insertion == "before_selected_return":
+        anchor = "    module = importlib.import_module(_LAZY_IMPORTS[name])\n"
+        replacement = '    if name == "One":\n        return object()\n' + anchor
+    elif insertion == "after_selected_return_value":
+        anchor = "    return value\n"
+        replacement = '    if name == "One":\n        return object()\n' + anchor
+    else:
+        anchor = "    return value\n"
+        replacement = "    if RUNTIME_OVERRIDE:\n        return object()\n" + anchor
+        source = source.replace("def __getattr__(name):\n", "def __getattr__(name):\n", 1)
+        source = (
+            "def _runtime_override():\n    return True\nRUNTIME_OVERRIDE = _runtime_override()\n"
+            + source
+        )
+    changed = source.replace(anchor, replacement, 1)
+    assert changed != source
+    assert "_LAZY_IMPORTS" in changed and "getattr(module, name)" in changed
+    facade.write_text(changed, encoding="utf-8")
+
+    with pytest.raises(ConfidenceLedgerError, match="non-literal repository re-export"):
+        ledger_module._resolve_authority_import_closure(repo, "polisyos.entry")
+
+
+def test_authority_import_closure_rejects_reassigned_selected_name_alias(
+    tmp_path: Path,
+) -> None:
+    """An alias reassignment cannot return a different mapped export as the request."""
+
+    repo, facade = _write_generated_mapping_pep562_closure_repo(
+        tmp_path / "generated-pep562-reassigned-selected-name-alias"
+    )
+    source = facade.read_text(encoding="utf-8").replace(
+        "    module = importlib.import_module(_LAZY_IMPORTS[name])\n"
+        "    value = getattr(module, name)\n",
+        "    selected = name\n"
+        '    if selected == "One":\n        selected = "Two"\n'
+        "    module = importlib.import_module(_LAZY_IMPORTS[selected])\n"
+        "    value = getattr(module, selected)\n",
+        1,
+    )
+    assert "_LAZY_IMPORTS[selected]" in source
+    facade.write_text(source, encoding="utf-8")
+
+    with pytest.raises(ConfidenceLedgerError, match="non-literal repository re-export"):
+        ledger_module._resolve_authority_import_closure(repo, "polisyos.entry")
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        ("wrong_existing_target",),
+        ("removed_target_binding",),
+        ("missing_map_entry",),
+        ("dynamic_target",),
+        ("rebound_imported_module",),
+        ("rebound_extracted_value",),
+        ("reassigned_selected_name",),
+        ("branch_reassigned_selected_name",),
+    ],
+)
+def test_authority_import_closure_rejects_unbound_generated_map_targets(
+    tmp_path: Path,
+    mutation: str,
+) -> None:
+    """A source map cannot claim an owner whose file does not bind the requested name."""
+
+    repo, facade = _write_generated_mapping_pep562_closure_repo(
+        tmp_path / f"generated-pep562-{mutation}"
+    )
+    markers = ("_MODULE_SYMBOLS", "_LAZY_IMPORTS", "def __getattr__", "getattr(module, name)")
+    expected_error = "repository re-export target does not bind"
+    if mutation == "wrong_existing_target":
+        source = facade.read_text(encoding="utf-8").replace(
+            '".provider_one": ("One", "AliasOne")',
+            '".provider_wrong": ("One", "AliasOne")',
+            1,
+        )
+        facade.write_text(source, encoding="utf-8")
+    elif mutation == "missing_map_entry":
+        source = facade.read_text(encoding="utf-8").replace(
+            '".provider_one": ("One", "AliasOne")',
+            '".provider_one": ("AliasOne",)',
+            1,
+        )
+        facade.write_text(source, encoding="utf-8")
+        expected_error = "missing repository re-export binding"
+    elif mutation == "dynamic_target":
+        source = facade.read_text(encoding="utf-8").replace(
+            "_LAZY_IMPORTS[_symbol] = _full",
+            "_LAZY_IMPORTS[_symbol] = choose_target(_full)",
+            1,
+        )
+        facade.write_text(source, encoding="utf-8")
+        expected_error = "non-literal repository re-export"
+    elif mutation == "rebound_imported_module":
+        source = facade.read_text(encoding="utf-8").replace(
+            "    module = importlib.import_module(_LAZY_IMPORTS[name])\n"
+            "    value = getattr(module, name)\n",
+            "    module = importlib.import_module(_LAZY_IMPORTS[name])\n"
+            '    module = importlib.import_module("polisyos.facade.provider_wrong")\n'
+            "    value = getattr(module, name)\n",
+            1,
+        )
+        facade.write_text(source, encoding="utf-8")
+        expected_error = "non-literal repository re-export"
+    elif mutation == "rebound_extracted_value":
+        source = facade.read_text(encoding="utf-8").replace(
+            "    value = getattr(module, name)\n    return value\n",
+            "    value = getattr(module, name)\n    value = None\n    return value\n",
+            1,
+        )
+        facade.write_text(source, encoding="utf-8")
+        expected_error = "non-literal repository re-export"
+    elif mutation == "reassigned_selected_name":
+        source = facade.read_text(encoding="utf-8").replace(
+            "    module = importlib.import_module(_LAZY_IMPORTS[name])\n",
+            '    name = "Two"\n    module = importlib.import_module(_LAZY_IMPORTS[name])\n',
+            1,
+        )
+        expected_error = "non-literal repository re-export"
+    elif mutation == "branch_reassigned_selected_name":
+        source = facade.read_text(encoding="utf-8").replace(
+            "    module = importlib.import_module(_LAZY_IMPORTS[name])\n",
+            '    if name == "One" and RUNTIME_OVERRIDE:\n'
+            '        name = "Two"\n'
+            "    module = importlib.import_module(_LAZY_IMPORTS[name])\n",
+            1,
+        )
+        expected_error = "non-literal repository re-export"
+    else:
+        provider = repo / "src/polisyos/facade/provider_one.py"
+        source = provider.read_text(encoding="utf-8").replace(
+            "class One:\n    pass\n",
+            "class RemovedOne:\n    pass\n",
+            1,
+        )
+        provider.write_text(source, encoding="utf-8")
+        source = facade.read_text(encoding="utf-8")
+    assert all(marker in source for marker in markers)
+
+    with pytest.raises(
+        ConfidenceLedgerError,
+        match=expected_error,
+    ):
+        ledger_module._resolve_authority_import_closure(repo, "polisyos.entry")
+
+
+def test_authority_import_closure_resolves_finite_source_built_facade_maps(
+    tmp_path: Path,
+) -> None:
+    """The real import consumer receives owners from a finite generated export map."""
+
+    repo, _facade = _write_generated_mapping_pep562_closure_repo(
+        tmp_path / "finite-generated-pep562-repo"
+    )
+    closure = dict(ledger_module._resolve_authority_import_closure(repo, "polisyos.entry"))
+    assert closure["polisyos.facade.provider_one"] == "src/polisyos/facade/provider_one.py"
+    assert closure["polisyos.facade.provider_two"] == "src/polisyos/facade/provider_two.py"
+    assert "polisyos.facade.provider_wrong" not in closure
+
+
+def test_authority_import_closure_refuses_unknown_dict_comprehension_source_map(
+    tmp_path: Path,
+) -> None:
+    """A dynamic DictComp cannot certify exports or execute its source call."""
+
+    repo, facade = _write_generated_mapping_pep562_closure_repo(
+        tmp_path / "generated-pep562-unknown-dict-comprehension"
+    )
+    source = facade.read_text(encoding="utf-8")
+    literal_map = (
+        '_MODULE_SYMBOLS = {".provider_one": ("One", "AliasOne"), ".provider_two": ("Two",)}\n'
+    )
+    dynamic_map = (
+        "def _unknown_groups():\n"
+        '    raise AssertionError("source analysis must not execute this call")\n'
+        "_MODULE_SYMBOLS = {module: symbols for module, symbols in _unknown_groups()}\n"
+    )
+    assert source.count(literal_map) == 1
+    facade.write_text(source.replace(literal_map, dynamic_map, 1), encoding="utf-8")
+
+    with pytest.raises(ConfidenceLedgerError, match="non-literal repository re-export"):
+        ledger_module._resolve_authority_import_closure(repo, "polisyos.entry")
+
+
+def test_authority_import_closure_tracks_local_selected_name_alias(
+    tmp_path: Path,
+) -> None:
+    """A simple local alias carries the selected export through the finite flow."""
+
+    repo, facade = _write_generated_mapping_pep562_closure_repo(
+        tmp_path / "generated-pep562-selected-name-alias"
+    )
+    source = facade.read_text(encoding="utf-8").replace(
+        "    module = importlib.import_module(_LAZY_IMPORTS[name])\n"
+        "    value = getattr(module, name)\n",
+        "    selected = name\n"
+        "    module = importlib.import_module(_LAZY_IMPORTS[selected])\n"
+        "    value = getattr(module, selected)\n",
+        1,
+    )
+    assert "_LAZY_IMPORTS[selected]" in source
+    facade.write_text(source, encoding="utf-8")
+
+    closure = dict(ledger_module._resolve_authority_import_closure(repo, "polisyos.entry"))
+    assert closure["polisyos.facade.provider_one"] == "src/polisyos/facade/provider_one.py"
+    assert closure["polisyos.facade.provider_two"] == "src/polisyos/facade/provider_two.py"
+
+
+def test_core_contract_facade_missing_parser_row_fails_the_actual_provider_lookup(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A missing row in the complete runtime map cannot pass as an absent provider."""
+
+    facade = REPO_ROOT / "src/polisyos/core/contracts/__init__.py"
+    tree = ast.parse(facade.read_bytes(), filename=facade.relative_to(REPO_ROOT).as_posix())
+    original_indexer = ledger_module._literal_module_getattr_provider_index
+    complete = original_indexer(tree)
+    incomplete = ledger_module._LiteralModuleGetattrProviderIndex(
+        providers_by_export=types.MappingProxyType(
+            {
+                name: provider
+                for name, provider in complete.providers_by_export.items()
+                if name != "CatalogRunProfile"
+            }
+        ),
+        invalid_exports=complete.invalid_exports,
+        provider_symbols_by_export=complete.provider_symbols_by_export,
+        generated_mapping_dispatch=complete.generated_mapping_dispatch,
+    )
+    assert complete.generated_mapping_dispatch
+    monkeypatch.setattr(
+        ledger_module,
+        "_literal_module_getattr_provider_index",
+        lambda _tree: incomplete,
+    )
+
+    with pytest.raises(ConfidenceLedgerError, match="missing repository re-export binding"):
+        ledger_module._literal_module_getattr_provider(
+            REPO_ROOT,
+            "polisyos.core.contracts",
+            "CatalogRunProfile",
+            directory_entries={},
+            source_index=ledger_module._AuthorityImportClosureSourceIndex({}, {}),
+        )
+
+
+def _write_tuple_unpacked_pep562_repo(repo_root: Path) -> tuple[Path, Path]:
+    """Write a lazy facade that unpacks a selected finite map row before import."""
+
+    package = repo_root / "src/polisyos"
+    facade = package / "facade"
+    facade.mkdir(parents=True)
+    (package / "__init__.py").write_text("", encoding="utf-8")
+    (package / "entry.py").write_text(
+        "from polisyos.facade import One, AliasOne, Two\n",
+        encoding="utf-8",
+    )
+    (facade / "provider_one.py").write_text(
+        "class One:\n    pass\nclass AliasOne:\n    pass\n",
+        encoding="utf-8",
+    )
+    (facade / "provider_two.py").write_text("class Two:\n    pass\n", encoding="utf-8")
+    (facade / "provider_wrong.py").write_text("class Unrelated:\n    pass\n", encoding="utf-8")
+    facade_path = facade / "__init__.py"
+    facade_path.write_text(
+        "import importlib\n"
+        "_LAZY_EXPORTS = {\n"
+        '    "One": ("polisyos.facade.provider_one", "One"),\n'
+        '    "AliasOne": ("polisyos.facade.provider_one", "AliasOne"),\n'
+        '    "Two": ("polisyos.facade.provider_two", "Two"),\n'
+        "}\n"
+        "def __getattr__(name):\n"
+        "    if name not in _LAZY_EXPORTS:\n"
+        "        raise AttributeError(name)\n"
+        "    module_name, symbol_name = _LAZY_EXPORTS[name]\n"
+        "    module = importlib.import_module(module_name)\n"
+        "    value = getattr(module, symbol_name)\n"
+        "    return value\n",
+        encoding="utf-8",
+    )
+    return repo_root, facade_path
+
+
+def test_authority_import_closure_resolves_tuple_unpacked_map_import_flow(
+    tmp_path: Path,
+) -> None:
+    """A selected map pair remains bound through destructuring, import, and getattr."""
+
+    repo, facade = _write_tuple_unpacked_pep562_repo(tmp_path / "tuple-unpacked-map-import-flow")
+    closure = dict(ledger_module._resolve_authority_import_closure(repo, "polisyos.entry"))
+    assert closure["polisyos.facade.provider_one"] == "src/polisyos/facade/provider_one.py"
+    assert closure["polisyos.facade.provider_two"] == "src/polisyos/facade/provider_two.py"
+    assert "polisyos.facade.provider_wrong" not in closure
+
+    source = facade.read_text(encoding="utf-8")
+    markers = ("_LAZY_EXPORTS", "module_name, symbol_name", "importlib.import_module", "getattr")
+    assert all(marker in source for marker in markers)
+    removed = source.replace(
+        "    value = getattr(module, symbol_name)\n",
+        "    raise AttributeError(name)\n",
+        1,
+    )
+    assert removed != source and all(marker in removed for marker in markers)
+    facade.write_text(removed, encoding="utf-8")
+    with pytest.raises(ConfidenceLedgerError, match="non-literal repository re-export"):
+        ledger_module._resolve_authority_import_closure(repo, "polisyos.entry")
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        pytest.param("reassigned_component", id="reassigned-component"),
+        pytest.param("opaque_unpack", id="opaque-unpack"),
+        pytest.param("unknown_branch", id="unknown-branch"),
+    ],
+)
+def test_authority_import_closure_refuses_unproven_tuple_unpacked_map_flow(
+    tmp_path: Path,
+    mutation: str,
+) -> None:
+    """Map-flow markers cannot replace exact component and return-path proof."""
+
+    repo, facade = _write_tuple_unpacked_pep562_repo(tmp_path / f"tuple-unpacked-map-{mutation}")
+    source = facade.read_text(encoding="utf-8")
+    anchor = "    module_name, symbol_name = _LAZY_EXPORTS[name]\n"
+    assert source.count(anchor) == 1
+    if mutation == "reassigned_component":
+        changed = source.replace(
+            anchor,
+            anchor + '    module_name = "polisyos.facade.provider_wrong"\n',
+            1,
+        )
+    elif mutation == "opaque_unpack":
+        changed = source.replace(
+            anchor,
+            "    module_name, symbol_name = select_pair(_LAZY_EXPORTS[name])\n",
+            1,
+        )
+    else:
+        changed = source.replace(
+            anchor,
+            anchor
+            + "    if RUNTIME_OVERRIDE:\n"
+            + '        module_name = "polisyos.facade.provider_wrong"\n',
+            1,
+        )
+    assert changed != source
+    assert all(
+        marker in changed
+        for marker in ("_LAZY_EXPORTS", "importlib.import_module", "getattr", "return value")
+    )
+    facade.write_text(changed, encoding="utf-8")
+
+    with pytest.raises(ConfidenceLedgerError, match="non-literal repository re-export"):
+        ledger_module._resolve_authority_import_closure(repo, "polisyos.entry")
+
+
+def test_core_contract_generated_facade_map_binds_every_export_to_source_owner() -> None:
+    """The complete runtime Core export map reconciles to source-bound providers."""
+
+    facade = REPO_ROOT / "src/polisyos/core/contracts/__init__.py"
+    tree = ast.parse(facade.read_bytes(), filename=facade.relative_to(REPO_ROOT).as_posix())
+    provider_index = ledger_module._literal_module_getattr_provider_index(tree)
+    assert provider_index.invalid_exports == frozenset()
+    assert provider_index.providers_by_export["CatalogRunProfile"] == frozenset(
+        {"polisyos.core.contracts.control"}
+    )
+
+    getattr_function = next(
+        node
+        for node in tree.body
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name == "__getattr__"
+    )
+    parameter_name = getattr_function.args.args[0].arg
+    mapping_names = frozenset(
+        node.value.id
+        for node in ast.walk(getattr_function)
+        if isinstance(node, ast.Subscript)
+        and isinstance(node.value, ast.Name)
+        and isinstance(node.slice, ast.Name)
+        and node.slice.id == parameter_name
+    )
+    source_maps, invalid_maps = ledger_module._static_facade_mapping_values(tree, mapping_names)
+    assert invalid_maps == frozenset()
+    lazy_exports = source_maps["_LAZY_IMPORTS"]
+    assert len(lazy_exports) == 794
+
+    runtime_facade = importlib.import_module("polisyos.core.contracts")
+    assert Path(runtime_facade.__file__).resolve() == facade.resolve()
+    assert lazy_exports == runtime_facade._LAZY_IMPORTS
+    assert len(runtime_facade.__all__) == len(set(runtime_facade.__all__))
+    assert set(runtime_facade.__all__) <= set(lazy_exports) | set(runtime_facade._SUBMODULES)
+    expected_providers = {
+        export_name: frozenset({provider}) for export_name, provider in lazy_exports.items()
+    }
+    assert dict(provider_index.providers_by_export) == expected_providers
+    assert dict(provider_index.provider_symbols_by_export or {}) == {
+        export_name: frozenset({export_name}) for export_name in lazy_exports
+    }
+
+    source_index = ledger_module._AuthorityImportClosureSourceIndex({}, {})
+    directory_entries: dict[Path, frozenset[str]] = {}
+    for symbol, providers in expected_providers.items():
+        assert len(providers) == 1, symbol
+        target_symbols = (provider_index.provider_symbols_by_export or {}).get(
+            symbol,
+            frozenset({symbol}),
+        )
+        assert len(target_symbols) == 1, symbol
+        provider = next(iter(providers))
+        assert ledger_module._repository_module_exports_symbol(
+            REPO_ROOT,
+            provider,
+            next(iter(target_symbols)),
+            directory_entries=directory_entries,
+            source_index=source_index,
+        ), (symbol, provider, target_symbols)
+
+    assert (
+        ledger_module._literal_module_getattr_provider(
+            REPO_ROOT,
+            "polisyos.core.contracts",
+            "CatalogRunProfile",
+            directory_entries=directory_entries,
+            source_index=source_index,
+        )
+        == "polisyos.core.contracts.control"
+    )
+
+
+def test_from_parent_child_import_still_resolves_the_python_submodule_route(
+    tmp_path: Path,
+) -> None:
+    """ImportFrom child auto-import remains distinct from parent getattr binding."""
+
+    repo = tmp_path / "import-from-child-repo"
+    package = repo / "src/polisyos"
+    parent = package / "parent"
+    parent.mkdir(parents=True)
+    (package / "__init__.py").write_text("", encoding="utf-8")
+    (parent / "__init__.py").write_text("", encoding="utf-8")
+    (parent / "child.py").write_text("VALUE = 1\n", encoding="utf-8")
+    (package / "entry.py").write_text("from polisyos.parent import child\n", encoding="utf-8")
+
+    closure = dict(ledger_module._resolve_authority_import_closure(repo, "polisyos.entry"))
+    assert closure["polisyos.parent.child"] == "src/polisyos/parent/child.py"
+
+
+def test_repository_module_exports_symbol_requires_runtime_binding_not_child_or_annotation(
+    tmp_path: Path,
+) -> None:
+    """A child file and annotation-only name do not bind parent runtime attributes."""
+
+    repo = tmp_path / "runtime-binding-repo"
+    package = repo / "src/polisyos"
+    parent = package / "parent"
+    parent.mkdir(parents=True)
+    (package / "__init__.py").write_text("", encoding="utf-8")
+    (parent / "__init__.py").write_text("", encoding="utf-8")
+    (parent / "child.py").write_text("VALUE = 1\n", encoding="utf-8")
+    (package / "annotated.py").write_text("Symbol: object\n", encoding="utf-8")
+    source_index = ledger_module._AuthorityImportClosureSourceIndex({}, {})
+
+    assert not ledger_module._repository_module_exports_symbol(
+        repo,
+        "polisyos.parent",
+        "child",
+        directory_entries={},
+        source_index=source_index,
+    )
+    assert not ledger_module._repository_module_exports_symbol(
+        repo,
+        "polisyos.annotated",
+        "Symbol",
+        directory_entries={},
+        source_index=source_index,
+    )

@@ -4547,5 +4547,33 @@
     "P40_bucket": "Same producer-to-consumer conformance class; no warning-token gates, no license authority inferred.",
     "acceptance": "Canonical 9-case SCL plus 17 Scholar importer/API replay remains UNRUN at source boundary.",
     "closure_ids": []
+  },
+  "coordination_epoch_20261017_n11_r7_shared_admitted_binding_grammar": {
+    "slice_base": "901f90e7c622b5c850bad1fe3dddf9bb4694501c",
+    "canonical_writer": "root only; agents RAW-only",
+    "mechanism_paths": [
+      "policy-engine/src/polisyos/runtime/quality/confidence_ledger.py",
+      "policy-engine/tests/unit/runtime/quality/test_confidence_ledger.py"
+    ],
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ],
+    "author_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-calibration-owner-source-closure-20261017/r7-scope-binding-census-20261017/candidate-manifest-r7-scope-binding-census.json",
+      "sha256": "1de3623299d2dcbb5a33869f61ed019aa32312ecba645d3b29c2adf56d3dc7ad"
+    },
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-calibration-owner-source-closure-independent-review-r11-r7-20261017/review.json",
+      "sha256": "ca1abf4c0404749b4fbbf792697ff396e3fba1c710d343b71861500bcf46e461"
+    },
+    "claim_corrigendum": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-calibration-owner-source-closure-20261017/r7-canonical-unit-wave-plan-r1/claim-boundary-corrigendum-r7.json",
+      "sha256": "d19bc2f9ab43a841927e6003ded8b4338069bd955680f7f3cc334ddcf535aae9"
+    },
+    "property": "One shared map-free/map-backed source flow and scope binding census rejects visible importer/module identity mutation for the admitted literal grammar. No general Python binder claim.",
+    "P40_bounded_residual": "MatchMapping.rest helper omission is bounded by unsupported ast.Match refusal; standalone helper completeness is not authority. Independent route probe positive and shadows all refused and is explicitly inconclusive.",
+    "verification": "GO focused full owning test module only; actual canonical unit wave and real Core794/L5 generation UNRUN at implementation boundary. No full Native/source freeze.",
+    "closure_ids": []
   }
 }

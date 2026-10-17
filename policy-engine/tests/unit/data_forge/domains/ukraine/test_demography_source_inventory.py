@@ -930,7 +930,7 @@ def test_selected_inventory_member_loss_and_corruption_refuse_without_defaults(
     assert artifacts.source_evidence.source_authority_provenance == "not_established"
     assert artifacts.source_evidence.source_currentness_provenance == "not_established"
     state = build_static_aging_state(
-        base_weights=np.array([1.0, 2.0]),
+        base_weights=np.array([10.0, 18.0]),
         origin_state_index=np.array([0, 1]),
         artifacts=artifacts,
         microsim_calibration_report={

@@ -143,6 +143,7 @@ from tests._helpers.controlled_candidate_profile import (
     _SameCandidateNewBasisGenerator,
     _seed_controlled_selected_skg_source,
     _StableShadowGrounding,
+    _validate_controlled_skg_source,
 )
 from tests._helpers.measurement_execution_binding import measurement_execution_binding
 from tools.quality.validation import (
@@ -2795,6 +2796,22 @@ def _record_with_selected_ncm_view(record: Any, ncm_ref: Any) -> Any:
             "content_hash": content_hash,
         }
     )
+
+
+def test_controlled_selected_skg_source_binds_exact_fresh_owner_version(
+    tmp_path: Path,
+) -> None:
+    """Bind the exact v1 output of a fresh canonical synthetic SKG build."""
+    selected_source = _seed_controlled_selected_skg_source(
+        tmp_path,
+        recorded_problem=_problem(),
+    )
+
+    assert selected_source.version_id == 1
+    assert selected_source.snapshot_ref == (
+        f"duckdb://{selected_source.db_path.as_posix()}#v{selected_source.version_id}"
+    )
+    assert _validate_controlled_skg_source(selected_source) is selected_source
 
 
 def _owner_n5_case_with_selected_ncm_ref(

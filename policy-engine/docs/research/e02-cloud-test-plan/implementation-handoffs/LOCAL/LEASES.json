@@ -4496,5 +4496,32 @@
     },
     "closure_ids": [],
     "historical_fixture_tracking": "Only exact492-byte trusted historical BERL fixture exempted from *.pkl ignore; other pickle data remains ignored. Original ignored-file staging rejection retained; root resumed known exact index without reset."
+  },
+  "coordination_epoch_20261017_reviewed_fixture_version_source_and_margins": {
+    "source_base": "b700c1b434f2a64e51f09a74a5605d7c896fd1f3",
+    "root_writer": "root only; all agents RAW-only",
+    "mechanism_paths": [
+      "policy-engine/tests/_helpers/controlled_candidate_profile.py",
+      "policy-engine/tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py",
+      "policy-engine/tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py",
+      "policy-engine/tests/unit/remediation/test_scl_03.py",
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py"
+    ],
+    "reviewed_application": "n4 owner-issued version identity across helper and served consumers; Scholar cache-mutated FetchResult/final URL source identity/persisted bundle; feasible demographic positive fixture preserving inventory-derived missing/corrupt controls",
+    "reviews": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n5-selected-ncm-owner-wiring-r5-version-bound-consumers-independent-review-20261017/review.json",
+        "sha256": "62f7f00f59519d3cb90ff2daa2fccfa2bb600d9efc75d7cd3193d20f50a7a7fc"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-scl03-fixture-binding-independent-review-r3-20261017/review.json",
+        "sha256": "d51b3139461bf66e302e039f8c3133a269d0ce3aa7a66b35516453f8ea0f7954"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la032-demography-positive-margin-independent-review-r1-20261017/assessment.json",
+        "sha256": "e80a2ecb7e00d509e04f07425b9fa8f56d4626598f1d642cd9f7622d222241f5"
+      }
+    ],
+    "limits": "No product guard or scientific tolerance changed; selected focused runtime replay remains UNRUN at this implementation boundary. Full E02 source/input/backend freeze and G closure remain pending."
   }
 }

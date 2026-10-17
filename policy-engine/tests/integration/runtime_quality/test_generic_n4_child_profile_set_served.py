@@ -984,6 +984,9 @@ async def test_served_real_n4_children_keep_first_n5_after_later_sibling_failure
     served_worker_phase_probe("fixture_prepare.complete")
     assert prepared.request_json["max_iterations"] == 1
     selected_skg_source = prepared.selected_skg_source
+    selected_skg_source_version = str(selected_skg_source.version_id)
+    assert selected_skg_source.version_id == prepared.selected_skg_version_id
+    assert selected_skg_source.snapshot_ref == prepared.selected_skg_snapshot_ref
     assert prepared.selected_skg_source_checkpoints == (selected_skg_source.sha256,) * 4
     assert selected_skg_source.sha256 == prepared.selected_source_profile.source_snapshot_sha256
 
@@ -1076,8 +1079,11 @@ async def test_served_real_n4_children_keep_first_n5_after_later_sibling_failure
     )
     assert selected_skg_source_profile.skg_causal_prior_ref == selected_skg_prior_ref
     assert selected_skg_prior_ref.skg_snapshot_ref == prepared.selected_skg_snapshot_ref
+    assert selected_skg_prior_ref.skg_snapshot_ref == selected_skg_source.snapshot_ref
     assert selected_skg_prior_ref.skg_version_id == str(prepared.selected_skg_version_id)
+    assert selected_skg_prior_ref.skg_version_id == selected_skg_source_version
     assert selected_skg_source_profile.source_snapshot_ref == prepared.selected_skg_snapshot_ref
+    assert selected_skg_source_profile.source_snapshot_ref == selected_skg_source.snapshot_ref
     assert selected_skg_source_profile.world_model_record_content_hash == (
         base_inputs.world_model_record.content_hash
     )
@@ -1128,7 +1134,7 @@ async def test_served_real_n4_children_keep_first_n5_after_later_sibling_failure
     for selected_edge_id in ("tax-balance", "distress-output"):
         selected_edge = selected_reference.essential_edges[("L2_CAUSAL_EDGE", selected_edge_id)]
         assert selected_edge.provenance["source"] == "ac_skg_edges"
-        assert selected_edge.provenance["version"] == "7"
+        assert selected_edge.provenance["version"] == selected_skg_source_version
         assert (
             selected_edge.provenance["selected_source_profile"]["content_hash"]
             == selected_skg_source_profile.content_hash

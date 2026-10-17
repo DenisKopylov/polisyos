@@ -434,6 +434,10 @@ _CONTROLLED_SLOT_ALIASES = {
 }
 
 
+_CONTROLLED_SYNTHETIC_SKG_VERSION_ID = 1
+_CONTROLLED_SYNTHETIC_SKG_VERSION_COUNT = 1
+
+
 @dataclass(frozen=True)
 class ControlledSKGSourceSelection:
     """Exact owner-resolved identity for one read-only controlled SKG source."""
@@ -492,7 +496,7 @@ def _controlled_skg_source_observation(db_path: Path) -> tuple[int, str, str, st
     }
     if not required_columns.issubset({(table, column) for table, column, _ in schema_rows}):
         raise ValueError("controlled_selected_skg_source_schema_incomplete")
-    if versions != (7,):
+    if versions != (_CONTROLLED_SYNTHETIC_SKG_VERSION_ID,):
         raise ValueError("controlled_selected_skg_source_version_set_mismatch")
     query = SKGQuery(db_path=resolved_path, index_dir=resolved_path.parent / "index")
     try:
@@ -502,7 +506,7 @@ def _controlled_skg_source_observation(db_path: Path) -> tuple[int, str, str, st
         snapshot_ref = query.skg_snapshot_ref(version_id=version_id)
     finally:
         query.close()
-    if version_id != 7 or snapshot_ref is None:
+    if version_id != _CONTROLLED_SYNTHETIC_SKG_VERSION_ID or snapshot_ref is None:
         raise ValueError("controlled_selected_skg_source_version_unresolved")
     after_stat = resolved_path.stat()
     after_identity = (
@@ -1058,7 +1062,9 @@ def _seed_controlled_selected_skg_source(
         ],
         metadata={"synthetic": True, "fixture_scope": "candidate_only"},
     )
-    build_synthetic_academic_skg_source(records=(record,), db_path=db_path)
+    build_stats = build_synthetic_academic_skg_source(records=(record,), db_path=db_path)
+    if build_stats.skg_versions != _CONTROLLED_SYNTHETIC_SKG_VERSION_COUNT:
+        raise ValueError("controlled_selected_skg_source_build_version_set_mismatch")
     return _capture_controlled_skg_source(db_path)
 
 

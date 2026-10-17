@@ -1,0 +1,203 @@
+{
+  "record_type": "candidate_implementation_handoff",
+  "slice": "runtime-source-root-composition-r11-20261017",
+  "author_role": "local_candidate_author_not_G",
+  "candidate_branch": "codex/e02-unified-local-20261009",
+  "slice_base": {
+    "sha": "767b9a032b1af80eb5a21e760cf3063d567be31a",
+    "tree": "96dc44e9b56e3656f9f16612b9938af3505a26a4"
+  },
+  "candidate": {
+    "sha": "c44903080ec9de81c7d2015b1722a4aa373c0918",
+    "tree": "a6c6cebb8f9e819464efeb4e3a64f33b6fe3e064",
+    "parents": [
+      "767b9a032b1af80eb5a21e760cf3063d567be31a"
+    ],
+    "full_footprint_sha256": {
+      "policy-engine/src/polisyos/runtime/http/app.py": "6621d1b3e9800d089d92fabb34d4bb8de2d74f410e301154f9acd6fab214cd4a",
+      "policy-engine/src/polisyos/runtime/http/container.py": "3b98fc679c46ad4ce343f518231166929dc69f625ecec5227429ca360dae9252",
+      "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py": "1040f24c533a28870155b58682b5096987f31d186a312e7f0215d08023607a35",
+      "policy-engine/src/polisyos/runtime/http/README.md": "cf73354e349ab95543032c86daeb0c0ce84ef5b1ec367d3cd67442208334ddb6",
+      "policy-engine/release-fragments/unreleased/2026-10-17-e02-runtime-source-root-composition.toml": "e77bc2b9afc8d319c3052d7e1b220774cf0135c13084fc16fbf8f962bfe0bf31",
+      "policy-engine/tests/unit/runtime/http/test_runtime_source_root_composition.py": "ac5436e64b5621422f4f611cd094545c7ff78f8b68aa4ff441b83a511a05ffcd",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json": "c423301e4ecc3abffb3c66d15d3d7b7dee15b1b984b33c5cfde34ea94de04eeb"
+    },
+    "source_bytes_read_back_from_branch": true
+  },
+  "property": "An explicit local source root reaches control-service startup and its selected catalog binding without replacing CAS or run-output roots.",
+  "real_chain": "Path input \u2192 typed RuntimeContainerConfig \u2192 app/container startup \u2192 ControlPlaneService \u2192 selected CatalogServingSource/database_path; real fixture catalog built and health HTTP consumer exercised.",
+  "verification": {
+    "actual_canonical_cases": {
+      "PASS": 1,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0
+    },
+    "case": {
+      "classname": "tests.unit.runtime.http.test_runtime_source_root_composition",
+      "name": "test_runtime_source_root_is_bound_through_container_startup"
+    },
+    "test_command": {
+      "label": "canonical-startup",
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "tests/unit/runtime/http/test_runtime_source_root_composition.py",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-p",
+        "no:cacheprovider",
+        "-ra",
+        "-vv",
+        "--tb=short",
+        "--basetemp",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime-source-root-adoption-r11-20261017/runtime/pytest",
+        "--junitxml",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime-source-root-adoption-r11-20261017/startup.junit.xml"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "timeout_seconds": 120,
+      "exit_code": 0,
+      "timed_out": false,
+      "seconds": 14.448,
+      "stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime-source-root-adoption-r11-20261017/canonical-startup.stdout.txt",
+        "sha256": "1c2869656b6e10f40aa752033e3116dfcea7b7217a122f9f7ab23d43feaee290"
+      },
+      "stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime-source-root-adoption-r11-20261017/canonical-startup.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "ruff_python_file_denominator": 4,
+    "ruff_check": 0,
+    "ruff_format_check": 0,
+    "supervisor_seconds": 16.226,
+    "peak_process_tree_rss_bytes": 1115193344,
+    "source_pins": {
+      "policy-engine/src/polisyos/runtime/http/app.py": "6621d1b3e9800d089d92fabb34d4bb8de2d74f410e301154f9acd6fab214cd4a",
+      "policy-engine/src/polisyos/runtime/http/container.py": "3b98fc679c46ad4ce343f518231166929dc69f625ecec5227429ca360dae9252",
+      "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py": "1040f24c533a28870155b58682b5096987f31d186a312e7f0215d08023607a35",
+      "policy-engine/src/polisyos/runtime/http/README.md": "cf73354e349ab95543032c86daeb0c0ce84ef5b1ec367d3cd67442208334ddb6",
+      "policy-engine/release-fragments/unreleased/2026-10-17-e02-runtime-source-root-composition.toml": "e77bc2b9afc8d319c3052d7e1b220774cf0135c13084fc16fbf8f962bfe0bf31",
+      "policy-engine/tests/unit/runtime/http/test_runtime_source_root_composition.py": "ac5436e64b5621422f4f611cd094545c7ff78f8b68aa4ff441b83a511a05ffcd",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json": "c423301e4ecc3abffb3c66d15d3d7b7dee15b1b984b33c5cfde34ea94de04eeb",
+      "policy-engine/pytest.ini": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+      "policy-engine/uv.lock": "6b0157dd281cae2f1bb3c2af2bd2ea4353a99ca1fa2f0424df091f41fd0b8b9c",
+      "policy-engine/architecture/tooling/ruff/workspace_root.toml": "fc61b6b903a2a2076b05e05e1d603f49c609242d8b06e008fc4bb534ee02382a"
+    },
+    "environment": {
+      "JAX_PLATFORMS": "cpu",
+      "MKL_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "PYTEST_ADDOPTS": "",
+      "PYTEST_CURRENT_TEST": "",
+      "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "",
+      "PYTEST_PLUGINS": "",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONPATH": "src:.",
+      "VECLIB_MAXIMUM_THREADS": "1"
+    },
+    "negative_controls": [
+      "absent optional root preserves None",
+      "present string refused",
+      "relative Path refused",
+      "nonexistent config Path refused",
+      "nonexistent app Path refused"
+    ],
+    "remove_property_keep_markers": "UNRUN for this narrow slice; no whole-capability closure proposed",
+    "origin_limit": "Canonical test paths and ten input byte pins checked; this root run has no independent all-loaded-module origin census."
+  },
+  "selected_input_profile_backend": {
+    "environment": "existing locked local product .venv",
+    "selected_input": "controlled real catalog-builder DuckDB under a temporary selected source root",
+    "numerical_threads": 1,
+    "production_currentness": "not_established"
+  },
+  "independent_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n4-source-root-composition-r11-20261017/receipts/r11-independent-review-r1.json",
+    "sha256": "33b1c6095706718c20684917fd316515243c9086f347fd353c57f6f46d77682c"
+  },
+  "prior_overlay_result": "The predecessor overlay test passed its actual setup/call/teardown; its wrapper rejected relative-vs-absolute nodeid. The canonical run above is separate and exit 0.",
+  "pattern_pass": {
+    "ids": [
+      "P01",
+      "P02",
+      "P29",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "target": "Existing service composition carries the selected physical root instead of assuming the checkout root.",
+    "remaining_capability_label": "verification_missing",
+    "remaining_property": "Complete meaningful N4/N5 persisted/fresh served consumers remain separate."
+  },
+  "limitations": [
+    "No catalog endpoint read, V2/V5 profile bridge, meaningful N4 children, N5 CAS/fresh GET, K_ref completeness, law, causal calibration, or authority/currentness established by startup.",
+    "Native/type/SOTA/package/browser/global source-input-backend freeze remain pending.",
+    "No inherited-red classification or automatic original-finding closure."
+  ],
+  "full_deciding_outputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime-source-root-adoption-r11-20261017/runtime-source-root-implementation-readback.json",
+      "sha256": "0d322610db1964a2aade78e4e81fbacb8da6a4802f60322fb915f302d3adacab"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime-source-root-adoption-r11-20261017/request.json",
+      "sha256": "985e6edce19a9d93e2df08c69062c25dd539920d88f4465c393f8eff29ed1f75"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime-source-root-adoption-r11-20261017/actual-results.json",
+      "sha256": "a97a9f31c2a3a06e0498424603a29941c12c688ffe88ed898409ecce03e477dd"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime-source-root-adoption-r11-20261017/supervisor-result.json",
+      "sha256": "28340929b46c67c2c651b102bdc8c2a1e35f600f28538be97dde4ab3b1786f5b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime-source-root-adoption-r11-20261017/startup.junit.xml",
+      "sha256": "876c3517028475bf90440a5144b44ded452a985fca781b8f37000c77505c941d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime-source-root-adoption-r11-20261017/application-readback.json",
+      "sha256": "de5d5a876fddafa1f0b8d6557e800974fa148a70393d9bff4c9813135470ee89"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime-source-root-adoption-r11-20261017/ruff-check.stdout.txt",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime-source-root-adoption-r11-20261017/ruff-check.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime-source-root-adoption-r11-20261017/ruff-format.stdout.txt",
+      "sha256": "177f260a5645724013185e4b140c7045cc39e56c0c97b120f5cb23599f85f0de"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime-source-root-adoption-r11-20261017/ruff-format.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime-source-root-adoption-r11-20261017/canonical-startup.stdout.txt",
+      "sha256": "1c2869656b6e10f40aa752033e3116dfcea7b7217a122f9f7ab23d43feaee290"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime-source-root-adoption-r11-20261017/canonical-startup.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "closure_ids": [],
+  "proposal_fields": {
+    "status": "bounded startup composition verified; independent G acceptance pending",
+    "formal_closures_proposed": []
+  },
+  "next_check": "Adopt reviewed current-owner source-profile companions and run actual producer/ordinary POST/meaningful children/N5/persisted fresh GET chain.",
+  "global_source_input_backend_freeze": false
+}

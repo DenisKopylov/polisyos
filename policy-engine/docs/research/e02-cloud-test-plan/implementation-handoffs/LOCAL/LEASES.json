@@ -6379,5 +6379,26 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "coordination_epoch_20261018_ir_engine_delegation_test": {
+    "slice_base": "b8343d819056c0d257fa211dc7d1a59d49e31c5f",
+    "canonical_writer": "root only; exact reviewed patch via git apply",
+    "mechanism_and_mandatory_test_paths": [
+      "policy-engine/tests/unit/common/test_migrations_purity.py"
+    ],
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-engine-delegation-test-application-20261018/source-application.json",
+      "sha256": "01256184d02d74e1be45a2a519a34c021d0e64018fedda484d495ca23664bb03"
+    },
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r7-ir-migration-engine-delegation-independent-review-r1-20261018/review.json",
+      "sha256": "895c83ae132e09640abe0a75acf867ecebaaa258329b7818069f36a731e7b077"
+    },
+    "P40": "One unsupported test export assumption; retain existing API and prove real delegation rather than create an export for a test.",
+    "next_check": "Canonical focused two tests then composed migrated-test wave at explicit source freeze. Prior180PASS/2FAIL remains historical.",
+    "runtime": "Canonical post-adoption UNRUN",
+    "source_profile_freeze": false,
+    "closure_ids": [],
+    "G_acceptance": false
   }
 }

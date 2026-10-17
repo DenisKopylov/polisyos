@@ -1,10 +1,8 @@
-"""RED witnesses for the FRC-02 empirical calibration bridge.
+"""Behavioral tests for the FRC-02 empirical calibration bridge.
 
-The tests deliberately begin at a persisted ``BacktestReport`` and cross the
-real CAS boundary.  They keep the evidence predictive-only: observed interval
-hits are neutral empirical evidence, not causal effect authority or an S10
-promotion.  The bridge import is resolved inside test execution so this
-test-only RED commit still collects while the producer module is absent.
+The tests begin at a persisted report and context manifest, then exercise the
+owner bridge and assert the selected-profile, temporal-role, identity, and
+admission properties of the resulting evidence.
 """
 
 from __future__ import annotations
@@ -24,7 +22,9 @@ from polisyos.core.artifacts import (
     PutOptions,
     artifact_manifest_profile_sha256,
 )
-from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts import (
+    ensure_ir_artifact_store as _ensure_ir_artifact_store,
+)
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ProducerInfo
 from polisyos.ir.analytics.backtest import (
@@ -709,7 +709,9 @@ def test_context_sibling_manifest_profile_for_same_bytes_is_not_report_basis(
     assert evidence.floor_passed is False
 
 
-def test_profileless_report_ref_is_not_a_producer_selected_basis(tmp_path: Path) -> None:
+def test_profileless_report_ref_is_not_a_producer_selected_basis(
+    tmp_path: Path,
+) -> None:
     store, report_ref, _persisted, refs = _persist_report(
         tmp_path, label="profileless-report-ref", observations=(True, True)
     )
@@ -747,7 +749,9 @@ def test_profileless_context_ref_is_not_selected_report_basis(tmp_path: Path) ->
     assert evidence.usable_for_calibration is False
 
 
-def test_missing_report_input_profile_does_not_satisfy_full_basis(tmp_path: Path) -> None:
+def test_missing_report_input_profile_does_not_satisfy_full_basis(
+    tmp_path: Path,
+) -> None:
     store, report_ref, _persisted, refs = _persist_report(
         tmp_path, label="missing-report-input-profile", observations=(True, True)
     )
@@ -1476,7 +1480,9 @@ def test_context_rejects_collapsed_naive_and_out_of_order_temporal_roles(
         _context(refs, temporal_updates=mutations[invalid_temporal_case])
 
 
-def test_context_binding_mismatches_fail_closed_before_cas_write(tmp_path: Path) -> None:
+def test_context_binding_mismatches_fail_closed_before_cas_write(
+    tmp_path: Path,
+) -> None:
     """Report, scope, policy, method, rule, threshold, and corrupt refs cannot be admitted."""
 
     store, report_ref, _persisted, refs = _persist_report(

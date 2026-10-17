@@ -10,6 +10,7 @@ evidence = [
   "src/polisyos/common/README.md",
   "tests/unit/common/test_package_rehome.py",
   "tests/unit/common/test_lex_text.py",
+  "tests/unit/common/test_text.py",
   "tests/property/lex/test_common_properties.py",
   "tests/unit/architecture/test_source50_core_common_route_identity.py",
 ]

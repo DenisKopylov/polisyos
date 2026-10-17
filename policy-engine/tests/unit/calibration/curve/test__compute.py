@@ -85,7 +85,9 @@ class TestCalibrationCurve:
 
 
 @pytest.mark.parametrize("empty_first", [True, False])
-def test_incomplete_curve_cannot_pass_even_with_zero_measured_error(empty_first: bool) -> None:
+def test_incomplete_curve_cannot_pass_even_with_zero_measured_error(
+    empty_first: bool,
+) -> None:
     y_true = [float(index) for index in range(100)]
     valid = [(value - 0.1, value + 0.1) for value in y_true[:95]] + [(-1000.0, -999.0)] * 5
     intervals = [[], valid] if empty_first else [valid, []]

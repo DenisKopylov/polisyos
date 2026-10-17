@@ -115,7 +115,7 @@ Common migration imports stay Fabric-neutral.
 Run commands from the repository root `policy-engine/`.
 
 - Focused Common behavior tests:
-  `uv run pytest -q tests/unit/common/test_package_rehome.py tests/unit/common/test_async_tools.py tests/unit/common/test_config_bootstrap.py tests/unit/common/test_fast_json_serialization.py tests/property/common/test_serialization_properties.py tests/unit/common/test_logger.py tests/unit/common/test_timestamps.py tests/unit/common/test_migrations_purity.py`
+  `uv run pytest -q tests/unit/common/test_package_rehome.py tests/unit/common/test_async_tools.py tests/unit/common/test_config_bootstrap.py tests/unit/common/test_fast_json_serialization.py tests/unit/common/serialization/test__strict_json.py tests/property/common/test_serialization_properties.py tests/unit/common/test_logger.py tests/unit/common/test_timestamps.py tests/unit/common/test_migrations_purity.py tests/unit/common/migrations/test_base.py tests/unit/common/migrations/test_manifest.py tests/unit/common/test__selected_artifact_intake.py tests/unit/common/jax_env/test__policy.py tests/unit/common/test_text.py`
 
 - Conceptual release gate: `uv run python tools/devx/workspace/core_runtime_mypy.py`
 - Conceptual release gate:

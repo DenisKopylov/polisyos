@@ -6131,5 +6131,222 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "coordination_epoch_20261018_reviewed_test_owner_rehome_and_typed_fixture": {
+    "slice_base": "8e3062d8ec1268151d674932910c4694d426863b",
+    "canonical_writer": "root only; exact reviewed non-deletion patches, five retired originals moved by native Trash API before adoption",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/ops/ci/templates/workflows/mutation.yml": {
+        "preimage_sha256": "328743d1447fb26d77b225b95082f5b8048b2b5ffcb7588ee370000933e35730",
+        "postimage_sha256": "0224fcadd572985cc4ea674c71d375893a48c6b12dff622fbdff69d4a42b7595",
+        "role": "active_companion"
+      },
+      "policy-engine/release-fragments/unreleased/2026-10-05-predictive-calibration-inputs.toml": {
+        "preimage_sha256": "8f1bb047d332d1473437da9ba6b6787fde6fa7c81dae30591e3a92686da946ed",
+        "postimage_sha256": "9a7edb8c47a729bd4e7dc8a0cb87f9d012c2199671b4e86bf0eaa5fe4655eb28",
+        "role": "active_companion"
+      },
+      "policy-engine/release-fragments/unreleased/2026-10-09-e02-routine-public-boundaries.toml": {
+        "preimage_sha256": "876b17b2c1131e2d2b2f0c424d3e021a30d28f2728641c6c30398bcd6c7b1403",
+        "postimage_sha256": "1b20b21c04a3bb28a1d0464233ddeb9466483c497a5c0c4ff6b7ebb2b33d3485",
+        "role": "active_companion"
+      },
+      "policy-engine/release-fragments/unreleased/2026-10-10-calibration-ruff-debt-retirement.toml": {
+        "preimage_sha256": "6da4cc27a96535ccb97a72bf9f1dcca5017b0e6da4288ab8d26d9ddc0529333c",
+        "postimage_sha256": "a5c3c2127a60bb724d75dec0e9f2e186238e390e9416090106290366ecbc81c7",
+        "role": "active_companion"
+      },
+      "policy-engine/release-fragments/unreleased/2026-10-11-e02-c07-c09-full-report-profile-lineage-v2.toml": {
+        "preimage_sha256": "9f00d61252b0216bedcf72d8ded3427b781ce7e2128ac1dc900a08976c6effa8",
+        "postimage_sha256": "9f67edcc44bc569ca7832915e503437b11af04580a8303b6053bfb2821a84910",
+        "role": "active_companion"
+      },
+      "policy-engine/release-fragments/unreleased/2026-10-12-e02-can-selected-canon-read.toml": {
+        "preimage_sha256": "2e0f0020450454f5d56ab6e457f5ba12b66b14b5d2986ceafd41fa480b087b77",
+        "postimage_sha256": "6ac9eb463b86585d17e17c39ca90f4fb80c7ccb3bd7c43d72256754f040646d4",
+        "role": "active_companion"
+      },
+      "policy-engine/release-fragments/unreleased/2026-10-16-e02-selected-artifact-refusal-disposition.toml": {
+        "preimage_sha256": "8cfa59195d316c4fe5e5267fbd4d9321d6be64e0348215b50bcbc9a19c20209f",
+        "postimage_sha256": "6b97a0244a91066489444796e60538e1be83288bffd5ee76064c00dc01e6fc2d",
+        "role": "active_companion"
+      },
+      "policy-engine/release-fragments/unreleased/2026-10-17-e02-common-package-consolidation.toml": {
+        "preimage_sha256": "de960bb88aa78883c3473e1fd578e94edcf226a823ee536de928ef65129e80bd",
+        "postimage_sha256": "92de77c675328eacb3fcd95ba8adefe8d86dc7f3b22cc257c4276c262ccd56b5",
+        "role": "active_companion"
+      },
+      "policy-engine/release-fragments/unreleased/2026-10-17-e02-common-text-facade.toml": {
+        "preimage_sha256": "f9812809d491d85f09f217d02accd0711813684da1487ee6d6a7221bbaa10c07",
+        "postimage_sha256": "85cc926aa45529732c47277bfeed2be4cf1bb55e30b9ebe7ce589aa394e7bb6b",
+        "role": "active_companion"
+      },
+      "policy-engine/src/polisyos/common/README.md": {
+        "preimage_sha256": "f360a41eae3467c4fe827aea107376ca927ff5e0c4b7ee3aa6f6605ca8b0951e",
+        "postimage_sha256": "2a4a0460cec3194f65ab0ddbf58e5917f7b929c0bea870fccfbb3dc5d2607edb",
+        "role": "active_companion"
+      },
+      "policy-engine/tests/repo_quality/tools/test_tool_config_split.py": {
+        "preimage_sha256": "b9e984078e30d15ad3ece7558cf323811673017a274fd5307d37b033458a9a90",
+        "postimage_sha256": "93534c4e63613a0100744191e867b54adacf625907437319f6c2bf080c7100eb",
+        "role": "active_companion"
+      },
+      "policy-engine/tests/unit/calibration/curve/test__compute.py": {
+        "preimage_sha256": null,
+        "postimage_sha256": "529b8505aadaeda4931129a0648ec2cc3cb7e7e292678a6b73b806f44c8de7a0",
+        "role": "candidate_destination"
+      },
+      "policy-engine/tests/unit/calibration/diagnostics/test_adapters.py": {
+        "preimage_sha256": null,
+        "postimage_sha256": "1b19d29b7ba8345a214d212df16c113ea48093db6e8e56b7611717d661b59482",
+        "role": "candidate_destination"
+      },
+      "policy-engine/tests/unit/calibration/diagnostics/test_continuous.py": {
+        "preimage_sha256": null,
+        "postimage_sha256": "a35b0335f53bc206115aaa7a59ea5896daa317026c0f9d1e55e3eb29bc99bf76",
+        "role": "candidate_destination"
+      },
+      "policy-engine/tests/unit/calibration/diagnostics/test_multiclass.py": {
+        "preimage_sha256": null,
+        "postimage_sha256": "641fca6b93367a53d625a7ad821856f54b92fb1a7ca22a3ca34fd7b63d5c5173",
+        "role": "candidate_destination"
+      },
+      "policy-engine/tests/unit/calibration/test_adapters.py": {
+        "preimage_sha256": "c1fa0e1daf9caded0b4e8a63bfe6104969352a1ceed19daa59ecbd2da9edd345",
+        "postimage_sha256": null,
+        "role": "old_test"
+      },
+      "policy-engine/tests/unit/calibration/test_continuous.py": {
+        "preimage_sha256": "444f08da02da37cfde5cfeebc89e3e200e8c6a7bf968e514544cb43fb5fc978f",
+        "postimage_sha256": null,
+        "role": "old_test"
+      },
+      "policy-engine/tests/unit/calibration/test_curve.py": {
+        "preimage_sha256": "8c88103c98e64048086852d962bd10a91c4fad64cfb70aa2313b47b3b504595f",
+        "postimage_sha256": null,
+        "role": "old_test"
+      },
+      "policy-engine/tests/unit/calibration/test_forecast_bridge.py": {
+        "preimage_sha256": null,
+        "postimage_sha256": "27fee8f6252106f3a6cfd68734f2bb6056b7faccbd81bd405d319203fa0eccbb",
+        "role": "candidate_destination"
+      },
+      "policy-engine/tests/unit/calibration/test_multiclass.py": {
+        "preimage_sha256": "641fca6b93367a53d625a7ad821856f54b92fb1a7ca22a3ca34fd7b63d5c5173",
+        "postimage_sha256": null,
+        "role": "old_test"
+      },
+      "policy-engine/tests/unit/common/README.md": {
+        "preimage_sha256": "3318cc90bb1baf276f376ff739d3c154373fc7ba851eb3772836c31a7354910d",
+        "postimage_sha256": "71a16bed75ff3edf9828a2c23770c8f79c749fbec9639d3a9a95834187324ba1",
+        "role": "active_companion"
+      },
+      "policy-engine/tests/unit/common/jax_env/test__policy.py": {
+        "preimage_sha256": null,
+        "postimage_sha256": "bb25d1f8c0aedd0f762f1686c81b869468f027acf1788adf6a3cb8456b43713c",
+        "role": "candidate_destination"
+      },
+      "policy-engine/tests/unit/common/migrations/test_base.py": {
+        "preimage_sha256": null,
+        "postimage_sha256": "b9584130a88b83206789c37c3459aaaef559b9adc228a651a7b4cc126f46819c",
+        "role": "candidate_destination"
+      },
+      "policy-engine/tests/unit/common/migrations/test_manifest.py": {
+        "preimage_sha256": null,
+        "postimage_sha256": "b7e920d59d4609c78f1c8b3831eaa86499d75bdd58f15fdb66ecff00c8d56bd4",
+        "role": "candidate_destination"
+      },
+      "policy-engine/tests/unit/common/serialization/test__strict_json.py": {
+        "preimage_sha256": null,
+        "postimage_sha256": "63442af74e1c8278b74512d5f0a96632c23b27cdaa71e6eeb23f1721c5a0c7ca",
+        "role": "candidate_destination"
+      },
+      "policy-engine/tests/unit/common/test__selected_artifact_intake.py": {
+        "preimage_sha256": null,
+        "postimage_sha256": "b0fddd645903f21c110d0825782ffbc11e480f4cd42d002105a02864f42ff333",
+        "role": "candidate_destination"
+      },
+      "policy-engine/tests/unit/common/test_canonical_profile.py": {
+        "preimage_sha256": "edea3b782e302de0cbd6902550dae5bd72dfdc7bf908d14e0ffcf5e1e5d9c79d",
+        "postimage_sha256": "b9acd70fce6e1320ff65d12ea91121d5e80260cd50065bd1a796d40338e2434d",
+        "role": "old_test"
+      },
+      "policy-engine/tests/unit/common/test_fast_json_serialization.py": {
+        "preimage_sha256": "f155546556fbb62529b24cf5bd7ffbe08db97a74f977d98b2905ca402ad36da1",
+        "postimage_sha256": "0b7d5f7a7c10b52f54aa83c173c69b4b200530ce6772a1f7c21c06a277ed0ff8",
+        "role": "old_test"
+      },
+      "policy-engine/tests/unit/common/test_lex_text.py": {
+        "preimage_sha256": "7ce9470a1fb8f3f19fe0771e2fad727a59ab7084de1836018719cfbc89db3a20",
+        "postimage_sha256": "e14726d9ad38b962cb123a0292c71c775c1cc98157b69765cc1d7ca45125ed7d",
+        "role": "old_test"
+      },
+      "policy-engine/tests/unit/common/test_migrations_purity.py": {
+        "preimage_sha256": "56d52e0293fc694bc6e48556bd023ab57cced53ef54844e9c0282c712b013c00",
+        "postimage_sha256": "4a699b58214a67631c7be74b8f226b0d01f677e4845e59c043f604536f0a5e60",
+        "role": "old_test"
+      },
+      "policy-engine/tests/unit/common/test_text.py": {
+        "preimage_sha256": null,
+        "postimage_sha256": "20b45d0d87dfa3102e2fd02adca231d0ede16c6eea981f5ca82c7dd6874cbbc6",
+        "role": "candidate_destination"
+      },
+      "policy-engine/tests/unit/remediation/test_frc_02_bridge.py": {
+        "preimage_sha256": "c1a1eab1561b8b20928fccedcc37d5a67d7724626938d034a6c1a9e5aec82459",
+        "postimage_sha256": null,
+        "role": "old_test"
+      },
+      "policy-engine/tests/unit/remediation/test_hyg_04.py": {
+        "preimage_sha256": "e6f9b00a2f4f72783fc13bcd80ce93a9254c52365f85b0a47e90513095a4cc42",
+        "postimage_sha256": "7ebc10f7bd54e6dae85b8f35557ab5ae6612234d2f6517cf948b402c3e907934",
+        "role": "old_test"
+      },
+      "policy-engine/tests/unit/remediation/test_mig_04.py": {
+        "preimage_sha256": "07f6c83c91407c0fabbbf06b614eb2b3352f09f3409b74df092bb2eab78d3662",
+        "postimage_sha256": "c7c3f2380977d9537df947054d8bc4a65239be5bda385668281b0e8b2644f0d4",
+        "role": "old_test"
+      },
+      "policy-engine/tools/quality/testing/mutation.py": {
+        "preimage_sha256": "6bf9c5c51e1f74d046aa23c232634514c15aeb24c7f261bc2a5508f28e04632f",
+        "postimage_sha256": "28c8198203472791c4df79bec730f396b55710da295e72d381e91116f7495935",
+        "role": "active_companion"
+      },
+      "policy-engine/tests/repo_quality/architecture/test_repository_best_in_class_phase1_3_contracts.py": {
+        "preimage_sha256": "7de177b4a08c9ec901b0f5839147d5ad2ed4966ba464d8b5693b56e35c1f3099",
+        "postimage_sha256": "ce801e84d7c2e459a828a29fe8bffd640b908089b5cc9543daf6a95df6f84469",
+        "role": "typed fixture corruption test companion"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-test-owner-and-fixture-application-20261018/source-application.json",
+      "sha256": "ac553759485f3778a183f8fc33f11a210fe40228409bac954c617bf5a99103c0"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-test-owner-and-fixture-application-20261018/native-trash-receipt.json",
+      "sha256": "935216cbd39b4c238b0753b40cbf7aef0da9e485b3b88ebfb6d8ec01614393d1"
+    },
+    "independent_reviews": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-ratchet-test-owner-rehome-r7-independent-review-20261018/review.json",
+        "sha256": "fb0f5e9886634333caa691c82fb694375c218ae25c320b361df6645d61eeaa55"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-package-mirror-r8-test-fixture-repair-independent-review-r1-20261018/review.json",
+        "sha256": "32a07dcf3299e0154cff1ef86e7277298949f8c3f913cbb6b743ff69801aae17"
+      }
+    ],
+    "patterns": [
+      "P29",
+      "P35",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "bounded_proof": "Existing behavioral test bodies preserved and operational selectors updated; typed malformed-field fixture derives selected values from parsed source instead of hardcoded arrays. Canonical workspace Ruff passes.",
+    "limits": "Pytest, actual ratchet, mutation and regeneration remain UNRUN after rehome. Three semantic behavior gaps, other package floors, helper topology count and module-budget time-role/expiry debt remain separate. No baseline, floor, date, waiver or authority changed.",
+    "next_check": "Run actual moved owner tests and affected facade/importer companions; recompute ratchet after all reviewed helper/source changes, retain any real reds.",
+    "G_acceptance": false,
+    "source_profile_freeze": false,
+    "closure_ids": []
   }
 }

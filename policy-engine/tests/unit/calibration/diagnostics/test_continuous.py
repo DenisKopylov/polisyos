@@ -164,7 +164,10 @@ def test_incomplete_intervals_remain_unverified_after_report_readback(
 
     assert reopened.metrics.ece == pytest.approx(0.0)
     assert reopened.metrics.intervals == {}
-    assert reopened.metadata["interval_coverage"] == {"status": "incomplete", "n_comparisons": 1}
+    assert reopened.metadata["interval_coverage"] == {
+        "status": "incomplete",
+        "n_comparisons": 1,
+    }
     assert len(reopened.curves["interval_coverage"]) == 1
     assert reopened.curves["interval_coverage"][0].count == 100
     assert receipt.runtime_truthfulness_tier == "unverified"
@@ -187,7 +190,10 @@ def test_measured_coverage_controls_survive_report_readback(covered: int, tmp_pa
     reopened = CalibrationDiagnosticsReport.model_validate_json(path.read_text(encoding="utf-8"))
     receipt = reopened.to_truthfulness_receipt()
 
-    assert reopened.metadata["interval_coverage"] == {"status": "evaluated", "n_comparisons": 1}
+    assert reopened.metadata["interval_coverage"] == {
+        "status": "evaluated",
+        "n_comparisons": 1,
+    }
     assert reopened.metrics.ece == pytest.approx(abs(covered / 100 - 0.95))
     assert reopened.curves["interval_coverage"][0].mean_observed == pytest.approx(covered / 100)
     assert reopened.metrics.intervals["ece"].low <= reopened.metrics.ece
@@ -235,7 +241,10 @@ def test_predictive_samples_do_not_replace_explicit_empty_levels() -> None:
     )
 
     assert report.metadata["nominal_levels"] == []
-    assert report.metadata["interval_coverage"] == {"status": "not_evaluated", "n_comparisons": 0}
+    assert report.metadata["interval_coverage"] == {
+        "status": "not_evaluated",
+        "n_comparisons": 0,
+    }
     assert report.metrics.ece is None
     assert report.curves["interval_coverage"] == ()
     assert report.to_truthfulness_receipt().runtime_truthfulness_tier == "unverified"
@@ -245,4 +254,7 @@ def test_predictive_samples_retain_default_levels_when_omitted() -> None:
     report = evaluate_continuous(y_true=[1.0] * 100, predictive_samples=[[0.0, 2.0]] * 100)
 
     assert report.metadata["nominal_levels"] == [0.5, 0.8, 0.9]
-    assert report.metadata["interval_coverage"] == {"status": "evaluated", "n_comparisons": 3}
+    assert report.metadata["interval_coverage"] == {
+        "status": "evaluated",
+        "n_comparisons": 3,
+    }

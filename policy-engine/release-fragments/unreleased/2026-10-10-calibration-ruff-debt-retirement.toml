@@ -8,7 +8,7 @@ evidence = [
   "src/polisyos/calibration/diagnostics/adapters.py",
   "src/polisyos/calibration/diagnostics/__init__.py",
   "src/polisyos/calibration/diagnostics/multiclass.py",
-  "tests/unit/calibration/test_adapters.py",
+  "tests/unit/calibration/diagnostics/test_adapters.py",
 ]
 compatibility = "Accepted runtime payload values and valid calibration outputs are unchanged. The private _make_issue expected/actual annotations narrow from Any to object; this is a type-hint delta, not a runtime input restriction. Exported evaluate_binary, evaluate_multiclass, and to_validation_report annotations remain resolvable by typing.get_type_hints. The private _diagnostic_issues annotation now uses a type-checking-only import, so runtime hint resolution for that private helper is not promised. Strict zip checks reject mismatched internal parallel arrays instead of silently truncating; valid callers already supply equal-length pairs."
 change_class = "internal"

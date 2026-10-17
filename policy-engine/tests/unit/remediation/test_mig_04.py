@@ -252,17 +252,6 @@ assert "polisyos.fabric" not in sys.modules
     assert completed.returncode == 0, completed.stderr or completed.stdout
 
 
-def test_legacy_common_manifest_module_remains_a_compatibility_adapter() -> None:
-    """The old import path remains a narrow adapter while callers transition."""
-    from polisyos.common.migrations.manifest import (
-        MANIFEST_CURRENT_VERSION,
-        migrate_manifest_0_9_to_1_0,
-    )
-
-    assert MANIFEST_CURRENT_VERSION == "1.0"
-    assert migrate_manifest_0_9_to_1_0(_legacy_manifest())["dataset_name"] == "baseline"
-
-
 @pytest.mark.parametrize("suffix", [".json", ".yaml"])
 def test_canonical_cli_uses_fabric_registration_for_json_and_yaml(
     tmp_path: Path,

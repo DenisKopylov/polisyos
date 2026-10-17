@@ -502,85 +502,137 @@ def test_package_mirror_reconciles_every_source_and_preserves_declared_nested_en
     assert actual_layout == expected_layout
 
 
+def _replace_table_field_value(path: Path, *, table: str, field: str, value: Any) -> None:
+    text = path.read_text(encoding="utf-8")
+    payload = tomllib.loads(text)
+    table_value = payload.get(table)
+    if not isinstance(table_value, dict) or field not in table_value:
+        raise AssertionError(f"field not found in TOML table: {table}.{field}")
+
+    header = re.search(rf"(?m)^\[{re.escape(table)}\]\s*$", text)
+    if header is None:
+        raise AssertionError(f"TOML table not found: {table}")
+    next_header = re.search(r"(?m)^\[", text[header.end() :])
+    section_end = header.end() + next_header.start() if next_header is not None else len(text)
+    section = text[header.end() : section_end]
+    updated, count = re.subn(
+        rf"(?m)^{re.escape(field)}\s*=.*$",
+        lambda _: f"{field} = {json.dumps(value, ensure_ascii=False)}",
+        section,
+        count=1,
+    )
+    if count != 1:
+        raise AssertionError(f"field assignment not found in TOML table: {table}.{field}")
+    path.write_text(text[: header.end()] + updated + text[section_end:], encoding="utf-8")
+
+
+def _malformed_toml_value(value: Any, mutation: str) -> Any:
+    if mutation == "non-list":
+        if not isinstance(value, list):
+            raise AssertionError(
+                f"expected a list before non-list mutation; got {type(value).__name__}"
+            )
+        return "not-an-array"
+    if mutation == "non-string-list-member":
+        if not isinstance(value, list):
+            raise AssertionError(
+                f"expected a list before member mutation; got {type(value).__name__}"
+            )
+        mutated = list(value)
+        string_index = next(
+            (index for index, member in enumerate(mutated) if isinstance(member, str)),
+            None,
+        )
+        if string_index is None:
+            mutated.append(7)
+        else:
+            mutated[string_index] = 7
+        return mutated
+    if mutation == "string-for-bool":
+        if not isinstance(value, bool):
+            raise AssertionError(
+                f"expected a bool before string mutation; got {type(value).__name__}"
+            )
+        return str(value)
+    raise AssertionError(f"unknown malformed TOML mutation: {mutation}")
+
+
 def test_package_mirror_rejects_malformed_raw_typed_fields(tmp_path: Path) -> None:
     cases = (
         {
             "name": "nonlist-source-and-projection",
             "field": "supported_entrypoints",
-            "source_old": 'supported_entrypoints = ["polisyos.common", "polisyos.common.config"]',
-            "source_new": 'supported_entrypoints = "not-an-array-source"',
-            "projection_old": 'supported_entrypoints = ["polisyos.common", "polisyos.common.config", "polisyos.common.canonical", "polisyos.common.canonical_profile", "polisyos.common.hashing", "polisyos.common.migrations"]',
-            "projection_new": 'supported_entrypoints = "different-nonarray-mirror"',
-            "expected_messages": {
-                "public_surface.supported_entrypoints has malformed source value",
-                "public_surface.supported_entrypoints has malformed projection value",
-            },
+            "mutations": {"source": "non-list", "projection": "non-list"},
         },
         {
             "name": "nonstr-list-member",
             "field": "supported_entrypoints",
-            "source_old": 'supported_entrypoints = ["polisyos.common", "polisyos.common.config"]',
-            "source_new": 'supported_entrypoints = ["polisyos.common", 7]',
-            "projection_old": 'supported_entrypoints = ["polisyos.common", "polisyos.common.config", "polisyos.common.canonical", "polisyos.common.canonical_profile", "polisyos.common.hashing", "polisyos.common.migrations"]',
-            "projection_new": 'supported_entrypoints = ["polisyos.common", "7"]',
-            "expected_messages": {
-                "public_surface.supported_entrypoints has malformed source value"
-            },
+            "mutations": {"source": "non-string-list-member"},
         },
         {
             "name": "nonstr-projection-list-member",
             "field": "supported_entrypoints",
-            "source_old": 'supported_entrypoints = ["polisyos.common", "polisyos.common.config"]',
-            "source_new": 'supported_entrypoints = ["polisyos.common", "7"]',
-            "projection_old": 'supported_entrypoints = ["polisyos.common", "polisyos.common.config", "polisyos.common.canonical", "polisyos.common.canonical_profile", "polisyos.common.hashing", "polisyos.common.migrations"]',
-            "projection_new": 'supported_entrypoints = ["polisyos.common", 7]',
-            "expected_messages": {
-                "public_surface.supported_entrypoints has malformed projection value"
-            },
+            "mutations": {"projection": "non-string-list-member"},
         },
         {
             "name": "source-bool-vs-projection-string",
             "field": "major_subsystem",
-            "source_old": "major_subsystem = false",
-            "source_new": 'major_subsystem = "False"',
-            "projection_old": "major_subsystem = false",
-            "projection_new": 'major_subsystem = "False"',
-            "expected_messages": {
-                "public_surface.major_subsystem has malformed source value",
-                "public_surface.major_subsystem has malformed projection value",
-            },
+            "mutations": {"source": "string-for-bool", "projection": "string-for-bool"},
         },
         {
             "name": "source-bool-vs-projection-string-opposite-side",
             "field": "major_subsystem",
-            "source_old": "major_subsystem = false",
-            "source_new": "major_subsystem = false",
-            "projection_old": "major_subsystem = false",
-            "projection_new": 'major_subsystem = "False"',
-            "expected_messages": {"public_surface.major_subsystem has malformed projection value"},
+            "mutations": {"projection": "string-for-bool"},
         },
     )
     for case in cases:
         repo = _copy_package_mirror_fixture(tmp_path / case["name"])
         source = repo / "architecture/packages/common.toml"
-        source_text = source.read_text(encoding="utf-8")
-        assert case["source_old"] in source_text
-        source.write_text(
-            source_text.replace(case["source_old"], case["source_new"], 1), encoding="utf-8"
-        )
+        source_payload = _read_toml(source)
+        source_module = source_payload["package"]["module"]
         projection = repo / "architecture/public_surface/contract.toml"
-        projection_text = projection.read_text(encoding="utf-8")
-        assert case["projection_old"] in projection_text
-        projection.write_text(
-            projection_text.replace(case["projection_old"], case["projection_new"], 1),
-            encoding="utf-8",
-        )
+        projection_rows = _read_toml(projection)["package"]
+        matching_rows = [row for row in projection_rows if row.get("module") == source_module]
+        assert len(matching_rows) == 1
+        mutations = case["mutations"]
+        for side, mutation in mutations.items():
+            if side == "source":
+                value = source_payload["public_surface"][case["field"]]
+                _replace_table_field_value(
+                    source,
+                    table="public_surface",
+                    field=case["field"],
+                    value=_malformed_toml_value(value, mutation),
+                )
+            else:
+                projection_value = matching_rows[0][case["field"]]
+                mutated_value = _malformed_toml_value(projection_value, mutation)
+                _replace_array_table_value(
+                    projection,
+                    table="package",
+                    identity="module",
+                    value=source_module,
+                    field=case["field"],
+                    replacement=(
+                        f"{case['field']} = {json.dumps(mutated_value, ensure_ascii=False)}"
+                    ),
+                )
 
         findings, _ = phase1_3._validate_package_mirror_projection(repo)
-        observed_messages = {
-            finding.message for finding in findings if finding.message.startswith("public_surface.")
+        source_subject = source.relative_to(repo).as_posix()
+        expected_findings = {
+            (
+                source_subject,
+                f"public_surface.{case['field']} has malformed {side} value",
+            )
+            for side in mutations
         }
-        assert case["expected_messages"] <= observed_messages
+        observed_findings = {
+            (finding.subject, finding.message)
+            for finding in findings
+            if finding.message.startswith("public_surface.")
+        }
+        assert expected_findings <= observed_findings
         assert not any(
             finding.subject == "architecture/packages/common.toml"
             and finding.message == f"public_surface.{case['field']} drift"

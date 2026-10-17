@@ -126,6 +126,7 @@ CORE_RUNTIME_TARGETS: dict[str, MutationTarget] = {
         ),
         tests=(
             "tests/unit/common/test_fast_json_serialization.py "
+            "tests/unit/common/serialization/test__strict_json.py "
             "tests/property/common/test_serialization_properties.py "
             "tests/property/runtime/http/test_access_invariants_properties.py "
             "tests/unit/runtime/http/test_runtime_api_authz.py"

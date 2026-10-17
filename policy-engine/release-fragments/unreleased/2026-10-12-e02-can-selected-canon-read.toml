@@ -6,6 +6,7 @@ owner = "team-runtime"
 summary = "Core and IR semantic reads validate the exact selected raw CanonInfo profile and payload bytes before decoding; catalog epoch writers bind their actual framed codec and activation refuses profileless receipts."
 evidence = [
   "tests/unit/common/test_canonical_profile.py",
+  "tests/unit/common/test__selected_artifact_intake.py",
   "tests/unit/runtime/http/test_declared_profile_refusal.py",
   "tests/unit/runtime/http/test_declared_profile_api_refusal.py",
   "tests/unit/runtime/http/test_can_publicconsumer_r208_profile_guard.py",

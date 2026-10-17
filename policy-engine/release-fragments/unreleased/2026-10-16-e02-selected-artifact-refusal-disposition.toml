@@ -13,6 +13,7 @@ evidence = [
   "src/polisyos/runtime/http/services/control/job_attempt_publication.py",
   "src/polisyos/runtime/http/services/README.md",
   "tests/unit/common/test_canonical_profile.py",
+  "tests/unit/common/test__selected_artifact_intake.py",
   "tests/unit/ir/analytics/test_simulation_proof_bridge.py",
   "tests/unit/scientist/policy_design/test_phase3_decision_layer.py",
   "tests/unit/runtime/http/test_nl_pipeline_materialization.py",

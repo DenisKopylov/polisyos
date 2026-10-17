@@ -1243,7 +1243,7 @@ def test_explicit_ruff_callers_preserve_settings_and_lint_behavior() -> None:
 
     representative_paths = (
         "src/polisyos/calibration/diagnostics/adapters.py",
-        "tests/unit/calibration/test_adapters.py",
+        "tests/unit/calibration/diagnostics/test_adapters.py",
         "tests/repo_quality/architecture/test_repository_best_in_class_phase4_9_operability_bundles.py",
         "tools/devx/workspace/tool_configs.py",
     )
@@ -1257,7 +1257,6 @@ def test_explicit_ruff_callers_preserve_settings_and_lint_behavior() -> None:
             str(git_root),
         ),
     )
-    caller_root_settings = {"file_resolver.project_root", "linter.project_root"}
     for product_path in representative_paths:
         assert (REPO_ROOT / product_path).is_file()
         normalized_settings: list[dict[str, str]] = []
@@ -1292,7 +1291,7 @@ def test_explicit_ruff_callers_preserve_settings_and_lint_behavior() -> None:
 
     product_inputs = (
         "src/polisyos/calibration",
-        "tests/unit/calibration/test_adapters.py",
+        "tests/unit/calibration/diagnostics/test_adapters.py",
         "tests/repo_quality/tools/test_tool_config_split.py",
         "tests/repo_quality/architecture/test_repository_best_in_class_phase4_9_operability_bundles.py",
         "tools/devx/workspace/tool_configs.py",

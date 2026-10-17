@@ -12,6 +12,8 @@ evidence = [
   "tests/unit/runtime/quality/test_chronology_proof.py",
   "tests/unit/runtime/quality/test_generation_source.py",
   "tests/unit/common/test_migrations_purity.py",
+  "tests/unit/common/migrations/test_base.py",
+  "tests/unit/common/migrations/test_manifest.py",
   "tests/unit/foundry/runtime/test_executor_snapshots.py",
   "tests/unit/scientist/agent/test_feasibility_probe.py",
 ]

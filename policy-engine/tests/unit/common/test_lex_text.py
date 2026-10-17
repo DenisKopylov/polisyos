@@ -6,12 +6,6 @@ from datetime import date
 from polisyos.common import text as common_text
 from polisyos.common.timestamps import parse_iso_date
 
-collapse_ws = common_text.collapse_ws
-
-
-def test_common_collapses_whitespace_without_touching_words() -> None:
-    assert collapse_ws("  legal\n\ttext   with   gaps ") == "legal text with gaps"
-
 
 def test_common_parses_iso_date_and_datetime_strings() -> None:
     assert parse_iso_date("2026-05-06") == date(2026, 5, 6)

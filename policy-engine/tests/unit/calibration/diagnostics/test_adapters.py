@@ -5,7 +5,11 @@ from __future__ import annotations
 from collections.abc import Sequence
 from typing import get_type_hints
 
-from polisyos.calibration import evaluate_binary, evaluate_multiclass, to_validation_report
+from polisyos.calibration import (
+    evaluate_binary,
+    evaluate_multiclass,
+    to_validation_report,
+)
 from polisyos.ir.analytics.calibration_diagnostics import CalibrationDiagnosticsReport
 
 

@@ -16,6 +16,11 @@ collected or executed.
 
 - `src/polisyos/common/README.md`
 - `test_fast_json_serialization.py` for canonical serialization behavior.
+- `serialization/test__strict_json.py` for strict JSON duplicate-key and non-finite-number behavior.
+- `test__selected_artifact_intake.py` for absent-versus-refused selected-artifact intake.
+- `jax_env/test__policy.py` for default and explicit JAX platform behavior.
+- `migrations/test_base.py` and `migrations/test_manifest.py` for migration ownership behavior.
+- `test_text.py` for Common whitespace normalization.
 - `test_config_bootstrap.py` and `test_async_tools.py` for bootstrap/runtime
   helper issues.
 

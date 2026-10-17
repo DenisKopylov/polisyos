@@ -10,9 +10,9 @@ evidence = [
   "src/polisyos/core/artifacts/manifest.py",
   "tests/unit/core/phase0/test_run_context.py",
 ]
-compatibility = "The optional warnings argument is additive and serializes into the existing TraceRecord.warnings list. Omitting it retains warnings=[]; no trace schema field, phase, event, metrics, or authority/status semantics change. Terminal finalize/suspend operations from a fork child that inherited the active parent lease now refuse; the child cannot unlock or close the parent lease."
-change_class = "python-public-api"
-surface_classification = "public_stable: polisyos.core.run.RunContext.emit; existing model: polisyos.core.artifacts.WarningRecord"
+compatibility = "The optional warnings argument adds no serialized TraceRecord field: supplied WarningRecord values serialize to the existing warnings list, and omission retains warnings=[]. No TraceRecord schema, phase/event/metrics shape, or authority/status semantics change. In a forked child using a RunContext whose active lease was acquired in the parent PID, calls to finalize() or suspend_for_resume() now raise run_execution_lease_inherited_process before terminal state change or parent-lease release."
+change_class = "internal"
+surface_classification = "internal: polisyos.core.run.RunContext.emit; existing public_stable model: polisyos.core.artifacts.WarningRecord"
 migration = "No data migration is required. Existing callers and trace records retain their current serialized shape."
 api = "RunContext.emit(..., warnings: list[WarningRecord] | None = None) validates typed warning objects and serializes them with the existing TraceRecord warning field. Callers keep numeric measurements in metrics and may place contextual category keys in WarningRecord.data."
 limitations = "Warning transport does not select, adjudicate, promote, or grant authority to warnings. The process guard applies to terminal lifecycle operations only; forked workers may stage ordinary trace events and inputs/outputs. This is not a sandbox against arbitrary in-process Python access to private state."

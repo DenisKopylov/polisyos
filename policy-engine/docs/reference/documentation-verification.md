@@ -105,16 +105,8 @@ review path after a matching strict build, and can also be run directly as
 documented below. Neither external URL liveness nor browser behavior is
 established by local link checks.
 
-For the earlier archived closeout replay, the lifecycle reference scan covered
-25,041 tracked paths: 24,823 selected, 218 selector-excluded, 23,879 decoded
-as text, 941 byte-read as opaque, and three ambiguous. It reported 1,159
-unresolved inputs and 10 direct-reference findings and returned `UNRUN`
-(exit 2). These are snapshot-specific counts from the [maintenance
-audit](https://github.com/DenisKopylov/polisyos/blob/47e1e59b569a5b922611f71a7f53fb6320abea4/policy-engine/docs/archive/reports/2026-10-14-documentation-maintenance-audit.md),
-not a permanent repository denominator. The full lifecycle command's receipt
-explicitly says other lifecycle input families are unmeasured; historical
-audit markers and archive-map member metadata do not verify backing bytes or
-source role (P32).
+Historical audit markers and archive-map member metadata do not verify current
+backing bytes or source role (P32).
 
 The validation CLI discovers the review, impact, rendered-link, and
 source-binding tools as `polisyos-tools validation check-docs-review`,
@@ -161,7 +153,7 @@ For a decision another reviewer can reproduce, record the documentation-tree com
 
 Record the actual coverage output with each result: Markdownlint selected paths and configured exclusions; generated checker source/output pairs; accuracy receipt's MkDocs manifest, navigation/exclusion selectors and read outcomes; lifecycle receipt's tracked/selected/excluded path counts and hashes, successful/failed reads, opaque and ambiguous inputs, and unresolved findings; rendered-link receipt's enumerated output paths and HTML/CSS hashes; and source-binding receipt's explicit page selection, source pin, comparison commit, pattern expansion and drift counts. The lifecycle receipt is specifically `removed-stub-reference-scan-only`; it does not report reads for the other lifecycle checks. The rendered-link receipt does not bind its build invocation or source commit. An incomplete deciding input is `UNRUN`, with partial findings kept visible.
 
-Full raw output under ignored `_build/docs-maintenance/raw/` is retained locally and is not portable evidence by itself. A tracked review record should bind a compact result to the exact source/base pins, command, coverage totals, verdict and raw-file path plus SHA-256; a path and digest identify a local artifact but do not make its bytes available to another checkout. Keep large raw logs out of Git unless the repository's evidence policy explicitly calls for them. The [maintenance audit](https://github.com/DenisKopylov/polisyos/blob/47e1e59b569a5b922611f71a7f53fb6320abea4/policy-engine/docs/archive/reports/2026-10-14-documentation-maintenance-audit.md) shows a pinned example of this format and labels its local-only outputs.
+Full raw output under ignored `_build/docs-maintenance/raw/` is retained locally and is not portable evidence by itself. A tracked review record should bind a compact result to the exact source/base pins, command, coverage totals, verdict and raw-file path plus SHA-256; a path and digest identify a local artifact but do not make its bytes available to another checkout. Keep large raw logs out of Git unless the repository's evidence policy explicitly calls for them.
 
 ## What each check establishes
 

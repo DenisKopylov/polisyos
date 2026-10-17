@@ -3441,5 +3441,41 @@
     "P40": "Fixture reachability correction, no productionsemanticrepair or broaderN8closure. Unitremoval failsactualCatalogloader.",
     "source_freeze": false,
     "closure_ids": []
+  },
+  "coordination_epoch_20261017_reviewed_documentation_and_core_internal_classification": {
+    "owner": "root",
+    "base": "c8717465e5d04efb907f5789b19cd1ce35f343e6",
+    "mechanism_paths": [
+      "policy-engine/docs/reference/documentation-verification.md",
+      "policy-engine/src/polisyos/core/README.md",
+      "policy-engine/release-fragments/unreleased/2026-10-17-e02-core-run-trace-warning-forwarding.toml"
+    ],
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "separate source-bound scoped receipt, no fullnative claim"
+    ],
+    "property": "Live verification guide removes obsoletearchive snapshotreferences andretainsP32+allprocedures; CorelazyRunContext internalroute followscurrentcontract whileexistingWarningRecord publicmodel retained. OneMD012duplicateblank correctedwithout semanticchange.",
+    "independent_reviews": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-sota-wiring-proxy-r2-independent-review-20261017/review.json",
+        "sha256": "4e65a600db1f426d665030201bd8ce3615f0e91f496210ef089c0d9420c3c2a5"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/core-run-trace-warning-internal-classification-r1-20261017/manifest.json",
+        "sha256": "cbfec66c196efbe1cfe6af1e8c11a4bf47def0b731b2f21aa257f187458fa57f"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/core-run-trace-warning-readme-independent-review-r1-20261017/review.md",
+        "sha256": "bbf51778996c8193b26b195b580c98008f36e704b950b7b28c161d5bbdce45f0"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/core-run-trace-warning-readme-style-corrected-r1-20261017/manifest.json",
+        "sha256": "d55104e1b2e4ae334c9aa3b3088ab7938358b4ca01322f8183116a45d6686d5c"
+      }
+    ],
+    "P41": "READMEoldMD012reproducedbutchangedfileinputintersects; no inheritedclassification; correctedvarianttargeteddocsstylepassed.",
+    "native_SOTA": "NativewiringR2HOLDretainedseparate; known2McompletionongoingRAW, no fullnativegreen/issuerexpiryrenewal.",
+    "source_freeze": false,
+    "closure_ids": []
   }
 }

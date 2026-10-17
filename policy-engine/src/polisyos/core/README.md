@@ -44,8 +44,14 @@ depends on `polisyos.ir`, but not the other way around.
   unless you also update the generated
   [Public Surface](../../../docs/reference/public-surface.md).
 
-Run trace events: `polisyos.core.run.RunContext.emit` accepts optional typed
-`WarningRecord` values and stores them in the existing trace `warnings`
+`run` is available as a lazy attribute of `polisyos.core`, but the current
+public-surface contract does not list `polisyos.core.run` as a supported
+entrypoint; lazy availability alone does not make the child module public.
+`RunContext` and its methods are internal under that contract; `WarningRecord`
+remains the existing supported public model from `polisyos.core.artifacts`.
+
+Internal run trace events: `polisyos.core.run.RunContext.emit` accepts optional
+typed `WarningRecord` values and stores them in the existing trace `warnings`
 collection. Omitting the argument preserves the existing empty-list trace
 output; warning transport does not change metric, lifecycle, or authority
 semantics. The process that acquired a run's active lease owns `finalize()` and
@@ -158,7 +164,6 @@ historical eligibility is established. Core uses its own canonical codec and typ
 set through `core.artifacts.canonical_profile`; IR's separate profile contract
 and exception identity remain unchanged. This is reader conformance, not signer
 appointment or producer attestation.
-
 
 ### Raw manifest inspection for canonical profile readers
 

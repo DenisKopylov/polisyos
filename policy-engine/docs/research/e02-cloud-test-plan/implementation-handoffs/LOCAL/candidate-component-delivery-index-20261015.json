@@ -2,13 +2,11 @@
   "record_type": "intermediate_candidate_delivery_index",
   "observed_source_branch": {
     "branch": "codex/e02-unified-local-20261009",
-    "head": "35c11f124e1547b4113523bd3065c59144053d0a",
-    "tree": "d2b3eaa3c1ee446b7099688c938b91fc9f3acc08",
-    "parents": [
-      "92d501538c444dca1b6157c90a9c18507f5bd817"
-    ],
+    "head": "a63fb11be8907375163915932b3cdd8f340291c0",
+    "tree": "a605a8fddc85d1b00335e69d5f61c906c9c57c99",
+    "parents": ["25595f3fff3265d3002bee87046e3c685b3f800b"],
     "source_freeze": false,
-    "dirty_active_source": "Two attributed native verifier partials remain unchanged while reviewed R5 replacements are being prepared. N4 bridge, N8 candidate bounds, typed acquisition refusal cause, and wrapper retirement remain RAW proposals awaiting independent review and sequential root integration.",
+    "dirty_active_source": "Observed at index application; git status reports 2400 changed/untracked paths; source_freeze=false.",
     "published_candidate_last_verified": {
       "sha": "7bb3468f52e605f807145ca7f5ad75d1cf758d30",
       "tree": "e5508267eaa6670106638c9e9b832b2564b5c22b",
@@ -580,6 +578,38 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native-closeout-contributor-command-current-delivery-20261017.json",
       "sha256": "5081c3f9f444f8d8c7dd33ae3eccf5b47ea7ec3e9cf799a2973c5a36a5d5d78e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/e02-four-component-delivery-wrapper-20261017.json",
+      "sha256": "00b2aee0898bf987d0452f9aebfb9702a1e81bb4b70bcafcd86b3480f0e734ce"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/measurement-replay-context-docs-current-delivery-20261017.json",
+      "sha256": "e2cff4aaf1d28716eed34020220c50b17b5a0113403b1e5cfa1174f7db0818b7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native-r6-route-verifier-current-delivery-20261017.json",
+      "sha256": "deb0db7104ae9b6d1afa9ef25d37183bf742f034d5c87b6f918e3ed002fd2824"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/acquisition-provider-refusal-cause-current-delivery-20261017.json",
+      "sha256": "5f9f15a32070662b7c6c70feb29fd8e035fe07f40406b593fdc86fc771d1432d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/acquisition-route-bundle-current-delivery-20261017.json",
+      "sha256": "d8901bd27e49d92dcf6df8588c948a2bdb133141a5899acc5602837bbab2a99a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/phase-barrier-owner-source-profile-g-decision-20261017.json",
+      "sha256": "623e35b7573f92101b0909c4fdfea9d6700662aca9cb364f0b5cd11784380064"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/devx-wrapper-retirement-source-consumers-delivery-20261017.json",
+      "sha256": "dd51f0223e5a7e48b73ccbe1c6a32fe1df92f731960e7734e116258062576ba9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/phase-canary-source-basis-g-decision-20261017.md",
+      "sha256": "6007bedc4e3d76281c0b58c6149640f8b085ebe4e04666f9c4e468f3fc8f0079"
     }
   ],
   "canonical_denominator_recomputed": {

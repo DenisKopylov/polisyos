@@ -3574,5 +3574,38 @@
     "revalidated_RAW_reference_count": 85,
     "source_freeze": false,
     "closure_ids": []
+  },
+  "coordination_epoch_20261017_native_type_curated_selector_repair": {
+    "owner": "root",
+    "base": "7bb3468f52e605f807145ca7f5ad75d1cf758d30",
+    "mechanism_paths": [
+      "policy-engine/tools/devx/workspace/core_runtime_basedpyright.py",
+      "policy-engine/tests/repo_quality/tools/test_core_runtime_basedpyright_scope.py"
+    ],
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "separate source-bound canonical selector receipt"
+    ],
+    "property": "Resolve the complete configured curated tuple to regular files before either checker dispatch; replace three stale paths by four current owner paths, retaining other 49 and existing explicit/skip-directory contracts.",
+    "author_packet": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-type-selector-author-r2-20261017/manifest.json",
+      "sha256": "ed69474919d154d9da22b43911df8faf7c452866bafe53661b4d15829c94c7ed"
+    },
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-type-selector-independent-review-r2-20261017/review.json",
+      "sha256": "c98f64904b2ab8d682edd18fced965fa47f1ee6bca30c1da4ca796986d761873"
+    },
+    "P40": "Second escape in same selector-preflight class widened from exists to is_file over full tuple, with directory removal counterexample.",
+    "limits": [
+      "53 curated files only; default roots remain directories.",
+      "Subprocess argv selector tests do not establish basedpyright semantic typing health.",
+      "No baseline writes, no formal G closure, no global source freeze."
+    ],
+    "known_retained_inprogress": {
+      "policy-engine/tests/repo_quality/architecture/test_repository_sota_phase5_closeout.py": "75c6d9deee0efb7e52d327aacc235b904c49a47dcebf9f5289c216623ee611af",
+      "policy-engine/tools/devx/workspace/repository_sota_closeout.py": "d9bc12df949fc935a31fe91e64f378eddebe6e3800cc3326c1ab09fa1299e994"
+    },
+    "source_freeze": false,
+    "closure_ids": []
   }
 }

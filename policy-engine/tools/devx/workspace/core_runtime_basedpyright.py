@@ -40,7 +40,7 @@ CURATED_EXTRA_SCOPE = (
     "src/polisyos/scientist/orchestration/llm/cycle.py",
     "src/polisyos/scientist/replay/backend.py",
     "src/polisyos/scientist/orchestration/workflows/builder.py",
-    "src/polisyos/fabric/_connector_bridge.py",
+    "src/polisyos/fabric/api.py",
     "src/polisyos/fabric/catalog/providers.py",
     "src/polisyos/fabric/catalog/resolver_fast_lane.py",
     "src/polisyos/fabric/connectors/bindings/registry.py",
@@ -58,8 +58,9 @@ CURATED_EXTRA_SCOPE = (
     "src/polisyos/fabric/data_plane/orchestrator.py",
     "src/polisyos/fabric/data_plane/quarantine.py",
     "src/polisyos/fabric/data_plane/streaming.py",
-    "src/polisyos/fabric/ingestion.py",
-    "src/polisyos/fabric/ingestion_providers.py",
+    "src/polisyos/fabric/ingestion/__init__.py",
+    "src/polisyos/fabric/ingestion/ingestion.py",
+    "src/polisyos/fabric/ingestion/ingestion_providers.py",
     "src/polisyos/fabric/retrieval/executor.py",
     "src/polisyos/fabric/retrieval/explore_lane.py",
     "src/polisyos/fabric/retrieval/providers.py",
@@ -105,6 +106,29 @@ def _resolve_scope(raw_paths: tuple[str, ...] | list[str]) -> list[str]:
     return resolved
 
 
+def _resolve_existing_scope(raw_paths: tuple[str, ...] | list[str]) -> list[str]:
+    resolved = _resolve_scope(raw_paths)
+    missing = [path for path in resolved if not (PRODUCT_ROOT / path).exists()]
+    if missing:
+        raise FileNotFoundError("basedpyright selected paths do not exist: " + ", ".join(missing))
+    return resolved
+
+
+def _resolve_existing_files(raw_paths: tuple[str, ...] | list[str]) -> list[str]:
+    resolved = _resolve_scope(raw_paths)
+    non_files = [path for path in resolved if not (PRODUCT_ROOT / path).is_file()]
+    missing = [path for path in non_files if not (PRODUCT_ROOT / path).exists()]
+    if missing:
+        raise FileNotFoundError("basedpyright selected paths do not exist: " + ", ".join(missing))
+
+    existing_non_files = [path for path in non_files if (PRODUCT_ROOT / path).exists()]
+    if existing_non_files:
+        raise ValueError(
+            "basedpyright selected paths are not regular files: " + ", ".join(existing_non_files)
+        )
+    return resolved
+
+
 def _run_scope(label: str, paths: list[str]) -> int:
     if not paths:
         return 0
@@ -129,15 +153,17 @@ def main(argv: list[str] | None = None) -> int:
         requested = _resolve_scope(args.paths)
         return _run_scope("requested scope", requested)
 
-    runtime_scope = _resolve_scope(DEFAULT_SCOPE)
+    curated_scope = (
+        None if args.skip_curated_extras else _resolve_existing_files(CURATED_EXTRA_SCOPE)
+    )
+    runtime_scope = _resolve_existing_scope(DEFAULT_SCOPE)
     if _run_scope("full common/core/runtime surface", runtime_scope) != 0:
         return 1
 
-    if args.skip_curated_extras:
+    if curated_scope is None:
         print("basedpyright passed for the requested core-runtime surface.")
         return 0
 
-    curated_scope = _resolve_scope(CURATED_EXTRA_SCOPE)
     if _run_scope("curated scientist/scholar/fabric extras", curated_scope) != 0:
         return 1
 

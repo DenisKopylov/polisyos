@@ -149,7 +149,7 @@ run_suite statistical_budgets \
   -k "statistical or degrades_when_runtime_drift_exceeds_cpu_budget"
 
 run_suite equivalence_dispatch \
-  tests/unit/foundry/methods/test_dispatch_runtime_selection.py \
+  tests/unit/foundry/methods/backends/test_dispatch.py \
   -k equivalence
 
 run_suite forecasting_uncertainty \

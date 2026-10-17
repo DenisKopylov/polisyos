@@ -7,6 +7,7 @@ summary = "KernelSHAP requests declared conditional now return a diagnostic with
 evidence = [
   "tests/unit/remediation/test_ber_01.py",
   "tests/unit/berl/test_adapters.py",
+  "tests/unit/berl/adapters/test_shap_kernel.py",
 ]
 compatibility = "No bundle schema changes. Consumers of kernel_shap_conditional or the default conditional_observational request profile may now receive a diagnostic and no attributions until a verified conditional-law producer is available."
 change_class = "internal"

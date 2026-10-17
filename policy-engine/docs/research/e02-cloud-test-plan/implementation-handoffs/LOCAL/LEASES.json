@@ -6796,5 +6796,190 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "coordination_epoch_20261018_eight_semantic_owner_test_composition": {
+    "slice_base": "f5f2db63723eaf321d442e878b2e8b2a0f1e0789",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/docs/reference/foundry/demography.md": {
+        "preimage_sha256": "6df6dfce8fd641da9fd18356bdfff2b32f1636be190be7397d052d06a4db3225",
+        "postimage_sha256": "1dd6567847c43f6a88bf81a39830910cbf54f8eaba453de81833a9398131e7bd",
+        "operation": "modify",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-test-ratchet-semantic-owner-author-r3-v2-20261018/postimages/policy-engine/docs/reference/foundry/demography.md"
+      },
+      "policy-engine/release-fragments/unreleased/2026-10-09-e02-la036-conditional-refusal.toml": {
+        "preimage_sha256": "8acd8a79ea5bd4076dfb0f8408acd8ca448304d525beaaea4ca9317fe5607452",
+        "postimage_sha256": "d48cf9ce6e8123fce1e8f86fdd2247f5ee673e36f1a04f7546edd80575801e46",
+        "operation": "modify",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-test-ratchet-semantic-owner-author-r3-v2-20261018/postimages/policy-engine/release-fragments/unreleased/2026-10-09-e02-la036-conditional-refusal.toml"
+      },
+      "policy-engine/release-fragments/unreleased/2026-10-11-e02-la036-method-identity.toml": {
+        "preimage_sha256": "f1b8f1706677f5b0de9d998aa301aacb44ba6cb241c11b0ab69ff507edf43748",
+        "postimage_sha256": "9748f1c3d830f2b5e06578ec34e0738b88e65e0f8a1a4fb4877b456a46776a58",
+        "operation": "modify",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-test-ratchet-semantic-owner-author-r3-v2-20261018/postimages/policy-engine/release-fragments/unreleased/2026-10-11-e02-la036-method-identity.toml"
+      },
+      "policy-engine/release-fragments/unreleased/2026-10-12-e02-la032-demography-inventory-candidate.toml": {
+        "preimage_sha256": "e7a4ddacda19999f8a900f167b2df343271531cdce7e90fb21233c1a85c83eaa",
+        "postimage_sha256": "5394de9f5fba5b8b4df9d2efe1515293a116e2b5d63308b57a21f050aa5273a0",
+        "operation": "modify",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-test-ratchet-semantic-owner-author-r3-v2-20261018/postimages/policy-engine/release-fragments/unreleased/2026-10-12-e02-la032-demography-inventory-candidate.toml"
+      },
+      "policy-engine/release-fragments/unreleased/2026-10-17-data-forge-exception-owners.toml": {
+        "preimage_sha256": "eaa3839b6a2398d420ff654f4762c6abd52f619bc58a8191ad3c826fa95bba07",
+        "postimage_sha256": "3babca465671ae9fa761f2e172b3926584d14e80c4707e7c9f8fe53b7f8caef8",
+        "operation": "modify",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-test-ratchet-semantic-owner-author-r3-v2-20261018/postimages/policy-engine/release-fragments/unreleased/2026-10-17-data-forge-exception-owners.toml"
+      },
+      "policy-engine/release-fragments/unreleased/2026-10-17-e02-berl-nonexecution-identity.toml": {
+        "preimage_sha256": "aefdf93c2d56a5d96a936dea9b96a9cdc4026b35dddc2c96b56a4bf32d0d46de",
+        "postimage_sha256": "c9547544a1d65784a6fe71a73ee97c31cc892f51a1f0e3b1da42f10d5365b840",
+        "operation": "modify",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-test-ratchet-semantic-owner-author-r3-v2-20261018/postimages/policy-engine/release-fragments/unreleased/2026-10-17-e02-berl-nonexecution-identity.toml"
+      },
+      "policy-engine/tests/unit/berl/adapters/test_shap_kernel.py": {
+        "preimage_sha256": null,
+        "postimage_sha256": "adaf30d9802235058bb9204fc88d2b852e585bd8ec2ae1d5e6930f4c2b0d4619",
+        "operation": "add",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-test-ratchet-semantic-owner-author-r3-v2-20261018/postimages/policy-engine/tests/unit/berl/adapters/test_shap_kernel.py"
+      },
+      "policy-engine/tests/unit/berl/metrics/test_disagreement.py": {
+        "preimage_sha256": null,
+        "postimage_sha256": "e5aafa04bddfe3a19a9ee18b0ed2f36ebb52e7a26b4ad8e8df92fff53d2b31b2",
+        "operation": "add",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-test-ratchet-semantic-owner-author-r3-v2-20261018/postimages/policy-engine/tests/unit/berl/metrics/test_disagreement.py"
+      },
+      "policy-engine/tests/unit/berl/mirror_contracts/test_shap_kernel.py": {
+        "preimage_sha256": "177a295ada7cb5c612d846d476d646a273d05b504b0a64bf059d0e3f1a6d51e6",
+        "postimage_sha256": null,
+        "operation": "delete"
+      },
+      "policy-engine/tests/unit/berl/service/test_cache_identity.py": {
+        "preimage_sha256": null,
+        "postimage_sha256": "3bdae5212be7c92a3279b1e24f3aecb5168e40fc499528f70d5c8f2b7a34fa16",
+        "operation": "add",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-test-ratchet-semantic-owner-author-r3-v2-20261018/postimages/policy-engine/tests/unit/berl/service/test_cache_identity.py"
+      },
+      "policy-engine/tests/unit/berl/test_adapters.py": {
+        "preimage_sha256": "feb52c4919251dce99035ae228787bcb8afe79cd06a09937a56b1dd2b2c4491b",
+        "postimage_sha256": "437e411022e98c3068fe8c28312fc6055964147c2bf699c3788720da8704e9b4",
+        "operation": "modify",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-test-ratchet-semantic-owner-author-r3-v2-20261018/postimages/policy-engine/tests/unit/berl/test_adapters.py"
+      },
+      "policy-engine/tests/unit/berl/test_metrics.py": {
+        "preimage_sha256": "1fafe541f94d2654ca4665fdd9e2a6531cb0673b324dc4ccf9a01272f7e45c5d",
+        "postimage_sha256": "436b937e4d73e611f8c46c8d65ee6c2dded0d0e9bee841f9105aef31516a77a6",
+        "operation": "modify",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-test-ratchet-semantic-owner-author-r3-v2-20261018/postimages/policy-engine/tests/unit/berl/test_metrics.py"
+      },
+      "policy-engine/tests/unit/berl/test_service.py": {
+        "preimage_sha256": "9ef76cea7a152430696db08526de9509f719e5a0f434d4978c6d60cdfda7b94a",
+        "postimage_sha256": "2c7bb7dc0e93341e5c00bdf5c24845adf9c8f940a1382c6a1e4578f701a82542",
+        "operation": "modify",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-test-ratchet-semantic-owner-author-r3-v2-20261018/postimages/policy-engine/tests/unit/berl/test_service.py"
+      },
+      "policy-engine/tests/unit/data_forge/domains/academic/knowledge/test_skg_schema_generation.py": {
+        "preimage_sha256": "04808f0b89a5ade1b5315b39dae758cd947e263300901405c782a55a47f8e8a0",
+        "postimage_sha256": null,
+        "operation": "delete"
+      },
+      "policy-engine/tests/unit/data_forge/domains/academic/knowledge/test_skg_store.py": {
+        "preimage_sha256": null,
+        "postimage_sha256": "6a52810fb096891cf3cc9d72a36172c48d2e2317b723e61df564511375661232",
+        "operation": "add",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-test-ratchet-semantic-owner-author-r3-v2-20261018/postimages/policy-engine/tests/unit/data_forge/domains/academic/knowledge/test_skg_store.py"
+      },
+      "policy-engine/tests/unit/data_forge/domains/ukraine/test_demography_artifacts.py": {
+        "preimage_sha256": "be63e740d72a2170d32a04e33a13de37e79a6e47ec3fa394108ffea020adf5df",
+        "postimage_sha256": "e10eeec567a9c915f73167e6b6907f82d94b7e4443b33eda3d104fb9cb269fb3",
+        "operation": "modify",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-test-ratchet-semantic-owner-author-r3-v2-20261018/postimages/policy-engine/tests/unit/data_forge/domains/ukraine/test_demography_artifacts.py"
+      },
+      "policy-engine/tests/unit/data_forge/kernel/test_artifacts.py": {
+        "preimage_sha256": null,
+        "postimage_sha256": "95863f30fa5c49c22e1e4d0d67e5c2d00a5d637b7975f797945d313d7cb7bdc6",
+        "operation": "add",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-test-ratchet-semantic-owner-author-r3-v2-20261018/postimages/policy-engine/tests/unit/data_forge/kernel/test_artifacts.py"
+      },
+      "policy-engine/tests/unit/data_forge/read_api/test_ukraine.py": {
+        "preimage_sha256": null,
+        "postimage_sha256": "9e80b832815e9375c578d7d47e9f13c1b2863887489e7a81741e8130ce6b567b",
+        "operation": "add",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-test-ratchet-semantic-owner-author-r3-v2-20261018/postimages/policy-engine/tests/unit/data_forge/read_api/test_ukraine.py"
+      },
+      "policy-engine/tests/unit/data_forge/test_exception_ownership.py": {
+        "preimage_sha256": "a3be4b0561e077d19ab5d026d110482b3ae22c2d786bc6f6faff7e408bc983d7",
+        "postimage_sha256": "507f425215fc413867aee795dcff2f4d03f4409502273cde8441f8eaebeb8e60",
+        "operation": "modify",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-test-ratchet-semantic-owner-author-r3-v2-20261018/postimages/policy-engine/tests/unit/data_forge/test_exception_ownership.py"
+      },
+      "policy-engine/tests/unit/fabric/io/test_db.py": {
+        "preimage_sha256": null,
+        "postimage_sha256": "6106685cd71c788070e0d58351ccb543646ebd0b17d8d14b9fac66a4917b695d",
+        "operation": "add",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-test-ratchet-semantic-owner-author-r3-v2-20261018/postimages/policy-engine/tests/unit/fabric/io/test_db.py"
+      },
+      "policy-engine/tests/unit/foundry/methods/backends/test_dispatch.py": {
+        "preimage_sha256": null,
+        "postimage_sha256": "343f4f1c8e773dc606c80afc4d56af881c1c8228ecf54597c3eb282929089f63",
+        "operation": "add",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-test-ratchet-semantic-owner-author-r3-v2-20261018/postimages/policy-engine/tests/unit/foundry/methods/backends/test_dispatch.py"
+      },
+      "policy-engine/tests/unit/foundry/methods/test_dispatch_runtime_selection.py": {
+        "preimage_sha256": "343f4f1c8e773dc606c80afc4d56af881c1c8228ecf54597c3eb282929089f63",
+        "postimage_sha256": null,
+        "operation": "delete"
+      },
+      "policy-engine/tools/quality/validation/run_foundry_phase0_validation.sh": {
+        "preimage_sha256": "372ad64f99018aa112a7c01b22abe5e77d8dd2786321fcae09c585fc1dd7b1d5",
+        "postimage_sha256": "e42f8879e88f505b8e8f07d00ad348af2841b9893c2c4aa14d1ed03de928571a",
+        "operation": "modify",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-test-ratchet-semantic-owner-author-r3-v2-20261018/postimages/policy-engine/tools/quality/validation/run_foundry_phase0_validation.sh"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/runtime-profiles.md": {
+        "preimage_sha256": "3244c221c856909c25b6522c1d8de6cef3413e94292b01f8b91f7252b74e5cda",
+        "postimage_sha256": "3911b8fa43bc4f43b144c0e94118b28e7adb2645e40a004186dde5b9445927b7",
+        "operation": "modify",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-test-ratchet-semantic-owner-author-r3-v2-20261018/postimages/policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/runtime-profiles.md"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-semantic-test-owner-r3-v2-application-20261018/source-application.json",
+      "sha256": "c2e7b51eb03b7da555ce5287e854ff016085b2f81a465f9d6d8a221933ac21e7"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-semantic-test-owner-r3-v2-application-20261018/native-trash-receipt.json",
+      "sha256": "8d219c4d13726b1503474f5344f5137d73d6951db1b0601f7cc786967abe1ece"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-test-ratchet-semantic-owner-author-r3-v2-20261018/candidate-manifest-r3.json",
+        "sha256": "b20b9bf7edc520231bb1b2915f3d4b1daf7e9f45acbd5a13460dd35dde851ab3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-test-ratchet-semantic-owner-author-r3-v2-20261018/candidate-r3.patch",
+        "sha256": "bdbc44f5440fd686cbdd1426c64b9fe1098398f37ba178ec926876dac161726f"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-test-ratchet-semantic-owner-independent-review-r3-v2-20261018/review.json",
+        "sha256": "2464123fc77302889ada3c0070f7cf7b548e3e18773749aeef5e462038b79068"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-test-ratchet-semantic-owner-independent-review-r2-20261018/review.json",
+        "sha256": "72eeeb5858cc1505b1f3105e4e37f69d4730c07f1774d4b1598353c44da73a8f"
+      }
+    ],
+    "P40": "One semantic-owner vs marker-only class; whole8-owner cohort, no marker-by-marker closure or floor change.",
+    "bounded_proof": "Independent24-path static semantic/AST/fixture/importer/active-companion review GO; tests/ratchet UNRUN after composition.",
+    "limitations": [
+      "Old LA03213-case andLA03612-case test-byte receipts become historical; source behavior is unchanged but current selectors require fresh replay.",
+      "Other8BERLmarker-onlyrows remain unclaimed; no law/authority claim or floor/baseline rewrite.",
+      "SHAP marginal exactgame andconditionalrefusal tests do not establish correlatedGaussian/law-boundconditional behavior."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Source-bound canonical13-module8-owner wave, explicit remapofLA032/LA036selectors andfreshactualratchet afterhelpercomposition; retainremaininggenuinegaps.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

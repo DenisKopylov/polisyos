@@ -8,6 +8,8 @@ evidence = [
   "tests/unit/remediation/test_ber_01.py",
   "tests/unit/berl/test_service.py",
   "tests/unit/berl/test_adapters.py",
+  "tests/unit/berl/service/test_cache_identity.py",
+  "tests/unit/berl/adapters/test_shap_kernel.py",
 ]
 compatibility = "No bundle schema change. Requested IDs and historical records remain intact. disagreement.methods_compared may contain fewer IDs when requested names resolve to the same effective implementation profile."
 change_class = "internal"

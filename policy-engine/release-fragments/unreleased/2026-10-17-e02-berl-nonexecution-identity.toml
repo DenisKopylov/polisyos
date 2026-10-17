@@ -8,6 +8,7 @@ evidence = [
   "tests/unit/berl/test_service.py",
   "tests/integration/scientist_berl/test_explanation_reliability_bridge.py",
   "tests/unit/remediation/test_ber_01.py",
+  "tests/unit/berl/service/test_cache_identity.py",
 ]
 compatibility = "The existing MethodExplanation.effective_method_id field remains nullable and its schema is unchanged. A refused, failed-before-result, or rejected-after-result diagnostic has effective_method_id=null; successful accepted vectors keep the selected implementation identity, alias reuse behavior, and requested-method confidence adjustment."
 change_class = "python-public-api"

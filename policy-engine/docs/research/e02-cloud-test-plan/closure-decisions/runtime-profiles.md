@@ -30,6 +30,7 @@
 **Минимальная поддержка.** Сохранить текущий точно ограниченный `empirical_interventional` profile. Для conditional добавить один law-specific owner: сначала exact linear-Gaussian conditional expectation при content-bound `mu/Σ`, валидированной ковариации и конечном диапазоне; всё вне profile — typed `unavailable/assumption_not_established`. Тест использует hand-derived условное среднее и независимое перечисление маленькой игры, коррелированный negative, независимый-feature control и повреждённую/несимметричную covariance. SHAP может быть независимым TreeSHAP baseline только в его документированных assumptions, но не oracle общего conditional path.
 
 Предлагаемые affected checks: `cd policy-engine && uv run --extra test pytest tests/unit/berl/mirror_contracts/test_shap_kernel.py -q` плюс новый behavioral test в `tests/unit/berl/` на коррелированном Gaussian. Настоящая TreeExplainer интеграция имеет отдельный selector после установки назначенного optional profile; текущий exact fallback не считается её запуском. Отдельный profile не добавлять в обязательное ядро ради случайного feature-importance output.
+**Current candidate locator (2026-10-18; proposal only).** The candidate test is `tests/unit/berl/adapters/test_shap_kernel.py`; it verifies the exact marginal linear-game output and refuses the conditional route before model invocation. Correlated-Gaussian, law-bound conditional behavior remains proposed and UNRUN; this check makes no equivalence claim.
 
 ### Retrieval: оставить HNSW hint и одного автора поколения
 

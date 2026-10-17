@@ -106,7 +106,10 @@ result = method.pure_step(state, {"mode": "deterministic"})
 - deterministic/integerized aged sample materialization:
   `tests/unit/foundry/methods/catalog/simulation/test_demography.py`
 
-- read surface and compatibility shim:
+- public read-surface whole-layout selection and scalar consumers:
+  `tests/unit/data_forge/read_api/test_ukraine.py`
+
+- domain builder, static-aging integration, and historical compatibility:
   `tests/unit/data_forge/domains/ukraine/test_demography_artifacts.py`
 
 - sparse-flow performance gate:

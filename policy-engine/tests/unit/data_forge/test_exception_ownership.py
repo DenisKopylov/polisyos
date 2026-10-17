@@ -1,12 +1,8 @@
 from __future__ import annotations
 
-from pathlib import Path
-
 import pytest
 
-import polisyos.core.artifacts as core_artifacts
 import polisyos.data_forge as data_forge
-from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.errors import ErrorCategory, PolicyOSError
 from polisyos.data_forge.domains.legal.contracts import (
     LegalDocSource,
@@ -23,7 +19,6 @@ from polisyos.data_forge.kernel import (
     SchemaCompatibilityError,
     SnapshotCommitError,
 )
-from polisyos.data_forge.kernel.artifacts import load_json_artifact
 from polisyos.lex import LexValidationError as RuntimeLexValidationError
 
 
@@ -80,22 +75,3 @@ def test_legal_error_owner_preserves_mro_and_runtime_lex_separation() -> None:
 
     with pytest.raises(DataForgeLexValidationError, match="exactly one"):
         LegalDocSource(license="fixture-license")
-
-
-def test_kernel_json_loader_defaults_generic_but_keeps_legal_override(
-    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
-) -> None:
-    """The shared kernel default is domain-neutral; callers may select legal semantics."""
-    monkeypatch.setattr(
-        core_artifacts,
-        "load_core_json_artifact",
-        lambda _cas, _artifact_id: ["not", "an", "object"],
-    )
-    artifact_id = "sha256:" + "a" * 64
-    cas = FileSystemCAS(tmp_path)
-
-    with pytest.raises(DataForgeValidationError, match="payload must be a JSON object"):
-        load_json_artifact(cas, artifact_id)
-
-    with pytest.raises(DataForgeLexValidationError, match="payload must be a JSON object"):
-        load_json_artifact(cas, artifact_id, error_cls=DataForgeLexValidationError)

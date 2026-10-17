@@ -41,9 +41,7 @@ def test_graph_load_persists_the_schema_generation_it_materialized(
 
     run_graph_load(config)
 
-    manifest = json.loads(
-        (config.manifests_dir / "graph_load.json").read_text(encoding="utf-8")
-    )
+    manifest = json.loads((config.manifests_dir / "graph_load.json").read_text(encoding="utf-8"))
     assert manifest["metrics"]["schema_generation"] == (
         skg_store.skg_schema_generation_basis().to_dict()
     )

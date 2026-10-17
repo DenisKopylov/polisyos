@@ -8,6 +8,7 @@ evidence = [
   "tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py",
   "tests/unit/data_forge/domains/ukraine/test_demography_artifacts.py",
   "docs/reference/foundry/demography.md",
+  "tests/unit/data_forge/read_api/test_ukraine.py",
 ]
 compatibility = "The inventory request route is additive, but the existing public return contract also changes: individual role readers return DemographyRoleProjection, a Mapping[str, object], instead of a plain dict, and UkraineDemographyArtifacts contract v2 requires source_evidence. Existing loader call signatures, mapping key/value reads, and payload equality with mappings remain supported; projections remain read-only and callers requiring mutation can use dict(result). Callers constructing/revalidating v1 DTOs must migrate. Historical readers preserve ValueError for ambiguous/partial layouts, FileNotFoundError for an explicitly missing selected layout, and native JSON decoder errors for malformed selected content. A standalone historical donor read is empty only when no known demographic members exist or a selected complete layout omits donor; absence intent remains legacy_limited/not_established. Candidate refusals remain typed SourceResolutionRefusalError values, and candidate inventories without the required field refuse."
 change_class = "python-public-api"

@@ -4,7 +4,12 @@ type = "changed"
 component = "data-forge"
 owner = "team-data-forge"
 summary = "The generic Data Forge exceptions now belong to the existing kernel package, and legal corpus exceptions belong to the legal contract owner; kernel artifact loaders default to the generic validation error while legal callers select their existing legal error semantics."
-evidence = ["tests/unit/data_forge/test_exception_ownership.py", "tests/unit/data_forge/legal_batch/test_lex_shared_contract_relocation.py", "tests/unit/lex/mirror_contracts/test_api.py"]
+evidence = [
+  "tests/unit/data_forge/test_exception_ownership.py",
+  "tests/unit/data_forge/legal_batch/test_lex_shared_contract_relocation.py",
+  "tests/unit/lex/mirror_contracts/test_api.py",
+  "tests/unit/data_forge/kernel/test_artifacts.py",
+]
 compatibility = "The supported polisyos.data_forge root exports and class names remain unchanged. The unlisted internal polisyos.data_forge.errors module is removed; source consumers must import generic errors from polisyos.data_forge or polisyos.data_forge.kernel and legal corpus errors from polisyos.data_forge.domains.legal.contracts. Historical pickle payloads refer to the old module global. No package-level compatibility promise is declared for this unlisted module; deployments persisting these payloads need a migration or compatibility decision. Runtime Lex error classes remain separate and unchanged."
 change_class = "internal"
 surface_classification = "internal: Data Forge exception owner relocation; public polisyos.data_forge generic exception names remain unchanged"

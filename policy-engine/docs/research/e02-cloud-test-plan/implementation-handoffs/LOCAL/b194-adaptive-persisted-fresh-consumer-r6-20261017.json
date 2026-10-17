@@ -1,0 +1,187 @@
+{
+  "schema": "policyos.e02.local_candidate_handoff.v1",
+  "slice": "B194 adaptive partial draws persisted fresh normative consumer",
+  "author_role": "local_candidate_author_not_G",
+  "candidate_branch": "codex/e02-unified-local-20261009",
+  "candidate": {
+    "base": "c231e763d62999a0f2a6d1ab56579be22a65d17e",
+    "sha": "8932ed41bba94d724eae178c316baf59f5dbeebd",
+    "tree": "d0730a919e9d3491d4acf4d8f634665ec21db33c",
+    "parents": [
+      "c231e763d62999a0f2a6d1ab56579be22a65d17e"
+    ],
+    "source_bytes_read_back_from_branch": true
+  },
+  "footprint": [
+    {
+      "path": "policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo_b194.py",
+      "sha256": "8e1486869233e4f2152e757564f956c1807861823d200f9d5f39ea9e411f0a98"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "sha256": "6d6ab95e76f66600724ec6ca5422a32e9c76083cc659f31f220b1c6048dd2d58"
+    }
+  ],
+  "original_occurrence": "B194#1:B_r19:UQP-03:47058d366d7ff7e11ed2348e96b2f56659a999f1f0839a02edc92804b295711e",
+  "original_criterion": {
+    "criterion": "Preserve original attempted-input identity, typed failure records, missing-mass/unattempted disposition and transient same-draw retry; distinguish draw-local inapplicability from global access/contract failures; do not treat a successful-only conditional result as an unconditional confidence interval.",
+    "occurrence_key": "B194#1:B_r19:UQP-03:47058d366d7ff7e11ed2348e96b2f56659a999f1f0839a02edc92804b295711e",
+    "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/B_r19_original.md",
+    "sha256": "9c98584cbfa72996b058abf127f6c689f919a3421cdd563a82c84a7324ab39b5",
+    "span_lines": [
+      4792,
+      4801
+    ],
+    "span_sha256": "47058d366d7ff7e11ed2348e96b2f56659a999f1f0839a02edc92804b295711e"
+  },
+  "chain": {
+    "producer": "Adaptive Monte Carlo fixed 150 requested rows; first checkpoint100 attempted:50input-dependentfailures/50successful,50unattempted. Independent failure-input digests match all50typedrecords.",
+    "artifact": "Real PropagateUncertaintyNode persists config, report, conditional envelope and replacement SimulationResult into CAS.",
+    "bridge": "Persisted refs are reloaded into fresh normative state.",
+    "consumer": "Fresh RunNormativeArbitrationNode keeps model PARTIAL, uncertainty binding absent, rights UNEVALUATED.",
+    "surface": "Normative output warnings propagation_metric_output_incomplete/coverage_incomplete; candidate envelope heuristic=true, gate_eligible=false, confidence_level=null.",
+    "verification": "Full actual test module, not constructor/marker/exit-only proof."
+  },
+  "selected_inputs_profile_backend": {
+    "inputs": "Controlled symmetric samples x=-1/+1 and synthetic normative case; no production payload or authority facts.",
+    "profile": "candidate-only successful-draw conditional heuristic; adaptive requested/attempted/success/failure/unattempted partition explicit",
+    "backend": "Existing locked own workspace Python3.14.3 .venv, CPU, one numerical thread",
+    "wall_cap_seconds": 240,
+    "rss_cap_bytes": 3221225472
+  },
+  "source_bound_command": {
+    "label": "b194-full-module",
+    "argv": [
+      "/usr/bin/time",
+      "-l",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+      "-B",
+      "-m",
+      "pytest",
+      "-c",
+      "pytest.ini",
+      "--rootdir",
+      ".",
+      "-o",
+      "addopts=",
+      "--import-mode=importlib",
+      "--strict-markers",
+      "-ra",
+      "-vv",
+      "--tb=short",
+      "-p",
+      "no:cacheprovider",
+      "-p",
+      "c05_actual_witness",
+      "--basetemp",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b194-adaptive-fresh-consumer-wave-r1-20261017/pytest-basetemp",
+      "--junitxml",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b194-adaptive-fresh-consumer-wave-r1-20261017/full-module.junit.xml",
+      "tests/unit/foundry/uncertainty/test_monte_carlo_b194.py"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "timeout_seconds": 240
+  },
+  "verification": {
+    "source_base": {
+      "sha": "c231e763d62999a0f2a6d1ab56579be22a65d17e",
+      "tree": "4c525f9f48bc2007a6b19509b73ee3a8a1fa8fa4"
+    },
+    "owned_test_overlay": {
+      "path": "policy-engine/tests/unit/foundry/uncertainty/test_monte_carlo_b194.py",
+      "sha256": "8e1486869233e4f2152e757564f956c1807861823d200f9d5f39ea9e411f0a98",
+      "incident": "b194-r6-accidental-live-test-application-incident-r1-20261017/incident.json",
+      "independent_review": "b194-adaptive-unattempted-fresh-consumer-independent-review-r6-20261017/assessment.json"
+    },
+    "case_outcomes": {
+      "PASS": 43,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0
+    },
+    "phases_pass": 129,
+    "loaded_own_source_modules": 841,
+    "loaded_sources_match_branch": true,
+    "source_pins_unchanged": 17,
+    "seconds": 11.631,
+    "peak_process_tree_rss_bytes": 904527872,
+    "caps_triggered": false,
+    "root_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b194-adaptive-fresh-consumer-wave-r1-20261017/root-postrun-readback.json",
+      "sha256": "42da549a919789fdf1d71fb8d244248e2071f94960f5020a61df7bcbc167ee30"
+    },
+    "deciding_outputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b194-adaptive-fresh-consumer-wave-r1-20261017/request.json",
+        "sha256": "8efb735080aa7e740713ddf5ba0a19a0a7ba3a052d35a220ae7b736a11879112"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b194-adaptive-fresh-consumer-wave-r1-20261017/actual-results.json",
+        "sha256": "d15bd01b2e49438feb9af36dc1712334188f0275a574d451248414d093aa1ab7"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b194-adaptive-fresh-consumer-wave-r1-20261017/actual-test-and-source-witness.json",
+        "sha256": "8fdc2a70a87574601f68c0e228406b9fdb29ece027d2b248d9bd3334a6eae5cf"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b194-adaptive-fresh-consumer-wave-r1-20261017/full-module.junit.xml",
+        "sha256": "00e0b64ae234107ef28b2dac559ce8876ce667b6f5861f7c11d670c492aa75cc"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b194-adaptive-fresh-consumer-wave-r1-20261017/supervisor-result.json",
+        "sha256": "d161aec442d243e86828c3b49fe8db45a12bb04150e781bb2195c43322be2f11"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b194-adaptive-fresh-consumer-wave-r1-20261017/b194-full-module.stdout.txt",
+        "sha256": "9795d4952afacc3b293754058eced149fc3579fe2d002ee93dee83de8cfefb45"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b194-adaptive-fresh-consumer-wave-r1-20261017/b194-full-module.stderr.txt",
+        "sha256": "a270af09e18bf923872c99ca2dd7516f88c3b415f197d24a46cdfce628c2bf10"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b194-adaptive-fresh-consumer-wave-r1-20261017/b194-ruff-check.stdout.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b194-adaptive-fresh-consumer-wave-r1-20261017/b194-ruff-check.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b194-adaptive-fresh-consumer-wave-r1-20261017/b194-ruff-format.stdout.txt",
+        "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b194-adaptive-fresh-consumer-wave-r1-20261017/b194-ruff-format.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "warning": "Three warnings retained: cache_dir unknown because cacheprovider disabled, and two pre-existing JAX clip argument deprecations. Supervisor generic sentence mentions pickle but request executed only Ruff and full B194 test module; no pickle claim."
+  },
+  "adversarial_controls": "Full module includes global/unknown permission failure fail-closed and no partial persistence, denominator/envelope recomputation, malformed/partial sensitivity and fresh-consumer controls. No new runtime-removal mutation run for this test-only companion; remove-property-keep-markers control remains UNRUN for this new combined test.",
+  "independent_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b194-adaptive-unattempted-fresh-consumer-independent-review-r6-20261017/assessment.json",
+    "sha256": "5ff096a3f5f3c62a77ec5498469b25eb30e0c8f1817e185a8ed73c1c1c75e376"
+  },
+  "incident": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/b194-r6-accidental-live-test-application-incident-r1-20261017/incident.json",
+    "sha256": "250c3350ba22c5b10c996cd0aca5c779e13a405f2f68ee54e9be421d40559f39"
+  },
+  "limitations": [
+    "Successful-draw full input-identity ledger/trusted verifier receipt remains not_established.",
+    "Source-law and missing-mass basis remain not_established; successful-only conditional result is not an unconditional confidence interval.",
+    "Actual passing combined regression removes one verification gap; original whole-property B194 remains held for G.",
+    "Full composed/native/Linux/installed closeout remains pending."
+  ],
+  "proposal_fields": [
+    {
+      "id": "B194",
+      "occurrence_key": "B194#1:B_r19:UQP-03:47058d366d7ff7e11ed2348e96b2f56659a999f1f0839a02edc92804b295711e",
+      "proposal": "held",
+      "capability_boundary": "Combined adaptive/unattempted and input-dependent failure path now verified; remaining provenance/source-law criterion not_established.",
+      "next_check": "G independently replay exact candidate; complete admitted success-identity/verifier and source-law basis before whole-property promotion."
+    }
+  ],
+  "closure_ids": [],
+  "formal_closures": []
+}

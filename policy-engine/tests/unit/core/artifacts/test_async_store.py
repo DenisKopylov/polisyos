@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import time
+from typing import cast
 
 import pytest
 
@@ -11,6 +12,7 @@ from polisyos.core.artifacts.async_store import (
 )
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import SchemaInfo
+from polisyos.core.artifacts.protocol import ArtifactStore
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 
@@ -88,3 +90,40 @@ def test_ensure_async_artifact_store_reuses_existing_async_store(tmp_path) -> No
     adapter = AsyncArtifactStoreAdapter(store)
 
     assert ensure_async_artifact_store(adapter) is adapter
+
+
+def test_async_artifact_store_rejects_selected_profile_when_writer_lacks_capability_before_write() -> (
+    None
+):
+    class _LegacyStore:
+        def __init__(self) -> None:
+            self.write_calls = 0
+
+        def put_json(
+            self,
+            obj: object,
+            opts: ArtifactWriteOptions,
+            canon_spec: object | None = None,
+        ) -> None:
+            del obj, opts, canon_spec
+            self.write_calls += 1
+
+    store = _LegacyStore()
+    adapter = AsyncArtifactStoreAdapter(cast("ArtifactStore", store))
+
+    async def _exercise() -> None:
+        await adapter.put_json(
+            {"value": 1},
+            ArtifactWriteOptions(
+                kind="test.async_profile.unsupported", media_type="application/json"
+            ),
+            return_selected_profile=True,
+        )
+
+    with pytest.raises(
+        NotImplementedError,
+        match="artifact_store_return_selected_profile_unsupported",
+    ):
+        run_coro_sync(_exercise())
+
+    assert store.write_calls == 0

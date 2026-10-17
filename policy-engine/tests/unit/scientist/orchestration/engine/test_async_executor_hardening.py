@@ -4,11 +4,12 @@ from __future__ import annotations
 
 import time
 from decimal import Decimal
-from unittest.mock import MagicMock
+from pathlib import Path
+from unittest.mock import MagicMock, create_autospec
 
 import pytest
 
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.scientist.orchestration.engine.async_executor import AsyncWorkflowExecutor
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
@@ -73,7 +74,7 @@ def _make_registry(*nodes_map) -> NodeRegistry:
     return registry
 
 
-def _make_ctx():
+def _make_ctx(tmp_path: Path):
     ctx = MagicMock()
     ctx.run.emit = MagicMock()
     ctx.run.add_input = MagicMock()
@@ -83,13 +84,9 @@ def _make_ctx():
     ctx.logger = MagicMock()
     ctx.metrics = None
     ctx.audit = None
-    ctx.store.put_json = MagicMock(
-        return_value=ArtifactRef(
-            artifact_id="sha256:" + "a" * 64,
-            kind="test",
-            media_type="application/json",
-        )
-    )
+    store = FileSystemCAS(tmp_path / "cas")
+    ctx.store = store
+    ctx.store.put_json = create_autospec(store.put_json, side_effect=store.put_json)
     return ctx
 
 
@@ -106,7 +103,7 @@ def _make_workflow(*invocations, error_policy="fail_fast") -> WorkflowSpec:
 
 class TestParallelStateIsolation:
     @pytest.mark.asyncio
-    async def test_parallel_nodes_get_independent_copies(self):
+    async def test_parallel_nodes_get_independent_copies(self, tmp_path: Path):
         """Parallel nodes should not mutate each other's state."""
         mutations = {}
 
@@ -127,7 +124,7 @@ class TestParallelStateIsolation:
             ("test.a@1.0.0", node_a),
             ("test.b@1.0.0", node_b),
         )
-        ctx = _make_ctx()
+        ctx = _make_ctx(tmp_path)
         state = ExperimentState(run_id="iso-test")
 
         workflow = _make_workflow(
@@ -145,7 +142,7 @@ class TestParallelStateIsolation:
         assert "mutated_by_a" not in mutations["b"]
 
     @pytest.mark.asyncio
-    async def test_bind_failure_becomes_typed_node_error(self):
+    async def test_bind_failure_becomes_typed_node_error(self, tmp_path: Path):
         task_node = MagicMock()
         task_node.spec = _node_spec("test.bind_fail@1.0.0")
 
@@ -156,7 +153,7 @@ class TestParallelStateIsolation:
         task_node.execute.side_effect = AssertionError("execute should not run when bind fails")
 
         registry = _make_registry(("test.bind_fail@1.0.0", task_node))
-        ctx = _make_ctx()
+        ctx = _make_ctx(tmp_path)
         state = ExperimentState(run_id="bind-fail-test")
         workflow = _make_workflow(
             NodeInvocation(
@@ -178,13 +175,13 @@ class TestParallelStateIsolation:
         assert record.error.details["type"] == "RuntimeError"
 
     @pytest.mark.asyncio
-    async def test_runtime_lookup_failure_becomes_typed_node_error(self):
+    async def test_runtime_lookup_failure_becomes_typed_node_error(self, tmp_path: Path):
         task_node = MagicMock()
         task_node.spec = _node_spec("test.lookup_fail@1.0.0")
         task_node.execute.side_effect = LookupError("missing dependency")
 
         registry = _make_registry(("test.lookup_fail@1.0.0", task_node))
-        ctx = _make_ctx()
+        ctx = _make_ctx(tmp_path)
         state = ExperimentState(run_id="lookup-fail-test")
         workflow = _make_workflow(
             NodeInvocation(alias="lookup_fail", node_id="test.lookup_fail@1.0.0"),
@@ -207,7 +204,7 @@ class TestParallelStateIsolation:
 
 class TestTierSavepoints:
     @pytest.mark.asyncio
-    async def test_tier_rollback_on_failure(self):
+    async def test_tier_rollback_on_failure(self, tmp_path: Path):
         """On fail_fast, state should revert to tier savepoint."""
 
         def mutating_ok(state):
@@ -229,7 +226,7 @@ class TestTierSavepoints:
             ("test.a@1.0.0", node_a),
             ("test.b@1.0.0", node_b),
         )
-        ctx = _make_ctx()
+        ctx = _make_ctx(tmp_path)
         state = ExperimentState(run_id="rollback-test")
 
         workflow = _make_workflow(
@@ -247,7 +244,7 @@ class TestTierSavepoints:
         assert result.state.params.get("tier2_mutation") is None
 
     @pytest.mark.asyncio
-    async def test_rollback_compensation_hook_receives_fail_fast_event(self):
+    async def test_rollback_compensation_hook_receives_fail_fast_event(self, tmp_path: Path):
         def ok(state):
             state.params["tier1_done"] = True
             return NodeOutcome(status="ok", state=state)
@@ -276,7 +273,7 @@ class TestTierSavepoints:
                 _make_node(fail, node_id="test.fail@1.0.0", state_writes=["params.tier2_mutation"]),
             ),
         )
-        ctx = _make_ctx()
+        ctx = _make_ctx(tmp_path)
         workflow = _make_workflow(
             NodeInvocation(alias="ok", node_id="test.ok@1.0.0"),
             NodeInvocation(alias="fail", node_id="test.fail@1.0.0", depends_on=["ok"]),
@@ -298,7 +295,7 @@ class TestTierSavepoints:
         assert restored_state["params"] == {"tier1_done": True}
 
     @pytest.mark.asyncio
-    async def test_failed_single_node_does_not_commit_state_in_continue_mode(self):
+    async def test_failed_single_node_does_not_commit_state_in_continue_mode(self, tmp_path: Path):
         def failing(state):
             state.params["leaked"] = True
             return NodeOutcome(
@@ -309,7 +306,7 @@ class TestTierSavepoints:
 
         node = _make_node(failing, node_id="test.fail@1.0.0", state_writes=["params.leaked"])
         registry = _make_registry(("test.fail@1.0.0", node))
-        ctx = _make_ctx()
+        ctx = _make_ctx(tmp_path)
         state = ExperimentState(run_id="single-fail-rollback", params={"baseline": True})
 
         workflow = _make_workflow(
@@ -324,7 +321,7 @@ class TestTierSavepoints:
         assert result.state.params == {"baseline": True}
 
     @pytest.mark.asyncio
-    async def test_parallel_merge_conflict_rolls_back_whole_tier(self):
+    async def test_parallel_merge_conflict_rolls_back_whole_tier(self, tmp_path: Path):
         def write_alpha(state):
             state.params["shared"] = "alpha"
             return NodeOutcome(status="ok", state=state)
@@ -348,7 +345,7 @@ class TestTierSavepoints:
             ("test.a@1.0.0", node_a),
             ("test.b@1.0.0", node_b),
         )
-        ctx = _make_ctx()
+        ctx = _make_ctx(tmp_path)
         state = ExperimentState(run_id="merge-conflict-test", params={"baseline": True})
 
         workflow = _make_workflow(
@@ -370,7 +367,7 @@ class TestTierSavepoints:
         assert ctx.store.put_json.call_count >= 3
 
     @pytest.mark.asyncio
-    async def test_parallel_merge_policy_can_resolve_conflict(self):
+    async def test_parallel_merge_policy_can_resolve_conflict(self, tmp_path: Path):
         def write_alpha(state):
             state.params["shared"] = "alpha"
             return NodeOutcome(status="ok", state=state)
@@ -393,7 +390,7 @@ class TestTierSavepoints:
             ("test.a@1.0.0", node_a),
             ("test.b@1.0.0", node_b),
         )
-        ctx = _make_ctx()
+        ctx = _make_ctx(tmp_path)
         state = ExperimentState(run_id="merge-policy-test")
         workflow = _make_workflow(
             NodeInvocation(alias="a", node_id="test.a@1.0.0"),
@@ -417,10 +414,10 @@ class TestTierSavepoints:
 
 class TestWorkflowTimeout:
     @pytest.mark.asyncio
-    async def test_no_timeout_by_default(self):
+    async def test_no_timeout_by_default(self, tmp_path: Path):
         node = _make_node(node_id="test.fast@1.0.0")
         registry = _make_registry(("test.fast@1.0.0", node))
-        ctx = _make_ctx()
+        ctx = _make_ctx(tmp_path)
         state = ExperimentState(run_id="no-timeout-test")
 
         workflow = _make_workflow(
@@ -437,7 +434,7 @@ class TestWorkflowTimeout:
 
 class TestBudgetIntegration:
     @pytest.mark.asyncio
-    async def test_budget_exhausted_fails_node(self):
+    async def test_budget_exhausted_fails_node(self, tmp_path: Path):
         bs = BudgetState(
             limits={"run": BudgetLimit(key="run", max_usd=Decimal("100"))},
             spent={"run": Decimal("100")},
@@ -446,7 +443,7 @@ class TestBudgetIntegration:
 
         node = _make_node(node_id="test.node@1.0.0")
         registry = _make_registry(("test.node@1.0.0", node))
-        ctx = _make_ctx()
+        ctx = _make_ctx(tmp_path)
         state = ExperimentState(run_id="budget-test")
 
         workflow = _make_workflow(
@@ -466,11 +463,11 @@ class TestBudgetIntegration:
 
 class TestBackwardCompat:
     @pytest.mark.asyncio
-    async def test_new_params_have_defaults(self):
+    async def test_new_params_have_defaults(self, tmp_path: Path):
         """Existing callers should work without new params."""
         node = _make_node(node_id="test.node@1.0.0")
         registry = _make_registry(("test.node@1.0.0", node))
-        ctx = _make_ctx()
+        ctx = _make_ctx(tmp_path)
         state = ExperimentState(run_id="compat-test")
 
         workflow = _make_workflow(

@@ -947,6 +947,7 @@ def test_darwin_spawn_timeout_recomputes_changed_skg_and_persists_profile_lineag
 ) -> None:
     """A canonical spawn worker reads current SKG bytes and publishes a typed bundle."""
     from polisyos.scientist.orchestration.engine import retry as retry_module
+    from polisyos.scientist.orchestration.engine.errors import NodeTimeoutError
 
     allowed_cleanup_exitcodes = {0, -signal.SIGTERM}
 
@@ -1231,10 +1232,27 @@ def test_darwin_spawn_timeout_recomputes_changed_skg_and_persists_profile_lineag
             raced_processes.append(process)
         return process
 
-    class SpawnContextProxy:
+    class DynamicOnlySpawnContextProxy:
         def __getattr__(self, name: str) -> Any:
             if name == "Process":
                 return process_factory
+            return getattr(spawn_context, name)
+
+    with pytest.raises(NodeTimeoutError) as dynamic_only_refusal:
+        retry_module._process_factory(DynamicOnlySpawnContextProxy())
+    assert dynamic_only_refusal.value.code == "node.timeout_worker_unsupported"
+    assert (
+        dynamic_only_refusal.value.details["reason"]
+        == "process_context_process_factory_unavailable"
+    )
+
+    class SpawnContextProxy:
+        Process: Any
+
+        def __init__(self) -> None:
+            self.Process = process_factory
+
+        def __getattr__(self, name: str) -> Any:
             return getattr(spawn_context, name)
 
     context_proxy = SpawnContextProxy()

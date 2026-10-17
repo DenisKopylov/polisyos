@@ -5,15 +5,15 @@ from __future__ import annotations
 import importlib
 from typing import TYPE_CHECKING
 
-from polisyos.calibration.adapters import to_validation_report
-from polisyos.calibration.continuous import evaluate_continuous
 from polisyos.calibration.curve import (
     CalibrationPoint,
     CalibrationResult,
     compute_calibration_curve,
 )
 from polisyos.calibration.diagnostics import evaluate_binary
-from polisyos.calibration.multiclass import evaluate_multiclass
+from polisyos.calibration.diagnostics.adapters import to_validation_report
+from polisyos.calibration.diagnostics.continuous import evaluate_continuous
+from polisyos.calibration.diagnostics.multiclass import evaluate_multiclass
 from polisyos.calibration.recalibration import (
     apply_calibrator,
     compare_calibrators,

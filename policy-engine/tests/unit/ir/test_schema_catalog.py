@@ -1,5 +1,10 @@
 from __future__ import annotations
 
+import base64
+import hashlib
+import inspect
+import json
+import pickle
 import subprocess
 import sys
 from pathlib import Path
@@ -57,3 +62,91 @@ def test_generated_reference_catalog_is_current() -> None:
         text=True,
     )
     assert result.returncode == 0, result.stderr or result.stdout
+
+
+def test_pre_move_abi_pickle_loads_before_the_live_catalog_consumer() -> None:
+    from polisyos.foundry.methods.api import compute_source_fingerprint, compute_source_hash
+    from polisyos.schemas import abi_models
+    from polisyos.schemas.abi_models import (
+        ABI_MODELS,
+        ABIModelEntry,
+        Priority,
+        select_abi_entries,
+    )
+
+    fixture_path = (
+        Path(__file__).resolve().parents[2]
+        / "fixtures"
+        / "package_path_compatibility"
+        / "runtime_abi_protocol4.json"
+    )
+    fixture = json.loads(fixture_path.read_text(encoding="utf-8"))
+    entry_payload = base64.b64decode(fixture["objects"]["ABIModelEntry"]["pickle_base64"])
+    priority_payload = base64.b64decode(fixture["objects"]["Priority"]["pickle_base64"])
+    entry = pickle.loads(entry_payload)  # noqa: S301 -- fixed repo-owned pre-move fixture.
+    priority = pickle.loads(priority_payload)  # noqa: S301 -- fixed repo-owned pre-move fixture.
+
+    assert type(entry) is ABIModelEntry
+    assert type(priority) is Priority
+    assert type(entry).__module__ == fixture["objects"]["ABIModelEntry"]["module"]
+    assert type(priority).__module__ == fixture["objects"]["Priority"]["module"]
+    public_types = (
+        Priority,
+        abi_models.CompatMode,
+        abi_models.Lifecycle,
+        abi_models.SchemaMode,
+        ABIModelEntry,
+    )
+    for public_type in public_types:
+        source_file = inspect.getsourcefile(public_type)
+        assert source_file is not None
+        assert Path(source_file).resolve() == Path(abi_models.__file__).resolve()
+        assert inspect.getsource(public_type)
+        source_hash = compute_source_hash(public_type)
+        assert source_hash != "unavailable"
+        fingerprint = compute_source_fingerprint(public_type)
+        assert fingerprint.source_hash == source_hash
+        assert fingerprint.normalized_source_hash is not None
+        assert fingerprint.module_file is not None
+        assert fingerprint.module_file.replace("\\", "/").endswith(
+            "src/polisyos/schemas/abi_models/__init__.py"
+        )
+
+    assert all(
+        hasattr(abi_models, name)
+        for name in (
+            "Iterable",
+            "dataclass",
+            "Enum",
+            "Priority",
+            "CompatMode",
+            "Lifecycle",
+            "SchemaMode",
+            "ABIModelEntry",
+            "IR_ABI_MODELS",
+            "FABRIC_ABI_MODELS",
+            "SCIENTIST_ABI_MODELS",
+            "ABI_MODELS",
+            "iter_abi_entries",
+            "select_abi_entries",
+        )
+    )
+    assert entry in ABI_MODELS
+    assert len(ABI_MODELS) == fixture["baseline"]["abi_count"]
+    abi_payload = json.dumps(
+        [row.__dict__ for row in ABI_MODELS],
+        sort_keys=True,
+        separators=(",", ":"),
+        default=lambda value: value.value,
+    ).encode()
+    assert (
+        hashlib.sha256(abi_payload).hexdigest() == fixture["baseline"]["abi_ordered_entries_sha256"]
+    )
+    assert (
+        sum(
+            row.module == "ir" and row.priority is Priority.P0
+            for row in select_abi_entries(["ir", "p0"])
+        )
+        == 16
+    )
+    assert priority is entry.priority

@@ -1,0 +1,23 @@
+id = "2026-10-17-common-env-parser-internal-route"
+title = "Consolidate Common environment parsing under process configuration"
+type = "changed"
+component = "platform"
+owner = "team-polisyos"
+summary = "Common bootstrap, security, and SLSA settings now share environment parsers owned by polisyos.common.config."
+evidence = [
+  "src/polisyos/common/config.py",
+  "src/polisyos/core/security/settings.py",
+  "src/polisyos/core/security/slsa/config.py",
+  "tests/unit/common/mirror_contracts/test_env_parsing.py",
+  "src/polisyos/common/README.md",
+]
+compatibility = "The polisyos.common.env_parsing module was present in historical wheel and sdist artifacts but is not a supported entrypoint in the current Common public-surface contract or facade. No current external consumer or persisted use was established; direct external imports remain not_established. Repository-owned consumers now use the existing Common config owner."
+change_class = "internal"
+surface_classification = "internal: internal-only"
+migration = "Repository-owned bootstrap, security, and SLSA imports move to polisyos.common.config. The parser helpers are not added to Common facade __all__ and no stable DTO or supported entrypoint changes."
+api = "The existing public Common config entrypoint remains in place; its generated source receipt is refreshed. The removed env_parsing module was not part of the supported entrypoint contract."
+limitations = "Historical distributions shipped the old module FQN. This change does not provide a compatibility shim or claim that no external code imported it; external compatibility is not_established."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/common/README.md"]
+runbook_docs = []

@@ -61,48 +61,6 @@ sunset = "2026-07-31"
 reason = "BERL service facade remains root-level until the reliability service contract moves under a canonical subpackage."
 
 [[root_file_exception]]
-path = "src/polisyos/calibration/_sklearn_compat.py"
-owner = "team-architecture"
-sunset = "2026-07-31"
-reason = "Calibration keeps sklearn compatibility at the package facade during shared diagnostics consolidation."
-
-[[root_file_exception]]
-path = "src/polisyos/calibration/adapters.py"
-owner = "team-architecture"
-sunset = "2026-07-31"
-reason = "Calibration adapter imports are public compatibility surface until diagnostics adapter consumers migrate."
-
-[[root_file_exception]]
-path = "src/polisyos/calibration/continuous.py"
-owner = "team-architecture"
-sunset = "2026-07-31"
-reason = "Continuous calibration module remains root-level during canonical calibration package cutover."
-
-[[root_file_exception]]
-path = "src/polisyos/calibration/curve.py"
-owner = "team-architecture"
-sunset = "2026-07-31"
-reason = "Calibration curve helpers are retained as a compatibility facade before subpackage extraction."
-
-[[root_file_exception]]
-path = "src/polisyos/calibration/diagnostics.py"
-owner = "team-architecture"
-sunset = "2026-07-31"
-reason = "Diagnostics facade remains root-level while shared diagnostics ownership settles."
-
-[[root_file_exception]]
-path = "src/polisyos/calibration/multiclass.py"
-owner = "team-architecture"
-sunset = "2026-07-31"
-reason = "Multiclass calibration compatibility imports are time-boxed until package-local grouping is complete."
-
-[[root_file_exception]]
-path = "src/polisyos/calibration/recalibration.py"
-owner = "team-architecture"
-sunset = "2026-07-31"
-reason = "Recalibration public helpers remain root-level until callers move to the canonical calibration API."
-
-[[root_file_exception]]
 path = "src/polisyos/common/async_tools.py"
 owner = "team-core"
 sunset = "2026-07-31"
@@ -114,11 +72,6 @@ owner = "team-core"
 sunset = "2026-07-31"
 reason = "Common config remains root-level because multiple packages consume it as shared public utility surface."
 
-[[root_file_exception]]
-path = "src/polisyos/common/env_parsing.py"
-owner = "team-core"
-sunset = "2026-07-31"
-reason = "Environment parsing helpers remain root-level until common config/env utilities are grouped."
 
 [[root_file_exception]]
 path = "src/polisyos/common/jax_env.py"
@@ -217,22 +170,10 @@ sunset = "2026-07-31"
 reason = "Lex public types remain root-level until the type taxonomy is consolidated."
 
 [[root_file_exception]]
-path = "src/polisyos/runtime/manifest.py"
-owner = "team-runtime"
-sunset = "2026-07-31"
-reason = "Runtime manifest helpers remain root-level public support while runtime state contracts settle."
-
-[[root_file_exception]]
 path = "src/polisyos/runtime/replay.py"
 owner = "team-runtime"
 sunset = "2026-07-31"
 reason = "Runtime replay facade remains root-level while replay state migration policy is exercised."
-
-[[root_file_exception]]
-path = "src/polisyos/schemas/abi_models.py"
-owner = "team-architecture"
-sunset = "2026-07-31"
-reason = "Python ABI schema models live under src/polisyos/schemas; top-level schemas/ remains schema-only."
 
 [[root_file_exception]]
 path = "src/polisyos/scholar/errors.py"

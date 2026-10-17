@@ -78,5 +78,5 @@ Take one bounded task:
   manifest, or deep-import drift;
 
 - `gen-schema --check` fails: the new IR type is missing from
-  `src/polisyos/schemas/abi_models.py` or was not included in schema catalog and
+  `src/polisyos/schemas/abi_models/catalog.py` or was not included in schema catalog and
   documentation generation.

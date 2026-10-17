@@ -673,7 +673,7 @@ runtime-evaluated-base-classes = ["pydantic.BaseModel"]
 "src/polisyos/runtime/http/services/task_runner.py" = ["ANN401"]
 "src/polisyos/runtime/http/services/timeline.py" = ["ANN401"]
 # Runtime manifest keeps runtime-visible Pydantic annotations for model rebuilds.
-"src/polisyos/runtime/manifest.py" = ["TC001"]
+"src/polisyos/runtime/manifest/__init__.py" = ["TC001"]
 "src/polisyos/runtime/replay.py" = ["ANN401"]
 # Runtime-quality and data-requirement bridges consume heterogeneous CAS,
 # Pydantic, and tool JSON payloads. Keep these dynamic boundary annotations
@@ -713,7 +713,7 @@ runtime-evaluated-base-classes = ["pydantic.BaseModel"]
 # Repository hygiene closeout ratchets: these surfaces are now part of the
 # canonical Ruff pass, but their historical style/security debt stays explicit
 # until each directory owner burns it down.
-"src/polisyos/schemas/abi_models.py" = ["TC003"]
+"src/polisyos/schemas/abi_models/__init__.py" = ["TC003"]
 "examples/**" = ["RUF012"]
 "ops/cloud/gcp/upload_gonka_secrets.py" = ["S603", "T201"]
 "tools/quality/testing/check_fabric_exception_baseline.py" = ["S603", "T201"]

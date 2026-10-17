@@ -69,7 +69,7 @@
     "total_spend_denominator": 1,
     "total_spend_numerator": 0
   },
-  "artifact_content_hash": "sha256:e971664fcdad74569735873c4a65f33922f2b4cd9e09d91fa39c1beba3cdb2a4",
+  "artifact_content_hash": "sha256:80ac843ebd4042052a97e4cdc254e6e4dbd32612465e0fd833e670c349ac1eec",
   "conditionality_clause": "P(false promotion | maintained assumptions) <= delta is conditional on obligation completeness + validator soundness (the spec's A4 = our open P29).",
   "conformance_ledger_projection": {
     "authority_provenance": "verification",
@@ -1368,19 +1368,11 @@
         },
         {
           "decisive": true,
-          "declared_identity": "sha256:b1388c2a0efad9f7788140ec2e9da5f7e29ff0a1021fe94758f1f16e553c763c",
+          "declared_identity": "sha256:d9ccde94822072280eca3f73c2f9e1297ac155956d7f0a7ad0e69dc17ca43e68",
           "member_id": "module:polisyos.common.config",
           "member_kind": "source",
           "predicate_class": "recomputed",
-          "resolved_identity": "sha256:b1388c2a0efad9f7788140ec2e9da5f7e29ff0a1021fe94758f1f16e553c763c"
-        },
-        {
-          "decisive": true,
-          "declared_identity": "sha256:90afe172cc0b46df9838e6c1f0eec656c62bd5d1e4162394e21cb58e9d8bb897",
-          "member_id": "module:polisyos.common.env_parsing",
-          "member_kind": "source",
-          "predicate_class": "recomputed",
-          "resolved_identity": "sha256:90afe172cc0b46df9838e6c1f0eec656c62bd5d1e4162394e21cb58e9d8bb897"
+          "resolved_identity": "sha256:d9ccde94822072280eca3f73c2f9e1297ac155956d7f0a7ad0e69dc17ca43e68"
         },
         {
           "decisive": true,
@@ -2640,11 +2632,11 @@
         },
         {
           "decisive": true,
-          "declared_identity": "sha256:2263ab9b3947b7ab4da5fe9a81636bef31183ddfed2cf84906e754a4a869dc30",
+          "declared_identity": "sha256:06288dc254efb0ddb46c8b76ec1e1ee59e4a9f1f36d58de5eb5e331da06a2d7b",
           "member_id": "module:polisyos.core.security.settings",
           "member_kind": "source",
           "predicate_class": "recomputed",
-          "resolved_identity": "sha256:2263ab9b3947b7ab4da5fe9a81636bef31183ddfed2cf84906e754a4a869dc30"
+          "resolved_identity": "sha256:06288dc254efb0ddb46c8b76ec1e1ee59e4a9f1f36d58de5eb5e331da06a2d7b"
         },
         {
           "decisive": true,
@@ -2664,11 +2656,11 @@
         },
         {
           "decisive": true,
-          "declared_identity": "sha256:bce3087a6d40d7d6fc5888139e4c2317b19d226a4677179c8decde5f6f4b822a",
+          "declared_identity": "sha256:d643b0e4889f2e4ad6cf8161113d9ecf84d951d811db781a49a5588af88a911b",
           "member_id": "module:polisyos.core.security.slsa.config",
           "member_kind": "source",
           "predicate_class": "recomputed",
-          "resolved_identity": "sha256:bce3087a6d40d7d6fc5888139e4c2317b19d226a4677179c8decde5f6f4b822a"
+          "resolved_identity": "sha256:d643b0e4889f2e4ad6cf8161113d9ecf84d951d811db781a49a5588af88a911b"
         },
         {
           "decisive": true,
@@ -17215,7 +17207,7 @@
           "resolved_identity": "sha256:b18395cf89ca8ab2b25387baf5b062fcf0242af18885c5be693d3fd9a7e7db3a"
         }
       ],
-      "membership_sha256": "sha256:b49be3f36664d98916f2a57e957177d43918ea527827b5cae46bd6a6c376c4f0",
+      "membership_sha256": "sha256:20d2fe1aed266dbf98cbf284152ad58caf78c5ac1b1a8ff0a4c0883dc87dcc31",
       "same_input_closure": {
         "cell_id": null,
         "closure_id": "gy-n11-owner-inputs",
@@ -17483,7 +17475,7 @@
       "world_growth_status": "no_growth",
       "world_growth_target_variable": "government.balance"
     },
-    "projection_sha256": "sha256:38b436d4a931798b88cdf92c8b84852762a7a91851600cc98de36c9a10baa774"
+    "projection_sha256": "sha256:8f6c808c692c2f8c7cc84106a883bfa1cc8f6634eb9998251317f4cbcc3ea1fc"
   },
   "projection_edges": [
     {

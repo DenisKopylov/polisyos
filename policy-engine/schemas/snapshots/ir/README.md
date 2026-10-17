@@ -10,7 +10,7 @@ This directory contains JSON Schema snapshots of IR contracts and serves as the 
 
 ## Sources
 
-- Registry: [`abi_models.py`](../../../src/polisyos/schemas/abi_models.py) (entries with `module="ir"`).
+- Registry entries: [`abi_models/catalog.py`](../../../src/polisyos/schemas/abi_models/catalog.py) (`module="ir"`); public model types are defined and exported by `abi_models/__init__.py`.
 - Generator: [`gen_schema.py`](../../../tools/quality/diagnostics/gen_schema.py).
 - Compatibility check: [`abi_diff.py`](../../../tools/quality/diagnostics/abi_diff.py).
 

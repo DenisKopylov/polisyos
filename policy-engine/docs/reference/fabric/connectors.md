@@ -128,7 +128,7 @@ regeneration commands live in [schema-compatibility.md](schema-compatibility.md)
 | `schemas/snapshots/connectors/contracts.json`                | `polisyos.fabric.connectors.sources._contracts.ALL_SOURCE_CONTRACTS`                  | `uv run polisyos-tools connectors check-contracts --check`                                                                |
 | `schemas/snapshots/fabric/connector_contract_registry.json`  | `tools/quality/validation/fabric_schema_governance.py` plus the same source contracts | `uv run python tools/ci/check_fabric_schema_registry.py --check --evidence-out _build/.tmp/fabric-schema-governance.json` |
 | `schemas/snapshots/fabric/source_contracts_v2.json`          | `tools/quality/validation/fabric_source_contracts.py`                                 | `uv run python tools/quality/validation/fabric_source_contracts.py --check`                                               |
-| `schemas/snapshots/fabric/{edge_kind,node_kind}.schema.json` | `src/polisyos/schemas/abi_models.py` and Fabric/world ABI models                      | `uv run --extra ml polisyos-tools diagnostics gen-schema --check`                                                         |
+| `schemas/snapshots/fabric/{edge_kind,node_kind}.schema.json` | `src/polisyos/schemas/abi_models/__init__.py`, `catalog.py`, package model API, and Fabric/world ABI models                      | `uv run --extra ml polisyos-tools diagnostics gen-schema --check`                                                         |
 
 Breaking schema changes require an approved major bump, owner/reviewer
 metadata, risk level, migration status, downstream impact summary, and migration

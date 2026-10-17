@@ -32,7 +32,7 @@ Diagnostic tooling for contracts, quality, and verification reports. This direct
 
 - `src/polisyos/*`: runtime contracts, builtin nodes, and artifact models.
 - `schemas/snapshots/*`: committed ABI snapshot outputs.
-- `src/polisyos/schemas/abi_models.py`: Python ABI registry imported through `polisyos.*`.
+- `src/polisyos/schemas/abi_models/`: Python ABI definitions and public API/selectors in `__init__.py`, and registry tables in `catalog.py, imported through `polisyos.*`.
 - `docs/reports/*`: primary output location for verification reports (SCM v3 evidence/matrices and logs).
 - `data/curated/*`, `data/databases/*`: inputs for local Fabric/UDF checks.
 - `baseline/*.json` and benchmark artifacts: inputs for performance-regression scenarios.

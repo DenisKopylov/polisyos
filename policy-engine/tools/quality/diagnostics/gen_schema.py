@@ -80,7 +80,8 @@ MODULE_COMPATIBILITY: dict[str, dict[str, str]] = {
     },
 }
 FULL_REBUILD_SENTINELS = {
-    REPO_ROOT / "src" / "polisyos" / "schemas" / "abi_models.py",
+    REPO_ROOT / "src" / "polisyos" / "schemas" / "abi_models" / "__init__.py",
+    REPO_ROOT / "src" / "polisyos" / "schemas" / "abi_models" / "catalog.py",
     REPO_ROOT / "tools" / "quality" / "diagnostics" / "gen_schema.py",
     REPO_ROOT / "tools" / "quality" / "diagnostics" / "generate_ir_reference_catalog.py",
 }

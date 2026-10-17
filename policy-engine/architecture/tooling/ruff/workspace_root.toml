@@ -630,7 +630,7 @@ extend-exclude = ["policy-engine/docs/archive/**", "policy-engine/docs/research/
 "policy-engine/src/polisyos/runtime/http/services/task_runner.py" = ["ANN401"]
 "policy-engine/src/polisyos/runtime/http/services/timeline.py" = ["ANN401"]
 # Runtime manifest keeps runtime-visible Pydantic annotations for model rebuilds.
-"policy-engine/src/polisyos/runtime/manifest.py" = ["TC001"]
+"policy-engine/src/polisyos/runtime/manifest/__init__.py" = ["TC001"]
 "policy-engine/src/polisyos/runtime/replay.py" = ["ANN401"]
 # Runtime-quality and data-requirement bridges consume heterogeneous CAS,
 # Pydantic, and tool JSON payloads. Keep these dynamic boundary annotations
@@ -670,7 +670,7 @@ extend-exclude = ["policy-engine/docs/archive/**", "policy-engine/docs/research/
 # Repository hygiene closeout ratchets: these surfaces are now part of the
 # canonical Ruff pass, but their historical style/security debt stays explicit
 # until each directory owner burns it down.
-"policy-engine/src/polisyos/schemas/abi_models.py" = ["TC003"]
+"policy-engine/src/polisyos/schemas/abi_models/__init__.py" = ["TC003"]
 "policy-engine/examples/**" = ["RUF012"]
 "policy-engine/ops/cloud/gcp/upload_gonka_secrets.py" = ["S603", "T201"]
 "policy-engine/tools/quality/testing/check_fabric_exception_baseline.py" = ["S603", "T201"]

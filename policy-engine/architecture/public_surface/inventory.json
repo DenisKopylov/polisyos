@@ -286,8 +286,8 @@
                 "path": "src/polisyos/common/config.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 14879,
-                "sha256": "126ca3bc685dbe60ad46f803090fca815c8ec520b5d3c3d8f34f18e62c98ef61"
+                "bytes": 15586,
+                "sha256": "d9ccde94822072280eca3f73c2f9e1297ac155956d7f0a7ad0e69dc17ca43e68"
               },
               {
                 "path": "src/polisyos/__init__.py",
@@ -9546,8 +9546,8 @@
                 "path": "src/polisyos/calibration/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 2678,
-                "sha256": "160f4b1d39e577da49d428f20e7082940c374119962fdf50ff0501132d580b01"
+                "bytes": 2714,
+                "sha256": "c954e24883a1ae9b355b26c2513bbd2a71c41a55946e5b2595e337dfe5b9f786"
               },
               {
                 "path": "src/polisyos/__init__.py",

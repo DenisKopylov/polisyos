@@ -658,7 +658,7 @@ generator = "canonical generator declared in regenerate_commands"
 verifier = "verifier declared by check_command, drift_gate, workflow, or manual review policy"
 promotion_target = "registered committed outputs listed in outputs"
 stale_output_behavior = "fail"
-source_of_truth = "src/polisyos/schemas/abi_models.py + src/polisyos/** Pydantic/Enum contracts, including src/polisyos/scientist/governance/calibration_validation.py"
+source_of_truth = "src/polisyos/schemas/abi_models/__init__.py + src/polisyos/schemas/abi_models/catalog.py + src/polisyos/** Pydantic/Enum contracts, including src/polisyos/scientist/governance/calibration_validation.py"
 outputs = [
   "schemas/snapshots/ir/",
   "schemas/snapshots/fabric/edge_kind.schema.json",
@@ -3260,7 +3260,7 @@ source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/l
 source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_source_contract_admissibility_audit.json" = "sha256:2b685ca413704b68feac121e3515ba5a5754e6b162faf2ab5ed11066b57ab747"
 source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_source_contract_admissibility_findings.md" = "sha256:1f55a1a92a9dc345420ac433afffb25cfa65f0704058608b40e6417304bfcf2b"
 source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_substrate_package_capability_findings.md" = "sha256:180b1c674486124be5778a9cc60633854b42927f3b56be4f988b247dea7eed20"
-source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_substrate_package_capability_inventory.json" = "sha256:edcfc46146ca5de5c28d46348ad2858e3ce1426f50bd3e2515cb4e4ce7d189fd"
+source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_substrate_package_capability_inventory.json" = "sha256:c239897fd3c70de50323f3aab3621c4e51e93a75808569e92f7b378dd6ac3fcb"
 source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_system_audit_gap_map.md" = "sha256:c15e969eb9d249d36894fead97c2111e93f6bf88c9242c94710f41a1886cee6a"
 source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_workflow_consolidation_analysis.md" = "sha256:509cedbefacf4ad6da8b5679f0a3293f5e47a9920b8316041a918821994abf17"
 source_integrity_sha256."architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_workflow_mode_truth_audit.json" = "sha256:08a9f4bd43e747dc60d99cef4edf7f8803136104f31c419c2a8085882636f036"

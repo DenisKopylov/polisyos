@@ -11,13 +11,13 @@
 | `snapshots/connectors/contracts.json`                          | Snapshot of source-connector contracts                            |
 | `runtime_api_v1.openapi.json`                                  | Committed OpenAPI contract for Runtime API v1                     |
 
-The code ABI registry is in `src/polisyos/schemas/abi_models.py`; this directory is reserved for JSON/YAML/OpenAPI snapshot artifacts.
+The code ABI registry package is `src/polisyos/schemas/abi_models/`: `__init__.py` owns enum/dataclass definitions and the public model API/selectors, while `catalog.py` owns registered ABI entries. This directory is reserved for JSON/YAML/OpenAPI snapshot artifacts.
 
 ## Where to Check Current State
 
 This page describes where contracts live; it is not a consolidated inventory of their current sizes and versions. For owners, statuses, and committed outputs, use the [generated-artifact catalog](../docs/reference/generated-artifacts.md) and its [source registry](../architecture/generated_artifacts.toml). For any specific value, check the corresponding source contract and snapshot or manifest.
 
-- Code ABI registry: `src/polisyos/schemas/abi_models.py`; ABI snapshots and manifests: `snapshots/ir/` and `snapshots/fabric/`.
+- Code ABI model API and registry: `src/polisyos/schemas/abi_models/__init__.py` and `catalog.py`; ABI snapshots and manifests: `snapshots/ir/` and `snapshots/fabric/`.
 - Source connector contracts: `src/polisyos/fabric/connectors/sources/_contracts/`; committed snapshot: `snapshots/connectors/contracts.json`.
 - Runtime API source: `src/polisyos/runtime/http/`; committed OpenAPI snapshot:
   `runtime_api_v1.openapi.json`.
@@ -32,7 +32,7 @@ while `types.ts` and the canonical TS/JS client are the committed outputs.
 
 ```text
 src/polisyos/ir/** + src/polisyos/ir/world/abi.py
-  -> src/polisyos/schemas/abi_models.py
+  -> src/polisyos/schemas/abi_models/{__init__.py,catalog.py}
   -> tools/quality/diagnostics/gen_schema.py
   -> schemas/snapshots/{ir,fabric}
   -> ABI checks: .github/workflows/abi.yml + .github/workflows/ci.yml

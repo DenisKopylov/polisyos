@@ -3,58 +3,30 @@
   "rule": "Cross-package imports should prefer documented supported entrypoints. This baseline freezes existing deep-import edges so new creep fails review.",
   "edges": [
     {
-      "source_module": "polisyos.calibration.adapters",
+      "source_module": "polisyos.calibration.diagnostics",
       "source_root": "calibration",
-      "source_file": "src/polisyos/calibration/adapters.py",
-      "target_module": "polisyos.ir.analytics.calibration_diagnostics",
+      "source_file": "src/polisyos/calibration/diagnostics/__init__.py",
+      "target_module": "polisyos.ir.analytics.query_validation_report",
       "target_root": "ir"
     },
     {
-      "source_module": "polisyos.calibration.adapters",
+      "source_module": "polisyos.calibration.diagnostics.adapters",
       "source_root": "calibration",
-      "source_file": "src/polisyos/calibration/adapters.py",
+      "source_file": "src/polisyos/calibration/diagnostics/adapters.py",
       "target_module": "polisyos.ir.governance.validation",
       "target_root": "ir"
     },
     {
-      "source_module": "polisyos.calibration.continuous",
+      "source_module": "polisyos.calibration.diagnostics.continuous",
       "source_root": "calibration",
-      "source_file": "src/polisyos/calibration/continuous.py",
-      "target_module": "polisyos.ir.analytics.calibration_diagnostics",
-      "target_root": "ir"
-    },
-    {
-      "source_module": "polisyos.calibration.continuous",
-      "source_root": "calibration",
-      "source_file": "src/polisyos/calibration/continuous.py",
+      "source_file": "src/polisyos/calibration/diagnostics/continuous.py",
       "target_module": "polisyos.ir.analytics.query_validation_report",
       "target_root": "ir"
     },
     {
-      "source_module": "polisyos.calibration.diagnostics",
+      "source_module": "polisyos.calibration.diagnostics.multiclass",
       "source_root": "calibration",
-      "source_file": "src/polisyos/calibration/diagnostics.py",
-      "target_module": "polisyos.ir.analytics.calibration_diagnostics",
-      "target_root": "ir"
-    },
-    {
-      "source_module": "polisyos.calibration.diagnostics",
-      "source_root": "calibration",
-      "source_file": "src/polisyos/calibration/diagnostics.py",
-      "target_module": "polisyos.ir.analytics.query_validation_report",
-      "target_root": "ir"
-    },
-    {
-      "source_module": "polisyos.calibration.multiclass",
-      "source_root": "calibration",
-      "source_file": "src/polisyos/calibration/multiclass.py",
-      "target_module": "polisyos.ir.analytics.calibration_diagnostics",
-      "target_root": "ir"
-    },
-    {
-      "source_module": "polisyos.calibration.multiclass",
-      "source_root": "calibration",
-      "source_file": "src/polisyos/calibration/multiclass.py",
+      "source_file": "src/polisyos/calibration/diagnostics/multiclass.py",
       "target_module": "polisyos.ir.analytics.query_validation_report",
       "target_root": "ir"
     },
@@ -8380,13 +8352,6 @@
       "source_file": "src/polisyos/foundry/methods/catalog/distributional/mobility_latent_adapter.py",
       "target_module": "polisyos.ir.analytics.mobility",
       "target_root": "ir"
-    },
-    {
-      "source_module": "polisyos.foundry.methods.catalog.econometrics.advanced",
-      "source_root": "foundry",
-      "source_file": "src/polisyos/foundry/methods/catalog/econometrics/advanced.py",
-      "target_module": "polisyos.calibration.continuous",
-      "target_root": "calibration"
     },
     {
       "source_module": "polisyos.foundry.methods.catalog.econometrics.advanced",

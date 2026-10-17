@@ -6,7 +6,9 @@ Related explanation: [Trinity](../../explanation/trinity.md).
 
 Freshness: 2026-10-14
 Owner: `@ir-owners`
-Source of truth: `src/polisyos/ir/**`, `src/polisyos/schemas/abi_models.py`,
+Source of truth: `src/polisyos/ir/**`, `src/polisyos/schemas/abi_models/__init__.py`,
+`src/polisyos/schemas/abi_models/__init__.py`,
+`src/polisyos/schemas/abi_models/catalog.py`,
 `src/polisyos/core/contracts/trinity.py`, `src/polisyos/core/artifacts/ids.py`,
 `src/polisyos/core/artifacts/manifest.py`, `src/polisyos/common/canonical.py`,
 `src/polisyos/common/hashing.py`, `tests/unit/ir/**`, `tests/contract/**`;

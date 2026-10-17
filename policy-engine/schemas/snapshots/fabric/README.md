@@ -9,7 +9,7 @@ This directory stores JSON Schema snapshots for `edge_kind` and `node_kind`, whi
 
 ## Data Sources
 
-- Model registry: `src/polisyos/schemas/abi_models.py` (`module="fabric"`).
+- ABI type definitions: `src/polisyos/schemas/abi_models/__init__.py`; registry entries: `src/polisyos/schemas/abi_models/catalog.py` (`module="fabric"`).
 - Enum-class source: `src/polisyos/ir/world/abi.py`.
 - Generator: `tools/quality/diagnostics/gen_schema.py`.
 

@@ -46,7 +46,7 @@
 "src/polisyos/runtime/http/services/task_runner.py" = ["ANN401"]
 "src/polisyos/runtime/http/services/timeline.py" = ["ANN401"]
 # Runtime manifest keeps runtime-visible Pydantic annotations for model rebuilds.
-"src/polisyos/runtime/manifest.py" = ["TC001"]
+"src/polisyos/runtime/manifest/__init__.py" = ["TC001"]
 "src/polisyos/runtime/replay.py" = ["ANN401"]
 # Runtime-quality and data-requirement bridges consume heterogeneous CAS,
 # Pydantic, and tool JSON payloads. Keep these dynamic boundary annotations

@@ -20,8 +20,13 @@ status = "resolved"
 layout_owner = "team-scientist"
 source_root = "src/polisyos/calibration"
 readme = "src/polisyos/calibration/README.md"
-root_facade_policy = "small eager-export facade for shared diagnostics; Foundry and DDM calibration contexts remain package-specific"
-implementation_roots = ["src/polisyos/calibration"]
+root_facade_policy = "eager shared calibration facade over curve, diagnostics, and recalibration packages; the empirical-evidence bridge remains a separate lazy producer"
+implementation_roots = [
+  "src/polisyos/calibration/curve",
+  "src/polisyos/calibration/diagnostics",
+  "src/polisyos/calibration/recalibration",
+  "src/polisyos/calibration/forecast_bridge.py",
+]
 legacy_layout_mirror = "architecture/packages/layout.toml"
 legacy_layout_status = "resolved"
 

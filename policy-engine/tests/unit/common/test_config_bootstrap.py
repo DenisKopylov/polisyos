@@ -68,9 +68,7 @@ def test_cp_sat_worker_budget_is_positive_and_within_allowed_cores() -> None:
     config_module = importlib.import_module("polisyos.common.config")
 
     for total_cores in (1, 4, 8, 16):
-        config = config_module.build_process_bootstrap_config(
-            env={}, total_cores=total_cores
-        )
+        config = config_module.build_process_bootstrap_config(env={}, total_cores=total_cores)
 
         assert config.cp_sat_num_search_workers == 1
         assert 1 <= config.cp_sat_num_search_workers <= config.allowed_cores
@@ -82,9 +80,7 @@ def test_cp_sat_worker_budget_rejects_invalid_values() -> None:
     config = config_module.build_process_bootstrap_config(env={}, total_cores=8)
 
     nonpositive = replace(config, cp_sat_num_search_workers=0)
-    over_budget = replace(
-        config, cp_sat_num_search_workers=config.allowed_cores + 1
-    )
+    over_budget = replace(config, cp_sat_num_search_workers=config.allowed_cores + 1)
 
     assert "cp_sat_num_search_workers must be >= 1" in (
         config_module.validate_process_bootstrap_config(nonpositive)
@@ -92,3 +88,17 @@ def test_cp_sat_worker_budget_rejects_invalid_values() -> None:
     assert "cp_sat_num_search_workers must not exceed allowed_cores" in (
         config_module.validate_process_bootstrap_config(over_budget)
     )
+
+
+def test_environment_parsers_keep_bootstrap_defaults_and_fallbacks() -> None:
+    config_module = importlib.import_module("polisyos.common.config")
+
+    assert config_module.parse_bool(None, True) is True
+    assert config_module.parse_bool(" YES ", False) is True
+    assert config_module.parse_bool("unknown", True) is False
+    assert config_module.parse_int(None, 3) == 3
+    assert config_module.parse_int(" 12 ", 3) == 12
+    assert config_module.parse_int("invalid", 3) == 3
+    assert config_module._parse_float_env(None, 2.0) == 2.0
+    assert config_module._parse_float_env(" 1.25 ", 2.0) == 1.25
+    assert config_module._parse_float_env("invalid", 2.0) == 2.0

@@ -354,9 +354,26 @@ def test_phase6_4_top_level_schemas_contract_is_pure_data() -> None:
     assert schemas_topology["content_policy"] == "pure_schema_data_only_no_python"
 
 
-def test_phase6_4_schema_python_wrapper_lives_under_src_polisyos() -> None:
+def test_phase7_runtime_and_schema_sources_leave_only_supported_root_rows() -> None:
+    layout = tomllib.loads(
+        (REPO_ROOT / "architecture" / "packages" / "layout.toml").read_text(encoding="utf-8")
+    )
+    root_exception_paths = {row["path"] for row in layout.get("root_file_exception", [])}
+    assert "src/polisyos/runtime/manifest.py" not in root_exception_paths
+    assert "src/polisyos/schemas/abi_models.py" not in root_exception_paths
+    assert "src/polisyos/runtime/replay.py" in root_exception_paths
+
+    runtime_package = REPO_ROOT / "src" / "polisyos" / "runtime" / "manifest"
+    assert not (REPO_ROOT / "src" / "polisyos" / "runtime" / "manifest.py").exists()
+    assert (runtime_package / "__init__.py").is_file()
+
     assert not (REPO_ROOT / "schemas" / "abi_models.py").exists()
-    assert (REPO_ROOT / "src" / "polisyos" / "schemas" / "abi_models.py").is_file()
+    abi_package = REPO_ROOT / "src" / "polisyos" / "schemas" / "abi_models"
+    assert (abi_package / "__init__.py").is_file()
+    assert not (abi_package / "_types.py").exists()
+    assert "class ABIModelEntry" in (abi_package / "__init__.py").read_text(encoding="utf-8")
+    assert (abi_package / "catalog.py").is_file()
+    assert not (REPO_ROOT / "src" / "polisyos" / "schemas" / "abi_models.py").exists()
 
 
 def test_phase7_unregistered_package_root_python_file_fails(tmp_path: Path) -> None:

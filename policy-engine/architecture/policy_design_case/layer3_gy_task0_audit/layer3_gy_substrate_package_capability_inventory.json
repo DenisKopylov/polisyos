@@ -466,8 +466,8 @@
       "authority_boundary_summary": "Calibration diagnostics can support method/forecast validity, but only after a route consumer binds the report to a measurement root or validation gate.",
       "evidence_refs": [
         "src/polisyos/calibration/README.md",
-        "src/polisyos/calibration/diagnostics.py",
-        "src/polisyos/calibration/adapters.py",
+        "src/polisyos/calibration/diagnostics/__init__.py",
+        "src/polisyos/calibration/diagnostics/adapters.py",
         "src/polisyos/foundry/methods/catalog/econometrics/advanced.py",
         "tests/integration/foundry_calibration/test_method_calibration_bridge.py"
       ]

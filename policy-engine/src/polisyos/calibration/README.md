@@ -41,3 +41,21 @@ CAS manifest view; it does not establish completeness, semantic adequacy, produc
 authority, currentness, issuer, or causal/S10 authority.
 
 ## Predictive Evidence Bridge\n\nThe root facade lazily exposes the neutral empirical evidence contract: `EmpiricalCalibrationContext`, `EmpiricalCalibrationEvidenceRef`, `EvidenceArtifactRef`, `REFERENCE_PROFILES`, and the load/persist/produce helpers. This bridge imports IR only when selected. Its evidence remains predictive-only: content binding and profile verification establish the selected view, not completeness, issuer authority, currentness, causal effects, or S10.
+## Internal implementation groups
+
+The shared implementation is organized by the existing capability contracts:
+
+- `diagnostics/` owns binary, continuous, and multiclass evaluators plus the
+  validation-report adapter. The public package root exports their supported
+  operations; direct sibling-module paths are internal.
+- `curve/` owns interval-coverage models and calculation. `CalibrationPoint`,
+  `CalibrationResult`, and `compute_calibration_curve` retain the historical
+  `polisyos.calibration.curve` defining/import identity for callers and serialized
+  references.
+- `recalibration/` owns fitted calibrator models and fit/apply/compare behavior,
+  with its private sklearn compatibility implementation beside that owner.
+
+Foundry callers use the Calibration root facade. This layout change leaves the
+17-name root API and empirical-evidence lazy bridge unchanged; it does not claim
+that unrelated unclassified package-root files or the full repository gate are
+closed.

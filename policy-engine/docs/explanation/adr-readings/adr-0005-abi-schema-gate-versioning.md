@@ -33,7 +33,7 @@ Before this ADR:
 
 ## Decision
 
-1. Store the ABI model registry in `src/polisyos/schemas/abi_models.py`.
+1. Store ABI model definitions in `src/polisyos/schemas/abi_models/__init__.py` for definitions, public API, and selectors, and keep registered entries in `catalog.py`.
 2. Store snapshot artifacts under `schemas/snapshots/{ir,fabric}` with
    `_manifest.json`.
 3. `tools/quality/diagnostics/gen_schema.py`:
@@ -54,7 +54,7 @@ Before this ADR:
 
 ## Compatibility Profiles
 
-Each ABI entry in `src/polisyos/schemas/abi_models.py` has a
+Each ABI entry in `src/polisyos/schemas/abi_models/catalog.py` has a
 `compat_mode`:
 
 - `strict`: adding fields counts as breaking (relevant to contracts whose

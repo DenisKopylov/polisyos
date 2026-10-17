@@ -16,7 +16,7 @@
 
 ## Решение
 
-1. Реестр ABI-моделей хранится в `src/polisyos/schemas/abi_models.py`.
+1. Пакет ABI-моделей находится в `src/polisyos/schemas/abi_models/`: типы и публичные селекторы находятся в `__init__.py`, записи реестра находятся в `catalog.py`.
 2. Snapshot-артефакты хранятся в `schemas/snapshots/{ir,fabric}` с `_manifest.json`.
 3. `tools/quality/diagnostics/gen_schema.py`:
 
@@ -38,7 +38,7 @@
 
 ## Compatibility Profiles
 
-В `src/polisyos/schemas/abi_models.py` каждый ABI-entry имеет `compat_mode`:
+В `src/polisyos/schemas/abi_models/catalog.py` каждый ABI-entry имеет `compat_mode` (типы enum определены в `__init__.py`):
 
 - `strict`: добавление полей считается breaking (актуально для контрактов, где потребители могут валидировать с `additionalProperties=false`).
 - `tolerant`: optional additive изменения допускаются как compatible.

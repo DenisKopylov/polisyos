@@ -8,7 +8,8 @@ from pathlib import Path
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.common.env_parsing import parse_bool, parse_float, parse_int
+from polisyos.common.config import _parse_float_env as parse_float
+from polisyos.common.config import parse_bool, parse_int
 
 
 class SlsaMode(str, Enum):

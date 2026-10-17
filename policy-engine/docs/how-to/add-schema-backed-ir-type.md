@@ -19,7 +19,7 @@ tests were not run; a specific type still needs its own visibility and ABI decis
 ## Output
 
 - a new IR type under `src/polisyos/ir/**`;
-- an entry in `src/polisyos/schemas/abi_models.py`, when needed;
+- an entry in `src/polisyos/schemas/abi_models/catalog.py`, when needed;
 - updated schema snapshots and the reference catalog.
 
 ## Commands
@@ -59,11 +59,11 @@ Possible visibility levels:
 - package facade: exported from a section facade such as `polisyos.ir.analytics`;
 - root facade: exported from `polisyos.ir`;
 - snapshot-only: not exported from a facade, but still tracked through
-  `src/polisyos/schemas/abi_models.py`.
+  `src/polisyos/schemas/abi_models/catalog.py` (model definitions and public API/selectors live in package `__init__.py`).
 
 That visibility shows up in `IRPublicStatus` inside the generated schema catalog.
 
-## 3. Register ABI-backed types in `src/polisyos/schemas/abi_models.py`
+## 3. Register ABI-backed types in `src/polisyos/schemas/abi_models/catalog.py`
 
 If the contract is ABI-visible, add an `ABIModelEntry` with:
 

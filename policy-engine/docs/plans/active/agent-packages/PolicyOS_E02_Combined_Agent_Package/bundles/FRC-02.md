@@ -34,7 +34,7 @@ policy-engine/src/polisyos/runtime/quality/generation_cycle.py
 **Читать как соседние контракты:**
 
 ```text
-policy-engine/src/polisyos/calibration/continuous.py
+policy-engine/src/polisyos/calibration/diagnostics/continuous.py
 policy-engine/src/polisyos/ir/analytics/calibration_diagnostics.py
 ```
 

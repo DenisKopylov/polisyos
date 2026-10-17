@@ -1242,7 +1242,7 @@ def test_explicit_ruff_callers_preserve_settings_and_lint_behavior() -> None:
         return subprocess.run(command, cwd=cwd, text=True, capture_output=True)
 
     representative_paths = (
-        "src/polisyos/calibration/adapters.py",
+        "src/polisyos/calibration/diagnostics/adapters.py",
         "tests/unit/calibration/test_adapters.py",
         "tests/repo_quality/architecture/test_repository_best_in_class_phase4_9_operability_bundles.py",
         "tools/devx/workspace/tool_configs.py",
@@ -1259,6 +1259,7 @@ def test_explicit_ruff_callers_preserve_settings_and_lint_behavior() -> None:
     )
     caller_root_settings = {"file_resolver.project_root", "linter.project_root"}
     for product_path in representative_paths:
+        assert (REPO_ROOT / product_path).is_file()
         normalized_settings: list[dict[str, str]] = []
         normalized_ignores: list[dict[str, tuple[bool, tuple[str, ...]]]] = []
         for label, cwd, config, expected_root in caller_modes:

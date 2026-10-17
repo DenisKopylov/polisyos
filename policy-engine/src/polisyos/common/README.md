@@ -30,8 +30,9 @@ migration primitives. Keep domain logic out of this package.
 - `src/polisyos/common/migrations/README.md` for package-local artifact
   migrations.
 
-- `src/polisyos/common/env_parsing.py` if you are working on bootstrap
-  internals; it is intentionally not part of the exported facade.
+- The environment parsing helpers are private to `config.py`; security and
+  bootstrap consumers share those functions rather than importing a separate
+  parser module. They remain outside the Common facade exports.
 
 ## Internal Markdown table syntax
 
@@ -78,8 +79,9 @@ follow the [measurement register decision](../../../docs/superpowers/specs/2026-
   `CanonicalProfileRefusalError`, while unexpected exceptions propagate unchanged.
   It is not exported by either Common facade or the supported profile module.
   The intake wrapper establishes no writer identity or producer authority.
-- `config.py`, `jax_env.py`, and `env_parsing.py` are early-process bootstrap
-  helpers; keep domain behavior out of them.
+- `config.py` and `jax_env.py` are early-process bootstrap helpers; keep
+  domain behavior out of them. The private environment parsers live with the
+  existing process-config owner.
 - `migrations/` owns package-local migration manifest helpers.
 
 ## Extension Points

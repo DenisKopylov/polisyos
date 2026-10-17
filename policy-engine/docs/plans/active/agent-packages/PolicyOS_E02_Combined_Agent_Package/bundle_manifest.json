@@ -3001,7 +3001,7 @@
         "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
       ],
       "read_paths": [
-        "policy-engine/src/polisyos/calibration/continuous.py",
+        "policy-engine/src/polisyos/calibration/diagnostics/continuous.py",
         "policy-engine/src/polisyos/ir/analytics/calibration_diagnostics.py"
       ],
       "depends_on": [
@@ -3105,8 +3105,8 @@
       "tests": "100 finite y_true + intervals={} или []/levels=[] не получают положительного tier; missing/surplus/misaligned пары видны. 95/100 при 0.95 и 0/100 различимы; small-sample downgrade сохранён. Native report/TruthfulnessReceipt не заменяются fixture. Binary/multiclass не обязаны иметь interval_coverage. Identity трёх public objects и поддержанного старого alias проверяется.",
       "avoid": "Не удалять Scientist backtesting, не снижать ECE threshold, не ломать task-specific receipt reconciliation и не объявлять public alias снятым до lifecycle.",
       "write_paths": [
-        "policy-engine/src/polisyos/calibration/continuous.py",
-        "policy-engine/src/polisyos/calibration/curve.py",
+        "policy-engine/src/polisyos/calibration/diagnostics/continuous.py",
+        "policy-engine/src/polisyos/calibration/curve/__init__.py",
         "policy-engine/src/polisyos/ir/analytics/calibration_diagnostics.py",
         "policy-engine/src/polisyos/scientist/methods/backtesting/calibration_curve.py",
         "policy-engine/tests/unit/calibration/test_continuous.py",
@@ -3153,8 +3153,8 @@
         "policy-engine/tests/unit/remediation/test_pcl_01.py"
       ],
       "lease_paths": [
-        "policy-engine/src/polisyos/calibration/continuous.py",
-        "policy-engine/src/polisyos/calibration/curve.py",
+        "policy-engine/src/polisyos/calibration/diagnostics/continuous.py",
+        "policy-engine/src/polisyos/calibration/curve/__init__.py",
         "policy-engine/src/polisyos/ir/analytics/calibration_diagnostics.py",
         "policy-engine/src/polisyos/scientist/methods/backtesting/calibration_curve.py",
         "policy-engine/tests/unit/calibration/test_continuous.py",
@@ -3221,7 +3221,7 @@
         "policy-engine/src/polisyos/runtime/quality/generation_cycle.py"
       ],
       "read_paths": [
-        "policy-engine/src/polisyos/calibration/continuous.py",
+        "policy-engine/src/polisyos/calibration/diagnostics/continuous.py",
         "policy-engine/src/polisyos/ir/analytics/calibration_diagnostics.py"
       ],
       "depends_on": [

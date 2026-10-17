@@ -353,7 +353,7 @@
         "policy-engine/tests/unit/scientist/methods/backtesting/test_calibration_curve.py"
       ],
       "proposed_target_paths": [
-        "policy-engine/src/polisyos/calibration/curve.py",
+        "policy-engine/src/polisyos/calibration/curve/__init__.py",
         "policy-engine/tests/unit/calibration/test_continuous.py"
       ],
       "followers": [
@@ -365,7 +365,7 @@
       "initial_status": "proposed_not_applied",
       "note": "Existing canonical implementation; migrate numerical tests without doubling, intentional empty-contract fix separately.",
       "target_status": {
-        "policy-engine/src/polisyos/calibration/curve.py": "existing_in_audit_not_currently_reverified",
+        "policy-engine/src/polisyos/calibration/curve/__init__.py": "candidate_destination_not_applied",
         "policy-engine/tests/unit/calibration/test_continuous.py": "existing_in_audit_not_currently_reverified"
       }
     },

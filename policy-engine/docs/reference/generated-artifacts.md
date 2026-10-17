@@ -670,7 +670,7 @@ uv run python tools/quality/validation/check_policy_design_case_layer3_gx_harden
 
 - Family id: `abi-schema-snapshots`
 - Lifecycle: `generated_committed`
-- Source of truth: src/polisyos/schemas/abi_models.py + src/polisyos/** Pydantic/Enum contracts, including src/polisyos/scientist/governance/calibration_validation.py
+- Source of truth: src/polisyos/schemas/abi_models/__init__.py + src/polisyos/schemas/abi_models/catalog.py + src/polisyos/** Pydantic/Enum contracts, including src/polisyos/scientist/governance/calibration_validation.py
 - Generator: canonical generator declared in regenerate_commands
 - Verifier: verifier declared by check_command, drift_gate, workflow, or manual review policy
 - Promotion target: registered committed outputs listed in outputs

@@ -2,21 +2,19 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Literal
+from collections.abc import Callable, Sequence  # noqa: TC003 - public signatures are introspected.
+from typing import Any, Literal
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.calibration._sklearn_compat import (
+from polisyos.calibration.diagnostics import evaluate_binary
+from polisyos.calibration.diagnostics.multiclass import evaluate_multiclass
+from polisyos.calibration.recalibration._sklearn_compat import (
     SKLEARN_AVAILABLE,
     LogisticRegression,
 )
-from polisyos.calibration.diagnostics import evaluate_binary
-from polisyos.calibration.multiclass import evaluate_multiclass
 from polisyos.ir.analytics import calibration_diagnostics
-
-if TYPE_CHECKING:
-    from collections.abc import Callable, Sequence
 
 # Pydantic resolves these annotation targets at runtime.
 _CALIBRATION_MODEL_TYPES = (

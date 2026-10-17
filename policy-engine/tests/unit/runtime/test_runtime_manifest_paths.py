@@ -1,3 +1,7 @@
+import base64
+import hashlib
+import json
+import pickle
 from pathlib import Path
 
 import pytest
@@ -226,3 +230,49 @@ def test_append_audit_recovers_pending_record_after_interrupted_append(
     assert (base_dir / "r1" / "audit.jsonl").read_text(encoding="utf-8").strip() == (
         '{"event":"recover"}'
     )
+
+
+def test_pre_move_manifest_pickles_load_at_the_preserved_module_path() -> None:
+    fixture_path = (
+        Path(__file__).resolve().parents[2]
+        / "fixtures"
+        / "package_path_compatibility"
+        / "runtime_abi_protocol4.json"
+    )
+    fixture = json.loads(fixture_path.read_text(encoding="utf-8"))
+
+    manifest_payload = base64.b64decode(fixture["objects"]["RunManifest"]["pickle_base64"])
+    artifact_payload = base64.b64decode(fixture["objects"]["ArtifactRef"]["pickle_base64"])
+    manifest = pickle.loads(manifest_payload)  # noqa: S301 -- fixed repo-owned pre-move fixture.
+    artifact = pickle.loads(artifact_payload)  # noqa: S301 -- fixed repo-owned pre-move fixture.
+
+    assert type(manifest) is RunManifest
+    assert type(artifact) is ArtifactRef
+    assert type(manifest).__module__ == fixture["objects"]["RunManifest"]["module"]
+    assert type(artifact).__module__ == fixture["objects"]["ArtifactRef"]["module"]
+    assert manifest.run_id == "legacy-package-pickle"
+    assert manifest.artifacts[0] == artifact
+    schema_hash = hashlib.sha256(
+        json.dumps(
+            RunManifest.model_json_schema(),
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode()
+    ).hexdigest()
+    assert schema_hash == fixture["baseline"]["run_manifest_schema_sha256"]
+    assert list(RunManifest.model_json_schema()["properties"]) == [
+        "schema_version",
+        "run_id",
+        "parent_run_id",
+        "status",
+        "started_at",
+        "finished_at",
+        "generator",
+        "budgets",
+        "budget_usage",
+        "pruning_reason",
+        "artifacts",
+        "environment_ref",
+        "environment_fingerprint",
+        "run_root",
+    ]

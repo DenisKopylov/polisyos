@@ -2525,7 +2525,7 @@
       "producer": "PCL-01",
       "consumer": "FRC-01",
       "paths": [
-        "policy-engine/src/polisyos/calibration/continuous.py",
+        "policy-engine/src/polisyos/calibration/diagnostics/continuous.py",
         "policy-engine/src/polisyos/ir/analytics/calibration_diagnostics.py"
       ],
       "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"
@@ -2534,7 +2534,7 @@
       "producer": "PCL-01",
       "consumer": "FRC-02",
       "paths": [
-        "policy-engine/src/polisyos/calibration/continuous.py",
+        "policy-engine/src/polisyos/calibration/diagnostics/continuous.py",
         "policy-engine/src/polisyos/ir/analytics/calibration_diagnostics.py"
       ],
       "rule": "read-contract impact; check exact SHA after merge, not automatically a dispatch barrier"

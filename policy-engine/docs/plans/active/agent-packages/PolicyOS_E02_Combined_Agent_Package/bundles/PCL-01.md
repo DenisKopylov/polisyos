@@ -29,8 +29,8 @@
 **Кандидаты записи по аудиту / предложенные новые пути:**
 
 ```text
-policy-engine/src/polisyos/calibration/continuous.py
-policy-engine/src/polisyos/calibration/curve.py
+policy-engine/src/polisyos/calibration/diagnostics/continuous.py
+policy-engine/src/polisyos/calibration/curve/__init__.py
 policy-engine/src/polisyos/ir/analytics/calibration_diagnostics.py
 policy-engine/src/polisyos/scientist/methods/backtesting/calibration_curve.py
 policy-engine/tests/unit/calibration/test_continuous.py

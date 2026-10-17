@@ -1,0 +1,32 @@
+{
+  "baseline": {
+    "abi_count": 106,
+    "abi_ordered_entries_sha256": "4d95f54f240ff07aef4959cf9e6bd4adcece57aace2934151701ee27a850255c",
+    "run_manifest_schema_sha256": "de473e8847066ca12951a57984b6d814530522a5fe96210a2425ddf10c1c8e7d"
+  },
+  "fixture_version": 1,
+  "objects": {
+    "ABIModelEntry": {
+      "module": "polisyos.schemas.abi_models",
+      "pickle_base64": "gASVtgEAAAAAAACMG3BvbGlzeW9zLnNjaGVtYXMuYWJpX21vZGVsc5SMDUFCSU1vZGVsRW50cnmUk5QpgZR9lCiMB2FiaV9rZXmUjA50cmluaXR5X2J1bmRsZZSMA2ZxbpSMIXBvbGlzeW9zLmlyLnRyaW5pdHkuVHJpbml0eUJ1bmRsZZSMBm1vZHVsZZSMAmlylIwLc2NoZW1hX2ZpbGWUjBp0cmluaXR5X2J1bmRsZS5zY2hlbWEuanNvbpSMCHByaW9yaXR5lGgAjAhQcmlvcml0eZSTlIwCcDCUhZRSlIwLY29tcGF0X21vZGWUaACMCkNvbXBhdE1vZGWUk5SMBnN0cmljdJSFlFKUjA12ZXJzaW9uX2ZpZWxklIwOc2NoZW1hX3ZlcnNpb26UjAlsaWZlY3ljbGWUaACMCUxpZmVjeWNsZZSTlIwGYWN0aXZllIWUUpSMB2FsaWFzZXOUKYwNYWxsb3dfbWlzc2luZ5SJjAtzY2hlbWFfbW9kZZRoAIwKU2NoZW1hTW9kZZSTlIwKdmFsaWRhdGlvbpSFlFKUjBZzY2hlbWFfdmFyaWFudF92ZXJzaW9ulE51Yi4=",
+      "sha256": "e08ed4cfc97bee7d99a329b1a25a2771e462fe1d93fad2e7270d20ac828f481c"
+    },
+    "ArtifactRef": {
+      "module": "polisyos.runtime.manifest",
+      "pickle_base64": "gASVSgEAAAAAAACMGXBvbGlzeW9zLnJ1bnRpbWUubWFuaWZlc3SUjAtBcnRpZmFjdFJlZpSTlCmBlH2UKIwIX19kaWN0X1+UfZQojA1hcnRpZmFjdF90eXBllIwIZXZpZGVuY2WUjARwYXRolE6MDXJlbGF0aXZlX3BhdGiUjBRsZWdhY3kvZXZpZGVuY2UuanNvbpSMCm1lZGlhX3R5cGWUjBBhcHBsaWNhdGlvbi9qc29ulIwOc2NoZW1hX3ZlcnNpb26UTowEc3RlcJROjApjcmVhdGVkX2F0lIwgMjAyNi0xMC0xN1QxMDo1Njo1OC4xNjkzNDkrMDA6MDCUdYwSX19weWRhbnRpY19leHRyYV9flE6MF19fcHlkYW50aWNfZmllbGRzX3NldF9flI+UKGgMaApoB5CMFF9fcHlkYW50aWNfcHJpdmF0ZV9flE51Yi4=",
+      "sha256": "5ec6965d06d6c4829c348b95a3c4aea87b2240bc93f0fcad7988824b01920862"
+    },
+    "Priority": {
+      "module": "polisyos.schemas.abi_models",
+      "pickle_base64": "gASVNQAAAAAAAACMG3BvbGlzeW9zLnNjaGVtYXMuYWJpX21vZGVsc5SMCFByaW9yaXR5lJOUjAJwMJSFlFKULg==",
+      "sha256": "4ace9879162385207e87f7f7f5cbdb3b2bcaa4ed86c93198e88142502f40f261"
+    },
+    "RunManifest": {
+      "module": "polisyos.runtime.manifest",
+      "pickle_base64": "gASVnwIAAAAAAACMGXBvbGlzeW9zLnJ1bnRpbWUubWFuaWZlc3SUjAtSdW5NYW5pZmVzdJSTlCmBlH2UKIwIX19kaWN0X1+UfZQojA5zY2hlbWFfdmVyc2lvbpSMAzEuMJSMBnJ1bl9pZJSMFWxlZ2FjeS1wYWNrYWdlLXBpY2tsZZSMDXBhcmVudF9ydW5faWSUTowGc3RhdHVzlIwHbGltaXRlZJSMCnN0YXJ0ZWRfYXSUjBkyMDI2LTAxLTAyVDAzOjA0OjA1KzAwOjAwlIwLZmluaXNoZWRfYXSUTowJZ2VuZXJhdG9ylH2UjAdidWRnZXRzlH2UjAxidWRnZXRfdXNhZ2WUfZSMDnBydW5pbmdfcmVhc29ulE6MCWFydGlmYWN0c5RdlGgAjAtBcnRpZmFjdFJlZpSTlCmBlH2UKGgFfZQojA1hcnRpZmFjdF90eXBllIwIZXZpZGVuY2WUjARwYXRolE6MDXJlbGF0aXZlX3BhdGiUjBRsZWdhY3kvZXZpZGVuY2UuanNvbpSMCm1lZGlhX3R5cGWUjBBhcHBsaWNhdGlvbi9qc29ulGgHTowEc3RlcJROjApjcmVhdGVkX2F0lIwgMjAyNi0xMC0xN1QxMDo1Njo1OC4xNjkzNDkrMDA6MDCUdYwSX19weWRhbnRpY19leHRyYV9flE6MF19fcHlkYW50aWNfZmllbGRzX3NldF9flI+UKGgkaCJoH5CMFF9fcHlkYW50aWNfcHJpdmF0ZV9flE51YmGMD2Vudmlyb25tZW50X3JlZpROjBdlbnZpcm9ubWVudF9maW5nZXJwcmludJSMEnNoYTI1NjpwcmUtcGFja2FnZZSMCHJ1bl9yb290lE51aClOaCqPlChoCWgYaC5oDGgOkGgsTnViLg==",
+      "sha256": "0dde4cc4a3a29d4961d98cd94620273edb626f5402293d6d46b1df81a8cd3db9"
+    }
+  },
+  "pickle_protocol": 4,
+  "source_head": "cf6a076a8415dc4092cfd3d4e9c8862f81c15a9a"
+}

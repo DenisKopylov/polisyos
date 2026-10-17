@@ -1,33 +1,12 @@
-"""Calibration curve analysis for prediction intervals."""
+"""Interval-coverage curve calculation implementation."""
 
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass
-from typing import Literal
 
 import numpy as np
 
-
-@dataclass(frozen=True)
-class CalibrationPoint:
-    """One point on the calibration curve."""
-
-    nominal_level: float
-    empirical_coverage: float
-    n_observations: int
-
-
-@dataclass(frozen=True)
-class CalibrationResult:
-    """Full calibration curve with miscalibration metrics."""
-
-    points: list[CalibrationPoint]
-    ece: float | None
-    max_ce: float | None
-    is_well_calibrated: bool
-    evaluation_status: Literal["evaluated", "incomplete", "not_evaluated"] = "evaluated"
-    n_comparisons: int = 0
+from polisyos.calibration.curve import CalibrationPoint, CalibrationResult
 
 
 def compute_calibration_curve(

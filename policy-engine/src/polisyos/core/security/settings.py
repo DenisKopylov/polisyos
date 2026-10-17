@@ -6,9 +6,9 @@ import os
 from dataclasses import dataclass
 from functools import lru_cache
 
-from polisyos.common.env_parsing import parse_bool as _parse_bool
-from polisyos.common.env_parsing import parse_float as _parse_float
-from polisyos.common.env_parsing import parse_int as _parse_int
+from polisyos.common.config import _parse_float_env as _parse_float
+from polisyos.common.config import parse_bool as _parse_bool
+from polisyos.common.config import parse_int as _parse_int
 
 
 @dataclass(frozen=True)

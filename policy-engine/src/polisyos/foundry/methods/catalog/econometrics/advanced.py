@@ -10,7 +10,7 @@ from typing import Any, ClassVar
 
 import numpy as np
 
-from polisyos.calibration.continuous import evaluate_continuous
+from polisyos.calibration import evaluate_continuous
 from polisyos.core.observability import DeterminismTier
 from polisyos.foundry.methods.base import (
     ComplexityClass,

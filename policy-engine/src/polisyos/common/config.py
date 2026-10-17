@@ -15,10 +15,37 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
+
+def parse_bool(value: str | None, default: bool) -> bool:
+    """Parse a boolean from an env-var string value."""
+    if value is None:
+        return default
+    return value.strip().lower() in {"1", "true", "yes", "on"}
+
+
+def parse_int(value: str | None, default: int) -> int:
+    """Parse an int from an env-var string value."""
+    if value is None or not value.strip():
+        return default
+    try:
+        return int(value.strip())
+    except ValueError:
+        return default
+
+
+def _parse_float_env(value: str | None, default: float) -> float:
+    """Parse a float from an env-var string value."""
+    if value is None or not value.strip():
+        return default
+    try:
+        return float(value.strip())
+    except ValueError:
+        return default
+
+
 if TYPE_CHECKING:
     from collections.abc import Mapping, MutableMapping
 
-from polisyos.common.env_parsing import parse_bool, parse_int
 
 try:  # pragma: no cover - optional dependency
     load_dotenv: Any | None

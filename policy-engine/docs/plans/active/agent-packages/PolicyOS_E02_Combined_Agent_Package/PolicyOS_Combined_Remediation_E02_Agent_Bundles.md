@@ -3566,7 +3566,7 @@ policy-engine/src/polisyos/runtime/quality/generation_cycle.py
 **Читать как соседние контракты:**
 
 ```text
-policy-engine/src/polisyos/calibration/continuous.py
+policy-engine/src/polisyos/calibration/diagnostics/continuous.py
 policy-engine/src/polisyos/ir/analytics/calibration_diagnostics.py
 ```
 
@@ -3701,8 +3701,8 @@ S10 models/builders имеют ненулевой знаменатель для 
 **Кандидаты записи по аудиту / предложенные новые пути:**
 
 ```text
-policy-engine/src/polisyos/calibration/continuous.py
-policy-engine/src/polisyos/calibration/curve.py
+policy-engine/src/polisyos/calibration/diagnostics/continuous.py
+policy-engine/src/polisyos/calibration/curve/__init__.py
 policy-engine/src/polisyos/ir/analytics/calibration_diagnostics.py
 policy-engine/src/polisyos/scientist/methods/backtesting/calibration_curve.py
 policy-engine/tests/unit/calibration/test_continuous.py
@@ -3882,7 +3882,7 @@ policy-engine/src/polisyos/runtime/quality/generation_cycle.py
 **Читать как соседние контракты:**
 
 ```text
-policy-engine/src/polisyos/calibration/continuous.py
+policy-engine/src/polisyos/calibration/diagnostics/continuous.py
 policy-engine/src/polisyos/ir/analytics/calibration_diagnostics.py
 ```
 

@@ -1571,7 +1571,7 @@ Acceptance:
 
 - `find schemas -name '*.py' -o -name '__pycache__'` returns no paths.
 - Top-level schemas gate fails for any Python code or cache residue.
-- `src/polisyos/schemas/abi_models.py` remains the Python wrapper location.
+- The Python ABI owner is the package `src/polisyos/schemas/abi_models/` (`__init__.py` definitions and model API, and `catalog.py` registry).
 
 Verification:
 

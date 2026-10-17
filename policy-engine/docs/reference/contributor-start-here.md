@@ -141,3 +141,11 @@ Documentation Verification](documentation-verification.md#quick-author-path) for
 review and its recorded check results. `workspace ci-parity --skip-browser` is a broader workspace
 umbrella, not the routine docs-only path; use it when the change scope calls for workspace parity.
 The commands above are recipes, not execution receipts.
+
+For a repository-wide closeout, the registered `workspace repository-sota-closeout` command
+checks the Repository SOTA policy and its deciding gates. Start with
+`uv run polisyos-tools workspace repository-sota-closeout --contract-only` to check the policy
+layer, exception registries, and wiring without the full subprocess wave. That bounded result
+is not a full Repository SOTA result; use the complete command for closeout and retain every
+row's output. See [Repository Hygiene](repository-hygiene.md) and the
+[workspace command reference](../../tools/devx/workspace/README.md) for scope and recipes.

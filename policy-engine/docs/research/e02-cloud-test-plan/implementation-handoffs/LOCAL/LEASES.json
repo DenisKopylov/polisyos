@@ -3636,5 +3636,24 @@
     ],
     "source_freeze": false,
     "closure_ids": []
+  },
+  "coordination_epoch_20261017_native_closeout_contributor_command_docs": {
+    "owner": "root",
+    "base": "92d501538c444dca1b6157c90a9c18507f5bd817",
+    "mechanism_paths": [
+      "policy-engine/docs/reference/contributor-start-here.md"
+    ],
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "separate file-scoped docs-style receipt"
+    ],
+    "property": "Document the registered Repository SOTA closeout command and exact contract-only versus full subprocess-wave boundary. No native-green claim.",
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-sota-wiring-proxy-r4-independent-review-20261017/review.json",
+      "sha256": "3b06948ab123ba8d0f240e6b6d79190e1352eab0bf43a803b96f4604723003d1"
+    },
+    "review_boundary": "One-file documentation GO only; R4 native two-source mechanism remains HOLD for default-workspace false pass and is not adopted here.",
+    "source_freeze": false,
+    "closure_ids": []
   }
 }

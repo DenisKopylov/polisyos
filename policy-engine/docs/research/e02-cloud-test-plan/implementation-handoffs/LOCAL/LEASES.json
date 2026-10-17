@@ -4968,5 +4968,29 @@
       "Successful N11 source closure identity remains not_established; minimal failure boundary permits candidate import and refuses authority"
     ],
     "closure_ids": []
+  },
+  "coordination_epoch_20261017_controlled_candidate_canonical_ncm_owner": {
+    "slice_base": "cc627559ffe7c4401b03f25d873361e20cd2c246",
+    "canonical_writer": "root only; agents RAW-only",
+    "mechanism_paths": [
+      "policy-engine/tests/_helpers/controlled_candidate_profile.py"
+    ],
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ],
+    "candidate_freeze": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/controlled-candidate-ncm-owner-r1-20261017/freeze-r1.json",
+      "sha256": "43b028748b1ddf6e7425842d21fb67d344ad90a2c2a5dfce9c4fae311328c5e8"
+    },
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/controlled-candidate-ncm-owner-r1-independent-review-20261017/review.json",
+      "sha256": "d11e0ee06aeafb2ea45708e794ac547786a4ba2720b04987af870cbf375d237f"
+    },
+    "property": "Use the existing canonical declaration-to-NCM projection over one frozen scalar input record; same scalars bind N5 and final profile-bound declaration. Reconcile final declaration and persisted NCM readback without inventing future profile refs. Remove the fixture-local parallel NCM and its unsupported Markov/independence positive flags.",
+    "P40_bucket": "P27 parallel producer/projection class in the single controlled configured-profile helper; generic N4 helper already uses the canonical owner.",
+    "prechange_evidence": "cc627 exact controlled owner module: 3 passed, 1 failed at full NCM equality; source/test/inputs reconciled independently.",
+    "postchange_verification": "Candidate Ruff/AST/apply-check only; unchanged canonical owner module replay immediately after source commit. No pass or closure claimed yet.",
+    "closure_ids": []
   }
 }

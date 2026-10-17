@@ -1245,6 +1245,18 @@ def _seed_controlled_selected_skg_source(
     return _capture_controlled_skg_source(db_path)
 
 
+@dataclass(frozen=True)
+class _ControlledCandidateNCMParameters:
+    """Scalar candidate assumptions shared by the model and its declaration."""
+
+    target_world_slot: str
+    outcome_variable: str
+    target_baseline: float
+    outcome_baseline: float
+    outcome_per_target_unit: float
+    outcome_noise_stddev: float
+
+
 def _build_configured_procurement_profile(
     *,
     recorded_problem: DesignProblem,
@@ -1259,9 +1271,8 @@ def _build_configured_procurement_profile(
 
     from polisyos.core.security.tenant_context import tenant_scope
     from polisyos.ir.analytics.ncm import (
-        ExogenousSpec,
-        NCMSpec,
-        StructuralEquation,
+        candidate_ncm_spec_from_declaration,
+        load_ncm_spec,
         persist_ncm_spec,
     )
     from polisyos.pdc import gy_content_hash
@@ -1288,44 +1299,23 @@ def _build_configured_procurement_profile(
         repo_root=product_root,
     )
     outcome_variable = recorded_problem.outcome_of_interest.target_variable
-    ncm = NCMSpec(
-        endogenous_vars=["cells.distress_score", outcome_variable],
-        exogenous_specs=[
-            ExogenousSpec(
-                variable="u_distress",
-                associated_endogenous="cells.distress_score",
-                distribution_params={"mean": 0.0, "std": 0.01},
-            ),
-            ExogenousSpec(
-                variable="u_output",
-                associated_endogenous=outcome_variable,
-                distribution_params={"mean": 0.0, "std": 0.01},
-            ),
-        ],
-        structural_equations=[
-            StructuralEquation(
-                variable="cells.distress_score",
-                parents=[],
-                exogenous="u_distress",
-                equation_type="linear",
-                equation_params={"intercept": 0.0, "coefficients": {}},
-            ),
-            StructuralEquation(
-                variable=outcome_variable,
-                parents=["cells.distress_score"],
-                exogenous="u_output",
-                equation_type="linear",
-                equation_params={
-                    "intercept": 0.0,
-                    "coefficients": {"cells.distress_score": 0.5},
-                },
-            ),
-        ],
-        is_acyclic=True,
-        markov_condition_verified=True,
-        independence_model="dag_markov",
-        fit_method="synthetic_candidate_profile_fixture",
+    rule = CandidateScenarioSetToRule(
+        operator_kind="procurement_shock_intensity",
+        parameter_id="intensity",
+        target_world_slot="cells.distress_score",
+        unit_id="synthetic_score",
+        minimum=0,
+        maximum=1,
     )
+    model_parameters = _ControlledCandidateNCMParameters(
+        target_world_slot=rule.target_world_slot,
+        outcome_variable=outcome_variable,
+        target_baseline=0.0,
+        outcome_baseline=0.0,
+        outcome_per_target_unit=0.5,
+        outcome_noise_stddev=0.01,
+    )
+    ncm = candidate_ncm_spec_from_declaration(model_parameters)
     selected_source = selected_skg_source or _seed_controlled_selected_skg_source(
         tmp_path,
         recorded_problem=recorded_problem,
@@ -1336,10 +1326,14 @@ def _build_configured_procurement_profile(
             + ["global.tax_rate", "cells.distress_score", outcome_variable]
         )
     )
+    baseline_state = {
+        model_parameters.target_world_slot: model_parameters.target_baseline,
+        model_parameters.outcome_variable: model_parameters.outcome_baseline,
+    }
     n5 = CandidateScenarioN5Config(
         budget_ref="budget://r1/controlled-candidate-n5",
         horizon=HorizonSpec(start=0, end=0, step=1),
-        baseline_state={"cells.distress_score": 0.0, outcome_variable: 0.0},
+        baseline_state=baseline_state,
         seed=11,
         replications=2,
     )
@@ -1372,14 +1366,6 @@ def _build_configured_procurement_profile(
         intervention_substrate=load_l6_intervention_substrate(product_root),
         source_pack_content_hash=base_context.source_pack_content_hash,
         substrate_input_content_hash=base_context.substrate_input_content_hash,
-    )
-    rule = CandidateScenarioSetToRule(
-        operator_kind="procurement_shock_intensity",
-        parameter_id="intensity",
-        target_world_slot="cells.distress_score",
-        unit_id="synthetic_score",
-        minimum=0,
-        maximum=1,
     )
     fields = {
         "schema_version": "policyos.runtime.candidate_simulation_profile.v2",
@@ -1414,14 +1400,14 @@ def _build_configured_procurement_profile(
         "profile_config_ref": candidate_simulation_profile_ref(profile),
         "profile_content_hash": profile.content_hash,
         "profile_selection_ref": profile.profile_selection_ref,
-        "target_world_slot": rule.target_world_slot,
-        "outcome_variable": outcome_variable,
+        "target_world_slot": model_parameters.target_world_slot,
+        "outcome_variable": model_parameters.outcome_variable,
         "target_unit_id": rule.unit_id,
         "outcome_unit_id": rule.unit_id,
-        "target_baseline": 0.0,
-        "outcome_baseline": 0.0,
-        "outcome_per_target_unit": 0.5,
-        "outcome_noise_stddev": 0.01,
+        "target_baseline": model_parameters.target_baseline,
+        "outcome_baseline": model_parameters.outcome_baseline,
+        "outcome_per_target_unit": model_parameters.outcome_per_target_unit,
+        "outcome_noise_stddev": model_parameters.outcome_noise_stddev,
         "assumption": "declared_candidate_scm_not_empirically_grounded",
     }
     declaration_draft = CandidateSimulationSyntheticModelDeclarationV1.model_construct(
@@ -1438,6 +1424,24 @@ def _build_configured_procurement_profile(
     )
     if profile.context_inputs.world_model_record != world_build.record:
         raise ValueError("controlled_candidate_profile_wmr_binding_mismatch")
+    if (
+        rule.target_world_slot != model_parameters.target_world_slot
+        or n5.baseline_state != baseline_state
+        or declaration.target_world_slot != model_parameters.target_world_slot
+        or declaration.outcome_variable != model_parameters.outcome_variable
+        or declaration.target_baseline != model_parameters.target_baseline
+        or declaration.outcome_baseline != model_parameters.outcome_baseline
+        or declaration.outcome_per_target_unit != model_parameters.outcome_per_target_unit
+        or declaration.outcome_noise_stddev != model_parameters.outcome_noise_stddev
+    ):
+        raise ValueError("controlled_candidate_profile_ncm_declaration_binding_mismatch")
+    declared_ncm = candidate_ncm_spec_from_declaration(declaration)
+    if declared_ncm != ncm:
+        raise ValueError("controlled_candidate_profile_ncm_declaration_binding_mismatch")
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        persisted_ncm = load_ncm_spec(_ensure_ir_artifact_store(artifact_store), ncm_ref)
+    if persisted_ncm != declared_ncm:
+        raise ValueError("controlled_candidate_profile_persisted_ncm_binding_mismatch")
     return profile, declaration, world_build
 
 

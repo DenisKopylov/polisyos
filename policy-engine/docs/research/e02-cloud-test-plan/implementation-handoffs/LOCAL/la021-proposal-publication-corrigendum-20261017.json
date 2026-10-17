@@ -1,0 +1,32 @@
+{
+  "schema": "policyos.raw_publication_correction.v1",
+  "correction_id": "la021-whole-property-current-proposal-r1-publication-corrigendum-20261017",
+  "created_date": "2026-10-17",
+  "event": "The initial payload and manifest hashes were announced to root. The same candidate filenames were then overwritten in place when a pattern_pass field was appended. The second pair is the final packet; the overwrite is recorded here rather than treated as an immutable first publication.",
+  "prior_announcement": {
+    "payload_sha256": "1639d9d61a45eabb41e65726e0d20af543a4f4ae6f35d051fe340b84d20dc561",
+    "manifest_sha256": "1b3c16c4db60a62ae304ce08b9c7935257f6216322acfe896486f309b992f6bd",
+    "recovery_status": "recovered_exactly",
+    "method": "Removed only the appended pattern_pass object from the current payload serialization; the resulting bytes matched the previously announced payload SHA exactly. Rebuilt the prior manifest from its pre-overwrite fields; serialized bytes matched the announced manifest SHA exactly.",
+    "preserved_payload_copy": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-whole-property-current-proposal-r1-20261017/prior-announced-payload.json",
+      "sha256": "1639d9d61a45eabb41e65726e0d20af543a4f4ae6f35d051fe340b84d20dc561"
+    },
+    "preserved_manifest_copy": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-whole-property-current-proposal-r1-20261017/prior-announced-manifest.json",
+      "sha256": "1b3c16c4db60a62ae304ce08b9c7935257f6216322acfe896486f309b992f6bd"
+    }
+  },
+  "final_packet": {
+    "payload": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-whole-property-current-proposal-r1-20261017/la021-whole-property-current-proposal.json",
+      "sha256": "e4a791b80973e78bb19888c5dee0e26b4318d4f4c7e02c4faa07f7fe28b2747c"
+    },
+    "manifest": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-whole-property-current-proposal-r1-20261017/manifest.json",
+      "sha256": "92f0e3aeaec63449837e1d10db45306cb9aedec7767c6f1a997511fc8615da15"
+    },
+    "status": "current final readback; do not replace these bytes with the prior-announced version."
+  },
+  "scope_boundary": "No source, tests, tracked target, index, canonical artifact, or Git state was changed. The sealed independent review was not edited."
+}

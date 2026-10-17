@@ -5139,5 +5139,35 @@
       "target": "Actual supplied-field typing and true generator input closure; no marker-based reviewer authority or narrowed Git toggle list.",
       "acceptance": "Actual malformed field refusals and no-write collision controls; source-bound focused replay after source commit."
     }
+  },
+  "coordination_epoch_20261017_native_actuals_and_l5_source_boundary_delivery": {
+    "slice_base": "0be2acdec09f4d4c224602bbad052bc6fe507cbe",
+    "canonical_writer": "root only; receipt/decision metadata separate from implementation 0be",
+    "payloads": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native-release-config-implementation-and-actual-0be-20261017.json",
+        "sha256": "69986987ca17bbe3ef722f10ce58aa8da1140ba2e2f0445e19a43c445583afc7"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/la021-whole-property-current-proposal-20261017.json",
+        "sha256": "e4a791b80973e78bb19888c5dee0e26b4318d4f4c7e02c4faa07f7fe28b2747c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/la021-proposal-publication-corrigendum-20261017.json",
+        "sha256": "3c12d42ebfb43784e9f6967cc55763b4a04429191d7adda898eda62df4b6c9bc"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/l5-relation-provenance-g-decision-20261017.md",
+        "sha256": "96d4b2f8be47fb015ba389c0ee379a7404821f9fde276fc9db55ca45a01a31db"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/l5-relation-provenance-source-boundary-handoff-20261017.json",
+        "sha256": "bf4b5eeb31b07fd48490813975f53314420ed7a182c253a2453c6a7914876bd2"
+      }
+    ],
+    "source_profile_freeze": false,
+    "closure_ids": [],
+    "boundary": "70 actual selected canonical tests across release and generator selectors; four current release review errors retained. LA-021 held; L5 deliberate missing target resolver/custody boundary and genuine supplier/G choice held. No whole native or V3 acceptance.",
+    "next_check": "Finish independent blocking fixes and root composition; explicit source/input/backend freeze before composed/native/Linux/installed/browser/authentic closeout."
   }
 }

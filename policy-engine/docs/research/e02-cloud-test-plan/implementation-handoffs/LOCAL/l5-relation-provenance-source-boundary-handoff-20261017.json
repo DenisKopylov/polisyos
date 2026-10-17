@@ -1,0 +1,83 @@
+{
+  "schema": "policyos.e02.l5_relation_provenance.boundary_handoff.v1",
+  "source": {
+    "slice_base": "0be2acdec09f4d4c224602bbad052bc6fe507cbe",
+    "candidate": "0be2acdec09f4d4c224602bbad052bc6fe507cbe",
+    "tree": "190a14043e2ae1619b0f72430399c2917900e41a",
+    "parents": [
+      "2a6c30301dcfaee00a7b58898bde90f9f151d968"
+    ],
+    "branch": "codex/e02-unified-local-20261009",
+    "product_source_changes": [],
+    "source_freeze": false
+  },
+  "kind": "Concrete G semantics/source-owner input choice; current fail-closed path preserved. No new source or issuer fact.",
+  "decision_document": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/l5-relation-provenance-g-decision-20261017.md",
+    "sha256": "96d4b2f8be47fb015ba389c0ee379a7404821f9fde276fc9db55ca45a01a31db"
+  },
+  "original_packet_manifest": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/l5-relation-provenance-g-decision-r1-20261017/manifest.json",
+    "sha256": "cdfd543bbb0261cd8c752c992a6ea714426b9f60688ab9df7636f6e87981879c"
+  },
+  "navigation_qualification": "The decision document references an accompanying manifest; this is the original RAW packet manifest pinned here, not an adjacent file.",
+  "independent_source_oracle": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-l5-scope-relation-acquisition-oracle-r1-20261017/report.json",
+    "sha256": "8214cc140472e87ae86bcaa557edb91fd89e1919969380048cd46f8f7b963006"
+  },
+  "actual_probe": {
+    "direct_graph_freeze": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v3-same-candidate-source-discriminator-r4-direct-graph-20261017/receipts/direct-graph-freeze-r1.json@6acda85efa495d774db44c59235bd492f463f27c5e3e14b9f9eda9290bdf8eca",
+    "direct_graph_full_stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v3-same-candidate-source-discriminator-r4-direct-graph-20261017/receipts/direct-graph.stderr.txt@834e22e086ae0d23872cc714039925b334689bf26fa2c6c2a6e32cb80522895c",
+    "direct_graph_full_stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v3-same-candidate-source-discriminator-r4-direct-graph-20261017/receipts/direct-graph.stdout.txt@9bb191d3b5cf96a383ce3ff953b02ff5e6b279aba57fdd991d3907cb04fe424b",
+    "direct_graph_request": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v3-same-candidate-source-discriminator-r4-direct-graph-20261017/request.json@862d8865f83e1988f2d7105e72553377c5c2f750f230cc7c8c21900b775c62d6",
+    "direct_graph_result": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v3-same-candidate-source-discriminator-r4-direct-graph-20261017/receipts/direct-graph-result.json@f37c9fe685a87e7276878f67dd1d94f6be5582db3ae8802053f3a321655dfa81"
+  },
+  "source_and_selected_input_pins": {
+    "DECISIONS_pattern_register": "policy-engine/docs/reference/policy-design-case-failure-patterns.md@187f47cf818bd24861cec67d3daa33e584f437f09d50a6bd54e7caefb527d430",
+    "V3_queue_reconciliation": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/e02-current-executable-queue-reconciliation-20261017-r1/reconciliation.json@dd6192a2b7108bb092da9abbdf5177a17c4bed4208d7c225f39202e399552e99",
+    "canonical_l5_test": "policy-engine/tests/unit/runtime/quality/test_semantic_epoch.py@5e447811d9bfbfa14bf38bd3c37c06dd7aa5bbe13f40366d20334de750e233fa",
+    "epoch_contract": "policy-engine/src/polisyos/core/contracts/epoch.py@64528b1c015d8311b790eaabd5b570db05e5a8935e80bfe625fc569568e2276a",
+    "route_fixture_helper": "policy-engine/tests/_helpers/acquisition_epoch_production.py@6a5e033143df6c4e2576d26bd9347f873457d07d53382a6fcaae390052b1d70a",
+    "selected_scope_registry": "policy-engine/architecture/policy_design_case/layer3_gy_l5_schema_regime_scope_registry.json@eaba46821d5ab53109e8cc1174940994606e091fef90adb64f63046b1d1834d0",
+    "semantic_epoch": "policy-engine/src/polisyos/runtime/quality/semantic_epoch.py@fbc6e82997229a18b5d28f34426cf3930e63449ef67a750a116d26017c576577",
+    "substrate_registry": "policy-engine/src/polisyos/runtime/quality/substrate_registry.py@487f88a279bf36bcdd3855b89aee94945e3a1f695c041a40c738f00f2b142dd6"
+  },
+  "profile_backend": "Owned test CAS, scoped tenant/cell, real FileSystemCAS reader and production selected-reference graph at 0be; no production payload census or currentness claim.",
+  "real_chain": "Retained served WDI admitted-boundary fixture -> owner L5 snapshot/registry/regime refs -> CAS exact selected graph -> deliberate unresolved relation codec -> typed epoch_scope_unresolved finalizer boundary.",
+  "result": "Direct resolver returns None after 49 visited typed refs / 107 successful CAS reads; no store error, no writes. Callback-sensitive native chronology refs were not reached. This is not a V3 positive or actual full served rerun.",
+  "proposals": [
+    {
+      "finding_id": "B09",
+      "outcome": "held",
+      "boundary": "Only the L5 provenance target boundary encountered in V3; the whole original criterion and each canonical occurrence remain separately governed.",
+      "next_check": "G chooses explicit target-identity/custody semantics and source owner supplies the minimum genuine packet; then real owner-to-CAS-to-fresh-reader positive and adversarial controls."
+    },
+    {
+      "finding_id": "B12",
+      "outcome": "held",
+      "boundary": "Only the L5 provenance target boundary encountered in V3; the whole original criterion and each canonical occurrence remain separately governed.",
+      "next_check": "G chooses explicit target-identity/custody semantics and source owner supplies the minimum genuine packet; then real owner-to-CAS-to-fresh-reader positive and adversarial controls."
+    },
+    {
+      "finding_id": "B27",
+      "outcome": "held",
+      "boundary": "Only the L5 provenance target boundary encountered in V3; the whole original criterion and each canonical occurrence remain separately governed.",
+      "next_check": "G chooses explicit target-identity/custody semantics and source owner supplies the minimum genuine packet; then real owner-to-CAS-to-fresh-reader positive and adversarial controls."
+    },
+    {
+      "finding_id": "B28",
+      "outcome": "held",
+      "boundary": "Only the L5 provenance target boundary encountered in V3; the whole original criterion and each canonical occurrence remain separately governed.",
+      "next_check": "G chooses explicit target-identity/custody semantics and source owner supplies the minimum genuine packet; then real owner-to-CAS-to-fresh-reader positive and adversarial controls."
+    },
+    {
+      "finding_id": "LA-046",
+      "outcome": "held",
+      "boundary": "Only the L5 provenance target boundary encountered in V3; the whole original criterion and each canonical occurrence remain separately governed.",
+      "next_check": "G chooses explicit target-identity/custody semantics and source owner supplies the minimum genuine packet; then real owner-to-CAS-to-fresh-reader positive and adversarial controls."
+    }
+  ],
+  "closure_ids": [],
+  "G_acceptance": false,
+  "remaining": "Target producer_missing / bridge_missing / verification_missing / positive semantic_test_missing. Preserve historical refs and current refusal; do not derive provenance from a declaration."
+}

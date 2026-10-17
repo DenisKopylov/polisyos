@@ -1,0 +1,374 @@
+{
+  "schema": "policyos.la021_single_occurrence_current_proposal.v1",
+  "record_type": "proposed_single_occurrence_whole_property_assessment",
+  "created_date": "2026-10-17",
+  "intended_tracked_target": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/la021-whole-property-current-proposal-20261017.json",
+  "scope": "Single proposed LA-021 occurrence row only. Not a replacement for the 291-row report/index; not a source freeze, G ruling, or closure record.",
+  "authority": {
+    "proposal_state": "held",
+    "global_acceptance": false,
+    "capability_label": "verification_missing",
+    "closure_ids": [],
+    "formal_closure_ids": [],
+    "technical_closed_proposal": false
+  },
+  "row": {
+    "key": "LA-021#1:LA_r09:CAN-01:6bf9986ec241a8980ff624f30d08973fba07f5c8e1402652a276da1bce22aa7b",
+    "ordinal": 248,
+    "finding_id": "LA-021",
+    "bundle": "CAN-01",
+    "task_routes": [
+      "Q1",
+      "Q2"
+    ],
+    "criterion": {
+      "source_path": "docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "file_sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727",
+      "lines_1_based_inclusive": [
+        990,
+        1021
+      ],
+      "span_sha256": "6bf9986ec241a8980ff624f30d08973fba07f5c8e1402652a276da1bce22aa7b",
+      "whole_property_requirements": [
+        "Treat duplicate Core/IR codec implementation and accepted-format divergence as confirmed legacy.",
+        "The two decoders share polisyos.canon.json@0.2.0 yet have different typed-tag sets; ordinary-value parity is not full compatibility, and Core-only tags need not be accepted by IR.",
+        "Preserve persisted bytes and CAS identities, strict/depth behavior, Decimal/date/bytes/float policy, hash variants, warnings, and distinct public exception identities.",
+        "Reuse common canonical/hash primitives while retaining strict Core and IR facades; do not turn an adapter into low-level codec coupling or merge permissive common.serialization.JsonDataVisitor into strict canonical identity.",
+        "Any compatibility or migration uses a golden byte corpus and explicit version/profile law; preserve addresses, do not silently widen readers, fill missing profiles from defaults, rewrite identifiers, or declare Core the sole correct profile.",
+        "Acceptance requires positive round trips and exact byte/hash identity plus negative typed-tag, depth, numeric/date/null, exception, and import controls; the ten ordinary values are only characterization.",
+        "No specific damaged production artifact is established; original grounds name E45-E48/E64 and P06-P10."
+      ]
+    },
+    "outcome": "held",
+    "capability": "verification_missing",
+    "whole_property_state": "Bounded current source behavior is supported by pinned probes; complete LA-021 acceptance remains open.",
+    "property_gap": [
+      "G has not decided whether polisyos.canon.json@0.2.0 means shared byte/profile mechanics with contextual strict tag policies or a universal tag grammar / explicit family identity.",
+      "Profileless production-history population, actual consumer need, producer-event provenance, and any migration need remain not_established; no named deployed artifact was supplied.",
+      "Owner-produced full golden byte/hash/error/import corpus, installed wheel/sdist checks, and declared backend/remote-store verification remain not_run."
+    ],
+    "measured_boundary": "Core publicly persists and reads an array_digest value under default CanonInfo; a fresh strict IR semantic reader rejects the exact bytes as an unknown tag. This confirms current divergence; only G can decide whether it is lawful under the shared identity.",
+    "history": {
+      "prior_ledger_status": "closed (historical only)",
+      "appendix_C_status": "no_finding_level_record",
+      "closure_now": "not_adjudicated",
+      "selected_plan_executed": false,
+      "current_G_adjudication": "none"
+    },
+    "technical_closed_proposal": false
+  },
+  "source_frame": {
+    "product_root": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "independent_review": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-independent-whole-property-review-r1-20261017/review.json",
+      "sha256": "918640ae5c226fefe56afcac4cc91fb395203c4d68564036daada04797f70061"
+    },
+    "baseline_48_path_pin_set": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-can-actual-contract-investigation-20261017/source-pins.json",
+      "sha256": "ca78bd0a95092b6f7596283893b2d636ded0b1ad531829f66130fa0d4c6d51cd",
+      "declared_paths": 48,
+      "review_rehash_matches": 47,
+      "review_rehash_mismatches": 1,
+      "sole_mismatch": {
+        "path": "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+        "pinned_sha256": "474f1d6a756f033f3500ba934095623d8a547265c08343ea5d28e08873362858",
+        "current_sha256": "187f47cf818bd24861cec67d3daa33e584f437f09d50a6bd54e7caefb527d430",
+        "scope": "documentation-only register drift; all 47 other declared paths, including code and tests, match"
+      },
+      "interpretation": "The sole mismatch was documentation-only failure-pattern-register drift. The reviewed report states the other 47 declared paths, including code and tests, matched."
+    },
+    "selected_current_code_readback": {
+      "selected_path_count": 15,
+      "current_hash_matches": 15,
+      "mismatches": 0,
+      "pins": [
+        {
+          "path": "src/polisyos/common/canonical.py",
+          "sha256": "89394b9a3b39c07e56cf672329176c2dda4feff8c6c375190f4065a5da123f41"
+        },
+        {
+          "path": "src/polisyos/common/canonical_profile.py",
+          "sha256": "f06639a4f2bb772008721ae9b6ab1d8e881d6e2fb0218b9d2615ccfb3177216f"
+        },
+        {
+          "path": "src/polisyos/core/canon/canon_json.py",
+          "sha256": "14626d965f82d04bedb8c57291fa230f3ab181c450e546a1d6ab5767825f93da"
+        },
+        {
+          "path": "src/polisyos/core/artifacts/manifest.py",
+          "sha256": "3ec97132a4a04c6152ed3456f75aae4d2fc6f35b0b8921a3a8f7cefcc426df3f"
+        },
+        {
+          "path": "src/polisyos/core/artifacts/store.py",
+          "sha256": "e1506ceca8ad7907c85f2006e3247565f939035d9f681c97b6db6bc0a223a0f8"
+        },
+        {
+          "path": "src/polisyos/core/artifacts/ir_adapter.py",
+          "sha256": "d53664b18a4270dc903945f1c9107fe29eef1c70cc0de6a98bade996a66b152f"
+        },
+        {
+          "path": "src/polisyos/core/artifacts/canonical_profile.py",
+          "sha256": "3057b47c1bbb8312227d6e3be815b9e90f0327c0c253d429aa8bcc53f6e08c34"
+        },
+        {
+          "path": "src/polisyos/ir/model_layer/canon.py",
+          "sha256": "11dd2f53089087ff5d109b2e64182104629ade457e01677588b7858ba609f112"
+        },
+        {
+          "path": "src/polisyos/ir/artifacts/contracts.py",
+          "sha256": "67ed1ff4c3cf0fe4f46d4534d1656d256d1c5e5bf4db70d5a3523e3579c0d6f7"
+        },
+        {
+          "path": "src/polisyos/ir/artifacts/io.py",
+          "sha256": "c5dbd2ba226e67a748d8d4a6064ebb218042580d129d5fedda17dc621db48894"
+        },
+        {
+          "path": "src/polisyos/runtime/http/routes/artifacts.py",
+          "sha256": "b61343ad300331b7946a30399f2d8006f455bd368c047cab76529afae99aaa4f"
+        },
+        {
+          "path": "src/polisyos/runtime/http/services/artifact_inspector.py",
+          "sha256": "25efb2ee1f76ad82bf7c3dbd279bc0280354bed5c9ab93f6e0cd8657cc3a79ff"
+        },
+        {
+          "path": "src/polisyos/data_forge/read_api/ukraine.py",
+          "sha256": "97ddaaa2a6e4dfbc2a2e3b7a1f505f72d67982d5360cc00a34fffc173867d8c7"
+        },
+        {
+          "path": "src/polisyos/runtime/quality/semantic_epoch.py",
+          "sha256": "fbc6e82997229a18b5d28f34426cf3930e63449ef67a750a116d26017c576577"
+        },
+        {
+          "path": "src/polisyos/scientist/governance/blueprint_release.py",
+          "sha256": "1dfe672824af45585de4ccb8c7031a6de40462caf2e76148937400886e4f8da3"
+        }
+      ]
+    },
+    "git_head_tree_or_whole_source_freeze": "not asserted"
+  },
+  "complete_occurrence_denominator": {
+    "index_source": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/full291-current-evidence-index-delivery-20261016.json",
+      "sha256": "b78ceb20f37addde7718bdd321e66583649d37399ec2615ba811d7cbfb6b7158"
+    },
+    "counts": {
+      "canonical_source_block_occurrences": 291,
+      "unique_finding_ids": 282,
+      "bundles": 127,
+      "task_definitions": 26,
+      "tasks_with_finding_routes": 23,
+      "occurrence_task_routes": 331,
+      "imported_result_route_rows_not_occurrences": 2524
+    },
+    "full_row_inputs": [
+      {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/full-original-occurrence-proposal-report-20261015.json",
+        "sha256": "aac9615dd380f5474fd878ea8a6681d35c71450f1a50233f3c407308fd32f931",
+        "rows_walked": 291,
+        "LA021_matches": 1
+      },
+      {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/full-original-occurrence-current-evidence-index-20261016.json",
+        "sha256": "bcf2b83c9b1aa53deb62edd12548e7784abc41e1af9b34f4a17a6638f02c3d7a",
+        "rows_walked": 291,
+        "LA021_matches": 1
+      },
+      {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/full-original-occurrence-reviewed-successor-proposals-20261017.json",
+        "sha256": "a38160cec8f6eb4e752d4008c4f3db39917891004b17c63b81f75ed9f73150c4",
+        "rows_walked": 291,
+        "LA021_matches": 1
+      }
+    ],
+    "coverage": {
+      "path": "docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01",
+      "LA021_ledger": "closed (historical)",
+      "appendix_C": "no_finding_level_record",
+      "closure_now": "not_adjudicated",
+      "selected_plan_executed": false
+    },
+    "routes_crosscheck": {
+      "path": "docs/research/e02-cloud-test-plan/results/routes.tsv",
+      "sha256": "30755ddca05267c4aeec56154c1c9282ee985c3414b76991aecb99d0ecf59da2",
+      "all_rows_walked": 2524,
+      "LA021_rows": 8,
+      "route_grade": "candidate_unverified",
+      "semantic_adequacy": "not_established",
+      "meaning": "Routes are not occurrences and do not adjudicate closure."
+    },
+    "rows_copied": false
+  },
+  "bounded_tests": {
+    "passed_instances": 9,
+    "runs": [
+      {
+        "run": 1,
+        "selectors": [
+          "tests/unit/core/artifacts/test_ir_adapter.py::test_ir_adapter_mapping_write_options_preserve_every_core_option_field",
+          "tests/unit/core/artifacts/test_ir_adapter.py::test_core_put_json_preserves_array_digest_mapping_but_raw_ir_reader_refuses_it",
+          "tests/unit/core/artifacts/test_ir_adapter.py::test_profileless_historical_cas_artifact_is_refused_before_bytes"
+        ],
+        "instances_passed": 5,
+        "result": "PASS; the mapping case is parameterized for typed options, mapping of typed models, and mapping of plain maps; the profileless test verifies zero payload reads before refusal and exact-byte storage remains available.",
+        "full_stdout": {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-independent-current-probe-r1-20261017/pytest.stdout.txt",
+          "sha256": "31f0c1770b6a1ee709e169184402a86ec75ecff327b5395658642c2f909b96a1"
+        }
+      },
+      {
+        "run": 2,
+        "selectors": [
+          "tests/unit/runtime/http/test_declared_profile_api_refusal.py::test_raw_artifact_responses_keep_exact_bytes_when_profile_is_incomplete"
+        ],
+        "instances_passed": 1,
+        "result": "PASS; exact raw bytes remain available while semantic JSON returns a typed 409 refusal after the selected profile is made incomplete.",
+        "full_stdout": {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-independent-current-probe-r1-20261017/http-raw-vs-semantic.stdout.txt",
+          "sha256": "8e56bba85267046a09ce81bdf07c53955db4ac32c4dc1cdcaa0a081ff6524b8e"
+        }
+      },
+      {
+        "run": 3,
+        "selectors": [
+          "tests/unit/core/artifacts/test_ir_adapter.py::test_ir_reader_refuses_malformed_raw_profile_before_payload_bytes",
+          "tests/unit/runtime/http/test_declared_profile_api_refusal.py::test_inspector_refusal_family_preserves_raw_and_non_json_semantics"
+        ],
+        "instances_passed": 2,
+        "result": "PASS; present malformed profile refuses before payload read; the real HTTP surface distinguishes absent/unknown semantic refusals while explicit raw requests preserve exact bytes.",
+        "full_stdout": {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-independent-current-probe-r1-20261017/malformed-absent-api.stdout.txt",
+          "sha256": "c80e7ad6aee2fe56201c7df26969553e248f03656fe55c262fd352e1564c7b48"
+        }
+      },
+      {
+        "run": 4,
+        "selectors": [
+          "tests/unit/data_forge/read_api/test_ukraine_json_snapshot.py::test_profileless_stage_json_is_a_typed_candidate_with_exact_raw_identity"
+        ],
+        "instances_passed": 1,
+        "result": "PASS; profileless snapshot may expose a typed candidate only through value_for_candidate; semantic .value raises and provenance marks producer attestation/currentness not_established.",
+        "full_stdout": {
+          "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la021-independent-current-probe-r1-20261017/profileless-candidate.stdout.txt",
+          "sha256": "8e56bba85267046a09ce81bdf07c53955db4ac32c4dc1cdcaa0a081ff6524b8e"
+        }
+      }
+    ],
+    "shared_context": {
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "environment": "PYTHONPATH=src PYTHONDONTWRITEBYTECODE=1 OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1; pytest cache provider disabled; all basetemp under this new RAW packet",
+      "basetemps": "All pytest basetemp directories are under the cited independent RAW probe directory."
+    },
+    "command_capture": "The sealed report preserves exact selectors, cwd, environment, basetemp locations, and complete stdout refs; it does not retain the original shell argv transcript. Do not represent a reconstructed shell line as captured original argv.",
+    "full_suite": "not_run",
+    "full_golden_corpus": "not_run",
+    "installed_wheel_sdist_remote_backend": "not_run",
+    "warning": "Pytest emitted the known environment warning Unknown config option: cache_dir; all selected runs exited 0."
+  },
+  "held_dependencies": [
+    {
+      "dependency": "G LA-021-1 identity-law choice",
+      "status": "pending",
+      "artifact": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/can-profile-law-decision-proposal-20261017.json",
+        "sha256": "ea07c3feff7a5b214f5db50b6b11de4f7afc1422bbbce9a7f0d7fcd5b2601eef"
+      }
+    },
+    {
+      "dependency": "G LA-021-2 profileless-history choice",
+      "status": "pending",
+      "artifact": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/la021-can-profile-law-history-g-decision-20261017.json",
+        "sha256": "5bd9cb1d5144e6d00f2d0dd17a4dacaef2f08256ee7feccfccac9aeed88699ee"
+      },
+      "migration_input_if_considered": "Named deployed artifact with exact store/namespace and artifact ID, raw bytes and sidecar/manifest digests, actual consumer/service need, producer/rule provenance, and affected audience/status/time facts."
+    },
+    {
+      "dependency": "Owner-produced representative golden corpus",
+      "status": "not_run"
+    },
+    {
+      "dependency": "Installed wheel/sdist and declared backend/remote-store verification",
+      "status": "not_run"
+    },
+    {
+      "dependency": "Producer-event attestation and profileless-history inventory",
+      "status": "not_established"
+    }
+  ],
+  "exact_next_check": {
+    "G_artifacts": [
+      {
+        "decision": "LA-021-1 identity meaning",
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/can-profile-law-decision-proposal-20261017.json",
+        "sha256": "ea07c3feff7a5b214f5db50b6b11de4f7afc1422bbbce9a7f0d7fcd5b2601eef"
+      },
+      {
+        "decisions": "LA-021-1 and LA-021-2 identity/history request",
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/la021-can-profile-law-history-g-decision-20261017.json",
+        "sha256": "5bd9cb1d5144e6d00f2d0dd17a4dacaef2f08256ee7feccfccac9aeed88699ee"
+      }
+    ],
+    "sequence": [
+      "G records explicit identity law and separately decides profileless-history policy; neither is accepted by this payload.",
+      "If migration remains in scope, owner supplies the exact deployed artifact plus provenance/consumer/audience/time facts required in LA-021-2.",
+      "Owners freeze the golden corpus and run installed wheel/sdist and declared backend/remote-store checks against the selected law.",
+      "Keep the row held until independent implementation and semantic verification accept the complete criterion. Do not widen tags, infer profile authority, rewrite CAS bytes/IDs, or claim closure."
+    ]
+  },
+  "current_reference_pins": [
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/can-profile-law-decision-proposal-20261017.json",
+      "sha256": "ea07c3feff7a5b214f5db50b6b11de4f7afc1422bbbce9a7f0d7fcd5b2601eef"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/la021-can-profile-law-history-g-decision-20261017.json",
+      "sha256": "5bd9cb1d5144e6d00f2d0dd17a4dacaef2f08256ee7feccfccac9aeed88699ee"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/full-original-occurrence-proposal-report-20261015.json",
+      "sha256": "aac9615dd380f5474fd878ea8a6681d35c71450f1a50233f3c407308fd32f931"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/full-original-occurrence-current-evidence-index-20261016.json",
+      "sha256": "bcf2b83c9b1aa53deb62edd12548e7784abc41e1af9b34f4a17a6638f02c3d7a"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/full-original-occurrence-reviewed-successor-proposals-20261017.json",
+      "sha256": "a38160cec8f6eb4e752d4008c4f3db39917891004b17c63b81f75ed9f73150c4"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/full291-current-evidence-index-delivery-20261016.json",
+      "sha256": "b78ceb20f37addde7718bdd321e66583649d37399ec2615ba811d7cbfb6b7158"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "sha256": "97860dc18c7b92124971aa8032fc229be3367723ea2ec45e6cda4a777e544e01"
+    },
+    {
+      "path": "docs/research/e02-cloud-test-plan/results/routes.tsv",
+      "sha256": "30755ddca05267c4aeec56154c1c9282ee985c3414b76991aecb99d0ecf59da2"
+    },
+    {
+      "path": "docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727"
+    }
+  ],
+  "pattern_pass": {
+    "relevant_ids": [
+      "P06",
+      "P07",
+      "P10",
+      "P29",
+      "P32",
+      "P35",
+      "P37",
+      "P38",
+      "P40"
+    ],
+    "existing_anti_pattern": "Treating equal profile labels, ordinary-value parity, a historical route status, or a candidate-only parse as proof of full cross-facade accepted-format law or production-history authority.",
+    "target_pattern": "Preserve strict owner-specific readers and raw-byte boundaries; require a named G decision for identity/history semantics and evidence from the actual persisted consumer path before migration or closure.",
+    "missing_capability_label": "verification_missing",
+    "acceptance_signal": "Both exact G questions are decided; any migration is bound to an owner-identified artifact; the owner-produced byte/hash/error/import corpus and installed/backend checks pass; independent semantic review accepts the full source-bound criterion."
+  }
+}

@@ -1,0 +1,204 @@
+{
+  "schema": "policyos.e02.native_release_config.source_and_actual_handoff.v1",
+  "source": {
+    "slice_base": "2a6c30301dcfaee00a7b58898bde90f9f151d968",
+    "candidate": "0be2acdec09f4d4c224602bbad052bc6fe507cbe",
+    "tree": "190a14043e2ae1619b0f72430399c2917900e41a",
+    "parents": [
+      "2a6c30301dcfaee00a7b58898bde90f9f151d968"
+    ],
+    "branch": "codex/e02-unified-local-20261009",
+    "full_implementation_footprint": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "sha256": "5e7d8c6b74dffbe2bbdfbab0e5734ab354716b997f3d300b17a42aae16edd34d",
+        "role": "mandatory handoff companion"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "sha256": "a206ab87f19fede2be0b9d0db91b9e88350403f0dd344ab76ca952f1be194e07",
+        "role": "mandatory handoff companion"
+      },
+      {
+        "path": "policy-engine/ops/release/release-fragment-policy.toml",
+        "sha256": "015f88e58e8d2c77c329196211360ca20413f2e6f8946b350224133ba20dbd30",
+        "role": "source/config/docs"
+      },
+      {
+        "path": "policy-engine/release-fragments/README.md",
+        "sha256": "3149a0e1e24193bd0af0cdcaf5cc16c9851d647c981ab6608041baca576dc2b9",
+        "role": "source/config/docs"
+      },
+      {
+        "path": "policy-engine/tests/repo_quality/architecture/test_repository_best_in_class_phase5_10_compatibility_release_gates.py",
+        "sha256": "b625caf9dc6331f96cb9f090d5b54164053e5f042800630cb836e8d6298a7eb5",
+        "role": "test"
+      },
+      {
+        "path": "policy-engine/tests/repo_quality/tools/test_tool_config_split.py",
+        "sha256": "b9e984078e30d15ad3ece7558cf323811673017a274fd5307d37b033458a9a90",
+        "role": "test"
+      },
+      {
+        "path": "policy-engine/tools/devx/workspace/tool_configs.py",
+        "sha256": "f68b50223aedb22548c5776c687fe54bceb432de0bbff9bb83b9d6b0c6a92a07",
+        "role": "source/config/docs"
+      },
+      {
+        "path": "policy-engine/tools/ops_runners/release/check_compatibility_release_gates.py",
+        "sha256": "02f5164a002819e326ebe5d095c7e4b3fab3dac2e62d3a23b64cf1424201f711",
+        "role": "source/config/docs"
+      }
+    ],
+    "source_freeze": false
+  },
+  "adoption": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-release-config-adoption-r1-20261017/application.json",
+    "sha256": "bfb6c1e0781f4b879061266442bcda87fd1fd4eced631e72232e7f0747dde13c"
+  },
+  "published_candidate_readback": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-candidate-push-0be2acdec09f-20261015/remote-readback.json",
+    "sha256": "95931b79afe96e47b4536bf9aab940892a36fd64e384882bae0aa1cb1087a5a2"
+  },
+  "selected_profile": {
+    "backend": "Darwin arm64 local native unit/generator fixtures; no production data",
+    "python": "owned existing .venv CPython 3.14.3",
+    "pytest": "9.0.2",
+    "git": "2.49.0",
+    "numerical_threads": 1,
+    "interpreter_entrypoint": "policy-engine/.venv/bin/python; venv entrypoint retained separately from resolved binary"
+  },
+  "mechanisms": [
+    {
+      "property": "Supplied optional review fields at root and row scopes must be actual booleans before coercion; malformed fields cannot be hidden by another valid true value.",
+      "chain": "policy-declared raw fields -> strict release checker -> structured contract findings -> release/native report consumer",
+      "consumer_surface": "Phase 5.10 checker and report; no release acceptance",
+      "actual_command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-review-marker-actual-source-r2-20261017/run_actual.py",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-review-marker-actual-source-r2-20261017"
+      ],
+      "pytest_args": [
+        "-ra",
+        "-q",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "--benchmark-storage=file://./_cache/benchmarks",
+        "-c",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/pytest.ini",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tests/repo_quality/architecture/test_repository_best_in_class_phase5_10_compatibility_release_gates.py",
+        "-q",
+        "-k",
+        "optional_review_marker_contract or optional_boolean_fields_reject or public_surface_review_requires or malformed_optional_review_marker or current_unreleased_public_api_review_findings",
+        "--junitxml",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-review-marker-actual-source-r2-20261017/junit.xml",
+        "--basetemp",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-review-marker-actual-source-r2-20261017/pytest-tmp",
+        "-o",
+        "cache_dir=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-review-marker-actual-source-r2-20261017/pytest-cache",
+        "--benchmark-storage",
+        "file:///Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-review-marker-actual-source-r2-20261017/benchmark-storage"
+      ],
+      "deciding_packet": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-review-marker-actual-source-r2-20261017/handoff-proposal.json",
+        "sha256": "98a14d092b42f531cb311b23ba19d1df52a42a5c3606fa239b834d9f9a45d4b2"
+      },
+      "actual_junit": {
+        "mechanism": "release",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-review-marker-actual-source-r2-20261017/junit.xml",
+        "sha256": "821e2264f17be78bb1fffeb1fad16e9e07a37caceac6dfdbc3c949abac7a0236",
+        "selected": 33,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "negative_controls": "33 selected cases include supplied malformed, absent/false and contributing true scopes. Author removal controls are preserved in the reviewed candidate packet.",
+      "remaining": "Four current public-surface review errors remain; flags are consumer_asserted and reviewer/issuer evidence not_established."
+    },
+    {
+      "property": "Generator report/config outputs must be refused before writes if they intersect any actual input to the Git/source/config selector.",
+      "chain": "effective Git selector and locked recipe inputs -> whole-input collision preflight -> generator/check -> external report consumer",
+      "consumer_surface": "tool_configs actual main write/check modes and filesystem no-write assertions",
+      "actual_command": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "no:cacheprovider",
+        "-v",
+        "-s",
+        "--junitxml",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native166-tool-config-output-scope-r9-actual-canonical-20261017/run-2/junit.xml",
+        "tests/repo_quality/tools/test_tool_config_split.py",
+        "-k",
+        "tool_config_write_mode or tool_config_check_mode"
+      ],
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "environment_overrides": {
+        "BLIS_NUM_THREADS": "1",
+        "JAX_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "POLARS_MAX_THREADS": "1",
+        "PYTHONPATH": ".",
+        "VECLIB_MAXIMUM_THREADS": "1"
+      },
+      "deciding_packet": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native166-tool-config-output-scope-r9-actual-canonical-20261017/proposed-bounded-tracked-receipt.json",
+        "sha256": "b499f1a0a73e661aa82737bf7200ddd503bf57eb57486398aa3eef076be9a980"
+      },
+      "actual_junit": {
+        "mechanism": "config",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native166-tool-config-output-scope-r9-actual-canonical-20261017/run-2/junit.xml",
+        "sha256": "54ebb62d285d49b664830d3906e97764f68dae902b77ce20f06965a2643a217c",
+        "selected": 37,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "negative_controls": "Actual write-mode collision cases, relative-root and system-selector/toggle cases retained; prewrite refusal and check-mode behavior asserted.",
+      "remaining": "37 selected tests / 53 deselected; full tool-config owner/native wave remains pending."
+    }
+  ],
+  "root_receipt_reconciliation": {
+    "verified_file_descriptors": 27,
+    "junit_cases": 70,
+    "junit_failures": 0,
+    "junit_errors": 0,
+    "junit_skipped": 0,
+    "implementation_paths_read_from_commit": 8,
+    "runtime_source_frame_unchanged_during_both_runs": true
+  },
+  "setup_nonreceipts": {
+    "release": "R1 duplicate conftest plugin before collection; actual R2 uses canonical auto discovery.",
+    "generator": "First launcher resolved away venv context and lacked pytest; no tests ran; corrected run-2 uses explicit venv entrypoint.",
+    "evidence": "Both complete setup outputs remain in the cited RAW packets; no product-failure/closure credit."
+  },
+  "results_index_recheck": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-results-index-check-0be-r1-20261017/receipt.json",
+    "sha256": "c35c42b6c5138d047f568bceda00918cad635868347195841039e885b28c3e80"
+  },
+  "pattern_pass": {
+    "ids": [
+      "P29",
+      "P31",
+      "P32",
+      "P35",
+      "P37",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "target": "Generic supplied-input admission and effective input closure; actual canonical behavior, no review authority from flags.",
+    "remaining_capability": "Whole native/composed verification_missing; local selected mechanisms have behavioral positives and negatives."
+  },
+  "finding_proposals": [],
+  "finding_boundary": "These native companion repairs do not independently adjudicate an original E02 occurrence. The full 291-occurrence proposal denominator is retained separately; no IDs are automatically promoted.",
+  "closure_ids": [],
+  "G_acceptance": false,
+  "next_check": "Apply independently reviewed companion batches; freeze source/profile/input/backend; run full native SOTA, generated freshness and corrupt-field drift, installed archive/wheel and composed runtime consumers; G independently adjudicates."
+}

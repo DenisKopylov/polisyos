@@ -95,7 +95,7 @@
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
-      "sha256": "5e7d8c6b74dffbe2bbdfbab0e5734ab354716b997f3d300b17a42aae16edd34d",
+      "sha256": "bf32119300d21233564f4f3107936667332aef302a87569af291329e672a87c2",
       "record_type": "current_coordination_snapshot",
       "previous_unqualified_digest": "1c2ae874ad7a12ac5c8ce69c580be992eef49a0ba58164893eff9a679a1ff9e5",
       "qualification": "Current LEASES bytes are pinned by this digest and the containing index commit. historical_original_source_commit names only the first recorded B194 snapshot; it is not the source of the current lease bytes. Source and native verification remain separately scoped.",
@@ -704,6 +704,26 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native-generated-schema-request-denominator-corrigendum-20261017.json",
       "sha256": "2fe155b4b4a9b2ae4a2cfaf95c6a759dd60093ab03c02a4eee34cb62542fefc5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native-release-config-implementation-and-actual-0be-20261017.json",
+      "sha256": "69986987ca17bbe3ef722f10ce58aa8da1140ba2e2f0445e19a43c445583afc7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/la021-whole-property-current-proposal-20261017.json",
+      "sha256": "e4a791b80973e78bb19888c5dee0e26b4318d4f4c7e02c4faa07f7fe28b2747c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/la021-proposal-publication-corrigendum-20261017.json",
+      "sha256": "3c12d42ebfb43784e9f6967cc55763b4a04429191d7adda898eda62df4b6c9bc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/l5-relation-provenance-g-decision-20261017.md",
+      "sha256": "96d4b2f8be47fb015ba389c0ee379a7404821f9fde276fc9db55ca45a01a31db"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/l5-relation-provenance-source-boundary-handoff-20261017.json",
+      "sha256": "bf4b5eeb31b07fd48490813975f53314420ed7a182c253a2453c6a7914876bd2"
     }
   ],
   "canonical_denominator_recomputed": {
@@ -755,26 +775,26 @@
   ],
   "retention": "Complete deciding outputs and removal controls are pinned by receipts under ignored LOCAL/raw on the candidate checkout. Tracked source is cited by path@sha/commit, not copied. Large RAW availability is local; no archive payload census or duplicate environment.",
   "latest_reconciled_source_cut": {
-    "head": "1fa15c7fa44f8ccd3fc979a359993184e8c86880",
-    "tree": "a65bba8e2fbc434825b4126257e8f34668a67112",
+    "head": "0be2acdec09f4d4c224602bbad052bc6fe507cbe",
+    "tree": "190a14043e2ae1619b0f72430399c2917900e41a",
     "parents": [
-      "227e6a6ac5c9929972b960ede44e86a8d7308e16"
+      "2a6c30301dcfaee00a7b58898bde90f9f151d968"
     ],
     "source_freeze": false,
     "tracked_source_clean_at_observation": true,
     "prior_index_observation": {
-      "commit": "1fa15c7fa44f8ccd3fc979a359993184e8c86880",
+      "commit": "0be2acdec09f4d4c224602bbad052bc6fe507cbe",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
-      "sha256": "a775e6ab12318fae1119cce2b7680ad759a7de2315285cdb7d943fa10c582edd",
-      "prior_reconciled_source_cut": "546bd772cda7a85fc14df2372935c22d25905043"
+      "sha256": "a206ab87f19fede2be0b9d0db91b9e88350403f0dd344ab76ca952f1be194e07",
+      "prior_reconciled_source_cut": "1fa15c7fa44f8ccd3fc979a359993184e8c86880"
     },
-    "meaning": "Native source composition cc627 and canonical NCM fixture helper 227e6 are delivered as separate handoffs. Exact 227e6 selected owner module 4P/12 phases follows historical cc627 3P1F. On 1fa15, strict raw-schema test 1P and malformed CLI rejection are independently reconciled; full freshness/native/whole N4 remain open. R13 stays an unaccepted proposal and R14 is still in preparation.",
+    "meaning": "Six reviewed source/test/config/doc paths plus two handoff companions delivered in 0be; actual canonical release33 and generator37 selected tests pass. Full release report retains four review errors. LA-021 remains held. Actual L5 graph refuses an explicitly unresolved provenance target; current declaration bytes cannot supply the missing external content/identity semantics. Whole native/composed/installed/browser/authentic closeout remains pending.",
     "published_candidate_last_verified": {
-      "sha": "227e6a6ac5c9929972b960ede44e86a8d7308e16",
-      "tree": "e5d0ed5b624576678e57c856f21f39ba88ecff8d",
+      "sha": "0be2acdec09f4d4c224602bbad052bc6fe507cbe",
+      "tree": "190a14043e2ae1619b0f72430399c2917900e41a",
       "readback": {
-        "path": "raw/resume-candidate-push-227e6a6ac5c9-20261015/remote-readback.json",
-        "sha256": "5fa092ed9fc1de8728ff770952157866da61206d38c59915603a108264eb51ff"
+        "path": "raw/resume-candidate-push-0be2acdec09f-20261015/remote-readback.json",
+        "sha256": "95931b79afe96e47b4536bf9aab940892a36fd64e384882bae0aa1cb1087a5a2"
       },
       "G_remote_observed": "93d6aa62a8d236667fdf322a5fc17962523b185e",
       "G_acceptance": false

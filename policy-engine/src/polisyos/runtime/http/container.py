@@ -234,6 +234,7 @@ class RuntimeContainerConfig:
     process_worker_profile_revision: str | None = None
     catalog_run_profile: CatalogRunProfile | None = None
     catalog_source_selection: CatalogServingSourceSelection | None = None
+    repo_root: Path | None = None
     allow_candidate_run_predictive_calibration_surface: bool = True
     _resolved_process_worker_profile: common_async_tools.SharedExecutorProfile = field(
         init=False,
@@ -248,6 +249,20 @@ class RuntimeContainerConfig:
             revision=self.process_worker_profile_revision,
         )
         object.__setattr__(self, "_resolved_process_worker_profile", profile)
+        if self.repo_root is not None:
+            from pathlib import Path
+
+            if not isinstance(self.repo_root, Path):
+                raise TypeError("runtime_source_repo_root_must_be_path")
+            if not self.repo_root.is_absolute():
+                raise ValueError("runtime_source_repo_root_must_be_absolute")
+            try:
+                source_root = self.repo_root.resolve(strict=True)
+            except (OSError, RuntimeError) as exc:
+                raise ValueError("runtime_source_repo_root_invalid") from exc
+            if not source_root.is_dir():
+                raise ValueError("runtime_source_repo_root_invalid")
+            object.__setattr__(self, "repo_root", source_root)
         if self.catalog_run_profile is not None:
             if not isinstance(self.catalog_run_profile, str):
                 raise ValueError("catalog_run_profile_invalid")
@@ -593,6 +608,11 @@ class RuntimeServiceContainer:
                 raise ValueError("control_service_owner_invalid")
             promotion_runtime = overrides.control_service._promotion_runtime
             if (
+                config.repo_root is not None
+                and overrides.control_service._repo_root != config.repo_root
+            ):
+                raise ValueError("runtime_source_repo_root_control_service_mismatch")
+            if (
                 not isinstance(promotion_runtime, PromotionRuntime)
                 or overrides.control_service._decision_validity_service
                 is not decision_validity_service
@@ -712,6 +732,7 @@ class RuntimeServiceContainer:
                 control_service = ControlPlaneService(
                     cas_root=self.config.cas_root,
                     core_runs_root=self.config.core_runs_root,
+                    repo_root=self.config.repo_root,
                     metrics=self.runtime_metrics,
                     tracer=self.runtime_tracer,
                     artifact_store=self.runtime_api_context.store,

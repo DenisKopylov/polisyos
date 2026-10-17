@@ -83,6 +83,13 @@ publication authority. It does not add an HTTP request field or change the
 OpenAPI contract. See the [Runtime API migration guide](../../../../docs/reference/api/migration-guide.md#optional-deployment-catalog-input)
 for the operator configuration example and boundary.
 
+
+## Owner-bound source-root selection
+
+The create_runtime_api_app(repo_root=...) setting selects an optional server-side Path for owner-bound source reads. The configured path must be absolute and point to an existing directory; composition rejects malformed supplied values instead of falling back. Omitting it preserves the existing module-derived source root. The setting is fixed at application composition and cannot be selected by an HTTP request.
+
+This source root is separate from cas_root and core_runs_root, which still select runtime artifact and job outputs. It also leaves product code imports and package-resource resolution attached to the installed PolicyOS package. A selected source root supplies candidate inputs to owner readers; it does not establish source authenticity, freshness, currentness, complete L3/L6 source basis, causal grounding, recommendation admissibility, or publication authority.
+
 ## Authorization contract
 
 `RuntimePermission` is the only hand-authored permission vocabulary for the

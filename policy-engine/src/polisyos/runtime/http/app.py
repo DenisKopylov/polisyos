@@ -136,6 +136,7 @@ def create_runtime_api_app(
     process_worker_profile_revision: str | None = None,
     catalog_run_profile: CatalogRunProfile | None = None,
     catalog_source_selection: CatalogServingSourceSelection | None = None,
+    repo_root: Path | None = None,
     enable_csrf_protection: bool | None = None,
     step_up_verifier: StepUpAssertionVerifier | None = None,
     step_up_replay_store: StepUpReplayStore | None = None,
@@ -159,7 +160,9 @@ def create_runtime_api_app(
     Its CatalogRunProfile supplies catalog_run_profile when that option is
     omitted, and conflicting profiles refuse composition. Selection is a
     candidate input only; it does not establish source provenance, freshness,
-    currentness, or publication authority.
+    currentness, or publication authority. ``repo_root`` selects the source-data
+    root for owner-bound reads; it does not change CAS/output roots or
+    package-resource resolution.
     """
     if FastAPI is None:
         raise RuntimeError("Runtime HTTP API requires fastapi/starlette dependencies")
@@ -285,6 +288,7 @@ def create_runtime_api_app(
             process_worker_profile_revision=process_worker_profile_revision,
             catalog_run_profile=catalog_run_profile,
             catalog_source_selection=catalog_source_selection,
+            repo_root=repo_root,
         ),
         deployment_policy=deployment_policy,
         runtime_security=RuntimeSecurityConfig(

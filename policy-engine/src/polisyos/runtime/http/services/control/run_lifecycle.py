@@ -2299,6 +2299,7 @@ class ControlPlaneService(
         *,
         cas_root: Path,
         core_runs_root: Path,
+        repo_root: Path | None = None,
         metrics: MetricsRegistry | None = None,
         tracer: PolicyOSTracer | None = None,
         artifact_store: ArtifactStore | None = None,
@@ -2332,10 +2333,23 @@ class ControlPlaneService(
         ):
             raise TypeError("llm_producer_settlement_store_must_be_budget_middleware")
         self._llm_producer_settlement_store = llm_producer_settlement_store
-        # The source checkout is a separate trust input from the CAS root.  It
-        # is resolved from this owner module, never inferred from the CAS or
-        # process cwd, and is passed to source-bound receipt consumers.
-        self._repo_root = Path(__file__).resolve().parents[6]
+        # The source-data root is a separate input from CAS/output roots and package
+        # resources. The default preserves module-derived behavior; an explicit root
+        # is accepted only when it is an existing absolute directory.
+        if repo_root is None:
+            self._repo_root = Path(__file__).resolve().parents[6]
+        else:
+            if not isinstance(repo_root, Path):
+                raise TypeError("runtime_source_repo_root_must_be_path")
+            if not repo_root.is_absolute():
+                raise ValueError("runtime_source_repo_root_must_be_absolute")
+            try:
+                resolved_source_root = repo_root.resolve(strict=True)
+            except (OSError, RuntimeError) as exc:
+                raise ValueError("runtime_source_repo_root_invalid") from exc
+            if not resolved_source_root.is_dir():
+                raise ValueError("runtime_source_repo_root_invalid")
+            self._repo_root = resolved_source_root
         self._normative_authority_trust = normative_authority_trust or NormativeAuthorityTrust()
         if type(self._normative_authority_trust) is not NormativeAuthorityTrust:
             raise TypeError("normative_deployment_trust_must_be_typed")

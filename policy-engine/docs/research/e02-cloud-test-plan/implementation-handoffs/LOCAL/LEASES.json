@@ -3982,5 +3982,30 @@
     "acceptance": "One final current canonical 35-case wave, exact current store-guard removal, canonical Ruff/format, then separate implementation and receipt commits.",
     "source_freeze": false,
     "closure_ids": []
+  },
+  "runtime_source_root_composition_r11_20261017": {
+    "canonical_writer": "root",
+    "slice_base": "767b9a032b1af80eb5a21e760cf3063d567be31a",
+    "mechanism_paths": [
+      "policy-engine/src/polisyos/runtime/http/app.py",
+      "policy-engine/src/polisyos/runtime/http/container.py",
+      "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "policy-engine/src/polisyos/runtime/http/README.md",
+      "policy-engine/release-fragments/unreleased/2026-10-17-e02-runtime-source-root-composition.toml",
+      "policy-engine/tests/unit/runtime/http/test_runtime_source_root_composition.py"
+    ],
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json"
+    ],
+    "candidate_freeze": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n4-source-root-composition-r11-20261017/receipts/final-freeze-r11.json",
+      "sha256": "d6a51031f9851880a33c14567133b0986b84bbf53516caa9a893741f105ead48"
+    },
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n4-source-root-composition-r11-20261017/receipts/r11-independent-review-r1.json",
+      "sha256": "33b1c6095706718c20684917fd316515243c9086f347fd353c57f6f46d77682c"
+    },
+    "scope": "server composition root through real startup consumer; full N4/V2/V5 and K_ref authority unestablished",
+    "closure_ids": []
   }
 }

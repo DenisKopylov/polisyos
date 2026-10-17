@@ -1,0 +1,23 @@
+id = "2026-10-17-e02-runtime-source-root-composition"
+title = "Owner-bound runtime source root"
+type = "changed"
+component = "runtime"
+owner = "team-polisyos"
+summary = "Runtime composition can select an explicit source root for owner-bound candidate reads while keeping runtime CAS outputs and package resources rooted independently."
+evidence = [
+  "src/polisyos/runtime/http/app.py",
+  "src/polisyos/runtime/http/container.py",
+  "src/polisyos/runtime/http/services/control/run_lifecycle.py",
+  "tests/unit/runtime/http/test_runtime_source_root_composition.py",
+  "src/polisyos/runtime/http/README.md",
+]
+compatibility = "The optional keyword-only repo_root setting is internal Python composition configuration. Omitted configuration preserves the existing module-derived root; a supplied value must be an absolute existing Path and fails typed on invalid input. HTTP request/response, OpenAPI, and generated-client contracts are unchanged."
+change_class = "internal"
+surface_classification = "internal: runtime app/container composition; no HTTP, OpenAPI, or generated-client surface"
+migration = "No persisted artifact migration is required. Configure repo_root only when owner-bound source reads need a selected source root distinct from the module-derived default. Keep cas_root and core_runs_root configured for runtime outputs."
+api = "create_runtime_api_app(repo_root=Path(...)) selects the owner-bound source root and forwards it through RuntimeContainerConfig to ControlPlaneService. Requests cannot supply or replace this value. Product code imports and package resources remain attached to the installed package."
+limitations = "Selected source bytes remain candidate inputs. This option does not establish source authenticity, freshness, currentness, complete L3/L6 source-basis binding, causal structure, recommendation admissibility, or publication authority."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/runtime/http/README.md"]
+runbook_docs = []

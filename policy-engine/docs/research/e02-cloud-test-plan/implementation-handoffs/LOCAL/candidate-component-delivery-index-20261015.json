@@ -658,6 +658,10 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/can-profile-law-q1-binding-corrigendum-20261017.json",
       "sha256": "1e866122a2e34484887bc03c0187e88d46bd483109eb1e87578a48c636c183e6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/scl04-producer-license-structured-refusal-focused-receipt-20261017.json",
+      "sha256": "97f82208d0476dc8c650be736be87db2a12e95f918e38d65e255bcf9a11c3d6a"
     }
   ],
   "canonical_denominator_recomputed": {

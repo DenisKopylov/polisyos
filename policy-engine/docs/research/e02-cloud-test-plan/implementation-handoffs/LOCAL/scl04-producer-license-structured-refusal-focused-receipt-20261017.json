@@ -1,0 +1,215 @@
+{
+  "schema": "policyos.e02.local_candidate_handoff.v1",
+  "author_role": "local_candidate_author_not_G",
+  "slice": "SCL04 fetched-license metadata projection and structured raw-source refusals",
+  "candidate_branch": "codex/e02-unified-local-20261009",
+  "candidate": {
+    "base": "c365a2074a1d8d92ff0bb8c10228a58838e4835e",
+    "sha": "46145f3e4f8d5cef0ec554e0c874216a8b02805a",
+    "tree": "dcfd562fccf5383e7fc392d66e907606b0d663b8",
+    "parents": [
+      "c365a2074a1d8d92ff0bb8c10228a58838e4835e"
+    ],
+    "source_bytes_read_back_from_branch": true,
+    "source_freeze": false
+  },
+  "footprint": [
+    {
+      "path": "policy-engine/src/polisyos/scholar/search/scoring.py",
+      "sha256": "ddcdeb005f535b73a9d83b38218212bc90d18440c4769c492c517b69333d5405"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_scl_03.py",
+      "sha256": "698522c4b6e0609e6eef614f449432194ebdf9a4b5cac45eac29a2f8b0f4f84f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "sha256": "4777d68b3fa5fa608d0ace7823d27220248a16d01d5e4401c0e7b45fe253ea57"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "sha256": "c0d6bfc20a37bfbd6287b0191e2139eab532dee6f342f8077bc18de1c4c7891f"
+    }
+  ],
+  "implementation_readback": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-scl04-license-producer-adoption-r1-20261017/scl04-license-producer-implementation-readback.json",
+    "sha256": "98f7699d9a8fe356e355c9d1d11a650625a0af3652b99532627e8f4ca5e118b6"
+  },
+  "selected_input_profile_backend": "Existing locked own Python3.14 CPU; controlled local HTTP/provider/cache/Core CAS. One worker, one numerical thread; exact effective environment in actual-results. Constructed typed CC-BY-4.0 FetchResult for its field-specific case.",
+  "real_chain": "Controlled local HTTP/provider -> actual fetch/cache/Core CAS -> unpatched Scholar enrichment -> persisted WebEvidenceBundle -> fresh CAS reader. Cached no-second-fetch and distinct v2 lineage are exercised. The CC-BY-4.0 case uses constructed FetchResult with fixture service/captured enrichment; the actual HTTP case uses public-web default.",
+  "source_bound_command": {
+    "label": "native-scl03-scholar-26",
+    "argv": [
+      "/usr/bin/time",
+      "-l",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+      "-B",
+      "-m",
+      "pytest",
+      "-c",
+      "pytest.ini",
+      "--rootdir",
+      ".",
+      "-o",
+      "addopts=",
+      "--import-mode=importlib",
+      "--strict-markers",
+      "-ra",
+      "-vv",
+      "--tb=short",
+      "-p",
+      "no:cacheprovider",
+      "-p",
+      "c05_actual_witness",
+      "--basetemp",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-scl03-r4-canonical-focused-replay-20261017-46145/run/pytest-basetemp",
+      "--junitxml",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-scl03-r4-canonical-focused-replay-20261017-46145/run/tests.junit.xml",
+      "tests/unit/remediation/test_scl_03.py::test_source_metadata_carries_raw_binding_license_and_fetch_profile",
+      "tests/unit/remediation/test_scl_03.py::test_web_bootstrap_hands_cached_snapshot_to_enrich_without_second_url_fetch",
+      "tests/unit/remediation/test_scl_03.py::test_explicit_refresh_hands_off_v2_with_new_lineage",
+      "tests/unit/remediation/test_scl_03.py::test_missing_raw_snapshot_does_not_reconstruct_from_fragments",
+      "tests/unit/remediation/test_scl_03.py::test_denied_raw_snapshot_fails_closed",
+      "tests/unit/remediation/test_scl_03.py::test_mismatched_raw_snapshot_digest_fails_closed",
+      "tests/unit/remediation/test_scl_03.py::test_cache_refresh_keeps_v1_and_exposes_v2_as_distinct_cas_lineage",
+      "tests/unit/remediation/test_scl_03.py::test_manual_url_seed_keeps_scl01_raw_transport_and_mime",
+      "tests/unit/remediation/test_scl_03.py::test_manual_url_seed_keeps_scl01_private_network_guard",
+      "tests/unit/scholar/test_root_layout_migration.py::test_all_supported_root_exports_resolve_and_reuse_canonical_owner_objects",
+      "tests/unit/scholar/test_root_layout_migration.py::test_bundle_payload_contract_keeps_serialization_and_extra_field_refusal",
+      "tests/unit/scholar/test_root_layout_migration.py::test_shared_stage_error_keeps_stage_and_source_identity",
+      "tests/unit/scholar/test_api_web_bootstrap.py::test_enrich_topic_bootstraps_seed_sources_from_web[empty-falls-through]",
+      "tests/unit/scholar/test_api_web_bootstrap.py::test_enrich_topic_bootstraps_seed_sources_from_web[useful-first-short-circuits]",
+      "tests/unit/scholar/test_api_web_bootstrap.py::test_enrich_topic_uses_shared_async_bridge",
+      "tests/unit/scholar/test_api_web_bootstrap.py::test_enrich_topic_rejects_mismatched_source_text_before_persisting",
+      "tests/unit/scholar/test_api_web_bootstrap.py::test_enrich_topic_persists_value_free_provider_attempt_trace",
+      "tests/unit/scholar/test_api_web_bootstrap.py::test_actual_snapshot_bytes_feed_unpatched_enrichment_and_fresh_bundle_reader",
+      "tests/unit/scholar/test_scholar_private_module_paths.py::test_supported_root_facade_and_retired_private_paths_in_clean_process",
+      "tests/unit/fabric/test_scholar_freshness.py::test_freshness_status_transitions",
+      "tests/unit/fabric/test_scholar_freshness.py::test_freshness_policy_honors_next_retry_from_runtime_state",
+      "tests/unit/fabric/test_scholar_freshness_store.py::test_state_store_roundtrip",
+      "tests/unit/fabric/test_scholar_freshness_store.py::test_refresh_lock_is_exclusive",
+      "tests/unit/scholar/test_fabric_provenance.py::test_scholar_citation_uses_fabric_lineage_and_contract",
+      "tests/unit/scientist/nodes/test_enrich_knowledge_node_freshness.py::test_real_scholar_producer_returns_selected_bundle_profile",
+      "tests/unit/scientist/nodes/test_enrich_knowledge_node_freshness.py::test_shared_bundle_writer_keeps_missing_values_and_rejects_nonfinite_float"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "timeout_seconds": 180,
+    "exit_code": 0,
+    "timed_out": false,
+    "seconds": 10.188,
+    "stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-scl03-r4-canonical-focused-replay-20261017-46145/run/native-scl03-scholar-26.stdout.txt",
+      "sha256": "9f7980a4d5d835daac35df69106c182a64548094b6881a7af17c096027c00f2e"
+    },
+    "stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-scl03-r4-canonical-focused-replay-20261017-46145/run/native-scl03-scholar-26.stderr.txt",
+      "sha256": "d30987495eb6a95e0171687265943801d2a7f1f13497b23b6bd6d0b197c1500e"
+    }
+  },
+  "verification": {
+    "source": "46145f3e4f8d5cef0ec554e0c874216a8b02805a",
+    "request_inputs": 133,
+    "actual_cases": 26,
+    "passing_phases": 78,
+    "passing_collectors": 1,
+    "observed_module_names": 966,
+    "unique_observed_source_paths": 966,
+    "all_observed_match_exact_Git_tree": true,
+    "outside_own_source": 0,
+    "actual_pytest_exit": 0,
+    "supervisor_exit": 0,
+    "closure_ids": [],
+    "PASS": 26,
+    "FAIL": 0,
+    "ERROR": 0,
+    "SKIP": 0,
+    "deciding_outputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-scl03-r4-canonical-focused-replay-20261017-46145/run/request.json",
+        "sha256": "3286f2fd5d850f724941f0f130eb41032fed411071b4e4fb4b4a30144c7a2b7a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-scl03-r4-canonical-focused-replay-20261017-46145/run/actual-results.json",
+        "sha256": "5cebc84200646ef9097a2c5016400f807aca5520246aafd4d034cae99830f86f"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-scl03-r4-canonical-focused-replay-20261017-46145/run/actual-test-and-source-witness.json",
+        "sha256": "bf9859f8d8d6fc3dbc3828e6e4025f6f27eac7110f50e9f1569d9916cce2e6bc"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-scl03-r4-canonical-focused-replay-20261017-46145/run/tests.junit.xml",
+        "sha256": "2d29dbe10f8a5794bc1e51983f16bb4728da67af1154b54586563d03feb6f856"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-scl03-r4-canonical-focused-replay-20261017-46145/run/supervisor-result.json",
+        "sha256": "0c0cdab6b1ac0c879eb34b237637b59012a7792dfa831fc39ac22f9e4098b85c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-scl03-r4-canonical-focused-replay-20261017-46145/run/native-scl03-scholar-26.stdout.txt",
+        "sha256": "9f7980a4d5d835daac35df69106c182a64548094b6881a7af17c096027c00f2e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-scl03-r4-canonical-focused-replay-20261017-46145/run/native-scl03-scholar-26.stderr.txt",
+        "sha256": "d30987495eb6a95e0171687265943801d2a7f1f13497b23b6bd6d0b197c1500e"
+      }
+    ],
+    "root_reconciliation": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-scl04-source-bound-receipt-r2-20261017/root-reconciliation.json",
+      "sha256": "0982be7bd58bbe9ffc30308eccb462178683cb7525ae6eb5d9144bb9ddda98eb"
+    },
+    "independent_reconciliation": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/scl03-actual-26-reconciliation-20261017-r1/reconciliation.json",
+      "sha256": "8c97a8039ed9764d6dae9ed5adb6be30ff8afbd8b2bba7c82aded4be3d32e866"
+    },
+    "resources": {
+      "seconds": 10.522,
+      "peak_observed_process_tree_rss_bytes": 934756352,
+      "process_tree_rss_cap_bytes": 3221225472,
+      "outer_wall_cap_seconds": 300,
+      "numerical_threads": 1,
+      "stop_reason": null
+    },
+    "canonical_Ruff_outputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-scl04-license-producer-adoption-r1-20261017/canonical-ruff-check.stdout.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-scl04-license-producer-adoption-r1-20261017/canonical-ruff-check.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-scl04-license-producer-adoption-r1-20261017/canonical-ruff-format.stdout.txt",
+        "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-scl04-license-producer-adoption-r1-20261017/canonical-ruff-format.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "canonical_Ruff_exit_codes": [
+      0,
+      0
+    ]
+  },
+  "adversarial_and_removal_controls": [
+    "Missing and denied selected raw snapshots assert source_artifact_unavailable; digest mismatch asserts source_artifact_digest_mismatch. All retain valid bundle/license/profile and assert no URL reconstruction fallback.",
+    "Cache v1/v2 lineage, bundle extra-field refusal, nonfinite-field refusal and retired-private-path clean-process controls execute.",
+    "Prior546 actual source run retains two failing license positives; its source/test boundary and other failures remain historical, without automatic current or inherited classification."
+  ],
+  "limitations": [
+    "Metadata flow is established; no external licensing grant, permission, protected authority or production currentness is established.",
+    "The origin witness covers the executing pytest process; clean-process subprocess behavior is asserted by its owning tests, not claimed as a complete child origin census.",
+    "This 26-case source cut does not make the historical120/227 waves or the full Native/composed queue green.",
+    "Composed source/input/backend freeze, remaining N4/Native/PreparedB/Linux/installed/browser/authentic checks and independent G acceptance remain pending."
+  ],
+  "proposal_fields": [
+    {
+      "task": "SCL03",
+      "proposal": "bounded producer/artifact/consumer conformance verified",
+      "next_check": "Composed freeze and installed consumers; no automatic finding closure."
+    }
+  ],
+  "closure_ids": [],
+  "formal_closures": []
+}

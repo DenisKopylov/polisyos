@@ -1,0 +1,191 @@
+{
+  "schema": "policyos.runtime-typing-actual-error-reconciliation.v1",
+  "receipt_id": "N11-R7-ACTUAL-UNIT-COLLECTION-ERROR",
+  "result": "ERROR",
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "commit": "f5391627f56ac2fc06d5cfe04889f0a4941542b5",
+    "parent": "901f90e7c622b5c850bad1fe3dddf9bb4694501c",
+    "tree": "365bc032a37922b633227e075ca60e22b1c98e8f",
+    "subject": "fix(runtime): bind literal facade imports to admitted source scopes",
+    "classification": "The source-effect classifier rejection is introduced in this frame; this is not inherited test debt.",
+    "base_commit": "901f90e7c622b5c850bad1fe3dddf9bb4694501c"
+  },
+  "input_scope": {
+    "freeze": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-r7-actual-full-unit-wave-r1-20261017/freeze.json",
+      "sha256": "858cbc040e1362fa6502f5040181a603603df7c1a6c33dfc7e97a4a19192861f"
+    },
+    "full_request_and_all_path_pins": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-r7-actual-full-unit-wave-r1-20261017/run/request.json",
+      "sha256": "90253a943a75063ab777609018957b1d84b6037f10ac565e1e82ef6a1ef148cc"
+    },
+    "selected_scope": "Entire owning unit module tests/unit/runtime/quality/test_confidence_ledger.py; no file or test subset was substituted.",
+    "pinned_path_count": 137,
+    "pin_reconciliation": {
+      "matched_to_historical_commit_or_pinned_current_RAW_input": 137,
+      "mismatches": 0,
+      "unavailable": 0,
+      "source_paths_unchanged_at_run": true,
+      "category_counts": {
+        "policy-engine/src": 43,
+        "policy-engine/tests": 41,
+        "policy-engine/architecture": 11,
+        "policy-engine/docs": 27,
+        "policy-engine/release-fragments": 3,
+        "pyproject_toml": 1,
+        "pytest_ini": 1,
+        "other_request_pinned_paths": 10
+      }
+    },
+    "relevant_code_test_config_pins": [
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/confidence_ledger.py",
+        "sha256": "05b4c8fb1b28d641509fec78084f4ae255d2a20fe97113b5dacd00fcc4b688b2"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_confidence_ledger.py",
+        "sha256": "ed17b61823826045de3600ec4a17edb2505a5168589c575d1ae71abe80d94668"
+      },
+      {
+        "path": "policy-engine/pyproject.toml",
+        "sha256": "2522afe7bbbe74b8df37dcf64cda247f244ef0ec073657bb5d9e1d7841b1efe7"
+      },
+      {
+        "path": "policy-engine/pytest.ini",
+        "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+      }
+    ],
+    "runner_and_plan": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-r7-actual-full-unit-wave-r1-20261017/native_ps_supervisor.py",
+        "sha256": "b8c26b04bcb0031ea2997e6b51039680923f3be7e4f6b5a05a3d77f74b9b2835"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-calibration-owner-source-closure-20261017/r7-canonical-unit-wave-plan-r1/canonical-unit-wave-plan-r1.json",
+        "sha256": "49fedd7e9632b3ee86cc1af25c983ddbfcd8037c75611c264be64d902575bf31"
+      }
+    ]
+  },
+  "actual_failure": {
+    "kind": "pytest collection/import ERROR",
+    "requested_command_label": "native-n11-r7-full-unit-module",
+    "command_record": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-r7-actual-full-unit-wave-r1-20261017/run/native-n11-r7-full-unit-module.run.json",
+      "sha256": "0bc6c3af7ab5c2af02321733b1039a16ea4765e32fc0761a96b0dd9d9adfdfbf"
+    },
+    "cwd": "policy-engine",
+    "pytest_exit_code": 2,
+    "supervisor_exit_code": 0,
+    "timed_out": false,
+    "pytest_seconds": 13.228,
+    "supervisor_seconds": 13.597,
+    "supervisor_peak_process_tree_rss_bytes": 910442496,
+    "supervisor_rss_cap_bytes": 3221225472,
+    "junit": {
+      "ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-r7-actual-full-unit-wave-r1-20261017/run/tests.junit.xml",
+        "sha256": "2ce504f991e59ea9b58bc0e1810741f2787763ac1234933ba7b84f21716c7d5b"
+      },
+      "suite_errors": 1,
+      "suite_failures": 0,
+      "junit_testcase_nodes": 1,
+      "actual_collected_nodeids": 0,
+      "actual_phases": 0,
+      "interpretation": "The one JUnit testcase node is pytest's module-level collection-error record, not an executed product test."
+    },
+    "decisive_exception": "ConfidenceLedgerError: canonical_loaded_runtime_mismatch: non-literal repository re-export: polisyos.fabric.atomic_write_json",
+    "trace": "Import of confidence_ledger reaches its import-time authority import-closure resolver; _literal_module_getattr_provider rejects polisyos.fabric.atomic_write_json at confidence_ledger.py:5980 before module import completes.",
+    "actual_results": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-r7-actual-full-unit-wave-r1-20261017/run/actual-results.json",
+      "sha256": "4330ce00d32c9aa5ce89c998b3fc108bc548f234b06a6bf06e72ba5da5aba3e0"
+    },
+    "source_witness": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-r7-actual-full-unit-wave-r1-20261017/run/actual-test-and-source-witness.json",
+      "sha256": "2edbcb61f68cb1c1fa9a181dd89323431ed9f51eb001b4d666d865c7046b12e3"
+    },
+    "supervisor_result": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-r7-actual-full-unit-wave-r1-20261017/run/supervisor-result.json",
+      "sha256": "d7108806edd26d6ae735925bc9fcd8382c22262b322465da04ba2088216a0ac4"
+    },
+    "full_test_stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-r7-actual-full-unit-wave-r1-20261017/run/native-n11-r7-full-unit-module.stdout.txt",
+      "sha256": "262633c67fbb30ea37e2f87fe13b392b7024e541f4ef71c1c62b1cd4d5eefc4f"
+    },
+    "full_test_stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-r7-actual-full-unit-wave-r1-20261017/run/native-n11-r7-full-unit-module.stderr.txt",
+      "sha256": "19c69e8b31989d43244be3e1637e91a223505dd47344eefeb70c0b66275deee0"
+    },
+    "supervisor_stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-r7-actual-full-unit-wave-r1-20261017/run/supervisor.stdout.txt",
+      "sha256": "5a1505baec6c0788450f60f5ffebf53915908b22325d6de605c8c369bb595ca5"
+    },
+    "supervisor_stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-r7-actual-full-unit-wave-r1-20261017/run/supervisor.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "requested_execution": {
+      "interpreter": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+      "python_version": "3.14.3",
+      "pytest_invocation": "python -B -m pytest",
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "selected_whole_module": "policy-engine/tests/unit/runtime/quality/test_confidence_ledger.py",
+      "selection": "whole module; no -k filter or node-id selector",
+      "pytest_options": [
+        "-c",
+        "pytest.ini",
+        "--rootdir",
+        ".",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-ra",
+        "-vv",
+        "--tb=short",
+        "-p",
+        "no:cacheprovider",
+        "-p",
+        "c05_actual_witness"
+      ],
+      "environment": {
+        "PYTEST_ADDOPTS": "",
+        "PYTEST_CURRENT_TEST": "",
+        "PYTEST_PLUGINS": "",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "JAX_PLATFORMS": "cpu",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "VECLIB_MAXIMUM_THREADS": "1",
+        "E02_REPLAY_REQUEST": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-r7-actual-full-unit-wave-r1-20261017/run/request.json",
+        "PYTHONPATH": "src:.:/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-focused-replay-r5-20261017"
+      },
+      "environment_capture_scope": "actual-results.json records the exact selected fields passed to Popen; inherited unspecified process variables are not captured."
+    }
+  },
+  "independent_supporting_evidence": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-r7-fabric-runtime-api-probe-20261017/receipt.json",
+      "sha256": "b82d48cfe67d1affe13e9a8302786e06c5c96f1a7c2fff7135edc6055a64840d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-calibration-owner-source-closure-independent-diagnosis-fabric-r13-20261017/diagnosis.json",
+      "sha256": "cb8f0aa97f03a9dc5fa895b16a7c6a2543dd246cf098889f27eaeed3adcd02b2"
+    }
+  ],
+  "provenance_limit": "The retained witness records pytest's executing process and observed module map. No separate child-process origin proof is claimed.",
+  "controls_and_follow_on": {
+    "negative_controls": "UNRUN",
+    "whole_module_product_tests": "UNRUN because collection failed",
+    "runtime_api_falsifiers": "UNRUN in this replay",
+    "downstream_consumer_or_full_N11_acceptance": "UNRUN"
+  },
+  "proposal_only": [
+    "Repair the general import-time facade resolver so a supported literal lazy-facade row can resolve to its actual provider without treating every mapped public re-export as opaque; preserve refusal for dynamic, malformed, or unresolved bindings.",
+    "Before another full-module replay, retain a focused true-provider case and negative controls for unresolved/malformed facade bindings."
+  ],
+  "closure_ids": [],
+  "independent_supporting_finding": "The separate fresh-process probe confirms the supported public facade's literal row for atomic_write_json names polisyos.fabric.io.atomic:atomic_write_json, the symbol is in __all__, and the facade object is the callable provider object. This supports the false-positive diagnosis for this binding only; it proves no whole-package positive inventory."
+}

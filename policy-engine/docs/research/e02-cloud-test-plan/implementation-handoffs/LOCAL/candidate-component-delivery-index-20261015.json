@@ -662,6 +662,14 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/scl04-producer-license-structured-refusal-focused-receipt-20261017.json",
       "sha256": "97f82208d0476dc8c650be736be87db2a12e95f918e38d65e255bcf9a11c3d6a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/n11-r7-actual-full-module-collection-error-20261017.json",
+      "sha256": "49def7016b84ff9dc82d6feae40760155a4b70ed5e605916f92c7dac9fd0ba12"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/n4-selected-slot-actual-owner-collection-error-20261017.json",
+      "sha256": "5fd069d0b0b78dd2cf27fc0ad65ffb26659ef9e323edc243b56525b974995824"
     }
   ],
   "canonical_denominator_recomputed": {

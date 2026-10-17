@@ -1,0 +1,189 @@
+{
+  "schema": "policyos.runtime-typing-actual-error-reconciliation.v1",
+  "receipt_id": "N4-SELECTED-SLOT-ACTUAL-OWNER-COLLECTION-ERROR",
+  "result": "ERROR",
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "commit": "3991d7c113090fab17a8374588c1a772964c9dc9",
+    "parent": "f5391627f56ac2fc06d5cfe04889f0a4941542b5",
+    "tree": "963cc8e28d87ce6ce32ff2470d0f5ef238daa837",
+    "subject": "test(runtime): bind controlled candidate slots to persisted NCM owners",
+    "classification": "This test-only N4 candidate ran atop the in-scope N11 source regression from f539; this is not inherited baseline debt and establishes no N4 semantics.",
+    "base_commit": "f5391627f56ac2fc06d5cfe04889f0a4941542b5"
+  },
+  "input_scope": {
+    "freeze": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n4-selected-slot-actual-owner-wave-r1-20261017/freeze.json",
+      "sha256": "c49e404e54456b4d0cbccf3bcff9db8b62f046ef69f08dd6a9435caa9a3ab4a5"
+    },
+    "full_request_and_all_path_pins": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n4-selected-slot-actual-owner-wave-r1-20261017/run/request.json",
+      "sha256": "ef000d250919cb8bcf48130d5f8c67f8d347021961270340c1f0c8f5eff4fb20"
+    },
+    "selected_scope": "Whole tests/test_controlled_candidate_slot_closure.py module; the freeze describes four intended cases, but no subset ran.",
+    "pinned_path_count": 140,
+    "pin_reconciliation": {
+      "matched_to_historical_commit_or_pinned_current_RAW_input": 140,
+      "mismatches": 0,
+      "unavailable": 0,
+      "source_paths_unchanged_at_run": true,
+      "category_counts": {
+        "policy-engine/src": 43,
+        "policy-engine/tests": 43,
+        "policy-engine/architecture": 11,
+        "policy-engine/docs": 28,
+        "policy-engine/release-fragments": 3,
+        "pyproject_toml": 1,
+        "pytest_ini": 1,
+        "other_request_pinned_paths": 10
+      }
+    },
+    "relevant_product_and_test_support_pins": [
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/confidence_ledger.py",
+        "sha256": "05b4c8fb1b28d641509fec78084f4ae255d2a20fe97113b5dacd00fcc4b688b2"
+      },
+      {
+        "path": "policy-engine/tests/_helpers/controlled_candidate_profile.py",
+        "sha256": "4a02f2452c0743534d275f599536459468872fa7e5ca0808c319fc6a82e77292"
+      },
+      {
+        "path": "policy-engine/tests/_helpers/generic_n4_served_replay.py",
+        "sha256": "55475cfde093d1402f743b9e1fb35e932b36cbdb397e1efea037e61f5b02544c"
+      },
+      {
+        "path": "policy-engine/tests/test_controlled_candidate_slot_closure.py",
+        "sha256": "a842b940b189496197b64f547e4a660f909b92398048613bb934fa5f1dbb7cd8"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+        "sha256": "11b67a1e30a231c5bdf0dffa735a67a703fc157127e8beab5076c53ab6eb43ae"
+      },
+      {
+        "path": "policy-engine/pyproject.toml",
+        "sha256": "2522afe7bbbe74b8df37dcf64cda247f244ef0ec073657bb5d9e1d7841b1efe7"
+      },
+      {
+        "path": "policy-engine/pytest.ini",
+        "sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb"
+      }
+    ],
+    "candidate_commit_scope": "Four test/support paths are the N4-specific functional delta; confidence_ledger.py is the same f539 source pin and is the upstream import-time blocker."
+  },
+  "actual_failure": {
+    "kind": "pytest collection/import ERROR",
+    "requested_command_label": "n4-selected-slot-full-owner-fixture",
+    "command_record": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n4-selected-slot-actual-owner-wave-r1-20261017/run/n4-selected-slot-full-owner-fixture.run.json",
+      "sha256": "68d26eab8333fac98a342c553063e4fc0c783ba6b0d5d9189545a88be5c71b8c"
+    },
+    "cwd": "policy-engine",
+    "pytest_exit_code": 2,
+    "supervisor_exit_code": 0,
+    "timed_out": false,
+    "pytest_seconds": 10.238,
+    "supervisor_seconds": 10.417,
+    "supervisor_peak_process_tree_rss_bytes": 946454528,
+    "supervisor_rss_cap_bytes": 3221225472,
+    "junit": {
+      "ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n4-selected-slot-actual-owner-wave-r1-20261017/run/tests.junit.xml",
+        "sha256": "37c2c132599c4ec9cb182b614f6b13113cda7ac810e951076d691ac8e576d552"
+      },
+      "suite_errors": 1,
+      "suite_failures": 0,
+      "junit_testcase_nodes": 1,
+      "actual_collected_nodeids": 0,
+      "actual_phases": 0,
+      "interpretation": "The JUnit testcase node is pytest's module-level collection-error record; none of the four intended N4 cases executed."
+    },
+    "decisive_exception": "ConfidenceLedgerError: canonical_loaded_runtime_mismatch: non-literal repository re-export: polisyos.fabric.atomic_write_json",
+    "trace": "The candidate test loads controlled_candidate_profile, which imports runtime quality design_problem; package initialization reaches confidence_ledger's import-time authority import-closure resolver, which rejects polisyos.fabric.atomic_write_json at confidence_ledger.py:5980.",
+    "actual_results": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n4-selected-slot-actual-owner-wave-r1-20261017/run/actual-results.json",
+      "sha256": "db288dfa456496082413cf097b3682ca3804f6461c099d242e83ac6afbe8262c"
+    },
+    "source_witness": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n4-selected-slot-actual-owner-wave-r1-20261017/run/actual-test-and-source-witness.json",
+      "sha256": "9dcf56b98cd50ccb0209a5bf0a08f8cf66c2c1f43c6dd5dd1b20f092fbc8f554"
+    },
+    "supervisor_result": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n4-selected-slot-actual-owner-wave-r1-20261017/run/supervisor-result.json",
+      "sha256": "3126baca96d1b69ec728048d71460441083ca013ccee5c81609e43ec5a56fc74"
+    },
+    "full_test_stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n4-selected-slot-actual-owner-wave-r1-20261017/run/n4-selected-slot-full-owner-fixture.stdout.txt",
+      "sha256": "29776b0bfae45f85af4afa347011847ba6eed564ba3d34177378c848dc77d541"
+    },
+    "full_test_stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n4-selected-slot-actual-owner-wave-r1-20261017/run/n4-selected-slot-full-owner-fixture.stderr.txt",
+      "sha256": "c750392f238a48d3688c58dda52196cca17eae2c49ca16a4641363de4b47853e"
+    },
+    "supervisor_stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n4-selected-slot-actual-owner-wave-r1-20261017/run/supervisor.stdout.txt",
+      "sha256": "ce1d9b24e6df460443eb389aadebed9f53c005cc565942a39d7fc5fcf18f9a8e"
+    },
+    "supervisor_stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n4-selected-slot-actual-owner-wave-r1-20261017/run/supervisor.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "requested_execution": {
+      "interpreter": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+      "python_version": "3.14.3",
+      "pytest_invocation": "python -B -m pytest",
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "selected_whole_module": "policy-engine/tests/test_controlled_candidate_slot_closure.py",
+      "selection": "whole module; no -k filter or node-id selector",
+      "pytest_options": [
+        "-c",
+        "pytest.ini",
+        "--rootdir",
+        ".",
+        "-o",
+        "addopts=",
+        "--import-mode=importlib",
+        "--strict-markers",
+        "-ra",
+        "-vv",
+        "--tb=short",
+        "-p",
+        "no:cacheprovider",
+        "-p",
+        "c05_actual_witness"
+      ],
+      "environment": {
+        "PYTEST_ADDOPTS": "",
+        "PYTEST_CURRENT_TEST": "",
+        "PYTEST_PLUGINS": "",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "JAX_PLATFORMS": "cpu",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "VECLIB_MAXIMUM_THREADS": "1",
+        "E02_REPLAY_REQUEST": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n4-selected-slot-actual-owner-wave-r1-20261017/run/request.json",
+        "PYTHONPATH": "src:.:/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-focused-replay-r5-20261017"
+      },
+      "environment_capture_scope": "actual-results.json records the exact selected fields passed to Popen; inherited unspecified process variables are not captured."
+    }
+  },
+  "upstream_failure_identity": {
+    "introduced_by_source_commit": "f5391627f56ac2fc06d5cfe04889f0a4941542b5",
+    "shared_failure_with": "N11-R7-ACTUAL-UNIT-COLLECTION-ERROR",
+    "no_N4_product_tests_executed": true
+  },
+  "provenance_limit": "The retained witness records pytest's executing process and observed module map. No separate child-process origin proof is claimed.",
+  "controls_and_follow_on": {
+    "negative_controls": "UNRUN",
+    "four_intended_N4_cases": "UNRUN because collection failed",
+    "full_N4_consumer_served_modules": "UNRUN",
+    "downstream_fresh_consumer_or_full_N4_acceptance": "UNRUN"
+  },
+  "proposal_only": [
+    "Resolve the shared import-time facade-classifier blocker without a one-symbol allowlist or bypassing the public facade contract.",
+    "After the shared repair, rerun the complete selected-slot module and required negative controls; this receipt does not claim the N4 capability."
+  ],
+  "closure_ids": [],
+  "independent_supporting_finding": "The N4 failure stack enters the N4 test helper and then the same f539 confidence_ledger import-time resolver; the test-only N4 commit adds no production bypass. This ties the observed collection error to the shared upstream blocker, not to an executed N4 product assertion."
+}

@@ -4,17 +4,25 @@
 from __future__ import annotations
 
 import argparse
+import contextlib
 import datetime as dt
 import hashlib
+import io
 import re
 import shlex
 import subprocess
 import sys
 import tomllib
-from collections.abc import Callable, Sequence
 from dataclasses import dataclass
-from pathlib import Path
-from typing import Any
+from pathlib import Path, PurePosixPath
+from typing import TYPE_CHECKING, Any
+from unittest.mock import patch
+
+import yaml
+from yaml.nodes import MappingNode
+
+if TYPE_CHECKING:
+    from collections.abc import Callable, Mapping, Sequence
 
 from tools.lib.docs_freshness import (
     evaluate_docs_freshness_observation,
@@ -69,91 +77,218 @@ if matches:
     print("\\n".join(matches))
     raise SystemExit(1)
 """
-LAST_MILE_GATE_OWNERSHIP: tuple[dict[str, str], ...] = (
-    {
-        "id": "repository-structure",
-        "owner": "repository-sota-closeout",
-        "source_path": "tools/devx/workspace/repository_sota_closeout.py",
-        "needle": "repository_structure_phase0.py",
-    },
-    {
-        "id": "repository-last-mile-inventory",
-        "owner": "workspace verify",
-        "source_path": "tools/devx/workspace/verify.py",
-        "needle": "repository_last_mile_inventory.py",
-    },
-    {
-        "id": "shell-package-closure",
-        "owner": "workspace verify",
-        "source_path": "tools/devx/workspace/verify.py",
-        "needle": "check-package-import-gates",
-    },
-    {
-        "id": "cross-cutting-name-collision",
-        "owner": "workspace verify",
-        "source_path": "tools/devx/workspace/verify.py",
-        "needle": "repository_last_mile_inventory.py",
-    },
-    {
-        "id": "schema-purity",
-        "owner": "workspace verify",
-        "source_path": "tools/devx/workspace/verify.py",
-        "needle": "schemas-python-residue.txt",
-    },
-    {
-        "id": "directory-health",
-        "owner": "workspace ci-parity",
-        "source_path": "tools/devx/workspace/ci_parity.py",
-        "needle": "directory_health.py",
-    },
-    {
-        "id": "test-ratchets-helper-topology",
-        "owner": "workspace ci-parity",
-        "source_path": "tools/devx/workspace/ci_parity.py",
-        "needle": "report_test_ratchets.py",
-    },
-    {
-        "id": "extension-examples",
-        "owner": "workspace ci-parity",
-        "source_path": "tools/devx/workspace/ci_parity.py",
-        "needle": "check_extension_examples.py",
-    },
-    {
-        "id": "adr-thematic-index",
-        "owner": "workspace ci-parity",
-        "source_path": "tools/devx/workspace/ci_parity.py",
-        "needle": "generate_adr_index.py",
-    },
-    {
-        "id": "validator-module-size",
-        "owner": "workspace ci-parity",
-        "source_path": "tools/devx/workspace/ci_parity.py",
-        "needle": "module-size",
-    },
-    {
-        "id": "dead-overrides",
-        "owner": "repository-sota-closeout",
-        "source_path": "tools/devx/workspace/repository_sota_closeout.py",
-        "needle": "dead_overrides.py",
-    },
-    {
-        "id": "operability-release",
-        "owner": "release workflow",
-        "source_path": "../.github/workflows/release.yml",
-        "needle": "check-operability-release-gates",
-    },
-    {
-        "id": "compatibility-release",
-        "owner": "release workflow",
-        "source_path": "../.github/workflows/release.yml",
-        "needle": "check-compatibility-release-gates",
-    },
-    {
-        "id": "acceptance-audit",
-        "owner": "workspace acceptance-audit",
-        "source_path": "tools/devx/workspace/repository_sota_closeout.py",
-        "needle": "acceptance-audit",
-    },
+
+
+@dataclass(frozen=True)
+class LastMileGateOwnership:
+    """Bind a gate to the command its declared owner actually dispatches."""
+
+    id: str
+    owner: str
+    source_path: str
+    argv: tuple[str, ...]
+    owner_script_attribute: str | None = None
+
+
+LAST_MILE_GATE_OWNERSHIP: tuple[LastMileGateOwnership, ...] = (
+    LastMileGateOwnership(
+        "repository-structure",
+        "repository-sota-closeout",
+        "tools/devx/workspace/repository_sota_closeout.py",
+        (
+            "uv",
+            "run",
+            "python",
+            "tools/quality/validation/repository_structure_phase0.py",
+            "gate",
+            "--gate",
+            "all",
+            "--mode",
+            "fail-closed",
+            "--json",
+        ),
+    ),
+    LastMileGateOwnership(
+        "repository-last-mile-inventory",
+        "workspace verify",
+        "tools/devx/workspace/verify.py",
+        (
+            "uv",
+            "run",
+            "python",
+            "tools/quality/validation/repository_last_mile_inventory.py",
+            "--json-output",
+            "_build/.tmp/last-mile/inventory.json",
+            "--check",
+        ),
+    ),
+    LastMileGateOwnership(
+        "shell-package-closure",
+        "workspace verify",
+        "tools/devx/workspace/verify.py",
+        (
+            "uv",
+            "run",
+            "polisyos-tools",
+            "validation",
+            "check-package-import-gates",
+            "--fail-closed",
+            "--json-output",
+            "_build/.tmp/last-mile/package-import-gates.json",
+        ),
+    ),
+    LastMileGateOwnership(
+        "cross-cutting-name-collision",
+        "workspace verify",
+        "tools/devx/workspace/verify.py",
+        (
+            "uv",
+            "run",
+            "python",
+            "tools/quality/validation/repository_last_mile_inventory.py",
+            "--json-output",
+            "_build/.tmp/last-mile/inventory.json",
+            "--check",
+        ),
+    ),
+    LastMileGateOwnership(
+        "schema-purity",
+        "workspace verify",
+        "tools/devx/workspace/verify.py",
+        ("uv", "run", "python", "-c"),
+        owner_script_attribute="SCHEMA_PURITY_SNIPPET",
+    ),
+    LastMileGateOwnership(
+        "directory-health",
+        "workspace ci-parity",
+        "tools/devx/workspace/ci_parity.py",
+        (
+            "uv",
+            "run",
+            "python",
+            "tools/quality/validation/directory_health.py",
+            "--repo-root",
+            ".",
+            "--json-output",
+            "_build/.tmp/last-mile/directory-health.json",
+            "--markdown-output",
+            "_build/.tmp/last-mile/directory-health.md",
+            "--fail-on-regression",
+        ),
+    ),
+    LastMileGateOwnership(
+        "test-ratchets-helper-topology",
+        "workspace ci-parity",
+        "tools/devx/workspace/ci_parity.py",
+        (
+            "uv",
+            "run",
+            "python",
+            "tools/quality/testing/report_test_ratchets.py",
+            "--format",
+            "json",
+            "--output",
+            "_build/.tmp/last-mile/test-ratchets.json",
+            "--fail-on-regression",
+        ),
+    ),
+    LastMileGateOwnership(
+        "extension-examples",
+        "workspace ci-parity",
+        "tools/devx/workspace/ci_parity.py",
+        ("uv", "run", "python", "tools/quality/validation/check_extension_examples.py"),
+    ),
+    LastMileGateOwnership(
+        "adr-thematic-index",
+        "workspace ci-parity",
+        "tools/devx/workspace/ci_parity.py",
+        (
+            "uv",
+            "run",
+            "python",
+            "tools/quality/validation/generate_adr_index.py",
+            "--check",
+        ),
+    ),
+    LastMileGateOwnership(
+        "validator-module-size",
+        "workspace ci-parity",
+        "tools/devx/workspace/ci_parity.py",
+        (
+            "uv",
+            "run",
+            "python",
+            "tools/quality/validation/architecture_report_only_contracts.py",
+            "--report",
+            "module-size",
+            "--json-output",
+            "_build/.tmp/last-mile/module-size.json",
+            "--fail-on-contract-errors",
+        ),
+    ),
+    LastMileGateOwnership(
+        "dead-overrides",
+        "repository-sota-closeout",
+        "tools/devx/workspace/repository_sota_closeout.py",
+        (
+            "uv",
+            "run",
+            "python",
+            "tools/ops_runners/reports/dead_overrides.py",
+            "--json-output",
+            "_build/.tmp/last-mile/dead-overrides.json",
+        ),
+    ),
+    LastMileGateOwnership(
+        "operability-release",
+        "release workflow",
+        "../.github/workflows/release.yml",
+        (
+            "uv",
+            "run",
+            "polisyos-tools",
+            "release",
+            "check-operability-release-gates",
+            "--fragments-dir",
+            "${{ needs.prepare-release.outputs.fragments_dir }}",
+            "--fail-closed",
+            "--json-output",
+            "/tmp/release-operability-gates.json",  # noqa: S108 - matches the release workflow output path
+        ),
+    ),
+    LastMileGateOwnership(
+        "compatibility-release",
+        "release workflow",
+        "../.github/workflows/release.yml",
+        (
+            "uv",
+            "run",
+            "polisyos-tools",
+            "release",
+            "check-compatibility-release-gates",
+            "--fragments-dir",
+            "${{ needs.prepare-release.outputs.fragments_dir }}",
+            "--fail-on-contract-errors",
+            "--json-output",
+            "/tmp/release-compatibility-gates.json",  # noqa: S108 - matches the release workflow output path
+        ),
+    ),
+    LastMileGateOwnership(
+        "acceptance-audit",
+        "workspace acceptance-audit",
+        "tools/devx/workspace/repository_sota_closeout.py",
+        (
+            "uv",
+            "run",
+            "polisyos-tools",
+            "workspace",
+            "acceptance-audit",
+            "--json-output",
+            "_build/.tmp/last-mile/platform-acceptance.json",
+            "--summary",
+            "_build/.tmp/last-mile/platform-acceptance.md",
+        ),
+    ),
 )
 
 
@@ -1393,43 +1528,950 @@ def _check_non_expired_sunset_value(
         findings.append(Finding(gate, f"{subject} sunset expired", raw))
 
 
+@dataclass(frozen=True)
+class _ShellCommand:
+    """One supported simple command in a restricted shell program."""
+
+    argv: tuple[str, ...]
+    nested: _ShellProgram | None = None
+    may_succeed: bool = True
+    terminates: bool = False
+    enables_errexit: bool = False
+
+
+@dataclass(frozen=True)
+class _ShellProgram:
+    """Simple commands grouped by &&; semicolons separate independent lists."""
+
+    groups: tuple[tuple[_ShellCommand, ...], ...]
+
+
+_SHELL_UNSUPPORTED_CONTROL_TOKENS = frozenset({"||", "|", "&", "<", ">", "(", ")", "{", "}"})
+_SHELL_UNSUPPORTED_KEYWORDS = frozenset(
+    {
+        "!",
+        "[",
+        "[[",
+        "case",
+        "do",
+        "done",
+        "elif",
+        "else",
+        "esac",
+        "fi",
+        "for",
+        "function",
+        "if",
+        "then",
+        "until",
+        "while",
+    }
+)
+_SHELL_STATE_MUTATING_BUILTINS = frozenset(
+    {
+        ".",
+        "alias",
+        "builtin",
+        "command",
+        "declare",
+        "eval",
+        "export",
+        "hash",
+        "local",
+        "readonly",
+        "set",
+        "source",
+        "test",
+        "trap",
+        "typeset",
+        "unalias",
+        "unset",
+    }
+)
+
+
+def _parse_shell_command(parts: list[str]) -> _ShellCommand | None:
+    if not parts or re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*=.*", parts[0]):
+        return None
+    executable = Path(parts[0]).name
+    if executable == "set":
+        if parts[1:] in (["-e"], ["-eo", "pipefail"], ["-euo", "pipefail"]):
+            return _ShellCommand(tuple(parts), enables_errexit=True)
+        return None
+    if executable in _SHELL_UNSUPPORTED_KEYWORDS or executable in _SHELL_STATE_MUTATING_BUILTINS:
+        return None
+    if executable in {"bash", "sh"}:
+        if len(parts) != 3 or parts[1] not in {"-c", "-lc", "-cl"}:
+            return None
+        nested = _parse_shell_program(parts[2])
+        if nested is None:
+            return None
+        return _ShellCommand(tuple(parts), nested, _shell_program_may_succeed(nested))
+    if executable == "false":
+        return _ShellCommand(tuple(parts), may_succeed=False)
+    if executable in {"true", ":"}:
+        return _ShellCommand(tuple(parts))
+    if executable == "exit":
+        status = parts[1] if len(parts) > 1 else None
+        may_succeed = status is None or (status.isdecimal() and int(status) % 256 == 0)
+        return _ShellCommand(tuple(parts), may_succeed=may_succeed, terminates=True)
+    if executable == "exec":
+        return _ShellCommand(tuple(parts), terminates=True)
+    if executable == "return":
+        return None
+    return _ShellCommand(tuple(parts))
+
+
+def _parse_shell_program(script: str) -> _ShellProgram | None:
+    """Parse a restricted shell grammar; unsupported syntax fails closed."""
+    normalized = re.sub(r"\\\r?\n[ \t]*", " ", script)
+    try:
+        lexer = shlex.shlex(normalized, posix=True, punctuation_chars=";&|<>(){}\n")
+        lexer.whitespace = " \t\r"
+        lexer.whitespace_split = True
+        lexer.commenters = "#"
+        tokens = list(lexer)
+    except (TypeError, ValueError):
+        return None
+
+    groups: list[tuple[_ShellCommand, ...]] = []
+    current_group: list[_ShellCommand] = []
+    current_command: list[str] = []
+    for lexeme in tokens:
+        if lexeme in {";", "\n"}:
+            if current_command:
+                command = _parse_shell_command(current_command)
+                if command is None:
+                    return None
+                current_group.append(command)
+                current_command = []
+            elif current_group:
+                return None
+            if current_group:
+                groups.append(tuple(current_group))
+                current_group = []
+            continue
+        if lexeme == "&&":
+            if not current_command:
+                return None
+            command = _parse_shell_command(current_command)
+            if command is None:
+                return None
+            current_group.append(command)
+            current_command = []
+            continue
+        if lexeme in _SHELL_UNSUPPORTED_CONTROL_TOKENS or "\n" in lexeme:
+            return None
+        current_command.append(lexeme)
+
+    if current_command:
+        command = _parse_shell_command(current_command)
+        if command is None:
+            return None
+        current_group.append(command)
+    elif current_group:
+        return None
+    if current_group:
+        groups.append(tuple(current_group))
+    return _ShellProgram(tuple(groups))
+
+
+def _shell_program_may_succeed(program: _ShellProgram) -> bool:
+    if not program.groups:
+        return True
+    for group_index, group in enumerate(program.groups):
+        group_may_succeed = True
+        for command in group:
+            if command.terminates:
+                return command.may_succeed
+            if not command.may_succeed:
+                group_may_succeed = False
+                break
+        if group_index == len(program.groups) - 1:
+            return group_may_succeed
+    return True
+
+
+def _shell_fail_closed_commands(program: _ShellProgram) -> list[tuple[str, ...]]:
+    """Return reachable invocations whose failure reaches the script's exit status."""
+    commands: list[tuple[str, ...]] = []
+    final_group_index = len(program.groups) - 1
+    for group_index, group in enumerate(program.groups):
+        reachable = True
+        for command in group:
+            if not reachable:
+                break
+            if group_index == final_group_index:
+                if command.nested is not None:
+                    commands.extend(_shell_fail_closed_commands(command.nested))
+                else:
+                    commands.append(command.argv)
+            if command.terminates:
+                return commands
+            if not command.may_succeed:
+                reachable = False
+    return commands
+
+
+def _shell_command_sequences(script: str) -> list[tuple[str, ...]]:
+    """Return direct invocations proven reachable and failure-propagating.
+
+    The supported subset is simple argv commands, semicolon-separated lists,
+    && lists, and nested bash/sh -c wrappers. Pipelines, OR lists, background
+    jobs, redirections, control-flow forms, shell-state mutation, and dynamic
+    shell evaluation are rejected instead of flattened.
+    """
+    program = _parse_shell_program(script)
+    return [] if program is None else _shell_fail_closed_commands(program)
+
+
+def _workflow_condition_is_unconditional(condition: object) -> bool:
+    if condition is None or condition is True:
+        return True
+    if not isinstance(condition, str):
+        return False
+    normalized = re.sub(r"\s+", "", condition).lower()
+    return normalized in {"true", "${{true}}"}
+
+
+def _active_workflow_run_scripts(payload: object) -> list[str]:
+    if not isinstance(payload, dict):
+        return []
+    jobs = payload.get("jobs")
+    if not isinstance(jobs, dict):
+        return []
+    scripts: list[str] = []
+    for job in jobs.values():
+        if not isinstance(job, dict) or not _workflow_condition_is_unconditional(job.get("if")):
+            continue
+        steps = job.get("steps")
+        if not isinstance(steps, list):
+            continue
+        for step in steps:
+            if not isinstance(step, dict) or not _workflow_condition_is_unconditional(
+                step.get("if")
+            ):
+                continue
+            script = step.get("run")
+            if isinstance(script, str):
+                scripts.append(script)
+    return scripts
+
+
+@dataclass(frozen=True, slots=True)
+class _ShellInvocation:
+    """A source-parsed command and the execution facts that govern its result."""
+
+    argv: tuple[str, ...]
+    working_directory: PurePosixPath | None
+    status_propagates: bool
+
+
+@dataclass(frozen=True, slots=True)
+class _RouteObservation:
+    invocation: _ShellInvocation
+    context_errors: tuple[str, ...] = ()
+    source_checkout_root: PurePosixPath | None = None
+
+
+class _UniqueKeySafeLoader(yaml.SafeLoader):
+    """PyYAML safe loader that refuses ambiguous explicit mapping keys."""
+
+    def construct_mapping(self, node: MappingNode, deep: bool = False) -> dict[Any, Any]:
+        if isinstance(node, MappingNode):
+            seen: set[Any] = set()
+            for key_node, _value_node in node.value:
+                if key_node.tag == "tag:yaml.org,2002:merge":
+                    raise yaml.constructor.ConstructorError(
+                        "while constructing a mapping",
+                        node.start_mark,
+                        "YAML merge keys are outside the admitted route profile",
+                        key_node.start_mark,
+                    )
+                key = self.construct_object(key_node, deep=deep)
+                try:
+                    duplicate = key in seen
+                except TypeError as exc:
+                    raise yaml.constructor.ConstructorError(
+                        "while constructing a mapping",
+                        node.start_mark,
+                        "unhashable mapping key",
+                        key_node.start_mark,
+                    ) from exc
+                if duplicate:
+                    raise yaml.constructor.ConstructorError(
+                        "while constructing a mapping",
+                        node.start_mark,
+                        f"duplicate mapping key {key!r}",
+                        key_node.start_mark,
+                    )
+                seen.add(key)
+        return super().construct_mapping(node, deep=deep)
+
+
+def _load_unique_yaml(path: Path) -> object:
+    # The custom loader inherits SafeLoader and rejects duplicate/merge keys.
+    return yaml.load(
+        path.read_text(encoding="utf-8"),
+        Loader=_UniqueKeySafeLoader,  # noqa: S506
+    )
+
+
+# This finite source profile is derived from actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+# action.yml: only the path input relocates the checkout and fetch-depth is used by the authored
+# architecture template. The other declared inputs and every future/unknown key fail closed.
+_ACTIONS_CHECKOUT_PROFILE_INPUTS = frozenset({"fetch-depth", "path"})
+
+
+def _normalize_checkout_inputs(
+    value: object,
+) -> tuple[dict[str, object] | None, tuple[str, ...]]:
+    """Normalize the finite checkout-input profile, rejecting every other key or value."""
+    if not isinstance(value, dict):
+        return None, ("source checkout inputs are not a static mapping",)
+
+    normalized: dict[str, object] = {}
+    seen: dict[str, str] = {}
+    errors: list[str] = []
+    for key, input_value in value.items():
+        if not isinstance(key, str):
+            errors.append("source checkout input key is not a string")
+            continue
+        canonical = key.casefold()
+        previous = seen.get(canonical)
+        if previous is not None:
+            errors.append(
+                "source checkout input keys collide after case-insensitive normalization: "
+                f"{previous!r} and {key!r}"
+            )
+            continue
+        seen[canonical] = key
+        if canonical not in _ACTIONS_CHECKOUT_PROFILE_INPUTS:
+            errors.append(f"source checkout input {key!r} is outside the admitted input profile")
+            continue
+        if canonical == "path":
+            if (
+                not isinstance(input_value, str)
+                or not input_value
+                or input_value != input_value.strip()
+            ):
+                errors.append("source checkout path input is not a non-empty literal string")
+                continue
+            normalized[canonical] = input_value
+            continue
+
+        if type(input_value) is int:
+            depth = input_value
+        elif isinstance(input_value, str) and re.fullmatch(r"[0-9]+", input_value):
+            try:
+                depth = int(input_value)
+            except ValueError:
+                errors.append(
+                    "source checkout fetch-depth input is not a supported integer literal"
+                )
+                continue
+        else:
+            errors.append("source checkout fetch-depth input is not a non-negative integer literal")
+            continue
+        if depth < 0:
+            errors.append("source checkout fetch-depth input is not a non-negative integer literal")
+            continue
+        normalized[canonical] = depth
+
+    if errors:
+        return None, tuple(errors)
+    return normalized, ()
+
+
+def _normalize_checkout_path(base: PurePosixPath | None, value: object) -> PurePosixPath | None:
+    """Normalize a literal relative checkout path without leaving its root."""
+    if base is None or not isinstance(value, str) or not value or value != value.strip():
+        return None
+    if value.startswith(("/", "~")) or any(
+        token in value for token in ("$", "`", "*", "?", "[", "]", "{", "}", "\\")
+    ):
+        return None
+
+    parts = list(base.parts)
+    for part in PurePosixPath(value).parts:
+        if part in {"", "."}:
+            continue
+        if part == "..":
+            if not parts:
+                return None
+            parts.pop()
+        else:
+            parts.append(part)
+    return PurePosixPath(*parts) if parts else PurePosixPath(".")
+
+
+def _shell_route_invocations(
+    program: _ShellProgram,
+    working_directory: PurePosixPath | None,
+    *,
+    parent_status_propagates: bool = True,
+    errexit: bool = False,
+) -> list[_ShellInvocation]:
+    """Walk the supported shell AST, carrying cwd and exit-status reachability."""
+    invocations: list[_ShellInvocation] = []
+    if not program.groups:
+        return invocations
+
+    final_group_index = len(program.groups) - 1
+    current_directory = working_directory
+    current_errexit = errexit
+    for group_index, group in enumerate(program.groups):
+        reachable = True
+        for command_index, command in enumerate(group):
+            if not reachable:
+                break
+            executable = Path(command.argv[0]).name if command.argv else ""
+            if executable == "cd":
+                if len(command.argv) != 2:
+                    current_directory = None
+                else:
+                    changed = _normalize_checkout_path(current_directory, command.argv[1])
+                    if command_index == len(group) - 1 and group_index < final_group_index:
+                        current_directory = None
+                    else:
+                        current_directory = changed
+            elif command.nested is not None:
+                invocations.extend(
+                    _shell_route_invocations(
+                        command.nested,
+                        current_directory,
+                        parent_status_propagates=(
+                            parent_status_propagates
+                            and (group_index == final_group_index or current_errexit)
+                        ),
+                        errexit=False,
+                    )
+                )
+            else:
+                invocations.append(
+                    _ShellInvocation(
+                        command.argv,
+                        current_directory,
+                        parent_status_propagates
+                        and (group_index == final_group_index or current_errexit),
+                    )
+                )
+
+            if command.enables_errexit:
+                current_errexit = True
+            if command.terminates:
+                return invocations
+            if not command.may_succeed:
+                reachable = False
+                if current_errexit:
+                    return invocations
+    return invocations
+
+
+def _condition_is_statically_true(scope: Mapping[str, Any]) -> bool:
+    if "if" not in scope:
+        return True
+    condition = scope["if"]
+    if condition is True:
+        return True
+    if not isinstance(condition, str):
+        return False
+    normalized = re.sub(r"\s+", "", condition).lower()
+    return normalized in {"true", "${{true}}"}
+
+
+def _run_defaults(scope: Mapping[str, Any]) -> tuple[dict[str, Any], tuple[str, ...]]:
+    errors: list[str] = []
+    defaults = scope.get("defaults", {})
+    if not isinstance(defaults, dict):
+        return {}, ("defaults must be a static mapping",)
+    if set(defaults) - {"run"}:
+        errors.append("unsupported defaults keys")
+    run_defaults = defaults.get("run", {})
+    if not isinstance(run_defaults, dict):
+        errors.append("defaults.run must be a static mapping")
+        return {}, tuple(errors)
+    if set(run_defaults) - {"shell", "working-directory"}:
+        errors.append("unsupported defaults.run keys")
+    return run_defaults, tuple(errors)
+
+
+def _effective_run_setting(
+    workflow_run: Mapping[str, Any],
+    job_run: Mapping[str, Any],
+    step: Mapping[str, Any],
+    key: str,
+) -> object:
+    for scope in (step, job_run, workflow_run):
+        if key in scope:
+            return scope[key]
+    return _MISSING
+
+
+_MISSING = object()
+
+
+def _workflow_route_context_errors(
+    workflow: Mapping[str, Any],
+    job: Mapping[str, Any],
+    step: Mapping[str, Any],
+    *,
+    allow_needs: bool = False,
+) -> tuple[str, ...]:
+    errors: list[str] = []
+    if not _condition_is_statically_true(job) or not _condition_is_statically_true(step):
+        errors.append("job/step condition is not statically unconditional")
+    for scope, label in ((job, "job"), (step, "step")):
+        if scope.get("continue-on-error", False) is not False:
+            errors.append(f"{label} continue-on-error is not literal false/absent")
+    if "needs" in job and job["needs"] not in ([], ()):
+        needs = job["needs"]
+        if isinstance(needs, str):
+            dependency_names = [needs]
+        elif isinstance(needs, list):
+            dependency_names = needs
+        else:
+            dependency_names = []
+        jobs = workflow.get("jobs", {})
+        valid_needs = (
+            allow_needs
+            and bool(dependency_names)
+            and isinstance(jobs, dict)
+            and all(
+                isinstance(name, str)
+                and re.fullmatch(r"[A-Za-z_][A-Za-z0-9_-]*", name) is not None
+                and isinstance(jobs.get(name), dict)
+                and _condition_is_statically_true(jobs[name])
+                and jobs[name].get("continue-on-error", False) is False
+                and jobs[name].get("needs", []) in ([], ())
+                and "strategy" not in jobs[name]
+                for name in dependency_names
+            )
+        )
+        if not valid_needs:
+            errors.append("job has unsupported or status-promoting dependencies")
+    if "strategy" in job:
+        errors.append("job strategy is outside the admitted static runner profile")
+    if "container" in job:
+        errors.append("job container changes the shell execution profile")
+    if "environment" in job:
+        errors.append("job environment has an unmodeled approval gate")
+    runner = job.get("runs-on")
+    if runner != "ubuntu-latest":
+        errors.append("job runner selector is outside the admitted ubuntu-latest profile")
+
+    for scope, label in ((workflow, "workflow"), (job, "job"), (step, "step")):
+        if "env" in scope and scope["env"] != {}:
+            errors.append(f"{label} environment can alter shell or command context")
+
+    workflow_run, workflow_errors = _run_defaults(workflow)
+    job_run, job_errors = _run_defaults(job)
+    errors.extend(workflow_errors)
+    errors.extend(job_errors)
+    if "shell" in step:
+        effective_shell = step["shell"]
+    elif "shell" in job_run:
+        effective_shell = job_run["shell"]
+    else:
+        effective_shell = workflow_run.get("shell", _MISSING)
+    if effective_shell is not _MISSING and (
+        not isinstance(effective_shell, str) or effective_shell not in {"bash", "sh"}
+    ):
+        errors.append("effective run shell is not a built-in bash/sh profile")
+    if "background" in step and step["background"] is not False:
+        errors.append("background step has deferred status semantics")
+    if any(key in step for key in ("wait", "wait-all", "parallel", "cancel")):
+        errors.append("step uses unsupported asynchronous workflow semantics")
+    return tuple(errors)
+
+
+def _workflow_source_checkout_root(
+    steps: Sequence[object], before_index: int
+) -> tuple[PurePosixPath | None, tuple[str, ...]]:
+    """Resolve the source checkout prefix before a workflow run step."""
+    errors: list[str] = []
+    prior_steps = steps[:before_index]
+    if any(not isinstance(step, dict) for step in prior_steps):
+        errors.append("a prior workflow step is not a static mapping")
+    checkouts = [
+        step
+        for step in prior_steps
+        if isinstance(step, dict)
+        and isinstance(step.get("uses"), str)
+        and step["uses"].split("@", 1)[0] == "actions/checkout"
+    ]
+    if not checkouts:
+        return None, (*errors, "no preceding actions/checkout source declaration")
+    if len(checkouts) != 1:
+        return None, (*errors, "multiple preceding actions/checkout declarations are ambiguous")
+
+    checkout = checkouts[0]
+    uses = checkout.get("uses")
+    if (
+        not isinstance(uses, str)
+        or re.fullmatch(r"actions/checkout@[A-Za-z0-9._/-]+", uses) is None
+    ):
+        errors.append("source checkout action reference is not a literal actions/checkout ref")
+    if not _condition_is_statically_true(checkout):
+        errors.append("source checkout step condition is not statically unconditional")
+    if checkout.get("continue-on-error", False) is not False:
+        errors.append("source checkout step continue-on-error is not literal false/absent")
+    if "run" in checkout:
+        errors.append("source checkout step also declares a run command")
+
+    with_inputs = checkout.get("with", {})
+    normalized_inputs, input_errors = _normalize_checkout_inputs(with_inputs)
+    errors.extend(input_errors)
+    if normalized_inputs is None:
+        return None, tuple(errors)
+    source_root = _normalize_checkout_path(PurePosixPath("."), normalized_inputs.get("path", "."))
+    if source_root is None:
+        errors.append("source checkout path is not a literal workspace-relative path")
+    return source_root, tuple(errors)
+
+
+def _workflow_route_observations(
+    relative_path: str, *, allow_needs: bool = False
+) -> tuple[list[_RouteObservation], str | None]:
+    path = _resolve(relative_path)
+    if not path.exists():
+        return [], f"{relative_path} is missing"
+    try:
+        payload = _load_unique_yaml(path)
+    except (OSError, yaml.YAMLError) as exc:
+        return [], f"{relative_path} cannot be parsed as unique-key YAML: {exc}"
+    if not isinstance(payload, dict) or not isinstance(payload.get("jobs"), dict):
+        return [], f"{relative_path} has no parsed jobs mapping"
+
+    observations: list[_RouteObservation] = []
+    workflow_run, workflow_errors = _run_defaults(payload)
+    for job in payload["jobs"].values():
+        if not isinstance(job, dict) or not isinstance(job.get("steps"), list):
+            continue
+        steps = job["steps"]
+        job_run, _job_default_errors = _run_defaults(job)
+        for step_index, step in enumerate(steps):
+            if not isinstance(step, dict) or not isinstance(step.get("run"), str):
+                continue
+            source_checkout_root, checkout_errors = _workflow_source_checkout_root(
+                steps, step_index
+            )
+            context_errors = list(
+                _workflow_route_context_errors(payload, job, step, allow_needs=allow_needs)
+            )
+            context_errors.extend(workflow_errors)
+            context_errors.extend(_job_default_errors)
+            context_errors.extend(checkout_errors)
+            effective_directory = _effective_run_setting(
+                workflow_run, job_run, step, "working-directory"
+            )
+            if effective_directory is _MISSING:
+                # GitHub Actions starts each run step from GITHUB_WORKSPACE,
+                # independent of where actions/checkout placed repository bytes.
+                working_directory = PurePosixPath(".")
+            else:
+                working_directory = _normalize_checkout_path(
+                    PurePosixPath("."), effective_directory
+                )
+                if working_directory is None:
+                    context_errors.append(
+                        "effective working-directory is not a literal workspace-relative path"
+                    )
+            effective_shell = _effective_run_setting(workflow_run, job_run, step, "shell")
+            if effective_shell is not _MISSING and (
+                not isinstance(effective_shell, str) or effective_shell not in {"bash", "sh"}
+            ):
+                context_errors.append("effective run shell is not a built-in bash/sh profile")
+            program = _parse_shell_program(step["run"])
+            if program is None:
+                continue
+            for invocation in _shell_route_invocations(program, working_directory, errexit=True):
+                observations.append(
+                    _RouteObservation(
+                        invocation=invocation,
+                        context_errors=tuple(dict.fromkeys(context_errors)),
+                        source_checkout_root=source_checkout_root,
+                    )
+                )
+    return observations, None
+
+
+def _precommit_route_observations(
+    relative_path: str, checkout_root: PurePosixPath
+) -> tuple[list[_RouteObservation], str | None]:
+    path = _resolve(relative_path)
+    if not path.exists():
+        return [], f"{relative_path} is missing"
+    try:
+        payload = _load_unique_yaml(path)
+    except (OSError, yaml.YAMLError) as exc:
+        return [], f"{relative_path} cannot be parsed as unique-key YAML: {exc}"
+    if not isinstance(payload, dict) or not isinstance(payload.get("repos"), list):
+        return [], f"{relative_path} has no parsed pre-commit repositories"
+
+    observations: list[_RouteObservation] = []
+    for repository in payload["repos"]:
+        if not isinstance(repository, dict) or repository.get("repo") != "local":
+            continue
+        hooks = repository.get("hooks")
+        if not isinstance(hooks, list):
+            continue
+        for hook in hooks:
+            if not isinstance(hook, dict) or hook.get("id") != "repository-sota-closeout":
+                continue
+            errors: list[str] = []
+            if hook.get("language") != "system":
+                errors.append("pre-commit hook language is not system")
+            if hook.get("always_run") is not True:
+                errors.append("pre-commit hook is not always_run")
+            if hook.get("pass_filenames") is not False:
+                errors.append("pre-commit hook may receive unmatched filenames")
+            if hook.get("args", []) not in ([], None):
+                errors.append("pre-commit hook args are outside the admitted profile")
+            entry = hook.get("entry")
+            if isinstance(entry, str):
+                try:
+                    argv = shlex.split(entry, posix=True)
+                except ValueError:
+                    continue
+            elif isinstance(entry, list) and all(isinstance(item, str) for item in entry):
+                argv = list(entry)
+            else:
+                continue
+            command = _parse_shell_command(argv)
+            if command is None:
+                continue
+            if command.nested is None:
+                invocations = [_ShellInvocation(tuple(argv), checkout_root, True)]
+            else:
+                invocations = _shell_route_invocations(command.nested, checkout_root, errexit=False)
+            observations.extend(
+                _RouteObservation(
+                    invocation,
+                    tuple(errors),
+                    source_checkout_root=PurePosixPath("."),
+                )
+                for invocation in invocations
+            )
+    return observations, None
+
+
+def _wiring_route_is_safe(
+    relative_path: str,
+    expected_argv: tuple[str, ...],
+    expected_directory: PurePosixPath,
+    *,
+    precommit: bool,
+) -> tuple[bool, str | None]:
+    if precommit:
+        observations, error = _precommit_route_observations(relative_path, PurePosixPath("."))
+    else:
+        observations, error = _workflow_route_observations(relative_path)
+    if error is not None:
+        return False, error
+    matches = [
+        observation for observation in observations if observation.invocation.argv == expected_argv
+    ]
+    if not matches:
+        return False, "no parsed executable invocation has the required argv and mode"
+    for observation in matches:
+        if observation.context_errors:
+            return False, "; ".join(observation.context_errors)
+        if not observation.invocation.status_propagates:
+            return False, "the command is not in a status-propagating shell position"
+        if observation.source_checkout_root is None:
+            return False, "the source checkout location is not statically established"
+        expected_source_directory = _normalize_checkout_path(
+            observation.source_checkout_root, expected_directory.as_posix()
+        )
+        if observation.invocation.working_directory != expected_source_directory:
+            return (
+                False,
+                "the effective command working directory is not the source-relative expected root",
+            )
+    return True, None
+
+
 def _check_wiring() -> list[Finding]:
     findings: list[Finding] = []
-    checks = {
-        ".pre-commit-config.yaml": "repository-sota-closeout",
-        "../.github/workflows/abi.yml": "repository-sota-closeout",
-        "ops/ci/templates/workflows/arch.yml": "repository-sota-closeout",
-    }
-    for relative_path, needle in checks.items():
+    contract_only = (
+        "uv",
+        "run",
+        "polisyos-tools",
+        "workspace",
+        "repository-sota-closeout",
+        "--contract-only",
+    )
+    full_closeout = contract_only[:-1]
+    routes = (
+        (".pre-commit-config.yaml", contract_only, PurePosixPath("policy-engine"), True),
+        (
+            "../.github/workflows/abi.yml",
+            contract_only,
+            PurePosixPath("policy-engine"),
+            False,
+        ),
+        (
+            "ops/ci/templates/workflows/arch.yml",
+            full_closeout,
+            PurePosixPath("."),
+            False,
+        ),
+    )
+    for relative_path, expected, expected_directory, is_precommit in routes:
         path = _resolve(relative_path)
         if not path.exists():
             findings.append(Finding("wiring", "wiring file missing", relative_path))
             continue
-        if needle not in path.read_text(encoding="utf-8"):
-            findings.append(Finding("wiring", f"{relative_path} does not invoke {needle}"))
+        safe, reason = _wiring_route_is_safe(
+            relative_path, expected, expected_directory, precommit=is_precommit
+        )
+        if not safe:
+            if reason is not None and "cannot be parsed" in reason:
+                findings.append(
+                    Finding(
+                        "wiring",
+                        f"wiring source could not be inspected: {reason}",
+                        relative_path,
+                    )
+                )
+            else:
+                findings.append(
+                    Finding(
+                        "wiring",
+                        f"{relative_path} has no fail-closed executable closeout route: {reason}",
+                        relative_path,
+                    )
+                )
     findings.extend(_check_last_mile_gate_ownership())
     return findings
 
 
+def _capture_command_specs(module_name: str, argv: list[str]) -> list[tuple[str, ...]]:
+    from importlib import import_module
+
+    module = import_module(module_name)
+    commands: list[tuple[str, ...]] = []
+
+    def capture(command: object) -> None:
+        actual = getattr(command, "argv", None)
+        if isinstance(actual, (tuple, list)):
+            commands.append(tuple(str(token) for token in actual))
+
+    with (
+        patch.object(module, "run_command", side_effect=capture),
+        contextlib.redirect_stdout(io.StringIO()),
+    ):
+        module.main(argv)
+    return commands
+
+
+def _capture_closeout_subprocess_commands() -> dict[str, list[tuple[str, ...]]]:
+    captured: dict[str, list[tuple[str, ...]]] = {}
+
+    def capture(
+        gate: str, command: Sequence[str], *, receipt_dir: Path | None
+    ) -> subprocess.CompletedProcess[str]:
+        del receipt_dir
+        captured.setdefault(gate, []).append(tuple(str(token) for token in command))
+        return subprocess.CompletedProcess(list(command), 0, stdout="", stderr="")
+
+    with (
+        patch.object(sys.modules[__name__], "_run_subprocess_with_receipt", side_effect=capture),
+        patch.object(sys.modules[__name__], "_run_conditional_registered_gates", return_value=[]),
+    ):
+        _run_fail_closed_subprocess_gates(
+            argparse.Namespace(skip_generated_checks=False, subprocess_receipt_dir=None)
+        )
+    return captured
+
+
+def _workflow_commands(relative_path: str) -> tuple[list[tuple[str, ...]], str | None]:
+    """Read executable product-root commands from safe release-workflow contexts."""
+    observations, error = _workflow_route_observations(relative_path, allow_needs=True)
+    if error is not None:
+        return [], error
+    return [
+        observation.invocation.argv
+        for observation in observations
+        if not observation.context_errors
+        and observation.source_checkout_root is not None
+        and observation.invocation.status_propagates
+        and observation.invocation.working_directory
+        == _normalize_checkout_path(observation.source_checkout_root, "policy-engine")
+    ], None
+
+
+def _last_mile_owner_command_inventory() -> tuple[dict[str, list[tuple[str, ...]]], dict[str, Any]]:
+    from importlib import import_module
+
+    verify = import_module("tools.devx.workspace.verify")
+    ci_parity = import_module("tools.devx.workspace.ci_parity")
+    sota_commands = _capture_closeout_subprocess_commands()
+    inventory: dict[str, list[tuple[str, ...]]] = {
+        "repository-sota-closeout": [
+            command for commands in sota_commands.values() for command in commands
+        ],
+        "workspace acceptance-audit": [
+            command for commands in sota_commands.values() for command in commands
+        ],
+        "workspace verify": _capture_command_specs(
+            "tools.devx.workspace.verify", ["--backend-only", "--skip-doctor"]
+        ),
+        "workspace ci-parity": _capture_command_specs(
+            "tools.devx.workspace.ci_parity",
+            ["--backend-only", "--skip-doctor", "--skip-runtime-http"],
+        ),
+    }
+    release_commands, error = _workflow_commands("../.github/workflows/release.yml")
+    if error is None:
+        inventory["release workflow"] = release_commands
+    else:
+        inventory["release workflow"] = []
+    return inventory, {
+        "workspace verify": verify,
+        "workspace ci-parity": ci_parity,
+        "release workflow error": error,
+    }
+
+
+def _executable_argv_matches(expected: tuple[str, ...], actual: tuple[str, ...]) -> bool:
+    if len(expected) != len(actual):
+        return False
+    if expected and expected[0] == "uv":
+        return Path(actual[0]).name == "uv" and actual[1:] == expected[1:]
+    return actual == expected
+
+
 def _check_last_mile_gate_ownership() -> list[Finding]:
     findings: list[Finding] = []
+    inventory, owner_modules = _last_mile_owner_command_inventory()
+    release_error = owner_modules["release workflow error"]
     for gate in LAST_MILE_GATE_OWNERSHIP:
-        gate_id = gate["id"]
-        owner = gate["owner"]
-        relative_path = gate["source_path"]
-        needle = gate["needle"]
-        path = _resolve(relative_path)
-        if not path.exists():
-            findings.append(
-                Finding("last-mile-wiring", f"{gate_id} owner file missing", relative_path)
-            )
-            continue
-        if needle not in path.read_text(encoding="utf-8"):
+        commands = inventory.get(gate.owner, [])
+        expected = gate.argv
+        if gate.owner_script_attribute is not None:
+            module = owner_modules.get(gate.owner)
+            script = getattr(module, gate.owner_script_attribute, None)
+            if not isinstance(script, str):
+                script = None
+            if script is not None:
+                expected = (*expected, script.strip())
+        if gate.owner == "release workflow" and release_error is not None:
             findings.append(
                 Finding(
                     "last-mile-wiring",
-                    f"{gate_id} is not wired through {owner}",
-                    f"{relative_path} missing {needle}",
+                    f"{gate.id} owner workflow could not be inspected",
+                    str(release_error),
+                )
+            )
+            continue
+        if not any(_executable_argv_matches(expected, command) for command in commands):
+            findings.append(
+                Finding(
+                    "last-mile-wiring",
+                    f"{gate.id} is not dispatched through {gate.owner}",
+                    f"{gate.source_path} is missing executable argv: {shlex.join(expected)}",
                 )
             )
     return findings

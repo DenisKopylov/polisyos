@@ -3691,5 +3691,56 @@
     "scope": "Documentation only; no P30 naming claim, native R4 HOLD remains, no global/native acceptance.",
     "source_freeze": false,
     "closure_ids": []
+  },
+  "coordination_epoch_20261017_n8_nongating_bounds_serving": {
+    "owner": "root",
+    "base": "e253dee3efdf6e453f8758e9453e5649335b2728",
+    "mechanism_paths": [
+      "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "policy-engine/tests/unit/runtime/quality/test_value_gate.py",
+      "policy-engine/src/polisyos/runtime/quality/README.md",
+      "policy-engine/release-fragments/unreleased/2026-10-17-e02-n8-bounds-candidate-serving.toml"
+    ],
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "separate actual AIPW/TMLE source-bound receipt"
+    ],
+    "author_packet": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n8-candidate-bounds-serving-author-r3-20261017/manifest-r3.json",
+      "sha256": "1631599ca0ff8cf9626333b2783bea9712156a0d054749273cbaa94480c2324b"
+    },
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n8-candidate-bounds-serving-independent-review-r1-20261017/review.json",
+      "sha256": "3f1d9c29ca65ccd23ee9619e7ce1607c1267699936fd1568d8f38f260ab5d632"
+    },
+    "property": "Permit existing MANSKI BoundsBundle at exactly ASSUMPTION_ONLY through the existing persisted producer/report/run-basis/fresh candidate path; preserve tier/assumptions/certificate refs and declare unresolved exact ATE/ate relation. No converter call or gating authority.",
+    "footprint_erratum": "Author prose lists two source modules plus companions; actual complete four-entry manifest has one source, one existing test, README and new release fragment. Root adopts exactly those four plus mandatory LEASES.",
+    "P40": "Candidate path and authority projection are separate. General converter gap remains bounded outside the unused converter path; no authority/refinement rule is manufactured.",
+    "limits": [
+      "Candidate/search-only output; ValuePort remains blocked, no original4/[1,10], calibration or authority positive.",
+      "Whole-file native typing is not green; final native and full composition remain outstanding.",
+      "R8 and loader-contract authors hold separate nonoverlapping methods of generation_cycle.py; root will apply their localized diffs sequentially and requalify affected inputs."
+    ],
+    "source_freeze": false,
+    "closure_ids": []
+  }
+,
+  "coordination_epoch_20261017_native_r6_source_route_profile": {
+    "source_base_commit": "e253dee3efdf6e453f8758e9453e5649335b2728",
+    "root_is_only_canonical_writer": true,
+    "mechanism_paths": [
+      "policy-engine/tools/devx/workspace/repository_sota_closeout.py",
+      "policy-engine/tests/repo_quality/architecture/test_repository_sota_phase5_closeout.py"
+    ],
+    "mandatory_companions": [
+      "policy-engine/docs/plans/README.md",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json"
+    ],
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-sota-wiring-proxy-r6-independent-review-20261017/review.json",
+      "sha256": "a07745c06beba308197fc88e679a75656ca5ee1bccee0d194c8c100c00492ad7"
+    },
+    "state": "root applies reviewed finite static checkout-input profile; focused canonical replay pending; full native wave unrun",
+    "known_other_working_delta": "N8 candidate source/test/README/release remain root-owned pending actual manifest-edge diagnosis; this lease is not a delivery or green claim"
   }
 }

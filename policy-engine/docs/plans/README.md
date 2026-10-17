@@ -76,6 +76,20 @@ match its directory.
    reviewed evidence, reports, frozen specifications, incidents, and
    postmortems.
 
+## Repository closeout evidence
+
+For plans in the repository closeout gate's [documented scope](../reference/quality-gates.md),
+run the canonical gate from `policy-engine/`:
+
+```bash
+python3 -m tools.cli workspace repository-sota-closeout
+```
+
+The [workspace tooling guide](../../tools/devx/workspace/README.md) describes
+the row-specific checks and evidence. Record their actual outcomes and any
+remaining owner decisions in the plan closeout. Command discovery or a wiring
+preflight alone does not establish that the native checks passed.
+
 ## Method used for the 2026-10-14 disposition
 
 The linked disposition uses a complete pinned-tree census, then checks the

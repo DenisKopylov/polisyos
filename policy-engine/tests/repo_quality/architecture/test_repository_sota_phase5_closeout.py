@@ -1024,12 +1024,9 @@ def test_phase5_ops_security_release_and_observability_modes_are_fail_closed() -
 
 
 def test_phase5_ci_precommit_docs_and_command_registry_are_wired() -> None:
-    for path in (
-        REPO_ROOT / ".pre-commit-config.yaml",
-        WORKSPACE_ROOT / ".github/workflows/abi.yml",
-        REPO_ROOT / "ops/ci/templates/workflows/arch.yml",
-    ):
-        assert "repository-sota-closeout" in path.read_text(encoding="utf-8")
+    from tools.devx.workspace import repository_sota_closeout
+
+    assert repository_sota_closeout._check_wiring() == []
 
     closeout = REPO_ROOT / "docs/plans/accepted/REPOSITORY_SOTA_PHASE_5_CLOSEOUT.md"
     assert closeout.exists()
@@ -1057,6 +1054,327 @@ def test_phase5_ci_precommit_docs_and_command_registry_are_wired() -> None:
         assert nav_path in mkdocs
 
 
+def test_phase5_wiring_current_routes_are_active_and_mode_correct() -> None:
+    from tools.devx.workspace import repository_sota_closeout
+
+    assert repository_sota_closeout._check_wiring() == []
+
+
+def _phase5_apply_workflow_fixture_profile(documents: dict[str, str]) -> dict[str, str]:
+    """Give synthetic workflows the source-visible runner/CWD facts their probes vary."""
+    import yaml
+
+    for relative_path, content in tuple(documents.items()):
+        if relative_path == ".pre-commit-config.yaml":
+            payload = yaml.safe_load(content)
+            if isinstance(payload, dict) and isinstance(payload.get("repos"), list):
+                for repository in payload["repos"]:
+                    if not isinstance(repository, dict) or not isinstance(
+                        repository.get("hooks"), list
+                    ):
+                        continue
+                    for hook in repository["hooks"]:
+                        if (
+                            not isinstance(hook, dict)
+                            or hook.get("id") != "repository-sota-closeout"
+                        ):
+                            continue
+                        entry = hook.get("entry")
+                        if isinstance(entry, str) and entry.startswith(
+                            "uv run polisyos-tools workspace repository-sota-closeout"
+                        ):
+                            hook["entry"] = f"bash -lc 'cd policy-engine && {entry}'"
+                documents[relative_path] = yaml.safe_dump(payload, sort_keys=False)
+            continue
+        if relative_path not in {
+            "../.github/workflows/abi.yml",
+            "../.github/workflows/release.yml",
+            "ops/ci/templates/workflows/arch.yml",
+        }:
+            continue
+        payload = yaml.safe_load(content)
+        if not isinstance(payload, dict) or not isinstance(payload.get("jobs"), dict):
+            continue
+        for job in payload["jobs"].values():
+            if not isinstance(job, dict):
+                continue
+            steps = job.get("steps")
+            if isinstance(steps, list) and not any(
+                isinstance(step, dict)
+                and isinstance(step.get("uses"), str)
+                and step["uses"].split("@", 1)[0] == "actions/checkout"
+                for step in steps
+            ):
+                steps.insert(0, {"name": "Checkout", "uses": "actions/checkout@v4"})
+            job.setdefault("runs-on", "ubuntu-latest")
+            if relative_path in {
+                "../.github/workflows/abi.yml",
+                "../.github/workflows/release.yml",
+            }:
+                defaults = job.setdefault("defaults", {})
+                if isinstance(defaults, dict):
+                    run_defaults = defaults.setdefault("run", {})
+                    if isinstance(run_defaults, dict):
+                        run_defaults.setdefault("working-directory", "policy-engine")
+        documents[relative_path] = yaml.safe_dump(payload, sort_keys=False)
+    return documents
+
+
+def test_phase5_wiring_rejects_comment_only_command_markers(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    from tools.devx.workspace import repository_sota_closeout
+
+    files = {
+        ".pre-commit-config.yaml": (
+            "repos:\n"
+            "  - repo: local\n"
+            "    hooks:\n"
+            "      - id: repository-sota-closeout\n"
+            "        name: declaration only\n"
+            '        entry: echo "uv run polisyos-tools workspace '
+            'repository-sota-closeout --contract-only"\n'
+            "        language: system\n"
+            "        always_run: true\n"
+            "        pass_filenames: false\n"
+        ),
+        "../.github/workflows/abi.yml": (
+            "jobs:\n"
+            "  check:\n"
+            "    steps:\n"
+            "      - name: declaration only\n"
+            '        run: echo "uv run polisyos-tools workspace '
+            'repository-sota-closeout --contract-only"\n'
+        ),
+        "ops/ci/templates/workflows/arch.yml": (
+            "jobs:\n"
+            "  check:\n"
+            "    steps:\n"
+            "      - name: declaration only\n"
+            '        run: echo "uv run polisyos-tools workspace '
+            'repository-sota-closeout"\n'
+        ),
+    }
+    resolved = {}
+    files = _phase5_apply_workflow_fixture_profile(files)
+    for relative_path, content in files.items():
+        path = tmp_path / relative_path.replace("/", "_").replace("..", "parent")
+        path.write_text(content, encoding="utf-8")
+        resolved[relative_path] = path
+
+    monkeypatch.setattr(repository_sota_closeout, "_resolve", resolved.__getitem__)
+    monkeypatch.setattr(repository_sota_closeout, "_check_last_mile_gate_ownership", lambda: [])
+
+    findings = repository_sota_closeout._check_wiring()
+
+    assert {finding.detail for finding in findings} == set(files)
+
+
+@pytest.mark.parametrize(
+    "entry",
+    [
+        "bash -lc 'true || uv run polisyos-tools workspace repository-sota-closeout --contract-only'",
+        "bash -lc 'exit 0; uv run polisyos-tools workspace repository-sota-closeout --contract-only'",
+    ],
+)
+def test_phase5_wiring_rejects_unreachable_shell_invocation(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, entry: str
+) -> None:
+    from tools.devx.workspace import repository_sota_closeout
+
+    files = {
+        ".pre-commit-config.yaml": (
+            "repos:\n"
+            "  - repo: local\n"
+            "    hooks:\n"
+            "      - id: repository-sota-closeout\n"
+            f"        entry: {entry}\n"
+            "        language: system\n"
+            "        always_run: true\n"
+            "        pass_filenames: false\n"
+        ),
+        "../.github/workflows/abi.yml": (
+            "jobs:\n"
+            "  check:\n"
+            "    steps:\n"
+            "      - name: Contract\n"
+            "        run: uv run polisyos-tools workspace repository-sota-closeout --contract-only\n"
+        ),
+        "ops/ci/templates/workflows/arch.yml": (
+            "jobs:\n"
+            "  check:\n"
+            "    steps:\n"
+            "      - name: Full closeout\n"
+            "        run: uv run polisyos-tools workspace repository-sota-closeout\n"
+        ),
+    }
+    resolved = {}
+    files = _phase5_apply_workflow_fixture_profile(files)
+    for relative_path, content in files.items():
+        path = tmp_path / relative_path.replace("/", "_").replace("..", "parent")
+        path.write_text(content, encoding="utf-8")
+        resolved[relative_path] = path
+
+    monkeypatch.setattr(repository_sota_closeout, "_resolve", resolved.__getitem__)
+    monkeypatch.setattr(repository_sota_closeout, "_check_last_mile_gate_ownership", lambda: [])
+
+    findings = repository_sota_closeout._check_wiring()
+
+    assert [finding.detail for finding in findings] == [".pre-commit-config.yaml"]
+
+
+def test_phase5_wiring_rejects_conditioned_workflow_invocation(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    from tools.devx.workspace import repository_sota_closeout
+
+    files = {
+        ".pre-commit-config.yaml": (
+            "repos:\n"
+            "  - repo: local\n"
+            "    hooks:\n"
+            "      - id: repository-sota-closeout\n"
+            "        entry: uv run polisyos-tools workspace repository-sota-closeout --contract-only\n"
+            "        language: system\n"
+            "        always_run: true\n"
+            "        pass_filenames: false\n"
+        ),
+        "../.github/workflows/abi.yml": (
+            "jobs:\n"
+            "  check:\n"
+            "    steps:\n"
+            "      - name: Contract\n"
+            "        if: ${{ github.ref != '' }}\n"
+            "        run: uv run polisyos-tools workspace repository-sota-closeout --contract-only\n"
+        ),
+        "ops/ci/templates/workflows/arch.yml": (
+            "jobs:\n"
+            "  check:\n"
+            "    steps:\n"
+            "      - name: Full closeout\n"
+            "        run: uv run polisyos-tools workspace repository-sota-closeout\n"
+        ),
+    }
+    resolved = {}
+    files = _phase5_apply_workflow_fixture_profile(files)
+    for relative_path, content in files.items():
+        path = tmp_path / relative_path.replace("/", "_").replace("..", "parent")
+        path.write_text(content, encoding="utf-8")
+        resolved[relative_path] = path
+
+    monkeypatch.setattr(repository_sota_closeout, "_resolve", resolved.__getitem__)
+    monkeypatch.setattr(repository_sota_closeout, "_check_last_mile_gate_ownership", lambda: [])
+
+    findings = repository_sota_closeout._check_wiring()
+
+    assert [finding.detail for finding in findings] == ["../.github/workflows/abi.yml"]
+
+
+@pytest.mark.parametrize("disabled_level", ["job", "step"])
+def test_phase5_wiring_rejects_disabled_workflow_invocation(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, disabled_level: str
+) -> None:
+    from tools.devx.workspace import repository_sota_closeout
+
+    contents = {
+        ".pre-commit-config.yaml": (
+            "repos:\n"
+            "  - repo: local\n"
+            "    hooks:\n"
+            "      - id: repository-sota-closeout\n"
+            "        name: Repository SOTA contract\n"
+            "        entry: bash -lc 'cd policy-engine && uv run polisyos-tools "
+            "workspace repository-sota-closeout --contract-only'\n"
+            "        language: system\n"
+            "        always_run: true\n"
+            "        pass_filenames: false\n"
+        ),
+        "../.github/workflows/abi.yml": (
+            "jobs:\n"
+            "  check:\n" + ("    if: false\n" if disabled_level == "job" else "") + "    steps:\n"
+            "      - name: Check Repository SOTA contract\n"
+            + ("        if: false\n" if disabled_level == "step" else "")
+            + "        run: uv run polisyos-tools workspace "
+            "repository-sota-closeout --contract-only\n"
+        ),
+        "ops/ci/templates/workflows/arch.yml": (
+            "jobs:\n"
+            "  check:\n"
+            "    steps:\n"
+            "      - name: Verify Repository SOTA closeout\n"
+            "        run: uv run polisyos-tools workspace "
+            "repository-sota-closeout\n"
+        ),
+    }
+    resolved = {}
+    contents = _phase5_apply_workflow_fixture_profile(contents)
+    for relative_path, content in contents.items():
+        path = tmp_path / relative_path.replace("/", "_").replace("..", "parent")
+        path.write_text(content, encoding="utf-8")
+        resolved[relative_path] = path
+
+    monkeypatch.setattr(repository_sota_closeout, "_resolve", resolved.__getitem__)
+    monkeypatch.setattr(repository_sota_closeout, "_check_last_mile_gate_ownership", lambda: [])
+
+    findings = repository_sota_closeout._check_wiring()
+
+    assert [finding.detail for finding in findings] == ["../.github/workflows/abi.yml"]
+
+
+def test_phase5_last_mile_owner_requires_command_from_live_dispatcher(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from tools.devx.workspace import repository_sota_closeout
+
+    original_commands = repository_sota_closeout._supporting_subprocess_gates
+    monkeypatch.setattr(
+        repository_sota_closeout,
+        "_supporting_subprocess_gates",
+        lambda: [
+            (gate_id, argv)
+            for gate_id, argv in original_commands()
+            if gate_id != "repository-structure"
+        ],
+    )
+
+    findings = repository_sota_closeout._check_last_mile_gate_ownership()
+
+    assert any(
+        finding.gate == "last-mile-wiring" and "repository-structure" in finding.message
+        for finding in findings
+    )
+    source = (REPO_ROOT / "tools/devx/workspace/repository_sota_closeout.py").read_text(
+        encoding="utf-8"
+    )
+    assert "repository_structure_phase0.py" in source
+
+
+def test_phase5_last_mile_owner_rejects_removed_workspace_dispatch_with_marker_retained(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from tools.devx.workspace import repository_sota_closeout, verify
+
+    original_commands = verify._backend_commands
+    monkeypatch.setattr(
+        verify,
+        "_backend_commands",
+        lambda **kwargs: [
+            command
+            for command in original_commands(**kwargs)
+            if not any("repository_last_mile_inventory.py" in token for token in command.argv)
+        ],
+    )
+
+    findings = repository_sota_closeout._check_last_mile_gate_ownership()
+
+    assert any(
+        finding.gate == "last-mile-wiring" and "repository-last-mile-inventory" in finding.message
+        for finding in findings
+    )
+    source = (REPO_ROOT / "tools/devx/workspace/verify.py").read_text(encoding="utf-8")
+    assert "repository_last_mile_inventory.py" in source
+
+
 def test_phase5_contract_only_closeout_gate_passes() -> None:
     subprocess.run(
         [
@@ -1071,6 +1389,343 @@ def test_phase5_contract_only_closeout_gate_passes() -> None:
         check=True,
         capture_output=True,
         text=True,
+    )
+
+
+@pytest.mark.parametrize(
+    "entry",
+    [
+        "bash -lc 'false && uv run polisyos-tools workspace repository-sota-closeout --contract-only'",
+        "bash -lc 'uv run polisyos-tools workspace repository-sota-closeout --contract-only; true'",
+        "bash -lc 'uv run polisyos-tools workspace repository-sota-closeout --contract-only | true'",
+        "bash -lc 'set -e; false; uv run polisyos-tools workspace repository-sota-closeout --contract-only'",
+        "bash -lc 'alias uv=echo; uv run polisyos-tools workspace repository-sota-closeout --contract-only'",
+    ],
+)
+def test_phase5_wiring_rejects_unreachable_or_status_swallowed_invocation(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, entry: str
+) -> None:
+    from tools.devx.workspace import repository_sota_closeout
+
+    files = {
+        ".pre-commit-config.yaml": (
+            "repos:\n"
+            "  - repo: local\n"
+            "    hooks:\n"
+            "      - id: repository-sota-closeout\n"
+            f"        entry: {entry}\n"
+            "        language: system\n"
+            "        always_run: true\n"
+            "        pass_filenames: false\n"
+        ),
+        "../.github/workflows/abi.yml": (
+            "jobs:\n"
+            "  check:\n"
+            "    steps:\n"
+            "      - name: Contract\n"
+            "        run: uv run polisyos-tools workspace repository-sota-closeout --contract-only\n"
+        ),
+        "ops/ci/templates/workflows/arch.yml": (
+            "jobs:\n"
+            "  check:\n"
+            "    steps:\n"
+            "      - name: Full closeout\n"
+            "        run: uv run polisyos-tools workspace repository-sota-closeout\n"
+        ),
+    }
+    resolved = {}
+    files = _phase5_apply_workflow_fixture_profile(files)
+    for relative_path, content in files.items():
+        path = tmp_path / relative_path.replace("/", "_").replace("..", "parent")
+        path.write_text(content, encoding="utf-8")
+        resolved[relative_path] = path
+
+    monkeypatch.setattr(repository_sota_closeout, "_resolve", resolved.__getitem__)
+    monkeypatch.setattr(repository_sota_closeout, "_check_last_mile_gate_ownership", lambda: [])
+
+    findings = repository_sota_closeout._check_wiring()
+
+    assert [finding.detail for finding in findings] == [".pre-commit-config.yaml"]
+
+
+def test_phase5_wiring_accepts_final_and_chain_status_propagation(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    from tools.devx.workspace import repository_sota_closeout
+
+    files = {
+        ".pre-commit-config.yaml": (
+            "repos:\n"
+            "  - repo: local\n"
+            "    hooks:\n"
+            "      - id: repository-sota-closeout\n"
+            "        entry: bash -lc 'true && cd policy-engine && uv run polisyos-tools "
+            "workspace repository-sota-closeout --contract-only && true'\n"
+            "        language: system\n"
+            "        always_run: true\n"
+            "        pass_filenames: false\n"
+        ),
+        "../.github/workflows/abi.yml": (
+            "jobs:\n"
+            "  check:\n"
+            "    steps:\n"
+            "      - name: Contract\n"
+            "        run: uv run polisyos-tools workspace repository-sota-closeout --contract-only\n"
+        ),
+        "ops/ci/templates/workflows/arch.yml": (
+            "jobs:\n"
+            "  check:\n"
+            "    steps:\n"
+            "      - name: Full closeout\n"
+            "        run: uv run polisyos-tools workspace repository-sota-closeout\n"
+        ),
+    }
+    resolved = {}
+    files = _phase5_apply_workflow_fixture_profile(files)
+    for relative_path, content in files.items():
+        path = tmp_path / relative_path.replace("/", "_").replace("..", "parent")
+        path.write_text(content, encoding="utf-8")
+        resolved[relative_path] = path
+
+    monkeypatch.setattr(repository_sota_closeout, "_resolve", resolved.__getitem__)
+    monkeypatch.setattr(repository_sota_closeout, "_check_last_mile_gate_ownership", lambda: [])
+
+    assert repository_sota_closeout._check_wiring() == []
+
+
+def test_phase5_wiring_uses_github_bash_errexit_for_route_outcome(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    documents = _phase5_wiring_documents()
+    abi = documents["../.github/workflows/abi.yml"]
+    assert isinstance(abi, dict)
+    job = abi["jobs"]["quality"]  # type: ignore[index]
+    assert isinstance(job, dict)
+    step = job["steps"][1]
+    assert isinstance(step, dict)
+    step["run"] = "uv run polisyos-tools workspace repository-sota-closeout --contract-only; true"
+
+    findings = _phase5_run_wiring_documents(documents, monkeypatch, tmp_path)
+
+    assert findings == []
+
+
+@pytest.mark.parametrize(
+    "broken_path",
+    [
+        ".pre-commit-config.yaml",
+        "../.github/workflows/abi.yml",
+        "ops/ci/templates/workflows/arch.yml",
+    ],
+)
+@pytest.mark.parametrize("status_override", ["; true", " | true"])
+def test_phase5_wiring_requires_status_propagation_for_each_route_source(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    broken_path: str,
+    status_override: str,
+) -> None:
+    from tools.devx.workspace import repository_sota_closeout
+
+    contract = "uv run polisyos-tools workspace repository-sota-closeout --contract-only"
+    full = "uv run polisyos-tools workspace repository-sota-closeout"
+    files = {
+        ".pre-commit-config.yaml": (
+            "repos:\n"
+            "  - repo: local\n"
+            "    hooks:\n"
+            "      - id: repository-sota-closeout\n"
+            f"        entry: bash -lc 'cd policy-engine && {contract}'\n"
+            "        language: system\n"
+            "        always_run: true\n"
+            "        pass_filenames: false\n"
+        ),
+        "../.github/workflows/abi.yml": (
+            "jobs:\n"
+            "  check:\n"
+            "    steps:\n"
+            "      - name: Contract\n"
+            "        run: |\n"
+            f"          {contract}\n"
+        ),
+        "ops/ci/templates/workflows/arch.yml": (
+            "jobs:\n"
+            "  check:\n"
+            "    steps:\n"
+            "      - name: Full closeout\n"
+            "        run: |\n"
+            f"          {full}\n"
+        ),
+    }
+    if broken_path == ".pre-commit-config.yaml":
+        files[broken_path] = files[broken_path].replace(
+            f"&& {contract}'", f"&& {contract}{status_override}'"
+        )
+    else:
+        expected = contract if broken_path == "../.github/workflows/abi.yml" else full
+        files[broken_path] = files[broken_path].replace(
+            f"          {expected}\n", f"          {expected}{status_override}\n"
+        )
+
+    resolved = {}
+    files = _phase5_apply_workflow_fixture_profile(files)
+    for relative_path, content in files.items():
+        path = tmp_path / relative_path.replace("/", "_").replace("..", "parent")
+        path.write_text(content, encoding="utf-8")
+        resolved[relative_path] = path
+
+    monkeypatch.setattr(repository_sota_closeout, "_resolve", resolved.__getitem__)
+    monkeypatch.setattr(repository_sota_closeout, "_check_last_mile_gate_ownership", lambda: [])
+
+    findings = repository_sota_closeout._check_wiring()
+
+    expected = (
+        []
+        if broken_path != ".pre-commit-config.yaml" and status_override == "; true"
+        else [broken_path]
+    )
+    assert [finding.detail for finding in findings] == expected
+
+
+@pytest.mark.parametrize(
+    ("module_name", "argv", "owned_token"),
+    [
+        (
+            "tools.devx.workspace.verify",
+            ["--backend-only", "--skip-doctor"],
+            "repository_last_mile_inventory.py",
+        ),
+        (
+            "tools.devx.workspace.ci_parity",
+            ["--backend-only", "--skip-doctor", "--skip-runtime-http"],
+            "directory_health.py",
+        ),
+    ],
+)
+def test_phase5_python_dispatchers_propagate_owned_child_failure(
+    monkeypatch: pytest.MonkeyPatch,
+    module_name: str,
+    argv: list[str],
+    owned_token: str,
+) -> None:
+    from importlib import import_module
+
+    owner = import_module(module_name)
+    invoked: list[tuple[str, ...]] = []
+
+    def fail_owned(command: object) -> None:
+        actual = tuple(str(token) for token in getattr(command, "argv", ()))
+        invoked.append(actual)
+        if any(owned_token in token for token in actual):
+            raise subprocess.CalledProcessError(17, actual)
+
+    monkeypatch.setattr(owner, "run_command", fail_owned)
+
+    with pytest.raises(subprocess.CalledProcessError, match="17"):
+        owner.main(argv)
+
+    assert any(any(owned_token in token for token in command) for command in invoked)
+
+
+def test_phase5_closeout_dispatch_records_owned_child_failure(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from types import SimpleNamespace
+
+    from tools.devx.workspace import repository_sota_closeout
+
+    monkeypatch.setattr(
+        repository_sota_closeout,
+        "_registered_subprocess_gates",
+        lambda **kwargs: [("owned-child", ("probe",))],
+    )
+    monkeypatch.setattr(
+        repository_sota_closeout,
+        "_supporting_subprocess_gates",
+        lambda: [],
+    )
+    monkeypatch.setattr(
+        repository_sota_closeout,
+        "_run_subprocess_with_receipt",
+        lambda gate, command, *, receipt_dir: subprocess.CompletedProcess(
+            list(command), 19, stdout="", stderr="forced failure"
+        ),
+    )
+    monkeypatch.setattr(
+        repository_sota_closeout,
+        "_run_conditional_registered_gates",
+        lambda **kwargs: [],
+    )
+
+    findings = repository_sota_closeout._run_fail_closed_subprocess_gates(
+        SimpleNamespace(skip_generated_checks=False, subprocess_receipt_dir=None)
+    )
+
+    assert [(finding.gate, finding.message) for finding in findings] == [
+        ("owned-child", "subprocess gate failed")
+    ]
+
+
+@pytest.mark.parametrize("status_override", ["; true", " | true"])
+def test_phase5_release_owner_rejects_swallowed_child_status(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    status_override: str,
+) -> None:
+    from tools.devx.workspace import repository_sota_closeout
+
+    fragments = "$" + "{{ needs.prepare-release.outputs.fragments_dir }}"
+    release = tmp_path / "release.yml"
+    release.write_text(
+        "jobs:\n"
+        "  prepare-release:\n"
+        "    runs-on: ubuntu-latest\n"
+        "    steps: []\n"
+        "  release-gates:\n"
+        "    runs-on: ubuntu-latest\n"
+        "    defaults:\n"
+        "      run:\n"
+        "        working-directory: policy-engine\n"
+        "    needs: prepare-release\n"
+        "    steps:\n"
+        "      - name: Checkout\n"
+        "        uses: actions/checkout@v4\n"
+        "      - name: Operability\n"
+        "        run: |\n"
+        "          uv run polisyos-tools release check-operability-release-gates "
+        f"--fragments-dir '{fragments}' "
+        f"--fail-closed --json-output /tmp/release-operability-gates.json{status_override}\n"
+        "      - name: Compatibility\n"
+        "        run: |\n"
+        "          uv run polisyos-tools release check-compatibility-release-gates "
+        f"--fragments-dir '{fragments}' "
+        "--fail-on-contract-errors --json-output /tmp/release-compatibility-gates.json\n",
+        encoding="utf-8",
+    )
+    original_resolve = repository_sota_closeout._resolve
+    monkeypatch.setattr(
+        repository_sota_closeout,
+        "_resolve",
+        lambda path: release
+        if path == "../.github/workflows/release.yml"
+        else original_resolve(path),
+    )
+
+    findings = repository_sota_closeout._check_last_mile_gate_ownership()
+
+    if status_override == "; true":
+        assert not any(
+            finding.gate == "last-mile-wiring" and "operability-release" in finding.message
+            for finding in findings
+        )
+    else:
+        assert any(
+            finding.gate == "last-mile-wiring" and "operability-release" in finding.message
+            for finding in findings
+        )
+    assert not any(
+        finding.gate == "last-mile-wiring" and "compatibility-release" in finding.message
+        for finding in findings
     )
 
 
@@ -1098,3 +1753,824 @@ def _assert_fields(item: dict[str, Any], fields: tuple[str, ...]) -> None:
 
 def _has_issue_or_adr(item: dict[str, Any]) -> bool:
     return any(str(item.get(field, "")).strip() for field in ("issue", "adr", "adr_reference"))
+
+
+def test_phase5_wiring_rejects_contract_mode_substituted_with_full_wave(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    from tools.devx.workspace import repository_sota_closeout
+
+    contents = {
+        ".pre-commit-config.yaml": (
+            "repos:\n"
+            "  - repo: local\n"
+            "    hooks:\n"
+            "      - id: repository-sota-closeout\n"
+            "        entry: bash -lc 'cd policy-engine && uv run polisyos-tools "
+            "workspace repository-sota-closeout --contract-only'\n"
+            "        language: system\n"
+            "        always_run: true\n"
+            "        pass_filenames: false\n"
+        ),
+        "../.github/workflows/abi.yml": (
+            "jobs:\n"
+            "  check:\n"
+            "    steps:\n"
+            "      - name: Wrong mode\n"
+            "        run: uv run polisyos-tools workspace repository-sota-closeout\n"
+        ),
+        "ops/ci/templates/workflows/arch.yml": (
+            "jobs:\n"
+            "  check:\n"
+            "    steps:\n"
+            "      - name: Full closeout\n"
+            "        run: uv run polisyos-tools workspace repository-sota-closeout\n"
+        ),
+    }
+    contents = _phase5_apply_workflow_fixture_profile(contents)
+    resolved = {}
+    for relative_path, content in contents.items():
+        path = tmp_path / relative_path.replace("/", "_").replace("..", "parent")
+        path.write_text(content, encoding="utf-8")
+        resolved[relative_path] = path
+
+    monkeypatch.setattr(repository_sota_closeout, "_resolve", resolved.__getitem__)
+    monkeypatch.setattr(repository_sota_closeout, "_check_last_mile_gate_ownership", lambda: [])
+
+    findings = repository_sota_closeout._check_wiring()
+
+    assert [finding.detail for finding in findings] == ["../.github/workflows/abi.yml"]
+
+
+def test_phase5_last_mile_owner_requires_ci_parity_dispatch_with_marker_retained(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from tools.devx.workspace import ci_parity, repository_sota_closeout
+
+    original_commands = ci_parity._last_mile_policy_commands
+    monkeypatch.setattr(
+        ci_parity,
+        "_last_mile_policy_commands",
+        lambda *, skip_docs: [
+            command
+            for command in original_commands(skip_docs=skip_docs)
+            if not any("directory_health.py" in token for token in command.argv)
+        ],
+    )
+
+    findings = repository_sota_closeout._check_last_mile_gate_ownership()
+
+    assert any(
+        finding.gate == "last-mile-wiring" and "directory-health" in finding.message
+        for finding in findings
+    )
+    source = (REPO_ROOT / "tools/devx/workspace/ci_parity.py").read_text(encoding="utf-8")
+    assert "directory_health.py" in source
+
+
+def test_phase5_last_mile_release_owner_requires_active_command_with_marker_retained(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    from tools.devx.workspace import repository_sota_closeout
+
+    release = tmp_path / "release.yml"
+    release.write_text(
+        "jobs:\n"
+        "  prepare:\n"
+        "    runs-on: ubuntu-latest\n"
+        "    defaults:\n"
+        "      run:\n"
+        "        working-directory: policy-engine\n"
+        "    steps:\n"
+        "      - name: Checkout\n"
+        "        uses: actions/checkout@v4\n"
+        "      - name: declaration only\n"
+        "        run: echo 'uv run polisyos-tools release check-operability-release-gates'\n"
+        "      - name: compatibility\n"
+        "        run: >-\n"
+        "          uv run polisyos-tools release check-compatibility-release-gates "
+        '          --fragments-dir "${{ needs.prepare-release.outputs.fragments_dir }}" '
+        "          --fail-on-contract-errors "
+        "          --json-output /tmp/release-compatibility-gates.json\n",
+        encoding="utf-8",
+    )
+    original_resolve = repository_sota_closeout._resolve
+    monkeypatch.setattr(
+        repository_sota_closeout,
+        "_resolve",
+        lambda path: release
+        if path == "../.github/workflows/release.yml"
+        else original_resolve(path),
+    )
+
+    findings = repository_sota_closeout._check_last_mile_gate_ownership()
+
+    assert any(
+        finding.gate == "last-mile-wiring" and "operability-release" in finding.message
+        for finding in findings
+    )
+    assert not any(
+        finding.gate == "last-mile-wiring" and "compatibility-release" in finding.message
+        for finding in findings
+    )
+
+
+@pytest.mark.parametrize(
+    "dependency_mutation", ["missing", "conditional", "continue-on-error", "nested-needs"]
+)
+def test_phase5_release_owner_rejects_nonfailclosed_dependency_context(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    dependency_mutation: str,
+) -> None:
+    from tools.devx.workspace import repository_sota_closeout
+
+    release = tmp_path / "release.yml"
+    dependency = "    runs-on: ubuntu-latest\n"
+    if dependency_mutation == "conditional":
+        dependency += "    if: github.ref != ''\n"
+    elif dependency_mutation == "continue-on-error":
+        dependency += "    continue-on-error: true\n"
+    elif dependency_mutation == "nested-needs":
+        dependency += "    needs: earlier\n"
+    release.write_text(
+        "jobs:\n"
+        "  prepare-release:\n" + dependency + "    steps: []\n"
+        "  release-gates:\n"
+        "    runs-on: ubuntu-latest\n"
+        "    defaults:\n"
+        "      run:\n"
+        "        working-directory: policy-engine\n"
+        + (
+            "    needs: absent\n"
+            if dependency_mutation == "missing"
+            else "    needs: prepare-release\n"
+        )
+        + "    steps:\n"
+        "      - name: Checkout\n"
+        "        uses: actions/checkout@v4\n"
+        "      - name: Operability\n"
+        "        run: uv run polisyos-tools release check-operability-release-gates "
+        "--fragments-dir '${{ needs.prepare-release.outputs.fragments_dir }}' "
+        "--fail-closed --json-output /tmp/release-operability-gates.json\n"
+        "      - name: Compatibility\n"
+        "        run: uv run polisyos-tools release check-compatibility-release-gates "
+        "--fragments-dir '${{ needs.prepare-release.outputs.fragments_dir }}' "
+        "--fail-on-contract-errors --json-output /tmp/release-compatibility-gates.json\n",
+        encoding="utf-8",
+    )
+    original_resolve = repository_sota_closeout._resolve
+    monkeypatch.setattr(
+        repository_sota_closeout,
+        "_resolve",
+        lambda path: release
+        if path == "../.github/workflows/release.yml"
+        else original_resolve(path),
+    )
+
+    findings = repository_sota_closeout._check_last_mile_gate_ownership()
+
+    assert any(
+        finding.gate == "last-mile-wiring" and "operability-release" in finding.message
+        for finding in findings
+    )
+    assert any(
+        finding.gate == "last-mile-wiring" and "compatibility-release" in finding.message
+        for finding in findings
+    )
+
+
+def _phase5_wiring_documents() -> dict[str, object]:
+    contract = "uv run polisyos-tools workspace repository-sota-closeout --contract-only"
+    full = "uv run polisyos-tools workspace repository-sota-closeout"
+    precommit = {
+        "repos": [
+            {
+                "repo": "local",
+                "hooks": [
+                    {
+                        "id": "repository-sota-closeout",
+                        "entry": f"bash -lc 'cd policy-engine && {contract}'",
+                        "language": "system",
+                        "pass_filenames": False,
+                        "always_run": True,
+                    }
+                ],
+            }
+        ]
+    }
+    abi_checkout = {"name": "Checkout", "uses": "actions/checkout@v4"}
+    architecture_checkout = {"name": "Checkout", "uses": "actions/checkout@v4"}
+    abi = {
+        "jobs": {
+            "quality": {
+                "runs-on": "ubuntu-latest",
+                "defaults": {"run": {"working-directory": "policy-engine"}},
+                "steps": [abi_checkout, {"name": "Contract", "run": contract}],
+            }
+        }
+    }
+    architecture = {
+        "jobs": {
+            "architecture": {
+                "runs-on": "ubuntu-latest",
+                "steps": [architecture_checkout, {"name": "Full closeout", "run": full}],
+            }
+        }
+    }
+    return {
+        ".pre-commit-config.yaml": precommit,
+        "../.github/workflows/abi.yml": abi,
+        "ops/ci/templates/workflows/arch.yml": architecture,
+    }
+
+
+def _phase5_run_wiring_documents(
+    documents: dict[str, object],
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> list[object]:
+    import yaml
+
+    from tools.devx.workspace import repository_sota_closeout
+
+    resolved: dict[str, Path] = {}
+    for relative_path, document in documents.items():
+        path = tmp_path / (str(len(resolved)) + ".yaml")
+        path.write_text(
+            document if isinstance(document, str) else yaml.safe_dump(document),
+            encoding="utf-8",
+        )
+        resolved[relative_path] = path
+    monkeypatch.setattr(repository_sota_closeout, "_resolve", resolved.__getitem__)
+    monkeypatch.setattr(repository_sota_closeout, "_check_last_mile_gate_ownership", lambda: [])
+    return repository_sota_closeout._check_wiring()
+
+
+def _phase5_set_nested(payload: dict[str, object], keys: tuple[str, ...], value: object) -> None:
+    current: dict[str, object] = payload
+    for key in keys[:-1]:
+        child = current.get(key)
+        if not isinstance(child, dict):
+            child = {}
+            current[key] = child
+        current = child
+    current[keys[-1]] = value
+
+
+def test_phase5_wiring_context_profile_accepts_current_route_shapes(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    findings = _phase5_run_wiring_documents(_phase5_wiring_documents(), monkeypatch, tmp_path)
+
+    assert findings == []
+
+
+@pytest.mark.parametrize(
+    ("scope", "keys", "value"),
+    [
+        ("workflow", ("defaults", "run", "working-directory"), "."),
+        ("job", ("defaults", "run", "working-directory"), "."),
+        ("step", ("working-directory",), "apps/runtime-dashboard"),
+        ("workflow", ("defaults", "run", "shell"), "pwsh"),
+        ("step", ("shell",), "bash {0}"),
+        ("job", ("continue-on-error",), True),
+        ("step", ("continue-on-error",), True),
+        ("job", ("if",), False),
+        ("step", ("if",), "${{ success() }}"),
+        ("job", ("needs",), ["preflight"]),
+        ("job", ("container",), {"image": "ubuntu:latest"}),
+        ("step", ("background",), True),
+        ("workflow", ("env",), {"PATH": "/opt/untrusted-bin"}),
+        ("step", ("env",), {"PATH": "/opt/untrusted-bin"}),
+        ("job", ("environment",), "approval-gated"),
+        ("job", ("runs-on",), "ubuntu-custom"),
+    ],
+)
+def test_phase5_wiring_rejects_outcome_relevant_context_mutations(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    scope: str,
+    keys: tuple[str, ...],
+    value: object,
+) -> None:
+    documents = _phase5_wiring_documents()
+    payload = documents["../.github/workflows/abi.yml"]
+    assert isinstance(payload, dict)
+    job = payload["jobs"]["quality"]  # type: ignore[index]
+    assert isinstance(job, dict)
+    if scope == "workflow":
+        if keys == ("defaults", "run", "working-directory"):
+            job.pop("defaults", None)
+        _phase5_set_nested(payload, keys, value)
+    elif scope == "job":
+        _phase5_set_nested(job, keys, value)
+    else:
+        step = job["steps"][1]
+        assert isinstance(step, dict)
+        _phase5_set_nested(step, keys, value)
+
+    findings = _phase5_run_wiring_documents(documents, monkeypatch, tmp_path)
+
+    assert "../.github/workflows/abi.yml" in {finding.detail for finding in findings}
+
+
+def test_phase5_wiring_uses_specificity_for_effective_defaults(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    documents = _phase5_wiring_documents()
+    abi = documents["../.github/workflows/abi.yml"]
+    assert isinstance(abi, dict)
+    abi["defaults"] = {"run": {"shell": "pwsh", "working-directory": "."}}
+    job = abi["jobs"]["quality"]  # type: ignore[index]
+    assert isinstance(job, dict)
+    job["defaults"] = {"run": {"shell": "bash"}}
+    step = job["steps"][1]
+    assert isinstance(step, dict)
+    step["working-directory"] = "policy-engine"
+
+    findings = _phase5_run_wiring_documents(documents, monkeypatch, tmp_path)
+
+    assert findings == []
+
+
+def test_phase5_wiring_tracks_nested_shell_cwd_from_git_root(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    documents = _phase5_wiring_documents()
+    precommit = documents[".pre-commit-config.yaml"]
+    assert isinstance(precommit, dict)
+    hook = precommit["repos"][0]["hooks"][0]  # type: ignore[index]
+    assert isinstance(hook, dict)
+    hook["entry"] = (
+        "bash -lc 'cd policy-engine && bash -c \"uv run polisyos-tools "
+        "workspace repository-sota-closeout --contract-only\"'"
+    )
+
+    findings = _phase5_run_wiring_documents(documents, monkeypatch, tmp_path)
+
+    assert findings == []
+
+
+@pytest.mark.parametrize(
+    "entry",
+    [
+        "bash -lc 'cd .. && uv run polisyos-tools workspace repository-sota-closeout "
+        "--contract-only'",
+        "bash -lc 'cd policy-engine && cd .. && uv run polisyos-tools workspace "
+        "repository-sota-closeout --contract-only'",
+        "bash -lc 'cd missing && uv run polisyos-tools workspace "
+        "repository-sota-closeout --contract-only'",
+    ],
+)
+def test_phase5_wiring_rejects_precommit_context_escape(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, entry: str
+) -> None:
+    documents = _phase5_wiring_documents()
+    precommit = documents[".pre-commit-config.yaml"]
+    assert isinstance(precommit, dict)
+    hook = precommit["repos"][0]["hooks"][0]  # type: ignore[index]
+    assert isinstance(hook, dict)
+    hook["entry"] = entry
+
+    findings = _phase5_run_wiring_documents(documents, monkeypatch, tmp_path)
+
+    assert ".pre-commit-config.yaml" in {finding.detail for finding in findings}
+
+
+def test_phase5_wiring_rejects_duplicate_yaml_keys_in_route_context(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    documents = _phase5_wiring_documents()
+    abi = documents["../.github/workflows/abi.yml"]
+    assert isinstance(abi, dict)
+    text = __import__("yaml").safe_dump(abi)
+    text = text.replace(
+        "        working-directory: policy-engine\n",
+        "        working-directory: policy-engine\n        working-directory: .\n",
+        1,
+    )
+    documents["../.github/workflows/abi.yml"] = text
+
+    findings = _phase5_run_wiring_documents(documents, monkeypatch, tmp_path)
+
+    assert "../.github/workflows/abi.yml" in {finding.detail for finding in findings}
+
+
+def test_phase5_wiring_rejects_yaml_merge_keys_in_route_context(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    documents = _phase5_wiring_documents()
+    documents["../.github/workflows/abi.yml"] = (
+        "defaults: &route-defaults\n"
+        "  run:\n"
+        "    working-directory: policy-engine\n"
+        "jobs:\n"
+        "  quality:\n"
+        "    runs-on: ubuntu-latest\n"
+        "    defaults:\n"
+        "      <<: *route-defaults\n"
+        "    steps:\n"
+        "      - name: Contract\n"
+        "        run: uv run polisyos-tools workspace repository-sota-closeout --contract-only\n"
+    )
+
+    findings = _phase5_run_wiring_documents(documents, monkeypatch, tmp_path)
+
+    assert "../.github/workflows/abi.yml" in {finding.detail for finding in findings}
+
+
+def test_phase5_wiring_rejects_non_propagating_nested_route_status(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    documents = _phase5_wiring_documents()
+    precommit = documents[".pre-commit-config.yaml"]
+    assert isinstance(precommit, dict)
+    hook = precommit["repos"][0]["hooks"][0]  # type: ignore[index]
+    assert isinstance(hook, dict)
+    hook["entry"] = (
+        "bash -lc 'cd policy-engine && uv run polisyos-tools workspace "
+        "repository-sota-closeout --contract-only; true'"
+    )
+
+    findings = _phase5_run_wiring_documents(documents, monkeypatch, tmp_path)
+
+    assert ".pre-commit-config.yaml" in {finding.detail for finding in findings}
+
+
+def test_phase5_wiring_rejects_missing_job_working_directory_from_github_workspace(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    documents = _phase5_wiring_documents()
+    abi = documents["../.github/workflows/abi.yml"]
+    assert isinstance(abi, dict)
+    quality = abi["jobs"]["quality"]  # type: ignore[index]
+    assert isinstance(quality, dict)
+    quality.pop("defaults")
+
+    findings = _phase5_run_wiring_documents(documents, monkeypatch, tmp_path)
+
+    assert "../.github/workflows/abi.yml" in {finding.detail for finding in findings}
+
+
+@pytest.mark.parametrize(
+    "checkout_mutation",
+    [
+        "missing",
+        "after-route",
+        "dynamic-path",
+        "parent-escape",
+        "alternate-repository",
+        "sparse-checkout",
+    ],
+)
+def test_phase5_wiring_fails_closed_without_static_prior_source_checkout(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, checkout_mutation: str
+) -> None:
+    documents = _phase5_wiring_documents()
+    abi = documents["../.github/workflows/abi.yml"]
+    assert isinstance(abi, dict)
+    quality = abi["jobs"]["quality"]  # type: ignore[index]
+    assert isinstance(quality, dict)
+    steps = quality["steps"]
+    assert isinstance(steps, list)
+    checkout = steps[0]
+    assert isinstance(checkout, dict)
+    if checkout_mutation == "missing":
+        steps.pop(0)
+    elif checkout_mutation == "after-route":
+        steps.append(steps.pop(0))
+    elif checkout_mutation == "dynamic-path":
+        checkout["with"] = {"path": "${{ matrix.checkout_path }}"}
+    elif checkout_mutation == "parent-escape":
+        checkout["with"] = {"path": "../outside"}
+    elif checkout_mutation == "alternate-repository":
+        checkout["with"] = {"repository": "another/project"}
+    else:
+        checkout["with"] = {"sparse-checkout": "policy-engine"}
+
+    findings = _phase5_run_wiring_documents(documents, monkeypatch, tmp_path)
+
+    assert "../.github/workflows/abi.yml" in {finding.detail for finding in findings}
+
+
+def test_phase5_wiring_rejects_product_cwd_that_ignores_checkout_prefix(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    documents = _phase5_wiring_documents()
+    abi = documents["../.github/workflows/abi.yml"]
+    assert isinstance(abi, dict)
+    quality = abi["jobs"]["quality"]  # type: ignore[index]
+    assert isinstance(quality, dict)
+    checkout = quality["steps"][0]
+    assert isinstance(checkout, dict)
+    checkout["with"] = {"path": "workspace/source"}
+
+    findings = _phase5_run_wiring_documents(documents, monkeypatch, tmp_path)
+
+    abi_findings = [
+        finding for finding in findings if finding.detail == "../.github/workflows/abi.yml"
+    ]
+    assert len(abi_findings) == 1
+    assert "source-relative expected root" in abi_findings[0].message
+
+
+def test_phase5_wiring_resolves_product_from_literal_checkout_prefix(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    documents = _phase5_wiring_documents()
+    abi = documents["../.github/workflows/abi.yml"]
+    assert isinstance(abi, dict)
+    quality = abi["jobs"]["quality"]  # type: ignore[index]
+    assert isinstance(quality, dict)
+    checkout = quality["steps"][0]
+    assert isinstance(checkout, dict)
+    checkout["with"] = {"path": "workspace/source"}
+    defaults = quality["defaults"]
+    assert isinstance(defaults, dict)
+    run_defaults = defaults["run"]
+    assert isinstance(run_defaults, dict)
+    run_defaults["working-directory"] = "workspace/source/policy-engine"
+
+    findings = _phase5_run_wiring_documents(documents, monkeypatch, tmp_path)
+
+    assert findings == []
+
+
+@pytest.mark.parametrize("path_key", ["path", "PATH", "PaTh"])
+def test_phase5_wiring_normalizes_checkout_path_input_case(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, path_key: str
+) -> None:
+    documents = _phase5_wiring_documents()
+    abi = documents["../.github/workflows/abi.yml"]
+    assert isinstance(abi, dict)
+    quality = abi["jobs"]["quality"]  # type: ignore[index]
+    assert isinstance(quality, dict)
+    checkout = quality["steps"][0]
+    assert isinstance(checkout, dict)
+    checkout["with"] = {path_key: "workspace/source"}
+    defaults = quality["defaults"]
+    assert isinstance(defaults, dict)
+    run_defaults = defaults["run"]
+    assert isinstance(run_defaults, dict)
+    run_defaults["working-directory"] = "workspace/source/policy-engine"
+
+    findings = _phase5_run_wiring_documents(documents, monkeypatch, tmp_path)
+
+    assert findings == []
+
+
+def test_phase5_wiring_rejects_case_normalized_checkout_path_false_green(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    documents = _phase5_wiring_documents()
+    abi = documents["../.github/workflows/abi.yml"]
+    assert isinstance(abi, dict)
+    quality = abi["jobs"]["quality"]  # type: ignore[index]
+    assert isinstance(quality, dict)
+    checkout = quality["steps"][0]
+    assert isinstance(checkout, dict)
+    checkout["with"] = {"PATH": "workspace/source"}
+
+    findings = _phase5_run_wiring_documents(documents, monkeypatch, tmp_path)
+
+    abi_findings = [
+        finding
+        for finding in findings
+        if getattr(finding, "detail", None) == "../.github/workflows/abi.yml"
+    ]
+    assert len(abi_findings) == 1
+    assert "source-relative expected root" in abi_findings[0].message
+
+
+def test_phase5_wiring_rejects_casefold_colliding_checkout_input_keys(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    documents = _phase5_wiring_documents()
+    abi = documents["../.github/workflows/abi.yml"]
+    assert isinstance(abi, dict)
+    quality = abi["jobs"]["quality"]  # type: ignore[index]
+    assert isinstance(quality, dict)
+    checkout = quality["steps"][0]
+    assert isinstance(checkout, dict)
+    checkout["with"] = {"path": "workspace/source", "PATH": "another/source"}
+
+    findings = _phase5_run_wiring_documents(documents, monkeypatch, tmp_path)
+
+    abi_findings = [
+        finding
+        for finding in findings
+        if getattr(finding, "detail", None) == "../.github/workflows/abi.yml"
+    ]
+    assert len(abi_findings) == 1
+    assert "collide after case-insensitive normalization" in abi_findings[0].message
+
+
+_ACTIONS_CHECKOUT_V4_2_2_INPUT_IDS = (
+    "repository",
+    "ref",
+    "token",
+    "ssh-key",
+    "ssh-known-hosts",
+    "ssh-strict",
+    "ssh-user",
+    "persist-credentials",
+    "path",
+    "clean",
+    "filter",
+    "sparse-checkout",
+    "sparse-checkout-cone-mode",
+    "fetch-depth",
+    "fetch-tags",
+    "show-progress",
+    "lfs",
+    "submodules",
+    "set-safe-directory",
+    "github-server-url",
+)
+
+
+@pytest.mark.parametrize(
+    "input_name",
+    [
+        spelling
+        for input_name in _ACTIONS_CHECKOUT_V4_2_2_INPUT_IDS
+        if input_name not in {"path", "fetch-depth"}
+        for spelling in (input_name, input_name.upper())
+    ],
+)
+def test_phase5_wiring_fails_closed_for_every_other_declared_checkout_input(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, input_name: str
+) -> None:
+    documents = _phase5_wiring_documents()
+    abi = documents["../.github/workflows/abi.yml"]
+    assert isinstance(abi, dict)
+    quality = abi["jobs"]["quality"]  # type: ignore[index]
+    assert isinstance(quality, dict)
+    checkout = quality["steps"][0]
+    assert isinstance(checkout, dict)
+    checkout["with"] = {input_name: "non-empty-value"}
+
+    findings = _phase5_run_wiring_documents(documents, monkeypatch, tmp_path)
+
+    assert "../.github/workflows/abi.yml" in {finding.detail for finding in findings}
+
+
+@pytest.mark.parametrize(
+    "checkout_inputs",
+    [
+        {None: "workspace/source"},
+        {"path": ""},
+        {"path": False},
+        {"path": 0},
+        {"path": None},
+        {"fetch-depth": ""},
+        {"fetch-depth": False},
+        {"fetch-depth": None},
+        {"fetch-depth": -1},
+        {"fetch-depth": 1.5},
+        {"unknown-input": "value"},
+    ],
+    ids=[
+        "non-string-key",
+        "empty-path",
+        "boolean-path",
+        "numeric-path",
+        "null-path",
+        "empty-fetch-depth",
+        "boolean-fetch-depth",
+        "null-fetch-depth",
+        "negative-fetch-depth",
+        "fractional-fetch-depth",
+        "unknown-field",
+    ],
+)
+def test_phase5_wiring_fails_closed_for_malformed_checkout_input_maps(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, checkout_inputs: dict[object, object]
+) -> None:
+    documents = _phase5_wiring_documents()
+    abi = documents["../.github/workflows/abi.yml"]
+    assert isinstance(abi, dict)
+    quality = abi["jobs"]["quality"]  # type: ignore[index]
+    assert isinstance(quality, dict)
+    checkout = quality["steps"][0]
+    assert isinstance(checkout, dict)
+    checkout["with"] = checkout_inputs
+
+    findings = _phase5_run_wiring_documents(documents, monkeypatch, tmp_path)
+
+    assert "../.github/workflows/abi.yml" in {finding.detail for finding in findings}
+
+
+@pytest.mark.parametrize("with_inputs", [None, "path: other", ["path", "other"]])
+def test_phase5_wiring_rejects_non_mapping_checkout_with_block(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, with_inputs: object
+) -> None:
+    documents = _phase5_wiring_documents()
+    abi = documents["../.github/workflows/abi.yml"]
+    assert isinstance(abi, dict)
+    quality = abi["jobs"]["quality"]  # type: ignore[index]
+    assert isinstance(quality, dict)
+    checkout = quality["steps"][0]
+    assert isinstance(checkout, dict)
+    checkout["with"] = with_inputs
+
+    findings = _phase5_run_wiring_documents(documents, monkeypatch, tmp_path)
+
+    assert "../.github/workflows/abi.yml" in {finding.detail for finding in findings}
+
+
+@pytest.mark.parametrize("fetch_depth", [0, 1, 2, "0", "1", "2"])
+def test_phase5_wiring_accepts_nonnegative_integer_fetch_depth_literals(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, fetch_depth: int | str
+) -> None:
+    documents = _phase5_wiring_documents()
+    architecture = documents["ops/ci/templates/workflows/arch.yml"]
+    assert isinstance(architecture, dict)
+    job = architecture["jobs"]["architecture"]  # type: ignore[index]
+    assert isinstance(job, dict)
+    checkout = job["steps"][0]
+    assert isinstance(checkout, dict)
+    checkout["with"] = {"fetch-depth": fetch_depth}
+
+    findings = _phase5_run_wiring_documents(documents, monkeypatch, tmp_path)
+
+    assert findings == []
+
+
+@pytest.mark.parametrize("input_name", ["FETCH-DEPTH", "Fetch-Depth"])
+def test_phase5_wiring_normalizes_fetch_depth_input_case(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, input_name: str
+) -> None:
+    documents = _phase5_wiring_documents()
+    architecture = documents["ops/ci/templates/workflows/arch.yml"]
+    assert isinstance(architecture, dict)
+    job = architecture["jobs"]["architecture"]  # type: ignore[index]
+    assert isinstance(job, dict)
+    checkout = job["steps"][0]
+    assert isinstance(checkout, dict)
+    checkout["with"] = {input_name: 0}
+
+    findings = _phase5_run_wiring_documents(documents, monkeypatch, tmp_path)
+
+    assert findings == []
+
+
+def test_phase5_release_command_inventory_uses_checkout_source_prefix(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    from tools.devx.workspace import repository_sota_closeout
+
+    release = tmp_path / "release.yml"
+    release.write_text(
+        "jobs:\n"
+        "  release-gates:\n"
+        "    runs-on: ubuntu-latest\n"
+        "    defaults:\n"
+        "      run:\n"
+        "        working-directory: workspace/source/policy-engine\n"
+        "    steps:\n"
+        "      - name: Checkout\n"
+        "        uses: actions/checkout@v4\n"
+        "        with:\n"
+        "          path: workspace/source\n"
+        "      - name: Operability\n"
+        "        run: uv run polisyos-tools release check-operability-release-gates --fail-closed\n"
+        "      - name: Compatibility\n"
+        "        run: uv run polisyos-tools release check-compatibility-release-gates --fail-on-contract-errors\n",
+        encoding="utf-8",
+    )
+    original_resolve = repository_sota_closeout._resolve
+    monkeypatch.setattr(
+        repository_sota_closeout,
+        "_resolve",
+        lambda path: release
+        if path == "../.github/workflows/release.yml"
+        else original_resolve(path),
+    )
+
+    commands, error = repository_sota_closeout._workflow_commands(
+        "../.github/workflows/release.yml"
+    )
+
+    assert error is None
+    assert any(
+        "check-operability-release-gates" in token for command in commands for token in command
+    )
+    assert any(
+        "check-compatibility-release-gates" in token for command in commands for token in command
+    )
+
+    release.write_text(
+        release.read_text(encoding="utf-8").replace(
+            "path: workspace/source\n", "path: workspace/other-source\n"
+        ),
+        encoding="utf-8",
+    )
+
+    commands, error = repository_sota_closeout._workflow_commands(
+        "../.github/workflows/release.yml"
+    )
+
+    assert error is None
+    assert commands == []

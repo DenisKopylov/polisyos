@@ -15940,30 +15940,43 @@
       ],
       [
         "limited",
-        "UNRUN on this current 7b23055 snapshot",
+        "No whole-property LA-023 replay is established for observed HEAD 3d07f60. Prior bounded S1/P4 evidence is from older source observations and is not a current source/input/profile/backend freeze.",
         "source_research_execution_unrun",
         [
           [
+            "partition_4_report",
+            "/occurrence_assessments/30",
+            "exact PLG-02 occurrence assessment row; prior proposal/navigation only, not a current runtime receipt"
+          ],
+          [
             "s1_s2_s3",
-            "/findings/LA-023",
-            "S1_S2_S3_keyed_source_research"
+            "/findings/LA-023/occurrence_bindings/0",
+            "PLG-02 occurrence identity bound to the exact original LA-023 span"
+          ],
+          [
+            "s1_s2_s3",
+            "/findings/LA-023/occurrences/0",
+            "bounded supported optimizer/bridge evidence only; not whole-property closure"
           ]
         ],
         [
           [
-            "s1_s2_s3",
-            "/findings/LA-023/next_check"
+            "partition_4_report",
+            "/occurrence_assessments/30/next_check"
           ]
         ],
         {
-          "source_ref": "s1_s2_s3",
-          "pointer": "/findings/LA-023/p40"
+          "source_ref": "partition_4_report",
+          "pointer": "/occurrence_assessments/30/P40"
         },
         {
           "status": "not_established",
           "reason": "No row-specific exact-slice base, exact command, and zero complete-input-denominator intersection are established here."
         },
-        []
+        [
+          "PLG-02 remains occurrence 1 of the full LA-023 span; bounded supported optimizer/bridge evidence is not full acceptance, and the per-row next check is a prior proposal rather than an execution receipt.",
+          "No whole-property replay/current source-input-profile-backend freeze for the observed 3d07f60 candidate is established by these cited records."
+        ]
       ],
       [
         "partition_4_report",
@@ -16000,30 +16013,43 @@
       ],
       [
         "limited",
-        "UNRUN on this current 7b23055 snapshot",
+        "No whole-property LA-023 replay is established for observed HEAD 3d07f60. Prior bounded S1/P4 evidence is from older source observations and is not a current source/input/profile/backend freeze.",
         "source_research_execution_unrun",
         [
           [
+            "partition_4_report",
+            "/occurrence_assessments/31",
+            "exact PLG-03 occurrence assessment row; prior proposal/navigation only, not a current runtime receipt"
+          ],
+          [
             "s1_s2_s3",
-            "/findings/LA-023",
-            "S1_S2_S3_keyed_source_research"
+            "/findings/LA-023/occurrence_bindings/1",
+            "PLG-03 occurrence identity bound to the exact original LA-023 span"
+          ],
+          [
+            "s1_s2_s3",
+            "/findings/LA-023/occurrences/1",
+            "adjacent signed-wealth/Gini profile result only; nonmatching to LA-023 and not closure"
           ]
         ],
         [
           [
-            "s1_s2_s3",
-            "/findings/LA-023/next_check"
+            "partition_4_report",
+            "/occurrence_assessments/31/next_check"
           ]
         ],
         {
-          "source_ref": "s1_s2_s3",
-          "pointer": "/findings/LA-023/p40"
+          "source_ref": "partition_4_report",
+          "pointer": "/occurrence_assessments/31/P40"
         },
         {
           "status": "not_established",
           "reason": "No row-specific exact-slice base, exact command, and zero complete-input-denominator intersection are established here."
         },
-        []
+        [
+          "PLG-03 remains occurrence 2 of the same full LA-023 span; signed-wealth/Gini is adjacent nonmatching evidence, not a criterion requirement or closure. Keep this occurrence and its history distinct; its per-row next check is a prior proposal, not an execution receipt.",
+          "No whole-property replay/current source-input-profile-backend freeze for the observed 3d07f60 candidate is established by these cited records."
+        ]
       ],
       [
         "partition_4_report",

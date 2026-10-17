@@ -30,6 +30,7 @@ from ..artifacts.manifest import (
     InputRef,
     ProducerInfo,
     SchemaInfo,
+    WarningRecord,
 )
 from ..artifacts.protocol import _require_return_selected_profile_writer
 from ..artifacts.write_contract import ArtifactWriteOptions
@@ -122,6 +123,14 @@ def _run_finalize_lease(run_dir: Path) -> Iterator[None]:
             os.close(descriptor)
 
 
+class _FcntlModule(Protocol):
+    """The fcntl operations retained until a run execution lease is released."""
+
+    LOCK_UN: int
+
+    def flock(self, descriptor: int, operation: int) -> None: ...
+
+
 class _RunExecutionLease:
     """Hold one run's writer lease until finalization, suspension, or process exit."""
 
@@ -130,7 +139,8 @@ class _RunExecutionLease:
         self._run_key: Path | None = None
         self._thread_lock: threading.Lock | None = None
         self._descriptor: int | None = None
-        self._fcntl: object | None = None
+        self._fcntl: _FcntlModule | None = None
+        self._owner_pid: int | None = None
 
     def acquire(self) -> None:
         try:
@@ -170,6 +180,7 @@ class _RunExecutionLease:
                 if exc.errno in {errno.EACCES, errno.EAGAIN}:
                     raise _FinalizeRecoveryError("run_execution_lease_busy") from exc
                 raise _FinalizeRecoveryError("run_execution_lease_unavailable") from exc
+            self._owner_pid = os.getpid()
             self._fcntl = fcntl
             self._descriptor = descriptor
         except (ImportError, OSError) as exc:
@@ -180,6 +191,11 @@ class _RunExecutionLease:
         except Exception:
             self._release_thread_lock()
             raise
+
+    def require_owner_process(self) -> None:
+        """Refuse terminal lifecycle changes from a process that inherited this lease."""
+        if self._owner_pid != os.getpid():
+            raise _FinalizeRecoveryError("run_execution_lease_inherited_process")
 
     def _release_thread_lock(self) -> None:
         run_key = self._run_key
@@ -196,12 +212,15 @@ class _RunExecutionLease:
     def release(self) -> None:
         descriptor = self._descriptor
         fcntl = self._fcntl
+        owner_pid = self._owner_pid
         self._descriptor = None
         self._fcntl = None
+        self._owner_pid = None
         try:
             if descriptor is not None and fcntl is not None:
                 try:
-                    fcntl.flock(descriptor, fcntl.LOCK_UN)
+                    if owner_pid == os.getpid():
+                        fcntl.flock(descriptor, fcntl.LOCK_UN)
                 finally:
                     os.close(descriptor)
         finally:
@@ -450,8 +469,7 @@ def _run_invocation_record_write_options(
         if record.outcome_state_ref is not None:
             refs.append((record.outcome_state_ref, "outcome_state"))
         refs.extend(
-            (ref, f"outcome_output_{index}")
-            for index, ref in enumerate(record.output_refs)
+            (ref, f"outcome_output_{index}") for index, ref in enumerate(record.output_refs)
         )
     return ArtifactWriteOptions(
         kind=_RUN_INVOCATION_RECORD_KIND,
@@ -1378,9 +1396,7 @@ def _read_runtime_invocation_attempts(
     except (TypeError, UnicodeError, ValueError) as exc:
         raise _FinalizeRecoveryError("run_invocation_trace_invalid") from exc
     starts = [
-        record
-        for record in records
-        if record.phase == "core" and record.event == "RUN_STARTED"
+        record for record in records if record.phase == "core" and record.event == "RUN_STARTED"
     ]
     if (
         len(starts) != 1
@@ -1439,6 +1455,12 @@ class RunContext:
     @property
     def trace_path(self) -> Path | None:
         return self._trace_path
+
+    def _require_active_lease_owner(self) -> None:
+        """Require this process to own an active run lease before terminal transitions."""
+        lease = self._active_lease
+        if lease is not None:
+            lease.require_owner_process()
 
     @contextmanager
     def _parent_state_transition_lease(self, *, run_scoped: bool = True) -> Iterator[None]:
@@ -1549,8 +1571,9 @@ class RunContext:
         run_dir.mkdir(parents=True, exist_ok=True)
         run_dir = run_dir.resolve(strict=True)
         trace_path = run_dir / "trace.jsonl"
-        active_lease = _RunExecutionLease(run_dir)
-        active_lease.acquire()
+        lease = _RunExecutionLease(run_dir)
+        lease.acquire()
+        active_lease: _RunExecutionLease | None = lease
         try:
             if os.path.lexists(trace_path) or os.path.lexists(_finalize_journal_path(run_dir)):
                 raise _FinalizeRecoveryError("run_start_existing_lifecycle")
@@ -1634,8 +1657,9 @@ class RunContext:
             )
         ):
             raise _FinalizeRecoveryError("run_resume_worker_invocation_id_invalid")
-        active_lease = _RunExecutionLease(run_dir)
-        active_lease.acquire()
+        lease = _RunExecutionLease(run_dir)
+        lease.acquire()
+        active_lease: _RunExecutionLease | None = lease
         try:
             records, started = _read_incomplete_run_trace(
                 run_dir,
@@ -1909,6 +1933,7 @@ class RunContext:
 
     def suspend_for_resume(self) -> None:
         """Release this writer without finalizing so a new context can explicitly resume."""
+        self._require_active_lease_owner()
         with self._parent_state_transition_lease():
             if self._active_lease is None:
                 return
@@ -1942,7 +1967,18 @@ class RunContext:
         inputs: list[ArtifactRef] | None = None,
         outputs: list[ArtifactRef] | None = None,
         metrics: dict[str, float | int] | None = None,
+        warnings: list[WarningRecord] | None = None,
     ) -> None:
+        """Emit one trace event with optional typed warning details.
+
+        Args:
+            phase: Trace phase that owns the event.
+            event: Event name to persist.
+            inputs: Artifact references consumed by the event.
+            outputs: Artifact references produced by the event.
+            metrics: Numeric measurements associated with the event.
+            warnings: Typed warnings to persist in the existing trace warning field.
+        """
         if event in {"RUN_STARTED", "RUN_FINALIZED", "RUN_CONTEXT_SNAPSHOT"}:
             raise _FinalizeRecoveryError("run_context_owner_event_reserved")
         with self._parent_state_transition_lease(run_scoped=False):
@@ -1952,6 +1988,7 @@ class RunContext:
                 inputs=inputs,
                 outputs=outputs,
                 metrics=metrics,
+                warnings=warnings,
             )
 
     def read_runtime_invocation_attempts(self) -> list[_RunInvocationAttempt]:
@@ -1968,7 +2005,6 @@ class RunContext:
             self._trace_path,
             run_id=self.run_manifest.run_id,
         )
-
 
     def merge_worker_events(
         self,
@@ -2256,11 +2292,17 @@ class RunContext:
         inputs: list[ArtifactRef] | None = None,
         outputs: list[ArtifactRef] | None = None,
         metrics: dict[str, float | int] | None = None,
+        warnings: list[WarningRecord] | None = None,
         ts: datetime | None = None,
     ) -> None:
         self._require_worker_receipt_reconciled()
         if self._closed:
             raise _FinalizeRecoveryError("run_context_writer_closed")
+        if warnings is not None and any(
+            not isinstance(warning, WarningRecord) for warning in warnings
+        ):
+            raise TypeError("run_context_trace_warning_invalid")
+        warning_payloads = [warning.model_dump(mode="json") for warning in warnings or []]
         for ref in [*(inputs or []), *(outputs or [])]:
             self._record_ref_owner(ref, writer=f"RunContext.emit:{event}")
         rec = TraceRecord(
@@ -2273,6 +2315,7 @@ class RunContext:
             cell_id=self.cell_id,
             refs=TraceRefs(inputs=inputs or [], outputs=outputs or []),
             metrics=metrics or {},
+            warnings=warning_payloads,
         )
         self.trace.emit(rec)
         if self._audit_sink is not None:
@@ -2303,6 +2346,7 @@ class RunContext:
         *,
         errors: list[dict[str, object]] | None = None,
     ) -> ArtifactRef:
+        self._require_active_lease_owner()
         with self._worker_merge_lock:
             run_dir = self._trace_path.parent if self._trace_path is not None else None
             try:

@@ -44,6 +44,14 @@ depends on `polisyos.ir`, but not the other way around.
   unless you also update the generated
   [Public Surface](../../../docs/reference/public-surface.md).
 
+Run trace events: `polisyos.core.run.RunContext.emit` accepts optional typed
+`WarningRecord` values and stores them in the existing trace `warnings`
+collection. Omitting the argument preserves the existing empty-list trace
+output; warning transport does not change metric, lifecycle, or authority
+semantics. The process that acquired a run's active lease owns `finalize()` and
+`suspend_for_resume()`; a forked child can continue to stage ordinary events and
+inputs/outputs, but cannot terminalize or release its inherited parent lease.
+
 ## Internal Layout
 
 - `__init__.py` owns the public lazy facade.

@@ -30,11 +30,11 @@ import signal
 import sys
 import threading
 import time
-from collections.abc import Awaitable, Callable, Mapping
+from collections.abc import Awaitable, Callable, Iterator, Mapping
 from concurrent.futures import wait
 from datetime import UTC, datetime
 from decimal import Decimal, InvalidOperation
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any, Literal, Protocol, runtime_checkable
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
@@ -60,10 +60,71 @@ from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.state_branching import branch_state
 
 if TYPE_CHECKING:
+    from multiprocessing.context import BaseContext
+
+    from polisyos.core.run.context import RunContext
     from polisyos.scientist.orchestration.engine.circuit_breaker import CircuitBreaker
     from polisyos.scientist.orchestration.engine.context import ExecutionContext
 
 _logger = logging.getLogger(__name__)
+
+
+@runtime_checkable
+class _ContextWithProcessFactory(Protocol):
+    """The concrete multiprocessing contexts expose their Process constructor."""
+
+    Process: Callable[..., mp.Process]
+
+
+def _process_factory(context: BaseContext) -> Callable[..., mp.Process]:
+    """Admit a supported context only when its Process factory is callable."""
+    if not isinstance(context, _ContextWithProcessFactory):
+        raise _timeout_worker_unsupported("process_context_process_factory_unavailable")
+    process_factory = context.Process
+    if not callable(process_factory):
+        raise _timeout_worker_unsupported("process_context_process_factory_unavailable")
+    return process_factory
+
+
+def _worker_lifecycle_run_view(run: RunContext) -> RunContext:
+    """Delegate a worker run surface while refusing parent-owned transitions."""
+    from polisyos.core.run.context import RunContext as RunContextType
+
+    class _WorkerLifecycleRunView(RunContextType):
+        def __init__(self, target: RunContextType) -> None:
+            object.__setattr__(self, "_target", target)
+
+        def __getattribute__(self, name: str) -> object:
+            if name in {"_target", "__class__", "finalize", "suspend_for_resume"}:
+                return object.__getattribute__(self, name)
+            target: RunContextType = object.__getattribute__(self, "_target")
+            return getattr(target, name)
+
+        def __setattr__(self, name: str, value: object) -> None:
+            if name in {"finalize", "suspend_for_resume"}:
+                raise AttributeError("worker run lifecycle methods cannot be rebound")
+            target: RunContextType = object.__getattribute__(self, "_target")
+            setattr(target, name, value)
+
+        def __delattr__(self, name: str) -> None:
+            if name in {"finalize", "suspend_for_resume"}:
+                raise AttributeError("worker run lifecycle methods cannot be removed")
+            target: RunContextType = object.__getattribute__(self, "_target")
+            delattr(target, name)
+
+        def finalize(
+            self,
+            status: str = "ok",
+            *,
+            errors: list[dict[str, object]] | None = None,
+        ) -> ArtifactRef:
+            raise ValueError("timeout_worker_run_lifecycle_not_owned")
+
+        def suspend_for_resume(self) -> None:
+            raise ValueError("timeout_worker_run_lifecycle_not_owned")
+
+    return _WorkerLifecycleRunView(run)
+
 
 # Node computation has one deadline; framed result delivery has one finite
 # window from the actual completion mark. Parent and supervisor drain while
@@ -447,9 +508,7 @@ def _attempt_context_for_engine_attempt(
     from polisyos.scientist.orchestration.engine.context import ExecutionContext as ContextType
 
     if not isinstance(attempt_context, ContextType):
-        raise _InvocationAttemptPersistenceError(
-            "run_invocation_attempt_context_type_invalid"
-        )
+        raise _InvocationAttemptPersistenceError("run_invocation_attempt_context_type_invalid")
     return attempt_context
 
 
@@ -605,7 +664,7 @@ class _AttemptAuthority:
 def _new_attempt_authority(
     deadline_monotonic: float | None,
     *,
-    process_context: Any = None,
+    process_context: BaseContext | None = None,
 ) -> _AttemptAuthority:
     """Create a local or process-shared attempt authority for one invocation."""
     if process_context is None:
@@ -657,7 +716,7 @@ class _AttemptFacade:
             if not _has_selected_profile_writer_api(operation):
                 setattr(self, name, self.__getattr__(name) if callable(operation) else None)
 
-    def _invoke_store_write(self, name: str, *args: Any, **kwargs: Any) -> Any:
+    def _invoke_store_write(self, name: str, *args: Any, **kwargs: Any) -> object:
         operation = getattr(self._target, name)
         if name not in self._write_methods:
             return operation(*args, **kwargs)
@@ -666,11 +725,12 @@ class _AttemptFacade:
             if self._raise_on_revoked_write
             else self._authority.invoke
         )
-        return invoke(
+        result: object = invoke(
             operation,
             *(_unwrap_manifest_value(arg) for arg in args),
             **{key: _unwrap_manifest_value(item) for key, item in kwargs.items()},
         )
+        return result
 
     def put_bytes(
         self,
@@ -683,7 +743,9 @@ class _AttemptFacade:
         call_options: dict[str, Any] = {}
         if return_selected_profile is not False:
             call_options["return_selected_profile"] = return_selected_profile
-        return self._invoke_store_write("put_bytes", data, opts, **call_options)
+        return _require_artifact_ref(
+            self._invoke_store_write("put_bytes", data, opts, **call_options)
+        )
 
     def put_json(
         self,
@@ -700,7 +762,7 @@ class _AttemptFacade:
         call_options: dict[str, Any] = {}
         if return_selected_profile is not False:
             call_options["return_selected_profile"] = return_selected_profile
-        return self._invoke_store_write("put_json", *args, **call_options)
+        return _require_artifact_ref(self._invoke_store_write("put_json", *args, **call_options))
 
     def __getattr__(self, name: str) -> Any:
         value = getattr(self._target, name)
@@ -780,7 +842,7 @@ class _AttemptCollectionFacade:
     def __delitem__(self, key: Any) -> None:
         self._authority.invoke(self._target.__delitem__, key)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[object]:
         return (_wrap_manifest_value(item, self._authority) for item in self._target)
 
     def __len__(self) -> int:
@@ -800,6 +862,11 @@ class _AttemptModelFacade:
     @property
     def __class__(self) -> type[Any]:
         return type(self._target)
+
+    @__class__.setter
+    def __class__(self, value: object) -> None:
+        del value
+        raise AttributeError("attempt model facade class is read-only")
 
     def __getattr__(self, name: str) -> Any:
         value = getattr(self._target, name)
@@ -1104,7 +1171,7 @@ class _WorkerNodeError(RuntimeError):
 class _CompletedAttemptError(RuntimeError):
     """Deliver only known completed-failure spend beside the original local error."""
 
-    def __init__(self, error: BaseException, known_spend: dict[str, Decimal]) -> None:
+    def __init__(self, error: Exception, known_spend: dict[str, Decimal]) -> None:
         super().__init__(str(error))
         self.error = error
         self.category = _exception_category(error)
@@ -1200,10 +1267,24 @@ def _spend_changes(before: dict[str, Decimal], after: dict[str, Decimal]) -> dic
     return delta
 
 
+def _require_artifact_ref(value: object) -> ArtifactRef:
+    """Require the existing artifact writer result contract at the dynamic boundary."""
+    if not isinstance(value, ArtifactRef):
+        raise TypeError("artifact_store_write_returned_invalid_ref")
+    return value
+
+
+def _require_node_outcome(value: object) -> NodeOutcome:
+    """Require node implementations to return the engine's typed outcome."""
+    if not isinstance(value, NodeOutcome):
+        raise TypeError("node execution must return a NodeOutcome")
+    return value
+
+
 def _execute_capture_failure(node: Any, ctx: Any, state: ExperimentState) -> NodeOutcome:
     before = _spend_snapshot(state)
     try:
-        return node.execute(ctx, state)
+        return _require_node_outcome(node.execute(ctx, state))
     except _RETRY_RUNTIME_ERRORS as exc:
         raise _CompletedAttemptError(exc, _spend_changes(before, _spend_snapshot(state))) from exc
 
@@ -1768,7 +1849,7 @@ def _execute_with_timeout_sync(
         if not done or completed[0] > deadline:
             raise _thread_deadline_error(future)
         # Retrieve outside timeout handling: provider TimeoutError keeps its category.
-        return future.result()
+        return _require_node_outcome(future.result())
     except BaseException:
         future.cancel()
         raise
@@ -1793,7 +1874,7 @@ async def _execute_with_timeout_thread_async(
         done, _ = await asyncio.wait([wrapped], timeout=_remaining_deadline(deadline))
         if not done or completed[0] > deadline:
             raise _thread_deadline_error(future)
-        return wrapped.result()
+        return _require_node_outcome(wrapped.result())
     except BaseException:
         # The actual concurrent Future is cancelled before handing ownership back;
         # asyncio's deferred cancellation callback cannot admit a queued late job.
@@ -1881,11 +1962,14 @@ def _owned_process_group_id(
         return None
     if not process.is_alive():
         return None
+    process_id = process.pid
+    if process_id is None:
+        return None
     try:
-        process_group_id = os.getpgid(process.pid)
+        process_group_id = os.getpgid(process_id)
     except OSError:
         return None
-    if process_group_id != process.pid or process_group_id == os.getpgrp():
+    if process_group_id != process_id or process_group_id == os.getpgrp():
         return None
     return process_group_id
 
@@ -1969,13 +2053,23 @@ def _close_result_queue(result_queue: Any) -> None:
     result_queue.join_thread()
 
 
+def _require_worker_result_frame(value: object) -> tuple[str, object]:
+    """Admit the two-field worker status envelope before consuming its payload."""
+    if not isinstance(value, tuple) or len(value) != 2:
+        raise RuntimeError("timeout_worker_result_frame_invalid")
+    status, payload = value
+    if not isinstance(status, str):
+        raise RuntimeError("timeout_worker_result_frame_invalid")
+    return status, payload
+
+
 def _drain_result_sync(
     process: mp.Process,
     result_queue: Any,
     *,
     compute_deadline: float,
     completion_time: Any = None,
-) -> tuple[str, Any]:
+) -> tuple[str, object]:
     """Receive a result while its producer runs, without partial-frame blocking."""
     while process.is_alive() and not _completion_before_deadline(
         completion_time,
@@ -1985,14 +2079,14 @@ def _drain_result_sync(
         if remaining <= 0:
             raise _WorkerComputeTimeout
         try:
-            result = result_queue.get(timeout=min(_PROCESS_RESULT_POLL_S, remaining))
+            raw_frame: object = result_queue.get(timeout=min(_PROCESS_RESULT_POLL_S, remaining))
         except EOFError:
             raise _WorkerComputeTimeout from None
         except queue.Empty:
             continue
         if not _completion_before_deadline(completion_time, compute_deadline):
             raise _WorkerComputeTimeout
-        return result
+        return _require_worker_result_frame(raw_frame)
 
     if not process.is_alive() and not _completion_before_deadline(
         completion_time,
@@ -2006,7 +2100,10 @@ def _drain_result_sync(
     while time.monotonic() < delivery_deadline:
         remaining = delivery_deadline - time.monotonic()
         try:
-            return result_queue.get(timeout=min(_PROCESS_RESULT_POLL_S, remaining))
+            delivered_frame: object = result_queue.get(
+                timeout=min(_PROCESS_RESULT_POLL_S, remaining)
+            )
+            return _require_worker_result_frame(delivered_frame)
         except EOFError:
             raise _WorkerDeliveryTimeout from None
         except queue.Empty:
@@ -2020,14 +2117,14 @@ async def _drain_result_async(
     *,
     compute_deadline: float,
     completion_time: Any = None,
-) -> tuple[str, Any]:
+) -> tuple[str, object]:
     """Async counterpart of :func:`_drain_result_sync`."""
     while process.is_alive() and not _completion_before_deadline(
         completion_time,
         compute_deadline,
     ):
         try:
-            result = result_queue.get_nowait()
+            raw_frame: object = result_queue.get_nowait()
         except EOFError:
             raise _WorkerComputeTimeout from None
         except queue.Empty:
@@ -2038,7 +2135,7 @@ async def _drain_result_async(
         else:
             if not _completion_before_deadline(completion_time, compute_deadline):
                 raise _WorkerComputeTimeout
-            return result
+            return _require_worker_result_frame(raw_frame)
 
     if not process.is_alive() and not _completion_before_deadline(
         completion_time,
@@ -2051,7 +2148,8 @@ async def _drain_result_async(
     delivery_deadline = _delivery_deadline(completion_time)
     while time.monotonic() < delivery_deadline:
         try:
-            return result_queue.get_nowait()
+            delivered_frame: object = result_queue.get_nowait()
+            return _require_worker_result_frame(delivered_frame)
         except EOFError:
             raise _WorkerDeliveryTimeout from None
         except queue.Empty:
@@ -2223,6 +2321,8 @@ def _build_fork_worker_receipt_binding(
         raise _timeout_worker_unsupported("fork_dispatch_params_not_bound")
 
     spec = getattr(node, "spec", None)
+    if spec is None:
+        raise _timeout_worker_unsupported("fork_node_source_contract_not_typed")
     metadata = getattr(spec, "metadata", None)
     component_id = getattr(metadata, "component_id", None)
     if component_id is None or not callable(getattr(spec, "model_dump", None)):
@@ -2375,12 +2475,17 @@ def _admit_worker_execution_receipt(
         raise RuntimeError("timeout_worker_receipt_binding_mismatch")
     try:
         if error_payload is not None:
-            worker_error = _worker_node_error(error_payload, expected_run_id=expected_run_id)
-            outcome = None
+            worker_error: _WorkerNodeError | None = _worker_node_error(
+                error_payload, expected_run_id=expected_run_id
+            )
+            outcome: NodeOutcome | None = None
         elif outcome_bytes is not None:
-            outcome = deserialize_outcome(outcome_bytes)
-            if not isinstance(outcome, NodeOutcome) or outcome.state.run_id != expected_run_id:
+            decoded_outcome: object = deserialize_outcome(outcome_bytes)
+            if not isinstance(decoded_outcome, NodeOutcome) or (
+                decoded_outcome.state.run_id != expected_run_id
+            ):
                 raise RuntimeError("timeout_worker_outcome_run_binding_mismatch")
+            outcome = decoded_outcome
             worker_error = None
         else:
             raise RuntimeError("timeout_worker_result_kind_missing")
@@ -2484,6 +2589,21 @@ def _typed_node_timeout_worker(
         result_channel.close_writer()
 
 
+def _decode_worker_node_outcome(payload: object) -> NodeOutcome:
+    """Decode one admitted worker payload without passing non-bytes to the wire reader."""
+    from polisyos.scientist.orchestration.engine.runner.serialization import (
+        _coerce_wire_bytes,
+        deserialize_outcome,
+    )
+
+    if isinstance(payload, (bytes, bytearray, memoryview, str)) or (
+        isinstance(payload, list) and all(isinstance(item, int) for item in payload)
+    ):
+        outcome_value = deserialize_outcome(_coerce_wire_bytes(payload))
+        return _require_node_outcome(outcome_value)
+    return decode_node_outcome(payload)
+
+
 def _execute_with_timeout_process(
     node: Any,
     ctx: Any,
@@ -2493,7 +2613,7 @@ def _execute_with_timeout_process(
     authority: _AttemptAuthority | None = None,
     deadline_monotonic: float | None = None,
     alias: str | None = None,
-    process_context: Any = None,
+    process_context: BaseContext | None = None,
     dispatch_params: Mapping[str, Any] | None = None,
 ) -> NodeOutcome:
     deadline = _invocation_deadline(timeout_s, deadline_monotonic)
@@ -2538,24 +2658,23 @@ def _execute_with_timeout_process(
                 raise
             reason = str(exc) or type(exc).__name__
             raise _timeout_worker_unsupported(reason) from exc
+    compute_deadline = deadline if deadline is not None else time.monotonic() + timeout_s
     result_queue: _WorkerResultChannel | None = None
     process: Any = None
-    lifecycle: _WorkerLifecycle | None = None
+    lifecycle = _WorkerLifecycle(compute_deadline=compute_deadline, completion_time=None)
     try:
         result_queue = _WorkerResultChannel(mp_ctx)
         group_ready = mp_ctx.Event()
         completion_time = mp_ctx.Value("d", 0.0)
-        lifecycle = _WorkerLifecycle(
-            compute_deadline=deadline if deadline is not None else time.monotonic() + timeout_s,
-            completion_time=completion_time,
-            cleanup_complete=mp_ctx.Value("b", False) if start_method == "fork" else None,
-        )
+        lifecycle.completion_time = completion_time
+        lifecycle.cleanup_complete = mp_ctx.Value("b", False) if start_method == "fork" else None
+        process_factory = _process_factory(mp_ctx)
         if start_method == "spawn":
             if task is None:
                 raise RuntimeError("spawn_timeout_task_missing_after_admission")
             if authority._shared_active is None:
                 raise RuntimeError("spawn_timeout_authority_missing_after_admission")
-            process = mp_ctx.Process(
+            process = process_factory(
                 target=_typed_node_timeout_worker,
                 args=(
                     task,
@@ -2568,7 +2687,7 @@ def _execute_with_timeout_process(
                 daemon=True,
             )
         else:
-            process = mp_ctx.Process(
+            process = process_factory(
                 target=_node_execute_supervisor,
                 args=(
                     node,
@@ -2620,7 +2739,7 @@ def _execute_with_timeout_process(
         ) from None
     except _WorkerProcessExited:
         authority.revoke()
-        if process is not None and lifecycle is not None:
+        if process is not None:
             _terminate_owned_process(
                 process, lifecycle.process_group_id, lifecycle.cleanup_complete
             )
@@ -2643,7 +2762,6 @@ def _execute_with_timeout_process(
         authority.revoke()
         if process is not None:
             if process.is_alive():
-                assert lifecycle is not None
                 _terminate_owned_process(
                     process, lifecycle.process_group_id, lifecycle.cleanup_complete
                 )
@@ -2659,13 +2777,7 @@ def _execute_with_timeout_process(
                 payload,
                 expected_run_id=state.run_id,
             )
-        from polisyos.scientist.orchestration.engine.runner.serialization import deserialize_outcome
-
-        if isinstance(payload, (bytes, bytearray, memoryview, str)) or (
-            isinstance(payload, list) and all(isinstance(item, int) for item in payload)
-        ):
-            return deserialize_outcome(payload)
-        return decode_node_outcome(payload)
+        return _decode_worker_node_outcome(payload)
     if status == "worker_receipt":
         if fork_binding is None:
             raise RuntimeError("fork_worker_receipt_without_parent_dispatch")
@@ -2688,7 +2800,7 @@ async def _execute_with_timeout_process_async(
     authority: _AttemptAuthority | None = None,
     deadline_monotonic: float | None = None,
     alias: str | None = None,
-    process_context: Any = None,
+    process_context: BaseContext | None = None,
     dispatch_params: Mapping[str, Any] | None = None,
 ) -> NodeOutcome:
     deadline = _invocation_deadline(timeout_s, deadline_monotonic)
@@ -2735,24 +2847,23 @@ async def _execute_with_timeout_process_async(
                 raise
             reason = str(exc) or type(exc).__name__
             raise _timeout_worker_unsupported(reason) from exc
+    compute_deadline = deadline if deadline is not None else time.monotonic() + timeout_s
     result_queue: _WorkerResultChannel | None = None
     process: Any = None
-    lifecycle: _WorkerLifecycle | None = None
+    lifecycle = _WorkerLifecycle(compute_deadline=compute_deadline, completion_time=None)
     try:
         result_queue = _WorkerResultChannel(mp_ctx)
         group_ready = mp_ctx.Event()
         completion_time = mp_ctx.Value("d", 0.0)
-        lifecycle = _WorkerLifecycle(
-            compute_deadline=deadline if deadline is not None else time.monotonic() + timeout_s,
-            completion_time=completion_time,
-            cleanup_complete=mp_ctx.Value("b", False) if start_method == "fork" else None,
-        )
+        lifecycle.completion_time = completion_time
+        lifecycle.cleanup_complete = mp_ctx.Value("b", False) if start_method == "fork" else None
+        process_factory = _process_factory(mp_ctx)
         if start_method == "spawn":
             if task is None:
                 raise RuntimeError("spawn_timeout_task_missing_after_admission")
             if authority._shared_active is None:
                 raise RuntimeError("spawn_timeout_authority_missing_after_admission")
-            process = mp_ctx.Process(
+            process = process_factory(
                 target=_typed_node_timeout_worker,
                 args=(
                     task,
@@ -2765,7 +2876,7 @@ async def _execute_with_timeout_process_async(
                 daemon=True,
             )
         else:
-            process = mp_ctx.Process(
+            process = process_factory(
                 target=_node_execute_supervisor,
                 args=(
                     node,
@@ -2819,7 +2930,7 @@ async def _execute_with_timeout_process_async(
         ) from None
     except _WorkerProcessExited:
         authority.revoke()
-        if process is not None and lifecycle is not None:
+        if process is not None:
             _terminate_owned_process(
                 process, lifecycle.process_group_id, lifecycle.cleanup_complete
             )
@@ -2842,7 +2953,6 @@ async def _execute_with_timeout_process_async(
         authority.revoke()
         if process is not None:
             if process.is_alive():
-                assert lifecycle is not None
                 _terminate_owned_process(
                     process, lifecycle.process_group_id, lifecycle.cleanup_complete
                 )
@@ -2858,13 +2968,7 @@ async def _execute_with_timeout_process_async(
                 payload,
                 expected_run_id=state.run_id,
             )
-        from polisyos.scientist.orchestration.engine.runner.serialization import deserialize_outcome
-
-        if isinstance(payload, (bytes, bytearray, memoryview, str)) or (
-            isinstance(payload, list) and all(isinstance(item, int) for item in payload)
-        ):
-            return deserialize_outcome(payload)
-        return decode_node_outcome(payload)
+        return _decode_worker_node_outcome(payload)
     if status == "worker_receipt":
         if fork_binding is None:
             raise RuntimeError("fork_worker_receipt_without_parent_dispatch")
@@ -2906,7 +3010,7 @@ async def _execute_with_timeout_async(
         _remaining_deadline(deadline)
         before = _spend_snapshot(worker_state)
         try:
-            return await node.execute_async(worker_ctx, worker_state)
+            return _require_node_outcome(await node.execute_async(worker_ctx, worker_state))
         except _RETRY_RUNTIME_ERRORS as exc:
             raise _CompletedAttemptError(
                 exc, _spend_changes(before, _spend_snapshot(worker_state))
@@ -2999,7 +3103,6 @@ def _node_execute_worker(
             from polisyos.scientist.orchestration.engine.context import ExecutionContext
             from polisyos.scientist.orchestration.engine.runner._activity_worker import (
                 _StagedWorkerTraceSink,
-                _timeout_worker_lifecycle_refusal,
             )
 
             staged_trace = _StagedWorkerTraceSink()
@@ -3013,8 +3116,7 @@ def _node_execute_worker(
                 raise TypeError("fork_worker_core_run_context_not_typed")
             parent_run.trace = staged_trace
             parent_run._audit_sink = None
-            parent_run.finalize = _timeout_worker_lifecycle_refusal
-            parent_run.suspend_for_resume = _timeout_worker_lifecycle_refusal
+            worker_ctx = dataclasses.replace(ctx, run=_worker_lifecycle_run_view(run_facade))
             authority = getattr(run_facade, "_authority", None)
             if isinstance(authority, _AttemptAuthority):
                 object.__setattr__(
@@ -3028,7 +3130,10 @@ def _node_execute_worker(
                 )
                 object.__setattr__(run_facade, "_audit_sink", None)
 
-        outcome = node.execute(ctx, state)
+        else:
+            worker_ctx = ctx
+
+        outcome = node.execute(worker_ctx, state)
         _mark_completion()
         if isinstance(outcome, NodeOutcome):
             from polisyos.scientist.orchestration.engine.runner.serialization import (
@@ -3131,7 +3236,7 @@ async def execute_with_retry_async(
         remaining = _remaining_deadline(deadline)
         if _has_async:
             if remaining is None:
-                return await node.execute_async(attempt_ctx, attempt_state)
+                return _require_node_outcome(await node.execute_async(attempt_ctx, attempt_state))
             return await _execute_with_timeout_async(
                 node,
                 attempt_ctx,

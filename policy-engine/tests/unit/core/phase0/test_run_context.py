@@ -1,7 +1,10 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import multiprocessing
+import os
+import sys
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import replace
 from datetime import UTC, datetime, timedelta
@@ -16,6 +19,7 @@ from polisyos.core.artifacts.manifest import (
     CanonInfo,
     ProducerInfo,
     SchemaInfo,
+    WarningRecord,
 )
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
@@ -29,6 +33,49 @@ from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.core.trace import RunTerminality, TraceRecord
 from polisyos.core.trace.record import TraceRefs
 from polisyos.runtime.http.services.adapters.core_run import load_core_run
+
+
+def _fork_run_action(action: Any, run: RunContext) -> dict[str, Any]:
+    """Run one probe in a forked process and return its refusal/state readback."""
+    read_fd, write_fd = os.pipe()
+    child_pid = os.fork()
+    if child_pid == 0:
+        os.close(read_fd)
+        try:
+            try:
+                value = action()
+                outcome = {"kind": "returned", "value": str(value)}
+            except run_context._FinalizeRecoveryError as exc:
+                outcome = {"kind": "refused", "reason": str(exc)}
+            except BaseException as exc:
+                outcome = {"kind": "unexpected", "error": type(exc).__name__}
+            trace_path = run.trace_path
+            outcome.update(
+                {
+                    "closed": run._closed,
+                    "suspended": run._suspended,
+                    "trace_sha256": (
+                        hashlib.sha256(trace_path.read_bytes()).hexdigest()
+                        if trace_path is not None
+                        else None
+                    ),
+                }
+            )
+            os.write(write_fd, json.dumps(outcome, sort_keys=True).encode("utf-8"))
+        finally:
+            os.close(write_fd)
+            os._exit(0)
+
+    os.close(write_fd)
+    result_bytes = bytearray()
+    while chunk := os.read(read_fd, 4096):
+        result_bytes.extend(chunk)
+    os.close(read_fd)
+    _, wait_status = os.waitpid(child_pid, 0)
+    if not os.WIFEXITED(wait_status) or os.WEXITSTATUS(wait_status) != 0:
+        raise AssertionError("forked run-context probe did not exit cleanly")
+    return json.loads(result_bytes.decode("utf-8"))
+
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -1480,9 +1527,7 @@ def test_legacy_v101_owner_bytes_remain_exact_and_read_as_unbound_history(
 
     # Historical v1.0.1 owner chains remain readable, but an absent attempt tail
     # does not become a positive selection binding.
-    assert run_context._read_runtime_invocation_attempts(
-        store, trace_path, run_id=run_id
-    ) == []
+    assert run_context._read_runtime_invocation_attempts(store, trace_path, run_id=run_id) == []
 
 
 @pytest.mark.parametrize(
@@ -3464,3 +3509,255 @@ def test_owner_snapshot_with_mislinked_present_invocation_tail_is_rejected(
         match="run_resume_invocation_tail_chain_invalid",
     ):
         run.read_runtime_invocation_attempts()
+
+
+def test_run_context_emit_persists_warning_in_existing_trace_field(
+    store: FileSystemCAS, tmp_path: Path, producer, env_info
+) -> None:
+    bundle_ref = _bootstrap_registry_bundle(store)
+    run_dir = tmp_path / "runs" / "R_budget_warning"
+    ctx = RunContext.start(
+        store=store,
+        registry_bundle=bundle_ref,
+        producer=producer,
+        env=env_info,
+        run_dir=run_dir,
+    )
+    warning = WarningRecord(
+        code="budget_threshold",
+        msg="Budget threshold reached.",
+        data={"budget_key": "read"},
+    )
+
+    try:
+        ctx.emit(
+            "scientist.budget",
+            "BUDGET_ALERT",
+            metrics={"threshold_pct": 80},
+            warnings=[warning],
+        )
+        ctx.emit("test", "NO_WARNING")
+        trace_path = run_dir / "trace.jsonl"
+        before_invalid = trace_path.read_bytes()
+        emit_member = "emit"
+        dynamic_emit = getattr(ctx, emit_member)
+        with pytest.raises(TypeError, match="run_context_trace_warning_invalid"):
+            dynamic_emit("test", "INVALID_WARNING", warnings=[{"code": "bad"}])
+        assert trace_path.read_bytes() == before_invalid
+    finally:
+        ctx.finalize(status="ok")
+
+    records = [
+        TraceRecord.model_validate_json(line)
+        for line in (run_dir / "trace.jsonl").read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    alert = next(record for record in records if record.event == "BUDGET_ALERT")
+    ordinary = next(record for record in records if record.event == "NO_WARNING")
+    assert alert.phase == "scientist.budget"
+    assert alert.metrics == {"threshold_pct": 80}
+    assert alert.warnings == [
+        {
+            "code": "budget_threshold",
+            "msg": "Budget threshold reached.",
+            "data": {"budget_key": "read"},
+        }
+    ]
+    assert ordinary.warnings == []
+    assert next(record for record in records if record.event == "RUN_STARTED").warnings == []
+
+
+def test_run_context_warning_argument_preserves_owner_and_closed_guards(
+    store: FileSystemCAS, tmp_path: Path, producer, env_info
+) -> None:
+    bundle_ref = _bootstrap_registry_bundle(store)
+    run_dir = tmp_path / "runs" / "R_budget_warning_guards"
+    ctx = RunContext.start(
+        store=store,
+        registry_bundle=bundle_ref,
+        producer=producer,
+        env=env_info,
+        run_dir=run_dir,
+    )
+    warning = WarningRecord(code="budget_threshold", msg="Budget threshold reached.")
+    trace_path = run_dir / "trace.jsonl"
+    before_reserved = trace_path.read_bytes()
+    with pytest.raises(ValueError, match="run_context_owner_event_reserved"):
+        ctx.emit("core", "RUN_FINALIZED", warnings=[warning])
+    assert trace_path.read_bytes() == before_reserved
+
+    ctx.finalize(status="ok")
+    after_finalize = trace_path.read_bytes()
+    with pytest.raises(ValueError, match="run_context_writer_closed"):
+        ctx.emit("test", "AFTER_CLOSE", warnings=[warning])
+    assert trace_path.read_bytes() == after_finalize
+
+
+def test_run_context_pid_mismatch_refuses_terminal_transitions_and_unlock(
+    store: FileSystemCAS,
+    tmp_path: Path,
+    producer,
+    env_info,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    bundle_ref = _bootstrap_registry_bundle(store)
+    run_dir = tmp_path / "runs" / "R_simulated_inherited_active_lease"
+    run = RunContext.start(
+        store=store,
+        registry_bundle=bundle_ref,
+        producer=producer,
+        env=env_info,
+        run_dir=run_dir,
+    )
+    active_lease = run._active_lease
+    assert active_lease is not None
+    original_owner_pid = active_lease._owner_pid
+    assert original_owner_pid == os.getpid()
+    before_trace = (run_dir / "trace.jsonl").read_bytes()
+
+    active_lease._owner_pid = original_owner_pid + 1
+    terminal_actions = [
+        lambda: run.finalize(status="ok"),
+        lambda: RunContext.finalize.__get__(run, RunContext)(status="ok"),
+        run.suspend_for_resume,
+        lambda: RunContext.suspend_for_resume.__get__(run, RunContext)(),
+    ]
+    for action in terminal_actions:
+        with pytest.raises(
+            run_context._FinalizeRecoveryError,
+            match="run_execution_lease_inherited_process",
+        ):
+            action()
+        assert run._closed is False
+        assert run._suspended is False
+        assert (run_dir / "trace.jsonl").read_bytes() == before_trace
+
+    class _FcntlRecorder:
+        LOCK_UN = 8
+
+        def __init__(self) -> None:
+            self.operations: list[int] = []
+
+        def flock(self, descriptor: int, operation: int) -> None:
+            self.operations.append(operation)
+
+    recorder = _FcntlRecorder()
+    closed_descriptors: list[int] = []
+    child_copy = run_context._RunExecutionLease(tmp_path)
+    child_copy._descriptor = 901
+    child_copy._fcntl = recorder
+    child_copy._owner_pid = os.getpid() + 1
+    with monkeypatch.context() as patcher:
+        patcher.setattr(
+            run_context.os,
+            "close",
+            lambda descriptor: closed_descriptors.append(descriptor),
+        )
+        patcher.setattr(child_copy, "_release_thread_lock", lambda: None)
+        child_copy.release()
+    assert recorder.operations == []
+    assert closed_descriptors == [901]
+    assert child_copy._descriptor is None
+    assert child_copy._owner_pid is None
+
+    active_lease._owner_pid = original_owner_pid
+    run.finalize(status="ok")
+
+
+@pytest.mark.skipif(
+    sys.platform != "linux" or not hasattr(os, "fork"),
+    reason="run execution lease inheritance requires Linux fork/flock semantics",
+)
+def test_fork_inherited_run_lease_cannot_terminalize_or_unlock_parent(
+    store: FileSystemCAS, tmp_path: Path, producer, env_info
+) -> None:
+    bundle_ref = _bootstrap_registry_bundle(store)
+    run_dir = tmp_path / "runs" / "R_fork_inherited_active_lease"
+    run = RunContext.start(
+        store=store,
+        registry_bundle=bundle_ref,
+        producer=producer,
+        env=env_info,
+        run_dir=run_dir,
+    )
+    active_lease = run._active_lease
+    assert active_lease is not None
+    assert active_lease._owner_pid == os.getpid()
+    before_trace = (run_dir / "trace.jsonl").read_bytes()
+    before_digest = hashlib.sha256(before_trace).hexdigest()
+
+    terminal_actions = [
+        ("instance_finalize", lambda: run.finalize(status="ok")),
+        (
+            "class_finalize_dispatch",
+            lambda: RunContext.finalize.__get__(run, RunContext)(status="ok"),
+        ),
+        ("instance_suspend", run.suspend_for_resume),
+        (
+            "class_suspend_dispatch",
+            lambda: RunContext.suspend_for_resume.__get__(run, RunContext)(),
+        ),
+    ]
+    try:
+        for _, action in terminal_actions:
+            child = _fork_run_action(action, run)
+            assert child["kind"] == "refused"
+            assert child["reason"] == "run_execution_lease_inherited_process"
+            assert child["closed"] is False
+            assert child["suspended"] is False
+            assert child["trace_sha256"] == before_digest
+            assert (run_dir / "trace.jsonl").read_bytes() == before_trace
+            assert run._closed is False
+            assert run._suspended is False
+
+        child_release = _fork_run_action(active_lease.release, run)
+        assert child_release["kind"] == "returned"
+        assert child_release["closed"] is False
+        assert child_release["suspended"] is False
+        assert child_release["trace_sha256"] == before_digest
+        assert (run_dir / "trace.jsonl").read_bytes() == before_trace
+
+        def _attempt_new_lease() -> str:
+            run_context._ACTIVE_RUN_THREAD_LOCKS.clear()
+            contender = run_context._RunExecutionLease(run_dir)
+            try:
+                contender.acquire()
+            except run_context._FinalizeRecoveryError as exc:
+                return str(exc)
+            contender.release()
+            return "acquired"
+
+        contender = _fork_run_action(_attempt_new_lease, run)
+        assert contender["kind"] == "returned"
+        assert contender["value"] == "run_execution_lease_busy"
+        assert (run_dir / "trace.jsonl").read_bytes() == before_trace
+        assert run._closed is False
+        assert run._suspended is False
+
+        run.finalize(status="ok")
+        finalized_lines = (run_dir / "trace.jsonl").read_text(encoding="utf-8").splitlines()
+        finalized = [TraceRecord.model_validate_json(line) for line in finalized_lines]
+        assert finalized[-1].event == "RUN_FINALIZED"
+    finally:
+        if not run._closed:
+            run.finalize(status="ok")
+
+    child_run_dir = tmp_path / "runs" / "R_fork_child_owned_lease"
+
+    def _start_and_finalize_child_run() -> str:
+        child_run = RunContext.start(
+            store=store,
+            registry_bundle=bundle_ref,
+            producer=producer,
+            env=env_info,
+            run_dir=child_run_dir,
+        )
+        child_run.finalize(status="ok")
+        return child_run.run_manifest.run_id
+
+    fresh_child = _fork_run_action(_start_and_finalize_child_run, run)
+    assert fresh_child["kind"] == "returned"
+    assert fresh_child["value"] == "R_fork_child_owned_lease"
+    child_trace_lines = (child_run_dir / "trace.jsonl").read_text(encoding="utf-8").splitlines()
+    child_trace = [TraceRecord.model_validate_json(line) for line in child_trace_lines]
+    assert child_trace[-1].event == "RUN_FINALIZED"

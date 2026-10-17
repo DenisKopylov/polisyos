@@ -1,0 +1,22 @@
+id = "2026-10-17-e02-core-run-trace-warning-forwarding"
+title = "Forward typed runtime warnings into the existing Core run trace"
+type = "added"
+component = "core"
+owner = "team-runtime"
+summary = "RunContext.emit accepts optional existing WarningRecord values and persists them in the current trace warning collection."
+evidence = [
+  "src/polisyos/core/run/context.py",
+  "src/polisyos/core/artifacts/__init__.py",
+  "src/polisyos/core/artifacts/manifest.py",
+  "tests/unit/core/phase0/test_run_context.py",
+]
+compatibility = "The optional warnings argument is additive and serializes into the existing TraceRecord.warnings list. Omitting it retains warnings=[]; no trace schema field, phase, event, metrics, or authority/status semantics change. Terminal finalize/suspend operations from a fork child that inherited the active parent lease now refuse; the child cannot unlock or close the parent lease."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.core.run.RunContext.emit; existing model: polisyos.core.artifacts.WarningRecord"
+migration = "No data migration is required. Existing callers and trace records retain their current serialized shape."
+api = "RunContext.emit(..., warnings: list[WarningRecord] | None = None) validates typed warning objects and serializes them with the existing TraceRecord warning field. Callers keep numeric measurements in metrics and may place contextual category keys in WarningRecord.data."
+limitations = "Warning transport does not select, adjudicate, promote, or grant authority to warnings. The process guard applies to terminal lifecycle operations only; forked workers may stage ordinary trace events and inputs/outputs. This is not a sandbox against arbitrary in-process Python access to private state."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/core/README.md"]
+runbook_docs = []

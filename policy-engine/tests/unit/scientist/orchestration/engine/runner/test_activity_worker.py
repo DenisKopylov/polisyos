@@ -63,6 +63,7 @@ from polisyos.scientist.orchestration.engine.retry import (
     RetryPolicy,
     _AttemptAuthority,
     _build_attempt_context,
+    _worker_lifecycle_run_view,
     execute_with_retry_sync,
 )
 from polisyos.scientist.orchestration.engine.runner import (
@@ -218,6 +219,16 @@ def test_timeout_worker_stages_run_events_and_refuses_parent_lifecycle(
         with pytest.raises(ValueError, match="timeout_worker_run_lifecycle_not_owned"):
             worker_ctx.run.suspend_for_resume()
         assert trace_path.read_bytes() == before
+
+        retry_run_view = _worker_lifecycle_run_view(parent_run)
+        assert isinstance(retry_run_view, RunContext)
+        assert retry_run_view.run_manifest is parent_run.run_manifest
+        with pytest.raises(ValueError, match="timeout_worker_run_lifecycle_not_owned"):
+            retry_run_view.finalize()
+        with pytest.raises(ValueError, match="timeout_worker_run_lifecycle_not_owned"):
+            retry_run_view.suspend_for_resume()
+        assert not parent_run._closed and not parent_run._suspended
+        assert parent_run._active_lease is not None
         parent_run.suspend_for_resume()
 
 
@@ -1449,9 +1460,7 @@ def test_unbound_worker_retry_consumes_candidate_without_owner_origin(
         def spec(self) -> NodeSpec:
             return self._spec
 
-        def execute(
-            self, ctx: ExecutionContext, state: ExperimentState
-        ) -> NodeOutcome:
+        def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
             basis = _load_bound_candidate_source_state(ctx, state)
             selected, selected_ref = _resolve_candidate(ctx, state)
             assert selected is not None

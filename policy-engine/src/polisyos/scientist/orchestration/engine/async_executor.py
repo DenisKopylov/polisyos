@@ -28,6 +28,7 @@ from polisyos.core.artifacts.manifest import (
     ArtifactRef,
     ArtifactTenantContextInfo,
     SchemaInfo,
+    WarningRecord,
 )
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec
@@ -292,9 +293,7 @@ class AsyncWorkflowExecutor:
             )
 
         initial_state = snapshot_state(state)
-        workflow_ref = await self._persist_workflow_spec(
-            workflow, return_selected_profile=True
-        )
+        workflow_ref = await self._persist_workflow_spec(workflow, return_selected_profile=True)
         self._workflow_spec_ref = workflow_ref
         self._workflow_spec_payload = workflow.model_dump_json()
         self._ctx.run.add_input(workflow_ref)
@@ -653,7 +652,7 @@ class AsyncWorkflowExecutor:
                             if task is None or task not in done:
                                 continue
                             del running[alias]
-                            launch_baseline = launch_baselines.pop(alias, None)
+                            launch_baseline = launch_baselines.pop(alias)
                             outcome, duration_ms, _cache_hit, _cache_entry_ref = task.result()
                             record = NodeRunRecord(
                                 alias=alias,
@@ -857,7 +856,7 @@ class AsyncWorkflowExecutor:
                     details={"workflow_id": workflow.workflow_id, "run_id": state.run_id},
                 )
 
-        errors_payload = [
+        errors_payload: list[dict[str, object]] = [
             {"node": r.alias, "code": r.error.code, "message": r.error.message}
             for r in records
             if r.status == "fail" and r.error is not None
@@ -902,14 +901,20 @@ class AsyncWorkflowExecutor:
         if any(inv.condition is not None for inv in invocations.values()):
             return False
 
-        state_access: dict[str, tuple[tuple[str, ...], tuple[str, ...]]] = {}
+        state_access: dict[
+            str,
+            tuple[
+                tuple[tuple[str, ...], ...],
+                tuple[tuple[str, ...], ...],
+            ],
+        ] = {}
         for alias, inv in invocations.items():
             node = self._registry.get(inv.node_id)
             spec = getattr(node, "spec", None)
             if not isinstance(spec, NodeSpec):
                 return False
-            reads = getattr(spec, "state_reads", None)
-            writes = getattr(spec, "state_writes", None)
+            reads = spec.state_reads
+            writes = spec.state_writes
             if not isinstance(reads, (list, tuple)) or not isinstance(writes, (list, tuple)):
                 return False
             if any(not isinstance(path, str) or not path for path in (*reads, *writes)):
@@ -1641,7 +1646,14 @@ class AsyncWorkflowExecutor:
             self._ctx.run.emit(
                 "scientist.budget",
                 "BUDGET_ALERT",
-                metrics={"threshold_pct": level, "budget_key": budget_key},
+                metrics={"threshold_pct": level},
+                warnings=[
+                    WarningRecord(
+                        code="budget_threshold",
+                        msg="Budget threshold reached",
+                        data={"budget_key": budget_key},
+                    )
+                ],
             )
 
     async def _put_cache_entry(
@@ -1950,10 +1962,7 @@ class AsyncWorkflowExecutor:
             attempt_basis_refs: dict[str, tuple[ArtifactRef, int]] = {}
             workflow_payload = workflow.model_dump_json()
             workflow_spec_ref = self._workflow_spec_ref
-            if (
-                workflow_spec_ref is None
-                or self._workflow_spec_payload != workflow_payload
-            ):
+            if workflow_spec_ref is None or self._workflow_spec_payload != workflow_payload:
                 workflow_spec_ref = await self._persist_workflow_spec(
                     workflow,
                     return_selected_profile=True,
@@ -2002,14 +2011,10 @@ class AsyncWorkflowExecutor:
                     attempt_id=attempt_id,
                     attempt_number=attempt_number,
                     basis_ref=basis_ref,
-                    status=(
-                        attempt_outcome.status if attempt_outcome is not None else "unknown"
-                    ),
+                    status=(attempt_outcome.status if attempt_outcome is not None else "unknown"),
                     outcome_state_ref=outcome_state_ref,
                     output_refs=(
-                        list(attempt_outcome.artifacts)
-                        if attempt_outcome is not None
-                        else []
+                        list(attempt_outcome.artifacts) if attempt_outcome is not None else []
                     ),
                 )
 
@@ -2318,7 +2323,7 @@ class AsyncWorkflowExecutor:
                         workflow_fingerprint=workflow_fingerprint,
                         cache_entry_refs=list(cache_entry_refs),
                     )
-                else:
+                elif callable(sync_checkpoint):
                     result = await run_blocking_async(
                         sync_checkpoint,
                         unbounded=True,
@@ -2330,6 +2335,8 @@ class AsyncWorkflowExecutor:
                         workflow_fingerprint=workflow_fingerprint,
                         cache_entry_refs=list(cache_entry_refs),
                     )
+                else:
+                    raise CheckpointError("parallel_tier_requires_atomic_checkpoint_hook")
             self._guard_workflow_admission(operation="checkpoint", execution_state="unknown")
             self._workflow_publication_operation = None
             if result is not None:
@@ -2397,6 +2404,7 @@ class AsyncWorkflowExecutor:
         self._guard_workflow_admission(operation="checkpoint", execution_state="not_admitted")
         self._workflow_publication_operation = "checkpoint"
         async_checkpoint = getattr(self._checkpoint_hook, "on_node_complete_async", None)
+        sync_checkpoint = getattr(self._checkpoint_hook, "on_node_complete", None)
         with _checkpoint_publication_scope(publication_budget):
             budgeted_checkpoint = getattr(
                 self._checkpoint_hook, "on_node_complete_with_budget_async", None
@@ -2422,9 +2430,9 @@ class AsyncWorkflowExecutor:
                     workflow_fingerprint=workflow_fingerprint,
                     cache_entry_ref=cache_entry_ref,
                 )
-            else:
+            elif callable(sync_checkpoint):
                 result = await run_blocking_async(
-                    self._checkpoint_hook.on_node_complete,
+                    sync_checkpoint,
                     unbounded=True,
                     state=state,
                     alias=alias,
@@ -2434,6 +2442,8 @@ class AsyncWorkflowExecutor:
                     workflow_fingerprint=workflow_fingerprint,
                     cache_entry_ref=cache_entry_ref,
                 )
+            else:
+                raise CheckpointError("checkpoint_hook_missing_node_complete")
         self._guard_workflow_admission(operation="checkpoint", execution_state="unknown")
         self._workflow_publication_operation = None
         if result is not None:

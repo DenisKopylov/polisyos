@@ -2090,7 +2090,7 @@ class WorkflowExecutor:
                     details={"workflow_id": workflow.workflow_id},
                 )
 
-        errors_payload = [
+        errors_payload: list[dict[str, object]] = [
             {
                 "node": rec.alias,
                 "code": rec.error.code,

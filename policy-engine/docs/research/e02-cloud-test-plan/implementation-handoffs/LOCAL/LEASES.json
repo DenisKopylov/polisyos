@@ -3356,5 +3356,69 @@
     "P40": "Same B29 class deeper UIconsumer seam. Does not prove producer classification/normal browsercohort until actualrun; publicAPI/DTO/schema/client/persistedformat unchanged. Internaloperatorvisible releasefragment included.",
     "source_freeze": false,
     "closure_ids": []
+  },
+  "coordination_epoch_20261017_c05_core_warning_retry_typed_composition": {
+    "source_base": "4c52b30a1b0c69bdb439c931dcebde94151ff508",
+    "root_is_only_canonical_writer": true,
+    "scope": [
+      "policy-engine/src/polisyos/core/run/context.py",
+      "policy-engine/src/polisyos/core/artifacts/__init__.py",
+      "policy-engine/tests/unit/core/phase0/test_run_context.py",
+      "policy-engine/src/polisyos/core/README.md",
+      "policy-engine/release-fragments/unreleased/2026-10-17-e02-core-run-trace-warning-forwarding.toml",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/async_executor.py",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/executor.py",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_async_executor.py",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_engine_executor_v0.py",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/retry.py",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_retry.py",
+      "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_activity_worker.py",
+      "policy-engine/src/polisyos/scientist/orchestration/engine/context.py",
+      "policy-engine/tests/unit/scientist/nodes/test_build_policy_output_bundle.py",
+      "policy-engine/tests/unit/scientist/replay/test_replay_backend.py"
+    ],
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "separate genuine11source strict/affectedtest+importer replay, Linuxphysicalfork/flockworker matrix, APIinventory/scopedrowreview and receipt aftersourcefreeze"
+    ],
+    "suppliers": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/core-run-trace-warning-forwarding-r2-20261017/candidate-manifest-r2.json",
+        "sha256": "9621173311f14a51e9e54fab2794e16ebb63f0b79c64cd3b63d7e10282ed3af1"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-async-budget-warning-caller-r5-20261017/manifest-r5.json",
+        "sha256": "582cac2e29222b724f2677c80dad9d2c34ef9a70d004d43905c94a07cc66b6a3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/retry-typed-timeout-boundary-r2-20261017/candidate-r2-manifest.json",
+        "sha256": "d8e7567ca7cee70ddd8780b4813a45f047e3f2dbcaabe8889c982b77d7ddc73f"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-canonical-style-companions-20261017/manifest.json",
+        "sha256": "a6ed02bb6b0c815871137fb94572ab4c067cdab9aaa09dfb8bded4d6b6177931"
+      }
+    ],
+    "independent_reviews": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-core-async-executor-independent-review-r2-20261017/review.json",
+        "sha256": "bbdb00db5012421068ace91742afb011ceb44b987cc5ed0c7a0d78df4016e596"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/retry-typed-timeout-boundary-r2-20261017/independent-review/partition-2-review.md",
+        "sha256": "1bec1ea2e5b4636b8d314cb84e593af4515ed860f60510980085556d375a74b5"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-canonical-style-independent-review-20261017-r1/review.json",
+        "sha256": "c1809157342ea71a2aadbf38c6efa3609a1faf22731634c426c5fca1d34290a6"
+      }
+    ],
+    "property": "Typed existingCorewarning carrier preserves numeric metrics and budgetcategory through RunContext; supported ManifestLifecycle facade alias identity retained. Typed readiness/async/sync/retry boundaries preserve staged worker receipts and parent ownership; CorePID guard rejects inherited finalize/suspend beforecleanup and skips inheriteddescriptor LOCK_UN.",
+    "P40": "Lifecycle sameclass widened to actualCorelease/lifecycle boundary. Source-backed selected-attempt origin remains bounded, no full13material semantic-use/subjectjoin or Catalogcurrentness inference.",
+    "bounded_residual": "PhysicalLinux proofs UNRUN; Darwinpaired134P77SKIP includes6newLinux-onlycases. Explicit child lease release/newRunContext canhang if Coreglobalguard heldatfork: no concurrent-fork-safe child cleanup/context claim, normalstagedworkerdoesnotcallthose. NotP41inheritedclassification. CoreR1wasusedforoldasync31Pstrict; rootcomposedverifyrequired.",
+    "public_API": "OptionalexistingRunContext.emit warnings keyword; noTraceRecordschema/DTO/clientwire change. Newreleaseflagfalse untilscopedAPIreview; noGacceptance.",
+    "known_retained_inprogress_work": "NativeSOTA2pathpartialedits attributedtoauthor andpreserved byroot, disjoint from15C05paths, no recovery/rollback. Fullmanifest/patch inLOCAL/raw/incidents/native-sota-test-write-20261017/attributed-two-paths.json; authorcontinuesRAWonly, rootwillcompleteafterindependentreview.",
+    "source_freeze": false,
+    "closure_ids": []
   }
 }

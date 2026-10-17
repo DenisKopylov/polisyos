@@ -3,12 +3,15 @@
 from __future__ import annotations
 
 import asyncio
+import json
 import logging
 import tempfile
+import threading
 import time
 from decimal import Decimal
 from pathlib import Path
-from unittest.mock import MagicMock
+from types import SimpleNamespace
+from unittest.mock import AsyncMock, MagicMock, Mock
 
 import pytest
 
@@ -20,7 +23,11 @@ from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run import context as run_context
 from polisyos.core.run.context import RunContext
 from polisyos.scientist.orchestration.engine.async_executor import AsyncWorkflowExecutor
-from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+from polisyos.scientist.orchestration.engine.budget import (
+    BudgetExhaustedError,
+    BudgetLimit,
+    BudgetState,
+)
 from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.errors import WorkflowTimeoutError
@@ -276,6 +283,10 @@ class TestAsyncWorkflowExecutor:
         assert statuses["a"] == "ok"
         assert statuses["b"] == "fail"
         assert statuses["c"] == "skip"
+        ctx.run.finalize.assert_called_once_with(
+            status="fail",
+            errors=[{"node": "b", "code": "node.exception", "message": "b failed"}],
+        )
 
     @pytest.mark.asyncio
     async def test_max_parallelism_one_degrades_to_sequential(self):
@@ -476,6 +487,222 @@ class TestAsyncWorkflowExecutor:
         result = await executor.execute(workflow, state)
         assert result.report.status == "ok"
 
+    @pytest.mark.asyncio
+    async def test_budget_alert_warnings_persist_and_deduplicate_before_exhaustion(
+        self, tmp_path: Path
+    ) -> None:
+        store = FileSystemCAS(tmp_path / "cas")
+        bundle = build_default_registry_bundle(store, return_selected_profile=True)
+        run = RunContext.start(
+            store=store,
+            registry_bundle=bundle.bundle_ref,
+            run_id="async-budget-warning-owner",
+        )
+        ctx = ExecutionContext(
+            store=store,
+            run=run,
+            logger=logging.getLogger("async_budget_warning_test"),
+        )
+        budget_state = BudgetState(
+            limits={"run": BudgetLimit(key="run", max_usd=Decimal("10"))},
+            spent={"run": Decimal("8")},
+        )
+        executor = AsyncWorkflowExecutor(
+            ctx, MagicMock(spec=NodeRegistry), budget_middleware=BudgetMiddleware(budget_state)
+        )
+
+        executor._check_budget("node", budget_key="run")
+        executor._check_budget("node", budget_key="run")
+        budget_state.spent["run"] = Decimal("9")
+        executor._check_budget("node", budget_key="run")
+        executor._check_budget("node", budget_key="run")
+        budget_state.spent["run"] = Decimal("10")
+        with pytest.raises(BudgetExhaustedError):
+            executor._check_budget("node", budget_key="run")
+
+        run.finalize(status="ok")
+        trace_ref = run.run_manifest.trace_ref
+        assert trace_ref is not None
+        records = [
+            json.loads(line)
+            for line in store.get_bytes(trace_ref.artifact_id).decode("utf-8").splitlines()
+            if line.strip()
+        ]
+        alerts = [record for record in records if record["event"] == "BUDGET_ALERT"]
+
+        assert [(record["phase"], record["event"]) for record in alerts] == [
+            ("scientist.budget", "BUDGET_ALERT"),
+            ("scientist.budget", "BUDGET_ALERT"),
+        ]
+        assert [record["metrics"] for record in alerts] == [
+            {"threshold_pct": 80},
+            {"threshold_pct": 90},
+        ]
+        assert [record["warnings"] for record in alerts] == [
+            [
+                {
+                    "code": "budget_threshold",
+                    "msg": "Budget threshold reached",
+                    "data": {"budget_key": "run"},
+                }
+            ],
+            [
+                {
+                    "code": "budget_threshold",
+                    "msg": "Budget threshold reached",
+                    "data": {"budget_key": "run"},
+                }
+            ],
+        ]
+        assert all("budget_key" not in record["metrics"] for record in alerts)
+
+    @pytest.mark.asyncio
+    async def test_readiness_releases_disjoint_successor_before_unrelated_node_finishes(self):
+        node_ids = {
+            "slow": "test.readiness_slow@1.0.0",
+            "quick": "test.readiness_quick@1.0.0",
+            "after_quick": "test.readiness_after_quick@1.0.0",
+        }
+        slow_started = threading.Event()
+        release_slow = threading.Event()
+        slow_finished = threading.Event()
+        after_quick_started = threading.Event()
+        after_quick_saw_slow_running: list[bool] = []
+
+        class _ReadinessNode:
+            def __init__(self, alias: str) -> None:
+                self.alias = alias
+                self.spec = _cache_node_spec(
+                    node_ids[alias],
+                    state_writes=[f"params.{alias}"],
+                )
+
+            def execute(self, ctx, state):
+                del ctx
+                if self.alias == "slow":
+                    slow_started.set()
+                    if not release_slow.wait(timeout=2):
+                        raise TimeoutError("readiness test did not release slow sibling")
+                    slow_finished.set()
+                elif self.alias == "after_quick":
+                    after_quick_saw_slow_running.append(not slow_finished.is_set())
+                    after_quick_started.set()
+                    release_slow.set()
+                state.params[self.alias] = True
+                return NodeOutcome(status="ok", state=state)
+
+        nodes = {alias: _ReadinessNode(alias) for alias in node_ids}
+        registry = MagicMock(spec=NodeRegistry)
+        registry.get.side_effect = lambda node_id: nodes[
+            next(alias for alias, value in node_ids.items() if value == str(node_id))
+        ]
+        workflow = WorkflowSpec(
+            workflow_id="readiness_disjoint_state_paths",
+            error_policy="continue",
+            nodes=[
+                NodeInvocation(alias="slow", node_id=node_ids["slow"]),
+                NodeInvocation(alias="quick", node_id=node_ids["quick"]),
+                NodeInvocation(
+                    alias="after_quick",
+                    node_id=node_ids["after_quick"],
+                    depends_on=["quick"],
+                ),
+            ],
+        )
+        executor = AsyncWorkflowExecutor(_make_ctx(), registry, max_parallelism=2)
+        execution = asyncio.create_task(
+            executor.execute(
+                workflow,
+                ExperimentState(run_id="readiness-disjoint", params={"seed": 1}),
+            )
+        )
+        slow_was_admitted = await asyncio.to_thread(slow_started.wait, 1)
+        successor_released_early = await asyncio.to_thread(after_quick_started.wait, 0.75)
+        release_slow.set()
+        result = await execution
+
+        assert slow_was_admitted
+        assert successor_released_early
+        assert after_quick_saw_slow_running == [True]
+        assert result.report.status == "ok"
+        assert result.state.params["slow"] is True
+        assert result.state.params["quick"] is True
+        assert result.state.params["after_quick"] is True
+
+    @pytest.mark.asyncio
+    async def test_sync_and_async_checkpoint_hooks_keep_their_selected_call_paths(self):
+        node_id = "test.async_checkpoint_selection@1.0.0"
+        node = _CacheTestNode(_cache_node_spec(node_id))
+        registry = MagicMock(spec=NodeRegistry)
+        registry.get.return_value = node
+        workflow = WorkflowSpec(
+            workflow_id="async_checkpoint_selection",
+            nodes=[NodeInvocation(alias="node", node_id=node_id)],
+        )
+        async_hook = SimpleNamespace(
+            on_node_complete_async=AsyncMock(return_value=None),
+        )
+
+        async_result = await AsyncWorkflowExecutor(
+            _make_ctx(), registry, checkpoint_hook=async_hook
+        ).execute(workflow, ExperimentState(run_id="async-checkpoint-selection"))
+
+        assert async_result.report.status == "ok"
+        async_hook.on_node_complete_async.assert_awaited_once()
+
+        sync_hook = SimpleNamespace(on_node_complete=Mock(return_value=None))
+        sync_result = await AsyncWorkflowExecutor(
+            _make_ctx(), registry, checkpoint_hook=sync_hook
+        ).execute(workflow, ExperimentState(run_id="sync-checkpoint-selection"))
+
+        assert sync_result.report.status == "ok"
+        sync_hook.on_node_complete.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_sync_checkpoint_hook_handles_parallel_tier(self):
+        node_ids = {
+            "left": "test.sync_checkpoint_left@1.0.0",
+            "right": "test.sync_checkpoint_right@1.0.0",
+        }
+
+        class _WritingNode:
+            def __init__(self, alias: str) -> None:
+                self.alias = alias
+                self.spec = _cache_node_spec(
+                    node_ids[alias],
+                    state_writes=[f"params.{alias}"],
+                )
+
+            def execute(self, ctx, state):
+                del ctx
+                state.params[self.alias] = True
+                return NodeOutcome(status="ok", state=state)
+
+        nodes = {alias: _WritingNode(alias) for alias in node_ids}
+        registry = MagicMock(spec=NodeRegistry)
+        registry.get.side_effect = lambda node_id: nodes[
+            next(alias for alias, value in node_ids.items() if value == str(node_id))
+        ]
+        hook = SimpleNamespace(
+            on_node_complete=Mock(return_value=None),
+            on_tier_complete=Mock(return_value=None),
+        )
+        workflow = WorkflowSpec(
+            workflow_id="sync_checkpoint_parallel_tier",
+            nodes=[
+                NodeInvocation(alias="left", node_id=node_ids["left"]),
+                NodeInvocation(alias="right", node_id=node_ids["right"]),
+            ],
+        )
+
+        result = await AsyncWorkflowExecutor(
+            _make_ctx(), registry, checkpoint_hook=hook, max_parallelism=2
+        ).execute(workflow, ExperimentState(run_id="sync-checkpoint-tier", params={"seed": 1}))
+
+        assert result.report.status == "ok"
+        hook.on_tier_complete.assert_called_once()
+        hook.on_node_complete.assert_not_called()
+
 
 class TestAsyncCacheBoundaries:
     @pytest.mark.asyncio
@@ -657,9 +884,7 @@ class TestAsyncCacheBoundaries:
         put_phase: str | None = None
         phase_ticks = {"entry": 0}
 
-        def slow_put_json(
-            obj, opts, canon_spec=None, *, return_selected_profile=False
-        ):
+        def slow_put_json(obj, opts, canon_spec=None, *, return_selected_profile=False):
             nonlocal put_calls, put_phase
             if str(getattr(opts, "kind", "")) == "scientist.node_cache_entry":
                 put_calls += 1
@@ -704,9 +929,7 @@ class TestAsyncCacheBoundaries:
         ids_before_failed_publication = _artifact_ids_of_kind(store, "scientist.node_cache_entry")
         calls = 0
 
-        def fail_entry_put(
-            obj, opts, canon_spec=None, *, return_selected_profile=False
-        ):
+        def fail_entry_put(obj, opts, canon_spec=None, *, return_selected_profile=False):
             nonlocal calls
             if str(getattr(opts, "kind", "")) == "scientist.node_cache_entry":
                 calls += 1
@@ -729,7 +952,10 @@ class TestAsyncCacheBoundaries:
         assert outcome.status == "ok"
         assert cache_hit is False
         assert executor._cache.size == 0
-        assert _artifact_ids_of_kind(store, "scientist.node_cache_entry") == ids_before_failed_publication
+        assert (
+            _artifact_ids_of_kind(store, "scientist.node_cache_entry")
+            == ids_before_failed_publication
+        )
 
     @pytest.mark.asyncio
     async def test_failed_cache_entry_does_not_publish_partial_cas_artifacts(
@@ -750,9 +976,7 @@ class TestAsyncCacheBoundaries:
         original_put_json = store.put_json
         put_calls = 0
 
-        def fail_entry_put(
-            obj, opts, canon_spec=None, *, return_selected_profile=False
-        ):
+        def fail_entry_put(obj, opts, canon_spec=None, *, return_selected_profile=False):
             nonlocal put_calls
             if str(getattr(opts, "kind", "")) == "scientist.node_cache_entry":
                 put_calls += 1
@@ -777,7 +1001,10 @@ class TestAsyncCacheBoundaries:
         assert cache_hit is False
         assert put_calls == 1
         assert executor._cache.size == 0
-        assert _artifact_ids_of_kind(store, "scientist.node_cache_entry") == ids_before_failed_publication
+        assert (
+            _artifact_ids_of_kind(store, "scientist.node_cache_entry")
+            == ids_before_failed_publication
+        )
 
     @pytest.mark.asyncio
     async def test_incompatible_cached_replay_is_discarded_and_recomputed(self, tmp_path):

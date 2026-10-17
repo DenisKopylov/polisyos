@@ -367,7 +367,7 @@ def test_executor_cycle_detected(tmp_path):
 
 
 def test_skip_propagation_continue_policy(tmp_path):
-    _, bundle, ctx, registry = _ctx_and_registry(tmp_path)
+    store, bundle, ctx, registry = _ctx_and_registry(tmp_path)
     registry.register(AlwaysFailNode())
 
     workflow = WorkflowSpec(
@@ -394,6 +394,10 @@ def test_skip_propagation_continue_policy(tmp_path):
     assert statuses["downstream"] == "skip"
     downstream = next(rec for rec in result.report.nodes if rec.alias == "downstream")
     assert downstream.skip_reason == "upstream_failed"
+
+    assert result.run_ref is not None
+    finalized = json.loads(store.get_bytes(result.run_ref.artifact_id))
+    assert finalized["errors"] == [{"node": "fail", "code": "node.fail", "message": "boom"}]
 
 
 def test_executor_persists_typed_skip_blocker_for_skipped_analytic_node(tmp_path):

@@ -441,7 +441,9 @@ def test_candidate_source_recomputes_from_owner_attempt_after_generic_selection_
         assert phase3_selections[-1] == expected_candidate_id
 
         # Fresh CAS and trace reads reconstruct the source from the owner-linked basis.
-        source_state = ExperimentState.model_validate_json(store.get_bytes(attempt.basis.input_state_ref))
+        source_state = ExperimentState.model_validate_json(
+            store.get_bytes(attempt.basis.input_state_ref)
+        )
         fresh_ctx = ExecutionContext(
             store=store,
             run=run,
@@ -512,9 +514,7 @@ def test_candidate_source_recomputes_from_owner_attempt_after_generic_selection_
                 "read_runtime_invocation_attempts",
                 lambda _run, exact=failed_attempt: [exact],
             )
-            with pytest.raises(
-                ValueError, match="runtime_candidate_invocation_not_successful"
-            ):
+            with pytest.raises(ValueError, match="runtime_candidate_invocation_not_successful"):
                 _resolve_phase3_candidate(failed_ctx, source_state)
 
         trace_path = run.trace_path
@@ -1495,7 +1495,6 @@ def test_decision_packet_records_degraded_path_for_invalid_policy_bundle(tmp_pat
     assert payload["analysis_limits"]["decision_packet_degraded"] is True
 
 
-
 def test_owner_basis_covers_inline_and_trinity_sources_across_resolver_routes(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -1549,7 +1548,9 @@ def test_owner_basis_covers_inline_and_trinity_sources_across_resolver_routes(
     from polisyos.scientist.policy_design.schema import persist_policy_candidate_schema
 
     store = FileSystemCAS(tmp_path)
-    registry_bundle_ref = build_default_registry_bundle(store, return_selected_profile=True).bundle_ref
+    registry_bundle_ref = build_default_registry_bundle(
+        store, return_selected_profile=True
+    ).bundle_ref
     candidate_a = _candidate().model_copy(update={"candidate_id": "inline_candidate_a"})
     candidate_b = _candidate().model_copy(update={"candidate_id": "inline_candidate_b"})
     ref_b = persist_policy_candidate_schema(store, candidate_b, return_selected_profile=True)
@@ -1946,14 +1947,11 @@ def test_engine_accepted_output_bundle_retains_the_exact_candidate_source(
         if output_ref is None:
             continue
         output_manifest = cas_store.get_manifest(output_ref)
-        candidate_inputs = [
-            item for item in output_manifest.inputs if item.role == "candidate"
-        ]
+        candidate_inputs = [item for item in output_manifest.inputs if item.role == "candidate"]
         assert len(candidate_inputs) == 1, output_ref.kind
         assert candidate_inputs[0].artifact_id == selected_ref.artifact_id, output_ref.kind
         assert (
-            candidate_inputs[0].manifest_profile_sha256
-            == selected_ref.manifest_profile_sha256
+            candidate_inputs[0].manifest_profile_sha256 == selected_ref.manifest_profile_sha256
         ), output_ref.kind
 
     basis_state = ExperimentState.model_validate(
@@ -1974,7 +1972,6 @@ def test_engine_accepted_output_bundle_retains_the_exact_candidate_source(
     assert resolved_candidate is not None
     assert resolved_candidate.candidate_id == expected_candidate_id
     assert audit.candidate_ref == selected_ref and candidate_ref == selected_ref
-
 
 
 def test_translator_cache_key_includes_the_candidate_source_before_reuse(
@@ -2005,7 +2002,9 @@ def test_translator_cache_key_includes_the_candidate_source_before_reuse(
     from polisyos.scientist.policy_design.schema import persist_policy_candidate_schema
 
     store = FileSystemCAS(tmp_path)
-    registry_bundle_ref = build_default_registry_bundle(store, return_selected_profile=True).bundle_ref
+    registry_bundle_ref = build_default_registry_bundle(
+        store, return_selected_profile=True
+    ).bundle_ref
     run = RunContext.start(
         store=store,
         registry_bundle=registry_bundle_ref,
@@ -2176,14 +2175,10 @@ def test_translator_cache_key_includes_the_candidate_source_before_reuse(
         for record in trace_records
     )
     assert any(
-        record.phase == "scientist.node.compliance_b_cached"
-        and record.event == "NODE_CACHE_HIT"
+        record.phase == "scientist.node.compliance_b_cached" and record.event == "NODE_CACHE_HIT"
         for record in trace_records
     )
-    assert not any(
-        attempt.basis.node_alias == "compliance_b_cached"
-        for attempt in attempts
-    )
+    assert not any(attempt.basis.node_alias == "compliance_b_cached" for attempt in attempts)
 
 
 def test_candidate_selector_state_reads_bind_every_shared_cache_key(tmp_path: Path) -> None:

@@ -215,6 +215,46 @@ class TestExecuteWithRetrySync:
         assert denied.value.reason_code == "attempt_write_revoked"
         assert store.put_calls == [(b"on-time", {})]
 
+    def test_attempt_store_rejects_non_artifact_refs_from_typed_writers(self) -> None:
+        class _MalformedStore:
+            def put_bytes(
+                self,
+                data: bytes,
+                opts: object,
+                *,
+                return_selected_profile: bool = False,
+            ) -> object:
+                return object()
+
+            def put_json(
+                self,
+                obj: object,
+                opts: object,
+                canon_spec: object = None,
+                *,
+                return_selected_profile: bool = False,
+            ) -> object:
+                return object()
+
+        facade = retry_module._AttemptFacade(
+            _MalformedStore(),
+            retry_module._AttemptAuthority(),
+            write_methods=frozenset({"put_bytes", "put_json"}),
+        )
+
+        with pytest.raises(TypeError, match="artifact_store_write_returned_invalid_ref"):
+            facade.put_bytes(b"payload", object())
+        with pytest.raises(TypeError, match="artifact_store_write_returned_invalid_ref"):
+            facade.put_json({"payload": True}, object())
+
+    def test_attempt_model_facade_preserves_model_type_view_and_read_only_class(self) -> None:
+        target = ExperimentState(run_id="model-facade")
+        facade = retry_module._AttemptModelFacade(target, retry_module._AttemptAuthority())
+
+        assert isinstance(facade, ExperimentState)
+        with pytest.raises(AttributeError):
+            facade.__class__ = dict
+
     def test_execution_context_store_views_preserve_profile_kwargs_and_authority(self):
         from types import SimpleNamespace
 
@@ -1374,6 +1414,11 @@ def test_linux_fork_receipt_stages_trace_and_parent_admits_run_operations(tmp_pa
 
         def execute(self, worker_context, worker_state):
             assert os.getpid() != parent_pid
+            assert isinstance(worker_context.run, RunContext)
+            with pytest.raises(ValueError, match="timeout_worker_run_lifecycle_not_owned"):
+                worker_context.run.finalize()
+            with pytest.raises(ValueError, match="timeout_worker_run_lifecycle_not_owned"):
+                worker_context.run.suspend_for_resume()
             worker_context.run.emit(
                 "scientist.node.fork-receipt",
                 "NODE_FORK_RECEIPT_EMITTED",
@@ -1395,6 +1440,7 @@ def test_linux_fork_receipt_stages_trace_and_parent_admits_run_operations(tmp_pa
 
     assert result.status == "ok"
     assert result.state.params["fork_worker_pid"] != parent_pid
+    assert not run._closed and not run._suspended and run._active_lease is not None
     assert input_ref in run.run_manifest.inputs
     records = [
         TraceRecord.model_validate_json(line) for line in run.trace_path.read_text().splitlines()
@@ -1409,6 +1455,120 @@ def test_linux_fork_receipt_stages_trace_and_parent_admits_run_operations(tmp_pa
     assert len(receipt_ids) == 1
 
 
+@pytest.mark.skipif(
+    retry_module._timeout_worker_start_method() != "fork",
+    reason="native Linux fork worker unavailable",
+)
+@pytest.mark.parametrize(
+    ("operation", "access_path"),
+    [
+        ("finalize", "facade_alias"),
+        ("suspend_for_resume", "facade_alias"),
+        ("finalize", "raw_context_alias"),
+        ("suspend_for_resume", "raw_context_alias"),
+        ("finalize", "class_dispatch"),
+        ("suspend_for_resume", "class_dispatch"),
+    ],
+)
+def test_linux_fork_worker_core_owner_refuses_inherited_lifecycle(
+    tmp_path: Path,
+    operation: str,
+    access_path: str,
+) -> None:
+    """Real fork node calls cannot finalize or suspend its parent's active run."""
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+    from polisyos.core.registry import build_default_registry_bundle
+    from polisyos.core.trace.record import TraceRecord
+    from polisyos.scientist.orchestration.engine.context import ExecutionContext
+    from polisyos.scientist.orchestration.engine.protocol import NodeSpec
+
+    run_id = f"R_fork_lifecycle_{operation}_{access_path}"
+    store = FileSystemCAS(tmp_path / "cas")
+    bundle = build_default_registry_bundle(store)
+    run = RunContext.start(
+        store=store,
+        registry_bundle=bundle.bundle_ref,
+        run_id=run_id,
+    )
+    context = ExecutionContext(store=store, run=run, logger=MagicMock())
+    parent_pid = os.getpid()
+
+    class LifecycleNode:
+        spec = NodeSpec(
+            metadata=ComponentMetadata(
+                component_id=ComponentId.parse("scientist.test.fork_lifecycle@1.0.0"),
+                kind=ComponentKind.SCIENTIST_NODE,
+                abi_targets={"world_abi": "1.x"},
+                capabilities=Capability.SCIENTIST_NODE,
+                display_name="Fork lifecycle owner test",
+                description="Exercises Core lifecycle ownership from an inherited worker.",
+            ),
+            state_reads=["params"],
+            state_writes=["params"],
+        )
+
+        def execute(
+            self,
+            worker_context: ExecutionContext,
+            worker_state: ExperimentState,
+        ) -> NodeOutcome:
+            worker_state.params["fork_worker_pid"] = os.getpid()
+            worker_run = worker_context.run
+            if access_path == "facade_alias":
+                target = worker_run._target
+            else:
+                target = worker_run._target._target
+
+            try:
+                if access_path == "class_dispatch":
+                    if operation == "finalize":
+                        RunContext.finalize(target)
+                    else:
+                        RunContext.suspend_for_resume(target)
+                elif operation == "finalize":
+                    target.finalize()
+                else:
+                    target.suspend_for_resume()
+            except ValueError as exc:
+                worker_state.params["lifecycle_refusal"] = str(exc)
+            else:
+                worker_state.params["lifecycle_refusal"] = "lifecycle_transition_was_admitted"
+
+            worker_context.run.emit(
+                "scientist.node.fork-lifecycle",
+                "NODE_FORK_LIFECYCLE_REFUSED",
+                metrics={"worker_pid": os.getpid(), "operation": operation},
+            )
+            return _ok_outcome(worker_state)
+
+    result = execute_with_retry_sync(
+        LifecycleNode(),
+        context,
+        ExperimentState(run_id=run_id),
+        retry_policy=RetryPolicy(),
+        timeout_s=3.0,
+        alias="fork-lifecycle",
+        dispatch_params={"operation": operation, "access_path": access_path},
+    )
+
+    assert result.status == "ok"
+    assert result.state.params["fork_worker_pid"] != parent_pid
+    assert result.state.params["lifecycle_refusal"] == "run_execution_lease_inherited_process"
+    assert not run._closed and not run._suspended and run._active_lease is not None
+    trace_path = run.trace_path
+    assert trace_path is not None
+    records = [
+        TraceRecord.model_validate_json(line) for line in trace_path.read_text().splitlines()
+    ]
+    refused = [record for record in records if record.event == "NODE_FORK_LIFECYCLE_REFUSED"]
+    assert len(refused) == 1
+    assert refused[0].metrics["worker_pid"] == result.state.params["fork_worker_pid"]
+    assert not store.root.joinpath("runs", run_id, "finalized.json").exists()
+
+    run.finalize(status="ok")
+
+
 class _BrokenResultQueue:
     """A result channel that fails every send; success must never be fabricated."""
 
@@ -1418,6 +1578,80 @@ class _BrokenResultQueue:
     def put(self, _value) -> None:
         self.attempts += 1
         raise OSError("result channel closed")
+
+
+def test_timeout_worker_node_outcome_is_admitted_at_the_execution_boundary(ctx, state) -> None:
+    class _MalformedNode:
+        def execute(self, _ctx, _state) -> object:
+            return {"status": "ok"}
+
+    with pytest.raises(retry_module._CompletedAttemptError) as invalid_result:
+        retry_module._execute_capture_failure(_MalformedNode(), ctx, state)
+    assert isinstance(invalid_result.value.error, TypeError)
+    assert str(invalid_result.value.error) == "node execution must return a NodeOutcome"
+
+
+def test_worker_result_drain_rejects_malformed_queue_frames() -> None:
+    class _LiveWorker:
+        def is_alive(self) -> bool:
+            return True
+
+    class _MalformedQueue:
+        def get(self, *, timeout: float) -> object:
+            return ("ok",)
+
+    completed_at = _time.monotonic()
+    completion_time = type("Completion", (), {"value": completed_at})()
+    with pytest.raises(RuntimeError, match="timeout_worker_result_frame_invalid"):
+        retry_module._drain_result_sync(
+            _LiveWorker(),
+            _MalformedQueue(),
+            compute_deadline=completed_at + 1.0,
+            completion_time=completion_time,
+        )
+
+
+def test_process_factory_uses_the_admitted_platform_context() -> None:
+    start_method = retry_module._timeout_worker_start_method()
+    assert start_method is not None
+    process_context = mp.get_context(start_method)
+
+    assert retry_module._process_factory(process_context) is process_context.Process
+    with pytest.raises(NodeTimeoutError, match="process_context_process_factory_unavailable"):
+        retry_module._process_factory(mp.context.BaseContext())
+
+
+@pytest.mark.parametrize("malformed_factory", [None, 3, object()])
+def test_process_factory_rejects_present_non_callable_factory(
+    malformed_factory: object,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    process_context = mp.get_context(retry_module._timeout_worker_start_method() or "spawn")
+    monkeypatch.setattr(process_context, "Process", malformed_factory)
+
+    with pytest.raises(NodeTimeoutError, match="process_context_process_factory_unavailable"):
+        retry_module._process_factory(process_context)
+
+
+def test_process_group_lookup_refuses_missing_worker_pid() -> None:
+    class _Ready:
+        def is_set(self) -> bool:
+            return True
+
+    class _StartedWithoutPid:
+        pid = None
+
+        def is_alive(self) -> bool:
+            return True
+
+    assert (
+        retry_module._owned_process_group_id(
+            _StartedWithoutPid(),
+            _Ready(),
+            deadline=_time.monotonic() + 1.0,
+        )
+        is None
+    )
 
 
 def test_worker_send_failure_is_fail_closed(ctx, state) -> None:

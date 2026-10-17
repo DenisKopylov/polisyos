@@ -172,8 +172,7 @@ def _load_engine_owned_invocation_input_state(
     matches = [
         attempt
         for attempt in attempts
-        if attempt.basis.attempt_id == binding.attempt_id
-        and attempt.basis_ref == binding.basis_ref
+        if attempt.basis.attempt_id == binding.attempt_id and attempt.basis_ref == binding.basis_ref
     ]
     if len(matches) != 1:
         raise ValueError("runtime_candidate_invocation_basis_not_owner_linked")

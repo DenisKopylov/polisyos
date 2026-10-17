@@ -16,7 +16,7 @@ from ._atomic_write import (
     fsync_directory,
 )
 from ._integrity_ops import ArtifactIntegrityError, VerificationReport
-from ._manifest_lifecycle import ManifestLifecycle
+from ._manifest_lifecycle import ManifestLifecycle as ManifestLifecycle
 from ._profiled_ref import profile_bound_ref
 from ._transfer_ops import ExportReport, ImportReport
 from .async_store import (

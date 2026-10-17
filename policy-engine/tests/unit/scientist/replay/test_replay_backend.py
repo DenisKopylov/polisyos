@@ -303,9 +303,7 @@ async def test_dead_letter_replay_selects_candidate_without_claiming_owner_origi
                 {"metadata": type("Metadata", (), {"component_id": "test.node@1.0.0"})()},
             )()
 
-        def execute(
-            self, ctx: ExecutionContext, state: ExperimentState
-        ) -> NodeOutcome:
+        def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
             basis = _load_bound_candidate_source_state(ctx, state)
             selected, selected_ref = _resolve_candidate(ctx, state)
             assert selected is not None

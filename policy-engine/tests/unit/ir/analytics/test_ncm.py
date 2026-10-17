@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 from dataclasses import replace
+from typing import TYPE_CHECKING
 
 import pytest
 
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
+from polisyos.core.artifacts.ir_adapter import CoreToIRArtifactStoreAdapter
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.pdc import gy_content_hash
@@ -15,6 +17,28 @@ from polisyos.runtime.quality.generation_source import (
     GenerationSourceRepository,
     _candidate_simulation_write_options,
 )
+
+if TYPE_CHECKING:
+    from polisyos.ir.artifacts.contracts import ArtifactSelector
+
+
+class _ReadOnlySelectedView:
+    """Expose only the selected-view reads required by the NCM replay path."""
+
+    def __init__(self, adapter: CoreToIRArtifactStoreAdapter) -> None:
+        self._adapter = adapter
+
+    def get_bytes(self, artifact_id: ArtifactSelector) -> bytes:
+        return self._adapter.get_bytes(artifact_id)
+
+    def get_manifest(self, artifact_id: ArtifactSelector) -> object:
+        return self._adapter.get_manifest(artifact_id)
+
+    def get_manifest_bytes(self, artifact_id: ArtifactSelector) -> bytes:
+        return self._adapter.get_manifest_bytes(artifact_id)
+
+    def verify(self, artifact_id: ArtifactSelector) -> object:
+        return self._adapter.verify(artifact_id)
 
 
 def _declaration(*, coefficient: float) -> CandidateSimulationSyntheticModelDeclarationV1:
@@ -166,6 +190,16 @@ def test_candidate_ncm_is_derived_from_declared_baseline_and_selected_view(
             expected_declaration_ref=declaration_ref,
         )
         assert loaded.model_dump(mode="json") == spec.model_dump(mode="json")
+        read_only_reader = _ReadOnlySelectedView(CoreToIRArtifactStoreAdapter(store))
+        assert not hasattr(read_only_reader, "put_bytes")
+        loaded_from_read_only = load_ncm_spec_selected_view(
+            read_only_reader,
+            selected_ref,
+            expected_tenant_id=tenant_id,
+            expected_cell_id=cell_id,
+            expected_declaration_ref=declaration_ref,
+        )
+        assert loaded_from_read_only.model_dump(mode="json") == spec.model_dump(mode="json")
         loaded_default_view = load_ncm_spec_selected_view(
             _ensure_ir_artifact_store(store),
             default_view_ref,

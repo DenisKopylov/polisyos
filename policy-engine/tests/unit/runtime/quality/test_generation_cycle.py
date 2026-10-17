@@ -6,6 +6,7 @@ import json
 import os
 import subprocess
 import sys
+from collections.abc import Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from functools import cache
@@ -20,7 +21,7 @@ import polisyos.runtime.quality.generation_cycle as generation_cycle_module
 import polisyos.runtime.quality.promotion_sequence as promotion_sequence_module
 from polisyos.core import canon
 from polisyos.core import contracts as core_contracts
-from polisyos.core.artifacts import ArtifactWriteOptions, FileSystemCAS
+from polisyos.core.artifacts import ArtifactRef, ArtifactStore, ArtifactWriteOptions, FileSystemCAS
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.contracts.value_outer_set import DataTrust, ValueOuterSet
 from polisyos.data_requirement import (
@@ -41,6 +42,10 @@ from polisyos.runtime.quality.acquisition_planner import (
     RecordedAcquisitionOwnerGateway,
     l1_variable_availability_requirement_gap,
     value_input_world_knowledge_requirement_gap,
+)
+from polisyos.runtime.quality.chronology_qualification import (
+    NativeChronologyAuthorityAdapter,
+    QualificationConsumer,
 )
 from polisyos.runtime.quality.confidence_ledger import (
     LoadedDeploymentIdentityObservation,
@@ -97,8 +102,10 @@ from polisyos.runtime.quality.grounding_disposition_vocab import (
 from polisyos.runtime.quality.intervention_atom_binding import InterventionAtomBinding
 from polisyos.runtime.quality.intervention_substrate import InterventionLeverRefusal
 from polisyos.runtime.quality.open_world_risk import (
+    OpenWorldRiskPromotionGate,
     OpenWorldRiskVectorArtifactRepository,
     PromotionRuntime,
+    PromotionRuntimeBatch,
     VerifiedOpenWorldRiskVector,
 )
 from polisyos.runtime.quality.promotion_sequence import (
@@ -106,6 +113,7 @@ from polisyos.runtime.quality.promotion_sequence import (
     CanonicalPromotionReceipt,
     validate_canonical_promotion_receipt,
 )
+from polisyos.runtime.quality.semantic_epoch import SemanticEpochService
 from polisyos.runtime.quality.substrate_registry import (
     SubstrateCoverage,
     SubstrateLayer,
@@ -1148,33 +1156,184 @@ def _positive_epoch_admitted_batch(
     )
 
 
+def _capture_prepared_promotion_batches(
+    runtime: PromotionRuntime,
+    monkeypatch: pytest.MonkeyPatch,
+) -> list[PromotionRuntimeBatch | epoch_cascade_module.PromotionOwnerQueryContextNonReceipt]:
+    """Capture the actual persisted owner batch crossing the controller seam."""
+    prepared: list[
+        PromotionRuntimeBatch | epoch_cascade_module.PromotionOwnerQueryContextNonReceipt
+    ] = []
+    real_prepare = runtime._prepare_completed_generation
+
+    def _capture(
+        *, problem: DesignProblem, summaries: Sequence[CandidateSummary]
+    ) -> PromotionRuntimeBatch | epoch_cascade_module.PromotionOwnerQueryContextNonReceipt:
+        result = real_prepare(problem=problem, summaries=summaries)
+        prepared.append(result)
+        return result
+
+    monkeypatch.setattr(runtime, "_prepare_completed_generation", _capture)
+    return prepared
+
+
+def _record_real_qualification_consumer_calls(
+    monkeypatch: pytest.MonkeyPatch,
+) -> list[core_contracts.chronology.NativeChronologyQuery]:
+    """Count executions of the owner consumer, not service-method or marker reads."""
+
+    requests: list[core_contracts.chronology.NativeChronologyQuery] = []
+    real_qualify = QualificationConsumer.qualify
+
+    def _record(
+        self: QualificationConsumer,
+        *,
+        adapter: NativeChronologyAuthorityAdapter,
+        request: core_contracts.chronology.NativeChronologyQuery,
+    ) -> core_contracts.chronology.NativeChronologyQualificationResult:
+        requests.append(request)
+        return real_qualify(self, adapter=adapter, request=request)
+
+    monkeypatch.setattr(QualificationConsumer, "qualify", _record)
+    return requests
+
+
+def _record_persisted_promotion_query_reads(
+    monkeypatch: pytest.MonkeyPatch,
+) -> list[epoch_cascade_module.PersistedEpochPromotionQueryStatement]:
+    """Capture the exact persisted query object rehydrated by the pre-N9 gate."""
+    statements: list[epoch_cascade_module.PersistedEpochPromotionQueryStatement] = []
+    real_read = epoch_cascade_module._read_model
+
+    def _record_read(
+        *,
+        store: ArtifactStore,
+        ref: core_contracts.ArtifactRef,
+        model: type[epoch_cascade_module._StrictModel],
+        kind: str | None = None,
+        profile_record: str | None = None,
+    ) -> epoch_cascade_module._StrictModel:
+        result = real_read(
+            store=store,
+            ref=ref,
+            model=model,
+            kind=kind,
+            profile_record=profile_record,
+        )
+        if model is epoch_cascade_module.PersistedEpochPromotionQueryStatement:
+            assert isinstance(result, epoch_cascade_module.PersistedEpochPromotionQueryStatement)
+            statements.append(result)
+        return result
+
+    monkeypatch.setattr(epoch_cascade_module, "_read_model", _record_read)
+    return statements
+
+
+def _persisted_promotion_epoch_qualification(
+    runtime: PromotionRuntime,
+    prepared: PromotionRuntimeBatch,
+) -> tuple[
+    core_contracts.chronology.NativeChronologyQuery,
+    core_contracts.chronology.NativeChronologyPolicyResolutionFailed,
+]:
+    """Read the exact candidate-bound query statement from the runtime CAS."""
+    evidence = prepared.contexts.aggregate_context.statement.ordered_candidate_contexts[0]
+    statement = epoch_cascade_module._read_model(
+        store=runtime.store,
+        ref=evidence.epoch_query.query_artifact_ref,
+        model=epoch_cascade_module.PersistedEpochPromotionQueryStatement,
+        profile_record="epoch_query_evidence",
+    )
+    assert isinstance(statement, epoch_cascade_module.PersistedEpochPromotionQueryStatement)
+    qualification = statement.qualification_result
+    assert isinstance(
+        qualification, core_contracts.chronology.NativeChronologyPolicyResolutionFailed
+    )
+    assert isinstance(
+        qualification.failure, core_contracts.chronology.PolicyAdmissionMissingFailure
+    )
+    return qualification.query, qualification
+
+
+def _n9_negative_route_is_proven(
+    result: PromotionPortObservation | None,
+    *,
+    consumer_queries: list[core_contracts.chronology.NativeChronologyQuery],
+    persisted_query: core_contracts.chronology.NativeChronologyQuery | None,
+    persisted_result: core_contracts.chronology.NativeChronologyPolicyResolutionFailed | None,
+    gate_statement: epoch_cascade_module.PersistedEpochPromotionQueryStatement | None,
+    n9_called: bool,
+) -> bool:
+    """Require persisted refusal plus two real same-query consumer executions."""
+    if (
+        result is None
+        or persisted_query is None
+        or persisted_result is None
+        or not isinstance(
+            gate_statement, epoch_cascade_module.PersistedEpochPromotionQueryStatement
+        )
+    ):
+        return False
+    if not isinstance(
+        persisted_result,
+        core_contracts.chronology.NativeChronologyPolicyResolutionFailed,
+    ) or not isinstance(
+        persisted_result.failure,
+        core_contracts.chronology.PolicyAdmissionMissingFailure,
+    ):
+        return False
+    if not isinstance(
+        gate_statement.qualification_result,
+        core_contracts.chronology.NativeChronologyPolicyResolutionFailed,
+    ) or not isinstance(
+        gate_statement.qualification_result.failure,
+        core_contracts.chronology.PolicyAdmissionMissingFailure,
+    ):
+        return False
+    gate_qualification = gate_statement.qualification_result
+    gate_observations = getattr(result, "pre_n9_open_world_gates", ())
+    if len(gate_observations) != 1:
+        return False
+    gate_projection = OpenWorldRiskPromotionGate.model_validate(gate_observations[0].gate_payload)
+    return (
+        result.status == "not_promoted"
+        and result.reason == "epoch_validity_refused:policy_admission_missing"
+        and result.receipts == ()
+        and result.certified_candidate_ids == ()
+        and gate_qualification.query == persisted_query
+        and gate_qualification == persisted_result
+        and gate_projection.status == "not_established"
+        and gate_projection.limitation_code == "deployment_scope_not_established"
+        and len(consumer_queries) == 2
+        and consumer_queries[0] == persisted_query
+        and consumer_queries[1] is gate_qualification.query
+        and not n9_called
+    )
+
+
 def test_core_generation_controller_cannot_bypass_epoch_gate(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """The real post-loop composition reaches DV and never calls N9 on no policy."""
+    """The controller persists the owner query, freshly requalifies it, and blocks N9."""
 
     class _ForbiddenN9:
         called = False
 
-        def __call__(self, **_kwargs: Any) -> PromotionPortObservation:
+        def __call__(
+            self,
+            *,
+            admitted_batch: core_contracts.PersistedPreN9AdmittedCandidateBatch,
+            problem: DesignProblem,
+        ) -> PromotionPortObservation:
+            del admitted_batch, problem
             self.called = True
             raise AssertionError("N9 must not run without an admitted epoch policy")
 
     runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
-    qualify_calls = 0
-    real_qualify = runtime.semantic_epoch_service.qualify_chronology_query
-
-    def _counted_qualify(**kwargs: Any) -> Any:
-        nonlocal qualify_calls
-        qualify_calls += 1
-        return real_qualify(**kwargs)
-
-    monkeypatch.setattr(
-        runtime.semantic_epoch_service,
-        "qualify_chronology_query",
-        _counted_qualify,
-    )
+    consumer_queries = _record_real_qualification_consumer_calls(monkeypatch)
+    persisted_query_reads = _record_persisted_promotion_query_reads(monkeypatch)
+    prepared_batches = _capture_prepared_promotion_batches(runtime, monkeypatch)
     n9 = _ForbiddenN9()
     controller = GenerationCycleController(
         promotion_runtime=runtime,
@@ -1187,20 +1346,174 @@ def test_core_generation_controller_cannot_bypass_epoch_gate(
         problem=_problem("epoch_gate_negative_path"),
     )
 
+    assert len(prepared_batches) == 1
+    prepared = prepared_batches[0]
+    assert isinstance(prepared, PromotionRuntimeBatch)
+    gate_statements = tuple(persisted_query_reads)
+    persisted_query, persisted_result = _persisted_promotion_epoch_qualification(runtime, prepared)
+    assert len(gate_statements) == 1
+    assert _n9_negative_route_is_proven(
+        result,
+        consumer_queries=consumer_queries,
+        persisted_query=persisted_query,
+        persisted_result=persisted_result,
+        gate_statement=gate_statements[0],
+        n9_called=n9.called,
+    )
+
+
+def test_n9_route_rejects_marker_only_replay_without_fresh_gate_qualification(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The same persisted failure markers cannot stand in for owner requalification."""
+
+    class _ForbiddenN9:
+        called = False
+
+        def __call__(
+            self,
+            *,
+            admitted_batch: core_contracts.PersistedPreN9AdmittedCandidateBatch,
+            problem: DesignProblem,
+        ) -> PromotionPortObservation:
+            del admitted_batch, problem
+            self.called = True
+            raise AssertionError("N9 must not run without an admitted epoch policy")
+
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
+    consumer_queries = _record_real_qualification_consumer_calls(monkeypatch)
+    persisted_query_reads = _record_persisted_promotion_query_reads(monkeypatch)
+    prepared_batches = _capture_prepared_promotion_batches(runtime, monkeypatch)
+    service_requests: list[core_contracts.chronology.NativeChronologyQuery] = []
+    cached: list[
+        tuple[
+            core_contracts.chronology.NativeChronologyQuery,
+            core_contracts.chronology.NativeChronologyQualificationResult,
+        ]
+    ] = []
+    real_service_qualify = runtime.semantic_epoch_service.qualify_chronology_query
+
+    def _return_persisted_marker_only(
+        *, query: core_contracts.chronology.NativeChronologyQuery
+    ) -> core_contracts.chronology.NativeChronologyQualificationResult:
+        service_requests.append(query)
+        if not cached:
+            result = real_service_qualify(query=query)
+            cached.append((query, result))
+            return result
+        assert query == cached[0][0]
+        return cached[0][1]
+
+    monkeypatch.setattr(
+        runtime.semantic_epoch_service,
+        "qualify_chronology_query",
+        _return_persisted_marker_only,
+    )
+    n9 = _ForbiddenN9()
+    controller = GenerationCycleController(
+        promotion_runtime=runtime,
+        promotion_port=n9,
+        authority_scope="contract_testing",
+    )
+
+    result = controller._promote_completed_generation(
+        summaries=(_open_world_summary(),),
+        problem=_problem("epoch_gate_marker_only_control"),
+    )
+
+    assert len(prepared_batches) == 1
+    prepared = prepared_batches[0]
+    assert isinstance(prepared, PromotionRuntimeBatch)
+    gate_statements = tuple(persisted_query_reads)
+    persisted_query, persisted_result = _persisted_promotion_epoch_qualification(runtime, prepared)
+    assert service_requests == [persisted_query, persisted_query]
+    assert persisted_query == cached[0][0]
+    assert isinstance(
+        persisted_result,
+        core_contracts.chronology.NativeChronologyPolicyResolutionFailed,
+    )
+    assert isinstance(
+        persisted_result.failure,
+        core_contracts.chronology.PolicyAdmissionMissingFailure,
+    )
+    # The visible refusal and all persisted markers match the baseline, but the
+    # second call only replays the stored object: the real owner consumer ran once.
     assert result.status == "not_promoted"
     assert result.reason == "epoch_validity_refused:policy_admission_missing"
-    assert result.receipts == ()
-    assert result.certified_candidate_ids == ()
-    assert len(getattr(result, "pre_n9_open_world_gates", ())) == 1
-    gate_observation = result.pre_n9_open_world_gates[0]
-    assert gate_observation.ordinal == 0
-    assert gate_observation.gate_payload["status"] == "not_established"
-    assert gate_observation.gate_payload["limitation_code"] == ("deployment_scope_not_established")
-    # One invocation persists the owner query and a second, independent
-    # invocation requalifies it at the pre-N9 gate.  Keeping only the stored
-    # failure-code markers therefore makes this falsifier red.
-    assert qualify_calls == 2
+    assert len(consumer_queries) == 1
     assert n9.called is False
+    assert not _n9_negative_route_is_proven(
+        result,
+        consumer_queries=consumer_queries,
+        persisted_query=persisted_query,
+        persisted_result=persisted_result,
+        gate_statement=gate_statements[0] if len(gate_statements) == 1 else None,
+        n9_called=n9.called,
+    )
+
+
+def test_n9_route_rejects_service_without_configure_delegation(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A service object alone cannot replace configure-time owner and gate wiring."""
+
+    class _ForbiddenN9:
+        called = False
+
+        def __call__(
+            self,
+            *,
+            admitted_batch: core_contracts.PersistedPreN9AdmittedCandidateBatch,
+            problem: DesignProblem,
+        ) -> PromotionPortObservation:
+            del admitted_batch, problem
+            self.called = True
+            raise AssertionError("N9 must not run without an admitted epoch policy")
+
+    def _keep_only_service_attribute(
+        self: PromotionRuntime,
+        *,
+        semantic_epoch_service: SemanticEpochService,
+    ) -> None:
+        # Keep the service/type/name markers but remove its delegation to both
+        # persisted query owner and pre-N9 gate.
+        self.semantic_epoch_service = semantic_epoch_service
+
+    with monkeypatch.context() as patch:
+        patch.setattr(
+            PromotionRuntime, "configure_semantic_epoch_service", _keep_only_service_attribute
+        )
+        runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
+
+    assert hasattr(runtime.semantic_epoch_service, "qualify_chronology_query")
+    consumer_queries: list[core_contracts.chronology.NativeChronologyQuery] = []
+    persisted_query_reads = _record_persisted_promotion_query_reads(monkeypatch)
+    n9 = _ForbiddenN9()
+    controller = GenerationCycleController(
+        promotion_runtime=runtime,
+        promotion_port=n9,
+        authority_scope="contract_testing",
+    )
+
+    result = controller._promote_completed_generation(
+        summaries=(_open_world_summary(),),
+        problem=_problem("epoch_gate_delegation_removed_control"),
+    )
+
+    assert result.status == "not_promoted"
+    assert result.reason == "epoch_validity_refused:epoch_validity_owner_not_established"
+    assert persisted_query_reads == []
+    assert n9.called is False
+    assert not _n9_negative_route_is_proven(
+        result,
+        consumer_queries=consumer_queries,
+        persisted_query=None,
+        persisted_result=None,
+        gate_statement=None,
+        n9_called=n9.called,
+    )
 
 
 def test_empty_pre_n9_open_world_observation_does_not_change_existing_wire_shape() -> None:
@@ -2627,9 +2940,14 @@ def _owner_program_graph_n5_witness(
                 state: Any,
                 step: int | None = None,
                 inputs: list[Any] | None = None,
+                return_selected_profile: bool = False,
             ) -> Any:
                 default_snapshot_ref = original_put_snapshot(
-                    supplied_store, state=state, step=step, inputs=inputs
+                    supplied_store,
+                    state=state,
+                    step=step,
+                    inputs=inputs,
+                    return_selected_profile=return_selected_profile,
                 )
                 default_snapshot = load_model(supplied_store, default_snapshot_ref, StateSnapshot)
                 blob_bytes = supplied_store.get_bytes(default_snapshot.state_ref.artifact_id)
@@ -2752,14 +3070,21 @@ def _owner_program_graph_n5_witness(
                 payload,
                 kind="fabric.world_payload",
             )
-            data_snapshot_ref = world_fixture._put_json(
-                store,
+            data_snapshot_ref = store.put_json(
                 DataSnapshot(
                     data_ref=payload_ref,
                     stats={"snapshot_id": world_fixture.SNAPSHOT_ID},
                     notes=[f"snapshot_id:{world_fixture.SNAPSHOT_ID}"],
                 ),
-                kind="fabric.data_snapshot",
+                PutOptions(
+                    kind="fabric.data_snapshot",
+                    media_type="application/json",
+                    schema=SchemaInfo(
+                        name=DataSnapshot.ARTIFACT_SCHEMA_NAME,
+                        version=DataSnapshot.ARTIFACT_SCHEMA_VERSION,
+                    ),
+                ),
+                canon_spec=canon.CanonSpec(forbid_floats=False),
             )
             registry_bundle = build_default_registry_bundle(store)
             model_spec = world_fixture._model_spec(
@@ -10844,6 +11169,71 @@ def test_owner_program_graph_n5_refuses_profileless_selected_json_semantic_input
         witness.store.close()
 
 
+def test_owner_program_graph_n5_requires_core_json_reader_before_store_reads(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A base-only store is refused before N5 reads any selected artifact bytes."""
+    from polisyos.core.security.tenant_context import tenant_scope
+
+    witness = _owner_program_graph_n5_witness(
+        tmp_path,
+        income_values=(1000.0, 2000.0),
+        select_program_graph_view=False,
+    )
+
+    class BaseOnlyFacade:
+        def __init__(self, target: FileSystemCAS) -> None:
+            self.target = target
+            self.payload_reads = 0
+            self.manifest_reads = 0
+            self.verify_calls = 0
+
+        def __getattr__(self, name: str) -> object:
+            if name == "get_raw_manifest_bytes":
+                raise AttributeError(name)
+            if name == "get_bytes":
+                return self._get_bytes
+            if name == "get_manifest":
+                return self._get_manifest
+            if name == "verify":
+                return self._verify
+            return getattr(self.target, name)
+
+        def _get_bytes(self, artifact_id: ArtifactRef | str) -> bytes:
+            self.payload_reads += 1
+            return self.target.get_bytes(artifact_id)
+
+        def _get_manifest(self, artifact_id: ArtifactRef | str) -> object:
+            self.manifest_reads += 1
+            return self.target.get_manifest(artifact_id)
+
+        def _verify(self, artifact_id: ArtifactRef | str) -> object:
+            self.verify_calls += 1
+            return self.target.verify(artifact_id)
+
+    try:
+        with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+            request = witness.port._build_joint_simulation_request(
+                candidate=witness.candidate,
+                problem=witness.problem,
+            )
+        weak_store = BaseOnlyFacade(witness.store)
+        monkeypatch.setattr(witness.port, "_artifact_store", weak_store)
+        with (
+            tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"),
+            pytest.raises(WorldModelRecordError) as raised,
+        ):
+            witness.port._bound_program_plan(request, request.engine_plan[0])
+
+        assert raised.value.code == "n5_runtime_store_core_json_reader_unavailable"
+        assert weak_store.payload_reads == 0
+        assert weak_store.manifest_reads == 0
+        assert weak_store.verify_calls == 0
+    finally:
+        witness.store.close()
+
+
 def test_n7_measurement_reader_requires_admitted_scope_before_supplier_reads() -> None:
     from polisyos.runtime.quality.data_forge_binding import (
         FabricMeasurementRootBindingError,
@@ -11022,3 +11412,305 @@ def test_n4_candidate_scenario_route_remains_explicitly_unranked() -> None:
     )
 
     assert generation_cycle_module._ranking_by_candidate(result) == {}
+
+
+def _generic_n5_scoped_source_case(tmp_path: Path, *, tenant_id: str) -> dict[str, object]:
+    """Persist a terminal N4 source whose real scope can be replayed by N5."""
+    from dataclasses import replace
+
+    from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.runtime.quality import design_generation as n4
+    from polisyos.runtime.quality.cycle_substrate import cycle_job_design_problem_ref
+    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+    from tests.unit.runtime.quality.test_cycle_substrate import _cycle_context
+
+    problem = _problem("generic_n5_scoped_source")
+    context = _cycle_context(
+        domain=problem.domain,
+        design_problem_ref=cycle_job_design_problem_ref(problem),
+    )
+    context_job_ref = ArtifactRef(
+        artifact_id="sha256:" + "a" * 64,
+        kind="runtime.quality.cycle_substrate_context_job",
+        media_type="application/json",
+    )
+    profile_ref = ArtifactRef(
+        artifact_id="sha256:" + "b" * 64,
+        kind="runtime.quality.generic_cycle_simulation_profile",
+        media_type="application/json",
+    )
+    store = FileSystemCAS(tmp_path / "generic-n5-scoped-source-cas")
+    run_id = "generic-n5-run"
+    source_run_id = "generic-n5-source-run"
+    job_id = "generic-n5-job"
+    cell_id = "generic-n5-cell"
+    result = n4.GenerationUnderAResult(
+        status="generation_unavailable",
+        design_problem_ref=cycle_job_design_problem_ref(problem),
+        model_id="synthetic-c2",
+        preflight=n4.ModelProfilePreflight(
+            status="gateway_unavailable",
+            model_id="synthetic-c2",
+        ),
+        diversity_report=n4.GenerationDiversityReport(
+            min_required=1,
+            candidate_count=0,
+            unique_diversity_key_count=0,
+        ),
+    )
+    organ = replace(result.as_organ_run(), cycle_substrate_context=context)
+    source_ref = GenerationSourceRepository(store).persist_ref(
+        run_id=source_run_id,
+        cycle_index=0,
+        problem=problem,
+        organ=organ,
+        execution_scope="contract_testing",
+        job_id=job_id,
+        expected_run_id=run_id,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+        context_job_ref=context_job_ref,
+        profile_ref=profile_ref,
+    )
+    return {
+        "cell_id": cell_id,
+        "context": context,
+        "context_job_ref": context_job_ref,
+        "job_id": job_id,
+        "problem": problem,
+        "profile_ref": profile_ref,
+        "run_id": run_id,
+        "source_ref": source_ref,
+        "source_run_id": source_run_id,
+        "store": store,
+        "tenant_id": tenant_id,
+    }
+
+
+def _generic_n5_scope_owner_and_handoff(
+    case: dict[str, object],
+) -> tuple[Any, Any, Any]:
+    """Build only typed N5 call-boundary values around the actual CAS source."""
+    from polisyos.runtime.quality.cycle_substrate import cycle_job_profile_selection_ref
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleSimulationAdmissionOwner,
+        GenericCycleSimulationContextHandoffV1,
+        GenericCycleSimulationProfileV1,
+    )
+
+    problem = case["problem"]
+    context = case["context"]
+    store = case["store"]
+    profile = GenericCycleSimulationProfileV1.model_construct(
+        profile_id="generic-n5-test-profile",
+        profile_selection_ref=cycle_job_profile_selection_ref(problem),
+        profile_selection_kind="problem",
+        content_hash="sha256:" + "c" * 64,
+    )
+    handoff = GenericCycleSimulationContextHandoffV1.model_construct(
+        context=context,
+        context_job_ref=case["context_job_ref"],
+        profile=profile,
+        profile_ref=case["profile_ref"],
+        job_id=case["job_id"],
+        run_id=case["run_id"],
+        tenant_id=case["tenant_id"],
+        cell_id=case["cell_id"],
+    )
+    owner = GenericCycleSimulationAdmissionOwner(profiles=(), store=store)
+    return owner, handoff, profile
+
+
+@pytest.mark.parametrize(
+    ("call_site", "tenant_id", "cell_id", "expected_reason"),
+    [
+        (
+            "request_builder",
+            "tenant-scoped",
+            "generic-n5-cell",
+            "generic_cycle_simulation_n4_candidate_not_in_source",
+        ),
+        (
+            "request_builder",
+            "tenant-foreign",
+            "generic-n5-cell",
+            "generation_source_owner_profile_mismatch",
+        ),
+        (
+            "request_builder",
+            "tenant-scoped",
+            "cell-foreign",
+            "generation_source_owner_profile_mismatch",
+        ),
+        (
+            "controller",
+            "tenant-scoped",
+            "generic-n5-cell",
+            "generic_cycle_simulation_n4_candidate_not_in_source",
+        ),
+        (
+            "controller",
+            "tenant-foreign",
+            "generic-n5-cell",
+            "generation_source_owner_profile_mismatch",
+        ),
+        (
+            "controller",
+            "tenant-scoped",
+            "cell-foreign",
+            "generation_source_owner_profile_mismatch",
+        ),
+    ],
+)
+def test_generic_n5_consumers_replay_scoped_source_before_using_candidate(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    call_site: str,
+    tenant_id: str,
+    cell_id: str,
+    expected_reason: str,
+) -> None:
+    """Both generic N5 consumers use real source bytes and enforce tenant scope."""
+    from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.runtime.quality.cycle_substrate import cycle_job_design_problem_ref
+    from polisyos.runtime.quality.design_generation import ShadowGeneratedCandidate
+    from polisyos.runtime.quality.generation_source import (
+        GenerationSourceHandoff,
+        GenerationSourceRepository,
+    )
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleSimulationN5InputV1,
+    )
+
+    case = _generic_n5_scoped_source_case(tmp_path, tenant_id="tenant-scoped")
+    owner, handoff, profile = _generic_n5_scope_owner_and_handoff(case)
+    handoff = handoff.model_copy(update={"tenant_id": tenant_id, "cell_id": cell_id})
+    candidate = ShadowGeneratedCandidate.model_construct(
+        candidate_id="candidate_0123456789abcdef",
+    )
+    input_record = GenericCycleSimulationN5InputV1.model_construct(
+        job_id=case["job_id"],
+        run_id=case["run_id"],
+        source_run_id=case["source_run_id"],
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+        design_problem_ref=cycle_job_design_problem_ref(case["problem"]),
+        cycle_index=0,
+        n4_source_ref=case["source_ref"],
+        n4_child_profile_family_ref=None,
+        n4_child_profile_set_ref=None,
+        child_selection=None,
+        context_job_ref=case["context_job_ref"],
+        profile_ref=case["profile_ref"],
+        profile=profile,
+        candidate_id=candidate.candidate_id,
+        candidate_atom_hash="sha256:" + "d" * 64,
+        outcome_variable="controlled-outcome",
+        n5=object(),
+        content_hash="sha256:" + "e" * 64,
+    )
+    input_ref = ArtifactRef(
+        artifact_id="sha256:" + "f" * 64,
+        kind="runtime.quality.generic_cycle_simulation_n5_input",
+        media_type="application/json",
+    )
+    monkeypatch.setattr(
+        owner,
+        "resolve_n5_input",
+        lambda _ref, *, expected: expected,
+    )
+    monkeypatch.setattr(
+        owner,
+        "resolve_profile",
+        lambda _ref, *, expected_profile, **_scope: expected_profile,
+    )
+    monkeypatch.setattr(
+        owner,
+        "context_for_profile",
+        lambda _profile, _problem: case["context"],
+    )
+    observed_loads: list[dict[str, object]] = []
+    original_load = GenerationSourceRepository.load
+
+    def recording_load(
+        repository: GenerationSourceRepository,
+        ref: ArtifactRef | str,
+        *,
+        run_id: str,
+        expected_run_id: str | None = None,
+        expected_job_id: str | None = None,
+        expected_tenant_id: str | None = None,
+        expected_cell_id: str | None = None,
+        context_job_ref: ArtifactRef | None = None,
+        profile_ref: ArtifactRef | None = None,
+        n4_child_profile_family_ref: ArtifactRef | None = None,
+    ) -> GenerationSourceHandoff:
+        observed_loads.append(
+            {
+                "expected_tenant_id": expected_tenant_id,
+                "expected_cell_id": expected_cell_id,
+            }
+        )
+        return original_load(
+            repository,
+            ref,
+            run_id=run_id,
+            expected_run_id=expected_run_id,
+            expected_job_id=expected_job_id,
+            expected_tenant_id=expected_tenant_id,
+            expected_cell_id=expected_cell_id,
+            context_job_ref=context_job_ref,
+            profile_ref=profile_ref,
+            n4_child_profile_family_ref=n4_child_profile_family_ref,
+        )
+
+    monkeypatch.setattr(GenerationSourceRepository, "load", recording_load)
+
+    if call_site == "request_builder":
+        port = JointSimulationPort(
+            repo_root=tmp_path,
+            cycle_substrate_context=case["context"],
+            artifact_store=case["store"],
+            generic_cycle_simulation_admission_owner=owner,
+            generic_cycle_simulation_handoff=handoff,
+        )
+        with pytest.raises(ValueError, match=expected_reason):
+            port._build_generic_cycle_simulation_request(
+                candidate=candidate,
+                problem=case["problem"],
+                input_record=input_record,
+                input_ref=input_ref,
+                currentness_resolver=lambda: True,
+            )
+    else:
+        port = JointSimulationPort(
+            repo_root=tmp_path,
+            cycle_substrate_context=case["context"],
+            artifact_store=case["store"],
+            generic_cycle_simulation_admission_owner=owner,
+            generic_cycle_simulation_handoff=handoff,
+        )
+        controller = GenerationCycleController(
+            repo_root=tmp_path,
+            artifact_store=case["store"],
+            authority_scope="contract_testing",
+            cycle_substrate_context=case["context"],
+            simulation_port=port,
+            generic_cycle_simulation_admission_owner=owner,
+            generic_cycle_simulation_handoff=handoff,
+            generic_cycle_simulation_currentness_resolver=lambda: True,
+        )
+        controller._begin_source_run(case["source_run_id"])
+        controller._generic_n4_source_refs_by_cycle[0] = case["source_ref"]
+        observation = controller._run_generic_cycle_simulation_n5(
+            candidate=candidate,
+            problem=case["problem"],
+            cycle_index=0,
+        )
+        assert observation.status == "simulation_blocked"
+        assert observation.authority_blockers == ("generic_cycle_simulation_n5_refused",)
+        assert observation.diagnostics["detail"] == expected_reason
+
+    assert len(observed_loads) == 1
+    assert observed_loads[0]["expected_tenant_id"] == tenant_id
+    assert observed_loads[0]["expected_cell_id"] == cell_id

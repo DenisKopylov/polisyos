@@ -209,24 +209,6 @@ ACTIVATION_BY_SUBJECT = {
     "whole_history_authenticity": {"whole_history_holder_not_established"},
 }
 
-EXPECTED_EPOCH_RUNTIME_PATH = (
-    "src/polisyos/runtime/quality/generation_cycle.py::"
-    "GenerationCycleController._promote_completed_generation",
-    "src/polisyos/runtime/quality/open_world_risk.py::"
-    "PromotionRuntime.__init__[semantic_epoch_service=unallocated_policy_query]",
-    "src/polisyos/runtime/quality/open_world_risk.py::"
-    "PromotionRuntime.__init__[epoch_queries=persisted_negative_owner]",
-    "src/polisyos/runtime/quality/open_world_risk.py::"
-    "PromotionRuntime._prepare_completed_generation",
-    "src/polisyos/runtime/quality/epoch_validity_cascade.py::"
-    "PromotionOwnerQueryContextAuthority.persist_for_promotion",
-    "src/polisyos/runtime/quality/open_world_risk.py::"
-    "_PersistedNegativeEpochQueryOwner.resolve_for_promotion",
-    "src/polisyos/runtime/quality/semantic_epoch.py::SemanticEpochService.qualify_chronology_query",
-    "src/polisyos/runtime/quality/semantic_epoch.py::"
-    "SemanticEpochService._qualification_consumer.qualify",
-)
-
 
 def _payload_mapping(
     payload: ChronologyCapabilityHistoryPayload,
@@ -400,117 +382,6 @@ def _dotted_name(node: ast.expr) -> str | None:
     return None
 
 
-def _epoch_runtime_paths(production: dict[str, ast.Module]) -> tuple[tuple[str, ...], ...]:
-    """Derive the production N9-to-generic-consumer negative qualification route."""
-
-    def method(
-        candidate: str,
-        class_name: str,
-        function_name: str,
-    ) -> ast.FunctionDef | ast.AsyncFunctionDef | None:
-        tree = production.get(candidate)
-        if tree is None:
-            return None
-        matches = [
-            child
-            for statement in tree.body
-            if isinstance(statement, ast.ClassDef) and statement.name == class_name
-            for child in statement.body
-            if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef))
-            and child.name == function_name
-        ]
-        return matches[0] if len(matches) == 1 else None
-
-    def has_call(
-        function: ast.FunctionDef | ast.AsyncFunctionDef | None,
-        called_name: str,
-    ) -> bool:
-        return function is not None and any(
-            isinstance(node, ast.Call) and _dotted_name(node.func) == called_name
-            for node in ast.walk(function)
-        )
-
-    open_world_path = "src/polisyos/runtime/quality/open_world_risk.py"
-    generation_path = "src/polisyos/runtime/quality/generation_cycle.py"
-    cascade_path = "src/polisyos/runtime/quality/epoch_validity_cascade.py"
-    semantic_path = "src/polisyos/runtime/quality/semantic_epoch.py"
-    promotion_init = method(open_world_path, "PromotionRuntime", "__init__")
-    if promotion_init is None:
-        return ()
-
-    service_assignment = any(
-        isinstance(node, (ast.Assign, ast.AnnAssign))
-        and isinstance(node.value, ast.Call)
-        and _dotted_name(node.value.func) == "SemanticEpochService.for_unallocated_policy_query"
-        and any(
-            _dotted_name(target) == "self.semantic_epoch_service"
-            for target in (node.targets if isinstance(node, ast.Assign) else (node.target,))
-        )
-        for node in ast.walk(promotion_init)
-    )
-    negative_owner_injection = any(
-        isinstance(node, ast.Call)
-        and _dotted_name(node.func) == "PromotionOwnerQueryContextAuthority"
-        and any(
-            keyword.arg == "epoch_queries"
-            and isinstance(keyword.value, ast.Call)
-            and _dotted_name(keyword.value.func) == "_PersistedNegativeEpochQueryOwner"
-            and any(
-                nested.arg == "semantic_epoch_service"
-                and _dotted_name(nested.value) == "self.semantic_epoch_service"
-                for nested in keyword.value.keywords
-            )
-            for keyword in node.keywords
-        )
-        for node in ast.walk(promotion_init)
-    )
-    required_calls = (
-        (
-            method(
-                generation_path,
-                "GenerationCycleController",
-                "_promote_completed_generation",
-            ),
-            "runtime._prepare_completed_generation",
-        ),
-        (
-            method(open_world_path, "PromotionRuntime", "_prepare_completed_generation"),
-            "self.context_authority.persist_for_promotion",
-        ),
-        (
-            method(
-                cascade_path,
-                "PromotionOwnerQueryContextAuthority",
-                "persist_for_promotion",
-            ),
-            "self._epoch_queries.resolve_for_promotion",
-        ),
-        (
-            method(
-                open_world_path,
-                "_PersistedNegativeEpochQueryOwner",
-                "resolve_for_promotion",
-            ),
-            "self._semantic_epoch_service.qualify_chronology_query",
-        ),
-        (
-            method(semantic_path, "SemanticEpochService", "qualify_chronology_query"),
-            "self._qualification_consumer.qualify",
-        ),
-    )
-    if (
-        not service_assignment
-        or not negative_owner_injection
-        or not all(has_call(function, called_name) for function, called_name in required_calls)
-    ):
-        return ()
-    return (EXPECTED_EPOCH_RUNTIME_PATH,)
-
-
-def _assert_epoch_runtime_topology(topology: dict[str, object]) -> None:
-    assert topology["epoch_runtime_paths"] == (EXPECTED_EPOCH_RUNTIME_PATH,)
-
-
 def _remove_scoped_call(
     trees: dict[str, ast.Module],
     *,
@@ -542,7 +413,7 @@ def _remove_scoped_call(
             self.current_function = previous
             return rewritten
 
-        def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> ast.AST:  # noqa: N802
+        def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> ast.AST:
             previous = self.current_function
             self.current_function = node.name
             rewritten = self.generic_visit(node)
@@ -651,7 +522,6 @@ def _source_topology(roles: dict[str, str], trees: dict[str, ast.Module]) -> dic
         "consumer_imports": tuple(sorted(consumer_imports)),
         "consumer_exports": tuple(sorted(consumer_exports)),
         "consumer_factory_calls": tuple(sorted(consumer_factory_calls)),
-        "epoch_runtime_paths": _epoch_runtime_paths(production),
         "concrete_adapters": tuple(sorted(concrete_adapters)),
         "public_definitions": tuple(sorted(public_definitions)),
         "public_imports": tuple(sorted(public_imports)),
@@ -750,12 +620,13 @@ def test_cluster4_terminal_labels_match_source_derived_chain() -> None:
     assert topology["consumer_exports"] == (
         "src/polisyos/runtime/quality/chronology_qualification.py",
     )
-    assert topology["consumer_imports"] == ("src/polisyos/runtime/quality/semantic_epoch.py",)
-    assert topology["consumer_factory_calls"] == (
-        "src/polisyos/runtime/quality/acquisition_executor.py",
-        "src/polisyos/runtime/quality/semantic_epoch.py",
-    ), topology
-    unallocated_mutation, removed = _remove_scoped_call(
+    # These consumer and adapter fields are a complete all-family source inventory.
+    # They span acquisition admission, per-row GY-GAP6 movement, and semantic-epoch
+    # services; they are not the N9 route. The shared source-census receipt preserves
+    # their full current values. N9 behavior is established by the real controller
+    # test in tests/unit/runtime/quality/test_generation_cycle.py, which checks the
+    # persisted owner query, fresh gate qualification, and forbidden N9 call.
+    unallocated_inventory_mutation, removed = _remove_scoped_call(
         trees,
         candidate="src/polisyos/runtime/quality/semantic_epoch.py",
         class_name="SemanticEpochService",
@@ -763,80 +634,10 @@ def test_cluster4_terminal_labels_match_source_derived_chain() -> None:
         called_name="QualificationConsumer.from_unallocated_policy_authority",
     )
     assert removed == 1
-    mutated_factory_calls = _source_topology(roles, unallocated_mutation)["consumer_factory_calls"]
-    assert mutated_factory_calls != topology["consumer_factory_calls"]
-    _assert_epoch_runtime_topology(topology)
-    marker_fields = (
-        "consumer_definitions",
-        "consumer_imports",
-        "consumer_exports",
-        "consumer_factory_calls",
-    )
-    topology_mutations = (
-        (
-            "src/polisyos/runtime/quality/generation_cycle.py",
-            "GenerationCycleController",
-            "_promote_completed_generation",
-            "runtime._prepare_completed_generation",
-        ),
-        (
-            "src/polisyos/runtime/quality/open_world_risk.py",
-            "PromotionRuntime",
-            "__init__",
-            "SemanticEpochService.for_unallocated_policy_query",
-        ),
-        (
-            "src/polisyos/runtime/quality/open_world_risk.py",
-            "PromotionRuntime",
-            "__init__",
-            "_PersistedNegativeEpochQueryOwner",
-        ),
-        (
-            "src/polisyos/runtime/quality/open_world_risk.py",
-            "PromotionRuntime",
-            "_prepare_completed_generation",
-            "self.context_authority.persist_for_promotion",
-        ),
-        (
-            "src/polisyos/runtime/quality/epoch_validity_cascade.py",
-            "PromotionOwnerQueryContextAuthority",
-            "persist_for_promotion",
-            "self._epoch_queries.resolve_for_promotion",
-        ),
-        (
-            "src/polisyos/runtime/quality/open_world_risk.py",
-            "_PersistedNegativeEpochQueryOwner",
-            "resolve_for_promotion",
-            "self._semantic_epoch_service.qualify_chronology_query",
-        ),
-        (
-            "src/polisyos/runtime/quality/semantic_epoch.py",
-            "SemanticEpochService",
-            "qualify_chronology_query",
-            "self._qualification_consumer.qualify",
-        ),
-    )
-    for candidate, class_name, function_name, called_name in topology_mutations:
-        mutated_trees, removed = _remove_scoped_call(
-            trees,
-            candidate=candidate,
-            class_name=class_name,
-            function_name=function_name,
-            called_name=called_name,
-        )
-        assert removed == 1
-        mutated_topology = _source_topology(roles, mutated_trees)
-        assert {field: mutated_topology[field] for field in marker_fields} == {
-            field: topology[field] for field in marker_fields
-        }
-        with pytest.raises(AssertionError):
-            _assert_epoch_runtime_topology(mutated_topology)
-    assert topology["concrete_adapters"] == (
-        (
-            "src/polisyos/runtime/quality/semantic_epoch.py",
-            "SemanticEpochQualificationAdapter",
-        ),
-    ), topology
+    mutated_factory_inventory = _source_topology(roles, unallocated_inventory_mutation)[
+        "consumer_factory_calls"
+    ]
+    assert mutated_factory_inventory != topology["consumer_factory_calls"]
     assert topology["common_calls"] == {
         "FullPrefixVerifier": (
             "src/polisyos/core/security/chronology_anchor.py",

@@ -1,0 +1,35 @@
+id = "2026-10-17-e02-n8-bounds-candidate-serving"
+title = "Serve recomputed assumption-only bounds in the N8 candidate source path"
+type = "fixed"
+component = "runtime"
+owner = "team-polisyos"
+summary = "N8 can persist and freshly recompute the real BoundsEngine ASSUMPTION_ONLY bundle on the selected source-projection method path, retaining its assumptions and refs while exposing the unresolved ATE/ate relation as a candidate limitation. The value port remains blocked and the ValueOuterSet remains search-only."
+evidence = [
+  "src/polisyos/runtime/quality/generation_cycle.py",
+  "tests/unit/runtime/quality/test_value_gate.py",
+  "src/polisyos/runtime/quality/README.md",
+]
+compatibility = "No DTO, CAS schema, public API, generated client, authority gate, or BoundsBundle converter changes. Existing BoundsBundle bytes and typed soundness values are preserved; the producer and fresh consumer require ASSUMPTION_ONLY for this candidate route and compare the full recomputed bundle and exact manifest inputs."
+change_class = "internal"
+surface_classification = "internal: polisyos.runtime.quality.generation_cycle"
+migration = "Existing callers of the N8 selected source-projection route continue to receive a blocked candidate observation. Consumers of the candidate ValueOuterSet should retain the existing assumptions tuple and follow its persisted run-basis/report/bounds refs; no legacy profile or artifact is upgraded."
+api = "The existing BoundsBundle v1 artifact is written with its selected profile and exact source edges, referenced by the native report and fresh run basis. The consumer recomputes the actual BoundsEngine bundle, preserves its ASSUMPTION_ONLY method summaries, assumptions, and certificate refs, and projects its MANSKI interval only into the existing declared/search-only candidate ValueOuterSet."
+limitations = "The requested estimand identifier ATE and BoundsBundle estimand_type ate have no source-owned typed crosswalk in this route; the ValueOuterSet carries bounds_estimand_relation_not_established rather than normalizing either string. Candidate-only source rows, consumer-asserted treatment and support, unit/projection limits, source-time unknowns, causal validity, calibration, production currentness, authority comparison, and VOI/promotion remain unresolved or out of scope."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/runtime/quality/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "n8-assumption-only-bounds-candidate-serving"
+change_class = "internal"
+impact = "non_breaking"
+surface = "internal: polisyos.runtime.quality.generation_cycle"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "N8 serves freshly recomputed ASSUMPTION_ONLY bounds only as a declared, search-only candidate while preserving the authority blocker."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["src/polisyos/runtime/quality/README.md"]
+runbook_docs = []

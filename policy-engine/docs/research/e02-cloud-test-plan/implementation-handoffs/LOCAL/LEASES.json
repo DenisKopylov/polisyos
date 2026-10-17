@@ -3868,5 +3868,119 @@
     "acceptance": "Fresh canonical affected tests, Ruff/format, generated config, exact21 staged/Trash guard and all18 actual hook selectors; retain full deciding outputs, including owned chronology FAIL.",
     "source_freeze": false,
     "closure_ids": []
+  },
+  "coordination_epoch_20261017_quality16_scoped_owner_composition": {
+    "source_base_commit": "cf6a076a8415dc4092cfd3d4e9c8862f81c15a9a",
+    "defining_source_commit": "736104d0144b75272c06f34e6eb185545ece1fed",
+    "canonical_writer": "root",
+    "mechanism_paths": [
+      "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "policy-engine/src/polisyos/runtime/quality/generic_simulation_admission.py",
+      "policy-engine/src/polisyos/runtime/quality/data_forge_binding.py",
+      "policy-engine/src/polisyos/ir/analytics/ncm.py",
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+      "policy-engine/tests/unit/runtime/quality/test_value_gate.py",
+      "policy-engine/tests/unit/remediation/test_acq_01.py",
+      "policy-engine/tests/unit/runtime/quality/test_acquisition_owner_store_requirement.py",
+      "policy-engine/tests/unit/runtime/quality/test_generic_n5_v3_binding.py",
+      "policy-engine/tests/unit/runtime/quality/test_opaque_owner_payload.py",
+      "policy-engine/tests/unit/ir/analytics/test_ncm.py",
+      "policy-engine/tests/unit/runtime/quality/test_candidate_simulation_request_type_boundary.py",
+      "policy-engine/release-fragments/unreleased/2026-10-17-e02-runtime-quality-scoped-readers-and-typed-boundaries.toml"
+    ],
+    "mandatory_companions": [
+      "policy-engine/src/polisyos/runtime/quality/README.md",
+      "policy-engine/release-fragments/unreleased/2026-10-17-e02-n8-bounds-candidate-serving.toml",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json"
+    ],
+    "property": "Scope three generic N5 owner loads; preserve canonical owner types and CoreJSON reader capability across selected runtime and NCM consumers; keep N8 assumption bounds candidate-only through fresh CAS consumer.",
+    "source_patch": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/quality-source-composition-author-r1-20261017/receipts/quality-source-composition.patch",
+      "sha256": "04e2ea3cf7c090508e17fc6fa7a34473f2648503903af17b6792bfabaf076bfd"
+    },
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/quality-source-composition-independent-review-r1-20261017/review.json",
+      "sha256": "875c98a6bfe5d66da4fa8e3a58d589476dc165610b003f53b7658725466a6ae4"
+    },
+    "P40_bucket": "Existing scoped-reader and typed owner-boundary classes; same-class companion paths composed in one boundary. Full served capability and external authority remain unestablished.",
+    "acceptance": "One current-source focused composed wave after independent readback; full native/package/served gates pending.",
+    "remaining_owned_red": "Chronology actual-property R2 remains failed pending predicate/oracle repair; no inherited assertion.",
+    "source_freeze": false,
+    "closure_ids": []
+  },
+  "coordination_epoch_20261017_chronology_runtime_oracle_r3": {
+    "source_base_commit": "cf6a076a8415dc4092cfd3d4e9c8862f81c15a9a",
+    "canonical_writer": "root",
+    "mechanism_paths": [
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+      "policy-engine/tests/repo_quality/test_chronology_terminal_state.py"
+    ],
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json"
+    ],
+    "author_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/chronology-actual-property-author-r3-20261017/manifest.json",
+      "sha256": "5e48adc97653e8077e38301f72f410d34057c811ddc8a80ae52e25809a0ab224"
+    },
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/chronology-actual-property-r3-independent-review-20261017/review.json",
+      "sha256": "7e86a2169e5c5f937a127370cca6853a920c3c283df050bff4fbfd8a5555fa3d"
+    },
+    "property": "Persisted owner query is reloaded and requalified by a fresh actual QualificationConsumer before the real controller refuses unappointed epoch policy and prevents N9. Marker-only replay and configure-delegation removals must fail the same route predicate.",
+    "P40_bucket": "Same proxy-oracle class: remove all-family source topology as an N9 behavior proxy and exercise actual persisted owner/gate route; scalar typed DTO oracle corrects measured mismatch.",
+    "historical_receipt_errata": [
+      "Earlier denominator traceback diagnosis was false: candidate SourceBoundLoader bytes and canonical linecache differed.",
+      "Author R3 repo-quality preimage digest omitted its final hex digit; root requires and records full exact64 digest ending dee4d, both real apply checks pass."
+    ],
+    "composition": "Quality16 source remains ca7ac6; only two reviewed test paths change, one overlaps prior unit-test path. Total composed footprint17, with all N8/quality companions preserved.",
+    "acceptance": "One canonical 35-case quality+N9+chronology wave plus source/format/reader-removal controls, no overlay code collector.",
+    "source_freeze": false,
+    "closure_ids": []
+  },
+  "coordination_epoch_20261017_opaque_canonical_consumer_companion": {
+    "source_base_commit": "cf6a076a8415dc4092cfd3d4e9c8862f81c15a9a",
+    "canonical_writer": "root",
+    "mechanism_paths": [
+      "policy-engine/tests/unit/runtime/quality/test_opaque_owner_payload.py"
+    ],
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json"
+    ],
+    "author_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/quality-opaque-canonical-test-companion-r1-20261017/manifest.json",
+      "sha256": "69632b2c2b6bbc42a2d757f02a5ab0a785c46c6bc4c211e5c147241283ad4890"
+    },
+    "independent_root_review": "Complete patch read; all3 semantic tests and their25 assertions preserved under fixture-name normalization; no source loader or sys.modules override remains. Real module imported through normal canonical owner API, origin asserted.",
+    "property": "Canonical tests consume the actual installed-in-source generation-cycle module rather than adjacent unpublished RAW source with a stale checksum.",
+    "P40_bucket": "Same consumer/source binding class, widened to9unique changed quality+chronology test modules in full explicit audit.",
+    "prior_deciding_output": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-quality17-main-root-20261017/postrun-analysis.json",
+      "sha256": "e9302bacbcf1fd52e316429dfa5ae55b33634b8a677dbb9b3bd66572f63d0926"
+    },
+    "acceptance": "Create unique basetemp parent, freeze all17composed paths and actual backend/input profile, run canonical35cases and current guard-removal probe.",
+    "source_freeze": false,
+    "closure_ids": []
+  },
+  "coordination_epoch_20261017_quality_owner_runtime_admission_and_lineage_control": {
+    "source_base_commit": "cf6a076a8415dc4092cfd3d4e9c8862f81c15a9a",
+    "canonical_writer": "root",
+    "mechanism_paths": [
+      "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "policy-engine/tests/unit/runtime/quality/test_opaque_owner_payload.py",
+      "policy-engine/tests/unit/runtime/quality/test_value_gate.py"
+    ],
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json"
+    ],
+    "P40_bucket": "Same typed-owner admission class at projection/passport/hash, all seven estimand consumers, and WMR before hashing; test-control wire equality repaired without changing product lineage semantics.",
+    "property": "Malformed supplied owner objects refuse before use; the actual selected bounds input multiset remains mandatory through a fresh CAS consumer.",
+    "independent_reviews": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/opaque-owner-runtime-admission-independent-review-r1-20261017/review.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n8-bounds-lineage-negative-control-r1-20261017/independent-review-r1.json"
+    ],
+    "source_bound_evidence": "Three OPAQUE tests passed in an exact two-postimage overlay; both persisted AIPW/TMLE bounds reject actual edge removal and bypassing the predicate reaches the pre-fit sentinel. Full canonical wave remains pending.",
+    "acceptance": "One final current canonical 35-case wave, exact current store-guard removal, canonical Ruff/format, then separate implementation and receipt commits.",
+    "source_freeze": false,
+    "closure_ids": []
   }
 }

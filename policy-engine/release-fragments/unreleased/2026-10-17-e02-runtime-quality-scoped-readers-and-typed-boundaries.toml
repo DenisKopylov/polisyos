@@ -1,0 +1,44 @@
+id = "2026-10-17-e02-runtime-quality-scoped-readers-and-typed-boundaries"
+title = "Preserve scoped source loading and typed owner-reader boundaries"
+type = "changed"
+component = "runtime-quality"
+owner = "team-polisyos"
+summary = "Generic N5 source replay supplies the tenant and cell expectations required by GenerationSourceRepository at all three scoped load sites. Runtime-quality consumers that read semantic Core JSON require the existing CoreJSONArtifactStore capability, and related typed owner and candidate-intake boundaries retain their canonical records and refusal behavior."
+evidence = [
+  "src/polisyos/runtime/quality/generation_cycle.py",
+  "src/polisyos/runtime/quality/generic_simulation_admission.py",
+  "src/polisyos/runtime/quality/data_forge_binding.py",
+  "src/polisyos/ir/analytics/ncm.py",
+  "tests/unit/runtime/quality/test_generation_cycle.py",
+  "tests/unit/runtime/quality/test_generic_n5_v3_binding.py",
+  "tests/unit/runtime/quality/test_acquisition_owner_store_requirement.py",
+  "tests/unit/runtime/quality/test_opaque_owner_payload.py",
+  "tests/unit/runtime/quality/test_candidate_simulation_request_type_boundary.py",
+  "tests/unit/runtime/quality/test_value_gate.py",
+  "tests/unit/ir/analytics/test_ncm.py",
+  "tests/unit/remediation/test_acq_01.py",
+]
+compatibility = "Internal runtime-quality behavior and typing only. No public DTO, public export, generated client, CAS schema, persisted wire format, or authority gate is intentionally changed by this composition. Existing typed scope, content, manifest, and custody checks remain required."
+change_class = "internal"
+surface_classification = "internal: polisyos.runtime.quality"
+migration = "No migration is required. The three changed generic N5 source-load sites now pass expected tenant and cell bindings to the owner API. Legacy N5 V2/V3 replay load calls remain unchanged; this slice does not establish scope coverage for those paths."
+api = "The change uses the existing GenerationSourceRepository.load expected_tenant_id/expected_cell_id contract and the existing CoreJSONArtifactStore reader protocol. No new public API is introduced."
+limitations = "The frozen candidate evidence is not a composed-suite receipt. The combined focused suite, full native typing/Mypy, full runtime gate, and public-surface review remain UNRUN. N5 served HTTP/N4-to-N6 end-to-end closure is not established by the scoped-loader controls. The OPAQUE R2 semantic pytest was not rerun; its R2 evidence is formatting/apply-check only. N8 full parameterized source-projection selection remains UNRUN. N7 remote S3/GCS behavior and full N7 closure remain unestablished. Joint simulation execution, public generation capability, currentness, external authority, and E02 closure are not claimed."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "runtime-quality-scoped-reader-contracts"
+change_class = "internal"
+impact = "non_breaking"
+surface = "internal: polisyos.runtime.quality"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Keep generic N5 source resolution scoped to the expected tenant and cell, and require the existing typed raw-manifest reader capability before consuming Core JSON."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

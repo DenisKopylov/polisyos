@@ -15,9 +15,17 @@ import pytest
 
 import polisyos.runtime.quality.generation_cycle as generation_cycle_module
 import polisyos.runtime.quality.joint_simulation_horizon as n5_horizon
+from polisyos.core.artifacts import ArtifactID as CASArtifactID
+from polisyos.core.artifacts import (
+    ArtifactManifest,
+    ArtifactStore,
+    ArtifactWriteOptions,
+    FileSystemCAS,
+    VerificationReport,
+)
 from polisyos.core.artifacts import ArtifactRef as CASArtifactRef
-from polisyos.core.artifacts import ArtifactStore, FileSystemCAS
 from polisyos.core.artifacts import InputRef as CASInputRef
+from polisyos.core.canon import CanonSpec
 from polisyos.data_requirement import (
     CAPABILITY_REQUIREMENT_RESOLUTION_SCHEMA_VERSION,
     DataQualityMinimums,
@@ -69,6 +77,58 @@ from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetSt
 REPO_ROOT = Path(__file__).resolve().parents[3]
 _ACQ01_ROUTE_STORE_UNSPECIFIED = object()
 _ACQ01_ROUTE_VALUE_PORT_UNSPECIFIED = object()
+
+
+class _BaseOnlyArtifactStore:
+    """Expose the base store contract while withholding raw manifest bytes."""
+
+    def __init__(self, store: ArtifactStore) -> None:
+        self._store = store
+        self.read_calls: int = 0
+
+    def has(self, artifact_id: CASArtifactID | CASArtifactRef) -> bool:
+        self.read_calls += 1
+        return self._store.has(artifact_id)
+
+    def get_bytes(self, artifact_id: CASArtifactID | CASArtifactRef) -> bytes:
+        self.read_calls += 1
+        return self._store.get_bytes(artifact_id)
+
+    def get_manifest(self, artifact_id: CASArtifactID | CASArtifactRef) -> ArtifactManifest:
+        self.read_calls += 1
+        return self._store.get_manifest(artifact_id)
+
+    def put_bytes(
+        self,
+        data: bytes,
+        opts: ArtifactWriteOptions,
+        *,
+        return_selected_profile: bool = False,
+    ) -> CASArtifactRef:
+        return self._store.put_bytes(data, opts, return_selected_profile=return_selected_profile)
+
+    def put_json(
+        self,
+        obj: object,
+        opts: ArtifactWriteOptions,
+        canon_spec: CanonSpec | None = None,
+        *,
+        return_selected_profile: bool = False,
+    ) -> CASArtifactRef:
+        return self._store.put_json(
+            obj,
+            opts,
+            canon_spec,
+            return_selected_profile=return_selected_profile,
+        )
+
+    def verify(self, artifact_id: CASArtifactID | CASArtifactRef) -> VerificationReport:
+        self.read_calls += 1
+        return self._store.verify(artifact_id)
+
+    def iter_artifact_ids(self) -> list[CASArtifactID]:
+        self.read_calls += 1
+        return self._store.iter_artifact_ids()
 
 
 def _contract_testing_measurement_root_binding(
@@ -208,6 +268,39 @@ def test_n7_explicit_specs_take_precedence_and_preserve_empty_primary() -> None:
         )
         == alias
     )
+
+
+def test_n7_acquisition_rejects_untyped_requirement_spec_before_gateway(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    controller = GenerationCycleController(
+        repo_root=tmp_path,
+        authority_scope="contract_testing",
+        measurement_root_execution_binding=_contract_testing_measurement_root_binding(tmp_path),
+    )
+    problem = _problem()
+    monkeypatch.setattr(
+        controller,
+        "_n7_data_requirement_basis",
+        lambda *_args, **_kwargs: ((object(),), None),
+    )
+
+    def unexpected_gateway(_problem: DesignProblem) -> object:
+        raise AssertionError("an untyped requirement spec must fail before owner use")
+
+    monkeypatch.setattr(controller, "_n7_owner_gateway", unexpected_gateway)
+    cycle = SimpleNamespace(
+        terminal_kind="acquisition_required",
+        cycle_index=0,
+        revision_request=SimpleNamespace(strategy_payload={"acquisition_request": {}}),
+    )
+
+    with pytest.raises(
+        generation_cycle_module.GenerationCycleError,
+        match="n7_data_requirement_specs_invalid",
+    ):
+        controller._run_n7_acquisition_if_requested(problem, cycle=cycle)
 
 
 def test_n7_typed_any_of_gap_precedes_explicit_specs() -> None:
@@ -1367,6 +1460,61 @@ async def test_n7_acq01_route_context_helper_refuses_production_scope_with_valid
         )
         assert contract_context is not None
 
+        # The reader needs the canonical Core JSON/raw-manifest capability,
+        # not one concrete backend. Exercise a real non-filesystem wrapper.
+        from polisyos.core import artifacts
+        from polisyos.core.artifacts.backends.caching_store import CachingArtifactStore
+
+        original_store = replay_controller._artifact_store
+        cache_local = artifacts.FileSystemCAS(tmp_path / "route-cache")
+        cached_store = CachingArtifactStore(remote=route.store, local=cache_local)
+        assert not isinstance(cached_store, artifacts.FileSystemCAS)
+        assert isinstance(cached_store, artifacts.ArtifactStore)
+        assert isinstance(cached_store, artifacts.CoreJSONArtifactStore)
+        try:
+            replay_controller._artifact_store = cached_store
+            cached_context = replay_controller._rebuild_n7_acq01_route_context(
+                case.problem,
+                acquisition_receipt=receipt,
+                candidate_id=case.candidate.candidate_id,
+                candidate_content_hash=case.candidate.atom.content_hash,
+                target_world_slots=tuple(case.candidate.atom.target_world_slots),
+            )
+            assert cached_context is not None
+            assert (
+                cached_context.world_model_record.world_model_record_id
+                == contract_context.world_model_record.world_model_record_id
+            )
+
+            # This proxy implements every required base ArtifactStore operation,
+            # but deliberately lacks the optional raw-manifest read capability.
+            base_store_only = SimpleNamespace(
+                has=route.store.has,
+                get_bytes=route.store.get_bytes,
+                get_manifest=route.store.get_manifest,
+                put_bytes=route.store.put_bytes,
+                put_json=route.store.put_json,
+                verify=route.store.verify,
+                iter_artifact_ids=route.store.iter_artifact_ids,
+            )
+            assert isinstance(base_store_only, artifacts.ArtifactStore)
+            assert not isinstance(base_store_only, artifacts.CoreJSONArtifactStore)
+            replay_controller._artifact_store = base_store_only
+            with pytest.raises(generation_cycle_module.GenerationCycleError) as no_raw_manifest:
+                replay_controller._rebuild_n7_acq01_route_context(
+                    case.problem,
+                    acquisition_receipt=receipt,
+                    candidate_id=case.candidate.candidate_id,
+                    candidate_content_hash=case.candidate.atom.content_hash,
+                    target_world_slots=tuple(case.candidate.atom.target_world_slots),
+                )
+            assert no_raw_manifest.value.code == "n7_acq01_route_cas_ref_invalid"
+        finally:
+            replay_controller._artifact_store = original_store
+            close = getattr(cache_local, "close", None)
+            if callable(close):
+                close()
+
         # Exercise the actual receipt consumer, not a removed private marker helper.
         for nonroute_value in (None, "route-marker", ["not", "a", "route"]):
             nonroute_receipt = _receipt_with_acq01_route_value(receipt, nonroute_value)
@@ -1496,12 +1644,15 @@ async def test_n7_acq01_real_measurement_root_delta_builds_fresh_wmr(
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("selected_store_kind", ["missing", "foreign_store"])
+@pytest.mark.parametrize(
+    "selected_store_kind",
+    ["missing", "foreign_store", "unsupported_store"],
+)
 async def test_n7_acq01_route_requires_controller_selected_store(
     tmp_path: Path,
     selected_store_kind: str,
 ) -> None:
-    """A hashed v1 path cannot override the controller's selected CAS view."""
+    """A hashed v1 path cannot override or bypass the selected CAS capability."""
 
     case = _real_acq01_inputs(tmp_path, problem_id="acq_01_foreign_selected_store")
     with _real_acq01_route(
@@ -1514,7 +1665,13 @@ async def test_n7_acq01_route_requires_controller_selected_store(
             route.store.root
         )
         foreign_store = FileSystemCAS(tmp_path / "foreign-selected-store")
-        selected_store = None if selected_store_kind == "missing" else foreign_store
+        selected_store = (
+            None
+            if selected_store_kind == "missing"
+            else object()
+            if selected_store_kind == "unsupported_store"
+            else foreign_store
+        )
         expected_error = (
             "n7_acq01_route_store_not_supplied"
             if selected_store_kind == "missing"
@@ -2384,3 +2541,138 @@ async def test_n7_reentry_does_not_run_n5_from_registry_only_world_ref(
     assert cycle.simulation.status == "simulation_blocked"
     assert "world_identity_unresolved" in cycle.simulation.authority_blockers
     assert cycle.simulation.simulation_ref is None
+
+
+@pytest.mark.asyncio
+async def test_n7_acq01_reentry_rejects_self_labeled_grounding_mapping(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A mapping that labels itself canonical cannot substitute for the owner DTO."""
+
+    case = _real_acq01_inputs(tmp_path, problem_id="acq_01_self_labeled_grounding_mapping")
+    with _real_acq01_route(
+        tmp_path,
+        case.problem,
+        candidate_content_hash=case.candidate.atom.content_hash,
+    ) as route:
+        simulation = _ContextRecordingSimulation()
+        controller = _build_acq01_real_route_controller(
+            case=case,
+            route=route,
+            simulation=simulation,
+            repo_root=tmp_path,
+        )
+        invoked: list[bool] = []
+        malformed_present_result = {
+            "type": "AcquisitionGroundingRederivation",
+            "design_id": case.candidate.candidate_id,
+            "source_slots": (),
+            "status": "grounding_unavailable",
+            "grounding_score": 0.0,
+            "report_ref": None,
+            "evidence_refs": (),
+            "issue_codes": (),
+        }
+
+        def return_self_labeled_mapping(*args: Any, **kwargs: Any) -> object:
+            invoked.append(True)
+            return malformed_present_result
+
+        monkeypatch.setattr(
+            generation_cycle_module,
+            "_n7_rederived_grounding_for_candidate",
+            return_self_labeled_mapping,
+        )
+        with pytest.raises(
+            generation_cycle_module.GenerationCycleError,
+            match="N7 grounding rederivation is not the canonical owner result",
+        ) as exc_info:
+            await controller.run(
+                case.problem,
+                budget_state=BudgetState(
+                    limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))}
+                ),
+                max_cycles=1,
+            )
+
+        assert exc_info.value.code == "n7_receipt_invalid"
+        assert invoked == [True]
+        # The valid recorded route ran its initial simulation, but the forged
+        # self-label did not trigger a second simulation or cycle re-entry.
+        assert len(simulation.observations) == 1
+
+
+def test_n7_core_json_readers_preserve_base_store_refusal_boundary(
+    tmp_path: Path,
+) -> None:
+    """Real CoreJSON readers work; base-only stores refuse before reading."""
+
+    from polisyos.common.canonical_profile import CanonicalProfileRefusalError
+    from polisyos.core.artifacts.backends.caching_store import CachingArtifactStore
+    from polisyos.runtime.quality.data_forge_binding import (
+        FabricMeasurementRootBindingError,
+        MeasurementRootBindingError,
+        resolve_fabric_measurement_root,
+        resolve_measurement_root_evidence,
+        verify_recorded_panel_method_input,
+    )
+
+    case = _real_acq01_inputs(tmp_path, problem_id="acq_01_core_json_store_boundary")
+    with _real_acq01_route(
+        tmp_path,
+        case.problem,
+        candidate_content_hash=case.candidate.atom.content_hash,
+    ) as route:
+        reader_store = CachingArtifactStore(
+            remote=route.store,
+            local=FileSystemCAS(tmp_path / "core-json-reader-cache"),
+            write_through=True,
+        )
+        real_evidence = resolve_measurement_root_evidence(
+            store=reader_store,
+            measurement_root=route.measurement_root,
+            catalog=route.catalog,
+            providers=route.providers,
+            execution_scope_binding=route.execution_scope_binding,
+        )
+        assert real_evidence == route.evidence
+
+        base_only = _BaseOnlyArtifactStore(reader_store)
+        with pytest.raises(FabricMeasurementRootBindingError) as evidence_refusal:
+            resolve_measurement_root_evidence(
+                store=base_only,
+                measurement_root=route.measurement_root,
+                catalog=route.catalog,
+                providers=route.providers,
+                execution_scope_binding=route.execution_scope_binding,
+            )
+        assert evidence_refusal.value.code == "measurement_root_custody_unresolved"
+        assert base_only.read_calls == 0
+
+        selected_profile = route.measurement_root.payload_manifest_profile_sha256
+        assert selected_profile is not None
+        with pytest.raises(CanonicalProfileRefusalError) as resolver_refusal:
+            resolve_fabric_measurement_root(
+                store=base_only,
+                source_artifact_id=route.measurement_root.payload_ref,
+                manifest_profile_sha256=selected_profile,
+                catalog=route.catalog,
+                providers=route.providers,
+                execution_scope_binding=route.execution_scope_binding,
+            )
+        assert resolver_refusal.value.code == "canon_profile_raw_manifest_unavailable"
+        assert base_only.read_calls == 0
+
+        recorded_binding_ref = CASArtifactRef(
+            artifact_id=route.evidence.measurement_root_ref.artifact_id,
+            kind="runtime.recorded_panel_method_binding",
+            media_type="application/json",
+        )
+        with pytest.raises(MeasurementRootBindingError) as recorded_refusal:
+            verify_recorded_panel_method_input(
+                store=base_only,
+                binding_receipt_ref=recorded_binding_ref,
+            )
+        assert str(recorded_refusal.value) == "recorded_binding_unreadable"
+        assert base_only.read_calls == 0

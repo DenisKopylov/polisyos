@@ -997,3 +997,5 @@ Facet truth, candidate status, source refs, authority limits, and source time
 remain load-bearing. This identity check establishes candidate binding
 consistency only; it establishes neither legal authority nor law truth and
 introduces no legal rule, permission criterion, or public schema field.
+
+For source-projection method runs, N8 stores the actual `ir.bounds_bundle.v1` output under the selected manifest profile and binds it to the owner profile, assignment, exact panel bytes, and runner request. The producer and fresh consumer preserve the engine's `ASSUMPTION_ONLY` tier, assumptions, and certificate references without promoting them; the current requested `ATE` / bundle `ate` relation is explicitly `bounds_estimand_relation_not_established` in the candidate set. The resulting `ValueOuterSet` remains `declared` and `search_only`, and the port still blocks it as `candidate_fixture_value_run_not_authority`; this does not establish causal authority, calibration, currentness, or promotion.

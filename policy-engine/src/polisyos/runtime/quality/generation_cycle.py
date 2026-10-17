@@ -34,7 +34,7 @@ from enum import Enum
 from functools import cache
 from pathlib import Path
 from types import UnionType
-from typing import TYPE_CHECKING, Any, Literal, Protocol, Union, get_args, get_origin
+from typing import TYPE_CHECKING, Any, Literal, Protocol, TypeGuard, Union, get_args, get_origin
 
 from pydantic import (
     BaseModel,
@@ -53,7 +53,7 @@ from polisyos.core.artifacts import (
     ArtifactOwnershipError,
     ArtifactStore,
     ArtifactTenantContextInfo,
-    FileSystemCAS,
+    CoreJSONArtifactStore,
     PutOptions,
     SchemaInfo,
     artifact_ref_identity_key,
@@ -87,7 +87,11 @@ from polisyos.data_requirement.compiler import (
     ScenarioFamilyDeclarationInputError,
     ScenarioScopeProfileInputError,
 )
-from polisyos.foundry.methods.selection import MethodSelectionReceipt
+
+if TYPE_CHECKING:
+    from polisyos.foundry.methods.selection.receipt import MethodSelectionReceipt
+else:
+    from polisyos.foundry.methods.selection import MethodSelectionReceipt
 from polisyos.pdc import (
     ArtifactRef,
     CounterexampleRecord,
@@ -111,6 +115,8 @@ from polisyos.runtime.quality._generation_cycle_history_schema import (
 )
 from polisyos.runtime.quality.acquisition_planner import (
     AcquisitionCostBasisRecord,
+    AcquisitionGroundingRederivation,
+    AcquisitionOwnerGateway,
     AcquisitionPlannerReport,
     AcquisitionReceipt,
     AcquisitionRequirementGap,
@@ -177,8 +183,13 @@ from polisyos.runtime.quality.joint_simulation_horizon import (
     build_content_bound_simulation_receipt,
     verify_simulation_receipt,
 )
+
+if TYPE_CHECKING:
+    from polisyos.pdc import SubstrateLayer
+else:
+    from polisyos.runtime.quality.substrate_registry import SubstrateLayer
+
 from polisyos.runtime.quality.substrate_registry import (
-    SubstrateLayer,
     SubstrateRegistry,
     SubstrateRegistryError,
     build_substrate_registry_from_existing_catalogs,
@@ -187,8 +198,13 @@ from polisyos.runtime.quality.workspace.loop import (
     SearchExitDecisionInputs,
     select_search_terminal,
 )
+
+if TYPE_CHECKING:
+    from polisyos.pdc import WorldModelRecord
+else:
+    from polisyos.runtime.quality.world_model_record import WorldModelRecord
+
 from polisyos.runtime.quality.world_model_record import (
-    WorldModelRecord,
     WorldModelRecordError,
     world_model_record_content_hash,
 )
@@ -203,8 +219,11 @@ from polisyos.scientist.orchestration.workflows.engine_simple import SimpleLoopE
 if TYPE_CHECKING:
     from polisyos.core.contracts import CatalogRunProfile
     from polisyos.data_requirement import CapabilityRequirementResolution
-    from polisyos.foundry import MethodRouteConstraint
+    from polisyos.foundry.methods import EstimandSpec
+    from polisyos.foundry.methods.selection.advisor import MethodRouteConstraint
+    from polisyos.ir.artifacts import ArtifactStore as IRArtifactStore
     from polisyos.pdc import ArtifactEnvelope
+    from polisyos.runtime.quality.acquisition_executor import AdmissionPassport
     from polisyos.runtime.quality.acquisition_planner import AcquisitionOwnerArtifact
     from polisyos.runtime.quality.candidate_simulation import (
         CandidateSimulationContextHandoff,
@@ -3005,7 +3024,10 @@ class N4GenerationPort:
 
     def bind_grounding_run_budget(self, budget: object) -> None:
         """Carry the controller's single CG2 owner handle across calls and reentry."""
-        from polisyos.runtime.quality.grounding_bind import GroundingRunBudget
+        if TYPE_CHECKING:
+            from polisyos.runtime.quality.grounding_risk import GroundingRunBudget
+        else:
+            from polisyos.runtime.quality.grounding_bind import GroundingRunBudget
 
         if not isinstance(budget, GroundingRunBudget):
             raise TypeError("grounding_run_budget_owner_required")
@@ -3801,11 +3823,14 @@ class JointSimulationPort:
         """Bind one selectable graph plan to the WMR through the tenant store."""
         from polisyos.core.artifacts import load_core_json_artifact
 
-        if self._artifact_store is None:
+        store = self._artifact_store
+        if store is None:
             raise WorldModelRecordError("n5_runtime_store_not_established")
 
         from polisyos.core import registry as core_registry
         from polisyos.core.artifacts import artifact_ref_identity_key
+        from polisyos.core.artifacts.ir_adapter import matches_artifact_store_protocol
+        from polisyos.core.artifacts.protocol import CoreJSONArtifactStore
         from polisyos.core.contracts import (
             ExecPlan,
             ExecPlanRef,
@@ -3843,6 +3868,10 @@ class JointSimulationPort:
             or exec_plan_ref.media_type != "application/json"
         ):
             raise WorldModelRecordError("n5_program_artifact_ref_profile_invalid")
+
+        if not matches_artifact_store_protocol(store, CoreJSONArtifactStore):
+            raise WorldModelRecordError("n5_runtime_store_core_json_reader_unavailable")
+
         selected_world_views = world_model_artifact_views(request.world_model_record)
         if request.world_model_record.schema_version == WORLD_MODEL_RECORD_SCHEMA_V2_VERSION:
             matching_views = tuple(
@@ -3860,8 +3889,8 @@ class JointSimulationPort:
                 not in request.world_model_record.simulation_model_ref.program_graph_refs
             ):
                 raise WorldModelRecordError("n5_program_graph_not_wmr_listed")
-        graph_manifest = self._artifact_store.get_manifest(graph_ref)
-        plan_manifest = self._artifact_store.get_manifest(exec_plan_ref)
+        graph_manifest = store.get_manifest(graph_ref)
+        plan_manifest = store.get_manifest(exec_plan_ref)
         if (
             graph_manifest.kind != "foundry.program_graph"
             or graph_manifest.media_type != "application/json"
@@ -3875,14 +3904,10 @@ class JointSimulationPort:
             or plan_manifest.artifact_schema.version != "0.2.0"
         ):
             raise WorldModelRecordError("n5_program_artifact_profile_invalid")
-        loaded_graph = ProgramGraph.model_validate(
-            load_core_json_artifact(self._artifact_store, graph_ref)
-        )
+        loaded_graph = ProgramGraph.model_validate(load_core_json_artifact(store, graph_ref))
         if loaded_graph.schema_version != "0.2":
             raise WorldModelRecordError("n5_program_graph_payload_version_invalid")
-        loaded_plan = ExecPlan.model_validate(
-            load_core_json_artifact(self._artifact_store, exec_plan_ref)
-        )
+        loaded_plan = ExecPlan.model_validate(load_core_json_artifact(store, exec_plan_ref))
         if loaded_plan.program_ref != graph_ref:
             raise WorldModelRecordError("n5_exec_plan_program_graph_mismatch")
 
@@ -3891,9 +3916,9 @@ class JointSimulationPort:
         bindings_ref = FoundryInputBindingsRef.model_validate(
             selected_world_views.input_bindings_ref.model_dump(mode="python")
         )
-        if not self._artifact_store.verify(bindings_ref).ok:
+        if not store.verify(bindings_ref).ok:
             raise WorldModelRecordError("n5_input_bindings_view_unverified")
-        bindings_manifest = self._artifact_store.get_manifest(bindings_ref)
+        bindings_manifest = store.get_manifest(bindings_ref)
         if (
             bindings_manifest.kind != "foundry.input_bindings"
             or bindings_manifest.media_type != "application/json"
@@ -3902,7 +3927,7 @@ class JointSimulationPort:
             or bindings_manifest.artifact_schema.version != "1.0"
         ):
             raise WorldModelRecordError("n5_input_bindings_artifact_profile_invalid")
-        persisted_bindings = load_input_bindings(self._artifact_store, bindings_ref)
+        persisted_bindings = load_input_bindings(store, bindings_ref)
         if persisted_bindings.schema_version != "1.0":
             raise WorldModelRecordError("n5_input_bindings_payload_version_invalid")
         # Reconcile each nested binding ref against the versioned WMR view set
@@ -3932,11 +3957,11 @@ class JointSimulationPort:
                 or declared_ref.media_type != "application/json"
             ):
                 raise WorldModelRecordError("n5_wmr_input_bindings_mismatch")
-            manifest = self._artifact_store.get_manifest(declared_ref)
+            manifest = store.get_manifest(declared_ref)
             if (
                 manifest.kind != expected_kind
                 or manifest.media_type != "application/json"
-                or not self._artifact_store.verify(declared_ref).ok
+                or not store.verify(declared_ref).ok
             ):
                 raise WorldModelRecordError("n5_wmr_default_view_profile_invalid")
         snapshot_ref = StateSnapshotRef.model_validate(
@@ -3955,12 +3980,10 @@ class JointSimulationPort:
             raise WorldModelRecordError("n5_wmr_state_slot_digest_mismatch")
         # The WMR selects the exact snapshot wrapper; its versioned lineage then
         # binds the state blob view transitively.
-        snapshot_manifest = self._artifact_store.get_manifest(snapshot_ref)
-        if not self._artifact_store.verify(snapshot_ref).ok:
+        snapshot_manifest = store.get_manifest(snapshot_ref)
+        if not store.verify(snapshot_ref).ok:
             raise WorldModelRecordError("n5_bound_state_owner_profile_invalid")
-        snapshot = StateSnapshot.model_validate(
-            load_core_json_artifact(self._artifact_store, snapshot_ref)
-        )
+        snapshot = StateSnapshot.model_validate(load_core_json_artifact(store, snapshot_ref))
         supported_snapshot_schemas = {"2.1": "2.1.0", "2.2": "2.2.0"}
         expected_snapshot_schema = supported_snapshot_schemas.get(snapshot.schema_version)
         state_blob_ref = snapshot.state_ref
@@ -3969,7 +3992,7 @@ class JointSimulationPort:
             if snapshot.state_ref.manifest_profile_sha256 is not None:
                 raise WorldModelRecordError("n5_bound_state_owner_profile_invalid")
             state_blob_ref = snapshot.state_ref.artifact_id
-        state_blob_manifest = self._artifact_store.get_manifest(state_blob_ref)
+        state_blob_manifest = store.get_manifest(state_blob_ref)
         if (
             expected_snapshot_schema is None
             or snapshot_manifest.kind != "foundry.state_snapshot"
@@ -4022,11 +4045,11 @@ class JointSimulationPort:
             or snapshot.lineage_inputs[-1].manifest_profile_sha256 is not None
         ):
             raise WorldModelRecordError("n5_bound_state_lineage_mismatch")
-        bound_state = load_state_snapshot(self._artifact_store, snapshot_ref=snapshot_ref)
+        bound_state = load_state_snapshot(store, snapshot_ref=snapshot_ref)
         registry_ref = CASArtifactRef.model_validate(
             selected_world_views.registry_bundle_ref.model_dump(mode="python")
         )
-        registries = core_registry.load_registry_bundle_content(self._artifact_store, registry_ref)
+        registries = core_registry.load_registry_bundle_content(store, registry_ref)
         slot_paths = tuple(
             dict.fromkeys(
                 binding.state_path
@@ -4049,7 +4072,7 @@ class JointSimulationPort:
         )
         owner_plan = plan.model_copy(
             update={
-                "program_store": self._artifact_store,
+                "program_store": store,
                 "program_graph_ref": graph_ref,
                 "exec_plan_ref": exec_plan_ref,
                 "program_base_state": bound_state,
@@ -4307,8 +4330,8 @@ class JointSimulationPort:
             run_id=persisted.source_run_id,
             expected_run_id=persisted.run_id,
             expected_job_id=persisted.job_id,
-            tenant_id=persisted.tenant_id,
-            cell_id=persisted.cell_id,
+            expected_tenant_id=persisted.tenant_id,
+            expected_cell_id=persisted.cell_id,
             context_job_ref=persisted.context_job_ref,
             profile_ref=persisted.profile_ref,
             n4_child_profile_family_ref=persisted.n4_child_profile_family_ref,
@@ -4424,29 +4447,34 @@ class JointSimulationPort:
         )
         from polisyos.runtime.quality.joint_simulation_horizon import EnginePlan
 
-        if type(input_record) not in {
-            CandidateSimulationN5InputV2,
-            CandidateSimulationN5InputV3,
-            CandidateSimulationN5InputV4,
-            CandidateSimulationN5InputV5,
-        }:
+        if isinstance(input_record, CandidateSimulationN5InputV2):
+            if type(input_record) is not CandidateSimulationN5InputV2:
+                raise WorldModelRecordError("candidate_simulation_n5_input_untyped")
+        elif isinstance(input_record, CandidateSimulationN5InputV3):
+            if type(input_record) is not CandidateSimulationN5InputV3:
+                raise WorldModelRecordError("candidate_simulation_n5_input_untyped")
+        elif isinstance(input_record, CandidateSimulationN5InputV4):
+            if type(input_record) is not CandidateSimulationN5InputV4:
+                raise WorldModelRecordError("candidate_simulation_n5_input_untyped")
+        elif isinstance(input_record, CandidateSimulationN5InputV5):
+            if type(input_record) is not CandidateSimulationN5InputV5:
+                raise WorldModelRecordError("candidate_simulation_n5_input_untyped")
+        else:
             raise WorldModelRecordError("candidate_simulation_n5_input_untyped")
-        if (
-            type(input_record)
-            in {
-                CandidateSimulationN5InputV4,
-                CandidateSimulationN5InputV5,
-            }
-            and type(candidate) is not N4CandidateScenarioProposalCandidate
-        ) or (
-            type(input_record)
-            not in {
-                CandidateSimulationN5InputV4,
-                CandidateSimulationN5InputV5,
-            }
-            and type(candidate) is not ShadowGeneratedCandidate
-        ):
-            raise WorldModelRecordError("candidate_simulation_n4_source_untyped")
+
+        candidate_record: N4CandidateScenarioProposalCandidate | ShadowGeneratedCandidate
+        if isinstance(input_record, (CandidateSimulationN5InputV4, CandidateSimulationN5InputV5)):
+            if not isinstance(candidate, N4CandidateScenarioProposalCandidate):
+                raise WorldModelRecordError("candidate_simulation_n4_source_untyped")
+            if type(candidate) is not N4CandidateScenarioProposalCandidate:
+                raise WorldModelRecordError("candidate_simulation_n4_source_untyped")
+            candidate_record = candidate
+        else:
+            if not isinstance(candidate, ShadowGeneratedCandidate):
+                raise WorldModelRecordError("candidate_simulation_n4_source_untyped")
+            if type(candidate) is not ShadowGeneratedCandidate:
+                raise WorldModelRecordError("candidate_simulation_n4_source_untyped")
+            candidate_record = candidate
         if self._cycle_substrate_context is None:
             raise WorldModelRecordError("candidate_simulation_context_missing")
         if self._artifact_store is None:
@@ -4454,22 +4482,20 @@ class JointSimulationPort:
         handoff = self._candidate_simulation_handoff
         if handoff is None:
             raise WorldModelRecordError("candidate_simulation_context_handoff_missing")
+        if isinstance(input_record, CandidateSimulationN5InputV2):
+            context_job_ref_matches = input_record.context_job_ref == str(
+                handoff.context_job_ref.artifact_id
+            )
+        else:
+            context_job_ref_matches = artifact_ref_identity_key(
+                input_record.context_job_ref
+            ) == artifact_ref_identity_key(handoff.context_job_ref)
         if (
             input_record.job_id != handoff.job_id
             or input_record.run_id != handoff.run_id
             or input_record.tenant_id != handoff.tenant_id
             or input_record.cell_id != handoff.cell_id
-            or (
-                artifact_ref_identity_key(input_record.context_job_ref)
-                != artifact_ref_identity_key(handoff.context_job_ref)
-                if type(input_record)
-                in {
-                    CandidateSimulationN5InputV3,
-                    CandidateSimulationN5InputV4,
-                    CandidateSimulationN5InputV5,
-                }
-                else input_record.context_job_ref != str(handoff.context_job_ref.artifact_id)
-            )
+            or not context_job_ref_matches
             or input_record.profile_config_ref != handoff.profile_config_ref
             or input_record.profile.content_hash != handoff.profile.content_hash
         ):
@@ -4479,44 +4505,34 @@ class JointSimulationPort:
             raise WorldModelRecordError("candidate_simulation_n5_profile_selection_ref_mismatch")
         context = revalidate_cycle_substrate_context(self._cycle_substrate_context)
         materialization = input_record.materialization
+        if isinstance(input_record, CandidateSimulationN5InputV2):
+            materialization_context_ref_matches = materialization.context_job_ref == str(
+                handoff.context_job_ref.artifact_id
+            )
+        else:
+            materialization_context_ref_matches = artifact_ref_identity_key(
+                materialization.context_job_ref
+            ) == artifact_ref_identity_key(handoff.context_job_ref)
         if (
             context.content_hash != handoff.context.content_hash
             or context.design_problem_ref != problem_ref
             or materialization.context_hash != context.content_hash
             or materialization.profile_hash != input_record.profile.content_hash
-            or (
-                artifact_ref_identity_key(materialization.context_job_ref)
-                != artifact_ref_identity_key(handoff.context_job_ref)
-                if type(input_record)
-                in {
-                    CandidateSimulationN5InputV3,
-                    CandidateSimulationN5InputV4,
-                    CandidateSimulationN5InputV5,
-                }
-                else materialization.context_job_ref != str(handoff.context_job_ref.artifact_id)
-            )
+            or not materialization_context_ref_matches
             or materialization.problem_ref != problem_ref
         ):
             raise WorldModelRecordError("candidate_simulation_n5_context_binding_mismatch")
         if (
-            candidate.candidate_id != input_record.original_candidate_id
-            or candidate.atom.content_hash != input_record.original_n4_atom_hash
-            or candidate.atom.content_hash != input_record.original_candidate_hash
-            or materialization.candidate_id != candidate.candidate_id
-            or materialization.original_atom_hash != candidate.atom.content_hash
+            candidate_record.candidate_id != input_record.original_candidate_id
+            or candidate_record.atom.content_hash != input_record.original_n4_atom_hash
+            or candidate_record.atom.content_hash != input_record.original_candidate_hash
+            or materialization.candidate_id != candidate_record.candidate_id
+            or materialization.original_atom_hash != candidate_record.atom.content_hash
         ):
             raise WorldModelRecordError("candidate_simulation_n5_candidate_binding_mismatch")
         source_repository = GenerationSourceRepository(self._artifact_store)
-        if type(input_record) in {
-            CandidateSimulationN5InputV4,
-            CandidateSimulationN5InputV5,
-        }:
-            source_loader = (
-                source_repository.load_candidate_scenario_source_for_n5
-                if type(input_record) is CandidateSimulationN5InputV5
-                else source_repository.load_candidate_scenario_source_v1
-            )
-            source = source_loader(
+        if isinstance(input_record, CandidateSimulationN5InputV5):
+            source_v5 = source_repository.load_candidate_scenario_source_for_n5(
                 input_record.n4_source_ref,
                 expected_run_id=input_record.run_id,
                 expected_job_id=input_record.job_id,
@@ -4524,22 +4540,40 @@ class JointSimulationPort:
                 expected_cell_id=input_record.cell_id,
             )
             if (
-                source.problem != problem
-                or source.candidate is None
-                or source.candidate != candidate
-                or source.context_hash != context.content_hash
+                source_v5.problem != problem
+                or source_v5.candidate is None
+                or source_v5.candidate != candidate_record
+                or source_v5.context_hash != context.content_hash
+            ):
+                raise WorldModelRecordError("candidate_simulation_n5_n4_source_membership_mismatch")
+        elif isinstance(input_record, CandidateSimulationN5InputV4):
+            source_v4 = source_repository.load_candidate_scenario_source_v1(
+                input_record.n4_source_ref,
+                expected_run_id=input_record.run_id,
+                expected_job_id=input_record.job_id,
+                expected_tenant_id=input_record.tenant_id,
+                expected_cell_id=input_record.cell_id,
+            )
+            if (
+                source_v4.problem != problem
+                or source_v4.candidate is None
+                or source_v4.candidate != candidate_record
+                or source_v4.context_hash != context.content_hash
             ):
                 raise WorldModelRecordError("candidate_simulation_n5_n4_source_membership_mismatch")
         else:
-            source = source_repository.load(input_record.n4_source_ref, run_id=input_record.run_id)
+            source_legacy = source_repository.load(
+                input_record.n4_source_ref,
+                run_id=input_record.run_id,
+            )
             if (
-                source.problem != problem
-                or source.cycle_substrate_context is None
-                or source.cycle_substrate_context.content_hash != context.content_hash
+                source_legacy.problem != problem
+                or source_legacy.cycle_substrate_context is None
+                or source_legacy.cycle_substrate_context.content_hash != context.content_hash
                 or not any(
-                    item.candidate_id == candidate.candidate_id
-                    and item.atom.content_hash == candidate.atom.content_hash
-                    for item in source.generation_result.candidates
+                    item.candidate_id == candidate_record.candidate_id
+                    and item.atom.content_hash == candidate_record.atom.content_hash
+                    for item in source_legacy.generation_result.candidates
                 )
             ):
                 raise WorldModelRecordError("candidate_simulation_n5_n4_source_membership_mismatch")
@@ -4572,7 +4606,7 @@ class JointSimulationPort:
             or materialization.value > rule.maximum
         ):
             raise WorldModelRecordError("candidate_simulation_n5_assignment_mismatch")
-        world_record = self._context_world_model_record(candidate=candidate, problem=problem)
+        world_record = self._context_world_model_record(candidate=candidate_record, problem=problem)
         slot = world_record.slot_binding(rule.target_world_slot)
         if (
             materialization.world_model_record_hash != world_record.content_hash
@@ -4582,7 +4616,7 @@ class JointSimulationPort:
             or slot.unit != rule.unit_id
         ):
             raise WorldModelRecordError("candidate_simulation_n5_world_slot_binding_mismatch")
-        outcome = _value_outcome_variable(candidate, problem)
+        outcome = _value_outcome_variable(candidate_record, problem)
         if not outcome or outcome != input_record.outcome_variable:
             raise WorldModelRecordError("candidate_simulation_n5_outcome_binding_mismatch")
         if outcome not in input_record.n5.baseline_state:
@@ -5620,7 +5654,7 @@ class FoundryValuePort:
         self._runtime_budget_ms = runtime_budget_ms
         self._cycle_substrate_context = cycle_substrate_context
         self._artifact_store = artifact_store
-        self._world_cache: dict[str, object] = {}
+        self._world_cache: dict[str, WorldModelRecord] = {}
 
     def __call__(
         self,
@@ -5724,6 +5758,17 @@ class FoundryValuePort:
                 reason=(
                     "N8 production value requires the cycle's typed WorldModelRecord; "
                     "missing WMR is controller wiring, not an acquisition gap."
+                ),
+                mode=mode,
+                started=started,
+                candidate_id=candidate_id,
+            )
+        if not isinstance(world_record, WorldModelRecord):
+            return _blocked_value_observation(
+                code="world_model_record_invalid:untyped_reader_result",
+                reason=(
+                    "N8 refuses value evidence when the WMR reader did not return the "
+                    "canonical WorldModelRecord type."
                 ),
                 mode=mode,
                 started=started,
@@ -6087,7 +6132,7 @@ class FoundryValuePort:
     def _world_record_from_simulation(
         self,
         simulation: SimulationPortObservation,
-    ) -> tuple[object | None, Literal["built", "reused"], str | None]:
+    ) -> tuple[WorldModelRecord | None, Literal["built", "reused"], str | None]:
         raw = simulation.world_model_record
         if raw is None:
             return None, "built", "value_world_model_record_unwired"
@@ -7102,7 +7147,11 @@ class GenerationCycleController:
         from polisyos.runtime.quality.generation_source import (
             GenerationSourceRepository,
         )
-        from polisyos.runtime.quality.grounding_bind import GroundingRunBudget
+
+        if TYPE_CHECKING:
+            from polisyos.runtime.quality.grounding_risk import GroundingRunBudget
+        else:
+            from polisyos.runtime.quality.grounding_bind import GroundingRunBudget
 
         root = (self._repo_root or Path.cwd()).resolve()
         self._source_run_id = run_id
@@ -8150,6 +8199,20 @@ class GenerationCycleController:
         )
         if not specs and not capability_resolutions:
             return None
+
+        def is_compiled_requirement_spec(
+            value: object,
+        ) -> TypeGuard[BaseModel | Mapping[str, Any]]:
+            return isinstance(value, BaseModel) or (
+                isinstance(value, Mapping) and all(isinstance(key, str) for key in value)
+            )
+
+        compiled_specs: list[BaseModel | Mapping[str, Any]] = []
+        for spec in specs:
+            if not is_compiled_requirement_spec(spec):
+                raise GenerationCycleError("n7_data_requirement_specs_invalid")
+            compiled_specs.append(spec)
+
         owner_gateway = self._n7_owner_gateway(problem)
         if owner_gateway is None:
             raise GenerationCycleError("n7_runtime_store_not_supplied")
@@ -8166,7 +8229,7 @@ class GenerationCycleController:
                 **acquisition_request,
                 "cycle_index": cycle.cycle_index,
             },
-            data_requirement_specs=tuple(specs),
+            data_requirement_specs=tuple(compiled_specs),
             world_snapshot=world_snapshot,
             capability_requirement_resolutions=capability_resolutions,
             design_problem=problem,
@@ -8497,12 +8560,28 @@ class GenerationCycleController:
             world_model_record_ref=(context_world_ref or world_ref_hint),
         )
 
-    def _n7_owner_gateway(self, problem: DesignProblem) -> object | None:
+    def _n7_owner_gateway(self, problem: DesignProblem) -> AcquisitionOwnerGateway | None:
+        from polisyos.core.artifacts.protocol import matches_runtime_protocol
+
         hinted = problem.runtime_hints.get("n7_owner_gateway")
         if hinted is not None:
+            if not matches_runtime_protocol(hinted, AcquisitionOwnerGateway):
+                raise GenerationCycleError(
+                    "n7_runtime_store_not_supplied",
+                    "the supplied N7 owner does not implement AcquisitionOwnerGateway",
+                )
             return hinted
-        if self._acquisition_owner_gateway is not None:
-            return self._acquisition_owner_gateway
+        configured_gateway = self._acquisition_owner_gateway
+        if configured_gateway is not None:
+            if not matches_runtime_protocol(
+                configured_gateway,
+                AcquisitionOwnerGateway,
+            ):
+                raise GenerationCycleError(
+                    "n7_runtime_store_not_supplied",
+                    "the configured N7 owner does not implement AcquisitionOwnerGateway",
+                )
+            return configured_gateway
         if self._authority_scope == "production" and self._promotion_runtime is None:
             # No runtime store means the default live owner cannot preserve tenant
             # custody. Keep the candidate's acquisition gap typed and retryable.
@@ -8523,7 +8602,7 @@ class GenerationCycleController:
         measurement_root: ArtifactEnvelope,
         measurement_payload_ref: CASArtifactRef,
         data_snapshot_ref: CASArtifactRef,
-        store: FileSystemCAS,
+        store: CoreJSONArtifactStore,
         acquisition_receipt: AcquisitionReceipt,
         active_requirement_ref: str,
     ) -> FabricMeasurementRootPayload:
@@ -8538,7 +8617,7 @@ class GenerationCycleController:
         """
         from polisyos.core import artifacts
         from polisyos.core.artifacts import load_core_json_artifact
-        from polisyos.fabric import FabricFetchReceipt
+        from polisyos.fabric.retrieval.custody import FabricFetchReceipt
         from polisyos.runtime.quality.data_forge_binding import (
             FABRIC_MEASUREMENT_ROOT_SCHEMA_VERSION,
             FabricMeasurementRootPayload,
@@ -8861,7 +8940,7 @@ class GenerationCycleController:
         baseline_registry_ref: CASArtifactRef,
         baseline_registry: SubstrateRegistry,
         prior_world_model_record_content_hash: str,
-        store: FileSystemCAS,
+        store: CoreJSONArtifactStore,
         candidate_id: str,
         candidate_content_hash: str,
         target_world_slots: tuple[str, ...],
@@ -9147,6 +9226,11 @@ class GenerationCycleController:
                 "n7_acq01_route_store_not_supplied",
                 "The route requires the controller's supplied artifact store.",
             )
+        if not isinstance(store, CoreJSONArtifactStore):
+            raise GenerationCycleError(
+                "n7_acq01_route_cas_ref_invalid",
+                "The controller-selected store must expose typed and raw-manifest Core JSON reads.",
+            )
 
         def cas_ref(
             raw: object,
@@ -9270,15 +9354,11 @@ class GenerationCycleController:
         )
 
         from polisyos.ir import ModelSpec
+        from polisyos.pdc import BranchMode, FabricWorldRef, SkgCausalPriorRef
         from polisyos.runtime.quality.cycle_substrate import (
             build_cycle_substrate_context,
         )
-        from polisyos.runtime.quality.world_model_record import (
-            BranchMode,
-            FabricWorldRef,
-            SkgCausalPriorRef,
-            build_world_model_record,
-        )
+        from polisyos.runtime.quality.world_model_record import build_world_model_record
 
         build_snapshot_ref = cas_ref(
             build_inputs.get("data_snapshot_ref"),
@@ -9297,7 +9377,10 @@ class GenerationCycleController:
             skg_causal_prior_ref = SkgCausalPriorRef.model_validate(
                 build_inputs.get("skg_causal_prior_ref")
             )
-            branch_mode = BranchMode(build_inputs.get("branch_mode"))
+            raw_branch_mode = build_inputs.get("branch_mode")
+            if not isinstance(raw_branch_mode, str):
+                raise TypeError("branch_mode must be a string")
+            branch_mode = BranchMode(raw_branch_mode)
         except (TypeError, ValueError) as exc:
             raise GenerationCycleError(
                 "n7_acq01_route_build_inputs_invalid",
@@ -9458,6 +9541,11 @@ class GenerationCycleController:
             return (
                 cycle.model_copy(update={"acquisition_receipt": receipt_payload}),
                 cycle_summaries,
+            )
+        if not isinstance(rederived, AcquisitionGroundingRederivation):
+            raise GenerationCycleError(
+                "n7_receipt_invalid",
+                "N7 grounding rederivation is not the canonical owner result.",
             )
         grounding_unavailable = rederived.status == "grounding_unavailable"
         grounding = CandidateGroundingObservation(
@@ -10230,8 +10318,8 @@ class GenerationCycleController:
                 run_id=self._source_run_id,
                 expected_job_id=handoff.job_id,
                 expected_run_id=handoff.run_id,
-                tenant_id=handoff.tenant_id,
-                cell_id=handoff.cell_id,
+                expected_tenant_id=handoff.tenant_id,
+                expected_cell_id=handoff.cell_id,
                 context_job_ref=handoff.context_job_ref,
                 profile_ref=handoff.profile_ref,
                 n4_child_profile_family_ref=handoff.n4_child_profile_family_ref,
@@ -11907,6 +11995,7 @@ def _n7_required_families_from_specs(specs: Sequence[object]) -> tuple[str, ...]
         if not isinstance(payload, Mapping):
             continue
         raw = payload.get("required_data_families")
+        values: tuple[object, ...]
         if isinstance(raw, str):
             values = (raw,)
         elif isinstance(raw, Sequence):
@@ -12143,7 +12232,7 @@ def _read_canonical_active_source_projection(
     supplied_projection: data_forge_read_api.catalog.ActivatedAcquisitionObservationProjection,
 ) -> tuple[
     data_forge_read_api.catalog.ActivatedAcquisitionObservationProjection,
-    object,
+    AdmissionPassport,
     str,
 ]:
     """Reopen a projection through its selected provision and active owner.
@@ -12233,6 +12322,8 @@ def _load_value_data_profile_from_l1_dcat(
     registered_measurement_units_by_id: dict[str, str] = {}
     if activated_observation_projection is not None:
         projection_type = data_forge_read_api.catalog.ActivatedAcquisitionObservationProjection
+        from polisyos.runtime.quality import acquisition_executor
+
         try:
             observation_projection = projection_type.model_validate(
                 activated_observation_projection.model_dump(mode="json")
@@ -12267,7 +12358,10 @@ def _load_value_data_profile_from_l1_dcat(
                 owner_access_ref=f"{owner_access_ref}#active-owner-readback",
             ) from exc
         if (
-            observation_projection.variable_id != outcome
+            not isinstance(observation_projection, projection_type)
+            or not isinstance(passport, acquisition_executor.AdmissionPassport)
+            or not isinstance(passport_content_hash, str)
+            or observation_projection.variable_id != outcome
             or observation_projection.activation_state != "active"
             or observation_projection.predicate_provenance != "recomputed"
             or observation_projection.source_time_status != "not_established"
@@ -12757,15 +12851,29 @@ def _build_boundary_world_model_record(
     owner is still used for existing first-vertical callers.
     """
 
+    if TYPE_CHECKING:
+        from polisyos.pdc import (
+            BranchMode,
+            DataForgeBindingRef,
+            FabricWorldRef,
+            FoundryBindingRef,
+            PolicySlotBinding,
+            SimulationModelRef,
+            SkgCausalPriorRef,
+            SubstrateRegistryRef,
+        )
+    else:
+        from polisyos.runtime.quality.world_model_record import (
+            BranchMode,
+            DataForgeBindingRef,
+            FabricWorldRef,
+            FoundryBindingRef,
+            PolicySlotBinding,
+            SimulationModelRef,
+            SkgCausalPriorRef,
+            SubstrateRegistryRef,
+        )
     from polisyos.runtime.quality.world_model_record import (
-        BranchMode,
-        DataForgeBindingRef,
-        FabricWorldRef,
-        FoundryBindingRef,
-        PolicySlotBinding,
-        SimulationModelRef,
-        SkgCausalPriorRef,
-        SubstrateRegistryRef,
         _resolved_substrate_entry_ref_from_registry_entry,
         world_model_record_content_hash,
     )
@@ -13046,7 +13154,7 @@ def _build_candidate_selection_diagram(
             )
 
             ir_store = _ensure_ir_artifact_store(artifact_store)
-            selected_graph_ref = profile_bound_ref(ir_store, graph_ref)
+            selected_graph_ref = profile_bound_ref(artifact_store, graph_ref)
             if selected_graph_ref != graph_ref:
                 raise ValueError("causal_graph_profile_selection_changed")
             manifest = ir_store.get_manifest(selected_graph_ref)
@@ -14340,7 +14448,7 @@ def _run_value_transport(
 
 def _produce_value_transport_run_basis(
     *,
-    store: object,
+    store: ArtifactStore,
     candidate: object,
     problem: DesignProblem,
     cycle_substrate_context: object,
@@ -14368,7 +14476,7 @@ def _produce_value_transport_run_basis(
         raise ValueError("acquire_data:causal_graph_artifact_unresolved")
     ir_store = ensure_ir_artifact_store(store)
     graph_ref = _value_artifact_ref(
-        profile_bound_ref(ir_store, transport_context.causal_graph_ref),
+        profile_bound_ref(store, transport_context.causal_graph_ref),
         expected_kind="ir.causal_graph_model",
     )
     if graph_ref.manifest_profile_sha256 is None:
@@ -14488,7 +14596,7 @@ def _produce_value_transport_run_basis(
 
 def _resolve_value_transport_run_basis(
     *,
-    store: object,
+    store: ArtifactStore,
     run_basis_ref: object,
     candidate: object,
     problem: DesignProblem,
@@ -14590,7 +14698,7 @@ def _resolve_value_transport_run_basis(
         query_treatment=request.query_treatment,
         query_outcome=request.query_outcome,
         cycle_substrate_context=context,
-        artifact_store=ir_store,
+        artifact_store=store,
     )
     if diagram.model_dump(mode="json") != fresh_diagram.model_dump(mode="json"):
         raise ValueError("transport_selection_diagram_fresh_recompute_mismatch")
@@ -16439,7 +16547,7 @@ class ValueOwnerSourceProjectionRequestV1(_StrictModel):
             or len(variable_ids) != len(set(variable_ids))
         ):
             raise ValueError("value_owner_source_role_binding_invalid")
-        estimand = _value_estimand_spec_from_json(self.estimand_spec_json)
+        estimand = _typed_value_estimand_spec(self.estimand_spec_json)
         if (
             estimand.estimand_id != "ATE"
             or estimand.outcome != roles["outcome"][0]
@@ -16547,7 +16655,7 @@ class ValueOwnerSourceVariableAssignmentV1(_StrictModel):
             or roles["treatment"][0].measurement_unit != "binary"
         ):
             raise ValueError("value_owner_source_assignment_roles_invalid")
-        estimand = _value_estimand_spec_from_json(self.estimand_spec_json)
+        estimand = _typed_value_estimand_spec(self.estimand_spec_json)
         if (
             estimand.outcome != self.outcome
             or estimand.unit != self.measurement_unit
@@ -16596,7 +16704,7 @@ class ValueOwnerMethodRunIntentV1(_StrictModel):
             or self.assignment_ref.manifest_profile_sha256 is None
         ):
             raise ValueError("value_owner_method_selected_profile_unresolved")
-        _value_estimand_spec_from_json(self.estimand_spec_json)
+        _typed_value_estimand_spec(self.estimand_spec_json)
         payload = self.model_dump(mode="json", exclude={"content_hash"})
         if self.content_hash != gy_content_hash(payload):
             raise ValueError("value_owner_method_run_intent_content_hash_mismatch")
@@ -16764,7 +16872,7 @@ def _value_canonical_json_object(payload: str, error_code: str) -> dict[str, Any
     return value
 
 
-def _value_estimand_spec_from_json(payload: str) -> object:
+def _value_estimand_spec_from_json(payload: str) -> EstimandSpec:
     from polisyos.foundry.methods import EstimandSpec
 
     raw = _value_json_object(payload, "value_owner_method_estimand_invalid")
@@ -16783,6 +16891,16 @@ def _value_estimand_spec_from_json(payload: str) -> object:
         raise ValueError("value_owner_method_estimand_invalid") from exc
     if not estimand.query_id.strip() or not estimand.estimand_id.strip():
         raise ValueError("value_owner_method_estimand_identity_missing")
+    return estimand
+
+
+def _typed_value_estimand_spec(payload: str) -> EstimandSpec:
+    """Admit the parsed owner value before any consumer reads estimand fields."""
+    from polisyos.foundry.methods import EstimandSpec
+
+    estimand = _value_estimand_spec_from_json(payload)
+    if not isinstance(estimand, EstimandSpec):
+        raise ValueError("value_owner_method_estimand_invalid")
     return estimand
 
 
@@ -16831,7 +16949,7 @@ def _value_input_ref(
     )
 
 
-def _value_load_ref_payload(store: object, ref: ValueArtifactBindingRefV1) -> object:
+def _value_load_ref_payload(store: IRArtifactStore, ref: ValueArtifactBindingRefV1) -> object:
     from polisyos.ir.artifacts import get_json_artifact
 
     return get_json_artifact(store, ref.model_dump(mode="python"))
@@ -16966,7 +17084,7 @@ def _value_owner_source_projection_intent(
         "causal.treatment_effects.tmle@1.0.0",
     }:
         raise ValueError("value_owner_source_method_unsupported")
-    estimand = _value_estimand_spec_from_json(request.estimand_spec_json)
+    estimand = _typed_value_estimand_spec(request.estimand_spec_json)
     outcome = _value_outcome_variable(candidate, problem)
     if outcome != estimand.outcome or outcome_profile.outcome != outcome:
         raise ValueError("value_owner_source_outcome_binding_mismatch")
@@ -17140,7 +17258,7 @@ def _value_owner_source_projection_intent(
 
 
 def _value_source_profiles_from_store(
-    store: object,
+    store: IRArtifactStore,
     assignment: ValueOwnerSourceVariableAssignmentV1,
     assignment_ref: ValueArtifactBindingRefV1,
 ) -> dict[str, ValueDataProfile]:
@@ -17211,7 +17329,7 @@ def _value_source_observational_data(
 
     from polisyos.foundry.methods.causal import HTEObservationalData
 
-    estimand = _value_estimand_spec_from_json(assignment.estimand_spec_json)
+    estimand = _typed_value_estimand_spec(assignment.estimand_spec_json)
     role_by_variable = {item.variable_id: item.role for item in assignment.role_profiles}
     ordered_variables = (
         estimand.outcome,
@@ -17291,7 +17409,11 @@ def _value_source_bounds_bundle(
 ) -> object:
     """Run the existing BoundsEngine with caller-declared finite outcome support."""
     from polisyos.foundry.methods.causal import BoundsEngineMethod
-    from polisyos.ir.analytics.partial_identification import BoundMethod, BoundsBundle
+    from polisyos.ir.analytics.partial_identification import (
+        BoundMethod,
+        BoundsBundle,
+        BoundSoundnessLevel,
+    )
 
     outcome = panel.outcome if hasattr(panel, "outcome") else panel["outcome"]
     treatment = panel.treatment if hasattr(panel, "treatment") else panel["treatment"]
@@ -17313,14 +17435,17 @@ def _value_source_bounds_bundle(
     bundle = BoundsBundle.model_validate(raw)
     if not any(item.method is BoundMethod.MANSKI for item in bundle.method_summaries):
         raise ValueError("value_owner_source_manski_result_missing")
-    if any(item.soundness_level is not None for item in bundle.method_summaries):
+    if any(
+        item.soundness_level is not BoundSoundnessLevel.ASSUMPTION_ONLY
+        for item in bundle.method_summaries
+    ):
         raise ValueError("value_owner_source_bounds_soundness_not_established")
     return bundle
 
 
 def _value_owner_reloaded_source_profiles(
     *,
-    store: object,
+    store: IRArtifactStore,
     gateway: RealValueOwnerGateway,
     assignment: ValueOwnerSourceVariableAssignmentV1,
     candidate: object,
@@ -17420,7 +17545,7 @@ def _value_owner_reloaded_source_profiles(
 
 def _produce_value_owner_method_run_basis(
     *,
-    store: object,
+    store: IRArtifactStore,
     profile: ValueDataProfile,
     intent: ValueOwnerMethodRunIntentV1,
     selected_method_fqn: str,
@@ -17488,7 +17613,7 @@ def _produce_value_owner_method_run_basis(
             raise ValueError("value_owner_source_seed_mismatch")
     else:
         assignment = ValueOwnerTreatmentAssignmentFixtureV1.model_validate(assignment_payload)
-    estimand = _value_estimand_spec_from_json(intent.estimand_spec_json)
+    estimand = _typed_value_estimand_spec(intent.estimand_spec_json)
     if (
         estimand.outcome != profile.outcome
         or estimand.unit != profile.measurement_unit
@@ -17864,7 +17989,7 @@ def _value_outer_set_from_owner_method_run_basis(
         or request.runner_input_sha256 != basis.runner_input_sha256
     ):
         raise ValueError("value_owner_method_run_basis_binding_mismatch")
-    estimand = _value_estimand_spec_from_json(intent.estimand_spec_json)
+    estimand = _typed_value_estimand_spec(intent.estimand_spec_json)
     if (
         estimand.outcome != profile.outcome
         or estimand.unit != profile.measurement_unit
@@ -17976,6 +18101,7 @@ def _value_outer_set_from_owner_method_run_basis(
     )
     source_bounds_bundle = None
     source_bounds_ref = None
+    source_bounds_assumptions: tuple[str, ...] = ()
     if isinstance(assignment, ValueOwnerSourceVariableAssignmentV1):
         from polisyos.core.artifacts import ensure_ir_artifact_store
         from polisyos.foundry.methods import MethodRegistry
@@ -18164,12 +18290,15 @@ def _value_outer_set_from_owner_method_run_basis(
         ):
             raise ValueError("value_owner_source_manski_bounds_invalid")
         lower, upper = manski.lower_bound, manski.upper_bound
+        source_bounds_assumptions = tuple(manski.assumptions_used)
         assumptions = (
             "candidate_source_projection",
             "consumer_asserted_treatment_role",
             "consumer_asserted_outcome_support",
             "source_time_not_established",
             "native_method_confidence_interval",
+            *source_bounds_assumptions,
+            "bounds_estimand_relation_not_established",
         )
         mode = "partial"
         scope_unit = assignment.measurement_unit

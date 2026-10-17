@@ -31,6 +31,7 @@ from polisyos.ir.registry.refs import NCMSpecRef
 
 if TYPE_CHECKING:
     from polisyos.ir.analytics.structural_causal_model import StructuralCausalModelSpec
+    from polisyos.ir.artifacts.contracts import ArtifactSelector, ArtifactViewRef
 else:
     from polisyos.ir.analytics.structural_causal_model import StructuralCausalModelSpec
 
@@ -205,27 +206,22 @@ class NCMSpec(BaseModel):
         return self
 
 
-class _SelectedArtifactRef(Protocol):
-    """Structural view of a runtime artifact ref; IR does not import Core."""
+class _SelectedViewReader(Protocol):
+    """Read-only runtime surface for replaying an exact selected NCM view."""
 
-    artifact_id: object
-    kind: str
-    media_type: str
-    manifest_profile_sha256: str | None
+    def get_bytes(self, artifact_id: ArtifactSelector) -> bytes: ...
+
+    def get_manifest(self, artifact_id: ArtifactSelector) -> object: ...
+
+    def get_manifest_bytes(self, artifact_id: ArtifactSelector) -> bytes: ...
+
+    def verify(self, artifact_id: ArtifactSelector) -> object: ...
 
 
-class _SelectedViewStore(Protocol):
-    """Minimal runtime-supplied store surface for exact selected-view NCM I/O."""
+class _SelectedViewStore(_SelectedViewReader, Protocol):
+    """Runtime store surface for persisting an NCM with selected-view lineage."""
 
-    def put_bytes(self, data: bytes, opts: object) -> _SelectedArtifactRef: ...
-
-    def get_bytes(self, artifact_id: object) -> bytes: ...
-
-    def get_manifest(self, artifact_id: object) -> object: ...
-
-    def get_manifest_bytes(self, artifact_id: object) -> bytes: ...
-
-    def verify(self, artifact_id: object) -> object: ...
+    def put_bytes(self, data: bytes, opts: object) -> ArtifactViewRef: ...
 
 
 class _CandidateModelDeclaration(Protocol):
@@ -360,7 +356,7 @@ def persist_ncm_spec_selected_view(
     ncm_spec: NCMSpec,
     *,
     write_options: object,
-) -> _SelectedArtifactRef:
+) -> ArtifactViewRef:
     """Persist an NCM through the runtime store while retaining typed lineage.
 
     Runtime callers construct ``write_options`` with their tenant, job, and
@@ -402,12 +398,12 @@ def persist_ncm_spec_selected_view(
 
 
 def load_ncm_spec_selected_view(
-    store: _SelectedViewStore,
-    ref: _SelectedArtifactRef,
+    store: _SelectedViewReader,
+    ref: ArtifactViewRef,
     *,
     expected_tenant_id: str,
     expected_cell_id: str,
-    expected_declaration_ref: _SelectedArtifactRef,
+    expected_declaration_ref: ArtifactViewRef,
 ) -> NCMSpec:
     """Replay an exact selected NCM manifest and its declared sidecar input.
 

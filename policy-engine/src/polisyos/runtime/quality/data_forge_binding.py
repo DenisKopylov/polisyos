@@ -102,6 +102,17 @@ def _is_artifact_store(value: object) -> TypeGuard[artifacts.ArtifactStore]:
         return False
 
 
+def _require_core_json_artifact_store(
+    store: artifacts.ArtifactStore,
+) -> artifacts.CoreJSONArtifactStore:
+    """Require the raw-manifest capability before reading semantic Core JSON."""
+    from polisyos.core.artifacts.ir_adapter import matches_artifact_store_protocol
+
+    if not matches_artifact_store_protocol(store, artifacts.CoreJSONArtifactStore):
+        raise CanonicalProfileRefusalError("canon_profile_raw_manifest_unavailable")
+    return store
+
+
 DATA_FORGE_SNAPSHOT_BINDING_SCHEMA_VERSION = "policyos.runtime.data_forge_snapshot_binding.v1"
 DATA_FORGE_SNAPSHOT_BINDING_GATE = "data_forge_snapshot_binding_valid"
 DATA_FORGE_SNAPSHOT_BINDING_LAYER = "data_forge_snapshot_binding"
@@ -1177,6 +1188,7 @@ def resolve_fabric_measurement_root(
 
     if manifest_profile_sha256 is None:
         raise FabricMeasurementRootBindingError("measurement_root_selected_profile_missing")
+    store = _require_core_json_artifact_store(store)
     active_providers = providers or resolve_retrieval_providers()
     artifact_id = artifacts.ArtifactID(source_artifact_id)
     selected_ref = artifacts.ArtifactRef(
@@ -1478,7 +1490,7 @@ def _validate_resolved_measurement_root_evidence(
 
 def _read_validated_measurement_snapshot_artifact(
     *,
-    store: artifacts.FileSystemCAS,
+    store: artifacts.CoreJSONArtifactStore,
     artifact_ref: artifacts.ArtifactRef,
     expected_kind: str,
     expected_media_type: str,
@@ -1698,6 +1710,7 @@ def resolve_measurement_root_evidence(
     try:
         if measurement_root.payload_manifest_profile_sha256 is None:
             raise FabricMeasurementRootBindingError("measurement_root_selected_profile_missing")
+        store = _require_core_json_artifact_store(store)
         payload_artifact_id = artifacts.ArtifactID(measurement_root.payload_ref)
         measurement_root_payload_ref = artifacts.ArtifactRef(
             artifact_id=payload_artifact_id,
@@ -2135,7 +2148,7 @@ def produce_recorded_panel_method_input(
 
 def verify_recorded_panel_method_input(
     *,
-    store: artifacts.FileSystemCAS,
+    store: artifacts.ArtifactStore,
     binding_receipt_ref: artifacts.ArtifactRef,
 ) -> RecordedPanelMethodInput:
     """Resolve and rederive the complete panel before granting measured-input custody."""
@@ -2153,6 +2166,7 @@ def verify_recorded_panel_method_input(
             or binding_receipt_ref.media_type != "application/json"
         ):
             raise MeasurementRootBindingError("recorded_artifact_identity_mismatch")
+        store = _require_core_json_artifact_store(store)
         binding_manifest = store.get_manifest(binding_receipt_ref)
         if (
             binding_manifest.kind != binding_receipt_ref.kind

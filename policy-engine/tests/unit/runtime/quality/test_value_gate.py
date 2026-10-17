@@ -10,7 +10,7 @@ from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Any, ClassVar, cast
+from typing import Any, ClassVar, Literal, cast
 
 import pytest
 from packaging.markers import default_environment
@@ -6385,9 +6385,10 @@ def test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Canonical active admissions reach the real method, CAS, and fresh reader."""
+    from copy import deepcopy
     from dataclasses import replace
 
-    from polisyos.core.artifacts import ensure_ir_artifact_store
+    from polisyos.core.artifacts import artifact_ref_for_manifest, ensure_ir_artifact_store
     from polisyos.data_forge.domains.catalog.knowledge.overlay import (
         ActivatedAcquisitionObservationProjection,
     )
@@ -6395,8 +6396,13 @@ def test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds(
         AIPWEstimator,
         TMLEEstimator,
     )
+    from polisyos.foundry.methods.causal import BoundsEngineMethod
     from polisyos.ir.analytics.causal import load_causal_effect_report
-    from polisyos.ir.analytics.partial_identification import BoundMethod, BoundsBundle
+    from polisyos.ir.analytics.partial_identification import (
+        BoundMethod,
+        BoundsBundle,
+        BoundSoundnessLevel,
+    )
     from polisyos.ir.registry.refs import CausalEffectReportRef
     from polisyos.runtime.quality import (
         ValueOwnerSourceProjectionRequestV1,
@@ -6479,6 +6485,11 @@ def test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds(
         sort_keys=True,
         separators=(",", ":"),
     )
+    role_bindings: tuple[tuple[Literal["outcome", "treatment", "covariate"], str], ...] = (
+        ("outcome", "avg_income"),
+        ("treatment", "observed_treatment"),
+        ("covariate", "income_covariate"),
+    )
     request = ValueOwnerSourceProjectionRequestV1(
         selected_method_fqn=method_fqn,
         estimand_spec_json=estimand_spec,
@@ -6488,11 +6499,7 @@ def test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds(
                 variable_id=variable_id,
                 projection_payload=projections[variable_id].model_dump(mode="json"),
             )
-            for role, variable_id in (
-                ("outcome", "avg_income"),
-                ("treatment", "observed_treatment"),
-                ("covariate", "income_covariate"),
-            )
+            for role, variable_id in role_bindings
         ),
         outcome_lower=0.0,
         outcome_upper=1.0,
@@ -6533,9 +6540,11 @@ def test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds(
         return ref
 
     outer_sets: list[ValueOuterSet] = []
+    consumer_arguments: list[dict[str, Any]] = []
     original_consumer = gc._value_outer_set_from_owner_method_run_basis
 
     def capture_consumer(**kwargs: Any) -> ValueOuterSet:
+        consumer_arguments.append(dict(kwargs))
         result = original_consumer(**kwargs)
         outer_sets.append(result)
         return result
@@ -6622,6 +6631,87 @@ def test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds(
     )
     assert report.metadata["gate_eligible"] is False
     assert bounds.estimand_type == "ate" and manski.lower_bound < manski.upper_bound
+    assert bounds.sharpness_status == "outer_approx"
+    assert bounds.dual_certificate_ref is None
+    assert all(
+        summary.soundness_level is BoundSoundnessLevel.ASSUMPTION_ONLY
+        and summary.assumptions_used == ["no_assumptions_on_selection"]
+        and summary.certificate_ref is None
+        for summary in bounds.method_summaries
+    )
+    assert report.metadata["identification_bounds_contract"] == "ir.bounds_bundle.v1"
+    assert report.metadata["identification_bounds_status"] == "candidate_only"
+    assert report.metadata["identification_bounds_ref"] == bounds_ref.model_dump(mode="json")
+    assert gc._value_manifest_has_exact_inputs(
+        ir_store,
+        bounds_ref,
+        (
+            (basis.profile_ref, "selected_owner_profile"),
+            (basis.assignment_ref, "owner_source_assignment"),
+            (basis.panel_input_ref, "exact_method_input_bytes"),
+            (basis.runner_request_ref, "selected_method_runner_request"),
+        ),
+    )
+    assert gc._value_manifest_has_exact_inputs(
+        ir_store,
+        basis.report_ref,
+        (
+            (basis.panel_input_ref, "exact_method_input_bytes"),
+            (basis.runner_request_ref, "selected_method_runner_request"),
+            (bounds_ref, "candidate_identification_bounds"),
+        ),
+    )
+    assert gc._value_manifest_has_exact_inputs(
+        ir_store,
+        basis_refs[0],
+        (
+            (basis.intent_ref, "immutable_run_intent"),
+            (basis.profile_ref, "selected_owner_profile"),
+            (basis.assignment_ref, "owner_assignment"),
+            (basis.panel_input_ref, "exact_method_input_bytes"),
+            (basis.runner_request_ref, "selected_method_runner_request"),
+            (basis.report_ref, "native_method_report"),
+            (basis.execution_receipt_ref, "method_execution_receipt"),
+        ),
+    )
+    # The public observation exposes only the content ID. Resolve the actual CAS
+    # manifest and materialize its typed view; this is a reader-selected view,
+    # not a producer-attested profile copied from the observation.
+    outer_manifest = ir_store.get_manifest(observation.value_ref)
+    outer_ref = gc._value_artifact_ref(
+        artifact_ref_for_manifest(outer_manifest),
+        expected_kind="runtime.value_outer_set_candidate_fixture",
+    )
+    assert str(outer_ref.artifact_id) == observation.value_ref
+    assert outer_ref.media_type == "application/json"
+    assert outer_ref.manifest_profile_sha256 is not None
+    assert outer_manifest.artifact_schema is not None
+    assert outer_manifest.artifact_schema.name == "runtime.value_outer_set_candidate_fixture"
+    assert outer_manifest.artifact_schema.version == "1.0"
+    outer_manifest = ir_store.get_manifest_by_profile(
+        outer_ref.artifact_id, outer_ref.manifest_profile_sha256
+    )
+    assert artifact_ref_for_manifest(outer_manifest) == artifact_ref_for_manifest(
+        ir_store.get_manifest(observation.value_ref)
+    )
+    # Reconcile the full selected-profile edge set through the shared helper;
+    # Core's ArtifactID RootModel and the runtime ref's string are wire-equal.
+    assert gc._value_manifest_has_exact_inputs(
+        ir_store, outer_ref, ((basis_refs[0], "owner_method_run_basis"),)
+    )
+
+    # Prove the persisted outer artifact can be freshly loaded by its typed
+    # consumer, including its serialized derived-width checksum.
+    outer_payload = gc._value_load_ref_payload(ir_store, outer_ref)
+    assert isinstance(outer_payload, dict)
+    persisted_outer = ValueOuterSet.from_persisted_payload(outer_payload)
+    assert persisted_outer == outer_set
+    tampered_outer_payload = deepcopy(outer_payload)
+    persisted_width = tampered_outer_payload.get("width")
+    assert isinstance(persisted_width, list) and persisted_width
+    persisted_width[0] = float(persisted_width[0]) + 0.01
+    with pytest.raises(ValueError, match="value_outer_set_width_tampered"):
+        ValueOuterSet.from_persisted_payload(tampered_outer_payload)
     assert outer_set.identification_status == "partial"
     assert outer_set.lower == (manski.lower_bound,) and outer_set.upper == (manski.upper_bound,)
     assert outer_set.statistical_lower == (
@@ -6634,6 +6724,134 @@ def test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds(
         and outer_set.representation_status == "search_only"
     )
     assert "consumer_asserted_treatment_role" in outer_set.assumptions
+    assert "no_assumptions_on_selection" in outer_set.assumptions
+    assert "bounds_estimand_relation_not_established" in outer_set.assumptions
+
+    # Preserve the current engine tier; unknown, certified, or heuristic tiers
+    # cannot stand in for the assumption-only candidate route.
+    for unsafe_level in (None, "CERTIFIED", "HEURISTIC"):
+        unsafe_bundle = deepcopy(bounds.model_dump(mode="json"))
+        manski_payload = next(
+            row
+            for row in unsafe_bundle["method_summaries"]
+            if row["method"] == BoundMethod.MANSKI.value
+        )
+        manski_payload["soundness_level"] = unsafe_level
+
+        def return_unsafe_bundle(
+            *args: Any, _bundle: dict[str, object] = unsafe_bundle, **kwargs: Any
+        ) -> dict[str, object]:
+            return {"bounds_report": _bundle}
+
+        with monkeypatch.context() as tier_control:
+            tier_control.setattr(
+                BoundsEngineMethod, "pure_step", staticmethod(return_unsafe_bundle)
+            )
+            with pytest.raises(
+                ValueError, match="value_owner_source_bounds_soundness_not_established"
+            ):
+                gc._value_source_bounds_bundle({"outcome": (), "treatment": ()}, assignment)
+
+    consumer_kwargs = consumer_arguments[0]
+    original_payload_loader = gc._value_load_ref_payload
+
+    def replay_candidate_consumer() -> ValueOuterSet:
+        with catalog_serving_source_scope(catalog_source):
+            return original_consumer(**consumer_kwargs)
+
+    # Missing the report-to-bounds reference is refused even with other markers present.
+    with monkeypatch.context() as missing_basis_control:
+
+        def omit_bounds_ref(
+            selected_store: object, selected_ref: gc.ValueArtifactBindingRefV1
+        ) -> object:
+            payload = original_payload_loader(selected_store, selected_ref)
+            if getattr(selected_ref, "artifact_id", None) == basis.report_ref.artifact_id:
+                assert isinstance(payload, dict)
+                payload = deepcopy(payload)
+                metadata = payload.get("metadata")
+                assert isinstance(metadata, dict)
+                metadata.pop("identification_bounds_ref")
+            return payload
+
+        missing_basis_control.setattr(gc, "_value_load_ref_payload", omit_bounds_ref)
+        with pytest.raises(KeyError, match="identification_bounds_ref"):
+            replay_candidate_consumer()
+
+    # Recomputed content must still match when markers and ref shape are present.
+    def corrupt_tier(payload: dict[str, Any]) -> dict[str, Any]:
+        summaries = payload["method_summaries"]
+        manski_row = next(row for row in summaries if row["method"] == "manski_bounds")
+        manski_row["soundness_level"] = "HEURISTIC"
+        return payload
+
+    def corrupt_assumptions(payload: dict[str, Any]) -> dict[str, Any]:
+        summaries = payload["method_summaries"]
+        manski_row = next(row for row in summaries if row["method"] == "manski_bounds")
+        manski_row["assumptions_used"] = ["forged_present_assumption"]
+        return payload
+
+    def corrupt_bounds_content(payload: dict[str, Any]) -> dict[str, Any]:
+        for key in ("lower_bound", "upper_bound", "consensus_lower", "consensus_upper"):
+            value = payload[key]
+            if value is not None:
+                payload[key] = float(value) + 0.01
+        summaries = payload["method_summaries"]
+        assert isinstance(summaries, list)
+        for row in summaries:
+            row["lower_bound"] = float(row["lower_bound"]) + 0.01
+            row["upper_bound"] = float(row["upper_bound"]) + 0.01
+        return payload
+
+    for corrupt in (corrupt_tier, corrupt_assumptions, corrupt_bounds_content):
+        with monkeypatch.context() as corrupt_bundle_control:
+
+            def load_corrupt_bounds(
+                selected_store: object,
+                selected_ref: gc.ValueArtifactBindingRefV1,
+                *,
+                _corrupt=corrupt,
+            ) -> object:
+                payload = original_payload_loader(selected_store, selected_ref)
+                if (
+                    getattr(selected_ref, "artifact_id", None) == bounds_ref.artifact_id
+                    and getattr(selected_ref, "manifest_profile_sha256", None)
+                    == bounds_ref.manifest_profile_sha256
+                ):
+                    return _corrupt(deepcopy(payload))
+                return payload
+
+            corrupt_bundle_control.setattr(gc, "_value_load_ref_payload", load_corrupt_bounds)
+            with pytest.raises(
+                ValueError, match="value_owner_source_bounds_recomputation_mismatch"
+            ):
+                replay_candidate_consumer()
+
+    # A store view missing one selected-profile edge is refused with the ref and
+    # candidate markers intact; the actual consumer resolver remains in use.
+    original_manifest_lookup = core_store.get_manifest_by_profile
+    with monkeypatch.context() as missing_edge_control:
+
+        def omit_bounds_input_edge(artifact_id: Any, profile_sha256: str) -> Any:
+            manifest = original_manifest_lookup(artifact_id, profile_sha256)
+            if (
+                str(artifact_id) == bounds_ref.artifact_id
+                and profile_sha256 == bounds_ref.manifest_profile_sha256
+            ):
+                return manifest.model_copy(
+                    update={
+                        "inputs": tuple(
+                            edge
+                            for edge in manifest.inputs
+                            if edge.role != "selected_method_runner_request"
+                        )
+                    }
+                )
+            return manifest
+
+        missing_edge_control.setattr(core_store, "get_manifest_by_profile", omit_bounds_input_edge)
+        with pytest.raises(ValueError, match="value_owner_source_bounds_lineage_mismatch"):
+            replay_candidate_consumer()
 
     panel_candidate = replace(
         candidate,

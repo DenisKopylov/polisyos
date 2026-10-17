@@ -396,3 +396,187 @@ def test_generic_request_binding_without_source_refs_cannot_enter_n8() -> None:
             status="joint_simulated",
             generic_n5_request_binding=binding,
         )
+
+
+@pytest.mark.parametrize(
+    ("tenant_id", "cell_id", "expected_scope_error"),
+    [
+        ("tenant-scoped", "generic-n5-replay-cell", None),
+        (
+            "tenant-foreign",
+            "generic-n5-replay-cell",
+            "generation_source_owner_profile_mismatch",
+        ),
+        (
+            "tenant-scoped",
+            "cell-foreign",
+            "generation_source_owner_profile_mismatch",
+        ),
+    ],
+)
+def test_generic_n5_execution_replay_loads_the_actual_source_in_scope(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    tenant_id: str,
+    cell_id: str,
+    expected_scope_error: str | None,
+) -> None:
+    """N5 replay opens real N4 CAS bytes under the persisted tenant/cell identity."""
+    from dataclasses import replace
+
+    from polisyos.runtime.quality import design_generation as n4
+    from polisyos.runtime.quality.cycle_substrate import (
+        cycle_job_design_problem_ref,
+        cycle_job_profile_selection_ref,
+    )
+    from polisyos.runtime.quality.generation_source import (
+        GenerationSourceHandoff,
+        GenerationSourceRepository,
+    )
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleSimulationN5ExecutionV1,
+        GenericCycleSimulationN5InputV1,
+    )
+    from tests.unit.runtime.quality.test_cycle_substrate import _cycle_context
+    from tests.unit.runtime.quality.test_design_generation import _test_design_problem
+
+    problem = _test_design_problem()
+    context = _cycle_context(
+        domain=problem.domain,
+        design_problem_ref=cycle_job_design_problem_ref(problem),
+    )
+    context_job_ref = _artifact_ref("runtime.quality.cycle_substrate_context_job", "1")
+    profile_ref = _artifact_ref("runtime.quality.generic_cycle_simulation_profile", "2")
+    store = FileSystemCAS(tmp_path / "generic-n5-replay-source-cas")
+    run_id = "generic-n5-replay-run"
+    source_run_id = "generic-n5-replay-source-run"
+    job_id = "generic-n5-replay-job"
+    source_cell_id = "generic-n5-replay-cell"
+    source_tenant_id = "tenant-scoped"
+    result = n4.GenerationUnderAResult(
+        status="generation_unavailable",
+        design_problem_ref=cycle_job_design_problem_ref(problem),
+        model_id="synthetic-c2",
+        preflight=n4.ModelProfilePreflight(
+            status="gateway_unavailable",
+            model_id="synthetic-c2",
+        ),
+        diversity_report=n4.GenerationDiversityReport(
+            min_required=1,
+            candidate_count=0,
+            unique_diversity_key_count=0,
+        ),
+    )
+    source_ref = GenerationSourceRepository(store).persist_ref(
+        run_id=source_run_id,
+        cycle_index=0,
+        problem=problem,
+        organ=replace(result.as_organ_run(), cycle_substrate_context=context),
+        execution_scope="contract_testing",
+        job_id=job_id,
+        expected_run_id=run_id,
+        tenant_id=source_tenant_id,
+        cell_id=source_cell_id,
+        context_job_ref=context_job_ref,
+        profile_ref=profile_ref,
+    )
+    input_record = GenericCycleSimulationN5InputV1.model_construct(
+        job_id=job_id,
+        run_id=run_id,
+        source_run_id=source_run_id,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+        design_problem_ref=cycle_job_design_problem_ref(problem),
+        cycle_index=0,
+        n4_source_ref=source_ref,
+        n4_child_profile_family_ref=None,
+        n4_child_profile_set_ref=None,
+        child_selection=None,
+        context_job_ref=context_job_ref,
+        profile_ref=profile_ref,
+        profile=object(),
+        candidate_id="candidate_0123456789abcdef",
+        candidate_atom_hash="sha256:" + "3" * 64,
+        outcome_variable="controlled-outcome",
+        n5=object(),
+        content_hash="sha256:" + "4" * 64,
+    )
+    record = GenericCycleSimulationN5ExecutionV1.model_construct(
+        status="simulation_blocked",
+        job_id=job_id,
+        run_id=run_id,
+        source_run_id=source_run_id,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+        input_ref=_artifact_ref("runtime.quality.generic_cycle_simulation_n5_input", "5"),
+        result_ref=None,
+        n4_source_ref=source_ref,
+        n4_child_profile_family_ref=None,
+        n4_child_profile_set_ref=None,
+        child_selection=None,
+        context_job_ref=context_job_ref,
+        profile_ref=profile_ref,
+        profile_selection_ref=cycle_job_profile_selection_ref(problem),
+        world_model_record_content_hash=context.world_model_record.content_hash,
+        candidate_id=input_record.candidate_id,
+        candidate_atom_hash=input_record.candidate_atom_hash,
+        outcome_variable=input_record.outcome_variable,
+        limitation_code="controlled-source-load-test",
+        content_hash="sha256:" + "6" * 64,
+    )
+    owner = GenericCycleSimulationAdmissionOwner(profiles=(), store=store)
+
+    class _AfterSourceLoadError(Exception):
+        pass
+
+    def stop_after_source_load(*_args: object, **_kwargs: object) -> object:
+        raise _AfterSourceLoadError
+
+    monkeypatch.setattr(owner, "resolve_profile_historical", stop_after_source_load)
+    observed_loads: list[dict[str, object]] = []
+    original_load = GenerationSourceRepository.load
+
+    def recording_load(
+        repository: GenerationSourceRepository,
+        ref: ArtifactRef | str,
+        *,
+        run_id: str,
+        expected_run_id: str | None = None,
+        expected_job_id: str | None = None,
+        expected_tenant_id: str | None = None,
+        expected_cell_id: str | None = None,
+        context_job_ref: ArtifactRef | None = None,
+        profile_ref: ArtifactRef | None = None,
+        n4_child_profile_family_ref: ArtifactRef | None = None,
+    ) -> GenerationSourceHandoff:
+        observed_loads.append(
+            {
+                "expected_tenant_id": expected_tenant_id,
+                "expected_cell_id": expected_cell_id,
+            }
+        )
+        return original_load(
+            repository,
+            ref,
+            run_id=run_id,
+            expected_run_id=expected_run_id,
+            expected_job_id=expected_job_id,
+            expected_tenant_id=expected_tenant_id,
+            expected_cell_id=expected_cell_id,
+            context_job_ref=context_job_ref,
+            profile_ref=profile_ref,
+            n4_child_profile_family_ref=n4_child_profile_family_ref,
+        )
+
+    monkeypatch.setattr(GenerationSourceRepository, "load", recording_load)
+
+    if expected_scope_error is None:
+        with pytest.raises(_AfterSourceLoadError):
+            owner._replay_n5_execution_sources(record, input_record)
+    else:
+        with pytest.raises(ValueError, match=expected_scope_error):
+            owner._replay_n5_execution_sources(record, input_record)
+
+    assert len(observed_loads) == 1
+    assert observed_loads[0]["expected_tenant_id"] == tenant_id
+    assert observed_loads[0]["expected_cell_id"] == cell_id

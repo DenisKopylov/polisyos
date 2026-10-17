@@ -14,7 +14,10 @@ from polisyos.runtime.quality.acquisition_planner import (
     requirement_gaps_from_compiled_specs,
 )
 from polisyos.runtime.quality.design_problem import DesignProblem
-from polisyos.runtime.quality.generation_cycle import GenerationCycleController
+from polisyos.runtime.quality.generation_cycle import (
+    GenerationCycleController,
+    GenerationCycleError,
+)
 from polisyos.runtime.quality.open_world_risk import PromotionRuntime
 from tests.unit.runtime.quality.test_acquisition_planner import _compiled_requirement_specs
 
@@ -58,9 +61,7 @@ def test_real_gateway_rejects_private_store_configuration_route(tmp_path: Path) 
     with pytest.raises(TypeError):
         RealAcquisitionOwnerGateway(
             repo_root=tmp_path,
-            artifact_store_config=ArtifactStoreConfig(
-                backend="filesystem", root=str(private_root)
-            ),
+            artifact_store_config=ArtifactStoreConfig(backend="filesystem", root=str(private_root)),
         )
 
     assert not private_root.exists()
@@ -77,6 +78,19 @@ def test_default_production_gateway_requires_runtime_store(tmp_path: Path) -> No
 
     problem = DesignProblem.model_construct(runtime_hints={})
     assert controller._n7_owner_gateway(problem) is None
+
+
+def test_runtime_hint_gateway_must_implement_acquisition_owner_protocol(
+    tmp_path: Path,
+) -> None:
+    controller = GenerationCycleController(
+        repo_root=tmp_path,
+        authority_scope="contract_testing",
+    )
+    problem = DesignProblem.model_construct(runtime_hints={"n7_owner_gateway": object()})
+
+    with pytest.raises(GenerationCycleError, match="n7_runtime_store_not_supplied"):
+        controller._n7_owner_gateway(problem)
 
 
 def test_default_gateway_uses_exact_tenant_store_for_skg_produce_and_replay(

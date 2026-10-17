@@ -16,6 +16,24 @@ function asRecord(value: unknown): JsonRecord | null {
     : null;
 }
 
+function stringMapEntries(
+  value: unknown,
+  fieldName: string,
+): Array<[string, string]> {
+  const record = asRecord(value);
+  if (record === null) {
+    throw new Error(`${fieldName} is missing or is not an object`);
+  }
+  const entries: Array<[string, string]> = [];
+  for (const [key, entryValue] of Object.entries(record)) {
+    if (typeof entryValue !== "string") {
+      throw new Error(`${fieldName}[${JSON.stringify(key)}] is not a string`);
+    }
+    entries.push([key, entryValue]);
+  }
+  return entries;
+}
+
 function artifactRefIdentity(value: unknown): string | null {
   const ref = asRecord(value);
   if (
@@ -543,6 +561,11 @@ test("serves source-bound candidate, unknown cost, recursive history limit, and 
   );
   expect(v7CompletedRefs).toContain(v7BudgetStopRef);
   const v7LeafTerminalKinds = asRecord(v7Checkpoint?.leaf_terminal_kinds);
+  const v7LeafTerminalKindEntries = stringMapEntries(
+    v7Checkpoint?.leaf_terminal_kinds,
+    "recursive_cycle_checkpoint.leaf_terminal_kinds",
+  );
+  expect(v7LeafTerminalKindEntries.length).toBeGreaterThan(0);
   expect(v7LeafTerminalKinds?.[v7BudgetStopRef as string]).toBe(
     "budget_exhausted",
   );
@@ -563,6 +586,21 @@ test("serves source-bound candidate, unknown cost, recursive history limit, and 
   await expect(visibleBudgetCheckpoint).toContainText("budget_exhausted");
   await expect(visibleBudgetCheckpoint).toContainText(
     v7PendingFrontier[0] as string,
+  );
+
+  const visibleGenericCheckpoint = page.getByTestId(
+    "overview-generic-cycle-checkpoint",
+  );
+  await expect(visibleGenericCheckpoint).toBeVisible();
+  await expect(
+    page.getByTestId("overview-generic-cycle-terminal-kind"),
+  ).toHaveText(
+    v7LeafTerminalKindEntries.map(
+      ([nodeRef, terminalKind]) => nodeRef + ": " + terminalKind,
+    ),
+  );
+  await expect(visibleGenericCheckpoint).toContainText(
+    "Pending frontier: " + v7PendingFrontier.join(", "),
   );
 });
 

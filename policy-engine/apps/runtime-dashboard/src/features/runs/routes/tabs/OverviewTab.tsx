@@ -385,6 +385,16 @@ function textList(value: unknown): string[] {
     : [];
 }
 
+function leafTerminalKindRows(value: unknown): Array<[string, string]> {
+  const terminalKinds = asRecord(value);
+  if (terminalKinds === null) {
+    return [];
+  }
+  return Object.entries(terminalKinds).map(
+    ([nodeRef, kind]): [string, string] => [nodeRef, String(kind)],
+  );
+}
+
 function isArtifactRef(value: unknown, kind: string): boolean {
   const ref = asRecord(value);
   const profile = ref?.manifest_profile_sha256;
@@ -810,9 +820,9 @@ function CandidateSimulationPanel({ run }: { run: RunDetailsView }) {
               ),
             })}
           </p>
-          {Object.entries(asRecord(checkpoint.leaf_terminal_kinds) ?? {}).map(
+          {leafTerminalKindRows(checkpoint.leaf_terminal_kinds).map(
             ([child, kind]) => (
-              <p key={child}>{`${child}: ${String(kind)}`}</p>
+              <p key={child}>{child + ": " + kind}</p>
             ),
           )}
           {failedBranches.map((branch, index) => {
@@ -891,6 +901,9 @@ function GenericCycleSimulationPanel({
     projection.artifact_status === "resolved"
       ? projection.recursive_cycle_checkpoint
       : null;
+  const leafTerminalKinds = checkpoint
+    ? leafTerminalKindRows(checkpoint.leaf_terminal_kinds)
+    : [];
 
   return (
     <Card className="space-y-4" data-testid="overview-generic-cycle-simulation">
@@ -1152,6 +1165,20 @@ function GenericCycleSimulationPanel({
               refs: checkpoint.completed_design_refs.join(", ") || "—",
             })}
           </p>
+          {leafTerminalKinds.length > 0 ? (
+            leafTerminalKinds.map(([nodeRef, kind]) => (
+              <p
+                key={nodeRef}
+                data-testid="overview-generic-cycle-terminal-kind"
+              >
+                {nodeRef + ": " + kind}
+              </p>
+            ))
+          ) : (
+            <p data-testid="overview-generic-cycle-terminal-kinds-not-established">
+              {t("pages.runs.candidateSimulation.notEstablished")}
+            </p>
+          )}
           {checkpoint.failed_branches.length > 0 ? (
             <ul
               className="space-y-2"

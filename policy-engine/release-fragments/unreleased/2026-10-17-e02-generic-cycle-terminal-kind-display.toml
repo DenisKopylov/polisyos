@@ -1,0 +1,21 @@
+id = "2026-10-17-e02-generic-cycle-terminal-kind-display"
+title = "Show generic-cycle leaf terminal outcomes"
+type = "changed"
+component = "runtime-dashboard"
+owner = "team-policyos-runtime"
+summary = "The run overview displays terminal-kind strings from the existing generic-cycle checkpoint separately from the pending frontier."
+evidence = [
+  "apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.tsx",
+  "apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.test.tsx",
+  "apps/runtime-dashboard/e2e/journeys/catalog-profile-source-bound.spec.ts",
+]
+compatibility = "The dashboard presents the existing checkpoint map without changing its API, generated-client, or persisted-format contract."
+change_class = "internal"
+surface_classification = "internal: internal-only"
+migration = "No migration is required."
+api = "The view uses the existing generic_cycle_simulation.recursive_cycle_checkpoint.leaf_terminal_kinds and pending_frontier fields; no payload schema changes are included."
+limitations = "A missing or empty map keeps the existing localized Not established label. Display adds no terminal semantics or authority. The source-bound V7 browser cohort remains UNRUN pending canonical composition and fixture availability."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

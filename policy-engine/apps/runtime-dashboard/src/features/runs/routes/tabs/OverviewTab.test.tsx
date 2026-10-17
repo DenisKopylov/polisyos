@@ -183,7 +183,10 @@ function sameCandidateAcquisitionHistoryProjection() {
   };
 }
 
-function genericCycleSimulationProjection(runId: string) {
+function genericCycleSimulationProjection(
+  runId: string,
+  terminalKinds?: Record<string, string> | null,
+) {
   const ref = (
     kind: string,
     suffix: string,
@@ -210,6 +213,14 @@ function genericCycleSimulationProjection(runId: string) {
     "8",
   );
   const designProblemRef = "sha256:" + "d".repeat(64);
+  const leafTerminalKinds =
+    terminalKinds === undefined
+      ? { ["design-problem://" + "d".repeat(64)]: "completed" }
+      : (terminalKinds ?? undefined);
+  const completedDesignRefs =
+    terminalKinds != null && Object.keys(terminalKinds).length > 0
+      ? Object.keys(terminalKinds)
+      : [designProblemRef];
 
   const observation = (
     cycleIndex: number,
@@ -415,11 +426,9 @@ function genericCycleSimulationProjection(runId: string) {
       publication_authority: false,
       budget_stop_node_ref: null,
       pending_frontier: ["design-problem://" + "8".repeat(64)],
-      completed_design_refs: [designProblemRef],
+      completed_design_refs: completedDesignRefs,
       root_n9_status: "not_run",
-      leaf_terminal_kinds: {
-        ["design-problem://" + "d".repeat(64)]: "completed",
-      },
+      leaf_terminal_kinds: leafTerminalKinds,
       failed_branches: [
         {
           failed_branch_ref: "design-problem://" + "8".repeat(64),
@@ -441,6 +450,7 @@ function genericCycleSimulationProjection(runId: string) {
 }
 function parsedRunWithGenericCycleSimulation(
   projectionRunId = "run-1",
+  terminalKinds?: Record<string, string> | null,
 ): Record<string, unknown> {
   const { run } = runDetailsSchema.parse({
     meta: {
@@ -452,8 +462,10 @@ function parsedRunWithGenericCycleSimulation(
       run_id: "run-1",
       source_kind: "core_run",
       status: "failed",
-      generic_cycle_simulation:
-        genericCycleSimulationProjection(projectionRunId),
+      generic_cycle_simulation: genericCycleSimulationProjection(
+        projectionRunId,
+        terminalKinds,
+      ),
     },
     temporal_scope: null,
   });
@@ -805,6 +817,9 @@ describe("OverviewTab", () => {
       screen.getByTestId("overview-generic-cycle-profile-bindings"),
     ).toHaveTextContent("resolved");
     expect(
+      screen.getByTestId("overview-generic-cycle-checkpoint"),
+    ).toHaveTextContent("design-problem://" + "d".repeat(64) + ": completed");
+    expect(
       screen.getByTestId("overview-generic-cycle-failed-branches"),
     ).toHaveTextContent(
       "Sibling retained after its independent attempt stopped.",
@@ -826,6 +841,55 @@ describe("OverviewTab", () => {
     ).toHaveTextContent("Intervention atoms: atom-b");
     expect(panel).not.toHaveTextContent("publication_ready");
   });
+
+  it("renders generic leaf outcomes separately from the pending frontier", () => {
+    const terminalKinds = {
+      "child-admissible": "grounded_admissible",
+      "child-partial": "grounded_partial_admissible",
+      "child-stable": "frontier_stable",
+      "child-budget": "budget_exhausted",
+      "child-abstained": "grounded_abstention",
+    };
+    overviewState.run = parsedRunWithGenericCycleSimulation(
+      "run-1",
+      terminalKinds,
+    );
+
+    renderWithProviders(<OverviewTab />);
+
+    const checkpoint = screen.getByTestId("overview-generic-cycle-checkpoint");
+    expect(checkpoint).toHaveTextContent(
+      "Pending frontier: design-problem://" + "8".repeat(64),
+    );
+    expect(checkpoint).toHaveTextContent(
+      "Completed child computations: " + Object.keys(terminalKinds).join(", "),
+    );
+    for (const [nodeRef, kind] of Object.entries(terminalKinds)) {
+      expect(checkpoint).toHaveTextContent(nodeRef + ": " + kind);
+    }
+    expect(checkpoint).not.toHaveTextContent("Not established");
+  });
+
+  it.each([
+    ["missing", null],
+    ["empty", {}],
+  ] as const)(
+    "keeps %s generic leaf terminal outcomes not established",
+    (_label, terminalKinds) => {
+      overviewState.run = parsedRunWithGenericCycleSimulation(
+        "run-1",
+        terminalKinds,
+      );
+
+      renderWithProviders(<OverviewTab />);
+
+      const unavailable = screen.getByTestId(
+        "overview-generic-cycle-terminal-kinds-not-established",
+      );
+      expect(unavailable).toHaveTextContent("Not established");
+      expect(unavailable).not.toHaveTextContent("grounded_abstention");
+    },
+  );
 
   it("withholds otherwise well-shaped children when the generic projection belongs to another run", () => {
     overviewState.run = parsedRunWithGenericCycleSimulation("run-other");

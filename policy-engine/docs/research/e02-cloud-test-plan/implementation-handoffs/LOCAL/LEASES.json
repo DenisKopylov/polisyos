@@ -3328,5 +3328,33 @@
     "P40": "Same class deeper: widened from per-file to complete source-effects quantity; R4/R5 HOLDs retained. Unselected external runtime mutation remains not_established; unreachable selected effects conservatively overcounted.",
     "source_freeze": false,
     "closure_ids": []
+  },
+  "coordination_epoch_20261017_generic_cycle_terminal_ui": {
+    "source_base": "f05f9c898a1097d74d7581b0d951d64d8f49ba01",
+    "root_is_only_canonical_writer": true,
+    "scope": [
+      "policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.tsx",
+      "policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.test.tsx",
+      "policy-engine/apps/runtime-dashboard/e2e/journeys/catalog-profile-source-bound.spec.ts",
+      "policy-engine/release-fragments/unreleased/2026-10-17-e02-generic-cycle-terminal-kind-display.toml"
+    ],
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "separate canonicalVitest/actualGETsource-boundbrowser receipt; browserUNRUNpendingcohortfreeze"
+    ],
+    "independent_reviews": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/generic-cycle-terminal-ui-independent-review-20261017/review.json",
+        "sha256": "59647ef68573fdf28396985c3eba6eb7f4c009f6d9cbf57750fc85cc12d2b29a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/generic-cycle-terminal-release-independent-review-20261017/review.json",
+        "sha256": "e98239ee068848c02576f342b407ca05a33730c88eceeb10fc59de48e9693cad"
+      }
+    ],
+    "property": "Shared existing string-map renderer retains every generic leaf outcome verbatim, unknown strings preserved; absent/empty map localized Not established; pending frontier separate. Browser assertions compare full freshGET actualmap with renderedrows, no syntheticterminalfields.",
+    "P40": "Same B29 class deeper UIconsumer seam. Does not prove producer classification/normal browsercohort until actualrun; publicAPI/DTO/schema/client/persistedformat unchanged. Internaloperatorvisible releasefragment included.",
+    "source_freeze": false,
+    "closure_ids": []
   }
 }

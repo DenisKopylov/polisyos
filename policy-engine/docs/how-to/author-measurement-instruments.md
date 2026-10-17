@@ -57,6 +57,22 @@ MP-B1 in the measurement-plane completion journal; do not certify them by
 inventory membership. The census distinguishes input disclosure in one output
 mode from this all-format contract.
 
+## Candidate replay context
+
+For a checker replay against an isolated candidate, bind the checker version, resolved
+configuration, working directory, and logical source filename together. Per-file rules can
+change when a physical RAW copy is passed instead of its canonical logical path. A result from
+that different selection context is not a result for the canonical file. Retain both commands
+and their complete outputs when correcting the context; do not relabel the earlier diagnostics
+as inherited product debt (`P38`/`P41`).
+
+Qualify the code that the replay executed. `module.__file__` is a locator and can be preserved
+or rewritten by an injected loader; it does not by itself identify the compiled bytes. For a
+loader-based overlay, retain the executing loader's candidate-byte hash, the logical module/test
+identity, and the replacement scope. Keep the unchanged imports outside that scope named.
+A source-path probe from a different process entrypoint neither establishes nor refutes what
+the deciding run loaded (`P29`/`P32`/`P38`).
+
 ## Register table consumers
 
 Never split a register row on a literal pipe and then trust column indexes.

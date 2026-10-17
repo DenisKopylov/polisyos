@@ -3671,5 +3671,25 @@
     "RAW_references_revalidated": 34,
     "source_freeze": false,
     "closure_ids": []
+  },
+  "coordination_epoch_20261017_measurement_replay_context_pattern_repair": {
+    "owner": "root",
+    "base": "217833e737ebc127077c40bbf5d48bdbcb151dcb",
+    "mechanism_paths": [
+      "policy-engine/docs/how-to/author-measurement-instruments.md",
+      "policy-engine/docs/reference/policy-design-case-failure-patterns.md"
+    ],
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "separate file-scoped docs-style receipt"
+    ],
+    "property": "Record repeated P29/P32/P38 checker-context and loaded-byte identity diagnostics in the measurement contract and failure/repair register. Canonicalized module locators alone neither qualify nor refute a deciding loader run.",
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/measurement-replay-context-docs-independent-review-r1-20261017/review.json",
+      "sha256": "9d3861ef42a94bf83df4dfe338556849073ba65ccce674f9894ac345fc46a87c"
+    },
+    "scope": "Documentation only; no P30 naming claim, native R4 HOLD remains, no global/native acceptance.",
+    "source_freeze": false,
+    "closure_ids": []
   }
 }

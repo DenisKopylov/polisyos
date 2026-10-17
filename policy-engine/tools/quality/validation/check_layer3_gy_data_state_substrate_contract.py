@@ -93,7 +93,7 @@ def data_state_substrate_honesty_behavior_report(repo_root: Path) -> dict[str, A
     )
     budget = profile.family_authority("budget_flows")
     household = profile.family_authority("household_distribution")
-    l5 = load_l5_catalog_authority(default_substrate_catalog_paths(repo_root))
+    l5 = load_l5_catalog_authority(default_substrate_catalog_paths(repo_root), repo_root=repo_root)
     expected_household_tier = l5.expected_trust_tier("household_distribution")
     budget_status = (
         "honest"
@@ -243,7 +243,10 @@ def _household_proxy_behavioral_detail(
         proxy_set = proxy_households.value_outer_set
         point_set = point_households.value_outer_set
         if proxy_set is None or point_set is None:
-            return "presence_not_gate", {"agent_limit": 8, "value_outer_set_missing": True}
+            return "presence_not_gate", {
+                "agent_limit": 8,
+                "value_outer_set_missing": True,
+            }
 
         proxy_width = np.asarray(proxy_set.width, dtype=float)
         point_width = np.asarray(point_set.width, dtype=float)

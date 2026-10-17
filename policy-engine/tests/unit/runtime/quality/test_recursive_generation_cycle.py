@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any
 
 import pytest
@@ -621,3 +622,592 @@ def test_recursive_child_currentness_resolver_replays_exact_capsule_and_live_job
         ):
             currentness_resolver()
         assert check_order == ["current"]
+
+
+def test_runtime_repo_root_invalid_present_refuses_and_omission_keeps_default_config(
+    tmp_path,
+) -> None:
+    """Invalid supplied roots refuse and omission leaves the legacy owner default unset."""
+    pytest.importorskip("fastapi")
+
+    from polisyos.runtime.http.app import create_runtime_api_app
+    from polisyos.runtime.http.execution_policy import RuntimeBootstrapError
+
+    with pytest.raises(RuntimeBootstrapError, match="repo_root is invalid"):
+        create_runtime_api_app(
+            cas_root=tmp_path / "invalid-root-cas",
+            repo_root=tmp_path / "missing-source-checkout",
+        )
+    with pytest.raises(RuntimeBootstrapError, match="repo_root is invalid"):
+        create_runtime_api_app(
+            cas_root=tmp_path / "relative-root-cas",
+            repo_root="relative-source-checkout",
+        )
+
+    app = create_runtime_api_app(cas_root=tmp_path / "default-root-cas")
+    assert app.state.runtime_container.config.repo_root is None
+
+
+@pytest.mark.asyncio
+async def test_recursive_selected_candidate_source_profile_requires_context_owner_before_n4(
+    tmp_path,
+) -> None:
+    """An explicit profile cannot reach N4 without the current-job context owner."""
+    from polisyos.core.artifacts import FileSystemCAS
+    from polisyos.runtime.quality.generation_cycle import GenerationCycleError
+    from tests._helpers.candidate_cycle_source_profile import _problem
+    from tests.unit.runtime.quality.test_generation_cycle import _budget
+
+    problem = _problem(runtime_hints=None)
+    n4_calls: list[int] = []
+
+    class _RecordingN4Port(N4GenerationPort):
+        async def __call__(self, problem_arg: Any, *, cycle_index: int) -> Any:
+            del problem_arg
+            n4_calls.append(cycle_index)
+            raise GenerationCycleError("unexpected_candidate_profile_n4_call")
+
+    store = FileSystemCAS(tmp_path / "candidate-profile-owner-required-cas")
+    controller = build_default_recursive_generation_cycle_controller(
+        promotion_runtime=PromotionRuntime(store=store),
+        repo_root=tmp_path,
+    )
+    graph = derive_recursive_design_graph(
+        design_ref="design://candidate-profile-owner-required",
+        module_refs=(),
+        parent_child_edges=(),
+        rule_version_ref="test://candidate-profile-owner-required",
+    )
+
+    with pytest.raises(
+        GenerationCycleError,
+        match="n4_candidate_source_profile_context_owner_missing",
+    ):
+        await controller.run(
+            graph,
+            problems_by_node={graph.root_design_ref: problem},
+            budget_state=_budget(),
+            recursive_budget=RecursiveCycleBudget(
+                max_depth=1,
+                max_nodes=1,
+                min_cycles_per_leaf=1,
+                max_cycles_per_leaf=1,
+            ),
+            n4_generation_ports_by_node={
+                graph.root_design_ref: _RecordingN4Port(
+                    model_id="controlled-candidate-profile-owner-required",
+                    repo_root=tmp_path,
+                )
+            },
+            execution_intents_by_node={graph.root_design_ref: "simulate_only"},
+        )
+
+    assert n4_calls == []
+    assert all(
+        b"cycle_substrate_context_job_artifact.v5" not in artifact.read_bytes()
+        for artifact in (tmp_path / "candidate-profile-owner-required-cas").rglob("*.blob")
+    )
+
+
+@pytest.mark.asyncio
+async def test_recursive_malformed_present_candidate_source_profile_does_not_fall_back(
+    tmp_path,
+) -> None:
+    """Malformed explicit profile intent fails before any N4 invocation."""
+    from polisyos.core.artifacts import FileSystemCAS
+    from polisyos.runtime.quality.generation_cycle import GenerationCycleError
+    from tests._helpers.candidate_cycle_source_profile import _problem
+    from tests.unit.runtime.quality.test_generation_cycle import _budget
+
+    base = _problem(runtime_hints=None)
+    hints = dict(base.runtime_hints)
+    hints["cycle_substrate_source_profile"] = {"schema_version": "wrong.v99"}
+    problem = base.model_copy(update={"runtime_hints": hints})
+    n4_calls: list[int] = []
+
+    class _RecordingN4Port(N4GenerationPort):
+        async def __call__(self, problem_arg: Any, *, cycle_index: int) -> Any:
+            del problem_arg
+            n4_calls.append(cycle_index)
+            raise GenerationCycleError("unexpected_candidate_profile_n4_call")
+
+    store = FileSystemCAS(tmp_path / "candidate-profile-malformed-cas")
+    controller = build_default_recursive_generation_cycle_controller(
+        promotion_runtime=PromotionRuntime(store=store),
+        repo_root=tmp_path,
+    )
+    graph = derive_recursive_design_graph(
+        design_ref="design://candidate-profile-malformed",
+        module_refs=(),
+        parent_child_edges=(),
+        rule_version_ref="test://candidate-profile-malformed",
+    )
+
+    with pytest.raises(
+        GenerationCycleError,
+        match="n4_candidate_source_profile_selection_invalid",
+    ):
+        await controller.run(
+            graph,
+            problems_by_node={graph.root_design_ref: problem},
+            budget_state=_budget(),
+            recursive_budget=RecursiveCycleBudget(
+                max_depth=1,
+                max_nodes=1,
+                min_cycles_per_leaf=1,
+                max_cycles_per_leaf=1,
+            ),
+            n4_generation_ports_by_node={
+                graph.root_design_ref: _RecordingN4Port(
+                    model_id="controlled-candidate-profile-malformed",
+                    repo_root=tmp_path,
+                )
+            },
+            execution_intents_by_node={graph.root_design_ref: "simulate_only"},
+        )
+
+    assert n4_calls == []
+    assert all(
+        b"cycle_substrate_context_job_artifact.v5" not in artifact.read_bytes()
+        for artifact in (tmp_path / "candidate-profile-malformed-cas").rglob("*.blob")
+    )
+
+
+@pytest.mark.asyncio
+async def test_recursive_absent_candidate_source_profile_preserves_legacy_n4_path(
+    tmp_path,
+) -> None:
+    """No selected profile keeps the established context-free N4 behavior."""
+    from polisyos.core.artifacts import FileSystemCAS
+    from polisyos.runtime.quality.generation_cycle import GenerationCycleError
+    from tests._helpers.candidate_cycle_source_profile import _problem
+    from tests.unit.runtime.quality.test_generation_cycle import _budget
+
+    base = _problem(runtime_hints=None)
+    hints = dict(base.runtime_hints)
+    hints.pop("cycle_substrate_source_profile")
+    problem = base.model_copy(update={"runtime_hints": hints})
+    n4_calls: list[int] = []
+
+    class _RecordingN4Port(N4GenerationPort):
+        async def __call__(self, problem_arg: Any, *, cycle_index: int) -> Any:
+            del problem_arg
+            n4_calls.append(cycle_index)
+            raise GenerationCycleError("controlled_legacy_n4_stop")
+
+    store = FileSystemCAS(tmp_path / "candidate-profile-legacy-cas")
+    controller = build_default_recursive_generation_cycle_controller(
+        promotion_runtime=PromotionRuntime(store=store),
+        repo_root=tmp_path,
+    )
+    graph = derive_recursive_design_graph(
+        design_ref="design://candidate-profile-legacy",
+        module_refs=(),
+        parent_child_edges=(),
+        rule_version_ref="test://candidate-profile-legacy",
+    )
+
+    with pytest.raises(GenerationCycleError, match="controlled_legacy_n4_stop"):
+        await controller.run(
+            graph,
+            problems_by_node={graph.root_design_ref: problem},
+            budget_state=_budget(),
+            recursive_budget=RecursiveCycleBudget(
+                max_depth=1,
+                max_nodes=1,
+                min_cycles_per_leaf=1,
+                max_cycles_per_leaf=1,
+            ),
+            n4_generation_ports_by_node={
+                graph.root_design_ref: _RecordingN4Port(
+                    model_id="controlled-candidate-profile-legacy",
+                    repo_root=tmp_path,
+                )
+            },
+            execution_intents_by_node={graph.root_design_ref: "simulate_only"},
+        )
+
+    assert n4_calls == [0]
+    assert all(
+        b"cycle_substrate_context_job_artifact.v5" not in artifact.read_bytes()
+        for artifact in (tmp_path / "candidate-profile-legacy-cas").rglob("*.blob")
+    )
+
+
+@pytest.mark.asyncio
+async def test_control_service_rejects_explicit_proposal_only_for_selected_profile(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Explicit N4-only intent cannot be upgraded to the selected source route."""
+    from polisyos.core.artifacts import FileSystemCAS
+    from polisyos.runtime.http.services.control import generation_cycle as service
+    from polisyos.runtime.quality.design_problem import DesignProblemAuthorityError
+    from polisyos.runtime.quality.open_world_risk import PromotionRuntime
+    from polisyos.runtime.quality.recursive_generation_cycle import RecursiveCycleBudget
+    from tests._helpers.candidate_cycle_source_profile import _problem
+    from tests.unit.runtime.quality.test_generation_cycle import _budget
+
+    problem = _problem(runtime_hints=None)
+
+    async def controlled_compiler(**kwargs: Any) -> Any:
+        del kwargs
+        return problem
+
+    monkeypatch.setattr(service, "build_design_problem_from_nl_request", controlled_compiler)
+    store = FileSystemCAS(tmp_path / "explicit-proposal-only-cas")
+
+    class _UnusedVerifier:
+        def require_admission(self, context: object, challenge: object) -> object:
+            del context, challenge
+            raise AssertionError("explicit intent must fail before EvalSafety admission")
+
+    with pytest.raises(
+        DesignProblemAuthorityError,
+        match="candidate_cycle_source_profile_proposal_only_conflict",
+    ):
+        await service.compile_and_run_recursive_generation_cycle(
+            raw_request=problem.nl_provenance.raw_request,
+            context={},
+            model_name="controlled-explicit-proposal-only",
+            execution_intent="simulate_only",
+            n4_proposal_only=True,
+            n4_proposal_only_origin="explicit",
+            compiler_gateway=None,
+            budget_state=_budget(),
+            recursive_budget=RecursiveCycleBudget(
+                max_depth=1,
+                max_nodes=1,
+                min_cycles_per_leaf=1,
+                max_cycles_per_leaf=1,
+            ),
+            root_evaluation_context=None,
+            eval_safety_verifier=_UnusedVerifier(),
+            promotion_runtime=PromotionRuntime(store=store),
+        )
+
+    assert all(
+        b"cycle_substrate_context_job_artifact.v5" not in artifact.read_bytes()
+        for artifact in (tmp_path / "explicit-proposal-only-cas").rglob("*.blob")
+    )
+
+
+@pytest.mark.integration
+@pytest.mark.parametrize(
+    "mutate_owner_source_before_resolve",
+    [(False,), (True,)],
+    ids=("fresh-v5", "changed-owner-refuses"),
+)
+def test_recursive_selected_profile_persists_v5_before_n4(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+    mutate_owner_source_before_resolve: bool,
+) -> None:
+    """The served recursive route hands N4 the freshly owner-resolved V5 context."""
+    pytest.importorskip("fastapi.testclient")
+    from fastapi.testclient import TestClient
+
+    from polisyos.core.canon import from_canonical_bytes
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.runtime.http.app import create_runtime_api_app
+    from polisyos.runtime.http.security import build_fixture_identity_claims
+    from polisyos.runtime.http.services.control import (
+        generation_cycle as generation_cycle_service,
+    )
+    from polisyos.runtime.quality import cycle_substrate as cycle_substrate_module
+    from polisyos.runtime.quality.candidate_simulation import (
+        CandidateScenarioN5Config,
+        CandidateScenarioSetToRule,
+        CandidateSimulationContextInputs,
+        CandidateSimulationScenarioProfile,
+    )
+    from polisyos.runtime.quality.cycle_substrate import (
+        CANDIDATE_CYCLE_SUBSTRATE_CONTEXT_SCHEMA_VERSION,
+        CYCLE_SUBSTRATE_CONTEXT_JOB_V5_SCHEMA,
+        CycleSubstrateContextArtifactOwner,
+        CycleSubstrateContextJobArtifactV5,
+        VerifiedNLJobScope,
+        cycle_job_profile_selection_ref,
+        parse_cycle_substrate_context_job_artifact,
+    )
+    from polisyos.runtime.quality.generation_cycle import (
+        GenerationCycleError,
+        N4GenerationPort,
+    )
+    from polisyos.runtime.quality.joint_simulation_horizon import HorizonSpec
+    from tests._helpers.candidate_cycle_source_profile import (
+        build_candidate_cycle_substrate_route_inputs,
+    )
+    from tests._helpers.control_worker import dispatch_one_control_job
+    from tests.unit.runtime.http.test_control_job_execution_intent import (
+        _valid_intake_for_mode,
+    )
+
+    fixture = build_candidate_cycle_substrate_route_inputs(tmp_path)
+    problem = fixture.problem
+    inputs = fixture.seed_context
+    profile_payload = {
+        "schema_version": "policyos.runtime.candidate_simulation_profile.v2",
+        "profile_id": "candidate-source-profile-served-route",
+        "purpose": "synthetic_candidate_scenario",
+        "profile_selection_ref": cycle_job_profile_selection_ref(problem),
+        "context_inputs": CandidateSimulationContextInputs(
+            substrate_registry=fixture.substrate_registry,
+            selected_registry_entry_hashes=fixture.selected_registry_entry_hashes,
+            world_model_record=fixture.world_model_record,
+            intervention_substrate=inputs.intervention_substrate,
+            candidate_levers=inputs.candidate_levers,
+            transport_context=inputs.transport_context,
+            source_pack_content_hash=inputs.source_pack_content_hash,
+            substrate_input_content_hash=inputs.substrate_input_content_hash,
+        ).model_dump(mode="json"),
+        "rule": CandidateScenarioSetToRule(
+            operator_kind="teaching_method_set_to",
+            parameter_id="intensity",
+            target_world_slot="education.teaching_method",
+            unit_id="synthetic_score",
+            minimum=0,
+            maximum=1,
+        ).model_dump(mode="json"),
+        "n5": CandidateScenarioN5Config(
+            budget_ref=str(problem.runtime_hints["joint_simulation_budget_ref"]),
+            horizon=HorizonSpec.model_validate(problem.runtime_hints["joint_simulation_horizon"]),
+            baseline_state={
+                "education.teaching_method": 0.0,
+                "education.learning_outcomes": 0.0,
+            },
+            seed=7,
+            replications=2,
+        ).model_dump(mode="json"),
+        "limitations": (
+            "scenario_only",
+            "real_profile_not_established",
+            "real_time_not_established",
+            "grounding_not_established",
+            "s8_blocked",
+            "n9_not_admitted",
+        ),
+    }
+    profile = CandidateSimulationScenarioProfile.model_validate(
+        {
+            **profile_payload,
+            "content_hash": gy_content_hash(profile_payload),
+        }
+    )
+
+    monkeypatch.setenv("POLISYOS_EXECUTION_PROFILE", "dev")
+    monkeypatch.setenv("POLISYOS_CONTROL_WORKER_BACKEND", "external")
+    monkeypatch.setenv("POLISYOS_CONTROL_STATE_STORE_BACKEND", "sqlite")
+    monkeypatch.setenv("POLISYOS_CONTROL_SQLITE_PATH", (tmp_path / "control.sqlite3").as_posix())
+    monkeypatch.setenv("POLISYOS_CACHE_HOME", (tmp_path / "runtime-cache").as_posix())
+    monkeypatch.setenv("JAX_PLATFORMS", "cpu")
+    monkeypatch.setenv("OMP_NUM_THREADS", "1")
+
+    cas_root = tmp_path / ".polisyos"
+    app = create_runtime_api_app(
+        cas_root=cas_root,
+        repo_root=fixture.root,
+        candidate_simulation_profiles=(profile,),
+        allow_fixture_identity=True,
+    )
+    runtime_api_context = app.state.runtime_container.runtime_api_context
+
+    async def controlled_compiler(**kwargs: Any) -> Any:
+        del kwargs
+        return problem
+
+    monkeypatch.setattr(
+        generation_cycle_service,
+        "build_design_problem_from_nl_request",
+        controlled_compiler,
+    )
+    persisted_v5: list[tuple[object, object]] = []
+    resolved_v5: list[CycleSubstrateContextJobArtifactV5] = []
+    original_persist = CycleSubstrateContextArtifactOwner.persist_for_current_job
+    original_resolve = CycleSubstrateContextArtifactOwner.resolve_for_current_job
+
+    def record_persist(owner: object, context: object, **kwargs: Any) -> object:
+        ref = original_persist(owner, context, **kwargs)
+        if (
+            getattr(context, "schema_version", None)
+            == CANDIDATE_CYCLE_SUBSTRATE_CONTEXT_SCHEMA_VERSION
+        ):
+            persisted_v5.append((context, ref))
+        return ref
+
+    def record_resolve(owner: object, ref: object, **kwargs: Any) -> object:
+        if mutate_owner_source_before_resolve and persisted_v5 and ref == persisted_v5[-1][1]:
+            import duckdb
+
+            persisted_context = persisted_v5[-1][0]
+            source_ref = persisted_context.source_profile.skg_snapshot_ref
+            assert source_ref.startswith("duckdb://")
+            source_path = Path(source_ref.removeprefix("duckdb://").rsplit("#v", 1)[0]).resolve(
+                strict=True
+            )
+            assert source_path.is_relative_to(fixture.root.resolve(strict=True))
+            assert source_path.is_file()
+            with duckdb.connect(str(source_path)) as connection:
+                before = connection.execute(
+                    "SELECT COUNT(*) FROM ac_causal_claims WHERE id = ?",
+                    ["candidate-source-profile-causal-claim"],
+                ).fetchone()[0]
+                assert before == 1
+                connection.execute(
+                    "DELETE FROM ac_causal_claims WHERE id = ?",
+                    ["candidate-source-profile-causal-claim"],
+                )
+                after = connection.execute(
+                    "SELECT COUNT(*) FROM ac_causal_claims WHERE id = ?",
+                    ["candidate-source-profile-causal-claim"],
+                ).fetchone()[0]
+                assert after == 0
+        resolved = original_resolve(owner, ref, **kwargs)
+        if type(resolved) is CycleSubstrateContextJobArtifactV5:
+            resolved_v5.append(resolved)
+        return resolved
+
+    monkeypatch.setattr(
+        CycleSubstrateContextArtifactOwner, "persist_for_current_job", record_persist
+    )
+    monkeypatch.setattr(
+        CycleSubstrateContextArtifactOwner, "resolve_for_current_job", record_resolve
+    )
+
+    n4_observations: list[tuple[object, int]] = []
+
+    async def stop_after_n4_receives_context(
+        port: N4GenerationPort,
+        problem_arg: object,
+        *,
+        cycle_index: int,
+    ) -> object:
+        del problem_arg
+        n4_observations.append((port._cycle_substrate_context, cycle_index))
+        raise GenerationCycleError("controlled_stop_after_candidate_v5_context")
+
+    monkeypatch.setattr(N4GenerationPort, "__call__", stop_after_n4_receives_context)
+
+    claims = build_fixture_identity_claims()
+    tenant_id = claims.tenant_id
+    cell_id = claims.cell_id
+    assert tenant_id and cell_id
+    with TestClient(app) as client:
+        accepted_response = client.post(
+            "/api/v1/control/runs/nl",
+            headers={"Idempotency-Key": "test-r7-candidate-v5-recursive-bridge"},
+            json={
+                "request": problem.nl_provenance.raw_request,
+                "llm_model": "controlled-r7-candidate-profile",
+                "context": {
+                    "evaluation_safety_attempt": _valid_intake_for_mode("simulate_only").model_dump(
+                        mode="json"
+                    )
+                },
+            },
+        )
+        assert accepted_response.status_code == 200, accepted_response.text
+        accepted = accepted_response.json()
+        service = app.state._control_service
+        route_observations: list[dict[str, Any]] = []
+        persisted_v5_payload: bytes | None = None
+        original_compile_route = service.compile_and_run_recursive_generation_cycle
+
+        async def observe_compile_route(**kwargs: Any) -> Any:
+            route_observations.append(
+                {
+                    "repo_root": service._repo_root,
+                    "recursive_leaf_context_owner": kwargs["recursive_leaf_context_owner"],
+                    "passed_verified_nl_job_scope": kwargs["verified_nl_job_scope"],
+                    "verified_nl_job_scope": getattr(
+                        kwargs["recursive_leaf_context_owner"],
+                        "_verified_nl_job_scope",
+                        None,
+                    ),
+                    "n4_proposal_only": kwargs["n4_proposal_only"],
+                    "n4_proposal_only_origin": kwargs["n4_proposal_only_origin"],
+                }
+            )
+            return await original_compile_route(**kwargs)
+
+        monkeypatch.setattr(
+            service,
+            "compile_and_run_recursive_generation_cycle",
+            observe_compile_route,
+        )
+        assert (
+            dispatch_one_control_job(
+                store=service._control_store,
+                handler=service._process_control_job,
+                expected_job_id=accepted["job_id"],
+            )
+            == accepted["job_id"]
+        )
+        job_after_dispatch = service._control_store.get_job(accepted["job_id"])
+        if persisted_v5 and not mutate_owner_source_before_resolve:
+            with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+                persisted_v5_payload = runtime_api_context.store.get_bytes(persisted_v5[0][1])
+
+    assert len(route_observations) == 1
+    route = route_observations[0]
+    verified_scope = route["verified_nl_job_scope"]
+    leaf_owner = route["recursive_leaf_context_owner"]
+    assert route["passed_verified_nl_job_scope"] is None
+    assert route["n4_proposal_only"] is True
+    assert route["n4_proposal_only_origin"] == "derived_legacy_default"
+    assert type(verified_scope) is VerifiedNLJobScope
+    assert verified_scope._was_issued_by_verified_nl_execution_owner
+    assert verified_scope.job_id == accepted["job_id"]
+    assert verified_scope.tenant_id == tenant_id
+    assert verified_scope.cell_id == cell_id
+    assert leaf_owner is not None
+    assert leaf_owner._context_owner._store is runtime_api_context.store
+    assert leaf_owner._verified_nl_job_scope is verified_scope
+    assert route["repo_root"] == fixture.root
+    assert job_after_dispatch is not None
+    if mutate_owner_source_before_resolve:
+        assert job_after_dispatch.state == "failed"
+        assert "candidate_cycle_source_profile_owner_rederive_mismatch" in str(
+            job_after_dispatch.error_message
+        )
+        assert len(persisted_v5) == 1
+        assert resolved_v5 == []
+        assert n4_observations == []
+        return
+    assert job_after_dispatch.state == "failed"
+    assert str(job_after_dispatch.error_message).startswith(
+        "controlled_stop_after_candidate_v5_context"
+    )
+    assert n4_observations, f"persisted={persisted_v5!r}, resolved={resolved_v5!r}"
+    assert len(persisted_v5) == 1
+    assert len(resolved_v5) == 1
+    assert len(n4_observations) == 1
+    resolved = resolved_v5[0]
+    n4_context, cycle_index = n4_observations[0]
+    assert cycle_index == 0
+    assert type(resolved) is CycleSubstrateContextJobArtifactV5
+    assert resolved.schema_version == CYCLE_SUBSTRATE_CONTEXT_JOB_V5_SCHEMA
+    assert resolved.job_id == verified_scope.job_id
+    assert resolved.run_id == verified_scope.run_id
+    assert resolved.tenant_id == verified_scope.tenant_id
+    assert resolved.cell_id == verified_scope.cell_id
+    assert resolved.design_problem_ref == cycle_substrate_module.cycle_job_design_problem_ref(
+        problem
+    )
+    assert resolved.problem == problem
+    assert resolved.context.source_profile is not None
+    assert resolved.context.source_profile.authority_purpose == "cycle_input_candidate_only"
+    assert resolved.context.source_profile.profile_status == "candidate_only"
+    assert resolved.context.source_profile.source_basis_status == "not_established"
+    source_ref = resolved.context.source_profile.skg_snapshot_ref
+    source_path = Path(source_ref.removeprefix("duckdb://").rsplit("#v", 1)[0])
+    assert source_path.resolve(strict=True).is_relative_to(fixture.root.resolve(strict=True))
+    assert n4_context == resolved.context
+
+    persisted_context, _context_ref = persisted_v5[0]
+    assert persisted_context.content_hash == resolved.context.content_hash
+    assert persisted_v5_payload is not None
+    payload = from_canonical_bytes(persisted_v5_payload)
+    readback = parse_cycle_substrate_context_job_artifact(payload)
+    assert type(readback) is CycleSubstrateContextJobArtifactV5
+    assert readback == resolved

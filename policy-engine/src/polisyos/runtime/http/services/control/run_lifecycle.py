@@ -276,7 +276,10 @@ def _build_control_nl_producer_budget_reconciler(
     """Recompute run spend from the exact committed producer-event set before N6 spend."""
     from polisyos.runtime.quality.generation_cycle import GenerationCycleError
     from polisyos.scientist import BudgetState as CanonicalBudgetState
-    from polisyos.scientist.orchestration.engine import BudgetLedgerProducerRecord, BudgetLimit
+    from polisyos.scientist.orchestration.engine import (
+        BudgetLedgerProducerRecord,
+        BudgetLimit,
+    )
     from polisyos.scientist.orchestration.engine import (
         BudgetLedgerProducerRunBinding as CanonicalProducerRunBinding,
     )
@@ -2700,6 +2703,7 @@ class ControlPlaneService(
         joint_interaction_candidate_intent: Literal["n4_unique_parent_source_members.v1"]
         | None = None,
         n4_proposal_only: bool = False,
+        n4_proposal_only_origin: Literal["explicit", "derived_legacy_default"] = "explicit",
         producer_run_id: str | None = None,
         producer_run_binding: BudgetLedgerProducerRunBinding | None = None,
         compiler_gateway: _DesignProblemGatewayClient | None,
@@ -2766,6 +2770,7 @@ class ControlPlaneService(
                 execution_intent=execution_intent,
                 joint_interaction_candidate_intent=joint_interaction_candidate_intent,
                 n4_proposal_only=n4_proposal_only,
+                n4_proposal_only_origin=n4_proposal_only_origin,
                 producer_run_id=producer_run_id,
                 producer_settlement_store=self._llm_producer_settlement_store,
                 _producer_budget_reconciler=producer_budget_reconciler,

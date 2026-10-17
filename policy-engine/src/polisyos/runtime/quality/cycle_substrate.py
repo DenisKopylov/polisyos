@@ -10,7 +10,8 @@ from __future__ import annotations
 import hashlib
 import re
 from collections.abc import Mapping, Sequence
-from typing import Any, Literal, Protocol, cast
+from pathlib import Path
+from typing import TYPE_CHECKING, Any, Literal, Protocol, cast
 
 from pydantic import (
     BaseModel,
@@ -35,7 +36,12 @@ from polisyos.core.security import (
 )
 from polisyos.ir import CausalGraphModelRef
 from polisyos.ir.artifacts.contracts import ArtifactID as IRArtifactID
-from polisyos.pdc import WORLD_MODEL_RECORD_SCHEMA_V2_VERSION, gy_content_hash
+from polisyos.pdc import (
+    WORLD_MODEL_RECORD_SCHEMA_V2_VERSION,
+    SkgCausalPriorRef,
+    SubstrateLayer,
+    gy_content_hash,
+)
 from polisyos.runtime.quality.design_problem import (
     DESIGN_PROBLEM_V1_SCHEMA_VERSION,
     DESIGN_PROBLEM_V2_SCHEMA_VERSION,
@@ -61,7 +67,16 @@ from polisyos.runtime.quality.world_model_record import (
     resolve_intervention_atom_world_binding,
 )
 
+if TYPE_CHECKING:
+    from polisyos.runtime.quality.credal_reference import (
+        CredalReference,
+        CredalReferenceEdge,
+    )
+
 CYCLE_SUBSTRATE_CONTEXT_SCHEMA_VERSION = "policyos.runtime.cycle_substrate_context.v1"
+CANDIDATE_CYCLE_SUBSTRATE_CONTEXT_SCHEMA_VERSION = "policyos.runtime.cycle_substrate_context.v2"
+CANDIDATE_CYCLE_SOURCE_PROFILE_SCHEMA_VERSION = "policyos.runtime.candidate_cycle_source_profile.v3"
+CANDIDATE_CYCLE_SOURCE_PROFILE_ID = "candidate_current_owner_cycle_source_profile.v3"
 CYCLE_SUBSTRATE_CONTEXT_JOB_SCHEMA = "policyos.runtime.cycle_substrate_context_job_artifact.v1"
 CYCLE_SUBSTRATE_CONTEXT_JOB_KIND = "runtime.quality.cycle_substrate_context_job"
 CYCLE_SUBSTRATE_CONTEXT_JOB_SCHEMA_VERSION = "1.0"
@@ -71,6 +86,8 @@ CYCLE_SUBSTRATE_CONTEXT_JOB_V3_SCHEMA = "policyos.runtime.cycle_substrate_contex
 CYCLE_SUBSTRATE_CONTEXT_JOB_V3_SCHEMA_VERSION = "3.0"
 CYCLE_SUBSTRATE_CONTEXT_JOB_V4_SCHEMA = "policyos.runtime.cycle_substrate_context_job_artifact.v4"
 CYCLE_SUBSTRATE_CONTEXT_JOB_V4_SCHEMA_VERSION = "4.0"
+CYCLE_SUBSTRATE_CONTEXT_JOB_V5_SCHEMA = "policyos.runtime.cycle_substrate_context_job_artifact.v5"
+CYCLE_SUBSTRATE_CONTEXT_JOB_V5_SCHEMA_VERSION = "5.0"
 _HASH_PATTERN = r"^sha256:[0-9a-f]{64}$"
 _CONTEXT_JOB_CANON = canon.CanonSpec(forbid_floats=False, exclude_none=False)
 _REQUIRED_AUTHORITY_DENIALS = frozenset(
@@ -800,6 +817,104 @@ class CandidateLeverEvidence(_StrictModel):
         return value
 
 
+class CandidateCycleSubstrateSourceProfileSelection(_StrictModel):
+    """Typed opt-in selecting owner-recomputed candidate source evidence."""
+
+    schema_version: Literal["policyos.runtime.candidate_cycle_source_profile_selection.v1"] = (
+        "policyos.runtime.candidate_cycle_source_profile_selection.v1"
+    )
+    profile_id: Literal["candidate_current_owner_cycle_source_profile.v3"] = (
+        "candidate_current_owner_cycle_source_profile.v3"
+    )
+    authority_purpose: Literal["cycle_input_candidate_only"] = "cycle_input_candidate_only"
+
+
+class CandidateCycleSubstrateSourceProfile(_StrictModel):
+    """Current owner-derived identity for a candidate-only source profile.
+
+    This profile binds the selected L1/L2 owner profiles, the actual K_ref v3
+    projection, the current S0 selection and the owner-loaded L6 bundle. K_ref
+    v3 does not reconcile all direct L3/L6 reads when those owners emit zero
+    rows, so this profile deliberately records source-basis identity as unknown.
+    """
+
+    schema_version: Literal["policyos.runtime.candidate_cycle_source_profile.v3"] = (
+        "policyos.runtime.candidate_cycle_source_profile.v3"
+    )
+    profile_id: Literal["candidate_current_owner_cycle_source_profile.v3"] = (
+        "candidate_current_owner_cycle_source_profile.v3"
+    )
+    profile_status: Literal["candidate_only"] = "candidate_only"
+    owner_recomputation_status: Literal["recomputed"] = "recomputed"
+    authority_purpose: Literal["cycle_input_candidate_only"] = "cycle_input_candidate_only"
+    source_basis_status: Literal["not_established"] = "not_established"
+    source_authenticity_status: Literal["not_established"] = "not_established"
+    source_currentness_status: Literal["not_established"] = "not_established"
+    source_repo_root: str = Field(..., min_length=1)
+    design_problem_ref: str = Field(..., pattern=_HASH_PATTERN)
+    selected_outcome_variable: str = Field(..., min_length=1)
+    world_model_record_content_hash: str = Field(..., pattern=_HASH_PATTERN)
+    s0_registry_content_hash: str = Field(..., pattern=_HASH_PATTERN)
+    selected_registry_entry_hashes: tuple[str, ...]
+    selected_l2_registry_entry_hash: str = Field(..., pattern=_HASH_PATTERN)
+    skg_snapshot_ref: str = Field(..., min_length=1, pattern=r"^duckdb://.+#v[1-9][0-9]*$")
+    skg_snapshot_sha256: str = Field(..., pattern=r"^[0-9a-f]{64}$")
+    skg_version_id: str = Field(..., pattern=r"^[1-9][0-9]*$")
+    l2_source_profile_content_hash: str = Field(..., pattern=_HASH_PATTERN)
+    l1_catalog_profile_content_hash: str = Field(..., pattern=_HASH_PATTERN)
+    kref_schema_version: Literal["policyos.runtime.grounding_credal_reference.v3"] = (
+        "policyos.runtime.grounding_credal_reference.v3"
+    )
+    kref_reference_hash: str = Field(..., pattern=_HASH_PATTERN)
+    owner_query_receipt_content_hash: str = Field(..., pattern=_HASH_PATTERN)
+    selected_l2_owner_row_hashes: tuple[str, ...]
+    selected_outcome_owner_row_hashes: tuple[str, ...]
+    selected_candidate_lever_edge_hashes: tuple[str, ...]
+    selected_candidate_lever_edge_statuses: tuple[Literal["confirmed", "contested"], ...]
+    l6_bundle_content_hash: str = Field(..., pattern=_HASH_PATTERN)
+    l6_owner_rows_content_hash: str = Field(..., pattern=_HASH_PATTERN)
+    substrate_input_content_hash: str = Field(..., pattern=_HASH_PATTERN)
+    limitation_codes: tuple[str, ...]
+    content_hash: str = Field(..., pattern=_HASH_PATTERN)
+
+    @field_validator(
+        "selected_registry_entry_hashes",
+        "selected_l2_owner_row_hashes",
+        "selected_outcome_owner_row_hashes",
+        "selected_candidate_lever_edge_hashes",
+        "limitation_codes",
+    )
+    @classmethod
+    def _unique_rows(cls, value: tuple[str, ...]) -> tuple[str, ...]:
+        if len(value) != len(set(value)):
+            raise ValueError("candidate_cycle_source_profile_duplicate_row")
+        return value
+
+    @model_validator(mode="after")
+    def _validate_profile_content_hash(self) -> CandidateCycleSubstrateSourceProfile:
+        if not Path(self.source_repo_root).is_absolute():
+            raise ValueError("candidate_cycle_source_profile_root_must_be_absolute")
+        required_limits = {
+            "external_source_authenticity_not_established",
+            "external_source_currentness_not_established",
+            "kref_v3_l3_l6_identity_reconciliation_not_established",
+        }
+        if not required_limits.issubset(self.limitation_codes):
+            raise ValueError("candidate_cycle_source_profile_limitations_incomplete")
+        if self.selected_l2_registry_entry_hash not in self.selected_registry_entry_hashes:
+            raise ValueError("candidate_cycle_source_profile_selected_l2_entry_unbound")
+        if len(self.selected_candidate_lever_edge_hashes) != len(
+            self.selected_candidate_lever_edge_statuses
+        ):
+            raise ValueError("candidate_cycle_source_profile_edge_status_binding_mismatch")
+        if self.skg_snapshot_ref.rsplit("#v", 1)[-1] != self.skg_version_id:
+            raise ValueError("candidate_cycle_source_profile_skg_version_mismatch")
+        expected = candidate_cycle_substrate_source_profile_content_hash(self)
+        if self.content_hash != expected:
+            raise ValueError("candidate_cycle_source_profile_content_hash_mismatch")
+        return self
+
+
 class TransportCovariateObservation(_StrictModel):
     """One measured source/target context dimension from owner evidence."""
 
@@ -850,9 +965,10 @@ class TransportContextEvidence(_StrictModel):
 class CycleSubstrateContext(_StrictModel):
     """One content-bound candidate-evidence envelope shared by cycle owners."""
 
-    schema_version: Literal["policyos.runtime.cycle_substrate_context.v1"] = (
-        CYCLE_SUBSTRATE_CONTEXT_SCHEMA_VERSION
-    )
+    schema_version: Literal[
+        "policyos.runtime.cycle_substrate_context.v1",
+        "policyos.runtime.cycle_substrate_context.v2",
+    ] = "policyos.runtime.cycle_substrate_context.v1"
     design_problem_ref: str = Field(..., pattern=_HASH_PATTERN)
     domain: str = Field(..., min_length=1)
     source_pack_content_hash: str | None = Field(None, pattern=_HASH_PATTERN)
@@ -862,6 +978,10 @@ class CycleSubstrateContext(_StrictModel):
     selected_registry_entry_hashes: tuple[str, ...]
     world_model_record: WorldModelRecord
     world_model_record_content_hash: str = Field(..., pattern=_HASH_PATTERN)
+    source_profile: CandidateCycleSubstrateSourceProfile | None = Field(
+        default=None,
+        exclude_if=lambda value: value is None,
+    )
     intervention_substrate: InterventionSubstrateBundle | None = None
     candidate_levers: tuple[CandidateLeverEvidence, ...] = ()
     transport_context: TransportContextEvidence | None = None
@@ -872,6 +992,34 @@ class CycleSubstrateContext(_StrictModel):
 
     @model_validator(mode="after")
     def _validate_content_bindings(self) -> CycleSubstrateContext:
+        if self.schema_version == CYCLE_SUBSTRATE_CONTEXT_SCHEMA_VERSION:
+            if self.source_profile is not None:
+                raise ValueError("cycle_substrate_context_v1_candidate_profile_forbidden")
+        elif self.schema_version == CANDIDATE_CYCLE_SUBSTRATE_CONTEXT_SCHEMA_VERSION:
+            if self.source_profile is None:
+                raise ValueError("cycle_substrate_context_v2_candidate_profile_missing")
+            if self.source_pack_content_hash is not None:
+                raise ValueError("cycle_substrate_context_v2_historical_pack_hash_forbidden")
+            if self.world_model_record.authority_status != "limited":
+                raise ValueError("cycle_substrate_context_v2_wmr_not_limited")
+            if self.intervention_substrate is None:
+                raise ValueError("cycle_substrate_context_v2_l6_bundle_missing")
+            if (
+                self.source_profile.substrate_input_content_hash
+                != self.substrate_input_content_hash
+            ):
+                raise ValueError("cycle_substrate_context_v2_profile_input_mismatch")
+            if self.source_profile.s0_registry_content_hash != self.substrate_registry_content_hash:
+                raise ValueError("cycle_substrate_context_v2_profile_registry_mismatch")
+            if self.source_profile.selected_l2_registry_entry_hash not in set(
+                self.selected_registry_entry_hashes
+            ):
+                raise ValueError("cycle_substrate_context_v2_profile_selected_entry_mismatch")
+            if (
+                self.source_profile.l6_bundle_content_hash
+                != self.intervention_substrate.content_hash
+            ):
+                raise ValueError("cycle_substrate_context_v2_profile_l6_mismatch")
         if self.substrate_registry_content_hash != self.substrate_registry.content_hash:
             raise ValueError("cycle_substrate_registry_hash_mismatch")
         if self.world_model_record_content_hash != self.world_model_record.content_hash:
@@ -932,6 +1080,9 @@ class CycleSubstrateContext(_StrictModel):
             world_model_record_content_hash=self.world_model_record_content_hash,
             world_model_record_authority_status=(self.world_model_record.authority_status),
             selected_registry_entry_hashes=selected,
+            source_profile_content_hash=(
+                self.source_profile.content_hash if self.source_profile is not None else None
+            ),
         )
         if self.context_binding_hash != expected_binding:
             raise ValueError("cycle_substrate_context_binding_hash_mismatch")
@@ -1306,11 +1457,85 @@ class CycleSubstrateContextJobArtifactV4(_StrictModel):
         return self
 
 
+class CycleSubstrateContextJobArtifactV5(_StrictModel):
+    """Version 5 job handoff with the typed candidate source-profile context."""
+
+    schema_version: Literal["policyos.runtime.cycle_substrate_context_job_artifact.v5"] = (
+        "policyos.runtime.cycle_substrate_context_job_artifact.v5"
+    )
+    authority_purpose: Literal["cycle_input_candidate_only"] = "cycle_input_candidate_only"
+    status: Literal["candidate_limited"] = "candidate_limited"
+    profile_admission_status: Literal["not_established"] = "not_established"
+    s8_status: Literal["blocked"] = "blocked"
+    run_id: str = Field(..., min_length=1)
+    job_id: str = Field(..., min_length=1)
+    tenant_id: str = Field(..., min_length=1)
+    cell_id: str = Field(..., min_length=1)
+    design_problem_ref: str = Field(..., pattern=_HASH_PATTERN)
+    problem: DesignProblem
+    context: CycleSubstrateContext
+    limitation_codes: tuple[str, ...]
+    content_hash: str = Field(..., pattern=_HASH_PATTERN)
+
+    @field_validator("limitation_codes")
+    @classmethod
+    def _required_profile_limits(cls, value: tuple[str, ...]) -> tuple[str, ...]:
+        if len(value) != len(set(value)):
+            raise ValueError("cycle_substrate_context_job_limitation_duplicate")
+        missing = _REQUIRED_CONTEXT_JOB_LIMITATIONS.difference(value)
+        if missing:
+            raise ValueError(
+                "cycle_substrate_context_job_limitation_missing:" + ",".join(sorted(missing))
+            )
+        return value
+
+    @model_validator(mode="after")
+    def _validate_job_artifact(self) -> CycleSubstrateContextJobArtifactV5:
+        if type(self.problem) is not DesignProblem:
+            raise ValueError("cycle_substrate_context_job_v5_design_problem_owner_unregistered")
+        if self.problem.schema_version not in {
+            DESIGN_PROBLEM_V2_SCHEMA_VERSION,
+            DESIGN_PROBLEM_V3_SCHEMA_VERSION,
+        }:
+            raise ValueError("cycle_substrate_context_job_v5_design_problem_schema_unsupported")
+        world_model_schema = self.context.world_model_record.schema_version
+        if world_model_schema not in {
+            "policyos.runtime.world_model_record.v1",
+            WORLD_MODEL_RECORD_SCHEMA_V2_VERSION,
+        }:
+            raise ValueError("cycle_substrate_context_job_v5_world_model_schema_unsupported")
+        if (
+            world_model_schema == WORLD_MODEL_RECORD_SCHEMA_V2_VERSION
+            and self.context.world_model_record.artifact_views is None
+        ):
+            raise ValueError("cycle_substrate_context_job_v5_world_model_views_missing")
+        if self.context.schema_version != CANDIDATE_CYCLE_SUBSTRATE_CONTEXT_SCHEMA_VERSION:
+            raise ValueError("cycle_substrate_context_job_v5_candidate_context_required")
+        if self.context.source_profile is None:
+            raise ValueError("cycle_substrate_context_job_v5_source_profile_missing")
+        problem_ref = cycle_job_design_problem_ref(self.problem)
+        if self.design_problem_ref != problem_ref:
+            raise ValueError("cycle_substrate_context_job_problem_hash_mismatch")
+        context = revalidate_cycle_substrate_context(self.context)
+        if context.design_problem_ref != problem_ref:
+            raise ValueError("cycle_substrate_context_job_context_problem_mismatch")
+        _validate_problem_world_match(self.problem, context)
+        expected_hash = cycle_substrate_context_job_content_hash(self)
+        if self.content_hash != expected_hash:
+            raise ValueError("cycle_substrate_context_job_content_hash_mismatch")
+        if context.authority_purpose != "cycle_input_candidate_only":
+            raise ValueError("cycle_substrate_context_job_authority_purpose_invalid")
+        if self.profile_admission_status != "not_established" or self.s8_status != "blocked":
+            raise ValueError("cycle_substrate_context_job_authority_limit_removed")
+        return self
+
+
 _CONTEXT_JOB_ARTIFACT_TYPES_BY_SCHEMA: dict[str, type[BaseModel]] = {
     CYCLE_SUBSTRATE_CONTEXT_JOB_SCHEMA: CycleSubstrateContextJobArtifact,
     CYCLE_SUBSTRATE_CONTEXT_JOB_V2_SCHEMA: CycleSubstrateContextJobArtifactV2,
     CYCLE_SUBSTRATE_CONTEXT_JOB_V3_SCHEMA: CycleSubstrateContextJobArtifactV3,
     CYCLE_SUBSTRATE_CONTEXT_JOB_V4_SCHEMA: CycleSubstrateContextJobArtifactV4,
+    CYCLE_SUBSTRATE_CONTEXT_JOB_V5_SCHEMA: CycleSubstrateContextJobArtifactV5,
 }
 
 
@@ -1472,6 +1697,115 @@ _CONTEXT_JOB_V4_EXACT_MODEL_VERSIONS: dict[type[BaseModel], frozenset[str]] = {
     CycleSubstrateContextJobArtifactV4: frozenset({CYCLE_SUBSTRATE_CONTEXT_JOB_V4_SCHEMA}),
 }
 _CONTEXT_JOB_V4_ROOT_SCALAR_TYPES = _CONTEXT_JOB_V3_ROOT_SCALAR_TYPES | frozenset({IRArtifactID})
+
+_CONTEXT_JOB_V5_SUPPORTED_MODEL_VERSIONS = {
+    **_CONTEXT_JOB_V4_SUPPORTED_MODEL_VERSIONS,
+    "polisyos.runtime.quality.design_problem.DesignProblem": frozenset(
+        {
+            DESIGN_PROBLEM_V2_SCHEMA_VERSION,
+            DESIGN_PROBLEM_V3_SCHEMA_VERSION,
+        }
+    ),
+    "polisyos.runtime.quality.cycle_substrate.CycleSubstrateContext": frozenset(
+        {CANDIDATE_CYCLE_SUBSTRATE_CONTEXT_SCHEMA_VERSION}
+    ),
+    "polisyos.runtime.quality.cycle_substrate.CandidateCycleSubstrateSourceProfile": frozenset(
+        {CANDIDATE_CYCLE_SOURCE_PROFILE_SCHEMA_VERSION}
+    ),
+    "polisyos.pdc._impl.world_model_record.WorldModelRecord": frozenset(
+        {"policyos.runtime.world_model_record.v1", WORLD_MODEL_RECORD_SCHEMA_V2_VERSION}
+    ),
+}
+_CONTEXT_JOB_V5_MODEL_FIELDS = {
+    **_CONTEXT_JOB_V4_MODEL_FIELDS,
+    "polisyos.runtime.quality.cycle_substrate.CycleSubstrateContext": (
+        "schema_version",
+        "design_problem_ref",
+        "domain",
+        "source_pack_content_hash",
+        "substrate_input_content_hash",
+        "substrate_registry",
+        "substrate_registry_content_hash",
+        "selected_registry_entry_hashes",
+        "world_model_record",
+        "world_model_record_content_hash",
+        "source_profile",
+        "intervention_substrate",
+        "candidate_levers",
+        "transport_context",
+        "authority_purpose",
+        "may_not_use_for",
+        "context_binding_hash",
+        "content_hash",
+    ),
+}
+_CONTEXT_JOB_V5_EXACT_MODEL_FIELDS: dict[type[BaseModel], tuple[str, ...]] = {
+    **_CONTEXT_JOB_V4_EXACT_MODEL_FIELDS,
+    CycleSubstrateContextJobArtifactV5: (
+        "schema_version",
+        "authority_purpose",
+        "status",
+        "profile_admission_status",
+        "s8_status",
+        "run_id",
+        "job_id",
+        "tenant_id",
+        "cell_id",
+        "design_problem_ref",
+        "problem",
+        "context",
+        "limitation_codes",
+        "content_hash",
+    ),
+    CandidateCycleSubstrateSourceProfile: (
+        "schema_version",
+        "profile_id",
+        "profile_status",
+        "owner_recomputation_status",
+        "authority_purpose",
+        "source_basis_status",
+        "source_authenticity_status",
+        "source_currentness_status",
+        "source_repo_root",
+        "design_problem_ref",
+        "selected_outcome_variable",
+        "world_model_record_content_hash",
+        "s0_registry_content_hash",
+        "selected_registry_entry_hashes",
+        "selected_l2_registry_entry_hash",
+        "skg_snapshot_ref",
+        "skg_snapshot_sha256",
+        "skg_version_id",
+        "l2_source_profile_content_hash",
+        "l1_catalog_profile_content_hash",
+        "kref_schema_version",
+        "kref_reference_hash",
+        "owner_query_receipt_content_hash",
+        "selected_l2_owner_row_hashes",
+        "selected_outcome_owner_row_hashes",
+        "selected_candidate_lever_edge_hashes",
+        "selected_candidate_lever_edge_statuses",
+        "l6_bundle_content_hash",
+        "l6_owner_rows_content_hash",
+        "substrate_input_content_hash",
+        "limitation_codes",
+        "content_hash",
+    ),
+}
+_CONTEXT_JOB_V5_EXACT_MODEL_VERSIONS: dict[type[BaseModel], frozenset[str]] = {
+    **_CONTEXT_JOB_V4_EXACT_MODEL_VERSIONS,
+    DesignProblem: frozenset(
+        {
+            DESIGN_PROBLEM_V2_SCHEMA_VERSION,
+            DESIGN_PROBLEM_V3_SCHEMA_VERSION,
+        }
+    ),
+    CycleSubstrateContextJobArtifactV5: frozenset({CYCLE_SUBSTRATE_CONTEXT_JOB_V5_SCHEMA}),
+    CandidateCycleSubstrateSourceProfile: frozenset(
+        {CANDIDATE_CYCLE_SOURCE_PROFILE_SCHEMA_VERSION}
+    ),
+}
+_CONTEXT_JOB_V5_ROOT_SCALAR_TYPES = _CONTEXT_JOB_V4_ROOT_SCALAR_TYPES
 
 
 def _validate_problem_world_match(
@@ -1758,11 +2092,66 @@ def _serialize_context_job_v4_value(value: object) -> object:
     return to_jsonable_python(value, by_alias=False)
 
 
+def _serialize_context_job_v5_value(value: object) -> object:
+    """Serialize V5's frozen source-profile tree and versioned WMR owner tree."""
+
+    if type(value) in _CONTEXT_JOB_V5_ROOT_SCALAR_TYPES:
+        try:
+            artifact_id = artifacts.ArtifactID.model_validate(
+                cast("artifacts.ArtifactID", value).root
+            )
+        except (TypeError, ValueError) as exc:
+            raise CycleSubstrateContextOwnerError(
+                "cycle_substrate_context_job_v5_artifact_id_invalid", str(exc)
+            ) from exc
+        return str(artifact_id)
+    if isinstance(value, BaseModel):
+        model_name = f"{type(value).__module__}.{type(value).__qualname__}"
+        nested_version = getattr(value, "schema_version", None)
+        if (
+            model_name == "polisyos.pdc._impl.world_model_record.WorldModelRecord"
+            and nested_version == "policyos.runtime.world_model_record.v1"
+        ):
+            # V5 adds source-profile data, not a reinterpretation of the WMRv1
+            # tree. Reuse the frozen V2 serializer for the older WMR schema;
+            # WMRv2 continues through the V5 map with its artifact_views.
+            return _serialize_context_job_v2_value(value)
+        fields = _CONTEXT_JOB_V5_EXACT_MODEL_FIELDS.get(type(value))
+        if fields is None:
+            fields = _CONTEXT_JOB_V5_MODEL_FIELDS.get(model_name)
+        if fields is None:
+            raise CycleSubstrateContextOwnerError(
+                "cycle_substrate_context_job_v5_serializer_model_unregistered",
+                model_name,
+            )
+        supported_versions = _CONTEXT_JOB_V5_EXACT_MODEL_VERSIONS.get(type(value))
+        if supported_versions is None:
+            supported_versions = _CONTEXT_JOB_V5_SUPPORTED_MODEL_VERSIONS.get(model_name)
+        if supported_versions is not None and nested_version not in supported_versions:
+            raise CycleSubstrateContextOwnerError(
+                "cycle_substrate_context_job_v5_nested_schema_unsupported",
+                f"{model_name}: {nested_version}",
+            )
+        return {
+            field_name: _serialize_context_job_v5_value(getattr(value, field_name))
+            for field_name in fields
+        }
+    if isinstance(value, Mapping):
+        return {str(key): _serialize_context_job_v5_value(item) for key, item in value.items()}
+    if isinstance(value, (tuple, list)):
+        return [_serialize_context_job_v5_value(item) for item in value]
+    if isinstance(value, (set, frozenset)):
+        serialized = [_serialize_context_job_v5_value(item) for item in value]
+        return sorted(serialized, key=repr)
+    return to_jsonable_python(value, by_alias=False)
+
+
 def _serialize_cycle_substrate_context_job_artifact(
     artifact: CycleSubstrateContextJobArtifact
     | CycleSubstrateContextJobArtifactV2
     | CycleSubstrateContextJobArtifactV3
     | CycleSubstrateContextJobArtifactV4
+    | CycleSubstrateContextJobArtifactV5
     | Mapping[str, Any],
 ) -> dict[str, Any]:
     """Dispatch to the frozen byte serializer for the artifact's schema version."""
@@ -1784,6 +2173,12 @@ def _serialize_cycle_substrate_context_job_artifact(
         fields = _CONTEXT_JOB_V3_EXACT_MODEL_FIELDS[CycleSubstrateContextJobArtifactV3]
         values = {name: artifact[name] for name in fields if name in artifact}
         return cast("dict[str, Any]", _serialize_context_job_v3_value(values))
+    if schema_version == CYCLE_SUBSTRATE_CONTEXT_JOB_V5_SCHEMA:
+        if isinstance(artifact, BaseModel):
+            return cast("dict[str, Any]", _serialize_context_job_v5_value(artifact))
+        fields = _CONTEXT_JOB_V5_EXACT_MODEL_FIELDS[CycleSubstrateContextJobArtifactV5]
+        values = {name: artifact[name] for name in fields if name in artifact}
+        return cast("dict[str, Any]", _serialize_context_job_v5_value(values))
     if schema_version == CYCLE_SUBSTRATE_CONTEXT_JOB_V4_SCHEMA:
         if isinstance(artifact, BaseModel):
             return cast("dict[str, Any]", _serialize_context_job_v4_value(artifact))
@@ -2018,6 +2413,7 @@ def parse_cycle_substrate_context_job_artifact(
     | CycleSubstrateContextJobArtifactV2
     | CycleSubstrateContextJobArtifactV3
     | CycleSubstrateContextJobArtifactV4
+    | CycleSubstrateContextJobArtifactV5
 ):
     """Parse a persisted context-job payload using its exact outer schema."""
 
@@ -2037,7 +2433,12 @@ def parse_cycle_substrate_context_job_artifact(
             "cycle_substrate_context_job_schema_version_unsupported",
             str(schema_version),
         )
-    return model_type.model_validate(payload)
+    return cast(
+        "CycleSubstrateContextJobArtifact | CycleSubstrateContextJobArtifactV2 | "
+        "CycleSubstrateContextJobArtifactV3 | CycleSubstrateContextJobArtifactV4 | "
+        "CycleSubstrateContextJobArtifactV5",
+        model_type.model_validate(payload),
+    )
 
 
 def cycle_substrate_context_job_content_hash(
@@ -2045,6 +2446,7 @@ def cycle_substrate_context_job_content_hash(
     | CycleSubstrateContextJobArtifactV2
     | CycleSubstrateContextJobArtifactV3
     | CycleSubstrateContextJobArtifactV4
+    | CycleSubstrateContextJobArtifactV5
     | Mapping[str, Any],
 ) -> str:
     """Hash the frozen, schema-dispatched job-context payload without its hash."""
@@ -2066,6 +2468,7 @@ def _build_cycle_substrate_context_job_artifact(
     | CycleSubstrateContextJobArtifactV2
     | CycleSubstrateContextJobArtifactV3
     | CycleSubstrateContextJobArtifactV4
+    | CycleSubstrateContextJobArtifactV5
 ):
     """Build candidate handoff from the current persisted control-job record.
 
@@ -2092,7 +2495,20 @@ def _build_cycle_substrate_context_job_artifact(
     _validate_problem_world_match(problem, verified_context)
     uses_v2_projection = _uses_cycle_job_v2_problem_projection(problem)
     wmr_schema_version = verified_context.world_model_record.schema_version
-    if wmr_schema_version == WORLD_MODEL_RECORD_SCHEMA_V2_VERSION:
+    if verified_context.schema_version == CANDIDATE_CYCLE_SUBSTRATE_CONTEXT_SCHEMA_VERSION:
+        if (
+            wmr_schema_version
+            not in {
+                "policyos.runtime.world_model_record.v1",
+                WORLD_MODEL_RECORD_SCHEMA_V2_VERSION,
+            }
+            or not uses_v2_projection
+        ):
+            raise CycleSubstrateContextOwnerError(
+                "cycle_substrate_context_job_v5_owner_schema_unsupported"
+            )
+        schema_version = CYCLE_SUBSTRATE_CONTEXT_JOB_V5_SCHEMA
+    elif wmr_schema_version == WORLD_MODEL_RECORD_SCHEMA_V2_VERSION:
         if not uses_v2_projection:
             raise CycleSubstrateContextOwnerError(
                 "cycle_substrate_context_job_v3_design_problem_required"
@@ -2142,6 +2558,8 @@ def _build_cycle_substrate_context_job_artifact(
         "limitation_codes": tuple(sorted(_REQUIRED_CONTEXT_JOB_LIMITATIONS)),
     }
     payload["content_hash"] = cycle_substrate_context_job_content_hash(payload)
+    if schema_version == CYCLE_SUBSTRATE_CONTEXT_JOB_V5_SCHEMA:
+        return CycleSubstrateContextJobArtifactV5.model_validate(payload)
     if schema_version == CYCLE_SUBSTRATE_CONTEXT_JOB_V3_SCHEMA:
         return CycleSubstrateContextJobArtifactV3.model_validate(payload)
     if schema_version == CYCLE_SUBSTRATE_CONTEXT_JOB_V4_SCHEMA:
@@ -2157,6 +2575,7 @@ def _context_job_write_options(
         | CycleSubstrateContextJobArtifactV2
         | CycleSubstrateContextJobArtifactV3
         | CycleSubstrateContextJobArtifactV4
+        | CycleSubstrateContextJobArtifactV5
     ),
 ) -> artifacts.ArtifactWriteOptions:
     """Build the exact tenant and job manifest profile for this artifact."""
@@ -2173,6 +2592,7 @@ def _context_job_write_options(
         CYCLE_SUBSTRATE_CONTEXT_JOB_V2_SCHEMA: CYCLE_SUBSTRATE_CONTEXT_JOB_V2_SCHEMA_VERSION,
         CYCLE_SUBSTRATE_CONTEXT_JOB_V3_SCHEMA: CYCLE_SUBSTRATE_CONTEXT_JOB_V3_SCHEMA_VERSION,
         CYCLE_SUBSTRATE_CONTEXT_JOB_V4_SCHEMA: CYCLE_SUBSTRATE_CONTEXT_JOB_V4_SCHEMA_VERSION,
+        CYCLE_SUBSTRATE_CONTEXT_JOB_V5_SCHEMA: CYCLE_SUBSTRATE_CONTEXT_JOB_V5_SCHEMA_VERSION,
     }[schema_name]
     return artifacts.ArtifactWriteOptions(
         kind=CYCLE_SUBSTRATE_CONTEXT_JOB_KIND,
@@ -2242,19 +2662,36 @@ class CycleSubstrateContextArtifactOwner:
         context: CycleSubstrateContext,
         *,
         problem: DesignProblem,
+        repo_root: Path | None = None,
         verified_nl_job_scope: VerifiedNLJobScope | None = None,
     ) -> artifacts.ArtifactRef:
-        """Persist through the runtime store under the current persisted job lease."""
+        """Persist through the runtime store under the current persisted job lease.
+
+        V2 candidate contexts carry a source-profile selection. Before writing
+        them, this owner re-runs the selected source owners beneath the caller's
+        repository root; the static V1 context reader remains unchanged.
+        """
 
         if self._control_store is None:
             raise CycleSubstrateContextOwnerError(
                 "cycle_substrate_context_current_job_owner_unavailable"
             )
+        verified_context = revalidate_cycle_substrate_context(context)
+        if verified_context.source_profile is not None:
+            if repo_root is None:
+                raise CycleSubstrateContextOwnerError(
+                    "candidate_cycle_source_profile_persist_root_missing"
+                )
+            verified_context = revalidate_candidate_cycle_substrate_context(
+                verified_context,
+                repo_root=repo_root,
+                problem=problem,
+            )
         current_job, execution_admission = self._current_job_execution_binding(
             verified_nl_job_scope=verified_nl_job_scope,
         )
         artifact = _build_cycle_substrate_context_job_artifact(
-            context,
+            verified_context,
             problem=problem,
             current_job=current_job,
             verified_nl_job_scope=verified_nl_job_scope,
@@ -2271,12 +2708,14 @@ class CycleSubstrateContextArtifactOwner:
         ref: artifacts.ArtifactRef,
         *,
         problem: DesignProblem,
+        repo_root: Path | None = None,
         verified_nl_job_scope: VerifiedNLJobScope | None = None,
     ) -> (
         CycleSubstrateContextJobArtifact
         | CycleSubstrateContextJobArtifactV2
         | CycleSubstrateContextJobArtifactV3
         | CycleSubstrateContextJobArtifactV4
+        | CycleSubstrateContextJobArtifactV5
     ):
         """Verify a ref against the persisted job authorized by the active lease."""
         from polisyos.core.artifacts import load_core_json_artifact
@@ -2328,6 +2767,27 @@ class CycleSubstrateContextArtifactOwner:
             raise CycleSubstrateContextOwnerError(
                 "cycle_substrate_context_job_owner_profile_mismatch"
             )
+        if type(artifact) is CycleSubstrateContextJobArtifactV5:
+            if repo_root is None:
+                raise CycleSubstrateContextOwnerError(
+                    "candidate_cycle_source_profile_resolve_root_missing"
+                )
+            try:
+                fresh_context = revalidate_candidate_cycle_substrate_context(
+                    artifact.context,
+                    repo_root=repo_root,
+                    problem=artifact.problem,
+                )
+                artifact = type(artifact).model_validate(
+                    {
+                        **artifact.model_dump(mode="python"),
+                        "context": fresh_context,
+                    }
+                )
+            except (TypeError, ValueError) as exc:
+                raise CycleSubstrateContextOwnerError(
+                    "candidate_cycle_source_profile_resolve_owner_refused", str(exc)
+                ) from exc
         return artifact
 
     def resolve_historical_job_artifact(
@@ -2344,6 +2804,7 @@ class CycleSubstrateContextArtifactOwner:
         | CycleSubstrateContextJobArtifactV2
         | CycleSubstrateContextJobArtifactV3
         | CycleSubstrateContextJobArtifactV4
+        | CycleSubstrateContextJobArtifactV5
     ):
         """Replay a persisted context-job artifact without requiring its old lease.
 
@@ -2973,6 +3434,7 @@ def _has_context_job_owner_profile(
         | CycleSubstrateContextJobArtifactV2
         | CycleSubstrateContextJobArtifactV3
         | CycleSubstrateContextJobArtifactV4
+        | CycleSubstrateContextJobArtifactV5
     ),
 ) -> bool:
     """Require the full declared owner profile on the selected artifact view."""
@@ -3001,24 +3463,30 @@ def cycle_substrate_context_binding_hash(
     world_model_record_content_hash: str,
     world_model_record_authority_status: str,
     selected_registry_entry_hashes: Sequence[str],
+    source_profile_content_hash: str | None = None,
 ) -> str:
     """Return the stable parent binding inherited by every candidate lever."""
 
-    return gy_content_hash(
-        {
-            "schema_version": CYCLE_SUBSTRATE_CONTEXT_SCHEMA_VERSION,
-            "design_problem_ref": design_problem_ref,
-            "domain": domain,
-            "substrate_input_content_hash": substrate_input_content_hash,
-            "substrate_registry_content_hash": substrate_registry_content_hash,
-            "world_model_record_id": world_model_record_id,
-            "world_model_record_content_hash": world_model_record_content_hash,
-            "world_model_record_authority_status": (world_model_record_authority_status),
-            "selected_registry_entry_hashes": sorted(
-                str(item) for item in selected_registry_entry_hashes
-            ),
-        }
-    )
+    payload: dict[str, Any] = {
+        "schema_version": (
+            CANDIDATE_CYCLE_SUBSTRATE_CONTEXT_SCHEMA_VERSION
+            if source_profile_content_hash is not None
+            else CYCLE_SUBSTRATE_CONTEXT_SCHEMA_VERSION
+        ),
+        "design_problem_ref": design_problem_ref,
+        "domain": domain,
+        "substrate_input_content_hash": substrate_input_content_hash,
+        "substrate_registry_content_hash": substrate_registry_content_hash,
+        "world_model_record_id": world_model_record_id,
+        "world_model_record_content_hash": world_model_record_content_hash,
+        "world_model_record_authority_status": world_model_record_authority_status,
+        "selected_registry_entry_hashes": sorted(
+            str(item) for item in selected_registry_entry_hashes
+        ),
+    }
+    if source_profile_content_hash is not None:
+        payload["source_profile_content_hash"] = source_profile_content_hash
+    return gy_content_hash(payload)
 
 
 def cycle_substrate_context_content_hash(
@@ -3060,30 +3528,535 @@ def cycle_substrate_context_content_hash(
         world_model_record_payload = world_model_record
     else:
         world_model_record_payload = {}
-    return gy_content_hash(
+    hash_payload: dict[str, Any] = {
+        "schema_version": payload.get("schema_version"),
+        "design_problem_ref": payload.get("design_problem_ref"),
+        "domain": payload.get("domain"),
+        "source_pack_content_hash": payload.get("source_pack_content_hash"),
+        "substrate_input_content_hash": payload.get("substrate_input_content_hash"),
+        "substrate_registry_content_hash": payload.get("substrate_registry_content_hash"),
+        "selected_registry_entry_hashes": sorted(
+            payload.get("selected_registry_entry_hashes") or []
+        ),
+        "world_model_record_content_hash": payload.get("world_model_record_content_hash"),
+        "world_model_record_id": world_model_record_payload.get("world_model_record_id"),
+        "world_model_record_authority_status": world_model_record_payload.get("authority_status"),
+        "intervention_substrate_content_hash": intervention_hash,
+        "candidate_levers": candidate_rows,
+        "transport_context": transport_payload,
+        "authority_purpose": payload.get("authority_purpose"),
+        "may_not_use_for": sorted(payload.get("may_not_use_for") or []),
+        "context_binding_hash": payload.get("context_binding_hash"),
+    }
+    source_profile = payload.get("source_profile")
+    if isinstance(source_profile, BaseModel):
+        source_profile_content_hash = source_profile.model_dump(mode="json").get("content_hash")
+    elif isinstance(source_profile, Mapping):
+        source_profile_content_hash = source_profile.get("content_hash")
+    else:
+        source_profile_content_hash = None
+    if source_profile_content_hash is not None:
+        hash_payload["source_profile_content_hash"] = source_profile_content_hash
+    return gy_content_hash(hash_payload)
+
+
+def candidate_cycle_substrate_source_profile_content_hash(
+    profile: CandidateCycleSubstrateSourceProfile | Mapping[str, Any],
+) -> str:
+    """Return the stable owner-source profile identity without its hash field."""
+
+    payload = (
+        profile.model_dump(mode="json")
+        if isinstance(profile, CandidateCycleSubstrateSourceProfile)
+        else dict(profile)
+    )
+    return gy_content_hash({key: value for key, value in payload.items() if key != "content_hash"})
+
+
+_CANDIDATE_SOURCE_PROFILE_HINT_KEY = "cycle_substrate_source_profile"
+_CANDIDATE_SOURCE_PROFILE_LIMITATIONS = (
+    "external_source_authenticity_not_established",
+    "external_source_currentness_not_established",
+    "kref_v3_l3_l6_identity_reconciliation_not_established",
+)
+
+
+def candidate_cycle_substrate_source_profile_selection(
+    problem: DesignProblem,
+) -> CandidateCycleSubstrateSourceProfileSelection | None:
+    """Parse an explicit profile selection; malformed presence is a refusal."""
+
+    if type(problem) is not DesignProblem:
+        raise CycleSubstrateContextOwnerError("candidate_cycle_source_profile_problem_untyped")
+    if _CANDIDATE_SOURCE_PROFILE_HINT_KEY not in problem.runtime_hints:
+        return None
+    try:
+        return CandidateCycleSubstrateSourceProfileSelection.model_validate(
+            problem.runtime_hints[_CANDIDATE_SOURCE_PROFILE_HINT_KEY]
+        )
+    except (TypeError, ValueError) as exc:
+        raise CycleSubstrateContextOwnerError(
+            "candidate_cycle_source_profile_selection_invalid", str(exc)
+        ) from exc
+
+
+def _candidate_source_database_path(repo_root: Path, source_ref: str) -> Path:
+    """Resolve an owner source ref beneath the selected repository root."""
+
+    raw_ref = source_ref.split("#", 1)[0]
+    try:
+        root = Path(repo_root).resolve(strict=True)
+    except (OSError, RuntimeError) as exc:
+        raise CycleSubstrateContextOwnerError(
+            "candidate_cycle_source_profile_root_missing"
+        ) from exc
+    if not root.is_dir():
+        raise CycleSubstrateContextOwnerError("candidate_cycle_source_profile_root_not_directory")
+    if raw_ref.startswith("repo://"):
+        raw_path = raw_ref.removeprefix("repo://")
+        candidate = Path(raw_path)
+        if (
+            candidate.is_absolute()
+            or candidate.as_posix() != raw_path
+            or any(part in {".", ".."} for part in candidate.parts)
+        ):
+            raise CycleSubstrateContextOwnerError("candidate_cycle_source_profile_repo_ref_invalid")
+        selected = root / candidate
+    elif raw_ref.startswith("duckdb://"):
+        raw_path = raw_ref.removeprefix("duckdb://")
+        candidate = Path(raw_path)
+        if (
+            not candidate.is_absolute()
+            or candidate.as_posix() != raw_path
+            or any(part in {".", ".."} for part in candidate.parts)
+        ):
+            raise CycleSubstrateContextOwnerError(
+                "candidate_cycle_source_profile_duckdb_ref_invalid"
+            )
+        selected = candidate
+    else:
+        raise CycleSubstrateContextOwnerError(
+            "candidate_cycle_source_profile_skg_source_ref_invalid"
+        )
+    try:
+        resolved = selected.resolve(strict=True)
+        resolved.relative_to(root)
+    except (OSError, RuntimeError, ValueError) as exc:
+        raise CycleSubstrateContextOwnerError(
+            "candidate_cycle_source_profile_skg_source_outside_root"
+        ) from exc
+    if not resolved.is_file():
+        raise CycleSubstrateContextOwnerError("candidate_cycle_source_profile_skg_source_not_file")
+    return resolved
+
+
+def _candidate_cycle_bind_current_skg_snapshot(
+    repo_root: Path,
+    world_model_record: WorldModelRecord,
+) -> WorldModelRecord:
+    """Rebind the boundary WMR selector to SKGQuery's current snapshot URI."""
+
+    from polisyos.data_forge.read_api import academic
+    from polisyos.runtime.quality.world_model_record import (
+        world_model_record_content_hash,
+    )
+
+    if type(world_model_record) is not WorldModelRecord:
+        raise CycleSubstrateContextOwnerError(
+            "candidate_cycle_source_profile_world_model_record_untyped"
+        )
+    if world_model_record.authority_status != "limited":
+        raise CycleSubstrateContextOwnerError(
+            "candidate_cycle_source_profile_world_model_record_not_limited"
+        )
+    selected_prior = world_model_record.skg_causal_prior_ref
+    if selected_prior is None:
+        raise CycleSubstrateContextOwnerError("candidate_cycle_source_profile_skg_selector_missing")
+    db_path = _candidate_source_database_path(
+        repo_root,
+        selected_prior.skg_snapshot_ref,
+    )
+    query = academic.SKGQuery(db_path=db_path, index_dir=db_path.parent / "index")
+    try:
+        version_id = query.latest_skg_version_id()
+        if version_id is None:
+            raise CycleSubstrateContextOwnerError(
+                "candidate_cycle_source_profile_skg_version_unresolved"
+            )
+        if str(version_id) != selected_prior.skg_version_id:
+            raise CycleSubstrateContextOwnerError(
+                "candidate_cycle_source_profile_skg_version_mismatch"
+            )
+        snapshot_ref = query.skg_snapshot_ref(version_id=version_id)
+    finally:
+        query.close()
+    expected_ref = f"duckdb://{db_path}#v{version_id}"
+    if snapshot_ref != expected_ref:
+        raise CycleSubstrateContextOwnerError(
+            "candidate_cycle_source_profile_skg_snapshot_ref_mismatch"
+        )
+    prior_payload = selected_prior.model_dump(mode="python")
+    prior_payload["skg_snapshot_ref"] = snapshot_ref
+    prior_payload["skg_version_id"] = str(version_id)
+    rebound_prior = SkgCausalPriorRef.model_validate(prior_payload)
+    payload = world_model_record.model_dump(mode="python")
+    payload["skg_causal_prior_ref"] = rebound_prior
+    payload["world_model_record_id"] = "world_model_record_0000000000000000"
+    payload["content_hash"] = gy_content_hash({"candidate_source_profile": "pending"})
+    draft = WorldModelRecord.model_construct(**payload)
+    content_hash = world_model_record_content_hash(draft)
+    payload["content_hash"] = content_hash
+    payload["world_model_record_id"] = (
+        "world_model_record_" + content_hash.removeprefix("sha256:")[:16]
+    )
+    return WorldModelRecord.model_validate(payload)
+
+
+def _candidate_cycle_completion_endpoints(
+    edge: CredalReferenceEdge,
+) -> tuple[tuple[str, str], ...]:
+    """Read endpoint aliases from actual owner completions without strengthening them."""
+
+    endpoints: list[tuple[str, str]] = []
+    for completion in edge.admissible_completions:
+        value = completion.value
+        source = str(value.get("src") or value.get("cause") or "").strip()
+        target = str(value.get("dst") or value.get("effect") or "").strip()
+        if source and target:
+            endpoints.append((source, target))
+    return tuple(endpoints)
+
+
+def _candidate_cycle_outcome_edge_rows(
+    reference: CredalReference,
+    *,
+    target_outcome: str,
+) -> tuple[tuple[CredalReferenceEdge, ...], tuple[CredalReferenceEdge, ...]]:
+    """Select exact current K_ref L2 rows whose owner completion names the outcome.
+
+    Causal claims are preserved as contested candidate inputs when K_ref does not
+    establish a confirmed structural edge. Their source row status remains visible
+    in the typed profile; this adapter never promotes claims into structure.
+    """
+
+    selected_l2 = tuple(
+        edge
+        for edge in reference.essential_edges.values()
+        if edge.modality.startswith("L2_") and edge.provenance.get("owner") == "L2"
+    )
+    outcome_modalities = {"L2_CAUSAL_EDGE", "L2_CAUSAL_CLAIM"}
+    outcome_rows = tuple(
+        edge
+        for edge in selected_l2
+        if edge.modality in outcome_modalities
+        and any(
+            target == target_outcome
+            for _source, target in _candidate_cycle_completion_endpoints(edge)
+        )
+    )
+    return selected_l2, outcome_rows
+
+
+def build_candidate_cycle_substrate_context(
+    repo_root: Path,
+    *,
+    problem: DesignProblem,
+    world_model_record: WorldModelRecord,
+    substrate_registry: SubstrateRegistry | None = None,
+) -> CycleSubstrateContext:
+    """Build candidate context from current owner profiles for an explicit selection.
+
+    The profile is produced from the active WMR-selected SKG source, the
+    Data Forge catalog profile, the current S0 registry, the complete K_ref v3
+    result and the canonical L6 loader. Every selected source is re-read under
+    ``repo_root``. The function never promotes source authenticity, freshness,
+    legal truth, or the L3/L6 basis closure.
+    """
+
+    from polisyos.runtime.quality import credal_reference
+    from polisyos.runtime.quality.intervention_substrate import (
+        load_l6_intervention_substrate,
+    )
+    from polisyos.runtime.quality.substrate_registry import (
+        build_substrate_registry_from_existing_catalogs,
+    )
+
+    if type(problem) is not DesignProblem:
+        raise CycleSubstrateContextOwnerError("candidate_cycle_source_profile_problem_untyped")
+    selection = candidate_cycle_substrate_source_profile_selection(problem)
+    if selection is None:
+        raise CycleSubstrateContextOwnerError("candidate_cycle_source_profile_selection_missing")
+    try:
+        root = Path(repo_root).resolve(strict=True)
+    except (OSError, RuntimeError) as exc:
+        raise CycleSubstrateContextOwnerError(
+            "candidate_cycle_source_profile_root_missing"
+        ) from exc
+    if not root.is_dir():
+        raise CycleSubstrateContextOwnerError("candidate_cycle_source_profile_root_not_directory")
+    if substrate_registry is None:
+        registry = build_substrate_registry_from_existing_catalogs(root)
+    else:
+        if type(substrate_registry) is not SubstrateRegistry:
+            raise CycleSubstrateContextOwnerError("candidate_cycle_source_profile_registry_untyped")
+        try:
+            registry = SubstrateRegistry.model_validate(
+                substrate_registry.model_dump(mode="python")
+            )
+        except (TypeError, ValueError) as exc:
+            raise CycleSubstrateContextOwnerError(
+                "candidate_cycle_source_profile_registry_invalid", str(exc)
+            ) from exc
+    if world_model_record.substrate_registry_ref.content_hash != registry.content_hash:
+        raise CycleSubstrateContextOwnerError(
+            "candidate_cycle_source_profile_wmr_registry_mismatch"
+        )
+    selected_entry_hashes = tuple(
+        sorted(
+            entry.entry_content_hash
+            for entry in world_model_record.substrate_registry_ref.resolved_entries
+        )
+    )
+    registry_by_hash = {entry.entry_content_hash: entry for entry in registry.entries}
+    if not selected_entry_hashes or not set(selected_entry_hashes).issubset(registry_by_hash):
+        raise CycleSubstrateContextOwnerError(
+            "candidate_cycle_source_profile_selected_registry_owner_mismatch"
+        )
+    selected_world = _candidate_cycle_bind_current_skg_snapshot(root, world_model_record)
+    try:
+        reference = credal_reference.build_credal_reference(
+            root,
+            world_model_record=selected_world,
+        )
+        l2_profile = credal_reference.credal_reference_l2_source_profile(reference)
+        catalog_profile = credal_reference.credal_reference_data_forge_catalog_source_profile(
+            reference
+        )
+        l6_bundle = load_l6_intervention_substrate(root)
+    except (OSError, RuntimeError, TypeError, ValueError) as exc:
+        raise CycleSubstrateContextOwnerError(
+            "candidate_cycle_source_profile_owner_read_refused", str(exc)
+        ) from exc
+    if l2_profile is None or catalog_profile is None:
+        raise CycleSubstrateContextOwnerError(
+            "candidate_cycle_source_profile_owner_profile_missing"
+        )
+    source_db_path = _candidate_source_database_path(root, l2_profile.source_snapshot_ref)
+    selected_skg_version = selected_world.skg_causal_prior_ref.skg_version_id
+    selected_l2_entries = tuple(
+        entry
+        for entry in registry.entries
+        if entry.entry_content_hash in selected_entry_hashes
+        and entry.layer is SubstrateLayer.L2
+        and entry.data_version == selected_skg_version
+        and any(
+            ref.startswith("repo://")
+            and _candidate_source_database_path(root, ref) == source_db_path
+            for ref in (*entry.provenance_refs, *entry.authority_refs)
+        )
+    )
+    if len(selected_l2_entries) != 1:
+        raise CycleSubstrateContextOwnerError(
+            "candidate_cycle_source_profile_s0_selected_l2_entry_unresolved"
+        )
+    selected_l2_entry = selected_l2_entries[0]
+    selected_l2_edges, outcome_edges = _candidate_cycle_outcome_edge_rows(
+        reference,
+        target_outcome=problem.outcome_of_interest.target_variable,
+    )
+    selected_l2_row_hashes = tuple(sorted(edge.content_hash for edge in selected_l2_edges))
+    outcome_edges = tuple(sorted(outcome_edges, key=lambda edge: edge.content_hash))
+    outcome_row_hashes = tuple(edge.content_hash for edge in outcome_edges)
+    candidate_edges = tuple(
+        edge
+        for edge in outcome_edges
+        if edge.status in {"confirmed", "contested"} and _candidate_cycle_completion_endpoints(edge)
+    )
+    candidate_edges = tuple(sorted(candidate_edges, key=lambda edge: edge.content_hash))
+    candidate_edge_hashes = tuple(edge.content_hash for edge in candidate_edges)
+    candidate_edge_statuses = tuple(edge.status for edge in candidate_edges)
+    selected_registry_hashes = tuple(sorted(selected_entry_hashes))
+    l6_owner_rows_hash = gy_content_hash(
         {
-            "schema_version": payload.get("schema_version"),
-            "design_problem_ref": payload.get("design_problem_ref"),
-            "domain": payload.get("domain"),
-            "source_pack_content_hash": payload.get("source_pack_content_hash"),
-            "substrate_input_content_hash": payload.get("substrate_input_content_hash"),
-            "substrate_registry_content_hash": payload.get("substrate_registry_content_hash"),
-            "selected_registry_entry_hashes": sorted(
-                payload.get("selected_registry_entry_hashes") or []
-            ),
-            "world_model_record_content_hash": payload.get("world_model_record_content_hash"),
-            "world_model_record_id": world_model_record_payload.get("world_model_record_id"),
-            "world_model_record_authority_status": world_model_record_payload.get(
-                "authority_status"
-            ),
-            "intervention_substrate_content_hash": intervention_hash,
-            "candidate_levers": candidate_rows,
-            "transport_context": transport_payload,
-            "authority_purpose": payload.get("authority_purpose"),
-            "may_not_use_for": sorted(payload.get("may_not_use_for") or []),
-            "context_binding_hash": payload.get("context_binding_hash"),
+            "bundle_content_hash": l6_bundle.content_hash,
+            "source_refs": dict(l6_bundle.source_refs),
+            "source_content_hashes": dict(l6_bundle.source_content_hashes),
         }
     )
+    source_limitation_codes = list(_CANDIDATE_SOURCE_PROFILE_LIMITATIONS)
+    if not outcome_edges:
+        source_limitation_codes.append("selected_outcome_owner_edges_empty")
+    if outcome_edges and not candidate_edges:
+        source_limitation_codes.append("selected_outcome_owner_edges_not_candidate_admissible")
+    if any(edge.status == "contested" for edge in candidate_edges):
+        source_limitation_codes.append("selected_outcome_owner_edges_contested")
+    if any(edge.modality == "L2_CAUSAL_CLAIM" for edge in candidate_edges):
+        source_limitation_codes.append("selected_outcome_relation_claim_not_established_structure")
+    owner_query_receipt_hash = gy_content_hash(
+        {
+            "l2_source_profile_content_hash": l2_profile.content_hash,
+            "l1_catalog_profile_content_hash": catalog_profile.content_hash,
+            "kref_schema_version": reference.schema_version,
+            "kref_reference_hash": reference.reference_hash,
+            "selected_l2_owner_row_hashes": selected_l2_row_hashes,
+            "selected_outcome_owner_rows": [
+                {
+                    "content_hash": edge.content_hash,
+                    "modality": edge.modality,
+                    "status": edge.status,
+                }
+                for edge in outcome_edges
+            ],
+            "selected_candidate_lever_rows": [
+                {"content_hash": edge.content_hash, "status": edge.status}
+                for edge in candidate_edges
+            ],
+            "l6_bundle_content_hash": l6_bundle.content_hash,
+            "l6_owner_rows_content_hash": l6_owner_rows_hash,
+        }
+    )
+    substrate_input_hash = gy_content_hash(
+        {
+            "authority_purpose": "cycle_input_candidate_only",
+            "design_problem_ref": cycle_job_design_problem_ref(problem),
+            "selected_outcome_variable": problem.outcome_of_interest.target_variable,
+            "world_model_record_content_hash": selected_world.content_hash,
+            "s0_registry_content_hash": registry.content_hash,
+            "selected_registry_entry_hashes": selected_registry_hashes,
+            "selected_l2_registry_entry_hash": selected_l2_entry.entry_content_hash,
+            "skg_source_ref": l2_profile.source_snapshot_ref,
+            "skg_snapshot_sha256": l2_profile.source_snapshot_sha256,
+            "l2_source_profile_content_hash": l2_profile.content_hash,
+            "l1_catalog_profile_content_hash": catalog_profile.content_hash,
+            "kref_reference_hash": reference.reference_hash,
+            "owner_query_receipt_content_hash": owner_query_receipt_hash,
+            "selected_l2_owner_row_hashes": selected_l2_row_hashes,
+            "selected_outcome_owner_row_hashes": outcome_row_hashes,
+            "selected_candidate_lever_edge_hashes": candidate_edge_hashes,
+            "l6_bundle_content_hash": l6_bundle.content_hash,
+            "l6_owner_rows_content_hash": l6_owner_rows_hash,
+            "limitation_codes": sorted(source_limitation_codes),
+        }
+    )
+    profile_payload: dict[str, Any] = {
+        "schema_version": CANDIDATE_CYCLE_SOURCE_PROFILE_SCHEMA_VERSION,
+        "profile_id": CANDIDATE_CYCLE_SOURCE_PROFILE_ID,
+        "profile_status": "candidate_only",
+        "owner_recomputation_status": "recomputed",
+        "authority_purpose": "cycle_input_candidate_only",
+        "source_basis_status": "not_established",
+        "source_authenticity_status": "not_established",
+        "source_currentness_status": "not_established",
+        "source_repo_root": root.as_posix(),
+        "design_problem_ref": cycle_job_design_problem_ref(problem),
+        "selected_outcome_variable": problem.outcome_of_interest.target_variable,
+        "world_model_record_content_hash": selected_world.content_hash,
+        "s0_registry_content_hash": registry.content_hash,
+        "selected_registry_entry_hashes": selected_registry_hashes,
+        "selected_l2_registry_entry_hash": selected_l2_entry.entry_content_hash,
+        "skg_snapshot_ref": l2_profile.source_snapshot_ref,
+        "skg_snapshot_sha256": l2_profile.source_snapshot_sha256,
+        "skg_version_id": selected_skg_version,
+        "l2_source_profile_content_hash": l2_profile.content_hash,
+        "l1_catalog_profile_content_hash": catalog_profile.content_hash,
+        "kref_schema_version": reference.schema_version,
+        "kref_reference_hash": reference.reference_hash,
+        "owner_query_receipt_content_hash": owner_query_receipt_hash,
+        "selected_l2_owner_row_hashes": selected_l2_row_hashes,
+        "selected_outcome_owner_row_hashes": outcome_row_hashes,
+        "selected_candidate_lever_edge_hashes": candidate_edge_hashes,
+        "selected_candidate_lever_edge_statuses": candidate_edge_statuses,
+        "l6_bundle_content_hash": l6_bundle.content_hash,
+        "l6_owner_rows_content_hash": l6_owner_rows_hash,
+        "substrate_input_content_hash": substrate_input_hash,
+        "limitation_codes": tuple(sorted(source_limitation_codes)),
+    }
+    profile_payload["content_hash"] = candidate_cycle_substrate_source_profile_content_hash(
+        profile_payload
+    )
+    profile = CandidateCycleSubstrateSourceProfile.model_validate(profile_payload)
+    selected_for_context = tuple(selected_registry_hashes)
+    context_binding = cycle_substrate_context_binding_hash(
+        design_problem_ref=profile.design_problem_ref,
+        domain=problem.domain,
+        substrate_input_content_hash=profile.substrate_input_content_hash,
+        substrate_registry_content_hash=registry.content_hash,
+        world_model_record_id=selected_world.world_model_record_id,
+        world_model_record_content_hash=selected_world.content_hash,
+        world_model_record_authority_status=selected_world.authority_status,
+        selected_registry_entry_hashes=selected_for_context,
+        source_profile_content_hash=profile.content_hash,
+    )
+    candidate_levers: list[CandidateLeverEvidence] = []
+    for edge in candidate_edges:
+        sources = tuple(
+            sorted(
+                {
+                    source
+                    for source, target in _candidate_cycle_completion_endpoints(edge)
+                    if target == problem.outcome_of_interest.target_variable
+                }
+            )
+        )
+        if not sources:
+            continue
+        candidate_levers.append(
+            CandidateLeverEvidence(
+                lever_id=edge.edge_id,
+                instrument=sources[0],
+                target_concept=problem.outcome_of_interest.target_variable,
+                entry_content_hash=edge.content_hash,
+                substrate_input_content_hash=profile.substrate_input_content_hash,
+                selected_registry_entry_hash=selected_l2_entry.entry_content_hash,
+                context_binding_hash=context_binding,
+                source_refs=(l2_profile.source_snapshot_ref,),
+            )
+        )
+    context = build_cycle_substrate_context(
+        design_problem_ref=profile.design_problem_ref,
+        domain=problem.domain,
+        substrate_registry=registry,
+        selected_registry_entry_hashes=selected_for_context,
+        world_model_record=selected_world,
+        intervention_substrate=l6_bundle,
+        candidate_levers=tuple(candidate_levers),
+        transport_context=None,
+        source_pack_content_hash=None,
+        substrate_input_content_hash=profile.substrate_input_content_hash,
+        source_profile=profile,
+    )
+    _validate_problem_world_match(problem, context)
+    return context
+
+
+def revalidate_candidate_cycle_substrate_context(
+    context: CycleSubstrateContext,
+    *,
+    repo_root: Path,
+    problem: DesignProblem,
+) -> CycleSubstrateContext:
+    """Re-run selected owners and reject changed source/query/fact bindings."""
+
+    validated = revalidate_cycle_substrate_context(context)
+    if validated.source_profile is None:
+        raise CycleSubstrateContextOwnerError(
+            "candidate_cycle_source_profile_revalidation_profile_missing"
+        )
+    if candidate_cycle_substrate_source_profile_selection(problem) is None:
+        raise CycleSubstrateContextOwnerError(
+            "candidate_cycle_source_profile_revalidation_selection_missing"
+        )
+    fresh = build_candidate_cycle_substrate_context(
+        repo_root,
+        problem=problem,
+        world_model_record=validated.world_model_record,
+        substrate_registry=validated.substrate_registry,
+    )
+    if fresh.content_hash != validated.content_hash:
+        raise CycleSubstrateContextOwnerError(
+            "candidate_cycle_source_profile_owner_rederive_mismatch"
+        )
+    return fresh
 
 
 def build_cycle_substrate_context(
@@ -3098,6 +4071,7 @@ def build_cycle_substrate_context(
     transport_context: TransportContextEvidence | None,
     source_pack_content_hash: str | None,
     substrate_input_content_hash: str | None,
+    source_profile: CandidateCycleSubstrateSourceProfile | None = None,
 ) -> CycleSubstrateContext:
     """Build and fully revalidate one candidate-only cycle substrate envelope."""
 
@@ -3111,9 +4085,16 @@ def build_cycle_substrate_context(
         world_model_record_content_hash=world_model_record.content_hash,
         world_model_record_authority_status=world_model_record.authority_status,
         selected_registry_entry_hashes=selected,
+        source_profile_content_hash=(
+            source_profile.content_hash if source_profile is not None else None
+        ),
     )
     payload: dict[str, Any] = {
-        "schema_version": CYCLE_SUBSTRATE_CONTEXT_SCHEMA_VERSION,
+        "schema_version": (
+            CANDIDATE_CYCLE_SUBSTRATE_CONTEXT_SCHEMA_VERSION
+            if source_profile is not None
+            else CYCLE_SUBSTRATE_CONTEXT_SCHEMA_VERSION
+        ),
         "design_problem_ref": design_problem_ref,
         "domain": domain,
         "source_pack_content_hash": source_pack_content_hash,
@@ -3123,6 +4104,7 @@ def build_cycle_substrate_context(
         "selected_registry_entry_hashes": selected,
         "world_model_record": world_model_record,
         "world_model_record_content_hash": world_model_record.content_hash,
+        "source_profile": source_profile,
         "intervention_substrate": intervention_substrate,
         "candidate_levers": tuple(candidate_levers),
         "transport_context": transport_context,
@@ -3343,6 +4325,9 @@ def resolve_world_model_atom_identity(
 
 
 __all__ = [
+    "CANDIDATE_CYCLE_SOURCE_PROFILE_ID",
+    "CANDIDATE_CYCLE_SOURCE_PROFILE_SCHEMA_VERSION",
+    "CANDIDATE_CYCLE_SUBSTRATE_CONTEXT_SCHEMA_VERSION",
     "CYCLE_SUBSTRATE_CONTEXT_JOB_KIND",
     "CYCLE_SUBSTRATE_CONTEXT_JOB_SCHEMA",
     "CYCLE_SUBSTRATE_CONTEXT_JOB_SCHEMA_VERSION",
@@ -3352,7 +4337,11 @@ __all__ = [
     "CYCLE_SUBSTRATE_CONTEXT_JOB_V3_SCHEMA_VERSION",
     "CYCLE_SUBSTRATE_CONTEXT_JOB_V4_SCHEMA",
     "CYCLE_SUBSTRATE_CONTEXT_JOB_V4_SCHEMA_VERSION",
+    "CYCLE_SUBSTRATE_CONTEXT_JOB_V5_SCHEMA",
+    "CYCLE_SUBSTRATE_CONTEXT_JOB_V5_SCHEMA_VERSION",
     "CYCLE_SUBSTRATE_CONTEXT_SCHEMA_VERSION",
+    "CandidateCycleSubstrateSourceProfile",
+    "CandidateCycleSubstrateSourceProfileSelection",
     "CandidateLeverEvidence",
     "CycleSubstrateContext",
     "CycleSubstrateContextArtifactOwner",
@@ -3360,10 +4349,14 @@ __all__ = [
     "CycleSubstrateContextJobArtifactV2",
     "CycleSubstrateContextJobArtifactV3",
     "CycleSubstrateContextJobArtifactV4",
+    "CycleSubstrateContextJobArtifactV5",
     "CycleSubstrateContextOwnerError",
     "TransportContextEvidence",
     "TransportCovariateObservation",
+    "build_candidate_cycle_substrate_context",
     "build_cycle_substrate_context",
+    "candidate_cycle_substrate_source_profile_content_hash",
+    "candidate_cycle_substrate_source_profile_selection",
     "cycle_job_design_problem_ref",
     "cycle_job_profile_selection_ref",
     "cycle_substrate_context_binding_hash",
@@ -3376,5 +4369,6 @@ __all__ = [
     "resolve_cycle_substrate_context_for_world",
     "resolve_cycle_substrate_world_identity",
     "resolve_world_model_atom_identity",
+    "revalidate_candidate_cycle_substrate_context",
     "revalidate_cycle_substrate_context",
 ]

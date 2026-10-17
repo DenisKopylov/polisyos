@@ -319,7 +319,9 @@ def _three_owner_service(
     return service, query, adapters, facet_provider
 
 
-def _registration(label: str = "all-amendments") -> epoch.EpochBoundarySourceRegistration:
+def _registration(
+    label: str = "all-amendments",
+) -> epoch.EpochBoundarySourceRegistration:
     return epoch.EpochBoundarySourceRegistration(
         registration_id=label,
         owner_kind="lex_amendment_window",
@@ -1399,7 +1401,8 @@ def test_selected_reference_graph_resolves_actual_admitted_and_persisted_candida
     )
     assert (
         epoch._resolve_selected_reference_graph(
-            scenario.store, facet_source_ref.model_copy(update={"media_type": "application/json"})
+            scenario.store,
+            facet_source_ref.model_copy(update={"media_type": "application/json"}),
         )
         is None
     )
@@ -1421,7 +1424,9 @@ def test_selected_reference_graph_resolves_actual_admitted_and_persisted_candida
         is None
     )
 
-    def select_query_refs(query: epoch.EpochResolutionQuery) -> epoch.EpochResolutionQuery:
+    def select_query_refs(
+        query: epoch.EpochResolutionQuery,
+    ) -> epoch.EpochResolutionQuery:
         updates: dict[str, object] = {}
         for field in (
             "valid_effect_coordinate_evidence_ref",
@@ -1606,7 +1611,8 @@ def test_connector_cache_graph_uses_real_serializer_media_without_pickle_executi
             wrong_profile = "sha256:" + "f" * 64
         assert (
             epoch._resolve_selected_reference_graph(
-                store, selected.model_copy(update={"manifest_profile_sha256": wrong_profile})
+                store,
+                selected.model_copy(update={"manifest_profile_sha256": wrong_profile}),
             )
             is None
         )
@@ -1748,10 +1754,13 @@ def test_registered_codec_keeps_identity_tokens_and_unresolved_refs_distinct(
     assert epoch._resolve_selected_reference_graph(store, {"snapshot": root_ref}) is None
 
 
-def test_real_l5_owner_rows_and_registry_files_round_trip_through_cas(tmp_path: Path) -> None:
+def test_real_l5_owner_rows_and_registry_files_round_trip_through_cas(
+    tmp_path: Path,
+) -> None:
     repo_root = Path(__file__).resolve().parents[4]
     owner = substrate_registry.load_l5_catalog_authority(
-        substrate_registry.default_substrate_catalog_paths(repo_root)
+        substrate_registry.default_substrate_catalog_paths(repo_root),
+        repo_root=repo_root,
     )
     receipt, projection = substrate_registry.resolve_l5_schema_regime_projection(
         owner,
@@ -1810,7 +1819,8 @@ def test_real_l5_owner_rows_and_registry_files_round_trip_through_cas(tmp_path: 
 def test_l5_owner_row_role_is_checked_before_cas_or_projection(tmp_path: Path) -> None:
     repo_root = Path(__file__).resolve().parents[4]
     owner = substrate_registry.load_l5_catalog_authority(
-        substrate_registry.default_substrate_catalog_paths(repo_root)
+        substrate_registry.default_substrate_catalog_paths(repo_root),
+        repo_root=repo_root,
     )
     seed, _ = substrate_registry.resolve_l5_schema_regime_projection(
         owner,
@@ -1898,7 +1908,9 @@ def test_orchestrated_retrieval_summary_resolves_as_selected_snapshot_graph(
     from polisyos.core.registry import build_default_registry_bundle
     from polisyos.core.run.context import RunContext
     from polisyos.fabric.data_plane.orchestrator import run_orchestrated_ingestion
-    from polisyos.scientist.nodes.builtins.governance.data_plane_gate import DataPlaneGateNode
+    from polisyos.scientist.nodes.builtins.governance.data_plane_gate import (
+        DataPlaneGateNode,
+    )
     from polisyos.scientist.nodes.builtins.state_keys import INPUT_DATA_SNAPSHOT_REF
     from polisyos.scientist.orchestration.engine.context import ExecutionContext
     from polisyos.scientist.orchestration.engine.state import ExperimentState
@@ -1958,7 +1970,11 @@ def test_orchestrated_retrieval_summary_resolves_as_selected_snapshot_graph(
 
     profiles = epoch._resolve_selected_reference_graph(store, snapshot_ref)
     assert profiles is not None
-    summary_identity = (str(summary_ref.artifact_id), summary_ref.kind, summary_ref.media_type)
+    summary_identity = (
+        str(summary_ref.artifact_id),
+        summary_ref.kind,
+        summary_ref.media_type,
+    )
     assert profiles[summary_identity] == summary_ref.manifest_profile_sha256
     assert profiles[(str(source_ref.artifact_id), source_ref.kind, source_ref.media_type)] == (
         source_ref.manifest_profile_sha256
@@ -2056,9 +2072,15 @@ def test_live_source_admission_reconciles_retrieval_summary_and_legacy_quality(
     from polisyos.core.artifacts.manifest import SchemaInfo, input_ref_from_artifact_ref
     from polisyos.core.canon import CanonSpec, from_canonical_bytes
     from polisyos.core.contracts import DataSnapshot, RetrievalSummary
-    from polisyos.core.contracts.fabric import DataSnapshotRef, EvidenceBundle, EvidenceBundleRef
+    from polisyos.core.contracts.fabric import (
+        DataSnapshotRef,
+        EvidenceBundle,
+        EvidenceBundleRef,
+    )
     from polisyos.data_forge.read_api import catalog as catalog_read_api
-    from polisyos.fabric.data_plane.orchestrator import _build_snapshot_from_evidence_async
+    from polisyos.fabric.data_plane.orchestrator import (
+        _build_snapshot_from_evidence_async,
+    )
     from polisyos.runtime.quality.acquisition_executor import build_admission_passport
     from tests._helpers.acquisition_production import _run
     from tests._helpers.semantic_epoch_native import _semantic_handshake

@@ -136,7 +136,9 @@ def _contract_testing_measurement_root_binding(
 ) -> MeasurementRootExecutionBinding:
     """Build a test-only binding from a persisted, selected execution scope."""
 
-    from tests._helpers.measurement_execution_binding import measurement_execution_binding
+    from tests._helpers.measurement_execution_binding import (
+        measurement_execution_binding,
+    )
 
     return measurement_execution_binding(tmp_path)
 
@@ -873,7 +875,9 @@ def _real_acq01_route(
             update={"source_requirement_refs": (source_requirement.requirement_id,)}
         )
         store = owner.store
-        from tests._helpers.measurement_execution_binding import measurement_execution_binding
+        from tests._helpers.measurement_execution_binding import (
+            measurement_execution_binding,
+        )
 
         execution_scope_binding = measurement_execution_binding(tmp_path)
         measurement_root = MeasurementRootProducer(
@@ -902,7 +906,9 @@ def _real_acq01_route(
 
         baseline_registry = _substrate_registry()
         baseline_registry_ref = persist_substrate_registry(store, baseline_registry)
-        l5_authority = load_l5_catalog_authority(default_substrate_catalog_paths(REPO_ROOT))
+        l5_authority = load_l5_catalog_authority(
+            default_substrate_catalog_paths(REPO_ROOT), repo_root=REPO_ROOT
+        )
         registration = SubstrateRegistration(
             source_id="acquisition:acq-01-file-tabular",
             family_id="metric.test",
@@ -2187,7 +2193,9 @@ def test_n7_acq01_measurement_root_rejects_same_id_altered_source_requirement(
     )
 
     case = _real_acq01_inputs(tmp_path, problem_id="acq_01_source_requirement_drift")
-    from tests._helpers.measurement_execution_binding import measurement_execution_binding
+    from tests._helpers.measurement_execution_binding import (
+        measurement_execution_binding,
+    )
 
     execution_scope_binding = measurement_execution_binding(tmp_path)
     with _real_acq01_route(

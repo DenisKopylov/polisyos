@@ -439,3 +439,15 @@ implemented.
 ### P02 installed default consumer discriminator (E02 F)
 
 - P02 installed-default discriminator: does an actual neutral installed consumer read the curated default metadata, or only import its module/use an explicit custom path? Bind all finite catalog resources from original tracked bytes through sdist and wheel, route every default owner through one resolver, and reject CWD or neighboring-checkout substitutions. Retain declared absence/parse fallback semantics separately: an empty fallback is not evidence that the supported installed default was supplied. Packaging file counts without these consumer calls miss this class.
+
+### P38 instance: Ruff results depend on the complete candidate topology (2026-10-17)
+
+**Property.** Ruff import ordering is valid for the final candidate files in the final physical repository/package layout.
+
+**What the earlier check measured.** Candidate file bytes were checked through Ruff stdin with the intended workspace config and logical filenames, before the complete candidate topology was present. That check did not reproduce filesystem-based first-party package discovery.
+
+**Divergent case.** Once `tests/_helpers/candidate_cycle_source_profile.py` existed in the adopted tree, Ruff classified `tests._helpers` as first-party. The same frozen R4 bytes for `tests/unit/runtime/quality/test_cycle_substrate.py` and `tests/unit/runtime/quality/test_recursive_generation_cycle.py` then produced 2 and 5 `I001` findings (7 total). The earlier R4 record had 0. This is a topology-input omission, not a cwd/config mismatch.
+
+**Closure.** Sort those seven local import blocks, then run Ruff check and format against the complete final file set in its physical topology. When candidate additions/removals can affect package or module discovery, repeat the gate after composing that topology. Do not mask the result with a global import-order override.
+
+**Scope.** This is the same P38 proxy-gate class, not a new class or a P40 repair ladder. The seven-block style delta is independently reviewed and the full 20-file canonical Ruff check/format receipts pass. Runtime tests remain unrun; this note makes no runtime or N4 closure claim.

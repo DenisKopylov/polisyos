@@ -804,7 +804,10 @@ class RecursiveLeafContextOwner:
     ) -> RecursiveLeafContextCapsule:
         """Resolve historical CAS evidence and current configuration without an old lease."""
         from polisyos.core import artifacts
-        from polisyos.core.artifacts import ArtifactTenantContextInfo, load_core_json_artifact
+        from polisyos.core.artifacts import (
+            ArtifactTenantContextInfo,
+            load_core_json_artifact,
+        )
 
         if (
             ref.kind != "runtime.quality.recursive_leaf_context"
@@ -3448,6 +3451,16 @@ class RecursiveGenerationCycleController:
                         catalog_serving_source=self._catalog_serving_source,
                         measurement_root_execution_binding=self._measurement_root_execution_binding,
                         cycle_substrate_context=context,
+                        candidate_cycle_context_artifact_owner=(
+                            leaf_context_owner._context_owner
+                            if leaf_context_owner is not None
+                            else None
+                        ),
+                        candidate_cycle_verified_nl_job_scope=(
+                            leaf_context_owner._verified_nl_job_scope
+                            if leaf_context_owner is not None
+                            else None
+                        ),
                         candidate_simulation_handoff=(
                             candidate_simulation_handoffs_by_node or {}
                         ).get(node_ref),

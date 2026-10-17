@@ -2048,7 +2048,7 @@ def admit_acquisition_with_production_semantic_epoch(
                 "resolver_unavailable",
                 "semantic facet source-binding denominator differs",
             )
-        l5_owner = load_l5_catalog_authority(default_substrate_catalog_paths(root))
+        l5_owner = load_l5_catalog_authority(default_substrate_catalog_paths(root), repo_root=root)
         from polisyos.lex.knowledge import LegalKnowledgeStore
 
         lex_path = root / DEFAULT_L3_LEX_KG_PATH
@@ -2229,7 +2229,8 @@ def resolve_activated_semantic_epoch_admission(
             receipt.model_dump(mode="python")
         )
         production = read(
-            receipt.semantic_epoch_production_receipt_ref, SemanticEpochProductionReceipt
+            receipt.semantic_epoch_production_receipt_ref,
+            SemanticEpochProductionReceipt,
         )
         if not isinstance(production, SemanticEpochProductionReceipt):
             raise ValueError("activation production receipt type differs")
@@ -2292,7 +2293,8 @@ def resolve_activated_semantic_epoch_admission(
             if getattr(admitted, field) != getattr(receipt, field):
                 raise ValueError("activated admission bridge evidence differs")
         projection = read(
-            production.chronology_projection_ref, chronology.NativeChronologyProjectionStatement
+            production.chronology_projection_ref,
+            chronology.NativeChronologyProjectionStatement,
         )
         if not isinstance(projection, chronology.NativeChronologyProjectionStatement):
             raise ValueError("native projection type differs")

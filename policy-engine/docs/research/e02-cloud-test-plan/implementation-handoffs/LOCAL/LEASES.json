@@ -4196,5 +4196,54 @@
       "The controller candidate is not accepted as a current source freeze until its manifest/controller bindings are refreshed."
     ],
     "root_adoption_qualification": "Prepared packet captured2ea093a7; root adoption baseae076c2 adds only3receipt/index documents. All3test preimages unchanged and exactwholepatch independentlyreviewed; no runtime acceptance claimed."
+  },
+  "coordination_epoch_20261017_n4_r7_owner_complete_companion_r4": {
+    "canonical_writer": "root",
+    "slice_base": "c219ee4f969f802a75b0f4e728df8e1dd4c68511",
+    "upstream_candidate_base": "85bd9bdd0819c5ed8aae250200802135e6ae8101",
+    "mechanism_paths": [
+      "policy-engine/release-fragments/unreleased/2026-10-17-e02-candidate-cycle-source-profile-route-root.toml",
+      "policy-engine/src/polisyos/runtime/http/README.md",
+      "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+      "policy-engine/src/polisyos/runtime/http/services/control/job_nl_execution.py",
+      "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "policy-engine/src/polisyos/runtime/quality/acquisition_executor.py",
+      "policy-engine/src/polisyos/runtime/quality/cycle_substrate.py",
+      "policy-engine/src/polisyos/runtime/quality/data_state_substrate.py",
+      "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+      "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+      "policy-engine/src/polisyos/runtime/quality/substrate_registry.py",
+      "policy-engine/tests/_helpers/candidate_cycle_source_profile.py",
+      "policy-engine/tests/integration/runtime_quality/test_data_state_substrate.py",
+      "policy-engine/tests/unit/remediation/test_acq_01.py",
+      "policy-engine/tests/unit/runtime/quality/test_cycle_substrate.py",
+      "policy-engine/tests/unit/runtime/quality/test_promotion_sequence.py",
+      "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle.py",
+      "policy-engine/tests/unit/runtime/quality/test_semantic_epoch.py",
+      "policy-engine/tests/unit/runtime/quality/test_substrate_registry.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_data_state_substrate_contract.py",
+      "policy-engine/tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+      "policy-engine/tools/quality/validation/check_production_data_substrate_registry_contract.py"
+    ],
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "separate root source-bound runtime receipt",
+      "policy-engine/docs/reference/policy-design-case-failure-patterns.md"
+    ],
+    "author_freeze": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n4-r7-compatible-owner-companion-r4-canonical-ruff-20261017/freeze-r4.json",
+      "sha256": "63175af63370a3e2a3f87a125641b61b92155071b2ffb0ea66735ae1efce5cfe"
+    },
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n4-r7-compatible-owner-companion-r4-independent-review-20261017/review-r1.json",
+      "sha256": "fbde63d5963e490dbda02ad4814c9a7821c62cdd27053cb41945fef747dc11e3"
+    },
+    "property": "Selected producer source profile V3 and caller/DTO/owner contexts compose through V2/V5 immutable provenance; all30L5 callers carry repo_root.",
+    "limitations": [
+      "Candidate only, selected cheap owner/route and meaningful N4/V3/N5 replays pending.",
+      "ControlledWMR fixture companion separately reviewed/not yet applied; source/causal authority unknown."
+    ],
+    "closure_ids": [],
+    "postapply_style_qualification": "Seven local importblocks in two tests sorted after physical new-helper topology changed Ruff first-party discovery; all20actual canonicalchecks pass; independent style9756b2ff pinned in separate receipt."
   }
 }

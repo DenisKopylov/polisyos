@@ -1,0 +1,39 @@
+id = "2026-10-17-e02-candidate-cycle-source-profile-route-root"
+title = "Candidate cycle source-profile route binding"
+type = "changed"
+component = "runtime"
+owner = "team-polisyos"
+summary = "The candidate cycle-source owner prototype binds L5 and selected substrate references to the explicit resolved repository root, rejects outside-root and symlink-escape paths, and keeps the profile candidate-only."
+evidence = [
+  "src/polisyos/runtime/http/README.md",
+  "src/polisyos/runtime/http/services/control/generation_cycle.py",
+  "src/polisyos/runtime/http/services/control/job_nl_execution.py",
+  "src/polisyos/runtime/http/services/control/run_lifecycle.py",
+  "src/polisyos/runtime/quality/acquisition_executor.py",
+  "src/polisyos/runtime/quality/cycle_substrate.py",
+  "src/polisyos/runtime/quality/data_state_substrate.py",
+  "src/polisyos/runtime/quality/generation_cycle.py",
+  "src/polisyos/runtime/quality/recursive_generation_cycle.py",
+  "src/polisyos/runtime/quality/substrate_registry.py",
+  "tests/_helpers/candidate_cycle_source_profile.py",
+  "tests/integration/runtime_quality/test_data_state_substrate.py",
+  "tests/unit/remediation/test_acq_01.py",
+  "tests/unit/runtime/quality/test_cycle_substrate.py",
+  "tests/unit/runtime/quality/test_promotion_sequence.py",
+  "tests/unit/runtime/quality/test_recursive_generation_cycle.py",
+  "tests/unit/runtime/quality/test_semantic_epoch.py",
+  "tests/unit/runtime/quality/test_substrate_registry.py",
+  "tools/quality/validation/check_layer3_gy_data_state_substrate_contract.py",
+  "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+  "tools/quality/validation/check_production_data_substrate_registry_contract.py",
+]
+compatibility = "The optional server-side repo_root setting is additive and does not change HTTP request or generated-client contracts. L5 loading now requires the explicit repository root, and S0 registry-generated repo:// references resolve beneath that root. The selected profile remains additive candidate context V2/context-job V5; historical context V1 and job V1–V4 readers remain supported, and omitted selection preserves the profileless route."
+change_class = "internal"
+surface_classification = "internal: server-side runtime composition and candidate CAS handoff; no HTTP request, OpenAPI, or generated-client surface"
+migration = "No existing artifact is rewritten. Configure repo_root only at application/container composition when the served source checkout differs from the module-derived default. All production, test, and validation-tool load_l5_catalog_authority callers now pass that root explicitly. Outside-root, traversal, and symlink-escape references fail closed; there is no shortened-root or outside-path fallback."
+api = "Internal load_l5_catalog_authority calls now require the actual repo_root keyword. The optional server-side application repo_root is composition-only and is not accepted from a request. Candidate profile, context V2, and job V5 remain internal persisted artifacts."
+limitations = "Candidate-only prototype. Root/path checks establish a canonical descendant binding only; source basis, authenticity, and currentness remain not_established. K_ref remains V3 with incomplete empty-row L3/L6 identity binding. The route test stops at N4 invocation and proves no N4 result, GenerationSource persistence, fresh N6 consumer behavior, meaningful children, legal authority, recommendation admissibility, or publication authority. Behavioral pytest and runtime import-origin verification were not run in this RAW-only composition."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

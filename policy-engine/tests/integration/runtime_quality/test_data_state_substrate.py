@@ -26,7 +26,10 @@ from polisyos.core.components import (
     ComponentKind,
     ComponentMetadata,
 )
-from polisyos.core.contracts import CapabilityDiscoveryRequest, CapabilityDiscoveryResponse
+from polisyos.core.contracts import (
+    CapabilityDiscoveryRequest,
+    CapabilityDiscoveryResponse,
+)
 from polisyos.core.contracts.foundry import CompileRequest
 from polisyos.foundry.compile.api import compile as compile_foundry
 from polisyos.foundry.execute.api import execute as execute_foundry
@@ -285,9 +288,7 @@ def test_agent_registry_has_typed_discovery_surface(
         tmp_path,
         include_test_client=True,
         app_kwargs={
-            "container_overrides": RuntimeContainerOverrides(
-                control_registry_providers=providers
-            )
+            "container_overrides": RuntimeContainerOverrides(control_registry_providers=providers)
         },
     )
     try:
@@ -308,9 +309,7 @@ def test_agent_registry_has_typed_discovery_surface(
                 "scientist-tool:fixture_policy_search",
             }
             assert {item.resource_kind for item in packet.results} == {"agent"}
-            assert {item.discovery_result.state for item in packet.results} == {
-                "recall_unmeasured"
-            }
+            assert {item.discovery_result.state for item in packet.results} == {"recall_unmeasured"}
             assert packet.frontier.completeness_status == "recall_unmeasured"
             assert packet.frontier.incompleteness_reasons == (
                 "scientist_registry_recall_unmeasured",
@@ -328,9 +327,9 @@ def test_agent_registry_has_typed_discovery_surface(
             assert owner_result.completeness_status == "recall_unmeasured"
             assert receipt.node_registry_snapshot_ref != receipt.tool_registry_snapshot_ref
             assert factory_calls == {"nodes": 1, "tools": 1}
-            assert {
-                type(row.owner_truth) for row in owner_result.rows
-            } == {ScientistCapabilityOwnerTruth}
+            assert {type(row.owner_truth) for row in owner_result.rows} == {
+                ScientistCapabilityOwnerTruth
+            }
             assert all(
                 set(row.provenance_refs) <= set(receipt.provenance_refs)
                 and set(row.owner_truth.provenance_refs) <= set(receipt.provenance_refs)
@@ -363,9 +362,7 @@ def test_agent_registry_has_typed_discovery_surface(
             assert "handler" not in json.dumps(tool_snapshot, sort_keys=True)
             receipt_id = ArtifactID.model_validate(
                 "sha256:"
-                + hashlib.sha256(
-                    to_canonical_bytes(receipt.model_dump(mode="json"))
-                ).hexdigest()
+                + hashlib.sha256(to_canonical_bytes(receipt.model_dump(mode="json"))).hexdigest()
             )
             assert store.get_manifest(receipt_id).kind == "scientist.registry_owner_receipt"
             assert from_canonical_bytes(store.get_bytes(receipt_id)) == receipt.model_dump(
@@ -382,9 +379,7 @@ def test_agent_registry_has_typed_discovery_surface(
                 json=negative_body,
             )
             assert negative_response.status_code == 200
-            negative_packet = CapabilityDiscoveryResponse.model_validate(
-                negative_response.json()
-            )
+            negative_packet = CapabilityDiscoveryResponse.model_validate(negative_response.json())
             assert {item.capability_ref for item in negative_packet.results} == {
                 item.capability_ref for item in packet.results
             }
@@ -543,7 +538,7 @@ def test_l5_family_profile_keeps_point_proxy_and_changepoint_honest() -> None:
 
     point = profile.family_authority("budget_flows")
     proxy = profile.family_authority("household_distribution")
-    l5 = load_l5_catalog_authority(default_substrate_catalog_paths(REPO_ROOT))
+    l5 = load_l5_catalog_authority(default_substrate_catalog_paths(REPO_ROOT), repo_root=REPO_ROOT)
     expected_proxy_tier = l5.expected_trust_tier("household_distribution")
 
     assert point.identification_mode == "point_identified"

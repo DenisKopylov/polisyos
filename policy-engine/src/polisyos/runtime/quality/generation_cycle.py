@@ -34,7 +34,16 @@ from enum import Enum
 from functools import cache
 from pathlib import Path
 from types import UnionType
-from typing import TYPE_CHECKING, Any, Literal, Protocol, TypeGuard, Union, get_args, get_origin
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Literal,
+    Protocol,
+    TypeGuard,
+    Union,
+    get_args,
+    get_origin,
+)
 
 from pydantic import (
     BaseModel,
@@ -232,7 +241,11 @@ if TYPE_CHECKING:
         CandidateSimulationN5InputV4,
         CandidateSimulationN5InputV5,
     )
-    from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
+    from polisyos.runtime.quality.cycle_substrate import (
+        CycleSubstrateContext,
+        CycleSubstrateContextArtifactOwner,
+        VerifiedNLJobScope,
+    )
     from polisyos.runtime.quality.data_forge_binding import FabricMeasurementRootPayload
     from polisyos.runtime.quality.data_state_substrate import L1VariableAvailability
     from polisyos.runtime.quality.generation_source import GenerationSourceRepository
@@ -6902,6 +6915,8 @@ class GenerationCycleController:
         catalog_run_profile: CatalogRunProfile | None = None,
         catalog_serving_source: CatalogServingSourcePaths | None = None,
         cycle_substrate_context: CycleSubstrateContext | None = None,
+        candidate_cycle_context_artifact_owner: CycleSubstrateContextArtifactOwner | None = None,
+        candidate_cycle_verified_nl_job_scope: VerifiedNLJobScope | None = None,
         promotion_runtime: PromotionRuntime | None = None,
         measurement_root_execution_binding: MeasurementRootExecutionBinding | None = None,
         artifact_store: ArtifactStore | None = None,
@@ -7042,6 +7057,9 @@ class GenerationCycleController:
         self._producer_budget_reconciler = _producer_budget_reconciler
         self._repo_root = repo_root
         self._cycle_substrate_context = cycle_substrate_context
+        self._candidate_cycle_context_artifact_owner = candidate_cycle_context_artifact_owner
+        self._candidate_cycle_verified_nl_job_scope = candidate_cycle_verified_nl_job_scope
+        self._candidate_cycle_context_job_ref: CASArtifactRef | None = None
         self._candidate_simulation_handoff = candidate_simulation_handoff
         self._candidate_simulation_currentness_resolver = candidate_simulation_currentness_resolver
         self._generic_cycle_simulation_admission_owner = generic_cycle_simulation_admission_owner
@@ -9875,12 +9893,126 @@ class GenerationCycleController:
             ),
         )
 
+    def _ensure_selected_candidate_source_profile(self, problem: DesignProblem) -> None:
+        """Persist and re-resolve explicit candidate source-profile intent before N4."""
+
+        from polisyos.runtime.quality.cycle_substrate import (
+            CYCLE_SUBSTRATE_CONTEXT_JOB_V5_SCHEMA,
+            CycleSubstrateContextArtifactOwner,
+            CycleSubstrateContextJobArtifactV5,
+            CycleSubstrateContextOwnerError,
+            VerifiedNLJobScope,
+            build_candidate_cycle_substrate_context,
+            candidate_cycle_substrate_source_profile_selection,
+            revalidate_cycle_substrate_context,
+        )
+
+        self._candidate_cycle_context_job_ref = None
+        try:
+            selection = candidate_cycle_substrate_source_profile_selection(problem)
+        except CycleSubstrateContextOwnerError as exc:
+            raise GenerationCycleError(
+                "n4_candidate_source_profile_selection_invalid", str(exc)
+            ) from exc
+        if selection is None:
+            return
+        context_owner = self._candidate_cycle_context_artifact_owner
+        if type(context_owner) is not CycleSubstrateContextArtifactOwner:
+            raise GenerationCycleError("n4_candidate_source_profile_context_owner_missing")
+        verified_scope = self._candidate_cycle_verified_nl_job_scope
+        if (
+            type(verified_scope) is not VerifiedNLJobScope
+            or not verified_scope._was_issued_by_verified_nl_execution_owner
+        ):
+            raise GenerationCycleError("n4_candidate_source_profile_verified_scope_missing")
+        if self._repo_root is None:
+            raise GenerationCycleError("n4_candidate_source_profile_repo_root_missing")
+        if self._artifact_store is None or context_owner._store is not self._artifact_store:
+            raise GenerationCycleError("n4_candidate_source_profile_context_store_mismatch")
+        repo_root = Path(self._repo_root).resolve()
+        from polisyos.runtime.quality.substrate_registry import (
+            build_substrate_registry_from_existing_catalogs,
+        )
+
+        if not hasattr(self._generation_port, "_cycle_substrate_context"):
+            raise GenerationCycleError("n4_candidate_source_profile_port_unbound")
+        try:
+            if self._cycle_substrate_context is not None:
+                existing = revalidate_cycle_substrate_context(self._cycle_substrate_context)
+                registry = existing.substrate_registry
+                selected_entry_hashes = existing.selected_registry_entry_hashes
+            else:
+                registry = build_substrate_registry_from_existing_catalogs(repo_root)
+                selected_entry_hashes = tuple(
+                    sorted(entry.entry_content_hash for entry in registry.entries)
+                )
+            if not selected_entry_hashes:
+                raise ValueError("candidate_cycle_source_profile_selected_entries_missing")
+            slots = tuple(
+                dict.fromkeys(
+                    (
+                        *(
+                            str(lever.target_slot)
+                            for lever in problem.candidate_lever_space.candidate_levers
+                            if str(lever.target_slot).strip()
+                        ),
+                        problem.outcome_of_interest.target_variable,
+                    )
+                )
+            )
+            world_model_record = _build_boundary_world_model_record(
+                repo_root=repo_root,
+                problem=problem,
+                outcome=problem.outcome_of_interest.target_variable,
+                policy_slot_ids=slots,
+                substrate_registry=registry,
+                selected_registry_entry_hashes=selected_entry_hashes,
+            )
+            candidate_context = build_candidate_cycle_substrate_context(
+                repo_root,
+                problem=problem,
+                world_model_record=world_model_record,
+                substrate_registry=registry,
+            )
+            context_job_ref = context_owner.persist_for_current_job(
+                candidate_context,
+                problem=problem,
+                repo_root=repo_root,
+                verified_nl_job_scope=verified_scope,
+            )
+            resolved_job = context_owner.resolve_for_current_job(
+                context_job_ref,
+                problem=problem,
+                repo_root=repo_root,
+                verified_nl_job_scope=verified_scope,
+            )
+            if (
+                type(resolved_job) is not CycleSubstrateContextJobArtifactV5
+                or resolved_job.schema_version != CYCLE_SUBSTRATE_CONTEXT_JOB_V5_SCHEMA
+                or resolved_job.context.source_profile != candidate_context.source_profile
+                or resolved_job.context.content_hash != candidate_context.content_hash
+                or resolved_job.design_problem_ref != candidate_context.design_problem_ref
+            ):
+                raise ValueError("candidate_cycle_source_profile_v5_readback_mismatch")
+            context = resolved_job.context
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise GenerationCycleError(
+                "n4_candidate_source_profile_owner_refused", str(exc)
+            ) from exc
+        self._candidate_cycle_context_job_ref = context_job_ref
+        self._generation_port._cycle_substrate_context = context
+        self._bind_n7_cycle_substrate_context(context)
+
     async def _generate_node(self, state: dict[str, Any]) -> dict[str, Any]:
         from polisyos.runtime.quality.design_generation import (
             DesignGenerationOrganRun,
             ShadowGeneratedCandidate,
         )
 
+        problem = state["problem"]
+        if not isinstance(problem, DesignProblem):
+            raise GenerationCycleError("generation_cycle_design_problem_untyped")
+        self._ensure_selected_candidate_source_profile(problem)
         result = self._generation_port(
             state["problem"],
             cycle_index=int(state["cycle_index"]),
@@ -12656,7 +12788,12 @@ def _load_value_data_profile_from_l1_dcat(
                 or ""
             )
             grouped.setdefault((str(unit), int(period)), []).append(
-                (numeric_value, source_dataset_id, str(observation_id), measurement_unit)
+                (
+                    numeric_value,
+                    source_dataset_id,
+                    str(observation_id),
+                    measurement_unit,
+                )
             )
         ambiguous_keys = tuple(
             (unit_id, period_id)

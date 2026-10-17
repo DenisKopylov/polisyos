@@ -601,7 +601,9 @@ def test_cycle_substrate_context_job_v2_keeps_plain_v3_candidate_work_available(
     assert resolved.s8_status == "blocked"
 
 
-def test_cycle_substrate_context_owner_refuses_wrong_problem_or_job(tmp_path: Any) -> None:
+def test_cycle_substrate_context_owner_refuses_wrong_problem_or_job(
+    tmp_path: Any,
+) -> None:
     """A content ref cannot be replayed for another compiled problem or job."""
 
     problem = _design_problem()
@@ -1755,7 +1757,9 @@ def test_configured_candidate_owner_persists_declared_model_in_exact_context(
             tenant_id="tenant-declared-candidate",
             cell_id="cell-declared-candidate",
         )
-    from polisyos.runtime.quality.candidate_simulation import CandidateSimulationContextOffer
+    from polisyos.runtime.quality.candidate_simulation import (
+        CandidateSimulationContextOffer,
+    )
 
     assert type(offer) is CandidateSimulationContextOffer
     assert offer.profile == profile
@@ -3012,7 +3016,8 @@ def test_real_transport_gateway_uses_selected_graph_topology_and_measured_rows(
                     )
             else:
                 with pytest.raises(
-                    FileNotFoundError, match="selected_transport_payload_removed_after_run"
+                    FileNotFoundError,
+                    match="selected_transport_payload_removed_after_run",
                 ):
                     _resolve_value_transport_run_basis(
                         store=store,
@@ -3230,3 +3235,162 @@ def test_real_transport_gateway_uses_selected_graph_topology_and_measured_rows(
     assert receipt is None
     assert error is not None
     assert "transport_run_basis_selected_profile_unresolved" in error
+
+
+def test_candidate_source_database_path_requires_canonical_descendant(
+    tmp_path: Path,
+) -> None:
+    root = tmp_path / "repo"
+    inside = root / "production_data" / "datasets" / "catalog.duckdb"
+    inside.parent.mkdir(parents=True)
+    inside.write_bytes(b"controlled path-only fixture")
+    outside = tmp_path / "outside.duckdb"
+    outside.write_bytes(b"outside fixture")
+    symlink = inside.parent / "redirect.duckdb"
+    try:
+        symlink.symlink_to(outside)
+    except (OSError, NotImplementedError):
+        pytest.skip("filesystem does not permit symlink fixtures")
+
+    resolved_inside = inside.resolve(strict=True)
+    assert (
+        cycle_substrate_owner._candidate_source_database_path(
+            root,
+            "repo://production_data/datasets/catalog.duckdb#dataset_catalog",
+        )
+        == resolved_inside
+    )
+    assert (
+        cycle_substrate_owner._candidate_source_database_path(
+            root, f"duckdb://{resolved_inside.as_posix()}#v1"
+        )
+        == resolved_inside
+    )
+    root_alias = tmp_path / "repo-alias"
+    try:
+        root_alias.symlink_to(root, target_is_directory=True)
+    except (OSError, NotImplementedError):
+        pytest.skip("filesystem does not permit symlink fixtures")
+    assert (
+        cycle_substrate_owner._candidate_source_database_path(
+            root_alias,
+            "repo://production_data/datasets/catalog.duckdb#dataset_catalog",
+        )
+        == resolved_inside
+    )
+    with pytest.raises(
+        CycleSubstrateContextOwnerError,
+        match="candidate_cycle_source_profile_repo_ref_invalid",
+    ):
+        cycle_substrate_owner._candidate_source_database_path(
+            root,
+            "repo://production_data/datasets/../datasets/catalog.duckdb#dataset_catalog",
+        )
+    with pytest.raises(
+        CycleSubstrateContextOwnerError,
+        match="candidate_cycle_source_profile_skg_source_outside_root",
+    ):
+        cycle_substrate_owner._candidate_source_database_path(
+            root,
+            "repo://production_data/datasets/redirect.duckdb#dataset_catalog",
+        )
+    with pytest.raises(
+        CycleSubstrateContextOwnerError,
+        match="candidate_cycle_source_profile_skg_source_outside_root",
+    ):
+        cycle_substrate_owner._candidate_source_database_path(
+            root,
+            f"duckdb://{outside.resolve(strict=True)}#v1",
+        )
+
+
+def test_candidate_source_profile_n5_owner_v5_rederivation(tmp_path: Path) -> None:
+    from polisyos.runtime.quality.cycle_substrate import (
+        CANDIDATE_CYCLE_SUBSTRATE_CONTEXT_SCHEMA_VERSION,
+        CYCLE_SUBSTRATE_CONTEXT_JOB_V5_SCHEMA,
+        CycleSubstrateContextJobArtifactV5,
+        revalidate_candidate_cycle_substrate_context,
+    )
+    from tests._helpers.candidate_cycle_source_profile import (
+        build_candidate_cycle_substrate_owner_fixture,
+    )
+
+    fixture = build_candidate_cycle_substrate_owner_fixture(tmp_path)
+    artifact = fixture.resolved_context_job
+    context = artifact.context
+    profile = context.source_profile
+
+    assert type(artifact) is CycleSubstrateContextJobArtifactV5
+    assert artifact.schema_version == CYCLE_SUBSTRATE_CONTEXT_JOB_V5_SCHEMA
+    assert context.schema_version == CANDIDATE_CYCLE_SUBSTRATE_CONTEXT_SCHEMA_VERSION
+    assert profile is not None
+    assert profile.profile_status == "candidate_only"
+    assert profile.owner_recomputation_status == "recomputed"
+    assert profile.authority_purpose == "cycle_input_candidate_only"
+    assert profile.source_basis_status == "not_established"
+    assert profile.source_authenticity_status == "not_established"
+    assert profile.source_currentness_status == "not_established"
+    assert profile.selected_candidate_lever_edge_statuses == ("contested",)
+    assert "selected_outcome_owner_edges_contested" in profile.limitation_codes
+    assert "selected_outcome_relation_claim_not_established_structure" in profile.limitation_codes
+    assert context.world_model_record.authority_status == "limited"
+    assert len(context.candidate_levers) == 1
+    assert context.candidate_levers[0].status == "candidate_unbound"
+    assert context.candidate_levers[0].instrument == "education.teaching_method"
+    assert context.candidate_levers[0].target_concept == "education.learning_outcomes"
+    assert artifact.problem.runtime_hints["joint_simulation_resource"] == "ncm_parallel_worlds"
+    assert artifact.problem.runtime_hints["joint_simulation_budget_ref"] == (
+        "budget://controlled-refusal-probe"
+    )
+    assert artifact.problem.runtime_hints["joint_simulation_horizon"] == {
+        "start": 0,
+        "end": 0,
+        "step": 1,
+    }
+    assert (
+        revalidate_candidate_cycle_substrate_context(
+            context,
+            repo_root=fixture.root,
+            problem=artifact.problem,
+        ).content_hash
+        == context.content_hash
+    )
+
+
+def test_candidate_source_profile_v5_refuses_changed_selected_owner_rows(
+    tmp_path: Path,
+) -> None:
+    import duckdb
+
+    from polisyos.runtime.quality.cycle_substrate import (
+        revalidate_candidate_cycle_substrate_context,
+    )
+    from tests._helpers.candidate_cycle_source_profile import (
+        build_candidate_cycle_substrate_owner_fixture,
+    )
+
+    fixture = build_candidate_cycle_substrate_owner_fixture(tmp_path)
+    context = fixture.resolved_context_job.context
+    source_path = Path(
+        fixture.source_profile.skg_snapshot_ref.removeprefix("duckdb://").rsplit("#v", 1)[0]
+    )
+    with duckdb.connect(str(source_path)) as connection:
+        before = connection.execute(
+            "SELECT COUNT(*) FROM ac_causal_claims WHERE id = ?",
+            ["candidate-source-profile-causal-claim"],
+        ).fetchone()[0]
+        assert before == 1
+        connection.execute(
+            "DELETE FROM ac_causal_claims WHERE id = ?",
+            ["candidate-source-profile-causal-claim"],
+        )
+
+    with pytest.raises(
+        CycleSubstrateContextOwnerError,
+        match="candidate_cycle_source_profile_owner_rederive_mismatch",
+    ):
+        revalidate_candidate_cycle_substrate_context(
+            context,
+            repo_root=fixture.root,
+            problem=fixture.problem,
+        )

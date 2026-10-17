@@ -389,7 +389,7 @@ def build_l5_family_binding_profile(
 ) -> L5FamilyBindingProfile:
     """Build the L5 honesty profile for bound data-state families."""
 
-    l5 = load_l5_catalog_authority(default_substrate_catalog_paths(repo_root))
+    l5 = load_l5_catalog_authority(default_substrate_catalog_paths(repo_root), repo_root=repo_root)
     owner_scopes = l5_owner_scope_identity_refs(l5)
     if scope_identity_ref is None:
         if len(owner_scopes) != 1:

@@ -511,7 +511,9 @@ def test_owner_projection_round_trips_exact_open_world_vector_identity() -> None
 
 
 def test_legacy_v3_history_is_exactly_readable_but_not_current_authority() -> None:
-    from tests.unit.runtime.quality.historical_artifacts import historical_generation_cycle_v1
+    from tests.unit.runtime.quality.historical_artifacts import (
+        historical_generation_cycle_v1,
+    )
 
     frozen = historical_generation_cycle_v1()
     payload = frozen["generation_cycle_run"]["promotion_port"]["receipts"][0]
@@ -653,7 +655,11 @@ def test_historical_receipt_corpus_replays_without_current_authority() -> None:
         }
     )
     comparison_envelope_fields = frozenset(
-        {"comparison_admission_manifest", "comparison_content_hash", "comparison_rule_version"}
+        {
+            "comparison_admission_manifest",
+            "comparison_content_hash",
+            "comparison_rule_version",
+        }
     )
     comparison_excerpt_fields = frozenset(
         {
@@ -699,7 +705,11 @@ def test_historical_receipt_corpus_replays_without_current_authority() -> None:
                     content_binding = _historical_corpus_artifact_content_binding(value)
                     if content_binding is not None:
                         artifact_bytes, artifact_digest = content_binding
-                        artifact_ref = (Path(destination), artifact_bytes, artifact_digest)
+                        artifact_ref = (
+                            Path(destination),
+                            artifact_bytes,
+                            artifact_digest,
+                        )
                         for reference in {original_path, destination}:
                             artifact_rows_by_reference.setdefault(reference, []).append(
                                 artifact_ref
@@ -760,9 +770,11 @@ def test_historical_receipt_corpus_replays_without_current_authority() -> None:
 
     output_stream_bindings: dict[Path, set[tuple[str, int, str]]] = {}
     for role, reference, output_bytes, output_digest in output_refs:
-        for destination, artifact_bytes, artifact_digest in artifact_rows_by_reference.get(
-            reference, []
-        ):
+        for (
+            destination,
+            artifact_bytes,
+            artifact_digest,
+        ) in artifact_rows_by_reference.get(reference, []):
             if destination not in tracked_json_set:
                 continue
             if output_bytes is not None and output_bytes != artifact_bytes:
@@ -847,8 +859,12 @@ def test_pinned_git_history_receipts_replay_without_current_authority() -> None:
     """Replay N9 receipts in every pinned Git JSON carrier used by owners."""
 
     from tests.unit.runtime.quality import historical_artifacts
-    from tools.quality.validation import check_layer3_gy_promotion_contract as promotion_checker
-    from tools.quality.validation import check_layer3_gy_second_domain_pack as second_domain
+    from tools.quality.validation import (
+        check_layer3_gy_promotion_contract as promotion_checker,
+    )
+    from tools.quality.validation import (
+        check_layer3_gy_second_domain_pack as second_domain,
+    )
 
     pinned = {
         name: value
@@ -1034,7 +1050,10 @@ def test_v1_flat_history_receipts_round_trip_without_current_authority() -> None
     # the original and captured v1 shapes on that divergence.
     v1_profiles = (
         (original_shape, promotion_sequence_module._LegacyCanonicalPromotionReceiptV1),
-        (captured, promotion_sequence_module._LegacyCanonicalPromotionReceiptV1Captured),
+        (
+            captured,
+            promotion_sequence_module._LegacyCanonicalPromotionReceiptV1Captured,
+        ),
     )
     for source, model_type in v1_profiles:
         coercible = deepcopy(source)
@@ -1428,7 +1447,9 @@ def test_v4_v1_history_is_readable_but_cannot_be_current_authority() -> None:
 
 def test_frozen_v6_capture_preserves_history_and_refuses_current_admission() -> None:
     from polisyos.pdc import build_gy_comparison_projection_plan_from_manifest
-    from tools.quality.validation.check_layer3_gy_promotion_contract import _comparison_content_hash
+    from tools.quality.validation.check_layer3_gy_promotion_contract import (
+        _comparison_content_hash,
+    )
 
     path = (
         REPO_ROOT / "tests/repo_quality/tools/fixtures/layer3_gy_promotion_contract_credal_v1.json"
@@ -2579,7 +2600,16 @@ def test_selected_catalog_kref_replays_through_effect_bridge_to_cg2_consumer(
     catalog_root = (tmp_path / "catalog-root").resolve()
     selected_rows = (
         ("selected-a", "tax", "policy.tax_rate", "a", 0.92, "A canonical", False, 0.0),
-        ("selected-a", "raw unknown", "unmapped.canonical", "a", 0.89, "A other", False, 0.0),
+        (
+            "selected-a",
+            "raw unknown",
+            "unmapped.canonical",
+            "a",
+            0.89,
+            "A other",
+            False,
+            0.0,
+        ),
     )
     snapshot_root = catalog_root / "snapshots" / "catalog-a"
     database_path = snapshot_root / "datasets" / "graph" / "dataset_catalog.duckdb"
@@ -3067,7 +3097,9 @@ def test_empty_independence_graph_cannot_establish_promotion_evidence(
     assert "no_support_evidence" in row.detail
 
 
-def test_n9_measurement_refuses_catalog_metadata_without_fabric_custody(tmp_path: Path) -> None:
+def test_n9_measurement_refuses_catalog_metadata_without_fabric_custody(
+    tmp_path: Path,
+) -> None:
     """A catalog-only envelope cannot establish the current measurement obligation."""
 
     store = FileSystemCAS(tmp_path / "cas")
@@ -3098,8 +3130,12 @@ def test_n9_measurement_refuses_catalog_metadata_without_fabric_custody(tmp_path
 
 @pytest.fixture
 def fabric_measurement_owner(tmp_path: Path):
-    from tests._helpers.measurement_execution_binding import measurement_execution_binding
-    from tests.unit.fabric.test_retrieval_fetch_custody import build_worldbank_fetch_owner
+    from tests._helpers.measurement_execution_binding import (
+        measurement_execution_binding,
+    )
+    from tests.unit.fabric.test_retrieval_fetch_custody import (
+        build_worldbank_fetch_owner,
+    )
 
     with build_worldbank_fetch_owner(tmp_path) as owner:
         owner.problem = _d1_worldbank_problem(owner)
@@ -3109,7 +3145,9 @@ def fabric_measurement_owner(tmp_path: Path):
 
 @pytest.fixture
 def controlled_measurement_owner(tmp_path: Path):
-    from tests._helpers.measurement_execution_binding import measurement_execution_binding
+    from tests._helpers.measurement_execution_binding import (
+        measurement_execution_binding,
+    )
     from tests.unit.fabric.test_retrieval_fetch_custody import build_real_fetch_owner
 
     with build_real_fetch_owner(tmp_path) as owner:
@@ -3188,7 +3226,9 @@ def _d1_worldbank_problem(owner):
 
 def _fabric_measurement_envelope(owner, *, include_requirement=True):
     from polisyos.core.contracts.control import DataNeed, DataResolveRequest
-    from polisyos.data_forge.domains.catalog.selection import validate_catalog_run_profile
+    from polisyos.data_forge.domains.catalog.selection import (
+        validate_catalog_run_profile,
+    )
     from polisyos.data_forge.read_api import catalog as catalog_read_api
 
     run_profile = validate_catalog_run_profile("prod_full")
@@ -3349,7 +3389,9 @@ def test_n9_measurement_refuses_out_of_contract_observations(fabric_measurement_
 
 def _assert_invalid_recorded_observations_refused(owner, condition):
     from polisyos.fabric.retrieval.custody import FabricFetchCustodyError
-    from polisyos.runtime.quality.data_forge_binding import FabricMeasurementRootBindingError
+    from polisyos.runtime.quality.data_forge_binding import (
+        FabricMeasurementRootBindingError,
+    )
 
     initial = _promotion_input(
         design_problem_binding=N9DesignProblemBinding.from_problem(owner.problem)
@@ -3569,7 +3611,9 @@ def test_fabric_measurement_repeated_verification_emits_honest_event_identity(
     )
 
 
-def test_fabric_measurement_root_cannot_bypass_existing_source_admission(fabric_measurement_owner):
+def test_fabric_measurement_root_cannot_bypass_existing_source_admission(
+    fabric_measurement_owner,
+):
     with pytest.raises(ValueError, match="measurement_root_source_requirement"):
         _fabric_measurement_envelope(fabric_measurement_owner, include_requirement=False)
 
@@ -3668,7 +3712,9 @@ def test_source_requirement_validates_selected_and_registry_freshness_origins(
 
 def test_fabric_measurement_root_refuses_unapproved_registered_connector(tmp_path):
     from polisyos.data_forge.read_api import catalog as catalog_read_api
-    from tests.unit.fabric.test_retrieval_fetch_custody import build_recorded_file_fetch_owner
+    from tests.unit.fabric.test_retrieval_fetch_custody import (
+        build_recorded_file_fetch_owner,
+    )
 
     with build_recorded_file_fetch_owner(tmp_path) as owner:
         registry = catalog_read_api.load_catalog_source_registry()
@@ -3708,7 +3754,9 @@ def test_n9_measurement_rechecks_source_requirement_and_problem(fabric_measureme
         with pytest.raises(ValueError, match="measurement_root_design_problem_binding_mismatch"):
             repository.persist_measurement_root(promotion_input=unrelated, envelope=envelope)
         result = repository.resolve(
-            promotion_input=unrelated, evidence_kind="measurement_root", bridge_ref=bridge
+            promotion_input=unrelated,
+            evidence_kind="measurement_root",
+            bridge_ref=bridge,
         )
         assert result.status == "not_established"
     else:
@@ -3735,7 +3783,8 @@ def test_n9_measurement_rechecks_source_requirement_and_problem(fabric_measureme
 
 
 @pytest.mark.parametrize(
-    "mutation", ["catalog_removed", "source_changed", "payload_missing", "contract_changed"]
+    "mutation",
+    ["catalog_removed", "source_changed", "payload_missing", "contract_changed"],
 )
 def test_n9_replays_current_measurement_source_at_admission(fabric_measurement_owner, mutation):
     owner = fabric_measurement_owner
@@ -3854,7 +3903,7 @@ def test_measurement_root_evidence_replays_canonical_base_dataset_envelope(
 
     baseline = build_substrate_registry_from_existing_catalogs(REPO_ROOT)
     baseline_ref = persist_substrate_registry(owner.store, baseline)
-    l5 = load_l5_catalog_authority(default_substrate_catalog_paths(REPO_ROOT))
+    l5 = load_l5_catalog_authority(default_substrate_catalog_paths(REPO_ROOT), repo_root=REPO_ROOT)
     admission = persist_measurement_root_substrate_registry(
         owner.store,
         baseline_registry=baseline,
@@ -4222,7 +4271,7 @@ def test_measurement_root_registry_rejects_unreplayed_or_mismatched_lineage(
     baseline = build_substrate_registry_from_existing_catalogs(REPO_ROOT)
     baseline_ref = persist_substrate_registry(owner.store, baseline)
     cas_before = {path: path.read_bytes() for path in owner.store.root.rglob("*.manifest.json")}
-    l5 = load_l5_catalog_authority(default_substrate_catalog_paths(REPO_ROOT))
+    l5 = load_l5_catalog_authority(default_substrate_catalog_paths(REPO_ROOT), repo_root=REPO_ROOT)
     registration = _future_substrate_registration(l5)
     forged: object
     baseline_for_admission = baseline
@@ -4311,7 +4360,9 @@ def test_measurement_root_registry_rejects_unreplayed_or_mismatched_lineage(
     assert load_substrate_registry(owner.store, baseline_ref) == baseline
 
 
-def test_real_measurement_root_resolves_and_binds_into_n9(fabric_measurement_owner) -> None:
+def test_real_measurement_root_resolves_and_binds_into_n9(
+    fabric_measurement_owner,
+) -> None:
     owner = fabric_measurement_owner
     envelope = _fabric_measurement_envelope(owner)
     promotion_input = _promotion_input(
@@ -4437,7 +4488,9 @@ def test_owned_source_selection_reaches_default_controller_and_real_n9_writers(
 ) -> None:
     """Configured owner inputs must reach producer/replay without an N4 capsule."""
 
-    from tests.unit.runtime.quality.test_generation_cycle import _positive_epoch_admitted_batch
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        _positive_epoch_admitted_batch,
+    )
 
     owner = fabric_measurement_owner
     summary = _summary()
@@ -4644,7 +4697,9 @@ def test_unconstructed_effect_is_receipt_distinct_from_scope_insufficient() -> N
     assert effect.instance_scope_content_hash != _hash("0")
 
 
-def test_valid_cg1_shadow_certificate_alone_cannot_satisfy_effect(tmp_path: Path) -> None:
+def test_valid_cg1_shadow_certificate_alone_cannot_satisfy_effect(
+    tmp_path: Path,
+) -> None:
     promotion_input = _promotion_input()
     reference = promotion_input.credal_reference
     assert reference is not None
@@ -6156,7 +6211,9 @@ def test_failed_obligation_cannot_be_relabelled_into_decision_front() -> None:
 
 @_requires_cp_sat
 def test_promotion_history_remains_readable_after_exact_v3_to_v6_reissue() -> None:
-    from tests.unit.runtime.quality.historical_artifacts import historical_generation_cycle_v1
+    from tests.unit.runtime.quality.historical_artifacts import (
+        historical_generation_cycle_v1,
+    )
     from tools.quality.validation import check_layer3_gy_promotion_contract as validator
 
     historical_contract = historical_generation_cycle_v1()
@@ -6865,7 +6922,9 @@ def _value_receipt(
     )
 
 
-def _cg2_contract_bind(reference: CredalReference | None = None) -> tuple[CredalReference, object]:
+def _cg2_contract_bind(
+    reference: CredalReference | None = None,
+) -> tuple[CredalReference, object]:
     reference = reference or _credal_reference()
     engine = GroundingRelationEngine(reference)
     cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
@@ -7472,7 +7531,9 @@ def test_measurement_root_persistence_rechecks_admitted_scope_before_cas_write(
     if sink == "substrate_registry":
         baseline = build_substrate_registry_from_existing_catalogs(REPO_ROOT)
         baseline_ref = persist_substrate_registry(owner.store, baseline)
-        l5 = load_l5_catalog_authority(default_substrate_catalog_paths(REPO_ROOT))
+        l5 = load_l5_catalog_authority(
+            default_substrate_catalog_paths(REPO_ROOT), repo_root=REPO_ROOT
+        )
         registration = _future_substrate_registration(l5)
 
     cas_before = {

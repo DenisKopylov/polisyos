@@ -45,7 +45,11 @@ NOTEBOOK_PATH = Path("architecture/policy_design_case/layer3_gy_n0_investigation
 FAMILY_ID = "policy-design-case-layer3-gy-generation-cycle-disposition-ledger"
 SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy.generation_cycle_disposition_ledger.v1"
 DISPOSITIONS = {"USE_AS_IS", "REWORK_TO_FIT", "DELETE"}
-BRIDGE_DISPOSITIONS = {"BUILD_NEW_BRIDGE", "BUILD_NEW_FOUNDATION_CONTRACT", "REWORK_TO_FIT"}
+BRIDGE_DISPOSITIONS = {
+    "BUILD_NEW_BRIDGE",
+    "BUILD_NEW_FOUNDATION_CONTRACT",
+    "REWORK_TO_FIT",
+}
 TASK_STATUSES = {"pending", "landed"}
 STRANGLE_STATUSES = {"pending", "strangled"}
 REQUIRED_TASKS = {
@@ -171,7 +175,11 @@ def validate_ledger(repo_root: Path, ledger: dict[str, Any]) -> dict[str, Any]:
         task_id = bridge.get("consuming_task")
         if task_id not in tasks:
             issues.append(
-                {"code": "bridge_artifact_task_missing", "bridge": bridge_id, "task_id": task_id}
+                {
+                    "code": "bridge_artifact_task_missing",
+                    "bridge": bridge_id,
+                    "task_id": task_id,
+                }
             )
         disposition = bridge.get("disposition")
         if disposition not in BRIDGE_DISPOSITIONS:
@@ -347,7 +355,10 @@ def _parse_notebook_candidate_owners(
             continue
         if current_disposition is None:
             issues.append(
-                {"code": "notebook_owner_bullet_outside_disposition", "line": line_number}
+                {
+                    "code": "notebook_owner_bullet_outside_disposition",
+                    "line": line_number,
+                }
             )
             continue
         match = NOTEBOOK_OWNER_BULLET_RE.match(stripped)
@@ -588,7 +599,11 @@ def _validate_strangle_obligations(
         missing = sorted(field for field in STRANGLE_RECEIPT_FIELDS if field not in receipt)
         if missing:
             issues.append(
-                {"code": "strangle_receipt_field_missing", "owner_id": owner_id, "fields": missing}
+                {
+                    "code": "strangle_receipt_field_missing",
+                    "owner_id": owner_id,
+                    "fields": missing,
+                }
             )
         status = receipt.get("status")
         if status not in STRANGLE_STATUSES:
@@ -803,7 +818,10 @@ def _n8_value_gate_evidence(repo_root: str) -> dict[str, Any] | None:
         root = Path(repo_root)
         if check(root):
             return None
-        with contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(io.StringIO()):
+        with (
+            contextlib.redirect_stdout(io.StringIO()),
+            contextlib.redirect_stderr(io.StringIO()),
+        ):
             if run_rederive_audit(root):
                 return None
         payload = json.loads((root / OUTPUT_PATH).read_text(encoding="utf-8"))
@@ -1134,7 +1152,11 @@ def _sample_design_problem() -> Any:
                 "as_of": "2026-05-12",
                 "policy_time": "2026-05-15",
                 "data_time": "2024-2026",
-                "time_semantics": {"frequency": "Q", "start_date": "2024-01-01", "step_count": 8},
+                "time_semantics": {
+                    "frequency": "Q",
+                    "start_date": "2024-01-01",
+                    "step_count": 8,
+                },
             },
             "objectives": [
                 {
@@ -1223,8 +1245,14 @@ def _sample_intervention_atom_binding_inputs() -> dict[str, Any]:
     from polisyos.ir.linker import link_trinity
     from polisyos.ir.model_layer.model_spec import ModelSpec
     from polisyos.ir.model_layer.types import SelectorOperator
-    from polisyos.ir.observation.contracts import IdentificationMode, StrategicResponseChannel
-    from polisyos.ir.registry.refs import InteractionComplexRef, InterferenceCertificateRef
+    from polisyos.ir.observation.contracts import (
+        IdentificationMode,
+        StrategicResponseChannel,
+    )
+    from polisyos.ir.registry.refs import (
+        InteractionComplexRef,
+        InterferenceCertificateRef,
+    )
     from polisyos.ir.registry.registry_fragments import RegistryBundle
     from polisyos.ir.trinity import TrinityBundle
     from polisyos.pdc import gy_content_hash
@@ -1853,7 +1881,9 @@ def _production_data_substrate_registry_landed(repo_root: Path) -> bool:
         behavior = substrate_registry_trust_tier_bounds_behavior_report(repo_root)
         if behavior["status"] != "pass":
             return False
-        l5 = load_l5_catalog_authority(default_substrate_catalog_paths(repo_root))
+        l5 = load_l5_catalog_authority(
+            default_substrate_catalog_paths(repo_root), repo_root=repo_root
+        )
         registry = build_substrate_registry_from_existing_catalogs(repo_root)
         layers = {entry.layer for entry in registry.entries}
         if (
@@ -2052,14 +2082,18 @@ def _design_generation_mutation_red(repo_root: Path, mutation_id: str) -> bool:
 
 @lru_cache(maxsize=4)
 def _design_generation_contract_report(repo_root: str) -> dict[str, Any]:
-    from tools.quality.validation.check_layer3_gy_design_generation_contract import validate
+    from tools.quality.validation.check_layer3_gy_design_generation_contract import (
+        validate,
+    )
 
     return validate(Path(repo_root))
 
 
 @lru_cache(maxsize=4)
 def _design_generation_contract_payload(repo_root: str) -> dict[str, Any]:
-    from tools.quality.validation.check_layer3_gy_design_generation_contract import OUTPUT_PATH
+    from tools.quality.validation.check_layer3_gy_design_generation_contract import (
+        OUTPUT_PATH,
+    )
 
     return json.loads((Path(repo_root) / OUTPUT_PATH).read_text(encoding="utf-8"))
 
@@ -2086,7 +2120,12 @@ def _validate_method_availability_gate(
     live = _probe_method_availability_gate(repo_root)
     for method_id, expected_row in expected.items():
         if not isinstance(expected_row, dict):
-            issues.append({"code": "method_availability_expected_row_invalid", "method": method_id})
+            issues.append(
+                {
+                    "code": "method_availability_expected_row_invalid",
+                    "method": method_id,
+                }
+            )
             continue
         live_row = live.get(method_id)
         if not live_row:
@@ -2208,7 +2247,12 @@ def _probe_compute(method_id: str, smoke: Any) -> dict[str, Any]:
             "smoke_status": "fail",
             "detail": f"{type(exc).__name__}: {exc}",
         }
-    return {"available": True, "smoke_status": "pass", "detail": detail, "method": method_id}
+    return {
+        "available": True,
+        "smoke_status": "pass",
+        "detail": detail,
+        "method": method_id,
+    }
 
 
 def _probe_optional_cvxpy() -> dict[str, Any]:
@@ -2264,7 +2308,9 @@ def _smoke_cvxpy() -> str:
 
 
 def _smoke_foundry_bayesian_variational() -> str:
-    from polisyos.foundry.methods.catalog.bayesian.variational import MeanFieldVIEstimator
+    from polisyos.foundry.methods.catalog.bayesian.variational import (
+        MeanFieldVIEstimator,
+    )
     from polisyos.foundry.methods.catalog.ml.protocols import TabularData
 
     state = TabularData(
@@ -2288,7 +2334,9 @@ def _smoke_foundry_bayesian_variational() -> str:
 def _smoke_foundry_bayesian_bvar() -> str:
     import numpy as np
 
-    from polisyos.foundry.methods.catalog.econometrics.expansion import BayesianVAREstimator
+    from polisyos.foundry.methods.catalog.econometrics.expansion import (
+        BayesianVAREstimator,
+    )
     from polisyos.foundry.methods.catalog.econometrics.protocols import TimeSeriesData
 
     state = TimeSeriesData(
@@ -2299,8 +2347,14 @@ def _smoke_foundry_bayesian_bvar() -> str:
 
 
 def _smoke_foundry_transport() -> str:
-    from polisyos.foundry.methods.catalog.causal.transport_engine import solve_transportability
-    from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
+    from polisyos.foundry.methods.catalog.causal.transport_engine import (
+        solve_transportability,
+    )
+    from polisyos.ir.analytics.causal_graph import (
+        CausalEdge,
+        CausalGraphModel,
+        GraphType,
+    )
     from polisyos.ir.analytics.context import ContextProfile
     from polisyos.ir.analytics.transportability import SelectionDiagram
 

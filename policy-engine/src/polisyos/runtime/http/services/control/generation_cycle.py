@@ -5,12 +5,17 @@ from __future__ import annotations
 from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import datetime  # Pydantic resolves at runtime
+from pathlib import Path
 from typing import TYPE_CHECKING, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, model_validator
 
 from polisyos.core import artifacts, canon
-from polisyos.core.artifacts import ArtifactRef, read_core_json_artifact, read_core_manifest_profile
+from polisyos.core.artifacts import (
+    ArtifactRef,
+    read_core_json_artifact,
+    read_core_manifest_profile,
+)
 from polisyos.core.contracts import (
     AgentPipelineCostEvent,
     ControlJobResponse,
@@ -62,7 +67,6 @@ from polisyos.runtime.quality.recursive_generation_cycle import (
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
-    from pathlib import Path
 
     from polisyos.core.contracts import CatalogRunProfile
     from polisyos.runtime.http.services.control.nl_pipeline import (
@@ -1563,6 +1567,7 @@ async def compile_and_run_recursive_generation_cycle(
     execution_intent: ExecutionIntent | None = None,
     joint_interaction_candidate_intent: Literal["n4_unique_parent_source_members.v1"] | None = None,
     n4_proposal_only: bool = False,
+    n4_proposal_only_origin: Literal["explicit", "derived_legacy_default"] = "explicit",
     producer_run_id: str | None = None,
     producer_settlement_store: BudgetMiddleware | None = None,
     _producer_budget_reconciler: Callable[[BudgetState], None] | None = None,
@@ -1609,6 +1614,8 @@ async def compile_and_run_recursive_generation_cycle(
     those identities in persisted DesignProblem provenance.
     """
 
+    if n4_proposal_only_origin not in {"explicit", "derived_legacy_default"}:
+        raise DesignProblemAuthorityError("n4_proposal_only_origin_not_canonical")
     if type(enable_contract_testing_credal_source_attempts) is not bool:
         raise TypeError("contract_testing_credal_source_attempts_flag_must_be_bool")
     if enable_contract_testing_credal_source_attempts and (
@@ -1782,6 +1789,70 @@ async def compile_and_run_recursive_generation_cycle(
             "cycle_plain_language_content_mismatch",
             "compiled DesignProblem does not preserve the caller's raw request",
         )
+    from polisyos.runtime.quality.cycle_substrate import (
+        CycleSubstrateContextArtifactOwner,
+        CycleSubstrateContextOwnerError,
+        VerifiedNLJobScope,
+        candidate_cycle_substrate_source_profile_selection,
+    )
+
+    try:
+        candidate_source_profile_selection = candidate_cycle_substrate_source_profile_selection(
+            problem
+        )
+    except CycleSubstrateContextOwnerError as exc:
+        raise DesignProblemAuthorityError(
+            "candidate_cycle_source_profile_selection_invalid", str(exc)
+        ) from exc
+    if candidate_source_profile_selection is not None:
+        if n4_proposal_only and n4_proposal_only_origin == "explicit":
+            raise DesignProblemAuthorityError(
+                "candidate_cycle_source_profile_proposal_only_conflict",
+                "Explicit N4-only intent cannot be upgraded to selected-profile generation.",
+            )
+        if (
+            controller is not None
+            or root_n4_generation_port is not None
+            or n4_recursive_source is not None
+        ):
+            raise DesignProblemAuthorityError(
+                "candidate_cycle_source_profile_recursive_owner_bypass",
+                "The selected source profile requires the standard recursive owner route.",
+            )
+        if root_evaluation_context is not None:
+            raise DesignProblemAuthorityError(
+                "candidate_cycle_source_profile_eval_safety_context_conflict"
+            )
+        if not isinstance(repo_root, Path):
+            raise DesignProblemAuthorityError("candidate_cycle_source_profile_repo_root_missing")
+        if type(recursive_leaf_context_owner) is not RecursiveLeafContextOwner:
+            raise DesignProblemAuthorityError(
+                "candidate_cycle_source_profile_recursive_owner_missing"
+            )
+        source_profile_context_owner = recursive_leaf_context_owner._context_owner
+        if type(source_profile_context_owner) is not CycleSubstrateContextArtifactOwner:
+            raise DesignProblemAuthorityError(
+                "candidate_cycle_source_profile_context_owner_missing"
+            )
+        owner_scope = recursive_leaf_context_owner._verified_nl_job_scope
+        if (
+            type(owner_scope) is not VerifiedNLJobScope
+            or not owner_scope._was_issued_by_verified_nl_execution_owner
+        ):
+            raise DesignProblemAuthorityError(
+                "candidate_cycle_source_profile_verified_scope_missing"
+            )
+        if verified_nl_job_scope is not None and verified_nl_job_scope is not owner_scope:
+            raise DesignProblemAuthorityError(
+                "candidate_cycle_source_profile_verified_scope_mismatch"
+            )
+        verified_nl_job_scope = owner_scope
+        if n4_proposal_only:
+            # The HTTP worker's legacy proposal-only default is derived from a missing generic
+            # handoff resolver. A selected candidate source profile requires the recursive
+            # owner path, which persists and freshly resolves V5 before invoking N4.
+            n4_proposal_only = False
+
     producer_problem_ref = gy_content_hash(problem.model_dump(mode="json"))
     problem_ref = producer_problem_ref
     candidate_simulation_handoff: CandidateSimulationContextHandoff | None = None

@@ -90,6 +90,14 @@ The create_runtime_api_app(repo_root=...) setting selects an optional server-sid
 
 This source root is separate from cas_root and core_runs_root, which still select runtime artifact and job outputs. It also leaves product code imports and package-resource resolution attached to the installed PolicyOS package. A selected source root supplies candidate inputs to owner readers; it does not establish source authenticity, freshness, currentness, complete L3/L6 source basis, causal grounding, recommendation admissibility, or publication authority.
 
+The selected repository root is passed explicitly to the S0/L5 catalog owner. Every emitted `repo://` reference is the canonical path of a resolved file beneath that same root; L5 references retain the `production_data/` prefix instead of deriving a shorter root from `root_manifest_path.parent`. A missing or mismatched root, parent traversal, or symlink that resolves outside the selected checkout is refused. The candidate source resolver applies the same descendant check to both `repo://` and absolute `duckdb://` selectors; it has no outside-root fallback. These checks bind paths only and do not upgrade candidate status or source-basis, authenticity, or currentness labels.
+
+## Candidate cycle source-profile handoff (prototype)
+
+A typed candidate source-profile selector is handled on the normal recursive N5 route. The controller rebuilds a candidate-only context from owner inputs, persists it as context-job V5 under the issued NL job scope, freshly resolves that artifact, and binds the returned V2 context at the N4 boundary. Historical context V1 and context-job V1–V4 formats remain unchanged; absent selector preserves the legacy route, while malformed supplied selection fails closed.
+
+This is a bounded internal engineering prototype. The profile is candidate-only (`cycle_input_candidate_only`); source basis, authenticity, and currentness remain `not_established`. K_ref stays V3 and does not bind all zero-row L3/L6 reads. The focused route test is designed to stop at N4 invocation and verify the exact fresh-resolved context; its execution is pending for this composition. It does not prove a generated/refused N4 result, GenerationSource persistence, fresh N6 behavior, or meaningful simulation children. No law, external source authority, recommendation admissibility, or publication authority is established.
+
 ## Authorization contract
 
 `RuntimePermission` is the only hand-authored permission vocabulary for the

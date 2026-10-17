@@ -112,6 +112,7 @@ class ControlNLJobExecutionMixin:
                         intent_band is ExecutionIntentBand.SIMULATE_ONLY_ATTEMPT
                         and generic_cycle_simulation_handoff_resolver is None
                     ),
+                    n4_proposal_only_origin="derived_legacy_default",
                     producer_run_id=(str(job.run_id) if job.run_id is not None else None),
                     producer_run_binding=producer_run_binding,
                     compiler_gateway=None,
@@ -614,7 +615,7 @@ class ControlNLJobExecutionMixin:
             and simulation_disposition_record is not None
         ):
             raise RuntimeError("non_simulation_job_received_simulation_disposition")
-        core_progress: dict[str, object] = {}
+        core_progress = {}
         if core_run_context is not None and core_run_id is not None:
             core_manifest_ref = self._publish_generation_run(
                 job=job,

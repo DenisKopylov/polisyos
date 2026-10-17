@@ -307,7 +307,9 @@ _ACTIVE_CATALOG_SOURCE: ContextVar[CatalogServingSourcePaths | None] = ContextVa
 
 
 @contextmanager
-def catalog_serving_source_scope(source: CatalogServingSourcePaths | None) -> Iterator[None]:
+def catalog_serving_source_scope(
+    source: CatalogServingSourcePaths | None,
+) -> Iterator[None]:
     """Bind one exact source through a complete sync or async candidate call chain."""
 
     if source is None:
@@ -809,7 +811,9 @@ class L5CatalogAuthority:
         return max(eligible, key=_trust_tier_strength_key)
 
 
-def _trust_tier_strength_key(tier: SubstrateTrustTier) -> tuple[float, float, float, str]:
+def _trust_tier_strength_key(
+    tier: SubstrateTrustTier,
+) -> tuple[float, float, float, str]:
     return (
         float(tier.min_coverage or 0.0),
         float(tier.trust_cap),
@@ -976,24 +980,52 @@ def _file_artifact_ref(
     )
 
 
-def load_l5_catalog_authority(paths: SubstrateCatalogPaths) -> L5CatalogAuthority:
-    """Load L5 D2 measurement, identification, and schema-regime authority."""
+def load_l5_catalog_authority(
+    paths: SubstrateCatalogPaths,
+    *,
+    repo_root: Path,
+) -> L5CatalogAuthority:
+    """Load L5 authority while binding every source file to its actual repo root."""
 
-    measurement = _load_json(paths.measurement_registry_path)
-    identification = _load_json(paths.identification_mode_registry_path)
-    schema_regime = _load_json(paths.schema_regime_registry_path)
+    try:
+        repo_root = Path(repo_root).resolve(strict=True)
+    except (OSError, RuntimeError) as exc:
+        raise SubstrateRegistryError("substrate_source_repo_root_unavailable") from exc
+    if not repo_root.is_dir():
+        raise SubstrateRegistryError("substrate_source_repo_root_not_directory")
     epoch_regime_path = paths.epoch_schema_regime_registry_path
     epoch_scope_path = paths.epoch_schema_regime_scope_registry_path
     if epoch_regime_path is None or epoch_scope_path is None:
         raise SubstrateRegistryError("l5_epoch_registry_paths_not_established")
+    for source_path in (
+        paths.root_manifest_path,
+        paths.measurement_registry_path,
+        paths.identification_mode_registry_path,
+        paths.schema_regime_registry_path,
+        epoch_regime_path,
+        epoch_scope_path,
+    ):
+        _repo_relative_path(source_path, repo_root=repo_root)
+    measurement = _load_json(paths.measurement_registry_path)
+    identification = _load_json(paths.identification_mode_registry_path)
+    schema_regime = _load_json(paths.schema_regime_registry_path)
     epoch_regime, epoch_regime_source_bytes = _load_json_source_bytes(epoch_regime_path)
     epoch_scope, epoch_scope_source_bytes = _load_json_source_bytes(epoch_scope_path)
-    measurement_ref = _repo_ref(paths.measurement_registry_path, marker="measurement_registry")
+    measurement_ref = _repo_ref(
+        paths.measurement_registry_path,
+        marker="measurement_registry",
+        repo_root=repo_root,
+    )
     identification_ref = _repo_ref(
         paths.identification_mode_registry_path,
         marker="identification_mode_registry",
+        repo_root=repo_root,
     )
-    schema_ref = _repo_ref(paths.schema_regime_registry_path, marker="schema_regime_registry")
+    schema_ref = _repo_ref(
+        paths.schema_regime_registry_path,
+        marker="schema_regime_registry",
+        repo_root=repo_root,
+    )
     trust_tiers = {
         str(tier_id): SubstrateTrustTier(
             tier=str(row.get("tier") or tier_id),
@@ -1088,6 +1120,7 @@ def build_substrate_registry_from_existing_catalogs(
 ) -> SubstrateRegistry:
     """Lift the current production-data substrate metadata from L5 and L1 catalogs."""
 
+    repo_root = Path(repo_root).resolve()
     paths = default_substrate_catalog_paths(repo_root)
     for required in (
         paths.root_manifest_path,
@@ -1098,7 +1131,7 @@ def build_substrate_registry_from_existing_catalogs(
     ):
         if not required.exists():
             raise SubstrateRegistryError("substrate_catalog_missing", required.as_posix())
-    l5 = load_l5_catalog_authority(paths)
+    l5 = load_l5_catalog_authority(paths, repo_root=repo_root)
     root_manifest = _load_json(paths.root_manifest_path)
     receipt_projections = tuple(l5_receipt_projections or ())
     if not receipt_projections:
@@ -1117,28 +1150,49 @@ def build_substrate_registry_from_existing_catalogs(
             l5_entries_by_key[entry.registry_key] = entry
     entries = [
         *l5_entries_by_key.values(),
-        *_entries_from_l1_dcat(paths.l1_dcat_path, root_manifest=root_manifest, l5=l5),
-        *_entries_from_root_manifest(root_manifest, l5=l5),
+        *_entries_from_l1_dcat(
+            paths.l1_dcat_path,
+            repo_root=repo_root,
+            root_manifest=root_manifest,
+            l5=l5,
+        ),
+        *_entries_from_root_manifest(
+            repo_root,
+            root_manifest,
+            root_manifest_path=paths.root_manifest_path,
+            l5=l5,
+        ),
         *_entries_from_l2_l3_knowledge_substrates(repo_root.resolve(), l5=l5),
         *_entries_from_l6_agent_sim_control_artifacts(
             repo_root.resolve(),
             root_manifest,
+            root_manifest_path=paths.root_manifest_path,
             l5=l5,
         ),
     ]
     knowledge_source_refs = _knowledge_substrate_refs(repo_root.resolve())
-    l6_source_refs = _l6_agent_sim_control_refs(repo_root.resolve(), root_manifest)
+    l6_source_refs = _l6_agent_sim_control_refs(
+        repo_root.resolve(), root_manifest, root_manifest_path=paths.root_manifest_path
+    )
     return build_substrate_registry(
         entries,
         producer_ref="polisyos.runtime.quality.substrate_registry.build_substrate_registry_from_existing_catalogs",
         source_catalog_refs=(
-            _repo_ref(paths.root_manifest_path, marker="production_data_root_manifest"),
+            _repo_ref(
+                paths.root_manifest_path,
+                marker="production_data_root_manifest",
+                repo_root=repo_root,
+            ),
             l5.measurement_registry_ref,
             l5.identification_mode_registry_ref,
             l5.schema_regime_registry_ref,
             str(l5.epoch_schema_regime_registry_ref.artifact_id),
             str(l5.epoch_schema_regime_scope_registry_ref.artifact_id),
-            _repo_ref(paths.l1_dcat_path, marker="dataset_catalog.duckdb"),
+            _repo_ref(
+                paths.l1_dcat_path,
+                marker="dataset_catalog.duckdb",
+                repo_root=repo_root,
+            ),
             *knowledge_source_refs,
             *l6_source_refs,
         ),
@@ -1173,7 +1227,9 @@ def build_substrate_registry(
     )
 
 
-def build_substrate_registry_entry(registration: SubstrateRegistration) -> SubstrateRegistryEntry:
+def build_substrate_registry_entry(
+    registration: SubstrateRegistration,
+) -> SubstrateRegistryEntry:
     """Content-address a generic substrate registration."""
 
     fields = registration.model_dump(mode="python")
@@ -1330,7 +1386,11 @@ def _validate_measurement_root_registry_inputs(
     """Validate immutable CAS reference kinds before building a registry."""
 
     refs = (
-        (measurement_root_ref, "measurement_root", "policyos.gy.measurement_root_payload"),
+        (
+            measurement_root_ref,
+            "measurement_root",
+            "policyos.gy.measurement_root_payload",
+        ),
         (fetch_receipt_ref, "fabric_fetch", "fabric.fetch_receipt"),
         (catalog_binding_ref, "catalog_binding", "fabric.catalog_fetch_binding"),
     )
@@ -1564,6 +1624,7 @@ def _entries_from_l5(
 def _entries_from_l1_dcat(
     dcat_path: Path,
     *,
+    repo_root: Path,
     root_manifest: Mapping[str, Any],
     l5: L5CatalogAuthority,
 ) -> tuple[SubstrateRegistryEntry, ...]:
@@ -1576,7 +1637,7 @@ def _entries_from_l1_dcat(
     source_publish_blocking = _mapping(
         _mapping(dataset_bundle.get("extra")).get("source_publish_blocking")
     )
-    dcat_ref = _repo_ref(dcat_path, marker="ds_datasets")
+    dcat_ref = _repo_ref(dcat_path, marker="ds_datasets", repo_root=repo_root)
     con = duckdb.connect(str(dcat_path), read_only=True)
     try:
         rows = con.execute(
@@ -1731,6 +1792,9 @@ def _entries_from_l2_l3_knowledge_substrates(
         path = spec["path"]
         if not isinstance(path, Path) or not path.exists():
             continue
+        duckdb_ref = _repo_ref(path, marker="duckdb", repo_root=repo_root)
+        coverage_ref = _repo_ref(path, marker="table_counts", repo_root=repo_root)
+        schema_ref = _repo_ref(path, marker="duckdb_schema", repo_root=repo_root)
         con = duckdb.connect(str(path), read_only=True)
         try:
             table_counts = _duckdb_table_counts(con, spec["tables"])
@@ -1742,15 +1806,14 @@ def _entries_from_l2_l3_knowledge_substrates(
         coverage_score = round(present_tables / max(required_tables, 1), 6)
         data_version = str(raw_version or path.parent.name)
         snapshot_payload = {
-            "path": _repo_ref(path, marker="duckdb"),
+            "path": duckdb_ref,
             "data_version": data_version,
             "table_counts": table_counts,
         }
         snapshot_id = f"{spec['family_id']}:{gy_content_hash(snapshot_payload)}"
-        coverage_ref = _repo_ref(path, marker="table_counts")
         schema_regime = SubstrateSchemaRegime(
             schema_regime_id=str(spec["schema_regime_id"]),
-            authority_ref=_repo_ref(path, marker="duckdb_schema"),
+            authority_ref=schema_ref,
             source_version=data_version,
         )
         registration = SubstrateRegistration(
@@ -1777,10 +1840,7 @@ def _entries_from_l2_l3_knowledge_substrates(
             data_version=data_version,
             snapshot_id=snapshot_id,
             source_snapshot_id=snapshot_id,
-            provenance_refs=(
-                coverage_ref,
-                _repo_ref(path, marker="duckdb_schema"),
-            ),
+            provenance_refs=(coverage_ref, schema_ref),
             authority_refs=(
                 coverage_ref,
                 l5.measurement_registry_ref,
@@ -1811,9 +1871,12 @@ def _duckdb_table_counts(
 
 def _knowledge_substrate_refs(repo_root: Path) -> tuple[str, ...]:
     refs: list[str] = []
-    for path in (repo_root / DEFAULT_L2_SCHOLAR_KG_PATH, repo_root / DEFAULT_L3_LEX_KG_PATH):
+    for path in (
+        repo_root / DEFAULT_L2_SCHOLAR_KG_PATH,
+        repo_root / DEFAULT_L3_LEX_KG_PATH,
+    ):
         if path.exists():
-            refs.append(_repo_ref(path, marker="duckdb"))
+            refs.append(_repo_ref(path, marker="duckdb", repo_root=repo_root))
     return tuple(refs)
 
 
@@ -1821,6 +1884,7 @@ def _entries_from_l6_agent_sim_control_artifacts(
     repo_root: Path,
     root_manifest: Mapping[str, Any],
     *,
+    root_manifest_path: Path,
     l5: L5CatalogAuthority,
 ) -> tuple[SubstrateRegistryEntry, ...]:
     bundle = _mapping(_mapping(root_manifest.get("bundles")).get("ukraine_simulation"))
@@ -1859,18 +1923,22 @@ def _entries_from_l6_agent_sim_control_artifacts(
         },
     )
     entries: list[SubstrateRegistryEntry] = []
-    root_ref = "repo://production_data/manifest.json#/bundles/ukraine_simulation"
+    root_ref = f"{_repo_uri(root_manifest_path, repo_root=repo_root)}#/bundles/ukraine_simulation"
     for spec in specs:
         path = spec["path"]
         if not isinstance(path, Path) or not path.exists():
             continue
+        family_id = str(spec["family_id"])
+        artifact_ref = _repo_ref(
+            path,
+            marker=family_id.removeprefix("l6_"),
+            repo_root=repo_root,
+        )
         payload = _load_json(path)
         observation_count = _l6_payload_observation_count(payload)
         if observation_count <= 0:
             continue
         payload_hash = gy_content_hash(payload)
-        family_id = str(spec["family_id"])
-        artifact_ref = _repo_ref(path, marker=family_id.removeprefix("l6_"))
         registration = SubstrateRegistration(
             source_id=str(spec["source_id"]),
             family_id=family_id,
@@ -1908,13 +1976,17 @@ def _entries_from_l6_agent_sim_control_artifacts(
 def _l6_agent_sim_control_refs(
     repo_root: Path,
     root_manifest: Mapping[str, Any],
+    *,
+    root_manifest_path: Path,
 ) -> tuple[str, ...]:
+    paths = default_substrate_catalog_paths(repo_root)
     return tuple(
         entry.provenance_refs[0]
         for entry in _entries_from_l6_agent_sim_control_artifacts(
             repo_root,
             root_manifest,
-            l5=load_l5_catalog_authority(default_substrate_catalog_paths(repo_root)),
+            root_manifest_path=root_manifest_path,
+            l5=load_l5_catalog_authority(paths, repo_root=repo_root),
         )
     )
 
@@ -1934,13 +2006,15 @@ def _l6_payload_observation_count(payload: Mapping[str, Any]) -> int:
 
 
 def _entries_from_root_manifest(
+    repo_root: Path,
     root_manifest: Mapping[str, Any],
     *,
+    root_manifest_path: Path,
     l5: L5CatalogAuthority,
 ) -> tuple[SubstrateRegistryEntry, ...]:
     entries: list[SubstrateRegistryEntry] = []
     bundles = _mapping(root_manifest.get("bundles"))
-    root_ref = "repo://production_data/manifest.json"
+    root_ref = _repo_uri(root_manifest_path, repo_root=repo_root)
     for bundle_id, bundle in sorted(bundles.items()):
         if not isinstance(bundle, Mapping):
             continue
@@ -2027,7 +2101,9 @@ def _entry_content_payload_from_fields(fields: Mapping[str, Any]) -> dict[str, A
     return {key: _json_ready(value) for key, value in fields.items() if key != "entry_content_hash"}
 
 
-def _registry_content_payload_from_record(registry: SubstrateRegistry) -> dict[str, Any]:
+def _registry_content_payload_from_record(
+    registry: SubstrateRegistry,
+) -> dict[str, Any]:
     return _registry_content_payload_from_fields(registry.model_dump(mode="json"))
 
 
@@ -2118,7 +2194,40 @@ def _optional_str(value: object) -> str | None:
     return str(value)
 
 
-def _repo_ref(path: Path, *, marker: str) -> str:
-    parts = path.as_posix().split("/policy-engine/", maxsplit=1)
-    relative = parts[-1] if len(parts) == 2 else path.as_posix()
-    return f"repo://{relative}#{marker}"
+def _repo_relative_path(path: Path, *, repo_root: Path) -> str:
+    """Resolve a source file beneath the canonical owner root or refuse it."""
+
+    try:
+        resolved_root = Path(repo_root).resolve(strict=True)
+    except (OSError, RuntimeError) as exc:
+        raise SubstrateRegistryError("substrate_source_repo_root_unavailable") from exc
+    if not resolved_root.is_dir():
+        raise SubstrateRegistryError("substrate_source_repo_root_not_directory")
+    try:
+        resolved_path = Path(path).resolve(strict=True)
+    except (OSError, RuntimeError) as exc:
+        raise SubstrateRegistryError("substrate_source_path_unavailable", str(path)) from exc
+    if not resolved_path.is_file():
+        raise SubstrateRegistryError("substrate_source_path_not_file", str(path))
+    try:
+        relative = resolved_path.relative_to(resolved_root)
+    except ValueError as exc:
+        raise SubstrateRegistryError(
+            "substrate_source_path_outside_repo_root",
+            f"{resolved_path} is outside {resolved_root}",
+        ) from exc
+    if not relative.parts:
+        raise SubstrateRegistryError("substrate_source_path_not_file", str(path))
+    return relative.as_posix()
+
+
+def _repo_uri(path: Path, *, repo_root: Path) -> str:
+    """Return a normalized repo URI for a source under the selected owner root."""
+
+    return f"repo://{_repo_relative_path(path, repo_root=repo_root)}"
+
+
+def _repo_ref(path: Path, *, marker: str, repo_root: Path) -> str:
+    """Return a repository-relative source ref under the selected owner root."""
+
+    return f"{_repo_uri(path, repo_root=repo_root)}#{marker}"

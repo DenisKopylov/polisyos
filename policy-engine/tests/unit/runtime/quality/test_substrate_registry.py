@@ -128,8 +128,30 @@ def _future_registration(
 
 def test_substrate_registry_lifts_l5_and_l1_catalog_authority() -> None:
     paths = default_substrate_catalog_paths(REPO_ROOT)
-    l5 = load_l5_catalog_authority(paths)
+    l5 = load_l5_catalog_authority(paths, repo_root=REPO_ROOT)
     registry = build_substrate_registry_from_existing_catalogs(REPO_ROOT)
+    repo_root = REPO_ROOT.resolve(strict=True)
+
+    for actual_ref, source_path in (
+        (l5.measurement_registry_ref, paths.measurement_registry_path),
+        (l5.identification_mode_registry_ref, paths.identification_mode_registry_path),
+        (l5.schema_regime_registry_ref, paths.schema_regime_registry_path),
+    ):
+        relative = source_path.resolve(strict=True).relative_to(repo_root).as_posix()
+        assert actual_ref.split("#", 1)[0] == f"repo://{relative}"
+
+    registry_refs = set(registry.source_catalog_refs)
+    for entry in registry.entries:
+        registry_refs.update(entry.provenance_refs)
+        registry_refs.update(entry.authority_refs)
+        registry_refs.add(entry.coverage.coverage_rule_ref)
+    for ref in registry_refs:
+        if not ref.startswith("repo://"):
+            continue
+        raw_path = ref.removeprefix("repo://").split("#", 1)[0]
+        assert raw_path and not Path(raw_path).is_absolute()
+        resolved = (repo_root / raw_path).resolve(strict=True)
+        resolved.relative_to(repo_root)
 
     firm = registry.resolve(family_id="firm_fundamentals", layer=SubstrateLayer.L5)[0]
     assert firm.coverage.coverage_score == l5.coverage_rules["firm_fundamentals"]
@@ -172,6 +194,118 @@ def test_substrate_registry_lifts_l5_and_l1_catalog_authority() -> None:
         SubstrateLayer.L5,
         SubstrateLayer.L6,
     }
+
+
+def test_l5_refs_resolve_under_nondefault_selected_repo_root(tmp_path: Path) -> None:
+    canonical_root = REPO_ROOT.resolve(strict=True)
+    canonical_paths = default_substrate_catalog_paths(canonical_root)
+    source_paths = (
+        canonical_paths.root_manifest_path,
+        canonical_paths.measurement_registry_path,
+        canonical_paths.identification_mode_registry_path,
+        canonical_paths.schema_regime_registry_path,
+        canonical_paths.epoch_schema_regime_registry_path,
+        canonical_paths.epoch_schema_regime_scope_registry_path,
+    )
+    assert all(source_path is not None for source_path in source_paths)
+
+    selected_root = tmp_path / "selected-policy-engine"
+    for source_path in source_paths:
+        assert source_path is not None
+        relative = source_path.resolve(strict=True).relative_to(canonical_root)
+        selected_path = selected_root / relative
+        selected_path.parent.mkdir(parents=True, exist_ok=True)
+        selected_path.write_bytes(source_path.read_bytes())
+
+    selected_paths = default_substrate_catalog_paths(selected_root)
+    authority = load_l5_catalog_authority(selected_paths, repo_root=selected_root)
+    refs = (
+        authority.measurement_registry_ref,
+        authority.identification_mode_registry_ref,
+        authority.schema_regime_registry_ref,
+        *(tier.authority_ref for tier in authority.trust_tiers.values()),
+        *(regime.authority_ref for regime in authority.schema_regimes.values()),
+    )
+    selected_root_resolved = selected_root.resolve(strict=True)
+    assert refs
+    for ref in refs:
+        source_uri = ref.split("#", 1)[0]
+        assert source_uri.startswith("repo://")
+        relative_source = Path(source_uri.removeprefix("repo://"))
+        assert not relative_source.is_absolute()
+        assert ".." not in relative_source.parts
+        assert relative_source.parts[0] == "production_data"
+        selected_source = (selected_root_resolved / relative_source).resolve(strict=True)
+        selected_source.relative_to(selected_root_resolved)
+        assert selected_source.read_bytes()
+
+    measurement_relative = canonical_paths.measurement_registry_path.resolve(
+        strict=True
+    ).relative_to(canonical_root)
+    assert authority.measurement_registry_ref == (
+        f"repo://{measurement_relative.as_posix()}#measurement_registry"
+    )
+
+    wrong_parent_root = selected_paths.root_manifest_path.parent
+    wrong_parent_authority = load_l5_catalog_authority(
+        selected_paths,
+        repo_root=wrong_parent_root,
+    )
+    wrong_parent_ref = wrong_parent_authority.measurement_registry_ref
+    wrong_parent_relative = selected_paths.measurement_registry_path.resolve(
+        strict=True
+    ).relative_to(wrong_parent_root.resolve(strict=True))
+    assert wrong_parent_ref == (f"repo://{wrong_parent_relative.as_posix()}#measurement_registry")
+    assert wrong_parent_ref.startswith("repo://canonical/")
+    assert wrong_parent_ref != authority.measurement_registry_ref
+    with pytest.raises(FileNotFoundError):
+        (
+            selected_root_resolved / wrong_parent_ref.removeprefix("repo://").split("#", 1)[0]
+        ).resolve(strict=True)
+
+
+def test_repo_ref_resolves_selected_root_and_rejects_symlink_escape(
+    tmp_path: Path,
+) -> None:
+    repo_root = tmp_path / "selected-checkout"
+    source = repo_root / "production_data" / "l5" / "measurement_registry.json"
+    source.parent.mkdir(parents=True)
+    source.write_text("{}\n", encoding="utf-8")
+    outside = tmp_path / "outside.json"
+    outside.write_text("{}\n", encoding="utf-8")
+    linked = source.parent / "external.json"
+    try:
+        linked.symlink_to(outside)
+    except (OSError, NotImplementedError):
+        pytest.skip("filesystem does not permit symlink fixtures")
+
+    assert (
+        substrate_module._repo_ref(
+            source,
+            marker="measurement_registry",
+            repo_root=repo_root,
+        )
+        == "repo://production_data/l5/measurement_registry.json#measurement_registry"
+    )
+    with pytest.raises(SubstrateRegistryError, match="substrate_source_path_outside_repo_root"):
+        substrate_module._repo_ref(
+            linked,
+            marker="measurement_registry",
+            repo_root=repo_root,
+        )
+
+
+def test_l5_loader_rejects_epoch_source_outside_selected_root(tmp_path: Path) -> None:
+    paths = default_substrate_catalog_paths(REPO_ROOT)
+    outside_epoch = tmp_path / "epoch-regime.json"
+    outside_epoch.write_text("{}\n", encoding="utf-8")
+    paths = replace(paths, epoch_schema_regime_registry_path=outside_epoch)
+
+    with pytest.raises(
+        SubstrateRegistryError,
+        match="substrate_source_path_outside_repo_root",
+    ):
+        load_l5_catalog_authority(paths, repo_root=REPO_ROOT)
 
 
 def test_substrate_registry_registers_l6_intervention_control_artifacts() -> None:
@@ -263,7 +397,7 @@ def test_l5_trust_tier_selection_uses_numeric_content_not_tier_names() -> None:
 
 def test_substrate_registry_registration_is_free_grow_and_changes_version() -> None:
     paths = default_substrate_catalog_paths(REPO_ROOT)
-    l5 = load_l5_catalog_authority(paths)
+    l5 = load_l5_catalog_authority(paths, repo_root=REPO_ROOT)
     registry = build_substrate_registry_from_existing_catalogs(REPO_ROOT)
     registration = _future_registration(l5.latest_schema_regime())
 
@@ -286,7 +420,7 @@ def test_substrate_registry_rejects_free_grow_trust_cap_inflated_against_l5_tier
     tier_id: str,
 ) -> None:
     paths = default_substrate_catalog_paths(REPO_ROOT)
-    l5 = load_l5_catalog_authority(paths)
+    l5 = load_l5_catalog_authority(paths, repo_root=REPO_ROOT)
     registry = build_substrate_registry_from_existing_catalogs(REPO_ROOT)
     tier = l5.trust_tiers[tier_id]
     registration = _future_registration(
@@ -304,7 +438,7 @@ def test_substrate_registry_rejects_free_grow_trust_multiplier_inflated(
     tier_id: str,
 ) -> None:
     paths = default_substrate_catalog_paths(REPO_ROOT)
-    l5 = load_l5_catalog_authority(paths)
+    l5 = load_l5_catalog_authority(paths, repo_root=REPO_ROOT)
     registry = build_substrate_registry_from_existing_catalogs(REPO_ROOT)
     tier = l5.trust_tiers[tier_id]
     registration = _future_registration(
@@ -322,7 +456,7 @@ def test_substrate_registry_accepts_free_grow_trust_fields_at_l5_tier_boundary(
     tier_id: str,
 ) -> None:
     paths = default_substrate_catalog_paths(REPO_ROOT)
-    l5 = load_l5_catalog_authority(paths)
+    l5 = load_l5_catalog_authority(paths, repo_root=REPO_ROOT)
     registry = build_substrate_registry_from_existing_catalogs(REPO_ROOT)
     tier = l5.trust_tiers[tier_id]
     registration = _future_registration(
@@ -346,7 +480,7 @@ def test_substrate_registry_accepts_free_grow_trust_fields_below_l5_tier_caps(
     tier_id: str,
 ) -> None:
     paths = default_substrate_catalog_paths(REPO_ROOT)
-    l5 = load_l5_catalog_authority(paths)
+    l5 = load_l5_catalog_authority(paths, repo_root=REPO_ROOT)
     registry = build_substrate_registry_from_existing_catalogs(REPO_ROOT)
     tier = l5.trust_tiers[tier_id]
     expected_cap = max(0.0, tier.trust_cap - 0.01)
@@ -374,7 +508,7 @@ def test_substrate_registry_accepts_free_grow_trust_fields_below_l5_tier_caps(
 
 def test_substrate_registry_rejects_free_grow_unknown_trust_tier_name() -> None:
     paths = default_substrate_catalog_paths(REPO_ROOT)
-    l5 = load_l5_catalog_authority(paths)
+    l5 = load_l5_catalog_authority(paths, repo_root=REPO_ROOT)
     registry = build_substrate_registry_from_existing_catalogs(REPO_ROOT)
     registration = _future_registration(
         l5.latest_schema_regime(),
@@ -395,7 +529,7 @@ def test_substrate_registry_rejects_free_grow_unknown_trust_tier_name() -> None:
 
 def test_substrate_registry_rejects_inflated_l5_coverage_trust_and_identification() -> None:
     paths = default_substrate_catalog_paths(REPO_ROOT)
-    l5 = load_l5_catalog_authority(paths)
+    l5 = load_l5_catalog_authority(paths, repo_root=REPO_ROOT)
     schema_regime = l5.latest_schema_regime()
     inflated = SubstrateRegistration(
         source_id="manual:inflated_household",
@@ -420,7 +554,9 @@ def test_substrate_registry_rejects_inflated_l5_coverage_trust_and_identificatio
         l5.validate_registration(inflated)
 
 
-def test_substrate_registry_persists_and_has_no_plan_named_owner_file(tmp_path: Path) -> None:
+def test_substrate_registry_persists_and_has_no_plan_named_owner_file(
+    tmp_path: Path,
+) -> None:
     registry = build_substrate_registry_from_existing_catalogs(REPO_ROOT)
     store = FileSystemCAS(tmp_path / "cas")
     ref = persist_substrate_registry(store, registry)
@@ -469,7 +605,10 @@ def test_measurement_root_registry_lineage_preserves_selected_profile() -> None:
     "evidence",
     [
         None,
-        {"measurement_root_ref": "sha256:foreign", "fetch_receipt_ref": "sha256:foreign"},
+        {
+            "measurement_root_ref": "sha256:foreign",
+            "fetch_receipt_ref": "sha256:foreign",
+        },
         object(),
     ],
 )
@@ -479,7 +618,7 @@ def test_measurement_root_registration_rejects_shape_only_evidence(
 ) -> None:
     """Raw or unverified refs never reach registry persistence."""
 
-    l5 = load_l5_catalog_authority(default_substrate_catalog_paths(REPO_ROOT))
+    l5 = load_l5_catalog_authority(default_substrate_catalog_paths(REPO_ROOT), repo_root=REPO_ROOT)
     baseline = build_substrate_registry_from_existing_catalogs(REPO_ROOT)
     store = FileSystemCAS(tmp_path / "cas")
     baseline_ref = persist_substrate_registry(store, baseline)
@@ -502,7 +641,7 @@ def test_measurement_root_registration_rejects_shape_only_evidence(
 
 
 def test_l5_scope_relation_not_projection_mapping_decides_applicability() -> None:
-    l5 = load_l5_catalog_authority(default_substrate_catalog_paths(REPO_ROOT))
+    l5 = load_l5_catalog_authority(default_substrate_catalog_paths(REPO_ROOT), repo_root=REPO_ROOT)
     scope_ref = l5.schema_regime_scope_relations[0].scope_identity_refs[0]
     receipt, projection = resolve_l5_schema_regime_projection(
         l5,
@@ -533,7 +672,7 @@ def test_l5_scope_relation_not_projection_mapping_decides_applicability() -> Non
 
 
 def test_l5_projection_recomputes_hash_from_typed_no_profile_refs() -> None:
-    l5 = load_l5_catalog_authority(default_substrate_catalog_paths(REPO_ROOT))
+    l5 = load_l5_catalog_authority(default_substrate_catalog_paths(REPO_ROOT), repo_root=REPO_ROOT)
     scope_ref = l5.schema_regime_scope_relations[0].scope_identity_refs[0]
     receipt, projection = resolve_l5_schema_regime_projection(
         l5,
@@ -624,7 +763,7 @@ def test_scoped_projection_binds_selected_view_and_rejects_malformed_profile() -
 
 
 def test_l5_regime_without_owner_scope_relation_is_epoch_scope_unresolved() -> None:
-    l5 = load_l5_catalog_authority(default_substrate_catalog_paths(REPO_ROOT))
+    l5 = load_l5_catalog_authority(default_substrate_catalog_paths(REPO_ROOT), repo_root=REPO_ROOT)
     scope_ref = l5.schema_regime_scope_relations[0].scope_identity_refs[0]
     latest_id = max(l5.schema_regimes, key=lambda key: l5.schema_regimes[key].effective_start or "")
     missing = replace(
@@ -647,7 +786,7 @@ def test_l5_regime_without_owner_scope_relation_is_epoch_scope_unresolved() -> N
 
 
 def test_third_regime_and_novel_domain_agree_across_epoch_generation_and_l4() -> None:
-    l5 = load_l5_catalog_authority(default_substrate_catalog_paths(REPO_ROOT))
+    l5 = load_l5_catalog_authority(default_substrate_catalog_paths(REPO_ROOT), repo_root=REPO_ROOT)
     current_scope = l5.schema_regime_scope_relations[0].scope_identity_refs[0]
     other_scope = "sha256:" + hashlib.sha256(b"novel-domain").hexdigest()
     novel_id = "novel_domain_schema_v1"
@@ -678,7 +817,10 @@ def test_third_regime_and_novel_domain_agree_across_epoch_generation_and_l4() ->
         l5,
         schema_regimes={**l5.schema_regimes, novel_id: novel_regime},
         schema_regime_rows={**l5.schema_regime_rows, novel_id: novel_row},
-        schema_regime_scope_relations=(*l5.schema_regime_scope_relations, novel_relation),
+        schema_regime_scope_relations=(
+            *l5.schema_regime_scope_relations,
+            novel_relation,
+        ),
     )
     receipt, projection = resolve_l5_schema_regime_projection(
         extended,
@@ -710,7 +852,10 @@ def test_third_regime_and_novel_domain_agree_across_epoch_generation_and_l4() ->
 def test_complete_regime_producer_reader_census_rejects_sibling_declaration() -> None:
     sites = _constructor_sites(REPO_ROOT / "src")
     expected = {
-        ("src/polisyos/runtime/quality/substrate_registry.py", "load_l5_catalog_authority"),
+        (
+            "src/polisyos/runtime/quality/substrate_registry.py",
+            "load_l5_catalog_authority",
+        ),
         ("src/polisyos/runtime/quality/substrate_registry.py", "_entries_from_l1_dcat"),
         (
             "src/polisyos/runtime/quality/substrate_registry.py",
@@ -720,7 +865,10 @@ def test_complete_regime_producer_reader_census_rejects_sibling_declaration() ->
             "src/polisyos/runtime/quality/substrate_registry.py",
             "_entries_from_l6_agent_sim_control_artifacts",
         ),
-        ("src/polisyos/runtime/quality/substrate_registry.py", "_entries_from_root_manifest"),
+        (
+            "src/polisyos/runtime/quality/substrate_registry.py",
+            "_entries_from_root_manifest",
+        ),
     }
     normalized = {(Path(path).relative_to(REPO_ROOT).as_posix(), owner) for path, owner in sites}
     assert normalized == expected
@@ -747,7 +895,9 @@ def test_generation_and_data_state_cannot_call_global_latest_schema_regime() -> 
     assert calls == set()
 
 
-def test_substrate_registry_loader_reads_the_selected_manifest_view(tmp_path: Path) -> None:
+def test_substrate_registry_loader_reads_the_selected_manifest_view(
+    tmp_path: Path,
+) -> None:
     """A selected registry ref is resolved as that view, not as the default ID."""
     registry = build_substrate_registry_from_existing_catalogs(REPO_ROOT)
     store = FileSystemCAS(tmp_path / "cas")

@@ -67,16 +67,11 @@ def _substrate_registry_runtime_honesty_properties(repo_root: Path) -> dict[str,
             if not isinstance(node, ast.Call):
                 continue
             func = node.func
-            if not (
-                isinstance(func, ast.Attribute)
-                and func.attr == "validate_trust_tier_bounds"
-            ):
+            if not (isinstance(func, ast.Attribute) and func.attr == "validate_trust_tier_bounds"):
                 continue
             if any(keyword.arg == "expected_tier" for keyword in node.keywords):
                 if "substrate_trust_cap_inflated" in trust_bound_codes:
-                    properties["known_family_expected_tier_cap"] = (
-                        "substrate_trust_cap_inflated"
-                    )
+                    properties["known_family_expected_tier_cap"] = "substrate_trust_cap_inflated"
                 if "substrate_trust_multiplier_inflated" in trust_bound_codes:
                     properties["known_family_expected_tier_multiplier"] = (
                         "substrate_trust_multiplier_inflated"
@@ -104,7 +99,9 @@ def _default_repo_root() -> Path:
     return Path(__file__).resolve().parents[3]
 
 
-def substrate_registry_trust_tier_bounds_behavior_report(repo_root: Path) -> dict[str, Any]:
+def substrate_registry_trust_tier_bounds_behavior_report(
+    repo_root: Path,
+) -> dict[str, Any]:
     """Exercise the live S0 runtime against L5 registry-honesty rules."""
 
     from polisyos.runtime.quality.substrate_registry import (
@@ -120,7 +117,7 @@ def substrate_registry_trust_tier_bounds_behavior_report(repo_root: Path) -> dic
         register_substrate_entry,
     )
 
-    l5 = load_l5_catalog_authority(default_substrate_catalog_paths(repo_root))
+    l5 = load_l5_catalog_authority(default_substrate_catalog_paths(repo_root), repo_root=repo_root)
     registry = build_substrate_registry_from_existing_catalogs(repo_root)
     schema_regime = l5.latest_schema_regime()
     required_runtime_properties = _substrate_registry_runtime_honesty_properties(repo_root)
@@ -297,16 +294,17 @@ def substrate_registry_trust_tier_bounds_behavior_report(repo_root: Path) -> dic
         runtime_property="known_family_expected_tier_multiplier",
         registration=_known_family_registration(
             case_id=f"{known_family_id}:expected_tier_multiplier_above_l5",
-            tier=expected_tier_probe_tier.model_copy(
-                update={"trust_cap": known_tier.trust_cap}
-            ),
+            tier=expected_tier_probe_tier.model_copy(update={"trust_cap": known_tier.trust_cap}),
         ),
     )
     for tier_id in TRUST_TIER_BOUND_CASE_TIER_IDS:
         tier = l5.trust_tiers.get(tier_id)
         if tier is None:
             issues.append(
-                {"code": "substrate_trust_tier_bounds_probe_missing_l5_tier", "tier": tier_id}
+                {
+                    "code": "substrate_trust_tier_bounds_probe_missing_l5_tier",
+                    "tier": tier_id,
+                }
             )
             continue
         _attempt(

@@ -1,0 +1,282 @@
+{
+  "schema": "policyos.e02.local_candidate_handoff.v1",
+  "slice": "C05 persisted private-derived profile projection",
+  "candidate": {
+    "base": "85bd9bdd0819c5ed8aae250200802135e6ae8101",
+    "sha": "2ea093a7a68cb9f28958606183b52fa4bb815499",
+    "tree": "bed3017a748af1762e7741f7eab61f2c4da6b86b",
+    "parents": [
+      "85bd9bdd0819c5ed8aae250200802135e6ae8101"
+    ],
+    "source_bytes_read_back_from_branch": true
+  },
+  "footprint": [
+    {
+      "path": "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+      "sha256": "82e51520004ad18522652d2b3bd1a4818514233652da5053ba6b0a74a84677d6"
+    },
+    {
+      "path": "policy-engine/tests/unit/data_forge/domains/catalog/batch/test_publish.py",
+      "sha256": "0a5a3c0e5140f2d9abbf06ad791bf366e5018f62448476d2dc43c097c41da437"
+    },
+    {
+      "path": "policy-engine/release-fragments/unreleased/2026-10-17-e02-c05-private-profile-persisted-projection.toml",
+      "sha256": "d8323b819b9833a4dceb7939e3dc8d0ce5134e91d6ad8ab427fbd6c5d9c6b5c8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "sha256": "707d9dec8bef365d49e44c3355b05cd7ac1d58ef61eab95dc992d2001e07ee41"
+    }
+  ],
+  "chain": {
+    "contract": "C05 local catalog producer identity; private source profile values/currentness remain not_established.",
+    "producer": "_capture_runtime_source_profile_snapshot excludes source_profile_fingerprint from the persisted connection projection while retaining it on live ConnectionConfig.",
+    "artifact": "resolved_profile_registry contributes to the material input basis; exclusion prevents private-derived digest changes from altering persisted producer identity.",
+    "bridge": "Existing catalog pipeline records input basis and stage receipt; existing resume consumer refuses reuse while private currentness is not_established.",
+    "consumer": "current_catalog_publish_receipt, run_signature and _should_skip_stage on actual saved state.",
+    "verification": {
+      "baseline_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-focused-replay-r5-20261017/root-postrun-readback.json",
+      "baseline_sha256": "77f951cc1104ea8705133a17aaf5d0946ebc2b9221e5ec30d093fab88b72c8ec",
+      "baseline_counts": "73 PASS; 0 FAIL/ERROR/SKIP; 219 phases PASS. The marker-preserving removal control has two exact call-phase failures at private-header-only run-signature invariance assertions."
+    },
+    "surface": "Internal producer basis/stage receipt and release fragment; no public API/status change."
+  },
+  "profile_backend": {
+    "selected_profiles": [
+      "worldbank_wdi",
+      "fixture_profile"
+    ],
+    "backend": {
+      "environment": "existing locked canonical workspace .venv",
+      "python_actual": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+      "device": "cpu",
+      "numerical_threads": 1
+    },
+    "inputs": "controlled test fixtures and temporary local data; no production payloads, network or external authority."
+  },
+  "compatibility": "Persisted producer identity changes. Existing receipt bytes remain historical/readable; stale identities may need regeneration through the producer. Connector cache partition and separate live acquisition authorization config-drift digest remain unchanged.",
+  "limitations": [
+    "Not a whole-PolicyOS privacy claim.",
+    "Profile private-input equality/currentness remains not_established.",
+    "Removal control proves private-derived signature sensitivity, not raw fingerprint string persistence.",
+    "Linux, installed wheel/rebuilt-sdist and the full supplier composition remain pending."
+  ],
+  "closure_ids": [],
+  "formal_closures": [],
+  "proposal_fields": [
+    "Bounded C05 projection source change proposed for G review; original finding mapping/adjudication remains with G."
+  ],
+  "receipt_outputs": {
+    "root_supervisor.py": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-private-profile-projection-removal-probe-r1-20261017/root_supervisor.py",
+      "sha256": "a9362587780eb6279dbb6011f831a8d6b4f02edd0be8d3b80b6b189eeb9936c1",
+      "bytes": 2797
+    },
+    "root-supervisor-result.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-private-profile-projection-removal-probe-r1-20261017/root-supervisor-result.json",
+      "sha256": "3a25a903fff6cc608b95aac1998fec99d0ec7cef9ea3d26697a04eb6158409d5",
+      "bytes": 4739
+    },
+    "plugin-execution.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-private-profile-projection-removal-probe-r1-20261017/plugin-execution.json",
+      "sha256": "d541fffb482e9af989902696610c54c56b6fa0e2790e25c021d437740203713d",
+      "bytes": 4635
+    },
+    "removal-control.junit.xml": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-private-profile-projection-removal-probe-r1-20261017/removal-control.junit.xml",
+      "sha256": "8ec61b7be240fb4551ff1492865f96c7f693e7ba2aa7c82412031a912a633029",
+      "bytes": 2308
+    },
+    "root-stdout.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-private-profile-projection-removal-probe-r1-20261017/root-stdout.txt",
+      "sha256": "800307846e3d4b5c184421368cc607f4988d7b1197aaa27a3442c614a646cf83",
+      "bytes": 4406
+    },
+    "root-stderr.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-private-profile-projection-removal-probe-r1-20261017/root-stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  },
+  "interpretation_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-private-profile-projection-removal-probe-r1-20261017/removal-control-interpretation.json",
+  "author_role": "local_candidate_author_not_G",
+  "candidate_branch": "codex/e02-unified-local-20261009",
+  "verification": {
+    "code_base": {
+      "sha": "85bd9bdd0819c5ed8aae250200802135e6ae8101",
+      "tree": "540fa6223f93f78285e6bce77caeedc4fd5c8489"
+    },
+    "owned_postimages": {
+      "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py": "82e51520004ad18522652d2b3bd1a4818514233652da5053ba6b0a74a84677d6",
+      "policy-engine/tests/unit/data_forge/domains/catalog/batch/test_publish.py": "0a5a3c0e5140f2d9abbf06ad791bf366e5018f62448476d2dc43c097c41da437",
+      "policy-engine/release-fragments/unreleased/2026-10-17-e02-c05-private-profile-persisted-projection.toml": "d8323b819b9833a4dceb7939e3dc8d0ce5134e91d6ad8ab427fbd6c5d9c6b5c8",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json": "707d9dec8bef365d49e44c3355b05cd7ac1d58ef61eab95dc992d2001e07ee41"
+    },
+    "case_outcomes": {
+      "PASS": 73,
+      "FAIL": 0,
+      "ERROR": 0,
+      "SKIP": 0
+    },
+    "actual_phase_outcomes": {
+      "PASS": 219,
+      "FAIL": 0,
+      "SKIP": 0
+    },
+    "actual_collection_unique": true,
+    "all_collectors_passed": true,
+    "loaded_modules": 1460,
+    "all_loaded_source_is_own_canonical_and_content_bound": true,
+    "loaded_uncommitted_postimage_paths": [
+      "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py"
+    ],
+    "ruff_python_paths": 2,
+    "ruff_check_exit": 0,
+    "ruff_format_exit": 0,
+    "seconds": 37.166,
+    "peak_process_tree_rss_bytes": 1107820544,
+    "resource_caps_triggered": false,
+    "warning": "Unknown config option cache_dir because cacheprovider is explicitly disabled; one warning retained, no skip.",
+    "supervisor_label_correction": "Supervisor was reused from Native74 and retains a generic acceptance sentence mentioning pickle. This C05 run executed only the three request commands, no pickle witness; semantic evidence is explicitly reconciled here.",
+    "deciding_outputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-focused-replay-r5-20261017/request.json",
+        "sha256": "5fb121906d26a21f7ad124970170ae3ee2427cd8017fb8c730f1a54a6140add0"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-focused-replay-r5-20261017/root_supervisor.py",
+        "sha256": "75edee5e2273d3907c7fba52189f48eb0e3ffb588864eaa334c9d94ec1b8c78a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-focused-replay-r5-20261017/c05_actual_witness.py",
+        "sha256": "39f83167fad000317ff6480512eb231983b6d7b2014a2e3184a3d0bb38604e91"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-focused-replay-r5-20261017/actual-results.json",
+        "sha256": "05e564f479e83204d0c7dd4c171bd8463141509458b3f0af4e3036fdac51edb4"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-focused-replay-r5-20261017/supervisor-result.json",
+        "sha256": "949bed771597411e07f0ef33da61c6dec36ee916d540b247c694feb3c8999d67"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-focused-replay-r5-20261017/focused-wave.junit.xml",
+        "sha256": "20699609d80f04908cfe1a0d409d3a9e9cbc031474b4183f68ab4fa53a0b1900"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-focused-replay-r5-20261017/actual-test-and-source-witness.json",
+        "sha256": "c179a03d0d202753b1aa11527931b8e89e320bf97d4f84a689c20667663d7ddd"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-focused-replay-r5-20261017/c05-ruff-check.stdout.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-focused-replay-r5-20261017/c05-ruff-check.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-focused-replay-r5-20261017/c05-ruff-format.stdout.txt",
+        "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-focused-replay-r5-20261017/c05-ruff-format.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-focused-replay-r5-20261017/c05-full-related-selection.stdout.txt",
+        "sha256": "22b092908912115e7e00cf0e79d6774db856c55f217cd2a35b4fb8875a2cd064"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-focused-replay-r5-20261017/c05-full-related-selection.stderr.txt",
+        "sha256": "53848d1925109b62fc0a331f597bf2b3ebb075c6f5a24217a82b201a8c582ae7"
+      }
+    ],
+    "boundaries": [
+      "Selected C05 producer/public-basis/cache/reuse consumer behavior and current source origin only.",
+      "Linux final-source replay, wheel/rebuilt-sdist, full13supplier source composition, full composed native/authority closeout remain pending.",
+      "No original finding is formally adjudicated by author."
+    ],
+    "closure_ids": []
+  },
+  "adversarial_removal": {
+    "source_candidate": "2ea093a7a68cb9f28958606183b52fa4bb815499",
+    "source_tree": "bed3017a748af1762e7741f7eab61f2c4da6b86b",
+    "expected_semantic_assertion_failures": 2,
+    "unexpected_failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "phases": {
+      "setup_PASS": 2,
+      "call_signature_invariance_FAIL": 2,
+      "teardown_PASS": 2
+    },
+    "disk_source_sha256": "82e51520004ad18522652d2b3bd1a4818514233652da5053ba6b0a74a84677d6",
+    "executed_mutant_sha256": "aca3d042e60b51b107d67fd6ca27e1ab7d2775fc66ea1dc2182792e5f1011c15",
+    "canonical_source_unchanged": true,
+    "property": "Private-header-only change preserves public producer basis/run_signature; only fingerprint exclusion is removed in memory, producing two exact signature-invariance assertion failures.",
+    "raw_string_persistence": "not_falsified; the artifact stores aggregate material basis digest, not the literal fingerprint string",
+    "original_expected_acceptance_mismatch": "The request/plugin expected a literal fingerprint-absence assertion, counter remains0/2. This classifier was too narrow. Actual failures match the intended privacy-derived-signature property. No request/plugin/test/source edits or rerun used to turn outcomes green. The source projection\u2192basis digest\u2192run_signature path is traced in separate interpretation.",
+    "execution": {
+      "seconds": 5.266,
+      "peak_process_tree_rss_bytes": 355106816,
+      "caps_triggered": false
+    },
+    "outputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-private-profile-projection-removal-probe-r1-20261017/request.json",
+        "sha256": "ce559ac1607d2466ba230cf20ba65e3e575c41ca0d92602caa9466f5941c2ab9"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-private-profile-projection-removal-probe-r1-20261017/c05_remove_fingerprint.py",
+        "sha256": "ccbf5578e7e5b5b92a90c037956f26ab50d9a2c09379c99d3bed43f46a28a73e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-private-profile-projection-removal-probe-r1-20261017/root_supervisor.py",
+        "sha256": "a9362587780eb6279dbb6011f831a8d6b4f02edd0be8d3b80b6b189eeb9936c1"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-private-profile-projection-removal-probe-r1-20261017/root-supervisor-result.json",
+        "sha256": "3a25a903fff6cc608b95aac1998fec99d0ec7cef9ea3d26697a04eb6158409d5"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-private-profile-projection-removal-probe-r1-20261017/plugin-execution.json",
+        "sha256": "d541fffb482e9af989902696610c54c56b6fa0e2790e25c021d437740203713d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-private-profile-projection-removal-probe-r1-20261017/removal-control.junit.xml",
+        "sha256": "8ec61b7be240fb4551ff1492865f96c7f693e7ba2aa7c82412031a912a633029"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-private-profile-projection-removal-probe-r1-20261017/root-stdout.txt",
+        "sha256": "800307846e3d4b5c184421368cc607f4988d7b1197aaa27a3442c614a646cf83"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-private-profile-projection-removal-probe-r1-20261017/root-stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-private-profile-projection-removal-probe-r1-20261017/removal-control-interpretation.json",
+        "sha256": "649036f9c7912679151ddf78ab5dde1908a0403df186d6a31095314d9c0f3879"
+      }
+    ],
+    "closure_ids": []
+  },
+  "independent_reviews": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-private-profile-persisted-projection-r5-independent-review-20261017/manifest.json",
+      "sha256": "bc633640a6ca1f75b048d130fcb9cc1b0c15da91f93f8717d53897a6a19f6c30"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-private-profile-persisted-projection-r5-independent-review-20261017/assessment.md",
+      "sha256": "e478e5ba2a3af263b7d9b43a5c17e5a346a5f68ffe91ce6b62cc655e38f188ab"
+    }
+  ],
+  "author_packet": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-private-profile-persisted-projection-r5-20261017/manifest.json",
+    "sha256": "33581046a1484b357fae99392893798fcac523b4cc1e160da7f8b066398cbdd6"
+  },
+  "capability_boundary": "bounded selected producer/public-basis persistence and resume consumer verified; full supplier source/profile/backend/installed composition verification_missing",
+  "next_check": "Rebind final composed source/backend freeze, Linux/wheel/rebuilt-sdist/authentic suppliers and all original individual criteria; G independently accepts/adjudicates.",
+  "global_source_input_backend_freeze": false
+}

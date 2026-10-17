@@ -624,7 +624,8 @@ def _capture_runtime_source_profile_snapshot() -> _RuntimeSourceProfileSnapshot:
                 "connection": {
                     item.name: _signature_safe(getattr(connection, item.name))
                     for item in fields(connection)
-                    if item.name not in {"headers", "auth_credentials"}
+                    if item.name
+                    not in {"headers", "auth_credentials", "source_profile_fingerprint"}
                 },
                 "execution_policy": policies[profile.profile_id].model_dump(mode="json"),
             }

@@ -1,0 +1,35 @@
+id = "2026-10-17-e02-c05-private-profile-persisted-projection"
+title = "Exclude private-derived identity from the persisted C05 producer basis"
+type = "fixed"
+component = "data-forge"
+owner = "team-data-forge"
+summary = "C05 catalog stage receipts no longer persist or hash the full-source-profile fingerprint; presence-only coverage and the not_established currentness result remain unchanged."
+evidence = [
+  "src/polisyos/data_forge/domains/catalog/batch/config.py",
+  "tests/unit/data_forge/domains/catalog/batch/test_publish.py",
+  "src/polisyos/fabric/connectors/profiles/resolver.py",
+  "src/polisyos/fabric/connectors/base.py",
+]
+compatibility = "The persisted C05 producer basis and run-signature identity change because the full-profile-derived fingerprint is omitted. Existing receipts remain historical and are readable, but receipts being reused for current work must match the new producer identity and may require regeneration. The connector cache partition and separate live-acquisition authorization config-drift digest are unchanged."
+change_class = "internal"
+surface_classification = "internal: C05 catalog producer material-input basis and persisted stage-receipt identity; no public API or status change"
+migration = "Regenerate affected C05 stage receipts through the existing catalog producer when the prior producer identity is stale. Historical receipt bytes are not rewritten. No public schema, generated client, or runbook migration is introduced."
+api = "The C05 producer basis omits source_profile_fingerprint, which is derived from the complete source profile, while continuing to bind the none/excluded_present profile-input coverage marker. The fingerprint remains on live ConnectionConfig for connector execution and cache partitioning. The separate acquisition-authorization receipt continues to bind connection-config drift through its existing typed digest."
+limitations = "Private profile values and equality/currentness remain not_established. This change is limited to the C05 catalog producer basis and stage receipt; it is not a whole-PolicyOS persistence privacy claim. The connector cache partition and live-acquisition authorization digest serve separate purposes and are preserved. No authority, issuer, or external currentness fact is established."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "c05-private-profile-persisted-projection"
+change_class = "persisted-artifact-format"
+impact = "internal"
+surface = "internal: C05 catalog producer basis, run signature, and stage receipt"
+owner = "team-data-forge"
+version_owner = "team-data-forge"
+deprecation_window = "not_applicable"
+release_note = "The C05 stage-receipt producer identity changes when the full-profile-derived fingerprint is removed from the persisted producer basis. Reuse only receipts that match the new identity; regenerate stale receipts through the existing producer. Historical bytes remain unchanged, profile input currentness remains not_established, and the connector cache and acquisition-authorization drift contracts are preserved."
+generated_client_compatibility = "not_applicable"
+migration_docs = []
+runbook_docs = []

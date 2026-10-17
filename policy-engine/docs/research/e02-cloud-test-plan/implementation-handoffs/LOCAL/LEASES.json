@@ -4148,4 +4148,18 @@
     "P40_bucket": "One reviewed 74-path composed package/source relocation, executed atomically as ten native Trash retirements followed by all 64 nondeletion patch sections.",
     "formal_closure_ids": [],
     "verification_state": "Composition-only preflight; root must complete source-freeze review and composed verification. No formal G closures are claimed."
-  }}
+  },
+  "c05_private_profile_persisted_projection_r5_20261017": {
+    "canonical_writer": "root",
+    "slice_base": "85bd9bdd0819c5ed8aae250200802135e6ae8101",
+    "mechanism_paths": [
+      "policy-engine/src/polisyos/data_forge/domains/catalog/batch/config.py",
+      "policy-engine/tests/unit/data_forge/domains/catalog/batch/test_publish.py",
+      "policy-engine/release-fragments/unreleased/2026-10-17-e02-c05-private-profile-persisted-projection.toml"
+    ],
+    "author_manifest": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-private-profile-persisted-projection-r5-20261017/manifest.json@33581046a1484b357fae99392893798fcac523b4cc1e160da7f8b066398cbdd6",
+    "independent_review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/c05-private-profile-persisted-projection-r5-independent-review-20261017/manifest.json@bc633640a6ca1f75b048d130fcb9cc1b0c15da91f93f8717d53897a6a19f6c30",
+    "boundary": "Persisted catalog producer basis excludes private-derived fingerprint; live cache and separate acquisition authorization identity retained.",
+    "closure_ids": []
+  }
+}

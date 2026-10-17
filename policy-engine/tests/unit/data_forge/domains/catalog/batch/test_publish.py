@@ -8,6 +8,7 @@ from polisyos.data_forge.domains.catalog.batch.benchmark import READINESS_THRESH
 from polisyos.data_forge.domains.catalog.batch.config import DatasetBatchConfig
 from polisyos.data_forge.domains.catalog.batch.graph_builder import build_graph
 from polisyos.data_forge.domains.catalog.batch.pipeline import (
+    _should_skip_stage,
     current_catalog_publish_receipt,
     run_content_stage_with_receipt,
 )
@@ -335,6 +336,7 @@ def test_private_profile_values_keep_publish_receipt_not_established(
     tmp_path: Path, monkeypatch
 ) -> None:
     from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
+    from polisyos.fabric.connectors.profiles.resolver import resolve_connection_config
 
     config = _build_publish_receipt_fixture(
         tmp_path,
@@ -359,14 +361,18 @@ def test_private_profile_values_keep_publish_receipt_not_established(
     saved_stage_json = json.dumps(saved_stage)
     assert "fixture-only-header-a" not in saved_stage_json
     assert "fixture-only-header-b" not in saved_stage_json
+    private_fingerprint_a = resolve_connection_config(saved_profile).source_profile_fingerprint
+    assert private_fingerprint_a is not None
+    assert private_fingerprint_a not in saved_stage_json
 
-    profiles.register(
-        saved_profile.model_copy(
-            update={"headers": {"X-PolicyOS-Test": "fixture-only-header-b"}},
-            deep=True,
-        ),
-        override=True,
+    changed_profile = saved_profile.model_copy(
+        update={"headers": {"X-PolicyOS-Test": "fixture-only-header-b"}},
+        deep=True,
     )
+    profiles.register(changed_profile, override=True)
+    private_fingerprint_b = resolve_connection_config(changed_profile).source_profile_fingerprint
+    assert private_fingerprint_b is not None
+    assert private_fingerprint_b != private_fingerprint_a
     assert config.run_signature == producer_signature
 
     second = current_catalog_publish_receipt(config.db_path)
@@ -378,13 +384,21 @@ def test_private_profile_values_keep_publish_receipt_not_established(
         == "complete"
     )
 
+    # The actual resume gate must refuse this persisted receipt while private
+    # profile inputs still leave its producer currentness not established.
+    config.resume = True
+    assert config.stage_state_path.is_file()
+    assert _should_skip_stage(config, "publish") is False
+
 
 def test_profile_input_coverage_binds_presence_without_persisting_values(
     monkeypatch, tmp_path: Path
 ) -> None:
     from polisyos.data_forge.domains.catalog.batch.config import (
+        _capture_runtime_source_profile_snapshot,
         _producer_config_snapshot,
     )
+    from polisyos.fabric.connectors.base import ConnectionConfig
     from polisyos.fabric.connectors.profiles.models import SourceProfile
     from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
 
@@ -419,6 +433,10 @@ def test_profile_input_coverage_binds_presence_without_persisting_values(
         deep=True,
     )
     profiles.register(headerful, override=True)
+    live_snapshot_a = _capture_runtime_source_profile_snapshot()
+    connection_a = live_snapshot_a.connection_configs["fixture_profile"]
+    assert isinstance(connection_a, ConnectionConfig)
+    assert connection_a.source_profile_fingerprint is not None
     headerful_signature = config.run_signature
     headerful_snapshot = _producer_config_snapshot(config)
     assert headerful_signature != no_input_signature
@@ -426,16 +444,29 @@ def test_profile_input_coverage_binds_presence_without_persisting_values(
         headerful_snapshot["resolved_profile_input_coverage"]["profiles"]["fixture_profile"]
         == "excluded_present"
     )
-    assert "fixture-only-header-value" not in repr(headerful_snapshot)
+    persisted_snapshot_a = json.dumps(headerful_snapshot, sort_keys=True)
+    assert "fixture-only-header-value" not in persisted_snapshot_a
+    assert connection_a.source_profile_fingerprint not in persisted_snapshot_a
 
-    profiles.register(
-        headerful.model_copy(
-            update={"headers": {"X-PolicyOS-Test": "another-fixture-value"}},
-            deep=True,
-        ),
-        override=True,
+    changed_headerful = headerful.model_copy(
+        update={"headers": {"X-PolicyOS-Test": "another-fixture-value"}},
+        deep=True,
     )
+    profiles.register(changed_headerful, override=True)
+    live_snapshot_b = _capture_runtime_source_profile_snapshot()
+    connection_b = live_snapshot_b.connection_configs["fixture_profile"]
+    assert isinstance(connection_b, ConnectionConfig)
+    assert connection_b.source_profile_fingerprint is not None
+    assert connection_b.source_profile_fingerprint != connection_a.source_profile_fingerprint
+    assert connection_b.cache_scope_fingerprint != connection_a.cache_scope_fingerprint
     assert config.run_signature == headerful_signature
+    changed_snapshot = _producer_config_snapshot(config)
+    assert changed_snapshot == headerful_snapshot
+    persisted_snapshot_b = json.dumps(changed_snapshot, sort_keys=True)
+    assert "fixture-only-header-value" not in persisted_snapshot_b
+    assert "another-fixture-value" not in persisted_snapshot_b
+    assert connection_a.source_profile_fingerprint not in persisted_snapshot_b
+    assert connection_b.source_profile_fingerprint not in persisted_snapshot_b
 
     profiles.register(profile, override=True)
     assert config.run_signature == no_input_signature

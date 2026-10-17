@@ -3781,5 +3781,92 @@
     "composition_delta": "Author R2 reviewed test-only pending-state assertion on older source; current source now includes independently reviewed acquisition refusal-cause implementation7043dad with fresh20casePASS. Current root replay below tests actual composed provider source, not author old36-pin frame.",
     "scope": "real protected POST and durable CAS/event bundle, controlled local inputs; no external effect/currentness/Gclosure",
     "state": "fresh canonical pair+Ruff pending"
+  },
+  "coordination_epoch_20261017_devx_wrapper_native_retirement": {
+    "source_base_commit": "736104d0144b75272c06f34e6eb185545ece1fed",
+    "canonical_writer": "root",
+    "mechanism_paths": [
+      "policy-engine/.pre-commit-config.yaml",
+      "policy-engine/architecture/policies/directory_health.toml",
+      "policy-engine/architecture/shims.toml",
+      "policy-engine/architecture/tooling/ruff/per-file-ignores/90-repository-tools.toml",
+      "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+      "policy-engine/architecture/topology.toml",
+      "policy-engine/install.sh",
+      "policy-engine/jax_bootstrap.py",
+      "policy-engine/migrate.py",
+      "policy-engine/ops/ci/templates/workflows/causal-phases.yml",
+      "policy-engine/release-fragments/unreleased/2026-10-17-devx-wrapper-retirement.toml",
+      "policy-engine/ruff.generated.toml",
+      "policy-engine/tests/repo_quality/test_chronology_terminal_state.py",
+      "policy-engine/tests/unit/remediation/test_hyg_04.py",
+      "policy-engine/tests/unit/remediation/test_mig_01.py",
+      "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py",
+      "policy-engine/tools/devx/workspace/_repo_hygiene.py",
+      "policy-engine/tools/research/benchmarks/jax/bench_domain.py"
+    ],
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json"
+    ],
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/devx-wrapper-retirement-independent-review-r2-20261017/review.json",
+      "sha256": "45a03406f7a28e3dc96812106a7e3d7e020f1f43831f67888e6945fb94e45087"
+    },
+    "preservation": "three exact committed wrapper preimages moved using NSFileManager native Trash; no permanent deletion or environment removal",
+    "acceptance": "fresh complete all-18-hook tracked selector comparison plus required canonical tests/generator checks before ordinary commit",
+    "formal_closure_ids": []
+  },
+  "coordination_epoch_20261017_devx_retirement_composed_r3": {
+    "source_base_commit": "736104d0144b75272c06f34e6eb185545ece1fed",
+    "canonical_writer": "root",
+    "prior_mechanism_lease": "coordination_epoch_20261017_devx_wrapper_native_retirement",
+    "selected_deltas": {
+      "benchmark_runtime_order": "cf2757e5cda4651b858bca7f50102395213a620bc4603e2d3e8d98b15bfb6570",
+      "identifier_assignment_loader_analysis": "e6f9b00a2f4f72783fc13bcd80ce93a9254c52365f85b0a47e90513095a4cc42",
+      "recursive_git_normalization_and_public_contract": "40c9b4fed25ea4c8c666c95df0ad504f76df43c41530a8a3c9c2c48b98bf0aed",
+      "migration_test_format_only": "fd97164d0568a3beebb780526c50375c73bcb68c6c61a373c7fda9e0d2ebde46"
+    },
+    "P40_bounded_residual": "The caller scanner covers its frozen three-loader grammar and identifier-name assignment hints. Attribute/Subscript heap or key stores and loads, computed or cross-file addresses, reflection, external and non-Python callers are outside that grammar; a scoped current-source retirement is not a proof of arbitrary future dynamic-call absence. Independent falsifiers and complete current-corpus reconciliation must be retained in the separate source-bound handoff.",
+    "source_role_rule": "No nested-prefix exemption: exact Git-to-product normalization, first-component classification, unknown executable paths refuse. Accidental nested and root scratch are preserved byte-for-byte in native Trash and ignored valuable capsules.",
+    "preservation_receipts": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-nested-prefix-preservation-20261017/readback.json",
+        "sha256": "2ee1add10d69a92fd29529688a34efa9699b7bbfb06e69236bc2ecd957e27950"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-all-remaining-la025-root-scratch-preservation-20261017/readback.json",
+        "sha256": "9c774aa3714cc818e31df44c99ef8199a478922c6c19d9d4a8af496273ac2b65"
+      }
+    ],
+    "format_proof": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-devx-wrapper-r3-integrated-freeze-20261017/application-readback-r2.json",
+      "sha256": "559ec9da78118f45afe4e4615606f28ebf07bb7f68f5e03f65765c8ef731f2f7"
+    },
+    "acceptance": "After independent delta review and current-corpus reconciliation, run the four actual canonical modules, canonical Ruff/format, generated tool-config check, exact staged selector and native Trash/commit-footprint checks. Keep full deciding outputs.",
+    "historical_red": "Prior R2 composed replay had 76 PASS / 5 FAIL; those failures are owned work, not inherited evidence.",
+    "source_freeze": false,
+    "closure_ids": []
+  },
+  "coordination_epoch_20261017_devx_shared_source_census_r4": {
+    "source_base_commit": "736104d0144b75272c06f34e6eb185545ece1fed",
+    "canonical_writer": "root",
+    "prior_mechanism_lease": "coordination_epoch_20261017_devx_retirement_composed_r3",
+    "shared_selector_author_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-source-census-roles-author-r1-20261017/source-census-roles-r2-manifest.json",
+      "sha256": "2590793e4bbd7757ece35773c32d995f3f6306bc41b82f87733592f1fa596414"
+    },
+    "write_paths": [
+      "policy-engine/tools/quality/validation/source_census_roles.py",
+      "policy-engine/tests/repo_quality/tools/test_source_census_roles.py",
+      "policy-engine/tests/repo_quality/test_chronology_terminal_state.py",
+      "policy-engine/tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py"
+    ],
+    "composition_footprint": "20 mechanism/test/config/release paths plus this mandatory lease companion; old18 path operations and defining preimages are preserved",
+    "property": "Independent Git and physical Python/stub sets retain indexed ignored sources, exclude ignored untracked scratch, normalize one exact product prefix, refuse unknown families, and classify before parsing production-capable source.",
+    "bounded_role": "Static analysis selection only; source roles do not establish runtime reachability or authority.",
+    "remaining_owned_red": "Chronology terminal topology still expects only one family consumer and direct owner construction in __init__; actual N9 runtime is delegated and requires a separate property-oracle repair. Historical cluster2/4 decisions remain unchanged. This red is not established as inherited.",
+    "acceptance": "Fresh canonical affected tests, Ruff/format, generated config, exact21 staged/Trash guard and all18 actual hook selectors; retain full deciding outputs, including owned chronology FAIL.",
+    "source_freeze": false,
+    "closure_ids": []
   }
 }

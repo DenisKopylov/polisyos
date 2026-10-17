@@ -23,8 +23,6 @@ AUTHORED_PYTHON_FORMAT_SCOPE: tuple[str, ...] = (
     "schemas",
     "examples",
     "ops/cloud/gcp/upload_gonka_secrets.py",
-    "jax_bootstrap.py",
-    "migrate.py",
 )
 PHASE8_LIMITED_PYTHON_SCOPE: tuple[str, ...] = (
     "benchmarks",

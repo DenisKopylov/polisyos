@@ -1,0 +1,29 @@
+id = "2026-10-17-devx-wrapper-retirement"
+title = "Retire expired repository-root DevX wrappers"
+type = "removed"
+component = "devx"
+owner = "team-devx"
+summary = "Remove the three expired wrapper-only root paths after migrating the sole active JAX consumer to the canonical helper and verifying the tracked source/config/docs caller set."
+evidence = ["tests/unit/remediation/test_hyg_04.py", "tests/unit/remediation/test_mig_01.py", "architecture/shims.toml"]
+change_class = "shim_sunset"
+surface_classification = "internal: internal-only"
+compatibility = "In-repository callers use the canonical command/helper paths. The root scripts install.sh, migrate.py, and jax_bootstrap.py are removed after their 2026-08-01 registered sunset."
+migration = "Bootstrap with `python3 -m tools.cli workspace bootstrap` from policy-engine/ or `uv run polisyos-tools workspace bootstrap`. Migrate with `uv run polisyos-tools migrations migrate policy_ir input.json output.json --to 1.0`. JAX entrypoints call `polisyos.common.jax_env.apply_jax_env_defaults()` before importing JAX-heavy stacks."
+limitations = "The tracked repository source/config/documentation census finds no remaining active root-wrapper callers after this patch. Compatibility use by external repositories, personal scripts, or untracked local files is not established."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = ["docs/reference/cli.md", "docs/how-to/install.md", "tools/ops_runners/migrations/README.md", "tools/research/benchmarks/README.md"]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "devx-root-wrapper-sunset"
+change_class = "shim_sunset"
+impact = "removed"
+surface = "repository-root install.sh, migrate.py, and jax_bootstrap.py compatibility paths"
+owner = "team-devx"
+version_owner = "team-devx"
+deprecation_window = "Registered sunset 2026-08-01; removal proposed 2026-10-17 under the existing shim retirement rule."
+release_note = "Use the unified workspace bootstrap and migration commands, and call the shared JAX environment helper explicitly before JAX imports."
+generated_client_compatibility = "not_applicable"
+migration_docs = ["docs/reference/cli.md", "docs/how-to/install.md", "tools/ops_runners/migrations/README.md", "tools/research/benchmarks/README.md"]
+runbook_docs = []

@@ -2,8 +2,6 @@ from __future__ import annotations
 
 import ast
 import copy
-import os
-import subprocess
 import tomllib
 from collections import Counter
 from pathlib import Path
@@ -14,6 +12,10 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from polisyos.core.contracts import chronology as contract
 from polisyos.core.contracts.runtime import UniversalPolicyCapabilityRealityLabel
+from tools.quality.validation.source_census_roles import (
+    classify_python_source_role,
+    python_source_path_census,
+)
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 ALLOCATION_PATH = (
@@ -325,26 +327,6 @@ def _load_history() -> ChronologyCapabilityHistory:
     return _load_history_mapping(tomllib.loads(ALLOCATION_PATH.read_text(encoding="utf-8")))
 
 
-def _git_candidate_paths() -> set[str]:
-    completed = subprocess.run(
-        [
-            "git",
-            "ls-files",
-            "-z",
-            "--cached",
-            "--others",
-            "--exclude-standard",
-            "--",
-            "*.py",
-            "*.pyi",
-        ],
-        cwd=REPO_ROOT,
-        check=True,
-        capture_output=True,
-    )
-    return {item.decode() for item in completed.stdout.split(b"\0") if item}
-
-
 def _rehash_raw_history(raw: dict[str, Any]) -> None:
     previous: contract.Digest | None = None
     for ordinal, entry in enumerate(raw["entries"]):
@@ -369,51 +351,15 @@ def _rehash_raw_history(raw: dict[str, Any]) -> None:
         previous = entry["entry_hash"]
 
 
-def _filesystem_candidate_paths() -> set[str]:
-    discovered: list[str] = []
-    for directory, child_dirs, files in os.walk(REPO_ROOT, followlinks=False):
-        child_dirs[:] = [name for name in child_dirs if name != ".git"]
-        root = Path(directory)
-        for name in files:
-            if name.endswith((".py", ".pyi")):
-                discovered.append((root / name).relative_to(REPO_ROOT).as_posix())
-    payload = b"\0".join(item.encode() for item in discovered)
-    if payload:
-        payload += b"\0"
-    ignored = subprocess.run(
-        ["git", "check-ignore", "--stdin", "-z"],
-        cwd=REPO_ROOT,
-        input=payload,
-        check=False,
-        capture_output=True,
-    )
-    if ignored.returncode not in {0, 1}:
-        raise AssertionError(ignored.stderr.decode(errors="replace"))
-    ignored_paths = {item.decode() for item in ignored.stdout.split(b"\0") if item}
-    return set(discovered) - ignored_paths
-
-
-def _classify(candidate: str) -> str:
-    first = candidate.split("/", 1)[0]
-    if first == "tests":
-        return "test_only"
-    if first == "benchmarks":
-        return "benchmark_only"
-    if first == "examples":
-        return "example_only"
-    if first in {"src", "tools", "apps", "ops", "architecture"}:
-        return "production_capable"
-    if candidate in {"jax_bootstrap.py", "migrate.py"}:
-        return "production_capable"
-    raise AssertionError(f"unclassified Python/stub path: {candidate}")
-
-
 def _parse_candidate_tree(paths: set[str]) -> tuple[dict[str, str], dict[str, ast.Module]]:
     roles: dict[str, str] = {}
     trees: dict[str, ast.Module] = {}
     parse_errors: dict[str, str] = {}
     for candidate in sorted(paths):
-        roles[candidate] = _classify(candidate)
+        role = classify_python_source_role(candidate)
+        roles[candidate] = role
+        if role != "production_capable":
+            continue
         try:
             trees[candidate] = ast.parse(
                 (REPO_ROOT / candidate).read_text(encoding="utf-8"),
@@ -423,6 +369,26 @@ def _parse_candidate_tree(paths: set[str]) -> tuple[dict[str, str], dict[str, as
             parse_errors[candidate] = str(exc)
     assert not parse_errors
     return roles, trees
+
+
+def test_chronology_parser_classifies_inventory_and_parses_only_active_sources(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    research_path = "docs/research/snapshot.py"
+    (tmp_path / research_path).parent.mkdir(parents=True)
+    (tmp_path / research_path).write_text("    captured snippet\n", encoding="utf-8")
+    monkeypatch.setitem(_parse_candidate_tree.__globals__, "REPO_ROOT", tmp_path)
+
+    roles, trees = _parse_candidate_tree({research_path})
+    assert roles == {research_path: "research_only"}
+    assert trees == {}
+
+    active_path = "docs/superpowers/journals/runtime_probe.py"
+    active_file = tmp_path / active_path
+    active_file.parent.mkdir(parents=True)
+    active_file.write_text("def broken(:\n", encoding="utf-8")
+    with pytest.raises(AssertionError):
+        _parse_candidate_tree({active_path})
 
 
 def _dotted_name(node: ast.expr) -> str | None:
@@ -765,8 +731,9 @@ def test_allocation_decoder_rejects_chain_owner_and_type_corruption() -> None:
 
 
 def test_cluster4_terminal_labels_match_source_derived_chain() -> None:
-    git_paths = _git_candidate_paths()
-    filesystem_paths = _filesystem_candidate_paths()
+    census = python_source_path_census(REPO_ROOT)
+    git_paths = set(census.git_paths)
+    filesystem_paths = set(census.filesystem_paths)
     assert git_paths == filesystem_paths
     roles, trees = _parse_candidate_tree(git_paths)
     assert sum(Counter(roles.values()).values()) == len(git_paths)

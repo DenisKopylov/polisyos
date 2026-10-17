@@ -5,28 +5,29 @@ from __future__ import annotations
 
 import argparse
 import json
-import sys
 import time
-from collections.abc import Callable
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from tools.lib.imports import ensure_repo_import_roots, repo_root_from
+from tools.lib.imports import ensure_repo_import_roots
 
-sys.path.insert(0, str(repo_root_from(__file__)))
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
-REPO_ROOT, SRC_ROOT = ensure_repo_import_roots(__file__)
+    import numpy as np
 
-import jax_bootstrap  # noqa: F401
-import numpy as np
-from polisyos.foundry.methods.catalog.bayesian.regression import BayesianLinearRegressionEstimator
-from polisyos.foundry.methods.catalog.ml.protocols import TabularData
-from polisyos.foundry.methods.catalog.optimization.lp import ResourceLP
-from polisyos.foundry.methods.catalog.optimization.protocols import (
-    AllocationItem,
-    OptimizationProblem,
-    ResourceConstraint,
-)
-from polisyos.foundry.methods.catalog.survey.estimation import FayHerriotEstimator
+    from polisyos.foundry.methods.catalog.ml.protocols import TabularData
+    from polisyos.foundry.methods.catalog.optimization.protocols import (
+        OptimizationProblem,
+    )
+
+
+def _prepare_benchmark_runtime() -> None:
+    """Prepare repository imports and JAX defaults before loading the benchmark stack."""
+
+    ensure_repo_import_roots(__file__)
+    from polisyos.common.jax_env import apply_jax_env_defaults
+
+    apply_jax_env_defaults()
 
 
 def _benchmark(
@@ -35,6 +36,9 @@ def _benchmark(
     warmup: int,
     repeat: int,
 ) -> dict[str, float]:
+    _prepare_benchmark_runtime()
+    import numpy as np
+
     for _ in range(max(warmup, 0)):
         fn()
 
@@ -56,6 +60,11 @@ def _benchmark(
 
 
 def _bayesian_state() -> TabularData:
+    _prepare_benchmark_runtime()
+    import numpy as np
+
+    from polisyos.foundry.methods.catalog.ml.protocols import TabularData
+
     features = np.array(
         [
             [0.0, 0.0],
@@ -74,6 +83,13 @@ def _bayesian_state() -> TabularData:
 
 
 def _optimization_problem() -> OptimizationProblem:
+    _prepare_benchmark_runtime()
+    from polisyos.foundry.methods.catalog.optimization.protocols import (
+        AllocationItem,
+        OptimizationProblem,
+        ResourceConstraint,
+    )
+
     return OptimizationProblem(
         problem_id="bench_domain_lp",
         budget=8.0,
@@ -105,6 +121,9 @@ def _optimization_problem() -> OptimizationProblem:
 
 
 def _survey_state() -> dict[str, np.ndarray]:
+    _prepare_benchmark_runtime()
+    import numpy as np
+
     rng = np.random.default_rng(42)
     n_areas = 12
     return {
@@ -115,6 +134,13 @@ def _survey_state() -> dict[str, np.ndarray]:
 
 
 def run_benchmarks(*, warmup: int, repeat: int) -> dict[str, dict[str, Any]]:
+    _prepare_benchmark_runtime()
+    from polisyos.foundry.methods.catalog.bayesian.regression import (
+        BayesianLinearRegressionEstimator,
+    )
+    from polisyos.foundry.methods.catalog.optimization.lp import ResourceLP
+    from polisyos.foundry.methods.catalog.survey.estimation import FayHerriotEstimator
+
     bayesian_state = _bayesian_state()
     optimization_problem = _optimization_problem()
     survey_state = _survey_state()
@@ -129,7 +155,11 @@ def run_benchmarks(*, warmup: int, repeat: int) -> dict[str, dict[str, Any]]:
                 "proposal_scale": 0.025,
             },
         )
-        assert result["result"].method_name == "bayesian_linear_regression"
+        actual_method = result["result"].method_name
+        if actual_method != "bayesian_linear_regression":
+            raise RuntimeError(
+                f"Bayesian regression benchmark returned unexpected method {actual_method!r}"
+            )
         return result
 
     def _run_optimization() -> tuple[dict[str, Any], dict[str, Any]]:
@@ -137,12 +167,21 @@ def run_benchmarks(*, warmup: int, repeat: int) -> dict[str, dict[str, Any]]:
             optimization_problem,
             {"prefer_ortools": False},
         )
-        assert payload["status"] in {"optimal", "feasible", "error"}
+        if payload["status"] not in {"optimal", "feasible", "error"}:
+            raise RuntimeError(
+                f"Optimization benchmark returned unexpected status {payload['status']!r}"
+            )
         return payload, solver_info
 
     def _run_survey() -> dict[str, Any]:
         result = FayHerriotEstimator.pure_step(survey_state, {"max_iter": 40})
-        assert result["result"]["n_areas"] == survey_state["y_direct"].shape[0]
+        expected_n_areas = survey_state["y_direct"].shape[0]
+        actual_n_areas = result["result"]["n_areas"]
+        if actual_n_areas != expected_n_areas:
+            raise RuntimeError(
+                "Fay-Herriot benchmark returned unexpected area count "
+                f"{actual_n_areas!r}; expected {expected_n_areas}"
+            )
         return result
 
     return {

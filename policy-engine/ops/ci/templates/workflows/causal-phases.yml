@@ -10,7 +10,6 @@ on:
       - "policy-engine/tests/unit/foundry/methods/catalog/causal/**"
       - "policy-engine/tests/unit/ir/analytics/**"
       - "policy-engine/tests/unit/scientist/**"
-      - "policy-engine/install.sh"
       - "policy-engine/pyproject.toml"
       - "policy-engine/tools/quality/validation/**"
       - "policy-engine/tools/quality/validation/run_causal_phase_validation.sh"

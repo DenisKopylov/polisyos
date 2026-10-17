@@ -3,8 +3,6 @@
 from __future__ import annotations
 
 import ast
-import os
-import subprocess
 from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Final
@@ -30,6 +28,11 @@ from polisyos.runtime.quality.recursive_generation_cycle import (
     RecursiveGenerationCycleController,
     RecursiveGenerationCycleError,
     build_default_recursive_generation_cycle_controller,
+)
+from tools.quality.validation.source_census_roles import (
+    classify_python_source_role,
+    normalize_product_git_path,
+    python_source_path_census,
 )
 
 _CONSTRUCTOR_TARGETS: Final = frozenset(
@@ -284,6 +287,7 @@ async def test_implicit_contract_testing_candidate_rejects_subclassed_n9_dispatc
             return None
 
     if override_target == "controller":
+
         class SideEffectController(GenerationCycleController):
             async def run(self, *args, **kwargs):
                 del args, kwargs
@@ -520,7 +524,7 @@ class _CallSite:
     enclosing: str
     target: str
     keyword_names: frozenset[str]
-    has_keyword_expansion: bool
+    has_unresolved_keyword_expansion: bool
     authority_scope: str | None
 
 
@@ -571,6 +575,7 @@ def _scan_python_source(
     tree = ast.parse(source, filename=source_path)
     bindings: dict[str, set[str]] = {}
     assignments: list[tuple[str, ast.expr]] = []
+    mapping_assignments: dict[str, list[ast.expr]] = {}
     binding_ambiguities: list[str] = []
     target_modules = {target.rsplit(".", 1)[0] for target in _CONSTRUCTOR_TARGETS}
     for node in ast.walk(tree):
@@ -600,6 +605,54 @@ def _scan_python_source(
             and isinstance(node.targets[0], ast.Name)
         ):
             assignments.append((node.targets[0].id, node.value))
+            mapping_assignments.setdefault(node.targets[0].id, []).append(node.value)
+        elif (
+            isinstance(node, ast.AnnAssign)
+            and isinstance(node.target, ast.Name)
+            and node.value is not None
+        ):
+            mapping_assignments.setdefault(node.target.id, []).append(node.value)
+
+    def _literal_mapping_keys(
+        expression: ast.expr,
+        *,
+        shadowed: frozenset[str] = frozenset(),
+        active_names: frozenset[str] = frozenset(),
+    ) -> frozenset[str] | None:
+        if isinstance(expression, ast.Dict):
+            names: set[str] = set()
+            for key, value in zip(expression.keys, expression.values, strict=True):
+                if key is None:
+                    nested = _literal_mapping_keys(
+                        value, shadowed=shadowed, active_names=active_names
+                    )
+                    if nested is None:
+                        return None
+                    names.update(nested)
+                elif isinstance(key, ast.Constant) and isinstance(key.value, str):
+                    names.add(key.value)
+                else:
+                    return None
+            return frozenset(names)
+        if not isinstance(expression, ast.Name):
+            return None
+        name = expression.id
+        if name in shadowed or name in active_names:
+            return None
+        values = mapping_assignments.get(name, [])
+        if not values:
+            return None
+        names: set[str] = set()
+        for value in values:
+            resolved = _literal_mapping_keys(
+                value,
+                shadowed=shadowed,
+                active_names=active_names | {name},
+            )
+            if resolved is None:
+                return None
+            names.update(resolved)
+        return frozenset(names)
 
     for _ in range(len(assignments) + 1):
         changed = False
@@ -656,14 +709,24 @@ def _scan_python_source(
             self._visit_scope(node, node.name, self._arguments(node))
 
         def visit_Call(self, node: ast.Call) -> None:  # noqa: N802
-            keywords = frozenset(item.arg for item in node.keywords if item.arg is not None)
+            active_shadows = frozenset().union(*self.shadowed)
+            keyword_names = {item.arg for item in node.keywords if item.arg is not None}
+            unresolved_keyword_expansion = False
+            for item in node.keywords:
+                if item.arg is not None:
+                    continue
+                expanded_names = _literal_mapping_keys(item.value, shadowed=active_shadows)
+                if expanded_names is None or "authority_scope" in expanded_names:
+                    unresolved_keyword_expansion = True
+                    continue
+                keyword_names.update(expanded_names)
             row = _CallSite(
                 module=module,
                 source_path=source_path,
                 enclosing=".".join(self.scope),
                 target="",
-                keyword_names=keywords,
-                has_keyword_expansion=any(item.arg is None for item in node.keywords),
+                keyword_names=frozenset(keyword_names),
+                has_unresolved_keyword_expansion=unresolved_keyword_expansion,
                 authority_scope=next(
                     (
                         item.value.value
@@ -675,7 +738,6 @@ def _scan_python_source(
                     None,
                 ),
             )
-            active_shadows = frozenset().union(*self.shadowed)
             resolved = _attribute_name(node.func, bindings, active_shadows)
             matched = resolved & _CONSTRUCTOR_TARGETS
             if matched:
@@ -718,98 +780,19 @@ def _scan_python_source(
     return tuple(constructors), tuple(promotion_calls), tuple(ambiguous)
 
 
-def _source_role(relative_path: str) -> str:
-    first = relative_path.split("/", 1)[0]
-    if first == "tests":
-        return "test_only"
-    if first == "benchmarks":
-        return "benchmark_only"
-    if first == "examples":
-        return "example_only"
-    if relative_path.startswith("docs/research/"):
-        return "research_only"
-    # Executable journals and worker/oracle programs can construct runtime owners.
-    # Their directory names do not exempt their calls from the actual census.
-    if first in {
-        "src", "tools", "apps", "ops", "architecture", "docs", "dev-oracles", "workers"
-    }:
-        return "production_capable"
-    if relative_path in {"jax_bootstrap.py", "migrate.py"}:
-        return "production_capable"
-    raise AssertionError(f"unclassified Python/stub path: {relative_path}")
-
-
 def _production_python_paths(repo_root: Path) -> tuple[set[str], set[str]]:
-    result = subprocess.run(
-        [
-            "git",
-            "-C",
-            str(repo_root),
-            "ls-files",
-            "--cached",
-            "--others",
-            "--exclude-standard",
-            "--",
-            "*.py",
-            "*.pyi",
-        ],
-        check=True,
-        capture_output=True,
-        text=True,
-    )
-    git_candidates = {row for row in result.stdout.splitlines() if row.endswith((".py", ".pyi"))}
-
-    ignored_directory_result = subprocess.run(
-        [
-            "git",
-            "-C",
-            str(repo_root),
-            "ls-files",
-            "--others",
-            "--ignored",
-            "--exclude-standard",
-            "--directory",
-            "-z",
-        ],
-        check=True,
-        capture_output=True,
-    )
-    ignored_directories = {
-        item.decode().rstrip("/")
-        for item in ignored_directory_result.stdout.split(b"\0")
-        if item
-    }
-    discovered: list[str] = []
-    for directory, child_dirs, files in os.walk(repo_root, followlinks=False):
-        root = Path(directory)
-        child_dirs[:] = [
-            name
-            for name in child_dirs
-            if name != ".git"
-            and (root / name).relative_to(repo_root).as_posix()
-            not in ignored_directories
-        ]
-        for name in files:
-            if name.endswith((".py", ".pyi")):
-                discovered.append((root / name).relative_to(repo_root).as_posix())
-    payload = b"\0".join(item.encode() for item in discovered)
-    if payload:
-        payload += b"\0"
-    ignored = subprocess.run(
-        ["git", "check-ignore", "--stdin", "-z"],
-        cwd=repo_root,
-        input=payload,
-        check=False,
-        capture_output=True,
-    )
-    if ignored.returncode not in {0, 1}:
-        raise AssertionError(ignored.stderr.decode(errors="replace"))
-    ignored_paths = {item.decode() for item in ignored.stdout.split(b"\0") if item}
-    filesystem_candidates = set(discovered) - ignored_paths
-
+    census = python_source_path_census(repo_root)
     return (
-        {row for row in git_candidates if _source_role(row) == "production_capable"},
-        {row for row in filesystem_candidates if _source_role(row) == "production_capable"},
+        {
+            row
+            for row in census.git_paths
+            if classify_python_source_role(row) == "production_capable"
+        },
+        {
+            row
+            for row in census.filesystem_paths
+            if classify_python_source_role(row) == "production_capable"
+        },
     )
 
 
@@ -821,13 +804,37 @@ def _assert_constructor_contract(
     assert ambiguous == ()
     expected_production = {
         (
+            "polisyos.runtime.quality.acquisition_world_growth",
+            "src/polisyos/runtime/quality/acquisition_world_growth.py",
+            "AcquisitionWorldGrowthBridge.resume",
+            "polisyos.runtime.quality.generation_cycle.GenerationCycleController",
+            frozenset(
+                {
+                    "repo_root",
+                    "model_id",
+                    "promotion_runtime",
+                    "cycle_substrate_context",
+                    "candidate_simulation_handoff",
+                    "candidate_simulation_currentness_resolver",
+                }
+            ),
+        ),
+        (
             "polisyos.runtime.http.services.control.generation_cycle",
             "src/polisyos/runtime/http/services/control/generation_cycle.py",
             "compile_and_run_recursive_generation_cycle",
             "polisyos.runtime.quality.recursive_generation_cycle."
             "build_default_recursive_generation_cycle_controller",
             frozenset(
-                {"repo_root", "model_id", "promotion_runtime", "eval_safety_verifier"}
+                {
+                    "repo_root",
+                    "model_id",
+                    "promotion_runtime",
+                    "eval_safety_verifier",
+                    "catalog_run_profile",
+                    "measurement_root_execution_binding",
+                    "catalog_serving_source",
+                }
             ),
         ),
         (
@@ -837,7 +844,15 @@ def _assert_constructor_contract(
             "polisyos.runtime.quality.recursive_generation_cycle."
             "RecursiveGenerationCycleController",
             frozenset(
-                {"repo_root", "model_id", "promotion_runtime", "eval_safety_verifier"}
+                {
+                    "repo_root",
+                    "model_id",
+                    "promotion_runtime",
+                    "eval_safety_verifier",
+                    "catalog_run_profile",
+                    "measurement_root_execution_binding",
+                    "catalog_serving_source",
+                }
             ),
         ),
         (
@@ -857,6 +872,14 @@ def _assert_constructor_contract(
                     "artifact_store",
                     "candidate_simulation_handoff",
                     "candidate_simulation_currentness_resolver",
+                    "catalog_run_profile",
+                    "generic_cycle_simulation_admission_owner",
+                    "generic_cycle_simulation_currentness_resolver",
+                    "measurement_root_execution_binding",
+                    "generic_n4_child_profile_set_ref",
+                    "_producer_budget_reconciler",
+                    "catalog_serving_source",
+                    "generic_cycle_simulation_handoff",
                 }
             ),
         ),
@@ -867,8 +890,13 @@ def _assert_constructor_contract(
             "polisyos.runtime.quality.promotion_sequence.CanonicalN9PromotionPort",
             frozenset(
                 {
-                    "repo_root", "promotion_runtime", "epoch_n9_evidence_resolver",
-                    "context_provider", "measurement_catalog", "measurement_providers",
+                    "repo_root",
+                    "promotion_runtime",
+                    "epoch_n9_evidence_resolver",
+                    "context_provider",
+                    "measurement_catalog",
+                    "measurement_providers",
+                    "execution_scope_binding",
                 }
             ),
         ),
@@ -883,6 +911,29 @@ def _assert_constructor_contract(
         row.authority_scope is None for row in constructors if row.source_path.startswith("src/")
     )
 
+    expected_executable_documentation = {
+        (
+            "docs.superpowers.journals.gy-phase5-evidence.pr1.runtime_snapshot",
+            "docs/superpowers/journals/gy-phase5-evidence/pr1/runtime_snapshot.py",
+            "",
+            "polisyos.runtime.quality.generation_cycle.GenerationCycleController",
+            frozenset({"repo_root"}),
+        ),
+        (
+            "docs.superpowers.journals.gy-phase5-evidence.pr1.scope_audit",
+            "docs/superpowers/journals/gy-phase5-evidence/pr1/scope_audit.py",
+            "inventory",
+            "polisyos.runtime.quality.generation_cycle.GenerationCycleController",
+            frozenset({"repo_root"}),
+        ),
+        (
+            "docs.superpowers.journals.gy-phase5-evidence.shared.skg_real_replay",
+            "docs/superpowers/journals/gy-phase5-evidence/shared/skg_real_replay.py",
+            "main",
+            "polisyos.runtime.quality.generation_cycle.GenerationCycleController",
+            frozenset({"repo_root"}),
+        ),
+    }
     expected_verification = {
         (
             "tools.quality.validation.check_layer3_gy_composition_artifacts",
@@ -986,7 +1037,7 @@ def _assert_constructor_contract(
             "_build_live_payload_in_verification_namespace",
             "polisyos.runtime.quality.promotion_sequence."
             "CanonicalN9PromotionPort._for_verification",
-            frozenset({"confidence_ledger_session", "repo_root"}),
+            frozenset({"confidence_ledger_session_factory", "repo_root"}),
             None,
         ),
         (
@@ -1052,8 +1103,23 @@ def _assert_constructor_contract(
         if row.source_path.startswith("tools/")
     }
     assert observed_verification == expected_verification
-    assert len(constructors) == len(expected_production) + len(expected_verification)
-    assert not any(row.has_keyword_expansion for row in constructors)
+    observed_executable_documentation = {
+        (row.module, row.source_path, row.enclosing, row.target, row.keyword_names)
+        for row in constructors
+        if row.source_path.startswith("docs/")
+    }
+    assert observed_executable_documentation == expected_executable_documentation
+    assert len(constructors) == (
+        len(expected_production)
+        + len(expected_executable_documentation)
+        + len(expected_verification)
+    )
+    assert not any(row.has_unresolved_keyword_expansion for row in constructors)
+    assert all(
+        row.authority_scope is None
+        for row in constructors
+        if row.source_path.startswith(("src/", "docs/"))
+    )
     expected_promotion_calls = {
         (
             "polisyos.runtime.quality.generation_cycle",
@@ -1078,7 +1144,7 @@ def _assert_constructor_contract(
     assert {
         (row.module, row.source_path, row.enclosing, row.keyword_names) for row in promotion_calls
     } == expected_promotion_calls
-    assert not any(row.has_keyword_expansion for row in promotion_calls)
+    assert not any(row.has_unresolved_keyword_expansion for row in promotion_calls)
 
 
 def _assert_task_44_export_contract(
@@ -1086,25 +1152,65 @@ def _assert_task_44_export_contract(
     expected_decision_names: tuple[str, ...],
     decision_owner_names: set[str],
     decision_facade_names: set[str],
-    control_owner_names: set[str],
+    decision_star_names: set[str],
+    decision_direct_only_names: tuple[str, ...],
+    expected_control_facade_names: tuple[str, ...],
     control_facade_names: set[str],
+    control_star_names: set[str],
+    control_direct_only_names: tuple[str, ...],
+    control_owner_names: set[str],
+    control_owner_attributes: set[str],
     scientist_names: set[str],
     scientist_lazy_names: set[str],
-    facade_lazy_imports: dict[str, str],
+    scientist_service_names: tuple[str, ...],
+    scientist_service_bindings: dict[str, tuple[str, str] | None],
+    core_public_names: set[str],
+    core_dir_names: set[str],
+    core_lazy_imports: dict[str, str],
 ) -> None:
     expected_decision = set(expected_decision_names)
+    assert len(expected_decision_names) == len(expected_decision)
     assert decision_owner_names == expected_decision
     assert decision_facade_names == expected_decision
+    decision_direct_only = set(decision_direct_only_names)
+    assert decision_direct_only.issubset(expected_decision)
+    assert decision_star_names == expected_decision - decision_direct_only
 
-    control_epoch_names = {"EpochValidityBatchRequest", "EpochValidityBatchResponse"}
-    assert control_epoch_names.issubset(control_owner_names)
-    assert control_epoch_names.issubset(control_facade_names)
+    expected_control_facade = set(expected_control_facade_names)
+    assert len(expected_control_facade_names) == len(expected_control_facade)
+    assert control_facade_names == expected_control_facade
+    assert expected_control_facade.issubset(control_owner_attributes)
+    control_direct_only = set(control_direct_only_names)
+    assert control_direct_only.issubset(expected_control_facade)
+    assert control_star_names == expected_control_facade - control_direct_only
+
+    control_epoch_names = ("EpochValidityBatchRequest", "EpochValidityBatchResponse")
+    assert (
+        tuple(
+            name for name in expected_control_facade_names if name.startswith("EpochValidityBatch")
+        )
+        == control_epoch_names
+    )
+    assert set(control_epoch_names).issubset(control_owner_names)
+    assert set(control_epoch_names).issubset(control_facade_names)
     assert scientist_lazy_names == scientist_names
+    assert scientist_service_names == ("DecisionValidityService",)
+    assert set(scientist_service_names).issubset(scientist_names)
+    assert scientist_service_bindings == {
+        "DecisionValidityService": (
+            "polisyos.scientist.validation.decision_validity",
+            "DecisionValidityService",
+        )
+    }
 
     for name in expected_decision:
-        assert facade_lazy_imports.get(name) == "polisyos.core.contracts.decision_validity"
-    for name in control_epoch_names:
-        assert facade_lazy_imports.get(name) == "polisyos.core.contracts.control"
+        assert name in core_dir_names
+        assert core_lazy_imports.get(name) == "polisyos.core.contracts.decision_validity"
+    for name in expected_control_facade:
+        assert name in core_dir_names
+        assert core_lazy_imports.get(name) == "polisyos.core.contracts.control"
+    assert decision_star_names.issubset(core_public_names)
+    assert control_star_names.issubset(core_public_names)
 
     forbidden = {
         "_DecisionValidityStateStore",
@@ -1119,7 +1225,7 @@ def _assert_task_44_export_contract(
     assert forbidden.isdisjoint(decision_owner_names)
     assert forbidden.isdisjoint(control_owner_names)
     assert forbidden.isdisjoint(scientist_names)
-    assert forbidden.isdisjoint(facade_lazy_imports)
+    assert forbidden.isdisjoint(core_lazy_imports)
 
 
 def test_default_recursive_generation_factory_binds_subject_authority_and_gate(
@@ -1390,16 +1496,13 @@ async def test_non_simulation_leaf_requires_current_eval_safety_head(
     assert current_run.strangle_receipt.status == "not_established"
     assert "n6_census_issuer_not_appointed" in current_run.strangle_receipt.limitation_refs
     assert validate_generation_cycle_candidate_run(current_run) == ()
-    strict_issue_codes = {
-        issue["code"] for issue in validate_generation_cycle_run(current_run)
-    }
+    strict_issue_codes = {issue["code"] for issue in validate_generation_cycle_run(current_run)}
     assert "strangle_receipt_currentness_not_established" in strict_issue_codes
     assert "single_pass_fixture_survives_as_production_cycle" not in strict_issue_codes
     assert current_run.promotion_port.status == "not_promoted"
     assert current_run.promotion_port.receipts == ()
     assert current_run.promotion_port.reason == (
-        "generation_cycle_blocked_before_n9:"
-        "voi_safety_cap_reached_without_scheduler_stop"
+        "generation_cycle_blocked_before_n9:voi_safety_cap_reached_without_scheduler_stop"
     )
     assert current_run.deployment_identity_status == "established"
     assert current_run.deployment_identity is not None
@@ -1429,11 +1532,7 @@ async def test_non_simulation_leaf_requires_current_eval_safety_head(
 
     foreign_problem = _problem(f"recursive_eval_safety_foreign_{uuid4().hex}")
     foreign_context = fixture.execution_context.model_copy(
-        update={
-            "design_problem_ref": gy_content_hash(
-                foreign_problem.model_dump(mode="json")
-            )
-        }
+        update={"design_problem_ref": gy_content_hash(foreign_problem.model_dump(mode="json"))}
     )
 
     class VerifierMustNotRun:
@@ -1473,9 +1572,7 @@ async def test_non_simulation_leaf_requires_current_eval_safety_head(
         fixture.execution_context.eval_safety_revision_head_ref
     )
     assert current_value.authority_blockers == ("value_owner_data_profile_invalid",)
-    assert replayed_value.authority_blockers == (
-        "eval_safety_consumer_admission_blocked",
-    )
+    assert replayed_value.authority_blockers == ("eval_safety_consumer_admission_blocked",)
     assert owner_calls == ["load_value_data_profile"]
     n4_calls_before_invalid_bindings = n4_calls
     for invalid_bindings in (
@@ -1533,6 +1630,7 @@ async def test_http_contextless_explicit_n4_refuses_before_n4(
 
     runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
     problem = _problem(f"recursive_owner_strangle_{uuid4().hex}")
+
     class _NeverCalledN4Port(N4GenerationPort):
         def __init__(self) -> None:
             super().__init__(model_id="fixture-model")
@@ -1978,6 +2076,7 @@ async def test_http_protected_explicit_n4_without_owner_context_fails_closed_bef
         "build_design_problem_from_nl_request",
         compile_problem,
     )
+
     def reject_candidate_proposal(**_kwargs):
         pytest.fail("protected explicit N4 route entered candidate-only proposal path")
 
@@ -2070,6 +2169,55 @@ async def test_recursive_leaf_preserves_history_and_current_problem_binding() ->
     assert leaf.cycle_run.cycles[-1].design_problem_ref == leaf.design_problem_ref
 
 
+def test_product_relative_git_path_keeps_root_and_rejects_siblings() -> None:
+    source_path = normalize_product_git_path("policy-engine/src/example.py", "policy-engine")
+    root_module = normalize_product_git_path("policy-engine/package.py", "policy-engine")
+    tests_path = normalize_product_git_path(
+        "policy-engine/tests/unit/test_module.py", "policy-engine"
+    )
+    research_path = normalize_product_git_path(
+        "policy-engine/docs/research/probe.py", "policy-engine"
+    )
+    assert source_path == "src/example.py"
+    assert root_module == "package.py"
+    assert tests_path == "tests/unit/test_module.py"
+    assert research_path == "docs/research/probe.py"
+    assert classify_python_source_role(source_path) == "production_capable"
+    assert classify_python_source_role(root_module) == "production_capable"
+    assert classify_python_source_role(tests_path) == "test_only"
+    assert classify_python_source_role(research_path) == "research_only"
+    # The Git-root prefix is removed exactly once before family classification;
+    # raw or double-prefixed nested roots do not acquire a role by their suffix.
+    double_prefixed_source = normalize_product_git_path(
+        "policy-engine/policy-engine/src/module.py", "policy-engine"
+    )
+    assert double_prefixed_source is not None
+    assert double_prefixed_source == "policy-engine/src/module.py"
+    assert normalize_product_git_path("policy-engine/unallocated/future.py", "policy-engine") == (
+        "unallocated/future.py"
+    )
+    assert (
+        normalize_product_git_path("policy-engine-sibling/src/example.py", "policy-engine") is None
+    )
+    assert normalize_product_git_path("sibling/src/example.py", "policy-engine") is None
+    assert normalize_product_git_path("src/example.py", "") == "src/example.py"
+    unallocated = normalize_product_git_path("policy-engine/unallocated/future.py", "policy-engine")
+    assert unallocated is not None
+    for unknown_path in (
+        unallocated,
+        "unallocated/tests/evil.py",
+        "arbitrary/benchmarks/foo.py",
+        "policy-engine/unallocated/tests/evil.py",
+        "policy-engine/src/module.py",
+        "policy-engine/tests/unit/test_module.py",
+        "policy-engine/docs/research/probe.py",
+        "nested/policy-engine/src/evil.py",
+        double_prefixed_source,
+    ):
+        with pytest.raises(AssertionError, match="unclassified Python/stub path"):
+            classify_python_source_role(unknown_path)
+
+
 def test_recursive_constructor_census_scans_executable_source_families() -> None:
     """Executable families retain actual alias resolution and unknown refusal."""
 
@@ -2081,7 +2229,7 @@ def test_recursive_constructor_census_scans_executable_source_families() -> None
         "dev-oracles/family_probe.py",
         "workers/family/tests/family_probe.py",
     ):
-        assert _source_role(relative_path) == "production_capable"
+        assert classify_python_source_role(relative_path) == "production_capable"
         found, ports, unresolved = _scan_python_source(
             source="""
 from polisyos.runtime.quality.generation_cycle import GenerationCycleController as Owner
@@ -2099,10 +2247,10 @@ def build():
         )
         assert found[0].keyword_names == frozenset({"repo_root"})
         assert found[0].authority_scope is None
-        assert not found[0].has_keyword_expansion
+        assert not found[0].has_unresolved_keyword_expansion
         assert ports == unresolved == ()
     with pytest.raises(AssertionError, match="unclassified Python/stub path"):
-        _source_role("unallocated/family_probe.py")
+        classify_python_source_role("unallocated/family_probe.py")
 
 
 def test_recursive_constructor_denominator_has_no_unwrapped_n9_call() -> None:
@@ -2144,6 +2292,38 @@ def build():
     assert alias_ambiguity == ()
     assert len(aliased) == 1
     assert aliased[0].target.endswith("RecursiveGenerationCycleController")
+
+    expanded, _, expansion_ambiguity = _scan_python_source(
+        source="""
+from polisyos.runtime.quality.generation_cycle import GenerationCycleController
+kwargs: dict[str, object] = {}
+if refresh is not None:
+    kwargs = {"cycle_substrate_context": context, "candidate_simulation_handoff": handoff}
+def build():
+    return GenerationCycleController(repo_root=root, **kwargs)
+""",
+        module="synthetic.static_keyword_expansion_probe",
+        source_path="synthetic/static_keyword_expansion_probe.py",
+    )
+    assert expansion_ambiguity == ()
+    assert len(expanded) == 1
+    assert expanded[0].keyword_names == frozenset(
+        {"repo_root", "cycle_substrate_context", "candidate_simulation_handoff"}
+    )
+    assert not expanded[0].has_unresolved_keyword_expansion
+
+    unresolved, _, unresolved_ambiguity = _scan_python_source(
+        source="""
+from polisyos.runtime.quality.generation_cycle import GenerationCycleController
+def build(**kwargs):
+    return GenerationCycleController(repo_root=root, **kwargs)
+""",
+        module="synthetic.unresolved_keyword_expansion_probe",
+        source_path="synthetic/unresolved_keyword_expansion_probe.py",
+    )
+    assert unresolved_ambiguity == ()
+    assert len(unresolved) == 1
+    assert unresolved[0].has_unresolved_keyword_expansion
 
     _, _, star_ambiguity = _scan_python_source(
         source="""
@@ -2241,6 +2421,14 @@ class Probe:
     )
     with pytest.raises(AssertionError):
         _assert_constructor_contract(tuple(constructors), shaped_production_port, tuple(ambiguous))
+    unresolved_expansion = tuple(
+        replace(row, has_unresolved_keyword_expansion=True)
+        if row.source_path.endswith("acquisition_world_growth.py")
+        else row
+        for row in constructors
+    )
+    with pytest.raises(AssertionError):
+        _assert_constructor_contract(unresolved_expansion, tuple(promotion_calls), tuple(ambiguous))
 
 
 def test_task_44_public_export_denominator_is_exact() -> None:
@@ -2249,7 +2437,10 @@ def test_task_44_public_export_denominator_is_exact() -> None:
     from polisyos.core.contracts import control, decision_validity
     from polisyos.scientist.validation import decision_validity as scientist_decision_validity
 
-    base_decision_names = (
+    # This is the complete current owner contract, not only the originally
+    # reported epoch subset. Updating the public owner requires an explicit
+    # review of this frozen denominator and its facade projections.
+    expected_decision_names = (
         "DecisionBasisSection",
         "DecisionDependencyEvent",
         "DecisionDependencyKind",
@@ -2261,11 +2452,18 @@ def test_task_44_public_export_denominator_is_exact() -> None:
         "DecisionTriggerSpec",
         "DecisionTriggerType",
         "DecisionValidityEnvelope",
+        "DecisionValidityEpochImpactOwnerRow",
+        "DecisionValidityEpochImpactSnapshot",
+        "DecisionValidityEpochImpactSnapshotHandle",
+        "DecisionValidityEpochImpactTarget",
         "DecisionValidityEvaluation",
         "DecisionValidityStatus",
         "DecisionValidityTransition",
-    )
-    epoch_decision_names = (
+        "EpochDenominatorReconciliationAdmissionBinding",
+        "EpochTransitionDenominatorMappingRow",
+        "EpochTransitionDenominatorReconciliationHandle",
+        "EpochTransitionDenominatorReconciliationReader",
+        "EpochTransitionDenominatorReconciliationReceipt",
         "EpochTransitionVerificationReceipt",
         "EpochTransitionVerifier",
         "EpochValidityAuthorityGate",
@@ -2280,6 +2478,8 @@ def test_task_44_public_export_denominator_is_exact() -> None:
         "EpochValidityN9Projection",
         "EpochValidityPendingBatch",
         "EpochValidityPreN9SubjectAuthority",
+        "PersistedDecisionValidityEpochImpactSnapshot",
+        "PersistedEpochTransitionDenominatorReconciliation",
         "PersistedEpochValidityBatchEvidence",
         "PersistedEpochValidityGateEvidence",
         "PersistedPreN9AdmittedCandidateBatch",
@@ -2287,42 +2487,106 @@ def test_task_44_public_export_denominator_is_exact() -> None:
         "PreN9AdmittedCandidate",
         "PreN9EpochValiditySubjectStatement",
     )
-    expected_decision_names = base_decision_names + epoch_decision_names
+    expected_control_facade_names = (
+        "CatalogRunProfile",
+        "CausalFrontierAreaRecord",
+        "CausalFrontierEdgeRecord",
+        "CausalFrontierExposureRecord",
+        "CausalFrontierOutputRefs",
+        "CausalFrontierSAEEstimate",
+        "CausalFrontierSAERequest",
+        "CausalFrontierSAEResponse",
+        "CacheEntryInfo",
+        "CacheStatusResponse",
+        "ConnectorInfo",
+        "ConnectorsListResponse",
+        "ControlFailureEnvelope",
+        "ControlJobResponse",
+        "ControlOutboxEventInfo",
+        "ControlOutboxEventsResponse",
+        "ControlWorkerLeaseInfo",
+        "ControlWorkersResponse",
+        "DatasetFetchSpecRequest",
+        "DecisionValidityEventRequest",
+        "DecisionValidityEventResponse",
+        "DecisionValidityLifecycleSummary",
+        "DecisionValidityPendingReview",
+        "DecisionValiditySummaryResponse",
+        "EpochValidityBatchRequest",
+        "EpochValidityBatchResponse",
+        "DataSourceBinding",
+        "ExecutionProfile",
+        "WorkflowDataSourceBinding",
+        "IngestRequest",
+        "IngestResponse",
+        "LegalQueryGenerationBasisKind",
+        "LegalQueryGenerationIntentV1",
+        "LexSearchRequest",
+        "LexSearchResponse",
+        "LexSearchResultItem",
+        "LexSourceRelationRefusal",
+        "NaturalLanguageRunRequest",
+        "ProductionApprovalCurrentnessReceipt",
+        "RunLaunchResponse",
+        "WorkflowRunRequest",
+        "require_production_approval_currentness_receipt",
+    )
     control_epoch_names = ("EpochValidityBatchRequest", "EpochValidityBatchResponse")
+    decision_direct_only_names = (
+        "DecisionDependencyEvent",
+        "DecisionLifecycleJob",
+        "DecisionLifecycleJobKind",
+        "DecisionLifecycleJobState",
+        "DecisionValidityTransition",
+    )
+    control_direct_only_names = ("DecisionValidityEventResponse",)
+    core_control_names = tuple(core_contracts._MODULE_SYMBOLS[".control"])
+    core_decision_names = tuple(core_contracts._MODULE_SYMBOLS[".decision_validity"])
     contract = {
         "expected_decision_names": expected_decision_names,
         "decision_owner_names": set(decision_validity.__all__),
-        "decision_facade_names": set(core_contracts._MODULE_SYMBOLS[".decision_validity"]),
+        "decision_facade_names": set(core_decision_names),
+        "decision_star_names": set(core_contracts.__all__) & set(expected_decision_names),
+        "decision_direct_only_names": decision_direct_only_names,
+        "expected_control_facade_names": expected_control_facade_names,
+        "control_facade_names": set(core_control_names),
+        "control_star_names": set(core_contracts.__all__) & set(expected_control_facade_names),
+        "control_direct_only_names": control_direct_only_names,
         "control_owner_names": set(control.__all__),
-        "control_facade_names": set(core_contracts._MODULE_SYMBOLS[".control"]),
+        "control_owner_attributes": set(dir(control)),
         "scientist_names": set(scientist_validation.__all__),
         "scientist_lazy_names": set(scientist_validation._LAZY_IMPORTS),
-        "facade_lazy_imports": dict(core_contracts._LAZY_IMPORTS),
+        "scientist_service_names": tuple(scientist_decision_validity.__all__),
+        "scientist_service_bindings": {
+            name: scientist_validation._LAZY_IMPORTS.get(name)
+            for name in scientist_decision_validity.__all__
+        },
+        "core_public_names": set(core_contracts.__all__),
+        "core_dir_names": set(dir(core_contracts)),
+        "core_lazy_imports": dict(core_contracts._LAZY_IMPORTS),
     }
     _assert_task_44_export_contract(**contract)
 
     assert tuple(decision_validity.__all__) == expected_decision_names
-    assert (
-        tuple(name for name in control.__all__ if name.startswith("EpochValidityBatch"))
-        == control_epoch_names
-    )
-    assert (
-        tuple(
-            name
-            for name in core_contracts._MODULE_SYMBOLS[".control"]
-            if name.startswith("EpochValidityBatch")
-        )
-        == control_epoch_names
+    assert tuple(name for name in core_control_names if name.startswith("EpochValidityBatch")) == (
+        control_epoch_names
     )
 
-    for owner, names in (
-        (decision_validity, epoch_decision_names),
-        (control, control_epoch_names),
+    decision_star_names = set(expected_decision_names) - set(decision_direct_only_names)
+    control_star_names = set(expected_control_facade_names) - set(control_direct_only_names)
+    for owner, names, star_names in (
+        (decision_validity, expected_decision_names, decision_star_names),
+        (control, expected_control_facade_names, control_star_names),
     ):
         for name in names:
-            assert name in core_contracts.__all__
             assert name in dir(core_contracts)
+            assert (name in core_contracts.__all__) == (name in star_names)
             assert getattr(core_contracts, name) is getattr(owner, name)
+
+    for name in scientist_decision_validity.__all__:
+        assert name in scientist_validation.__all__
+        assert name in dir(scientist_validation)
+        assert getattr(scientist_validation, name) is getattr(scientist_decision_validity, name)
 
     assert tuple(scientist_decision_validity.__all__) == ("DecisionValidityService",)
     for forbidden in (
@@ -2332,13 +2596,29 @@ def test_task_44_public_export_denominator_is_exact() -> None:
     ):
         assert forbidden not in scientist_validation.__dict__
 
-    # Mutation probes feed the exact same generic oracle as the live surfaces.
+    # Removal and retargeting probes change real public members while retaining
+    # the surrounding marker/schema shapes.
     with pytest.raises(AssertionError):
         _assert_task_44_export_contract(
             **{
                 **contract,
                 "decision_owner_names": contract["decision_owner_names"]
-                - {epoch_decision_names[0]},
+                - {"DecisionValidityEpochImpactOwnerRow"},
+            }
+        )
+    with pytest.raises(AssertionError):
+        _assert_task_44_export_contract(
+            **{
+                **contract,
+                "control_facade_names": contract["control_facade_names"]
+                - {"EpochValidityBatchResponse"},
+            }
+        )
+    with pytest.raises(AssertionError):
+        _assert_task_44_export_contract(
+            **{
+                **contract,
+                "decision_star_names": contract["decision_star_names"] - {"DecisionBasisSection"},
             }
         )
     with pytest.raises(AssertionError):
@@ -2356,13 +2636,19 @@ def test_task_44_public_export_denominator_is_exact() -> None:
                 "scientist_names": contract["scientist_names"] | {"DecisionValidityStateStore"},
             }
         )
-    retargeted = dict(contract["facade_lazy_imports"])
-    retargeted[epoch_decision_names[0]] = "polisyos.core.contracts.control"
+    retargeted_core = dict(contract["core_lazy_imports"])
+    retargeted_core["DecisionValidityEpochImpactOwnerRow"] = "polisyos.core.contracts.control"
     with pytest.raises(AssertionError):
-        _assert_task_44_export_contract(**{**contract, "facade_lazy_imports": retargeted})
-
-    assert set(control_epoch_names).issubset(core_contracts.__all__)
-    assert set(epoch_decision_names).issubset(core_contracts.__all__)
+        _assert_task_44_export_contract(**{**contract, "core_lazy_imports": retargeted_core})
+    retargeted_scientist = dict(contract["scientist_service_bindings"])
+    retargeted_scientist["DecisionValidityService"] = (
+        "polisyos.scientist.validation.benchmarks",
+        "DecisionValidityService",
+    )
+    with pytest.raises(AssertionError):
+        _assert_task_44_export_contract(
+            **{**contract, "scientist_service_bindings": retargeted_scientist}
+        )
 
 
 @pytest.mark.parametrize(
@@ -2529,11 +2815,14 @@ def test_recursive_child_capsule_resolves_complete_owned_inputs_and_refuses_tran
     problem = _design_problem()
     registry = _registry("education")
     world = _world_record(
-        "education", registry, region_or_jurisdiction="UA",
+        "education",
+        registry,
+        region_or_jurisdiction="UA",
         policy_slot_ids=("education.teaching_method", "learning_outcomes"),
     )
     context = _cycle_context(
-        registry=registry, world_model_record=world,
+        registry=registry,
+        world_model_record=world,
         design_problem_ref=gy_content_hash(problem.model_dump(mode="json")),
     )
     profile_payload = {
@@ -2546,64 +2835,89 @@ def test_recursive_child_capsule_resolves_complete_owned_inputs_and_refuses_tran
             selected_registry_entry_hashes=context.selected_registry_entry_hashes,
             world_model_record=world,
             intervention_substrate=context.intervention_substrate,
-            candidate_levers=(), transport_context=None,
+            candidate_levers=(),
+            transport_context=None,
             source_pack_content_hash=context.source_pack_content_hash,
             substrate_input_content_hash=context.substrate_input_content_hash,
         ).model_dump(mode="json"),
         "rule": CandidateScenarioSetToRule(
-            operator_kind="teaching_method_set_to", parameter_id="intensity",
-            target_world_slot="education.teaching_method", unit_id="synthetic_score",
-            minimum=0, maximum=1,
+            operator_kind="teaching_method_set_to",
+            parameter_id="intensity",
+            target_world_slot="education.teaching_method",
+            unit_id="synthetic_score",
+            minimum=0,
+            maximum=1,
         ).model_dump(mode="json"),
         "n5": CandidateScenarioN5Config(
-            budget_ref="budget://bounded-child", horizon=HorizonSpec(start=0, end=0, step=1),
+            budget_ref="budget://bounded-child",
+            horizon=HorizonSpec(start=0, end=0, step=1),
             baseline_state={"education.teaching_method": 0.0, "learning_outcomes": 0.0},
-            seed=7, replications=2,
+            seed=7,
+            replications=2,
         ).model_dump(mode="json"),
         "limitations": (
-            "scenario_only", "real_profile_not_established", "real_time_not_established",
-            "grounding_not_established", "s8_blocked", "n9_not_admitted",
+            "scenario_only",
+            "real_profile_not_established",
+            "real_time_not_established",
+            "grounding_not_established",
+            "s8_blocked",
+            "n9_not_admitted",
         ),
     }
-    profile = CandidateSimulationScenarioProfile.model_validate({
-        **profile_payload, "content_hash": gy_content_hash(profile_payload)
-    })
+    profile = CandidateSimulationScenarioProfile.model_validate(
+        {**profile_payload, "content_hash": gy_content_hash(profile_payload)}
+    )
     store = FileSystemCAS(tmp_path / "child-cas")
     job_owner = _TestCurrentJobExecutionOwner("child-job", "child-run")
     context_owner = CycleSubstrateContextArtifactOwner(store=store, control_store=job_owner)
     admission_owner = ConfiguredCandidateSimulationContextAdmissionOwner(
-        profiles=(profile,), store=store,
+        profiles=(profile,),
+        store=store,
     )
     owner = RecursiveLeafContextOwner(
-        store=store, context_owner=context_owner, admission_owner=admission_owner,
+        store=store,
+        context_owner=context_owner,
+        admission_owner=admission_owner,
     )
     scope = {"tenant_id": "child-tenant", "cell_id": "child-cell"}
     expected = {
-        "node_ref": "design://child", "parent_ref": "design://parent", "problem": problem,
-        "expected_job_id": "child-job", "expected_run_id": "child-run",
-        "expected_tenant_id": "child-tenant", "expected_cell_id": "child-cell",
+        "node_ref": "design://child",
+        "parent_ref": "design://parent",
+        "problem": problem,
+        "expected_job_id": "child-job",
+        "expected_run_id": "child-run",
+        "expected_tenant_id": "child-tenant",
+        "expected_cell_id": "child-cell",
     }
     with _authenticated_tenant_scope(**scope):
         offer = admission_owner.admit_context(
-            problem=problem, job_id="child-job", run_id="child-run", **scope,
+            problem=problem,
+            job_id="child-job",
+            run_id="child-run",
+            **scope,
         )
         assert offer is not None
         context_ref = context_owner.persist_for_current_job(offer.context, problem=problem)
         handoff = CandidateSimulationContextHandoff(
-            context=offer.context, context_job_ref=context_ref, profile=profile,
+            context=offer.context,
+            context_job_ref=context_ref,
+            profile=profile,
             profile_config_ref=offer.profile_config_ref,
-            job_id="child-job", run_id="child-run", **scope,
+            job_id="child-job",
+            run_id="child-run",
+            **scope,
         )
         payload = {
             "schema_version": "policyos.runtime.recursive_leaf_context.v1",
             "authority_purpose": "candidate_leaf_replay_only",
-            "node_ref": "design://child", "parent_ref": "design://parent",
+            "node_ref": "design://child",
+            "parent_ref": "design://parent",
             "problem": problem.model_dump(mode="json"),
             "handoff": handoff.model_dump(mode="json"),
         }
-        capsule = RecursiveLeafContextCapsule.model_validate({
-            **payload, "content_hash": gy_content_hash(payload)
-        })
+        capsule = RecursiveLeafContextCapsule.model_validate(
+            {**payload, "content_hash": gy_content_hash(payload)}
+        )
         capsule_ref = owner.persist(capsule)
         assert owner.read(capsule_ref, **expected) == capsule
         assert capsule.problem.authority_profile == problem.authority_profile
@@ -2622,25 +2936,32 @@ def test_recursive_child_capsule_resolves_complete_owned_inputs_and_refuses_tran
         from tests.unit.runtime.quality.test_generation_cycle import _budget
 
         with pytest.raises(ValueError, match="recursive_child_context_owner_not_established"):
-            asyncio.run(controller.run(
-                graph,
-                problems_by_node={"design://parent": problem, "design://child": problem},
-                budget_state=_budget(),
-                recursive_budget=RecursiveCycleBudget(
-                    max_depth=1, max_nodes=2, min_cycles_per_leaf=1, max_cycles_per_leaf=1,
-                ),
-                cycle_substrate_contexts_by_node={"design://child": handoff.context},
-                candidate_simulation_handoffs_by_node={"design://child": handoff},
-                candidate_simulation_currentness_resolvers_by_node={"design://child": lambda: True},
-                execution_intents_by_node={"design://child": "simulate_only"},
-            ))
+            asyncio.run(
+                controller.run(
+                    graph,
+                    problems_by_node={"design://parent": problem, "design://child": problem},
+                    budget_state=_budget(),
+                    recursive_budget=RecursiveCycleBudget(
+                        max_depth=1,
+                        max_nodes=2,
+                        min_cycles_per_leaf=1,
+                        max_cycles_per_leaf=1,
+                    ),
+                    cycle_substrate_contexts_by_node={"design://child": handoff.context},
+                    candidate_simulation_handoffs_by_node={"design://child": handoff},
+                    candidate_simulation_currentness_resolvers_by_node={
+                        "design://child": lambda: True
+                    },
+                    execution_intents_by_node={"design://child": "simulate_only"},
+                )
+            )
         # Content hashes/markers remain valid; foreign actual problem fails.
         changed = problem.model_copy(update={"problem_statement": "Different child objective"})
         transplanted = {**payload, "problem": changed.model_dump(mode="json")}
         with pytest.raises(ValueError, match="recursive_leaf_capsule_full_problem_mismatch"):
-            RecursiveLeafContextCapsule.model_validate({
-                **transplanted, "content_hash": gy_content_hash(transplanted)
-            })
+            RecursiveLeafContextCapsule.model_validate(
+                {**transplanted, "content_hash": gy_content_hash(transplanted)}
+            )
         with pytest.raises(ValueError, match="recursive_leaf_capsule_reader_binding_mismatch"):
             owner.read(capsule_ref, **{**expected, "node_ref": "design://foreign"})
         with pytest.raises(ValueError, match="historical_binding_mismatch"):
@@ -2652,9 +2973,11 @@ def test_recursive_child_capsule_resolves_complete_owned_inputs_and_refuses_tran
             owner.require_current(capsule)
         assert owner.read(capsule_ref, **expected) == capsule
         no_profile_owner = RecursiveLeafContextOwner(
-            store=store, context_owner=context_owner,
+            store=store,
+            context_owner=context_owner,
             admission_owner=ConfiguredCandidateSimulationContextAdmissionOwner(
-                profiles=(), store=store,
+                profiles=(),
+                store=store,
             ),
         )
         with pytest.raises(ValueError, match="recursive_leaf_configured_profile_not_current"):

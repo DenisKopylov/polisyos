@@ -1,18 +1,14 @@
-"""Test-first witnesses for the canonical migration CLI and Trinity boundary.
+"""Behavioral witnesses for the canonical migration CLI and Trinity boundary.
 
-The tests keep the compatibility surface visible while MIG-01 moves the root
-entrypoint onto ``tools.ops_runners.migrations.migrate``.  In particular, a
-current schema version is not evidence that a payload passed Trinity
+The canonical executor and registered command share one validated behavior.
+A current schema version is not evidence that a payload passed Trinity
 validation: the no-op path must still validate the complete bundle.
 """
 
 from __future__ import annotations
 
-import importlib
-import importlib.util
 import json
 from pathlib import Path
-from types import ModuleType
 from typing import Any
 
 import pytest
@@ -21,13 +17,13 @@ from pydantic import ValidationError
 from polisyos.ir.loading.loaders import PolicyLoadError, load_policy, load_trinity_bundle
 from polisyos.ir.migrations import migrate_policy_ir
 from polisyos.ir.trinity import TrinityBundle
+from tools.cli import main as tools_cli_main
 from tools.ops_runners.migrations.migrate import main as canonical_main
 
 pytestmark = pytest.mark.unit
 
 ZERO_REF = "sha256:" + "0" * 64
 PRODUCT_ROOT = Path(__file__).parents[3]
-ROOT_ENTRYPOINT = PRODUCT_ROOT / "migrate.py"
 
 
 def _canonical_trinity_payload() -> dict[str, Any]:
@@ -68,16 +64,6 @@ def _canonical_trinity_payload() -> dict[str, Any]:
     }
 
 
-def _load_root_entrypoint() -> ModuleType:
-    """Load the historical root script without executing its ``__main__`` block."""
-    spec = importlib.util.spec_from_file_location("polisyos_legacy_migrate_entrypoint", ROOT_ENTRYPOINT)
-    if spec is None or spec.loader is None:
-        raise AssertionError(f"could not load root entrypoint: {ROOT_ENTRYPOINT}")
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
-
-
 @pytest.mark.parametrize(("suffix", "fmt"), [(".json", "json"), (".yaml", "yaml")])
 @pytest.mark.parametrize("explicit_target", [False, True])
 def test_canonical_cli_accepts_json_and_yaml_full_trinity(
@@ -113,13 +99,17 @@ def test_canonical_cli_accepts_json_and_yaml_full_trinity(
     assert not list(tmp_path.glob(f".{output_path.stem}.*.tmp"))
 
 
-def test_current_version_migration_runs_the_real_trinity_validator(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_current_version_migration_runs_the_real_trinity_validator(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """The policy-IR no-op path cannot silently bypass full Trinity validation."""
     payload = _canonical_trinity_payload()
     calls: list[dict[str, Any]] = []
     original = TrinityBundle.model_validate
 
-    def observed_validator(cls: type[TrinityBundle], value: Any, *args: Any, **kwargs: Any) -> TrinityBundle:
+    def observed_validator(
+        cls: type[TrinityBundle], value: Any, *args: Any, **kwargs: Any
+    ) -> TrinityBundle:
         calls.append(value)
         return original(value, *args, **kwargs)
 
@@ -241,18 +231,29 @@ def test_loader_keeps_tuple_report_and_auto_migrate_error_contracts() -> None:
         load_policy(malformed, auto_migrate=False)
 
 
-def test_root_entrypoint_delegates_to_the_canonical_executor(monkeypatch: pytest.MonkeyPatch) -> None:
-    """The historical root path forwards argv and return status to one runner."""
-    canonical = importlib.import_module("tools.ops_runners.migrations.migrate")
-    calls: list[list[str] | None] = []
+def test_registered_migration_command_runs_the_canonical_policy_ir_path(tmp_path: Path) -> None:
+    """The public tools command writes the same fully validated Trinity artifact."""
+    payload = _canonical_trinity_payload()
+    source = tmp_path / "input.json"
+    output = tmp_path / "output.json"
+    original = json.dumps(payload)
+    source.write_text(original, encoding="utf-8")
 
-    def fake_main(argv: list[str] | None = None) -> int:
-        calls.append(argv)
-        return 17
+    exit_code = tools_cli_main(
+        [
+            "migrations",
+            "migrate",
+            "--skip-preflight",
+            "--timing-log",
+            str(tmp_path / "migration-timing.jsonl"),
+            "policy_ir",
+            str(source),
+            str(output),
+            "--to",
+            "1.0",
+        ]
+    )
 
-    monkeypatch.setattr(canonical, "main", fake_main)
-    root = _load_root_entrypoint()
-    argv = ["dataset_manifest", "input.json", "output.json"]
-
-    assert root.main(argv) == 17
-    assert calls == [argv]
+    assert exit_code == 0
+    assert json.loads(output.read_text(encoding="utf-8")) == payload
+    assert source.read_text(encoding="utf-8") == original

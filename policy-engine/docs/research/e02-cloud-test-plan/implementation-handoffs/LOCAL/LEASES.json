@@ -227,7 +227,7 @@
         "tests/unit/data_forge/kernel/test_encoder_identity.py",
         "kernel README/release"
       ],
-      "scope": "Existing selected-ref/Core→IR caller crosscut; immutable completed wrapper changes preserved across peer-owned files. Active new edits limited to B61 adapter/ref collector; peer-owned additional deltas sent to owner/root. Full completed crosscut footprint is supplied in ready manifest."
+      "scope": "Existing selected-ref/Core\u2192IR caller crosscut; immutable completed wrapper changes preserved across peer-owned files. Active new edits limited to B61 adapter/ref collector; peer-owned additional deltas sent to owner/root. Full completed crosscut footprint is supplied in ready manifest."
     },
     "cas_contracts": {
       "mechanisms": [
@@ -1161,7 +1161,7 @@
       },
       "fabric_pool_cleanup_author": {
         "existing_scope": "Reopen prior8src9tests after actual4dependency classes bypass evidence573b738edc3a",
-        "boundary": "Whole67binding actual consumer reads/constructor routes, real owner constants rather than unused API copies. Shared ContextVar resolver invariant, no leaf globals; actual concurrent deterministic connector→DuckDB counts/rows/cleanup control required for broader claim."
+        "boundary": "Whole67binding actual consumer reads/constructor routes, real owner constants rather than unused API copies. Shared ContextVar resolver invariant, no leaf globals; actual concurrent deterministic connector\u2192DuckDB counts/rows/cleanup control required for broader claim."
       }
     },
     "frozen_review_ready": {
@@ -2455,7 +2455,7 @@
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/independent-r8-central-finalization-review-20261016/assessment.json",
       "sha256": "87d15f00c4812f160f55349fd6f015fa455edd9062931a8542a5cca654700a77"
     },
-    "quantity": "Full28 selected source/test paths from original30d slice plus2 mandatoryREADME/release; R6→R8actual3pathpatch, existingR6live24sourcechanges retained. One successful publicget return finalizes all wrapping/fallbacks; cache/contract wrappers generation scoped.",
+    "quantity": "Full28 selected source/test paths from original30d slice plus2 mandatoryREADME/release; R6\u2192R8actual3pathpatch, existingR6live24sourcechanges retained. One successful publicget return finalizes all wrapping/fallbacks; cache/contract wrappers generation scoped.",
     "P40": "Same registration-origin class; R6 stale wrappers and R7 fallback escape are historical, R8 widens central emission, not another leaf check.",
     "limits": "Previously issued handles/active old pool leases keep exact cleanup ownership; no immediate retirement claim. PreparedB13/native/installed/global replay pending.",
     "source_freeze": false,
@@ -2666,7 +2666,7 @@
     "base": "a1b9d7437942bc2f7e6b50644ec2345fb86a3d80",
     "mechanism_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/q2-freeze-input-audit-v2-20261011.py",
     "candidate_sha256": "578fbd8bb5196e286370cfb2d988a57f5bb5befc11c6b9105bc80399731b6727",
-    "review": "IndependentR2HOLD→generic3collectorpre/postR3boundedGO+ASTequivalentformatGO; actualhistoricalFcatalogreader668d451. Noatomicchildconsumption/native/installedclaim.",
+    "review": "IndependentR2HOLD\u2192generic3collectorpre/postR3boundedGO+ASTequivalentformatGO; actualhistoricalFcatalogreader668d451. Noatomicchildconsumption/native/installedclaim.",
     "mandatory_companions": [
       "LEASES.json",
       "source-bound receipt/index"
@@ -3288,5 +3288,21 @@
     "independent_review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/gl-public-surface-scope-independent-review-20261017-r1/review.json@sha256:57bf7f3b1dac1a9395c63e6c15d983492397bf9b232c2def13b74129fcda7acd",
     "property": "Existing public contract internal_rule: unlisted GL child module is internal; supported runtime.quality root has no GL imports/exports. No reviewed flags flipped; legal/custom/G authority unresolved.",
     "actual_runtime_review_denominator": "970 root exports;75 child exports;34 exported Pydantic models, no export/field/schema deltas"
+  },
+  "coordination_epoch_20261017_b15_complete_two_child_assertion": {
+    "source_base": "80323ccce6e8f94ded7c33a816404f986bac88bc",
+    "root_is_only_canonical_writer": true,
+    "scope": [
+      "policy-engine/tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py"
+    ],
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "separate actual15-20min served2child replay/receipt remainsUNRUN after finalsourcefreeze"
+    ],
+    "independent_review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/v2-b15-exact-two-child-budget-stop-independent-review-20261017/review.json@sha256:03cb7265fb5c69c835ee0be4450491664a4cfaf6fd94404d3b310136ea1e21d0",
+    "root_delta": "One added tenant_scope import sorted before polisyos.pdc by canonical Ruff I001; no assertions/import identities changed. Full canonical Ruff check+format PASS.",
+    "property": "Complete persistedrecursive3node tree/root+2 genuine meaningfulchildren and fullsourcebudget, checkpointNone for completeRun; original positivebudgetstop remainsopen/notestablished, no newruntimePASS.",
+    "source_freeze": false,
+    "closure_ids": []
   }
 }

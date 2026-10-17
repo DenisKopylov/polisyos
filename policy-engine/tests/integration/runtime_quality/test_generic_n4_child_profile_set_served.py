@@ -505,6 +505,7 @@ async def test_original_second_capture_serves_two_meaningful_children_through_fr
     pytest.importorskip("fastapi.testclient")
     from fastapi.testclient import TestClient
 
+    from polisyos.core.security.tenant_context import tenant_scope
     from polisyos.pdc import gy_content_hash
     from polisyos.runtime.http.app import create_runtime_api_app
     from polisyos.runtime.http.services.control import (
@@ -523,6 +524,7 @@ async def test_original_second_capture_serves_two_meaningful_children_through_fr
     from polisyos.runtime.quality.intervention_atom_binding import (
         intervention_atom_content_hash,
     )
+    from polisyos.runtime.quality.recursive_generation_cycle import RecursiveGenerationCycleRun
     from tests._helpers.control_worker import dispatch_one_control_job
     from tests.unit.runtime.http.test_nl_pipeline_materialization import (
         _DeterministicSpanSupportClient,
@@ -811,6 +813,14 @@ async def test_original_second_capture_serves_two_meaningful_children_through_fr
         assert dispatched == accepted["job_id"]
         job = service._control_store.get_job(accepted["job_id"])
         assert job is not None and job.state == "completed"
+        with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+            compiled_payload = service._load_payload_ref(
+                job.progress["compiled_recursive_generation_cycle_ref"],
+                kind="runtime.compiled_recursive_generation_cycle",
+            )
+        compiled = generation_cycle_service.CompiledRecursiveGenerationCycleRun.model_validate(
+            compiled_payload
+        )
         run_id = str(job.progress["core_run_id"])
         served_worker_phase_probe(
             "fresh_run_get.start", job_id=str(accepted["job_id"]), run_id=run_id
@@ -881,10 +891,40 @@ async def test_original_second_capture_serves_two_meaningful_children_through_fr
             row["simulation_result_ref"]["kind"] == "polisyos.runtime.joint_simulation_result"
             for row in observations
         )
-        checkpoint = projection["recursive_cycle_checkpoint"]
-        assert checkpoint["budget_stop_node_ref"] is None
-        assert checkpoint["failed_branches"] == []
-        assert expected_child_node_refs.issubset(set(checkpoint["completed_design_refs"]))
+        # A completed recursive run has no partial checkpoint. Prove the two-child
+        # result from the persisted, complete compiled tree and its N5 leaf cycles.
+        assert projection["recursive_cycle_checkpoint"] is None
+        recursive_run = compiled.recursive_run
+        assert isinstance(recursive_run, RecursiveGenerationCycleRun)
+        assert recursive_run.root_design_problem_ref == prepared_problem_ref
+        assert set(recursive_run.recursive_graph.node_refs) == {
+            recursive_run.root_node_ref,
+            *expected_child_node_refs,
+        }
+        assert len(recursive_run.nodes) == 1 + len(expected_child_node_refs)
+        root_node = next(
+            node for node in recursive_run.nodes if node.node_ref == recursive_run.root_node_ref
+        )
+        assert set(root_node.child_refs) == expected_child_node_refs
+        leaf_nodes = tuple(recursive_run.leaf_nodes)
+        assert {node.node_ref for node in leaf_nodes} == expected_child_node_refs
+        assert all(node.cycle_run is not None for node in leaf_nodes)
+        assert all(
+            node.cycle_run.terminal_status == "completed"
+            and len(node.cycle_run.cycles) == 1
+            and node.cycle_run.cycles[0].simulation.status == "joint_simulated"
+            for node in leaf_nodes
+        )
+        resolution = compiled.recursive_budget_resolution
+        assert resolution is not None
+        assert resolution.requested_max_iterations == 1
+        assert resolution.effective_max_iterations == 1
+        assert resolution.requested_candidate_children == 2
+        assert resolution.effective_candidate_children == 2
+        assert resolution.child_budget_profile == "n4-source-complete-child-set.v1"
+        assert resolution.recursive_budget.max_depth == 1
+        assert resolution.recursive_budget.max_nodes == 1 + len(expected_child_node_refs)
+        assert resolution.recursive_budget.max_cycles_per_leaf == 1
     served_worker_phase_probe("testclient_lifespan.shutdown.complete")
 
 

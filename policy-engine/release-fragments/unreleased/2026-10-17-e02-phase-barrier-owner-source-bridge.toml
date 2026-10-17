@@ -1,0 +1,29 @@
+id = "2026-10-17-e02-phase-barrier-owner-source-bridge"
+title = "Preserve current fenced control-job projections at terminal publication"
+type = "fixed"
+component = "runtime-quality"
+owner = "team-policyos-runtime"
+summary = "One ControlPlaneStore terminal policy rederives owner scope under the current worker fence and carries only matching current-row candidate projections; the private canary assembler then rechecks the completed row, creation scope, terminal event and completion outbox, indexed Core run, and fresh typed job GET for each serious scorecard decision."
+evidence = [
+  "src/polisyos/runtime/http/services/control_plane_store.py",
+  "src/polisyos/runtime/http/services/control/job_nl_publication.py",
+  "src/polisyos/runtime/http/services/control/job_attempt_publication.py",
+  "src/polisyos/runtime/http/services/debug.py",
+  "src/polisyos/runtime/quality/scorecard.py",
+  "tools/ops_runners/runtime/canary_evidence.py",
+  "tools/ops_runners/runtime/local_production_canary.py",
+  "tests/unit/runtime/http/test_nl_pipeline_cost_projection.py",
+  "tests/unit/runtime/quality/test_scorecard.py",
+  "tests/unit/tools/test_canary_evidence.py",
+  "tests/unit/tools/test_local_production_canary.py",
+]
+compatibility = "No request, response, or persisted-schema shape changes. The public build_quality_scorecard signature is unchanged and mapping-only calls still fail closed. The private local-canary composition supplies the installed FastAPI app and active TestClient only within the runtime lifespan, then recomputes the source join before each scorecard pass."
+change_class = "internal"
+surface_classification = "internal: Runtime owner-source reader and private canary scorecard composition; public scorecard API and DTOs are unchanged."
+migration = "No data migration. Existing candidate scorecards can be regenerated through the ordinary local-canary path to recompute owner scope from current durable sources."
+api = "The store rederives owner scope once and preserves only current-fenced-row RunIntentBinding, runtime-quality ref/artifact maps, flattened role refs, attestations, and diagnostic candidate projections; conflicts are refused and phase/details are not merged. The actual assembler invokes both serious scorecard passes through the private installed client path while the TestClient lifespan is active. Direct mapping-only callers retain the existing refusal."
+limitations = "Only terminal owner scope is established. Carried quality refs and attestations remain candidate data for existing consumer checks; diagnostic summaries remain projections. Missing time_context_ref and same_input_closure_ref, unverified intent content, phase-barrier records, and overall serious readiness remain blocked. No external issuer, policy-time, or same-input authority is inferred."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

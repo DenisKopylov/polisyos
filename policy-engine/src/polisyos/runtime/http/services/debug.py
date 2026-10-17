@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import hashlib
 from collections import defaultdict
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, Literal, Protocol, cast
 
@@ -29,6 +30,7 @@ from polisyos.core.artifacts import (
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, artifact_ref_identity_key
 from polisyos.core.contracts import SimulationResult
+from polisyos.core.contracts.control import ControlJobResponse
 from polisyos.core.contracts.runtime import (
     AgentPipelineAttempt,
     AgentPipelineCostEvent,
@@ -90,6 +92,49 @@ class _ReadOnlyControlJobStore(Protocol):
     def get_job_created_event_payload(self, job_id: str) -> dict[str, Any]: ...
 
     def get_job_created_outbox_event(self, job_id: str) -> Any | None: ...
+
+    def get_job_terminal_source_event_record(self, job_id: str) -> Any: ...
+
+    def get_job_completed_outbox_event(self, job_id: str) -> Any | None: ...
+
+
+class _ScorecardOwnerSourceReaderUnavailableError(RuntimeError):
+    """Signal a missing persisted reader needed for terminal owner reconciliation."""
+
+    def __init__(self, reader_name: str) -> None:
+        self.reader_name = reader_name
+        super().__init__(f"control_job_source_reader_unavailable:{reader_name}")
+
+
+@dataclass(frozen=True)
+class _ScorecardControlJobOwnerSource:
+    """Carry the exact owner fields reconciled from one terminal ControlJob source."""
+
+    job_id: str
+    run_id: str
+    tenant_id: str
+    cell_id: str
+    requested_execution_profile: str
+    effective_execution_profile: str
+    attempt: int
+    lease_owner: str
+    completion_event_id: int
+    completion_event_payload_sha256: str
+    completion_outbox_event_id: str
+    core_run_id: str
+
+    def as_owner_binding(self) -> dict[str, str | int]:
+        """Return the canonical transport field set after source resolution."""
+        return {
+            "job_id": self.job_id,
+            "run_id": self.run_id,
+            "tenant_id": self.tenant_id,
+            "cell_id": self.cell_id,
+            "requested_execution_profile": self.requested_execution_profile,
+            "effective_execution_profile": self.effective_execution_profile,
+            "attempt": self.attempt,
+            "lease_owner": self.lease_owner,
+        }
 
 
 _GOVERNANCE_REPORT_KEY = "governance_report_ref"
@@ -1084,6 +1129,180 @@ class DebugService:
         except TypeError, ValueError:
             return None, "llm_producer_control_job_owner_not_established"
         return binding, None
+
+    def _scorecard_owner_source_for_indexed_run(
+        self,
+        run: IndexedRunRecord,
+        *,
+        fresh_job_payload: object,
+    ) -> _ScorecardControlJobOwnerSource | None:
+        """Recompute terminal owner binding across ControlJob, Core index, and fresh GET."""
+        from polisyos.runtime.http.services.control_plane_store import (
+            ControlJobExecutionAdmissionError,
+            _control_job_execution_scope_from_event,
+            _json_values_equal_strict,
+        )
+        from polisyos.runtime.quality.phase_barriers import _validated_execution_owner_binding
+
+        store = self._producer_control_job_store
+        control_job_id = run.details.control_job_id
+        if store is None or not isinstance(control_job_id, str) or not control_job_id.strip():
+            return None
+        for reader_name in (
+            "get_job_terminal_source_event_record",
+            "get_job_completed_outbox_event",
+        ):
+            if not callable(getattr(store, reader_name, None)):
+                raise _ScorecardOwnerSourceReaderUnavailableError(reader_name)
+        binding, binding_note = self._producer_run_binding_for_indexed_run(run)
+        if binding is None or binding_note is not None:
+            return None
+        try:
+            job = store.get_job(control_job_id)
+            if job is None:
+                return None
+            creation_payload = store.get_job_created_event_payload(control_job_id)
+            creation_outbox = store.get_job_created_outbox_event(control_job_id)
+            terminal_event = store.get_job_terminal_source_event_record(control_job_id)
+            completion_outbox = store.get_job_completed_outbox_event(control_job_id)
+            scope = _control_job_execution_scope_from_event(creation_payload)
+            fresh_job = ControlJobResponse.model_validate(fresh_job_payload)
+        except (
+            ControlJobExecutionAdmissionError,
+            OSError,
+            RuntimeError,
+            TypeError,
+            ValueError,
+            ValidationError,
+        ):
+            return None
+
+        creation_outbox_payload = getattr(creation_outbox, "payload", None)
+        if (
+            getattr(creation_outbox, "topic", None) != "control.job.created"
+            or getattr(creation_outbox, "job_id", None) != job.job_id
+            or getattr(creation_outbox, "run_id", None) != job.run_id
+            or not isinstance(creation_outbox_payload, dict)
+            or not _json_values_equal_strict(creation_outbox_payload, creation_payload)
+        ):
+            return None
+
+        event_payload = terminal_event.payload
+        progress = job.progress if isinstance(job.progress, dict) else None
+        if (
+            terminal_event.job_id != job.job_id
+            or terminal_event.event_type != "job_completed"
+            or not isinstance(event_payload, dict)
+            or event_payload.get("state") != "completed"
+            or job.state != "completed"
+            or job.lease_owner is not None
+            or job.lease_expires_at is not None
+            or job.finished_at is None
+            or scope.status != "established"
+            or not isinstance(scope.tenant_id, str)
+            or not scope.tenant_id.strip()
+            or not isinstance(scope.cell_id, str)
+            or not scope.cell_id.strip()
+            or scope.actor_subject != job.submitted_by
+            or job.kind != "natural_language_run"
+            or not isinstance(job.run_id, str)
+            or not job.run_id.strip()
+            or progress is None
+            or binding.control_job_id != job.job_id
+            or binding.run_id != job.run_id
+            or binding.tenant_id != scope.tenant_id
+            or binding.cell_id != scope.cell_id
+            or binding.profile_id != job.effective_execution_profile
+            or terminal_event.payload.get("attempt") != job.attempt
+            or type(terminal_event.payload.get("attempt")) is not int
+        ):
+            return None
+
+        lease_owner = event_payload.get("lease_owner")
+        if (
+            not isinstance(lease_owner, str)
+            or not lease_owner.strip()
+            or not isinstance(job.requested_execution_profile, str)
+            or not job.requested_execution_profile.strip()
+            or not isinstance(job.effective_execution_profile, str)
+            or not job.effective_execution_profile.strip()
+        ):
+            return None
+        expected_owner: dict[str, str | int] = {
+            "job_id": job.job_id,
+            "run_id": job.run_id,
+            "tenant_id": scope.tenant_id,
+            "cell_id": scope.cell_id,
+            "requested_execution_profile": job.requested_execution_profile,
+            "effective_execution_profile": job.effective_execution_profile,
+            "attempt": job.attempt,
+            "lease_owner": lease_owner,
+        }
+        owner_binding = _validated_execution_owner_binding(
+            progress.get("execution_owner_binding"),
+            expected=expected_owner,
+        )
+        core_run_id = progress.get("core_run_id")
+        core_run_attempt = progress.get("core_run_attempt")
+        if (
+            owner_binding is None
+            or not isinstance(core_run_id, str)
+            or core_run_id != run.run_id
+            or isinstance(core_run_attempt, bool)
+            or type(core_run_attempt) is not int
+            or core_run_attempt != job.attempt
+            or fresh_job.job_id != job.job_id
+            or fresh_job.kind != job.kind
+            or fresh_job.state != "completed"
+            or fresh_job.run_id != job.run_id
+            or fresh_job.requested_execution_profile != job.requested_execution_profile
+            or fresh_job.effective_execution_profile != job.effective_execution_profile
+            or fresh_job.projection_source.authority_level != "projection_only"
+            or fresh_job.projection_source.projection_policy != "projection_only"
+        ):
+            return None
+
+        fresh_progress = fresh_job.progress
+        fresh_owner_binding = _validated_execution_owner_binding(
+            fresh_progress.get("execution_owner_binding"),
+            expected=expected_owner,
+        )
+        fresh_core_run_id = fresh_progress.get("core_run_id")
+        fresh_core_run_attempt = fresh_progress.get("core_run_attempt")
+        if (
+            fresh_owner_binding is None
+            or fresh_core_run_id != core_run_id
+            or type(fresh_core_run_attempt) is not int
+            or fresh_core_run_attempt != core_run_attempt
+        ):
+            return None
+
+        completion_outbox_payload = getattr(completion_outbox, "payload", None)
+        expected_completion_payload = {**event_payload, "progress": progress}
+        if (
+            getattr(completion_outbox, "topic", None) != "control.job.completed"
+            or getattr(completion_outbox, "event_key", None) != f"{job.job_id}:job_completed"
+            or getattr(completion_outbox, "job_id", None) != job.job_id
+            or getattr(completion_outbox, "run_id", None) != job.run_id
+            or not isinstance(completion_outbox_payload, dict)
+            or not _json_values_equal_strict(completion_outbox_payload, expected_completion_payload)
+        ):
+            return None
+
+        return _ScorecardControlJobOwnerSource(
+            job_id=job.job_id,
+            run_id=job.run_id,
+            tenant_id=scope.tenant_id,
+            cell_id=scope.cell_id,
+            requested_execution_profile=job.requested_execution_profile,
+            effective_execution_profile=job.effective_execution_profile,
+            attempt=job.attempt,
+            lease_owner=lease_owner,
+            completion_event_id=terminal_event.event_id,
+            completion_event_payload_sha256=terminal_event.payload_sha256,
+            completion_outbox_event_id=completion_outbox.event_id,
+            core_run_id=run.run_id,
+        )
 
     def get_run_evidence_context(self, run: IndexedRunRecord) -> RunEvidenceContextView:
         """Return data-needs, fetch-plan, promotion, and related-artifact context."""

@@ -4,6 +4,7 @@ import json
 from copy import deepcopy
 from datetime import UTC, datetime
 from pathlib import Path
+from types import SimpleNamespace
 from typing import Any
 
 from polisyos.core.artifacts.manifest import ProducerInfo, SchemaInfo
@@ -91,6 +92,94 @@ def _assert_serious_phase_barrier_owner_scope_denies_approval(
     )
     assert packet.decision == "blocked"
     assert packet.eligibility.quality_passed is False
+
+
+def test_canary_scorecard_rejects_duck_context_with_matching_constructed_proof() -> None:
+    from polisyos.runtime.http.services.debug import _ScorecardControlJobOwnerSource
+
+    source_calls = 0
+    refresh_calls = 0
+    fresh_job_payload = {
+        "job_id": "job-source",
+        "run_id": "control-run-source",
+        "state": "completed",
+        "requested_execution_profile": "production",
+        "effective_execution_profile": "production",
+        "progress": {"core_run_id": "core-run-source", "core_run_attempt": 1},
+    }
+    owner_proof = _ScorecardControlJobOwnerSource(
+        job_id="job-source",
+        run_id="control-run-source",
+        tenant_id="tenant-source",
+        cell_id="cell-source",
+        requested_execution_profile="production",
+        effective_execution_profile="production",
+        attempt=1,
+        lease_owner="worker-source",
+        completion_event_id=1,
+        completion_event_payload_sha256="sha256:" + "a" * 64,
+        completion_outbox_event_id="outbox_source",
+        core_run_id="core-run-source",
+    )
+    owner_binding = owner_proof.as_owner_binding()
+    job_payload = {
+        **fresh_job_payload,
+        "progress": {
+            **fresh_job_payload["progress"],
+            "execution_owner_binding": owner_binding,
+        },
+    }
+
+    def _refresh(*, force: bool = False) -> None:
+        nonlocal refresh_calls
+        assert force is True
+        refresh_calls += 1
+
+    def _resolve_owner_source(run: object, *, fresh_job_payload: object) -> object:
+        nonlocal source_calls
+        source_calls += 1
+        return owner_proof
+
+    runtime_context = SimpleNamespace(
+        run_index=SimpleNamespace(refresh=_refresh, get_run=lambda run_id: "core-run-source"),
+        debug=SimpleNamespace(_scorecard_owner_source_for_indexed_run=_resolve_owner_source),
+    )
+    app = SimpleNamespace(
+        state=SimpleNamespace(
+            runtime_container=SimpleNamespace(runtime_api_context=runtime_context),
+            runtime_api_ctx=runtime_context,
+        )
+    )
+    client = SimpleNamespace(
+        app=app,
+        portal=object(),
+        get=lambda _path: SimpleNamespace(status_code=200, json=lambda: fresh_job_payload),
+    )
+
+    scorecard = canary_evidence_module._build_canary_scorecard(
+        owner_source_context=(app, client),
+        canary_kind="production",
+        job_id="job-source",
+        run_id="control-run-source",
+        execution_status="completed",
+        job_payload=job_payload,
+        run_payload=None,
+        provider_preflight=None,
+        quality_evidence={},
+        quality_scorecard_ref="quality_evidence/quality_scorecard.json",
+        quality_evidence_bundle_path=".canary/source-test",
+    )
+
+    owner_gate = next(
+        gate
+        for gate in scorecard["quality_gates"]
+        if gate["name"] == "serious_phase_barrier_owner_scope"
+    )
+    assert owner_binding == owner_proof.as_owner_binding()
+    assert owner_gate["status"] == "fail"
+    assert owner_gate["code"] == _PHASE_BARRIER_OWNER_SCOPE_CODE
+    assert source_calls == 0
+    assert refresh_calls == 0
 
 
 PROVENANCE_REQUIRED_FIELDS = {

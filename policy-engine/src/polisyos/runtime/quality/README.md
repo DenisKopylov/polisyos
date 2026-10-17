@@ -15,15 +15,24 @@ inputs until a producer-owned capability admits them.
 Phase-barrier records remain candidate diagnostics until each required record is
 produced and bound to the current run. The live NL control-job path persists an
 owner binding only after reconciling the admitted creation event and active
-lease. However, the scorecard builder accepts a plain mapping and cannot verify
-that the mapping came from a fresh terminal job read; its owner-scope and
-dependent intent gates therefore remain `phase_barrier_owner_scope_not_established`
-even when the normal route returns a matching persisted binding. Matching
-payload fields or a self-reported producer label cannot supply that missing
-source provenance. This bridge also does not produce a typed policy-time
-reference or the required phase-barrier ledger. Its same-input closure remains
-`not_closed`, the `RunIntentBinding` remains incomplete, and serious readiness
-stays blocked. The missing time and barrier producers/artifacts remain
+lease. Terminal progress replacement runs one store-owned policy under that
+same worker fence: it rederives the owner binding, then carries only typed
+candidate projections present on the current row. This includes a matching
+`RunIntentBinding`, runtime quality ref and selected-artifact maps, the
+projection-only marker, trust-boundary attestation records, flattened role refs,
+and diagnostic summary projections. Conflicting caller copies are refused;
+current-row absence stays absent, and prior `details`/phase state is replaced.
+The private local-canary assembler recomputes the owner from the current job
+row, creation scope, terminal lifecycle event and completion outbox, indexed
+Core run, and a fresh typed job GET inside the active runtime-client lifespan
+for each serious scorecard decision.
+The public `build_quality_scorecard` API remains mapping-only and fails closed;
+a matching map, proof-shaped payload, or self-reported producer label cannot
+replace the source join. The carried refs and attestations remain candidate
+inputs that their existing consumers must validate; diagnostic summaries are
+projections only. The normal NL `RunIntentBinding` still has absent
+`time_context_ref` and `same_input_closure_ref`, and serious readiness stays
+blocked. Missing time and barrier producers/artifacts remain
 `producer_missing` and `artifact_missing`; standalone consumers fail closed.
 
 ## Runtime projection input boundaries

@@ -21,6 +21,7 @@ from tools.ops_runners.runtime.local_production_canary import (
     _load_env_file,
     _load_local_run_evidence,
     _runtime_canary_bearer_token,
+    _scorecard_owner_source_context,
 )
 from tools.ops_runners.runtime.quality_scenarios import (
     DEFAULT_QUALITY_SCENARIO_ID,
@@ -88,6 +89,20 @@ def _runtime_canary_security(
         )
 
     return runtime, _token
+
+
+def test_scorecard_owner_source_context_rejects_uninstalled_duck_types() -> None:
+    runtime_context = object()
+    client = SimpleNamespace(portal=object())
+    app = SimpleNamespace(
+        state=SimpleNamespace(
+            runtime_container=SimpleNamespace(runtime_api_context=runtime_context),
+            runtime_api_ctx=runtime_context,
+        )
+    )
+
+    assert _scorecard_owner_source_context(app, client) is None
+    assert _scorecard_owner_source_context(SimpleNamespace(state=SimpleNamespace()), client) is None
 
 
 def test_build_canary_request_is_real_one_model_production_data_lane(tmp_path: Path) -> None:
@@ -308,9 +323,7 @@ def test_runtime_canary_requires_a_separately_injected_bearer() -> None:
         _runtime_canary_bearer_token({})
 
     token = "eyJ-short-lived-canary-token"  # noqa: S105 - inert test sentinel
-    assert _runtime_canary_bearer_token(
-        {"POLISYOS_RUNTIME_CANARY_BEARER_TOKEN": token}
-    ) == token
+    assert _runtime_canary_bearer_token({"POLISYOS_RUNTIME_CANARY_BEARER_TOKEN": token}) == token
 
 
 def test_runtime_canary_authenticated_client_sends_exact_grant_bearer(
@@ -358,9 +371,7 @@ def test_runtime_canary_rejects_unmanaged_or_over_granted_token_before_request(
     import tools.ops_runners.runtime.local_production_canary as canary
 
     runtime, token = _runtime_canary_security(tmp_path, request)
-    app = SimpleNamespace(
-        state=SimpleNamespace(runtime_deployment_security=runtime)
-    )
+    app = SimpleNamespace(state=SimpleNamespace(runtime_deployment_security=runtime))
     bearer = token(subject)
 
     with pytest.raises(RuntimeError, match="exact deployment service-principal grant") as exc:

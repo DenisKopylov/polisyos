@@ -1490,6 +1490,19 @@ def test_scorecard_blocks_unverified_hypothesis_candidate_for_dashboard_surfaces
 
 
 def test_public_projection_in_quality_evidence_cannot_fill_refs_or_change_api() -> None:
+    assert tuple(inspect.signature(build_quality_scorecard).parameters) == (
+        "canary_kind",
+        "job_id",
+        "run_id",
+        "execution_status",
+        "job_payload",
+        "run_payload",
+        "provider_preflight",
+        "quality_evidence",
+        "quality_scorecard_ref",
+        "quality_evidence_bundle_path",
+        "artifact_store",
+    )
     assert (
         "candidate_projection_surfaces" not in inspect.signature(build_quality_scorecard).parameters
     )
@@ -1562,7 +1575,7 @@ def test_public_projection_in_quality_evidence_cannot_fill_refs_or_change_api() 
     assert with_projection["evidence_refs"] == without_projection["evidence_refs"]
     assert with_projection["quality_status"] == "fail"
     assert "candidate_firewall_candidate_unverified" in _blocking_codes(with_projection)
-    assert "candidate_firewall_candidate_unverified" in _blocking_codes(without_projection)
+    assert "candidate_firewall_candidate_unverified" not in _blocking_codes(without_projection)
 
 
 def test_self_labeled_raw_public_projection_still_fails_ref_admission() -> None:

@@ -6,7 +6,7 @@ from dataclasses import replace
 from decimal import Decimal
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Any, ClassVar
+from typing import Any, ClassVar, cast
 
 import pytest
 
@@ -815,6 +815,9 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
         _build_n4_producer_client,
     )
     env = build_runtime_api_env(tmp_path, include_test_client=True)
+    client_context = cast("Any", env["client"])
+    assert client_context is not None
+    client_entered = False
     monkeypatch.setattr(
         "polisyos.fabric.retrieval.RetrievalService.resolve",
         _FakeRetrievalService.resolve,
@@ -824,8 +827,9 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
         _FakeRetrievalService.execute_fetch_plans,
     )
     try:
-        client = env["client"]
-        assert client is not None
+        client_context.__enter__()
+        client_entered = True
+        client = client_context
         ordinary_run = submit_ordinary_nl_post(env)
         job = ordinary_run["job"]
         job_id = str(ordinary_run["job_id"])
@@ -840,6 +844,11 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
         job_response = client.get(f"/api/v1/control/jobs/{job_id}")
         assert job_response.status_code == 200, job_response.text
         received_job = ControlJobResponse.model_validate(job_response.json())
+        app = cast("Any", env["app"])
+        runtime_container = app.state.runtime_container
+        runtime_context = runtime_container.runtime_api_context
+        assert runtime_context is not None
+        control_store = app.state._control_service._control_store
         from copy import deepcopy
 
         from polisyos.runtime.quality.scorecard import build_quality_scorecard
@@ -852,6 +861,8 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
         assert received_owner == persisted_owner
         assert received_owner["job_id"] == job_id
         assert received_owner["run_id"] == str(job.run_id)
+        completion_outbox = control_store.get_job_completed_outbox_event(job_id)
+        assert completion_outbox.payload["progress"]["execution_owner_binding"] == received_owner
 
         def _owner_gate(payload: dict[str, Any]) -> dict[str, Any]:
             scorecard = build_quality_scorecard(
@@ -874,12 +885,231 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
         assert fresh_gate["status"] == "fail"
         assert fresh_gate["code"] == "phase_barrier_owner_scope_not_established"
 
+        def _source_scorecard(
+            payload: dict[str, Any], *, source_job_id: str = job_id
+        ) -> dict[str, Any]:
+            from tools.ops_runners.runtime.canary_evidence import _build_canary_scorecard
+
+            return _build_canary_scorecard(
+                owner_source_context=(app, client),
+                canary_kind="production",
+                job_id=source_job_id,
+                run_id=received_job.run_id,
+                execution_status=received_job.state,
+                job_payload=payload,
+                run_payload=None,
+                provider_preflight=None,
+                quality_evidence={},
+                quality_scorecard_ref="quality_evidence/quality_scorecard.json",
+                quality_evidence_bundle_path=".canary/owner-source-integration-test",
+            )
+
+        from tools.ops_runners.runtime import canary_evidence as canary_evidence_module
+
+        source_scorecards: list[dict[str, Any]] = []
+        original_canary_scorecard_builder = canary_evidence_module._build_canary_scorecard
+
+        def _capture_assembled_scorecard(**kwargs: Any) -> dict[str, Any]:
+            scorecard = original_canary_scorecard_builder(**kwargs)
+            source_scorecards.append(scorecard)
+            return scorecard
+
+        monkeypatch.setattr(
+            canary_evidence_module,
+            "_build_canary_scorecard",
+            _capture_assembled_scorecard,
+        )
+        assembled_bundle = canary_evidence_module.assemble_canary_evidence(
+            output_root=tmp_path,
+            output_dir=tmp_path / "owner-source-assembled",
+            canary_kind="production",
+            command_metadata={"argv": ["policyos-canary", "--real"]},
+            job_payload=received_payload,
+            quality_evidence={},
+            provider_preflight={"status": "skipped"},
+            _scorecard_owner_source=(app, client),
+        )
+        assert assembled_bundle.is_dir()
+        assert len(source_scorecards) == 2
+        source_scorecard = source_scorecards[0]
+        for repeated_scorecard in source_scorecards:
+            repeated_owner_gate = next(
+                gate
+                for gate in repeated_scorecard["quality_gates"]
+                if gate["name"] == "serious_phase_barrier_owner_scope"
+            )
+            assert repeated_owner_gate["status"] == "pass"
+            assert repeated_owner_gate["code"] == "phase_barrier_owner_scope_reconciled"
+        source_owner_gate = next(
+            gate
+            for gate in source_scorecard["quality_gates"]
+            if gate["name"] == "serious_phase_barrier_owner_scope"
+        )
+        source_intent_gate = next(
+            gate
+            for gate in source_scorecard["quality_gates"]
+            if gate["name"] == "serious_phase_barrier_intent_binding"
+        )
+        assert source_owner_gate["status"] == "pass"
+        assert source_owner_gate["code"] == "phase_barrier_owner_scope_reconciled"
+        assert source_intent_gate["status"] == "fail"
+        assert source_intent_gate["code"] == "run_intent_binding_incomplete"
+        assert source_scorecard["quality_status"] == "fail"
+
+        class _MissingTerminalSourceReader:
+            def __init__(self, wrapped: object) -> None:
+                self._wrapped = wrapped
+
+            def __getattr__(self, name: str) -> Any:
+                if name == "get_job_terminal_source_event_record":
+                    raise AttributeError(name)
+                return getattr(self._wrapped, name)
+
+        debug_service = runtime_context.debug
+        original_control_job_store = debug_service._producer_control_job_store
+        debug_service._producer_control_job_store = _MissingTerminalSourceReader(
+            original_control_job_store
+        )
+        try:
+            missing_reader_scorecard = _source_scorecard(received_payload)
+        finally:
+            debug_service._producer_control_job_store = original_control_job_store
+        missing_reader_gate = next(
+            gate
+            for gate in missing_reader_scorecard["quality_gates"]
+            if gate["name"] == "serious_phase_barrier_owner_scope"
+        )
+        assert missing_reader_gate["status"] == "fail"
+        assert missing_reader_gate["code"] == "phase_barrier_owner_scope_not_established"
+        assert (
+            "control_job_source_reader_unavailable:get_job_terminal_source_event_record"
+            in missing_reader_gate["message"]
+        )
+
         forged_payload = deepcopy(received_payload)
         forged_owner = forged_payload["progress"]["execution_owner_binding"]
         forged_owner["lease_owner"] = "worker-forged-after-terminal-read"
         forged_gate = _owner_gate(forged_payload)
         assert forged_gate["status"] == "fail"
         assert forged_gate["code"] == "phase_barrier_owner_scope_not_established"
+        forged_source_scorecard = _source_scorecard(forged_payload)
+        forged_source_gate = next(
+            gate
+            for gate in forged_source_scorecard["quality_gates"]
+            if gate["name"] == "serious_phase_barrier_owner_scope"
+        )
+        assert forged_source_gate["status"] == "fail"
+        assert forged_source_gate["code"] == "phase_barrier_owner_scope_not_established"
+
+        sibling_run = submit_ordinary_nl_post(
+            env, request="Compare a sibling liquidity-support execution."
+        )
+        sibling_job_id = str(sibling_run["job_id"])
+        sibling_response = client.get(f"/api/v1/control/jobs/{sibling_job_id}")
+        assert sibling_response.status_code == 200, sibling_response.text
+        sibling_payload = sibling_response.json()
+        sibling_source_scorecard = _source_scorecard(sibling_payload)
+        sibling_source_gate = next(
+            gate
+            for gate in sibling_source_scorecard["quality_gates"]
+            if gate["name"] == "serious_phase_barrier_owner_scope"
+        )
+        assert sibling_source_gate["status"] == "fail"
+        assert sibling_source_gate["code"] == "phase_barrier_owner_scope_not_established"
+
+        tampered_outbox_payload = {
+            **completion_outbox.payload,
+            "lease_owner": "worker-forged-in-outbox",
+        }
+        control_store._execute(
+            "UPDATE control_outbox_events SET payload_json = ? WHERE event_id = ?",
+            (json.dumps(tampered_outbox_payload, sort_keys=True), completion_outbox.event_id),
+        )
+        try:
+            tampered_outbox_scorecard = _source_scorecard(received_payload)
+        finally:
+            control_store._execute(
+                "UPDATE control_outbox_events SET payload_json = ? WHERE event_id = ?",
+                (json.dumps(completion_outbox.payload, sort_keys=True), completion_outbox.event_id),
+            )
+        tampered_outbox_gate = next(
+            gate
+            for gate in tampered_outbox_scorecard["quality_gates"]
+            if gate["name"] == "serious_phase_barrier_owner_scope"
+        )
+        assert tampered_outbox_gate["status"] == "fail"
+        assert tampered_outbox_gate["code"] == "phase_barrier_owner_scope_not_established"
+
+        terminal_row = control_store.get_job(job_id)
+        assert terminal_row is not None
+        original_attempt = terminal_row.attempt
+        control_store._execute(
+            "UPDATE control_jobs SET attempt = ? WHERE job_id = ?",
+            (original_attempt + 1, job_id),
+        )
+        changed_attempt_row = control_store.get_job(job_id)
+        assert changed_attempt_row is not None
+        assert changed_attempt_row.attempt == original_attempt + 1
+        try:
+            tampered_attempt_scorecard = _source_scorecard(received_payload)
+        finally:
+            control_store._execute(
+                "UPDATE control_jobs SET attempt = ? WHERE job_id = ?",
+                (original_attempt, job_id),
+            )
+        tampered_attempt_gate = next(
+            gate
+            for gate in tampered_attempt_scorecard["quality_gates"]
+            if gate["name"] == "serious_phase_barrier_owner_scope"
+        )
+        assert tampered_attempt_gate["status"] == "fail"
+        assert tampered_attempt_gate["code"] == "phase_barrier_owner_scope_not_established"
+
+        original_lease_owner = terminal_row.lease_owner
+        control_store._execute(
+            "UPDATE control_jobs SET lease_owner = ? WHERE job_id = ?",
+            ("worker-forged-in-terminal-row", job_id),
+        )
+        changed_lease_row = control_store.get_job(job_id)
+        assert changed_lease_row is not None
+        assert changed_lease_row.lease_owner == "worker-forged-in-terminal-row"
+        try:
+            tampered_lease_scorecard = _source_scorecard(received_payload)
+        finally:
+            control_store._execute(
+                "UPDATE control_jobs SET lease_owner = ? WHERE job_id = ?",
+                (original_lease_owner, job_id),
+            )
+        tampered_lease_gate = next(
+            gate
+            for gate in tampered_lease_scorecard["quality_gates"]
+            if gate["name"] == "serious_phase_barrier_owner_scope"
+        )
+        assert tampered_lease_gate["status"] == "fail"
+        assert tampered_lease_gate["code"] == "phase_barrier_owner_scope_not_established"
+
+        terminal_event = control_store.get_job_terminal_source_event_record(job_id)
+        assert terminal_event is not None
+        tampered_event_payload = {**terminal_event.payload, "lease_owner": "worker-forged-in-event"}
+        control_store._execute(
+            "UPDATE control_job_events SET payload_json = ? WHERE event_id = ?",
+            (json.dumps(tampered_event_payload, sort_keys=True), terminal_event.event_id),
+        )
+        try:
+            tampered_event_scorecard = _source_scorecard(received_payload)
+        finally:
+            control_store._execute(
+                "UPDATE control_job_events SET payload_json = ? WHERE event_id = ?",
+                (json.dumps(terminal_event.payload, sort_keys=True), terminal_event.event_id),
+            )
+        tampered_event_gate = next(
+            gate
+            for gate in tampered_event_scorecard["quality_gates"]
+            if gate["name"] == "serious_phase_barrier_owner_scope"
+        )
+        assert tampered_event_gate["status"] == "fail"
+        assert tampered_event_gate["code"] == "phase_barrier_owner_scope_not_established"
+
         progress = received_job.progress
         assert progress["execution_intent_band"] == "candidate_only"
         assert progress["status"] == "candidate_limited"
@@ -1413,4 +1643,293 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
             )
         assert n6_state.spent == {}
     finally:
+        if client_entered:
+            client_context.__exit__(None, None, None)
         close_runtime_api_env(env)
+
+
+def test_terminal_progress_carries_only_current_fenced_source_projections(
+    tmp_path: Path,
+) -> None:
+    from polisyos.runtime.http.services.control_plane_store import (
+        ControlJobLeaseLostError,
+        ControlPlaneStore,
+    )
+    from polisyos.runtime.quality.phase_barriers import _execution_owner_binding_from_admission
+
+    store = ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "owner-terminal.sqlite3")
+
+    def _lease_job(job_id: str) -> tuple[Any, str]:
+        run_id = f"run-{job_id}"
+        worker_id = f"worker-{job_id}"
+        submitted_by = f"actor-{job_id}"
+        tenant_id = f"tenant-{job_id}"
+        cell_id = f"cell-{job_id}"
+        scope = {
+            "schema_version": "polisyos.runtime.control_execution_scope.v1",
+            "status": "established",
+            "tenant_id": tenant_id,
+            "cell_id": cell_id,
+            "actor_subject": submitted_by,
+            "actor_authenticated": True,
+            "actor_roles": ["analyst"],
+        }
+        payload_ref = "sha256:" + "a" * 64
+        creation_payload = {
+            "job_id": job_id,
+            "run_id": run_id,
+            "job_kind": "natural_language_run",
+            "pipeline_id": None,
+            "payload_ref": payload_ref,
+            "submitted_by": submitted_by,
+            "requested_execution_profile": "research",
+            "effective_execution_profile": "research",
+            "policy_flags": {},
+            "capability_manifest_ref": None,
+            "execution_scope": scope,
+        }
+        job = store.create_job(
+            job_id=job_id,
+            kind="natural_language_run",
+            run_id=run_id,
+            pipeline_id=None,
+            requested_execution_profile="research",
+            effective_execution_profile="research",
+            policy_flags={},
+            capability_manifest_ref=None,
+            payload_ref=payload_ref,
+            submitted_by=submitted_by,
+            creation_event_payload=creation_payload,
+        )
+        leased = store.lease_next_job(worker_id=worker_id, lease_seconds=30)
+        assert leased is not None
+        assert leased.job_id == job.job_id
+        return leased, worker_id
+
+    def _current_owner_binding(job_id: str) -> dict[str, object]:
+        admission = store.current_execution_job_admission()
+        binding = _execution_owner_binding_from_admission(
+            admission,
+            expected_job_id=job_id,
+            expected_run_id=f"run-{job_id}",
+            expected_effective_profile="research",
+            expected_scope={
+                "tenant_id": f"tenant-{job_id}",
+                "cell_id": f"cell-{job_id}",
+            },
+        )
+        assert binding is not None
+        return binding
+
+    def _current_projection(owner: dict[str, object]) -> dict[str, Any]:
+        policy_intent_ref = "sha256:" + "b" * 64
+        assurance_ref = "sha256:" + "d" * 64
+        artifact_ref = ArtifactRef(
+            artifact_id="sha256:" + "c" * 64,
+            kind="runtime.quality.assurance_report",
+            media_type="application/json",
+            manifest_profile_sha256="sha256:" + "e" * 64,
+        ).model_dump(mode="json")
+        return {
+            "state": "running",
+            "phase": "quality_projection",
+            "details": {"stale_phase_payload": True},
+            "execution_owner_binding": owner,
+            "run_intent_binding": {
+                "run_id": str(owner["run_id"]),
+                "tenant_id": str(owner["tenant_id"]),
+                "requested_profile": str(owner["requested_execution_profile"]),
+                "policy_intent_ref": policy_intent_ref,
+                "time_context_ref": None,
+                "same_input_closure_ref": None,
+            },
+            "runtime_quality_refs": {
+                "policy_intent_envelope_ref": policy_intent_ref,
+                "security_assurance_report_ref": assurance_ref,
+            },
+            "runtime_quality_artifact_refs": {
+                "security_assurance_report_ref": artifact_ref,
+            },
+            "runtime_quality_projection": {
+                "authority_role": "projection_only",
+                "provenance_kind": "runtime_projection",
+                "surface": "runtime.progress",
+                "authoritative_surface": "runtime_quality_refs",
+            },
+            "security_assurance_report_ref": assurance_ref,
+            "policy_intent_envelope_ref": policy_intent_ref,
+            "trust_boundary_attestations": [],
+            "diagnostic_event_log_ref": "candidate-diagnostic-log",
+            "diagnostic_events": [{"event_id": "candidate-diagnostic-event"}],
+            "runtime_quality_diagnostic_events": ["obsolete local-only key"],
+            "runtime_diagnostic_event_status": "not_persisted",
+            "diagnostic_event_scope_status": "established",
+            "runtime_diagnostic_event_limitation_code": "last_phase_only",
+            "diagnostic_event_ids": ["phase-event-id"],
+            "diagnostic_event_authority": "progress_reference_only",
+            "scientist_workflow": {"event_count": 1},
+        }
+
+    completed, completed_worker = _lease_job("job-owner-complete")
+    with store.job_execution_fence(
+        job_id=completed.job_id,
+        worker_id=completed_worker,
+        attempt=completed.attempt,
+    ):
+        completed_owner = _current_owner_binding(completed.job_id)
+        completed_projection = _current_projection(completed_owner)
+        store.upsert_progress(job_id=completed.job_id, progress=completed_projection)
+        store.complete_job(
+            job_id=completed.job_id,
+            progress={"phase": "terminal", "details": {"terminal_detail": True}},
+        )
+    completed_record = store.get_job(completed.job_id)
+    completed_outbox = store.get_job_completed_outbox_event(completed.job_id)
+    assert completed_record is not None
+    for field in (
+        "execution_owner_binding",
+        "run_intent_binding",
+        "runtime_quality_refs",
+        "runtime_quality_artifact_refs",
+        "runtime_quality_projection",
+        "security_assurance_report_ref",
+        "policy_intent_envelope_ref",
+        "trust_boundary_attestations",
+        "diagnostic_event_log_ref",
+        "diagnostic_events",
+    ):
+        assert completed_record.progress[field] == completed_projection[field]
+        assert completed_outbox.payload["progress"][field] == completed_projection[field]
+    assert completed_record.progress["phase"] == "terminal"
+    assert completed_record.progress["details"] == {"terminal_detail": True}
+    for field in (
+        "runtime_quality_diagnostic_events",
+        "runtime_diagnostic_event_status",
+        "diagnostic_event_scope_status",
+        "runtime_diagnostic_event_limitation_code",
+        "diagnostic_event_ids",
+        "diagnostic_event_authority",
+        "scientist_workflow",
+    ):
+        assert field not in completed_record.progress
+    assert completed_record.progress["run_intent_binding"]["time_context_ref"] is None
+    assert completed_record.progress["run_intent_binding"]["same_input_closure_ref"] is None
+
+    failed, failed_worker = _lease_job("job-owner-fail")
+    with store.job_execution_fence(
+        job_id=failed.job_id,
+        worker_id=failed_worker,
+        attempt=failed.attempt,
+    ):
+        failed_owner = _current_owner_binding(failed.job_id)
+        failed_projection = _current_projection(failed_owner)
+        store.upsert_progress(job_id=failed.job_id, progress=failed_projection)
+        conflicting_owner = {**failed_owner, "lease_owner": "worker-forged"}
+        with pytest.raises(
+            ControlJobLeaseLostError,
+            match="control_job_terminal_progress_owner_binding_conflict",
+        ):
+            store.complete_job(
+                job_id=failed.job_id,
+                progress={
+                    "phase": "terminal",
+                    "execution_owner_binding": conflicting_owner,
+                },
+            )
+        conflicting_refs = {
+            **failed_projection["runtime_quality_refs"],
+            "security_assurance_report_ref": "sha256:" + "f" * 64,
+        }
+        with pytest.raises(
+            ControlJobLeaseLostError,
+            match="control_job_terminal_progress_source_projection_conflict",
+        ):
+            store.complete_job(
+                job_id=failed.job_id,
+                progress={"phase": "terminal", "runtime_quality_refs": conflicting_refs},
+            )
+        current = store.current_execution_job_record()
+        assert current.state == "running"
+        store.fail_job(
+            job_id=failed.job_id,
+            error_message="controlled owner-preservation failure",
+            progress={"phase": "failed"},
+        )
+    failed_record = store.get_job(failed.job_id)
+    failed_outbox = store._get_outbox_event_by_key(
+        topic="control.job.failed",
+        event_key=f"{failed.job_id}:job_failed",
+    )
+    assert failed_record is not None
+    assert failed_outbox is not None
+    for field in (
+        "execution_owner_binding",
+        "run_intent_binding",
+        "runtime_quality_refs",
+        "runtime_quality_artifact_refs",
+        "runtime_quality_projection",
+        "diagnostic_event_log_ref",
+        "diagnostic_events",
+    ):
+        assert failed_record.progress[field] == failed_projection[field]
+        assert failed_outbox.payload["progress"][field] == failed_projection[field]
+    assert failed_record.progress["phase"] == "failed"
+    assert "details" not in failed_record.progress
+
+    delegated, delegated_worker = _lease_job("job-owner-delegated-failure")
+    with store.job_execution_fence(
+        job_id=delegated.job_id,
+        worker_id=delegated_worker,
+        attempt=delegated.attempt,
+    ):
+        delegated_owner = _current_owner_binding(delegated.job_id)
+        delegated_projection = _current_projection(delegated_owner)
+        store.upsert_progress(job_id=delegated.job_id, progress=delegated_projection)
+        store.complete_job(
+            job_id=delegated.job_id,
+            progress={"phase": "terminal", "status": "fail"},
+        )
+    delegated_record = store.get_job(delegated.job_id)
+    assert delegated_record is not None
+    assert delegated_record.state == "failed"
+    assert delegated_record.progress["execution_owner_binding"] == delegated_owner
+    assert (
+        delegated_record.progress["runtime_quality_refs"]
+        == delegated_projection["runtime_quality_refs"]
+    )
+    assert delegated_record.progress["phase"] == "terminal"
+    assert "details" not in delegated_record.progress
+
+    missing, missing_worker = _lease_job("job-owner-missing-intent")
+    with store.job_execution_fence(
+        job_id=missing.job_id,
+        worker_id=missing_worker,
+        attempt=missing.attempt,
+    ):
+        missing_owner = _current_owner_binding(missing.job_id)
+        store.upsert_progress(
+            job_id=missing.job_id,
+            progress={"phase": "running", "execution_owner_binding": missing_owner},
+        )
+        with pytest.raises(
+            ControlJobLeaseLostError,
+            match="control_job_terminal_progress_source_projection_conflict",
+        ):
+            store.complete_job(
+                job_id=missing.job_id,
+                progress={
+                    "phase": "terminal",
+                    "run_intent_binding": {
+                        "run_id": str(missing_owner["run_id"]),
+                        "tenant_id": str(missing_owner["tenant_id"]),
+                        "requested_profile": str(missing_owner["requested_execution_profile"]),
+                    },
+                },
+            )
+        store.complete_job(job_id=missing.job_id, progress={"phase": "terminal"})
+    missing_record = store.get_job(missing.job_id)
+    assert missing_record is not None
+    assert missing_record.progress["execution_owner_binding"] == missing_owner
+    assert "run_intent_binding" not in missing_record.progress
+    assert "runtime_quality_refs" not in missing_record.progress
+    assert missing_record.progress["phase"] == "terminal"

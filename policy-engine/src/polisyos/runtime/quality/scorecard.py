@@ -8798,6 +8798,8 @@ def _phase_barrier_gates(
     quality_evidence: dict[str, Any],
     job_payload: dict[str, Any] | None,
     run_payload: dict[str, Any] | None,
+    verified_owner_source: Any | None = None,
+    owner_source_refusal_detail: str | None = None,
 ) -> list[dict[str, Any]]:
     if not _serious_canary(canary_kind):
         return []
@@ -8898,6 +8900,29 @@ def _phase_barrier_gates(
             )
 
     owner_error = _phase_barrier_owner_scope_not_established()
+    source_refusal_message = (
+        f" Source resolution was refused: {owner_source_refusal_detail}."
+        if owner_source_refusal_detail is not None
+        else ""
+    )
+    source_owner: dict[str, object] | None = None
+    if verified_owner_source is not None:
+        try:
+            from polisyos.runtime.http.services.debug import _ScorecardControlJobOwnerSource
+
+            if type(verified_owner_source) is _ScorecardControlJobOwnerSource:
+                source_owner = verified_owner_source.as_owner_binding()
+        except (ImportError, AttributeError, TypeError, ValueError):
+            source_owner = None
+    source_owner_binding = (
+        _validated_execution_owner_binding(
+            raw_owner_binding,
+            expected=source_owner,
+        )
+        if source_owner is not None
+        else None
+    )
+    owner_source_reconciled = owner_binding is not None and source_owner_binding is not None
     if owner_binding is None:
         gates.append(
             _gate(
@@ -8907,12 +8932,34 @@ def _phase_barrier_gates(
                 status="fail",
                 layer="phase_barriers",
                 phase="owner_scope",
-                message=str(owner_error),
+                message=f"{owner_error}{source_refusal_message}",
                 evidence_ref="quality_evidence/phase_barrier_records.json",
                 next_action=(
                     "Persist the exact current lease-admission owner binding in the "
                     "fresh job response."
                 ),
+            )
+        )
+    elif owner_source_reconciled:
+        gates.append(
+            _gate(
+                name="serious_phase_barrier_owner_scope",
+                stage="ops",
+                code="phase_barrier_owner_scope_reconciled",
+                status="pass",
+                layer="phase_barriers",
+                phase="owner_scope",
+                message=(
+                    "The owner fields match the completed ControlJob row, creation scope, "
+                    "terminal event and outbox, indexed Core run, and a fresh typed job GET."
+                ),
+                evidence_ref=(
+                    f"control_job_events/{verified_owner_source.completion_event_id}"
+                    f"#{verified_owner_source.completion_event_payload_sha256};"
+                    f"control_outbox_events/{verified_owner_source.completion_outbox_event_id};"
+                    f"indexed_core_runs/{verified_owner_source.core_run_id}"
+                ),
+                next_action="Keep the owner source join available at each scorecard decision.",
             )
         )
     else:
@@ -8925,16 +8972,19 @@ def _phase_barrier_gates(
                 layer="phase_barriers",
                 phase="owner_scope",
                 message=(
-                    "The scorecard receives a mapping without source provenance; matching "
-                    "owner fields remain candidate and do not prove a fresh terminal read."
+                    "The mapping lacks a matching source-recomputed terminal owner join; "
+                    "matching fields alone remain candidate."
+                    f"{source_refusal_message}"
                 ),
                 evidence_ref="job_payload/progress/execution_owner_binding",
                 next_action=(
-                    "Keep owner scope blocked until a consumer can verify the persisted "
-                    "terminal job response from its source."
+                    "Reconcile the persisted terminal owner event and outbox to the indexed "
+                    "Core run and a fresh job GET before scoring this owner."
                 ),
             )
         )
+
+    if owner_binding is not None:
         raw_intent_binding = job_progress.get("run_intent_binding")
         try:
             intent_binding = RunIntentBinding.model_validate(raw_intent_binding)
@@ -8971,18 +9021,22 @@ def _phase_barrier_gates(
                 _gate(
                     name="serious_phase_barrier_intent_binding",
                     stage="ops",
-                    code=owner_error.code,
+                    code=(
+                        owner_error.code
+                        if not owner_source_reconciled
+                        else "run_intent_binding_source_not_established"
+                    ),
                     status="fail",
                     layer="phase_barriers",
                     phase="intent_binding",
                     message=(
-                        "The intent fields are structurally complete, but this mapping-only "
-                        "scorecard boundary cannot verify the fresh terminal owner source."
+                        "The intent fields are structurally complete, but no source verifier "
+                        "has resolved their policy-time and same-input content bindings."
                     ),
                     evidence_ref="job_payload/progress/run_intent_binding",
                     next_action=(
-                        "Resolve a source-verifiable owner binding before treating the intent "
-                        "refs as current for this terminal job."
+                        "Resolve policy-time and same-input closure from their source owners; "
+                        "the terminal owner proof does not establish those references."
                     ),
                 )
             )
@@ -10178,7 +10232,7 @@ def scorecard_control_progress(scorecard: dict[str, Any]) -> dict[str, Any]:
     return summary
 
 
-def build_quality_scorecard(
+def _build_quality_scorecard_impl(
     *,
     canary_kind: str,
     job_id: str | None,
@@ -10191,6 +10245,8 @@ def build_quality_scorecard(
     quality_scorecard_ref: str | None = None,
     quality_evidence_bundle_path: str | None = None,
     artifact_store: ArtifactStore | None = None,
+    _verified_owner_source: Any | None = None,
+    _owner_source_refusal_detail: str | None = None,
 ) -> dict[str, Any]:
     """Build a production-quality scorecard from runtime and domain evidence.
 
@@ -10337,6 +10393,8 @@ def build_quality_scorecard(
             quality_evidence=quality_evidence,
             job_payload=job_payload,
             run_payload=run_payload,
+            verified_owner_source=_verified_owner_source,
+            owner_source_refusal_detail=_owner_source_refusal_detail,
         ),
         *_effective_mode_gates(
             canary_kind=canary_kind,
@@ -10668,6 +10726,178 @@ def build_quality_scorecard(
     if source_truth_conflicts:
         payload["source_truth_conflicts"] = source_truth_conflicts
     return payload
+
+
+def build_quality_scorecard(
+    *,
+    canary_kind: str,
+    job_id: str | None,
+    run_id: Any,
+    execution_status: str,
+    job_payload: dict[str, Any] | None,
+    run_payload: dict[str, Any] | None,
+    provider_preflight: dict[str, Any] | None,
+    quality_evidence: dict[str, Any],
+    quality_scorecard_ref: str | None = None,
+    quality_evidence_bundle_path: str | None = None,
+    artifact_store: ArtifactStore | None = None,
+) -> dict[str, Any]:
+    """Build a quality scorecard from supplied evidence mappings.
+
+    Mapping-only callers remain unable to establish a terminal owner source.
+    """
+    return _build_quality_scorecard_impl(
+        canary_kind=canary_kind,
+        job_id=job_id,
+        run_id=run_id,
+        execution_status=execution_status,
+        job_payload=job_payload,
+        run_payload=run_payload,
+        provider_preflight=provider_preflight,
+        quality_evidence=quality_evidence,
+        quality_scorecard_ref=quality_scorecard_ref,
+        quality_evidence_bundle_path=quality_evidence_bundle_path,
+        artifact_store=artifact_store,
+    )
+
+
+def _installed_canary_owner_source_context(
+    runtime_app: Any,
+    runtime_client: Any,
+) -> tuple[Any | None, str | None]:
+    """Resolve the exact installed runtime graph and active client for a canary."""
+    try:
+        from fastapi import FastAPI
+        from fastapi.testclient import TestClient
+
+        from polisyos.runtime.http.container import (
+            RuntimeServiceContainer,
+            get_runtime_container,
+            resolve_runtime_api_context,
+        )
+        from polisyos.runtime.http.dependencies import RuntimeApiContext
+        from polisyos.runtime.http.services.control import ControlPlaneService
+        from polisyos.runtime.http.services.debug import DebugService
+        from polisyos.runtime.http.services.run_index import RunIndexService
+    except ImportError:
+        return None, "runtime_owner_source_runtime_types_unavailable"
+
+    if type(runtime_app) is not FastAPI:
+        return None, "runtime_owner_source_app_not_installed"
+    if type(runtime_client) is not TestClient:
+        return None, "runtime_owner_source_client_not_installed"
+    if (
+        getattr(runtime_client, "app", None) is not runtime_app
+        or getattr(runtime_client, "portal", None) is None
+    ):
+        return None, "runtime_owner_source_client_lifetime_not_active"
+
+    container = get_runtime_container(runtime_app)
+    if type(container) is not RuntimeServiceContainer:
+        return None, "runtime_owner_source_container_not_installed"
+    runtime_api_context = resolve_runtime_api_context(runtime_app)
+    if (
+        type(runtime_api_context) is not RuntimeApiContext
+        or runtime_api_context is not container.runtime_api_context
+        or getattr(runtime_app.state, "runtime_container", None) is not container
+        or getattr(runtime_app.state, "runtime_api_ctx", None) is not runtime_api_context
+    ):
+        return None, "runtime_owner_source_context_not_installed"
+
+    control_service = container.control_service
+    if type(control_service) is not ControlPlaneService:
+        return None, "runtime_owner_source_control_service_not_started"
+    if (
+        type(runtime_api_context.debug) is not DebugService
+        or type(runtime_api_context.run_index) is not RunIndexService
+        or runtime_api_context.debug._store is not runtime_api_context.store
+        or control_service._artifact_store is not runtime_api_context.store
+        or runtime_api_context.debug._producer_control_job_store
+        is not control_service._control_store
+        or getattr(runtime_app.state, "_control_service", None) is not control_service
+    ):
+        return None, "runtime_owner_source_service_graph_mismatch"
+    return runtime_api_context, None
+
+
+def _build_quality_scorecard_with_runtime_owner_source(
+    *,
+    canary_kind: str,
+    job_id: str | None,
+    run_id: Any,
+    execution_status: str,
+    job_payload: dict[str, Any] | None,
+    run_payload: dict[str, Any] | None,
+    provider_preflight: dict[str, Any] | None,
+    quality_evidence: dict[str, Any],
+    runtime_app: Any,
+    runtime_client: Any,
+    quality_scorecard_ref: str | None = None,
+    quality_evidence_bundle_path: str | None = None,
+    artifact_store: ArtifactStore | None = None,
+) -> dict[str, Any]:
+    """Recompute the owner source join immediately before one private canary scorecard."""
+    from polisyos.runtime.http.services.debug import _ScorecardOwnerSourceReaderUnavailableError
+
+    verified_owner_source: Any | None = None
+    owner_source_refusal_detail: str | None = None
+    if (
+        _serious_canary(canary_kind)
+        and isinstance(job_id, str)
+        and job_id.strip()
+        and isinstance(run_id, str)
+        and run_id.strip()
+    ):
+        runtime_api_context, owner_source_refusal_detail = _installed_canary_owner_source_context(
+            runtime_app, runtime_client
+        )
+        if runtime_api_context is not None:
+            run_index = runtime_api_context.run_index
+            debug_service = runtime_api_context.debug
+            try:
+                response = runtime_client.get(f"/api/v1/control/jobs/{job_id}")
+                fresh_payload = response.json() if response.status_code < 400 else None
+                if not isinstance(fresh_payload, dict):
+                    fresh_payload = None
+                fresh_progress = (
+                    fresh_payload.get("progress") if fresh_payload is not None else None
+                )
+                core_run_id = (
+                    fresh_progress.get("core_run_id") if isinstance(fresh_progress, dict) else None
+                )
+                if (
+                    fresh_payload is not None
+                    and fresh_payload.get("job_id") == job_id
+                    and fresh_payload.get("run_id") == run_id
+                    and fresh_payload.get("state") == "completed"
+                    and isinstance(core_run_id, str)
+                    and core_run_id.strip()
+                ):
+                    run_index.refresh(force=True)
+                    indexed_run = run_index.get_run(core_run_id)
+                    verified_owner_source = debug_service._scorecard_owner_source_for_indexed_run(
+                        indexed_run,
+                        fresh_job_payload=fresh_payload,
+                    )
+            except _ScorecardOwnerSourceReaderUnavailableError as exc:
+                owner_source_refusal_detail = str(exc)
+            except (AttributeError, KeyError, OSError, RuntimeError, TypeError, ValueError):
+                verified_owner_source = None
+    return _build_quality_scorecard_impl(
+        canary_kind=canary_kind,
+        job_id=job_id,
+        run_id=run_id,
+        execution_status=execution_status,
+        job_payload=job_payload,
+        run_payload=run_payload,
+        provider_preflight=provider_preflight,
+        quality_evidence=quality_evidence,
+        quality_scorecard_ref=quality_scorecard_ref,
+        quality_evidence_bundle_path=quality_evidence_bundle_path,
+        artifact_store=artifact_store,
+        _verified_owner_source=verified_owner_source,
+        _owner_source_refusal_detail=owner_source_refusal_detail,
+    )
 
 
 __all__ = [

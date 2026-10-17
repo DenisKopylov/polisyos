@@ -6660,5 +6660,141 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "coordination_epoch_20261018_terminal_projection_and_owner_source_r7": {
+    "slice_base": "9c102a86308e3fecec3d415859f7c37518cd8106",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py": {
+        "preimage_sha256": "e0e44945ad4df27b17e7debcacb992045878f2caec909489e22624852e74308a",
+        "postimage_sha256": "fc1e0e14f6551121e7463b81badc3cf848e1bc3a93c687c7cc167d510a516a21",
+        "operation": "modify",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase-barrier-owner-source-bridge-r7-candidate-20261018/postimages/policy-engine/src/polisyos/runtime/http/services/control_plane_store.py"
+      },
+      "policy-engine/src/polisyos/runtime/http/services/debug.py": {
+        "preimage_sha256": "7bad98d4fa708718e75dd1bf4074efddc16e2ab2faac6e7e86f86ec9b4ff99b2",
+        "postimage_sha256": "78f6438aa792cb170537b1b297f093b2d30db5ee215dba04d8d98447558555b6",
+        "operation": "modify",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase-barrier-owner-source-bridge-r7-candidate-20261018/postimages/policy-engine/src/polisyos/runtime/http/services/debug.py"
+      },
+      "policy-engine/src/polisyos/runtime/http/services/control/job_nl_publication.py": {
+        "preimage_sha256": "3c09a78e796c7b084cc5be41012c68e880c01edf764bb02824c40255cc3b4d3a",
+        "postimage_sha256": "0306c3a637b9782ab276bb476ae26b42805c0b97e57889316a7256250120f3e1",
+        "operation": "modify",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase-barrier-owner-source-bridge-r7-candidate-20261018/postimages/policy-engine/src/polisyos/runtime/http/services/control/job_nl_publication.py"
+      },
+      "policy-engine/src/polisyos/runtime/http/services/control/job_attempt_publication.py": {
+        "preimage_sha256": "afa09bd7d267c8effec23faebd7bddb00bb7069f01d08b9ffe46cc673a84c04e",
+        "postimage_sha256": "c5c09cbd30ccad0b72cd158586b3393a4eddaae9ea81d745f3ab7cd5b1ff8e80",
+        "operation": "modify",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase-barrier-owner-source-bridge-r7-candidate-20261018/postimages/policy-engine/src/polisyos/runtime/http/services/control/job_attempt_publication.py"
+      },
+      "policy-engine/src/polisyos/runtime/quality/scorecard.py": {
+        "preimage_sha256": "38833e772f3dac61d498ebebbe1c0153107164afbf7463cedb51e7ee5c95dc78",
+        "postimage_sha256": "c004f8597d70efc5f3b79c4be22954867217a76509883c193472c2c38a073e0b",
+        "operation": "modify",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase-barrier-owner-source-bridge-r7-candidate-20261018/postimages/policy-engine/src/polisyos/runtime/quality/scorecard.py"
+      },
+      "policy-engine/tools/ops_runners/runtime/canary_evidence.py": {
+        "preimage_sha256": "7555c6b75a9a53438010e40de4b80186f49cc42a234b52ab5909b5f9a24d6acb",
+        "postimage_sha256": "52e56d324d86431c7017c9156d7fe658e7dc78bfb8444d043e837d8858476ce8",
+        "operation": "modify",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase-barrier-owner-source-bridge-r7-candidate-20261018/postimages/policy-engine/tools/ops_runners/runtime/canary_evidence.py"
+      },
+      "policy-engine/tools/ops_runners/runtime/local_production_canary.py": {
+        "preimage_sha256": "7a8e3eeeaf11c5ad79dee8e116e7f4a47f6f8159dd66410912968e56bf10b0fb",
+        "postimage_sha256": "f36ee97c811a6d4f485c69c3ea786c28a93059dd3b30bc438413002c7d7499aa",
+        "operation": "modify",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase-barrier-owner-source-bridge-r7-candidate-20261018/postimages/policy-engine/tools/ops_runners/runtime/local_production_canary.py"
+      },
+      "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py": {
+        "preimage_sha256": "33462c39ce57dd43a374c68bb3e03b7819e2dce203645748f7414cd0d6f4c85b",
+        "postimage_sha256": "2a4f58d3d4d76d675a15980c062550ed48026ac1afc876413e17269e67f14954",
+        "operation": "modify",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase-barrier-owner-source-bridge-r7-candidate-20261018/postimages/policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py"
+      },
+      "policy-engine/tests/unit/runtime/quality/test_scorecard.py": {
+        "preimage_sha256": "5ab757dbdc2dae657ab2502998d3db21d83a75cf9386d88faf10bfed271290ae",
+        "postimage_sha256": "40ff587b5317fbd6f0a27377a668c44d27795c013b0f7173404710949c0e1a0b",
+        "operation": "modify",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase-barrier-owner-source-bridge-r7-candidate-20261018/postimages/policy-engine/tests/unit/runtime/quality/test_scorecard.py"
+      },
+      "policy-engine/tests/unit/tools/test_canary_evidence.py": {
+        "preimage_sha256": "032c21b84e3313dbeb3e6885f716d94e2685cbdd142df458e373f33fbc16a5b0",
+        "postimage_sha256": "f3368f0df3e4bb2f3d493b159271805aca6cf7ec4040a4dffdbd43938e2bdb2f",
+        "operation": "modify",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase-barrier-owner-source-bridge-r7-candidate-20261018/postimages/policy-engine/tests/unit/tools/test_canary_evidence.py"
+      },
+      "policy-engine/tests/unit/tools/test_local_production_canary.py": {
+        "preimage_sha256": "2784e65fd9c13339fbc943a506b5514641e9e7f716b9d6dbf2dfd057d4637eb5",
+        "postimage_sha256": "db80d282654bdd6d36a0de16026522c90d52f8eb4748154af582894445da22db",
+        "operation": "modify",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase-barrier-owner-source-bridge-r7-candidate-20261018/postimages/policy-engine/tests/unit/tools/test_local_production_canary.py"
+      },
+      "policy-engine/src/polisyos/runtime/quality/README.md": {
+        "preimage_sha256": "b574a4764a4ad28bbc16f86f5e867341c759c8d3bee4ae16039b7a66192bf1e0",
+        "postimage_sha256": "42355b4ad6a53e93813b424d93d1e9130ea35d1730958111e326801f0bfe9b7c",
+        "operation": "modify",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase-barrier-owner-source-bridge-r7-candidate-20261018/postimages/policy-engine/src/polisyos/runtime/quality/README.md"
+      },
+      "policy-engine/docs/reference/runtime/quality-scorecard.md": {
+        "preimage_sha256": "cc9973629b4d5ca111080bada8ea87982b3607f87f3dab78bc40954f2208a5e8",
+        "postimage_sha256": "567cd90cfa7e512a352d111626c41ebcb806b7fc5ff68ae4c76d676319612504",
+        "operation": "modify",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase-barrier-owner-source-bridge-r7-candidate-20261018/postimages/policy-engine/docs/reference/runtime/quality-scorecard.md"
+      },
+      "policy-engine/release-fragments/unreleased/2026-10-17-e02-phase-barrier-owner-source-bridge.toml": {
+        "preimage_sha256": null,
+        "postimage_sha256": "c850c65e1f215c80df43dec78dc0f1a5ceb02b0b8d2f0329973ed82919e49d4c",
+        "operation": "add",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase-barrier-owner-source-bridge-r7-candidate-20261018/postimages/policy-engine/release-fragments/unreleased/2026-10-17-e02-phase-barrier-owner-source-bridge.toml"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-owner-source-bridge-r7-application-20261018/source-application.json",
+      "sha256": "8c94ad7004f9aae65ac9864915acd47b36371c516a9243f7b5b111bf56607d41"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-owner-source-bridge-r7-application-20261018/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase-barrier-owner-source-bridge-r7-candidate-20261018/candidate-manifest.json",
+        "sha256": "202ea88ddc49e15bd15d1805eb089c6b5ab140472914454aa4cb82321eac613a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase-barrier-owner-source-bridge-r7-candidate-20261018/candidate-r7-final.patch",
+        "sha256": "6d4dcfff5628004276eb825f471b15eaabbc12af9b90f2cd5c7b81a561183f6e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase-barrier-owner-source-bridge-r7-independent-review-20261018/review.json",
+        "sha256": "e9f6326a58f129664adf9897c73eb3c2d0e66842bf61e388072a560d2de7de4b"
+      }
+    ],
+    "P40": "Same terminal-projection/source-reconciliation class widened over all complete/fail callsites and actual source-to-assembly consumer.",
+    "bounded_proof": "Independent full14-path source/field-role/fence review GO; meaningful ordinaryPOST/freshGET/assembly and store tamper test assertions authored, runtime UNRUN.",
+    "limitations": {
+      "author_limits": {
+        "G_acceptance": false,
+        "capability_state": "Candidate implementation and tests are not runtime-verified; no package-wide or end-to-end capability closure is claimed.",
+        "external_owner_authority_claimed": false,
+        "formal_closure_ids": [],
+        "global_freeze": false,
+        "policy_time_or_same_input_claimed": false,
+        "proposed_closures": [],
+        "public_surface_inventory_reviewed": false,
+        "remaining": "Only owner-scope reconciliation is in scope. Normal NL RunIntentBinding still lacks time_context_ref and same_input_closure_ref; intent and overall serious readiness stay blocked. Refs/attestations remain consumer-validated candidate data. Outbox/progress retention/deletion remains not_established."
+      },
+      "root_limits": [
+        "No formal G acceptance or global source/input/backend freeze.",
+        "All candidate quality material remains candidate; incomplete intent time-context and same-input refs remain blocked; production custody/currentness not inferred."
+      ]
+    },
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Canonical bounded five-selector ordinary POST to worker/persisted row/fresh GET/two actual assembly decisions plus complete/fail/delegated/lease-attempt corruption controls; then source-qualified full R15 rerun.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

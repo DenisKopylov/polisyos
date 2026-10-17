@@ -4375,6 +4375,60 @@ class ControlPlaneStore:
                 f"control job {event_type.removeprefix('job_')} event is malformed"
             ) from exc
 
+    def get_job_terminal_source_event_record(
+        self,
+        job_id: str,
+    ) -> _ControlJobLifecycleSourceEventRecord:
+        """Read the latest persisted completion/failure event for one job."""
+        row = self._fetchone(
+            """
+            SELECT event_id, job_id, event_type, payload_json, created_at
+            FROM control_job_events
+            WHERE job_id = ? AND event_type IN (?, ?)
+            ORDER BY event_id DESC LIMIT 1
+            """,
+            (job_id, "job_completed", "job_failed"),
+        )
+        if row is None:
+            raise ControlJobLeaseLostError("control job terminal event is unavailable")
+        event_type = row.get("event_type") if isinstance(row, Mapping) else row[2]
+        if event_type not in {"job_completed", "job_failed"}:
+            raise ControlJobLeaseLostError("control job terminal event type is invalid")
+        try:
+            return self._control_job_lifecycle_event_record_from_row(
+                row,
+                expected_job_id=job_id,
+                expected_event_type=event_type,
+            )
+        except (TypeError, ValueError, json.JSONDecodeError) as exc:
+            raise ControlJobLeaseLostError("control job terminal event is malformed") from exc
+
+    def get_job_completed_outbox_event(self, job_id: str) -> ControlOutboxRecord | None:
+        """Read exactly one completion outbox row keyed to one ControlJob."""
+        rows = self._fetchall(
+            """
+            SELECT
+                event_id,
+                topic,
+                event_key,
+                state,
+                job_id,
+                run_id,
+                payload_json,
+                created_at,
+                published_at,
+                attempt,
+                error_message
+            FROM control_outbox_events
+            WHERE topic = ? AND event_key = ? AND job_id = ?
+            ORDER BY created_at ASC
+            """,
+            ("control.job.completed", f"{job_id}:job_completed", job_id),
+        )
+        if len(rows) != 1:
+            raise RuntimeError("control_job_completed_outbox_count_not_one")
+        return self._row_to_outbox_record(rows[0])
+
     @staticmethod
     def _control_job_lifecycle_event_record_from_row(
         row: Any,
@@ -4804,6 +4858,154 @@ class ControlPlaneStore:
                 fence=fence,
             )
 
+    def _terminal_progress_with_current_source_projection(
+        self,
+        *,
+        job_id: str,
+        progress: dict[str, Any],
+        fence: tuple[str, int] | None,
+    ) -> dict[str, Any]:
+        """Carry one current fenced row's typed candidate projections at termination.
+
+        Terminal progress replaces the running snapshot. The owner is rederived
+        from the creation admission and worker fence; adjacent typed candidate
+        projections are copied only from that same current row. This is a
+        projection-preservation rule, not an authority decision: downstream
+        consumers still validate refs, attestations, and phase-barrier evidence.
+        """
+        supplied_owner_present = "execution_owner_binding" in progress
+        if fence is None:
+            if supplied_owner_present:
+                raise ControlJobLeaseLostError("control_job_terminal_owner_binding_not_current")
+            return progress
+
+        try:
+            admission = self.current_execution_job_admission()
+        except (ControlJobExecutionAdmissionError, ControlJobLeaseLostError) as exc:
+            if supplied_owner_present:
+                raise ControlJobLeaseLostError(
+                    "control_job_terminal_owner_binding_not_current"
+                ) from exc
+            return progress
+
+        current_job = admission.job
+        if (
+            current_job.job_id != job_id
+            or current_job.state != "running"
+            or current_job.attempt != fence[1]
+            or admission.attempt != fence[1]
+            or current_job.lease_owner != fence[0]
+        ):
+            if supplied_owner_present:
+                raise ControlJobLeaseLostError("control_job_terminal_owner_binding_not_current")
+            return progress
+
+        from polisyos.runtime.quality.phase_barriers import (
+            _execution_owner_binding_from_admission,
+            _validated_execution_owner_binding,
+        )
+        from polisyos.runtime.quality.report_registry import QUALITY_REPORT_REF_KEYS
+        from polisyos.runtime.quality.run_state import RunIntentBinding
+
+        current_owner_binding = _execution_owner_binding_from_admission(
+            admission,
+            expected_job_id=job_id,
+            expected_run_id=str(current_job.run_id or ""),
+            expected_effective_profile=current_job.effective_execution_profile,
+            expected_scope={
+                "tenant_id": admission.scope.tenant_id,
+                "cell_id": admission.scope.cell_id,
+            },
+        )
+        current_progress = current_job.progress
+        persisted_owner_binding = (
+            _validated_execution_owner_binding(
+                current_progress.get("execution_owner_binding"),
+                expected=current_owner_binding,
+            )
+            if current_owner_binding is not None
+            else None
+        )
+        if current_owner_binding is None or persisted_owner_binding != current_owner_binding:
+            if supplied_owner_present:
+                raise ControlJobLeaseLostError("control_job_terminal_owner_binding_not_current")
+            return progress
+
+        if supplied_owner_present:
+            supplied_owner_binding = _validated_execution_owner_binding(
+                progress.get("execution_owner_binding"),
+                expected=current_owner_binding,
+            )
+            if supplied_owner_binding != persisted_owner_binding:
+                raise ControlJobLeaseLostError(
+                    "control_job_terminal_progress_owner_binding_conflict"
+                )
+
+        terminal_progress = dict(progress)
+        terminal_progress["execution_owner_binding"] = persisted_owner_binding
+
+        raw_intent_binding = current_progress.get("run_intent_binding")
+        current_intent_binding: RunIntentBinding | None = None
+        if isinstance(raw_intent_binding, Mapping):
+            try:
+                parsed_intent = RunIntentBinding.model_validate(raw_intent_binding)
+            except (TypeError, ValueError):
+                parsed_intent = None
+            if (
+                parsed_intent is not None
+                and parsed_intent.run_id == current_owner_binding["run_id"]
+                and parsed_intent.tenant_id == current_owner_binding["tenant_id"]
+                and parsed_intent.requested_profile
+                == current_owner_binding["requested_execution_profile"]
+            ):
+                current_intent_binding = parsed_intent
+        if "run_intent_binding" in progress:
+            supplied_intent_raw = progress["run_intent_binding"]
+            try:
+                supplied_intent = RunIntentBinding.model_validate(supplied_intent_raw)
+            except (TypeError, ValueError) as exc:
+                raise ControlJobLeaseLostError(
+                    "control_job_terminal_progress_source_projection_conflict"
+                ) from exc
+            if current_intent_binding is None or supplied_intent != current_intent_binding:
+                raise ControlJobLeaseLostError(
+                    "control_job_terminal_progress_source_projection_conflict"
+                )
+        if current_intent_binding is not None:
+            terminal_progress["run_intent_binding"] = current_intent_binding.model_dump(mode="json")
+
+        current_projection_keys = (
+            "runtime_quality_refs",
+            "runtime_quality_artifact_refs",
+            "runtime_quality_projection",
+            "diagnostic_event_log_ref",
+            "diagnostic_events",
+            "trust_boundary_attestations",
+        )
+        for key in (*current_projection_keys, *QUALITY_REPORT_REF_KEYS):
+            source_present = key in current_progress
+            supplied_present = key in progress
+            if supplied_present and (not source_present or progress[key] != current_progress[key]):
+                raise ControlJobLeaseLostError(
+                    "control_job_terminal_progress_source_projection_conflict"
+                )
+            if source_present:
+                terminal_progress[key] = deepcopy(current_progress[key])
+
+        phase_projection_only_keys = (
+            "runtime_quality_diagnostic_events",
+            "runtime_diagnostic_event_status",
+            "diagnostic_event_scope_status",
+            "runtime_diagnostic_event_limitation_code",
+            "diagnostic_event_ids",
+            "diagnostic_event_authority",
+            "scientist_workflow",
+        )
+        for key in phase_projection_only_keys:
+            terminal_progress.pop(key, None)
+
+        return terminal_progress
+
     def _complete_job_in_transaction(
         self,
         *,
@@ -4818,6 +5020,11 @@ class ControlPlaneStore:
         now = _utc_now()
         if progress is not None:
             progress = _progress_with_quality_scorecard_summary(progress)
+            progress = self._terminal_progress_with_current_source_projection(
+                job_id=job_id,
+                progress=progress,
+                fence=fence,
+            )
             completion_failure_message = _completion_failure_message(progress)
             if completion_failure_message is not None:
                 self._fail_job_in_transaction(
@@ -4906,6 +5113,11 @@ class ControlPlaneStore:
         now = _utc_now()
         if progress is not None:
             progress = _progress_with_quality_scorecard_summary(progress)
+            progress = self._terminal_progress_with_current_source_projection(
+                job_id=job_id,
+                progress=progress,
+                fence=fence,
+            )
         where, where_params = self._job_fence_where(
             job_id=job_id,
             fence=fence,

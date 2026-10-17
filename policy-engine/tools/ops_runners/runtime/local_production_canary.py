@@ -133,8 +133,7 @@ def _enrich_policy_intent_context(
     )
     context.setdefault(
         "proposed_intervention",
-        _context_text(context, "query_treatment", "intervention")
-        or "wartime_credit_support",
+        _context_text(context, "query_treatment", "intervention") or "wartime_credit_support",
     )
     context.setdefault("requester_preferred_conclusion", None)
     context.setdefault(
@@ -619,9 +618,11 @@ def _with_embedded_runtime_quality_evidence(
     }
     runtime_refs = _runtime_quality_refs_from_payloads(job_payload=updated, run_payload=None)
     existing_events = details.get("diagnostic_events")
-    diagnostic_events = [
-        dict(item) for item in existing_events if isinstance(item, dict)
-    ] if isinstance(existing_events, list) else []
+    diagnostic_events = (
+        [dict(item) for item in existing_events if isinstance(item, dict)]
+        if isinstance(existing_events, list)
+        else []
+    )
     existing_event_names = {
         str(event.get("event_name") or "") for event in diagnostic_events if isinstance(event, dict)
     }
@@ -1349,9 +1350,7 @@ def _deterministic_claim_registry(
         source_id,
         _runtime_ref(refs, "data_forge_snapshot_binding_ref", identity["run_id"]),
     ]
-    scholar_refs = [
-        _runtime_ref(refs, "scholar_evidence_ref", identity["run_id"], "scholar")
-    ]
+    scholar_refs = [_runtime_ref(refs, "scholar_evidence_ref", identity["run_id"], "scholar")]
     method_refs = [
         _runtime_ref(refs, "foundry_method_report_ref", identity["run_id"], "foundry"),
         "causal.difference_in_differences",
@@ -1376,31 +1375,19 @@ def _deterministic_claim_registry(
         "source_data_refs": source_data_refs,
         "scholar_refs": scholar_refs,
         "method_refs": method_refs,
-        "portfolio_refs": [
-            _stable_runtime_ref("portfolio", identity["run_id"], "rec_1")
-        ],
-        "independence_refs": [
-            _stable_runtime_ref("independence", identity["run_id"], "rec_1")
-        ],
+        "portfolio_refs": [_stable_runtime_ref("portfolio", identity["run_id"], "rec_1")],
+        "independence_refs": [_stable_runtime_ref("independence", identity["run_id"], "rec_1")],
         "specification_curve_refs": [
             _stable_runtime_ref("specification_curve", identity["run_id"], "rec_1")
         ],
-        "disconfirming_refs": [
-            _stable_runtime_ref("disconfirming", identity["run_id"], "rec_1")
-        ],
-        "synthesis_refs": [
-            _stable_runtime_ref("synthesis", identity["run_id"], "rec_1")
-        ],
+        "disconfirming_refs": [_stable_runtime_ref("disconfirming", identity["run_id"], "rec_1")],
+        "synthesis_refs": [_stable_runtime_ref("synthesis", identity["run_id"], "rec_1")],
         "objective_tradeoff_refs": objective_tradeoff_refs,
-        "uncertainty_refs": [
-            _stable_runtime_ref("uncertainty", identity["run_id"], "rec_1")
-        ],
+        "uncertainty_refs": [_stable_runtime_ref("uncertainty", identity["run_id"], "rec_1")],
         "numerical_semantics_refs": [
             _stable_runtime_ref("numerical_semantics", identity["run_id"], "rec_1")
         ],
-        "monitoring_refs": [
-            _stable_runtime_ref("monitoring", identity["run_id"], "rec_1")
-        ],
+        "monitoring_refs": [_stable_runtime_ref("monitoring", identity["run_id"], "rec_1")],
         "selected_producer_refs": {
             "lex": legal_norm_refs,
             "fabric": [source_id],
@@ -1571,9 +1558,7 @@ def _deterministic_quality_evidence_from_scenario(
         if str(item or "").strip()
     ]
     conflict_checks = [
-        str(item)
-        for item in expected.get("conflict_checks") or []
-        if str(item or "").strip()
+        str(item) for item in expected.get("conflict_checks") or [] if str(item or "").strip()
     ]
 
     jurisdiction = (
@@ -1582,12 +1567,10 @@ def _deterministic_quality_evidence_from_scenario(
         or "global"
     )
     policy_domain = str(context.get("policy_domain") or quality_scenario.get("domain_hint") or "")
-    norm_ids = [f"norm.ua.{item}" for item in normative_fact_classes] or [
-        "norm.ua.runtime_quality"
+    norm_ids = [f"norm.ua.{item}" for item in normative_fact_classes] or ["norm.ua.runtime_quality"]
+    selected_source_ids = [f"{family}.golden_source" for family in source_families] or [
+        "production_data.golden_source"
     ]
-    selected_source_ids = [
-        f"{family}.golden_source" for family in source_families
-    ] or ["production_data.golden_source"]
     data_snapshot_ref = _runtime_ref(
         runtime_refs,
         "data_snapshot_ref",
@@ -1778,9 +1761,7 @@ def _deterministic_quality_evidence_from_scenario(
                     {
                         "feature_ref": "feature:msme_survival_rate",
                         "source_ref": selected_source_ids[0],
-                        "source_facet_refs": [
-                            f"field:{selected_source_ids[0]}.msme_survival_rate"
-                        ],
+                        "source_facet_refs": [f"field:{selected_source_ids[0]}.msme_survival_rate"],
                         "claim_ids": [claim["claim_id"]],
                         "claim_support_feature_refs": [
                             f"claim-feature:{claim['claim_id']}:msme_survival_rate"
@@ -1828,7 +1809,9 @@ def _deterministic_quality_evidence_from_scenario(
         "jurisdiction_filters": [jurisdiction],
         "time_filters": ["2026-05-13"],
         "candidate_norms": norm_records,
-        "selected_norms": [{**record, "applicability_status": "applied"} for record in norm_records],
+        "selected_norms": [
+            {**record, "applicability_status": "applied"} for record in norm_records
+        ],
         "applied_norms": norm_records,
         "rejected_norms": [],
         "conflicts": [{"conflict_id": "conflict:resolved-credit-eligibility"}],
@@ -2011,13 +1994,11 @@ def _deterministic_production_data_quality_report(
             if isinstance(value, str) and value.strip()
         },
     }
-    report_ref = (
-        _runtime_ref(
-            runtime_refs,
-            PRODUCTION_DATA_QUALITY_REF_KEY,
-            identity["run_id"],
-            "production_data_quality",
-        )
+    report_ref = _runtime_ref(
+        runtime_refs,
+        PRODUCTION_DATA_QUALITY_REF_KEY,
+        identity["run_id"],
+        "production_data_quality",
     )
     diagnostics = {
         key: {
@@ -2215,12 +2196,8 @@ def _fallback_agents_payload(
 ) -> dict[str, Any] | None:
     if not run_id and job_payload is None and run_payload is None:
         return None
-    job_progress = (
-        job_payload.get("progress") if isinstance(job_payload, dict) else None
-    )
-    progress_details = (
-        job_progress.get("details") if isinstance(job_progress, dict) else None
-    )
+    job_progress = job_payload.get("progress") if isinstance(job_payload, dict) else None
+    progress_details = job_progress.get("details") if isinstance(job_progress, dict) else None
     performance_summary = (
         progress_details.get("run_performance_summary")
         if isinstance(progress_details, dict)
@@ -2240,9 +2217,7 @@ def _fallback_agents_payload(
         ),
         "pipeline": {
             "run_id": run_id,
-            "status": (
-                job_payload.get("state") if isinstance(job_payload, dict) else "unknown"
-            ),
+            "status": (job_payload.get("state") if isinstance(job_payload, dict) else "unknown"),
             "performance_summary": performance_summary,
         },
         "timeline_event_count": len(timeline_payload.get("events") or [])
@@ -2268,6 +2243,18 @@ def _runtime_api_context_from_app(app: Any) -> Any | None:
         return direct_ctx
     container = getattr(state, "runtime_container", None)
     return getattr(container, "runtime_api_context", None)
+
+
+def _scorecard_owner_source_context(app: Any, client: Any) -> tuple[Any, Any] | None:
+    """Return an installed app/client pair for source revalidation at each decision."""
+    from polisyos.runtime.quality.scorecard import (
+        _installed_canary_owner_source_context,
+    )
+
+    runtime_api_context, refusal = _installed_canary_owner_source_context(app, client)
+    if runtime_api_context is None or refusal is not None:
+        return None
+    return app, client
 
 
 def _observe_duration_ms(observations: dict[str, float], key: str, call: Any) -> Any:
@@ -2356,9 +2343,7 @@ def _runtime_canary_bearer_token(env: dict[str, str] | None = None) -> str:
 
 def _build_runtime_canary_app(*, cas_root: Path, core_runs_root: Path) -> Any:
     """Compose the canary through the genuine deployment security producer."""
-    deployment_security = build_deployment_security(
-        DeploymentSecurityConfig.from_env()
-    )
+    deployment_security = build_deployment_security(DeploymentSecurityConfig.from_env())
     return create_runtime_api_app(
         cas_root=cas_root,
         core_runs_root=core_runs_root,
@@ -2528,6 +2513,7 @@ def main(argv: list[str] | None = None) -> int:
     provider_preflight: dict[str, Any] | None = None
     runtime_observations: dict[str, float] = {}
     bundle_dir: Path | None = None
+    scorecard_owner_source: tuple[Any, Any] | None = None
 
     try:
         bearer_token = _runtime_canary_bearer_token()
@@ -2539,6 +2525,7 @@ def main(argv: list[str] | None = None) -> int:
             app,
             bearer_token=bearer_token,
         ) as client:
+            scorecard_owner_source = _scorecard_owner_source_context(app, client)
             launch_response = client.post(
                 "/api/v1/control/runs/nl",
                 headers={"Idempotency-Key": uuid.uuid4().hex},
@@ -2606,71 +2593,72 @@ def main(argv: list[str] | None = None) -> int:
                     lineage_payload=lineage_payload,
                 )
 
-        if runtime_observations:
-            command_metadata["runtime_observations"] = dict(runtime_observations)
-        if args.mode == "simulated":
-            provider_preflight = _simulated_provider_preflight(
-                model=args.model,
-                provider_preflight=provider_preflight,
-            )
-            quality_evidence = {
-                **dict(quality_evidence or {}),
-                **_deterministic_quality_evidence_from_scenario(
-                    quality_scenario,
-                    job_payload=job_payload,
-                    run_payload=run_payload,
-                ),
-                "production_data_quality": _deterministic_production_data_quality_report(
-                    job_payload=job_payload,
-                    run_payload=run_payload,
-                    production_data_root=production_data_root,
-                ),
-            }
-            quality_evidence = _with_authority_envelopes(
-                quality_evidence,
-                refs=_runtime_quality_refs_from_payloads(
-                    job_payload=job_payload,
-                    run_payload=run_payload,
-                ),
-                identity=_runtime_identity_from_payloads(
-                    job_payload=job_payload,
-                    run_payload=run_payload,
-                ),
+            if runtime_observations:
+                command_metadata["runtime_observations"] = dict(runtime_observations)
+            if args.mode == "simulated":
+                provider_preflight = _simulated_provider_preflight(
+                    model=args.model,
+                    provider_preflight=provider_preflight,
+                )
+                quality_evidence = {
+                    **dict(quality_evidence or {}),
+                    **_deterministic_quality_evidence_from_scenario(
+                        quality_scenario,
+                        job_payload=job_payload,
+                        run_payload=run_payload,
+                    ),
+                    "production_data_quality": _deterministic_production_data_quality_report(
+                        job_payload=job_payload,
+                        run_payload=run_payload,
+                        production_data_root=production_data_root,
+                    ),
+                }
+                quality_evidence = _with_authority_envelopes(
+                    quality_evidence,
+                    refs=_runtime_quality_refs_from_payloads(
+                        job_payload=job_payload,
+                        run_payload=run_payload,
+                    ),
+                    identity=_runtime_identity_from_payloads(
+                        job_payload=job_payload,
+                        run_payload=run_payload,
+                    ),
+                    canary_kind=canary_kind,
+                )
+                job_payload = _with_embedded_runtime_quality_evidence(
+                    job_payload,
+                    quality_evidence,
+                )
+            bundle_dir = assemble_canary_evidence(
+                output_root=Path(args.output_root),
                 canary_kind=canary_kind,
+                command_metadata=command_metadata,
+                request_payload=request_payload,
+                env=dict(os.environ),
+                job_payload=job_payload,
+                run_payload=run_payload,
+                agents_payload=agents_payload,
+                timeline_payload=timeline_payload,
+                lineage_payload=lineage_payload,
+                provider_preflight=provider_preflight,
+                quality_evidence=quality_evidence,
+                cas_root=run_root / "cas",
+                _scorecard_owner_source=scorecard_owner_source,
             )
-            job_payload = _with_embedded_runtime_quality_evidence(
-                job_payload,
-                quality_evidence,
-            )
-        bundle_dir = assemble_canary_evidence(
-            output_root=Path(args.output_root),
-            canary_kind=canary_kind,
-            command_metadata=command_metadata,
-            request_payload=request_payload,
-            env=dict(os.environ),
-            job_payload=job_payload,
-            run_payload=run_payload,
-            agents_payload=agents_payload,
-            timeline_payload=timeline_payload,
-            lineage_payload=lineage_payload,
-            provider_preflight=provider_preflight,
-            quality_evidence=quality_evidence,
-            cas_root=run_root / "cas",
-        )
-        _write_json(run_root / "evidence_bundle.json", {"path": str(bundle_dir)})
-        print(f"Evidence bundle: {bundle_dir}")
+            _write_json(run_root / "evidence_bundle.json", {"path": str(bundle_dir)})
+            print(f"Evidence bundle: {bundle_dir}")
 
-        if not job_payload or not _is_terminal_job_state(job_payload):
-            return 1
-        if str(job_payload.get("state")) != "completed":
-            return 1
-        if not _has_required_materialization_refs(job_payload, run_payload):
-            print(
-                "Completed canary is missing required production materialization refs",
-                file=sys.stderr,
-            )
-            return 1
-        return 0
+            if not job_payload or not _is_terminal_job_state(job_payload):
+                return 1
+            if str(job_payload.get("state")) != "completed":
+                return 1
+            if not _has_required_materialization_refs(job_payload, run_payload):
+                print(
+                    "Completed canary is missing required production materialization refs",
+                    file=sys.stderr,
+                )
+                return 1
+            return 0
     finally:
         if bundle_dir is None and (launch_payload is not None or job_payload is not None):
             if runtime_observations:
@@ -2730,6 +2718,7 @@ def main(argv: list[str] | None = None) -> int:
                 provider_preflight=provider_preflight,
                 quality_evidence=quality_evidence,
                 cas_root=run_root / "cas",
+                _scorecard_owner_source=None,
             )
             print(f"Evidence bundle: {bundle_dir}")
 

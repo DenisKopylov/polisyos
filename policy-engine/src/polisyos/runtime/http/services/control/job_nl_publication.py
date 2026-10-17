@@ -106,7 +106,6 @@ class ControlNLJobPublicationMixin:
             _execution_owner_binding_from_admission,
             _validated_execution_owner_binding,
         )
-        from polisyos.runtime.quality.run_state import RunIntentBinding
 
         try:
             current_admission = self._control_store.current_execution_job_admission()
@@ -156,31 +155,6 @@ class ControlNLJobPublicationMixin:
             "promotion_refusal_reasons": list(refusal_reasons),
             "execution_owner_binding": persisted_owner_binding,
         }
-        raw_intent_binding = current_progress.get("run_intent_binding")
-        if isinstance(raw_intent_binding, dict):
-            try:
-                intent_binding = RunIntentBinding.model_validate(raw_intent_binding)
-            except Exception:
-                intent_binding = None
-            if (
-                intent_binding is not None
-                and intent_binding.run_id == current_owner_binding["run_id"]
-                and intent_binding.tenant_id == current_owner_binding["tenant_id"]
-                and intent_binding.requested_profile
-                == current_owner_binding["requested_execution_profile"]
-            ):
-                progress["run_intent_binding"] = intent_binding.model_dump(mode="json")
-        for progress_key in (
-            "runtime_quality_refs",
-            "runtime_quality_artifact_refs",
-            "runtime_quality_projection",
-            "runtime_quality_diagnostic_events",
-            "diagnostic_event_log_ref",
-            "diagnostic_events",
-            "trust_boundary_attestations",
-        ):
-            if progress_key in current_progress:
-                progress[progress_key] = current_progress[progress_key]
         self._control_store.complete_job(
             job_id=job.job_id,
             run_id=str(job.run_id or ""),

@@ -135,6 +135,7 @@ from polisyos.runtime.quality.scorecard import (
     SECURITY_REPORT_INTAKE_SCHEMA_VERSION,
     SERIOUS_CANARY_KINDS,
     _admitted_quality_evidence_view,
+    _build_quality_scorecard_with_runtime_owner_source,
     build_quality_scorecard,
     normalize_quality_evidence,
     scorecard_control_progress,
@@ -4997,6 +4998,63 @@ def _quality_ref_resolution_evidence_with_generated_refs(
     return evidence
 
 
+def _fresh_job_payload_for_scorecard(client: Any, job_id: str) -> dict[str, Any] | None:
+    """Read one fresh typed job projection through the canary's active API client."""
+    try:
+        response = client.get(f"/api/v1/control/jobs/{job_id}")
+        if response.status_code >= 400:
+            return None
+        payload = response.json()
+    except (AttributeError, OSError, RuntimeError, TypeError, ValueError):
+        return None
+    return payload if isinstance(payload, dict) else None
+
+
+def _build_canary_scorecard(
+    *,
+    owner_source_context: tuple[Any, Any] | None,
+    canary_kind: str,
+    job_id: str | None,
+    run_id: Any,
+    execution_status: str,
+    job_payload: dict[str, Any] | None,
+    run_payload: dict[str, Any] | None,
+    provider_preflight: dict[str, Any] | None,
+    quality_evidence: dict[str, Any],
+    quality_scorecard_ref: str,
+    quality_evidence_bundle_path: str,
+) -> dict[str, Any]:
+    """Build one mapping-only or source-recomputed canary scorecard."""
+    if owner_source_context is None:
+        return build_quality_scorecard(
+            canary_kind=canary_kind,
+            job_id=job_id,
+            run_id=run_id,
+            execution_status=execution_status,
+            job_payload=job_payload,
+            run_payload=run_payload,
+            provider_preflight=provider_preflight,
+            quality_evidence=quality_evidence,
+            quality_scorecard_ref=quality_scorecard_ref,
+            quality_evidence_bundle_path=quality_evidence_bundle_path,
+        )
+    runtime_app, client = owner_source_context
+    return _build_quality_scorecard_with_runtime_owner_source(
+        canary_kind=canary_kind,
+        job_id=job_id,
+        run_id=run_id,
+        execution_status=execution_status,
+        job_payload=job_payload,
+        run_payload=run_payload,
+        provider_preflight=provider_preflight,
+        quality_evidence=quality_evidence,
+        quality_scorecard_ref=quality_scorecard_ref,
+        quality_evidence_bundle_path=quality_evidence_bundle_path,
+        runtime_app=runtime_app,
+        runtime_client=client,
+    )
+
+
 def assemble_canary_evidence(
     *,
     output_root: str | Path = ".polisyos/canary_evidence",
@@ -5015,6 +5073,7 @@ def assemble_canary_evidence(
     artifact_store: Any | None = None,
     cas_root: str | Path | None = None,
     output_dir: str | Path | None = None,
+    _scorecard_owner_source: tuple[Any, Any] | None = None,
 ) -> Path:
     """Write one sanitized evidence bundle and return its directory."""
     evidence_started_at = time.perf_counter()
@@ -5914,7 +5973,8 @@ def assemble_canary_evidence(
     )
     quality_evidence_payload = admit_quality_evidence_payload(quality_evidence_payload)
     scorecard_quality_evidence_payload = quality_evidence_payload
-    quality_scorecard = build_quality_scorecard(
+    quality_scorecard = _build_canary_scorecard(
+        owner_source_context=_scorecard_owner_source,
         canary_kind=canary_kind,
         job_id=None if job_id == "no-job" else job_id,
         run_id=run_id,
@@ -5981,7 +6041,8 @@ def assemble_canary_evidence(
         scorecard_quality_evidence_payload = admit_quality_evidence_payload(
             quality_evidence_payload
         )
-        quality_scorecard = build_quality_scorecard(
+        quality_scorecard = _build_canary_scorecard(
+            owner_source_context=_scorecard_owner_source,
             canary_kind=canary_kind,
             job_id=None if job_id == "no-job" else job_id,
             run_id=run_id,

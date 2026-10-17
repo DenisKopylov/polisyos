@@ -178,13 +178,21 @@ validated there; a `projection_only` label does not bypass admission.
 ## Phase-barrier owner and intent limits
 
 The live NL control-job producer persists an owner binding only after reconciling the admitted
-creation event and active lease. A normal control-job GET returns that persisted binding on the
-terminal response, but `build_quality_scorecard` receives a plain mapping and cannot verify its
-source. Its owner-scope and dependent intent gates therefore stay
-`phase_barrier_owner_scope_not_established`; matching fields do not prove a fresh terminal read.
-This does not supply a typed policy-time ref or the required phase-barrier ledger: the same-input
-closure remains `not_closed`, the run-intent binding is incomplete, and serious readiness remains
-blocked until those producer-owned artifacts and a source-verifiable consumer seam exist.
+creation event and active lease. One store-owned terminal policy rederives it under the same worker
+fence and carries only typed candidate projections that exist on the current row: matching
+`RunIntentBinding`, runtime quality ref and selected-artifact maps, the projection-only marker,
+attestation records, flattened role refs, and diagnostic summary projections. Conflicting caller
+copies are refused; absent fields stay absent, and previous phase/details payloads are not merged.
+The private local-canary assembler recomputes this owner from the current job row, creation scope,
+terminal lifecycle event and completion outbox, indexed Core run, and a fresh typed job GET inside
+the active runtime-client lifespan for each serious scorecard decision. Its owner-scope gate can pass
+only when those sources match the mapping being scored. The public `build_quality_scorecard` API
+remains mapping-only and keeps `phase_barrier_owner_scope_not_established`; matching fields do not
+prove a fresh terminal read. Carried refs and attestations remain candidates for existing consumer
+validation, and diagnostic summaries remain projections. The owner proof does not supply a typed
+policy-time reference, same-input closure, or required phase-barrier ledger. The normal NL run still
+has absent `time_context_ref` and `same_input_closure_ref`, so dependent intent and serious readiness
+remain blocked.
 
 ## Refs
 

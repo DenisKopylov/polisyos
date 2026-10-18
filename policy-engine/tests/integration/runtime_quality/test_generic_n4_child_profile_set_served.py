@@ -940,7 +940,9 @@ async def test_served_real_n4_children_keep_first_n5_after_later_sibling_failure
     pytest.importorskip("fastapi.testclient")
     from fastapi.testclient import TestClient
 
+    from polisyos.core.artifacts import load_core_json_artifact
     from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.core.security.tenant_context import tenant_scope
     from polisyos.pdc import gy_content_hash
     from polisyos.runtime.http.app import create_runtime_api_app
     from polisyos.runtime.http.container import RuntimeContainerOverrides
@@ -953,12 +955,16 @@ async def test_served_real_n4_children_keep_first_n5_after_later_sibling_failure
         credal_reference_l2_source_profile,
     )
     from polisyos.runtime.quality.cycle_substrate import (
+        CycleSubstrateContextArtifactOwner,
         CycleSubstrateContextOwnerError,
         cycle_job_design_problem_ref,
         cycle_job_profile_selection_ref,
     )
+    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
     from polisyos.runtime.quality.generic_simulation_admission import (
         GenericCycleSimulationAdmissionOwner,
+        GenericCycleSimulationN5InputV1,
+        parse_generic_cycle_simulation_n5_execution,
     )
     from polisyos.scientist.orchestration.llm import factory as llm_factory
     from tests._helpers.controlled_candidate_profile import (
@@ -1251,10 +1257,6 @@ async def test_served_real_n4_children_keep_first_n5_after_later_sibling_failure
         "persist_handoff",
         persist_handoff_and_replay_profile_ref,
     )
-    from polisyos.runtime.quality.generation_source import (
-        GenerationSourceRepository,
-    )
-
     original_persist_source_ref = GenerationSourceRepository.persist_ref
     served_source_profiles: list[tuple[ArtifactRef | None, Any]] = []
 
@@ -1304,6 +1306,14 @@ async def test_served_real_n4_children_keep_first_n5_after_later_sibling_failure
         service = app.state._control_service
         job = service._control_store.get_job(receipt.job_id)
         assert job is not None and job.run_id == receipt.run_id
+        with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+            compiled_payload = service._load_payload_ref(
+                job.progress["compiled_recursive_generation_cycle_ref"],
+                kind="runtime.compiled_recursive_generation_cycle",
+            )
+        compiled = generation_cycle_service.CompiledRecursiveGenerationCycleRun.model_validate(
+            compiled_payload
+        )
         from polisyos.scientist.orchestration.engine.budget_ledger import (
             BudgetLedgerProducerRunBinding,
         )
@@ -1409,6 +1419,94 @@ async def test_served_real_n4_children_keep_first_n5_after_later_sibling_failure
         ]
         assert len(successful_observations) == 1
         successful = successful_observations[0]
+        # A fresh GET must bind the observed N5 to the actual per-cycle source
+        # and owner context. Cycle-zero's selected child handoff is only the
+        # initial basis; later cycles may legitimately have a reissued context.
+        selected_input_ref = ArtifactRef.model_validate(successful["n5_input_ref"])
+        selected_execution_ref = ArtifactRef.model_validate(successful["n5_execution_ref"])
+        with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+            selected_input = GenericCycleSimulationN5InputV1.model_validate(
+                load_core_json_artifact(prepared.runtime_api_context.store, selected_input_ref)
+            )
+            selected_execution = parse_generic_cycle_simulation_n5_execution(
+                load_core_json_artifact(
+                    prepared.runtime_api_context.store,
+                    selected_execution_ref,
+                )
+            )
+            selected_source = GenerationSourceRepository(prepared.runtime_api_context.store).load(
+                selected_input.n4_source_ref,
+                run_id=selected_input.source_run_id,
+                expected_run_id=selected_input.run_id,
+                expected_job_id=selected_input.job_id,
+                expected_tenant_id=selected_input.tenant_id,
+                expected_cell_id=selected_input.cell_id,
+                context_job_ref=selected_input.context_job_ref,
+                profile_ref=selected_input.profile_ref,
+                n4_child_profile_family_ref=selected_input.n4_child_profile_family_ref,
+            )
+            selected_context = CycleSubstrateContextArtifactOwner(
+                store=prepared.runtime_api_context.store
+            ).resolve_historical_job_artifact(
+                selected_input.context_job_ref,
+                problem=selected_source.problem,
+                expected_job_id=selected_input.job_id,
+                expected_run_id=selected_input.run_id,
+                expected_tenant_id=selected_input.tenant_id,
+                expected_cell_id=selected_input.cell_id,
+            )
+        matching_cycles = tuple(
+            (node, cycle)
+            for node in compiled.recursive_run.nodes
+            if node.cycle_run is not None
+            for cycle in node.cycle_run.cycles
+            if cycle.simulation.generic_n5_input_ref == selected_input_ref
+        )
+        assert len(matching_cycles) == 1
+        selected_node, selected_cycle = matching_cycles[0]
+        assert selected_cycle.cycle_index == 0
+        assert selected_cycle.design_problem_basis_ref == selected_input.design_problem_ref
+        selected_initial_child = tuple(
+            row
+            for row in projection["child_profile_bindings"]
+            if row["node_ref"] == selected_node.node_ref
+        )
+        assert len(selected_initial_child) == 1
+        assert selected_input.context_job_ref == ArtifactRef.model_validate(
+            selected_initial_child[0]["context_job_ref"]
+        )
+        initial_problem = next(
+            child.problem
+            for child in prepared.children
+            if "design-problem://"
+            + cycle_job_design_problem_ref(child.problem).removeprefix("sha256:")
+            == selected_node.node_ref
+        )
+        assert selected_node.cycle_run is not None
+        expected_cycle_problem = (
+            initial_problem
+            if selected_cycle.cycle_index == 0
+            else selected_node.cycle_run.cycles[
+                selected_cycle.cycle_index - 1
+            ].revision_request.revised_problem
+        )
+        assert selected_source.problem == expected_cycle_problem
+        assert selected_source.cycle_index == selected_input.cycle_index
+        assert selected_source.cycle_substrate_context is not None
+        assert selected_source.cycle_substrate_context.content_hash == (
+            selected_context.context.content_hash
+        )
+        assert selected_context.problem == selected_source.problem
+        assert selected_cycle.simulation.cycle_substrate_context_job_ref == (
+            selected_input.context_job_ref
+        )
+        assert selected_cycle.simulation.generic_context_job_ref == selected_input.context_job_ref
+        assert selected_execution.context_job_ref == selected_input.context_job_ref
+        assert selected_execution.n4_source_ref == selected_input.n4_source_ref
+        assert selected_execution.profile_ref == selected_input.profile_ref
+        assert selected_execution.input_ref == selected_input_ref
+        assert selected_cycle.simulation.generic_n4_source_ref == selected_input.n4_source_ref
+        assert selected_cycle.simulation.generic_n5_execution_ref == selected_execution_ref
         assert successful["simulation_result_ref"]["kind"] == (
             "polisyos.runtime.joint_simulation_result"
         )
@@ -2537,3 +2635,208 @@ async def test_served_selected_ncm_refusal_preserves_successful_n4_sibling(
     checkpoint = projection["recursive_cycle_checkpoint"]
     assert checkpoint["publication_authority"] is False
     assert checkpoint["failed_branches"] == []
+
+
+@pytest.mark.integration
+@pytest.mark.asyncio
+async def test_served_generic_cycle_reissues_owner_context_for_second_n5(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    controlled_candidate_gateway: Any,
+    served_worker_phase_probe: Any,
+) -> None:
+    """A controlled N6 advance must persist and freshly read its reissued N5 context."""
+    pytest.importorskip("fastapi.testclient")
+    from decimal import Decimal
+
+    from fastapi.testclient import TestClient
+
+    from polisyos.core.artifacts import load_core_json_artifact
+    from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.runtime.http.app import create_runtime_api_app
+    from polisyos.runtime.http.services.control import (
+        generation_cycle as generation_cycle_service,
+    )
+    from polisyos.runtime.quality.cycle_substrate import (
+        CycleSubstrateContextArtifactOwner,
+        cycle_job_design_problem_ref,
+    )
+    from polisyos.runtime.quality.generation_cycle import (
+        GenerationCycleController,
+        SimpleVOIScheduler,
+    )
+    from polisyos.runtime.quality.generation_source import GenerationSourceRepository
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleSimulationN5InputV1,
+        parse_generic_cycle_simulation_n5_execution,
+    )
+
+    tenant_id = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+    cell_id = "cell-v8-generic-cycle-rebind"
+    prepared = await prepare_generic_n4_served_replay(
+        tmp_path=tmp_path,
+        controlled_candidate_gateway=controlled_candidate_gateway,
+        monkeypatch=monkeypatch,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+        child_count=3,
+        phase_callback=served_worker_phase_probe,
+    )
+    prepared = replace(
+        prepared,
+        request_json={
+            **prepared.request_json,
+            "max_iterations": 2,
+            "run_budget_usd": 10.0,
+        },
+    )
+
+    # This test drives the already-existing N6 advance branch to exercise the
+    # context rebind. N4, N5, persistence, and the fresh GET remain the real path.
+    original_controller_init = GenerationCycleController.__init__
+
+    def controller_init_with_advancing_voi(self: Any, *args: Any, **kwargs: Any) -> None:
+        kwargs["voi_scheduler"] = SimpleVOIScheduler(
+            stage_costs={3: Decimal("0.000001"), 4: Decimal("0.000001")},
+            min_roi_threshold=0.0,
+            reserved_calibration_budget_fraction=0.0,
+        )
+        original_controller_init(self, *args, **kwargs)
+
+    monkeypatch.setattr(
+        GenerationCycleController,
+        "__init__",
+        controller_init_with_advancing_voi,
+    )
+    app = create_runtime_api_app(**prepared.app_kwargs)
+    with TestClient(app) as client:
+        receipt = await run_n4_control_worker_and_get(
+            client=client,
+            app=app,
+            prepared=prepared,
+            monkeypatch=monkeypatch,
+            expected_failure_code="v6_controlled_second_n4_child_failure",
+            exercise_projection_controls=False,
+            phase_callback=served_worker_phase_probe,
+        )
+        assert receipt.job_state == "completed"
+        projection = receipt.projection
+        assert projection["authority_purpose"] == "cycle_input_candidate_only"
+        assert projection["publication_authority"] is False
+        assert projection["currentness_status"] == "not_established"
+        assert projection["child_profile_status"] == "resolved"
+
+        joint_rows = tuple(
+            row for row in projection["n5_observations"] if row["status"] == "joint_simulated"
+        )
+        assert len(joint_rows) == 2
+        by_node: dict[str, list[dict[str, Any]]] = {}
+        for row in joint_rows:
+            by_node.setdefault(row["node_ref"], []).append(row)
+        matching = tuple(
+            sorted(rows, key=lambda row: row["cycle_index"])
+            for rows in by_node.values()
+            if {row["cycle_index"] for row in rows} == {0, 1}
+        )
+        assert len(matching) == 1
+        first, second = matching[0]
+        assert first["context_job_ref"] != second["context_job_ref"]
+        assert first["n4_source_ref"] != second["n4_source_ref"]
+        assert first["profile_ref"] == second["profile_ref"]
+        assert first["world_model_record_content_hash"] == second["world_model_record_content_hash"]
+
+        service = app.state._control_service
+        job = service._control_store.get_job(receipt.job_id)
+        assert job is not None and job.run_id == receipt.run_id
+        with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+            compiled_payload = service._load_payload_ref(
+                job.progress["compiled_recursive_generation_cycle_ref"],
+                kind="runtime.compiled_recursive_generation_cycle",
+            )
+        compiled = generation_cycle_service.CompiledRecursiveGenerationCycleRun.model_validate(
+            compiled_payload
+        )
+        node = next(
+            row for row in compiled.recursive_run.nodes if row.node_ref == first["node_ref"]
+        )
+        assert node.cycle_run is not None
+        cycles = {row.cycle_index: row for row in node.cycle_run.cycles}
+        assert set(cycles) == {0, 1}
+        initial_binding = tuple(
+            row
+            for row in projection["child_profile_bindings"]
+            if row["node_ref"] == first["node_ref"]
+        )
+        assert len(initial_binding) == 1
+        assert first["context_job_ref"] == initial_binding[0]["context_job_ref"]
+
+        repository = GenerationSourceRepository(prepared.runtime_api_context.store)
+        context_owner = CycleSubstrateContextArtifactOwner(store=prepared.runtime_api_context.store)
+        children_by_node = {
+            "design-problem://"
+            + cycle_job_design_problem_ref(child.problem).removeprefix("sha256:"): child
+            for child in prepared.children
+        }
+        initial_child = children_by_node[first["node_ref"]]
+        for observation in (first, second):
+            input_ref = ArtifactRef.model_validate(observation["n5_input_ref"])
+            execution_ref = ArtifactRef.model_validate(observation["n5_execution_ref"])
+            with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+                input_record = GenericCycleSimulationN5InputV1.model_validate(
+                    load_core_json_artifact(prepared.runtime_api_context.store, input_ref)
+                )
+                execution = parse_generic_cycle_simulation_n5_execution(
+                    load_core_json_artifact(prepared.runtime_api_context.store, execution_ref)
+                )
+                source = repository.load(
+                    input_record.n4_source_ref,
+                    run_id=input_record.source_run_id,
+                    expected_run_id=input_record.run_id,
+                    expected_job_id=input_record.job_id,
+                    expected_tenant_id=input_record.tenant_id,
+                    expected_cell_id=input_record.cell_id,
+                    context_job_ref=input_record.context_job_ref,
+                    profile_ref=input_record.profile_ref,
+                    n4_child_profile_family_ref=input_record.n4_child_profile_family_ref,
+                )
+                context_job = context_owner.resolve_historical_job_artifact(
+                    input_record.context_job_ref,
+                    problem=source.problem,
+                    expected_job_id=input_record.job_id,
+                    expected_run_id=input_record.run_id,
+                    expected_tenant_id=input_record.tenant_id,
+                    expected_cell_id=input_record.cell_id,
+                )
+            cycle = cycles[observation["cycle_index"]]
+            assert input_record.cycle_index == cycle.cycle_index
+            assert input_record.design_problem_ref == cycle.design_problem_basis_ref
+            assert input_record.context_job_ref == ArtifactRef.model_validate(
+                observation["context_job_ref"]
+            )
+            assert execution.input_ref == input_ref
+            assert execution.context_job_ref == input_record.context_job_ref
+            assert execution.n4_source_ref == input_record.n4_source_ref
+            assert execution.profile_ref == input_record.profile_ref
+            assert execution.status == "joint_simulated"
+            assert source.problem == (
+                initial_child.problem
+                if cycle.cycle_index == 0
+                else cycles[0].revision_request.revised_problem
+            )
+            assert source.cycle_index == cycle.cycle_index
+            assert source.cycle_substrate_context == context_job.context
+            assert context_job.context.design_problem_ref == cycle.design_problem_basis_ref
+
+        assert cycles[0].design_problem_basis_ref == cycle_job_design_problem_ref(
+            initial_child.problem
+        )
+        assert cycles[1].design_problem_basis_ref == cycle_job_design_problem_ref(
+            cycles[0].revision_request.revised_problem
+        )
+        assert cycles[0].simulation.cycle_substrate_context_job_ref == ArtifactRef.model_validate(
+            first["context_job_ref"]
+        )
+        assert cycles[1].simulation.cycle_substrate_context_job_ref == ArtifactRef.model_validate(
+            second["context_job_ref"]
+        )

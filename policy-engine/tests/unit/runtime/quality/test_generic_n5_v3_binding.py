@@ -580,3 +580,227 @@ def test_generic_n5_execution_replay_loads_the_actual_source_in_scope(
     assert len(observed_loads) == 1
     assert observed_loads[0]["expected_tenant_id"] == tenant_id
     assert observed_loads[0]["expected_cell_id"] == cell_id
+
+
+def test_generic_profile_join_refuses_v5_context_without_exact_selected_ncm_view(
+    tmp_path: Path,
+) -> None:
+    """A current V5 source context joins only to its exact immutable N5 profile."""
+
+    from polisyos.core.artifacts import ensure_ir_artifact_store
+    from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.core.security.tenant_context import tenant_scope
+    from polisyos.ir.analytics.ncm import (
+        candidate_ncm_spec_from_declaration,
+        persist_ncm_spec,
+    )
+    from polisyos.pdc import gy_content_hash
+    from polisyos.runtime.quality.candidate_simulation import (
+        CandidateSimulationContextInputs,
+        CandidateSimulationSyntheticModelDeclarationV1,
+    )
+    from polisyos.runtime.quality.cycle_substrate import (
+        CandidateLeverEvidence,
+        build_candidate_cycle_substrate_context,
+        cycle_job_profile_selection_ref,
+    )
+    from polisyos.runtime.quality.generic_simulation_admission import (
+        GenericCycleN5RequestProfileV1,
+        GenericCycleSimulationProfileV1,
+    )
+    from polisyos.runtime.quality.joint_simulation_horizon import HorizonSpec
+    from polisyos.runtime.quality.substrate_registry import persist_substrate_registry
+    from polisyos.runtime.quality.world_model_record import (
+        derive_candidate_scenario_world_model_record,
+        persist_world_model_record,
+        world_model_artifact_views,
+    )
+    from tests._helpers.candidate_cycle_source_profile import (
+        build_candidate_cycle_substrate_owner_fixture,
+    )
+
+    def hash_model(model_type: type[Any], fields: dict[str, Any]) -> Any:
+        draft = model_type.model_construct(
+            **fields,
+            content_hash="sha256:" + "0" * 64,
+        )
+        body = draft.model_dump(mode="json", exclude={"content_hash"})
+        return model_type.model_validate({**body, "content_hash": gy_content_hash(body)})
+
+    fixture = build_candidate_cycle_substrate_owner_fixture(tmp_path)
+    seed_context = fixture.context
+    problem = fixture.resolved_context_job.problem
+    tenant_id = "tenant-candidate-source-profile-fixture"
+    cell_id = "cell-candidate-source-profile-fixture"
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        registry_ref = persist_substrate_registry(
+            fixture.artifact_store,
+            seed_context.substrate_registry,
+        )
+    declaration_fields = {
+        "profile_config_ref": "runtime-config:b27-v5-n5-composition",
+        "profile_content_hash": gy_content_hash("controlled-v5-profile"),
+        "profile_selection_ref": cycle_job_profile_selection_ref(problem),
+        "target_world_slot": problem.candidate_lever_space.candidate_levers[0].target_slot,
+        "outcome_variable": problem.outcome_of_interest.target_variable,
+        "target_unit_id": "controlled_target_unit",
+        "outcome_unit_id": "controlled_outcome_unit",
+        "target_baseline": 0.0,
+        "outcome_baseline": 0.0,
+        "outcome_per_target_unit": 0.5,
+        "outcome_noise_stddev": 0.01,
+        "assumption": "declared_candidate_scm_not_empirically_grounded",
+    }
+    declaration = hash_model(CandidateSimulationSyntheticModelDeclarationV1, declaration_fields)
+    ncm = candidate_ncm_spec_from_declaration(declaration)
+    with tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id):
+        ncm_ref = ArtifactRef.model_validate(
+            persist_ncm_spec(ensure_ir_artifact_store(fixture.artifact_store), ncm).model_dump(
+                mode="python"
+            )
+        )
+        world = derive_candidate_scenario_world_model_record(
+            seed_context.world_model_record,
+            ncm_artifact_ref=ncm_ref,
+            declaration_content_hash=declaration.content_hash,
+            substrate_registry_view_ref=registry_ref,
+        )
+        world_ref = persist_world_model_record(fixture.artifact_store, world)
+    views = world_model_artifact_views(world)
+    assert views.substrate_registry_ref == registry_ref
+    assert views.ncm_refs == (ncm_ref,)
+
+    context = build_candidate_cycle_substrate_context(
+        fixture.root,
+        problem=problem,
+        world_model_record=world,
+        substrate_registry=seed_context.substrate_registry,
+    )
+    assert context.source_profile is not None
+    assert context.source_profile.source_currentness_status == "not_established"
+    assert context.candidate_levers
+
+    def build_profile(
+        *,
+        candidate_levers: tuple[CandidateLeverEvidence, ...] = (),
+        selected_ncm_ref: ArtifactRef = ncm_ref,
+        context_inputs_override: CandidateSimulationContextInputs | None = None,
+    ) -> GenericCycleSimulationProfileV1:
+        inputs = context_inputs_override or CandidateSimulationContextInputs(
+            substrate_registry=context.substrate_registry,
+            selected_registry_entry_hashes=context.selected_registry_entry_hashes,
+            world_model_record=world,
+            intervention_substrate=context.intervention_substrate,
+            candidate_levers=candidate_levers,
+            transport_context=None,
+            source_pack_content_hash=gy_content_hash("reusable-profile-source-pack"),
+            substrate_input_content_hash=gy_content_hash("reusable-profile-substrate-input"),
+        )
+        fields = {
+            "profile_id": "generic-profile-v5-composition-test",
+            "profile_selection_ref": cycle_job_profile_selection_ref(problem),
+            "profile_selection_kind": "problem",
+            "world_model_record_ref": world_ref,
+            "substrate_registry_ref": registry_ref,
+            "selected_ncm_ref": selected_ncm_ref,
+            "context_inputs": inputs,
+            "n5": GenericCycleN5RequestProfileV1(
+                budget_ref="budget://profile-join-test",
+                horizon=HorizonSpec(start=0, end=0, step=1),
+                baseline_state={problem.outcome_of_interest.target_variable: 0.0},
+            ),
+            "limitations": (
+                "controlled_inputs_only",
+                "currentness_not_established",
+                "n5_simulation_not_world_evidence",
+                "n9_not_admitted",
+                "s8_blocked",
+                "source_truth_not_established",
+            ),
+        }
+        return hash_model(GenericCycleSimulationProfileV1, fields)
+
+    profile = build_profile()
+    assert (
+        context.substrate_input_content_hash != profile.context_inputs.substrate_input_content_hash
+    )
+    assert context.source_pack_content_hash != profile.context_inputs.source_pack_content_hash
+    assert GenericCycleSimulationAdmissionOwner.context_matches_profile(context, profile, problem)
+
+    # A declared generic row has a different context binding and cannot be
+    # silently replaced by the source owner's cycle-bound row.
+    generic_context = GenericCycleSimulationAdmissionOwner.context_for_profile(profile, problem)
+    current_row = context.candidate_levers[0]
+    declared_row = current_row.model_copy(
+        update={
+            "context_binding_hash": generic_context.context_binding_hash,
+            "substrate_input_content_hash": generic_context.substrate_input_content_hash,
+        }
+    )
+    declared_profile = build_profile(candidate_levers=(declared_row,))
+    assert not GenericCycleSimulationAdmissionOwner.context_matches_profile(
+        context,
+        declared_profile,
+        problem,
+    )
+    changed_ncm = ArtifactRef.model_validate(
+        {
+            **ncm_ref.model_dump(mode="python"),
+            "artifact_id": "sha256:" + "9" * 64,
+        }
+    )
+    assert not GenericCycleSimulationAdmissionOwner.context_matches_profile(
+        context,
+        build_profile(selected_ncm_ref=changed_ncm),
+        problem,
+    )
+    mismatched_l6_inputs = profile.context_inputs.model_copy(
+        update={"intervention_substrate": None}
+    )
+    assert not GenericCycleSimulationAdmissionOwner.context_matches_profile(
+        context,
+        build_profile(context_inputs_override=mismatched_l6_inputs),
+        problem,
+    )
+
+    revised_problem = problem.model_copy(
+        update={
+            "runtime_hints": {
+                **problem.runtime_hints,
+                "generation_cycle_grammar": ("seed", "counterexample_driven"),
+                "generation_cycle_revision": {"revision_strategy": "counterexample"},
+            }
+        }
+    )
+    assert cycle_job_profile_selection_ref(revised_problem) == profile.profile_selection_ref
+    assert not GenericCycleSimulationAdmissionOwner.context_matches_profile(
+        context,
+        profile,
+        revised_problem,
+    )
+    revised_context = build_candidate_cycle_substrate_context(
+        fixture.root,
+        problem=revised_problem,
+        world_model_record=context.world_model_record,
+        substrate_registry=context.substrate_registry,
+    )
+    assert revised_context.design_problem_ref != context.design_problem_ref
+    assert revised_context.substrate_input_content_hash != context.substrate_input_content_hash
+    assert revised_context.candidate_levers != context.candidate_levers
+    from polisyos.runtime.quality.generation_cycle import (
+        _cycle_substrate_revision_scope_projection,
+    )
+
+    assert _cycle_substrate_revision_scope_projection(revised_context) == (
+        _cycle_substrate_revision_scope_projection(context)
+    )
+    assert GenericCycleSimulationAdmissionOwner.context_matches_profile(
+        revised_context,
+        profile,
+        revised_problem,
+    )
+    assert not GenericCycleSimulationAdmissionOwner.context_matches_profile(
+        revised_context,
+        declared_profile,
+        revised_problem,
+    )

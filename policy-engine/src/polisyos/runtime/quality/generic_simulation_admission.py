@@ -36,6 +36,7 @@ from polisyos.runtime.quality.cycle_substrate import (
     CycleSubstrateContextOwnerError,
     VerifiedNLJobScope,
     build_cycle_substrate_context,
+    candidate_cycle_substrate_source_profile_selection,
     cycle_job_design_problem_ref,
     cycle_job_profile_selection_ref,
     generic_n4_child_profile_selection_ref,
@@ -55,6 +56,7 @@ from polisyos.runtime.quality.world_model_record import (
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
+    from pathlib import Path
 
 _HASH_PATTERN = r"^sha256:[0-9a-f]{64}$"
 _PROFILE_KIND = "runtime.quality.generic_cycle_simulation_profile"
@@ -867,6 +869,260 @@ class GenericCycleSimulationAdmissionOwner:
             verified_nl_job_scope=verified_nl_job_scope,
         )
 
+    def reissue_handoff_for_problem(
+        self,
+        *,
+        handoff: GenericCycleSimulationContextHandoffV1,
+        previous_problem: DesignProblem,
+        problem: DesignProblem,
+        verified_nl_job_scope: VerifiedNLJobScope,
+        context_owner: CycleSubstrateContextArtifactOwner,
+        repo_root: Path,
+        source_context_job_ref: ArtifactRef | None = None,
+        cycle_context_job_ref: ArtifactRef | None = None,
+        child_selection: GenericCycleSimulationChildSelectionV1 | None = None,
+    ) -> tuple[
+        GenericCycleSimulationContextHandoffV1,
+        GenericCycleSimulationChildSelectionV1 | None,
+    ]:
+        """Reissue one configured N5 handoff for the exact current problem.
+
+        A source-profile context is accepted only after the current-job context
+        owner resolves it. The generic N5 profile remains the source of WMR,
+        NCM, registry, and request settings; the persisted V5 context adds the
+        current source-owner projection while retaining the full problem hash.
+        """
+        if type(previous_problem) is not DesignProblem or type(problem) is not DesignProblem:
+            raise CycleSubstrateContextOwnerError("generic_cycle_simulation_rebind_problem_untyped")
+        if type(context_owner) is not CycleSubstrateContextArtifactOwner:
+            raise CycleSubstrateContextOwnerError(
+                "generic_cycle_simulation_context_owner_not_canonical"
+            )
+        if context_owner._store is not self._store:
+            raise CycleSubstrateContextOwnerError("generic_cycle_simulation_store_owner_mismatch")
+        self._require_scope(
+            job_id=handoff.job_id,
+            run_id=handoff.run_id,
+            tenant_id=handoff.tenant_id,
+            cell_id=handoff.cell_id,
+            verified_nl_job_scope=verified_nl_job_scope,
+        )
+        current_handoff = self.resolve_handoff(
+            handoff=handoff,
+            problem=previous_problem,
+            verified_nl_job_scope=verified_nl_job_scope,
+            context_owner=context_owner,
+            repo_root=repo_root,
+            child_selection=child_selection,
+        )
+        profile = current_handoff.profile
+        if profile.profile_selection_kind == "problem":
+            if child_selection is not None:
+                raise CycleSubstrateContextOwnerError(
+                    "generic_cycle_simulation_parent_handoff_has_child_selection"
+                )
+            profile_selection_ref = cycle_job_profile_selection_ref(problem)
+            if profile_selection_ref != profile.profile_selection_ref:
+                raise CycleSubstrateContextOwnerError(
+                    "generic_cycle_simulation_profile_problem_mismatch"
+                )
+            offer = self.admit_context(
+                generic_simulation_profile_id=profile.profile_id,
+                problem=problem,
+                job_id=current_handoff.job_id,
+                run_id=current_handoff.run_id,
+                tenant_id=current_handoff.tenant_id,
+                cell_id=current_handoff.cell_id,
+                verified_nl_job_scope=verified_nl_job_scope,
+            )
+            rebound_child_selection = None
+        else:
+            if type(child_selection) is not GenericCycleSimulationChildSelectionV1:
+                raise CycleSubstrateContextOwnerError(
+                    "generic_cycle_simulation_child_handoff_selection_missing"
+                )
+            selection_payload = child_selection.model_dump(mode="python")
+            selection_payload.update(
+                {
+                    "problem": problem,
+                    "full_child_problem_ref": cycle_job_design_problem_ref(problem),
+                    "profile_selection_ref": generic_n4_child_profile_selection_ref(
+                        problem,
+                        parent_problem_ref=child_selection.parent_problem_ref,
+                        source_result_ref=child_selection.source_result_ref,
+                        source_atom_refs=child_selection.source_atom_refs,
+                        semantic_ref=child_selection.semantic_ref,
+                    ),
+                }
+            )
+            rebound_child_selection = GenericCycleSimulationChildSelectionV1.model_validate(
+                selection_payload
+            )
+            if rebound_child_selection.profile_selection_ref != profile.profile_selection_ref:
+                raise CycleSubstrateContextOwnerError(
+                    "generic_cycle_simulation_child_profile_problem_mismatch"
+                )
+            offer = self.admit_child_context(
+                selection=rebound_child_selection,
+                job_id=current_handoff.job_id,
+                run_id=current_handoff.run_id,
+                tenant_id=current_handoff.tenant_id,
+                cell_id=current_handoff.cell_id,
+                verified_nl_job_scope=verified_nl_job_scope,
+                context_owner=context_owner,
+                repo_root=repo_root,
+            )
+
+        if source_context_job_ref is not None and cycle_context_job_ref is not None:
+            raise CycleSubstrateContextOwnerError(
+                "generic_cycle_simulation_rebind_context_ref_ambiguous"
+            )
+        source_selection = candidate_cycle_substrate_source_profile_selection(problem)
+        if source_selection is None:
+            if source_context_job_ref is not None:
+                raise CycleSubstrateContextOwnerError(
+                    "generic_cycle_simulation_rebind_source_selection_missing"
+                )
+            if cycle_context_job_ref is not None:
+                try:
+                    resolved_context_job = context_owner.resolve_for_current_job(
+                        cycle_context_job_ref,
+                        problem=problem,
+                        repo_root=repo_root,
+                        verified_nl_job_scope=verified_nl_job_scope,
+                    )
+                except (OSError, RuntimeError, TypeError, ValueError) as exc:
+                    raise CycleSubstrateContextOwnerError(
+                        "generic_cycle_simulation_rebind_context_not_current",
+                        str(getattr(exc, "code", None) or exc),
+                    ) from exc
+                resolved_context = getattr(resolved_context_job, "context", None)
+                if (
+                    type(resolved_context) is not CycleSubstrateContext
+                    or resolved_context.source_profile is not None
+                    or resolved_context.design_problem_ref != cycle_job_design_problem_ref(problem)
+                    or not self.context_matches_profile(resolved_context, offer.profile, problem)
+                ):
+                    raise CycleSubstrateContextOwnerError(
+                        "generic_cycle_simulation_rebind_context_profile_join_mismatch"
+                    )
+                offer = offer.model_copy(update={"context": resolved_context})
+        else:
+            if source_context_job_ref is None or cycle_context_job_ref is not None:
+                raise CycleSubstrateContextOwnerError(
+                    "generic_cycle_simulation_rebind_source_context_missing"
+                )
+            try:
+                resolved_source_job = context_owner.resolve_for_current_job(
+                    source_context_job_ref,
+                    problem=problem,
+                    repo_root=repo_root,
+                    verified_nl_job_scope=verified_nl_job_scope,
+                )
+            except (OSError, RuntimeError, TypeError, ValueError) as exc:
+                raise CycleSubstrateContextOwnerError(
+                    "generic_cycle_simulation_rebind_source_context_not_current",
+                    str(getattr(exc, "code", None) or exc),
+                ) from exc
+            source_context = getattr(resolved_source_job, "context", None)
+            if (
+                type(source_context) is not CycleSubstrateContext
+                or source_context.source_profile is None
+                or source_context.design_problem_ref != cycle_job_design_problem_ref(problem)
+                or not self.context_matches_profile(source_context, offer.profile, problem)
+            ):
+                raise CycleSubstrateContextOwnerError(
+                    "generic_cycle_simulation_rebind_source_profile_join_mismatch"
+                )
+            offer = offer.model_copy(update={"context": source_context})
+
+        rebound = self.persist_handoff(
+            offer=offer,
+            problem=problem,
+            job_id=current_handoff.job_id,
+            run_id=current_handoff.run_id,
+            tenant_id=current_handoff.tenant_id,
+            cell_id=current_handoff.cell_id,
+            verified_nl_job_scope=verified_nl_job_scope,
+            context_owner=context_owner,
+            repo_root=repo_root,
+        )
+        resolved = self.resolve_handoff(
+            handoff=rebound,
+            problem=problem,
+            verified_nl_job_scope=verified_nl_job_scope,
+            context_owner=context_owner,
+            repo_root=repo_root,
+            child_selection=rebound_child_selection,
+        )
+        return resolved, rebound_child_selection
+
+    @staticmethod
+    def context_matches_profile(
+        context: CycleSubstrateContext,
+        profile: GenericCycleSimulationProfileV1,
+        problem: DesignProblem,
+    ) -> bool:
+        """Join immutable profile inputs to one exact current V5 owner context.
+
+        The profile artifact retains its own complete, immutable context and N5
+        request. V5 independently binds the per-cycle problem and current source
+        rows, so its source-specific input hash is not compared to the reusable
+        profile's input hash. Shared WMR, registry, selected entries, L6, and any
+        profile-declared candidate/transport evidence must still agree.
+        """
+        if (
+            type(context) is not CycleSubstrateContext
+            or type(profile) is not GenericCycleSimulationProfileV1
+            or type(problem) is not DesignProblem
+        ):
+            return False
+        try:
+            expected = GenericCycleSimulationAdmissionOwner.context_for_profile(profile, problem)
+            views = world_model_artifact_views(context.world_model_record)
+        except (AttributeError, CycleSubstrateContextOwnerError, TypeError, ValueError):
+            return False
+        if (
+            views.substrate_registry_ref is None
+            or artifact_ref_identity_key(views.substrate_registry_ref)
+            != artifact_ref_identity_key(profile.substrate_registry_ref)
+            or len(views.ncm_refs) != 1
+            or artifact_ref_identity_key(views.ncm_refs[0])
+            != artifact_ref_identity_key(profile.selected_ncm_ref)
+        ):
+            return False
+        if context.source_profile is None:
+            return context == expected
+        source = context.source_profile
+        inputs = profile.context_inputs
+        profile_candidate_levers_match = (
+            not inputs.candidate_levers or context.candidate_levers == inputs.candidate_levers
+        )
+        return (
+            context.schema_version == "policyos.runtime.cycle_substrate_context.v2"
+            and context.design_problem_ref == expected.design_problem_ref
+            and context.domain == expected.domain
+            and context.substrate_registry == expected.substrate_registry
+            and context.substrate_registry_content_hash == expected.substrate_registry_content_hash
+            and context.selected_registry_entry_hashes == expected.selected_registry_entry_hashes
+            and context.world_model_record == inputs.world_model_record
+            and context.world_model_record_content_hash == inputs.world_model_record.content_hash
+            and context.intervention_substrate == inputs.intervention_substrate
+            and profile_candidate_levers_match
+            and context.transport_context == inputs.transport_context
+            and source.profile_status == "candidate_only"
+            and source.owner_recomputation_status == "recomputed"
+            and source.authority_purpose == "cycle_input_candidate_only"
+            and source.source_basis_status == "not_established"
+            and source.source_authenticity_status == "not_established"
+            and source.source_currentness_status == "not_established"
+            and source.design_problem_ref == cycle_job_design_problem_ref(problem)
+            and source.selected_outcome_variable == problem.outcome_of_interest.target_variable
+            and source.world_model_record_content_hash == context.world_model_record_content_hash
+            and source.s0_registry_content_hash == context.substrate_registry_content_hash
+            and source.selected_registry_entry_hashes == context.selected_registry_entry_hashes
+        )
+
     def configured_profile_id_for_child_selection(
         self,
         selection: GenericCycleSimulationChildSelectionV1,
@@ -911,6 +1167,7 @@ class GenericCycleSimulationAdmissionOwner:
         cell_id: str,
         verified_nl_job_scope: VerifiedNLJobScope,
         context_owner: CycleSubstrateContextArtifactOwner,
+        repo_root: Path | None = None,
     ) -> GenericCycleSimulationContextOfferV1:
         """Resolve one configured profile for a fully typed N4-derived child."""
         self._require_scope(
@@ -929,6 +1186,7 @@ class GenericCycleSimulationAdmissionOwner:
             problem=selection.parent_problem,
             verified_nl_job_scope=verified_nl_job_scope,
             context_owner=context_owner,
+            repo_root=repo_root,
         )
         family = self.resolve_child_profile_family(
             selection.n4_child_profile_family_ref,
@@ -936,6 +1194,7 @@ class GenericCycleSimulationAdmissionOwner:
             parent_problem=selection.parent_problem,
             verified_nl_job_scope=verified_nl_job_scope,
             context_owner=context_owner,
+            repo_root=repo_root,
         )
         profile_id = self.configured_profile_id_for_child_selection(selection)
         profile = self._profiles[profile_id]
@@ -1049,6 +1308,7 @@ class GenericCycleSimulationAdmissionOwner:
         cell_id: str,
         verified_nl_job_scope: VerifiedNLJobScope,
         context_owner: CycleSubstrateContextArtifactOwner,
+        repo_root: Path | None = None,
     ) -> GenericCycleSimulationContextHandoffV1:
         """Persist and immediately replay the context using the current-job owner."""
         self._require_scope(
@@ -1072,16 +1332,22 @@ class GenericCycleSimulationAdmissionOwner:
             tenant_id=tenant_id,
             cell_id=cell_id,
         )
+        if not self.context_matches_profile(offer.context, offer.profile, problem):
+            raise CycleSubstrateContextOwnerError(
+                "generic_cycle_simulation_context_profile_join_mismatch"
+            )
         # Keep the persisted ArtifactRef; resolve_profile returns profile content.
         profile_ref = offer.profile_ref
         context_ref = context_owner.persist_for_current_job(
             offer.context,
             problem=problem,
+            repo_root=repo_root,
             verified_nl_job_scope=verified_nl_job_scope,
         )
         resolved = context_owner.resolve_for_current_job(
             context_ref,
             problem=problem,
+            repo_root=repo_root,
             verified_nl_job_scope=verified_nl_job_scope,
         )
         if (
@@ -1107,6 +1373,7 @@ class GenericCycleSimulationAdmissionOwner:
                 problem=parent_problem,
                 verified_nl_job_scope=verified_nl_job_scope,
                 context_owner=context_owner,
+                repo_root=repo_root,
             )
             family_ref = offer.n4_child_profile_family_ref
             if (
@@ -1123,6 +1390,7 @@ class GenericCycleSimulationAdmissionOwner:
                 parent_problem=parent_problem,
                 verified_nl_job_scope=verified_nl_job_scope,
                 context_owner=context_owner,
+                repo_root=repo_root,
             )
             if not any(
                 member.profile_id == offer.profile.profile_id
@@ -1172,6 +1440,7 @@ class GenericCycleSimulationAdmissionOwner:
         problem: DesignProblem,
         verified_nl_job_scope: VerifiedNLJobScope,
         context_owner: CycleSubstrateContextArtifactOwner,
+        repo_root: Path | None = None,
         child_selection: GenericCycleSimulationChildSelectionV1 | None = None,
     ) -> GenericCycleSimulationContextHandoffV1:
         """Reconcile persisted profile and context against the active worker lease."""
@@ -1201,6 +1470,7 @@ class GenericCycleSimulationAdmissionOwner:
         resolved = context_owner.resolve_for_current_job(
             handoff.context_job_ref,
             problem=problem,
+            repo_root=repo_root,
             verified_nl_job_scope=verified_nl_job_scope,
         )
         if profile.profile_selection_kind == "problem":
@@ -1229,6 +1499,7 @@ class GenericCycleSimulationAdmissionOwner:
                 problem=child_selection.parent_problem,
                 verified_nl_job_scope=verified_nl_job_scope,
                 context_owner=context_owner,
+                repo_root=repo_root,
             )
             family = self.resolve_child_profile_family(
                 child_selection.n4_child_profile_family_ref,
@@ -1236,6 +1507,7 @@ class GenericCycleSimulationAdmissionOwner:
                 parent_problem=child_selection.parent_problem,
                 verified_nl_job_scope=verified_nl_job_scope,
                 context_owner=context_owner,
+                repo_root=repo_root,
             )
             if not any(
                 member.profile_id == profile.profile_id
@@ -1260,6 +1532,7 @@ class GenericCycleSimulationAdmissionOwner:
             or (resolved.job_id, resolved.run_id, resolved.tenant_id, resolved.cell_id)
             != (handoff.job_id, handoff.run_id, handoff.tenant_id, handoff.cell_id)
             or profile.profile_selection_ref != selection_ref
+            or not self.context_matches_profile(resolved.context, profile, problem)
         ):
             raise CycleSubstrateContextOwnerError(
                 "generic_cycle_simulation_handoff_binding_mismatch"
@@ -1424,6 +1697,7 @@ class GenericCycleSimulationAdmissionOwner:
         parent_problem: DesignProblem,
         verified_nl_job_scope: VerifiedNLJobScope,
         context_owner: CycleSubstrateContextArtifactOwner,
+        repo_root: Path | None = None,
     ) -> GenericCycleSimulationChildProfileFamilyV1:
         """Resolve the whole current child-profile tuple against its parent lease."""
         from polisyos.core.artifacts import load_core_json_artifact
@@ -1454,6 +1728,7 @@ class GenericCycleSimulationAdmissionOwner:
             problem=parent_problem,
             verified_nl_job_scope=verified_nl_job_scope,
             context_owner=context_owner,
+            repo_root=repo_root,
         )
         if (
             type(ref) is not ArtifactRef
@@ -2156,15 +2431,16 @@ class GenericCycleSimulationAdmissionOwner:
             expected_tenant_id=input_record.tenant_id,
             expected_cell_id=input_record.cell_id,
         )
-        expected_context = self.context_for_profile(profile, problem)
+        source_context = context_record.context
         if (
-            context_record.context != expected_context
-            or source.cycle_substrate_context != expected_context
-            or source.cycle_substrate_context.content_hash != expected_context.content_hash
+            source.cycle_substrate_context != source_context
+            or source.cycle_substrate_context.content_hash != source_context.content_hash
+            or not self.context_matches_profile(source_context, profile, problem)
         ):
             raise CycleSubstrateContextOwnerError(
                 "generic_cycle_simulation_n5_context_source_mismatch"
             )
+        expected_context = source_context
         candidates = tuple(
             candidate
             for candidate in source.generation_result.candidates

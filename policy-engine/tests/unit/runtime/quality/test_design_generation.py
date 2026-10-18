@@ -981,6 +981,87 @@ def test_content_bound_candidate_persists_real_l6_refusal_on_cgf_disposition() -
     assert disposition.lever_resolution.context_binding_hash == context.context_binding_hash
 
 
+@pytest.mark.parametrize(
+    ("outcome_variable", "candidate_lever_id", "expected_selected_rows"),
+    [
+        ("education.learning_outcomes", "education.teaching_method", 1),
+        ("education.learning_outcomes", "unrelated_candidate_lever", 1),
+        ("education.unrepresented_outcome", "education.teaching_method", 0),
+    ],
+)
+def test_v5_source_profile_scopes_n4_to_current_candidate_rows(
+    tmp_path: Path,
+    outcome_variable: str,
+    candidate_lever_id: str,
+    expected_selected_rows: int,
+) -> None:
+    """V5 source presence scopes N4 for empty and nonempty recomputed row sets."""
+    from tests._helpers.candidate_cycle_source_profile import (
+        build_candidate_cycle_substrate_owner_fixture,
+    )
+
+    fixture = build_candidate_cycle_substrate_owner_fixture(
+        tmp_path,
+        outcome_variable=outcome_variable,
+    )
+    problem = fixture.problem
+    context = fixture.resolved_context_job.context
+    source_profile = context.source_profile
+    assert source_profile is not None
+    assert source_profile.source_currentness_status == "not_established"
+    assert len(source_profile.selected_candidate_lever_edge_hashes) == expected_selected_rows
+    assert len(context.candidate_levers) == expected_selected_rows
+    prompt_slice = dg.derive_lever_space_prompt_slice(
+        problem,
+        repo_root=fixture.root,
+        cycle_substrate_context=context,
+    )
+    assert prompt_slice.status == "derived"
+    assert len(prompt_slice.entries) == expected_selected_rows
+    assert context.context_binding_hash in prompt_slice.owner_refs
+
+    intervention = InterventionSpec(
+        intervention_id="unscoped_empty_v5_probe",
+        kind="adaptive_agent",
+        target=_selector(),
+        schedule=ScheduleSpec(start_step=0, duration_steps=1),
+        params={
+            "candidate_lever_id": candidate_lever_id,
+            "action_space": {"affects": ["education.learning_outcomes"], "type": "continuous"},
+            "learning_rate": Decimal("0.01"),
+            "observation_space": ["education.learning_outcomes"],
+            "stochastic": False,
+            "utility": "improve_learning",
+        },
+    )
+    candidates, dispositions = dg._content_bound_candidates(
+        design_problem=problem,
+        design_problem_ref=context.design_problem_ref,
+        bundle=_bundle([intervention]),
+        model_id=SUPPORTED_GENERATION_MODEL_IDS[1],
+        draft_path="model_generated",
+        formalizer_path="model_generated",
+        critic_path="model_generated",
+        critique_verdict="empty_v5_scope_probe",
+        calls=(_llm_call(),),
+        repo_root=fixture.root,
+        world_model_record_ref=context.world_model_record.world_model_record_id,
+        reference=_unit_credal_reference(),
+        cycle_substrate_context=context,
+    )
+
+    assert candidates == ()
+    [disposition] = dispositions
+    if expected_selected_rows and candidate_lever_id == "education.teaching_method":
+        assert disposition.lever_resolution is not None
+        assert disposition.lever_resolution.context_binding_hash == context.context_binding_hash
+    else:
+        assert disposition.disposition == "unknown_blocked"
+        assert disposition.rejected_cause["code"] == "cycle_substrate_candidate_lever_unresolved"
+        assert disposition.rejected_cause["resolved_count"] == 0
+        assert disposition.rejected_cause["context_binding_hash"] == context.context_binding_hash
+
+
 def test_formalizer_preserves_a_translated_draft_lever_as_candidate_only() -> None:
     """Keep a draft lever exact when Trinity kind must remain universal."""
 

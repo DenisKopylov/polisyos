@@ -1959,6 +1959,7 @@ async def compile_and_run_recursive_generation_cycle(
                     problem=problem,
                     verified_nl_job_scope=verified_nl_job_scope,
                     context_owner=recursive_leaf_context_owner._context_owner,
+                    repo_root=repo_root,
                 )
             )
             cycle_substrate_context = generic_cycle_simulation_handoff.context

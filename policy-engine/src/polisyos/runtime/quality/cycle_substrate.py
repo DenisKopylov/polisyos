@@ -2209,15 +2209,31 @@ def _cycle_job_v1_design_problem_ref(problem: DesignProblem) -> str:
 _CYCLE_JOB_PROFILE_SELECTION_EXECUTION_KEYS = frozenset(
     {"tenant_id", "cell_id", "job_id", "run_id"}
 )
+_CYCLE_JOB_PROFILE_SELECTION_N6_HINT_KEYS = frozenset(
+    {"generation_cycle_grammar", "generation_cycle_revision"}
+)
+
+
+def _strip_n6_execution_hints_from_profile_selection(projection: dict[str, Any]) -> None:
+    """Omit only N6-owned revision state from reusable profile selection."""
+
+    runtime_hints = projection.get("runtime_hints")
+    if not isinstance(runtime_hints, dict):
+        raise CycleSubstrateContextOwnerError(
+            "candidate_simulation_profile_selection_hints_invalid"
+        )
+    for key in _CYCLE_JOB_PROFILE_SELECTION_N6_HINT_KEYS:
+        runtime_hints.pop(key, None)
 
 
 def _cycle_job_v1_profile_selection_ref(problem: DesignProblem) -> str:
-    """Hash the frozen v1 projection for static candidate-scenario selection.
+    """Hash the frozen v1 projection for reusable candidate-profile selection.
 
     The selector omits only server-assigned execution IDs from
-    ``nl_provenance.source_context``. It is not a DesignProblem identity,
-    context/job identity, tenant claim, grounding result, or authority ref.
-    Persisted custody continues to use :func:`_cycle_job_v1_design_problem_ref`.
+    ``nl_provenance.source_context`` and the two N6-owned revision hints.
+    It is not a DesignProblem identity, context/job identity, tenant claim,
+    grounding result, or authority ref. Persisted custody continues to use
+    :func:`_cycle_job_v1_design_problem_ref`.
     """
 
     projection = _serialize_context_job_v1_value(problem)
@@ -2237,6 +2253,7 @@ def _cycle_job_v1_profile_selection_ref(problem: DesignProblem) -> str:
         )
     for key in _CYCLE_JOB_PROFILE_SELECTION_EXECUTION_KEYS:
         source_context.pop(key, None)
+    _strip_n6_execution_hints_from_profile_selection(projection)
     return gy_content_hash(projection)
 
 
@@ -2292,6 +2309,7 @@ def cycle_job_profile_selection_ref(problem: DesignProblem) -> str:
         )
     for key in _CYCLE_JOB_PROFILE_SELECTION_EXECUTION_KEYS:
         source_context.pop(key, None)
+    _strip_n6_execution_hints_from_profile_selection(projection)
     return gy_content_hash(projection)
 
 
@@ -2308,9 +2326,10 @@ def generic_n4_child_profile_selection_ref(
     The three source-lineage refs are validated against the producer-emitted
     ``n4_candidate_child_source`` record, then omitted from this *selection*
     projection so an explicitly configured child profile can be reusable across
-    equivalent controlled N4 source executions. They remain full inputs to the
-    typed child-selection, source-family, context, and N5 records; this function
-    establishes no source custody, currentness, or authority.
+    equivalent controlled N4 source executions. The two N6-owned revision hints
+    and server-assigned execution IDs are also omitted from profile selection;
+    they remain full inputs to the typed child-selection, context, and N5 records.
+    This function establishes no source custody, currentness, or authority.
     """
 
     if type(problem) is not DesignProblem:
@@ -2403,6 +2422,7 @@ def generic_n4_child_profile_selection_ref(
         )
     for key in _CYCLE_JOB_PROFILE_SELECTION_EXECUTION_KEYS:
         source_context.pop(key, None)
+    _strip_n6_execution_hints_from_profile_selection(projection)
     return gy_content_hash(projection)
 
 
@@ -2794,7 +2814,8 @@ class CycleSubstrateContextArtifactOwner:
         self,
         ref: artifacts.ArtifactRef | str,
         *,
-        problem: DesignProblem,
+        problem: DesignProblem | None = None,
+        expected_design_problem_ref: str | None = None,
         expected_job_id: str,
         expected_run_id: str,
         expected_tenant_id: str,
@@ -2845,14 +2866,33 @@ class CycleSubstrateContextArtifactOwner:
             raise CycleSubstrateContextOwnerError(
                 "cycle_substrate_context_job_record_invalid", str(exc)
             ) from exc
-        expected_problem_ref = cycle_job_design_problem_ref(problem)
+        if problem is None and expected_design_problem_ref is None:
+            raise CycleSubstrateContextOwnerError(
+                "cycle_substrate_context_job_historical_problem_basis_missing"
+            )
+        if expected_design_problem_ref is not None and not re.fullmatch(
+            _HASH_PATTERN, expected_design_problem_ref
+        ):
+            raise CycleSubstrateContextOwnerError(
+                "cycle_substrate_context_job_historical_problem_basis_invalid"
+            )
+        problem_ref = cycle_job_design_problem_ref(problem) if problem is not None else None
+        if (
+            problem_ref is not None
+            and expected_design_problem_ref is not None
+            and problem_ref != expected_design_problem_ref
+        ):
+            raise CycleSubstrateContextOwnerError(
+                "cycle_substrate_context_job_historical_problem_basis_mismatch"
+            )
+        expected_problem_ref = expected_design_problem_ref or problem_ref
         if (
             artifact.job_id != expected_job_id
             or artifact.run_id != expected_run_id
             or artifact.tenant_id != expected_tenant_id
             or artifact.cell_id != expected_cell_id
             or artifact.design_problem_ref != expected_problem_ref
-            or artifact.problem != problem
+            or (problem is not None and artifact.problem != problem)
         ):
             raise CycleSubstrateContextOwnerError(
                 "cycle_substrate_context_job_historical_binding_mismatch"

@@ -3146,7 +3146,7 @@ def _content_bound_candidates(
             and world_model_record_ref != resolved_world_model_record_ref
         ):
             raise DesignGenerationError("cycle_substrate_world_model_ref_mismatch")
-        if context.candidate_levers:
+        if context.candidate_levers or context.source_profile is not None:
             context_l6_bundle = context.intervention_substrate or load_l6_intervention_substrate(
                 repo_root.resolve()
             )
@@ -3233,7 +3233,7 @@ def _content_bound_candidates(
         )
         raw_candidate_hash = gy_content_hash(intervention.model_dump(mode="json"))
         lever_resolution: InterventionLeverRefusal | None = None
-        if context is not None and context.candidate_levers:
+        if context is not None and (context.candidate_levers or context.source_profile is not None):
             candidate_lever_ref = _candidate_lever_reference(intervention)
             matching_context_levers = tuple(
                 candidate
@@ -3472,7 +3472,7 @@ def derive_lever_space_prompt_slice(
             cycle_substrate_context,
             design_problem=design_problem,
         )
-        if context.candidate_levers:
+        if context.candidate_levers or context.source_profile is not None:
             entries = tuple(
                 LeverSpaceSliceEntry(
                     operator_kind=candidate.lever_id,

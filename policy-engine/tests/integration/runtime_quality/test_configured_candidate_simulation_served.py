@@ -148,6 +148,41 @@ def test_profile_selection_ref_ignores_only_server_execution_ids() -> None:
     assert cycle_job_profile_selection_ref(first) == (cycle_job_profile_selection_ref(second))
     assert cycle_job_design_problem_ref(first) != cycle_job_design_problem_ref(second)
 
+    cycle_one = first.model_copy(
+        update={
+            "runtime_hints": {
+                **first.runtime_hints,
+                "generation_cycle_grammar": ("seed",),
+                "generation_cycle_revision": {"revision_strategy": "initial"},
+            }
+        }
+    )
+    cycle_two = cycle_one.model_copy(
+        update={
+            "runtime_hints": {
+                **cycle_one.runtime_hints,
+                "generation_cycle_grammar": ("seed", "counterexample_driven"),
+                "generation_cycle_revision": {
+                    "revision_strategy": "counterexample_driven",
+                    "source_counterexample_ref": "sha256:" + "a" * 64,
+                },
+            }
+        }
+    )
+    assert cycle_job_profile_selection_ref(cycle_one) == cycle_job_profile_selection_ref(cycle_two)
+    assert cycle_job_design_problem_ref(cycle_one) != cycle_job_design_problem_ref(cycle_two)
+    retained_hint_change = cycle_two.model_copy(
+        update={
+            "runtime_hints": {
+                **cycle_two.runtime_hints,
+                "joint_simulation_budget_ref": "budget://different",
+            }
+        }
+    )
+    assert cycle_job_profile_selection_ref(retained_hint_change) != (
+        cycle_job_profile_selection_ref(cycle_two)
+    )
+
     for retained in (
         {"operator_note": "retained"},
         {"runtime_identity": {"tenant_id": "untrusted"}},

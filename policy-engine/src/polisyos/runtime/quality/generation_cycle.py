@@ -262,12 +262,14 @@ if TYPE_CHECKING:
 _GENERATION_CYCLE_V3_SCHEMA_VERSION = "policyos.runtime.generation_cycle_controller.v3"
 _GENERATION_CYCLE_SOURCE_LIMITED_SCHEMA_VERSION = "policyos.runtime.generation_cycle_controller.v4"
 _GENERATION_CYCLE_V5_SCHEMA_VERSION = "policyos.runtime.generation_cycle_controller.v5"
-GENERATION_CYCLE_SCHEMA_VERSION = "policyos.runtime.generation_cycle_controller.v6"
+_GENERATION_CYCLE_V6_SCHEMA_VERSION = "policyos.runtime.generation_cycle_controller.v6"
+GENERATION_CYCLE_SCHEMA_VERSION = "policyos.runtime.generation_cycle_controller.v7"
 _GENERATION_CYCLE_CURRENT_SEMANTIC_SCHEMA_VERSIONS = frozenset(
     {
         _GENERATION_CYCLE_V3_SCHEMA_VERSION,
         _GENERATION_CYCLE_SOURCE_LIMITED_SCHEMA_VERSION,
         _GENERATION_CYCLE_V5_SCHEMA_VERSION,
+        _GENERATION_CYCLE_V6_SCHEMA_VERSION,
         GENERATION_CYCLE_SCHEMA_VERSION,
     }
 )
@@ -309,8 +311,30 @@ def _generation_cycle_v5_wire_projection(payload: dict[str, Any]) -> dict[str, A
             raw_simulation = cycle.get("simulation")
             if isinstance(raw_simulation, dict):
                 simulation = dict(raw_simulation)
+                simulation.pop("cycle_substrate_context_job_ref", None)
                 for field_name in _generation_cycle_generic_simulation_fields():
                     simulation.pop(field_name, None)
+                cycle["simulation"] = simulation
+            projected_cycles.append(cycle)
+        projected["cycles"] = projected_cycles
+    return projected
+
+
+def _generation_cycle_v6_wire_projection(payload: dict[str, Any]) -> dict[str, Any]:
+    """Keep v6 history free of the per-cycle context ref introduced in v7."""
+    projected = dict(payload)
+    cycles = projected.get("cycles")
+    if isinstance(cycles, list):
+        projected_cycles: list[Any] = []
+        for raw_cycle in cycles:
+            if not isinstance(raw_cycle, dict):
+                projected_cycles.append(raw_cycle)
+                continue
+            cycle = dict(raw_cycle)
+            raw_simulation = cycle.get("simulation")
+            if isinstance(raw_simulation, dict):
+                simulation = dict(raw_simulation)
+                simulation.pop("cycle_substrate_context_job_ref", None)
                 cycle["simulation"] = simulation
             projected_cycles.append(cycle)
         projected["cycles"] = projected_cycles
@@ -887,6 +911,7 @@ class SimulationPortObservation(_StrictModel):
     status: Literal["joint_simulated", "simulation_pending_n5", "simulation_blocked"]
     simulation_ref: str | None = None
     simulation_result_ref: CASArtifactRef | None = None
+    cycle_substrate_context_job_ref: CASArtifactRef | None = None
     candidate_simulation_n4_source_ref: CASArtifactRef | None = None
     candidate_simulation_context_job_ref: CASArtifactRef | None = None
     candidate_simulation_n5_input_ref: CASArtifactRef | None = None
@@ -927,6 +952,30 @@ class SimulationPortObservation(_StrictModel):
             and self.k_world_ref_before != self.k_world_ref_after
         ):
             raise ValueError("k_sim_must_not_shrink_k_world")
+        cycle_context_ref = self.cycle_substrate_context_job_ref
+        if cycle_context_ref is not None:
+            if (
+                cycle_context_ref.kind != "runtime.quality.cycle_substrate_context_job"
+                or cycle_context_ref.media_type != "application/json"
+            ):
+                raise ValueError("generation_cycle_context_job_ref_kind_mismatch")
+            if self.status == "joint_simulated" and self.simulation_result_ref is None:
+                raise ValueError("generation_cycle_context_job_ref_without_n5_result")
+            handoff_context_refs = (
+                self.candidate_simulation_context_job_ref,
+                self.generic_context_job_ref,
+            )
+            if self.status == "joint_simulated" and not any(
+                context_ref is not None for context_ref in handoff_context_refs
+            ):
+                raise ValueError("generation_cycle_context_job_ref_n5_handoff_missing")
+            if any(
+                context_ref is not None
+                and artifact_ref_identity_key(context_ref)
+                != artifact_ref_identity_key(cycle_context_ref)
+                for context_ref in handoff_context_refs
+            ):
+                raise ValueError("generation_cycle_context_job_ref_handoff_mismatch")
         bound_refs = (
             self.candidate_simulation_n4_source_ref,
             self.candidate_simulation_context_job_ref,
@@ -2445,6 +2494,7 @@ class GenerationCycleRun(_StrictModel):
         "policyos.runtime.generation_cycle_controller.v4",
         "policyos.runtime.generation_cycle_controller.v5",
         "policyos.runtime.generation_cycle_controller.v6",
+        "policyos.runtime.generation_cycle_controller.v7",
     ] = GENERATION_CYCLE_SCHEMA_VERSION
     run_id: str = Field(..., min_length=1)
     design_problem_ref: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
@@ -2546,12 +2596,17 @@ class GenerationCycleRun(_StrictModel):
                 raise ValueError("generation_cycle_source_limitation_has_preservation_receipt")
         elif limitation is not None and self.schema_version not in {
             _GENERATION_CYCLE_V5_SCHEMA_VERSION,
+            _GENERATION_CYCLE_V6_SCHEMA_VERSION,
             GENERATION_CYCLE_SCHEMA_VERSION,
         }:
             raise ValueError("generation_cycle_source_limitation_requires_v4")
         if (
             self.schema_version
-            in {_GENERATION_CYCLE_V5_SCHEMA_VERSION, GENERATION_CYCLE_SCHEMA_VERSION}
+            in {
+                _GENERATION_CYCLE_V5_SCHEMA_VERSION,
+                _GENERATION_CYCLE_V6_SCHEMA_VERSION,
+                GENERATION_CYCLE_SCHEMA_VERSION,
+            }
             and limitation is not None
             and self.source_preservation_receipt is not None
         ):
@@ -2596,6 +2651,7 @@ class GenerationCycleRun(_StrictModel):
             and self.schema_version
             not in {
                 _GENERATION_CYCLE_V5_SCHEMA_VERSION,
+                _GENERATION_CYCLE_V6_SCHEMA_VERSION,
                 GENERATION_CYCLE_SCHEMA_VERSION,
             }
         ):
@@ -2631,6 +2687,8 @@ class GenerationCycleRun(_StrictModel):
             payload = supplied
         elif self.schema_version == _GENERATION_CYCLE_V5_SCHEMA_VERSION:
             payload = _generation_cycle_v5_wire_projection(payload)
+        elif self.schema_version == _GENERATION_CYCLE_V6_SCHEMA_VERSION:
+            payload = _generation_cycle_v6_wire_projection(payload)
         if self.schema_version.endswith(".v1"):
             for key in (
                 "synthetic",
@@ -2880,6 +2938,8 @@ def _historical_generation_cycle_run_projection(
     payload = run.model_dump(mode="json")
     if run.schema_version == GENERATION_CYCLE_SCHEMA_VERSION:
         return payload
+    if run.schema_version == _GENERATION_CYCLE_V6_SCHEMA_VERSION:
+        return _generation_cycle_v6_wire_projection(payload)
     payload = _generation_cycle_v5_wire_projection(payload)
     if run.schema_version == _GENERATION_CYCLE_V3_SCHEMA_VERSION:
         projection = _historical_generation_cycle_field_tree(run, payload, version="v3")
@@ -4331,7 +4391,7 @@ class JointSimulationPort:
         if (
             context.content_hash != handoff.context.content_hash
             or context.design_problem_ref != cycle_job_design_problem_ref(problem)
-            or context != owner.context_for_profile(persisted.profile, problem)
+            or not owner.context_matches_profile(context, persisted.profile, problem)
         ):
             raise WorldModelRecordError("generic_cycle_simulation_n5_context_binding_mismatch")
         if type(candidate) is not ShadowGeneratedCandidate:
@@ -7440,14 +7500,21 @@ class GenerationCycleController:
                         raise
                     cycle = _cycle_with_n7_route_failure(cycle, reason=exc.code)
             if acquisition_receipt is not None:
-                cycle, cycle_summaries = self._reenter_cycle_after_n7_acquisition(
-                    current_problem,
-                    cycle=cycle,
-                    cycle_summaries=cycle_summaries,
-                    acquisition_receipt=acquisition_receipt,
-                    budget_state=budget_state,
-                    stable_design_problem_ref=stable_design_problem_ref,
-                )
+                try:
+                    cycle, cycle_summaries = self._reenter_cycle_after_n7_acquisition(
+                        current_problem,
+                        cycle=cycle,
+                        cycle_summaries=cycle_summaries,
+                        acquisition_receipt=acquisition_receipt,
+                        budget_state=budget_state,
+                        stable_design_problem_ref=stable_design_problem_ref,
+                    )
+                except GenerationCycleError as exc:
+                    terminal_status = "blocked"
+                    blocked_reason = exc.code
+                    cycle = _blocked_cycle(cycle, reason=blocked_reason).model_copy(
+                        update={"acquisition_receipt": acquisition_receipt.model_dump(mode="json")}
+                    )
             cycles.append(cycle)
             summaries.extend(cycle_summaries)
             last_cycle_problem = current_problem
@@ -7469,7 +7536,18 @@ class GenerationCycleController:
                 blocked_reason = exc.code
                 cycles[-1] = _blocked_cycle(cycle, reason=exc.code)
                 break
-            current_problem = cycle.revision_request.revised_problem
+            revised_problem = cycle.revision_request.revised_problem
+            try:
+                self._rebind_cycle_substrate_context_for_revision(
+                    current_problem,
+                    revised_problem,
+                )
+            except GenerationCycleError as exc:
+                terminal_status = "blocked"
+                blocked_reason = exc.code
+                cycles[-1] = _blocked_cycle(cycle, reason=blocked_reason)
+                break
+            current_problem = revised_problem
             cycle_index += 1
 
         if cycles:
@@ -9330,28 +9408,74 @@ class GenerationCycleController:
             ) from exc
 
         from polisyos.runtime.quality.cycle_substrate import (
+            CycleSubstrateContextArtifactOwner,
+            CycleSubstrateContextJobArtifact,
+            CycleSubstrateContextJobArtifactV2,
+            CycleSubstrateContextJobArtifactV3,
+            CycleSubstrateContextJobArtifactV4,
+            CycleSubstrateContextJobArtifactV5,
+            VerifiedNLJobScope,
             revalidate_cycle_substrate_context,
         )
 
         prior_context = self._cycle_substrate_context
         if prior_context is None:
             raise GenerationCycleError("n7_acq01_prior_context_missing")
+        context_owner = self._candidate_cycle_context_artifact_owner
+        context_job_ref = self._candidate_cycle_context_job_ref
+        verified_scope = self._candidate_cycle_verified_nl_job_scope
+        if (
+            type(context_owner) is not CycleSubstrateContextArtifactOwner
+            or self._artifact_store is None
+            or context_owner._store is not self._artifact_store
+            or context_job_ref is None
+            or type(verified_scope) is not VerifiedNLJobScope
+            or not verified_scope._was_issued_by_verified_nl_execution_owner
+            or self._repo_root is None
+        ):
+            raise GenerationCycleError("n7_acq01_prior_context_owner_binding_missing")
         try:
-            prior_context = revalidate_cycle_substrate_context(prior_context)
-        except (TypeError, ValueError) as exc:
+            resolved_prior_job = context_owner.resolve_for_current_job(
+                context_job_ref,
+                problem=problem,
+                repo_root=Path(self._repo_root),
+                verified_nl_job_scope=verified_scope,
+            )
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
             raise GenerationCycleError(
-                "n7_acq01_prior_context_invalid",
-                str(exc),
+                "n7_acq01_prior_context_owner_refused",
+                str(getattr(exc, "code", None) or exc),
             ) from exc
+        supported_prior_jobs = (
+            CycleSubstrateContextJobArtifact,
+            CycleSubstrateContextJobArtifactV2,
+            CycleSubstrateContextJobArtifactV3,
+            CycleSubstrateContextJobArtifactV4,
+            CycleSubstrateContextJobArtifactV5,
+        )
+        if (
+            type(resolved_prior_job) not in supported_prior_jobs
+            or resolved_prior_job.problem.model_dump(mode="json") != problem.model_dump(mode="json")
+            or resolved_prior_job.context.model_dump(mode="json")
+            != prior_context.model_dump(mode="json")
+        ):
+            raise GenerationCycleError("n7_acq01_prior_context_owner_readback_mismatch")
+        prior_context = revalidate_cycle_substrate_context(resolved_prior_job.context)
+        self._bind_cycle_substrate_context(
+            prior_context,
+            context_job_ref=context_job_ref,
+        )
         if (
             prior_context.design_problem_ref != _problem_ref(problem)
             or prior_context.domain != problem.domain
         ):
             raise GenerationCycleError("n7_acq01_prior_context_mismatch")
-        if prior_context.candidate_levers or prior_context.transport_context:
+        if prior_context.source_profile is None and (
+            prior_context.candidate_levers or prior_context.transport_context
+        ):
             raise GenerationCycleError(
                 "n7_acq01_prior_context_rebind_unsupported",
-                "candidate/transport evidence needs an owner rebind",
+                "candidate/transport evidence without a V5 profile needs an owner rebind",
             )
         self._validate_n7_acq01_registry_binding(
             route=route,
@@ -9487,17 +9611,357 @@ class GenerationCycleController:
                 str(exc),
             ) from exc
 
-    def _bind_n7_cycle_substrate_context(self, context: CycleSubstrateContext) -> None:
-        """Rebind controller-owned N5/N8 defaults to one fresh context."""
+    def _bind_cycle_substrate_context(
+        self,
+        context: CycleSubstrateContext,
+        *,
+        context_job_ref: CASArtifactRef | None = None,
+    ) -> None:
+        """Rebind every controller-owned N4/N5/N8 consumer to one resolved context."""
 
         self._cycle_substrate_context = context
-        if isinstance(self._simulation_port, JointSimulationPort):
-            self._simulation_port._cycle_substrate_context = context
+        self._candidate_cycle_context_job_ref = context_job_ref
+        self._set_cycle_context_consumer(self._generation_port, "_cycle_substrate_context", context)
+        self._set_cycle_context_consumer(self._simulation_port, "_cycle_substrate_context", context)
         if isinstance(self._value_port, _DefaultSimulationBoundFoundryValuePort):
             self._value_port = replace(
                 self._value_port,
                 cycle_substrate_context=context,
             )
+        elif hasattr(self._value_port, "cycle_substrate_context"):
+            self._set_cycle_context_consumer(self._value_port, "cycle_substrate_context", context)
+
+    def _rebind_generic_cycle_simulation_for_problem(
+        self,
+        previous_problem: DesignProblem,
+        problem: DesignProblem,
+        *,
+        source_context_job_ref: CASArtifactRef | None = None,
+        cycle_context_job_ref: CASArtifactRef | None = None,
+    ) -> None:
+        """Reissue every generic N5 binding from the current owner context."""
+        from polisyos.runtime.quality.cycle_substrate import (
+            CycleSubstrateContextArtifactOwner,
+            VerifiedNLJobScope,
+        )
+
+        handoff = self._generic_cycle_simulation_handoff
+        if handoff is None:
+            return
+        owner = self._generic_cycle_simulation_admission_owner
+        if type(owner) is not GenericCycleSimulationAdmissionOwner:
+            raise GenerationCycleError("generation_cycle_generic_rebind_owner_missing")
+        if self._generic_cycle_simulation_currentness_resolver is None:
+            raise GenerationCycleError("generation_cycle_generic_rebind_currentness_missing")
+        if self._generic_cycle_simulation_currentness_resolver() is not True:
+            raise GenerationCycleError("generation_cycle_generic_rebind_lease_not_current")
+        context_owner = self._candidate_cycle_context_artifact_owner
+        if type(context_owner) is not CycleSubstrateContextArtifactOwner:
+            raise GenerationCycleError("generation_cycle_generic_rebind_context_owner_missing")
+        if self._artifact_store is None or context_owner._store is not self._artifact_store:
+            raise GenerationCycleError("generation_cycle_generic_rebind_store_mismatch")
+        verified_scope = self._candidate_cycle_verified_nl_job_scope
+        if (
+            type(verified_scope) is not VerifiedNLJobScope
+            or not verified_scope._was_issued_by_verified_nl_execution_owner
+        ):
+            raise GenerationCycleError("generation_cycle_generic_rebind_verified_scope_missing")
+        if self._repo_root is None:
+            raise GenerationCycleError("generation_cycle_generic_rebind_repo_root_missing")
+        try:
+            rebound_handoff, rebound_child_selection = owner.reissue_handoff_for_problem(
+                handoff=handoff,
+                previous_problem=previous_problem,
+                problem=problem,
+                verified_nl_job_scope=verified_scope,
+                context_owner=context_owner,
+                repo_root=Path(self._repo_root),
+                source_context_job_ref=source_context_job_ref,
+                cycle_context_job_ref=cycle_context_job_ref,
+                child_selection=self._generic_cycle_simulation_child_selection,
+            )
+        except (OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise GenerationCycleError(
+                "generation_cycle_generic_rebind_owner_refused",
+                str(getattr(exc, "code", None) or exc),
+            ) from exc
+        self._generic_cycle_simulation_handoff = rebound_handoff
+        self._generic_cycle_simulation_child_selection = rebound_child_selection
+        if isinstance(self._simulation_port, JointSimulationPort):
+            self._simulation_port._generic_cycle_simulation_handoff = rebound_handoff
+            self._simulation_port._generic_cycle_simulation_child_selection = (
+                rebound_child_selection
+            )
+
+    def _persist_resolve_and_bind_cycle_substrate_context(
+        self,
+        context: CycleSubstrateContext,
+        *,
+        previous_problem: DesignProblem,
+        problem: DesignProblem,
+        context_job_ref: CASArtifactRef | None = None,
+    ) -> CASArtifactRef:
+        """Persist, resolve, and bind one context before any N5 consumer runs."""
+        from polisyos.runtime.quality.cycle_substrate import (
+            CycleSubstrateContext,
+            CycleSubstrateContextArtifactOwner,
+            CycleSubstrateContextJobArtifact,
+            CycleSubstrateContextJobArtifactV2,
+            CycleSubstrateContextJobArtifactV3,
+            CycleSubstrateContextJobArtifactV4,
+            CycleSubstrateContextJobArtifactV5,
+            CycleSubstrateContextOwnerError,
+            VerifiedNLJobScope,
+        )
+
+        if type(context) is not CycleSubstrateContext:
+            raise GenerationCycleError("generation_cycle_context_rebind_context_untyped")
+        if context.design_problem_ref != _problem_ref(problem) or context.domain != problem.domain:
+            raise GenerationCycleError("generation_cycle_context_rebind_problem_mismatch")
+        if self._candidate_simulation_handoff is not None:
+            raise GenerationCycleError(
+                "generation_cycle_candidate_simulation_rebind_not_established"
+            )
+        context_owner = self._candidate_cycle_context_artifact_owner
+        verified_scope = self._candidate_cycle_verified_nl_job_scope
+        if type(context_owner) is not CycleSubstrateContextArtifactOwner:
+            raise GenerationCycleError("generation_cycle_context_rebind_owner_missing")
+        if self._artifact_store is None or context_owner._store is not self._artifact_store:
+            raise GenerationCycleError("generation_cycle_context_rebind_store_mismatch")
+        if (
+            type(verified_scope) is not VerifiedNLJobScope
+            or not verified_scope._was_issued_by_verified_nl_execution_owner
+        ):
+            raise GenerationCycleError("generation_cycle_context_rebind_verified_scope_missing")
+        if self._repo_root is None:
+            raise GenerationCycleError("generation_cycle_context_rebind_repo_root_missing")
+
+        try:
+            if context_job_ref is None:
+                context_job_ref = context_owner.persist_for_current_job(
+                    context,
+                    problem=problem,
+                    repo_root=Path(self._repo_root),
+                    verified_nl_job_scope=verified_scope,
+                )
+            resolved_job = context_owner.resolve_for_current_job(
+                context_job_ref,
+                problem=problem,
+                repo_root=Path(self._repo_root),
+                verified_nl_job_scope=verified_scope,
+            )
+        except (
+            CycleSubstrateContextOwnerError,
+            OSError,
+            RuntimeError,
+            TypeError,
+            ValueError,
+        ) as exc:
+            raise GenerationCycleError(
+                "generation_cycle_context_rebind_owner_refused",
+                str(getattr(exc, "code", None) or exc),
+            ) from exc
+
+        supported_job_artifacts = (
+            CycleSubstrateContextJobArtifact,
+            CycleSubstrateContextJobArtifactV2,
+            CycleSubstrateContextJobArtifactV3,
+            CycleSubstrateContextJobArtifactV4,
+            CycleSubstrateContextJobArtifactV5,
+        )
+        if type(resolved_job) not in supported_job_artifacts:
+            raise GenerationCycleError("generation_cycle_context_rebind_owner_readback_untyped")
+        resolved_context = resolved_job.context
+        if (
+            resolved_job.problem.model_dump(mode="json") != problem.model_dump(mode="json")
+            or resolved_context.model_dump(mode="json") != context.model_dump(mode="json")
+            or resolved_context.design_problem_ref != _problem_ref(problem)
+            or resolved_context.domain != problem.domain
+        ):
+            raise GenerationCycleError("generation_cycle_context_rebind_owner_readback_mismatch")
+
+        self._bind_cycle_substrate_context(
+            resolved_context,
+            context_job_ref=context_job_ref,
+        )
+        self._rebind_generic_cycle_simulation_for_problem(
+            previous_problem,
+            problem,
+            source_context_job_ref=(
+                context_job_ref if resolved_context.source_profile is not None else None
+            ),
+            cycle_context_job_ref=(
+                context_job_ref if resolved_context.source_profile is None else None
+            ),
+        )
+        return context_job_ref
+
+    @staticmethod
+    def _set_cycle_context_consumer(
+        consumer: object,
+        attribute: str,
+        context: CycleSubstrateContext,
+    ) -> None:
+        """Update a source-owned port binding or refuse an immutable stale consumer."""
+
+        if not hasattr(consumer, attribute):
+            return
+        try:
+            setattr(consumer, attribute, context)
+        except (AttributeError, TypeError) as exc:
+            raise GenerationCycleError(
+                "generation_cycle_context_consumer_rebind_unavailable",
+                type(consumer).__qualname__,
+            ) from exc
+
+    def _rebind_cycle_substrate_context_for_revision(
+        self,
+        previous_problem: DesignProblem,
+        revised_problem: DesignProblem,
+    ) -> None:
+        """Resolve one job-owned context before any N6 revision becomes current."""
+
+        from polisyos.runtime.quality.cycle_substrate import (
+            CycleSubstrateContext,
+            CycleSubstrateContextArtifactOwner,
+            CycleSubstrateContextOwnerError,
+            build_cycle_substrate_context,
+            candidate_cycle_substrate_source_profile_selection,
+            revalidate_cycle_substrate_context,
+        )
+
+        if self._candidate_simulation_handoff is not None:
+            raise GenerationCycleError(
+                "generation_cycle_candidate_simulation_rebind_not_established"
+            )
+        prior_context = self._cycle_substrate_context
+        bound_contexts = [
+            prior_context,
+            getattr(self._generation_port, "_cycle_substrate_context", None),
+            getattr(self._simulation_port, "_cycle_substrate_context", None),
+            getattr(self._value_port, "cycle_substrate_context", None),
+            getattr(self._generic_cycle_simulation_handoff, "context", None),
+        ]
+        present_contexts = [context for context in bound_contexts if context is not None]
+        if not present_contexts:
+            return
+        if any(type(context) is not CycleSubstrateContext for context in present_contexts):
+            raise GenerationCycleError("generation_cycle_context_rebind_context_untyped")
+        prior_context = present_contexts[0]
+        if any(
+            context.content_hash != prior_context.content_hash
+            or context.design_problem_ref != prior_context.design_problem_ref
+            for context in present_contexts[1:]
+        ):
+            raise GenerationCycleError("generation_cycle_context_rebind_bound_contexts_diverged")
+        self._cycle_substrate_context = prior_context
+        if _generation_cycle_revision_problem_scope_projection(
+            previous_problem
+        ) != _generation_cycle_revision_problem_scope_projection(revised_problem):
+            raise GenerationCycleError(
+                "generation_cycle_revision_problem_scope_changed",
+                "N6 may revise its two grammar hints without changing the bound problem scope.",
+            )
+
+        if type(prior_context) is not CycleSubstrateContext:
+            raise GenerationCycleError("generation_cycle_context_rebind_context_untyped")
+        try:
+            prior_context = revalidate_cycle_substrate_context(prior_context)
+        except (TypeError, ValueError) as exc:
+            raise GenerationCycleError(
+                "generation_cycle_context_rebind_prior_context_invalid",
+                str(exc),
+            ) from exc
+        if (
+            prior_context.design_problem_ref != _problem_ref(previous_problem)
+            or prior_context.domain != previous_problem.domain
+        ):
+            raise GenerationCycleError("generation_cycle_context_rebind_prior_problem_mismatch")
+        if prior_context.source_profile is None and (
+            prior_context.candidate_levers or prior_context.transport_context is not None
+        ):
+            raise GenerationCycleError(
+                "generation_cycle_context_rebind_evidence_refresh_not_established",
+                "candidate-lever and transport evidence require their own source-backed reissuer.",
+            )
+
+        context_owner = self._candidate_cycle_context_artifact_owner
+        if type(context_owner) is not CycleSubstrateContextArtifactOwner:
+            raise GenerationCycleError("generation_cycle_context_rebind_owner_missing")
+        if self._artifact_store is None or context_owner._store is not self._artifact_store:
+            raise GenerationCycleError("generation_cycle_context_rebind_store_mismatch")
+
+        try:
+            selection = candidate_cycle_substrate_source_profile_selection(revised_problem)
+        except CycleSubstrateContextOwnerError as exc:
+            raise GenerationCycleError(
+                "generation_cycle_context_rebind_profile_selection_invalid",
+                str(exc),
+            ) from exc
+        if prior_context.source_profile is not None and selection is None:
+            raise GenerationCycleError("generation_cycle_context_rebind_profile_selection_missing")
+
+        if prior_context.source_profile is not None or selection is not None:
+            # Reuse the existing source-owner route, which rebuilds and resolves
+            # V5 from its actual L1/L2/SKG/catalog sources. Do not copy a V5 profile.
+            self._ensure_selected_candidate_source_profile(
+                revised_problem,
+                previous_problem=previous_problem,
+            )
+            rebound = self._cycle_substrate_context
+            if type(rebound) is not CycleSubstrateContext:
+                raise GenerationCycleError("generation_cycle_context_rebind_profile_owner_missing")
+            if _cycle_substrate_revision_scope_projection(prior_context) != (
+                _cycle_substrate_revision_scope_projection(rebound)
+            ):
+                raise GenerationCycleError(
+                    "generation_cycle_context_rebind_scope_changed",
+                    "The owner reissue changed WMR, population/model, catalog, or source basis.",
+                )
+            if self._candidate_cycle_context_job_ref is None:
+                raise GenerationCycleError(
+                    "generation_cycle_context_rebind_profile_job_ref_missing"
+                )
+            return
+
+        try:
+            rebound_context = build_cycle_substrate_context(
+                design_problem_ref=_problem_ref(revised_problem),
+                domain=prior_context.domain,
+                substrate_registry=prior_context.substrate_registry,
+                selected_registry_entry_hashes=prior_context.selected_registry_entry_hashes,
+                world_model_record=prior_context.world_model_record,
+                intervention_substrate=prior_context.intervention_substrate,
+                candidate_levers=(),
+                transport_context=None,
+                source_pack_content_hash=prior_context.source_pack_content_hash,
+                substrate_input_content_hash=prior_context.substrate_input_content_hash,
+            )
+        except GenerationCycleError:
+            raise
+        except (
+            CycleSubstrateContextOwnerError,
+            OSError,
+            RuntimeError,
+            TypeError,
+            ValueError,
+        ) as exc:
+            raise GenerationCycleError(
+                "generation_cycle_context_rebind_owner_refused",
+                str(getattr(exc, "code", None) or exc),
+            ) from exc
+        if _cycle_substrate_revision_scope_projection(prior_context) != (
+            _cycle_substrate_revision_scope_projection(rebound_context)
+        ):
+            raise GenerationCycleError(
+                "generation_cycle_context_rebind_scope_changed",
+                "The resolved owner artifact changed WMR, population/model, or catalog scope.",
+            )
+        self._persist_resolve_and_bind_cycle_substrate_context(
+            rebound_context,
+            previous_problem=previous_problem,
+            problem=revised_problem,
+        )
 
     def _reenter_cycle_after_n7_acquisition(
         self,
@@ -9604,10 +10068,41 @@ class GenerationCycleController:
             candidate_content_hash=cycle.selected_candidate_content_hash,
             target_world_slots=tuple(prior_atom.target_world_slots),
         )
-        rebound_world_ref = acquisition_receipt.grown_world_after_ref
-        if rebuilt_context is not None:
-            self._bind_n7_cycle_substrate_context(rebuilt_context)
-            rebound_world_ref = rebuilt_context.world_model_record.world_model_record_id
+        if rebuilt_context is None:
+            raise GenerationCycleError(
+                "n7_reentry_current_world_context_unavailable",
+                "The acquired registry projection did not produce a current WMR context.",
+            )
+        from polisyos.runtime.quality.cycle_substrate import (
+            CycleSubstrateContext,
+            candidate_cycle_substrate_source_profile_selection,
+        )
+
+        try:
+            source_selection = candidate_cycle_substrate_source_profile_selection(problem)
+        except (TypeError, ValueError) as exc:
+            raise GenerationCycleError(
+                "n7_reentry_source_profile_selection_invalid",
+                str(exc),
+            ) from exc
+        if source_selection is not None:
+            # The acquired WMR is the basis for a fresh V5 projection; never
+            # carry the previous cycle's source rows into the new context.
+            self._bind_cycle_substrate_context(rebuilt_context)
+            self._ensure_selected_candidate_source_profile(
+                problem,
+                previous_problem=problem,
+            )
+        else:
+            self._persist_resolve_and_bind_cycle_substrate_context(
+                rebuilt_context,
+                previous_problem=problem,
+                problem=problem,
+            )
+        rebound_context = self._cycle_substrate_context
+        if type(rebound_context) is not CycleSubstrateContext:
+            raise GenerationCycleError("n7_reentry_current_context_rebind_missing")
+        rebound_world_ref = rebound_context.world_model_record.world_model_record_id
         rebound_atom = prior_atom.model_copy(update={"world_model_record_ref": rebound_world_ref})
         rebound_atom = rebound_atom.model_copy(
             update={
@@ -9892,7 +10387,12 @@ class GenerationCycleController:
             ),
         )
 
-    def _ensure_selected_candidate_source_profile(self, problem: DesignProblem) -> None:
+    def _ensure_selected_candidate_source_profile(
+        self,
+        problem: DesignProblem,
+        *,
+        previous_problem: DesignProblem | None = None,
+    ) -> None:
         """Persist and re-resolve explicit candidate source-profile intent before N4."""
 
         from polisyos.runtime.quality.cycle_substrate import (
@@ -9906,7 +10406,6 @@ class GenerationCycleController:
             revalidate_cycle_substrate_context,
         )
 
-        self._candidate_cycle_context_job_ref = None
         try:
             selection = candidate_cycle_substrate_source_profile_selection(problem)
         except CycleSubstrateContextOwnerError as exc:
@@ -9935,9 +10434,54 @@ class GenerationCycleController:
 
         if not hasattr(self._generation_port, "_cycle_substrate_context"):
             raise GenerationCycleError("n4_candidate_source_profile_port_unbound")
+        current_context = self._cycle_substrate_context
+        current_ref = self._candidate_cycle_context_job_ref
+        if (
+            current_ref is not None
+            and current_context is not None
+            and current_context.design_problem_ref == _problem_ref(problem)
+        ):
+            try:
+                resolved_job = context_owner.resolve_for_current_job(
+                    current_ref,
+                    problem=problem,
+                    repo_root=self._repo_root,
+                    verified_nl_job_scope=verified_scope,
+                )
+            except (
+                CycleSubstrateContextOwnerError,
+                OSError,
+                RuntimeError,
+                TypeError,
+                ValueError,
+            ) as exc:
+                raise GenerationCycleError(
+                    "n4_candidate_source_profile_owner_refused",
+                    str(getattr(exc, "code", None) or exc),
+                ) from exc
+            if (
+                type(resolved_job) is not CycleSubstrateContextJobArtifactV5
+                or resolved_job.schema_version != CYCLE_SUBSTRATE_CONTEXT_JOB_V5_SCHEMA
+                or resolved_job.problem.model_dump(mode="json") != problem.model_dump(mode="json")
+                or resolved_job.context.model_dump(mode="json")
+                != current_context.model_dump(mode="json")
+                or resolved_job.context.source_profile is None
+            ):
+                raise GenerationCycleError("n4_candidate_source_profile_owner_readback_mismatch")
+            self._persist_resolve_and_bind_cycle_substrate_context(
+                resolved_job.context,
+                previous_problem=previous_problem or problem,
+                problem=problem,
+                context_job_ref=current_ref,
+            )
+            return
         try:
-            if self._cycle_substrate_context is not None:
-                existing = revalidate_cycle_substrate_context(self._cycle_substrate_context)
+            existing = (
+                revalidate_cycle_substrate_context(self._cycle_substrate_context)
+                if self._cycle_substrate_context is not None
+                else None
+            )
+            if existing is not None:
                 registry = existing.substrate_registry
                 selected_entry_hashes = existing.selected_registry_entry_hashes
             else:
@@ -9947,26 +10491,33 @@ class GenerationCycleController:
                 )
             if not selected_entry_hashes:
                 raise ValueError("candidate_cycle_source_profile_selected_entries_missing")
-            slots = tuple(
-                dict.fromkeys(
-                    (
-                        *(
-                            str(lever.target_slot)
-                            for lever in problem.candidate_lever_space.candidate_levers
-                            if str(lever.target_slot).strip()
-                        ),
-                        problem.outcome_of_interest.target_variable,
+            if existing is not None:
+                # The verified owner context is the source of N5 inputs. Reuse
+                # its exact WMR and selected views while recomputing the V5
+                # profile for the active problem; rebuilding a boundary WMR
+                # here would silently drop its persisted NCM and state bindings.
+                world_model_record = existing.world_model_record
+            else:
+                slots = tuple(
+                    dict.fromkeys(
+                        (
+                            *(
+                                str(lever.target_slot)
+                                for lever in problem.candidate_lever_space.candidate_levers
+                                if str(lever.target_slot).strip()
+                            ),
+                            problem.outcome_of_interest.target_variable,
+                        )
                     )
                 )
-            )
-            world_model_record = _build_boundary_world_model_record(
-                repo_root=repo_root,
-                problem=problem,
-                outcome=problem.outcome_of_interest.target_variable,
-                policy_slot_ids=slots,
-                substrate_registry=registry,
-                selected_registry_entry_hashes=selected_entry_hashes,
-            )
+                world_model_record = _build_boundary_world_model_record(
+                    repo_root=repo_root,
+                    problem=problem,
+                    outcome=problem.outcome_of_interest.target_variable,
+                    policy_slot_ids=slots,
+                    substrate_registry=registry,
+                    selected_registry_entry_hashes=selected_entry_hashes,
+                )
             candidate_context = build_candidate_cycle_substrate_context(
                 repo_root,
                 problem=problem,
@@ -9998,9 +10549,12 @@ class GenerationCycleController:
             raise GenerationCycleError(
                 "n4_candidate_source_profile_owner_refused", str(exc)
             ) from exc
-        self._candidate_cycle_context_job_ref = context_job_ref
-        self._generation_port._cycle_substrate_context = context
-        self._bind_n7_cycle_substrate_context(context)
+        self._persist_resolve_and_bind_cycle_substrate_context(
+            context,
+            previous_problem=previous_problem or problem,
+            problem=problem,
+            context_job_ref=context_job_ref,
+        )
 
     async def _generate_node(self, state: dict[str, Any]) -> dict[str, Any]:
         from polisyos.runtime.quality.design_generation import (
@@ -10204,6 +10758,44 @@ class GenerationCycleController:
             "candidate_summaries": tuple(summaries),
         }
 
+    def _bind_cycle_context_job_ref_to_simulation(
+        self,
+        simulation: SimulationPortObservation,
+    ) -> SimulationPortObservation:
+        """Bind the exact owner-resolved V5 context used by a source-profile N5."""
+
+        context_ref = self._candidate_cycle_context_job_ref
+        context = self._cycle_substrate_context
+        if context_ref is None or context is None:
+            return simulation
+        if (
+            context_ref.kind != "runtime.quality.cycle_substrate_context_job"
+            or context_ref.media_type != "application/json"
+        ):
+            raise GenerationCycleError("generation_cycle_context_job_ref_kind_mismatch")
+        if simulation.status == "joint_simulated" and (
+            simulation.simulation_result_ref is None
+            or simulation.world_model_record is None
+            or simulation.world_model_record.content_hash != context.world_model_record_content_hash
+        ):
+            raise GenerationCycleError(
+                "generation_cycle_context_job_ref_n5_result_binding_mismatch"
+            )
+        handoff_refs = (
+            simulation.candidate_simulation_context_job_ref,
+            simulation.generic_context_job_ref,
+        )
+        if simulation.status == "joint_simulated" and not any(
+            handoff_ref is not None for handoff_ref in handoff_refs
+        ):
+            raise GenerationCycleError("generation_cycle_context_job_ref_n5_handoff_missing")
+        for handoff_ref in handoff_refs:
+            if handoff_ref is not None and artifact_ref_identity_key(
+                handoff_ref
+            ) != artifact_ref_identity_key(context_ref):
+                raise GenerationCycleError("generation_cycle_context_job_ref_handoff_mismatch")
+        return simulation.model_copy(update={"cycle_substrate_context_job_ref": context_ref})
+
     def _joint_value_node(self, state: dict[str, Any]) -> dict[str, Any]:
         candidate = state["selected_candidate"]
         problem = state["problem"]
@@ -10254,6 +10846,7 @@ class GenerationCycleController:
                 problem=problem,
                 cycle_index=cycle_index,
             )
+            simulation = self._bind_cycle_context_job_ref_to_simulation(simulation)
             if simulation.status == "joint_simulated":
                 value = ValuePortObservation(
                     status="value_pending_n8",
@@ -10286,6 +10879,7 @@ class GenerationCycleController:
                 problem=problem,
                 cycle_index=cycle_index,
             )
+            simulation = self._bind_cycle_context_job_ref_to_simulation(simulation)
             value_override = state.get("value_port_override")
             value_port = value_override or self._value_port
             if (
@@ -10348,6 +10942,7 @@ class GenerationCycleController:
             problem=problem,
             cycle_index=cycle_index,
         )
+        simulation = self._bind_cycle_context_job_ref_to_simulation(simulation)
         value_port = state.get("value_port_override") or self._value_port
         value = value_port(
             candidate=candidate,
@@ -11543,6 +12138,289 @@ def validate_generation_cycle_run_history(
     if replayed_projection_bytes != persisted_projection_bytes:
         return ({"code": "generation_cycle_historical_projection_mismatch"},)
     return _validate_generation_cycle_run(parsed, require_currentness=False)
+
+
+@dataclass(frozen=True)
+class GenerationCycleContextHistoryBinding:
+    """One cycle joined to its exact historical owner context."""
+
+    cycle_index: int
+    problem: DesignProblem
+    context_job_ref: ArtifactRef
+    context: Any
+
+
+@dataclass(frozen=True)
+class GenerationCycleContextHistoryProjection:
+    """Owner-resolved context bindings for one persisted generation-cycle run."""
+
+    status: Literal["resolved", "not_established"]
+    bindings: tuple[GenerationCycleContextHistoryBinding, ...]
+    issues: tuple[dict[str, Any], ...]
+
+
+def resolve_generation_cycle_run_context_history(
+    run: GenerationCycleRun | Mapping[str, Any],
+    *,
+    context_owner: CycleSubstrateContextArtifactOwner,
+    initial_problem: DesignProblem | None,
+    expected_job_id: str,
+    expected_run_id: str,
+    expected_tenant_id: str,
+    expected_cell_id: str,
+) -> GenerationCycleContextHistoryProjection:
+    """Resolve the complete cycle context chain through historical owners.
+
+    Cycle zero is anchored to the owner-persisted initial problem supplied by
+    the enclosing compiled artifact. Later cycles are anchored to the prior
+    cycle's full persisted revision. This verifies historical custody and the
+    exact cycle/revision chain only; it does not establish source currentness,
+    N5 outcome correctness, or authority.
+    """
+
+    history_issues = validate_generation_cycle_run_history(run)
+    if history_issues:
+        return GenerationCycleContextHistoryProjection(
+            status="not_established",
+            bindings=(),
+            issues=history_issues,
+        )
+    try:
+        parsed = (
+            run if isinstance(run, GenerationCycleRun) else GenerationCycleRun.model_validate(run)
+        )
+    except ValueError as exc:
+        return GenerationCycleContextHistoryProjection(
+            status="not_established",
+            bindings=(),
+            issues=(
+                {
+                    "code": "generation_cycle_context_history_run_invalid",
+                    "error": str(exc),
+                },
+            ),
+        )
+    from polisyos.runtime.quality.cycle_substrate import (
+        CycleSubstrateContextArtifactOwner as CanonicalContextOwner,
+    )
+    from polisyos.runtime.quality.cycle_substrate import (
+        CycleSubstrateContextOwnerError,
+    )
+
+    if type(context_owner) is not CanonicalContextOwner:
+        return GenerationCycleContextHistoryProjection(
+            status="not_established",
+            bindings=(),
+            issues=({"code": "generation_cycle_context_history_owner_missing"},),
+        )
+    if not all(
+        isinstance(value, str) and value.strip()
+        for value in (
+            expected_job_id,
+            expected_run_id,
+            expected_tenant_id,
+            expected_cell_id,
+        )
+    ):
+        return GenerationCycleContextHistoryProjection(
+            status="not_established",
+            bindings=(),
+            issues=({"code": "generation_cycle_context_history_identity_missing"},),
+        )
+    if not parsed.cycles:
+        return GenerationCycleContextHistoryProjection(
+            status="not_established",
+            bindings=(),
+            issues=({"code": "generation_cycle_context_history_cycle_missing"},),
+        )
+    if type(initial_problem) is not DesignProblem:
+        return GenerationCycleContextHistoryProjection(
+            status="not_established",
+            bindings=(),
+            issues=({"code": "generation_cycle_context_history_initial_basis_not_established"},),
+        )
+
+    from polisyos.runtime.quality.cycle_substrate import (
+        CycleSubstrateContext,
+        cycle_job_design_problem_ref,
+    )
+
+    def problem_grammar(problem: DesignProblem) -> tuple[str, ...]:
+        return tuple(
+            str(item) for item in problem.runtime_hints.get("generation_cycle_grammar", ("seed",))
+        )
+
+    def revision_issues(index: int, cycle: GenerationCycleRecord, problem: DesignProblem) -> None:
+        request = cycle.revision_request
+        revised = request.revised_problem
+        revised_revision = revised.runtime_hints.get("generation_cycle_revision")
+        expected_revision = {
+            "source_counterexample_ref": request.source_counterexample_ref,
+            "previous_candidate_ref": request.previous_candidate_ref,
+            "revision_strategy": request.revision_strategy,
+            "strategy_payload": request.strategy_payload,
+            "new_grammar_elements": request.new_grammar_elements,
+        }
+        if (
+            request.source_counterexample_ref != cycle.counterexample.counterexample_ref
+            or request.previous_candidate_ref != cycle.selected_candidate_ref
+            or request.source_terminal_kind != cycle.terminal_kind
+            or request.previous_grammar_elements != problem_grammar(problem)
+            or request.next_grammar_elements != problem_grammar(revised)
+            or request.new_grammar_elements
+            != tuple(
+                item
+                for item in request.next_grammar_elements
+                if item not in set(request.previous_grammar_elements)
+            )
+            or not isinstance(revised_revision, Mapping)
+            or to_canonical_bytes(dict(revised_revision), CanonSpec(forbid_floats=False))
+            != to_canonical_bytes(expected_revision, CanonSpec(forbid_floats=False))
+        ):
+            issues.append(
+                {
+                    "code": "generation_cycle_context_history_revision_binding_mismatch",
+                    "cycle_index": index,
+                }
+            )
+
+    issues: list[dict[str, Any]] = []
+    bindings: list[GenerationCycleContextHistoryBinding] = []
+    for index, cycle in enumerate(parsed.cycles):
+        if cycle.cycle_index != index:
+            issues.append(
+                {
+                    "code": "generation_cycle_context_history_index_mismatch",
+                    "cycle_index": index,
+                }
+            )
+        if cycle.design_problem_ref != parsed.design_problem_ref:
+            issues.append(
+                {
+                    "code": "generation_cycle_context_history_subject_mismatch",
+                    "cycle_index": index,
+                }
+            )
+        problem = (
+            initial_problem
+            if index == 0
+            else parsed.cycles[index - 1].revision_request.revised_problem
+        )
+        expected_problem_ref = cycle_job_design_problem_ref(problem)
+        if cycle.design_problem_basis_ref != expected_problem_ref:
+            issues.append(
+                {
+                    "code": "generation_cycle_context_history_basis_mismatch",
+                    "cycle_index": index,
+                }
+            )
+        if cycle.grammar_elements != problem_grammar(problem):
+            issues.append(
+                {
+                    "code": "generation_cycle_context_history_grammar_mismatch",
+                    "cycle_index": index,
+                }
+            )
+        revision_issues(index, cycle, problem)
+        simulation = cycle.simulation
+        context_ref = simulation.cycle_substrate_context_job_ref
+        if context_ref is None:
+            issues.append(
+                {
+                    "code": "generation_cycle_context_history_ref_missing",
+                    "cycle_index": index,
+                }
+            )
+            continue
+        handoff_refs = tuple(
+            ref
+            for ref in (
+                simulation.candidate_simulation_context_job_ref,
+                simulation.generic_context_job_ref,
+            )
+            if ref is not None
+        )
+        if simulation.status == "joint_simulated" and not handoff_refs:
+            issues.append(
+                {
+                    "code": "generation_cycle_context_history_n5_handoff_missing",
+                    "cycle_index": index,
+                }
+            )
+            continue
+        if any(
+            artifact_ref_identity_key(ref) != artifact_ref_identity_key(context_ref)
+            for ref in handoff_refs
+        ):
+            issues.append(
+                {
+                    "code": "generation_cycle_context_history_n5_handoff_mismatch",
+                    "cycle_index": index,
+                }
+            )
+            continue
+        try:
+            context_job = context_owner.resolve_historical_job_artifact(
+                context_ref,
+                problem=problem,
+                expected_design_problem_ref=expected_problem_ref,
+                expected_job_id=expected_job_id,
+                expected_run_id=expected_run_id,
+                expected_tenant_id=expected_tenant_id,
+                expected_cell_id=expected_cell_id,
+            )
+            if type(getattr(context_job, "context", None)) is not CycleSubstrateContext:
+                raise ValueError("generation_cycle_context_history_owner_readback_untyped")
+            bindings.append(
+                GenerationCycleContextHistoryBinding(
+                    cycle_index=index,
+                    problem=problem,
+                    context_job_ref=context_ref,
+                    context=context_job.context,
+                )
+            )
+        except (
+            CycleSubstrateContextOwnerError,
+            OSError,
+            RuntimeError,
+            TypeError,
+            ValueError,
+        ) as exc:
+            issues.append(
+                {
+                    "code": "generation_cycle_context_history_owner_refused",
+                    "cycle_index": index,
+                    "reason": str(getattr(exc, "code", None) or exc),
+                }
+            )
+    return GenerationCycleContextHistoryProjection(
+        status="resolved" if not issues else "not_established",
+        bindings=tuple(bindings),
+        issues=tuple(issues),
+    )
+
+
+def validate_generation_cycle_run_context_history(
+    run: GenerationCycleRun | Mapping[str, Any],
+    *,
+    context_owner: CycleSubstrateContextArtifactOwner,
+    initial_problem: DesignProblem | None,
+    expected_job_id: str,
+    expected_run_id: str,
+    expected_tenant_id: str,
+    expected_cell_id: str,
+) -> tuple[dict[str, Any], ...]:
+    """Validate owner-resolved cycle history without asserting currentness."""
+
+    return resolve_generation_cycle_run_context_history(
+        run,
+        context_owner=context_owner,
+        initial_problem=initial_problem,
+        expected_job_id=expected_job_id,
+        expected_run_id=expected_run_id,
+        expected_tenant_id=expected_tenant_id,
+        expected_cell_id=expected_cell_id,
+    ).issues
 
 
 def _validate_generation_cycle_run_with_current_source_receipt(
@@ -15555,6 +16433,60 @@ def _summary_value_blocks_promotion(summary: CandidateSummary) -> bool:
     }
 
 
+_GENERATION_CYCLE_REVISION_RUNTIME_HINT_KEYS = frozenset(
+    {"generation_cycle_grammar", "generation_cycle_revision"}
+)
+
+
+def _generation_cycle_revision_problem_scope_projection(
+    problem: DesignProblem,
+) -> dict[str, Any]:
+    """Keep every problem field stable except the two N6-owned revision hints."""
+
+    projection = problem.model_dump(mode="json")
+    runtime_hints = projection.get("runtime_hints")
+    if not isinstance(runtime_hints, dict):
+        raise GenerationCycleError("generation_cycle_revision_runtime_hints_invalid")
+    for key in _GENERATION_CYCLE_REVISION_RUNTIME_HINT_KEYS:
+        runtime_hints.pop(key, None)
+    return projection
+
+
+def _cycle_substrate_revision_scope_projection(
+    context: CycleSubstrateContext,
+) -> dict[str, Any]:
+    """Remove only task-rebind identities; preserve the complete evidence scope."""
+
+    projection = context.model_dump(mode="json")
+    projection.pop("design_problem_ref", None)
+    projection.pop("context_binding_hash", None)
+    projection.pop("content_hash", None)
+    if projection.get("source_profile") is not None:
+        # Reissued problem and context digests change across N6; preserve every
+        # source observation while comparing its stable identity projection.
+        projection.pop("substrate_input_content_hash", None)
+        profile = dict(projection["source_profile"])
+        for key in ("design_problem_ref", "substrate_input_content_hash", "content_hash"):
+            profile.pop(key, None)
+        projection["source_profile"] = profile
+        candidate_rows = projection.get("candidate_levers")
+        if isinstance(candidate_rows, list):
+            # V5 owner rows are rebound to this problem/context. Compare their
+            # source identity and registry selection while retaining the exact
+            # per-cycle hashes in the persisted context and N5 handoff.
+            projection["candidate_levers"] = [
+                {
+                    key: value
+                    for key, value in row.items()
+                    if key not in {"context_binding_hash", "substrate_input_content_hash"}
+                }
+                if isinstance(row, dict)
+                else row
+                for row in candidate_rows
+            ]
+    return projection
+
+
 def _default_revision_request(
     *,
     problem: DesignProblem,
@@ -16557,6 +17489,8 @@ __all__ = [
     "CounterexampleDrivenRevisionPolicy",
     "DesignRevisionRequest",
     "FoundryValuePort",
+    "GenerationCycleContextHistoryBinding",
+    "GenerationCycleContextHistoryProjection",
     "GenerationCycleController",
     "GenerationCycleError",
     "GenerationCycleFronts",
@@ -16594,10 +17528,12 @@ __all__ = [
     "load_joint_simulation_result",
     "n9_terminal_disposition",
     "persist_joint_simulation_result",
+    "resolve_generation_cycle_run_context_history",
     "simulation_evaluation_input_ref",
     "simulation_value_execution_context",
     "validate_generation_cycle_candidate_run",
     "validate_generation_cycle_run",
+    "validate_generation_cycle_run_context_history",
     "validate_generation_cycle_run_history",
 ]
 

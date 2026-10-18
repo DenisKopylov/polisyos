@@ -6,6 +6,7 @@ import ast
 import hashlib
 from collections.abc import Callable, Mapping
 from contextvars import ContextVar
+from pathlib import Path
 from typing import TYPE_CHECKING, Literal
 
 from pydantic import (
@@ -80,8 +81,6 @@ from polisyos.runtime.quality.workspace.loop import (
 )
 
 if TYPE_CHECKING:
-    from pathlib import Path
-
     from polisyos.core import contracts as core_contracts
     from polisyos.core.artifacts import ArtifactStore
     from polisyos.core.contracts import CatalogRunProfile
@@ -486,6 +485,7 @@ class RecursiveLeafContextOwner:
         admission_owner: ConfiguredCandidateSimulationContextAdmissionOwner | None,
         generic_admission_owner: GenericCycleSimulationAdmissionOwner | None = None,
         verified_nl_job_scope: VerifiedNLJobScope | None = None,
+        repo_root: Path | None = None,
     ) -> None:
         if type(context_owner) is not CycleSubstrateContextArtifactOwner:
             raise TypeError("recursive_leaf_context_owner_not_canonical")
@@ -504,6 +504,10 @@ class RecursiveLeafContextOwner:
                 raise ValueError("recursive_leaf_verified_scope_not_issued")
         if admission_owner is None and generic_admission_owner is None:
             raise TypeError("recursive_leaf_profile_admission_owner_missing")
+        if repo_root is not None and (
+            not isinstance(repo_root, Path) or not repo_root.is_absolute()
+        ):
+            raise TypeError("recursive_leaf_repo_root_must_be_absolute_path")
         if (
             context_owner._store is not store
             or (admission_owner is not None and admission_owner._store is not store)
@@ -515,6 +519,7 @@ class RecursiveLeafContextOwner:
         self._admission_owner = admission_owner
         self._generic_admission_owner = generic_admission_owner
         self._verified_nl_job_scope = verified_nl_job_scope
+        self._repo_root = repo_root.resolve() if repo_root is not None else None
 
     def admit_n4_child_profile_family(
         self,
@@ -548,6 +553,7 @@ class RecursiveLeafContextOwner:
             problem=parent_problem,
             verified_nl_job_scope=self._verified_nl_job_scope,
             context_owner=self._context_owner,
+            repo_root=self._repo_root,
         )
         pre_family_ref = parent.n4_child_profile_family_ref
         if pre_family_ref is None:
@@ -560,6 +566,7 @@ class RecursiveLeafContextOwner:
             parent_problem=parent_problem,
             verified_nl_job_scope=self._verified_nl_job_scope,
             context_owner=self._context_owner,
+            repo_root=self._repo_root,
         )
         source = source_repository.load(
             source_ref,
@@ -652,6 +659,7 @@ class RecursiveLeafContextOwner:
                 cell_id=parent.cell_id,
                 verified_nl_job_scope=self._verified_nl_job_scope,
                 context_owner=self._context_owner,
+                repo_root=self._repo_root,
             )
             handoff = self._generic_admission_owner.persist_handoff(
                 offer=offer,
@@ -662,6 +670,7 @@ class RecursiveLeafContextOwner:
                 cell_id=parent.cell_id,
                 verified_nl_job_scope=self._verified_nl_job_scope,
                 context_owner=self._context_owner,
+                repo_root=self._repo_root,
             )
             if handoff.n4_child_profile_family_ref != pre_family_ref:
                 raise RecursiveGenerationCycleError(
@@ -672,6 +681,7 @@ class RecursiveLeafContextOwner:
                 problem=child.problem,
                 verified_nl_job_scope=self._verified_nl_job_scope,
                 context_owner=self._context_owner,
+                repo_root=self._repo_root,
                 child_selection=selection,
             )
             if current != handoff or node_ref in child_handoffs:
@@ -949,6 +959,7 @@ class RecursiveLeafContextOwner:
             problem=parent_problem,
             verified_nl_job_scope=self._verified_nl_job_scope,
             context_owner=self._context_owner,
+            repo_root=self._repo_root,
         )
         if parent.n4_child_profile_family_ref is None:
             raise RecursiveGenerationCycleError(
@@ -960,6 +971,7 @@ class RecursiveLeafContextOwner:
             parent_problem=parent_problem,
             verified_nl_job_scope=self._verified_nl_job_scope,
             context_owner=self._context_owner,
+            repo_root=self._repo_root,
         )
         source = source_repository.load(
             source_ref,
@@ -1020,6 +1032,7 @@ class RecursiveLeafContextOwner:
                 problem=child.problem,
                 verified_nl_job_scope=self._verified_nl_job_scope,
                 context_owner=self._context_owner,
+                repo_root=self._repo_root,
                 child_selection=selection,
             )
             if current != handoff:
@@ -1276,6 +1289,7 @@ class RecursiveLeafContextOwner:
             problem=family.parent_problem,
             verified_nl_job_scope=self._verified_nl_job_scope,
             context_owner=self._context_owner,
+            repo_root=self._repo_root,
         )
         if family.n4_child_profile_family_ref is None:
             raise RecursiveGenerationCycleError("recursive_n4_child_profile_pre_family_missing")
@@ -1285,6 +1299,7 @@ class RecursiveLeafContextOwner:
             parent_problem=family.parent_problem,
             verified_nl_job_scope=self._verified_nl_job_scope,
             context_owner=self._context_owner,
+            repo_root=self._repo_root,
         )
         for row in family.children:
             self._generic_admission_owner.resolve_handoff(
@@ -1292,6 +1307,7 @@ class RecursiveLeafContextOwner:
                 problem=row.problem,
                 verified_nl_job_scope=self._verified_nl_job_scope,
                 context_owner=self._context_owner,
+                repo_root=self._repo_root,
                 child_selection=row.selection,
             )
         return family

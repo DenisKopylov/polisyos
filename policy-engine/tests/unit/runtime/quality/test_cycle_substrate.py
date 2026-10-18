@@ -229,6 +229,74 @@ def test_current_cycle_job_refs_preserve_plain_v3_projection_and_support_qualifi
         _cycle_job_v1_design_problem_ref(unknown_version)
 
 
+def test_n6_revision_hints_reuse_profiles_but_remain_full_problem_identity() -> None:
+    """Only N6 grammar/revision state leaves both profile-selection projections."""
+
+    from polisyos.runtime.quality.cycle_substrate import (
+        cycle_job_design_problem_ref,
+        cycle_job_profile_selection_ref,
+        generic_n4_child_profile_selection_ref,
+    )
+
+    parent_payload = _design_problem().model_dump(mode="python")
+    parent_payload["schema_version"] = DESIGN_PROBLEM_V3_SCHEMA_VERSION
+    parent = DesignProblem.model_validate(parent_payload)
+    child_payload = parent.model_dump(mode="python")
+    source_result_ref = _hash("n4-source-result")
+    source_atom_refs = (_hash("n4-source-atom"),)
+    semantic_ref = _hash("n4-child-semantic")
+    child_payload["runtime_hints"] = {
+        **parent.runtime_hints,
+        "n4_candidate_child_source": {
+            "purpose": "candidate_lever_exploration_only",
+            "parent_design_problem_ref": cycle_job_design_problem_ref(parent),
+            "source_result_ref": source_result_ref,
+            "source_atom_refs": source_atom_refs,
+            "semantic_ref": semantic_ref,
+        },
+        "generation_cycle_grammar": ("seed",),
+        "generation_cycle_revision": {"revision_strategy": "initial"},
+    }
+    child = DesignProblem.model_validate(child_payload)
+
+    def child_selection_ref(problem: DesignProblem) -> str:
+        return generic_n4_child_profile_selection_ref(
+            problem,
+            parent_problem_ref=cycle_job_design_problem_ref(parent),
+            source_result_ref=source_result_ref,
+            source_atom_refs=source_atom_refs,
+            semantic_ref=semantic_ref,
+        )
+
+    revised_hints = {
+        **child.runtime_hints,
+        "generation_cycle_grammar": ("seed", "counterexample_driven"),
+        "generation_cycle_revision": {
+            "revision_strategy": "counterexample_driven",
+            "source_counterexample_ref": _hash("counterexample"),
+        },
+    }
+    revised = child.model_copy(update={"runtime_hints": revised_hints})
+
+    assert cycle_job_profile_selection_ref(child) == cycle_job_profile_selection_ref(revised)
+    assert child_selection_ref(child) == child_selection_ref(revised)
+    assert cycle_job_design_problem_ref(child) != cycle_job_design_problem_ref(revised)
+
+    changed_basis = revised.model_copy(
+        update={
+            "runtime_hints": {
+                **revised.runtime_hints,
+                "joint_simulation_budget_ref": "budget://different-basis",
+            }
+        }
+    )
+    assert cycle_job_profile_selection_ref(revised) != cycle_job_profile_selection_ref(
+        changed_basis
+    )
+    assert child_selection_ref(revised) != child_selection_ref(changed_basis)
+    assert cycle_job_design_problem_ref(revised) != cycle_job_design_problem_ref(changed_basis)
+
+
 def test_cycle_substrate_context_job_parser_returns_typed_failure_for_non_object() -> None:
     """Malformed persisted JSON roots fail through the owner error contract."""
 
@@ -336,6 +404,46 @@ def test_cycle_substrate_context_owner_persists_exact_job_scope_and_reads_direct
         )
         assert type(historical) is CycleSubstrateContextJobArtifact
         assert historical.content_hash == resolved.content_hash
+        historical_from_record_basis = owner.resolve_historical_job_artifact(
+            ref,
+            expected_design_problem_ref=problem_ref,
+            expected_job_id="job-context-owner",
+            expected_run_id="run-context-owner",
+            expected_tenant_id="tenant-context-owner",
+            expected_cell_id="cell-context-owner",
+        )
+        assert historical_from_record_basis.content_hash == resolved.content_hash
+        with pytest.raises(
+            CycleSubstrateContextOwnerError,
+            match="cycle_substrate_context_job_historical_binding_mismatch",
+        ):
+            owner.resolve_historical_job_artifact(
+                ref,
+                expected_design_problem_ref="sha256:" + "0" * 64,
+                expected_job_id="job-context-owner",
+                expected_run_id="run-context-owner",
+                expected_tenant_id="tenant-context-owner",
+                expected_cell_id="cell-context-owner",
+            )
+        expected_scope = {
+            "expected_design_problem_ref": problem_ref,
+            "expected_job_id": "job-context-owner",
+            "expected_run_id": "run-context-owner",
+            "expected_tenant_id": "tenant-context-owner",
+            "expected_cell_id": "cell-context-owner",
+        }
+        for field, foreign_value in (
+            ("expected_job_id", "job-foreign"),
+            ("expected_run_id", "run-foreign"),
+            ("expected_tenant_id", "tenant-foreign"),
+            ("expected_cell_id", "cell-foreign"),
+        ):
+            foreign_scope = {**expected_scope, field: foreign_value}
+            with pytest.raises(
+                CycleSubstrateContextOwnerError,
+                match="cycle_substrate_context_job_historical_binding_mismatch",
+            ):
+                owner.resolve_historical_job_artifact(ref, **foreign_scope)
 
     assert resolved.design_problem_ref == problem_ref
     assert resolved.problem == problem

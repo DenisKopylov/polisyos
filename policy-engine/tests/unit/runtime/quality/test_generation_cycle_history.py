@@ -1584,3 +1584,33 @@ def test_candidate_census_removal_stays_unrun_and_unrelated_control(tmp_path: Pa
     )
     assert unrelated_control.observed_direct_calls == ()
     assert unrelated_control.authority_currentness == "UNRUN"
+
+
+def test_context_history_consumer_requires_owner_anchored_initial_problem(
+    tmp_path: Path,
+) -> None:
+    """Historical bytes alone cannot supply the owner-persisted cycle-zero basis."""
+
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContextArtifactOwner
+    from polisyos.runtime.quality.generation_cycle import (
+        resolve_generation_cycle_run_context_history,
+    )
+
+    owner = CycleSubstrateContextArtifactOwner(store=FileSystemCAS(tmp_path / "history-cas"))
+    _fixture_name, run = _v3_history_fixtures()[0]
+    projection = resolve_generation_cycle_run_context_history(
+        run,
+        context_owner=owner,
+        initial_problem=None,
+        expected_job_id="job-history-owner",
+        expected_run_id="run-history-owner",
+        expected_tenant_id="tenant-history-owner",
+        expected_cell_id="cell-history-owner",
+    )
+
+    assert projection.status == "not_established"
+    assert projection.bindings == ()
+    assert projection.issues[0]["code"] == (
+        "generation_cycle_context_history_initial_basis_not_established"
+    )

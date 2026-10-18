@@ -6989,6 +6989,278 @@ def test_changed_population_and_model_rebind_owner_basis_and_occurrence(
     ) != core_contracts.c4_semantic_digest("candidate_occurrence", changed_occurrence_record)
 
 
+def test_generation_cycle_revision_scope_preserves_problem_population_and_model() -> None:
+    """Only the two N6-owned revision hints may vary across a context rebind."""
+
+    problem = _problem("context_rebind_scope")
+    revised = problem.model_copy(
+        update={
+            "runtime_hints": {
+                **problem.runtime_hints,
+                "generation_cycle_grammar": ("seed", "owned_axis"),
+                "generation_cycle_revision": {"revision_strategy": "counterexample"},
+            }
+        }
+    )
+
+    assert generation_cycle_module._generation_cycle_revision_problem_scope_projection(
+        problem
+    ) == generation_cycle_module._generation_cycle_revision_problem_scope_projection(revised)
+    for changed in (
+        revised.model_copy(update={"model_spec_ref": "sha256:" + "9" * 64}),
+        revised.model_copy(
+            update={
+                "stakeholders": [
+                    DesignStakeholder(
+                        stakeholder_id="different_population",
+                        name="Different population",
+                        role="target_population",
+                    )
+                ]
+            }
+        ),
+        revised.model_copy(
+            update={
+                "jurisdiction_time": revised.jurisdiction_time.model_copy(update={"region": "PL"})
+            }
+        ),
+    ):
+        assert generation_cycle_module._generation_cycle_revision_problem_scope_projection(
+            problem
+        ) != generation_cycle_module._generation_cycle_revision_problem_scope_projection(changed)
+
+
+@_requires_owner_catalog
+def test_cycle_context_revision_rejects_changed_problem_scope() -> None:
+    """Population, model, and jurisdiction edits cannot ride an N6 hint rebind."""
+
+    problem, context, _candidate = _canonical_strict_world_case()
+    controller = GenerationCycleController(cycle_substrate_context=context)
+    revised = problem.model_copy(
+        update={
+            "runtime_hints": {
+                **problem.runtime_hints,
+                "generation_cycle_grammar": ("seed", "owned_axis"),
+                "generation_cycle_revision": {"revision_strategy": "counterexample"},
+            }
+        }
+    )
+    changed_problems = (
+        revised.model_copy(update={"model_spec_ref": "sha256:" + "9" * 64}),
+        revised.model_copy(
+            update={
+                "stakeholders": [
+                    DesignStakeholder(
+                        stakeholder_id="different_population",
+                        name="Different population",
+                        role="target_population",
+                    )
+                ]
+            }
+        ),
+        revised.model_copy(
+            update={
+                "jurisdiction_time": revised.jurisdiction_time.model_copy(update={"region": "PL"})
+            }
+        ),
+    )
+
+    for changed in changed_problems:
+        with pytest.raises(
+            GenerationCycleError,
+            match="generation_cycle_revision_problem_scope_changed",
+        ):
+            controller._rebind_cycle_substrate_context_for_revision(problem, changed)
+
+
+@_requires_owner_catalog
+def test_cycle_context_revision_discovers_generation_port_context() -> None:
+    """A controller cannot skip rebinding by storing context only on its N4 port."""
+
+    problem, context, _candidate = _canonical_strict_world_case()
+    generation_port = SimpleNamespace(_cycle_substrate_context=context)
+    controller = GenerationCycleController(generation_port=generation_port)
+    revised = problem.model_copy(
+        update={
+            "runtime_hints": {
+                **problem.runtime_hints,
+                "generation_cycle_grammar": ("seed", "owned_axis"),
+                "generation_cycle_revision": {"revision_strategy": "counterexample"},
+            }
+        }
+    )
+
+    with pytest.raises(
+        GenerationCycleError,
+        match="generation_cycle_context_rebind_owner_missing",
+    ):
+        controller._rebind_cycle_substrate_context_for_revision(problem, revised)
+
+
+@_requires_owner_catalog
+def test_cycle_context_revision_rejects_stale_context_content() -> None:
+    """A stale context self-hash is refused before any new owner artifact is written."""
+
+    problem, context, _candidate = _canonical_strict_world_case()
+    stale_context = context.model_copy(update={"content_hash": "sha256:" + "0" * 64})
+    controller = GenerationCycleController(cycle_substrate_context=stale_context)
+    revised = problem.model_copy(
+        update={
+            "runtime_hints": {
+                **problem.runtime_hints,
+                "generation_cycle_grammar": ("seed", "owned_axis"),
+                "generation_cycle_revision": {"revision_strategy": "counterexample"},
+            }
+        }
+    )
+
+    with pytest.raises(
+        GenerationCycleError,
+        match="generation_cycle_context_rebind_prior_context_invalid",
+    ):
+        controller._rebind_cycle_substrate_context_for_revision(problem, revised)
+
+
+@pytest.mark.asyncio
+@_requires_owner_catalog
+async def test_cycle_context_revision_refuses_without_verified_job_scope(
+    tmp_path: Path,
+) -> None:
+    """A controller cannot turn an unissued job scope into a current owner write."""
+
+    from types import SimpleNamespace
+
+    from polisyos.core.security import (
+        AccessScope,
+        reset_current_access_scope,
+        set_current_access_scope,
+        tenant_scope,
+    )
+    from polisyos.runtime.quality.cycle_substrate import (
+        CycleSubstrateContextArtifactOwner,
+    )
+
+    problem, context, _candidate = _canonical_strict_world_case()
+    artifact_store = FileSystemCAS(
+        tmp_path / "cycle-context-foreign-job-cas",
+        ownership_enforced=True,
+        ownership_requires_scope=True,
+    )
+
+    class ChangingCurrentJobOwner:
+        def __init__(self) -> None:
+            self.calls = 0
+
+        def current_execution_job_record(self) -> SimpleNamespace:
+            self.calls += 1
+            job_id = "job-cycle-context-owner" if self.calls == 1 else "job-foreign"
+            run_id = "run-cycle-context-owner" if self.calls == 1 else "run-foreign"
+            return SimpleNamespace(job_id=job_id, run_id=run_id)
+
+    job_owner = ChangingCurrentJobOwner()
+    context_owner = CycleSubstrateContextArtifactOwner(
+        store=artifact_store,
+        control_store=job_owner,
+    )
+    controller = GenerationCycleController(
+        artifact_store=artifact_store,
+        cycle_substrate_context=context,
+        candidate_cycle_context_artifact_owner=context_owner,
+        authority_scope="contract_testing",
+    )
+    revised = problem.model_copy(
+        update={
+            "runtime_hints": {
+                **problem.runtime_hints,
+                "generation_cycle_grammar": ("seed", "owned_axis"),
+                "generation_cycle_revision": {"revision_strategy": "counterexample"},
+            }
+        }
+    )
+    tenant_id = "tenant-cycle-context-owner"
+    cell_id = "cell-cycle-context-owner"
+    access_scope = AccessScope.for_service(
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+        spiffe_id="spiffe://tests/policyos/generation-cycle-context-owner",
+    )
+    token = set_current_access_scope(access_scope)
+    try:
+        with (
+            tenant_scope(None, tenant_id=tenant_id, cell_id=cell_id),
+            pytest.raises(
+                GenerationCycleError,
+                match="generation_cycle_context_rebind_verified_scope_missing",
+            ),
+        ):
+            controller._rebind_cycle_substrate_context_for_revision(problem, revised)
+    finally:
+        reset_current_access_scope(token)
+
+    assert job_owner.calls == 0
+    assert controller._candidate_cycle_context_job_ref is None
+
+
+def test_cycle_context_job_ref_binds_source_profile_free_n7_context() -> None:
+    """N7 owner contexts receive the same per-cycle ref binding as V5 contexts."""
+
+    _problem_value, context, _candidate = _canonical_strict_world_case()
+    assert context.source_profile is None
+    context_ref = ArtifactRef.model_validate(
+        {
+            "artifact_id": "sha256:" + "1" * 64,
+            "kind": "runtime.quality.cycle_substrate_context_job",
+            "media_type": "application/json",
+        }
+    )
+    controller = GenerationCycleController(cycle_substrate_context=context)
+    controller._candidate_cycle_context_job_ref = context_ref
+
+    observation = SimulationPortObservation(
+        candidate_id="candidate_n7_reentry",
+        status="simulation_pending_n5",
+    )
+
+    bound = controller._bind_cycle_context_job_ref_to_simulation(observation)
+
+    assert bound.cycle_substrate_context_job_ref == context_ref
+    history_payload = {
+        "cycles": [
+            {"simulation": {"cycle_substrate_context_job_ref": context_ref.model_dump(mode="json")}}
+        ]
+    }
+    assert (
+        "cycle_substrate_context_job_ref"
+        not in (
+            generation_cycle_module._generation_cycle_v5_wire_projection(history_payload)["cycles"][
+                0
+            ]["simulation"]
+        )
+    )
+    assert (
+        "cycle_substrate_context_job_ref"
+        not in (
+            generation_cycle_module._generation_cycle_v6_wire_projection(history_payload)["cycles"][
+                0
+            ]["simulation"]
+        )
+    )
+    with pytest.raises(ValueError, match="generation_cycle_context_job_ref_handoff_mismatch"):
+        SimulationPortObservation.model_validate(
+            {
+                **observation.model_dump(mode="python"),
+                "cycle_substrate_context_job_ref": context_ref,
+                "generic_context_job_ref": ArtifactRef.model_validate(
+                    {
+                        "artifact_id": "sha256:" + "2" * 64,
+                        "kind": "runtime.quality.cycle_substrate_context_job",
+                        "media_type": "application/json",
+                    }
+                ),
+            }
+        )
+
+
 def test_no_retry_without_new_grammar_blocks_same_candidate_retry() -> None:
     with pytest.raises(GenerationCycleError, match="no_retry_without_new_grammar"):
         enforce_no_retry_without_new_grammar(

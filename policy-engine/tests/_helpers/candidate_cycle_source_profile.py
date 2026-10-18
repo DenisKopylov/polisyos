@@ -149,7 +149,11 @@ def _authenticated_fixture_scope(*, tenant_id: str, cell_id: str):
         reset_current_access_scope(token)
 
 
-def _problem(*, runtime_hints: Mapping[str, Any] | None) -> DesignProblem:
+def _problem(
+    *,
+    runtime_hints: Mapping[str, Any] | None,
+    outcome_variable: str = "education.learning_outcomes",
+) -> DesignProblem:
     hints = dict(runtime_hints or {})
     hints.update(_REQUIRED_N5_HINTS)
     hints[_PROFILE_SELECTION_KEY] = CandidateCycleSubstrateSourceProfileSelection(
@@ -182,14 +186,14 @@ def _problem(*, runtime_hints: Mapping[str, Any] | None) -> DesignProblem:
                 {
                     "objective_id": "improve_learning",
                     "description": "Exercise a candidate-only outcome path.",
-                    "metric_id": "learning_outcomes",
+                    "metric_id": outcome_variable.rsplit(".", 1)[-1],
                 }
             ],
             "stakeholders": [{"stakeholder_id": "students", "name": "Students"}],
             "outcome_of_interest": {
-                "target_variable": "education.learning_outcomes",
-                "metric_id": "learning_outcomes",
-                "estimand": "P(education.learning_outcomes | do(education.teaching_method))",
+                "target_variable": outcome_variable,
+                "metric_id": outcome_variable.rsplit(".", 1)[-1],
+                "estimand": f"P({outcome_variable} | do(education.teaching_method))",
                 "direction": "maximize",
             },
             "candidate_lever_space": {
@@ -437,6 +441,7 @@ def build_candidate_cycle_substrate_route_inputs(
     tmp_path: Path,
     *,
     runtime_hints: Mapping[str, Any] | None = None,
+    outcome_variable: str = "education.learning_outcomes",
 ) -> CandidateCycleSubstrateRouteInputs:
     """Build only selected-profile source inputs beneath a caller-owned temp root.
 
@@ -455,7 +460,7 @@ def build_candidate_cycle_substrate_route_inputs(
 
     root = (tmp_path / "policy-engine").resolve()
     root.mkdir(parents=True, exist_ok=False)
-    problem = _problem(runtime_hints=runtime_hints)
+    problem = _problem(runtime_hints=runtime_hints, outcome_variable=outcome_variable)
     skg_path, version_id = _build_source_files(root)
     registry = _build_registry(skg_path, root=root, version_id=version_id)
     selected_entry_hashes = tuple(sorted(entry.entry_content_hash for entry in registry.entries))
@@ -508,6 +513,7 @@ def build_candidate_cycle_substrate_owner_fixture(
     tmp_path: Path,
     *,
     runtime_hints: Mapping[str, Any] | None = None,
+    outcome_variable: str = "education.learning_outcomes",
 ) -> CandidateCycleSubstrateOwnerFixture:
     """Build owner evidence, a typed profile, and a fresh V5 CAS round-trip.
 
@@ -526,6 +532,7 @@ def build_candidate_cycle_substrate_owner_fixture(
     inputs = build_candidate_cycle_substrate_route_inputs(
         tmp_path,
         runtime_hints=runtime_hints,
+        outcome_variable=outcome_variable,
     )
     root = inputs.root
     problem = inputs.problem

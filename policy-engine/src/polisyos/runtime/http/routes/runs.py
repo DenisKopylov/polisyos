@@ -1167,9 +1167,11 @@ def _candidate_simulation_projection(
         COMPILED_RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION,
         CompiledRecursiveGenerationCycleRun,
     )
+    from polisyos.runtime.quality.cycle_substrate import cycle_job_design_problem_ref
     from polisyos.runtime.quality.generation_cycle import (
         _joint_simulation_port_outcome,
         load_joint_simulation_result,
+        resolve_generation_cycle_run_context_history,
     )
     from polisyos.runtime.quality.generation_source import GenerationSourceRepository
     from polisyos.runtime.quality.recursive_generation_cycle import (
@@ -1348,6 +1350,7 @@ def _candidate_simulation_projection(
     )
     child_profile_limitation_code = compiled.n4_child_profile_limitation_code
     child_profile_bindings: list[RunCandidateSimulationChildProfileBinding] = []
+    child_problem_by_node: dict[str, Any] = {}
     if compiled.n4_child_profile_bindings:
         try:
             if n4_source_status != "resolved" or root_n4_source is None:
@@ -1376,6 +1379,9 @@ def _candidate_simulation_projection(
                     "sha256:"
                 ): child
                 for child in derived_children
+            }
+            child_problem_by_node = {
+                node_ref: child.problem for node_ref, child in child_by_ref.items()
             }
             root_node_ref = "design-problem://" + compiled.design_problem_ref.removeprefix(
                 "sha256:"
@@ -1468,6 +1474,37 @@ def _candidate_simulation_projection(
         row.node_ref: row.handoff for row in compiled.n4_child_profile_bindings
     }
     child_projection_by_node = {row.node_ref: row for row in child_profile_bindings}
+    context_history_by_node: dict[str, Any] = {}
+    if (
+        compiled.n4_recursive_source_job_id is not None
+        and compiled.n4_recursive_source_run_id is not None
+        and compiled.n4_recursive_source_tenant_id == tenant_id
+        and compiled.n4_recursive_source_cell_id == cell_id
+    ):
+        from polisyos.runtime.quality.cycle_substrate import (
+            CycleSubstrateContextArtifactOwner,
+        )
+
+        context_owner = CycleSubstrateContextArtifactOwner(store=store)
+        for node in recursive_run.nodes:
+            if not isinstance(node, RecursiveCycleNode) or node.cycle_run is None:
+                continue
+            initial_problem = (
+                compiled.design_problem
+                if node.node_ref == root_node_ref
+                else child_problem_by_node.get(node.node_ref)
+            )
+            if initial_problem is None:
+                continue
+            context_history_by_node[node.node_ref] = resolve_generation_cycle_run_context_history(
+                node.cycle_run,
+                context_owner=context_owner,
+                initial_problem=initial_problem,
+                expected_job_id=compiled.n4_recursive_source_job_id,
+                expected_run_id=compiled.n4_recursive_source_run_id,
+                expected_tenant_id=tenant_id,
+                expected_cell_id=cell_id,
+            )
     n4_projection_fields = {
         "n4_recursive_source_ref": compiled.n4_recursive_source_ref,
         "n4_recursive_source_content_hash": n4_source_content_hash,
@@ -1504,7 +1541,13 @@ def _candidate_simulation_projection(
 
     resolved_lineage_by_input_ref: dict[str, Any] = {}
 
-    def _lineage_projection(simulation: Any, *, node_ref: str, problem_ref: str) -> dict[str, Any]:
+    def _lineage_projection(
+        simulation: Any,
+        *,
+        node_ref: str,
+        problem_ref: str,
+        cycle_index: int,
+    ) -> dict[str, Any]:
         selected_refs = (
             simulation.candidate_simulation_n4_source_ref,
             simulation.candidate_simulation_context_job_ref,
@@ -1528,6 +1571,44 @@ def _candidate_simulation_projection(
             )
         ):
             return common
+        context_history = context_history_by_node.get(node_ref)
+        if context_history is None or context_history.status != "resolved":
+            return {
+                **common,
+                "lineage_limitation_code": "generation_cycle_context_history_not_established",
+            }
+        context_binding = next(
+            (row for row in context_history.bindings if row.cycle_index == cycle_index),
+            None,
+        )
+        if (
+            context_binding is None
+            or cycle_job_design_problem_ref(context_binding.problem) != problem_ref
+            or artifact_ref_identity_key(context_binding.context_job_ref)
+            != artifact_ref_identity_key(simulation.candidate_simulation_context_job_ref)
+        ):
+            return {
+                **common,
+                "lineage_limitation_code": "generation_cycle_context_history_join_mismatch",
+            }
+        if cycle_index == 0:
+            initial_handoff = compiled_child_handoffs.get(node_ref)
+            initial_context_ref = (
+                compiled.n4_recursive_source_context_job_ref
+                if node_ref == root_node_ref
+                else initial_handoff.context_job_ref
+                if initial_handoff is not None
+                else None
+            )
+            if initial_context_ref is None or artifact_ref_identity_key(
+                context_binding.context_job_ref
+            ) != artifact_ref_identity_key(initial_context_ref):
+                return {
+                    **common,
+                    "lineage_limitation_code": (
+                        "generation_cycle_context_history_initial_basis_mismatch"
+                    ),
+                }
         try:
             from polisyos.runtime.quality.candidate_simulation import (
                 candidate_simulation_profile_ref,
@@ -1602,7 +1683,6 @@ def _candidate_simulation_projection(
                 if (
                     n4_source_status != "resolved"
                     or n4_source_content_hash is None
-                    or compiled.n4_recursive_source_context_job_ref != lineage.context_job_ref
                     or compiled.n4_recursive_source_profile_config_ref != lineage.profile_config_ref
                     or compiled.n4_recursive_source_profile_selection_ref
                     != cycle_job_profile_selection_ref(compiled.design_problem)
@@ -1617,7 +1697,6 @@ def _candidate_simulation_projection(
                     or child_handoff is None
                     or child_projection is None
                     or child_projection.historical_binding_status != "resolved"
-                    or child_handoff.context_job_ref != lineage.context_job_ref
                     or child_handoff.profile_config_ref != lineage.profile_config_ref
                     or child_handoff.profile.content_hash != lineage.profile.content_hash
                     or child_handoff.model_declaration_ref != lineage.model_declaration_ref
@@ -1705,7 +1784,8 @@ def _candidate_simulation_projection(
                     lineage_fields = _lineage_projection(
                         simulation,
                         node_ref=node.node_ref,
-                        problem_ref=cycle.design_problem_ref,
+                        problem_ref=(cycle.design_problem_basis_ref or cycle.design_problem_ref),
+                        cycle_index=cycle.cycle_index,
                     )
                     observations.append(
                         RunCandidateSimulationN5Observation(
@@ -2334,6 +2414,7 @@ def _generic_cycle_simulation_projection(
     from polisyos.runtime.quality.cycle_substrate import (
         CycleSubstrateContextArtifactOwner,
         cycle_job_design_problem_ref,
+        generic_n4_child_profile_selection_ref,
     )
     from polisyos.runtime.quality.design_generation import (
         derive_n4_candidate_child_problems,
@@ -2341,6 +2422,7 @@ def _generic_cycle_simulation_projection(
     from polisyos.runtime.quality.generation_cycle import (
         _joint_simulation_port_outcome,
         load_joint_simulation_result,
+        resolve_generation_cycle_run_context_history,
     )
     from polisyos.runtime.quality.generation_source import GenerationSourceRepository
     from polisyos.runtime.quality.generic_simulation_admission import (
@@ -2771,6 +2853,19 @@ def _generic_cycle_simulation_projection(
                 n5_limitation = "generic_n5_sibling_checkpoint_not_established"
                 continue
             binding = child_rows[node_ref]
+            history_projection = resolve_generation_cycle_run_context_history(
+                node.cycle_run,
+                context_owner=context_owner,
+                initial_problem=binding.problem,
+                expected_job_id=family.job_id,
+                expected_run_id=family.run_id,
+                expected_tenant_id=family.tenant_id,
+                expected_cell_id=family.cell_id,
+            )
+            if history_projection.status != "resolved":
+                n5_limitation = "generation_cycle_context_history_not_established"
+                continue
+            history_by_index = {row.cycle_index: row for row in history_projection.bindings}
             for cycle in node.cycle_run.cycles:
                 simulation = cycle.simulation
                 generic_refs = (
@@ -2798,20 +2893,67 @@ def _generic_cycle_simulation_projection(
                     execution_ref,
                     selection_ref,
                 ) = generic_refs
+                history_binding = history_by_index.get(cycle.cycle_index)
+                if history_binding is None:
+                    raise ValueError("generic_n5_cycle_context_history_binding_missing")
+                if cycle.cycle_index == 0 and (
+                    artifact_ref_identity_key(history_binding.context_job_ref)
+                    != artifact_ref_identity_key(binding.handoff.context_job_ref)
+                    or history_binding.context.content_hash != binding.handoff.context.content_hash
+                ):
+                    raise ValueError("generic_n5_cycle_initial_context_binding_mismatch")
                 if (
                     cycle.design_problem_ref != cycle_job_design_problem_ref(binding.problem)
-                    or cycle_source_ref != family.source_ref
-                    or cycle_context_ref != binding.handoff.context_job_ref
+                    or cycle_context_ref is None
+                    or artifact_ref_identity_key(cycle_context_ref)
+                    != artifact_ref_identity_key(history_binding.context_job_ref)
                     or cycle_profile_ref != binding.handoff.profile_ref
                     or cycle_family_ref != family.n4_child_profile_family_ref
                     or cycle_set_ref != set_ref
                     or selection_ref != binding.selection.profile_selection_ref
                 ):
                     raise ValueError("generic_n5_compiled_child_binding_mismatch")
+                if cycle.design_problem_basis_ref != cycle_job_design_problem_ref(
+                    history_binding.problem
+                ):
+                    raise ValueError("generic_n5_cycle_problem_basis_mismatch")
                 input_record = GenericCycleSimulationN5InputV1.model_validate(
                     read_core_json_artifact(store, input_ref).value
                 )
                 generic_owner.resolve_n5_input(input_ref, expected=input_record)
+                cycle_source = source_repository.load(
+                    cycle_source_ref,
+                    run_id=family.source_run_id,
+                    expected_run_id=family.run_id,
+                    expected_job_id=family.job_id,
+                    expected_tenant_id=family.tenant_id,
+                    expected_cell_id=family.cell_id,
+                    context_job_ref=history_binding.context_job_ref,
+                    profile_ref=cycle_profile_ref,
+                    n4_child_profile_family_ref=family.n4_child_profile_family_ref,
+                )
+                if (
+                    cycle_source.problem != history_binding.problem
+                    or cycle_source.cycle_index != cycle.cycle_index
+                    or cycle_source.cycle_substrate_context is None
+                    or cycle_source.cycle_substrate_context.content_hash
+                    != history_binding.context.content_hash
+                    or not generic_owner.context_matches_profile(
+                        history_binding.context,
+                        input_record.profile,
+                        history_binding.problem,
+                    )
+                ):
+                    raise ValueError("generic_n5_cycle_source_context_history_mismatch")
+                source_candidates = tuple(
+                    candidate
+                    for candidate in cycle_source.generation_result.candidates
+                    if candidate.candidate_id == input_record.candidate_id
+                    and getattr(getattr(candidate, "atom", None), "content_hash", None)
+                    == input_record.candidate_atom_hash
+                )
+                if len(source_candidates) != 1:
+                    raise ValueError("generic_n5_cycle_candidate_source_mismatch")
                 execution = parse_generic_cycle_simulation_n5_execution(
                     read_core_json_artifact(store, execution_ref).value
                 )
@@ -2828,24 +2970,67 @@ def _generic_cycle_simulation_projection(
                     and type(execution.request_binding) is GenericCycleSimulationN5RequestBindingV2
                     else None
                 )
+                input_selection = input_record.child_selection
+                expected_selection_ref = generic_n4_child_profile_selection_ref(
+                    history_binding.problem,
+                    parent_problem_ref=binding.selection.parent_problem_ref,
+                    source_result_ref=binding.selection.source_result_ref,
+                    source_atom_refs=binding.selection.source_atom_refs,
+                    semantic_ref=binding.selection.semantic_ref,
+                )
                 if (
-                    input_record.n4_source_ref != family.source_ref
+                    input_selection is None
+                    or input_selection.problem != history_binding.problem
+                    or input_selection.full_child_problem_ref
+                    != cycle_job_design_problem_ref(history_binding.problem)
+                    or input_selection.profile_selection_ref != expected_selection_ref
+                    or input_selection.profile_selection_ref
+                    != binding.selection.profile_selection_ref
+                    or input_selection.node_ref != binding.selection.node_ref
+                    or input_selection.parent_ref != binding.selection.parent_ref
+                    or input_selection.parent_problem != binding.selection.parent_problem
+                    or input_selection.parent_handoff != binding.selection.parent_handoff
+                    or input_selection.parent_problem_ref != binding.selection.parent_problem_ref
+                    or input_selection.source_result_ref != binding.selection.source_result_ref
+                    or input_selection.source_atom_refs != binding.selection.source_atom_refs
+                    or input_selection.semantic_ref != binding.selection.semantic_ref
+                    or input_selection.n4_child_profile_family_ref
+                    != family.n4_child_profile_family_ref
+                ):
+                    raise ValueError("generic_n5_cycle_child_selection_rebind_mismatch")
+                if (
+                    input_record.job_id != family.job_id
+                    or input_record.run_id != family.run_id
+                    or input_record.source_run_id != family.source_run_id
+                    or input_record.tenant_id != family.tenant_id
+                    or input_record.cell_id != family.cell_id
+                    or input_record.cycle_index != cycle.cycle_index
+                    or input_record.n4_source_ref != cycle_source_ref
                     or input_record.n4_child_profile_family_ref
                     != family.n4_child_profile_family_ref
                     or input_record.n4_child_profile_set_ref != set_ref
-                    or input_record.child_selection != binding.selection
-                    or input_record.context_job_ref != binding.handoff.context_job_ref
+                    or input_record.child_selection != execution.child_selection
+                    or artifact_ref_identity_key(input_record.context_job_ref)
+                    != artifact_ref_identity_key(history_binding.context_job_ref)
                     or input_record.profile_ref != binding.handoff.profile_ref
                     or input_record.profile != binding.handoff.profile
-                    or input_record.design_problem_ref != cycle.design_problem_ref
+                    or input_record.design_problem_ref != cycle.design_problem_basis_ref
                     or input_record.candidate_id != simulation.candidate_id
+                    or input_record.candidate_id != source_candidates[0].candidate_id
+                    or input_record.candidate_atom_hash != source_candidates[0].atom.content_hash
                     or input_record.profile.profile_selection_ref != selection_ref
                     or execution.input_ref != input_ref
                     or execution.result_ref != simulation.simulation_result_ref
-                    or execution.n4_source_ref != family.source_ref
+                    or execution.job_id != family.job_id
+                    or execution.run_id != family.run_id
+                    or execution.source_run_id != family.source_run_id
+                    or execution.tenant_id != family.tenant_id
+                    or execution.cell_id != family.cell_id
+                    or execution.n4_source_ref != cycle_source_ref
                     or execution.n4_child_profile_family_ref != family.n4_child_profile_family_ref
                     or execution.n4_child_profile_set_ref != set_ref
-                    or execution.context_job_ref != binding.handoff.context_job_ref
+                    or artifact_ref_identity_key(execution.context_job_ref)
+                    != artifact_ref_identity_key(history_binding.context_job_ref)
                     or execution.profile_ref != binding.handoff.profile_ref
                     or execution.profile_selection_ref != selection_ref
                     or execution.status != simulation.status
@@ -3006,8 +3191,8 @@ def _generic_cycle_simulation_projection(
                         simulation_result_body=result_body,
                         simulation_result_body_status=result_body_status,
                         simulation_result_body_limitation_code=result_body_limitation_code,
-                        n4_source_ref=family.source_ref,
-                        context_job_ref=binding.handoff.context_job_ref,
+                        n4_source_ref=cycle_source_ref,
+                        context_job_ref=history_binding.context_job_ref,
                         profile_ref=binding.handoff.profile_ref,
                         child_profile_family_ref=family.n4_child_profile_family_ref,
                         child_profile_set_ref=set_ref,

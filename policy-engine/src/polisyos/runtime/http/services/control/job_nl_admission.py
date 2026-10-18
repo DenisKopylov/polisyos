@@ -384,6 +384,7 @@ class ControlNLJobAdmissionMixin:
                     admission_owner=admission_owner,
                     generic_admission_owner=generic_admission_owner,
                     verified_nl_job_scope=verified_nl_job_scope,
+                    repo_root=self._repo_root,
                 )
 
             def resolve_cycle_substrate_context(
@@ -516,6 +517,7 @@ class ControlNLJobAdmissionMixin:
                     admission_owner=(admission_owner if configured_candidate_owner else None),
                     generic_admission_owner=generic_admission_owner,
                     verified_nl_job_scope=verified_nl_job_scope,
+                    repo_root=self._repo_root,
                 )
 
             generic_handoff_binding: dict[str, object] = {}
@@ -544,12 +546,14 @@ class ControlNLJobAdmissionMixin:
                     cell_id=bound_cell_id,
                     verified_nl_job_scope=verified_nl_job_scope,
                     context_owner=context_artifact_owner,
+                    repo_root=self._repo_root,
                 )
                 replayed = generic_admission_owner.resolve_handoff(
                     handoff=handoff,
                     problem=problem,
                     verified_nl_job_scope=verified_nl_job_scope,
                     context_owner=context_artifact_owner,
+                    repo_root=self._repo_root,
                 )
                 if replayed != handoff:
                     raise RuntimeError("generic_cycle_simulation_handoff_replay_changed")
@@ -560,6 +564,7 @@ class ControlNLJobAdmissionMixin:
                         parent_problem=problem,
                         verified_nl_job_scope=verified_nl_job_scope,
                         context_owner=context_artifact_owner,
+                        repo_root=self._repo_root,
                     )
                 generic_handoff_binding["handoff"] = handoff
                 generic_handoff_binding["problem"] = problem
@@ -581,6 +586,7 @@ class ControlNLJobAdmissionMixin:
                         problem=problem,
                         verified_nl_job_scope=verified_nl_job_scope,
                         context_owner=context_artifact_owner,
+                        repo_root=self._repo_root,
                     )
                     if replayed != handoff:
                         return False
@@ -591,6 +597,7 @@ class ControlNLJobAdmissionMixin:
                             parent_problem=problem,
                             verified_nl_job_scope=verified_nl_job_scope,
                             context_owner=context_artifact_owner,
+                            repo_root=self._repo_root,
                         )
                 except Exception:
                     return False

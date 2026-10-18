@@ -11587,5 +11587,58 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "b31-per-field-source-unit-fixture-r4-20261018": {
+    "slice_base": "11b7d0dffc75982efc9563974a109d0d004e64c8",
+    "canonical_writer": "root only; exact independently reviewed source patch",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/_helpers/semantic_epoch_native.py": {
+        "operation": "modify",
+        "preimage_sha256": "689d1079493a07cdff489454634cf6bd220594d1ba16c0450dc72f1b88b747ab",
+        "postimage_sha256": "794118cfdf87a910a5e8857cd5b104d606f1412ec299051072f3e0f63f9b457d",
+        "role": "mandatory synthetic source/unit fixture helper and N8 channel test"
+      },
+      "policy-engine/tests/unit/runtime/quality/test_value_gate.py": {
+        "operation": "modify",
+        "preimage_sha256": "4b6c43dcd8f9b9a8a043c8ba13b4527f12f1e74b04f8ed737a4e8779de804ce7",
+        "postimage_sha256": "da7b74c4b01b2b558a56008c9a6997fb8fa216232c268609031b8881d3274bca",
+        "role": "mandatory synthetic source/unit fixture helper and N8 channel test"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b31-r4-11b7-source-adoption-20261018/source-application.json",
+      "sha256": "b066397a18519b152e2a37c75de0022a40d6484d09094628f955572eced24578"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-s3-b31-channel-preservation-test-r4-20261018/candidate.json",
+        "sha256": "a47f940db37e4e5f4f7f185a9644664520c2b08bd8528219e40692ba8cb4d8f4"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-s3-b31-channel-preservation-test-r4-20261018/candidate.patch",
+        "sha256": "bfbfd6c6cef30ffc109fe7cc3d6330c1c6622441a529cda2e18b0cbcb603e818"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-s3-b31-r4-independent-20261018/manifest.json",
+        "sha256": "413fcbc499146cd828df7bf0327a94ed8284aa46135da0912351dd89b8a0f585"
+      }
+    ],
+    "property": "Content-bind per-raw-field units through controlled source bytes, rights receipts and CAS payloads; carry native CI [1,10] separately from ID [4,4] through real N8/fresh consumer without laundering synthetic estimates into authority.",
+    "P40": "Same B31 subject/unit fixture class; widened whole synthetic source/role/measurement fixture, no product admission weakening.",
+    "limitations": [
+      "Report and bounds numerical producers are synthetic test doubles, no authentic causal fact or owner authority.",
+      "Existing real AIPW/TMLE 7be actual passed before this helper change; no automatic current-source reuse is claimed.",
+      "Runtime new focused selector UNRUN at adoption."
+    ],
+    "runtime": "UNRUN at adoption",
+    "next_check": {
+      "scope": "one new selector only; prior four passing selectors need not be repeated unless affected",
+      "selectors": [
+        "policy-engine/tests/unit/runtime/quality/test_value_gate.py::test_n8_source_projection_preserves_synthetic_asymmetric_ci_through_fresh_cas"
+      ]
+    },
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

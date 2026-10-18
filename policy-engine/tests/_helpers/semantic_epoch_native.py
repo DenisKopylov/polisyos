@@ -746,12 +746,58 @@ def _write_l5(repo_root: Path) -> Path:
     return path
 
 
+def _source_rows_by_raw_field(
+    source_rows: list[dict[str, object]],
+    variable_specs: Sequence[Mapping[str, object]],
+    condition_units_by_raw_field: Mapping[str, str] | None,
+) -> dict[str, list[dict[str, object]]]:
+    """Bind optional synthetic condition units to each selected raw field."""
+    raw_fields = tuple(dict.fromkeys(str(spec["raw_field"]) for spec in variable_specs))
+    if condition_units_by_raw_field is None:
+        return dict.fromkeys(raw_fields, source_rows)
+    if set(condition_units_by_raw_field) != set(raw_fields):
+        raise ValueError("native_epoch_fixture_condition_unit_fields_mismatch")
+    rows_by_raw_field: dict[str, list[dict[str, object]]] = {}
+    for raw_field in raw_fields:
+        unit = condition_units_by_raw_field[raw_field]
+        if not isinstance(unit, str) or not unit.strip():
+            raise ValueError("native_epoch_fixture_condition_unit_missing")
+        selected_rows: list[dict[str, object]] = []
+        for row in source_rows:
+            condition_value = row.get("condition_json", "{}")
+            if not isinstance(condition_value, str):
+                raise ValueError("native_epoch_fixture_condition_json_malformed")
+            try:
+                condition = json.loads(condition_value)
+            except json.JSONDecodeError as exc:
+                raise ValueError("native_epoch_fixture_condition_json_malformed") from exc
+            if not isinstance(condition, dict):
+                raise ValueError("native_epoch_fixture_condition_json_wrong_shape")
+            existing_unit = condition.get("unit")
+            if existing_unit not in (None, "", unit):
+                raise ValueError("native_epoch_fixture_condition_unit_conflicts")
+            condition["unit"] = unit
+            selected_rows.append(
+                {
+                    **row,
+                    "condition_json": json.dumps(
+                        condition,
+                        sort_keys=True,
+                        separators=(",", ":"),
+                    ),
+                }
+            )
+        rows_by_raw_field[raw_field] = selected_rows
+    return rows_by_raw_field
+
+
 def _authority(
     tmp_path: Path,
     *,
     source_rows: list[dict[str, object]],
     variable_specs: Sequence[Mapping[str, object]] | None = None,
     unadmitted_baseline_observations: Sequence[Mapping[str, object]] = (),
+    condition_units_by_raw_field: Mapping[str, str] | None = None,
 ):
     repo_root = tmp_path / "repo"
     graph = catalog_read_api.build_slice0_fixture_catalog_graph(repo_root / "catalog")
@@ -783,9 +829,28 @@ def _authority(
                 )
         finally:
             connection.close()
-    source_path = repo_root / "evidence/local-distress.json"
-    source_path.parent.mkdir(parents=True, exist_ok=True)
-    source_path.write_bytes(canonical_json_bytes(source_rows))
+    if variable_specs is None:
+        selected_specs: tuple[Mapping[str, object], ...] = (
+            {
+                "target_variable": "cells.distress_score",
+                "raw_field": "distress_score",
+                "raw_unit": "ratio",
+                "canonical_unit": "ratio",
+                "landing_dataset_id": "acquisition.local.corrected_firm_panels",
+                "landing_distribution_id": "acquisition.local.corrected_firm_panels.json",
+                "unit_transform_ref": "fabric://units/ratio-identity/v1",
+                "schema_contract_ref": "repo://acquisition-registry#/local-distress/schema",
+                "title": "Owner-validated local distress observations",
+                "description": "Content-bound local observations for the distress slot.",
+                "temporal_start": "2024",
+                "temporal_end": "2025",
+            },
+        )
+    else:
+        selected_specs = tuple(variable_specs)
+    source_rows_by_raw_field = _source_rows_by_raw_field(
+        source_rows, selected_specs, condition_units_by_raw_field
+    )
     signer = Ed25519PrivateKey.generate()
     public_key = signer.public_key().public_bytes(
         encoding=serialization.Encoding.Raw,
@@ -812,64 +877,64 @@ def _authority(
         ),
         encoding="utf-8",
     )
-    declaration_values = {
-        "schema_version": "polisyos.data_forge.local_source_rights_declaration.v1",
-        "source_path": "evidence/local-distress.json",
-        "source_content_sha256": _sha(source_path),
-        "license_id": "CC-BY-4.0",
-        "authority_id": "synthetic.fixture.owner",
-        "rights_authority": "Synthetic fixture data owner",
-        "authority_ref": "https://example.test/local-distress/terms",
-    }
-    rights_document_path = repo_root / "evidence/local-distress-rights.json"
-    rights_declaration = catalog_read_api.build_local_source_rights_declaration(
-        **declaration_values,
-        signature_base64=base64.b64encode(
-            signer.sign(canonical_json_bytes(declaration_values))
-        ).decode("ascii"),
-    )
-    rights_document_path.write_text(
-        json.dumps(
-            rights_declaration.model_dump(mode="json"),
-            sort_keys=True,
-            separators=(",", ":"),
-        ),
-        encoding="utf-8",
-    )
-    rights_receipt = catalog_read_api.verify_local_source_rights(
-        repo_root=repo_root,
-        source_path="evidence/local-distress.json",
-        rights_document_path="evidence/local-distress-rights.json",
-    )
-    rights_receipt_path = repo_root / "evidence/local-distress-rights-receipt.json"
-    rights_receipt_path.write_text(
-        json.dumps(
-            rights_receipt.model_dump(mode="json"),
-            sort_keys=True,
-            separators=(",", ":"),
-        ),
-        encoding="utf-8",
-    )
-    l5 = _write_l5(repo_root)
-    if variable_specs is None:
-        selected_specs: tuple[Mapping[str, object], ...] = (
-            {
-                "target_variable": "cells.distress_score",
-                "raw_field": "distress_score",
-                "raw_unit": "ratio",
-                "canonical_unit": "ratio",
-                "landing_dataset_id": "acquisition.local.corrected_firm_panels",
-                "landing_distribution_id": "acquisition.local.corrected_firm_panels.json",
-                "unit_transform_ref": "fabric://units/ratio-identity/v1",
-                "schema_contract_ref": "repo://acquisition-registry#/local-distress/schema",
-                "title": "Owner-validated local distress observations",
-                "description": "Content-bound local observations for the distress slot.",
-                "temporal_start": "2024",
-                "temporal_end": "2025",
-            },
+    source_bindings: dict[str, tuple[str, Path, str, Path]] = {}
+    for index, (raw_field, variable_rows) in enumerate(source_rows_by_raw_field.items(), start=1):
+        if condition_units_by_raw_field is None:
+            source_relative_path = "evidence/local-distress.json"
+            rights_relative_path = "evidence/local-distress-rights.json"
+            receipt_relative_path = "evidence/local-distress-rights-receipt.json"
+        else:
+            suffix = f"variable-{index:02d}"
+            source_relative_path = f"evidence/local-distress-{suffix}.json"
+            rights_relative_path = f"evidence/local-distress-{suffix}-rights.json"
+            receipt_relative_path = f"evidence/local-distress-{suffix}-rights-receipt.json"
+        source_path = repo_root / source_relative_path
+        source_path.parent.mkdir(parents=True, exist_ok=True)
+        source_path.write_bytes(canonical_json_bytes(variable_rows))
+        declaration_values = {
+            "schema_version": "polisyos.data_forge.local_source_rights_declaration.v1",
+            "source_path": source_relative_path,
+            "source_content_sha256": _sha(source_path),
+            "license_id": "CC-BY-4.0",
+            "authority_id": "synthetic.fixture.owner",
+            "rights_authority": "Synthetic fixture data owner",
+            "authority_ref": "https://example.test/local-distress/terms",
+        }
+        rights_document_path = repo_root / rights_relative_path
+        rights_document_path.write_text(
+            json.dumps(
+                catalog_read_api.build_local_source_rights_declaration(
+                    **declaration_values,
+                    signature_base64=base64.b64encode(
+                        signer.sign(canonical_json_bytes(declaration_values))
+                    ).decode("ascii"),
+                ).model_dump(mode="json"),
+                sort_keys=True,
+                separators=(",", ":"),
+            ),
+            encoding="utf-8",
         )
-    else:
-        selected_specs = tuple(variable_specs)
+        rights_receipt = catalog_read_api.verify_local_source_rights(
+            repo_root=repo_root,
+            source_path=source_relative_path,
+            rights_document_path=rights_relative_path,
+        )
+        rights_receipt_path = repo_root / receipt_relative_path
+        rights_receipt_path.write_text(
+            json.dumps(
+                rights_receipt.model_dump(mode="json"),
+                sort_keys=True,
+                separators=(",", ":"),
+            ),
+            encoding="utf-8",
+        )
+        source_bindings[raw_field] = (
+            source_relative_path,
+            source_path,
+            receipt_relative_path,
+            rights_receipt_path,
+        )
+    l5 = _write_l5(repo_root)
     source_columns = tuple(sorted({name for row in source_rows for name in row}))
     schema_columns_list: list[catalog_read_api.AuthoritySchemaColumn] = []
     for name in source_columns:
@@ -895,65 +960,80 @@ def _authority(
     )
     if not years:
         raise ValueError("native_epoch_fixture_requires_time_coordinate")
-    entries = tuple(
-        catalog_read_api.build_authority_entry(
-            source_lane="local_lift",
-            target_variable=str(spec["target_variable"]),
-            landing_dataset_id=str(
-                spec.get(
-                    "landing_dataset_id",
-                    "acquisition.local." + str(spec["target_variable"]).replace(".", "_"),
-                )
-            ),
-            landing_distribution_id=str(
-                spec.get(
-                    "landing_distribution_id",
-                    "acquisition.local." + str(spec["target_variable"]).replace(".", "_") + ".json",
-                )
-            ),
-            raw_field=str(spec["raw_field"]),
-            raw_unit=str(spec.get("raw_unit", spec.get("canonical_unit", "ratio"))),
-            canonical_unit=str(spec.get("canonical_unit", spec.get("raw_unit", "ratio"))),
-            unit_transform=str(spec.get("unit_transform", "identity")),
-            unit_transform_ref=str(
-                spec.get(
-                    "unit_transform_ref",
-                    "fabric://units/" + str(spec.get("canonical_unit", "ratio")) + "-identity/v1",
-                )
-            ),
-            alignment_method="meta_analytic",
-            alignment_confidence=0.8,
-            is_proxy=False,
-            proxy_penalty=0.0,
-            aggregation_method="identity",
-            valid_min=float(spec.get("valid_min", 0.0)),
-            valid_max=float(spec.get("valid_max", 1.0)),
-            evidence_refs=("repo://evidence/local-distress.json",),
-            schema_contract_ref=str(
-                spec.get(
-                    "schema_contract_ref",
-                    "repo://acquisition-registry#/" + str(spec["raw_field"]) + "/schema",
-                )
-            ),
-            schema_columns=schema_columns,
-            l5_family_id="distress_enforcement",
-            local_source_path="evidence/local-distress.json",
-            local_source_sha256=_sha(source_path),
-            local_license_id="CC-BY-4.0",
-            local_rights_receipt_path="evidence/local-distress-rights-receipt.json",
-            local_rights_receipt_sha256=_sha(rights_receipt_path),
-            title=str(
-                spec.get("title", f"Owner-validated local {spec['target_variable']} observations")
-            ),
-            description=str(
-                spec.get("description", "Content-bound synthetic candidate observations.")
-            ),
-            country_codes=("UA",),
-            temporal_start=str(spec.get("temporal_start", years[0])),
-            temporal_end=str(spec.get("temporal_end", years[-1])),
+    entries_list = []
+    for spec in selected_specs:
+        raw_field = str(spec["raw_field"])
+        (
+            source_relative_path,
+            source_path,
+            receipt_relative_path,
+            rights_receipt_path,
+        ) = source_bindings[raw_field]
+        entries_list.append(
+            catalog_read_api.build_authority_entry(
+                source_lane="local_lift",
+                target_variable=str(spec["target_variable"]),
+                landing_dataset_id=str(
+                    spec.get(
+                        "landing_dataset_id",
+                        "acquisition.local." + str(spec["target_variable"]).replace(".", "_"),
+                    )
+                ),
+                landing_distribution_id=str(
+                    spec.get(
+                        "landing_distribution_id",
+                        "acquisition.local."
+                        + str(spec["target_variable"]).replace(".", "_")
+                        + ".json",
+                    )
+                ),
+                raw_field=raw_field,
+                raw_unit=str(spec.get("raw_unit", spec.get("canonical_unit", "ratio"))),
+                canonical_unit=str(spec.get("canonical_unit", spec.get("raw_unit", "ratio"))),
+                unit_transform=str(spec.get("unit_transform", "identity")),
+                unit_transform_ref=str(
+                    spec.get(
+                        "unit_transform_ref",
+                        "fabric://units/"
+                        + str(spec.get("canonical_unit", "ratio"))
+                        + "-identity/v1",
+                    )
+                ),
+                alignment_method="meta_analytic",
+                alignment_confidence=0.8,
+                is_proxy=False,
+                proxy_penalty=0.0,
+                aggregation_method="identity",
+                valid_min=float(spec.get("valid_min", 0.0)),
+                valid_max=float(spec.get("valid_max", 1.0)),
+                evidence_refs=("repo://" + source_relative_path,),
+                schema_contract_ref=str(
+                    spec.get(
+                        "schema_contract_ref",
+                        "repo://acquisition-registry#/" + raw_field + "/schema",
+                    )
+                ),
+                schema_columns=schema_columns,
+                l5_family_id="distress_enforcement",
+                local_source_path=source_relative_path,
+                local_source_sha256=_sha(source_path),
+                local_license_id="CC-BY-4.0",
+                local_rights_receipt_path=receipt_relative_path,
+                local_rights_receipt_sha256=_sha(rights_receipt_path),
+                title=str(
+                    spec.get(
+                        "title", f"Owner-validated local {spec['target_variable']} observations"
+                    )
+                ),
+                description=str(
+                    spec.get("description", "Content-bound synthetic candidate observations.")
+                ),
+                country_codes=("UA",),
+                temporal_start=str(spec.get("temporal_start", years[0])),
+                temporal_end=str(spec.get("temporal_end", years[-1])),
+            )
         )
-        for spec in selected_specs
-    )
+    entries = tuple(entries_list)
     registry = catalog_read_api.build_authority_registry(
         baseline_content_sha256=_sha(baseline),
         l5_measurement_registry_sha256=_sha(l5),
@@ -1212,6 +1292,7 @@ def make_native_multivariable_active_projections(
     source_rows: list[dict[str, object]],
     variable_specs: Sequence[Mapping[str, object]],
     unadmitted_baseline_observations: Sequence[Mapping[str, object]] = (),
+    condition_units_by_raw_field: Mapping[str, str] | None = None,
 ) -> SimpleNamespace:
     """Create active projections through the real signed epoch owner chain.
 
@@ -1225,13 +1306,12 @@ def make_native_multivariable_active_projections(
         source_rows=source_rows,
         variable_specs=variable_specs,
         unadmitted_baseline_observations=unadmitted_baseline_observations,
+        condition_units_by_raw_field=condition_units_by_raw_field,
+    )
+    source_rows_by_raw_field = _source_rows_by_raw_field(
+        source_rows, variable_specs, condition_units_by_raw_field
     )
     store = FileSystemCAS(tmp_path / "cas")
-    payload = canonical_json_bytes(source_rows)
-    source_ref = store.put_bytes(
-        payload,
-        ArtifactWriteOptions(kind="fabric.acquisition.raw_evidence", media_type="application/json"),
-    )
     journal = AppendOnlyEvidenceJournal(tmp_path / "journal.jsonl")
     overlay_path = catalog_read_api.default_acquisition_overlay_path(authority.repo_root)
     overlay = CatalogAcquisitionOverlay(authority.baseline_path, overlay_path)
@@ -1287,6 +1367,14 @@ def make_native_multivariable_active_projections(
     for epoch_id, entry in enumerate(entries, start=1):
         resolved = authority.resolve(entry.entry_id)
         attempt_id = f"n8-multivariable-owner-{epoch_id:02d}"
+        payload = canonical_json_bytes(source_rows_by_raw_field[str(entry.raw_field)])
+        source_ref = store.put_bytes(
+            payload,
+            ArtifactWriteOptions(
+                kind="fabric.acquisition.raw_evidence",
+                media_type="application/json",
+            ),
+        )
         request_ref = journal.append_request(
             attempt_id=attempt_id,
             request={

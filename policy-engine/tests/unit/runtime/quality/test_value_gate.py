@@ -7231,8 +7231,9 @@ def test_n8_source_projection_preserves_synthetic_asymmetric_ci_through_fresh_ca
 ) -> None:
     """Keep synthetic continuous-outcome CI and ID channels separate in candidate CAS.
 
-    The continuous-scale source rows, profile unit, report, and bounds share one declared
-    synthetic score coordinate. Report and bounds backends remain deterministic fixtures.
+    Role-specific source conditions bind the outcome to a synthetic score coordinate while
+    keeping treatment and covariate binary. Report and bounds backends remain deterministic
+    fixtures.
     This test exercises NumpyRunner, N8, CAS, and the fresh consumer; it establishes no
     causal estimate, source assignment, or owner authority.
     """
@@ -7290,6 +7291,11 @@ def test_n8_source_projection_preserves_synthetic_asymmetric_ci_through_fresh_ca
     source_fixture = make_native_multivariable_active_projections(
         tmp_path / "synthetic-owner-source",
         source_rows=source_rows,
+        condition_units_by_raw_field={
+            "avg_income": "synthetic_score",
+            "observed_treatment": "binary",
+            "income_covariate": "binary",
+        },
         variable_specs=(
             {
                 "target_variable": "avg_income",

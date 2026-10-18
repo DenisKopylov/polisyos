@@ -9007,5 +9007,115 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "phase34_pass2_diagnostics_owner_r2_source_application_20261018": {
+    "slice_base": "75cc3b7f84c89d33639b8123e987f951122da3f1",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tools/quality/validation/build_policy_design_case_pass2_diagnostics.py": {
+        "operation": "write",
+        "preimage_sha256": "b25e1d352303699381fb881ec3035c2363d82413f825e2df249910e928a55c13",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-pdc-phase34-owner-author-r2-20261018/postimages/tools/quality/validation/build_policy_design_case_pass2_diagnostics.py",
+        "postimage_sha256": "8aac9e298bf9ba11c42da6c1ed774777999d73f9bc98aafac9d577a9f65f2785"
+      },
+      "policy-engine/tools/quality/validation/pass2_diagnostics_support.py": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-pdc-phase34-owner-author-r2-20261018/postimages/tools/quality/validation/pass2_diagnostics_support.py",
+        "postimage_sha256": "6ca2beb921aadc06bd3f2e0535b8e17fd86ea43b5564d65eae38e83cb325a65d"
+      },
+      "policy-engine/tools/quality/validation/pass2_phase34_1_diagnostics.py": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-pdc-phase34-owner-author-r2-20261018/postimages/tools/quality/validation/pass2_phase34_1_diagnostics.py",
+        "postimage_sha256": "504e5505c7e4b4c0ad1ed462182a9f0bd10ffd380d22e7cf56f1468a839bd431"
+      },
+      "policy-engine/tools/quality/validation/pass2_phase34_2_diagnostics.py": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-pdc-phase34-owner-author-r2-20261018/postimages/tools/quality/validation/pass2_phase34_2_diagnostics.py",
+        "postimage_sha256": "18f860ddf24998d6a239abc5d69c115a96061e38c56a12c9aff0fafa9be89034"
+      },
+      "policy-engine/tests/repo_quality/tools/test_policy_design_case_pass2_diagnostics.py": {
+        "operation": "write",
+        "preimage_sha256": "1db3d721b376d87b9ef5d401e0ba597e9d0f2a9be235b87d26c31e3e2fe59051",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-pdc-phase34-owner-author-r2-20261018/postimages/tests/repo_quality/tools/test_policy_design_case_pass2_diagnostics.py",
+        "postimage_sha256": "7128ab19c483742102fb29c448ab7defe21fb4688c99fd95d720cb95d54b6d23"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase34-r2-current-source-adoption-20261018/source-application.json",
+      "sha256": "cab4c2f48c27d8e2042b350ef46fef0377c3021da6b585b460e5c9ffb2a29b99"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase34-r2-current-source-adoption-20261018/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-pdc-phase34-owner-author-r2-20261018/design.json",
+        "sha256": "6eec99cb6f27da146d5cdeac6e78c66e5fbd192c286c3d9a0e51233f9a8d8377"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-pdc-phase34-owner-author-r2-20261018/candidate.patch",
+        "sha256": "0bbd1bd57bdae21237ffa768d030b629a82085fe50070701baf55a742c87cc3b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-pdc-phase34-owner-author-r2-20261018/hashes.json",
+        "sha256": "8b0a8f191d8da3642b9358107a4ef6f74264a07c2768d4dfefa5d8e07b77d6e7"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-pdc-phase34-owner-author-r2-20261018/authoring-decisions.json",
+        "sha256": "d408207301c78c64370862e2e6b540a599e9799bb77ee976a9984dc1f27c4d7b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-pdc-phase34-owner-author-r2-20261018/author-metrics.json",
+        "sha256": "f8de7127820d659ed3a24ac5beda62740b70123f712e086100fa8a24ece788d8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-pdc-phase34-independent-review-r2-20261018/review-freeze-r2.json",
+        "sha256": "2a945ac459a18825f12c734e81850a01010f78430a83f55469ab2ae53606c33d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-pdc-phase34-independent-review-r2-20261018/review-r2.md",
+        "sha256": "0e7cb582af3527ebfed565c3fb8732a846e6b1187db768b24f95e77fe1b43183"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-pdc-phase34-independent-review-r2-20261018/audit/static-review-r2.json",
+        "sha256": "b9d675b7878003835f6c649c5cb99a00ea8bd579eb4c86a7c4d2bba68dc43d10"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-pdc-phase34-independent-review-r2-20261018/verification/ruff-stdin-r2.txt",
+        "sha256": "67f7990e7f44d585af81e433c8098b268f803e5029a1e0c2003b866dbc6a9afa"
+      }
+    ],
+    "P40": {
+      "bucket": "SAME live-facade-to-typed-context dependency class one level deeper after R1 found the unbound PDD-064 callback.",
+      "whole_quantity": "R2 closes the complete seven-builder Phase34.1/34.2 diagnostic dependency closure and exact 46-field facade factory, with the five reviewed source/test paths.",
+      "falsifier": "Remove the _contains_key_fragment binding from the PDD-064 owner while retaining declarations; the focused test test_phase34_2_payload_uses_rebound_fingerprint_inspector must fail on the public build_phase34_2_payload path.",
+      "second_finding_policy": "A further live-facade/context omission in this same class widens the whole binding mechanism or is recorded as a bounded residual; no single-builder repair ladder."
+    },
+    "bounded_proof": "The independent R2 review returned GO to one controlled focused runtime proof on exact frozen bytes. It reports the PDD-064 callback repair across all seven builders, unchanged report-builder logic under normalized AST comparison, unchanged nine public builder/writer/renderer/CLI ASTs, producer-to-consumer assertions, and canonical-logical-filename Ruff check/format passes. This is source/static evidence only; no product import, pytest, CLI, or Phase34 workflow was run.",
+    "limitations": {
+      "mechanism_paths": 4,
+      "mechanism": "The stable facade and three private typed/support/report-owner modules; all source owners satisfy the original count_lines <1000 target.",
+      "mandatory_companion_paths": 1,
+      "companions": "The existing focused semantic test module; root-managed LEASES.json and delivery index are adoption records, not source mechanism paths. The test and records are outside the P39 mechanism count.",
+      "metric": "package_import_size_ratchet.count_lines counts nonblank lines that do not begin with # after leading whitespace; it is not a physical-line cap.",
+      "original_denominator": "205 direct-child validation .py files at the original census, 221 in the earlier handoff, and 227 in the current full Path.glob(\"*.py\") enumeration at R2; use a fresh complete enumeration for any later set-level claim.",
+      "runtime": "UNRUN on canonical source until the patch is composed and the complete focused test module is executed.",
+      "cli_and_workflow": "No full Phase34 CLI or seven artifact/workflow family acceptance is established.",
+      "follow_up": "The independent review notes that the wrong-phase detail mismatch rejection negative control is absent; do not claim that specific consumer mismatch-rejection property from this packet."
+    },
+    "runtime": "UNRUN on adopted source",
+    "next_check": [
+      "Before application, root re-reads current branch, HEAD and tree and rechecks the two existing preimages plus three expected-absent destinations against these rows; the task-supplied current base is 8c692577b722e0645d1e6a6562e285590049abd4 / tree 61d20980e71c14950f49b83e8188c73483163c03.",
+      "Root alone applies the exact five frozen postimages and records its LEASES.json and delivery-index entries. If a later sequential root commit changes HEAD before application, root creates a versioned requalification plan with the actually observed HEAD/tree after confirming these leased source preimages remain unchanged; no future SHA is asserted here.",
+      "After composition, run the whole focused module from policy-engine/:  .venv/bin/python -B -m pytest -q tests/repo_quality/tools/test_policy_design_case_pass2_diagnostics.py. Retain full output and selected test count, including the callback-rebinding test and writer-to-real-consumer assertions.",
+      "Keep canonical runtime status UNRUN until that focused module passes. Full Phase34 CLI, workflow artifact families, and the wrong-phase detail mismatch negative control remain separate evidence/verification work."
+    ],
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

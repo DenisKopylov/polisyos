@@ -2,7 +2,11 @@ from __future__ import annotations
 
 # ruff: noqa: S101
 import json
+from collections.abc import Mapping, Sequence
 from pathlib import Path
+from typing import Any
+
+import pytest
 
 from tools.quality.validation import build_policy_design_case_pass2_diagnostics as diag
 from tools.quality.validation import check_policy_design_case_wave34_pass2 as wave34_check
@@ -12,6 +16,23 @@ from tools.quality.validation import run_policy_design_case_pass2_phase34_5 as d
 from tools.quality.validation import run_policy_design_case_pass2_phase34_6 as diag34_6
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
+
+
+def _assert_phase_payload_consumed(
+    phase_payload: Mapping[str, Any],
+    output_dir: Path,
+    phase: str,
+    artifacts: Mapping[str, str],
+) -> None:
+    errors: list[str] = []
+    spec = wave34_check.EXPECTED_PHASES[phase]
+    wave34_check._validate_phase_index(phase_payload, phase, spec, errors)
+    for pdd_id, slug in artifacts.items():
+        detail = json.loads(
+            (output_dir / pdd_id.lower() / f"{slug}.json").read_text(encoding="utf-8")
+        )
+        wave34_check._validate_detail(detail, pdd_id, phase, errors)
+    assert errors == []
 
 
 def test_phase34_1_payload_records_missing_cross_domain_runtime_bundles(
@@ -34,9 +55,33 @@ def test_phase34_1_payload_records_missing_cross_domain_runtime_bundles(
     assert pdd37["summary"]["missing_runtime_domain_count"] == len(
         diag.PHASE56_CROSS_DOMAIN_SCENARIO_IDS
     )
-    assert {
-        finding["code"] for finding in pdd37["findings"]
-    } == {"pass2_wave33_cross_domain_bundle_missing"}
+    assert {finding["code"] for finding in pdd37["findings"]} == {
+        "pass2_wave33_cross_domain_bundle_missing"
+    }
+
+
+def test_phase34_1_payload_uses_rebound_facade_dependencies(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    wave33_dir = _write_minimal_wave33(tmp_path)
+    callback_calls: list[dict[str, object]] = []
+
+    def rebound_control_report(contract: dict[str, object]) -> dict[str, str]:
+        callback_calls.append(contract)
+        return {"status": "pass"}
+
+    rebound_titles = {**diag.PDD_TITLES, "PDD-037": "Live facade title"}
+    monkeypatch.setattr(diag, "PDD_TITLES", rebound_titles)
+    monkeypatch.setattr(diag, "build_cross_domain_control_report", rebound_control_report)
+
+    payload = diag.build_phase34_1_payload(
+        repo_root=REPO_ROOT,
+        wave33_dir=wave33_dir,
+    )
+
+    assert payload["pdds"]["PDD-037"]["title"] == "Live facade title"
+    assert callback_calls
 
 
 def test_phase34_1_payload_records_metamorphic_and_multilingual_gaps(
@@ -54,9 +99,9 @@ def test_phase34_1_payload_records_metamorphic_and_multilingual_gaps(
 
     assert pdd55["acceptance_gate_status"] == "failed"
     assert pdd55["summary"]["total_variant_count"] > 0
-    assert pdd55["summary"]["missing_runtime_variant_count"] == pdd55["summary"][
-        "total_variant_count"
-    ]
+    assert (
+        pdd55["summary"]["missing_runtime_variant_count"] == pdd55["summary"]["total_variant_count"]
+    )
     assert {
         "pass2_wave33_metamorphic_variant_bundle_missing",
         "pass2_wave33_metamorphic_data_removal_probe_missing",
@@ -87,12 +132,10 @@ def test_phase34_1_payload_fails_closed_when_wave33_artifacts_are_missing(
 
     assert payload["status"] == "blocked"
     assert payload["summary"]["input_issue_count"] == len(diag.REQUIRED_WAVE33_ARTIFACTS)
-    assert {
-        issue["code"] for issue in payload["input_evidence"]["issues"]
-    } == {"pass2_wave33_required_artifact_missing"}
-    assert {
-        report["acceptance_gate_status"] for report in payload["pdds"].values()
-    } == {"blocked"}
+    assert {issue["code"] for issue in payload["input_evidence"]["issues"]} == {
+        "pass2_wave33_required_artifact_missing"
+    }
+    assert {report["acceptance_gate_status"] for report in payload["pdds"].values()} == {"blocked"}
 
 
 def test_phase34_1_main_writes_detailed_reports_and_backlog_fragments(
@@ -116,12 +159,19 @@ def test_phase34_1_main_writes_detailed_reports_and_backlog_fragments(
     )
 
     phase_payload = json.loads(
-        (output_dir / "pass2" / "phase34_1_cross_domain_metamorphic_diagnostics.json")
-        .read_text(encoding="utf-8")
+        (output_dir / "pass2" / "phase34_1_cross_domain_metamorphic_diagnostics.json").read_text(
+            encoding="utf-8"
+        )
     )
 
     assert exit_code == 0
     assert phase_payload["status"] == "diagnosed"
+    _assert_phase_payload_consumed(
+        phase_payload=phase_payload,
+        output_dir=output_dir,
+        phase="34.1",
+        artifacts=diag.PDD_ARTIFACTS,
+    )
     for pdd_id, slug in diag.PDD_ARTIFACTS.items():
         pdd_dir = output_dir / pdd_id.lower()
         assert (pdd_dir / f"{slug}.json").exists()
@@ -146,15 +196,46 @@ def test_phase34_2_payload_records_adversarial_fail_closed_gaps(
     assert payload["status"] == "diagnosed"
     assert payload["summary"]["fail_closed_baseline"]["status"] == "confirmed"
     assert pdd38["acceptance_gate_status"] == "failed"
-    assert pdd38["summary"]["required_scenario_count"] == len(
-        diag.PDD038_ADVERSARIAL_SCENARIOS
-    )
+    assert pdd38["summary"]["required_scenario_count"] == len(diag.PDD038_ADVERSARIAL_SCENARIOS)
     assert pdd38["summary"]["not_run_scenario_count"] >= 4
     assert {
         "pass2_wave33_baseline_fails_closed",
         "pass2_pdd038_adversarial_scenario_evidence_missing",
         "pass2_pdd038_security_prompt_injection_probes_missing",
     } <= {finding["code"] for finding in pdd38["findings"]}
+
+
+def test_phase34_2_payload_uses_rebound_fingerprint_inspector(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    wave33_dir = _write_phase34_2_wave33(tmp_path)
+    grounding_path = wave33_dir / "policy_grounding_matrix.json"
+    grounding = json.loads(grounding_path.read_text(encoding="utf-8"))
+    grounding["fingerprint_ledger"] = {"fingerprint": "sha256:test"}
+    _write_json(grounding_path, grounding)
+
+    original_inspector = diag._contains_key_fragment
+    inspected_surfaces: list[object] = []
+
+    def rebound_inspector(value: object, fragments: Sequence[str]) -> bool:
+        inspected_surfaces.append(value)
+        return original_inspector(value, fragments)
+
+    monkeypatch.setattr(diag, "_contains_key_fragment", rebound_inspector)
+    payload = diag.build_phase34_2_payload(
+        repo_root=REPO_ROOT,
+        wave33_dir=wave33_dir,
+    )
+
+    pdd64 = payload["pdds"]["PDD-064"]
+    fingerprint_control = next(
+        control
+        for control in pdd64["details"]["controls"]
+        if control["control"] == "index_cache_fingerprint_ledger"
+    )
+    assert fingerprint_control["status"] == "present"
+    assert inspected_surfaces
 
 
 def test_phase34_2_payload_records_cache_error_and_strategic_gaps(
@@ -223,15 +304,19 @@ def test_phase34_2_main_writes_detailed_reports_and_backlog_fragments(
     )
 
     phase_payload = json.loads(
-        (
-            output_dir
-            / "pass2"
-            / "phase34_2_adversarial_fail_closed_diagnostics.json"
-        ).read_text(encoding="utf-8")
+        (output_dir / "pass2" / "phase34_2_adversarial_fail_closed_diagnostics.json").read_text(
+            encoding="utf-8"
+        )
     )
 
     assert exit_code == 0
     assert phase_payload["status"] == "diagnosed"
+    _assert_phase_payload_consumed(
+        phase_payload=phase_payload,
+        output_dir=output_dir,
+        phase="34.2",
+        artifacts=diag.PDD_ARTIFACTS_PHASE34_2,
+    )
     for pdd_id, slug in diag.PDD_ARTIFACTS_PHASE34_2.items():
         pdd_dir = output_dir / pdd_id.lower()
         assert (pdd_dir / f"{slug}.json").exists()
@@ -259,11 +344,9 @@ def test_phase34_4_main_writes_canonical_extraction_measurement_reports(
     )
 
     phase_payload = json.loads(
-        (
-            output_root
-            / "pass2"
-            / "phase_34_4_extraction_measurement_diagnostics.json"
-        ).read_text(encoding="utf-8")
+        (output_root / "pass2" / "phase_34_4_extraction_measurement_diagnostics.json").read_text(
+            encoding="utf-8"
+        )
     )
 
     assert exit_code == 0
@@ -274,9 +357,7 @@ def test_phase34_4_main_writes_canonical_extraction_measurement_reports(
 
     for pdd_id, spec in diag34_4.PDD_SPECS.items():
         detail = json.loads(
-            (output_root / pdd_id.lower() / f"{spec['slug']}.json").read_text(
-                encoding="utf-8"
-            )
+            (output_root / pdd_id.lower() / f"{spec['slug']}.json").read_text(encoding="utf-8")
         )
         _assert_canonical_wave34_detail(
             detail,
@@ -286,9 +367,7 @@ def test_phase34_4_main_writes_canonical_extraction_measurement_reports(
         )
         assert (output_root / pdd_id.lower() / f"{spec['slug']}.md").exists()
         assert (output_root / pdd_id.lower() / "summary.md").exists()
-        assert (
-            output_root / "pass2" / "backlog_fragments" / f"{pdd_id.lower()}.md"
-        ).exists()
+        assert (output_root / "pass2" / "backlog_fragments" / f"{pdd_id.lower()}.md").exists()
 
 
 def test_phase34_5_main_writes_canonical_operational_recovery_reports(
@@ -309,11 +388,9 @@ def test_phase34_5_main_writes_canonical_operational_recovery_reports(
     )
 
     phase_payload = json.loads(
-        (
-            output_root
-            / "pass2"
-            / "phase_34_5_operational_recovery_diagnostics.json"
-        ).read_text(encoding="utf-8")
+        (output_root / "pass2" / "phase_34_5_operational_recovery_diagnostics.json").read_text(
+            encoding="utf-8"
+        )
     )
 
     assert exit_code == 0
@@ -324,9 +401,7 @@ def test_phase34_5_main_writes_canonical_operational_recovery_reports(
 
     for pdd_id, spec in diag34_5.PDD_SPECS.items():
         detail = json.loads(
-            (output_root / pdd_id.lower() / f"{spec['slug']}.json").read_text(
-                encoding="utf-8"
-            )
+            (output_root / pdd_id.lower() / f"{spec['slug']}.json").read_text(encoding="utf-8")
         )
         _assert_canonical_wave34_detail(
             detail,
@@ -336,9 +411,7 @@ def test_phase34_5_main_writes_canonical_operational_recovery_reports(
         )
         assert (output_root / pdd_id.lower() / f"{spec['slug']}.md").exists()
         assert (output_root / pdd_id.lower() / "summary.md").exists()
-        assert (
-            output_root / "pass2" / "backlog_fragments" / f"{pdd_id.lower()}.md"
-        ).exists()
+        assert (output_root / "pass2" / "backlog_fragments" / f"{pdd_id.lower()}.md").exists()
 
 
 def test_phase34_6_main_reproduces_canonical_human_facing_packet(
@@ -360,9 +433,7 @@ def test_phase34_6_main_reproduces_canonical_human_facing_packet(
 
     phase_payload = json.loads(
         (
-            output_root
-            / "pass2"
-            / "phase_34_6_human_facing_legitimacy_memory_diagnostics.json"
+            output_root / "pass2" / "phase_34_6_human_facing_legitimacy_memory_diagnostics.json"
         ).read_text(encoding="utf-8")
     )
 
@@ -374,9 +445,7 @@ def test_phase34_6_main_reproduces_canonical_human_facing_packet(
 
     for pdd_id, spec in diag34_6.PDD_SPECS.items():
         detail = json.loads(
-            (output_root / pdd_id.lower() / f"{spec['slug']}.json").read_text(
-                encoding="utf-8"
-            )
+            (output_root / pdd_id.lower() / f"{spec['slug']}.json").read_text(encoding="utf-8")
         )
         _assert_canonical_wave34_detail(
             detail,
@@ -406,9 +475,7 @@ def test_wave34_exit_fence_validator_rejects_wrong_wave_metadata(
         == 0
     )
 
-    pdd100_path = (
-        output_root / "pdd-100" / "document_extraction_authority_audit.json"
-    )
+    pdd100_path = output_root / "pdd-100" / "document_extraction_authority_audit.json"
     payload = json.loads(pdd100_path.read_text(encoding="utf-8"))
     payload["wave"] = "33"
     pdd100_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
@@ -683,9 +750,7 @@ def _write_phase34_2_wave33(tmp_path: Path) -> Path:
             "claims": [
                 {
                     "claim_id": "deterministic_recommendation_1",
-                    "implementation_risks": [
-                        "Monitor take-up, leakage, and delivery capacity."
-                    ],
+                    "implementation_risks": ["Monitor take-up, leakage, and delivery capacity."],
                     "monitoring_plan": [
                         "Track outcome, treatment, subgroup, and budget indicators."
                     ],

@@ -7562,7 +7562,6 @@ def test_n8_source_projection_preserves_synthetic_asymmetric_ci_through_fresh_ca
         gc._typed_value_estimand_spec(intent.estimand_spec_json)
     )
     assert basis.estimand_coordinate == coordinate
-    assert len(observation.value_ref) == 64
     outer_manifest = ir_store.get_manifest(observation.value_ref)
     outer_ref = gc._value_artifact_ref(
         artifact_ref_for_manifest(outer_manifest),

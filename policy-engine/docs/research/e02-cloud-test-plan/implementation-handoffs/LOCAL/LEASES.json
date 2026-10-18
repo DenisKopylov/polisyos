@@ -11640,5 +11640,49 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "b31-content-resolved-artifact-test-r5-20261018": {
+    "slice_base": "ce7c69c0c5a77a068c51530946add555f66f7645",
+    "canonical_writer": "root only; exact independently reviewed one-line test patch",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/unit/runtime/quality/test_value_gate.py": {
+        "operation": "modify",
+        "preimage_sha256": "da7b74c4b01b2b558a56008c9a6997fb8fa216232c268609031b8881d3274bca",
+        "postimage_sha256": "4353a68dbd0d9532134741ea3ac9b36b90aa2b24fcbbe2149bb5fa591366d4b9",
+        "role": "mandatory N8 semantic integration test"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b31-r5-ce7-source-adoption-20261018/source-application.json",
+      "sha256": "4dcd56df9329a29a0094826a6e268367ea77ef23b273b937d318e9e9bbf7e83b"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-s3-b31-channel-preservation-test-r5-20261018/candidate.json",
+        "sha256": "3ed296ee887af481b098b4e83428c1dc058e4fca5804270caf005b2000422210"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-s3-b31-channel-preservation-test-r5-20261018/candidate.patch",
+        "sha256": "dd3ce4327a4123b2bcd89dcbe0db309bbdf66ac6a8afc8c3a172bdae8899a356"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-s3-b31-r5-delta-independent-20261018/manifest.json",
+        "sha256": "56eb1c85c3ac7a468af28de61a799ecea2e60f65936bda9de47f317d30bd4558"
+      }
+    ],
+    "property": "Resolve persisted typed ArtifactID and content/basis/consumer bindings; remove only the incorrect identifier-length proxy before that stronger oracle.",
+    "P40": "New P38 identifier-form proxy class, distinct from the now exercised per-field source unit fixture. No new identifier-length or prefix-only substitute.",
+    "limitations": [
+      "Synthetic report/bounds carry no authority or authentic causal fact.",
+      "New selector remains UNRUN on this revision.",
+      "Candidate metadata overstates remaining len assertions; reviewer also found a legitimate outcome-diversity cardinality check, no remaining ID-length proxy."
+    ],
+    "runtime": "UNRUN at adoption",
+    "next_check": {
+      "selector": "tests/unit/runtime/quality/test_value_gate.py::test_n8_source_projection_preserves_synthetic_asymmetric_ci_through_fresh_cas"
+    },
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

@@ -8928,5 +8928,84 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "coordination_epoch_20261018_hyg_shared_source_transport_r8_candidate": {
+    "slice_base": "280e0fa679e6daed5f2b29c083b748877449089c",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tools/quality/validation/decomposition_preflight.py": {
+        "preimage_sha256": "093a2abea4ca23ba5d5dc609620d89815a686e5f76518f4bc5466ecdaae16dfc",
+        "postimage_sha256": "dd3e22a3dbc9be382bcc57520a198082952f35ae763896936a2e8d3d1f56327b",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-hyg-shared-source-transport-author-r8-20261018/postimages/decomposition_preflight.py",
+        "operation": "modify"
+      },
+      "policy-engine/tests/unit/remediation/test_hyg_04.py": {
+        "preimage_sha256": "7ebc10f7bd54e6dae85b8f35557ab5ae6612234d2f6517cf948b402c3e907934",
+        "postimage_sha256": "23af8e255ae6b967f6bcc4ed5e9779affb4463345cd8acad2758356a9625f383",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-hyg-shared-source-transport-author-r8-20261018/postimages/test_hyg_04.py",
+        "operation": "modify"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hyg-r8-current-source-adoption-20261018/source-application.json",
+      "sha256": "d1899b911b4b1530057dcb8480417b3ada1817a7cda0695d629edb473cda71f2"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hyg-r8-current-source-adoption-20261018/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-hyg-shared-source-transport-author-r8-20261018/manifest-r8.json",
+        "sha256": "11dc55b50e616e05e94eb15090b3642c7ca20b32362b23eb39e67e5d8567726c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-hyg-shared-source-transport-author-r8-20261018/candidate.patch",
+        "sha256": "10282b3c5d34f5a3616453fc02373920e6dd251eee44a169048d9a6489d5fb2e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-hyg-shared-source-transport-author-r8-20261018/decision-r8.md",
+        "sha256": "c99e9449793aefffb4bfa6f1843f2542f979f0e7f9235d51c6b457c9da95f516"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-hyg-shared-source-transport-author-r8-20261018/falsifier-request-r8.md",
+        "sha256": "71f93b9ac975225d48449089c05be3f30c0bd37ce3192786102b8b985e346cfe"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-hyg-shared-source-transport-author-r8-20261018/probe-r8.json",
+        "sha256": "24e2cb5c4b440e3593c4e8fb109a8a636b280ba8ecea58b5e35bd467f642bfaa"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-hyg-shared-source-transport-r8-independent-20261018/review-r8.md",
+        "sha256": "898aefbc920ffd2a3818fa16c9b089e13f81935c264c7889224e17704a5cd93d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-hyg-shared-source-transport-author-r7-final-qualified-20261018/manifest-r7-final-qualified.json",
+        "sha256": "dd4db2f0c6036a18b2f3a07255882cf0e6c594f89647a80a6f97c6e9a69210f5"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-hyg-shared-source-transport-r7-independent-20261018/review-r7.md",
+        "sha256": "64aa129f6fca4706fbb89e693a451ed223757907170d25093f522847b6f557e7"
+      },
+      {
+        "path": "policy-engine/tests/repo_quality/architecture/test_decomposition_preflight_gates.py",
+        "sha256": "ff10fbee820735febc1a70fe6b3bcedeb3ddfcf9df57e5e894bc94e00fea20ed"
+      }
+    ],
+    "P40": "SAME source-binding identity class, second/deeper finding. The R8 mechanism widens the central predicate over all fields in the current typed BindingKnowledge; no further per-value-kind, alias, or builtin leaf ladder.",
+    "bounded_proof": "The R8 peer reviewed exact postimages and the actual _scan_tracked_python_callers consumer with a 14-row matrix, including __import__=None, rebound/imported cases, opaque external callable refusal, and preserved higher-order transfer/removal controls. The current five-channel equality is generic over BindingKnowledge. Remaining external target/return behavior without trusted typed summaries is explicitly bounded incomplete. R8 Ruff check and format check passed on these exact postimages; runtime verification remains separate.",
+    "limitations": [
+      "Source review is GO, but this plan is candidate adoption only. Canonical runtime tests and the actual CLI consumer remain UNRUN; source freeze, formal G acceptance, and closure IDs remain false/empty.",
+      "The change is limited to the existing shared decomposition-preflight owner and its HYG-04 consumer test. No public DTO, persisted artifact, or public status is introduced.",
+      "Opaque external callable target/return behavior remains bounded incomplete without a trusted typed summary; do not loosen that refusal.",
+      "The unchanged architecture-gate test is pinned as a reviewed input/runtime companion, not a changed mechanism row.",
+      "Do not claim the focused 14-row HYG matrix alone qualifies the actual runtime graph consumer. Preserve full-family and CLI receipts.",
+      "The helper plan base is the observed current HEAD/tree above. Before application, recheck that this base is still current or reissue the plan under a new identity; all exact source preimages must still match."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "After root applies this exact two-path candidate under a fresh source-current profile and explicit authorization, run from policy-engine/.venv with no uv: first the five focused selectors in the plan profile; then the full tests/unit/remediation/test_hyg_04.py and tests/repo_quality/architecture/test_decomposition_preflight_gates.py files; then run `python -B -m tools.quality.validation.decomposition_preflight gate` from policy-engine/. Capture complete outputs, JUnit, source/module origins and all FAIL/ERROR/SKIP/UNRUN states. Runtime is UNRUN until these receipts pass; do not call this G acceptance or closure.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

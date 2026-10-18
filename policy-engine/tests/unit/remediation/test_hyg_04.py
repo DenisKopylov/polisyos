@@ -8,6 +8,7 @@ benchmark surfaces; source-text markers alone are not sufficient evidence.
 from __future__ import annotations
 
 import ast
+import hashlib
 import importlib.util
 import json
 import os
@@ -21,7 +22,10 @@ from tempfile import TemporaryDirectory
 import pytest
 
 from tools.lib.fs import iter_repository_files
-from tools.quality.validation import check_docs_lifecycle, schema_fqn_census
+from tools.quality.validation import (
+    check_docs_lifecycle,
+    decomposition_preflight,
+)
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 
@@ -294,79 +298,6 @@ def _module_targets(address: str, target_modules: set[str]) -> set[str]:
     }
 
 
-def _literal_module_address(
-    node: ast.AST | None,
-    constants: dict[str, str],
-) -> str | None:
-    if isinstance(node, ast.Constant) and isinstance(node.value, str):
-        return node.value
-    if isinstance(node, ast.Name):
-        return constants.get(node.id)
-    if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Add):
-        left = _literal_module_address(node.left, constants)
-        right = _literal_module_address(node.right, constants)
-        return left + right if left is not None and right is not None else None
-    if isinstance(node, ast.JoinedStr):
-        parts = []
-        for value in node.values:
-            part = _literal_module_address(
-                value.value if isinstance(value, ast.FormattedValue) else value,
-                constants,
-            )
-            if part is None:
-                return None
-            parts.append(part)
-        return "".join(parts)
-    return None
-
-
-def _literal_module_fragments(
-    node: ast.AST | None,
-    constants: dict[str, str],
-    assigned_fragments: dict[str, set[str]] | None = None,
-) -> set[str]:
-    if isinstance(node, ast.Constant) and isinstance(node.value, str):
-        return {node.value}
-    if isinstance(node, ast.Name):
-        value = constants.get(node.id)
-        if value is not None:
-            return {value}
-        return set((assigned_fragments or {}).get(node.id, set()))
-    if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Add):
-        return _literal_module_fragments(
-            node.left, constants, assigned_fragments
-        ) | _literal_module_fragments(node.right, constants, assigned_fragments)
-    if isinstance(node, ast.JoinedStr):
-        return set().union(
-            *(
-                _literal_module_fragments(
-                    value.value if isinstance(value, ast.FormattedValue) else value,
-                    constants,
-                    assigned_fragments,
-                )
-                for value in node.values
-            )
-        )
-    if isinstance(node, ast.Dict):
-        return set().union(
-            *(
-                _literal_module_fragments(value, constants, assigned_fragments)
-                for value in (*node.keys, *node.values)
-                if value is not None
-            )
-        )
-    if isinstance(node, (ast.List, ast.Set, ast.Tuple)):
-        return set().union(
-            *(
-                _literal_module_fragments(value, constants, assigned_fragments)
-                for value in node.elts
-            )
-        )
-    if isinstance(node, ast.Starred):
-        return _literal_module_fragments(node.value, constants, assigned_fragments)
-    return set()
-
-
 def _bound_loader_arguments(
     call: ast.Call,
     function_name: str,
@@ -395,69 +326,6 @@ def _bound_loader_arguments(
     if any(keyword.arg is None for keyword in call.keywords):
         return arguments, "keyword expansion prevents complete argument binding"
     return arguments, None
-
-
-def _assignment_target_names(target: ast.AST) -> set[str]:
-    if isinstance(target, ast.Name):
-        return {target.id}
-    if isinstance(target, (ast.Tuple, ast.List)):
-        return set().union(*(_assignment_target_names(item) for item in target.elts))
-    if isinstance(target, ast.Starred):
-        return _assignment_target_names(target.value)
-    return set()
-
-
-def _whole_ast_target_name_hints(
-    tree: ast.Module,
-    constants: dict[str, str],
-    target_modules: set[str],
-) -> dict[str, set[str]]:
-    """Conservatively associate target-bearing assignments and aliases across scopes."""
-
-    bindings: list[tuple[set[str], set[str], set[str]]] = []
-    for node in ast.walk(tree):
-        targets: list[ast.AST] = []
-        values: list[ast.AST] = []
-        if isinstance(node, ast.Assign):
-            targets = node.targets
-            values = [node.value]
-        elif isinstance(node, ast.AnnAssign):
-            targets = [node.target]
-            values = [node.value] if node.value is not None else []
-        elif isinstance(node, ast.NamedExpr):
-            targets = [node.target]
-            values = [node.value]
-        elif isinstance(node, (ast.For, ast.AsyncFor, ast.comprehension)):
-            targets = [node.target]
-            values = [node.iter]
-        elif isinstance(node, (ast.With, ast.AsyncWith)):
-            for item in node.items:
-                if item.optional_vars is not None:
-                    targets.append(item.optional_vars)
-                    values.append(item.context_expr)
-        bound_names = set().union(*(_assignment_target_names(target) for target in targets))
-        for value in values:
-            if not bound_names:
-                continue
-            fragments = _literal_module_fragments(value, constants)
-            source_names = {child.id for child in ast.walk(value) if isinstance(child, ast.Name)}
-            bindings.append((bound_names, fragments, source_names))
-
-    hints: dict[str, set[str]] = {}
-    changed = True
-    while changed:
-        changed = False
-        for bound_names, fragments, source_names in bindings:
-            propagated = set(fragments)
-            for source_name in source_names:
-                propagated.update(hints.get(source_name, set()))
-            if not _target_related_fragments(propagated, target_modules):
-                continue
-            for bound_name in bound_names:
-                before = len(hints.setdefault(bound_name, set()))
-                hints[bound_name].update(propagated)
-                changed |= len(hints[bound_name]) != before
-    return hints
 
 
 def _target_related_fragments(
@@ -489,63 +357,11 @@ def _relative_import_target_name(
     )
 
 
-def _dynamic_import_aliases(tree: ast.Module) -> dict[str, str]:
-    aliases: dict[str, str] = {"__import__": "builtins.__import__"}
-    import_modules = {"builtins", "importlib", "runpy"}
-    imported_functions = {
-        ("builtins", "__import__"): "builtins.__import__",
-        ("importlib", "import_module"): "importlib.import_module",
-        ("runpy", "run_module"): "runpy.run_module",
-    }
-    for node in ast.walk(tree):
-        if isinstance(node, ast.Import):
-            for alias in node.names:
-                module_root = alias.name.split(".", 1)[0]
-                if module_root in import_modules:
-                    aliases[alias.asname or module_root] = (
-                        alias.name if alias.asname else module_root
-                    )
-        elif isinstance(node, ast.ImportFrom):
-            for alias in node.names:
-                resolved = imported_functions.get((node.module or "", alias.name))
-                if resolved is not None:
-                    aliases[alias.asname or alias.name] = resolved
-
-    def resolve(node: ast.AST) -> str | None:
-        if isinstance(node, ast.Name):
-            return aliases.get(node.id)
-        if isinstance(node, ast.Attribute):
-            base = resolve(node.value)
-            return f"{base}.{node.attr}" if base else None
-        return None
-
-    for node in ast.walk(tree):
-        targets = (
-            node.targets
-            if isinstance(node, ast.Assign)
-            else [node.target]
-            if isinstance(node, ast.AnnAssign)
-            else []
-        )
-        resolved = resolve(node.value) if targets else None
-        if resolved in {*imported_functions.values(), *import_modules}:
-            for target in targets:
-                if isinstance(target, ast.Name):
-                    aliases[target.id] = resolved
-    return aliases
-
-
 def _tracked_python_reference_inventory(
     repo_root: Path,
     target_modules: set[str],
 ) -> dict[str, object]:
-    """Keep all tracked text references and select bounded Python syntax candidates.
-
-    The text inventory is evidence only. Candidate Python files come from exact
-    target/package/path tokens, supported loader spellings, or relative-import
-    syntax; docs and research paths are searched by the same rule as executable
-    folders.
-    """
+    """Declare every tracked .py/.pyi path as the AST input set."""
 
     repo_root = repo_root.resolve()
     tracked_files = tuple(iter_repository_files(repo_root))
@@ -553,73 +369,30 @@ def _tracked_python_reference_inventory(
     tracked_suffix_counts = Counter(
         path.suffix.lower() or "<extensionless>" for path in tracked_files
     )
-    assert sum(tracked_suffix_counts.values()) == len(tracked_files)
-
-    parent_modules = {module.rpartition(".")[0] for module in target_modules}
-    source_paths = {
-        f"tools/research/benchmarks/{module.rsplit('.', 1)[-1]}.py" for module in target_modules
+    python_paths = {
+        path.relative_to(repo_root).as_posix()
+        for path in tracked_files
+        if path.suffix.lower() in {".py", ".pyi"}
     }
-    fixed_tokens = sorted(
-        target_modules
-        | parent_modules
-        | source_paths
-        | {"importlib", "runpy", "builtins", "__import__"}
-    )
-    fixed_command = ["git", "grep", "-I", "-l", "-F"]
-    for token in fixed_tokens:
-        fixed_command.extend(("-e", token))
-    fixed_command.extend(("--", "."))
-    fixed_result = subprocess.run(
-        fixed_command,
-        cwd=repo_root,
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-    assert fixed_result.returncode in {0, 1}, fixed_result.stderr
-    fixed_matches = set(fixed_result.stdout.splitlines())
-
-    relative_import_result = subprocess.run(
-        [
-            "git",
-            "grep",
-            "-I",
-            "-l",
-            "-E",
-            "-e",
-            r"^[[:space:]]*from[[:space:]]+\.+([[:space:]]*[A-Za-z_][A-Za-z_0-9.]*)?[[:space:]]+import([[:space:]]|\()",
-            "--",
-            ".",
-        ],
-        cwd=repo_root,
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-    assert relative_import_result.returncode in {0, 1}, relative_import_result.stderr
-    relative_matches = set(relative_import_result.stdout.splitlines())
-    matched_paths = fixed_matches | relative_matches
-    assert matched_paths <= tracked_paths
-    python_paths = {path for path in matched_paths if Path(path).suffix.lower() in {".py", ".pyi"}}
-    matched_suffix_counts = Counter(
-        Path(path).suffix.lower() or "<extensionless>" for path in matched_paths
-    )
-    assert sum(matched_suffix_counts.values()) == len(matched_paths)
-
+    python_suffix_counts = Counter(Path(path).suffix.lower() for path in python_paths)
+    assert sum(tracked_suffix_counts.values()) == len(tracked_files)
+    assert sum(python_suffix_counts.values()) == len(python_paths)
+    assert python_paths <= tracked_paths
     return {
         "tracked_paths": tracked_paths,
         "tracked_file_count": len(tracked_files),
-        "tracked_python_denominator": sum(
-            path.suffix.lower() in {".py", ".pyi"} for path in tracked_files
-        ),
         "tracked_suffix_counts": dict(sorted(tracked_suffix_counts.items())),
-        "matched_paths": matched_paths,
-        "matched_path_count": len(matched_paths),
-        "matched_suffix_counts": dict(sorted(matched_suffix_counts.items())),
+        "tracked_python_paths": python_paths,
+        "tracked_python_denominator": len(python_paths),
+        # Compatibility fields now describe the full analyzed set; there is no
+        # git-grep candidate selector in this census.
+        "matched_paths": python_paths,
+        "matched_path_count": len(python_paths),
+        "matched_suffix_counts": dict(sorted(python_suffix_counts.items())),
         "python_candidate_paths": python_paths,
         "python_candidate_count": len(python_paths),
-        "fixed_tokens": fixed_tokens,
-        "relative_import_selector": "tracked-text Python relative-import syntax",
+        "token_python_candidate_count": 0,
+        "input_selector": "all tracked .py and .pyi paths from iter_repository_files",
     }
 
 
@@ -628,24 +401,215 @@ def _python_import_package(repo_root: Path, path: Path) -> str:
     return ".".join(relative_parent.parts)
 
 
-def _is_verified_archived_source_pair(
-    repo_root: Path,
-    relative_path: str,
-    raw: bytes,
-    selected_paths: set[str],
-    evidence_json_cache: dict[str, tuple[dict[str, object], str, int] | None],
-) -> str | None:
-    """Recognize only source excerpts bound by the existing evidence index."""
+def _hyg_ast_coverage(tree: ast.Module) -> tuple[dict[str, int], list[dict[str, object]]]:
+    """Reconcile encountered value expressions and binder contexts to a route."""
+    nodes = tuple(ast.walk(tree))
+    counts = Counter(type(node).__name__ for node in nodes)
+    parents = {id(child): parent for parent in nodes for child in ast.iter_child_nodes(parent)}
+    supported_expressions = {
+        "Constant",
+        "Name",
+        "BinOp",
+        "IfExp",
+        "BoolOp",
+        "Tuple",
+        "List",
+        "Set",
+        "Dict",
+        "Subscript",
+        "UnaryOp",
+        "Compare",
+        "NamedExpr",
+        "Starred",
+    }
+    # Every other encountered ast.expr is explicitly refused by the R8 value
+    # evaluator's generic unknown fallback; record that path instead of dropping it.
+    explicit_refusal_expressions = {
+        "Attribute",
+        "Call",
+        "FormattedValue",
+        "JoinedStr",
+        "Lambda",
+        "ListComp",
+        "SetComp",
+        "DictComp",
+        "GeneratorExp",
+        "Await",
+        "Yield",
+        "YieldFrom",
+        "Slice",
+        "TemplateStr",
+        "Interpolation",
+    }
+    binder_classes = {
+        "Assign",
+        "AnnAssign",
+        "AugAssign",
+        "NamedExpr",
+        "For",
+        "AsyncFor",
+        "comprehension",
+        "With",
+        "AsyncWith",
+        "withitem",
+        "FunctionDef",
+        "AsyncFunctionDef",
+        "Lambda",
+        "ClassDef",
+        "Import",
+        "ImportFrom",
+        "ExceptHandler",
+        "Delete",
+        "Match",
+        "MatchAs",
+        "MatchStar",
+        "MatchMapping",
+        "MatchSequence",
+        "MatchClass",
+        "MatchOr",
+        "arguments",
+        "arg",
+        "alias",
+        "TypeAlias",
+        "TypeVar",
+        "ParamSpec",
+        "TypeVarTuple",
+        "Global",
+        "Nonlocal",
+    }
+    failures: list[dict[str, object]] = []
+    for node in nodes:
+        if isinstance(node, ast.expr):
+            if type(node).__name__ not in supported_expressions | explicit_refusal_expressions:
+                failures.append(
+                    {
+                        "line": getattr(node, "lineno", 0),
+                        "node": type(node).__name__,
+                        "reason": "expression class has no transfer/refusal route",
+                    }
+                )
+        if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Store):
+            parent = parents.get(id(node))
+            while isinstance(parent, (ast.Tuple, ast.List, ast.Starred)):
+                parent = parents.get(id(parent))
+            if parent is None or type(parent).__name__ not in binder_classes:
+                failures.append(
+                    {
+                        "line": node.lineno,
+                        "node": type(parent).__name__ if parent else None,
+                        "reason": "store target has no binding-form route",
+                    }
+                )
+        if isinstance(node, ast.arg) and "arg" not in binder_classes:
+            failures.append(
+                {
+                    "line": node.lineno,
+                    "node": "arg",
+                    "reason": "formal parameter has no binding-form route",
+                }
+            )
+    return dict(sorted(counts.items())), failures
 
-    evidence = schema_fqn_census._indexed_evidence_snapshot(
-        repo_root,
-        relative_path,
-        relative_path,
-        raw,
-        selected_paths,
-        evidence_json_cache,
-    )
-    return str(evidence["pair_format"]) if evidence is not None else None
+
+def _hyg_namespace_residuals(tree: ast.Module, relative: str) -> list[dict[str, object]]:
+    """Report actual dynamic namespace/code execution uses as bounded residuals."""
+    aliases: dict[str, str] = {}
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Import):
+            for alias in node.names:
+                if alias.name == "builtins":
+                    aliases[alias.asname or "builtins"] = "builtins"
+        elif isinstance(node, ast.ImportFrom) and node.module == "builtins":
+            for alias in node.names:
+                if alias.name in {"exec", "eval", "globals", "locals", "vars"}:
+                    aliases[alias.asname or alias.name] = alias.name
+    residuals: list[dict[str, object]] = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Call):
+            symbol = None
+            if isinstance(node.func, ast.Name):
+                symbol = aliases.get(node.func.id, node.func.id)
+            elif isinstance(node.func, ast.Attribute) and isinstance(node.func.value, ast.Name):
+                base = aliases.get(node.func.value.id, node.func.value.id)
+                if base == "builtins":
+                    symbol = node.func.attr
+            if symbol in {"exec", "eval", "globals", "locals", "vars"}:
+                residuals.append(
+                    {
+                        "path": relative,
+                        "line": node.lineno,
+                        "kind": symbol,
+                        "reason": "dynamic namespace/code path is outside static source-value proof",
+                    }
+                )
+        elif isinstance(node, ast.ClassDef):
+            for keyword in node.keywords:
+                if (
+                    keyword.arg == "metaclass"
+                    and not (isinstance(keyword.value, ast.Name) and keyword.value.id == "type")
+                    and not (
+                        isinstance(keyword.value, ast.Attribute)
+                        and keyword.value.attr == "type"
+                        and isinstance(keyword.value.value, ast.Name)
+                        and keyword.value.value.id == "builtins"
+                    )
+                ):
+                    residuals.append(
+                        {
+                            "path": relative,
+                            "line": node.lineno,
+                            "kind": "custom_metaclass",
+                            "reason": "custom class namespace effects are bounded",
+                        }
+                    )
+    return residuals
+
+
+def _source_value_strings(binding: object) -> set[str]:
+    """Read exact string alternatives from the shared R8 value lattice."""
+    kind = getattr(binding, "kind", None)
+    if kind == "string":
+        name = getattr(binding, "name", None)
+        return {name} if isinstance(name, str) else set()
+    if kind == "union":
+        items = getattr(binding, "items", None)
+        return set().union(*(_source_value_strings(item) for item in items or ()))
+    return set()
+
+
+def _source_value_has_unknown(binding: object) -> bool:
+    """Unknown stays open through a union or retained sequence/mapping shape."""
+    kind = getattr(binding, "kind", None)
+    if binding is None or kind in {"unknown", "ambiguous"}:
+        return True
+    if kind == "union":
+        items = getattr(binding, "items", None)
+        return items is None or any(_source_value_has_unknown(item) for item in items)
+    if kind in {"sequence", "iterable"}:
+        items = getattr(binding, "items", None)
+        return items is None or any(_source_value_has_unknown(item) for item in items)
+    if kind == "mapping":
+        keys = getattr(binding, "items", None)
+        values = getattr(binding, "values", None)
+        return (
+            keys is None
+            or values is None
+            or any(_source_value_has_unknown(item) for item in (*keys, *values))
+        )
+    return False
+
+
+def _source_value_slot(
+    call: ast.Call,
+    argument: ast.AST,
+) -> str | None:
+    for index, value in enumerate(call.args):
+        if value is argument:
+            return f"positional:{index}"
+    for keyword in call.keywords:
+        if keyword.value is argument:
+            return f"keyword:{keyword.arg}" if keyword.arg is not None else "keyword:**"
+    return None
 
 
 def _scan_tracked_python_callers(
@@ -653,214 +617,268 @@ def _scan_tracked_python_callers(
     target_modules: set[str],
     reference_inventory: dict[str, object],
 ) -> dict[str, object]:
-    """Resolve imports in lexical Python candidates from the complete tracked set.
-
-    Direct and relative imports plus literal importlib.import_module,
-    __import__ and runpy.run_module addresses are in scope, including positional
-    and documented keyword name bindings, simple aliases, uniquely assigned
-    top-level string constants, concatenation, and literal f-strings. Literal
-    importlib relative names resolve with their literal package; relative
-    __import__/runpy names and ambiguous/starred/** argument bindings fail closed.
-    Whole-AST assignment/use hints make target-bearing local, block, alias, and
-    ambiguous bindings unresolved when a supported loader consumes them. Computed
-    or cross-file values without any target-bearing assignment/use hint remain
-    outside this bounded property.
-    """
-
+    """Join every tracked Python call to R8's source/value context owner."""
     repo_root = repo_root.resolve()
     tracked_files = tuple(iter_repository_files(repo_root))
-    candidate_paths = reference_inventory["python_candidate_paths"]
-    assert isinstance(candidate_paths, set)
-    selected_paths = {
-        path.relative_to(repo_root).as_posix()
+    declared_paths = reference_inventory["python_candidate_paths"]
+    assert isinstance(declared_paths, set)
+    input_paths = {
+        path.relative_to(repo_root).as_posix(): path
         for path in tracked_files
-        if schema_fqn_census._is_selected_text(path.as_posix())
+        if path.suffix.lower() in {".py", ".pyi"}
     }
+    assert set(input_paths) == declared_paths
+
     caller_targets: dict[str, set[str]] = {}
     dynamic_callers: list[dict[str, object]] = []
     parse_failures: list[dict[str, str]] = []
-    archived_source_pairs: list[dict[str, str]] = []
+    source_scope_failures: list[dict[str, str]] = []
     unresolved: list[dict[str, object]] = []
-    evidence_json_cache: dict[str, tuple[dict[str, object], str, int] | None] = {}
+    trees: dict[str, ast.Module] = {}
+    module_paths: dict[str, Path] = {}
+    relative_for_module: dict[str, str] = {}
+    call_index: dict[tuple[str, int, int], tuple[str, ast.Call]] = {}
     target_parents = {target.rpartition(".")[0] for target in target_modules}
+    ast_node_counts: Counter[str] = Counter()
+    coverage_failures: list[dict[str, object]] = []
+    namespace_residuals: list[dict[str, object]] = []
+    supported_loaders = {
+        "importlib.import_module",
+        "builtins.__import__",
+        "runpy.run_module",
+    }
+    dynamic_namespace_builtins = {"eval", "exec", "compile", "globals", "locals"}
 
-    for relative in sorted(candidate_paths):
-        path = repo_root / relative
+    # Parse every declared .py/.pyi input; the token index is not a selector.
+    for relative, path in sorted(input_paths.items()):
         try:
-            raw = path.read_bytes()
-            text = raw.decode("utf-8")
-        except (OSError, UnicodeError) as error:
-            parse_failures.append({"path": relative, "error": str(error)})
+            tree = ast.parse(path.read_text(encoding="utf-8"), filename=relative)
+        except (OSError, UnicodeError, SyntaxError, ValueError, RecursionError) as error:
+            parse_failures.append({"path": relative, "error": f"{type(error).__name__}: {error}"})
             continue
-        try:
-            tree = ast.parse(text, filename=relative)
-        except (SyntaxError, ValueError, RecursionError) as error:
-            pair_format = _is_verified_archived_source_pair(
-                repo_root,
-                relative,
-                raw,
-                selected_paths,
-                evidence_json_cache,
-            )
-            if pair_format is not None:
-                archived_source_pairs.append({"path": relative, "pair_format": pair_format})
-                continue
-            parse_failures.append(
-                {
-                    "path": relative,
-                    "error": f"{type(error).__name__}: {error}",
-                }
-            )
-            continue
+        module = "__hyg_source__." + hashlib.sha256(relative.encode("utf-8")).hexdigest()
+        trees[module] = tree
+        module_paths[module] = path
+        relative_for_module[module] = relative
+        file_node_counts, file_coverage_failures = _hyg_ast_coverage(tree)
+        ast_node_counts.update(file_node_counts)
+        coverage_failures.extend({"path": relative, **row} for row in file_coverage_failures)
+        namespace_residuals.extend(_hyg_namespace_residuals(tree, relative))
 
-        constant_history: dict[str, list[tuple[str | None, set[str]]]] = {}
-        provisional_constants: dict[str, str] = {}
-        for statement in tree.body:
-            targets = (
-                statement.targets
-                if isinstance(statement, ast.Assign)
-                else [statement.target]
-                if isinstance(statement, ast.AnnAssign)
-                else []
-            )
-            if not targets:
-                continue
-            value = _literal_module_address(statement.value, provisional_constants)
-            fragments = _literal_module_fragments(statement.value, provisional_constants)
-            for target in targets:
-                if not isinstance(target, ast.Name):
-                    continue
-                constant_history.setdefault(target.id, []).append((value, fragments))
-                if value is None:
-                    provisional_constants.pop(target.id, None)
-                else:
-                    provisional_constants[target.id] = value
-        constants = {
-            name: rows[0][0]
-            for name, rows in constant_history.items()
-            if len(rows) == 1 and rows[0][0] is not None
-        }
-        assigned_fragments = {
-            name: set().union(*(fragments for _, fragments in rows))
-            for name, rows in constant_history.items()
-            if any(fragments for _, fragments in rows)
-        }
-        target_name_hints = _whole_ast_target_name_hints(tree, constants, target_modules)
-        dynamic_aliases = _dynamic_import_aliases(tree)
+        # Direct import statements retain the existing HYG normalization behavior.
         for node in ast.walk(tree):
-            if isinstance(node, ast.Import):
+            if isinstance(node, ast.Call):
+                call_index[(module, node.lineno, node.col_offset)] = (relative, node)
+            elif isinstance(node, ast.Import):
                 for alias in node.names:
                     caller_targets.setdefault(relative, set()).update(
                         _module_targets(alias.name, target_modules)
                     )
             elif isinstance(node, ast.ImportFrom):
-                module = node.module or ""
+                module_name = node.module or ""
                 if node.level:
                     package = _python_import_package(repo_root, path)
                     try:
-                        module = importlib.util.resolve_name(
-                            "." * node.level + module,
-                            package,
+                        module_name = importlib.util.resolve_name(
+                            "." * node.level + module_name, package
                         )
                     except (ImportError, ValueError):
-                        module = ""
-                direct_matches = _module_targets(module, target_modules)
+                        module_name = ""
+                direct_matches = _module_targets(module_name, target_modules)
                 if direct_matches:
                     caller_targets.setdefault(relative, set()).update(direct_matches)
                 for alias in node.names:
                     if alias.name == "*":
-                        if module in target_parents:
+                        if module_name in target_parents:
                             caller_targets.setdefault(relative, set()).update(target_modules)
                         continue
                     caller_targets.setdefault(relative, set()).update(
-                        _module_targets(f"{module}.{alias.name}", target_modules)
+                        _module_targets(f"{module_name}.{alias.name}", target_modules)
                     )
-            elif isinstance(node, ast.Call):
-                function = node.func
-                if isinstance(function, ast.Name):
-                    function_name = dynamic_aliases.get(function.id)
-                elif isinstance(function, ast.Attribute):
-                    base = function.value
-                    if isinstance(base, ast.Name):
-                        function_name = f"{dynamic_aliases.get(base.id, base.id)}.{function.attr}"
-                    else:
-                        function_name = None
-                else:
-                    function_name = None
-                if function_name not in {
-                    "importlib.import_module",
-                    "builtins.__import__",
-                    "runpy.run_module",
-                }:
-                    continue
-                arguments, binding_error = _bound_loader_arguments(node, function_name)
-                name_parameter = "mod_name" if function_name == "runpy.run_module" else "name"
-                address_node = arguments.get(name_parameter)
-                address = _literal_module_address(address_node, constants)
-                call_arguments = [
-                    *node.args,
-                    *(keyword.value for keyword in node.keywords),
-                ]
-                fragments = set().union(
-                    *(
-                        _literal_module_fragments(argument, constants, assigned_fragments)
-                        for argument in (address_node, *arguments.values(), *call_arguments)
-                        if argument is not None
-                    ),
-                    *(
-                        target_name_hints.get(child.id, set())
-                        for argument in call_arguments
-                        for child in ast.walk(argument)
-                        if isinstance(child, ast.Name)
-                    ),
-                )
-                if binding_error is not None:
-                    if _target_related_fragments(fragments, target_modules):
-                        unresolved.append(
-                            {
-                                "path": relative,
-                                "line": node.lineno,
-                                "reason": binding_error,
-                            }
-                        )
-                    continue
-                if address_node is None:
-                    continue
-                if address is None:
-                    if _target_related_fragments(fragments, target_modules):
-                        unresolved.append(
-                            {
-                                "path": relative,
-                                "line": node.lineno,
-                                "reason": f"computed {function_name} address in target-bearing source",
-                            }
-                        )
-                    continue
 
+        # Retain R8's explicit refusals for guarded source operations. Its selected
+        # sink-site inventory no longer controls which calls reach the value owner.
+        scanner = decomposition_preflight._DynamicImportSourceScanner(path, relative_path=relative)
+        try:
+            scanner.scan_with_sites(tree)
+        except decomposition_preflight.DynamicImportCollectionError as error:
+            source_scope_failures.append({"path": relative, "error": str(error)})
+
+    source_observations: list[dict[str, object]] = []
+    missing_observations: list[dict[str, object]] = []
+    if not parse_failures:
+        source_observations, missing_observations = (
+            decomposition_preflight.collect_source_value_call_observations(
+                trees, module_paths, value_target_names=supported_loaders
+            )
+        )
+    for row in missing_observations:
+        module = str(row.get("module", ""))
+        unresolved.append(
+            {
+                "path": relative_for_module.get(module, module),
+                "line": row.get("line"),
+                "reason": str(row.get("reason", "declared AST call has no R8 observation")),
+                "kind": "missing source-call observation",
+            }
+        )
+
+    observation_index = {
+        (str(row["module"]), int(row["line"]), int(row["column"])): row
+        for row in source_observations
+    }
+    observed_call_ids = set(observation_index)
+    declared_call_ids = set(call_index)
+    if observed_call_ids != declared_call_ids:
+        for module, line, column in sorted(declared_call_ids - observed_call_ids):
+            relative, _call = call_index[(module, line, column)]
+            unresolved.append(
+                {
+                    "path": relative,
+                    "line": line,
+                    "reason": "declared AST call has no joined R8 target/value observation",
+                    "kind": "missing source-call observation",
+                }
+            )
+
+    loader_call_ids: set[tuple[str, int, int]] = set()
+    unknown_calltarget_ids: set[tuple[str, int, int]] = set()
+    unsupported_calltarget_ids: set[tuple[str, int, int]] = set()
+    for key, (relative, call) in sorted(call_index.items()):
+        observation = observation_index.get(key)
+        if observation is None:
+            continue
+        raw_targets = observation.get("call_targets", [])
+        targets = raw_targets if isinstance(raw_targets, list) else []
+        recognized_loaders: set[str] = set()
+        unsupported_targets: list[str] = []
+        for target in targets:
+            if not isinstance(target, dict):
+                unsupported_targets.append("malformed R8 call-target row")
+                continue
+            kind = target.get("kind")
+            module = target.get("module")
+            symbol = target.get("symbol")
+            if kind == "import" and isinstance(module, str) and isinstance(symbol, str):
+                qualified = f"{module}.{symbol}"
+                if qualified in supported_loaders:
+                    recognized_loaders.add(qualified)
+                else:
+                    unsupported_targets.append(f"opaque imported callable {qualified}")
+            elif kind == "builtin" and module == "builtins" and isinstance(symbol, str):
+                if symbol == "__import__":
+                    recognized_loaders.add("builtins.__import__")
+                elif symbol in dynamic_namespace_builtins:
+                    unsupported_targets.append(f"dynamic namespace builtin {symbol}")
+            elif kind == "callable" and module in trees:
+                # R8 has resolved this target to a source-owned callable. Its body
+                # is walked by the same owner; a transferred loader formal appears
+                # at the inner call site as an exact import target.
+                continue
+            else:
+                unsupported_targets.append(f"unmodeled call target {kind!r}")
+
+        target_unknown = observation.get("call_target_unknown") is not False
+        if target_unknown:
+            unknown_calltarget_ids.add(key)
+            unresolved.append(
+                {
+                    "path": relative,
+                    "line": call.lineno,
+                    "reason": "call target has an unknown alternative",
+                    "kind": "unknown call target",
+                }
+            )
+        if unsupported_targets:
+            unsupported_calltarget_ids.add(key)
+            unresolved.append(
+                {
+                    "path": relative,
+                    "line": call.lineno,
+                    "reason": "; ".join(sorted(set(unsupported_targets))),
+                    "kind": "unsupported call target",
+                }
+            )
+        if not targets and not target_unknown:
+            unsupported_calltarget_ids.add(key)
+            unresolved.append(
+                {
+                    "path": relative,
+                    "line": call.lineno,
+                    "reason": "call observation has neither a target nor explicit unknown",
+                    "kind": "unsupported call target",
+                }
+            )
+
+        slots = observation.get("slots", {})
+        for function_name in sorted(recognized_loaders):
+            loader_call_ids.add(key)
+            arguments, binding_error = _bound_loader_arguments(call, function_name)
+            if binding_error is not None:
+                unresolved.append(
+                    {
+                        "path": relative,
+                        "line": call.lineno,
+                        "sink": function_name,
+                        "reason": binding_error,
+                    }
+                )
+                continue
+            name_parameter = "mod_name" if function_name == "runpy.run_module" else "name"
+            address_node = arguments.get(name_parameter)
+            if address_node is None:
+                unresolved.append(
+                    {
+                        "path": relative,
+                        "line": call.lineno,
+                        "sink": function_name,
+                        "reason": "loader name argument is absent/unbound",
+                    }
+                )
+                continue
+            address_slot = _source_value_slot(call, address_node)
+            binding = slots.get(address_slot) if isinstance(slots, dict) and address_slot else None
+            if binding is None:
+                unresolved.append(
+                    {
+                        "path": relative,
+                        "line": call.lineno,
+                        "sink": function_name,
+                        "formal_or_slot": address_slot,
+                        "reason": "loader argument has no source-value payload",
+                    }
+                )
+                continue
+            exact_addresses = _source_value_strings(binding)
+            unknown_value = _source_value_has_unknown(binding)
+            fragments = set(exact_addresses)
+            fragments.update(
+                child.value
+                for child in ast.walk(address_node)
+                if isinstance(child, ast.Constant) and isinstance(child.value, str)
+            )
+
+            normalized_addresses: set[str] = set()
+            for address in exact_addresses:
                 if function_name == "importlib.import_module" and address.startswith("."):
-                    package = _literal_module_address(arguments.get("package"), constants)
-                    if package is None:
-                        if _target_related_fragments({address}, target_modules):
-                            unresolved.append(
-                                {
-                                    "path": relative,
-                                    "line": node.lineno,
-                                    "reason": "relative importlib name has no literal package binding",
-                                }
-                            )
+                    package_node = arguments.get("package")
+                    package_slot = _source_value_slot(call, package_node) if package_node else None
+                    package_binding = (
+                        slots.get(package_slot)
+                        if isinstance(slots, dict) and package_slot
+                        else None
+                    )
+                    package_values = (
+                        _source_value_strings(package_binding) if package_binding else set()
+                    )
+                    if not package_values or _source_value_has_unknown(package_binding):
+                        unknown_value = True
                         continue
-                    try:
-                        address = importlib.util.resolve_name(address, package)
-                    except (ImportError, ValueError):
-                        if _target_related_fragments({address}, target_modules):
-                            unresolved.append(
-                                {
-                                    "path": relative,
-                                    "line": node.lineno,
-                                    "reason": "relative importlib name/package is invalid",
-                                }
-                            )
-                        continue
+                    for package in package_values:
+                        try:
+                            normalized_addresses.add(importlib.util.resolve_name(address, package))
+                        except (ImportError, ValueError):
+                            unknown_value = True
                 elif function_name == "builtins.__import__":
                     level_node = arguments.get("level")
                     if level_node is None:
@@ -871,41 +889,111 @@ def _scan_tracked_python_callers(
                         level = None
                     if level != 0:
                         if _relative_import_target_name(address, target_modules):
-                            unresolved.append(
-                                {
-                                    "path": relative,
-                                    "line": node.lineno,
-                                    "reason": "relative or dynamic builtins.__import__ level is unsupported",
-                                }
-                            )
+                            unknown_value = True
                         continue
+                    normalized_addresses.add(address)
                 elif function_name == "runpy.run_module" and address.startswith("."):
-                    if _target_related_fragments({address}, target_modules):
-                        unresolved.append(
+                    if _relative_import_target_name(address, target_modules):
+                        unknown_value = True
+                    continue
+                else:
+                    normalized_addresses.add(address)
+
+            matches = (
+                set().union(
+                    *(_module_targets(address, target_modules) for address in normalized_addresses)
+                )
+                if normalized_addresses
+                else set()
+            )
+            if matches:
+                caller_targets.setdefault(relative, set()).update(matches)
+                for address in sorted(normalized_addresses):
+                    if _module_targets(address, target_modules):
+                        dynamic_callers.append(
                             {
                                 "path": relative,
-                                "line": node.lineno,
-                                "reason": "relative runpy module names are unsupported",
+                                "line": call.lineno,
+                                "function": function_name,
+                                "address": address,
                             }
                         )
-                    continue
+            if unknown_value:
+                unresolved.append(
+                    {
+                        "path": relative,
+                        "line": call.lineno,
+                        "sink": function_name,
+                        "formal_or_slot": address_slot,
+                        "reason": "source value contains unknown alternative",
+                        "fragments": sorted(fragments),
+                    }
+                )
+            elif not exact_addresses and getattr(binding, "kind", None) not in {
+                "other",
+                "boolean",
+                "none",
+                "sequence",
+                "iterable",
+                "mapping",
+            }:
+                unresolved.append(
+                    {
+                        "path": relative,
+                        "line": call.lineno,
+                        "sink": function_name,
+                        "formal_or_slot": address_slot,
+                        "reason": ("empty/unclassified sink value is not a non-target proof"),
+                        "fragments": sorted(fragments),
+                    }
+                )
 
-                matches = _module_targets(address, target_modules)
-                if matches:
-                    caller_targets.setdefault(relative, set()).update(matches)
-                    dynamic_callers.append(
-                        {
-                            "path": relative,
-                            "line": node.lineno,
-                            "function": function_name,
-                            "address": address,
-                        }
-                    )
-
+    unresolved.extend(
+        {"path": row["path"], "reason": row["error"], "kind": "R8 sink-scan refusal"}
+        for row in source_scope_failures
+    )
+    unresolved.extend(
+        {**row, "kind": "bounded dynamic namespace residual"} for row in namespace_residuals
+    )
+    unresolved.extend({**row, "kind": "unclassified source syntax"} for row in coverage_failures)
+    bounded_complete = (
+        not parse_failures
+        and not source_scope_failures
+        and not namespace_residuals
+        and not coverage_failures
+        and set(input_paths) == set(declared_paths)
+        and declared_call_ids == observed_call_ids
+        and not unresolved
+    )
     return {
+        "status": "BOUNDED_COMPLETE" if bounded_complete else "BOUNDED_INCOMPLETE",
+        "bounded_source_grammar": [
+            "tracked .py/.pyi AST calls observed by the R8 source-owned worklist",
+            "exact recognized dynamic-loader identities and closed source-value alternatives",
+            "source-owned call-target/formal transfers resolved by the shared owner",
+        ],
+        "bounded_unknowns": [
+            "opaque imported or returned callable targets",
+            "unobserved AST calls, dynamic namespace/code-generation "
+            "boundaries, and unsupported values",
+        ],
         "tracked_python_denominator": reference_inventory["tracked_python_denominator"],
-        "lexical_python_candidate_count": len(candidate_paths),
-        "archived_source_pairs": archived_source_pairs,
+        "tracked_python_input_count": len(input_paths),
+        "declared_python_paths": sorted(declared_paths),
+        "parsed_python_paths": sorted(
+            relative for module, relative in relative_for_module.items() if module in trees
+        ),
+        "lexical_python_candidate_count": len(input_paths),
+        "token_python_candidate_count": reference_inventory["token_python_candidate_count"],
+        "ast_call_count": len(declared_call_ids),
+        "source_value_observation_count": len(observed_call_ids),
+        "loader_call_count": len(loader_call_ids),
+        "unknown_calltarget_count": len(unknown_calltarget_ids),
+        "unsupported_calltarget_count": len(unsupported_calltarget_ids),
+        "source_scope_failures": source_scope_failures,
+        "namespace_residuals": namespace_residuals,
+        "ast_node_counts": dict(sorted(ast_node_counts.items())),
+        "coverage_failures": coverage_failures,
         "parse_failures": parse_failures,
         "unresolved": unresolved,
         "callers": {
@@ -918,8 +1006,8 @@ def _scan_tracked_python_callers(
     }
 
 
-def test_benchmark_wrapper_caller_census_is_complete_and_bounded() -> None:
-    """Derive source callers while retaining a complete tracked-text inventory."""
+def test_benchmark_wrapper_caller_census_is_bounded_and_fails_closed() -> None:
+    """Derive source callers without claiming closure over opaque call targets."""
 
     legacy_modules = {
         "harness": "tools.research.benchmarks.harness",
@@ -948,9 +1036,15 @@ def test_benchmark_wrapper_caller_census_is_complete_and_bounded() -> None:
         inventory,
     )
     assert caller_census["tracked_python_denominator"] == inventory["tracked_python_denominator"]
-    assert caller_census["lexical_python_candidate_count"] == inventory["python_candidate_count"]
+    assert caller_census["lexical_python_candidate_count"] == len(
+        inventory["python_candidate_paths"]
+    )
+    assert caller_census["tracked_python_input_count"] == inventory["tracked_python_denominator"]
+    assert set(caller_census["declared_python_paths"]) == set(caller_census["parsed_python_paths"])
     assert caller_census["parse_failures"] == [], caller_census["parse_failures"]
-    assert caller_census["unresolved"] == [], caller_census["unresolved"]
+    assert caller_census["status"] == "BOUNDED_INCOMPLETE"
+    assert caller_census["source_value_observation_count"] <= caller_census["ast_call_count"]
+    assert caller_census["unresolved"], "opaque call targets must keep the census bounded"
     callers = caller_census["callers"]
     assert isinstance(callers, dict)
     assert set(callers) == {"tests/unit/remediation/test_hyg_04.py"}
@@ -1192,7 +1286,9 @@ def test_benchmark_wrapper_caller_census_is_complete_and_bounded() -> None:
             fail_closed_inventory,
         )
         assert [row["path"] for row in fail_closed["parse_failures"]] == ["malformed_target.py"]
-        assert {row["path"] for row in fail_closed["unresolved"]} == {
+        # Preserve all inherited unresolved witnesses; the shared owner can add
+        # explicit unknown/refusal rows that the old token-selected scan dropped.
+        assert {
             "alias_assignment_target.py",
             "ambiguous_constant_target.py",
             "ambiguous_local_target.py",
@@ -1206,11 +1302,208 @@ def test_benchmark_wrapper_caller_census_is_complete_and_bounded() -> None:
             "starred_argument_target.py",
             "unknown_expansion_target.py",
             "unresolved_target.py",
-        }
+        } <= {row["path"] for row in fail_closed["unresolved"]}
         assert {
             "unrelated_local_binding.py",
             "unrelated_same_basename.py",
         }.isdisjoint({row["path"] for row in fail_closed["unresolved"]})
+
+
+def test_hyg_calltarget_transfer_is_consumed_and_opaque_return_refuses(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The real HYG consumer sees formal call-target transfer and unknown returns."""
+
+    source_path = tmp_path / "higher_order.py"
+    source_path.write_text(
+        "import importlib\n"
+        "def invoke(loader, name):\n"
+        "    loader(name)\n"
+        'invoke(importlib.import_module, "tools.research.benchmarks.harness")\n',
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(
+        sys.modules[__name__], "iter_repository_files", lambda _root: (source_path,)
+    )
+    target_modules = {"tools.research.benchmarks.harness"}
+    inventory: dict[str, object] = {
+        "python_candidate_paths": {"higher_order.py"},
+        "tracked_python_denominator": 1,
+        "token_python_candidate_count": 1,
+    }
+
+    transferred = _scan_tracked_python_callers(tmp_path, target_modules, inventory)
+    assert transferred["status"] == "BOUNDED_COMPLETE"
+    assert transferred["callers"] == {"higher_order.py": ["tools.research.benchmarks.harness"]}
+    assert transferred["unresolved"] == []
+
+    # Remove only the target-transfer property while retaining every call row,
+    # source-value slot, status field, and completeness marker. The actual HYG
+    # consumer must refuse instead of remaining green on the retained markers.
+    owner = decomposition_preflight.collect_source_value_call_observations
+
+    def without_calltarget_transfer(trees, module_paths, **kwargs):
+        rows, missing = owner(trees, module_paths, **kwargs)
+        for row in rows:
+            row["call_targets"] = []
+            row["call_target_unknown"] = False
+        return rows, missing
+
+    monkeypatch.setattr(
+        decomposition_preflight,
+        "collect_source_value_call_observations",
+        without_calltarget_transfer,
+    )
+    removed = _scan_tracked_python_callers(tmp_path, target_modules, inventory)
+    assert removed["status"] == "BOUNDED_INCOMPLETE"
+    assert removed["callers"] == {}
+    assert any(row.get("kind") == "unsupported call target" for row in removed["unresolved"])
+
+    source_path.write_text(
+        "import vendor\n"
+        "loader = vendor.make_loader()\n"
+        'loader("tools.research.benchmarks.harness")\n',
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(decomposition_preflight, "collect_source_value_call_observations", owner)
+    returned = _scan_tracked_python_callers(tmp_path, target_modules, inventory)
+    assert returned["status"] == "BOUNDED_INCOMPLETE"
+    assert any(row.get("kind") == "unknown call target" for row in returned["unresolved"])
+    assert any(row.get("kind") == "unsupported call target" for row in returned["unresolved"])
+
+
+@pytest.mark.parametrize(
+    ("binding_case", "source", "expected_status", "expected_caller"),
+    [
+        (
+            "unbound_builtin",
+            '__import__("tools.research.benchmarks.harness")\n',
+            "BOUNDED_COMPLETE",
+            True,
+        ),
+        (
+            "explicit_builtin_name_import",
+            "from builtins import __import__ as loader\n"
+            'loader("tools.research.benchmarks.harness")\n',
+            "BOUNDED_COMPLETE",
+            True,
+        ),
+        (
+            "explicit_builtin_module_import",
+            'import builtins as native\nnative.__import__("tools.research.benchmarks.harness")\n',
+            "BOUNDED_COMPLETE",
+            True,
+        ),
+        (
+            "local_none",
+            '__import__ = None\n__import__("tools.research.benchmarks.harness")\n',
+            "BOUNDED_INCOMPLETE",
+            False,
+        ),
+        (
+            "local_literal",
+            '__import__ = 7\n__import__("tools.research.benchmarks.harness")\n',
+            "BOUNDED_INCOMPLETE",
+            False,
+        ),
+        (
+            "local_object_value",
+            '__import__ = []\n__import__("tools.research.benchmarks.harness")\n',
+            "BOUNDED_INCOMPLETE",
+            False,
+        ),
+        (
+            "local_mapping_object",
+            '__import__ = {}\n__import__("tools.research.benchmarks.harness")\n',
+            "BOUNDED_INCOMPLETE",
+            False,
+        ),
+        (
+            "local_callable_value",
+            "def replacement(name):\n    return None\n"
+            "__import__ = replacement\n"
+            '__import__("tools.research.benchmarks.harness")\n',
+            "BOUNDED_COMPLETE",
+            False,
+        ),
+        (
+            "callable_return",
+            "def make_loader():\n    return None\n"
+            "__import__ = make_loader()\n"
+            '__import__("tools.research.benchmarks.harness")\n',
+            "BOUNDED_INCOMPLETE",
+            False,
+        ),
+        (
+            "parameter_value",
+            "def invoke(__import__):\n"
+            '    __import__("tools.research.benchmarks.harness")\n'
+            "invoke(None)\n",
+            "BOUNDED_INCOMPLETE",
+            False,
+        ),
+        (
+            "bare_alias_of_unbound_builtin",
+            'loader = __import__\nloader("tools.research.benchmarks.harness")\n',
+            "BOUNDED_INCOMPLETE",
+            False,
+        ),
+        (
+            "rebound_builtin_module",
+            "import builtins as native\n"
+            "native = None\n"
+            'native.__import__("tools.research.benchmarks.harness")\n',
+            "BOUNDED_INCOMPLETE",
+            False,
+        ),
+        (
+            "rebound_imported_builtin",
+            "from builtins import __import__ as loader\n"
+            "loader = None\n"
+            'loader("tools.research.benchmarks.harness")\n',
+            "BOUNDED_INCOMPLETE",
+            False,
+        ),
+        (
+            "opaque_imported_callable",
+            "from vendor import __import__ as loader\n"
+            'loader("tools.research.benchmarks.harness")\n',
+            "BOUNDED_INCOMPLETE",
+            False,
+        ),
+    ],
+)
+def test_hyg_builtin_identity_uses_the_whole_binding_state(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    binding_case: str,
+    source: str,
+    expected_status: str,
+    expected_caller: bool,
+) -> None:
+    """The HYG consumer distinguishes unbound builtins from bound values."""
+    source_path = tmp_path / "binding_identity.py"
+    source_path.write_text(source, encoding="utf-8")
+    monkeypatch.setattr(
+        sys.modules[__name__], "iter_repository_files", lambda _root: (source_path,)
+    )
+    target_modules = {"tools.research.benchmarks.harness"}
+    inventory: dict[str, object] = {
+        "python_candidate_paths": {"binding_identity.py"},
+        "tracked_python_denominator": 1,
+        "token_python_candidate_count": 1,
+    }
+
+    result = _scan_tracked_python_callers(tmp_path, target_modules, inventory)
+
+    assert result["status"] == expected_status, binding_case
+    assert result["callers"] == (
+        {"binding_identity.py": ["tools.research.benchmarks.harness"]} if expected_caller else {}
+    ), binding_case
+    assert result["parse_failures"] == [], binding_case
+    if expected_status == "BOUNDED_INCOMPLETE":
+        assert result["unresolved"], binding_case
 
 
 def test_benchmark_wrapper_cli_matches_canonical_entrypoint() -> None:

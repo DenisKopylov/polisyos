@@ -7241,21 +7241,78 @@ class _BindingTarget:
         )
 
 
+def _source_string_alternatives(binding: _DynamicImportBinding) -> tuple[str, ...]:
+    """Return exact string alternatives without dropping open/non-string members."""
+    if binding.kind == "string" and binding.name is not None:
+        return (binding.name,)
+    if binding.kind == "union" and binding.items is not None:
+        return tuple(
+            sorted(
+                {value for member in binding.items for value in _source_string_alternatives(member)}
+            )
+        )
+    return ()
+
+
+def _source_value_is_closed_string(binding: _DynamicImportBinding) -> bool:
+    """Whether every member is a concrete string with no unknown alternative."""
+    if binding.kind == "string":
+        return binding.name is not None
+    if binding.kind == "union" and binding.items:
+        return all(_source_value_is_closed_string(member) for member in binding.items)
+    return False
+
+
+def _source_value_add(
+    left: _DynamicImportBinding,
+    right: _DynamicImportBinding,
+    *,
+    value_limit: int = _DYNAMIC_COMPREHENSION_VALUE_LIMIT,
+    character_limit: int = 4096,
+) -> _DynamicImportBinding:
+    """Concatenate bounded exact strings and retain unknown/non-string paths."""
+    products = {
+        first + second
+        for first in _source_string_alternatives(left)
+        for second in _source_string_alternatives(right)
+    }
+    overflow = len(products) > value_limit or any(
+        len(value) > character_limit for value in products
+    )
+    if overflow:
+        products.clear()
+    alternatives = [_dynamic_string_binding(value) for value in sorted(products)]
+    if (
+        overflow
+        or not _source_value_is_closed_string(left)
+        or not _source_value_is_closed_string(right)
+    ):
+        alternatives.append(_DYNAMIC_UNKNOWN)
+    return _dynamic_union_binding(alternatives)
+
+
 @dataclass(frozen=True)
 class _BindingKnowledge:
-    """Joined targets, uncertainty, and sticky source-value provenance."""
+    """Joined targets, source-value payload, uncertainty, and provenance."""
 
     known_possible_targets: frozenset[_BindingTarget] = frozenset()
     possible_unknown: bool = False
     source_value_origins: frozenset[_BindingTarget] = frozenset()
     builtin_value_kinds: frozenset[str] = frozenset()
+    source_value: _DynamicImportBinding | None = None
 
     def join(self, other: _BindingKnowledge) -> _BindingKnowledge:
+        source_values = [
+            value for value in (self.source_value, other.source_value) if value is not None
+        ]
+        if self.possible_unknown or other.possible_unknown:
+            source_values.append(_DYNAMIC_UNKNOWN)
         return _BindingKnowledge(
             self.known_possible_targets | other.known_possible_targets,
             self.possible_unknown or other.possible_unknown,
             self.source_value_origins | other.source_value_origins,
             self.builtin_value_kinds | other.builtin_value_kinds,
+            _join_dynamic_bindings(source_values) if source_values else None,
         )
 
     def targets_for(self, kind: str) -> set[_BindingTarget]:
@@ -7320,9 +7377,14 @@ class _RuntimeImportCollector(ast.NodeVisitor):
         *,
         is_package: bool,
         source_path: str,
+        source_value_observation_sites: set[tuple[int, int]] | None = None,
+        source_value_target_names: frozenset[str] | None = None,
     ) -> None:
         self.module = module
         self.source_path = source_path
+        self.source_value_observation_sites = source_value_observation_sites or set()
+        self.source_value_target_names = source_value_target_names
+        self.source_value_call_observations: dict[tuple[int, int], dict[str, Any]] = {}
         self.module_names = module_names
         self.callable_index = callable_index
         self.functions = functions
@@ -7374,6 +7436,7 @@ class _RuntimeImportCollector(ast.NodeVisitor):
         self.type_checking_bindings: dict[str, str] = {}
         self.unknown_bindings: set[str] = set()
         self.source_call_result_bindings: dict[str, set[tuple[str, str, int, int]]] = {}
+        self.source_value_bindings: dict[str, _DynamicImportBinding] = {}
         self.source_value_origin_bindings: dict[str, set[_BindingTarget]] = {}
         self.builtin_value_kind_bindings: dict[str, set[str]] = {}
         self.future_annotations = False
@@ -7397,6 +7460,7 @@ class _RuntimeImportCollector(ast.NodeVisitor):
             self.type_checking_bindings.pop(name, None)
             self.unknown_bindings.discard(name)
             self.source_call_result_bindings.pop(name, None)
+            self.source_value_bindings.pop(name, None)
             self.source_value_origin_bindings.pop(name, None)
             self.builtin_value_kind_bindings.pop(name, None)
 
@@ -7432,6 +7496,9 @@ class _RuntimeImportCollector(ast.NodeVisitor):
             name in self.unknown_bindings,
             frozenset(origins),
             frozenset(self.builtin_value_kind_bindings.get(name, set())),
+            self.source_value_bindings.get(
+                name, _DYNAMIC_UNKNOWN if name in self.unknown_bindings else None
+            ),
         )
 
     def _source_origins_from_targets(
@@ -7547,6 +7614,7 @@ class _RuntimeImportCollector(ast.NodeVisitor):
             set(self.import_bindings)
             | set(self.callable_aliases)
             | set(self.source_call_result_bindings)
+            | set(self.source_value_bindings)
             | set(self.source_value_origin_bindings)
             | set(self.builtin_value_kind_bindings)
             | set(self.class_aliases)
@@ -7562,6 +7630,7 @@ class _RuntimeImportCollector(ast.NodeVisitor):
         self.source_call_result_bindings.pop(name, None)
         self.class_aliases.pop(name, None)
         self.instance_aliases.pop(name, None)
+        self.source_value_bindings.pop(name, None)
         self.source_value_origin_bindings.pop(name, None)
         self.builtin_value_kind_bindings.pop(name, None)
         for target in knowledge.known_possible_targets:
@@ -7583,6 +7652,13 @@ class _RuntimeImportCollector(ast.NodeVisitor):
                 )
         if knowledge.possible_unknown:
             self.unknown_bindings.add(name)
+        if knowledge.source_value is not None:
+            value = knowledge.source_value
+            if knowledge.possible_unknown:
+                value = _join_dynamic_bindings((value, _DYNAMIC_UNKNOWN))
+            self.source_value_bindings[name] = value
+        elif knowledge.possible_unknown:
+            self.source_value_bindings[name] = _DYNAMIC_UNKNOWN
         if knowledge.source_value_origins:
             self.source_value_origin_bindings[name] = set(knowledge.source_value_origins)
         if knowledge.builtin_value_kinds:
@@ -7593,6 +7669,7 @@ class _RuntimeImportCollector(ast.NodeVisitor):
         self.callable_aliases = {}
         self.unknown_bindings = set()
         self.source_call_result_bindings = {}
+        self.source_value_bindings = {}
         self.source_value_origin_bindings = {}
         self.builtin_value_kind_bindings = {}
         self.class_aliases = {}
@@ -7736,6 +7813,7 @@ class _RuntimeImportCollector(ast.NodeVisitor):
                 knowledge.possible_unknown,
                 tuple(sorted(target.sort_key() for target in knowledge.source_value_origins)),
                 tuple(sorted(knowledge.builtin_value_kinds)),
+                repr(knowledge.source_value),
             )
             for name, knowledge in sorted(self._binding_knowledge_snapshot().items())
         )
@@ -7753,6 +7831,7 @@ class _RuntimeImportCollector(ast.NodeVisitor):
                             sorted(target.sort_key() for target in knowledge.source_value_origins)
                         ),
                         tuple(sorted(knowledge.builtin_value_kinds)),
+                        repr(knowledge.source_value),
                     )
                     for member, knowledge in sorted(members.items())
                 ),
@@ -7773,6 +7852,7 @@ class _RuntimeImportCollector(ast.NodeVisitor):
                             sorted(target.sort_key() for target in knowledge.source_value_origins)
                         ),
                         tuple(sorted(knowledge.builtin_value_kinds)),
+                        repr(knowledge.source_value),
                     )
                     for member, knowledge in sorted(members.items())
                 ),
@@ -7811,6 +7891,7 @@ class _RuntimeImportCollector(ast.NodeVisitor):
                 knowledge.possible_unknown,
                 tuple(sorted(target.sort_key() for target in knowledge.source_value_origins)),
                 tuple(sorted(knowledge.builtin_value_kinds)),
+                repr(knowledge.source_value),
                 type_kind,
             )
             for name, (knowledge, type_kind) in sorted(merged_effects.items())
@@ -8666,11 +8747,27 @@ class _RuntimeImportCollector(ast.NodeVisitor):
             self._bind_target_knowledge(node.target, knowledge)
 
     def visit_AugAssign(self, node: ast.AugAssign) -> None:
-        origins = self._source_value_origins_for_expression(node.target)
+        prior = self._knowledge_for_expression(node.target)
+        right = self._knowledge_for_expression(node.value)
+        origins = set(prior.source_value_origins | right.source_value_origins)
+        origins.update(self._source_value_origins_for_expression(node.target))
         origins.update(self._source_value_origins_for_expression(node.value))
         self.visit(node.target)
         self.visit(node.value)
-        self._bind_unknown_target(node.target, origins)
+        if isinstance(node.target, ast.Name):
+            old_value = prior.source_value or _DYNAMIC_UNKNOWN
+            right_value = right.source_value or _DYNAMIC_UNKNOWN
+            source_value = (
+                _source_value_add(old_value, right_value)
+                if isinstance(node.op, ast.Add)
+                else _DYNAMIC_UNKNOWN
+            )
+            self._bind_target_knowledge(
+                node.target,
+                replace(prior.join(right), source_value=source_value),
+            )
+        else:
+            self._bind_unknown_target(node.target, origins)
 
     def _storage_targets(self, target: ast.AST) -> list[ast.AST]:
         if isinstance(target, (ast.Tuple, ast.List)):
@@ -8958,29 +9055,50 @@ class _RuntimeImportCollector(ast.NodeVisitor):
     # ast.NodeVisitor requires these exact protocol spellings.
     visit_GeneratorExp = visit_ListComp  # noqa: N815
 
+    @staticmethod
+    def _binding_knowledge_is_unbound(knowledge: _BindingKnowledge) -> bool:
+        """Prove a name has no binding in any channel of the joined state."""
+        return knowledge == _BindingKnowledge()
+
+    @staticmethod
+    def _binding_knowledge_is_exact_import(
+        knowledge: _BindingKnowledge,
+        *,
+        module: str,
+        symbol: str | None,
+    ) -> bool:
+        """Prove every retained binding channel names exactly one import target."""
+        target = _BindingTarget("import", module, symbol)
+        return knowledge == _BindingKnowledge(known_possible_targets=frozenset({target}))
+
     def _known_builtin_symbol(self, node: ast.AST) -> str | None:
-        """Resolve an unshadowed builtin or an exact ``builtins`` import."""
+        """Resolve only a wholly unbound builtin or an exact ``builtins`` import."""
         if isinstance(node, ast.Name):
             knowledge = self._binding_knowledge(node.id)
-            if knowledge.possible_unknown or knowledge.source_value_origins:
-                return None
             imports = knowledge.targets_for("import")
             if imports:
                 if len(imports) == 1:
                     imported = next(iter(imports))
-                    if imported.module == "builtins" and imported.symbol is not None:
+                    if (
+                        imported.module == "builtins"
+                        and imported.symbol is not None
+                        and self._binding_knowledge_is_exact_import(
+                            knowledge,
+                            module="builtins",
+                            symbol=imported.symbol,
+                        )
+                    ):
                         return imported.symbol
                 return None
-            return node.id if not knowledge.known_possible_targets else None
+            if self._binding_knowledge_is_unbound(knowledge) and hasattr(builtins, node.id):
+                return node.id
+            return None
         if isinstance(node, ast.Attribute) and isinstance(node.value, ast.Name):
             knowledge = self._binding_knowledge(node.value.id)
-            imports = knowledge.targets_for("import")
-            if (
-                not knowledge.possible_unknown
-                and not knowledge.source_value_origins
-                and len(imports) == 1
-                and next(iter(imports)).module == "builtins"
-                and next(iter(imports)).symbol is None
+            if self._binding_knowledge_is_exact_import(
+                knowledge,
+                module="builtins",
+                symbol=None,
             ):
                 return node.attr
         return None
@@ -9318,7 +9436,90 @@ class _RuntimeImportCollector(ast.NodeVisitor):
                 )
         return origins
 
+    def _source_value_for_expression(self, node: ast.AST) -> _DynamicImportBinding:
+        """Evaluate bounded string/container values; all unsupported forms refuse."""
+        if isinstance(node, ast.Constant):
+            return (
+                _dynamic_string_binding(node.value)
+                if isinstance(node.value, str)
+                else _DYNAMIC_OTHER
+            )
+        if isinstance(node, ast.Name):
+            knowledge = self._binding_knowledge(node.id)
+            value = knowledge.source_value or _DYNAMIC_UNKNOWN
+            return (
+                _join_dynamic_bindings((value, _DYNAMIC_UNKNOWN))
+                if knowledge.possible_unknown
+                else value
+            )
+        if isinstance(node, (ast.NamedExpr, ast.Starred)):
+            return self._source_value_for_expression(node.value)
+        if isinstance(node, ast.BinOp):
+            left = self._source_value_for_expression(node.left)
+            right = self._source_value_for_expression(node.right)
+            return (
+                _source_value_add(left, right) if isinstance(node.op, ast.Add) else _DYNAMIC_UNKNOWN
+            )
+        if isinstance(node, ast.IfExp):
+            return _dynamic_union_binding(
+                (
+                    self._source_value_for_expression(node.body),
+                    self._source_value_for_expression(node.orelse),
+                )
+            )
+        if isinstance(node, ast.BoolOp):
+            return _dynamic_union_binding(
+                tuple(self._source_value_for_expression(value) for value in node.values)
+            )
+        if isinstance(node, (ast.Tuple, ast.List)):
+            return _dynamic_sequence_binding(
+                tuple(self._source_value_for_expression(value) for value in node.elts)
+            )
+        if isinstance(node, ast.Set):
+            return _dynamic_sequence_binding(
+                tuple(self._source_value_for_expression(value) for value in node.elts),
+                kind="iterable",
+            )
+        if isinstance(node, ast.Dict):
+            keys: list[_DynamicImportBinding] = []
+            values: list[_DynamicImportBinding] = []
+            for key, value in zip(node.keys, node.values, strict=True):
+                if key is None:
+                    return _DYNAMIC_UNKNOWN
+                keys.append(self._source_value_for_expression(key))
+                values.append(self._source_value_for_expression(value))
+            return _dynamic_mapping_binding(keys, values)
+        if isinstance(node, ast.Subscript):
+            value = self._source_value_for_expression(node.value)
+            index = node.slice.value if isinstance(node.slice, ast.Constant) else None
+            if value.kind in {"sequence", "iterable"} and value.items is not None:
+                if isinstance(index, int) and -len(value.items) <= index < len(value.items):
+                    return value.items[index]
+                return _DYNAMIC_UNKNOWN
+            if value.kind == "mapping" and value.items is not None and value.values is not None:
+                key_value = self._source_value_for_expression(node.slice)
+                matches = [
+                    item
+                    for key, item in zip(value.items, value.values, strict=True)
+                    if _dynamic_bindings_may_equal(key_value, key)
+                ]
+                return _dynamic_union_binding(matches) if matches else _DYNAMIC_UNKNOWN
+            return _DYNAMIC_UNKNOWN
+        if isinstance(node, ast.UnaryOp):
+            return _DYNAMIC_OTHER if isinstance(node.op, ast.Not) else _DYNAMIC_UNKNOWN
+        if isinstance(node, ast.Compare):
+            return _DYNAMIC_OTHER
+        if isinstance(node, (ast.JoinedStr, ast.FormattedValue, ast.Call, ast.Attribute)):
+            return _DYNAMIC_UNKNOWN
+        # Unknown AST expression kinds fail closed; the coverage receipt must
+        # reconcile all encountered classes against this dispatcher.
+        return _DYNAMIC_UNKNOWN
+
     def _knowledge_for_expression(self, node: ast.AST) -> _BindingKnowledge:
+        knowledge = self._target_knowledge_for_expression(node)
+        return replace(knowledge, source_value=self._source_value_for_expression(node))
+
+    def _target_knowledge_for_expression(self, node: ast.AST) -> _BindingKnowledge:
         if isinstance(node, ast.Name):
             return self._expand_import_bindings(self._binding_knowledge(node.id))
 
@@ -9381,6 +9582,20 @@ class _RuntimeImportCollector(ast.NodeVisitor):
                             )
                             if exported is not None:
                                 resolved = resolved.join(exported)
+                if not resolved.known_possible_targets and not resolved.possible_unknown:
+                    # Preserve exact external module-member identity. This is a
+                    # call-target fact only; it does not claim the external body
+                    # or its returned value is modeled.
+                    for imported in root.targets_for("import"):
+                        if imported.module in self.module_names:
+                            continue
+                        symbol = ".".join(part for part in (imported.symbol, *suffix) if part)
+                        if symbol:
+                            resolved = resolved.join(
+                                _BindingKnowledge(
+                                    frozenset({_BindingTarget("import", imported.module, symbol)})
+                                )
+                            )
                 if resolved.known_possible_targets or resolved.possible_unknown:
                     if root.possible_unknown:
                         resolved = resolved.join(_BindingKnowledge(possible_unknown=True))
@@ -9429,9 +9644,14 @@ class _RuntimeImportCollector(ast.NodeVisitor):
                 for target in invocation.known_possible_targets
                 if target.kind == "callable"
             }
+            opaque_external_target = any(
+                target.kind == "import"
+                and not self._targets_from_import(target.module, target.symbol, ())
+                for target in callee_knowledge.known_possible_targets
+            )
             return _BindingKnowledge(
                 frozenset(factories),
-                bool(factories) or invocation.possible_unknown,
+                bool(factories) or invocation.possible_unknown or opaque_external_target,
                 origins,
             )
 
@@ -10142,15 +10362,28 @@ class _RuntimeImportCollector(ast.NodeVisitor):
             if isinstance(value, ast.AST):
                 return argument_knowledge(value)
             if isinstance(value, (tuple, list)):
+                child_knowledge = tuple(value_knowledge(item) for item in value)
                 knowledge = _BindingKnowledge()
-                for item in value:
-                    knowledge = knowledge.join(value_knowledge(item))
-                return knowledge
+                for child in child_knowledge:
+                    knowledge = knowledge.join(child)
+                source_items = tuple(
+                    child.source_value or _DYNAMIC_UNKNOWN for child in child_knowledge
+                )
+                return replace(knowledge, source_value=_dynamic_sequence_binding(source_items))
             if isinstance(value, dict):
+                names = tuple(value)
+                child_knowledge = tuple(value_knowledge(value[name]) for name in names)
                 knowledge = _BindingKnowledge()
-                for item in value.values():
-                    knowledge = knowledge.join(value_knowledge(item))
-                return knowledge
+                for child in child_knowledge:
+                    knowledge = knowledge.join(child)
+                source_keys = tuple(_dynamic_string_binding(str(name)) for name in names)
+                source_values = tuple(
+                    child.source_value or _DYNAMIC_UNKNOWN for child in child_knowledge
+                )
+                return replace(
+                    knowledge,
+                    source_value=_dynamic_mapping_binding(source_keys, source_values),
+                )
             return _BindingKnowledge(possible_unknown=True)
 
         return (
@@ -10449,6 +10682,90 @@ class _RuntimeImportCollector(ast.NodeVisitor):
             argument_knowledge=tuple(sorted(captured_arguments.items())),
             builtin_symbol=builtin_symbol,
         )
+        site_key = (node.lineno, node.col_offset)
+        if site_key in self.source_value_observation_sites:
+            observed_slots: dict[str, _DynamicImportBinding] = {}
+            for index, argument in enumerate(node.args):
+                knowledge = captured_arguments.get(id(argument))
+                observed_slots[f"positional:{index}"] = (
+                    knowledge.source_value
+                    if knowledge and knowledge.source_value is not None
+                    else _DYNAMIC_UNKNOWN
+                )
+            for keyword in node.keywords:
+                knowledge = captured_arguments.get(id(keyword.value))
+                slot = f"keyword:{keyword.arg}" if keyword.arg is not None else "keyword:**"
+                observed_slots[slot] = (
+                    knowledge.source_value
+                    if knowledge and knowledge.source_value is not None
+                    else _DYNAMIC_UNKNOWN
+                )
+
+            targets = set(callable_knowledge.known_possible_targets)
+            targets.update(_BindingTarget("callable", *reference) for reference in callable_targets)
+            targets.update(
+                _BindingTarget("class", module, symbol) for module, symbol in class_targets
+            )
+            if builtin_symbol is not None:
+                targets.add(_BindingTarget("builtin", "builtins", builtin_symbol))
+            target_rows = [
+                {
+                    "kind": target.kind,
+                    "module": target.module,
+                    "symbol": target.symbol,
+                    "line": target.line,
+                    "column": target.column,
+                }
+                for target in sorted(targets, key=lambda item: item.sort_key())
+            ]
+            if self.source_value_target_names is not None:
+                value_target_names = {
+                    f"{target['module']}.{target['symbol']}"
+                    for target in target_rows
+                    if target["kind"] in {"import", "builtin"}
+                    and isinstance(target["module"], str)
+                    and isinstance(target["symbol"], str)
+                }
+                if not (value_target_names & self.source_value_target_names):
+                    observed_slots.clear()
+            target_unknown = callable_knowledge.possible_unknown or not target_rows
+            previous = self.source_value_call_observations.get(
+                site_key, {"slots": {}, "call_targets": [], "call_target_unknown": False}
+            )
+            joined_slots = dict(previous.get("slots", {}))
+            for slot, value in observed_slots.items():
+                prior_value = joined_slots.get(slot)
+                joined_slots[slot] = (
+                    _join_dynamic_bindings((prior_value, value)) if prior_value else value
+                )
+            joined_targets = {
+                (
+                    str(target["kind"]),
+                    str(target["module"]),
+                    target.get("symbol") is None,
+                    str(target.get("symbol") or ""),
+                    int(target["line"]),
+                    int(target["column"]),
+                ): target
+                for target in previous.get("call_targets", [])
+            }
+            for target in target_rows:
+                key = (
+                    str(target["kind"]),
+                    str(target["module"]),
+                    target.get("symbol") is None,
+                    str(target.get("symbol") or ""),
+                    int(target["line"]),
+                    int(target["column"]),
+                )
+                joined_targets[key] = target
+            self.source_value_call_observations[site_key] = {
+                "slots": joined_slots,
+                "call_targets": [joined_targets[key] for key in sorted(joined_targets)],
+                "call_target_unknown": bool(
+                    previous.get("call_target_unknown", False) or target_unknown
+                ),
+            }
         first_argument_knowledge = captured_arguments.get(id(node.args[0])) if node.args else None
         self._record_builtin_call_overrides(
             node,
@@ -10583,6 +10900,11 @@ class _RuntimeImportCollector(ast.NodeVisitor):
 def _collect_runtime_import_edges(
     trees: Mapping[str, ast.Module],
     module_paths: Mapping[str, Path],
+    *,
+    source_value_observation_sites: Mapping[str, set[tuple[int, int]]] | None = None,
+    source_value_target_names: frozenset[str] | None = None,
+    source_value_observations: list[dict[str, Any]] | None = None,
+    include_unentered_source_functions: bool = False,
 ) -> tuple[dict[str, set[str]], list[dict[str, Any]]]:
     """Build module-eager edges using source-identified, flow-joined call targets."""
     module_names = set(module_paths)
@@ -10637,6 +10959,10 @@ def _collect_runtime_import_edges(
                 source_class_metaclasses,
                 is_package=module_paths[module].name == "__init__.py",
                 source_path=_import_source_path(module_paths[module]),
+                source_value_observation_sites=(source_value_observation_sites or {}).get(
+                    module, set()
+                ),
+                source_value_target_names=source_value_target_names,
             )
             for module in trees
         }
@@ -10648,6 +10974,30 @@ def _collect_runtime_import_edges(
         for module, tree in trees.items():
             collectors[module].set_future_annotations(tree)
             collectors[module].visit(tree)
+            if include_unentered_source_functions:
+                entered_references = {
+                    reference for reference, _state in collectors[module].visited_functions
+                }
+                for reference, function in sorted(collectors[module].functions.items()):
+                    if reference in entered_references:
+                        continue
+                    parameters = (
+                        *function.args.posonlyargs,
+                        *function.args.args,
+                        *function.args.kwonlyargs,
+                        *((function.args.vararg,) if function.args.vararg else ()),
+                        *((function.args.kwarg,) if function.args.kwarg else ()),
+                    )
+                    collectors[module].visit_callable(
+                        reference,
+                        parameter_bindings={
+                            parameter.arg: _BindingKnowledge(
+                                possible_unknown=True,
+                                source_value=_DYNAMIC_UNKNOWN,
+                            )
+                            for parameter in parameters
+                        },
+                    )
         return collectors
 
     def module_binding_exports(
@@ -10824,6 +11174,23 @@ def _collect_runtime_import_edges(
         module: set(collectors[module].edges) if module in collectors else set()
         for module in module_names
     }
+    if source_value_observations is not None:
+        source_value_observations.clear()
+        for module, collector in sorted(collectors.items()):
+            for (line, column), observation in sorted(
+                collector.source_value_call_observations.items()
+            ):
+                source_value_observations.append(
+                    {
+                        "module": module,
+                        "source_path": collector.source_path,
+                        "line": line,
+                        "column": column,
+                        "slots": dict(sorted(observation["slots"].items())),
+                        "call_targets": list(observation["call_targets"]),
+                        "call_target_unknown": bool(observation["call_target_unknown"]),
+                    }
+                )
     dispatch_observations = sorted(
         (
             dict(row)
@@ -10838,6 +11205,88 @@ def _collect_runtime_import_edges(
         ),
     )
     return edges, dispatch_observations
+
+
+def collect_source_value_call_observations(
+    trees: Mapping[str, ast.Module],
+    module_paths: Mapping[str, Path],
+    *,
+    value_target_names: set[str] | None = None,
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """Join every declared AST call to the existing source/value context owner.
+
+    The expected set is derived from the supplied complete AST trees. The existing
+    runtime collector and its formal-call worklist produce targets for every call;
+    `value_target_names` can restrict retained argument payloads to owner-resolved
+    consumers. A call with no observation is returned as a refusal, never absence.
+    """
+    call_sites = {
+        module: {
+            (node.lineno, node.col_offset) for node in ast.walk(tree) if isinstance(node, ast.Call)
+        }
+        for module, tree in trees.items()
+    }
+    observations: list[dict[str, Any]] = []
+    _collect_runtime_import_edges(
+        trees,
+        module_paths,
+        source_value_observation_sites=call_sites,
+        source_value_target_names=(
+            frozenset(value_target_names) if value_target_names is not None else None
+        ),
+        source_value_observations=observations,
+        include_unentered_source_functions=True,
+    )
+    observed_sites = {
+        (str(row["module"]), int(row["line"]), int(row["column"])) for row in observations
+    }
+    missing = [
+        {
+            "module": module,
+            "line": line,
+            "column": column,
+            "reason": "declared AST call has no joined R8 observation",
+        }
+        for module, positions in sorted(call_sites.items())
+        for line, column in sorted(positions)
+        if (module, line, column) not in observed_sites
+    ]
+    return observations, missing
+
+
+def collect_source_value_sink_observations(
+    trees: Mapping[str, ast.Module],
+    module_paths: Mapping[str, Path],
+    sink_sites: Mapping[str, set[tuple[int, int]]],
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    """Compatibility wrapper for callers that still declare recognized sink spans.
+
+    New completeness consumers should use `collect_source_value_call_observations`
+    so unsupported call sources cannot disappear before the consumer gate.
+    """
+    observations: list[dict[str, Any]] = []
+    _collect_runtime_import_edges(
+        trees,
+        module_paths,
+        source_value_observation_sites=sink_sites,
+        source_value_observations=observations,
+        include_unentered_source_functions=True,
+    )
+    observed_sites = {
+        (str(row["module"]), int(row["line"]), int(row["column"])) for row in observations
+    }
+    missing = [
+        {
+            "module": module,
+            "line": line,
+            "column": column,
+            "reason": "R8 sink site has no source-value observation",
+        }
+        for module, positions in sorted(sink_sites.items())
+        for line, column in sorted(positions)
+        if (module, line, column) not in observed_sites
+    ]
+    return observations, missing
 
 
 def collect_import_graph(

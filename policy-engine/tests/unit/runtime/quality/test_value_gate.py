@@ -7223,3 +7223,423 @@ def test_n8_active_projection_rows_are_selected_before_large_owner_row_cap(
     assert profile is not None
     assert profile.owner_row_count == len(selected_ids) == 4
     assert {row.period_id for row in profile.rows} == {2021, 2022, 2023, 2024}
+
+
+def test_n8_source_projection_preserves_synthetic_asymmetric_ci_through_fresh_cas(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Keep synthetic continuous-outcome CI and ID channels separate in candidate CAS.
+
+    The continuous-scale source rows, profile unit, report, and bounds share one declared
+    synthetic score coordinate. Report and bounds backends remain deterministic fixtures.
+    This test exercises NumpyRunner, N8, CAS, and the fresh consumer; it establishes no
+    causal estimate, source assignment, or owner authority.
+    """
+    from polisyos.core.artifacts import artifact_ref_for_manifest, ensure_ir_artifact_store
+    from polisyos.foundry.methods.catalog.causal.treatment_effects import AIPWEstimator
+    from polisyos.foundry.methods.causal import BoundsEngineMethod
+    from polisyos.ir.analytics.causal import CausalMethod, load_causal_effect_report
+    from polisyos.ir.analytics.partial_identification import (
+        BoundMethod,
+        BoundsBundle,
+        BoundSoundnessLevel,
+        PartialIdentificationResult,
+        bounds_bundle_from_partial_identification_result,
+    )
+    from polisyos.ir.registry.refs import CausalEffectReportRef
+    from polisyos.runtime.quality import (
+        ValueOwnerSourceProjectionRequestV1,
+        ValueOwnerSourceVariableProjectionV1,
+    )
+    from polisyos.runtime.quality import generation_cycle as gc
+    from polisyos.runtime.quality.substrate_registry import (
+        CatalogServingSourcePaths,
+        catalog_serving_source_scope,
+        default_substrate_catalog_paths,
+    )
+    from tests._helpers.semantic_epoch_native import make_native_multivariable_active_projections
+
+    candidate = replace(
+        _avg_income_candidate(),
+        diversity_key=("grant", "country", "avg_income", "synthetic_ci_channel"),
+    )
+    problem, world = _avg_income_problem(), _world_record()
+    source_rows: list[dict[str, object]] = []
+    for index in range(200):
+        treatment = float(index % 2)
+        covariate = float((index // 2) % 2)
+        outcome = float((index % 13) + 0.25 * int(treatment) + 0.5 * int(covariate))
+        source_rows.append(
+            {
+                "country_code": "UA",
+                "year": 1800 + index,
+                "avg_income": outcome,
+                "observed_treatment": treatment,
+                "income_covariate": covariate,
+                "condition_json": '{"population":"synthetic_candidate","time_basis":"year"}',
+            }
+        )
+    outcome_values = [float(row["avg_income"]) for row in source_rows]
+    assert len(set(outcome_values)) > 2
+    assert min(outcome_values) >= 0.0 and max(outcome_values) <= 13.0
+    assert {float(row["observed_treatment"]) for row in source_rows} == {0.0, 1.0}
+    assert sum(float(row["observed_treatment"]) == 1.0 for row in source_rows) == 100
+    assert sum(float(row["observed_treatment"]) == 0.0 for row in source_rows) == 100
+    assert {float(row["income_covariate"]) for row in source_rows} == {0.0, 1.0}
+    source_fixture = make_native_multivariable_active_projections(
+        tmp_path / "synthetic-owner-source",
+        source_rows=source_rows,
+        variable_specs=(
+            {
+                "target_variable": "avg_income",
+                "raw_field": "avg_income",
+                "raw_unit": "synthetic_score",
+                "canonical_unit": "synthetic_score",
+                "valid_min": 0.0,
+                "valid_max": 13.0,
+            },
+            {
+                "target_variable": "observed_treatment",
+                "raw_field": "observed_treatment",
+                "raw_unit": "binary",
+                "canonical_unit": "binary",
+                "valid_min": 0.0,
+                "valid_max": 1.0,
+            },
+            {
+                "target_variable": "income_covariate",
+                "raw_field": "income_covariate",
+                "raw_unit": "binary",
+                "canonical_unit": "binary",
+                "valid_min": 0.0,
+                "valid_max": 1.0,
+            },
+        ),
+    )
+    projections = source_fixture.projections
+    estimand_spec = json.dumps(
+        {
+            "query_id": "n8-synthetic-asymmetric-ci-channel",
+            "estimand_id": "ATE",
+            "outcome": "avg_income",
+            "treatment_or_exposure": "observed_treatment",
+            "covariates_or_conditioning": ["income_covariate"],
+            "adjustment_set": ["income_covariate"],
+            "population": "unspecified",
+            "sample_filter": None,
+            "time_horizon": None,
+            "prediction_origin": None,
+            "unit": "synthetic_score",
+            "scale": "identity",
+            "transform": None,
+            "target_role": "estimate",
+            "loss_or_utility_id": None,
+        },
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    role_bindings: tuple[tuple[Literal["outcome", "treatment", "covariate"], str], ...] = (
+        ("outcome", "avg_income"),
+        ("treatment", "observed_treatment"),
+        ("covariate", "income_covariate"),
+    )
+    method_fqn = AIPWEstimator.signature.fqn
+    request = ValueOwnerSourceProjectionRequestV1(
+        selected_method_fqn=method_fqn,
+        estimand_spec_json=estimand_spec,
+        variable_projections=tuple(
+            ValueOwnerSourceVariableProjectionV1(
+                role=role,
+                variable_id=variable_id,
+                projection_payload=projections[variable_id].model_dump(mode="json"),
+            )
+            for role, variable_id in role_bindings
+        ),
+        outcome_lower=0.0,
+        outcome_upper=13.0,
+        outcome_bounds_unit="synthetic_score",
+        method_parameters_json="{}",
+        seed=7,
+    )
+    core_store = source_fixture.artifact_store
+    ir_store = ensure_ir_artifact_store(core_store)
+    substrate_paths = replace(
+        default_substrate_catalog_paths(source_fixture.repo_root),
+        l1_dcat_path=source_fixture.baseline_path,
+    )
+    catalog_source = CatalogServingSourcePaths(
+        repo_root=source_fixture.repo_root,
+        snapshot_root=source_fixture.baseline_path.parent,
+        database_path=source_fixture.baseline_path,
+        index_dir=source_fixture.repo_root / "index",
+        overlay_path=source_fixture.overlay_path,
+        catalog_run_profile=None,
+        selection_basis="explicit_path_candidate_only",
+        substrate_paths=substrate_paths,
+    )
+    gateway = RealValueOwnerGateway(
+        repo_root=source_fixture.repo_root,
+        catalog_overlay_path=source_fixture.overlay_path,
+        catalog_serving_source=catalog_source,
+        artifact_store=core_store,
+        activated_observation_projection=projections["avg_income"],
+        source_projection_request=request,
+    )
+    synthetic_report = CausalEffectReport(
+        method=CausalMethod.AIPW,
+        estimand="ATE",
+        point_estimate=4.0,
+        standard_error=1.0,
+        confidence_interval=(1.0, 10.0),
+        confidence_level=0.95,
+        inference_method="asymptotic",
+        sample_size=200,
+        n_treated=100,
+        n_control=100,
+        pre_periods=0,
+        post_periods=1,
+        metadata={
+            "synthetic_test_fixture": "asymmetric-channel-preservation-only",
+            "authority_scope": "candidate_fixture_only",
+            "gate_eligible": False,
+            "measurement_unit": "synthetic_score",
+            "outcome_support": [0.0, 13.0],
+        },
+    )
+    synthetic_bounds = bounds_bundle_from_partial_identification_result(
+        PartialIdentificationResult(
+            method=BoundMethod.MANSKI,
+            lower_bound=4.0,
+            upper_bound=4.0,
+            confidence=1.0,
+            assumptions_used=["synthetic_zero_width_channel_fixture_only"],
+            bounds_type="manski",
+            soundness_level=BoundSoundnessLevel.ASSUMPTION_ONLY,
+        ),
+        estimand_type="ate",
+        metadata={
+            "synthetic_test_fixture": "zero-width-identification-channel-only",
+            "measurement_unit": "synthetic_score",
+            "outcome_support": [0.0, 13.0],
+        },
+    )
+    assert synthetic_bounds.point_identified is True
+    assert synthetic_bounds.lower_bound == synthetic_bounds.upper_bound == 4.0
+    assert synthetic_report.confidence_interval == (1.0, 10.0)
+
+    def synthetic_aipw(_state: object, _params: object) -> dict[str, object]:
+        return {
+            "result": {"synthetic_test_fixture": "no-statistical-estimator-run"},
+            "report": synthetic_report,
+        }
+
+    def synthetic_bounds_engine(_state: object, _params: object) -> dict[str, object]:
+        return {"bounds_report": synthetic_bounds.model_dump(mode="json")}
+
+    monkeypatch.setattr(AIPWEstimator, "pure_step", staticmethod(synthetic_aipw))
+    monkeypatch.setattr(BoundsEngineMethod, "pure_step", staticmethod(synthetic_bounds_engine))
+    consumer_arguments: list[dict[str, Any]] = []
+    outer_results: list[ValueOuterSet] = []
+    original_consumer = gc._value_outer_set_from_owner_method_run_basis
+
+    def capture_consumer(**kwargs: Any) -> ValueOuterSet:
+        consumer_arguments.append(dict(kwargs))
+        result = original_consumer(**kwargs)
+        outer_results.append(result)
+        return result
+
+    monkeypatch.setattr(gc, "_value_outer_set_from_owner_method_run_basis", capture_consumer)
+    simulation = _simulation(world, candidate_id=candidate.candidate_id)
+
+    def run(selected_gateway: RealValueOwnerGateway) -> ValuePortObservation:
+        with catalog_serving_source_scope(catalog_source):
+            return FoundryValuePort(
+                evaluation_context=_simulation_execution_context(
+                    candidate=candidate, simulation=simulation, problem=problem
+                ),
+                owner_gateway=selected_gateway,
+                requested_method_fqn=method_fqn,
+                artifact_store=core_store,
+            )(candidate=candidate, simulation=simulation, problem=problem, cycle_index=0)
+
+    observation = run(gateway)
+    assert observation.status == "value_blocked"
+    assert observation.authority_blockers == ("candidate_fixture_value_run_not_authority",)
+    assert observation.value_ref is not None
+    assert observation.selected_method_fqn == method_fqn
+    assert len(consumer_arguments) == len(outer_results) == 1
+    consumer_kwargs = consumer_arguments[0]
+    basis_ref = gc._value_artifact_ref(
+        consumer_kwargs["run_basis_ref"], expected_kind="runtime.value_owner_method_run_basis"
+    )
+    basis = gc.ValueOwnerMethodRunBasisV2.model_validate(
+        gc._value_load_ref_payload(ir_store, basis_ref)
+    )
+    assignment = gc.ValueOwnerSourceVariableAssignmentV1.model_validate(
+        gc._value_load_ref_payload(ir_store, basis.assignment_ref)
+    )
+    intent = gc.ValueOwnerMethodRunIntentV1.model_validate(
+        gc._value_load_ref_payload(ir_store, basis.intent_ref)
+    )
+    report = load_causal_effect_report(
+        ir_store, CausalEffectReportRef.model_validate(basis.report_ref.model_dump(mode="python"))
+    )
+    bounds_ref = gc._value_artifact_ref(
+        report.metadata["identification_bounds_ref"], expected_kind="ir.bounds_bundle"
+    )
+    stored_bounds = BoundsBundle.model_validate(gc._value_load_ref_payload(ir_store, bounds_ref))
+
+    assert assignment.authority_scope == "candidate_fixture_only"
+    assert assignment.production_value_eligible is False
+    assert assignment.assignment_provenance == "consumer_asserted"
+    assert assignment.source_time_status == "not_established"
+    assert assignment.measurement_unit == "synthetic_score"
+    assert assignment.outcome_lower == 0.0 and assignment.outcome_upper == 13.0
+    assert assignment.outcome_bounds_unit == "synthetic_score"
+    assert {(item.role, item.measurement_unit) for item in assignment.role_profiles} == {
+        ("outcome", "synthetic_score"),
+        ("treatment", "binary"),
+        ("covariate", "binary"),
+    }
+    assert report.estimand == "ATE" and report.point_estimate == 4.0
+    assert report.confidence_interval == (1.0, 10.0)
+    assert -13.0 <= report.confidence_interval[0] <= report.confidence_interval[1] <= 13.0
+    assert report.metadata["synthetic_test_fixture"] == "asymmetric-channel-preservation-only"
+    assert report.metadata["gate_eligible"] is False
+    assert report.metadata["measurement_unit"] == "synthetic_score"
+    assert report.metadata["outcome_support"] == [0.0, 13.0]
+    assert stored_bounds.metadata["synthetic_test_fixture"] == (
+        "zero-width-identification-channel-only"
+    )
+    assert stored_bounds.metadata["measurement_unit"] == "synthetic_score"
+    assert stored_bounds.metadata["outcome_support"] == [0.0, 13.0]
+    assert stored_bounds.point_identified is True
+    assert stored_bounds.lower_bound == stored_bounds.upper_bound == 4.0
+    assert -13.0 <= stored_bounds.lower_bound <= stored_bounds.upper_bound <= 13.0
+    assert stored_bounds.method_summaries[0].soundness_level is BoundSoundnessLevel.ASSUMPTION_ONLY
+    assert basis.native_interval_content_hash == gy_content_hash((1.0, 10.0))
+    assert gc._value_manifest_has_exact_inputs(
+        ir_store,
+        bounds_ref,
+        (
+            (basis.profile_ref, "selected_owner_profile"),
+            (basis.assignment_ref, "owner_source_assignment"),
+            (basis.panel_input_ref, "exact_method_input_bytes"),
+            (basis.runner_request_ref, "selected_method_runner_request"),
+        ),
+    )
+    assert gc._value_manifest_has_exact_inputs(
+        ir_store,
+        basis.report_ref,
+        (
+            (basis.panel_input_ref, "exact_method_input_bytes"),
+            (basis.runner_request_ref, "selected_method_runner_request"),
+            (bounds_ref, "candidate_identification_bounds"),
+        ),
+    )
+    assert gc._value_manifest_has_exact_inputs(
+        ir_store,
+        basis_ref,
+        (
+            (basis.intent_ref, "immutable_run_intent"),
+            (basis.profile_ref, "selected_owner_profile"),
+            (basis.assignment_ref, "owner_assignment"),
+            (basis.panel_input_ref, "exact_method_input_bytes"),
+            (basis.runner_request_ref, "selected_method_runner_request"),
+            (basis.report_ref, "native_method_report"),
+            (basis.execution_receipt_ref, "method_execution_receipt"),
+        ),
+    )
+
+    coordinate = gc._value_estimand_coordinate(
+        gc._typed_value_estimand_spec(intent.estimand_spec_json)
+    )
+    assert basis.estimand_coordinate == coordinate
+    assert len(observation.value_ref) == 64
+    outer_manifest = ir_store.get_manifest(observation.value_ref)
+    outer_ref = gc._value_artifact_ref(
+        artifact_ref_for_manifest(outer_manifest),
+        expected_kind="runtime.value_outer_set_candidate_fixture",
+    )
+    assert gc._value_manifest_has_exact_inputs(
+        ir_store, outer_ref, ((basis_ref, "owner_method_run_basis"),)
+    )
+    persisted_outer = ValueOuterSet.from_persisted_payload(
+        gc._value_load_ref_payload(ir_store, outer_ref)
+    )
+    with catalog_serving_source_scope(catalog_source):
+        fresh_outer = original_consumer(**consumer_kwargs)
+
+    assert persisted_outer == outer_results[0] == fresh_outer
+    assert persisted_outer.coordinates == (coordinate,)
+    assert persisted_outer.calibration_scope["measurement_unit"] == "synthetic_score"
+    assert persisted_outer.calibration_scope["authority_scope"] == "candidate_fixture_only"
+    assert persisted_outer.identification_status == "partial"
+    assert persisted_outer.lower == persisted_outer.upper == (4.0,)
+    assert persisted_outer.statistical_lower == (1.0,)
+    assert persisted_outer.statistical_upper == (10.0,)
+    assert 4.0 - 1.0 != 10.0 - 4.0
+
+    # Property-removal control: a plausible symmetric replacement keeps the typed report,
+    # success, point, and all lineage markers but must not replace persisted native [1, 10].
+    symmetric_report = synthetic_report.model_copy(update={"confidence_interval": (1.0, 7.0)})
+
+    def symmetric_proxy(_state: object, _params: object) -> dict[str, object]:
+        return {
+            "result": {"synthetic_test_fixture": "symmetric-proxy-not-native"},
+            "report": symmetric_report,
+        }
+
+    with monkeypatch.context() as fake_report_control:
+        fake_report_control.setattr(AIPWEstimator, "pure_step", staticmethod(symmetric_proxy))
+        with (
+            catalog_serving_source_scope(catalog_source),
+            pytest.raises(ValueError, match="value_owner_source_report_recomputation_mismatch"),
+        ):
+            original_consumer(**consumer_kwargs)
+
+    mismatched_gateway = replace(
+        gateway, source_projection_request=request.model_copy(update={"seed": 8})
+    )
+    mismatch_kwargs = {**consumer_kwargs, "source_gateway": mismatched_gateway}
+    with (
+        catalog_serving_source_scope(catalog_source),
+        pytest.raises(ValueError, match="value_owner_source_fresh_context_mismatch"),
+    ):
+        original_consumer(**mismatch_kwargs)
+
+    unresolved_gateway = replace(gateway, source_projection_request=None)
+    unresolved_kwargs = {**consumer_kwargs, "source_gateway": unresolved_gateway}
+    with (
+        catalog_serving_source_scope(catalog_source),
+        pytest.raises(ValueError, match="value_owner_source_fresh_request_missing"),
+    ):
+        original_consumer(**unresolved_kwargs)
+
+    original_manifest_lookup = core_store.get_manifest_by_profile
+
+    def remove_owner_assignment_edge(artifact_id: object, profile_sha256: str) -> Any:
+        manifest = original_manifest_lookup(artifact_id, profile_sha256)
+        if (
+            str(artifact_id) == basis_ref.artifact_id
+            and profile_sha256 == basis_ref.manifest_profile_sha256
+        ):
+            return manifest.model_copy(
+                update={
+                    "inputs": tuple(
+                        edge for edge in manifest.inputs if edge.role != "owner_assignment"
+                    )
+                }
+            )
+        return manifest
+
+    with monkeypatch.context() as removed_edge_control:
+        removed_edge_control.setattr(
+            core_store, "get_manifest_by_profile", remove_owner_assignment_edge
+        )
+        with (
+            catalog_serving_source_scope(catalog_source),
+            pytest.raises(ValueError, match="value_owner_method_run_basis_binding_mismatch"),
+        ):
+            original_consumer(**consumer_kwargs)

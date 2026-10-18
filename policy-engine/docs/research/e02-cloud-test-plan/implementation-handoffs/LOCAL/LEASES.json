@@ -11329,5 +11329,55 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "b31-synthetic-channel-preservation-r3-20261018": {
+    "slice_base": "d398bb0d1107b8ec0a2e648b42927994657d1665",
+    "canonical_writer": "root only; exact independently reviewed test patch",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/unit/runtime/quality/test_value_gate.py": {
+        "operation": "modify",
+        "preimage_sha256": "b976af0fdc182f2108b7d1a7483e3e3a8cb66bace844a4e918f6266c5b1a906b",
+        "postimage_sha256": "4b6c43dcd8f9b9a8a043c8ba13b4527f12f1e74b04f8ed737a4e8779de804ce7",
+        "role": "mandatory synthetic channel semantic integration test"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b31-r3-d398-source-adoption-20261018/source-application.json",
+      "sha256": "cf3fead5d26ccdd192219081a03e635487db277d9acefddd74635368dd2ab4b1"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-s3-b31-channel-preservation-test-r3-20261018/candidate.json",
+        "sha256": "f44daad2fd3113dde4f9f17726de8eaf33f7b60a4aba2f58984785adea5810fe"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-s3-b31-channel-preservation-test-r3-20261018/candidate.patch",
+        "sha256": "144c23a726c52f9bb388a3f264610529f8d9cc48f5ec5339e6f6ed24beeaa474"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-s3-b31-test-r3-independent-20261018/review.json",
+        "sha256": "682caab17fa85f24ed039833bf97e922c87db1811d09e3137e25c2ded72a9033"
+      }
+    ],
+    "P40": "Same B31 subject/unit join fixture class; complete synthetic rows/unit/support/report/bounds coordinates repaired together.",
+    "property": "Carry native asymmetric CI [1,10] separately from ID bounds [4,4] through real N8 producer, persisted CAS and fresh consumer with continuous synthetic_score fixture support [0,13]; refuse mutation/rebind/missing source edges.",
+    "limitations": [
+      "AIPW report and Manski bounds remain deterministic synthetic fixtures and are not computed from the generated source rows.",
+      "No authentic native causal estimate, identification fact, owner authority, source currentness, assignment truth, or calibration is established.",
+      "Assignment provenance remains consumer_asserted; source_time_status remains not_established.",
+      "The existing real AIPW/TMLE path is retained as a separate proposed selector.",
+      "Numerical report and bounds are deterministic test doubles; original owner-backed paired facts and resolved-subject authority remain not established."
+    ],
+    "runtime": "UNRUN at adoption; fresh actual integration follows",
+    "next_check": [
+      "policy-engine/tests/unit/runtime/quality/test_value_gate.py::test_n8_source_projection_preserves_synthetic_asymmetric_ci_through_fresh_cas",
+      "policy-engine/tests/unit/runtime/quality/test_value_gate.py::test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds[aipw]",
+      "policy-engine/tests/unit/runtime/quality/test_value_gate.py::test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds[tmle]",
+      "policy-engine/tests/unit/runtime/quality/test_value_gate.py::test_candidate_treatment_assignment_is_not_owner_world_knowledge",
+      "policy-engine/tests/unit/runtime/quality/test_value_gate.py::test_shaped_owner_assignment_attestation_is_not_authority"
+    ],
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

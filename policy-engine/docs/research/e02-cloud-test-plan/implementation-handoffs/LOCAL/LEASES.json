@@ -10658,5 +10658,159 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "c05-controlled-fixture-preflight-r3-20261018": {
+    "slice_base": "da9b9d2d512fd7e2f210c7c6dbf61980b46a8297",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/unit/runtime/quality/test_credal_reference.py": {
+        "operation": "modify",
+        "preimage_sha256": "3496eaa7a088faa04560938cbe0e03ab6df1394f881eb09a92b88811378a695c",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-f759-credal-fixture-repair-r3-20261018/postimage.py",
+        "postimage_sha256": "7ce8cab2729f3e88800a64c91b84a8ec54f203a3b67ebdf92228f31789c76528"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-r3-da9b-source-adoption-20261018/source-application.json",
+      "sha256": "756ddeeb584eece2fb635739d9894f59643882a119434f159804e0bccf750093"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-r3-da9b-source-adoption-20261018/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_credal_reference.py",
+        "sha256": "3496eaa7a088faa04560938cbe0e03ab6df1394f881eb09a92b88811378a695c",
+        "role": "C05 selected source dependency"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/intervention_substrate.py",
+        "sha256": "8b7596c6b5830d6d81b498a1d3047bb2cd2bb5db2ac321672df5c95954d2226c",
+        "role": "C05 selected source dependency"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/credal_reference.py",
+        "sha256": "a116b89caf68dc57de04968c47fa5ff3a76d3f9d22b548e4e0fd5f079132f6d6",
+        "role": "C05 selected source dependency"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/data_state_substrate.py",
+        "sha256": "32080c654627d62d7f5f304c8778d651709c6a4d5539a25c9b55c75c90db856c",
+        "role": "C05 selected source dependency"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/grounding_relation.py",
+        "sha256": "765c4dfa9f813dde86f7c04509030628a92e7fc34ed2ecd091e632586103e660",
+        "role": "C05 selected source dependency"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/promotion_sequence.py",
+        "sha256": "fc2465ca502504194846fd2393d4d117254b5b8fee3b3218eb19fb9a7f7a5dbf",
+        "role": "C05 selected source dependency"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/substrate_registry.py",
+        "sha256": "3973f604fb14958b50f731dd1d135c6a00f15258fdc2448eca86b184d61da724",
+        "role": "C05 selected source dependency"
+      },
+      {
+        "path": "policy-engine/src/polisyos/lex/knowledge/store.py",
+        "sha256": "6390d1ad65c52af948f3410676283dcf8e9047e2912c5a823d1d42e475da1e6d",
+        "role": "C05 selected source dependency"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/legal/source_relation.py",
+        "sha256": "c116b86285706b3d2577dc49258233b460ba23c411e963d3cd192ebf776ad4d2",
+        "role": "C05 selected source dependency"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/world_model_record.py",
+        "sha256": "f8c1993e702cab9f46d19f31a538618713ab047e9b12b9c31b61991243ca43a9",
+        "role": "C05 selected source dependency"
+      },
+      {
+        "path": "policy-engine/src/polisyos/pdc/_impl/world_model_record.py",
+        "sha256": "ad1f1a0034aac25a10e240eeb859f993c675fcefb7b5d4055cadd090942f5d41",
+        "role": "C05 selected source dependency"
+      },
+      {
+        "path": "policy-engine/src/polisyos/lex/interventions/artifacts.py",
+        "sha256": "636dfbf9febd429d3c509a67664245ec8a18af7e40735e5bfb987dc97a43dcb0",
+        "role": "C05 selected source dependency"
+      },
+      {
+        "path": "policy-engine/tests/_helpers/academic_skg.py",
+        "sha256": "e0eef639afac95050110ac0bfc3cc48544d4468515fa337d640ef8e97fbf1375",
+        "role": "C05 selected source dependency"
+      },
+      {
+        "path": "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+        "sha256": "1c34476fcc90801535e83455d9cb16509fde1ef4027730a63664d072c229f689",
+        "role": "C05 selected source dependency"
+      },
+      {
+        "path": "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+        "sha256": "a446cae5a425fe3c7fe59d3d14f423bf976fb30f6c121c596f4ae3cef8ba1b8e",
+        "role": "C05 selected source dependency"
+      },
+      {
+        "path": "policy-engine/CONTRIBUTING.md",
+        "sha256": "e78f1bdb99a900f6426f9f451b7e9cbc0e21007eb12012eaf209d89c505f3a1f",
+        "role": "C05 selected source dependency"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-f759-credal-fixture-repair-r3-20261018/manifest.json",
+        "sha256": "b659d1b06f3608f1b45908f6b5bae55855cded08dc0d94878cb3d87136fbf05d",
+        "role": "reviewed source/adopter evidence"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-f759-credal-fixture-repair-r3-20261018/adoption-helper.json",
+        "sha256": "94b6540d76120025716d73279c4961198ee3be2ef110289fed0e7e3c3cae92ac",
+        "role": "reviewed source/adopter evidence"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-f759-credal-fixture-repair-r3-20261018/cumulative.patch",
+        "sha256": "5d0d1ad3e85784e55c23e201ab21d09cce2fe727f3bff1f523480aba022f2d9a",
+        "role": "reviewed source/adopter evidence"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-f759-credal-fixture-r3-independent-20261018/review.md",
+        "sha256": "9b33220580ebc99cc4f469681f73c35bdb5da99774a089cb6e68486300e46aeb",
+        "role": "reviewed source/adopter evidence"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-f759-credal-fixture-r2-independent-20261018/review.md",
+        "sha256": "e36f1b85c72b1f58a300c8eddd222a377951f7790599979bf43b156190bf9ce9",
+        "role": "reviewed source/adopter evidence"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-source-adopter-newline-patch-r3-20261018/adopt_reviewed_postimages_r3.py",
+        "sha256": "3a131943fdb3ce67e48e3fa14f6470903e35221ca897004c35067227d1d8d4f2",
+        "role": "reviewed source/adopter evidence"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-source-adopter-newline-patch-r3-independent-review-20261018/r3-review.json",
+        "sha256": "73c2a4c4df184be24083c23eaf090fb8006012d562f9b9430901b41b69311ca0",
+        "role": "reviewed source/adopter evidence"
+      }
+    ],
+    "P40": "Same fixture-output isolation class widened across L6 JSON/Lex and synthetic SKG writer families; bound concurrent filesystem replacement remains explicit.",
+    "bounded_proof": "Independent static GO; exact canonical Ruff and protected RAW alias readback required by root adopter. No law authority or closure claim.",
+    "limitations": [
+      "RAW-only source candidate; not applied or committed.",
+      "No pytest or product runtime imports/execution by this author.",
+      "No external law/issuer authority, production currentness, calibration, causal effect, CAS persistence, fresh-reader behavior, publication, or closure is established.",
+      "The fixture containment check is not atomic against concurrent adversarial filesystem replacement between preflight and writer open.",
+      "Source implementation applied by root only after independent static GO; whole-module behavior verification remains UNRUN."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": {
+      "command_template": "cd policy-engine && .venv/bin/python -m pytest -q -p no:cacheprovider --basetemp <controller-created-external-test-state>/pytest-temp tests/unit/runtime/quality/test_credal_reference.py",
+      "requirement": "Separate owner decision and bounded native controller; retain full outputs/resource envelope and current whole-module denominator. Do not describe this candidate as runtime passing until that replay completes."
+    },
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

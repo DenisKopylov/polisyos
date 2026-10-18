@@ -3,7 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 from collections import UserDict
-from collections.abc import Hashable, Iterator
+from collections.abc import Hashable, Iterable, Iterator
 from dataclasses import replace
 from pathlib import Path
 from types import MappingProxyType
@@ -19,6 +19,7 @@ from polisyos.data_forge.domains.academic.knowledge.types import (
     ClaimVocabularyLimitation,
     ClaimVocabularyProjectionBinding,
     ClaimVocabularySourceRowBinding,
+    WorkRecord,
 )
 from polisyos.ir.analytics.literature import (
     ClaimVocabularyAxisStatus,
@@ -388,15 +389,293 @@ def test_prepared_skg_rows_drive_kref_without_claiming_data_forge_source(
     assert data_forge_alignment.provenance["selected_catalog_source_profile_hash"]
 
 
-def _phase5_l6_law_scope():
+_PHASE5_FIXTURE_LAW_ID = "fixture_candidate_only_law_token"
+_PHASE5_FIXTURE_KNOB_ID = "budget_allocation_multiplier"
+_PHASE5_FIXTURE_SLOT_ID = "government.balance"
+
+
+def _phase5_preflight_fixture_destinations(
+    root: Path,
+    output_destinations: Iterable[Path],
+    *,
+    extra_destinations: Iterable[Path] = (),
+) -> None:
+    """Prove every planned fixture output is fresh, distinct, and root-contained."""
+    root = root.resolve()
+    destinations = (*output_destinations, *extra_destinations)
+    resolved_destinations: list[Path] = []
+    for destination in destinations:
+        if destination.exists() or destination.is_symlink():
+            raise AssertionError("phase5_fixture_destination_not_fresh")
+        resolved = destination.resolve()
+        if not resolved.is_relative_to(root):
+            raise AssertionError("phase5_fixture_destination_outside_root")
+        current = destination
+        while current != root:
+            if current.is_symlink():
+                raise AssertionError("phase5_fixture_destination_symlinked")
+            if current == current.parent:
+                raise AssertionError("phase5_fixture_destination_outside_root")
+            current = current.parent
+        resolved_destinations.append(resolved)
+    if len(resolved_destinations) != len(set(resolved_destinations)):
+        raise AssertionError("phase5_fixture_destinations_alias")
+
+
+def _phase5_skg_fixture_output_paths(root: Path) -> tuple[Path, ...]:
+    """Name the controlled SKG fixture database and its writer-owned outputs."""
+    database_path = root.resolve() / DEFAULT_L2_SCHOLAR_KG_PATH
+    wal_path = database_path.with_suffix(database_path.suffix + ".wal")
+    staging_path = database_path.with_suffix(database_path.suffix + ".staging")
+    staging_database_path = staging_path / "graph-load.sqlite"
+    return database_path, wal_path, staging_path, staging_database_path
+
+
+def _phase5_build_synthetic_skg_fixture(
+    root: Path,
+    records: Iterable[WorkRecord],
+) -> Path:
+    """Preflight all controlled SKG outputs before creating the fixture or producer."""
+    root = root.resolve()
+    database_path, wal_path, staging_path, staging_database_path = _phase5_skg_fixture_output_paths(
+        root
+    )
+    _phase5_preflight_fixture_destinations(
+        root,
+        (database_path, wal_path, staging_path, staging_database_path),
+    )
+    database_path.parent.mkdir(parents=True, exist_ok=True)
+    from tests._helpers.academic_skg import build_synthetic_academic_skg_source
+
+    build_synthetic_academic_skg_source(records=records, db_path=database_path)
+    assert database_path.resolve().is_relative_to(root)
+    return database_path
+
+
+def _phase5_l6_fixture_paths(
+    root: Path,
+    *,
+    extra_destinations: Iterable[Path] = (),
+) -> dict[str, Path]:
+    """Write one explicitly synthetic L6 fixture below the caller-selected root."""
+    from polisyos.runtime.quality.intervention_substrate import default_l6_bundle_paths
+
+    root = root.resolve()
+    paths = default_l6_bundle_paths(root)
+    mechanism = {
+        "mechanism_id": _PHASE5_FIXTURE_KNOB_ID,
+        "params": {
+            "multiplier": {
+                "param_id": "multiplier",
+                "required": True,
+                "value_type": "decimal",
+                "min_value": 0,
+                "max_value": 2,
+                "unit_id": "ratio",
+            }
+        },
+        "reads_slots": [_PHASE5_FIXTURE_SLOT_ID],
+        "writes_slots": [_PHASE5_FIXTURE_SLOT_ID],
+        "default_merge": {_PHASE5_FIXTURE_SLOT_ID: "override"},
+        "provenance_refs": ["tests:phase5-candidate-fixture-only"],
+    }
+    payloads = {
+        "intervention_knob_dictionary": {
+            _PHASE5_FIXTURE_KNOB_ID: {
+                "default": 1.0,
+                "type": "float",
+                "min": 0.0,
+                "max": 2.0,
+                "unit": "ratio",
+                "mechanism_id": _PHASE5_FIXTURE_KNOB_ID,
+                "param_id": "multiplier",
+                "param_path": "params.multiplier",
+            }
+        },
+        "lex_intervention_map": {_PHASE5_FIXTURE_LAW_ID: {"knob_ids": [_PHASE5_FIXTURE_KNOB_ID]}},
+        "observation_to_contract_manifest": {"routes": [], "artifacts": []},
+        "slot_family_manifest": {
+            "families": {"controlled_candidate_fixture": {"slots": [_PHASE5_FIXTURE_SLOT_ID]}}
+        },
+        "owner_authority_bindings": {
+            "world_mechanism_manifest": {"mechanisms": {_PHASE5_FIXTURE_KNOB_ID: mechanism}},
+            "lex_authority_manifest": {
+                "intervention_map_entries": [
+                    {
+                        "law_token": _PHASE5_FIXTURE_LAW_ID,
+                        "provision_ref": "fixture-only:opaque-provision-handle",
+                        "intervention_kind": _PHASE5_FIXTURE_KNOB_ID,
+                        "knob_ids": [_PHASE5_FIXTURE_KNOB_ID],
+                        "threshold_id": "fixture-only-empty-threshold",
+                        "as_of": "2026-10-18",
+                        "candidate_unit": "ratio",
+                        "applies_to": "synthetic_fixture_population",
+                        "measurement_expectations": {
+                            "threshold_id": "fixture-only-empty-threshold",
+                            "as_of": "2026-10-18",
+                            "candidate_unit": "ratio",
+                            "applies_to": "synthetic_fixture_population",
+                        },
+                        "metadata": {"law_token": _PHASE5_FIXTURE_LAW_ID},
+                    }
+                ]
+            },
+        },
+    }
+    _phase5_preflight_fixture_destinations(
+        root,
+        tuple(paths[name] for name in payloads),
+        extra_destinations=extra_destinations,
+    )
+    for name, payload in payloads.items():
+        path = paths[name]
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(payload, sort_keys=True) + "\n")
+        assert path.resolve().is_relative_to(root)
+    return paths
+
+
+def _phase5_l6_candidate_world_model_record():
+    """Build a typed, local-only WMR with no calibration or external authority claim."""
+    from polisyos.runtime.quality.world_model_record import (
+        BranchMode,
+        DataForgeBindingRef,
+        FabricWorldRef,
+        FoundryBindingRef,
+        PolicySlotBinding,
+        ResolvedSubstrateEntryRef,
+        SimulationModelRef,
+        SkgCausalPriorRef,
+        SubstrateRegistryRef,
+        WorldModelLimitations,
+        WorldModelRecord,
+        world_model_record_content_hash,
+    )
+
+    def digest(label: str) -> str:
+        return "sha256:" + hashlib.sha256(label.encode()).hexdigest()
+
+    fields = {
+        "schema_version": "policyos.runtime.world_model_record.v1",
+        "authority_status": "candidate_unverified",
+        "created_at": "2026-10-18T00:00:00+00:00",
+        "producer_ref": "tests.phase5_candidate_fixture_only",
+        "region_or_jurisdiction": "fixture-only",
+        "population_scope": "synthetic_fixture_population",
+        "policy_domain": "fixture-only",
+        "valid_time_scope": "fixture-only",
+        "tx_time_scope": "2026-10-18T00:00:00+00:00",
+        "resolution": "fixture-only",
+        "branch_mode": BranchMode.SCENARIO,
+        "fabric_world_ref": FabricWorldRef(
+            snapshot_root="fixture-only://synthetic-world",
+            snapshot_id="fixture-only-world",
+            branch="candidate",
+            world_query_policy="fixture-only",
+            provenance_manifest_ref="fixture-only://provenance",
+            content_query_digest=digest("fixture-world-query"),
+            content_query_row_count=1,
+        ),
+        "data_forge_binding_ref": DataForgeBindingRef(
+            snapshot_id="fixture-only-data",
+            release_id="fixture-only-release",
+            role="fixture-only",
+            read_api_identity="tests.fixture-only",
+            snapshot_ref="fixture-only://data",
+            merkle_root="fixture-only-merkle-root",
+            data_hash=digest("fixture-data"),
+            provenance_manifest_ref="fixture-only://data-provenance",
+        ),
+        "simulation_model_ref": SimulationModelRef(
+            model_spec_ref=digest("fixture-model-ref"),
+            model_spec_hash=digest("fixture-model-hash"),
+            model_id="fixture-only-model",
+            data_snapshot_ref=digest("fixture-snapshot"),
+            registry_bundle_ref=digest("fixture-registry"),
+            fidelity_level="declared_candidate_fixture",
+            calibrated=False,
+            calibration_ref=None,
+        ),
+        "foundry_binding_ref": FoundryBindingRef(
+            input_bindings_ref=digest("fixture-input-bindings"),
+            bound_state_snapshot_ref=digest("fixture-state"),
+            mapping_rules_ref=digest("fixture-mapping-rules"),
+            state_slot_digest=digest("fixture-state-slots"),
+        ),
+        "skg_causal_prior_ref": SkgCausalPriorRef(
+            skg_snapshot_ref="fixture-only://unselected-skg",
+            skg_version_id="fixture-only-version",
+            source_data_snapshot_id="fixture-only-snapshot",
+        ),
+        "substrate_registry_ref": SubstrateRegistryRef(
+            substrate_version_id="substrate_version_" + hashlib.sha256(b"fixture").hexdigest()[:16],
+            content_hash=digest("fixture-substrate-registry"),
+            resolved_entries=(
+                ResolvedSubstrateEntryRef(
+                    source_id="fixture-only-source",
+                    family_id="fixture-only-family",
+                    layer="L1",
+                    coverage_score=0.0,
+                    trust_tier="not_established",
+                    trust_cap=0.0,
+                    identification_mode="not_established",
+                    schema_regime_id="fixture-only-v1",
+                    data_version="fixture-only-version",
+                    snapshot_id="fixture-only-snapshot",
+                    source_snapshot_id="fixture-only-snapshot",
+                    entry_content_hash=digest("fixture-entry"),
+                ),
+            ),
+        ),
+        "policy_slot_map": (
+            PolicySlotBinding(
+                slot_id=_PHASE5_FIXTURE_SLOT_ID,
+                state_path="government_balance",
+                unit="ratio",
+                entity_scope="government",
+                temporal_granularity="fixture-only",
+            ),
+        ),
+        "limitations": WorldModelLimitations(
+            admissibility_blockers=(
+                "synthetic_fixture_only",
+                "external_law_authority_not_established",
+                "calibration_not_established",
+            )
+        ),
+    }
+    draft = WorldModelRecord.model_construct(
+        world_model_record_id="world_model_record_0000000000000000",
+        content_hash=digest("placeholder"),
+        **fields,
+    )
+    content_hash = world_model_record_content_hash(draft)
+    return WorldModelRecord(
+        world_model_record_id=f"world_model_record_{content_hash.removeprefix('sha256:')[:16]}",
+        content_hash=content_hash,
+        **fields,
+    )
+
+
+def _phase5_l6_law_scope(root: Path):
     from polisyos.runtime.quality import credal_reference as owner
     from polisyos.runtime.quality import grounding_relation as atoms
     from polisyos.runtime.quality import intervention_substrate as substrate
 
-    world = substrate.production_composed_world_model_record(REPO_ROOT)
-    bundle = substrate.load_l6_intervention_substrate(REPO_ROOT)
+    root = root.resolve()
+    lex_path = root / owner.DEFAULT_L3_LEX_KG_PATH
+    paths = _phase5_l6_fixture_paths(root, extra_destinations=(lex_path,))
+    world = _phase5_l6_candidate_world_model_record()
+    lex_path.parent.mkdir(parents=True, exist_ok=True)
+    with duckdb.connect(str(lex_path)) as connection:
+        connection.execute("CREATE TABLE lex_rule_thresholds (threshold_id VARCHAR)")
+    assert lex_path.resolve().is_relative_to(root)
+
+    bundle = substrate.load_l6_intervention_substrate(root)
+    raw_map = json.loads(paths["lex_intervention_map"].read_text())
+    assert bundle.lex_intervention_map == raw_map
     edges = [
-        *owner._iter_l6_edges(REPO_ROOT, world_model_record=world),
+        *owner._iter_l6_edges(root, world_model_record=world),
         *owner._iter_wmr_edges(world),
     ]
     index = {edge.key: edge for edge in edges}
@@ -415,26 +694,61 @@ def _phase5_l6_law_scope():
         versions,
         index,
     )
-    return bundle, scoped, atoms._reference_atoms_from_cg0(scoped)
+    return root, bundle, scoped, atoms._reference_atoms_from_cg0(scoped)
 
 
-def _assert_phase5_law_scope_preserved_and_nonconfirmed(bundle, scoped, atoms):
+def _assert_phase5_atom_law_lifts(atoms, law_keys: set[str]) -> None:
+    """Check every law projection emitted into every selected atom."""
+    from polisyos.data_forge.domains.legal.source_relation import LEGAL_SOURCE_RELATION_REFUSAL
+
+    expected_refusal = LEGAL_SOURCE_RELATION_REFUSAL.to_payload()
+    assert law_keys
+    covered_law_keys: set[str] = set()
+    for atom in atoms:
+        atom_law_keys = law_keys.intersection(atom.reference_lift)
+        for law_key in atom_law_keys:
+            projection = atom.reference_lift[law_key]
+            assert projection["status"] == "incomplete"
+            assert projection["source_relation_refusal"] == expected_refusal
+            assert any(
+                completion.get("completion_kind") == "may_exist"
+                and completion.get("reason") == LEGAL_SOURCE_RELATION_REFUSAL.code
+                for completion in projection["admissible_completions"]
+            )
+            covered_law_keys.add(law_key)
+    assert covered_law_keys == law_keys
+
+
+def _assert_phase5_law_scope_preserved_and_nonconfirmed(root, bundle, scoped, atoms):
+    from polisyos.data_forge.domains.legal.source_relation import LEGAL_SOURCE_RELATION_REFUSAL
+    from polisyos.runtime.quality import intervention_substrate as substrate
+
     laws = {
         edge.edge_id: edge
         for edge in scoped.essential_edges.values()
         if edge.modality == "L6_LEX_INTERVENTION_MAP"
     }
-    raw = json.loads(
-        (
-            REPO_ROOT / "production_data/ukraine_agent_simulation_baseline_20260410/"
-            "production_bundle/bundles/intervention_bundle_v1/lex_intervention_map.json"
-        ).read_text()
-    )
+    raw_path = substrate.default_l6_bundle_paths(root)["lex_intervention_map"]
+    assert raw_path.resolve().is_relative_to(root.resolve())
+    raw = json.loads(raw_path.read_text())
     assert set(laws) == set(bundle.lex_intervention_map) == set(raw)
     assert {edge.status for edge in laws.values()} == {"incomplete"}
+    expected_pairs = {
+        (law_token, knob_id)
+        for law_token, mapping in raw.items()
+        for knob_id in mapping["knob_ids"]
+    }
+    observed_pairs = {
+        (edge.edge_id, str(completion.value["knob_id"]))
+        for edge in laws.values()
+        for completion in edge.admissible_completions
+        if completion.completion_kind == "may_exist" and "knob_id" in completion.value
+    }
+    assert observed_pairs == expected_pairs
     assert all(
         any(
-            completion.reason == "legal_source_relation_verification_not_established"
+            completion.completion_kind == "may_exist"
+            and completion.reason == "legal_source_relation_verification_not_established"
             for completion in edge.admissible_completions
         )
         for edge in laws.values()
@@ -442,13 +756,103 @@ def _assert_phase5_law_scope_preserved_and_nonconfirmed(bundle, scoped, atoms):
     expected_knobs = set(bundle.knob_dictionary)
     assert {atom.signature.op for atom in atoms} == expected_knobs
     law_keys = {f"{edge.modality}::{edge.edge_id}" for edge in laws.values()}
+    _assert_phase5_atom_law_lifts(atoms, law_keys)
+    lifted = reference_lift(scoped, law_keys)
+    assert all(item["status"] == "incomplete" for item in lifted.values())
+    assert all_essential_confirmed(scoped, law_keys) is False
+    assert all(
+        item["source_relation_refusal"] == LEGAL_SOURCE_RELATION_REFUSAL.to_payload()
+        for item in lifted.values()
+    )
     for atom in atoms:
         assert law_keys.intersection(atom.edge_scope)
         assert atom.signature.admissibility == "reference_contested"
 
 
-def test_phase5_law_owner_refusal_survives_credal_and_atom_consumers() -> None:
-    _assert_phase5_law_scope_preserved_and_nonconfirmed(*_phase5_l6_law_scope())
+def test_phase5_l6_fixture_rejects_malformed_mapping_input(tmp_path: Path) -> None:
+    from polisyos.runtime.quality.intervention_substrate import (
+        InterventionSubstrateError,
+        load_l6_intervention_substrate,
+    )
+
+    root = tmp_path.resolve()
+    paths = _phase5_l6_fixture_paths(root)
+    malformed = paths["lex_intervention_map"]
+    malformed.write_text("[]\n")
+    assert malformed.resolve().is_relative_to(root)
+    with pytest.raises(InterventionSubstrateError, match="json_object_expected"):
+        load_l6_intervention_substrate(root)
+
+
+def test_phase5_fixture_path_preflight_rejects_escape_before_writes(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.runtime.quality import intervention_substrate
+
+    root = tmp_path / "fresh-fixture-root"
+    escaped_destination = tmp_path / "outside-fixture-root.json"
+    assert not root.exists()
+    assert not escaped_destination.exists()
+    original_paths = intervention_substrate.default_l6_bundle_paths
+
+    def escaped_paths(selected_root: Path) -> dict[str, Path]:
+        paths = original_paths(selected_root)
+        paths["lex_intervention_map"] = escaped_destination
+        return paths
+
+    monkeypatch.setattr(
+        intervention_substrate,
+        "default_l6_bundle_paths",
+        escaped_paths,
+    )
+    with pytest.raises(AssertionError, match="phase5_fixture_destination_outside_root"):
+        _phase5_l6_fixture_paths(root)
+    assert not root.exists()
+    assert not escaped_destination.exists()
+
+
+def test_phase5_skg_fixture_path_preflight_rejects_escape_before_factory(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from tests._helpers import academic_skg
+
+    root = tmp_path / "fresh-skg-fixture-root"
+    escaped_database = tmp_path / "outside-skg-fixture.duckdb"
+    assert not root.exists()
+    assert not escaped_database.exists()
+    factory_calls: list[Path] = []
+
+    def forbidden_factory(*, records: Iterable[object], db_path: Path) -> object:
+        del records
+        factory_calls.append(db_path)
+        raise AssertionError("synthetic_skg_factory_called_before_fixture_preflight")
+
+    monkeypatch.setitem(
+        globals(),
+        "DEFAULT_L2_SCHOLAR_KG_PATH",
+        Path("../outside-skg-fixture.duckdb"),
+    )
+    monkeypatch.setattr(
+        academic_skg,
+        "build_synthetic_academic_skg_source",
+        forbidden_factory,
+    )
+    with pytest.raises(AssertionError, match="phase5_fixture_destination_outside_root"):
+        _phase5_build_synthetic_skg_fixture(root, records=())
+    assert factory_calls == []
+    assert not root.exists()
+    assert all(
+        not path.exists() and not path.is_symlink()
+        for path in _phase5_skg_fixture_output_paths(root)
+    )
+
+
+def test_phase5_law_owner_refusal_survives_credal_and_atom_consumers(
+    tmp_path: Path,
+) -> None:
+    _assert_phase5_law_scope_preserved_and_nonconfirmed(*_phase5_l6_law_scope(tmp_path))
 
 
 @pytest.mark.parametrize(
@@ -615,7 +1019,9 @@ def test_l6_projection_opens_selected_lex_database_through_public_facade(
     opened[0].close()
 
 
-def test_phase5_law_resolution_exception_keeps_declared_dependency(monkeypatch) -> None:
+def test_phase5_law_resolution_exception_keeps_declared_dependency(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     from polisyos.runtime.quality import credal_reference as owner
     from polisyos.runtime.quality.intervention_substrate import InterventionSubstrateError
 
@@ -623,7 +1029,7 @@ def test_phase5_law_resolution_exception_keeps_declared_dependency(monkeypatch) 
         raise InterventionSubstrateError("law_threshold_unresolved")
 
     monkeypatch.setattr(owner, "resolve_law_bound_lever", unresolved)
-    bundle, scoped, atoms = _phase5_l6_law_scope()
+    _root, bundle, scoped, atoms = _phase5_l6_law_scope(tmp_path)
     laws = {
         edge.edge_id: edge
         for edge in scoped.essential_edges.values()
@@ -691,8 +1097,55 @@ def test_l3_threshold_with_complete_temporal_fields_stays_incomplete_without_rel
     )
 
 
+def test_phase5_atom_consumer_refusal_removal_goes_red(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.data_forge.domains.legal.source_relation import LEGAL_SOURCE_RELATION_REFUSAL
+
+    original_reference_lift = CredalReference.reference_lift
+
+    def omit_atom_refusal(self, edge_scope):
+        projected = original_reference_lift(self, edge_scope)
+        for key, value in projected.items():
+            if key.startswith("L6_LEX_INTERVENTION_MAP::"):
+                value.pop("source_relation_refusal", None)
+        return projected
+
+    monkeypatch.setattr(CredalReference, "reference_lift", omit_atom_refusal)
+    _root, _bundle, scoped, atoms = _phase5_l6_law_scope(tmp_path)
+    laws = {
+        edge.edge_id: edge
+        for edge in scoped.essential_edges.values()
+        if edge.modality == "L6_LEX_INTERVENTION_MAP"
+    }
+    law_keys = {f"L6_LEX_INTERVENTION_MAP::{law_id}" for law_id in laws}
+    assert law_keys
+    assert all(edge.status == "incomplete" for edge in laws.values())
+    assert all(
+        any(
+            completion.reason == LEGAL_SOURCE_RELATION_REFUSAL.code
+            for completion in edge.admissible_completions
+        )
+        for edge in laws.values()
+    )
+    atom_lift_law_keys = {
+        law_key for atom in atoms for law_key in law_keys.intersection(atom.reference_lift)
+    }
+    assert atom_lift_law_keys == law_keys
+    assert all(
+        "source_relation_refusal" not in atom.reference_lift[law_key]
+        for atom in atoms
+        for law_key in law_keys.intersection(atom.reference_lift)
+    )
+    with pytest.raises(AssertionError):
+        _assert_phase5_atom_law_lifts(atoms, law_keys)
+
+
 @pytest.mark.parametrize("removed", ["status", "association"])
-def test_phase5_law_handoff_removal_goes_red(monkeypatch, removed) -> None:
+def test_phase5_law_handoff_removal_goes_red(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, removed: str
+) -> None:
     from polisyos.runtime.quality import credal_reference as owner
 
     original = owner._edge
@@ -709,16 +1162,18 @@ def test_phase5_law_handoff_removal_goes_red(monkeypatch, removed) -> None:
 
     monkeypatch.setattr(owner, "_edge", removed_property)
     with pytest.raises(AssertionError):
-        _assert_phase5_law_scope_preserved_and_nonconfirmed(*_phase5_l6_law_scope())
+        _assert_phase5_law_scope_preserved_and_nonconfirmed(*_phase5_l6_law_scope(tmp_path))
 
 
-def test_phase5_historical_reference_replay_keeps_epoch_and_current_stales_it() -> None:
+def test_phase5_historical_reference_replay_keeps_epoch_and_current_stales_it(
+    tmp_path: Path,
+) -> None:
     from dataclasses import replace
 
     from polisyos.runtime.quality import credal_reference as owner
     from polisyos.runtime.quality.promotion_sequence import _CredalReferenceReplayRecord
 
-    _bundle, current, _atoms = _phase5_l6_law_scope()
+    _root, _bundle, current, _atoms = _phase5_l6_law_scope(tmp_path)
     historical_schema = "policyos.runtime.grounding_credal_reference.v1"
     old_hash = owner._reference_hash(
         component_versions=current.component_versions,
@@ -2446,20 +2901,37 @@ def test_credal_controlled_certificate_stales_after_source_content_repair() -> N
     assert staleness.stale_edge_keys == (f"{contested.modality}::{contested.edge_id}",)
 
 
-def test_credal_production_default_vintage_refusal_constructs_no_source_profile(
+def test_credal_controlled_default_vintage_refusal_constructs_no_source_profile(
+    tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    from polisyos.runtime.quality import credal_reference as owner
+    from polisyos.data_forge.domains.academic.knowledge.types import (
+        EstimateCandidate,
+        WorkRecord,
+    )
 
-    controlled_profile = _selected_l2_profile_fixture()
-    controlled = _profiled_l2_reference(controlled_profile)
-    assert credal_reference_l2_source_profile(controlled) == controlled_profile
-    assert controlled_profile.authority_band == "candidate"
-    assert controlled_profile.source_snapshot_authenticity == "not_established"
-    assert controlled_profile.currentness_status == "not_established"
+    root = tmp_path.resolve()
+    record = WorkRecord(
+        id="controlled-stale-vintage-source",
+        title="Synthetic historical-vintage refusal fixture",
+        abstract="Synthetic test fixture; no production or causal claim.",
+        year=2026,
+        estimates=[
+            EstimateCandidate(
+                value=0.0,
+                pattern_name="controlled_candidate_fixture",
+                variable_hint="cause",
+            )
+        ],
+        metadata={"synthetic": True, "fixture_scope": "credal_vintage_refusal_test_only"},
+    )
+    db_path = _phase5_build_synthetic_skg_fixture(root, records=(record,))
+    with db_path.open("rb") as stream:
+        digest = hashlib.file_digest(stream, "sha256").hexdigest()
+    monkeypatch.setattr(skg_versioning, "_HISTORICAL_SNAPSHOT_SHA256", digest, raising=False)
 
     profile_validations: list[object] = []
-    original_model_validate = owner.CredalReferenceSourceProfile.model_validate
+    original_model_validate = CredalReferenceSourceProfile.model_validate
 
     def profile_validation_spy(
         _cls: type[CredalReferenceSourceProfile],
@@ -2471,12 +2943,16 @@ def test_credal_production_default_vintage_refusal_constructs_no_source_profile(
         return original_model_validate(value, *args, **kwargs)
 
     monkeypatch.setattr(
-        owner.CredalReferenceSourceProfile,
+        CredalReferenceSourceProfile,
         "model_validate",
         classmethod(profile_validation_spy),
     )
-    with pytest.raises(ValueError, match="not_reproducible_under_current_rule"):
-        owner.build_credal_reference(REPO_ROOT)
+    edges = iter(_iter_l2_edges(root))
+    try:
+        with pytest.raises(ValueError, match="not_reproducible_under_current_rule"):
+            next(edges)
+    finally:
+        edges.close()
     assert profile_validations == []
 
 

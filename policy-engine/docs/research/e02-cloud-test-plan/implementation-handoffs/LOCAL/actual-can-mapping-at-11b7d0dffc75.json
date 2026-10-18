@@ -1,0 +1,187 @@
+{
+  "schema": "polisyos.e02.actual_test_verification_receipt.v1",
+  "record_type": "actual_test_verification_receipt",
+  "status": "completed_bounded_source_frame_passed",
+  "identity": "can-mapping-whole-module-at-11b7d0dffc75",
+  "proposal_not_adjudicated": true,
+  "relationship_to_source_commits": [
+    {
+      "implementation_commit": "11b7d0dffc75982efc9563974a109d0d004e64c8",
+      "tree": "496c9acef6c6b775b289be53f894939c91da0d24",
+      "role": "Exact implementation frame against which this selected test command ran."
+    }
+  ],
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "11b7d0dffc75982efc9563974a109d0d004e64c8",
+    "tree": "496c9acef6c6b775b289be53f894939c91da0d24"
+  },
+  "profile": {
+    "scope": "Whole new CAN Mapping test module, real CAS writer to fresh IR reader. Writer materialization is not producer attestation; whole LA021 history/identity G choices stay held. Clean committed source, not final composed native freeze. No pre-sitecustomize/all-thirdparty origin proof.",
+    "selected_test_files": [
+      "tests/unit/core/artifacts/test_ir_adapter_mapping_contract.py"
+    ],
+    "invocation_selectors": [
+      "tests/unit/core/artifacts/test_ir_adapter_mapping_contract.py"
+    ],
+    "selection_kind": "whole selected module path(s)",
+    "junit_summary": {
+      "cases": 24,
+      "passed": 24,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "case_denominator": "JUnit testcases emitted by the exact referenced pytest invocation; full stdout and XML are preserved by path and SHA.",
+    "whole_selected_modules": true
+  },
+  "property_vs_measurement": {
+    "property": "Whole new CAN Mapping test module, real CAS writer to fresh IR reader. Writer materialization is not producer attestation; whole LA021 history/identity G choices stay held. Clean committed source, not final composed native freeze. No pre-sitecustomize/all-thirdparty origin proof.",
+    "measured_by": "Exact pytest invocation plus JUnit case outcomes; full command/result/stdout/stderr/XML are cited below.",
+    "divergent_case_or_boundary": "CAN writer/readback behavior is not producer attestation or an LA-021 history/identity decision."
+  },
+  "execution": {
+    "argv": [
+      ".venv/bin/python",
+      "-B",
+      "-m",
+      "pytest",
+      "-p",
+      "e02_wave_capture",
+      "-q",
+      "--basetemp",
+      "/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/can-mapping-current-r1/pytest-temp",
+      "-o",
+      "cache_dir=/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/can-mapping-current-r1/pytest-cache",
+      "--junitxml",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-mapping-current-actual-20261018/pytest.xml",
+      "tests/unit/core/artifacts/test_ir_adapter_mapping_contract.py"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "return_code": 0,
+    "complete": true,
+    "status": "passed",
+    "aborted_reason": null,
+    "wall_seconds": 1.6069550830870867,
+    "maximum_sampled_process_tree_rss_bytes": 112640000,
+    "minimum_sampled_disk_free_bytes": 15938850816,
+    "sample_count": 3,
+    "process_group_gone": true,
+    "termination_signal": null
+  },
+  "source_pin_observations": {
+    "all_tracked_working_bytes_unchanged": true,
+    "tracked_pin_count": 25613,
+    "observed_product_origins": 85,
+    "matched_regular_module_origins": 85,
+    "origin_mismatches": [],
+    "qualification_limit": "The recorded origin census is regular product-module origin matching only; it is not a pre-sitecustomize or all-third-party environment provenance proof."
+  },
+  "result": {
+    "complete": true,
+    "execution_passed": true,
+    "source_bound_to_exact_frame": true,
+    "junit": {
+      "cases": 24,
+      "passed": 24,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "actual_removal_controls": "UNRUN separately",
+    "G_acceptance": false,
+    "closure_ids": []
+  },
+  "inputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-mapping-current-actual-20261018/run.py",
+      "sha256": "4b291ac35fef609716a2fad5c9087af4f151e21f46f531944b2fdfbc415b2e26",
+      "bytes": 4425
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-mapping-current-actual-20261018/working-source-before.json",
+      "sha256": "2174a53e0c8c9a325969bdd5470029adf1cfe4353fdaa0abeae45a4d09cc0d3a",
+      "bytes": 4679860
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-mapping-current-actual-20261018/execution-provenance.json",
+      "sha256": "72003050aff8baa572d5b8447a0dbb8c66da0dc762ab1262d5f8dc76ae53372c",
+      "bytes": 85211
+    }
+  ],
+  "deciding_outputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-mapping-current-actual-20261018/result.json",
+      "sha256": "e16da4de14788d82b26162700034208f187dd4c581c0c1f182a6b62ab24721aa",
+      "bytes": 11289
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-mapping-current-actual-20261018/pytest.xml",
+      "sha256": "12a3d1c1d92aa06a5d8fe7e1916ff3e3fd78a5b89766ea84d9d298d8c1e92a01",
+      "bytes": 5458
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-mapping-current-actual-20261018/pytest.stdout.txt",
+      "sha256": "12784721e0280443291002b595b03384e8588476665647b621a862f07297e08f",
+      "bytes": 80
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-mapping-current-actual-20261018/pytest.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-mapping-current-actual-20261018/controller-events.jsonl",
+      "sha256": "3bda3f67287edd7dc50ac1c98d85cbe8a5b47115fc504b8688e22ba63f52cb01",
+      "bytes": 1034
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-mapping-current-actual-20261018/phase-output.jsonl",
+      "sha256": "83556fd6f8bd6b20b60ca3fc03379a5297ed6f606528843ac52b82656722fd5d",
+      "bytes": 969
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-mapping-current-actual-20261018/process-tree.jsonl",
+      "sha256": "38d23b96e373b1ce46091b4675c27c3b17eabd2866bf8d859fa319474e4867a9",
+      "bytes": 2889
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-mapping-current-actual-20261018/execution-provenance.json",
+      "sha256": "72003050aff8baa572d5b8447a0dbb8c66da0dc762ab1262d5f8dc76ae53372c",
+      "bytes": 85211
+    }
+  ],
+  "limits": [
+    "Bounded result only for the exact selectors and source frame above; no G acceptance or formal closure is claimed.",
+    "The per-run origin census does not establish startup import provenance or all third-party origins.",
+    "See property_vs_measurement.divergent_case_or_boundary for the materially excluded capability/property."
+  ],
+  "next_check": {
+    "required": "Use the source owner’s separately scoped full importer/property replay and evidence profile; do not generalize this selected run to whole-component acceptance.",
+    "scope_status": "The exact frame is immutable; this batch does not assert a current global source freeze."
+  },
+  "G_acceptance": false,
+  "closure_ids": [],
+  "predicate_provenance": [
+    {
+      "predicate": "source commit and tree identity",
+      "classification": "recomputed",
+      "basis": "Git object metadata and exact source-frame equality with result.json."
+    },
+    {
+      "predicate": "pytest case outcome/count",
+      "classification": "independently_reconciled",
+      "basis": "Parsed referenced JUnit XML and compared with the exact result.json summary."
+    },
+    {
+      "predicate": "tracked working bytes unchanged and observed product origins",
+      "classification": "consumer_asserted",
+      "basis": "Recorded runner result; not independently reconstructed by this receipt."
+    },
+    {
+      "predicate": "broader runtime capability, authority, or formal closure",
+      "classification": "not_established",
+      "basis": "Bounded test scope and explicit limits above."
+    }
+  ]
+}

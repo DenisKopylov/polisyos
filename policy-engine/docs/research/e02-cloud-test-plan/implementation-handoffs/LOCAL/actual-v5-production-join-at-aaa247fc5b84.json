@@ -1,0 +1,187 @@
+{
+  "schema": "polisyos.e02.actual_test_verification_receipt.v1",
+  "record_type": "actual_test_verification_receipt",
+  "status": "completed_bounded_source_frame_passed",
+  "identity": "v5-production-join-single-selector-at-aaa247fc5b84",
+  "proposal_not_adjudicated": true,
+  "relationship_to_source_commits": [
+    {
+      "implementation_commit": "aaa247fc5b848a017ea908c9ebbe2034ca7e4dbd",
+      "tree": "0636360105e8c4d7967ad2d2300e0af92a391653",
+      "role": "Exact implementation frame against which this selected test command ran."
+    }
+  ],
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "aaa247fc5b848a017ea908c9ebbe2034ca7e4dbd",
+    "tree": "0636360105e8c4d7967ad2d2300e0af92a391653"
+  },
+  "profile": {
+    "scope": "Actual ProductionPolicyEvaluationBackend-to-vector-to-CAS-workpacket-to-fresh consumer, with controlled fiscal metrics and stubbed EvalSafety admission. Configured draws are request intent; actual draw counters uninstrumented. Mutation/rebinding/false availability controls inside test. No genuine causal MethodJob/DataSnapshot join, B108 nullable score or authority claim. Clean committed source, no final composed native freeze. No pre-sitecustomize/all-thirdparty origin proof.",
+    "selected_test_files": [
+      "tests/unit/scientist/search/funnel/test_policy_runtime_production_source_join.py"
+    ],
+    "invocation_selectors": [
+      "tests/unit/scientist/search/funnel/test_policy_runtime_production_source_join.py::test_production_backend_fiscal_source_survives_cas_packet_and_fresh_consumer"
+    ],
+    "selection_kind": "explicit selected test node(s)",
+    "junit_summary": {
+      "cases": 1,
+      "passed": 1,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "case_denominator": "JUnit testcases emitted by the exact referenced pytest invocation; full stdout and XML are preserved by path and SHA.",
+    "whole_selected_modules": false
+  },
+  "property_vs_measurement": {
+    "property": "Actual ProductionPolicyEvaluationBackend-to-vector-to-CAS-workpacket-to-fresh consumer, with controlled fiscal metrics and stubbed EvalSafety admission. Configured draws are request intent; actual draw counters uninstrumented. Mutation/rebinding/false availability controls inside test. No genuine causal MethodJob/DataSnapshot join, B108 nullable score or authority claim. Clean committed source, no final composed native freeze. No pre-sitecustomize/all-thirdparty origin proof.",
+    "measured_by": "Exact pytest invocation plus JUnit case outcomes; full command/result/stdout/stderr/XML are cited below.",
+    "divergent_case_or_boundary": "EvalSafety admission is stubbed; controlled fiscal metrics and configured draw requests do not prove actual draw counts, a genuine MethodJob/DataSnapshot join, B108 nullable scoring, or authority."
+  },
+  "execution": {
+    "argv": [
+      ".venv/bin/python",
+      "-B",
+      "-m",
+      "pytest",
+      "-p",
+      "e02_wave_capture",
+      "-q",
+      "--basetemp",
+      "/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/v5-production-companion-r1/pytest-temp",
+      "-o",
+      "cache_dir=/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/v5-production-companion-r1/pytest-cache",
+      "--junitxml",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-production-companion-current-actual-20261018/pytest.xml",
+      "tests/unit/scientist/search/funnel/test_policy_runtime_production_source_join.py::test_production_backend_fiscal_source_survives_cas_packet_and_fresh_consumer"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "return_code": 0,
+    "complete": true,
+    "status": "passed",
+    "aborted_reason": null,
+    "wall_seconds": 9.122357208048925,
+    "maximum_sampled_process_tree_rss_bytes": 846446592,
+    "minimum_sampled_disk_free_bytes": 15975608320,
+    "sample_count": 17,
+    "process_group_gone": true,
+    "termination_signal": null
+  },
+  "source_pin_observations": {
+    "all_tracked_working_bytes_unchanged": true,
+    "tracked_pin_count": 25608,
+    "observed_product_origins": 1216,
+    "matched_regular_module_origins": 1216,
+    "origin_mismatches": [],
+    "qualification_limit": "The recorded origin census is regular product-module origin matching only; it is not a pre-sitecustomize or all-third-party environment provenance proof."
+  },
+  "result": {
+    "complete": true,
+    "execution_passed": true,
+    "source_bound_to_exact_frame": true,
+    "junit": {
+      "cases": 1,
+      "passed": 1,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "actual_removal_controls": "UNRUN separately",
+    "G_acceptance": false,
+    "closure_ids": []
+  },
+  "inputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-production-companion-current-actual-20261018/run.py",
+      "sha256": "76b31372c7387e4de08b62d8e6c632c7bf551cf2c771ad6a7113a323588dfc61",
+      "bytes": 4819
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-production-companion-current-actual-20261018/working-source-before.json",
+      "sha256": "9bf7049f2b605c4e9661210f410933f1ecb6734a2db0296fc1c9a86f27081612",
+      "bytes": 4678952
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-production-companion-current-actual-20261018/execution-provenance.json",
+      "sha256": "b985d6f4b465dac1204a21bc7cf0f2f9f9fac246a6b441df08976560384afd76",
+      "bytes": 1117448
+    }
+  ],
+  "deciding_outputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-production-companion-current-actual-20261018/result.json",
+      "sha256": "0ec9fb090a88a0b274e10485bcd1a70d7cb49dc520398f816511f8be30b62c54",
+      "bytes": 3128
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-production-companion-current-actual-20261018/pytest.xml",
+      "sha256": "321233a0d6c1104f461e036783b6cd8d4270f3a6c99918cbcc1a1456f3716162",
+      "bytes": 458
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-production-companion-current-actual-20261018/pytest.stdout.txt",
+      "sha256": "423b1d0e014eb1eab96f4420f7b344c2615be505dd574b756ac884826ca74f2d",
+      "bytes": 80
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-production-companion-current-actual-20261018/pytest.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-production-companion-current-actual-20261018/controller-events.jsonl",
+      "sha256": "ae3b88ee2790e4d39c8f621ece7e13f638df64097a3a61b346e6317cca0eaeda",
+      "bytes": 1150
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-production-companion-current-actual-20261018/phase-output.jsonl",
+      "sha256": "17d123fcb1e635413666b7d90b258e39b0fae06b93f60345d1514b98fd54f1d3",
+      "bytes": 1086
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-production-companion-current-actual-20261018/process-tree.jsonl",
+      "sha256": "c52feeaf927e8df34c16a1f0aba59a45ba46654b25ab01aca91370ae07c296c7",
+      "bytes": 18348
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-production-companion-current-actual-20261018/execution-provenance.json",
+      "sha256": "b985d6f4b465dac1204a21bc7cf0f2f9f9fac246a6b441df08976560384afd76",
+      "bytes": 1117448
+    }
+  ],
+  "limits": [
+    "Bounded result only for the exact selectors and source frame above; no G acceptance or formal closure is claimed.",
+    "The per-run origin census does not establish startup import provenance or all third-party origins.",
+    "See property_vs_measurement.divergent_case_or_boundary for the materially excluded capability/property."
+  ],
+  "next_check": {
+    "required": "Use the source owner’s separately scoped full importer/property replay and evidence profile; do not generalize this selected run to whole-component acceptance.",
+    "scope_status": "The exact frame is immutable; this batch does not assert a current global source freeze."
+  },
+  "G_acceptance": false,
+  "closure_ids": [],
+  "predicate_provenance": [
+    {
+      "predicate": "source commit and tree identity",
+      "classification": "recomputed",
+      "basis": "Git object metadata and exact source-frame equality with result.json."
+    },
+    {
+      "predicate": "pytest case outcome/count",
+      "classification": "independently_reconciled",
+      "basis": "Parsed referenced JUnit XML and compared with the exact result.json summary."
+    },
+    {
+      "predicate": "tracked working bytes unchanged and observed product origins",
+      "classification": "consumer_asserted",
+      "basis": "Recorded runner result; not independently reconstructed by this receipt."
+    },
+    {
+      "predicate": "broader runtime capability, authority, or formal closure",
+      "classification": "not_established",
+      "basis": "Bounded test scope and explicit limits above."
+    }
+  ]
+}

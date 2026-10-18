@@ -1,0 +1,270 @@
+{
+  "schema": "polisyos.e02.actual_test_verification_receipt.v1",
+  "record_type": "actual_test_verification_receipt",
+  "status": "completed_bounded_source_frame_passed",
+  "identity": "trust-generic-runner-eight-case-at-3c51aa7afbbab",
+  "proposal_not_adjudicated": true,
+  "relationship_to_source_commits": [
+    {
+      "implementation_commit": "3c51aa7afbbab44485e0bf80ef08d208dea8b5c4",
+      "tree": "ba4344d1a359b7246d301e2811277ec9f531a45b",
+      "role": "Exact source frame against which the recorded selected module command ran."
+    },
+    {
+      "implementation_commit": "53e4cedf0071131328e26e4870e3c5da975d8cb8",
+      "tree": "9077a6cab64e40112fcd44ca263637dc4aca5d85",
+      "role": "Related Trust source-adoption commit; this actual was not run at that commit. Its seven source/test postimages are byte-identical at the exact later actual frame, as pinned below."
+    }
+  ],
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "3c51aa7afbbab44485e0bf80ef08d208dea8b5c4",
+    "tree": "ba4344d1a359b7246d301e2811277ec9f531a45b"
+  },
+  "related_implementation_receipt": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-seven-source-receipt-preparation-20261018/implementation-53e4cedf0071.json",
+    "sha256": "0178b02f8ae3667606052419cce6752a3779ca394240fe69389940729ae7e8cc",
+    "bytes": 19397
+  },
+  "source_path_equivalence": {
+    "basis": "All seven non-coordination paths in the 53e Trust source receipt were compared as Git blobs and as bytes at 53e and 3c51; each matches the source receipt SHA-256. This links the later bounded test to the adopted Trust source postimages without claiming the test ran at 53e.",
+    "path_count": 7,
+    "paths": [
+      {
+        "path": "policy-engine/tests/repo_quality/tools/test_architecture_phase3.py",
+        "source_receipt_postimage_sha256": "1b4f5cc215e9ba5f40941c4bfa86774fb3555eda2e390c5e1f4c6e7720bdc75b",
+        "implementation_commit_blob_oid": "9e1c8b8b9d2c4a39d8c65a1420e96bef21927293",
+        "actual_frame_blob_oid": "9e1c8b8b9d2c4a39d8c65a1420e96bef21927293",
+        "same_content": true
+      },
+      {
+        "path": "policy-engine/tests/repo_quality/tools/test_trust_claim_posture.py",
+        "source_receipt_postimage_sha256": "6912cf1c6a06b5357869d106a775b62b0b6aadd4f2841ef8bde1e6cf6d8b75fc",
+        "implementation_commit_blob_oid": "84986c6c61d842ca32fb66a98b686b171c684e3f",
+        "actual_frame_blob_oid": "84986c6c61d842ca32fb66a98b686b171c684e3f",
+        "same_content": true
+      },
+      {
+        "path": "policy-engine/tests/unit/tools/test_runner.py",
+        "source_receipt_postimage_sha256": "abf1ef3053789f5e0fe3f0b96832002957a24f23c99d8624de1bfee588940d4d",
+        "implementation_commit_blob_oid": "3f33772d527a41d685ba8169561f7b11431d3903",
+        "actual_frame_blob_oid": "3f33772d527a41d685ba8169561f7b11431d3903",
+        "same_content": true
+      },
+      {
+        "path": "policy-engine/tools/devx/architecture/guardrails.py",
+        "source_receipt_postimage_sha256": "73a4c496f15be8cf51b121f9dca42ef28da0ead838698b4863bc65e58de8cb4c",
+        "implementation_commit_blob_oid": "51b82a4fe6bbe1b5f5b3c14fc86ec873366cdc14",
+        "actual_frame_blob_oid": "51b82a4fe6bbe1b5f5b3c14fc86ec873366cdc14",
+        "same_content": true
+      },
+      {
+        "path": "policy-engine/tools/lib/runner.py",
+        "source_receipt_postimage_sha256": "7370d00a43eda040debb5d5173d67bf4c2dae03a40799d78892a63e21a66e093",
+        "implementation_commit_blob_oid": "91befa03dc527c30e7883e794c55a79596a373f1",
+        "actual_frame_blob_oid": "91befa03dc527c30e7883e794c55a79596a373f1",
+        "same_content": true
+      },
+      {
+        "path": "policy-engine/tools/quality/validation/check_trust_claim_posture.py",
+        "source_receipt_postimage_sha256": "0601ea26a630dc8d5df99b67c008a3f572e1d134d09d918f79922c232f04553b",
+        "implementation_commit_blob_oid": "44fa6b37e547380ed7ed57a223f01e5d4ee3ab14",
+        "actual_frame_blob_oid": "44fa6b37e547380ed7ed57a223f01e5d4ee3ab14",
+        "same_content": true
+      },
+      {
+        "path": "policy-engine/tools/quality/validation/trust_claim_posture_artifact_lifecycle.py",
+        "source_receipt_postimage_sha256": "87231a300ced337ddad5e1bd3cfeb4f45d34e8ca6007055e9f4d4b06e8a4f7c0",
+        "implementation_commit_blob_oid": "0de38884039fef41390d67df7188f110fe23452f",
+        "actual_frame_blob_oid": "0de38884039fef41390d67df7188f110fe23452f",
+        "same_content": true
+      }
+    ]
+  },
+  "profile": {
+    "scope": "Fresh canonical eight generic runner/scratch-validation tests on macOS; OS-backed Python and native descendant write refusal, allowed scratch, typed unavailable and malformed/symlink base checks. Current repository package imports, default pytest plugins. This is not the full Trust fifteen corruption profile, Linux acceptance or final composed freeze. Capture plugin full runtime_module_origins is limited to its namespace; requested tools origins are separately recorded, no all-thirdparty/pre-sitecustomize proof.",
+    "selected_test_files": [
+      "tests/unit/tools/test_runner.py"
+    ],
+    "invocation_selectors": [
+      "tests/unit/tools/test_runner.py::test_filesystem_write_boundary_confines_native_and_python_writers",
+      "tests/unit/tools/test_runner.py::test_filesystem_write_boundary_rejects_scratch_inside_checkout",
+      "tests/unit/tools/test_runner.py::test_filesystem_write_boundary_marks_unsupported_platform_unavailable",
+      "tests/unit/tools/test_runner.py::test_filesystem_write_boundary_rejects_symlinked_scratch_path",
+      "tests/unit/tools/test_runner.py::test_filesystem_write_boundary_marks_missing_linux_backend_unavailable",
+      "tests/unit/tools/test_runner.py::test_external_temporary_base_is_rejected_before_any_allocation",
+      "tests/unit/tools/test_runner.py::test_external_temporary_base_does_not_fallback_from_malformed_value",
+      "tests/unit/tools/test_runner.py::test_external_temporary_base_uses_default_only_when_unset"
+    ],
+    "selection_kind": "whole selected module path(s)",
+    "junit_summary": {
+      "cases": 8,
+      "passed": 8,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "case_denominator": "JUnit testcases emitted by the exact pytest invocation; the XML and full pytest/driver output are retained by exact path and SHA.",
+    "whole_selected_modules": true
+  },
+  "property_vs_measurement": {
+    "property": "The generic runner/scratch boundary test module exercises native and Python write confinement, invalid scratch paths, typed unavailable outcomes and default-versus-malformed configuration behavior.",
+    "measured_by": "The exact tests/unit/tools/test_runner.py invocation completed with eight collected and eight executed cases, with matching 8/8 JUnit outcome, zero exit status, exact 3c51 Git source frame, and unchanged tracked bytes during the run.",
+    "divergent_case_or_boundary": "This is the generic runner/scratch-validation surface, not the full Trust fifteen-case corruption profile, a fresh check-trust-claim-posture --check replay, or Linux backend acceptance. The run does not establish startup or all-third-party import provenance, full production artifact lifecycle, or capability closure."
+  },
+  "execution": {
+    "argv": [
+      ".venv/bin/python",
+      "-B",
+      "-m",
+      "pytest",
+      "-p",
+      "e02_wave_capture",
+      "-q",
+      "--basetemp",
+      "/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/trust-eight-runner-tests-20261018-01/pytest-temp",
+      "-o",
+      "cache_dir=/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/trust-eight-runner-tests-20261018-01/pytest-cache",
+      "--junitxml",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-current-eight-runner-tests-actual-20261018/pytest.xml",
+      "tests/unit/tools/test_runner.py"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "return_code": 0,
+    "complete": true,
+    "status": "passed",
+    "aborted_reason": null,
+    "started_at": "2026-10-18T15:21:38.412134+00:00",
+    "finished_at": "2026-10-18T15:21:41.365255+00:00",
+    "wall_seconds": 2.953120334073901,
+    "maximum_sampled_process_tree_rss_bytes": 100581376,
+    "minimum_sampled_disk_free_bytes": 14585618432,
+    "sample_count": 5,
+    "process_group_gone": true,
+    "termination_signal": null
+  },
+  "source_pin_observations": {
+    "all_tracked_working_bytes_unchanged": true,
+    "tracked_pin_count": 25614,
+    "observed_product_origins": 75,
+    "matched_regular_module_origins": 75,
+    "origin_mismatches": [],
+    "requested_tools_origins": "Recorded separately in the execution-provenance artifact through E02_ORIGIN_MODULES; this is not a pre-sitecustomize or all-third-party proof.",
+    "qualification_limit": "Regular-module origins matching and tracked working-byte preservation only; startup import provenance and all-third-party origins are not established."
+  },
+  "result": {
+    "complete": true,
+    "execution_passed": true,
+    "source_bound_to_exact_frame": true,
+    "junit": {
+      "cases": 8,
+      "passed": 8,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "actual_removal_controls": "UNRUN separately",
+    "G_acceptance": false,
+    "closure_ids": []
+  },
+  "inputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-current-eight-runner-tests-actual-20261018/run.py",
+      "sha256": "f6d78c834365c6f6af9c71391e14d71ada6e892c5489007617b9f165b8fd6a8f",
+      "bytes": 4579
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-current-eight-runner-tests-actual-20261018/working-source-before.json",
+      "sha256": "32944c0ac3ec756cc8a93445720a88ce5fce2a0702ba579c3dec4a3c549643df",
+      "bytes": 4679971
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-current-eight-runner-tests-actual-20261018/execution-provenance.json",
+      "sha256": "269fe2a55d06e40c18008862bcd1e9b87aa23575fbcf8939ff837740e67193f7",
+      "bytes": 68514
+    }
+  ],
+  "deciding_outputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-current-eight-runner-tests-actual-20261018/result.json",
+      "sha256": "3c0cf532ecf3f8b2364ae4d0775f3a1776fc8048d1fade429ca8005647f99a3d",
+      "bytes": 4403
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-current-eight-runner-tests-actual-20261018/driver.stdout.txt",
+      "sha256": "3c0cf532ecf3f8b2364ae4d0775f3a1776fc8048d1fade429ca8005647f99a3d",
+      "bytes": 4403
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-current-eight-runner-tests-actual-20261018/driver.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-current-eight-runner-tests-actual-20261018/pytest.xml",
+      "sha256": "dcf800e7a8b6e6ccaf319348c549a62edc62f5df34209447f12f2e656d28ea63",
+      "bytes": 1364
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-current-eight-runner-tests-actual-20261018/pytest.stdout.txt",
+      "sha256": "06955fb47f16312e5d13266c774a2aa4648c46e423cbe6564a92e25b68e39131",
+      "bytes": 80
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-current-eight-runner-tests-actual-20261018/pytest.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-current-eight-runner-tests-actual-20261018/execution-provenance.json",
+      "sha256": "269fe2a55d06e40c18008862bcd1e9b87aa23575fbcf8939ff837740e67193f7",
+      "bytes": 68514
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-current-eight-runner-tests-actual-20261018/controller-events.jsonl",
+      "sha256": "9bd6253f8044f6cfba5ddcba27c54ea907d6f21e458bfb3b53605bed157f56f6",
+      "bytes": 1044
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-current-eight-runner-tests-actual-20261018/phase-output.jsonl",
+      "sha256": "63e953293f0349fb0b14b9ea48fb91d75bd056d8adb091f2e0c5f307059eaf3c",
+      "bytes": 980
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-current-eight-runner-tests-actual-20261018/process-tree.jsonl",
+      "sha256": "524c18427f2ef6b09989fdf4f02cb9551ba91ead4ffcb7bc5b5255efdde86336",
+      "bytes": 4963
+    }
+  ],
+  "limits": [
+    "The eight passing cases establish only the generic runner/scratch-validation behavior in the exact 3c51 frame; they do not replace the full Trust fifteen-case corruption profile or fresh artifact lifecycle checker.",
+    "The 53e Trust source commit was not the execution frame; seven changed source/test blobs match at 3c51, which is the exact frame for this actual.",
+    "Regular product-module origins and requested tool origins are recorded, but pre-sitecustomize and all-third-party import provenance remain unestablished.",
+    "The actual result does not establish Linux bwrap backend acceptance, full composed current-source freeze, G acceptance, or formal closure."
+  ],
+  "next_check": "If Trust closure is pursued, run the full fifteen-case corruption profile and current native checker against a newly declared exact source/input freeze; separately qualify Linux selected-backend behavior and its property probes.",
+  "G_acceptance": false,
+  "closure_ids": [],
+  "predicate_provenance": [
+    {
+      "predicate": "actual source frame and seven Trust postimage equivalence",
+      "classification": "recomputed",
+      "basis": "Git tree and blob identities/bytes at the two cited immutable commits match the SHA-256 values in the Trust source receipt."
+    },
+    {
+      "predicate": "selected pytest outcome",
+      "classification": "independently_reconciled",
+      "basis": "The pinned controller result, pytest stdout, and JUnit XML agree on command success and eight passing cases."
+    },
+    {
+      "predicate": "origin and tracked-byte observations",
+      "classification": "institutionally_supplied",
+      "basis": "The runner records regular-module origin counts and tracked-byte pin observations; their stated scope is retained without expansion."
+    },
+    {
+      "predicate": "full Trust corruption profile, Linux acceptance, and whole capability closure",
+      "classification": "not_established",
+      "basis": "These were outside the selected eight-test actual receipt."
+    }
+  ]
+}

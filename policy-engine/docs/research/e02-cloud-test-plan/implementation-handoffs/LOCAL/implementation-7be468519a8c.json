@@ -1,0 +1,294 @@
+{
+  "schema": "polisyos.e02.native_source_commit_receipt.v1",
+  "record_type": "implementation_commit_receipt",
+  "status": "source_committed_static_ruff_pass_runtime_unrun_at_adoption",
+  "proposal_not_adjudicated": true,
+  "source_commit": {
+    "sha": "7be468519a8c8c95dd2bba530e4e6602d9471370",
+    "tree": "a0330b3cde7feb2c6d87fe0ddde54ceb5b0e76dd",
+    "parents": [
+      "d398bb0d1107b8ec0a2e648b42927994657d1665"
+    ],
+    "subject": "test(causal): preserve asymmetric uncertainty through fresh N8 CAS consumer",
+    "branch_ref": "refs/heads/codex/e02-unified-local-20261009"
+  },
+  "source_base": {
+    "sha": "d398bb0d1107b8ec0a2e648b42927994657d1665",
+    "tree": "8db8983f940d31bb94a91bc4b22b42dcf2b6bddf"
+  },
+  "changed_paths": [
+    {
+      "change": "M",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "category": "coordination_metadata",
+      "sha256_at_commit": "a956791f78e83937a9fba376b23e615097aac7d4dcd6f6fd7d9192f4a9fa4e41",
+      "bytes": 818910,
+      "role": "required_receipt_index_or_lease_companion"
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "category": "coordination_metadata",
+      "sha256_at_commit": "643b0a17d5960467fcfed837caabbb770e83fa73c5e4d043dd176d076bbb1aa6",
+      "bytes": 73453,
+      "role": "required_receipt_index_or_lease_companion"
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/tests/unit/runtime/quality/test_value_gate.py",
+      "category": "test",
+      "sha256_at_commit": "4b6c43dcd8f9b9a8a043c8ba13b4527f12f1e74b04f8ed737a4e8779de804ce7",
+      "bytes": 289771,
+      "role": "mandatory_test_companion"
+    }
+  ],
+  "source_application": {
+    "identity": "b31-synthetic-channel-preservation-r3-20261018",
+    "lease_key": "b31-synthetic-channel-preservation-r3-20261018",
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b31-r3-d398-source-adoption-20261018/source-application.json",
+      "sha256": "cf3fead5d26ccdd192219081a03e635487db277d9acefddd74635368dd2ab4b1",
+      "bytes": 6250
+    },
+    "commit_request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b31-r3-d398-source-adoption-20261018/commit-request.json",
+      "sha256": "7542bfb15c9e788afe1ad1a9d1d4a8ea792fc5056bd3fa2ecdfe6b9738cc6e0a",
+      "bytes": 770
+    },
+    "commit_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b31-r3-d398-source-adoption-20261018/b31-synthetic-channel-preservation-r3-20261018-readback.json",
+      "sha256": "d27b5377d0c7678dbc0ecda29a738eefd41e835dd648b757b1230672b58a9ab0",
+      "bytes": 1111
+    },
+    "candidate_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-s3-b31-channel-preservation-test-r3-20261018/candidate.json",
+        "sha256": "f44daad2fd3113dde4f9f17726de8eaf33f7b60a4aba2f58984785adea5810fe",
+        "bytes": 18223
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-s3-b31-channel-preservation-test-r3-20261018/candidate.patch",
+        "sha256": "144c23a726c52f9bb388a3f264610529f8d9cc48f5ec5339e6f6ed24beeaa474",
+        "bytes": 19185
+      }
+    ],
+    "adoption_outputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b31-r3-d398-source-adoption-20261018/check.stdout.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "bytes": 19
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b31-r3-d398-source-adoption-20261018/check.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b31-r3-d398-source-adoption-20261018/format.stdout.txt",
+        "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50",
+        "bytes": 25
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b31-r3-d398-source-adoption-20261018/format.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b31-r3-d398-source-adoption-20261018/b31-synthetic-channel-preservation-r3-20261018-commit.stdout.txt",
+        "sha256": "dc7c9d462cb8f9e62a3f33f5892a1b2d645a72025ca0ce687a81ff90ca54793c",
+        "bytes": 172
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b31-r3-d398-source-adoption-20261018/b31-synthetic-channel-preservation-r3-20261018-commit.stderr.txt",
+        "sha256": "70c4b487ff4f862e3fb0cadd692b5a6481a1517733cb385116da1ef37c594afe",
+        "bytes": 653
+      }
+    ],
+    "adopted_present_patch": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-s3-b31-channel-preservation-test-r3-20261018/candidate.patch",
+      "sha256": "144c23a726c52f9bb388a3f264610529f8d9cc48f5ec5339e6f6ed24beeaa474",
+      "bytes": 19185
+    }
+  },
+  "source_path_pin_validation": {
+    "path_pin_count": 1,
+    "pins": [
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_value_gate.py",
+        "postimage_sha256": "4b6c43dcd8f9b9a8a043c8ba13b4527f12f1e74b04f8ed737a4e8779de804ce7",
+        "postimage_verified_at_commit": true,
+        "preimage_sha256": "b976af0fdc182f2108b7d1a7483e3e3a8cb66bace844a4e918f6266c5b1a906b",
+        "preimage_verified_at_base": true
+      }
+    ],
+    "source_application_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b31-r3-d398-source-adoption-20261018/source-application.json",
+      "sha256": "cf3fead5d26ccdd192219081a03e635487db277d9acefddd74635368dd2ab4b1",
+      "bytes": 6250
+    }
+  },
+  "review_refs": [
+    {
+      "role": "independent candidate review",
+      "artifact": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-s3-b31-test-r3-independent-20261018/review.json",
+        "sha256": "682caab17fa85f24ed039833bf97e922c87db1811d09e3137e25c2ded72a9033",
+        "bytes": 10006
+      }
+    },
+    {
+      "role": "independent candidate review",
+      "artifact": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-s3-b31-test-r3-independent-20261018/review.md",
+        "sha256": "06023b6c6391dc4a1201c0382965cd895f7afe1a07c53574b4a1e15aed58a8b2",
+        "bytes": 3294
+      }
+    }
+  ],
+  "property": "Carry native asymmetric CI [1,10] separately from ID bounds [4,4] through real N8 producer, persisted CAS and fresh consumer with continuous synthetic_score fixture support [0,13]; refuse mutation/rebind/missing source edges.",
+  "P40": "Same B31 subject/unit join fixture class; complete synthetic rows/unit/support/report/bounds coordinates repaired together.",
+  "static_quality": {
+    "status": "PASS",
+    "tool": "Ruff check and full-file format check using workspace-root config; exact argv and output refs are retained.",
+    "scope": "Every changed Python source/test postimage in this source adoption application; static evidence only.",
+    "ruff_config": {
+      "path": "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+      "sha256_at_commit": "a446cae5a425fe3c7fe59d3d14f423bf976fb30f6c121c596f4ae3cef8ba1b8e",
+      "bytes": 28194
+    },
+    "receipts": [
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tests/unit/runtime/quality/test_value_gate.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.04861900000832975,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b31-r3-d398-source-adoption-20261018/check.stdout.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+          "bytes": 19
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b31-r3-d398-source-adoption-20261018/check.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tests/unit/runtime/quality/test_value_gate.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.044135875068604946,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b31-r3-d398-source-adoption-20261018/format.stdout.txt",
+          "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50",
+          "bytes": 25
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b31-r3-d398-source-adoption-20261018/format.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      }
+    ],
+    "application_declared_qualified_source": "source application records full configured check/format pass for this exact postimage set."
+  },
+  "runtime_status_at_source_adoption": "UNRUN at adoption; fresh actual integration follows",
+  "source_freeze_at_adoption": {
+    "application_declared": "not_declared",
+    "whole_current_source_freeze": "not_established by this batch",
+    "note": "Immutable source commit/tree and application base are recomputed; the current worktree/index may advance independently."
+  },
+  "source_qualification_history": null,
+  "later_related_evidence": [
+    {
+      "evidence": "At this exact 7be source frame, the five selected B31 nodes finished 4 passed / 1 failed. The new asymmetric-channel test failed because the fixture lacked a per-field measurement unit (actual expected candidate_fixture_value_run_not_authority but received acquire_data:value_owner_measurement_unit_missing). This is a historical red, not acceptance; R4 widens the fixture and R5 later replaces the test identifier-length proxy.",
+      "outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b31-current-five-selectors-actual-20261018/result.json",
+          "sha256": "b9aca52ea933fa4478ff50677c293338ca62fb704b5ba0edea877e0c485637a1",
+          "bytes": 4419
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b31-current-five-selectors-actual-20261018/pytest.xml",
+          "sha256": "04caeeb35fc484b3647bc27870427fe9ecd7a256a863db5676ad004e5c96a6aa",
+          "bytes": 13131
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b31-current-five-selectors-actual-20261018/pytest.stdout.txt",
+          "sha256": "16cb31fd3ca67f5284afe06446948f130489d0504dc976089c362831f3b48149",
+          "bytes": 12215
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b31-current-five-selectors-actual-20261018/pytest.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      ],
+      "bounded_actual_receipt_target": null
+    }
+  ],
+  "limits": [
+    "AIPW report and Manski bounds remain deterministic synthetic fixtures and are not computed from the generated source rows.",
+    "No authentic native causal estimate, identification fact, owner authority, source currentness, assignment truth, or calibration is established.",
+    "Assignment provenance remains consumer_asserted; source_time_status remains not_established.",
+    "The existing real AIPW/TMLE path is retained as a separate proposed selector.",
+    "Numerical report and bounds are deterministic test doubles; original owner-backed paired facts and resolved-subject authority remain not established.",
+    "This is an immutable source commit receipt, not a whole-repository/source-freeze claim.",
+    "No G acceptance or formal closure is carried by source commit, peer review, or bounded actual receipts."
+  ],
+  "next_check_at_adoption": [
+    "policy-engine/tests/unit/runtime/quality/test_value_gate.py::test_n8_source_projection_preserves_synthetic_asymmetric_ci_through_fresh_cas",
+    "policy-engine/tests/unit/runtime/quality/test_value_gate.py::test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds[aipw]",
+    "policy-engine/tests/unit/runtime/quality/test_value_gate.py::test_n8_source_projection_runs_real_method_and_fresh_candidate_bounds[tmle]",
+    "policy-engine/tests/unit/runtime/quality/test_value_gate.py::test_candidate_treatment_assignment_is_not_owner_world_knowledge",
+    "policy-engine/tests/unit/runtime/quality/test_value_gate.py::test_shaped_owner_assignment_attestation_is_not_authority"
+  ],
+  "G_acceptance": false,
+  "closure_ids": [],
+  "evidence_provenance": [
+    {
+      "predicate": "source commit/tree/parent and tracked changed-path blobs",
+      "classification": "recomputed",
+      "basis": "Git object metadata at the exact immutable commit and parent."
+    },
+    {
+      "predicate": "application postimage/preimage pins",
+      "classification": "recomputed",
+      "basis": "Every path pin in source_application.paths was compared with the source commit/parent Git blob."
+    },
+    {
+      "predicate": "Ruff check and format outcome",
+      "classification": "independently_reconciled",
+      "basis": "Exact source application command/exit record and retained stdout/stderr references."
+    },
+    {
+      "predicate": "peer review decision and candidate scope",
+      "classification": "institutionally_supplied",
+      "basis": "Peer review artifacts are cited by exact path and SHA, but remain proposals rather than G acceptance."
+    },
+    {
+      "predicate": "whole current source freeze and capability closure",
+      "classification": "not_established",
+      "basis": "This batch is source/receipt preparation only; whole-source currentness and formal closures are not claimed."
+    }
+  ]
+}

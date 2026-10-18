@@ -1,0 +1,297 @@
+{
+  "schema": "polisyos.e02.native_source_commit_receipt.v1",
+  "record_type": "implementation_commit_receipt",
+  "status": "source_committed_static_ruff_pass_runtime_unrun_at_adoption",
+  "proposal_not_adjudicated": true,
+  "source_commit": {
+    "sha": "aaa247fc5b848a017ea908c9ebbe2034ca7e4dbd",
+    "tree": "0636360105e8c4d7967ad2d2300e0af92a391653",
+    "parents": [
+      "7be468519a8c8c95dd2bba530e4e6602d9471370"
+    ],
+    "subject": "test(search): join production backend to persisted packet consumer",
+    "branch_ref": "refs/heads/codex/e02-unified-local-20261009"
+  },
+  "source_base": {
+    "sha": "7be468519a8c8c95dd2bba530e4e6602d9471370",
+    "tree": "a0330b3cde7feb2c6d87fe0ddde54ceb5b0e76dd"
+  },
+  "changed_paths": [
+    {
+      "change": "M",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "category": "coordination_metadata",
+      "sha256_at_commit": "0b40375a08fe76f343df05166c40c3b984bd61bfc48338e81e9c1039bbe1c67b",
+      "bytes": 824766,
+      "role": "required_receipt_index_or_lease_companion"
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "category": "coordination_metadata",
+      "sha256_at_commit": "eb96acf6f422de169f8f1cf82efc7d96f6b62a81bd65c403b41582dda6bc0eb9",
+      "bytes": 73453,
+      "role": "required_receipt_index_or_lease_companion"
+    },
+    {
+      "change": "A",
+      "path": "policy-engine/tests/unit/scientist/search/funnel/test_policy_runtime_production_source_join.py",
+      "category": "test",
+      "sha256_at_commit": "334b5fe4aa9bd7b64a0ec9a6989ecfbd206abf19ab5413e7dccb8185ebfb0945",
+      "bytes": 10412,
+      "role": "mandatory_test_companion"
+    }
+  ],
+  "source_application": {
+    "identity": "v5-production-backend-fresh-consumer-companion-r1-20261018",
+    "lease_key": "v5-production-backend-fresh-consumer-companion-r1-20261018",
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-production-companion-7be-source-adoption-20261018/source-application.json",
+      "sha256": "62547d39e47c37521eee42bfa7ff5836450f2ef1996be98576dee00f73488372",
+      "bytes": 7982
+    },
+    "commit_request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-production-companion-7be-source-adoption-20261018/commit-request.json",
+      "sha256": "601d58b90fec417948b2565f970ba0878171dd6de7bc11b7e7a5ecccca9b9206",
+      "bytes": 1103
+    },
+    "commit_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-production-companion-7be-source-adoption-20261018/v5-production-backend-fresh-consumer-companion-r1-20261018-readback.json",
+      "sha256": "f26eed6be4443cb5851e1579e2d7813df624e6e3b1c8764f9c92757b17bdf54a",
+      "bytes": 1172
+    },
+    "candidate_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-production-backend-consumer-companion-r1-20261018/manifest.json",
+        "sha256": "1253d5c7174a8b05ffbb1635a9790c46442fc4932cfe7760dd570a4f3f2f699f",
+        "bytes": 7554
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-production-backend-consumer-companion-r1-20261018/candidate.patch",
+        "sha256": "8e4a48eddbfd14c69d61c4004bfdaf04eb1f16c8477e43cf3423c78cc73f8fa8",
+        "bytes": 11080
+      }
+    ],
+    "adoption_outputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-production-companion-7be-source-adoption-20261018/check.stdout.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "bytes": 19
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-production-companion-7be-source-adoption-20261018/check.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-production-companion-7be-source-adoption-20261018/format.stdout.txt",
+        "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50",
+        "bytes": 25
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-production-companion-7be-source-adoption-20261018/format.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-production-companion-7be-source-adoption-20261018/v5-production-backend-fresh-consumer-companion-r1-20261018-commit.stdout.txt",
+        "sha256": "0081aee08a455a02d94a9db61e8025663353661ccb649c12013a0793acac7d0d",
+        "bytes": 278
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-production-companion-7be-source-adoption-20261018/v5-production-backend-fresh-consumer-companion-r1-20261018-commit.stderr.txt",
+        "sha256": "e466778c5bb841919edc3d6ba5501bc05e3e6476fa2468c75144f6260c4bf6c7",
+        "bytes": 653
+      }
+    ],
+    "plan": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-production-companion-7be-source-adoption-20261018/adoption-plan.json",
+      "sha256": "d9613343c5809de2b5370ebae2930ff81cb0b529f95c5d84021c8e4b9131edea",
+      "bytes": 5373
+    },
+    "adopted_present_patch": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-production-companion-7be-source-adoption-20261018/reviewed-present-postimages.patch",
+      "sha256": "9581f102def7e4da093ab6a3f3bdc7cca2213241209da2b929c9fc090013606a",
+      "bytes": 11024
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-production-companion-7be-source-adoption-20261018/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf",
+      "bytes": 197
+    }
+  },
+  "source_path_pin_validation": {
+    "path_pin_count": 1,
+    "pins": [
+      {
+        "path": "policy-engine/tests/unit/scientist/search/funnel/test_policy_runtime_production_source_join.py",
+        "postimage_sha256": "334b5fe4aa9bd7b64a0ec9a6989ecfbd206abf19ab5413e7dccb8185ebfb0945",
+        "postimage_verified_at_commit": true
+      }
+    ],
+    "source_application_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-production-companion-7be-source-adoption-20261018/source-application.json",
+      "sha256": "62547d39e47c37521eee42bfa7ff5836450f2ef1996be98576dee00f73488372",
+      "bytes": 7982
+    }
+  },
+  "review_refs": [
+    {
+      "role": "independent candidate review",
+      "artifact": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-production-companion-r1-independent-20261018/review.json",
+        "sha256": "a101983a4479760b8ff99e768380dbbd5020083965eedc3b05a9db57fff7e4a1",
+        "bytes": 11048
+      }
+    },
+    {
+      "role": "independent candidate review",
+      "artifact": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-production-companion-r1-independent-20261018/review.md",
+        "sha256": "3094c0e3faf71a59883d51f52d77326465d382252ccd3be742422781f49e541b",
+        "bytes": 3007
+      }
+    }
+  ],
+  "property": "Exercise actual ProductionPolicyEvaluationBackend, evaluation vector, CAS packet writer and fresh runtime-packet consumer with source fiscal aliases and requested config; reject source alias mutation, valid packet cross-ticket rebind and false availability.",
+  "P40": "No P40 repair ladder was asserted in the source application; this source commit receipt makes no additional class claim.",
+  "static_quality": {
+    "status": "PASS",
+    "tool": "Ruff check and full-file format check using workspace-root config; exact argv and output refs are retained.",
+    "scope": "Every changed Python source/test postimage in this source adoption application; static evidence only.",
+    "ruff_config": {
+      "path": "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+      "sha256_at_commit": "a446cae5a425fe3c7fe59d3d14f423bf976fb30f6c121c596f4ae3cef8ba1b8e",
+      "bytes": 28194
+    },
+    "receipts": [
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tests/unit/scientist/search/funnel/test_policy_runtime_production_source_join.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.04273187508806586,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-production-companion-7be-source-adoption-20261018/check.stdout.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+          "bytes": 19
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-production-companion-7be-source-adoption-20261018/check.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tests/unit/scientist/search/funnel/test_policy_runtime_production_source_join.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.03882070817053318,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-production-companion-7be-source-adoption-20261018/format.stdout.txt",
+          "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50",
+          "bytes": 25
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-production-companion-7be-source-adoption-20261018/format.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      }
+    ],
+    "application_declared_qualified_source": "source application records full configured check/format pass for this exact postimage set."
+  },
+  "runtime_status_at_source_adoption": "UNRUN on adopted canonical source; bounded candidate evidence is separately referenced",
+  "source_freeze_at_adoption": {
+    "application_declared": false,
+    "whole_current_source_freeze": "not_established by this batch",
+    "note": "Immutable source commit/tree and application base are recomputed; the current worktree/index may advance independently."
+  },
+  "source_qualification_history": null,
+  "later_related_evidence": [
+    {
+      "evidence": "One focused production-backend-to-vector-to-CAS-workpacket-to-fresh-consumer case passed at this exact frame. EvalSafety admission is stubbed and fiscal metrics are controlled; this does not establish actual draw counters, genuine MethodJob/DataSnapshot joins, B108 nullable scoring, or authority.",
+      "outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-production-companion-current-actual-20261018/result.json",
+          "sha256": "0ec9fb090a88a0b274e10485bcd1a70d7cb49dc520398f816511f8be30b62c54",
+          "bytes": 3128
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-production-companion-current-actual-20261018/pytest.xml",
+          "sha256": "321233a0d6c1104f461e036783b6cd8d4270f3a6c99918cbcc1a1456f3716162",
+          "bytes": 458
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-production-companion-current-actual-20261018/pytest.stdout.txt",
+          "sha256": "423b1d0e014eb1eab96f4420f7b344c2615be505dd574b756ac884826ca74f2d",
+          "bytes": 80
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-production-companion-current-actual-20261018/pytest.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      ],
+      "bounded_actual_receipt_target": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/actual-v5-production-join-at-aaa247fc5b84.json"
+    }
+  ],
+  "limits": [
+    "Lower fiscal metrics are controlled fixtures; EvalSafety admission is stubbed and explicitly out of scope.",
+    "Configured n_bootstrap=500 is request intent, actual draws remain not_instrumented and counters null.",
+    "B108 nullable score and B157 same-attempt scientific MethodJob/data/outcome/actual-count join remain limited/not established.",
+    "Runtime is UNRUN at adoption; separate actual selector follows.",
+    "This is an immutable source commit receipt, not a whole-repository/source-freeze claim.",
+    "No G acceptance or formal closure is carried by source commit, peer review, or bounded actual receipts."
+  ],
+  "next_check_at_adoption": {
+    "selector": "tests/unit/scientist/search/funnel/test_policy_runtime_production_source_join.py::test_production_backend_fiscal_source_survives_cas_packet_and_fresh_consumer"
+  },
+  "G_acceptance": false,
+  "closure_ids": [],
+  "evidence_provenance": [
+    {
+      "predicate": "source commit/tree/parent and tracked changed-path blobs",
+      "classification": "recomputed",
+      "basis": "Git object metadata at the exact immutable commit and parent."
+    },
+    {
+      "predicate": "application postimage/preimage pins",
+      "classification": "recomputed",
+      "basis": "Every path pin in source_application.paths was compared with the source commit/parent Git blob."
+    },
+    {
+      "predicate": "Ruff check and format outcome",
+      "classification": "independently_reconciled",
+      "basis": "Exact source application command/exit record and retained stdout/stderr references."
+    },
+    {
+      "predicate": "peer review decision and candidate scope",
+      "classification": "institutionally_supplied",
+      "basis": "Peer review artifacts are cited by exact path and SHA, but remain proposals rather than G acceptance."
+    },
+    {
+      "predicate": "whole current source freeze and capability closure",
+      "classification": "not_established",
+      "basis": "This batch is source/receipt preparation only; whole-source currentness and formal closures are not claimed."
+    }
+  ]
+}

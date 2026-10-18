@@ -936,6 +936,54 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/actual-b214-focused-pair-at-f6d67b46e5ba.json",
       "sha256": "9a7e5cefec43b4e702506160c1914adfc594d9e8163654ed59f507bc14be4f68"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-7be468519a8c.json",
+      "sha256": "7869ed3da8c7fac74f4f68991c42976d94e68e0651abf0ebab59eb414b0d66bd"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-aaa247fc5b84.json",
+      "sha256": "972b9138ab7b7444d342acb68fb9b4bb91c47b604c48aade93603df801340df7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-11b7d0dffc75.json",
+      "sha256": "63ae01eb9645426bd88fb4527efda6856150e671073c38276a80460fd472071e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-ce7c69c0c5a7.json",
+      "sha256": "4926574b6d47d4962a0d467f8c4cf122ef4bb0cfe7aa0f0908aa853c3a1587c9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-6e01231e1786.json",
+      "sha256": "2d1d208c3b9a4cda9eded55675c0671d8243834fd5d69519773ee00a9c6a42df"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-53e4cedf0071.json",
+      "sha256": "0178b02f8ae3667606052419cce6752a3779ca394240fe69389940729ae7e8cc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-3c51aa7afbbab.json",
+      "sha256": "a86828c6479851b5ad9b494e4af9fe596e40e1f84f186b1d70c7d32a7bf9624e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/actual-can-mapping-at-11b7d0dffc75.json",
+      "sha256": "7e96bb094f675576804f5379ba27d399bfbeb0cc6bd8a2df2ff9f07a7559add3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/actual-b31-r5-typed-cas-at-6e01231e1786.json",
+      "sha256": "23523310061481c7192b56e834e98d309a909c1a88394085fc30eba79e4b8e16"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/actual-v5-production-join-at-aaa247fc5b84.json",
+      "sha256": "ac0090db95204c8fbb82f264bdbb0659d351a1c0e180041c2880eefe01f5f73d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/actual-v5-two-test-r2-at-3c51aa7afbbab.json",
+      "sha256": "c8c6396f8611ecc663770c762a10021685ab2122117d222aef4d01620cb56eb5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/actual-trust-runner-eight-at-3c51aa7afbbab.json",
+      "sha256": "c7b6f03a9355296f2028d79fb415111055818e65531637936d891891f60df7af"
     }
   ],
   "canonical_denominator_recomputed": {

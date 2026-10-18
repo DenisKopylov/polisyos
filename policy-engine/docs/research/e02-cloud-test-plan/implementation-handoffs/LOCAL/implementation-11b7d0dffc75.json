@@ -1,0 +1,299 @@
+{
+  "schema": "polisyos.e02.native_source_commit_receipt.v1",
+  "record_type": "implementation_commit_receipt",
+  "status": "source_committed_static_ruff_pass_runtime_unrun_at_adoption",
+  "proposal_not_adjudicated": true,
+  "source_commit": {
+    "sha": "11b7d0dffc75982efc9563974a109d0d004e64c8",
+    "tree": "496c9acef6c6b775b289be53f894939c91da0d24",
+    "parents": [
+      "975e46788776f91ddf6fbcf8a02d92ccb91a11b4"
+    ],
+    "subject": "test(canon): exercise Mapping options through persisted IR reader",
+    "branch_ref": "refs/heads/codex/e02-unified-local-20261009"
+  },
+  "source_base": {
+    "sha": "975e46788776f91ddf6fbcf8a02d92ccb91a11b4",
+    "tree": "073435a929ee7597c0c83683707f263da2e3305e"
+  },
+  "changed_paths": [
+    {
+      "change": "M",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "category": "coordination_metadata",
+      "sha256_at_commit": "41359a3d22cec2e3864554d94af07e1142d70246d7fd1a9d421caacf59d9033c",
+      "bytes": 830495,
+      "role": "required_receipt_index_or_lease_companion"
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "category": "coordination_metadata",
+      "sha256_at_commit": "8f6c2b81ac4208d708315ad1787e84b841d1d33464eae30f29cc3eb27a0ff3b2",
+      "bytes": 74362,
+      "role": "required_receipt_index_or_lease_companion"
+    },
+    {
+      "change": "A",
+      "path": "policy-engine/tests/unit/core/artifacts/test_ir_adapter_mapping_contract.py",
+      "category": "test",
+      "sha256_at_commit": "f4e8aceb68a8a428e4d778380dbf525c56fc3ceeb87dc0a5eca3fef0504179c7",
+      "bytes": 6759,
+      "role": "mandatory_test_companion"
+    }
+  ],
+  "source_application": {
+    "identity": "can-generic-mapping-fresh-consumer-r1-20261018",
+    "lease_key": "can-generic-mapping-fresh-consumer-r1-20261018",
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-mapping-975e-source-adoption-20261018/source-application.json",
+      "sha256": "7dd1b79f785ae1824ccad7d8f00517eb99109df81a4d3e94eeb9b05b8b0f11f5",
+      "bytes": 7675
+    },
+    "commit_request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-mapping-975e-source-adoption-20261018/commit-request.json",
+      "sha256": "1f26aebce55b0f63f8ce5da90ea69967f790beed76c1d111e47ba469541464be",
+      "bytes": 1060
+    },
+    "commit_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-mapping-975e-source-adoption-20261018/can-generic-mapping-fresh-consumer-r1-20261018-readback.json",
+      "sha256": "9b0ff6f151f9482e959e6dea52bc0c8677e00df6a7c0e779fc2486c2d111d083",
+      "bytes": 1133
+    },
+    "candidate_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-mapping-consumer-companion-r1-20261018/manifest.json",
+        "sha256": "9e02f218f69c7a41d72987e63dd9388f0cb6406370e3f80f822801b653d92561",
+        "bytes": 9556
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-mapping-consumer-companion-r1-20261018/patch.diff",
+        "sha256": "cd65ecee825b73949e9109d4a85ed728e65b67aad7370a70c243cb4e7112d548",
+        "bytes": 7241
+      }
+    ],
+    "adoption_outputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-mapping-975e-source-adoption-20261018/check.stdout.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "bytes": 19
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-mapping-975e-source-adoption-20261018/check.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-mapping-975e-source-adoption-20261018/format.stdout.txt",
+        "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50",
+        "bytes": 25
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-mapping-975e-source-adoption-20261018/format.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-mapping-975e-source-adoption-20261018/can-generic-mapping-fresh-consumer-r1-20261018-commit.stdout.txt",
+        "sha256": "b313df2199de9bf80c1208d07b625660ebbc0266618601f043e1be635febb8e7",
+        "bytes": 258
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-mapping-975e-source-adoption-20261018/can-generic-mapping-fresh-consumer-r1-20261018-commit.stderr.txt",
+        "sha256": "831733334328c98753cb43e216a94bc0e7556bb13c73af1a67790bcac985bc66",
+        "bytes": 653
+      }
+    ],
+    "plan": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-mapping-975e-source-adoption-20261018/adoption-plan.json",
+      "sha256": "30a1a737c6d3ed6c773411e0f9adbd8a11f96b9214d3fe147dad0c923f7f61f5",
+      "bytes": 5143
+    },
+    "adopted_present_patch": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-mapping-975e-source-adoption-20261018/reviewed-present-postimages.patch",
+      "sha256": "cd65ecee825b73949e9109d4a85ed728e65b67aad7370a70c243cb4e7112d548",
+      "bytes": 7241
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-mapping-975e-source-adoption-20261018/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf",
+      "bytes": 197
+    }
+  },
+  "source_path_pin_validation": {
+    "path_pin_count": 1,
+    "pins": [
+      {
+        "path": "policy-engine/tests/unit/core/artifacts/test_ir_adapter_mapping_contract.py",
+        "postimage_sha256": "f4e8aceb68a8a428e4d778380dbf525c56fc3ceeb87dc0a5eca3fef0504179c7",
+        "postimage_verified_at_commit": true
+      }
+    ],
+    "source_application_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-mapping-975e-source-adoption-20261018/source-application.json",
+      "sha256": "7dd1b79f785ae1824ccad7d8f00517eb99109df81a4d3e94eeb9b05b8b0f11f5",
+      "bytes": 7675
+    }
+  },
+  "review_refs": [
+    {
+      "role": "independent candidate review",
+      "artifact": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-mapping-companion-r1-independent-20261018/review.json",
+        "sha256": "d2c058f37de777b968812ac643e512f80babc27ba012f01e7fe2ee044fd55428",
+        "bytes": 8388
+      }
+    },
+    {
+      "role": "independent candidate review",
+      "artifact": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-mapping-companion-r1-independent-20261018/review.md",
+        "sha256": "fa9466fb1a5aa7ab52504901e2ebe50a5d61bafe17465571f1e6a7a5dec67d23",
+        "bytes": 2434
+      }
+    }
+  ],
+  "property": "Generic Mapping write-option and nested canonical-profile carriers preserve typed selected-profile identity and exact fresh-reader content; malformed-present/unknown mapping inputs fail before persistence.",
+  "P40": "No P40 repair ladder was asserted in the source application; this source commit receipt makes no additional class claim.",
+  "static_quality": {
+    "status": "PASS",
+    "tool": "Ruff check and full-file format check using workspace-root config; exact argv and output refs are retained.",
+    "scope": "Every changed Python source/test postimage in this source adoption application; static evidence only.",
+    "ruff_config": {
+      "path": "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+      "sha256_at_commit": "a446cae5a425fe3c7fe59d3d14f423bf976fb30f6c121c596f4ae3cef8ba1b8e",
+      "bytes": 28194
+    },
+    "receipts": [
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tests/unit/core/artifacts/test_ir_adapter_mapping_contract.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.10445204097777605,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-mapping-975e-source-adoption-20261018/check.stdout.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+          "bytes": 19
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-mapping-975e-source-adoption-20261018/check.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tests/unit/core/artifacts/test_ir_adapter_mapping_contract.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.04324287502095103,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-mapping-975e-source-adoption-20261018/format.stdout.txt",
+          "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50",
+          "bytes": 25
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-mapping-975e-source-adoption-20261018/format.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      }
+    ],
+    "application_declared_qualified_source": "source application records full configured check/format pass for this exact postimage set."
+  },
+  "runtime_status_at_source_adoption": "UNRUN on adopted canonical source; bounded candidate evidence is separately referenced",
+  "source_freeze_at_adoption": {
+    "application_declared": false,
+    "whole_current_source_freeze": "not_established by this batch",
+    "note": "Immutable source commit/tree and application base are recomputed; the current worktree/index may advance independently."
+  },
+  "source_qualification_history": null,
+  "later_related_evidence": [
+    {
+      "evidence": "Whole added CAN Mapping test module passed 24/24 cases. This checks Mapping-carried selected-profile identity and fresh-reader bytes plus malformed-present rejection; it is not producer attestation or an LA-021 history/identity decision.",
+      "outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-mapping-current-actual-20261018/result.json",
+          "sha256": "e16da4de14788d82b26162700034208f187dd4c581c0c1f182a6b62ab24721aa",
+          "bytes": 11289
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-mapping-current-actual-20261018/pytest.xml",
+          "sha256": "12a3d1c1d92aa06a5d8fe7e1916ff3e3fd78a5b89766ea84d9d298d8c1e92a01",
+          "bytes": 5458
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-mapping-current-actual-20261018/pytest.stdout.txt",
+          "sha256": "12784721e0280443291002b595b03384e8588476665647b621a862f07297e08f",
+          "bytes": 80
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-mapping-current-actual-20261018/pytest.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      ],
+      "bounded_actual_receipt_target": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/actual-can-mapping-at-11b7d0dffc75.json"
+    }
+  ],
+  "limits": [
+    "Reader conformance is not producer attestation.",
+    "Profileless history population and rollout owner are not established.",
+    "Core/IR tag-family identity remains an unadjudicated G choice.",
+    "Whole LA-021 remains HOLD; no formal closure.",
+    "24 statically declared cases; actual collection and behavior UNRUN at adoption.",
+    "This is an immutable source commit receipt, not a whole-repository/source-freeze claim.",
+    "No G acceptance or formal closure is carried by source commit, peer review, or bounded actual receipts."
+  ],
+  "next_check_at_adoption": {
+    "module": "tests/unit/core/artifacts/test_ir_adapter_mapping_contract.py",
+    "siblings": "Existing raw-null/profileless-history and Core/IR canon suites in final composed replay."
+  },
+  "G_acceptance": false,
+  "closure_ids": [],
+  "evidence_provenance": [
+    {
+      "predicate": "source commit/tree/parent and tracked changed-path blobs",
+      "classification": "recomputed",
+      "basis": "Git object metadata at the exact immutable commit and parent."
+    },
+    {
+      "predicate": "application postimage/preimage pins",
+      "classification": "recomputed",
+      "basis": "Every path pin in source_application.paths was compared with the source commit/parent Git blob."
+    },
+    {
+      "predicate": "Ruff check and format outcome",
+      "classification": "independently_reconciled",
+      "basis": "Exact source application command/exit record and retained stdout/stderr references."
+    },
+    {
+      "predicate": "peer review decision and candidate scope",
+      "classification": "institutionally_supplied",
+      "basis": "Peer review artifacts are cited by exact path and SHA, but remain proposals rather than G acceptance."
+    },
+    {
+      "predicate": "whole current source freeze and capability closure",
+      "classification": "not_established",
+      "basis": "This batch is source/receipt preparation only; whole-source currentness and formal closures are not claimed."
+    }
+  ]
+}

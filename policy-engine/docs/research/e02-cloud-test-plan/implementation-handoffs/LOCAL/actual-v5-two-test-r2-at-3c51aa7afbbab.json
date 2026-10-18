@@ -1,0 +1,238 @@
+{
+  "schema": "polisyos.e02.actual_test_verification_receipt.v1",
+  "record_type": "actual_test_verification_receipt",
+  "status": "completed_bounded_source_frame_passed",
+  "identity": "v5-two-test-r2-three-case-actual-at-3c51aa7afbbab",
+  "proposal_not_adjudicated": true,
+  "relationship_to_source_commits": [
+    {
+      "implementation_commit": "3c51aa7afbbab44485e0bf80ef08d208dea8b5c4",
+      "tree": "ba4344d1a359b7246d301e2811277ec9f531a45b",
+      "role": "Exact implementation frame against which this selected test command ran."
+    }
+  ],
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "3c51aa7afbbab44485e0bf80ef08d208dea8b5c4",
+    "tree": "ba4344d1a359b7246d301e2811277ec9f531a45b"
+  },
+  "profile": {
+    "scope": "Fresh three-case replay of selected-profile and per-invocation lineage test companions after 144/147 historical run. Resolve actual selected vector profile and actual packet selector; bind both attempts to own persisted packets, compare all other metrics. Controlled backend fixtures. B108 nullable scoring, B157 scientific MethodJob/data/outcome/actual-count join and authority not established. Focused source-bound run, not final composed native freeze or all-thirdparty/pre-sitecustomize proof.",
+    "selected_test_files": [
+      "tests/unit/scientist/nodes/builtins/decide/test_policy_blueprint_runtime_engine.py",
+      "tests/unit/scientist/search/funnel/test_policy_runtime_work_packets.py"
+    ],
+    "invocation_selectors": [
+      "tests/unit/scientist/nodes/builtins/decide/test_policy_blueprint_runtime_engine.py::test_engine_persists_typed_work_packet_with_candidate_and_result_cas_lineage",
+      "tests/unit/scientist/search/funnel/test_policy_runtime_work_packets.py::test_same_run_direct_l4_and_l3_to_l4_persist_joined_invocations"
+    ],
+    "selection_kind": "explicit selected test node(s)",
+    "junit_summary": {
+      "cases": 3,
+      "passed": 3,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "case_denominator": "JUnit testcases emitted by the exact referenced pytest invocation; full stdout and XML are preserved by path and SHA.",
+    "whole_selected_modules": false
+  },
+  "property_vs_measurement": {
+    "property": "Fresh three-case replay of selected-profile and per-invocation lineage test companions after 144/147 historical run. Resolve actual selected vector profile and actual packet selector; bind both attempts to own persisted packets, compare all other metrics. Controlled backend fixtures. B108 nullable scoring, B157 scientific MethodJob/data/outcome/actual-count join and authority not established. Focused source-bound run, not final composed native freeze or all-thirdparty/pre-sitecustomize proof.",
+    "measured_by": "Exact pytest invocation plus JUnit case outcomes; full command/result/stdout/stderr/XML are cited below.",
+    "divergent_case_or_boundary": "Controlled backends establish focused packet/profile/invocation behavior only; B108 nullable scoring, B157 scientific MethodJob/data/outcome/actual-count join, and authority remain not established."
+  },
+  "execution": {
+    "argv": [
+      ".venv/bin/python",
+      "-B",
+      "-m",
+      "pytest",
+      "-p",
+      "e02_wave_capture",
+      "-q",
+      "--basetemp",
+      "/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/v5-two-test-r2-20261018-01/pytest-temp",
+      "-o",
+      "cache_dir=/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/v5-two-test-r2-20261018-01/pytest-cache",
+      "--junitxml",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-two-test-r2-current-actual-20261018/pytest.xml",
+      "tests/unit/scientist/nodes/builtins/decide/test_policy_blueprint_runtime_engine.py::test_engine_persists_typed_work_packet_with_candidate_and_result_cas_lineage",
+      "tests/unit/scientist/search/funnel/test_policy_runtime_work_packets.py::test_same_run_direct_l4_and_l3_to_l4_persist_joined_invocations"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "return_code": 0,
+    "complete": true,
+    "status": "passed",
+    "aborted_reason": null,
+    "wall_seconds": 11.276200958993286,
+    "maximum_sampled_process_tree_rss_bytes": 826327040,
+    "minimum_sampled_disk_free_bytes": 15747534848,
+    "sample_count": 21,
+    "process_group_gone": true,
+    "termination_signal": null
+  },
+  "source_pin_observations": {
+    "all_tracked_working_bytes_unchanged": true,
+    "tracked_pin_count": 25614,
+    "observed_product_origins": 1217,
+    "matched_regular_module_origins": 1217,
+    "origin_mismatches": [],
+    "qualification_limit": "The recorded origin census is regular product-module origin matching only; it is not a pre-sitecustomize or all-third-party environment provenance proof."
+  },
+  "result": {
+    "complete": true,
+    "execution_passed": true,
+    "source_bound_to_exact_frame": true,
+    "junit": {
+      "cases": 3,
+      "passed": 3,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "actual_removal_controls": "UNRUN separately",
+    "G_acceptance": false,
+    "closure_ids": []
+  },
+  "inputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-two-test-r2-current-actual-20261018/run.py",
+      "sha256": "2f8da20872267baa448db181f48d74849ec26ec5c44d8cc05697db5f7ce1021b",
+      "bytes": 4977
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-two-test-r2-current-actual-20261018/working-source-before.json",
+      "sha256": "38f42742cef961553f889751da1206f5d3cee999efc49a2796f29dbeb2bfe47b",
+      "bytes": 4679981
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-two-test-r2-current-actual-20261018/execution-provenance.json",
+      "sha256": "353e8020d0d99a9f55781fee28a3ed1f65deb5193c694e279d81fbf9fec9944e",
+      "bytes": 1119007
+    }
+  ],
+  "deciding_outputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-two-test-r2-current-actual-20261018/result.json",
+      "sha256": "9e6a1f051dde8ac2c6c48f6a356ba7ce7d2b04344a079d15f1b463d29b23e110",
+      "bytes": 4009
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-two-test-r2-current-actual-20261018/pytest.xml",
+      "sha256": "d34a988593fe73efa21b63c3ca4b7aa63299d1229d26ac163a494d56fcf8a467",
+      "bytes": 887
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-two-test-r2-current-actual-20261018/pytest.stdout.txt",
+      "sha256": "cf426ab35f3b06fccef8290fde5325d90af130a79da1d1752031518df77c4236",
+      "bytes": 80
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-two-test-r2-current-actual-20261018/pytest.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-two-test-r2-current-actual-20261018/controller-events.jsonl",
+      "sha256": "47afb0f93d95718afc5f2809c2c8e375d28cee5597528870ba9d3f0dac92b681",
+      "bytes": 1283
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-two-test-r2-current-actual-20261018/phase-output.jsonl",
+      "sha256": "55e4dc5c6f10d6acf494cac3155c24df76c43cac2835c8bd983f120cfebee4c7",
+      "bytes": 1218
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-two-test-r2-current-actual-20261018/process-tree.jsonl",
+      "sha256": "57b13e034d69caa9fcb0033ecd250113569b6b0235fbf97fd7e15af8690e3a9b",
+      "bytes": 25380
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-two-test-r2-current-actual-20261018/execution-provenance.json",
+      "sha256": "353e8020d0d99a9f55781fee28a3ed1f65deb5193c694e279d81fbf9fec9944e",
+      "bytes": 1119007
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-two-test-r2-current-actual-20261018/driver.stdout.txt",
+      "sha256": "9e6a1f051dde8ac2c6c48f6a356ba7ce7d2b04344a079d15f1b463d29b23e110",
+      "bytes": 4009
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-two-test-r2-current-actual-20261018/driver.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  ],
+  "limits": [
+    "Bounded result only for the exact selectors and source frame above; no G acceptance or formal closure is claimed.",
+    "The per-run origin census does not establish startup import provenance or all third-party origins.",
+    "See property_vs_measurement.divergent_case_or_boundary for the materially excluded capability/property."
+  ],
+  "next_check": {
+    "required": "Use the source owner’s separately scoped full importer/property replay and evidence profile; do not generalize this selected run to whole-component acceptance.",
+    "scope_status": "The exact frame is immutable; this batch does not assert a current global source freeze."
+  },
+  "G_acceptance": false,
+  "closure_ids": [],
+  "predicate_provenance": [
+    {
+      "predicate": "source commit and tree identity",
+      "classification": "recomputed",
+      "basis": "Git object metadata and exact source-frame equality with result.json."
+    },
+    {
+      "predicate": "pytest case outcome/count",
+      "classification": "independently_reconciled",
+      "basis": "Parsed referenced JUnit XML and compared with the exact result.json summary."
+    },
+    {
+      "predicate": "tracked working bytes unchanged and observed product origins",
+      "classification": "consumer_asserted",
+      "basis": "Recorded runner result; not independently reconstructed by this receipt."
+    },
+    {
+      "predicate": "broader runtime capability, authority, or formal closure",
+      "classification": "not_established",
+      "basis": "Bounded test scope and explicit limits above."
+    }
+  ],
+  "historical_pre_fixture_run": {
+    "source_frame": {
+      "HEAD": "d398bb0d1107b8ec0a2e648b42927994657d1665",
+      "tree": "8db8983f940d31bb94a91bc4b22b42dcf2b6bddf",
+      "branch": "codex/e02-unified-local-20261009"
+    },
+    "junit": {
+      "cases": 147,
+      "passed": 144,
+      "failed": 3,
+      "errors": 0,
+      "skipped": 0
+    },
+    "scope": "Ten whole modules of reviewed V5 source at clean d398 commit. Focused blast-radius replay; no final composed input/backend freeze, no pre-sitecustomize/all-thirdparty origin proof. Real ProductionPolicyEvaluationBackend-to-CAS fresh-consumer positive is separate UNRUN companion; B108 nullable score and B157 scientific MethodJob draw join stay limited/held.",
+    "outputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-d398-ten-modules-actual-20261018/result.json",
+        "sha256": "01827dd68282014e62c888a299d34a0342b289d95706126f58caaedc3eaaf1d5",
+        "bytes": 44609
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-d398-ten-modules-actual-20261018/pytest.xml",
+        "sha256": "51e44bd859e3ce72613763d167d814bb2bfb72c8185e652e7c330d69d1ee2d0c",
+        "bytes": 38743
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-d398-ten-modules-actual-20261018/pytest.stdout.txt",
+        "sha256": "e9531469378479e805cec1dc3eae21e2870a6dafa576f4375672f6a9dcb8c0f3",
+        "bytes": 12287
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-d398-ten-modules-actual-20261018/pytest.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    ],
+    "interpretation": "Historical d398 ten-module run recorded 144 passed / 3 failed / 0 errors / 0 skipped. This R2 focused 3-case pass is a newer, narrower result and does not erase that broader red or establish whole V5."
+  }
+}

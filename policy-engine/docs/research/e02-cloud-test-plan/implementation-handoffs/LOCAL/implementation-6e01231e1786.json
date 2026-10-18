@@ -1,0 +1,301 @@
+{
+  "schema": "polisyos.e02.native_source_commit_receipt.v1",
+  "record_type": "implementation_commit_receipt",
+  "status": "source_committed_static_ruff_pass_runtime_unrun_at_adoption",
+  "proposal_not_adjudicated": true,
+  "source_commit": {
+    "sha": "6e01231e178688ee7305473ffe152efc2c5e3e92",
+    "tree": "9a360ca45ea13b5907adffefe7eee2fbdae290d4",
+    "parents": [
+      "ce7c69c0c5a77a068c51530946add555f66f7645"
+    ],
+    "subject": "test(causal): resolve persisted value identity instead of checking length",
+    "branch_ref": "refs/heads/codex/e02-unified-local-20261009"
+  },
+  "source_base": {
+    "sha": "ce7c69c0c5a77a068c51530946add555f66f7645",
+    "tree": "81c19d824deac5e8c6004693d8f83db8643eb0b0"
+  },
+  "changed_paths": [
+    {
+      "change": "M",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "category": "coordination_metadata",
+      "sha256_at_commit": "ce4a0b0d57f32b045e91839f3c404fa6bada9e2a2f51172670de5eaad3e52e56",
+      "bytes": 836446,
+      "role": "required_receipt_index_or_lease_companion"
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "category": "coordination_metadata",
+      "sha256_at_commit": "456b118092162d38dfe99f766ceb91f2dd6792942eaa4404c7ff9d10fdc6c843",
+      "bytes": 74362,
+      "role": "required_receipt_index_or_lease_companion"
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/tests/unit/runtime/quality/test_value_gate.py",
+      "category": "test",
+      "sha256_at_commit": "4353a68dbd0d9532134741ea3ac9b36b90aa2b24fcbbe2149bb5fa591366d4b9",
+      "bytes": 289925,
+      "role": "mandatory_test_companion"
+    }
+  ],
+  "source_application": {
+    "identity": "b31-content-resolved-artifact-test-r5-20261018",
+    "lease_key": "b31-content-resolved-artifact-test-r5-20261018",
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b31-r5-ce7-source-adoption-20261018/source-application.json",
+      "sha256": "4dcd56df9329a29a0094826a6e268367ea77ef23b273b937d318e9e9bbf7e83b",
+      "bytes": 4103
+    },
+    "commit_request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b31-r5-ce7-source-adoption-20261018/commit-request.json",
+      "sha256": "667e3e7521fff5c27de7f00e77f5a2250122ff153de094b883d001f363d7cc93",
+      "bytes": 768
+    },
+    "commit_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b31-r5-ce7-source-adoption-20261018/b31-content-resolved-artifact-test-r5-20261018-readback.json",
+      "sha256": "8dd6a0b308d633402a086827b59565c35556cb27e34e5dc757b23f9f36a654cf",
+      "bytes": 1109
+    },
+    "candidate_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-s3-b31-channel-preservation-test-r5-20261018/candidate.json",
+        "sha256": "3ed296ee887af481b098b4e83428c1dc058e4fca5804270caf005b2000422210",
+        "bytes": 11046
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-s3-b31-channel-preservation-test-r5-20261018/candidate.patch",
+        "sha256": "dd3ce4327a4123b2bcd89dcbe0db309bbdf66ac6a8afc8c3a172bdae8899a356",
+        "bytes": 619
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-s3-b31-r5-delta-independent-20261018/manifest.json",
+        "sha256": "56eb1c85c3ac7a468af28de61a799ecea2e60f65936bda9de47f317d30bd4558",
+        "bytes": 636
+      }
+    ],
+    "adoption_outputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b31-r5-ce7-source-adoption-20261018/check.stdout.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "bytes": 19
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b31-r5-ce7-source-adoption-20261018/check.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b31-r5-ce7-source-adoption-20261018/format.stdout.txt",
+        "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50",
+        "bytes": 25
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b31-r5-ce7-source-adoption-20261018/format.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b31-r5-ce7-source-adoption-20261018/b31-content-resolved-artifact-test-r5-20261018-commit.stdout.txt",
+        "sha256": "cde88afe11b60d9049fa84c18e6836a59f3ced6b114495d6b3183c8b0c45e0bb",
+        "bytes": 170
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b31-r5-ce7-source-adoption-20261018/b31-content-resolved-artifact-test-r5-20261018-commit.stderr.txt",
+        "sha256": "c05d309561a00a0ce89a2ff9f3b7b2088b12c25a4c4eab8cc6969f32fa46ab43",
+        "bytes": 653
+      }
+    ],
+    "adopted_present_patch": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-s3-b31-channel-preservation-test-r5-20261018/candidate.patch",
+      "sha256": "dd3ce4327a4123b2bcd89dcbe0db309bbdf66ac6a8afc8c3a172bdae8899a356",
+      "bytes": 619
+    }
+  },
+  "source_path_pin_validation": {
+    "path_pin_count": 1,
+    "pins": [
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_value_gate.py",
+        "postimage_sha256": "4353a68dbd0d9532134741ea3ac9b36b90aa2b24fcbbe2149bb5fa591366d4b9",
+        "postimage_verified_at_commit": true,
+        "preimage_sha256": "da7b74c4b01b2b558a56008c9a6997fb8fa216232c268609031b8881d3274bca",
+        "preimage_verified_at_base": true
+      }
+    ],
+    "source_application_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b31-r5-ce7-source-adoption-20261018/source-application.json",
+      "sha256": "4dcd56df9329a29a0094826a6e268367ea77ef23b273b937d318e9e9bbf7e83b",
+      "bytes": 4103
+    }
+  },
+  "review_refs": [
+    {
+      "role": "independent candidate review",
+      "artifact": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-s3-b31-r5-delta-independent-20261018/review.json",
+        "sha256": "102e4125eb8a1f2d188e6ee75ac118014f3846f27af949fcb5d714543e28c37d",
+        "bytes": 6014
+      }
+    },
+    {
+      "role": "independent candidate review",
+      "artifact": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-s3-b31-r5-delta-independent-20261018/review.md",
+        "sha256": "3c800be4493aa66ac5065757c1f8482e7c3f87d3230ff552baf48fedd12356c2",
+        "bytes": 2124
+      }
+    },
+    {
+      "role": "review manifest",
+      "artifact": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-s3-b31-r5-delta-independent-20261018/manifest.json",
+        "sha256": "56eb1c85c3ac7a468af28de61a799ecea2e60f65936bda9de47f317d30bd4558",
+        "bytes": 636
+      }
+    }
+  ],
+  "property": "Resolve persisted typed ArtifactID and content/basis/consumer bindings; remove only the incorrect identifier-length proxy before that stronger oracle.",
+  "P40": "New P38 identifier-form proxy class, distinct from the now exercised per-field source unit fixture. No new identifier-length or prefix-only substitute.",
+  "static_quality": {
+    "status": "PASS",
+    "tool": "Ruff check and full-file format check using workspace-root config; exact argv and output refs are retained.",
+    "scope": "Every changed Python source/test postimage in this source adoption application; static evidence only.",
+    "ruff_config": {
+      "path": "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+      "sha256_at_commit": "a446cae5a425fe3c7fe59d3d14f423bf976fb30f6c121c596f4ae3cef8ba1b8e",
+      "bytes": 28194
+    },
+    "receipts": [
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tests/unit/runtime/quality/test_value_gate.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.05135583318769932,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b31-r5-ce7-source-adoption-20261018/check.stdout.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+          "bytes": 19
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b31-r5-ce7-source-adoption-20261018/check.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tests/unit/runtime/quality/test_value_gate.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.049541624961420894,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b31-r5-ce7-source-adoption-20261018/format.stdout.txt",
+          "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50",
+          "bytes": 25
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b31-r5-ce7-source-adoption-20261018/format.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      }
+    ],
+    "application_declared_qualified_source": "source application records full configured check/format pass for this exact postimage set."
+  },
+  "runtime_status_at_source_adoption": "UNRUN at adoption",
+  "source_freeze_at_adoption": {
+    "application_declared": "not_declared",
+    "whole_current_source_freeze": "not_established by this batch",
+    "note": "Immutable source commit/tree and application base are recomputed; the current worktree/index may advance independently."
+  },
+  "source_qualification_history": null,
+  "later_related_evidence": [
+    {
+      "evidence": "The one focused typed-CAS identity/content-bound consumer test passed at this exact R5 frame. It remains a synthetic report/bounds fixture and does not establish authentic causal data, owner authority, or formal B31 closure.",
+      "outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b31-r5-focused-channel-actual-20261018/result.json",
+          "sha256": "e70c54d9ddbfbc081291dbc0ca4ece9734cdbe435b4e7c07e27e643473378532",
+          "bytes": 3104
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b31-r5-focused-channel-actual-20261018/pytest.xml",
+          "sha256": "244caf0585694e55dd47b591f1b71c595864a00284a61cc1a25848989b259a83",
+          "bytes": 426
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b31-r5-focused-channel-actual-20261018/pytest.stdout.txt",
+          "sha256": "423b1d0e014eb1eab96f4420f7b344c2615be505dd574b756ac884826ca74f2d",
+          "bytes": 80
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b31-r5-focused-channel-actual-20261018/pytest.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      ],
+      "bounded_actual_receipt_target": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/actual-b31-r5-typed-cas-at-6e01231e1786.json"
+    }
+  ],
+  "limits": [
+    "Synthetic report/bounds carry no authority or authentic causal fact.",
+    "New selector remains UNRUN on this revision.",
+    "Candidate metadata overstates remaining len assertions; reviewer also found a legitimate outcome-diversity cardinality check, no remaining ID-length proxy.",
+    "This is an immutable source commit receipt, not a whole-repository/source-freeze claim.",
+    "No G acceptance or formal closure is carried by source commit, peer review, or bounded actual receipts."
+  ],
+  "next_check_at_adoption": {
+    "selector": "tests/unit/runtime/quality/test_value_gate.py::test_n8_source_projection_preserves_synthetic_asymmetric_ci_through_fresh_cas"
+  },
+  "G_acceptance": false,
+  "closure_ids": [],
+  "evidence_provenance": [
+    {
+      "predicate": "source commit/tree/parent and tracked changed-path blobs",
+      "classification": "recomputed",
+      "basis": "Git object metadata at the exact immutable commit and parent."
+    },
+    {
+      "predicate": "application postimage/preimage pins",
+      "classification": "recomputed",
+      "basis": "Every path pin in source_application.paths was compared with the source commit/parent Git blob."
+    },
+    {
+      "predicate": "Ruff check and format outcome",
+      "classification": "independently_reconciled",
+      "basis": "Exact source application command/exit record and retained stdout/stderr references."
+    },
+    {
+      "predicate": "peer review decision and candidate scope",
+      "classification": "institutionally_supplied",
+      "basis": "Peer review artifacts are cited by exact path and SHA, but remain proposals rather than G acceptance."
+    },
+    {
+      "predicate": "whole current source freeze and capability closure",
+      "classification": "not_established",
+      "basis": "This batch is source/receipt preparation only; whole-source currentness and formal closures are not claimed."
+    }
+  ]
+}

@@ -1,0 +1,388 @@
+{
+  "schema": "polisyos.e02.native_source_commit_receipt.v1",
+  "record_type": "implementation_commit_receipt",
+  "status": "source_committed_static_ruff_pass_runtime_unrun_at_adoption",
+  "proposal_not_adjudicated": true,
+  "source_commit": {
+    "sha": "53e4cedf0071131328e26e4870e3c5da975d8cb8",
+    "tree": "9077a6cab64e40112fcd44ca263637dc4aca5d85",
+    "parents": [
+      "6e01231e178688ee7305473ffe152efc2c5e3e92"
+    ],
+    "subject": "fix(trust): confine corruption workers and validate scratch before allocation",
+    "branch_ref": "refs/heads/codex/e02-unified-local-20261009"
+  },
+  "source_base": {
+    "sha": "6e01231e178688ee7305473ffe152efc2c5e3e92",
+    "tree": "9a360ca45ea13b5907adffefe7eee2fbdae290d4"
+  },
+  "changed_paths": [
+    {
+      "change": "M",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "category": "coordination_metadata",
+      "sha256_at_commit": "47e43e1793e55ce779a65287a1567e2c8b0587df3d30535fe25a040278ebc35a",
+      "bytes": 844554,
+      "role": "required_receipt_index_or_lease_companion"
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "category": "coordination_metadata",
+      "sha256_at_commit": "f9d66e67585cd556cd7d9bf2422c24cad1cc3772c947ab5266687c14f95b6b4e",
+      "bytes": 74362,
+      "role": "required_receipt_index_or_lease_companion"
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/tests/repo_quality/tools/test_architecture_phase3.py",
+      "category": "test",
+      "sha256_at_commit": "1b4f5cc215e9ba5f40941c4bfa86774fb3555eda2e390c5e1f4c6e7720bdc75b",
+      "bytes": 106202,
+      "role": "mandatory_test_companion"
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/tests/repo_quality/tools/test_trust_claim_posture.py",
+      "category": "test",
+      "sha256_at_commit": "6912cf1c6a06b5357869d106a775b62b0b6aadd4f2841ef8bde1e6cf6d8b75fc",
+      "bytes": 115559,
+      "role": "mandatory_test_companion"
+    },
+    {
+      "change": "A",
+      "path": "policy-engine/tests/unit/tools/test_runner.py",
+      "category": "test",
+      "sha256_at_commit": "abf1ef3053789f5e0fe3f0b96832002957a24f23c99d8624de1bfee588940d4d",
+      "bytes": 8185,
+      "role": "mandatory_test_companion"
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/tools/devx/architecture/guardrails.py",
+      "category": "implementation_source",
+      "sha256_at_commit": "73a4c496f15be8cf51b121f9dca42ef28da0ead838698b4863bc65e58de8cb4c",
+      "bytes": 235378,
+      "role": "source"
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/tools/lib/runner.py",
+      "category": "implementation_source",
+      "sha256_at_commit": "7370d00a43eda040debb5d5173d67bf4c2dae03a40799d78892a63e21a66e093",
+      "bytes": 15396,
+      "role": "source"
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/tools/quality/validation/check_trust_claim_posture.py",
+      "category": "implementation_source",
+      "sha256_at_commit": "0601ea26a630dc8d5df99b67c008a3f572e1d134d09d918f79922c232f04553b",
+      "bytes": 45132,
+      "role": "source"
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/tools/quality/validation/trust_claim_posture_artifact_lifecycle.py",
+      "category": "implementation_source",
+      "sha256_at_commit": "87231a300ced337ddad5e1bd3cfeb4f45d34e8ca6007055e9f4d4b06e8a4f7c0",
+      "bytes": 32301,
+      "role": "source"
+    }
+  ],
+  "source_application": {
+    "identity": "trust-family-copy-and-worker-os-write-boundary-r3-20261018",
+    "lease_key": "trust-family-copy-and-worker-os-write-boundary-r3-20261018",
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r3-qualified-canonical-adoption-20261018/source-application.json",
+      "sha256": "940e8cca239eaef9cb654cac114b3b91780059bfcab665b3c717b062c0d328ac",
+      "bytes": 10583
+    },
+    "commit_request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r3-qualified-canonical-adoption-20261018/commit-request.json",
+      "sha256": "c2a6fcd844a93d9bfee6505675f0f3a3083f4b8a1cd62b3c013261841c3e3cd7",
+      "bytes": 1589
+    },
+    "commit_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r3-qualified-canonical-adoption-20261018/trust-family-copy-and-worker-os-write-boundary-r3-20261018-readback.json",
+      "sha256": "d1047b32ecb9fb7ae7e9b2c0e9409e533591dfedea2e1e1b718592e992370358",
+      "bytes": 2315
+    },
+    "candidate_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-original-checkout-write-boundary-r3-20261018/candidate.patch",
+        "sha256": "3c7c3656ac02b891cb62df4e9424e92c9d64dac4e7861331c16d23dea6742405",
+        "bytes": 38451
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r3-independent-20261018/manifest.json",
+        "sha256": "a277a85e84af76f98074b4ed0618adea7e151afdd47492e36da609e54d94a968",
+        "bytes": 865
+      }
+    ],
+    "adoption_outputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r3-qualified-canonical-adoption-20261018/check.stdout.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "bytes": 19
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r3-qualified-canonical-adoption-20261018/check.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r3-qualified-canonical-adoption-20261018/format.stdout.txt",
+        "sha256": "0321fffcb91606a42c0a19d8c1121d5c544379d663821fce616c71a7bb62f6b5",
+        "bytes": 26
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r3-qualified-canonical-adoption-20261018/format.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r3-qualified-canonical-adoption-20261018/trust-family-copy-and-worker-os-write-boundary-r3-20261018-commit.stdout.txt",
+        "sha256": "cc8f515817ecf9ea807d149f4cbb64041b6ce9b51954fe7567b6b9a2e667d9f5",
+        "bytes": 242
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r3-qualified-canonical-adoption-20261018/trust-family-copy-and-worker-os-write-boundary-r3-20261018-commit.stderr.txt",
+        "sha256": "05142ea98b9bab9e9ec2b1f53e99fef73dd66b21a7712bf6024f595930617ade",
+        "bytes": 653
+      }
+    ],
+    "adopted_present_patch": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-original-checkout-write-boundary-r3-20261018/candidate.patch",
+      "sha256": "3c7c3656ac02b891cb62df4e9424e92c9d64dac4e7861331c16d23dea6742405",
+      "bytes": 38451
+    }
+  },
+  "source_path_pin_validation": {
+    "path_pin_count": 7,
+    "pins": [
+      {
+        "path": "policy-engine/tools/devx/architecture/guardrails.py",
+        "postimage_sha256": "73a4c496f15be8cf51b121f9dca42ef28da0ead838698b4863bc65e58de8cb4c",
+        "postimage_verified_at_commit": true,
+        "preimage_sha256": "e62a7410d62711ec2c6c187d783ede614bb8759e458c54d55bb97ca19a1d2d8c",
+        "preimage_verified_at_base": true
+      },
+      {
+        "path": "policy-engine/tools/lib/runner.py",
+        "postimage_sha256": "7370d00a43eda040debb5d5173d67bf4c2dae03a40799d78892a63e21a66e093",
+        "postimage_verified_at_commit": true,
+        "preimage_sha256": "fd625d8c102c862050b20f83ddc121d5af85330b991d929466ba180dd336a3ca",
+        "preimage_verified_at_base": true
+      },
+      {
+        "path": "policy-engine/tools/quality/validation/check_trust_claim_posture.py",
+        "postimage_sha256": "0601ea26a630dc8d5df99b67c008a3f572e1d134d09d918f79922c232f04553b",
+        "postimage_verified_at_commit": true,
+        "preimage_sha256": "27a3c448c1eb70ada48c6d6484451de765a468b3b672e56066f2595a882f600b",
+        "preimage_verified_at_base": true
+      },
+      {
+        "path": "policy-engine/tools/quality/validation/trust_claim_posture_artifact_lifecycle.py",
+        "postimage_sha256": "87231a300ced337ddad5e1bd3cfeb4f45d34e8ca6007055e9f4d4b06e8a4f7c0",
+        "postimage_verified_at_commit": true,
+        "preimage_sha256": "66d2824241db80917726345f897aa709ee3d670eecd580a34996471561838fe2",
+        "preimage_verified_at_base": true
+      },
+      {
+        "path": "policy-engine/tests/repo_quality/tools/test_architecture_phase3.py",
+        "postimage_sha256": "1b4f5cc215e9ba5f40941c4bfa86774fb3555eda2e390c5e1f4c6e7720bdc75b",
+        "postimage_verified_at_commit": true,
+        "preimage_sha256": "d879e45cc599a158c1bfa2d1b71d497a30ef6bf6c00368a679962be323c97bc2",
+        "preimage_verified_at_base": true
+      },
+      {
+        "path": "policy-engine/tests/repo_quality/tools/test_trust_claim_posture.py",
+        "postimage_sha256": "6912cf1c6a06b5357869d106a775b62b0b6aadd4f2841ef8bde1e6cf6d8b75fc",
+        "postimage_verified_at_commit": true,
+        "preimage_sha256": "9ae4be1203bb134aae29d19803b35c6de3d469ede766b2c7d304e3c9f3ac4f0d",
+        "preimage_verified_at_base": true
+      },
+      {
+        "path": "policy-engine/tests/unit/tools/test_runner.py",
+        "postimage_sha256": "abf1ef3053789f5e0fe3f0b96832002957a24f23c99d8624de1bfee588940d4d",
+        "postimage_verified_at_commit": true
+      }
+    ],
+    "source_application_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r3-qualified-canonical-adoption-20261018/source-application.json",
+      "sha256": "940e8cca239eaef9cb654cac114b3b91780059bfcab665b3c717b062c0d328ac",
+      "bytes": 10583
+    }
+  },
+  "review_refs": [
+    {
+      "role": "independent candidate review",
+      "artifact": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r3-independent-20261018/review.json",
+        "sha256": "d1a7e0d3cba61321f5460a494ae20694fca7502465054eaf283438715a038c82",
+        "bytes": 12948
+      }
+    },
+    {
+      "role": "independent candidate review",
+      "artifact": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r3-independent-20261018/review.md",
+        "sha256": "024ef137834bbbdfdc3de62041df97e876c6b8ffe90cbe449b637b91fb8ab445",
+        "bytes": 6877
+      }
+    },
+    {
+      "role": "review manifest",
+      "artifact": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r3-independent-20261018/manifest.json",
+        "sha256": "a277a85e84af76f98074b4ed0618adea7e151afdd47492e36da609e54d94a968",
+        "bytes": 865
+      }
+    },
+    {
+      "role": "independent delta qualification",
+      "artifact": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-four-import-delta-independent-20261018/review.json",
+        "sha256": "50c6a2e6618c42a755899f4f324133e894968a2077359976f9bd329827ec6ab8",
+        "bytes": 3121
+      }
+    }
+  ],
+  "property": "Read only the declared generated-family copy basis for semantic corruption probes while enforcing an OS write fence over the worker process tree; validate external no-follow scratch base before allocation; preserve typed unavailable/timeout outcomes and all 15 semantic probe identities.",
+  "P40": "Same read-basis/write-confinement class, widened at shared run_command and all parent scratch allocations rather than per RAW file exceptions.",
+  "static_quality": {
+    "status": "PASS",
+    "tool": "Ruff check and full-file format check using workspace-root config; exact argv and output refs are retained.",
+    "scope": "Every changed Python source/test postimage in this source adoption application; static evidence only.",
+    "ruff_config": {
+      "path": "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+      "sha256_at_commit": "a446cae5a425fe3c7fe59d3d14f423bf976fb30f6c121c596f4ae3cef8ba1b8e",
+      "bytes": 28194
+    },
+    "receipts": [
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tools/devx/architecture/guardrails.py",
+          "policy-engine/tools/lib/runner.py",
+          "policy-engine/tools/quality/validation/check_trust_claim_posture.py",
+          "policy-engine/tools/quality/validation/trust_claim_posture_artifact_lifecycle.py",
+          "policy-engine/tests/repo_quality/tools/test_architecture_phase3.py",
+          "policy-engine/tests/repo_quality/tools/test_trust_claim_posture.py",
+          "policy-engine/tests/unit/tools/test_runner.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.11723891599103808,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r3-qualified-canonical-adoption-20261018/check.stdout.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+          "bytes": 19
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r3-qualified-canonical-adoption-20261018/check.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tools/devx/architecture/guardrails.py",
+          "policy-engine/tools/lib/runner.py",
+          "policy-engine/tools/quality/validation/check_trust_claim_posture.py",
+          "policy-engine/tools/quality/validation/trust_claim_posture_artifact_lifecycle.py",
+          "policy-engine/tests/repo_quality/tools/test_architecture_phase3.py",
+          "policy-engine/tests/repo_quality/tools/test_trust_claim_posture.py",
+          "policy-engine/tests/unit/tools/test_runner.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.046734041068702936,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r3-qualified-canonical-adoption-20261018/format.stdout.txt",
+          "sha256": "0321fffcb91606a42c0a19d8c1121d5c544379d663821fce616c71a7bb62f6b5",
+          "bytes": 26
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r3-qualified-canonical-adoption-20261018/format.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      }
+    ],
+    "application_declared_qualified_source": "Reviewed4blanklineinsertions only, ASTunchanged, bothnativecanonicalRuffgatesnowPASS7files"
+  },
+  "runtime_status_at_source_adoption": "UNRUN on qualified canonical source; candidate OS controls separately bounded",
+  "source_freeze_at_adoption": {
+    "application_declared": "not_declared",
+    "whole_current_source_freeze": "not_established by this batch",
+    "note": "Immutable source commit/tree and application base are recomputed; the current worktree/index may advance independently."
+  },
+  "source_qualification_history": {
+    "original_adoption_failure": "Exact7semanticpostimages applied; canonicalformat7PASS, checkI0014 failed beforeLEASE/index/commit. Failed subsequent commit invocation found no request and made no Git mutation. No reset/restore performed.",
+    "qualification": "Reviewed4blanklineinsertions only, ASTunchanged, bothnativecanonicalRuffgatesnowPASS7files"
+  },
+  "later_related_evidence": [
+    {
+      "evidence": "No full Trust15/current-native-checker runtime was run on this adopted source. The earlier Linux candidate bundle is not this exact source frame and is not carried as current evidence.",
+      "outputs": []
+    }
+  ],
+  "limits": [
+    "Mac bounded OS controls and preallocation tests passed on candidate; full Trust15 probes/current native checker remain UNRUN.",
+    "Linux bwrap selected backend remains not established by generic launch alone; independently measured local provision and property probes are separate.",
+    "Concurrent external ancestor replacement after no-follow preflight remains a declared residual; no claim of atomic host directory custody.",
+    "Original generated-family snapshot integrity and worker process-tree OS write fence are distinct proof planes.",
+    "No external currentness, G acceptance, renewed exception, or formal closure.",
+    "This is an immutable source commit receipt, not a whole-repository/source-freeze claim.",
+    "No G acceptance or formal closure is carried by source commit, peer review, or bounded actual receipts."
+  ],
+  "next_check_at_adoption": {
+    "generic": "tests/unit/tools/test_runner.py",
+    "semantic": "check-trust-claim-posture --check --corruption-probes plus whole Trust/architecture importer profile on composed source/input freeze; regenerate canonical artifact first after all source changes"
+  },
+  "G_acceptance": false,
+  "closure_ids": [],
+  "evidence_provenance": [
+    {
+      "predicate": "source commit/tree/parent and tracked changed-path blobs",
+      "classification": "recomputed",
+      "basis": "Git object metadata at the exact immutable commit and parent."
+    },
+    {
+      "predicate": "application postimage/preimage pins",
+      "classification": "recomputed",
+      "basis": "Every path pin in source_application.paths was compared with the source commit/parent Git blob."
+    },
+    {
+      "predicate": "Ruff check and format outcome",
+      "classification": "independently_reconciled",
+      "basis": "Exact source application command/exit record and retained stdout/stderr references."
+    },
+    {
+      "predicate": "peer review decision and candidate scope",
+      "classification": "institutionally_supplied",
+      "basis": "Peer review artifacts are cited by exact path and SHA, but remain proposals rather than G acceptance."
+    },
+    {
+      "predicate": "whole current source freeze and capability closure",
+      "classification": "not_established",
+      "basis": "This batch is source/receipt preparation only; whole-source currentness and formal closures are not claimed."
+    }
+  ]
+}

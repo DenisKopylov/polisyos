@@ -4858,6 +4858,7 @@ class ControlPlaneService(
                         models=requested_models,
                         producer_settlement_store=producer_settlement_store,
                         producer_run_binding=producer_run_binding,
+                        pre_admission_attempt_id=pre_admission_attempt_id,
                         producer_budget_key=f"nl-run:{run_id}",
                         require_producer_settlement=True,
                     )

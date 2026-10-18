@@ -146,7 +146,11 @@ export default function AgentPipelinePanel({
     return null;
   }, [pipeline.attempts, selectedKey]);
 
-  if (!pipeline.attempts.length) {
+  if (
+    !pipeline.attempts.length &&
+    !pipeline.unattributedCostEvents.length &&
+    !pipeline.unattributedCostScalars.length
+  ) {
     return (
       <EmptyState
         title={t("panels.agentPipeline.unavailableTitle")}
@@ -197,6 +201,67 @@ export default function AgentPipelinePanel({
         <div className="border-warning/30 bg-warning/5 text-warning rounded-xl border p-2 text-xs">
           {pipeline.notes.join(" · ")}
         </div>
+      ) : null}
+
+      {pipeline.unattributedCostEvents.length ? (
+        <section className="bg-warning/5 border-warning/30 rounded-xl border p-3">
+          <h4 className="mb-2 text-sm font-semibold">
+            {t("panels.agentPipeline.unattributedCostEvents")}
+          </h4>
+          <p className="text-muted mb-2 text-xs">
+            {t("panels.agentPipeline.unassignedAttemptScope")}
+          </p>
+          <ul className="space-y-1 text-xs">
+            {pipeline.unattributedCostEvents.map((event) => (
+              <li key={event.eventId}>
+                <span className="font-mono">{event.eventId}</span>
+                {" · "}
+                <span className="font-medium">{event.costOrigin}</span>
+                {" · "}
+                {event.settlementStatus}
+                {" · "}
+                {event.costUsd != null
+                  ? formatCurrency(event.costUsd, "USD", undefined, {
+                      maximumFractionDigits: 6,
+                    })
+                  : t("panels.agentPipeline.costUnknown")}
+                {event.preAdmissionAttemptId
+                  ? ` · ${t("panels.agentPipeline.preAdmissionAttempt")}: ${event.preAdmissionAttemptId}`
+                  : ""}
+                {event.originEventId ? ` · ${event.originEventId}` : ""}
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
+
+      {pipeline.unattributedCostScalars.length ? (
+        <section className="bg-warning/5 border-warning/30 rounded-xl border p-3">
+          <h4 className="mb-2 text-sm font-semibold">
+            {t("panels.agentPipeline.unattributedCostScalars")}
+          </h4>
+          <p className="text-muted mb-2 text-xs">
+            {t("panels.agentPipeline.unassignedScalarScope")}
+          </p>
+          <ul className="space-y-1 text-xs">
+            {pipeline.unattributedCostScalars.map((scalar, index) => (
+              <li
+                key={`${scalar.sourceKind}:${scalar.sourceField}:${scalar.attempt ?? "na"}:${scalar.sourceIndex ?? index}`}
+              >
+                <span className="font-mono">
+                  {scalar.sourceKind}.{scalar.sourceField}
+                </span>
+                {" · "}
+                {formatCurrency(scalar.claimedValueUsd, "USD", undefined, {
+                  maximumFractionDigits: 6,
+                })}
+                {" · "}
+                {scalar.scope}
+                {scalar.modelVariantId ? ` · ${scalar.modelVariantId}` : ""}
+              </li>
+            ))}
+          </ul>
+        </section>
       ) : null}
 
       {pipeline.performanceSummary ? (
@@ -589,6 +654,13 @@ export default function AgentPipelinePanel({
               })}
             </p>
           </div>
+          <p className="text-muted mb-2 text-xs">
+            {pipeline.ownerControlJobAttempt !== null
+              ? t("panels.agentPipeline.ownerAttemptScope", {
+                  attempt: pipeline.ownerControlJobAttempt,
+                })
+              : t("panels.agentPipeline.ownerAttemptUnknown")}
+          </p>
           <div className="space-y-2">
             {modelSummary.map((row) => (
               <div
@@ -834,6 +906,9 @@ export default function AgentPipelinePanel({
                               maximumFractionDigits: 6,
                             })
                           : t("panels.agentPipeline.costUnknown")}
+                        {event.currentOwnerEligible
+                          ? ` · ${t("panels.agentPipeline.controlJobAttempt")}: ${event.controlJobAttempt}`
+                          : ` · ${t("panels.agentPipeline.eventCostNotAttributed")}`}
                         {event.originEventId ? ` · ${event.originEventId}` : ""}
                       </li>
                     ))}
@@ -864,6 +939,11 @@ export default function AgentPipelinePanel({
                 <summary className="cursor-pointer font-semibold">
                   {t("panels.agentPipeline.rawDetails")}
                 </summary>
+                {selectedStep.detailsCostScope === "not_established" ? (
+                  <p className="text-muted mt-2">
+                    {t("panels.agentPipeline.rawDetailsNotEstablished")}
+                  </p>
+                ) : null}
                 <pre className="mt-2 max-h-40 overflow-auto">
                   {JSON.stringify(selectedStep.details, null, 2)}
                 </pre>

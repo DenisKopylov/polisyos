@@ -24,6 +24,9 @@ export type AgentCostEventView = {
   eventId: string;
   originEventId: string | null;
   costOrigin: AgentCostOrigin;
+  controlJobAttempt: number | null;
+  preAdmissionAttemptId: string | null;
+  currentOwnerEligible: boolean;
   amount: string | null;
   costUsd: number | null;
   settlementStatus: AgentSettlementStatus;
@@ -32,6 +35,23 @@ export type AgentCostEventView = {
   payloadDigest: string | null;
   model: string | null;
   provider: string | null;
+};
+
+export type AgentUnattributedCostScalarView = {
+  sourceKind:
+    | "step_summary"
+    | "attempt_summary"
+    | "pipeline_summary"
+    | "performance_summary_llm"
+    | "performance_summary_variant_row";
+  sourceField: "cost_usd" | "reported_cost_usd" | "estimated_cost_usd";
+  claimedValueUsd: number;
+  scope: "not_established";
+  attempt: number | null;
+  agent: string | null;
+  model: string | null;
+  modelVariantId: string | null;
+  sourceIndex: number | null;
 };
 
 export type AgentStepView = {
@@ -50,12 +70,14 @@ export type AgentStepView = {
   costUsd: number | null;
   costUnknown: boolean;
   costEvents: AgentCostEventView[];
+  unattributedCostScalars: AgentUnattributedCostScalarView[];
   prompt: string | null;
   response: string | null;
   promptTokens: number | null;
   completionTokens: number | null;
   totalTokens: number | null;
   details: Record<string, unknown>;
+  detailsCostScope: "not_established";
 };
 
 export type AgentAttemptView = {
@@ -70,6 +92,7 @@ export type AgentAttemptView = {
   estimatedCostUsd: number | null;
   costOriginCounts: Record<string, number>;
   settlementStatusCounts: Record<string, number>;
+  unattributedCostScalars: AgentUnattributedCostScalarView[];
   steps: AgentStepView[];
   notes: string[];
 };
@@ -165,6 +188,7 @@ export type RunPerformanceSummaryModel = {
 
 export type AgentPipelineModel = {
   runId: string;
+  ownerControlJobAttempt: number | null;
   totalAttempts: number;
   latestVerdict: string | null;
   source: string | null;
@@ -175,6 +199,8 @@ export type AgentPipelineModel = {
   costOriginCounts: Record<string, number>;
   settlementStatusCounts: Record<string, number>;
   attempts: AgentAttemptView[];
+  unattributedCostEvents: AgentCostEventView[];
+  unattributedCostScalars: AgentUnattributedCostScalarView[];
   retrieval: RetrievalTelemetryModel | null;
   preflight: PreflightModel | null;
   evaluator: EvaluatorModel | null;
@@ -245,7 +271,11 @@ function normalizeSettlementStatus(value: unknown): AgentSettlementStatus {
   return "unknown";
 }
 
-function normalizeCostEvent(raw: unknown): AgentCostEventView | null {
+function normalizeCostEvent(
+  raw: unknown,
+  ownerAttempt: number | null,
+  preserveUnattributedClaim = false,
+): AgentCostEventView | null {
   const event = asRecord(raw);
   if (!event) {
     return null;
@@ -263,12 +293,22 @@ function normalizeCostEvent(raw: unknown): AgentCostEventView | null {
     durabilityValue === "none"
       ? durabilityValue
       : null;
+  const controlJobAttempt = asNumber(event.control_job_attempt);
+  const preAdmissionAttemptId = asString(event.pre_admission_attempt_id);
+  const currentOwnerEligible =
+    ownerAttempt !== null &&
+    controlJobAttempt === ownerAttempt &&
+    durability === "ledger" &&
+    preAdmissionAttemptId === null;
   return {
     eventId: asString(event.event_id) ?? "unidentified",
     originEventId: asString(event.origin_event_id),
     costOrigin,
+    controlJobAttempt,
+    preAdmissionAttemptId,
+    currentOwnerEligible,
     amount,
-    costUsd,
+    costUsd: currentOwnerEligible || preserveUnattributedClaim ? costUsd : null,
     settlementStatus: normalizeSettlementStatus(event.settlement_status),
     durability,
     receipts: asArray(event.receipts)
@@ -280,13 +320,152 @@ function normalizeCostEvent(raw: unknown): AgentCostEventView | null {
   };
 }
 
-function normalizeCostEvents(raw: unknown): AgentCostEventView[] {
+function normalizeCostEvents(
+  raw: unknown,
+  ownerAttempt: number | null,
+  preserveUnattributedClaim = false,
+): AgentCostEventView[] {
   return asArray(raw)
-    .map(normalizeCostEvent)
+    .map((event) =>
+      normalizeCostEvent(event, ownerAttempt, preserveUnattributedClaim),
+    )
     .filter((event): event is AgentCostEventView => event !== null);
 }
 
-function summarizeCostEvents(events: AgentCostEventView[]): {
+function normalizeUnattributedCostScalar(
+  raw: unknown,
+): AgentUnattributedCostScalarView | null {
+  const scalar = asRecord(raw);
+  if (!scalar || scalar.scope !== "not_established") {
+    return null;
+  }
+  const sourceKind = scalar.source_kind;
+  if (
+    sourceKind !== "step_summary" &&
+    sourceKind !== "attempt_summary" &&
+    sourceKind !== "pipeline_summary" &&
+    sourceKind !== "performance_summary_llm" &&
+    sourceKind !== "performance_summary_variant_row"
+  ) {
+    return null;
+  }
+  const sourceField = scalar.source_field;
+  if (
+    sourceField !== "cost_usd" &&
+    sourceField !== "reported_cost_usd" &&
+    sourceField !== "estimated_cost_usd"
+  ) {
+    return null;
+  }
+  const claimedValueUsd = scalar.claimed_value_usd;
+  if (
+    typeof claimedValueUsd !== "number" ||
+    !Number.isFinite(claimedValueUsd) ||
+    claimedValueUsd < 0
+  ) {
+    return null;
+  }
+  return {
+    sourceKind,
+    sourceField,
+    claimedValueUsd,
+    scope: "not_established",
+    attempt: asNumber(scalar.attempt),
+    agent: asString(scalar.agent),
+    model: asString(scalar.model),
+    modelVariantId: asString(scalar.model_variant_id),
+    sourceIndex: asNumber(scalar.source_index),
+  };
+}
+
+function normalizeUnattributedCostScalars(
+  raw: unknown,
+): AgentUnattributedCostScalarView[] {
+  return asArray(raw)
+    .map(normalizeUnattributedCostScalar)
+    .filter(
+      (scalar): scalar is AgentUnattributedCostScalarView => scalar !== null,
+    );
+}
+
+function legacyCostScalars(
+  record: Record<string, unknown>,
+  sourceKind: AgentUnattributedCostScalarView["sourceKind"],
+  projectedValues: {
+    costUsd: number | null;
+    reportedCostUsd: number | null;
+    estimatedCostUsd: number | null;
+  },
+): AgentUnattributedCostScalarView[] {
+  const sourceFields = [
+    "cost_usd",
+    "reported_cost_usd",
+    "estimated_cost_usd",
+  ] as const;
+  return sourceFields.flatMap((sourceField) => {
+    const claimedValueUsd = record[sourceField];
+    if (
+      typeof claimedValueUsd !== "number" ||
+      !Number.isFinite(claimedValueUsd) ||
+      claimedValueUsd < 0
+    ) {
+      return [];
+    }
+    const projectedValue =
+      sourceField === "cost_usd"
+        ? projectedValues.costUsd
+        : sourceField === "reported_cost_usd"
+          ? projectedValues.reportedCostUsd
+          : projectedValues.estimatedCostUsd;
+    if (claimedValueUsd === projectedValue) {
+      return [];
+    }
+    return [
+      {
+        sourceKind,
+        sourceField,
+        claimedValueUsd,
+        scope: "not_established" as const,
+        attempt: asNumber(record.attempt),
+        agent: asString(record.agent),
+        model: asString(record.model),
+        modelVariantId: asString(record.model_variant_id),
+        sourceIndex: null,
+      },
+    ];
+  });
+}
+
+function parseOwnerControlJobAttempt(value: unknown): number | null {
+  if (typeof value !== "number" || !Number.isSafeInteger(value) || value < 1) {
+    return null;
+  }
+  return value;
+}
+
+function hasEligibleCurrentAttemptEvents(
+  events: AgentCostEventView[],
+  ownerAttempt: number | null,
+): boolean {
+  return events.some(
+    (event) =>
+      event.durability === "ledger" &&
+      ownerAttempt !== null &&
+      event.controlJobAttempt === ownerAttempt &&
+      event.preAdmissionAttemptId === null,
+  );
+}
+
+function hasLegacyScalarCostClaim(record: Record<string, unknown>): boolean {
+  return ["cost_usd", "reported_cost_usd", "estimated_cost_usd"].some(
+    (field) => record[field] !== null && record[field] !== undefined,
+  );
+}
+
+function summarizeCostEvents(
+  events: AgentCostEventView[],
+  ownerAttempt: number | null,
+): {
   costUsd: number | null;
   reportedCostUsd: number | null;
   estimatedCostUsd: number | null;
@@ -294,6 +473,19 @@ function summarizeCostEvents(events: AgentCostEventView[]): {
   settlementStatusCounts: Record<string, number>;
   costUnknown: boolean;
 } {
+  const currentAttemptEvents = events.filter((event) =>
+    hasEligibleCurrentAttemptEvents([event], ownerAttempt),
+  );
+  if (!currentAttemptEvents.length) {
+    return {
+      costUsd: null,
+      reportedCostUsd: null,
+      estimatedCostUsd: null,
+      costOriginCounts: {},
+      settlementStatusCounts: {},
+      costUnknown: true,
+    };
+  }
   // Billing-event sums start at the additive identity; unknown events stay null.
   let total = 0; // policyos-quantity: telemetry
   let reported = 0; // policyos-quantity: telemetry
@@ -301,7 +493,7 @@ function summarizeCostEvents(events: AgentCostEventView[]): {
   let unknown = false;
   const costOriginCounts: Record<string, number> = {};
   const settlementStatusCounts: Record<string, number> = {};
-  for (const event of events) {
+  for (const event of currentAttemptEvents) {
     costOriginCounts[event.costOrigin] =
       (costOriginCounts[event.costOrigin] ?? 0) + 1;
     settlementStatusCounts[event.settlementStatus] =
@@ -549,7 +741,10 @@ function normalizeRunPerformanceSummary(
   };
 }
 
-function normalizeStep(raw: unknown): AgentStepView | null {
+function normalizeStep(
+  raw: unknown,
+  ownerAttempt: number | null,
+): AgentStepView | null {
   const step = asRecord(raw);
   if (!step) {
     return null;
@@ -558,8 +753,15 @@ function normalizeStep(raw: unknown): AgentStepView | null {
   const agent = normalizeAgent(step.agent);
   const action = asString(step.action) ?? "unknown";
   const tokenUsage = asRecord(step.token_usage);
-  const costEvents = normalizeCostEvents(step.cost_events);
-  const costSummary = summarizeCostEvents(costEvents);
+  const costEvents = normalizeCostEvents(step.cost_events, ownerAttempt);
+  const explicitUnattributedCostScalars = normalizeUnattributedCostScalars(
+    step.unattributed_cost_scalars,
+  );
+  const costSummary = summarizeCostEvents(costEvents, ownerAttempt);
+  const unattributedCostScalars =
+    explicitUnattributedCostScalars.length > 0
+      ? explicitUnattributedCostScalars
+      : legacyCostScalars(step, "step_summary", costSummary);
 
   return {
     attempt: Math.max(1, asNumber(step.attempt) ?? 1),
@@ -574,16 +776,21 @@ function normalizeStep(raw: unknown): AgentStepView | null {
     provider: asString(step.provider),
     modelVariantId: asString(step.model_variant_id),
     latencyMs: asNumber(step.latency_ms),
-    costUsd:
-      costEvents.length > 0 ? costSummary.costUsd : asNumber(step.cost_usd),
-    costUnknown: costEvents.length > 0 && costSummary.costUnknown,
+    costUsd: costSummary.costUsd,
+    costUnknown:
+      (costEvents.length > 0 ||
+        hasLegacyScalarCostClaim(step) ||
+        unattributedCostScalars.length > 0) &&
+      costSummary.costUnknown,
     costEvents,
+    unattributedCostScalars,
     prompt: asString(step.prompt),
     response: asString(step.response),
     promptTokens: asNumber(tokenUsage?.prompt_tokens),
     completionTokens: asNumber(tokenUsage?.completion_tokens),
     totalTokens: asNumber(tokenUsage?.total_tokens),
     details: asRecord(step.details) ?? {},
+    detailsCostScope: "not_established",
   };
 }
 
@@ -609,18 +816,32 @@ function sortSteps(left: AgentStepView, right: AgentStepView): number {
   return left.action.localeCompare(right.action);
 }
 
-function normalizeAttempt(raw: unknown): AgentAttemptView | null {
+function normalizeAttempt(
+  raw: unknown,
+  ownerAttempt: number | null,
+): AgentAttemptView | null {
   const attempt = asRecord(raw);
   if (!attempt) {
     return null;
   }
 
+  const attemptNumber = asNumber(attempt.attempt) ?? 1;
   const steps = asArray(attempt.steps)
-    .map((item) => normalizeStep(item))
+    .map((item) => normalizeStep(item, ownerAttempt))
     .filter((item): item is AgentStepView => item !== null)
     .sort(sortSteps);
   const costEvents = steps.flatMap((step) => step.costEvents);
-  const costSummary = summarizeCostEvents(costEvents);
+  const explicitUnattributedCostScalars = normalizeUnattributedCostScalars(
+    attempt.unattributed_cost_scalars,
+  );
+  const costSummary = summarizeCostEvents(costEvents, ownerAttempt);
+  const unattributedCostScalars =
+    explicitUnattributedCostScalars.length > 0
+      ? explicitUnattributedCostScalars
+      : [
+          ...steps.flatMap((step) => step.unattributedCostScalars),
+          ...legacyCostScalars(attempt, "attempt_summary", costSummary),
+        ];
 
   return {
     attempt: Math.max(1, asNumber(attempt.attempt) ?? 1),
@@ -629,28 +850,12 @@ function normalizeAttempt(raw: unknown): AgentAttemptView | null {
     startedAt: asString(attempt.started_at),
     finishedAt: asString(attempt.finished_at),
     durationMs: asNumber(attempt.duration_ms),
-    costUsd:
-      costEvents.length > 0 ? costSummary.costUsd : asNumber(attempt.cost_usd),
-    reportedCostUsd:
-      costEvents.length > 0
-        ? costSummary.reportedCostUsd
-        : asNumber(attempt.reported_cost_usd),
-    estimatedCostUsd:
-      costEvents.length > 0
-        ? costSummary.estimatedCostUsd
-        : asNumber(attempt.estimated_cost_usd),
-    costOriginCounts:
-      costEvents.length > 0
-        ? costSummary.costOriginCounts
-        : ((asRecord(attempt.cost_origin_counts) as Record<string, number>) ??
-          {}),
-    settlementStatusCounts:
-      costEvents.length > 0
-        ? costSummary.settlementStatusCounts
-        : ((asRecord(attempt.settlement_status_counts) as Record<
-            string,
-            number
-          >) ?? {}),
+    costUsd: costSummary.costUsd,
+    reportedCostUsd: costSummary.reportedCostUsd,
+    estimatedCostUsd: costSummary.estimatedCostUsd,
+    costOriginCounts: costSummary.costOriginCounts,
+    settlementStatusCounts: costSummary.settlementStatusCounts,
+    unattributedCostScalars,
     steps,
     notes: asArray(attempt.notes)
       .map((item) => asString(item))
@@ -660,48 +865,53 @@ function normalizeAttempt(raw: unknown): AgentAttemptView | null {
 
 export function normalizeAgentPipeline(payload: unknown): AgentPipelineModel {
   const pipeline = asRecord(payload) ?? {};
+  const ownerControlJobAttempt = parseOwnerControlJobAttempt(
+    pipeline.owner_control_job_attempt,
+  );
   const attempts = asArray(pipeline.attempts)
-    .map((item) => normalizeAttempt(item))
+    .map((item) => normalizeAttempt(item, ownerControlJobAttempt))
     .filter((item): item is AgentAttemptView => item !== null)
     .sort((left, right) => left.attempt - right.attempt);
 
   const hasPromptData = attempts.some((attempt) =>
     attempt.steps.some((step) => Boolean(step.prompt || step.response)),
   );
+  const unattributedCostEvents = normalizeCostEvents(
+    pipeline.unattributed_cost_events,
+    null,
+    true,
+  );
+  const explicitUnattributedCostScalars = normalizeUnattributedCostScalars(
+    pipeline.unattributed_cost_scalars,
+  );
+  // Unassigned rows are rendered separately and are not current-attempt totals.
   const costEvents = attempts.flatMap((attempt) =>
     attempt.steps.flatMap((step) => step.costEvents),
   );
-  const costSummary = summarizeCostEvents(costEvents);
+  const costSummary = summarizeCostEvents(costEvents, ownerControlJobAttempt);
+  const unattributedCostScalars =
+    explicitUnattributedCostScalars.length > 0
+      ? explicitUnattributedCostScalars
+      : [
+          ...attempts.flatMap((attempt) => attempt.unattributedCostScalars),
+          ...legacyCostScalars(pipeline, "pipeline_summary", costSummary),
+        ];
 
   return {
     runId: asString(pipeline.run_id) ?? "unknown",
+    ownerControlJobAttempt,
     totalAttempts: asNumber(pipeline.total_attempts) ?? attempts.length,
     latestVerdict: asString(pipeline.latest_verdict),
     source: asString(pipeline.source),
     hasPromptData,
-    costUsd:
-      costEvents.length > 0 ? costSummary.costUsd : asNumber(pipeline.cost_usd),
-    reportedCostUsd:
-      costEvents.length > 0
-        ? costSummary.reportedCostUsd
-        : asNumber(pipeline.reported_cost_usd),
-    estimatedCostUsd:
-      costEvents.length > 0
-        ? costSummary.estimatedCostUsd
-        : asNumber(pipeline.estimated_cost_usd),
-    costOriginCounts:
-      costEvents.length > 0
-        ? costSummary.costOriginCounts
-        : ((asRecord(pipeline.cost_origin_counts) as Record<string, number>) ??
-          {}),
-    settlementStatusCounts:
-      costEvents.length > 0
-        ? costSummary.settlementStatusCounts
-        : ((asRecord(pipeline.settlement_status_counts) as Record<
-            string,
-            number
-          >) ?? {}),
+    costUsd: costSummary.costUsd,
+    reportedCostUsd: costSummary.reportedCostUsd,
+    estimatedCostUsd: costSummary.estimatedCostUsd,
+    costOriginCounts: costSummary.costOriginCounts,
+    settlementStatusCounts: costSummary.settlementStatusCounts,
     attempts,
+    unattributedCostEvents,
+    unattributedCostScalars,
     retrieval: normalizeRetrievalTelemetry(pipeline.retrieval),
     preflight: normalizePreflight(pipeline.preflight),
     evaluator: normalizeEvaluator(pipeline.evaluator),

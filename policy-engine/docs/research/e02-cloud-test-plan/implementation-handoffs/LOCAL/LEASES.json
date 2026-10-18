@@ -11906,5 +11906,248 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "monetary-owner-qualified-and-opaque-details-r7-20261018": {
+    "slice_base": "f21fa93bcfffae8d68e85dad1dedf34bfcb76c33",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/apps/runtime-dashboard/src/api/types.ts": {
+        "operation": "modify",
+        "preimage_sha256": "44c5e3cadd004106f2eda178d985287f6cea73085824d4a0f3fff8372f78a952",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r7-monetary-details-qualified-projection-20261018/r7-candidate-stage/policy-engine/apps/runtime-dashboard/src/api/types.ts",
+        "postimage_sha256": "861f42ae225e2f80e3582fa1a11cd4a4d121591186bf3c0231952234e2d5dc1b"
+      },
+      "policy-engine/apps/runtime-dashboard/src/api/validators.test.ts": {
+        "operation": "modify",
+        "preimage_sha256": "24794bb42121ce68c3cb0c0bc3b935a880635f1ab22337167bd7cf57f791550c",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r7-test-query-qualification-r2-20261018/postimages/policy-engine/apps/runtime-dashboard/src/api/validators.test.ts",
+        "postimage_sha256": "568f64be8151f05a918e2759dc5708cc7c8e0977c16ef3cfcbb2f204e3ef7c88"
+      },
+      "policy-engine/apps/runtime-dashboard/src/api/validators.ts": {
+        "operation": "modify",
+        "preimage_sha256": "1676b44ccacb9cfbd758d28de2ae01e3dddecb5074b8ab9f8d7dd8972be00742",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r7-monetary-details-qualified-projection-20261018/r7-candidate-stage/policy-engine/apps/runtime-dashboard/src/api/validators.ts",
+        "postimage_sha256": "5cfa5a399ee0d5eb34220a277d29bb827e82860d0d3914d1462e5c6f1528eac0"
+      },
+      "policy-engine/apps/runtime-dashboard/src/features/runs/components/AgentPipelinePanel.tsx": {
+        "operation": "modify",
+        "preimage_sha256": "740fa5c11378eecb30c73139ec1c36c7d256a31a61bfce8525e38132f1fb6675",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r7-monetary-details-qualified-projection-20261018/r7-candidate-stage/policy-engine/apps/runtime-dashboard/src/features/runs/components/AgentPipelinePanel.tsx",
+        "postimage_sha256": "4866a44bebd64ca580687e1880d0947bd5d92e8639136a3f27e84bbdb4fd413b"
+      },
+      "policy-engine/apps/runtime-dashboard/src/features/runs/components/pipelinePanels.test.tsx": {
+        "operation": "modify",
+        "preimage_sha256": "79001a7c1596b3ec014c2f2b995ace4590dc2761181d8c4b4f8c2f64e552a52d",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r7-native-query-shape-r3-20261018/pipelinePanels.test.tsx",
+        "postimage_sha256": "e09a480da79c2a1b69b4898e71de41b71e2012393671f00cc4bcc1f7453a5b5e"
+      },
+      "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/en.json": {
+        "operation": "modify",
+        "preimage_sha256": "66de9f1e794e37bfc2da32efc2186d84a2bad62ce45f695ce217f0a054c6e005",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r7-monetary-details-qualified-projection-20261018/r7-candidate-stage/policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/en.json",
+        "postimage_sha256": "57a14248a17a3710b0ab4229311518f7d5f2f3ad10e7c675bc16b05a9b4e3012"
+      },
+      "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/ru.json": {
+        "operation": "modify",
+        "preimage_sha256": "f3079ad75caa5b0f9b1f2b33cd6b3ace07f93fa42620cb9e4f9973585cb08833",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r7-monetary-details-qualified-projection-20261018/r7-candidate-stage/policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/ru.json",
+        "postimage_sha256": "a4bdc2a87c5450f1b11246bdb6870401863f7d1f8ff3402f059a70e262037f4e"
+      },
+      "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/uk.json": {
+        "operation": "modify",
+        "preimage_sha256": "ed90e180e9c807ffe96bb5e37c50130ac44533769cd19974eff12cbfbb25744e",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r7-monetary-details-qualified-projection-20261018/r7-candidate-stage/policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/uk.json",
+        "postimage_sha256": "ac7530dce76581179c9c2712c754a96c3cbd5831db9c1a284220a3c372fb07b8"
+      },
+      "policy-engine/apps/runtime-dashboard/src/shared/lib/domain/agents.test.ts": {
+        "operation": "modify",
+        "preimage_sha256": "d2751c499e943ee305afd959baea9c37510ca5740e335626a72842b814cb0970",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r7-monetary-details-qualified-projection-20261018/r7-candidate-stage/policy-engine/apps/runtime-dashboard/src/shared/lib/domain/agents.test.ts",
+        "postimage_sha256": "75393b7c44b2a8a9d53a5ba715122277c29a9708d674f64cb3b16832e1f1a479"
+      },
+      "policy-engine/apps/runtime-dashboard/src/shared/lib/domain/agents.ts": {
+        "operation": "modify",
+        "preimage_sha256": "ed5d7a7035dd9c4edc2c65774d22362db80dc701a6df37389a3891c6092f330d",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r7-monetary-details-qualified-projection-20261018/r7-candidate-stage/policy-engine/apps/runtime-dashboard/src/shared/lib/domain/agents.ts",
+        "postimage_sha256": "4a40174985ed63e62ef4362eb659dc18ff38e024b6cd3e7447932f4d49286ce9"
+      },
+      "policy-engine/packages/runtime-api-client/types.ts": {
+        "operation": "modify",
+        "preimage_sha256": "9bbec9c49b9a546bf588510b7a641c0b06d7df557d000b9c1403009a16fd6dc2",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r7-monetary-details-qualified-projection-20261018/r7-candidate-stage/policy-engine/packages/runtime-api-client/types.ts",
+        "postimage_sha256": "d5d11ae65aa39d3b13ba1386a9dd1269ebc4eb61231d7613d1f2b025fe95a4c9"
+      },
+      "policy-engine/schemas/runtime_api_v1.openapi.json": {
+        "operation": "modify",
+        "preimage_sha256": "44c1787a6eb1195292e01d953633d3c94ce16820943b222c4b1e26347f18f95a",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r7-monetary-details-qualified-projection-20261018/r7-candidate-stage/policy-engine/schemas/runtime_api_v1.openapi.json",
+        "postimage_sha256": "cda728719c170185b50b8be6ddbca88410313a25f63306f2f0cecf68f69b3778"
+      },
+      "policy-engine/src/polisyos/core/contracts/__init__.py": {
+        "operation": "modify",
+        "preimage_sha256": "08067d0f203f67ed5fc979275ea1981ae210b6f51db36befcee952b0ae58ab44",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r7-monetary-details-qualified-projection-20261018/r7-candidate-stage/policy-engine/src/polisyos/core/contracts/__init__.py",
+        "postimage_sha256": "7848afa922f753e2fb993ef5e5926ff5d9ff246621a73a8434c97635d67489fa"
+      },
+      "policy-engine/src/polisyos/core/contracts/runtime.py": {
+        "operation": "modify",
+        "preimage_sha256": "4e931bac26e293d26f4866f1086aec81e12ed0938a941cd238e39c75e4c621c1",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r7-monetary-details-qualified-projection-20261018/r7-candidate-stage/policy-engine/src/polisyos/core/contracts/runtime.py",
+        "postimage_sha256": "b9e8d5faf9f0f905859f77d09f1a0cd192d0768103a8598dd7c0e75add6ed6ef"
+      },
+      "policy-engine/src/polisyos/runtime/http/services/control/job_nl_admission.py": {
+        "operation": "modify",
+        "preimage_sha256": "c0e178920d51ea0fa7357cd3099b968f2169e38e961c2c36299e968312e24bc0",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r7-monetary-details-qualified-projection-20261018/r7-candidate-stage/policy-engine/src/polisyos/runtime/http/services/control/job_nl_admission.py",
+        "postimage_sha256": "7805d2aad60929258c4b024c2d03dd7d19bac25ffcf0b4beef4d87962a02535d"
+      },
+      "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py": {
+        "operation": "modify",
+        "preimage_sha256": "6c66f2a13b3af06f34abeee80c0e2f2b0d7c49663b027ed3e0f6f6c65ef2daa3",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r7-monetary-details-qualified-projection-20261018/r7-candidate-stage/policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "postimage_sha256": "9989287b4b803179d36bd56dade55b9ba87630bde571a971e88ba1693ddcdee3"
+      },
+      "policy-engine/src/polisyos/runtime/http/services/debug.py": {
+        "operation": "modify",
+        "preimage_sha256": "ff809b3a48ea99dc105d5a22e60beed4ec253912b79a9e26958697ef7a02d4f2",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r7-monetary-details-qualified-projection-20261018/r7-candidate-stage/policy-engine/src/polisyos/runtime/http/services/debug.py",
+        "postimage_sha256": "008e4728ffda8f1843873287285fa00995201b2b58f1c4b6548324e83f3f33c2"
+      },
+      "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py": {
+        "operation": "modify",
+        "preimage_sha256": "56f86f1c976b54c8b91d6d3baf915053d91f920dc380672ee6d564bda526ab79",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r7-monetary-details-qualified-projection-20261018/r7-candidate-stage/policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+        "postimage_sha256": "5de4782a9158f38333e76727fa21a20f80d00efd0cb337430fdfd5fd9d62e51d"
+      },
+      "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py": {
+        "operation": "modify",
+        "preimage_sha256": "2b39861329dd273d026cf46062d38f03af417fb3c0d3ce04e6103a8a97aed79c",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r7-monetary-details-qualified-projection-20261018/r7-candidate-stage/policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+        "postimage_sha256": "b06d8e4d741553ac0d3ad8cdd7b4c632827ea905dfe9c4f607c1c38429feb443"
+      },
+      "policy-engine/src/polisyos/scientist/orchestration/llm/provider_verification.py": {
+        "operation": "modify",
+        "preimage_sha256": "decf01600124602a621f73a86286c977c10cd3b5dce498f3a47bf43a63fbb2a8",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r7-monetary-details-qualified-projection-20261018/r7-candidate-stage/policy-engine/src/polisyos/scientist/orchestration/llm/provider_verification.py",
+        "postimage_sha256": "938746b1711c437c196957c4dc12d68c4721f5e954942257ad86dbfe0f5f247b"
+      },
+      "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py": {
+        "operation": "modify",
+        "preimage_sha256": "898d23efa9f1c74acd6a0d945aa1f8c9a5ec0f4094be3cfc983b27e248f3f43a",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r7-monetary-details-qualified-projection-20261018/r7-candidate-stage/policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py",
+        "postimage_sha256": "9f394606ab5751a1f5d3b9d07a1751c44913497e398ab95f8bcf8f3e1f871b9a"
+      },
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_producer_events.py": {
+        "operation": "modify",
+        "preimage_sha256": "2482d9c6f7ff6e1d1c435c0c0aa47c7d0b42c8a21b6bda9b11bb0089e1695c38",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r7-monetary-details-qualified-projection-20261018/r7-candidate-stage/policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_producer_events.py",
+        "postimage_sha256": "40205848aae53a79e782c336db3e9bcbfb32636d96ff06aea2dd481a93e35cee"
+      },
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py": {
+        "operation": "modify",
+        "preimage_sha256": "a99bda71a98dcc3a6c1014c626f84cd61d7eba802e050d7ebce5cfa01e1a8f36",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r7-monetary-details-qualified-projection-20261018/r7-candidate-stage/policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+        "postimage_sha256": "83985216fb9a4d073a9bc3f9120046c6dc44f145afed57343079421229461629"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r7-native-qualified-checkpoint-20261018/source-application.json",
+      "sha256": "78850e251dfbd2a899724395a80f677dc1d85b608caab1c46cd26b4366fac541"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r7-f21fa-source-adoption-20261018/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r7-monetary-details-qualified-projection-20261018/candidate-manifest-r7.json",
+        "sha256": "65d7f291a69a0f787bd59f9c59d9d5397196c2950a9ebff9c076002f48f09962"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r7-monetary-details-qualified-projection-20261018/candidate-files-r7.json",
+        "sha256": "18e2e52cd0ba98ba4a7e8056b0d4318fe7f78eab689c54744c1f157fe8fa13a9"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r7-monetary-details-qualified-projection-20261018/candidate-r7.patch",
+        "sha256": "ca04f72a1db6dd6d94c4c2dfd27560688aba34a4f9c96e91271ff90034e46337"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r7-monetary-details-qualified-projection-20261018/source-requalification-r7.json",
+        "sha256": "99f039329c40b5b69c36dc8d3d4bfdbc25ab1bd8e8247b645f2ada06c40eec3d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r7-independent-20261018/review.md",
+        "sha256": "744cd4a3964ef94c5125bda849de3a1673e9be8dd2473f636ef9870d03347c20"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r7-monetary-details-qualified-projection-20261018/source-requalification-r7.json",
+        "sha256": "99f039329c40b5b69c36dc8d3d4bfdbc25ab1bd8e8247b645f2ada06c40eec3d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r7-monetary-details-qualified-projection-20261018/ruff-r7.json",
+        "sha256": "402487c5f5042e51cc8322f88341eae6b564c76cbd5e83d6310e029d3954275e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r7-monetary-details-qualified-projection-20261018/prettier-r7.json",
+        "sha256": "58db05ce512762b9f7cf79a49541b213f2e5d6d0e5e3c10834b6bc4e579fca37"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r7-monetary-details-qualified-projection-20261018/prettier-runtime-api-client-r7.json",
+        "sha256": "047880dd8ec91e586afe42da485dd062df942dde42c23ad54d931aa329b632b2"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r7-monetary-details-qualified-projection-20261018/static-r7.json",
+        "sha256": "60b8009c8cd0a1bca1f600283eba3b58716159cf082398296d26a06c256ab899"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r7-monetary-details-qualified-projection-20261018/patch-check-r7.json",
+        "sha256": "3566727403dbff777ff316cc348340d9a0e21078f4c609823f6b25c87457c00f"
+      }
+    ],
+    "P40": "Same monetary-attribution class widened across all scalar/event summaries, nested contexts and complete opaque details container; no per-adapter patch ladder.",
+    "bounded_proof": "Independent R7 source GO and test-query delta GO; full canonical Python Ruff PASS. Native ESLint/Prettier PASS, actual three Vitest modules are RED (171P/5F). No runtime acceptance or G closure.",
+    "limitations": [
+      "23 cohesive code/test/schema/generated/UI/locale/export paths. Native source Ruff before commit; author package-context Prettier passes.",
+      "Same-HTTP-response fresh GET to Zod/normalizer/component consumer must be executed; separate fixtures are not a joined chain.",
+      "Opaque details are preserved under fixed not_established scope; their arbitrary nested monetary-looking values have no typed current-cost authority.",
+      "Current cost event reconciliation does not establish institutional payment, live billing/currentness or permission.",
+      "Five current Vitest failures are retained and independently diagnosed before a coherent successor. This implementation checkpoint is not accepted behavior or closure."
+    ],
+    "runtime": "Known RED checkpoint: native ESLint and Prettier PASS; actual three whole Vitest modules 171 PASS / 5 FAIL / 0 ERROR/SKIP. Python/generator/HTTP-wire bridge/typecheck UNRUN.",
+    "next_check": {
+      "required": [
+        "Independently diagnose and repair all five actual Vitest failures as a complete semantic/oracle class; replay all three whole modules.",
+        "Actual complete Python monetary importer/settlement/route test modules",
+        "Real OpenAPI/client/dashboard generation to RAW and byte compare, retained generator scratch",
+        "Actual dashboard validators/normalizer/component tests and typecheck",
+        "Real persisted ledger to fresh TestClient GET exact JSON bytes to TypeScript validator/normalizer/component bridge",
+        "Old-wire/scalar-only/ownerless/malformed/stale/variant-ordinal adversarial controls"
+      ]
+    },
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": [],
+    "qualification_chain": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r7-test-query-qualification-r2-20261018/qualification.json",
+        "sha256": "25bd51b630c15a671e3be03895cabadfea404717b8567e6b5482c9c6dbb8ace8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r7-test-query-r2-independent-20261018/review.md",
+        "sha256": "2d99fb00c07f56635834d7aaf7c5a4ca06bc321fa074f95c30f431f703ed3038"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r7-native-query-shape-r3-20261018/qualification.json",
+        "sha256": "5463a63080f4711379a01aacdfa9a9144ce83eaae0d7d9d5899d53e79201bb77"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r7-native-query-r3-independent-20261018/review.md",
+        "sha256": "041ca9d3100164bf6dea6bd9937a513f1f32c737c24df74404284f50b9d1c2c4"
+      }
+    ],
+    "native_actual": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r7-native-r3-actual-20261018/result.json",
+      "sha256": "36ad6d7e8029c33d12b368096ba3cec8fe3190107f044cdbba4715e3271ff25a"
+    }
   }
 }

@@ -951,6 +951,7 @@ async def run_provider_preflight(
     client_factory: Any = GatewayLLMClient,
     producer_settlement_store: Any | None = None,
     producer_run_binding: BudgetLedgerProducerRunBinding | None = None,
+    pre_admission_attempt_id: str | None = None,
     producer_budget_key: str | None = None,
     require_producer_settlement: bool = False,
 ) -> ProviderPreflightReport:
@@ -1348,7 +1349,10 @@ async def run_provider_preflight(
             call_observer=observed_producer_events.append,
         )
     producer_scope = (
-        producer_settlement_store.producer_run_binding_scope(producer_run_binding)
+        producer_settlement_store.producer_run_binding_scope(
+            producer_run_binding,
+            pre_admission_attempt_id=pre_admission_attempt_id,
+        )
         if accounting_enabled
         else nullcontext()
     )

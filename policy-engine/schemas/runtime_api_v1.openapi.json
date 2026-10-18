@@ -1031,6 +1031,13 @@
             "title": "Steps",
             "type": "array"
           },
+          "unattributed_cost_scalars": {
+            "items": {
+              "$ref": "#/components/schemas/AgentPipelineUnattributedCostScalar"
+            },
+            "title": "Unattributed Cost Scalars",
+            "type": "array"
+          },
           "verdict": {
             "anyOf": [
               {
@@ -1064,6 +1071,18 @@
               }
             ],
             "title": "Amount"
+          },
+          "control_job_attempt": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Control Job Attempt"
           },
           "cost_origin": {
             "enum": [
@@ -1143,6 +1162,18 @@
             ],
             "title": "Payload Digest"
           },
+          "pre_admission_attempt_id": {
+            "anyOf": [
+              {
+                "pattern": "^[a-f0-9]{32}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pre Admission Attempt Id"
+          },
           "provider": {
             "anyOf": [
               {
@@ -1179,6 +1210,81 @@
           "settlement_status"
         ],
         "title": "AgentPipelineCostEvent",
+        "type": "object"
+      },
+      "AgentPipelineUnattributedCostScalar": {
+        "additionalProperties": false,
+        "description": "A legacy cost summary scalar without established lease-attempt attribution.",
+        "properties": {
+          "agent": {
+            "anyOf": [
+              { "type": "string" },
+              { "type": "null" }
+            ]
+          },
+          "attempt": {
+            "anyOf": [
+              { "minimum": 1.0, "type": "integer" },
+              { "type": "null" }
+            ]
+          },
+          "claimed_value_usd": {
+            "minimum": 0.0,
+            "title": "Claimed Value Usd",
+            "type": "number"
+          },
+          "model": {
+            "anyOf": [
+              { "type": "string" },
+              { "type": "null" }
+            ]
+          },
+          "model_variant_id": {
+            "anyOf": [
+              { "type": "string" },
+              { "type": "null" }
+            ]
+          },
+          "scope": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Scope",
+            "type": "string"
+          },
+          "source_field": {
+            "enum": [
+              "cost_usd",
+              "reported_cost_usd",
+              "estimated_cost_usd"
+            ],
+            "title": "Source Field",
+            "type": "string"
+          },
+          "source_index": {
+            "anyOf": [
+              { "minimum": 0.0, "type": "integer" },
+              { "type": "null" }
+            ]
+          },
+          "source_kind": {
+            "enum": [
+              "step_summary",
+              "attempt_summary",
+              "pipeline_summary",
+              "performance_summary_llm",
+              "performance_summary_variant_row"
+            ],
+            "title": "Source Kind",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_kind",
+          "source_field",
+          "claimed_value_usd",
+          "scope"
+        ],
+        "title": "AgentPipelineUnattributedCostScalar",
         "type": "object"
       },
       "AgentPipelineResponse": {
@@ -1272,6 +1378,13 @@
             "additionalProperties": true,
             "title": "Details",
             "type": "object"
+          },
+          "details_cost_scope": {
+            "const": "not_established",
+            "default": "not_established",
+            "description": "Opaque diagnostic details are not reconciled to the verified ControlJob lease attempt or included in current cost totals.",
+            "title": "Details Cost Scope",
+            "type": "string"
           },
           "estimated_cost_usd": {
             "anyOf": [
@@ -1427,6 +1540,13 @@
             },
             "title": "Token Usage",
             "type": "object"
+          },
+          "unattributed_cost_scalars": {
+            "items": {
+              "$ref": "#/components/schemas/AgentPipelineUnattributedCostScalar"
+            },
+            "title": "Unattributed Cost Scalars",
+            "type": "array"
           }
         },
         "required": [
@@ -1554,6 +1674,20 @@
             "title": "Notes",
             "type": "array"
           },
+          "owner_control_job_attempt": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Verified ControlJob lease attempt bound to this run; null means the owner attempt was not established.",
+            "title": "Owner Control Job Attempt"
+          },
           "performance_summary": {
             "anyOf": [
               {
@@ -1658,6 +1792,20 @@
             "minimum": 0.0,
             "title": "Total Attempts",
             "type": "integer"
+          },
+          "unattributed_cost_events": {
+            "items": {
+              "$ref": "#/components/schemas/AgentPipelineCostEvent"
+            },
+            "title": "Unattributed Cost Events",
+            "type": "array"
+          },
+          "unattributed_cost_scalars": {
+            "items": {
+              "$ref": "#/components/schemas/AgentPipelineUnattributedCostScalar"
+            },
+            "title": "Unattributed Cost Scalars",
+            "type": "array"
           }
         },
         "required": [

@@ -787,7 +787,7 @@ class DebugService:
                 existing_index = _agent_step_index(steps, step)
                 if existing_index is None:
                     steps.append(step)
-                elif step.cost_events:
+                elif step.cost_events or step.unattributed_cost_scalars:
                     existing_step = steps[existing_index]
                     events_by_id = {event.event_id: event for event in existing_step.cost_events}
                     for event in step.cost_events:
@@ -796,18 +796,32 @@ class DebugService:
                             raise ValueError("agent_pipeline_cost_event_identity_conflict")
                         events_by_id[event.event_id] = event
                     merged_events = list(events_by_id.values())
-                    if len(merged_events) != len(existing_step.cost_events):
-                        steps[existing_index] = AgentPipelineStep.model_validate(
+                    merged_scalars = list(existing_step.unattributed_cost_scalars)
+                    for scalar in step.unattributed_cost_scalars:
+                        if scalar not in merged_scalars:
+                            merged_scalars.append(scalar)
+                    if len(merged_events) != len(existing_step.cost_events) or len(
+                        merged_scalars
+                    ) != len(existing_step.unattributed_cost_scalars):
+                        merged_values = existing_step.model_dump()
+                        merged_values.update(
                             {
-                                **existing_step.model_dump(),
                                 "cost_events": merged_events,
+                                "unattributed_cost_scalars": merged_scalars,
                             }
                         )
+                        steps[existing_index] = AgentPipelineStep.model_validate(merged_values)
             source = source or "experiment_state.params"
             if source != "experiment_state.params":
                 source = f"{source}+experiment_state.params"
 
-        producer_steps, producer_note = self._agent_steps_from_producer_ledger(run)
+        (
+            producer_steps,
+            unattributed_cost_events,
+            ledger_events_by_id,
+            owner_attempt,
+            producer_note,
+        ) = self._producer_ledger_projection_for_indexed_run(run)
         if producer_steps:
             steps.extend(producer_steps)
             source = source or "llm_producer_settlement_ledger"
@@ -816,20 +830,63 @@ class DebugService:
         if producer_note is not None:
             notes.append(producer_note)
 
-        ledger_events_by_id = {
-            event.event_id: event for step in producer_steps for event in step.cost_events
-        }
+        other_attempt_events_excluded = False
+        reconciled_steps: list[AgentPipelineStep] = []
         for step in steps:
-            if step.agent == "llm_producer_settlement":
-                continue
+            reconciled_events: list[AgentPipelineCostEvent] = []
             for event in step.cost_events:
-                if (
-                    event.durability == "ledger"
-                    and ledger_events_by_id.get(event.event_id) != event
-                ):
+                canonical_event = ledger_events_by_id.get(event.event_id)
+                if event.durability != "ledger" and canonical_event is None:
+                    reconciled_events.append(event)
+                    continue
+                if canonical_event is None:
                     raise ValueError("agent_pipeline_cost_event_ledger_reconciliation_failed")
-
-        steps = _deduplicate_agent_cost_events(steps)
+                if (
+                    event.control_job_attempt is not None
+                    and event.control_job_attempt != canonical_event.control_job_attempt
+                ) or (
+                    event.pre_admission_attempt_id is not None
+                    and event.pre_admission_attempt_id != canonical_event.pre_admission_attempt_id
+                ):
+                    raise ValueError("agent_pipeline_cost_event_attempt_attribution_conflict")
+                normalized_event = event.model_copy(
+                    update={
+                        "control_job_attempt": canonical_event.control_job_attempt,
+                        "pre_admission_attempt_id": canonical_event.pre_admission_attempt_id,
+                    }
+                )
+                if normalized_event != canonical_event:
+                    raise ValueError("agent_pipeline_cost_event_ledger_reconciliation_failed")
+                if canonical_event.control_job_attempt is None:
+                    continue
+                if owner_attempt is None or canonical_event.control_job_attempt != owner_attempt:
+                    other_attempt_events_excluded = True
+                    continue
+                reconciled_events.append(canonical_event)
+            step_values = step.model_dump()
+            step_values.update(
+                {
+                    "cost_events": reconciled_events,
+                    "cost_usd": None,
+                    "reported_cost_usd": None,
+                    "estimated_cost_usd": None,
+                    "cost_origin": None,
+                    "cost_origin_counts": {},
+                    "settlement_status_counts": {},
+                    "settlement_event_ids": (),
+                }
+            )
+            step = AgentPipelineStep.model_validate(step_values)
+            reconciled_steps.append(step)
+        steps = _deduplicate_agent_cost_events(reconciled_steps)
+        if (
+            other_attempt_events_excluded
+            and "llm_producer_events_from_other_control_job_attempts_excluded_from_core_run"
+            not in notes
+        ):
+            notes.append(
+                "llm_producer_events_from_other_control_job_attempts_excluded_from_core_run"
+            )
 
         attempts = _group_agent_steps_by_attempt(steps)
         if not attempts:
@@ -955,12 +1012,14 @@ class DebugService:
             else None
         )
 
-        return AgentPipelineView(
+        return AgentPipelineView._from_verified_owner_context(
+            owner_control_job_attempt=owner_attempt,
             run_id=run.run_id,
             source_kind=run.source_kind,
             total_attempts=len(attempts),
             latest_verdict=latest_verdict,
             attempts=attempts,
+            unattributed_cost_events=unattributed_cost_events,
             decision_packet_ref=run.decision_packet_ref,
             reflexion_terminal_ref=reflexion_ref,
             retrieval=retrieval,
@@ -971,6 +1030,7 @@ class DebugService:
             iteration_lifecycle=iteration_view,
             reproducibility=reproducibility_view,
             performance_summary=performance_summary,
+            unattributed_cost_scalars=_unattributed_nested_model_variant_scalars(state_payload),
             source=source,
             notes=notes,
         )
@@ -979,18 +1039,30 @@ class DebugService:
         self,
         run: IndexedRunRecord,
     ) -> tuple[list[AgentPipelineStep], str | None]:
-        """Project only ledger events bound to the indexed run's persisted owner."""
+        """Return only events attributed to this run's validated lease attempt."""
+        steps, _, _, _, note = self._producer_ledger_projection_for_indexed_run(run)
+        return steps, note
+
+    def _producer_ledger_projection_for_indexed_run(
+        self,
+        run: IndexedRunRecord,
+    ) -> tuple[
+        list[AgentPipelineStep],
+        list[AgentPipelineCostEvent],
+        dict[str, AgentPipelineCostEvent],
+        int | None,
+        str | None,
+    ]:
+        """Partition exact-owner ledger rows using the persisted lease attempt."""
         settlement_store = self._producer_settlement_store
         if settlement_store is None:
-            return [], None
-        binding, binding_note = self._producer_run_binding_for_indexed_run(run)
-        if binding is None:
-            return [], binding_note
+            return [], [], {}, None, None
+        binding, attempt, binding_note = self._producer_run_binding_and_attempt_for_indexed_run(run)
+        if binding is None or attempt is None:
+            return [], [], {}, None, binding_note
         records = settlement_store.list_producer_events_for_run_safe(binding)
-        if not records:
-            return [], None
-        events = [
-            AgentPipelineCostEvent(
+        events_by_id = {
+            record.event_id: AgentPipelineCostEvent(
                 event_id=record.event_id,
                 origin_event_id=record.origin_event_id,
                 cost_origin=record.cost_origin,
@@ -1001,32 +1073,74 @@ class DebugService:
                 payload_digest=record.payload_digest,
                 model=record.model,
                 provider=record.provider,
+                control_job_attempt=record.control_job_attempt,
+                pre_admission_attempt_id=record.pre_admission_attempt_id,
             )
             for record in records
+        }
+        current_events = [
+            event
+            for event in events_by_id.values()
+            if event.control_job_attempt == attempt and event.pre_admission_attempt_id is None
         ]
-        return [
-            AgentPipelineStep(
-                attempt=1,
-                agent="llm_producer_settlement",
-                action="durable_ledger",
-                status=(
-                    "warn"
-                    if any(e.settlement_status in {"pending", "unknown"} for e in events)
-                    else "info"
-                ),
-                summary="Provider cost events reconciled to the exact persisted run owner.",
-                details={"source": "app_scoped_producer_settlement_ledger"},
-                model=events[0].model,
-                provider=events[0].provider,
-                cost_events=events,
+        unattributed_events = [
+            event for event in events_by_id.values() if event.control_job_attempt is None
+        ]
+        other_attempt_events = [
+            event
+            for event in events_by_id.values()
+            if event.control_job_attempt is not None and event.control_job_attempt != attempt
+        ]
+        steps = (
+            [
+                AgentPipelineStep(
+                    attempt=1,
+                    agent="llm_producer_settlement",
+                    action="durable_ledger",
+                    status=(
+                        "warn"
+                        if any(
+                            e.settlement_status in {"pending", "unknown"} for e in current_events
+                        )
+                        else "info"
+                    ),
+                    summary=(
+                        "Provider cost events reconciled to the exact ControlJob lease attempt."
+                    ),
+                    details={
+                        "source": "app_scoped_producer_settlement_ledger",
+                        "control_job_attempt": attempt,
+                    },
+                    model=current_events[0].model,
+                    provider=current_events[0].provider,
+                    cost_events=current_events,
+                )
+            ]
+            if current_events
+            else []
+        )
+        notes: list[str] = []
+        if other_attempt_events:
+            notes.append(
+                "llm_producer_events_from_other_control_job_attempts_excluded_from_core_run"
             )
-        ], None
+        if unattributed_events:
+            notes.append("llm_producer_events_with_unknown_or_pre_admission_attempt_unassigned")
+        return steps, unattributed_events, events_by_id, attempt, ";".join(notes) or None
 
     def _producer_run_binding_for_indexed_run(
         self,
         run: IndexedRunRecord,
     ) -> tuple[BudgetLedgerProducerRunBinding | None, str | None]:
         """Resolve the internal NL ledger key from the persisted ControlJob owner."""
+        binding, _, note = self._producer_run_binding_and_attempt_for_indexed_run(run)
+        return binding, note
+
+    def _producer_run_binding_and_attempt_for_indexed_run(
+        self,
+        run: IndexedRunRecord,
+    ) -> tuple[BudgetLedgerProducerRunBinding | None, int | None, str | None]:
+        """Resolve binding and positive lease attempt from the same persisted owner read."""
         from polisyos.runtime.http.services.adapters.core_run import (
             derive_control_job_core_run_id,
         )
@@ -1040,13 +1154,13 @@ class DebugService:
         details = run.details
         control_job_id = details.control_job_id
         if not isinstance(control_job_id, str) or not control_job_id.strip():
-            return None, None
+            return None, None, None
         if store is None:
-            return None, "llm_producer_control_job_owner_not_established"
+            return None, None, "llm_producer_control_job_owner_not_established"
         try:
             job = store.get_job(control_job_id)
             if job is None:
-                return None, "llm_producer_control_job_owner_not_established"
+                return None, None, "llm_producer_control_job_owner_not_established"
             event_payload = store.get_job_created_event_payload(control_job_id)
             outbox_event = store.get_job_created_outbox_event(control_job_id)
         except (
@@ -1056,7 +1170,7 @@ class DebugService:
             TypeError,
             ValueError,
         ):
-            return None, "llm_producer_control_job_owner_not_established"
+            return None, None, "llm_producer_control_job_owner_not_established"
 
         outbox_payload = getattr(outbox_event, "payload", None)
         if (
@@ -1066,7 +1180,7 @@ class DebugService:
             or not isinstance(outbox_payload, dict)
             or not _json_values_equal_strict(outbox_payload, event_payload)
         ):
-            return None, "llm_producer_control_job_owner_not_established"
+            return None, None, "llm_producer_control_job_owner_not_established"
 
         expected_job_fields = {
             "job_id": job.job_id,
@@ -1084,11 +1198,11 @@ class DebugService:
             or not _json_values_equal_strict(event_payload[field], expected)
             for field, expected in expected_job_fields.items()
         ):
-            return None, "llm_producer_control_job_owner_not_established"
+            return None, None, "llm_producer_control_job_owner_not_established"
         try:
             scope = _control_job_execution_scope_from_event(event_payload)
         except ControlJobExecutionAdmissionError:
-            return None, "llm_producer_control_job_owner_not_established"
+            return None, None, "llm_producer_control_job_owner_not_established"
 
         progress = job.progress if isinstance(job.progress, dict) else {}
         core_run_id = progress.get("core_run_id")
@@ -1104,13 +1218,16 @@ class DebugService:
             or scope.actor_subject != job.submitted_by
             or job.effective_execution_profile != details.execution_profile
             or job.job_id != control_job_id
+            or type(job.attempt) is not int
+            or job.attempt < 1
             or not isinstance(core_run_id, str)
             or core_run_id != details.run_id
             or isinstance(core_run_attempt, bool)
             or not isinstance(core_run_attempt, int)
+            or core_run_attempt < 1
             or core_run_attempt != job.attempt
         ):
-            return None, "llm_producer_control_job_owner_not_established"
+            return None, None, "llm_producer_control_job_owner_not_established"
         try:
             expected_core_run_id = derive_control_job_core_run_id(
                 job_id=job.job_id,
@@ -1118,7 +1235,7 @@ class DebugService:
                 attempt=core_run_attempt,
             )
             if expected_core_run_id != run.run_id or run.run_id != details.run_id:
-                return None, "llm_producer_control_job_owner_not_established"
+                return None, None, "llm_producer_control_job_owner_not_established"
             binding = BudgetLedgerProducerRunBinding(
                 run_id=job.run_id,
                 tenant_id=scope.tenant_id,
@@ -1126,9 +1243,9 @@ class DebugService:
                 profile_id=job.effective_execution_profile,
                 control_job_id=job.job_id,
             )
-        except TypeError, ValueError:
-            return None, "llm_producer_control_job_owner_not_established"
-        return binding, None
+        except (TypeError, ValueError):
+            return None, None, "llm_producer_control_job_owner_not_established"
+        return binding, core_run_attempt, None
 
     def _scorecard_owner_source_for_indexed_run(
         self,
@@ -2792,7 +2909,9 @@ def _agent_steps_from_audit_trail(
                 provider=_as_str(detail_payload.get("provider")),
                 model_variant_id=_as_str(detail_payload.get("model_variant_id")),
                 latency_ms=_as_int_or_none(detail_payload.get("latency_ms")),
-                cost_usd=_as_float_or_none(detail_payload.get("cost_usd")),
+                cost_usd=detail_payload.get("cost_usd"),
+                reported_cost_usd=detail_payload.get("reported_cost_usd"),
+                estimated_cost_usd=detail_payload.get("estimated_cost_usd"),
                 cost_events=_agent_cost_events(
                     detail_payload.get("cost_events", row.get("cost_events"))
                 ),
@@ -2835,12 +2954,51 @@ def _agent_steps_from_timeline(
                 model_variant_id=_as_str(metrics.get("model_variant_id")),
                 latency_ms=_as_int_or_none(metrics.get("latency_ms"))
                 or _as_int_or_none(metrics.get("duration_ms")),
-                cost_usd=_as_float_or_none(metrics.get("cost_usd")),
+                cost_usd=metrics.get("cost_usd"),
+                reported_cost_usd=metrics.get("reported_cost_usd"),
+                estimated_cost_usd=metrics.get("estimated_cost_usd"),
                 cost_events=_agent_cost_events(metrics.get("cost_events")),
                 token_usage=_token_usage(metrics.get("token_usage")),
             )
         )
     return steps
+
+
+def _unattributed_nested_model_variant_scalars(
+    payload: dict[str, Any],
+) -> list[dict[str, Any]]:
+    """Keep parent cost claims visible when a variant has nested step rows."""
+    params = payload.get("params")
+    if not isinstance(params, dict):
+        return []
+    raw_variants = params.get("llm_model_variants")
+    if not isinstance(raw_variants, list):
+        return []
+
+    rows: list[dict[str, Any]] = []
+    for index, raw_variant in enumerate(raw_variants):
+        if not isinstance(raw_variant, dict):
+            continue
+        nested_steps = raw_variant.get("steps")
+        if not isinstance(nested_steps, list) or not nested_steps:
+            continue
+        for source_field in ("cost_usd", "reported_cost_usd", "estimated_cost_usd"):
+            claimed_value = raw_variant.get(source_field)
+            if claimed_value is None:
+                continue
+            rows.append(
+                {
+                    "source_kind": "performance_summary_variant_row",
+                    "source_field": source_field,
+                    "claimed_value_usd": claimed_value,
+                    "scope": "not_established",
+                    "attempt": max(index + 1, 1),
+                    "model": _as_str(raw_variant.get("model")),
+                    "model_variant_id": _as_str(raw_variant.get("model_variant_id")),
+                    "source_index": index,
+                }
+            )
+    return rows
 
 
 def _agent_steps_from_model_variants(
@@ -2865,7 +3023,7 @@ def _agent_steps_from_model_variants(
         variant_id = _as_str(raw_variant.get("model_variant_id"))
         variant_status = _as_str(raw_variant.get("status")) or "unknown"
         variant_verdict = _as_str(raw_variant.get("verdict"))
-        variant_cost = _as_float_or_none(raw_variant.get("cost_usd"))
+        variant_cost = raw_variant.get("cost_usd")
         token_usage = _token_usage(
             {
                 "prompt_tokens": raw_variant.get("prompt_tokens"),
@@ -2912,7 +3070,9 @@ def _agent_steps_from_model_variants(
                         provider=_as_str(nested.get("provider")) or variant_provider,
                         model_variant_id=_as_str(nested.get("model_variant_id")) or variant_id,
                         latency_ms=_as_int_or_none(nested.get("latency_ms")),
-                        cost_usd=_as_float_or_none(nested.get("cost_usd")),
+                        cost_usd=nested.get("cost_usd"),
+                        reported_cost_usd=nested.get("reported_cost_usd"),
+                        estimated_cost_usd=nested.get("estimated_cost_usd"),
                         cost_events=_agent_cost_events(
                             nested.get("cost_events", nested_details.get("cost_events"))
                         ),
@@ -2944,6 +3104,8 @@ def _agent_steps_from_model_variants(
                 model_variant_id=variant_id,
                 latency_ms=_as_int_or_none(raw_variant.get("latency_ms")),
                 cost_usd=variant_cost,
+                reported_cost_usd=raw_variant.get("reported_cost_usd"),
+                estimated_cost_usd=raw_variant.get("estimated_cost_usd"),
                 cost_events=_agent_cost_events(raw_variant.get("cost_events")),
                 token_usage=token_usage,
             )
@@ -3061,7 +3223,9 @@ def _agent_step_from_reflexion_payload(
         provider=_as_str(card_payload.get("provider")),
         model_variant_id=_as_str(card_payload.get("model_variant_id")),
         latency_ms=_as_int_or_none(card_payload.get("duration_ms")),
-        cost_usd=_as_float_or_none(card_payload.get("cost_usd")),
+        cost_usd=card_payload.get("cost_usd"),
+        reported_cost_usd=card_payload.get("reported_cost_usd"),
+        estimated_cost_usd=card_payload.get("estimated_cost_usd"),
         token_usage=_token_usage(card_payload.get("token_usage")),
     )
 

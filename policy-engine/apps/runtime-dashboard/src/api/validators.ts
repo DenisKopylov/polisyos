@@ -2808,6 +2808,12 @@ const agentPipelineCostEventSchema = z
     event_id: z.string().min(1),
     origin_event_id: z.string().min(1).nullable().optional(),
     cost_origin: z.enum(["reported", "estimated", "reuse", "unknown"]),
+    control_job_attempt: z.number().int().min(1).nullable().optional(),
+    pre_admission_attempt_id: z
+      .string()
+      .regex(/^[a-f0-9]{32}$/)
+      .nullable()
+      .optional(),
     amount: z.string().nullable().optional(),
     cost_usd: z.number().nullable().optional(),
     settlement_status: z.enum(["pending", "committed", "unknown", "unmanaged"]),
@@ -2816,6 +2822,45 @@ const agentPipelineCostEventSchema = z
     payload_digest: z.string().min(1).nullable().optional(),
     model: z.string().nullable().optional(),
     provider: z.string().nullable().optional(),
+  })
+  .strict()
+  .refine(
+    (event) =>
+      !(
+        event.control_job_attempt != null &&
+        event.pre_admission_attempt_id != null
+      ),
+    { message: "producer_attempt_attribution_is_ambiguous" },
+  )
+  .refine(
+    (event) =>
+      (event.control_job_attempt == null &&
+        event.pre_admission_attempt_id == null) ||
+      event.durability === "ledger",
+    { message: "producer_attempt_attribution_requires_durable_ledger" },
+  );
+
+const agentPipelineUnattributedCostScalarSchema = z
+  .object({
+    source_kind: z.enum([
+      "step_summary",
+      "attempt_summary",
+      "pipeline_summary",
+      "performance_summary_llm",
+      "performance_summary_variant_row",
+    ]),
+    source_field: z.enum([
+      "cost_usd",
+      "reported_cost_usd",
+      "estimated_cost_usd",
+    ]),
+    claimed_value_usd: z.number().nonnegative(),
+    scope: z.literal("not_established"),
+    attempt: z.number().int().min(1).nullable().optional(),
+    agent: z.string().nullable().optional(),
+    model: z.string().nullable().optional(),
+    model_variant_id: z.string().nullable().optional(),
+    source_index: z.number().int().nonnegative().nullable().optional(),
   })
   .strict();
 
@@ -2827,6 +2872,7 @@ const agentPipelineStepSchema = z.object({
   timestamp: z.string().nullable().optional(),
   summary: z.string().nullable().optional(),
   details: z.record(z.string(), z.unknown()).optional(),
+  details_cost_scope: z.literal("not_established").default("not_established"),
   prompt: z.string().nullable().optional(),
   response: z.string().nullable().optional(),
   model: z.string().nullable().optional(),
@@ -2844,6 +2890,9 @@ const agentPipelineStepSchema = z.object({
   settlement_status_counts: z.record(z.string(), z.number()).optional(),
   settlement_event_ids: z.array(z.string()).optional(),
   cost_events: z.array(agentPipelineCostEventSchema).optional(),
+  unattributed_cost_scalars: z
+    .array(agentPipelineUnattributedCostScalarSchema)
+    .optional(),
   token_usage: z.record(z.string(), z.number()).optional(),
 });
 
@@ -2860,6 +2909,9 @@ const agentPipelineAttemptSchema = z.object({
   cost_origin_counts: z.record(z.string(), z.number()).optional(),
   settlement_status_counts: z.record(z.string(), z.number()).optional(),
   steps: z.array(agentPipelineStepSchema).optional(),
+  unattributed_cost_scalars: z
+    .array(agentPipelineUnattributedCostScalarSchema)
+    .optional(),
   notes: z.array(z.string()).optional(),
 });
 
@@ -2967,30 +3019,115 @@ const runPerformanceSummarySchema = z
   })
   .loose();
 
-const agentPipelineViewSchema = z.object({
-  run_id: z.string(),
-  source_kind: z.literal("core_run"),
-  total_attempts: z.number(),
-  cost_usd: z.number().nullable().optional(),
-  reported_cost_usd: z.number().nullable().optional(),
-  estimated_cost_usd: z.number().nullable().optional(),
-  cost_origin_counts: z.record(z.string(), z.number()).optional(),
-  settlement_status_counts: z.record(z.string(), z.number()).optional(),
-  latest_verdict: z.string().nullable().optional(),
-  attempts: z.array(agentPipelineAttemptSchema).optional(),
-  decision_packet_ref: artifactRefSchema.nullable().optional(),
-  reflexion_terminal_ref: artifactRefSchema.nullable().optional(),
-  retrieval: retrievalTelemetryViewSchema.nullable().optional(),
-  execution_plan_ref: artifactRefSchema.nullable().optional(),
-  method_catalog_snapshot_ref: artifactRefSchema.nullable().optional(),
-  preflight: preflightReportViewSchema.nullable().optional(),
-  evaluator: evaluatorReportViewSchema.nullable().optional(),
-  iteration_lifecycle: iterationLifecycleViewSchema.nullable().optional(),
-  reproducibility: reproducibilityViewSchema.nullable().optional(),
-  performance_summary: runPerformanceSummarySchema.nullable().optional(),
-  source: z.string().nullable().optional(),
-  notes: z.array(z.string()).optional(),
-});
+const agentPipelineViewSchema = z
+  .object({
+    run_id: z.string(),
+    source_kind: z.literal("core_run"),
+    total_attempts: z.number(),
+    cost_usd: z.number().nullable().optional(),
+    reported_cost_usd: z.number().nullable().optional(),
+    estimated_cost_usd: z.number().nullable().optional(),
+    cost_origin_counts: z.record(z.string(), z.number()).optional(),
+    settlement_status_counts: z.record(z.string(), z.number()).optional(),
+    latest_verdict: z.string().nullable().optional(),
+    attempts: z.array(agentPipelineAttemptSchema).optional(),
+    owner_control_job_attempt: z.number().int().min(1).nullable().optional(),
+    unattributed_cost_events: z.array(agentPipelineCostEventSchema).optional(),
+    unattributed_cost_scalars: z
+      .array(agentPipelineUnattributedCostScalarSchema)
+      .optional(),
+    decision_packet_ref: artifactRefSchema.nullable().optional(),
+    reflexion_terminal_ref: artifactRefSchema.nullable().optional(),
+    retrieval: retrievalTelemetryViewSchema.nullable().optional(),
+    execution_plan_ref: artifactRefSchema.nullable().optional(),
+    method_catalog_snapshot_ref: artifactRefSchema.nullable().optional(),
+    preflight: preflightReportViewSchema.nullable().optional(),
+    evaluator: evaluatorReportViewSchema.nullable().optional(),
+    iteration_lifecycle: iterationLifecycleViewSchema.nullable().optional(),
+    reproducibility: reproducibilityViewSchema.nullable().optional(),
+    performance_summary: runPerformanceSummarySchema.nullable().optional(),
+    source: z.string().nullable().optional(),
+    notes: z.array(z.string()).optional(),
+  })
+  .superRefine((pipeline, context) => {
+    const hasCurrentProjection = (value: {
+      cost_usd?: number | null;
+      reported_cost_usd?: number | null;
+      estimated_cost_usd?: number | null;
+      cost_origin_counts?: Record<string, number>;
+      settlement_status_counts?: Record<string, number>;
+    }) =>
+      value.cost_usd != null ||
+      value.reported_cost_usd != null ||
+      value.estimated_cost_usd != null ||
+      Object.keys(value.cost_origin_counts ?? {}).length > 0 ||
+      Object.keys(value.settlement_status_counts ?? {}).length > 0;
+
+    if (pipeline.owner_control_job_attempt == null) {
+      if (hasCurrentProjection(pipeline)) {
+        context.addIssue({
+          code: "custom",
+          path: ["owner_control_job_attempt"],
+          message:
+            "agent_pipeline_current_cost_requires_verified_owner_context",
+        });
+      }
+      pipeline.attempts?.forEach((attempt, attemptIndex) => {
+        if (hasCurrentProjection(attempt)) {
+          context.addIssue({
+            code: "custom",
+            path: ["attempts", attemptIndex],
+            message:
+              "agent_pipeline_current_cost_requires_verified_owner_context",
+          });
+        }
+        attempt.steps?.forEach((step, stepIndex) => {
+          if (hasCurrentProjection(step)) {
+            context.addIssue({
+              code: "custom",
+              path: ["attempts", attemptIndex, "steps", stepIndex],
+              message:
+                "agent_pipeline_current_cost_requires_verified_owner_context",
+            });
+          }
+        });
+      });
+    } else {
+      pipeline.attempts?.forEach((attempt, attemptIndex) => {
+        attempt.steps?.forEach((step, stepIndex) => {
+          step.cost_events?.forEach((event, eventIndex) => {
+            if (
+              event.durability === "ledger" &&
+              event.control_job_attempt !== pipeline.owner_control_job_attempt
+            ) {
+              context.addIssue({
+                code: "custom",
+                path: [
+                  "attempts",
+                  attemptIndex,
+                  "steps",
+                  stepIndex,
+                  "cost_events",
+                  eventIndex,
+                  "control_job_attempt",
+                ],
+                message: "agent_pipeline_event_owner_attempt_mismatch",
+              });
+            }
+          });
+        });
+      });
+    }
+    pipeline.unattributed_cost_events?.forEach((event, index) => {
+      if (event.control_job_attempt != null) {
+        context.addIssue({
+          code: "custom",
+          path: ["unattributed_cost_events", index, "control_job_attempt"],
+          message: "unattributed_cost_event_claims_control_job_attempt",
+        });
+      }
+    });
+  });
 
 const runWorkflowEdgeViewSchema = z.object({
   from_alias: z.string(),

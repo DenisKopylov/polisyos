@@ -2465,6 +2465,8 @@ export interface components {
             status: string;
             /** Steps */
             steps?: components["schemas"]["AgentPipelineStep"][];
+            /** Unattributed Cost Scalars */
+            unattributed_cost_scalars?: components["schemas"]["AgentPipelineUnattributedCostScalar"][];
             /** Verdict */
             verdict?: string | null;
         };
@@ -2475,6 +2477,8 @@ export interface components {
         AgentPipelineCostEvent: {
             /** Amount */
             amount?: string | null;
+            /** Control Job Attempt */
+            control_job_attempt?: number | null;
             /**
              * Cost Origin
              * @enum {string}
@@ -2492,6 +2496,8 @@ export interface components {
             origin_event_id?: string | null;
             /** Payload Digest */
             payload_digest?: string | null;
+            /** Pre Admission Attempt Id */
+            pre_admission_attempt_id?: string | null;
             /** Provider */
             provider?: string | null;
             /**
@@ -2500,15 +2506,40 @@ export interface components {
              */
             receipts: string[];
             /**
+         * AgentPipelineUnattributedCostScalar
+         * @description A legacy cost summary scalar without established lease-attempt attribution.
+         */
+        AgentPipelineUnattributedCostScalar: {
+            /** Agent */
+            agent?: string | null;
+            /** Attempt */
+            attempt?: number | null;
+            /** Claimed Value Usd */
+            claimed_value_usd: number;
+            /** Model */
+            model?: string | null;
+            /** Model Variant Id */
+            model_variant_id?: string | null;
+            /** Scope */
+            scope: "not_established";
+            /** Source Field */
+            source_field: "cost_usd" | "reported_cost_usd" | "estimated_cost_usd";
+            /** Source Index */
+            source_index?: number | null;
+            /** Source Kind */
+            source_kind:
+                | "step_summary"
+                | "attempt_summary"
+                | "pipeline_summary"
+                | "performance_summary_llm"
+                | "performance_summary_variant_row";
+        };
+        /**
              * Settlement Status
              * @enum {string}
              */
             settlement_status: "pending" | "committed" | "unknown" | "unmanaged";
         };
-        /**
-         * AgentPipelineResponse
-         * @description Response envelope returned by the agent-pipeline endpoint.
-         */
         AgentPipelineResponse: {
             meta: components["schemas"]["ApiMeta"];
             pipeline: components["schemas"]["AgentPipelineView"];
@@ -2541,6 +2572,8 @@ export interface components {
             details?: {
                 [key: string]: unknown;
             };
+            /** Details Cost Scope */
+            details_cost_scope?: "not_established";
             /** Estimated Cost Usd */
             estimated_cost_usd?: number | null;
             /** Latency Ms */
@@ -2580,6 +2613,8 @@ export interface components {
             token_usage?: {
                 [key: string]: number;
             };
+            /** Unattributed Cost Scalars */
+            unattributed_cost_scalars?: components["schemas"]["AgentPipelineUnattributedCostScalar"][];
         };
         /**
          * AgentPipelineView
@@ -2605,6 +2640,8 @@ export interface components {
             method_catalog_snapshot_ref?: components["schemas"]["ArtifactRef-Output"] | null;
             /** Notes */
             notes?: string[];
+            /** Verified ControlJob lease attempt bound to this run; null means the owner attempt was not established. */
+            owner_control_job_attempt?: number | null;
             /** Performance Summary */
             performance_summary?: {
                 [key: string]: unknown;
@@ -2633,6 +2670,10 @@ export interface components {
              * @default 0
              */
             total_attempts: number;
+            /** Unattributed Cost Events */
+            unattributed_cost_events?: components["schemas"]["AgentPipelineCostEvent"][];
+            /** Unattributed Cost Scalars */
+            unattributed_cost_scalars?: components["schemas"]["AgentPipelineUnattributedCostScalar"][];
         };
         /**
          * ApiMeta

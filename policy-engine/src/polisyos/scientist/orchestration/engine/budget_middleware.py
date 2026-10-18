@@ -6,9 +6,12 @@ budget checks, threshold alerts, and reservation lifecycle.
 
 from __future__ import annotations
 
+import re
 import threading
 from collections.abc import Iterator
 from contextlib import contextmanager
+from contextvars import ContextVar
+from dataclasses import dataclass
 from decimal import Decimal
 from typing import Literal
 
@@ -22,6 +25,15 @@ from polisyos.scientist.orchestration.engine.budget_ledger import (
 )
 
 __all__ = ["BudgetMiddleware"]
+
+
+@dataclass(frozen=True)
+class _ProducerAttemptScope:
+    """Call-local attribution attached to one established producer run binding."""
+
+    run_binding: BudgetLedgerProducerRunBinding
+    control_job_attempt: int | None
+    pre_admission_attempt_id: str | None
 
 
 class BudgetMiddleware:
@@ -41,6 +53,9 @@ class BudgetMiddleware:
         self._alerted: set[tuple[str, int]] = set()
         self._active_producer_run_bindings: dict[str, BudgetLedgerProducerRunBinding] = {}
         self._active_producer_run_binding_counts: dict[str, int] = {}
+        self._producer_attempt_scope: ContextVar[_ProducerAttemptScope | None] = ContextVar(
+            f"budget_producer_attempt_scope_{id(self)}", default=None
+        )
 
     @property
     def budget_state(self) -> BudgetState:
@@ -179,13 +194,19 @@ class BudgetMiddleware:
         with self._lock:
             if self._ledger is None:
                 raise RuntimeError("durable producer settlement requires a configured ledger")
+            run_binding = self._active_run_binding_for_key(key)
+            control_job_attempt, pre_admission_attempt_id = self._attempt_attribution_for(
+                run_binding
+            )
             return self._ledger.begin_producer_event(
                 event_id,
                 request_digest,
                 key,
                 model,
                 provider,
-                run_binding=self._active_run_binding_for_key(key),
+                run_binding=run_binding,
+                control_job_attempt=control_job_attempt,
+                pre_admission_attempt_id=pre_admission_attempt_id,
             )
 
     def settle_producer_event_safe(
@@ -219,6 +240,15 @@ class BudgetMiddleware:
                 # so retain that exact binding rather than recomputing it from
                 # ambient context or silently dropping it.
                 run_binding = existing.run_binding
+            if existing is None:
+                control_job_attempt, pre_admission_attempt_id = self._attempt_attribution_for(
+                    active_binding
+                )
+            else:
+                # The durable begin fixes attribution, including an explicit unknown.
+                # A later lease scope must not relabel a delayed settlement.
+                control_job_attempt = existing.control_job_attempt
+                pre_admission_attempt_id = existing.pre_admission_attempt_id
             record = self._ledger.settle_producer_event(
                 event_id,
                 request_digest,
@@ -230,6 +260,8 @@ class BudgetMiddleware:
                 cost_origin,
                 origin_event_id,
                 run_binding=run_binding,
+                control_job_attempt=control_job_attempt,
+                pre_admission_attempt_id=pre_admission_attempt_id,
             )
             self._budget = self._ledger.load()
             return record
@@ -247,10 +279,33 @@ class BudgetMiddleware:
     def producer_run_binding_scope(
         self,
         run_binding: BudgetLedgerProducerRunBinding,
+        *,
+        control_job_attempt: int | None = None,
+        pre_admission_attempt_id: str | None = None,
     ) -> Iterator[None]:
-        """Bind producer writes to one server-issued run owner for a bounded execution."""
+        """Bind producer writes to one server-issued owner and call-local attempt."""
         if type(run_binding) is not BudgetLedgerProducerRunBinding:
             raise TypeError("producer_run_binding_must_be_typed")
+        if control_job_attempt is not None and (
+            type(control_job_attempt) is not int or control_job_attempt < 1
+        ):
+            raise ValueError("producer_control_job_attempt_must_be_positive_integer")
+        if pre_admission_attempt_id is not None and (
+            not isinstance(pre_admission_attempt_id, str)
+            or not re.fullmatch(r"[a-f0-9]{32}", pre_admission_attempt_id)
+        ):
+            raise ValueError("producer_pre_admission_attempt_id_invalid")
+        if control_job_attempt is not None and pre_admission_attempt_id is not None:
+            raise ValueError("producer_attempt_attribution_is_ambiguous")
+        prior_scope = self._producer_attempt_scope.get()
+        if (
+            prior_scope is not None
+            and prior_scope.run_binding == run_binding
+            and control_job_attempt is None
+            and pre_admission_attempt_id is None
+        ):
+            control_job_attempt = prior_scope.control_job_attempt
+            pre_admission_attempt_id = prior_scope.pre_admission_attempt_id
         with self._lock:
             existing = self._active_producer_run_bindings.get(run_binding.run_id)
             if existing is not None and existing != run_binding:
@@ -259,9 +314,17 @@ class BudgetMiddleware:
             self._active_producer_run_binding_counts[run_binding.run_id] = (
                 self._active_producer_run_binding_counts.get(run_binding.run_id, 0) + 1
             )
+        scope_token = self._producer_attempt_scope.set(
+            _ProducerAttemptScope(
+                run_binding=run_binding,
+                control_job_attempt=control_job_attempt,
+                pre_admission_attempt_id=pre_admission_attempt_id,
+            )
+        )
         try:
             yield
         finally:
+            self._producer_attempt_scope.reset(scope_token)
             with self._lock:
                 if self._active_producer_run_bindings.get(run_binding.run_id) == run_binding:
                     remaining = (
@@ -295,3 +358,13 @@ class BudgetMiddleware:
         if not key.startswith(prefix):
             return None
         return self._active_producer_run_bindings.get(key.removeprefix(prefix))
+
+    def _attempt_attribution_for(
+        self,
+        run_binding: BudgetLedgerProducerRunBinding | None,
+    ) -> tuple[int | None, str | None]:
+        """Return attribution only when the current context names the same run owner."""
+        scope = self._producer_attempt_scope.get()
+        if run_binding is None or scope is None or scope.run_binding != run_binding:
+            return None, None
+        return scope.control_job_attempt, scope.pre_admission_attempt_id

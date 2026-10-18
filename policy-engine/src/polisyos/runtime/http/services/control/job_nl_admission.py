@@ -665,7 +665,8 @@ class ControlNLJobAdmissionMixin:
                 control_job_id=job.job_id,
             )
             producer_run_binding_scope = producer_settlement_store.producer_run_binding_scope(
-                producer_run_binding
+                producer_run_binding,
+                control_job_attempt=job.attempt,
             )
         context.recursive_budget_resolution = recursive_budget_resolution
         context.max_cycles = max_cycles

@@ -1,4 +1,4 @@
-import { screen } from "@testing-library/react";
+import { screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { renderWithProviders } from "@/test/render";
@@ -55,6 +55,16 @@ import GovernanceReport from "@/features/runs/components/GovernanceReport";
 import WorkflowDagPanel from "@/features/runs/components/WorkflowDagPanel";
 
 describe("pipeline surfaces", () => {
+  const containerWithText = (role: "listitem" | "group", text: string) => {
+    const container = screen
+      .getAllByRole(role)
+      .find((candidate) => within(candidate).queryByText(text) !== null);
+    if (!container) {
+      throw new Error(`expected a ${role} containing ${text}`);
+    }
+    return container;
+  };
+
   beforeEach(() => {
     normalizeAgentPipelineMock.mockReset();
     normalizeWorkflowMock.mockReset();
@@ -161,6 +171,7 @@ describe("pipeline surfaces", () => {
 
   it("renders agent telemetry, model summaries, and selected step details", async () => {
     normalizeAgentPipelineMock.mockReturnValue({
+      ownerControlJobAttempt: null,
       attempts: [
         {
           attempt: 1,
@@ -299,6 +310,8 @@ describe("pipeline surfaces", () => {
       reportedCostUsd: 0,
       settlementStatusCounts: { unknown: 1 },
       totalAttempts: 1,
+      unattributedCostEvents: [],
+      unattributedCostScalars: [],
     });
 
     const user = userEvent.setup();
@@ -346,6 +359,7 @@ describe("pipeline surfaces", () => {
 
   it("renders an empty agent pipeline state when attempts are unavailable", () => {
     normalizeAgentPipelineMock.mockReturnValue({
+      ownerControlJobAttempt: null,
       attempts: [],
       costOriginCounts: {},
       costUsd: null,
@@ -363,6 +377,8 @@ describe("pipeline surfaces", () => {
       reportedCostUsd: null,
       settlementStatusCounts: {},
       totalAttempts: 0,
+      unattributedCostEvents: [],
+      unattributedCostScalars: [],
     });
 
     renderWithProviders(<AgentPipelinePanel payload={null} />);
@@ -370,6 +386,243 @@ describe("pipeline surfaces", () => {
     expect(
       screen.getByText("panels.agentPipeline.unavailableTitle"),
     ).toBeInTheDocument();
+  });
+
+  it("uses the verified owner attempt in the actual route-shaped model comparison", async () => {
+    const actual = await vi.importActual<
+      typeof import("@/shared/lib/domain/agents")
+    >("@/shared/lib/domain/agents");
+    normalizeAgentPipelineMock.mockImplementation(
+      actual.normalizeAgentPipeline,
+    );
+    const user = userEvent.setup();
+    renderWithProviders(
+      <AgentPipelinePanel
+        payload={{
+          owner_control_job_attempt: 2,
+          attempts: [
+            {
+              // The producer step has ordinal 1 although the persisted owner is attempt 2.
+              attempt: 1,
+              steps: [
+                {
+                  action: "durable_ledger",
+                  agent: "llm_producer_settlement",
+                  attempt: 1,
+                  details: {
+                    nested: {
+                      cost_usd: 0.73,
+                      annotation: "diagnostic $9 only",
+                    },
+                  },
+                  details_cost_scope: "not_established",
+                  cost_events: [
+                    {
+                      amount: "0.12",
+                      cost_origin: "reported",
+                      control_job_attempt: 1,
+                      cost_usd: 0.12,
+                      durability: "ledger",
+                      event_id: "same-label-old-attempt",
+                      pre_admission_attempt_id: null,
+                      receipts: ["same-label-old-attempt"],
+                      settlement_status: "committed",
+                    },
+                    {
+                      amount: "0.01",
+                      cost_origin: "reported",
+                      control_job_attempt: 2,
+                      cost_usd: 0.01,
+                      durability: "ledger",
+                      event_id: "owner-attempt-ledger",
+                      pre_admission_attempt_id: null,
+                      receipts: ["owner-attempt-ledger"],
+                      settlement_status: "committed",
+                    },
+                  ],
+                },
+                {
+                  action: "legacy_scalar",
+                  agent: "llm_producer_settlement",
+                  attempt: 1,
+                  cost_usd: 0.41,
+                  model_variant_id: "legacy-scalar-variant",
+                },
+              ],
+            },
+            {
+              attempt: 2,
+              steps: [
+                {
+                  action: "completed",
+                  agent: "model_variant",
+                  attempt: 2,
+                  model: "openai/gpt-5.4",
+                  model_variant_id: "shared-owner-variant",
+                  cost_events: [
+                    {
+                      amount: "0.02",
+                      cost_origin: "reported",
+                      control_job_attempt: 2,
+                      cost_usd: 0.02,
+                      durability: "ledger",
+                      event_id: "owner-variant-a",
+                      pre_admission_attempt_id: null,
+                      receipts: ["owner-variant-a"],
+                      settlement_status: "committed",
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              attempt: 3,
+              steps: [
+                {
+                  action: "completed",
+                  agent: "model_variant",
+                  attempt: 3,
+                  model: "openai/gpt-5.4",
+                  model_variant_id: "shared-owner-variant",
+                  cost_events: [
+                    {
+                      amount: "0.03",
+                      cost_origin: "reported",
+                      control_job_attempt: 2,
+                      cost_usd: 0.03,
+                      durability: "ledger",
+                      event_id: "owner-variant-b",
+                      pre_admission_attempt_id: null,
+                      receipts: ["owner-variant-b"],
+                      settlement_status: "committed",
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        }}
+      />,
+    );
+
+    expect(
+      screen.getByText("panels.agentPipeline.unattributedCostScalars"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("step_summary.cost_usd", { exact: false }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("shared-owner-variant")).toBeInTheDocument();
+    expect(
+      screen.getByText("Owner scope: ControlJob lease attempt 2."),
+    ).toBeInTheDocument();
+    expect(screen.getByText("$0.01")).toBeInTheDocument();
+    expect(screen.getByText("$0.05")).toBeInTheDocument();
+    expect(screen.queryByText("$0.12")).not.toBeInTheDocument();
+    expect(screen.queryByText("$0.41")).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /Durable ledger/i }));
+    await user.click(screen.getByText("panels.agentPipeline.rawDetails"));
+    const rawDetails = within(
+      containerWithText("group", "panels.agentPipeline.rawDetails"),
+    );
+    expect(
+      rawDetails.getByText("panels.agentPipeline.rawDetailsNotEstablished"),
+    ).toBeInTheDocument();
+    expect(rawDetails.getByText(/"cost_usd": 0\.73/u)).toBeInTheDocument();
+    expect(rawDetails.getByText(/diagnostic \$9 only/u)).toBeInTheDocument();
+    const currentEventRow = within(
+      containerWithText("listitem", "owner-attempt-ledger"),
+    );
+    const priorEventRow = within(
+      containerWithText("listitem", "same-label-old-attempt"),
+    );
+    expect(
+      currentEventRow.getByText("$0.01", { exact: false }),
+    ).toBeInTheDocument();
+    expect(
+      currentEventRow.getByText("panels.agentPipeline.controlJobAttempt: 2", {
+        exact: false,
+      }),
+    ).toBeInTheDocument();
+    expect(
+      priorEventRow.getByText("panels.agentPipeline.costUnknown", {
+        exact: false,
+      }),
+    ).toBeInTheDocument();
+    expect(
+      priorEventRow.getByText("panels.agentPipeline.eventCostNotAttributed", {
+        exact: false,
+      }),
+    ).toBeInTheDocument();
+    expect(priorEventRow.queryByText("0.12", { exact: false })).toBeNull();
+  });
+
+  it("shows costs as unassigned when the owner attempt is absent", async () => {
+    const actual = await vi.importActual<
+      typeof import("@/shared/lib/domain/agents")
+    >("@/shared/lib/domain/agents");
+    normalizeAgentPipelineMock.mockImplementation(
+      actual.normalizeAgentPipeline,
+    );
+    const user = userEvent.setup();
+    renderWithProviders(
+      <AgentPipelinePanel
+        payload={{
+          cost_usd: 0.99,
+          attempts: [
+            {
+              attempt: 2,
+              cost_usd: 0.98,
+              steps: [
+                {
+                  action: "durable_ledger",
+                  agent: "model_variant",
+                  attempt: 2,
+                  cost_usd: 0.97,
+                  model: "openai/gpt-5.4",
+                  model_variant_id: "unbound-owner-variant",
+                  cost_events: [
+                    {
+                      amount: "0.03",
+                      cost_origin: "reported",
+                      control_job_attempt: 2,
+                      cost_usd: 0.03,
+                      durability: "ledger",
+                      event_id: "event-without-owner-binding",
+                      pre_admission_attempt_id: null,
+                      receipts: ["event-without-owner-binding"],
+                      settlement_status: "committed",
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        }}
+      />,
+    );
+
+    expect(
+      screen.getByText("panels.agentPipeline.ownerAttemptUnknown"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("panels.agentPipeline.costUnknown"),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("$0.03")).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /Durable ledger/i }));
+    const eventRow = within(
+      containerWithText("listitem", "event-without-owner-binding"),
+    );
+    expect(
+      eventRow.getByText("panels.agentPipeline.costUnknown", { exact: false }),
+    ).toBeInTheDocument();
+    expect(
+      eventRow.getByText("panels.agentPipeline.eventCostNotAttributed", {
+        exact: false,
+      }),
+    ).toBeInTheDocument();
+    expect(eventRow.queryByText("0.03", { exact: false })).toBeNull();
   });
 
   it("renders governance summaries, issues, and linked artifacts", () => {

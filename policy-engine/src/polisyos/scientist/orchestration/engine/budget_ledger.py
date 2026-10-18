@@ -22,7 +22,7 @@ from polisyos.scientist.orchestration.engine.budget import BudgetState
 
 _CANONICAL_LEDGER_CONTRACT = "scientist.multi_host_budget_ledger.v1"
 _COORDINATION_MODE = "shared_posix_file_lock"
-_SNAPSHOT_VERSION = "1.3"
+_SNAPSHOT_VERSION = "1.4"
 
 __all__ = [
     "BudgetLedger",
@@ -143,6 +143,17 @@ class BudgetLedgerProducerRecord(BaseModel):
         default=None,
         json_schema_extra={"introduced_in": "1.3"},
     )
+    control_job_attempt: int | None = Field(
+        default=None,
+        ge=1,
+        strict=True,
+        json_schema_extra={"introduced_in": "1.4"},
+    )
+    pre_admission_attempt_id: str | None = Field(
+        default=None,
+        pattern=r"^[a-f0-9]{32}$",
+        json_schema_extra={"introduced_in": "1.4"},
+    )
     revision: int = Field(ge=1)
     committed_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
@@ -171,6 +182,8 @@ class BudgetLedgerProducerRecord(BaseModel):
             raise ValueError("producer_reuse_origin_unexpected")
         if self.run_binding is not None and self.key != f"nl-run:{self.run_binding.run_id}":
             raise ValueError("producer_run_binding_budget_key_mismatch")
+        if self.control_job_attempt is not None and self.pre_admission_attempt_id is not None:
+            raise ValueError("producer_attempt_attribution_is_ambiguous")
 
     def _validate_new_settlement_origin(
         self,
@@ -331,6 +344,7 @@ def _decode_snapshot(raw: str) -> BudgetLedgerSnapshot:
         "1.0",
         "1.1",
         "1.2",
+        "1.3",
         _SNAPSHOT_VERSION,
     }:
         raise ValueError("budget ledger schema_version is missing or unsupported")
@@ -430,6 +444,8 @@ class BudgetLedger(Protocol):
         provider: str,
         *,
         run_binding: BudgetLedgerProducerRunBinding | None = None,
+        control_job_attempt: int | None = None,
+        pre_admission_attempt_id: str | None = None,
     ) -> BudgetLedgerProducerRecord: ...
     def settle_producer_event(
         self,
@@ -443,6 +459,8 @@ class BudgetLedger(Protocol):
         cost_origin: Literal["reported", "estimated", "reuse", "unknown"],
         origin_event_id: str | None = None,
         run_binding: BudgetLedgerProducerRunBinding | None = None,
+        control_job_attempt: int | None = None,
+        pre_admission_attempt_id: str | None = None,
     ) -> BudgetLedgerProducerRecord: ...
     def resolve_producer_event(self, event_id: str) -> BudgetLedgerProducerRecord | None: ...
     def list_producer_events_for_run(
@@ -685,6 +703,8 @@ class FileBudgetLedger:
         provider: str,
         *,
         run_binding: BudgetLedgerProducerRunBinding | None = None,
+        control_job_attempt: int | None = None,
+        pre_admission_attempt_id: str | None = None,
     ) -> BudgetLedgerProducerRecord:
         """Persist the provider intent before dispatch; pending is never zero."""
         with self._thread_lock:
@@ -702,6 +722,8 @@ class FileBudgetLedger:
                         or existing.model != model
                         or existing.provider != provider
                         or existing.run_binding != run_binding
+                        or existing.control_job_attempt != control_job_attempt
+                        or existing.pre_admission_attempt_id != pre_admission_attempt_id
                     ):
                         raise ValueError("producer event ID conflicts with an existing intent")
                     return existing
@@ -713,6 +735,8 @@ class FileBudgetLedger:
                     model=model,
                     provider=provider,
                     run_binding=run_binding,
+                    control_job_attempt=control_job_attempt,
+                    pre_admission_attempt_id=pre_admission_attempt_id,
                     amount=None,
                     cost_origin="unknown",
                     status="pending",
@@ -757,6 +781,8 @@ class FileBudgetLedger:
         cost_origin: Literal["reported", "estimated", "reuse", "unknown"],
         origin_event_id: str | None = None,
         run_binding: BudgetLedgerProducerRunBinding | None = None,
+        control_job_attempt: int | None = None,
+        pre_admission_attempt_id: str | None = None,
     ) -> BudgetLedgerProducerRecord:
         """Atomically publish one terminal producer status and any known charge."""
         status: Literal["committed", "unknown"] = "unknown" if amount is None else "committed"
@@ -772,6 +798,8 @@ class FileBudgetLedger:
             status=status,
             origin_event_id=origin_event_id,
             run_binding=run_binding,
+            control_job_attempt=control_job_attempt,
+            pre_admission_attempt_id=pre_admission_attempt_id,
             revision=1,
         )
         with self._thread_lock:
@@ -798,6 +826,15 @@ class FileBudgetLedger:
                         raise ValueError(
                             "producer event run binding conflicts with existing intent"
                         )
+                    for field in ("control_job_attempt", "pre_admission_attempt_id"):
+                        incoming = getattr(candidate, field)
+                        persisted = getattr(existing_record, field)
+                        if incoming is not None and incoming != persisted:
+                            raise ValueError(
+                                "producer event attempt attribution conflicts with existing intent"
+                            )
+                        if incoming is None:
+                            candidate = candidate.model_copy(update={field: persisted})
                     if existing_record.status != "pending":
                         identity = (
                             "payload_digest",
@@ -808,6 +845,8 @@ class FileBudgetLedger:
                             "cost_origin",
                             "status",
                             "origin_event_id",
+                            "control_job_attempt",
+                            "pre_admission_attempt_id",
                         )
                         if any(
                             getattr(existing_record, field) != getattr(candidate, field)
@@ -1093,7 +1132,7 @@ class FileBudgetLedger:
     def _needs_contract_upgrade(self, snapshot: BudgetLedgerSnapshot) -> bool:
         return bool(
             snapshot.ledger_id is None
-            or snapshot.schema_version != _SNAPSHOT_VERSION
+            or tuple(map(int, snapshot.schema_version.split("."))) < (1, 3)
             or snapshot.canonical_contract != _CANONICAL_LEDGER_CONTRACT
             or snapshot.coordination_mode != _COORDINATION_MODE
         )

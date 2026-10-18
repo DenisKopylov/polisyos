@@ -1508,7 +1508,7 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
 
         async def _run_synthetic_retry() -> Any:
             try:
-                with reopened.producer_run_binding_scope(binding):
+                with reopened.producer_run_binding_scope(binding, control_job_attempt=job.attempt):
                     return await retry_traced_client.generate(
                         user="Local synthetic retry candidate for the persisted run."
                     )
@@ -1540,7 +1540,7 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
         # This durable begin is the exact crash boundary: the provider intent
         # is written under the admitted run owner and no terminal settlement
         # follows before the ledger is reopened and read by a fresh GET.
-        with reopened.producer_run_binding_scope(binding):
+        with reopened.producer_run_binding_scope(binding, control_job_attempt=job.attempt):
             pending = reopened.begin_producer_event_safe(
                 "crash-after-begin:ordinary-nl-route",
                 "a" * 64,
@@ -1572,7 +1572,7 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
         )
 
         async def _run_cache_expiry() -> tuple[Any, Any, Any]:
-            with reopened.producer_run_binding_scope(binding):
+            with reopened.producer_run_binding_scope(binding, control_job_attempt=job.attempt):
                 request = {"user": "R3 TTL expiry witness for the selected ordinary run."}
                 first = await expiry_traced_client.generate(**request)
                 reuse = await expiry_traced_client.generate(**request)
@@ -1682,6 +1682,47 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
         assert foreign_record.provider == retry_event.provider == "synthetic_gateway"
         assert foreign_record.run_binding == foreign_binding
 
+        # An owner-bound row from a writer without lease-attempt context remains unassigned.
+        with reopened.producer_run_binding_scope(binding):
+            legacy_event = reopened.settle_producer_event_safe(
+                "llm-provider:r3-unattributed-legacy-row",
+                "d" * 64,
+                "e" * 64,
+                key=f"nl-run:{selected_binding.run_id}",
+                model="simulated-qwen",
+                provider="synthetic_gateway",
+                amount=Decimal("0.01"),
+                cost_origin="reported",
+            )
+        assert legacy_event.run_binding == selected_binding
+        assert legacy_event.control_job_attempt is None
+        assert legacy_event.pre_admission_attempt_id is None
+
+        # Two writes share the stable run binding but carry different persisted lease attempts.
+        second_attempt_event = "llm-provider:r3-control-job-attempt-two"
+        second_attempt_request = "f" * 64
+        second_attempt_payload = "a" * 64
+        with reopened.producer_run_binding_scope(binding, control_job_attempt=2):
+            reopened.begin_producer_event_safe(
+                second_attempt_event,
+                second_attempt_request,
+                key=f"nl-run:{binding.run_id}",
+                model="simulated-qwen",
+                provider="synthetic_gateway",
+            )
+            second_attempt_record = reopened.settle_producer_event_safe(
+                second_attempt_event,
+                second_attempt_request,
+                second_attempt_payload,
+                key=f"nl-run:{binding.run_id}",
+                model="simulated-qwen",
+                provider="synthetic_gateway",
+                amount=Decimal("0.03"),
+                cost_origin="reported",
+            )
+        assert second_attempt_record.control_job_attempt == 2
+        assert second_attempt_record.run_binding == selected_binding
+
         response = client.get(f"/api/v1/runs/{core_run_id}/agents")
         assert response.status_code == 200, response.text
         accepted = AgentPipelineResponse.model_validate(response.json())
@@ -1701,9 +1742,31 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
         assert foreign_record.event_id not in owner_records_by_id
         assert foreign_record.event_id not in served_by_id
         assert pending.event_id in served_by_id
-        assert set(served_by_id) == set(owner_records_by_id)
+        current_records = [
+            record
+            for record in owner_records
+            if record.control_job_attempt == job.attempt and record.pre_admission_attempt_id is None
+        ]
+        unattributed_records = [
+            record for record in owner_records if record.control_job_attempt is None
+        ]
+        other_attempt_records = [
+            record
+            for record in owner_records
+            if record.control_job_attempt is not None and record.control_job_attempt != job.attempt
+        ]
+        unassigned_by_id = {event.event_id: event for event in pipeline.unattributed_cost_events}
+        assert set(served_by_id) == {record.event_id for record in current_records}
+        assert set(unassigned_by_id) == {record.event_id for record in unattributed_records}
+        assert second_attempt_record in other_attempt_records
+        assert legacy_event.event_id in unassigned_by_id
+        assert unassigned_by_id[legacy_event.event_id].amount == Decimal("0.01")
+        assert second_attempt_event not in served_by_id
+        assert "llm_producer_events_from_other_control_job_attempts_excluded_from_core_run" in (
+            pipeline.notes
+        )
         assert all(event.durability == "ledger" for event in served_events)
-        for record in owner_records:
+        for record in current_records:
             served_record = served_by_id[record.event_id]
             assert served_record.origin_event_id == record.origin_event_id
             assert served_record.cost_origin == record.cost_origin
@@ -1716,6 +1779,12 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
             assert served_record.payload_digest == record.payload_digest
             assert served_record.model == record.model
             assert served_record.provider == record.provider
+            assert served_record.control_job_attempt == job.attempt
+        for record in unattributed_records:
+            assert unassigned_by_id[record.event_id].control_job_attempt is None
+            assert unassigned_by_id[record.event_id].pre_admission_attempt_id == (
+                record.pre_admission_attempt_id
+            )
         pending_view = served_by_id[pending.event_id]
         assert pending_view.settlement_status == "pending"
         assert pending_view.cost_origin == "unknown"
@@ -1729,7 +1798,8 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
         estimated_amount = Decimal(0)
         known_total = Decimal(0)
         total_is_unknown = False
-        for record in owner_records:
+        visible_records = current_records
+        for record in visible_records:
             expected_origin_counts[record.cost_origin] = (
                 expected_origin_counts.get(record.cost_origin, 0) + 1
             )
@@ -1764,9 +1834,311 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
         )
         assert any(
             record.cost_origin == "unknown" and record.status == "unknown" and record.amount is None
-            for record in owner_records
+            for record in visible_records
         )
         assert pending_view.model == "simulated-qwen"
+
+        # A scalar from the persisted model-variant source must survive when its
+        # step identity merges with an audit/timeline step.
+        existing_step = next(
+            step
+            for attempt in pipeline.attempts
+            for step in attempt.steps
+            if step.agent != "llm_producer_settlement"
+        )
+        original_load_state_for_merge = runtime_context.debug._load_experiment_state_payload
+        variant_index = existing_step.attempt - 1
+        duplicate_step_state = [None] * variant_index + [
+            {
+                "model": existing_step.model or "legacy-model",
+                "model_variant_id": existing_step.model_variant_id,
+                "status": "completed",
+                "steps": [
+                    {
+                        "action": existing_step.action,
+                        "agent": existing_step.agent,
+                        "attempt": existing_step.attempt,
+                        "cost_usd": 0.91,
+                        "model": existing_step.model,
+                        "model_variant_id": existing_step.model_variant_id,
+                        "timestamp": (
+                            existing_step.timestamp.isoformat()
+                            if existing_step.timestamp is not None
+                            else None
+                        ),
+                    }
+                ],
+            }
+        ]
+
+        def _load_state_with_duplicate_step(ref: Any) -> dict[str, Any]:
+            payload = deepcopy(original_load_state_for_merge(ref))
+            params = payload.setdefault("params", {})
+            assert isinstance(params, dict)
+            params["llm_model_variants"] = duplicate_step_state
+            return payload
+
+        monkeypatch.setattr(
+            runtime_context.debug,
+            "_load_experiment_state_payload",
+            _load_state_with_duplicate_step,
+        )
+        try:
+            duplicate_step_response = client.get(f"/api/v1/runs/{core_run_id}/agents")
+        finally:
+            monkeypatch.setattr(
+                runtime_context.debug,
+                "_load_experiment_state_payload",
+                original_load_state_for_merge,
+            )
+        assert duplicate_step_response.status_code == 200, duplicate_step_response.text
+        duplicate_step_pipeline = AgentPipelineResponse.model_validate(
+            duplicate_step_response.json()
+        ).pipeline
+        assert any(
+            row.claimed_value_usd == pytest.approx(0.91)
+            and row.agent == existing_step.agent
+            and row.attempt == existing_step.attempt
+            and row.scope == "not_established"
+            for row in duplicate_step_pipeline.unattributed_cost_scalars
+        )
+
+        from polisyos.core.contracts.runtime import AgentPipelineView
+
+        unassigned_only_summary = AgentPipelineView.model_validate(
+            {
+                "run_id": core_run_id,
+                "source_kind": run.source_kind,
+                "attempts": [],
+                "unattributed_cost_events": [
+                    unassigned_by_id[legacy_event.event_id].model_dump(mode="json")
+                ],
+                "cost_usd": 0.01,
+                "reported_cost_usd": 0.01,
+                "estimated_cost_usd": 0.0,
+                "cost_origin_counts": {"reported": 1},
+                "settlement_status_counts": {"committed": 1},
+            }
+        )
+        assert unassigned_only_summary.cost_usd is None
+        assert unassigned_only_summary.reported_cost_usd is None
+        assert unassigned_only_summary.cost_origin_counts == {}
+        assert {
+            (row.source_field, row.claimed_value_usd, row.scope)
+            for row in unassigned_only_summary.unattributed_cost_scalars
+        } == {
+            ("cost_usd", 0.01, "not_established"),
+            ("reported_cost_usd", 0.01, "not_established"),
+            ("estimated_cost_usd", 0.0, "not_established"),
+        }
+
+        from polisyos.runtime.http.services.adapters.core_run import (
+            derive_control_job_core_run_id,
+        )
+
+        persisted_job = control_store.get_job(job_id)
+        assert persisted_job is not None
+        original_progress = dict(persisted_job.progress)
+        original_attempt = persisted_job.attempt
+        attempt_two_core_run_id = derive_control_job_core_run_id(
+            job_id=job_id,
+            control_run_id=str(persisted_job.run_id),
+            attempt=2,
+        )
+        attempt_two_run = replace(
+            run,
+            run_id=attempt_two_core_run_id,
+            details=run.details.model_copy(update={"run_id": attempt_two_core_run_id}),
+        )
+        run_index = runtime_context.run_index
+        original_get_run = run_index.get_run
+        progress_for_attempt_two = {
+            **original_progress,
+            "core_run_id": attempt_two_core_run_id,
+            "core_run_attempt": 2,
+        }
+        try:
+            control_store._execute(
+                "UPDATE control_jobs SET attempt = ? WHERE job_id = ?",
+                (2, job_id),
+            )
+            control_store.upsert_progress(job_id=job_id, progress=progress_for_attempt_two)
+
+            def _get_attempt_two_run(requested_id: str) -> Any:
+                if requested_id == attempt_two_core_run_id:
+                    return attempt_two_run
+                return original_get_run(requested_id)
+
+            monkeypatch.setattr(run_index, "get_run", _get_attempt_two_run)
+            stale_attempt_record = next(
+                record
+                for record in current_records
+                if record.control_job_attempt == original_attempt
+                and record.pre_admission_attempt_id is None
+            )
+            stale_event_payload = served_by_id[stale_attempt_record.event_id].model_dump(
+                mode="json"
+            )
+            original_load_state = runtime_context.debug._load_experiment_state_payload
+
+            def _load_state_with_same_label_stale_attempt(ref: Any) -> dict[str, Any]:
+                payload = deepcopy(original_load_state(ref))
+                params = payload.setdefault("params", {})
+                assert isinstance(params, dict)
+                params["llm_model_variants"] = [
+                    {
+                        "model": "legacy-top-level-model",
+                        "model_variant_id": "legacy-top-level-variant",
+                        "status": "completed",
+                        "cost_usd": 0.41,
+                    },
+                    {
+                        "model": "legacy-nested-model",
+                        "model_variant_id": "legacy-nested-variant",
+                        "cost_usd": 0.53,
+                        "reported_cost_usd": 0.52,
+                        "estimated_cost_usd": 0.51,
+                        "steps": [
+                            {
+                                "agent": "llm_producer_settlement",
+                                "action": "durable_ledger",
+                                "status": "info",
+                                "cost_events": [stale_event_payload],
+                            },
+                            {
+                                "agent": "model_variant",
+                                "action": "legacy_scalar",
+                                "status": "info",
+                                "cost_usd": 0.29,
+                                "details": {
+                                    "nested": {
+                                        "cost_usd": 0.73,
+                                        "annotation": "diagnostic $9 only",
+                                    }
+                                },
+                            },
+                        ],
+                    },
+                ]
+                return payload
+
+            monkeypatch.setattr(
+                runtime_context.debug,
+                "_load_experiment_state_payload",
+                _load_state_with_same_label_stale_attempt,
+            )
+            try:
+                attempt_two_response = client.get(f"/api/v1/runs/{attempt_two_core_run_id}/agents")
+            finally:
+                monkeypatch.setattr(
+                    runtime_context.debug,
+                    "_load_experiment_state_payload",
+                    original_load_state,
+                )
+            assert stale_attempt_record.control_job_attempt == original_attempt
+            assert stale_attempt_record.control_job_attempt != 2
+            assert attempt_two_response.status_code == 200, attempt_two_response.text
+            attempt_two_pipeline = AgentPipelineResponse.model_validate(
+                attempt_two_response.json()
+            ).pipeline
+            attempt_two_served_ids = {
+                event.event_id
+                for attempt in attempt_two_pipeline.attempts
+                for step in attempt.steps
+                for event in step.cost_events
+            }
+            assert attempt_two_served_ids == {second_attempt_event}
+            assert stale_attempt_record.event_id not in attempt_two_served_ids
+            assert second_attempt_record.control_job_attempt == 2
+            assert attempt_two_pipeline.owner_control_job_attempt == 2
+            assert {
+                attempt.attempt
+                for attempt in attempt_two_pipeline.attempts
+                if any(
+                    event.event_id == second_attempt_event
+                    for step in attempt.steps
+                    for event in step.cost_events
+                )
+            } == {1}
+            assert not (attempt_two_served_ids & {record.event_id for record in current_records})
+            assert legacy_event.event_id in {
+                event.event_id for event in attempt_two_pipeline.unattributed_cost_events
+            }
+            assert (
+                "llm_producer_events_from_other_control_job_attempts_excluded_from_core_run"
+                in attempt_two_pipeline.notes
+            )
+            assert attempt_two_pipeline.cost_usd == pytest.approx(0.03, abs=1e-9)
+            assert attempt_two_pipeline.reported_cost_usd == pytest.approx(0.03, abs=1e-9)
+            assert attempt_two_pipeline.cost_origin_counts == {"reported": 1}
+            nested_parent_claims = {
+                (row.source_field, row.claimed_value_usd, row.source_index, row.scope)
+                for row in attempt_two_pipeline.unattributed_cost_scalars
+                if row.source_kind == "performance_summary_variant_row"
+            }
+            assert nested_parent_claims == {
+                ("cost_usd", 0.53, 1, "not_established"),
+                ("reported_cost_usd", 0.52, 1, "not_established"),
+                ("estimated_cost_usd", 0.51, 1, "not_established"),
+            }
+            unassigned_scalars = {
+                (row.source_kind, row.model_variant_id, row.claimed_value_usd, row.scope)
+                for row in attempt_two_pipeline.unattributed_cost_scalars
+            }
+            assert (
+                "step_summary",
+                "legacy-top-level-variant",
+                0.41,
+                "not_established",
+            ) in unassigned_scalars
+            assert (
+                "step_summary",
+                "legacy-nested-variant",
+                0.29,
+                "not_established",
+            ) in unassigned_scalars
+            nested_details_step = next(
+                step
+                for attempt in attempt_two_pipeline.attempts
+                for step in attempt.steps
+                if step.model_variant_id == "legacy-nested-variant"
+                and step.action == "legacy_scalar"
+            )
+            assert nested_details_step.details_cost_scope == "not_established"
+            assert nested_details_step.details == {
+                "nested": {"cost_usd": 0.73, "annotation": "diagnostic $9 only"}
+            }
+            assert nested_details_step.cost_usd is None
+            assert {row.scope for row in attempt_two_pipeline.unattributed_cost_scalars} == {
+                "not_established"
+            }
+            owner_rows_after_second_attempt = fresh_reader.list_producer_events_for_run_safe(
+                selected_binding
+            )
+            assert {record.event_id for record in current_records} <= {
+                record.event_id for record in owner_rows_after_second_attempt
+            }
+            assert second_attempt_event in {
+                record.event_id for record in owner_rows_after_second_attempt
+            }
+
+            progress_without_attempt = dict(progress_for_attempt_two)
+            del progress_without_attempt["core_run_attempt"]
+            control_store.upsert_progress(job_id=job_id, progress=progress_without_attempt)
+            rejected_projection = runtime_context.debug._producer_ledger_projection_for_indexed_run(
+                attempt_two_run
+            )
+            assert rejected_projection[0] == []
+            assert rejected_projection[1] == []
+            assert rejected_projection[3] is None
+            assert rejected_projection[4] == "llm_producer_control_job_owner_not_established"
+        finally:
+            control_store._execute(
+                "UPDATE control_jobs SET attempt = ? WHERE job_id = ?",
+                (original_attempt, job_id),
+            )
+            control_store.upsert_progress(job_id=job_id, progress=original_progress)
+            monkeypatch.setattr(run_index, "get_run", original_get_run)
 
         # A terminal unknown physical amount may still have a separately recorded
         # zero-increment cache reuse. Append that pair to the selected run's durable
@@ -1803,7 +2175,7 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
 
         async def _run_unknown_origin_reuse() -> tuple[Any, Any]:
             request = {"user": "R3 terminal-unknown origin cache reuse witness.", "temperature": 0}
-            with unknown_store.producer_run_binding_scope(binding):
+            with unknown_store.producer_run_binding_scope(binding, control_job_attempt=job.attempt):
                 physical = await unknown_client.generate(**request)
                 reuse = await unknown_client.generate(**request)
             return physical, reuse
@@ -1836,7 +2208,19 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
             for event in step.cost_events
         ]
         unknown_served_by_id = {event.event_id: event for event in unknown_served_events}
-        assert set(unknown_served_by_id) == set(unknown_records_by_id)
+        unknown_current_ids = {
+            record.event_id
+            for record in unknown_records
+            if record.control_job_attempt == job.attempt and record.pre_admission_attempt_id is None
+        }
+        unknown_unattributed_ids = {
+            record.event_id for record in unknown_records if record.control_job_attempt is None
+        }
+        assert set(unknown_served_by_id) == unknown_current_ids
+        assert {event.event_id for event in unknown_pipeline.unattributed_cost_events} == (
+            unknown_unattributed_ids
+        )
+        assert second_attempt_event not in unknown_served_by_id
         assert unknown_served_by_id[unknown_physical_event.event_id].amount is None
         assert unknown_served_by_id[unknown_physical_event.event_id].cost_origin == "unknown"
         assert unknown_served_by_id[unknown_reuse_event.event_id].amount == Decimal(0)
@@ -2834,3 +3218,485 @@ def test_terminal_progress_carries_only_current_fenced_source_projections(
                 _assert_no_completed_outbox(job.job_id)
 
     store.close()
+
+
+def test_agent_pipeline_cost_scalar_without_eligible_events_is_unassigned() -> None:
+    from pydantic import ValidationError
+
+    from polisyos.core.contracts.runtime import (
+        AgentPipelineAttempt,
+        AgentPipelineStep,
+        AgentPipelineView,
+    )
+
+    current_event = {
+        "event_id": "llm-provider:current-attempt-claim-control",
+        "cost_origin": "reported",
+        "amount": "0.07",
+        "cost_usd": 0.07,
+        "settlement_status": "committed",
+        "durability": "ledger",
+        "control_job_attempt": 2,
+        "pre_admission_attempt_id": None,
+    }
+    event_step = AgentPipelineStep.model_validate(
+        {
+            "attempt": 2,
+            "agent": "model_variant",
+            "action": "completed",
+            "cost_usd": 0.99,
+            "reported_cost_usd": 0.99,
+            "cost_events": [current_event],
+        }
+    )
+    assert event_step.cost_usd is None
+    assert event_step.reported_cost_usd is None
+    assert event_step.cost_origin_counts == {}
+    assert event_step.settlement_event_ids == ()
+    assert {
+        (row.source_field, row.claimed_value_usd) for row in event_step.unattributed_cost_scalars
+    } == {("cost_usd", 0.99), ("reported_cost_usd", 0.99)}
+
+    attempt = AgentPipelineAttempt.model_validate(
+        {
+            "attempt": 1,
+            "cost_usd": 0.8,
+            "steps": [
+                {
+                    "agent": "model_variant",
+                    "action": "legacy",
+                    "cost_usd": 0.3,
+                }
+            ],
+        }
+    )
+    assert attempt.cost_usd is None
+    assert attempt.steps[0].cost_usd is None
+    assert {row.source_kind for row in attempt.unattributed_cost_scalars} == {
+        "step_summary",
+        "attempt_summary",
+    }
+
+    view = AgentPipelineView.model_validate(
+        {
+            "run_id": "run-scalar-only",
+            "source_kind": "core_run",
+            "cost_usd": 0.9,
+            "attempts": [],
+            "performance_summary": {
+                "llm": {"cost_usd": 0.7},
+                "variant_rows": [{"model_variant_id": "legacy-variant", "cost_usd": 0.4}],
+            },
+        }
+    )
+    assert view.cost_usd is None
+    assert view.performance_summary is not None
+    assert view.performance_summary["llm"]["cost_usd"] is None
+    assert view.performance_summary["variant_rows"][0]["cost_usd"] is None
+    assert {row.source_kind for row in view.unattributed_cost_scalars} == {
+        "pipeline_summary",
+        "performance_summary_llm",
+        "performance_summary_variant_row",
+    }
+
+    for invalid in (True, float("nan"), -0.01):
+        with pytest.raises(ValidationError):
+            AgentPipelineStep.model_validate(
+                {
+                    "agent": "model_variant",
+                    "action": "legacy",
+                    "cost_usd": invalid,
+                }
+            )
+
+    with pytest.raises(ValidationError):
+        AgentPipelineStep.model_validate(
+            {
+                "agent": "model_variant",
+                "action": "completed",
+                "cost_usd": True,
+                "cost_events": [{**current_event, "amount": "1.00", "cost_usd": 1.0}],
+            }
+        )
+
+
+@pytest.mark.parametrize("source", ["audit", "timeline", "variant", "reflexion"])
+def test_agent_pipeline_details_are_bounded_unestablished_claims(source: str) -> None:
+    from pydantic import ValidationError
+
+    from polisyos.core.contracts.runtime import AgentPipelineStep
+    from polisyos.runtime.http.services.debug import (
+        _agent_step_from_reflexion_payload,
+        _agent_steps_from_audit_trail,
+        _agent_steps_from_model_variants,
+        _agent_steps_from_timeline,
+    )
+
+    nested_detail = {"cost_usd": 0.73, "annotation": "diagnostic $9 only"}
+    if source == "audit":
+        expected_details = {"nested": nested_detail}
+        steps = _agent_steps_from_audit_trail(
+            [{"node": "critic", "action": "approved", "details": {"nested": nested_detail}}],
+            sensitive_keys=(),
+        )
+    elif source == "timeline":
+        expected_details = {"nested": nested_detail}
+        steps = _agent_steps_from_timeline(
+            [
+                SimpleNamespace(
+                    phase="scientist.agent.critic",
+                    event="approved",
+                    metrics={"nested": nested_detail},
+                    timestamp=None,
+                )
+            ],
+            sensitive_keys=(),
+        )
+    elif source == "variant":
+        expected_details = {"nested": nested_detail}
+        steps = _agent_steps_from_model_variants(
+            {
+                "params": {
+                    "llm_model_variants": [
+                        {
+                            "steps": [
+                                {
+                                    "agent": "critic",
+                                    "action": "approved",
+                                    "details": {"nested": nested_detail},
+                                }
+                            ]
+                        }
+                    ]
+                }
+            },
+            sensitive_keys=(),
+        )
+    else:
+        reflexion_details = {"cost_usd": 0.73, "nested": nested_detail}
+        expected_details = {"card": reflexion_details}
+        reflexion_step = _agent_step_from_reflexion_payload(
+            {
+                "decision": "retry",
+                "card": reflexion_details,
+            },
+            sensitive_keys=(),
+        )
+        assert reflexion_step is not None
+        steps = [reflexion_step]
+
+    assert len(steps) == 1
+    step = steps[0]
+    assert step.details_cost_scope == "not_established"
+    assert step.cost_usd is None
+    assert step.details == expected_details
+
+    with pytest.raises(ValidationError):
+        AgentPipelineStep.model_validate(
+            {
+                "agent": "critic",
+                "action": "approved",
+                "details_cost_scope": "current",
+            }
+        )
+
+
+@pytest.mark.parametrize("invalid", [True, -0.01, float("nan"), "0.01"])
+@pytest.mark.parametrize("source", ["audit", "timeline", "variant", "reflexion"])
+def test_agent_pipeline_scalar_adapters_refuse_malformed_amounts(
+    invalid: object, source: str
+) -> None:
+    from polisyos.runtime.http.services.debug import (
+        _agent_step_from_reflexion_payload,
+        _agent_steps_from_audit_trail,
+        _agent_steps_from_model_variants,
+        _agent_steps_from_timeline,
+    )
+
+    def _build_steps() -> object:
+        if source == "audit":
+            return _agent_steps_from_audit_trail(
+                [{"node": "critic", "action": "approved", "details": {"cost_usd": invalid}}],
+                sensitive_keys=(),
+            )
+        if source == "timeline":
+            return _agent_steps_from_timeline(
+                [
+                    SimpleNamespace(
+                        phase="scientist.agent.critic",
+                        event="approved",
+                        metrics={"cost_usd": invalid},
+                        timestamp=None,
+                    )
+                ],
+                sensitive_keys=(),
+            )
+        if source == "variant":
+            return _agent_steps_from_model_variants(
+                {"params": {"llm_model_variants": [{"status": "completed", "cost_usd": invalid}]}},
+                sensitive_keys=(),
+            )
+        return _agent_step_from_reflexion_payload(
+            {"decision": "retry", "card": {"cost_usd": invalid}},
+            sensitive_keys=(),
+        )
+
+    with pytest.raises(ValueError):
+        _build_steps()
+
+
+def test_agent_pipeline_owner_control_attempt_is_distinct_from_group_ordinal() -> None:
+    from pydantic import ValidationError
+
+    from polisyos.core.contracts.runtime import AgentPipelineView
+
+    event = {
+        "event_id": "provider:owner-attempt-two",
+        "cost_origin": "reported",
+        "amount": "0.03",
+        "cost_usd": 0.03,
+        "settlement_status": "committed",
+        "durability": "ledger",
+        "control_job_attempt": 2,
+        "pre_admission_attempt_id": None,
+        "receipts": ["provider:owner-attempt-two"],
+    }
+    view = AgentPipelineView._from_verified_owner_context(
+        run_id="run-owner-attempt-two",
+        source_kind="core_run",
+        owner_control_job_attempt=2,
+        attempts=[
+            {
+                "attempt": 1,
+                "steps": [
+                    {
+                        "agent": "llm_producer_settlement",
+                        "action": "durable_ledger",
+                        "cost_events": [event],
+                    }
+                ],
+            }
+        ],
+    )
+    assert view.owner_control_job_attempt == 2
+    assert view.attempts[0].attempt == 1
+    assert view.cost_usd == pytest.approx(0.03)
+
+    for malformed in (True, 0):
+        with pytest.raises(ValidationError):
+            AgentPipelineView.model_validate(
+                {
+                    "run_id": "run-malformed-owner-attempt",
+                    "source_kind": "core_run",
+                    "owner_control_job_attempt": malformed,
+                    "attempts": [],
+                }
+            )
+
+    with pytest.raises(ValidationError, match="agent_pipeline_event_owner_attempt_mismatch"):
+        AgentPipelineView._from_verified_owner_context(
+            run_id="run-mismatched-owner-event",
+            source_kind="core_run",
+            owner_control_job_attempt=2,
+            attempts=[
+                {
+                    "attempt": 1,
+                    "steps": [
+                        {
+                            "agent": "llm_producer_settlement",
+                            "action": "durable_ledger",
+                            "cost_events": [{**event, "control_job_attempt": 1}],
+                        }
+                    ],
+                }
+            ],
+        )
+
+
+def test_agent_pipeline_projection_requires_explicit_root_owner_context() -> None:
+    from pydantic import ValidationError
+
+    from polisyos.core.contracts.runtime import (
+        AgentPipelineAttempt,
+        AgentPipelineStep,
+        AgentPipelineView,
+    )
+
+    event = {
+        "event_id": "provider:root-owner-context",
+        "cost_origin": "reported",
+        "amount": "0.03",
+        "cost_usd": 0.03,
+        "settlement_status": "committed",
+        "durability": "ledger",
+        "control_job_attempt": 2,
+        "pre_admission_attempt_id": None,
+        "receipts": ["provider:root-owner-context"],
+    }
+    raw_step = {
+        "agent": "llm_producer_settlement",
+        "action": "durable_ledger",
+        "cost_usd": 0.03,
+        "reported_cost_usd": 0.03,
+        "estimated_cost_usd": 0.05,
+        "cost_events": [event],
+    }
+    raw_attempt = {
+        "attempt": 1,
+        "cost_usd": 0.03,
+        "reported_cost_usd": 0.03,
+        "estimated_cost_usd": 0.07,
+        "steps": [raw_step],
+    }
+
+    direct_step = AgentPipelineStep.model_validate(raw_step)
+    direct_attempt = AgentPipelineAttempt.model_validate(raw_attempt)
+    assert direct_step.cost_usd is None
+    assert direct_step.reported_cost_usd is None
+    assert direct_step.estimated_cost_usd is None
+    assert direct_step.cost_origin_counts == {}
+    assert direct_step.settlement_event_ids == ()
+    assert direct_attempt.cost_usd is None
+    assert direct_attempt.reported_cost_usd is None
+    assert direct_attempt.estimated_cost_usd is None
+    assert direct_attempt.steps[0].cost_usd is None
+    assert direct_attempt.steps[0].reported_cost_usd is None
+    assert direct_attempt.steps[0].estimated_cost_usd is None
+
+    ownerless = AgentPipelineView.model_validate(
+        {
+            "run_id": "run-owner-not-established",
+            "source_kind": "core_run",
+            "owner_control_job_attempt": 2,
+            "cost_usd": 0.03,
+            "reported_cost_usd": 0.03,
+            "estimated_cost_usd": 0.03,
+            "attempts": [raw_attempt],
+        }
+    )
+    assert ownerless.owner_control_job_attempt is None
+    assert ownerless.cost_usd is None
+    assert ownerless.reported_cost_usd is None
+    assert ownerless.estimated_cost_usd is None
+    assert ownerless.cost_origin_counts == {}
+    assert ownerless.attempts[0].cost_usd is None
+    assert ownerless.attempts[0].reported_cost_usd is None
+    assert ownerless.attempts[0].estimated_cost_usd is None
+    assert ownerless.attempts[0].steps[0].cost_usd is None
+    assert ownerless.attempts[0].steps[0].reported_cost_usd is None
+    assert ownerless.attempts[0].steps[0].estimated_cost_usd is None
+    assert any(
+        row.source_kind == "pipeline_summary" and row.claimed_value_usd == 0.03
+        for row in ownerless.unattributed_cost_scalars
+    )
+
+    # A v1.3-style payload has scalar summaries but no owner or event ledger.
+    # Its three summary levels remain claims, regardless of numeric values.
+    legacy_v13 = AgentPipelineView.model_validate(
+        {
+            "run_id": "run-legacy-v13",
+            "source_kind": "core_run",
+            "cost_usd": 0.31,
+            "reported_cost_usd": 0.21,
+            "estimated_cost_usd": 0.11,
+            "attempts": [
+                {
+                    "attempt": 1,
+                    "cost_usd": 0.31,
+                    "reported_cost_usd": 0.21,
+                    "estimated_cost_usd": 0.11,
+                    "steps": [
+                        {
+                            "agent": "model_variant",
+                            "action": "legacy-v13",
+                            "cost_usd": 0.31,
+                            "reported_cost_usd": 0.21,
+                            "estimated_cost_usd": 0.11,
+                        }
+                    ],
+                }
+            ],
+        }
+    )
+    assert legacy_v13.owner_control_job_attempt is None
+    assert legacy_v13.cost_usd is None
+    assert legacy_v13.reported_cost_usd is None
+    assert legacy_v13.estimated_cost_usd is None
+    legacy_levels = [legacy_v13, legacy_v13.attempts[0], legacy_v13.attempts[0].steps[0]]
+    assert all(
+        value is None
+        for level in legacy_levels
+        for value in (level.cost_usd, level.reported_cost_usd, level.estimated_cost_usd)
+    )
+    assert {row.source_kind for row in legacy_v13.unattributed_cost_scalars} == {
+        "pipeline_summary",
+        "attempt_summary",
+        "step_summary",
+    }
+    assert {row.source_field for row in legacy_v13.unattributed_cost_scalars} == {
+        "cost_usd",
+        "reported_cost_usd",
+        "estimated_cost_usd",
+    }
+
+    # The payload owner field is only a claim: malformed context cannot promote it.
+    for malformed_context in (True, 0, 1.5, "2"):
+        rejected_owner = AgentPipelineView.model_validate(
+            {
+                "run_id": "run-unverified-owner-context",
+                "source_kind": "core_run",
+                "owner_control_job_attempt": 2,
+                "cost_usd": 0.03,
+                "attempts": [raw_attempt],
+            },
+            context={"verified_control_job_attempt": malformed_context},
+        )
+        assert rejected_owner.owner_control_job_attempt is None
+        assert rejected_owner.cost_usd is None
+        assert rejected_owner.attempts[0].cost_usd is None
+        assert rejected_owner.attempts[0].steps[0].cost_usd is None
+
+    # The route builds child DTOs before its verified owner has been assembled.
+    # The root reprojects those complete nested rows under its explicit context.
+    verified = AgentPipelineView._from_verified_owner_context(
+        run_id="run-owner-established",
+        source_kind="core_run",
+        owner_control_job_attempt=2,
+        attempts=[direct_attempt],
+    )
+    assert verified.owner_control_job_attempt == 2
+    assert verified.cost_usd == pytest.approx(0.03)
+    assert verified.reported_cost_usd == pytest.approx(0.03)
+    assert verified.attempts[0].attempt == 1
+    assert verified.attempts[0].cost_usd == pytest.approx(0.03)
+    assert verified.attempts[0].steps[0].cost_usd == pytest.approx(0.03)
+    assert verified.attempts[0].steps[0].settlement_event_ids == ("provider:root-owner-context",)
+    assert verified.unattributed_cost_scalars == []
+
+    # A summary without any eligible event remains a claim, even if the owner exists.
+    no_event_rows = AgentPipelineView._from_verified_owner_context(
+        run_id="run-owner-no-events",
+        source_kind="core_run",
+        owner_control_job_attempt=2,
+        cost_usd=0.91,
+        attempts=[],
+    )
+    assert no_event_rows.cost_usd is None
+    assert any(
+        row.source_kind == "pipeline_summary"
+        and row.source_field == "cost_usd"
+        and row.claimed_value_usd == pytest.approx(0.91)
+        and row.scope == "not_established"
+        for row in no_event_rows.unattributed_cost_scalars
+    )
+
+    with pytest.raises(ValidationError, match="agent_pipeline_owner_context_mismatch"):
+        AgentPipelineView.model_validate(
+            {
+                "run_id": "run-owner-context-conflict",
+                "source_kind": "core_run",
+                "owner_control_job_attempt": 2,
+                "attempts": [],
+            },
+            context={"verified_control_job_attempt": 1},
+        )

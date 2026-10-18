@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import json
 from decimal import Decimal
@@ -11,6 +12,7 @@ import pytest
 
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
 from polisyos.scientist.orchestration.engine.budget_ledger import (
+    BudgetLedgerProducerRecord,
     BudgetLedgerProducerRunBinding,
     FileBudgetLedger,
 )
@@ -91,7 +93,7 @@ def test_pending_unknown_estimated_reported_zero_and_reuse_survive_reopen(tmp_pa
     )
 
     reopened = FileBudgetLedger(path).snapshot()
-    assert reopened.schema_version == "1.3"
+    assert reopened.schema_version == "1.4"
     assert reopened.producer_settlements["pending"].status == "unknown"
     assert reopened.producer_settlements["pending"].amount is None
     assert reopened.producer_settlements["estimated"] == estimated
@@ -342,12 +344,20 @@ def test_producer_run_binding_is_persisted_and_exactly_scoped_across_reopen(
     assert reopened.list_producer_events_for_run_safe(other_owner) == ()
 
     def _nest_conflicting_owner_scope() -> None:
-        with middleware.producer_run_binding_scope(owner):
-            with middleware.producer_run_binding_scope(other_owner):
-                pass
+        with middleware.producer_run_binding_scope(owner, control_job_attempt=1):
+            with pytest.raises(ValueError, match="producer_run_binding_conflict"):
+                with middleware.producer_run_binding_scope(other_owner, control_job_attempt=2):
+                    pass
+            nested_after_rejection = middleware.begin_producer_event_safe(
+                "nested-owner-a-after-rejection",
+                _dig("request-nested-owner-a-after-rejection"),
+                key="nl-run:run-owner-a",
+                model="m",
+                provider="p",
+            )
+            assert nested_after_rejection.control_job_attempt == 1
 
-    with pytest.raises(ValueError, match="producer_run_binding_conflict"):
-        _nest_conflicting_owner_scope()
+    _nest_conflicting_owner_scope()
 
     # A nested identical scope cannot release the outer producer owner early.
     with middleware.producer_run_binding_scope(owner):
@@ -361,7 +371,11 @@ def test_producer_run_binding_is_persisted_and_exactly_scoped_across_reopen(
             provider="p",
         )
     assert still_bound.run_binding == owner
-    assert reopened.list_producer_events_for_run_safe(owner) == (pending, still_bound)
+    assert {record.event_id for record in reopened.list_producer_events_for_run_safe(owner)} == {
+        pending.event_id,
+        "nested-owner-a-after-rejection",
+        still_bound.event_id,
+    }
 
 
 def test_delayed_settlement_retains_binding_issued_at_durable_begin(tmp_path: Path) -> None:
@@ -375,7 +389,7 @@ def test_delayed_settlement_retains_binding_issued_at_durable_begin(tmp_path: Pa
     )
     request_digest = _dig("request-late-settlement")
     payload_digest = _dig("response-late-settlement")
-    with middleware.producer_run_binding_scope(owner):
+    with middleware.producer_run_binding_scope(owner, control_job_attempt=1):
         middleware.begin_producer_event_safe(
             "late-settlement",
             request_digest,
@@ -384,16 +398,174 @@ def test_delayed_settlement_retains_binding_issued_at_durable_begin(tmp_path: Pa
             provider="p",
         )
 
-    settled = middleware.settle_producer_event_safe(
-        "late-settlement",
-        request_digest,
-        payload_digest,
-        key=f"nl-run:{owner.run_id}",
-        model="m",
-        provider="p",
-        amount=Decimal("0.25"),
-        cost_origin="reported",
-    )
+    # A concurrently active later lease cannot relabel the intent issued in attempt 1.
+    with middleware.producer_run_binding_scope(owner, control_job_attempt=2):
+        settled = middleware.settle_producer_event_safe(
+            "late-settlement",
+            request_digest,
+            payload_digest,
+            key=f"nl-run:{owner.run_id}",
+            model="m",
+            provider="p",
+            amount=Decimal("0.25"),
+            cost_origin="reported",
+        )
     assert settled.status == "committed"
     assert settled.run_binding == owner
+    assert settled.control_job_attempt == 1
     assert middleware.list_producer_events_for_run_safe(owner) == (settled,)
+
+
+def test_attempt_attribution_is_context_local_and_cumulative_after_reopen(
+    tmp_path: Path,
+) -> None:
+    path = tmp_path / "attempt-attribution.json"
+    middleware = _middleware(path)
+    owner = BudgetLedgerProducerRunBinding(
+        run_id="run-attempt-scope",
+        tenant_id="tenant-a",
+        cell_id="cell-a",
+        profile_id="research",
+        control_job_id="job-attempt-scope",
+    )
+    key = f"nl-run:{owner.run_id}"
+
+    async def _record(event_id: str, attempt: int) -> BudgetLedgerProducerRecord:
+        with middleware.producer_run_binding_scope(owner, control_job_attempt=attempt):
+            request_digest = _dig(f"request-{event_id}")
+            middleware.begin_producer_event_safe(
+                event_id,
+                request_digest,
+                key=key,
+                model="m",
+                provider="p",
+            )
+            await asyncio.sleep(0)
+            return middleware.settle_producer_event_safe(
+                event_id,
+                request_digest,
+                _dig(f"response-{event_id}"),
+                key=key,
+                model="m",
+                provider="p",
+                amount=Decimal("0.01"),
+                cost_origin="reported",
+            )
+
+    async def _record_overlapping_attempts() -> tuple[
+        BudgetLedgerProducerRecord, BudgetLedgerProducerRecord
+    ]:
+        first, second = await asyncio.gather(_record("attempt-one", 1), _record("attempt-two", 2))
+        return first, second
+
+    first, second = asyncio.run(_record_overlapping_attempts())
+    pre_admission_id = "0123456789abcdef0123456789abcdef"
+    with middleware.producer_run_binding_scope(
+        owner,
+        pre_admission_attempt_id=pre_admission_id,
+    ):
+        preflight_request = _dig("request-preflight")
+        preflight = middleware.settle_producer_event_safe(
+            "preflight",
+            preflight_request,
+            _dig("response-preflight"),
+            key=key,
+            model="m",
+            provider="p",
+            amount=Decimal("0.01"),
+            cost_origin="reported",
+        )
+    # A producer written without a lease-attempt scope is visible but stays unassigned.
+    with middleware.producer_run_binding_scope(owner):
+        legacy = middleware.settle_producer_event_safe(
+            "unknown-attempt",
+            _dig("request-unknown-attempt"),
+            _dig("response-unknown-attempt"),
+            key=key,
+            model="m",
+            provider="p",
+            amount=Decimal("0.01"),
+            cost_origin="reported",
+        )
+
+    reader = _middleware(path)
+    records = {
+        record.event_id: record for record in reader.list_producer_events_for_run_safe(owner)
+    }
+    assert records[first.event_id].control_job_attempt == 1
+    assert records[second.event_id].control_job_attempt == 2
+    assert records[preflight.event_id].control_job_attempt is None
+    assert records[preflight.event_id].pre_admission_attempt_id == pre_admission_id
+    assert records[legacy.event_id].control_job_attempt is None
+    assert records[legacy.event_id].pre_admission_attempt_id is None
+    assert set(records) == {first.event_id, second.event_id, preflight.event_id, legacy.event_id}
+    assert reader.budget_state.spent[key] == Decimal("0.04")
+
+
+@pytest.mark.parametrize(
+    ("control_job_attempt", "pre_admission_attempt_id"),
+    [
+        (True, None),
+        (0, None),
+        ("2", None),
+        (1, "0123456789abcdef0123456789abcdef"),
+        (None, "not-a-pre-admission-id"),
+        (None, "0123456789ABCDEF0123456789ABCDEF"),
+        (None, 7),
+    ],
+)
+def test_producer_attempt_scope_rejects_malformed_or_ambiguous_attribution(
+    tmp_path: Path,
+    control_job_attempt: object,
+    pre_admission_attempt_id: object,
+) -> None:
+    middleware = _middleware(tmp_path / "invalid-attribution.json")
+    owner = BudgetLedgerProducerRunBinding(
+        run_id="run-invalid-attribution",
+        tenant_id="tenant-a",
+        cell_id="cell-a",
+        profile_id="research",
+        control_job_id="job-invalid-attribution",
+    )
+    with pytest.raises(ValueError, match="producer_"):
+        with middleware.producer_run_binding_scope(
+            owner,
+            control_job_attempt=control_job_attempt,  # type: ignore[arg-type]
+            pre_admission_attempt_id=pre_admission_attempt_id,  # type: ignore[arg-type]
+        ):
+            pass
+
+
+def test_legacy_13_attempt_attribution_is_unknown_without_read_rewrite(tmp_path: Path) -> None:
+    path = tmp_path / "legacy-13.json"
+    middleware = _middleware(path)
+    owner = BudgetLedgerProducerRunBinding(
+        run_id="run-legacy-13",
+        tenant_id="tenant-a",
+        cell_id="cell-a",
+        profile_id="research",
+        control_job_id="job-legacy-13",
+    )
+    with middleware.producer_run_binding_scope(owner, control_job_attempt=1):
+        middleware.settle_producer_event_safe(
+            "legacy-row",
+            _dig("legacy-request"),
+            _dig("legacy-response"),
+            key=f"nl-run:{owner.run_id}",
+            model="m",
+            provider="p",
+            amount=Decimal("0.01"),
+            cost_origin="reported",
+        )
+    wire = json.loads(path.read_bytes())
+    wire["schema_version"] = "1.3"
+    wire["producer_settlements"]["legacy-row"].pop("control_job_attempt", None)
+    wire["producer_settlements"]["legacy-row"].pop("pre_admission_attempt_id", None)
+    path.write_text(json.dumps(wire, sort_keys=True), encoding="utf-8")
+    before = path.read_bytes()
+
+    reader = _middleware(path)
+    assert path.read_bytes() == before
+    record = reader.list_producer_events_for_run_safe(owner)[0]
+    assert record.control_job_attempt is None
+    assert record.pre_admission_attempt_id is None

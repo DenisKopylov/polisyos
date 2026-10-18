@@ -2409,6 +2409,18 @@ describe("runtime API validators", () => {
         source_kind: "core_run",
         total_attempts: 1,
         cost_usd: null,
+        unattributed_cost_events: [
+          {
+            event_id: "preflight:unknown-attempt",
+            cost_origin: "unknown",
+            amount: null,
+            cost_usd: null,
+            settlement_status: "unknown",
+            durability: "ledger",
+            control_job_attempt: null,
+            pre_admission_attempt_id: "0123456789abcdef0123456789abcdef",
+          },
+        ],
         attempts: [
           {
             attempt: 1,
@@ -2460,6 +2472,37 @@ describe("runtime API validators", () => {
     const invalidEvent = mutableRecord(events[0]);
     invalidEvent.unexpected = true;
     expect(runAgentsSchema.safeParse(invalid).success).toBe(false);
+
+    const ambiguous: unknown = structuredClone(response);
+    const ambiguousPipeline = mutableRecord(mutableRecord(ambiguous).pipeline);
+    const unattributed = ambiguousPipeline.unattributed_cost_events;
+    if (!Array.isArray(unattributed)) {
+      throw new TypeError("expected unattributed cost event array");
+    }
+    const ambiguousEvent = mutableRecord(unattributed[0]);
+    ambiguousEvent.control_job_attempt = 1;
+    expect(runAgentsSchema.safeParse(ambiguous).success).toBe(false);
+
+    const nonLedgerAttempt: unknown = structuredClone(response);
+    const nonLedgerPipeline = mutableRecord(
+      mutableRecord(nonLedgerAttempt).pipeline,
+    );
+    const nonLedgerAttempts = nonLedgerPipeline.attempts;
+    if (!Array.isArray(nonLedgerAttempts)) {
+      throw new TypeError("expected attempts array");
+    }
+    const nonLedgerSteps = mutableRecord(nonLedgerAttempts[0]).steps;
+    if (!Array.isArray(nonLedgerSteps)) {
+      throw new TypeError("expected pipeline steps array");
+    }
+    const nonLedgerEvents = mutableRecord(nonLedgerSteps[0]).cost_events;
+    if (!Array.isArray(nonLedgerEvents)) {
+      throw new TypeError("expected cost events array");
+    }
+    const nonLedgerEvent = mutableRecord(nonLedgerEvents[0]);
+    nonLedgerEvent.control_job_attempt = 1;
+    nonLedgerEvent.durability = "memory";
+    expect(runAgentsSchema.safeParse(nonLedgerAttempt).success).toBe(false);
   });
 
   it("rejects qualification copy that upgrades a pending epoch", () => {
@@ -3638,5 +3681,249 @@ describe("artifact preview canonical read status custody", () => {
     expect(artifactContentSchema.safeParse(malformedScenario).success).toBe(
       false,
     );
+  });
+
+  it("accepts typed unassigned scalar claims and rejects scope or amount escalation", () => {
+    const scalar = {
+      source_kind: "step_summary",
+      source_field: "reported_cost_usd",
+      claimed_value_usd: 0.01,
+      scope: "not_established",
+      attempt: 2,
+      agent: "llm_producer_settlement",
+      model_variant_id: "legacy-variant",
+    };
+    const response = {
+      meta: {
+        request_id: "request-1",
+        generated_at: "2026-10-18T10:00:00Z",
+      },
+      pipeline: {
+        run_id: "run-1",
+        source_kind: "core_run",
+        total_attempts: 1,
+        owner_control_job_attempt: 2,
+        attempts: [
+          {
+            attempt: 2,
+            status: "unknown",
+            unattributed_cost_scalars: [scalar],
+            steps: [
+              {
+                attempt: 2,
+                agent: "llm_producer_settlement",
+                action: "durable_ledger",
+                status: "info",
+                settlement_event_ids: [],
+                unattributed_cost_scalars: [scalar],
+              },
+            ],
+          },
+        ],
+        unattributed_cost_scalars: [scalar],
+      },
+    };
+
+    expect(runAgentsSchema.safeParse(response).success).toBe(true);
+    const legacyResponse = structuredClone(response);
+    expect(
+      Reflect.deleteProperty(
+        legacyResponse.pipeline,
+        "owner_control_job_attempt",
+      ),
+    ).toBe(true);
+    expect(runAgentsSchema.safeParse(legacyResponse).success).toBe(true);
+    for (const ownerAttempt of [0, true]) {
+      expect(
+        runAgentsSchema.safeParse({
+          ...response,
+          pipeline: {
+            ...response.pipeline,
+            owner_control_job_attempt: ownerAttempt,
+          },
+        }).success,
+      ).toBe(false);
+    }
+    expect(
+      runAgentsSchema.safeParse({
+        ...response,
+        pipeline: {
+          ...response.pipeline,
+          attempts: [
+            {
+              attempt: 1,
+              status: "unknown",
+              steps: [
+                {
+                  attempt: 1,
+                  agent: "llm_producer_settlement",
+                  action: "durable_ledger",
+                  cost_events: [
+                    {
+                      event_id: "old-attempt-under-owner-2",
+                      cost_origin: "reported",
+                      amount: "0.01",
+                      cost_usd: 0.01,
+                      settlement_status: "committed",
+                      durability: "ledger",
+                      control_job_attempt: 1,
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      }).success,
+    ).toBe(false);
+    expect(
+      runAgentsSchema.safeParse({
+        ...response,
+        pipeline: {
+          ...response.pipeline,
+          unattributed_cost_scalars: [{ ...scalar, scope: "current_attempt" }],
+        },
+      }).success,
+    ).toBe(false);
+    expect(
+      runAgentsSchema.safeParse({
+        ...response,
+        pipeline: {
+          ...response.pipeline,
+          unattributed_cost_scalars: [{ ...scalar, claimed_value_usd: true }],
+        },
+      }).success,
+    ).toBe(false);
+  });
+
+  it("defaults opaque step details to an unestablished cost scope", () => {
+    const legacyDetails = {
+      meta: {
+        request_id: "request-details-scope",
+        generated_at: "2026-10-18T10:00:00Z",
+      },
+      pipeline: {
+        run_id: "run-details-scope",
+        source_kind: "core_run",
+        attempts: [
+          {
+            attempt: 1,
+            steps: [
+              {
+                agent: "critic",
+                action: "approved",
+                details: {
+                  nested: { cost_usd: 0.73, annotation: "diagnostic $9 only" },
+                },
+              },
+            ],
+          },
+        ],
+      },
+    };
+    const parsed = runAgentsSchema.safeParse(legacyDetails);
+    expect(parsed.success).toBe(true);
+    if (!parsed.success) {
+      throw new Error("expected legacy details payload to parse");
+    }
+    expect(
+      parsed.data.pipeline.attempts?.[0]?.steps?.[0]?.details_cost_scope,
+    ).toBe("not_established");
+
+    const malformed = structuredClone(legacyDetails);
+    const malformedPipeline = mutableRecord(malformed.pipeline);
+    const malformedAttempts = malformedPipeline.attempts as unknown[];
+    const malformedAttempt = mutableRecord(malformedAttempts[0]);
+    const malformedSteps = malformedAttempt.steps as unknown[];
+    mutableRecord(malformedSteps[0]).details_cost_scope = "current";
+    expect(runAgentsSchema.safeParse(malformed).success).toBe(false);
+  });
+
+  it("rejects current cost projections without a verified owner context", () => {
+    const event = {
+      event_id: "ownerless-current-ledger-claim",
+      cost_origin: "reported",
+      amount: "0.03",
+      cost_usd: 0.03,
+      settlement_status: "committed",
+      durability: "ledger",
+      control_job_attempt: 2,
+      pre_admission_attempt_id: null,
+    };
+    const ownerless = {
+      meta: {
+        request_id: "request-ownerless",
+        generated_at: "2026-10-18T10:00:00Z",
+      },
+      pipeline: {
+        run_id: "run-ownerless",
+        source_kind: "core_run",
+        total_attempts: 1,
+        cost_usd: 0.03,
+        reported_cost_usd: 0.02,
+        estimated_cost_usd: 0.01,
+        cost_origin_counts: { reported: 1 },
+        settlement_status_counts: { committed: 1 },
+        attempts: [
+          {
+            attempt: 2,
+            cost_usd: 0.03,
+            reported_cost_usd: 0.02,
+            estimated_cost_usd: 0.01,
+            cost_origin_counts: { reported: 1 },
+            settlement_status_counts: { committed: 1 },
+            steps: [
+              {
+                agent: "llm_producer_settlement",
+                action: "durable_ledger",
+                cost_usd: 0.03,
+                reported_cost_usd: 0.02,
+                estimated_cost_usd: 0.01,
+                cost_origin_counts: { reported: 1 },
+                settlement_status_counts: { committed: 1 },
+                cost_events: [event],
+              },
+            ],
+          },
+        ],
+      },
+    };
+
+    expect(runAgentsSchema.safeParse(ownerless).success).toBe(false);
+    const withoutProjection = (value: Record<string, unknown>) => ({
+      ...value,
+      cost_usd: null,
+      reported_cost_usd: null,
+      estimated_cost_usd: null,
+      cost_origin_counts: {},
+      settlement_status_counts: {},
+    });
+    const honestUnknown = {
+      ...ownerless,
+      pipeline: withoutProjection({
+        ...ownerless.pipeline,
+        attempts: ownerless.pipeline.attempts.map((attempt) =>
+          withoutProjection({
+            ...attempt,
+            steps: attempt.steps.map((step) => withoutProjection(step)),
+          }),
+        ),
+      }),
+    };
+    expect(runAgentsSchema.safeParse(honestUnknown).success).toBe(true);
+
+    const noOwnerWithRawEvent = structuredClone(honestUnknown);
+    expect(runAgentsSchema.safeParse(noOwnerWithRawEvent).success).toBe(true);
+
+    for (const malformedOwner of [true, 0, 1.5, "2"]) {
+      const malformed = {
+        ...honestUnknown,
+        pipeline: {
+          ...honestUnknown.pipeline,
+          owner_control_job_attempt: malformedOwner,
+        },
+      };
+      expect(runAgentsSchema.safeParse(malformed).success).toBe(false);
+    }
   });
 });

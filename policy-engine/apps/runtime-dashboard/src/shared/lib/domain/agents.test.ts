@@ -184,6 +184,7 @@ describe("agents domain", () => {
           durationMs: null,
           estimatedCostUsd: null,
           finishedAt: null,
+          unattributedCostScalars: [],
           notes: [],
           startedAt: null,
           status: "unknown",
@@ -200,7 +201,9 @@ describe("agents domain", () => {
               costUsd: null,
               costUnknown: false,
               costEvents: [],
+              unattributedCostScalars: [],
               details: {},
+              detailsCostScope: "not_established",
               latencyMs: null,
               model: null,
               modelVariantId: null,
@@ -223,6 +226,7 @@ describe("agents domain", () => {
           durationMs: 3500,
           estimatedCostUsd: null,
           finishedAt: "2026-03-09T10:00:40Z",
+          unattributedCostScalars: [],
           notes: ["attempt-note", "2"],
           startedAt: "2026-03-09T10:00:05Z",
           status: "running",
@@ -365,10 +369,13 @@ describe("agents domain", () => {
         ],
       },
       runId: "run-1",
+      ownerControlJobAttempt: null,
       reportedCostUsd: null,
       settlementStatusCounts: {},
       source: "natural_language",
       totalAttempts: 3,
+      unattributedCostEvents: [],
+      unattributedCostScalars: [],
     });
   });
 
@@ -389,14 +396,50 @@ describe("agents domain", () => {
       reportedCostUsd: null,
       retrieval: null,
       runId: "unknown",
+      ownerControlJobAttempt: null,
       settlementStatusCounts: {},
       source: null,
       totalAttempts: 0,
+      unattributedCostEvents: [],
+      unattributedCostScalars: [],
     });
+  });
+
+  it("keeps lease-unattributed rows visible without charging the attempt summary", () => {
+    const model = normalizeAgentPipeline({
+      attempts: [],
+      unattributed_cost_events: [
+        {
+          amount: "0.05",
+          control_job_attempt: null,
+          cost_origin: "estimated",
+          cost_usd: 0.05,
+          durability: "ledger",
+          event_id: "preflight:event",
+          pre_admission_attempt_id: "0123456789abcdef0123456789abcdef",
+          payload_digest: "sha256:preflight",
+          receipts: ["preflight:event"],
+          settlement_status: "committed",
+        },
+      ],
+    });
+
+    expect(model.unattributedCostEvents).toEqual([
+      expect.objectContaining({
+        controlJobAttempt: null,
+        costOrigin: "estimated",
+        eventId: "preflight:event",
+        preAdmissionAttemptId: "0123456789abcdef0123456789abcdef",
+      }),
+    ]);
+    expect(model.costUsd).toBeNull();
+    expect(model.estimatedCostUsd).toBeNull();
+    expect(model.costOriginCounts).toEqual({});
   });
 
   it("keeps unknown producer costs null and preserves reuse lineage", () => {
     const model = normalizeAgentPipeline({
+      owner_control_job_attempt: 1,
       attempts: [
         {
           attempt: 1,
@@ -408,6 +451,7 @@ describe("agents domain", () => {
                 {
                   amount: "0",
                   cost_origin: "reported",
+                  control_job_attempt: 1,
                   cost_usd: 0,
                   durability: "ledger",
                   event_id: "provider:zero",
@@ -419,8 +463,9 @@ describe("agents domain", () => {
                 {
                   amount: null,
                   cost_origin: "unknown",
+                  control_job_attempt: 1,
                   cost_usd: null,
-                  durability: "none",
+                  durability: "ledger",
                   event_id: "provider:unknown",
                   payload_digest: "sha256:unknown",
                   provider: "gateway",
@@ -430,6 +475,7 @@ describe("agents domain", () => {
                 {
                   amount: "0",
                   cost_origin: "reuse",
+                  control_job_attempt: 1,
                   cost_usd: 0,
                   durability: "ledger",
                   event_id: "cache:reuse",
@@ -459,5 +505,345 @@ describe("agents domain", () => {
     expect(step?.costEvents[0]?.costUsd).toBe(0);
     expect(step?.costEvents[1]?.costUsd).toBeNull();
     expect(step?.costEvents[2]?.originEventId).toBe("provider:zero");
+  });
+
+  it("keeps eventless scalar claims out of current totals and excludes stale lease attempts", () => {
+    const model = normalizeAgentPipeline({
+      owner_control_job_attempt: 2,
+      cost_usd: 0.82,
+      reported_cost_usd: 0.82,
+      attempts: [
+        {
+          attempt: 2,
+          cost_usd: 0.53,
+          reported_cost_usd: 0.53,
+          steps: [
+            {
+              action: "durable_ledger",
+              agent: "llm_producer_settlement",
+              attempt: 2,
+              cost_usd: 0.41,
+              model_variant_id: "legacy-top-level-variant",
+            },
+            {
+              action: "durable_ledger",
+              agent: "llm_producer_settlement",
+              attempt: 2,
+              model_variant_id: "legacy-nested-variant",
+              cost_events: [
+                {
+                  amount: "0.23",
+                  cost_origin: "reported",
+                  control_job_attempt: 1,
+                  cost_usd: 0.23,
+                  durability: "ledger",
+                  event_id: "prior-attempt-event",
+                  receipts: ["prior-attempt-event"],
+                  settlement_status: "committed",
+                },
+                {
+                  amount: "0.03",
+                  cost_origin: "reported",
+                  control_job_attempt: 2,
+                  cost_usd: 0.03,
+                  durability: "ledger",
+                  event_id: "current-attempt-event",
+                  receipts: ["current-attempt-event"],
+                  settlement_status: "committed",
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+
+    const attempt = model.attempts[0];
+    const scalarStep = attempt?.steps[0];
+    const ledgerStep = attempt?.steps[1];
+    expect(model.costUsd).toBe(0.03);
+    expect(model.reportedCostUsd).toBe(0.03);
+    expect(attempt?.costUsd).toBe(0.03);
+    expect(scalarStep?.costUsd).toBeNull();
+    expect(scalarStep?.costUnknown).toBe(true);
+    expect(scalarStep?.unattributedCostScalars).toEqual([
+      expect.objectContaining({
+        claimedValueUsd: 0.41,
+        scope: "not_established",
+        sourceField: "cost_usd",
+        sourceKind: "step_summary",
+      }),
+    ]);
+    expect(ledgerStep?.costUsd).toBe(0.03);
+    expect(ledgerStep?.costUnknown).toBe(true);
+    expect(model.unattributedCostScalars).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          claimedValueUsd: 0.82,
+          scope: "not_established",
+          sourceKind: "pipeline_summary",
+        }),
+      ]),
+    );
+    expect(
+      model.unattributedCostScalars.some(
+        (scalar) => scalar.claimedValueUsd === 0.23,
+      ),
+    ).toBe(false);
+
+    const pipelineOnlyClaim = normalizeAgentPipeline({ cost_usd: 0.01 });
+    expect(pipelineOnlyClaim.costUsd).toBeNull();
+    expect(pipelineOnlyClaim.unattributedCostScalars).toEqual([
+      expect.objectContaining({
+        claimedValueUsd: 0.01,
+        scope: "not_established",
+        sourceField: "cost_usd",
+        sourceKind: "pipeline_summary",
+      }),
+    ]);
+  });
+
+  it("uses the verified owner attempt rather than the enclosing variant ordinal", () => {
+    const payload = {
+      owner_control_job_attempt: 2,
+      attempts: [
+        {
+          attempt: 1,
+          steps: [
+            {
+              agent: "llm_producer_settlement",
+              action: "durable_ledger",
+              cost_events: [
+                {
+                  event_id: "provider:prior-attempt",
+                  cost_origin: "reported",
+                  amount: "0.12",
+                  cost_usd: 0.12,
+                  settlement_status: "committed",
+                  durability: "ledger",
+                  control_job_attempt: 1,
+                  pre_admission_attempt_id: null,
+                  receipts: ["provider:prior-attempt"],
+                },
+                {
+                  event_id: "provider:owner-attempt",
+                  cost_origin: "reported",
+                  amount: "0.01",
+                  cost_usd: 0.01,
+                  settlement_status: "committed",
+                  durability: "ledger",
+                  control_job_attempt: 2,
+                  pre_admission_attempt_id: null,
+                  receipts: ["provider:owner-attempt"],
+                },
+              ],
+            },
+          ],
+        },
+        {
+          attempt: 2,
+          steps: [
+            {
+              agent: "model_variant",
+              action: "completed",
+              model_variant_id: "shared-owner-variant",
+              cost_events: [
+                {
+                  event_id: "provider:variant-a",
+                  cost_origin: "reported",
+                  amount: "0.02",
+                  cost_usd: 0.02,
+                  settlement_status: "committed",
+                  durability: "ledger",
+                  control_job_attempt: 2,
+                  pre_admission_attempt_id: null,
+                  receipts: ["provider:variant-a"],
+                },
+              ],
+            },
+          ],
+        },
+        {
+          attempt: 3,
+          steps: [
+            {
+              agent: "model_variant",
+              action: "completed",
+              model_variant_id: "shared-owner-variant",
+              cost_events: [
+                {
+                  event_id: "provider:variant-b",
+                  cost_origin: "reported",
+                  amount: "0.03",
+                  cost_usd: 0.03,
+                  settlement_status: "committed",
+                  durability: "ledger",
+                  control_job_attempt: 2,
+                  pre_admission_attempt_id: null,
+                  receipts: ["provider:variant-b"],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    };
+
+    const model = normalizeAgentPipeline(payload);
+    expect(model.ownerControlJobAttempt).toBe(2);
+    expect(model.attempts.map((attempt) => attempt.attempt)).toEqual([1, 2, 3]);
+    expect(model.costUsd).toBeCloseTo(0.06);
+    expect(model.reportedCostUsd).toBeCloseTo(0.06);
+    expect(model.attempts[0]?.steps[0]?.costUsd).toBe(0.01);
+    expect(model.attempts[1]?.steps[0]?.costUsd).toBe(0.02);
+    expect(model.attempts[2]?.steps[0]?.costUsd).toBe(0.03);
+    expect(model.attempts[0]?.steps[0]?.costEvents).toHaveLength(2);
+    expect(
+      model.attempts[0]?.steps[0]?.costEvents[0]?.currentOwnerEligible,
+    ).toBe(false);
+    expect(model.attempts[0]?.steps[0]?.costEvents[0]?.costUsd).toBeNull();
+    expect(
+      model.attempts[0]?.steps[0]?.costEvents[1]?.currentOwnerEligible,
+    ).toBe(true);
+    expect(model.attempts[0]?.steps[0]?.costEvents[1]?.costUsd).toBe(0.01);
+
+    const withoutOwner = normalizeAgentPipeline({ attempts: payload.attempts });
+    expect(withoutOwner.ownerControlJobAttempt).toBeNull();
+    expect(withoutOwner.costUsd).toBeNull();
+    expect(withoutOwner.attempts[0]?.steps[0]?.costUsd).toBeNull();
+    expect(withoutOwner.attempts[0]?.steps[0]?.costUnknown).toBe(true);
+    expect(
+      withoutOwner.attempts[0]?.steps[0]?.costEvents[1]?.currentOwnerEligible,
+    ).toBe(false);
+    expect(
+      withoutOwner.attempts[0]?.steps[0]?.costEvents[1]?.costUsd,
+    ).toBeNull();
+    expect(withoutOwner.attempts[0]?.steps[0]?.costEvents[1]?.amount).toBe(
+      "0.01",
+    );
+  });
+
+  it("keeps opaque detail claims out of current totals and labels their scope", () => {
+    const details = {
+      nested: { cost_usd: 0.73, reported_cost_usd: 0.81 },
+      annotation: "diagnostic $9 only",
+    };
+    const model = normalizeAgentPipeline({
+      owner_control_job_attempt: 2,
+      attempts: [
+        {
+          attempt: 1,
+          steps: [
+            {
+              agent: "critic",
+              action: "approved",
+              details,
+              cost_events: [
+                {
+                  event_id: "owner-attempt-detail-test",
+                  cost_origin: "reported",
+                  amount: "0.03",
+                  cost_usd: 0.03,
+                  settlement_status: "committed",
+                  durability: "ledger",
+                  control_job_attempt: 2,
+                  pre_admission_attempt_id: null,
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+    const step = model.attempts[0]?.steps[0];
+    expect(step?.detailsCostScope).toBe("not_established");
+    expect(step?.details).toEqual(details);
+    expect(step?.costUsd).toBe(0.03);
+    expect(model.costUsd).toBe(0.03);
+  });
+
+  it("keeps ownerless scalar and event inputs unassigned at every projection level", () => {
+    const model = normalizeAgentPipeline({
+      cost_usd: 0.99,
+      reported_cost_usd: 0.98,
+      attempts: [
+        {
+          attempt: 2,
+          cost_usd: 0.97,
+          reported_cost_usd: 0.96,
+          steps: [
+            {
+              agent: "llm_producer_settlement",
+              action: "durable_ledger",
+              cost_usd: 0.95,
+              reported_cost_usd: 0.94,
+              cost_events: [
+                {
+                  event_id: "ownerless-raw-ledger-claim",
+                  cost_origin: "reported",
+                  amount: "0.03",
+                  cost_usd: 0.03,
+                  settlement_status: "committed",
+                  durability: "ledger",
+                  control_job_attempt: 2,
+                  pre_admission_attempt_id: null,
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+
+    expect(model.costUsd).toBeNull();
+    expect(model.reportedCostUsd).toBeNull();
+    expect(model.estimatedCostUsd).toBeNull();
+    expect(model.costOriginCounts).toEqual({});
+    expect(model.settlementStatusCounts).toEqual({});
+    expect(model.attempts[0]?.costUsd).toBeNull();
+    expect(model.attempts[0]?.reportedCostUsd).toBeNull();
+    expect(model.attempts[0]?.estimatedCostUsd).toBeNull();
+    expect(model.attempts[0]?.costOriginCounts).toEqual({});
+    expect(model.attempts[0]?.settlementStatusCounts).toEqual({});
+    expect(model.attempts[0]?.steps[0]?.costUsd).toBeNull();
+    expect(model.attempts[0]?.steps[0]?.reportedCostUsd).toBeNull();
+    expect(model.attempts[0]?.steps[0]?.estimatedCostUsd).toBeNull();
+    expect(model.attempts[0]?.steps[0]?.costEvents[0]?.costUsd).toBeNull();
+    expect(model.attempts[0]?.steps[0]?.costEvents[0]?.amount).toBe("0.03");
+    expect(
+      new Set(model.unattributedCostScalars.map((row) => row.sourceKind)),
+    ).toEqual(new Set(["pipeline_summary", "attempt_summary", "step_summary"]));
+
+    const absentEventList = normalizeAgentPipeline({
+      owner_control_job_attempt: null,
+      cost_usd: 0.11,
+      attempts: [
+        {
+          attempt: 1,
+          cost_usd: 0.12,
+          steps: [{ agent: "model", action: "legacy", cost_usd: 0.13 }],
+        },
+      ],
+    });
+    expect(absentEventList.costUsd).toBeNull();
+    expect(absentEventList.attempts[0]?.costUsd).toBeNull();
+    expect(absentEventList.attempts[0]?.steps[0]?.costUsd).toBeNull();
+
+    for (const malformedOwner of [true, 0, 2.5, "2"]) {
+      const malformed = normalizeAgentPipeline({
+        owner_control_job_attempt: malformedOwner,
+        cost_usd: 0.01,
+        attempts: payload.attempts,
+      });
+      expect(malformed.ownerControlJobAttempt).toBeNull();
+      expect(malformed.costUsd).toBeNull();
+      expect(malformed.attempts[0]?.costUsd).toBeNull();
+      expect(malformed.attempts[0]?.steps[0]?.costUsd).toBeNull();
+      expect(
+        malformed.attempts[0]?.steps[0]?.costEvents.every(
+          (event) => !event.currentOwnerEligible && event.costUsd === null,
+        ),
+      ).toBe(true);
+    }
   });
 });

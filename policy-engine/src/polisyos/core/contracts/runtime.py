@@ -11,7 +11,15 @@ from datetime import UTC, datetime
 from decimal import Decimal, InvalidOperation
 from typing import Annotated, Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, JsonValue, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    JsonValue,
+    ValidationInfo,
+    field_validator,
+    model_validator,
+)
 
 from polisyos.ir import governance, observation
 
@@ -3837,6 +3845,8 @@ class AgentPipelineCostEvent(BaseModel):
     payload_digest: str | None = Field(default=None, min_length=1)
     model: str | None = None
     provider: str | None = None
+    control_job_attempt: int | None = Field(default=None, ge=1, strict=True)
+    pre_admission_attempt_id: str | None = Field(default=None, pattern=r"^[a-f0-9]{32}$")
 
     @model_validator(mode="before")
     @classmethod
@@ -3879,20 +3889,225 @@ class AgentPipelineCostEvent(BaseModel):
             self.durability is None or self.durability == "none" or self.amount is None
         ):
             raise ValueError("committed_cost_event_lacks_durable_known_outcome")
+        if self.control_job_attempt is not None and self.pre_admission_attempt_id is not None:
+            raise ValueError("producer_attempt_attribution_is_ambiguous")
+        if (
+            self.control_job_attempt is not None or self.pre_admission_attempt_id is not None
+        ) and self.durability != "ledger":
+            raise ValueError("producer_attempt_attribution_requires_durable_ledger")
         return self
 
 
+class AgentPipelineUnattributedCostScalar(BaseModel):
+    """A legacy monetary scalar whose lease attribution is not established."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    source_kind: Literal[
+        "step_summary",
+        "attempt_summary",
+        "pipeline_summary",
+        "performance_summary_llm",
+        "performance_summary_variant_row",
+    ]
+    source_field: Literal["cost_usd", "reported_cost_usd", "estimated_cost_usd"]
+    claimed_value_usd: float
+    scope: Literal["not_established"] = "not_established"
+    attempt: int | None = Field(default=None, ge=1, strict=True)
+    agent: str | None = None
+    model: str | None = None
+    model_variant_id: str | None = None
+    source_index: int | None = Field(default=None, ge=0, strict=True)
+
+    @field_validator("claimed_value_usd", mode="before")
+    @classmethod
+    def _claimed_scalar_must_be_finite_nonnegative_number(cls, value: object) -> float:
+        if isinstance(value, bool) or not isinstance(value, (int, float, Decimal)):
+            raise ValueError("unattributed_cost_scalar_must_be_numeric")
+        try:
+            amount = float(value)
+        except (OverflowError, ValueError) as exc:
+            raise ValueError("unattributed_cost_scalar_must_be_finite_nonnegative") from exc
+        if not math.isfinite(amount) or amount < 0:
+            raise ValueError("unattributed_cost_scalar_must_be_finite_nonnegative")
+        return amount
+
+
+_AGENT_PIPELINE_COST_SCALAR_FIELDS = (
+    "cost_usd",
+    "reported_cost_usd",
+    "estimated_cost_usd",
+)
+_AGENT_PIPELINE_OWNER_CONTEXT_KEY = "verified_control_job_attempt"
+
+
+def _owner_attempt_from_validation_context(context: object) -> int | None:
+    if not isinstance(context, Mapping):
+        return None
+    value = context.get(_AGENT_PIPELINE_OWNER_CONTEXT_KEY)
+    if type(value) is not int or value < 1:
+        return None
+    return value
+
+
+def _current_agent_pipeline_cost_events(
+    events: list[AgentPipelineCostEvent], owner_attempt: int | None
+) -> list[AgentPipelineCostEvent]:
+    if owner_attempt is None:
+        return []
+    return [
+        event
+        for event in events
+        if event.durability == "ledger"
+        and event.control_job_attempt == owner_attempt
+        and event.pre_admission_attempt_id is None
+    ]
+
+
+def _capture_unattributed_cost_scalars(
+    value: Mapping[str, Any],
+    *,
+    source_kind: Literal["step_summary", "attempt_summary", "pipeline_summary"],
+    projected_values: Mapping[str, Any] | None = None,
+) -> list[object]:
+    existing = value.get("unattributed_cost_scalars")
+    rows: list[object] = list(existing) if isinstance(existing, (list, tuple)) else []
+    for source_field in _AGENT_PIPELINE_COST_SCALAR_FIELDS:
+        claimed_value = value.get(source_field)
+        if claimed_value is None:
+            continue
+        if (
+            projected_values is not None
+            and not isinstance(claimed_value, bool)
+            and claimed_value == projected_values.get(source_field)
+        ):
+            continue
+        rows.append(
+            {
+                "source_kind": source_kind,
+                "source_field": source_field,
+                "claimed_value_usd": claimed_value,
+                "scope": "not_established",
+                "attempt": value.get("attempt"),
+                "agent": value.get("agent"),
+                "model": value.get("model"),
+                "model_variant_id": value.get("model_variant_id"),
+            }
+        )
+    return rows
+
+
+def _remove_reconciled_summary_scalar_claims(
+    rows: list[object],
+    *,
+    source_kind: Literal["step_summary", "attempt_summary", "pipeline_summary"],
+    projection: Mapping[str, Any],
+) -> list[object]:
+    retained: list[object] = []
+    for raw in rows:
+        row = AgentPipelineUnattributedCostScalar.model_validate(raw)
+        if (
+            row.source_kind == source_kind
+            and row.claimed_value_usd == projection.get(row.source_field)
+            and projection.get(row.source_field) is not None
+        ):
+            continue
+        retained.append(row)
+    return retained
+
+
+def _deduplicate_unattributed_cost_scalars(
+    rows: list[object],
+) -> list[AgentPipelineUnattributedCostScalar]:
+    unique: dict[tuple[object, ...], AgentPipelineUnattributedCostScalar] = {}
+    for raw in rows:
+        row = AgentPipelineUnattributedCostScalar.model_validate(raw)
+        key = (
+            row.source_kind,
+            row.source_field,
+            row.claimed_value_usd,
+            row.scope,
+            row.attempt,
+            row.agent,
+            row.model,
+            row.model_variant_id,
+            row.source_index,
+        )
+        unique.setdefault(key, row)
+    return list(unique.values())
+
+
+def _performance_summary_without_unattributed_cost_scalars(
+    value: object,
+) -> tuple[dict[str, Any] | None, list[dict[str, Any]]]:
+    if not isinstance(value, Mapping):
+        return None, []
+    normalized = dict(value)
+    rows: list[dict[str, Any]] = []
+    llm = normalized.get("llm")
+    if isinstance(llm, Mapping):
+        llm_row = dict(llm)
+        claimed_value = llm_row.get("cost_usd")
+        if claimed_value is not None:
+            rows.append(
+                {
+                    "source_kind": "performance_summary_llm",
+                    "source_field": "cost_usd",
+                    "claimed_value_usd": claimed_value,
+                    "scope": "not_established",
+                }
+            )
+        llm_row["cost_usd"] = None
+        normalized["llm"] = llm_row
+    variant_rows = normalized.get("variant_rows")
+    if isinstance(variant_rows, (list, tuple)):
+        sanitized_rows: list[object] = []
+        for index, raw_row in enumerate(variant_rows):
+            if not isinstance(raw_row, Mapping):
+                sanitized_rows.append(raw_row)
+                continue
+            row = dict(raw_row)
+            claimed_value = row.get("cost_usd")
+            if claimed_value is not None:
+                rows.append(
+                    {
+                        "source_kind": "performance_summary_variant_row",
+                        "source_field": "cost_usd",
+                        "claimed_value_usd": claimed_value,
+                        "scope": "not_established",
+                        "model": row.get("model"),
+                        "model_variant_id": row.get("model_variant_id"),
+                        "source_index": index,
+                    }
+                )
+            row["cost_usd"] = None
+            sanitized_rows.append(row)
+        normalized["variant_rows"] = sanitized_rows
+    return normalized, rows
+
+
 def _agent_pipeline_cost_projection(
-    events: list[AgentPipelineCostEvent],
+    events: list[AgentPipelineCostEvent], owner_attempt: int | None
 ) -> dict[str, Any]:
-    """Derive aggregate amounts and origin counts from the complete event rows."""
+    """Derive current-attempt totals only with an explicit root owner context."""
+    current_attempt_events = _current_agent_pipeline_cost_events(events, owner_attempt)
+    if not current_attempt_events:
+        return {
+            "cost_usd": None,
+            "reported_cost_usd": None,
+            "estimated_cost_usd": None,
+            "cost_origin": None,
+            "cost_origin_counts": {},
+            "settlement_status_counts": {},
+            "settlement_event_ids": (),
+        }
     cost_origin_counts: dict[str, int] = {}
     settlement_status_counts: dict[str, int] = {}
     reported_cost_usd = 0.0
     estimated_cost_usd = 0.0
     cost_is_unknown = False
     total_cost_usd = 0.0
-    for event in events:
+    for event in current_attempt_events:
         cost_origin_counts[event.cost_origin] = cost_origin_counts.get(event.cost_origin, 0) + 1
         settlement_status_counts[event.settlement_status] = (
             settlement_status_counts.get(event.settlement_status, 0) + 1
@@ -3917,7 +4132,7 @@ def _agent_pipeline_cost_projection(
         "cost_origin": next(iter(origins)) if len(origins) == 1 else None,
         "cost_origin_counts": cost_origin_counts,
         "settlement_status_counts": settlement_status_counts,
-        "settlement_event_ids": tuple(event.event_id for event in events),
+        "settlement_event_ids": tuple(event.event_id for event in current_attempt_events),
     }
 
 
@@ -3949,6 +4164,13 @@ class AgentPipelineStep(BaseModel):
     timestamp: datetime | None = None
     summary: str | None = None
     details: dict[str, Any] = Field(default_factory=dict)
+    details_cost_scope: Literal["not_established"] = Field(
+        default="not_established",
+        description=(
+            "Opaque diagnostic details are not reconciled to the verified ControlJob lease "
+            "attempt or included in current cost totals."
+        ),
+    )
     prompt: str | None = None
     response: str | None = None
     model: str | None = None
@@ -3963,19 +4185,40 @@ class AgentPipelineStep(BaseModel):
     settlement_status_counts: dict[AgentPipelineSettlementStatus, int] = Field(default_factory=dict)
     settlement_event_ids: tuple[str, ...] = ()
     cost_events: list[AgentPipelineCostEvent] = Field(default_factory=list)
+    unattributed_cost_scalars: list[AgentPipelineUnattributedCostScalar] = Field(
+        default_factory=list
+    )
     token_usage: dict[str, int] = Field(default_factory=dict)
 
     @model_validator(mode="before")
     @classmethod
-    def _derive_cost_summary_from_events(cls, value: object) -> object:
+    def _derive_cost_summary_from_events(cls, value: object, info: ValidationInfo) -> object:
         if not isinstance(value, Mapping):
             return value
         raw_events = value.get("cost_events")
-        if not isinstance(raw_events, (list, tuple)) or not raw_events:
-            return value
-        events = [AgentPipelineCostEvent.model_validate(row) for row in raw_events]
+        events = (
+            [AgentPipelineCostEvent.model_validate(row) for row in raw_events]
+            if isinstance(raw_events, (list, tuple))
+            else []
+        )
         normalized = dict(value)
-        normalized.update(_agent_pipeline_cost_projection(events))
+        projection = _agent_pipeline_cost_projection(
+            events, _owner_attempt_from_validation_context(info.context)
+        )
+        normalized.update(projection)
+        scalar_rows = _capture_unattributed_cost_scalars(
+            value,
+            source_kind="step_summary",
+            projected_values=projection,
+        )
+        owner_attempt = _owner_attempt_from_validation_context(info.context)
+        if owner_attempt is not None:
+            scalar_rows = _remove_reconciled_summary_scalar_claims(
+                scalar_rows,
+                source_kind="step_summary",
+                projection=projection,
+            )
+        normalized["unattributed_cost_scalars"] = scalar_rows
         return normalized
 
 
@@ -3996,21 +4239,59 @@ class AgentPipelineAttempt(BaseModel):
     cost_origin_counts: dict[AgentPipelineCostOrigin, int] = Field(default_factory=dict)
     settlement_status_counts: dict[AgentPipelineSettlementStatus, int] = Field(default_factory=dict)
     steps: list[AgentPipelineStep] = Field(default_factory=list)
+    unattributed_cost_scalars: list[AgentPipelineUnattributedCostScalar] = Field(
+        default_factory=list
+    )
     notes: list[str] = Field(default_factory=list)
 
     @model_validator(mode="before")
     @classmethod
-    def _derive_cost_summary_from_steps(cls, value: object) -> object:
+    def _derive_cost_summary_from_steps(cls, value: object, info: ValidationInfo) -> object:
         if not isinstance(value, Mapping):
             return value
         events = _cost_events_from_pipeline_steps(value.get("steps"))
-        if not events:
-            return value
         normalized = dict(value)
-        normalized.update(_agent_pipeline_cost_projection(events))
+        projection = _agent_pipeline_cost_projection(
+            events, _owner_attempt_from_validation_context(info.context)
+        )
+        normalized.update(projection)
+        normalized["unattributed_cost_scalars"] = _capture_unattributed_cost_scalars(
+            value,
+            source_kind="attempt_summary",
+            projected_values=projection,
+        )
         normalized.pop("cost_origin", None)
         normalized.pop("settlement_event_ids", None)
         return normalized
+
+    @model_validator(mode="after")
+    def _reconcile_cost_projection_and_unattributed_scalars(
+        self, info: ValidationInfo
+    ) -> AgentPipelineAttempt:
+        events = _cost_events_from_pipeline_steps(self.steps)
+        projection = _agent_pipeline_cost_projection(
+            events, _owner_attempt_from_validation_context(info.context)
+        )
+        self.cost_usd = projection["cost_usd"]
+        self.reported_cost_usd = projection["reported_cost_usd"]
+        self.estimated_cost_usd = projection["estimated_cost_usd"]
+        self.cost_origin_counts = projection["cost_origin_counts"]
+        self.settlement_status_counts = projection["settlement_status_counts"]
+        owner_attempt = _owner_attempt_from_validation_context(info.context)
+        summary_scalars: list[object] = list(self.unattributed_cost_scalars)
+        if owner_attempt is not None:
+            summary_scalars = _remove_reconciled_summary_scalar_claims(
+                summary_scalars,
+                source_kind="attempt_summary",
+                projection=projection,
+            )
+        self.unattributed_cost_scalars = _deduplicate_unattributed_cost_scalars(
+            [
+                *summary_scalars,
+                *(row for step in self.steps for row in step.unattributed_cost_scalars),
+            ]
+        )
+        return self
 
 
 class RetrievalPhaseTelemetry(BaseModel):
@@ -4221,6 +4502,15 @@ class AgentPipelineView(BaseModel):
 
     run_id: str
     source_kind: SourceKind
+    owner_control_job_attempt: int | None = Field(
+        default=None,
+        ge=1,
+        strict=True,
+        description=(
+            "Verified ControlJob lease attempt bound to this run; null means the owner attempt "
+            "was not established."
+        ),
+    )
     total_attempts: int = Field(default=0, ge=0)
     cost_usd: float | None = Field(default=None, ge=0.0)
     reported_cost_usd: float | None = Field(default=None, ge=0.0)
@@ -4229,6 +4519,10 @@ class AgentPipelineView(BaseModel):
     settlement_status_counts: dict[AgentPipelineSettlementStatus, int] = Field(default_factory=dict)
     latest_verdict: str | None = None
     attempts: list[AgentPipelineAttempt] = Field(default_factory=list)
+    unattributed_cost_events: list[AgentPipelineCostEvent] = Field(default_factory=list)
+    unattributed_cost_scalars: list[AgentPipelineUnattributedCostScalar] = Field(
+        default_factory=list
+    )
     decision_packet_ref: ArtifactRef | None = None
     reflexion_terminal_ref: ArtifactRef | None = None
     retrieval: RetrievalTelemetryView | None = None
@@ -4244,7 +4538,7 @@ class AgentPipelineView(BaseModel):
 
     @model_validator(mode="before")
     @classmethod
-    def _derive_cost_summary_from_attempts(cls, value: object) -> object:
+    def _derive_cost_summary_from_attempts(cls, value: object, info: ValidationInfo) -> object:
         if not isinstance(value, Mapping):
             return value
         events: list[AgentPipelineCostEvent] = []
@@ -4255,13 +4549,96 @@ class AgentPipelineView(BaseModel):
                     events.extend(event for step in raw_attempt.steps for event in step.cost_events)
                 elif isinstance(raw_attempt, Mapping):
                     events.extend(_cost_events_from_pipeline_steps(raw_attempt.get("steps")))
-        if not events:
-            return value
         normalized = dict(value)
-        normalized.update(_agent_pipeline_cost_projection(events))
+        projection = _agent_pipeline_cost_projection(
+            events, _owner_attempt_from_validation_context(info.context)
+        )
+        normalized.update(projection)
+        normalized["unattributed_cost_scalars"] = _capture_unattributed_cost_scalars(
+            value,
+            source_kind="pipeline_summary",
+            projected_values=projection,
+        )
         normalized.pop("cost_origin", None)
         normalized.pop("settlement_event_ids", None)
+        performance_summary, performance_scalars = (
+            _performance_summary_without_unattributed_cost_scalars(
+                normalized.get("performance_summary")
+            )
+        )
+        normalized["performance_summary"] = performance_summary
+        normalized["unattributed_cost_scalars"] = [
+            *normalized.get("unattributed_cost_scalars", []),
+            *performance_scalars,
+        ]
         return normalized
+
+    @classmethod
+    def _from_verified_owner_context(
+        cls,
+        *,
+        owner_control_job_attempt: int | None,
+        **values: Any,
+    ) -> AgentPipelineView:
+        """Validate a pipeline with the owner selector reconciled by its route."""
+        values["owner_control_job_attempt"] = owner_control_job_attempt
+        return cls.model_validate(
+            values,
+            context={_AGENT_PIPELINE_OWNER_CONTEXT_KEY: owner_control_job_attempt},
+        )
+
+    @model_validator(mode="after")
+    def _reconcile_cost_projection_and_unattributed_sources(
+        self, info: ValidationInfo
+    ) -> AgentPipelineView:
+        owner_attempt = _owner_attempt_from_validation_context(info.context)
+        if owner_attempt is None:
+            self.owner_control_job_attempt = None
+        elif self.owner_control_job_attempt != owner_attempt:
+            raise ValueError("agent_pipeline_owner_context_mismatch")
+
+        context = {_AGENT_PIPELINE_OWNER_CONTEXT_KEY: owner_attempt}
+        self.attempts = [
+            AgentPipelineAttempt.model_validate(attempt.model_dump(mode="python"), context=context)
+            for attempt in self.attempts
+        ]
+        if owner_attempt is not None:
+            for attempt in self.attempts:
+                for step in attempt.steps:
+                    for event in step.cost_events:
+                        if (
+                            event.durability == "ledger"
+                            and event.control_job_attempt != owner_attempt
+                        ):
+                            raise ValueError("agent_pipeline_event_owner_attempt_mismatch")
+        events = _cost_events_from_pipeline_steps(
+            [step for attempt in self.attempts for step in attempt.steps]
+        )
+        projection = _agent_pipeline_cost_projection(events, owner_attempt)
+        self.cost_usd = projection["cost_usd"]
+        self.reported_cost_usd = projection["reported_cost_usd"]
+        self.estimated_cost_usd = projection["estimated_cost_usd"]
+        self.cost_origin_counts = projection["cost_origin_counts"]
+        self.settlement_status_counts = projection["settlement_status_counts"]
+        summary_scalars: list[object] = list(self.unattributed_cost_scalars)
+        if owner_attempt is not None:
+            summary_scalars = _remove_reconciled_summary_scalar_claims(
+                summary_scalars,
+                source_kind="pipeline_summary",
+                projection=projection,
+            )
+        self.unattributed_cost_scalars = _deduplicate_unattributed_cost_scalars(
+            [
+                *summary_scalars,
+                *(row for attempt in self.attempts for row in attempt.unattributed_cost_scalars),
+            ]
+        )
+        if any(event.control_job_attempt is not None for event in self.unattributed_cost_events):
+            raise ValueError("unattributed_cost_event_claims_control_job_attempt")
+        event_ids = [event.event_id for event in self.unattributed_cost_events]
+        if len(event_ids) != len(set(event_ids)):
+            raise ValueError("duplicate_unattributed_cost_event")
+        return self
 
 
 class RunWorkflowNodeView(BaseModel):
@@ -4949,6 +5326,7 @@ __all__ = [
     "AgentPipelineCostEvent",
     "AgentPipelineResponse",
     "AgentPipelineStep",
+    "AgentPipelineUnattributedCostScalar",
     "AgentPipelineView",
     "ApiMeta",
     "ArtifactContentPreview",

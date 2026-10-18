@@ -22,9 +22,7 @@ import duckdb
 
 ROOT = Path(__file__).resolve().parents[3]
 OUTPUT = Path(tempfile.gettempdir()) / "gy_n10_cg1_l2_relation_census.json"
-ARTIFACT_PATH = ROOT / (
-    "architecture/policy_design_case/layer3_gy_design_generation_contract.json"
-)
+ARTIFACT_PATH = ROOT / ("architecture/policy_design_case/layer3_gy_design_generation_contract.json")
 DATABASE_PATH = ROOT / (
     "production_data/policyos_academic_runtime_slim_20260411T112032Z/"
     "academic/graph/scholar_knowledge.duckdb"
@@ -175,9 +173,7 @@ def main(*, output_path: Path = OUTPUT) -> int:
             if atom_payload is None:
                 continue
             try:
-                atom_objects.append(
-                    InterventionAtomBinding.model_validate(atom_payload)
-                )
+                atom_objects.append(InterventionAtomBinding.model_validate(atom_payload))
             except Exception as exc:
                 atom_errors.append(
                     f"$.generation_results[{run_index}].candidates"
@@ -199,9 +195,7 @@ def main(*, output_path: Path = OUTPUT) -> int:
                 payload = dict(disposition)
                 existing = dispositions.get(content_hash)
                 if existing is not None and existing != payload:
-                    raise SystemExit(
-                        f"conflicting_shadow_disposition:{content_hash}"
-                    )
+                    raise SystemExit(f"conflicting_shadow_disposition:{content_hash}")
                 dispositions[content_hash] = payload
     denominator_hashes = sorted(set(atoms_by_hash) & set(dispositions))
     if len(denominator_hashes) != 2:
@@ -227,8 +221,7 @@ def main(*, output_path: Path = OUTPUT) -> int:
                 "atom_id": atom.atom_id,
                 "atom_content_hash": atom.content_hash,
                 "artifact_ref": (
-                    "architecture/policy_design_case/"
-                    "layer3_gy_design_generation_contract.json"
+                    "architecture/policy_design_case/layer3_gy_design_generation_contract.json"
                 ),
                 "candidate_id": disposition.get("candidate_id"),
                 "identified_cg0_atom_id": identified_atom_id,
@@ -237,22 +230,18 @@ def main(*, output_path: Path = OUTPUT) -> int:
                 "direct_outcomes": [
                     str(item) for item in params.get("outcome_slots", []) if str(item)
                 ],
-                "intended_outcomes": list(
-                    atom.intended_downstream_estimand.outcome_variables
-                ),
-                "effect_path": [
-                    str(item) for item in params.get("effect_path", []) if str(item)
-                ],
+                "intended_outcomes": list(atom.intended_downstream_estimand.outcome_variables),
+                "effect_path": [str(item) for item in params.get("effect_path", []) if str(item)],
                 "estimand": atom.intended_downstream_estimand.functional,
                 "target_context_id": atom.intended_downstream_estimand.target_population,
                 "wmr_ref": atom.world_model_record_ref,
                 "shadow_disposition": disposition.get("disposition"),
-                "existing_cg1_certificate_id": (
-                    disposition.get("certificate_chain") or {}
-                ).get("cg1_certificate_id"),
-                "existing_cg1_content_hash": (
-                    disposition.get("certificate_chain") or {}
-                ).get("cg1_content_hash"),
+                "existing_cg1_certificate_id": (disposition.get("certificate_chain") or {}).get(
+                    "cg1_certificate_id"
+                ),
+                "existing_cg1_content_hash": (disposition.get("certificate_chain") or {}).get(
+                    "cg1_content_hash"
+                ),
             }
         )
 
@@ -261,9 +250,7 @@ def main(*, output_path: Path = OUTPUT) -> int:
     skg_owner = SKGQuery(DATABASE_PATH, DATABASE_PATH.parent)
     try:
         skg_version_id = skg_owner.latest_skg_version_id()
-        if skg_version_id is None or not skg_owner.has_skg_version_id(
-            version_id=skg_version_id
-        ):
+        if skg_version_id is None or not skg_owner.has_skg_version_id(version_id=skg_version_id):
             raise SystemExit("l2_owner_skg_version_unresolved")
     finally:
         skg_owner.close()
@@ -357,9 +344,9 @@ def main(*, output_path: Path = OUTPUT) -> int:
             "skg_version": int(row[10]),
         }
         payload["row_content_hash"] = stable_hash(payload)
-        evidence_by_triple[
-            (payload["edge_id"], payload["claim_id"], payload["openalex_id"])
-        ] = payload
+        evidence_by_triple[(payload["edge_id"], payload["claim_id"], payload["openalex_id"])] = (
+            payload
+        )
 
     transport_by_key: dict[tuple[str, str, int], list[dict[str, Any]]] = defaultdict(list)
     for row in transport_rows:
@@ -446,9 +433,7 @@ def main(*, output_path: Path = OUTPUT) -> int:
                     float(parameter.confidence_interval[1]),
                 )
             except (TypeError, ValueError) as exc:
-                interval_blocker = (
-                    f"owner_interval_validation_failed:{type(exc).__name__}:{exc}"
-                )
+                interval_blocker = f"owner_interval_validation_failed:{type(exc).__name__}:{exc}"
         resolved_uncertainty_source = numeric["uncertainty_source"]
         if not resolved_uncertainty_source and ci is not None:
             resolved_uncertainty_source = "confidence_interval"
@@ -489,9 +474,7 @@ def main(*, output_path: Path = OUTPUT) -> int:
             resolved_edge_ids.add(edge_id)
             triples = []
             for claim_id in claim_ids:
-                evidence = evidence_by_triple.get(
-                    (edge_id, claim_id, numeric["openalex_id"])
-                )
+                evidence = evidence_by_triple.get((edge_id, claim_id, numeric["openalex_id"]))
                 if evidence is None:
                     continue
                 if evidence["skg_version"] != transport_skg_version:
@@ -520,20 +503,14 @@ def main(*, output_path: Path = OUTPUT) -> int:
     manifest["edge_ids_resolved"] = len(resolved_edge_ids)
     manifest["pair_only_or_unresolved_edge_links"] = len(unresolved_edge_tokens)
     manifest["exact_numeric_edge_denominator"] = len(exact_pairs)
-    manifest["numeric_identities_without_exact_bound_edge"] = len(
-        unresolved_numeric_rows
-    )
+    manifest["numeric_identities_without_exact_bound_edge"] = len(unresolved_numeric_rows)
 
     target_contexts = sorted({str(atom["target_context_id"]) for atom in atoms})
     for pair in exact_pairs:
         edge_id = pair["edge"]["edge_id"]
         pair["transport_by_context"] = {}
         for context_id in target_contexts:
-            records = list(
-                transport_by_key.get(
-                    (edge_id, context_id, transport_skg_version), []
-                )
-            )
+            records = list(transport_by_key.get((edge_id, context_id, transport_skg_version), []))
             eligible = [
                 item
                 for item in records
@@ -570,10 +547,9 @@ def main(*, output_path: Path = OUTPUT) -> int:
         edge = pair["edge"]
         raw_estimand = numeric["estimate_type"].strip().casefold().replace(" ", "_")
         estimand = CANONICAL_ESTIMANDS.get(raw_estimand)
-        sign_token = (
-            numeric["estimate_sign"].strip().casefold().replace(" ", "_")
-            or edge["direction"].strip().casefold().replace(" ", "_")
-        )
+        sign_token = numeric["estimate_sign"].strip().casefold().replace(" ", "_") or edge[
+            "direction"
+        ].strip().casefold().replace(" ", "_")
         sign = SIGN_ALIASES.get(sign_token)
         context = numeric["context"]
         population = str(context.get("context_id") or "").strip() or None
@@ -589,9 +565,7 @@ def main(*, output_path: Path = OUTPUT) -> int:
             "resolved_l6_operator": (
                 edge["src"] if edge["src"] in registered_l6_operators else None
             ),
-            "resolved_wmr_target": (
-                edge["src"] if edge["src"] in writable_wmr_slots else None
-            ),
+            "resolved_wmr_target": (edge["src"] if edge["src"] in writable_wmr_slots else None),
             "population": population,
             "sign": sign,
             "time": time_value,
@@ -640,9 +614,7 @@ def main(*, output_path: Path = OUTPUT) -> int:
         signature = {
             "op": basis["resolved_l6_operator"],
             "X_do": (
-                [basis["resolved_wmr_target"]]
-                if basis["resolved_wmr_target"] is not None
-                else []
+                [basis["resolved_wmr_target"]] if basis["resolved_wmr_target"] is not None else []
             ),
             "x_do": {},
             "sign": basis["sign"],
@@ -690,9 +662,7 @@ def main(*, output_path: Path = OUTPUT) -> int:
                 }
                 continue
             target_rows[atom["atom_content_hash"]] = {
-                "census_status": (
-                    "cg1_certificate_emitted_via_read_only_exact_adapter_probe"
-                ),
+                "census_status": ("cg1_certificate_emitted_via_read_only_exact_adapter_probe"),
                 "selected_relation": pair_row.get("selected_relation"),
                 "solver_status": pair_row.get("solver_status"),
                 "critical_contradictions": pair_row.get("critical_contradictions", []),
@@ -738,9 +708,7 @@ def main(*, output_path: Path = OUTPUT) -> int:
             transport = pair["transport_by_context"][atom["target_context_id"]]
             relation_class = str(relation["selected_relation"])
             solver_status = str(relation["solver_status"])
-            critical_unresolved = sorted(
-                set(relation["unresolved_axes"]) & CRITICAL_RELATION_AXES
-            )
+            critical_unresolved = sorted(set(relation["unresolved_axes"]) & CRITICAL_RELATION_AXES)
             certified = (
                 relation["census_status"]
                 == "cg1_certificate_emitted_via_read_only_exact_adapter_probe"
@@ -752,9 +720,7 @@ def main(*, output_path: Path = OUTPUT) -> int:
             )
             safe_cover = certified and relation_class in SAFE_CG1_COVERS
             fork_a_evidence_candidate = bool(
-                pair["native_interval_eligible"]
-                and transport["transport_eligible"]
-                and certified
+                pair["native_interval_eligible"] and transport["transport_eligible"] and certified
             )
             blockers: list[str] = []
             if not pair["native_interval_eligible"]:
@@ -795,9 +761,7 @@ def main(*, output_path: Path = OUTPUT) -> int:
                 "ci_high": pair["ci_high"],
                 "std_error": numeric["std_error"],
                 "native_interval_eligible": pair["native_interval_eligible"],
-                "owner_interval_diagnostics": numeric[
-                    "owner_interval_diagnostics"
-                ],
+                "owner_interval_diagnostics": numeric["owner_interval_diagnostics"],
                 "owner_interval_blocker": numeric["owner_interval_blocker"],
                 "identity_link_blockers": numeric["identity_blockers"],
                 "edge_id": edge["edge_id"],
@@ -858,8 +822,7 @@ def main(*, output_path: Path = OUTPUT) -> int:
             blockers = set(numeric["identity_blockers"])
             if not numeric["owner_interval_eligible"]:
                 blockers.add(
-                    numeric["owner_interval_blocker"]
-                    or "native_confidence_interval_missing"
+                    numeric["owner_interval_blocker"] or "native_confidence_interval_missing"
                 )
             blockers.add("cg1_l2_numeric_estimate_adapter_missing")
             blockers.add("runtime_numeric_estimate_identity_bridge_missing")
@@ -869,9 +832,7 @@ def main(*, output_path: Path = OUTPUT) -> int:
                 "identified_cg0_atom_id": atom["identified_cg0_atom_id"],
                 "numeric_id": numeric["numeric_id"],
                 "numeric_row_content_hash": numeric["row_content_hash"],
-                "numeric_ref": (
-                    f"ac_skg_simulation_parameters:{numeric['numeric_id']}"
-                ),
+                "numeric_ref": (f"ac_skg_simulation_parameters:{numeric['numeric_id']}"),
                 "openalex_id": numeric["openalex_id"],
                 "canonical_name": numeric["canonical_name"],
                 "estimate_type": numeric["estimate_type"],
@@ -880,12 +841,8 @@ def main(*, output_path: Path = OUTPUT) -> int:
                 "ci_low": numeric["owner_ci_low"],
                 "ci_high": numeric["owner_ci_high"],
                 "std_error": numeric["std_error"],
-                "native_interval_eligible": numeric[
-                    "owner_interval_eligible"
-                ],
-                "owner_interval_diagnostics": numeric[
-                    "owner_interval_diagnostics"
-                ],
+                "native_interval_eligible": numeric["owner_interval_eligible"],
+                "owner_interval_diagnostics": numeric["owner_interval_diagnostics"],
                 "owner_interval_blocker": numeric["owner_interval_blocker"],
                 "edge_id": None,
                 "edge_row_content_hash": None,
@@ -925,9 +882,7 @@ def main(*, output_path: Path = OUTPUT) -> int:
             relation_counts["UNKNOWN:unknown"] += 1
 
     manifest["atom_x_numeric_edge_pairs_evaluated"] = len(relation_rows)
-    manifest["minimum_atom_x_numeric_identity_denominator"] = (
-        len(atoms) * len(all_numeric_rows)
-    )
+    manifest["minimum_atom_x_numeric_identity_denominator"] = len(atoms) * len(all_numeric_rows)
     manifest["fork_a_evidence_candidate_rows"] = len(viable_rows)
     numeric_owner_fingerprint = stable_hash(
         sorted({row["row_content_hash"] for row in all_numeric_rows})
@@ -955,8 +910,7 @@ def main(*, output_path: Path = OUTPUT) -> int:
         ),
         "input_refs": {
             "design_generation_artifact": (
-                "architecture/policy_design_case/"
-                "layer3_gy_design_generation_contract.json"
+                "architecture/policy_design_case/layer3_gy_design_generation_contract.json"
             ),
             "design_generation_artifact_sha256": (
                 f"sha256:{hashlib.sha256(artifact_bytes).hexdigest()}"
@@ -1029,9 +983,7 @@ def main(*, output_path: Path = OUTPUT) -> int:
                 "fork": output["fork"],
                 "manifest": output["coverage_manifest"],
                 "relation_counts": output["relation_counts"],
-                "fork_a_evidence_candidate_rows": len(
-                    output["fork_a_evidence_candidate_refs"]
-                ),
+                "fork_a_evidence_candidate_rows": len(output["fork_a_evidence_candidate_refs"]),
                 "wall_time_seconds": round(time.monotonic() - started, 6),
             },
             sort_keys=True,

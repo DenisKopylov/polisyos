@@ -11,8 +11,7 @@ def test_processing_guarantee_report_is_check_ready() -> None:
     assert report["exactly_once_claim_count"] == 0
     assert fabric_processing_guarantees.validate_report(report) == []
     assert any(
-        row["guarantee"] == "at_least_once_with_dedupe"
-        for row in report["streaming_contracts"]
+        row["guarantee"] == "at_least_once_with_dedupe" for row in report["streaming_contracts"]
     )
 
 

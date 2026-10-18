@@ -215,9 +215,7 @@ def test_value_gate_worker_projects_the_validated_foundry_diagnostic(
     """The isolated bridge receives one N8/Foundry binding, not a local resolver."""
 
     value_path = "architecture/policy_design_case/layer3_gy_value_gate_contract.json"
-    companion_path = (
-        "architecture/policy_design_case/layer3_gy_n8_dependency_discriminant.json"
-    )
+    companion_path = "architecture/policy_design_case/layer3_gy_n8_dependency_discriminant.json"
     monkeypatch.setitem(worker_module._VALIDATORS, "value-gate", lambda _root: [])
     companion = json.loads((REPO_ROOT / companion_path).read_text(encoding="utf-8"))
     result = worker_module._validate_request(
@@ -282,8 +280,7 @@ def test_value_gate_worker_maps_owner_diagnostic_nonreceipt_to_not_established(
     from tools.quality.validation import check_layer3_gy_value_gate_contract as n8
 
     companion_path = (
-        REPO_ROOT
-        / "architecture/policy_design_case/layer3_gy_n8_dependency_discriminant.json"
+        REPO_ROOT / "architecture/policy_design_case/layer3_gy_n8_dependency_discriminant.json"
     )
     companion = n8.FoundryDependencyDiscriminantCompanion.model_validate_json(
         companion_path.read_bytes()
@@ -510,8 +507,7 @@ def test_acquisition_growth_fails_when_validator_property_is_removed(
 
 def test_owner_receipt_binds_canonical_semantic_hasher_source() -> None:
     relative_path = (
-        "architecture/policy_design_case/layer3_gy_task0_audit/"
-        "layer3_gy_engine_census.json"
+        "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_engine_census.json"
     )
 
     result = _run_worker(
@@ -562,8 +558,7 @@ def test_n13a_canonical_recompute_rejects_corrupt_decisive_metric(
         destination.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(REPO_ROOT / relative_path, destination)
     catalog_relative = (
-        "production_data/datasets_full_phase3full_20260327_183054/"
-        "dataset_catalog.duckdb"
+        "production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb"
     )
     catalog_destination = tmp_path / catalog_relative
     catalog_destination.parent.mkdir(parents=True, exist_ok=True)
@@ -609,8 +604,7 @@ def test_owner_receipt_binds_cluster_validator_transitive_dependencies() -> None
 
 def test_projection_hash_is_computed_by_canonical_gy_hash_owner() -> None:
     relative_path = (
-        "architecture/policy_design_case/layer3_gy_task0_audit/"
-        "layer3_gy_engine_census.json"
+        "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_engine_census.json"
     )
     bindings = {relative_path: _sha256(REPO_ROOT / relative_path)}
     first = _run_worker(
@@ -718,9 +712,7 @@ def test_normal_projection_import_does_not_import_owner_validators() -> None:
 
 
 def test_canonical_confidence_ledger_binds_owner_payload_and_arithmetic() -> None:
-    relative_path = (
-        "architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json"
-    )
+    relative_path = "architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json"
     artifact = json.loads((REPO_ROOT / relative_path).read_text(encoding="utf-8"))
 
     result = _run_worker(
@@ -733,16 +725,18 @@ def test_canonical_confidence_ledger_binds_owner_payload_and_arithmetic() -> Non
     assert result["status"] == "passed"
     assert result["issue_codes"] == []
     assert result["source_payload_equal"] is True
-    assert result["registry_content_hash"] == artifact["registry_projection"][
-        "registry_content_hash"
-    ]
-    assert result["registry_projection_hash"] == artifact["registry_projection"][
-        "projection_hash"
-    ]
-    assert result["frozen_semantic_projection_hash"] == artifact[
-        "real_ledger_projection"
-    ]["projection_hash"]
-    assert (result["recomputed_total_spend_numerator"], result["recomputed_total_spend_denominator"]) == (0, 1)
+    assert (
+        result["registry_content_hash"] == artifact["registry_projection"]["registry_content_hash"]
+    )
+    assert result["registry_projection_hash"] == artifact["registry_projection"]["projection_hash"]
+    assert (
+        result["frozen_semantic_projection_hash"]
+        == artifact["real_ledger_projection"]["projection_hash"]
+    )
+    assert (
+        result["recomputed_total_spend_numerator"],
+        result["recomputed_total_spend_denominator"],
+    ) == (0, 1)
     assert (result["registry_delta_numerator"], result["registry_delta_denominator"]) == (1, 100)
     assert (
         "tools/quality/validation/check_layer3_gy_confidence_ledger.py"

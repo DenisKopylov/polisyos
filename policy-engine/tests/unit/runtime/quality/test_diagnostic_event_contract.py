@@ -126,9 +126,7 @@ def test_event_without_producer_identity_is_rejected() -> None:
 
 def test_sampled_away_serious_authority_event_is_rejected() -> None:
     with pytest.raises(DiagnosticEventContractError) as error:
-        validate_diagnostic_event(
-            _event(sampling_decision="sampled_away", sampling_rate=0.01)
-        )
+        validate_diagnostic_event(_event(sampling_decision="sampled_away", sampling_rate=0.01))
 
     assert error.value.code == "serious_diagnostic_event_sampled_away"
 
@@ -151,12 +149,16 @@ def test_event_type_registry_contains_phase_1_2_minimum_types() -> None:
     )
 
     assert set(registry.event_types) >= set(EXPECTED_DIAGNOSTIC_EVENT_TYPES)
-    assert registry.event_types[
-        "polisyos.runtime.diagnostic.producer_execution.v1"
-    ].authority_role == "runtime_authority"
-    assert registry.event_types[
-        "polisyos.runtime.diagnostic.producer_execution.v1"
-    ].serious_no_sampling is True
+    assert (
+        registry.event_types["polisyos.runtime.diagnostic.producer_execution.v1"].authority_role
+        == "runtime_authority"
+    )
+    assert (
+        registry.event_types[
+            "polisyos.runtime.diagnostic.producer_execution.v1"
+        ].serious_no_sampling
+        is True
+    )
 
 
 def test_diagnostic_event_json_schema_lists_adr_0154_fields() -> None:
@@ -195,6 +197,7 @@ def test_diagnostic_event_json_schema_lists_adr_0154_fields() -> None:
         "dedupe_key",
     } <= required
 
+
 def test_missing_serious_diagnostic_event_blocks_closeout() -> None:
     scorecard = scorecard_for(
         job_payload=complete_job_payload(
@@ -207,6 +210,7 @@ def test_missing_serious_diagnostic_event_blocks_closeout() -> None:
 
     assert scorecard["quality_status"] == "fail"
     assert "serious_diagnostic_event_missing" in blocking_codes(scorecard)
+
 
 def test_sampled_away_serious_diagnostic_event_blocks_closeout() -> None:
     scorecard = scorecard_for(
@@ -227,6 +231,7 @@ def test_sampled_away_serious_diagnostic_event_blocks_closeout() -> None:
 
     assert scorecard["quality_status"] == "fail"
     assert "serious_diagnostic_event_sampled_away" in blocking_codes(scorecard)
+
 
 def test_diagnostic_event_ref_must_match_runtime_cas_ref() -> None:
     scorecard = scorecard_for(
@@ -325,6 +330,7 @@ def test_runtime_event_without_cas_artifact_fails_serious_authority_checks() -> 
 
     assert scorecard["quality_status"] == "fail"
     assert "authority_cas_missing" in blocking_codes(scorecard)
+
 
 def test_rejected_runtime_ref_cannot_reconcile_its_diagnostic_event() -> None:
     job_payload = complete_job_payload()

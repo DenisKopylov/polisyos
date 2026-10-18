@@ -169,11 +169,15 @@ def _structural_claim_level(params: Mapping[str, Any]) -> str:
         or "distributional"
     )
     if level not in _VALID_STRUCTURAL_LEVELS:
-        raise ValueError("structural_claim_level must be distributional, ordered_generating, or causal")
+        raise ValueError(
+            "structural_claim_level must be distributional, ordered_generating, or causal"
+        )
     return level
 
 
-def _coerce_names(state: Mapping[str, Any], params: Mapping[str, Any], n_features: int) -> list[str]:
+def _coerce_names(
+    state: Mapping[str, Any], params: Mapping[str, Any], n_features: int
+) -> list[str]:
     raw = (
         params.get("input_names")
         or params.get("param_names")
@@ -460,7 +464,11 @@ def _coalition_values_from_conditional_pairs(
             if arr.ndim != 2 or arr.shape[0] != 2:
                 raise ValueError("conditional pair payload must be {a,b} or a 2 x n array")
             y_a, y_b = arr[0], arr[1]
-        values[mask] = float(np.var(y_a, ddof=1)) if mask == full_mask and np.array_equal(y_a, y_b) else _paired_covariance(y_a, y_b)
+        values[mask] = (
+            float(np.var(y_a, ddof=1))
+            if mask == full_mask and np.array_equal(y_a, y_b)
+            else _paired_covariance(y_a, y_b)
+        )
     return values
 
 
@@ -767,7 +775,9 @@ class DependentCopulaSensitivityEstimator:
                     Unit("parameter", "value"),
                     shape=("n_samples", "n_inputs"),
                 ),
-                SlotSpec("outputs", SlotType.VECTOR, Unit("response", "value"), shape=("n_samples",)),
+                SlotSpec(
+                    "outputs", SlotType.VECTOR, Unit("response", "value"), shape=("n_samples",)
+                ),
             }
         ),
         output_slots=_result_slot(),
@@ -934,7 +944,8 @@ class DependentCopulaSensitivityEstimator:
 
         reference_copula_id = _copula_id(reference_copula, default=_DEFAULT_REFERENCE_COPULA_ID)
         same_product_reference = (
-            _copula_family(observed_copula) == "product" and _copula_family(reference_copula) == "product"
+            _copula_family(observed_copula) == "product"
+            and _copula_family(reference_copula) == "product"
         )
         reference_pairs = _coalition_values_from_conditional_pairs(
             state.get("conditional_pairs_reference")

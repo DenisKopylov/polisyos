@@ -164,9 +164,7 @@ def test_capability_triage_record_rejects_unknown_disposition_and_extra_fields()
     g0 = _g0()
 
     with pytest.raises(ValidationError, match="disposition"):
-        g0.CapabilityTriageRecord.model_validate(
-            _triage_payload(disposition="candidate_maybe")
-        )
+        g0.CapabilityTriageRecord.model_validate(_triage_payload(disposition="candidate_maybe"))
 
     with pytest.raises(ValidationError, match="Extra inputs are not permitted"):
         g0.CapabilityTriageRecord.model_validate(
@@ -233,11 +231,13 @@ def test_portless_capability_requires_governed_waist_change_open_question() -> N
     assert "layer3_g0_portless_capability_missing_open_question" in _issue_codes(report)
 
 
-def test_data_asset_port_requires_lineage_rights_freshness_fitness_and_contamination_check() -> None:
+def test_data_asset_port_requires_lineage_rights_freshness_fitness_and_contamination_check() -> (
+    None
+):
     g0 = _g0()
-    payload = _fixture("malformed_data_asset_missing_evidence.json")["payload"][
-        "data_asset_ports"
-    ][0]
+    payload = _fixture("malformed_data_asset_missing_evidence.json")["payload"]["data_asset_ports"][
+        0
+    ]
 
     with pytest.raises(
         ValidationError,
@@ -304,25 +304,17 @@ def test_inventory_requires_asset_level_data_and_processing_transform_entries() 
 def test_runtime_touchpoint_requires_registration_and_blocks_admission_without_contract() -> None:
     g0 = _g0()
     missing_registration = _fixture("malformed_touchpoint_missing_registration.json")["payload"]
-    admission_without_contract = _fixture(
-        "malformed_touchpoint_admission_without_contract.json"
-    )["payload"]
+    admission_without_contract = _fixture("malformed_touchpoint_admission_without_contract.json")[
+        "payload"
+    ]
 
-    missing_report = g0.validate_runtime_quality_touchpoint_inventory(
-        missing_registration
-    )
-    admission_report = g0.validate_runtime_quality_touchpoint_inventory(
-        admission_without_contract
-    )
+    missing_report = g0.validate_runtime_quality_touchpoint_inventory(missing_registration)
+    admission_report = g0.validate_runtime_quality_touchpoint_inventory(admission_without_contract)
 
     assert missing_report.status == "fail"
-    assert "layer3_g0_source_touchpoint_registration_missing" in _issue_codes(
-        missing_report
-    )
+    assert "layer3_g0_source_touchpoint_registration_missing" in _issue_codes(missing_report)
     assert admission_report.status == "fail"
-    assert "layer3_g0_touchpoint_admission_without_contract" in _issue_codes(
-        admission_report
-    )
+    assert "layer3_g0_touchpoint_admission_without_contract" in _issue_codes(admission_report)
 
 
 def test_runtime_touchpoint_scan_includes_local_imports_in_producer_pipeline() -> None:
@@ -367,12 +359,16 @@ def test_g0_triage_registry_covers_inventory_and_quarantines_binary_lex() -> Non
         and record.disposition in {"quarantine", "wrap_then_strangle"}
         for record in bundle.triage_registry
     )
-    assert bundle.data_asset_inventory.summary[
-        "data_asset_inventory_unclassified_discovered_count"
-    ] == 0
-    assert bundle.data_asset_inventory.summary[
-        "processing_transform_inventory_unclassified_discovered_count"
-    ] == 0
+    assert (
+        bundle.data_asset_inventory.summary["data_asset_inventory_unclassified_discovered_count"]
+        == 0
+    )
+    assert (
+        bundle.data_asset_inventory.summary[
+            "processing_transform_inventory_unclassified_discovered_count"
+        ]
+        == 0
+    )
 
 
 def test_g0_does_not_mutate_source_truth_lattice_adapter_paths() -> None:
@@ -434,9 +430,7 @@ def test_import_policy_constitution_conflict_must_be_recorded_as_followup() -> N
     report = g0.validate_governance_followups(payload)
 
     assert report.status == "fail"
-    assert "layer3_g0_import_policy_constitution_conflict_unrecorded" in _issue_codes(
-        report
-    )
+    assert "layer3_g0_import_policy_constitution_conflict_unrecorded" in _issue_codes(report)
 
 
 def test_registry_crosswalk_clarifies_preservation_vs_admission_registry() -> None:
@@ -659,9 +653,7 @@ def test_no_hardcode_lint_scans_targeted_paths_and_reports_strangled_fallbacks()
     assert "src/polisyos/runtime/quality/capability_resolver.py" in report.scanned_paths
     assert "KNOWN_CONSTRUCTS" not in violations_by_pattern
     assert "REQUIRED_SCENARIO_FAMILY_CONSTRUCT_MAPPINGS" not in violations_by_pattern
-    assert {
-        violation.registered_backlog_ref for violation in report.violations
-    } <= backlog_ids
+    assert {violation.registered_backlog_ref for violation in report.violations} <= backlog_ids
     assert all(violation.fallback_forbidden for violation in report.violations)
     assert g0.validate_no_hardcode_enumeration_lint_payload(report).status == "pass"
 
@@ -672,15 +664,11 @@ def test_grounding_search_gate_accepts_valid_fixture_and_reports_pass_statuses()
     valid_bundle_payload = _fixture("valid_discovery_search_minimal_bundle.json")["payload"][
         "discovery_search_discipline"
     ]
-    valid_free_growth_payload = _fixture("valid_free_growth_metric_binding_fixture.json")[
-        "payload"
-    ]
+    valid_free_growth_payload = _fixture("valid_free_growth_metric_binding_fixture.json")["payload"]
 
     bundle_report = g0.validate_grounding_search_discipline_payload(discipline)
     fixture_report = g0.validate_grounding_search_discipline_payload(valid_bundle_payload)
-    free_growth_report = g0.validate_grounding_search_discipline_payload(
-        valid_free_growth_payload
-    )
+    free_growth_report = g0.validate_grounding_search_discipline_payload(valid_free_growth_payload)
 
     assert bundle_report.status == "pass"
     assert fixture_report.status == "pass"
@@ -704,9 +692,7 @@ def test_source_contract_bound_data_seed_participates_in_recall_and_freshness_ga
         for seed in discipline.recall_seeds
         if seed.seed_id == "production-data-source-contract-seed"
     )
-    freshness_by_index = {
-        record.index_id: record for record in discipline.index_freshness_records
-    }
+    freshness_by_index = {record.index_id: record for record in discipline.index_freshness_records}
 
     assert source_contract_seed.target_resource_ref.startswith("source-contract://fabric/")
     assert source_contract_seed.required_index_refs == ["production-data-manifest-index"]

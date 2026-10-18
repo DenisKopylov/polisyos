@@ -227,11 +227,13 @@ def test_route_owned_predictive_intent_bypasses_generic_replay_but_keeps_rate_an
     cache_header = {"X-Idempotency-Key": "same-generic-cache-key"}
     owned_first = client.post(
         "/api/v1/runs/run-route-owned/predictive-calibration",
-        headers=cache_header, json={"intent_id": "typed-owner"},
+        headers=cache_header,
+        json={"intent_id": "typed-owner"},
     )
     owned_second = client.post(
         "/api/v1/runs/run-route-owned/predictive-calibration",
-        headers=cache_header, json={"intent_id": "typed-owner"},
+        headers=cache_header,
+        json={"intent_id": "typed-owner"},
     )
     assert owned_first.status_code == owned_second.status_code == 200
     assert owned_first.json()["call"] == 1
@@ -249,9 +251,13 @@ def test_route_owned_predictive_intent_bypasses_generic_replay_but_keeps_rate_an
     assert generic_second.headers["X-Idempotent-Replay"] == "true"
     assert route_calls == {"owned": 2, "generic": 1}
 
-    audit_rows = [
-        json.loads(line) for line in audit_path.read_text(encoding="utf-8").splitlines()
-    ]
+    audit_rows = [json.loads(line) for line in audit_path.read_text(encoding="utf-8").splitlines()]
     assert len(audit_rows) == 3
-    assert sum(row["endpoint"] == "/api/v1/runs/run-route-owned/predictive-calibration" for row in audit_rows) == 2
+    assert (
+        sum(
+            row["endpoint"] == "/api/v1/runs/run-route-owned/predictive-calibration"
+            for row in audit_rows
+        )
+        == 2
+    )
     assert sum(row["endpoint"] == "/api/v1/control/cache-probe" for row in audit_rows) == 1

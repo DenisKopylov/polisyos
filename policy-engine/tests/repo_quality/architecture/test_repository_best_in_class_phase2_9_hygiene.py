@@ -13,7 +13,9 @@ def test_phase2_9_asset_placement_contract_separates_review_classes() -> None:
 
     assert header["status"] == "report_only"
     assert header["phase"] == "repository-best-in-class-phase-2.9"
-    assert header["validator_command"].endswith("directory-hygiene-assets --fail-on-contract-errors")
+    assert header["validator_command"].endswith(
+        "directory-hygiene-assets --fail-on-contract-errors"
+    )
     assert "clean-local-reports" in header["cleanup_command"]
 
     classes = {row["id"]: row for row in payload["asset_class"]}
@@ -50,9 +52,10 @@ def test_phase2_9_product_fixture_and_budget_rules_are_explicit() -> None:
     assert topics["runtime_product_input"] is True
     assert topics["rename_decision"] == "retain-fixtures-name-by-contract"
     assert (REPO_ROOT / topics["path"]).exists()
-    assert "docs/adr/repository-structure-0137-production-data-fixtures.md" in topics[
-        "source_contracts"
-    ]
+    assert (
+        "docs/adr/repository-structure-0137-production-data-fixtures.md"
+        in topics["source_contracts"]
+    )
 
 
 def test_phase2_9_report_only_gate_and_cleanup_route_are_registered() -> None:
@@ -63,10 +66,11 @@ def test_phase2_9_report_only_gate_and_cleanup_route_are_registered() -> None:
     assert "architecture/asset_placement.toml" in gate["source_contracts"]
 
     runtime_state = _read_toml(REPO_ROOT / "architecture/local_runtime_state.toml")
-    assert any("clean-local-reports" in command for command in runtime_state["local_runtime_state"]["cleanup_commands"])
-    reports = {
-        row["id"]: row for row in runtime_state["state_class"]
-    }["reports"]
+    assert any(
+        "clean-local-reports" in command
+        for command in runtime_state["local_runtime_state"]["cleanup_commands"]
+    )
+    reports = {row["id"]: row for row in runtime_state["state_class"]}["reports"]
     assert "clean-local-reports" in reports["preferred_stale_cleanup_command"]
 
 

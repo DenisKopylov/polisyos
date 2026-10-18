@@ -191,9 +191,7 @@ def validate_reuse_map_payload(
         )
         entries: list[Mapping[str, Any]] = []
     else:
-        entries = [
-            entry for entry in raw_entries if isinstance(entry, Mapping)
-        ]
+        entries = [entry for entry in raw_entries if isinstance(entry, Mapping)]
         if len(entries) != len(raw_entries):
             issues.append(
                 _issue(
@@ -213,9 +211,7 @@ def validate_reuse_map_payload(
                 if field == "classification"
                 else "pdc_reuse_entry_field_missing"
             )
-            issues.append(
-                _issue(code, f"{path}.{field}", f"{field} is required")
-            )
+            issues.append(_issue(code, f"{path}.{field}", f"{field} is required"))
 
         target = str(entry.get("target_capability", "")).strip()
         if not target:
@@ -244,8 +240,7 @@ def validate_reuse_map_payload(
                 _issue(
                     "pdc_reuse_classification_invalid",
                     f"{path}.classification",
-                    "classification must be one of: "
-                    + ", ".join(sorted(ALLOWED_CLASSIFICATIONS)),
+                    "classification must be one of: " + ", ".join(sorted(ALLOWED_CLASSIFICATIONS)),
                     target_capability=target or None,
                 )
             )
@@ -276,12 +271,8 @@ def validate_reuse_map_payload(
 
     if repo_root is not None:
         generated = build_reuse_map_payload(Path(repo_root), sdd_path=sdd_path)
-        expected_by_target = {
-            entry["target_capability"]: entry for entry in generated["entries"]
-        }
-        actual_by_target = {
-            str(entry.get("target_capability", "")): entry for entry in entries
-        }
+        expected_by_target = {entry["target_capability"]: entry for entry in generated["entries"]}
+        actual_by_target = {str(entry.get("target_capability", "")): entry for entry in entries}
         for target in sorted(set(expected_by_target) - set(actual_by_target)):
             issues.append(
                 _issue(
@@ -421,11 +412,7 @@ def _entry_from_sdd_row(
 
 
 def _classification_from_status(status: str) -> str:
-    tokens = {
-        token.strip()
-        for token in re.split(r"/|,", status)
-        if token.strip()
-    }
+    tokens = {token.strip() for token in re.split(r"/|,", status) if token.strip()}
     unknown = tokens - ALLOWED_CLASSIFICATIONS
     if unknown:
         raise ValueError(f"Unknown reuse classification in SDD status {status!r}")
@@ -493,11 +480,7 @@ def _summary(entries: Iterable[Mapping[str, Any]]) -> dict[str, Any]:
         "missing_classification_count": counts.get("missing", 0),
         "build_new_count": counts.get("build-new", 0),
         "sensitive_overlap_domain_count": len(
-            {
-                domain
-                for entry in entry_list
-                for domain in _detect_sensitive_domains(entry)
-            }
+            {domain for entry in entry_list for domain in _detect_sensitive_domains(entry)}
         ),
     }
 

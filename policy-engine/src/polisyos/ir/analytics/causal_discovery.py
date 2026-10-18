@@ -933,18 +933,13 @@ class CausalDiscoveryReport(BaseModel):
     def _adapt_historical_graph_projection(cls, value: Any) -> Any:
         if not isinstance(value, Mapping) or "projection_disposition" in value:
             return value
-        if (
-            "graph" not in value
-            or not _allows_legacy_graph_projection_adaptation(value)
-        ):
+        if "graph" not in value or not _allows_legacy_graph_projection_adaptation(value):
             return value
         data = dict(value)
         source_graph = CausalGraphModel.model_validate(data["graph"])
         resolved_value = data.get("resolved_graph")
         resolved_graph = (
-            CausalGraphModel.model_validate(resolved_value)
-            if resolved_value is not None
-            else None
+            CausalGraphModel.model_validate(resolved_value) if resolved_value is not None else None
         )
         data["projection_disposition"] = legacy_graph_projection_disposition(
             source_graph,
@@ -957,17 +952,13 @@ class CausalDiscoveryReport(BaseModel):
     @model_validator(mode="after")
     def _validate_graph_projection(self) -> CausalDiscoveryReport:
         if self.projection_disposition is None:
-            raise ValueError(
-                "causal discovery reports require a typed graph disposition"
-            )
+            raise ValueError("causal discovery reports require a typed graph disposition")
         graph_for_analysis(self.graph, self.resolved_graph, self.projection_disposition)
         return self
 
     def graph_for_analysis(self) -> CausalGraphModel | None:
         """Return only a content-bound DAG accepted by this report's disposition."""
-        return graph_for_analysis(
-            self.graph, self.resolved_graph, self.projection_disposition
-        )
+        return graph_for_analysis(self.graph, self.resolved_graph, self.projection_disposition)
 
 
 class DataType(str, Enum):

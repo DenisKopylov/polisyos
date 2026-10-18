@@ -82,9 +82,7 @@ def test_phase1_5_dynamic_import_and_example_contracts_are_declared() -> None:
         "verifier",
     ]
 
-    examples_readme = (REPO_ROOT / "examples/extensions/README.md").read_text(
-        encoding="utf-8"
-    )
+    examples_readme = (REPO_ROOT / "examples/extensions/README.md").read_text(encoding="utf-8")
     assert "python -m pip install -e" in examples_readme
     assert "contract_version" in examples_readme
 

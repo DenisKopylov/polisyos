@@ -32,8 +32,11 @@ def test_cluster_ownership_map_is_governed_and_valid() -> None:
     assert handshake_graph["edge_count"] >= 100
     assert handshake_graph["required_flow_count"] == 1
     open_cell_closure = validation["summary"]["open_cell_closure"]  # type: ignore[index]
-    assert open_cell_closure["closure_contract_count"] == (  # type: ignore[index]
-        validation["summary"]["open_or_incomplete_count"]  # type: ignore[index]
+    assert (
+        open_cell_closure["closure_contract_count"]
+        == (  # type: ignore[index]
+            validation["summary"]["open_or_incomplete_count"]  # type: ignore[index]
+        )
     )
     assert open_cell_closure["open_cell_count"] == 0
 
@@ -93,33 +96,20 @@ def test_cluster_ownership_map_keeps_known_blind_spots_explicit() -> None:
         "OTHER_AGENTS" not in payload["open_cell_closure"]
         or "strategic_response" not in payload["open_cell_closure"]["OTHER_AGENTS"]
     )
-    assert payload["cell"]["SYSTEM"]["connectivity_modularity"]["ratchet_state"] == (
-        "implemented"
-    )
-    assert payload["cell"]["SYSTEM"]["connectivity_modularity"]["p01_chain"] == (
-        "implemented"
-    )
-    assert payload["cell"]["SYSTEM"]["dynamics_feedback"]["ratchet_state"] == (
-        "implemented"
-    )
-    assert payload["cell"]["SYSTEM"]["dynamics_feedback"]["p01_chain"] == (
-        "implemented"
-    )
-    assert payload["cell"]["INTERVENTION"]["scale_composition"]["ratchet_state"] == (
-        "implemented"
-    )
-    assert payload["cell"]["INTERVENTION"]["scale_composition"]["p01_chain"] == (
-        "implemented"
-    )
-    assert payload["cell"]["INTERVENTION"]["design_candidate"]["firewall"].startswith(
-        "P15"
-    )
-    assert payload["cell"]["INTERVENTION"]["design_candidate"]["ratchet_state"] == (
-        "implemented"
-    )
+    assert payload["cell"]["SYSTEM"]["connectivity_modularity"]["ratchet_state"] == ("implemented")
+    assert payload["cell"]["SYSTEM"]["connectivity_modularity"]["p01_chain"] == ("implemented")
+    assert payload["cell"]["SYSTEM"]["dynamics_feedback"]["ratchet_state"] == ("implemented")
+    assert payload["cell"]["SYSTEM"]["dynamics_feedback"]["p01_chain"] == ("implemented")
+    assert payload["cell"]["INTERVENTION"]["scale_composition"]["ratchet_state"] == ("implemented")
+    assert payload["cell"]["INTERVENTION"]["scale_composition"]["p01_chain"] == ("implemented")
+    assert payload["cell"]["INTERVENTION"]["design_candidate"]["firewall"].startswith("P15")
+    assert payload["cell"]["INTERVENTION"]["design_candidate"]["ratchet_state"] == ("implemented")
 
     scientist = payload["cell"]["CROSS_CUTTING"]["scientist_orchestration"]
-    assert scientist["owner_module"] == "src/polisyos/runtime/quality/design_axes/mandate_bounded_delegation.py"
+    assert (
+        scientist["owner_module"]
+        == "src/polisyos/runtime/quality/design_axes/mandate_bounded_delegation.py"
+    )
     assert scientist["ratchet_state"] == "implemented"
     assert scientist["p01_chain"] == "implemented"
     assert scientist["authority_dim"] == "cluster_orchestration_integrity"
@@ -151,11 +141,7 @@ def test_cluster_ownership_envelope_growth_documents_s12_and_s13_without_open_ce
 
 def test_cluster_ownership_handshake_edges_are_declared_nodes() -> None:
     payload = cluster_map.load_cluster_ownership_map(REPO_ROOT)
-    cell_ids = {
-        f"{cluster}.{axis}"
-        for cluster, axes in payload["cell"].items()
-        for axis in axes
-    }
+    cell_ids = {f"{cluster}.{axis}" for cluster, axes in payload["cell"].items() for axis in axes}
     graph = payload["handshake_graph"]
     allowed_nodes = cell_ids | set(graph["ports"]) | set(graph["buses"])
     audiences = set(graph["audiences"])
@@ -247,9 +233,7 @@ def test_cluster_ownership_validator_rejects_non_reciprocal_cell_edge() -> None:
     validation = _validate_payload_without_inventory_mutation(payload)
 
     assert validation["status"] == "fail"
-    assert "cluster_ownership_handshake_cell_edge_not_reciprocal" in _issue_codes(
-        validation
-    )
+    assert "cluster_ownership_handshake_cell_edge_not_reciprocal" in _issue_codes(validation)
 
 
 def test_cluster_ownership_validator_rejects_unregistered_firewall_pattern() -> None:
@@ -297,9 +281,7 @@ def test_cluster_ownership_validator_rejects_closure_state_mismatch() -> None:
     validation = _validate_payload_without_inventory_mutation(payload)
 
     assert validation["status"] == "fail"
-    assert "cluster_ownership_open_cell_closure_state_mismatch" in _issue_codes(
-        validation
-    )
+    assert "cluster_ownership_open_cell_closure_state_mismatch" in _issue_codes(validation)
 
 
 def test_cluster_ownership_validator_rejects_closure_without_semantic_gap() -> None:
@@ -311,9 +293,7 @@ def test_cluster_ownership_validator_rejects_closure_without_semantic_gap() -> N
     validation = _validate_payload_without_inventory_mutation(payload)
 
     assert validation["status"] == "fail"
-    assert "cluster_ownership_open_cell_closure_semantic_gap_missing" in _issue_codes(
-        validation
-    )
+    assert "cluster_ownership_open_cell_closure_semantic_gap_missing" in _issue_codes(validation)
 
 
 def test_cluster_ownership_validator_rejects_missing_architecture_core_package() -> None:
@@ -341,9 +321,7 @@ def test_cluster_ownership_validator_rejects_missing_required_subpackage() -> No
     validation = _validate_payload_without_inventory_mutation(payload)
 
     assert validation["status"] == "fail"
-    assert "cluster_ownership_architecture_core_subpackage_missing" in _issue_codes(
-        validation
-    )
+    assert "cluster_ownership_architecture_core_subpackage_missing" in _issue_codes(validation)
 
 
 def test_cluster_ownership_inventory_lists_map_and_validator() -> None:

@@ -14,10 +14,7 @@ from typing import Any
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-RECEIPT_ROOT = (
-    REPO_ROOT
-    / "docs/plans/active/atlas-slices/receipts/ds11-page-a11y-current"
-)
+RECEIPT_ROOT = REPO_ROOT / "docs/plans/active/atlas-slices/receipts/ds11-page-a11y-current"
 RECEIPT_PATH = RECEIPT_ROOT / "receipt.json"
 SOURCE_DENOMINATOR = (
     "apps/runtime-dashboard",
@@ -42,8 +39,7 @@ EXPECTED_PAGE_A11Y_FILES = {
     "a11y/routes.a11y.spec.ts",
 }
 EXPECTED_PAGE_A11Y_SCRIPT = (
-    "PLAYWRIGHT_INCLUDE_BOUND_RUN_PAPER_FIXTURE=1 playwright test e2e/a11y "
-    "--project=chromium"
+    "PLAYWRIGHT_INCLUDE_BOUND_RUN_PAPER_FIXTURE=1 playwright test e2e/a11y --project=chromium"
 )
 RECEIPT_KEYS = {
     "schema_version",
@@ -87,9 +83,7 @@ def _canonical_digest(payload: object) -> str:
     )
 
 
-def _assert_exact_keys(
-    payload: dict[str, Any], expected: set[str], *, context: str
-) -> None:
+def _assert_exact_keys(payload: dict[str, Any], expected: set[str], *, context: str) -> None:
     assert set(payload) == expected, (
         f"{context} keys mismatch: "
         f"missing={sorted(expected - set(payload))}, "
@@ -124,13 +118,7 @@ def _tracked_source_rows() -> tuple[tuple[str, str], ...]:
         capture_output=True,
     )
     assert completed.returncode == 0, completed.stderr.decode("utf-8")
-    paths = tuple(
-        sorted(
-            path
-            for path in completed.stdout.decode("utf-8").split("\0")
-            if path
-        )
-    )
+    paths = tuple(sorted(path for path in completed.stdout.decode("utf-8").split("\0") if path))
     return tuple((path, _sha256((REPO_ROOT / path).read_bytes())) for path in paths)
 
 
@@ -266,9 +254,7 @@ def _validate_receipt(receipt: dict[str, Any]) -> None:
     assert isinstance(toolchain, dict)
     _assert_exact_keys(toolchain, {"node", "pnpm", "playwright"}, context="toolchain")
     root_package = _load_json(REPO_ROOT / "package.json")
-    dashboard_package = _load_json(
-        REPO_ROOT / "apps/runtime-dashboard/package.json"
-    )
+    dashboard_package = _load_json(REPO_ROOT / "apps/runtime-dashboard/package.json")
     assert dashboard_package["scripts"]["test:a11y:pages"] == EXPECTED_PAGE_A11Y_SCRIPT
     assert root_package["packageManager"] == f"pnpm@{toolchain['pnpm']}"
     assert dashboard_package["devDependencies"]["playwright"] == toolchain["playwright"]
@@ -308,12 +294,8 @@ def _validate_receipt(receipt: dict[str, Any]) -> None:
         )
         report = _load_json(results_path)
         last_run = _load_json(last_run_path)
-        _assert_exact_keys(
-            report, {"config", "suites", "errors", "stats"}, context="raw report"
-        )
-        _assert_exact_keys(
-            last_run, {"status", "failedTests"}, context="last-run report"
-        )
+        _assert_exact_keys(report, {"config", "suites", "errors", "stats"}, context="raw report")
+        _assert_exact_keys(last_run, {"status", "failedTests"}, context="last-run report")
         config = report["config"]
         assert isinstance(config, dict)
         assert config["version"] == toolchain["playwright"]

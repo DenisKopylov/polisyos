@@ -333,9 +333,13 @@ class ScholarDeepSearchService:
             for node, (provider_name, hits, error, provider_attempts) in zip(
                 batch_nodes, search_results, strict=False
             ):
-                persisted_error = None if hits else next(
-                    (attempt.error for attempt in reversed(provider_attempts) if attempt.error),
-                    None,
+                persisted_error = (
+                    None
+                    if hits
+                    else next(
+                        (attempt.error for attempt in reversed(provider_attempts) if attempt.error),
+                        None,
+                    )
                 )
                 node.provider = provider_name
                 node.hit_count = len(hits)
@@ -356,11 +360,7 @@ class ScholarDeepSearchService:
                         query=node.query,
                         perspective=node.perspective,
                         provider=provider_name,
-                        reason=(
-                            "provider_error_no_hits"
-                            if error
-                            else "provider_returned_no_hits"
-                        ),
+                        reason=("provider_error_no_hits" if error else "provider_returned_no_hits"),
                         searched_at=query_trace.searched_at,
                         error=persisted_error,
                     )
@@ -604,8 +604,7 @@ def _build_claim_supports(
         )
     else:
         claim_rows.extend(
-            (f"claim.{index + 1}", claim_text, None)
-            for index, claim_text in enumerate(claim_texts)
+            (f"claim.{index + 1}", claim_text, None) for index, claim_text in enumerate(claim_texts)
         )
     for _index, (claim_id, claim_text, requirement) in enumerate(claim_rows):
         ranked = sorted(

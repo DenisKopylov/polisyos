@@ -10,12 +10,8 @@ import pytest
 pytestmark = pytest.mark.unit
 
 
-def _load_experiment_module(
-    monkeypatch: pytest.MonkeyPatch, module_name: str
-) -> ModuleType:
-    experiment_dir = (
-        Path(__file__).resolve().parents[5] / "tools" / "ops_runners" / "experiments"
-    )
+def _load_experiment_module(monkeypatch: pytest.MonkeyPatch, module_name: str) -> ModuleType:
+    experiment_dir = Path(__file__).resolve().parents[5] / "tools" / "ops_runners" / "experiments"
     monkeypatch.syspath_prepend(str(experiment_dir))
     return importlib.import_module(module_name)
 

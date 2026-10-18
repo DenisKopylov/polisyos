@@ -43,9 +43,7 @@ def _panel(*, duplicated_periods: bool = False) -> PanelObservationalData:
 
 def _rdd() -> RDDObservationalData:
     running = np.linspace(-1.0, 1.0, 80)
-    outcome = 1.0 + 0.35 * running + 2.0 * (running >= 0.0) + 0.1 * np.sin(
-        np.arange(running.size)
-    )
+    outcome = 1.0 + 0.35 * running + 2.0 * (running >= 0.0) + 0.1 * np.sin(np.arange(running.size))
     return RDDObservationalData(outcome=outcome, running_variable=running, cutoff=0.0)
 
 
@@ -76,23 +74,18 @@ def test_cau_01_confidence_level_changes_did_interval() -> None:
 
     data = _panel()
     report_values = {
-        level: _report(
-            StandardDifferenceInDifferences.pure_step(data, {"confidence_level": level})
-        )
+        level: _report(StandardDifferenceInDifferences.pure_step(data, {"confidence_level": level}))
         for level in (0.80, 0.95, 0.99)
     }
     intervals = {level: report.confidence_interval for level, report in report_values.items()}
     critical_values = {
-        level: NormalDist().inv_cdf((1.0 + level) / 2.0)
-        for level in (0.80, 0.95, 0.99)
+        level: NormalDist().inv_cdf((1.0 + level) / 2.0) for level in (0.80, 0.95, 0.99)
     }
     point_estimate = report_values[0.95].point_estimate
 
     assert intervals[0.80] != intervals[0.95]
     assert intervals[0.95] != intervals[0.99]
-    assert (intervals[0.99][1] - intervals[0.99][0]) > (
-        intervals[0.80][1] - intervals[0.80][0]
-    )
+    assert (intervals[0.99][1] - intervals[0.99][0]) > (intervals[0.80][1] - intervals[0.80][0])
     for level, report in report_values.items():
         assert report.point_estimate == pytest.approx(point_estimate)
         assert report.confidence_interval == pytest.approx(
@@ -116,16 +109,13 @@ def test_cau_01_confidence_level_changes_rdd_interval() -> None:
     }
     intervals = {level: report.confidence_interval for level, report in reports.items()}
     critical_values = {
-        level: NormalDist().inv_cdf((1.0 + level) / 2.0)
-        for level in (0.80, 0.95, 0.99)
+        level: NormalDist().inv_cdf((1.0 + level) / 2.0) for level in (0.80, 0.95, 0.99)
     }
     point_estimate = reports[0.95].point_estimate
 
     assert intervals[0.80] != intervals[0.95]
     assert intervals[0.95] != intervals[0.99]
-    assert (intervals[0.99][1] - intervals[0.99][0]) > (
-        intervals[0.80][1] - intervals[0.80][0]
-    )
+    assert (intervals[0.99][1] - intervals[0.99][0]) > (intervals[0.80][1] - intervals[0.80][0])
     for level, report in reports.items():
         assert report.point_estimate == pytest.approx(point_estimate)
         assert report.confidence_interval == pytest.approx(
@@ -135,21 +125,15 @@ def test_cau_01_confidence_level_changes_rdd_interval() -> None:
             )
         )
     assert reports[0.95].method_params["confidence_procedure"] == "normal_two_sided"
-    assert reports[0.95].method_params["critical_value"] == pytest.approx(
-        critical_values[0.95]
-    )
+    assert reports[0.95].method_params["critical_value"] == pytest.approx(critical_values[0.95])
 
 
 def test_cau_01_did_95_interval_matches_normal_critical_value_and_preserves_point() -> None:
     """The requested 95% level preserves the point estimate and uses z(.975)."""
 
     data = _panel()
-    report_95 = _report(
-        StandardDifferenceInDifferences.pure_step(data, {"confidence_level": 0.95})
-    )
-    report_80 = _report(
-        StandardDifferenceInDifferences.pure_step(data, {"confidence_level": 0.80})
-    )
+    report_95 = _report(StandardDifferenceInDifferences.pure_step(data, {"confidence_level": 0.95}))
+    report_80 = _report(StandardDifferenceInDifferences.pure_step(data, {"confidence_level": 0.80}))
     critical_value = NormalDist().inv_cdf((1.0 + 0.95) / 2.0)
 
     assert report_95.point_estimate == pytest.approx(report_80.point_estimate)
@@ -166,9 +150,7 @@ def test_cau_01_did_95_interval_matches_normal_critical_value_and_preserves_poin
 def test_cau_01_invalid_did_confidence_level_fails_closed() -> None:
     """An invalid DiD confidence level is an input failure, not a default to 95%."""
 
-    report = _report(
-        StandardDifferenceInDifferences.pure_step(_panel(), {"confidence_level": 1.0})
-    )
+    report = _report(StandardDifferenceInDifferences.pure_step(_panel(), {"confidence_level": 1.0}))
 
     assert report.status == EstimationStatus.INPUT_INVALID
     assert report.status_reason == "confidence_level must be in (0, 1)"
@@ -215,9 +197,7 @@ def test_cau_01_cluster_covariance_requires_unit_identity() -> None:
         treatment=_panel().treatment,
         time_treatment=2,
     )
-    report = _report(
-        StandardDifferenceInDifferences.pure_step(data, {"cov_type": "cluster"})
-    )
+    report = _report(StandardDifferenceInDifferences.pure_step(data, {"cov_type": "cluster"}))
 
     assert report.status == EstimationStatus.INPUT_INVALID
     assert report.status_reason == "cluster covariance requires unit_ids"
@@ -301,9 +281,7 @@ def test_cau_01_cluster_covariance_stable_under_duplicate_periods() -> None:
 def test_cau_01_rejects_unknown_covariance_profile() -> None:
     """An unsupported covariance name must fail closed instead of silently using HC1."""
 
-    report = _report(
-        StandardDifferenceInDifferences.pure_step(_panel(), {"cov_type": "made_up"})
-    )
+    report = _report(StandardDifferenceInDifferences.pure_step(_panel(), {"cov_type": "made_up"}))
 
     assert report.status == EstimationStatus.INPUT_INVALID
     assert report.status_reason == "unsupported covariance profile: made_up"
@@ -323,9 +301,7 @@ def test_cau_01_old_and_dedicated_standard_equivalent() -> None:
         {},
     )
     legacy_output = DifferenceInDifferences.pure_step(legacy_data, {"confidence_level": 0.95})
-    dedicated_output = StandardDifferenceInDifferences.pure_step(
-        data, {"confidence_level": 0.95}
-    )
+    dedicated_output = StandardDifferenceInDifferences.pure_step(data, {"confidence_level": 0.95})
     legacy = _report(legacy_output)
     dedicated = _report(dedicated_output)
 

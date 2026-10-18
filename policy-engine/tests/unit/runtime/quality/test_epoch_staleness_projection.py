@@ -85,9 +85,7 @@ def test_real_signer_nonreceipts_render_two_distinct_first_class_absences() -> N
         "policy_admission_missing",
         "epoch_transition_signer_not_established",
     }
-    assert {row.title for row in projection.institutional_absences} == {
-        "Authority not appointed"
-    }
+    assert {row.title for row in projection.institutional_absences} == {"Authority not appointed"}
     assert all(
         row.appointment_is_closure_precondition is False
         for row in projection.institutional_absences
@@ -97,9 +95,7 @@ def test_real_signer_nonreceipts_render_two_distinct_first_class_absences() -> N
     engineering = projection.engineering_absences[0]
     assert engineering.title == "Engineering capability not wired"
     assert engineering.missing_labels == ("producer_missing", "bridge_missing")
-    assert engineering.candidate_owner_module == (
-        "polisyos.runtime.quality.derived_observations"
-    )
+    assert engineering.candidate_owner_module == ("polisyos.runtime.quality.derived_observations")
     assert engineering.institutional_dependency is False
     assert projection.open_world_risk.promotion_frozen is True
 

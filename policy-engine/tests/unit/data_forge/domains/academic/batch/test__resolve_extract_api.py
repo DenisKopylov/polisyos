@@ -40,7 +40,6 @@ def test_resolve_extract_pass_fails_on_bad_substrate_without_mutating_raw_input(
     assert config.doc_substrate_path.read_bytes() == supplied
 
 
-
 def test_resolve_extract_pass_refuses_non_object_selected_work_without_mutation(
     tmp_path: Path,
 ) -> None:
@@ -57,6 +56,7 @@ def test_resolve_extract_pass_refuses_non_object_selected_work_without_mutation(
         asyncio.run(api._run_resolve_extract_pass(config))
 
     assert config.selected_global_works_path.read_bytes() == before
+
 
 def test_targeted_extraction_refuses_malformed_result_rows_without_mutation(
     tmp_path: Path,
@@ -75,9 +75,7 @@ def test_targeted_extraction_refuses_malformed_result_rows_without_mutation(
     suite = SimpleNamespace(
         scenarios=[
             SimpleNamespace(
-                causal_edges=[
-                    SimpleNamespace(cause="credit_access", effect="firm_survival")
-                ]
+                causal_edges=[SimpleNamespace(cause="credit_access", effect="firm_survival")]
             )
         ]
     )
@@ -97,7 +95,6 @@ def test_targeted_extraction_refuses_malformed_result_rows_without_mutation(
     assert config.resolve_extract_results_path.read_bytes() == supplied
 
 
-
 def test_targeted_extraction_processes_each_valid_result_row(
     tmp_path: Path,
     monkeypatch,
@@ -115,9 +112,7 @@ def test_targeted_extraction_processes_each_valid_result_row(
     suite = SimpleNamespace(
         scenarios=[
             SimpleNamespace(
-                causal_edges=[
-                    SimpleNamespace(cause="credit_access", effect="firm_survival")
-                ]
+                causal_edges=[SimpleNamespace(cause="credit_access", effect="firm_survival")]
             )
         ]
     )
@@ -143,10 +138,7 @@ def test_targeted_extraction_processes_each_valid_result_row(
     result = asyncio.run(api._run_targeted_extraction_pass(config))
 
     output_path = config.component_dir / "targeted_extraction_results.jsonl"
-    queued = [
-        json.loads(line)
-        for line in output_path.read_text(encoding="utf-8").splitlines()
-    ]
+    queued = [json.loads(line) for line in output_path.read_text(encoding="utf-8").splitlines()]
     assert result["targeted_extraction_candidates"] == 2
     assert [row["openalex_id"] for row in queued] == ["W1", "W2"]
 
@@ -168,9 +160,7 @@ def test_targeted_extraction_accepts_empty_result_file_as_no_candidates(
     suite = SimpleNamespace(
         scenarios=[
             SimpleNamespace(
-                causal_edges=[
-                    SimpleNamespace(cause="credit_access", effect="firm_survival")
-                ]
+                causal_edges=[SimpleNamespace(cause="credit_access", effect="firm_survival")]
             )
         ]
     )

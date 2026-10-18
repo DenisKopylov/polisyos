@@ -246,8 +246,7 @@ def _s2_run_input() -> Layer2S2DesignSearchInput:
     repository_root = Path(__file__).resolve().parents[4]
     proving_case = json.loads(
         (
-            repository_root
-            / "architecture/policy_design_case/layer2_first_proving_case.json"
+            repository_root / "architecture/policy_design_case/layer2_first_proving_case.json"
         ).read_text(encoding="utf-8")
     )
     manifest = json.loads(
@@ -465,9 +464,7 @@ class _FaultingArtifactStore:
             )
         if self._fault == "producer":
             return sidecar.model_copy(
-                update={
-                    "producer": ProducerInfo(component="substituted.producer", version="0")
-                }
+                update={"producer": ProducerInfo(component="substituted.producer", version="0")}
             )
         return sidecar
 
@@ -544,8 +541,7 @@ def test_s2_operation_requires_exact_id_and_emits_candidate_only_trace(
         "S2_ARTIFACT_ENVELOPE_RECORDED",
     ]
     assert all(
-        record["metrics"] == {"authority_bearing": 0, "candidate_only": 1}
-        for record in governed
+        record["metrics"] == {"authority_bearing": 0, "candidate_only": 1} for record in governed
     )
     assert records[-1]["event"] == "RUN_FINALIZED"
     assert records[-1]["refs"]["outputs"] == [result.manifest_ref.model_dump(mode="json")]
@@ -660,9 +656,7 @@ def test_run_paper_omits_eval_safety_projection_without_authority_surface_packet
         core_runs_root=core_runs_root,
         tenant_id=tenant_id,
     ).get(run_id)
-    linked_artifact_ids = {
-        str(link.artifact_ref.artifact_id) for link in packet.artifact_links
-    }
+    linked_artifact_ids = {str(link.artifact_ref.artifact_id) for link in packet.artifact_links}
 
     assert str(invalid_projection_ref.artifact_id) not in linked_artifact_ids
     assert str(persisted.design_record_ref.artifact_id) in linked_artifact_ids
@@ -905,9 +899,7 @@ def test_run_paper_artifact_link_href_preserves_selected_manifest_profile() -> N
 
     assert link.href == href
     assert urlsplit(link.href).path == f"/api/v1/artifacts/{artifact_id}"
-    assert parse_qs(urlsplit(link.href).query) == {
-        "manifest_profile_sha256": [profile]
-    }
+    assert parse_qs(urlsplit(link.href).query) == {"manifest_profile_sha256": [profile]}
     with pytest.raises(ValidationError, match="derive from artifact_ref"):
         RunPaperArtifactLink(
             artifact_ref=ref,

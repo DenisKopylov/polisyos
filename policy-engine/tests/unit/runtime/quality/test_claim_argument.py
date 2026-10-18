@@ -49,9 +49,9 @@ def test_claim_argument_validation_projects_deficits_as_semantic_limitations() -
 
     assert result.status == "pass"
     assert result.major_claims[0]["limitation_refs"] == ["deficit-assessment-rec-1"]
-    assert result.as_dict()["major_claims"][0]["semantic_binding_refs"][
-        "limitation_refs"
-    ] == ["deficit-assessment-rec-1"]
+    assert result.as_dict()["major_claims"][0]["semantic_binding_refs"]["limitation_refs"] == [
+        "deficit-assessment-rec-1"
+    ]
 
 
 def test_claim_argument_missing_surfaces_export_semantic_closure_codes() -> None:
@@ -65,8 +65,7 @@ def test_claim_argument_missing_surfaces_export_semantic_closure_codes() -> None
     payload = validate_claim_argument_case_surfaces(case).as_dict()
 
     semantic_codes = {
-        issue["semantic_binding_issue_code"]
-        for issue in payload["semantic_binding_issues"]
+        issue["semantic_binding_issue_code"] for issue in payload["semantic_binding_issues"]
     }
     assert {
         "semantic_major_claim_argument_refs_missing",
@@ -199,12 +198,15 @@ def test_pre_publication_challenge_builder_projects_typed_scientist_outputs() ->
         "policy_design_search_refs": [sha("6")],
         "backtesting_adversarial_refs": [sha("7")],
     }
-    assert validate_claim_argument_case_surfaces(
-        {
-            **_claim_argument_case(),
-            "requester_capture_challenges": [challenge],
-        }
-    ).status == "pass"
+    assert (
+        validate_claim_argument_case_surfaces(
+            {
+                **_claim_argument_case(),
+                "requester_capture_challenges": [challenge],
+            }
+        ).status
+        == "pass"
+    )
 
 
 def test_requester_capture_challenge_rejects_prior_confirmation_without_alternatives() -> None:
@@ -243,9 +245,9 @@ def test_requester_capture_challenge_failed_result_blocks_claim_acceptance() -> 
     result = validate_claim_argument_case_surfaces(case)
 
     assert result.status == "fail"
-    assert {
-        issue.code for issue in result.issues
-    } >= {"policy_design_requester_capture_challenge_failed"}
+    assert {issue.code for issue in result.issues} >= {
+        "policy_design_requester_capture_challenge_failed"
+    }
 
 
 def test_requester_capture_challenge_rejects_alternatives_that_repeat_requester_prior() -> None:
@@ -274,9 +276,7 @@ def test_requester_capture_challenge_rejects_alternatives_that_repeat_requester_
     result = validate_claim_argument_case_surfaces(case)
 
     assert result.status == "fail"
-    assert {
-        issue.code for issue in result.issues
-    } >= {
+    assert {issue.code for issue in result.issues} >= {
         "policy_design_requester_capture_independent_alternatives_missing",
         "policy_design_requester_capture_independent_analysis_confirms_prior",
     }
@@ -360,16 +360,12 @@ def _claim_argument_case() -> dict[str, object]:
                 "independent_alternative_analyses": [
                     {
                         "alternative_id": "baseline-no-action",
-                        "conclusion": (
-                            "no action has lower fiscal risk but worse survival impact"
-                        ),
+                        "conclusion": ("no action has lower fiscal risk but worse survival impact"),
                         "evidence_refs": [sha("1")],
                     },
                     {
                         "alternative_id": "untargeted-subsidy",
-                        "conclusion": (
-                            "untargeted subsidy is rejected on distributional grounds"
-                        ),
+                        "conclusion": ("untargeted subsidy is rejected on distributional grounds"),
                         "evidence_refs": [sha("2")],
                     },
                 ],

@@ -214,6 +214,7 @@ class FailurePatternIndex:
     @classmethod
     def load(cls, cas: FileSystemCAS, artifact_id: str) -> FailurePatternIndex:
         from polisyos.core.artifacts import load_core_json_artifact
+
         aid = ArtifactID.model_validate(artifact_id)
         payload = load_core_json_artifact(cas, aid)
         if not isinstance(payload, dict):

@@ -117,9 +117,7 @@ def select_lanes(
 
     if not include_live_provider:
         return [
-            lane
-            for lane in selected
-            if not _is_live_provider_lane(lane) or lane_id or only_lane
+            lane for lane in selected if not _is_live_provider_lane(lane) or lane_id or only_lane
         ]
     return selected
 
@@ -380,8 +378,7 @@ def _completed_result(
         _closeout_compatibility(bundle_path) if lane.get("closeout_required") is True else None
     )
     closeout_compatible = (
-        closeout_compatibility is None
-        or str(closeout_compatibility.get("status") or "") == "pass"
+        closeout_compatibility is None or str(closeout_compatibility.get("status") or "") == "pass"
     )
     passed = (
         completed.returncode == 0
@@ -398,11 +395,7 @@ def _completed_result(
         if completed.returncode == 0 and missing_required_evidence:
             code = "canary_required_evidence_missing"
             message = "Canary lane did not emit all required evidence files."
-        if (
-            completed.returncode == 0
-            and has_bundle_and_scorecard
-            and not scorecard_acceptable
-        ):
+        if completed.returncode == 0 and has_bundle_and_scorecard and not scorecard_acceptable:
             code = "canary_scorecard_failed"
             message = "Canary lane emitted a non-passing quality scorecard."
         if (
@@ -491,9 +484,7 @@ def _summary(results: list[dict[str, Any]]) -> dict[str, Any]:
             for status in statuses
         },
         "lane_statuses": {str(result["lane_id"]): str(result["status"]) for result in results},
-        "bundle_paths": {
-            str(result["lane_id"]): result["bundle_path"] for result in results
-        },
+        "bundle_paths": {str(result["lane_id"]): result["bundle_path"] for result in results},
         "scorecard_statuses": scorecard_statuses,
         "failure_envelope": _matrix_failure_envelope(results),
     }

@@ -338,9 +338,7 @@ def _evaluate_case(
                 case_id=case_id,
             )
         )
-    missing_roles = [
-        role for role in REQUIRED_CRITIC_ROLES if role not in failure_modes_by_critic
-    ]
+    missing_roles = [role for role in REQUIRED_CRITIC_ROLES if role not in failure_modes_by_critic]
     if missing_roles:
         warnings.append(
             _warning(
@@ -418,8 +416,7 @@ def _failure_modes_by_critic(
         modes = {
             _normalized_token(mode)
             for mode in _sequence(
-                verdict.get("failure_modes")
-                or _nested(verdict, ("metadata", "failure_modes"))
+                verdict.get("failure_modes") or _nested(verdict, ("metadata", "failure_modes"))
             )
             if _normalized_token(mode)
         }
@@ -432,8 +429,7 @@ def _mean_pairwise_jaccard_similarity(failure_modes_by_critic: Mapping[str, set[
     if len(mode_sets) < 2:
         return 1.0
     scores = [
-        _jaccard_similarity(left, right)
-        for left, right in itertools.combinations(mode_sets, 2)
+        _jaccard_similarity(left, right) for left, right in itertools.combinations(mode_sets, 2)
     ]
     return round(sum(scores) / len(scores), 4)
 
@@ -468,8 +464,7 @@ def _summary(
     diversity_floor: float,
 ) -> dict[str, Any]:
     diversities = [
-        float(case.get("critic_ensemble_diversity_jaccard") or 0.0)
-        for case in case_reports
+        float(case.get("critic_ensemble_diversity_jaccard") or 0.0) for case in case_reports
     ]
     return {
         "status": "fail" if any(issue.get("severity") == "fail" for issue in issues) else "pass",
@@ -615,9 +610,7 @@ def _self_test_case_payload(*, collapsed: bool) -> dict[str, Any]:
                     "target_candidate_ids": [f"candidate-{case_id}"],
                     "message": f"{role} critique",
                     "failure_modes": (
-                        ["shared_failure_mode"]
-                        if collapsed
-                        else [f"{role}_specific_failure"]
+                        ["shared_failure_mode"] if collapsed else [f"{role}_specific_failure"]
                     ),
                 }
                 for role in REQUIRED_CRITIC_ROLES

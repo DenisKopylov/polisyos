@@ -94,8 +94,7 @@ def test_formulator_entries_are_canonical_hypothesis_ledger_inputs() -> None:
             "run_id": "run-formulator-runtime-ledger",
             "job_id": "job-formulator-runtime-ledger",
             "entries": [
-                entry.model_dump(mode="json", exclude_none=True)
-                for entry in output.ledger_entries
+                entry.model_dump(mode="json", exclude_none=True) for entry in output.ledger_entries
             ],
         }
     )
@@ -110,9 +109,7 @@ def test_formulator_entries_are_canonical_hypothesis_ledger_inputs() -> None:
         surface="claim_registry",
     )
 
-    assert {issue["code"] for issue in issues} == {
-        "candidate_firewall_candidate_unverified"
-    }
+    assert {issue["code"] for issue in issues} == {"candidate_firewall_candidate_unverified"}
 
 
 def test_formulator_consumes_w6c_frontier_item_shape_without_duplicate_ledger_ids() -> None:
@@ -137,8 +134,7 @@ def test_formulator_consumes_w6c_frontier_item_shape_without_duplicate_ledger_id
             "run_id": "run-formulator-frontier-ledger",
             "job_id": "job-formulator-frontier-ledger",
             "entries": [
-                entry.model_dump(mode="json", exclude_none=True)
-                for entry in output.ledger_entries
+                entry.model_dump(mode="json", exclude_none=True) for entry in output.ledger_entries
             ],
         }
     )
@@ -147,9 +143,7 @@ def test_formulator_consumes_w6c_frontier_item_shape_without_duplicate_ledger_id
     ]
 
     assert {entry.target_claim_ids for entry in obligation_entries} == {()}
-    assert {
-        entry.content["obligation_refs"][0] for entry in obligation_entries
-    } >= {
+    assert {entry.content["obligation_refs"][0] for entry in obligation_entries} >= {
         "frontier-001-legal-competence",
         "frontier-002-data-lineage",
     }

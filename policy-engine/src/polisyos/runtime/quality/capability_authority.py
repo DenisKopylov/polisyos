@@ -38,12 +38,8 @@ CAPABILITY_PURPOSE_BINDING_SCHEMA_NAME = (
     "polisyos.runtime.quality.OwnerSignedCapabilityPurposeBinding"
 )
 CAPABILITY_PURPOSE_BINDING_ARTIFACT_KIND = "capability.purpose_binding"
-CAPABILITY_PURPOSE_BINDING_PRODUCER_REF = (
-    "runtime-quality:capability-purpose-binding-producer"
-)
-CAPABILITY_PURPOSE_BINDING_VERIFIER_REF = (
-    "runtime-quality:capability-purpose-binding-verifier"
-)
+CAPABILITY_PURPOSE_BINDING_PRODUCER_REF = "runtime-quality:capability-purpose-binding-producer"
+CAPABILITY_PURPOSE_BINDING_VERIFIER_REF = "runtime-quality:capability-purpose-binding-verifier"
 
 AuthorityPosture = Literal["research", "governed_pilot", "production"]
 AuthorityEnvelopeResult = Literal["admissible", "limited", "contested", "blocked"]
@@ -384,21 +380,18 @@ class CapabilityPurposeBindingVerifier:
     ) -> CapabilityPurposeBindingVerification:
         """Verify detached signature, producer manifest, bytes, scope, and expiry."""
         from polisyos.core.artifacts import validate_core_model_json_artifact
+
         try:
             artifact_id = core.artifacts.ArtifactID.model_validate(binding_ref)
             signature = self._artifact_store.get_signature(artifact_id)
         except (OSError, TypeError, ValueError) as exc:
-            raise CapabilityPurposeBindingResolutionError(
-                "owner_binding_artifact_invalid"
-            ) from exc
+            raise CapabilityPurposeBindingResolutionError("owner_binding_artifact_invalid") from exc
         if signature is None:
             raise CapabilityPurposeBindingResolutionError("owner_binding_unsigned")
         if type(signature) is not core.artifacts.DetachedSignature:
             raise CapabilityPurposeBindingResolutionError("owner_binding_signature_invalid")
         if signature.signer_identity != self._expected_signer_identity:
-            raise CapabilityPurposeBindingResolutionError(
-                "owner_binding_signer_identity_mismatch"
-            )
+            raise CapabilityPurposeBindingResolutionError("owner_binding_signer_identity_mismatch")
         try:
             verification = self._artifact_store.verify_signature(
                 artifact_id,
@@ -425,18 +418,14 @@ class CapabilityPurposeBindingVerifier:
                 or manifest.producer is None
                 or str(manifest.producer.component) != CAPABILITY_PURPOSE_BINDING_PRODUCER_REF
             ):
-                raise CapabilityPurposeBindingResolutionError(
-                    "owner_binding_manifest_invalid"
-                )
+                raise CapabilityPurposeBindingResolutionError("owner_binding_manifest_invalid")
             binding = validate_core_model_json_artifact(
                 OwnerSignedCapabilityPurposeBinding, self._artifact_store, artifact_id
             )
         except CapabilityPurposeBindingResolutionError:
             raise
         except (OSError, TypeError, ValueError) as exc:
-            raise CapabilityPurposeBindingResolutionError(
-                "owner_binding_artifact_invalid"
-            ) from exc
+            raise CapabilityPurposeBindingResolutionError("owner_binding_artifact_invalid") from exc
         comparisons = (
             (binding.capability_ref, capability_ref, "owner_binding_resource_mismatch"),
             (binding.content_digest, content_digest, "owner_binding_digest_mismatch"),

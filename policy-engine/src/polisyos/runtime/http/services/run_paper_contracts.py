@@ -263,9 +263,7 @@ class RunPaperAuthorityNonReceipt(_StrictModel):
 
     @model_validator(mode="after")
     def _require_role_specific_nonreceipt(self) -> RunPaperAuthorityNonReceipt:
-        expected_owner, expected_denied_uses = _AUTHORITY_NONRECEIPT_ROLES[
-            self.missing_authority
-        ]
+        expected_owner, expected_denied_uses = _AUTHORITY_NONRECEIPT_ROLES[self.missing_authority]
         if self.owner_route != expected_owner or self.denied_uses != expected_denied_uses:
             raise ValueError(
                 f"{self.missing_authority} nonreceipt carries the wrong owner or denied uses"
@@ -409,9 +407,7 @@ class AuthorityAbstainingRunPaperCase(_StrictModel):
         }
         mismatched = [role for role, authority in expected.items() if actual[role] != authority]
         if mismatched:
-            raise ValueError(
-                "authority nonreceipt is in the wrong role: " + ", ".join(mismatched)
-            )
+            raise ValueError("authority nonreceipt is in the wrong role: " + ", ".join(mismatched))
         return self
 
 

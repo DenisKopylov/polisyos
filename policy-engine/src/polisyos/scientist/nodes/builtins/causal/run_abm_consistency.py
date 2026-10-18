@@ -419,8 +419,7 @@ def _load_selected_typed_input[TModel: BaseModel, TRef: BaseModel](
     selected_ref = profile_bound_ref(store, typed_ref)
     referenced_value = load_ref(store, selected_ref)
     if inline_value is not None and (
-        inline_value.model_dump(mode="json")
-        != referenced_value.model_dump(mode="json")
+        inline_value.model_dump(mode="json") != referenced_value.model_dump(mode="json")
     ):
         raise ValueError("inline_payload_ref_content_mismatch")
     return referenced_value, selected_ref

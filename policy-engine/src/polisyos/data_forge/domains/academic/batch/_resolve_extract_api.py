@@ -164,7 +164,6 @@ from polisyos.ir.analytics.literature import (
 )
 
 if TYPE_CHECKING:
-
     from polisyos.data_forge.domains.academic.batch.config import AcademicBatchConfig
 
 type _ProgressValue = (
@@ -796,8 +795,6 @@ _NUMERIC_UNITFUL_HINT_RE = re.compile(
 _VAR_SPLIT_RE = re.compile(r"[^a-z0-9]+")
 
 
-
-
 async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, float | int]:
     started_at = datetime.now(UTC).isoformat()
     selected_rows_path = config.selected_global_works_path
@@ -855,7 +852,9 @@ async def _run_resolve_extract_pass(config: AcademicBatchConfig) -> dict[str, fl
                 continue
             index += 1
             _key, row = _decode_json_object(
-                raw, path=selected_rows_path, line_number=line_number,
+                raw,
+                path=selected_rows_path,
+                line_number=line_number,
                 kind="selected-work JSONL row",
             )
             work = row.get("work") if isinstance(row.get("work"), dict) else {}

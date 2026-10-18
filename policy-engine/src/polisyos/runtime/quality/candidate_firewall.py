@@ -52,6 +52,7 @@ class AuthorityCandidateInventoryRow(BaseModel):
     reviewer: str | None = None
     reviewed_at: str | None = None
 
+
 _CANDIDATE_REF_PREFIXES = (
     "hypothesis-candidate:",
     "candidate://hypothesis/",
@@ -623,17 +624,13 @@ def _looks_like_web_authority_record(value: Mapping[str, Any]) -> bool:
         source_kind in _WEB_BUNDLE_SOURCE_KINDS
         or source_ref.startswith("webkb.")
         or source_ref.startswith("scholar.web_evidence_bundle:")
-        or (
-            authority_tier == "design_tier_l2"
-            and source_kind in {"web", "academic_search_result"}
-        )
+        or (authority_tier == "design_tier_l2" and source_kind in {"web", "academic_search_result"})
     )
 
 
 def _has_validated_span_grounding(value: Mapping[str, Any]) -> bool:
-    return (
-        _text(value.get("span_grounding_status")) == "validated_supporting"
-        and bool(_text(value.get("validated_span_grounding_ref")))
+    return _text(value.get("span_grounding_status")) == "validated_supporting" and bool(
+        _text(value.get("validated_span_grounding_ref"))
     )
 
 

@@ -24,7 +24,12 @@ pytestmark = pytest.mark.integration
 
 TESTS_ROOT = Path(__file__).resolve().parents[2]
 REPLAY_FIXTURE = (
-    TESTS_ROOT / "_data" / "fabric" / "shared" / "source_contracts" / "worldbank.wdi.generic.replay.json"
+    TESTS_ROOT
+    / "_data"
+    / "fabric"
+    / "shared"
+    / "source_contracts"
+    / "worldbank.wdi.generic.replay.json"
 )
 
 
@@ -145,7 +150,9 @@ def test_fabric_connector_fetch_projects_to_ir_observation_and_schema_surface() 
     result = fabric_get_data(
         dataset_id=replay["source_contract_id"],
         connector_id=replay["connector_id"],
-        constraints={"filters": {"country_code": [replay["normalized_sample_rows"][0]["country_code"]]}},
+        constraints={
+            "filters": {"country_code": [replay["normalized_sample_rows"][0]["country_code"]]}
+        },
         registry=registry,
     )
     schema = _schema_from_fetch_result(result)

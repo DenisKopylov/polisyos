@@ -27,11 +27,11 @@ def test_universal_corpus_manifest_loads_complete_fixture_pack() -> None:
     assert manifest.schema_version == "policyos.universal_corpus_manifest.v1"
     assert len(fixtures) >= 12
     assert len({fixture.domain for fixture in fixtures}) >= 6
-    assert {
-        authority
-        for fixture in fixtures
-        for authority in fixture.intent.authority_levels
-    } >= {"research", "governed", "production"}
+    assert {authority for fixture in fixtures for authority in fixture.intent.authority_levels} >= {
+        "research",
+        "governed",
+        "production",
+    }
 
     for fixture in fixtures:
         assert fixture.input_intent_ref == fixture.intent.intent_id
@@ -47,9 +47,11 @@ def test_universal_corpus_manifest_loads_complete_fixture_pack() -> None:
             "participation",
             "scholar",
         }
-        assert {
-            binding.status for binding in fixture.expected_adapter_bindings.bindings
-        } >= {"selected", "rejected", "blocked"}
+        assert {binding.status for binding in fixture.expected_adapter_bindings.bindings} >= {
+            "selected",
+            "rejected",
+            "blocked",
+        }
         assert {state.authority_level for state in fixture.expected_closeout_states.states} == {
             "research",
             "governed",
@@ -142,8 +144,7 @@ def _minimal_manifest_payload() -> dict[str, Any]:
         "fixture_schema_version": "policyos.universal_corpus_fixture.v1",
         "generated_at": "2026-05-24T00:00:00Z",
         "source_plan_ref": (
-            "docs/plans/active/"
-            "POLICYOS_UNIVERSAL_POLICY_DESIGN_CASE_IMPLEMENTATION_PLAN.md#W11.D"
+            "docs/plans/active/POLICYOS_UNIVERSAL_POLICY_DESIGN_CASE_IMPLEMENTATION_PLAN.md#W11.D"
         ),
         "fixtures": [],
         "rotation_policy": {

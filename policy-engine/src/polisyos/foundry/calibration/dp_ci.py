@@ -112,9 +112,7 @@ class CITestThresholdPolicySet(BaseModel):
             readiness_target=readiness_target,
         )
         matches = [
-            policy
-            for policy in self.policies
-            if dict(policy.threshold_scope) == expected_scope
+            policy for policy in self.policies if dict(policy.threshold_scope) == expected_scope
         ]
         if len(matches) != 1:
             raise ValueError(

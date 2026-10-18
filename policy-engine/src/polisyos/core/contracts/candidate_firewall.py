@@ -39,9 +39,7 @@ def candidate_firewall_issues_for_payload(
     if not candidate_refs:
         return []
     ledger = (
-        hypothesis_ledger
-        if isinstance(hypothesis_ledger, Mapping)
-        else _embedded_ledger(payload)
+        hypothesis_ledger if isinstance(hypothesis_ledger, Mapping) else _embedded_ledger(payload)
     )
     if not isinstance(ledger, Mapping):
         return [
@@ -52,8 +50,7 @@ def candidate_firewall_issues_for_payload(
                 candidate_id=ref,
                 authority_slot=",".join(_slot_tuple(authority_slots)),
                 message=(
-                    "Candidate refs cannot be read in authority slots without "
-                    "a hypothesis ledger."
+                    "Candidate refs cannot be read in authority slots without a hypothesis ledger."
                 ),
             )
             for ref in candidate_refs
@@ -124,9 +121,7 @@ def _entry_issue(
         )
     if authority_slot in {"limitation_authority", "public_limitation"}:
         return (
-            None
-            if state == "limitation"
-            else _state_mismatch(entry, authority_slot, surface, ref)
+            None if state == "limitation" else _state_mismatch(entry, authority_slot, surface, ref)
         )
     if authority_slot == "claim_authority" and state != "admitted_to_claim":
         return _state_mismatch(entry, authority_slot, surface, ref)
@@ -245,9 +240,7 @@ def _entries_by_ref(ledger: Mapping[str, Any]) -> dict[str, Mapping[str, Any]]:
 def _has_validation(entry: Mapping[str, Any]) -> bool:
     refs = entry.get("validation_refs")
     return (
-        isinstance(refs, Sequence)
-        and not isinstance(refs, (str, bytes, bytearray))
-        and bool(refs)
+        isinstance(refs, Sequence) and not isinstance(refs, (str, bytes, bytearray)) and bool(refs)
     )
 
 

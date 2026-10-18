@@ -160,9 +160,7 @@ def _read(store: FileSystemCAS, ref: ArtifactRef, *, kind: str, schema: SchemaIn
         expected_media_type="application/json",
         expected_schema=schema,
     )
-    return core_artifacts.read_core_json_artifact_bytes(
-        store, ref, raw_payload_bytes=raw
-    )
+    return core_artifacts.read_core_json_artifact_bytes(store, ref, raw_payload_bytes=raw)
 
 
 def persist_claim_supersession_successor(

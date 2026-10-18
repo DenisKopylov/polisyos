@@ -10,8 +10,7 @@ from tools.quality.validation import run_universal_outcome_corpus as w12d
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 S5_MANIFEST = (
-    REPO_ROOT
-    / "architecture/policy_design_case/layer2_s5_coupling_composition_manifest.json"
+    REPO_ROOT / "architecture/policy_design_case/layer2_s5_coupling_composition_manifest.json"
 )
 S5_MANIFEST_PATH = "architecture/policy_design_case/layer2_s5_coupling_composition_manifest.json"
 S5_CASE_SIGNALS = REPO_ROOT / "tests/fixtures/layer2/s5/s5_coupling_case_signals.json"
@@ -108,9 +107,7 @@ def test_layer2_s5_manifest_records_cells_metrics_artifacts_and_authority_bounda
     assert set(manifest["required_artifacts"]) == S5_REQUIRED_ARTIFACTS  # type: ignore[arg-type]
     assert set(manifest["nested_records"]) >= S5_NESTED_RECORDS  # type: ignore[arg-type]
     assert set(manifest["may_not_use_for"]) >= S5_REQUIRED_DENY  # type: ignore[arg-type]
-    assert "tests/fixtures/layer2/s5/boundary_spoof_probe.json" in manifest[
-        "negative_controls"
-    ]
+    assert "tests/fixtures/layer2/s5/boundary_spoof_probe.json" in manifest["negative_controls"]
     assert "P17" in manifest["relevant_patterns"]  # type: ignore[operator]
     assert manifest["authority_boundary"] == (
         "shadow_governed_composition_gate_only_no_production_or_prediction_authority"

@@ -21,9 +21,7 @@ from polisyos.runtime.quality.diagnostic_events import (
 )
 
 INLINE_PAYLOAD_MAX_BYTES = 2048
-CORRECTIVE_EVENT_ACTIONS = frozenset(
-    {"supersede", "withdraw", "reconcile", "quarantine"}
-)
+CORRECTIVE_EVENT_ACTIONS = frozenset({"supersede", "withdraw", "reconcile", "quarantine"})
 _SENSITIVE_KEY_MARKERS = (
     "access_token",
     "api_key",
@@ -107,9 +105,7 @@ class RuntimeDiagnosticEventLog:
                     canon_spec=CanonSpec(forbid_floats=False),
                 )
                 payload_ref = str(ref.artifact_id)
-                diagnostic_event = diagnostic_event.model_copy(
-                    update={"payload_ref": payload_ref}
-                )
+                diagnostic_event = diagnostic_event.model_copy(update={"payload_ref": payload_ref})
             else:
                 payload_inline = payload_payload
 

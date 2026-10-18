@@ -107,9 +107,9 @@ class _S3Model(BaseModel):
         serialize_by_alias=True,
     )
 
-    schema_version: Literal[
-        "policyos.policy_design_case.layer2_s3_substrate_acquisition.v1"
-    ] = LAYER2_S3_SUBSTRATE_ACQUISITION_SCHEMA_VERSION
+    schema_version: Literal["policyos.policy_design_case.layer2_s3_substrate_acquisition.v1"] = (
+        LAYER2_S3_SUBSTRATE_ACQUISITION_SCHEMA_VERSION
+    )
 
 
 class ConstructExpression(_S3Model):
@@ -130,9 +130,7 @@ class ConstructExpression(_S3Model):
         allowed = set(self.allowed_facet_primitives or _frozen_facet_primitives())
         for key in self.facets:
             if key not in allowed:
-                raise ValueError(
-                    f"facet primitive '{key}' is not in the frozen seed primitives"
-                )
+                raise ValueError(f"facet primitive '{key}' is not in the frozen seed primitives")
         return self
 
     @property
@@ -576,9 +574,7 @@ class SubstrateAcquisitionLoop:
                 composite=float(quality.get("composite", 0.9)),
                 breakdown={
                     "construct_validity": float(quality.get("construct_validity", 0.9)),
-                    "schema_profile_present": float(
-                        quality.get("schema_profile_present", 1.0)
-                    ),
+                    "schema_profile_present": float(quality.get("schema_profile_present", 1.0)),
                     "rights_access": float(quality.get("rights_access", 1.0)),
                 },
             ),
@@ -781,9 +777,7 @@ def _mapping(value: object) -> Mapping[str, Any]:
 
 def _frozen_facet_primitives(repo_root: Path | None = None) -> list[str]:
     root = repo_root or _repo_root()
-    return list(
-        json.loads((root / _SEED).read_text(encoding="utf-8"))["facet_primitives"]
-    )
+    return list(json.loads((root / _SEED).read_text(encoding="utf-8"))["facet_primitives"])
 
 
 def _repo_root() -> Path:

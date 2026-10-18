@@ -153,7 +153,9 @@ class NormalizationTransform(DataTransform):
             expected_fields = set(context.target_schema.field_names())
             for target_field in self.field_mappings.values():
                 if target_field not in expected_fields:
-                    errors.append(f"Mapped target field '{target_field}' not found in target schema")
+                    errors.append(
+                        f"Mapped target field '{target_field}' not found in target schema"
+                    )
             for field_name, (_from_unit, to_unit) in self.unit_conversions.items():
                 field = context.target_schema.get_field(field_name)
                 if field is not None and field.unit is not None and field.unit.unit_id != to_unit:

@@ -80,7 +80,10 @@ def test_layer2_s0_readiness_manifest_is_valid() -> None:
     assert validation["summary"]["s9_case_count"] == 13  # type: ignore[index]
     assert validation["summary"]["s9_projection_render_count"] >= 52  # type: ignore[index]
     assert validation["summary"]["s9_projection_faithfulness_denominator"] >= 52  # type: ignore[index]
-    assert validation["summary"]["s9_projection_faithfulness_numerator"] == validation["summary"]["s9_projection_faithfulness_denominator"]  # type: ignore[index]
+    assert (
+        validation["summary"]["s9_projection_faithfulness_numerator"]
+        == validation["summary"]["s9_projection_faithfulness_denominator"]
+    )  # type: ignore[index]
     assert validation["summary"]["s9_projection_faithfulness_pass_rate"] == 1.0  # type: ignore[index]
     assert validation["summary"]["s9_lowering_gate_count"] >= 13  # type: ignore[index]
     assert validation["summary"]["s9_lowering_append_receipt_count"] >= 1  # type: ignore[index]
@@ -91,7 +94,10 @@ def test_layer2_s0_readiness_manifest_is_valid() -> None:
     assert validation["summary"]["s9_expected_current_open_cell_count"] == 3  # type: ignore[index]
     assert validation["summary"]["s10_case_count"] == 13  # type: ignore[index]
     assert validation["summary"]["s10_observable_subset_calibration_denominator"] >= 4  # type: ignore[index]
-    assert validation["summary"]["s10_observable_subset_calibration_numerator"] == validation["summary"]["s10_observable_subset_calibration_denominator"]  # type: ignore[index]
+    assert (
+        validation["summary"]["s10_observable_subset_calibration_numerator"]
+        == validation["summary"]["s10_observable_subset_calibration_denominator"]
+    )  # type: ignore[index]
     assert validation["summary"]["s10_observable_subset_calibration_status"] == "pass"  # type: ignore[index]
     assert validation["summary"]["s10_observable_subset_calibration_floor_passed"] is True  # type: ignore[index]
     assert validation["summary"]["s10_observable_subset_calibration_threshold_ref"]  # type: ignore[index]
@@ -99,10 +105,21 @@ def test_layer2_s0_readiness_manifest_is_valid() -> None:
     assert validation["summary"]["s10_equilibrium_contested_single_forecast_block_count"] >= 1  # type: ignore[index]
     assert validation["summary"]["s10_simulation_only_evidence_block_count"] >= 1  # type: ignore[index]
     assert validation["summary"]["s10_weakest_boundary_inheritance_count"] == 13  # type: ignore[index]
-    assert validation["summary"]["s10_false_clear_counts"]["simulation_only_evidence_laundering"] == 0  # type: ignore[index]
-    assert validation["summary"]["s10_false_clear_counts"]["production_authority_from_forecast"] == 0  # type: ignore[index]
-    assert validation["summary"]["s10_false_clear_counts"]["observed_outcome_without_credible_evaluation"] == 0  # type: ignore[index]
-    assert validation["summary"]["s10_false_clear_counts"]["scalar_welfare_hides_pareto_tradeoff"] == 0  # type: ignore[index]
+    assert (
+        validation["summary"]["s10_false_clear_counts"]["simulation_only_evidence_laundering"] == 0
+    )  # type: ignore[index]
+    assert (
+        validation["summary"]["s10_false_clear_counts"]["production_authority_from_forecast"] == 0
+    )  # type: ignore[index]
+    assert (
+        validation["summary"]["s10_false_clear_counts"][
+            "observed_outcome_without_credible_evaluation"
+        ]
+        == 0
+    )  # type: ignore[index]
+    assert (
+        validation["summary"]["s10_false_clear_counts"]["scalar_welfare_hides_pareto_tradeoff"] == 0
+    )  # type: ignore[index]
     assert validation["summary"]["s10_false_clear_counts"]["weakest_boundary_ignored"] == 0  # type: ignore[index]
     assert validation["summary"]["s11_case_count"] == 13  # type: ignore[index]
     assert validation["summary"]["s11_axis_count"] == 52  # type: ignore[index]

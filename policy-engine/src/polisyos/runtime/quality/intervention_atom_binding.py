@@ -37,9 +37,7 @@ if TYPE_CHECKING:
     from polisyos.ir.linker import LinkedIntervention
 
 INTERVENTION_ATOM_BINDING_SCHEMA_VERSION = "policyos.runtime.intervention_atom_binding.v1"
-INTERVENTION_ATOM_BINDING_SCHEMA_NAME = (
-    "polisyos.runtime.quality.InterventionAtomBinding"
-)
+INTERVENTION_ATOM_BINDING_SCHEMA_NAME = "polisyos.runtime.quality.InterventionAtomBinding"
 INTERVENTION_ATOM_BINDING_ARTIFACT_KIND = "runtime.quality.intervention_atom_binding"
 _SLOT_ID_RE = re.compile(SLOT_ID_PATTERN)
 _INTERVENTION_EXPR_ADAPTER = TypeAdapter(InterventionExpr)
@@ -256,9 +254,7 @@ class InterventionAtomBinding(_StrictModel):
     def _validate_content_hash(self) -> InterventionAtomBinding:
         expected = intervention_atom_content_hash(self)
         if self.content_hash != expected:
-            raise ValueError(
-                f"content_hash_mismatch: expected {expected}, got {self.content_hash}"
-            )
+            raise ValueError(f"content_hash_mismatch: expected {expected}, got {self.content_hash}")
         return self
 
     @property
@@ -367,9 +363,7 @@ def derive_candidate_scenario_atom(
         raise InterventionAtomBindingError("candidate_scenario_assignment_slot_mismatch")
 
     derived_intervention = NodeIntervention(
-        assignments=(
-            VariableAssignment(variable=target_world_slot, value=value, value_expr=None),
-        )
+        assignments=(VariableAssignment(variable=target_world_slot, value=value, value_expr=None),)
     )
     derived_projection = _node_assignments(derived_intervention)
     expression_payload = derived_intervention.model_dump(mode="json")
@@ -542,9 +536,7 @@ def build_intervention_atom_binding(
             ),
             strategic_response_expected=intervention.strategic_response_expected,
             transmission_channels=tuple(
-                item.model_dump(mode="json")
-                if hasattr(item, "model_dump")
-                else item
+                item.model_dump(mode="json") if hasattr(item, "model_dump") else item
                 for item in intervention.transmission_channels
             ),
             notes=tuple(intervention.notes),
@@ -635,9 +627,7 @@ def _content_payload_from_atom(atom: InterventionAtomBinding) -> dict[str, Any]:
 
 
 def _content_payload_from_fields(fields: Mapping[str, Any]) -> dict[str, Any]:
-    payload = serialization.artifact_self_identity_projection(
-        {**fields, "content_hash": "pending"}
-    )
+    payload = serialization.artifact_self_identity_projection({**fields, "content_hash": "pending"})
     return {
         key: _json_ready(value)
         for key, value in payload.items()
@@ -864,10 +854,7 @@ def _assert_normalization_record_matches(
     if record.normalized_target_world_slots != target_world_slots:
         raise InterventionAtomBindingError(
             "normalization_target_world_slots_mismatch",
-            (
-                f"{record.normalized_target_world_slots} != "
-                f"{target_world_slots}"
-            ),
+            (f"{record.normalized_target_world_slots} != {target_world_slots}"),
         )
     if record.grounding_relation_content_hash not in provenance_refs:
         raise InterventionAtomBindingError(

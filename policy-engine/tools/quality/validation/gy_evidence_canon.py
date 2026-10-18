@@ -10,6 +10,7 @@ canonical JSON serialization, so the same logical result hashes identically
 across runs regardless of timing/ordering. Use it for every recorded smoke
 `output_hash` going forward.
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -19,10 +20,27 @@ from typing import Any
 
 # keys whose values are run-to-run volatile and must never enter an evidence hash
 _VOLATILE_KEYS = {
-    "ms", "seconds", "secs", "elapsed", "elapsed_s", "elapsed_ms",
-    "vector_ms", "text_ms", "duration_ms", "duration_s", "took_ms",
-    "timestamp", "generated_at", "started_at", "finished_at", "created_at",
-    "wall_time", "wall_clock", "now", "run_at", "executed_at",
+    "ms",
+    "seconds",
+    "secs",
+    "elapsed",
+    "elapsed_s",
+    "elapsed_ms",
+    "vector_ms",
+    "text_ms",
+    "duration_ms",
+    "duration_s",
+    "took_ms",
+    "timestamp",
+    "generated_at",
+    "started_at",
+    "finished_at",
+    "created_at",
+    "wall_time",
+    "wall_clock",
+    "now",
+    "run_at",
+    "executed_at",
 }
 # suffix patterns that mark volatile timing/latency fields
 _VOLATILE_SUFFIX = re.compile(r".*(_ms|_secs?|_at|_ns|_us|_latency|_duration)$")

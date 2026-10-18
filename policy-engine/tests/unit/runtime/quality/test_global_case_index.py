@@ -110,7 +110,10 @@ def test_real_s2_producer_emits_persisted_content_bound_case_index(tmp_path: Pat
     assert len(snapshot.entries) == 1
     entry = snapshot.entries[0]
     assert (entry.case_id, entry.run_id, entry.tenant_id, entry.cell_id) == (
-        "case:producer-one", "run:producer-one", _TENANT, _CELL
+        "case:producer-one",
+        "run:producer-one",
+        _TENANT,
+        _CELL,
     )
     assert entry.binding_ref == str(persisted.binding_ref.artifact_id)
     assert entry.design_record_ref == str(persisted.design_record_ref.artifact_id)
@@ -185,7 +188,8 @@ def test_canonical_kind_with_unverified_provenance_refuses_the_inventory(
             persisted,
             producer=(
                 artifacts.ProducerInfo(component="forged.producer", version="v1")
-                if mismatch == "producer" else None
+                if mismatch == "producer"
+                else None
             ),
             schema_version="forged.schema.v1" if mismatch == "schema" else None,
         )
@@ -255,7 +259,8 @@ def test_new_bindings_join_the_next_complete_snapshot(tmp_path: Path) -> None:
     assert len(before.entries) == 1
     assert {entry.case_id for entry in after.entries} == {"case:producer-one", "case:second"}
     assert set(after.source_artifact_refs) == {
-        str(first.binding_ref.artifact_id), str(second.binding_ref.artifact_id)
+        str(first.binding_ref.artifact_id),
+        str(second.binding_ref.artifact_id),
     }
     assert str(first_snapshot_ref.artifact_id) not in after.source_artifact_refs
 
@@ -285,4 +290,6 @@ def test_tenant_and_cell_views_never_reuse_another_scopes_cases(tmp_path: Path) 
 def test_missing_scope_cannot_emit_an_unscoped_inventory(tmp_path: Path) -> None:
     """Missing ambient tenant context cannot become an all-tenant scan."""
     with pytest.raises(GlobalCaseIndexError):
-        GlobalCaseIndexProducer(artifacts.FileSystemCAS(tmp_path / "cas", ownership_enforced=True)).produce()
+        GlobalCaseIndexProducer(
+            artifacts.FileSystemCAS(tmp_path / "cas", ownership_enforced=True)
+        ).produce()

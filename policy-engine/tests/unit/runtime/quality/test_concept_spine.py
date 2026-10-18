@@ -108,9 +108,9 @@ def test_hybrid_concept_spine_carrier_preserves_governed_namespaces_and_blocks_c
     assert validated["summary"]["reconciled_concept_count"] == 2
     assert validated["summary"]["blocker_count"] == 1
     assert validated["governed_namespace_refs"][1]["namespace_type"] == "time_role"
-    assert {
-        blocker["code"] for blocker in validated["blockers"]
-    } == {"concept_spine_conflicting_concept_blocker"}
+    assert {blocker["code"] for blocker in validated["blockers"]} == {
+        "concept_spine_conflicting_concept_blocker"
+    }
     assert validated["blockers"][0]["capability_label"] == "bridge_missing"
 
 
@@ -298,9 +298,7 @@ def test_handshake_records_feed_semantic_binding_and_claim_registry_context() ->
     )
 
     assert closed["producer_handshake_ledger"]["status"] == "pass"
-    assert "semantic_binding_phase_record_missing" in {
-        issue["code"] for issue in closed["issues"]
-    }
+    assert "semantic_binding_phase_record_missing" in {issue["code"] for issue in closed["issues"]}
 
     registry = build_runtime_claim_registry(
         claims=[

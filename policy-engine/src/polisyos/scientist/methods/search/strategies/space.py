@@ -187,13 +187,9 @@ class SearchSpace:
         actual_identity = self.last_sobol_sampler_identity
         actual_version = self.last_sobol_sampler_version
         if actual_identity != expected_identity or actual_version != expected_version:
-            raise ValueError(
-                "Sobol checkpoint is incompatible: effective sampler identity changed"
-            )
+            raise ValueError("Sobol checkpoint is incompatible: effective sampler identity changed")
         if generated != expected_prefix:
-            raise ValueError(
-                "Sobol checkpoint is incompatible: cached prefix diverges"
-            )
+            raise ValueError("Sobol checkpoint is incompatible: cached prefix diverges")
 
     def sample_sobol(self, n_samples: int, seed: int = 42) -> list[NormalizedVector]:
         if n_samples <= 0:

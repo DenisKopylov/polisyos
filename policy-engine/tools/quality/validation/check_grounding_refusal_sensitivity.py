@@ -57,16 +57,24 @@ def main() -> int:
         if path.exists():
             raise ValueError("proof_input_already_declared_append_a_new_binding")
         declaration = produce_grounding_proof_world_input(
-            root, world_cas=args.world_cas, world_ref=args.world_ref,
+            root,
+            world_cas=args.world_cas,
+            world_ref=args.world_ref,
         )
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(declaration.model_dump_json(indent=2) + "\n", encoding="utf-8")
-        print(json.dumps({
-            "status": "declared", "path": str(path.relative_to(root)),
-            "content_hash": declaration.content_hash,
-            "source_ref": declaration.source_ref.model_dump(mode="json"),
-            "synthetic": declaration.synthetic,
-        }, indent=2))
+        print(
+            json.dumps(
+                {
+                    "status": "declared",
+                    "path": str(path.relative_to(root)),
+                    "content_hash": declaration.content_hash,
+                    "source_ref": declaration.source_ref.model_dump(mode="json"),
+                    "synthetic": declaration.synthetic,
+                },
+                indent=2,
+            )
+        )
         return 0
     if args.declarations is None:
         parser.error("--declarations is required for refusal frame/suite operations")

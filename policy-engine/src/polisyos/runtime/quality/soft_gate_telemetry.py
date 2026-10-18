@@ -136,9 +136,7 @@ def build_soft_gate_telemetry_report(
             "expired_warning_count": expired_warning_count,
             "bounded_liveness_hook_count": len(liveness_hooks),
             "repair_decision_count": repair_fmea["summary"]["repair_decision_count"],
-            "repair_fmea_annotation_count": repair_fmea["summary"][
-                "repair_fmea_annotation_count"
-            ],
+            "repair_fmea_annotation_count": repair_fmea["summary"]["repair_fmea_annotation_count"],
             "complexity_budget_status": complexity["status"],
         },
         "authority_boundary": {
@@ -167,9 +165,7 @@ def _warning_lifecycle_summary(
 ) -> dict[str, Any]:
     layer = _clean_text(gate.get("layer")) or "quality_scorecard"
     first_observed = _datetime_from(
-        gate.get("first_observed_at")
-        or gate.get("observed_at")
-        or gate.get("generated_at"),
+        gate.get("first_observed_at") or gate.get("observed_at") or gate.get("generated_at"),
         default=generated_at,
     )
     age_seconds = max(0, int((generated_at - first_observed).total_seconds()))
@@ -294,11 +290,7 @@ def _repair_decision_fmea(
             rows.append(row)
 
     annotated = [row for row in rows if row["annotation_status"] == "present"]
-    unannotated_applied = [
-        row
-        for row in rows
-        if row["annotation_status"] == "missing"
-    ]
+    unannotated_applied = [row for row in rows if row["annotation_status"] == "missing"]
     rpn_values = [
         int(row["fmea_annotation"]["risk_priority_number"])
         for row in annotated
@@ -407,9 +399,7 @@ def _complexity_measurements(
     repair_annotation_count = 0
     tool_count = 0
     if prompt_tool_ledger is not None:
-        repair_decision_count = sum(
-            len(step.repair_decisions) for step in prompt_tool_ledger.steps
-        )
+        repair_decision_count = sum(len(step.repair_decisions) for step in prompt_tool_ledger.steps)
         repair_annotation_count = sum(
             1
             for step in prompt_tool_ledger.steps
@@ -417,11 +407,7 @@ def _complexity_measurements(
             if decision.fmea_annotation is not None
         )
         tool_count = len(
-            {
-                tool
-                for step in prompt_tool_ledger.steps
-                for tool in step.tool_allowlist
-            }
+            {tool for step in prompt_tool_ledger.steps for tool in step.tool_allowlist}
         )
 
     cost = _sum_numbers(run_cost_ledgers, "total_actual_cost_usd")

@@ -43,9 +43,7 @@ DEFAULT_CORPUS_PATH = Path("tests/fixtures/universal-corpus")
 DEFAULT_OUTPUT = Path("_build/.tmp/production-quality/domain_coverage_breadth_report.json")
 
 AUTHORITY_LEVELS = ("research", "governed", "production")
-USEFUL_CLOSEOUT_STATES = frozenset(
-    {"pass", "publishable", "limited", "publish_with_limitation"}
-)
+USEFUL_CLOSEOUT_STATES = frozenset({"pass", "publishable", "limited", "publish_with_limitation"})
 NON_USEFUL_CLOSEOUT_STATES = frozenset(
     {"accepted_deficit", "blocked", "contested", "review_required", "typed_blocker"}
 )
@@ -139,9 +137,7 @@ def build_domain_coverage_breadth_report(
             "artifact_ref": "repo://tests/fixtures/universal-corpus",
             "bridge_ref": "repo://tools/quality/validation/check_domain_coverage_breadth.py",
             "consumer_ref": "repo://tools/quality/validation/check_domain_coverage_breadth.py",
-            "verification_ref": (
-                "repo://tests/repo_quality/tools/test_domain_coverage_breadth.py"
-            ),
+            "verification_ref": ("repo://tests/repo_quality/tools/test_domain_coverage_breadth.py"),
             "surface_ref": "repo://tools/quality/validation/README.md#w11f-domain-coverage-breadth",
             "semantic_test_ref": (
                 "repo://tests/repo_quality/tools/test_domain_coverage_breadth.py"
@@ -561,9 +557,7 @@ def _summary(
     min_family_layers: int,
 ) -> dict[str, Any]:
     domains = _domain_summary(case_reports)
-    non_trivial_domains = [
-        domain for domain, row in domains.items() if row["non_trivial_graph"]
-    ]
+    non_trivial_domains = [domain for domain, row in domains.items() if row["non_trivial_graph"]]
     return {
         "status": "fail" if any(issue.get("severity") == "fail" for issue in issues) else "pass",
         "case_count": len(case_reports),
@@ -754,8 +748,7 @@ def _concept_spine_refs(case: Mapping[str, Any], *, case_id: str) -> PolicyGramm
             field_name="jurisdiction_spine_ref",
         ),
         canonical_concept_refs=tuple(
-            _sequence(refs.get("canonical_concept_refs"))
-            or (f"concept://w11f/{_slug(case_id)}",)
+            _sequence(refs.get("canonical_concept_refs")) or (f"concept://w11f/{_slug(case_id)}",)
         ),
         facet_concept_refs=_mapping(refs.get("facet_concept_refs")),
     )
@@ -834,9 +827,7 @@ def _self_test_candidate(family: str) -> dict[str, Any]:
 def _anti_patterns(case_reports: Sequence[Mapping[str, Any]]) -> list[str]:
     found: list[str] = []
     if any(row.get("graph_status") == "blocked" for row in case_reports):
-        found.append(
-            "producer_missing: one or more committed cases lack actual W6.C graph inputs"
-        )
+        found.append("producer_missing: one or more committed cases lack actual W6.C graph inputs")
     if any(
         issue.get("code") == "w6c_obligation_graph_unavailable"
         for case in case_reports

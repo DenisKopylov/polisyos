@@ -1904,9 +1904,7 @@ def test_g2_selected_empty_generation_blocks_stale_flat_hnsw_consumers(
         legacy_embeddings_path=academic_root / "ac_work_embeddings.npz",
         legacy_index_path=academic_root / "ac_work_index.hnsw",
     )
-    selector = json.loads(
-        (academic_root / "embedding_generation.json").read_text(encoding="utf-8")
-    )
+    selector = json.loads((academic_root / "embedding_generation.json").read_text(encoding="utf-8"))
     generation_id = selector["generation_id"]
     seed = g2.Layer3G2SearchRecallSeed(
         seed_id="g2-recall-seed:fixture-semantic-edge",
@@ -1940,8 +1938,7 @@ def test_g2_selected_empty_generation_blocks_stale_flat_hnsw_consumers(
     assert quality["index_refs"] == [g2.CANONICAL_L2_ROUTE]
     emitted_refs = [record["artifact_ref"] for record in freshness["freshness_records"]]
     assert not any(
-        ref.endswith(("ac_work_index.hnsw", "ac_work_embeddings.npz"))
-        for ref in emitted_refs
+        ref.endswith(("ac_work_index.hnsw", "ac_work_embeddings.npz")) for ref in emitted_refs
     )
     assert any(
         f"embedding_generations/{generation_id}/" in ref
@@ -1956,8 +1953,7 @@ def test_g2_selected_empty_generation_blocks_stale_flat_hnsw_consumers(
     ]
     assert selected_evidence_records
     assert all(
-        record["status"] == "not_required_for_request"
-        for record in selected_evidence_records
+        record["status"] == "not_required_for_request" for record in selected_evidence_records
     )
 
 
@@ -1986,9 +1982,7 @@ def test_g2_complete_selected_generation_separates_search_and_evidence(
         return len(identifiers), 2
 
     db_path, academic_root = _create_minimal_skg_fixture(tmp_path)
-    monkeypatch.setattr(
-        embedding_kernel, "build_embedding_index", _fake_build_embedding_index
-    )
+    monkeypatch.setattr(embedding_kernel, "build_embedding_index", _fake_build_embedding_index)
     embedding_kernel.build_embedding_generation(
         rows=(("work-1", "fixture text"),),
         index_dir=academic_root,
@@ -2032,9 +2026,7 @@ def test_g2_complete_selected_generation_separates_search_and_evidence(
         record
         for record in freshness["freshness_records"]
         if selected_prefix in record["artifact_ref"]
-        and record["artifact_ref"].endswith(
-            ("index.hnsw", "embeddings.npz")
-        )
+        and record["artifact_ref"].endswith(("index.hnsw", "embeddings.npz"))
     ]
     sidecar_records = [
         record
@@ -2050,15 +2042,10 @@ def test_g2_complete_selected_generation_separates_search_and_evidence(
     assert len(search_records) == 2
     assert {record["status"] for record in search_records} == {"pass"}
     assert sidecar_records
-    assert all(
-        record["status"] == "not_required_for_request" for record in sidecar_records
-    )
+    assert all(record["status"] == "not_required_for_request" for record in sidecar_records)
     assert quality["index_refs"][0] == g2.CANONICAL_L2_ROUTE
     assert len(quality["index_refs"][1:]) == 2
-    assert all(
-        ref.endswith(("index.hnsw", "embeddings.npz"))
-        for ref in quality["index_refs"][1:]
-    )
+    assert all(ref.endswith(("index.hnsw", "embeddings.npz")) for ref in quality["index_refs"][1:])
 
 
 def test_g2_semantic_retrieval_records_query_vector_and_post_hnsw_validation(
@@ -2097,9 +2084,7 @@ def test_g2_semantic_retrieval_records_query_vector_and_post_hnsw_validation(
     legacy_refs = {
         record["artifact_ref"]
         for record in report["freshness_records"]
-        if record["artifact_ref"].endswith(
-            ("ac_work_index.hnsw", "ac_work_embeddings.npz")
-        )
+        if record["artifact_ref"].endswith(("ac_work_index.hnsw", "ac_work_embeddings.npz"))
     }
     assert legacy_refs == {
         "academic/ac_work_index.hnsw",
@@ -2159,9 +2144,7 @@ def test_g2_malformed_selected_generation_has_no_search_refs(
         if record["artifact_ref"].endswith("embedding_generation.json")
     ]
     assert selector_records
-    assert all(
-        record["status"] == "not_required_for_request" for record in selector_records
-    )
+    assert all(record["status"] == "not_required_for_request" for record in selector_records)
 
 
 def test_g2_free_growth_discovers_added_skg_edge_and_method_fixture(

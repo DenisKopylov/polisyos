@@ -227,12 +227,20 @@ def _diagnose_pdd_077(context: Mapping[str, Any]) -> dict[str, Any]:
     )
     findings = [
         _gap("restore_drill_report_missing", "restore drill bundle"),
-        _gap("retained_copy_archive_hash_verification_missing", "retained copy and archive hash verification"),
-        _gap("corruption_injection_recovery_result_missing", "corruption injection and recovery result"),
+        _gap(
+            "retained_copy_archive_hash_verification_missing",
+            "retained copy and archive hash verification",
+        ),
+        _gap(
+            "corruption_injection_recovery_result_missing",
+            "corruption injection and recovery result",
+        ),
         _gap("restored_dashboard_verification_missing", "restored dashboard verification"),
         _gap("restored_lineage_verification_missing", "restored lineage verification"),
         _gap("restored_scorecard_verification_missing", "restored scorecard verification"),
-        _gap("restored_final_artifact_verification_missing", "restored final-artifact verification"),
+        _gap(
+            "restored_final_artifact_verification_missing", "restored final-artifact verification"
+        ),
     ]
     evidence = {
         "replay_manifest_status": replay.get("status"),
@@ -278,8 +286,14 @@ def _diagnose_pdd_078(context: Mapping[str, Any]) -> dict[str, Any]:
     )
     findings = [
         _gap("resource_exhaustion_ledger_missing", "resource-exhaustion ledger"),
-        _gap("typed_resource_limit_markers_missing", "rate limit, circuit, timeout, byte, token, cost, memory, and queue markers"),
-        _gap("resource_exhaustion_claim_impact_mapping_missing", "downstream claim and scorecard impact mapping"),
+        _gap(
+            "typed_resource_limit_markers_missing",
+            "rate limit, circuit, timeout, byte, token, cost, memory, and queue markers",
+        ),
+        _gap(
+            "resource_exhaustion_claim_impact_mapping_missing",
+            "downstream claim and scorecard impact mapping",
+        ),
         _gap("partial_evidence_negative_scenarios_missing", "partial-evidence negative scenarios"),
         _gap("resource_exhaustion_degradation_ledger_missing", "degradation ledger binding"),
     ]
@@ -318,9 +332,16 @@ def _diagnose_pdd_090(context: Mapping[str, Any]) -> dict[str, Any]:
         _gap("live_polling_parity_ledger_missing", "live/polling parity ledger"),
         _gap("server_cursor_replay_not_proven", "cursor replay semantics"),
         _gap("snapshot_hash_trail_missing", "snapshot hash trail"),
-        _gap("dropped_reordered_reconnect_evidence_missing", "dropped/reordered/reconnect scenarios"),
-        _gap("governance_terminal_state_parity_missing", "governance wait and terminal-state parity"),
-        _gap("transport_fallback_explanation_missing", "operator-visible degraded/fallback explanation"),
+        _gap(
+            "dropped_reordered_reconnect_evidence_missing", "dropped/reordered/reconnect scenarios"
+        ),
+        _gap(
+            "governance_terminal_state_parity_missing", "governance wait and terminal-state parity"
+        ),
+        _gap(
+            "transport_fallback_explanation_missing",
+            "operator-visible degraded/fallback explanation",
+        ),
     ]
     evidence = {
         "source_observations": [
@@ -384,11 +405,23 @@ def _diagnose_pdd_104(context: Mapping[str, Any]) -> dict[str, Any]:
     )
     findings = [
         _gap("archive_grade_decision_bundle_missing", "archive-grade decision bundle"),
-        _gap("long_term_snapshot_set_incomplete", "legal/data/model/provider/source/version/trust-store snapshots"),
-        _gap("durable_verifier_timestamp_signature_lockfile_missing", "verifier, timestamp, signature, lockfile, schema, and redaction refs"),
-        _gap("long_horizon_restore_replay_drill_missing", "long-horizon restore/replay drill evidence"),
+        _gap(
+            "long_term_snapshot_set_incomplete",
+            "legal/data/model/provider/source/version/trust-store snapshots",
+        ),
+        _gap(
+            "durable_verifier_timestamp_signature_lockfile_missing",
+            "verifier, timestamp, signature, lockfile, schema, and redaction refs",
+        ),
+        _gap(
+            "long_horizon_restore_replay_drill_missing",
+            "long-horizon restore/replay drill evidence",
+        ),
         _gap("decision_bound_retention_jurisdiction_missing", "retention jurisdiction"),
-        _gap("durable_replay_inputs_incomplete", "deterministic replay or typed bounded drift explanation"),
+        _gap(
+            "durable_replay_inputs_incomplete",
+            "deterministic replay or typed bounded drift explanation",
+        ),
     ]
     evidence = {
         "replay_manifest_status": replay.get("status"),

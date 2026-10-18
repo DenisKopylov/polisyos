@@ -164,7 +164,6 @@ def test_audit_assembler_recovers_pending_finalize_journal(
     assert journal_path.exists() is False
 
 
-
 def test_audit_recovery_preserves_legacy_profileless_terminal_ref(
     tmp_path: Path,
 ) -> None:
@@ -217,9 +216,7 @@ def test_audit_recovery_preserves_legacy_profileless_terminal_ref(
         if line.strip()
     ]
     terminal_records = [
-        record
-        for record in records
-        if record.phase == "core" and record.event == "RUN_FINALIZED"
+        record for record in records if record.phase == "core" and record.event == "RUN_FINALIZED"
     ]
     assert len(terminal_records) == 1
     persisted_ref = next(
@@ -227,6 +224,7 @@ def test_audit_recovery_preserves_legacy_profileless_terminal_ref(
     )
     assert persisted_ref == legacy_ref
     assert persisted_ref.manifest_profile_sha256 is None
+
 
 def test_audit_rejects_unjournaled_terminal_ref_with_foreign_manifest_profile(
     tmp_path: Path,
@@ -267,8 +265,7 @@ def test_audit_rejects_unjournaled_terminal_ref_with_foreign_manifest_profile(
     ]
     terminal = next(record for record in records if record.event == "RUN_FINALIZED")
     terminal.refs.outputs = [
-        foreign_ref if ref.kind == "core.run_manifest" else ref
-        for ref in terminal.refs.outputs
+        foreign_ref if ref.kind == "core.run_manifest" else ref for ref in terminal.refs.outputs
     ]
     trace_path.write_text(
         "\n".join(record.model_dump_json(exclude_none=True) for record in records) + "\n",

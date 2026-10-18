@@ -73,9 +73,7 @@ def test_foundry_domain_coverage_ratchet_reports_threshold_and_missing_domain_fa
     payload = _payload_with_all_domains(tmp_path)
     payload["files"][
         str(tmp_path / "policy-engine/src/polisyos/foundry/execute/mechanisms/fiscal.py")
-    ] = (
-        _coverage_file(40, 100)
-    )
+    ] = _coverage_file(40, 100)
     payload["files"].pop(
         str(tmp_path / "policy-engine/src/polisyos/foundry/methods/catalog/spatial/analysis.py")
     )

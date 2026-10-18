@@ -87,9 +87,7 @@ class TestMSeparation:
         original = _admg([("X", "M"), ("M", "Y")])
         renamed = _admg([("alpha", "bridge"), ("bridge", "omega")])
 
-        original_result = m_separation(
-            original, frozenset({"X"}), frozenset({"Y"}), frozenset()
-        )
+        original_result = m_separation(original, frozenset({"X"}), frozenset({"Y"}), frozenset())
         renamed_result = m_separation(
             renamed, frozenset({"alpha"}), frozenset({"omega"}), frozenset()
         )

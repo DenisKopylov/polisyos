@@ -18,9 +18,7 @@ EXTERNAL_AUDIT_RECORD_SCHEMA_VERSION = "policyos.policy_design_case.external_aud
 EXTERNAL_AUDIT_RECORD_FAMILY = "publication_trust_and_external_governance.v1"
 EXTERNAL_AUDIT_SAFE_ARCHIVE_TOOL = "polisyos.core.audit.safe_tar.safe_extract_tar"
 EXTERNAL_AUDIT_VERIFIER = "polisyos.core.audit.verifier.AuditPackageVerifier"
-EXTERNAL_AUDIT_STANDALONE_VERIFIER_TEMPLATE = (
-    "polisyos.core.audit.standalone_verifier_template"
-)
+EXTERNAL_AUDIT_STANDALONE_VERIFIER_TEMPLATE = "polisyos.core.audit.standalone_verifier_template"
 
 _SHA256_RE = re.compile(r"^(?:sha256:)?[0-9a-f]{64}$", re.IGNORECASE)
 _ALLOWED_PUBLIC_REF_PREFIXES = ("public://", "https://", "archive://")
@@ -62,9 +60,7 @@ def build_public_audit_archive_record(
         "record_family": EXTERNAL_AUDIT_RECORD_FAMILY,
         "record_id": f"external-audit-{run_id}",
         "run_id": str(run_id),
-        "generated_at": (generated_at or datetime.now(UTC))
-        .replace(microsecond=0)
-        .isoformat(),
+        "generated_at": (generated_at or datetime.now(UTC)).replace(microsecond=0).isoformat(),
         "status": "pass" if str(report.get("overall_status")) == "PASS" else "fail",
         "public_archive": archive,
         "core_audit": {

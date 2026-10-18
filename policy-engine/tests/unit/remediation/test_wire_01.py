@@ -41,9 +41,7 @@ def _stdlib_loads(data: bytes) -> Any:
 
 
 @pytest.fixture(params=("native", "stdlib"), ids=("native", "stdlib"))
-def _wire_backend(
-    request: pytest.FixtureRequest, monkeypatch: pytest.MonkeyPatch
-) -> str:
+def _wire_backend(request: pytest.FixtureRequest, monkeypatch: pytest.MonkeyPatch) -> str:
     """Exercise the import-selected backend and the stdlib fallback explicitly."""
     if request.param == "stdlib":
         monkeypatch.setattr(serialization_module, "_dumps", _stdlib_dumps)
@@ -70,9 +68,7 @@ def _typed_state() -> ExperimentState:
             },
         },
         budgets={"compute": Decimal("7.5000")},
-        causal_method_params={
-            "nested": [{"decimal": Decimal("1.2300"), "blob": b"\x01\x02"}]
-        },
+        causal_method_params={"nested": [{"decimal": Decimal("1.2300"), "blob": b"\x01\x02"}]},
     )
 
 
@@ -179,9 +175,7 @@ def test_legacy_outcome_budget_strings_reject_non_finite_values(
 @pytest.mark.usefixtures("_wire_backend")
 @pytest.mark.parametrize("value", [float("nan"), float("inf"), float("-inf")])
 @pytest.mark.parametrize("wire_kind", ["plain", "safe", "outcome"])
-def test_nested_non_finite_values_are_rejected(
-    wire_kind: str, value: float
-) -> None:
+def test_nested_non_finite_values_are_rejected(wire_kind: str, value: float) -> None:
     state = ExperimentState(run_id="wire-01-non-finite", params={"nested": [value]})
 
     with pytest.raises((TypeError, ValueError)):
@@ -297,6 +291,4 @@ def test_naive_datetime_tag_normalizes_to_utc() -> None:
     restored = deserialize_outcome(serialize_outcome(outcome))
 
     assert restored.skip_blocker is not None
-    assert restored.skip_blocker.generated_at == datetime(
-        2026, 9, 21, 12, 34, 56, tzinfo=UTC
-    )
+    assert restored.skip_blocker.generated_at == datetime(2026, 9, 21, 12, 34, 56, tzinfo=UTC)

@@ -200,8 +200,7 @@ def build_inventory(
                 1 for row in entries if row["classification"] in FAIL_CLOSED_CLASSIFICATIONS
             ),
             "classification_counts": {
-                classification: counts.get(classification, 0)
-                for classification in CLASSIFICATIONS
+                classification: counts.get(classification, 0) for classification in CLASSIFICATIONS
             },
         },
         "content_safety": {
@@ -224,8 +223,12 @@ def classify_file(
     rel_path = _rel(path, repo_root)
     rel_for_match = f"{rel_path}/" if path.is_dir() else rel_path
     suffix = path.suffix.lower()
-    sensitive = _contains_any(rel_path.lower(), _list_at(rules, "discovery", "sensitive_path_markers"))
-    debug_path = _contains_any(rel_for_match.lower(), _list_at(rules, "discovery", "debug_path_markers"))
+    sensitive = _contains_any(
+        rel_path.lower(), _list_at(rules, "discovery", "sensitive_path_markers")
+    )
+    debug_path = _contains_any(
+        rel_for_match.lower(), _list_at(rules, "discovery", "debug_path_markers")
+    )
     stat = path.stat()
 
     read_status = "parsed"
@@ -275,12 +278,15 @@ def classify_file(
     provenance_kind = metadata.get("provenance_kind")
     if schema_known and not provenance_kind and not sensitive:
         reason_codes.append("missing_provenance")
-    elif provenance_kind in set(_list_at(rules, "provenance_policy", "quarantined_provenance_kinds")):
+    elif provenance_kind in set(
+        _list_at(rules, "provenance_policy", "quarantined_provenance_kinds")
+    ):
         reason_codes.append("legacy_or_non_runtime_provenance")
 
     if (
         schema_known
-        and provenance_kind in set(_list_at(rules, "provenance_policy", "supported_provenance_kinds"))
+        and provenance_kind
+        in set(_list_at(rules, "provenance_policy", "supported_provenance_kinds"))
         and not _has_supported_authority_ref(metadata, rules)
         and not _has_any(
             reason_codes,
@@ -341,7 +347,9 @@ def load_rules(path: Path) -> dict[str, Any]:
         with path.open("rb") as stream:
             rules = tomllib.load(stream)
     except tomllib.TOMLDecodeError as exc:
-        raise LegacyInventoryInputError(f"Invalid legacy classification TOML: {path}: {exc}") from exc
+        raise LegacyInventoryInputError(
+            f"Invalid legacy classification TOML: {path}: {exc}"
+        ) from exc
     if rules.get("schema_version") != RULES_SCHEMA_VERSION:
         raise LegacyInventoryInputError(
             f"Unsupported legacy classification rules schema: {rules.get('schema_version')!r}"
@@ -349,8 +357,7 @@ def load_rules(path: Path) -> dict[str, Any]:
     allowed = set(_list_at(rules, "classification", "allowed_classes"))
     if allowed != set(CLASSIFICATIONS):
         raise LegacyInventoryInputError(
-            "legacy classification rules must declare exactly: "
-            + ", ".join(CLASSIFICATIONS)
+            "legacy classification rules must declare exactly: " + ", ".join(CLASSIFICATIONS)
         )
     return rules
 
@@ -466,7 +473,9 @@ def main(argv: Sequence[str] | None = None) -> int:
 def _rules_path_for(repo_root: Path, explicit: Path | None) -> Path:
     if explicit is not None:
         return _resolve(repo_root, explicit)
-    repo_rules = repo_root / "architecture" / "production_quality" / "legacy_evidence_classification.toml"
+    repo_rules = (
+        repo_root / "architecture" / "production_quality" / "legacy_evidence_classification.toml"
+    )
     if repo_rules.exists():
         return repo_rules
     return DEFAULT_CLASSIFICATION_RULES_PATH
@@ -482,7 +491,9 @@ def _output_paths(
     resolved_dir = _resolve(repo_root, output_dir)
     return (
         _resolve(repo_root, json_output) if json_output else resolved_dir / "legacy_inventory.json",
-        _resolve(repo_root, markdown_output) if markdown_output else resolved_dir / "legacy_inventory.md",
+        _resolve(repo_root, markdown_output)
+        if markdown_output
+        else resolved_dir / "legacy_inventory.md",
     )
 
 
@@ -524,7 +535,10 @@ def _is_sensitive_path(rel_path: str, rules: Mapping[str, Any]) -> bool:
 
 def _is_excluded_path(rel_path: str, rules: Mapping[str, Any]) -> bool:
     lowered = rel_path.lower()
-    prefixes = [prefix.lower().rstrip("/") for prefix in _list_at(rules, "discovery", "exclude_path_prefixes")]
+    prefixes = [
+        prefix.lower().rstrip("/")
+        for prefix in _list_at(rules, "discovery", "exclude_path_prefixes")
+    ]
     return any(lowered == prefix or lowered.startswith(f"{prefix}/") for prefix in prefixes)
 
 
@@ -601,7 +615,9 @@ def _schema_is_known(metadata: Mapping[str, Any], rules: Mapping[str, Any]) -> b
     ]
     if not schema_values:
         return False
-    unknown_tokens = {token.lower() for token in _list_at(rules, "schema_policy", "unknown_schema_tokens")}
+    unknown_tokens = {
+        token.lower() for token in _list_at(rules, "schema_policy", "unknown_schema_tokens")
+    }
     if all(value.lower() in unknown_tokens for value in schema_values):
         return False
     known_prefixes = tuple(_list_at(rules, "schema_policy", "known_schema_prefixes"))
@@ -682,10 +698,16 @@ def _has_redaction_loss(payload: Any) -> bool:
         key = key_path[-1].lower() if key_path else ""
         if key in {"redaction_loss", "lossy_redaction"} and value is True:
             return True
-        if key in {"lost_fields", "dropped_fields", "removed_evidence_refs"} and isinstance(value, list) and value:
+        if (
+            key in {"lost_fields", "dropped_fields", "removed_evidence_refs"}
+            and isinstance(value, list)
+            and value
+        ):
             return True
-        if key in {"lossy", "lossy_redaction"} and value is True and any(
-            "redact" in part.lower() for part in key_path
+        if (
+            key in {"lossy", "lossy_redaction"}
+            and value is True
+            and any("redact" in part.lower() for part in key_path)
         ):
             return True
         if key in {"redaction_status", "redaction_integrity"} and str(value).lower() in {
@@ -697,7 +719,9 @@ def _has_redaction_loss(payload: Any) -> bool:
     return False
 
 
-def _walk_payload(payload: Any, key_path: tuple[str, ...] = ()) -> Iterable[tuple[tuple[str, ...], Any]]:
+def _walk_payload(
+    payload: Any, key_path: tuple[str, ...] = ()
+) -> Iterable[tuple[tuple[str, ...], Any]]:
     if isinstance(payload, Mapping):
         for key, value in payload.items():
             rendered_key = str(key)

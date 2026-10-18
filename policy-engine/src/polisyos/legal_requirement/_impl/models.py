@@ -9,9 +9,7 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_validator, model_validator
 
 LEGAL_AUTHORITY_REQUIREMENT_SPEC_SCHEMA_VERSION = "policyos.legal_requirement.spec.v1"
-LEGAL_AUTHORITY_REQUIREMENT_ARTIFACT_SCHEMA_VERSION = (
-    "policyos.legal_requirement_artifact.v1"
-)
+LEGAL_AUTHORITY_REQUIREMENT_ARTIFACT_SCHEMA_VERSION = "policyos.legal_requirement_artifact.v1"
 LEGAL_AUTHORITY_REQUIREMENT_COMPILER_RULE_VERSION = "legal-requirement-compiler:v1"
 LEGAL_REQUIREMENT_PATTERN_REFS = ("P01", "P05", "P08", "P12")
 

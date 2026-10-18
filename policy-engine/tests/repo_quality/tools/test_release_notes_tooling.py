@@ -99,10 +99,7 @@ def test_structured_compatibility_changes_render_into_release_notes() -> None:
 
 
 def test_ds9_fragment_separates_python_break_and_generated_addition() -> None:
-    path = (
-        REPO_ROOT
-        / "release-fragments/unreleased/2026-08-23-ds9-human-decision-integrity.toml"
-    )
+    path = REPO_ROOT / "release-fragments/unreleased/2026-08-23-ds9-human-decision-integrity.toml"
     fragment = tomllib.loads(path.read_text(encoding="utf-8"))
 
     assert fragment["generated_client_compatibility"] == "requires_regeneration"

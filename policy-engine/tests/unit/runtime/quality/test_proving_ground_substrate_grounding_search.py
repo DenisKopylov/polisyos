@@ -102,9 +102,7 @@ def _write_gx_scope_data_home(repo_root: Path) -> None:
             "request_ref": "external-request://layer3-gx/case:custom-scope",
             "producer_ref": "external-request://layer3-gx/pinned-request/case:custom-scope",
             "producer_type": "external_request",
-            "producer_root_refs": [
-                "external-request://layer3-gx/pinned-request/case:custom-scope"
-            ],
+            "producer_root_refs": ["external-request://layer3-gx/pinned-request/case:custom-scope"],
             "authority_purpose": "pinned_route_replay_input_only",
             "expected_consumer_path": ["G1", "G2", "G4", "G5"],
             "requested_constructs": [
@@ -469,9 +467,7 @@ def test_g1_selected_empty_generation_disables_stale_flat_semantic_search(
         legacy_embeddings_path=index_dir / "ds_dataset_embeddings.npz",
         legacy_index_path=index_dir / "ds_dataset_index.hnsw",
     )
-    selector = json.loads(
-        (index_dir / "embedding_generation.json").read_text(encoding="utf-8")
-    )
+    selector = json.loads((index_dir / "embedding_generation.json").read_text(encoding="utf-8"))
     generation_id = selector["generation_id"]
     monkeypatch.setattr(
         g1, "L1_DCAT_PATH", Path("production_data/test_dcat/dataset_catalog.duckdb")
@@ -524,9 +520,7 @@ def test_g1_complete_selected_generation_separates_search_and_evidence(
         index_path.write_bytes(b"fixture-hnsw")
         return len(identifiers), 2
 
-    monkeypatch.setattr(
-        embedding_kernel, "build_embedding_index", _fake_build_embedding_index
-    )
+    monkeypatch.setattr(embedding_kernel, "build_embedding_index", _fake_build_embedding_index)
     g1 = _g1()
     _write_minimal_dcat_metric_binding(tmp_path)
     index_dir = tmp_path / "production_data/test_dcat"
@@ -554,19 +548,14 @@ def test_g1_complete_selected_generation_separates_search_and_evidence(
     assert searched_refs[0] == g1.L1_DCAT_REF
     assert len(searched_refs[1:]) == 2
     assert searched_refs[1:] == query_hnsw_refs
-    assert all(
-        ref.endswith(("index.hnsw", "embeddings.npz"))
-        for ref in searched_refs[1:]
-    )
+    assert all(ref.endswith(("index.hnsw", "embeddings.npz")) for ref in searched_refs[1:])
     assert set(searched_refs[1:]) <= set(evidence_refs)
     assert any(ref.endswith("inventory.json") for ref in evidence_refs)
     assert any(ref.endswith("ids.json") for ref in evidence_refs)
     assert any(ref.endswith("basis.json") for ref in evidence_refs)
     assert any(ref.endswith("embedding_generation.json") for ref in evidence_refs)
     assert all(
-        not ref.endswith(
-            ("inventory.json", "ids.json", "basis.json", "embedding_generation.json")
-        )
+        not ref.endswith(("inventory.json", "ids.json", "basis.json", "embedding_generation.json"))
         for ref in searched_refs[1:]
     )
 

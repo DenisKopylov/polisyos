@@ -52,16 +52,12 @@ def _runtime_validation(payload: dict[str, Any] | None = None) -> dict[str, Any]
 def _surface_validation() -> dict[str, Any]:
     g0 = _g0()
     bundle = _bundle()
-    runtime_report = g0.validate_layer3_g0_bundle(REPO_ROOT, bundle).model_dump(
-        mode="json"
-    )
+    runtime_report = g0.validate_layer3_g0_bundle(REPO_ROOT, bundle).model_dump(mode="json")
     issues = list(runtime_report["issues"])
     summary = dict(runtime_report["summary"])
     summary.update(
         {
-            "closure_artifact_count": len(
-                bundle.readiness_manifest.closure_artifact_paths
-            ),
+            "closure_artifact_count": len(bundle.readiness_manifest.closure_artifact_paths),
             "readiness_manifest_count": 1 if READINESS_MANIFEST_PATH.exists() else 0,
             "adr_id": "0175",
         }
@@ -131,20 +127,16 @@ def _extend_surface_issues(issues: list[dict[str, Any]]) -> None:
     }
     if (
         not entry
-        or entry.get("path")
-        != "docs/reference/policy-design-case-layer3-grounding-inventory.md"
+        or entry.get("path") != "docs/reference/policy-design-case-layer3-grounding-inventory.md"
         or entry.get("schema_version")
         != "policyos.policy_design_case.layer3_g0_discovery_search.v2"
-        or entry.get("rule_version")
-        != "policyos.layer3.g0.discovery_search_free_growth.v2"
+        or entry.get("rule_version") != "policyos.layer3.g0.discovery_search_free_growth.v2"
         or audiences != EXPECTED_SURFACE_AUDIENCES
         or entry.get("capability_reality_label") != "implemented"
         or set(entry.get("closure_artifact_paths", []))
         != set(_bundle().readiness_manifest.closure_artifact_paths)
         or review_surface != expected_review_surface
-        or "domain_ceiling_claim_without_g1_search_adapter" not in entry.get(
-            "may_not_use_for", []
-        )
+        or "domain_ceiling_claim_without_g1_search_adapter" not in entry.get("may_not_use_for", [])
     ):
         issues.append(
             _issue(
@@ -233,9 +225,7 @@ def _extend_adr_issues(issues: list[dict[str, Any]], summary: dict[str, Any]) ->
             "ADR-0175 must record constitution §5 and §7 Layer 3 discipline."
         ),
         "rule12_t7_recorded": "ADR-0175 must record amended Rule 12/T7 discipline.",
-        "impact_note_recorded": (
-            "ADR-0175 must include the constitution-required impact note."
-        ),
+        "impact_note_recorded": ("ADR-0175 must include the constitution-required impact note."),
         "rule_version_refs_recorded": (
             "ADR-0175 must include schema/rule version refs for replay and migration."
         ),
@@ -276,16 +266,14 @@ def _adr_payload() -> dict[str, Any]:
             "status": "Accepted" if status.strip().lower() == "accepted" else status,
             "accepted_by": _field(text, "accepted_by") or _field(text, "Accepted by"),
             "accepted_at": _field(text, "accepted_at") or _field(text, "Accepted at"),
-            "acceptance_ref": _field(text, "acceptance_ref")
-            or _field(text, "Acceptance ref"),
+            "acceptance_ref": _field(text, "acceptance_ref") or _field(text, "Acceptance ref"),
             "open_questions_mode": "tracked_empirically_open"
             if "tracked_empirically_open" in text
             else "",
             "import_policy_constitution_conflict_recorded": "policy.toml" in text
             and "constitution" in text
             and "narrow" in text,
-            "policy_toml_pdc_allowlist_narrowing_followup_recorded": "policy.toml"
-            in text
+            "policy_toml_pdc_allowlist_narrowing_followup_recorded": "policy.toml" in text
             and "follow-up" in text
             and "narrow" in text,
             "registry_crosswalk_clarification_recorded": "preservation registry" in text
@@ -388,9 +376,7 @@ def test_layer3_g0_inventory_covers_current_source_packages_and_data_assets() ->
 
 def test_layer3_g0_portless_capabilities_are_recorded_as_governed_open_questions() -> None:
     g0 = _g0()
-    malformed = _fixture("malformed_portless_capability_missing_open_question.json")[
-        "payload"
-    ]
+    malformed = _fixture("malformed_portless_capability_missing_open_question.json")["payload"]
 
     report = g0.validate_capability_inventory_payload(malformed)
 
@@ -398,7 +384,9 @@ def test_layer3_g0_portless_capabilities_are_recorded_as_governed_open_questions
     assert "layer3_g0_portless_capability_missing_open_question" in _issue_codes(report)
 
 
-def test_layer3_g0_data_inventory_is_manifest_backed_and_does_not_treat_corpus_fixtures_as_authority() -> None:
+def test_layer3_g0_data_inventory_is_manifest_backed_and_does_not_treat_corpus_fixtures_as_authority() -> (
+    None
+):
     g0 = _g0()
     malformed = _fixture("malformed_data_asset_missing_evidence.json")["payload"]
 
@@ -411,9 +399,7 @@ def test_layer3_g0_data_inventory_is_manifest_backed_and_does_not_treat_corpus_f
 
 def test_layer3_g0_import_firewall_blocks_pdc_source_imports_and_quarantined_adapters() -> None:
     g0 = _g0()
-    malformed = _fixture("malformed_adapter_admission_quarantined_source.json")[
-        "payload"
-    ]
+    malformed = _fixture("malformed_adapter_admission_quarantined_source.json")["payload"]
 
     admission_report = g0.validate_adapter_admission_registry(
         admission_records=malformed["adapter_admission_registry"]["records"],
@@ -472,7 +458,9 @@ def test_layer3_g0_validator_loads_v2_persisted_artifacts_and_search_gate_status
     )
 
 
-def test_layer3_g0_import_firewall_artifact_is_persisted_and_blocks_all_non_allowlisted_pdc_imports() -> None:
+def test_layer3_g0_import_firewall_artifact_is_persisted_and_blocks_all_non_allowlisted_pdc_imports() -> (
+    None
+):
     validation = _runtime_validation()
     summary = validation["summary"]
     firewall = _bundle().import_firewall_lint.model_dump(mode="json")
@@ -488,9 +476,7 @@ def test_layer3_g0_import_firewall_artifact_is_persisted_and_blocks_all_non_allo
 
 def test_layer3_g0_empty_port_and_adapter_cost_maps_have_ranked_constraints() -> None:
     g0 = _g0()
-    malformed = _fixture("malformed_empty_port_missing_constraint_rank.json")[
-        "payload"
-    ]
+    malformed = _fixture("malformed_empty_port_missing_constraint_rank.json")["payload"]
     issue_codes: set[str] = set()
 
     for entry in malformed["empty_port_map"]["entries"]:

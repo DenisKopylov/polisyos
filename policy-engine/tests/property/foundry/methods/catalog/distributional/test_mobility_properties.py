@@ -49,9 +49,7 @@ class TestTransitionMatrixProperties:
         np.testing.assert_allclose(matrix.sum(axis=1), 1.0, atol=1e-12)
         assert np.all(np.diag(matrix) == 0.0)
         expected_destinations = (np.arange(5) + 1) % 5
-        np.testing.assert_allclose(
-            matrix[np.arange(5), expected_destinations], 1.0, atol=1e-12
-        )
+        np.testing.assert_allclose(matrix[np.arange(5), expected_destinations], 1.0, atol=1e-12)
 
     @given(data=distribution_strategy())
     @settings(

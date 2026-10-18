@@ -174,9 +174,7 @@ def validate_fresh_rotating_challenge_evidence(
     if not rotating:
         return ["fresh_rotating_challenge_evidence_missing"]
     fresh = [
-        item
-        for item in rotating
-        if lineage_is_fresh(item, now=now, freshness_days=freshness_days)
+        item for item in rotating if lineage_is_fresh(item, now=now, freshness_days=freshness_days)
     ]
     if fresh:
         return []

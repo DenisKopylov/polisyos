@@ -7,8 +7,7 @@ from tools.ops_runners.runtime import replay_canary_bundle
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 FIXTURE_PATH = (
-    REPO_ROOT
-    / "tests/fixtures/production_quality/cloud_debug_20260520/root_cause_summary.json"
+    REPO_ROOT / "tests/fixtures/production_quality/cloud_debug_20260520/root_cause_summary.json"
 )
 
 

@@ -84,9 +84,7 @@ def _validate_read_integrity_with_digest(
     """Validate a loaded pair without recomputing a caller-independent digest."""
     validate_manifest_identity(artifact_id, manifest)
     if actual_sha256_hex != artifact_id.hex:
-        raise ArtifactIntegrityError(
-            f"Blob sha256 mismatch for {artifact_id}: {actual_sha256_hex}"
-        )
+        raise ArtifactIntegrityError(f"Blob sha256 mismatch for {artifact_id}: {actual_sha256_hex}")
     if manifest.byte_size != len(data):
         raise ArtifactIntegrityError(
             f"Manifest byte_size mismatch for {artifact_id}: "

@@ -402,9 +402,7 @@ def build_production_data_fabric_trace(
     }
     expected = expected_source_families
     if expected is None:
-        expected = _expected_source_families_from_scenario_contract(
-            scenario_evidence_contract
-        )
+        expected = _expected_source_families_from_scenario_contract(scenario_evidence_contract)
     if expected is None:
         expected = [
             str(source.get("source_family"))
@@ -468,9 +466,7 @@ def _source_from_contract_binding_finding(finding: Mapping[str, Any]) -> dict[st
     source_family = _as_text(finding.get("expected_family") or finding.get("source_family"))
     facet_refs = finding.get("facet_refs") if isinstance(finding.get("facet_refs"), Mapping) else {}
     present_facets = {
-        _as_text(item)
-        for item in finding.get("present_facets") or ()
-        if _as_text(item)
+        _as_text(item) for item in finding.get("present_facets") or () if _as_text(item)
     }
     status = _as_text(finding.get("status")).casefold()
     derived_features = [
@@ -499,9 +495,7 @@ def _source_from_contract_binding_finding(finding: Mapping[str, Any]) -> dict[st
         ),
         "lineage_refs": _refs_list(facet_refs.get("lineage_refs")),
         "transformation_refs": _refs_list(facet_refs.get("transformation_refs")),
-        "quality_assertion_refs": _refs_list(
-            facet_refs.get("quality_assertion_refs")
-        ),
+        "quality_assertion_refs": _refs_list(facet_refs.get("quality_assertion_refs")),
         "claim_bindability_refs": _refs_list(facet_refs.get("claim_bindability_refs")),
         "derived_features": derived_features,
         "freshness": {
@@ -510,16 +504,12 @@ def _source_from_contract_binding_finding(finding: Mapping[str, Any]) -> dict[st
         },
         "coverage": {
             "status": (
-                "pass"
-                if {"geography_refs", "time_coverage_refs"} <= present_facets
-                else "fail"
+                "pass" if {"geography_refs", "time_coverage_refs"} <= present_facets else "fail"
             )
         },
         "schema_compatibility": {
             "status": (
-                "pass"
-                if {"schema_ref", "field_refs", "unit_refs"} <= present_facets
-                else "fail"
+                "pass" if {"schema_ref", "field_refs", "unit_refs"} <= present_facets else "fail"
             ),
             "required_fields": _refs_list(facet_refs.get("field_refs")),
         },
@@ -547,11 +537,7 @@ def _refs_list(value: object) -> list[str]:
             text = _as_text(value.get(key))
             if text:
                 return [text]
-        return [
-            text
-            for text in (_as_text(item) for item in value.values())
-            if text
-        ]
+        return [text for text in (_as_text(item) for item in value.values()) if text]
     if isinstance(value, list | tuple | set):
         refs: list[str] = []
         for item in value:

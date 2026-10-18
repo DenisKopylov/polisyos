@@ -318,17 +318,11 @@ class ProductionAcquisitionAuthorityProvider:
                     additional_refs=exc.replay_input_refs,
                 ),
             )
-        operation, invocation, intent = AcquisitionActionService._action_tuple(
-            closure, request
-        )
-        selected_human_ref = (
-            request.human_decision_record_ref or slot.human_decision_record_ref
-        )
+        operation, invocation, intent = AcquisitionActionService._action_tuple(closure, request)
+        selected_human_ref = request.human_decision_record_ref or slot.human_decision_record_ref
         source_refs = self._slot_replay_refs(
             slot,
-            additional_refs=(selected_human_ref,)
-            if selected_human_ref is not None
-            else (),
+            additional_refs=(selected_human_ref,) if selected_human_ref is not None else (),
         )
         try:
             if selected_human_ref is not None:
@@ -350,10 +344,8 @@ class ProductionAcquisitionAuthorityProvider:
                     or source.permission_snapshot is None
                     or agent_action_content_hash(source.permission_snapshot)
                     != agent_action_permission_hash(bound_permission)
-                    or source.operation_content_hash
-                    != agent_action_content_hash(operation)
-                    or source.invocation_content_hash
-                    != agent_action_content_hash(invocation)
+                    or source.operation_content_hash != agent_action_content_hash(operation)
+                    or source.invocation_content_hash != agent_action_content_hash(invocation)
                     or source.intent_content_hash != agent_action_content_hash(intent)
                     or source.bound_resource_digest != resource_digest
                     or source.contract_ref != resolved.contract_cas_ref

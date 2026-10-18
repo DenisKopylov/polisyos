@@ -188,15 +188,13 @@ def extract_fabric_series(
     if isinstance(result, dict) and ("values" in result or "series" in result):
         if time_col and result.get("time") is None:
             raise ValueError(
-                f"Configured alignment time column '{time_col}' is missing "
-                "from Fabric result"
+                f"Configured alignment time column '{time_col}' is missing from Fabric result"
             )
         return result
     if isinstance(result, tuple) and len(result) == 2:
         if time_col and result[1] is None:
             raise ValueError(
-                f"Configured alignment time column '{time_col}' is missing "
-                "from Fabric result"
+                f"Configured alignment time column '{time_col}' is missing from Fabric result"
             )
         return result
     columns = getattr(result, "columns", None)
@@ -219,14 +217,12 @@ def extract_fabric_series(
             return {"values": values, "time": time}
         if time_col:
             raise ValueError(
-                f"Configured alignment time column '{time_col}' is missing "
-                "from Fabric result"
+                f"Configured alignment time column '{time_col}' is missing from Fabric result"
             )
         return values
     if time_col:
         raise ValueError(
-            f"Configured alignment time column '{time_col}' is missing "
-            "from Fabric result"
+            f"Configured alignment time column '{time_col}' is missing from Fabric result"
         )
     return result
 

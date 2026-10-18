@@ -159,7 +159,9 @@ def _reconcile_calibration_forecasts(
             "calibration_bottom_forecasts must have shape (n_calibration, n_bottom, horizon)"
         )
     if bottom.shape[1] != aggregation_matrix.shape[1]:
-        raise ValueError("calibration_bottom_forecasts bottom dimension must match aggregation_matrix")
+        raise ValueError(
+            "calibration_bottom_forecasts bottom dimension must match aggregation_matrix"
+        )
     return np.einsum("ij,pjk->pik", aggregation_matrix, bottom, optimize=True)
 
 
@@ -501,9 +503,7 @@ class BottomUpReconciliationEstimator:
                 ),
             }
         ),
-        output_slots=forecasting_output_slots(
-            output_contract=ForecastingUncertaintyBundleV2
-        ),
+        output_slots=forecasting_output_slots(output_contract=ForecastingUncertaintyBundleV2),
         parameters=(),
         fidelity=FidelityLevel.MEDIUM,
         complexity=ComplexityClass.O_N2,
@@ -572,9 +572,7 @@ class BottomUpReconciliationEstimator:
                 ),
                 constraints_kind=constraints_kind,
                 reconciliation_method=ReconciliationMethod.BOTTOM_UP,
-                min_calibration_count=int(
-                    params.get("min_reconciliation_calibration_count", 5)
-                ),
+                min_calibration_count=int(params.get("min_reconciliation_calibration_count", 5)),
                 artifact_store=artifact_store,
                 beta_mixing_penalty=(
                     None
@@ -637,9 +635,7 @@ class GeneralLinearReconciliationEstimator:
                 ),
             }
         ),
-        output_slots=forecasting_output_slots(
-            output_contract=ForecastingUncertaintyBundleV2
-        ),
+        output_slots=forecasting_output_slots(output_contract=ForecastingUncertaintyBundleV2),
         parameters=(),
         fidelity=FidelityLevel.MEDIUM,
         complexity=ComplexityClass.O_N2,
@@ -708,9 +704,7 @@ class GeneralLinearReconciliationEstimator:
                 calibration_unreconciled_forecasts=calibration_base_arr,
                 constraints_kind=constraints_kind,
                 reconciliation_method=ReconciliationMethod.GENERAL_LINEAR_PROJECTION,
-                min_calibration_count=int(
-                    params.get("min_reconciliation_calibration_count", 5)
-                ),
+                min_calibration_count=int(params.get("min_reconciliation_calibration_count", 5)),
                 artifact_store=artifact_store,
                 beta_mixing_penalty=(
                     None

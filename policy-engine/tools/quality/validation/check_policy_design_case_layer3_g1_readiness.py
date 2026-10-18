@@ -22,25 +22,15 @@ DOCS_REFERENCE_DIR = Path("docs/reference")
 ADAPTER_ADMISSION_REGISTRY_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g1_adapter_admission_registry.json"
 )
-SUBSTRATE_SEARCH_LEDGERS_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g1_substrate_search_ledgers.json"
-)
-L1_L5_L6_INDEX_COVERAGE_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g1_l1_l5_l6_index_coverage.json"
-)
-SEARCH_RECALL_FRESHNESS_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g1_search_recall_freshness.json"
-)
-HARDCODE_STRANGLE_DELTA_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g1_hardcode_strangle_delta.json"
-)
+SUBSTRATE_SEARCH_LEDGERS_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g1_substrate_search_ledgers.json"
+L1_L5_L6_INDEX_COVERAGE_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g1_l1_l5_l6_index_coverage.json"
+SEARCH_RECALL_FRESHNESS_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g1_search_recall_freshness.json"
+HARDCODE_STRANGLE_DELTA_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g1_hardcode_strangle_delta.json"
 FREE_GROWTH_REPORT_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g1_free_growth_report.json"
 SEARCH_ENGINEERING_QUALITY_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g1_search_engineering_quality_report.json"
 )
-GROUNDED_SOURCE_CONTRACTS_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g1_grounded_source_contracts.json"
-)
+GROUNDED_SOURCE_CONTRACTS_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g1_grounded_source_contracts.json"
 LINEAGE_CONTAMINATION_LEDGER_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g1_lineage_contamination_ledger.json"
 )
@@ -49,9 +39,7 @@ COVERAGE_LINEAGE_ABSTENTION_SURFACE_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g1_coverage_lineage_abstention_surface.json"
 )
 HEALTH_METRIC_DELTA_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g1_health_metric_delta.toml"
-ADAPTER_CONTRACT_REGISTRY_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g1_adapter_contract_registry.toml"
-)
+ADAPTER_CONTRACT_REGISTRY_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g1_adapter_contract_registry.toml"
 READINESS_MANIFEST_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g1_readiness_manifest.json"
 DOCS_SURFACE_PATH = DOCS_REFERENCE_DIR / "policy-design-case-layer3-substrate-grounding.md"
 INVENTORY_PATH = POLICY_DESIGN_CASE_DIR / "inventory.json"
@@ -134,9 +122,7 @@ def validate_layer3_g1_readiness(repo_root: Path, *, write: bool = False) -> dic
         written_artifact_paths = []
 
     issues: list[dict[str, str]] = []
-    runtime_report = g1.validate_layer3_g1_bundle(root, runtime_bundle).model_dump(
-        mode="json"
-    )
+    runtime_report = g1.validate_layer3_g1_bundle(root, runtime_bundle).model_dump(mode="json")
     issues.extend(_normalize_issues(runtime_report.get("issues", [])))
     issues.extend(_validate_persisted_artifacts(root))
     issues.extend(_validate_g0_dependencies(root))
@@ -155,9 +141,7 @@ def validate_layer3_g1_readiness(repo_root: Path, *, write: bool = False) -> dic
             "expected_artifact_paths": [path.as_posix() for path in EXPECTED_ARTIFACT_PATHS],
             "written_artifact_paths": written_artifact_paths,
             "missing_persisted_artifact_paths": [
-                path.as_posix()
-                for path in EXPECTED_ARTIFACT_PATHS
-                if not (root / path).exists()
+                path.as_posix() for path in EXPECTED_ARTIFACT_PATHS if not (root / path).exists()
             ],
         },
         "write": write,
@@ -188,9 +172,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     report = validate_layer3_g1_readiness(args.repo_root, write=args.write)
-    rendered = (
-        _json_dumps(report) if args.output_format == "json" else _render_text_report(report)
-    )
+    rendered = _json_dumps(report) if args.output_format == "json" else _render_text_report(report)
     if args.output is not None:
         output_path = _resolve_path(Path(args.repo_root), args.output)
         atomic_write_text(output_path, rendered)
@@ -334,9 +316,7 @@ def _validate_manifest_runtime_drift(
         "source_contract_snapshot_count",
         "g1_search_engineering_quality_status",
     )
-    drifted = [
-        key for key in keys if persisted_counts.get(key) != runtime_counts.get(key)
-    ]
+    drifted = [key for key in keys if persisted_counts.get(key) != runtime_counts.get(key)]
     if (
         persisted.get("schema_version") != g1.LAYER3_G1_SCHEMA_VERSION
         or persisted.get("rule_version") != g1.LAYER3_G1_RULE_VERSION
@@ -545,9 +525,7 @@ def _summary(
             "schema_version": g1.LAYER3_G1_SCHEMA_VERSION,
             "rule_version": g1.LAYER3_G1_RULE_VERSION,
             "surface_id": bundle.coverage_lineage_abstention_surface.surface_id,
-            "surface_audiences": list(
-                bundle.coverage_lineage_abstention_surface.surface_audiences
-            ),
+            "surface_audiences": list(bundle.coverage_lineage_abstention_surface.surface_audiences),
             "surface_out_of_scope_audiences": [
                 str(item.get("audience"))
                 for item in bundle.coverage_lineage_abstention_surface.surface_out_of_scope
@@ -677,8 +655,7 @@ def _render_text_report(report: Mapping[str, Any]) -> str:
         for issue in issues:
             if isinstance(issue, Mapping):
                 lines.append(
-                    f"- {issue.get('code', '')} {issue.get('path', '')}: "
-                    f"{issue.get('message', '')}"
+                    f"- {issue.get('code', '')} {issue.get('path', '')}: {issue.get('message', '')}"
                 )
     return "\n".join(lines).rstrip() + "\n"
 

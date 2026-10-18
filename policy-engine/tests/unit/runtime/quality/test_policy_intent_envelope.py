@@ -46,14 +46,10 @@ def test_policy_intent_envelope_separates_requester_preference_from_independent_
 
     assert envelope["schema_version"] == POLICY_INTENT_ENVELOPE_SCHEMA_VERSION
     assert envelope["requester_preferred_conclusion"] == "expand credit support"
-    assert envelope["requester_preference"]["preferred_conclusion"] == (
-        "expand credit support"
-    )
+    assert envelope["requester_preference"]["preferred_conclusion"] == ("expand credit support")
     assert envelope["analysis_independence"]["independent_analysis_required"] is True
     assert (
-        envelope["analysis_independence"][
-            "requester_preference_may_not_determine_conclusion"
-        ]
+        envelope["analysis_independence"]["requester_preference_may_not_determine_conclusion"]
         is True
     )
     assert envelope["requester_capture_risk"]["preferred_conclusion_present"] is True

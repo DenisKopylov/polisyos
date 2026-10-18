@@ -471,11 +471,7 @@ def _relative_interior_support(
     if row_mass == 0.0:
         return np.zeros(n_edges, dtype=bool)
 
-    roundoff = (
-        np.finfo(float).eps
-        * max(1.0, row_mass)
-        * max(32, n_rows + n_cols + n_edges)
-    )
+    roundoff = np.finfo(float).eps * max(1.0, row_mass) * max(32, n_rows + n_cols + n_edges)
     if not np.isfinite(roundoff) or roundoff <= 0.0:
         return None
     if np.any((row_targets > 0.0) & (row_targets <= roundoff)):
@@ -513,9 +509,7 @@ def _relative_interior_support(
         graph_edge_index = _add_residual_edge(
             graph, row_offset + int(row), col_offset + int(col), capacity
         )
-        candidate_edges.append(
-            (edge_position, row_offset + int(row), graph_edge_index, capacity)
-        )
+        candidate_edges.append((edge_position, row_offset + int(row), graph_edge_index, capacity))
 
     ambiguous_flow = False
 

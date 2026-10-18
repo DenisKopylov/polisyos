@@ -17,31 +17,19 @@ from typing import Any, Literal, NoReturn
 from jsonschema import Draft202012Validator, FormatChecker
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-READINESS_PATH = Path(
-    "architecture/atlas_surfaces/live-application-readiness-ledger.json"
-)
-READINESS_SCHEMA_PATH = Path(
-    "architecture/atlas_surfaces/surface-readiness-ledger.schema.json"
-)
+READINESS_PATH = Path("architecture/atlas_surfaces/live-application-readiness-ledger.json")
+READINESS_SCHEMA_PATH = Path("architecture/atlas_surfaces/surface-readiness-ledger.schema.json")
 ADOPTION_PATH = Path("architecture/atlas_surfaces/atlas-v15-adoption-ledger.json")
 ADOPTION_SCHEMA_PATH = Path("architecture/atlas_surfaces/adoption-ledger.schema.json")
-AUDIENCE_PROXY_PATH = Path(
-    "tests/unit/runtime/http/test_authorization_audience_denials.py"
-)
+AUDIENCE_PROXY_PATH = Path("tests/unit/runtime/http/test_authorization_audience_denials.py")
 CLUSTER_MAP_PATH = Path("architecture/policy_design_case/cluster_ownership_map.toml")
 CLUSTER_INVENTORY_PATH = Path("architecture/policy_design_case/inventory.json")
-CLUSTER_RATCHET_PATH = Path(
-    "architecture/policy_design_case/capability_reality_report.json"
-)
-FAILURE_REGISTER_PATH = Path(
-    "docs/reference/policy-design-case-failure-patterns.md"
-)
+CLUSTER_RATCHET_PATH = Path("architecture/policy_design_case/capability_reality_report.json")
+FAILURE_REGISTER_PATH = Path("docs/reference/policy-design-case-failure-patterns.md")
 CLUSTER_VALIDATOR_PATH = Path(
     "tools/quality/validation/check_policy_design_case_cluster_ownership_map.py"
 )
-IMPLEMENTATION_PATH = Path(
-    "apps/runtime-dashboard/scripts/validate_atlas_health_sources.py"
-)
+IMPLEMENTATION_PATH = Path("apps/runtime-dashboard/scripts/validate_atlas_health_sources.py")
 PROJECTION_SCHEMA = {
     "id": "polisyos.atlas.health-source-projection",
     "version": "1.0.0",
@@ -201,10 +189,9 @@ def build_source_projection() -> dict[str, Any]:
     adoption_entries = adoption["entries"]
     stable_entries = [entry for entry in adoption_entries if entry["maturity"] == "stable"]
     stable_with_browser_and_at = sum(
-        {
-            evidence["kind"]
-            for evidence in entry["evidence_refs"]
-        }.issuperset({"browser", "at_manual"})
+        {evidence["kind"] for evidence in entry["evidence_refs"]}.issuperset(
+            {"browser", "at_manual"}
+        )
         for entry in stable_entries
     )
     audience_source = (REPO_ROOT / AUDIENCE_PROXY_PATH).read_text(encoding="utf-8")
@@ -219,9 +206,7 @@ def build_source_projection() -> dict[str, Any]:
             "python_version": platform.python_version(),
             "jsonschema_version": importlib.metadata.version("jsonschema"),
             "schema_dialect": Draft202012Validator.META_SCHEMA["$schema"],
-            "implementation_ref": _source_ref(
-                IMPLEMENTATION_PATH, "canonical_source_validator"
-            ),
+            "implementation_ref": _source_ref(IMPLEMENTATION_PATH, "canonical_source_validator"),
         },
         "readiness": {
             "as_of": readiness["as_of"],
@@ -230,8 +215,7 @@ def build_source_projection() -> dict[str, Any]:
                 "MACHINE" in entry["audiences"] for entry in readiness_entries
             ),
             "implemented_entry_count": sum(
-                entry["readiness_state"] == "implemented"
-                for entry in readiness_entries
+                entry["readiness_state"] == "implemented" for entry in readiness_entries
             ),
             "source_refs": [
                 _source_ref(READINESS_PATH, "complete_readiness_population"),
@@ -282,26 +266,16 @@ def run_corruption_probes() -> list[str]:
     probes.append(_expect_invalid("readiness", candidate, "readiness_required"))
     candidate = copy.deepcopy(readiness)
     candidate["forged"] = True
-    probes.append(
-        _expect_invalid("readiness", candidate, "readiness_additional_property")
-    )
+    probes.append(_expect_invalid("readiness", candidate, "readiness_additional_property"))
     candidate = copy.deepcopy(readiness)
     candidate["entries"][0]["audiences"] = ["PUBLIC", "PUBLIC"]
-    probes.append(
-        _expect_invalid("readiness", candidate, "readiness_unique_audience")
-    )
+    probes.append(_expect_invalid("readiness", candidate, "readiness_unique_audience"))
     candidate = copy.deepcopy(readiness)
     candidate["entries"][0]["updated_at"] = "not-a-date-time"
-    probes.append(
-        _expect_invalid("readiness", candidate, "readiness_datetime_format")
-    )
+    probes.append(_expect_invalid("readiness", candidate, "readiness_datetime_format"))
     candidate = copy.deepcopy(readiness)
     candidate["entries"].append(copy.deepcopy(candidate["entries"][0]))
-    probes.append(
-        _expect_invalid(
-            "readiness", candidate, "readiness_duplicate_surface_id"
-        )
-    )
+    probes.append(_expect_invalid("readiness", candidate, "readiness_duplicate_surface_id"))
 
     candidate = copy.deepcopy(adoption)
     candidate["entries"][0]["maturity"] = "production"
@@ -314,9 +288,7 @@ def run_corruption_probes() -> list[str]:
     candidate["entries"][0]["evidence_refs"] = [
         {"kind": "code_reference", "ref": "repo://candidate", "as_of": "2026-08-16"}
     ]
-    probes.append(
-        _expect_invalid("adoption", candidate, "adoption_stable_evidence")
-    )
+    probes.append(_expect_invalid("adoption", candidate, "adoption_stable_evidence"))
     candidate = copy.deepcopy(adoption)
     candidate["entries"].append(copy.deepcopy(candidate["entries"][0]))
     probes.append(_expect_invalid("adoption", candidate, "adoption_duplicate_id"))
@@ -343,8 +315,7 @@ def main() -> None:
     except Exception as exc:
         _fail(f"{type(exc).__name__}: {exc}")
     sys.stdout.write(
-        json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
-        + "\n"
+        json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n"
     )
 
 

@@ -199,9 +199,7 @@ def build_wave4_operational_closeout_report(
         for finding in item.get("findings", [])
     ]
     public_export_ref = (
-        "quality_evidence/public_export_bundle.json"
-        if "public_export_bundle" in quality
-        else None
+        "quality_evidence/public_export_bundle.json" if "public_export_bundle" in quality else None
     )
     return {
         "schema_version": SCHEMA_VERSION,
@@ -366,11 +364,15 @@ def _candidate_evidence_findings(quality: Mapping[str, Any]) -> list[dict[str, A
 def _decision_artifact_findings(quality: Mapping[str, Any]) -> list[dict[str, Any]]:
     report = quality.get("decision_artifact_quality")
     if not isinstance(report, Mapping):
-        return [_finding("decision_artifact_quality_missing", "Decision artifact quality is missing.")]
+        return [
+            _finding("decision_artifact_quality_missing", "Decision artifact quality is missing.")
+        ]
     findings: list[dict[str, Any]] = []
     if report.get("status") != "pass":
         findings.append(
-            _finding("decision_artifact_quality_not_pass", "Decision artifact quality did not pass.")
+            _finding(
+                "decision_artifact_quality_not_pass", "Decision artifact quality did not pass."
+            )
         )
     if int(report.get("blocking_issue_count") or 0) != 0:
         findings.append(
@@ -483,7 +485,9 @@ def _assurance_and_slo_findings(quality: Mapping[str, Any]) -> list[dict[str, An
             )
     slos = quality.get("diagnostic_slo_report")
     if not isinstance(slos, Mapping):
-        findings.append(_finding("diagnostic_slo_report_missing", "Diagnostic SLO report is missing."))
+        findings.append(
+            _finding("diagnostic_slo_report_missing", "Diagnostic SLO report is missing.")
+        )
         return findings
     if slos.get("status") != "pass" or slos.get("readiness_decision") != "pass":
         findings.append(_finding("diagnostic_slo_not_pass", "Diagnostic SLO report did not pass."))
@@ -534,11 +538,11 @@ def _attestation_findings(quality: Mapping[str, Any]) -> list[dict[str, Any]]:
         if record.get("signature_ref") in {None, ""}:
             findings.append(_finding("attestation_signature_missing", f"{boundary_id} unsigned."))
         if record.get("evidence_ref") in {None, ""}:
-            findings.append(_finding("attestation_evidence_missing", f"{boundary_id} lacks evidence."))
-        if record.get("consumer_verification") != "verified":
             findings.append(
-                _finding("attestation_not_verified", f"{boundary_id} is not verified.")
+                _finding("attestation_evidence_missing", f"{boundary_id} lacks evidence.")
             )
+        if record.get("consumer_verification") != "verified":
+            findings.append(_finding("attestation_not_verified", f"{boundary_id} is not verified."))
         if record.get("tamper_check_status") != "pass":
             findings.append(
                 _finding("attestation_tamper_check_failed", f"{boundary_id} tamper check failed.")
@@ -566,12 +570,16 @@ def _public_export_findings(quality: Mapping[str, Any]) -> list[dict[str, Any]]:
     for key, expected_value in expected.items():
         if bundle.get(key) != expected_value:
             findings.append(
-                _finding("public_export_authority_boundary_invalid", f"{key} is not {expected_value}.")
+                _finding(
+                    "public_export_authority_boundary_invalid", f"{key} is not {expected_value}."
+                )
             )
     limits = bundle.get("official_use_limits")
     if not isinstance(limits, Mapping):
         findings.append(
-            _finding("public_export_official_use_limits_missing", "Official-use limits are missing.")
+            _finding(
+                "public_export_official_use_limits_missing", "Official-use limits are missing."
+            )
         )
     else:
         denied = {str(item) for item in _sequence(limits.get("may_not_be_used_for"))}
@@ -588,12 +596,16 @@ def _public_export_findings(quality: Mapping[str, Any]) -> list[dict[str, Any]]:
     for token in FORBIDDEN_PUBLIC_TOKENS:
         if token in public_text:
             findings.append(
-                _finding("public_export_sensitive_token_leaked", f"Forbidden token leaked: {token}.")
+                _finding(
+                    "public_export_sensitive_token_leaked", f"Forbidden token leaked: {token}."
+                )
             )
     semantic = bundle.get("semantic_audit")
     if not isinstance(semantic, Mapping) or not semantic.get("authority_projections"):
         findings.append(
-            _finding("public_export_semantic_audit_missing", "Semantic audit projection is missing.")
+            _finding(
+                "public_export_semantic_audit_missing", "Semantic audit projection is missing."
+            )
         )
     return findings
 
@@ -606,12 +618,16 @@ def _coverage_evidence_findings(
     files = bundle.get("files")
     quality_files = files.get("quality_evidence") if isinstance(files, Mapping) else None
     if not isinstance(quality_files, Mapping):
-        findings.append(_finding("bundle_quality_file_index_missing", "Bundle file index is missing."))
+        findings.append(
+            _finding("bundle_quality_file_index_missing", "Bundle file index is missing.")
+        )
     else:
         for required in ("assurance_case", "diagnostic_slo_report", "public_export_bundle"):
             if not quality_files.get(required):
                 findings.append(
-                    _finding("bundle_quality_file_index_incomplete", f"Missing index for {required}.")
+                    _finding(
+                        "bundle_quality_file_index_incomplete", f"Missing index for {required}."
+                    )
                 )
     for key in REQUIRED_QUALITY_FILES:
         if key not in quality:
@@ -639,7 +655,11 @@ def _weekly_baseline_status(report: Mapping[str, Any]) -> str:
 
 def _weekly_baseline_findings(report: Mapping[str, Any]) -> list[dict[str, Any]]:
     policy = report.get("dual_write_policy")
-    observed = policy.get("observed_consecutive_weekly_closeout_baselines") if isinstance(policy, Mapping) else None
+    observed = (
+        policy.get("observed_consecutive_weekly_closeout_baselines")
+        if isinstance(policy, Mapping)
+        else None
+    )
     try:
         observed_count = int(observed)
     except (TypeError, ValueError):
@@ -796,11 +816,15 @@ def main(argv: Sequence[str] | None = None) -> int:
         sys.stderr.write(f"wave4 operational closeout failed: {exc}\n")
         return 2
 
-    bundle_report = _resolve(repo_root, args.bundle_dir) / "quality_evidence" / (
-        "wave4_operational_closeout.json"
+    bundle_report = (
+        _resolve(repo_root, args.bundle_dir)
+        / "quality_evidence"
+        / ("wave4_operational_closeout.json")
     )
     build_report = (
-        _resolve(repo_root, args.json_output) if args.json_output else repo_root / DEFAULT_BUILD_REPORT
+        _resolve(repo_root, args.json_output)
+        if args.json_output
+        else repo_root / DEFAULT_BUILD_REPORT
     )
     for path in (bundle_report, build_report):
         atomic_write_text(path, dump_json(report))

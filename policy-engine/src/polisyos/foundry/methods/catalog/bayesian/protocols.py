@@ -1722,9 +1722,7 @@ class PosteriorResult(BaseModel):
             update={
                 "metadata": {
                     **envelope.metadata,
-                    "value_estimand_binding_content_hash": (
-                        projection_binding.content_hash
-                    ),
+                    "value_estimand_binding_content_hash": (projection_binding.content_hash),
                     "value_estimand_binding_native_contract_id": (
                         projection_binding.native_contract_id
                     ),

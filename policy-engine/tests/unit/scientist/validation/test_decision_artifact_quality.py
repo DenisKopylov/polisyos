@@ -558,4 +558,3 @@ def test_quality_report_rejects_ownerless_serious_decision_artifact() -> None:
     assert "quality_scorecard_ref" in report["input_refs"]
     assert report["claim_evidence_contract"]["status"] == "blocked"
     assert "claim_ledger_owner_not_established" in {issue["code"] for issue in report["issues"]}
-

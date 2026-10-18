@@ -199,11 +199,7 @@ def test_import_errors_are_reported_in_stable_source_order(
         )
 
     assert [plugin for plugin in plugins if plugin.metadata.name.startswith("plg01-")] == []
-    messages = [
-        str(record.message)
-        for record in caught
-        if "plg01-" in str(record.message)
-    ]
+    messages = [str(record.message) for record in caught if "plg01-" in str(record.message)]
     assert len(messages) == 2
     assert messages == sorted(messages)
     assert "plg01-alpha-import-error" in messages[0]
@@ -364,9 +360,7 @@ def test_legacy_entry_point_group_and_domain_plugin_abi_are_preserved(
     )
 
     assert seen_groups == ["polisyos.plugins"]
-    entrypoint_plugins = [
-        plugin for plugin in plugins if plugin.metadata.name == "entrypoint"
-    ]
+    entrypoint_plugins = [plugin for plugin in plugins if plugin.metadata.name == "entrypoint"]
     assert len(entrypoint_plugins) == 1
     assert isinstance(entrypoint_plugins[0], DomainPlugin)
     assert seen_groups[0] != plugin_discovery.CANONICAL_METHOD_ENTRY_POINT_GROUP
@@ -424,9 +418,7 @@ def test_explicit_dev_root_does_not_import_unselected_sibling(
         package_prefix=_NO_MATCHING_PACKAGE_PREFIX,
     )
 
-    assert [
-        plugin.metadata.name
-        for plugin in plugins
-        if plugin.metadata.name == "selected"
-    ] == ["selected"]
+    assert [plugin.metadata.name for plugin in plugins if plugin.metadata.name == "selected"] == [
+        "selected"
+    ]
     assert not marker.exists()

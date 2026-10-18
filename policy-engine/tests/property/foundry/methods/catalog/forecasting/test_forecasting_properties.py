@@ -75,7 +75,8 @@ class TestExponentialSmoothingProperties:
                 state=state,
                 params=params,
                 seed=0,
-            ), fqn
+            ),
+            fqn,
         )
         second = _forecast(
             invoke_property_method(
@@ -84,7 +85,8 @@ class TestExponentialSmoothingProperties:
                 state=state,
                 params=params,
                 seed=0,
-            ), fqn
+            ),
+            fqn,
         )
         np.testing.assert_array_equal(first, second)
 

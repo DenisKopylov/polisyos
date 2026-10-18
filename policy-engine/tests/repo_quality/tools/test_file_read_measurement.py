@@ -33,4 +33,8 @@ def test_directory_probe_distinguishes_present_file_directory_and_missing(tmp_pa
         assert fs.measured_is_dir(tmp_path)
         assert not fs.measured_is_dir(regular)
         assert not fs.measured_is_dir(tmp_path / "missing")
-    assert [item["status"] for item in reads.snapshot()["inputs"]] == ["present", "present", "absent"]
+    assert [item["status"] for item in reads.snapshot()["inputs"]] == [
+        "present",
+        "present",
+        "absent",
+    ]

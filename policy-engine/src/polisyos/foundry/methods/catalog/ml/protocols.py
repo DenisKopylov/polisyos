@@ -485,7 +485,9 @@ class PredictionSetResult(BaseModel):
             return ConditionalCoverageDiagnostic.model_validate(value)
         return value
 
-    @field_validator("class_probabilities", "set_sizes", "predicted_labels", "target", mode="before")
+    @field_validator(
+        "class_probabilities", "set_sizes", "predicted_labels", "target", mode="before"
+    )
     @classmethod
     def _coerce_numpy(cls, value: Any) -> Any:
         if value is None:

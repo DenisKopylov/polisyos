@@ -60,9 +60,7 @@ def test_store_boundary_revalidates_unchecked_artifact_ref_copy() -> None:
     )
     unchecked = selected_ref.model_copy(update={"artifact_id": str(artifact_id)})
 
-    normalized_id, profile, normalized_ref = artifact_manifest.artifact_reference_parts(
-        unchecked
-    )
+    normalized_id, profile, normalized_ref = artifact_manifest.artifact_reference_parts(unchecked)
     assert normalized_id == artifact_id
     assert isinstance(normalized_id, ArtifactID)
     assert profile == selected_ref.manifest_profile_sha256
@@ -110,9 +108,7 @@ def test_store_boundary_revalidates_typed_artifact_id_root_to_canonical_form() -
     canonical_id = ArtifactID.from_sha256_hex("a" * 64)
     unchecked = canonical_id.model_copy(update={"root": "sha256:" + "A" * 64})
 
-    normalized_id, profile, normalized_ref = artifact_manifest.artifact_reference_parts(
-        unchecked
-    )
+    normalized_id, profile, normalized_ref = artifact_manifest.artifact_reference_parts(unchecked)
 
     assert normalized_id == canonical_id
     assert normalized_id is not unchecked

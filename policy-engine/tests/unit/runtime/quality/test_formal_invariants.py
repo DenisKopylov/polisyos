@@ -28,10 +28,7 @@ def test_phase_29_4_closeout_invariants_are_model_checked() -> None:
     report = build_formal_invariant_spec_report(repo_root=REPO_ROOT)
 
     assert report["status"] == "pass", report["issues"]
-    assert (
-        report["source"]["registry_path"]
-        == FORMAL_INVARIANT_REGISTRY_RELATIVE_PATH.as_posix()
-    )
+    assert report["source"]["registry_path"] == FORMAL_INVARIANT_REGISTRY_RELATIVE_PATH.as_posix()
     assert report["summary"]["required_coverage_pct"] == 100.0
     assert set(report["required_closeout_invariants"]) == REQUIRED_CLOSEOUT_INVARIANT_IDS
 
@@ -99,9 +96,7 @@ def test_bounded_liveness_flags_producer_wait_past_deadline_without_escalation()
     )
 
     assert result["status"] == "fail"
-    assert result["issues"][0]["code"] == (
-        "bounded_liveness_wait_exceeded_without_escalation"
-    )
+    assert result["issues"][0]["code"] == ("bounded_liveness_wait_exceeded_without_escalation")
     assert result["issues"][0]["producer_key"] == "scholar"
 
 
@@ -165,16 +160,12 @@ def test_bounded_liveness_rejects_escalation_authority_and_late_reissue() -> Non
 def test_formal_invariant_registry_rejects_missing_required_closeout_spec() -> None:
     payload = _actual_payload()
     mutated = copy.deepcopy(payload)
-    mutated["specs"] = [
-        row for row in mutated["specs"] if row["spec_id"] != "terminal_readiness"
-    ]
+    mutated["specs"] = [row for row in mutated["specs"] if row["spec_id"] != "terminal_readiness"]
 
     validation = validate_formal_invariant_specs_payload(mutated, repo_root=REPO_ROOT)
 
     assert validation.status == "fail"
-    assert "formal_invariant_required_spec_missing" in {
-        issue.code for issue in validation.issues
-    }
+    assert "formal_invariant_required_spec_missing" in {issue.code for issue in validation.issues}
 
 
 def test_substrate_critical_invariants_cannot_be_unit_test_only() -> None:
@@ -186,9 +177,7 @@ def test_substrate_critical_invariants_cannot_be_unit_test_only() -> None:
     validation = validate_formal_invariant_specs_payload(mutated, repo_root=REPO_ROOT)
 
     assert validation.status == "fail"
-    assert "formal_invariant_check_type_insufficient" in {
-        issue.code for issue in validation.issues
-    }
+    assert "formal_invariant_check_type_insufficient" in {issue.code for issue in validation.issues}
 
 
 def test_model_checker_reports_unknown_model_property_as_counterexample() -> None:

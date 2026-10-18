@@ -59,10 +59,7 @@ class _CalibrationValidityEvidence:
     def is_bound(self) -> bool:
         """Return whether the checker result is bound to the projected audit."""
 
-        return (
-            self.issuer_token is _CHECKER_EVIDENCE_TOKEN
-            and not self.audit_binding_reasons
-        )
+        return self.issuer_token is _CHECKER_EVIDENCE_TOKEN and not self.audit_binding_reasons
 
 
 def build_calibration_audit(

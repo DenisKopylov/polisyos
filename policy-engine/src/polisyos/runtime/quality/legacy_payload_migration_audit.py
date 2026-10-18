@@ -24,13 +24,9 @@ from polisyos.runtime.quality.schema_compat import (
     evaluate_schema_compatibility,
 )
 
-LEGACY_MIGRATION_SANDBOX_SCHEMA_VERSION = (
-    "policyos.runtime.quality.legacy_migration_sandbox.v1"
-)
+LEGACY_MIGRATION_SANDBOX_SCHEMA_VERSION = "policyos.runtime.quality.legacy_migration_sandbox.v1"
 LEGACY_MIGRATION_SEMANTIC_LOSS = "legacy_migration_semantic_loss"
-LEGACY_MIGRATION_SANDBOX_RELATIVE_DIR = Path(
-    "_build/honest-diagnostics/migration-sandbox"
-)
+LEGACY_MIGRATION_SANDBOX_RELATIVE_DIR = Path("_build/honest-diagnostics/migration-sandbox")
 REQUIRED_WEEKLY_BASELINE_COUNT = 2
 SERIOUS_CANARY_KINDS = frozenset({"governed", "production", "research"})
 
@@ -127,11 +123,7 @@ def build_legacy_migration_sandbox(
     generated = _utc(generated_at).replace(microsecond=0).isoformat()
     comparison_rows = [_compare_pair(item) for item in comparisons]
     failure_codes = sorted(
-        {
-            code
-            for comparison in comparison_rows
-            for code in _comparison_failure_codes(comparison)
-        }
+        {code for comparison in comparison_rows for code in _comparison_failure_codes(comparison)}
     )
     serious = str(canary_kind).casefold() in SERIOUS_CANARY_KINDS
     blocking_codes = sorted(
@@ -162,9 +154,7 @@ def build_legacy_migration_sandbox(
         },
         "dual_write_policy": {
             "status": "active",
-            "required_consecutive_weekly_closeout_baselines": (
-                REQUIRED_WEEKLY_BASELINE_COUNT
-            ),
+            "required_consecutive_weekly_closeout_baselines": (REQUIRED_WEEKLY_BASELINE_COUNT),
             "observed_consecutive_weekly_closeout_baselines": observed_baselines,
             "cutoff_allowed": observed_baselines >= REQUIRED_WEEKLY_BASELINE_COUNT,
         },
@@ -184,11 +174,7 @@ def legacy_compatible_payload(payload: Mapping[str, Any]) -> dict[str, Any]:
 def comparison_failure_codes(report: Mapping[str, Any]) -> set[str]:
     """Return all normalized failure codes from a sandbox report."""
 
-    codes = {
-        str(code)
-        for code in report.get("failure_codes", [])
-        if str(code or "").strip()
-    }
+    codes = {str(code) for code in report.get("failure_codes", []) if str(code or "").strip()}
     comparisons = report.get("comparisons")
     if isinstance(comparisons, list):
         for comparison in comparisons:
@@ -468,9 +454,7 @@ def _authority_result(
     try:
         validated = assert_runtime_emitted(deserialize_authority_envelope(envelope))
     except Exception as exc:
-        code = (
-            exc.code if isinstance(exc, AuthorityEnvelopeError) else "authority_invalid"
-        )
+        code = exc.code if isinstance(exc, AuthorityEnvelopeError) else "authority_invalid"
         return {
             "status": "fail",
             "error_code": str(code),
@@ -524,11 +508,7 @@ def _strip_top_level_keys(
     payload: Mapping[str, Any],
     keys: set[str] | frozenset[str],
 ) -> dict[str, Any]:
-    return {
-        str(key): value
-        for key, value in payload.items()
-        if str(key) not in keys
-    }
+    return {str(key): value for key, value in payload.items() if str(key) not in keys}
 
 
 def _strip_keys(payload: Mapping[str, Any], keys: set[str] | frozenset[str]) -> dict[str, Any]:
@@ -549,17 +529,11 @@ def _strip_keys(payload: Mapping[str, Any], keys: set[str] | frozenset[str]) -> 
 
 
 def _comparison_failure_codes(comparison: Mapping[str, Any]) -> set[str]:
-    codes = {
-        str(code)
-        for code in comparison.get("failure_codes", [])
-        if str(code or "").strip()
-    }
+    codes = {str(code) for code in comparison.get("failure_codes", []) if str(code or "").strip()}
     for value in comparison.values():
         if isinstance(value, Mapping):
             codes.update(
-                str(code)
-                for code in value.get("failure_codes", [])
-                if str(code or "").strip()
+                str(code) for code in value.get("failure_codes", []) if str(code or "").strip()
             )
     return codes
 

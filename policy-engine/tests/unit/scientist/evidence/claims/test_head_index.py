@@ -2570,9 +2570,7 @@ def test_historical_packet_snapshot_rejects_removed_selected_head_view(
         and not store.has_manifest_view(head_ref.artifact_id, f"sha256:{digit * 64}")
     )
     assert not store.has_manifest_view(head_ref.artifact_id, absent_profile)
-    missing_view = head_ref.model_copy(
-        update={"manifest_profile_sha256": absent_profile}
-    )
+    missing_view = head_ref.model_copy(update={"manifest_profile_sha256": absent_profile})
     assert missing_view.artifact_id == head_ref.artifact_id
     assert missing_view.kind == head_ref.kind
     assert missing_view.media_type == head_ref.media_type
@@ -2608,12 +2606,15 @@ def test_exact_artifact_reader_rejects_removed_same_blob_view(tmp_path: Path) ->
     )
     assert default_ref.artifact_id == selected_ref.artifact_id
     assert default_ref.manifest_profile_sha256 != selected_ref.manifest_profile_sha256
-    assert _read_exact_artifact(
-        store=store,
-        ref=selected_ref,
-        expected_kind="fixture.claim_profile",
-        expected_media_type="application/json",
-    ) == raw
+    assert (
+        _read_exact_artifact(
+            store=store,
+            ref=selected_ref,
+            expected_kind="fixture.claim_profile",
+            expected_media_type="application/json",
+        )
+        == raw
+    )
 
     present_profiles = {
         default_ref.manifest_profile_sha256,
@@ -2623,14 +2624,10 @@ def test_exact_artifact_reader_rejects_removed_same_blob_view(tmp_path: Path) ->
         f"sha256:{digit * 64}"
         for digit in "0123456789abcdef"
         if f"sha256:{digit * 64}" not in present_profiles
-        and not store.has_manifest_view(
-            selected_ref.artifact_id, f"sha256:{digit * 64}"
-        )
+        and not store.has_manifest_view(selected_ref.artifact_id, f"sha256:{digit * 64}")
     )
     assert not store.has_manifest_view(selected_ref.artifact_id, absent_profile)
-    missing_view = selected_ref.model_copy(
-        update={"manifest_profile_sha256": absent_profile}
-    )
+    missing_view = selected_ref.model_copy(update={"manifest_profile_sha256": absent_profile})
     assert missing_view.artifact_id == selected_ref.artifact_id
     assert missing_view.kind == selected_ref.kind
     assert missing_view.media_type == selected_ref.media_type

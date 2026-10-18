@@ -293,9 +293,7 @@ def retrieve_balanced_memories(
             "retrieved_kind_counts": _balanced_kind_counts(
                 [item.memory.kind for item in retrieved]
             ),
-            "rejected_kind_counts": _balanced_kind_counts(
-                [item.memory_kind for item in rejected]
-            ),
+            "rejected_kind_counts": _balanced_kind_counts([item.memory_kind for item in rejected]),
             "balance_status": _balance_status(retrieved),
             "authority_boundary": "future_influence_only_not_claim_evidence",
             "decay_summary": _decay_summary(retrieved, rejected),

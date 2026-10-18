@@ -237,6 +237,7 @@ def build_merged_provenance(
 
 def _load_json_payload(cas: FileSystemCAS, artifact_id: ArtifactID) -> dict[str, Any]:
     from polisyos.core.artifacts import load_core_json_artifact
+
     try:
         payload = load_core_json_artifact(cas, artifact_id)
     except (TypeError, ValueError) as exc:

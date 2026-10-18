@@ -67,9 +67,7 @@ def detect_calibration_drift(
         blocking_candidate = status == "scoped_block" or bool(record.get("blocking_permitted"))
         severity = severity_for_band(band, blocking_candidate=blocking_candidate)
         scope = normalize_scope(record.get("scope") or target_scope)
-        claim_ids = tuple_to_list(
-            [target_claim_id or str(record.get("target_claim_id") or "")]
-        )
+        claim_ids = tuple_to_list([target_claim_id or str(record.get("target_claim_id") or "")])
         memory_context = balanced_memory_context(
             balanced_memories,
             scope=scope,

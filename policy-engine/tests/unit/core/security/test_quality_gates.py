@@ -26,8 +26,7 @@ def test_report_pass_projection_can_be_suppressed_without_suppressing_failures()
         include_report_gate=False,
     )
     assert any(
-        gate["code"] == "unsafe_artifact_rendering_detected"
-        and gate["status"] == "fail"
+        gate["code"] == "unsafe_artifact_rendering_detected" and gate["status"] == "fail"
         for gate in failure_gates
     )
 

@@ -95,8 +95,7 @@ def _raise_if_body_limit_exceeded(
     if max_response_bytes is not None and size > max_response_bytes:
         raise FetchError(
             message=(
-                "HTTP response body exceeds safe limit "
-                f"({size} > {max_response_bytes} bytes)"
+                f"HTTP response body exceeds safe limit ({size} > {max_response_bytes} bytes)"
             ),
             connector_id=connector_id,
             request_params={"url": url},
@@ -104,8 +103,7 @@ def _raise_if_body_limit_exceeded(
     if max_decompressed_bytes is not None and size > max_decompressed_bytes:
         raise FetchError(
             message=(
-                "Decoded HTTP body exceeds safe limit "
-                f"({size} > {max_decompressed_bytes} bytes)"
+                f"Decoded HTTP body exceeds safe limit ({size} > {max_decompressed_bytes} bytes)"
             ),
             connector_id=connector_id,
             request_params={"url": url},
@@ -130,8 +128,7 @@ def _raise_if_secret_pii_found(payload: bytes, *, connector_id: str, url: str) -
     if result.has_findings:
         raise FetchError(
             message=(
-                "Connector response blocked by secret/PII scan: "
-                + ",".join(result.finding_kinds)
+                "Connector response blocked by secret/PII scan: " + ",".join(result.finding_kinds)
             ),
             connector_id=connector_id,
             request_params={"url": url, "secret_pii_scope": "connector_response"},

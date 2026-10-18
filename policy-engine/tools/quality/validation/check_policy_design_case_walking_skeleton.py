@@ -29,9 +29,7 @@ DEFAULT_FIXTURE = Path(
     "tests/fixtures/policy_design_case/walking_skeleton_case_contract/"
     "walking_skeleton_case_contract_pass.json"
 )
-DEFAULT_OUTPUT = Path(
-    "_build/policy-design-case/rebaseline/wave-7/walking_skeleton_readiness.json"
-)
+DEFAULT_OUTPUT = Path("_build/policy-design-case/rebaseline/wave-7/walking_skeleton_readiness.json")
 PROFILE_ORDER = ("research", "governed", "production")
 REF_PATH_EDGES = (
     "intent -> stub spine",
@@ -69,8 +67,7 @@ DOMAIN_EVIDENCE_BLOCKERS: tuple[dict[str, str], ...] = (
         "record_family": "data_source_semantic_lineage.v1",
         "owner": "team-domain-producers",
         "message": (
-            "Fabric/Data Forge source lineage evidence is not implemented by the "
-            "walking skeleton."
+            "Fabric/Data Forge source lineage evidence is not implemented by the walking skeleton."
         ),
     },
     {
@@ -123,10 +120,7 @@ def build_walking_skeleton_readiness_payload(
     repo_root = repo_root.resolve()
     fixture = _resolve_path(repo_root, fixture_path or DEFAULT_FIXTURE)
     case = _load_wave6_case(fixture)
-    profiles = {
-        profile: _profile_readiness(case, profile=profile)
-        for profile in PROFILE_ORDER
-    }
+    profiles = {profile: _profile_readiness(case, profile=profile) for profile in PROFILE_ORDER}
     exit_fence = _exit_fence(profiles)
     status = "pass" if all(exit_fence.values()) else "fail"
     output = output_path if output_path is not None else repo_root / DEFAULT_OUTPUT

@@ -401,9 +401,7 @@ class CircuitBreaker:
                 f"Circuit '{self.circuit_id}' lease '{lease_id}' was finalized twice"
             )
         if lease_id not in self._active_attempts:
-            raise CircuitLeaseError(
-                f"Circuit '{self.circuit_id}' lease '{lease_id}' is not owned"
-            )
+            raise CircuitLeaseError(f"Circuit '{self.circuit_id}' lease '{lease_id}' is not owned")
 
     def _release_half_open_lease_locked(self, lease: CircuitAttemptLease | None) -> None:
         if lease is None or not lease.owns_half_open_slot or lease.token is None:

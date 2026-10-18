@@ -140,13 +140,9 @@ def _exact_inline_id(cell: str) -> str | None:
 
 def _nonclosure_table_identity(cell: str) -> tuple[str | None, bool, bool]:
     debt_id = (
-        match.group(1)
-        if (match := re.match(r"^`([^`]+)`(?:\s*(?:—|-|:)\s*|$)", cell))
-        else None
+        match.group(1) if (match := re.match(r"^`([^`]+)`(?:\s*(?:—|-|:)\s*|$)", cell)) else None
     )
-    typed_not_a_debt = bool(
-        re.match(r"^\*\*not-a-debt\*\*(?:\s*(?:—|-|:)\s*|$)", cell)
-    )
+    typed_not_a_debt = bool(re.match(r"^\*\*not-a-debt\*\*(?:\s*(?:—|-|:)\s*|$)", cell))
     resolved_history = "**resolved-history**" in cell
     return debt_id, typed_not_a_debt, resolved_history
 
@@ -425,9 +421,7 @@ def _explicit_nonclosures(repo_root: Path, paths: list[Path]) -> list[_ExplicitN
                 match = re.match(r"^-\s+`([^`]+)`(?:\s|$)", line)
                 if match:
                     rows.append(
-                        _ExplicitNonclosure(
-                            match.group(1), False, False, relative_path, line_no
-                        )
+                        _ExplicitNonclosure(match.group(1), False, False, relative_path, line_no)
                     )
                     continue
                 cells = _cells(line)
@@ -438,8 +432,8 @@ def _explicit_nonclosures(repo_root: Path, paths: list[Path]) -> list[_ExplicitN
                     table_active = True
                     continue
                 if table_active:
-                    debt_id, typed_not_a_debt, resolved_history = (
-                        _nonclosure_table_identity(cells[0])
+                    debt_id, typed_not_a_debt, resolved_history = _nonclosure_table_identity(
+                        cells[0]
                     )
                     rows.append(
                         _ExplicitNonclosure(
@@ -1403,7 +1397,8 @@ def _audit_repository(
         status_index = declared_status_indexes.get(row.section)
         declared_status = (
             _status_token(cells[status_index])
-            if status_index is not None and len(cells) > status_index else None
+            if status_index is not None and len(cells) > status_index
+            else None
         )
         if row.status != "open_unmerged" and declared_status != "open_unmerged":
             continue
@@ -1504,9 +1499,7 @@ def _audit_repository(
     register_statuses: dict[str, set[str]] = {}
     for row in snapshot.debts:
         register_statuses.setdefault(row.debt_id, set()).add(row.status)
-    for debt_id, typed_not_a_debt, resolved_history, path, line in (
-        snapshot.explicit_nonclosures
-    ):
+    for debt_id, typed_not_a_debt, resolved_history, path, line in snapshot.explicit_nonclosures:
         if typed_not_a_debt and (debt_id is not None or resolved_history):
             findings.append(Finding("explicit_nonclosure_identity_conflict", f"{path}:{line}"))
         if debt_id is None and not typed_not_a_debt:
@@ -1549,12 +1542,10 @@ def _audit_repository(
             debt_id is not None for debt_id, _, _, _, _ in snapshot.explicit_nonclosures
         ),
         "explicit_nonclosure_typed_not_a_debt": sum(
-            typed_not_a_debt
-            for _, typed_not_a_debt, _, _, _ in snapshot.explicit_nonclosures
+            typed_not_a_debt for _, typed_not_a_debt, _, _, _ in snapshot.explicit_nonclosures
         ),
         "explicit_nonclosure_resolved_history": sum(
-            resolved_history
-            for _, _, resolved_history, _, _ in snapshot.explicit_nonclosures
+            resolved_history for _, _, resolved_history, _, _ in snapshot.explicit_nonclosures
         ),
         "explicit_nonclosure_unidentified": sum(
             debt_id is None and not typed_not_a_debt

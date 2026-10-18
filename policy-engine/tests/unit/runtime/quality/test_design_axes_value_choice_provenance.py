@@ -760,9 +760,7 @@ def _normative_harness(
         assert signature is not None
         corrupted_signature = signature.model_copy(
             update={
-                "signature_hex": (
-                    "00" if signature.signature_hex[:2] != "00" else "01"
-                )
+                "signature_hex": ("00" if signature.signature_hex[:2] != "00" else "01")
                 + signature.signature_hex[2:]
             }
         )
@@ -850,11 +848,14 @@ def test_generation_source_reader_replays_historical_schema_by_its_manifest(
         )
         assert validate_generation_cycle_run_history(historical_payload) == ()  # noqa: S101
         run_ref = put(historical_payload, manifest_schema=run_schema)
-        assert owner._read(
-            run_ref,
-            kind=s8.NORMATIVE_GENERATION_SOURCE_KIND,
-            schema=GENERATION_CYCLE_SCHEMA_VERSION,
-        ) == historical_payload
+        assert (
+            owner._read(
+                run_ref,
+                kind=s8.NORMATIVE_GENERATION_SOURCE_KIND,
+                schema=GENERATION_CYCLE_SCHEMA_VERSION,
+            )
+            == historical_payload
+        )
 
     current_schema = current_payload["schema_version"]
     v2_schema = v2_payload["schema_version"]
@@ -872,8 +873,7 @@ def test_generation_source_reader_replays_historical_schema_by_its_manifest(
     malformed_history["candidate_summaries"][0]["grounding_issue_codes"] = []
     assert malformed_history["schema_version"] == v2_schema  # noqa: S101
     assert (  # noqa: S101
-        malformed_history["strangle_receipt"]["status"]
-        == v2_payload["strangle_receipt"]["status"]
+        malformed_history["strangle_receipt"]["status"] == v2_payload["strangle_receipt"]["status"]
     )
     malformed_run = GenerationCycleRun.model_validate(malformed_history)
     assert malformed_run.schema_version == v2_schema  # noqa: S101
@@ -976,9 +976,7 @@ def test_signature_verifier_receives_a_normalized_artifact_id(tmp_path: Path) ->
             strict_identity: bool | None = None,
         ) -> artifacts.SignatureVerificationResult:
             self.artifact_ids.append(artifact_id)
-            return delegate.verify_signature(
-                artifact_id, verifier, strict_identity=strict_identity
-            )
+            return delegate.verify_signature(artifact_id, verifier, strict_identity=strict_identity)
 
     signature_verifier = RecordingVerifier()
     owner = s8.NormativeValueScheduleOwner(
@@ -1036,8 +1034,7 @@ def test_signed_owner_uses_runtime_guarded_proxy_and_executes_through_guard(
         name for name, _thread_id in owner_operations
     }
     assert all(  # noqa: S101
-        thread_id != harness["owner_call_thread_id"]
-        for _name, thread_id in owner_operations
+        thread_id != harness["owner_call_thread_id"] for _name, thread_id in owner_operations
     )
 
 

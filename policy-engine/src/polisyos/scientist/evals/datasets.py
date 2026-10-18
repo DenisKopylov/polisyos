@@ -42,9 +42,7 @@ class BenchmarkVisibility(StrEnum):
     HIDDEN = "hidden"
 
 
-BENCHMARK_AUTHORITY_SPLIT_NAMES: tuple[str, ...] = tuple(
-    item.value for item in BenchmarkSplitName
-)
+BENCHMARK_AUTHORITY_SPLIT_NAMES: tuple[str, ...] = tuple(item.value for item in BenchmarkSplitName)
 
 
 class BenchmarkDatasetDescriptor(BaseModel):

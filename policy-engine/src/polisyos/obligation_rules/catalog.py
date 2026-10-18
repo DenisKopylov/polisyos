@@ -27,10 +27,9 @@ class ObligationRuleModel(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
+
 OBLIGATION_RULE_CATALOG_SCHEMA_VERSION = "policyos.obligation_rules.catalog.v1"
-OBLIGATION_RULE_CATALOG_CONTRACT_ID = (
-    "policy_design_case.governed_obligation_rule_catalog.v1"
-)
+OBLIGATION_RULE_CATALOG_CONTRACT_ID = "policy_design_case.governed_obligation_rule_catalog.v1"
 OBLIGATION_RULE_CATALOG_KIND = "obligation_rules.governed_catalog"
 OBLIGATION_RULE_CATALOG_SCHEMA = "polisyos.obligation_rules.ObligationRuleCatalog"
 OBLIGATION_RULE_PRODUCER_OWNER = "team-policyos-runtime"
@@ -42,9 +41,7 @@ OBLIGATION_RULE_EVOLUTION_BRIDGE = (
     "polisyos.obligation_rules.build_rule_evolution_registry_for_catalog"
 )
 
-_LLM_SOURCE_CLASSES = frozenset(
-    {"llm_candidate", "llm_critic", "llm_drafter"}
-)
+_LLM_SOURCE_CLASSES = frozenset({"llm_candidate", "llm_critic", "llm_drafter"})
 
 
 class ObligationRuleGovernanceError(ValueError):
@@ -210,9 +207,7 @@ class ObligationRuleCandidate(ObligationRuleModel):
         """Require LLM provenance before a candidate can enter the catalog side-channel."""
 
         if self.source_class.value in _LLM_SOURCE_CLASSES and (
-            not self.prompt_fingerprint
-            or not self.tool_refs
-            or not self.repair_decision_lineage
+            not self.prompt_fingerprint or not self.tool_refs or not self.repair_decision_lineage
         ):
             raise ValueError(
                 "LLM rule candidates require prompt fingerprint, tool refs, "
@@ -419,9 +414,7 @@ def build_rule_evolution_registry_for_catalog(
     registry["obligation_rule_catalog_ref"] = current.catalog_ref
     registry["obligation_rule_catalog_version"] = current.catalog_version
     registry["capability_reality"]["orchestration_bridge"] = OBLIGATION_RULE_EVOLUTION_BRIDGE
-    registry["capability_reality"]["consumer"] = (
-        "polisyos.obligation_rules.select_governed_rules"
-    )
+    registry["capability_reality"]["consumer"] = "polisyos.obligation_rules.select_governed_rules"
     return registry
 
 
@@ -621,9 +614,7 @@ def _taxonomy_refs(
 ) -> list[dict[str, Any]]:
     refs: list[dict[str, Any]] = []
     for family in ObligationRuleFamily:
-        family_rules = [
-            rule for rule in governed_rules if rule.rule_family is family
-        ]
+        family_rules = [rule for rule in governed_rules if rule.rule_family is family]
         refs.append(
             {
                 "taxonomy_id": f"taxonomy.obligation_rules.{family.value}",
@@ -668,7 +659,9 @@ def _build_seed_rule(
         authority_level=str(spec["authority_level"]),
         evidence_basis=tuple(str(value) for value in spec["evidence_basis"]),
         status=ObligationRuleStatus.GOVERNED,
-        public_revalidation_effect=PublicRevalidationEffect(str(spec["public_revalidation_effect"])),
+        public_revalidation_effect=PublicRevalidationEffect(
+            str(spec["public_revalidation_effect"])
+        ),
         source_refs=tuple(str(value) for value in spec["source_refs"]),
         taxonomy_refs=(f"taxonomy.obligation_rules.{family.value}",),
         provenance_refs=tuple(str(value) for value in spec["source_refs"]),

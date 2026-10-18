@@ -322,9 +322,8 @@ class CausalQueryValidator:
                 )
             )
         if (
-            (query.continuous_time or query.event_history_required)
-            and query.censoring_assessed is not True
-        ):
+            query.continuous_time or query.event_history_required
+        ) and query.censoring_assessed is not True:
             warnings.append(
                 ValidationWarning(
                     code="FORECAST_CENSORING_UNVERIFIED",
@@ -940,9 +939,7 @@ def _check_forecast_proof_bundle(
         warnings.append(
             ValidationWarning(
                 code="FORECAST_PROOF_ORACLE_NEEDED",
-                message=(
-                    "Forecast proof attachment is still at the oracle/frontier boundary."
-                ),
+                message=("Forecast proof attachment is still at the oracle/frontier boundary."),
                 context={"implementation_coverage": proof_bundle.implementation_coverage},
             )
         )

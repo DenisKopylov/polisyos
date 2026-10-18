@@ -17,9 +17,7 @@ AUDIT_PATH = (
 
 
 def _validator() -> Any:
-    return import_module(
-        "tools.quality.validation.check_layer3_gy_connector_family_truth_audit"
-    )
+    return import_module("tools.quality.validation.check_layer3_gy_connector_family_truth_audit")
 
 
 def _load_audit() -> dict[str, Any]:

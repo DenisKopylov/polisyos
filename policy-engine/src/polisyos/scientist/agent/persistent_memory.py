@@ -392,7 +392,9 @@ class PersistentMemoryStore:
         from polisyos.core.artifacts import load_core_json_artifact
 
         with self._lock:
-            self._index = MemoryIndex.model_validate(load_core_json_artifact(self._store, index_ref))
+            self._index = MemoryIndex.model_validate(
+                load_core_json_artifact(self._store, index_ref)
+            )
             self._hydrate_index_metadata()
             self._refresh_content_hashes()
 
@@ -679,9 +681,11 @@ class PersistentMemoryStore:
 
     def _load_memory_entry(self, idx_entry: MemoryIndexEntry) -> MemoryEntry | None:
         from polisyos.core.artifacts import load_core_json_artifact
-        try:
 
-            return MemoryEntry.model_validate(load_core_json_artifact(self._store, idx_entry.artifact_ref))
+        try:
+            return MemoryEntry.model_validate(
+                load_core_json_artifact(self._store, idx_entry.artifact_ref)
+            )
         except Exception:
             return None
 

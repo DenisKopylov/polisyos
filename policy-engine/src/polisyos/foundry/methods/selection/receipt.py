@@ -18,7 +18,6 @@ if TYPE_CHECKING:
 class MethodSelectionAlternative(BaseModel):
     """One registry-resolved row from a real Foundry method-selection trace."""
 
-
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     rank: int = Field(ge=1)
@@ -32,7 +31,6 @@ class MethodSelectionAlternative(BaseModel):
 
 class MethodSelectionReceipt(BaseModel):
     """Content-bound proof emitted from the canonical Foundry selection owner."""
-
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 

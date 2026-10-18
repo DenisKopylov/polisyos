@@ -144,7 +144,6 @@ def test_shared_run_types_preserve_the_legacy_import_identity() -> None:
     assert GenerationTransition.__module__ == "polisyos.scientist.methods.search.run_state"
 
 
-
 def test_funnel_contract_keeps_full_historical_dto_surface_and_pickle_identity() -> None:
     import pickle
     from dataclasses import fields
@@ -245,8 +244,7 @@ def test_funnel_contract_keeps_full_historical_dto_surface_and_pickle_identity()
         ),
     }
     assert {
-        dto_type: tuple(field.name for field in fields(dto_type))
-        for dto_type in expected_fields
+        dto_type: tuple(field.name for field in fields(dto_type)) for dto_type in expected_fields
     } == expected_fields
 
     ticket = FunnelTicket(ticket_id="t", candidate_hash="h", candidate={}, context={})

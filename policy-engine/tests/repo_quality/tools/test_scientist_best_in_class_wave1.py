@@ -68,7 +68,4 @@ def test_scientist_wave1_gate_fails_without_reference_token(
 
     assert exit_code == 1
     assert payload["passes_all"] is False
-    assert (
-        "missing_reference_token:__missing_wave1_reference_token__"
-        in payload["notes"]
-    )
+    assert "missing_reference_token:__missing_wave1_reference_token__" in payload["notes"]

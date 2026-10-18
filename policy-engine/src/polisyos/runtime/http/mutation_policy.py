@@ -122,8 +122,7 @@ def _is_mutation_path(method: str, path: str) -> bool:
 def _uses_route_owned_idempotency(method: str, path: str) -> bool:
     """Return whether a route owns idempotency in its typed operation store."""
     return method.upper() == "POST" and (
-        path.rstrip("/") == "/api/v1/control/runs/nl"
-        or _is_run_predictive_calibration_path(path)
+        path.rstrip("/") == "/api/v1/control/runs/nl" or _is_run_predictive_calibration_path(path)
     )
 
 
@@ -401,9 +400,7 @@ class MutationProtectionMiddleware(_BaseHTTPMiddleware):
         # Keep hashing the optional X-key for audit, but never let generic cache
         # state return before the route validates its own scoped intent.
         idempotency_key = (
-            legacy_idempotency_key
-            if not _uses_route_owned_idempotency(method, path)
-            else None
+            legacy_idempotency_key if not _uses_route_owned_idempotency(method, path) else None
         )
         request_hash_value: str | None = None
         if legacy_idempotency_key:
@@ -434,8 +431,7 @@ class MutationProtectionMiddleware(_BaseHTTPMiddleware):
                         status_code=409,
                         code="idempotency_key_reused",
                         detail=(
-                            "X-Idempotency-Key cannot be reused with a different request "
-                            "payload"
+                            "X-Idempotency-Key cannot be reused with a different request payload"
                         ),
                         request_id=request_id,
                         instance=path,

@@ -42,9 +42,7 @@ def test_layer3_g8_readiness_declares_exact_artifact_contract() -> None:
         "architecture/policy_design_case/layer3_g8_registry_ratchet_delta.json",
         "architecture/policy_design_case/layer3_g8_readiness_manifest.json",
     }
-    assert set(validator.EXPECTED_MANIFEST_DRIFT_KEYS) == set(
-        g8.EXPECTED_MANIFEST_DRIFT_KEYS
-    )
+    assert set(validator.EXPECTED_MANIFEST_DRIFT_KEYS) == set(g8.EXPECTED_MANIFEST_DRIFT_KEYS)
 
 
 def test_layer3_g8_readiness_writes_and_fails_current_unmeasured_blocker_search() -> None:
@@ -61,9 +59,7 @@ def test_layer3_g8_readiness_writes_and_fails_current_unmeasured_blocker_search(
     assert summary["g8_metric_trend_report_status"] == "pass"
     assert summary["g8_effective_independence_status"] == "singular"
     assert summary["g8_effective_independent_evidence_count"] == 0
-    assert summary["g8_domain_vs_search_ceiling_status"] == (
-        "search_ceiling_repair_required"
-    )
+    assert summary["g8_domain_vs_search_ceiling_status"] == ("search_ceiling_repair_required")
     assert summary["g8_d44_reannotation_coverage_status"] == "pass"
     assert summary["g8_d44_rebasing_trigger_status"] == "pass_no_rebase_due"
     assert summary["g8_d44_rebasing_receipt_status"] == "pass_no_rebase_required"
@@ -98,9 +94,7 @@ def test_layer3_g8_write_path_must_include_every_expected_artifact(
     monkeypatch.setattr(
         validator,
         "_write_artifacts",
-        lambda _repo_root, _bundle: [
-            path.as_posix() for path in expected_paths if path != omitted
-        ],
+        lambda _repo_root, _bundle: [path.as_posix() for path in expected_paths if path != omitted],
     )
     monkeypatch.setattr(validator, "_write_json", lambda _path, _payload: None)
 

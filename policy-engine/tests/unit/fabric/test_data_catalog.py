@@ -349,9 +349,7 @@ class TestDataContractSchemaBinding:
             version=SchemaVersion(1, 0, 0),
             fields=(FieldSpec(name="gdp", data_type=SchemaType.FLOAT64),),
         )
-        payload = DataContractSchemaBinding.bind(contract, schema, "gdp").model_dump(
-            mode="python"
-        )
+        payload = DataContractSchemaBinding.bind(contract, schema, "gdp").model_dump(mode="python")
         payload["contract"]["unexpected_contract_field"] = "not-declared"
 
         with pytest.raises(ValidationError):

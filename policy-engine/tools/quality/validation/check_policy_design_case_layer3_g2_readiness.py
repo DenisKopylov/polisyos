@@ -22,18 +22,10 @@ DOCS_REFERENCE_DIR = Path("docs/reference")
 ADAPTER_ADMISSION_REGISTRY_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g2_adapter_admission_registry.json"
 )
-L2_SKG_SEARCH_LEDGERS_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g2_l2_skg_search_ledgers.json"
-)
-L2_SKG_QUERY_TRACES_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g2_l2_skg_query_traces.json"
-)
-L2_SKG_INDEX_COVERAGE_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g2_l2_skg_index_coverage.json"
-)
-SEARCH_RECALL_FRESHNESS_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g2_search_recall_freshness.json"
-)
+L2_SKG_SEARCH_LEDGERS_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g2_l2_skg_search_ledgers.json"
+L2_SKG_QUERY_TRACES_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g2_l2_skg_query_traces.json"
+L2_SKG_INDEX_COVERAGE_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g2_l2_skg_index_coverage.json"
+SEARCH_RECALL_FRESHNESS_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g2_search_recall_freshness.json"
 FOUNDRY_METHOD_REGISTRY_COVERAGE_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g2_foundry_method_registry_coverage.json"
 )
@@ -43,21 +35,11 @@ FOUNDRY_METHOD_REGISTRY_SEARCH_PATH = (
 METHOD_REQUIREMENT_BINDINGS_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g2_method_requirement_bindings.json"
 )
-METHOD_VALIDITY_TRANSPORT_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g2_method_validity_transport.json"
-)
-SEMANTIC_SPINE_BINDINGS_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g2_semantic_spine_bindings.json"
-)
-CONCEPT_ALIGNMENT_RECORDS_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g2_concept_alignment_records.json"
-)
-S10_PREREQUISITE_BINDINGS_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g2_s10_prerequisite_bindings.json"
-)
-FORECAST_SUPPORT_BINDINGS_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g2_forecast_support_bindings.json"
-)
+METHOD_VALIDITY_TRANSPORT_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g2_method_validity_transport.json"
+SEMANTIC_SPINE_BINDINGS_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g2_semantic_spine_bindings.json"
+CONCEPT_ALIGNMENT_RECORDS_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g2_concept_alignment_records.json"
+S10_PREREQUISITE_BINDINGS_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g2_s10_prerequisite_bindings.json"
+FORECAST_SUPPORT_BINDINGS_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g2_forecast_support_bindings.json"
 GROUNDED_FORECAST_HANDOFFS_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g2_grounded_forecast_handoffs.json"
 )
@@ -74,9 +56,7 @@ CAUSAL_FORECAST_AUDIT_SURFACE_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g2_causal_forecast_audit_surface.json"
 )
 HEALTH_METRIC_DELTA_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g2_health_metric_delta.toml"
-ADAPTER_CONTRACT_REGISTRY_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g2_adapter_contract_registry.toml"
-)
+ADAPTER_CONTRACT_REGISTRY_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g2_adapter_contract_registry.toml"
 READINESS_MANIFEST_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g2_readiness_manifest.json"
 
 GENERATED_ARTIFACTS_TOML_PATH = Path("architecture/generated_artifacts.toml")
@@ -154,9 +134,7 @@ def validate_layer3_g2_readiness(repo_root: Path, *, write: bool = False) -> dic
     else:
         written_artifact_paths = []
 
-    runtime_report = g2.validate_layer3_g2_bundle(root, runtime_bundle).model_dump(
-        mode="json"
-    )
+    runtime_report = g2.validate_layer3_g2_bundle(root, runtime_bundle).model_dump(mode="json")
     drift_keys = _manifest_runtime_drift_keys(root, runtime_bundle)
     issues: list[dict[str, str]] = []
     issues.extend(_normalize_issues(runtime_report.get("issues", [])))
@@ -178,9 +156,7 @@ def validate_layer3_g2_readiness(repo_root: Path, *, write: bool = False) -> dic
         "issues": normalized_issues,
         "summary": _summary(root, runtime_bundle, runtime_report, drift_keys),
         "artifacts": {
-            "expected_artifact_paths": [
-                path.as_posix() for path in EXPECTED_ARTIFACT_PATHS
-            ],
+            "expected_artifact_paths": [path.as_posix() for path in EXPECTED_ARTIFACT_PATHS],
             "written_artifact_paths": written_artifact_paths,
             "missing_persisted_artifact_paths": [
                 path.as_posix()
@@ -204,9 +180,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     report = validate_layer3_g2_readiness(args.repo_root, write=args.write)
-    rendered = (
-        _json_dumps(report) if args.output_format == "json" else _render_text_report(report)
-    )
+    rendered = _json_dumps(report) if args.output_format == "json" else _render_text_report(report)
     if args.output is not None:
         output_path = _resolve_repo_path(Path(args.repo_root).resolve(), args.output)
         atomic_write_text(output_path, rendered)
@@ -242,9 +216,7 @@ def _write_artifacts(repo_root: Path, bundle: g2.Layer3G2Bundle) -> list[str]:
         },
         FOUNDRY_METHOD_REGISTRY_COVERAGE_PATH: {
             **base,
-            "foundry_method_registry_coverage": _dump(
-                bundle.foundry_method_registry_coverage
-            ),
+            "foundry_method_registry_coverage": _dump(bundle.foundry_method_registry_coverage),
         },
         FOUNDRY_METHOD_REGISTRY_SEARCH_PATH: {
             **base,
@@ -374,7 +346,8 @@ def _validate_g1_dependency(repo_root: Path) -> list[dict[str, str]]:
         ]
     counts = _mapping(manifest.get("counts"))
     degraded = (
-        manifest.get("schema_version") != "policyos.policy_design_case.layer3_g1_substrate_grounding.v1"
+        manifest.get("schema_version")
+        != "policyos.policy_design_case.layer3_g1_substrate_grounding.v1"
         or counts.get("g0_v2_dependency_status") != "pass"
         or counts.get("g1_l1_l5_l6_index_coverage_status") != "pass"
         or counts.get("g1_search_recall_status") != "pass"
@@ -426,9 +399,8 @@ def _manifest_runtime_drift_issues(drift_keys: Sequence[str]) -> list[dict[str, 
 def _validate_registration_and_docs(repo_root: Path) -> list[dict[str, str]]:
     issues: list[dict[str, str]] = []
     generated_text = _read_text_or_empty(repo_root, GENERATED_ARTIFACTS_TOML_PATH)
-    if (
-        g2.LAYER3_G2_GENERATED_ARTIFACT_FAMILY_ID not in generated_text
-        or not all(path.as_posix() in generated_text for path in EXPECTED_ARTIFACT_PATHS)
+    if g2.LAYER3_G2_GENERATED_ARTIFACT_FAMILY_ID not in generated_text or not all(
+        path.as_posix() in generated_text for path in EXPECTED_ARTIFACT_PATHS
     ):
         issues.append(
             _issue(
@@ -462,8 +434,7 @@ def _validate_registration_and_docs(repo_root: Path) -> list[dict[str, str]]:
             (
                 item
                 for item in _sequence(inventory.get("artifacts", ()))
-                if isinstance(item, Mapping)
-                and item.get("id") == g2.LAYER3_G2_SURFACE_ID
+                if isinstance(item, Mapping) and item.get("id") == g2.LAYER3_G2_SURFACE_ID
             ),
             None,
         )
@@ -551,7 +522,11 @@ def _validate_authority_posture(bundle: g2.Layer3G2Bundle) -> list[dict[str, str
             )
         )
     gate = bundle.w12d_consumer_gate
-    if gate.closeout_claimed or gate.recommendation_authority_claimed or gate.claim_authority_claimed:
+    if (
+        gate.closeout_claimed
+        or gate.recommendation_authority_claimed
+        or gate.claim_authority_claimed
+    ):
         issues.append(
             _issue(
                 "layer3_g2_closeout_authority_leak",
@@ -590,13 +565,16 @@ def _validate_search_health(bundle: g2.Layer3G2Bundle) -> list[dict[str, str]]:
             "G2 search implementation must be indexed, bounded, deterministic, and scalable.",
         ),
         (
-            bundle.free_growth_report is not None
-            and bundle.free_growth_report.status == "pass",
+            bundle.free_growth_report is not None and bundle.free_growth_report.status == "pass",
             "layer3_g2_free_growth_fixture_failed",
             "G2 free-growth SKG/method fixture must pass.",
         ),
     )
-    return [_issue(code, "$.readiness_manifest", message) for passed, code, message in checks if not passed]
+    return [
+        _issue(code, "$.readiness_manifest", message)
+        for passed, code, message in checks
+        if not passed
+    ]
 
 
 def _validate_method_health(bundle: g2.Layer3G2Bundle) -> list[dict[str, str]]:
@@ -619,7 +597,11 @@ def _validate_method_health(bundle: g2.Layer3G2Bundle) -> list[dict[str, str]]:
             "G2 requires passing Foundry method validity transport records.",
         ),
     )
-    return [_issue(code, "$.readiness_manifest", message) for passed, code, message in checks if not passed]
+    return [
+        _issue(code, "$.readiness_manifest", message)
+        for passed, code, message in checks
+        if not passed
+    ]
 
 
 def _validate_s10_and_w12d_bridge(bundle: g2.Layer3G2Bundle) -> list[dict[str, str]]:
@@ -655,7 +637,11 @@ def _validate_s10_and_w12d_bridge(bundle: g2.Layer3G2Bundle) -> list[dict[str, s
             "G2 requires G4/G5-readable grounded forecast handoffs.",
         ),
     )
-    return [_issue(code, "$.readiness_manifest", message) for passed, code, message in checks if not passed]
+    return [
+        _issue(code, "$.readiness_manifest", message)
+        for passed, code, message in checks
+        if not passed
+    ]
 
 
 def _validate_conformance_health(bundle: g2.Layer3G2Bundle) -> list[dict[str, str]]:
@@ -843,8 +829,7 @@ def _render_text_report(report: Mapping[str, Any]) -> str:
         for issue in issues:
             if isinstance(issue, Mapping):
                 lines.append(
-                    f"- {issue.get('code', '')} {issue.get('path', '')}: "
-                    f"{issue.get('message', '')}"
+                    f"- {issue.get('code', '')} {issue.get('path', '')}: {issue.get('message', '')}"
                 )
     return "\n".join(lines).rstrip() + "\n"
 

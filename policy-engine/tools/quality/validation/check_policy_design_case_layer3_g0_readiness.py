@@ -22,14 +22,10 @@ POLICY_DESIGN_CASE_DIR = Path("architecture/policy_design_case")
 READINESS_MANIFEST_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g0_readiness_manifest.json"
 ADR_PATH = Path("docs/adr/0175-layer3-grounding-subordination-discipline.md")
 
-CAPABILITY_DATA_INVENTORY_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g0_capability_data_inventory.json"
-)
+CAPABILITY_DATA_INVENTORY_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g0_capability_data_inventory.json"
 TRIAGE_REGISTRY_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g0_triage_registry.json"
 PORT_MAP_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g0_port_map.json"
-ADAPTER_ADMISSION_REGISTRY_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_adapter_admission_registry.json"
-)
+ADAPTER_ADMISSION_REGISTRY_PATH = POLICY_DESIGN_CASE_DIR / "layer3_adapter_admission_registry.json"
 DATA_ASSET_PORTS_PATH = POLICY_DESIGN_CASE_DIR / "layer3_data_asset_ports.json"
 CONFORMANCE_HARNESS_PATH = POLICY_DESIGN_CASE_DIR / "layer3_conformance_harness.json"
 HEALTH_METRIC_LEDGERS_PATH = POLICY_DESIGN_CASE_DIR / "layer3_health_metric_ledgers.toml"
@@ -43,9 +39,7 @@ DISCOVERY_SEARCH_DISCIPLINE_PATH = (
 HARDCODE_ENUMERATION_BACKLOG_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_hardcode_enumeration_backlog.json"
 )
-ENGINEERING_QUALITY_CHECK_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_engineering_quality_check.json"
-)
+ENGINEERING_QUALITY_CHECK_PATH = POLICY_DESIGN_CASE_DIR / "layer3_engineering_quality_check.json"
 
 JSON_ARTIFACT_PATHS: tuple[Path, ...] = (
     CAPABILITY_DATA_INVENTORY_PATH,
@@ -179,9 +173,7 @@ def validate_layer3_g0_readiness(repo_root: Path, *, write: bool = False) -> dic
     try:
         runtime_report = g0.validate_layer3_g0_bundle(root, persisted).model_dump(mode="json")
     except ValidationError as error:
-        runtime_report = g0.validate_layer3_g0_bundle(root, runtime_bundle).model_dump(
-            mode="json"
-        )
+        runtime_report = g0.validate_layer3_g0_bundle(root, runtime_bundle).model_dump(mode="json")
         issues.append(
             _issue(
                 "layer3_g0_manifest_runtime_drift",
@@ -223,9 +215,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     report = validate_layer3_g0_readiness(args.repo_root, write=args.write)
-    rendered = (
-        _json_dumps(report) if args.output_format == "json" else _render_text_report(report)
-    )
+    rendered = _json_dumps(report) if args.output_format == "json" else _render_text_report(report)
     if args.output is not None:
         output_path = _resolve_path(Path(args.repo_root), args.output)
         atomic_write_text(output_path, rendered)
@@ -259,7 +249,10 @@ def _write_artifacts(repo_root: Path, bundle: g0.Layer3G0Bundle) -> None:
     _write_json(repo_root / PORT_MAP_PATH, {**base, "port_map": _dump(bundle.port_map)})
     _write_json(
         repo_root / ADAPTER_ADMISSION_REGISTRY_PATH,
-        {**base, "adapter_admission_registry": {"records": _dump(bundle.adapter_admission_registry)}},
+        {
+            **base,
+            "adapter_admission_registry": {"records": _dump(bundle.adapter_admission_registry)},
+        },
     )
     _write_json(
         repo_root / DATA_ASSET_PORTS_PATH,
@@ -333,9 +326,7 @@ def _load_persisted_bundle(repo_root: Path) -> dict[str, Any]:
         "port_map": _read_json(repo_root / PORT_MAP_PATH)["port_map"],
         "runtime_quality_touchpoints": triage["runtime_quality_touchpoints"],
         "adapter_admission_registry": _records(
-            _read_json(repo_root / ADAPTER_ADMISSION_REGISTRY_PATH)[
-                "adapter_admission_registry"
-            ]
+            _read_json(repo_root / ADAPTER_ADMISSION_REGISTRY_PATH)["adapter_admission_registry"]
         ),
         "data_asset_ports": _records(
             _read_json(repo_root / DATA_ASSET_PORTS_PATH)["data_asset_ports"]
@@ -618,14 +609,18 @@ def _dump(value: Any) -> Any:
 def _records(payload: Any) -> list[Any]:
     if isinstance(payload, Mapping):
         records = payload.get("records", [])
-        return list(records) if isinstance(records, Sequence) and not isinstance(records, str) else []
+        return (
+            list(records) if isinstance(records, Sequence) and not isinstance(records, str) else []
+        )
     return list(payload) if isinstance(payload, Sequence) and not isinstance(payload, str) else []
 
 
 def _entries(payload: Any) -> list[Any]:
     if isinstance(payload, Mapping):
         entries = payload.get("entries", [])
-        return list(entries) if isinstance(entries, Sequence) and not isinstance(entries, str) else []
+        return (
+            list(entries) if isinstance(entries, Sequence) and not isinstance(entries, str) else []
+        )
     return list(payload) if isinstance(payload, Sequence) and not isinstance(payload, str) else []
 
 
@@ -687,8 +682,7 @@ def _render_text_report(report: Mapping[str, Any]) -> str:
         for issue in issues:
             if isinstance(issue, Mapping):
                 lines.append(
-                    f"- {issue.get('code', '')} {issue.get('path', '')}: "
-                    f"{issue.get('message', '')}"
+                    f"- {issue.get('code', '')} {issue.get('path', '')}: {issue.get('message', '')}"
                 )
     return "\n".join(lines).rstrip() + "\n"
 

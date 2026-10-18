@@ -138,9 +138,7 @@ class CandidateSimulationScenarioProfile(_StrictModel):
             raise ValueError("candidate_simulation_profile_limitation_missing")
         if len(self.limitations) != len(set(self.limitations)):
             raise ValueError("candidate_simulation_profile_limitation_duplicate")
-        expected = gy_content_hash(
-            self.model_dump(mode="json", exclude={"content_hash"})
-        )
+        expected = gy_content_hash(self.model_dump(mode="json", exclude={"content_hash"}))
         if self.content_hash != expected:
             raise ValueError("candidate_simulation_profile_content_hash_mismatch")
         return self
@@ -188,9 +186,7 @@ class CandidateSimulationSyntheticModelDeclarationV1(_StrictModel):
             raise ValueError("candidate_simulation_synthetic_model_edge_self_reference")
         if self.outcome_per_target_unit == 0.0:
             raise ValueError("candidate_simulation_synthetic_model_edge_missing")
-        expected = gy_content_hash(
-            self.model_dump(mode="json", exclude={"content_hash"})
-        )
+        expected = gy_content_hash(self.model_dump(mode="json", exclude={"content_hash"}))
         if self.content_hash != expected:
             raise ValueError("candidate_simulation_synthetic_model_hash_mismatch")
         return self
@@ -299,13 +295,11 @@ def _validate_model_offer_bindings(
     ):
         raise ValueError("candidate_simulation_model_profile_binding_mismatch")
     if (
-        declaration_ref.kind
-        != "runtime.quality.candidate_simulation_model_declaration"
+        declaration_ref.kind != "runtime.quality.candidate_simulation_model_declaration"
         or declaration_ref.media_type != "application/json"
         or ncm_ref.kind != "ir.ncm_spec"
         or ncm_ref.media_type != "application/json"
-        or str(ncm_ref.artifact_id)
-        not in context.world_model_record.simulation_model_ref.ncm_refs
+        or str(ncm_ref.artifact_id) not in context.world_model_record.simulation_model_ref.ncm_refs
     ):
         raise ValueError("candidate_simulation_model_selected_ref_mismatch")
 
@@ -335,9 +329,7 @@ class CandidateScenarioMaterializationV1(_StrictModel):
 
     @model_validator(mode="after")
     def _verify_content_hash(self) -> CandidateScenarioMaterializationV1:
-        expected = gy_content_hash(
-            self.model_dump(mode="json", exclude={"content_hash"})
-        )
+        expected = gy_content_hash(self.model_dump(mode="json", exclude={"content_hash"}))
         if self.content_hash != expected:
             raise ValueError("candidate_scenario_materialization_content_hash_mismatch")
         if self.derived_n5_atom.status != "candidate_unverified":
@@ -372,9 +364,7 @@ class CandidateScenarioMaterializationV2(_StrictModel):
 
     @model_validator(mode="after")
     def _verify_content_hash(self) -> CandidateScenarioMaterializationV2:
-        expected = gy_content_hash(
-            self.model_dump(mode="json", exclude={"content_hash"})
-        )
+        expected = gy_content_hash(self.model_dump(mode="json", exclude={"content_hash"}))
         if self.content_hash != expected:
             raise ValueError("candidate_scenario_materialization_content_hash_mismatch")
         if self.derived_n5_atom.status != "candidate_unverified":
@@ -416,9 +406,7 @@ class CandidateScenarioMaterializationV3(_StrictModel):
 
     @model_validator(mode="after")
     def _verify_content_hash(self) -> CandidateScenarioMaterializationV3:
-        expected = gy_content_hash(
-            self.model_dump(mode="json", exclude={"content_hash"})
-        )
+        expected = gy_content_hash(self.model_dump(mode="json", exclude={"content_hash"}))
         if self.content_hash != expected:
             raise ValueError("candidate_scenario_materialization_content_hash_mismatch")
         if self.derived_n5_atom.status != "candidate_unverified":
@@ -475,9 +463,7 @@ class CandidateScenarioMaterializationV4(_StrictModel):
         )
         if any(ref.kind != kind or ref.media_type != "application/json" for ref, kind in refs):
             raise ValueError("candidate_scenario_materialization_owner_kind_mismatch")
-        expected = gy_content_hash(
-            self.model_dump(mode="json", exclude={"content_hash"})
-        )
+        expected = gy_content_hash(self.model_dump(mode="json", exclude={"content_hash"}))
         if self.content_hash != expected:
             raise ValueError("candidate_scenario_materialization_content_hash_mismatch")
         return self
@@ -525,9 +511,7 @@ class CandidateSimulationN5InputV2(_StrictModel):
             raise ValueError("candidate_simulation_n5_source_binding_mismatch")
         if self.n5 != self.profile.n5:
             raise ValueError("candidate_simulation_n5_config_mismatch")
-        expected = gy_content_hash(
-            self.model_dump(mode="json", exclude={"content_hash"})
-        )
+        expected = gy_content_hash(self.model_dump(mode="json", exclude={"content_hash"}))
         if self.content_hash != expected:
             raise ValueError("candidate_simulation_n5_input_content_hash_mismatch")
         return self
@@ -564,9 +548,7 @@ class CandidateSimulationExecutionV2(_StrictModel):
     def _verify_execution(self) -> CandidateSimulationExecutionV2:
         if self.k_world_ref_before != self.k_world_ref_after:
             raise ValueError("candidate_simulation_execution_changed_k_world")
-        expected = gy_content_hash(
-            self.model_dump(mode="json", exclude={"content_hash"})
-        )
+        expected = gy_content_hash(self.model_dump(mode="json", exclude={"content_hash"}))
         if self.content_hash != expected:
             raise ValueError("candidate_simulation_execution_content_hash_mismatch")
         return self
@@ -623,9 +605,7 @@ class CandidateSimulationN5InputV3(_StrictModel):
             raise ValueError("candidate_simulation_n5_source_kind_mismatch")
         if self.n5 != self.profile.n5:
             raise ValueError("candidate_simulation_n5_config_mismatch")
-        expected = gy_content_hash(
-            self.model_dump(mode="json", exclude={"content_hash"})
-        )
+        expected = gy_content_hash(self.model_dump(mode="json", exclude={"content_hash"}))
         if self.content_hash != expected:
             raise ValueError("candidate_simulation_n5_input_content_hash_mismatch")
         return self
@@ -682,9 +662,7 @@ class CandidateSimulationN5InputV4(_StrictModel):
             raise ValueError("candidate_simulation_n5_source_kind_mismatch")
         if self.n5 != self.profile.n5:
             raise ValueError("candidate_simulation_n5_config_mismatch")
-        expected = gy_content_hash(
-            self.model_dump(mode="json", exclude={"content_hash"})
-        )
+        expected = gy_content_hash(self.model_dump(mode="json", exclude={"content_hash"}))
         if self.content_hash != expected:
             raise ValueError("candidate_simulation_n5_input_content_hash_mismatch")
         return self
@@ -754,9 +732,7 @@ class CandidateSimulationN5InputV5(_StrictModel):
             != self.materialization.derived_n5_atom.causal_do_expr.write_variables[0]
         ):
             raise ValueError("candidate_simulation_n5_selected_target_mismatch")
-        expected = gy_content_hash(
-            self.model_dump(mode="json", exclude={"content_hash"})
-        )
+        expected = gy_content_hash(self.model_dump(mode="json", exclude={"content_hash"}))
         if self.content_hash != expected:
             raise ValueError("candidate_simulation_n5_input_content_hash_mismatch")
         return self
@@ -804,9 +780,7 @@ class CandidateSimulationExecutionV3(_StrictModel):
             or self.n5_result_ref.media_type != "application/json"
         ):
             raise ValueError("candidate_simulation_execution_owner_kind_mismatch")
-        expected = gy_content_hash(
-            self.model_dump(mode="json", exclude={"content_hash"})
-        )
+        expected = gy_content_hash(self.model_dump(mode="json", exclude={"content_hash"}))
         if self.content_hash != expected:
             raise ValueError("candidate_simulation_execution_content_hash_mismatch")
         return self
@@ -854,9 +828,7 @@ class CandidateSimulationExecutionV4(_StrictModel):
             or self.n5_result_ref.media_type != "application/json"
         ):
             raise ValueError("candidate_simulation_execution_owner_kind_mismatch")
-        expected = gy_content_hash(
-            self.model_dump(mode="json", exclude={"content_hash"})
-        )
+        expected = gy_content_hash(self.model_dump(mode="json", exclude={"content_hash"}))
         if self.content_hash != expected:
             raise ValueError("candidate_simulation_execution_content_hash_mismatch")
         return self
@@ -910,9 +882,7 @@ class CandidateSimulationExecutionV5(_StrictModel):
             )
         ):
             raise ValueError("candidate_simulation_execution_owner_kind_mismatch")
-        expected = gy_content_hash(
-            self.model_dump(mode="json", exclude={"content_hash"})
-        )
+        expected = gy_content_hash(self.model_dump(mode="json", exclude={"content_hash"}))
         if self.content_hash != expected:
             raise ValueError("candidate_simulation_execution_content_hash_mismatch")
         return self

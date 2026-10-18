@@ -320,8 +320,7 @@ def test_temporal_rpc_status_controls_fallback_disposition(monkeypatch: pytest.M
     denied = _FakeRPCError("PERMISSION_DENIED")
     transient = _FakeRPCError("UNAVAILABLE")
     assert (
-        temporal_runner_module._temporal_probe_disposition(denied)
-        is HealthFailureDisposition.BLOCK
+        temporal_runner_module._temporal_probe_disposition(denied) is HealthFailureDisposition.BLOCK
     )
     assert (
         temporal_runner_module._temporal_probe_disposition(transient)

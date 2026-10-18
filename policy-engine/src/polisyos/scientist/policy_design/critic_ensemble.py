@@ -146,18 +146,14 @@ def _with_verdict_ids(
     assigned: list[CriticVerdict] = []
     for index, verdict in enumerate(verdicts):
         if verdict.envelope != envelope:
-            raise ValueError(
-                "critic verdict envelope does not match the evaluating critic"
-            )
+            raise ValueError("critic verdict envelope does not match the evaluating critic")
         if verdict.verdict_id is not None:
             assigned.append(verdict)
             continue
         verdict_digest = fingerprint_payload(verdict.signature).removeprefix("sha256:")[:16]
         assigned.append(
             verdict.model_copy(
-                update={
-                    "verdict_id": f"verdict_{envelope.critic_role}_{index}_{verdict_digest}"
-                }
+                update={"verdict_id": f"verdict_{envelope.critic_role}_{index}_{verdict_digest}"}
             )
         )
     return tuple(assigned)
@@ -197,8 +193,7 @@ def _summarise_diversity(
             CriticDiversityWarning(
                 code="critic_monoculture_identical_output",
                 message=(
-                    "All critics emitted the same agree verdict with identical "
-                    "substantive output."
+                    "All critics emitted the same agree verdict with identical substantive output."
                 ),
             )
         )

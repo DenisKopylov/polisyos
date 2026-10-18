@@ -204,9 +204,7 @@ def test_served_replay_reads_owner_session_and_denies_foreign_tenant(
                 dataset_id=_DATASET_ID,
             ).to_dict()
         ],
-        connector_datasets=[
-            {"connector_id": _CONNECTOR_ID, "dataset_id": _DATASET_ID}
-        ],
+        connector_datasets=[{"connector_id": _CONNECTOR_ID, "dataset_id": _DATASET_ID}],
         recorded_at="2026-09-28T00:00:00+00:00",
     )
 
@@ -225,9 +223,7 @@ def test_served_replay_reads_owner_session_and_denies_foreign_tenant(
                 "/api/v1/control/data/ingest",
                 headers=headers,
                 json={
-                    "datasets": [
-                        {"connector_id": _CONNECTOR_ID, "dataset_id": _DATASET_ID}
-                    ],
+                    "datasets": [{"connector_id": _CONNECTOR_ID, "dataset_id": _DATASET_ID}],
                     "source": "r13-tenant-custody",
                     "license_name": "MIT",
                     "execution_mode": "batch_full",
@@ -250,13 +246,10 @@ def test_served_replay_reads_owner_session_and_denies_foreign_tenant(
 
         response_b = post(token_b, tenant_b)
         assert response_b.status_code == 403
-        assert response_b.headers.get("content-type", "").startswith(
-            "application/problem+json"
-        )
+        assert response_b.headers.get("content-type", "").startswith("application/problem+json")
         assert response_b.json()["code"] == "ingestion_artifact_ownership_denied"
         assert len(simulator_instances) == 1
         assert simulator_instances[0].call_count == 1
-
 
 
 def _read_connector_cache_row(index_path: Path) -> tuple[str, str, str]:
@@ -342,9 +335,9 @@ def test_served_replay_keeps_connector_cache_sidecars_tenant_local(
     request_hash = _request_hash("GET", request_url, "none", b"")
 
     def persist_session(store: Any, *, tenant_id: str, marker: str) -> str:
-        response_body = json.dumps(
-            [{"value": 1, "marker": marker}], separators=(",", ":")
-        ).encode("utf-8")
+        response_body = json.dumps([{"value": 1, "marker": marker}], separators=(",", ":")).encode(
+            "utf-8"
+        )
         session = RecordSession(
             session_id=f"r13-{tenant_id}-cache-session",
             fixtures=[
@@ -360,9 +353,7 @@ def test_served_replay_keeps_connector_cache_sidecars_tenant_local(
                     dataset_id=_DATASET_ID,
                 ).to_dict()
             ],
-            connector_datasets=[
-                {"connector_id": _CONNECTOR_ID, "dataset_id": _DATASET_ID}
-            ],
+            connector_datasets=[{"connector_id": _CONNECTOR_ID, "dataset_id": _DATASET_ID}],
             recorded_at="2026-09-28T00:00:00+00:00",
         )
         with tenant_scope(None, tenant_id=tenant_id, cell_id=cell.cell_id):
@@ -374,9 +365,7 @@ def test_served_replay_keeps_connector_cache_sidecars_tenant_local(
             "/api/v1/control/data/ingest",
             headers=_auth_headers(token, tenant_id, client=client),
             json={
-                "datasets": [
-                    {"connector_id": _CONNECTOR_ID, "dataset_id": _DATASET_ID}
-                ],
+                "datasets": [{"connector_id": _CONNECTOR_ID, "dataset_id": _DATASET_ID}],
                 "source": "r13-cache-sidecar",
                 "license_name": "MIT",
                 "execution_mode": "batch_full",
@@ -392,28 +381,21 @@ def test_served_replay_keeps_connector_cache_sidecars_tenant_local(
         assert container.control_service._artifact_store is store
         store_root = Path(store.root).resolve()
         assert store_root == Path(runtime_api_env["cas_root"]).resolve()
-        session_a_ref = persist_session(
-            store, tenant_id=tenant_a, marker="tenant-a-cache-payload"
-        )
-        session_b_ref = persist_session(
-            store, tenant_id=tenant_b, marker="tenant-b-cache-payload"
-        )
+        session_a_ref = persist_session(store, tenant_id=tenant_a, marker="tenant-a-cache-payload")
+        session_b_ref = persist_session(store, tenant_id=tenant_b, marker="tenant-b-cache-payload")
 
         response_a_first = post(client, token_a, tenant_a, session_a_ref)
         assert response_a_first.status_code == 200, response_a_first.text
         assert response_a_first.json()["status"] == "completed"
-        index_a = (
-            store_root
-            / "tenants"
-            / tenant_a
-            / "connector_cache"
-            / "cache_index.sqlite3"
-        )
+        index_a = store_root / "tenants" / tenant_a / "connector_cache" / "cache_index.sqlite3"
         row_a_first = _read_connector_cache_row(index_a)
         assert row_a_first[2] == _DATASET_ID
-        assert _read_connector_cache_marker(
-            store, row_a_first, tenant_id=tenant_a, cell_id=cell.cell_id
-        ) == "tenant-a-cache-payload"
+        assert (
+            _read_connector_cache_marker(
+                store, row_a_first, tenant_id=tenant_a, cell_id=cell.cell_id
+            )
+            == "tenant-a-cache-payload"
+        )
 
         # Same-tenant control: a repeated served request remains usable and the
         # one logical cache key still resolves to tenant A's own result.
@@ -422,33 +404,34 @@ def test_served_replay_keeps_connector_cache_sidecars_tenant_local(
         assert response_a_again.json()["status"] == "completed"
         row_a_control = _read_connector_cache_row(index_a)
         assert row_a_control[0] == row_a_first[0]
-        assert _read_connector_cache_marker(
-            store, row_a_control, tenant_id=tenant_a, cell_id=cell.cell_id
-        ) == "tenant-a-cache-payload"
+        assert (
+            _read_connector_cache_marker(
+                store, row_a_control, tenant_id=tenant_a, cell_id=cell.cell_id
+            )
+            == "tenant-a-cache-payload"
+        )
 
         # Tenant B makes the same connector request with its own authorized replay.
         # If sidecar scope is removed, this same cache key overwrites A's row.
         response_b = post(client, token_b, tenant_b, session_b_ref)
         assert response_b.status_code == 200, response_b.text
         assert response_b.json()["status"] == "completed"
-        index_b = (
-            store_root
-            / "tenants"
-            / tenant_b
-            / "connector_cache"
-            / "cache_index.sqlite3"
-        )
+        index_b = store_root / "tenants" / tenant_b / "connector_cache" / "cache_index.sqlite3"
         assert index_a != index_b
         row_a_after_b = _read_connector_cache_row(index_a)
         row_b = _read_connector_cache_row(index_b)
         assert row_a_after_b == row_a_control
         assert row_b[0] == row_a_control[0]
         assert row_b[1] != row_a_control[1]
-        assert _read_connector_cache_marker(
-            store, row_a_after_b, tenant_id=tenant_a, cell_id=cell.cell_id
-        ) == "tenant-a-cache-payload"
-        assert _read_connector_cache_marker(
-            store, row_b, tenant_id=tenant_b, cell_id=cell.cell_id
-        ) == "tenant-b-cache-payload"
+        assert (
+            _read_connector_cache_marker(
+                store, row_a_after_b, tenant_id=tenant_a, cell_id=cell.cell_id
+            )
+            == "tenant-a-cache-payload"
+        )
+        assert (
+            _read_connector_cache_marker(store, row_b, tenant_id=tenant_b, cell_id=cell.cell_id)
+            == "tenant-b-cache-payload"
+        )
         assert len(simulators) == 3
         assert all(simulator.call_count == 1 for simulator in simulators)

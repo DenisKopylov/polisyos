@@ -16,7 +16,9 @@ from polisyos.scientist.methods.doe.designs import (
 )
 
 
-def test_grid_extreme_materializes_only_the_declared_prefix(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_grid_extreme_materializes_only_the_declared_prefix(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """The capped GRID_EXTREME prefix must not enumerate the full product first."""
     original_product = sampling_module.itertools.product
     yielded = 0
@@ -30,8 +32,7 @@ def test_grid_extreme_materializes_only_the_declared_prefix(monkeypatch: pytest.
     monkeypatch.setattr(sampling_module.itertools, "product", counted_product)
     plan = AdversarialPlan(
         parameter_specs=[
-            ParameterSpec(name=f"x{i}", lower_bound=0.0, upper_bound=1.0)
-            for i in range(12)
+            ParameterSpec(name=f"x{i}", lower_bound=0.0, upper_bound=1.0) for i in range(12)
         ],
         strategy=AdversarialStrategy.GRID_EXTREME,
         max_iterations=3,

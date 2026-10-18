@@ -135,13 +135,9 @@ def _welfare_payload(**overrides: object) -> dict[str, object]:
         "candidate_design_ref": "candidate://ua-msme/targeted-credit",
         "baseline_design_ref": "baseline://ua-msme/no-new-credit",
         "alternative_design_refs": ["alternative://ua-msme/cash-transfer"],
-        "outcome_distribution_refs": [
-            "pdc://layer2/s10/ua-msme/distribution/credit-access"
-        ],
+        "outcome_distribution_refs": ["pdc://layer2/s10/ua-msme/distribution/credit-access"],
         "s8_value_choice_provenance_ref": "pdc://layer2/s8/ua-msme/value-choice-provenance",
-        "s8_value_tradeoff_disclosure_ref": (
-            "pdc://layer2/s8/ua-msme/value-tradeoff-disclosure"
-        ),
+        "s8_value_tradeoff_disclosure_ref": ("pdc://layer2/s8/ua-msme/value-tradeoff-disclosure"),
         "pareto_archive_ref": "pdc://layer2/s8/ua-msme/pareto-archive",
         "authorized_value_schedule_ref": "pdc://layer2/s8/ua-msme/value-schedule",
         "social_weight_provenance_refs": ["foundry://welfare/social-weight-provenance"],
@@ -153,9 +149,7 @@ def _welfare_payload(**overrides: object) -> dict[str, object]:
         "scalar_summary_allowed": False,
         "scalar_welfare_summary_ref": None,
         "pareto_frontier_ref": "foundry://welfare/frontier/ua-msme",
-        "rejected_nondominated_alternative_refs": [
-            "alternative://ua-msme/cash-transfer"
-        ],
+        "rejected_nondominated_alternative_refs": ["alternative://ua-msme/cash-transfer"],
         "limitation_refs": ["limitation://value-choice-bounded"],
         "authority_boundary": _authority_boundary(
             authoritative_for=["value_grounded_welfare_comparison"]
@@ -189,18 +183,14 @@ def _forecast_support_payload(**overrides: object) -> dict[str, object]:
         "s6_firewall_status_refs": ["pdc://layer2/s6/ua-msme/measurability-adequacy"],
         "s6_limitation_refs": ["pdc://layer2/s6/ua-msme/strategic-response-limitation"],
         "s8_value_choice_provenance_ref": "pdc://layer2/s8/ua-msme/value-choice-provenance",
-        "s8_value_tradeoff_disclosure_ref": (
-            "pdc://layer2/s8/ua-msme/value-tradeoff-disclosure"
-        ),
+        "s8_value_tradeoff_disclosure_ref": ("pdc://layer2/s8/ua-msme/value-tradeoff-disclosure"),
         "source_contract_ref": "source-contract://ua-msme/panel",
         "method_validity_ref": "method-validity://foundry/causal/local",
         "sensitivity_analysis_ref": "sensitivity://ua-msme/credit-access",
         "dynamic_equilibrium_check_ref": "equilibrium-check://ua-msme/system-effect",
         "equilibrium_caveat_refs": ["caveat://partial-equilibrium"],
         "strategic_response_caveat_refs": ["caveat://strategic-response"],
-        "outcome_distribution_refs": [
-            "pdc://layer2/s10/ua-msme/distribution/credit-access"
-        ],
+        "outcome_distribution_refs": ["pdc://layer2/s10/ua-msme/distribution/credit-access"],
         "welfare_comparison_ref": "pdc://layer2/s10/ua-msme/welfare-comparison",
         "forecast_tier": "observable_calibrated",
         "forecast_authority_disposition_reason": (
@@ -212,9 +202,7 @@ def _forecast_support_payload(**overrides: object) -> dict[str, object]:
         "uncertainty_interval_refs": ["interval://ua-msme/credit-access/95"],
         "limitation_refs": ["limitation://forecast/support-only"],
         "abstention_refs": [],
-        "authority_boundary": _authority_boundary(
-            authoritative_for=["forecast_support_tiering"]
-        ),
+        "authority_boundary": _authority_boundary(authoritative_for=["forecast_support_tiering"]),
         "may_not_use_for": _authority_boundary()["may_not_use_for"],
         "rule_version_ref": S10_RULE_VERSION_REF,
     }
@@ -231,9 +219,7 @@ def test_forecast_support_requires_s5_s6_s8_authority_inputs() -> None:
         "s8_value_choice_provenance_ref": None,
     }.items():
         with pytest.raises(ValueError, match=r"S5|S6|S8|authority"):
-            build_forecast_support(
-                **_forecast_support_payload(**{broken_field: broken_value})
-            )
+            build_forecast_support(**_forecast_support_payload(**{broken_field: broken_value}))
 
 
 def test_ets_forecast_support_is_predictive_family_with_source_denials() -> None:
@@ -246,9 +232,7 @@ def test_ets_forecast_support_is_predictive_family_with_source_denials() -> None
     ]
     payload = _forecast_support_payload(
         method_family="foundry_forecast",
-        authority_boundary=_authority_boundary(
-            authoritative_for=["forecast_support_tiering"]
-        ),
+        authority_boundary=_authority_boundary(authoritative_for=["forecast_support_tiering"]),
         may_not_use_for=[
             *source_denials,
             *_authority_boundary()["may_not_use_for"],
@@ -259,9 +243,7 @@ def test_ets_forecast_support_is_predictive_family_with_source_denials() -> None
 
     assert support.method_family == "foundry_forecast"
     assert set(source_denials) <= set(support.may_not_use_for)
-    assert set(support.authority_boundary.authoritative_for) == {
-        "forecast_support_tiering"
-    }
+    assert set(support.authority_boundary.authoritative_for) == {"forecast_support_tiering"}
 
 
 def test_forecast_support_requires_design_graph_and_prediction_context_refs() -> None:
@@ -269,9 +251,7 @@ def test_forecast_support_requires_design_graph_and_prediction_context_refs() ->
 
     for broken_field in ("design_graph_ref", "prediction_context_ref"):
         with pytest.raises(ValueError, match=r"design_graph|prediction_context"):
-            build_forecast_support(
-                **_forecast_support_payload(**{broken_field: None})
-            )
+            build_forecast_support(**_forecast_support_payload(**{broken_field: None}))
 
 
 def test_forecast_authority_disposition_is_derived_from_s5_dictionary() -> None:
@@ -309,9 +289,7 @@ def test_observable_calibration_requires_credible_evaluation_evidence() -> None:
     build_calibration_record = _s10("build_forecast_calibration_record")
 
     with pytest.raises(ValueError, match=r"credible_evaluation|counterfactual"):
-        build_calibration_record(
-            **_calibration_payload(credible_evaluation_evidence_ref=None)
-        )
+        build_calibration_record(**_calibration_payload(credible_evaluation_evidence_ref=None))
 
 
 def test_equilibrium_contested_refuses_single_point_forecast() -> None:
@@ -440,7 +418,9 @@ def test_transport_without_limitation_is_rejected() -> None:
         )
 
 
-def test_forecast_support_rejects_nested_forbidden_authoritative_for_with_complete_top_level_denials() -> None:
+def test_forecast_support_rejects_nested_forbidden_authoritative_for_with_complete_top_level_denials() -> (
+    None
+):
     forecast_support = _s10("ForecastSupport")
 
     with pytest.raises(ValueError, match=r"production_recommendation"):
@@ -453,7 +433,9 @@ def test_forecast_support_rejects_nested_forbidden_authoritative_for_with_comple
         )
 
 
-def test_forecast_calibration_rejects_nested_forbidden_authoritative_for_with_complete_top_level_denials() -> None:
+def test_forecast_calibration_rejects_nested_forbidden_authoritative_for_with_complete_top_level_denials() -> (
+    None
+):
     calibration_record = _s10("ForecastCalibrationRecord")
 
     with pytest.raises(ValueError, match=r"production_recommendation"):
@@ -470,9 +452,7 @@ def test_forecast_support_rejects_missing_nested_denial_with_complete_top_level_
     forecast_support = _s10("ForecastSupport")
     nested_boundary = _authority_boundary()
     nested_boundary["may_not_use_for"] = [
-        item
-        for item in nested_boundary["may_not_use_for"]
-        if item != "production_recommendation"
+        item for item in nested_boundary["may_not_use_for"] if item != "production_recommendation"
     ]
 
     with pytest.raises(ValueError, match=r"production_recommendation"):
@@ -481,22 +461,22 @@ def test_forecast_support_rejects_missing_nested_denial_with_complete_top_level_
         )
 
 
-def test_forecast_calibration_rejects_missing_nested_denial_with_complete_top_level_denials() -> None:
+def test_forecast_calibration_rejects_missing_nested_denial_with_complete_top_level_denials() -> (
+    None
+):
     calibration_record = _s10("ForecastCalibrationRecord")
     nested_boundary = _authority_boundary()
     nested_boundary["may_not_use_for"] = [
-        item
-        for item in nested_boundary["may_not_use_for"]
-        if item != "production_recommendation"
+        item for item in nested_boundary["may_not_use_for"] if item != "production_recommendation"
     ]
 
     with pytest.raises(ValueError, match=r"production_recommendation"):
-        calibration_record.model_validate(
-            _calibration_payload(authority_boundary=nested_boundary)
-        )
+        calibration_record.model_validate(_calibration_payload(authority_boundary=nested_boundary))
 
 
-def test_prediction_authority_envelope_blocks_nested_forbidden_authority_on_existing_instance() -> None:
+def test_prediction_authority_envelope_blocks_nested_forbidden_authority_on_existing_instance() -> (
+    None
+):
     forecast_support = _s10("ForecastSupport")
     calibration_record = _s10("ForecastCalibrationRecord")
     verify_envelope = _s10("verify_prediction_authority_envelope")
@@ -506,9 +486,7 @@ def test_prediction_authority_envelope_blocks_nested_forbidden_authority_on_exis
     malformed_boundary = support.authority_boundary.model_copy(
         update={"authoritative_for": ["production_recommendation"]}
     )
-    malformed_support = support.model_copy(
-        update={"authority_boundary": malformed_boundary}
-    )
+    malformed_support = support.model_copy(update={"authority_boundary": malformed_boundary})
 
     envelope = verify_envelope(
         forecast_support=malformed_support,
@@ -519,7 +497,9 @@ def test_prediction_authority_envelope_blocks_nested_forbidden_authority_on_exis
     assert "s10_prediction_authority_laundering" in envelope.issue_codes
 
 
-def test_prediction_authority_envelope_blocks_nested_forbidden_calibration_authority_on_existing_instance() -> None:
+def test_prediction_authority_envelope_blocks_nested_forbidden_calibration_authority_on_existing_instance() -> (
+    None
+):
     forecast_support = _s10("ForecastSupport")
     calibration_record = _s10("ForecastCalibrationRecord")
     verify_envelope = _s10("verify_prediction_authority_envelope")
@@ -570,9 +550,7 @@ def test_prediction_authority_envelope_blocks_mismatched_calibration_record_ref(
 
     support = forecast_support.model_validate(_forecast_support_payload())
     calibration = calibration_record.model_validate(
-        _calibration_payload(
-            calibration_ref="pdc://layer2/s10/ua-msme/calibration/foreign-record"
-        )
+        _calibration_payload(calibration_ref="pdc://layer2/s10/ua-msme/calibration/foreign-record")
     )
 
     envelope = verify_envelope(
@@ -624,7 +602,9 @@ def test_prediction_authority_envelope_blocks_missing_record_denials_on_existing
     assert envelope.authority_boundary.authoritative_for == ["none"]
 
 
-def test_prediction_authority_envelope_blocks_missing_nested_boundary_on_existing_instance() -> None:
+def test_prediction_authority_envelope_blocks_missing_nested_boundary_on_existing_instance() -> (
+    None
+):
     forecast_support = _s10("ForecastSupport")
     calibration_record = _s10("ForecastCalibrationRecord")
     verify_envelope = _s10("verify_prediction_authority_envelope")

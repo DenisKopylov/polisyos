@@ -12,9 +12,7 @@ from typing import Any, Literal, Protocol, runtime_checkable
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-REQUIREMENT_TO_CAPABILITY_QUERY_SCHEMA_VERSION = (
-    "policyos.requirement_to_capability_query.v1"
-)
+REQUIREMENT_TO_CAPABILITY_QUERY_SCHEMA_VERSION = "policyos.requirement_to_capability_query.v1"
 
 AuthorityPosture = Literal["research", "governed_pilot", "production"]
 

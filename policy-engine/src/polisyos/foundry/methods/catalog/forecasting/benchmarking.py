@@ -945,7 +945,9 @@ def run_regime_shift_calibration_benchmark(
                                     continue
 
                                 bundle = result["regime_shift_forecast_bundle"]
-                                detected = tuple(int(value) for value in result["result"]["breakpoints"])
+                                detected = tuple(
+                                    int(value) for value in result["result"]["breakpoints"]
+                                )
                                 lookup = _interval_lookup(bundle)
                                 observed_coverage: dict[int, float | None] = {}
                                 interval_score: dict[int, float | None] = {}
@@ -958,7 +960,9 @@ def run_regime_shift_calibration_benchmark(
                                     actual = float(future[h - 1])
                                     observed_coverage[h] = (
                                         1.0
-                                        if _actual_is_covered(actual, interval.lower, interval.upper)
+                                        if _actual_is_covered(
+                                            actual, interval.lower, interval.upper
+                                        )
                                         else 0.0
                                     )
                                     interval_score[h] = _interval_score(
@@ -972,7 +976,9 @@ def run_regime_shift_calibration_benchmark(
                                     detected,
                                 )
                                 coverage_values = [
-                                    value for value in observed_coverage.values() if value is not None
+                                    value
+                                    for value in observed_coverage.values()
+                                    if value is not None
                                 ]
                                 future_coverage_ok = (
                                     len(coverage_values) < 10

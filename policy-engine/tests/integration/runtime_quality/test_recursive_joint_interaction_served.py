@@ -48,10 +48,7 @@ async def test_three_atom_parent_n5_is_persisted_and_fresh_get_keeps_uncertainty
 
     helper_name = "tests._helpers.generic_n4_served_replay"
     helper_path = (
-        Path(__file__).resolve().parents[3]
-        / "tests"
-        / "_helpers"
-        / "generic_n4_served_replay.py"
+        Path(__file__).resolve().parents[3] / "tests" / "_helpers" / "generic_n4_served_replay.py"
     )
     helper_spec = importlib.util.spec_from_file_location(helper_name, helper_path)
     assert helper_spec is not None and helper_spec.loader is not None
@@ -77,9 +74,7 @@ async def test_three_atom_parent_n5_is_persisted_and_fresh_get_keeps_uncertainty
         if len(intervention) == 3:
             value = 1.0 if seed == prepared.root_profile.n5.seed else -1.0
         return {
-            "counterfactual_result": {
-                "world_summaries": [{query.query_vars[0]: {"mean": value}}]
-            }
+            "counterfactual_result": {"world_summaries": [{query.query_vars[0]: {"mean": value}}]}
         }
 
     monkeypatch.setattr(NCMEngineMethod, "pure_step", staticmethod(controlled_ncm_step))
@@ -94,10 +89,7 @@ async def test_three_atom_parent_n5_is_persisted_and_fresh_get_keeps_uncertainty
             sort_keys=True,
             separators=(",", ":"),
         )
-        idempotency_key = (
-            "test-r218-"
-            + hashlib.sha256(request_json.encode("utf-8")).hexdigest()
-        )
+        idempotency_key = "test-r218-" + hashlib.sha256(request_json.encode("utf-8")).hexdigest()
         response = client.post(
             "/api/v1/control/runs/nl",
             headers={
@@ -139,9 +131,7 @@ async def test_three_atom_parent_n5_is_persisted_and_fresh_get_keeps_uncertainty
     assert len(parent["n8_candidate_parent_atom_content_hashes"]) == 3
     assert parent["n8_candidate_parent_intervention_ids"] == parent["atom_ids"]
     assert len(parent["n8_candidate_parent_child_refs"]) == 3
-    assert parent["n8_candidate_member_basis"] == (
-        "hypothetical_all_unique_n4_source_members"
-    )
+    assert parent["n8_candidate_member_basis"] == ("hypothetical_all_unique_n4_source_members")
     assert parent["n8_source_candidate_relationship"] == "alternatives"
     assert parent["n8_policy_composition_status"] == "not_established"
     assert parent["n8_policy_composition_limitation_code"] == (

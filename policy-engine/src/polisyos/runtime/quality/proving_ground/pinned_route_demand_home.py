@@ -448,9 +448,7 @@ def build_layer3_gx_concept_alias_graph_artifact(
     construct_by_ref = {
         row.construct_ref: row
         for row in (
-            loaded.pinned_request.requested_constructs
-            if loaded.pinned_request is not None
-            else ()
+            loaded.pinned_request.requested_constructs if loaded.pinned_request is not None else ()
         )
     }
     scope_values = {row.scope_key: row.value for row in loaded.scope_rows}
@@ -666,11 +664,7 @@ def build_g5_demand_pull_dict_from_data_home(
             "attempted_grounding_path_refs": (),
         }
     demand = loaded.demand_pull_request
-    principal_refs = (
-        (demand.accountable_principal_ref,)
-        if demand.accountable_principal_ref
-        else ()
-    )
+    principal_refs = (demand.accountable_principal_ref,) if demand.accountable_principal_ref else ()
     return {
         "status": "pass",
         "authority_purpose": "demand_pull_input_only",
@@ -723,10 +717,7 @@ def resolve_layer3_gx_data_home_selection(
         selected = _find_case_registry_row(registry, requested)
         if selected is None:
             known = sorted(
-                {
-                    row.case_id
-                    for row in registry.cases
-                }
+                {row.case_id for row in registry.cases}
                 | {alias for row in registry.cases for alias in row.aliases}
             )
             raise ValueError(
@@ -944,9 +935,7 @@ def _skg_concept_alias_measurements(
                 "source_layer_refs": _dedupe_strs(source_layer_refs),
                 "jurisdiction_constraints": jurisdiction_constraints,
                 "validity_limits": ("measurement_root_alias_not_source_contract",),
-                "producer_owner": (
-                    "polisyos.data_forge.domains.academic.knowledge.SKGQuery",
-                ),
+                "producer_owner": ("polisyos.data_forge.domains.academic.knowledge.SKGQuery",),
                 "resolved_corpus_row_refs": _dedupe_strs((*variable_refs, *context_refs)),
             }
         return measurements
@@ -1086,9 +1075,7 @@ def _non_empty_list(value: str | None) -> list[str]:
 
 
 def _dedupe_strs(values: Iterable[object]) -> tuple[str, ...]:
-    return tuple(
-        dict.fromkeys(str(value).strip() for value in values if str(value or "").strip())
-    )
+    return tuple(dict.fromkeys(str(value).strip() for value in values if str(value or "").strip()))
 
 
 def _repo_root() -> Path:

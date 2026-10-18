@@ -12,9 +12,7 @@ from tools.quality.validation import build_policy_design_case_wave40_readiness a
 from tools.quality.validation import check_policy_design_case_wave40_readiness as check
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-MATRIX_PATH = Path(
-    "_build/policy-design-case/rebaseline/wave-36/deterministic_canary_matrix.json"
-)
+MATRIX_PATH = Path("_build/policy-design-case/rebaseline/wave-36/deterministic_canary_matrix.json")
 SERIOUS_LANE_ID = (
     "profile-research__provider-simulated__data-canonical_production"
     "__scenario-public_golden__ui-api_only"
@@ -48,9 +46,9 @@ def test_wave40_build_records_final_readiness_bundle_coverage_and_exit_fence(
     assert closeout["coverage"]["summary"]["target_failure_count"] == 0
     assert closeout["static_inventory"]["counts_toward_runtime_closeout"] is False
     assert closeout["sdd_record_family_mapping"]["status"] == "pass"
-    assert closeout["sdd_record_family_mapping"]["runtime_record_family_coverage"][
-        "status"
-    ] == "pass"
+    assert (
+        closeout["sdd_record_family_mapping"]["runtime_record_family_coverage"]["status"] == "pass"
+    )
     assert closeout["pass1b_closeout"]["status"] == "pass"
     assert exit_fence["status"] == "pass"
     assert exit_fence["readiness_serious_failure_count"] == 0
@@ -242,9 +240,7 @@ def _readiness_payload() -> dict[str, object]:
         "minimum_closeout_gate_warnings": [],
         "component_failures": [],
         "component_warnings": [],
-        "serious_evidence_bundles": [
-            {"source": "matrix_run_json", "root": "serious-bundle"}
-        ],
+        "serious_evidence_bundles": [{"source": "matrix_run_json", "root": "serious-bundle"}],
     }
 
 
@@ -330,8 +326,7 @@ def _registry_report() -> dict[str, object]:
             "validate_policy_design_case_record_registry_payload"
         ),
         "next_diagnostic_command": (
-            "uv run pytest "
-            "tests/unit/runtime/quality/test_policy_design_case_record_registry.py -q"
+            "uv run pytest tests/unit/runtime/quality/test_policy_design_case_record_registry.py -q"
         ),
         "maturity_floor": "stub_or_typed_blocker",
         "applicability_evidence": {"kind": "sdd_minimum_record_family"},

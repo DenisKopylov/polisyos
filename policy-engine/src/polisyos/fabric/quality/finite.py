@@ -15,4 +15,3 @@ __all__ = [
     "finite_or_none",
     "is_finite_number",
 ]
-

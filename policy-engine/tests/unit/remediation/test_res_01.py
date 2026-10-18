@@ -322,7 +322,9 @@ def _resume_registry() -> NodeRegistry:
 def _context(store: FileSystemCAS, run_id: str) -> tuple[ExecutionContext, object]:
     bundle = build_default_registry_bundle(store)
     run = RunContext.start(store=store, registry_bundle=bundle.bundle_ref, run_id=run_id)
-    return ExecutionContext(store=store, run=run, logger=logging.getLogger("res_01")), bundle.bundle_ref
+    return ExecutionContext(
+        store=store, run=run, logger=logging.getLogger("res_01")
+    ), bundle.bundle_ref
 
 
 def _write_known_successful_frontier_checkpoint(

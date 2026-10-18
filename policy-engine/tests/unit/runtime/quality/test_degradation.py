@@ -113,9 +113,7 @@ def test_mode_and_fallback_policy_registry_rejects_missing_command_path(
 
 
 def test_declared_allowed_fallback_fixture_passes_serious_policy() -> None:
-    record = deserialize_degradation_record(
-        _fixture_payload("declared_allowed_fallback_pass")
-    )
+    record = deserialize_degradation_record(_fixture_payload("declared_allowed_fallback_pass"))
 
     decision = evaluate_degradation_policy(record, active_profile="production")
 

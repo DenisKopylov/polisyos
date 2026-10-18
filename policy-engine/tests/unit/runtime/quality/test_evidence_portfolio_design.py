@@ -18,8 +18,7 @@ from tests._helpers.hds_quality import sha
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
 SCHEMA_PATH = (
-    REPO_ROOT
-    / "schemas/runtime_quality/policy_design_evidence_portfolio_design_v1.schema.json"
+    REPO_ROOT / "schemas/runtime_quality/policy_design_evidence_portfolio_design_v1.schema.json"
 )
 
 

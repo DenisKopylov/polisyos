@@ -10,9 +10,7 @@ from typing import Any
 POLICY_BENCHMARKING_RECORD_SCHEMA_VERSION = (
     "policyos.runtime.policy_design_case.best_in_class_benchmarking.v1"
 )
-POLICY_BENCHMARKING_RECORD_CONTRACT_ID = (
-    "policy_design_case.best_in_class_benchmarking.v1"
-)
+POLICY_BENCHMARKING_RECORD_CONTRACT_ID = "policy_design_case.best_in_class_benchmarking.v1"
 POLICY_BENCHMARKING_RECORD_FAMILY = "best_in_class_benchmarking.v1"
 
 REQUIRED_POLICY_BENCHMARK_METRICS = (

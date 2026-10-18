@@ -46,9 +46,7 @@ def build_cas_integrity_report(
     """Return a proof record using the store's manifest and verify primitives."""
 
     artifact = (
-        ArtifactID.model_validate(artifact_id)
-        if isinstance(artifact_id, str)
-        else artifact_id
+        ArtifactID.model_validate(artifact_id) if isinstance(artifact_id, str) else artifact_id
     )
     verification = store.verify(artifact)
     if not verification.ok:

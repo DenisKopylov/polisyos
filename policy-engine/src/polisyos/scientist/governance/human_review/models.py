@@ -195,14 +195,10 @@ class HumanReviewPacket(BaseModel):
     uncertainty_summary: dict[str, Any] = Field(default_factory=dict)
     calibration_summary: dict[str, Any] = Field(default_factory=dict)
     source_freshness_summary: dict[str, Any] = Field(default_factory=dict)
-    legal_fairness_privacy_escalation_issues: list[dict[str, Any]] = Field(
-        default_factory=list
-    )
+    legal_fairness_privacy_escalation_issues: list[dict[str, Any]] = Field(default_factory=list)
     blocked_claim_ids: list[str] = Field(default_factory=list)
     unresolved_assumptions: list[str] = Field(default_factory=list)
-    recommended_reviewer_actions: list[RecommendedReviewerAction] = Field(
-        default_factory=list
-    )
+    recommended_reviewer_actions: list[RecommendedReviewerAction] = Field(default_factory=list)
     controls: list[ReviewControl] = Field(default_factory=list)
     fundamental_rights_checklist: FundamentalRightsChecklist = Field(
         default_factory=FundamentalRightsChecklist
@@ -227,7 +223,9 @@ class HumanReviewPacket(BaseModel):
                 raise ValueError("high-risk review packets must include override_release control")
         if self.required_reviewer_count > 1:
             reviewer_ids = [assignment.reviewer_id for assignment in self.assignments]
-            if reviewer_ids and len(set(reviewer_ids)) < min(self.required_reviewer_count, len(reviewer_ids)):
+            if reviewer_ids and len(set(reviewer_ids)) < min(
+                self.required_reviewer_count, len(reviewer_ids)
+            ):
                 raise ValueError("two-person verification assignments must use distinct reviewers")
         return self
 

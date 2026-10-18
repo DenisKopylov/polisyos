@@ -33,9 +33,7 @@ DEFAULT_FIRST_PROVING_CASE_PATH = Path(
     "architecture/policy_design_case/layer2_first_proving_case.json"
 )
 DEFAULT_CLUSTER_MAP_PATH = Path("architecture/policy_design_case/cluster_ownership_map.toml")
-DEFAULT_FLOOR_GOVERNANCE_PATH = Path(
-    "architecture/policy_design_case/layer2_floor_governance.toml"
-)
+DEFAULT_FLOOR_GOVERNANCE_PATH = Path("architecture/policy_design_case/layer2_floor_governance.toml")
 DEFAULT_INVENTORY_PATH = Path("architecture/policy_design_case/inventory.json")
 DEFAULT_CANONICAL_CASE_PATH = (
     Path("tests/fixtures/universal-corpus/cases")
@@ -131,8 +129,7 @@ def validate_s2_design_search(repo_root: Path | str = REPO_ROOT) -> dict[str, An
         issues,
     )
     _expect(
-        run.refinement_decisions[0].value_of_information.estimate_id
-        == "s2_shadow_refinement_voi"
+        run.refinement_decisions[0].value_of_information.estimate_id == "s2_shadow_refinement_voi"
         and run.refinement_decisions[0].budget_refs
         and run.refinement_decisions[0].stakes_band,
         "s2_refinement_voi_missing",
@@ -153,8 +150,7 @@ def validate_s2_design_search(repo_root: Path | str = REPO_ROOT) -> dict[str, An
     )
     _expect(
         budget_gap_run.status == "abstained"
-        and "best_known_shadow_frontier"
-        in budget_gap_run.search_ledger.search_incompleteness_note,
+        and "best_known_shadow_frontier" in budget_gap_run.search_ledger.search_incompleteness_note,
         "s2_budget_gap_abstention_invalid",
         issues,
     )
@@ -225,8 +221,7 @@ def validate_s2_manifest_payload(payload: Mapping[str, Any]) -> dict[str, Any]:
         issues,
     )
     _expect(
-        list(payload.get("counterexample_class_vocabulary") or [])
-        == _COUNTEREXAMPLE_VOCABULARY,
+        list(payload.get("counterexample_class_vocabulary") or []) == _COUNTEREXAMPLE_VOCABULARY,
         "s2_counterexample_class_vocabulary_invalid",
         issues,
     )
@@ -236,12 +231,9 @@ def validate_s2_manifest_payload(payload: Mapping[str, Any]) -> dict[str, Any]:
         issues,
     )
     candidate_space = payload.get("candidate_space")
-    candidate_space_payload = (
-        candidate_space if isinstance(candidate_space, Mapping) else {}
-    )
+    candidate_space_payload = candidate_space if isinstance(candidate_space, Mapping) else {}
     _expect(
-        candidate_space_payload.get("authority_purpose")
-        == "shadow_first_proving_case_evidence",
+        candidate_space_payload.get("authority_purpose") == "shadow_first_proving_case_evidence",
         "s2_candidate_space_authority_purpose_invalid",
         issues,
     )
@@ -282,9 +274,7 @@ def validate_s2_manifest_payload(payload: Mapping[str, Any]) -> dict[str, Any]:
         issues,
     )
     diversity_rows = [
-        row
-        for row in adequacy_rows
-        if row.get("check_id") == "s2_shadow_grammar_diversity"
+        row for row in adequacy_rows if row.get("check_id") == "s2_shadow_grammar_diversity"
     ]
     diversity_required = (
         diversity_rows[0].get("required_value") if len(diversity_rows) == 1 else None
@@ -309,8 +299,7 @@ def validate_s2_manifest_payload(payload: Mapping[str, Any]) -> dict[str, Any]:
     layer_contributions = list(payload.get("layer_contributions") or [])
     _expect(
         len(layer_contributions) == 1
-        and layer_contributions[0].get("cell_ref")
-        == "CROSS_CUTTING.scientist_orchestration"
+        and layer_contributions[0].get("cell_ref") == "CROSS_CUTTING.scientist_orchestration"
         and layer_contributions[0].get("closure_owner_slice") == "S7",
         "s2_scientist_orchestration_must_remain_split",
         issues,

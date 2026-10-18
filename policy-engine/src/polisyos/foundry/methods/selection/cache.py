@@ -417,8 +417,7 @@ def _slot_from_payload(payload: dict[str, Any]):
         unit=_unit_from_payload(payload["unit"]),
         contract_id=payload.get("contract_id"),
         contract_capabilities=frozenset(
-            OutputContractCapability(str(item))
-            for item in payload.get("contract_capabilities", ())
+            OutputContractCapability(str(item)) for item in payload.get("contract_capabilities", ())
         ),
         contract_owner=payload.get("contract_owner"),
         shape=tuple(_dim_from_payload(item) for item in payload.get("shape", [])),

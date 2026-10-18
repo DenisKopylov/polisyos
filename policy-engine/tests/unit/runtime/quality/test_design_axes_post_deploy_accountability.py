@@ -70,7 +70,9 @@ S13_FALSE_CLEAR_FIELDS = (
 
 
 def _s13() -> Any:
-    return importlib.import_module("polisyos.runtime.quality.design_axes.post_deploy_accountability")
+    return importlib.import_module(
+        "polisyos.runtime.quality.design_axes.post_deploy_accountability"
+    )
 
 
 def _authority_boundary(**overrides: object) -> dict[str, object]:
@@ -110,9 +112,7 @@ def _diagnostic_record(**overrides: object) -> TypedDiagnosticRecord:
 
 def _deployment_dossier_payload(**overrides: object) -> dict[str, object]:
     payload: dict[str, object] = {
-        "schema_version": (
-            "policyos.policy_design_case.layer2_s13_post_deploy_accountability.v1"
-        ),
+        "schema_version": ("policyos.policy_design_case.layer2_s13_post_deploy_accountability.v1"),
         "dossier_id": "s13.deployment-dossier.ua-msme",
         "dossier_ref": "pdc://layer2/s13/ua-msme/deployment-dossier",
         "case_id": CASE_ID,
@@ -145,9 +145,7 @@ def _deployment_dossier_payload(**overrides: object) -> dict[str, object]:
 
 def _divergence_payload(**overrides: object) -> dict[str, object]:
     payload: dict[str, object] = {
-        "schema_version": (
-            "policyos.policy_design_case.layer2_s13_post_deploy_accountability.v1"
-        ),
+        "schema_version": ("policyos.policy_design_case.layer2_s13_post_deploy_accountability.v1"),
         "divergence_id": "s13.divergence.ua-msme.seeded-disconfirmation",
         "divergence_ref": "pdc://layer2/s13/ua-msme/divergence/seeded-disconfirmation",
         "case_id": CASE_ID,
@@ -182,9 +180,7 @@ def _divergence_payload(**overrides: object) -> dict[str, object]:
 
 def _mape_k_trace_payload(**overrides: object) -> dict[str, object]:
     payload: dict[str, object] = {
-        "schema_version": (
-            "policyos.policy_design_case.layer2_s13_post_deploy_accountability.v1"
-        ),
+        "schema_version": ("policyos.policy_design_case.layer2_s13_post_deploy_accountability.v1"),
         "trace_id": "s13.mape-k.ua-msme",
         "trace_ref": "mape-k://ua-msme/post-deploy",
         "case_id": CASE_ID,
@@ -256,15 +252,11 @@ def _ex_post_learning_record(**overrides: object) -> dict[str, object]:
 
 def _learning_proposal_payload(**overrides: object) -> dict[str, object]:
     payload: dict[str, object] = {
-        "schema_version": (
-            "policyos.policy_design_case.layer2_s13_post_deploy_accountability.v1"
-        ),
+        "schema_version": ("policyos.policy_design_case.layer2_s13_post_deploy_accountability.v1"),
         "proposal_id": "s13.learning-proposal.ua-msme.envelope-shrink",
         "proposal_ref": "learning-proposal://ua-msme/envelope-shrink",
         "case_id": CASE_ID,
-        "divergence_record_ref": (
-            "pdc://layer2/s13/ua-msme/divergence/seeded-disconfirmation"
-        ),
+        "divergence_record_ref": ("pdc://layer2/s13/ua-msme/divergence/seeded-disconfirmation"),
         "ex_post_learning_record": _ex_post_learning_record(),
         "attribution_class": "design_error",
         "attribution_status": "attributed",
@@ -298,9 +290,7 @@ def _learning_proposal_payload(**overrides: object) -> dict[str, object]:
 
 def _assurance_case_delta_payload(**overrides: object) -> dict[str, object]:
     payload: dict[str, object] = {
-        "schema_version": (
-            "policyos.policy_design_case.layer2_s13_post_deploy_accountability.v1"
-        ),
+        "schema_version": ("policyos.policy_design_case.layer2_s13_post_deploy_accountability.v1"),
         "delta_id": "s13.assurance-delta.ua-msme.weakened",
         "delta_ref": "assurance-delta://ua-msme/s13/weakened",
         "case_id": CASE_ID,
@@ -319,16 +309,12 @@ def _assurance_case_delta_payload(**overrides: object) -> dict[str, object]:
 
 def _certified_envelope_delta_payload(**overrides: object) -> dict[str, object]:
     payload: dict[str, object] = {
-        "schema_version": (
-            "policyos.policy_design_case.layer2_s13_post_deploy_accountability.v1"
-        ),
+        "schema_version": ("policyos.policy_design_case.layer2_s13_post_deploy_accountability.v1"),
         "delta_id": "s13.certified-envelope-delta.ua-msme.s12-growth",
         "delta_ref": "certified-envelope-delta://ua-msme/s12-growth",
         "case_id": CASE_ID,
         "s12_certified_envelope_delta_ref": "delta://layer2/open-cell-count/1-to-0",
-        "materialized_from_s12_growth_entry_ref": (
-            "pdc://layer2/s12/ua-msme/growth-entry/001"
-        ),
+        "materialized_from_s12_growth_entry_ref": ("pdc://layer2/s12/ua-msme/growth-entry/001"),
         "direction": "expand",
         "certified_scope_refs": ["facet://actor", "facet://instrument"],
         "authority_boundary": _authority_boundary(),
@@ -340,17 +326,13 @@ def _certified_envelope_delta_payload(**overrides: object) -> dict[str, object]:
 
 def _envelope_revision_payload(**overrides: object) -> dict[str, object]:
     payload: dict[str, object] = {
-        "schema_version": (
-            "policyos.policy_design_case.layer2_s13_post_deploy_accountability.v1"
-        ),
+        "schema_version": ("policyos.policy_design_case.layer2_s13_post_deploy_accountability.v1"),
         "revision_id": "s13.envelope-revision.ua-msme.shrink",
         "revision_ref": "envelope-revision://ua-msme/shrink/001",
         "case_id": CASE_ID,
         "direction": "shrink",
         "reason": "Seeded disconfirmation invalidates part of the certified scope.",
-        "divergence_record_ref": (
-            "pdc://layer2/s13/ua-msme/divergence/seeded-disconfirmation"
-        ),
+        "divergence_record_ref": ("pdc://layer2/s13/ua-msme/divergence/seeded-disconfirmation"),
         "learning_update_proposal_ref": "learning-proposal://ua-msme/envelope-shrink",
         "assurance_case_delta_ref": "assurance-delta://ua-msme/s13/weakened",
         "certified_envelope_delta_ref": None,
@@ -367,9 +349,7 @@ def _envelope_revision_payload(**overrides: object) -> dict[str, object]:
 def _summary_payload(**overrides: object) -> dict[str, object]:
     false_clear_counts = dict.fromkeys(S13_FALSE_CLEAR_FIELDS, 0)
     payload: dict[str, object] = {
-        "schema_version": (
-            "policyos.policy_design_case.layer2_s13_post_deploy_accountability.v1"
-        ),
+        "schema_version": ("policyos.policy_design_case.layer2_s13_post_deploy_accountability.v1"),
         "summary_id": "s13.summary.ua-msme",
         "slice": "S13",
         "cells_closed": [],
@@ -486,9 +466,7 @@ def test_design_error_after_rubber_stamp_review_marks_oversight_accountability_s
 
     record = module.classify_post_deploy_divergence(**_divergence_payload())
 
-    assert record.oversight_accountability_state == (
-        "rubber_stamp_divergence_review_required"
-    )
+    assert record.oversight_accountability_state == ("rubber_stamp_divergence_review_required")
 
 
 def test_mape_k_trace_requires_monitor_analyze_plan_execute_knowledge_refs() -> None:
@@ -531,7 +509,11 @@ def test_learning_update_proposal_rejects_contaminated_ex_post_learning_record()
     contaminated = _ex_post_learning_record()
     contaminated["memory_contamination_check"] = {
         "status": "clean",
-        "policy": {"hidden_ref_ids": ["hidden_eval_42"], "hidden_suite_ids": [], "canary_tokens": []},
+        "policy": {
+            "hidden_ref_ids": ["hidden_eval_42"],
+            "hidden_suite_ids": [],
+            "canary_tokens": [],
+        },
         "findings": [],
         "evidence_ref": "sha256:" + "f" * 64,
         "runtime_event_ref": "event://policy-design-case/ex-post/memory-clean",
@@ -583,9 +565,7 @@ def test_historical_prior_influence_requires_ttl_decay_and_contamination_control
     module = _s13()
 
     proposal = module.LearningUpdateProposal.model_validate(_learning_proposal_payload())
-    assert proposal.historical_prior_influence_refs[0].startswith(
-        "historical-prior-influence:"
-    )
+    assert proposal.historical_prior_influence_refs[0].startswith("historical-prior-influence:")
     assert proposal.historical_prior_ttl
     assert proposal.historical_prior_decay
     assert proposal.contamination_control_refs
@@ -695,8 +675,7 @@ def test_post_policy_data_cannot_fill_pre_policy_evidence_slot() -> None:
     module = _s13()
     probe = json.loads(
         (
-            S13_FIXTURE_DIR
-            / "negative_controls/post_policy_data_as_pre_policy_evidence_probe.json"
+            S13_FIXTURE_DIR / "negative_controls/post_policy_data_as_pre_policy_evidence_probe.json"
         ).read_text(encoding="utf-8")
     )
 
@@ -711,9 +690,7 @@ def test_learned_prior_cannot_be_current_evidence() -> None:
     issues = module.verify_post_deploy_learning_authority(
         {
             "claim_id": "rec_1",
-            "current_evidence_refs": [
-                "historical-prior-influence:ua-msme/default-risk-route"
-            ],
+            "current_evidence_refs": ["historical-prior-influence:ua-msme/default-risk-route"],
         }
     )
 

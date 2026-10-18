@@ -116,9 +116,7 @@ def render_capability_card(
                 *capability.authority_envelope.may_not_use_for,
                 *capability.may_not_use_for,
             )
-            or (
-                "It does not prove authority outside the purpose-scoped authority envelope.",
-            )
+            or ("It does not prove authority outside the purpose-scoped authority envelope.",)
         ),
         "",
         "## Known Limitations",

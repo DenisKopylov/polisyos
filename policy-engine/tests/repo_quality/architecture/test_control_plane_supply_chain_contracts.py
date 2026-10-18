@@ -168,8 +168,7 @@ def test_phase59_supply_chain_crosswalk_report_matches_contract() -> None:
     }
     assert all(item["external_control_refs"] for item in report["controls"])
     assert any(
-        item["control"] == "OpenSSF Scorecard"
-        and item["reporting_artifact"] == "nightly-scorecard"
+        item["control"] == "OpenSSF Scorecard" and item["reporting_artifact"] == "nightly-scorecard"
         for item in report["controls"]
     )
 
@@ -191,9 +190,7 @@ def test_phase7_renovate_match_file_names_resolve_to_current_manifests() -> None
     renovate_path = WORKSPACE_ROOT / data["renovate"]["current_path"]
     renovate = json.loads(renovate_path.read_text(encoding="utf-8"))
     match_file_names = {
-        name
-        for rule in renovate.get("packageRules", [])
-        for name in rule.get("matchFileNames", [])
+        name for rule in renovate.get("packageRules", []) for name in rule.get("matchFileNames", [])
     }
 
     retired_dashboard_manifest = "/".join(

@@ -107,9 +107,7 @@ class OutcomeMasker:
         return masked
 
     @staticmethod
-    def _resolve_cutoff(
-        data: dict[str, Any], plan: HistoricalValidationPlan
-    ) -> int | None:
+    def _resolve_cutoff(data: dict[str, Any], plan: HistoricalValidationPlan) -> int | None:
         """Resolve the cutoff from the plan's declared temporal contract."""
         t0 = plan.intervention_step
         if (

@@ -222,11 +222,7 @@ def _population_metadata_schema_supported(
         return False
     for value in (economic_state.n_agents, economic_state.max_agents):
         schema = _jax_abstract_leaf_schema(value)
-        if (
-            schema is None
-            or schema.shape != ()
-            or not jnp.issubdtype(schema.dtype, jnp.integer)
-        ):
+        if schema is None or schema.shape != () or not jnp.issubdtype(schema.dtype, jnp.integer):
             return False
     return True
 
@@ -250,16 +246,16 @@ def _population_metadata_matches_config(
         return jnp.asarray(False, dtype=jnp.bool_)
     if not (
         int(n_agents_bounds.min) <= domain_config.n_agents <= int(n_agents_bounds.max)
-        and int(max_agents_bounds.min)
-        <= domain_config.max_agents
-        <= int(max_agents_bounds.max)
+        and int(max_agents_bounds.min) <= domain_config.max_agents <= int(max_agents_bounds.max)
     ):
         return jnp.asarray(False, dtype=jnp.bool_)
-    return (jnp.asarray(economic_state.n_agents) == jnp.asarray(
-        domain_config.n_agents, dtype=n_agents_schema.dtype
-    )) & (jnp.asarray(economic_state.max_agents) == jnp.asarray(
-        domain_config.max_agents, dtype=max_agents_schema.dtype
-    ))
+    return (
+        jnp.asarray(economic_state.n_agents)
+        == jnp.asarray(domain_config.n_agents, dtype=n_agents_schema.dtype)
+    ) & (
+        jnp.asarray(economic_state.max_agents)
+        == jnp.asarray(domain_config.max_agents, dtype=max_agents_schema.dtype)
+    )
 
 
 def _tree_align_to_template(
@@ -292,12 +288,8 @@ def _tree_align_to_template(
         if candidate_schema is None or template_schema is None:
             return None
         try:
-            candidate_is_complex = jnp.issubdtype(
-                candidate_schema.dtype, jnp.complexfloating
-            )
-            template_is_complex = jnp.issubdtype(
-                template_schema.dtype, jnp.complexfloating
-            )
+            candidate_is_complex = jnp.issubdtype(candidate_schema.dtype, jnp.complexfloating)
+            template_is_complex = jnp.issubdtype(template_schema.dtype, jnp.complexfloating)
         except TypeError:
             return None
         if candidate_is_complex or template_is_complex:
@@ -517,10 +509,9 @@ class CompositeExecutor(eqx.Module):
 
             def _aggregate_and_commit(current_state: CompositeState) -> CompositeState:
                 aggregated = EconomicState.update_aggregates(domain_state)
-                if (
-                    _tree_align_to_template(aggregated, domain_state) is None
-                    or not _population_metadata_schema_supported(aggregated, domain_config)
-                ):
+                if _tree_align_to_template(
+                    aggregated, domain_state
+                ) is None or not _population_metadata_schema_supported(aggregated, domain_config):
                     return _refuse(current_state)
 
                 def _commit(_operand) -> CompositeState:

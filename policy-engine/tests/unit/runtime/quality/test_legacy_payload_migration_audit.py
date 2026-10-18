@@ -137,13 +137,9 @@ def test_dual_write_cutoff_requires_two_consecutive_weekly_baselines() -> None:
         ],
     )
 
-    assert one_baseline["dual_write_policy"][
-        "observed_consecutive_weekly_closeout_baselines"
-    ] == 1
+    assert one_baseline["dual_write_policy"]["observed_consecutive_weekly_closeout_baselines"] == 1
     assert one_baseline["dual_write_policy"]["cutoff_allowed"] is False
-    assert two_baselines["dual_write_policy"][
-        "observed_consecutive_weekly_closeout_baselines"
-    ] == 2
+    assert two_baselines["dual_write_policy"]["observed_consecutive_weekly_closeout_baselines"] == 2
     assert two_baselines["dual_write_policy"]["cutoff_allowed"] is True
 
 
@@ -210,10 +206,6 @@ def test_local_validation_persists_migration_sandbox_report_under_build_dir(
     )
 
     assert written == (
-        tmp_path
-        / "_build"
-        / "honest-diagnostics"
-        / "migration-sandbox"
-        / "weekly-baseline-1.json"
+        tmp_path / "_build" / "honest-diagnostics" / "migration-sandbox" / "weekly-baseline-1.json"
     )
     assert written.is_file()

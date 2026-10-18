@@ -105,9 +105,7 @@ def compute_net_mav(
         "rerun_penalty": rerun_penalty,
         "false_block_penalty": false_block_penalty,
     }
-    normalized = {
-        key: _required_finite_number(value, field=key) for key, value in values.items()
-    }
+    normalized = {key: _required_finite_number(value, field=key) for key, value in values.items()}
     return _round_mav(
         sum(normalized[key] for key in _GAIN_COMPONENTS)
         - sum(normalized[key] for key in _PENALTY_COMPONENTS)
@@ -276,12 +274,9 @@ def build_complexity_governance_report(
     issues = _telemetry_issues(telemetry)
     gating_controls = [control for control in controls if _wants_blocking_frontier(control)]
     gating_decisions = [
-        evaluate_blocking_frontier_control(control, generated_at=now)
-        for control in gating_controls
+        evaluate_blocking_frontier_control(control, generated_at=now) for control in gating_controls
     ]
-    active_controls = [
-        control for control in controls if _is_active_for_prune_review(control)
-    ]
+    active_controls = [control for control in controls if _is_active_for_prune_review(control)]
     prune_review = review_controls_for_pruning(
         active_controls,
         generated_at=now,

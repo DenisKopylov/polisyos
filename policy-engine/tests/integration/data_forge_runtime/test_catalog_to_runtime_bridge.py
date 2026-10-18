@@ -18,7 +18,12 @@ pytestmark = pytest.mark.integration
 TESTS_ROOT = Path(__file__).resolve().parents[2]
 CATALOG_FIXTURE_ROOT = TESTS_ROOT / "_data" / "data_forge" / "non_lex_split" / "catalog"
 REPLAY_FIXTURE = (
-    TESTS_ROOT / "_data" / "fabric" / "shared" / "source_contracts" / "worldbank.wdi.generic.replay.json"
+    TESTS_ROOT
+    / "_data"
+    / "fabric"
+    / "shared"
+    / "source_contracts"
+    / "worldbank.wdi.generic.replay.json"
 )
 
 

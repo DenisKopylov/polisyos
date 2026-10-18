@@ -52,9 +52,7 @@ def test_critic_ensemble_diversity_reports_jaccard_floor_and_monoculture_warning
     assert case["critic_ensemble_diversity_jaccard"] == 0.0
     assert case["unique_failure_mode_count"] == 1
     assert "critic_monoculture" in {warning["code"] for warning in case["warnings"]}
-    assert "critic_diversity_below_floor" in {
-        warning["code"] for warning in report["warnings"]
-    }
+    assert "critic_diversity_below_floor" in {warning["code"] for warning in report["warnings"]}
 
 
 def test_critic_ensemble_diversity_passes_when_critics_flag_distinct_failure_modes(
@@ -66,9 +64,7 @@ def test_critic_ensemble_diversity_passes_when_critics_flag_distinct_failure_mod
         input_dir / "diverse.json",
         _case_payload(
             case_id="diverse-case",
-            failure_modes_by_role={
-                role: (f"{role}_specific_failure",) for role in CRITIC_ROLES
-            },
+            failure_modes_by_role={role: (f"{role}_specific_failure",) for role in CRITIC_ROLES},
         ),
     )
 

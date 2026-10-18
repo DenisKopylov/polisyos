@@ -7,9 +7,7 @@ from polisyos.data_forge.domains.academic.batch_assets import (
 
 def test_claim_adjudication_asset_records_scientist_authority_owner() -> None:
     plan = next(
-        item
-        for item in plan_academic_batch_stages()
-        if item.stage.stage_id == "claim_adjudicate"
+        item for item in plan_academic_batch_stages() if item.stage.stage_id == "claim_adjudicate"
     )
 
     assert plan.asset_specs[0].owner == "team-scientist"

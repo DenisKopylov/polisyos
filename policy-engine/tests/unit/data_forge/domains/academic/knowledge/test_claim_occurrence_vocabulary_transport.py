@@ -127,7 +127,9 @@ def test_composite_rejects_generic_strength_inside_opaque_nested_metadata() -> N
         ClaimOccurrenceVocabularyTransport(occurrence=occurrence, vocabulary=_sidecar())
 
 
-def test_legacy_adapter_sidecar_pairs_with_a_legacy_occurrence_only_after_strength_is_removed() -> None:
+def test_legacy_adapter_sidecar_pairs_with_a_legacy_occurrence_only_after_strength_is_removed() -> (
+    None
+):
     """Keep the historical literal audit-only when constructing the v2 composite."""
 
     legacy = {

@@ -61,9 +61,7 @@ def test_lineage_batch_lookup_uses_compact_batch_adapter(runtime_api_env) -> Non
     assert all(
         item["trust_metadata"]["temporal_scope"]["branch"] == "main" for item in payload["lineages"]
     )
-    assert all(
-        item["status"] in {"verified", "disputed"} for item in payload["lineages"]
-    )
+    assert all(item["status"] in {"verified", "disputed"} for item in payload["lineages"])
 
 
 def test_compact_lineage_batch_local_benchmark_meets_phase6_budget(runtime_api_env) -> None:

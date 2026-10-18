@@ -113,9 +113,7 @@ def test_case_inspection_requires_complete_closed_case_replay_tuple(
 def test_case_inspection_names_a_missing_run_at_its_public_boundary(
     runtime_api_env,
 ) -> None:
-    response = runtime_api_env["client"].get(
-        "/api/v1/runs/run-that-does-not-exist/case-inspection"
-    )
+    response = runtime_api_env["client"].get("/api/v1/runs/run-that-does-not-exist/case-inspection")
 
     assert response.status_code == 404
     assert response.json()["code"] == "case_inspection_run_not_found"

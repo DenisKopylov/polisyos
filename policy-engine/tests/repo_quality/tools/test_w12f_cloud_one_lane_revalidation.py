@@ -10,8 +10,7 @@ from tools.quality.validation import (
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 MANIFEST_PATH = (
-    REPO_ROOT
-    / "architecture/policy_design_case/wave12f_cloud_one_lane_revalidation_manifest.json"
+    REPO_ROOT / "architecture/policy_design_case/wave12f_cloud_one_lane_revalidation_manifest.json"
 )
 
 

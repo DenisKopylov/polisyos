@@ -283,9 +283,7 @@ def test_current_signature_corruption_revokes_recommendation(station, tmp_path: 
     assert signature is not None
     corrupted_signature = signature.model_copy(
         update={
-            "signature_hex": (
-                "00" if signature.signature_hex[:2] != "00" else "01"
-            )
+            "signature_hex": ("00" if signature.signature_hex[:2] != "00" else "01")
             + signature.signature_hex[2:]
         }
     )
@@ -335,8 +333,11 @@ def test_legacy_v1_composition_replays_without_currentness_or_authority(station,
     ).by_node[node.node_ref]
     binding = s8.NormativeGenerationBinding(
         compiled_run_ref=source_ref,
-        source_run_ref="sha256:" + canon.content_hash(
-            canon.to_canonical_bytes(run.model_dump(mode="json"), canon.CanonSpec(forbid_floats=False))
+        source_run_ref="sha256:"
+        + canon.content_hash(
+            canon.to_canonical_bytes(
+                run.model_dump(mode="json"), canon.CanonSpec(forbid_floats=False)
+            )
         ),
         node_ref=node.node_ref,
     )
@@ -374,9 +375,7 @@ def test_legacy_v1_composition_replays_without_currentness_or_authority(station,
         ),
     )
     outer_ref = _put_sidecar(service, outer.model_dump(mode="json"))
-    outer_bytes = service._artifact_store.get_bytes(
-        artifacts.ArtifactID.model_validate(outer_ref)
-    )
+    outer_bytes = service._artifact_store.get_bytes(artifacts.ArtifactID.model_validate(outer_ref))
     currentness_calls: list[dict[str, object]] = []
 
     def unexpected_currentness_read(**kwargs: object) -> n6.N6DeploymentCurrentnessObservation:
@@ -772,9 +771,7 @@ def test_runtime_cas_adapter_preserves_guarded_owner_and_rejects_impostor(
                     repo_root=repo_root,
                 )
 
-            monkeypatch.setattr(
-                bridge, "normative_owner_for_runtime_store", direct_target_adapter
-            )
+            monkeypatch.setattr(bridge, "normative_owner_for_runtime_store", direct_target_adapter)
 
         owner = bridge.normative_owner_for_runtime_store(
             context.store, trust, signature_verifier=verifier
@@ -803,9 +800,7 @@ def test_runtime_cas_adapter_preserves_guarded_owner_and_rejects_impostor(
         assert candidate_owner._signature_verifier is None  # noqa: S101
         worker_calls.clear()
         with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
-            candidate_observed = candidate_owner._read(
-                source_ref, kind=kind, schema=schema
-            )
+            candidate_observed = candidate_owner._read(source_ref, kind=kind, schema=schema)
             candidate_worker_calls = tuple(worker_calls)
         assert candidate_observed == payload  # noqa: S101
         assert {"get_bytes", "get_manifest"} <= {  # noqa: S101
@@ -833,6 +828,7 @@ def test_runtime_cas_adapter_preserves_guarded_owner_and_rejects_impostor(
     finally:
         context.store.close()
 
+
 def test_s8_rejects_post_v1_field_from_raw_persisted_n6_bytes(tmp_path):
     """S8 checks the persisted historical projection before Pydantic can drop fields."""
     import copy
@@ -859,22 +855,24 @@ def test_s8_rejects_post_v1_field_from_raw_persisted_n6_bytes(tmp_path):
         ),
     )
     valid_ref = str(
-        store.put_json(payload, put_options, canon_spec=canon.CanonSpec(forbid_floats=False))
-        .artifact_id
+        store.put_json(
+            payload, put_options, canon_spec=canon.CanonSpec(forbid_floats=False)
+        ).artifact_id
     )
     owner = s8.NormativeValueScheduleOwner(
         store=store,
         trust=s8.NormativeAuthorityTrust(),
         repo_root=None,
     )
-    assert owner._read(
-        valid_ref,
-        kind=s8.NORMATIVE_GENERATION_SOURCE_KIND,
-        schema=GENERATION_CYCLE_SCHEMA_VERSION,
-    ) == payload
-    canonical_raw = canon.to_canonical_bytes(
-        payload, canon.CanonSpec(forbid_floats=False)
+    assert (
+        owner._read(
+            valid_ref,
+            kind=s8.NORMATIVE_GENERATION_SOURCE_KIND,
+            schema=GENERATION_CYCLE_SCHEMA_VERSION,
+        )
+        == payload
     )
+    canonical_raw = canon.to_canonical_bytes(payload, canon.CanonSpec(forbid_floats=False))
     assert store.get_bytes(valid_ref) == canonical_raw
     assert validate_generation_cycle_run_history(payload) == ()
     assert "strangle_receipt_currentness_not_established" in {
@@ -935,6 +933,7 @@ def test_app_factory_passes_typed_deployment_trust_to_default_service(tmp_path, 
     with TestClient(app):
         assert app.state.runtime_container.config.normative_authority_trust is trust
         assert app.state.runtime_container.control_service._normative_authority_trust is trust
+
 
 def _persist_direct_historical_outer_fixture(tmp_path):
     from polisyos.runtime.quality.generation_cycle import GenerationCycleRun
@@ -1038,13 +1037,13 @@ def test_historical_v1_leaf_replays_without_a_live_source_checkout(tmp_path, mon
     def live_currentness_is_not_historical_replay(*args: object, **kwargs: object) -> None:
         raise AssertionError("historical leaf replay must not inspect the live deployment")
 
-    monkeypatch.setattr(n6, "inspect_generation_cycle_run", live_currentness_is_not_historical_replay)
+    monkeypatch.setattr(
+        n6, "inspect_generation_cycle_run", live_currentness_is_not_historical_replay
+    )
     assert owner.replay_generation_disposition(leaf_ref) == leaf
     assert owner.generation_disposition_admission_currentness(leaf_ref) is None
 
-    current = owner.project_generation_disposition(
-        leaf_ref, evaluated_at=datetime.now(UTC)
-    )
+    current = owner.project_generation_disposition(leaf_ref, evaluated_at=datetime.now(UTC))
     assert current.authorization_status == "blocked"
     assert current.decision_request is not None
     assert (

@@ -525,6 +525,7 @@ def read_instrument_result(
 ) -> ComprehensionResult:
     """Resolve the persisted event and content before returning its candidate projection."""
     from polisyos.core.artifacts import load_core_json_artifact
+
     rows = event_log.list_events(event_id=event_id)
     if len(rows) != 1 or not rows[0].payload_ref:
         raise ValueError("instrument_event_unresolved")

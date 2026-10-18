@@ -66,7 +66,9 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     output_dir = _resolve_repo_path(args.output_dir)
     if args.mode == "fixture":
-        production_data_root = create_capability_index_fixture_inputs(output_dir / "_fixture_inputs")
+        production_data_root = create_capability_index_fixture_inputs(
+            output_dir / "_fixture_inputs"
+        )
     else:
         production_data_root = _resolve_repo_path(args.production_data_root)
 

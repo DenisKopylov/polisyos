@@ -278,9 +278,7 @@ def build_scholar_search_worker_handler(
         source_quality_signals = score_web_evidence_bundle_sources(bundle)
         fetch_safety_events = list(bundle.fetch_safety_events)
         for snippet in bundle.snippets:
-            fetch_safety_events.extend(
-                detect_prompt_injection(snippet.text, url=str(snippet.url))
-            )
+            fetch_safety_events.extend(detect_prompt_injection(snippet.text, url=str(snippet.url)))
         bundle = bundle.model_copy(
             update={
                 "source_quality_signals": source_quality_signals,

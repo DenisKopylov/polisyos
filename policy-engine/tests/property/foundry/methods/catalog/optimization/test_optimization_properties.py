@@ -1,4 +1,3 @@
-
 """
 Property-based tests for optimization methods:
 - Stochastic programming (two-stage SP)
@@ -188,7 +187,10 @@ class TestStochasticProgrammingProperties:
         assert np.isclose(first["objective_value"], second["objective_value"], rtol=1e-6, atol=1e-6)
         assert set(first["variables"]) == set(second["variables"])
         np.testing.assert_allclose(
-            list(first["variables"].values()), list(second["variables"].values()), rtol=1e-6, atol=1e-6
+            list(first["variables"].values()),
+            list(second["variables"].values()),
+            rtol=1e-6,
+            atol=1e-6,
         )
 
 
@@ -202,7 +204,9 @@ class TestCombinationalProperties:
         deadline=10000,
         suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
     )
-    def test_knapsack_output_finite(self, n_items, capacity, isolated_registry, property_method_dispatcher):
+    def test_knapsack_output_finite(
+        self, n_items, capacity, isolated_registry, property_method_dispatcher
+    ):
         fqn = "optimization.combinatorial.knapsack@1.0.0"
         values = np.arange(1.0, float(n_items) + 1.0, dtype=float)
         weights = np.full(n_items, 0.6 * capacity, dtype=float)
@@ -224,7 +228,9 @@ class TestCombinationalProperties:
         assert result["total_weight"] <= capacity + 1e-9
         assert len(selected) == 1
         assert result["total_value"] == float(np.max(values))
-        np.testing.assert_allclose(result["total_value"], values[selected].sum(), rtol=1e-7, atol=1e-7)
+        np.testing.assert_allclose(
+            result["total_value"], values[selected].sum(), rtol=1e-7, atol=1e-7
+        )
 
     @given(
         n_items=st.integers(min_value=3, max_value=10),
@@ -235,7 +241,9 @@ class TestCombinationalProperties:
         deadline=10000,
         suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
     )
-    def test_knapsack_result_is_dict(self, n_items, capacity, isolated_registry, property_method_dispatcher):
+    def test_knapsack_result_is_dict(
+        self, n_items, capacity, isolated_registry, property_method_dispatcher
+    ):
         fqn = "optimization.combinatorial.knapsack@1.0.0"
         values = np.arange(1.0, float(n_items) + 1.0, dtype=float)
         weights = np.full(n_items, 0.6 * capacity, dtype=float)

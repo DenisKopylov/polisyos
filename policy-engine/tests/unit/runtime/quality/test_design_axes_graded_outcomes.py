@@ -26,8 +26,7 @@ NOW = datetime(2026, 5, 30, tzinfo=UTC)
 
 def _cases() -> list[dict[str, object]]:
     return [
-        json.loads(path.read_text(encoding="utf-8"))
-        for path in sorted(CORPUS_CASES.glob("*.json"))
+        json.loads(path.read_text(encoding="utf-8")) for path in sorted(CORPUS_CASES.glob("*.json"))
     ]
 
 
@@ -104,9 +103,7 @@ def _passing_w4_records() -> dict[str, dict[str, object]]:
             "policyos.runtime.policy_design_case.conflict_materialization_closeout.v1"
         ),
         "attestation": _w4_record("policyos.runtime.attestation.v1"),
-        "closeout_compatibility": _w4_record(
-            "policyos.runtime.can_i_closeout_compatibility.v1"
-        ),
+        "closeout_compatibility": _w4_record("policyos.runtime.can_i_closeout_compatibility.v1"),
         "semantic_binding": _w4_record("policyos.runtime.semantic_binding.v1"),
         "claim_registry": _w4_record("policyos.runtime.claim_registry.v1"),
         "pdc_record_family_status": _w4_record(
@@ -116,13 +113,9 @@ def _passing_w4_records() -> dict[str, dict[str, object]]:
             "policyos.runtime.policy_design_case.projection_publication_state.v1"
         ),
         "run_cost_gate": _w4_record("policyos.runtime.run_cost_gate.v1"),
-        "complexity_self_fmea": _w4_record(
-            "policyos.runtime.run_cost_proportionality.v1"
-        ),
+        "complexity_self_fmea": _w4_record("policyos.runtime.run_cost_proportionality.v1"),
         "audit_verifier_ingestion": _w4_record("policyos.runtime.audit_verifier.v1"),
-        "prompt_tool_repair_fmea": _w4_record(
-            "policyos.runtime.prompt_tool_repair_fmea.v1"
-        ),
+        "prompt_tool_repair_fmea": _w4_record("policyos.runtime.prompt_tool_repair_fmea.v1"),
     }
 
 
@@ -140,15 +133,11 @@ def test_governed_limitation_required_cases_route_to_publish_with_limitation() -
     assert all(decision.closeout_effect == "limited_closeout" for decision in decisions)
     assert all(decision.blockers == () for decision in decisions)
     assert all(len(decision.deficit_records) == 1 for decision in decisions)
+    assert {row["disposition"] for decision in decisions for row in decision.deficit_records} == {
+        "publish_with_limitation"
+    }
     assert {
-        row["disposition"]
-        for decision in decisions
-        for row in decision.deficit_records
-    } == {"publish_with_limitation"}
-    assert {
-        row["authority_level"]
-        for decision in decisions
-        for row in decision.deficit_records
+        row["authority_level"] for decision in decisions for row in decision.deficit_records
     } == {"governed"}
 
 
@@ -159,9 +148,9 @@ def test_research_limitation_routes_but_forbids_publication_authority() -> None:
 
     assert decision.outcome == "publish_with_limitation"
     assert decision.closeout_effect == "limited_closeout"
-    assert "publication_authority_without_closeout" in decision.authority_boundary[
-        "may_not_use_for"
-    ]
+    assert (
+        "publication_authority_without_closeout" in decision.authority_boundary["may_not_use_for"]
+    )
     assert "production_closeout_authority" in decision.authority_boundary["may_not_use_for"]
     assert decision.deficit_records[0]["authority_level"] == "research"
 
@@ -182,8 +171,7 @@ def test_governed_limitation_requires_decision_owner_before_closeout_change() ->
 
 def test_production_strictness_blocks_all_corpus_cases_under_proxy_evidence() -> None:
     decisions = [
-        compose_graded_outcome(_input_for(case, authority_level="production"))
-        for case in _cases()
+        compose_graded_outcome(_input_for(case, authority_level="production")) for case in _cases()
     ]
 
     assert len(decisions) == 13
@@ -191,11 +179,9 @@ def test_production_strictness_blocks_all_corpus_cases_under_proxy_evidence() ->
     assert {decision.closeout_effect for decision in decisions} == {"closeout_blocked"}
     assert all(decision.limitations == () for decision in decisions)
     assert all(decision.blockers for decision in decisions)
-    assert {
-        blocker["code"]
-        for decision in decisions
-        for blocker in decision.blockers
-    } == {"graded_outcome_production_proxy_block"}
+    assert {blocker["code"] for decision in decisions for blocker in decision.blockers} == {
+        "graded_outcome_production_proxy_block"
+    }
 
 
 def test_fabricated_limitation_without_proxy_or_partial_evidence_is_rejected() -> None:

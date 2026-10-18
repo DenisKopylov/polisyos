@@ -13,9 +13,7 @@ from polisyos.runtime.quality.ir_analytics_bridge import build_ir_analytics_clai
 LAYER2_S11_PREDICTIVE_KNOWLEDGE_SCHEMA_VERSION = (
     "policyos.policy_design_case.layer2_s11_predictive_knowledge.v1"
 )
-LAYER2_S11_PREDICTIVE_KNOWLEDGE_RULE_VERSION = (
-    "policyos.layer2.s11.predictive_knowledge.v1"
-)
+LAYER2_S11_PREDICTIVE_KNOWLEDGE_RULE_VERSION = "policyos.layer2.s11.predictive_knowledge.v1"
 S11_AXIS_CALIBRATION_FLOOR_ID = "s11_axis_calibration"
 S11_PREDICTIVE_AXES: tuple[str, ...] = (
     "strategic_response",
@@ -97,9 +95,7 @@ _REQUIRED_AUTHORITY_DENIALS = frozenset(
         "mandate_legitimacy_predictive_upgrade",
     }
 )
-_BLOCKING_PROOF_STATUSES = frozenset(
-    {"blocked", "negative", "not_identified", "refuted", "failed"}
-)
+_BLOCKING_PROOF_STATUSES = frozenset({"blocked", "negative", "not_identified", "refuted", "failed"})
 _BLOCKING_COMPOSABILITY_STATUSES = frozenset({"rederive"})
 _CURRENT_CONTEXT_MARKERS = ("current", "ua-msme", "2022")
 _CAPACITY_GROUNDING_MARKERS = frozenset(
@@ -358,9 +354,7 @@ class S11PredictiveKnowledgeIntegrityReport(Layer2ReadinessModel):
     def _validate_integrity_report(self) -> S11PredictiveKnowledgeIntegrityReport:
         if set(self.false_clear_counts) != set(S11_FALSE_CLEAR_FIELDS):
             raise ValueError("false_clear_counts keys must exactly match S11_FALSE_CLEAR_FIELDS")
-        if self.predictive_axis_count + self.reverted_fail_closed_axis_count != (
-            self.axis_count
-        ):
+        if self.predictive_axis_count + self.reverted_fail_closed_axis_count != (self.axis_count):
             raise ValueError("predictive and reverted axes must sum to axis_count")
         if self.per_axis_predictive_calibration_numerator > (
             self.per_axis_predictive_calibration_denominator
@@ -532,13 +526,16 @@ def build_s11_predictive_knowledge_posture(
     denominator = sum(record.denominator for record in calibrations)
     numerator = sum(record.numerator for record in calibrations)
     pass_rate = numerator / denominator if denominator else 0.0
-    calibration_status = "pass" if calibrations and all(
-        record.calibration_status == "pass" and record.floor_passed for record in calibrations
-    ) else "limit"
-    forecast_quality = _forecast_quality_disposition(upgrades, calibrations)
-    regime_ref = _first_present(
-        [upgrade.regime_strategy_constraint_ref for upgrade in upgrades]
+    calibration_status = (
+        "pass"
+        if calibrations
+        and all(
+            record.calibration_status == "pass" and record.floor_passed for record in calibrations
+        )
+        else "limit"
     )
+    forecast_quality = _forecast_quality_disposition(upgrades, calibrations)
+    regime_ref = _first_present([upgrade.regime_strategy_constraint_ref for upgrade in upgrades])
     residuals = _dedupe(
         [
             *[ref for upgrade in upgrades for ref in upgrade.residual_limitation_refs],
@@ -647,9 +644,7 @@ def summarize_s11_predictive_knowledge_integrity(
         weakest_boundary_inheritance_count=len(upgrades),
         false_clear_counts=dict.fromkeys(S11_FALSE_CLEAR_FIELDS, 0),
         cells_closed=[
-            str(cell)
-            for cell in cells_closed
-            if str(cell) != "CROSS_CUTTING.method_infrastructure"
+            str(cell) for cell in cells_closed if str(cell) != "CROSS_CUTTING.method_infrastructure"
         ],
         authority_boundary=build_s11_predictive_authority_boundary(
             authoritative_for=["per_axis_predictive_calibration"],
@@ -674,9 +669,8 @@ def _require_upgrade_refs(payload: Mapping[str, object]) -> None:
         raise ValueError("S6 floor record ref is required for S11 predictive upgrade")
     if not payload.get("s10_forecast_support_ref"):
         raise ValueError("S10 forecast support ref is required for S11 predictive upgrade")
-    if (
-        payload.get("relaxation_decision") == "relaxed_to_predictive"
-        and not payload.get("calibration_record_ref")
+    if payload.get("relaxation_decision") == "relaxed_to_predictive" and not payload.get(
+        "calibration_record_ref"
     ):
         raise ValueError("calibration record ref is required for S11 predictive upgrade")
 
@@ -687,9 +681,7 @@ def _require_bound_ir_analytics(payload: Mapping[str, object]) -> None:
         or not payload.get("design_comparison_ref")
         or not payload.get("ir_analytics_bridge_ref")
     ):
-        raise ValueError(
-            "claim-bound IR analytics require claim, comparison, and bridge refs"
-        )
+        raise ValueError("claim-bound IR analytics require claim, comparison, and bridge refs")
 
 
 def _validate_current_context(record: PredictiveAxisCalibrationRecord) -> None:
@@ -859,8 +851,7 @@ def _forecast_quality_disposition(
     ):
         return "downgraded_by_s11_calibration"
     if any(
-        record.calibration_status != "pass" or not record.floor_passed
-        for record in calibrations
+        record.calibration_status != "pass" or not record.floor_passed for record in calibrations
     ):
         return "downgraded_by_s11_calibration"
     return "unchanged_s10_tier_consumed"
@@ -902,12 +893,7 @@ def _dedupe(values: Sequence[object]) -> list[str]:
 
 
 def _stable_token(value: str) -> str:
-    return (
-        value.replace("pdc://", "")
-        .replace("://", "-")
-        .replace("/", "-")
-        .replace(".", "-")[:96]
-    )
+    return value.replace("pdc://", "").replace("://", "-").replace("/", "-").replace(".", "-")[:96]
 
 
 __all__ = [

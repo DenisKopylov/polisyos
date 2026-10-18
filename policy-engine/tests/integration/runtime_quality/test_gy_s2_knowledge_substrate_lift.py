@@ -79,7 +79,9 @@ def test_l2_transport_and_contested_edges_lower_to_bounded_nonpoint_sets() -> No
         )
         for context_id in ("UA", "ZZ_WRONG_SCOPE"):
             with pytest.raises(ValueError, match="not_reproducible_under_current_rule"):
-                query.transport_value_outer_set(source, edge_id=L2_EDGE_ID, target_context_id=context_id)
+                query.transport_value_outer_set(
+                    source, edge_id=L2_EDGE_ID, target_context_id=context_id
+                )
         with pytest.raises(ValueError, match="not_reproducible_under_current_rule"):
             query.untransported_value_outer_set(
                 source, edge_id=L2_EDGE_ID, target_context_id="UA", reason="transport_unavailable"
@@ -101,13 +103,20 @@ def test_l2_grounding_resolves_content_and_fails_closed_for_unrelated_query() ->
         for cause, effect, scope in (
             ("agriculture.fertilizer_use", "agriculture.food_nutritional_quality", "UA"),
             ("astronomy.star_brightness", "agriculture.food_nutritional_quality", "UA"),
-            ("agriculture.fertilizer_use", "agriculture.food_nutritional_quality", "ZZ_WRONG_SCOPE"),
+            (
+                "agriculture.fertilizer_use",
+                "agriculture.food_nutritional_quality",
+                "ZZ_WRONG_SCOPE",
+            ),
             ("agriculture.organic_fertilizer_system", "agriculture.crop_yield", "UA"),
         ):
             with pytest.raises(ValueError, match="not_reproducible_under_current_rule"):
                 query.resolve_grounded_causal_prior(
-                    cause=cause, effect=effect, estimand="directional_effect",
-                    scope_context_id=scope, required_skg_version_id=1,
+                    cause=cause,
+                    effect=effect,
+                    estimand="directional_effect",
+                    scope_context_id=scope,
+                    required_skg_version_id=1,
                 )
     finally:
         query.close()

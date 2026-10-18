@@ -110,9 +110,7 @@ def build_scholar_academic_evidence_report(
         "participation_downgrade_records": [
             dict(row) for row in participation_downgrade_records or ()
         ],
-        "literature_deficit_blockers": [
-            dict(row) for row in literature_deficit_blockers or ()
-        ],
+        "literature_deficit_blockers": [dict(row) for row in literature_deficit_blockers or ()],
         "support_requirement_specs": [
             spec.model_dump(mode="json")
             if isinstance(spec, ScholarSupportRequirementSpec)
@@ -200,9 +198,7 @@ def build_scholar_academic_evidence_report_from_web_bundle(
             "source_id": source_id,
             "source_family": _text(source.get("source_type")) or "web",
             "reason_code": (
-                _text(source.get("fetch_status"))
-                or _text(source.get("error"))
-                or "rejected"
+                _text(source.get("fetch_status")) or _text(source.get("error")) or "rejected"
             ),
         }
         for source in sources
@@ -237,8 +233,7 @@ def build_scholar_academic_evidence_report_from_web_bundle(
             "source_surface": "scholar_retrieval",
         }
         for snippet in snippets
-        if (snippet_id := _text(snippet.get("snippet_id")))
-        and (source_id := _source_id(snippet))
+        if (snippet_id := _text(snippet.get("snippet_id"))) and (source_id := _source_id(snippet))
     ]
     support_links = [
         _support_link_from_bundle(row, requirements_by_claim=requirements_by_claim)
@@ -323,9 +318,7 @@ def build_scholar_academic_evidence_report_from_web_bundle(
         duplicate_markers=_duplicate_markers_from_sources(sources),
         polarity_markers=_polarity_markers_from_supports(support_links),
         dependence_records=dependence_records,
-        participation_downgrade_records=_participation_downgrades_from_supports(
-            support_links
-        ),
+        participation_downgrade_records=_participation_downgrades_from_supports(support_links),
         literature_deficit_blockers=literature_deficit_blockers,
         support_requirement_specs=scholar_requirements,
         source_family_independence_tags=independence_tags,
@@ -520,9 +513,7 @@ def normalize_scholar_academic_evidence_report(
             )
         )
 
-    independence_tags = _normalize_independence_tags(
-        report.get("source_family_independence_tags")
-    )
+    independence_tags = _normalize_independence_tags(report.get("source_family_independence_tags"))
     normalized["source_family_independence_tags"] = independence_tags
     missing_independence = []
     for row in selected_sources:
@@ -535,9 +526,7 @@ def normalize_scholar_academic_evidence_report(
         if source_id and tag is None:
             missing_independence.append(source_id)
     if not independence_tags and selected_sources:
-        missing_independence.extend(
-            _source_id(row) or "unknown" for row in selected_sources
-        )
+        missing_independence.extend(_source_id(row) or "unknown" for row in selected_sources)
     if missing_independence:
         issues.append(
             _issue(
@@ -600,9 +589,7 @@ def normalize_scholar_academic_evidence_report(
         )
     )
 
-    snippet_ids = {
-        _text(row.get("snippet_id")) for row in snippets if _text(row.get("snippet_id"))
-    }
+    snippet_ids = {_text(row.get("snippet_id")) for row in snippets if _text(row.get("snippet_id"))}
     for citation in citations:
         citation_issues = _citation_provenance_issues(citation, snippet_ids)
         issues.extend(citation_issues)
@@ -864,9 +851,7 @@ def _polarity_marker_issues(
         ]
     if not support_links:
         return []
-    marker_claim_ids = {
-        claim_id for marker in polarity_markers if (claim_id := _claim_id(marker))
-    }
+    marker_claim_ids = {claim_id for marker in polarity_markers if (claim_id := _claim_id(marker))}
     missing_claim_ids = sorted(
         {
             claim_id
@@ -955,9 +940,7 @@ def _dependence_record_issues(
                 )
             )
 
-    scoring_by_source = {
-        source_id: row for row in source_scoring if (source_id := _source_id(row))
-    }
+    scoring_by_source = {source_id: row for row in source_scoring if (source_id := _source_id(row))}
     for key, source_ids in sorted(source_ids_by_key.items()):
         if len(source_ids) <= 1:
             continue
@@ -1213,9 +1196,7 @@ def _source_family_tags_from_sources(sources: Sequence[Mapping[str, Any]]) -> di
     for source_id, source in by_source_id.items():
         canonical_source_id = _text(source.get("duplicate_of_source_id"))
         tags[source_id] = (
-            base_tags.get(canonical_source_id or "")
-            or canonical_source_id
-            or base_tags[source_id]
+            base_tags.get(canonical_source_id or "") or canonical_source_id or base_tags[source_id]
         )
     return tags
 
@@ -1299,9 +1280,7 @@ def _support_link_from_bundle(
                 "required_recency_days": requirement.recency_days,
                 "required_replication_count": requirement.required_replication_count,
                 "required_independence_breadth": requirement.required_independence_breadth,
-                "required_citation_network_depth": (
-                    requirement.required_citation_network_depth
-                ),
+                "required_citation_network_depth": (requirement.required_citation_network_depth),
             }
         )
     return payload
@@ -1385,9 +1364,7 @@ def _dependence_records_from_sources(
 ) -> list[dict[str, Any]]:
     source_ids_by_key: dict[str, list[str]] = {}
     sources_by_id = {
-        source_id: source
-        for source in selected_sources
-        if (source_id := _source_id(source))
+        source_id: source for source in selected_sources if (source_id := _source_id(source))
     }
     for source in selected_sources:
         source_id = _source_id(source)
@@ -1431,12 +1408,9 @@ def _participation_downgrades_from_supports(
                 "record_id": f"participation-downgrade:{claim_id}:{requested}",
                 "claim_id": claim_id,
                 "claim_use_requested": requested,
-                "claim_use_allowed": "context-only"
-                if participation_like
-                else "academic_support",
+                "claim_use_allowed": "context-only" if participation_like else "academic_support",
                 "authority_level": _text(link.get("authority_level")) or "research",
-                "population_scope": _text(link.get("population_scope"))
-                or "general_population",
+                "population_scope": _text(link.get("population_scope")) or "general_population",
                 "authority_boundary": "academic_publication_not_participation_provenance"
                 if participation_like
                 else "scholar_academic_support_only",
@@ -1445,9 +1419,7 @@ def _participation_downgrades_from_supports(
                     if participation_like
                     else "not_participation_claim"
                 ),
-                "public_projection_effect": "show_limitation"
-                if participation_like
-                else "none",
+                "public_projection_effect": "show_limitation" if participation_like else "none",
             }
         )
     return records
@@ -1550,9 +1522,7 @@ def _requirement_deficit_blockers(
     support_links: Sequence[Mapping[str, Any]],
     selected_sources: Sequence[Mapping[str, Any]],
 ) -> list[dict[str, Any]]:
-    links_by_claim = {
-        claim_id: link for link in support_links if (claim_id := _claim_id(link))
-    }
+    links_by_claim = {claim_id: link for link in support_links if (claim_id := _claim_id(link))}
     selected_by_id = {
         source_id: source for source in selected_sources if (source_id := _source_id(source))
     }
@@ -1607,10 +1577,7 @@ def _requirement_deficit_blockers(
         if citation_depth_observed < requirement.required_citation_network_depth:
             blockers.append(
                 _requirement_blocker(
-                    code=(
-                        "policy_design_scholar_requirement_"
-                        "citation_network_depth_unmet"
-                    ),
+                    code=("policy_design_scholar_requirement_citation_network_depth_unmet"),
                     requirement=requirement,
                     observed=citation_depth_observed,
                     required=requirement.required_citation_network_depth,
@@ -1825,9 +1792,7 @@ def _claim_use(row: Mapping[str, Any]) -> str:
 def _claim_use_allowed(row: Mapping[str, Any]) -> str:
     return (
         _text(
-            row.get("claim_use_allowed")
-            or row.get("allowed_claim_use")
-            or row.get("allowed_use")
+            row.get("claim_use_allowed") or row.get("allowed_claim_use") or row.get("allowed_use")
         )
         or ""
     ).casefold()

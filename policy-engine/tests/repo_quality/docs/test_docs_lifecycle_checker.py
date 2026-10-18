@@ -17,8 +17,7 @@ def _format_finding(finding: check_docs_lifecycle.LifecycleFinding) -> str:
 
 def _current_six_findings() -> tuple[check_docs_lifecycle.LifecycleFinding, ...]:
     stale_message = (
-        f"stale direct reference `{OLD_FRONTEND_DASHBOARD}`; "
-        f"use `{CANONICAL_FRONTEND_DASHBOARD}`."
+        f"stale direct reference `{OLD_FRONTEND_DASHBOARD}`; use `{CANONICAL_FRONTEND_DASHBOARD}`."
     )
     return (
         check_docs_lifecycle.LifecycleFinding(
@@ -97,8 +96,7 @@ def test_quoted_evidence_is_not_a_live_reference(tmp_path: Path) -> None:
     )
 
     divergent_paths = {
-        finding.path
-        for finding in check_docs_lifecycle.check_removed_stub_references(tmp_path)
+        finding.path for finding in check_docs_lifecycle.check_removed_stub_references(tmp_path)
     }
     assert "docs/unclosed-evidence.md" in divergent_paths
     assert "docs/ordinary-fence.md" in divergent_paths

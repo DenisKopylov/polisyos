@@ -100,13 +100,9 @@ CLUSTER_SPECS: dict[str, dict[str, Any]] = {
         "affected_subsystem": "runtime canary matrix and scenario evidence",
         "target_plan_wave": "Wave 35A",
         "shared_remediation_surface": (
-            "scenario matrix runner, variant registry, and Wave 33 rebaseline bundle "
-            "publisher"
+            "scenario matrix runner, variant registry, and Wave 33 rebaseline bundle publisher"
         ),
-        "verification_command": (
-            f"{BUILD_PASS2_DIAGNOSTICS_CMD} "
-            f"&& {CHECK_WAVE34_CMD}"
-        ),
+        "verification_command": (f"{BUILD_PASS2_DIAGNOSTICS_CMD} && {CHECK_WAVE34_CMD}"),
         "closeout_impact": (
             "Wave 36 deterministic canary closeout cannot start until the missing "
             "scenario families have fresh runtime evidence or a superseding plan entry."
@@ -131,8 +127,7 @@ CLUSTER_SPECS: dict[str, dict[str, Any]] = {
             "and strategic behavior ledger"
         ),
         "verification_command": (
-            f"{BUILD_PASS2_DIAGNOSTICS_CMD} --phase 34.2 "
-            f"&& {CHECK_WAVE34_CMD}"
+            f"{BUILD_PASS2_DIAGNOSTICS_CMD} --phase 34.2 && {CHECK_WAVE34_CMD}"
         ),
         "closeout_impact": (
             "Closeout must not treat generic blockers as proof that adversarial and "
@@ -159,9 +154,7 @@ CLUSTER_SPECS: dict[str, dict[str, Any]] = {
             "survey/measurement ledger"
         ),
         "verification_command": (
-            f"{RUN_PHASE34_3_CMD} "
-            f"&& {RUN_PHASE34_4_CMD} "
-            f"&& {CHECK_WAVE34_CMD}"
+            f"{RUN_PHASE34_3_CMD} && {RUN_PHASE34_4_CMD} && {CHECK_WAVE34_CMD}"
         ),
         "closeout_impact": (
             "Major claims remain non-publishable until claim-bound producer evidence, "
@@ -186,10 +179,7 @@ CLUSTER_SPECS: dict[str, dict[str, Any]] = {
             "semantic validity ledgers, method-result refs, jurisdiction competence "
             "refs, monitoring maps, and model-dependency records"
         ),
-        "verification_command": (
-            f"{RUN_PHASE34_3_CMD} "
-            f"&& {CHECK_WAVE34_CMD}"
-        ),
+        "verification_command": (f"{RUN_PHASE34_3_CMD} && {CHECK_WAVE34_CMD}"),
         "closeout_impact": (
             "Final readiness cannot rely on a claim whose competence, transportability, "
             "uncertainty, monitoring, or model dependencies are unbound."
@@ -213,10 +203,7 @@ CLUSTER_SPECS: dict[str, dict[str, Any]] = {
             "operator diagnostic object, restore drill bundle, resource exhaustion "
             "ledger, live/polling parity proof, and archive verifier"
         ),
-        "verification_command": (
-            f"{RUN_PHASE34_5_CMD} "
-            f"&& {CHECK_WAVE34_CMD}"
-        ),
+        "verification_command": (f"{RUN_PHASE34_5_CMD} && {CHECK_WAVE34_CMD}"),
         "closeout_impact": (
             "Closeout cannot claim recoverability, reproducibility, or operator-grade "
             "failure diagnosis while these ledgers are absent."
@@ -242,10 +229,7 @@ CLUSTER_SPECS: dict[str, dict[str, Any]] = {
             "projection matrix, operator journey diff, memory/no-memory ledger, "
             "implementation ledger, contestability ledger, and trust-framing UI tests"
         ),
-        "verification_command": (
-            f"{RUN_PHASE34_6_CMD} "
-            f"&& {CHECK_WAVE34_CMD}"
-        ),
+        "verification_command": (f"{RUN_PHASE34_6_CMD} && {CHECK_WAVE34_CMD}"),
         "closeout_impact": (
             "Human-facing closeout waves cannot rely on projection-only or optimistic "
             "UI semantics until these controls are explicit."
@@ -367,9 +351,7 @@ def build_findings_ledger_payload(
                 "artifact": _rel_path(index_path, repo_root),
                 "schema_version": index_payload.get("schema_version"),
                 "status": index_payload.get("status"),
-                "runtime_acceptance_status": index_payload.get(
-                    "runtime_acceptance_status"
-                ),
+                "runtime_acceptance_status": index_payload.get("runtime_acceptance_status"),
                 "pdd_count": len(spec["pdds"]),
             }
         )
@@ -390,9 +372,7 @@ def build_findings_ledger_payload(
                     "verdict": detail.get("verdict"),
                     "finding_count": len(_as_list(detail.get("findings"))),
                     "recommended_gate": detail.get("recommended_gate"),
-                    "recommended_remediation_id": detail.get(
-                        "recommended_remediation_id"
-                    ),
+                    "recommended_remediation_id": detail.get("recommended_remediation_id"),
                     "represented_in_ledger": True,
                 }
             )
@@ -413,9 +393,7 @@ def build_findings_ledger_payload(
                 )
 
     generated_at = max(generated_values) if generated_values else "2026-05-18T00:00:00+00:00"
-    zero_finding = [
-        item["pdd_id"] for item in detail_artifacts if int(item["finding_count"]) == 0
-    ]
+    zero_finding = [item["pdd_id"] for item in detail_artifacts if int(item["finding_count"]) == 0]
     return {
         "schema_version": SCHEMA_VERSION,
         "tool": TOOL_NAME,
@@ -466,9 +444,7 @@ def build_root_cause_clusters_payload(ledger: Mapping[str, Any]) -> dict[str, An
                 "finding_ids": finding_ids,
                 "pdd_ids": sorted({str(row.get("pdd_id")) for row in rows}),
                 "phases": sorted({str(row.get("phase")) for row in rows}),
-                "finding_codes": sorted(
-                    {str(row.get("finding_code")) for row in rows}
-                ),
+                "finding_codes": sorted({str(row.get("finding_code")) for row in rows}),
                 "recommended_remediation_ids": sorted(
                     {
                         str(row.get("recommended_remediation_id"))
@@ -476,9 +452,7 @@ def build_root_cause_clusters_payload(ledger: Mapping[str, Any]) -> dict[str, An
                         if row.get("recommended_remediation_id")
                     }
                 ),
-                "source_artifacts": sorted(
-                    {str(row.get("source_artifact")) for row in rows}
-                ),
+                "source_artifacts": sorted({str(row.get("source_artifact")) for row in rows}),
             }
         )
 
@@ -521,13 +495,10 @@ def build_disposition_payload(
     findings = [row for row in _as_list(ledger.get("findings")) if isinstance(row, Mapping)]
     cluster_by_finding_id = _cluster_by_finding_id(clusters)
     dispositions = [
-        _disposition_for(row, cluster_by_finding_id[str(row["finding_id"])])
-        for row in findings
+        _disposition_for(row, cluster_by_finding_id[str(row["finding_id"])]) for row in findings
     ]
     artifact_dispositions = _artifact_dispositions(ledger)
-    classification_counts = Counter(
-        str(row.get("classification")) for row in dispositions
-    )
+    classification_counts = Counter(str(row.get("classification")) for row in dispositions)
     return {
         "schema_version": SCHEMA_VERSION,
         "tool": TOOL_NAME,
@@ -544,17 +515,11 @@ def build_disposition_payload(
             "must_fix_unresolved_count": 0,
             "inserted_remediation_wave_count": len(INSERTED_REMEDIATION_WAVES),
             "accepted_blocker_count": classification_counts["accepted_blocker"],
-            "next_plan_remediation_count": classification_counts[
-                "next_plan_remediation"
-            ],
-            "false_alarm_with_evidence_count": classification_counts[
-                "false_alarm_with_evidence"
-            ],
+            "next_plan_remediation_count": classification_counts["next_plan_remediation"],
+            "false_alarm_with_evidence_count": classification_counts["false_alarm_with_evidence"],
         },
         "artifacts": {
-            "findings_ledger": _rel_path(
-                output_path / "pass2_findings_ledger.json", repo_root
-            ),
+            "findings_ledger": _rel_path(output_path / "pass2_findings_ledger.json", repo_root),
             "root_cause_clusters": _rel_path(
                 output_path / "pass2_root_cause_clusters.json", repo_root
             ),
@@ -602,10 +567,7 @@ def _canonical_finding_row(
     code = str(finding.get("code") or f"{pdd_id.lower()}_finding_{ordinal:03d}")
     title = str(finding.get("title") or detail.get("title") or code)
     summary = str(
-        finding.get("summary")
-        or finding.get("message")
-        or finding.get("finding")
-        or title
+        finding.get("summary") or finding.get("message") or finding.get("finding") or title
     )
     context = {
         key: value
@@ -774,10 +736,7 @@ def _artifact_dispositions(ledger: Mapping[str, Any]) -> list[dict[str, Any]]:
                     "No BERL remediation is required unless a later wave introduces "
                     "explanation support into claim evidence."
                 ),
-                "verification_command": (
-                    f"{RUN_PHASE34_3_CMD} "
-                    f"&& {CHECK_WAVE34_CMD}"
-                ),
+                "verification_command": (f"{RUN_PHASE34_3_CMD} && {CHECK_WAVE34_CMD}"),
                 "source_evidence": {
                     "detail_artifact": artifact.get("artifact"),
                     "phase_index_artifact": artifact.get("phase_index_artifact"),

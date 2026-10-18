@@ -506,6 +506,7 @@ def _resolve_witnesses(
     protected_action_id: str,
 ) -> tuple[str, ...]:
     from polisyos.core.artifacts import load_core_json_artifact
+
     if (
         not isinstance(refs, tuple)
         or any(not isinstance(ref, str) for ref in refs)

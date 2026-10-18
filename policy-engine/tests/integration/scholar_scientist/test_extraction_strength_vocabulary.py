@@ -18,8 +18,7 @@ import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 PINNED_SNAPSHOT = (
-    REPO_ROOT
-    / "production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/"
+    REPO_ROOT / "production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph/"
     "scholar_knowledge.duckdb"
 )
 PINNED_SNAPSHOT_SHA256 = "583233169ab729bbcf4c7189c60ff97ba98e3b5146aded44402c87eaccf3a967"
@@ -91,11 +90,7 @@ def _sha256(path: Path) -> str:
 
 def _axis_payload(value: Any) -> dict[str, object]:
     payload = value.model_dump(mode="json") if hasattr(value, "model_dump") else dict(value)
-    return {
-        key: payload.get(key)
-        for field in AXIS_FIELDS
-        for key in (field, f"{field}_status")
-    }
+    return {key: payload.get(key) for field in AXIS_FIELDS for key in (field, f"{field}_status")}
 
 
 def _assert_no_generic_strength(value: Any) -> None:
@@ -277,30 +272,22 @@ def _all_reader_results(
         assert registry_result.error is None
         assert registry_v1.error is None
         typed = {
-            "store": store.get_causal_claims(
-                "policy.", "economic.", min_trust=0.0
-            ),
+            "store": store.get_causal_claims("policy.", "economic.", min_trust=0.0),
             "skg_query": query.query_claims(
                 cause="policy.",
                 effect="economic.",
                 min_trust=0.0,
             ),
-            "search": search.find_causal_evidence(
-                "policy.", "economic.", min_trust=0.0
-            ),
+            "search": search.find_causal_evidence("policy.", "economic.", min_trust=0.0),
             "lazy_academic": lazy_search.find_causal_evidence(
                 "policy.", "economic.", min_trust=0.0
             ),
             "academic_loader": list(academic.load_causal_claim_results_v2(db_path)),
-            "scholar_toolkit": toolkit.find_causal_evidence(
-                "policy.", "economic.", min_trust=0.0
-            ),
+            "scholar_toolkit": toolkit.find_causal_evidence("policy.", "economic.", min_trust=0.0),
             "tool_registry": registry_result.result,
         }
         v1_audits = {
-            "store_v1": store.get_causal_claims_v1_audit(
-                "policy.", "economic.", min_trust=0.0
-            ),
+            "store_v1": store.get_causal_claims_v1_audit("policy.", "economic.", min_trust=0.0),
             "skg_query_v1": query.query_claims_v1_audit(
                 cause="policy.", effect="economic.", min_trust=0.0
             ),
@@ -338,9 +325,7 @@ def _all_legacy_mechanism_results(
 
     store = ScholarKnowledgeStore(db_path, db_path.parent / "legacy-mechanism-store")
     search = ScholarKnowledgeGraph(db_path, db_path.parent / "legacy-mechanism-search")
-    lazy_search = academic.ScholarKnowledgeGraph(
-        db_path, db_path.parent / "legacy-mechanism-lazy"
-    )
+    lazy_search = academic.ScholarKnowledgeGraph(db_path, db_path.parent / "legacy-mechanism-lazy")
     toolkit = KnowledgeToolkit(scholar_graph=search)
     registry = build_knowledge_tool_registry(toolkit)
     try:
@@ -356,19 +341,13 @@ def _all_legacy_mechanism_results(
         typed = {
             "store": store.search_causal_claims("legacy mechanism", min_trust=0.0),
             "search": search.get_mechanism_evidence("legacy mechanism", min_trust=0.0),
-            "lazy_academic": lazy_search.get_mechanism_evidence(
-                "legacy mechanism", min_trust=0.0
-            ),
+            "lazy_academic": lazy_search.get_mechanism_evidence("legacy mechanism", min_trust=0.0),
             "scholar_toolkit": toolkit.get_mechanism_evidence("legacy mechanism", top_k=20),
             "tool_registry": registry_result.result,
         }
         v1_audits = {
-            "store_v1": store.search_causal_claims_v1_audit(
-                "legacy mechanism", min_trust=0.0
-            ),
-            "search_v1": search.get_mechanism_evidence_v1_audit(
-                "legacy mechanism", min_trust=0.0
-            ),
+            "store_v1": store.search_causal_claims_v1_audit("legacy mechanism", min_trust=0.0),
+            "search_v1": search.get_mechanism_evidence_v1_audit("legacy mechanism", min_trust=0.0),
             "lazy_academic_v1": lazy_search.get_mechanism_evidence_v1_audit(
                 "legacy mechanism", min_trust=0.0
             ),
@@ -522,15 +501,17 @@ def _graph_evidence_bindings(tree: ast.AST, scopes: dict[int, str]) -> dict[str,
     """Trace graph-evidence values to local receivers and bindings within each scope."""
 
     parents = {
-        id(child): parent
-        for parent in ast.walk(tree)
-        for child in ast.iter_child_nodes(parent)
+        id(child): parent for parent in ast.walk(tree) for child in ast.iter_child_nodes(parent)
     }
     bindings: dict[str, set[str]] = {}
     for node in ast.walk(tree):
         scope = scopes.get(id(node), "<module>")
         bindings.setdefault(scope, set())
-        if isinstance(node, ast.arg) and node.annotation and _graph_evidence_marker(node.annotation):
+        if (
+            isinstance(node, ast.arg)
+            and node.annotation
+            and _graph_evidence_marker(node.annotation)
+        ):
             bindings[scope].add(node.arg)
 
     def expression_is_graph_evidence(node: ast.AST, names: set[str]) -> bool:
@@ -744,9 +725,7 @@ def _claim_census(paths: tuple[Path, ...]) -> tuple[list[_CensusHit], list[str]]
         semantic_scopes = _scope_has_claim_semantics(tree, scopes)
         graph_evidence_bindings = _graph_evidence_bindings(tree, scopes)
         parents = {
-            id(child): parent
-            for parent in ast.walk(tree)
-            for child in ast.iter_child_nodes(parent)
+            id(child): parent for parent in ast.walk(tree) for child in ast.iter_child_nodes(parent)
         }
         seen: set[tuple[int, str, str, str]] = set()
         for node in ast.walk(tree):
@@ -762,7 +741,10 @@ def _claim_census(paths: tuple[Path, ...]) -> tuple[list[_CensusHit], list[str]]
                 node.id in CENSUS_SYMBOLS or _is_strength_node(node)
             ):
                 text = node.id
-            elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name in CENSUS_SYMBOLS:
+            elif (
+                isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+                and node.name in CENSUS_SYMBOLS
+            ):
                 text = node.name
             elif isinstance(node, ast.Constant) and isinstance(node.value, str):
                 if isinstance(parent, ast.Subscript) and parent.slice is node:
@@ -855,9 +837,7 @@ def test_claim_axes_round_trip_through_activated_writer_and_all_public_readers(
     )
     forged_transport = typed_transport.model_copy(
         update={
-            "vocabulary": typed_transport.vocabulary.model_copy(
-                update={"evidence_strength": None}
-            )
+            "vocabulary": typed_transport.vocabulary.model_copy(update={"evidence_strength": None})
         }
     )
     rejected_graph_path = tmp_path / "rejected-graph-writer.duckdb"
@@ -871,7 +851,9 @@ def test_claim_axes_round_trip_through_activated_writer_and_all_public_readers(
                 )
             ],
             db_path=rejected_graph_path,
-            admitted_claim_adjudications={"claim-forged-graph": _adjudication_fixture("claim-forged-graph")},
+            admitted_claim_adjudications={
+                "claim-forged-graph": _adjudication_fixture("claim-forged-graph")
+            },
         )
     assert graph_admissions == [forged_transport]
     rejected_graph = duckdb.connect(str(rejected_graph_path), read_only=True)
@@ -904,8 +886,7 @@ def test_claim_axes_round_trip_through_activated_writer_and_all_public_readers(
             columns = {
                 str(row[0])
                 for row in physical.execute(
-                    "SELECT column_name FROM information_schema.columns "
-                    "WHERE table_name = ?",
+                    "SELECT column_name FROM information_schema.columns WHERE table_name = ?",
                     [table],
                 ).fetchall()
             }
@@ -992,7 +973,9 @@ def test_claim_axes_round_trip_through_activated_writer_and_all_public_readers(
     assert _axis_payload(absence) == absence_expected
     _assert_no_generic_strength(absence)
 
-    runtime_claims = [edge for edge in _iter_l2_edges(runtime_root) if edge.modality == "L2_CAUSAL_CLAIM"]
+    runtime_claims = [
+        edge for edge in _iter_l2_edges(runtime_root) if edge.modality == "L2_CAUSAL_CLAIM"
+    ]
     assert {edge.edge_id for edge in runtime_claims} == {"claim-typed", "claim-absent"}
     runtime_typed = next(edge for edge in runtime_claims if edge.edge_id == "claim-typed")
     runtime_absence = next(edge for edge in runtime_claims if edge.edge_id == "claim-absent")
@@ -1003,8 +986,7 @@ def test_claim_axes_round_trip_through_activated_writer_and_all_public_readers(
 
     fixture = json.loads(
         (
-            REPO_ROOT
-            / "tests/fixtures/scholar/openalex/credit_guarantee_firm_survival.json"
+            REPO_ROOT / "tests/fixtures/scholar/openalex/credit_guarantee_firm_survival.json"
         ).read_text(encoding="utf-8")
     )
     work = OpenAlexWorkText.from_openalex_work(fixture["results"][0])
@@ -1236,7 +1218,9 @@ def test_snapshot_copy_replay_remains_legacy_until_projected(tmp_path: Path) -> 
     destination_path = tmp_path / "legacy-destination.duckdb"
     source = duckdb.connect(str(source_path))
     try:
-        source.execute("CREATE TABLE ac_works (id VARCHAR PRIMARY KEY, title VARCHAR, year INTEGER)")
+        source.execute(
+            "CREATE TABLE ac_works (id VARCHAR PRIMARY KEY, title VARCHAR, year INTEGER)"
+        )
         source.execute(
             "CREATE TABLE ac_causal_claims ("
             "id VARCHAR PRIMARY KEY, work_id VARCHAR NOT NULL, cause VARCHAR NOT NULL, "
@@ -1341,9 +1325,7 @@ def test_snapshot_copy_replay_remains_legacy_until_projected(tmp_path: Path) -> 
 
     v1 = ScholarKnowledgeStore(destination_path, tmp_path / "legacy-v1-index")
     try:
-        v1_projected = v1.get_causal_claims_v1_audit(
-            "policy.legacy", "outcome.legacy"
-        )[0]
+        v1_projected = v1.get_causal_claims_v1_audit("policy.legacy", "outcome.legacy")[0]
     finally:
         v1.close()
     assert v1_projected.strength is None
@@ -1474,22 +1456,19 @@ def graph_binding_forms(evidence_samples: list[ArticleEvidence]) -> None:
         "typed_v2_reader_or_public_carrier",
     }
     assert required_dispositions <= dispositions.keys(), (
-        "missing semantic dispositions: "
-        f"{sorted(required_dispositions - dispositions.keys())}"
+        f"missing semantic dispositions: {sorted(required_dispositions - dispositions.keys())}"
     )
     graph_evidence_hits = [hit for hit in source_hits if hit.graph_evidence_context]
     assert graph_evidence_hits
     assert all(
-        hit.disposition == "explicit_graph_edge_evidence_strength"
-        for hit in graph_evidence_hits
+        hit.disposition == "explicit_graph_edge_evidence_strength" for hit in graph_evidence_hits
     ), "graph-evidence receivers must not fall through: " + repr(graph_evidence_hits)
     rejection_boundary_hits = [
         hit for hit in source_hits if "_forbidden_vocabulary_key_path" in hit.symbol
     ]
     assert rejection_boundary_hits
     assert all(
-        hit.disposition == "typed_vocabulary_rejection_boundary"
-        for hit in rejection_boundary_hits
+        hit.disposition == "typed_vocabulary_rejection_boundary" for hit in rejection_boundary_hits
     )
 
     direct_generic_claim_sql: list[_CensusHit] = []

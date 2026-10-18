@@ -522,8 +522,7 @@ def _trinity_payload(prompt: str) -> dict[str, object]:
             "hard_constraints": [],
             "soft_constraints": [],
             "narrative": (
-                "Optimize wartime support for Ukrainian MSMEs under fiscal and legal "
-                "constraints."
+                "Optimize wartime support for Ukrainian MSMEs under fiscal and legal constraints."
             ),
             "labels": ["scientist", "trinity", "simulated_llm"],
         },
@@ -609,8 +608,7 @@ def _trinity_payload(prompt: str) -> dict[str, object]:
                     "assumption_id": "assumption_microdata_incomplete",
                     "assumption_type": "structural",
                     "description": (
-                        "Applicant-level MSME treatment and outcome microdata may be "
-                        "incomplete."
+                        "Applicant-level MSME treatment and outcome microdata may be incomplete."
                     ),
                     "confidence": "0.7",
                     "sensitivity_flag": True,

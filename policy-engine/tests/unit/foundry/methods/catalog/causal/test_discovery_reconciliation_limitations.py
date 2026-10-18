@@ -226,22 +226,16 @@ def test_temporal_and_static_same_pair_are_separated_in_persisted_discovery_repo
 
     pcmci = next(result for result in report.individual_results if result.method == "pcmci+")
     pc = next(result for result in report.individual_results if result.method == "pc")
+    assert any(edge.src == "X" and edge.dst == "Y" and edge.lag == 1 for edge in pcmci.graph.edges)
     assert any(
-        edge.src == "X" and edge.dst == "Y" and edge.lag == 1 for edge in pcmci.graph.edges
-    )
-    assert any(
-        {edge.src, edge.dst} == {"X", "Y"} and edge.lag in (None, 0)
-        for edge in pc.graph.edges
+        {edge.src, edge.dst} == {"X", "Y"} and edge.lag in (None, 0) for edge in pc.graph.edges
     )
 
     assert report.temporal_dag is not None
     assert any(
-        edge.src == "X" and edge.dst == "Y" and edge.lag == 1
-        for edge in report.temporal_dag.edges
+        edge.src == "X" and edge.dst == "Y" and edge.lag == 1 for edge in report.temporal_dag.edges
     )
-    static_pair = [
-        edge for edge in report.unified_pag.edges if {edge.src, edge.dst} == {"X", "Y"}
-    ]
+    static_pair = [edge for edge in report.unified_pag.edges if {edge.src, edge.dst} == {"X", "Y"}]
     assert len(static_pair) == 1
     assert static_pair[0].lag in (None, 0)
     assert all(edge.lag in (None, 0) for edge in report.unified_pag.edges)

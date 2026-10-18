@@ -10,11 +10,9 @@ class LexNormPackPlugin(Protocol):
     """Component-style plugin that creates a Lex NormPack provider."""
 
     @property
-    def metadata(self) -> object:
-        ...
+    def metadata(self) -> object: ...
 
-    def create(self) -> object:
-        ...
+    def create(self) -> object: ...
 
 
 __all__ = ["LexNormPackPlugin"]

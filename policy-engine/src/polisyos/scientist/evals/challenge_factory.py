@@ -327,9 +327,13 @@ class AuthoritySpoofingProbe(R14AdversarialProbe):
         authority_envelope = _mapping(
             authority_payload.get("authority_envelope") or payload.get("authority_envelope")
         )
-        target_slot = _text(
-            payload.get("target_authority_slot") or authority_payload.get("target_authority_slot")
-        ) or "closeout_authority"
+        target_slot = (
+            _text(
+                payload.get("target_authority_slot")
+                or authority_payload.get("target_authority_slot")
+            )
+            or "closeout_authority"
+        )
         source_surface = _normalized(
             authority_payload.get("source_surface") or payload.get("source_surface")
         )
@@ -805,8 +809,7 @@ def mutate_generated_challenge(
         _coerce_challenge_class(challenge_class) if challenge_class else challenge.challenge_class
     )
     resolved_failure_mode = (
-        expected_failure_mode
-        or f"{challenge.expected_failure_mode}; mutation={strategy}"
+        expected_failure_mode or f"{challenge.expected_failure_mode}; mutation={strategy}"
     )[:1000]
     mutation_id = _stable_id(
         "challenge",
@@ -978,9 +981,7 @@ def export_public_challenge_factory_report(
         "rejected_count": len(report.rejected_reasons),
         "challenge_classes": sorted({item.challenge_class for item in report.generated}),
         "statuses": sorted({item.status.value for item in report.generated}),
-        "lineage_keys": sorted(
-            {item.lineage_key for item in report.generated if item.lineage_key}
-        ),
+        "lineage_keys": sorted({item.lineage_key for item in report.generated if item.lineage_key}),
     }
 
 
@@ -1016,11 +1017,7 @@ def _assert_all_reviewed(challenges: list[GeneratedChallenge]) -> None:
 
 def _lineage_metadata(challenges: list[GeneratedChallenge]) -> dict[str, Any]:
     source_failure_ref_ids = sorted(
-        {
-            str(ref.artifact_id)
-            for challenge in challenges
-            for ref in challenge.source_failure_refs
-        }
+        {str(ref.artifact_id) for challenge in challenges for ref in challenge.source_failure_refs}
     )
     source_challenge_ids = sorted({challenge.challenge_id for challenge in challenges})
     lineage_key = _stable_id(
@@ -1035,11 +1032,7 @@ def _lineage_metadata(challenges: list[GeneratedChallenge]) -> dict[str, Any]:
         "source_failure_ref_ids": source_failure_ref_ids,
         "challenge_classes": sorted({challenge.challenge_class for challenge in challenges}),
         "reviewer_ref_ids": sorted(
-            {
-                str(ref.artifact_id)
-                for challenge in challenges
-                for ref in challenge.reviewer_refs
-            }
+            {str(ref.artifact_id) for challenge in challenges for ref in challenge.reviewer_refs}
         ),
         "statuses": sorted({challenge.status.value for challenge in challenges}),
     }

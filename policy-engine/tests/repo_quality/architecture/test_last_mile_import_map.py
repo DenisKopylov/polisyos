@@ -64,8 +64,7 @@ def test_phase_0_3_import_map_covers_registered_shell_package_exceptions() -> No
     layout = _read_toml("architecture/packages/layout.toml")
     shims = _read_toml("architecture/shims.toml")
     exception_paths = {
-        entry["path"].rstrip("/")
-        for entry in layout["single_file_shell_package_exception"]
+        entry["path"].rstrip("/") for entry in layout["single_file_shell_package_exception"]
     }
     layout_only_exceptions = {
         "src/polisyos/ir/_internal",
@@ -83,9 +82,7 @@ def test_phase_0_3_import_map_covers_registered_shell_package_exceptions() -> No
 def test_phase_0_3_shim_callers_report_matches_retained_compatibility_paths(
     tmp_path: Path,
 ) -> None:
-    retained_entries = repository_last_mile_shim_callers._retained_python_import_shims(
-        REPO_ROOT
-    )
+    retained_entries = repository_last_mile_shim_callers._retained_python_import_shims(REPO_ROOT)
     output_path = tmp_path / "shim_callers.json"
     assert (
         repository_last_mile_shim_callers.main(

@@ -17,9 +17,7 @@ from polisyos.core.canon.canon_json import CanonSpec
 
 SCHEMA_VERSION = "policyos.human_review_calibration_report.v1"
 PACKET_EVALUATION_SCHEMA_VERSION = "policyos.human_review_packet_evaluation.v1"
-REVIEW_EFFECTIVENESS_TELEMETRY_SCHEMA_VERSION = (
-    "policyos.human_review_effectiveness_telemetry.v1"
-)
+REVIEW_EFFECTIVENESS_TELEMETRY_SCHEMA_VERSION = "policyos.human_review_effectiveness_telemetry.v1"
 HUMAN_REVIEW_CALIBRATION_REPORT_KIND = "runtime.human_review_calibration_report"
 HUMAN_REVIEW_CALIBRATION_REPORT_SCHEMA = "polisyos.runtime.HumanReviewCalibrationReport"
 HUMAN_REVIEW_CALIBRATION_REPORT_FILENAME = "human_review_calibration_report.json"
@@ -244,14 +242,10 @@ def build_human_review_calibration_report(
         if event.get("escalation_threshold")
     )
     unresolved_disagreements = [
-        _public_decision(event)
-        for event in normalized_events
-        if bool(event.get("unresolved"))
+        _public_decision(event) for event in normalized_events if bool(event.get("unresolved"))
     ]
     reviewer_attributed_decisions = [
-        _public_decision(event)
-        for event in normalized_events
-        if event.get("reviewer_identity")
+        _public_decision(event) for event in normalized_events if event.get("reviewer_identity")
     ]
     quality_signals = _quality_signals(
         summary=summary,
@@ -421,9 +415,7 @@ def human_review_public_export(report: Mapping[str, Any]) -> dict[str, Any]:
         "status": report.get("status"),
         "run_id": report.get("run_id"),
         "job_id": report.get("job_id"),
-        "human_review_calibration_report_ref": report.get(
-            "human_review_calibration_report_ref"
-        ),
+        "human_review_calibration_report_ref": report.get("human_review_calibration_report_ref"),
         "summary": report.get("summary", {}),
         "quality_signals": report.get("quality_signals", []),
         "review_effectiveness_telemetry": report.get(
@@ -492,9 +484,7 @@ def _normalize_event(event: Mapping[str, Any]) -> dict[str, Any]:
     if agreement is None and outcome and expected_outcome:
         agreement = outcome == expected_outcome
     producer_identity = _clean_text(
-        event.get("producer_identity")
-        or event.get("producer_id")
-        or event.get("producer")
+        event.get("producer_identity") or event.get("producer_id") or event.get("producer")
     )
     reviewer_identity = _clean_text(event.get("reviewer_identity"))
     reviewer_independent = _bool_or_none(
@@ -513,17 +503,13 @@ def _normalize_event(event: Mapping[str, Any]) -> dict[str, Any]:
         if "separation_of_duty_attested" in event
         else event.get("producer_independence_attested")
     )
-    separation_of_duty_attested = _bool_or_none(
-        separation_source
-    )
+    separation_of_duty_attested = _bool_or_none(separation_source)
     time_spent_seconds = _time_spent_seconds(event)
     change_requests = _change_requests(event)
     dissent = bool(_bool_or_none(event.get("dissent")) or False)
     approved_without_change = _bool_or_none(event.get("approved_without_change"))
     if approved_without_change is None and "approved_without_change" not in event:
-        approved_without_change = (
-            outcome == "approve" and not change_requests and not dissent
-        )
+        approved_without_change = outcome == "approve" and not change_requests and not dissent
     return {
         "review_id": _clean_text(event.get("review_id") or event.get("id")),
         "flow": _normalize_flow(event.get("flow") or outcome),
@@ -547,9 +533,7 @@ def _normalize_event(event: Mapping[str, Any]) -> dict[str, Any]:
         "change_requests": change_requests,
         "approved_without_change": approved_without_change,
         "agreement": agreement,
-        "disagreement_reason_code": _clean_text(
-            event.get("disagreement_reason_code")
-        ),
+        "disagreement_reason_code": _clean_text(event.get("disagreement_reason_code")),
         "override_correct": _bool_or_none(event.get("override_correct")),
         "escalation_threshold": _clean_text(event.get("escalation_threshold")),
         "unresolved": bool(event.get("unresolved")),
@@ -561,9 +545,7 @@ def _summary(events: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
     outcome_counts = _counter_dict(event.get("outcome") for event in events)
     flow_counts = _counter_dict(event.get("flow") for event in events)
     agreement_values = [
-        bool(event["agreement"])
-        for event in events
-        if event.get("agreement") is not None
+        bool(event["agreement"]) for event in events if event.get("agreement") is not None
     ]
     override_events = [
         event
@@ -602,9 +584,7 @@ def _summary(events: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
         "override_correctness_rate": _rate(override_correctness_values),
         "override_correctness_denominator": len(override_correctness_values),
         "approve_without_change_rate": _rate(approve_without_change_values),
-        "approve_without_change_count": sum(
-            1 for value in approve_without_change_values if value
-        ),
+        "approve_without_change_count": sum(1 for value in approve_without_change_values if value),
         "approval_count": len(approval_events),
         "reviewer_independence_rate": _rate(reviewer_independence_values),
         "reviewer_independence_denominator": len(reviewer_independence_values),
@@ -635,9 +615,7 @@ def _oversight_effectiveness(
         if event.get("time_spent_seconds") is not None
     ]
     low_time_count = sum(
-        1
-        for seconds in time_spent
-        if seconds < thresholds.minimum_effective_time_spent_seconds
+        1 for seconds in time_spent if seconds < thresholds.minimum_effective_time_spent_seconds
     )
     reviewer_independence_rate = _number(summary.get("reviewer_independence_rate"))
     approve_without_change_rate = _number(summary.get("approve_without_change_rate"))
@@ -667,9 +645,7 @@ def _oversight_effectiveness(
         "reviewer_independence_rate": reviewer_independence_rate,
         "separation_of_duty_attestation_rate": separation_rate,
         "approve_without_change_rate": approve_without_change_rate,
-        "average_time_spent_seconds": (
-            sum(time_spent) / len(time_spent) if time_spent else None
-        ),
+        "average_time_spent_seconds": (sum(time_spent) / len(time_spent) if time_spent else None),
         "low_time_review_count": low_time_count,
         "dissent_count": int(summary.get("dissent_count") or 0),
         "change_request_count": int(summary.get("change_request_count") or 0),
@@ -693,11 +669,7 @@ def _producer_independence(events: Sequence[Mapping[str, Any]]) -> dict[str, Any
         and event.get("producer_identity") == event.get("reviewer_identity")
     )
     producer_count = len(
-        {
-            str(event.get("producer_identity"))
-            for event in events
-            if event.get("producer_identity")
-        }
+        {str(event.get("producer_identity")) for event in events if event.get("producer_identity")}
     )
     return {
         "producer_count": producer_count,
@@ -735,9 +707,7 @@ def _reviewer_burden(events: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
     ]
     return {
         "total_minutes": total_minutes,
-        "average_minutes_per_review": (
-            total_minutes / len(events) if len(events) > 0 else None
-        ),
+        "average_minutes_per_review": (total_minutes / len(events) if len(events) > 0 else None),
         "reviewer_count": len(by_reviewer),
         "per_reviewer": per_reviewer,
         "max_reviewer_minutes": max(
@@ -912,9 +882,7 @@ def _quality_signals(
                 )
             )
 
-    separation_rate = _number(
-        producer_independence.get("separation_of_duty_attestation_rate")
-    )
+    separation_rate = _number(producer_independence.get("separation_of_duty_attestation_rate"))
     if separation_rate is not None:
         if separation_rate < thresholds.separation_of_duty_fail:
             signals.append(
@@ -1022,9 +990,7 @@ def _review_effectiveness_telemetry(
         "threshold_status": threshold_status,
         "posture": "governed_blocking" if blocking_permitted else "advisory",
         "blocking_permitted": blocking_permitted,
-        "report_status_effect": (
-            threshold_status if blocking_permitted else "pass_advisory_only"
-        ),
+        "report_status_effect": (threshold_status if blocking_permitted else "pass_advisory_only"),
         "policy": policy.to_public_dict(),
         "authority_boundary": {
             "authoritative_for": [
@@ -1066,9 +1032,7 @@ def _review_effectiveness_measured_signals(
         for event in events
         if event.get("time_spent_seconds") is not None
     ]
-    no_delta_count = sum(
-        1 for event in events if bool(event.get("approved_without_change"))
-    )
+    no_delta_count = sum(1 for event in events if bool(event.get("approved_without_change")))
     no_delta_denominator = sum(
         1 for event in events if event.get("approved_without_change") is not None
     )
@@ -1084,15 +1048,11 @@ def _review_effectiveness_measured_signals(
             sum(review_times) / len(review_times) if review_times else None
         ),
         "review_time_seconds_median": _median(review_times),
-        "low_time_review_count": int(
-            oversight_effectiveness.get("low_time_review_count") or 0
-        ),
+        "low_time_review_count": int(oversight_effectiveness.get("low_time_review_count") or 0),
         "override_rate": summary.get("override_rate"),
         "override_count": int(summary.get("override_count") or 0),
         "dissent_rate": (
-            int(summary.get("dissent_count") or 0) / review_count
-            if review_count
-            else None
+            int(summary.get("dissent_count") or 0) / review_count if review_count else None
         ),
         "dissent_count": int(summary.get("dissent_count") or 0),
         "no_delta_review_rate": (
@@ -1100,9 +1060,7 @@ def _review_effectiveness_measured_signals(
         ),
         "no_delta_review_count": no_delta_count,
         "separation_of_duty_failure_rate": (
-            separation_failure_count / len(separation_values)
-            if separation_values
-            else None
+            separation_failure_count / len(separation_values) if separation_values else None
         ),
         "separation_of_duty_failure_count": separation_failure_count,
     }

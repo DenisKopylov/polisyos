@@ -83,8 +83,7 @@ internal_only = true
     errors = check_extension_examples.validate_pyproject(tmp_path, ())
 
     assert errors == [
-        "polisyos.internal_plugins: internal_only exception requires "
-        "internal_only_review_date"
+        "polisyos.internal_plugins: internal_only exception requires internal_only_review_date"
     ]
 
 
@@ -99,11 +98,14 @@ def _write_extension_contract(
         extension_points_toml,
         encoding="utf-8",
     )
-    entry_points = pyproject_entry_points or """
+    entry_points = (
+        pyproject_entry_points
+        or """
 [project.entry-points."polisyos.uncovered_plugins"]
 
 [project.entry-points."polisyos.internal_plugins"]
 """
+    )
     (tmp_path / "pyproject.toml").write_text(
         f"""
 [project]

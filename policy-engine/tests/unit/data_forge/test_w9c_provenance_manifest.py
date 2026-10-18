@@ -90,8 +90,7 @@ def test_finalize_writes_provenance_manifest_and_answers_claim_snapshot(
         (snapshot_root / "data_forge_snapshot_binding.json").read_text(encoding="utf-8")
     )
     assert all(
-        row["provenance_manifest_ref"].startswith("cas://sha256/")
-        for row in binding["bindings"]
+        row["provenance_manifest_ref"].startswith("cas://sha256/") for row in binding["bindings"]
     )
     assert {row["corpus_id"] for row in binding["bindings"]} == {
         "corpus-legal",

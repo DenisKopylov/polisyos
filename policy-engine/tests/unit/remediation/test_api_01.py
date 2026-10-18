@@ -67,9 +67,7 @@ def test_interference_characterization_preserves_leaf_identity() -> None:
     """Keep interference package aliases pointed at their real leaf owners."""
     runtime = import_module(INTERFERENCE_MODULE)
     api = import_module(f"{INTERFERENCE_MODULE}.api")
-    contracts = import_module(
-        "polisyos.foundry.methods.catalog.causal._interference_contracts"
-    )
+    contracts = import_module("polisyos.foundry.methods.catalog.causal._interference_contracts")
     identification = import_module(f"{INTERFERENCE_MODULE}.identification")
 
     for name in (

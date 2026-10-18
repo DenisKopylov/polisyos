@@ -78,12 +78,8 @@ def test_method_quality_report_consumes_requirements_and_marks_selected_method()
     )
 
     assert report["status"] == "pass"
-    assert report["method_requirement_statuses"] == {
-        "method-req-claim-effect": "satisfied"
-    }
-    assert report["selected_methods"][0]["method_requirement_refs"] == [
-        "method-req-claim-effect"
-    ]
+    assert report["method_requirement_statuses"] == {"method-req-claim-effect": "satisfied"}
+    assert report["selected_methods"][0]["method_requirement_refs"] == ["method-req-claim-effect"]
     assert report["summary"]["method_requirement_statuses"] == {
         "method-req-claim-effect": "satisfied"
     }
@@ -109,9 +105,5 @@ def test_method_quality_report_rejects_method_without_requirement_assumption_gat
 
     assert report["status"] == "fail"
     assert report["selected_methods"] == []
-    assert report["rejected_methods"][0]["reason_code"] == (
-        "runtime_assumption_validation_missing"
-    )
-    assert "method_requirement_no_selected_method" in {
-        issue["code"] for issue in report["issues"]
-    }
+    assert report["rejected_methods"][0]["reason_code"] == ("runtime_assumption_validation_missing")
+    assert "method_requirement_no_selected_method" in {issue["code"] for issue in report["issues"]}

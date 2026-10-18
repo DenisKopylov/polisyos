@@ -64,9 +64,7 @@ _EXPECTED_NEGATIVE_FAILURES: dict[str, tuple[str, ...]] = {
     "insufficient_causal_evidence": ("hds_insufficient_causal_evidence",),
     "hidden_token_leakage_attempt": ("hds_hidden_token_leakage",),
     "source_prompt_injection": ("hds_source_prompt_injection",),
-    "requested_policy_violates_legal_constraints": (
-        "hds_policy_violates_legal_constraints",
-    ),
+    "requested_policy_violates_legal_constraints": ("hds_policy_violates_legal_constraints",),
 }
 
 _METAMORPHIC_FIELDS: tuple[str, ...] = (
@@ -125,8 +123,7 @@ def build_metamorphic_prompt_report(contract: JsonMap) -> JsonMap:
         variant_id = _text(raw_variant.get("variant_id"), "variant")
         expected = str(raw_variant.get("expected") or "pass").casefold()
         blockers = tuple(
-            _non_empty(item)
-            for item in raw_variant.get("ambiguity_blocker_codes") or []
+            _non_empty(item) for item in raw_variant.get("ambiguity_blocker_codes") or []
         )
         if expected == "blocked" or blockers:
             variants.append(
@@ -172,9 +169,7 @@ def build_metamorphic_prompt_report(contract: JsonMap) -> JsonMap:
                 "variant_id": variant_id,
                 "locale": _text(raw_variant.get("locale"), "und"),
                 "expected": expected,
-                "status": "pass"
-                if len(preserved) == len(_METAMORPHIC_FIELDS)
-                else "fail",
+                "status": "pass" if len(preserved) == len(_METAMORPHIC_FIELDS) else "fail",
                 "ambiguity_blocker_codes": [],
                 "observed_canonical": variant_canonical,
                 "preserved_fields": preserved,
@@ -229,9 +224,7 @@ def build_scenario_semantic_binding_report(contract: JsonMap) -> JsonMap:
         "selected_evidence_refs": list(evaluation.selected_evidence_refs),
         "rejected_candidate_refs": list(evaluation.rejected_candidate_refs),
         "blocker_refs": list(evaluation.blocker_refs),
-        "issues": [
-            issue.model_dump(mode="json") for issue in evaluation.issues
-        ],
+        "issues": [issue.model_dump(mode="json") for issue in evaluation.issues],
     }
 
 
@@ -281,15 +274,11 @@ def _run_negative_control(
         evaluation = evaluate_semantic_binding_ledger(ledger)
         observed_status = evaluation.status
         failure_codes = (
-            ("semantic_no_relevant_evidence_blocker",)
-            if evaluation.status == "blocked"
-            else ()
+            ("semantic_no_relevant_evidence_blocker",) if evaluation.status == "blocked" else ()
         )
     elif control_id == "hidden_token_leakage_attempt":
         payload = str(control.get("payload") or "private_rubric sentinel token")
-        failure_codes = (
-            ("hds_hidden_token_leakage",) if _contains_hidden_token(payload) else ()
-        )
+        failure_codes = ("hds_hidden_token_leakage",) if _contains_hidden_token(payload) else ()
     elif control_id == "source_prompt_injection":
         payload = str(
             control.get("payload")
@@ -382,9 +371,7 @@ def _mutate_ledger_for_control(
                 "source_ref": "source_manifest",
                 "source_facet_refs": ["manifest_role"],
                 "claim_ids": _claim_ids(mutated),
-                "claim_support_feature_refs": [
-                    f"claim-feature:{_claim_id(mutated)}:manifest_role"
-                ],
+                "claim_support_feature_refs": [f"claim-feature:{_claim_id(mutated)}:manifest_role"],
                 "lineage_refs": ["lineage:source_manifest"],
                 "transformation_refs": ["transform:source_manifest"],
             }
@@ -542,9 +529,7 @@ def _base_semantic_binding_ledger(contract: JsonMap) -> JsonMap:
                         "time_window": canonical["time_context"],
                     }
                 ],
-                "source_freshness": [
-                    {"source_ref": evidence["source_ref"], "status": "pass"}
-                ],
+                "source_freshness": [{"source_ref": evidence["source_ref"], "status": "pass"}],
                 "data_coverage": [
                     {
                         "source_ref": evidence["source_ref"],
@@ -562,9 +547,7 @@ def _base_semantic_binding_ledger(contract: JsonMap) -> JsonMap:
                 ],
                 "dictionary_refs": [f"dictionary:{evidence['source_ref']}"],
                 "lineage_refs": [f"lineage:{evidence['source_ref']}"],
-                "data_forge_snapshot_refs": [
-                    f"data-forge-snapshot:{_scenario_id(contract)}"
-                ],
+                "data_forge_snapshot_refs": [f"data-forge-snapshot:{_scenario_id(contract)}"],
                 "source_facets": [
                     {
                         "source_ref": evidence["source_ref"],
@@ -601,9 +584,7 @@ def _base_semantic_binding_ledger(contract: JsonMap) -> JsonMap:
                         "transformation_refs": [f"transform:{evidence['outcome']}"],
                     }
                 ],
-                "claim_support_feature_refs": [
-                    f"claim-feature:{claim_id}:{evidence['outcome']}"
-                ],
+                "claim_support_feature_refs": [f"claim-feature:{claim_id}:{evidence['outcome']}"],
                 "data_gap_blocker_refs": [],
                 "ambiguity_blocker_refs": [],
                 **_spine_binding_fields(
@@ -637,9 +618,7 @@ def _base_semantic_binding_ledger(contract: JsonMap) -> JsonMap:
                 "scenario_method_expectation_refs": [canonical["method_expectation"]],
                 "assumptions": ["identification_assumptions_recorded"],
                 "input_coverage": [{"source_ref": evidence["source_ref"], "status": "pass"}],
-                "sample_power_adequacy": [
-                    {"method_ref": evidence["method_ref"], "status": "pass"}
-                ],
+                "sample_power_adequacy": [{"method_ref": evidence["method_ref"], "status": "pass"}],
                 "placebo_negative_control_refs": ["placebo:phase56"],
                 "sensitivity_refs": ["sensitivity:phase56"],
                 "uncertainty_refs": ["uncertainty:phase56"],
@@ -935,8 +914,7 @@ def _domain_binding_from_prompt(normalized: str) -> JsonMap | None:
             "method_expectation": "eligibility_coverage_estimation",
         }
     if any(
-        token in normalized
-        for token in ("benefit", "tax relief", "household support", "податков")
+        token in normalized for token in ("benefit", "tax relief", "household support", "податков")
     ):
         return {
             "data_source_family": "benefits_registry",
@@ -953,8 +931,7 @@ def _domain_binding_from_prompt(normalized: str) -> JsonMap | None:
             "method_expectation": "access_gap_estimation",
         }
     if any(
-        token in normalized
-        for token in ("grid", "energy", "outage", "infrastructure", "енерг")
+        token in normalized for token in ("grid", "energy", "outage", "infrastructure", "енерг")
     ):
         return {
             "data_source_family": "grid_outage_event_log",
@@ -1009,15 +986,11 @@ def _aggregate_metamorphic_status(variants: list[JsonMap]) -> str:
         status = str(variant.get("status") or "missing").casefold()
         failures = tuple(variant.get("failure_codes") or ())
         blockers = tuple(variant.get("ambiguity_blocker_codes") or ())
-        if expected == "fail" and status in {"fail", "blocked"} and (
-            failures or blockers
-        ):
+        if expected == "fail" and status in {"fail", "blocked"} and (failures or blockers):
             continue
         if expected == "blocked" and status == "blocked" and blockers:
             continue
-        if expected == "pass" and (
-            status == "pass" or (status == "blocked" and blockers)
-        ):
+        if expected == "pass" and (status == "pass" or (status == "blocked" and blockers)):
             continue
         return "fail"
     return "pass"

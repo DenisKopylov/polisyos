@@ -9,8 +9,7 @@ from tools.quality.validation import check_policy_design_case_layer2_readiness a
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 S10_MANIFEST = (
-    REPO_ROOT
-    / "architecture/policy_design_case/layer2_s10_outcome_prediction_manifest.json"
+    REPO_ROOT / "architecture/policy_design_case/layer2_s10_outcome_prediction_manifest.json"
 )
 S10_MANIFEST_PATH = "architecture/policy_design_case/layer2_s10_outcome_prediction_manifest.json"
 S10_REQUIRED_ARTIFACTS = {"ForecastSupport", "ForecastCalibrationRecord"}
@@ -21,28 +20,18 @@ S10_FALSE_CLEAR_FIELDS = {
     "simulation_only_evidence_laundering_false_clear_count": (
         "simulation_only_evidence_laundering"
     ),
-    "uncalibrated_observable_promotion_false_clear_count": (
-        "uncalibrated_observable_promotion"
-    ),
-    "welfare_without_value_provenance_false_clear_count": (
-        "welfare_without_value_provenance"
-    ),
+    "uncalibrated_observable_promotion_false_clear_count": ("uncalibrated_observable_promotion"),
+    "welfare_without_value_provenance_false_clear_count": ("welfare_without_value_provenance"),
     "fail_closed_axis_prediction_promotion_false_clear_count": (
         "fail_closed_axis_prediction_promotion"
     ),
-    "regime_forecast_tier_laundering_false_clear_count": (
-        "regime_forecast_tier_laundering"
-    ),
+    "regime_forecast_tier_laundering_false_clear_count": ("regime_forecast_tier_laundering"),
     "transported_estimate_without_limitation_false_clear_count": (
         "transported_estimate_without_limitation"
     ),
     "hidden_uncertainty_interval_false_clear_count": "hidden_uncertainty_interval",
-    "non_observable_claim_as_calibrated_false_clear_count": (
-        "non_observable_claim_as_calibrated"
-    ),
-    "production_authority_from_forecast_false_clear_count": (
-        "production_authority_from_forecast"
-    ),
+    "non_observable_claim_as_calibrated_false_clear_count": ("non_observable_claim_as_calibrated"),
+    "production_authority_from_forecast_false_clear_count": ("production_authority_from_forecast"),
     "missing_design_graph_context_false_clear_count": "missing_design_graph_context",
     "observed_outcome_without_credible_evaluation_false_clear_count": (
         "observed_outcome_without_credible_evaluation"
@@ -107,9 +96,7 @@ def test_layer2_s10_manifest_local_open_count_stays_3_after_s11_burn_down() -> N
     assert manifest["slice"] == "S10"
     assert manifest["depends_on"] == ["S5", "S6", "S8"]
     assert manifest["cells_closed"] == []
-    assert manifest["layer_cells_advanced"] == [
-        "outcome_prediction_welfare_comparison"
-    ]
+    assert manifest["layer_cells_advanced"] == ["outcome_prediction_welfare_comparison"]
     assert manifest["expected_current_open_cell_count"] == 3
     summary = validation["summary"]
     assert set(summary["remaining_open_cells"]) == EXPECTED_LIVE_OPEN_CELLS
@@ -172,19 +159,19 @@ def test_layer2_s10_floor_and_false_clears_are_governed() -> None:
 
     assert floor["slice"] == "S10"
     assert floor["metric"] == "observable_subset_calibration"
-    assert floor["revision_rule"] == (
-        "forecast_support_tier_change_requires_calibration_record"
-    )
+    assert floor["revision_rule"] == ("forecast_support_tier_change_requires_calibration_record")
     assert manifest["case_count"] == 13
     assert manifest["observable_subset_calibration_denominator"] >= 4
-    assert manifest["observable_subset_calibration_numerator"] == (
-        manifest["observable_subset_calibration_denominator"]
+    assert (
+        manifest["observable_subset_calibration_numerator"]
+        == (manifest["observable_subset_calibration_denominator"])
     )
     assert manifest["observable_subset_calibration_status"] == "pass"
     assert manifest["observable_subset_calibration_floor_passed"] is True
     assert manifest["observable_subset_calibration_threshold_ref"]
-    assert manifest["observable_subset_calibration_pass_rate"] >= (
-        manifest["observable_subset_calibration_threshold"]
+    assert (
+        manifest["observable_subset_calibration_pass_rate"]
+        >= (manifest["observable_subset_calibration_threshold"])
     )
     assert manifest["non_observable_downgrade_count"] >= 1
     assert manifest["equilibrium_contested_single_forecast_block_count"] >= 1

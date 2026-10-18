@@ -35,16 +35,28 @@ def _safe_write(path: Path, payload: object) -> None:
 
 def _work(index: int = 0):
     return {
-        "id": f"synthetic:{index}", "title": "Constructed policy study",
-        "abstract": "Tax rate reduced employment.", "year": 2024,
-        "cited_by_count": 20, "doi": "", "synthetic": True,
+        "id": f"synthetic:{index}",
+        "title": "Constructed policy study",
+        "abstract": "Tax rate reduced employment.",
+        "year": 2024,
+        "cited_by_count": 20,
+        "doi": "",
+        "synthetic": True,
     }
 
 
 def _hash(value):
-    return "sha256:" + hashlib.sha256(json.dumps(
-        value, sort_keys=True, ensure_ascii=False, separators=(",", ":"),
-    ).encode()).hexdigest()
+    return (
+        "sha256:"
+        + hashlib.sha256(
+            json.dumps(
+                value,
+                sort_keys=True,
+                ensure_ascii=False,
+                separators=(",", ":"),
+            ).encode()
+        ).hexdigest()
+    )
 
 
 def _plan(owner, works=None, **changes):
@@ -53,15 +65,22 @@ def _plan(owner, works=None, **changes):
     for work in selected:
         frame_hash.update((_hash(work) + "\n").encode())
     payload = {
-        "campaign_id": "synthetic:campaign", "synthetic": True,
-        "input_count": len(selected), "input_digest": "sha256:" + frame_hash.hexdigest(),
+        "campaign_id": "synthetic:campaign",
+        "synthetic": True,
+        "input_count": len(selected),
+        "input_digest": "sha256:" + frame_hash.hexdigest(),
         "provider_profile_hash": _hash({"provider": "constructed"}),
-        "screening_model": "synthetic:model", "extraction_model": "synthetic:model",
-        "concurrency": 1, "queue_capacity": 2, "max_attempts": 6,
-        "max_attempts_per_phase": 2, "retry_unknown": True,
+        "screening_model": "synthetic:model",
+        "extraction_model": "synthetic:model",
+        "concurrency": 1,
+        "queue_capacity": 2,
+        "max_attempts": 6,
+        "max_attempts_per_phase": 2,
+        "retry_unknown": True,
         "owner_source_hash": (
             owner.campaign_owner_projection()["content_hash"]
-            if hasattr(owner, "campaign_owner_projection") else None
+            if hasattr(owner, "campaign_owner_projection")
+            else None
         ),
     }
     payload.update(changes)
@@ -76,21 +95,35 @@ def test_checkpoint_replays_response_and_refuses_rebound_source(tmp_path: Path) 
         checkpoint.prepare_inputs([_work()])
         work_key = checkpoint.register_work(_work())
         context = checkpoint.begin_attempt(
-            work_key, phase="screening", model="synthetic:model", prompt="synthetic prompt",
+            work_key,
+            phase="screening",
+            model="synthetic:model",
+            prompt="synthetic prompt",
         )
         checkpoint.finish_attempt(context, {"relevant": True}, {"prompt_tokens": 3})
     with owner.CampaignCheckpoint(tmp_path / "run", plan, _safe_write) as checkpoint:
         assert checkpoint.cached_response(
-            work_key, phase="screening", model="synthetic:model", prompt="synthetic prompt",
+            work_key,
+            phase="screening",
+            model="synthetic:model",
+            prompt="synthetic prompt",
         ) == ({"relevant": True}, {"prompt_tokens": 3})
-        assert checkpoint.cached_response(
-            work_key, phase="screening", model="synthetic:model", prompt="changed prompt",
-        ) is None
+        assert (
+            checkpoint.cached_response(
+                work_key,
+                phase="screening",
+                model="synthetic:model",
+                prompt="changed prompt",
+            )
+            is None
+        )
         assert checkpoint.summary()["attempts"] == {"returned": 1}
     with (
         pytest.raises(ValueError, match="campaign_binding_mismatch"),
         owner.CampaignCheckpoint(
-            tmp_path / "run", _plan(owner, extraction_model="different:model"), _safe_write,
+            tmp_path / "run",
+            _plan(owner, extraction_model="different:model"),
+            _safe_write,
         ),
     ):
         pass
@@ -149,11 +182,15 @@ def test_plan_intake_recomputes_current_owner_projection(tmp_path: Path) -> None
     assert any(path.endswith("reextraction_transport.py") for path in projection["sources"])
     with pytest.raises(ValueError, match="campaign_owner_source_mismatch"):
         owner.CampaignCheckpoint(
-            tmp_path / "wrong", _plan(owner, owner_source_hash=_hash("fake")), _safe_write,
+            tmp_path / "wrong",
+            _plan(owner, owner_source_hash=_hash("fake")),
+            _safe_write,
         )
     with pytest.raises(ValueError, match="campaign_owner_source_mismatch"):
         owner.CampaignCheckpoint(
-            tmp_path / "absent", _plan(owner, owner_source_hash=None), _safe_write,
+            tmp_path / "absent",
+            _plan(owner, owner_source_hash=None),
+            _safe_write,
         )
     assert not (tmp_path / "wrong").exists()
     assert not (tmp_path / "absent").exists()
@@ -222,27 +259,40 @@ class _SyntheticTransport:
                 if context.phase == "self_verification":
                     return {"verifications": []}, {"prompt_tokens": 5, "completion_tokens": 3}
                 return {
-                    "causal_claims": [{
-                        "cause_variable": "tax rate", "effect_variable": "employment",
-                        "direction": "negative", "evidence_strength": "structural",
-                        "claim_extraction_confidence": 0.7, "design_family_hint": "ols",
-                        "claim_text": "Tax rate reduced employment.",
-                        "supporting_spans": [{"section": "abstract",
-                                              "text": "Tax rate reduced employment."}],
-                    }], "extraction_confidence": 0.8,
+                    "causal_claims": [
+                        {
+                            "cause_variable": "tax rate",
+                            "effect_variable": "employment",
+                            "direction": "negative",
+                            "evidence_strength": "structural",
+                            "claim_extraction_confidence": 0.7,
+                            "design_family_hint": "ols",
+                            "claim_text": "Tax rate reduced employment.",
+                            "supporting_spans": [
+                                {"section": "abstract", "text": "Tax rate reduced employment."}
+                            ],
+                        }
+                    ],
+                    "extraction_confidence": 0.8,
                 }, {"prompt_tokens": 7, "completion_tokens": 4}
 
         return Client()
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize(("phase", "reply", "outcome"), [
-    ("screening", {"relevant": "false"}, "contract_violation"),
-    ("extraction", {}, "contract_violation"),
-    ("self_verification", {"verifications": "accepted"}, "verification_unavailable"),
-])
+@pytest.mark.parametrize(
+    ("phase", "reply", "outcome"),
+    [
+        ("screening", {"relevant": "false"}, "contract_violation"),
+        ("extraction", {}, "contract_violation"),
+        ("self_verification", {"verifications": "accepted"}, "verification_unavailable"),
+    ],
+)
 async def test_raw_phase_contract_failure_is_not_normalized_into_success(
-    tmp_path: Path, phase: str, reply: dict, outcome: str,
+    tmp_path: Path,
+    phase: str,
+    reply: dict,
+    outcome: str,
 ) -> None:
     """Removing the raw phase admission must make these misleading defaults pass."""
     owner = _owner()
@@ -262,8 +312,11 @@ async def test_raw_phase_contract_failure_is_not_normalized_into_success(
         return Client()
 
     report = await owner.run_campaign(
-        _plan(owner), works=iter([_work()]), output_root=tmp_path / "run",
-        client_factory=factory, safe_write_json=_safe_write,
+        _plan(owner),
+        works=iter([_work()]),
+        output_root=tmp_path / "run",
+        client_factory=factory,
+        safe_write_json=_safe_write,
     )
     assert report["outcomes"] == {outcome: 1}
     with owner.CampaignCheckpoint(tmp_path / "run", _plan(owner), _safe_write) as checkpoint:
@@ -272,7 +325,9 @@ async def test_raw_phase_contract_failure_is_not_normalized_into_success(
             assert output["record"]["metadata"]["self_verification_status"] == "unavailable"
         else:
             assert output["record"] is None
-    actual = [json.loads(path.read_bytes()) for path in (tmp_path / "run" / "attempts").glob("*.json")]
+    actual = [
+        json.loads(path.read_bytes()) for path in (tmp_path / "run" / "attempts").glob("*.json")
+    ]
     assert any(packet.get("parsed") == reply for packet in actual)
 
 
@@ -287,8 +342,11 @@ async def test_real_extractor_streams_bounded_workers_and_reuses_complete_result
     plan = _plan(owner, works, concurrency=4, queue_capacity=4, max_attempts=42)
     transport = _SyntheticTransport()
     report = await owner.run_campaign(
-        plan, works=iter(works), output_root=tmp_path / "run",
-        client_factory=transport.bind, safe_write_json=_safe_write,
+        plan,
+        works=iter(works),
+        output_root=tmp_path / "run",
+        client_factory=transport.bind,
+        safe_write_json=_safe_write,
     )
     assert report["works"] == {"complete": 7}
     assert report["outcomes"] == {"extracted": 7}
@@ -302,28 +360,40 @@ async def test_real_extractor_streams_bounded_workers_and_reuses_complete_result
             claim = output["record"]["causal_claims"][0]
             assert claim["occurrence"]["synthetic"] is True
             assert claim["vocabulary"]["evidence_strength"] == "structural"
-    before = {str(path.relative_to(tmp_path)): path.read_bytes()
-              for path in (tmp_path / "run" / "works").glob("*.json")}
+    before = {
+        str(path.relative_to(tmp_path)): path.read_bytes()
+        for path in (tmp_path / "run" / "works").glob("*.json")
+    }
     transport.calls.clear()
     resumed = await owner.run_campaign(
-        plan, works=iter(works), output_root=tmp_path / "run",
-        client_factory=transport.bind, safe_write_json=_safe_write,
+        plan,
+        works=iter(works),
+        output_root=tmp_path / "run",
+        client_factory=transport.bind,
+        safe_write_json=_safe_write,
     )
     assert transport.calls == []
     assert resumed["works"] == {"complete": 7}
-    assert before == {str(path.relative_to(tmp_path)): path.read_bytes()
-                      for path in (tmp_path / "run" / "works").glob("*.json")}
+    assert before == {
+        str(path.relative_to(tmp_path)): path.read_bytes()
+        for path in (tmp_path / "run" / "works").glob("*.json")
+    }
 
 
 @pytest.mark.asyncio
-async def test_run_strangle_recomputes_actual_checkpoint_replay(tmp_path: Path, monkeypatch) -> None:
+async def test_run_strangle_recomputes_actual_checkpoint_replay(
+    tmp_path: Path, monkeypatch
+) -> None:
     """Removing durable replay while keeping receipt markers must make the proof fail."""
     owner = _owner()
     transport = _SyntheticTransport()
     plan = _plan(owner)
     report = await owner.run_campaign(
-        plan, works=iter([_work()]), output_root=tmp_path / "run",
-        client_factory=transport.bind, safe_write_json=_safe_write,
+        plan,
+        works=iter([_work()]),
+        output_root=tmp_path / "run",
+        client_factory=transport.bind,
+        safe_write_json=_safe_write,
     )
     assert "strangle_ref" in report, "run_emitted_checkpoint_strangle_missing"
     receipt = json.loads((tmp_path / "run" / report["strangle_ref"]["path"]).read_bytes())
@@ -345,8 +415,11 @@ async def test_complete_frame_mismatch_refuses_before_any_provider_call(tmp_path
     transport = _SyntheticTransport()
     with pytest.raises(ValueError, match="campaign_input_frame_mismatch"):
         await owner.run_campaign(
-            _plan(owner), works=iter([_work(1)]), output_root=tmp_path / "run",
-            client_factory=transport.bind, safe_write_json=_safe_write,
+            _plan(owner),
+            works=iter([_work(1)]),
+            output_root=tmp_path / "run",
+            client_factory=transport.bind,
+            safe_write_json=_safe_write,
         )
     assert transport.calls == []
 
@@ -366,17 +439,32 @@ class _JournalledTransport(_SyntheticTransport):
 
             async def chat(self, *, model, temperature, prompt):
                 with (transport.root / "synthetic-provider-calls.jsonl").open("a") as stream:
-                    stream.write(json.dumps({
-                        "synthetic": True, "work_id": context.work_id, "phase": context.phase,
-                        "attempt_id": context.attempt_id, "ordinal": context.attempt_ordinal,
-                    }) + "\n")
+                    stream.write(
+                        json.dumps(
+                            {
+                                "synthetic": True,
+                                "work_id": context.work_id,
+                                "phase": context.phase,
+                                "attempt_id": context.attempt_id,
+                                "ordinal": context.attempt_ordinal,
+                            }
+                        )
+                        + "\n"
+                    )
                     stream.flush()
                     os.fsync(stream.fileno())
-                if (transport.interrupt and context.work_id == "synthetic:1"
-                        and context.phase == "extraction"):
-                    _safe_write(transport.root / "kill-ready.json", {
-                        "synthetic": True, "attempt_id": context.attempt_id,
-                    })
+                if (
+                    transport.interrupt
+                    and context.work_id == "synthetic:1"
+                    and context.phase == "extraction"
+                ):
+                    _safe_write(
+                        transport.root / "kill-ready.json",
+                        {
+                            "synthetic": True,
+                            "attempt_id": context.attempt_id,
+                        },
+                    )
                     await asyncio.Event().wait()
                 return await client.chat(model=model, temperature=temperature, prompt=prompt)
 
@@ -417,14 +505,18 @@ async def _subprocess_worker(root: Path, mode: str = "inflight") -> None:
 
         owner.CampaignCheckpoint._write_packet = interrupt_published_work
     await owner.run_campaign(
-        _plan(owner, works, max_attempts=18), works=iter(works), output_root=root / "run",
-        client_factory=transport.bind, safe_write_json=_safe_write,
+        _plan(owner, works, max_attempts=18),
+        works=iter(works),
+        output_root=root / "run",
+        client_factory=transport.bind,
+        safe_write_json=_safe_write,
     )
 
 
 @pytest.mark.asyncio
 async def test_actual_sigkill_restart_retains_completed_identity_sets(
-    tmp_path: Path, monkeypatch,
+    tmp_path: Path,
+    monkeypatch,
 ) -> None:
     """Kill a real OS worker between phase intent and response, then replay it."""
     owner = _owner()
@@ -433,21 +525,38 @@ async def test_actual_sigkill_restart_retains_completed_identity_sets(
     plan = _plan(owner, works, max_attempts=18)
     uninterrupted = _SyntheticTransport()
     await owner.run_campaign(
-        plan, works=iter(works), output_root=tmp_path / "control",
-        client_factory=uninterrupted.bind, safe_write_json=_safe_write,
+        plan,
+        works=iter(works),
+        output_root=tmp_path / "control",
+        client_factory=uninterrupted.bind,
+        safe_write_json=_safe_write,
     )
     root = tmp_path / "interrupted"
-    child = subprocess.Popen([
-        sys.executable, "-m",
-        "tests.unit.data_forge.domains.academic.batch.test_reextraction_campaign", str(root),
-    ], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    child = subprocess.Popen(
+        [
+            sys.executable,
+            "-m",
+            "tests.unit.data_forge.domains.academic.batch.test_reextraction_campaign",
+            str(root),
+        ],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
     deadline = time.monotonic() + 120
     try:
         while not (root / "kill-ready.json").exists():
             if child.poll() is not None:
                 stdout, stderr = child.communicate(timeout=20)
-                pytest.fail(json.dumps({"error": "synthetic_worker_terminated_before_barrier",
-                                        "stdout": stdout, "stderr": stderr}))
+                pytest.fail(
+                    json.dumps(
+                        {
+                            "error": "synthetic_worker_terminated_before_barrier",
+                            "stdout": stdout,
+                            "stderr": stderr,
+                        }
+                    )
+                )
             assert time.monotonic() < deadline, "synthetic_worker_barrier_timeout"
             await asyncio.sleep(0.05)
         child.send_signal(signal.SIGKILL)
@@ -461,11 +570,15 @@ async def test_actual_sigkill_restart_retains_completed_identity_sets(
     assert set(before) == {_hash(_work())[7:]}
     transport = _JournalledTransport(root, interrupt=False)
     report = await owner.run_campaign(
-        plan, works=iter(works), output_root=root / "run",
-        client_factory=transport.bind, safe_write_json=_safe_write,
+        plan,
+        works=iter(works),
+        output_root=root / "run",
+        client_factory=transport.bind,
+        safe_write_json=_safe_write,
     )
-    expected = {path.stem: path.read_bytes()
-                for path in (tmp_path / "control" / "works").glob("*.json")}
+    expected = {
+        path.stem: path.read_bytes() for path in (tmp_path / "control" / "works").glob("*.json")
+    }
     observed = {path.stem: path.read_bytes() for path in (root / "run" / "works").glob("*.json")}
     expected_values = {key: json.loads(body) for key, body in expected.items()}
     observed_values = {key: json.loads(body) for key, body in observed.items()}
@@ -481,14 +594,22 @@ async def test_actual_sigkill_restart_retains_completed_identity_sets(
     }
     assert all(observed[key] == body for key, body in before.items())
     with sqlite3.connect(root / "run" / "checkpoint.sqlite3") as connection:
-        db_keys = {row[0][7:] for row in connection.execute(
-            "SELECT work_key FROM works WHERE state='complete'",
-        )}
+        db_keys = {
+            row[0][7:]
+            for row in connection.execute(
+                "SELECT work_key FROM works WHERE state='complete'",
+            )
+        }
     assert db_keys == set(observed) == {_hash(work)[7:] for work in works}
-    calls = [json.loads(line) for line in (root / "synthetic-provider-calls.jsonl").read_text()
-             .splitlines()]
-    all_pairs = {(work["id"], phase) for work in works
-                 for phase in ("screening", "extraction", "self_verification")}
+    calls = [
+        json.loads(line)
+        for line in (root / "synthetic-provider-calls.jsonl").read_text().splitlines()
+    ]
+    all_pairs = {
+        (work["id"], phase)
+        for work in works
+        for phase in ("screening", "extraction", "self_verification")
+    }
     assert {(call["work_id"], call["phase"]) for call in calls} == all_pairs
     assert len({call["attempt_id"] for call in calls}) == len(calls)
     assert {(call["work_id"], call["phase"]) for call in calls if call["ordinal"] > 1} == {
@@ -498,36 +619,61 @@ async def test_actual_sigkill_restart_retains_completed_identity_sets(
     assert report["attempts"] == {"outcome_unknown": 1, "returned": 9}
     assert report["unknown_usage_attempts"] == 1
     assert not list((root / "run").rglob("*.pending"))
-    sys.stdout.write(json.dumps({
-        "synthetic": True, "child_returncode": child.returncode,
-        "child_stdout": stdout, "child_stderr": stderr,
-        "completed_artifact_ids": sorted(observed), "completed_database_ids": sorted(db_keys),
-        "complete_candidate_values_equal": True,
-        "synthetic_processing_clock": "2026-01-01T00:00:00+00:00",
-        "provider_pairs": sorted(all_pairs), "attempt_states": report["attempts"],
-        "unknown_usage_attempts": report["unknown_usage_attempts"],
-    }, sort_keys=True) + "\n")
+    sys.stdout.write(
+        json.dumps(
+            {
+                "synthetic": True,
+                "child_returncode": child.returncode,
+                "child_stdout": stdout,
+                "child_stderr": stderr,
+                "completed_artifact_ids": sorted(observed),
+                "completed_database_ids": sorted(db_keys),
+                "complete_candidate_values_equal": True,
+                "synthetic_processing_clock": "2026-01-01T00:00:00+00:00",
+                "provider_pairs": sorted(all_pairs),
+                "attempt_states": report["attempts"],
+                "unknown_usage_attempts": report["unknown_usage_attempts"],
+            },
+            sort_keys=True,
+        )
+        + "\n"
+    )
 
 
 @pytest.mark.asyncio
 async def test_sigkill_after_work_publication_replays_original_bytes(
-    tmp_path: Path, monkeypatch,
+    tmp_path: Path,
+    monkeypatch,
 ) -> None:
     """Restart must adopt an emitted work even if its SQLite commit was interrupted."""
     owner = _owner()
     root = tmp_path / "publication"
-    child = subprocess.Popen([
-        sys.executable, "-m",
-        "tests.unit.data_forge.domains.academic.batch.test_reextraction_campaign",
-        str(root), "publication",
-    ], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    child = subprocess.Popen(
+        [
+            sys.executable,
+            "-m",
+            "tests.unit.data_forge.domains.academic.batch.test_reextraction_campaign",
+            str(root),
+            "publication",
+        ],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+    )
     deadline = time.monotonic() + 120
     try:
         while not (root / "kill-ready.json").exists():
             if child.poll() is not None:
                 stdout, stderr = child.communicate(timeout=20)
-                pytest.fail(json.dumps({"error": "publication_barrier_unreached",
-                                        "stdout": stdout, "stderr": stderr}))
+                pytest.fail(
+                    json.dumps(
+                        {
+                            "error": "publication_barrier_unreached",
+                            "stdout": stdout,
+                            "stderr": stderr,
+                        }
+                    )
+                )
             assert time.monotonic() < deadline, "publication_barrier_timeout"
             await asyncio.sleep(0.05)
         child.send_signal(signal.SIGKILL)
@@ -540,25 +686,39 @@ async def test_sigkill_after_work_publication_replays_original_bytes(
     path = root / "run" / "works" / f"{_hash(_work())[7:]}.json"
     original_bytes = path.read_bytes()
     with sqlite3.connect(root / "run" / "checkpoint.sqlite3") as connection:
-        assert connection.execute("SELECT COUNT(*) FROM works WHERE state='complete'").fetchone() == (
-            0,
-        )
+        assert connection.execute(
+            "SELECT COUNT(*) FROM works WHERE state='complete'"
+        ).fetchone() == (0,)
     _synthetic_processing_clock(monkeypatch, day=2)
     works = [_work(index) for index in range(3)]
     transport = _JournalledTransport(root, interrupt=False)
     report = await owner.run_campaign(
-        _plan(owner, works, max_attempts=18), works=iter(works), output_root=root / "run",
-        client_factory=transport.bind, safe_write_json=_safe_write,
+        _plan(owner, works, max_attempts=18),
+        works=iter(works),
+        output_root=root / "run",
+        client_factory=transport.bind,
+        safe_write_json=_safe_write,
     )
     assert path.read_bytes() == original_bytes
     assert report["works"] == {"complete": 3}
     assert report["attempts"] == {"returned": 9}
     assert not any(context.work_id == "synthetic:0" for context in transport.calls)
-    sys.stdout.write(json.dumps({"synthetic": True, "child_returncode": child.returncode,
-                                 "published_work_original_bytes_retained": True,
-                                 "resumed_report": report, "child_stdout": stdout,
-                                 "child_stderr": stderr}) + "\n")
+    sys.stdout.write(
+        json.dumps(
+            {
+                "synthetic": True,
+                "child_returncode": child.returncode,
+                "published_work_original_bytes_retained": True,
+                "resumed_report": report,
+                "child_stdout": stdout,
+                "child_stderr": stderr,
+            }
+        )
+        + "\n"
+    )
 
 
 if __name__ == "__main__":
-    asyncio.run(_subprocess_worker(Path(sys.argv[1]), sys.argv[2] if len(sys.argv) > 2 else "inflight"))
+    asyncio.run(
+        _subprocess_worker(Path(sys.argv[1]), sys.argv[2] if len(sys.argv) > 2 else "inflight")
+    )

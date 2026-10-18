@@ -457,6 +457,4 @@ def test_s11_integrity_report_requires_exact_false_clear_keys() -> None:
     false_clear_counts["unexpected_extra_probe"] = 0
 
     with pytest.raises(ValueError, match="S11_FALSE_CLEAR_FIELDS"):
-        report_model.model_validate(
-            _integrity_payload(false_clear_counts=false_clear_counts)
-        )
+        report_model.model_validate(_integrity_payload(false_clear_counts=false_clear_counts))

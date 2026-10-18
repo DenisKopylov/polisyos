@@ -647,9 +647,11 @@ async def test_complete_uncomposed_parent_refuses_rehashed_positive_or_budget_te
     share the same conservative no-evidence parent invariant.
     """
     run, *_ = await _run_recursive_fixture(
-        budget_state=BudgetState(limits={
-            "run": BudgetLimit(key="run", max_usd=Decimal("5")),
-        }),
+        budget_state=BudgetState(
+            limits={
+                "run": BudgetLimit(key="run", max_usd=Decimal("5")),
+            }
+        ),
     )
     assert type(run) is RecursiveGenerationCycleRun
     ordinary = run.model_dump(mode="json")
@@ -681,8 +683,8 @@ async def test_complete_uncomposed_parent_refuses_rehashed_positive_or_budget_te
         node = next(row for row in payload["nodes"] if row["node_ref"] == run.root_node_ref)
         node["terminal"] = forged
         payload["terminal"] = forged
-        payload["content_hash"] = gy_content_hash({
-            key: value for key, value in payload.items() if key != "content_hash"
-        })
+        payload["content_hash"] = gy_content_hash(
+            {key: value for key, value in payload.items() if key != "content_hash"}
+        )
         with pytest.raises(ValidationError, match=expected_error):
             RecursiveGenerationCycleRun.model_validate(payload)

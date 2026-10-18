@@ -30,8 +30,7 @@ from tests._helpers.hds_quality import sha
 
 RULE_REF = "policyos.gy.composition.test.v1"
 COMPOSITION_CERTIFICATES_REF = (
-    "repo://architecture/policy_design_case/"
-    "layer3_gy_composition_certificates.json"
+    "repo://architecture/policy_design_case/layer3_gy_composition_certificates.json"
 )
 CLAIM_REF = "claim://program/system-effect"
 P14_VERIFICATION_REF = (
@@ -826,12 +825,14 @@ def test_shared_resource_declares_capacity_aggregation_out_of_scope() -> None:
     assert certificate.unresolved_obligations[0].obligation_type == (
         "capacity_aggregation_required"
     )
-    assert certificate.unresolved_obligations[0].resolution_options[0][
-        "capability_state"
-    ] == "surface_out_of_scope"
-    assert certificate.unresolved_obligations[0].resolution_options[0][
-        "follow_on_owner"
-    ] == "team-runtime-quality:capacity-aggregation"
+    assert (
+        certificate.unresolved_obligations[0].resolution_options[0]["capability_state"]
+        == "surface_out_of_scope"
+    )
+    assert (
+        certificate.unresolved_obligations[0].resolution_options[0]["follow_on_owner"]
+        == "team-runtime-quality:capacity-aggregation"
+    )
 
 
 def test_child_acquisition_strips_all_composed_authority() -> None:
@@ -874,9 +875,7 @@ def _portfolio_design() -> dict[str, object]:
                 "defensible_specification_space": {"primary_estimand": "ATE"},
                 "inclusion_rules": ["Include shared lineage test evidence."],
                 "exclusion_rules": ["Exclude ungrounded claims."],
-                "disconfirming_lines": [
-                    {"line_id": "placebo-shared-lineage", "required": True}
-                ],
+                "disconfirming_lines": [{"line_id": "placebo-shared-lineage", "required": True}],
                 "synthesis_rules": {"strategy": "collapse_dependent_lines"},
                 "stopping_rules": {"minimum_effective_independent_evidence_count": 2},
                 "cost_proportionality": {"budget_tier": "test"},

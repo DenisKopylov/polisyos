@@ -261,6 +261,7 @@ def load_edge_confidence_matrix(
 ) -> EdgeConfidenceMatrix:
     """Load edge confidence matrix."""
     from polisyos.core.artifacts import load_core_json_artifact
+
     payload = load_core_json_artifact(store, ref)
     return EdgeConfidenceMatrix.model_validate(payload)
 

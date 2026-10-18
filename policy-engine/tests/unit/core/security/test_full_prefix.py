@@ -54,7 +54,9 @@ def _member(index: int) -> contract.ChronologyMemberInput:
     )
 
 
-def _request(count: int, *, domain: contract.ChronologyProofDomain | None = None) -> contract.ChronologyBundleRequest:
+def _request(
+    count: int, *, domain: contract.ChronologyProofDomain | None = None
+) -> contract.ChronologyBundleRequest:
     return contract.ChronologyBundleRequest(
         domain=domain or _domain(),
         native_schema_profile="conformance.native@1",
@@ -84,16 +86,20 @@ def _independent_bundle(request: contract.ChronologyBundleRequest) -> tuple[byte
         "scope_ref": request.domain.scope_ref,
         "authority_purpose": request.domain.authority_purpose,
     }
-    predecessor = "sha256:" + hashlib.sha256(
-        b"polisyos.chronology.genesis.v1\0" + _independent_canonical(descriptor)
-    ).hexdigest()
+    predecessor = (
+        "sha256:"
+        + hashlib.sha256(
+            b"polisyos.chronology.genesis.v1\0" + _independent_canonical(descriptor)
+        ).hexdigest()
+    )
     commitments: list[str] = []
     body: list[bytes] = []
     for ordinal, member in enumerate(request.members):
         native_record = len(member.native_bytes).to_bytes(8, "big") + member.native_bytes
-        native_hash = "sha256:" + hashlib.sha256(
-            b"polisyos.chronology.native.v1\0" + native_record
-        ).hexdigest()
+        native_hash = (
+            "sha256:"
+            + hashlib.sha256(b"polisyos.chronology.native.v1\0" + native_record).hexdigest()
+        )
         member_frame = {
             **descriptor,
             "native_schema_profile": request.native_schema_profile,
@@ -105,9 +111,10 @@ def _independent_bundle(request: contract.ChronologyBundleRequest) -> tuple[byte
             "predecessor_commitment": predecessor,
         }
         member_bytes = _independent_canonical(member_frame)
-        commitment = "sha256:" + hashlib.sha256(
-            b"polisyos.chronology.member.v1\0" + member_bytes
-        ).hexdigest()
+        commitment = (
+            "sha256:"
+            + hashlib.sha256(b"polisyos.chronology.member.v1\0" + member_bytes).hexdigest()
+        )
         body.extend(
             (
                 len(member_bytes).to_bytes(8, "big") + member_bytes,
@@ -116,9 +123,12 @@ def _independent_bundle(request: contract.ChronologyBundleRequest) -> tuple[byte
         )
         commitments.append(commitment)
         predecessor = commitment
-    genesis = "sha256:" + hashlib.sha256(
-        b"polisyos.chronology.genesis.v1\0" + _independent_canonical(descriptor)
-    ).hexdigest()
+    genesis = (
+        "sha256:"
+        + hashlib.sha256(
+            b"polisyos.chronology.genesis.v1\0" + _independent_canonical(descriptor)
+        ).hexdigest()
+    )
     header = {
         **descriptor,
         "native_schema_profile": request.native_schema_profile,
@@ -204,8 +214,7 @@ def test_extension_preserves_old_member_frame_and_expected_prefix() -> None:
 
     result = FullPrefixVerifier().verify_bundle(
         two.bundle_bytes,
-        expected_domain=two.header.model_dump(mode="python")
-        and _request(2).domain,
+        expected_domain=two.header.model_dump(mode="python") and _request(2).domain,
         expected_prefix=contract.ExpectedCommitmentPrefix(
             domain=_request(1).domain,
             member_count=1,
@@ -378,13 +387,9 @@ def test_cross_family_scope_and_domain_replay_reject(
 ) -> None:
     built = build_full_prefix_bundle(_request(1))
     assert isinstance(built, contract.EncodedChronologyBundle)
-    result = FullPrefixVerifier().verify_bundle(
-        built.bundle_bytes, expected_domain=expected_domain
-    )
+    result = FullPrefixVerifier().verify_bundle(built.bundle_bytes, expected_domain=expected_domain)
     assert isinstance(result, contract.FullPrefixEnvelopeRejected)
-    assert result.failure_codes == (
-        contract.FullPrefixEnvelopeFailureCode.PROOF_DOMAIN_MISMATCH,
-    )
+    assert result.failure_codes == (contract.FullPrefixEnvelopeFailureCode.PROOF_DOMAIN_MISMATCH,)
 
 
 def test_unknown_profile_has_no_fallback() -> None:
@@ -426,9 +431,7 @@ def test_expected_prefix_range_domain_and_head_are_separate_failures() -> None:
         ),
     )
     assert isinstance(wrong_head, contract.FullPrefixExpectedPrefixRejected)
-    assert wrong_head.failure_codes == (
-        contract.FullPrefixExpectedPrefixFailureCode.HEAD_MISMATCH,
-    )
+    assert wrong_head.failure_codes == (contract.FullPrefixExpectedPrefixFailureCode.HEAD_MISMATCH,)
 
     wrong_domain = verifier.verify_bundle(
         built.bundle_bytes,
@@ -436,7 +439,7 @@ def test_expected_prefix_range_domain_and_head_are_separate_failures() -> None:
         expected_prefix=contract.ExpectedCommitmentPrefix(
             domain=_domain(family="movement"),
             member_count=1,
-                commitment_head=built.header.commitment_head,
+            commitment_head=built.header.commitment_head,
         ),
     )
     assert isinstance(wrong_domain, contract.FullPrefixExpectedPrefixRejected)
@@ -478,9 +481,7 @@ def test_verification_statement_is_audit_only_and_real_replay_rejects_substituti
     )
 
     assert isinstance(replayed, contract.FullPrefixExpectedPrefixRejected)
-    assert replayed.failure_codes == (
-        contract.FullPrefixExpectedPrefixFailureCode.HEAD_MISMATCH,
-    )
+    assert replayed.failure_codes == (contract.FullPrefixExpectedPrefixFailureCode.HEAD_MISMATCH,)
 
 
 def test_member_frame_cap_crossing_is_behavioral() -> None:
@@ -495,7 +496,9 @@ def test_member_frame_cap_crossing_is_behavioral() -> None:
     )
     result = build_full_prefix_bundle(request)
     assert isinstance(result, contract.FullPrefixBuildRejected)
-    assert result.failure_code is contract.FullPrefixBuildFailureCode.PROOF_PROFILE_CAPACITY_EXCEEDED
+    assert (
+        result.failure_code is contract.FullPrefixBuildFailureCode.PROOF_PROFILE_CAPACITY_EXCEEDED
+    )
 
 
 def test_result_models_reject_cross_phase_codes_and_evaluation_state() -> None:
@@ -543,15 +546,11 @@ def test_frozen_tables_are_immutable_and_factory_covers_all_twenty_rows() -> Non
             contract.FullPrefixInvocationFailureCode.BUNDLE_CONTENT_HASH_MISMATCH,
         ),
         "envelope_rejected": (contract.FullPrefixEnvelopeFailureCode.BUNDLE_MALFORMED,),
-        "member_rejected": (
-            contract.FullPrefixMemberFailureCode.NON_CANONICAL_MEMBER_FRAME,
-        ),
+        "member_rejected": (contract.FullPrefixMemberFailureCode.NON_CANONICAL_MEMBER_FRAME,),
         "internal_consistency_rejected": (
             contract.FullPrefixInternalConsistencyFailureCode.MEMBER_COUNT_MISMATCH,
         ),
-        "expected_prefix_rejected": (
-            contract.FullPrefixExpectedPrefixFailureCode.HEAD_MISMATCH,
-        ),
+        "expected_prefix_rejected": (contract.FullPrefixExpectedPrefixFailureCode.HEAD_MISMATCH,),
         "verified": (),
     }
     observed = {}
@@ -567,9 +566,10 @@ def test_frozen_tables_are_immutable_and_factory_covers_all_twenty_rows() -> Non
             failure_codes=failure_by_kind[table_key.result_kind],
         )
         observed[table_key] = result.evaluation_state
-        assert result.terminal_check is contract.FULL_PREFIX_TERMINAL_BY_RESULT_KIND[
-            table_key.result_kind
-        ]
+        assert (
+            result.terminal_check
+            is contract.FULL_PREFIX_TERMINAL_BY_RESULT_KIND[table_key.result_kind]
+        )
 
     assert observed == dict(contract.FULL_PREFIX_EVALUATION_TABLE)
     assert len(observed) == 20
@@ -613,9 +613,11 @@ def test_unknown_header_and_member_fields_fail_closed() -> None:
 
     member = json.loads(records[1])
     member["authority_head"] = _digest("f")
-    attacked = contract._frame_record(records[0]) + contract._frame_record(
-        contract._canonical_raw_bytes(member)
-    ) + b"".join(contract._frame_record(record) for record in records[2:])
+    attacked = (
+        contract._frame_record(records[0])
+        + contract._frame_record(contract._canonical_raw_bytes(member))
+        + b"".join(contract._frame_record(record) for record in records[2:])
+    )
     member_result = FullPrefixVerifier().verify_bundle(attacked, expected_domain=_domain())
     assert isinstance(member_result, contract.FullPrefixMemberRejected)
     assert member_result.failure_codes == (
@@ -625,9 +627,7 @@ def test_unknown_header_and_member_fields_fail_closed() -> None:
 
 def test_annotation_only_context_change_moves_commitment_without_rebinding_query() -> None:
     original = build_full_prefix_bundle(_request(1))
-    changed_member = _member(0).model_copy(
-        update={"member_admission_context_ref": _digest("f")}
-    )
+    changed_member = _member(0).model_copy(update={"member_admission_context_ref": _digest("f")})
     changed_request = _request(0).model_copy(update={"members": (changed_member,)})
     changed = build_full_prefix_bundle(changed_request)
     assert isinstance(original, contract.EncodedChronologyBundle)

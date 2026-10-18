@@ -601,8 +601,7 @@ class SDMXConnector(BaseConnector[pd.DataFrame]):
             values = filter_map.pop(dim, ())
             parts.append(
                 "+".join(
-                    safe_path_segment(value, what=f"SDMX dimension '{dim}'")
-                    for value in values
+                    safe_path_segment(value, what=f"SDMX dimension '{dim}'") for value in values
                 )
                 if values
                 else ""
@@ -613,8 +612,7 @@ class SDMXConnector(BaseConnector[pd.DataFrame]):
                 values = filter_map[dim]
                 parts.append(
                     "+".join(
-                        safe_path_segment(value, what=f"SDMX dimension '{dim}'")
-                        for value in values
+                        safe_path_segment(value, what=f"SDMX dimension '{dim}'") for value in values
                     )
                     if values
                     else ""

@@ -254,9 +254,7 @@ def test_join_preserves_cell_lineage_across_three_sources():
         audit_level=AuditLevel.FULL,
     )
 
-    composer = DataComposer(
-        conflict_resolver=ConflictResolver(policy=ConflictPolicy.TRUST_HIGHEST)
-    )
+    composer = DataComposer(conflict_resolver=ConflictResolver(policy=ConflictPolicy.TRUST_HIGHEST))
 
     result, merge_log = composer.compose(
         sources=[(source_a, meta_a), (source_b, meta_b), (source_c, meta_c)],
@@ -287,9 +285,7 @@ def test_join_rejects_undeclared_many_to_many_before_materialization():
         audit_level=AuditLevel.NONE,
     )
 
-    composer = DataComposer(
-        conflict_resolver=ConflictResolver(policy=ConflictPolicy.TRUST_HIGHEST)
-    )
+    composer = DataComposer(conflict_resolver=ConflictResolver(policy=ConflictPolicy.TRUST_HIGHEST))
 
     with pytest.raises(SchemaIncompatibilityError, match="many|cardinality|multiplicity"):
         composer.compose(
@@ -315,9 +311,7 @@ def test_join_does_not_match_unknown_null_keys():
         audit_level=AuditLevel.NONE,
     )
 
-    composer = DataComposer(
-        conflict_resolver=ConflictResolver(policy=ConflictPolicy.TRUST_HIGHEST)
-    )
+    composer = DataComposer(conflict_resolver=ConflictResolver(policy=ConflictPolicy.TRUST_HIGHEST))
 
     result, _ = composer.compose(
         sources=[(left, meta_left), (right, meta_right)],
@@ -329,9 +323,7 @@ def test_join_does_not_match_unknown_null_keys():
 
 
 def test_union_preserves_user_source_id_column():
-    source = pd.DataFrame(
-        {"key": [1], "__source_id": ["original-label"], "value": [10]}
-    )
+    source = pd.DataFrame({"key": [1], "__source_id": ["original-label"], "value": [10]})
     metadata = _make_source_metadata(
         "connector",
         TrustLevel.HIGH,
@@ -345,9 +337,7 @@ def test_union_preserves_user_source_id_column():
         audit_level=AuditLevel.NONE,
     )
 
-    composer = DataComposer(
-        conflict_resolver=ConflictResolver(policy=ConflictPolicy.TRUST_HIGHEST)
-    )
+    composer = DataComposer(conflict_resolver=ConflictResolver(policy=ConflictPolicy.TRUST_HIGHEST))
 
     result, _ = composer.compose(
         sources=[(source, metadata)],
@@ -374,9 +364,7 @@ def test_join_preserves_user_suffix_like_column_names():
         audit_level=AuditLevel.NONE,
     )
 
-    composer = DataComposer(
-        conflict_resolver=ConflictResolver(policy=ConflictPolicy.TRUST_HIGHEST)
-    )
+    composer = DataComposer(conflict_resolver=ConflictResolver(policy=ConflictPolicy.TRUST_HIGHEST))
 
     result, _ = composer.compose(
         sources=[(left, meta_left), (right, meta_right)],

@@ -56,8 +56,7 @@ def test_quality_scenario_loader_quarantines_hidden_and_rotating_packs_by_defaul
         load_quality_scenario_contract("hidden_energy_tariff_targeting_holdout")
 
     assert any(
-        failure["code"] == "quality_scenario_quarantined"
-        for failure in exc_info.value.failures
+        failure["code"] == "quality_scenario_quarantined" for failure in exc_info.value.failures
     )
 
     hidden_contract = load_quality_scenario_contract(
@@ -133,6 +132,9 @@ def test_quality_scenario_loader_can_read_custom_contract_file(tmp_path: Path) -
     assert contract["scenario_id"] == "custom_tax_relief"
     assert contract["context"]["query_treatment"] == "temporary_tax_relief"
     assert contract["scenario_evidence_contract"]["scenario_id"] == "custom_tax_relief"
-    assert {
-        item["domain"] for item in contract["scenario_evidence_contract"]["requirements"]
-    } >= {"data", "legal", "method", "claim"}
+    assert {item["domain"] for item in contract["scenario_evidence_contract"]["requirements"]} >= {
+        "data",
+        "legal",
+        "method",
+        "claim",
+    }

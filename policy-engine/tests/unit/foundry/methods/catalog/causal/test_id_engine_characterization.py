@@ -109,7 +109,9 @@ def _proof_rules(result: object) -> list[str]:
     return [step.rule_name for step in getattr(result, "proof_steps", [])]
 
 
-def _required_distribution_snapshot(result: object) -> list[tuple[tuple[str, ...], tuple[str, ...]]]:
+def _required_distribution_snapshot(
+    result: object,
+) -> list[tuple[tuple[str, ...], tuple[str, ...]]]:
     return [
         (tuple(distribution.variables), tuple(distribution.conditioning))
         for distribution in getattr(result, "required_distributions", [])

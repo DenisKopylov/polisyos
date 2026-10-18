@@ -503,20 +503,12 @@ class AgentActionAuthorityResolutionFailure:
     replay_input_refs: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
-        if (
-            type(self.code) is not str
-            or re.fullmatch(r"[A-Za-z0-9_-]{1,120}", self.code) is None
-        ):
+        if type(self.code) is not str or re.fullmatch(r"[A-Za-z0-9_-]{1,120}", self.code) is None:
             raise ValueError("owner-resolution failure code must be a bounded token")
         if type(self.replay_input_refs) is not tuple:
             raise TypeError("owner-resolution replay refs must be a tuple")
-        if any(
-            type(ref) is not str or not _is_sha256(ref)
-            for ref in self.replay_input_refs
-        ):
-            raise ValueError(
-                "owner-resolution replay refs must be plain sha256 CAS IDs"
-            )
+        if any(type(ref) is not str or not _is_sha256(ref) for ref in self.replay_input_refs):
+            raise ValueError("owner-resolution replay refs must be plain sha256 CAS IDs")
         if len(self.replay_input_refs) != len(set(self.replay_input_refs)):
             raise ValueError("owner-resolution replay refs must be unique")
 
@@ -553,9 +545,7 @@ class AgentActionAuthorityGateway:
         effect_bindings: tuple[AgentActionEffectBinding, ...],
         human_decision_refs_by_request_ref: Mapping[str, str] | None = None,
         human_decision_service: _HumanDecisionServiceProtocol | None = None,
-        human_decision_adapters_by_request_ref: Mapping[
-            str, HumanDecisionGatewayAdapterInput
-        ]
+        human_decision_adapters_by_request_ref: Mapping[str, HumanDecisionGatewayAdapterInput]
         | None = None,
         production_approval_resolver: object | None = None,
         _replay_decision_ref: str | None = None,
@@ -624,9 +614,7 @@ class AgentActionAuthorityGateway:
                 raise ValueError("owner-resolution failure requires a bound resource")
             resource_digest = bound_permission.bound_resource.resource_digest
             if set(self._owner_resolution_failures) != {resource_digest}:
-                raise ValueError(
-                    "owner-resolution failure must match the bound resource"
-                )
+                raise ValueError("owner-resolution failure must match the bound resource")
         self._mandate_authority_evidence_refs = _frozen_ref_mapping(
             mandate_authority_evidence_refs_by_owner_ref
         )
@@ -2549,9 +2537,7 @@ def _frozen_owner_resolution_failure_mapping(
         if not isinstance(key, str) or not _is_sha256(key):
             raise ValueError("owner-resolution failure key must be a resource digest")
         if type(failure) is not AgentActionAuthorityResolutionFailure:
-            raise TypeError(
-                "owner-resolution failure values must use the typed carrier"
-            )
+            raise TypeError("owner-resolution failure values must use the typed carrier")
         copied[key] = failure
     return MappingProxyType(copied)
 

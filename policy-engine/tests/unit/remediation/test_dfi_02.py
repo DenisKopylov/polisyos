@@ -94,8 +94,10 @@ def test_facade_override_is_scoped_to_supported_loader_binding(monkeypatch) -> N
     from polisyos.data_forge.domains.catalog.batch import core_sources_ingest as facade
 
     original = transformers._to_iso3
+
     def replacement(_country):
         return "BOUND"
+
     monkeypatch.setattr(facade, "_to_iso3", replacement)
 
     assert facade._bulk_country_values("ilo", ("UA",)) == ["BOUND"]

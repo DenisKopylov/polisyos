@@ -332,9 +332,7 @@ def _major_claim_evidence_graph_issues(
                 claim_text=claim_text,
                 missing_evidence_type=label,
                 message=f"Major policy claim {claim_id} has no {label} refs.",
-                next_action=(
-                    "Bind the claim to the runtime evidence graph before approval."
-                ),
+                next_action=("Bind the claim to the runtime evidence graph before approval."),
             )
         )
     if not graph.get("rebuttal_or_counter_evidence_refs"):
@@ -345,12 +343,9 @@ def _major_claim_evidence_graph_issues(
                 claim_text=claim_text,
                 missing_evidence_type="rebuttal_or_counter_evidence",
                 message=(
-                    f"Major policy claim {claim_id} has no rebuttal or "
-                    "counter-evidence refs."
+                    f"Major policy claim {claim_id} has no rebuttal or counter-evidence refs."
                 ),
-                next_action=(
-                    "Attach rebuttal, counter-evidence, or disconfirming evidence refs."
-                ),
+                next_action=("Attach rebuttal, counter-evidence, or disconfirming evidence refs."),
             )
         )
     if not graph.get("limitation_refs"):
@@ -361,8 +356,7 @@ def _major_claim_evidence_graph_issues(
                 claim_text=claim_text,
                 missing_evidence_type="limitation_or_deficit",
                 message=(
-                    f"Major policy claim {claim_id} has no accepted limitation or "
-                    "deficit refs."
+                    f"Major policy claim {claim_id} has no accepted limitation or deficit refs."
                 ),
                 next_action=(
                     "Attach accepted deficits, limitations, or typed degrade reasons "
@@ -497,8 +491,7 @@ def _claim_extraction_issues(
     if not isinstance(claim_extraction_report, dict):
         return []
     status = _text(
-        claim_extraction_report.get("extraction_status")
-        or claim_extraction_report.get("status")
+        claim_extraction_report.get("extraction_status") or claim_extraction_report.get("status")
     ).casefold()
     if status in {"", "pass", "passed", "ok", "success"}:
         return []
@@ -716,9 +709,7 @@ def _variant_claims(variant: dict[str, Any]) -> list[dict[str, Any]]:
 def _variant_recommendation_signatures(variant: dict[str, Any]) -> list[str]:
     signatures = [
         signature
-        for signature in (
-            _recommendation_signature(claim) for claim in _variant_claims(variant)
-        )
+        for signature in (_recommendation_signature(claim) for claim in _variant_claims(variant))
         if signature
     ]
     return sorted(set(signatures))
@@ -763,8 +754,7 @@ def _multi_model_disagreements(
             "code": "multi_model_policy_disagreement",
             "severity": "fail",
             "message": (
-                "LLM model variants produced materially different major "
-                "recommendation actions."
+                "LLM model variants produced materially different major recommendation actions."
             ),
             "missing_evidence_type": "model_consensus",
             "next_action": (
@@ -807,9 +797,7 @@ def _adjudication_covers_disagreements(
         return True, "not_required"
     if not isinstance(adjudication_decision, dict):
         return False, "missing"
-    variant_ids = {
-        _variant_id(variant, index) for index, variant in enumerate(model_variants)
-    }
+    variant_ids = {_variant_id(variant, index) for index, variant in enumerate(model_variants)}
     selected_variant_id = _text(
         adjudication_decision.get("selected_variant_id")
         or adjudication_decision.get("model_variant_id")
@@ -1119,9 +1107,7 @@ def _validate_claim(
                     "downgrade/remove the unsupported claim."
                 ),
                 claim_family=claim_family,
-                required_grounding=list(
-                    _CLAIM_FAMILY_REQUIRED_GROUNDING.get(claim_family, ())
-                ),
+                required_grounding=list(_CLAIM_FAMILY_REQUIRED_GROUNDING.get(claim_family, ())),
             )
         )
 
@@ -1213,9 +1199,7 @@ def _validate_claim(
             )
         else:
             tolerance = (
-                declared_tolerance
-                if declared_tolerance is not None
-                else default_numeric_tolerance
+                declared_tolerance if declared_tolerance is not None else default_numeric_tolerance
             )
             expected, evidence_ref = _method_metric_output(
                 selected_methods,
@@ -1321,18 +1305,10 @@ def _claim_support_assessment_for_claim(
         "support_strength": assessment.support_strength.value,
         "publishability": assessment.publishability.value,
         "readiness_level": assessment.readiness_level.value,
-        "satisfied_predicates": [
-            predicate.value for predicate in assessment.satisfied_predicates
-        ],
-        "missing_predicates": [
-            predicate.value for predicate in assessment.missing_predicates
-        ],
-        "required_predicates": [
-            predicate.value for predicate in assessment.required_predicates
-        ],
-        "counterevidence_actions": [
-            action.value for action in assessment.counterevidence_actions
-        ],
+        "satisfied_predicates": [predicate.value for predicate in assessment.satisfied_predicates],
+        "missing_predicates": [predicate.value for predicate in assessment.missing_predicates],
+        "required_predicates": [predicate.value for predicate in assessment.required_predicates],
+        "counterevidence_actions": [action.value for action in assessment.counterevidence_actions],
         "lifecycle_transition": assessment.lifecycle_transition.value,
         "grounding_matrix_family": assessment.grounding_matrix_family,
         "grounding_matrix_checks": list(assessment.grounding_matrix_checks),
@@ -1385,8 +1361,7 @@ def _fold_quality_report_issues(
             "severity": severity,
             "layer": item.get("layer") or "scientist_policy_artifacts",
             "phase": phase,
-            "missing_evidence_type": item.get("missing_evidence_type")
-            or missing_evidence_type,
+            "missing_evidence_type": item.get("missing_evidence_type") or missing_evidence_type,
             "message": item.get("message") or f"{phase} report issue.",
             "next_action": item.get("next_action")
             or "Repair the underlying quality report issue before publication.",
@@ -1463,8 +1438,7 @@ def _causal_statistical_validity_issues(
             "phase": "causal_statistical_validity",
             "missing_evidence_type": item.get("missing_evidence_type")
             or "causal_statistical_validity",
-            "message": item.get("message")
-            or "Causal/statistical validity report failed.",
+            "message": item.get("message") or "Causal/statistical validity report failed.",
             "next_action": item.get("next_action")
             or "Repair the causal/statistical validity benchmark before publication.",
             "claim_ids": claim_ids,
@@ -1577,13 +1551,9 @@ def build_policy_grounding_matrix_report(
             )
         )
     normalized_model_variants = [
-        dict(variant)
-        for variant in (model_variants or [])
-        if isinstance(variant, dict)
+        dict(variant) for variant in (model_variants or []) if isinstance(variant, dict)
     ]
-    normalized_adjudication_decision = _normalize_adjudication_decision(
-        adjudication_decision
-    )
+    normalized_adjudication_decision = _normalize_adjudication_decision(adjudication_decision)
     disagreements, disagreement_issues = _multi_model_disagreement_issues(
         normalized_model_variants,
         adjudication_decision=normalized_adjudication_decision,
@@ -1624,9 +1594,7 @@ def build_policy_grounding_matrix_report(
             else None
         ),
         "source_quality": (
-            dict(source_quality_report)
-            if isinstance(source_quality_report, dict)
-            else None
+            dict(source_quality_report) if isinstance(source_quality_report, dict) else None
         ),
         "production_data_quality": (
             dict(production_data_quality_report)
@@ -1639,18 +1607,14 @@ def build_policy_grounding_matrix_report(
             else None
         ),
         "claim_extraction": (
-            dict(claim_extraction_report)
-            if isinstance(claim_extraction_report, dict)
-            else None
+            dict(claim_extraction_report) if isinstance(claim_extraction_report, dict) else None
         ),
         "runtime_claim_registry": normalized_claim_registry,
         "issues": issues,
         "blocking_issue_count": sum(1 for issue in issues if issue.get("severity") == "fail"),
         "summary": {
             "claim_count": len(normalized_claims),
-            "major_claim_count": sum(
-                1 for claim in normalized_claims if _is_major_claim(claim)
-            ),
+            "major_claim_count": sum(1 for claim in normalized_claims if _is_major_claim(claim)),
             "applied_norm_ref_count": len(applied_norm_refs),
             "selected_data_ref_count": len(selected_data_refs),
             "selected_method_ref_count": len(selected_method_refs),
@@ -1659,11 +1623,7 @@ def build_policy_grounding_matrix_report(
                 len(disagreements) if disagreements and not disagreement_issues else 0
             ),
             "runtime_claim_registry_entry_count": (
-                int(
-                    (normalized_claim_registry or {})
-                    .get("summary", {})
-                    .get("entry_count", 0)
-                )
+                int((normalized_claim_registry or {}).get("summary", {}).get("entry_count", 0))
                 if normalized_claim_registry is not None
                 else 0
             ),
@@ -1707,15 +1667,16 @@ def normalize_policy_grounding_matrix(
     if not isinstance(report, dict):
         report = {}
     raw_claims = (
-        report.get("claims")
-        or report.get("policy_claims")
-        or report.get("recommendations")
-        or []
+        report.get("claims") or report.get("policy_claims") or report.get("recommendations") or []
     )
-    claims = [claim for claim in raw_claims if isinstance(claim, dict)] if isinstance(
-        raw_claims,
-        list,
-    ) else []
+    claims = (
+        [claim for claim in raw_claims if isinstance(claim, dict)]
+        if isinstance(
+            raw_claims,
+            list,
+        )
+        else []
+    )
     raw_model_variants = (
         report.get("model_variants")
         or report.get("llm_model_variants")

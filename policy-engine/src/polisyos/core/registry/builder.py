@@ -219,9 +219,7 @@ def build_registry_bundle(
     ]
     if selector_field_ref is not None:
         inputs.append(
-            input_ref_from_artifact_ref(
-                selector_field_ref, role="selector_field_registry"
-            )
+            input_ref_from_artifact_ref(selector_field_ref, role="selector_field_registry")
         )
     if metric_ref is not None:
         inputs.append(input_ref_from_artifact_ref(metric_ref, role="metric_registry"))

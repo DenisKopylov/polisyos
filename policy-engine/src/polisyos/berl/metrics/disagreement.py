@@ -97,8 +97,7 @@ def magnitude_disagreement_l1(
     left_norm = _normalize_l1(left)
     right_norm = _normalize_l1(right)
     numerator = sum(
-        abs(left_norm.get(feature, 0.0) - right_norm.get(feature, 0.0))
-        for feature in features
+        abs(left_norm.get(feature, 0.0) - right_norm.get(feature, 0.0)) for feature in features
     )
     denominator = (
         sum(abs(left_norm.get(feature, 0.0)) for feature in features)
@@ -160,13 +159,7 @@ def sign_conflict_features(vectors: Sequence[AttributionVector]) -> tuple[str, .
 def bound_aware_conflict_features(vectors: Sequence[AttributionVector]) -> tuple[str, ...]:
     """Return features whose method confidence intervals do not overlap."""
 
-    features = sorted(
-        {
-            feature
-            for vector in vectors
-            for feature in vector.confidence_intervals
-        }
-    )
+    features = sorted({feature for vector in vectors for feature in vector.confidence_intervals})
     conflicts: set[str] = set()
     for feature in features:
         intervals = [

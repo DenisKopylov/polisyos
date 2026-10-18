@@ -343,8 +343,7 @@ def build_live_payload(repo_root: Path | None = None) -> dict[str, Any]:
         "determinism": {
             "first_content_hash": deterministic_a.content_hash,
             "second_content_hash": deterministic_b.content_hash,
-            "same_content_hash": deterministic_a.content_hash
-            == deterministic_b.content_hash,
+            "same_content_hash": deterministic_a.content_hash == deterministic_b.content_hash,
         },
         "behavioral_mutations": _mutation_reports(
             reference=reference,
@@ -473,12 +472,8 @@ def corrupt_field_drift_check(repo_root: Path | None = None) -> dict[str, Any]:
     corrupted = _copy(live)
     corrupted["cases"]["acquire_loop"]["certificate"]["selected_action"] = "abstain"
     corrupted["cases"]["acquire_loop"]["reentry"]["advanced_by_gate"] = False
-    corrupted["forged_inputs_fail_closed"]["self_supplied_edge_reentry"][
-        "advanced_by_gate"
-    ] = True
-    corrupted["full_cg1_decisive_claims"]["acquire_loop"][
-        "bounded_vs_full_agree"
-    ] = False
+    corrupted["forged_inputs_fail_closed"]["self_supplied_edge_reentry"]["advanced_by_gate"] = True
+    corrupted["full_cg1_decisive_claims"]["acquire_loop"]["bounded_vs_full_agree"] = False
     corrupted["counterfactual_containment"]["redaction_holds"] = False
     corrupted["lift_vs_passive_abstain"]["closed"] = 0
     corrupted["blocker_denominator"]["cg3_decisive_reasons"] = []
@@ -542,8 +537,7 @@ def _core_issues(
     if low_cert.get("remaining_candidate_action") != "elicit_human":
         issues.append({"code": "grounding_active_controller_remaining_action_not_recorded"})
     if not any(
-        candidate.get("action_family") == "elicit_human"
-        and candidate.get("within_budget") is False
+        candidate.get("action_family") == "elicit_human" and candidate.get("within_budget") is False
         for candidate in low_cert.get("candidates", [])
         if isinstance(candidate, dict)
     ):
@@ -603,10 +597,7 @@ def _core_issues(
         issues.append({"code": "grounding_active_controller_full_cg1_acquire_not_admitted"})
     if acquire_full.get("false_bind_rederived_by_full_gate") is not True:
         issues.append({"code": "grounding_active_controller_full_false_bind_not_rederived"})
-    if (
-        _probe(full_claims, "low_trust_owner_corruption").get("full_decision")
-        == "admit_new_lever"
-    ):
+    if _probe(full_claims, "low_trust_owner_corruption").get("full_decision") == "admit_new_lever":
         issues.append({"code": "grounding_active_controller_low_trust_owner_corruption_admitted"})
     cheap_full = _probe(full_claims, "cheap_verify")
     if cheap_full.get("bounded_vs_full_agree") is not True:
@@ -988,12 +979,18 @@ def _counterfactual_containment_probe(
 
     planning_payload = planning_certificate.model_dump(mode="json")
     counterfactual_edge_ids = [
-        str(candidate.get("decisiveness", {}).get("owner_shaped_resolution", {}).get("counterfactual_edge_id"))
+        str(
+            candidate.get("decisiveness", {})
+            .get("owner_shaped_resolution", {})
+            .get("counterfactual_edge_id")
+        )
         for candidate in planning_payload.get("candidates", [])
         if isinstance(candidate, dict)
         and candidate.get("decisiveness", {}).get("action_family") == "acquire_data"
     ]
-    counterfactual_edge_ids = [edge_id for edge_id in counterfactual_edge_ids if edge_id and edge_id != "None"]
+    counterfactual_edge_ids = [
+        edge_id for edge_id in counterfactual_edge_ids if edge_id and edge_id != "None"
+    ]
     reference_untouched = (
         reference.reference_hash == before_hash
         and len(reference.essential_edges) == before_edge_count
@@ -1006,7 +1003,9 @@ def _counterfactual_containment_probe(
             reference,
             cg1_certificate=captured["cg1"],
         )
-        refused = resolution.applied is False and resolution.reason == "admission_re_resolution_mismatch"
+        refused = (
+            resolution.applied is False and resolution.reason == "admission_re_resolution_mismatch"
+        )
         resolution_payload = resolution.model_dump(mode="json")
         captured_certificate_id = captured["certificate"].certificate_id
     else:
@@ -1046,7 +1045,9 @@ def _has_counterfactual_payload_leak(payload: Any) -> bool:
                     return True
                 if inside_resolution and key in forbidden_inside_resolution:
                     return True
-                if _walk(value, inside_resolution=inside_resolution or key == "owner_shaped_resolution"):
+                if _walk(
+                    value, inside_resolution=inside_resolution or key == "owner_shaped_resolution"
+                ):
                     return True
         elif isinstance(node, list):
             return any(_walk(item, inside_resolution=inside_resolution) for item in node)

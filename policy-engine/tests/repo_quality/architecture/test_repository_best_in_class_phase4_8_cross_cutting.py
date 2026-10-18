@@ -72,9 +72,7 @@ def test_phase4_8_concerns_have_owner_import_rule_visibility_and_axis() -> None:
 
     for concern in payload.get("concern", []):
         missing = [
-            field
-            for field in sorted(required_fields)
-            if concern.get(field) in (None, "", [])
+            field for field in sorted(required_fields) if concern.get(field) in (None, "", [])
         ]
         assert missing == [], f"{concern['name']} is missing {missing}"
         assert concern["decision"] in allowed_decisions

@@ -237,14 +237,18 @@ def _grounded_two_candidate_state(
         value_port=lambda **_: ValuePortObservation(),
         authority_scope="contract_testing",
     )
-    return controller, {
-        "problem": object(),
-        "cycle_index": 0,
-        "budget_state": budget_state or _budget(),
-        "previous_cycle": None,
-        "value_port_override": None,
-        "stable_design_problem_ref": None,
-    }, grounding_port
+    return (
+        controller,
+        {
+            "problem": object(),
+            "cycle_index": 0,
+            "budget_state": budget_state or _budget(),
+            "previous_cycle": None,
+            "value_port_override": None,
+            "stable_design_problem_ref": None,
+        },
+        grounding_port,
+    )
 
 
 @pytest.mark.asyncio
@@ -321,9 +325,7 @@ def test_blocked_candidate_remains_in_history_with_typed_reason() -> None:
     )
 
     assert grounding_port.calls == ["blocked-first", "usable-second"]
-    assert grounded["grounding_by_candidate"]["blocked-first"].status == (
-        "grounding_unavailable"
-    )
+    assert grounded["grounding_by_candidate"]["blocked-first"].status == ("grounding_unavailable")
     assert grounded["grounding_by_candidate"]["blocked-first"].issue_codes == (
         "missing_owner_input",
     )
@@ -415,6 +417,4 @@ def test_actual_budget_exhaustion_stops_alternative_execution() -> None:
     assert finished["simulation"].status == "simulation_blocked"
     assert "budget_exhausted_for_next_level" in finished["simulation"].authority_blockers
     assert finished["value_port"].status == "value_blocked"
-    assert finished["value_port"].authority_blockers == (
-        "budget_exhausted_for_next_level",
-    )
+    assert finished["value_port"].authority_blockers == ("budget_exhausted_for_next_level",)

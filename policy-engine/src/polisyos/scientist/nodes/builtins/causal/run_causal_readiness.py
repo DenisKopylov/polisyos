@@ -206,9 +206,7 @@ class RunCausalReadinessNode:
             store = _ensure_ir_artifact_store(ctx.store)
             graph_ref = profile_bound_ref(
                 store,
-                CausalGraphModelRef.model_validate(
-                    graph_ref_payload.model_dump(mode="json")
-                ),
+                CausalGraphModelRef.model_validate(graph_ref_payload.model_dump(mode="json")),
             )
             graph = load_causal_graph_model(store, graph_ref)
             proxy_bundle = _coerce_bundle(ProxyIdentificationBundle, bundle_payloads["proxy"])
@@ -263,11 +261,7 @@ class RunCausalReadinessNode:
                 ),
             )
 
-        graph_inputs = [
-            input_ref_from_artifact_ref(
-                graph_input, role="reconciled_causal_graph"
-            )
-        ]
+        graph_inputs = [input_ref_from_artifact_ref(graph_input, role="reconciled_causal_graph")]
         proxy_runner = ProxyIdentificationRunner(graph=graph)
         transport_runner = TransportabilityChecker(
             graph=graph,

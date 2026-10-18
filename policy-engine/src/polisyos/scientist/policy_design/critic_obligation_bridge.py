@@ -111,8 +111,7 @@ def critic_consensus_to_obligation_candidates(
 
 def _speculation_flagged(report: CriticEnsembleReport, candidate_id: str) -> bool:
     return any(
-        verdict.verdict == "flag_speculation"
-        and candidate_id in verdict.target_candidate_ids
+        verdict.verdict == "flag_speculation" and candidate_id in verdict.target_candidate_ids
         for verdict in report.verdicts
     )
 
@@ -192,10 +191,7 @@ def _facet_rows(
         snapshots = facets.get("snapshots")
         if snapshots is not None:
             return tuple(mapping_from_any(row) for row in sequence_from_any(snapshots))
-        return tuple(
-            {"facet_type": str(key), "value": value}
-            for key, value in facets.items()
-        )
+        return tuple({"facet_type": str(key), "value": value} for key, value in facets.items())
     return tuple(mapping_from_any(row) for row in facets)
 
 

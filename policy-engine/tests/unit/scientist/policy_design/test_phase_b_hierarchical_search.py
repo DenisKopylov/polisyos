@@ -81,9 +81,7 @@ def test_explicit_schedule_search_reuses_referenced_parameter_bounds() -> None:
     spec = coordinator.build_parameter_search_spec(_candidate())
 
     assert any(
-        bound.name == "schedule::schedule_tax_rate"
-        and bound.lower == 0.05
-        and bound.upper == 0.2
+        bound.name == "schedule::schedule_tax_rate" and bound.lower == 0.05 and bound.upper == 0.2
         for bound in spec.search_space.bounds
     )
 

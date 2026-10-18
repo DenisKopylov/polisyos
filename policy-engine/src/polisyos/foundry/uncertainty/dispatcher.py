@@ -68,7 +68,10 @@ class PropagationDispatcher:
 
         if (
             self._config.delta_use_full_covariance
-            and all(env.distribution_family == DistributionFamily.NORMAL for env in input_envelopes.values())
+            and all(
+                env.distribution_family == DistributionFamily.NORMAL
+                for env in input_envelopes.values()
+            )
             and any(
                 "covariance_row" in env.metadata or "covariance_params" in env.metadata
                 for env in input_envelopes.values()

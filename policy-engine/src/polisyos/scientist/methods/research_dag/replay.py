@@ -103,7 +103,9 @@ def plan_research_replay(
     )
     unsupported_steps = _unsupported_steps_for_mode(dag, resolved_mode)
     live_fetch_required = any(_node_requires_live_fetch(node) for node in dag.nodes)
-    variance_envelope = _variance_envelope(dag) if resolved_mode is ReplayMode.VARIANCE_ENVELOPE else {}
+    variance_envelope = (
+        _variance_envelope(dag) if resolved_mode is ReplayMode.VARIANCE_ENVELOPE else {}
+    )
     return ResearchReplayPlan(
         run_id=dag.run_id,
         workflow_id=dag.workflow_id,
@@ -278,7 +280,9 @@ def _topological_node_order(dag: ResearchDAGArtifact) -> list[str]:
         outgoing[edge.source_node_id].append(edge.target_node_id)
         indegree[edge.target_node_id] += 1
 
-    queue = deque(sorted((node_id for node_id, degree in indegree.items() if degree == 0), key=index.get))
+    queue = deque(
+        sorted((node_id for node_id, degree in indegree.items() if degree == 0), key=index.get)
+    )
     ordered: list[str] = []
     while queue:
         current = queue.popleft()

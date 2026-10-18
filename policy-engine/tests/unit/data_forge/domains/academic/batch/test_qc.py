@@ -1594,6 +1594,7 @@ def test_academic_qc_refuses_invalid_graph_load_count(
     assert manifest_path.read_bytes() == supplied
     assert not config.qc_report_path.exists()
 
+
 def test_academic_qc_requires_existing_raw_payload_for_zero_count(tmp_path) -> None:
     config = AcademicBatchConfig(
         snapshot_root=tmp_path / "snap",

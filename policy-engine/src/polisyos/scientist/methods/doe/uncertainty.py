@@ -259,7 +259,7 @@ def sobol_blocks_from_salib_outputs(
             y_ba[:, j] = y[(j + 1 + d) : y.size : step]
 
     return SobolRowBlockData(
-        y_a=y[0:y.size:step],
+        y_a=y[0 : y.size : step],
         y_b=y[(step - 1) : y.size : step],
         y_ab=y_ab,
         y_ba=y_ba,
@@ -361,7 +361,9 @@ def analyze_sobol_asymptotic_delta(
         seed=cfg.random_seed,
     )
     simultaneous = (
-        _simultaneous_intervals(point, simulated, cfg.level, "asymptotic_delta", cfg.simulated_rank_draws)
+        _simultaneous_intervals(
+            point, simulated, cfg.level, "asymptotic_delta", cfg.simulated_rank_draws
+        )
         if "simultaneous" in cfg.interval_types and simulated.size
         else None
     )
@@ -520,9 +522,7 @@ def morris_elementary_effects_from_samples(
             normalized_delta = delta_x[factor_idx] / spans[factor_idx]
             if abs(normalized_delta) <= _EPS:
                 continue
-            effects[t, factor_idx] = (
-                y_traj[t, step + 1] - y_traj[t, step]
-            ) / normalized_delta
+            effects[t, factor_idx] = (y_traj[t, step + 1] - y_traj[t, step]) / normalized_delta
 
     if np.any(~np.isfinite(effects)):
         raise ValueError("could not infer a complete elementary-effect matrix from samples")
@@ -627,7 +627,11 @@ def morris_storage_from_elementary_effects(
     ee = _as_2d_float("elementary_effects", elementary_effects)
     if ee.shape[1] != len(names):
         raise ValueError("elementary_effects column count must match parameter_names")
-    ids = list(trajectory_ids) if trajectory_ids is not None else [f"t{idx + 1}" for idx in range(ee.shape[0])]
+    ids = (
+        list(trajectory_ids)
+        if trajectory_ids is not None
+        else [f"t{idx + 1}" for idx in range(ee.shape[0])]
+    )
     if len(ids) != ee.shape[0]:
         raise ValueError("trajectory_ids length must match elementary_effects row count")
     return MorrisStoragePayload(
@@ -833,7 +837,9 @@ def analyze_hierarchical_replicate_bootstrap(
     names = tuple(parameter_names)
     estimates = np.asarray(replicate_estimates, dtype=float)
     if estimates.ndim != 3:
-        raise ValueError("replicate_estimates must have shape (n_blocks, n_replicates, n_parameters)")
+        raise ValueError(
+            "replicate_estimates must have shape (n_blocks, n_replicates, n_parameters)"
+        )
     if estimates.shape[2] != len(names):
         raise ValueError("replicate_estimates parameter dimension must match parameter_names")
     if estimates.shape[0] < 2 or estimates.shape[1] < 1:
@@ -853,7 +859,9 @@ def analyze_hierarchical_replicate_bootstrap(
         bootstrap[b] = np.mean(sampled, axis=(0, 1))
 
     simultaneous = (
-        _simultaneous_intervals(point, bootstrap, cfg.level, "hierarchical_bootstrap", cfg.n_resamples)
+        _simultaneous_intervals(
+            point, bootstrap, cfg.level, "hierarchical_bootstrap", cfg.n_resamples
+        )
         if "simultaneous" in cfg.interval_types
         else None
     )
@@ -969,10 +977,14 @@ def analyze_surrogate_sobol_bootstrap(
     for b in range(cfg.n_resamples):
         idx = rng.integers(0, x.shape[0], size=x.shape[0])
         model = fit_surrogate(x[idx], y[idx])
-        _, bootstrap[b] = _labels_and_vector_from_index_mapping(compute_indices(model), names, labels=labels)
+        _, bootstrap[b] = _labels_and_vector_from_index_mapping(
+            compute_indices(model), names, labels=labels
+        )
 
     simultaneous = (
-        _simultaneous_intervals(point, bootstrap, cfg.level, "surrogate_design_bootstrap", cfg.n_resamples)
+        _simultaneous_intervals(
+            point, bootstrap, cfg.level, "surrogate_design_bootstrap", cfg.n_resamples
+        )
         if "simultaneous" in cfg.interval_types
         else None
     )
@@ -1480,7 +1492,9 @@ def _bca_interval(
     if bootstrap.size < 10 or finite_jack.size < 3:
         return None
     prop_less = float(np.mean(bootstrap < point))
-    prop_less = min(max(prop_less, 1.0 / (2.0 * bootstrap.size)), 1.0 - 1.0 / (2.0 * bootstrap.size))
+    prop_less = min(
+        max(prop_less, 1.0 / (2.0 * bootstrap.size)), 1.0 - 1.0 / (2.0 * bootstrap.size)
+    )
     z0 = _NORMAL.inv_cdf(prop_less)
 
     jack_mean = float(np.mean(finite_jack))
@@ -1516,7 +1530,9 @@ def _simultaneous_intervals(
     se = np.std(bootstrap, axis=0, ddof=1)
     safe_se = np.where(se > _EPS, se, math.inf)
     max_t = np.max(np.abs((bootstrap - point[None, :]) / safe_se[None, :]), axis=1)
-    critical = float(np.quantile(max_t[np.isfinite(max_t)], level)) if np.any(np.isfinite(max_t)) else 0.0
+    critical = (
+        float(np.quantile(max_t[np.isfinite(max_t)], level)) if np.any(np.isfinite(max_t)) else 0.0
+    )
     return point - critical * se, point + critical * se
 
 

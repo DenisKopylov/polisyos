@@ -138,10 +138,7 @@ def test_sparse_history_emits_transparent_nonblocking_influence() -> None:
 
 def test_mature_bad_history_can_cap_future_authority_without_evidence_closure() -> None:
     ledger = build_calibration_ledger(
-        entries=[
-            _entry(index, false_pass=index <= 30)
-            for index in range(1, 211)
-        ],
+        entries=[_entry(index, false_pass=index <= 30) for index in range(1, 211)],
         target_scope=_scope(),
         target_run_id="run-future",
         target_claim_id="claim-future",
@@ -306,10 +303,7 @@ def test_historical_prior_refs_fail_claim_registry_evidence_slots() -> None:
         if issue["code"] == "historical_prior_ref_not_admissible_as_claim_evidence"
     )
     assert issue["evidence_slot"] == "data_refs"
-    assert (
-        issue["historical_prior_ref"]
-        == "historical-prior-influence:run-future:msme-credit"
-    )
+    assert issue["historical_prior_ref"] == "historical-prior-influence:run-future:msme-credit"
 
 
 def test_runtime_invented_historical_prior_claim_slot_fails_closed() -> None:
@@ -385,13 +379,8 @@ def test_calibration_ledger_persistence_writes_cas_and_bundle_surface(
     assert store.payload["authority_boundary"]["may_not_use_for"]
     assert store.options.kind == "runtime.calibration_ledger"
     assert persistence.evidence_bundle_ledger_path is not None
-    bundle_entry = json.loads(
-        persistence.evidence_bundle_ledger_path.read_text(encoding="utf-8")
-    )
-    assert (
-        bundle_entry["schema_version"]
-        == "policyos.runtime.calibration_ledger_bundle_entry.v1"
-    )
+    bundle_entry = json.loads(persistence.evidence_bundle_ledger_path.read_text(encoding="utf-8"))
+    assert bundle_entry["schema_version"] == "policyos.runtime.calibration_ledger_bundle_entry.v1"
     assert bundle_entry["calibration_ledger_ref"] == _sha("a")
 
 

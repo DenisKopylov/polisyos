@@ -66,8 +66,7 @@ def compare_rebaseline(
                     "code": "pdc_coverage_metric_missing",
                     "metric_id": metric_id,
                     "message": (
-                        "Required Policy Design Case metric is missing from current "
-                        "coverage.json."
+                        "Required Policy Design Case metric is missing from current coverage.json."
                     ),
                 }
             )
@@ -102,8 +101,7 @@ def compare_rebaseline(
                     "code": "pdc_coverage_metric_regressed",
                     "metric_id": metric_id,
                     "message": (
-                        "Policy Design Case coverage metric regressed from the previous "
-                        "baseline."
+                        "Policy Design Case coverage metric regressed from the previous baseline."
                     ),
                     "comparison": row,
                 }

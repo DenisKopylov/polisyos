@@ -896,9 +896,7 @@ def test_denominator_owner_selects_honest_view_after_wrong_first_writer(
     assert manifest.inputs == expected_inputs
     assert store.get_bytes(persisted.artifact_ref) == raw
     assert store.verify(persisted.artifact_ref).ok
-    default_view_ref = persisted.artifact_ref.model_copy(
-        update={"manifest_profile_sha256": None}
-    )
+    default_view_ref = persisted.artifact_ref.model_copy(update={"manifest_profile_sha256": None})
     with pytest.raises(ValueError):
         store.get_manifest(default_view_ref)
 

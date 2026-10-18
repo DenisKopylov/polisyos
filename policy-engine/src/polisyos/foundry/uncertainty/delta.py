@@ -141,9 +141,7 @@ class DeltaMethodPropagator:
                 interval_semantics=IntervalSemantics.CONFIDENCE_INTERVAL,
                 is_heuristic_ci=False,
                 # Preserve the weakest input authority through push-forward.
-                gate_eligible=all(
-                    envelope.gate_eligible for envelope in input_envelopes.values()
-                ),
+                gate_eligible=all(envelope.gate_eligible for envelope in input_envelopes.values()),
                 metadata={
                     "n_input_params": n_params,
                     "input_param_names": param_names,

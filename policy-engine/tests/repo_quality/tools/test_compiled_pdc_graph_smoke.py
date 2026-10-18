@@ -74,9 +74,7 @@ class _SmokeCapabilityBinding:
 class _SmokeCapabilityResolver:
     def resolve(self, query: Any) -> _SmokeCapabilityBinding:
         construct = getattr(query, "construct", None) or query.get("construct")
-        requirement_id = getattr(query, "requirement_id", None) or query.get(
-            "requirement_id"
-        )
+        requirement_id = getattr(query, "requirement_id", None) or query.get("requirement_id")
         return _SmokeCapabilityBinding(
             requirement_id=requirement_id,
             selected_capability_ref=f"capability:{construct}:compiled-pdc-smoke",

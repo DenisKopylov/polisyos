@@ -80,9 +80,7 @@ def validate_s1_graded_outcomes(repo_root: Path | str = REPO_ROOT) -> dict[str, 
     _expect(_s1_assigned_cells(matrix) == [], "s1_slice_cell_assignment_present")
 
     limitation_case_ids = [
-        _case_id(case)
-        for case in cases
-        if _expert_label(case) == "limitation_required"
+        _case_id(case) for case in cases if _expert_label(case) == "limitation_required"
     ]
     expected_limitation_ids = list(manifest["limitation_required_case_ids"])
     _expect(
@@ -96,9 +94,7 @@ def validate_s1_graded_outcomes(repo_root: Path | str = REPO_ROOT) -> dict[str, 
     )
 
     governed_decisions = [
-        compose_graded_outcome(
-            _input_for(cases_by_id[case_id], authority_level="governed")
-        )
+        compose_graded_outcome(_input_for(cases_by_id[case_id], authority_level="governed"))
         for case_id in expected_limitation_ids
     ]
     _expect(
@@ -106,9 +102,7 @@ def validate_s1_graded_outcomes(repo_root: Path | str = REPO_ROOT) -> dict[str, 
         "s1_governed_limitation_routing_failed",
     )
     production_decisions = [
-        compose_graded_outcome(
-            _input_for(cases_by_id[case_id], authority_level="production")
-        )
+        compose_graded_outcome(_input_for(cases_by_id[case_id], authority_level="production"))
         for case_id in production_control_ids
     ]
     _expect(
@@ -132,9 +126,7 @@ def validate_s1_graded_outcomes(repo_root: Path | str = REPO_ROOT) -> dict[str, 
         "cells_closed": cells_closed,
         "limitation_required_case_count": len(expected_limitation_ids),
         "governed_publish_with_limitation_count": sum(
-            1
-            for decision in governed_decisions
-            if decision.outcome == "publish_with_limitation"
+            1 for decision in governed_decisions if decision.outcome == "publish_with_limitation"
         ),
         "production_control_case_count": len(production_control_ids),
         "production_typed_blocker_count": sum(
@@ -279,9 +271,7 @@ def _projection_audiences(closeout_verdict: Mapping[str, Any]) -> list[str]:
 
 def _canonical_route_status(repo_root: Path) -> tuple[str, float]:
     case_path = (
-        repo_root
-        / DEFAULT_CORPUS_CASES_PATH
-        / f"{read_layer3_gx_pinned_case_id(repo_root)}.json"
+        repo_root / DEFAULT_CORPUS_CASES_PATH / f"{read_layer3_gx_pinned_case_id(repo_root)}.json"
     )
     with tempfile.TemporaryDirectory() as tmpdir:
         tmp = Path(tmpdir)
@@ -351,9 +341,7 @@ def _passing_w4_records() -> dict[str, dict[str, object]]:
             "policyos.runtime.policy_design_case.conflict_materialization_closeout.v1"
         ),
         "attestation": _w4_record("policyos.runtime.attestation.v1"),
-        "closeout_compatibility": _w4_record(
-            "policyos.runtime.can_i_closeout_compatibility.v1"
-        ),
+        "closeout_compatibility": _w4_record("policyos.runtime.can_i_closeout_compatibility.v1"),
         "semantic_binding": _w4_record("policyos.runtime.semantic_binding.v1"),
         "claim_registry": _w4_record("policyos.runtime.claim_registry.v1"),
         "pdc_record_family_status": _w4_record(
@@ -363,13 +351,9 @@ def _passing_w4_records() -> dict[str, dict[str, object]]:
             "policyos.runtime.policy_design_case.projection_publication_state.v1"
         ),
         "run_cost_gate": _w4_record("policyos.runtime.run_cost_gate.v1"),
-        "complexity_self_fmea": _w4_record(
-            "policyos.runtime.run_cost_proportionality.v1"
-        ),
+        "complexity_self_fmea": _w4_record("policyos.runtime.run_cost_proportionality.v1"),
         "audit_verifier_ingestion": _w4_record("policyos.runtime.audit_verifier.v1"),
-        "prompt_tool_repair_fmea": _w4_record(
-            "policyos.runtime.prompt_tool_repair_fmea.v1"
-        ),
+        "prompt_tool_repair_fmea": _w4_record("policyos.runtime.prompt_tool_repair_fmea.v1"),
     }
 
 

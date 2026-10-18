@@ -155,6 +155,7 @@ def _load_bound_query_result(
 ) -> CausalQueryResult:
     """Reconcile the complete job projection and requested query against actual CAS."""
     from polisyos.core.artifacts import load_core_json_artifact
+
     ref = result.method_result_ref
     if not isinstance(ref, ArtifactRef):
         raise ValueError("causal query method_result_ref is required")

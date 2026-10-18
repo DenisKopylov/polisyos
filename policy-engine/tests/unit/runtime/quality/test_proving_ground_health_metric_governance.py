@@ -33,9 +33,7 @@ def test_g8_declares_red_baseline_contract() -> None:
     assert "layer3_g8_search_recall_miss_reported_as_domain_ceiling" in g8.ALL_ISSUE_CODES
     assert "layer3_g8_blocker_specific_search_diagnostic_missing" in g8.ALL_ISSUE_CODES
     assert "layer3_g8_global_seed_health_used_as_current_blocker_health" in g8.ALL_ISSUE_CODES
-    assert "layer3_g8_positive_open_question_reducer_provenance_missing" in (
-        g8.ALL_ISSUE_CODES
-    )
+    assert "layer3_g8_positive_open_question_reducer_provenance_missing" in (g8.ALL_ISSUE_CODES)
 
 
 def test_g8_models_are_strict_and_frozen() -> None:
@@ -78,18 +76,13 @@ def test_g8_alias_normalization_accepts_existing_g1_to_g7_spellings() -> None:
     assert g8.canonical_metric_id("search-recall@known-seeds + index-staleness") == (
         "search-recall@known-seeds+index-staleness"
     )
-    assert g8.canonical_metric_id(
-        "search-recall@known-seeds+index-staleness(region)"
-    ) == "search-recall@known-seeds+index-staleness"
-    assert g8.canonical_metric_id("envelope_expansion_rate_region") == (
-        "envelope-expansion-rate"
+    assert (
+        g8.canonical_metric_id("search-recall@known-seeds+index-staleness(region)")
+        == "search-recall@known-seeds+index-staleness"
     )
-    assert g8.canonical_metric_id("g4-governed-promoted-count") == (
-        "governance-throughput"
-    )
-    assert g8.canonical_metric_id("abstention_or_blocker_rate") == (
-        "demand-pull-vs-abstention"
-    )
+    assert g8.canonical_metric_id("envelope_expansion_rate_region") == ("envelope-expansion-rate")
+    assert g8.canonical_metric_id("g4-governed-promoted-count") == ("governance-throughput")
+    assert g8.canonical_metric_id("abstention_or_blocker_rate") == ("demand-pull-vs-abstention")
     assert g8.canonical_metric_id("g7_s14_grounded_breadth_feed_status") == (
         "demand-pull-vs-abstention"
     )
@@ -111,7 +104,9 @@ def test_g8_source_snapshot_reads_current_g0_to_g7_and_s14_artifacts() -> None:
     refs = {source.source_ref for source in snapshot.sources}
     assert "repo://architecture/policy_design_case/layer3_health_metric_ledgers.toml" in refs
     assert "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json" in refs
-    assert "repo://architecture/policy_design_case/layer3_g4_governance_throughput_delta.json" in refs
+    assert (
+        "repo://architecture/policy_design_case/layer3_g4_governance_throughput_delta.json" in refs
+    )
     assert "repo://architecture/policy_design_case/layer3_g5_health_metric_delta.toml" in refs
     assert (
         "repo://architecture/policy_design_case/layer3_g5_dependency_health_metric_snapshot.json"
@@ -131,12 +126,10 @@ def test_g8_source_snapshot_reads_current_g0_to_g7_and_s14_artifacts() -> None:
     )
     assert "repo://architecture/policy_design_case/layer3_g6_conformance_report.json" in refs
     assert (
-        "repo://architecture/policy_design_case/layer3_g6_orchestration_choice_audit.json"
-        in refs
+        "repo://architecture/policy_design_case/layer3_g6_orchestration_choice_audit.json" in refs
     )
     assert (
-        "repo://architecture/policy_design_case/layer3_g7_search_recall_freshness_join.json"
-        in refs
+        "repo://architecture/policy_design_case/layer3_g7_search_recall_freshness_join.json" in refs
     )
     assert "repo://architecture/policy_design_case/layer3_g7_health_metric_delta.toml" in refs
     assert (
@@ -190,8 +183,7 @@ def test_g8_normalizes_current_metric_dialects_without_losing_raw_refs() -> None
 
     assert all(by_metric.values())
     search_refs = {
-        signal.raw_key
-        for signal in by_metric["search-recall@known-seeds+index-staleness"]
+        signal.raw_key for signal in by_metric["search-recall@known-seeds+index-staleness"]
     }
     assert "search-recall@known-seeds + index-staleness" in search_refs
     demand_readings = by_metric["demand-pull-vs-abstention"]
@@ -260,10 +252,7 @@ def test_g8_current_state_does_not_claim_domain_ceiling() -> None:
     assert gate.domain_ceiling_claim_allowed is False
     assert diagnosis.search_health_classification.seed_corpus_status == "fail"
     assert diagnosis.search_health_classification.current_blocker_status == "unmeasured"
-    assert (
-        "layer3_g8_blocker_specific_search_diagnostic_missing"
-        in diagnosis.issue_codes
-    )
+    assert "layer3_g8_blocker_specific_search_diagnostic_missing" in diagnosis.issue_codes
     assert (
         "layer3_g8_flat_expansion_reported_as_domain_ceiling_without_search_health"
         not in gate.issue_codes
@@ -334,7 +323,9 @@ def test_task6_g8_pinned_case_search_health_changes_with_case_diagnostic_data(
         signals=(
             _signal("envelope-expansion-rate", "G5", "g5_envelope_expansion_status", "flat"),
             _signal("governance-throughput", "G4", "g4_governance_throughput_status", "pass"),
-            _signal("demand-pull-vs-abstention", "G6", "g6_demand_pull_vs_abstention_status", "pass"),
+            _signal(
+                "demand-pull-vs-abstention", "G6", "g6_demand_pull_vs_abstention_status", "pass"
+            ),
             _signal("adapter-semantic-loss", "G7", "semantic_loss_status", "pass"),
             _signal(
                 "search-recall@known-seeds+index-staleness",
@@ -377,9 +368,7 @@ def test_task6_g8_pinned_case_search_health_changes_with_case_diagnostic_data(
     assert "search_ceiling" in case_diagnosis.diagnoses
     assert case_gate.status == "search_ceiling_repair_required"
     assert case_gate.domain_ceiling_claim_allowed is False
-    assert "layer3_g8_domain_ceiling_claim_without_admission_or_deref" in (
-        case_gate.issue_codes
-    )
+    assert "layer3_g8_domain_ceiling_claim_without_admission_or_deref" in (case_gate.issue_codes)
 
 
 def test_task11_domain_ceiling_requires_blocker_frontier_admission_and_deref(
@@ -391,7 +380,9 @@ def test_task11_domain_ceiling_requires_blocker_frontier_admission_and_deref(
         signals=(
             _signal("envelope-expansion-rate", "G5", "g5_envelope_expansion_status", "flat"),
             _signal("governance-throughput", "G4", "g4_governance_throughput_status", "pass"),
-            _signal("demand-pull-vs-abstention", "G6", "g6_demand_pull_vs_abstention_status", "pass"),
+            _signal(
+                "demand-pull-vs-abstention", "G6", "g6_demand_pull_vs_abstention_status", "pass"
+            ),
             _signal("adapter-semantic-loss", "G7", "semantic_loss_status", "pass"),
             _signal(
                 "search-recall@known-seeds+index-staleness",
@@ -440,7 +431,9 @@ def test_task11_global_seed_pass_without_blocker_specific_ledger_blocks_search_a
         signals=(
             _signal("envelope-expansion-rate", "G5", "g5_envelope_expansion_status", "flat"),
             _signal("governance-throughput", "G4", "g4_governance_throughput_status", "pass"),
-            _signal("demand-pull-vs-abstention", "G6", "g6_demand_pull_vs_abstention_status", "pass"),
+            _signal(
+                "demand-pull-vs-abstention", "G6", "g6_demand_pull_vs_abstention_status", "pass"
+            ),
             _signal("adapter-semantic-loss", "G7", "semantic_loss_status", "pass"),
             _signal(
                 "search-recall@known-seeds+index-staleness",
@@ -458,16 +451,12 @@ def test_task11_global_seed_pass_without_blocker_specific_ledger_blocks_search_a
         repo_root=REPO_ROOT,
     )
 
-    answer = {
-        row.question_id: row for row in ledger.answers
-    }["8.4-search-recall-freshness"]
+    answer = {row.question_id: row for row in ledger.answers}["8.4-search-recall-freshness"]
     assert answer.answer_status == "answered_currently_blocked"
     assert answer.search_health_classification["seed_corpus"] == "pass"
     assert answer.search_health_classification["current_blocker"] == "unmeasured"
     assert "layer3_g8_blocker_specific_search_diagnostic_missing" in ledger.issue_codes
-    assert "layer3_g8_global_seed_health_used_as_current_blocker_health" in (
-        ledger.issue_codes
-    )
+    assert "layer3_g8_global_seed_health_used_as_current_blocker_health" in (ledger.issue_codes)
 
 
 def test_task11_positive_open_question_answers_carry_reducer_provenance() -> None:
@@ -528,7 +517,9 @@ def test_g8_zero_grounded_response_blocks_domain_ceiling_as_abstention_inertia()
     assert "layer3_g8_abstention_inertia_hidden_as_honesty" in gate.issue_codes
 
 
-def test_g8_metric_gaming_firewall_blocks_threshold_lowering_and_useful_design_optimization() -> None:
+def test_g8_metric_gaming_firewall_blocks_threshold_lowering_and_useful_design_optimization() -> (
+    None
+):
     firewall = g8.build_g8_metric_gaming_firewall(
         metric_changes=[
             {
@@ -557,8 +548,7 @@ def test_g8_warning_lifecycle_requires_owner_and_aging_policy() -> None:
                 "deadline": "2026-06-17",
                 "aging_policy": "",
                 "source_ref": (
-                    "repo://architecture/policy_design_case/"
-                    "layer3_g1_health_metric_delta.toml"
+                    "repo://architecture/policy_design_case/layer3_g1_health_metric_delta.toml"
                 ),
             }
         ]
@@ -609,25 +599,17 @@ def test_g8_d44_rebasing_receipt_uses_freeze_hashes_without_hidden_payload_refs(
 
     serialized = receipt.model_dump_json()
     assert rule.status == "pass"
-    assert len(rule.required_reannotation_fields) == len(
-        g8.D44_REQUIRED_REANNOTATION_FIELDS
-    )
+    assert len(rule.required_reannotation_fields) == len(g8.D44_REQUIRED_REANNOTATION_FIELDS)
     assert coverage.status == "pass"
-    assert {row.field_id for row in coverage.field_rows} == set(
-        g8.D44_REQUIRED_REANNOTATION_FIELDS
-    )
+    assert {row.field_id for row in coverage.field_rows} == set(g8.D44_REQUIRED_REANNOTATION_FIELDS)
     assert {row.coverage_status for row in coverage.field_rows} <= {
         "required_for_next_rebase",
         "satisfied_by_existing_s14_record",
     }
     assert any(
-        row.coverage_status == "satisfied_by_existing_s14_record"
-        for row in coverage.field_rows
+        row.coverage_status == "satisfied_by_existing_s14_record" for row in coverage.field_rows
     )
-    assert any(
-        row.coverage_status == "required_for_next_rebase"
-        for row in coverage.field_rows
-    )
+    assert any(row.coverage_status == "required_for_next_rebase" for row in coverage.field_rows)
     assert trigger_ledger.status == "pass_no_rebase_due"
     assert (
         trigger_ledger.current_action
@@ -685,18 +667,9 @@ def test_g8_open_question_ledger_answers_every_vision_question_with_current_evid
         "8.4-agent-orchestration-authority-leak",
     }
     answers = {row.question_id: row for row in ledger.answers}
-    assert (
-        answers["8.4-real-grounding-cost"].answer_status
-        == "provisional_insufficient_data"
-    )
-    assert (
-        answers["8.4-demand-pull-strength"].answer_status
-        == "provisional_insufficient_data"
-    )
-    assert (
-        answers["8.4-search-recall-freshness"].answer_status
-        == "answered_currently_blocked"
-    )
+    assert answers["8.4-real-grounding-cost"].answer_status == "provisional_insufficient_data"
+    assert answers["8.4-demand-pull-strength"].answer_status == "provisional_insufficient_data"
+    assert answers["8.4-search-recall-freshness"].answer_status == "answered_currently_blocked"
     assert answers["8.4-search-recall-freshness"].search_health_classification == {
         "seed_corpus": "fail",
         "pinned_request": "unmeasured",
@@ -775,9 +748,7 @@ def test_g8_audit_surface_is_expert_machine_and_public_projection_is_reference_o
         "out_of_scope_reference_only"
     )
     assert "recommendation_authority" in bundle.public_export_projection_refs.denied_uses
-    assert bundle.replay_manifest["manifest_id"] == (
-        "layer3-g8-health-metric-governance-replay"
-    )
+    assert bundle.replay_manifest["manifest_id"] == ("layer3-g8-health-metric-governance-replay")
 
 
 def test_g8_conformance_report_covers_required_negatives() -> None:
@@ -785,9 +756,7 @@ def test_g8_conformance_report_covers_required_negatives() -> None:
 
     assert bundle.conformance_report.status == "pass"
     required = set(g8.G8_CONFORMANCE_NEGATIVE_EXPECTED_ISSUE_CODES)
-    observed = {
-        result["negative_id"] for result in bundle.conformance_report.negative_results
-    }
+    observed = {result["negative_id"] for result in bundle.conformance_report.negative_results}
     assert observed == required
     assert bundle.conformance_report.missing_negative_ids == ()
     assert not bundle.conformance_report.failing_negative_ids
@@ -828,9 +797,7 @@ def _write_task6_case_health_repo(tmp_path: Path) -> Path:
             {
                 "schema_version": "policyos.policy_design_case.layer3_g5_conversion.v1",
                 "g5_conversion_outcome": "typed_blocker -> grounded_abstention",
-                "summary": {
-                    "g5_conversion_outcome": "typed_blocker -> grounded_abstention"
-                },
+                "summary": {"g5_conversion_outcome": "typed_blocker -> grounded_abstention"},
             }
         ),
         encoding="utf-8",
@@ -853,8 +820,7 @@ def _write_task6_case_health_repo(tmp_path: Path) -> Path:
         json.dumps(
             {
                 "schema_version": (
-                    "policyos.policy_design_case.layer3_g5_effective_evidence_"
-                    "independence.v1"
+                    "policyos.policy_design_case.layer3_g5_effective_evidence_independence.v1"
                 ),
                 "independence_map_payload": {
                     "effective_mass_report": {

@@ -56,9 +56,7 @@ DEFAULT_BATTERY_ROOT = Path(
     "tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/"
     "layer2-sealed-universality-battery"
 )
-DEFAULT_OUTPUT = Path(
-    "_build/.tmp/production-quality/layer2_s14_universality_battery.json"
-)
+DEFAULT_OUTPUT = Path("_build/.tmp/production-quality/layer2_s14_universality_battery.json")
 S14_FIXTURE_ROOT = Path("tests/fixtures/layer2/s14")
 S14_D4_TRACK_COVERAGE_PATH = S14_FIXTURE_ROOT / "s14_d4_corpus_track_coverage.json"
 S14_ORACLE_BOOTSTRAP_PATH = S14_FIXTURE_ROOT / "s14_expert_oracle_bootstrap.json"
@@ -303,9 +301,7 @@ def run_layer2_s14_universality_battery(
         "capability_reality_report": capability_report,
         "universality_axis_scorecard": scorecard.model_dump(mode="json"),
         "mechanism_generality_report": mechanism_report.model_dump(mode="json"),
-        "skeptic_defeater_records": [
-            record.model_dump(mode="json") for record in skeptic_records
-        ],
+        "skeptic_defeater_records": [record.model_dump(mode="json") for record in skeptic_records],
         "universality_claim_assurance_case": assurance_case.model_dump(mode="json"),
         "universality_claim_gate_record": gate_record.model_dump(mode="json"),
         "s14_universality_assurance_summary": summary_payload,
@@ -583,13 +579,9 @@ def _s14_capability_claim() -> dict[str, str]:
         "typed_contract_ref": (
             "repo://src/polisyos/runtime/quality/design_axes/universality_assurance.py"
         ),
-        "producer_ref": (
-            "repo://tools/quality/validation/run_layer2_s14_universality_battery.py"
-        ),
+        "producer_ref": ("repo://tools/quality/validation/run_layer2_s14_universality_battery.py"),
         "artifact_ref": "pdc://layer2/s14/sealed-battery-run",
-        "bridge_ref": (
-            "repo://tools/quality/validation/run_layer2_s14_universality_battery.py"
-        ),
+        "bridge_ref": ("repo://tools/quality/validation/run_layer2_s14_universality_battery.py"),
         "consumer_ref": "pdc://layer2/s14/universality-claim-gate",
         "verification_ref": (
             "repo://tests/repo_quality/tools/test_layer2_s14_universality_battery.py"

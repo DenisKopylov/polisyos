@@ -52,6 +52,7 @@ _HEADING_HASH_RE = re.compile(r"^(#+)\s+(.*\S)")
 
 def _load_json_artifact(cas: FileSystemCAS, artifact_id: str) -> dict:
     from polisyos.core.artifacts import load_core_json_artifact
+
     try:
         aid = ArtifactID.model_validate(artifact_id)
         payload = load_core_json_artifact(cas, aid)

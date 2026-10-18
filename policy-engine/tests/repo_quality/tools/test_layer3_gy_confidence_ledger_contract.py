@@ -255,10 +255,7 @@ def test_n10_recompute_bridge_preserves_only_self_describing_drift(
     except GyOperationalReconciliationError as exc:
         typed_drift = exc
     assert typed_drift is not None
-    safe_detail = (
-        "authority_source_controlled_replay_recording_drift:"
-        + typed_drift.safe_detail
-    )
+    safe_detail = "authority_source_controlled_replay_recording_drift:" + typed_drift.safe_detail
 
     def _raise_safe_drift(_: Path) -> dict[str, object]:
         raise UniversalityContractError("sk-outer-secret", replay_drift=typed_drift)
@@ -752,8 +749,7 @@ def test_n11_required_nullable_null_survives_all_projection_boundaries(
     assert checker.contract_bytes(reparsed) == serialized
 
     assert {
-        (rule.applies_to, rule.reason): rule.top_level_fields
-        for rule in owner.exclusion_rules
+        (rule.applies_to, rule.reason): rule.top_level_fields for rule in owner.exclusion_rules
     } == {
         (
             "artifact_and_identity",
@@ -765,9 +761,7 @@ def test_n11_required_nullable_null_survives_all_projection_boundaries(
                 "comparison_rule_version",
             }
         ),
-        ("identity_only", "recursive_self_identity"): frozenset(
-            {"artifact_content_hash"}
-        ),
+        ("identity_only", "recursive_self_identity"): frozenset({"artifact_content_hash"}),
     }
 
 
@@ -793,9 +787,7 @@ def test_n11_non_null_comparison_identity_remains_diagnosable(
     contract = _projection_witness_contract(monkeypatch)
     payload = contract.model_dump(mode="json", exclude_none=False)
     payload["comparison_content_hash"] = "sha256:" + "f" * 64
-    payload["artifact_content_hash"] = checker.gy_content_hash(
-        owner.identity_projection(payload)
-    )
+    payload["artifact_content_hash"] = checker.gy_content_hash(owner.identity_projection(payload))
 
     report = checker.validate_payload(payload)
 
@@ -849,8 +841,7 @@ def test_n11_round_trip_preserves_complete_required_null_denominator(
             checker.FrozenConfidenceLedgerContract.model_validate(without_null)
         except checker.ValidationError as exc:
             if any(
-                tuple(error["loc"]) == path and error["type"] == "missing"
-                for error in exc.errors()
+                tuple(error["loc"]) == path and error["type"] == "missing" for error in exc.errors()
             ):
                 required_null_paths.append(path)
 
@@ -888,9 +879,10 @@ def test_n11_absent_required_nullable_member_fails_closed(
 
     assert report["status"] == "fail"
     assert report["issues"][0]["code"] == "schema_invalid"
-    assert "owner_bundle_projection.n10.routes.0.row_addressable_variable" in report[
-        "issues"
-    ][0]["error"]
+    assert (
+        "owner_bundle_projection.n10.routes.0.row_addressable_variable"
+        in report["issues"][0]["error"]
+    )
     assert "type=missing" in report["issues"][0]["error"]
     with pytest.raises(RuntimeError, match="schema_invalid") as exc_info:
         checker._parse_contract_bytes(json.dumps(payload).encode("utf-8"))
@@ -971,11 +963,11 @@ def test_real_accounting_uses_ledger_hash_for_unicode_owner_evidence(
         bundle,
         n10=unicode_n10,
         projection_sha256=content_sha256(
-                {
-                    "n10": asdict(unicode_n10),
-                    "n13b": asdict(bundle.n13b),
-                    "consumed_inputs": bundle.consumed_inputs.model_dump(mode="json"),
-                }
+            {
+                "n10": asdict(unicode_n10),
+                "n13b": asdict(bundle.n13b),
+                "consumed_inputs": bundle.consumed_inputs.model_dump(mode="json"),
+            }
         ),
     )
     monkeypatch.setattr(checker, "load_owner_bundle", lambda *_args, **_kwargs: unicode_bundle)
@@ -1009,11 +1001,9 @@ def test_confidence_contract_keeps_comparison_identity_non_governing() -> None:
     checker._set_confidence_contract_identities(payload)
     checker._set_confidence_contract_identities(shifted)
 
-    comparison_fields = (
-        checker.GY_N11_CONFIDENCE_CONTRACT_PROJECTION_OWNER.exclusion_rule(
-            reason="non_governing_verification_identity"
-        ).top_level_fields
-    )
+    comparison_fields = checker.GY_N11_CONFIDENCE_CONTRACT_PROJECTION_OWNER.exclusion_rule(
+        reason="non_governing_verification_identity"
+    ).top_level_fields
     assert comparison_fields.isdisjoint(payload)
     assert comparison_fields.isdisjoint(shifted)
     assert payload["artifact_content_hash"] != shifted["artifact_content_hash"]
@@ -1033,9 +1023,7 @@ def test_real_owner_route_relabel_fails_before_accounting(
     forged_value: str,
 ) -> None:
     bundle = _warm_bundle(monkeypatch)
-    registry = checker.load_confidence_ledger_registry(
-        POLICY_ENGINE_ROOT / checker.REGISTRY_PATH
-    )
+    registry = checker.load_confidence_ledger_registry(POLICY_ENGINE_ROOT / checker.REGISTRY_PATH)
     payload = registry.source_payload()
     route = next(
         item
@@ -1074,9 +1062,7 @@ def test_real_owner_route_relabel_fails_before_accounting(
 
 
 def test_required_real_owner_route_cannot_be_deleted() -> None:
-    registry = checker.load_confidence_ledger_registry(
-        POLICY_ENGINE_ROOT / checker.REGISTRY_PATH
-    )
+    registry = checker.load_confidence_ledger_registry(POLICY_ENGINE_ROOT / checker.REGISTRY_PATH)
     payload = registry.source_payload()
     payload["certificate_class_routes"] = [
         item
@@ -1090,9 +1076,7 @@ def test_required_real_owner_route_cannot_be_deleted() -> None:
 
 
 def test_unowned_real_owner_kernel_route_cannot_extend_denominator() -> None:
-    registry = checker.load_confidence_ledger_registry(
-        POLICY_ENGINE_ROOT / checker.REGISTRY_PATH
-    )
+    registry = checker.load_confidence_ledger_registry(POLICY_ENGINE_ROOT / checker.REGISTRY_PATH)
     payload = registry.source_payload()
     payload["certificate_class_routes"].append(
         {
@@ -1204,7 +1188,9 @@ def test_projection_edges_bind_owner_declared_scopes_and_hashes(
     assert n13b_edge.producer_projection_hash == (bundle.n13b.source_accounting_projection_sha256)
     assert n13b_edge.consumer_projection_hash == contract.real_ledger_projection.projection_hash
     assert accounted_edge.producer_scope == contract.real_ledger_projection.projection_scope
-    assert accounted_edge.producer_projection_hash == contract.real_ledger_projection.projection_hash
+    assert (
+        accounted_edge.producer_projection_hash == contract.real_ledger_projection.projection_hash
+    )
     assert accounted_edge.consumer_projection_hash == contract.accounted_run.projection_hash
     assert n9_edge.producer_scope == contract.real_ledger_projection.projection_scope
     assert n9_edge.producer_projection_hash == contract.real_ledger_projection.projection_hash
@@ -1374,8 +1360,7 @@ def test_confidence_ledger_writer_is_byte_stable_and_corruptions_turn_red(
         checker.CORRUPT_FIELD_MUTATION_IDS
     )
     assert all(
-        "artifact_content_hash_drift"
-        not in {issue["code"] for issue in row["issues"]}
+        "artifact_content_hash_drift" not in {issue["code"] for issue in row["issues"]}
         for row in corruption_report["results"]
     )
 
@@ -2238,10 +2223,7 @@ def test_objectively_progressing_cold_worker_may_exceed_two_x_without_terminatio
     assert report["byte_stable_passes"] == 2
     assert report["first_derivation_wall_time_seconds"] > 0.4
     assert report["cold_closeout_budget_exceeded"] is True
-    assert (
-        report["cold_closeout_budget_disposition"]
-        == "completed_with_objective_progress"
-    )
+    assert report["cold_closeout_budget_disposition"] == "completed_with_objective_progress"
     cold_comparison = next(
         row
         for row in report["historical_stage_comparison"]

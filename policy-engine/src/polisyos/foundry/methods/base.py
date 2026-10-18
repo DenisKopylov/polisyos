@@ -422,12 +422,8 @@ class SlotSpec:
         ):
             raise TypeError("SlotSpec.contract_id must be None or a non-empty string")
         normalized_capabilities = frozenset(self.contract_capabilities)
-        if not all(
-            isinstance(item, OutputContractCapability) for item in normalized_capabilities
-        ):
-            raise TypeError(
-                "SlotSpec.contract_capabilities must contain OutputContractCapability"
-            )
+        if not all(isinstance(item, OutputContractCapability) for item in normalized_capabilities):
+            raise TypeError("SlotSpec.contract_capabilities must contain OutputContractCapability")
         if normalized_capabilities and self.contract_id is None:
             raise ValueError("slot_contract_capability_requires_contract_id")
         if self.contract_owner is not None and (
@@ -471,8 +467,7 @@ class SlotSpec:
         if not isinstance(contract_id, str) or contract_id != declaration.contract_id:
             raise ValueError("output_contract_declaration_id_mismatch")
         if (
-            OutputContractCapability.VALUE_UNCERTAINTY_PROJECTION
-            in declaration.capabilities
+            OutputContractCapability.VALUE_UNCERTAINTY_PROJECTION in declaration.capabilities
             and not supports_value_uncertainty_projection_contract(output_contract)
         ):
             raise ValueError("output_contract_value_projector_missing")
@@ -482,9 +477,7 @@ class SlotSpec:
             unit=unit,
             contract_id=contract_id,
             contract_capabilities=declaration.capabilities,
-            contract_owner=(
-                f"{output_contract.__module__}:{output_contract.__qualname__}"
-            ),
+            contract_owner=(f"{output_contract.__module__}:{output_contract.__qualname__}"),
             shape=shape,
             description=description,
             bounds=bounds,

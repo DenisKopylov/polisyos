@@ -78,9 +78,7 @@ DEFAULT_REPO_ROOT = Path(__file__).resolve().parents[5]
 G6_SCHEMA_VERSION = "policyos.policy_design_case.layer3_g6_bounded_agent.v1"
 G6_RULE_VERSION = "policyos.layer3.g6.bounded_agent.v1"
 G6_SURFACE_ID = "layer3_g6_bounded_agent_surface"
-G6_GENERATED_ARTIFACT_FAMILY_ID = (
-    "policy-design-case-layer3-g6-bounded-agent-artifacts"
-)
+G6_GENERATED_ARTIFACT_FAMILY_ID = "policy-design-case-layer3-g6-bounded-agent-artifacts"
 G6_POLICY_GRAMMAR_AUTHORITATIVE_FOR = ("layer3_g6_policy_grammar_routing_facets",)
 G6_DEFAULT_G5_ENVELOPE_REFS = (
     f"layer3-g5-envelope://{g5.G5_PINNED_CASE_ID}",
@@ -188,29 +186,17 @@ ALL_ISSUE_CODES = (
     "layer3_g6_reference_index_missing",
 )
 G6_CONFORMANCE_NEGATIVE_EXPECTATIONS: dict[str, tuple[str, ...]] = {
-    "agent_fluent_output_as_authority": (
-        "layer3_g6_agent_candidate_used_as_authority",
-    ),
-    "tool_choice_bias_hides_counterevidence": (
-        "layer3_g6_rejected_branch_memory_missing",
-    ),
+    "agent_fluent_output_as_authority": ("layer3_g6_agent_candidate_used_as_authority",),
+    "tool_choice_bias_hides_counterevidence": ("layer3_g6_rejected_branch_memory_missing",),
     "agent_loop_trace_missing": ("layer3_g6_agent_loop_trace_missing",),
     "search_ledger_missing": ("layer3_g6_search_ledger_missing",),
-    "search_ledger_authority_boundary_leak": (
-        "layer3_g6_search_ledger_authority_boundary_leak",
-    ),
-    "tool_loop_transcript_only_not_audit": (
-        "layer3_g6_tool_loop_transcript_only_not_audit",
-    ),
+    "search_ledger_authority_boundary_leak": ("layer3_g6_search_ledger_authority_boundary_leak",),
+    "tool_loop_transcript_only_not_audit": ("layer3_g6_tool_loop_transcript_only_not_audit",),
     "llm_client_unavailable": ("layer3_g6_llm_client_unavailable",),
     "policy_grammar_compile_blocked": ("layer3_g6_policy_grammar_compile_blocked",),
-    "policy_grammar_concept_refs_missing": (
-        "layer3_g6_policy_grammar_concept_refs_missing",
-    ),
+    "policy_grammar_concept_refs_missing": ("layer3_g6_policy_grammar_concept_refs_missing",),
     "runtime_imports_policy_grammar": ("layer3_g6_runtime_imports_policy_grammar",),
-    "hardcoded_template_classifier_only": (
-        "layer3_g6_classifier_only_match_not_authority",
-    ),
+    "hardcoded_template_classifier_only": ("layer3_g6_classifier_only_match_not_authority",),
     "design_record_candidate_as_authority": (
         "layer3_g6_design_record_candidate_used_as_authority",
     ),
@@ -220,34 +206,22 @@ G6_CONFORMANCE_NEGATIVE_EXPECTATIONS: dict[str, tuple[str, ...]] = {
     "g5_bypass_attempt": ("layer3_g6_g5_bypass_attempt",),
     "g5_may_not_use_for_ignored": ("layer3_g6_g5_may_not_use_for_ignored",),
     "non_allowlisted_tool_attempt": ("layer3_g6_non_allowlisted_tool_attempt",),
-    "candidate_without_hypothesis_ledger": (
-        "layer3_g6_candidate_without_hypothesis_ledger",
-    ),
+    "candidate_without_hypothesis_ledger": ("layer3_g6_candidate_without_hypothesis_ledger",),
     "public_raw_prompt_leak": ("layer3_g6_public_raw_prompt_leak",),
     "outside_envelope_abstention_without_search_health": (
         "layer3_g6_outside_envelope_abstention_without_search_health",
     ),
-    "cheap_refusal_without_demand_signal": (
-        "layer3_g6_cheap_refusal_without_demand_signal",
-    ),
-    "out_of_envelope_g5_widening_attempt": (
-        "layer3_g6_non_pinned_g5_widening_attempt",
-    ),
+    "cheap_refusal_without_demand_signal": ("layer3_g6_cheap_refusal_without_demand_signal",),
+    "out_of_envelope_g5_widening_attempt": ("layer3_g6_non_pinned_g5_widening_attempt",),
     "prompt_tool_ledger_missing": ("layer3_g6_prompt_tool_ledger_missing",),
     "prompt_tool_ledger_misread_as_authority": (
         "layer3_g6_prompt_tool_ledger_misread_as_authority",
     ),
-    "orchestration_continuity_missing": (
-        "layer3_g6_orchestration_continuity_missing",
-    ),
-    "orchestration_continuity_refs_missing": (
-        "layer3_g6_orchestration_continuity_refs_missing",
-    ),
+    "orchestration_continuity_missing": ("layer3_g6_orchestration_continuity_missing",),
+    "orchestration_continuity_refs_missing": ("layer3_g6_orchestration_continuity_refs_missing",),
     "replay_manifest_missing": ("layer3_g6_replay_manifest_missing",),
     "replay_drift_unexplained": ("layer3_g6_replay_drift_unexplained",),
-    "orchestration_choice_audit_missing": (
-        "layer3_g6_orchestration_choice_audit_missing",
-    ),
+    "orchestration_choice_audit_missing": ("layer3_g6_orchestration_choice_audit_missing",),
     "g7_region_widening_attempt": ("layer3_g6_g7_region_widening_attempt",),
 }
 
@@ -336,8 +310,7 @@ class Layer3G6PolicyGrammarProjection(_G6Model):
         ).strip()
         if not concept_spine_ref or not jurisdiction_spine_ref:
             raise ValueError(
-                "policy grammar projection requires concept_spine_ref and "
-                "jurisdiction_spine_ref"
+                "policy grammar projection requires concept_spine_ref and jurisdiction_spine_ref"
             )
         if self.status == "pass" and not self.compiled_case_ref:
             raise ValueError("passing policy grammar projection requires compiled_case_ref")
@@ -434,9 +407,7 @@ class Layer3G6OrchestrationChoiceAudit(_G6Model):
     rejected_branch_refs: tuple[str, ...] = Field(default=())
     framing_choices: tuple[str, ...] = Field(default=())
     counterexample_probe_refs: tuple[str, ...] = Field(default=())
-    additional_load_bearing_choices: tuple[OrchestrationChoiceContext, ...] = Field(
-        default=()
-    )
+    additional_load_bearing_choices: tuple[OrchestrationChoiceContext, ...] = Field(default=())
     prompt_tool_ledger_ref: str | None = None
     hypothesis_ledger_ref: str | None = None
     tool_contract_summary_ref: str | None = None
@@ -444,9 +415,7 @@ class Layer3G6OrchestrationChoiceAudit(_G6Model):
     replay_fingerprint: str
     replayable: bool = False
     authority_deltas: tuple[OrchestrationAuthorityDelta, ...] = Field(default=())
-    authority_delta_completeness: (
-        OrchestrationAuthorityDeltaCompletenessReceipt | None
-    ) = None
+    authority_delta_completeness: OrchestrationAuthorityDeltaCompletenessReceipt | None = None
     compression_loss_receipt_ref: str | None = None
     issue_codes: tuple[str, ...] = Field(default=())
     authoritative_for: tuple[str, ...] = G6_AUTHORITATIVE_FOR
@@ -680,9 +649,7 @@ class Layer3G6AgentAuditSurface(_G6Model):
     EXPERT: dict[str, Any] = Field(default_factory=dict)
     MACHINE: dict[str, Any] = Field(default_factory=dict)
     public_projection_contract_verification: dict[str, Any] = Field(default_factory=dict)
-    summary_authority_preservation_verification: dict[str, Any] = Field(
-        default_factory=dict
-    )
+    summary_authority_preservation_verification: dict[str, Any] = Field(default_factory=dict)
     issue_codes: tuple[str, ...] = Field(default=())
     authoritative_for: tuple[str, ...] = ("layer3_g6_agent_orchestration_audit",)
     may_not_use_for: tuple[str, ...] = G6_PUBLIC_PROJECTION_DENIED_USES
@@ -698,9 +665,7 @@ class Layer3G6DemandPullVsAbstentionDelta(_G6Model):
     demand_source_refs: tuple[str, ...] = Field(default=())
     accountable_principal_refs: tuple[str, ...] = Field(default=())
     issue_codes: tuple[str, ...] = Field(default=())
-    authoritative_for: tuple[str, ...] = (
-        "layer3_g6_demand_pull_vs_abstention_reading",
-    )
+    authoritative_for: tuple[str, ...] = ("layer3_g6_demand_pull_vs_abstention_reading",)
     may_not_use_for: tuple[str, ...] = G6_MAY_NOT_USE_FOR
 
 
@@ -780,11 +745,7 @@ class FakeG6ToolCallingClient:
                 content='{"status":"g6-loop-complete"}',
                 tool_calls=[],
                 usage=SimpleNamespace(total_tokens=1),
-                raw={
-                    "choices": [
-                        {"message": {"content": '{"status":"g6-loop-complete"}'}}
-                    ]
-                },
+                raw={"choices": [{"message": {"content": '{"status":"g6-loop-complete"}'}}]},
             )
         tool_name = self._tool_sequence[self._index]
         self._index += 1
@@ -900,15 +861,9 @@ def _g6_run_compression_materials(
     )
     governance_burden_refs = (
         f"burden:{record.grounded_value_closure_status}",
-        *(
-            ("burden:owner-review",)
-            if record.grounded_value_closure_status != "pass"
-            else ()
-        ),
+        *(("burden:owner-review",) if record.grounded_value_closure_status != "pass" else ()),
     )
-    framing_refs = record.orchestration_choice_audit.framing_choices or (
-        "frame:g6-routing-audit",
-    )
+    framing_refs = record.orchestration_choice_audit.framing_choices or ("frame:g6-routing-audit",)
     source = CompressionMaterialSet(
         claims=tuple(claims),
         limitations=tuple(limitations),
@@ -963,9 +918,7 @@ def _g6_loop_compression_materials(
                 source_refs=(ref,),
             )
             for index, ref in enumerate(
-                dict.fromkeys(
-                    (*audit.rejected_branch_refs, *audit.counterexample_probe_refs)
-                ),
+                dict.fromkeys((*audit.rejected_branch_refs, *audit.counterexample_probe_refs)),
                 start=1,
             )
         ),
@@ -1179,9 +1132,7 @@ def _attach_g6_summary_authority_preservation(
             "replayable": not audit_issues,
             "authority_deltas": derivation.authority_deltas,
             "authority_delta_completeness": derivation.completeness,
-            "compression_loss_receipt_ref": (
-                derivation.compression_loss_receipt.receipt_id
-            ),
+            "compression_loss_receipt_ref": (derivation.compression_loss_receipt.receipt_id),
             "issue_codes": tuple(dict.fromkeys(audit_issues)),
         }
     )
@@ -1298,8 +1249,7 @@ def verify_g6_summary_authority_preservation(
     )
     return _verify_g6_summary_authority_derivation(
         verification_id=(
-            f"layer3-g6://summary-authority-preservation-verification/"
-            f"{record.request_id}"
+            f"layer3-g6://summary-authority-preservation-verification/{record.request_id}"
         ),
         expected=expected,
         prompt_tool_ledger=record.prompt_tool_ledger_projection,
@@ -1346,9 +1296,7 @@ def _verify_g6_summary_authority_derivation(
     ledger = prompt_tool_ledger.prompt_tool_ledger
     issues: list[str] = []
     actual_receipt = (
-        ledger.compression_loss_receipts[0]
-        if len(ledger.compression_loss_receipts) == 1
-        else None
+        ledger.compression_loss_receipts[0] if len(ledger.compression_loss_receipts) == 1 else None
     )
     actual_completeness = (
         ledger.authority_delta_completeness_receipts[0]
@@ -1362,9 +1310,8 @@ def _verify_g6_summary_authority_derivation(
             validate_compression_loss_receipt(actual_receipt)
         except PromptToolLedgerError:
             issues.append("layer3_g6_compression_loss_receipt_blocked")
-        if (
-            actual_receipt.model_dump(mode="json")
-            != expected.compression_loss_receipt.model_dump(mode="json")
+        if actual_receipt.model_dump(mode="json") != expected.compression_loss_receipt.model_dump(
+            mode="json"
         ):
             issues.append("layer3_g6_compression_loss_receipt_blocked")
     recomputed_completeness = validate_orchestration_authority_delta_completeness(
@@ -1376,21 +1323,15 @@ def _verify_g6_summary_authority_derivation(
         or actual_completeness is None
         or actual_completeness.model_dump(mode="json")
         != expected.completeness.model_dump(mode="json")
-        or tuple(ledger.orchestration_authority_deltas)
-        != expected.authority_deltas
+        or tuple(ledger.orchestration_authority_deltas) != expected.authority_deltas
         or tuple(audit.authority_deltas) != expected.authority_deltas
     ):
         issues.append("layer3_g6_authority_delta_owner_validation_failed")
-    if (
-        audit.authority_delta_completeness is None
-        or audit.authority_delta_completeness.model_dump(mode="json")
-        != expected.completeness.model_dump(mode="json")
-    ):
+    if audit.authority_delta_completeness is None or audit.authority_delta_completeness.model_dump(
+        mode="json"
+    ) != expected.completeness.model_dump(mode="json"):
         issues.append("layer3_g6_authority_delta_completeness_failed")
-    if (
-        audit.compression_loss_receipt_ref
-        != expected.compression_loss_receipt.receipt_id
-    ):
+    if audit.compression_loss_receipt_ref != expected.compression_loss_receipt.receipt_id:
         issues.append("layer3_g6_compression_loss_receipt_blocked")
     issue_codes = tuple(dict.fromkeys(issues))
     return Layer3G6SummaryAuthorityPreservationVerification(
@@ -1759,8 +1700,7 @@ def build_g6_prompt_tool_ledger_projection(
                             "scope": "claims",
                             "handoff_ref": "layer3-g6://authority-handoff/not-applicable",
                             "consumer": (
-                                "polisyos.runtime.quality.proving_ground."
-                                "bounded_request_agent"
+                                "polisyos.runtime.quality.proving_ground.bounded_request_agent"
                             ),
                             "status": "not_applicable",
                         }
@@ -1857,8 +1797,7 @@ def build_g6_orchestration_choice_audit(
         "framing_choices": framing_choices,
         "counterexample_probe_refs": counterexample_probe_refs,
         "additional_load_bearing_choices": [
-            choice.model_dump(mode="json")
-            for choice in additional_load_bearing_choices
+            choice.model_dump(mode="json") for choice in additional_load_bearing_choices
         ],
         "prompt_tool_ledger_ref": prompt_tool_ledger_ref,
         "hypothesis_ledger_ref": hypothesis_ledger_ref,
@@ -2037,9 +1976,7 @@ async def run_layer3_g6_bounded_agent_loop(
         "repo://architecture/policy_design_case/layer3_g5_conversion_records.json",
     )
     rejected_tool_names = ("unbounded_web_search",)
-    rejected_branch_refs = (
-        f"candidate://g6/{request_id}/rejected/legal-advice-answer",
-    )
+    rejected_branch_refs = (f"candidate://g6/{request_id}/rejected/legal-advice-answer",)
     tool_call_refs = tuple(
         f"layer3-g6://tool-call/{request_id}/{index}-{call.tool_name}"
         for index, call in enumerate(loop_result.tool_calls_made, start=1)
@@ -2088,9 +2025,7 @@ async def run_layer3_g6_bounded_agent_loop(
         selected_evidence_refs=selected_evidence_refs,
         rejected_branch_refs=rejected_branch_refs,
         framing_choices=("frame_as_g5_route_not_policy_recommendation",),
-        counterexample_probe_refs=(
-            f"candidate://g6/{request_id}/counterexample/legal-authority",
-        ),
+        counterexample_probe_refs=(f"candidate://g6/{request_id}/counterexample/legal-authority",),
         prompt_tool_ledger_ref=prompt_tool_ledger.prompt_tool_ledger_ref,
         hypothesis_ledger_ref=hypothesis_ledger.hypothesis_ledger_ref,
         tool_contract_summary_ref=tool_contract_summary.summary_id,
@@ -2150,9 +2085,7 @@ def build_g6_design_record_candidate_handoff(
         {
             "run_id": f"layer3-g6-design-record-handoff:{request_id}",
             "job_id": f"layer3-g6-design-record-handoff:{request_id}",
-            "hypothesis_ledger_ref": (
-                f"layer3-g6://hypothesis-ledger/design-record/{request_id}"
-            ),
+            "hypothesis_ledger_ref": (f"layer3-g6://hypothesis-ledger/design-record/{request_id}"),
             "entries": [
                 {
                     "candidate_id": candidate_ref,
@@ -2389,8 +2322,7 @@ def build_layer3_g6_agent_run_record(
         absence_or_incompleteness_reason=None,
         ranking_policy_ref="layer3-g6://ranking-policy/grammar-first-g5-envelope",
         cutoff_budget_ref="layer3-g6://budget/single-g5-route",
-        search_health_refs=search_health_refs
-        or ("layer3-g6://search-health/same-class-g5-route",),
+        search_health_refs=search_health_refs or ("layer3-g6://search-health/same-class-g5-route",),
     )
     audit = build_g6_orchestration_choice_audit(
         envelope=envelope,
@@ -2399,9 +2331,7 @@ def build_layer3_g6_agent_run_record(
         selected_evidence_refs=selected_evidence_refs,
         rejected_branch_refs=rejected_branch_refs,
         framing_choices=("frame_as_g5_route_not_policy_recommendation",),
-        counterexample_probe_refs=(
-            f"candidate://g6/{request_id}/counterexample/legal-authority",
-        ),
+        counterexample_probe_refs=(f"candidate://g6/{request_id}/counterexample/legal-authority",),
         additional_load_bearing_choices=additional_load_bearing_choices,
         prompt_tool_ledger_ref=prompt_tool_ledger.prompt_tool_ledger_ref,
         hypothesis_ledger_ref=hypothesis_ledger.hypothesis_ledger_ref,
@@ -2412,9 +2342,7 @@ def build_layer3_g6_agent_run_record(
         request_id=request_id,
         g5_conversion_outcome=g5_invocation.g5_conversion_outcome,
         envelope_match_status=envelope.envelope_match_status,
-        g5_record_refs=tuple(
-            ref for ref in (g5_invocation.g5_conversion_record_ref,) if ref
-        ),
+        g5_record_refs=tuple(ref for ref in (g5_invocation.g5_conversion_record_ref,) if ref),
         abstention_reason_refs=tuple(
             ref
             for ref in (
@@ -2538,9 +2466,7 @@ def build_g6_replay_manifest(
             "request_id": record.request_id,
             "request_ref": record.raw_request_ref,
             "request_fingerprint": record.raw_request_fingerprint,
-            "policy_grammar_projection_ref": (
-                record.policy_grammar_projection.projection_id
-            ),
+            "policy_grammar_projection_ref": (record.policy_grammar_projection.projection_id),
             "envelope_match_status": record.envelope_match_status,
         },
         provider_model_metadata={
@@ -2591,9 +2517,7 @@ def build_g6_replay_manifest(
             "hypothesis_ledger_ref": record.hypothesis_ledger.hypothesis_ledger_ref,
         },
         registry_refs={
-            "runtime_claim_registry_ref": _g6_continuity_refs(record)[
-                "runtime_claim_registry_ref"
-            ],
+            "runtime_claim_registry_ref": _g6_continuity_refs(record)["runtime_claim_registry_ref"],
             "tool_contract_summary_ref": record.tool_contract_summary.summary_id,
         },
         orchestration_continuity=continuity.record,
@@ -2664,9 +2588,7 @@ def build_g6_agent_audit_surface(
     issue_codes: tuple[str, ...] = summary_verification.issue_codes
     if verification["status"] != "pass":
         issue_codes = tuple(
-            dict.fromkeys(
-                (*issue_codes, "layer3_g6_public_projection_contract_failed")
-            )
+            dict.fromkeys((*issue_codes, "layer3_g6_public_projection_contract_failed"))
         )
     safe_g5_refs = public_projection["safe_g5_refs"]
     generated_artifact_paths = _g6_generated_artifact_paths()
@@ -2686,19 +2608,13 @@ def build_g6_agent_audit_surface(
                 )
                 if ref
             ],
-            "orchestration_choice_audit_refs": [
-                record.orchestration_choice_audit.audit_id
-            ],
+            "orchestration_choice_audit_refs": [record.orchestration_choice_audit.audit_id],
             "blocker_refs": list(record.issue_codes),
             "abstention_refs": list(record.result_projection.abstention_reason_refs),
             "compression_loss_receipt_refs": [
-                ref
-                for ref in (summary_verification.compression_loss_receipt_ref,)
-                if ref
+                ref for ref in (summary_verification.compression_loss_receipt_ref,) if ref
             ],
-            "summary_authority_preservation_issue_codes": list(
-                summary_verification.issue_codes
-            ),
+            "summary_authority_preservation_issue_codes": list(summary_verification.issue_codes),
             "may_not_use_for": list(G6_PUBLIC_PROJECTION_DENIED_USES),
         },
         EXPERT={
@@ -2713,9 +2629,7 @@ def build_g6_agent_audit_surface(
             ],
             "conformance_refs": ["layer3-g6://conformance/report"],
             "authority_delta_completeness_refs": [
-                ref
-                for ref in (summary_verification.authority_delta_completeness_ref,)
-                if ref
+                ref for ref in (summary_verification.authority_delta_completeness_ref,) if ref
             ],
             "may_not_use_for": list(G6_PUBLIC_PROJECTION_DENIED_USES),
         },
@@ -2736,9 +2650,7 @@ def build_g6_agent_audit_surface(
             "may_not_use_for": list(G6_PUBLIC_PROJECTION_DENIED_USES),
         },
         public_projection_contract_verification=verification,
-        summary_authority_preservation_verification=summary_verification.model_dump(
-            mode="json"
-        ),
+        summary_authority_preservation_verification=summary_verification.model_dump(mode="json"),
         issue_codes=issue_codes,
     )
 
@@ -2755,8 +2667,7 @@ def build_g6_authority_preserving_public_export(
         run_id=record.run_record_id,
         artifacts={"g6_summary_authority_preservation": surface.PUBLIC},
         generated_at=(
-            generated_at
-            or record.prompt_tool_ledger_projection.prompt_tool_ledger.generated_at
+            generated_at or record.prompt_tool_ledger_projection.prompt_tool_ledger.generated_at
         ),
     )
     artifacts = bundle.get("artifacts")
@@ -2766,9 +2677,7 @@ def build_g6_authority_preserving_public_export(
         else None
     )
     compression_result = (
-        exported.get("compression_result")
-        if isinstance(exported, Mapping)
-        else None
+        exported.get("compression_result") if isinstance(exported, Mapping) else None
     )
     verification = surface.summary_authority_preservation_verification
     verification_pass = verification.get("status") == "pass"
@@ -2841,9 +2750,7 @@ def build_g6_demand_pull_vs_abstention_delta(
         issue_codes.append("layer3_g6_health_delta_accountable_principal_missing")
     denominator = request_count if request_count > 0 else 1
     abstention_or_blocker_count = (
-        g5_grounded_abstention_count
-        + g5_unchanged_blocker_count
-        + out_of_envelope_abstention_count
+        g5_grounded_abstention_count + g5_unchanged_blocker_count + out_of_envelope_abstention_count
     )
     readings = {
         "demand_reached_g5_rate": round(g5_routed_count / denominator, 6),
@@ -3024,9 +2931,7 @@ def build_g6_conformance_report(
         public_projection_boundary_check["observed_issue_codes"],
     )
 
-    orchestration_continuity_check = _g6_conformance_orchestration_continuity_check(
-        record
-    )
+    orchestration_continuity_check = _g6_conformance_orchestration_continuity_check(record)
     for negative_id in (
         "orchestration_continuity_missing",
         "orchestration_continuity_refs_missing",
@@ -3229,9 +3134,7 @@ def _build_outside_envelope_g5_invocation_plan(
     if denied_requested:
         issue_codes.append("layer3_g6_g5_may_not_use_for_ignored")
     status: Literal["pass", "abstain", "fail"] = (
-        "abstain"
-        if issue_codes == ["layer3_g6_outside_g5_envelope"]
-        else "fail"
+        "abstain" if issue_codes == ["layer3_g6_outside_g5_envelope"] else "fail"
     )
     return Layer3G6G5InvocationPlan(
         invocation_plan_id=f"layer3-g6://g5-invocation-plan/{request_id}",
@@ -3360,26 +3263,15 @@ def _g6_public_projection_contract_payload(
 ) -> dict[str, Any]:
     compression_result = public_projection.get("compression_result")
     compression_pass = (
-        isinstance(compression_result, Mapping)
-        and compression_result.get("status") == "pass"
+        isinstance(compression_result, Mapping) and compression_result.get("status") == "pass"
     )
-    can_closeout = (
-        record.grounded_value_closure_status == "pass" and compression_pass
-    )
+    can_closeout = record.grounded_value_closure_status == "pass" and compression_pass
     blocker_codes = tuple(
         dict.fromkeys(
             [
                 *record.issue_codes,
-                *(
-                    ()
-                    if compression_pass
-                    else ("layer3_g6_compression_loss_receipt_blocked",)
-                ),
-                *(
-                    ()
-                    if can_closeout
-                    else ("layer3_g6_grounded_value_closure_not_available",)
-                ),
+                *(() if compression_pass else ("layer3_g6_compression_loss_receipt_blocked",)),
+                *(() if can_closeout else ("layer3_g6_grounded_value_closure_not_available",)),
             ]
         )
     )
@@ -3401,9 +3293,7 @@ def _g6_public_projection_contract_payload(
             {
                 "state": record.outcome if compression_pass else "compression_refused",
                 "label": (
-                    record.outcome.replace("_", " ")
-                    if compression_pass
-                    else "compression refused"
+                    record.outcome.replace("_", " ") if compression_pass else "compression refused"
                 ),
                 "authority_role": "projection_only",
                 "source_authority": "layer3_g6_agent_run_record",
@@ -3415,9 +3305,7 @@ def _g6_public_projection_contract_payload(
             "can_closeout": can_closeout,
             "blocker_codes": blocker_codes,
             "omission_codes": (
-                ()
-                if can_closeout
-                else ("layer3_g6_public_projection_excludes_raw_request",)
+                () if can_closeout else ("layer3_g6_public_projection_excludes_raw_request",)
             ),
             "contested_state": "not_contested",
         },
@@ -3904,9 +3792,7 @@ def _g6_conformance_negative_result(
 ) -> Layer3G6ConformanceNegativeResult:
     expected = tuple(dict.fromkeys(expected_issue_codes))
     observed = tuple(dict.fromkeys(observed_issue_codes))
-    status: Literal["pass", "fail"] = (
-        "pass" if set(observed) >= set(expected) else "fail"
-    )
+    status: Literal["pass", "fail"] = "pass" if set(observed) >= set(expected) else "fail"
     return Layer3G6ConformanceNegativeResult(
         negative_id=negative_id,
         status=status,
@@ -3957,9 +3843,7 @@ def _g6_conformance_policy_grammar_projection(
     issue_codes: tuple[str, ...] = (),
 ) -> Layer3G6PolicyGrammarProjection:
     compiled_case_ref = (
-        f"universal-policy-design-case:layer3-g6:{request_id}"
-        if status == "pass"
-        else None
+        f"universal-policy-design-case:layer3-g6:{request_id}" if status == "pass" else None
     )
     return validate_g6_policy_grammar_projection(
         {
@@ -3969,9 +3853,7 @@ def _g6_conformance_policy_grammar_projection(
             "compiled_case_ref": compiled_case_ref,
             "compiled_case_status": "compiled" if status == "pass" else "blocked",
             "status": status,
-            "authority_state": (
-                "compilation_facets_only" if status == "pass" else "blocked"
-            ),
+            "authority_state": ("compilation_facets_only" if status == "pass" else "blocked"),
             "facet_summary": {
                 "jurisdiction": jurisdiction,
                 "policy_family": policy_family,
@@ -3979,9 +3861,7 @@ def _g6_conformance_policy_grammar_projection(
             },
             "concept_spine_refs": {
                 "concept_spine_ref": f"cas://concept-spine/layer3-g6/{request_id}",
-                "jurisdiction_spine_ref": (
-                    f"cas://jurisdiction-spine/layer3-g6/{request_id}"
-                ),
+                "jurisdiction_spine_ref": (f"cas://jurisdiction-spine/layer3-g6/{request_id}"),
             },
             "issue_codes": issue_codes,
             "authoritative_for": G6_POLICY_GRAMMAR_AUTHORITATIVE_FOR,
@@ -4018,9 +3898,7 @@ def _g6_continuity_refs(record: Layer3G6AgentRunRecord) -> dict[str, Any]:
         "carrier_ref": f"evidence-spine:g6:{record.request_id}",
         "concept_spine_ref": concept_spine_ref,
         "jurisdiction_spine_ref": jurisdiction_spine_ref,
-        "runtime_claim_registry_ref": (
-            f"runtime-claim-registry://layer3-g6/{record.request_id}"
-        ),
+        "runtime_claim_registry_ref": (f"runtime-claim-registry://layer3-g6/{record.request_id}"),
         "producer_handshake_ledger_ref": (
             f"producer-handshake-ledger://layer3-g6/{record.request_id}"
         ),
@@ -4063,9 +3941,7 @@ def _g6_continuity_surfaces(
             "agent_run_record_ref": record.run_record_id,
             "search_ledger_ref": record.search_ledger.ledger_id,
             "orchestration_choice_audit_ref": record.orchestration_choice_audit.audit_id,
-            "prompt_tool_ledger_ref": (
-                record.prompt_tool_ledger_projection.prompt_tool_ledger_ref
-            ),
+            "prompt_tool_ledger_ref": (record.prompt_tool_ledger_projection.prompt_tool_ledger_ref),
             "hypothesis_ledger_ref": record.hypothesis_ledger.hypothesis_ledger_ref,
         },
         "job_progress": {

@@ -107,15 +107,18 @@ class PromotionSafetySourceAttempt(_StrictModel):
     ]
     signer_identity: str | None = None
     inputs_read: tuple[PromotionSafetyRead, ...]
-    signature_verification_outcome: Literal[
-        "malformed_reference",
-        "capability_unavailable",
-        "backend_unavailable",
-        "verifier_raised",
-        "result_artifact_id_mismatch",
-        "signature_rejected",
-        "verified",
-    ] | None = None
+    signature_verification_outcome: (
+        Literal[
+            "malformed_reference",
+            "capability_unavailable",
+            "backend_unavailable",
+            "verifier_raised",
+            "result_artifact_id_mismatch",
+            "signature_rejected",
+            "verified",
+        ]
+        | None
+    ) = None
 
 
 class _LegacyPromotionSafetySourceAttemptV1(_StrictModel):
@@ -296,15 +299,18 @@ class PromotionSafetyOwner:
         reads: list[PromotionSafetyRead] = []
         status = "source_unresolved"
         signer = None
-        outcome: Literal[
-            "malformed_reference",
-            "capability_unavailable",
-            "backend_unavailable",
-            "verifier_raised",
-            "result_artifact_id_mismatch",
-            "signature_rejected",
-            "verified",
-        ] | None = None
+        outcome: (
+            Literal[
+                "malformed_reference",
+                "capability_unavailable",
+                "backend_unavailable",
+                "verifier_raised",
+                "result_artifact_id_mismatch",
+                "signature_rejected",
+                "verified",
+            ]
+            | None
+        ) = None
         try:
             requested_id = artifacts.ArtifactID.model_validate(ref)
         except (ValueError, TypeError):
@@ -391,14 +397,12 @@ class PromotionSafetyOwner:
                                 status = "candidate_custody_verified"
                                 outcome = "verified"
                                 detail = (
-                                    "current_exact_blob_manifest_sidecar:"
-                                    f"{result.status.value}"
+                                    f"current_exact_blob_manifest_sidecar:{result.status.value}"
                                 )
                             else:
                                 outcome = "signature_rejected"
                                 detail = (
-                                    "current_exact_blob_manifest_sidecar:"
-                                    f"{result.status.value}"
+                                    f"current_exact_blob_manifest_sidecar:{result.status.value}"
                                 )
                             reads.append(
                                 PromotionSafetyRead(

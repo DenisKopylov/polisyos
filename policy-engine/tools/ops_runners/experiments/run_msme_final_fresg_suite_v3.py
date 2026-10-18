@@ -43,7 +43,13 @@ V3_CAUSAL_METHODS = (
     "dml_lightgbm_or_histgb",
     "causal_forest_t_learner",
 )
-DISCOVERY_ALGOS = ("pc_partial_corr", "fci_latent_guard", "ges_bic_greedy", "dagma_l1_surrogate", "pcmci_lagged")
+DISCOVERY_ALGOS = (
+    "pc_partial_corr",
+    "fci_latent_guard",
+    "ges_bic_greedy",
+    "dagma_l1_surrogate",
+    "pcmci_lagged",
+)
 MACRO_SCENARIOS = v2.MACRO_SCENARIOS
 RANKING_METHODS = v2.RANKING_METHODS
 
@@ -76,7 +82,9 @@ def write_markdown(path: Path, text: str) -> None:
     v2.write_markdown(path, text)
 
 
-def percentile_ci(values: list[float] | np.ndarray, lo: float = 2.5, hi: float = 97.5) -> tuple[float, float]:
+def percentile_ci(
+    values: list[float] | np.ndarray, lo: float = 2.5, hi: float = 97.5
+) -> tuple[float, float]:
     return v2.percentile_ci(values, lo, hi)
 
 
@@ -144,8 +152,12 @@ def _optional_lightgbm(seed: int):
     except Exception:
         sk = _import_sklearn()
         return (
-            sk["HistGradientBoostingRegressor"](max_iter=110, learning_rate=0.055, random_state=seed),
-            sk["HistGradientBoostingClassifier"](max_iter=110, learning_rate=0.055, random_state=seed),
+            sk["HistGradientBoostingRegressor"](
+                max_iter=110, learning_rate=0.055, random_state=seed
+            ),
+            sk["HistGradientBoostingClassifier"](
+                max_iter=110, learning_rate=0.055, random_state=seed
+            ),
             "sklearn_histgb",
         )
 
@@ -207,7 +219,9 @@ def _ols_effect(x: np.ndarray, t: np.ndarray, y: np.ndarray) -> float:
     return float(coef[1])
 
 
-def _aipw_effect(x: np.ndarray, t: np.ndarray, y: np.ndarray, seed: int, learner: str) -> tuple[float, str]:
+def _aipw_effect(
+    x: np.ndarray, t: np.ndarray, y: np.ndarray, seed: int, learner: str
+) -> tuple[float, str]:
     if len(np.unique(t)) < 2:
         return float("nan"), "not_identified_one_arm"
     if learner == "rf":
@@ -229,7 +243,9 @@ def _aipw_effect(x: np.ndarray, t: np.ndarray, y: np.ndarray, seed: int, learner
     return float(np.mean(score)), status
 
 
-def _dml_effect(x: np.ndarray, t: np.ndarray, y: np.ndarray, seed: int, learner: str) -> tuple[float, str]:
+def _dml_effect(
+    x: np.ndarray, t: np.ndarray, y: np.ndarray, seed: int, learner: str
+) -> tuple[float, str]:
     sk = _import_sklearn()
     n = len(y)
     folds = min(3, max(2, n // 1200))
@@ -260,7 +276,9 @@ def _dml_effect(x: np.ndarray, t: np.ndarray, y: np.ndarray, seed: int, learner:
     return float(np.dot(t_res, y_res) / denom), status
 
 
-def _causal_forest_t_learner(x: np.ndarray, t: np.ndarray, y: np.ndarray, seed: int) -> tuple[float, str]:
+def _causal_forest_t_learner(
+    x: np.ndarray, t: np.ndarray, y: np.ndarray, seed: int
+) -> tuple[float, str]:
     if len(np.unique(t)) < 2:
         return float("nan"), "not_identified_one_arm"
     reg1, _ = _rf_models(seed)
@@ -273,7 +291,9 @@ def _causal_forest_t_learner(x: np.ndarray, t: np.ndarray, y: np.ndarray, seed: 
     return float(np.mean(cate)), "completed_sklearn_t_learner_forest"
 
 
-def estimate_effect_v3(method: str, data: v2.DGPData, idx: np.ndarray, seed: int) -> tuple[float, str]:
+def estimate_effect_v3(
+    method: str, data: v2.DGPData, idx: np.ndarray, seed: int
+) -> tuple[float, str]:
     x = data.x[idx]
     t = data.treatment[idx]
     y = data.outcome[idx]
@@ -287,7 +307,11 @@ def estimate_effect_v3(method: str, data: v2.DGPData, idx: np.ndarray, seed: int
         prop = _fit_propensity_lasso(x, t, seed)
         p = np.clip(_safe_proba(prop, x), 0.03, 0.97)
         est = np.mean(t * y / p) - np.mean((1 - t) * y / (1 - p))
-        status = "completed_with_overlap_warning" if np.quantile(1.0 / np.minimum(p, 1 - p), 0.99) > 35 else "completed"
+        status = (
+            "completed_with_overlap_warning"
+            if np.quantile(1.0 / np.minimum(p, 1 - p), 0.99) > 35
+            else "completed"
+        )
         return float(est), status
     if method == "aipw_random_forest":
         return _aipw_effect(x, t, y, seed, "rf")
@@ -345,8 +369,12 @@ def causal_bootstrap_cell_v3(args: tuple[str, str, int, int, int, int]) -> dict[
         "estimate": float(np.mean(estimates)) if estimates else float("nan"),
         "known_truth": truth,
         "bias": float(np.mean(estimates) - truth) if estimates else float("nan"),
-        "rmse": float(math.sqrt(np.mean((np.asarray(estimates) - truth) ** 2))) if estimates else float("nan"),
-        "coverage": bool(ci_low <= truth <= ci_high) if math.isfinite(ci_low) and math.isfinite(ci_high) else False,
+        "rmse": float(math.sqrt(np.mean((np.asarray(estimates) - truth) ** 2)))
+        if estimates
+        else float("nan"),
+        "coverage": bool(ci_low <= truth <= ci_high)
+        if math.isfinite(ci_low) and math.isfinite(ci_high)
+        else False,
         "ci_low": ci_low,
         "ci_high": ci_high,
         "successful_replicates": len(estimates),
@@ -392,7 +420,9 @@ def stage_05_causal_benchmark(ctx: dict[str, Any]) -> dict[str, Any]:
                         "dgp_id": dgp_id,
                         "method_a": left["method_id"],
                         "method_b": right["method_id"],
-                        "absolute_disagreement": abs(float(left["estimate"]) - float(right["estimate"])),
+                        "absolute_disagreement": abs(
+                            float(left["estimate"]) - float(right["estimate"])
+                        ),
                     }
                 )
     verdict_rows = []
@@ -480,7 +510,9 @@ Ukrainian applicant-level treatment effects were identified.
     )
 
 
-def _partial_corr_edges(mat: np.ndarray, names: list[str], threshold: float) -> list[dict[str, Any]]:
+def _partial_corr_edges(
+    mat: np.ndarray, names: list[str], threshold: float
+) -> list[dict[str, Any]]:
     cov = np.cov(mat, rowvar=False)
     precision = np.linalg.pinv(cov + np.eye(cov.shape[0]) * 1e-6)
     denom = np.sqrt(np.outer(np.diag(precision), np.diag(precision)))
@@ -539,7 +571,12 @@ def discovery_worker_v3(args: tuple[str, int, int, int]) -> dict[str, Any]:
         for (source, target), count in sorted(counts.items())
         if count / max(1, resamples) >= 0.35
     ]
-    return {"algorithm": algo, "status": "completed_algorithmic_partial_corr", "nodes": names, "edges": final_edges}
+    return {
+        "algorithm": algo,
+        "status": "completed_algorithmic_partial_corr",
+        "nodes": names,
+        "edges": final_edges,
+    }
 
 
 def stage_05b_causal_discovery(ctx: dict[str, Any]) -> dict[str, Any]:
@@ -559,7 +596,13 @@ def stage_05b_causal_discovery(ctx: dict[str, Any]) -> dict[str, Any]:
     for result in results:
         write_json(dag_dir / f"{result['algorithm']}.json", result)
         edge_set = {(e["source"], e["target"]) for e in result["edges"]}
-        disagreement_rows.append({"algorithm": result["algorithm"], "edge_count": len(edge_set), "status": result["status"]})
+        disagreement_rows.append(
+            {
+                "algorithm": result["algorithm"],
+                "edge_count": len(edge_set),
+                "status": result["status"],
+            }
+        )
         for edge in result["edges"]:
             key = (edge["source"], edge["target"])
             edge_counter[key] += 1
@@ -574,10 +617,16 @@ def stage_05b_causal_discovery(ctx: dict[str, Any]) -> dict[str, Any]:
         }
         for (source, target), count in sorted(edge_counter.items())
     ]
-    write_json(out / "consensus_dag.json", {"nodes": results[0]["nodes"] if results else [], "edges": consensus_edges})
+    write_json(
+        out / "consensus_dag.json",
+        {"nodes": results[0]["nodes"] if results else [], "edges": consensus_edges},
+    )
     write_csv(out / "discovery_disagreement_table.csv", disagreement_rows)
     write_csv(out / "edge_reliability_matrix.csv", consensus_edges)
-    write_json(out / "discovery_inputs.json", {"rows": rows, "algorithms": algos, "bootstrap_resamples": resamples})
+    write_json(
+        out / "discovery_inputs.json",
+        {"rows": rows, "algorithms": algos, "bootstrap_resamples": resamples},
+    )
     write_markdown(
         out / "e3b_discovery_summary.md",
         """
@@ -609,8 +658,14 @@ def stage_08_agent_network_simulation(ctx: dict[str, Any]) -> dict[str, Any]:
     out = ensure_dir(ctx["output_dir"] / stage)
     started = utc_now()
     policies_by_id = {p["policy_id"]: p for p in base.load_policies(ctx)}
-    top = read_json(ctx["output_dir"] / "07_robust_policy_tournament" / "top_policy_dossiers.json", {"top": []}).get("top", [])
-    selected = [policies_by_id[row["policy_id"]] for row in top[: min(18, int(ctx["shortlist_size"]))] if row["policy_id"] in policies_by_id]
+    top = read_json(
+        ctx["output_dir"] / "07_robust_policy_tournament" / "top_policy_dossiers.json", {"top": []}
+    ).get("top", [])
+    selected = [
+        policies_by_id[row["policy_id"]]
+        for row in top[: min(18, int(ctx["shortlist_size"]))]
+        if row["policy_id"] in policies_by_id
+    ]
     rng = np.random.default_rng(20260501)
     agents = int(ctx["agent_count"])
     months = int(ctx["simulation_months"])
@@ -620,7 +675,9 @@ def stage_08_agent_network_simulation(ctx: dict[str, Any]) -> dict[str, Any]:
     liquidity = rng.beta(3.0, 3.0, size=agents)
     digital = rng.beta(2.8, 2.2, size=agents)
     idp = rng.binomial(1, np.clip(0.12 + 0.38 * conflict, 0, 0.85), size=agents)
-    regions = np.array(["Kyiv", "Lviv", "Kharkiv", "Dnipro", "Odesa", "Zaporizhzhia", "Donetsk", "Kherson"])
+    regions = np.array(
+        ["Kyiv", "Lviv", "Kharkiv", "Dnipro", "Odesa", "Zaporizhzhia", "Donetsk", "Kherson"]
+    )
     region_idx = rng.integers(0, len(regions), size=agents)
     scenario_rows = []
     region_sector_rows = []
@@ -640,16 +697,37 @@ def stage_08_agent_network_simulation(ctx: dict[str, Any]) -> dict[str, Any]:
             for _seed_id in range(seeds):
                 noise = rng.normal(0, 0.025, size=agents)
                 alive = np.ones(agents, dtype=bool)
-                employment = np.clip(0.42 + 0.25 * liquidity + 0.08 * digital - 0.22 * conflict * conflict_m, 0, 1)
+                employment = np.clip(
+                    0.42 + 0.25 * liquidity + 0.08 * digital - 0.22 * conflict * conflict_m, 0, 1
+                )
                 for _month in range(months):
                     support = grant + credit * (liquidity < 0.55) + procurement * (sectors <= 2)
-                    monthly_failure = 0.018 + 0.038 * conflict * conflict_m + 0.020 * energy_m - 0.045 * support - 0.012 * digital
+                    monthly_failure = (
+                        0.018
+                        + 0.038 * conflict * conflict_m
+                        + 0.020 * energy_m
+                        - 0.045 * support
+                        - 0.012 * digital
+                    )
                     monthly_failure = np.clip(monthly_failure + noise, 0.001, 0.35)
                     alive &= rng.random(agents) > monthly_failure
-                    employment = np.clip(employment + 0.010 * support * demand_m - 0.006 * fiscal_m - 0.008 * conflict * conflict_m, 0, 1)
+                    employment = np.clip(
+                        employment
+                        + 0.010 * support * demand_m
+                        - 0.006 * fiscal_m
+                        - 0.008 * conflict * conflict_m,
+                        0,
+                        1,
+                    )
                 survival_samples.append(float(alive.mean()))
                 employment_samples.append(float(employment[alive].mean() if alive.any() else 0.0))
-                utility_samples.append(float(0.55 * survival_samples[-1] + 0.35 * employment_samples[-1] + 0.10 * support.mean()))
+                utility_samples.append(
+                    float(
+                        0.55 * survival_samples[-1]
+                        + 0.35 * employment_samples[-1]
+                        + 0.10 * support.mean()
+                    )
+                )
             s_lo, s_hi = percentile_ci(survival_samples)
             e_lo, e_hi = percentile_ci(employment_samples)
             scenario_rows.append(
@@ -682,7 +760,11 @@ def stage_08_agent_network_simulation(ctx: dict[str, Any]) -> dict[str, Any]:
                                 "sector": int(sector),
                                 "agent_share": float(mask.mean()),
                                 "conflict_mean": float(conflict[mask].mean()),
-                                "support_intensity": float(grant + credit * (liquidity[mask] < 0.55).mean() + procurement * (sector <= 2)),
+                                "support_intensity": float(
+                                    grant
+                                    + credit * (liquidity[mask] < 0.55).mean()
+                                    + procurement * (sector <= 2)
+                                ),
                             }
                         )
     fragility = []
@@ -691,15 +773,49 @@ def stage_08_agent_network_simulation(ctx: dict[str, Any]) -> dict[str, Any]:
         for scenario_id in MACRO_SCENARIOS:
             rows = [r for r in scenario_rows if r["scenario_id"] == scenario_id]
             ordered = sorted(rows, key=lambda r: r["utility_mean"], reverse=True)
-            ranks[scenario_id] = next((idx for idx, row in enumerate(ordered, start=1) if row["policy_id"] == pid), None)
+            ranks[scenario_id] = next(
+                (idx for idx, row in enumerate(ordered, start=1) if row["policy_id"] == pid), None
+            )
         vals = [v for v in ranks.values() if v is not None]
-        fragility.append({"policy_id": pid, **{f"rank_{k}": v for k, v in ranks.items()}, "rank_range": max(vals) - min(vals) if vals else None})
-    write_json(out / "simulation_input_manifest.json", {"selected_policies": len(selected), "agent_count": agents, "months": months, "seeds": seeds})
+        fragility.append(
+            {
+                "policy_id": pid,
+                **{f"rank_{k}": v for k, v in ranks.items()},
+                "rank_range": max(vals) - min(vals) if vals else None,
+            }
+        )
+    write_json(
+        out / "simulation_input_manifest.json",
+        {
+            "selected_policies": len(selected),
+            "agent_count": agents,
+            "months": months,
+            "seeds": seeds,
+        },
+    )
     write_csv(out / "scenario_policy_outcomes.csv", scenario_rows)
     write_csv(out / "policy_scenario_heatmap.csv", region_sector_rows)
-    write_csv(out / "scenario_fragility_table.csv", sorted(fragility, key=lambda r: r.get("rank_range") or 0, reverse=True))
-    write_markdown(out / "simulation_credibility_statement.md", "Vectorized micro-agent simulation with explicit scenario assumptions; still not a forecast.\n")
-    return stage_result(ctx, stage, {"status": "completed", "started_at": started, "execution_mode": "vectorized_micro_agent_simulation", "policies_simulated": len(selected), "agent_count": agents, "months": months, "seeds": seeds})
+    write_csv(
+        out / "scenario_fragility_table.csv",
+        sorted(fragility, key=lambda r: r.get("rank_range") or 0, reverse=True),
+    )
+    write_markdown(
+        out / "simulation_credibility_statement.md",
+        "Vectorized micro-agent simulation with explicit scenario assumptions; still not a forecast.\n",
+    )
+    return stage_result(
+        ctx,
+        stage,
+        {
+            "status": "completed",
+            "started_at": started,
+            "execution_mode": "vectorized_micro_agent_simulation",
+            "policies_simulated": len(selected),
+            "agent_count": agents,
+            "months": months,
+            "seeds": seeds,
+        },
+    )
 
 
 def stage_09_fairness_recourse_governance(ctx: dict[str, Any]) -> dict[str, Any]:
@@ -735,12 +851,18 @@ def stage_09_fairness_recourse_governance(ctx: dict[str, Any]) -> dict[str, Any]
                 "expected_bias_reason": expected[pid],
                 "actual_bias_reason": reasons,
                 "detected": detected,
-                "governance_gate": "reject_until_review" if detected else row.get("governance_gate", ""),
+                "governance_gate": "reject_until_review"
+                if detected
+                else row.get("governance_gate", ""),
             }
         )
     standard = [r for r in rows if r.get("is_bias_injected") in {"False", "false", False}]
-    fp = sum(1 for r in standard if r.get("governance_gate") == "reject_until_review") / max(1, len(standard))
-    detection_rows.append({"policy_id": "__summary__", "true_positive_count": tp, "false_positive_rate": fp})
+    fp = sum(1 for r in standard if r.get("governance_gate") == "reject_until_review") / max(
+        1, len(standard)
+    )
+    detection_rows.append(
+        {"policy_id": "__summary__", "true_positive_count": tp, "false_positive_rate": fp}
+    )
     write_csv(out / "fairness_violation_detection.csv", detection_rows)
     result["bias_true_positive_count"] = tp
     result["false_positive_rate"] = fp
@@ -765,7 +887,9 @@ def stage_15_frontier_optin(ctx: dict[str, Any]) -> dict[str, Any]:
         available = True
         library = "pymc_bart"
         mode = "pymc_bart_observed_arm_models"
-        data = v2.generate_dgp("heterogeneous_effects", min(2400, int(ctx["causal_panel_rows"])), 20260501)
+        data = v2.generate_dgp(
+            "heterogeneous_effects", min(2400, int(ctx["causal_panel_rows"])), 20260501
+        )
         x = data.x[:, :5]
         t = data.treatment
         y = data.outcome
@@ -780,7 +904,14 @@ def stage_15_frontier_optin(ctx: dict[str, Any]) -> dict[str, Any]:
                 sigma = pm.HalfNormal("sigma", 1.0)
                 mu = pmb.BART("mu", X=x_arm, Y=y_arm, m=40)
                 pm.Normal("obs", mu=mu, sigma=sigma, observed=y_arm)
-                idata = pm.sample(draws=draws, tune=tune, chains=chains, cores=1, progressbar=False, compute_convergence_checks=False)
+                idata = pm.sample(
+                    draws=draws,
+                    tune=tune,
+                    chains=chains,
+                    cores=1,
+                    progressbar=False,
+                    compute_convergence_checks=False,
+                )
             posterior_mu = np.asarray(idata.posterior["mu"]).reshape(-1, x_arm.shape[0])
             for sector in range(5):
                 sector_mask = data.sector[mask][:900] == sector
@@ -788,7 +919,16 @@ def stage_15_frontier_optin(ctx: dict[str, Any]) -> dict[str, Any]:
                     continue
                 values = posterior_mu[:, sector_mask].mean(axis=1)
                 lo, hi = percentile_ci(values)
-                rows.append({"arm": arm, "sector": sector, "posterior_mean": float(values.mean()), "ci_low": lo, "ci_high": hi, "draws": int(values.size)})
+                rows.append(
+                    {
+                        "arm": arm,
+                        "sector": sector,
+                        "posterior_mean": float(values.mean()),
+                        "ci_low": lo,
+                        "ci_high": hi,
+                        "draws": int(values.size),
+                    }
+                )
         cate_rows = []
         for sector in range(5):
             treated = [r for r in rows if r["arm"] == 1 and r["sector"] == sector]
@@ -821,9 +961,25 @@ def stage_15_frontier_optin(ctx: dict[str, Any]) -> dict[str, Any]:
         },
     )
     write_csv(out / "bart_arm_posteriors.csv", rows)
-    write_markdown(out / "bart_diagnostics.md", "\n".join(["# BART Diagnostics", f"Library: `{library}`", f"Mode: `{mode}`", *diagnostics]))
-    write_markdown(out / "e11_frontier_optin_summary.md", f"# E11 Frontier Opt-In\n\nStatus: `completed`.\nExecution mode: `{mode}`.\n")
-    return stage_result(ctx, stage, {"status": "completed", "started_at": started, "library_available": available, "library": library, "execution_mode": mode})
+    write_markdown(
+        out / "bart_diagnostics.md",
+        "\n".join(["# BART Diagnostics", f"Library: `{library}`", f"Mode: `{mode}`", *diagnostics]),
+    )
+    write_markdown(
+        out / "e11_frontier_optin_summary.md",
+        f"# E11 Frontier Opt-In\n\nStatus: `completed`.\nExecution mode: `{mode}`.\n",
+    )
+    return stage_result(
+        ctx,
+        stage,
+        {
+            "status": "completed",
+            "started_at": started,
+            "library_available": available,
+            "library": library,
+            "execution_mode": mode,
+        },
+    )
 
 
 STAGES = [
@@ -872,14 +1028,29 @@ def run_selected(ctx: dict[str, Any], requested: set[str] | None = None) -> list
             continue
         elapsed_hours = (time.perf_counter() - suite_started) / 3600
         if elapsed_hours > float(ctx["hard_cap_hours"]) and stage_name == "15_frontier_optin":
-            result = stage_result(ctx, stage_name, {"status": "skipped_by_hard_cap", "started_at": utc_now(), "elapsed_hours": elapsed_hours})
+            result = stage_result(
+                ctx,
+                stage_name,
+                {
+                    "status": "skipped_by_hard_cap",
+                    "started_at": utc_now(),
+                    "elapsed_hours": elapsed_hours,
+                },
+            )
         else:
             try:
                 result = fn(ctx)
             except Exception as exc:
                 stage_dir = ensure_dir(ctx["output_dir"] / stage_name)
-                write_json(stage_dir / "failure.json", {"error": repr(exc), "traceback": traceback.format_exc()})
-                result = stage_result(ctx, stage_name, {"status": "failed", "started_at": utc_now(), "error": repr(exc)})
+                write_json(
+                    stage_dir / "failure.json",
+                    {"error": repr(exc), "traceback": traceback.format_exc()},
+                )
+                result = stage_result(
+                    ctx,
+                    stage_name,
+                    {"status": "failed", "started_at": utc_now(), "error": repr(exc)},
+                )
         results.append(result)
         write_json(ctx["output_dir"] / "_manifests" / "stage_results.partial.json", results)
         if ctx.get("sync_enabled", True):
@@ -890,7 +1061,10 @@ def run_selected(ctx: dict[str, Any], requested: set[str] | None = None) -> list
     write_json(ctx["output_dir"] / "_manifests" / "stage_results.json", results)
     if ctx.get("sync_enabled", True):
         v2.sync_stage(ctx, "12_final_dossier")
-        v2.run_cmd(["gcloud", "storage", "rsync", "-r", str(ctx["output_dir"]), ctx["gcs_prefix"]], timeout=3600)
+        v2.run_cmd(
+            ["gcloud", "storage", "rsync", "-r", str(ctx["output_dir"]), ctx["gcs_prefix"]],
+            timeout=3600,
+        )
     return results
 
 
@@ -901,7 +1075,10 @@ def main() -> int:
     os.environ.setdefault("NUMEXPR_NUM_THREADS", "1")
     args = v2.apply_profile_defaults(parse_args())
     ctx = build_context(args)
-    write_json(ctx["output_dir"] / "_manifests" / "effective_config.json", {k: str(v) if isinstance(v, Path) else v for k, v in ctx.items() if k != "llm"})
+    write_json(
+        ctx["output_dir"] / "_manifests" / "effective_config.json",
+        {k: str(v) if isinstance(v, Path) else v for k, v in ctx.items() if k != "llm"},
+    )
     if args.mode == "preflight":
         result = base.stage_00_preflight(ctx)
         print(json.dumps(result, ensure_ascii=False, indent=2))
@@ -909,7 +1086,16 @@ def main() -> int:
     requested = {s.strip() for s in args.stages.split(",") if s.strip()} if args.stages else None
     results = run_selected(ctx, requested)
     failed = [r for r in results if r.get("status") == "failed"]
-    print(json.dumps({"status": "failed" if failed else "completed", "run_id": ctx["run_id"], "stage_count": len(results)}, ensure_ascii=False))
+    print(
+        json.dumps(
+            {
+                "status": "failed" if failed else "completed",
+                "run_id": ctx["run_id"],
+                "stage_count": len(results),
+            },
+            ensure_ascii=False,
+        )
+    )
     return 1 if failed else 0
 
 

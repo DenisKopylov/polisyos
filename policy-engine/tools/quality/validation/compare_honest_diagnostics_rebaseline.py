@@ -152,9 +152,7 @@ def render_text(payload: Mapping[str, Any]) -> str:
         ).format(**payload["summary"]),
     ]
     for violation in payload.get("violations", []):
-        lines.append(
-            f"[fail] {violation['metric_id']} {violation['code']}: {violation['message']}"
-        )
+        lines.append(f"[fail] {violation['metric_id']} {violation['code']}: {violation['message']}")
     return "\n".join(lines) + "\n"
 
 

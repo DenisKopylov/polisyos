@@ -87,7 +87,9 @@ def test_run_experiment_records_slo_success(monkeypatch) -> None:
     stub_builder.run_selected_workflow = lambda _initial_state, **_kwargs: _Result()  # type: ignore[attr-defined]
     stub_pkg.builder = stub_builder  # type: ignore[attr-defined]
     monkeypatch.setitem(sys.modules, "polisyos.scientist.orchestration.workflows", stub_pkg)
-    monkeypatch.setitem(sys.modules, "polisyos.scientist.orchestration.workflows.builder", stub_builder)
+    monkeypatch.setitem(
+        sys.modules, "polisyos.scientist.orchestration.workflows.builder", stub_builder
+    )
 
     result = scientist_api.run_experiment({"run_id": "R_test"})
     assert result["run_id"] == "R_test"
@@ -112,7 +114,9 @@ def test_run_experiment_records_slo_error(monkeypatch) -> None:
     stub_builder.run_selected_workflow = _raise  # type: ignore[attr-defined]
     stub_pkg.builder = stub_builder  # type: ignore[attr-defined]
     monkeypatch.setitem(sys.modules, "polisyos.scientist.orchestration.workflows", stub_pkg)
-    monkeypatch.setitem(sys.modules, "polisyos.scientist.orchestration.workflows.builder", stub_builder)
+    monkeypatch.setitem(
+        sys.modules, "polisyos.scientist.orchestration.workflows.builder", stub_builder
+    )
 
     with pytest.raises(RuntimeError, match="boom"):
         scientist_api.run_experiment({"run_id": "R_fail"})

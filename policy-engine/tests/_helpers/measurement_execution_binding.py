@@ -6,9 +6,7 @@ from pathlib import Path
 from uuid import uuid4
 
 
-def measurement_execution_binding(
-    tmp_path: Path, *, scope_established: bool = True
-):
+def measurement_execution_binding(tmp_path: Path, *, scope_established: bool = True):
     """Read one typed admitted scope under a live SQLite worker fence.
 
     This helper exercises the persisted creation event and outbox reconciliation;

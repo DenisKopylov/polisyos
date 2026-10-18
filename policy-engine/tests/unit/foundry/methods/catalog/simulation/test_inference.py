@@ -104,6 +104,7 @@ class TestPermutationTest:
         result = method.pure_step(state, {"n_permutations": 500, "seed": 42})
         assert isinstance(result, dict)
 
+
 @pytest.mark.parametrize(
     ("method_fqn", "slot_name", "slot_type", "shape", "values", "params", "expected"),
     [

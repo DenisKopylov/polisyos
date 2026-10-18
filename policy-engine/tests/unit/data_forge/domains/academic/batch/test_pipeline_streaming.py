@@ -30,9 +30,7 @@ def test_pipeline_invokes_selected_claim_adjudication_runner(tmp_path) -> None:
         seen.append(cfg)
         return {"claims": 3, "publishable": 1}
 
-    stats = asyncio.run(
-        run_academic_pipeline(config, claim_adjudication_runner=_runner)
-    )
+    stats = asyncio.run(run_academic_pipeline(config, claim_adjudication_runner=_runner))
 
     assert seen == [config]
     assert stats.metrics["claim_adjudicate_claims"] == 3

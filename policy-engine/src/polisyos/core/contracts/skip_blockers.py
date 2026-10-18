@@ -23,12 +23,8 @@ SKIP_BLOCKER_REQUIRED_FIELDS = (
     "approval_blocking_policy",
     "public_export_blocking_policy",
 )
-SERIOUS_SKIP_BLOCKER_PROFILES = frozenset(
-    {"research", "governed", "production", "serious_runtime"}
-)
-SKIP_BLOCKER_SURFACES = frozenset(
-    {"closeout", "scorecard", "approval", "public_export"}
-)
+SERIOUS_SKIP_BLOCKER_PROFILES = frozenset({"research", "governed", "production", "serious_runtime"})
+SKIP_BLOCKER_SURFACES = frozenset({"closeout", "scorecard", "approval", "public_export"})
 OPTIONAL_ANALYTIC_NODE_KINDS = frozenset(
     {
         "causal",
@@ -280,8 +276,7 @@ def _surface_policy(record: SkippedNodeBlocker, surface: str) -> str:
 def _policy_blocks(policy: str) -> bool:
     lowered = policy.casefold()
     return any(
-        token in lowered
-        for token in ("block", "fail", "deny", "not_allowed", "not_overridable")
+        token in lowered for token in ("block", "fail", "deny", "not_allowed", "not_overridable")
     )
 
 

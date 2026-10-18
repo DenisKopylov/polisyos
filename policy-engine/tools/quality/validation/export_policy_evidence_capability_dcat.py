@@ -107,9 +107,7 @@ def validate_dcat_export(payload: Mapping[str, Any]) -> dict[str, Any]:
         graph.parse(data=json.dumps(dict(payload)), format="json-ld")
         dcat_ns = Namespace("http://www.w3.org/ns/dcat#")
         rdf_graph_triple_count = len(graph)
-        dcat_dataset_triple_count = sum(
-            1 for _subject in graph.subjects(RDF.type, dcat_ns.Dataset)
-        )
+        dcat_dataset_triple_count = sum(1 for _subject in graph.subjects(RDF.type, dcat_ns.Dataset))
         catalog_count = sum(1 for _subject in graph.subjects(RDF.type, dcat_ns.Catalog))
         if catalog_count != 1:
             issues.append(

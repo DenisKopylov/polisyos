@@ -98,12 +98,13 @@ def _identified_iv_candidate(
     assert float(np.std(outcome)) > 0.0
     assert float(np.std(structural_error)) > 0.0
 
-    instrument_residual = instruments[:, 0] - covariates @ np.linalg.lstsq(
-        covariates, instruments[:, 0], rcond=None
-    )[0]
-    treatment_residual = regressors[:, 0] - covariates @ np.linalg.lstsq(
-        covariates, regressors[:, 0], rcond=None
-    )[0]
+    instrument_residual = (
+        instruments[:, 0]
+        - covariates @ np.linalg.lstsq(covariates, instruments[:, 0], rcond=None)[0]
+    )
+    treatment_residual = (
+        regressors[:, 0] - covariates @ np.linalg.lstsq(covariates, regressors[:, 0], rcond=None)[0]
+    )
     partial_relevance = float(np.corrcoef(instrument_residual, treatment_residual)[0, 1])
     assert partial_relevance > 0.8
     return candidate

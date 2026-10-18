@@ -120,7 +120,9 @@ def _pag_id_algorithm(
     )
 
     n_circles_before = sum(
-        1 for edge in graph.edges if edge.mark_src is EdgeMark.CIRCLE or edge.mark_dst is EdgeMark.CIRCLE
+        1
+        for edge in graph.edges
+        if edge.mark_src is EdgeMark.CIRCLE or edge.mark_dst is EdgeMark.CIRCLE
     )
     oriented_pag, _orient_warnings = apply_pag_orientation_rules(graph)
     n_circles_after = sum(

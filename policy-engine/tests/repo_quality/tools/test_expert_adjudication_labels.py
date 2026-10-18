@@ -14,12 +14,7 @@ from tools.quality.validation import check_expert_adjudication_labels as checker
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 ADJUDICATION_ROOT = (
-    REPO_ROOT
-    / "docs"
-    / "research"
-    / "universal-policy-design"
-    / "outcome-corpus"
-    / "adjudications"
+    REPO_ROOT / "docs" / "research" / "universal-policy-design" / "outcome-corpus" / "adjudications"
 )
 README_PATH = ADJUDICATION_ROOT / "README.md"
 

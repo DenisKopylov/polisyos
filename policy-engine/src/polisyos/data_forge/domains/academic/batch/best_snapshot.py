@@ -80,6 +80,7 @@ def preflight_claim_occurrence_vocabulary_copy(
         provenance="legacy_snapshot",
     )
 
+
 _REQUIRED_RUNTIME_FILES = (
     "graph/scholar_knowledge.duckdb",
     "ac_work_embeddings.npz",
@@ -777,10 +778,7 @@ def _clone_non_skg_table(
         raise FileNotFoundError(f"Missing source table: {source_alias}.{table_name}")
     if table_name not in {"ac_causal_claims_raw", "ac_causal_claims"}:
         con.execute(f'DROP TABLE IF EXISTS "{table_name}"')
-        con.execute(
-            f'CREATE TABLE "{table_name}" AS '
-            f'SELECT * FROM {source_alias}."{table_name}"'
-        )
+        con.execute(f'CREATE TABLE "{table_name}" AS SELECT * FROM {source_alias}."{table_name}"')
         return
 
     claim_schema_version = _validate_claim_snapshot_copy_schema(
@@ -858,6 +856,7 @@ def _validate_claim_snapshot_copy_schema(
             "invalid explicit v2 snapshot claim schema: "
             + (f"missing {missing}" if missing else "generic strength present")
         )
+
     def _nullable_label(value: object) -> str:
         if isinstance(value, bool):
             return "YES" if value else "NO"
@@ -891,8 +890,7 @@ def _validate_claim_snapshot_copy_schema(
         raise ValueError(f"explicit v2 snapshot claim identity constraint is missing: {table}")
     invalid = int(
         con.execute(
-            f"SELECT count(*) FROM {qualified_table} "
-            f"WHERE {discriminator} IS DISTINCT FROM '2.0'"
+            f"SELECT count(*) FROM {qualified_table} WHERE {discriminator} IS DISTINCT FROM '2.0'"
         ).fetchone()[0]
     )
     if invalid:

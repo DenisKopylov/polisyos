@@ -81,5 +81,5 @@ def test_benchmark_surfaces_default_sequence(monkeypatch) -> None:
         "E,F,I,UP",
         "--ignore",
         "E402,E501",
-            *_repo_hygiene.BENCHMARK_RESEARCH_SCOPE,
-        )
+        *_repo_hygiene.BENCHMARK_RESEARCH_SCOPE,
+    )

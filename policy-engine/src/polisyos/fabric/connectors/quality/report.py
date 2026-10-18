@@ -189,9 +189,7 @@ class DataQualityReport:
         )
         self.row_count = int(ensure_non_negative_finite(self.row_count, what="row_count"))
         if self.sample_size is not None:
-            self.sample_size = int(
-                ensure_non_negative_finite(self.sample_size, what="sample_size")
-            )
+            self.sample_size = int(ensure_non_negative_finite(self.sample_size, what="sample_size"))
         if self.avg_latency_ms is not None:
             self.avg_latency_ms = ensure_non_negative_finite(
                 self.avg_latency_ms,

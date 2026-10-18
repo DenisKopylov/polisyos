@@ -10,11 +10,9 @@ class RuntimeMiddlewarePlugin(Protocol):
     """Component-style plugin that creates a runtime middleware factory or class."""
 
     @property
-    def metadata(self) -> object:
-        ...
+    def metadata(self) -> object: ...
 
-    def create(self) -> object:
-        ...
+    def create(self) -> object: ...
 
 
 __all__ = ["RuntimeMiddlewarePlugin"]

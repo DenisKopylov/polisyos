@@ -17,9 +17,7 @@ AUDIT_PATH = (
 
 
 def _validator() -> Any:
-    return import_module(
-        "tools.quality.validation.check_layer3_gy_data_requirement_compiler_audit"
-    )
+    return import_module("tools.quality.validation.check_layer3_gy_data_requirement_compiler_audit")
 
 
 def _load_audit() -> dict[str, Any]:
@@ -116,9 +114,7 @@ def test_gy_data_requirement_compiler_audit_rejects_fetch_executor_gate_claim() 
         "fetch_executor_references_data_requirement_or_source_contract_gate"
     ] = True
     row = _row(audit, "fetch.executor.admission_consumer")
-    row["gap_labels"] = [
-        label for label in row["gap_labels"] if label != "bridge_missing"
-    ]
+    row["gap_labels"] = [label for label in row["gap_labels"] if label != "bridge_missing"]
 
     codes = _codes(validator.validate(audit))
     assert "summary_semantics_drift" in codes

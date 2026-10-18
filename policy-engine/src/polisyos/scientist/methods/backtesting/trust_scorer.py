@@ -90,9 +90,7 @@ class TrustScorer:
             else:
                 completeness_factors.append(0.0)
             if scenario.interval_requested_count > 0:
-                completeness_factors.append(
-                    min(1.0, scenario.interval_availability or 0.0)
-                )
+                completeness_factors.append(min(1.0, scenario.interval_availability or 0.0))
 
         completeness_factor = min(completeness_factors, default=1.0)
         trust_score = min(result.score, completeness_factor)

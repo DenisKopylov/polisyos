@@ -200,7 +200,9 @@ def build_blocked_fetch_result(
     )
 
 
-def _classify_fetch_error(message: str) -> Literal[
+def _classify_fetch_error(
+    message: str,
+) -> Literal[
     "blocked_private_network",
     "blocked_domain",
     "blocked_content_type",

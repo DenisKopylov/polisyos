@@ -6,11 +6,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 ACTIVE_PLAN = (
-    REPO_ROOT
-    / "docs"
-    / "plans"
-    / "active"
-    / "POLICYOS_POLICY_DESIGN_CASE_IMPLEMENTATION_PLAN.md"
+    REPO_ROOT / "docs" / "plans" / "active" / "POLICYOS_POLICY_DESIGN_CASE_IMPLEMENTATION_PLAN.md"
 )
 ARCHIVED_PLAN = (
     REPO_ROOT
@@ -21,9 +17,7 @@ ARCHIVED_PLAN = (
 )
 BACKLOG = REPO_ROOT / "docs" / "backlog" / "production-data-e2e-diagnostic-backlog.md"
 RUNBOOK = REPO_ROOT / "docs" / "runbooks" / "policy-design-case-operator-triage.md"
-DECISION_LOG = (
-    REPO_ROOT / "docs" / "system-design-decisions" / "policy-design-case-decision-log.md"
-)
+DECISION_LOG = REPO_ROOT / "docs" / "system-design-decisions" / "policy-design-case-decision-log.md"
 CLOSEOUT_REPORT = (
     REPO_ROOT / "docs" / "archive" / "reports" / "2026-05-19-policy-design-case-wave41-closeout.md"
 )

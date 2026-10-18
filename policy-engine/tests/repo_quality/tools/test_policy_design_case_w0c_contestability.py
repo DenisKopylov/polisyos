@@ -7,8 +7,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parents[3]
 ADR_PATH = REPO_ROOT / "docs/adr/0170-contestability-and-recourse-boundaries.md"
 PLAN_PATH = (
-    REPO_ROOT
-    / "docs/plans/active/POLICYOS_UNIVERSAL_POLICY_DESIGN_CASE_IMPLEMENTATION_PLAN.md"
+    REPO_ROOT / "docs/plans/active/POLICYOS_UNIVERSAL_POLICY_DESIGN_CASE_IMPLEMENTATION_PLAN.md"
 )
 INDEX_PATH = REPO_ROOT / "docs/adr/index.toml"
 

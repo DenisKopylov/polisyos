@@ -353,9 +353,7 @@ def persist_wave2_policy_design_case_walking_skeleton(
         "artifact_paths": artifact_paths,
         "refs": {
             "concept_spine": _mapping(concept_spine).get("concept_spine_ref"),
-            "producer_handshake_ledger": _mapping(handshake).get(
-                "producer_handshake_ledger_ref"
-            ),
+            "producer_handshake_ledger": _mapping(handshake).get("producer_handshake_ledger_ref"),
             "closeout_verdict": _mapping(_mapping(closeout).get("authority_envelope")).get(
                 "reader_contract"
             ),

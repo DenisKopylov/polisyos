@@ -152,10 +152,14 @@ class ProcessingGuaranteeContract(BaseModel):
                 raise ValueError(
                     "exactly_once_narrow requires atomic input/state/output proof refs"
                 )
-        if guarantee in {
-            ProcessingGuarantee.AT_LEAST_ONCE_WITH_DEDUPE,
-            ProcessingGuarantee.EFFECTIVELY_ONCE,
-        } and not self.idempotency.enabled:
+        if (
+            guarantee
+            in {
+                ProcessingGuarantee.AT_LEAST_ONCE_WITH_DEDUPE,
+                ProcessingGuarantee.EFFECTIVELY_ONCE,
+            }
+            and not self.idempotency.enabled
+        ):
             raise ValueError(f"{guarantee.value} requires idempotency/dedupe policy")
         if guarantee == ProcessingGuarantee.EFFECTIVELY_ONCE:
             if self.idempotency.replay_retention_days <= 0:

@@ -62,7 +62,10 @@ def test_public_verification_schema_generates_json_typed_client(tmp_path: Path) 
     subprocess.run(
         [
             "node",
-            str(product_root / "packages/runtime-api-client/scripts/normalize-recursive-openapi-types.mjs"),
+            str(
+                product_root
+                / "packages/runtime-api-client/scripts/normalize-recursive-openapi-types.mjs"
+            ),
             "--types",
             str(tmp_path / "types.ts"),
         ],
@@ -75,7 +78,9 @@ def test_public_verification_schema_generates_json_typed_client(tmp_path: Path) 
     subprocess.run(
         [
             "node",
-            str(product_root / "packages/runtime-api-client/scripts/canonicalize-runtime-client.mjs"),
+            str(
+                product_root / "packages/runtime-api-client/scripts/canonicalize-runtime-client.mjs"
+            ),
             "--openapi",
             str(schema_path),
             "--client",

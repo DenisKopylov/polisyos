@@ -17,9 +17,7 @@ from polisyos.data_forge.kernel.snapshot.merkle import merkle_root
 
 DEFAULT_PIPELINES = ("datasets", "academic", "lex")
 DATA_FORGE_SNAPSHOT_BINDING_FILE = "data_forge_snapshot_binding.json"
-DATA_FORGE_SNAPSHOT_BINDING_SCHEMA_VERSION = (
-    "policyos.runtime.data_forge_snapshot_binding.v1"
-)
+DATA_FORGE_SNAPSHOT_BINDING_SCHEMA_VERSION = "policyos.runtime.data_forge_snapshot_binding.v1"
 PIPELINE_BINDING_SURFACES = {
     "academic": ("academic", "academic"),
     "catalog": ("catalog", "catalog"),
@@ -354,11 +352,7 @@ def _lineage_refs(
     explicit = _string_refs(extra.get("lineage_refs") or manifest.get("lineage_refs"))
     if explicit:
         return explicit
-    return [
-        ref
-        for ref in (release_manifest_ref, manifest_ref, *artifact_ids)
-        if ref
-    ]
+    return [ref for ref in (release_manifest_ref, manifest_ref, *artifact_ids) if ref]
 
 
 def _transform_lineage(
@@ -407,9 +401,7 @@ def _cas_ref(path: pathlib.Path) -> str:
 
 def _artifact_uri(*, pipeline: str, path: str, snapshot_id: str) -> str:
     name = pathlib.Path(path).name or "artifact"
-    safe_name = "".join(
-        char if char.isalnum() or char in "._/-" else "_" for char in name.lower()
-    )
+    safe_name = "".join(char if char.isalnum() or char in "._/-" else "_" for char in name.lower())
     return f"polisyos://data-forge/{pipeline}/{safe_name}@{snapshot_id}"
 
 
@@ -452,9 +444,7 @@ def _claim_requirement_bindings(
     extra = manifest.get("extra")
     raw_rows: object = None
     if isinstance(extra, dict):
-        raw_rows = extra.get("claim_requirement_bindings") or extra.get(
-            "claim_requirements"
-        )
+        raw_rows = extra.get("claim_requirement_bindings") or extra.get("claim_requirements")
     rows: list[dict[str, object]] = []
     for raw_row in _list_value(raw_rows):
         if not isinstance(raw_row, dict):

@@ -47,9 +47,7 @@ def _build_router() -> APIRouter:
 
 
 router = _build_router()
-_RUNTIME_CONTEXT_DEPENDENCY = (
-    Depends(get_runtime_api_context) if Depends is not None else None
-)
+_RUNTIME_CONTEXT_DEPENDENCY = Depends(get_runtime_api_context) if Depends is not None else None
 _GET_EPOCH_STALENESS_AUTHZ = require_action_permission(
     RuntimePermission.RUNS_REVIEW,
     ResourceBindingSpec(
@@ -129,13 +127,16 @@ def get_run_epoch_staleness(
 
     run = ctx.run_index.get_run(run_id)
     enforce_run_tenant_access(request, ctx=ctx, run=run)
-    scope = ctx.temporal.resolve_scope(
-        valid_at=valid_at,
-        tx_at=tx_at,
-        branch=branch,
-        snapshot_id=snapshot_id,
-        scenario_id=scenario_id,
-    ) or TemporalScope()
+    scope = (
+        ctx.temporal.resolve_scope(
+            valid_at=valid_at,
+            tx_at=tx_at,
+            branch=branch,
+            snapshot_id=snapshot_id,
+            scenario_id=scenario_id,
+        )
+        or TemporalScope()
+    )
     ctx.temporal.validate_run_scope(run, scope, surface="epoch_staleness")
     set_authz_resource(
         request,

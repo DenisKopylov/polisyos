@@ -85,9 +85,7 @@ def _source_signatures(dag: ResearchDAGArtifact) -> set[str]:
         if node.node_type not in _SOURCE_NODE_TYPES:
             continue
         public_refs = [
-            str(ref.artifact_id)
-            for ref in node.artifact_refs
-            if not is_hidden_artifact_ref(ref)
+            str(ref.artifact_id) for ref in node.artifact_refs if not is_hidden_artifact_ref(ref)
         ]
         hidden_ref_count = sum(1 for ref in node.artifact_refs if is_hidden_artifact_ref(ref))
         if public_refs:

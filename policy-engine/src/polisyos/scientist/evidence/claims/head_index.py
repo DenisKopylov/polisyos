@@ -1239,7 +1239,9 @@ class ClaimDependencyDenominatorResolver:
                 or ledger_artifact_ref.media_type != ledger_manifest.media_type
             ):
                 raise ValueError("claim_dependency_ledger_content_mismatch")
-            payload = load_core_json_artifact(self.store, ledger_artifact_ref, raw_payload_bytes=ledger_raw)
+            payload = load_core_json_artifact(
+                self.store, ledger_artifact_ref, raw_payload_bytes=ledger_raw
+            )
             if ledger_manifest.kind == CLAIM_LEDGER_V2_KIND:
                 if ledger_manifest.artifact_schema != artifacts.SchemaInfo(
                     name=CLAIM_LEDGER_V2_SCHEMA_NAME,
@@ -2210,9 +2212,7 @@ class FilesystemArtifactStoreClaimRootWalk:
         default_packet_ids: set[str] = set()
         selected_packet_view_ids: set[str] = set()
         manifest_root = self._bound_artifact_root() / "artifacts" / "sha256"
-        for manifest_path in sorted(
-            manifest_root.glob("*/*/*.manifest.json")
-        ):
+        for manifest_path in sorted(manifest_root.glob("*/*/*.manifest.json")):
             try:
                 manifest = artifacts.ArtifactManifest.model_validate_json(
                     manifest_path.read_text(encoding="utf-8")
@@ -2249,9 +2249,7 @@ class FilesystemArtifactStoreClaimRootWalk:
                 or not manifest_path.name.endswith(manifest_suffix)
             ):
                 raise ValueError("claim_root_independent_manifest_path_mismatch")
-            profile_hex = manifest_path.name[
-                len(view_prefix) : -len(manifest_suffix)
-            ]
+            profile_hex = manifest_path.name[len(view_prefix) : -len(manifest_suffix)]
             profile_ref = ArtifactRef(
                 artifact_id=artifact_id,
                 kind=manifest.kind,
@@ -3567,9 +3565,7 @@ class _RepositoryClaimLedgerOwner:
         if (
             self.root_issuer is None
             or self.issuance_verifier is None
-            or not callable(
-                getattr(self.issuance_verifier, "verify_and_persist_exact", None)
-            )
+            or not callable(getattr(self.issuance_verifier, "verify_and_persist_exact", None))
             or self.head_index_root is None
             or self.decision_packets is None
             or self.independent_walk is None
@@ -4429,9 +4425,7 @@ class _RepositoryClaimLedgerOwner:
     ) -> tuple[ClaimLedgerHeadAdvanceReceipt | ClaimLedgerHeadResolutionNonReceipt, ...]:
         if (
             self.issuance_verifier is None
-            or not callable(
-                getattr(self.issuance_verifier, "verify_and_persist_exact", None)
-            )
+            or not callable(getattr(self.issuance_verifier, "verify_and_persist_exact", None))
             or self.head_index_root is None
             or self.decision_packets is None
             or self.independent_walk is None

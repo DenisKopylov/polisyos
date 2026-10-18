@@ -161,9 +161,7 @@ def validate_conflict_backstop_coverage(
     """Return closeout-blocking issues for detector conflicts missing W8.E records."""
 
     materialized_signatures = {
-        signature
-        for record in conflict_records
-        if (signature := _record_source_signature(record))
+        signature for record in conflict_records if (signature := _record_source_signature(record))
     }
     issues: list[dict[str, Any]] = []
     for conflict in detected_conflicts:
@@ -199,9 +197,7 @@ def build_conflict_materialization_closeout_record(
     """Build a closeout-reader record from W8.E conflict materialization output."""
 
     payload = (
-        result.to_dict()
-        if isinstance(result, ConflictMaterializationResult)
-        else dict(result)
+        result.to_dict() if isinstance(result, ConflictMaterializationResult) else dict(result)
     )
     issues = [dict(issue) for issue in _mapping_rows(payload.get("issues"))]
     conflict_records = [dict(record) for record in _mapping_rows(payload.get("conflict_records"))]
@@ -245,9 +241,7 @@ def construct_conflict_markers_for_capability(
     """Return W8.E same-construct conflict markers relevant to a capability."""
 
     capability_payload = _mapping(capability)
-    capability_id = _text(
-        capability_payload.get("capability_id") or capability_payload.get("id")
-    )
+    capability_id = _text(capability_payload.get("capability_id") or capability_payload.get("id"))
     construct = _text(capability_payload.get("construct"))
     lineage_refs = set(_refs(capability_payload.get("lineage_refs")))
     markers: list[dict[str, Any]] = []
@@ -269,8 +263,11 @@ def construct_conflict_markers_for_capability(
                 or metadata.get("lineage_refs")
             )
         )
-        if not capability_refs and not record_construct and lineage_refs and not (
-            lineage_refs & source_refs
+        if (
+            not capability_refs
+            and not record_construct
+            and lineage_refs
+            and not (lineage_refs & source_refs)
         ):
             continue
         marker = {
@@ -295,8 +292,7 @@ def construct_conflict_markers_for_capability(
             ),
             "capability_refs": capability_refs,
             "severity": _text(record.get("severity")) or "medium",
-            "status": _text(record.get("status") or record.get("resolution_status"))
-            or "contested",
+            "status": _text(record.get("status") or record.get("resolution_status")) or "contested",
         }
         markers.append(marker)
     return tuple(markers)

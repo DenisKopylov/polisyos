@@ -53,9 +53,7 @@ class ProbabilisticEntityResolver:
     ) -> list[EntityMatchCandidate]:
         matches: list[EntityMatchCandidate] = []
         pair_limit = self._max_pairs if max_pairs is None else max(1, max_pairs)
-        candidate_limit = (
-            self._max_candidates if max_candidates is None else max(1, max_candidates)
-        )
+        candidate_limit = self._max_candidates if max_candidates is None else max(1, max_candidates)
         pairs_seen = 0
         for left, right in combinations(records, 2):
             if pairs_seen >= pair_limit:

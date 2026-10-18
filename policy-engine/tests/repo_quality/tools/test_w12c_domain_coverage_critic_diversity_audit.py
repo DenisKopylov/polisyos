@@ -10,8 +10,7 @@ from tools.quality.validation import run_domain_coverage_critic_diversity_audit 
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 MANIFEST_PATH = (
-    REPO_ROOT
-    / "architecture/policy_design_case/"
+    REPO_ROOT / "architecture/policy_design_case/"
     "wave12c_domain_coverage_critic_diversity_audit_manifest.json"
 )
 
@@ -115,12 +114,8 @@ def test_w12c_can_measure_critic_diversity_from_w12d_runtime_report_refs(
 
     assert report["status"] == "pass"
     assert report["critic_diversity_jaccard_summary"]["cases"][0]["case_id"] == "case-a"
-    assert not any(
-        issue["code"] == "critic_verdicts_missing" for issue in report["issues"]
-    )
-    assert not any(
-        warning["code"] == "critic_roles_missing" for warning in report["warnings"]
-    )
+    assert not any(issue["code"] == "critic_verdicts_missing" for issue in report["issues"])
+    assert not any(warning["code"] == "critic_roles_missing" for warning in report["warnings"])
 
 
 def test_zero_useful_domain_authority_slice_becomes_typed_blocker() -> None:
@@ -158,16 +153,17 @@ def test_zero_useful_domain_authority_slice_becomes_typed_blocker() -> None:
     )
 
     assert report["status"] == "blocked"
-    assert report["domain_authority_useful_design_matrix"]["housing"]["production"][
-        "useful_design_count"
-    ] == 1
+    assert (
+        report["domain_authority_useful_design_matrix"]["housing"]["production"][
+            "useful_design_count"
+        ]
+        == 1
+    )
     tax_production = report["domain_authority_useful_design_matrix"]["tax"]["production"]
     assert tax_production["case_count"] == 1
     assert tax_production["useful_design_count"] == 0
     assert tax_production["non_useful_case_ids"] == ["tax-blocked"]
-    assert "tax:production" in report["floor_evaluation"][
-        "below_floor_domain_authority_slices"
-    ]
+    assert "tax:production" in report["floor_evaluation"]["below_floor_domain_authority_slices"]
 
     blocker = next(
         blocker
@@ -212,20 +208,18 @@ def test_negative_control_only_domain_slice_is_held_not_blocking_governed_pilot(
     )
 
     assert report["status"] == "pass"
-    assert "housing:research" not in report["floor_evaluation"][
-        "below_floor_domain_authority_slices"
-    ]
-    assert "housing:governed" not in report["floor_evaluation"][
-        "below_floor_domain_authority_slices"
-    ]
+    assert (
+        "housing:research" not in report["floor_evaluation"]["below_floor_domain_authority_slices"]
+    )
+    assert (
+        "housing:governed" not in report["floor_evaluation"]["below_floor_domain_authority_slices"]
+    )
     held_refs = {
-        f"{row['domain']}:{row['authority_level']}"
-        for row in report["held_domain_slices"]
+        f"{row['domain']}:{row['authority_level']}" for row in report["held_domain_slices"]
     }
     assert {"housing:research", "housing:governed"} <= held_refs
     assert not any(
-        blocker["code"] == "domain_coverage_zero_useful_design"
-        and blocker["domain"] == "housing"
+        blocker["code"] == "domain_coverage_zero_useful_design" and blocker["domain"] == "housing"
         for blocker in report["typed_domain_coverage_blockers"]
     )
 
@@ -248,9 +242,7 @@ def test_low_critic_diversity_emits_monoculture_warning_and_caps_rollout() -> No
 
     report = w12c.build_w12c_domain_coverage_critic_diversity_audit(
         domain_coverage_report=domain_report,
-        critic_diversity_report=_critic_report(
-            {f"case-{index}": 0.0 for index in range(6)}
-        ),
+        critic_diversity_report=_critic_report({f"case-{index}": 0.0 for index in range(6)}),
         repo_root=REPO_ROOT,
         corpus_ref="repo://tests/fixtures/universal-corpus",
         raw_domain_report_ref="repo://_build/domain.json",
@@ -259,9 +251,10 @@ def test_low_critic_diversity_emits_monoculture_warning_and_caps_rollout() -> No
     )
 
     assert report["status"] == "warning"
-    assert report["critic_diversity_jaccard_summary"][
-        "aggregate_critic_ensemble_diversity_jaccard"
-    ] == 0.0
+    assert (
+        report["critic_diversity_jaccard_summary"]["aggregate_critic_ensemble_diversity_jaccard"]
+        == 0.0
+    )
     assert report["rollout_cap"]["maximum_posture"] == "governed-pilot"
     assert report["rollout_cap"]["requested_posture_allowed"] is False
     warning = next(
@@ -309,9 +302,12 @@ def test_w12c_cli_can_decorate_existing_w11f_reports(tmp_path: Path) -> None:
     assert exit_code == 0
     payload = json.loads(output_report.read_text(encoding="utf-8"))
     assert payload["status"] == "pass"
-    assert payload["domain_authority_useful_design_matrix"]["housing"]["research"][
-        "useful_design_count"
-    ] == 1
+    assert (
+        payload["domain_authority_useful_design_matrix"]["housing"]["research"][
+            "useful_design_count"
+        ]
+        == 1
+    )
     assert payload["typed_domain_coverage_blockers"] == []
 
 
@@ -394,7 +390,9 @@ def _domain_case(
                 "adjudication_labels": (
                     adjudication_labels
                     if adjudication_labels is not None
-                    else ["semantic_pass"] if useful else ["unsupported"]
+                    else ["semantic_pass"]
+                    if useful
+                    else ["unsupported"]
                 ),
                 "counts_toward_useful_design": useful,
                 "blocker_code": (
@@ -415,9 +413,7 @@ def _authority_rate(rows: list[dict[str, object]]) -> dict[str, object]:
         # the rest of the pipeline consumes; we preserve the legacy aliases so
         # downstream readers that have not migrated still find values.
         "expert_useful_design_ceiling_count": useful_count,
-        "expert_useful_design_ceiling": round(useful_count / len(rows), 4)
-        if rows
-        else 0.0,
+        "expert_useful_design_ceiling": round(useful_count / len(rows), 4) if rows else 0.0,
         "useful_design_count": useful_count,
         "blocked_or_non_useful_count": len(rows) - useful_count,
         "useful_design_rate": round(useful_count / len(rows), 4) if rows else 0.0,
@@ -491,7 +487,9 @@ def _critic_report(case_diversities: dict[str, float]) -> dict[str, object]:
         },
         "cases": cases,
         "warnings": [
-            warning for case in cases for warning in case["warnings"]  # type: ignore[index]
+            warning
+            for case in cases
+            for warning in case["warnings"]  # type: ignore[index]
         ],
         "issues": [],
     }

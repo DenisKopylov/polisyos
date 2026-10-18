@@ -171,6 +171,7 @@ class TestBatchIncremental:
             ),
         ):
             from polisyos.fabric.data_plane.modes import run_batch_incremental
+
             dependencies = _supported_dependencies()
 
             # First run
@@ -349,9 +350,7 @@ class TestBatchIncremental:
             )
 
         assert result.cursor_ref is None
-        assert CursorStore(store).find_latest_cursor(
-            "worldbank.wdi", "NY.GDP.MKTP.CD"
-        ) is None
+        assert CursorStore(store).find_latest_cursor("worldbank.wdi", "NY.GDP.MKTP.CD") is None
 
     @pytest.mark.parametrize(
         ("has_more", "next_page_token", "completeness"),
@@ -1207,7 +1206,9 @@ def _successful_orchestrator(mock_result: IngestionResult):
         datasets = manifest.datasets if hasattr(manifest, "datasets") else manifest["datasets"]
         for dataset in datasets:
             connector_id = (
-                dataset.connector_id if hasattr(dataset, "connector_id") else dataset["connector_id"]
+                dataset.connector_id
+                if hasattr(dataset, "connector_id")
+                else dataset["connector_id"]
             )
             dataset_id = (
                 dataset.dataset_id if hasattr(dataset, "dataset_id") else dataset["dataset_id"]
@@ -1253,9 +1254,7 @@ def _request_observing_orchestrator(
         connector_id = (
             dataset.connector_id if hasattr(dataset, "connector_id") else dataset["connector_id"]
         )
-        dataset_id = (
-            dataset.dataset_id if hasattr(dataset, "dataset_id") else dataset["dataset_id"]
-        )
+        dataset_id = dataset.dataset_id if hasattr(dataset, "dataset_id") else dataset["dataset_id"]
         connector = dependencies.registry.get(connector_id)
         connector.fetch(None, FetchRequest(dataset_id=dataset_id))
         assert observed_requests

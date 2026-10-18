@@ -108,7 +108,9 @@ class ResearchDAGArtifact(BaseModel):
             raise ValueError("ResearchDAGArtifact node_id values must be unique")
         for node in self.nodes:
             if node.run_id != self.run_id:
-                raise ValueError("ResearchDAGArtifact node run_id values must match artifact run_id")
+                raise ValueError(
+                    "ResearchDAGArtifact node run_id values must match artifact run_id"
+                )
             if node.workflow_id is not None and node.workflow_id != self.workflow_id:
                 raise ValueError(
                     "ResearchDAGArtifact node workflow_id values must match artifact workflow_id"
@@ -125,8 +127,7 @@ class ResearchDAGArtifact(BaseModel):
                 for ref in node.artifact_refs:
                     if is_hidden_artifact_ref(ref):
                         raise ValueError(
-                            "Research DAG public export contains hidden artifact ref: "
-                            f"{ref.kind}"
+                            f"Research DAG public export contains hidden artifact ref: {ref.kind}"
                         )
                 _raise_if_forbidden_public_metadata(
                     node.metadata,
@@ -159,7 +160,9 @@ def _raise_if_forbidden_public_metadata(value: Any, *, path: str) -> None:
         for key, item in value.items():
             lowered = str(key).lower()
             if any(token in lowered for token in FORBIDDEN_PUBLIC_METADATA_TOKENS):
-                raise ValueError(f"Research DAG public export contains forbidden metadata: {path}.{key}")
+                raise ValueError(
+                    f"Research DAG public export contains forbidden metadata: {path}.{key}"
+                )
             _raise_if_forbidden_public_metadata(item, path=f"{path}.{key}")
     elif isinstance(value, list | tuple):
         for index, item in enumerate(value):

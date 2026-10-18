@@ -65,9 +65,7 @@ def build_capability_index_inspection_report(capability_index_path: str | Path) 
             "compatibility_only_capability_count": sum(
                 1 for capability in active if capability.compatibility_only
             ),
-            "source_asset_count": sum(
-                len(capability.source_assets) for capability in capabilities
-            ),
+            "source_asset_count": sum(len(capability.source_assets) for capability in capabilities),
             "conflict_count": len(conflicts),
             "white_space_count": len(failure_modes),
             "acquisition_strategy_count": len(snapshot["acquisition_strategies"]),
@@ -146,9 +144,7 @@ def load_capability_index_snapshot(capability_index_path: str | Path) -> dict[st
         "failure_modes": failure_modes,
         "acquisition_strategies": acquisition_strategies,
         "conflicts": conflicts,
-        "metadata": {
-            str(key): json.loads(str(value_json)) for key, value_json in metadata_rows
-        },
+        "metadata": {str(key): json.loads(str(value_json)) for key, value_json in metadata_rows},
     }
 
 
@@ -187,8 +183,7 @@ def _count_authority(
     return dict(
         sorted(
             Counter(
-                str(getattr(capability.authority_envelope, posture))
-                for capability in capabilities
+                str(getattr(capability.authority_envelope, posture)) for capability in capabilities
             ).items()
         )
     )

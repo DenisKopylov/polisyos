@@ -831,12 +831,7 @@ class HorizonBiasEnvelope(BaseModel):
     @model_validator(mode="after")
     def _validate_path_lengths(self) -> HorizonBiasEnvelope:
         n_horizons = len(self.horizons)
-        if not (
-            len(self.point_path)
-            == len(self.lower_path)
-            == len(self.upper_path)
-            == n_horizons
-        ):
+        if not (len(self.point_path) == len(self.lower_path) == len(self.upper_path) == n_horizons):
             raise ValueError("horizons, point_path, lower_path, and upper_path lengths must match")
         return self
 
@@ -1076,8 +1071,7 @@ class DynamicMicrosimResultV2(DynamicMicrosimResult):
         if not isinstance(value, dict):
             raise ValueError("cohort_data must be a mapping")
         return {
-            str(key): _to_numpy(item) if item is not None else None
-            for key, item in value.items()
+            str(key): _to_numpy(item) if item is not None else None for key, item in value.items()
         }
 
     @model_validator(mode="after")
@@ -1088,7 +1082,9 @@ class DynamicMicrosimResultV2(DynamicMicrosimResult):
             if path.ndim != 2:
                 raise ValueError("market_income_path must be a 2D array of periods by observations")
             if path.shape[1] != final_income.shape[0]:
-                raise ValueError("market_income_path observation count must match final_market_income")
+                raise ValueError(
+                    "market_income_path observation count must match final_market_income"
+                )
         if self.weights is not None:
             weights = np.asarray(self.weights)
             if weights.ndim != 1:
@@ -1143,7 +1139,9 @@ class DynamicMicrosimResultV2(DynamicMicrosimResult):
         metadata: dict[str, Any] = {
             "mean_income_path": list(self.mean_income_path),
             "validation_status": (
-                self.validation_diagnostic.status if self.validation_diagnostic is not None else None
+                self.validation_diagnostic.status
+                if self.validation_diagnostic is not None
+                else None
             ),
         }
         if self.validation_diagnostic is not None:

@@ -18,12 +18,8 @@ from tools.lib.imports import ensure_repo_import_roots
 
 REPO_ROOT, _SRC_ROOT = ensure_repo_import_roots(__file__)
 
-SCHEMA_VERSION = (
-    "policyos.policy_design_case.wave35g.institutional_provenance_boundary.v1"
-)
-TOOL_NAME = (
-    "quality.validation.build-policy-design-case-wave35g-institutional-provenance"
-)
+SCHEMA_VERSION = "policyos.policy_design_case.wave35g.institutional_provenance_boundary.v1"
+TOOL_NAME = "quality.validation.build-policy-design-case-wave35g-institutional-provenance"
 WAVE35E_DIR = Path("_build/policy-design-case/rebaseline/wave-35E")
 WAVE35F_DIR = Path("_build/policy-design-case/rebaseline/wave-35F")
 WAVE35G_DIR = Path("_build/policy-design-case/rebaseline/wave-35G")
@@ -53,12 +49,9 @@ SURFACE_BY_PDD = {
     "PDD-099": "contestability_appeals",
 }
 SOURCE_ARTIFACTS = (
-    "_build/policy-design-case/rebaseline/wave-35F/"
-    "runtime_enforcement_gap_ledger.json",
-    "_build/policy-design-case/rebaseline/wave-35E/"
-    "implementation_feasibility_ledger.json",
-    "_build/policy-design-case/rebaseline/wave-35E/"
-    "contestability_appeals_ledger.json",
+    "_build/policy-design-case/rebaseline/wave-35F/runtime_enforcement_gap_ledger.json",
+    "_build/policy-design-case/rebaseline/wave-35E/implementation_feasibility_ledger.json",
+    "_build/policy-design-case/rebaseline/wave-35E/contestability_appeals_ledger.json",
     "_build/policy-design-case/rebaseline/wave-33/readiness.json",
     "quality_evidence/evidence_provenance_manifest.json",
     "quality_evidence/public_export_bundle.json",
@@ -84,9 +77,7 @@ def build_institutional_provenance_boundary_ledger(
     wave35g_path.mkdir(parents=True, exist_ok=True)
 
     gap_ledger = _load_json(wave35f_path / "runtime_enforcement_gap_ledger.json")
-    implementation = _load_json(
-        wave35e_path / "implementation_feasibility_ledger.json"
-    )
+    implementation = _load_json(wave35e_path / "implementation_feasibility_ledger.json")
     contestability = _load_json(wave35e_path / "contestability_appeals_ledger.json")
     generated_at = _utc_now()
 
@@ -135,9 +126,7 @@ def build_institutional_provenance_boundary_ledger(
                 0,
             ),
             "final_publication_allowed_by_manual_ledgers": final_publication_allowed,
-            "deterministic_closeout_allowed_by_manual_ledgers": (
-                deterministic_closeout_allowed
-            ),
+            "deterministic_closeout_allowed_by_manual_ledgers": (deterministic_closeout_allowed),
         },
         "publication_and_closeout_decision": {
             "manual_institutional_ledgers_count_toward_final_publication": (
@@ -208,12 +197,11 @@ def validate_institutional_provenance_boundary_ledger(
 
         boundary = row.get("enforceable_boundary")
         if not has_runtime_authority:
-            if not isinstance(boundary, Mapping) or boundary.get(
-                "boundary_decision"
-            ) != "not_closeout_authority":
-                errors.append(
-                    f"{row_id}: missing enforceable not_closeout_authority boundary"
-                )
+            if (
+                not isinstance(boundary, Mapping)
+                or boundary.get("boundary_decision") != "not_closeout_authority"
+            ):
+                errors.append(f"{row_id}: missing enforceable not_closeout_authority boundary")
             elif (
                 boundary.get("blocks_final_publication_closeout_authority") is not True
                 or boundary.get("blocks_deterministic_closeout_authority") is not True
@@ -324,8 +312,7 @@ def _boundary_row(
         "surface": surface,
         "source_ledger_row_ref": source_ledger_row_ref,
         "source_ledger_row_key": _source_row_key(surface, source_row),
-        "manual_ledger_source_class": gap.get("evidence_authority_class")
-        or "manual_assertion",
+        "manual_ledger_source_class": gap.get("evidence_authority_class") or "manual_assertion",
         "evidence_authority": authority,
         "runtime_owned_provenance_present": runtime_present,
         "runtime_owned_provenance": runtime_provenance,
@@ -345,9 +332,7 @@ def _boundary_row(
         row["enforceable_boundary"] = {
             "boundary_id": "W35G4-BOUNDARY-" + _stable_digest(row_seed),
             "boundary_decision": "not_closeout_authority",
-            "source_wave35f_boundary_id": _mapping(gap.get("accepted_boundary")).get(
-                "boundary_id"
-            ),
+            "source_wave35f_boundary_id": _mapping(gap.get("accepted_boundary")).get("boundary_id"),
             "blocks_final_publication_closeout_authority": True,
             "blocks_deterministic_closeout_authority": True,
             "publication_readiness_effect": (

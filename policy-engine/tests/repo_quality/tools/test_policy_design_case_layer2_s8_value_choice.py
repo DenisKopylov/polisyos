@@ -24,7 +24,9 @@ S8_MANIFEST = REPO_ROOT / "architecture/policy_design_case/layer2_s8_value_choic
 S2_MANIFEST = REPO_ROOT / "architecture/policy_design_case/layer2_s2_design_search_manifest.json"
 S8_MANIFEST_PATH = "architecture/policy_design_case/layer2_s8_value_choice_manifest.json"
 PDC_DESIGN_SEARCH = REPO_ROOT / "src/polisyos/pdc/_impl/layer2_design_search.py"
-S8_VALUE_CHOICE_PRODUCER = REPO_ROOT / "src/polisyos/runtime/quality/design_axes/value_choice_provenance.py"
+S8_VALUE_CHOICE_PRODUCER = (
+    REPO_ROOT / "src/polisyos/runtime/quality/design_axes/value_choice_provenance.py"
+)
 S8_CELL = "ACTOR.value_choice_provenance"
 S8_REQUIRED_ARTIFACTS = {
     "AuthorizedValueSchedule",
@@ -254,7 +256,9 @@ def test_layer2_s8_inventory_and_manifest_authority_boundaries_match() -> None:
     assert artifact["authority_scope"] == manifest["authority_scope"]
     assert artifact["may_not_use_for"] == manifest["may_not_use_for"]
     assert set(manifest["may_not_use_for"]) >= S8_REQUIRED_DENY
-    assert manifest["producer_module"] == ("src/polisyos/runtime/quality/design_axes/value_choice_provenance.py")
+    assert manifest["producer_module"] == (
+        "src/polisyos/runtime/quality/design_axes/value_choice_provenance.py"
+    )
 
 
 def test_layer2_s8_b_side_consumes_injected_posture_only() -> None:

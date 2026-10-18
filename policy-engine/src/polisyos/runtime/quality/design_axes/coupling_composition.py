@@ -496,10 +496,7 @@ def classify_coupling(
             module_discovery_ref=graph.module_discovery_ref,
             rule_version_ref=graph.rule_version_ref,
             coupling_graph_ref=graph.graph_ref,
-            reason=(
-                "coupling evidence, an observed boundary, or module discovery proof "
-                "is absent"
-            ),
+            reason=("coupling evidence, an observed boundary, or module discovery proof is absent"),
         )
     else:
         classification = _classify_observed_graph(graph)
@@ -860,9 +857,7 @@ def _repo_ref_path_and_selector(ref: str) -> tuple[Path | None, str | None]:
 def _generated_artifact_output_is_registered(relative_path: str) -> bool:
     try:
         generated = tomllib.loads(
-            (REPO_ROOT / "architecture/generated_artifacts.toml").read_text(
-                encoding="utf-8"
-            )
+            (REPO_ROOT / "architecture/generated_artifacts.toml").read_text(encoding="utf-8")
         )
     except (FileNotFoundError, OSError, tomllib.TOMLDecodeError):
         return False
@@ -978,8 +973,7 @@ def _artifact_has_verifier_provenance(
                 "ref": ref.model_dump(mode="json"),
                 "payload_ref": f"repo://{relative_path}",
                 "payload_schema_ref": str(
-                    artifact_payload.get("schema_version")
-                    or "policyos.gy.verifier_artifact.v1"
+                    artifact_payload.get("schema_version") or "policyos.gy.verifier_artifact.v1"
                 ),
                 "lifecycle_state": "verified",
                 "created_by": {"kind": "verifier", "id": producer or writer_role},
@@ -1054,17 +1048,14 @@ def _subdesign_port_authority_binds(
         authority_payload = _mapping_value(fragment_payload.get("provided_authority"))
     if not authority_payload:
         return False
-    if (
-        _stable_content_hash(authority_payload)
-        != str(binding.get("provided_authority_content_hash") or "")
+    if _stable_content_hash(authority_payload) != str(
+        binding.get("provided_authority_content_hash") or ""
     ):
         return False
     subdesign_payload = _mapping_value(fragment_payload.get("subdesign_contract"))
     if not subdesign_payload:
         return False
-    if str(subdesign_payload.get("subdesign_id") or "") != str(
-        context.get("subdesign_id") or ""
-    ):
+    if str(subdesign_payload.get("subdesign_id") or "") != str(context.get("subdesign_id") or ""):
         return False
     search_exit_payload = _mapping_value(subdesign_payload.get("search_exit"))
     if not search_exit_payload:
@@ -1080,9 +1071,7 @@ def _subdesign_port_authority_binds(
     ):
         return False
     contract_root_hashes = {
-        str(root.get("content_hash") or "")
-        for root in contract_roots
-        if isinstance(root, Mapping)
+        str(root.get("content_hash") or "") for root in contract_roots if isinstance(root, Mapping)
     } - {""}
     expected_root_hashes = set(_string_values(context.get("producer_root_content_hashes")))
     if not expected_root_hashes or not expected_root_hashes <= contract_root_hashes:
@@ -1362,12 +1351,9 @@ def compose_subdesigns(
             claims=claims,
             rule_version_ref=rule_ref,
         )
-    has_feedback = (
-        classification.feedback_intensity == "high"
-        or any(
-            row.coupling_kind == "feedback" or row.feedback
-            for row in classification.boundary_classifications
-        )
+    has_feedback = classification.feedback_intensity == "high" or any(
+        row.coupling_kind == "feedback" or row.feedback
+        for row in classification.boundary_classifications
     )
     if has_feedback:
         system_dynamics = build_system_dynamics_requirement(decomposition)
@@ -1726,9 +1712,7 @@ def _subdesign_port_authority_context(
             authority.model_dump(mode="json") if authority is not None else {}
         ),
         "provided_authority_content_hash": (
-            _stable_content_hash(authority.model_dump(mode="json"))
-            if authority is not None
-            else ""
+            _stable_content_hash(authority.model_dump(mode="json")) if authority is not None else ""
         ),
     }
 
@@ -2004,8 +1988,8 @@ def _weakest_authority_from_flow(
     result = boundaries[0]
     for boundary in boundaries[1:]:
         meet_boundary_id = "boundary-" + _stable_token(
-            result.boundary_id or 'left',
-            boundary.boundary_id or 'right',
+            result.boundary_id or "left",
+            boundary.boundary_id or "right",
         )
         result = result.meet(
             boundary,
@@ -2331,9 +2315,7 @@ def _p14_composition_binding_error(
     )
     if not verification_ref:
         return "verification_ref_missing"
-    evidence_line_hashes = _content_hashes_from_records(
-        binding.get("evidence_line_records")
-    )
+    evidence_line_hashes = _content_hashes_from_records(binding.get("evidence_line_records"))
     lineage_hashes = _content_hashes_from_records(binding.get("lineage_records"))
     if not lineage_hashes:
         lineage_hashes = _source_lineage_hashes(binding.get("evidence_line_records"))
@@ -2550,16 +2532,12 @@ def _composition_verdict(
 
 def _has_shared_resource_coupling(classification: CouplingRegimeClassification) -> bool:
     return any(
-        row.coupling_kind == "shared_resource"
-        for row in classification.boundary_classifications
+        row.coupling_kind == "shared_resource" for row in classification.boundary_classifications
     )
 
 
 def _has_unknown_coupling(classification: CouplingRegimeClassification) -> bool:
-    return any(
-        row.coupling_kind == "unknown"
-        for row in classification.boundary_classifications
-    )
+    return any(row.coupling_kind == "unknown" for row in classification.boundary_classifications)
 
 
 def assert_composition_laws_hold(
@@ -2719,10 +2697,7 @@ def coupling_accuracy(
     accuracy = correct / denominator
     penalized_score = (
         accuracy
-        - (
-            (_FALSE_MODULAR_WEIGHT * false_modular)
-            + (_FALSE_ENTANGLED_WEIGHT * false_entangled)
-        )
+        - ((_FALSE_MODULAR_WEIGHT * false_modular) + (_FALSE_ENTANGLED_WEIGHT * false_entangled))
         / denominator
     )
     return {
@@ -2916,10 +2891,7 @@ def _boundary_feedback_intensity(
 
 def _edge_relation_is_shared_resource(edge: CouplingEdge) -> bool:
     relation = _normalized_relation(edge.relation)
-    return any(
-        token in relation
-        for token in ("shared_resource", "capacity", "budget", "resource")
-    )
+    return any(token in relation for token in ("shared_resource", "capacity", "budget", "resource"))
 
 
 def _normalized_relation(relation: str) -> str:
@@ -2939,8 +2911,7 @@ def _default_entangled_classification(
     return CouplingRegimeClassification(
         classification_id=f"layer2.s5.coupling_classification.{_stable_token(design_ref)}",
         classification_ref=(
-            f"pdc://layer2/s5/{_stable_token(design_ref, 'classification')}"
-            "/coupling-classification"
+            f"pdc://layer2/s5/{_stable_token(design_ref, 'classification')}/coupling-classification"
         ),
         design_ref=design_ref,
         coupling_graph_ref=coupling_graph_ref,

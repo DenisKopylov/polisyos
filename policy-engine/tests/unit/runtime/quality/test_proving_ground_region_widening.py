@@ -51,9 +51,7 @@ REQUIRED_G7_CONFORMANCE_NEGATIVE_IDS = {
 def test_layer3_g7_constants_define_region_boundary() -> None:
     from polisyos.runtime.quality.proving_ground import region_widening as g7
 
-    assert g7.G7_SCHEMA_VERSION == (
-        "policyos.policy_design_case.layer3_g7_region_widening.v1"
-    )
+    assert g7.G7_SCHEMA_VERSION == ("policyos.policy_design_case.layer3_g7_region_widening.v1")
     assert g7.G7_RULE_VERSION == "policyos.layer3.g7.region_widening.v1"
     assert "layer3_g7_region_widening_audit" in g7.G7_AUTHORITATIVE_FOR
     assert "universal_claim_authority" in g7.G7_MAY_NOT_USE_FOR
@@ -80,9 +78,7 @@ def test_g7_dependency_snapshot_reports_current_g5_blocker() -> None:
     assert snapshot.engineering_readiness_status == "pass"
     assert snapshot.g5_conversion_outcome == "unchanged_blocker"
     assert snapshot.g5_grounded_region_seed_count == 0
-    assert snapshot.region_value_closure_status == (
-        "blocked_by_current_g5_unchanged_blocker"
-    )
+    assert snapshot.region_value_closure_status == ("blocked_by_current_g5_unchanged_blocker")
     assert "g7_region_widening" in snapshot.g5_may_not_use_for
     assert "g7_region_widening" in snapshot.g6_may_not_use_for
 
@@ -166,11 +162,11 @@ def test_g7_default_candidate_set_is_control_plane_not_coverage() -> None:
     assert all("universal_claim_authority" in row.may_not_use_for for row in candidate_set.cases)
     seed = candidate_set.cases[0]
     assert seed.s3_demand_pull_refs == ()
-    assert seed.demand_refs == (
-        "demand-act://layer3-gx/ua-msme-affordable-loans-2022",
-    )
+    assert seed.demand_refs == ("demand-act://layer3-gx/ua-msme-affordable-loans-2022",)
     assert {
-        row.candidate_source for row in candidate_set.cases if row.case_id != "ua-msme-affordable-loans-2022"
+        row.candidate_source
+        for row in candidate_set.cases
+        if row.case_id != "ua-msme-affordable-loans-2022"
     } == {"readiness_control_plane_fixture"}
 
 
@@ -268,9 +264,7 @@ def test_g7_does_not_count_current_g5_unchanged_blocker_as_region_grounded() -> 
     bundle = g7.build_layer3_g7_bundle(g7.DEFAULT_REPO_ROOT)
 
     assert bundle.region_conversion_status_matrix.grounded_region_case_count == 0
-    assert bundle.region_value_closure_status == (
-        "blocked_by_current_g5_unchanged_blocker"
-    )
+    assert bundle.region_value_closure_status == ("blocked_by_current_g5_unchanged_blocker")
     assert "layer3_g7_g5_unchanged_blocker_counted_as_grounded" not in (
         bundle.region_conversion_status_matrix.issue_codes
     )
@@ -456,9 +450,7 @@ def test_g7_future_grounded_fixture_yields_positive_region_expansion() -> None:
     delta = g7.build_g7_region_envelope_expansion_delta(
         conversion_records=g7.synthetic_future_grounded_region_records(),
         certified_envelope_delta_refs=("s13-envelope-delta://ua-msme/expand-region",),
-        materialized_from_s12_growth_entry_ref=(
-            "s12-growth-entry://ua-msme-adjacent/future"
-        ),
+        materialized_from_s12_growth_entry_ref=("s12-growth-entry://ua-msme-adjacent/future"),
         assurance_case_delta_ref="s13-assurance-case-delta://ua-msme/expand-region",
     )
 
@@ -485,9 +477,7 @@ def test_g7_pending_delta_is_not_counted_as_region_expansion() -> None:
     for direction in ("pending", "hold", "shrink", "split"):
         delta = g7.build_g7_region_envelope_expansion_delta(
             conversion_records=g7.synthetic_future_grounded_region_records(),
-            certified_envelope_delta_refs=(
-                f"s13-envelope-delta://ua-msme/{direction}",
-            ),
+            certified_envelope_delta_refs=(f"s13-envelope-delta://ua-msme/{direction}",),
             envelope_revision_direction=direction,
         )
 
@@ -603,9 +593,7 @@ def test_g7_s14_feed_builds_consumer_ready_manifest_for_future_grounded_breadth(
     expansion = g7.build_g7_region_envelope_expansion_delta(
         conversion_records=records,
         certified_envelope_delta_refs=("s13-envelope-delta://ua-msme/expand-region",),
-        materialized_from_s12_growth_entry_ref=(
-            "s12-growth-entry://ua-msme-adjacent/future"
-        ),
+        materialized_from_s12_growth_entry_ref=("s12-growth-entry://ua-msme-adjacent/future"),
         assurance_case_delta_ref="s13-assurance-case-delta://ua-msme/expand-region",
     )
     feed = g7.build_g7_s14_grounded_breadth_feed(
@@ -656,9 +644,7 @@ def test_g7_s14_consumer_gate_blocks_aggregate_score_and_hidden_payload() -> Non
         region_envelope_expansion_delta=g7.build_g7_region_envelope_expansion_delta(
             conversion_records=records,
             certified_envelope_delta_refs=("s13-envelope-delta://ua-msme/expand-region",),
-            materialized_from_s12_growth_entry_ref=(
-                "s12-growth-entry://ua-msme-adjacent/future"
-            ),
+            materialized_from_s12_growth_entry_ref=("s12-growth-entry://ua-msme-adjacent/future"),
             assurance_case_delta_ref="s13-assurance-case-delta://ua-msme/expand-region",
         ),
     )
@@ -935,12 +921,14 @@ def test_g7_replay_manifest_uses_shared_helpers_and_preserves_closed_refs(
     assert calls == {"continuity": 1, "replay": 1}
     assert continuity.status == "pass"
     assert replay.status == "pass"
-    assert replay.manifest["dependency_fingerprints"][
-        "upstream_closed_g5_replay_fingerprint"
-    ] == upstream_refs["g5"]["fingerprint"]
-    assert replay.manifest["dependency_fingerprints"][
-        "scorecard_fingerprint"
-    ] == scorecard.scorecard_fingerprint
+    assert (
+        replay.manifest["dependency_fingerprints"]["upstream_closed_g5_replay_fingerprint"]
+        == upstream_refs["g5"]["fingerprint"]
+    )
+    assert (
+        replay.manifest["dependency_fingerprints"]["scorecard_fingerprint"]
+        == scorecard.scorecard_fingerprint
+    )
     assert replay.manifest["orchestration_continuity"]["status"] == "pass"
 
 
@@ -1060,9 +1048,7 @@ def test_g7_conformance_report_covers_every_required_negative() -> None:
     )
     results = {result.negative_id: result for result in report.negative_results}
 
-    assert set(g7.REQUIRED_G7_CONFORMANCE_NEGATIVE_IDS) == (
-        REQUIRED_G7_CONFORMANCE_NEGATIVE_IDS
-    )
+    assert set(g7.REQUIRED_G7_CONFORMANCE_NEGATIVE_IDS) == (REQUIRED_G7_CONFORMANCE_NEGATIVE_IDS)
     assert set(results) == REQUIRED_G7_CONFORMANCE_NEGATIVE_IDS
     assert report.status == "pass"
     assert all(result.status == "pass" for result in report.negative_results)
@@ -1086,9 +1072,7 @@ def test_g7_conformance_report_fails_closed_when_negative_missing_or_unobserved(
         repo_root=g7.DEFAULT_REPO_ROOT,
         required_negative_ids=("public_projection_authority_leak", "missing_negative"),
         observed_negative_issue_codes={
-            "public_projection_authority_leak": (
-                "layer3_g7_public_projection_authority_leak",
-            )
+            "public_projection_authority_leak": ("layer3_g7_public_projection_authority_leak",)
         },
     )
     unobserved = g7.build_g7_conformance_report(

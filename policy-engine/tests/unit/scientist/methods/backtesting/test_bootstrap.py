@@ -60,7 +60,9 @@ class TestBootstrapMetric:
             )
 
     @pytest.mark.parametrize("entrypoint", ["metric", "scenario"])
-    def test_two_dimensional_observations_refuse_before_callback_or_rng(self, monkeypatch, entrypoint):
+    def test_two_dimensional_observations_refuse_before_callback_or_rng(
+        self, monkeypatch, entrypoint
+    ):
         callback_calls = 0
         rng_calls = []
 

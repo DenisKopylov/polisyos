@@ -116,9 +116,7 @@ def test_capability_reality_report_marks_compiler_implemented_after_phase7() -> 
         "repo://tools/quality/validation/build_policy_evidence_capability_index.py"
     )
     assert claims["policy_evidence_capability_graph"]["reality_state"] == "implemented"
-    assert claims["legacy_scenario_family_authority"]["reality_state"] == (
-        "surface_out_of_scope"
-    )
+    assert claims["legacy_scenario_family_authority"]["reality_state"] == ("surface_out_of_scope")
 
 
 def _manifest_without_generated_at(output_dir: Path) -> dict[str, object]:

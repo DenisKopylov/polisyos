@@ -948,8 +948,7 @@ def test_epoch_impact_snapshot_preserves_two_packets_in_one_lineage(tmp_path) ->
     assert persisted.snapshot.owner_rows[0].packet_refs == packet_refs
     assert persisted.snapshot.owner_rows[0].lineage_keys == ("lineage-shared",)
     assert tuple(
-        (target.packet_ref, target.decision_lineage_key)
-        for target in persisted.snapshot.targets
+        (target.packet_ref, target.decision_lineage_key) for target in persisted.snapshot.targets
     ) == tuple((packet_ref, "lineage-shared") for packet_ref in packet_refs)
 
 
@@ -1171,9 +1170,7 @@ def test_epoch_reconciliation_admission_binding_two_writers_keep_one_winner(
     state_a = _DecisionValidityStateStore(tmp_path)
     state_b = _DecisionValidityStateStore(tmp_path)
     binding_a = _valid_epoch_reconciliation_binding()
-    binding_b = _valid_epoch_reconciliation_binding(
-        transition_content_hash="sha256:" + "a" * 64
-    )
+    binding_b = _valid_epoch_reconciliation_binding(transition_content_hash="sha256:" + "a" * 64)
     barrier = threading.Barrier(2)
     result_lock = threading.Lock()
     outcomes: list[tuple[object, object]] = []
@@ -1205,9 +1202,7 @@ def test_epoch_reconciliation_admission_binding_two_writers_keep_one_winner(
         for submitted, result in outcomes
         if not isinstance(result, BaseException)
     )
-    conflicts = tuple(
-        result for _, result in outcomes if isinstance(result, BaseException)
-    )
+    conflicts = tuple(result for _, result in outcomes if isinstance(result, BaseException))
     assert len(successes) == 1
     assert successes[0][1] == successes[0][0]
     assert len(conflicts) == 1
@@ -1231,9 +1226,7 @@ def test_epoch_reconciliation_admission_binding_two_writers_keep_one_winner(
     assert tuple(binding_path.parent.glob(f".{binding_path.name}.*.tmp")) == ()
 
 
-@pytest.mark.parametrize(
-    "corruption", ["malformed", "noncanonical", "address", "self-hash"]
-)
+@pytest.mark.parametrize("corruption", ["malformed", "noncanonical", "address", "self-hash"])
 def test_epoch_reconciliation_admission_binding_rejects_corrupt_winner(
     tmp_path,
     corruption: str,
@@ -1242,16 +1235,12 @@ def test_epoch_reconciliation_admission_binding_rejects_corrupt_winner(
 
     state = _DecisionValidityStateStore(FileSystemCAS(tmp_path / corruption))
     requested = _valid_epoch_reconciliation_binding(batch_id="batch-requested")
-    path = state._epoch_reconciliation_admissions / (
-        f"{state.make_key(requested.batch_id)}.json"
-    )
+    path = state._epoch_reconciliation_admissions / (f"{state.make_key(requested.batch_id)}.json")
     path.parent.mkdir(parents=True, exist_ok=True)
     if corruption == "malformed":
         path.write_bytes(b"{not-json")
     elif corruption == "noncanonical":
-        path.write_bytes(
-            json.dumps(requested.model_dump(mode="json"), indent=2).encode("utf-8")
-        )
+        path.write_bytes(json.dumps(requested.model_dump(mode="json"), indent=2).encode("utf-8"))
     else:
         winner = _valid_epoch_reconciliation_binding(
             batch_id=("batch-requested" if corruption == "self-hash" else "batch-other")
@@ -1275,8 +1264,7 @@ def test_no_reconciliation_reader_preserves_legacy_admission_and_lazy_state(tmp_
     binding_dir = tmp_path / "decision_validity" / "epoch_reconciliation_admissions"
     assert not binding_dir.exists()
     assert all(
-        store.get_manifest(artifact_id).kind
-        != "scientist.decision_validity_epoch_impact_snapshot"
+        store.get_manifest(artifact_id).kind != "scientist.decision_validity_epoch_impact_snapshot"
         for artifact_id in store.iter_artifact_ids()
     )
 
@@ -1295,8 +1283,7 @@ def test_no_reconciliation_reader_preserves_legacy_admission_and_lazy_state(tmp_
     assert service._state.list_epoch_reconciliation_admission_bindings() == ()
     assert not binding_dir.exists()
     assert all(
-        store.get_manifest(artifact_id).kind
-        != "scientist.decision_validity_epoch_impact_snapshot"
+        store.get_manifest(artifact_id).kind != "scientist.decision_validity_epoch_impact_snapshot"
         for artifact_id in store.iter_artifact_ids()
     )
     assert service.read_current_projection(packet_rows[0][0]).status == DecisionValidityStatus.STALE
@@ -1916,8 +1903,7 @@ def test_epoch_denominator_reconciliation_receipt_bridges_both_owner_definitions
     assert restarted._state.list_epoch_reconciliation_admission_bindings() == (binding,)
     assert restarted.enumerate_completed_epoch_batch_evidence()[0].receipt == receipt
     assert (
-        restarted.read_current_projection(late_packet_ref).status
-        == DecisionValidityStatus.ACTIVE
+        restarted.read_current_projection(late_packet_ref).status == DecisionValidityStatus.ACTIVE
     )
     replay_binding = restarted._state.list_epoch_reconciliation_admission_bindings()[0]
     replay_exact = restarted_reader.resolve_exact(
@@ -2318,9 +2304,7 @@ def test_epoch_reconciliation_exact_reader_refuses_profile_or_source_drift(
         transition_path, _ = fixture.store._paths(fixture.transition_ref.artifact_id)
         transition_path.write_bytes(b"corrupt-transition-source")
     else:
-        snapshot_path, _ = fixture.store._paths(
-            fixture.snapshot.handle.snapshot_ref.artifact_id
-        )
+        snapshot_path, _ = fixture.store._paths(fixture.snapshot.handle.snapshot_ref.artifact_id)
         snapshot_path.write_bytes(b"corrupt-scientist-snapshot")
 
     with pytest.raises(ValueError, match="epoch_denominator_reconciliation_unresolved"):
@@ -2610,9 +2594,7 @@ def test_epoch_reconciliation_valid_alternative_sidecar_conflicts_with_frozen_bi
     assert later.handle != first.handle
     fixture.verifier.receipt = fixture.verifier.receipt.model_copy(
         update={
-            "dependency_denominator_ref": (
-                later_snapshot.snapshot.decision_impact_denominator_ref
-            ),
+            "dependency_denominator_ref": (later_snapshot.snapshot.decision_impact_denominator_ref),
             "targets": (
                 *fixture.verifier.receipt.targets,
                 EpochValidityBatchTarget(

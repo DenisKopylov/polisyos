@@ -142,12 +142,10 @@ if router is not None:
         scenario_id: str | None = Query(default=None),
         ctx: RuntimeApiContext = Depends(get_runtime_api_context),
     ) -> LineageBatchResponse:
-        authorized_lineage_ids, scenario_manifest_payloads = (
-            lineage_batch_from_bound_request(
-                request,
-                ctx=ctx,
-                requested_lineage_ids=body.lineage_ids,
-            )
+        authorized_lineage_ids, scenario_manifest_payloads = lineage_batch_from_bound_request(
+            request,
+            ctx=ctx,
+            requested_lineage_ids=body.lineage_ids,
         )
         try:
             scenario_manifests = {
@@ -388,8 +386,8 @@ def _build_runtime_lineage_batch(
                         code="authorization_binding_context_mismatch",
                     )
                 try:
-                    scenario_lineage_by_id[lineage_id] = (
-                        ctx.scenarios.build_lineage_for_manifest(lineage_id, manifest)
+                    scenario_lineage_by_id[lineage_id] = ctx.scenarios.build_lineage_for_manifest(
+                        lineage_id, manifest
                     )
                 except ValueError as exc:
                     raise forbidden(

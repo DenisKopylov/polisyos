@@ -85,9 +85,7 @@ def _safe_local_path(location: str, *, scheme: str) -> Path:
 
 def _ensure_byte_limit(size: int, *, max_bytes: int, location: str) -> None:
     if size > max_bytes:
-        raise ValueError(
-            f"Data source {location!r} exceeds safe byte limit ({size} > {max_bytes})"
-        )
+        raise ValueError(f"Data source {location!r} exceeds safe byte limit ({size} > {max_bytes})")
 
 
 async def read_location_bytes(

@@ -109,8 +109,7 @@ def test_i7_universal_compilation_smoke_for_three_policy_intents() -> None:
             facets={facet["facet_type"]: facet["value"] for facet in _claim_facets(case)},
             obligations=list(_claim_obligations(graph)),
             claim_decomposition=[
-                claim.model_dump(mode="json", exclude_none=True)
-                for claim in claim_ledger.claims
+                claim.model_dump(mode="json", exclude_none=True) for claim in claim_ledger.claims
             ],
             authority_profile_ref=case.authority_profile.profile_id,
             concept_spine_refs=(case.concept_spine_ref,),
@@ -135,10 +134,7 @@ def test_i7_universal_compilation_smoke_for_three_policy_intents() -> None:
                         entry.model_dump(mode="json", exclude_none=True)
                         for entry in formulator_output.ledger_entries
                     ],
-                    *[
-                        entry.model_dump(mode="json", exclude_none=True)
-                        for entry in critic_entries
-                    ],
+                    *[entry.model_dump(mode="json", exclude_none=True) for entry in critic_entries],
                 ],
             }
         )
@@ -151,9 +147,7 @@ def test_i7_universal_compilation_smoke_for_three_policy_intents() -> None:
             authority_slots=("legal_authority",),
             surface="claim_registry",
         )
-        assert {issue["code"] for issue in issues} == {
-            "candidate_firewall_candidate_unverified"
-        }
+        assert {issue["code"] for issue in issues} == {"candidate_firewall_candidate_unverified"}
 
 
 def _concept_refs(intent_id: str) -> PolicyGrammarConceptSpineRefs:

@@ -224,19 +224,14 @@ def test_domain_profiles_use_shared_real_hnsw_path(
     assert academic_result == (2, 4)
     assert catalog_result == 2
     assert [
-        (instance.model_name, instance.device)
-        for instance in _FakeSentenceTransformer.instances
+        (instance.model_name, instance.device) for instance in _FakeSentenceTransformer.instances
     ] == [("fake-academic", "mps"), ("fake-catalog", "cpu")]
 
     academic_texts = [
-        text
-        for call in _FakeSentenceTransformer.instances[0].calls
-        for text in call["texts"]
+        text for call in _FakeSentenceTransformer.instances[0].calls for text in call["texts"]
     ]
     catalog_texts = [
-        text
-        for call in _FakeSentenceTransformer.instances[1].calls
-        for text in call["texts"]
+        text for call in _FakeSentenceTransformer.instances[1].calls for text in call["texts"]
     ]
     assert academic_texts == [f"Academic. {'a' * 1200}", "Second. abstract"]
     assert catalog_texts == [
@@ -249,17 +244,12 @@ def test_domain_profiles_use_shared_real_hnsw_path(
         "Other desc k v",
     ]
     assert all(
-        call["normalize_embeddings"] is True
-        and call["show_progress_bar"] is False
+        call["normalize_embeddings"] is True and call["show_progress_bar"] is False
         for instance in _FakeSentenceTransformer.instances
         for call in instance.calls
     )
-    assert [
-        call["batch_size"] for call in _FakeSentenceTransformer.instances[0].calls
-    ] == [1, 1]
-    assert [
-        call["batch_size"] for call in _FakeSentenceTransformer.instances[1].calls
-    ] == [1, 1]
+    assert [call["batch_size"] for call in _FakeSentenceTransformer.instances[0].calls] == [1, 1]
+    assert [call["batch_size"] for call in _FakeSentenceTransformer.instances[1].calls] == [1, 1]
     assert pauses == [0.25, 0.25, 0.5, 0.5]
 
     for directory, filename, ids in (

@@ -388,12 +388,9 @@ def test_compiler_consumes_policy_grammar_case_and_governed_rule_catalog() -> No
     assert graph.candidate_ledger
     assert graph.bundle_ledger
     assert graph.blocking_frontier
-    assert {entry.source_class for entry in graph.candidate_ledger} == {
-        SourceClass.GOVERNED_RULE
-    }
+    assert {entry.source_class for entry in graph.candidate_ledger} == {SourceClass.GOVERNED_RULE}
     assert all(
-        item.source_classes == (SourceClass.GOVERNED_RULE,)
-        for item in graph.blocking_frontier
+        item.source_classes == (SourceClass.GOVERNED_RULE,) for item in graph.blocking_frontier
     )
 
 

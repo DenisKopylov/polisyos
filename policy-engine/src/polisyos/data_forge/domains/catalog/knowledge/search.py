@@ -264,11 +264,7 @@ def _effective_encoder_device(encoder: object, *, requested: str) -> str | None:
         normalized_type = str(device_type).strip()
         if not normalized_type:
             return None
-        effective = (
-            normalized_type
-            if device_index is None
-            else f"{normalized_type}:{device_index}"
-        )
+        effective = normalized_type if device_index is None else f"{normalized_type}:{device_index}"
         if requested == normalized_type and device_index in (None, 0):
             return normalized_type
         return effective
@@ -421,18 +417,13 @@ class DatasetCatalogGraph:
         if self._embedding_disabled:
             state = (
                 "absent"
-                if generation is None
-                and generation_reason == "selected_generation_unavailable"
+                if generation is None and generation_reason == "selected_generation_unavailable"
                 else "refused"
             )
             return None, None, "query_encoder_disabled", generation_context(state)
         if generation is None:
             refusal_code = generation_reason or "selected_generation_unavailable"
-            state = (
-                "absent"
-                if refusal_code == "selected_generation_unavailable"
-                else "refused"
-            )
+            state = "absent" if refusal_code == "selected_generation_unavailable" else "refused"
             return (
                 None,
                 None,
@@ -466,10 +457,7 @@ class DatasetCatalogGraph:
         reader_profile: CatalogEmbeddingProfile | None = None
         try:
             generation_intent = (self._embedding_model_name, generation_device)
-            if (
-                self._embedder is None
-                or self._embedder_generation_intent != generation_intent
-            ):
+            if self._embedder is None or self._embedder_generation_intent != generation_intent:
                 from sentence_transformers import SentenceTransformer
 
                 self._embedder = SentenceTransformer(
@@ -478,9 +466,7 @@ class DatasetCatalogGraph:
                 )
                 self._embedder_generation_intent = generation_intent
             dimension = _effective_encoder_dimension(self._embedder)
-            device = _effective_encoder_device(
-                self._embedder, requested=generation_device
-            )
+            device = _effective_encoder_device(self._embedder, requested=generation_device)
             if dimension is None or device is None:
                 return (
                     None,
@@ -557,9 +543,7 @@ class DatasetCatalogGraph:
         queries = [query]
         extras: list[str] = []
         tokens = {
-            token
-            for token in re.split(r"[^\w]+", normalized, flags=re.UNICODE)
-            if len(token) >= 2
+            token for token in re.split(r"[^\w]+", normalized, flags=re.UNICODE) if len(token) >= 2
         }
         for needle, expansion in _TEXT_QUERY_EXPANSIONS:
             if needle in normalized or any(needle in token for token in tokens):
@@ -569,9 +553,7 @@ class DatasetCatalogGraph:
             queries.append(f"{query} {' '.join(extras)}".strip())
         return queries
 
-    def _search_text_candidates(
-        self, query: str, *, top_k: int
-    ) -> list[DatasetSearchResult]:
+    def _search_text_candidates(self, query: str, *, top_k: int) -> list[DatasetSearchResult]:
         merged_scores: dict[str, float] = {}
         merged_items: dict[str, DatasetSearchResult] = {}
         queries = self._expanded_text_queries(query) or [query]
@@ -587,9 +569,7 @@ class DatasetCatalogGraph:
         for dataset_id, item in merged_items.items():
             hints = _SOURCE_QUERY_HINTS.get(item.source or "", ())
             if hints and any(hint in normalized_query for hint in hints):
-                merged_scores[dataset_id] = merged_scores.get(dataset_id, 0.0) + (
-                    top_k * 3.0
-                )
+                merged_scores[dataset_id] = merged_scores.get(dataset_id, 0.0) + (top_k * 3.0)
         ranked = sorted(merged_scores.items(), key=lambda pair: (-pair[1], pair[0]))
         out: list[DatasetSearchResult] = []
         for did, score in ranked[:top_k]:
@@ -653,13 +633,9 @@ class DatasetCatalogGraph:
     @staticmethod
     def _metric_boost(item: DatasetSearchResult, query: str) -> float:
         normalized_query = _normalize_text(query)
-        metric_tokens = {
-            _normalize_text(metric) for metric in item.polisyos_metrics if metric
-        }
+        metric_tokens = {_normalize_text(metric) for metric in item.polisyos_metrics if metric}
         base = (
-            0.25
-            if any(metric and metric in normalized_query for metric in metric_tokens)
-            else 0.0
+            0.25 if any(metric and metric in normalized_query for metric in metric_tokens) else 0.0
         )
         # Source-metric affinity: authoritative source for this metric gets extra boost
         affinity = _SOURCE_METRIC_AFFINITY.get(
@@ -673,17 +649,14 @@ class DatasetCatalogGraph:
         normalized_query = _normalize_text(query)
         return (
             0.3
-            if hints
-            and any(_normalize_text(hint) in normalized_query for hint in hints)
+            if hints and any(_normalize_text(hint) in normalized_query for hint in hints)
             else 0.0
         )
 
     @staticmethod
     def _tier_boost(item: DatasetSearchResult) -> float:
         """Boost execution-ready datasets so they rank above catalog-only ones."""
-        tier = (
-            str(getattr(item, "execution_tier", "catalog") or "catalog").strip().lower()
-        )
+        tier = str(getattr(item, "execution_tier", "catalog") or "catalog").strip().lower()
         if tier == "transport_ready":
             return 0.15
         if tier == "fetchable":
@@ -691,55 +664,37 @@ class DatasetCatalogGraph:
         return 0.0
 
     @staticmethod
-    def _passes_filters(
-        item: DatasetSearchResult, filters: SearchFilters | None
-    ) -> bool:
+    def _passes_filters(item: DatasetSearchResult, filters: SearchFilters | None) -> bool:
         if filters is None:
             return True
         if filters.sources:
-            allowed = {
-                source.strip().lower() for source in filters.sources if source.strip()
-            }
+            allowed = {source.strip().lower() for source in filters.sources if source.strip()}
             if (item.source or "").strip().lower() not in allowed:
                 return False
         if filters.formats:
-            allowed_formats = {
-                fmt.strip().lower() for fmt in filters.formats if fmt.strip()
-            }
-            if not allowed_formats.intersection(
-                {fmt.strip().lower() for fmt in item.formats}
-            ):
+            allowed_formats = {fmt.strip().lower() for fmt in filters.formats if fmt.strip()}
+            if not allowed_formats.intersection({fmt.strip().lower() for fmt in item.formats}):
                 return False
         if filters.countries:
             allowed_countries = {
-                country.strip().upper()
-                for country in filters.countries
-                if country.strip()
+                country.strip().upper() for country in filters.countries if country.strip()
             }
-            item_countries = {
-                country.strip().upper() for country in item.coverage.countries
-            }
+            item_countries = {country.strip().upper() for country in item.coverage.countries}
             if item.spatial:
                 item_countries.add(item.spatial.strip().upper())
             if allowed_countries and not allowed_countries.intersection(item_countries):
                 return False
         if filters.metrics:
-            allowed_metrics = {
-                metric.strip() for metric in filters.metrics if metric.strip()
-            }
+            allowed_metrics = {metric.strip() for metric in filters.metrics if metric.strip()}
             if not allowed_metrics.intersection(set(item.polisyos_metrics)):
                 return False
         if filters.execution_tier and item.execution_tier != filters.execution_tier:
             return False
-        if (
-            filters.min_quality_score is not None
-            and item.quality.execution_readiness_score
-            < float(filters.min_quality_score)
+        if filters.min_quality_score is not None and item.quality.execution_readiness_score < float(
+            filters.min_quality_score
         ):
             return False
-        item_start = _safe_year(item.coverage.time_start) or _safe_year(
-            item.temporal_start
-        )
+        item_start = _safe_year(item.coverage.time_start) or _safe_year(item.temporal_start)
         item_end = _safe_year(item.coverage.time_end) or _safe_year(item.temporal_end)
         if (
             filters.year_min is not None
@@ -791,9 +746,7 @@ class DatasetCatalogGraph:
         }
         if vector_search_refusal is not None:
             explanation["vector_search_refusal"] = vector_search_refusal
-        return item.model_copy(
-            update={**result_update, "search_explanation": explanation}
-        )
+        return item.model_copy(update={**result_update, "search_explanation": explanation})
 
     def search_datasets(
         self,
@@ -883,11 +836,7 @@ class DatasetCatalogGraph:
                 vector_results = []
                 vector_ms = 0.0
         if vec is None:
-            filtered = [
-                result
-                for result in text_results
-                if self._passes_filters(result, filters)
-            ]
+            filtered = [result for result in text_results if self._passes_filters(result, filters)]
             results = filtered[:top_k]
             if domain_filter:
                 results = [r for r in results if domain_filter in r.themes]
@@ -899,9 +848,7 @@ class DatasetCatalogGraph:
                 after_filter=len(filtered),
                 returned=len(results),
                 top_score=float(results[0].similarity) if results else 0.0,
-                mean_score=float(
-                    sum(item.similarity for item in results) / len(results)
-                )
+                mean_score=float(sum(item.similarity for item in results) / len(results))
                 if results
                 else 0.0,
                 vector_search_refusal=vector_refusal_code,
@@ -990,9 +937,7 @@ class DatasetCatalogGraph:
             after_filter=len(out),
             returned=len(out),
             top_score=float(out[0].similarity) if out else 0.0,
-            mean_score=float(sum(item.similarity for item in out) / len(out))
-            if out
-            else 0.0,
+            mean_score=float(sum(item.similarity for item in out) / len(out)) if out else 0.0,
             vector_search_refusal=None,
             search_mode="vector",
         )
@@ -1002,9 +947,7 @@ class DatasetCatalogGraph:
             query_generation_context=query_generation_context,
         )
 
-    def suggest_related(
-        self, dataset_id: str, *, top_k: int = 5
-    ) -> list[DatasetSearchResult]:
+    def suggest_related(self, dataset_id: str, *, top_k: int = 5) -> list[DatasetSearchResult]:
         base_dataset = self._store.get_dataset(dataset_id)
         if base_dataset is None:
             return []
@@ -1048,9 +991,7 @@ class DatasetCatalogGraph:
         """Read the actual baseline/overlay byte identities, without source truth authority."""
         return self._store._require_current_read_session()
 
-    def reconciled_metric_binding_population(
-        self, metric_name: str
-    ) -> list[MetricBindingMatch]:
+    def reconciled_metric_binding_population(self, metric_name: str) -> list[MetricBindingMatch]:
         """Read the complete catalog binding population through its reconciling owner."""
         return self._store.reconciled_metric_binding_population(metric_name)
 
@@ -1071,9 +1012,7 @@ class DatasetCatalogGraph:
     def resolve_fetch_target(
         self, dataset_id: str, *, distribution_id: str | None = None
     ) -> ResolvedFetchTarget | None:
-        return self._store.resolve_fetch_target(
-            dataset_id, distribution_id=distribution_id
-        )
+        return self._store.resolve_fetch_target(dataset_id, distribution_id=distribution_id)
 
     def get_dataset(self, dataset_id: str) -> DatasetSearchResult | None:
         """Read the exact selected dataset without search ranking or truncation."""

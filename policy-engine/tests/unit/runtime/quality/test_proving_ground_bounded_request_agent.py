@@ -60,9 +60,7 @@ def _policy_grammar_projection_fixture(
         "request_id": request_id,
         "intent_ref": f"policy-grammar-intent://layer3-g6/{request_id}",
         "compiled_case_ref": (
-            f"universal-policy-design-case:layer3-g6:{fixture_id}"
-            if status == "pass"
-            else None
+            f"universal-policy-design-case:layer3-g6:{fixture_id}" if status == "pass" else None
         ),
         "compiled_case_status": compiled_case_status,
         "status": status,
@@ -181,9 +179,9 @@ def test_g6_policy_grammar_projection_rejects_authority_scope_leak() -> None:
 
 
 def test_g6_runtime_module_does_not_import_policy_grammar() -> None:
-    module_text = Path("src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py").read_text(
-        encoding="utf-8"
-    )
+    module_text = Path(
+        "src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py"
+    ).read_text(encoding="utf-8")
 
     assert "polisyos.policy_grammar" not in module_text
 
@@ -343,9 +341,7 @@ def test_g6_candidate_ledgers_block_agent_parse_as_claim_authority() -> None:
         surface="layer3_g6_agent_run_record",
     )
 
-    assert {issue["code"] for issue in issues} == {
-        "candidate_firewall_candidate_unverified"
-    }
+    assert {issue["code"] for issue in issues} == {"candidate_firewall_candidate_unverified"}
 
 
 def test_g6_prompt_tool_ledger_pass_cannot_be_read_as_claim_authority() -> None:
@@ -357,9 +353,7 @@ def test_g6_prompt_tool_ledger_pass_cannot_be_read_as_claim_authority() -> None:
         envelope=g6.build_g6_request_envelope(
             "Can Ukraine improve affordable loans for wartime MSMEs?",
             request_id="req-ledger-negative",
-            policy_grammar_projection=_policy_grammar_projection_fixture(
-                "req-ledger-negative"
-            ),
+            policy_grammar_projection=_policy_grammar_projection_fixture("req-ledger-negative"),
         ),
         candidates=(),
         tool_call_refs=("tool-call://fixture/g5-bundle",),
@@ -536,9 +530,7 @@ def test_g6_design_record_candidate_handoff_stays_candidate_only() -> None:
         authority_slots=("claim_authority",),
         surface="layer3_g6_composed_loop_candidate_handoff",
     )
-    assert {issue["code"] for issue in issues} == {
-        "candidate_firewall_candidate_unverified"
-    }
+    assert {issue["code"] for issue in issues} == {"candidate_firewall_candidate_unverified"}
 
 
 def test_g6_design_record_candidate_cannot_be_used_as_g4_source_record() -> None:
@@ -620,10 +612,7 @@ def test_g6_outside_envelope_abstention_requires_search_health_and_demand_refs()
     )
 
     assert invocation.status == "fail"
-    assert (
-        "layer3_g6_outside_envelope_abstention_without_search_health"
-        in invocation.issue_codes
-    )
+    assert "layer3_g6_outside_envelope_abstention_without_search_health" in invocation.issue_codes
     assert "layer3_g6_cheap_refusal_without_demand_signal" in invocation.issue_codes
 
 
@@ -633,9 +622,7 @@ def test_g6_bridge_rejects_g5_conversion_as_g6_orchestration_authority() -> None
     envelope = g6.build_g6_request_envelope(
         "Can Ukraine improve affordable loans for wartime MSMEs?",
         request_id="req-g5-authority-negative",
-        policy_grammar_projection=_policy_grammar_projection_fixture(
-            "req-g5-authority-negative"
-        ),
+        policy_grammar_projection=_policy_grammar_projection_fixture("req-g5-authority-negative"),
     )
     invocation = g6.build_g6_g5_invocation_plan(
         repo_root=Path("."),
@@ -653,9 +640,7 @@ def test_g6_bridge_rejects_non_pinned_g5_case_id() -> None:
     envelope = g6.build_g6_request_envelope(
         "Can Ukraine improve affordable loans for wartime MSMEs?",
         request_id="req-non-pinned-negative",
-        policy_grammar_projection=_policy_grammar_projection_fixture(
-            "req-non-pinned-negative"
-        ),
+        policy_grammar_projection=_policy_grammar_projection_fixture("req-non-pinned-negative"),
     )
     invocation = g6.build_g6_g5_invocation_plan(
         repo_root=Path("."),
@@ -676,9 +661,7 @@ def test_g6_bridge_fails_closed_when_g5_consumer_gate_not_pass(
     envelope = g6.build_g6_request_envelope(
         "Can Ukraine improve affordable loans for wartime MSMEs?",
         request_id="req-g5-gate-negative",
-        policy_grammar_projection=_policy_grammar_projection_fixture(
-            "req-g5-gate-negative"
-        ),
+        policy_grammar_projection=_policy_grammar_projection_fixture("req-g5-gate-negative"),
     )
 
     def _not_routed_gate(*args: object, **kwargs: object) -> object:
@@ -713,9 +696,7 @@ def test_g6_agent_run_record_maps_current_g5_unchanged_blocker() -> None:
     assert record.outcome == "g5_unchanged_blocker"
     assert record.g5_conversion_outcome == "unchanged_blocker"
     assert record.engineering_readiness_status == "pass"
-    assert record.grounded_value_closure_status == (
-        "blocked_by_current_g5_unchanged_blocker"
-    )
+    assert record.grounded_value_closure_status == ("blocked_by_current_g5_unchanged_blocker")
     assert "claim_authority" in record.may_not_use_for
     assert record.orchestration_choice_audit.status == "pass"
 

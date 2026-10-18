@@ -265,9 +265,7 @@ def test_fractional_fill_is_dtype_stable_for_integer_and_float_inputs() -> None:
     )
 
     npt.assert_allclose(integer_aligned[target.target_id], [1.0, 0.5, 0.5])
-    npt.assert_allclose(
-        integer_aligned[target.target_id], float_aligned[target.target_id]
-    )
+    npt.assert_allclose(integer_aligned[target.target_id], float_aligned[target.target_id])
 
 
 def test_empty_target_with_explicit_steps_is_not_an_observable_zero_series() -> None:

@@ -621,9 +621,7 @@ def load_governance_accountability_artifact(
     """Load a persisted accountability artifact."""
     from polisyos.core.artifacts import load_core_json_artifact
 
-    return GovernanceAccountabilityArtifact.model_validate(
-        load_core_json_artifact(store, ref)
-    )
+    return GovernanceAccountabilityArtifact.model_validate(load_core_json_artifact(store, ref))
 
 
 def _build_threshold_registry(

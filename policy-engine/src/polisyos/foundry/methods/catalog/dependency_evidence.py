@@ -60,26 +60,18 @@ HexBytes = Annotated[
 ]
 IdentityText = Annotated[StrictStr, AuthorityScalarRole.IDENTITY, Field(min_length=1)]
 VersionText = Annotated[StrictStr, AuthorityScalarRole.VERSION, Field(min_length=1)]
-PlatformTagText = Annotated[
-    StrictStr, AuthorityScalarRole.PLATFORM_TAG, Field(min_length=1)
-]
+PlatformTagText = Annotated[StrictStr, AuthorityScalarRole.PLATFORM_TAG, Field(min_length=1)]
 AbiTagText = Annotated[StrictStr, AuthorityScalarRole.ABI_TAG, Field(min_length=1)]
 PythonConstraintText = Annotated[
     StrictStr, AuthorityScalarRole.PYTHON_CONSTRAINT, Field(min_length=1)
 ]
-EntrypointText = Annotated[
-    StrictStr, AuthorityScalarRole.ENTRYPOINT, Field(min_length=1)
-]
+EntrypointText = Annotated[StrictStr, AuthorityScalarRole.ENTRYPOINT, Field(min_length=1)]
 ArgumentText = Annotated[StrictStr, AuthorityScalarRole.ARGUMENT]
 MarkerExpressionText = Annotated[
     StrictStr, AuthorityScalarRole.MARKER_EXPRESSION, Field(min_length=1)
 ]
-BuildBackendText = Annotated[
-    StrictStr, AuthorityScalarRole.BUILD_BACKEND, Field(min_length=1)
-]
-EnvironmentKeyText = Annotated[
-    StrictStr, AuthorityScalarRole.ENVIRONMENT_KEY, Field(min_length=1)
-]
+BuildBackendText = Annotated[StrictStr, AuthorityScalarRole.BUILD_BACKEND, Field(min_length=1)]
+EnvironmentKeyText = Annotated[StrictStr, AuthorityScalarRole.ENVIRONMENT_KEY, Field(min_length=1)]
 EnvironmentValueText = Annotated[StrictStr, AuthorityScalarRole.ENVIRONMENT_VALUE]
 SchemaVersionText = Annotated[
     StrictStr,
@@ -94,9 +86,7 @@ GitCommitId = Annotated[
 GitTreeId = GitCommitId
 ExactBytes = Annotated[bytes, AuthorityScalarRole.EXACT_BYTES]
 ByteLength = Annotated[int, AuthorityScalarRole.BYTE_LENGTH, Field(ge=0)]
-FilesystemIdentityNumber = Annotated[
-    int, AuthorityScalarRole.FILESYSTEM_IDENTITY, Field(ge=0)
-]
+FilesystemIdentityNumber = Annotated[int, AuthorityScalarRole.FILESYSTEM_IDENTITY, Field(ge=0)]
 NonEmptyIdentity = IdentityText
 
 
@@ -335,9 +325,7 @@ class LauncherProfileSpec(FoundryAuthorityModel):
     interpreter_occurrences: Literal[1]
     normalized_interpreter_token: Literal["@PYTHON@"]
     expected_producer_id: Literal[LauncherExpectedProducerId.DISTLIB_POSIX_CONSOLE_V1]
-    observed_verifier_id: Literal[
-        LauncherObservedVerifierId.PARSE_DISTLIB_POSIX_CONSOLE_V1
-    ]
+    observed_verifier_id: Literal[LauncherObservedVerifierId.PARSE_DISTLIB_POSIX_CONSOLE_V1]
 
 
 class LauncherNormalizationVerified(FoundryAuthorityModel):
@@ -487,9 +475,7 @@ class AuthorityPredicateId(StrEnum):
 class AuthorityFailureCode(StrEnum):
     SOURCE_FREEZE_MISMATCH = "source_freeze_mismatch"
     SOURCE_NOT_ESTABLISHED = "canonical_foundry_source_not_established"
-    RUNTIME_SUBTREE_CUTOFF_NOT_ESTABLISHED = (
-        "owner_enforced_runtime_subtree_cutoff_not_established"
-    )
+    RUNTIME_SUBTREE_CUTOFF_NOT_ESTABLISHED = "owner_enforced_runtime_subtree_cutoff_not_established"
     REGISTRY_INVALID = "dependency_authority_registry_invalid"
     REGISTRY_NOT_ESTABLISHED = "dependency_authority_registry_not_established"
     PROFILE_MISMATCH = "dependency_profile_input_mismatch"
@@ -578,15 +564,15 @@ class SourceFreezeRelationEvidenceRequirement(FoundryAuthorityModel):
     request_commit_path: Literal[
         "result.request.pre_source_request.expected_source_freeze_commit"
     ] = "result.request.pre_source_request.expected_source_freeze_commit"
-    request_tree_path: Literal[
+    request_tree_path: Literal["result.request.expected_source_tree_id"] = (
         "result.request.expected_source_tree_id"
-    ] = "result.request.expected_source_tree_id"
-    observed_commit_path: Literal[
+    )
+    observed_commit_path: Literal["result.failure.owner_observed_head_commit"] = (
         "result.failure.owner_observed_head_commit"
-    ] = "result.failure.owner_observed_head_commit"
-    observed_tree_path: Literal[
+    )
+    observed_tree_path: Literal["result.failure.owner_observed_tree_id"] = (
         "result.failure.owner_observed_tree_id"
-    ] = "result.failure.owner_observed_tree_id"
+    )
     observation_producer: Literal["canonical_module_git_recompute_v1"]
     require_same_owner_root: Literal[True]
     require_commit_or_tree_inequality: Literal[True]
@@ -639,9 +625,7 @@ class SatisfiedAuthorityPredicate(FoundryAuthorityModel):
     predicate_spec: BidirectionalAuthorityPredicateSpec
     predicate_id: AuthorityPredicateId
     predicate_class: Literal["recomputed", "independently_reconciled"]
-    evidence_refs: Annotated[
-        tuple[FoundryRecordRef[DigestDomain], ...], Field(min_length=1)
-    ]
+    evidence_refs: Annotated[tuple[FoundryRecordRef[DigestDomain], ...], Field(min_length=1)]
 
     @model_validator(mode="after")
     def validate_bound_branch(self) -> SatisfiedAuthorityPredicate:
@@ -657,9 +641,7 @@ class RejectedAuthorityPredicate(FoundryAuthorityModel):
     predicate_id: AuthorityPredicateId
     predicate_class: Literal["recomputed", "independently_reconciled"]
     failure_code: AuthorityFailureCode
-    evidence_refs: Annotated[
-        tuple[FoundryRecordRef[DigestDomain], ...], Field(min_length=1)
-    ]
+    evidence_refs: Annotated[tuple[FoundryRecordRef[DigestDomain], ...], Field(min_length=1)]
 
     @model_validator(mode="after")
     def validate_bound_branch(self) -> RejectedAuthorityPredicate:
@@ -701,8 +683,7 @@ class OneSidedUnestablishedAuthorityPredicate(FoundryAuthorityModel):
 
 
 UnestablishedAuthorityPredicate = Annotated[
-    BidirectionalUnestablishedAuthorityPredicate
-    | OneSidedUnestablishedAuthorityPredicate,
+    BidirectionalUnestablishedAuthorityPredicate | OneSidedUnestablishedAuthorityPredicate,
     Field(discriminator="branch_shape"),
 ]
 BidirectionalAuthorityPredicateDisposition = Annotated[
@@ -792,9 +773,7 @@ class DigestDomainRegistryStatement(FoundryAuthorityModel):
         predicates = tuple(row.predicate_id for row in self.predicates)
         if len(domains) != len(set(domains)) or set(domains) != set(DigestDomain):
             raise ValueError("digest registry must exactly cover the digest-domain denominator")
-        if len(predicates) != len(set(predicates)) or set(predicates) != set(
-            AuthorityPredicateId
-        ):
+        if len(predicates) != len(set(predicates)) or set(predicates) != set(AuthorityPredicateId):
             raise ValueError("predicate registry must exactly cover the predicate denominator")
         cutoff = next(
             row
@@ -817,15 +796,9 @@ class LockedDistributionIdentity(FoundryAuthorityModel):
     normalized_name: IdentityText
     version: VersionText
     source_kind: Literal["registry", "url", "git", "path"]
-    selected_artifact_ref: FoundryRecordRef[
-        Literal[DigestDomain.SELECTED_DISTRIBUTION]
-    ]
-    expected_stable_manifest_ref: FoundryRecordRef[
-        Literal[DigestDomain.INSTALLED_STABLE]
-    ]
-    expected_source_binding_ref: FoundryRecordRef[
-        Literal[DigestDomain.INSTALLED_BINDING]
-    ]
+    selected_artifact_ref: FoundryRecordRef[Literal[DigestDomain.SELECTED_DISTRIBUTION]]
+    expected_stable_manifest_ref: FoundryRecordRef[Literal[DigestDomain.INSTALLED_STABLE]]
+    expected_source_binding_ref: FoundryRecordRef[Literal[DigestDomain.INSTALLED_BINDING]]
     marker_expression: MarkerExpressionText | None
 
 
@@ -883,9 +856,7 @@ def _validated_entrypoint_target(entrypoint_target: str) -> tuple[str, str]:
 
 def _validated_launcher_flags(normalized_flags: tuple[str, ...]) -> str:
     if any(
-        type(flag) is not str
-        or not flag
-        or any(character.isspace() for character in flag)
+        type(flag) is not str or not flag or any(character.isspace() for character in flag)
         for flag in normalized_flags
     ):
         raise ValueError("launcher flags must be non-empty whitespace-free strings")
@@ -999,9 +970,7 @@ def build_noneditable_stable_manifest(
             key=lambda row: (row.logical_root, row.relative_path.value, row.row_kind),
         )
     )
-    if len({(row.logical_root, row.relative_path.value) for row in ordered}) != len(
-        ordered
-    ):
+    if len({(row.logical_root, row.relative_path.value) for row in ordered}) != len(ordered):
         raise ValueError("stable install rows must have unique logical paths")
     return StableInstalledDistributionManifestStatement(
         schema_version="polisyos.foundry.installed-tree-stable.v1",
@@ -1014,24 +983,18 @@ def build_noneditable_stable_manifest(
 
 class InstalledDistributionInstanceManifestStatement(FoundryAuthorityModel):
     schema_version: Literal["polisyos.foundry.installed-tree-instance.v1"]
-    environment_creation_nonce: DomainDigest[
-        Literal[DigestDomain.ENVIRONMENT_INSTANCE]
-    ]
+    environment_creation_nonce: DomainDigest[Literal[DigestDomain.ENVIRONMENT_INSTANCE]]
     normalized_name: IdentityText
     version: VersionText
     rows: tuple[InstalledInstanceFileRow, ...]
-    recomputed_stable_manifest_ref: FoundryRecordRef[
-        Literal[DigestDomain.INSTALLED_STABLE]
-    ]
+    recomputed_stable_manifest_ref: FoundryRecordRef[Literal[DigestDomain.INSTALLED_STABLE]]
 
 
 class WheelInstalledSourceBindingStatement(FoundryAuthorityModel):
     binding_kind: Literal["wheel"]
     schema_version: Literal["polisyos.foundry.installed-source-binding.v1"]
     locked_source_ref: DomainDigest[Literal[DigestDomain.LOCKED_SOURCE]]
-    selected_evidence_ref: FoundryRecordRef[
-        Literal[DigestDomain.SELECTED_DISTRIBUTION]
-    ]
+    selected_evidence_ref: FoundryRecordRef[Literal[DigestDomain.SELECTED_DISTRIBUTION]]
     stable_manifest_ref: FoundryRecordRef[Literal[DigestDomain.INSTALLED_STABLE]]
     transform_profile: Literal["wheel_install_tree_v1"]
 
@@ -1045,9 +1008,7 @@ class SourceFirstInstalledSourceBindingStatement(FoundryAuthorityModel):
     binding_kind: Literal["source_first"]
     schema_version: Literal["polisyos.foundry.installed-source-binding.v1"]
     locked_source_ref: DomainDigest[Literal[DigestDomain.LOCKED_SOURCE]]
-    selected_evidence_ref: FoundryRecordRef[
-        Literal[DigestDomain.SELECTED_DISTRIBUTION]
-    ]
+    selected_evidence_ref: FoundryRecordRef[Literal[DigestDomain.SELECTED_DISTRIBUTION]]
     stable_manifest_ref: FoundryRecordRef[Literal[DigestDomain.INSTALLED_STABLE]]
     transform_profile: Literal["source_first_tree_v1"]
     source_tree_ref: FoundryRecordRef[Literal[DigestDomain.SOURCE_TREE]]
@@ -1080,27 +1041,17 @@ class BuildProfileStatement(FoundryAuthorityModel):
     build_requirement_refs: tuple[
         FoundryRecordRef[Literal[DigestDomain.SELECTED_DISTRIBUTION]], ...
     ]
-    normalized_environment: tuple[
-        tuple[EnvironmentKeyText, EnvironmentValueText], ...
-    ]
+    normalized_environment: tuple[tuple[EnvironmentKeyText, EnvironmentValueText], ...]
 
 
 class InstalledDistributionIdentity(FoundryAuthorityModel):
     normalized_name: IdentityText
     version: VersionText
     source_kind: IdentityText
-    selected_artifact_ref: FoundryRecordRef[
-        Literal[DigestDomain.SELECTED_DISTRIBUTION]
-    ]
-    observed_stable_manifest_ref: FoundryRecordRef[
-        Literal[DigestDomain.INSTALLED_STABLE]
-    ]
-    observed_instance_manifest_ref: FoundryRecordRef[
-        Literal[DigestDomain.INSTALLED_INSTANCE]
-    ]
-    observed_source_binding_ref: FoundryRecordRef[
-        Literal[DigestDomain.INSTALLED_BINDING]
-    ]
+    selected_artifact_ref: FoundryRecordRef[Literal[DigestDomain.SELECTED_DISTRIBUTION]]
+    observed_stable_manifest_ref: FoundryRecordRef[Literal[DigestDomain.INSTALLED_STABLE]]
+    observed_instance_manifest_ref: FoundryRecordRef[Literal[DigestDomain.INSTALLED_INSTANCE]]
+    observed_source_binding_ref: FoundryRecordRef[Literal[DigestDomain.INSTALLED_BINDING]]
 
 
 class BuildLineageStatement(FoundryAuthorityModel):
@@ -1111,20 +1062,14 @@ class BuildLineageStatement(FoundryAuthorityModel):
     normalized_argv_hash: DomainDigest[Literal[DigestDomain.BUILD_ARGV]]
     build_environment_hash: DomainDigest[Literal[DigestDomain.BUILD_ENVIRONMENT]]
     output_wheel_ref: FoundryRecordRef[Literal[DigestDomain.SELECTED_WHEEL]]
-    verifier_provenance_ref: FoundryRecordRef[
-        Literal[DigestDomain.VERIFIER_PROVENANCE]
-    ]
-    trust_resolution_receipt_ref: FoundryRecordRef[
-        Literal[DigestDomain.TRUST_RESOLUTION]
-    ]
+    verifier_provenance_ref: FoundryRecordRef[Literal[DigestDomain.VERIFIER_PROVENANCE]]
+    trust_resolution_receipt_ref: FoundryRecordRef[Literal[DigestDomain.TRUST_RESOLUTION]]
 
 
 class PersistedBuildLineageEvidence(FoundryAuthorityModel):
     record_ref: FoundryRecordRef[Literal[DigestDomain.BUILD_LINEAGE]]
     statement: BuildLineageStatement
-    signed_binding_ref: FoundryRecordRef[
-        Literal[DigestDomain.SIGNED_RECORD_BINDING]
-    ]
+    signed_binding_ref: FoundryRecordRef[Literal[DigestDomain.SIGNED_RECORD_BINDING]]
 
 
 class SelectedWheelArtifactEvidence(FoundryAuthorityModel):
@@ -1135,9 +1080,7 @@ class SelectedWheelArtifactEvidence(FoundryAuthorityModel):
     locked_source_ref: DomainDigest[Literal[DigestDomain.LOCKED_SOURCE]]
     wheel_blob_ref: FoundryRecordRef[Literal[DigestDomain.SELECTED_WHEEL]]
     wheel_record_manifest_ref: FoundryRecordRef[Literal[DigestDomain.WHEEL_RECORD]]
-    expected_stable_manifest_ref: FoundryRecordRef[
-        Literal[DigestDomain.INSTALLED_STABLE]
-    ]
+    expected_stable_manifest_ref: FoundryRecordRef[Literal[DigestDomain.INSTALLED_STABLE]]
 
 
 class SelectedBuiltArtifactEvidence(FoundryAuthorityModel):
@@ -1149,9 +1092,7 @@ class SelectedBuiltArtifactEvidence(FoundryAuthorityModel):
     source_blob_ref: FoundryRecordRef[Literal[DigestDomain.SELECTED_SOURCE]]
     build_lineage: PersistedBuildLineageEvidence
     output_wheel_ref: FoundryRecordRef[Literal[DigestDomain.SELECTED_WHEEL]]
-    expected_stable_manifest_ref: FoundryRecordRef[
-        Literal[DigestDomain.INSTALLED_STABLE]
-    ]
+    expected_stable_manifest_ref: FoundryRecordRef[Literal[DigestDomain.INSTALLED_STABLE]]
 
 
 class SelectedSourceTreeEvidence(FoundryAuthorityModel):
@@ -1162,15 +1103,11 @@ class SelectedSourceTreeEvidence(FoundryAuthorityModel):
     locked_source_ref: DomainDigest[Literal[DigestDomain.LOCKED_SOURCE]]
     tracked_source_commit: GitCommitId
     source_tree_manifest_ref: FoundryRecordRef[Literal[DigestDomain.SOURCE_TREE]]
-    expected_stable_manifest_ref: FoundryRecordRef[
-        Literal[DigestDomain.INSTALLED_STABLE]
-    ]
+    expected_stable_manifest_ref: FoundryRecordRef[Literal[DigestDomain.INSTALLED_STABLE]]
 
 
 SelectedDistributionArtifactEvidence = Annotated[
-    SelectedWheelArtifactEvidence
-    | SelectedBuiltArtifactEvidence
-    | SelectedSourceTreeEvidence,
+    SelectedWheelArtifactEvidence | SelectedBuiltArtifactEvidence | SelectedSourceTreeEvidence,
     Field(discriminator="artifact_kind"),
 ]
 
@@ -1208,9 +1145,7 @@ class PythonRuntimeManifestStatement(FoundryAuthorityModel):
 
 class PythonRuntimeSourceBindingStatement(FoundryAuthorityModel):
     schema_version: Literal["polisyos.foundry.python-runtime-source-binding.v1"]
-    selected_artifact_ref: FoundryRecordRef[
-        Literal[DigestDomain.TOOLCHAIN_SELECTED]
-    ]
+    selected_artifact_ref: FoundryRecordRef[Literal[DigestDomain.TOOLCHAIN_SELECTED]]
     runtime_manifest_ref: FoundryRecordRef[Literal[DigestDomain.TOOLCHAIN_RUNTIME]]
     installation_transform: Literal["python_runtime_installation_v1"]
 
@@ -1233,32 +1168,18 @@ class PosixRuntimeRootIdentityStatement(FoundryAuthorityModel):
     identity_profile: Literal["posix-open-directory-apfs-ext4-v1"]
     platform_family: Literal["darwin", "linux"]
     filesystem_kind: PosixRuntimeFilesystemKind
-    environment_creation_nonce: DomainDigest[
-        Literal[DigestDomain.ENVIRONMENT_INSTANCE]
-    ]
-    environment_root_path_hash: DomainDigest[
-        Literal[DigestDomain.TOOLCHAIN_RUNTIME_ROOT_PATH]
-    ]
-    runtime_root_path_hash: DomainDigest[
-        Literal[DigestDomain.TOOLCHAIN_RUNTIME_ROOT_PATH]
-    ]
+    environment_creation_nonce: DomainDigest[Literal[DigestDomain.ENVIRONMENT_INSTANCE]]
+    environment_root_path_hash: DomainDigest[Literal[DigestDomain.TOOLCHAIN_RUNTIME_ROOT_PATH]]
+    runtime_root_path_hash: DomainDigest[Literal[DigestDomain.TOOLCHAIN_RUNTIME_ROOT_PATH]]
     opened_before: PosixRuntimeRootObservation
     opened_after_enumeration: PosixRuntimeRootObservation
     reopened_by_path: PosixRuntimeRootObservation
-    first_walk_manifest_ref: FoundryRecordRef[
-        Literal[DigestDomain.TOOLCHAIN_RUNTIME]
-    ]
-    second_walk_manifest_ref: FoundryRecordRef[
-        Literal[DigestDomain.TOOLCHAIN_RUNTIME]
-    ]
+    first_walk_manifest_ref: FoundryRecordRef[Literal[DigestDomain.TOOLCHAIN_RUNTIME]]
+    second_walk_manifest_ref: FoundryRecordRef[Literal[DigestDomain.TOOLCHAIN_RUNTIME]]
 
     @model_validator(mode="after")
     def require_equal_two_pass_observations(self) -> PosixRuntimeRootIdentityStatement:
-        if not (
-            self.opened_before
-            == self.opened_after_enumeration
-            == self.reopened_by_path
-        ):
+        if not (self.opened_before == self.opened_after_enumeration == self.reopened_by_path):
             raise ValueError("runtime root identity changed during the two-pass walk")
         if self.first_walk_manifest_ref != self.second_walk_manifest_ref:
             raise ValueError("runtime subtree changed between complete walks")
@@ -1266,89 +1187,51 @@ class PosixRuntimeRootIdentityStatement(FoundryAuthorityModel):
 
 
 class PythonRuntimeResolutionHop(FoundryAuthorityModel):
-    source_root_instance: DomainDigest[
-        Literal[DigestDomain.TOOLCHAIN_RUNTIME_ROOT_TOKEN]
-    ]
+    source_root_instance: DomainDigest[Literal[DigestDomain.TOOLCHAIN_RUNTIME_ROOT_TOKEN]]
     source_relative_path: RootedRelativePath
-    target_root_instance: DomainDigest[
-        Literal[DigestDomain.TOOLCHAIN_RUNTIME_ROOT_TOKEN]
-    ]
+    target_root_instance: DomainDigest[Literal[DigestDomain.TOOLCHAIN_RUNTIME_ROOT_TOKEN]]
     target_relative_path: RootedRelativePath
     raw_link_hash: DomainDigest[Literal[DigestDomain.RAW_BLOB]]
 
 
 class PythonRuntimeRootResolutionStatement(FoundryAuthorityModel):
     schema_version: Literal["polisyos.foundry.python-runtime-root-resolution.v1"]
-    environment_creation_nonce: DomainDigest[
-        Literal[DigestDomain.ENVIRONMENT_INSTANCE]
-    ]
-    installation_receipt_ref: FoundryRecordRef[
-        Literal[DigestDomain.TOOLCHAIN_RUNTIME_INSTALLATION]
-    ]
+    environment_creation_nonce: DomainDigest[Literal[DigestDomain.ENVIRONMENT_INSTANCE]]
+    installation_receipt_ref: FoundryRecordRef[Literal[DigestDomain.TOOLCHAIN_RUNTIME_INSTALLATION]]
     environment_python_relative_path: RootedRelativePath
     resolved_executable_relative_path: RootedRelativePath
     resolution_chain: tuple[PythonRuntimeResolutionHop, ...]
     runtime_root_identity: PosixRuntimeRootIdentityStatement
-    runtime_root_instance: DomainDigest[
-        Literal[DigestDomain.TOOLCHAIN_RUNTIME_ROOT_TOKEN]
-    ]
-    recomputed_runtime_manifest_ref: FoundryRecordRef[
-        Literal[DigestDomain.TOOLCHAIN_RUNTIME]
-    ]
-    recomputed_source_binding_ref: FoundryRecordRef[
-        Literal[DigestDomain.TOOLCHAIN_RUNTIME_BINDING]
-    ]
+    runtime_root_instance: DomainDigest[Literal[DigestDomain.TOOLCHAIN_RUNTIME_ROOT_TOKEN]]
+    recomputed_runtime_manifest_ref: FoundryRecordRef[Literal[DigestDomain.TOOLCHAIN_RUNTIME]]
+    recomputed_source_binding_ref: FoundryRecordRef[Literal[DigestDomain.TOOLCHAIN_RUNTIME_BINDING]]
 
 
 class PythonRuntimeInstallationStatement(FoundryAuthorityModel):
     schema_version: Literal["polisyos.foundry.python-runtime-installation.v1"]
     source_authority_ref: FoundryRecordRef[Literal[DigestDomain.CANONICAL_SOURCE]]
-    selected_artifact_ref: FoundryRecordRef[
-        Literal[DigestDomain.TOOLCHAIN_SELECTED]
-    ]
-    runtime_manifest_ref: FoundryRecordRef[
-        Literal[DigestDomain.TOOLCHAIN_RUNTIME]
-    ]
-    runtime_source_binding_ref: FoundryRecordRef[
-        Literal[DigestDomain.TOOLCHAIN_RUNTIME_BINDING]
-    ]
-    environment_creation_nonce: DomainDigest[
-        Literal[DigestDomain.ENVIRONMENT_INSTANCE]
-    ]
+    selected_artifact_ref: FoundryRecordRef[Literal[DigestDomain.TOOLCHAIN_SELECTED]]
+    runtime_manifest_ref: FoundryRecordRef[Literal[DigestDomain.TOOLCHAIN_RUNTIME]]
+    runtime_source_binding_ref: FoundryRecordRef[Literal[DigestDomain.TOOLCHAIN_RUNTIME_BINDING]]
+    environment_creation_nonce: DomainDigest[Literal[DigestDomain.ENVIRONMENT_INSTANCE]]
     runtime_root_identity: PosixRuntimeRootIdentityStatement
-    runtime_root_instance: DomainDigest[
-        Literal[DigestDomain.TOOLCHAIN_RUNTIME_ROOT_TOKEN]
-    ]
-    installer_provenance_ref: FoundryRecordRef[
-        Literal[DigestDomain.VERIFIER_PROVENANCE]
-    ]
+    runtime_root_instance: DomainDigest[Literal[DigestDomain.TOOLCHAIN_RUNTIME_ROOT_TOKEN]]
+    installer_provenance_ref: FoundryRecordRef[Literal[DigestDomain.VERIFIER_PROVENANCE]]
 
 
 class PersistedPythonRuntimeInstallation(FoundryAuthorityModel):
-    receipt_ref: FoundryRecordRef[
-        Literal[DigestDomain.TOOLCHAIN_RUNTIME_INSTALLATION]
-    ]
+    receipt_ref: FoundryRecordRef[Literal[DigestDomain.TOOLCHAIN_RUNTIME_INSTALLATION]]
     statement: PythonRuntimeInstallationStatement
 
 
 class ObservedPythonRuntimeStatement(FoundryAuthorityModel):
     schema_version: Literal["polisyos.foundry.python-runtime-observed.v1"]
-    environment_creation_nonce: DomainDigest[
-        Literal[DigestDomain.ENVIRONMENT_INSTANCE]
-    ]
+    environment_creation_nonce: DomainDigest[Literal[DigestDomain.ENVIRONMENT_INSTANCE]]
     expected_runtime_ref: FoundryRecordRef[Literal[DigestDomain.TOOLCHAIN_RUNTIME]]
-    installation_receipt_ref: FoundryRecordRef[
-        Literal[DigestDomain.TOOLCHAIN_RUNTIME_INSTALLATION]
-    ]
-    root_resolution_ref: FoundryRecordRef[
-        Literal[DigestDomain.TOOLCHAIN_RUNTIME_ROOT]
-    ]
-    recomputed_runtime_manifest_ref: FoundryRecordRef[
-        Literal[DigestDomain.TOOLCHAIN_RUNTIME]
-    ]
-    observed_source_binding_ref: FoundryRecordRef[
-        Literal[DigestDomain.TOOLCHAIN_RUNTIME_BINDING]
-    ]
+    installation_receipt_ref: FoundryRecordRef[Literal[DigestDomain.TOOLCHAIN_RUNTIME_INSTALLATION]]
+    root_resolution_ref: FoundryRecordRef[Literal[DigestDomain.TOOLCHAIN_RUNTIME_ROOT]]
+    recomputed_runtime_manifest_ref: FoundryRecordRef[Literal[DigestDomain.TOOLCHAIN_RUNTIME]]
+    observed_source_binding_ref: FoundryRecordRef[Literal[DigestDomain.TOOLCHAIN_RUNTIME_BINDING]]
     implementation: Literal["cpython"]
     version: VersionText
     platform_tag: PlatformTagText
@@ -1359,27 +1242,13 @@ class ObservedPythonRuntimeStatement(FoundryAuthorityModel):
 class PythonRuntimeVerificationReceiptStatement(FoundryAuthorityModel):
     schema_version: Literal["polisyos.foundry.python-runtime-verification.v1"]
     expected_runtime_ref: FoundryRecordRef[Literal[DigestDomain.TOOLCHAIN_RUNTIME]]
-    installation_receipt_ref: FoundryRecordRef[
-        Literal[DigestDomain.TOOLCHAIN_RUNTIME_INSTALLATION]
-    ]
-    recomputed_runtime_manifest_ref: FoundryRecordRef[
-        Literal[DigestDomain.TOOLCHAIN_RUNTIME]
-    ]
-    expected_source_binding_ref: FoundryRecordRef[
-        Literal[DigestDomain.TOOLCHAIN_RUNTIME_BINDING]
-    ]
-    observed_source_binding_ref: FoundryRecordRef[
-        Literal[DigestDomain.TOOLCHAIN_RUNTIME_BINDING]
-    ]
-    root_resolution_ref: FoundryRecordRef[
-        Literal[DigestDomain.TOOLCHAIN_RUNTIME_ROOT]
-    ]
-    observed_runtime_ref: FoundryRecordRef[
-        Literal[DigestDomain.TOOLCHAIN_RUNTIME_OBSERVED]
-    ]
-    verifier_provenance_ref: FoundryRecordRef[
-        Literal[DigestDomain.VERIFIER_PROVENANCE]
-    ]
+    installation_receipt_ref: FoundryRecordRef[Literal[DigestDomain.TOOLCHAIN_RUNTIME_INSTALLATION]]
+    recomputed_runtime_manifest_ref: FoundryRecordRef[Literal[DigestDomain.TOOLCHAIN_RUNTIME]]
+    expected_source_binding_ref: FoundryRecordRef[Literal[DigestDomain.TOOLCHAIN_RUNTIME_BINDING]]
+    observed_source_binding_ref: FoundryRecordRef[Literal[DigestDomain.TOOLCHAIN_RUNTIME_BINDING]]
+    root_resolution_ref: FoundryRecordRef[Literal[DigestDomain.TOOLCHAIN_RUNTIME_ROOT]]
+    observed_runtime_ref: FoundryRecordRef[Literal[DigestDomain.TOOLCHAIN_RUNTIME_OBSERVED]]
+    verifier_provenance_ref: FoundryRecordRef[Literal[DigestDomain.VERIFIER_PROVENANCE]]
     predicate_class: Literal["independently_reconciled"]
 
 
@@ -1387,36 +1256,22 @@ class PythonRuntimeAdmission(FoundryAuthorityModel):
     artifact_role: Literal["python_runtime"]
     version: Literal["3.14"]
     platform_tag: PlatformTagText
-    selected_artifact_ref: FoundryRecordRef[
-        Literal[DigestDomain.TOOLCHAIN_SELECTED]
-    ]
-    executable_blob_ref: FoundryRecordRef[
-        Literal[DigestDomain.TOOLCHAIN_EXECUTABLE]
-    ]
-    expected_runtime_manifest_ref: FoundryRecordRef[
-        Literal[DigestDomain.TOOLCHAIN_RUNTIME]
-    ]
+    selected_artifact_ref: FoundryRecordRef[Literal[DigestDomain.TOOLCHAIN_SELECTED]]
+    executable_blob_ref: FoundryRecordRef[Literal[DigestDomain.TOOLCHAIN_EXECUTABLE]]
+    expected_runtime_manifest_ref: FoundryRecordRef[Literal[DigestDomain.TOOLCHAIN_RUNTIME]]
     expected_runtime_source_binding_ref: FoundryRecordRef[
         Literal[DigestDomain.TOOLCHAIN_RUNTIME_BINDING]
     ]
-    verifier_provenance_ref: FoundryRecordRef[
-        Literal[DigestDomain.VERIFIER_PROVENANCE]
-    ]
+    verifier_provenance_ref: FoundryRecordRef[Literal[DigestDomain.VERIFIER_PROVENANCE]]
 
 
 class UvExecutableAdmission(FoundryAuthorityModel):
     artifact_role: Literal["uv_executable"]
     version: Literal["0.9.21"]
     platform_tag: PlatformTagText
-    selected_artifact_ref: FoundryRecordRef[
-        Literal[DigestDomain.TOOLCHAIN_SELECTED]
-    ]
-    executable_blob_ref: FoundryRecordRef[
-        Literal[DigestDomain.TOOLCHAIN_EXECUTABLE]
-    ]
-    verifier_provenance_ref: FoundryRecordRef[
-        Literal[DigestDomain.VERIFIER_PROVENANCE]
-    ]
+    selected_artifact_ref: FoundryRecordRef[Literal[DigestDomain.TOOLCHAIN_SELECTED]]
+    executable_blob_ref: FoundryRecordRef[Literal[DigestDomain.TOOLCHAIN_EXECUTABLE]]
+    verifier_provenance_ref: FoundryRecordRef[Literal[DigestDomain.VERIFIER_PROVENANCE]]
 
 
 ToolchainArtifactAdmission = Annotated[
@@ -1442,9 +1297,7 @@ class TrustPublicKey(FoundryAuthorityModel):
         expected = f"sha256:{hashlib.sha256(self.public_key_bytes).hexdigest()}"
         if self.key_id != expected:
             raise ValueError("key_id must be recomputed from exact raw Ed25519 bytes")
-        _require_sorted_unique(
-            tuple(role.value for role in self.roles), label="trust roles"
-        )
+        _require_sorted_unique(tuple(role.value for role in self.roles), label="trust roles")
         return self
 
 
@@ -1466,21 +1319,15 @@ class TrustRevocationStatement(FoundryAuthorityModel):
 class PersistedTrustRevocation(FoundryAuthorityModel):
     revocation_ref: FoundryRecordRef[Literal[DigestDomain.TRUST_REVOCATION]]
     statement: TrustRevocationStatement
-    signed_binding_ref: FoundryRecordRef[
-        Literal[DigestDomain.SIGNED_RECORD_BINDING]
-    ]
+    signed_binding_ref: FoundryRecordRef[Literal[DigestDomain.SIGNED_RECORD_BINDING]]
 
 
 class TrustMaterialStatement(FoundryAuthorityModel):
     schema_version: Literal["polisyos.foundry.trust-material.v1"]
     signature_profile: Literal["polisyos.ed25519.detached.v1"]
     keys: Annotated[tuple[TrustPublicKey, ...], Field(min_length=1)]
-    revocation_refs: tuple[
-        FoundryRecordRef[Literal[DigestDomain.TRUST_REVOCATION]], ...
-    ]
-    effective_admission_ref: FoundryRecordRef[
-        Literal[DigestDomain.PROFILE_ADMISSION]
-    ]
+    revocation_refs: tuple[FoundryRecordRef[Literal[DigestDomain.TRUST_REVOCATION]], ...]
+    effective_admission_ref: FoundryRecordRef[Literal[DigestDomain.PROFILE_ADMISSION]]
 
     @model_validator(mode="after")
     def validate_trust_denominator(self) -> TrustMaterialStatement:
@@ -1496,17 +1343,13 @@ class TrustMaterialStatement(FoundryAuthorityModel):
 class PersistedTrustMaterial(FoundryAuthorityModel):
     material_ref: FoundryRecordRef[Literal[DigestDomain.TRUST_MATERIAL]]
     statement: TrustMaterialStatement
-    signed_binding_ref: FoundryRecordRef[
-        Literal[DigestDomain.SIGNED_RECORD_BINDING]
-    ]
+    signed_binding_ref: FoundryRecordRef[Literal[DigestDomain.SIGNED_RECORD_BINDING]]
 
 
 class FoundryTrustBootstrapSnapshot(FoundryAuthorityModel):
     source_authority_ref: FoundryRecordRef[Literal[DigestDomain.CANONICAL_SOURCE]]
     source_freeze_commit: GitCommitId
-    binding_index_ref: FoundryRecordRef[
-        Literal[DigestDomain.SIGNED_BINDING_INDEX]
-    ]
+    binding_index_ref: FoundryRecordRef[Literal[DigestDomain.SIGNED_BINDING_INDEX]]
     trust_materials: Annotated[tuple[PersistedTrustMaterial, ...], Field(min_length=1)]
     revocations: tuple[PersistedTrustRevocation, ...]
 
@@ -1578,16 +1421,12 @@ class TrustResolutionReceiptStatement(FoundryAuthorityModel):
     trust_material_ref: FoundryRecordRef[Literal[DigestDomain.TRUST_MATERIAL]]
     eligible_keys: Annotated[tuple[ResolvedTrustKey, ...], Field(min_length=1)]
     revocation_dispositions: tuple[RevocationCutoffDisposition, ...]
-    verifier_provenance_ref: FoundryRecordRef[
-        Literal[DigestDomain.VERIFIER_PROVENANCE]
-    ]
+    verifier_provenance_ref: FoundryRecordRef[Literal[DigestDomain.VERIFIER_PROVENANCE]]
 
     @model_validator(mode="after")
     def require_comparable_cutoff(self) -> TrustResolutionReceiptStatement:
         if any(row.status == "not_established" for row in self.revocation_dispositions):
-            raise ValueError(
-                "a positive trust receipt cannot contain incomparable revocation"
-            )
+            raise ValueError("a positive trust receipt cannot contain incomparable revocation")
         _require_sorted_unique(
             tuple(row.key_id for row in self.eligible_keys), label="eligible trust keys"
         )
@@ -1595,10 +1434,7 @@ class TrustResolutionReceiptStatement(FoundryAuthorityModel):
             raise ValueError("eligible key role must equal the requested trust role")
         if self.revocation_dispositions:
             _require_sorted_unique(
-                tuple(
-                    row.revocation_ref.artifact_id
-                    for row in self.revocation_dispositions
-                ),
+                tuple(row.revocation_ref.artifact_id for row in self.revocation_dispositions),
                 label="revocation dispositions",
             )
         return self
@@ -1612,27 +1448,19 @@ class PersistedTrustResolutionReceipt(FoundryAuthorityModel):
 class ProductionDataInputAppointmentStatement(FoundryAuthorityModel):
     schema_version: Literal["polisyos.foundry.production-data-appointment.v1"]
     authority_purpose: Literal["n8_method_catalog_reconstruction"]
-    appointed_root: ExternalAuthorityRef[
-        Literal[ExternalAuthorityKind.INSTITUTIONAL_ROOT]
-    ]
+    appointed_root: ExternalAuthorityRef[Literal[ExternalAuthorityKind.INSTITUTIONAL_ROOT]]
     manifest_relative_path: Literal["manifest.json"]
-    expected_manifest_ref: FoundryRecordRef[
-        Literal[DigestDomain.PRODUCTION_MANIFEST]
-    ]
+    expected_manifest_ref: FoundryRecordRef[Literal[DigestDomain.PRODUCTION_MANIFEST]]
     appointed_custodian: ExternalAuthorityRef[
         Literal[ExternalAuthorityKind.PRODUCTION_DATA_CUSTODIAN]
     ]
-    custody_statement_ref: FoundryRecordRef[
-        Literal[DigestDomain.PRODUCTION_CUSTODY]
-    ]
+    custody_statement_ref: FoundryRecordRef[Literal[DigestDomain.PRODUCTION_CUSTODY]]
     trust_policy_ref: FoundryRecordRef[Literal[DigestDomain.TRUST_POLICY]]
 
 
 class ProductionDataCustodyStatement(FoundryAuthorityModel):
     schema_version: Literal["polisyos.foundry.production-data-custody.v1"]
-    institutional_root: ExternalAuthorityRef[
-        Literal[ExternalAuthorityKind.INSTITUTIONAL_ROOT]
-    ]
+    institutional_root: ExternalAuthorityRef[Literal[ExternalAuthorityKind.INSTITUTIONAL_ROOT]]
     appointed_custodian: ExternalAuthorityRef[
         Literal[ExternalAuthorityKind.PRODUCTION_DATA_CUSTODIAN]
     ]
@@ -1643,12 +1471,8 @@ class ProductionDataCustodyStatement(FoundryAuthorityModel):
 
 class ProductionDataMountResolutionStatement(FoundryAuthorityModel):
     schema_version: Literal["polisyos.foundry.production-data-mount.v1"]
-    appointment_ref: FoundryRecordRef[
-        Literal[DigestDomain.PRODUCTION_APPOINTMENT]
-    ]
-    institutional_root: ExternalAuthorityRef[
-        Literal[ExternalAuthorityKind.INSTITUTIONAL_ROOT]
-    ]
+    appointment_ref: FoundryRecordRef[Literal[DigestDomain.PRODUCTION_APPOINTMENT]]
+    institutional_root: ExternalAuthorityRef[Literal[ExternalAuthorityKind.INSTITUTIONAL_ROOT]]
     requested_root_token: DomainDigest[Literal[DigestDomain.ROOT_MOUNT_REQUEST]]
     access_mode: Literal["read_only"]
 
@@ -1657,15 +1481,9 @@ class ProductionDataRootAccessChallenge(FoundryAuthorityModel):
     schema_version: Literal["polisyos.foundry.root-access-challenge.v1"]
     request_ref: FoundryRecordRef[Literal[DigestDomain.RESOLUTION_REQUEST]]
     challenge_nonce: DomainDigest[Literal[DigestDomain.ROOT_NONCE]]
-    expected_root: ExternalAuthorityRef[
-        Literal[ExternalAuthorityKind.INSTITUTIONAL_ROOT]
-    ]
-    expected_manifest_ref: FoundryRecordRef[
-        Literal[DigestDomain.PRODUCTION_MANIFEST]
-    ]
-    mount_resolution_ref: FoundryRecordRef[
-        Literal[DigestDomain.ROOT_MOUNT_RESOLUTION]
-    ]
+    expected_root: ExternalAuthorityRef[Literal[ExternalAuthorityKind.INSTITUTIONAL_ROOT]]
+    expected_manifest_ref: FoundryRecordRef[Literal[DigestDomain.PRODUCTION_MANIFEST]]
+    mount_resolution_ref: FoundryRecordRef[Literal[DigestDomain.ROOT_MOUNT_RESOLUTION]]
 
 
 class RootAccessAttestationStatement(FoundryAuthorityModel):
@@ -1673,15 +1491,9 @@ class RootAccessAttestationStatement(FoundryAuthorityModel):
     challenge_ref: FoundryRecordRef[Literal[DigestDomain.ROOT_CHALLENGE]]
     request_ref: FoundryRecordRef[Literal[DigestDomain.RESOLUTION_REQUEST]]
     challenge_nonce: DomainDigest[Literal[DigestDomain.ROOT_NONCE]]
-    institutional_root: ExternalAuthorityRef[
-        Literal[ExternalAuthorityKind.INSTITUTIONAL_ROOT]
-    ]
-    observed_manifest_ref: FoundryRecordRef[
-        Literal[DigestDomain.PRODUCTION_MANIFEST]
-    ]
-    mount_resolution_ref: FoundryRecordRef[
-        Literal[DigestDomain.ROOT_MOUNT_RESOLUTION]
-    ]
+    institutional_root: ExternalAuthorityRef[Literal[ExternalAuthorityKind.INSTITUTIONAL_ROOT]]
+    observed_manifest_ref: FoundryRecordRef[Literal[DigestDomain.PRODUCTION_MANIFEST]]
+    mount_resolution_ref: FoundryRecordRef[Literal[DigestDomain.ROOT_MOUNT_RESOLUTION]]
     access_mode: Literal["read_only"]
     writer_access_disposition: Literal["denied"]
 
@@ -1700,9 +1512,7 @@ class SourceAuthorityVerificationBasis(FoundryAuthorityModel):
 
 class ResolvedTrustVerificationBasis(FoundryAuthorityModel):
     kind: Literal["resolved_trust"]
-    trust_resolution_receipt_ref: FoundryRecordRef[
-        Literal[DigestDomain.TRUST_RESOLUTION]
-    ]
+    trust_resolution_receipt_ref: FoundryRecordRef[Literal[DigestDomain.TRUST_RESOLUTION]]
 
 
 SignedRecordVerificationBasis = Annotated[
@@ -1717,17 +1527,13 @@ class SignedFoundryRecordBindingStatement(FoundryAuthorityModel, Generic[D_co]):
     signed_evidence_ref: FoundryRecordRef[Literal[DigestDomain.SIGNED_EVIDENCE]]
     required_role: TrustRole
     verification_basis: SignedRecordVerificationBasis
-    verifier_provenance_ref: FoundryRecordRef[
-        Literal[DigestDomain.VERIFIER_PROVENANCE]
-    ]
+    verifier_provenance_ref: FoundryRecordRef[Literal[DigestDomain.VERIFIER_PROVENANCE]]
 
     @model_validator(mode="after")
     def validate_bootstrap_direction(self) -> SignedFoundryRecordBindingStatement[D_co]:
         source_basis = self.verification_basis.kind == "source_authority"
         if (self.required_role is TrustRole.FOUNDRY_TRUST_ROOT) != source_basis:
-            raise ValueError(
-                "only Foundry trust-root records use source-authority verification"
-            )
+            raise ValueError("only Foundry trust-root records use source-authority verification")
         return self
 
 
@@ -1753,27 +1559,15 @@ class PersistedSignedRecordBindingIndex(FoundryAuthorityModel):
 class FoundryDependencyAuthorityCapsuleStatement(FoundryAuthorityModel):
     schema_version: Literal["polisyos.foundry.dependency-capsule.v1"]
     source_authority_ref: FoundryRecordRef[Literal[DigestDomain.CANONICAL_SOURCE]]
-    profile_admission_ref: FoundryRecordRef[
-        Literal[DigestDomain.PROFILE_ADMISSION]
-    ]
-    appointment_ref: FoundryRecordRef[
-        Literal[DigestDomain.PRODUCTION_APPOINTMENT]
-    ]
-    signed_binding_index_ref: FoundryRecordRef[
-        Literal[DigestDomain.SIGNED_BINDING_INDEX]
-    ]
-    environment_receipt_ref: FoundryRecordRef[
-        Literal[DigestDomain.ENVIRONMENT_RECEIPT]
-    ]
+    profile_admission_ref: FoundryRecordRef[Literal[DigestDomain.PROFILE_ADMISSION]]
+    appointment_ref: FoundryRecordRef[Literal[DigestDomain.PRODUCTION_APPOINTMENT]]
+    signed_binding_index_ref: FoundryRecordRef[Literal[DigestDomain.SIGNED_BINDING_INDEX]]
+    environment_receipt_ref: FoundryRecordRef[Literal[DigestDomain.ENVIRONMENT_RECEIPT]]
     selected_artifact_refs: tuple[
         FoundryRecordRef[Literal[DigestDomain.SELECTED_DISTRIBUTION]], ...
     ]
-    build_lineage_refs: tuple[
-        FoundryRecordRef[Literal[DigestDomain.BUILD_LINEAGE]], ...
-    ]
-    trust_material_refs: tuple[
-        FoundryRecordRef[Literal[DigestDomain.TRUST_MATERIAL]], ...
-    ]
+    build_lineage_refs: tuple[FoundryRecordRef[Literal[DigestDomain.BUILD_LINEAGE]], ...]
+    trust_material_refs: tuple[FoundryRecordRef[Literal[DigestDomain.TRUST_MATERIAL]], ...]
 
     @model_validator(mode="after")
     def validate_graph_denominators(self) -> FoundryDependencyAuthorityCapsuleStatement:
@@ -1783,9 +1577,7 @@ class FoundryDependencyAuthorityCapsuleStatement(FoundryAuthorityModel):
             ("capsule trust materials", self.trust_material_refs),
         ):
             if refs:
-                _require_sorted_unique(
-                    tuple(ref.artifact_id for ref in refs), label=label
-                )
+                _require_sorted_unique(tuple(ref.artifact_id for ref in refs), label=label)
         return self
 
 
@@ -1796,28 +1588,18 @@ class PersistedFoundryDependencyAuthorityCapsule(FoundryAuthorityModel):
 
 class DependencyEnvironmentMarkerStatement(FoundryAuthorityModel):
     schema_version: Literal["polisyos.foundry.dependency-environment-marker.v1"]
-    environment_creation_nonce: DomainDigest[
-        Literal[DigestDomain.ENVIRONMENT_INSTANCE]
-    ]
+    environment_creation_nonce: DomainDigest[Literal[DigestDomain.ENVIRONMENT_INSTANCE]]
     stable_closure: DomainDigest[Literal[DigestDomain.DEPENDENCY_CLOSURE]]
-    source_authority_ref: FoundryRecordRef[
-        Literal[DigestDomain.CANONICAL_SOURCE]
-    ]
-    python_runtime_ref: FoundryRecordRef[
-        Literal[DigestDomain.TOOLCHAIN_RUNTIME]
-    ]
+    source_authority_ref: FoundryRecordRef[Literal[DigestDomain.CANONICAL_SOURCE]]
+    python_runtime_ref: FoundryRecordRef[Literal[DigestDomain.TOOLCHAIN_RUNTIME]]
     python_runtime_installation_ref: FoundryRecordRef[
         Literal[DigestDomain.TOOLCHAIN_RUNTIME_INSTALLATION]
     ]
-    observed_python_runtime_ref: FoundryRecordRef[
-        Literal[DigestDomain.TOOLCHAIN_RUNTIME_OBSERVED]
-    ]
+    observed_python_runtime_ref: FoundryRecordRef[Literal[DigestDomain.TOOLCHAIN_RUNTIME_OBSERVED]]
     python_runtime_verification_ref: FoundryRecordRef[
         Literal[DigestDomain.TOOLCHAIN_RUNTIME_VERIFICATION]
     ]
-    uv_executable_ref: FoundryRecordRef[
-        Literal[DigestDomain.TOOLCHAIN_EXECUTABLE]
-    ]
+    uv_executable_ref: FoundryRecordRef[Literal[DigestDomain.TOOLCHAIN_EXECUTABLE]]
     derived_uv_argv: DomainDigest[Literal[DigestDomain.DERIVED_UV_ARGV]]
     instance_content_set: DomainDigest[Literal[DigestDomain.CONTENT_SET_INSTANCE]]
 
@@ -1826,13 +1608,9 @@ class DependencyProfileEnvironmentStatement(FoundryAuthorityModel):
     schema_version: Literal["polisyos.foundry.dependency-environment.v1"]
     admission_ref: FoundryRecordRef[Literal[DigestDomain.PROFILE_ADMISSION]]
     stable_closure: DomainDigest[Literal[DigestDomain.DEPENDENCY_CLOSURE]]
-    appointment_ref: FoundryRecordRef[
-        Literal[DigestDomain.PRODUCTION_APPOINTMENT]
-    ]
+    appointment_ref: FoundryRecordRef[Literal[DigestDomain.PRODUCTION_APPOINTMENT]]
     sync_root_access_ref: FoundryRecordRef[Literal[DigestDomain.ROOT_ACCESS]]
-    sync_root_access_binding_ref: FoundryRecordRef[
-        Literal[DigestDomain.SIGNED_RECORD_BINDING]
-    ]
+    sync_root_access_binding_ref: FoundryRecordRef[Literal[DigestDomain.SIGNED_RECORD_BINDING]]
     python_runtime_installation_ref: FoundryRecordRef[
         Literal[DigestDomain.TOOLCHAIN_RUNTIME_INSTALLATION]
     ]
@@ -1979,8 +1757,7 @@ class NotEstablishedOnlyAuthorityPredicateTomlWire(FoundryTomlWireModel):
 
 
 AuthorityPredicateTomlWire = Annotated[
-    BidirectionalAuthorityPredicateTomlWire
-    | NotEstablishedOnlyAuthorityPredicateTomlWire,
+    BidirectionalAuthorityPredicateTomlWire | NotEstablishedOnlyAuthorityPredicateTomlWire,
     Field(discriminator="branch_shape"),
 ]
 
@@ -2040,9 +1817,7 @@ def _exact_enum(enum_type: type[EnumT], value: object) -> EnumT:
     if type(value) is not str:
         raise ValueError("enum wire value must be an exact string")
     matches = tuple(
-        member
-        for _name, member in enum_type.__members__.items()
-        if member.value == value
+        member for _name, member in enum_type.__members__.items() if member.value == value
     )
     if len(matches) != 1:
         raise ValueError("unknown, aliased or non-exact enum wire value")
@@ -2114,9 +1889,7 @@ def decode_digest_domain_registry_toml(raw_toml_bytes: bytes) -> DecodedDigestDo
                 derivation_evidence=tuple(row["derivation_evidence"]),
                 phase=_exact_enum(DigestPhase, row["phase"]),
                 signature_requirement=row["signature_requirement"],
-                required_signer_role=(
-                    None if role == "none" else _exact_enum(TrustRole, role)
-                ),
+                required_signer_role=(None if role == "none" else _exact_enum(TrustRole, role)),
             )
         )
     predicates: list[AuthorityPredicateSpec] = []
@@ -2210,9 +1983,7 @@ def decode_digest_domain_registry_toml(raw_toml_bytes: bytes) -> DecodedDigestDo
                         _exact_enum(DigestDomain, value) for value in satisfied_domains
                     ),
                 ),
-                rejected_code=_exact_enum(
-                    AuthorityFailureCode, row["rejected_code"]
-                ),
+                rejected_code=_exact_enum(AuthorityFailureCode, row["rejected_code"]),
                 rejected_requirement=rejected_requirement,
                 not_established_code=_exact_enum(
                     AuthorityFailureCode,
@@ -2221,8 +1992,7 @@ def decode_digest_domain_registry_toml(raw_toml_bytes: bytes) -> DecodedDigestDo
                 not_established_requirement=MissingEvidenceDomainsRequirement(
                     requirement_kind="missing_evidence_domains",
                     missing_domains=tuple(
-                        _exact_enum(DigestDomain, value)
-                        for value in not_established_domains
+                        _exact_enum(DigestDomain, value) for value in not_established_domains
                     ),
                 ),
             )

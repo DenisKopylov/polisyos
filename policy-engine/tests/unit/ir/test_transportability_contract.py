@@ -49,7 +49,6 @@ def test_transportability_result_artifact_roundtrip(tmp_path) -> None:
     assert loaded == result
 
 
-
 def test_partial_graph_refusal_retains_exact_source_identity():
     graph = CausalGraphModel(
         graph_type=GraphType.CPDAG,
@@ -63,9 +62,7 @@ def test_partial_graph_refusal_retains_exact_source_identity():
             )
         ],
     )
-    source = ContextProfile(
-        context_id="source", countries=["DE"], income_level=IncomeLevel.HIGH
-    )
+    source = ContextProfile(context_id="source", countries=["DE"], income_level=IncomeLevel.HIGH)
     target = ContextProfile(
         context_id="target",
         countries=["UA"],
@@ -87,10 +84,7 @@ def test_partial_graph_refusal_retains_exact_source_identity():
     )
     result = TransportabilityResult.model_validate(raw["transport_result"])
     assert result.status is TransportabilityStatus.UNSUPPORTED
-    assert (
-        result.unsupported_reason
-        == "partial_graph_completion_semantics_not_established"
-    )
+    assert result.unsupported_reason == "partial_graph_completion_semantics_not_established"
     assert result.source_graph_type is GraphType.CPDAG
     assert result.source_graph_sha256 == graph_content_sha256(graph)
 
@@ -99,10 +93,9 @@ def test_transportability_source_graph_type_and_digest_are_all_or_none():
     with pytest.raises(ValidationError, match="source graph type and content digest"):
         TransportabilityResult(source_graph_type=GraphType.PAG)
 
+
 def test_malformed_graph_refusal_does_not_bind_the_context_placeholder_as_source():
-    source = ContextProfile(
-        context_id="source", countries=["DE"], income_level=IncomeLevel.HIGH
-    )
+    source = ContextProfile(context_id="source", countries=["DE"], income_level=IncomeLevel.HIGH)
     target = ContextProfile(
         context_id="target", countries=["UA"], income_level=IncomeLevel.LOWER_MIDDLE
     )

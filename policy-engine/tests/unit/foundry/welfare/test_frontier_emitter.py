@@ -145,9 +145,7 @@ def test_emit_frontier_separates_pareto_facts_from_value_choice() -> None:
         "cash_transfer",
     )
     assert emission.frontier.dominated_alternative_ids == ("untargeted_credit",)
-    assert emission.frontier.dominance["untargeted_credit"].dominated_by == (
-        "targeted_credit",
-    )
+    assert emission.frontier.dominance["untargeted_credit"].dominated_by == ("targeted_credit",)
     assert emission.frontier.authoritative_for == ("pareto_frontier_fact",)
     assert "value_choice_authority" in emission.frontier.may_not_use_for
 

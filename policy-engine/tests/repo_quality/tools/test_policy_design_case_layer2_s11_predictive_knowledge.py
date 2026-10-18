@@ -11,8 +11,7 @@ from tools.quality.validation import check_policy_design_case_layer2_readiness a
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 S11_MANIFEST = (
-    REPO_ROOT
-    / "architecture/policy_design_case/layer2_s11_predictive_knowledge_manifest.json"
+    REPO_ROOT / "architecture/policy_design_case/layer2_s11_predictive_knowledge_manifest.json"
 )
 S11_MANIFEST_PATH = "architecture/policy_design_case/layer2_s11_predictive_knowledge_manifest.json"
 S11_REQUIRED_ARTIFACTS = {
@@ -157,22 +156,20 @@ def test_layer2_s11_floor_and_false_clears_are_governed() -> None:
     assert floor["metric"] == "per_axis_predictive_calibration"
     assert manifest["case_count"] == 13
     assert manifest["axis_count"] == 52
-    assert manifest["per_axis_predictive_calibration_denominator"] == (
-        manifest["axis_count"]
-    )
+    assert manifest["per_axis_predictive_calibration_denominator"] == (manifest["axis_count"])
     assert manifest["per_axis_predictive_calibration_threshold_ref"]
-    assert manifest["per_axis_predictive_calibration_pass_rate"] >= (
-        manifest["per_axis_predictive_calibration_threshold"]
+    assert (
+        manifest["per_axis_predictive_calibration_pass_rate"]
+        >= (manifest["per_axis_predictive_calibration_threshold"])
     )
     assert manifest["per_axis_predictive_calibration_status"] == "pass"
     assert manifest["per_axis_predictive_calibration_floor_passed"] is True
-    assert manifest["predictive_axis_count"] + manifest[
-        "reverted_fail_closed_axis_count"
-    ] == manifest["axis_count"]
-    assert summary["s11_axis_count"] == 52
-    assert summary["s11_per_axis_predictive_calibration_denominator"] == (
-        summary["s11_axis_count"]
+    assert (
+        manifest["predictive_axis_count"] + manifest["reverted_fail_closed_axis_count"]
+        == manifest["axis_count"]
     )
+    assert summary["s11_axis_count"] == 52
+    assert summary["s11_per_axis_predictive_calibration_denominator"] == (summary["s11_axis_count"])
     assert summary["s11_method_infrastructure_consumed_count"] > 0
 
     for nested_field in _s11_false_clear_fields():
@@ -221,17 +218,16 @@ def test_layer2_s11_post_s14_inventory_count_requires_valid_s14_manifest() -> No
 def test_layer2_s11_maturity_transitions_match_matrix() -> None:
     manifest = _manifest()
     matrix_payload = tomllib.loads(
-        (REPO_ROOT / "architecture/policy_design_case/layer2_slice_cell_matrix.toml")
-        .read_text(encoding="utf-8")
+        (REPO_ROOT / "architecture/policy_design_case/layer2_slice_cell_matrix.toml").read_text(
+            encoding="utf-8"
+        )
     )
     matrix_transitions = {
         row["cell_ref"]
         for row in matrix_payload["maturity_transition"]
         if row.get("slice") == "S11"
     }
-    manifest_transitions = {
-        row["cell_ref"] for row in manifest["maturity_transitions"]
-    }
+    manifest_transitions = {row["cell_ref"] for row in manifest["maturity_transitions"]}
 
     assert matrix_transitions == EXPECTED_MATURITY_TRANSITIONS
     assert manifest_transitions == matrix_transitions

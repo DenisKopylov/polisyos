@@ -78,9 +78,7 @@ def detect_source_truth_conflict(
         "authoritative_ref": authoritative_ref,
         "losing_ref": conflicting_ref,
         "owner": "team-runtime-quality",
-        "next_diagnostic_command": (
-            "uv run polisyos-tools architecture guardrails check"
-        ),
+        "next_diagnostic_command": ("uv run polisyos-tools architecture guardrails check"),
         "recorded_at": recorded.isoformat(),
         "details": conflict_details,
     }

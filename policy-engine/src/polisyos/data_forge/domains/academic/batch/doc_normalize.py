@@ -113,9 +113,7 @@ def _iter_jsonl_rows(path: Path) -> list[dict[str, Any]]:
         for line_number, raw in enumerate(fh, start=1):
             if not raw.strip():
                 continue
-            _key, payload = _decode_json_object(
-                raw, path=path, line_number=line_number
-            )
+            _key, payload = _decode_json_object(raw, path=path, line_number=line_number)
             rows.append(payload)
     return rows
 

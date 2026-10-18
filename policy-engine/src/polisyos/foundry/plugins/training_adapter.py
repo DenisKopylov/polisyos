@@ -846,6 +846,7 @@ class EconomicsTrainingAdapter:
     ) -> None:
         """Verify the selected descriptor survives the typed CAS write/read path."""
         from polisyos.core.artifacts import load_core_json_artifact
+
         manifest = artifact_store.get_manifest(manifest_ref)
         schema = manifest.artifact_schema
         if (

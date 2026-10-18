@@ -25,9 +25,7 @@ def _ht_mean_rounding_bound(values: np.ndarray, weights: np.ndarray) -> float:
     unit_roundoff = np.finfo(np.float64).eps / 2.0
     n_terms = values.size
     gamma_n = (n_terms * unit_roundoff) / (1.0 - n_terms * unit_roundoff)
-    gamma_n_plus_one = ((n_terms + 1) * unit_roundoff) / (
-        1.0 - (n_terms + 1) * unit_roundoff
-    )
+    gamma_n_plus_one = ((n_terms + 1) * unit_roundoff) / (1.0 - (n_terms + 1) * unit_roundoff)
     upper_ratio = (1.0 + gamma_n_plus_one) * (1.0 + unit_roundoff) / (1.0 - gamma_n)
     lower_ratio = (1.0 - gamma_n_plus_one) * (1.0 - unit_roundoff) / (1.0 + gamma_n)
     relative_roundoff = max(upper_ratio - 1.0, 1.0 - lower_ratio)
@@ -41,8 +39,8 @@ def _ht_mean_rounding_bound(values: np.ndarray, weights: np.ndarray) -> float:
     numerator_underflow = n_terms * smallest_subnormal
     denominator = max(float(np.sum(weights)), 1e-12)
     absolute_underflow = (
-        (1.0 + unit_roundoff) * numerator_underflow / denominator + smallest_subnormal
-    )
+        1.0 + unit_roundoff
+    ) * numerator_underflow / denominator + smallest_subnormal
     return value_scale * relative_roundoff + absolute_underflow
 
 

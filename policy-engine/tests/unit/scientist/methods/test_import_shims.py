@@ -142,8 +142,7 @@ def test_tiny_batch_c_package_shims_are_removed_from_import_surface() -> None:
 def test_phase2_2_scientist_parallel_families_have_closeout_decisions() -> None:
     inventory = json.loads(
         (
-            REPO_ROOT
-            / "architecture/baselines/repository_best_in_class_last_mile/"
+            REPO_ROOT / "architecture/baselines/repository_best_in_class_last_mile/"
             "scientist_parallel_implementations.json"
         ).read_text(encoding="utf-8")
     )
@@ -166,7 +165,9 @@ def test_phase2_2_scientist_parallel_families_have_closeout_decisions() -> None:
             or closeout.get("retired_legacy_roots")
         )
         assert closeout["non_overlap_rationale"]
-        assert closeout["test"].endswith("test_phase2_2_scientist_parallel_families_have_closeout_decisions")
+        assert closeout["test"].endswith(
+            "test_phase2_2_scientist_parallel_families_have_closeout_decisions"
+        )
 
 
 def test_phase2_2_retired_compatibility_roots_are_not_registered_in_shims() -> None:

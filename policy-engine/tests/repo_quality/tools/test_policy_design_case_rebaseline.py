@@ -30,9 +30,7 @@ def test_policy_design_case_rebaseline_reports_typed_no_prior_baseline(
     assert payload["previous"]["status"] == "missing"
     assert payload["violations"] == []
     assert payload["summary"]["improved"] == len(coverage.REQUIRED_METRIC_IDS)
-    assert {
-        row["reason"] for row in payload["comparisons"]["improved"]
-    } == {"no_prior_baseline"}
+    assert {row["reason"] for row in payload["comparisons"]["improved"]} == {"no_prior_baseline"}
 
 
 def test_policy_design_case_rebaseline_main_writes_default_diff_under_current_dir(

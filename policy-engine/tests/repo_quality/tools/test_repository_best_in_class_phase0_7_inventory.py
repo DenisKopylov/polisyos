@@ -38,9 +38,7 @@ def test_inventory_covers_phase_scope_surfaces() -> None:
 
     assert documentation["tag_counts"]["release-note"] >= 1
 
-    high_volume_paths = {
-        row["path"] for row in inventory["high_volume_subtrees"]["rows"]
-    }
+    high_volume_paths = {row["path"] for row in inventory["high_volume_subtrees"]["rows"]}
     assert high_volume_paths == set(phase0_7.HIGH_VOLUME_SUBTREES)
 
     workspace_roots = {
@@ -81,21 +79,15 @@ def test_adr_metadata_reports_required_machine_field_gaps() -> None:
     lifecycle_adr = rows["docs/adr/0126-docs-lifecycle-diataxis-plans-archive.md"]
     assert lifecycle_adr["body_status"].lower() == "proposed"
     assert lifecycle_adr["body_related_present"] is True
-    assert set(lifecycle_adr["missing_machine_fields"]) == set(
-        phase0_7.ADR_REQUIRED_MACHINE_FIELDS
-    )
+    assert set(lifecycle_adr["missing_machine_fields"]) == set(phase0_7.ADR_REQUIRED_MACHINE_FIELDS)
 
-    versioning_adr = rows[
-        "docs/adr/repository-structure-0135-versioning-out-of-package-names.md"
-    ]
+    versioning_adr = rows["docs/adr/repository-structure-0135-versioning-out-of-package-names.md"]
     assert versioning_adr["body_status"].lower() == "accepted"
 
 
 def test_extension_points_and_examples_are_decision_mapped() -> None:
     inventory = _inventory()
-    surfaces = {
-        row["surface"]: row for row in inventory["extension_points"]["surfaces"]
-    }
+    surfaces = {row["surface"]: row for row in inventory["extension_points"]["surfaces"]}
 
     assert set(surfaces) == {
         "Fabric connectors",

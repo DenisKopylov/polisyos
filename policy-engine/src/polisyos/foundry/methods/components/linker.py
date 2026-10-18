@@ -413,9 +413,7 @@ class SlotLinker:
                         f"also available: {others}"
                     )
 
-        unconnected = tuple(
-            name for name in target_inputs if name not in matched_targets
-        )
+        unconnected = tuple(name for name in target_inputs if name not in matched_targets)
 
         if unconnected and not self._config.allow_partial_links:
             raise SlotConnectionError(

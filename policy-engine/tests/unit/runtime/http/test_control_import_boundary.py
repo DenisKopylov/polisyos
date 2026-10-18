@@ -12,9 +12,7 @@ REPO_ROOT = Path(__file__).resolve().parents[4]
 CONTROL_PACKAGE_NAME = "polisyos.runtime.http.services.control"
 CONTROL_API_NAME = f"{CONTROL_PACKAGE_NAME}.api"
 CONTROL_RESPONSE_SHAPES_NAME = f"{CONTROL_PACKAGE_NAME}.response_shapes"
-CONTROL_PACKAGE_DIR = (
-    REPO_ROOT / "src" / "polisyos" / "runtime" / "http" / "services" / "control"
-)
+CONTROL_PACKAGE_DIR = REPO_ROOT / "src" / "polisyos" / "runtime" / "http" / "services" / "control"
 
 
 def _run_fresh_python(source: str) -> subprocess.CompletedProcess[str]:

@@ -159,9 +159,7 @@ def test_s11_stale_calibration_creates_regime_strategy_constraint() -> None:
     assert constraint.cell_ref == "KNOWLEDGE.epistemic_regime"
     assert constraint.status == "limit"
     assert constraint.reruns_s4_producer is False
-    assert "epistemic_regime_classification" in (
-        constraint.authority_boundary.may_not_use_for
-    )
+    assert "epistemic_regime_classification" in (constraint.authority_boundary.may_not_use_for)
 
 
 def test_irreversible_high_stakes_under_ignorance_routes_to_precaution() -> None:

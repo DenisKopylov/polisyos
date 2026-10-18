@@ -34,9 +34,7 @@ EFFECTIVE_MODE_FIELDS = (
     "quarantine_status",
 )
 
-SERIOUS_EXECUTION_PROFILES = frozenset(
-    (*POLICY_AUTHORITY_PROFILES, "serious")
-)
+SERIOUS_EXECUTION_PROFILES = frozenset((*POLICY_AUTHORITY_PROFILES, "serious"))
 SERIOUS_CANARY_KINDS = frozenset(
     {
         "deterministic_closeout",
@@ -79,9 +77,7 @@ _WARN_ACCEPTED_VALUES = frozenset(
     }
 )
 _OVERLAY_BLOCKED_TOKENS = ("bundle", "fixture", "generated", "overlay", "projection")
-_QUARANTINE_BLOCKED_VALUES = frozenset(
-    {"blocked", "legacy_quarantined", "quarantined", "required"}
-)
+_QUARANTINE_BLOCKED_VALUES = frozenset({"blocked", "legacy_quarantined", "quarantined", "required"})
 _MOCK_ALLOWED_VALUES = frozenset({"allowed", "enabled", "true", "used", "yes"})
 
 _FLAT_ALIASES: dict[str, tuple[str, ...]] = {
@@ -189,16 +185,12 @@ class EffectiveModeLedger:
     def requested_values(self) -> dict[str, object | None]:
         """Return requested dimension values in canonical field order."""
 
-        return {
-            field: getattr(self, f"requested_{field}") for field in EFFECTIVE_MODE_FIELDS
-        }
+        return {field: getattr(self, f"requested_{field}") for field in EFFECTIVE_MODE_FIELDS}
 
     def effective_values(self) -> dict[str, object | None]:
         """Return effective dimension values in canonical field order."""
 
-        return {
-            field: getattr(self, f"effective_{field}") for field in EFFECTIVE_MODE_FIELDS
-        }
+        return {field: getattr(self, f"effective_{field}") for field in EFFECTIVE_MODE_FIELDS}
 
     def mismatched_fields(self) -> tuple[str, ...]:
         """Return fields whose requested and effective values differ."""

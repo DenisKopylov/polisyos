@@ -45,16 +45,19 @@ def _telemetry(
 
 
 def test_net_mav_formula_subtracts_cost_and_block_penalties() -> None:
-    assert compute_net_mav(
-        decision_gain=4.0,
-        falsification_value=3.0,
-        authority_gain=2.0,
-        auditability_gain=1.0,
-        human_time_cost=0.5,
-        latency_penalty=0.25,
-        rerun_penalty=0.75,
-        false_block_penalty=1.0,
-    ) == 7.5
+    assert (
+        compute_net_mav(
+            decision_gain=4.0,
+            falsification_value=3.0,
+            authority_gain=2.0,
+            auditability_gain=1.0,
+            human_time_cost=0.5,
+            latency_penalty=0.25,
+            rerun_penalty=0.75,
+            false_block_penalty=1.0,
+        )
+        == 7.5
+    )
 
 
 def test_new_blocking_frontier_control_requires_net_mav_and_telemetry_refs() -> None:
@@ -87,9 +90,7 @@ def test_new_blocking_frontier_control_rejects_non_positive_net_mav() -> None:
 
     assert decision["can_enter_blocking_frontier"] is False
     assert decision["expected_net_mav"] == 0.0
-    assert {issue["code"] for issue in decision["issues"]} == {
-        "expected_net_mav_non_positive"
-    }
+    assert {issue["code"] for issue in decision["issues"]} == {"expected_net_mav_non_positive"}
 
 
 def test_new_blocking_frontier_control_with_positive_net_mav_and_refs_is_admitted() -> None:
@@ -220,9 +221,7 @@ def test_complexity_governance_scorecard_gate_blocks_new_frontier_growth_only() 
         generated_at=now,
     )
 
-    gates = complexity_governance_scorecard_gates(
-        {"complexity_governance": report}
-    )
+    gates = complexity_governance_scorecard_gates({"complexity_governance": report})
 
     assert gates == [
         {

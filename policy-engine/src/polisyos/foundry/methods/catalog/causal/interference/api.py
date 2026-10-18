@@ -105,8 +105,16 @@ if TYPE_CHECKING:
         _interference_output_slots,
     )
 
-globals().update({name: getattr(_identification, name) for name in dir(_identification) if not name.startswith("__")})
-globals().update({name: getattr(_estimation, name) for name in dir(_estimation) if not name.startswith("__")})
+globals().update(
+    {
+        name: getattr(_identification, name)
+        for name in dir(_identification)
+        if not name.startswith("__")
+    }
+)
+globals().update(
+    {name: getattr(_estimation, name) for name in dir(_estimation) if not name.startswith("__")}
+)
 
 
 # ──────────────────────────────────────────────────────────────────────────────

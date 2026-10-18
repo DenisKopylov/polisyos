@@ -26,9 +26,9 @@ class PolicyVerifiedContractFixture(BaseModel):
     artifact_ref: ArtifactRef
     authority_scope: Literal["contract_testing"] = "contract_testing"
     promotion_allowed: Literal[False] = False
-    non_promotable_reason: Literal[
-        "policy_verified_contract_fixture_non_promotable"
-    ] = _NON_PROMOTABLE_REASON
+    non_promotable_reason: Literal["policy_verified_contract_fixture_non_promotable"] = (
+        _NON_PROMOTABLE_REASON
+    )
 
 
 def formalize_policy_option_set_for_contract_testing(

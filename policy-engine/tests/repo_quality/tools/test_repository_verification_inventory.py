@@ -31,10 +31,7 @@ def test_phase04_inventory_covers_verification_surfaces() -> None:
     assert fixtures["roots"]["tests/contract"]["exists"]
     assert "pytest_collectable_tests_under_data_like_dirs" in fixtures
 
-    roles = {
-        row["path"]: row["role"]
-        for row in payload["test_role_inventory"]["role_roots"]
-    }
+    roles = {row["path"]: row["role"] for row in payload["test_role_inventory"]["role_roots"]}
     assert roles["tests/contract"] == "product_contract"
     assert roles["tests/repo_quality/architecture"] == "repository_quality"
     assert roles["tests/repo_quality/lint"] == "repository_quality"

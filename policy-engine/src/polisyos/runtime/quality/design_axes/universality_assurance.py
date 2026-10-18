@@ -16,9 +16,7 @@ from polisyos.pdc import AuthorityBoundary, Layer2ReadinessModel
 LAYER2_S14_UNIVERSALITY_ASSURANCE_SCHEMA_VERSION = (
     "policyos.policy_design_case.layer2_s14_universality_assurance.v1"
 )
-LAYER2_S14_UNIVERSALITY_ASSURANCE_RULE_VERSION = (
-    "policyos.layer2.s14.universality_assurance.v1"
-)
+LAYER2_S14_UNIVERSALITY_ASSURANCE_RULE_VERSION = "policyos.layer2.s14.universality_assurance.v1"
 S14_UNIVERSALITY_FLOOR_ID = "s14_universality"
 S14_FALSE_CLEAR_FIELDS: tuple[str, ...] = (
     "bare_universal_claim_without_battery",
@@ -339,8 +337,7 @@ class EvaluationStatusCompositionRecord(Layer2ReadinessModel):
     @model_validator(mode="after")
     def _validate_lattice_targets(self) -> EvaluationStatusCompositionRecord:
         if any(
-            row.existing_lattice_target == "new_s14_authority_tier"
-            for row in self.status_cases
+            row.existing_lattice_target == "new_s14_authority_tier" for row in self.status_cases
         ):
             raise ValueError("S14 must map to the existing closeout lattice")
         return self
@@ -1095,7 +1092,9 @@ def gate_universality_claim(
         limitations = ["limitation://s14/declared-envelope-only"]
 
     scorecard_ref = (
-        validated_scorecard.scorecard_ref if validated_scorecard is not None else "missing://s14/axis-scorecard"
+        validated_scorecard.scorecard_ref
+        if validated_scorecard is not None
+        else "missing://s14/axis-scorecard"
     )
     sealed_ref = (
         _text(validated_case.sealed_battery_run_ref)
@@ -1190,8 +1189,7 @@ def summarize_universality_assurance(
     validated_gate = _as_gate_record(gate_record) if gate_record is not None else None
     defeaters = [_as_skeptic_record(row) for row in skeptic_defeaters]
     counts = {
-        field: int((false_clear_counts or {}).get(field, 0))
-        for field in S14_FALSE_CLEAR_FIELDS
+        field: int((false_clear_counts or {}).get(field, 0)) for field in S14_FALSE_CLEAR_FIELDS
     }
     pass_count = sum(row.status == "pass" for row in defeaters)
     payload: dict[str, object] = {

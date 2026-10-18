@@ -284,7 +284,9 @@ def _grade(score: float) -> Literal["A", "B", "C", "D", "F"]:
     return "F"
 
 
-def _status(metrics: Sequence[SourceScorecardMetric]) -> Literal[
+def _status(
+    metrics: Sequence[SourceScorecardMetric],
+) -> Literal[
     "healthy",
     "watch",
     "breached",

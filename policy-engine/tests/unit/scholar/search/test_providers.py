@@ -330,7 +330,6 @@ async def test_failover_trace_preserves_exception_before_success():
     assert attempts[0].error_type == "provider_exception"
 
 
-
 @pytest.mark.asyncio
 async def test_failover_trace_preserves_normalization_rejection_before_next_provider(
     monkeypatch,

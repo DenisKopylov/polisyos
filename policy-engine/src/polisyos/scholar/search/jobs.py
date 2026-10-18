@@ -104,8 +104,7 @@ class DeepResearchJobManager:
         brief: ResearchBrief | None = None,
         query_graph: QueryGraph | None = None,
         claim_texts: list[str] | None = None,
-        requirement_specs: list[ScholarSupportRequirementSpec | Mapping[str, Any]]
-        | None = None,
+        requirement_specs: list[ScholarSupportRequirementSpec | Mapping[str, Any]] | None = None,
         constraints: SearchConstraints | None = None,
         budgets: SearchBudgetControls | None = None,
     ) -> str:
@@ -133,6 +132,7 @@ class DeepResearchJobManager:
     async def resume(self, *, checkpoint_artifact_id: str) -> str:
         """Resume a failed/partial job from a CAS checkpoint artifact."""
         from polisyos.core.artifacts import aload_core_json_artifact
+
         payload = await aload_core_json_artifact(
             self._async_cas, ArtifactID.model_validate(checkpoint_artifact_id)
         )
@@ -175,6 +175,7 @@ class DeepResearchJobManager:
     def get_snapshot(self, job_id: str) -> WebEvidenceBundle | None:
         """Return the latest partial/completed bundle for a job without awaiting a live task."""
         from polisyos.core.artifacts import load_core_json_artifact
+
         status = self.get_status(job_id)
         if status.result_bundle is not None:
             return status.result_bundle
@@ -208,10 +209,7 @@ class DeepResearchJobManager:
                 record.status = record.status.model_copy(
                     update={
                         "status": "escalated",
-                        "error": (
-                            "bounded_liveness_deadline_exceeded:"
-                            f"{liveness.producer_key}"
-                        ),
+                        "error": (f"bounded_liveness_deadline_exceeded:{liveness.producer_key}"),
                         "updated_at": datetime.now(UTC),
                     }
                 )
@@ -228,8 +226,7 @@ class DeepResearchJobManager:
         brief: ResearchBrief | None,
         query_graph: QueryGraph | None,
         claim_texts: list[str] | None,
-        requirement_specs: list[ScholarSupportRequirementSpec | Mapping[str, Any]]
-        | None,
+        requirement_specs: list[ScholarSupportRequirementSpec | Mapping[str, Any]] | None,
         constraints: SearchConstraints | None,
         budgets: SearchBudgetControls | None,
         resume_bundle: WebEvidenceBundle | None,

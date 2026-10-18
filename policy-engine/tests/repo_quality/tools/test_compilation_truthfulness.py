@@ -33,9 +33,7 @@ def test_compilation_truthfulness_separates_obligation_error_classes(tmp_path: P
     assert [item["annotation_id"] for item in case["true_positive_obligations"]] == [
         "ann-data-freshness"
     ]
-    assert [item["annotation_id"] for item in case["missed_obligations"]] == [
-        "ann-fiscal-envelope"
-    ]
+    assert [item["annotation_id"] for item in case["missed_obligations"]] == ["ann-fiscal-envelope"]
     assert [item["family"] for item in case["hallucinated_obligations"]] == ["participation"]
     assert [item["annotation_id"] for item in case["scope_drift_obligations"]] == [
         "ann-legal-competence"
@@ -57,17 +55,16 @@ def test_compilation_truthfulness_separates_obligation_error_classes(tmp_path: P
     )
     assert case["score_weights"]["true_positive_obligations"] == positive
     assert case["score_weights"]["missed_obligations"] == PURPOSE_MULTIPLIERS["authority_gate"]
-    assert case["score_weights"]["scope_drift_obligations"] == (
-        PURPOSE_MULTIPLIERS["closeout_input"]
+    assert (
+        case["score_weights"]["scope_drift_obligations"] == (PURPOSE_MULTIPLIERS["closeout_input"])
     )
     assert case["per_case_truthfulness_score"] == round(100.0 * positive / (positive + penalty), 2)
-    assert report["summary"]["aggregate_compilation_truthfulness_rate"] == (
-        case["per_case_truthfulness_score"]
+    assert (
+        report["summary"]["aggregate_compilation_truthfulness_rate"]
+        == (case["per_case_truthfulness_score"])
     )
     assert report["summary"]["construct_vocabulary"]["reported"] is True
-    assert case["construct_vocabulary"]["compiled_constructs"] == [
-        "construct:housing_rent_burden"
-    ]
+    assert case["construct_vocabulary"]["compiled_constructs"] == ["construct:housing_rent_burden"]
     assert case["construct_vocabulary"]["true_positive_constructs"] == [
         "construct:housing_rent_burden"
     ]
@@ -81,8 +78,7 @@ def test_compilation_truthfulness_separates_obligation_error_classes(tmp_path: P
 
 def test_w11b_vertical_seed_rules_are_scored_without_horizontal_catalog_noise() -> None:
     case_files = (
-        REPO_ROOT
-        / "tests/fixtures/universal-corpus/cases/w11a_ghana_free_shs_2017.json",
+        REPO_ROOT / "tests/fixtures/universal-corpus/cases/w11a_ghana_free_shs_2017.json",
         REPO_ROOT
         / "tests/fixtures/universal-corpus/cases/w11a_netherlands_room_for_river_2007.json",
     )
@@ -120,10 +116,7 @@ def test_universal_corpus_construct_truthfulness_uses_registry_expectations() ->
         if case["construct_vocabulary"]["construct_expectation_status"] == "labeled"
     ]
     assert labeled_cases
-    assert any(
-        case["construct_vocabulary"]["true_positive_constructs"]
-        for case in labeled_cases
-    )
+    assert any(case["construct_vocabulary"]["true_positive_constructs"] for case in labeled_cases)
     for case in report["cases"]:
         vocabulary = case["construct_vocabulary"]
         if vocabulary["construct_expectation_status"] == "unlabeled":
@@ -131,9 +124,7 @@ def test_universal_corpus_construct_truthfulness_uses_registry_expectations() ->
 
 
 def test_truthfulness_case_loader_ignores_producer_stub_fixtures() -> None:
-    cases, issues = truthfulness._load_cases(
-        REPO_ROOT / "tests/fixtures/universal-corpus"
-    )
+    cases, issues = truthfulness._load_cases(REPO_ROOT / "tests/fixtures/universal-corpus")
 
     assert issues == []
     assert len(cases) == 13

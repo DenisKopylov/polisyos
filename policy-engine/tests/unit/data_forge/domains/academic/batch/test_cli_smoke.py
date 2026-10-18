@@ -45,9 +45,7 @@ def test_cli_resolve_extract_dispatch(monkeypatch, tmp_path) -> None:
 
 def test_data_forge_cli_cannot_execute_scientist_claim_authority(tmp_path) -> None:
     parser = cli._build_parser()
-    args = parser.parse_args(
-        ["claim-adjudicate", "--snapshot-root", str(tmp_path / "snap")]
-    )
+    args = parser.parse_args(["claim-adjudicate", "--snapshot-root", str(tmp_path / "snap")])
 
     with pytest.raises(RuntimeError, match="Scientist-owned claim adjudication route"):
         asyncio.run(cli._run_stage(args, "claim-adjudicate"))

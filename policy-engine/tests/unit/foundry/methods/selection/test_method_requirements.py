@@ -68,15 +68,9 @@ def test_requirement_selection_rejects_generic_and_offline_only_candidates() -> 
     )
 
     assert report["status"] == "pass"
-    assert [method["method_id"] for method in report["selected_methods"]] == [
-        "causal.did.runtime"
-    ]
-    assert report["selected_methods"][0]["method_requirement_refs"] == [
-        "method-req-claim-effect"
-    ]
-    assert {
-        rejected["reason_code"] for rejected in report["rejected_methods"]
-    } == {
+    assert [method["method_id"] for method in report["selected_methods"]] == ["causal.did.runtime"]
+    assert report["selected_methods"][0]["method_requirement_refs"] == ["method-req-claim-effect"]
+    assert {rejected["reason_code"] for rejected in report["rejected_methods"]} == {
         "generic_method_not_admissible",
         "offline_only_validity_not_admissible",
     }
@@ -107,9 +101,7 @@ def test_requirement_selection_rejects_method_without_runtime_assumption_gate() 
 
     assert report["status"] == "fail"
     assert report["selected_methods"] == []
-    assert report["rejected_methods"][0]["reason_code"] == (
-        "runtime_assumption_validation_missing"
-    )
+    assert report["rejected_methods"][0]["reason_code"] == ("runtime_assumption_validation_missing")
     assert report["issues"][0]["code"] == "method_requirement_no_selected_method"
 
 
@@ -300,29 +292,28 @@ def test_foundry_selects_panel_microsim_and_dynamic_treatment_contracts() -> Non
     )
 
     selected_by_requirement = {
-        method["method_requirement_refs"][0]: method
-        for method in report["selected_methods"]
+        method["method_requirement_refs"][0]: method for method in report["selected_methods"]
     }
 
     assert report["status"] == "pass"
     assert report["summary"]["capability_method_candidate_count"] == 3
-    assert selected_by_requirement["method-req-displacement-panel"][
-        "method_id"
-    ] == "foundry.ml.panel_observational_data.v1"
-    assert selected_by_requirement["method-req-benefit-microsim"][
-        "method_id"
-    ] == "foundry.sim.microsim_population_data.v1"
-    assert selected_by_requirement["method-req-credit-dynamic-treatment"][
-        "method_id"
-    ] == "foundry.causal.dynamic_treatment_data.v1"
-    assert {
-        method["capability_ref"] for method in report["selected_methods"]
-    } == {
+    assert (
+        selected_by_requirement["method-req-displacement-panel"]["method_id"]
+        == "foundry.ml.panel_observational_data.v1"
+    )
+    assert (
+        selected_by_requirement["method-req-benefit-microsim"]["method_id"]
+        == "foundry.sim.microsim_population_data.v1"
+    )
+    assert (
+        selected_by_requirement["method-req-credit-dynamic-treatment"]["method_id"]
+        == "foundry.causal.dynamic_treatment_data.v1"
+    )
+    assert {method["capability_ref"] for method in report["selected_methods"]} == {
         "capability:displacement_panel_contract",
         "capability:benefit_microsim_contract",
         "capability:credit_dynamic_treatment_contract",
     }
     assert {
-        method["observation_contract_manifest_ref"]
-        for method in report["selected_methods"]
+        method["observation_contract_manifest_ref"] for method in report["selected_methods"]
     } == {"observation_to_contract_manifest.json"}

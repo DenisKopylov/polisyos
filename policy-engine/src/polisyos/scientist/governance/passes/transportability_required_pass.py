@@ -240,9 +240,7 @@ class TransportabilityRequiredPass(ValidatorPass):
 def _resolve_pass_evidence(ctx: PassContext) -> _PassEvidenceAdmission:
     """Resolve and grade every supplied pass input before applying gate semantics."""
     transport_required, parameter_issues = _transport_required_input(ctx)
-    missing_severity = _unsupported_transport_severity(
-        ctx, transport_required=transport_required
-    )
+    missing_severity = _unsupported_transport_severity(ctx, transport_required=transport_required)
     report_selection = _resolve_reports_with_paths(ctx, severity=missing_severity)
     direct_result = _resolve_direct_transport_result(ctx)
     profile_selection = _resolve_cross_graph_profile(ctx, severity=missing_severity)
@@ -279,9 +277,7 @@ def _resolve_pass_evidence(ctx: PassContext) -> _PassEvidenceAdmission:
         profile_needs=profile_needs,
         missing_severity=missing_severity,
         transport_required=transport_required,
-        issues=tuple(
-            [*parameter_issues, *report_selection.issues, *profile_selection.issues]
-        ),
+        issues=tuple([*parameter_issues, *report_selection.issues, *profile_selection.issues]),
     )
 
 
@@ -645,9 +641,7 @@ def _resolve_cross_graph_profile(
         path = ["cross_graph_evidence_profile"]
         profile = _resolve_profile_value(ctx, state["cross_graph_evidence_profile"])
         if profile is None:
-            issues.append(
-                _profile_input_issue(path, severity, "direct profile is invalid")
-            )
+            issues.append(_profile_input_issue(path, severity, "direct profile is invalid"))
         else:
             candidates.append(_ProfileCandidate(source_path=path, profile=profile))
 
@@ -997,9 +991,7 @@ def _issue_for_transport_result_value(
                 pass_id, path, transport, severity=missing_severity
             )
         if review_grade is not TransportabilityProofReviewGrade.NO_ADDITIONAL_REVIEW:
-            return _unknown_transport_proof_issue(
-                pass_id, path, severity=missing_severity
-            )
+            return _unknown_transport_proof_issue(pass_id, path, severity=missing_severity)
         return None
     if transport.status is TransportabilityStatus.PARTIALLY_IDENTIFIED:
         return ComplianceIssue(
@@ -1043,9 +1035,7 @@ def _transport_required_input(
         return False, ()
 
     severity = (
-        IssueSeverity.BLOCKER
-        if ctx.profile.level is ProfileLevel.STRICT
-        else IssueSeverity.WARNING
+        IssueSeverity.BLOCKER if ctx.profile.level is ProfileLevel.STRICT else IssueSeverity.WARNING
     )
     params = state["params"]
     if not isinstance(params, Mapping):

@@ -36,9 +36,7 @@ def test_phase1_1_root_decision_is_machine_readable_and_ignored() -> None:
         "no-wrong-root-local-state",
         "product-commands-run-from-product-root",
     } <= gate_ids
-    assert {
-        row["id"]: row["mode"] for row in decision["root_topology_gate_requirement"]
-    } == {
+    assert {row["id"]: row["mode"] for row in decision["root_topology_gate_requirement"]} == {
         "no-product-source-outside-product-root": "fail_closed",
         "outer-root-allow-list": "fail_closed",
         "no-wrong-root-local-state": "fail_closed",

@@ -354,8 +354,7 @@ def build_source_selection_state_machine_report() -> dict[str, Any]:
         "requirements": [
             {
                 "requirement_id": (
-                    "scenario:ukraine_msme_wartime_credit_support:data:"
-                    "production_msme_panel"
+                    "scenario:ukraine_msme_wartime_credit_support:data:production_msme_panel"
                 ),
                 "domain": "data",
                 "expected_family": "production_msme_panel",
@@ -397,9 +396,7 @@ def build_source_selection_state_machine_report() -> dict[str, Any]:
             "scenario_contract_id": scenario_contract["contract_id"],
             "scenario_binding_findings": [
                 {
-                    "requirement_id": scenario_contract["requirements"][0][
-                        "requirement_id"
-                    ],
+                    "requirement_id": scenario_contract["requirements"][0]["requirement_id"],
                     "expected_family": "production_msme_panel",
                     "candidate_ref": None,
                     "status": "blocked",
@@ -449,9 +446,7 @@ def build_source_selection_state_machine_report() -> dict[str, Any]:
             "scenario_contract_id": scenario_contract["contract_id"],
             "scenario_binding_findings": [
                 {
-                    "requirement_id": scenario_contract["requirements"][0][
-                        "requirement_id"
-                    ],
+                    "requirement_id": scenario_contract["requirements"][0]["requirement_id"],
                     "expected_family": "production_msme_panel",
                     "candidate_ref": contract_ref,
                     "status": "satisfied",
@@ -471,9 +466,7 @@ def build_source_selection_state_machine_report() -> dict[str, Any]:
                 "scenario_contract_id": scenario_contract["contract_id"],
                 "scenario_binding_findings": [
                     {
-                        "requirement_id": scenario_contract["requirements"][0][
-                            "requirement_id"
-                        ],
+                        "requirement_id": scenario_contract["requirements"][0]["requirement_id"],
                         "expected_family": "production_msme_panel",
                         "candidate_ref": contract_ref,
                         "status": "satisfied",
@@ -500,8 +493,7 @@ def build_source_selection_state_machine_report() -> dict[str, Any]:
             "check_id": "selected_contract_binding_is_authority_surface",
             "passed": (
                 selected_trace["status"] == "pass"
-                and selected_trace["selected_contract_binding"]["candidate_ref"]
-                == contract_ref
+                and selected_trace["selected_contract_binding"]["candidate_ref"] == contract_ref
                 and selected_trace["selected_sources"][0]["authority_surface"]
                 == "claim_admissible_contract"
             ),

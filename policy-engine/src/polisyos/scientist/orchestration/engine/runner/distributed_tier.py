@@ -102,9 +102,7 @@ def project_distributed_node_outcomes(
             duration_ms=0,
             artifacts=list(outcome.artifacts),
             error=outcome.error,
-            skip_reason=(
-                _outcome_skip_reason(outcome) if outcome.status == "skip" else None
-            ),
+            skip_reason=(_outcome_skip_reason(outcome) if outcome.status == "skip" else None),
             skip_blocker=_skip_blocker_for_outcome(
                 alias=alias,
                 node_id=str(invocation.node_id),
@@ -214,9 +212,7 @@ def merge_and_checkpoint_tier(
     status_verified_successes = (
         status_evidence.successful_outcomes if status_evidence is not None else {}
     )
-    successful_aliases = [
-        alias for alias in tier_aliases if alias in status_verified_successes
-    ]
+    successful_aliases = [alias for alias in tier_aliases if alias in status_verified_successes]
     cache_entry_refs = (
         _persist_cache_entries(
             tier_aliases=successful_aliases,
@@ -339,10 +335,7 @@ def _persist_cache_entries(
 
     for alias in tier_aliases:
         outcome = node_outcomes.get(alias)
-        if (
-            outcome is None
-            or not status_evidence.admits_success(alias, outcome)
-        ):
+        if outcome is None or not status_evidence.admits_success(alias, outcome):
             continue
         invocation = invocations[alias]
         node_id = str(invocation.node_id)

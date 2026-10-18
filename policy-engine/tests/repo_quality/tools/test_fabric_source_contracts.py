@@ -51,7 +51,9 @@ def test_source_contract_snapshot_carries_phase5_evidence() -> None:
     assert all(contract.processing.guarantee_value for contract in contracts)
     assert all(contract.processing.idempotency.key_fields for contract in contracts)
     assert all(contract.processing.idempotency.dedupe_window_seconds > 0 for contract in contracts)
-    assert all(contract.processing.idempotency.replay_retention_days >= 30 for contract in contracts)
+    assert all(
+        contract.processing.idempotency.replay_retention_days >= 30 for contract in contracts
+    )
     assert all(contract.retention.artifact_retention_days >= 30 for contract in contracts)
     assert all(contract.sla.availability_target > 0.0 for contract in contracts)
 
@@ -76,9 +78,7 @@ def test_scorecard_snapshot_covers_required_dimensions() -> None:
         }
     markdown = fabric_source_contracts.render_source_platform_markdown()
     assert "| Source contract | Window | Freshness | Reliability |" in markdown
-    assert "| Contract | Connector | Profile | Guarantee | Dedupe window |" in (
-        markdown
-    )
+    assert "| Contract | Connector | Profile | Guarantee | Dedupe window |" in (markdown)
 
 
 def test_checked_in_source_platform_artifacts_are_current() -> None:
@@ -123,7 +123,12 @@ def test_source_contract_gate_updates_and_checks_temp_artifacts(tmp_path: Path) 
         == []
     )
     parsed = json.loads(snapshot_path.read_text(encoding="utf-8"))
-    assert len([SourceContract.model_validate(row["contract"]) for row in parsed["contracts"].values()]) == 20
+    assert (
+        len(
+            [SourceContract.model_validate(row["contract"]) for row in parsed["contracts"].values()]
+        )
+        == 20
+    )
     assert "## Source Scorecards" in docs_path.read_text(encoding="utf-8")
     assert len(list(fixture_dir.glob("*.replay.json"))) == 20
 

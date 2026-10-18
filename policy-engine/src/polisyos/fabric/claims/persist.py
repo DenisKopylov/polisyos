@@ -26,6 +26,7 @@ from .errors import ClaimValidationError
 def load_json_artifact(cas: FileSystemCAS, artifact_id: str) -> dict:
     """Load json artifact."""
     from polisyos.core.artifacts import load_core_json_artifact
+
     try:
         aid = ArtifactID.model_validate(artifact_id)
         payload = load_core_json_artifact(cas, aid)

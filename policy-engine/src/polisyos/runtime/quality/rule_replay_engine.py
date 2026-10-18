@@ -280,8 +280,7 @@ def build_rule_replay_comparison_report(
         "capability_reality": {
             "typed_contract": RULE_REPLAY_CONTRACT_ID,
             "producer": (
-                "polisyos.runtime.quality.rule_replay_engine."
-                "build_rule_replay_comparison_report"
+                "polisyos.runtime.quality.rule_replay_engine.build_rule_replay_comparison_report"
             ),
             "artifact": report_ref,
             "orchestration_bridge": "W2.B rule registry -> research-DAG replay -> claim lifecycle",
@@ -579,9 +578,8 @@ def _c33_revalidation_trigger(
         "public_effect": policy["public_effect"],
         "lifecycle_action": policy["lifecycle_action"],
         "grandfathering_policy": policy["grandfathering_policy"],
-        "triggered": mandatory or (
-            changed and policy["lifecycle_action"] in {"review_required", "partial_reissue"}
-        ),
+        "triggered": mandatory
+        or (changed and policy["lifecycle_action"] in {"review_required", "partial_reissue"}),
         "changed_claim_ids": _text_values(comparison.get("changed_claim_ids")),
         "changed_requirement_ids": _text_values(comparison.get("changed_requirement_ids")),
         "silent_upgrade_allowed": False,
@@ -882,10 +880,7 @@ def _claim_requirement_refs(claim: Mapping[str, Any]) -> list[str]:
 
 
 def _claim_requirement_bindings(closed_pdc: Mapping[str, Any]) -> dict[str, list[str]]:
-    return {
-        _claim_id(claim): _claim_requirement_refs(claim)
-        for claim in _claim_rows(closed_pdc)
-    }
+    return {_claim_id(claim): _claim_requirement_refs(claim) for claim in _claim_rows(closed_pdc)}
 
 
 def _rules_by_requirement(registry: Mapping[str, Any]) -> dict[str, Mapping[str, Any]]:

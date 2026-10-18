@@ -49,7 +49,9 @@ def test_controller_selects_minimal_cost_decisive_acquisition_and_reenters_gate(
     assert certificate.selected_ticket is not None
     assert certificate.selected_ticket.no_resolution_claim is True
     acquire_candidate = next(
-        candidate for candidate in certificate.candidates if candidate.action_family == "acquire_data"
+        candidate
+        for candidate in certificate.candidates
+        if candidate.action_family == "acquire_data"
     )
     assert acquire_candidate.decisiveness.owner_shaped_resolution["redacted_payload"] is True
     assert "provenance" not in acquire_candidate.decisiveness.owner_shaped_resolution
@@ -211,8 +213,7 @@ def test_cheap_verify_is_structural_only_without_live_gateway() -> None:
     assert certificate.selected_action == "abstain"
     assert any(candidate.action_family == "cheap_verify" for candidate in certificate.candidates)
     assert any(
-        candidate.decisiveness.planning_only_reason
-        == "structural_only_no_live_gy_k_gateway"
+        candidate.decisiveness.planning_only_reason == "structural_only_no_live_gy_k_gateway"
         for candidate in certificate.candidates
         if candidate.action_family == "cheap_verify"
     )

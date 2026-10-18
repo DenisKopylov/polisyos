@@ -14,9 +14,7 @@ def _issue_codes(report: dict[str, object]) -> set[str]:
     issues = report.get("issues")
     assert isinstance(issues, list)
     return {
-        str(issue.get("code"))
-        for issue in issues
-        if isinstance(issue, dict) and issue.get("code")
+        str(issue.get("code")) for issue in issues if isinstance(issue, dict) and issue.get("code")
     }
 
 
@@ -107,12 +105,13 @@ def test_layer3_gy_generation_cycle_disposition_ledger_is_recomputed_green() -> 
 def test_layer3_gy_post_n6_rows_are_inside_frozen_denominators() -> None:
     assert "GY-N10a" in check_layer3_gy_generation_cycle_disposition_ledger.REQUIRED_TASKS
     assert (
-        "FoundryValuePort"
-        in check_layer3_gy_generation_cycle_disposition_ledger.REQUIRED_BRIDGES
+        "FoundryValuePort" in check_layer3_gy_generation_cycle_disposition_ledger.REQUIRED_BRIDGES
     )
 
 
-def test_layer3_gy_generation_cycle_disposition_ledger_rejects_noncanonical_bridge_disposition() -> None:
+def test_layer3_gy_generation_cycle_disposition_ledger_rejects_noncanonical_bridge_disposition() -> (
+    None
+):
     ledger = _loaded_ledger()
     mutated = copy.deepcopy(ledger)
     bridges = mutated["bridge_artifacts"]
@@ -317,7 +316,9 @@ def test_layer3_gy_generation_cycle_disposition_ledger_rejects_gy_n2_free_form_o
     assert "landed_owner_not_strangled" in _issue_codes(report)
 
 
-def test_layer3_gy_generation_cycle_disposition_ledger_rejects_gy_n2_missing_atom_consumption() -> None:
+def test_layer3_gy_generation_cycle_disposition_ledger_rejects_gy_n2_missing_atom_consumption() -> (
+    None
+):
     ledger = _loaded_ledger()
     mutated = copy.deepcopy(ledger)
     owner = _owner_by_id(mutated, "trinity_candidate_search_bridge")
@@ -343,8 +344,7 @@ def test_layer3_gy_generation_cycle_disposition_ledger_rejects_gy_n3_parallel_wo
     probe = REPO_ROOT / "src/polisyos/runtime/quality/parallel_world_store_probe.py"
     try:
         probe.write_text(
-            "class ParallelWorldStore:\n"
-            "    pass\n",
+            "class ParallelWorldStore:\n    pass\n",
             encoding="utf-8",
         )
 
@@ -356,7 +356,9 @@ def test_layer3_gy_generation_cycle_disposition_ledger_rejects_gy_n3_parallel_wo
         probe.unlink(missing_ok=True)
 
 
-def test_layer3_gy_generation_cycle_disposition_ledger_rejects_gy_n3_synthetic_world_promotion() -> None:
+def test_layer3_gy_generation_cycle_disposition_ledger_rejects_gy_n3_synthetic_world_promotion() -> (
+    None
+):
     probe = REPO_ROOT / "src/polisyos/runtime/quality/synthetic_world_production_probe.py"
     try:
         probe.write_text(
@@ -372,7 +374,9 @@ def test_layer3_gy_generation_cycle_disposition_ledger_rejects_gy_n3_synthetic_w
         probe.unlink(missing_ok=True)
 
 
-def test_layer3_gy_generation_cycle_disposition_ledger_rejects_hardcoded_substrate_source_list() -> None:
+def test_layer3_gy_generation_cycle_disposition_ledger_rejects_hardcoded_substrate_source_list() -> (
+    None
+):
     probe = REPO_ROOT / "src/polisyos/runtime/quality/substrate_hardcoded_source_probe.py"
     try:
         probe.write_text(
@@ -486,10 +490,7 @@ def test_layer3_gy_generation_cycle_disposition_ledger_rejects_unexercised_subst
 ) -> None:
     from tools.quality.validation import check_production_data_substrate_registry_contract
 
-    original = (
-        check_production_data_substrate_registry_contract
-        ._substrate_registry_runtime_honesty_properties
-    )
+    original = check_production_data_substrate_registry_contract._substrate_registry_runtime_honesty_properties
 
     def with_future_runtime_property(repo_root: Path) -> dict[str, str]:
         properties = dict(original(repo_root))
@@ -686,9 +687,7 @@ def test_intervention_atom_round_trip_compares_complete_atom_schema(monkeypatch)
         if field_name == "world_model_record_ref":
             return atom.model_copy(update={"world_model_record_ref": "corrupt_world_model"})
         if field_name == "measurement_expectations":
-            return atom.model_copy(
-                update={"measurement_expectations": {"corrupt": "expectation"}}
-            )
+            return atom.model_copy(update={"measurement_expectations": {"corrupt": "expectation"}})
         if field_name == "measurement_expectations_authority":
             return atom.model_copy(
                 update={"measurement_expectations_authority": "corrupt_authority"}
@@ -722,10 +721,7 @@ def test_intervention_atom_round_trip_compares_complete_atom_schema(monkeypatch)
             ),
         )
 
-        round_trip = (
-            check_layer3_gy_generation_cycle_disposition_ledger
-            ._intervention_atom_binding_round_trip_report()
-        )
+        round_trip = check_layer3_gy_generation_cycle_disposition_ledger._intervention_atom_binding_round_trip_report()
 
         assert round_trip["status"] == "fail", field_name
         assert any(
@@ -742,8 +738,7 @@ def test_intervention_atom_round_trip_compares_complete_atom_schema(monkeypatch)
 
 def test_intervention_atom_round_trip_rejects_uncompared_atom_field(monkeypatch) -> None:
     original_sample = (
-        check_layer3_gy_generation_cycle_disposition_ledger
-        ._sample_intervention_atom_binding_inputs
+        check_layer3_gy_generation_cycle_disposition_ledger._sample_intervention_atom_binding_inputs
     )
 
     def sample_missing_expected_field() -> dict[str, object]:
@@ -759,15 +754,11 @@ def test_intervention_atom_round_trip_rejects_uncompared_atom_field(monkeypatch)
         sample_missing_expected_field,
     )
 
-    round_trip = (
-        check_layer3_gy_generation_cycle_disposition_ledger
-        ._intervention_atom_binding_round_trip_report()
-    )
+    round_trip = check_layer3_gy_generation_cycle_disposition_ledger._intervention_atom_binding_round_trip_report()
 
     assert round_trip["status"] == "fail"
     assert any(
-        issue.get("code")
-        == "intervention_atom_binding_round_trip_field_coverage_incomplete"
+        issue.get("code") == "intervention_atom_binding_round_trip_field_coverage_incomplete"
         for issue in round_trip["issues"]
     )
 
@@ -775,10 +766,7 @@ def test_intervention_atom_round_trip_rejects_uncompared_atom_field(monkeypatch)
 def test_intervention_atom_round_trip_sample_uses_non_default_projection_values() -> None:
     from polisyos.ir.analytics.interventions import QueryTargetKind
 
-    sample = (
-        check_layer3_gy_generation_cycle_disposition_ledger
-        ._sample_intervention_atom_binding_inputs()
-    )
+    sample = check_layer3_gy_generation_cycle_disposition_ledger._sample_intervention_atom_binding_inputs()
     intervention = sample["intervention"]
     causal = sample["causal"]
     query_target = sample["query_target"]
@@ -798,9 +786,8 @@ def test_intervention_atom_round_trip_sample_uses_non_default_projection_values(
     assert atom.direct_effect_bundle.schedule["end_step"] == 6
     assert atom.causal_do_expr.assignments[0].value is not None
     assert atom.intended_downstream_estimand.target_kind is QueryTargetKind.CONTRAST
-    sample_non_default = (
-        check_layer3_gy_generation_cycle_disposition_ledger
-        ._intervention_atom_binding_sample_non_default_report(sample)
+    sample_non_default = check_layer3_gy_generation_cycle_disposition_ledger._intervention_atom_binding_sample_non_default_report(
+        sample
     )
     assert sample_non_default["status"] == "pass"
     assert set(sample_non_default["justified_default_fields"]) == set(
@@ -813,20 +800,15 @@ def test_intervention_atom_round_trip_recursively_exercises_normalization_record
         AtomNormalizationRecord,
     )
 
-    sample = (
-        check_layer3_gy_generation_cycle_disposition_ledger
-        ._sample_intervention_atom_binding_inputs()
-    )
-    report = (
-        check_layer3_gy_generation_cycle_disposition_ledger
-        ._intervention_atom_binding_sample_non_default_report(sample)
+    sample = check_layer3_gy_generation_cycle_disposition_ledger._sample_intervention_atom_binding_inputs()
+    report = check_layer3_gy_generation_cycle_disposition_ledger._intervention_atom_binding_sample_non_default_report(
+        sample
     )
 
     assert sample["atom"].normalized_from is not None
     assert "atom.normalized_from" not in report["required_justified_default_fields"]
     assert {
-        f"atom.normalized_from.{field_name}"
-        for field_name in AtomNormalizationRecord.model_fields
+        f"atom.normalized_from.{field_name}" for field_name in AtomNormalizationRecord.model_fields
     }.issubset(set(report["visited_field_paths"]))
 
 
@@ -834,8 +816,7 @@ def test_intervention_atom_round_trip_sample_default_meta_rejects_unjustified_de
     monkeypatch,
 ) -> None:
     original_sample = (
-        check_layer3_gy_generation_cycle_disposition_ledger
-        ._sample_intervention_atom_binding_inputs
+        check_layer3_gy_generation_cycle_disposition_ledger._sample_intervention_atom_binding_inputs
     )
 
     def sample_with_default_schedule_end_step() -> dict[str, object]:
@@ -851,10 +832,7 @@ def test_intervention_atom_round_trip_sample_default_meta_rejects_unjustified_de
         sample_with_default_schedule_end_step,
     )
 
-    round_trip = (
-        check_layer3_gy_generation_cycle_disposition_ledger
-        ._intervention_atom_binding_round_trip_report()
-    )
+    round_trip = check_layer3_gy_generation_cycle_disposition_ledger._intervention_atom_binding_round_trip_report()
     assert round_trip["status"] == "fail"
     assert any(
         issue.get("code") == "intervention_atom_binding_sample_default_unjustified"
@@ -879,8 +857,7 @@ def test_intervention_atom_round_trip_sample_roots_are_derived_from_sample_objec
         enabled: bool = True
 
     original_sample = (
-        check_layer3_gy_generation_cycle_disposition_ledger
-        ._sample_intervention_atom_binding_inputs
+        check_layer3_gy_generation_cycle_disposition_ledger._sample_intervention_atom_binding_inputs
     )
 
     def sample_with_future_round_trip_root() -> dict[str, object]:
@@ -894,10 +871,7 @@ def test_intervention_atom_round_trip_sample_roots_are_derived_from_sample_objec
         sample_with_future_round_trip_root,
     )
 
-    round_trip = (
-        check_layer3_gy_generation_cycle_disposition_ledger
-        ._intervention_atom_binding_round_trip_report()
-    )
+    round_trip = check_layer3_gy_generation_cycle_disposition_ledger._intervention_atom_binding_round_trip_report()
 
     assert round_trip["status"] == "fail"
     assert any(
@@ -960,10 +934,7 @@ def test_intervention_atom_round_trip_rejects_nested_context_default_drops(
         drop_context_ref_to_default,
     )
 
-    round_trip = (
-        check_layer3_gy_generation_cycle_disposition_ledger
-        ._intervention_atom_binding_round_trip_report()
-    )
+    round_trip = check_layer3_gy_generation_cycle_disposition_ledger._intervention_atom_binding_round_trip_report()
 
     assert round_trip["status"] == "fail"
     assert any(
@@ -1005,10 +976,7 @@ def test_intervention_atom_round_trip_rejects_nested_context_corruptions(
         corrupt_context_ref,
     )
 
-    round_trip = (
-        check_layer3_gy_generation_cycle_disposition_ledger
-        ._intervention_atom_binding_round_trip_report()
-    )
+    round_trip = check_layer3_gy_generation_cycle_disposition_ledger._intervention_atom_binding_round_trip_report()
 
     assert round_trip["status"] == "fail"
     assert any(
@@ -1028,9 +996,7 @@ def test_intervention_atom_round_trip_rejects_identification_condition_default_d
     def drop_identification_condition_required_to_default(**kwargs):
         plan = kwargs["identification_plan"]
         conditions = tuple(
-            condition.model_copy(update={"required": True})
-            if index == 0
-            else condition
+            condition.model_copy(update={"required": True}) if index == 0 else condition
             for index, condition in enumerate(plan.conditions)
         )
         kwargs["identification_plan"] = plan.model_copy(update={"conditions": conditions})
@@ -1042,10 +1008,7 @@ def test_intervention_atom_round_trip_rejects_identification_condition_default_d
         drop_identification_condition_required_to_default,
     )
 
-    round_trip = (
-        check_layer3_gy_generation_cycle_disposition_ledger
-        ._intervention_atom_binding_round_trip_report()
-    )
+    round_trip = check_layer3_gy_generation_cycle_disposition_ledger._intervention_atom_binding_round_trip_report()
 
     assert round_trip["status"] == "fail"
     assert any(
@@ -1060,7 +1023,9 @@ def test_intervention_atom_round_trip_rejects_default_field_projection_drops(
 ) -> None:
     from polisyos.runtime.quality import intervention_atom_binding
 
-    original_trinity = intervention_atom_binding.InterventionAtomBinding.to_trinity_intervention_spec
+    original_trinity = (
+        intervention_atom_binding.InterventionAtomBinding.to_trinity_intervention_spec
+    )
     original_causal = intervention_atom_binding.InterventionAtomBinding.to_node_intervention
     original_query = intervention_atom_binding.InterventionAtomBinding.to_query_target
 
@@ -1072,10 +1037,7 @@ def test_intervention_atom_round_trip_rejects_default_field_projection_drops(
         "to_trinity_intervention_spec",
         drop_enabled_to_default,
     )
-    round_trip = (
-        check_layer3_gy_generation_cycle_disposition_ledger
-        ._intervention_atom_binding_round_trip_report()
-    )
+    round_trip = check_layer3_gy_generation_cycle_disposition_ledger._intervention_atom_binding_round_trip_report()
     assert round_trip["status"] == "fail"
     monkeypatch.setattr(
         intervention_atom_binding.InterventionAtomBinding,
@@ -1093,10 +1055,7 @@ def test_intervention_atom_round_trip_rejects_default_field_projection_drops(
         "to_node_intervention",
         drop_assignment_value_to_default,
     )
-    round_trip = (
-        check_layer3_gy_generation_cycle_disposition_ledger
-        ._intervention_atom_binding_round_trip_report()
-    )
+    round_trip = check_layer3_gy_generation_cycle_disposition_ledger._intervention_atom_binding_round_trip_report()
     assert round_trip["status"] == "fail"
     monkeypatch.setattr(
         intervention_atom_binding.InterventionAtomBinding,
@@ -1112,10 +1071,7 @@ def test_intervention_atom_round_trip_rejects_default_field_projection_drops(
         "to_query_target",
         drop_query_target_kind_to_default,
     )
-    round_trip = (
-        check_layer3_gy_generation_cycle_disposition_ledger
-        ._intervention_atom_binding_round_trip_report()
-    )
+    round_trip = check_layer3_gy_generation_cycle_disposition_ledger._intervention_atom_binding_round_trip_report()
     assert round_trip["status"] == "fail"
 
 
@@ -1178,7 +1134,9 @@ def test_layer3_gy_generation_cycle_disposition_ledger_rejects_notebook_owner_om
     assert "notebook_owner_missing_from_ledger" in _issue_codes(report)
 
 
-def test_layer3_gy_generation_cycle_disposition_ledger_rejects_notebook_disposition_softening() -> None:
+def test_layer3_gy_generation_cycle_disposition_ledger_rejects_notebook_disposition_softening() -> (
+    None
+):
     ledger = _loaded_ledger()
     mutated = copy.deepcopy(ledger)
     owner = _owner_by_id(mutated, "s2_fixed_credit_guarantee_body")
@@ -1233,7 +1191,9 @@ def test_layer3_gy_generation_cycle_disposition_ledger_rejects_shifted_notebook_
     assert "source_notebook_ref_unresolved" in _issue_codes(report)
 
 
-def test_layer3_gy_generation_cycle_disposition_ledger_corrupt_field_drift_returns_failure() -> None:
+def test_layer3_gy_generation_cycle_disposition_ledger_corrupt_field_drift_returns_failure() -> (
+    None
+):
     report = check_layer3_gy_generation_cycle_disposition_ledger.corrupt_field_drift_check(
         REPO_ROOT,
     )

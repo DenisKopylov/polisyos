@@ -240,9 +240,7 @@ def test_wave3_exit_records_i3_checkpoint_and_adapter_corpus_coverage() -> None:
 def test_policy_evidence_capability_graph_phase7_labels_are_recorded() -> None:
     payload = ratchet.load_capability_reality_report(REPO_ROOT)
     claims = {claim["capability_id"]: claim for claim in payload["capability_claims"]}
-    input_claims = {
-        claim["capability_id"]: claim for claim in payload["capability_claim_inputs"]
-    }
+    input_claims = {claim["capability_id"]: claim for claim in payload["capability_claim_inputs"]}
 
     assert {
         capability_id: claims[capability_id]["reality_state"]
@@ -464,10 +462,7 @@ def test_wave5_exit_records_i5_manifest_and_influence_boundaries() -> None:
     )
     assert manifest["i5_evidence"]["dashboard_truth_check"]["none_to_success"] == "blocked"
     assert manifest["i5_evidence"]["calibration_boundary"]["current_run_evidence_effect"] == "none"
-    assert (
-        manifest["i5_evidence"]["memory_boundary"]["evidence_slot_admission"]
-        == "forbidden"
-    )
+    assert manifest["i5_evidence"]["memory_boundary"]["evidence_slot_admission"] == "forbidden"
     assert manifest["deferred_blockers"] == []
     _assert_repo_refs_resolve(manifest)
 
@@ -633,9 +628,7 @@ def test_wave11_outcome_corpus_claims_are_closed_in_exit_report() -> None:
     claims = {claim["capability_id"]: claim for claim in payload["capability_claims"]}
 
     assert set(claims) >= WAVE11_OUTCOME_CORPUS_IDS
-    input_claims = {
-        row["capability_id"]: row for row in payload["capability_claim_inputs"]
-    }
+    input_claims = {row["capability_id"]: row for row in payload["capability_claim_inputs"]}
 
     for capability_id in WAVE11_OUTCOME_CORPUS_IDS:
         claim = claims[capability_id]

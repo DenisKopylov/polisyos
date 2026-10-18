@@ -209,9 +209,9 @@ class TestFGTPovertyEstimator:
     ) -> None:
         method = _method_or_skip(isolated_registry, "distributional.poverty.fgt@1.0.0")
         values = np.array([4.0, 9.0, 10.0, 11.0, 12.0], dtype=float)
-        payload = method.pure_step(
-            {"values": values, "poverty_line": 10.0}, {"alpha": alpha}
-        )["result"]
+        payload = method.pure_step({"values": values, "poverty_line": 10.0}, {"alpha": alpha})[
+            "result"
+        ]
 
         assert payload["fgt"] == pytest.approx(expected_fgt)
         assert payload["headcount_ratio"] == pytest.approx(0.4)
@@ -222,9 +222,7 @@ class TestFGTPovertyEstimator:
     def test_alpha_zero_is_zero_for_all_non_poor_values(self, isolated_registry) -> None:
         method = _method_or_skip(isolated_registry, "distributional.poverty.fgt@1.0.0")
         values = np.array([10.0, 11.0, 12.0], dtype=float)
-        payload = method.pure_step(
-            {"values": values, "poverty_line": 10.0}, {"alpha": 0}
-        )["result"]
+        payload = method.pure_step({"values": values, "poverty_line": 10.0}, {"alpha": 0})["result"]
 
         assert payload["headcount_ratio"] == 0.0
         assert payload["fgt"] == 0.0

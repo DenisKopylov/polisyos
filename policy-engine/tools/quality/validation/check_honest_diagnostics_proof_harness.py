@@ -31,15 +31,9 @@ DEFAULT_INVARIANT_REGISTRY = Path("architecture/production_quality/invariant_reg
 DEFAULT_EVENT_REGISTRY = Path("architecture/production_quality/diagnostic_event_types.toml")
 DEFAULT_SOURCE_TRUTH_LATTICE = Path("architecture/production_quality/source_truth_lattice.toml")
 DEFAULT_SCHEMA_COMPATIBILITY = Path("architecture/production_quality/schema_compatibility.toml")
-DEFAULT_MODE_FALLBACK_POLICY = Path(
-    "architecture/production_quality/mode_and_fallback_policy.toml"
-)
-DEFAULT_FITNESS_REGISTRY = Path(
-    "architecture/production_quality/diagnostic_fitness_functions.toml"
-)
-DEFAULT_STATIC_INVENTORY = Path(
-    "architecture/baselines/production_quality/evidence_inventory.json"
-)
+DEFAULT_MODE_FALLBACK_POLICY = Path("architecture/production_quality/mode_and_fallback_policy.toml")
+DEFAULT_FITNESS_REGISTRY = Path("architecture/production_quality/diagnostic_fitness_functions.toml")
+DEFAULT_STATIC_INVENTORY = Path("architecture/baselines/production_quality/evidence_inventory.json")
 DEFAULT_SCORECARD_SOURCE = Path("src/polisyos/runtime/quality/scorecard.py")
 
 RUNTIME_EVENT_AUTHORITY_ROLES = frozenset(
@@ -205,9 +199,7 @@ def build_proof_payload(
 
     invariant_ids = {_text(row.get("invariant_id")) for row in invariants}
     invariant_scorecard_gates = {
-        gate
-        for row in invariants
-        for gate in _string_list(row.get("scorecard_gate_names"))
+        gate for row in invariants for gate in _string_list(row.get("scorecard_gate_names"))
     }
     for gate_row in scorecard_gate_rows:
         gate_name = _text(gate_row.get("gate_name") or gate_row.get("name"))
@@ -272,9 +264,7 @@ def build_proof_payload(
             "scorecard_gate_count": len(scorecard_gate_rows),
             "actual_scorecard_gate_count": len(scorecard_gate_names),
             "readiness_check_count": len(readiness_check_names),
-            "static_inventory_quality_report_count": inventory_summary[
-                "quality_report_count"
-            ],
+            "static_inventory_quality_report_count": inventory_summary["quality_report_count"],
             "violation_count": len(violations),
         },
         "invariant_proofs": invariant_proofs,
@@ -523,9 +513,7 @@ def _prove_invariant(
         )
 
     scorecard_registry_gates = {
-        gate
-        for gate, invariant_ids in scorecard_gate_map.items()
-        if invariant_id in invariant_ids
+        gate for gate, invariant_ids in scorecard_gate_map.items() if invariant_id in invariant_ids
     }
     missing_scorecard_gates = set(required_scorecard_gates) - (
         fitness_scorecard_gates & scorecard_registry_gates & scorecard_gate_names
@@ -787,10 +775,7 @@ def _event_index(registry: Mapping[str, Any]) -> dict[str, Mapping[str, Any]]:
     events: dict[str, Mapping[str, Any]] = {}
     for row in _rows(registry, "event_types"):
         event_name = _text(
-            row.get("name")
-            or row.get("event_name")
-            or row.get("event_type")
-            or row.get("id")
+            row.get("name") or row.get("event_name") or row.get("event_type") or row.get("id")
         )
         if event_name:
             events[event_name] = row

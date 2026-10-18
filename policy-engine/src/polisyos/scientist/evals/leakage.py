@@ -97,8 +97,7 @@ def redact_hidden_benchmark_refs(payload: Any, *, hidden_ref_ids: set[str]) -> A
         }
     if isinstance(payload, list):
         return [
-            redact_hidden_benchmark_refs(item, hidden_ref_ids=hidden_ref_ids)
-            for item in payload
+            redact_hidden_benchmark_refs(item, hidden_ref_ids=hidden_ref_ids) for item in payload
         ]
     if isinstance(payload, str):
         redacted = payload

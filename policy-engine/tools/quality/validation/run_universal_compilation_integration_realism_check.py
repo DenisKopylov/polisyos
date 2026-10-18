@@ -63,9 +63,7 @@ def run_i7bis_universal_compilation_integration_realism_check(
         mode="corpus_stub",
         producer_stub_dir=_resolve(root, producer_stub_dir),
         capability_index_path=(
-            _resolve(root, capability_index_path)
-            if capability_index_path is not None
-            else None
+            _resolve(root, capability_index_path) if capability_index_path is not None else None
         ),
     )
     case = _first_case(w12d_report)
@@ -205,13 +203,9 @@ def _checks(
             ),
             blocker_code="i7bis_capability_binding_status_missing",
             missing_label="semantic_test_missing",
-            message=(
-                "Capability resolver executed without at least one selected binding."
-            ),
+            message=("Capability resolver executed without at least one selected binding."),
             observed={
-                "statuses": sorted(
-                    {str(binding.get("status")) for binding in capability_bindings}
-                ),
+                "statuses": sorted({str(binding.get("status")) for binding in capability_bindings}),
                 "binding_count": len(capability_bindings),
             },
         ),
@@ -223,13 +217,10 @@ def _checks(
             blocker_code="i7bis_typed_blocked_binding_missing",
             missing_label="semantic_test_missing",
             message=(
-                "Capability resolver executed without at least one typed-blocked "
-                "binding status."
+                "Capability resolver executed without at least one typed-blocked binding status."
             ),
             observed={
-                "statuses": sorted(
-                    {str(binding.get("status")) for binding in capability_bindings}
-                ),
+                "statuses": sorted({str(binding.get("status")) for binding in capability_bindings}),
                 "binding_count": len(capability_bindings),
             },
         ),
@@ -280,9 +271,7 @@ def _checks(
             missing_label="bridge_missing",
             message="Producer pipeline did not emit capability-backed claim bindings.",
             observed={
-                "producer_binding_decision_count": pipeline.get(
-                    "producer_binding_decision_count"
-                ),
+                "producer_binding_decision_count": pipeline.get("producer_binding_decision_count"),
                 "claim_binding_count": pipeline.get("claim_binding_count"),
                 "capability_ref_count": pipeline.get("capability_ref_count"),
                 "construct_ref_count": pipeline.get("construct_ref_count"),
@@ -314,9 +303,7 @@ def _checks(
             observed={
                 "issue_count": firewall.get("issue_count"),
                 "authority_slots": firewall.get("authority_slots"),
-                "hypothesis_ledger_artifact_ref": llm.get(
-                    "hypothesis_ledger_artifact_ref"
-                ),
+                "hypothesis_ledger_artifact_ref": llm.get("hypothesis_ledger_artifact_ref"),
             },
         ),
         "runtime_pdc_graph_emitted": _check(
@@ -329,14 +316,12 @@ def _checks(
         "nonzero_warrants": _check(
             passed=(
                 argument_graph_observed.get("argument_graph_inspection_status") == "pass"
-                and int(argument_graph_observed.get("machine_inspectable_warrant_count") or 0)
-                > 0
+                and int(argument_graph_observed.get("machine_inspectable_warrant_count") or 0) > 0
             ),
             blocker_code="i7bis_warrant_structure_missing",
             missing_label="bridge_missing",
             message=(
-                "W8.B argument graph has no machine-inspectable warrants from "
-                "selected bindings."
+                "W8.B argument graph has no machine-inspectable warrants from selected bindings."
             ),
             observed=argument_graph_observed,
         ),

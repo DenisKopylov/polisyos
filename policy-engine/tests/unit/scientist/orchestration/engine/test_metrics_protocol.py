@@ -21,6 +21,7 @@ class _Recorder:
     def set(self, value, attrs=None):
         self.calls.append(("set", value, dict(attrs or {})))
 
+
 # ---------------------------------------------------------------------------
 # NoopEngineMetrics
 # ---------------------------------------------------------------------------
@@ -112,7 +113,9 @@ class TestCoreMetricsRegistryBridge:
         monkeypatch.setattr(registry, "scientist_node_duration_seconds", durations, raising=False)
         monkeypatch.setattr(registry, "scientist_node_executions_total", executions, raising=False)
         monkeypatch.setattr(registry, "scientist_node_retry_count", retries, raising=False)
-        monkeypatch.setattr(registry, "scientist_tier_duration_seconds", tier_durations, raising=False)
+        monkeypatch.setattr(
+            registry, "scientist_tier_duration_seconds", tier_durations, raising=False
+        )
         monkeypatch.setattr(registry, "slo_dag_runs_total", workflow_runs, raising=False)
         monkeypatch.setattr(
             registry,

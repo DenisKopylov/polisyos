@@ -79,9 +79,7 @@ def _phase28_3_case() -> dict[str, Any]:
 
 def _dormant_capability_inventory() -> dict[str, Any]:
     return {
-        "schema_version": (
-            "policyos.runtime.policy_design_case.dormant_capability_inventory.v1"
-        ),
+        "schema_version": ("policyos.runtime.policy_design_case.dormant_capability_inventory.v1"),
         "record_id": "dormant-capability-inventory-rec-1",
         "record_family": "capability_mode_and_fallback_selection.v1",
         "status": "pass",

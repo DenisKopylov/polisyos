@@ -87,7 +87,13 @@ _MAUP_POSITIVITY_BLOCK_THRESHOLD = 0.01
 
 from . import identification as _identification
 
-globals().update({name: getattr(_identification, name) for name in dir(_identification) if not name.startswith("__")})
+globals().update(
+    {
+        name: getattr(_identification, name)
+        for name in dir(_identification)
+        if not name.startswith("__")
+    }
+)
 
 
 def _fractional_exposure(treatment: np.ndarray, cluster_id: np.ndarray) -> np.ndarray:

@@ -77,9 +77,7 @@ def normalize_runtime_claim_registry(
                     "claim_id": claim_id,
                     "missing_evidence_type": "claim_registry_entry",
                     "severity": "fail",
-                    "message": (
-                        f"Major claim {claim_id} has no runtime claim registry entry."
-                    ),
+                    "message": (f"Major claim {claim_id} has no runtime claim registry entry."),
                 }
             )
         if bool(claim.get("requires_ir_analytics")) and not _bridge_payload(

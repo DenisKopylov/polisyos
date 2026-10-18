@@ -20,8 +20,17 @@ from collections.abc import Callable
 from pathlib import Path
 
 FIELDS = (
-    "case_id", "shape", "types", "state", "terminal", "ceiling", "authority",
-    "signer", "reentry", "event", "reason",
+    "case_id",
+    "shape",
+    "types",
+    "state",
+    "terminal",
+    "ceiling",
+    "authority",
+    "signer",
+    "reentry",
+    "event",
+    "reason",
 )
 RESEARCH_CASE_TOTAL = 63
 
@@ -138,13 +147,16 @@ def main() -> int:
         _must_be_denied(lambda: __import__("json"), "shared_decoder")
         if args.challenge:
             if args.challenge == "decoder":
+
                 def action() -> object:
                     return __import__("json")
             elif args.challenge == "loader":
                 action = corpus.read_bytes
             else:
+
                 def action() -> object:
                     return __import__("polisyos.fabric.evidence.acquisition_assurance")
+
             _must_be_denied(action, args.challenge)
             raise OracleRefusalError("oracle_shared_dependency_refused:" + args.challenge)
         blob = expected_path.read_bytes()

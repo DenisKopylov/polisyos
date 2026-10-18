@@ -54,9 +54,7 @@ def test_gy_p0_coverage_audit_rejects_worker_mismatch_greenwash() -> None:
 def test_gy_p0_coverage_audit_rejects_missing_candidate_positive_row() -> None:
     validator = _validator()
     audit = _load_audit()
-    audit["candidate_positive_firewall"]["rows"] = audit["candidate_positive_firewall"][
-        "rows"
-    ][:-1]
+    audit["candidate_positive_firewall"]["rows"] = audit["candidate_positive_firewall"]["rows"][:-1]
     audit["summary"]["candidate_positive_rows_enumerated"] = 405
 
     codes = _codes(validator.validate(audit))

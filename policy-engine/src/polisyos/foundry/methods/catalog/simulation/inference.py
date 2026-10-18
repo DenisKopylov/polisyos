@@ -93,9 +93,7 @@ class MonteCarloEstimator:
         bound_inputs: Mapping[str, Any], fallback_state: Any
     ) -> Mapping[str, Any]:
         """Preserve the declared ``samples`` name across chain execution."""
-        return _materialize_named_input_slot(
-            bound_inputs, fallback_state, slot_name="samples"
-        )
+        return _materialize_named_input_slot(bound_inputs, fallback_state, slot_name="samples")
 
     @staticmethod
     def pure_step(state: Mapping[str, Any], params: Mapping[str, Any]) -> dict[str, Any]:
@@ -186,9 +184,7 @@ class BootstrapInferenceEstimator:
         bound_inputs: Mapping[str, Any], fallback_state: Any
     ) -> Mapping[str, Any]:
         """Preserve the declared ``data`` name across chain execution."""
-        return _materialize_named_input_slot(
-            bound_inputs, fallback_state, slot_name="data"
-        )
+        return _materialize_named_input_slot(bound_inputs, fallback_state, slot_name="data")
 
     @staticmethod
     def pure_step(state: Mapping[str, Any], params: Mapping[str, Any]) -> dict[str, Any]:

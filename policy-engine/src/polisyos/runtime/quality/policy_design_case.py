@@ -634,9 +634,7 @@ def policy_design_case_record_registry_scorecard_gates(
     """Return scorecard gates for the static registry contract itself."""
 
     result = validate_policy_design_case_record_registry_payload(registry_payload)
-    substrate_result = validate_policy_design_case_substrate_residual_bindings(
-        registry_payload
-    )
+    substrate_result = validate_policy_design_case_substrate_residual_bindings(registry_payload)
     issues = list(result.issues) + list(substrate_result.issues)
     if not issues:
         return []
@@ -688,10 +686,7 @@ def validate_policy_design_case_record_family_coverage(
                 "policy_design_case_record_families_missing",
                 "record_families",
                 "record_families",
-                (
-                    "Policy Design Case `status=pass` cannot replace concrete "
-                    "record_families rows."
-                ),
+                ("Policy Design Case `status=pass` cannot replace concrete record_families rows."),
             )
         )
     if not record_rows:
@@ -700,10 +695,7 @@ def validate_policy_design_case_record_family_coverage(
                 "policy_design_case_records_missing",
                 "records",
                 "records",
-                (
-                    "Policy Design Case `status=pass` cannot replace concrete "
-                    "runtime records."
-                ),
+                ("Policy Design Case `status=pass` cannot replace concrete runtime records."),
             )
         )
 
@@ -724,9 +716,7 @@ def validate_policy_design_case_record_family_coverage(
         family_id = _case_family_row_id(row, index)
         row["family_id"] = family_id
         row.setdefault("status", "present")
-        row["readiness_gate"] = _text_field(
-            row.get("readiness_gate") or row.get("readiness_check")
-        )
+        row["readiness_gate"] = _text_field(row.get("readiness_gate") or row.get("readiness_check"))
         row["runtime_record_count"] = len(records_by_family.get(family_id, []))
         row["authority_status"] = _case_family_authority_status(
             row,
@@ -754,9 +744,7 @@ def validate_policy_design_case_record_family_coverage(
 
     expected = set(POLICY_DESIGN_CASE_MINIMUM_RECORD_FAMILIES)
     actual = {
-        row["family_id"]
-        for row in normalized_families
-        if _non_empty_string(row.get("family_id"))
+        row["family_id"] for row in normalized_families if _non_empty_string(row.get("family_id"))
     }
     for family_id in sorted(expected - actual):
         issues.append(
@@ -994,9 +982,7 @@ def policy_design_case_substrate_residual_verification_scorecard_gates(
             "evidence_ref": "quality_evidence/policy_design_case.json",
             "next_action": SUBSTRATE_RESIDUAL_VERIFICATION_NEXT_ACTION,
             "missing_input": issue.field,
-            "pdd_id": issue.family_id
-            if issue.family_id.startswith("PDD-")
-            else None,
+            "pdd_id": issue.family_id if issue.family_id.startswith("PDD-") else None,
             "blocking": True,
         }
         for issue in issues
@@ -1156,8 +1142,7 @@ def _case_runtime_record_issues(
                 )
             )
     if not (
-        _non_empty_string(row.get("schema_name"))
-        or _non_empty_string(row.get("schema_version"))
+        _non_empty_string(row.get("schema_name")) or _non_empty_string(row.get("schema_version"))
     ):
         issues.append(
             _coverage_issue(
@@ -1287,10 +1272,7 @@ def _typed_authority_policy_issues(
                 "policy_design_case_record_family_typed_authority_policy_missing",
                 family_id,
                 "typed_authority_policy",
-                (
-                    "Blocked or out-of-scope record families must cite a typed "
-                    "authority policy."
-                ),
+                ("Blocked or out-of-scope record families must cite a typed authority policy."),
             )
         ]
     issues: list[PolicyDesignCaseRecordRegistryIssue] = []
@@ -2894,10 +2876,13 @@ def _data_forge_snapshot_boundary_record(
         "data-forge-snapshot-boundary",
         normalized,
     )
-    runtime_event_ref = _first_runtime_event_ref(
-        {"data_forge_snapshot_binding": normalized},
-        ("data_forge_snapshot_binding",),
-    ) or f"event://policy-design-case/data-forge-snapshot-boundary/{evidence_ref}"
+    runtime_event_ref = (
+        _first_runtime_event_ref(
+            {"data_forge_snapshot_binding": normalized},
+            ("data_forge_snapshot_binding",),
+        )
+        or f"event://policy-design-case/data-forge-snapshot-boundary/{evidence_ref}"
+    )
     return {
         "schema_version": "policyos.runtime.policy_design_case.data_forge_snapshot_boundary.v1",
         "record_id": "policy-design-data-forge-snapshot-boundary",
@@ -2988,8 +2973,7 @@ def _typed_family_residual_boundary_policy(
             "before Policy Design Case record-family compilation."
         ),
         "boundary_record_ids": [
-            str(boundary.get("record_id") or "unknown_boundary")
-            for boundary in boundary_failures
+            str(boundary.get("record_id") or "unknown_boundary") for boundary in boundary_failures
         ],
         "issue_codes": deduped_codes,
         "evidence_ref": evidence_ref,

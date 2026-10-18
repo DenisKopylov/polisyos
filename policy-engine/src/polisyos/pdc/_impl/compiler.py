@@ -20,9 +20,7 @@ from polisyos.core import artifacts, canon
 RUNTIME_POLICY_DESIGN_CASE_SCHEMA_VERSION = "policyos.runtime.pdc.graph.v1"
 RUNTIME_POLICY_DESIGN_CASE_COMPILER = "polisyos.pdc.compiler"
 RUNTIME_POLICY_DESIGN_CASE_COMPILER_VERSION = "2026.05.24+w8a"
-RUNTIME_POLICY_DESIGN_CASE_PROJECTION_POLICY = (
-    "reads_runtime_policy_design_case_graph"
-)
+RUNTIME_POLICY_DESIGN_CASE_PROJECTION_POLICY = "reads_runtime_policy_design_case_graph"
 RUNTIME_POLICY_DESIGN_CASE_ARTIFACT_KIND = "runtime.policy_design_case_graph"
 
 _GRAPH_AUTHORITY = ("pdc_graph_structure",)
@@ -409,9 +407,7 @@ def compile_runtime_policy_design_case(
         ),
         "closeout_refs": [row.model_dump(mode="python") for row in closeout_refs],
         "closeout_verdict": closeout or None,
-        "contested_record_refs": _all_refs(
-            _refs_for(contested_rows, "contested_record_id", "id")
-        ),
+        "contested_record_refs": _all_refs(_refs_for(contested_rows, "contested_record_id", "id")),
         "contested_records": contested_rows,
         "deficit_register_refs": _all_refs(_refs_for(deficit_rows, "deficit_id", "id")),
         "deficit_register": deficit_rows,
@@ -686,9 +682,7 @@ def _warrant_structure(claim: RuntimePdcClaimNode) -> RuntimePdcWarrantStructure
         ),
         limitation_refs=claim.limitation_refs,
         accepted_deficit_refs=claim.accepted_deficit_refs,
-        status="present"
-        if claim.argument_refs or claim.warrant_refs
-        else "pending_argument_graph",
+        status="present" if claim.argument_refs or claim.warrant_refs else "pending_argument_graph",
     )
 
 

@@ -121,9 +121,7 @@ _PROJECTION_ROLES = frozenset(
 )
 _AUTHORITY_ROLES_ALLOWED = frozenset({"producer_authority", "runtime_blocker"})
 _SERIOUS_AUTHORITY_PROVENANCE = frozenset({"runtime_emitted", "runtime_blocker"})
-_PROJECTION_PROVENANCE = frozenset(
-    {"bundle_overlay", "bundle_packaged", "runtime_projection"}
-)
+_PROJECTION_PROVENANCE = frozenset({"bundle_overlay", "bundle_packaged", "runtime_projection"})
 _C40_PRODUCER_STATES = (
     "requested",
     "preflighted",
@@ -359,11 +357,7 @@ def build_formal_invariant_spec_report(
     covered_count = len(covered)
     temporal_required_count = len(REQUIRED_TEMPORAL_LIVENESS_INVARIANT_IDS)
     temporal_covered_count = len(temporal_covered)
-    status = (
-        "pass"
-        if validation.status == "pass" and model_checks["status"] == "pass"
-        else "fail"
-    )
+    status = "pass" if validation.status == "pass" and model_checks["status"] == "pass" else "fail"
     issues = [issue.as_dict() for issue in validation.issues]
     for check in model_checks["checks"]:
         if check["status"] == "pass":
@@ -398,9 +392,7 @@ def build_formal_invariant_spec_report(
             "issue_count": len(issues),
         },
         "required_closeout_invariants": sorted(REQUIRED_CLOSEOUT_INVARIANT_IDS),
-        "required_temporal_liveness_invariants": sorted(
-            REQUIRED_TEMPORAL_LIVENESS_INVARIANT_IDS
-        ),
+        "required_temporal_liveness_invariants": sorted(REQUIRED_TEMPORAL_LIVENESS_INVARIANT_IDS),
         "model_checks": model_checks,
         "specs": list(validation.specs),
         "issues": issues,
@@ -423,9 +415,7 @@ def model_check_formal_invariant_specs(
                     "model_property": model_property,
                     "status": "fail",
                     "checked_states": 0,
-                    "counterexamples": [
-                        {"code": "formal_invariant_model_property_missing"}
-                    ],
+                    "counterexamples": [{"code": "formal_invariant_model_property_missing"}],
                 }
             )
             continue
@@ -437,9 +427,7 @@ def model_check_formal_invariant_specs(
                     "model_property": model_property,
                     "status": "fail",
                     "checked_states": 0,
-                    "counterexamples": [
-                        {"code": "formal_invariant_model_property_unknown"}
-                    ],
+                    "counterexamples": [{"code": "formal_invariant_model_property_unknown"}],
                 }
             )
             continue
@@ -498,9 +486,7 @@ def check_bounded_liveness_deadline_consistency(
         issues.extend(_reissue_liveness_issues(record, index=index))
 
     return {
-        "schema_version": (
-            "policyos.runtime.quality.bounded_liveness_deadline_consistency.v1"
-        ),
+        "schema_version": ("policyos.runtime.quality.bounded_liveness_deadline_consistency.v1"),
         "tool": TOOL_NAME,
         "status": "fail" if issues else "pass",
         "summary": {
@@ -647,17 +633,19 @@ def _semantic_issues(
                 code="formal_invariant_check_type_insufficient",
                 spec_id=spec_id,
                 field="accepted_check_type",
-                message=(
-                    "Authority-critical invariants cannot be satisfied by unit tests alone."
-                ),
+                message=("Authority-critical invariants cannot be satisfied by unit tests alone."),
                 value=check_type,
             )
         )
-    if check_type in {
-        "finite_state_model_check",
-        "property_based_model_check",
-        "state_machine_model_check",
-    } and model_property not in _MODEL_CHECKERS:
+    if (
+        check_type
+        in {
+            "finite_state_model_check",
+            "property_based_model_check",
+            "state_machine_model_check",
+        }
+        and model_property not in _MODEL_CHECKERS
+    ):
         issues.append(
             FormalInvariantIssue(
                 code="formal_invariant_model_property_unknown",
@@ -978,9 +966,7 @@ def _check_bounded_liveness_retry_lease() -> tuple[int, list[dict[str, object]]]
         issues = _retry_lease_liveness_issues(record, index=0)
         failed = bool(issues)
         expected_failed = attempts_above_ceiling or (
-            state in _LIVENESS_ONGOING_STATES
-            and lease_expired
-            and not has_escalation
+            state in _LIVENESS_ONGOING_STATES and lease_expired and not has_escalation
         )
         if failed != expected_failed:
             counterexamples.append(
@@ -1016,9 +1002,8 @@ def _check_bounded_liveness_escalation_authority() -> tuple[int, list[dict[str, 
             record["escalation_ref"] = "event://runtime-escalation/fabric"
         issues = _escalation_liveness_issues(record, index=0)
         failed = bool(issues)
-        expected_failed = (
-            (state in _LIVENESS_ESCALATION_STATES and satisfies_authority)
-            or (escalation_required and not _has_escalation_signal(record))
+        expected_failed = (state in _LIVENESS_ESCALATION_STATES and satisfies_authority) or (
+            escalation_required and not _has_escalation_signal(record)
         )
         if failed != expected_failed:
             counterexamples.append(
@@ -1642,29 +1627,21 @@ def _rel(path: Path, repo_root: Path) -> str:
 
 
 _MODEL_CHECKERS: Mapping[str, Callable[[], tuple[int, list[dict[str, object]]]]] = {
-    "authority_ordering_projection_never_satisfies_serious_authority": (
-        _check_authority_ordering
-    ),
+    "authority_ordering_projection_never_satisfies_serious_authority": (_check_authority_ordering),
     "phase_barrier_authority_upgrade_requires_passed_barriers": _check_phase_barriers,
     "same_input_closure_requires_closed_matching_identity": _check_same_input_closure,
     "cas_event_reconciliation_is_bijective_for_runtime_authority": (
         _check_cas_event_reconciliation
     ),
-    "terminal_readiness_requires_closed_scorecard_and_readiness": (
-        _check_terminal_readiness
-    ),
+    "terminal_readiness_requires_closed_scorecard_and_readiness": (_check_terminal_readiness),
     "bounded_liveness_producer_pipeline_deadline_consistency": (
         _check_bounded_liveness_producer_pipeline
     ),
-    "bounded_liveness_retry_lease_deadline_consistency": (
-        _check_bounded_liveness_retry_lease
-    ),
+    "bounded_liveness_retry_lease_deadline_consistency": (_check_bounded_liveness_retry_lease),
     "bounded_liveness_escalation_does_not_satisfy_authority": (
         _check_bounded_liveness_escalation_authority
     ),
-    "bounded_liveness_reissue_deadline_consistency": (
-        _check_bounded_liveness_reissue_flow
-    ),
+    "bounded_liveness_reissue_deadline_consistency": (_check_bounded_liveness_reissue_flow),
 }
 
 __all__ = [

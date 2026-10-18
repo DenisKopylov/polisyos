@@ -339,9 +339,7 @@ def test_resolve_store_keeps_guarded_content_addressed_filesystem_cas_under_tena
 ) -> None:
     from polisyos.runtime.http.resilience import guard_runtime_cas
 
-    guarded_store = guard_runtime_cas(
-        FileSystemCAS(tmp_path).with_ambient_ownership_enforcement()
-    )
+    guarded_store = guard_runtime_cas(FileSystemCAS(tmp_path).with_ambient_ownership_enforcement())
 
     with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
         resolved = _resolve_store(guarded_store)

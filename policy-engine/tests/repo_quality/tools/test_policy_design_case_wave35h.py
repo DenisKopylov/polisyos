@@ -14,7 +14,8 @@ from tools.quality.validation import check_policy_design_case_wave35h_provenance
 REPO_ROOT = Path(__file__).resolve().parents[3]
 WAVE35_STAGE_PREREQUISITES = (
     REPO_ROOT / "_build/policy-design-case/rebaseline/wave-35/pass2_disposition.json",
-    REPO_ROOT / "_build/policy-design-case/rebaseline/wave-35G/institutional_provenance_boundary_ledger.json",
+    REPO_ROOT
+    / "_build/policy-design-case/rebaseline/wave-35G/institutional_provenance_boundary_ledger.json",
 )
 pytestmark = pytest.mark.skipif(
     os.environ.get("POLISYOS_RUN_STAGED_REBASELINE_TESTS") != "1"
@@ -71,8 +72,7 @@ def test_wave35h_builder_runtime_owns_all_institutional_boundary_findings(
 
     boundary = json.loads(
         (
-            fake_repo
-            / "_build/policy-design-case/rebaseline/wave-35G/"
+            fake_repo / "_build/policy-design-case/rebaseline/wave-35G/"
             "institutional_provenance_boundary_ledger.json"
         ).read_text()
     )
@@ -107,8 +107,7 @@ def test_wave35h_checker_rejects_runtime_owned_rows_missing_required_fields(
         refresh_wave35g_backfill=False,
     )
     implementation_path = (
-        fake_repo
-        / "_build/policy-design-case/rebaseline/wave-35E/"
+        fake_repo / "_build/policy-design-case/rebaseline/wave-35E/"
         "implementation_feasibility_ledger.json"
     )
     implementation = json.loads(implementation_path.read_text())

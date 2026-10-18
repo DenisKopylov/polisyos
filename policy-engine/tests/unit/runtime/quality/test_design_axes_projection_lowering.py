@@ -189,9 +189,7 @@ def _faithfulness_payload(**overrides: object) -> dict[str, object]:
         "consumer_contract_ref": (
             "policyos.runtime.policy_design_case.projection_contract_verification.v1"
         ),
-        "authority_boundary": _authority_boundary(
-            authoritative_for=["projection_faithfulness"]
-        ),
+        "authority_boundary": _authority_boundary(authoritative_for=["projection_faithfulness"]),
         "rule_version_ref": S9_RULE_VERSION_REF,
     }
     payload.update(overrides)
@@ -266,9 +264,7 @@ def test_s9_projection_contracts_are_strict_replayable_and_exported() -> None:
 
     request = _s9("ProjectionAlgebraRequest").model_validate(_projection_request_payload())
     render = _s9("ProjectionRenderRecord").model_validate(_render_payload())
-    faithfulness = _s9("ProjectionFaithfulnessRecord").model_validate(
-        _faithfulness_payload()
-    )
+    faithfulness = _s9("ProjectionFaithfulnessRecord").model_validate(_faithfulness_payload())
 
     assert request.request_ref == render.request_ref == faithfulness.request_ref
     assert render.canonical_design_record_digest == CANONICAL_DIGEST
@@ -283,7 +279,9 @@ def test_s9_projection_contracts_are_strict_replayable_and_exported() -> None:
         )
 
 
-def test_canonical_design_record_contains_graph_evidence_assurance_limitations_and_lowering_refs() -> None:
+def test_canonical_design_record_contains_graph_evidence_assurance_limitations_and_lowering_refs() -> (
+    None
+):
     record = _s9("CanonicalDesignRecord").model_validate(_canonical_payload())
 
     assert record.source_design_record_ref == SOURCE_DESIGN_RECORD_REF
@@ -306,7 +304,9 @@ def test_canonical_design_record_contains_graph_evidence_assurance_limitations_a
         )
 
 
-def test_projection_grammar_request_covers_audience_aspect_depth_redaction_format_revision() -> None:
+def test_projection_grammar_request_covers_audience_aspect_depth_redaction_format_revision() -> (
+    None
+):
     request = _s9("ProjectionAlgebraRequest").model_validate(
         _projection_request_payload(
             audience="MACHINE",
@@ -372,9 +372,9 @@ def test_prose_adding_claim_absent_from_design_record_is_rejected() -> None:
 
     assert _as_mapping(faithfulness)["faithfulness_status"] == "fail"
     assert "s9_projection_added_claim" in _issue_codes(faithfulness)
-    assert "claim://ua-msme/new-public-benefit-claim" in _as_mapping(faithfulness)[
-        "added_claim_refs"
-    ]
+    assert (
+        "claim://ua-msme/new-public-benefit-claim" in _as_mapping(faithfulness)["added_claim_refs"]
+    )
 
 
 def test_tradeoff_inversion_fails_faithfulness() -> None:
@@ -429,9 +429,7 @@ def test_legal_lowering_without_grounding_is_blocked_while_public_projection_pas
         projection_request=request,
         projection_render=render,
     )
-    lowering_request = _s9("LoweringRequestRecord").model_validate(
-        _lowering_request_payload()
-    )
+    lowering_request = _s9("LoweringRequestRecord").model_validate(_lowering_request_payload())
 
     gate = _s9("gate_lowering_request")(
         canonical_design_record=canonical,

@@ -87,9 +87,7 @@ def build_foundry_method_components_index(
     index = ComponentRegistry()
     for row in report.components:
         index.register(
-            ComponentEntry(
-                metadata=row.metadata, component=row.component, source=row.source
-            ),
+            ComponentEntry(metadata=row.metadata, component=row.component, source=row.source),
             on_duplicate=duplicate_policy,
         )
 

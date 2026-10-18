@@ -18,9 +18,7 @@ from polisyos.scientist.evidence.claims.models import (
 )
 
 CLAIM_LEDGER_V2_FLAG = "scientist.best_in_class.wave2.phase2_1.claim_ledger_v2"
-REQUIRE_LIFECYCLE_EVENTS_FLAG = (
-    "scientist.best_in_class.wave2.phase2_1.require_lifecycle_events"
-)
+REQUIRE_LIFECYCLE_EVENTS_FLAG = "scientist.best_in_class.wave2.phase2_1.require_lifecycle_events"
 
 
 class ClaimLifecycleAction(str, Enum):
@@ -83,8 +81,7 @@ class ClaimLifecycleEvent(BaseModel):
             if self.claim_id not in source_ids:
                 raise ValueError("split events must preserve the source claim_id")
         if self.action is ClaimLifecycleAction.SUPERSEDED and (
-            not self.metadata.get("superseded_by_claim_id")
-            and self.next_claim_ref is None
+            not self.metadata.get("superseded_by_claim_id") and self.next_claim_ref is None
         ):
             raise ValueError("superseded events require a superseding claim id or ref")
         return self

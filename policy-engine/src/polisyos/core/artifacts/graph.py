@@ -112,9 +112,7 @@ def resolve_dependency_graph(
     root_ref = root_id if isinstance(root_id, ArtifactRef) else None
     root_artifact_id = root_ref.artifact_id if root_ref is not None else root_id
     preserve_profiles = (
-        root_ref is not None
-        if preserve_manifest_profiles is None
-        else preserve_manifest_profiles
+        root_ref is not None if preserve_manifest_profiles is None else preserve_manifest_profiles
     )
     root_profile = root_ref.manifest_profile_sha256 if preserve_profiles and root_ref else None
     graph = DependencyGraph(
@@ -221,8 +219,7 @@ def resolve_dependency_graph(
             if mismatched_fields:
                 fields = ", ".join(mismatched_fields)
                 raise ValueError(
-                    "root ArtifactRef does not match the resolved CAS manifest "
-                    f"for {fields}"
+                    f"root ArtifactRef does not match the resolved CAS manifest for {fields}"
                 )
 
         node.kind = manifest.kind
@@ -237,9 +234,7 @@ def resolve_dependency_graph(
                 media_type=manifest.media_type,
                 manifest_profile_sha256=profile,
             )
-            verification = store.verify(
-                verification_ref if preserve_profiles else artifact_id
-            )
+            verification = store.verify(verification_ref if preserve_profiles else artifact_id)
             if not verification.ok:
                 node.status = NodeStatus.CORRUPTED
                 continue

@@ -43,9 +43,7 @@ def test_s2_manifest_declares_closed_cells_and_shadow_scope() -> None:
     assert manifest["required_governance_decision_classes"] == ["a_spec_gap"]
     assert manifest["required_voi_sites"] == ["s2_refinement_policy"]
     assert len(manifest["candidate_space"]["instrument_families"]) == 3
-    assert manifest["candidate_space"]["parameter_space"]["coverage"][0] == (
-        "partial_portfolio"
-    )
+    assert manifest["candidate_space"]["parameter_space"]["coverage"][0] == ("partial_portfolio")
     assert "production_recommendation" in manifest["may_not_use_for"]
 
 
@@ -113,9 +111,7 @@ def test_s2_validator_binds_candidate_space_to_declared_diversity_floor() -> Non
 
 def test_s2_manifest_is_registered_in_inventory() -> None:
     inventory = json.loads(
-        (REPO_ROOT / "architecture/policy_design_case/inventory.json").read_text(
-            encoding="utf-8"
-        )
+        (REPO_ROOT / "architecture/policy_design_case/inventory.json").read_text(encoding="utf-8")
     )
     artifacts = {str(row["id"]): row for row in inventory["artifacts"]}
 
@@ -133,6 +129,4 @@ def test_s2_manifest_is_registered_in_inventory() -> None:
     assert row["validator"] == (
         "tools/quality/validation/check_policy_design_case_layer2_s2_design_search.py"
     )
-    assert row["canonical_route"] == (
-        "tools/quality/validation/run_universal_outcome_corpus.py"
-    )
+    assert row["canonical_route"] == ("tools/quality/validation/run_universal_outcome_corpus.py")

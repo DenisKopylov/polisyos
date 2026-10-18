@@ -129,9 +129,7 @@ REQUIRED_COMPONENTS: tuple[ComponentSpec, ...] = (
     (
         "adapter_preservation_records",
         ("quality_evidence/source_truth_conflicts.json#/adapter_preservation_records",),
-        lambda _root, payloads: bool(
-            _nested_find_all(payloads, "adapter_preservation_records")
-        )
+        lambda _root, payloads: bool(_nested_find_all(payloads, "adapter_preservation_records"))
         or _has_any_nested_key(
             payloads,
             ("source_truth_adapter_surfaces", "source_truth_adapter_paths"),
@@ -166,9 +164,7 @@ REQUIRED_COMPONENTS: tuple[ComponentSpec, ...] = (
             "quality_evidence/privacy_compliance_report.json",
             "quality_evidence/security_assurance_report.json",
         ),
-        lambda root, _payloads: (
-            root / "quality_evidence/privacy_compliance_report.json"
-        ).is_file()
+        lambda root, _payloads: (root / "quality_evidence/privacy_compliance_report.json").is_file()
         and (root / "quality_evidence/security_assurance_report.json").is_file(),
     ),
     (
@@ -227,9 +223,7 @@ REQUIRED_COMPONENTS: tuple[ComponentSpec, ...] = (
     (
         "diagnostic_slo_evidence",
         ("quality_evidence/diagnostic_slo_report.json",),
-        lambda root, _payloads: (
-            root / "quality_evidence/diagnostic_slo_report.json"
-        ).is_file(),
+        lambda root, _payloads: (root / "quality_evidence/diagnostic_slo_report.json").is_file(),
     ),
     (
         "attestation_records",
@@ -459,13 +453,13 @@ def _matrix_lane_not_passed_finding(target: Mapping[str, Any]) -> dict[str, Any]
     code = str(failure.get("code") or "unknown").strip() or "unknown"
     owner = str(failure.get("owner") or "runtime-quality").strip() or "runtime-quality"
     root_cause_class = (
-        str(failure.get("root_cause_class") or failure.get("type") or "runtime_lane_failure")
-        .strip()
+        str(
+            failure.get("root_cause_class") or failure.get("type") or "runtime_lane_failure"
+        ).strip()
         or "runtime_lane_failure"
     )
     next_action = (
-        str(failure.get("next_action") or "Inspect the emitted matrix failure envelope.")
-        .strip()
+        str(failure.get("next_action") or "Inspect the emitted matrix failure envelope.").strip()
         or "Inspect the emitted matrix failure envelope."
     )
     finding = _finding(
@@ -643,8 +637,7 @@ def _residual_spine_boundary_findings(
                 {
                     "code": f"{boundary.get('record_id') or 'residual_boundary'}_invalid",
                     "message": (
-                        "Residual evidence boundary did not pass and emitted no typed "
-                        "issue."
+                        "Residual evidence boundary did not pass and emitted no typed issue."
                     ),
                 }
             ]
@@ -709,9 +702,7 @@ def _concept_spine_boundary_record(payloads: Mapping[str, Any]) -> dict[str, Any
 def _jurisdiction_spine_boundary_record(payloads: Mapping[str, Any]) -> dict[str, Any]:
     case_payload = _policy_design_case_payload(payloads)
     jurisdiction = (
-        case_payload.get("jurisdiction_spine")
-        if isinstance(case_payload, Mapping)
-        else None
+        case_payload.get("jurisdiction_spine") if isinstance(case_payload, Mapping) else None
     )
     return build_policy_design_jurisdiction_spine_boundary_record(
         jurisdiction if isinstance(jurisdiction, Mapping) else None
@@ -773,11 +764,7 @@ def _public_leak_findings(root: Path) -> list[dict[str, Any]]:
         except OSError:
             continue
         payload = _load_json_text_or_none(text)
-        values = (
-            _iter_public_string_values(payload)
-            if payload is not None
-            else (("$", text),)
-        )
+        values = _iter_public_string_values(payload) if payload is not None else (("$", text),)
         for value_path, value in values:
             lowered = value.casefold()
             for token in FORBIDDEN_PUBLIC_TOKENS:
@@ -837,11 +824,7 @@ def _public_export_truth_findings(
 
     limits = public_export.get("official_use_limits")
     disallowed = (
-        {
-            str(item)
-            for item in limits.get("may_not_be_used_for", [])
-            if str(item).strip()
-        }
+        {str(item) for item in limits.get("may_not_be_used_for", []) if str(item).strip()}
         if isinstance(limits, Mapping)
         else set()
     )
@@ -1027,8 +1010,7 @@ def _has_event_registry_version(payloads: Mapping[str, Any]) -> bool:
     for key in ("event_type_registry", "diagnostic_event_type_registry"):
         for value in _nested_find_all(payloads, key):
             if isinstance(value, Mapping) and (
-                _non_empty(value.get("version"))
-                or _non_empty(value.get("registry_version"))
+                _non_empty(value.get("version")) or _non_empty(value.get("registry_version"))
             ):
                 return True
     return False
@@ -1160,9 +1142,7 @@ def _iter_public_string_values(payload: Any, *, path: str = "$") -> tuple[tuple[
     if isinstance(payload, Mapping):
         values: list[tuple[str, str]] = []
         for key, value in payload.items():
-            values.extend(
-                _iter_public_string_values(value, path=f"{path}.{key}")
-            )
+            values.extend(_iter_public_string_values(value, path=f"{path}.{key}"))
         return tuple(values)
     if isinstance(payload, list):
         values = []
@@ -1221,9 +1201,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     rendered = dump_json(payload)
     if args.json_output is not None:
         output = (
-            args.json_output
-            if args.json_output.is_absolute()
-            else repo_root / args.json_output
+            args.json_output if args.json_output.is_absolute() else repo_root / args.json_output
         )
         atomic_write_text(output, rendered)
     else:

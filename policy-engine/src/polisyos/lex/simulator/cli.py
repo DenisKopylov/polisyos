@@ -17,6 +17,7 @@ if TYPE_CHECKING:
 def load_norm_pack(cas: FileSystemCAS, ref_or_path: str) -> NormPack:
     """Load norm pack."""
     from polisyos.core.artifacts import load_core_json_artifact
+
     path = Path(ref_or_path)
     if path.exists():
         payload = json.loads(path.read_text(encoding="utf-8"))

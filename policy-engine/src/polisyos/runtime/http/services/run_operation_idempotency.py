@@ -257,7 +257,5 @@ class RuntimeOperationIntentSnapshot:
         """Keep unknown state equivalent to absence, never a fabricated row."""
         if self.status == "unknown" and self.record is not None:
             raise ValueError("unknown operation intent cannot carry a stored record")
-        if self.status != "unknown" and (
-            self.record is None or self.record.status != self.status
-        ):
+        if self.status != "unknown" and (self.record is None or self.record.status != self.status):
             raise ValueError("stored operation state must match its record")

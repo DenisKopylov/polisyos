@@ -13,12 +13,9 @@ from tools.quality.validation import run_universal_outcome_corpus as w12d
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 S6_MANIFEST = (
-    REPO_ROOT
-    / "architecture/policy_design_case/layer2_s6_blind_spot_firewalls_manifest.json"
+    REPO_ROOT / "architecture/policy_design_case/layer2_s6_blind_spot_firewalls_manifest.json"
 )
-S6_MANIFEST_PATH = (
-    "architecture/policy_design_case/layer2_s6_blind_spot_firewalls_manifest.json"
-)
+S6_MANIFEST_PATH = "architecture/policy_design_case/layer2_s6_blind_spot_firewalls_manifest.json"
 S6_CELLS = {
     "SYSTEM.measurability",
     "SYSTEM.subject_granularity",
@@ -137,9 +134,7 @@ def test_layer2_s6_closes_five_cells_with_fail_closed_maturity() -> None:
     assert set(manifest["cells_closed"]) == S6_CELLS
     assert manifest["expected_current_open_cell_count"] == 5
     assert manifest["floor_id"] == "s6_fail_closed_coverage"
-    assert manifest["floor_metric"] == (
-        "per_axis_fail_closed_negative_control_pass_rate"
-    )
+    assert manifest["floor_metric"] == ("per_axis_fail_closed_negative_control_pass_rate")
     assert manifest["floor_expected_minimum"] == 1.0
     for cell in cells.values():
         assert cell["owner_module"] == (
@@ -237,19 +232,14 @@ def test_layer2_s6_bridge_consumers_cover_cluster_map_contracts() -> None:
     manifest = _s6()
     cells = _s6_cells_from_cluster_map()
     cluster_consumers = {
-        str(consumer)
-        for cell in cells.values()
-        for consumer in cell.get("publishes", [])
+        str(consumer) for cell in cells.values() for consumer in cell.get("publishes", [])
     }
     bridge_coverage = manifest["bridge_consumer_coverage"]
 
     assert set(manifest["required_bridge_consumers"]) == S6_REQUIRED_BRIDGE_CONSUMERS
     assert cluster_consumers >= S6_REQUIRED_BRIDGE_CONSUMERS
     assert set(bridge_coverage) >= S6_REQUIRED_BRIDGE_CONSUMERS
-    assert all(
-        bridge_coverage[consumer] is True
-        for consumer in S6_REQUIRED_BRIDGE_CONSUMERS
-    )
+    assert all(bridge_coverage[consumer] is True for consumer in S6_REQUIRED_BRIDGE_CONSUMERS)
 
 
 def test_layer2_s6_cluster_map_marks_cells_implemented_and_unlisted_as_open() -> None:
@@ -264,7 +254,9 @@ def test_layer2_s6_cluster_map_marks_cells_implemented_and_unlisted_as_open() ->
         assert axis not in payload.get("open_cell_closure", {}).get(cluster, {})
 
 
-def test_layer2_s6_may_not_use_for_blocks_prediction_delegation_value_and_production_authority() -> None:
+def test_layer2_s6_may_not_use_for_blocks_prediction_delegation_value_and_production_authority() -> (
+    None
+):
     deny = set(_s6()["may_not_use_for"])
 
     assert deny >= S6_REQUIRED_DENY
@@ -303,13 +295,9 @@ def test_layer2_s6_corpus_summary_records_zero_false_clear(
     assert w12d_s6_summary["all_five_axes_covered"] is True
     assert w12d_s6_summary["per_axis_fail_closed_negative_control_pass_rate"] == 1.0
     assert w12d_s6_summary["false_clear_count"] == 0
-    assert set(w12d_s6_summary["bridge_consumer_coverage"]) >= (
-        S6_REQUIRED_BRIDGE_CONSUMERS
-    )
+    assert set(w12d_s6_summary["bridge_consumer_coverage"]) >= (S6_REQUIRED_BRIDGE_CONSUMERS)
     assert all(
         w12d_s6_summary["bridge_consumer_coverage"][consumer] is True
         for consumer in S6_REQUIRED_BRIDGE_CONSUMERS
     )
-    assert set(w12d_s6_summary["c3_authority_dimension_coverage"]) == (
-        S6_C3_AUTHORITY_DIMENSIONS
-    )
+    assert set(w12d_s6_summary["c3_authority_dimension_coverage"]) == (S6_C3_AUTHORITY_DIMENSIONS)

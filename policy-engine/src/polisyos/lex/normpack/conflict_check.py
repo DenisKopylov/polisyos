@@ -351,8 +351,10 @@ def _claim_matches_constraint(
     claim_norm_refs = set(_claim_norm_refs(claim))
     constraint_norm_refs = set(_constraint_norm_refs(constraint))
     has_criteria = has_criteria or bool(constraint_norm_refs)
-    if claim_norm_refs and constraint_norm_refs and claim_norm_refs.intersection(
-        constraint_norm_refs
+    if (
+        claim_norm_refs
+        and constraint_norm_refs
+        and claim_norm_refs.intersection(constraint_norm_refs)
     ):
         return True
 
@@ -393,9 +395,7 @@ def _direct_conflicts(
     constraint_id: str,
 ) -> list[dict[str, Any]]:
     action = _claim_action(claim).casefold()
-    prohibited = _as_set(
-        constraint.get("prohibited_actions") or constraint.get("blocked_actions")
-    )
+    prohibited = _as_set(constraint.get("prohibited_actions") or constraint.get("blocked_actions"))
     if not action or action not in prohibited:
         return []
     severity = _severity(constraint.get("severity"), default="critical")
@@ -502,9 +502,7 @@ def _equity_conflicts(
         or impact.get("worsens_access_for")
         or impact.get("harmed_groups")
     )
-    protected = _as_set(
-        constraint.get("protected_groups") or constraint.get("covered_groups")
-    )
+    protected = _as_set(constraint.get("protected_groups") or constraint.get("covered_groups"))
     bad_status = impact_status in {"fail", "failed", "negative", "blocked", "degraded"}
     group_overlap = not protected or bool(affected.intersection(protected))
     if not bad_status or not group_overlap:
@@ -543,11 +541,14 @@ def _indirect_reviewable_conflicts(
     ):
         return []
     severity = _severity(constraint.get("severity"), default="medium")
-    code = _text(
-        constraint.get("code")
-        or constraint.get("reason_code")
-        or constraint.get("conflict_code")
-    ) or "indirect_policy_conflict"
+    code = (
+        _text(
+            constraint.get("code")
+            or constraint.get("reason_code")
+            or constraint.get("conflict_code")
+        )
+        or "indirect_policy_conflict"
+    )
     return [
         _conflict(
             code=code,
@@ -581,11 +582,14 @@ def _informational_overlaps(
     ):
         return []
     severity = _severity(constraint.get("severity"), default="info")
-    code = _text(
-        constraint.get("code")
-        or constraint.get("reason_code")
-        or constraint.get("overlap_code")
-    ) or "informational_overlap"
+    code = (
+        _text(
+            constraint.get("code")
+            or constraint.get("reason_code")
+            or constraint.get("overlap_code")
+        )
+        or "informational_overlap"
+    )
     return [
         _conflict(
             code=code,
@@ -696,11 +700,7 @@ def _inherit_constraint_metadata(
     index: int,
 ) -> dict[str, Any]:
     inherited = dict(child)
-    if not _text(
-        inherited.get("constraint_id")
-        or inherited.get("id")
-        or inherited.get("norm_id")
-    ):
+    if not _text(inherited.get("constraint_id") or inherited.get("id") or inherited.get("norm_id")):
         inherited["constraint_id"] = f"{parent_id}:constraint_{index + 1}"
     parent_refs = _constraint_parent_refs(parent)
     if parent_refs and not _constraint_norm_refs(inherited):
@@ -770,8 +770,7 @@ def _normalize_existing_conflict(conflict: dict[str, Any], index: int) -> dict[s
             claim_text=_text(conflict.get("claim_text") or conflict.get("text")) or None,
             constraint_id=_text(conflict.get("constraint_id")) or None,
             norm_refs=norm_refs,
-            message=_text(conflict.get("message"))
-            or f"Policy conflict {code} was reported.",
+            message=_text(conflict.get("message")) or f"Policy conflict {code} was reported.",
             blocking=conflict.get("blocking"),
         ),
     }
@@ -790,14 +789,10 @@ def build_policy_conflict_check_report(
         if isinstance(conflict, dict)
     ]
     conflicts = [
-        finding
-        for finding in findings
-        if finding.get("classification") != "informational_overlap"
+        finding for finding in findings if finding.get("classification") != "informational_overlap"
     ]
     informational_overlaps = [
-        finding
-        for finding in findings
-        if finding.get("classification") == "informational_overlap"
+        finding for finding in findings if finding.get("classification") == "informational_overlap"
     ]
     expanded_constraints = _expanded_corpus_constraints(corpus_constraints)
 
@@ -824,18 +819,14 @@ def build_policy_conflict_check_report(
                     conflicts.append(finding)
 
     status = _status_from_conflicts(conflicts)
-    blocking_conflict_count = sum(
-        1 for conflict in conflicts if conflict.get("blocking") is True
-    )
+    blocking_conflict_count = sum(1 for conflict in conflicts if conflict.get("blocking") is True)
     reviewable_conflict_count = sum(
         1
         for conflict in conflicts
         if conflict.get("classification") == "indirect_reviewable_conflict"
     )
     operator_action_required_count = sum(
-        1
-        for conflict in conflicts
-        if conflict.get("requires_operator_action") is True
+        1 for conflict in conflicts if conflict.get("requires_operator_action") is True
     )
     return {
         "schema_version": SCHEMA_VERSION,
@@ -868,24 +859,32 @@ def normalize_policy_conflict_check_report(report: dict[str, Any]) -> dict[str, 
     if not isinstance(report, dict):
         report = {}
     raw_claims = report.get("policy_claims") or report.get("claims") or []
-    policy_claims = [claim for claim in raw_claims if isinstance(claim, dict)] if isinstance(
-        raw_claims,
-        list,
-    ) else []
+    policy_claims = (
+        [claim for claim in raw_claims if isinstance(claim, dict)]
+        if isinstance(
+            raw_claims,
+            list,
+        )
+        else []
+    )
     raw_constraints = (
         report.get("corpus_constraints")
         or report.get("constraints")
         or report.get("normative_constraints")
         or []
     )
-    corpus_constraints = [
-        constraint for constraint in raw_constraints if isinstance(constraint, dict)
-    ] if isinstance(raw_constraints, list) else []
+    corpus_constraints = (
+        [constraint for constraint in raw_constraints if isinstance(constraint, dict)]
+        if isinstance(raw_constraints, list)
+        else []
+    )
     raw_conflicts = report.get("conflicts") or []
     raw_overlaps = report.get("informational_overlaps") or []
-    existing_conflicts = [
-        conflict for conflict in raw_conflicts if isinstance(conflict, dict)
-    ] if isinstance(raw_conflicts, list) else []
+    existing_conflicts = (
+        [conflict for conflict in raw_conflicts if isinstance(conflict, dict)]
+        if isinstance(raw_conflicts, list)
+        else []
+    )
     if isinstance(raw_overlaps, list):
         existing_conflicts.extend(
             conflict for conflict in raw_overlaps if isinstance(conflict, dict)

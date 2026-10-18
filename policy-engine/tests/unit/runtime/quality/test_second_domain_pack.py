@@ -756,7 +756,9 @@ def test_dependency_discriminant_diagnostic_is_ambient_to_n10a_governing_result(
         companion=companion,
         diagnostic_verification=None,
     )
-    monkeypatch.setattr(n8, "_current_dependency_environment_diagnostic", lambda _profile: diagnostic)
+    monkeypatch.setattr(
+        n8, "_current_dependency_environment_diagnostic", lambda _profile: diagnostic
+    )
     failed = reader(
         repo_root=REPO_ROOT,
         companion=companion,
@@ -783,7 +785,9 @@ def test_cli_names_dependency_case_before_generic_stage_gap_without_reclosing_n8
     reader = getattr(second_domain_pack, "read_foundry_dependency_discriminant", None)
     assert callable(reader), "missing behavior: N10a discriminant reader"
     diagnostic = _failed_dependency_diagnostic(companion)
-    monkeypatch.setattr(n8, "_current_dependency_environment_diagnostic", lambda _profile: diagnostic)
+    monkeypatch.setattr(
+        n8, "_current_dependency_environment_diagnostic", lambda _profile: diagnostic
+    )
     ambient = reader(
         repo_root=REPO_ROOT,
         companion=companion,

@@ -101,14 +101,11 @@ def assert_universality_preflight(
         availability = build_grounding_backend_availability()
     except Exception as exc:
         raise CgSubstrateUnavailableError(
-            "cg_substrate_unavailable:grounding_backend_availability:"
-            f"{type(exc).__name__}"
+            f"cg_substrate_unavailable:grounding_backend_availability:{type(exc).__name__}"
         ) from exc
 
     if availability.required_backend_status != "available":
         solver_name = str(availability.solver.get("name") or "required_solver")
         solver_error = str(availability.solver.get("error") or "unavailable")
-        raise CgSubstrateUnavailableError(
-            f"cg_substrate_unavailable:{solver_name}:{solver_error}"
-        )
+        raise CgSubstrateUnavailableError(f"cg_substrate_unavailable:{solver_name}:{solver_error}")
     return resolved_package_path, availability

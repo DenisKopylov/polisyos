@@ -325,19 +325,23 @@ def test_recorded_capsule_rejects_mutation_of_complete_raw_contract_quantity(
 
     def recursive(value, path=()):
         if isinstance(value, dict):
-            return set().union(*(
-                {(*path, key)}
-                if not isinstance(child, (dict, list)) or not child
-                else recursive(child, (*path, key))
-                for key, child in value.items()
-            ))
+            return set().union(
+                *(
+                    {(*path, key)}
+                    if not isinstance(child, (dict, list)) or not child
+                    else recursive(child, (*path, key))
+                    for key, child in value.items()
+                )
+            )
         if isinstance(value, list):
-            return set().union(*(
-                {(*path, index)}
-                if not isinstance(child, (dict, list)) or not child
-                else recursive(child, (*path, index))
-                for index, child in enumerate(value)
-            ))
+            return set().union(
+                *(
+                    {(*path, index)}
+                    if not isinstance(child, (dict, list)) or not child
+                    else recursive(child, (*path, index))
+                    for index, child in enumerate(value)
+                )
+            )
         return {path}
 
     paths = recursive(contract)

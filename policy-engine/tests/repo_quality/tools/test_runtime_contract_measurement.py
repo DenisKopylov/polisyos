@@ -31,9 +31,7 @@ def test_missing_openapi_comparator_is_unrun(tmp_path, monkeypatch, capsys) -> N
     assert "UNRUN" in capsys.readouterr().out
 
 
-def test_failed_client_process_retains_prior_findings_as_partial(
-    monkeypatch, capsys
-) -> None:
+def test_failed_client_process_retains_prior_findings_as_partial(monkeypatch, capsys) -> None:
     monkeypatch.setattr(sys, "argv", ["check-runtime-api-contract"])
     monkeypatch.setattr(gate, "_check_openapi_drift", lambda **kwargs: ["OpenAPI drift witness"])
 

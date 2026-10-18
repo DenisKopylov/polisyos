@@ -117,9 +117,7 @@ def _validate_authority_map(
         artifact_path = str(row.get("artifact_path") or "<unknown>")
         authority_class = str(row.get("evidence_authority_class") or "")
         if authority_class not in allowed:
-            errors.append(
-                f"{artifact_path}: unknown evidence authority class {authority_class!r}"
-            )
+            errors.append(f"{artifact_path}: unknown evidence authority class {authority_class!r}")
         if authority_class in build.OVERLAY_AUTHORITY_CLASSES:
             if row.get("runtime_fact_produced") is True:
                 errors.append(f"{artifact_path}: overlay cannot produce runtime facts")
@@ -144,9 +142,7 @@ def _validate_classification(
 
     coverage = build.expected_wave35f_coverage(disposition)
     observed_finding_ids = {
-        str(row.get("finding_id"))
-        for row in rows
-        if row.get("row_type") == "finding_remediation"
+        str(row.get("finding_id")) for row in rows if row.get("row_type") == "finding_remediation"
     }
     expected_finding_ids = set(coverage["remediated_finding_ids"])
     if observed_finding_ids != expected_finding_ids:
@@ -200,9 +196,7 @@ def _validate_gap_ledger(
 ) -> None:
     classified_rows = _mapping_rows(classification, "rows")
     gap_rows = _mapping_rows(gap_ledger, "rows")
-    gap_by_classification = {
-        str(row.get("classification_row_id")): row for row in gap_rows
-    }
+    gap_by_classification = {str(row.get("classification_row_id")): row for row in gap_rows}
     expected_gap_row_ids = {
         str(row.get("row_id"))
         for row in classified_rows
@@ -240,18 +234,14 @@ def _validate_gap_ledger(
         if not isinstance(boundary, Mapping):
             errors.append(f"{gap_id}: missing accepted boundary")
         elif boundary.get("blocks_wave36_closeout_authority") is not True:
-            errors.append(
-                f"{gap_id}: accepted boundary must block Wave 36 closeout authority"
-            )
+            errors.append(f"{gap_id}: accepted boundary must block Wave 36 closeout authority")
         if (
             row.get("wave36_blocking_decision") == "exclude_from_wave36_closeout_evidence"
             and row.get("finding_id")
             in build._mapping(wave35g_backfill.get("non_closeout_boundary_by_finding"))
             and build._mapping(boundary).get("blocks_wave36_release") is not False
         ):
-            errors.append(
-                f"{gap_id}: Wave 35G non-closeout boundary must stop blocking release"
-            )
+            errors.append(f"{gap_id}: Wave 35G non-closeout boundary must stop blocking release")
         if row.get("wave36_blocking_decision") not in allowed_decisions:
             errors.append(f"{gap_id}: unknown Wave 36 blocking decision")
 
@@ -320,14 +310,11 @@ def _validate_integrity_report(
         errors.append("integrity report missing output_hashes")
 
     observed_counts = Counter(
-        str(row.get("evidence_authority_class"))
-        for row in _mapping_rows(classification, "rows")
+        str(row.get("evidence_authority_class")) for row in _mapping_rows(classification, "rows")
     )
     report_counts = {
         str(key): int(value)
-        for key, value in _mapping(
-            integrity_report.get("artifact_classification_counts")
-        ).items()
+        for key, value in _mapping(integrity_report.get("artifact_classification_counts")).items()
     }
     if dict(sorted(observed_counts.items())) != dict(sorted(report_counts.items())):
         errors.append("integrity report classification counts drifted")
@@ -346,8 +333,7 @@ def _actual_wave35_artifacts(repo_root: Path) -> set[str]:
     for directory in build.WAVE35_REMEDIATION_DIRS.values():
         directory_path = _resolve(repo_root, directory)
         paths.update(
-            path.relative_to(repo_root).as_posix()
-            for path in directory_path.glob("*.json")
+            path.relative_to(repo_root).as_posix() for path in directory_path.glob("*.json")
         )
     return paths
 

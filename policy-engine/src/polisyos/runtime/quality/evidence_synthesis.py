@@ -10,9 +10,7 @@ from typing import Any
 EVIDENCE_SYNTHESIS_REPORT_SCHEMA_VERSION = (
     "policyos.runtime.policy_design_case.evidence_synthesis_report.v1"
 )
-EVIDENCE_SYNTHESIS_REPORT_CONTRACT_ID = (
-    "policy_design_case.evidence_synthesis_report.v1"
-)
+EVIDENCE_SYNTHESIS_REPORT_CONTRACT_ID = "policy_design_case.evidence_synthesis_report.v1"
 
 _VALID_DIRECTIONS = frozenset({"positive", "negative", "zero"})
 _VALID_DIVERGENCE_STATUSES = frozenset({"convergent", "divergent", "blocked"})
@@ -337,9 +335,8 @@ def validate_evidence_synthesis_report_record(
     ):
         has_divergence_evidence = bool(normalized["divergence_evidence"])
         has_blocker = bool(normalized["blockers"])
-        if (
-            normalized["divergence_assessment"]["status"] == "convergent"
-            or not (has_divergence_evidence or has_blocker)
+        if normalized["divergence_assessment"]["status"] == "convergent" or not (
+            has_divergence_evidence or has_blocker
         ):
             raise EvidenceSynthesisReportError(
                 "policy_design_synthesis_divergence_evidence_missing",
@@ -390,14 +387,10 @@ _REQUIRED_SURFACES = {
     "weighting_model": "policy_design_synthesis_weighting_model_missing",
     "heterogeneity_model": "policy_design_synthesis_heterogeneity_model_missing",
     "certainty_framework": "policy_design_synthesis_certainty_framework_missing",
-    "publication_bias_treatment": (
-        "policy_design_synthesis_publication_bias_treatment_missing"
-    ),
+    "publication_bias_treatment": ("policy_design_synthesis_publication_bias_treatment_missing"),
     "inclusion_policy": "policy_design_synthesis_inclusion_policy_missing",
     "exclusion_policy": "policy_design_synthesis_exclusion_policy_missing",
-    "sensitivity_to_synthesis_rules": (
-        "policy_design_synthesis_rule_sensitivity_missing"
-    ),
+    "sensitivity_to_synthesis_rules": ("policy_design_synthesis_rule_sensitivity_missing"),
     "information_saturation": "policy_design_synthesis_information_saturation_missing",
     "run_cost_proportionality": "policy_design_synthesis_run_cost_missing",
     "divergence_assessment": "policy_design_synthesis_divergence_assessment_missing",
@@ -453,8 +446,7 @@ def _apply_synthesis_rule(
         )
     total_weight = sum(weight for _, weight in included)
     estimate = sum(
-        _float(record.get("estimate"), field="estimate") * weight
-        for record, weight in included
+        _float(record.get("estimate"), field="estimate") * weight for record, weight in included
     )
     estimate = estimate / total_weight
     return {
@@ -471,9 +463,7 @@ def _apply_synthesis_rule(
             )
             for record, _ in sorted(
                 included,
-                key=lambda item: str(
-                    item[0].get("specification_id") or item[0].get("spec_id")
-                ),
+                key=lambda item: str(item[0].get("specification_id") or item[0].get("spec_id")),
             )
         ],
         "total_weight": total_weight,
@@ -616,9 +606,7 @@ def _validate_sensitivity_rows(value: object, *, claim_direction: str) -> list[d
             "weighting",
             "policy_design_synthesis_weighting_missing",
         )
-        row["included_decisions"] = _text_values(item.get("included_decisions")) or [
-            "defensible"
-        ]
+        row["included_decisions"] = _text_values(item.get("included_decisions")) or ["defensible"]
         row["reasonable"] = bool(item.get("reasonable", True))
         row["direction_changed"] = row["direction"] != claim_direction
         rows.append(row)
@@ -1102,10 +1090,7 @@ def _divergence_must_be_represented(
 
 
 def _sensitivity_direction_changed(rows: Iterable[Mapping[str, Any]]) -> bool:
-    return any(
-        row.get("direction_changed") and bool(row.get("reasonable", True))
-        for row in rows
-    )
+    return any(row.get("direction_changed") and bool(row.get("reasonable", True)) for row in rows)
 
 
 def _records_mixed_sign(

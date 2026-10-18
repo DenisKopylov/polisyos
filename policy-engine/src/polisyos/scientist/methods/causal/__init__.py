@@ -22,7 +22,10 @@ __all__ = [
 ]
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
-    "BoundsEstimationRunner": ("polisyos.scientist.methods.causal.execution", "BoundsEstimationRunner"),
+    "BoundsEstimationRunner": (
+        "polisyos.scientist.methods.causal.execution",
+        "BoundsEstimationRunner",
+    ),
     "CounterfactualQueryRunner": (
         "polisyos.scientist.methods.causal.readiness",
         "CounterfactualQueryRunner",
@@ -52,7 +55,9 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
 
 def __getattr__(name: str) -> Any:
     if name not in _LAZY_IMPORTS:
-        raise AttributeError(f"module 'polisyos.scientist.methods.causal' has no attribute {name!r}")
+        raise AttributeError(
+            f"module 'polisyos.scientist.methods.causal' has no attribute {name!r}"
+        )
     module_name, attr_name = _LAZY_IMPORTS[name]
     value = getattr(importlib.import_module(module_name), attr_name)
     globals()[name] = value

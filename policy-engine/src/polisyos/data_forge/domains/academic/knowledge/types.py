@@ -236,8 +236,7 @@ def adapt_legacy_claim_occurrence_transport(
     expected_keys = {"cause", "effect", "direction", "strength", "mechanism"}
     if not set(raw) >= expected_keys:
         raise ValueError(
-            "legacy claim occurrence must contain "
-            "cause, effect, direction, strength, mechanism"
+            "legacy claim occurrence must contain cause, effect, direction, strength, mechanism"
         )
     if CLAIM_VOCABULARY_DISCRIMINATOR_COLUMN in raw or "schema_version" in raw:
         raise ValueError("legacy claim occurrence must not carry a v2 discriminator")
@@ -572,9 +571,7 @@ def adapt_jsonl_work_record_claims(
             not set(claim) >= {"cause", "effect", "direction", "strength", "mechanism"}
             or CLAIM_VOCABULARY_DISCRIMINATOR_COLUMN in claim
         ):
-            raise ValueError(
-                "JSONL claim is neither admitted transport nor a legacy occurrence"
-            )
+            raise ValueError("JSONL claim is neither admitted transport nor a legacy occurrence")
         adapted_claims.append(
             adapt_legacy_claim_occurrence_transport(
                 claim,

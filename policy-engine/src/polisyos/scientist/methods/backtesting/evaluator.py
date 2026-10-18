@@ -158,9 +158,7 @@ class PredictionEvaluator:
         mae = float(np.mean(absolute_errors)) if absolute_errors else None
         mape = float(np.mean(percentage_errors)) if percentage_errors else None
         coverage = (
-            interval_hit_count / interval_evaluated_count
-            if interval_evaluated_count > 0
-            else None
+            interval_hit_count / interval_evaluated_count if interval_evaluated_count > 0 else None
         )
         interval_availability = (
             interval_available_count / interval_requested_count
@@ -168,9 +166,7 @@ class PredictionEvaluator:
             else None
         )
         interval_hit_rate = (
-            interval_hit_count / interval_evaluated_count
-            if interval_evaluated_count > 0
-            else None
+            interval_hit_count / interval_evaluated_count if interval_evaluated_count > 0 else None
         )
         metadata_payload = dict(metadata or {})
         interval_type = metadata_payload.get("interval_type")

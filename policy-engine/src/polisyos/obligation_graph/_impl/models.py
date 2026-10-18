@@ -415,9 +415,7 @@ class ObligationGraph(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
     schema_version: Literal["policyos.obligation_graph.v1"] = OBLIGATION_GRAPH_SCHEMA_VERSION
-    contract_id: Literal["policy_design_case.obligation_graph.v1"] = (
-        OBLIGATION_GRAPH_CONTRACT_ID
-    )
+    contract_id: Literal["policy_design_case.obligation_graph.v1"] = OBLIGATION_GRAPH_CONTRACT_ID
     graph_id: str = Field(min_length=1)
     run_id: str = Field(min_length=1)
     generated_at: datetime

@@ -81,12 +81,7 @@ def test_run_cost_ledger_consolidates_cost_and_evidence_depth_budgets() -> None:
     assert validated["total_actual_cost_usd"] == pytest.approx(16.0)
     assert validated["elapsed_seconds"] == pytest.approx(1800.0)
     assert validated["human_review_hours"] == pytest.approx(1.5)
-    assert (
-        validated["evidence_depth_budget"][
-            "required_effective_independent_evidence_count"
-        ]
-        == 4
-    )
+    assert validated["evidence_depth_budget"]["required_effective_independent_evidence_count"] == 4
 
 
 def test_high_cost_low_impact_run_requires_proportionality_evidence() -> None:

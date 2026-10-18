@@ -198,8 +198,7 @@ def _write_task0a_data_home(repo_root: Path, *, omit_alias: str | None = None) -
 
 def _write_tourism_case_data_home(repo_root: Path) -> None:
     data_home = (
-        repo_root
-        / "architecture/policy_design_case/layer3_gx_data_home/cases/"
+        repo_root / "architecture/policy_design_case/layer3_gx_data_home/cases/"
         "tourism_local_development_ceiling_probe"
     )
     _write_json(
@@ -209,9 +208,7 @@ def _write_tourism_case_data_home(repo_root: Path) -> None:
             "rule_version": "policyos.layer3.gx.data_home.v1",
             "request_id": "gx-request:tourism-local-development-ceiling-probe",
             "case_id": "tourism_local_development_ceiling_probe",
-            "request_ref": (
-                "external-request://layer3-gx/tourism_local_development_ceiling_probe"
-            ),
+            "request_ref": ("external-request://layer3-gx/tourism_local_development_ceiling_probe"),
             "producer_ref": (
                 "external-request://layer3-gx/pinned-request/"
                 "tourism_local_development_ceiling_probe"
@@ -257,9 +254,7 @@ def _write_tourism_case_data_home(repo_root: Path) -> None:
             ],
             "g1_requests": [
                 {
-                    "request_id": (
-                        "g1-request:acquisition-gap-probe:local_tourism_site_traffic"
-                    ),
+                    "request_id": ("g1-request:acquisition-gap-probe:local_tourism_site_traffic"),
                     "case_id": "tourism_local_development_ceiling_probe",
                     "construct_bundle_id": "tourism_local_development_constructs",
                     "request_shape": "acquisition_gap_probe",
@@ -272,8 +267,7 @@ def _write_tourism_case_data_home(repo_root: Path) -> None:
                 },
                 {
                     "request_id": (
-                        "g1-request:construct-to-metric-binding:"
-                        "tourism_attraction_accessibility"
+                        "g1-request:construct-to-metric-binding:tourism_attraction_accessibility"
                     ),
                     "case_id": "tourism_local_development_ceiling_probe",
                     "construct_bundle_id": "tourism_local_development_constructs",
@@ -325,8 +319,7 @@ def _write_tourism_case_data_home(repo_root: Path) -> None:
                     "source_design_record": {
                         "payload_status": "unresolved",
                         "ref": (
-                            "pdc://slice0/tourism_local_development_ceiling_probe/"
-                            "design-record-v0"
+                            "pdc://slice0/tourism_local_development_ceiling_probe/design-record-v0"
                         ),
                     },
                 }
@@ -391,8 +384,7 @@ def _write_tourism_case_data_home(repo_root: Path) -> None:
             "schema_version": "policyos.policy_design_case.layer3_gx_scope_seed_rows.v1",
             "rule_version": "policyos.layer3.gx.data_home.v1",
             "producer_ref": (
-                "external-request://layer3-gx/scope/"
-                "tourism_local_development_ceiling_probe"
+                "external-request://layer3-gx/scope/tourism_local_development_ceiling_probe"
             ),
             "producer_type": "external_request",
             "scope_rows": [
@@ -416,8 +408,7 @@ def _write_tourism_case_data_home(repo_root: Path) -> None:
             "request_id": "gx-demand-pull:tourism-local-development-ceiling-probe",
             "case_id": "tourism_local_development_ceiling_probe",
             "producer_ref": (
-                "external-request://layer3-gx/demand-pull/"
-                "tourism_local_development_ceiling_probe"
+                "external-request://layer3-gx/demand-pull/tourism_local_development_ceiling_probe"
             ),
             "producer_type": "external_request",
             "source": (
@@ -426,12 +417,8 @@ def _write_tourism_case_data_home(repo_root: Path) -> None:
             ),
             "timestamp": "2026-06-15T00:00:00Z",
             "accountable_principal_ref": "principal://team-runtime-quality",
-            "request_source_ref": (
-                "fixture://gy/slice0/tourism_local_development_ceiling_probe"
-            ),
-            "replay_key": (
-                "layer3-gx-demand-pull:tourism_local_development_ceiling_probe:v1"
-            ),
+            "request_source_ref": ("fixture://gy/slice0/tourism_local_development_ceiling_probe"),
+            "replay_key": ("layer3-gx-demand-pull:tourism_local_development_ceiling_probe:v1"),
             "consumer_path": ["G5", "G6", "G7"],
             "demand_refs": [
                 "demand-act://layer3-gx/tourism_local_development_ceiling_probe/"
@@ -499,9 +486,7 @@ def _write_case_registry(repo_root: Path) -> None:
 
 def _write_task7_skg_canonical_fixture(repo_root: Path) -> None:
     graph_dir = (
-        repo_root
-        / "production_data/policyos_academic_runtime_slim_20260411T112032Z/"
-        "academic/graph"
+        repo_root / "production_data/policyos_academic_runtime_slim_20260411T112032Z/academic/graph"
     )
     graph_dir.mkdir(parents=True)
     db_path = graph_dir / "scholar_knowledge.duckdb"

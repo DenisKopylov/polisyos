@@ -232,7 +232,9 @@ class CPBASISConfig(BaseModel):
     @model_validator(mode="after")
     def _default_family_must_be_allowed(self) -> CPBASISConfig:
         if self.default_posterior_family not in self.allowed_posterior_families:
-            raise ValueError("default_posterior_family must be listed in allowed_posterior_families")
+            raise ValueError(
+                "default_posterior_family must be listed in allowed_posterior_families"
+            )
         return self
 
 
@@ -412,8 +414,7 @@ class ProofAwareSBIScheduler:
             blocked_candidate_ids=tuple(
                 score.candidate_id
                 for score in ranked_scores
-                if score.recommended_action == "reject"
-                and score.reason == "proof_gate_blocked"
+                if score.recommended_action == "reject" and score.reason == "proof_gate_blocked"
             ),
             deferred_candidate_ids=tuple(
                 score.candidate_id
@@ -491,7 +492,9 @@ def proof_gate_from_bridge(
         status=status,
         validity_multiplier=validity_multiplier,
         reasons=reasons,
-        proof_bundle_ref=ArtifactRefModel.model_validate(model.proof_bundle_ref.model_dump(mode="json")),
+        proof_bundle_ref=ArtifactRefModel.model_validate(
+            model.proof_bundle_ref.model_dump(mode="json")
+        ),
         calibration_receipt_ref=ArtifactRefModel.model_validate(
             model.calibration_receipt_ref.model_dump(mode="json")
         ),

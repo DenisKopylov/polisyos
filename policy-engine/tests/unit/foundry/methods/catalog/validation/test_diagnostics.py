@@ -93,9 +93,7 @@ class TestCrossValidation:
     def test_chain_without_owner_materializer_exposes_scalarization(
         self, isolated_registry, monkeypatch
     ) -> None:
-        method = _method_or_skip(
-            isolated_registry, "validation.model.cross_validation@1.0.0"
-        )
+        method = _method_or_skip(isolated_registry, "validation.model.cross_validation@1.0.0")
         assert method.signature.input_slot_names == {"fold_scores"}
         assert "cross-validation" in method.metadata.tags
 
@@ -111,12 +109,8 @@ class TestCrossValidation:
                 seed=13,
             )
 
-    def test_materializer_rejects_missing_or_malformed_fold_scores(
-        self, isolated_registry
-    ) -> None:
-        method = _method_or_skip(
-            isolated_registry, "validation.model.cross_validation@1.0.0"
-        )
+    def test_materializer_rejects_missing_or_malformed_fold_scores(self, isolated_registry) -> None:
+        method = _method_or_skip(isolated_registry, "validation.model.cross_validation@1.0.0")
         scores = np.array([0.7, 0.8, 0.9], dtype=float)
         malformed_cases = (
             ({}, {}),

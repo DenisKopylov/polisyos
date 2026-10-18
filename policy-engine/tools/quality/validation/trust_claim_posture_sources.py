@@ -104,9 +104,7 @@ def derive_ast_sources(
             continue
         rows.append(_derive_ast_row(member, raw))
     ordered = tuple(sorted(rows, key=lambda row: row.path))
-    candidate_paths = {row.path for row in ordered} | {
-        member.path for member in denied_raw_members
-    }
+    candidate_paths = {row.path for row in ordered} | {member.path for member in denied_raw_members}
     admitted = tuple(member for member in members if member.path in candidate_paths)
     receipt = _build_receipt(
         method="ast",

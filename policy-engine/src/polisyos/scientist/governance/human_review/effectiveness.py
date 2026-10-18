@@ -361,9 +361,7 @@ def load_review_effectiveness_report(
     """
     from polisyos.core.artifacts import load_core_json_artifact
 
-    return ReviewEffectivenessReport.model_validate(
-        load_core_json_artifact(store, ref)
-    )
+    return ReviewEffectivenessReport.model_validate(load_core_json_artifact(store, ref))
 
 
 def _event_from_voi_decision(decision: VOIDecisionRecord) -> dict[str, Any]:

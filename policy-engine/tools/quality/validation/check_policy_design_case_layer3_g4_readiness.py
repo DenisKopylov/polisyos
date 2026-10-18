@@ -25,12 +25,8 @@ DEPENDENCY_READINESS_SNAPSHOT_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g4_dependency_readiness_snapshot.json"
 )
 PROMOTION_INPUT_SET_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g4_promotion_input_set.json"
-GROUNDED_CONTRACT_SET_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g4_grounded_contract_set.json"
-)
-A_COMPLETENESS_LEDGER_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g4_a_completeness_ledger.json"
-)
+GROUNDED_CONTRACT_SET_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g4_grounded_contract_set.json"
+A_COMPLETENESS_LEDGER_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g4_a_completeness_ledger.json"
 HUMAN_DECISION_INTEGRITY_GATE_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g4_human_decision_integrity_gate.json"
 )
@@ -38,9 +34,7 @@ WEAKEST_BOUNDARY_COMPOSITION_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g4_weakest_boundary_composition.json"
 )
 PROMOTION_RECORDS_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g4_promotion_records.json"
-CLOSEOUT_CONSUMER_GATE_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g4_closeout_consumer_gate.json"
-)
+CLOSEOUT_CONSUMER_GATE_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g4_closeout_consumer_gate.json"
 PDC_COMPILER_CONSUMER_GATE_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g4_pdc_compiler_consumer_gate.json"
 )
@@ -48,20 +42,14 @@ G5_PROMOTION_HANDOFF_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g4_g5_promotion_han
 GOVERNANCE_THROUGHPUT_DELTA_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g4_governance_throughput_delta.json"
 )
-PROMOTION_AUDIT_SURFACE_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g4_promotion_audit_surface.json"
-)
+PROMOTION_AUDIT_SURFACE_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g4_promotion_audit_surface.json"
 PUBLIC_EXPORT_PROJECTION_REFS_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g4_public_export_projection_refs.json"
 )
 CONFORMANCE_REPORT_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g4_conformance_report.json"
 HEALTH_METRIC_DELTA_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g4_health_metric_delta.toml"
-ADAPTER_CONTRACT_REGISTRY_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g4_adapter_contract_registry.toml"
-)
-REGISTRY_RATCHET_DELTA_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g4_registry_ratchet_delta.json"
-)
+ADAPTER_CONTRACT_REGISTRY_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g4_adapter_contract_registry.toml"
+REGISTRY_RATCHET_DELTA_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g4_registry_ratchet_delta.json"
 READINESS_MANIFEST_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g4_readiness_manifest.json"
 
 GENERATED_ARTIFACTS_TOML_PATH = Path("architecture/generated_artifacts.toml")
@@ -153,9 +141,7 @@ def validate_layer3_g4_readiness(repo_root: Path, *, write: bool = False) -> dic
     root = Path(repo_root).resolve()
     runtime_bundle = g4.build_layer3_g4_bundle(root)
     written_artifact_paths = _write_artifacts(root, runtime_bundle) if write else []
-    runtime_report = g4.validate_layer3_g4_bundle(root, runtime_bundle).model_dump(
-        mode="json"
-    )
+    runtime_report = g4.validate_layer3_g4_bundle(root, runtime_bundle).model_dump(mode="json")
     drift_keys = _manifest_runtime_drift_keys(root, runtime_bundle)
     registration_statuses = _registration_statuses(root)
     issues: list[dict[str, str]] = []
@@ -178,9 +164,7 @@ def validate_layer3_g4_readiness(repo_root: Path, *, write: bool = False) -> dic
             registration_statuses,
         ),
         "artifacts": {
-            "expected_artifact_paths": [
-                path.as_posix() for path in EXPECTED_ARTIFACT_PATHS
-            ],
+            "expected_artifact_paths": [path.as_posix() for path in EXPECTED_ARTIFACT_PATHS],
             "written_artifact_paths": written_artifact_paths,
             "missing_persisted_artifact_paths": [
                 path.as_posix()
@@ -204,9 +188,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     report = validate_layer3_g4_readiness(args.repo_root, write=args.write)
-    rendered = (
-        _json_dumps(report) if args.output_format == "json" else _render_text_report(report)
-    )
+    rendered = _json_dumps(report) if args.output_format == "json" else _render_text_report(report)
     if args.output is not None:
         output_path = _resolve_repo_path(Path(args.repo_root).resolve(), args.output)
         atomic_write_text(output_path, rendered)
@@ -413,9 +395,7 @@ def _validate_runtime_surfaces(bundle: g4.Layer3G4Bundle) -> list[dict[str, str]
         for record in _sequence(bundle.adapter_contract_registry.get("bridge_records"))
         if isinstance(record, Mapping)
     )
-    bridge_records_by_id = {
-        str(record.get("bridge_id")): record for record in bridge_records
-    }
+    bridge_records_by_id = {str(record.get("bridge_id")): record for record in bridge_records}
     bridge_records_are_semantic = (
         len(bridge_records) >= len(g4.G4_ADAPTER_PATH_IDS)
         and set(bridge_records_by_id) >= set(g4.G4_ADAPTER_PATH_IDS)
@@ -423,13 +403,10 @@ def _validate_runtime_surfaces(bundle: g4.Layer3G4Bundle) -> list[dict[str, str]
             record.get("producer_artifact_family")
             and str(record.get("producer_artifact_ref", "")).startswith("repo://")
             and record.get("consumer")
-            and record.get("authority_purpose")
-            == "layer3_g4_governed_promotion_state"
-            and set(_sequence(record.get("authoritative_for")))
-            >= set(g4.G4_AUTHORITATIVE_FOR)
+            and record.get("authority_purpose") == "layer3_g4_governed_promotion_state"
+            and set(_sequence(record.get("authoritative_for"))) >= set(g4.G4_AUTHORITATIVE_FOR)
             and set(_sequence(record.get("may_not_use_for"))) >= set(g4.G4_MAY_NOT_USE_FOR)
-            and record.get("semantic_loss_status")
-            == "no_loss_for_promotion_state_refs"
+            and record.get("semantic_loss_status") == "no_loss_for_promotion_state_refs"
             and _sequence(record.get("verification_refs"))
             and _sequence(record.get("conformance_negative_refs"))
             for record in bridge_records_by_id.values()
@@ -485,7 +462,9 @@ def _validate_runtime_surfaces(bundle: g4.Layer3G4Bundle) -> list[dict[str, str]
         ),
         (
             bool(bundle.promotion_records)
-            and any(record.promotion_state == "promotion_blocked" for record in bundle.promotion_records),
+            and any(
+                record.promotion_state == "promotion_blocked" for record in bundle.promotion_records
+            ),
             "layer3_g4_promotion_record_missing",
             "G4 runtime bundle must include promotion records and preserve blocked promotions.",
         ),
@@ -726,8 +705,7 @@ def _render_text_report(report: Mapping[str, Any]) -> str:
         for issue in issues:
             if isinstance(issue, Mapping):
                 lines.append(
-                    f"- {issue.get('code', '')} {issue.get('path', '')}: "
-                    f"{issue.get('message', '')}"
+                    f"- {issue.get('code', '')} {issue.get('path', '')}: {issue.get('message', '')}"
                 )
     return "\n".join(lines).rstrip() + "\n"
 

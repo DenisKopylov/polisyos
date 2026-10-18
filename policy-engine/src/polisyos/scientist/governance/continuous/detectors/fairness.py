@@ -203,9 +203,7 @@ def _normalize_signal(
         occurred_at=_parse_time(raw.get("occurred_at") or raw.get("timestamp")),
         source_event_type=_optional_text(raw.get("event_type")),
         metadata=(
-            dict(raw.get("metadata") or {})
-            if isinstance(raw.get("metadata"), Mapping)
-            else {}
+            dict(raw.get("metadata") or {}) if isinstance(raw.get("metadata"), Mapping) else {}
         ),
     )
 

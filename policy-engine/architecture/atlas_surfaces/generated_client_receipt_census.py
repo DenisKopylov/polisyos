@@ -35,9 +35,7 @@ DEFAULT_TARGET_PATHS = (
 STRUCTURED_SUFFIXES = frozenset({".json", ".toml"})
 SYMBOL_KEYS = frozenset({"export_symbol", "symbol"})
 PATH_SUFFIXES = (".js", ".json", ".py", ".toml", ".ts", ".tsx")
-GENERATED_CLIENT_ABSENCE_SCOPE = (
-    "canonical_module_exports_and_schema_owners"
-)
+GENERATED_CLIENT_ABSENCE_SCOPE = "canonical_module_exports_and_schema_owners"
 
 
 def _walk(value: object, path: tuple[str, ...] = ()) -> Iterable[tuple[tuple[str, ...], object]]:
@@ -63,9 +61,7 @@ def _line_items(value: Mapping[object, object]) -> list[tuple[str, int]]:
         (
             (str(key), child)
             for key, child in value.items()
-            if "line" in _key_tokens(key)
-            and isinstance(child, int)
-            and not isinstance(child, bool)
+            if "line" in _key_tokens(key) and isinstance(child, int) and not isinstance(child, bool)
         ),
         key=lambda item: item[0],
     )
@@ -74,11 +70,7 @@ def _line_items(value: Mapping[object, object]) -> list[tuple[str, int]]:
 def _identity_items(value: Mapping[object, object]) -> list[tuple[str, object]]:
     """Return direct fields explicitly declaring a construct identity."""
     return sorted(
-        (
-            (str(key), child)
-            for key, child in value.items()
-            if "identity" in _key_tokens(key)
-        ),
+        ((str(key), child) for key, child in value.items() if "identity" in _key_tokens(key)),
         key=lambda item: item[0],
     )
 
@@ -100,26 +92,16 @@ def _anchor_binding_mode(
 ) -> str:
     """Classify one complete anchor as legacy, identity, absence, or mixed."""
     if anchor_kind == "missing_export":
-        if (
-            absence_scope == GENERATED_CLIENT_ABSENCE_SCOPE
-            and not lines
-            and not identities
-        ):
+        if absence_scope == GENERATED_CLIENT_ABSENCE_SCOPE and not lines and not identities:
             return "recomputed_absence"
         if absence_scope is None and lines and not identities:
             return "legacy_line"
         return "mixed"
     if not identities:
         return "legacy_line"
-    line_stems = {
-        stem
-        for key, _value in lines
-        if (stem := _binding_stem(key, "line")) is not None
-    }
+    line_stems = {stem for key, _value in lines if (stem := _binding_stem(key, "line")) is not None}
     identity_stems = {
-        stem
-        for key, _value in identities
-        if (stem := _binding_stem(key, "identity")) is not None
+        stem for key, _value in identities if (stem := _binding_stem(key, "identity")) is not None
     }
     if (
         len(lines) == len(identities)
@@ -143,9 +125,7 @@ def _typescript_identity_engine() -> object:
     return check_frontend_disposition_register
 
 
-def _document_target_slots(
-    value: object, target_paths: frozenset[str]
-) -> dict[str, str]:
+def _document_target_slots(value: object, target_paths: frozenset[str]) -> dict[str, str]:
     """Derive canonical/schema target roles from declared source-path fields."""
     field_roles = {
         ("canonical", "path"): "canonical",
@@ -159,19 +139,13 @@ def _document_target_slots(
             role = field_roles.get(_key_tokens(key))
             if role is not None and isinstance(child, str) and child in target_paths:
                 candidates.setdefault(role, set()).add(child)
-    return {
-        role: next(iter(paths))
-        for role, paths in candidates.items()
-        if len(paths) == 1
-    }
+    return {role: next(iter(paths)) for role, paths in candidates.items() if len(paths) == 1}
 
 
 def _exact_targets(value: object, target_paths: frozenset[str]) -> frozenset[str]:
     """Return target paths represented as exact string values in ``value``."""
     return frozenset(
-        child
-        for _, child in _walk(value)
-        if isinstance(child, str) and child in target_paths
+        child for _, child in _walk(value) if isinstance(child, str) and child in target_paths
     )
 
 
@@ -212,10 +186,7 @@ def _declared_anchor(
         entry
         for entry in entries
         if isinstance(entry, dict)
-        and any(
-            entry.get(key) == record_id
-            for key in ("debt_id", "unit_id", "record_id", "id")
-        )
+        and any(entry.get(key) == record_id for key in ("debt_id", "unit_id", "record_id", "id"))
     ]
     if len(matching_entries) != 1:
         raise ValueError(f"identity emission record is not unique: {record_id}")
@@ -348,9 +319,7 @@ def emit_present_projection_anchor(
         key=anchor_key,
         value=anchor,
     )
-    rendered = json.dumps(new_anchor, ensure_ascii=False, indent=2).replace(
-        "\n", "\n" + indent
-    )
+    rendered = json.dumps(new_anchor, ensure_ascii=False, indent=2).replace("\n", "\n" + indent)
     updated = original[:start] + rendered + original[end:]
     entry[anchor_key] = new_anchor
     if json.loads(updated) != document:
@@ -364,9 +333,7 @@ def _json_pointer(path: tuple[str, ...]) -> str:
     """Encode a structural path as a JSON pointer for stable diagnostics."""
     if not path:
         return ""
-    return "/" + "/".join(
-        part.replace("~", "~0").replace("/", "~1") for part in path
-    )
+    return "/" + "/".join(part.replace("~", "~0").replace("/", "~1") for part in path)
 
 
 def _direct_navigation_references(
@@ -411,17 +378,14 @@ def _associated_targets(
 ) -> frozenset[str]:
     """Associate one coordinate record with regenerated target paths."""
     direct_targets = frozenset(
-        child
-        for child in candidate.values()
-        if isinstance(child, str) and child in target_paths
+        child for child in candidate.values() if isinstance(child, str) and child in target_paths
     )
     if direct_targets:
         return direct_targets
     direct_foreign_paths = tuple(
         child
         for key, child in candidate.items()
-        if isinstance(child, str)
-        and ("path" in str(key).lower() or child.endswith(PATH_SUFFIXES))
+        if isinstance(child, str) and ("path" in str(key).lower() or child.endswith(PATH_SUFFIXES))
     )
     if direct_foreign_paths:
         return frozenset()
@@ -473,10 +437,7 @@ def _anchor_records(
             continue
         if explicit and (
             "anchor" not in path[-1].lower()
-            or not any(
-                key in candidate and isinstance(candidate[key], str)
-                for key in SYMBOL_KEYS
-            )
+            or not any(key in candidate and isinstance(candidate[key], str) for key in SYMBOL_KEYS)
         ):
             continue
         lines = _line_items(candidate)
@@ -484,14 +445,9 @@ def _anchor_records(
         anchor_kind = candidate.get("anchor_kind")
         absence_scope = candidate.get("absence_scope")
         has_ts_identity = bool(identities) and all(
-            isinstance(value, str) and "#ts-identity=" in value
-            for _key, value in identities
+            isinstance(value, str) and "#ts-identity=" in value for _key, value in identities
         )
-        if (
-            not lines
-            and anchor_kind != "missing_export"
-            and not has_ts_identity
-        ):
+        if not lines and anchor_kind != "missing_export" and not has_ts_identity:
             continue
         candidate_targets = _associated_targets(
             candidate,
@@ -534,15 +490,9 @@ def _anchor_records(
             "absence_bindings": absence_bindings,
             "absence_scope": absence_scope,
             "artifact_path": artifact_path,
-            "field": candidate.get("field")
-            if isinstance(candidate.get("field"), str)
-            else None,
-            "line_bindings": [
-                {"key": key, "value": line} for key, line in lines
-            ],
-            "identity_bindings": [
-                {"key": key, "value": value} for key, value in identities
-            ],
+            "field": candidate.get("field") if isinstance(candidate.get("field"), str) else None,
+            "line_bindings": [{"key": key, "value": line} for key, line in lines],
+            "identity_bindings": [{"key": key, "value": value} for key, value in identities],
             "binding_mode": binding_mode,
             "pointer": _json_pointer(path),
             "record_id": _record_id(value, path),
@@ -575,9 +525,7 @@ def _validate_absence_bindings(
             source_path = str(target_slots[slot])
             absolute_path = repo_root / source_path
             if not absolute_path.is_file():
-                errors.append(
-                    f"anchor_absence_source_missing:{prefix}:{slot}"
-                )
+                errors.append(f"anchor_absence_source_missing:{prefix}:{slot}")
                 continue
             sources[source_path] = absolute_path.read_text(encoding="utf-8")
         if len(sources) != 2:
@@ -590,8 +538,7 @@ def _validate_absence_bindings(
             types_path=str(target_slots["schema"]),
         )
         errors.extend(
-            f"anchor_absence_source_invalid:{prefix}:{error}"
-            for error in facts["errors"]
+            f"anchor_absence_source_invalid:{prefix}:{error}" for error in facts["errors"]
         )
         for slot, count in (
             ("canonical", facts["canonicalScopeCount"]),
@@ -600,18 +547,14 @@ def _validate_absence_bindings(
             if count == 0:
                 errors.append(f"anchor_absence_scope_missing:{prefix}:{slot}")
             elif count != 1:
-                errors.append(
-                    f"anchor_absence_scope_ambiguous:{prefix}:{slot}:count={count}"
-                )
+                errors.append(f"anchor_absence_scope_ambiguous:{prefix}:{slot}:count={count}")
         symbol = str(binding["symbol"])
         for slot, names in (
             ("canonical", facts["canonicalExports"]),
             ("schema", facts["schemaOwners"]),
         ):
             if symbol in names:
-                errors.append(
-                    f"anchor_absence_unexpected_presence:{prefix}:{slot}:{symbol}"
-                )
+                errors.append(f"anchor_absence_unexpected_presence:{prefix}:{slot}:{symbol}")
 
 
 def _validate_identity_bindings(
@@ -670,8 +613,7 @@ def _validate_identity_bindings(
             identity_references.append(encoded_identity)
         if set(slots) != {"canonical", "schema"}:
             errors.append(
-                "anchor_identity_slot_set_drift:"
-                f"{binding['artifact_path']}:{binding['pointer']}"
+                f"anchor_identity_slot_set_drift:{binding['artifact_path']}:{binding['pointer']}"
             )
             continue
         target_slots = binding["target_slots"]
@@ -713,9 +655,7 @@ def _validate_identity_bindings(
         alias_facts = engine._typescript_reference_construct_facts_batch(  # type: ignore[attr-defined]
             alias_sources, alias_requests, closed_universe=True
         )
-        for (binding, schema), facts in zip(
-            alias_rows, alias_facts, strict=True
-        ):
+        for (binding, schema), facts in zip(alias_rows, alias_facts, strict=True):
             matches = facts["matches"]
             if len(matches) > 1:
                 errors.append(
@@ -738,9 +678,7 @@ def _validate_identity_bindings(
             field = binding.get("field")
             expected_role = "generated_schema_property" if field else "type_property"
             expected_discriminator = (
-                f"components.schemas.{owner}.{field}"
-                if field
-                else f"components.{owner}"
+                f"components.schemas.{owner}.{field}" if field else f"components.{owner}"
             )
             if (
                 schema.get("role") != expected_role
@@ -815,20 +753,14 @@ def _document_anchor_census(
             f"{artifact_path}:{_json_pointer(pointer)}:"
             f"primary={primary_state}:independent={independent_state}"
         )
-    primary_lines = sum(
-        len(record["line_bindings"]) for record in primary.values()
-    )
-    independent_lines = sum(
-        len(record["line_bindings"]) for record in independent.values()
-    )
+    primary_lines = sum(len(record["line_bindings"]) for record in primary.values())
+    independent_lines = sum(len(record["line_bindings"]) for record in independent.values())
     if primary_lines != independent_lines:
         errors.append(
             "anchor_line_population_mismatch:"
             f"{artifact_path}:primary={primary_lines}:independent={independent_lines}"
         )
-    primary_identities = sum(
-        len(record["identity_bindings"]) for record in primary.values()
-    )
+    primary_identities = sum(len(record["identity_bindings"]) for record in primary.values())
     independent_identities = sum(
         len(record["identity_bindings"]) for record in independent.values()
     )
@@ -838,19 +770,11 @@ def _document_anchor_census(
             f"{artifact_path}:primary={primary_identities}:"
             f"independent={independent_identities}"
         )
-    binding_modes = {
-        str(record["binding_mode"]) for record in independent.values()
-    }
-    if "mixed" in binding_modes or (
-        "legacy_line" in binding_modes and len(binding_modes) > 1
-    ):
+    binding_modes = {str(record["binding_mode"]) for record in independent.values()}
+    if "mixed" in binding_modes or ("legacy_line" in binding_modes and len(binding_modes) > 1):
         errors.append(f"anchor_identity_mode_mixed:{artifact_path}")
-    identity_bindings = sum(
-        len(record["identity_bindings"]) for record in independent.values()
-    )
-    absence_predicates = sum(
-        len(record["absence_bindings"]) for record in independent.values()
-    )
+    identity_bindings = sum(len(record["identity_bindings"]) for record in independent.values())
+    absence_predicates = sum(len(record["absence_bindings"]) for record in independent.values())
     legacy_line_bindings = sum(
         len(record["line_bindings"])
         for record in independent.values()
@@ -922,11 +846,7 @@ def build_report(
     normalized_targets = tuple(dict.fromkeys(str(path) for path in target_paths))
     normalized_candidates = tuple(
         sorted(
-            {
-                Path(path)
-                for path in candidate_paths
-                if Path(path).suffix in STRUCTURED_SUFFIXES
-            },
+            {Path(path) for path in candidate_paths if Path(path).suffix in STRUCTURED_SUFFIXES},
             key=str,
         )
     )
@@ -1002,12 +922,8 @@ def build_report(
         for suffix in sorted(STRUCTURED_SUFFIXES)
     }
     candidate_manifest = "\n".join(path.as_posix() for path in normalized_candidates)
-    binding_artifacts = {
-        binding["artifact_path"] for binding in bindings
-    }
-    navigation_artifacts = {
-        reference["artifact_path"] for reference in navigation_references
-    }
+    binding_artifacts = {binding["artifact_path"] for binding in bindings}
+    navigation_artifacts = {reference["artifact_path"] for reference in navigation_references}
 
     summary = {
         "binding_artifacts": len(binding_artifacts),
@@ -1018,9 +934,7 @@ def build_report(
         "independent_line_bindings": independent_lines_total,
         "identity_bindings": identity_bindings_total,
         "absence_predicates": absence_predicates_total,
-        "semantic_bindings": (
-            identity_bindings_total + absence_predicates_total
-        ),
+        "semantic_bindings": (identity_bindings_total + absence_predicates_total),
         "legacy_line_bindings": legacy_line_bindings_total,
         "navigation_line_hints": navigation_line_hints_total,
         "navigation_references": len(navigation_references),
@@ -1031,9 +945,7 @@ def build_report(
         "candidate_population": {
             "total": len(normalized_candidates),
             "by_suffix": by_suffix,
-            "path_sha256": hashlib.sha256(
-                candidate_manifest.encode("utf-8")
-            ).hexdigest(),
+            "path_sha256": hashlib.sha256(candidate_manifest.encode("utf-8")).hexdigest(),
         },
         "summary": summary,
         "artifacts": sorted(artifacts, key=lambda artifact: str(artifact["path"])),

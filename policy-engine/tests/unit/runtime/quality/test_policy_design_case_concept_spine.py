@@ -420,10 +420,7 @@ def test_concept_spine_projects_runtime_concepts_over_fabric_scientist_ir_and_wo
         "objective",
         "claim",
     }
-    assert all(
-        entry["status"] == "resolved"
-        for entry in validated_spine["reconciliation_trace"]
-    )
+    assert all(entry["status"] == "resolved" for entry in validated_spine["reconciliation_trace"])
     claim_entry = next(
         entry
         for entry in validated_spine["reconciliation_trace"]
@@ -841,8 +838,7 @@ def test_concept_spine_emits_blockers_for_unresolved_and_conflicting_concepts() 
     }
     assert all(blocker["owner"] == "team-policy-semantics" for blocker in spine["blockers"])
     assert all(
-        blocker["next_diagnostic_command"].startswith("uv run ")
-        for blocker in spine["blockers"]
+        blocker["next_diagnostic_command"].startswith("uv run ") for blocker in spine["blockers"]
     )
 
     boundary = build_policy_design_concept_spine_boundary_record(spine)
@@ -859,9 +855,9 @@ def test_concept_spine_emits_blockers_for_unresolved_and_conflicting_concepts() 
 
     hidden_boundary = build_policy_design_concept_spine_boundary_record(missing_blocker)
     assert hidden_boundary["status"] == "failed"
-    assert {
-        issue["code"] for issue in hidden_boundary["issues"]
-    } == {"policy_design_concept_spine_blocker_missing"}
+    assert {issue["code"] for issue in hidden_boundary["issues"]} == {
+        "policy_design_concept_spine_blocker_missing"
+    }
 
     with pytest.raises(
         PolicyDesignCaseAuthorityError,

@@ -427,6 +427,7 @@ class _ChronologyPersistenceOwner:
         no predicates, selects no policy and creates no native authority head.
         """
         from polisyos.core.artifacts import load_core_json_frame_records
+
         if not self._registry._owner_is_current(self):
             return None
         query = reconciliation.owner_context.query

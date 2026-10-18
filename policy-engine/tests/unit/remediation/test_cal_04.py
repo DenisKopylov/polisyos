@@ -281,8 +281,10 @@ def test_real_jax_nonfinite_update_keeps_last_checked_state() -> None:
     # avoiding a resource-bearing run: sqrt(0) is finite but its derivative is
     # non-finite, so the produced optimizer state must remain unselected.
     value = jnp.asarray(0.0, dtype=jnp.float32)
+
     def objective(x):
         return jnp.square(jnp.sqrt(x))
+
     value_at_zero, gradient_at_zero = jax.value_and_grad(objective)(value)
 
     assert float(value_at_zero) == pytest.approx(0.0)

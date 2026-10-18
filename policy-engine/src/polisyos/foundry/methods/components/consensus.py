@@ -314,8 +314,7 @@ def run_cross_method_consensus(
                 recommended_remediation=("Run at least two comparable methods for this query.",),
             ),
             user_message=(
-                "Only one comparable method was available; "
-                "cross-method agreement was not checked."
+                "Only one comparable method was available; cross-method agreement was not checked."
             ),
             developer_message="not_enough_methods",
             remediation=("Run an independent alternative method for the same estimand.",),
@@ -324,7 +323,9 @@ def run_cross_method_consensus(
     groups = _group_by_comparable_identity(targets)
     primary_group = max(groups.values(), key=lambda group: (len(group), group[0].result_id))
     primary_ids = {target.result_id for target in primary_group}
-    nonprimary_ids = tuple(target.result_id for target in targets if target.result_id not in primary_ids)
+    nonprimary_ids = tuple(
+        target.result_id for target in targets if target.result_id not in primary_ids
+    )
 
     pairwise_checks: list[PairwiseDisagreement] = []
     for target_i, target_j in combinations(primary_group, 2):
@@ -354,7 +355,9 @@ def run_cross_method_consensus(
     )
     comparable_checks = tuple(check for check in adjusted if check.comparable)
     if not comparable_checks:
-        all_noncomparable = tuple(sorted({*(target.result_id for target in targets), *failures.keys()}))
+        all_noncomparable = tuple(
+            sorted({*(target.result_id for target in targets), *failures.keys()})
+        )
         return CrossMethodConsensus(
             status="not_comparable",
             recommendation_allowed=True,
@@ -376,11 +379,15 @@ def run_cross_method_consensus(
                 status="estimand_mismatch",
                 likely_family=None,
                 evidence=("No pair of methods exposed the same canonical estimand.",),
-                recommended_remediation=("Align target variable, horizon, scale, and loss before comparing.",),
+                recommended_remediation=(
+                    "Align target variable, horizon, scale, and loss before comparing.",
+                ),
             ),
             user_message="Methods were not comparable; no disagreement test was run.",
             developer_message="not_comparable: no shared EstimandSpec group with at least two methods",
-            remediation=("Canonicalize methods to the same estimand, scale, horizon, and decision target.",),
+            remediation=(
+                "Canonicalize methods to the same estimand, scale, horizon, and decision target.",
+            ),
         )
 
     consensus_set = largest_compatible_component(
@@ -419,7 +426,9 @@ def run_cross_method_consensus(
     elif any(check.raw_p_value is None for check in comparable_checks):
         status = "warn"
         allowed = True
-        message = "Comparable methods lacked sufficient uncertainty for a reliable disagreement test."
+        message = (
+            "Comparable methods lacked sufficient uncertainty for a reliable disagreement test."
+        )
     elif any(
         check.adjusted_q_value is not None and check.adjusted_q_value <= alpha_warn
         for check in comparable_checks
@@ -432,7 +441,9 @@ def run_cross_method_consensus(
         allowed = True
         message = "Comparable methods are mutually consistent within stated uncertainty."
 
-    excluded = tuple(target.result_id for target in primary_group if target.result_id not in consensus_set)
+    excluded = tuple(
+        target.result_id for target in primary_group if target.result_id not in consensus_set
+    )
     noncomparable_ids = tuple(sorted({*nonprimary_ids, *failures.keys()}))
     return CrossMethodConsensus(
         status=status,
@@ -655,7 +666,9 @@ def compute_projection_checks(
                 covariance_source=covariance_source,
             )
         )
-    if target_i.point.shape[0] > 1 and int(np.argmax(target_i.point)) != int(np.argmax(target_j.point)):
+    if target_i.point.shape[0] > 1 and int(np.argmax(target_i.point)) != int(
+        np.argmax(target_j.point)
+    ):
         checks.append(
             _projection_check(
                 target_i,
@@ -786,9 +799,7 @@ def _mean_pairwise_norm(x: np.ndarray, y: np.ndarray) -> float:
 
 def _energy_distance_statistic(x: np.ndarray, y: np.ndarray) -> float:
     statistic = (
-        2.0 * _mean_pairwise_norm(x, y)
-        - _mean_pairwise_norm(x, x)
-        - _mean_pairwise_norm(y, y)
+        2.0 * _mean_pairwise_norm(x, y) - _mean_pairwise_norm(x, x) - _mean_pairwise_norm(y, y)
     )
     return max(float(statistic), 0.0)
 
@@ -943,7 +954,9 @@ def classify_misspecification(
     if len(targets) < 2:
         return MisspecificationClassification(status="insufficient_evidence", likely_family=None)
     target_by_id = {target.result_id: target for target in targets}
-    comparable_checks = [check for check in checks if check.comparable and check.adjusted_q_value is not None]
+    comparable_checks = [
+        check for check in checks if check.comparable and check.adjusted_q_value is not None
+    ]
     if not comparable_checks:
         return MisspecificationClassification(
             status="estimand_mismatch",
@@ -952,7 +965,9 @@ def classify_misspecification(
             recommended_remediation=("Canonicalize methods to the same estimand.",),
         )
 
-    red_checks = [check for check in comparable_checks if (check.adjusted_q_value or 1.0) <= alpha_refuse]
+    red_checks = [
+        check for check in comparable_checks if (check.adjusted_q_value or 1.0) <= alpha_refuse
+    ]
     if not red_checks:
         return MisspecificationClassification(
             status="none",
@@ -1028,11 +1043,19 @@ def classify_misspecification(
             likely_method_ids=isolated_methods,
             confidence="medium",
             suspicion_scores=family_scores,
-            evidence=("Point estimates are close relative to at least one very narrow covariance.",),
-            recommended_remediation=("Recompute uncertainty with robust, bootstrap, or paired covariance.",),
+            evidence=(
+                "Point estimates are close relative to at least one very narrow covariance.",
+            ),
+            recommended_remediation=(
+                "Recompute uncertainty with robust, bootstrap, or paired covariance.",
+            ),
         )
 
-    if top_score >= 0.60 and (top_score - second_score) >= 0.15 and len(independent_against_top) >= 2:
+    if (
+        top_score >= 0.60
+        and (top_score - second_score) >= 0.15
+        and len(independent_against_top) >= 2
+    ):
         return MisspecificationClassification(
             status="likely_misspecified_family",
             likely_family=top_family,
@@ -1063,14 +1086,22 @@ def classify_misspecification(
         )
 
     green_components = _green_components(targets, comparable_checks, alpha_warn=alpha_warn)
-    if len(green_components) >= 2 and len(green_components[0]) >= 2 and len(green_components[1]) >= 2:
+    if (
+        len(green_components) >= 2
+        and len(green_components[0]) >= 2
+        and len(green_components[1]) >= 2
+    ):
         return MisspecificationClassification(
             status="ambiguous_two_clusters",
             likely_family=None,
             confidence="medium",
             suspicion_scores=family_scores,
-            evidence=("Comparable methods form at least two internally coherent incompatible clusters.",),
-            recommended_remediation=("Collect stronger identification or validation evidence before choosing.",),
+            evidence=(
+                "Comparable methods form at least two internally coherent incompatible clusters.",
+            ),
+            recommended_remediation=(
+                "Collect stronger identification or validation evidence before choosing.",
+            ),
         )
 
     red_density = len(red_checks) / max(len(comparable_checks), 1)
@@ -1081,7 +1112,9 @@ def classify_misspecification(
             confidence="medium",
             suspicion_scores=family_scores,
             evidence=("Most comparable method pairs disagree beyond the refusal threshold.",),
-            recommended_remediation=("Treat the query as unresolved and audit estimand/data quality.",),
+            recommended_remediation=(
+                "Treat the query as unresolved and audit estimand/data quality.",
+            ),
         )
 
     return MisspecificationClassification(
@@ -1091,7 +1124,9 @@ def classify_misspecification(
         suspicion_scores=family_scores,
         evidence=("Methods disagree, but no unique culprit is statistically isolated.",),
         counterevidence=("Fewer than two independent families agree against one suspect family.",),
-        recommended_remediation=("Run additional independent methods or stronger validation diagnostics.",),
+        recommended_remediation=(
+            "Run additional independent methods or stronger validation diagnostics.",
+        ),
     )
 
 
@@ -1106,8 +1141,20 @@ def consensus_target_from_mapping(payload: Mapping[str, Any], query: Any = None)
     else:
         estimand = estimand_from_query(query, metadata=payload)
     return ConsensusTarget(
-        result_id=str(_mapping_value(payload, "result_id", default=_mapping_value(payload, "method_name", default="result"))),
-        method_family=str(_mapping_value(payload, "method_family", default=_mapping_value(payload, "family", default="unknown"))),
+        result_id=str(
+            _mapping_value(
+                payload,
+                "result_id",
+                default=_mapping_value(payload, "method_name", default="result"),
+            )
+        ),
+        method_family=str(
+            _mapping_value(
+                payload,
+                "method_family",
+                default=_mapping_value(payload, "family", default="unknown"),
+            )
+        ),
         method_name=str(_mapping_value(payload, "method_name", default="unknown")),
         estimand=estimand,
         target_kind=_target_kind(_mapping_value(payload, "target_kind", default="parameter")),
@@ -1119,7 +1166,9 @@ def consensus_target_from_mapping(payload: Mapping[str, Any], query: Any = None)
         diagnostics=_diagnostics_from_payload(_mapping_value(payload, "diagnostics", default=None)),
         validation=_validation_from_payload(_mapping_value(payload, "validation", default=None)),
         influence_values=_optional_array(_mapping_value(payload, "influence_values", default=None)),
-        bootstrap_replicates=_optional_array(_mapping_value(payload, "bootstrap_replicates", default=None)),
+        bootstrap_replicates=_optional_array(
+            _mapping_value(payload, "bootstrap_replicates", default=None)
+        ),
         native_result_ref=_optional_str(_mapping_value(payload, "native_result_ref", default=None)),
     )
 
@@ -1128,12 +1177,28 @@ def estimand_from_mapping(payload: Mapping[str, Any], query: Any = None) -> Esti
     """Build an ``EstimandSpec`` from a JSON-like payload."""
 
     return EstimandSpec(
-        query_id=str(_mapping_value(payload, "query_id", default=_query_value(query, "query_id", "method_advisor_query"))),
-        estimand_id=str(_mapping_value(payload, "estimand_id", default=_query_value(query, "estimand_id", "default"))),
-        outcome=str(_mapping_value(payload, "outcome", default=_query_value(query, "outcome", "outcome"))),
-        treatment_or_exposure=_optional_str(_mapping_value(payload, "treatment_or_exposure", default=None)),
-        covariates_or_conditioning=_string_tuple(_mapping_value(payload, "covariates_or_conditioning", default=())),
-        adjustment_set=_optional_string_tuple(_mapping_value(payload, "adjustment_set", default=None)),
+        query_id=str(
+            _mapping_value(
+                payload, "query_id", default=_query_value(query, "query_id", "method_advisor_query")
+            )
+        ),
+        estimand_id=str(
+            _mapping_value(
+                payload, "estimand_id", default=_query_value(query, "estimand_id", "default")
+            )
+        ),
+        outcome=str(
+            _mapping_value(payload, "outcome", default=_query_value(query, "outcome", "outcome"))
+        ),
+        treatment_or_exposure=_optional_str(
+            _mapping_value(payload, "treatment_or_exposure", default=None)
+        ),
+        covariates_or_conditioning=_string_tuple(
+            _mapping_value(payload, "covariates_or_conditioning", default=())
+        ),
+        adjustment_set=_optional_string_tuple(
+            _mapping_value(payload, "adjustment_set", default=None)
+        ),
         population=str(_mapping_value(payload, "population", default="unspecified")),
         sample_filter=_optional_str(_mapping_value(payload, "sample_filter", default=None)),
         time_horizon=_optional_str(_mapping_value(payload, "time_horizon", default=None)),
@@ -1142,7 +1207,9 @@ def estimand_from_mapping(payload: Mapping[str, Any], query: Any = None) -> Esti
         scale=_estimand_scale(_mapping_value(payload, "scale", default="identity")),
         transform=_optional_str(_mapping_value(payload, "transform", default=None)),
         target_role=_target_role(_mapping_value(payload, "target_role", default="estimate")),
-        loss_or_utility_id=_optional_str(_mapping_value(payload, "loss_or_utility_id", default=None)),
+        loss_or_utility_id=_optional_str(
+            _mapping_value(payload, "loss_or_utility_id", default=None)
+        ),
     )
 
 
@@ -1160,30 +1227,80 @@ def estimand_from_query(
     consensus = _nested_mapping(meta, "consensus")
     source = consensus or meta
     return EstimandSpec(
-        query_id=str(_mapping_value(source, "query_id", default=_query_value(query, "query_id", "method_advisor_query"))),
-        estimand_id=str(_mapping_value(source, "estimand_id", default=_query_value(query, "estimand_id", default_estimand_id))),
-        outcome=str(_mapping_value(source, "outcome", default=_query_value(query, "outcome", default_outcome))),
+        query_id=str(
+            _mapping_value(
+                source, "query_id", default=_query_value(query, "query_id", "method_advisor_query")
+            )
+        ),
+        estimand_id=str(
+            _mapping_value(
+                source,
+                "estimand_id",
+                default=_query_value(query, "estimand_id", default_estimand_id),
+            )
+        ),
+        outcome=str(
+            _mapping_value(
+                source, "outcome", default=_query_value(query, "outcome", default_outcome)
+            )
+        ),
         treatment_or_exposure=_optional_str(
-            _mapping_value(source, "treatment_or_exposure", default=_query_value(query, "treatment_or_exposure", None))
+            _mapping_value(
+                source,
+                "treatment_or_exposure",
+                default=_query_value(query, "treatment_or_exposure", None),
+            )
         ),
         covariates_or_conditioning=_string_tuple(
-            _mapping_value(source, "covariates_or_conditioning", default=_query_value(query, "covariates_or_conditioning", ()))
+            _mapping_value(
+                source,
+                "covariates_or_conditioning",
+                default=_query_value(query, "covariates_or_conditioning", ()),
+            )
         ),
         adjustment_set=_optional_string_tuple(
-            _mapping_value(source, "adjustment_set", default=_query_value(query, "adjustment_set", None))
+            _mapping_value(
+                source, "adjustment_set", default=_query_value(query, "adjustment_set", None)
+            )
         ),
-        population=str(_mapping_value(source, "population", default=_query_value(query, "population", "unspecified"))),
-        sample_filter=_optional_str(_mapping_value(source, "sample_filter", default=_query_value(query, "sample_filter", None))),
-        time_horizon=_optional_str(_mapping_value(source, "time_horizon", default=_query_value(query, "time_horizon", None))),
+        population=str(
+            _mapping_value(
+                source, "population", default=_query_value(query, "population", "unspecified")
+            )
+        ),
+        sample_filter=_optional_str(
+            _mapping_value(
+                source, "sample_filter", default=_query_value(query, "sample_filter", None)
+            )
+        ),
+        time_horizon=_optional_str(
+            _mapping_value(
+                source, "time_horizon", default=_query_value(query, "time_horizon", None)
+            )
+        ),
         prediction_origin=_optional_str(
-            _mapping_value(source, "prediction_origin", default=_query_value(query, "prediction_origin", None))
+            _mapping_value(
+                source, "prediction_origin", default=_query_value(query, "prediction_origin", None)
+            )
         ),
         unit=str(_mapping_value(source, "unit", default=_query_value(query, "unit", "unitless"))),
-        scale=_estimand_scale(_mapping_value(source, "scale", default=_query_value(query, "scale", "identity"))),
-        transform=_optional_str(_mapping_value(source, "transform", default=_query_value(query, "transform", None))),
-        target_role=_target_role(_mapping_value(source, "target_role", default=_query_value(query, "target_role", default_role))),
+        scale=_estimand_scale(
+            _mapping_value(source, "scale", default=_query_value(query, "scale", "identity"))
+        ),
+        transform=_optional_str(
+            _mapping_value(source, "transform", default=_query_value(query, "transform", None))
+        ),
+        target_role=_target_role(
+            _mapping_value(
+                source, "target_role", default=_query_value(query, "target_role", default_role)
+            )
+        ),
         loss_or_utility_id=_optional_str(
-            _mapping_value(source, "loss_or_utility_id", default=_query_value(query, "loss_or_utility_id", None))
+            _mapping_value(
+                source,
+                "loss_or_utility_id",
+                default=_query_value(query, "loss_or_utility_id", None),
+            )
         ),
     )
 
@@ -1206,7 +1323,9 @@ def target_from_econometric_result(result: Any, query: Any = None) -> ConsensusT
     covariance = _optional_array(_mapping_value(consensus, "covariance", default=None))
     if covariance is None:
         variances = [float(std_errors.get(name, math.nan)) ** 2 for name in param_names]
-        covariance = None if any(not math.isfinite(value) for value in variances) else np.diag(variances)
+        covariance = (
+            None if any(not math.isfinite(value) for value in variances) else np.diag(variances)
+        )
     intervals = []
     for name in param_names:
         interval = (getattr(result, "confidence_intervals", {}) or {}).get(name)
@@ -1219,7 +1338,11 @@ def target_from_econometric_result(result: Any, query: Any = None) -> ConsensusT
                     interval_type="confidence",
                 )
             )
-    family = str(_mapping_value(consensus, "method_family", default=metadata.get("method_family", "econometric")))
+    family = str(
+        _mapping_value(
+            consensus, "method_family", default=metadata.get("method_family", "econometric")
+        )
+    )
     estimand = estimand_from_query(
         query,
         metadata={
@@ -1233,7 +1356,13 @@ def target_from_econometric_result(result: Any, query: Any = None) -> ConsensusT
         default_role="causal",
     )
     return ConsensusTarget(
-        result_id=str(_mapping_value(consensus, "result_id", default=f"{getattr(result, 'method_name', 'econometric')}:{param_names[0]}")),
+        result_id=str(
+            _mapping_value(
+                consensus,
+                "result_id",
+                default=f"{getattr(result, 'method_name', 'econometric')}:{param_names[0]}",
+            )
+        ),
         method_family=family,
         method_name=str(getattr(result, "method_name", "econometric")),
         estimand=estimand,
@@ -1243,12 +1372,18 @@ def target_from_econometric_result(result: Any, query: Any = None) -> ConsensusT
         intervals=tuple(intervals),
         uncertainty=UncertaintyContract(
             uncertainty_type="parameter",
-            covariance_type=str(_mapping_value(consensus, "covariance_type", default="standard_error_diagonal")),
+            covariance_type=str(
+                _mapping_value(consensus, "covariance_type", default="standard_error_diagonal")
+            ),
             confidence_level=float(getattr(result, "confidence_level", 0.95)),
         ),
         diagnostics=_econometric_diagnostics(result),
-        bootstrap_replicates=_optional_array(_mapping_value(consensus, "bootstrap_replicates", default=None)),
-        influence_values=_optional_array(_mapping_value(consensus, "influence_values", default=None)),
+        bootstrap_replicates=_optional_array(
+            _mapping_value(consensus, "bootstrap_replicates", default=None)
+        ),
+        influence_values=_optional_array(
+            _mapping_value(consensus, "influence_values", default=None)
+        ),
         native_result_ref=str(getattr(result, "contract_id", "foundry.econometrics.result")),
     )
 
@@ -1274,7 +1409,9 @@ def target_from_posterior_result(result: Any, query: Any = None) -> ConsensusTar
     covariance = _optional_array(_mapping_value(consensus, "covariance", default=None))
     if covariance is None:
         variances = [float(posterior_stds.get(name, math.nan)) ** 2 for name in param_names]
-        covariance = None if any(not math.isfinite(value) for value in variances) else np.diag(variances)
+        covariance = (
+            None if any(not math.isfinite(value) for value in variances) else np.diag(variances)
+        )
     intervals = []
     for name in param_names:
         interval = (getattr(result, "credible_intervals", {}) or {}).get(name)
@@ -1299,7 +1436,13 @@ def target_from_posterior_result(result: Any, query: Any = None) -> ConsensusTar
         default_outcome=param_names[0],
     )
     return ConsensusTarget(
-        result_id=str(_mapping_value(consensus, "result_id", default=f"{getattr(result, 'method_name', 'posterior')}:{param_names[0]}")),
+        result_id=str(
+            _mapping_value(
+                consensus,
+                "result_id",
+                default=f"{getattr(result, 'method_name', 'posterior')}:{param_names[0]}",
+            )
+        ),
         method_family=str(_mapping_value(consensus, "method_family", default="bayesian")),
         method_name=str(getattr(result, "method_name", "posterior")),
         estimand=estimand,
@@ -1325,12 +1468,18 @@ def target_from_prediction_result(result: Any, query: Any = None) -> ConsensusTa
     consensus = _nested_mapping(metadata, "consensus")
     predictions = _as_1d_vector(result.predictions, field_name="PredictionResult.predictions")
     aggregate = str(_mapping_value(consensus, "aggregate", default="vector"))
-    point = np.asarray([float(np.mean(predictions))], dtype=float) if aggregate == "mean" else predictions
+    point = (
+        np.asarray([float(np.mean(predictions))], dtype=float)
+        if aggregate == "mean"
+        else predictions
+    )
     covariance = _optional_array(_mapping_value(consensus, "covariance", default=None))
     if covariance is None and aggregate == "mean" and getattr(result, "target", None) is not None:
         target = _as_1d_vector(result.target, field_name="PredictionResult.target")
         residual = target - predictions
-        variance = float(np.var(residual, ddof=1) / max(len(residual), 1)) if len(residual) > 1 else 0.0
+        variance = (
+            float(np.var(residual, ddof=1) / max(len(residual), 1)) if len(residual) > 1 else 0.0
+        )
         covariance = np.asarray([[max(variance, _EPS)]], dtype=float)
     estimand = estimand_from_query(
         query,
@@ -1345,11 +1494,19 @@ def target_from_prediction_result(result: Any, query: Any = None) -> ConsensusTa
         default_role="prediction",
     )
     return ConsensusTarget(
-        result_id=str(_mapping_value(consensus, "result_id", default=f"{getattr(result, 'method_name', 'prediction')}:prediction")),
+        result_id=str(
+            _mapping_value(
+                consensus,
+                "result_id",
+                default=f"{getattr(result, 'method_name', 'prediction')}:prediction",
+            )
+        ),
         method_family=str(_mapping_value(consensus, "method_family", default="prediction")),
         method_name=str(getattr(result, "method_name", "prediction")),
         estimand=estimand,
-        target_kind=_target_kind(_mapping_value(consensus, "target_kind", default="predictive_mean")),
+        target_kind=_target_kind(
+            _mapping_value(consensus, "target_kind", default="predictive_mean")
+        ),
         point=point,
         covariance=covariance,
         samples=_optional_array(_mapping_value(consensus, "samples", default=None)),
@@ -1367,7 +1524,9 @@ def _align_transformable_target_scales(
     targets: Sequence[ConsensusTarget],
     query: Any,
 ) -> list[ConsensusTarget]:
-    grouped: dict[tuple[tuple[Any, ...], TargetKind, int], list[ConsensusTarget]] = defaultdict(list)
+    grouped: dict[tuple[tuple[Any, ...], TargetKind, int], list[ConsensusTarget]] = defaultdict(
+        list
+    )
     for target in targets:
         grouped[
             (
@@ -1565,14 +1724,18 @@ def _variance_of_difference(
         and target_i.influence_values.shape == target_j.influence_values.shape
         and target_i.influence_values.shape[0] >= 2
     ):
-        return _covariance_of_draws(target_i.influence_values - target_j.influence_values), "influence_function"
+        return _covariance_of_draws(
+            target_i.influence_values - target_j.influence_values
+        ), "influence_function"
     if (
         target_i.bootstrap_replicates is not None
         and target_j.bootstrap_replicates is not None
         and target_i.bootstrap_replicates.shape == target_j.bootstrap_replicates.shape
         and target_i.bootstrap_replicates.shape[0] >= 2
     ):
-        return _covariance_of_draws(target_i.bootstrap_replicates - target_j.bootstrap_replicates), "paired_bootstrap"
+        return _covariance_of_draws(
+            target_i.bootstrap_replicates - target_j.bootstrap_replicates
+        ), "paired_bootstrap"
     if (
         target_i.samples is not None
         and target_j.samples is not None
@@ -1631,7 +1794,10 @@ def _decision_relevance(
     if practical_delta is not None and abs_gap > practical_delta:
         return True, f"absolute gap {abs_gap:.6g} exceeds practical delta {practical_delta:.6g}"
     if _strict_consensus_validation(query):
-        return True, "strict consensus validation treats statistical disagreement as decision-relevant"
+        return (
+            True,
+            "strict consensus validation treats statistical disagreement as decision-relevant",
+        )
     return False, None
 
 
@@ -1670,13 +1836,21 @@ def _distribution_decision_relevance(
         if gap > practical_delta:
             return True, f"quantile {level:.3g} gap {gap:.6g} exceeds practical delta"
     if _strict_consensus_validation(query):
-        return True, "strict consensus validation treats distributional disagreement as decision-relevant"
+        return (
+            True,
+            "strict consensus validation treats distributional disagreement as decision-relevant",
+        )
     return False, None
 
 
 def _sign_difference(point_i: np.ndarray, point_j: np.ndarray) -> bool:
     return bool(
-        np.any([_sign_class(left) != _sign_class(right) for left, right in zip(point_i, point_j, strict=True)])
+        np.any(
+            [
+                _sign_class(left) != _sign_class(right)
+                for left, right in zip(point_i, point_j, strict=True)
+            ]
+        )
     )
 
 
@@ -1727,7 +1901,9 @@ def _comparable_identity(target: ConsensusTarget) -> tuple[EstimandSpec, TargetK
     return target.estimand, target.target_kind
 
 
-def _noncomparable_pair(target_i: ConsensusTarget, target_j: ConsensusTarget) -> PairwiseDisagreement:
+def _noncomparable_pair(
+    target_i: ConsensusTarget, target_j: ConsensusTarget
+) -> PairwiseDisagreement:
     reason = _noncomparable_reason(target_i, target_j)
     return PairwiseDisagreement(
         method_i=target_i.result_id,
@@ -1851,8 +2027,7 @@ def _chi2_survival(statistic: float, degrees_of_freedom: int) -> float:
     if degrees_of_freedom == 2:
         return float(math.exp(-statistic / 2.0))
     z = (
-        ((statistic / degrees_of_freedom) ** (1.0 / 3.0))
-        - (1.0 - 2.0 / (9.0 * degrees_of_freedom))
+        ((statistic / degrees_of_freedom) ** (1.0 / 3.0)) - (1.0 - 2.0 / (9.0 * degrees_of_freedom))
     ) / math.sqrt(2.0 / (9.0 * degrees_of_freedom))
     return float(1.0 - NormalDist().cdf(z))
 
@@ -1902,7 +2077,9 @@ def _is_red_edge(
     return any(frozenset((check.method_i, check.method_j)) == pair for check in red_checks)
 
 
-def _targets_by_family(targets: Sequence[ConsensusTarget]) -> dict[str, tuple[ConsensusTarget, ...]]:
+def _targets_by_family(
+    targets: Sequence[ConsensusTarget],
+) -> dict[str, tuple[ConsensusTarget, ...]]:
     grouped: dict[str, list[ConsensusTarget]] = defaultdict(list)
     for target in targets:
         grouped[target.method_family].append(target)
@@ -1932,9 +2109,7 @@ def _family_pattern_score(
         target.method_family
         for target in targets
         if target.method_family != family
-        and any(
-            _is_red_edge(member.result_id, target.result_id, red_checks) for member in members
-        )
+        and any(_is_red_edge(member.result_id, target.result_id, red_checks) for member in members)
     }
     return min(len(other_families) / 2.0, 1.0)
 
@@ -1985,7 +2160,9 @@ def _consensus_remediation(
         items.append("Do not issue a method recommendation until the conflict is resolved.")
         items.extend(classifier.recommended_remediation)
     if noncomparable_ids:
-        items.append("Canonicalize non-comparable outputs to the same estimand before interpreting disagreement.")
+        items.append(
+            "Canonicalize non-comparable outputs to the same estimand before interpreting disagreement."
+        )
     if not items:
         items.append("Continue to monitor cross-method agreement as more outputs become available.")
     return tuple(dict.fromkeys(items))
@@ -2161,7 +2338,9 @@ def _uncertainty_from_payload(value: Any) -> UncertaintyContract:
         return UncertaintyContract(
             uncertainty_type=str(value.get("uncertainty_type", "unknown")),  # type: ignore[arg-type]
             covariance_type=_optional_str(value.get("covariance_type")),
-            confidence_level=None if value.get("confidence_level") is None else float(value["confidence_level"]),
+            confidence_level=None
+            if value.get("confidence_level") is None
+            else float(value["confidence_level"]),
             reliability_score=_clip_unit(float(value.get("reliability_score", 1.0))),
             notes=_string_tuple(value.get("notes", ())),
         )
@@ -2174,8 +2353,12 @@ def _diagnostics_from_payload(value: Any) -> MethodDiagnostics:
     if isinstance(value, Mapping):
         return MethodDiagnostics(
             failure_score=_clip_unit(float(value.get("failure_score", 0.0))),
-            computational_failure_score=_clip_unit(float(value.get("computational_failure_score", 0.0))),
-            validation_disadvantage_score=_clip_unit(float(value.get("validation_disadvantage_score", 0.0))),
+            computational_failure_score=_clip_unit(
+                float(value.get("computational_failure_score", 0.0))
+            ),
+            validation_disadvantage_score=_clip_unit(
+                float(value.get("validation_disadvantage_score", 0.0))
+            ),
             issues=_string_tuple(value.get("issues", ())),
             raw=value,
         )
@@ -2187,8 +2370,12 @@ def _validation_from_payload(value: Any) -> ValidationSummary | None:
         return value
     if isinstance(value, Mapping):
         return ValidationSummary(
-            calibration_failure_score=_clip_unit(float(value.get("calibration_failure_score", 0.0))),
-            scoring_disadvantage_score=_clip_unit(float(value.get("scoring_disadvantage_score", 0.0))),
+            calibration_failure_score=_clip_unit(
+                float(value.get("calibration_failure_score", 0.0))
+            ),
+            scoring_disadvantage_score=_clip_unit(
+                float(value.get("scoring_disadvantage_score", 0.0))
+            ),
             raw=value,
         )
     return None
@@ -2231,7 +2418,9 @@ def _posterior_diagnostics(result: Any) -> MethodDiagnostics:
         issues.append("ess_below_100")
         score = max(score, 0.5)
         computational = max(computational, 0.5)
-    divergences = _safe_float(diagnostics.get("divergent_transitions") or diagnostics.get("divergences"))
+    divergences = _safe_float(
+        diagnostics.get("divergent_transitions") or diagnostics.get("divergences")
+    )
     if divergences is not None and divergences > 0.0:
         issues.append("divergences_detected")
         score = max(score, 0.8)

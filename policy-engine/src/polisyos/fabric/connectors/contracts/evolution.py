@@ -230,8 +230,7 @@ class SchemaEvolution:
                     old_value=source.schema_id,
                     new_value=target.schema_id,
                     description=(
-                        f"Schema id changed from {source.schema_id!r} "
-                        f"to {target.schema_id!r}"
+                        f"Schema id changed from {source.schema_id!r} to {target.schema_id!r}"
                     ),
                 )
             )

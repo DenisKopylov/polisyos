@@ -120,9 +120,7 @@ class CursorStore:
             try:
                 current_cursor = self.load_cursor(ArtifactID.model_validate(artifact_id_str))
             except (FileNotFoundError, OSError, TypeError, ValueError) as exc:
-                raise CursorStoreError(
-                    "cursor index expected artifact cannot be loaded"
-                ) from exc
+                raise CursorStoreError("cursor index expected artifact cannot be loaded") from exc
             if current_cursor.model_dump(mode="json") != expected_cursor.model_dump(mode="json"):
                 raise CursorStoreConflict("cursor index changed before rollback")
             latest.pop(cursor_id)
@@ -140,10 +138,7 @@ class CursorStore:
         """Conditionally restore one cursor/checkpoint pair under both locks."""
         if restore_checkpoint.stream_id != expected_checkpoint.stream_id:
             raise ValueError("restore checkpoint does not match expected stream")
-        if (
-            restore_cursor is not None
-            and restore_cursor.cursor_id != expected_cursor.cursor_id
-        ):
+        if restore_cursor is not None and restore_cursor.cursor_id != expected_cursor.cursor_id:
             raise ValueError("restore cursor does not match expected cursor")
 
         restore_cursor_ref: ArtifactRef | None = None
@@ -181,13 +176,9 @@ class CursorStore:
                 if current_cursor.model_dump(mode="json") != expected_cursor.model_dump(
                     mode="json"
                 ):
-                    raise CursorStoreConflict(
-                        "cursor/checkpoint pair changed before compensation"
-                    )
+                    raise CursorStoreConflict("cursor/checkpoint pair changed before compensation")
 
-            current_checkpoint_artifact = previous_stream_index.get(
-                expected_checkpoint.stream_id
-            )
+            current_checkpoint_artifact = previous_stream_index.get(expected_checkpoint.stream_id)
             if current_checkpoint_artifact is None:
                 raise CursorStoreConflict(
                     "expected stream checkpoint is missing during compensation"
@@ -203,9 +194,7 @@ class CursorStore:
             if current_checkpoint.model_dump(mode="json") != expected_checkpoint.model_dump(
                 mode="json"
             ):
-                raise CursorStoreConflict(
-                    "cursor/checkpoint pair changed before compensation"
-                )
+                raise CursorStoreConflict("cursor/checkpoint pair changed before compensation")
 
             latest_cursor_index = dict(previous_cursor_index)
             cursor_index_changed = current_cursor_artifact is not None
@@ -214,9 +203,7 @@ class CursorStore:
             else:
                 if restore_cursor_ref is None:  # pragma: no cover - guarded above
                     raise CursorStoreError("restore cursor artifact was not written")
-                latest_cursor_index[restore_cursor.cursor_id] = str(
-                    restore_cursor_ref.artifact_id
-                )
+                latest_cursor_index[restore_cursor.cursor_id] = str(restore_cursor_ref.artifact_id)
                 cursor_index_changed = True
             latest_stream_index = dict(previous_stream_index)
             latest_stream_index[restore_checkpoint.stream_id] = str(
@@ -360,18 +347,21 @@ class CursorStore:
     def load_cursor(self, artifact_id: ArtifactID) -> CursorState:
         """Load cursor state from CAS by artifact ID."""
         from polisyos.core.artifacts import load_core_json_artifact
+
         data = load_core_json_artifact(self._store, artifact_id)
         return CursorState.model_validate(data)
 
     def load_stream_checkpoint(self, artifact_id: ArtifactID) -> StreamCheckpoint:
         """Load stream checkpoint from CAS by artifact ID."""
         from polisyos.core.artifacts import load_core_json_artifact
+
         data = load_core_json_artifact(self._store, artifact_id)
         return StreamCheckpoint.model_validate(data)
 
     def load_partition_state(self, artifact_id: ArtifactID) -> PartitionCursorState:
         """Load partition cursor state from CAS by artifact ID."""
         from polisyos.core.artifacts import load_core_json_artifact
+
         data = load_core_json_artifact(self._store, artifact_id)
         return PartitionCursorState.model_validate(data)
 

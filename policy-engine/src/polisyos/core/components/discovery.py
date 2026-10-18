@@ -1033,9 +1033,7 @@ def _build_discovery_manifest(
         )
         if error_context:
             error_identity += ":" + ":".join(error_context)
-        unbound_inputs.append(
-            error_identity
-        )
+        unbound_inputs.append(error_identity)
     unbound_inputs = sorted(dict.fromkeys(unbound_inputs))
     entry_point_enumeration_classification: PredicateProvenanceClassification = (
         "recomputed"
@@ -1123,9 +1121,7 @@ def _build_discovery_manifest(
         "predicate_provenance": [row.as_dict() for row in predicate_provenance],
     }
     if manifest_schema_version == "policyos.component_discovery_manifest.v2":
-        payload["declared_builtin_loaders"] = [
-            row.as_dict() for row in declared_builtin_loaders
-        ]
+        payload["declared_builtin_loaders"] = [row.as_dict() for row in declared_builtin_loaders]
     manifest_id = _component_discovery_manifest_id(payload)
     return ComponentDiscoveryManifest(
         schema_version=manifest_schema_version,
@@ -1162,9 +1158,7 @@ def _sha256_json(value: object) -> str:
 def _component_discovery_manifest_id(content_payload: object) -> str:
     """Derive the canonical identity of full discovery-manifest content."""
 
-    return "component_discovery_manifest_" + _sha256_json(content_payload).removeprefix(
-        "sha256:"
-    )
+    return "component_discovery_manifest_" + _sha256_json(content_payload).removeprefix("sha256:")
 
 
 def _coerce_builtin_loader_spec(

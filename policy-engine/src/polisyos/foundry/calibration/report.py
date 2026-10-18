@@ -124,9 +124,9 @@ class CalibrationReport(BaseModel):
         default=None,
         description="Versioned map from Hessian optimizer coordinates to calibrated fields.",
     )
-    coordinate_projection_status: Literal[
-        "complete", "incomplete", "unsupported", "not_established"
-    ] | None = Field(
+    coordinate_projection_status: (
+        Literal["complete", "incomplete", "unsupported", "not_established"] | None
+    ) = Field(
         default=None,
         description=(
             "Whether the v2 optimizer-to-field map covers every reported calibrated field. "
@@ -233,9 +233,7 @@ def put_calibration_report(
     options = PutOptions(
         kind="foundry.calibration_report",
         media_type="application/json",
-        schema=SchemaInfo(
-            name="polisyos.foundry.CalibrationReport", version=report.schema_version
-        ),
+        schema=SchemaInfo(name="polisyos.foundry.CalibrationReport", version=report.schema_version),
         inputs=inputs,
         canon=CanonInfo.from_spec(canon_spec),
     )

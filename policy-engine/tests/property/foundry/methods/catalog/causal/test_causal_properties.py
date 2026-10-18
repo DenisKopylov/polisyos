@@ -58,8 +58,10 @@ class TestRDDProperties:
             cutoff - 0.9, cutoff + 0.9, num=int(data["n_obs"]), dtype=float
         )
         original_treatment = (data["running_variable"] >= cutoff).astype(float)
-        noise = data["outcome"] - data["running_variable"] * 0.5 - original_treatment * float(
-            data["effect_true"]
+        noise = (
+            data["outcome"]
+            - data["running_variable"] * 0.5
+            - original_treatment * float(data["effect_true"])
         )
         outcome = (
             running_variable * 0.5
@@ -102,8 +104,10 @@ class TestRDDProperties:
             cutoff - 0.9, cutoff + 0.9, num=int(data["n_obs"]), dtype=float
         )
         original_treatment = (data["running_variable"] >= cutoff).astype(float)
-        noise = data["outcome"] - data["running_variable"] * 0.5 - original_treatment * float(
-            data["effect_true"]
+        noise = (
+            data["outcome"]
+            - data["running_variable"] * 0.5
+            - original_treatment * float(data["effect_true"])
         )
         outcome = (
             running_variable * 0.5

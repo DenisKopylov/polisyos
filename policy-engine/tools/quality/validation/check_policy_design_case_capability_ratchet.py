@@ -641,7 +641,9 @@ DEFAULT_WAVE2_CAPABILITY_CLAIMS: tuple[dict[str, Any], ...] = (
                 "architecture blocker or replacement seam proof is recorded"
             ),
         },
-        "typed_contract_ref": ("repo://src/polisyos/runtime/quality/policy_design_case_integration_skeleton.py"),
+        "typed_contract_ref": (
+            "repo://src/polisyos/runtime/quality/policy_design_case_integration_skeleton.py"
+        ),
         "producer_ref": (
             "repo://src/polisyos/runtime/quality/policy_design_case_integration_skeleton.py"
             "#build_wave2_policy_design_case_walking_skeleton"
@@ -1033,16 +1035,13 @@ DEFAULT_POLICY_EVIDENCE_CAPABILITY_GRAPH_PHASE0_CLAIMS: tuple[dict[str, Any], ..
             ),
         },
         "typed_contract_ref": (
-            "repo://src/polisyos/runtime/quality/capability_authority.py"
-            "#CapabilityBindingResult"
+            "repo://src/polisyos/runtime/quality/capability_authority.py#CapabilityBindingResult"
         ),
         "producer_ref": (
-            "repo://tools/quality/validation/"
-            "build_policy_evidence_capability_index.py"
+            "repo://tools/quality/validation/build_policy_evidence_capability_index.py"
         ),
         "artifact_ref": (
-            "repo://architecture/policy_design_case/"
-            "capability_index_phase1_artifact_profile.json"
+            "repo://architecture/policy_design_case/capability_index_phase1_artifact_profile.json"
         ),
         "bridge_ref": (
             "repo://src/polisyos/runtime/quality/capability_resolver.py"
@@ -1053,12 +1052,10 @@ DEFAULT_POLICY_EVIDENCE_CAPABILITY_GRAPH_PHASE0_CLAIMS: tuple[dict[str, Any], ..
             "#_capability_graph_context"
         ),
         "verification_ref": (
-            "repo://tests/repo_quality/tools/"
-            "test_policy_evidence_capability_exports.py"
+            "repo://tests/repo_quality/tools/test_policy_evidence_capability_exports.py"
         ),
         "surface_ref": (
-            "repo://tools/quality/validation/"
-            "inspect_policy_evidence_capability_index.py"
+            "repo://tools/quality/validation/inspect_policy_evidence_capability_index.py"
         ),
         "semantic_test_ref": (
             "repo://tests/repo_quality/tools/"
@@ -1107,9 +1104,7 @@ DEFAULT_POLICY_EVIDENCE_CAPABILITY_GRAPH_PHASE0_CLAIMS: tuple[dict[str, Any], ..
         "producer_ref": (
             "repo://src/polisyos/runtime/quality/construct_registry.py#load_construct_registry"
         ),
-        "artifact_ref": (
-            "repo://architecture/policy_design_case/construct_registry_v1.yaml"
-        ),
+        "artifact_ref": ("repo://architecture/policy_design_case/construct_registry_v1.yaml"),
         "bridge_ref": (
             "repo://src/polisyos/runtime/quality/construct_registry.py"
             "#validate_obligation_rule_construct_refs"
@@ -1185,23 +1180,18 @@ DEFAULT_POLICY_EVIDENCE_CAPABILITY_GRAPH_PHASE0_CLAIMS: tuple[dict[str, Any], ..
             "#RequirementToCapabilityResolver"
         ),
         "artifact_ref": (
-            "repo://architecture/policy_design_case/"
-            "capability_index_phase1_artifact_profile.json"
+            "repo://architecture/policy_design_case/capability_index_phase1_artifact_profile.json"
         ),
         "bridge_ref": (
-            "repo://src/polisyos/data_requirement/compiler.py"
-            "#_capability_bindings_for_requirements"
+            "repo://src/polisyos/data_requirement/compiler.py#_capability_bindings_for_requirements"
         ),
         "consumer_ref": (
             "repo://tools/quality/validation/"
             "run_universal_outcome_corpus.py#_claim_bindings_from_pipeline"
         ),
-        "verification_ref": (
-            "repo://tests/unit/runtime/quality/test_capability_resolver.py"
-        ),
+        "verification_ref": ("repo://tests/unit/runtime/quality/test_capability_resolver.py"),
         "surface_ref": (
-            "repo://tools/quality/validation/"
-            "inspect_policy_evidence_capability_index.py"
+            "repo://tools/quality/validation/inspect_policy_evidence_capability_index.py"
         ),
         "semantic_test_ref": (
             "repo://tests/repo_quality/tools/"
@@ -1275,12 +1265,10 @@ DEFAULT_POLICY_EVIDENCE_CAPABILITY_GRAPH_PHASE0_CLAIMS: tuple[dict[str, Any], ..
         },
         "typed_contract_ref": "repo://src/polisyos/runtime/quality/capability_index.py",
         "producer_ref": (
-            "repo://tools/quality/validation/"
-            "build_policy_evidence_capability_index.py"
+            "repo://tools/quality/validation/build_policy_evidence_capability_index.py"
         ),
         "artifact_ref": (
-            "repo://architecture/policy_design_case/"
-            "capability_index_phase1_artifact_profile.json"
+            "repo://architecture/policy_design_case/capability_index_phase1_artifact_profile.json"
         ),
         "bridge_ref": (
             "repo://src/polisyos/runtime/quality/capability_index_compiler.py"
@@ -1288,12 +1276,10 @@ DEFAULT_POLICY_EVIDENCE_CAPABILITY_GRAPH_PHASE0_CLAIMS: tuple[dict[str, Any], ..
         ),
         "consumer_ref": "repo://docs/reference/generated-artifacts.md",
         "verification_ref": (
-            "repo://tests/repo_quality/tools/"
-            "test_policy_evidence_capability_index.py"
+            "repo://tests/repo_quality/tools/test_policy_evidence_capability_index.py"
         ),
         "surface_ref": (
-            "repo://tools/quality/validation/"
-            "generate_policy_evidence_capability_cards.py"
+            "repo://tools/quality/validation/generate_policy_evidence_capability_cards.py"
         ),
         "semantic_test_ref": (
             "repo://tests/repo_quality/tools/"
@@ -1342,12 +1328,9 @@ DEFAULT_POLICY_EVIDENCE_CAPABILITY_GRAPH_PHASE0_CLAIMS: tuple[dict[str, Any], ..
             "#build_policy_evidence_capability_replay_policy"
         ),
         "producer_ref": (
-            "repo://src/polisyos/runtime/quality/replay.py"
-            "#POLICY_EVIDENCE_LEGACY_READER_REF"
+            "repo://src/polisyos/runtime/quality/replay.py#POLICY_EVIDENCE_LEGACY_READER_REF"
         ),
-        "artifact_ref": (
-            "repo://architecture/shims.toml#scenario_family_authority_lookup"
-        ),
+        "artifact_ref": ("repo://architecture/shims.toml#scenario_family_authority_lookup"),
         "bridge_ref": (
             "repo://src/polisyos/runtime/quality/replay.py"
             "#validate_policy_evidence_capability_replay_refs"
@@ -1357,9 +1340,7 @@ DEFAULT_POLICY_EVIDENCE_CAPABILITY_GRAPH_PHASE0_CLAIMS: tuple[dict[str, Any], ..
             "#test_legacy_pdc_replay_does_not_silently_use_current_filesystem"
         ),
         "verification_ref": "repo://tests/unit/runtime/quality/test_replay.py",
-        "surface_ref": (
-            "repo://architecture/shims.toml#scenario_family_authority_lookup"
-        ),
+        "surface_ref": ("repo://architecture/shims.toml#scenario_family_authority_lookup"),
         "surface_out_of_scope": {
             "rationale": (
                 "Scenario-family authority is removed by design; only "
@@ -1424,8 +1405,7 @@ DEFAULT_POLICY_EVIDENCE_CAPABILITY_GRAPH_PHASE0_CLAIMS: tuple[dict[str, Any], ..
             ),
         },
         "typed_contract_ref": (
-            "repo://src/polisyos/runtime/quality/capability_index.py"
-            "#AcquisitionStrategy"
+            "repo://src/polisyos/runtime/quality/capability_index.py#AcquisitionStrategy"
         ),
         "producer_ref": (
             "repo://src/polisyos/runtime/quality/capability_index_compiler.py"
@@ -1443,9 +1423,7 @@ DEFAULT_POLICY_EVIDENCE_CAPABILITY_GRAPH_PHASE0_CLAIMS: tuple[dict[str, Any], ..
             "repo://src/polisyos/runtime/quality/capability_resolver.py"
             "#RequirementToCapabilityResolver.from_duckdb"
         ),
-        "verification_ref": (
-            "repo://tests/unit/runtime/quality/test_capability_white_space.py"
-        ),
+        "verification_ref": ("repo://tests/unit/runtime/quality/test_capability_white_space.py"),
         "surface_ref": (
             "repo://docs/runbooks/policy-design-case-operator-triage.md"
             "#acquisition-strategy-ownership"
@@ -1492,8 +1470,7 @@ DEFAULT_POLICY_EVIDENCE_CAPABILITY_GRAPH_PHASE0_CLAIMS: tuple[dict[str, Any], ..
         "rollout_refs": {
             "feature_flag_or_scope": "Phase 3 authority composition library and tests",
             "canary_or_revalidation": (
-                "uv run pytest tests/unit/runtime/quality/"
-                "test_capability_authority.py -q"
+                "uv run pytest tests/unit/runtime/quality/test_capability_authority.py -q"
             ),
             "rollback_or_reversal": (
                 "remove capability_authority.py and keep downstream resolver "
@@ -1501,30 +1478,22 @@ DEFAULT_POLICY_EVIDENCE_CAPABILITY_GRAPH_PHASE0_CLAIMS: tuple[dict[str, Any], ..
             ),
         },
         "typed_contract_ref": (
-            "repo://src/polisyos/runtime/quality/capability_authority.py"
-            "#CapabilityBindingResult"
+            "repo://src/polisyos/runtime/quality/capability_authority.py#CapabilityBindingResult"
         ),
         "producer_ref": (
             "repo://src/polisyos/runtime/quality/capability_authority.py"
             "#compose_capability_authority"
         ),
-        "artifact_ref": (
-            "repo://tests/fixtures/capability_authority/mixed_outcomes_v1.json"
-        ),
+        "artifact_ref": ("repo://tests/fixtures/capability_authority/mixed_outcomes_v1.json"),
         "bridge_ref": (
-            "repo://src/polisyos/runtime/quality/authority.py"
-            "#capability_binding_purpose_blockers"
+            "repo://src/polisyos/runtime/quality/authority.py#capability_binding_purpose_blockers"
         ),
         "consumer_ref": (
             "repo://src/polisyos/runtime/quality/projection_semantics.py"
             "#_assert_capability_binding_results_projection_safe"
         ),
-        "verification_ref": (
-            "repo://tests/unit/runtime/quality/test_capability_authority.py"
-        ),
-        "surface_ref": (
-            "repo://tests/fixtures/capability_authority/mixed_outcomes_v1.json"
-        ),
+        "verification_ref": ("repo://tests/unit/runtime/quality/test_capability_authority.py"),
+        "surface_ref": ("repo://tests/fixtures/capability_authority/mixed_outcomes_v1.json"),
         "semantic_test_ref": (
             "repo://tests/unit/runtime/quality/test_capability_authority.py"
             "#test_capability_with_below_floor_factor_degrades"
@@ -1586,31 +1555,24 @@ DEFAULT_POLICY_EVIDENCE_CAPABILITY_GRAPH_PHASE0_CLAIMS: tuple[dict[str, Any], ..
             ),
         },
         "typed_contract_ref": (
-            "repo://src/polisyos/runtime/quality/capability_authority.py"
-            "#CapabilityBindingResult"
+            "repo://src/polisyos/runtime/quality/capability_authority.py#CapabilityBindingResult"
         ),
         "producer_ref": (
             "repo://src/polisyos/runtime/quality/producer_pipeline.py"
             "#run_requirement_spec_producer_pipeline"
         ),
         "artifact_ref": (
-            "repo://tools/quality/validation/run_universal_outcome_corpus.py"
-            "#capability_graph_trace"
+            "repo://tools/quality/validation/run_universal_outcome_corpus.py#capability_graph_trace"
         ),
         "bridge_ref": (
-            "repo://src/polisyos/runtime/quality/producer_pipeline.py"
-            "#_producer_binding_decisions"
+            "repo://src/polisyos/runtime/quality/producer_pipeline.py#_producer_binding_decisions"
         ),
         "consumer_ref": (
             "repo://tools/quality/validation/"
             "run_universal_outcome_corpus.py#_claim_bindings_from_pipeline"
         ),
-        "verification_ref": (
-            "repo://tests/unit/runtime/quality/test_producer_pipeline.py"
-        ),
-        "surface_ref": (
-            "repo://tools/quality/validation/run_universal_outcome_corpus.py"
-        ),
+        "verification_ref": ("repo://tests/unit/runtime/quality/test_producer_pipeline.py"),
+        "surface_ref": ("repo://tools/quality/validation/run_universal_outcome_corpus.py"),
         "semantic_test_ref": (
             "repo://tests/unit/runtime/quality/test_producer_pipeline.py"
             "#test_pipeline_persists_per_producer_capability_refs_and_cross_modal_traceability"
@@ -1909,8 +1871,7 @@ DEFAULT_CAPABILITY_CLAIMS: tuple[dict[str, Any], ...] = (
             "#verify_policy_design_case_projection_consumer_contract"
         ),
         "consumer_ref": (
-            "repo://apps/runtime-dashboard/src/api/validators.ts"
-            "#policyDesignCaseProjectionSchema"
+            "repo://apps/runtime-dashboard/src/api/validators.ts#policyDesignCaseProjectionSchema"
         ),
         "verification_ref": (
             "repo://tests/unit/runtime/quality/test_policy_design_case_projection_semantics.py"
@@ -2018,8 +1979,7 @@ DEFAULT_CAPABILITY_CLAIMS: tuple[dict[str, Any], ...] = (
             ),
         },
         "typed_contract_ref": (
-            "repo://src/polisyos/runtime/quality/calibration_ledger.py"
-            "#CalibrationBehaviorPolicy"
+            "repo://src/polisyos/runtime/quality/calibration_ledger.py#CalibrationBehaviorPolicy"
         ),
         "producer_ref": (
             "repo://src/polisyos/runtime/quality/calibration_ledger.py"
@@ -2030,8 +1990,7 @@ DEFAULT_CAPABILITY_CLAIMS: tuple[dict[str, Any], ...] = (
             "wave5_i5_external_consumer_truth_manifest.json#w5c_calibration_behavior"
         ),
         "bridge_ref": (
-            "repo://src/polisyos/runtime/quality/scorecard.py"
-            "#calibration_behavior_scorecard_gates"
+            "repo://src/polisyos/runtime/quality/scorecard.py#calibration_behavior_scorecard_gates"
         ),
         "consumer_ref": "repo://src/polisyos/runtime/quality/scorecard.py",
         "verification_ref": "repo://tests/unit/runtime/quality/test_calibration_ledger.py",
@@ -2072,8 +2031,7 @@ DEFAULT_CAPABILITY_CLAIMS: tuple[dict[str, Any], ...] = (
             ),
         },
         "typed_contract_ref": (
-            "repo://src/polisyos/runtime/quality/memory_influence.py"
-            "#MemoryInfluenceRecord"
+            "repo://src/polisyos/runtime/quality/memory_influence.py#MemoryInfluenceRecord"
         ),
         "producer_ref": (
             "repo://src/polisyos/scientist/orchestration/memory/retrieval.py"
@@ -2138,8 +2096,7 @@ DEFAULT_CAPABILITY_CLAIMS: tuple[dict[str, Any], ...] = (
             ),
         },
         "typed_contract_ref": (
-            "repo://docs/reference/policy-design-case-operator-guide.md"
-            "#Capability-Evidence"
+            "repo://docs/reference/policy-design-case-operator-guide.md#Capability-Evidence"
         ),
         "producer_ref": (
             "repo://docs/reference/policy-design-case-operator-guide.md"
@@ -2215,8 +2172,7 @@ DEFAULT_CAPABILITY_CLAIMS: tuple[dict[str, Any], ...] = (
             "#DEFAULT_CAPABILITY_CLAIMS"
         ),
         "artifact_ref": (
-            "repo://architecture/policy_design_case/"
-            "wave5_i5_external_consumer_truth_manifest.json"
+            "repo://architecture/policy_design_case/wave5_i5_external_consumer_truth_manifest.json"
         ),
         "bridge_ref": (
             "repo://src/polisyos/runtime/quality/projection_semantics.py"
@@ -2231,8 +2187,7 @@ DEFAULT_CAPABILITY_CLAIMS: tuple[dict[str, Any], ...] = (
             "repo://tests/repo_quality/tools/test_policy_design_case_capability_ratchet.py"
         ),
         "surface_ref": (
-            "repo://architecture/policy_design_case/"
-            "wave5_i5_external_consumer_truth_manifest.json"
+            "repo://architecture/policy_design_case/wave5_i5_external_consumer_truth_manifest.json"
         ),
         "semantic_test_ref": (
             "repo://tests/unit/runtime/quality/test_policy_design_case_projection_semantics.py"
@@ -2287,8 +2242,7 @@ DEFAULT_CAPABILITY_CLAIMS: tuple[dict[str, Any], ...] = (
             "#run_local_validation_ladder"
         ),
         "artifact_ref": (
-            "repo://architecture/policy_design_case/"
-            "wave6_local_validation_ladder_manifest.json"
+            "repo://architecture/policy_design_case/wave6_local_validation_ladder_manifest.json"
         ),
         "bridge_ref": (
             "repo://tools/quality/validation/"
@@ -2296,16 +2250,13 @@ DEFAULT_CAPABILITY_CLAIMS: tuple[dict[str, Any], ...] = (
             "#build_local_outcome_metrics"
         ),
         "consumer_ref": (
-            "repo://docs/runbooks/policy-design-case-rollout-rollback.md"
-            "#4-local-validation"
+            "repo://docs/runbooks/policy-design-case-rollout-rollback.md#4-local-validation"
         ),
         "verification_ref": (
-            "repo://tests/repo_quality/tools/"
-            "test_policy_design_case_local_validation_ladder.py"
+            "repo://tests/repo_quality/tools/test_policy_design_case_local_validation_ladder.py"
         ),
         "surface_ref": (
-            "repo://docs/reference/policy-design-case-operator-guide.md"
-            "#Validation-Ladder"
+            "repo://docs/reference/policy-design-case-operator-guide.md#Validation-Ladder"
         ),
         "semantic_test_ref": (
             "repo://tests/repo_quality/tools/"
@@ -2362,27 +2313,18 @@ DEFAULT_CAPABILITY_CLAIMS: tuple[dict[str, Any], ...] = (
             ),
         },
         "typed_contract_ref": (
-            "repo://src/polisyos/scientist/policy_design/formulator.py"
-            "#FormulatorCandidate"
+            "repo://src/polisyos/scientist/policy_design/formulator.py#FormulatorCandidate"
         ),
-        "producer_ref": (
-            "repo://src/polisyos/scientist/policy_design/formulator.py"
-            "#LLMFormulator"
-        ),
+        "producer_ref": ("repo://src/polisyos/scientist/policy_design/formulator.py#LLMFormulator"),
         "artifact_ref": (
             "repo://architecture/policy_design_case/"
             "wave6e_llm_formulator_critic_ensemble_manifest.json"
         ),
         "bridge_ref": (
-            "repo://src/polisyos/scientist/policy_design/formulator.py"
-            "#InMemoryHypothesisLedger"
+            "repo://src/polisyos/scientist/policy_design/formulator.py#InMemoryHypothesisLedger"
         ),
-        "consumer_ref": (
-            "repo://tests/unit/scientist/policy_design/test_critic_ensemble.py"
-        ),
-        "verification_ref": (
-            "repo://tests/unit/scientist/policy_design/test_formulator.py"
-        ),
+        "consumer_ref": ("repo://tests/unit/scientist/policy_design/test_critic_ensemble.py"),
+        "verification_ref": ("repo://tests/unit/scientist/policy_design/test_formulator.py"),
         "surface_ref": (
             "repo://architecture/policy_design_case/"
             "wave6e_llm_formulator_critic_ensemble_manifest.json"
@@ -2460,7 +2402,7 @@ DEFAULT_CAPABILITY_CLAIMS: tuple[dict[str, Any], ...] = (
         "rejected_reuse_evidence": [
             "W2.B owns replay/evolution refs but not the governed obligation taxonomy.",
             "policy_design objectives/critic/adversary modules emit signals, not a "
-            "versioned rulebook."
+            "versioned rulebook.",
         ],
         "rollout_refs": {
             "feature_flag_or_scope": "governed obligation catalog for Wave 6 compilation only",
@@ -2504,7 +2446,7 @@ DEFAULT_CAPABILITY_CLAIMS: tuple[dict[str, Any], ...] = (
             "Temporal logic and deterministic critics expose obligation-like signals "
             "but no three-tier candidate/bundle/frontier ledger.",
             "Existing closeout readers consume blockers but do not compile governed "
-            "obligation candidates."
+            "obligation candidates.",
         ],
         "rollout_refs": {
             "feature_flag_or_scope": "Wave 6 obligation compilation artifact only",
@@ -2579,7 +2521,20 @@ DEFAULT_CAPABILITY_CLAIMS: tuple[dict[str, Any], ...] = (
         "hold_reason": "implemented with runtime hypothesis ledger, candidate refs, and claim-registry consumer enforcement",
         "next_wave_target": "Wave 7 requirement compiler read surfaces",
         "chain_id": "wave6-universal-compilation-kernel",
-        "research_refs": ["E22", "E24", "C2", "C5", "C9", "C12", "C17", "C19", "C41", "P05", "P10", "P15"],
+        "research_refs": [
+            "E22",
+            "E24",
+            "C2",
+            "C5",
+            "C9",
+            "C12",
+            "C17",
+            "C19",
+            "C41",
+            "P05",
+            "P10",
+            "P15",
+        ],
         "no_adr_required": (
             "W6.F enforces the existing W0-W5 authority boundary: candidate output "
             "may be visible but cannot satisfy protected slots without validation."
@@ -2620,7 +2575,19 @@ DEFAULT_CAPABILITY_CLAIMS: tuple[dict[str, Any], ...] = (
         "hold_reason": "implemented with calibration, fairness, policy-context, and source-invalidation detector producers",
         "next_wave_target": "Wave 10 lifecycle/public-surface hardening",
         "chain_id": "wave9-advanced-lifecycle-drift-replay",
-        "research_refs": ["E15", "E20", "E21", "C20", "C25", "C33", "P01", "P02", "P07", "P09", "P11"],
+        "research_refs": [
+            "E15",
+            "E20",
+            "E21",
+            "C20",
+            "C25",
+            "C33",
+            "P01",
+            "P02",
+            "P07",
+            "P09",
+            "P11",
+        ],
         "no_adr_required": (
             "W9.A wires detector producers into existing continuous-governance event "
             "contracts and sparse-history policy without introducing new authority thresholds."
@@ -3061,7 +3028,19 @@ DEFAULT_CAPABILITY_CLAIMS: tuple[dict[str, Any], ...] = (
         "hold_reason": "implemented as an integration smoke over run-cost blockers, repair FMEA scorecard/closeout surfaces, and R14 semantic probe",
         "next_wave_target": "Wave 11 universal outcome corpus acceptance baseline",
         "chain_id": "wave10-temporal-cost-fmea-depth",
-        "research_refs": ["E18", "E19", "E22", "C23", "C24", "C26", "P01", "P05", "P10", "P13", "P15"],
+        "research_refs": [
+            "E18",
+            "E19",
+            "E22",
+            "C23",
+            "C24",
+            "C26",
+            "P01",
+            "P05",
+            "P10",
+            "P13",
+            "P15",
+        ],
         "no_adr_required": "I10 records Wave 10 exit evidence and does not introduce new policy authority semantics beyond W10.A-F.",
         "reuse_classification": "wire_existing",
         "rollout_refs": {
@@ -3096,7 +3075,19 @@ DEFAULT_CAPABILITY_CLAIMS: tuple[dict[str, Any], ...] = (
         ),
         "next_wave_target": "Wave 11.D fixture loaders and W11.E compilation truthfulness",
         "chain_id": "wave11-universal-outcome-corpus",
-        "research_refs": ["E1", "E22", "C26", "P01", "P02", "P03", "P05", "P10", "P13", "P14", "P15"],
+        "research_refs": [
+            "E1",
+            "E22",
+            "C26",
+            "P01",
+            "P02",
+            "P03",
+            "P05",
+            "P10",
+            "P13",
+            "P14",
+            "P15",
+        ],
         "no_adr_required": (
             "W11.B records benchmark annotations used as truthfulness references; "
             "it does not mint claim, evidence, legal, method, participation, "
@@ -3166,8 +3157,7 @@ DEFAULT_CAPABILITY_CLAIMS: tuple[dict[str, Any], ...] = (
             ),
         },
         "typed_contract_ref": (
-            "repo://src/polisyos/corpus/__init__.py"
-            "#EXPERT_ADJUDICATION_SCHEMA_VERSION"
+            "repo://src/polisyos/corpus/__init__.py#EXPERT_ADJUDICATION_SCHEMA_VERSION"
         ),
         "producer_ref": (
             "repo://docs/research/universal-policy-design/outcome-corpus/"
@@ -3177,17 +3167,14 @@ DEFAULT_CAPABILITY_CLAIMS: tuple[dict[str, Any], ...] = (
             "repo://docs/research/universal-policy-design/outcome-corpus/adjudications"
         ),
         "bridge_ref": (
-            "repo://src/polisyos/corpus/__init__.py"
-            "#evaluate_expert_adjudication_manifest"
+            "repo://src/polisyos/corpus/__init__.py#evaluate_expert_adjudication_manifest"
         ),
         "consumer_ref": (
-            "repo://src/polisyos/corpus/__init__.py"
-            "#build_expert_adjudication_useful_design_gate"
+            "repo://src/polisyos/corpus/__init__.py#build_expert_adjudication_useful_design_gate"
         ),
         "verification_ref": "repo://tests/unit/corpus/test_expert_adjudication.py",
         "surface_ref": (
-            "repo://docs/research/universal-policy-design/outcome-corpus/"
-            "adjudications/README.md"
+            "repo://docs/research/universal-policy-design/outcome-corpus/adjudications/README.md"
         ),
         "semantic_test_ref": (
             "repo://tests/repo_quality/tools/test_expert_adjudication_labels.py"

@@ -58,8 +58,7 @@ def _chi2_sf(statistic: float, df: int) -> float | None:
     if df == 1:
         return float(math.erfc(math.sqrt(max(float(statistic), 0.0) / 2.0)))
     z_value = (
-        (max(float(statistic), _EPS) / float(df)) ** (1.0 / 3.0)
-        - (1.0 - 2.0 / (9.0 * float(df)))
+        (max(float(statistic), _EPS) / float(df)) ** (1.0 / 3.0) - (1.0 - 2.0 / (9.0 * float(df)))
     ) / math.sqrt(2.0 / (9.0 * float(df)))
     return float(0.5 * math.erfc(z_value / math.sqrt(2.0)))
 
@@ -601,9 +600,7 @@ def _rows_from_income_path(
                 value, se, n_obs, ess = payload
                 if spec.minimum_cell_ess is not None and ess < float(spec.minimum_cell_ess):
                     if warnings is not None:
-                        warnings.append(
-                            f"low_effective_sample_size:{moment.moment_id}:h{horizon}"
-                        )
+                        warnings.append(f"low_effective_sample_size:{moment.moment_id}:h{horizon}")
                     continue
                 rows.append(
                     _MomentRow(
@@ -639,7 +636,9 @@ def _simulated_rows_from_result(
         else np.ones_like(final_income, dtype=float)
     )
     if result.weights is None:
-        warnings.append("simulation_weights_unavailable_using_equal_weights_for_distribution_moments")
+        warnings.append(
+            "simulation_weights_unavailable_using_equal_weights_for_distribution_moments"
+        )
 
     path = (
         _as_array(result.market_income_path, name="market_income_path", ndim=2)
@@ -654,17 +653,25 @@ def _simulated_rows_from_result(
         )
         if spec.cohort_dimensions != ("all",) and not cohort_data:
             warnings.append("simulation_cohort_data_unavailable_using_aggregate_cells")
-        rows.extend(_rows_from_income_path(path, weights, spec, cohort_data=cohort_data, warnings=warnings))
+        rows.extend(
+            _rows_from_income_path(path, weights, spec, cohort_data=cohort_data, warnings=warnings)
+        )
 
     horizons = _horizons_for_validation(result, spec)
     row_keys = {_row_lookup_key(row) for row in rows}
     final_horizon = len(result.mean_income_path)
     for horizon in horizons:
         for moment in spec.moment_specs:
-            key = (tuple(sorted((str(k), str(v)) for k, v in _AGGREGATE_COHORT.items())), int(horizon), moment.moment_id)
+            key = (
+                tuple(sorted((str(k), str(v)) for k, v in _AGGREGATE_COHORT.items())),
+                int(horizon),
+                moment.moment_id,
+            )
             if key in row_keys:
                 continue
-            if moment.moment_id in _MEAN_MOMENTS and 1 <= int(horizon) <= len(result.mean_income_path):
+            if moment.moment_id in _MEAN_MOMENTS and 1 <= int(horizon) <= len(
+                result.mean_income_path
+            ):
                 rows.append(
                     _MomentRow(
                         cohort_key=dict(_AGGREGATE_COHORT),
@@ -761,7 +768,9 @@ def _observed_rows_from_panel_data(
         else np.ones_like(income, dtype=float)
     )
     warnings.append("panel_cross_section_reused_for_requested_horizons")
-    cohort_data = _cohort_data_from_source(panel_data, spec.cohort_dimensions, n_obs=income.shape[0])
+    cohort_data = _cohort_data_from_source(
+        panel_data, spec.cohort_dimensions, n_obs=income.shape[0]
+    )
     groups = _cohort_groups(cohort_data, n_obs=income.shape[0])
     rows: list[_MomentRow] = []
     for horizon in _horizons_for_validation(
@@ -862,7 +871,9 @@ def _build_cell_results(
     warnings: list[str],
 ) -> list[ValidationCellResult]:
     sim_by_key = {_row_lookup_key(row): row for row in simulated_rows}
-    aggregate_prefix = tuple(sorted((str(key), str(value)) for key, value in _AGGREGATE_COHORT.items()))
+    aggregate_prefix = tuple(
+        sorted((str(key), str(value)) for key, value in _AGGREGATE_COHORT.items())
+    )
     z_value = _confidence_z(spec.confidence_level)
     cell_results: list[ValidationCellResult] = []
     missing_simulated = 0
@@ -881,9 +892,7 @@ def _build_cell_results(
             continue
 
         bias = float(sim_row.value - obs_row.value)
-        relative_bias = (
-            float(bias / obs_row.value) if abs(float(obs_row.value)) > _EPS else None
-        )
+        relative_bias = float(bias / obs_row.value) if abs(float(obs_row.value)) > _EPS else None
         se = _combine_standard_errors(sim_row, obs_row)
         test_stat: float | None = None
         p_value: float | None = None
@@ -895,8 +904,10 @@ def _build_cell_results(
             ci_lower = float(bias - z_value * se)
             ci_upper = float(bias + z_value * se)
 
-        support = obs_row.support_type or sim_row.support_type or _support_for_horizon(
-            spec, obs_row.horizon_years
+        support = (
+            obs_row.support_type
+            or sim_row.support_type
+            or _support_for_horizon(spec, obs_row.horizon_years)
         )
         cell_results.append(
             ValidationCellResult(
@@ -1240,12 +1251,11 @@ def _panel_input_mode(panel_data: SurveyMicroData | Mapping[str, Any]) -> str:
     ):
         return "income_path"
     if (
-        (_optional_mapping_value(panel_data, "person_id") is not None
-        or _optional_mapping_value(panel_data, "household_ids") is not None)
-        and (
-            _optional_mapping_value(panel_data, "year") is not None
-            or _optional_mapping_value(panel_data, "period_id") is not None
-        )
+        _optional_mapping_value(panel_data, "person_id") is not None
+        or _optional_mapping_value(panel_data, "household_ids") is not None
+    ) and (
+        _optional_mapping_value(panel_data, "year") is not None
+        or _optional_mapping_value(panel_data, "period_id") is not None
     ):
         return "long_panel"
     return "cross_section_fallback"
@@ -1271,7 +1281,8 @@ def _build_sensitivity_runs(
         )
         scenario_max_bias = diagnostic.diagnostics.get("max_abs_relative_bias_primary")
         key_shifts = {
-            "status_score_delta": _status_score(diagnostic.status) - _status_score(base_diagnostic.status),
+            "status_score_delta": _status_score(diagnostic.status)
+            - _status_score(base_diagnostic.status),
             "failed_cells_delta": float(diagnostic.diagnostics.get("failed_cells_count", 0))
             - base_failed,
         }
@@ -1388,7 +1399,9 @@ def run_dynamic_validation(
     """Compare dynamic microsimulation moments with longitudinal panel moments."""
 
     validation_spec = (
-        spec if isinstance(spec, DynamicValidationSpec) else DynamicValidationSpec.model_validate(spec)
+        spec
+        if isinstance(spec, DynamicValidationSpec)
+        else DynamicValidationSpec.model_validate(spec)
     )
     return _run_dynamic_validation_core(
         result,

@@ -115,9 +115,7 @@ def test_jurisdiction_spine_unresolved_competence_blocks_serious_scorecard() -> 
 
     scorecard = scorecard_for(quality_evidence=evidence)
 
-    assert "policy_design_jurisdiction_unresolved_competence_blocker" in blocking_codes(
-        scorecard
-    )
+    assert "policy_design_jurisdiction_unresolved_competence_blocker" in blocking_codes(scorecard)
 
 
 def test_jurisdiction_spine_arbitration_violation_emits_typed_blocker() -> None:
@@ -154,18 +152,18 @@ def test_jurisdiction_spine_arbitration_violation_emits_typed_blocker() -> None:
     assert boundary["reader_owner"] == "team-runtime-quality"
     assert boundary["record_family"] == "concept_and_jurisdiction_spine.v1"
     assert boundary["runtime_authority_envelope"]["provenance_kind"] == "runtime_blocker"
-    assert {
-        blocker["code"] for blocker in boundary["blockers"]
-    } == {"policy_design_jurisdiction_unresolved_conflict_blocker"}
+    assert {blocker["code"] for blocker in boundary["blockers"]} == {
+        "policy_design_jurisdiction_unresolved_conflict_blocker"
+    }
 
     hidden_blocker = deepcopy(spine)
     hidden_blocker["status"] = "pass"
     hidden_blocker["blockers"] = []
     hidden_boundary = build_policy_design_jurisdiction_spine_boundary_record(hidden_blocker)
     assert hidden_boundary["status"] == "failed"
-    assert {
-        issue["code"] for issue in hidden_boundary["issues"]
-    } == {"policy_design_jurisdiction_spine_blocker_missing"}
+    assert {issue["code"] for issue in hidden_boundary["issues"]} == {
+        "policy_design_jurisdiction_spine_blocker_missing"
+    }
 
 
 def test_jurisdiction_spine_rejects_static_inventory_as_authority() -> None:
@@ -189,17 +187,11 @@ def test_jurisdiction_spine_rejects_static_inventory_as_authority() -> None:
 
 def test_jurisdiction_spine_fixtures_include_multijurisdiction_and_blocker_examples() -> None:
     fixture_dir = (
-        REPO_ROOT
-        / "tests"
-        / "fixtures"
-        / "policy_design_case"
-        / "concept_jurisdiction_spine"
+        REPO_ROOT / "tests" / "fixtures" / "policy_design_case" / "concept_jurisdiction_spine"
     )
 
     assert (fixture_dir / "jurisdiction_spine_multi_jurisdiction_pass.json").is_file()
-    assert (
-        fixture_dir / "jurisdiction_spine_unresolved_competence_rejected.json"
-    ).is_file()
+    assert (fixture_dir / "jurisdiction_spine_unresolved_competence_rejected.json").is_file()
 
 
 def test_jurisdiction_spine_json_schema_lists_phase_8_2_fields() -> None:

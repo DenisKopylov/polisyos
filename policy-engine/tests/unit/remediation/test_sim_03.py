@@ -40,9 +40,7 @@ if TYPE_CHECKING:
 
 def _single_step_ncm_request():
     """Align the static NCM fixture with a genuinely one-point request."""
-    return _request().model_copy(
-        update={"horizon": HorizonSpec(start=0, end=0, step=1)}
-    )
+    return _request().model_copy(update={"horizon": HorizonSpec(start=0, end=0, step=1)})
 
 
 def _request_with_atom_count(count: int) -> Any:
@@ -339,11 +337,7 @@ def test_replication_failure_aborts_before_an_aggregate_result_exists(
         calls.append(seed)
         if seed == 18:
             raise RuntimeError("controlled_second_draw_failure")
-        return {
-            "counterfactual_result": {
-                "world_summaries": [{"firm_survival": {"mean": 1.0}}]
-            }
-        }
+        return {"counterfactual_result": {"world_summaries": [{"firm_survival": {"mean": 1.0}}]}}
 
     monkeypatch.setattr(NCMEngineMethod, "pure_step", staticmethod(fail_second_draw))
     request = _single_step_ncm_request().model_copy(update={"seed": 17, "replications": 2})
@@ -416,10 +410,14 @@ def test_physical_run_ref_binds_effective_evidence_and_source_mode() -> None:
         "firm_survival": 1.0,
     }
     implicit_baseline = controller.run(
-        _single_step_ncm_request().model_copy(update={"baseline_state": baseline, "evidence_state": None})
+        _single_step_ncm_request().model_copy(
+            update={"baseline_state": baseline, "evidence_state": None}
+        )
     )
     explicit_empty = controller.run(
-        _single_step_ncm_request().model_copy(update={"baseline_state": baseline, "evidence_state": {}})
+        _single_step_ncm_request().model_copy(
+            update={"baseline_state": baseline, "evidence_state": {}}
+        )
     )
     changed_baseline = controller.run(
         _single_step_ncm_request().model_copy(
@@ -639,9 +637,7 @@ def test_shared_seed_residual_cancellation_is_unsupported_despite_zero_mean(
         }
 
     monkeypatch.setattr(NCMEngineMethod, "pure_step", staticmethod(cancelling_joint))
-    request = _request_with_atom_count(3).model_copy(
-        update={"replications": 2, "seed": 41}
-    )
+    request = _request_with_atom_count(3).model_copy(update={"replications": 2, "seed": 41})
     result = JointSimulationHorizonController().run(request)
 
     assert result.higher_order_residuals == {"firm_survival": {0: 0.0}}
@@ -654,8 +650,9 @@ def test_shared_seed_residual_cancellation_is_unsupported_despite_zero_mean(
     assert result.feedback_classification.numeric_interaction_basis == (
         "finite_checked_model_point_estimate_only"
     )
-    assert "interaction_numeric_classification_unsupported" in (
-        result.promotion_ready_value_packet["authority_blockers"]
+    assert (
+        "interaction_numeric_classification_unsupported"
+        in (result.promotion_ready_value_packet["authority_blockers"])
     )
 
 
@@ -677,9 +674,7 @@ def test_all_pair_and_higher_order_sample_vectors_are_seed_paired_and_order_inva
     }
     atom_ids = tuple(engine_variable_by_atom)
     varying_pair = frozenset(atom_ids[:2])
-    varying_variables = frozenset(
-        engine_variable_by_atom[atom_id] for atom_id in varying_pair
-    )
+    varying_variables = frozenset(engine_variable_by_atom[atom_id] for atom_id in varying_pair)
     all_variables = frozenset(engine_variable_by_atom.values())
 
     def paired_interactions(state: Any, params: Any) -> dict[str, Any]:
@@ -701,7 +696,9 @@ def test_all_pair_and_higher_order_sample_vectors_are_seed_paired_and_order_inva
     controller = JointSimulationHorizonController()
     original = controller.run(request)
     permuted = controller.run(
-        request.model_copy(update={"intervention_atoms": tuple(reversed(request.intervention_atoms))})
+        request.model_copy(
+            update={"intervention_atoms": tuple(reversed(request.intervention_atoms))}
+        )
     )
 
     expected_pair_vectors = {
@@ -988,8 +985,9 @@ def test_unresolved_comparator_keeps_baseline_subtraction_candidate_only(
     assert result.diagnostics["comparator_refs_status"] == "not_established"
     assert result.diagnostics["effect_basis_status"] == "not_established"
     assert result.diagnostics["effect_basis"] == "outcome_minus_request_baseline_state"
-    assert "simulation_effect_basis_not_established" in (
-        result.promotion_ready_value_packet["authority_blockers"]
+    assert (
+        "simulation_effect_basis_not_established"
+        in (result.promotion_ready_value_packet["authority_blockers"])
     )
 
 

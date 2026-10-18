@@ -306,9 +306,7 @@ def _read(
         raise FabricFetchCustodyError("fabric_fetch_manifest_mismatch")
     if media_type == _JSON:
         try:
-            core_artifacts.read_core_json_artifact_bytes(
-                store, checked, raw_payload_bytes=data
-            )
+            core_artifacts.read_core_json_artifact_bytes(store, checked, raw_payload_bytes=data)
         except CanonicalProfileRefusalError as exc:
             raise FabricFetchCustodyError("fabric_fetch_profile_unverified") from exc
     return data

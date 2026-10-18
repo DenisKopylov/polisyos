@@ -156,9 +156,7 @@ def _normalize_signal(
         scope=normalize_scope(raw.get("scope") if isinstance(raw.get("scope"), Mapping) else None),
         occurred_at=_parse_time(raw.get("occurred_at") or raw.get("timestamp")),
         metadata=(
-            dict(raw.get("metadata") or {})
-            if isinstance(raw.get("metadata"), Mapping)
-            else {}
+            dict(raw.get("metadata") or {}) if isinstance(raw.get("metadata"), Mapping) else {}
         ),
     )
 

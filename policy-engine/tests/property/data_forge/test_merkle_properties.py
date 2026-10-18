@@ -23,8 +23,7 @@ def _artifact_ref(index: int, *, sha256: str, snapshot: int) -> _MerkleRef:
 
 
 _REF_POOL = tuple(
-    _artifact_ref(index, sha256=f"{index:064x}", snapshot=index)
-    for index in range(8)
+    _artifact_ref(index, sha256=f"{index:064x}", snapshot=index) for index in range(8)
 )
 
 

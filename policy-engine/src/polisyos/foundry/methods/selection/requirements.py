@@ -108,9 +108,7 @@ def _rejection_for_requirement(
             method,
             requirement=requirement,
             reason_code="method_requirement_family_mismatch",
-            reason=(
-                f"Method does not match required families for {requirement.requirement_id}."
-            ),
+            reason=(f"Method does not match required families for {requirement.requirement_id}."),
         )
     if _generic_execution_candidate(method) and _serious_requirement(requirement):
         return _rejection_row(
@@ -140,8 +138,7 @@ def _rejection_for_requirement(
             requirement=requirement,
             reason_code="negative_certificate_missing",
             reason=(
-                f"Method requirement {requirement.requirement_id} requires a negative "
-                "certificate."
+                f"Method requirement {requirement.requirement_id} requires a negative certificate."
             ),
         )
     if requirement.requires_runtime_assumption_gates:
@@ -219,8 +216,7 @@ def _matches_requirement_family(
 
 def _serious_requirement(requirement: MethodValidityRequirementSpec) -> bool:
     return (
-        requirement.identification_class
-        is not MethodIdentificationClass.NEGATIVE_CERTIFICATE
+        requirement.identification_class is not MethodIdentificationClass.NEGATIVE_CERTIFICATE
         or bool(requirement.method_expectations)
     )
 
@@ -434,15 +430,9 @@ def _method_candidates_from_capabilities(
                         }
                         for assumption in assumption_gates
                     ],
-                    "uncertainty_refs": {
-                        "uncertainty_envelope_ref": f"uncertainty:{target}"
-                    },
-                    "limitation_refs": {
-                        "method_limitation_ref": f"limitation:{target}"
-                    },
-                    "method_result_refs": {
-                        "method_result_ref": f"method-result:{target}"
-                    },
+                    "uncertainty_refs": {"uncertainty_envelope_ref": f"uncertainty:{target}"},
+                    "limitation_refs": {"method_limitation_ref": f"limitation:{target}"},
+                    "method_result_refs": {"method_result_ref": f"method-result:{target}"},
                     "capability_ref": capability_ref,
                     "construct_ref": construct_ref,
                     "capability_index_ref": _text(binding.get("capability_index_ref")),
@@ -491,9 +481,7 @@ def _contract_assumption_gates(
 ) -> list[str]:
     for row in manifest_rows:
         row_target = _text(
-            row.get("contract_target")
-            or row.get("method_contract_target")
-            or row.get("method_id")
+            row.get("contract_target") or row.get("method_contract_target") or row.get("method_id")
         )
         if row_target == target:
             gates = _string_list(row.get("required_assumption_gates"))

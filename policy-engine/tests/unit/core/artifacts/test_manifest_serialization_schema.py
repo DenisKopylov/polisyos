@@ -190,7 +190,6 @@ def test_served_channel_projection_keeps_typed_nested_artifact_ref_schema() -> N
     assert artifact_ref_schema["properties"]["artifact_id"]["type"] == "string"
 
 
-
 def test_profileless_authority_event_link_keeps_historical_dump_shape() -> None:
     authority = ArtifactAuthorityInfo(
         authority_envelope_ref="sha256:" + "a" * 64,
@@ -208,4 +207,7 @@ def test_profileless_authority_event_link_keeps_historical_dump_shape() -> None:
     selected = authority.model_copy(
         update={"diagnostic_event_manifest_profile_sha256": selected_profile}
     )
-    assert selected.model_dump(mode="json")["diagnostic_event_manifest_profile_sha256"] == selected_profile
+    assert (
+        selected.model_dump(mode="json")["diagnostic_event_manifest_profile_sha256"]
+        == selected_profile
+    )

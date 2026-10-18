@@ -466,9 +466,7 @@ def _normalize_claim_family(
         "severity": "warn",
         "raw_claim_family": raw_text,
         "normalized_claim_family": inferred,
-        "message": (
-            f"Unsupported claim family {raw_text!r} was normalized to {inferred!r}."
-        ),
+        "message": (f"Unsupported claim family {raw_text!r} was normalized to {inferred!r}."),
     }
 
 
@@ -1061,13 +1059,8 @@ def _unwrap_trinity_root_wrapper(
         )
     outer_schema_version = data.get("schema_version")
     inner_schema_version = root.get("schema_version")
-    if (
-        outer_schema_version is not None
-        and outer_schema_version != inner_schema_version
-    ):
-        raise ValueError(
-            "Trinity root wrapper schema_version disagrees with its payload."
-        )
+    if outer_schema_version is not None and outer_schema_version != inner_schema_version:
+        raise ValueError("Trinity root wrapper schema_version disagrees with its payload.")
     return root, [
         {
             "path": "root",
@@ -1304,9 +1297,7 @@ def _normalize_problem_frame_metric_aliases_for_validation(
             raw_scope = item.get("scope")
             if raw_scope is not None:
                 item.pop("scope")
-                item_notes = [
-                    str(note) for note in item.get("notes") or [] if str(note).strip()
-                ]
+                item_notes = [str(note) for note in item.get("notes") or [] if str(note).strip()]
                 note = f"constraint_scope:{raw_scope}"
                 if note not in item_notes and len(item_notes) < 5:
                     item_notes.append(note)
@@ -1325,9 +1316,7 @@ def _normalize_problem_frame_metric_aliases_for_validation(
             if not isinstance(item, dict):
                 continue
             raw_direction = item.get("direction")
-            normalized_direction = _OBJECTIVE_DIRECTION_ALIASES.get(
-                _enum_alias_key(raw_direction)
-            )
+            normalized_direction = _OBJECTIVE_DIRECTION_ALIASES.get(_enum_alias_key(raw_direction))
             if normalized_direction is not None:
                 item["direction"] = normalized_direction
                 _append_healing(
@@ -1707,9 +1696,7 @@ def trinity_bundle_formalizer_generator_path(
         except (ValidationError, ValueError, TypeError):
             continue
         if candidate.schema_version != bundle.schema_version:
-            candidate = candidate.model_copy(
-                update={"schema_version": bundle.schema_version}
-            )
+            candidate = candidate.model_copy(update={"schema_version": bundle.schema_version})
         candidate = _normalize_trinity_bundle_for_linker(candidate)
         readable_response_seen = True
         if candidate.model_dump(mode="json") == expected:

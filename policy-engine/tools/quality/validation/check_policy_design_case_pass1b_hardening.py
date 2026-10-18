@@ -55,9 +55,7 @@ from polisyos.runtime.quality.tenant_cas_approval_governance import (  # noqa: E
 
 SCHEMA_VERSION = "policyos.policy_design_case.pass1b_hardening_coverage.v1"
 TOOL_NAME = "quality.validation.check-policy-design-case-pass1b-hardening"
-DEFAULT_OUTPUT = Path(
-    "_build/policy-design-case/rebaseline/wave-32/pass1b_hardening_coverage.json"
-)
+DEFAULT_OUTPUT = Path("_build/policy-design-case/rebaseline/wave-32/pass1b_hardening_coverage.json")
 
 PASS1B_GROUP_EXPECTED_PDDS: dict[str, tuple[str, ...]] = {
     "tenant_cas_approval_governance": PASS1B_TENANT_CAS_APPROVAL_GOVERNANCE_PDDS,
@@ -69,8 +67,7 @@ PASS1B_GROUP_EXPECTED_PDDS: dict[str, tuple[str, ...]] = {
 }
 
 _EXTERNAL_CLIENT_SURFACE_SPLIT = (
-    PASS1B_GROUP_EXPECTED_PDDS["external_dependency"]
-    + PASS1B_GROUP_EXPECTED_PDDS["client_surface"]
+    PASS1B_GROUP_EXPECTED_PDDS["external_dependency"] + PASS1B_GROUP_EXPECTED_PDDS["client_surface"]
 )
 if set(_EXTERNAL_CLIENT_SURFACE_SPLIT) != set(EXTERNAL_CLIENT_SURFACE_PDDS):
     raise RuntimeError("Phase 28.5 Pass 1B closeout split drifted from runtime contract.")
@@ -170,9 +167,7 @@ PASS1B_HARDENING_GROUPS: dict[str, dict[str, Any]] = {
         "scorecard_gate": PASS1B_HARDENING_SCORECARD_GATE,
         "readiness_check": PASS1B_HARDENING_READINESS_CHECK,
         "owner": "team-quality-closeout",
-        "implemented_evidence_contract": (
-            PASS1B_TENANT_CAS_APPROVAL_GOVERNANCE_CONTRACT_ID
-        ),
+        "implemented_evidence_contract": (PASS1B_TENANT_CAS_APPROVAL_GOVERNANCE_CONTRACT_ID),
         "remaining_blocker": "none",
         "authority_boundary": "record_is_evidence_only",
         "pdd_closeout": _pdd_closeout_rows(
@@ -398,9 +393,7 @@ def build_pass1b_hardening_payload(
     for group_id, group in groups.items():
         pdds = _string_tuple(group.get("pdds"))
         required_case_bindings = _string_tuple(group.get("required_case_bindings"))
-        pdd_required_surfaces = _normalize_pdd_required_surfaces(
-            group.get("pdd_required_surfaces")
-        )
+        pdd_required_surfaces = _normalize_pdd_required_surfaces(group.get("pdd_required_surfaces"))
         pdd_closeout = _normalize_pdd_closeout(group.get("pdd_closeout"))
         expected_pdds = set(PASS1B_GROUP_EXPECTED_PDDS.get(group_id, ()))
         expected_surfaces = PASS1B_GROUP_EXPECTED_SURFACES.get(group_id, {})
@@ -415,13 +408,9 @@ def build_pass1b_hardening_payload(
         missing_pdds = sorted(expected_pdds - set(pdds))
         extra_pdds = sorted(set(pdds) - expected_pdds)
         expected_case_bindings = {
-            surface
-            for surfaces in expected_surfaces.values()
-            for surface in surfaces
+            surface for surfaces in expected_surfaces.values() for surface in surfaces
         }
-        missing_surfaces = sorted(
-            expected_case_bindings - set(required_case_bindings)
-        )
+        missing_surfaces = sorted(expected_case_bindings - set(required_case_bindings))
         issues.extend(_group_contract_issues(group_id, group))
         for pdd_id in missing_pdds:
             issues.append(
@@ -505,20 +494,16 @@ def build_pass1b_hardening_payload(
             "pdds": list(pdds),
             "required_case_bindings": list(required_case_bindings),
             "pdd_required_surfaces": {
-                pdd_id: list(surfaces)
-                for pdd_id, surfaces in sorted(pdd_required_surfaces.items())
+                pdd_id: list(surfaces) for pdd_id, surfaces in sorted(pdd_required_surfaces.items())
             },
             "scorecard_gate": str(group.get("scorecard_gate") or ""),
             "readiness_check": str(group.get("readiness_check") or ""),
             "owner": str(group.get("owner") or ""),
-            "implemented_evidence_contract": str(
-                group.get("implemented_evidence_contract") or ""
-            ),
+            "implemented_evidence_contract": str(group.get("implemented_evidence_contract") or ""),
             "remaining_blocker": str(group.get("remaining_blocker") or ""),
             "authority_boundary": str(group.get("authority_boundary") or ""),
             "pdd_closeout": {
-                pdd_id: _payload_closeout_row(row)
-                for pdd_id, row in sorted(pdd_closeout.items())
+                pdd_id: _payload_closeout_row(row) for pdd_id, row in sorted(pdd_closeout.items())
             },
         }
     status = "fail" if issues else "pass"
@@ -591,11 +576,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
 
-    output_path = (
-        args.output
-        if args.output is not None
-        else args.repo_root / DEFAULT_OUTPUT
-    )
+    output_path = args.output if args.output is not None else args.repo_root / DEFAULT_OUTPUT
     payload = build_pass1b_hardening_payload(
         repo_root=args.repo_root,
         output_path=output_path,
@@ -787,10 +768,7 @@ def _pdd_closeout_issues(
         issues.append(
             _issue(
                 "policy_design_pass1b_pdd_closeout_surface_missing",
-                (
-                    f"Pass 1B {pdd_id} closeout is missing surfaces: "
-                    f"{', '.join(missing_surfaces)}."
-                ),
+                (f"Pass 1B {pdd_id} closeout is missing surfaces: {', '.join(missing_surfaces)}."),
                 group_id=group_id,
                 pdd_id=pdd_id,
                 surface=",".join(missing_surfaces),
@@ -802,11 +780,7 @@ def _pdd_closeout_issues(
 def _normalize_pdd_closeout(value: object) -> dict[str, Mapping[str, Any]]:
     if not isinstance(value, Mapping):
         return {}
-    return {
-        str(key): item
-        for key, item in value.items()
-        if isinstance(item, Mapping)
-    }
+    return {str(key): item for key, item in value.items() if isinstance(item, Mapping)}
 
 
 def _payload_closeout_row(row: Mapping[str, Any]) -> dict[str, Any]:
@@ -845,10 +819,7 @@ def _generic_hardening_note_only(row: Mapping[str, Any]) -> bool:
 def _normalize_pdd_required_surfaces(value: object) -> dict[str, tuple[str, ...]]:
     if not isinstance(value, Mapping):
         return {}
-    return {
-        str(key): _string_tuple(item)
-        for key, item in value.items()
-    }
+    return {str(key): _string_tuple(item) for key, item in value.items()}
 
 
 def _string_tuple(value: object) -> tuple[str, ...]:
@@ -856,11 +827,7 @@ def _string_tuple(value: object) -> tuple[str, ...]:
         text = value.strip()
         return (text,) if text else ()
     if isinstance(value, Sequence) and not isinstance(value, (bytes, bytearray)):
-        return tuple(
-            text
-            for item in value
-            if isinstance(item, str) and (text := item.strip())
-        )
+        return tuple(text for item in value if isinstance(item, str) and (text := item.strip()))
     return ()
 
 

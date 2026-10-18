@@ -146,7 +146,9 @@ def incident_report_inputs(report: IncidentReport) -> list[InputRef]:
 
     inputs = [InputRef(artifact_id=report.decision_packet_ref.artifact_id, role="decision_packet")]
     if report.monitor_event_ref is not None:
-        inputs.append(InputRef(artifact_id=report.monitor_event_ref.artifact_id, role="monitor_event"))
+        inputs.append(
+            InputRef(artifact_id=report.monitor_event_ref.artifact_id, role="monitor_event")
+        )
     return inputs
 
 

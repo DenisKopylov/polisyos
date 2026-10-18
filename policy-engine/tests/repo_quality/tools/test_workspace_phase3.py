@@ -105,7 +105,9 @@ def test_verify_backend_only_runs_backend_commands(monkeypatch: pytest.MonkeyPat
 def test_expand_markdown_files_skips_docs_archive() -> None:
     files = expand_markdown_files(["docs"])
 
-    assert "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md" in files
+    assert (
+        "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md" in files
+    )
     assert all(not file_path.startswith("docs/archive/") for file_path in files)
 
 

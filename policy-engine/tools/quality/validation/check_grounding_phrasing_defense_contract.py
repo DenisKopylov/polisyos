@@ -232,8 +232,7 @@ def build_live_payload(repo_root: Path | None = None) -> dict[str, Any]:
         },
         "capability_reality": {
             "typed_contract_artifact": (
-                "PhrasingDefenseCertificate + GroundingProxyGapRisk + "
-                "QuarantineHandoffRecord"
+                "PhrasingDefenseCertificate + GroundingProxyGapRisk + QuarantineHandoffRecord"
             ),
             "producer": "GroundingPhrasingDefenseEngine.evaluate_attack_matrix",
             "persisted_artifact_event": OUTPUT_PATH,
@@ -282,19 +281,14 @@ def _representative_transform_slice(
         by_family: dict[str, Any] = {}
         for transform in transforms:
             by_family.setdefault(str(transform.family), transform)
-        sliced[case_id] = tuple(
-            by_family[family]
-            for family in sorted(by_family)
-        )
+        sliced[case_id] = tuple(by_family[family] for family in sorted(by_family))
     return sliced
 
 
 def _corrupt_field_drift_check(payload: dict[str, Any]) -> dict[str, Any]:
     corrupted = json.loads(json.dumps(payload, sort_keys=True))
     corrupted["certificate"]["matrix_summary"]["total_lifted"] = 1
-    corrupted["certificate"]["matrix_summary"]["consumed_intermediate_diff_counts"][
-        "retrieval"
-    ] = 0
+    corrupted["certificate"]["matrix_summary"]["consumed_intermediate_diff_counts"]["retrieval"] = 0
     corrupted["certificate"]["matrix_summary"]["self_vacuous"] = True
     if corrupted["proxy_gap_capture_pair"]["capture"]["risk"]:
         corrupted["proxy_gap_capture_pair"]["capture"]["risk"]["disposition"] = "ignored"
@@ -587,8 +581,7 @@ def _mutation_reports(reference: Any, base_cases: tuple[Any, ...]) -> list[dict[
         for transform in GroundingPhrasingDefenseEngine(reference)
         .generate_transforms((base,))
         .get(base.case_id, ())
-        if transform.family == "mechanism_changing_control"
-        and transform.declared_phrasing_only
+        if transform.family == "mechanism_changing_control" and transform.declared_phrasing_only
     )
     classifier_pair = GroundingPhrasingDefenseEngine.for_contract_testing(
         reference,
@@ -674,7 +667,9 @@ def _mutation_reports(reference: Any, base_cases: tuple[Any, ...]) -> list[dict[
     return reports
 
 
-def _mutation_row(mutation_id: str, failed_property_detected: bool, evidence: dict[str, Any]) -> dict[str, Any]:
+def _mutation_row(
+    mutation_id: str, failed_property_detected: bool, evidence: dict[str, Any]
+) -> dict[str, Any]:
     return {
         "mutation_id": mutation_id,
         "status": "red" if failed_property_detected else "green",
@@ -1046,7 +1041,11 @@ def _new_slot_probe() -> dict[str, Any]:
             "population": "cells",
             "unit": "ratio",
             "outcome": ["cells.output"],
-            "effect_path": ["temporary_resilience_buffer", "cells.resilience_buffer", "cells.output"],
+            "effect_path": [
+                "temporary_resilience_buffer",
+                "cells.resilience_buffer",
+                "cells.output",
+            ],
             "estimand": "average_treatment_effect",
             "admissibility": "passed",
             "modal_claims": _modal_claims(
@@ -1126,10 +1125,11 @@ def _proxy_gap_probe_record(
 
 
 def _slug(value: str) -> str:
-    return "_".join(part for part in "".join(
-        char.lower() if char.isalnum() else "_"
-        for char in value
-    ).split("_") if part)
+    return "_".join(
+        part
+        for part in "".join(char.lower() if char.isalnum() else "_" for char in value).split("_")
+        if part
+    )
 
 
 def _probe(payload: Any, key: str) -> dict[str, Any]:

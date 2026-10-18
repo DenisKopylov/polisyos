@@ -786,9 +786,7 @@ def test_native_projection_selects_honest_view_after_wrong_first_writer(
     assert selected_manifest.inputs == expected_inputs
     assert case.store.get_bytes(persisted.artifact_ref) == raw
     assert case.store.verify(persisted.artifact_ref).ok
-    default_view_ref = persisted.artifact_ref.model_copy(
-        update={"manifest_profile_sha256": None}
-    )
+    default_view_ref = persisted.artifact_ref.model_copy(update={"manifest_profile_sha256": None})
     with pytest.raises(ValueError):
         case.store.get_manifest(default_view_ref)
 
@@ -890,9 +888,7 @@ def test_reader_replays_versioned_historical_manifest_projection(
         ),
     )
     manifest = case.store.get_manifest(ref.artifact_id)
-    historical = manifest.model_copy(
-        update={"manifest_schema_version": schema_version}
-    )
+    historical = manifest.model_copy(update={"manifest_schema_version": schema_version})
     _, sidecar = case.store._paths(ref.artifact_id)
     sidecar.write_bytes(ManifestLifecycle.to_bytes(historical))
 
@@ -1054,8 +1050,7 @@ def test_identical_bundle_under_wrong_first_writer_manifest_selects_honest_view(
     ]
     assert result.verification_statement.bundle_ref == result.artifact_ref
     assert "core.chronology.full_prefix.verification_result" in [
-        case.store.get_manifest(artifact_id).kind
-        for artifact_id in case.store.iter_artifact_ids()
+        case.store.get_manifest(artifact_id).kind for artifact_id in case.store.iter_artifact_ids()
     ]
 
     reader = chronology_proof.ChronologyProofArtifactReader(store=case.store)
@@ -1070,9 +1065,7 @@ def test_identical_bundle_under_wrong_first_writer_manifest_selects_honest_view(
 
     # Removing selection must fail when the default view carries the wrong type/schema.
     if wrong_field in {"kind", "schema"}:
-        default_view_ref = result.artifact_ref.model_copy(
-            update={"manifest_profile_sha256": None}
-        )
+        default_view_ref = result.artifact_ref.model_copy(update={"manifest_profile_sha256": None})
         default_read = reader.load_and_verify(
             query=case.query,
             bundle_ref=default_view_ref,
@@ -1115,9 +1108,7 @@ def test_wrong_first_writer_sidecar_lineage_selects_honest_view_and_reader(
         case.store,
         statement_bytes,
         kind="core.chronology.full_prefix.verification_result",
-        schema=SchemaInfo(
-            name="polisyos.chronology.FullPrefixVerificationResult", version="1"
-        ),
+        schema=SchemaInfo(name="polisyos.chronology.FullPrefixVerificationResult", version="1"),
         inputs=[InputRef(artifact_id=selected_bundle_ref.artifact_id, role="verified_bundle")],
     )
     first_sidecar_manifest = case.store.get_manifest(first_sidecar_ref)
@@ -1147,9 +1138,7 @@ def test_wrong_first_writer_sidecar_lineage_selects_honest_view_and_reader(
         expected_bundle_content_hash=case.bundle.bundle_content_hash,
     )
     assert isinstance(selected_read, contract.FullPrefixVerified)
-    default_view_ref = result.artifact_ref.model_copy(
-        update={"manifest_profile_sha256": None}
-    )
+    default_view_ref = result.artifact_ref.model_copy(update={"manifest_profile_sha256": None})
     default_read = reader.load_and_verify(
         query=case.query,
         bundle_ref=default_view_ref,

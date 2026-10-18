@@ -84,6 +84,7 @@ class RunPreflightNode:
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
         from polisyos.core.artifacts import load_core_json_artifact
+
         plan_ref = _resolve_execution_plan_ref(state)
         snapshot_ref = state.artifacts_index.get(ARTIFACT_METHOD_CATALOG_SNAPSHOT_REF)
         if plan_ref is None or snapshot_ref is None:

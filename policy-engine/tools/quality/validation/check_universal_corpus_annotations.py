@@ -47,9 +47,7 @@ def build_report(
         )
     else:
         case_paths = [
-            path
-            for path in sorted(directory.glob("*.md"))
-            if path.name.casefold() != "readme.md"
+            path for path in sorted(directory.glob("*.md")) if path.name.casefold() != "readme.md"
         ]
         if not case_paths:
             findings.append(
@@ -80,8 +78,7 @@ def build_report(
             surface["summary"]["obligation_count"] for surface in case_surfaces
         ),
         "known_outcome_or_failure_count": sum(
-            surface["summary"]["known_outcome_or_failure_count"]
-            for surface in case_surfaces
+            surface["summary"]["known_outcome_or_failure_count"] for surface in case_surfaces
         ),
         "finding_count": len(findings),
     }
@@ -95,19 +92,11 @@ def build_report(
         "findings": findings,
         "capability_trace": {
             "capability_id": CAPABILITY_ID,
-            "capability_reality_label": (
-                "implemented" if status == "pass" else "artifact_missing"
-            ),
+            "capability_reality_label": ("implemented" if status == "pass" else "artifact_missing"),
             "typed_contract_ref": "repo://src/polisyos/corpus/annotations.py",
-            "producer_ref": (
-                "repo://docs/research/universal-policy-design/outcome-corpus"
-            ),
-            "artifact_ref": (
-                "repo://docs/research/universal-policy-design/outcome-corpus"
-            ),
-            "bridge_ref": (
-                "repo://tools/quality/validation/check_universal_corpus_annotations.py"
-            ),
+            "producer_ref": ("repo://docs/research/universal-policy-design/outcome-corpus"),
+            "artifact_ref": ("repo://docs/research/universal-policy-design/outcome-corpus"),
+            "bridge_ref": ("repo://tools/quality/validation/check_universal_corpus_annotations.py"),
             "consumer_ref": (
                 "repo://tools/quality/validation/check_universal_corpus_annotations.py"
             ),

@@ -1195,8 +1195,6 @@ async def test_provider_preflight_required_accounting_refuses_before_provider_io
     assert client_calls == []
 
 
-
-
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
     ("scenario", "expected_fetches"),

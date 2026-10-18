@@ -31,8 +31,18 @@ from tests.unit.runtime.http.test_control_api import _secure_control_client
         ({"prompt_tokens": 2, "completion_tokens": 1}, "estimated", None, False),
         (None, "unknown", None, False),
         (None, "unknown", "cancelled", False),
-        ({"prompt_tokens": 2, "completion_tokens": 1, "cost_usd": 0.0015}, "reported", "cancelled", False),
-        ({"prompt_tokens": 2, "completion_tokens": 1, "cost_usd": 0.0015}, "reported", "ordinary_exception", False),
+        (
+            {"prompt_tokens": 2, "completion_tokens": 1, "cost_usd": 0.0015},
+            "reported",
+            "cancelled",
+            False,
+        ),
+        (
+            {"prompt_tokens": 2, "completion_tokens": 1, "cost_usd": 0.0015},
+            "reported",
+            "ordinary_exception",
+            False,
+        ),
         ({"prompt_tokens": 2, "completion_tokens": 1, "cost_usd": 0.0015}, "reported", None, True),
     ],
     ids=(
@@ -135,7 +145,14 @@ def test_actual_nl_post_gateway_settlement_reopens_and_serves_same_run(
     monkeypatch.setenv("POLISYOS_LLM_CACHE_TTL_S", "300")
     monkeypatch.setenv("POLISYOS_LLM_CACHE_MAXSIZE", "128")
     monkeypatch.delenv("POLISYOS_LLM_SIMULATION_MODE", raising=False)
-    for proxy in ("HTTP_PROXY", "HTTPS_PROXY", "ALL_PROXY", "http_proxy", "https_proxy", "all_proxy"):
+    for proxy in (
+        "HTTP_PROXY",
+        "HTTPS_PROXY",
+        "ALL_PROXY",
+        "http_proxy",
+        "https_proxy",
+        "all_proxy",
+    ):
         monkeypatch.delenv(proxy, raising=False)
     monkeypatch.setenv("NO_PROXY", "127.0.0.1,localhost")
     monkeypatch.setenv("no_proxy", "127.0.0.1,localhost")
@@ -158,7 +175,9 @@ def test_actual_nl_post_gateway_settlement_reopens_and_serves_same_run(
             raise OSError("controlled lost acknowledgement after durable ledger write")
         return record
 
-    monkeypatch.setattr(BudgetMiddleware, "settle_producer_event_safe", _lose_one_ack_after_durable_write)
+    monkeypatch.setattr(
+        BudgetMiddleware, "settle_producer_event_safe", _lose_one_ack_after_durable_write
+    )
     actual_preflight = run_lifecycle.run_provider_preflight
     reports: list[Any] = []
     preflight_calls: list[dict[str, Any]] = []
@@ -197,7 +216,9 @@ def test_actual_nl_post_gateway_settlement_reopens_and_serves_same_run(
         assert context.core_run_context is not None
         raise RuntimeError("r3_test_boundary_after_core_run_admission")
 
-    monkeypatch.setattr(ControlNLJobExecutionMixin, "_execute_control_nl_job", _stop_after_core_run_admission)
+    monkeypatch.setattr(
+        ControlNLJobExecutionMixin, "_execute_control_nl_job", _stop_after_core_run_admission
+    )
 
     env = build_runtime_api_env(tmp_path, include_test_client=False)
     client, _cell_id, headers = _secure_control_client(
@@ -235,9 +256,7 @@ def test_actual_nl_post_gateway_settlement_reopens_and_serves_same_run(
                 )
                 assert preenqueue_hook_entered == ["after_provider_settlement_before_enqueue"]
                 expected_exception = (
-                    "CancelledError"
-                    if preenqueue_failure == "cancelled"
-                    else "RuntimeError"
+                    "CancelledError" if preenqueue_failure == "cancelled" else "RuntimeError"
                 )
                 assert preenqueue_exception_types == [expected_exception]
                 assert failure_response.status_code == 500, failure_response.text
@@ -252,19 +271,15 @@ def test_actual_nl_post_gateway_settlement_reopens_and_serves_same_run(
                 assert reports[0].status == "ok"
                 assert len(completions) == 1
                 assert len(lost_ack_event_ids) == 1
-                ledger_path = (
-                    Path(env["cas_root"]) / "runs" / ".runtime" / "llm-cost-ledger.json"
-                )
+                ledger_path = Path(env["cas_root"]) / "runs" / ".runtime" / "llm-cost-ledger.json"
                 records = FileBudgetLedger(ledger_path).snapshot().producer_settlements
-                orphaned = [
-                    record
-                    for record in records.values()
-                    if record.run_binding == binding
-                ]
+                orphaned = [record for record in records.values() if record.run_binding == binding]
                 assert len(orphaned) == 1
                 assert orphaned[0].event_id == lost_ack_event_ids[0]
                 assert orphaned[0].cost_origin == expected_origin
-                assert orphaned[0].status == ("unknown" if expected_origin == "unknown" else "committed")
+                assert orphaned[0].status == (
+                    "unknown" if expected_origin == "unknown" else "committed"
+                )
                 assert orphaned[0].amount == (
                     None if expected_origin == "unknown" else Decimal("0.0015")
                 )
@@ -318,7 +333,9 @@ def test_actual_nl_post_gateway_settlement_reopens_and_serves_same_run(
                 )
                 assert attempt_history["status"] == expected_attempt_status
                 assert [event["event_type"] for event in attempt_history["history"]] == [
-                    "started", "settled", expected_attempt_status
+                    "started",
+                    "settled",
+                    expected_attempt_status,
                 ]
                 assert attempt_history["job_id"] is None
                 assert attempt_history["run_id"] == binding.run_id
@@ -334,9 +351,7 @@ def test_actual_nl_post_gateway_settlement_reopens_and_serves_same_run(
                 )
                 assert fresh_attempt.status_code == 200, fresh_attempt.text
                 assert fresh_attempt.json()["status"] == expected_attempt_status
-                assert fresh_attempt.json()["producer_event_ids"] == [
-                    orphaned[0].event_id
-                ]
+                assert fresh_attempt.json()["producer_event_ids"] == [orphaned[0].event_id]
                 return
 
             launch_response = client.post(
@@ -361,7 +376,9 @@ def test_actual_nl_post_gateway_settlement_reopens_and_serves_same_run(
             assert attempt_history["job_id"] == launch["job_id"]
             assert attempt_history["effective_execution_profile"] == "research"
             assert [event["event_type"] for event in attempt_history["history"]] == [
-                "started", "settled", "admitted"
+                "started",
+                "settled",
+                "admitted",
             ]
             replay_response = client.post(
                 "/api/v1/control/runs/nl",
@@ -408,10 +425,14 @@ def test_actual_nl_post_gateway_settlement_reopens_and_serves_same_run(
             assert reuse_ref["cost_origin"] == "reuse"
             assert reuse_ref["origin_event_id"] == first_ref["event_id"]
             assert reuse_ref["amount"] == "0"
-            assert len(completions) == 1  # Same-binding retry did not dispatch a second provider POST.
+            assert (
+                len(completions) == 1
+            )  # Same-binding retry did not dispatch a second provider POST.
             assert completions[0]["model"] == "gpt-4o"
             assert all(row["authorization_present"] for row in observed if row["method"] == "POST")
-            assert all(row["idempotency_key_present"] for row in observed if row["method"] == "POST")
+            assert all(
+                row["idempotency_key_present"] for row in observed if row["method"] == "POST"
+            )
 
             service = client.app.state._control_service
             job = service._control_store.get_job(launch["job_id"])
@@ -436,9 +457,7 @@ def test_actual_nl_post_gateway_settlement_reopens_and_serves_same_run(
             core_run_id = terminal_job.progress["core_run_id"]
             assert core_run_id != launch["run_id"]
 
-            ledger_path = (
-                Path(env["cas_root"]) / "runs" / ".runtime" / "llm-cost-ledger.json"
-            )
+            ledger_path = Path(env["cas_root"]) / "runs" / ".runtime" / "llm-cost-ledger.json"
             reopened = BudgetMiddleware(BudgetState(), ledger=FileBudgetLedger(ledger_path))
             records = reopened.list_producer_events_for_run_safe(binding)
             by_id = {record.event_id: record for record in records}
@@ -518,9 +537,10 @@ def test_actual_nl_post_gateway_settlement_reopens_and_serves_same_run(
                     for step in attempt["steps"]
                     for event in step.get("cost_events", [])
                 ]
-                assert not ({record.event_id for record in records} & {
-                    event["event_id"] for event in negative_events
-                })
+                assert not (
+                    {record.event_id for record in records}
+                    & {event["event_id"] for event in negative_events}
+                )
                 assert payload["provider_preflight"]["status"] == "ok"
                 retained_attempt = client.get(
                     f"/api/v1/control/admission-attempts/{attempt_id}",

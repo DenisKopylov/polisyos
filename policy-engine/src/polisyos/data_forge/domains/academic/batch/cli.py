@@ -232,9 +232,7 @@ def _build_config(args: argparse.Namespace, *, stages: frozenset[str]) -> Academ
 async def _run_stage(args: argparse.Namespace, stage: str) -> None:
     stage_name = _normalize_stage_name(stage)
     if stage_name == "claim_adjudicate":
-        raise RuntimeError(
-            "claim-adjudicate requires the Scientist-owned claim adjudication route"
-        )
+        raise RuntimeError("claim-adjudicate requires the Scientist-owned claim adjudication route")
 
     from polisyos.data_forge.domains.academic.batch.benchmark import run_benchmark
     from polisyos.data_forge.domains.academic.batch.conflict_resolve import run_conflict_resolve

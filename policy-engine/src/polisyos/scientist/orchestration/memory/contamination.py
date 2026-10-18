@@ -99,7 +99,9 @@ def assert_reusable_memory_clean(
         raise ValueError(f"reusable memory contamination detected: {tokens}")
 
 
-def _detect_forbidden_keys(value: Any, *, path: str = "payload") -> list[MemoryContaminationFinding]:
+def _detect_forbidden_keys(
+    value: Any, *, path: str = "payload"
+) -> list[MemoryContaminationFinding]:
     findings: list[MemoryContaminationFinding] = []
     if isinstance(value, dict):
         for key, item in value.items():

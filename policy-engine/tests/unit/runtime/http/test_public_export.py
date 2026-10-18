@@ -302,9 +302,7 @@ def _prepare_and_authorize(case: _PublicationCase) -> dict[str, object]:
         assert not_authorized.json()["detail"] == "publication_mandate_not_configured"
         verifier_epoch = service.governed_owner.slot.verifier_epoch
     with tenant_scope(None, tenant_id=_TENANT, cell_id=case.cell_id):
-        snapshot = case.claim_owner.resolve_current_for_packet(
-            decision_packet_ref=case.packet_ref
-        )
+        snapshot = case.claim_owner.resolve_current_for_packet(decision_packet_ref=case.packet_ref)
         assert isinstance(snapshot, PacketBoundClaimLedgerSnapshot)
         now = datetime.now(UTC)
         public_document = draft["public_document"]
@@ -422,7 +420,9 @@ def test_public_decision_projection_is_custody_bound(publication_case: _Publicat
                     case.context.store.get_bytes(watched.scan_receipt_ref.artifact_id)
                 )
             )
-            verification_service = client.app.state.runtime_container.public_decision_verification_service
+            verification_service = (
+                client.app.state.runtime_container.public_decision_verification_service
+            )
             owner = verification_service.governed_owner
             assert owner is not None
             population = custody.resolve_public_signature_population(
@@ -514,10 +514,7 @@ def test_anonymous_publication_refuses_after_only_current_closure_is_withdrawn(
             transaction_path.rename(pending_transaction)
             completion_path.rename(pending_completion)
             with tenant_scope(None, tenant_id=_TENANT, cell_id=case.cell_id):
-                watched_locator_only = (
-                    client.app.state.runtime_container.control_service
-                    .run_published_signature_custody_maintenance()
-                )
+                watched_locator_only = client.app.state.runtime_container.control_service.run_published_signature_custody_maintenance()
             assert watched_locator_only.status == "not_established", watched_locator_only
             assert not watched_locator_only.monitor_event_refs
             assert protected_reads == []
@@ -539,9 +536,7 @@ def test_anonymous_publication_refuses_after_only_current_closure_is_withdrawn(
                     continue
                 pending_path.rename(original_path)
                 if original_path.read_bytes() != expected_raw:
-                    restoration_conflicts.append(
-                        f"restored bytes changed for {original_path.name}"
-                    )
+                    restoration_conflicts.append(f"restored bytes changed for {original_path.name}")
             if restoration_conflicts:
                 pytest.fail("; ".join(restoration_conflicts))
 
@@ -574,9 +569,7 @@ def test_private_reconciler_closes_retained_locator_without_rewriting_signed_rec
             *,
             boundary_reads: list[GovernedPublicRecordBoundaryRead],
         ) -> None:
-            owner._atomic_new(
-                owner.index_root / "issued" / (index.record_id + ".json"), index_raw
-            )
+            owner._atomic_new(owner.index_root / "issued" / (index.record_id + ".json"), index_raw)
 
         monkeypatch.setattr(owner, "_persist_issuance_transaction", old_persist_without_intent)
         monkeypatch.setattr(
@@ -737,19 +730,21 @@ def test_private_reconciler_rejects_symlinked_owner_directory_before_escape(
         outside_dir.mkdir()
         sentinel = outside_dir / "preexisting.marker"
         sentinel.write_bytes(b"outside bytes stay unchanged")
-        outside_before = tuple(sorted((path.name, path.read_bytes()) for path in outside_dir.iterdir()))
+        outside_before = tuple(
+            sorted((path.name, path.read_bytes()) for path in outside_dir.iterdir())
+        )
 
         issued_dir.rename(retained_issued_dir)
         issued_dir.symlink_to(outside_dir, target_is_directory=True)
         with (
             tenant_scope(None, tenant_id=_TENANT, cell_id=case.cell_id),
-            pytest.raises(
-                GovernedPublicRecordError, match="issuance_owner_directory_invalid"
-            ),
+            pytest.raises(GovernedPublicRecordError, match="issuance_owner_directory_invalid"),
         ):
             owner.reconcile_public_read_closures()
 
-        outside_after = tuple(sorted((path.name, path.read_bytes()) for path in outside_dir.iterdir()))
+        outside_after = tuple(
+            sorted((path.name, path.read_bytes()) for path in outside_dir.iterdir())
+        )
         assert outside_after == outside_before
         assert not (outside_dir / (record_id + ".json")).exists()
         assert (retained_issued_dir / (record_id + ".json")).read_bytes() == locator_bytes
@@ -792,14 +787,10 @@ def test_http_publication_relocates_selected_manifest_profiles(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """The served route preserves distinct selected views without publishing digests."""
-    case = _build_publication_case(
-        tmp_path, monkeypatch, selected_profile_evidence=True
-    )
+    case = _build_publication_case(tmp_path, monkeypatch, selected_profile_evidence=True)
     draft = _prepare_and_authorize(case)
     with tenant_scope(None, tenant_id=_TENANT, cell_id=case.cell_id):
-        snapshot = case.claim_owner.resolve_current_for_packet(
-            decision_packet_ref=case.packet_ref
-        )
+        snapshot = case.claim_owner.resolve_current_for_packet(decision_packet_ref=case.packet_ref)
     assert isinstance(snapshot, PacketBoundClaimLedgerSnapshot)
     source_refs = snapshot.ledger.current_claims[0].evidence_refs
     assert len(source_refs) == 2
@@ -828,9 +819,7 @@ def test_governed_owner_rejects_removed_selected_view_and_keeps_tenant_reads(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """A missing selected view cannot fall back to its same-blob default profile."""
-    case = _build_publication_case(
-        tmp_path, monkeypatch, selected_profile_evidence=True
-    )
+    case = _build_publication_case(tmp_path, monkeypatch, selected_profile_evidence=True)
     _prepare_and_authorize(case)
     with case.client() as client:
         issued = case.post(client, "governed_public_record")
@@ -849,10 +838,7 @@ def test_governed_owner_rejects_removed_selected_view_and_keeps_tenant_reads(
             source_refs = snapshot.ledger.current_claims[0].evidence_refs
             assert len(source_refs) == 2
             assert source_refs[0].artifact_id == source_refs[1].artifact_id
-            assert (
-                source_refs[0].manifest_profile_sha256
-                != source_refs[1].manifest_profile_sha256
-            )
+            assert source_refs[0].manifest_profile_sha256 != source_refs[1].manifest_profile_sha256
 
             selected_ref = source_refs[1]
             raw = b"Synthetic evidence with two selected manifest profiles."
@@ -867,9 +853,7 @@ def test_governed_owner_rejects_removed_selected_view_and_keeps_tenant_reads(
                     selected_ref.artifact_id, f"sha256:{digit * 64}"
                 )
             )
-            assert not owner.store.has_manifest_view(
-                selected_ref.artifact_id, absent_profile
-            )
+            assert not owner.store.has_manifest_view(selected_ref.artifact_id, absent_profile)
             missing_view = selected_ref.model_copy(
                 update={"manifest_profile_sha256": absent_profile}
             )
@@ -929,10 +913,10 @@ def test_first_governed_public_signature_is_custody_bound(
                 pytest.raises(GovernedPublicRecordError),
             ):
                 owner.verify_custody_binding_artifacts(
-                        record_id,
-                        signature_ref=binding.signature_ref,
-                        decision_packet_ref=binding.decision_packet_ref,
-                    )
+                    record_id,
+                    signature_ref=binding.signature_ref,
+                    decision_packet_ref=binding.decision_packet_ref,
+                )
 
             owner_reads: list[str] = []
             verify_binding_artifacts = owner.verify_custody_binding_artifacts
@@ -1014,9 +998,7 @@ def test_governed_http_rejects_a_candidate_ledger_source(
     store = case.context.store
     candidate_run_id = "candidate-only"
     with tenant_scope(None, tenant_id=_TENANT, cell_id=case.cell_id):
-        snapshot = case.claim_owner.resolve_current_for_packet(
-            decision_packet_ref=case.packet_ref
-        )
+        snapshot = case.claim_owner.resolve_current_for_packet(decision_packet_ref=case.packet_ref)
         claim_payload = snapshot.ledger.current_claims[0].model_dump()
         claim_payload["run_id"] = candidate_run_id
         candidate_ref = case.claim_owner.persist_candidate_ledger(
@@ -1026,9 +1008,7 @@ def test_governed_http_rejects_a_candidate_ledger_source(
         )
         packet_ref = store.put_json(
             {"run_id": candidate_run_id, "claims_ref": candidate_ref.model_dump(mode="json")},
-            ArtifactWriteOptions(
-                kind="scientist.decision_packet", media_type="application/json"
-            ),
+            ArtifactWriteOptions(kind="scientist.decision_packet", media_type="application/json"),
         )
         registry_ref = store.put_json(
             {"purpose": "candidate negative"},
@@ -1070,10 +1050,8 @@ def test_governed_http_corruption_removes_public_content_and_custody_membership(
         record_id, _ = _issue_and_read(case, client)
         container = client.app.state.runtime_container
         with tenant_scope(None, tenant_id=_TENANT, cell_id=case.cell_id):
-            binding = (
-                container.public_decision_verification_service.governed_owner.resolve_custody_binding(
-                    record_id
-                )
+            binding = container.public_decision_verification_service.governed_owner.resolve_custody_binding(
+                record_id
             )
         store = case.context.store
         if corruption == "signature":

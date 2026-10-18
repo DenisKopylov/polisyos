@@ -274,9 +274,7 @@ def build_run_cost_proportionality_ledger_from_quality_context(
 ) -> dict[str, Any]:
     """Project Wave 30 run-cost ledger evidence from runtime quality context."""
 
-    case_payload = case if isinstance(case, Mapping) else quality_evidence.get(
-        "policy_design_case"
-    )
+    case_payload = case if isinstance(case, Mapping) else quality_evidence.get("policy_design_case")
     if not isinstance(case_payload, Mapping):
         raise RunCostProportionalityError(
             "policy_design_run_cost_case_missing",
@@ -401,8 +399,7 @@ def build_run_cost_proportionality_ledger_from_quality_context(
         "authority_level": authority_level,
         "public_impact": public_impact,
         "runtime_performance_budget": {
-            "actual_cost_usd": _first_number(performance_budget, ("actual_cost_usd",))
-            or 0.0,
+            "actual_cost_usd": _first_number(performance_budget, ("actual_cost_usd",)) or 0.0,
             "budget_usd": _first_number(performance_budget, ("budget_usd",)) or 0.0,
             "actual_duration_ms": _performance_actual_ms(performance_budget),
             "budget_duration_ms": _performance_budget_ms(performance_budget),
@@ -410,9 +407,7 @@ def build_run_cost_proportionality_ledger_from_quality_context(
         },
         "foundry_cost_model": {
             "actual_cost_usd": foundry_cost,
-            "budget_usd": _report_budget_usd(
-                quality_evidence.get("foundry_method_report")
-            ),
+            "budget_usd": _report_budget_usd(quality_evidence.get("foundry_method_report")),
             "evidence_ref": foundry_ref,
         },
         "scientist_budget": scientist_budget,
@@ -587,10 +582,13 @@ def _performance_actual_ms(performance_budget: Mapping[str, Any]) -> float:
     )
     if row_total:
         return row_total
-    return _first_number(
-        performance_budget,
-        ("observed_duration_ms", "duration_ms", "elapsed_ms", "latency_ms", "actual_ms"),
-    ) or 0.0
+    return (
+        _first_number(
+            performance_budget,
+            ("observed_duration_ms", "duration_ms", "elapsed_ms", "latency_ms", "actual_ms"),
+        )
+        or 0.0
+    )
 
 
 def _performance_budget_ms(performance_budget: Mapping[str, Any]) -> float:
@@ -909,8 +907,7 @@ def _proportionality_evidence_from_synthesis(
     if not synthesis_run_cost:
         return None
     rationale = _text(
-        synthesis_run_cost.get("proportionality_rationale")
-        or synthesis_run_cost.get("rationale")
+        synthesis_run_cost.get("proportionality_rationale") or synthesis_run_cost.get("rationale")
     )
     if rationale is None:
         return None
@@ -1072,8 +1069,7 @@ def _validate_evidence_depth_budget(
     row["public_impact"] = row_impact
     row["observed_heterogeneity"] = _heterogeneity_label(row.get("observed_heterogeneity"))
     effective_count = _required_int(
-        row.get("effective_independent_evidence_count")
-        or row.get("effective_independent_count"),
+        row.get("effective_independent_evidence_count") or row.get("effective_independent_count"),
         "evidence_depth_budget.effective_independent_evidence_count",
         "policy_design_run_cost_evidence_depth_effective_count_missing",
     )

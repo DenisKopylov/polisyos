@@ -48,9 +48,7 @@ def _observation(
             evidence_content_digest=None,
             limitation_code="scope_predicate_value_not_established",
         )
-    evidence_ref = _ref(
-        f"{predicate.value}:{value}".encode(), kind="scope-predicate-observation"
-    )
+    evidence_ref = _ref(f"{predicate.value}:{value}".encode(), kind="scope-predicate-observation")
     return ScopePredicateObservation(
         plane=plane,
         predicate=predicate,
@@ -75,8 +73,7 @@ def _candidate(
     rule_ref = _ref(b"ratified four-way rule", kind="scope-rule")
     predicates = tuple(ScopeAdjudicationPredicate)
     resolved = observations or tuple(
-        _observation(predicate, value)
-        for predicate, value in zip(predicates, values, strict=True)
+        _observation(predicate, value) for predicate, value in zip(predicates, values, strict=True)
     )
     return build_scope_adjudication_candidate(
         candidate_function_id="public-signature-custody",
@@ -116,9 +113,7 @@ def test_candidate_derives_ordered_four_way_proposals_without_authority(
     assert candidate.authoritative_for == ()
     assert candidate.may_not_use_for == SCOPE_ADJUDICATION_PROHIBITED_USES
     assert "scope_predicate_resolver_unappointed" in candidate.limitations
-    assert "scope_adjudication_claim_lifecycle_consumer_unappointed" in (
-        candidate.limitations
-    )
+    assert "scope_adjudication_claim_lifecycle_consumer_unappointed" in (candidate.limitations)
     assert verify_scope_adjudication_candidate(candidate) == candidate
 
 
@@ -175,9 +170,7 @@ def test_candidate_verifier_rejects_digest_and_semantic_substitution() -> None:
         )
     with pytest.raises(ValueError, match="scope_candidate_payload_digest_mismatch"):
         verify_scope_adjudication_candidate(
-            candidate.model_copy(
-                update={"candidate_description": "substituted authority claim"}
-            )
+            candidate.model_copy(update={"candidate_description": "substituted authority claim"})
         )
 
 

@@ -100,9 +100,7 @@ class MethodValidityRequirementSpec(BaseModel):
     )
     uncertainty_class: MethodUncertaintyClass = MethodUncertaintyClass.NONE
     fairness_decomposition_need: FairnessDecompositionNeed = FairnessDecompositionNeed.NONE
-    strategic_response_sensitivity: StrategicResponseSensitivity = (
-        StrategicResponseSensitivity.NONE
-    )
+    strategic_response_sensitivity: StrategicResponseSensitivity = StrategicResponseSensitivity.NONE
     simulation_dgp_requirements: SimulationDGPRequirement = Field(
         default_factory=SimulationDGPRequirement
     )

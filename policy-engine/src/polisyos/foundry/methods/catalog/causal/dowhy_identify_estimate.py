@@ -522,7 +522,9 @@ def _run_dowhy(
             },
         )
         return wrap_causal_output(report, warnings=[reason])
-    report = DoWhyIdentifyEstimate.report_from_worker_result(data=data, params=params, response=response)
+    report = DoWhyIdentifyEstimate.report_from_worker_result(
+        data=data, params=params, response=response
+    )
     if report.status is EstimationStatus.NUMERICAL_FAILURE:
         return wrap_causal_output(report, warnings=[str(report.status_reason)])
     return wrap_causal_output(report)

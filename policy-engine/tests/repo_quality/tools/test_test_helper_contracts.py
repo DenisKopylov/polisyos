@@ -42,8 +42,7 @@ def test_phase_5_5_helper_topology_contract_is_declared() -> None:
     assert contract["status"] == "active_contract"
     assert contract["owner"] == "team-quality"
     assert contract["baseline"] == (
-        "architecture/baselines/repository_best_in_class_last_mile/"
-        "test_helper_topology.json"
+        "architecture/baselines/repository_best_in_class_last_mile/test_helper_topology.json"
     )
     assert contract["shared_helper_root"] == "tests/_helpers"
     assert contract["layer_local_conftest_glob"] == "tests/**/conftest.py"
@@ -74,16 +73,15 @@ def test_phase_5_5_helper_topology_baseline_matches_live_inventory() -> None:
     assert baseline["owner"] == "team-quality"
     assert baseline["status"] == "active_baseline"
     assert summary["shared_helper_files"] == baseline["summary"]["shared_helper_files"]
-    assert summary["layer_local_conftest_files"] == baseline["summary"][
-        "layer_local_conftest_files"
-    ]
-    assert summary["duplicated_fixture_factories"] == baseline["summary"][
-        "duplicated_fixture_factories"
-    ]
+    assert (
+        summary["layer_local_conftest_files"] == baseline["summary"]["layer_local_conftest_files"]
+    )
+    assert (
+        summary["duplicated_fixture_factories"]
+        == baseline["summary"]["duplicated_fixture_factories"]
+    )
     assert summary["unused_helpers"] == baseline["summary"]["unused_helpers"]
-    assert summary["forbidden_reverse_imports"] == baseline["summary"][
-        "forbidden_reverse_imports"
-    ]
+    assert summary["forbidden_reverse_imports"] == baseline["summary"]["forbidden_reverse_imports"]
     assert report["status"] == "ok"
 
 

@@ -347,8 +347,7 @@ def _build_cas_payload(
     )
     duplicate_same_digest = duplicate_a == duplicate_b
     report_ids = [
-        ArtifactID.model_validate(ref)
-        for ref in [*exit_payload_refs, duplicate_a, unreferenced]
+        ArtifactID.model_validate(ref) for ref in [*exit_payload_refs, duplicate_a, unreferenced]
     ]
     tampered_ref = report_ids[0]
     # The isolated fixture deliberately bypasses the owner API to prove detection of raw tamper.
@@ -410,9 +409,7 @@ def _build_cas_payload(
         },
         "gc_dry_run_summary": {
             "authority_missing": authority_missing,
-            "not_retained": [
-                ref for ref in gc_not_retained if ref != unreferenced
-            ],
+            "not_retained": [ref for ref in gc_not_retained if ref != unreferenced],
             "unreferenced_authority_probe": {
                 "artifact_ref": unreferenced,
                 "result": next(
@@ -646,13 +643,10 @@ def _validate_cas_reports(payload: dict[str, Any], issues: list[dict[str, str]])
             issues.append({"code": "cas_integrity_report_fields_mismatch"})
         if not report.get("authority_manifest_ref"):
             issues.append({"code": "cas_integrity_authority_manifest_missing"})
-        unreferenced_probe = (
-            (payload.get("gc_dry_run_summary") or {}).get("unreferenced_authority_probe")
-            or {}
-        )
-        is_unreferenced_probe = report.get("artifact_ref") == unreferenced_probe.get(
-            "artifact_ref"
-        )
+        unreferenced_probe = (payload.get("gc_dry_run_summary") or {}).get(
+            "unreferenced_authority_probe"
+        ) or {}
+        is_unreferenced_probe = report.get("artifact_ref") == unreferenced_probe.get("artifact_ref")
         if is_unreferenced_probe:
             if report.get("gc_dry_run_result") != "blocked":
                 issues.append({"code": "cas_integrity_unreferenced_authority_retained"})

@@ -57,8 +57,7 @@ def test_scientist_best_in_class_phase1_1_gate_fails_on_missing_claim_integratio
     assert payload["passes_all"] is False
     assert (
         "missing_claim_projection_integration:"
-        "src/polisyos/scientist/nodes/builtins/decide/build_decision_packet.py"
-        in payload["notes"]
+        "src/polisyos/scientist/nodes/builtins/decide/build_decision_packet.py" in payload["notes"]
     )
 
 

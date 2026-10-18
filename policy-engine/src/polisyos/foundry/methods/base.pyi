@@ -62,6 +62,7 @@ class Unit:
 class DimVar:
     name: str
     def __post_init__(self) -> None: ...
+
 DimExpr = int | str | DimVar | None
 Shape = tuple[DimExpr, ...]
 
@@ -78,7 +79,17 @@ class SlotSpec:
     contract_owner: str | None = ...
     def __post_init__(self) -> None: ...
     @classmethod
-    def for_output_contract(cls, name: str, slot_type: SlotType, unit: Unit, *, output_contract: type[object], shape: Shape = (), description: str = '', bounds: tuple[float | int | None, float | int | None] = (None, None)) -> SlotSpec: ...
+    def for_output_contract(
+        cls,
+        name: str,
+        slot_type: SlotType,
+        unit: Unit,
+        *,
+        output_contract: type[object],
+        shape: Shape = (),
+        description: str = "",
+        bounds: tuple[float | int | None, float | int | None] = (None, None),
+    ) -> SlotSpec: ...
     def stable_digest(self) -> str: ...
     def __hash__(self) -> int: ...
     def __eq__(self, other: object) -> bool: ...
@@ -171,8 +182,9 @@ class MethodMetadata:
     def __post_init__(self) -> None: ...
     def stable_digest(self) -> str: ...
     def __hash__(self) -> int: ...
-StateT = TypeVar('StateT')
-ParamsT = TypeVar('ParamsT', bound=Mapping[str, Any])
+
+StateT = TypeVar("StateT")
+ParamsT = TypeVar("ParamsT", bound=Mapping[str, Any])
 
 class FoundryMethod(Protocol[StateT, ParamsT]):
     signature: ClassVar[MethodSignature]
@@ -184,7 +196,9 @@ class FoundryMethod(Protocol[StateT, ParamsT]):
     @staticmethod
     def dematerialize_output(output: Any) -> Mapping[str, Any]: ...
 
-def foundry_method(*, namespace: str, version: str = '1.0.0', tags: set[str] | None = None) -> Callable[[type], type]: ...
+def foundry_method(
+    *, namespace: str, version: str = "1.0.0", tags: set[str] | None = None
+) -> Callable[[type], type]: ...
 
 class _ContractExpressionValidator(ast.NodeVisitor):
     expression: Incomplete

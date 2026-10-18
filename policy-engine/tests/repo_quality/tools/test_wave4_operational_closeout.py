@@ -30,7 +30,9 @@ def _report(tmp_path: Path, bundle: Path) -> dict[str, object]:
         repo_root=Path.cwd(),
         bundle_dir=bundle,
         ignore_weekly_baseline_window=True,
-        decision_log=Path("docs/system-design-decisions/honest-diagnostics-substrate-decision-log.md"),
+        decision_log=Path(
+            "docs/system-design-decisions/honest-diagnostics-substrate-decision-log.md"
+        ),
     )
 
 
@@ -65,9 +67,7 @@ def test_wave4_operational_closeout_fails_when_public_export_is_missing(
     assert report["status"] == "fail"
     assert _item_status(report, "public_exports_projection_only") == "fail"
     assert {
-        finding["code"]
-        for finding in report["blocking_findings"]
-        if isinstance(finding, dict)
+        finding["code"] for finding in report["blocking_findings"] if isinstance(finding, dict)
     } >= {"public_export_bundle_missing"}
 
 
@@ -85,9 +85,7 @@ def test_wave4_operational_closeout_fails_on_provisional_assurance_case(
     assert report["status"] == "fail"
     assert _item_status(report, "serious_bundle_assurance_and_slos") == "fail"
     assert {
-        finding["code"]
-        for finding in report["blocking_findings"]
-        if isinstance(finding, dict)
+        finding["code"] for finding in report["blocking_findings"] if isinstance(finding, dict)
     } >= {"assurance_case_provisional"}
 
 
@@ -105,9 +103,7 @@ def test_wave4_operational_closeout_fails_on_synthetic_attestation_ref(
     assert report["status"] == "fail"
     assert _item_status(report, "trust_boundary_attestation_verified") == "fail"
     assert {
-        finding["code"]
-        for finding in report["blocking_findings"]
-        if isinstance(finding, dict)
+        finding["code"] for finding in report["blocking_findings"] if isinstance(finding, dict)
     } >= {"attestation_synthetic_ref"}
 
 

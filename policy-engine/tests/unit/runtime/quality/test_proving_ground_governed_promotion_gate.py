@@ -217,9 +217,9 @@ def _assert_fixture_fails(name: str) -> Any:
 
 def _source_only_request_copy() -> dict[str, Any]:
     return json.loads(
-        json.dumps(_fixture("valid_source_only_promotion_input.json")["payload"][
-            "promotion_requests"
-        ][0])
+        json.dumps(
+            _fixture("valid_source_only_promotion_input.json")["payload"]["promotion_requests"][0]
+        )
     )
 
 
@@ -272,8 +272,7 @@ def test_policy_program_promotion_rejects_inline_fake_composition_certificate(
     request["promotion_scope"]["authority_purpose"] = "policy_program_promotion"
     committed = json.loads(
         (
-            REPO_ROOT
-            / "architecture/policy_design_case/layer3_gy_composition_certificates.json"
+            REPO_ROOT / "architecture/policy_design_case/layer3_gy_composition_certificates.json"
         ).read_text(encoding="utf-8")
     )
     fake_certificate = json.loads(json.dumps(committed["certificates"][0]))
@@ -302,13 +301,10 @@ def test_policy_program_promotion_rejects_cross_program_certificate_ref(
     repo_root = _repo_root_with_g1_binding(tmp_path)
     committed = json.loads(
         (
-            REPO_ROOT
-            / "architecture/policy_design_case/layer3_gy_composition_certificates.json"
+            REPO_ROOT / "architecture/policy_design_case/layer3_gy_composition_certificates.json"
         ).read_text(encoding="utf-8")
     )
-    composable = next(
-        cert for cert in committed["certificates"] if cert["verdict"] == "composable"
-    )
+    composable = next(cert for cert in committed["certificates"] if cert["verdict"] == "composable")
     request = _source_only_request_copy()
     request["candidate_ref"] = "policy-program://different-program/candidate"
     request["claim_refs"] = ["claim://different-program/system-effect"]
@@ -345,19 +341,22 @@ def test_policy_program_promotion_rejects_registered_fake_receipt_certificate(
 
     committed = json.loads(
         (
-            REPO_ROOT
-            / "architecture/policy_design_case/layer3_gy_composition_certificates.json"
+            REPO_ROOT / "architecture/policy_design_case/layer3_gy_composition_certificates.json"
         ).read_text(encoding="utf-8")
     )
     fake_certificate = json.loads(
-        json.dumps(next(cert for cert in committed["certificates"] if cert["verdict"] == "composable"))
+        json.dumps(
+            next(cert for cert in committed["certificates"] if cert["verdict"] == "composable")
+        )
     )
     fake_certificate["composition_receipt_ref"] = "pdc://bogus/receipt"
     fake_certificate["coupling_gate"]["composition_receipt_ref"] = "pdc://bogus/receipt"
     fake_certificate["candidate_ref"] = "policy-program://fake/candidate"
     fake_certificate["target_policy_program_ref"] = "policy-program://fake"
     fake_certificate["claim_refs"] = ["claim://fake/system-effect"]
-    artifact_path = tmp_path / "architecture/policy_design_case/layer3_gy_composition_certificates.json"
+    artifact_path = (
+        tmp_path / "architecture/policy_design_case/layer3_gy_composition_certificates.json"
+    )
     artifact_path.parent.mkdir(parents=True)
     artifact_path.write_text(
         json.dumps(
@@ -536,9 +535,7 @@ def _repo_root_with_g1_binding(tmp_path: Path) -> Path:
                                 "source-contract://layer3.ua_msme.firm_survival.panel"
                             ),
                             "source_contract_content_hash": "sha256:g1-test-binding",
-                            "lineage_refs": [
-                                "repo://production_data/ua-msme/source-contract.json"
-                            ],
+                            "lineage_refs": ["repo://production_data/ua-msme/source-contract.json"],
                             "may_not_use_for": [
                                 "claim_authority",
                                 "production_authority",
@@ -560,9 +557,7 @@ def _repo_root_with_g1_binding(tmp_path: Path) -> Path:
             {
                 "schema_version": "policyos.policy_design_case.layer3_g2_causal_forecast.v1",
                 "rule_version": "policyos.layer3.g2.causal_forecast.v1",
-                "forecast_support_bindings": [
-                    {"binding_id": "g2-forecast-support-binding:test"}
-                ],
+                "forecast_support_bindings": [{"binding_id": "g2-forecast-support-binding:test"}],
             }
         ),
         encoding="utf-8",
@@ -585,9 +580,7 @@ def _repo_root_with_g1_binding(tmp_path: Path) -> Path:
                 "schema_version": "policyos.policy_design_case.layer3_gl_legal_mandate.v1",
                 "rule_version": "policyos.layer3.gl.legal_mandate.v1",
                 "handoff_id": "gl-handoff:test",
-                "authority_boundary": {
-                    "may_not_use_for": ["legal_authority_without_gl"]
-                },
+                "authority_boundary": {"may_not_use_for": ["legal_authority_without_gl"]},
             }
         ),
         encoding="utf-8",
@@ -816,9 +809,7 @@ def test_g4_dependency_readiness_snapshot_reads_hard_and_context_artifacts() -> 
     assert payload["gl_context_status"] in {"pass", "missing"}
     assert payload["generated_artifacts_ref"] == "architecture/generated_artifacts.toml"
     assert payload["inventory_ref"] == "architecture/policy_design_case/inventory.json"
-    assert "layer3_g1_grounded_source_contracts.json" in " ".join(
-        payload["loaded_artifact_paths"]
-    )
+    assert "layer3_g1_grounded_source_contracts.json" in " ".join(payload["loaded_artifact_paths"])
 
 
 def test_task1_g4_bundle_uses_data_home_requests_without_runtime_default_fallback(
@@ -836,9 +827,7 @@ def test_task1_g4_bundle_uses_data_home_requests_without_runtime_default_fallbac
         "reduce_g4_promotion_state"
     )
     assert payload["readiness_manifest"]["status"] == "fail"
-    assert "layer3_g4_promotion_input_missing" in payload["readiness_manifest"][
-        "issue_codes"
-    ]
+    assert "layer3_g4_promotion_input_missing" in payload["readiness_manifest"]["issue_codes"]
 
 
 def test_missing_g1_readiness_blocks_all_promotion(tmp_path: Path) -> None:
@@ -863,9 +852,9 @@ def test_missing_g1_readiness_blocks_all_promotion(tmp_path: Path) -> None:
             "rule_version": G4_RULE_VERSION,
             "dependency_readiness": _dump(snapshot),
             "promotion_requests": [
-                _fixture("valid_source_only_promotion_input.json")["payload"][
-                    "promotion_requests"
-                ][0]
+                _fixture("valid_source_only_promotion_input.json")["payload"]["promotion_requests"][
+                    0
+                ]
             ],
         },
     )
@@ -894,7 +883,10 @@ def test_optional_context_artifacts_block_only_when_requested() -> None:
     effect_report = g4.validate_layer3_g4_bundle(REPO_ROOT, effect_request)
 
     assert "layer3_g4_context_dependency_missing" not in _issue_codes(source_report)
-    if _dump(g4.build_g4_dependency_readiness_snapshot(REPO_ROOT))["g2_context_status"] == "missing":
+    if (
+        _dump(g4.build_g4_dependency_readiness_snapshot(REPO_ROOT))["g2_context_status"]
+        == "missing"
+    ):
         assert "layer3_g4_context_dependency_missing" in _issue_codes(effect_report)
 
 
@@ -981,9 +973,7 @@ def test_g4_naming_collision_guard_records_non_g4_promotion_surfaces() -> None:
 
 def test_promotion_input_set_normalizes_required_fields_and_source_resolution() -> None:
     g4 = _g4()
-    request = _fixture("valid_source_only_promotion_input.json")["payload"][
-        "promotion_requests"
-    ][0]
+    request = _fixture("valid_source_only_promotion_input.json")["payload"]["promotion_requests"][0]
 
     input_set = g4.build_g4_promotion_input_set(REPO_ROOT, [request])
     payload = _dump(input_set)
@@ -991,12 +981,11 @@ def test_promotion_input_set_normalizes_required_fields_and_source_resolution() 
 
     assert payload["status"] == "pass"
     assert normalized["source_design_record_ref"] == request["source_design_record"]["ref"]
-    assert normalized["source_design_record_replay_ref"] == request["source_design_record"][
-        "replay_ref"
-    ]
-    assert normalized["source_design_record_digest"] == request["source_design_record"][
-        "digest"
-    ]
+    assert (
+        normalized["source_design_record_replay_ref"]
+        == request["source_design_record"]["replay_ref"]
+    )
+    assert normalized["source_design_record_digest"] == request["source_design_record"]["digest"]
     assert normalized["source_design_record_resolution_status"] == "full_payload"
     assert normalized["case_id"] == request["case_id"]
     assert normalized["candidate_ref"] == request["candidate_ref"]
@@ -1016,9 +1005,9 @@ def test_grounded_contract_set_normalizes_g1_rows_with_lineage_and_coverage_refs
     g4 = _g4()
     repo_root = _repo_root_with_g1_binding(tmp_path)
     request = json.loads(
-        json.dumps(_fixture("valid_source_only_promotion_input.json")["payload"][
-            "promotion_requests"
-        ][0])
+        json.dumps(
+            _fixture("valid_source_only_promotion_input.json")["payload"]["promotion_requests"][0]
+        )
     )
     request["grounded_contract_rows"][0].update(
         {
@@ -1053,9 +1042,9 @@ def test_grounded_contract_set_normalizes_g2_g3_gl_refs_and_preserves_limitation
     g4 = _g4()
     repo_root = _repo_root_with_g1_binding(tmp_path)
     request = json.loads(
-        json.dumps(_fixture("valid_source_only_promotion_input.json")["payload"][
-            "promotion_requests"
-        ][0])
+        json.dumps(
+            _fixture("valid_source_only_promotion_input.json")["payload"]["promotion_requests"][0]
+        )
     )
     request["promotion_scope"]["claim_families"] = [
         "source_data",
@@ -1124,21 +1113,17 @@ def test_grounded_contract_set_normalizes_g2_g3_gl_refs_and_preserves_limitation
     assert refs_by_family["g3_proof_record"]["certificate_resolution_refs"] == [
         "certificate-resolution://g3/test"
     ]
-    assert refs_by_family["gl_legal_mandate"]["amendment_lineage_status"] == (
-        "reissue_required"
-    )
-    assert refs_by_family["gl_legal_mandate"]["reference_resolution_status"] == (
-        "reissue_required"
-    )
+    assert refs_by_family["gl_legal_mandate"]["amendment_lineage_status"] == ("reissue_required")
+    assert refs_by_family["gl_legal_mandate"]["reference_resolution_status"] == ("reissue_required")
     assert "reissue_required" in refs_by_family["gl_legal_mandate"]["limitation_refs"]
 
 
 def test_search_ledgers_and_readiness_summaries_are_rejected_as_grounded_contracts() -> None:
     g4 = _g4()
     request = json.loads(
-        json.dumps(_fixture("valid_source_only_promotion_input.json")["payload"][
-            "promotion_requests"
-        ][0])
+        json.dumps(
+            _fixture("valid_source_only_promotion_input.json")["payload"]["promotion_requests"][0]
+        )
     )
     request["grounded_contract_rows"] = [
         {
@@ -1181,9 +1166,9 @@ def test_absent_g1_binding_ref_cannot_be_promoted_as_grounded_contract(
         encoding="utf-8",
     )
     request = json.loads(
-        json.dumps(_fixture("valid_source_only_promotion_input.json")["payload"][
-            "promotion_requests"
-        ][0])
+        json.dumps(
+            _fixture("valid_source_only_promotion_input.json")["payload"]["promotion_requests"][0]
+        )
     )
     request["grounded_contract_rows"][0]["ref"] = (
         "repo://architecture/policy_design_case/"
@@ -1194,9 +1179,7 @@ def test_absent_g1_binding_ref_cannot_be_promoted_as_grounded_contract(
     contract_set = g4.build_g4_grounded_contract_set(repo_root, input_set)
 
     assert _dump(contract_set)["status"] == "fail"
-    assert "layer3_g4_grounded_contract_ref_missing" in set(
-        _dump(contract_set)["issue_codes"]
-    )
+    assert "layer3_g4_grounded_contract_ref_missing" in set(_dump(contract_set)["issue_codes"])
 
 
 def test_missing_json_pointer_ref_fails_g4_required_resolution(
@@ -1205,9 +1188,9 @@ def test_missing_json_pointer_ref_fails_g4_required_resolution(
     g4 = _g4()
     repo_root = _repo_root_with_g1_binding(tmp_path)
     request = json.loads(
-        json.dumps(_fixture("valid_source_only_promotion_input.json")["payload"][
-            "promotion_requests"
-        ][0])
+        json.dumps(
+            _fixture("valid_source_only_promotion_input.json")["payload"]["promotion_requests"][0]
+        )
     )
     request["grounded_contract_rows"][0].update(
         {
@@ -1230,9 +1213,9 @@ def test_missing_json_pointer_ref_fails_g4_required_resolution(
 def test_gl_g4_compatibility_row_alone_does_not_satisfy_legal_mandate_contract() -> None:
     g4 = _g4()
     request = json.loads(
-        json.dumps(_fixture("valid_source_only_promotion_input.json")["payload"][
-            "promotion_requests"
-        ][0])
+        json.dumps(
+            _fixture("valid_source_only_promotion_input.json")["payload"]["promotion_requests"][0]
+        )
     )
     request["promotion_scope"]["claim_families"] = ["legal_mandate"]
     request["promotion_scope"]["requires_legal_or_mandate_authority"] = True
@@ -1258,9 +1241,9 @@ def test_gl_g4_compatibility_row_alone_does_not_satisfy_legal_mandate_contract()
 def test_a_completeness_blocks_missing_g2_for_effect_claim() -> None:
     g4 = _g4()
     request = json.loads(
-        json.dumps(_fixture("valid_source_only_promotion_input.json")["payload"][
-            "promotion_requests"
-        ][0])
+        json.dumps(
+            _fixture("valid_source_only_promotion_input.json")["payload"]["promotion_requests"][0]
+        )
     )
     request["promotion_scope"]["claim_families"] = ["causal_forecast"]
     request["promotion_scope"]["requires_causal_or_forecast_authority"] = True
@@ -1280,9 +1263,9 @@ def test_a_completeness_blocks_missing_g2_for_effect_claim() -> None:
 def test_a_completeness_blocks_missing_g3_for_proof_claim() -> None:
     g4 = _g4()
     request = json.loads(
-        json.dumps(_fixture("valid_source_only_promotion_input.json")["payload"][
-            "promotion_requests"
-        ][0])
+        json.dumps(
+            _fixture("valid_source_only_promotion_input.json")["payload"]["promotion_requests"][0]
+        )
     )
     request["promotion_scope"]["claim_families"] = ["proof_analytics"]
     request["promotion_scope"]["requires_proof_or_analytics_authority"] = True
@@ -1305,9 +1288,9 @@ def test_a_completeness_blocks_missing_g3_for_proof_claim() -> None:
 def test_a_completeness_blocks_gl_reissue_for_legal_dependent_scope() -> None:
     g4 = _g4()
     request = json.loads(
-        json.dumps(_fixture("valid_source_only_promotion_input.json")["payload"][
-            "promotion_requests"
-        ][0])
+        json.dumps(
+            _fixture("valid_source_only_promotion_input.json")["payload"]["promotion_requests"][0]
+        )
     )
     request["promotion_scope"]["claim_families"] = ["legal_mandate"]
     request["promotion_scope"]["requires_legal_or_mandate_authority"] = True
@@ -1339,9 +1322,9 @@ def test_a_completeness_blocks_gl_reissue_for_legal_dependent_scope() -> None:
 def test_limited_upstream_boundary_blocks_unlimited_promotion_scope() -> None:
     g4 = _g4()
     request = json.loads(
-        json.dumps(_fixture("valid_source_only_promotion_input.json")["payload"][
-            "promotion_requests"
-        ][0])
+        json.dumps(
+            _fixture("valid_source_only_promotion_input.json")["payload"]["promotion_requests"][0]
+        )
     )
     request["promotion_scope"]["claim_families"] = ["causal_forecast"]
     request["promotion_scope"]["requires_causal_or_forecast_authority"] = True
@@ -1374,9 +1357,7 @@ def test_limited_upstream_boundary_blocks_unlimited_promotion_scope() -> None:
     assert _dump(ledger)["status"] == "fail"
     assert "layer3_g4_limited_boundary_overpromoted" in set(_dump(ledger)["issue_codes"])
     assert _dump(weakest)["promotion_state"] == "promotion_blocked"
-    assert "layer3_g4_limited_boundary_overpromoted" in _dump(weakest)[
-        "weakest_boundary_reason"
-    ]
+    assert "layer3_g4_limited_boundary_overpromoted" in _dump(weakest)["weakest_boundary_reason"]
 
 
 def _partial_source_request(*, requested_boundary: str) -> dict[str, Any]:
@@ -1393,8 +1374,7 @@ def _partial_source_request(*, requested_boundary: str) -> dict[str, Any]:
                 "layer3_g1_adapter_admission_registry.json#g1"
             ),
             "conformance_ref": (
-                "repo://architecture/policy_design_case/"
-                "layer3_g1_conformance_report.json#g1"
+                "repo://architecture/policy_design_case/layer3_g1_conformance_report.json#g1"
             ),
         }
     )
@@ -1438,14 +1418,10 @@ def test_g4_production_posture_blocks_partial_evidence_before_g5(tmp_path: Path)
     records = g4.build_g4_promotion_records(input_set, contract_set, ledger, weakest)
 
     assert _dump(ledger)["status"] == "fail"
-    assert "layer3_g4_partial_evidence_production_strict" in set(
-        _dump(ledger)["issue_codes"]
-    )
+    assert "layer3_g4_partial_evidence_production_strict" in set(_dump(ledger)["issue_codes"])
     assert _dump(weakest)["promotion_state"] == "promotion_blocked"
     assert _dump(records[0])["promotion_state"] == "promotion_blocked"
-    assert "layer3_g4_partial_evidence_production_strict" in set(
-        _dump(records[0])["blocker_refs"]
-    )
+    assert "layer3_g4_partial_evidence_production_strict" in set(_dump(records[0])["blocker_refs"])
 
 
 def test_adapter_admission_and_conformance_must_be_pass_not_only_ref_present(
@@ -1550,9 +1526,7 @@ def test_declared_authority_posture_refs_are_required(
         missing_contracts,
     )
 
-    request["grounded_contract_rows"][0][row_ref_field] = [
-        f"pdc://layer2/{row_ref_field}/ua-msme"
-    ]
+    request["grounded_contract_rows"][0][row_ref_field] = [f"pdc://layer2/{row_ref_field}/ua-msme"]
     satisfied_input = g4.build_g4_promotion_input_set(repo_root, [request])
     satisfied_contracts = g4.build_g4_grounded_contract_set(repo_root, satisfied_input)
     satisfied_ledger = g4.build_g4_a_completeness_ledger(
@@ -1568,9 +1542,9 @@ def test_declared_authority_posture_refs_are_required(
 def test_weakest_boundary_composition_is_deterministic_and_preserves_blockers() -> None:
     g4 = _g4()
     request = json.loads(
-        json.dumps(_fixture("valid_source_only_promotion_input.json")["payload"][
-            "promotion_requests"
-        ][0])
+        json.dumps(
+            _fixture("valid_source_only_promotion_input.json")["payload"]["promotion_requests"][0]
+        )
     )
     request["promotion_scope"]["claim_families"] = ["causal_forecast", "proof_analytics"]
     request["promotion_scope"]["requires_causal_or_forecast_authority"] = True
@@ -1602,9 +1576,9 @@ def test_weakest_boundary_promotes_only_declared_scope_when_a_complete(
     g4 = _g4()
     repo_root = _repo_root_with_g1_binding(tmp_path)
     request = json.loads(
-        json.dumps(_fixture("valid_source_only_promotion_input.json")["payload"][
-            "promotion_requests"
-        ][0])
+        json.dumps(
+            _fixture("valid_source_only_promotion_input.json")["payload"]["promotion_requests"][0]
+        )
     )
     request["grounded_contract_rows"][0].update(
         {
@@ -1692,9 +1666,7 @@ def test_human_decision_candidate_or_scope_mismatch_blocks() -> None:
     gate = g4.build_g4_human_decision_integrity_gate(request)
 
     assert _dump(gate)["status"] == "fail"
-    assert "layer3_g4_human_decision_scope_mismatch" in set(
-        _dump(gate)["issue_codes"]
-    )
+    assert "layer3_g4_human_decision_scope_mismatch" in set(_dump(gate)["issue_codes"])
 
 
 @pytest.mark.parametrize(
@@ -1718,9 +1690,7 @@ def test_human_decision_integrity_payload_failures_block(
     request["promotion_scope"].update({"high_stakes": True})
     request["human_decision_policy"] = {
         "human_decision_required": True,
-        "human_decision_record_payloads": [
-            _human_decision_wrapper(request, **wrapper_overrides)
-        ],
+        "human_decision_record_payloads": [_human_decision_wrapper(request, **wrapper_overrides)],
     }
 
     gate = g4.build_g4_human_decision_integrity_gate(request)
@@ -1749,9 +1719,7 @@ def test_human_decision_cannot_override_failed_a_completeness_ledger() -> None:
     )
 
     assert _dump(gate)["status"] == "fail"
-    assert "layer3_g4_human_decision_overrides_a_incompleteness" in set(
-        _dump(gate)["issue_codes"]
-    )
+    assert "layer3_g4_human_decision_overrides_a_incompleteness" in set(_dump(gate)["issue_codes"])
 
 
 def test_non_high_stakes_bounded_scope_can_skip_human_decision_with_rationale() -> None:
@@ -1846,9 +1814,10 @@ def test_promotion_records_emit_promoted_and_blocked_records_with_required_refs(
         record for record in payloads if record["promotion_state"] == "promotion_blocked"
     )
 
-    assert promoted_record["source_design_record_ref"] == promoted_request[
-        "source_design_record"
-    ]["ref"]
+    assert (
+        promoted_record["source_design_record_ref"]
+        == promoted_request["source_design_record"]["ref"]
+    )
     assert promoted_record["grounded_contract_set_ref"].endswith(
         "layer3_g4_grounded_contract_set.json"
     )
@@ -1914,8 +1883,7 @@ def test_task6_g4_governed_upstream_artifact_insertion_promotes_after_admission(
                 "layer3_g1_adapter_admission_registry.json#g1"
             ),
             "conformance_ref": (
-                "repo://architecture/policy_design_case/"
-                "layer3_g1_conformance_report.json#g1"
+                "repo://architecture/policy_design_case/layer3_g1_conformance_report.json#g1"
             ),
         }
     )
@@ -1962,8 +1930,7 @@ def test_task9_g4_promotion_records_are_reducer_authored_waist_court(
                 "layer3_g1_adapter_admission_registry.json#g1"
             ),
             "conformance_ref": (
-                "repo://architecture/policy_design_case/"
-                "layer3_g1_conformance_report.json#g1"
+                "repo://architecture/policy_design_case/layer3_g1_conformance_report.json#g1"
             ),
         }
     )
@@ -1983,9 +1950,7 @@ def test_task9_g4_promotion_records_are_reducer_authored_waist_court(
 
     assert record["promotion_state"] == "governed_promoted"
     assert record["produced_by"]["reducer_id"] == "reduce_g4_promotion_state"
-    assert record["produced_by"]["rule_version"] == (
-        "policyos.layer3.gx.reducer_only_status.v1"
-    )
+    assert record["produced_by"]["rule_version"] == ("policyos.layer3.gx.reducer_only_status.v1")
     assert record["produced_by"]["output_hash"].startswith("sha256:")
     assert record["produced_by"]["input_hashes"]
 
@@ -2031,9 +1996,7 @@ def test_consumer_gates_and_g5_handoff_are_reference_only_and_preserve_boundarie
         closeout_payload
     )
     assert pdc_payload["status"] == "pass"
-    assert pdc_payload["promotion_state_input_refs"] == closeout_payload[
-        "promotion_record_refs"
-    ]
+    assert pdc_payload["promotion_state_input_refs"] == closeout_payload["promotion_record_refs"]
     assert pdc_payload["compiler_graph_rewrite_attempted"] is False
     assert handoff_payload["status"] == "pass"
     assert handoff_payload["promotion_scopes"][0] == promoted_request["promotion_scope"]
@@ -2226,9 +2189,7 @@ def test_promotion_naming_collisions_are_rejected_as_g4_inputs() -> None:
     target_report = _assert_fixture_fails("generated_artifact_promotion_target_collision.json")
 
     assert "layer3_g4_data_promotion_lane_confused" in _issue_codes(lane_report)
-    assert "layer3_g4_generated_artifact_promotion_target_confused" in _issue_codes(
-        target_report
-    )
+    assert "layer3_g4_generated_artifact_promotion_target_confused" in _issue_codes(target_report)
 
 
 def test_public_projection_cannot_leak_raw_payloads_or_overclaim_export_hook() -> None:
@@ -2255,9 +2216,9 @@ def test_task7_conformance_report_executes_all_negatives() -> None:
     for negative_id in sorted(TASK7_CONFORMANCE_NEGATIVE_IDS):
         result = results[negative_id]
         assert result["status"] == "pass", negative_id
-        assert set(result["expected_issue_codes"]) <= set(
-            result["observed_issue_codes"]
-        ), negative_id
+        assert set(result["expected_issue_codes"]) <= set(result["observed_issue_codes"]), (
+            negative_id
+        )
         assert result["fixture_ref"].startswith("g4-conformance-negative:")
         assert result["pattern_ids"], negative_id
         assert result["capability_labels"], negative_id

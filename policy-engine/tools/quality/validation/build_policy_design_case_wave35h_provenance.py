@@ -25,9 +25,7 @@ REPO_ROOT, _SRC_ROOT = ensure_repo_import_roots(__file__)
 
 from polisyos.runtime.quality import institutional_provenance as runtime_provenance  # noqa: E402
 
-SCHEMA_VERSION = (
-    "policyos.policy_design_case.wave35h.institutional_provenance_runtime_ownership.v1"
-)
+SCHEMA_VERSION = "policyos.policy_design_case.wave35h.institutional_provenance_runtime_ownership.v1"
 IMPLEMENTATION_SCHEMA_VERSION = (
     "policyos.policy_design_case.wave35h.implementation_feasibility_runtime_provenance.v1"
 )
@@ -139,10 +137,8 @@ def build_wave35h_provenance_outputs(
         source_artifacts=[
             "_build/policy-design-case/rebaseline/wave-35G/"
             "institutional_provenance_boundary_ledger.json",
-            "_build/policy-design-case/rebaseline/wave-35E/"
-            "implementation_feasibility_ledger.json",
-            "_build/policy-design-case/rebaseline/wave-35C/"
-            "claim_authority_binding_ledger.json",
+            "_build/policy-design-case/rebaseline/wave-35E/implementation_feasibility_ledger.json",
+            "_build/policy-design-case/rebaseline/wave-35C/claim_authority_binding_ledger.json",
             "quality_evidence/production_data_quality.json",
             "quality_evidence/decision_artifact_quality.json",
             "quality_evidence/semantic_binding_ledger.json",
@@ -163,8 +159,7 @@ def build_wave35h_provenance_outputs(
         source_artifacts=[
             "_build/policy-design-case/rebaseline/wave-35G/"
             "institutional_provenance_boundary_ledger.json",
-            "_build/policy-design-case/rebaseline/wave-35E/"
-            "contestability_appeals_ledger.json",
+            "_build/policy-design-case/rebaseline/wave-35E/contestability_appeals_ledger.json",
             "quality_evidence/public_export_bundle.json",
             "quality_evidence/continuous_governance_reissue_report.json",
             "quality_evidence/continuous_governance_stale_report.json",
@@ -366,14 +361,9 @@ def _evidence_row(
 def _runtime_output_ref(surface: str, record: Mapping[str, Any]) -> str:
     record_id = str(record.get("record_id") or "")
     filename = (
-        IMPLEMENTATION_OUTPUT
-        if surface == "implementation_feasibility"
-        else CONTESTABILITY_OUTPUT
+        IMPLEMENTATION_OUTPUT if surface == "implementation_feasibility" else CONTESTABILITY_OUTPUT
     )
-    return (
-        "_build/policy-design-case/rebaseline/wave-35H/"
-        f"{filename}#/records/{record_id}"
-    )
+    return f"_build/policy-design-case/rebaseline/wave-35H/{filename}#/records/{record_id}"
 
 
 def _regenerate_wave35e_ledgers(
@@ -402,20 +392,14 @@ def _regenerate_wave35e_ledgers(
         "status": implementation_runtime.get("status"),
         "evidence_authority_class": "runtime_emitted",
         "runtime_owned_provenance_present": True,
-        "artifact_ref": (
-            "_build/policy-design-case/rebaseline/wave-35H/"
-            f"{IMPLEMENTATION_OUTPUT}"
-        ),
+        "artifact_ref": (f"_build/policy-design-case/rebaseline/wave-35H/{IMPLEMENTATION_OUTPUT}"),
         "covered_findings": list(IMPLEMENTATION_FINDINGS),
         "manual_assertion_remaining_count": 0,
         "source": "runtime_producer",
     }
     implementation["wave35h_runtime_ownership"] = {
         "status": "complete",
-        "artifact_ref": (
-            "_build/policy-design-case/rebaseline/wave-35H/"
-            f"{IMPLEMENTATION_OUTPUT}"
-        ),
+        "artifact_ref": (f"_build/policy-design-case/rebaseline/wave-35H/{IMPLEMENTATION_OUTPUT}"),
         "before_after_regenerated_by": TOOL_NAME,
         "source_authority_replaced": "manual_assertion",
         "replacement_authority": "runtime_emitted",
@@ -442,10 +426,7 @@ def _regenerate_wave35e_ledgers(
         "status": contestability_runtime.get("status"),
         "evidence_authority_class": "runtime_emitted",
         "runtime_owned_provenance_present": True,
-        "artifact_ref": (
-            "_build/policy-design-case/rebaseline/wave-35H/"
-            f"{CONTESTABILITY_OUTPUT}"
-        ),
+        "artifact_ref": (f"_build/policy-design-case/rebaseline/wave-35H/{CONTESTABILITY_OUTPUT}"),
         "covered_findings": list(CONTESTABILITY_FINDINGS),
         "covered_appeals": sorted(records_by_appeal),
         "manual_assertion_remaining_count": 0,
@@ -453,10 +434,7 @@ def _regenerate_wave35e_ledgers(
     }
     contestability["wave35h_runtime_ownership"] = {
         "status": "complete",
-        "artifact_ref": (
-            "_build/policy-design-case/rebaseline/wave-35H/"
-            f"{CONTESTABILITY_OUTPUT}"
-        ),
+        "artifact_ref": (f"_build/policy-design-case/rebaseline/wave-35H/{CONTESTABILITY_OUTPUT}"),
         "before_after_regenerated_by": TOOL_NAME,
         "source_authority_replaced": "manual_assertion",
         "replacement_authority": "runtime_emitted",
@@ -475,8 +453,7 @@ def _build_runtime_ownership_ledger(
     institutional_payload: Mapping[str, Any],
 ) -> dict[str, Any]:
     institutional_by_finding = {
-        str(row.get("finding_id")): row
-        for row in _mapping_rows(institutional_payload, "rows")
+        str(row.get("finding_id")): row for row in _mapping_rows(institutional_payload, "rows")
     }
     runtime_rows: list[dict[str, Any]] = []
     for evidence_row in [
@@ -653,10 +630,7 @@ def _runtime_context(
 def _ledger_authority_counts(payload: Mapping[str, Any]) -> dict[str, int]:
     rows = _mapping_rows(payload, "rows")
     class_from_runtime = str(
-        _mapping(payload.get("runtime_enforcement_evidence")).get(
-            "evidence_authority_class"
-        )
-        or ""
+        _mapping(payload.get("runtime_enforcement_evidence")).get("evidence_authority_class") or ""
     )
     counts: Counter[str] = Counter()
     for row in rows:

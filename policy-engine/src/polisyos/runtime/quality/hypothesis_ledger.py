@@ -183,9 +183,7 @@ class HypothesisLedgerEntry(BaseModel):
     def validation_refs(self) -> tuple[str, ...]:
         """Producer and reader validation refs in stable order."""
 
-        return tuple(
-            dict.fromkeys([*self.producer_validation_refs, *self.reader_validation_refs])
-        )
+        return tuple(dict.fromkeys([*self.producer_validation_refs, *self.reader_validation_refs]))
 
 
 class HypothesisLedger(BaseModel):
@@ -390,11 +388,7 @@ def _lineage_from_prompt_tool_ledger(
     ledger: PromptToolParserAuthorityLedger,
 ) -> dict[str, Any]:
     prompt_fingerprint = next(
-        (
-            step.prompt.prompt_fingerprint
-            for step in ledger.steps
-            if step.prompt.prompt_fingerprint
-        ),
+        (step.prompt.prompt_fingerprint for step in ledger.steps if step.prompt.prompt_fingerprint),
         None,
     )
     tool_refs = tuple(

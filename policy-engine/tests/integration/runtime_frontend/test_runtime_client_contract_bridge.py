@@ -76,19 +76,17 @@ def _dashboard_runtime_transports() -> set[tuple[str, str, str]]:
 
 def _canonical_ds19_collaboration_register_is_present(repo_root: Path) -> bool:
     register_path = (
-        repo_root
-        / "architecture"
-        / "atlas_surfaces"
-        / "frontend-disposition-register.json"
+        repo_root / "architecture" / "atlas_surfaces" / "frontend-disposition-register.json"
     )
     if not register_path.is_file():
         return False
 
     register = json.loads(register_path.read_text(encoding="utf-8"))
     assert register["register_id"] == "atlas-ds19-frontend-disposition"
-    assert "deleting server endpoints from a frontend-only decision" in register[
-        "authority"
-    ]["may_not_use_for"]
+    assert (
+        "deleting server endpoints from a frontend-only decision"
+        in register["authority"]["may_not_use_for"]
+    )
     entries = {
         entry["unit_id"]: entry
         for entry in register["entries"]
@@ -114,10 +112,7 @@ def _assert_transport_residual_is_governed(
 
     assert unresolved
     assert all(
-        (
-            path.startswith("/api/v1/collaboration/")
-            and "/features/collaboration/" in f"/{source}"
-        )
+        (path.startswith("/api/v1/collaboration/") and "/features/collaboration/" in f"/{source}")
         or (
             path == "/api/v1/collaboration/live"
             and source.endswith("/app/realtime/websocketTransport.ts")
@@ -251,10 +246,7 @@ def test_ds19_integration_requires_register_and_zero_callers(
     tmp_path: Path,
 ) -> None:
     register_path = (
-        tmp_path
-        / "architecture"
-        / "atlas_surfaces"
-        / "frontend-disposition-register.json"
+        tmp_path / "architecture" / "atlas_surfaces" / "frontend-disposition-register.json"
     )
     register_path.parent.mkdir(parents=True)
     register_path.write_text(
@@ -262,9 +254,7 @@ def test_ds19_integration_requires_register_and_zero_callers(
             {
                 "register_id": "atlas-ds19-frontend-disposition",
                 "authority": {
-                    "may_not_use_for": [
-                        "deleting server endpoints from a frontend-only decision"
-                    ]
+                    "may_not_use_for": ["deleting server endpoints from a frontend-only decision"]
                 },
                 "entries": [
                     {
@@ -275,7 +265,7 @@ def test_ds19_integration_requires_register_and_zero_callers(
                         "decision_date": "2026-07-17",
                     }
                     for unit_id in _DS19_COLLABORATION_UNITS
-                ]
+                ],
             }
         ),
         encoding="utf-8",
@@ -301,7 +291,7 @@ def test_reference_shell_executes_shared_generated_client_proof() -> None:
     shell_root = REPO_ROOT / "apps" / "runtime-reference-shell"
     shell_source = (shell_root / "app.js").read_text(encoding="utf-8")
 
-    assert '../../packages/runtime-api-client/canonicalRuntimeApiClient.js' in shell_source
+    assert "../../packages/runtime-api-client/canonicalRuntimeApiClient.js" in shell_source
     assert 'from "./governedProjectionProof.js"' in shell_source
     assert "await verifyGovernedProjectionCatalog(client)" in shell_source
     assert "runtime-dashboard/src/api/types" not in shell_source
@@ -373,9 +363,7 @@ def test_committed_human_decision_contract_keeps_verified_submission_binding() -
         "HumanDecisionProductionReplaySelector",
         "HumanDecisionSubmissionSurface",
     } <= set(components)
-    submission_selector = components["HumanDecisionSubmissionSurface"]["properties"][
-        "selector"
-    ]
+    submission_selector = components["HumanDecisionSubmissionSurface"]["properties"]["selector"]
     assert submission_selector["discriminator"]["propertyName"] == "source_kind"
     assert len(submission_selector["oneOf"]) == 2
 

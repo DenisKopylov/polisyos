@@ -21,9 +21,7 @@ from polisyos.runtime.quality.required_reference_resolver import resolve_require
 G8_SCHEMA_VERSION = "policyos.policy_design_case.layer3_g8_health_metric_governance.v1"
 G8_RULE_VERSION = "policyos.layer3.g8.health_metric_governance.v1"
 G8_SURFACE_ID = "layer3_g8_health_metric_governance_surface"
-G8_GENERATED_ARTIFACT_FAMILY_ID = (
-    "policy-design-case-layer3-g8-health-metric-governance-artifacts"
-)
+G8_GENERATED_ARTIFACT_FAMILY_ID = "policy-design-case-layer3-g8-health-metric-governance-artifacts"
 G8_AUTHORITATIVE_FOR = (
     "layer3_g8_metric_governance_audit",
     "layer3_g8_d44_rebasing_integrity_reading",
@@ -98,61 +96,31 @@ G8_METRIC_ALIASES = {
     "g7_region_value_closure_status": "demand-pull-vs-abstention",
     "g7_region_grounded_case_count": "demand-pull-vs-abstention",
     "g7_s14_grounded_breadth_feed_status": "demand-pull-vs-abstention",
-    "search-recall@known-seeds+index-staleness": (
-        "search-recall@known-seeds+index-staleness"
-    ),
-    "search-recall@known-seeds + index-staleness": (
-        "search-recall@known-seeds+index-staleness"
-    ),
+    "search-recall@known-seeds+index-staleness": ("search-recall@known-seeds+index-staleness"),
+    "search-recall@known-seeds + index-staleness": ("search-recall@known-seeds+index-staleness"),
     "search-recall@known-seeds+index-staleness(region)": (
         "search-recall@known-seeds+index-staleness"
     ),
-    "search-recall.index_freshness_status": (
-        "search-recall@known-seeds+index-staleness"
-    ),
-    "search-recall.known_seed_status": (
-        "search-recall@known-seeds+index-staleness"
-    ),
+    "search-recall.index_freshness_status": ("search-recall@known-seeds+index-staleness"),
+    "search-recall.known_seed_status": ("search-recall@known-seeds+index-staleness"),
     "search_recall.status": "search-recall@known-seeds+index-staleness",
-    "search_recall.freshness_status": (
-        "search-recall@known-seeds+index-staleness"
-    ),
+    "search_recall.freshness_status": ("search-recall@known-seeds+index-staleness"),
     "search_recall.certificate_resolution_seed_status": (
         "search-recall@known-seeds+index-staleness"
     ),
-    "search_recall.ir_catalog_seed_status": (
-        "search-recall@known-seeds+index-staleness"
-    ),
-    "search_recall.l2_skg_seed_status": (
-        "search-recall@known-seeds+index-staleness"
-    ),
-    "search_recall.known_seed_count": (
-        "search-recall@known-seeds+index-staleness"
-    ),
-    "search_recall.recalled_seed_count": (
-        "search-recall@known-seeds+index-staleness"
-    ),
-    "search_recall.missed_seed_count": (
-        "search-recall@known-seeds+index-staleness"
-    ),
-    "search_recall.search_ceiling_repair_required": (
-        "search-recall@known-seeds+index-staleness"
-    ),
-    "search_recall.domain_ceiling_allowed": (
-        "search-recall@known-seeds+index-staleness"
-    ),
+    "search_recall.ir_catalog_seed_status": ("search-recall@known-seeds+index-staleness"),
+    "search_recall.l2_skg_seed_status": ("search-recall@known-seeds+index-staleness"),
+    "search_recall.known_seed_count": ("search-recall@known-seeds+index-staleness"),
+    "search_recall.recalled_seed_count": ("search-recall@known-seeds+index-staleness"),
+    "search_recall.missed_seed_count": ("search-recall@known-seeds+index-staleness"),
+    "search_recall.search_ceiling_repair_required": ("search-recall@known-seeds+index-staleness"),
+    "search_recall.domain_ceiling_allowed": ("search-recall@known-seeds+index-staleness"),
     "search_recall_status": "search-recall@known-seeds+index-staleness",
     "index_freshness_status": "search-recall@known-seeds+index-staleness",
     "known_seed_status": "search-recall@known-seeds+index-staleness",
-    "g2_search_engineering_quality_status": (
-        "search-recall@known-seeds+index-staleness"
-    ),
-    "g3_search_recall_freshness_status": (
-        "search-recall@known-seeds+index-staleness"
-    ),
-    "gl_search_recall_freshness_status": (
-        "search-recall@known-seeds+index-staleness"
-    ),
+    "g2_search_engineering_quality_status": ("search-recall@known-seeds+index-staleness"),
+    "g3_search_recall_freshness_status": ("search-recall@known-seeds+index-staleness"),
+    "gl_search_recall_freshness_status": ("search-recall@known-seeds+index-staleness"),
     "g1_search_recall_status": "search-recall@known-seeds+index-staleness",
     "g1_index_freshness_status": "search-recall@known-seeds+index-staleness",
     "g5_search_recall_status": "search-recall@known-seeds+index-staleness",
@@ -249,8 +217,7 @@ EXPECTED_ARTIFACT_PATHS = (
     Path("architecture/policy_design_case/layer3_g8_conformance_report.json"),
     Path("architecture/policy_design_case/layer3_g8_health_metric_governance_delta.toml"),
     Path(
-        "architecture/policy_design_case/"
-        "layer3_g8_metric_governance_route_contract_registry.toml"
+        "architecture/policy_design_case/layer3_g8_metric_governance_route_contract_registry.toml"
     ),
     Path("architecture/policy_design_case/layer3_g8_registry_ratchet_delta.json"),
     Path("architecture/policy_design_case/layer3_g8_readiness_manifest.json"),
@@ -330,9 +297,7 @@ D44_REQUIRED_REANNOTATION_FIELDS = (
     "value_choice_provenance",
 )
 G8_CONFORMANCE_NEGATIVE_EXPECTED_ISSUE_CODES: dict[str, tuple[str, ...]] = {
-    "metric_improved_by_threshold_lowering": (
-        "layer3_g8_metric_improved_by_threshold_lowering",
-    ),
+    "metric_improved_by_threshold_lowering": ("layer3_g8_metric_improved_by_threshold_lowering",),
     "useful_design_rate_optimization": ("layer3_g8_useful_design_rate_optimized",),
     "search_recall_miss_as_domain_ceiling": (
         "layer3_g8_search_recall_miss_reported_as_domain_ceiling",
@@ -353,26 +318,14 @@ G8_CONFORMANCE_NEGATIVE_EXPECTED_ISSUE_CODES: dict[str, tuple[str, ...]] = {
     "flat_expansion_with_current_blocker_as_domain_ceiling": (
         "layer3_g8_flat_expansion_reported_as_domain_ceiling_without_search_health",
     ),
-    "governance_stall_as_domain_ceiling": (
-        "layer3_g8_governance_stall_hidden_as_domain_ceiling",
-    ),
-    "abstention_inertia_as_honesty": (
-        "layer3_g8_abstention_inertia_hidden_as_honesty",
-    ),
-    "semantic_loss_hidden_by_metric_rollup": (
-        "layer3_g8_semantic_loss_hidden_by_metric_rollup",
-    ),
+    "governance_stall_as_domain_ceiling": ("layer3_g8_governance_stall_hidden_as_domain_ceiling",),
+    "abstention_inertia_as_honesty": ("layer3_g8_abstention_inertia_hidden_as_honesty",),
+    "semantic_loss_hidden_by_metric_rollup": ("layer3_g8_semantic_loss_hidden_by_metric_rollup",),
     "rebasing_mutates_sealed_battery": ("layer3_g8_rebasing_mutates_sealed_battery",),
-    "rebasing_leaks_gold_or_hidden_payload": (
-        "layer3_g8_rebasing_leaks_gold_or_hidden_payload",
-    ),
+    "rebasing_leaks_gold_or_hidden_payload": ("layer3_g8_rebasing_leaks_gold_or_hidden_payload",),
     "rebasing_lowers_s14_floor": ("layer3_g8_rebasing_lowers_s14_floor",),
-    "closeout_signal_used_as_authority": (
-        "layer3_g8_metric_used_as_closeout_authority",
-    ),
-    "public_projection_authority_leak": (
-        "layer3_g8_public_projection_authority_leak",
-    ),
+    "closeout_signal_used_as_authority": ("layer3_g8_metric_used_as_closeout_authority",),
+    "public_projection_authority_leak": ("layer3_g8_public_projection_authority_leak",),
 }
 
 
@@ -427,12 +380,8 @@ _REGISTRY_ROWS: tuple[dict[str, Any], ...] = (
         "owner": "team-runtime-quality",
         "trend_vocabulary": ("expanding", "flat", "shrinking"),
         "freeze_value": {"g0_admitted_adapter_count": 0},
-        "per_slice_delta_rule": (
-            "Later slices may change only after admitted adapter evidence."
-        ),
-        "next_update_rule": (
-            "Recompute when a G1+ adapter slice writes governed artifacts."
-        ),
+        "per_slice_delta_rule": ("Later slices may change only after admitted adapter evidence."),
+        "next_update_rule": ("Recompute when a G1+ adapter slice writes governed artifacts."),
     },
     {
         "metric_id": "adapter-semantic-loss",
@@ -473,9 +422,7 @@ _REGISTRY_ROWS: tuple[dict[str, Any], ...] = (
         "per_slice_delta_rule": (
             "Recall misses or stale required indexes block domain-ceiling and no-hit claims."
         ),
-        "next_update_rule": (
-            "Recompute from GroundingSearchDiscipline recall/freshness records."
-        ),
+        "next_update_rule": ("Recompute from GroundingSearchDiscipline recall/freshness records."),
     },
 )
 
@@ -487,9 +434,7 @@ def canonical_metric_id(metric_id: str) -> str | None:
 
 
 def _aliases_for(metric_id: str) -> tuple[str, ...]:
-    return tuple(
-        alias for alias, canonical in G8_METRIC_ALIASES.items() if canonical == metric_id
-    )
+    return tuple(alias for alias, canonical in G8_METRIC_ALIASES.items() if canonical == metric_id)
 
 
 def build_g8_health_metric_registry() -> Layer3G8HealthMetricRegistry:
@@ -529,9 +474,7 @@ class Layer3G8MetricSourceRef(_G8Model):
     rule_version: str = ""
     generated_at: str = ""
     issue_codes: tuple[str, ...] = ()
-    search_contract_status: Literal["pass", "missing", "not_applicable"] = (
-        "not_applicable"
-    )
+    search_contract_status: Literal["pass", "missing", "not_applicable"] = "not_applicable"
     search_contract_ref: str = ""
     search_contract_corpus_kind: str = ""
     search_contract_corpus_snapshot_hash: str = ""
@@ -819,8 +762,7 @@ def build_g8_metric_source_snapshot(
                 format=source_format,  # type: ignore[arg-type]
                 status="present",
                 digest=resolved.content_hash or _digest_payload(payload),
-                schema_version=resolved.schema_version
-                or _text(payload.get("schema_version")),
+                schema_version=resolved.schema_version or _text(payload.get("schema_version")),
                 rule_version=resolved.rule_version or _text(payload.get("rule_version")),
                 generated_at=_text(payload.get("generated_at")),
                 **search_contract_audit,
@@ -1004,9 +946,7 @@ def build_g8_cross_metric_diagnosis(
         root / POLICY_DESIGN_CASE_DIR / "layer3_g5_effective_evidence_independence.json"
     )
     effective_mass = _mapping(
-        _mapping(g5_independence.get("independence_map_payload")).get(
-            "effective_mass_report"
-        )
+        _mapping(g5_independence.get("independence_map_payload")).get("effective_mass_report")
     )
     statuses = {
         metric_id: _latest_metric_status(signals, metric_id, case_id=case_id)
@@ -1024,18 +964,20 @@ def build_g8_cross_metric_diagnosis(
             "#g5_conversion_outcome"
         )
     if _text(
-        g7.get("g7_region_value_closure_status")
-        or g7_summary.get("g7_region_value_closure_status")
+        g7.get("g7_region_value_closure_status") or g7_summary.get("g7_region_value_closure_status")
     ).startswith("blocked"):
         current_blockers.append(
             "repo://architecture/policy_design_case/layer3_g7_readiness_manifest.json"
             "#g7_region_value_closure_status"
         )
-    if int(
-        g7.get("g7_region_grounded_case_count")
-        or g7_summary.get("g7_region_grounded_case_count")
-        or 0
-    ) == 0:
+    if (
+        int(
+            g7.get("g7_region_grounded_case_count")
+            or g7_summary.get("g7_region_grounded_case_count")
+            or 0
+        )
+        == 0
+    ):
         current_blockers.append(
             "repo://architecture/policy_design_case/layer3_g7_readiness_manifest.json"
             "#g7_region_grounded_case_count"
@@ -1064,9 +1006,8 @@ def build_g8_cross_metric_diagnosis(
         diagnoses.append("governance_bottleneck")
         issues.append("layer3_g8_governance_stall_hidden_as_domain_ceiling")
     current_committed_source_set = _is_current_committed_source_set(signals)
-    if (
-        _is_abstention_inertia(statuses["demand-pull-vs-abstention"])
-        and not (current_blockers and current_committed_source_set)
+    if _is_abstention_inertia(statuses["demand-pull-vs-abstention"]) and not (
+        current_blockers and current_committed_source_set
     ):
         diagnoses.append("abstention_inertia")
         issues.append("layer3_g8_abstention_inertia_hidden_as_honesty")
@@ -1090,9 +1031,7 @@ def build_g8_cross_metric_diagnosis(
         semantic_loss_status=statuses["adapter-semantic-loss"],
         governance_throughput_status=statuses["governance-throughput"],
         demand_pull_status=statuses["demand-pull-vs-abstention"],
-        search_recall_freshness_status=statuses[
-            "search-recall@known-seeds+index-staleness"
-        ],
+        search_recall_freshness_status=statuses["search-recall@known-seeds+index-staleness"],
         search_health_classification=search_health,
         effective_independence_status=effective_independence_status,
         effective_independent_evidence_count=effective_independent_evidence_count,
@@ -1200,9 +1139,7 @@ def build_g8_domain_vs_search_ceiling_gate(
         domain_ceiling_claim_allowed=True,
         current_blocker_refs=(),
         search_health_classification=search_health,
-        domain_ceiling_precondition_statuses=(
-            search_health.domain_ceiling_precondition_statuses
-        ),
+        domain_ceiling_precondition_statuses=(search_health.domain_ceiling_precondition_statuses),
         issue_codes=diagnosis.issue_codes,
     )
 
@@ -1333,8 +1270,7 @@ def build_g8_warning_lifecycle_ledger(
                 deadline=_text(raw.get("deadline")),
                 aging_policy=_text(raw.get("aging_policy")),
                 accepted_deficit_policy=(
-                    _text(raw.get("accepted_deficit_policy"))
-                    or "blocks_closeout_authority"
+                    _text(raw.get("accepted_deficit_policy")) or "blocks_closeout_authority"
                 ),
                 source_ref=_text(raw.get("source_ref")),
                 issue_codes=_dedupe(row_issues),
@@ -1367,8 +1303,7 @@ def build_g8_default_warning_lifecycle_ledger(
                     "may_pass_engineering_readiness_but_blocks_domain_ceiling_claim"
                 ),
                 "source_ref": (
-                    "repo://architecture/policy_design_case/"
-                    "layer3_g7_readiness_manifest.json"
+                    "repo://architecture/policy_design_case/layer3_g7_readiness_manifest.json"
                 ),
             }
         )
@@ -1597,9 +1532,7 @@ def build_g8_d44_reannotation_coverage_matrix(
         set(_D44_EXISTING_S14_FIELD_REFS) - set(D44_REQUIRED_REANNOTATION_FIELDS)
     )
     issues = (
-        ("layer3_g8_d44_reannotation_coverage_missing",)
-        if missing or stale_existing_refs
-        else ()
+        ("layer3_g8_d44_reannotation_coverage_missing",) if missing or stale_existing_refs else ()
     )
     return Layer3G8D44ReannotationCoverageMatrix(
         status="blocked" if issues else "pass",
@@ -1724,8 +1657,7 @@ def build_g8_d44_rebasing_receipt(
         post_rebase_freeze_hash=s14_hash or partition_hash,
         corpus_partition_ref="repo://architecture/policy_design_case/layer2_corpus_partition.json",
         s14_assurance_manifest_ref=(
-            "repo://architecture/policy_design_case/"
-            "layer2_s14_universality_assurance_manifest.json"
+            "repo://architecture/policy_design_case/layer2_s14_universality_assurance_manifest.json"
         ),
         candidate_set_ref=candidate_set.candidate_set_id,
         hidden_payload_access_status="not_accessed_by_g8",
@@ -1838,15 +1770,9 @@ def build_g8_open_question_answer_ledger(
         or g5_eligibility.get("conversion_outcome")
         or "unknown"
     )
-    g5_grounded_abstention_count = int(
-        g5_manifest.get("g5_grounded_abstention_count") or 0
-    )
-    g5_useful_design_credit_count = int(
-        g5_manifest.get("g5_useful_design_credit_count") or 0
-    )
-    g5_unchanged_blocker_count = int(
-        g5_manifest.get("g5_unchanged_blocker_count") or 0
-    )
+    g5_grounded_abstention_count = int(g5_manifest.get("g5_grounded_abstention_count") or 0)
+    g5_useful_design_credit_count = int(g5_manifest.get("g5_useful_design_credit_count") or 0)
+    g5_unchanged_blocker_count = int(g5_manifest.get("g5_unchanged_blocker_count") or 0)
     g5_currently_grounded_abstention = (
         g5_conversion_outcome == "typed_blocker -> grounded_abstention"
         or g5_grounded_abstention_count > 0
@@ -1927,8 +1853,7 @@ def build_g8_open_question_answer_ledger(
     )
     orchestration_evidence_refs = (
         "repo://architecture/policy_design_case/layer3_g6_conformance_report.json",
-        "repo://architecture/policy_design_case/"
-        "layer3_g6_orchestration_choice_audit.json",
+        "repo://architecture/policy_design_case/layer3_g6_orchestration_choice_audit.json",
         "repo://architecture/policy_design_case/layer3_g6_search_ledger.json",
     )
     rows = (
@@ -2072,9 +1997,7 @@ def _g8_answer_produced_by(
     input_hashes: dict[str, str] = {}
     for evidence_ref in evidence_refs:
         resolved = resolve_required_ref(root, evidence_ref)
-        input_hashes[evidence_ref] = resolved.content_hash or _digest_payload(
-            {"ref": evidence_ref}
-        )
+        input_hashes[evidence_ref] = resolved.content_hash or _digest_payload({"ref": evidence_ref})
     produced_by_without_hash = {
         "reducer_id": reducer_id,
         "reducer_version": "v1",
@@ -2255,12 +2178,8 @@ def build_layer3_g8_bundle(repo_root: str | Path = DEFAULT_REPO_ROOT) -> Layer3G
         sealed_battery_integrity_join=sealed_join,
         open_question_ledger=open_questions,
     )
-    closeout_gate = build_g8_closeout_signal_consumer_gate(
-        audit_surface=audit_surface
-    )
-    public_refs = build_g8_public_export_projection_refs(
-        audit_surface=audit_surface
-    )
+    closeout_gate = build_g8_closeout_signal_consumer_gate(audit_surface=audit_surface)
+    public_refs = build_g8_public_export_projection_refs(audit_surface=audit_surface)
     replay_manifest = build_g8_replay_manifest(audit_surface=audit_surface)
     conformance = build_g8_conformance_report(repo_root=repo_root)
     return Layer3G8Bundle(
@@ -2345,12 +2264,10 @@ def build_g8_metric_governance_audit_surface(
     return Layer3G8MetricGovernanceAuditSurface(
         status="blocked" if blocking else "pass",
         metric_registry_ref=(
-            "repo://architecture/policy_design_case/"
-            "layer3_g8_health_metric_registry.json"
+            "repo://architecture/policy_design_case/layer3_g8_health_metric_registry.json"
         ),
         normalized_metric_signals_ref=(
-            "repo://architecture/policy_design_case/"
-            "layer3_g8_normalized_metric_signals.json"
+            "repo://architecture/policy_design_case/layer3_g8_normalized_metric_signals.json"
         ),
         metric_trend_report_status=trend_report.status,
         domain_vs_search_ceiling_status=ceiling_gate.status,
@@ -2383,12 +2300,9 @@ def build_g8_closeout_signal_consumer_gate(
             "blocked_authority_leak" if issues else "readiness_visible_no_authority"
         ),
         consumed_signal_refs=(
-            "repo://architecture/policy_design_case/"
-            "layer3_g8_metric_governance_audit_surface.json",
-            "repo://architecture/policy_design_case/"
-            "layer3_g8_domain_vs_search_ceiling_gate.json",
-            "repo://architecture/policy_design_case/"
-            "layer3_g8_warning_lifecycle_ledger.json",
+            "repo://architecture/policy_design_case/layer3_g8_metric_governance_audit_surface.json",
+            "repo://architecture/policy_design_case/layer3_g8_domain_vs_search_ceiling_gate.json",
+            "repo://architecture/policy_design_case/layer3_g8_warning_lifecycle_ledger.json",
         ),
         issue_codes=_dedupe(issues),
     )
@@ -2437,8 +2351,7 @@ def build_g8_replay_manifest(
             "repo://architecture/policy_design_case/layer2_s14_universality_assurance_manifest.json",
         ],
         "audit_surface_ref": (
-            "repo://architecture/policy_design_case/"
-            "layer3_g8_metric_governance_audit_surface.json"
+            "repo://architecture/policy_design_case/layer3_g8_metric_governance_audit_surface.json"
         ),
         "issue_codes": [],
         "authoritative_for": list(G8_AUTHORITATIVE_FOR),
@@ -2471,18 +2384,10 @@ def build_g8_conformance_report(
         sorted(set(G8_CONFORMANCE_NEGATIVE_EXPECTED_ISSUE_CODES) - observed_ids)
     )
     failing = tuple(
-        str(result["negative_id"])
-        for result in negative_results
-        if result["status"] != "pass"
+        str(result["negative_id"]) for result in negative_results if result["status"] != "pass"
     )
     issue_codes = tuple(
-        sorted(
-            {
-                code
-                for result in negative_results
-                for code in result["missing_issue_codes"]
-            }
-        )
+        sorted({code for result in negative_results for code in result["missing_issue_codes"]})
     )
     return Layer3G8ConformanceReport(
         status="blocked" if missing_negative_ids or failing else "pass",
@@ -2567,17 +2472,13 @@ def _observed_g8_negative_issue_codes(negative_id: str) -> tuple[str, ...]:
                 seed_corpus_status="pass",
                 pinned_request_status="unmeasured",
                 current_blocker_status="pass",
-                production_readiness_status=(
-                    "blocked_domain_ceiling_preconditions_missing"
-                ),
+                production_readiness_status=("blocked_domain_ceiling_preconditions_missing"),
                 search_frontier_status="pass",
                 freshness_status="pass",
                 admission_status="unmeasured",
                 dereferenced_artifact_status="unmeasured",
                 evidence_refs=("repo://negative/blocker-search",),
-                issue_codes=(
-                    "layer3_g8_domain_ceiling_claim_without_admission_or_deref",
-                ),
+                issue_codes=("layer3_g8_domain_ceiling_claim_without_admission_or_deref",),
             ),
             effective_independence_status="sufficient",
             effective_independent_evidence_count=2,
@@ -2811,8 +2712,7 @@ def _g8_health_metric_governance_delta(
             "metric_governance_status": registry.status,
             "metric_trend_report_status": trend_report.status,
             "metric_trend_refs": [
-                "repo://architecture/policy_design_case/"
-                "layer3_g8_metric_trend_report.json"
+                "repo://architecture/policy_design_case/layer3_g8_metric_trend_report.json"
             ],
             "domain_vs_search_ceiling_status": ceiling_gate.status,
             "authority_boundary": "governed_signal_never_authority",
@@ -2826,20 +2726,15 @@ def _g8_route_contract_registry(
     return {
         "schema_version": G8_SCHEMA_VERSION,
         "rule_version": G8_RULE_VERSION,
-        "route_contract_registry_kind": (
-            "generated_metric_governance_route_contract_registry"
-        ),
+        "route_contract_registry_kind": ("generated_metric_governance_route_contract_registry"),
         "surface_id": audit_surface.surface_id,
         "producer": "src/polisyos/runtime/quality/proving_ground/health_metric_governance.py",
-        "validator": (
-            "tools/quality/validation/check_policy_design_case_layer3_g8_readiness.py"
-        ),
+        "validator": ("tools/quality/validation/check_policy_design_case_layer3_g8_readiness.py"),
         "metric_trend_report": (
             "architecture/policy_design_case/layer3_g8_metric_trend_report.json"
         ),
         "closeout_consumer_gate": (
-            "architecture/policy_design_case/"
-            "layer3_g8_closeout_signal_consumer_gate.json"
+            "architecture/policy_design_case/layer3_g8_closeout_signal_consumer_gate.json"
         ),
         "may_not_use_for": list(G8_MAY_NOT_USE_FOR),
     }
@@ -2899,21 +2794,13 @@ def _search_contract_audit_fields(
         for field_group in SEARCH_CONTRACT_AUDIT_REQUIRED_PATH_GROUPS
         if not any(contract.get(field) for field in field_group)
     )
-    issue_codes = (
-        ("layer3_g8_search_contract_common_fields_missing",)
-        if missing_fields
-        else ()
-    )
+    issue_codes = ("layer3_g8_search_contract_common_fields_missing",) if missing_fields else ()
     return {
         "search_contract_status": "missing" if missing_fields else "pass",
         "search_contract_ref": contract_ref,
         "search_contract_corpus_kind": _text(contract.get("corpus_kind")),
-        "search_contract_corpus_snapshot_hash": _text(
-            contract.get("corpus_snapshot_hash")
-        ),
-        "search_contract_replay_command_present": bool(
-            _text(contract.get("replay_command"))
-        ),
+        "search_contract_corpus_snapshot_hash": _text(contract.get("corpus_snapshot_hash")),
+        "search_contract_replay_command_present": bool(_text(contract.get("replay_command"))),
         "search_contract_replay_expected_output_hash": _text(
             contract.get("replay_expected_output_hash")
         ),
@@ -3086,11 +2973,15 @@ def _status_from_metric_value(raw_key: str, value: object) -> str:
         return "pass" if value else "fail"
     if isinstance(value, int | float):
         numeric = float(value)
-        if raw_key in {
-            "abstention_or_blocker_rate",
-            "out_of_envelope_abstention_rate",
-            "g5_grounded_abstention_rate",
-        } and numeric >= 0.8:
+        if (
+            raw_key
+            in {
+                "abstention_or_blocker_rate",
+                "out_of_envelope_abstention_rate",
+                "g5_grounded_abstention_rate",
+            }
+            and numeric >= 0.8
+        ):
             return "abstention_inertia"
         if raw_key == "grounded_result_rate" and numeric == 0.0:
             return "no_grounded_response"
@@ -3195,9 +3086,7 @@ def _build_g8_search_health_classification(
         freshness_status=preconditions["freshness"],
         admission_status=preconditions["admission"],
         dereferenced_artifact_status=preconditions["dereferenced_artifacts"],
-        evidence_refs=_dedupe(
-            _g8_artifact_ref(signal.raw_source_ref) for signal in search_signals
-        ),
+        evidence_refs=_dedupe(_g8_artifact_ref(signal.raw_source_ref) for signal in search_signals),
         issue_codes=_dedupe(issues),
     )
 
@@ -3212,8 +3101,7 @@ def _g8_scoped_search_signals(
     return tuple(
         signal
         for signal in signals
-        if signal.diagnostic_scope in scope_set
-        and (case_id is None or signal.case_id == case_id)
+        if signal.diagnostic_scope in scope_set and (case_id is None or signal.case_id == case_id)
     )
 
 

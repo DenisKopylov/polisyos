@@ -58,9 +58,7 @@ def test_phase6_6_gate_fails_public_stable_missing_required_bundle_file(
         tmp_path, slo_status="present", omit_bundle_file="dashboard.json"
     )
 
-    _, findings = gates._check_operability(
-        repo_root, current_date=dt.date(2026, 5, 8)
-    )
+    _, findings = gates._check_operability(repo_root, current_date=dt.date(2026, 5, 8))
 
     assert _finding(
         findings,
@@ -79,9 +77,7 @@ def test_phase6_6_gate_fails_expired_slo_exception(tmp_path: Path) -> None:
         exception_action_due="2026-05-31",
     )
 
-    _, findings = gates._check_operability(
-        repo_root, current_date=dt.date(2026, 5, 8)
-    )
+    _, findings = gates._check_operability(repo_root, current_date=dt.date(2026, 5, 8))
 
     assert _finding(
         findings,
@@ -102,9 +98,7 @@ def test_phase6_6_gate_requires_action_plan_for_short_slo_exception(
         exception_action_due="",
     )
 
-    _, findings = gates._check_operability(
-        repo_root, current_date=dt.date(2026, 5, 8)
-    )
+    _, findings = gates._check_operability(repo_root, current_date=dt.date(2026, 5, 8))
 
     assert _finding(
         findings,
@@ -146,9 +140,9 @@ def _assert_slo_exception_registry_is_actioned(items: list[dict[str, Any]]) -> N
             assert item.get(field), (item["component"], field)
         expires = _date(str(item["slo_exception_expires"]))
         action_due = _date(str(item["slo_exception_action_due"]))
-        assert expires >= MIN_EXCEPTION_EXPIRATION or action_due <= PLAN_COMPLETION_TARGET, (
-            item["component"]
-        )
+        assert expires >= MIN_EXCEPTION_EXPIRATION or action_due <= PLAN_COMPLETION_TARGET, item[
+            "component"
+        ]
 
 
 def _write_minimal_operability_repo(
@@ -287,9 +281,9 @@ retention_policy = "ops/components/core/retention-policy.toml"
         "README.md": "# Core\n",
         "alerts.yml": "alerts: []\n",
         "dashboard.json": "{}\n",
-        "retention-policy.toml": "[retention_policy]\nowner = \"team-core\"\n",
+        "retention-policy.toml": '[retention_policy]\nowner = "team-core"\n',
         "runbooks.md": "# Core runbooks\n",
-        "runtime-contract.toml": "[runtime_contract]\nowner = \"team-core\"\n",
+        "runtime-contract.toml": '[runtime_contract]\nowner = "team-core"\n',
         "slo.yaml": slo_text,
     }
     for filename, content in bundle_files.items():

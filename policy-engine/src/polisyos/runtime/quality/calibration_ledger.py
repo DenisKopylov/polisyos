@@ -29,9 +29,7 @@ from polisyos.runtime.quality.memory_influence import (
 )
 
 CALIBRATION_LEDGER_SCHEMA_VERSION = "policyos.runtime.calibration_ledger.v1"
-HISTORICAL_PRIOR_INFLUENCE_SCHEMA_VERSION = (
-    "policyos.runtime.historical_prior_influence.v1"
-)
+HISTORICAL_PRIOR_INFLUENCE_SCHEMA_VERSION = "policyos.runtime.historical_prior_influence.v1"
 CALIBRATION_LEDGER_KIND = "runtime.calibration_ledger"
 CALIBRATION_LEDGER_SCHEMA = "polisyos.runtime.CalibrationLedger"
 CALIBRATION_LEDGER_FILENAME = "calibration_ledger.json"
@@ -39,9 +37,7 @@ CALIBRATION_LEDGER_CONTRACT_ID = "policyos.runtime.calibration_ledger"
 
 CALIBRATION_LEDGER_PDC_REFS = ("E20", "C25", "C35", "C41")
 CALIBRATION_LEDGER_PATTERN_REFS = ("P07", "P09", "P10", "P15")
-CALIBRATION_MATURE_HISTORY_GATE_FEATURE_FLAG = (
-    "policy_design_case.calibration_mature_history_gates"
-)
+CALIBRATION_MATURE_HISTORY_GATE_FEATURE_FLAG = "policy_design_case.calibration_mature_history_gates"
 DEFAULT_CALIBRATION_BEHAVIOR_TTL_SECONDS = 7 * 24 * 60 * 60
 
 FUTURE_INFLUENCE_EFFECTS = (
@@ -65,6 +61,8 @@ HISTORICAL_PRIOR_FORBIDDEN_EFFECTS = (
     "minting_participation_authority",
     "hiding_current_run_deficits",
 )
+
+
 class CalibrationLedgerContractError(ValueError):
     """Raised when calibration ledger evidence violates its authority boundary."""
 
@@ -169,12 +167,15 @@ class DecisionMetricSnapshot(BaseModel):
     false_pass: bool = False
     false_block: bool = False
     error_opportunity: bool = True
-    blocker_outcome: Literal[
-        "true_positive",
-        "false_positive",
-        "false_negative",
-        "true_negative",
-    ] | None = None
+    blocker_outcome: (
+        Literal[
+            "true_positive",
+            "false_positive",
+            "false_negative",
+            "true_negative",
+        ]
+        | None
+    ) = None
     override_correct: bool | None = None
     escalation_necessary: bool | None = None
 
@@ -434,13 +435,9 @@ class HistoricalPriorInfluenceRecord(BaseModel):
     review_depth: Literal["none", "standard", "heightened", "mandatory"] = "none"
     uncertainty_multiplier: float = 1.0
     evidence_budget_multiplier: float = 1.0
-    provider_model_routing: Literal["unchanged", "prefer_alternative", "review_only"] = (
-        "unchanged"
-    )
+    provider_model_routing: Literal["unchanged", "prefer_alternative", "review_only"] = "unchanged"
     permitted_effects: tuple[str, ...] = Field(default=())
-    forbidden_effects: tuple[str, ...] = Field(
-        default=HISTORICAL_PRIOR_FORBIDDEN_EFFECTS
-    )
+    forbidden_effects: tuple[str, ...] = Field(default=HISTORICAL_PRIOR_FORBIDDEN_EFFECTS)
     current_run_evidence_effect: Literal["none"] = "none"
     current_run_evidence_refs: tuple[str, ...] = Field(default=())
     claim_evidence_admissible: bool = False
@@ -684,9 +681,7 @@ def calibration_behavior_scorecard_gates(
         return [_calibration_boundary_failure_gate(error, policy=policy, generated_at=now)]
     gates: list[dict[str, Any]] = []
     for record in records:
-        gates.append(
-            _calibration_behavior_gate(record, policy=policy, generated_at=now)
-        )
+        gates.append(_calibration_behavior_gate(record, policy=policy, generated_at=now))
         provider_gate = _calibration_provider_gate(
             record,
             policy=policy,
@@ -802,9 +797,8 @@ def historical_prior_claim_evidence_issues(
 def _behavior_policy_from_quality_evidence(
     quality_evidence: Mapping[str, Any],
 ) -> CalibrationBehaviorPolicy:
-    raw = (
-        quality_evidence.get("calibration_behavior_policy")
-        or quality_evidence.get("calibration_consumer_policy")
+    raw = quality_evidence.get("calibration_behavior_policy") or quality_evidence.get(
+        "calibration_consumer_policy"
     )
     if isinstance(raw, CalibrationBehaviorPolicy):
         return raw
@@ -1101,8 +1095,7 @@ def _calibration_deficit_record(
         "owner": policy.owner,
         "ttl_expires_at": (generated_at + timedelta(seconds=policy.ttl_seconds)).isoformat(),
         "runtime_event_ref": (
-            f"event://runtime/calibration-behavior/"
-            f"{_slug(deficit_id.removeprefix('calibration:'))}"
+            f"event://runtime/calibration-behavior/{_slug(deficit_id.removeprefix('calibration:'))}"
         ),
         "evidence_ref": _calibration_record_evidence_ref(record),
         "public_limitation_note": (
@@ -1174,9 +1167,7 @@ def _bucket_summaries(
         bucket_entries = buckets[key]
         active_entries = [entry for entry in bucket_entries if entry.status == "active"]
         resolved_count = len(active_entries)
-        error_count = sum(
-            1 for entry in active_entries if entry.decision_metrics.error_opportunity
-        )
+        error_count = sum(1 for entry in active_entries if entry.decision_metrics.error_opportunity)
         false_pass_count = sum(
             1
             for entry in active_entries
@@ -1533,14 +1524,14 @@ def _adverse_metric_codes(
 
 def _has_cap_or_block_code(reason_codes: Sequence[str]) -> bool:
     return any(
-        "block_threshold" in code
-        or "cap_threshold" in code
-        or code == "retraction_series_observed"
+        "block_threshold" in code or "cap_threshold" in code or code == "retraction_series_observed"
         for code in reason_codes
     )
 
 
-def _ledger_status(records: Sequence[HistoricalPriorInfluenceRecord]) -> Literal[
+def _ledger_status(
+    records: Sequence[HistoricalPriorInfluenceRecord],
+) -> Literal[
     "pass",
     "warn",
     "blocked",

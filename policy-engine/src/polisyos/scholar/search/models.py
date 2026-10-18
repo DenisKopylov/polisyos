@@ -242,9 +242,7 @@ _ProviderTraceErrorType = Literal[
     "provider_contract_error",
     "provider_exception",
 ]
-_PERSISTED_PROVIDER_ERROR_CATEGORIES = frozenset(
-    {"provider_error", "legacy_error_not_established"}
-)
+_PERSISTED_PROVIDER_ERROR_CATEGORIES = frozenset({"provider_error", "legacy_error_not_established"})
 _LEGACY_PROVIDER_ERROR_CATEGORY = "legacy_error_not_established"
 
 
@@ -292,8 +290,7 @@ class ProviderAttemptTrace(BaseModel):
             if normalization_total > self.raw_result_count:
                 raise ValueError("normalization rejection counts exceed raw results")
             if self.pre_filter_candidate_count is not None and (
-                self.raw_result_count
-                != self.pre_filter_candidate_count + normalization_total
+                self.raw_result_count != self.pre_filter_candidate_count + normalization_total
             ):
                 raise ValueError("raw results must reconcile with normalized candidates")
 

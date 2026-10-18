@@ -159,8 +159,7 @@ def _implementation_row() -> dict[str, Any]:
             "claim_type": "recommendation",
             "claim_text_ref": "policy_grounding_matrix.json#/claims/0",
             "claim_authority_ledger_ref": (
-                "_build/policy-design-case/rebaseline/wave-35C/"
-                "claim_authority_binding_ledger.json"
+                "_build/policy-design-case/rebaseline/wave-35C/claim_authority_binding_ledger.json"
             ),
             "generic_final_text_sufficient": False,
         },

@@ -43,9 +43,7 @@ _REQUIRED_REQUIREMENT_FAMILIES: frozenset[str] = frozenset(
     {"data", "legal", "method", "participation", "scholar"}
 )
 _REQUIRED_BINDING_STATUSES: frozenset[str] = frozenset({"selected", "rejected", "blocked"})
-_REQUIRED_AUTHORITY_LEVELS: frozenset[str] = frozenset(
-    {"research", "governed", "production"}
-)
+_REQUIRED_AUTHORITY_LEVELS: frozenset[str] = frozenset({"research", "governed", "production"})
 
 
 class UniversalCorpusFixtureError(ValueError):
@@ -272,17 +270,14 @@ class ExpectedRequirementSpecs(_StrictCorpusModel):
             missing = sorted(_REQUIRED_REQUIREMENT_FAMILIES - found)
             extra = sorted(found - _REQUIRED_REQUIREMENT_FAMILIES)
             raise ValueError(
-                "expected_requirement_specs_family_mismatch: "
-                f"missing={missing} extra={extra}"
+                f"expected_requirement_specs_family_mismatch: missing={missing} extra={extra}"
             )
         for family, specs in self.families.items():
             if not specs:
                 raise ValueError(f"expected_requirement_specs_empty_family:{family}")
             for spec in specs:
                 if not _optional_text(spec.get("requirement_id")):
-                    raise ValueError(
-                        f"expected_requirement_spec_missing_requirement_id:{family}"
-                    )
+                    raise ValueError(f"expected_requirement_spec_missing_requirement_id:{family}")
         return self
 
 
@@ -403,9 +398,7 @@ class UniversalCorpusFixture(_StrictCorpusModel):
         ):
             raise ValueError("claim_evidence_annotation_case_id_mismatch")
         claim_ids = {claim.claim_id for claim in self.claim_evidence_annotations.claims}
-        expected_claim_ids = {
-            family.claim_id for family in self.expected_claim_families.families
-        }
+        expected_claim_ids = {family.claim_id for family in self.expected_claim_families.families}
         if not expected_claim_ids <= claim_ids:
             raise ValueError("expected_claim_families_reference_unknown_claim")
         return self
@@ -482,9 +475,7 @@ class RotationPolicy(_StrictCorpusModel):
             raise ValueError("rotation_previous_round_missing")
         overlap = ()
         if previous is not None:
-            overlap = tuple(
-                sorted(set(previous.rotating_case_ids) & set(active.rotating_case_ids))
-            )
+            overlap = tuple(sorted(set(previous.rotating_case_ids) & set(active.rotating_case_ids)))
         object.__setattr__(self, "consecutive_reuse_case_ids", overlap)
         return self
 
@@ -499,9 +490,7 @@ class RotationPolicy(_StrictCorpusModel):
             if acknowledgement.round_id == self.active_round_id
         }
         return tuple(
-            case_id
-            for case_id in self.consecutive_reuse_case_ids
-            if case_id not in acknowledged
+            case_id for case_id in self.consecutive_reuse_case_ids if case_id not in acknowledged
         )
 
     def active_rotating_case_ids(self) -> tuple[str, ...]:
@@ -673,9 +662,7 @@ def _load_entry_fixture(
             f"fixture_domain_mismatch:{entry.case_id}:{entry.domain}:{fixture.domain}"
         )
     if set(fixture.intent.authority_levels) != set(entry.authority_levels):
-        raise UniversalCorpusFixtureError(
-            f"fixture_authority_levels_mismatch:{entry.case_id}"
-        )
+        raise UniversalCorpusFixtureError(f"fixture_authority_levels_mismatch:{entry.case_id}")
     return fixture
 
 

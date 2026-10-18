@@ -14,9 +14,10 @@ from polisyos.ir.analytics.literature import DesignFamily, EvidenceStrength
 def test_design_family_normalization_preserves_canonical_identity(design: DesignFamily) -> None:
     """A substring alias must never replace an exact canonical design identity."""
     assert article_extractor._normalize_design_family(design.value) == design.value
-    assert article_extractor._normalize_design_family(
-        design.value.upper().replace("_", " ")
-    ) == design.value
+    assert (
+        article_extractor._normalize_design_family(design.value.upper().replace("_", " "))
+        == design.value
+    )
 
 
 @pytest.mark.parametrize("supplied", [None, "", "not-a-design"])
@@ -34,9 +35,10 @@ def test_weighted_evidence_vocabulary_matches_canonical_enum() -> None:
 def test_evidence_strength_normalization_is_idempotent(strength: str) -> None:
     """Preserve every weighted canonical class, including repeated normalization."""
     assert article_extractor._normalize_evidence_strength(strength) == strength
-    assert article_extractor._normalize_evidence_strength(
-        strength.upper().replace("_", " ")
-    ) == strength
+    assert (
+        article_extractor._normalize_evidence_strength(strength.upper().replace("_", " "))
+        == strength
+    )
 
 
 @pytest.mark.parametrize(
@@ -89,6 +91,6 @@ def test_batch_claim_normalization_preserves_candidate_evidence(strength: str) -
     restored = type(transport).model_validate_json(transport.model_dump_json())
     assert restored.vocabulary.evidence_strength.value == strength
     assert restored.vocabulary.evidence_strength_status.value == "candidate"
-    assert EVIDENCE_WEIGHTS[restored.vocabulary.evidence_strength.value] == EVIDENCE_WEIGHTS[
-        strength
-    ]
+    assert (
+        EVIDENCE_WEIGHTS[restored.vocabulary.evidence_strength.value] == EVIDENCE_WEIGHTS[strength]
+    )

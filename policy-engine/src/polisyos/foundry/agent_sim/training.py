@@ -250,9 +250,7 @@ def train_actor_critic_jit(
         create_jit_trainer,
     )
 
-    track_active_wealth = _require_exact_bool_selector(
-        track_active_wealth, "track_active_wealth"
-    )
+    track_active_wealth = _require_exact_bool_selector(track_active_wealth, "track_active_wealth")
     track_active_wealth = track_active_wealth or config.gini_population_profile is not None
     jit_config = JITTrainingConfig(
         **config.common_kwargs(),
@@ -315,9 +313,7 @@ def train_actor_critic_with_artifact(
     """
     from polisyos.foundry.agent_sim.jit_training import _require_exact_bool_selector
 
-    track_active_wealth = _require_exact_bool_selector(
-        track_active_wealth, "track_active_wealth"
-    )
+    track_active_wealth = _require_exact_bool_selector(track_active_wealth, "track_active_wealth")
     log = get_logger(__name__)
 
     fingerprint = EnvironmentFingerprint.capture(tier, seed)

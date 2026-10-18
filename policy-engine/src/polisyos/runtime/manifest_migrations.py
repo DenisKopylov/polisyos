@@ -87,9 +87,7 @@ def _canonical_reference(
         candidates.append(("artifact relative_path", root / relative))
 
     if not candidates:
-        raise RunManifestPathMigrationError(
-            f"run_manifest artifact {index} has no path identity"
-        )
+        raise RunManifestPathMigrationError(f"run_manifest artifact {index} has no path identity")
 
     resolved_candidates = [
         _resolve_source(candidate, root, label=f"artifact {index} {label}")

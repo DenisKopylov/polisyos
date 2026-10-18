@@ -71,27 +71,13 @@ HEALTH_SNAPSHOT_SCHEMA = {
 }
 HEALTH_REPORT_INPUT_ROLE = "measurement_report"
 HEALTH_PRODUCER_SCRIPT = "apps/runtime-dashboard/scripts/measure_atlas_health.mjs"
-HEALTH_SOURCE_VALIDATOR = (
-    "apps/runtime-dashboard/scripts/validate_atlas_health_sources.py"
-)
-DS18_TIME_SEMANTICS_REGISTER = (
-    "architecture/atlas_surfaces/frontend-disposition-register.json"
-)
-DS18_TIME_SEMANTICS_SCHEMA = (
-    "architecture/atlas_surfaces/frontend-disposition-register.schema.json"
-)
-DS18_TIME_SEMANTICS_CHECKER = (
-    "architecture/atlas_surfaces/check_frontend_disposition_register.py"
-)
-DS18_TIME_SEMANTICS_SCANNER = (
-    "architecture/atlas_surfaces/decision_time_semantics_scan.mjs"
-)
-DS18_EXECUTION_OUTCOME_RUNNER = (
-    "apps/runtime-dashboard/scripts/run-ds18-time-semantics-outcome.mjs"
-)
-DS18_EXECUTION_OUTCOME_CONTRACT = (
-    "apps/runtime-dashboard/src/test/evidence/ds18ExecutionOutcome.ts"
-)
+HEALTH_SOURCE_VALIDATOR = "apps/runtime-dashboard/scripts/validate_atlas_health_sources.py"
+DS18_TIME_SEMANTICS_REGISTER = "architecture/atlas_surfaces/frontend-disposition-register.json"
+DS18_TIME_SEMANTICS_SCHEMA = "architecture/atlas_surfaces/frontend-disposition-register.schema.json"
+DS18_TIME_SEMANTICS_CHECKER = "architecture/atlas_surfaces/check_frontend_disposition_register.py"
+DS18_TIME_SEMANTICS_SCANNER = "architecture/atlas_surfaces/decision_time_semantics_scan.mjs"
+DS18_EXECUTION_OUTCOME_RUNNER = "apps/runtime-dashboard/scripts/run-ds18-time-semantics-outcome.mjs"
+DS18_EXECUTION_OUTCOME_CONTRACT = "apps/runtime-dashboard/src/test/evidence/ds18ExecutionOutcome.ts"
 DS18_EXECUTION_OUTCOME_SCHEMA = (
     "apps/runtime-dashboard/src/test/evidence/ds18-execution-outcome.schema.json"
 )
@@ -124,31 +110,19 @@ READINESS_PROJECTION_SCHEMA = {
     "version": "2.0.0",
 }
 READINESS_REPORT_INPUT_ROLE = "claim_report"
-READINESS_PRODUCER_SCRIPT = (
-    "apps/runtime-dashboard/scripts/reconcile_atlas_surface_readiness.mjs"
-)
+READINESS_PRODUCER_SCRIPT = "apps/runtime-dashboard/scripts/reconcile_atlas_surface_readiness.mjs"
 READINESS_RECONCILER_SOURCE = (
-    "apps/runtime-dashboard/src/test/evidence/"
-    "atlasSurfaceReadinessReconciliation.ts"
+    "apps/runtime-dashboard/src/test/evidence/atlasSurfaceReadinessReconciliation.ts"
 )
 READINESS_TEST_PATH = (
-    "apps/runtime-dashboard/src/test/evidence/"
-    "atlasSurfaceReadinessReconciliation.test.ts"
+    "apps/runtime-dashboard/src/test/evidence/atlasSurfaceReadinessReconciliation.test.ts"
 )
-READINESS_LEDGER_PATH = (
-    "architecture/atlas_surfaces/live-application-readiness-ledger.json"
-)
-READINESS_SCHEMA_PATH = (
-    "architecture/atlas_surfaces/surface-readiness-ledger.schema.json"
-)
+READINESS_LEDGER_PATH = "architecture/atlas_surfaces/live-application-readiness-ledger.json"
+READINESS_SCHEMA_PATH = "architecture/atlas_surfaces/surface-readiness-ledger.schema.json"
 READINESS_ROUTE_SOURCE = "apps/runtime-dashboard/src/app/routes/routes.tsx"
 READINESS_ROUTE_TEST = "apps/runtime-dashboard/src/app/routes/routes.test.tsx"
-READINESS_RECONCILER_COMPONENT = (
-    "polisyos.atlas.surface_readiness_reconciler@2.0.0"
-)
-READINESS_ADMISSION_COMPONENT = (
-    "polisyos.atlas.surface_readiness_admission@2.0.0"
-)
+READINESS_RECONCILER_COMPONENT = "polisyos.atlas.surface_readiness_reconciler@2.0.0"
+READINESS_ADMISSION_COMPONENT = "polisyos.atlas.surface_readiness_admission@2.0.0"
 READINESS_OBSERVED_ATTESTATION_SCOPE = (
     "observed_by_reconciler attests intake closure: this process produced the row through "
     "a closed path by running each available applicable canonical check itself and recording "
@@ -249,14 +223,9 @@ def _validate_request(request: dict[str, Any]) -> None:
     operation = request.get("operation")
     if operation in {HEALTH_OPERATION, READINESS_OPERATION}:
         if set(request) != {"operation"}:
-            label = (
-                "health-metric"
-                if operation == HEALTH_OPERATION
-                else "surface-readiness"
-            )
+            label = "health-metric" if operation == HEALTH_OPERATION else "surface-readiness"
             raise AtlasEvidencePersistenceError(
-                f"{label} request keys must be exactly ['operation']; "
-                f"got {sorted(request)}"
+                f"{label} request keys must be exactly ['operation']; got {sorted(request)}"
             )
         return
 
@@ -781,9 +750,7 @@ def _health_source_projection() -> tuple[dict[str, Any], dict[str, Any]]:
         ),
     }
     if projection.get("producer") != expected_producer:
-        raise AtlasEvidencePersistenceError(
-            "fixed health source validator provenance mismatch"
-        )
+        raise AtlasEvidencePersistenceError("fixed health source validator provenance mismatch")
     observation = {
         "executable": str(python_executable),
         "allowed_locator": str(python_locator),
@@ -927,8 +894,7 @@ def _expected_health_rows(
     stable_count = adoption["stable_component_count"]
     stable_covered = adoption["stable_with_browser_and_at_count"]
     closure_count = (
-        cluster["surface_missing_count"]
-        + cluster["implemented_but_not_orchestrated_count"]
+        cluster["surface_missing_count"] + cluster["implemented_but_not_orchestrated_count"]
     )
     coverage_measurement = (
         {
@@ -1098,8 +1064,7 @@ def _expected_health_rows(
             "metric_id": "surface_missing_closure",
             "instrumentation_status": "instrumented",
             "definition": (
-                "Open surface_missing or implemented_but_not_orchestrated links in "
-                "the cluster map."
+                "Open surface_missing or implemented_but_not_orchestrated links in the cluster map."
             ),
             "honest_direction": "Falling.",
             "scope": {
@@ -1134,8 +1099,7 @@ def _expected_health_rows(
             "scope": {
                 "scope_id": "ds2-adoption-ledger-stable-components",
                 "description": (
-                    f"All {adoption['entry_count']} DS2 adoption rows at "
-                    f"{adoption['as_of']}."
+                    f"All {adoption['entry_count']} DS2 adoption rows at {adoption['as_of']}."
                 ),
             },
             "basis": _health_basis(
@@ -1423,9 +1387,7 @@ def _require_lower_sha256(value: object, *, field: str) -> str:
 def _readiness_source_ref(path: str, role: str) -> dict[str, str]:
     return {
         "path": path,
-        "sha256": hashlib.sha256(
-            (_policy_engine_root() / path).read_bytes()
-        ).hexdigest(),
+        "sha256": hashlib.sha256((_policy_engine_root() / path).read_bytes()).hexdigest(),
         "role": role,
     }
 
@@ -1490,9 +1452,8 @@ def _expected_readiness_claims(
         )
     entries = ledger["entries"]
     readiness_projection = source_projection.get("readiness")
-    if (
-        not isinstance(readiness_projection, dict)
-        or readiness_projection.get("entry_count") != len(entries)
+    if not isinstance(readiness_projection, dict) or readiness_projection.get("entry_count") != len(
+        entries
     ):
         raise AtlasEvidencePersistenceError(
             "validated readiness population changed before admission"
@@ -1636,9 +1597,7 @@ def _require_observed_readiness_basis(
             "closed readiness producer may emit only observed_by_reconciler rows"
         )
     if basis["attestation_scope"] != READINESS_OBSERVED_ATTESTATION_SCOPE:
-        raise AtlasEvidencePersistenceError(
-            "observed readiness basis attestation scope mismatch"
-        )
+        raise AtlasEvidencePersistenceError("observed readiness basis attestation scope mismatch")
 
     observation = basis["observation"]
     if not isinstance(observation, dict):
@@ -1660,9 +1619,7 @@ def _require_observed_readiness_basis(
             "negative or unavailable observation must carry a reason"
         )
     expected_provenance = (
-        "not_established"
-        if observation_status == "observation_unavailable"
-        else "recomputed"
+        "not_established" if observation_status == "observation_unavailable" else "recomputed"
     )
     if claim.get("predicate_provenance") != expected_provenance:
         raise AtlasEvidencePersistenceError(
@@ -1716,14 +1673,10 @@ def _require_observed_readiness_basis(
         "version": node_version,
     }
     if canonical_check["executable"] != expected_executable:
-        raise AtlasEvidencePersistenceError(
-            "canonical check executable provenance mismatch"
-        )
+        raise AtlasEvidencePersistenceError("canonical check executable provenance mismatch")
     runner = canonical_check["runner"]
     if runner is not None and runner != _expected_vitest_runner():
-        raise AtlasEvidencePersistenceError(
-            "canonical check Vitest runner provenance mismatch"
-        )
+        raise AtlasEvidencePersistenceError("canonical check Vitest runner provenance mismatch")
     report_sha256 = canonical_check["report_sha256"]
     if report_sha256 is not None:
         _require_lower_sha256(report_sha256, field="canonical check report_sha256")
@@ -1986,9 +1939,7 @@ def _require_readiness_report(
     node_version: str,
 ) -> dict[str, Any]:
     if not isinstance(value, dict):
-        raise AtlasEvidencePersistenceError(
-            "fixed readiness reconciler must emit one JSON object"
-        )
+        raise AtlasEvidencePersistenceError("fixed readiness reconciler must emit one JSON object")
     _require_keys(value, {"report_schema", "producer", "claims"}, field="claim report")
     if value["report_schema"] != READINESS_REPORT_SCHEMA:
         raise AtlasEvidencePersistenceError("claim report schema mismatch")
@@ -2017,9 +1968,7 @@ def _require_readiness_report(
             "claim report does not enumerate the complete gated owner set"
         )
     seen: set[str] = set()
-    for index, (claim, expected_claim) in enumerate(
-        zip(claims, expected_claims, strict=True)
-    ):
+    for index, (claim, expected_claim) in enumerate(zip(claims, expected_claims, strict=True)):
         if not isinstance(claim, dict):
             raise AtlasEvidencePersistenceError(f"readiness claim {index} is not an object")
         _require_keys(
@@ -2055,8 +2004,7 @@ def _require_readiness_report(
     return value
 
 
-def _run_readiness_reconciler(
-) -> tuple[
+def _run_readiness_reconciler() -> tuple[
     bytes,
     dict[str, Any],
     dict[str, Any],
@@ -2158,9 +2106,7 @@ def _revision_byte_status(revision: str, paths: set[str]) -> dict[str, Any]:
         if result.returncode != 0 or result.stdout != current_path.read_bytes():
             non_revision_paths.append(relative_path)
     return {
-        "status": (
-            "revision_resolvable" if not non_revision_paths else "source_hash_bound_only"
-        ),
+        "status": ("revision_resolvable" if not non_revision_paths else "source_hash_bound_only"),
         "checked_path_count": len(paths),
         "non_revision_paths": non_revision_paths,
     }
@@ -2386,9 +2332,7 @@ def persist_atlas_surface_readiness_claims() -> dict[str, Any]:
         source_projection,
         source_validator_observation,
     ) = _run_readiness_reconciler()
-    implementation_provenance = _capture_paths_provenance(
-        READINESS_IMPLEMENTATION_PATHS
-    )
+    implementation_provenance = _capture_paths_provenance(READINESS_IMPLEMENTATION_PATHS)
     _ensure_worktree_import_root()
 
     from polisyos.core.artifacts import InputRef, PutOptions, SchemaInfo
@@ -2510,9 +2454,7 @@ def persist_atlas_surface_readiness_claims() -> dict[str, Any]:
         projection_verification,
         label="surface-readiness claim projection",
     )
-    expected_lineage = [
-        (str(report_ref.artifact_id), READINESS_REPORT_INPUT_ROLE)
-    ]
+    expected_lineage = [(str(report_ref.artifact_id), READINESS_REPORT_INPUT_ROLE)]
     projection_manifest = store.get_manifest(projection_ref.artifact_id)
     _assert_manifest(
         projection_manifest,

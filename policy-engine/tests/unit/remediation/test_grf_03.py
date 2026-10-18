@@ -110,7 +110,6 @@ def test_static_dag_projection_remains_identity() -> None:
     assert "lag=" not in projected.to_dot()
 
 
-
 def test_projection_refuses_subclass_serialization_mismatch() -> None:
     class LyingGraph(CausalGraphModel):
         def model_dump(self, *args, **kwargs):
@@ -140,9 +139,7 @@ def test_projection_refuses_subclass_serialization_mismatch() -> None:
             )
         ],
     )
-    with pytest.raises(
-        UnsupportedGraphProjectionError, match="causal_graph_profile_invalid"
-    ):
+    with pytest.raises(UnsupportedGraphProjectionError, match="causal_graph_profile_invalid"):
         pag_to_dag_projection(graph)
 
 
@@ -209,9 +206,9 @@ def test_graph_projection_admission_covers_full_profile_endpoint_product() -> No
                 projected, latent_vars = pag_to_dag_projection(graph)
                 assert projected.graph_type is GraphType.DAG
                 assert projected.nodes[:2] == ["X", "Y"]
-                is_admg_bidirected = (
-                    graph_type is GraphType.ADMG
-                    and marks == (EdgeMark.ARROW, EdgeMark.ARROW)
+                is_admg_bidirected = graph_type is GraphType.ADMG and marks == (
+                    EdgeMark.ARROW,
+                    EdgeMark.ARROW,
                 )
                 assert bool(latent_vars) is is_admg_bidirected
             else:

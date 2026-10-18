@@ -2,4 +2,4 @@ from tests._helpers.mirror_contracts import assert_source_stem_has_static_contra
 
 
 def test_agents_source_modules_have_static_contracts() -> None:
-    assert_source_stem_has_static_contract('foundry', 'agents')
+    assert_source_stem_has_static_contract("foundry", "agents")

@@ -120,26 +120,21 @@ def _build_method_catalog_snapshot_from_admitted_registry(
             method_signature=sig,
         )
         runtime_stack = runtime_stack_for(method_cls)
-        runtime_posture = _capture_entry_runtime_posture(
-            sig.execution_backend, method_cls
-        )
+        runtime_posture = _capture_entry_runtime_posture(sig.execution_backend, method_cls)
         tags: list[str] = []
         deprecations: list[str] = []
         incompatibilities: list[str] = []
         if entry is not None:
             tags = sorted(str(tag) for tag in entry.metadata.tags)
             deprecations = sorted(tag for tag in tags if tag.startswith("deprecated"))
-            incompatibilities = sorted(
-                str(item) for item in entry.signature.conflicts_with
-            )
+            incompatibilities = sorted(str(item) for item in entry.signature.conflicts_with)
             dependency_posture = _dependency_posture(
                 entry.metadata.required_deps,
                 entry.metadata.optional_deps,
                 runtime_stack,
             )
             backend_available = (
-                sig.execution_backend.value in available_backends
-                and runtime_posture.available
+                sig.execution_backend.value in available_backends and runtime_posture.available
             )
             disabled_reasons = list(
                 _disabled_reasons_for(sig.execution_backend.value, backend_available)
@@ -148,16 +143,13 @@ def _build_method_catalog_snapshot_from_admitted_registry(
         else:
             dependency_posture = _dependency_posture((), (), runtime_stack)
             backend_available = (
-                sig.execution_backend.value in available_backends
-                and runtime_posture.available
+                sig.execution_backend.value in available_backends and runtime_posture.available
             )
             disabled_reasons = list(
                 _disabled_reasons_for(sig.execution_backend.value, backend_available)
             )
         if not runtime_posture.available:
-            disabled_reasons.append(
-                f"runtime_posture_unavailable:{sig.execution_backend.value}"
-            )
+            disabled_reasons.append(f"runtime_posture_unavailable:{sig.execution_backend.value}")
         requirements = _causal_requirements_for_method(sig.fqn)
         if contract is None or not requirements:
             causal_available = True if requirements else None
@@ -172,9 +164,7 @@ def _build_method_catalog_snapshot_from_admitted_registry(
             causal_disabled_reasons = [reason for reason in disabled if reason]
         if causal_available is False:
             disabled_reasons.extend(causal_disabled_reasons)
-        disabled_reasons = sorted(
-            dict.fromkeys(reason for reason in disabled_reasons if reason)
-        )
+        disabled_reasons = sorted(dict.fromkeys(reason for reason in disabled_reasons if reason))
         runnable = (
             backend_available
             and not dependency_posture["missing_required"]
@@ -183,9 +173,7 @@ def _build_method_catalog_snapshot_from_admitted_registry(
         shape_semantics = _shape_semantics(sig)
         effect_semantics = _effect_semantics(sig, entry)
         dependency_semantics = _dependency_semantics(sig, entry)
-        implementation_depth_tier, implementation_depth_notes = _truthfulness_profile(
-            sig, entry
-        )
+        implementation_depth_tier, implementation_depth_notes = _truthfulness_profile(sig, entry)
         declared_truthfulness_tier = _declared_truthfulness_tier(entry)
         declared_truthfulness_scope = _declared_truthfulness_scope(entry)
         runtime_truthfulness_tier = None
@@ -221,19 +209,11 @@ def _build_method_catalog_snapshot_from_admitted_registry(
             "tolerance_budget": runtime_posture.tolerance_budget,
             "observed_tolerance_budget": runtime_posture.observed_tolerance_budget,
             "runtime_posture": runtime_posture.as_dict(),
-            "required_deps": list(entry.metadata.required_deps)
-            if entry is not None
-            else [],
-            "optional_deps": list(entry.metadata.optional_deps)
-            if entry is not None
-            else [],
-            "fallback_policy": entry.metadata.fallback_policy
-            if entry is not None
-            else "none",
+            "required_deps": list(entry.metadata.required_deps) if entry is not None else [],
+            "optional_deps": list(entry.metadata.optional_deps) if entry is not None else [],
+            "fallback_policy": entry.metadata.fallback_policy if entry is not None else "none",
             "side_effect_profile": (
-                entry.metadata.side_effect_profile.value
-                if entry is not None
-                else "none"
+                entry.metadata.side_effect_profile.value if entry is not None else "none"
             ),
             "truthfulness_tier": effective_truthfulness_tier.value,
             "implementation_depth_tier": implementation_depth_tier,
@@ -248,13 +228,9 @@ def _build_method_catalog_snapshot_from_admitted_registry(
             "shape_semantics": shape_semantics,
             "dependency_semantics": dependency_semantics,
             "simulator_regime_schema": (
-                dict(entry.metadata.simulator_regime_schema)
-                if entry is not None
-                else {}
+                dict(entry.metadata.simulator_regime_schema) if entry is not None else {}
             ),
-            "summary_schema_ref": entry.metadata.summary_schema_ref
-            if entry is not None
-            else None,
+            "summary_schema_ref": entry.metadata.summary_schema_ref if entry is not None else None,
             "identifiable_target": (
                 dict(entry.metadata.identifiable_target) if entry is not None else {}
             ),
@@ -286,19 +262,11 @@ def _build_method_catalog_snapshot_from_admitted_registry(
                 data_modalities=sorted(sig.data_modalities),
                 runtime_stack=list(runtime_stack),
                 determinism_tier=determinism_tier,
-                required_deps=list(entry.metadata.required_deps)
-                if entry is not None
-                else [],
-                optional_deps=list(entry.metadata.optional_deps)
-                if entry is not None
-                else [],
-                fallback_policy=entry.metadata.fallback_policy
-                if entry is not None
-                else "none",
+                required_deps=list(entry.metadata.required_deps) if entry is not None else [],
+                optional_deps=list(entry.metadata.optional_deps) if entry is not None else [],
+                fallback_policy=entry.metadata.fallback_policy if entry is not None else "none",
                 side_effect_profile=(
-                    entry.metadata.side_effect_profile.value
-                    if entry is not None
-                    else "none"
+                    entry.metadata.side_effect_profile.value if entry is not None else "none"
                 ),
                 runnable=runnable,
                 disabled_reasons=disabled_reasons,
@@ -377,9 +345,7 @@ def _build_method_catalog_snapshot_from_admitted_registry(
                 shape_semantics=shape_semantics,
                 dependency_semantics=dependency_semantics,
                 # Rich semantic metadata — sourced from MethodMetadata
-                description=str(entry.metadata.description)
-                if entry is not None
-                else "",
+                description=str(entry.metadata.description) if entry is not None else "",
                 citations=list(entry.metadata.citations) if entry is not None else [],
                 assumptions=sorted(str(k) for k in entry.metadata.assumptions.keys())
                 if entry is not None
@@ -399,30 +365,22 @@ def _build_method_catalog_snapshot_from_admitted_registry(
                 typical_min_obs=getattr(entry.metadata, "typical_min_obs", None)
                 if entry is not None
                 else None,
-                output_interpretation=str(
-                    getattr(entry.metadata, "output_interpretation", "")
-                )
+                output_interpretation=str(getattr(entry.metadata, "output_interpretation", ""))
                 if entry is not None
                 else "",
-                simulator_regime_schema=dict(
-                    getattr(entry.metadata, "simulator_regime_schema", {})
-                )
+                simulator_regime_schema=dict(getattr(entry.metadata, "simulator_regime_schema", {}))
                 if entry is not None
                 else {},
                 summary_schema_ref=getattr(entry.metadata, "summary_schema_ref", None)
                 if entry is not None
                 else None,
-                identifiable_target=dict(
-                    getattr(entry.metadata, "identifiable_target", {})
-                )
+                identifiable_target=dict(getattr(entry.metadata, "identifiable_target", {}))
                 if entry is not None
                 else {},
                 coverage_contract=dict(getattr(entry.metadata, "coverage_contract", {}))
                 if entry is not None
                 else {},
-                diagnostic_contract=dict(
-                    getattr(entry.metadata, "diagnostic_contract", {})
-                )
+                diagnostic_contract=dict(getattr(entry.metadata, "diagnostic_contract", {}))
                 if entry is not None
                 else {},
             )
@@ -436,12 +394,8 @@ def _build_method_catalog_snapshot_from_admitted_registry(
         snapshot_id=snapshot_id,
         run_id=run_id,
         generated_at=datetime.now(UTC),
-        causal_capability_hash=contract.dependency_fingerprint
-        if contract is not None
-        else None,
-        causal_runtime_posture=(
-            contract.model_dump(mode="json") if contract is not None else {}
-        ),
+        causal_capability_hash=contract.dependency_fingerprint if contract is not None else None,
+        causal_runtime_posture=(contract.model_dump(mode="json") if contract is not None else {}),
         entries=entries,
         notes=[f"method_count:{len(entries)}"],
     )
@@ -490,9 +444,7 @@ def _build_candidate_method_catalog_runtime_identity(
             )
         normalized_libraries = {
             str(name): str(version)
-            for name, version in sorted(
-                libraries.items(), key=lambda item: str(item[0])
-            )
+            for name, version in sorted(libraries.items(), key=lambda item: str(item[0]))
         }
         for name, version in normalized_libraries.items():
             package_versions.setdefault(name, set()).add(version)
@@ -576,9 +528,7 @@ def _build_candidate_method_catalog_provenance_manifest(
     """Bind candidate discovery/runtime posture without authority promotion."""
     governed_manifest = registry_report.discovery_manifest
     if governed_manifest is None or not governed_manifest.is_bound:
-        raise MethodCatalogDiscoveryProvenanceError(
-            "catalog_governed_discovery_manifest_unbound"
-        )
+        raise MethodCatalogDiscoveryProvenanceError("catalog_governed_discovery_manifest_unbound")
     if (
         governed_manifest.entry_point_groups
         or governed_manifest.dev_scan_enabled
@@ -640,37 +590,27 @@ def _build_candidate_method_catalog_provenance_manifest(
         or ambient_manifest.builtin_loaders
         or not ambient_manifest.dev_scan_enabled
     ):
-        raise MethodCatalogDiscoveryProvenanceError(
-            "catalog_ambient_source_policy_mismatch"
-        )
+        raise MethodCatalogDiscoveryProvenanceError("catalog_ambient_source_policy_mismatch")
     if registry_report.registry_binding_sha256 is None:
-        raise MethodCatalogDiscoveryProvenanceError(
-            "catalog_governed_registry_binding_missing"
-        )
+        raise MethodCatalogDiscoveryProvenanceError("catalog_governed_registry_binding_missing")
     catalog_fqns = tuple(entry.fqn for entry in snapshot.entries)
     if catalog_fqns != registry_report.registry_fqns:
         raise MethodCatalogDiscoveryProvenanceError(
             "catalog_snapshot_admission_membership_mismatch"
         )
 
-    governed_component_ids = tuple(
-        sorted(row.component_id for row in governed_manifest.components)
-    )
+    governed_component_ids = tuple(sorted(row.component_id for row in governed_manifest.components))
     if catalog_fqns != governed_component_ids:
         raise MethodCatalogDiscoveryProvenanceError(
             "catalog_snapshot_governed_manifest_membership_mismatch"
         )
-    ambient_component_ids = tuple(
-        sorted(row.component_id for row in ambient_manifest.components)
-    )
+    ambient_component_ids = tuple(sorted(row.component_id for row in ambient_manifest.components))
     governed_set = set(governed_component_ids)
     ambient_set = set(ambient_component_ids)
     additions = tuple(sorted(ambient_set - governed_set))
     overlaps = tuple(sorted(ambient_set & governed_set))
     ambient_unbound = not ambient_manifest.is_bound
-    ambient_status = (
-        "quarantined_unbound" if ambient_unbound else "declared_not_admitted"
-    )
+    ambient_status = "quarantined_unbound" if ambient_unbound else "declared_not_admitted"
     predicate_provenance = [
         {
             "predicate": "governed_discovery_policy",
@@ -732,31 +672,22 @@ def _build_candidate_method_catalog_provenance_manifest(
     if any(not name for name in predicate_names) or len(set(predicate_names)) != len(
         predicate_names
     ):
-        raise MethodCatalogDiscoveryProvenanceError(
-            "catalog_predicate_provenance_names_invalid"
-        )
+        raise MethodCatalogDiscoveryProvenanceError("catalog_predicate_provenance_names_invalid")
     canonical_bindings = {
         str(field): list(references)
         for field, references in sorted((predicate_bindings or {}).items())
     }
     known_predicates = set(predicate_names)
     if any(
-        not references
-        or any(reference not in known_predicates for reference in references)
+        not references or any(reference not in known_predicates for reference in references)
         for references in canonical_bindings.values()
     ):
-        raise MethodCatalogDiscoveryProvenanceError(
-            "catalog_predicate_binding_reference_invalid"
-        )
+        raise MethodCatalogDiscoveryProvenanceError("catalog_predicate_binding_reference_invalid")
     governed_declared_loaders = [
         row.as_dict() for row in governed_manifest.declared_builtin_loaders
     ]
-    ambient_declared_loaders = [
-        row.as_dict() for row in ambient_manifest.declared_builtin_loaders
-    ]
-    has_declared_loader_identity = bool(
-        governed_declared_loaders or ambient_declared_loaders
-    )
+    ambient_declared_loaders = [row.as_dict() for row in ambient_manifest.declared_builtin_loaders]
+    has_declared_loader_identity = bool(governed_declared_loaders or ambient_declared_loaders)
     payload: dict[str, Any] = {
         "schema_version": (
             "policyos.method_catalog_provenance_manifest.v2"
@@ -784,12 +715,8 @@ def _build_candidate_method_catalog_provenance_manifest(
             },
             "manifest_id": ambient_manifest.manifest_id,
             "entry_points": [row.as_dict() for row in ambient_manifest.entry_points],
-            "dev_scan_roots": [
-                row.as_dict() for row in ambient_manifest.dev_scan_roots
-            ],
-            "dev_scan_files": [
-                row.as_dict() for row in ambient_manifest.dev_scan_files
-            ],
+            "dev_scan_roots": [row.as_dict() for row in ambient_manifest.dev_scan_roots],
+            "dev_scan_files": [row.as_dict() for row in ambient_manifest.dev_scan_files],
             "component_count": len(ambient_component_ids),
             "component_set_sha256": _sha256_payload(ambient_component_ids),
             "added_component_ids": list(additions),
@@ -802,9 +729,7 @@ def _build_candidate_method_catalog_provenance_manifest(
                 "fail_closed_action": "quarantine",
             },
         },
-        "runtime_backend_identity": _build_candidate_method_catalog_runtime_identity(
-            snapshot
-        ),
+        "runtime_backend_identity": _build_candidate_method_catalog_runtime_identity(snapshot),
         "predicate_provenance": predicate_provenance,
         "predicate_bindings": canonical_bindings,
         "predicate_admission_policy": [
@@ -836,12 +761,8 @@ def _build_candidate_method_catalog_provenance_manifest(
         ],
     }
     if has_declared_loader_identity:
-        payload["governed_discovery"]["declared_builtin_loaders"] = (
-            governed_declared_loaders
-        )
-        payload["ambient_discovery"]["declared_builtin_loaders"] = (
-            ambient_declared_loaders
-        )
+        payload["governed_discovery"]["declared_builtin_loaders"] = governed_declared_loaders
+        payload["ambient_discovery"]["declared_builtin_loaders"] = ambient_declared_loaders
     payload["provenance_id"] = method_catalog_provenance_id(payload)
     return payload
 
@@ -854,9 +775,7 @@ def _admit_catalog_registry(
 ) -> None:
     if registry_report is None:
         if require_bound_discovery:
-            raise MethodCatalogDiscoveryProvenanceError(
-                "catalog_discovery_provenance_missing"
-            )
+            raise MethodCatalogDiscoveryProvenanceError("catalog_discovery_provenance_missing")
         ensure_all_methods_registered(registry)
         return
 
@@ -868,18 +787,13 @@ def _admit_catalog_registry(
             )
         manifest = registry_report.discovery_manifest
         if manifest is None:
-            raise MethodCatalogDiscoveryProvenanceError(
-                "catalog_discovery_provenance_missing"
-            )
+            raise MethodCatalogDiscoveryProvenanceError("catalog_discovery_provenance_missing")
         if not manifest.is_bound:
             raise MethodCatalogDiscoveryProvenanceError(
-                "catalog_discovery_provenance_unbound:"
-                + "|".join(manifest.unbound_inputs)
+                "catalog_discovery_provenance_unbound:" + "|".join(manifest.unbound_inputs)
             )
         if not registry_report.success:
-            raise MethodCatalogDiscoveryProvenanceError(
-                "catalog_registry_admission_errors_present"
-            )
+            raise MethodCatalogDiscoveryProvenanceError("catalog_registry_admission_errors_present")
 
     current_snapshot = registry.snapshot()
     current_fqns = tuple(entry.fqn for entry in current_snapshot.entries())
@@ -896,9 +810,7 @@ def _admit_catalog_registry(
         or _method_registry_snapshot_binding_sha256(current_snapshot)
         != registry_report.registry_binding_sha256
     ):
-        raise MethodCatalogDiscoveryProvenanceError(
-            "catalog_registry_admission_content_mismatch"
-        )
+        raise MethodCatalogDiscoveryProvenanceError("catalog_registry_admission_content_mismatch")
     if require_bound_discovery:
         manifest = registry_report.discovery_manifest
         assert manifest is not None
@@ -943,38 +855,27 @@ def method_catalog_governed_provenance_projection(
 
     ambient = payload.get("ambient_discovery")
     if not isinstance(ambient, Mapping):
-        raise MethodCatalogDiscoveryProvenanceError(
-            "catalog_ambient_discovery_manifest_missing"
-        )
+        raise MethodCatalogDiscoveryProvenanceError("catalog_ambient_discovery_manifest_missing")
     admission = ambient.get("admission")
     if not isinstance(admission, Mapping) or set(admission) != {
         "status",
         "included_in_governed_denominator",
         "fail_closed_action",
     }:
-        raise MethodCatalogDiscoveryProvenanceError(
-            "catalog_ambient_input_not_quarantined"
-        )
+        raise MethodCatalogDiscoveryProvenanceError("catalog_ambient_input_not_quarantined")
     if (
         admission.get("included_in_governed_denominator") is not False
         or admission.get("fail_closed_action") != "quarantine"
-        or admission.get("status")
-        not in {"quarantined_unbound", "declared_not_admitted"}
+        or admission.get("status") not in {"quarantined_unbound", "declared_not_admitted"}
     ):
-        raise MethodCatalogDiscoveryProvenanceError(
-            "catalog_ambient_input_not_quarantined"
-        )
+        raise MethodCatalogDiscoveryProvenanceError("catalog_ambient_input_not_quarantined")
     source_policy = ambient.get("source_policy")
     if not isinstance(source_policy, Mapping):
-        raise MethodCatalogDiscoveryProvenanceError(
-            "catalog_ambient_source_policy_mismatch"
-        )
+        raise MethodCatalogDiscoveryProvenanceError("catalog_ambient_source_policy_mismatch")
 
     predicate_rows = payload.get("predicate_provenance")
     if not isinstance(predicate_rows, list):
-        raise MethodCatalogDiscoveryProvenanceError(
-            "catalog_predicate_provenance_invalid"
-        )
+        raise MethodCatalogDiscoveryProvenanceError("catalog_predicate_provenance_invalid")
     allowed_classifications = {
         "recomputed",
         "independently_reconciled",
@@ -991,9 +892,7 @@ def method_catalog_governed_provenance_projection(
             "decisive",
             "fail_closed_action",
         }:
-            raise MethodCatalogDiscoveryProvenanceError(
-                "catalog_predicate_provenance_invalid"
-            )
+            raise MethodCatalogDiscoveryProvenanceError("catalog_predicate_provenance_invalid")
         predicate = row.get("predicate")
         classification = row.get("classification")
         decisive = row.get("decisive")
@@ -1006,9 +905,7 @@ def method_catalog_governed_provenance_projection(
             or not isinstance(decisive, bool)
             or action not in {"reject", "quarantine"}
         ):
-            raise MethodCatalogDiscoveryProvenanceError(
-                "catalog_predicate_provenance_invalid"
-            )
+            raise MethodCatalogDiscoveryProvenanceError("catalog_predicate_provenance_invalid")
         predicate_names.add(predicate)
         if decisive:
             if action != "reject" or classification in {
@@ -1016,15 +913,11 @@ def method_catalog_governed_provenance_projection(
                 "institutionally_supplied",
                 "not_established",
             }:
-                raise MethodCatalogDiscoveryProvenanceError(
-                    "catalog_predicate_provenance_invalid"
-                )
+                raise MethodCatalogDiscoveryProvenanceError("catalog_predicate_provenance_invalid")
             projected_rows.append(deepcopy(dict(row)))
         else:
             if action != "quarantine":
-                raise MethodCatalogDiscoveryProvenanceError(
-                    "catalog_predicate_provenance_invalid"
-                )
+                raise MethodCatalogDiscoveryProvenanceError("catalog_predicate_provenance_invalid")
             projected_rows.append(
                 {
                     "predicate": predicate,
@@ -1050,9 +943,9 @@ def method_catalog_governed_provenance_id(payload: Mapping[str, object]) -> str:
     """Return the canonical governed comparison identity for catalog provenance."""
 
     projection = method_catalog_governed_provenance_projection(payload)
-    return "method_catalog_governed_provenance_" + _sha256_payload(
-        projection
-    ).removeprefix("sha256:")
+    return "method_catalog_governed_provenance_" + _sha256_payload(projection).removeprefix(
+        "sha256:"
+    )
 
 
 def method_catalog_provenance_id(payload: Mapping[str, object]) -> str:
@@ -1060,9 +953,7 @@ def method_catalog_provenance_id(payload: Mapping[str, object]) -> str:
 
     content = dict(payload)
     content.pop("provenance_id", None)
-    return "method_catalog_provenance_" + _sha256_payload(content).removeprefix(
-        "sha256:"
-    )
+    return "method_catalog_provenance_" + _sha256_payload(content).removeprefix("sha256:")
 
 
 def persist_method_catalog_snapshot(
@@ -1077,9 +968,7 @@ def persist_method_catalog_snapshot(
         PutOptions(
             kind="foundry.method_catalog_snapshot",
             media_type="application/json",
-            schema=SchemaInfo(
-                name="polisyos.core.MethodCatalogSnapshot", version="2.0"
-            ),
+            schema=SchemaInfo(name="polisyos.core.MethodCatalogSnapshot", version="2.0"),
             inputs=list(inputs or []),
         ),
         canon_spec=CanonSpec(forbid_floats=False),
@@ -1280,9 +1169,7 @@ def _dependency_posture(
     }
 
 
-def _disabled_reasons_for(
-    execution_backend: str, backend_available: bool
-) -> tuple[str, ...]:
+def _disabled_reasons_for(execution_backend: str, backend_available: bool) -> tuple[str, ...]:
     if backend_available:
         return ()
     return (f"execution_backend_unavailable:{execution_backend}",)
@@ -1340,12 +1227,10 @@ def _shape_semantics(sig: Any) -> dict[str, Any]:
         "input_arity": len(sig.input_slots),
         "output_arity": len(sig.output_slots),
         "input_slots": [
-            _slot_payload(slot)
-            for slot in sorted(sig.input_slots, key=lambda item: item.name)
+            _slot_payload(slot) for slot in sorted(sig.input_slots, key=lambda item: item.name)
         ],
         "output_slots": [
-            _slot_payload(slot)
-            for slot in sorted(sig.output_slots, key=lambda item: item.name)
+            _slot_payload(slot) for slot in sorted(sig.output_slots, key=lambda item: item.name)
         ],
         "has_symbolic_dimensions": any(
             not isinstance(axis, int)
@@ -1356,9 +1241,7 @@ def _shape_semantics(sig: Any) -> dict[str, Any]:
 
 
 def _effect_semantics(sig: Any, entry: Any) -> dict[str, Any]:
-    side_effect = (
-        entry.metadata.side_effect_profile.value if entry is not None else "none"
-    )
+    side_effect = entry.metadata.side_effect_profile.value if entry is not None else "none"
     return {
         "method_kind": sig.kind.value,
         "side_effect_profile": side_effect,
@@ -1400,9 +1283,7 @@ def _truthfulness_notes_for_status(status: TruthfulnessStatus) -> str:
     if status is TruthfulnessStatus.CATALOG_ONLY:
         return "Catalog declares a truthfulness tier, but no runtime certificate has been observed yet."
     if status is TruthfulnessStatus.RUNTIME_ONLY:
-        return (
-            "Runtime produced a truthfulness certificate without a catalog declaration."
-        )
+        return "Runtime produced a truthfulness certificate without a catalog declaration."
     if status is TruthfulnessStatus.RUNTIME_DOWNGRADED:
         return "Runtime evidence downgraded the catalog truthfulness claim."
     if status is TruthfulnessStatus.RUNTIME_CONSISTENT:
@@ -1424,14 +1305,11 @@ def _truthfulness_profile(sig: Any, entry: Any) -> tuple[str, str]:
             sig.family.lower(),
             sig.variant.lower(),
             " ".join(sorted(tags)),
-            str(getattr(entry.metadata, "description", "")).lower()
-            if entry is not None
-            else "",
+            str(getattr(entry.metadata, "description", "")).lower() if entry is not None else "",
         ]
     )
     if any(
-        token in text
-        for token in ("baseline", "heuristic", "proxy", "scorecard", "random_feature")
+        token in text for token in ("baseline", "heuristic", "proxy", "scorecard", "random_feature")
     ):
         return (
             "heuristic_baseline",
@@ -1453,11 +1331,8 @@ def _truthfulness_profile(sig: Any, entry: Any) -> tuple[str, str]:
             "structural_scoring",
             "Primarily structural/scoring logic; useful for screening, diagnostics, or planning rather than final policy estimation.",
         )
-    if (
-        entry is not None and entry.metadata.side_effect_profile.value == "training"
-    ) or any(
-        token in text
-        for token in ("transformer", "neural", "deep", "trainable", "policy_learning")
+    if (entry is not None and entry.metadata.side_effect_profile.value == "training") or any(
+        token in text for token in ("transformer", "neural", "deep", "trainable", "policy_learning")
     ):
         return (
             "frontier_trainable",

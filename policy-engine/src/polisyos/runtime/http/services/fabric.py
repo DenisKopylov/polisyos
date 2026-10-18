@@ -180,9 +180,7 @@ class FabricIntegrationService:
                     downstream_refs=sorted({edge.target_id for edge in lineage.edges}),
                     upstream_refs=sorted({edge.source_id for edge in lineage.edges}),
                     affected_decision_data_ids=sorted(item.id for item in linked_data),
-                    source_contract_ids=sorted(
-                        {item.source_contract.id for item in linked_data}
-                    ),
+                    source_contract_ids=sorted({item.source_contract.id for item in linked_data}),
                     evidence_refs=sorted(
                         {
                             evidence_ref

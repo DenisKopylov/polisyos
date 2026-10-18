@@ -341,9 +341,7 @@ class TestCompositeExecutor:
         scalar = (
             jnp.asarray(configured_value, dtype=jax.typeof(configured_value).dtype)
             if carrier == "jax-array"
-            else np.asarray(
-                configured_value, dtype=jax.typeof(configured_value).dtype
-            )[()]
+            else np.asarray(configured_value, dtype=jax.typeof(configured_value).dtype)[()]
         )
         state = state.update_domain(
             "economics",

@@ -20,7 +20,7 @@ USES_RE = re.compile(r"(?m)^\s*uses:\s*(?P<target>[^\s#]+)")
 RUN_BLOCK_RE = re.compile(r"^(?P<indent>\s*)run:\s*(?P<inline>.*)$")
 SHA_PIN_RE = re.compile(r"^[0-9a-f]{40}$")
 UNTRUSTED_EXPR_RE = re.compile(r"\$\{\{\s*(github\.event\.(pull_request|issue)|github\.head_ref)")
-LEGACY_OPS_RUNNER_PATH = "tools/" "ops/"
+LEGACY_OPS_RUNNER_PATH = "tools/ops/"
 LEGACY_CI_PATHS: dict[str, str] = {
     **LEGACY_ENTRYPOINTS,
     "policy-engine/scripts/": "use `polisyos-tools` commands directly",

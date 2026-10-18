@@ -75,13 +75,9 @@ class TFIDFEmbedder:
             for token in set(_tokenize(text)):
                 document_frequency[token] += 1
 
-        top_terms = [
-            term for term, _count in document_frequency.most_common(self._max_features)
-        ]
+        top_terms = [term for term, _count in document_frequency.most_common(self._max_features)]
         self._vocab = {term: index for index, term in enumerate(top_terms)}
-        self._idf = [
-            math.log(n_docs / (1 + document_frequency.get(term, 0))) for term in top_terms
-        ]
+        self._idf = [math.log(n_docs / (1 + document_frequency.get(term, 0))) for term in top_terms]
         self._fitted = True
 
     def embed(self, texts: list[str]) -> list[list[float]]:

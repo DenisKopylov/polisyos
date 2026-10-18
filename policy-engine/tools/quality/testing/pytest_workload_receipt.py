@@ -52,10 +52,7 @@ def pytest_collection_finish(session: pytest.Session) -> None:
     ):
         raise ValueError("timed pytest receipt requires unique selected test paths")
 
-    selected_by_absolute = {
-        (repo_root / path).resolve(): path
-        for path in selected
-    }
+    selected_by_absolute = {(repo_root / path).resolve(): path for path in selected}
     node_ids_by_path: dict[str, list[str]] = {path: [] for path in selected}
     unmatched_node_ids: list[str] = []
     final_node_ids = tuple(item.nodeid for item in session.items)
@@ -64,9 +61,7 @@ def pytest_collection_finish(session: pytest.Session) -> None:
         or len(_COLLECTED_NODE_IDS) != len(final_node_ids)
         or set(_COLLECTED_NODE_IDS) != set(final_node_ids)
     ):
-        raise ValueError(
-            "pytest receipt selection changed the complete collected workload"
-        )
+        raise ValueError("pytest receipt selection changed the complete collected workload")
     for item in session.items:
         selected_path = selected_by_absolute.get(Path(str(item.path)).resolve())
         if selected_path is None:
@@ -75,8 +70,7 @@ def pytest_collection_finish(session: pytest.Session) -> None:
         node_ids_by_path[selected_path].append(item.nodeid)
     if unmatched_node_ids:
         raise ValueError(
-            "pytest receipt collected nodes outside the selected paths:"
-            + repr(unmatched_node_ids)
+            "pytest receipt collected nodes outside the selected paths:" + repr(unmatched_node_ids)
         )
     if any(not node_ids for node_ids in node_ids_by_path.values()):
         raise ValueError("timed pytest receipt collected no nodes for a selected path")
@@ -87,10 +81,7 @@ def pytest_collection_finish(session: pytest.Session) -> None:
     if config_source is None:
         raise ValueError("timed pytest receipt requires an explicit pytest config")
     config_path = config_source.resolve().relative_to(repo_root).as_posix()
-    source_digests = {
-        path: _sha256((repo_root / path).read_bytes())
-        for path in selected
-    }
+    source_digests = {path: _sha256((repo_root / path).read_bytes()) for path in selected}
     workload_identity = {
         "schema_version": PYTEST_WORKLOAD_SCHEMA_VERSION,
         "predicate_provenance": PYTEST_WORKLOAD_PREDICATE_PROVENANCE,

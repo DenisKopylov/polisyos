@@ -70,9 +70,7 @@ def test_y0_profile_parser_keeps_missing_null_malformed_and_valid_distinct(raw, 
 def test_y0_profile_is_strict_and_graph_scoped() -> None:
     raw = {
         "schema_version": "policyos.y0.surrogate-data-profile.v1",
-        "populations": [
-            {"population_id": "pi1", "outcomes": ["Y"], "interventions": ["X"]}
-        ],
+        "populations": [{"population_id": "pi1", "outcomes": ["Y"], "interventions": ["X"]}],
     }
     profile, state = bridge.parse_y0_surrogate_data_profile(raw)
     assert state == "valid" and profile is not None
@@ -83,9 +81,7 @@ def test_y0_profile_is_strict_and_graph_scoped() -> None:
     assert bridge.parse_y0_surrogate_data_profile(malformed) == (None, "invalid")
     malformed_list = {
         **raw,
-        "populations": [
-            {"population_id": "pi1", "outcomes": ["Y", 3], "interventions": ["X"]}
-        ],
+        "populations": [{"population_id": "pi1", "outcomes": ["Y", 3], "interventions": ["X"]}],
     }
     assert bridge.parse_y0_surrogate_data_profile(malformed_list) == (None, "invalid")
 
@@ -128,15 +124,15 @@ def test_capability_family_claims_do_not_follow_import_availability(monkeypatch)
         CausalIdentificationFamily.C_COMPONENT_FACTORIZATION,
     ):
         assert not contract.supports_family(family)
-        assert contract.disabled_families[family.value] == "symbolic_family_execution_not_established"
+        assert (
+            contract.disabled_families[family.value] == "symbolic_family_execution_not_established"
+        )
 
 
 def test_y0_profile_is_deeply_immutable_after_admission() -> None:
     raw = {
         "schema_version": "policyos.y0.surrogate-data-profile.v1",
-        "populations": [
-            {"population_id": "pi1", "outcomes": ["Y"], "interventions": ["X"]}
-        ],
+        "populations": [{"population_id": "pi1", "outcomes": ["Y"], "interventions": ["X"]}],
     }
     profile, state = bridge.parse_y0_surrogate_data_profile(raw)
     assert state == "valid" and profile is not None

@@ -292,11 +292,7 @@ def evaluate_claim_support(
     readiness = _readiness(base_readiness)
     claim_id = _text(claim.get("claim_id") or claim.get("id") or family.value)
     satisfied = _satisfied_predicates(claim)
-    missing = [
-        predicate
-        for predicate in rule.required_predicates
-        if predicate not in satisfied
-    ]
+    missing = [predicate for predicate in rule.required_predicates if predicate not in satisfied]
     support_strength = _support_strength(rule=rule, satisfied=satisfied, missing=missing)
     issues: list[dict[str, Any]] = []
     counter_actions: list[CounterevidenceAction] = []
@@ -352,9 +348,7 @@ def evaluate_claim_support(
         publishability=publishability,
         readiness_level=readiness,
         satisfied_predicates=tuple(
-            predicate
-            for predicate in SupportPredicate
-            if predicate in satisfied
+            predicate for predicate in SupportPredicate if predicate in satisfied
         ),
         missing_predicates=missing,
         required_predicates=rule.required_predicates,
@@ -678,9 +672,7 @@ def _counterevidence_issue(
         message=_text(item.get("reason") or item.get("message"))
         or f"Counterevidence action {action.value} applies to claim {claim_id}.",
         counterevidence_id=_text(
-            item.get("counterevidence_id")
-            or item.get("id")
-            or item.get("evidence_ref")
+            item.get("counterevidence_id") or item.get("id") or item.get("evidence_ref")
         )
         or None,
         counterevidence_action=action.value,

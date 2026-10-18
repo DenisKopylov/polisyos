@@ -91,6 +91,7 @@ UNSUPPORTED = (
     + [pytest.param(_graph([CausalEdge(src="Y", dst="Y", lag=1)]), id="self-lag-1")]
 )
 
+
 def _selection_diagram_with_base_graph(graph: CausalGraphModel) -> SelectionDiagram:
     """Pass an already-built graph through the diagram's live-field admission path."""
     valid_base = _graph(nodes=list(graph.nodes), graph_type=GraphType.DAG)
@@ -542,26 +543,21 @@ def test_native_disjoint_amn_crossworld_separation_matches_independent_oracle():
         assert _independent_latent_moral_separator(graph, x, y, conditioned) is expected
         assert amn.amn_d_separation(graph, metadata, x, y, conditioned) is expected
 
+
 # Direct scalar query entries must consult graph kind as well as endpoint marks.
 # Raw endpoint-inspection helpers intentionally stay outside this query gate.
 PARTIAL_GRAPH_CONSUMERS = [
     (
         "id",
-        lambda g: core.id_algorithm(
-            treatment=frozenset({"X"}), outcome=frozenset({"Y"}), graph=g
-        ),
+        lambda g: core.id_algorithm(treatment=frozenset({"X"}), outcome=frozenset({"Y"}), graph=g),
     ),
     (
         "find-hedge",
-        lambda g: core.find_hedge(
-            treatment=frozenset({"X"}), outcome=frozenset({"Y"}), graph=g
-        ),
+        lambda g: core.find_hedge(treatment=frozenset({"X"}), outcome=frozenset({"Y"}), graph=g),
     ),
     (
         "find-thicket",
-        lambda g: core.find_thicket(
-            treatment=frozenset({"X"}), outcome=frozenset({"Y"}), graph=g
-        ),
+        lambda g: core.find_thicket(treatment=frozenset({"X"}), outcome=frozenset({"Y"}), graph=g),
     ),
     (
         "tr",
@@ -640,9 +636,7 @@ PARTIAL_GRAPH_CONSUMERS = [
     ),
     (
         "multi-outcome",
-        lambda g: transport.multi_outcome_id(
-            treatment=frozenset({"X"}), outcomes=["Y"], graph=g
-        ),
+        lambda g: transport.multi_outcome_id(treatment=frozenset({"X"}), outcomes=["Y"], graph=g),
     ),
     ("id-star", lambda g: ctf.id_star_algorithm(CtfQuery("Y", (("X", 1.0),)), g)),
     ("idc-star", lambda g: ctf.idc_star_algorithm(CtfQuery("Y", (("X", 1.0),)), g)),
@@ -672,10 +666,15 @@ def test_partial_graph_tags_refuse_direct_scalar_query_for_all_endpoint_pairs(
         graph = _graph([edge], nodes=("X", "Y", "Z"), graph_type=graph_type)
     except ValueError:
         graph = CausalGraphModel.model_construct(
-            graph_type=graph_type, nodes=["X", "Y", "Z"], edges=[edge],
-            schema_version="1.0", discovery_method="", skg_version_id=None,
+            graph_type=graph_type,
+            nodes=["X", "Y", "Z"],
+            edges=[edge],
+            schema_version="1.0",
+            discovery_method="",
+            skg_version_id=None,
             pag_identification_policy=PAGIdentificationPolicy.CONSERVATIVE,
-            id_confidence_under_pag=None, metadata={},
+            id_confidence_under_pag=None,
+            metadata={},
         )
     if graph_type is GraphType.PAG:
         for _name, consumer in PARTIAL_GRAPH_CONSUMERS:
@@ -719,8 +718,7 @@ def test_public_causal_engine_returns_typed_nonidentified_refusal_for_partial_gr
     assert result.hedge_certificate is None
     expected_reason = (
         "causal_graph_profile_invalid"
-        if graph_type is GraphType.CPDAG
-        and EdgeMark.CIRCLE in {left, right}
+        if graph_type is GraphType.CPDAG and EdgeMark.CIRCLE in {left, right}
         else "partial_graph_completion_semantics_not_established"
     )
     assert result.metadata["limitation_code"] == expected_reason
@@ -760,12 +758,16 @@ def test_canonical_scalar_admission_preserves_resolved_and_sigma_controls():
         nodes=("X", "Y"),
         graph_type=GraphType.ADMG,
     )
-    assert core.id_algorithm(
-        treatment=frozenset({"X"}), outcome=frozenset({"Y"}), graph=dag
-    ).status is IdentificationStatus.IDENTIFIED
-    assert core.id_algorithm(
-        treatment=frozenset({"X"}), outcome=frozenset({"Y"}), graph=admg_chain
-    ).status is IdentificationStatus.IDENTIFIED
+    assert (
+        core.id_algorithm(treatment=frozenset({"X"}), outcome=frozenset({"Y"}), graph=dag).status
+        is IdentificationStatus.IDENTIFIED
+    )
+    assert (
+        core.id_algorithm(
+            treatment=frozenset({"X"}), outcome=frozenset({"Y"}), graph=admg_chain
+        ).status
+        is IdentificationStatus.IDENTIFIED
+    )
 
     cyclic_sigma = _graph(
         [
@@ -777,13 +779,10 @@ def test_canonical_scalar_admission_preserves_resolved_and_sigma_controls():
     )
     # The shared graph-kind gate does not impose a DAG/topological restriction
     # on the existing sigma/cyclic owner.
-    assert not ops.m_separation(
-        cyclic_sigma, frozenset({"X"}), frozenset({"Y"}), frozenset()
-    )
+    assert not ops.m_separation(cyclic_sigma, frozenset({"X"}), frozenset({"Y"}), frozenset())
     sigma.apply_sigma_rule1(
         _ref(conditions=("X",)), cyclic_sigma, frozenset({"X"}), frozenset({"X"})
     )
-
 
 
 @pytest.mark.parametrize("source_type", [GraphType.DAG, GraphType.ADMG])
@@ -796,9 +795,7 @@ def test_model_copy_profile_mutations_are_rebuilt_before_scalar_use(source_type)
     )
     partial_tag = directed.model_copy(update={"graph_type": GraphType.PAG})
     with pytest.raises(ops.PartialGraphCompletionSemanticsError):
-        core.id_algorithm(
-            treatment=frozenset({"X"}), outcome=frozenset({"Y"}), graph=partial_tag
-        )
+        core.id_algorithm(treatment=frozenset({"X"}), outcome=frozenset({"Y"}), graph=partial_tag)
 
     forged_endpoint = directed.model_copy(
         update={
@@ -811,6 +808,7 @@ def test_model_copy_profile_mutations_are_rebuilt_before_scalar_use(source_type)
         core.id_algorithm(
             treatment=frozenset({"X"}), outcome=frozenset({"Y"}), graph=forged_endpoint
         )
+
 
 def test_scalar_snapshot_gate_uses_ir_fields_not_model_dump_override():
     class ForgedDumpGraph(CausalGraphModel):
@@ -827,9 +825,7 @@ def test_scalar_snapshot_gate_uses_ir_fields_not_model_dump_override():
         edges=[CausalEdge(src="X", dst="Y", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW)],
     )
     with pytest.raises(ops.UnsupportedStaticADMGProfileError):
-        core.id_algorithm(
-            treatment=frozenset({"X"}), outcome=frozenset({"Y"}), graph=forged
-        )
+        core.id_algorithm(treatment=frozenset({"X"}), outcome=frozenset({"Y"}), graph=forged)
 
 
 @pytest.mark.parametrize("graph_type", [GraphType.PAG, GraphType.CPDAG])
@@ -898,9 +894,7 @@ def test_remove_static_id_profile_gate_reopens_fully_oriented_pag_identification
     )
     assert ops.extract_directed_edges(graph) == frozenset({("X", "Y")})
     monkeypatch.setattr(core, "_validate_static_id_graph", ops._validate_static_admg)
-    result = core.id_algorithm(
-        treatment=frozenset({"X"}), outcome=frozenset({"Y"}), graph=graph
-    )
+    result = core.id_algorithm(treatment=frozenset({"X"}), outcome=frozenset({"Y"}), graph=graph)
     assert result.status is IdentificationStatus.IDENTIFIED
     assert result.estimand_ast is not None
 
@@ -1124,9 +1118,7 @@ def test_mnar_mgraph_routes_to_full_law_owner_not_scalar_id():
         ops.UnsupportedStaticADMGProfileError,
         match="full-law recovery inputs",
     ):
-        core.id_algorithm(
-            treatment=frozenset({"X"}), outcome=frozenset({"Y"}), graph=graph
-        )
+        core.id_algorithm(treatment=frozenset({"X"}), outcome=frozenset({"Y"}), graph=graph)
 
     from polisyos.foundry.methods.catalog.causal.id_engine import IdentificationStatus
     from polisyos.foundry.methods.catalog.causal.recoverability_engine import (

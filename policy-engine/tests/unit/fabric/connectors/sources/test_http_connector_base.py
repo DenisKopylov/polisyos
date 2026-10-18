@@ -448,9 +448,7 @@ def test_raw_http_observer_runs_before_json_parse_with_exact_bounded_bytes(
             body: bytes,
         ) -> None:
             events.append("raw_response")
-            witnessed.append(
-                (connector_id, url, request_params, status_code, headers, body)
-            )
+            witnessed.append((connector_id, url, request_params, status_code, headers, body))
 
     original_loads = http_base_module.json.loads
 

@@ -90,10 +90,7 @@ def _lane_id(
     scenario: str,
     ui: str,
 ) -> str:
-    return (
-        f"profile-{profile}__provider-{provider}__data-{data}"
-        f"__scenario-{scenario}__ui-{ui}"
-    )
+    return f"profile-{profile}__provider-{provider}__data-{data}__scenario-{scenario}__ui-{ui}"
 
 
 def _required_evidence_files(
@@ -246,8 +243,7 @@ def _missing_or_deferred_gaps(
                 "value": profile,
                 "status": "quarantined",
                 "reason": (
-                    "local governed/production lanes require PostgreSQL-backed "
-                    "control-plane state"
+                    "local governed/production lanes require PostgreSQL-backed control-plane state"
                 ),
                 "owner": "runtime-platform",
             }
@@ -493,10 +489,7 @@ def _summary(lanes: list[dict[str, Any]]) -> dict[str, Any]:
     statuses = ("ready", "quarantined", "deferred", "skipped")
     return {
         "total_lanes": len(lanes),
-        **{
-            status: sum(1 for lane in lanes if lane["status"] == status)
-            for status in statuses
-        },
+        **{status: sum(1 for lane in lanes if lane["status"] == status) for status in statuses},
         "ci_safe": sum(1 for lane in lanes if lane["ci_safe"] is True),
         "closeout_required": sum(1 for lane in lanes if lane["closeout_required"] is True),
     }

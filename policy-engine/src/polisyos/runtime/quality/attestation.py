@@ -179,9 +179,7 @@ class TrustBoundaryRegistry:
         try:
             return self.boundaries[boundary_id]
         except KeyError as exc:
-            raise TrustBoundaryRegistryError(
-                f"unknown trust boundary: {boundary_id}"
-            ) from exc
+            raise TrustBoundaryRegistryError(f"unknown trust boundary: {boundary_id}") from exc
 
 
 @dataclass(frozen=True)
@@ -343,8 +341,7 @@ def build_verified_attestation_record(
         tamper_check_status=tamper_check_status,
         signature_ref=signature_ref or f"signature://{boundary.boundary_id}",
         evidence_ref=(
-            evidence_ref
-            or f"quality_evidence/attestation_records.json#/{boundary.boundary_id}"
+            evidence_ref or f"quality_evidence/attestation_records.json#/{boundary.boundary_id}"
         ),
         metadata=merged_metadata,
     )
@@ -395,15 +392,11 @@ def load_trust_boundary_registry(
             raise TrustBoundaryRegistryError(f"trust_boundaries[{index}] is not a table")
         boundary = TrustBoundary.model_validate(row)
         if boundary.boundary_id in boundaries:
-            raise TrustBoundaryRegistryError(
-                f"duplicate trust boundary: {boundary.boundary_id}"
-            )
+            raise TrustBoundaryRegistryError(f"duplicate trust boundary: {boundary.boundary_id}")
         boundaries[boundary.boundary_id] = boundary
     missing = sorted(REQUIRED_TRUST_BOUNDARY_IDS - set(boundaries))
     if missing:
-        raise TrustBoundaryRegistryError(
-            "missing required trust boundaries: " + ", ".join(missing)
-        )
+        raise TrustBoundaryRegistryError("missing required trust boundaries: " + ", ".join(missing))
     return TrustBoundaryRegistry(boundaries=boundaries)
 
 
@@ -474,9 +467,7 @@ def evaluate_trust_boundary_attestation(
             status=status,
             production_closeout_satisfied=False,
             failure_code=_failure_code(status),
-            message=(
-                f"Trust boundary {boundary_id} attestation failed with status {status}."
-            ),
+            message=(f"Trust boundary {boundary_id} attestation failed with status {status}."),
             record=record,
         )
         first_failure = first_failure or failure

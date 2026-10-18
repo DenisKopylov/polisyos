@@ -221,15 +221,12 @@ def _sampler_adequacy(
     if gates:
         low_ess = any(not gates.get(name, True) for name in ("bulk_ess", "tail_ess"))
         geometry_fail = any(
-            not passed
-            for name, passed in gates.items()
-            if name not in {"bulk_ess", "tail_ess"}
+            not passed for name, passed in gates.items() if name not in {"bulk_ess", "tail_ess"}
         )
         passed = all(gates.values())
     else:
-        low_ess = (
-            (bulk_ess_min is not None and bulk_ess_min < minimum_required_ess)
-            or (tail_ess_min is not None and tail_ess_min < minimum_required_ess)
+        low_ess = (bulk_ess_min is not None and bulk_ess_min < minimum_required_ess) or (
+            tail_ess_min is not None and tail_ess_min < minimum_required_ess
         )
         geometry_fail = (
             chain_count < 4
@@ -284,10 +281,14 @@ def _whiten_draws(matrix: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     return centered @ whitening, keep
 
 
-def _subsample_rows(matrix: np.ndarray, *, n_eff: float | None, rng: np.random.Generator) -> np.ndarray:
+def _subsample_rows(
+    matrix: np.ndarray, *, n_eff: float | None, rng: np.random.Generator
+) -> np.ndarray:
     if matrix.shape[0] == 0:
         return matrix
-    target = int(round(float(n_eff))) if n_eff is not None and np.isfinite(n_eff) else matrix.shape[0]
+    target = (
+        int(round(float(n_eff))) if n_eff is not None and np.isfinite(n_eff) else matrix.shape[0]
+    )
     target = int(np.clip(target, min(matrix.shape[0], 20), matrix.shape[0]))
     if target >= matrix.shape[0]:
         return matrix
@@ -416,7 +417,9 @@ def _view_test_result(values: np.ndarray, *, w_min: float, spec: _ViewSpec) -> _
         statistic=float(statistic) if np.isfinite(statistic) else 0.0,
         threshold=threshold,
         left_fraction=float((local_idx + 1) / n),
-        statistic_name="hartigan_dip" if dip_statistic is not None else "calibrated_projection_spacing",
+        statistic_name="hartigan_dip"
+        if dip_statistic is not None
+        else "calibrated_projection_spacing",
         spec=spec,
     )
 
@@ -983,7 +986,11 @@ def assess_pmd_hmc_multimodality(
             blocks.append(block)
 
     rng = np.random.default_rng(int(seed))
-    n_eff = sampler.bulk_ess_min if sampler.bulk_ess_min is not None else float(parameter_matrix.shape[0])
+    n_eff = (
+        sampler.bulk_ess_min
+        if sampler.bulk_ess_min is not None
+        else float(parameter_matrix.shape[0])
+    )
     assessments = [
         _assess_block(
             block,
@@ -1024,7 +1031,9 @@ def assess_pmd_hmc_multimodality(
         )
         assignments = _validate_assignments(best.whitened, assignments, w_min=w_min)
         if len(np.unique(assignments)) >= 2:
-            raw_mode_matrix = best.block.matrix[:, best.keep] if np.any(best.keep) else best.block.matrix
+            raw_mode_matrix = (
+                best.block.matrix[:, best.keep] if np.any(best.keep) else best.block.matrix
+            )
             modes = _mode_summaries(
                 matrix=raw_mode_matrix,
                 labels=best.retained_labels or best.block.labels,
@@ -1202,7 +1211,10 @@ def run_pmd_hmc_benchmark(
             samples,
             num_chains=case.chains,
             num_samples=case.draws_per_chain,
-            diagnostics={"num_chains": float(case.chains), "num_samples": float(case.draws_per_chain)},
+            diagnostics={
+                "num_chains": float(case.chains),
+                "num_samples": float(case.draws_per_chain),
+            },
             diagnostics_summary=diagnostics_summary,
             diagnostic_gates=gates,
             seed=case.seed,

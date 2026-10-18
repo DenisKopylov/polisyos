@@ -134,9 +134,7 @@ def discover_equilibria(
         prepared=prepared,
     )
     unresolved = [
-        _unresolved_start(prepared, outcome)
-        for outcome in outcomes
-        if not outcome.converged
+        _unresolved_start(prepared, outcome) for outcome in outcomes if not outcome.converged
     ]
 
     basin_estimates: list[BasinEstimate] = []
@@ -188,7 +186,9 @@ def discover_equilibria(
             branch_id=cluster.branch_id,
             basin_share_hat=None if basin is None else basin.share_hat,
             basin_ci_95=None if basin is None else basin.ci_95,
-            discovered_from_starts=max(1, len(cluster.members) + basin_hits[cluster.equilibrium_id]),
+            discovered_from_starts=max(
+                1, len(cluster.members) + basin_hits[cluster.equilibrium_id]
+            ),
             diagnostics=dict(cluster.representative.final_diagnostics),
             notes=_candidate_notes(summary),
         )
@@ -289,9 +289,7 @@ def _discover_equilibria_continuation(
 
         all_outcomes.extend(outcomes)
         all_unresolved.extend(
-            _unresolved_start(prepared, outcome)
-            for outcome in outcomes
-            if not outcome.converged
+            _unresolved_start(prepared, outcome) for outcome in outcomes if not outcome.converged
         )
         rounds.append((lambda_value, clusters))
 
@@ -307,9 +305,7 @@ def _discover_equilibria_continuation(
         merge_tol=float("inf"),
     )
     branch_lookup = {
-        point.equilibrium_id: branch.branch_id
-        for branch in branches
-        for point in branch.points
+        point.equilibrium_id: branch.branch_id for branch in branches for point in branch.points
     }
 
     basin_estimates: list[BasinEstimate] = []
@@ -422,7 +418,9 @@ def _discover_equilibria_continuation(
 def _build_discovery_starts(prepared: PreparedFeedbackConfig) -> list[np.ndarray]:
     cfg = prepared.config.solver
     starts: list[np.ndarray] = [project_bounds(prepared, prepared.initial_values)]
-    starts.extend(project_bounds(prepared, np.asarray(start, dtype=float)) for start in cfg.multi_start_values)
+    starts.extend(
+        project_bounds(prepared, np.asarray(start, dtype=float)) for start in cfg.multi_start_values
+    )
 
     remaining = max(0, cfg.multiplicity_max_attempts - len(starts))
     draw_count = min(int(cfg.multiplicity_sobol_draws), remaining)
@@ -628,9 +626,7 @@ def _estimate_basins(
                 failure_reason=None,
                 residual_norm=assignment.residual_norm,
                 diagnostics={},
-                notes=["basin_unassigned"]
-                if assignment.status == "unassigned"
-                else ["basin_draw"],
+                notes=["basin_unassigned"] if assignment.status == "unassigned" else ["basin_draw"],
             )
         )
     return estimates, hits, unresolved

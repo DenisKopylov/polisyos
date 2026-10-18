@@ -70,9 +70,7 @@ class VOIDecisionRecord(BaseModel):
     def _validate_decision_safety(self) -> VOIDecisionRecord:
         action = _action_key(self.recommended_action)
         if self.expected_value < 0.0 and action not in NEGATIVE_VALUE_ACTIONS:
-            raise ValueError(
-                "negative expected value must produce defer, reject, or stop_search"
-            )
+            raise ValueError("negative expected value must produce defer, reject, or stop_search")
         if self.mandatory_gate_overrides and action not in MANDATORY_GATE_SAFE_ACTIONS:
             raise ValueError("VOI cannot waive or advance through mandatory gates")
         return self

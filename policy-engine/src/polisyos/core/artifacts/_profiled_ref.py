@@ -38,10 +38,7 @@ def profile_bound_ref[TArtifactRef: BaseModel](
     ):
         raise ValueError("artifact_manifest_ref_identity_mismatch")
     profile = ManifestLifecycle.profile_sha256(manifest)
-    if (
-        core_ref.manifest_profile_sha256 is not None
-        and core_ref.manifest_profile_sha256 != profile
-    ):
+    if core_ref.manifest_profile_sha256 is not None and core_ref.manifest_profile_sha256 != profile:
         raise ValueError("artifact_manifest_ref_profile_mismatch")
     qualified_payload = {**payload, "manifest_profile_sha256": profile}
     qualified = type(ref).model_validate(qualified_payload)

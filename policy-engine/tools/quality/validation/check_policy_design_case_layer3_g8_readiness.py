@@ -27,33 +27,17 @@ EXPECTED_ARTIFACT_PATHS: tuple[Path, ...] = g8.EXPECTED_ARTIFACT_PATHS
 EXPECTED_MANIFEST_DRIFT_KEYS: tuple[str, ...] = g8.EXPECTED_MANIFEST_DRIFT_KEYS
 ALL_ISSUE_CODES: tuple[str, ...] = tuple(dict.fromkeys(g8.ALL_ISSUE_CODES))
 
-HEALTH_METRIC_REGISTRY_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g8_health_metric_registry.json"
-)
-METRIC_SOURCE_SNAPSHOT_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g8_metric_source_snapshot.json"
-)
-NORMALIZED_METRIC_SIGNALS_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g8_normalized_metric_signals.json"
-)
-METRIC_TREND_REPORT_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g8_metric_trend_report.json"
-)
-CROSS_METRIC_DIAGNOSIS_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g8_cross_metric_diagnosis.json"
-)
+HEALTH_METRIC_REGISTRY_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g8_health_metric_registry.json"
+METRIC_SOURCE_SNAPSHOT_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g8_metric_source_snapshot.json"
+NORMALIZED_METRIC_SIGNALS_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g8_normalized_metric_signals.json"
+METRIC_TREND_REPORT_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g8_metric_trend_report.json"
+CROSS_METRIC_DIAGNOSIS_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g8_cross_metric_diagnosis.json"
 DOMAIN_VS_SEARCH_CEILING_GATE_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g8_domain_vs_search_ceiling_gate.json"
 )
-METRIC_GAMING_FIREWALL_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g8_metric_gaming_firewall.json"
-)
-WARNING_LIFECYCLE_LEDGER_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g8_warning_lifecycle_ledger.json"
-)
-D44_CORPUS_REBASING_RULE_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g8_d44_corpus_rebasing_rule.json"
-)
+METRIC_GAMING_FIREWALL_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g8_metric_gaming_firewall.json"
+WARNING_LIFECYCLE_LEDGER_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g8_warning_lifecycle_ledger.json"
+D44_CORPUS_REBASING_RULE_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g8_d44_corpus_rebasing_rule.json"
 D44_REANNOTATION_COVERAGE_MATRIX_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g8_d44_reannotation_coverage_matrix.json"
 )
@@ -63,9 +47,7 @@ D44_REBASING_TRIGGER_LEDGER_PATH = (
 D44_REBASING_CANDIDATE_SET_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g8_d44_rebasing_candidate_set.json"
 )
-D44_REBASING_RECEIPT_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g8_d44_rebasing_receipt.json"
-)
+D44_REBASING_RECEIPT_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g8_d44_rebasing_receipt.json"
 SEALED_BATTERY_INTEGRITY_JOIN_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g8_sealed_battery_integrity_join.json"
 )
@@ -82,21 +64,15 @@ PUBLIC_EXPORT_PROJECTION_REFS_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g8_public_export_projection_refs.json"
 )
 REPLAY_MANIFEST_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g8_replay_manifest.json"
-CONFORMANCE_REPORT_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g8_conformance_report.json"
-)
+CONFORMANCE_REPORT_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g8_conformance_report.json"
 HEALTH_METRIC_GOVERNANCE_DELTA_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g8_health_metric_governance_delta.toml"
 )
 ROUTE_CONTRACT_REGISTRY_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g8_metric_governance_route_contract_registry.toml"
 )
-REGISTRY_RATCHET_DELTA_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g8_registry_ratchet_delta.json"
-)
-READINESS_MANIFEST_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g8_readiness_manifest.json"
-)
+REGISTRY_RATCHET_DELTA_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g8_registry_ratchet_delta.json"
+READINESS_MANIFEST_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g8_readiness_manifest.json"
 
 GENERATED_ARTIFACTS_TOML_PATH = Path("architecture/generated_artifacts.toml")
 INVENTORY_PATH = POLICY_DESIGN_CASE_DIR / "inventory.json"
@@ -150,9 +126,7 @@ def validate_layer3_g8_readiness(repo_root: Path, *, write: bool = False) -> dic
             registration_statuses=registration_statuses,
         ),
         "artifacts": {
-            "expected_artifact_paths": [
-                path.as_posix() for path in EXPECTED_ARTIFACT_PATHS
-            ],
+            "expected_artifact_paths": [path.as_posix() for path in EXPECTED_ARTIFACT_PATHS],
             "written_artifact_paths": written_artifact_paths,
             "missing_persisted_artifact_paths": [
                 path.as_posix()
@@ -176,9 +150,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     report = validate_layer3_g8_readiness(args.repo_root, write=args.write)
-    rendered = (
-        _json_dumps(report) if args.output_format == "json" else _render_text_report(report)
-    )
+    rendered = _json_dumps(report) if args.output_format == "json" else _render_text_report(report)
     if args.output is not None:
         output_path = _resolve_repo_path(Path(args.repo_root).resolve(), args.output)
         atomic_write_text(output_path, rendered)
@@ -197,9 +169,7 @@ def _write_artifacts(repo_root: Path, bundle: g8.Layer3G8Bundle) -> list[str]:
         METRIC_GAMING_FIREWALL_PATH: bundle.metric_gaming_firewall,
         WARNING_LIFECYCLE_LEDGER_PATH: bundle.warning_lifecycle_ledger,
         D44_CORPUS_REBASING_RULE_PATH: bundle.d44_rebasing_rule,
-        D44_REANNOTATION_COVERAGE_MATRIX_PATH: (
-            bundle.d44_reannotation_coverage_matrix
-        ),
+        D44_REANNOTATION_COVERAGE_MATRIX_PATH: (bundle.d44_reannotation_coverage_matrix),
         D44_REBASING_TRIGGER_LEDGER_PATH: bundle.d44_rebasing_trigger_ledger,
         D44_REBASING_CANDIDATE_SET_PATH: bundle.d44_rebasing_candidate_set,
         D44_REBASING_RECEIPT_PATH: bundle.d44_rebasing_receipt,
@@ -266,34 +236,24 @@ def _summary(
         "g8_metric_gaming_firewall_status": bundle.metric_gaming_firewall.status,
         "g8_warning_lifecycle_status": bundle.warning_lifecycle_ledger.status,
         "g8_d44_rebasing_rule_status": bundle.d44_rebasing_rule.status,
-        "g8_d44_reannotation_coverage_status": (
-            bundle.d44_reannotation_coverage_matrix.status
-        ),
+        "g8_d44_reannotation_coverage_status": (bundle.d44_reannotation_coverage_matrix.status),
         "g8_d44_rebasing_trigger_status": bundle.d44_rebasing_trigger_ledger.status,
         "g8_d44_rebasing_receipt_status": bundle.d44_rebasing_receipt.status,
-        "g8_sealed_battery_integrity_status": (
-            bundle.sealed_battery_integrity_join.status
-        ),
+        "g8_sealed_battery_integrity_status": (bundle.sealed_battery_integrity_join.status),
         "g8_open_question_answer_status": bundle.open_question_answer_ledger.status,
         "g8_expert_machine_surface_status": (
             "pass" if audiences == {"EXPERT", "MACHINE"} else "blocked"
         ),
-        "g8_closeout_signal_consumer_status": (
-            bundle.closeout_signal_consumer_gate.status
-        ),
+        "g8_closeout_signal_consumer_status": (bundle.closeout_signal_consumer_gate.status),
         "g8_public_projection_contract_status": (
             bundle.public_export_projection_refs.public_projection_status
         ),
         "g8_replay_manifest_status": bundle.replay_manifest.get("status"),
         "g8_conformance_status": bundle.conformance_report.status,
-        "g8_generated_artifacts_registration_status": registration_statuses[
-            "generated_artifacts"
-        ],
+        "g8_generated_artifacts_registration_status": registration_statuses["generated_artifacts"],
         "g8_inventory_surface_status": registration_statuses["inventory"],
         "g8_reference_docs_status": registration_statuses["docs"],
-        "g8_route_contract_registry_status": registration_statuses[
-            "route_contract_registry"
-        ],
+        "g8_route_contract_registry_status": registration_statuses["route_contract_registry"],
         "g8_registry_ratchet_status": registration_statuses["registry_ratchet"],
         "g8_manifest_runtime_drift_key_count": len(drift_keys),
     }
@@ -380,11 +340,7 @@ def _manifest_runtime_drift_keys(
     runtime_summary = _mapping(readiness_manifest.get("summary"))
     persisted_summary = {
         **_mapping(persisted.get("summary")),
-        **{
-            key: persisted.get(key)
-            for key in EXPECTED_MANIFEST_DRIFT_KEYS
-            if key in persisted
-        },
+        **{key: persisted.get(key) for key in EXPECTED_MANIFEST_DRIFT_KEYS if key in persisted},
     }
     return [
         key
@@ -443,9 +399,7 @@ def _registration_statuses(repo_root: Path) -> dict[str, str]:
         (REFERENCE_INDEX_PATH, "Policy Design Case Layer 3 Health-Metric Governance"),
         (RUNTIME_QUALITY_README_PATH, "layer3_health_metric_governance.py"),
     )
-    docs_ok = all(
-        needle in _read_text_or_empty(repo_root, path) for path, needle in docs_checks
-    )
+    docs_ok = all(needle in _read_text_or_empty(repo_root, path) for path, needle in docs_checks)
     route_text = _read_text_or_empty(repo_root, ROUTE_CONTRACT_REGISTRY_PATH)
     registry_text = _read_text_or_empty(repo_root, REGISTRY_RATCHET_DELTA_PATH)
     return {
@@ -498,11 +452,7 @@ def _registration_issues(
             "G8 registry ratchet delta must be generated and persisted.",
         ),
     }
-    return [
-        issue_by_key[key]
-        for key, status in registration_statuses.items()
-        if status != "pass"
-    ]
+    return [issue_by_key[key] for key, status in registration_statuses.items() if status != "pass"]
 
 
 def _validate_runtime_surfaces(bundle: g8.Layer3G8Bundle) -> list[dict[str, str]]:
@@ -583,9 +533,7 @@ def _write_health_metric_governance_delta(
         "",
         "[health_metric_governance_delta]",
     ]
-    for key, value in sorted(
-        _mapping(payload.get("health_metric_governance_delta")).items()
-    ):
+    for key, value in sorted(_mapping(payload.get("health_metric_governance_delta")).items()):
         lines.append(f"{_toml_key(str(key))} = {_toml_value(value)}")
     atomic_write_text(path, "\n".join(lines).rstrip() + "\n")
 
@@ -642,9 +590,7 @@ def _toml_value(value: Any) -> str:
     if isinstance(value, int | float):
         return str(value)
     if isinstance(value, Mapping):
-        pairs = [
-            f"{_toml_key(str(key))} = {_toml_value(value[key])}" for key in sorted(value)
-        ]
+        pairs = [f"{_toml_key(str(key))} = {_toml_value(value[key])}" for key in sorted(value)]
         return "{ " + ", ".join(pairs) + " }"
     if isinstance(value, Sequence) and not isinstance(value, str | bytes):
         return "[" + ", ".join(_toml_value(item) for item in value) + "]"
@@ -708,8 +654,7 @@ def _render_text_report(report: Mapping[str, Any]) -> str:
         for issue in issues:
             if isinstance(issue, Mapping):
                 lines.append(
-                    f"- {issue.get('code', '')} {issue.get('path', '')}: "
-                    f"{issue.get('message', '')}"
+                    f"- {issue.get('code', '')} {issue.get('path', '')}: {issue.get('message', '')}"
                 )
     return "\n".join(lines).rstrip() + "\n"
 

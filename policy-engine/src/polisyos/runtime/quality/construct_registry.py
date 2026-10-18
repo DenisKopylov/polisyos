@@ -126,10 +126,7 @@ class ConstructValidityRequirements(ConstructRegistryModel):
     def _clean_status_map(cls, value: object) -> Mapping[str, str]:
         if not isinstance(value, Mapping):
             raise TypeError("minimum_status_by_posture must be a mapping")
-        return {
-            _required_text(key): _required_text(item)
-            for key, item in value.items()
-        }
+        return {_required_text(key): _required_text(item) for key, item in value.items()}
 
 
 class ConstructAliasDeprecation(ConstructRegistryModel):
@@ -181,9 +178,7 @@ class ConstructCompatibilityAlias(ConstructRegistryModel):
     @model_validator(mode="after")
     def _validate_legacy_alias_deprecation(self) -> ConstructCompatibilityAlias:
         if self.alias_type == "legacy_scenario_family" and self.deprecation is None:
-            raise ValueError(
-                "legacy scenario-family aliases require deprecation metadata"
-            )
+            raise ValueError("legacy scenario-family aliases require deprecation metadata")
         return self
 
 
@@ -323,9 +318,7 @@ class ConstructRegistry(ConstructRegistryModel):
     @classmethod
     def _validate_schema_version(cls, value: str) -> str:
         if value != CONSTRUCT_REGISTRY_SCHEMA_VERSION:
-            raise ValueError(
-                f"schema_version must be {CONSTRUCT_REGISTRY_SCHEMA_VERSION}"
-            )
+            raise ValueError(f"schema_version must be {CONSTRUCT_REGISTRY_SCHEMA_VERSION}")
         return value
 
     @field_validator("registry_id")
@@ -346,9 +339,7 @@ class ConstructRegistry(ConstructRegistryModel):
     @classmethod
     def _validate_rule_version_ref(cls, value: str) -> str:
         if value != CONSTRUCT_REGISTRY_RULE_VERSION:
-            raise ValueError(
-                f"rule_version_ref must be {CONSTRUCT_REGISTRY_RULE_VERSION}"
-            )
+            raise ValueError(f"rule_version_ref must be {CONSTRUCT_REGISTRY_RULE_VERSION}")
         return value
 
     @model_validator(mode="after")
@@ -590,10 +581,7 @@ def non_ukraine_bound_constructs(
     refs = [
         construct.construct_id
         for construct in model.constructs
-        if any(
-            binding.case_id != pinned_case_id
-            for binding in construct.corpus_bindings
-        )
+        if any(binding.case_id != pinned_case_id for binding in construct.corpus_bindings)
     ]
     return tuple(sorted(dict.fromkeys(refs)))
 
@@ -627,9 +615,7 @@ def _corpus_case_ids(path: Path) -> tuple[str, ...]:
     fixtures = payload.get("fixtures")
     if not isinstance(fixtures, Sequence):
         raise ConstructRegistryError(f"Universal corpus manifest missing fixtures: {path}")
-    case_ids = [
-        _required_text(row.get("case_id")) for row in fixtures if isinstance(row, Mapping)
-    ]
+    case_ids = [_required_text(row.get("case_id")) for row in fixtures if isinstance(row, Mapping)]
     return tuple(sorted(case_ids))
 
 
@@ -666,8 +652,7 @@ def _validate_governed_values(
     unknown = sorted(set(values) - allowed)
     if unknown:
         raise ValueError(
-            f"{field_name} contains values outside the governed taxonomy: "
-            + ", ".join(unknown)
+            f"{field_name} contains values outside the governed taxonomy: " + ", ".join(unknown)
         )
     return values
 

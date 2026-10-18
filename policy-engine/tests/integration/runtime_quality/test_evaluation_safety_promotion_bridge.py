@@ -47,9 +47,7 @@ def _resolution(service, terminal, *, owner: RuntimePrincipal):
     def read_resolution():
         ref = terminal.progress["eval_safety_promotion_source_resolution_ref"]
         assert (
-            terminal.progress["artifacts_index"][
-                "eval_safety_promotion_source_resolution_ref"
-            ]
+            terminal.progress["artifacts_index"]["eval_safety_promotion_source_resolution_ref"]
             == ref
         )
         return canon.from_canonical_bytes(service._artifact_store.get_bytes(ref))
@@ -111,9 +109,7 @@ def test_production_empty_slot_persists_named_absence_and_ignores_request_verdic
     result = _run_blocked_attempt(tmp_path, monkeypatch, {"consumer_promotable": True})
     service = result["service"]
     try:
-        resolution = _resolution(
-            service, result["terminal"], owner=_ADMISSION_FIXTURE_PRINCIPAL
-        )
+        resolution = _resolution(service, result["terminal"], owner=_ADMISSION_FIXTURE_PRINCIPAL)
         assert resolution["requested_source_run_ids"] == []
         assert resolution["inputs_read"] == []
         assert resolution["refusal_reasons"] == ["promotion_source_slot_empty"]
@@ -182,13 +178,9 @@ def produced_station(tmp_path_factory):
 
     principal = RuntimePrincipal.from_user_claims(_fixture_claims())
     context_refs = []
-    original_context_persist = (
-        CycleSubstrateContextArtifactOwner.persist_for_current_job
-    )
+    original_context_persist = CycleSubstrateContextArtifactOwner.persist_for_current_job
 
-    def capture_context_ref(
-        context_owner, context, *, problem, verified_nl_job_scope=None
-    ):
+    def capture_context_ref(context_owner, context, *, problem, verified_nl_job_scope=None):
         ref = original_context_persist(
             context_owner,
             context,
@@ -208,9 +200,7 @@ def produced_station(tmp_path_factory):
         # Runtime composition uses this owner-aware view of the original CAS.
         # The DI helper's plain FileSystemCAS leaves default writes ownerless,
         # then its fixture tenant claim makes the later registry replay fail.
-        patches.setattr(
-            test_control_service_di, "FileSystemCAS", runtime_composed_cas
-        )
+        patches.setattr(test_control_service_di, "FileSystemCAS", runtime_composed_cas)
         patches.setattr(
             CycleSubstrateContextArtifactOwner,
             "persist_for_current_job",
@@ -226,9 +216,7 @@ def produced_station(tmp_path_factory):
         )
     assert len(context_refs) == 1
     context_ref = context_refs[0]
-    assert str(context_ref.artifact_id) == (
-        fixture.job.progress["cycle_substrate_context_job_ref"]
-    )
+    assert str(context_ref.artifact_id) == (fixture.job.progress["cycle_substrate_context_job_ref"])
     try:
         yield {
             "service": fixture.service,
@@ -245,9 +233,7 @@ def _attempt_from_produced_source(produced_station, *, candidate_hash=None, worl
     service = produced_station["service"]
     owner = produced_station["principal"]
     source_run_id = produced_station["source_run_id"]
-    source_job = _within_owner(
-        owner, service._control_store.get_job, produced_station["job_id"]
-    )
+    source_job = _within_owner(owner, service._control_store.get_job, produced_station["job_id"])
     assert source_job is not None
     core_source = _completed_core_source(produced_station, source_job)
     from polisyos.core.artifacts.manifest import ArtifactRef
@@ -264,9 +250,7 @@ def _attempt_from_produced_source(produced_station, *, candidate_hash=None, worl
         str(compiled_ref.artifact_id)
         == source_job.progress["compiled_recursive_generation_cycle_ref"]
     )
-    compiled_bytes = _within_owner(
-        owner, service._artifact_store.get_bytes, compiled_ref
-    )
+    compiled_bytes = _within_owner(owner, service._artifact_store.get_bytes, compiled_ref)
     compiled = canon.from_canonical_bytes(compiled_bytes)
     leaf = next(row for row in compiled["recursive_run"]["nodes"] if row["cycle_run"] is not None)
     candidate = leaf["cycle_run"]["candidate_summaries"][0]
@@ -318,14 +302,9 @@ def test_existing_blocked_generation_producer_is_read_before_n9_refusal(
     assert source_job.progress["normative_disposition_status"] == "not_run"
     assert source_job.progress["s8_status"] == "not_run"
     assert source_job.progress["publication_status"] == "not_run"
-    compiled_bytes = _within_owner(
-        owner, service._artifact_store.get_bytes, compiled_ref
-    )
+    compiled_bytes = _within_owner(owner, service._artifact_store.get_bytes, compiled_ref)
     compiled = canon.from_canonical_bytes(compiled_bytes)
-    leaf = next(
-        row for row in compiled["recursive_run"]["nodes"]
-        if row["cycle_run"] is not None
-    )
+    leaf = next(row for row in compiled["recursive_run"]["nodes"] if row["cycle_run"] is not None)
     assert leaf["cycle_run"]["terminal_status"] == "blocked"
     from polisyos.core.artifacts.manifest import ArtifactRef
     from polisyos.runtime.http.services.control.evaluation_safety import (
@@ -364,9 +343,7 @@ def test_controlled_profile_candidate_preserves_simulation_without_n9_authority(
 
     owner = produced_station["principal"]
     service = produced_station["service"]
-    source_job = _within_owner(
-        owner, service._control_store.get_job, produced_station["job_id"]
-    )
+    source_job = _within_owner(owner, service._control_store.get_job, produced_station["job_id"])
     assert source_job is not None
     source = _completed_core_source(produced_station, source_job)
     compiled_refs = tuple(
@@ -404,9 +381,7 @@ def test_removing_core_terminal_with_progress_markers_retained_refuses_source(
 ):
     """The promotion reader requires the lease-owned terminal trace itself."""
     owner = produced_station["principal"]
-    service, source_job, compiled_ref, launch = _attempt_from_produced_source(
-        produced_station
-    )
+    service, source_job, compiled_ref, launch = _attempt_from_produced_source(produced_station)
     core_source = _completed_core_source(produced_station, source_job)
     trace_path = core_source.trace_path
     original_trace = trace_path.read_bytes()
@@ -435,22 +410,23 @@ def test_removing_core_terminal_with_progress_markers_retained_refuses_source(
         assert f"cas_bytes:{_artifact_id(compiled_ref)}" not in result["inputs_read"]
         assert "promotion_source_candidate_receipt_not_unique" not in result["refusal_reasons"]
         assert terminal.progress["eval_safety_counters"]["near_miss_count"] == 0
-        current_source_job = _within_owner(
-            owner, service._control_store.get_job, source_job.job_id
-        )
+        current_source_job = _within_owner(owner, service._control_store.get_job, source_job.job_id)
         assert current_source_job is not None
         assert current_source_job.progress == retained_progress
         assert current_source_job.progress["core_run_id"] == source_job.progress["core_run_id"]
-        assert current_source_job.progress["core_run_attempt"] == source_job.progress[
-            "core_run_attempt"
-        ]
-        assert current_source_job.progress["core_manifest_artifact_ref"] == source_job.progress[
-            "core_manifest_artifact_ref"
-        ]
+        assert (
+            current_source_job.progress["core_run_attempt"]
+            == source_job.progress["core_run_attempt"]
+        )
+        assert (
+            current_source_job.progress["core_manifest_artifact_ref"]
+            == source_job.progress["core_manifest_artifact_ref"]
+        )
         assert current_source_job.progress["manifest_ref"] == source_job.progress["manifest_ref"]
-        assert current_source_job.progress[
-            "compiled_recursive_generation_cycle_ref"
-        ] == source_job.progress["compiled_recursive_generation_cycle_ref"]
+        assert (
+            current_source_job.progress["compiled_recursive_generation_cycle_ref"]
+            == source_job.progress["compiled_recursive_generation_cycle_ref"]
+        )
     finally:
         trace_path.write_bytes(original_trace)
 
@@ -523,7 +499,10 @@ def test_opaque_classifier_forwards_real_evidence_repository_to_both_n9_readers(
 
     def invoke(**kwargs):
         # This fixture isolates forwarding; it deliberately supplies no real promotion claim.
-        for name in ("validate_canonical_promotion_receipt", "promotion_receipt_allows_decision_front"):
+        for name in (
+            "validate_canonical_promotion_receipt",
+            "promotion_receipt_allows_decision_front",
+        ):
             delegate = getattr(n9, name)
 
             def reader(*args, _delegate=delegate, _name=name, **reader_kwargs):
@@ -536,15 +515,27 @@ def test_opaque_classifier_forwards_real_evidence_repository_to_both_n9_readers(
 
     monkeypatch.setattr(es, "verify_near_miss_classification", invoke)
     _verified_classification(core, monkeypatch, promotion_safe=False)
-    assert calls == ["validate_canonical_promotion_receipt", "promotion_receipt_allows_decision_front"]
+    assert calls == [
+        "validate_canonical_promotion_receipt",
+        "promotion_receipt_allows_decision_front",
+    ]
     assert persistence._artifact_store is store
 
 
-@pytest.mark.parametrize("changed_field", [
-    "artifact_id", "integrity", "byte_size", "media_type", "artifact_schema",
-])
+@pytest.mark.parametrize(
+    "changed_field",
+    [
+        "artifact_id",
+        "integrity",
+        "byte_size",
+        "media_type",
+        "artifact_schema",
+    ],
+)
 def test_compiled_source_manifest_custody_requires_exact_writer_contract(
-    produced_station, monkeypatch, changed_field,
+    produced_station,
+    monkeypatch,
+    changed_field,
 ):
     owner = produced_station["principal"]
     service, _, compiled_ref, launch = _attempt_from_produced_source(produced_station)
@@ -588,7 +579,8 @@ def test_compiled_source_manifest_custody_requires_exact_writer_contract(
 
 
 def test_authoritative_classifier_rejects_foreign_mode_with_identical_candidate_and_world(
-    tmp_path, monkeypatch,
+    tmp_path,
+    monkeypatch,
 ):
     from types import SimpleNamespace
 
@@ -622,7 +614,8 @@ def test_authoritative_classifier_rejects_foreign_mode_with_identical_candidate_
 
 
 def _run_blocked_generation_source_refuses_before_eval_safety_n9_classifier(
-    produced_station, monkeypatch,
+    produced_station,
+    monkeypatch,
 ):
     """Prove blocked source custody cannot reach EvalSafety classification.
 
@@ -655,9 +648,7 @@ def _run_blocked_generation_source_refuses_before_eval_safety_n9_classifier(
 
     service = produced_station["service"]
     owner = produced_station["principal"]
-    prior_job = _within_owner(
-        owner, service._control_store.get_job, produced_station["job_id"]
-    )
+    prior_job = _within_owner(owner, service._control_store.get_job, produced_station["job_id"])
     assert prior_job is not None
     compiled_bytes = _within_owner(
         owner,
@@ -689,9 +680,7 @@ def _run_blocked_generation_source_refuses_before_eval_safety_n9_classifier(
 
     def record_signature_verification(artifact_id, verifier, *, strict_identity=None):
         signature_calls.append(artifact_id)
-        return original_verify_signature(
-            artifact_id, verifier, strict_identity=strict_identity
-        )
+        return original_verify_signature(artifact_id, verifier, strict_identity=strict_identity)
 
     monkeypatch.setattr(service._artifact_store, "verify_signature", record_signature_verification)
     signature_verifier = build_guarded_signature_verifier(
@@ -819,17 +808,21 @@ def _run_blocked_generation_source_refuses_before_eval_safety_n9_classifier(
         recursive = compiled.recursive_run.model_copy(update={"nodes": (node,)})
         recursive_values = gy_artifact_self_identity_projection(recursive)
         recursive_values.pop("leaf_nodes", None)
-        recursive = type(recursive).model_validate({
-            **recursive.model_dump(mode="json"),
-            "content_hash": gy_content_hash(recursive_values),
-        })
+        recursive = type(recursive).model_validate(
+            {
+                **recursive.model_dump(mode="json"),
+                "content_hash": gy_content_hash(recursive_values),
+            }
+        )
         revised = compiled.model_copy(update={"recursive_run": recursive})
         compiled_values = gy_artifact_self_identity_projection(revised)
         compiled_values["recursive_run"].pop("leaf_nodes", None)
-        return type(compiled).model_validate({
-            **revised.model_dump(mode="json"),
-            "content_hash": gy_content_hash(compiled_values),
-        })
+        return type(compiled).model_validate(
+            {
+                **revised.model_dump(mode="json"),
+                "content_hash": gy_content_hash(compiled_values),
+            }
+        )
 
     monkeypatch.setattr(
         generation,
@@ -858,13 +851,12 @@ def _run_blocked_generation_source_refuses_before_eval_safety_n9_classifier(
         finally:
             if job.job_id == expected_job_id:
                 finished.set()
+
     from polisyos.runtime.quality.cycle_substrate import (
         CycleSubstrateContextArtifactOwner,
     )
 
-    context_owner = CycleSubstrateContextArtifactOwner(
-        store=service._artifact_store
-    )
+    context_owner = CycleSubstrateContextArtifactOwner(store=service._artifact_store)
     context_artifact = _within_owner(
         owner,
         context_owner.resolve_historical_job_artifact,
@@ -881,21 +873,15 @@ def _run_blocked_generation_source_refuses_before_eval_safety_n9_classifier(
     assert source_simulation.k_world_ref_before == context_world.content_hash
     assert source_simulation.k_world_ref_after == context_world.content_hash
     if source_simulation.world_model_record is not None:
-        assert source_simulation.world_model_record.content_hash == (
-            context_world.content_hash
-        )
-    simulate_only_attempt = _valid_intake_for_mode("simulate_only").model_dump(
-        mode="json"
-    )
+        assert source_simulation.world_model_record.content_hash == (context_world.content_hash)
+    simulate_only_attempt = _valid_intake_for_mode("simulate_only").model_dump(mode="json")
     simulate_only_attempt["design_problem_ref"] = leaf.design_problem_ref
     simulate_only_attempt["candidate_ref"]["artifact_id"] = summary.candidate_id
     simulate_only_attempt["candidate_ref"]["content_hash"] = summary.content_hash
     simulate_only_attempt["world_model_record_ref"]["artifact_id"] = (
         context_world.world_model_record_id
     )
-    simulate_only_attempt["world_model_record_ref"]["content_hash"] = (
-        context_world.content_hash
-    )
+    simulate_only_attempt["world_model_record_ref"]["content_hash"] = context_world.content_hash
     request = NaturalLanguageRunRequest(
         request=compiled.design_problem.nl_provenance.raw_request,
         llm_model="simulated-qwen",
@@ -908,9 +894,7 @@ def _run_blocked_generation_source_refuses_before_eval_safety_n9_classifier(
             service.launch_nl_run(
                 request,
                 principal=owner,
-                authorization_proof=bound_nl_authorization_proof(
-                    _fixture_claims(), request
-                ),
+                authorization_proof=bound_nl_authorization_proof(_fixture_claims(), request),
             )
         ),
     )
@@ -940,7 +924,8 @@ def _run_blocked_generation_source_refuses_before_eval_safety_n9_classifier(
         "principal": owner,
     }
     _, _, compiled_ref, launch = _attempt_from_produced_source(
-        selected, world_hash=value.world_model_record_content_hash,
+        selected,
+        world_hash=value.world_model_record_content_hash,
     )
     real_verify = adapter.verify_near_miss_classification
     real_compose = service._evaluation_safety_persistence_service.compose_and_persist_attempt
@@ -959,7 +944,9 @@ def _run_blocked_generation_source_refuses_before_eval_safety_n9_classifier(
         return result
 
     monkeypatch.setattr(adapter, "verify_near_miss_classification", verify)
-    monkeypatch.setattr(service._evaluation_safety_persistence_service, "compose_and_persist_attempt", compose)
+    monkeypatch.setattr(
+        service._evaluation_safety_persistence_service, "compose_and_persist_attempt", compose
+    )
     signature_calls.clear()
     process_job_with_worker(launch.job_id)
     terminal = _within_owner(owner, service._control_store.get_job, launch.job_id)
@@ -974,9 +961,7 @@ def _run_blocked_generation_source_refuses_before_eval_safety_n9_classifier(
     assert counters["near_miss_count"] == 0
 
     # Read the persisted selected source again through the actual Core and CAS owners.
-    source_job = _within_owner(
-        owner, service._control_store.get_job, selected["job_id"]
-    )
+    source_job = _within_owner(owner, service._control_store.get_job, selected["job_id"])
     assert source_job is not None
     assert source_job.state == "completed"
     source_core = _completed_core_source(produced_station, source_job)
@@ -998,9 +983,7 @@ def _run_blocked_generation_source_refuses_before_eval_safety_n9_classifier(
     assert source_job.progress["s8_status"] == "not_run"
     assert source_job.progress["publication_status"] == "not_run"
 
-    compiled_bytes = _within_owner(
-        owner, service._artifact_store.get_bytes, compiled_ref
-    )
+    compiled_bytes = _within_owner(owner, service._artifact_store.get_bytes, compiled_ref)
     persisted_compiled = generation.CompiledRecursiveGenerationCycleRun.model_validate(
         canon.from_canonical_bytes(compiled_bytes)
     )
@@ -1009,8 +992,7 @@ def _run_blocked_generation_source_refuses_before_eval_safety_n9_classifier(
         for node in persisted_compiled.recursive_run.leaf_nodes
         if node.cycle_run is not None
         and any(
-            item.candidate_id == summary.candidate_id
-            for item in node.cycle_run.candidate_summaries
+            item.candidate_id == summary.candidate_id for item in node.cycle_run.candidate_summaries
         )
     ]
     assert len(source_leaves) == 1
@@ -1064,8 +1046,9 @@ def _run_blocked_generation_source_refuses_before_eval_safety_n9_classifier(
         persisted_attempt.decision.model_dump(mode="json")
     )
 
-    assert persisted_attempt.promotion_source_resolution_ref == (
-        terminal.progress["eval_safety_promotion_source_resolution_ref"]
+    assert (
+        persisted_attempt.promotion_source_resolution_ref
+        == (terminal.progress["eval_safety_promotion_source_resolution_ref"])
     )
     persisted_resolution = EvaluationSafetyPromotionSourceResolution.model_validate(
         canon.from_canonical_bytes(
@@ -1076,9 +1059,7 @@ def _run_blocked_generation_source_refuses_before_eval_safety_n9_classifier(
             )
         )
     )
-    assert persisted_resolution.model_dump(mode="json") == (
-        resolution.model_dump(mode="json")
-    )
+    assert persisted_resolution.model_dump(mode="json") == (resolution.model_dump(mode="json"))
     assert persisted_resolution.classification == "not_established"
     assert persisted_resolution.selected_compiled_ref is None
 
@@ -1106,15 +1087,14 @@ def _run_blocked_generation_source_refuses_before_eval_safety_n9_classifier(
         terminal.progress["manifest_ref"],
     )
     failed_manifest = canon.from_canonical_bytes(failed_manifest_bytes)
-    offer_kind = es.EVALUATION_SAFETY_ARTIFACT_IDENTITIES[
-        "classification_offer"
-    ].kind
+    offer_kind = es.EVALUATION_SAFETY_ARTIFACT_IDENTITIES["classification_offer"].kind
     assert all(output["kind"] != offer_kind for output in failed_manifest["outputs"])
 
     # The genuine prior source still exists, but is outside this deployment's selector.
     assert _within_owner(owner, service._artifact_store.get_bytes, compiled_ref)
     _, _, _, outside_launch = _attempt_from_produced_source(
-        selected, world_hash=value.world_model_record_content_hash,
+        selected,
+        world_hash=value.world_model_record_content_hash,
     )
     service._evaluation_safety_promotion_sources = replace(
         service._evaluation_safety_promotion_sources,
@@ -1122,9 +1102,7 @@ def _run_blocked_generation_source_refuses_before_eval_safety_n9_classifier(
     )
     prior_calls = tuple(calls)
     process_job_with_worker(outside_launch.job_id)
-    outside_terminal = _within_owner(
-        owner, service._control_store.get_job, outside_launch.job_id
-    )
+    outside_terminal = _within_owner(owner, service._control_store.get_job, outside_launch.job_id)
     assert outside_terminal is not None
     outside = _resolution(service, outside_terminal, owner=owner)
     assert tuple(calls) == prior_calls
@@ -1137,7 +1115,8 @@ def _run_blocked_generation_source_refuses_before_eval_safety_n9_classifier(
 
 
 def test_blocked_generation_source_refuses_before_eval_safety_n9_classifier(
-    produced_station, monkeypatch,
+    produced_station,
+    monkeypatch,
 ):
     """Run the blocked-source refusal witness under its real tenant and cell owner."""
     owner = produced_station["principal"]
@@ -1283,18 +1262,13 @@ def test_n9_repository_signature_capability_preserves_guarded_tenant_cell_custod
                     foreign = repository.resolve_promotion_safety(promotion_input=bound)
                     assert foreign.custody_status == "not_established"
                     assert foreign.source_attempts == ()
-                    assert any(
-                        row.status == "unreadable"
-                        for row in foreign.inputs_read
-                    )
+                    assert any(row.status == "unreadable" for row in foreign.inputs_read)
                     assert foreign.promotion_authority_status == "not_established"
 
                     # Exercise the same owner-bound source read separately so
                     # this negative reaches the guarded CAS seam. Ownership
                     # refusal occurs before a signature verifier call.
-                    attempt = repository._promotion_safety._source_attempt(
-                        canonical_ref, scope
-                    )
+                    attempt = repository._promotion_safety._source_attempt(canonical_ref, scope)
                     assert attempt.status != "candidate_custody_verified"
                     assert attempt.signer_identity is None
                     assert any(row.status == "unreadable" for row in attempt.inputs_read)

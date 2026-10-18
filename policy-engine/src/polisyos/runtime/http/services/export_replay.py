@@ -68,9 +68,7 @@ class ExportReplayPinMismatchError(ValueError):
     def __init__(self, *, expected: str, actual: str) -> None:
         self.expected = expected
         self.actual = actual
-        super().__init__(
-            f"export projection replay pin {expected!r} does not match {actual!r}"
-        )
+        super().__init__(f"export projection replay pin {expected!r} does not match {actual!r}")
 
 
 def build_export_stable_address(
@@ -88,9 +86,7 @@ def build_export_stable_address(
     """
 
     stable_items = sorted(
-        (str(key), str(value))
-        for key, value in query_items
-        if key != EXPORT_REPLAY_QUERY_PARAMETER
+        (str(key), str(value)) for key, value in query_items if key != EXPORT_REPLAY_QUERY_PARAMETER
     )
     if not stable_items:
         return path

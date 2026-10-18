@@ -29,13 +29,8 @@ def test_layer3_g8_readiness_cli_delegates_to_validator_and_reports_issue_codes(
             "issues": [
                 {
                     "code": "layer3_g8_conformance_negative_missing",
-                    "path": (
-                        "architecture/policy_design_case/"
-                        "layer3_g8_conformance_report.json"
-                    ),
-                    "message": (
-                        "G8 conformance report must pass all required negative probes."
-                    ),
+                    "path": ("architecture/policy_design_case/layer3_g8_conformance_report.json"),
+                    "message": ("G8 conformance report must pass all required negative probes."),
                 }
             ],
             "summary": {

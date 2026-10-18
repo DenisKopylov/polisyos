@@ -144,7 +144,9 @@ def test_controller_uses_resource_arbiter_for_stage_b() -> None:
     assert arbiter.owners == ["jax", "jax"]
 
 
-def test_controller_bounds_transient_empty_generation_and_separates_budget_from_iterations() -> None:
+def test_controller_bounds_transient_empty_generation_and_separates_budget_from_iterations() -> (
+    None
+):
     class ScriptedBatchGenerator:
         def __init__(self):
             self.calls = 0

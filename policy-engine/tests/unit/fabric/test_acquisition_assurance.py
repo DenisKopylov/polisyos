@@ -31,11 +31,19 @@ def test_assurance_executes_frozen_corpus_and_persisted_consumer(tmp_path):
     assert len(happy) == 8 and all(row.state == "reentry_closed" for row in happy)
 
 
-@pytest.mark.parametrize("kind", [
-    "grounding_relation", "estimand_binding", "owner_writability", "legal_mandate",
-    "normative_authorization", "implementation_capacity_evidence", "competent_human_decision",
-    "independent_audit",
-])
+@pytest.mark.parametrize(
+    "kind",
+    [
+        "grounding_relation",
+        "estimand_binding",
+        "owner_writability",
+        "legal_mandate",
+        "normative_authorization",
+        "implementation_capacity_evidence",
+        "competent_human_decision",
+        "independent_audit",
+    ],
+)
 def test_terminal_requires_substantive_bound_complete_owner_basis(tmp_path, kind):
     """Retaining claimed coverage while removing owner evidence cannot establish a boundary."""
     corpus = decode_case_inputs(CORPUS)
@@ -44,7 +52,9 @@ def test_terminal_requires_substantive_bound_complete_owner_basis(tmp_path, kind
     assert positive.state == "reentry_provisional_refusal" and positive.terminal == "deeper"
     missing = copy.deepcopy(original)
     missing["terminal_evidence"]["searched"] = missing["terminal_evidence"]["searched"][:-1]
-    assert execute_case(missing, corpus["vocabulary"], tmp_path / "missing").terminal == "provisional"
+    assert (
+        execute_case(missing, corpus["vocabulary"], tmp_path / "missing").terminal == "provisional"
+    )
     fake = copy.deepcopy(original)
     fake["terminal_evidence"]["searched"].append("nonexistent:alternative")
     fake["terminal_evidence"]["basis_hash"] = hashlib.sha256(
@@ -56,8 +66,9 @@ def test_terminal_requires_substantive_bound_complete_owner_basis(tmp_path, kind
 @pytest.mark.parametrize("alteration", ["cross_bound_claim", "late", "forged", "conflict"])
 def test_event_cannot_close_without_recomputed_targeted_current_evidence(tmp_path, alteration):
     corpus = decode_case_inputs(CORPUS)
-    case = copy.deepcopy(next(row for row in corpus["cases"]
-                              if row["case_id"] == "reentry.grounding_relation"))
+    case = copy.deepcopy(
+        next(row for row in corpus["cases"] if row["case_id"] == "reentry.grounding_relation")
+    )
     event = case["events"][0]
     if alteration == "cross_bound_claim":
         event["claim"] = "synthetic:other"
@@ -79,15 +90,24 @@ def test_duplicate_event_has_one_persisted_acquisition_effect(tmp_path):
     events = [json.loads(line) for line in (tmp_path / "events.jsonl").read_text().splitlines()]
     assert result.event == "idempotent_duplicate" and result.state == "reentry_closed"
     assert [event["resolution_state"] for event in events] == [
-        "admitted_reentry_required", "reentry_closed",
+        "admitted_reentry_required",
+        "reentry_closed",
     ]
 
 
-@pytest.mark.parametrize("kind", [
-    "grounding_relation", "estimand_binding", "owner_writability", "legal_mandate",
-    "normative_authorization", "implementation_capacity_evidence", "competent_human_decision",
-    "independent_audit",
-])
+@pytest.mark.parametrize(
+    "kind",
+    [
+        "grounding_relation",
+        "estimand_binding",
+        "owner_writability",
+        "legal_mandate",
+        "normative_authorization",
+        "implementation_capacity_evidence",
+        "competent_human_decision",
+        "independent_audit",
+    ],
+)
 def test_remove_boundary_property_keep_terminal_markers_refuses(tmp_path, kind):
     """Same labels and complete coverage cannot replace the substantive predicate."""
     corpus = decode_case_inputs(CORPUS)
@@ -108,7 +128,10 @@ def test_remove_boundary_property_keep_terminal_markers_refuses(tmp_path, kind):
     elif kind == "competent_human_decision":
         basis["roster"]["person:a"] = [case["demand"]["judgment"]["competence"]]
     else:
-        basis["providers"]["provider:a"] = {"implemented_subject": False, "financial_interest": False}
+        basis["providers"]["provider:a"] = {
+            "implemented_subject": False,
+            "financial_interest": False,
+        }
     case["terminal_evidence"]["basis_hash"] = hashlib.sha256(
         json.dumps(basis, sort_keys=True, separators=(",", ":")).encode()
     ).hexdigest()
@@ -125,7 +148,9 @@ def test_rule_change_revalidates_current_use_and_preserves_old_receipt(tmp_path)
     case = next(row for row in corpus["cases"] if row["case_id"] == "reentry.independent_audit")
     result = execute_case(case, corpus["vocabulary"], tmp_path)
     old = [json.loads(line) for line in (tmp_path / "events.jsonl").read_text().splitlines()]
-    current = [json.loads(line) for line in (tmp_path / "current-events.jsonl").read_text().splitlines()]
+    current = [
+        json.loads(line) for line in (tmp_path / "current-events.jsonl").read_text().splitlines()
+    ]
     assert old[-1]["resolution_state"] == "reentry_provisional_refusal"
     assert current[-1]["resolution_state"] == result.state == "admission_refused"
     assert old[-1]["artifact_ref"] != current[-1]["artifact_ref"]

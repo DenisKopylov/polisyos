@@ -106,9 +106,7 @@ class RangeRule:
         violations = []
         non_finite = series.notna() & ~series.map(is_finite_number)
         if non_finite.any():
-            violations.append(
-                f"Field '{self.field}' has {int(non_finite.sum())} non-finite values"
-            )
+            violations.append(f"Field '{self.field}' has {int(non_finite.sum())} non-finite values")
         series = series[~non_finite]
         if self.min_value is not None:
             below = (series < self.min_value).sum()

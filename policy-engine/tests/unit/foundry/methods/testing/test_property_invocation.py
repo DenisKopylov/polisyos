@@ -60,7 +60,6 @@ def test_invalid_declared_inputs_fail_before_method_body(invalid_state: str) -> 
     spy.assert_not_called()
 
 
-
 def test_explicit_bound_inputs_use_microsim_owner_materializers() -> None:
     dispatcher = MethodDispatcher(enable_runtime_selection=False)
     survey = SurveyMicroData(

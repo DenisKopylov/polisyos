@@ -123,12 +123,15 @@ def test_ir_loading_group_preserves_fact_citation_norm_and_migration_behavior() 
     assert report.actions[0].to_path == "b"
     assert norm_pack.metadata["source"].provision_id == "provision.fixture"
     assert parse_expr_syntax("x + 1") == (True, None)
-    assert matrix.pairwise_delta(
-        policy_a_id="policy_a",
-        policy_b_id="policy_b",
-        base_a=10,
-        base_b=14,
-    ) == 3.0
+    assert (
+        matrix.pairwise_delta(
+            policy_a_id="policy_a",
+            policy_b_id="policy_b",
+            base_a=10,
+            base_b=14,
+        )
+        == 3.0
+    )
 
 
 def test_ir_analytics_group_preserves_backtest_count_normalization() -> None:

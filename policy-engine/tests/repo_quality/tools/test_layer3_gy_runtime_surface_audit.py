@@ -84,6 +84,4 @@ def test_gy_runtime_surface_audit_rejects_lost_verified_failed_lineage() -> None
     row["observed_projection"] = copy.deepcopy(row["observed_projection"])
     row["observed_projection"]["status"] = "untraced"
 
-    assert "missing_verified_failed_lineage_observation" in _codes(
-        validator.validate(audit)
-    )
+    assert "missing_verified_failed_lineage_observation" in _codes(validator.validate(audit))

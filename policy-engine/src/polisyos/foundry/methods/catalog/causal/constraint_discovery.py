@@ -2303,9 +2303,7 @@ def _stamp_algebraic_constraint_audit(
     if degraded is not None:
         degraded_warnings = [degraded]
         if analysis_graph is None:
-            degraded_warnings.append(
-                "ci_family_skipped:degraded_or_nonidentity_graph_source"
-            )
+            degraded_warnings.append("ci_family_skipped:degraded_or_nonidentity_graph_source")
         algebraic_report = AlgebraicConstraintReport(
             severity="warning",
             warnings=degraded_warnings,
@@ -2376,10 +2374,7 @@ def _run_algebraic_constraint_audit(
         try:
             graph_for_constraints = _validate_static_id_graph(graph_for_constraints)
         except (TypeError, ValueError) as exc:
-            warnings.append(
-                "ci_family_skipped:graph_profile_not_admitted:"
-                f"{type(exc).__name__}"
-            )
+            warnings.append(f"ci_family_skipped:graph_profile_not_admitted:{type(exc).__name__}")
             graph_for_constraints = None
         if graph_for_constraints is not None:
             warnings.append(_GRAPH_DERIVED_CANDIDATE_LIMITATION)
@@ -3255,8 +3250,7 @@ def _run_constraint_discovery(
                 None,
                 status=GraphProjectionStatus.UNSUPPORTED,
                 reason_code=(
-                    graph.dag_projection_refusal_code()
-                    or "partial_graph_projection_unavailable"
+                    graph.dag_projection_refusal_code() or "partial_graph_projection_unavailable"
                 ),
             )
     except Exception as exc:

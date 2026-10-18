@@ -100,9 +100,7 @@ def _write_ws2d_closeout_fixture(
     package_root = product_root / "packages" / "runtime-api-client"
     scripts_root = package_root / "scripts"
     scripts_root.mkdir(parents=True)
-    (package_root / "README.md").write_text(
-        "# Runtime API Client\n", encoding="utf-8"
-    )
+    (package_root / "README.md").write_text("# Runtime API Client\n", encoding="utf-8")
     (scripts_root / "generate-runtime-api-client.sh").write_text(
         "#!/usr/bin/env bash\n# generator owner marker\n", encoding="utf-8"
     )
@@ -137,9 +135,7 @@ ci_evidence = []
     )
     plan_path = product_root / "docs/plans/active/CORE_COMMON_RUNTIME_AUDIT_REMEDIATION_PLAN.md"
     plan_path.parent.mkdir(parents=True)
-    plan_path.write_text(
-        "### WS-2D. API Maturity and Client Ergonomics\n", encoding="utf-8"
-    )
+    plan_path.write_text("### WS-2D. API Maturity and Client Ergonomics\n", encoding="utf-8")
     monkeypatch.setattr(core_runtime_closeout, "PRODUCT_ROOT", product_root)
     monkeypatch.setattr(core_runtime_closeout, "WORKSPACE_ROOT", workspace_root)
     return package_root, ledger_path, plan_path
@@ -148,9 +144,7 @@ ci_evidence = []
 def test_core_runtime_closeout_accepts_canonical_client_without_raw_handoff(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    package_root, ledger_path, plan_path = _write_ws2d_closeout_fixture(
-        tmp_path, monkeypatch
-    )
+    package_root, ledger_path, plan_path = _write_ws2d_closeout_fixture(tmp_path, monkeypatch)
 
     assert (package_root / "README.md").is_file()
     assert (package_root / "scripts/generate-runtime-api-client.sh").is_file()
@@ -159,9 +153,7 @@ def test_core_runtime_closeout_accepts_canonical_client_without_raw_handoff(
     assert not (package_root / "runtimeApiClient.ts").exists()
     assert not (package_root / "runtimeApiClient.js").exists()
 
-    report = core_runtime_closeout.run_closeout(
-        ledger_path=ledger_path, plan_path=plan_path
-    )
+    report = core_runtime_closeout.run_closeout(ledger_path=ledger_path, plan_path=plan_path)
 
     assert report.blocking_workstreams == ()
     assert report.workstreams[0].code_evidence[:2] == (
@@ -184,6 +176,4 @@ def test_core_runtime_closeout_rejects_missing_client_with_owner_markers_retaine
     assert "canonicalRuntimeApiClient.ts" in ledger_path.read_text(encoding="utf-8")
 
     with pytest.raises(SystemExit, match="canonicalRuntimeApiClient"):
-        core_runtime_closeout.run_closeout(
-            ledger_path=ledger_path, plan_path=plan_path
-        )
+        core_runtime_closeout.run_closeout(ledger_path=ledger_path, plan_path=plan_path)

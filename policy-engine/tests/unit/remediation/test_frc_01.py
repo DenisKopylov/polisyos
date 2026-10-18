@@ -79,9 +79,9 @@ def test_missing_report_remains_blocked_and_records_false_clear() -> None:
     assert evidence["calibration_status"] == "blocked"
     assert evidence["floor_passed"] is False
     assert evidence["counterfactual_credibility"] != "credible"
-    assert evidence["false_clear_counts"][
-        "uncalibrated_observable_promotion_false_clear_count"
-    ] >= 1
+    assert (
+        evidence["false_clear_counts"]["uncalibrated_observable_promotion_false_clear_count"] >= 1
+    )
 
 
 def test_failed_estimator_diagnostic_remains_limited() -> None:
@@ -118,9 +118,7 @@ def test_calibration_time_roles_are_preserved_from_bound_evidence() -> None:
         outcome_of_interest=SimpleNamespace(target_variable="firm_survival"),
     )
     candidate = SimpleNamespace(candidate_id="frc01-candidate")
-    method_result = SimpleNamespace(
-        output={"report": _finite_estimator_report()}
-    )
+    method_result = SimpleNamespace(output={"report": _finite_estimator_report()})
 
     inputs = build_inputs(
         candidate=candidate,
@@ -167,14 +165,19 @@ def test_calibration_time_roles_are_preserved_from_bound_evidence() -> None:
     assert record.credible_evaluation_evidence_ref == "evidence://frc01/credible"
     assert record.source_lineage_refs == ["lineage://frc01/source"]
     assert record.method_lineage_refs == ["lineage://frc01/method"]
-    assert len({
-        record.prediction_time,
-        record.observation_time,
-        record.policy_effective_time,
-        record.data_valid_time,
-        record.calibration_window_start,
-        record.calibration_window_end,
-    }) == 6
+    assert (
+        len(
+            {
+                record.prediction_time,
+                record.observation_time,
+                record.policy_effective_time,
+                record.data_valid_time,
+                record.calibration_window_start,
+                record.calibration_window_end,
+            }
+        )
+        == 6
+    )
 
 
 def test_missing_calibration_evidence_refs_stays_typed_blocked() -> None:

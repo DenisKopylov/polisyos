@@ -179,9 +179,7 @@ def stage_can_skip(
     if require_content_bound:
         recorded_basis = current.get("input_basis")
         recorded_inventory = current.get("output_inventory")
-        if not isinstance(recorded_basis, Mapping) or not isinstance(
-            recorded_inventory, Mapping
-        ):
+        if not isinstance(recorded_basis, Mapping) or not isinstance(recorded_inventory, Mapping):
             return False
         if expected_input_basis is None or dict(recorded_basis) != dict(expected_input_basis):
             return False

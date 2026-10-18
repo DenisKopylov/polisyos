@@ -133,7 +133,9 @@ def resolve_evidence_validity_event(
     report = store.verify(ref)
     manifest = store.get_manifest(ref)
     observed_hash = "sha256:" + hashlib.sha256(raw).hexdigest()
-    event = EvidenceValidityEvent.model_validate(load_core_json_artifact(store, ref, raw_payload_bytes=raw))
+    event = EvidenceValidityEvent.model_validate(
+        load_core_json_artifact(store, ref, raw_payload_bytes=raw)
+    )
     expected_inputs = evidence_validity_event_inputs(event)
     if (
         not report.ok

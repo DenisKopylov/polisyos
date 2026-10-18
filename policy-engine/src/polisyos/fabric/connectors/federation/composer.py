@@ -154,10 +154,7 @@ class MergeLogCollector:
         if self.audit_level != AuditLevel.SUMMARY or self.sample_size == 0:
             return
         samples = sorted(
-            [
-                (-hash_value, sequence, entry)
-                for hash_value, sequence, entry in self._sample_heap
-            ],
+            [(-hash_value, sequence, entry) for hash_value, sequence, entry in self._sample_heap],
             key=lambda item: (item[0], item[1]),
         )
         self.summary.sample_entries = [entry for _, _, entry in samples]
@@ -419,11 +416,7 @@ class DataComposer:
         result_df = result_df.copy().reset_index(drop=True)
         lineage_column = _fresh_internal_name(result_df.columns, "__policyos_lineage")
         result_df[lineage_column] = [
-            {
-                column: first_metadata
-                for column in result_df.columns
-                if column not in join_keys
-            }
+            {column: first_metadata for column in result_df.columns if column not in join_keys}
             for _ in range(len(result_df))
         ]
 
@@ -449,8 +442,8 @@ class DataComposer:
             )
 
             overlapping_cols = (
-                set(result_df.columns) & set(df_copy.columns)
-            ) - set(join_keys) - {lineage_column}
+                (set(result_df.columns) & set(df_copy.columns)) - set(join_keys) - {lineage_column}
+            )
 
             if overlapping_cols:
                 logger.info(
@@ -477,11 +470,7 @@ class DataComposer:
                 "__policyos_right_lineage",
             )
             right_work[right_lineage_column] = [
-                {
-                    column: metadata
-                    for column in df_copy.columns
-                    if column not in join_keys
-                }
+                {column: metadata for column in df_copy.columns if column not in join_keys}
                 for _ in range(len(df_copy))
             ]
 
@@ -672,13 +661,14 @@ class DataComposer:
         if join_how == "inner":
             return matching
         if join_how == "left":
-            return matching + left_unmatched + (
-                len(left) - len(left_keys) if not match_nulls else 0
+            return (
+                matching + left_unmatched + (len(left) - len(left_keys) if not match_nulls else 0)
             )
-        return matching + left_unmatched + right_unmatched + (
-            len(left) - len(left_keys) + len(right) - len(right_keys)
-            if not match_nulls
-            else 0
+        return (
+            matching
+            + left_unmatched
+            + right_unmatched
+            + (len(left) - len(left_keys) + len(right) - len(right_keys) if not match_nulls else 0)
         )
 
     def _overlay(
@@ -859,10 +849,14 @@ class DataComposer:
                         row_id = json.dumps(row_key, sort_keys=True, default=str)
                         participants = admissibility["participant_sources"].get(row_id, [])
                         exclusions = admissibility["exclusions"].get(row_id, [])
-                        source_a_id = participants[0] if participants else (
-                            exclusions[0]["source_id"]
-                            if exclusions
-                            else indexed_sources[0][1].connector_id
+                        source_a_id = (
+                            participants[0]
+                            if participants
+                            else (
+                                exclusions[0]["source_id"]
+                                if exclusions
+                                else indexed_sources[0][1].connector_id
+                            )
                         )
                         source_a_index = next(
                             (

@@ -41,15 +41,11 @@ def test_i7bis_runs_full_universal_path_and_inspects_w8b_warrants(tmp_path: Path
     assert report["checks"]["candidate_firewall_enforced_with_audit"]["status"] == "pass"
     assert report["checks"]["runtime_pdc_graph_emitted"]["status"] == "pass"
     assert report["checks"]["nonzero_warrants"]["status"] == "pass"
-    assert report["checks"]["nonzero_warrants"]["observed"][
-        "argument_graph_inspection_status"
-    ] == "pass"
     assert (
-        report["checks"]["nonzero_warrants"]["observed"][
-            "machine_inspectable_warrant_count"
-        ]
-        > 0
+        report["checks"]["nonzero_warrants"]["observed"]["argument_graph_inspection_status"]
+        == "pass"
     )
+    assert report["checks"]["nonzero_warrants"]["observed"]["machine_inspectable_warrant_count"] > 0
     assert report["typed_blockers"] == []
     assert report["authority_boundary"]["max_authority_posture"] == "governed-pilot"
     assert "production_closeout_authority" in report["authority_boundary"]["may_not_use_for"]

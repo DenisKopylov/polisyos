@@ -55,9 +55,7 @@ def dispatch_one_control_job(
     def dispatch_expected(job: ControlJobRecord) -> None:
         selected_job_ids.append(job.job_id)
         if expected_job_id is not None and job.job_id != expected_job_id:
-            raise AssertionError(
-                f"expected queued job {expected_job_id}, received {job.job_id}"
-            )
+            raise AssertionError(f"expected queued job {expected_job_id}, received {job.job_id}")
         handler(job)
 
     worker = ControlWorker(

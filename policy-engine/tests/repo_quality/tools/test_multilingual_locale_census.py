@@ -60,6 +60,8 @@ def test_corrupting_one_actual_parser_result_fails_independent_comparison(parser
     directory = root / "apps/runtime-dashboard/src/shared/i18n/locales"
     with pytest.raises(ValueError, match="disagreement"):
         gate.measure_catalogues(directory, corrupt_parser=parser)
+
+
 def test_measured_directory_is_the_emitted_source_denominator(tmp_path):
     """An alternate input must never receive the default catalogue's identity."""
     from tools.quality.validation import check_multilingual_locale_census as gate

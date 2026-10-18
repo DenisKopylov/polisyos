@@ -17,8 +17,7 @@ import pytest
 
 POLICY_ENGINE_ROOT = Path(__file__).resolve().parents[3]
 HARNESS_PATH = (
-    POLICY_ENGINE_ROOT
-    / "docs/plans/active/agent-packages/PolicyOS_E02R2/BASELINE_HARNESS.py"
+    POLICY_ENGINE_ROOT / "docs/plans/active/agent-packages/PolicyOS_E02R2/BASELINE_HARNESS.py"
 )
 SPEC = importlib.util.spec_from_file_location("checkout_lease_harness", HARNESS_PATH)
 assert SPEC is not None and SPEC.loader is not None
@@ -107,7 +106,9 @@ class CheckoutRootAdmissionTests(unittest.TestCase):
             with (
                 mock.patch.object(HARNESS, "_LIVE_PROCESS_GROUPS", registry),
                 mock.patch.object(HARNESS, "_machine_admission_block_reason", return_value=None),
-                mock.patch.object(HARNESS, "_process_group_fence_state", return_value={"verdict": "CLEAR"}),
+                mock.patch.object(
+                    HARNESS, "_process_group_fence_state", return_value={"verdict": "CLEAR"}
+                ),
                 mock.patch.object(HARNESS, "_stop_requested_reason", return_value=None),
                 mock.patch.object(HARNESS, "_safe_environment", return_value={"PATH": "/usr/bin"}),
                 mock.patch.object(HARNESS, "_child_resource_snapshot", return_value=sample),
@@ -124,7 +125,7 @@ class CheckoutRootAdmissionTests(unittest.TestCase):
                 )
             assert ready.is_set()
             assert registry.inserted is not None
-            assert registry.inserted['checkout_root'] == str((checkout / 'policy-engine').resolve())
+            assert registry.inserted["checkout_root"] == str((checkout / "policy-engine").resolve())
 
     def test_profiled_and_unprofiled_helpers_block_same_root_and_allow_other_root(self) -> None:
         root_a = _root(Path("/tmp/p41-checkout-a"))
@@ -142,7 +143,7 @@ class CheckoutRootAdmissionTests(unittest.TestCase):
             job, pilot_snapshot, pilot_active, checkout_root=root_a
         )
         assert not same_hard
-        assert 'same checkout root' in (same_reason or '')
+        assert "same checkout root" in (same_reason or "")
 
         other_reason, other_hard = HARNESS._unprofiled_pilot_admission_reason(
             job, pilot_snapshot, pilot_active, checkout_root=root_b
@@ -157,7 +158,7 @@ class CheckoutRootAdmissionTests(unittest.TestCase):
             checkout_root=root_b,
             reserved_checkout_roots={root_b},
         )
-        assert 'reserved' in (reserved_reason or '')
+        assert "reserved" in (reserved_reason or "")
 
         active_profile = _profile()
         profiled_active = {
@@ -171,7 +172,9 @@ class CheckoutRootAdmissionTests(unittest.TestCase):
         profiles = {HARNESS._profile_key(job): _profile()}
         with (
             mock.patch.object(HARNESS, "_LIVE_PROCESS_GROUPS", profiled_active),
-            mock.patch.object(HARNESS, "_machine_admission_state", return_value=(_snapshot(profiled_active), None)),
+            mock.patch.object(
+                HARNESS, "_machine_admission_state", return_value=(_snapshot(profiled_active), None)
+            ),
         ):
             blocked = HARNESS._can_admit_profiled_job(
                 job,
@@ -198,17 +201,17 @@ class CheckoutRootAdmissionTests(unittest.TestCase):
                 reserved_checkout_roots={root_b},
             )
         assert not blocked[0]
-        assert 'same checkout root' in (blocked[1] or '')
+        assert "same checkout root" in (blocked[1] or "")
         assert admitted[0], admitted[1]
         assert not reserved[0]
-        assert 'reserved' in (reserved[1] or '')
+        assert "reserved" in (reserved[1] or "")
 
     def test_active_group_without_root_lease_fails_closed(self) -> None:
         reason, hard_block = HARNESS._unprofiled_pilot_admission_reason(
             _job("candidate"), _snapshot({7003: {}}), {7003: {}}, checkout_root="/root/a"
         )
         assert hard_block
-        assert 'checkout-root lease' in (reason or '')
+        assert "checkout-root lease" in (reason or "")
 
         job = _job("candidate")
         active = {
@@ -220,7 +223,9 @@ class CheckoutRootAdmissionTests(unittest.TestCase):
         }
         with (
             mock.patch.object(HARNESS, "_LIVE_PROCESS_GROUPS", active),
-            mock.patch.object(HARNESS, "_machine_admission_state", return_value=(_snapshot(active), None)),
+            mock.patch.object(
+                HARNESS, "_machine_admission_state", return_value=(_snapshot(active), None)
+            ),
         ):
             profiled_reason = HARNESS._can_admit_profiled_job(
                 job,
@@ -232,7 +237,7 @@ class CheckoutRootAdmissionTests(unittest.TestCase):
             )
         assert not profiled_reason[0]
         assert profiled_reason[2]
-        assert 'checkout-root lease' in (profiled_reason[1] or '')
+        assert "checkout-root lease" in (profiled_reason[1] or "")
 
 
 class CheckoutRootSchedulerTests(unittest.TestCase):
@@ -347,24 +352,51 @@ class CheckoutRootSchedulerTests(unittest.TestCase):
             )
         return max_active
 
-    def test_five_worker_scheduler_serializes_same_root_and_runs_distinct_roots_in_parallel(self) -> None:
+    def test_five_worker_scheduler_serializes_same_root_and_runs_distinct_roots_in_parallel(
+        self,
+    ) -> None:
         with tempfile.TemporaryDirectory() as tempdir:
             tmp = Path(tempdir)
             same_root = tmp / "shared"
-            same_jobs = [_job("ref0", "policy-engine/tests/unit/one.py"), _job("ref0", "policy-engine/tests/unit/two.py")]
+            same_jobs = [
+                _job("ref0", "policy-engine/tests/unit/one.py"),
+                _job("ref0", "policy-engine/tests/unit/two.py"),
+            ]
             assert self._measure(tmp, (same_root,), same_jobs) == 1
 
             distinct_jobs = [_job("ref0"), _job("ref1")]
-            assert self._measure(tmp, (tmp / 'one', tmp / 'two'), distinct_jobs) == 2
+            assert self._measure(tmp, (tmp / "one", tmp / "two"), distinct_jobs) == 2
 
-            same_pilot_jobs = [_job("ref0", "policy-engine/tests/unit/three.py"), _job("ref0", "policy-engine/tests/unit/four.py")]
-            assert self._measure(tmp, (same_root,), same_pilot_jobs, unprofiled_pilot_groups=HARNESS.UNPROFILED_PILOT_MAX_GROUPS) == 1
+            same_pilot_jobs = [
+                _job("ref0", "policy-engine/tests/unit/three.py"),
+                _job("ref0", "policy-engine/tests/unit/four.py"),
+            ]
+            assert (
+                self._measure(
+                    tmp,
+                    (same_root,),
+                    same_pilot_jobs,
+                    unprofiled_pilot_groups=HARNESS.UNPROFILED_PILOT_MAX_GROUPS,
+                )
+                == 1
+            )
             distinct_pilot_jobs = [_job("ref0"), _job("ref1")]
-            assert self._measure(tmp, (tmp / 'pilot-one', tmp / 'pilot-two'), distinct_pilot_jobs, unprofiled_pilot_groups=HARNESS.UNPROFILED_PILOT_MAX_GROUPS) == 2
+            assert (
+                self._measure(
+                    tmp,
+                    (tmp / "pilot-one", tmp / "pilot-two"),
+                    distinct_pilot_jobs,
+                    unprofiled_pilot_groups=HARNESS.UNPROFILED_PILOT_MAX_GROUPS,
+                )
+                == 2
+            )
 
             exclusive_job = _job("ref0", next(iter(HARNESS.RESOURCE_EXCLUSIVE_TEST_PATHS)))
             ordinary_job = _job("ref1", "policy-engine/tests/unit/ordinary.py")
-            assert self._measure(tmp, (tmp / 'heavy', tmp / 'ordinary'), [exclusive_job, ordinary_job]) == 1
+            assert (
+                self._measure(tmp, (tmp / "heavy", tmp / "ordinary"), [exclusive_job, ordinary_job])
+                == 1
+            )
 
 
 class ByproductRetirementTests(unittest.TestCase):
@@ -388,7 +420,10 @@ class ByproductRetirementTests(unittest.TestCase):
         for mover_name in ("_move_test_byproducts", "_move_completed_byproducts_to_trash"):
             mover = getattr(HARNESS, mover_name)
             for label, active, fence in states:
-                with self.subTest(mover=mover_name, state=label), tempfile.TemporaryDirectory() as tempdir:
+                with (
+                    self.subTest(mover=mover_name, state=label),
+                    tempfile.TemporaryDirectory() as tempdir,
+                ):
                     tmp = Path(tempdir)
                     run_dir = tmp / "run"
                     source = run_dir / "cells" / "ref" / "case.tmp"
@@ -404,20 +439,29 @@ class ByproductRetirementTests(unittest.TestCase):
                     fence_patch = (
                         mock.patch.object(HARNESS, "_process_group_fence_state", side_effect=fence)
                         if isinstance(fence, BaseException)
-                        else mock.patch.object(HARNESS, "_process_group_fence_state", return_value=fence)
+                        else mock.patch.object(
+                            HARNESS, "_process_group_fence_state", return_value=fence
+                        )
                     )
-                    if mover_name == '_move_test_byproducts':
-                        mover_args = (run_dir, tmp / 'scratch', 'run-id')
+                    if mover_name == "_move_test_byproducts":
+                        mover_args = (run_dir, tmp / "scratch", "run-id")
                     else:
-                        mover_args = (byproduct_root, 'run-id', package_raw)
-                    with mock.patch.object(HARNESS, '_LIVE_PROCESS_GROUPS', active), mock.patch.object(HARNESS, '_PROCESS_GROUPS_LOCK', threading.Lock()), fence_patch, mock.patch.object(HARNESS, '_run', side_effect=self._fake_move_command), mock.patch.object(HARNESS.Path, 'home', return_value=fake_home), pytest.raises(RuntimeError, match='retirement'):
+                        mover_args = (byproduct_root, "run-id", package_raw)
+                    with (
+                        mock.patch.object(HARNESS, "_LIVE_PROCESS_GROUPS", active),
+                        mock.patch.object(HARNESS, "_PROCESS_GROUPS_LOCK", threading.Lock()),
+                        fence_patch,
+                        mock.patch.object(HARNESS, "_run", side_effect=self._fake_move_command),
+                        mock.patch.object(HARNESS.Path, "home", return_value=fake_home),
+                        pytest.raises(RuntimeError, match="retirement"),
+                    ):
                         mover(*mover_args)
                     if mover_name == "_move_test_byproducts":
-                        assert source.exists(), 'source byproduct moved despite blocked retirement'
-                        assert not (tmp / 'scratch' / 'byproducts' / 'run-id').exists()
+                        assert source.exists(), "source byproduct moved despite blocked retirement"
+                        assert not (tmp / "scratch" / "byproducts" / "run-id").exists()
                     else:
-                        assert byproduct.exists(), 'byproduct root moved despite blocked retirement'
-                        assert not (fake_home / '.Trash' / 'e02-r2-run-id-byproducts').exists()
+                        assert byproduct.exists(), "byproduct root moved despite blocked retirement"
+                        assert not (fake_home / ".Trash" / "e02-r2-run-id-byproducts").exists()
                         assert list(package_raw.iterdir()) == []
 
     def test_clear_fence_allows_safe_scratch_move_and_mocked_trash_mv(self) -> None:
@@ -434,7 +478,9 @@ class ByproductRetirementTests(unittest.TestCase):
             with (
                 mock.patch.object(HARNESS, "_LIVE_PROCESS_GROUPS", {}),
                 mock.patch.object(HARNESS, "_PROCESS_GROUPS_LOCK", threading.Lock()),
-                mock.patch.object(HARNESS, "_process_group_fence_state", return_value={"verdict": "CLEAR"}),
+                mock.patch.object(
+                    HARNESS, "_process_group_fence_state", return_value={"verdict": "CLEAR"}
+                ),
                 mock.patch.object(HARNESS, "_run", side_effect=self._fake_move_command),
                 mock.patch.object(HARNESS.Path, "home", return_value=fake_home),
             ):
@@ -447,9 +493,9 @@ class ByproductRetirementTests(unittest.TestCase):
             trash_root = fake_home / ".Trash" / "e02-r2-run-id-byproducts"
             assert not source.exists()
             assert trash_root.exists()
-            assert result['directory_count'] == 1
-            assert result['path'] == str(trash_root)
-            assert (package_raw / 'p41-trash-moves-run-id.json').is_file()
+            assert result["directory_count"] == 1
+            assert result["path"] == str(trash_root)
+            assert (package_raw / "p41-trash-moves-run-id.json").is_file()
 
 
 if __name__ == "__main__":

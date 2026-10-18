@@ -297,10 +297,7 @@ class RunIndexService:
             run,
             requested_root_ids=requested_root_ids,
         )
-        return [
-            ref.artifact_id if isinstance(ref, ArtifactRef) else ref
-            for ref in refs
-        ]
+        return [ref.artifact_id if isinstance(ref, ArtifactRef) else ref for ref in refs]
 
     def _refresh_index_incremental(self) -> tuple[dict[str, IndexedRunRecord], dict[str, str]]:
         index: dict[str, IndexedRunRecord] = {}

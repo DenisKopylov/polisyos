@@ -32,9 +32,7 @@ def test_catalog_declares_authority_packs_with_evidence_thresholds() -> None:
     assert authority.validate_quality_benchmark_catalog(catalog) == []
 
     scenario_ids = {scenario["scenario_id"] for scenario in scenarios}
-    assigned_ids = [
-        scenario_id for pack in packs for scenario_id in pack["scenario_ids"]
-    ]
+    assigned_ids = [scenario_id for pack in packs for scenario_id in pack["scenario_ids"]]
     assert set(assigned_ids) == scenario_ids
     assert len(assigned_ids) == len(scenario_ids)
 

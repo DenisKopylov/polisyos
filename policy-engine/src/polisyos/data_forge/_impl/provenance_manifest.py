@@ -66,8 +66,8 @@ class SnapshotProvenanceLedgerEntry(DataForgeModel):
     quality_gates: tuple[SnapshotQualityGate, ...] = Field(min_length=1)
     builder_revision: str = Field(min_length=1)
     transform_lineage: tuple[TransformLineageStep, ...] = Field(min_length=1)
-    claim_requirement_bindings: tuple[SnapshotClaimRequirementBinding, ...] = (
-        Field(default_factory=tuple)
+    claim_requirement_bindings: tuple[SnapshotClaimRequirementBinding, ...] = Field(
+        default_factory=tuple
     )
     runtime_event_ref: str | None = Field(default=None, min_length=1)
     read_api_surface: str | None = Field(default=None, min_length=1)
@@ -214,13 +214,9 @@ def official_snapshot_answer_from_binding(
             lineage_refs=tuple(_string_refs(binding.get("lineage_refs"))),
             quality_gates=tuple(_quality_gates(binding.get("quality_gates"))),
             builder_revision=_clean_text(binding.get("builder_revision")),
-            transform_lineage=tuple(
-                _transform_lineage(binding.get("transform_lineage"))
-            ),
+            transform_lineage=tuple(_transform_lineage(binding.get("transform_lineage"))),
             supported_by=tuple(_string_refs(row.get("supported_by"))),
-            lifecycle_dependency_refs=tuple(
-                _string_refs(row.get("lifecycle_dependency_refs"))
-            ),
+            lifecycle_dependency_refs=tuple(_string_refs(row.get("lifecycle_dependency_refs"))),
             reason=blocked_reason,
         )
     return None
@@ -294,9 +290,7 @@ def _quality_gates(value: object) -> list[SnapshotQualityGate]:
                 )
             )
         elif isinstance(item, str):
-            gates.append(
-                SnapshotQualityGate(name="quality_gate", status="pass", artifact_id=item)
-            )
+            gates.append(SnapshotQualityGate(name="quality_gate", status="pass", artifact_id=item))
     return gates
 
 
@@ -333,9 +327,7 @@ def _claim_requirement_binding(
         authority_level=_required_text(row, "authority_level"),
         time_role=_required_text(row, "time_role"),
         supported_by=tuple(_string_refs(row.get("supported_by"))),
-        lifecycle_dependency_refs=tuple(
-            _string_refs(row.get("lifecycle_dependency_refs"))
-        ),
+        lifecycle_dependency_refs=tuple(_string_refs(row.get("lifecycle_dependency_refs"))),
     )
 
 

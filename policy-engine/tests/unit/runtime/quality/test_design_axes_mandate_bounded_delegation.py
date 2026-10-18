@@ -295,7 +295,9 @@ def test_s7_delegation_integrity_metric_requires_precision_recall_and_responsibi
 
 
 def test_s7_does_not_import_production_approval_or_human_review_as_authority() -> None:
-    module = importlib.import_module("polisyos.runtime.quality.design_axes.mandate_bounded_delegation")
+    module = importlib.import_module(
+        "polisyos.runtime.quality.design_axes.mandate_bounded_delegation"
+    )
     source = inspect.getsource(module)
 
     forbidden_authority_imports = (

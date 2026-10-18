@@ -220,8 +220,7 @@ class BalancedMemoryAuthorityBoundary(BaseModel):
         missing = set(MEMORY_FORBIDDEN_CURRENT_USES) - set(self.may_not_use_for)
         if missing:
             raise ValueError(
-                "balanced memory boundary missing forbidden uses: "
-                + ",".join(sorted(missing))
+                "balanced memory boundary missing forbidden uses: " + ",".join(sorted(missing))
             )
         if (
             self.source_kind.value in _LLM_SOURCE_KINDS
@@ -368,9 +367,7 @@ def build_balanced_memory_record(
             else MemorySourceStatus.VERIFIED
         )
     influence_modes: tuple[MemoryInfluenceMode, ...] = (
-        ()
-        if source_kind.value in _LLM_SOURCE_KINDS
-        else default_influence_modes_for_kind(kind)
+        () if source_kind.value in _LLM_SOURCE_KINDS else default_influence_modes_for_kind(kind)
     )
     active_scope = scope or BalancedMemoryScope()
     return BalancedMemoryRecord(
@@ -725,8 +722,7 @@ def _scope_matches_trigger(
     if trigger_scope.workflow_id and memory_scope.workflow_id != trigger_scope.workflow_id:
         return False
     return not (
-        trigger_scope.method_family
-        and memory_scope.method_family != trigger_scope.method_family
+        trigger_scope.method_family and memory_scope.method_family != trigger_scope.method_family
     )
 
 

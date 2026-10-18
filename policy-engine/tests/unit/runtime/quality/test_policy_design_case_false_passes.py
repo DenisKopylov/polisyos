@@ -1211,10 +1211,7 @@ def test_policy_design_case_blocks_high_cost_low_impact_without_proportionality(
 
     codes = _scorecard_blocking_codes_for_case(case, canary_kind="research")
 
-    assert (
-        "policy_design_run_cost_high_cost_low_impact_without_proportionality"
-        in codes
-    )
+    assert "policy_design_run_cost_high_cost_low_impact_without_proportionality" in codes
 
 
 def test_policy_design_case_accepts_typed_run_cost_blocker_as_exit_fence() -> None:

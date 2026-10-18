@@ -1195,7 +1195,9 @@ def validate_persisted_estimator_interval(
         response=response,
         state=state,
         store=store,
-        source_ref=artifacts.ArtifactRef.model_validate(training.source_ref.model_dump(mode="json")),
+        source_ref=artifacts.ArtifactRef.model_validate(
+            training.source_ref.model_dump(mode="json")
+        ),
     )
     if response["parent_observed"]["request_binding"]["seed"] != interval.seed:
         raise ValueError("persisted refit interval seed differs from its actual worker request")

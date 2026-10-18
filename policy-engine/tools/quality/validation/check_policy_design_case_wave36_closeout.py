@@ -135,9 +135,7 @@ def _validate_deterministic_matrix_summary(
     if not serious_lane_ids:
         errors.append("deterministic matrix must select at least one serious closeout lane")
     if non_closeout_lane_ids:
-        errors.append(
-            f"deterministic matrix selected non-closeout lanes: {non_closeout_lane_ids}"
-        )
+        errors.append(f"deterministic matrix selected non-closeout lanes: {non_closeout_lane_ids}")
     if ci_safe_lane_ids:
         errors.append(f"deterministic matrix selected dev smoke lanes: {ci_safe_lane_ids}")
     if summary.get("failure_envelope") is not None:
@@ -225,9 +223,7 @@ def _validate_exit_fence(
         errors.append("closeout: status does not match Wave 36 exit fence inputs")
     if exit_fence.get("status") != expected_status:
         errors.append("exit_fence: status does not match Wave 36 exit fence inputs")
-    if exit_fence.get("deterministic_matrix_passed") is not (
-        deterministic.get("status") == "pass"
-    ):
+    if exit_fence.get("deterministic_matrix_passed") is not (deterministic.get("status") == "pass"):
         errors.append("exit_fence: deterministic_matrix_passed drifted")
     if exit_fence.get("serious_scorecards_all_pass") is not (
         deterministic.get("all_serious_scorecards_pass") is True
@@ -249,7 +245,9 @@ def _validate_exit_fence(
 def _scorecard_statuses(payload: Mapping[str, Any]) -> dict[str, str]:
     statuses = {
         str(key): str(value)
-        for key, value in _mapping(_mapping(payload.get("summary")).get("scorecard_statuses")).items()
+        for key, value in _mapping(
+            _mapping(payload.get("summary")).get("scorecard_statuses")
+        ).items()
     }
     for lane in _mapping_rows(payload, "lanes"):
         if lane.get("lane_id") and lane.get("scorecard_status"):

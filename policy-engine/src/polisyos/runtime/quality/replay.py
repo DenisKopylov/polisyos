@@ -149,9 +149,7 @@ def build_replay_manifest(
         "quality_scorecard_ref": _clean_scalar(quality_scorecard_ref),
         "runtime_event_log": _stable_mapping(runtime_event_log),
         "authority_envelopes": _stable_sequence(authority_envelopes),
-        "schema_compatibility_decisions": _stable_mapping(
-            schema_compatibility_decisions
-        ),
+        "schema_compatibility_decisions": _stable_mapping(schema_compatibility_decisions),
         "effective_mode_ledger": _stable_mapping(effective_mode_ledger),
         "degradation_ledger": _stable_mapping(degradation_ledger),
         "semantic_binding_ledger": _stable_mapping(semantic_binding_ledger),
@@ -160,9 +158,7 @@ def build_replay_manifest(
         "registry_refs": _stable_mapping(registry_refs),
         "rule_evolution_registry": _stable_mapping(rule_evolution_registry),
         "rule_evolution_replay_context": _stable_mapping(rule_evolution_replay_context),
-        "rule_evolution_public_annotation": _stable_mapping(
-            rule_evolution_public_annotation
-        ),
+        "rule_evolution_public_annotation": _stable_mapping(rule_evolution_public_annotation),
         "revalidation_state": _stable_mapping(revalidation_state),
         "orchestration_continuity": _stable_mapping(orchestration_continuity),
         "execution_summary": _stable_mapping(execution_summary),
@@ -199,14 +195,10 @@ def explain_replay_drift(
         difference for difference in differences if difference["status"] == "unexplained"
     ]
     accepted = [
-        difference
-        for difference in differences
-        if str(difference["status"]).startswith("accepted")
+        difference for difference in differences if str(difference["status"]).startswith("accepted")
     ]
     accepted_non_ready = [
-        difference
-        for difference in differences
-        if difference["status"] == "accepted_non_ready"
+        difference for difference in differences if difference["status"] == "accepted_non_ready"
     ]
     execution_summary_match = _fingerprint(
         baseline_manifest.get("execution_summary") or {}
@@ -493,17 +485,12 @@ def build_policy_evidence_capability_replay_execution(
                 },
             }
         )
-        if policy.get("status") == "deterministic"
-        and artifact_validation["status"] == "pass"
+        if policy.get("status") == "deterministic" and artifact_validation["status"] == "pass"
         else None
     )
     status = str(policy.get("status"))
     if policy.get("status") == "deterministic":
-        status = (
-            "deterministic"
-            if artifact_validation["status"] == "pass"
-            else "artifact_mismatch"
-        )
+        status = "deterministic" if artifact_validation["status"] == "pass" else "artifact_mismatch"
     return {
         "schema_version": POLICY_EVIDENCE_CAPABILITY_REPLAY_EXECUTION_SCHEMA_VERSION,
         "status": status,
@@ -561,9 +548,7 @@ def validate_policy_evidence_capability_replay_artifacts(
             )
             continue
         expected_digest = _embedded_sha256_ref(ref)
-        if expected_digest and _digest_token(artifact["digest"]) != _digest_token(
-            expected_digest
-        ):
+        if expected_digest and _digest_token(artifact["digest"]) != _digest_token(expected_digest):
             issues.append(
                 {
                     "code": "policy_evidence_replay_artifact_digest_mismatch",
@@ -662,9 +647,7 @@ def _clean_scalar(value: Any) -> str | None:
 
 
 def _clean_policy_evidence_capability_replay_ref(value: Any) -> str | None:
-    if isinstance(value, Mapping) or (
-        isinstance(value, Sequence) and not isinstance(value, str)
-    ):
+    if isinstance(value, Mapping) or (isinstance(value, Sequence) and not isinstance(value, str)):
         return None
     return _clean_scalar(value)
 
@@ -792,9 +775,7 @@ def _iter_differences(
                     }
                 )
                 continue
-            differences.extend(
-                _iter_differences(baseline[key], replay[key], path=child_path)
-            )
+            differences.extend(_iter_differences(baseline[key], replay[key], path=child_path))
         return differences
     if baseline != replay:
         return [{"path": path, "baseline": baseline, "replay": replay}]
@@ -820,8 +801,7 @@ def _acceptance_rules(
                 "path_prefix": path_prefix,
                 "drift_source": drift_source,
                 "impact": impact,
-                "reason": str(raw.get("reason") or "").strip()
-                or "Accepted replay drift.",
+                "reason": str(raw.get("reason") or "").strip() or "Accepted replay drift.",
             }
         )
     return accepted
@@ -858,9 +838,7 @@ def _explain_difference(
         and _impact_rank(impact) <= _impact_rank(str(accepted["impact"]))
     ):
         status = (
-            "accepted_non_ready"
-            if _impact_rank(impact) >= _impact_rank("medium")
-            else "accepted"
+            "accepted_non_ready" if _impact_rank(impact) >= _impact_rank("medium") else "accepted"
         )
         reason = str(accepted["reason"])
 

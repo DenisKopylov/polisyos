@@ -44,9 +44,7 @@ def test_gy_catalog_fetch_audit_validator_passes_current_artifact() -> None:
 def test_gy_catalog_fetch_audit_rejects_lost_catalog_plan_probe() -> None:
     validator = _validator()
     audit = _load_audit()
-    audit["probe"]["catalog_to_fetch_plan"] = copy.deepcopy(
-        audit["probe"]["catalog_to_fetch_plan"]
-    )
+    audit["probe"]["catalog_to_fetch_plan"] = copy.deepcopy(audit["probe"]["catalog_to_fetch_plan"])
     audit["probe"]["catalog_to_fetch_plan"]["fetch_plan_count"] = 0
 
     assert "catalog_fetch_plan_not_proven" in _codes(validator.validate(audit))
@@ -73,9 +71,7 @@ def test_gy_catalog_fetch_audit_rejects_lost_metric_surface_gap() -> None:
         "data_context_metric_has_artifact_ref"
     ] = True
 
-    assert "data_context_metric_artifact_ref_changed" in _codes(
-        validator.validate(audit)
-    )
+    assert "data_context_metric_artifact_ref_changed" in _codes(validator.validate(audit))
 
 
 def test_gy_catalog_fetch_audit_rejects_default_runtime_catalog_upgrade_without_evidence() -> None:
@@ -94,9 +90,7 @@ def test_gy_catalog_fetch_audit_rejects_ingestion_bridge_laundering() -> None:
     validator = _validator()
     audit = _load_audit()
     row = _row(audit, "ingest.fetch_plan_root_producer")
-    row["gap_labels"] = [
-        label for label in row["gap_labels"] if label != "bridge_missing"
-    ]
+    row["gap_labels"] = [label for label in row["gap_labels"] if label != "bridge_missing"]
 
     assert "ingestion_bridge_gap_missing" in _codes(validator.validate(audit))
 

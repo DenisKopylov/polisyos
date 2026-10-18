@@ -126,17 +126,13 @@ def build_ir_analytics_claim_bridge(
             run_id=run_id,
             bridge_ref=resolved_bridge_ref,
         ).to_dict()
-            for index, binding in enumerate(bindings)
+        for index, binding in enumerate(bindings)
     ]
     rows, requirement_issues, rejected_methods = _apply_method_requirements_to_rows(
         rows,
         requirements=requirements,
     )
-    issues = [
-        issue
-        for row in rows
-        for issue in _binding_issues(row)
-    ]
+    issues = [issue for row in rows for issue in _binding_issues(row)]
     issues.extend(requirement_issues)
     return {
         "schema_version": IR_ANALYTICS_CLAIM_BRIDGE_SCHEMA_VERSION,
@@ -180,11 +176,7 @@ def normalize_ir_analytics_claim_bridge(
             ).to_dict()
             for index, row in enumerate(rows)
         ]
-    issues = [
-        issue
-        for row in rows
-        for issue in _binding_issues(row)
-    ]
+    issues = [issue for row in rows for issue in _binding_issues(row)]
     return {
         **dict(bridge),
         "schema_version": IR_ANALYTICS_CLAIM_BRIDGE_SCHEMA_VERSION,
@@ -281,9 +273,7 @@ def merge_ir_analytics_binding_into_registry_entry(
         "proof_composability_statuses",
         _as_texts(binding.get("proof_composability_statuses")),
     )
-    bridge_ref = _text(
-        binding.get(IR_ANALYTICS_CLAIM_BRIDGE_REF_KEY) or binding.get("bridge_ref")
-    )
+    bridge_ref = _text(binding.get(IR_ANALYTICS_CLAIM_BRIDGE_REF_KEY) or binding.get("bridge_ref"))
     if bridge_ref:
         row[IR_ANALYTICS_CLAIM_BRIDGE_REF_KEY] = bridge_ref
     runtime_event_ref = _text(binding.get("runtime_event_ref"))
@@ -697,8 +687,7 @@ def _requires_ir_analytics(claim: Mapping[str, Any]) -> bool:
         if "ir_analytics" in _text(claim.get(key)).casefold():
             return True
     return any(
-        ref.casefold() == "ir_analytics"
-        for ref in _as_refs(claim.get("required_producer_refs"))
+        ref.casefold() == "ir_analytics" for ref in _as_refs(claim.get("required_producer_refs"))
     )
 
 
@@ -890,9 +879,8 @@ def _method_requirement_issues(
                 method_requirement_ref=requirement.requirement_id,
             )
         )
-    if (
-        requirement.identification_class is MethodIdentificationClass.POINT
-        and not _as_refs(row.get("ir_certificate_refs"))
+    if requirement.identification_class is MethodIdentificationClass.POINT and not _as_refs(
+        row.get("ir_certificate_refs")
     ):
         issues.append(
             _issue(

@@ -542,8 +542,7 @@ Provide your critique as a JSON object.
             reflexion_hint = data.get("reflexion_hint", "")
             if suppressed_issues and not issues:
                 reflexion_hint = (
-                    "Only stale contract issues were reported; "
-                    "no actionable critique remains."
+                    "Only stale contract issues were reported; no actionable critique remains."
                 )
 
             return CritiqueReport(

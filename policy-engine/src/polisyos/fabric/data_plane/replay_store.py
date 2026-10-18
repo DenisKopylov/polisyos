@@ -89,6 +89,7 @@ class ReplayStore:
     def load_record_session(self, artifact_id: Any) -> RecordSession:
         """Load a RecordSession from CAS by artifact ID."""
         from polisyos.core.artifacts import load_core_json_artifact
+
         data = load_core_json_artifact(self._store, artifact_id)
         return RecordSession.from_dict(data)
 

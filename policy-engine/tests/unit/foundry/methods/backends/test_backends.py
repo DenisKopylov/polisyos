@@ -897,6 +897,7 @@ def test_chain_preserves_valid_partial_fallback_and_absent_default(
 
     assert result.final_state["total"] == pytest.approx(expected_total)
 
+
 @pytest.mark.parametrize("executor_mode", ("sync", "async"))
 def test_chain_rejects_recognized_ragged_fallback_before_dispatch(executor_mode: str) -> None:
     chain, registry, link = _compose_input_validation_chain(_EmitUnrelatedMatrix)

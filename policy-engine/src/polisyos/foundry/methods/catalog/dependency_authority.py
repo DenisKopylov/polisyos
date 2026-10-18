@@ -112,12 +112,9 @@ _GIT_ROOT = _PRODUCT_ROOT.parent
 _PRODUCTION_QUALITY_ROOT = _PRODUCT_ROOT / "architecture" / "production_quality"
 _PROFILE_REGISTRY_PATH = _PRODUCTION_QUALITY_ROOT / "method_catalog_dependency_profiles.toml"
 _AUTHORITY_REGISTRY_PATH = _PRODUCTION_QUALITY_ROOT / "method_catalog_dependency_authority.toml"
-_DIGEST_REGISTRY_PATH = (
-    _PRODUCTION_QUALITY_ROOT / "method_catalog_dependency_digest_domains.toml"
-)
+_DIGEST_REGISTRY_PATH = _PRODUCTION_QUALITY_ROOT / "method_catalog_dependency_digest_domains.toml"
 _PACKAGED_DIGEST_REGISTRY_PATH = (
-    Path(__file__).with_name("_resources")
-    / "method_catalog_dependency_digest_domains.toml"
+    Path(__file__).with_name("_resources") / "method_catalog_dependency_digest_domains.toml"
 )
 if _PACKAGED_DIGEST_REGISTRY_PATH.is_file():
     _DIGEST_REGISTRY_PATH = _PACKAGED_DIGEST_REGISTRY_PATH
@@ -421,8 +418,7 @@ def _validate_fieldless_owner_token_type(token_type: type[object]) -> None:
 
     parameters = getattr(token_type, "__dataclass_params__", None)
     if (
-        vars(token_type).get("__owner_token_class_marker__")
-        is not _OWNER_TOKEN_CLASS_MARKER
+        vars(token_type).get("__owner_token_class_marker__") is not _OWNER_TOKEN_CLASS_MARKER
         or not is_dataclass(token_type)
         or token_type.__mro__ != (token_type, object)
         or fields(token_type) != ()
@@ -435,9 +431,7 @@ def _validate_fieldless_owner_token_type(token_type: type[object]) -> None:
         or token_type.__hash__ is not object.__hash__
         or token_type.__eq__ is not object.__eq__
     ):
-        raise TypeError(
-            "owner capability token class is not fieldless/frozen/identity-only"
-        )
+        raise TypeError("owner capability token class is not fieldless/frozen/identity-only")
     probe = object.__new__(token_type)
     weak_probe: WeakKeyDictionary[object, bool] = WeakKeyDictionary()
     weak_probe[probe] = True
@@ -527,10 +521,7 @@ def _build_owner_capability_kernel(
     spec_by_token = MappingProxyType({spec.token_type: spec for spec in specs})
     spec_by_kind = MappingProxyType({spec.kind: spec for spec in specs})
     if not (
-        len(spec_by_token)
-        == len(spec_by_kind)
-        == len(specs)
-        == len(OwnerCapabilityKind)
+        len(spec_by_token) == len(spec_by_kind) == len(specs) == len(OwnerCapabilityKind)
         and set(spec_by_kind) == set(OwnerCapabilityKind)
     ):
         raise TypeError("owner payload specs must be a kind-complete bijection")
@@ -545,15 +536,15 @@ def _build_owner_capability_kernel(
             ),
         )
 
-    instances: WeakKeyDictionary[
-        object, _OwnerCapabilityEntry[object, object]
-    ] = WeakKeyDictionary()
-    released_tokens: WeakKeyDictionary[
-        object, _OwnerPayloadSpec[object, object]
-    ] = WeakKeyDictionary()
-    forked_tokens: WeakKeyDictionary[
-        object, _OwnerPayloadSpec[object, object]
-    ] = WeakKeyDictionary()
+    instances: WeakKeyDictionary[object, _OwnerCapabilityEntry[object, object]] = (
+        WeakKeyDictionary()
+    )
+    released_tokens: WeakKeyDictionary[object, _OwnerPayloadSpec[object, object]] = (
+        WeakKeyDictionary()
+    )
+    forked_tokens: WeakKeyDictionary[object, _OwnerPayloadSpec[object, object]] = (
+        WeakKeyDictionary()
+    )
     active_borrows: WeakKeyDictionary[object, int] = WeakKeyDictionary()
     process_instance = object()
     child_disposal_failed = False
@@ -563,8 +554,7 @@ def _build_owner_capability_kernel(
     ) -> _OwnerPayloadSpec[object, object]:
         capability_kind = (
             candidate.kind
-            if type(candidate) is _OwnerPayloadSpec
-            and type(candidate.kind) is OwnerCapabilityKind
+            if type(candidate) is _OwnerPayloadSpec and type(candidate.kind) is OwnerCapabilityKind
             else None
         )
         if type(candidate) is not _OwnerPayloadSpec or capability_kind is None:
@@ -853,9 +843,7 @@ def _build_owner_capability_kernel(
                     capability_kind=registered.kind,
                 )
             instances.pop(value, None)
-            released_tokens[value] = cast(
-                "_OwnerPayloadSpec[object, object]", registered
-            )
+            released_tokens[value] = cast("_OwnerPayloadSpec[object, object]", registered)
             try:
                 entry.resource_finalizer()
             except BaseException as error:
@@ -918,9 +906,7 @@ def _guard_owner_entrypoint(
             ):
                 yield
         except OwnerCapabilityFault as error:
-            remaining_kinds = {
-                candidate.capability_kind for candidate in policies[index:]
-            }
+            remaining_kinds = {candidate.capability_kind for candidate in policies[index:]}
             if error.capability_kind not in remaining_kinds:
                 raise OwnerCapabilityFault(
                     code=error.code,
@@ -1244,9 +1230,7 @@ def _strip_annotated(annotation: object) -> object:
     return annotation
 
 
-def _annotation_at_path(
-    root_type: type[object], field_path: tuple[str, ...]
-) -> object:
+def _annotation_at_path(root_type: type[object], field_path: tuple[str, ...]) -> object:
     current: object = root_type
     bindings: dict[object, object] = {}
 
@@ -1308,9 +1292,7 @@ def _annotation_at_path(
 def validate_owner_payload_spec_annotation_graph(
     *,
     spec: _OwnerPayloadSpec[object, object],
-    spec_by_kind: Mapping[
-        OwnerCapabilityKind, _OwnerPayloadSpec[object, object]
-    ],
+    spec_by_kind: Mapping[OwnerCapabilityKind, _OwnerPayloadSpec[object, object]],
 ) -> None:
     """Resolve every declared spec path against the exact payload annotations."""
 
@@ -1330,9 +1312,7 @@ def validate_owner_payload_spec_annotation_graph(
             if not callable(getattr(child_type, method_name, None)):
                 raise TypeError("owner child resource lacks the closed disposal interface")
     if spec.dynamic_record_domain_path is not None:
-        domain_annotation = _annotation_at_path(
-            spec.payload_type, spec.dynamic_record_domain_path
-        )
+        domain_annotation = _annotation_at_path(spec.payload_type, spec.dynamic_record_domain_path)
         ref_annotation = _annotation_at_path(
             spec.payload_type,
             cast("tuple[str, ...]", spec.dynamic_record_ref_domain_path),
@@ -1367,9 +1347,7 @@ def validate_owner_payload_spec_annotation_graph(
         if nested.expected_domain_path is not None:
             if not isinstance(annotation, type):
                 raise TypeError("nested domain payload annotation is unresolved")
-            domain_annotation = _annotation_at_path(
-                annotation, nested.expected_domain_path
-            )
+            domain_annotation = _annotation_at_path(annotation, nested.expected_domain_path)
             if domain_annotation is not DigestDomain:
                 raise TypeError("nested expected-domain path is not DigestDomain")
         used_paths.add(nested.payload_path)
@@ -1421,9 +1399,7 @@ def validate_owner_payload_annotation_graph(
 class DependencyAuthorityRegistryStatement(FoundryAuthorityModel):
     """Typed semantic authority registry; empty owner rows remain explicit."""
 
-    schema_version: Literal[
-        "polisyos.foundry.dependency-authority-registry.v1"
-    ]
+    schema_version: Literal["polisyos.foundry.dependency-authority-registry.v1"]
     purpose_admissions: tuple[MethodCatalogProfileAdmission, ...]
     toolchain_admissions: tuple[ToolchainArtifactAdmission, ...]
     launcher_profiles: tuple[LauncherProfileSpec, ...]
@@ -1436,15 +1412,13 @@ class DependencyAuthorityRegistryStatement(FoundryAuthorityModel):
             (
                 "purpose admissions",
                 tuple(
-                    f"{row.authority_purpose}:{row.profile_id}"
-                    for row in self.purpose_admissions
+                    f"{row.authority_purpose}:{row.profile_id}" for row in self.purpose_admissions
                 ),
             ),
             (
                 "toolchain admissions",
                 tuple(
-                    f"{row.artifact_role}:{row.platform_tag}"
-                    for row in self.toolchain_admissions
+                    f"{row.artifact_role}:{row.platform_tag}" for row in self.toolchain_admissions
                 ),
             ),
             (
@@ -1505,9 +1479,7 @@ class SourceBootstrapFailureStageSpec:
 
 @dataclass(frozen=True, slots=True)
 class PostSourceNegativeAuthorityStageSpec:
-    result_kind: Literal[
-        NegativeDependencyAuthorityResultKind.RUNTIME_CUTOFF_NOT_ESTABLISHED
-    ]
+    result_kind: Literal[NegativeDependencyAuthorityResultKind.RUNTIME_CUTOFF_NOT_ESTABLISHED]
     status: Literal[OwnerCapabilityFaultDisposition.NOT_ESTABLISHED]
     predicate_id: AuthorityPredicateId
     required_branch_shape: Literal["not_established_only"]
@@ -1572,9 +1544,7 @@ class RuntimeCutoffUnestablishedPredicate(FoundryAuthorityModel):
     status: Literal["not_established"]
     predicate_id: Literal[AuthorityPredicateId.RUNTIME_SUBTREE_CUTOFF]
     predicate_class: Literal["not_established"]
-    failure_code: Literal[
-        AuthorityFailureCode.RUNTIME_SUBTREE_CUTOFF_NOT_ESTABLISHED
-    ]
+    failure_code: Literal[AuthorityFailureCode.RUNTIME_SUBTREE_CUTOFF_NOT_ESTABLISHED]
     missing_capability: Literal["owner_enforced_runtime_subtree_cutoff"]
     missing_capability_state: Literal["absent/unallocated"]
     candidate_runtime_evidence: RuntimeCandidateEvidenceDisposition
@@ -1615,9 +1585,7 @@ class RuntimeCutoffPreflightRefusal(FoundryAuthorityModel):
 
 
 class UnestablishedMethodCatalogDependencyProfile(FoundryAuthorityModel):
-    result_kind: Literal[
-        NegativeDependencyAuthorityResultKind.RUNTIME_CUTOFF_NOT_ESTABLISHED
-    ]
+    result_kind: Literal[NegativeDependencyAuthorityResultKind.RUNTIME_CUTOFF_NOT_ESTABLISHED]
     status: Literal["not_established"]
     preflight_refusal: RuntimeCutoffPreflightRefusal
 
@@ -1632,8 +1600,7 @@ DependencyProfileResolutionFailure = MethodCatalogDependencyAuthorityResult
 
 
 SourceBootstrapFailureResult = (
-    SourceRejectedMethodCatalogDependencyProfile
-    | SourceUnestablishedMethodCatalogDependencyProfile
+    SourceRejectedMethodCatalogDependencyProfile | SourceUnestablishedMethodCatalogDependencyProfile
 )
 
 
@@ -1649,8 +1616,7 @@ def validate_source_bootstrap_failure(result: SourceBootstrapFailureResult) -> N
         or result.failure.failure_code is not stage.failure_code
         or result.persistence.status != stage.persistence
         or result.persistence.missing_capability != stage.persistence_capability
-        or result.persistence.missing_capability_state
-        != stage.persistence_capability_state
+        or result.persistence.missing_capability_state != stage.persistence_capability_state
     ):
         raise ValueError("source bootstrap result does not match its frozen stage")
     resolved = isinstance(result.request, DependencyAuthorityResolvedSourceRequestStatement)
@@ -1660,8 +1626,7 @@ def validate_source_bootstrap_failure(result: SourceBootstrapFailureResult) -> N
         if (
             result.failure.expected_source_freeze_commit
             != result.request.pre_source_request.expected_source_freeze_commit
-            or result.failure.expected_source_tree_id
-            != result.request.expected_source_tree_id
+            or result.failure.expected_source_tree_id != result.request.expected_source_tree_id
         ):
             raise ValueError("source rejection is not bound to its request source")
 
@@ -1690,10 +1655,7 @@ def _strict_statement_types(statement_type: object) -> tuple[type[FoundryAuthori
         if not members or len(members) != len(set(members)):
             raise TypeError("statement union must contain unique strict model variants")
         return members
-    if (
-        isinstance(statement_type, type)
-        and issubclass(statement_type, FoundryAuthorityModel)
-    ):
+    if isinstance(statement_type, type) and issubclass(statement_type, FoundryAuthorityModel):
         return (statement_type,)
     raise TypeError("statement codec target must be a strict Foundry model or union")
 
@@ -1773,131 +1735,129 @@ def _strict_statement_codec(
     )
 
 
-FOUNDRY_STATEMENT_CODECS: Mapping[DigestDomain, StrictStatementCodec] = (
-    MappingProxyType(
-        {
-            DigestDomain.CANONICAL_SOURCE: _strict_statement_codec(
-                DigestDomain.CANONICAL_SOURCE,
-                CanonicalFoundrySourceAuthorityStatement,
-            ),
-            DigestDomain.PROFILE_DECLARATION: _strict_statement_codec(
-                DigestDomain.PROFILE_DECLARATION,
-                profile_module.MethodCatalogDependencyProfileDeclaration,
-            ),
-            DigestDomain.PROFILE_ADMISSION: _strict_statement_codec(
-                DigestDomain.PROFILE_ADMISSION,
-                profile_module.MethodCatalogProfileAdmission,
-            ),
-            DigestDomain.TOOLCHAIN_RUNTIME: _strict_statement_codec(
-                DigestDomain.TOOLCHAIN_RUNTIME,
-                evidence_module.PythonRuntimeManifestStatement,
-            ),
-            DigestDomain.TOOLCHAIN_RUNTIME_OBSERVED: _strict_statement_codec(
-                DigestDomain.TOOLCHAIN_RUNTIME_OBSERVED,
-                evidence_module.ObservedPythonRuntimeStatement,
-            ),
-            DigestDomain.TOOLCHAIN_RUNTIME_ROOT: _strict_statement_codec(
-                DigestDomain.TOOLCHAIN_RUNTIME_ROOT,
-                evidence_module.PythonRuntimeRootResolutionStatement,
-            ),
-            DigestDomain.TOOLCHAIN_RUNTIME_ROOT_TOKEN: _strict_statement_codec(
-                DigestDomain.TOOLCHAIN_RUNTIME_ROOT_TOKEN,
-                evidence_module.PosixRuntimeRootIdentityStatement,
-            ),
-            DigestDomain.TOOLCHAIN_RUNTIME_INSTALLATION: _strict_statement_codec(
-                DigestDomain.TOOLCHAIN_RUNTIME_INSTALLATION,
-                evidence_module.PythonRuntimeInstallationStatement,
-            ),
-            DigestDomain.TOOLCHAIN_RUNTIME_VERIFICATION: _strict_statement_codec(
-                DigestDomain.TOOLCHAIN_RUNTIME_VERIFICATION,
-                evidence_module.PythonRuntimeVerificationReceiptStatement,
-            ),
-            DigestDomain.TRUST_MATERIAL: _strict_statement_codec(
-                DigestDomain.TRUST_MATERIAL,
-                evidence_module.TrustMaterialStatement,
-            ),
-            DigestDomain.TRUST_REVOCATION: _strict_statement_codec(
-                DigestDomain.TRUST_REVOCATION,
-                evidence_module.TrustRevocationStatement,
-            ),
-            DigestDomain.TRUST_RESOLUTION: _strict_statement_codec(
-                DigestDomain.TRUST_RESOLUTION,
-                evidence_module.TrustResolutionReceiptStatement,
-            ),
-            DigestDomain.TRUST_POLICY: _strict_statement_codec(
-                DigestDomain.TRUST_POLICY,
-                evidence_module.ProductionDataTrustPolicyStatement,
-            ),
-            DigestDomain.VERIFIER_PROVENANCE: _strict_statement_codec(
-                DigestDomain.VERIFIER_PROVENANCE,
-                evidence_module.VerifierProvenanceStatement,
-            ),
-            DigestDomain.PRODUCTION_APPOINTMENT: _strict_statement_codec(
-                DigestDomain.PRODUCTION_APPOINTMENT,
-                evidence_module.ProductionDataInputAppointmentStatement,
-            ),
-            DigestDomain.PRODUCTION_CUSTODY: _strict_statement_codec(
-                DigestDomain.PRODUCTION_CUSTODY,
-                evidence_module.ProductionDataCustodyStatement,
-            ),
-            DigestDomain.ROOT_CHALLENGE: _strict_statement_codec(
-                DigestDomain.ROOT_CHALLENGE,
-                evidence_module.ProductionDataRootAccessChallenge,
-            ),
-            DigestDomain.ROOT_MOUNT_RESOLUTION: _strict_statement_codec(
-                DigestDomain.ROOT_MOUNT_RESOLUTION,
-                evidence_module.ProductionDataMountResolutionStatement,
-            ),
-            DigestDomain.ROOT_ACCESS: _strict_statement_codec(
-                DigestDomain.ROOT_ACCESS,
-                evidence_module.RootAccessAttestationStatement,
-            ),
-            DigestDomain.SELECTED_DISTRIBUTION: _strict_statement_codec(
-                DigestDomain.SELECTED_DISTRIBUTION,
-                evidence_module.SelectedDistributionArtifactEvidence,
-            ),
-            DigestDomain.WHEEL_RECORD: _strict_statement_codec(
-                DigestDomain.WHEEL_RECORD,
-                evidence_module.WheelRecordManifestStatement,
-            ),
-            DigestDomain.SOURCE_TREE: _strict_statement_codec(
-                DigestDomain.SOURCE_TREE,
-                evidence_module.SourceTreeManifestStatement,
-            ),
-            DigestDomain.BUILD_PROFILE: _strict_statement_codec(
-                DigestDomain.BUILD_PROFILE,
-                evidence_module.BuildProfileStatement,
-            ),
-            DigestDomain.BUILD_LINEAGE: _strict_statement_codec(
-                DigestDomain.BUILD_LINEAGE,
-                evidence_module.BuildLineageStatement,
-            ),
-            DigestDomain.ENVIRONMENT_MARKER: _strict_statement_codec(
-                DigestDomain.ENVIRONMENT_MARKER,
-                evidence_module.DependencyEnvironmentMarkerStatement,
-            ),
-            DigestDomain.ENVIRONMENT_RECEIPT: _strict_statement_codec(
-                DigestDomain.ENVIRONMENT_RECEIPT,
-                evidence_module.DependencyProfileEnvironmentStatement,
-            ),
-            DigestDomain.CAPSULE: _strict_statement_codec(
-                DigestDomain.CAPSULE,
-                evidence_module.FoundryDependencyAuthorityCapsuleStatement,
-            ),
-            DigestDomain.RESOLUTION_REQUEST: _strict_statement_codec(
-                DigestDomain.RESOLUTION_REQUEST,
-                Annotated[
-                    DependencyAuthorityPreSourceRequestStatement
-                    | DependencyAuthorityResolvedSourceRequestStatement,
-                    Field(discriminator="schema_version"),
-                ],
-            ),
-            DigestDomain.SIGNED_EVIDENCE: _strict_statement_codec(
-                DigestDomain.SIGNED_EVIDENCE,
-                evidence_module.ExactSignedArtifactEvidenceStatement,
-            ),
-        }
-    )
+FOUNDRY_STATEMENT_CODECS: Mapping[DigestDomain, StrictStatementCodec] = MappingProxyType(
+    {
+        DigestDomain.CANONICAL_SOURCE: _strict_statement_codec(
+            DigestDomain.CANONICAL_SOURCE,
+            CanonicalFoundrySourceAuthorityStatement,
+        ),
+        DigestDomain.PROFILE_DECLARATION: _strict_statement_codec(
+            DigestDomain.PROFILE_DECLARATION,
+            profile_module.MethodCatalogDependencyProfileDeclaration,
+        ),
+        DigestDomain.PROFILE_ADMISSION: _strict_statement_codec(
+            DigestDomain.PROFILE_ADMISSION,
+            profile_module.MethodCatalogProfileAdmission,
+        ),
+        DigestDomain.TOOLCHAIN_RUNTIME: _strict_statement_codec(
+            DigestDomain.TOOLCHAIN_RUNTIME,
+            evidence_module.PythonRuntimeManifestStatement,
+        ),
+        DigestDomain.TOOLCHAIN_RUNTIME_OBSERVED: _strict_statement_codec(
+            DigestDomain.TOOLCHAIN_RUNTIME_OBSERVED,
+            evidence_module.ObservedPythonRuntimeStatement,
+        ),
+        DigestDomain.TOOLCHAIN_RUNTIME_ROOT: _strict_statement_codec(
+            DigestDomain.TOOLCHAIN_RUNTIME_ROOT,
+            evidence_module.PythonRuntimeRootResolutionStatement,
+        ),
+        DigestDomain.TOOLCHAIN_RUNTIME_ROOT_TOKEN: _strict_statement_codec(
+            DigestDomain.TOOLCHAIN_RUNTIME_ROOT_TOKEN,
+            evidence_module.PosixRuntimeRootIdentityStatement,
+        ),
+        DigestDomain.TOOLCHAIN_RUNTIME_INSTALLATION: _strict_statement_codec(
+            DigestDomain.TOOLCHAIN_RUNTIME_INSTALLATION,
+            evidence_module.PythonRuntimeInstallationStatement,
+        ),
+        DigestDomain.TOOLCHAIN_RUNTIME_VERIFICATION: _strict_statement_codec(
+            DigestDomain.TOOLCHAIN_RUNTIME_VERIFICATION,
+            evidence_module.PythonRuntimeVerificationReceiptStatement,
+        ),
+        DigestDomain.TRUST_MATERIAL: _strict_statement_codec(
+            DigestDomain.TRUST_MATERIAL,
+            evidence_module.TrustMaterialStatement,
+        ),
+        DigestDomain.TRUST_REVOCATION: _strict_statement_codec(
+            DigestDomain.TRUST_REVOCATION,
+            evidence_module.TrustRevocationStatement,
+        ),
+        DigestDomain.TRUST_RESOLUTION: _strict_statement_codec(
+            DigestDomain.TRUST_RESOLUTION,
+            evidence_module.TrustResolutionReceiptStatement,
+        ),
+        DigestDomain.TRUST_POLICY: _strict_statement_codec(
+            DigestDomain.TRUST_POLICY,
+            evidence_module.ProductionDataTrustPolicyStatement,
+        ),
+        DigestDomain.VERIFIER_PROVENANCE: _strict_statement_codec(
+            DigestDomain.VERIFIER_PROVENANCE,
+            evidence_module.VerifierProvenanceStatement,
+        ),
+        DigestDomain.PRODUCTION_APPOINTMENT: _strict_statement_codec(
+            DigestDomain.PRODUCTION_APPOINTMENT,
+            evidence_module.ProductionDataInputAppointmentStatement,
+        ),
+        DigestDomain.PRODUCTION_CUSTODY: _strict_statement_codec(
+            DigestDomain.PRODUCTION_CUSTODY,
+            evidence_module.ProductionDataCustodyStatement,
+        ),
+        DigestDomain.ROOT_CHALLENGE: _strict_statement_codec(
+            DigestDomain.ROOT_CHALLENGE,
+            evidence_module.ProductionDataRootAccessChallenge,
+        ),
+        DigestDomain.ROOT_MOUNT_RESOLUTION: _strict_statement_codec(
+            DigestDomain.ROOT_MOUNT_RESOLUTION,
+            evidence_module.ProductionDataMountResolutionStatement,
+        ),
+        DigestDomain.ROOT_ACCESS: _strict_statement_codec(
+            DigestDomain.ROOT_ACCESS,
+            evidence_module.RootAccessAttestationStatement,
+        ),
+        DigestDomain.SELECTED_DISTRIBUTION: _strict_statement_codec(
+            DigestDomain.SELECTED_DISTRIBUTION,
+            evidence_module.SelectedDistributionArtifactEvidence,
+        ),
+        DigestDomain.WHEEL_RECORD: _strict_statement_codec(
+            DigestDomain.WHEEL_RECORD,
+            evidence_module.WheelRecordManifestStatement,
+        ),
+        DigestDomain.SOURCE_TREE: _strict_statement_codec(
+            DigestDomain.SOURCE_TREE,
+            evidence_module.SourceTreeManifestStatement,
+        ),
+        DigestDomain.BUILD_PROFILE: _strict_statement_codec(
+            DigestDomain.BUILD_PROFILE,
+            evidence_module.BuildProfileStatement,
+        ),
+        DigestDomain.BUILD_LINEAGE: _strict_statement_codec(
+            DigestDomain.BUILD_LINEAGE,
+            evidence_module.BuildLineageStatement,
+        ),
+        DigestDomain.ENVIRONMENT_MARKER: _strict_statement_codec(
+            DigestDomain.ENVIRONMENT_MARKER,
+            evidence_module.DependencyEnvironmentMarkerStatement,
+        ),
+        DigestDomain.ENVIRONMENT_RECEIPT: _strict_statement_codec(
+            DigestDomain.ENVIRONMENT_RECEIPT,
+            evidence_module.DependencyProfileEnvironmentStatement,
+        ),
+        DigestDomain.CAPSULE: _strict_statement_codec(
+            DigestDomain.CAPSULE,
+            evidence_module.FoundryDependencyAuthorityCapsuleStatement,
+        ),
+        DigestDomain.RESOLUTION_REQUEST: _strict_statement_codec(
+            DigestDomain.RESOLUTION_REQUEST,
+            Annotated[
+                DependencyAuthorityPreSourceRequestStatement
+                | DependencyAuthorityResolvedSourceRequestStatement,
+                Field(discriminator="schema_version"),
+            ],
+        ),
+        DigestDomain.SIGNED_EVIDENCE: _strict_statement_codec(
+            DigestDomain.SIGNED_EVIDENCE,
+            evidence_module.ExactSignedArtifactEvidenceStatement,
+        ),
+    }
 )
 
 
@@ -1968,10 +1928,7 @@ def _recompute_ordered_rows_preimage(value: object) -> bytes:
     independently_sorted = tuple(sorted(value))
     if value != independently_sorted or len(value) != len(set(value)):
         raise ValueError("ordered-row verifier requires sorted unique rows")
-    return b"".join(
-        len(row).to_bytes(8, byteorder="big") + row
-        for row in independently_sorted
-    )
+    return b"".join(len(row).to_bytes(8, byteorder="big") + row for row in independently_sorted)
 
 
 def _recompute_relation_preimage(value: object) -> bytes:
@@ -2069,27 +2026,21 @@ def _verify_relation_v1(
     return _recompute_digest_v1(domain, preimage, expected)
 
 
-DIGEST_PREIMAGE_BUILDERS: Mapping[DigestPreimageKind, DigestPreimageBuilder] = (
-    MappingProxyType(
-        {
-            DigestPreimageKind.CANONICAL_STATEMENT: (
-                _build_canonical_statement_preimage
-            ),
-            DigestPreimageKind.RAW_BLOB: _require_exact_bytes,
-            DigestPreimageKind.TRACKED_TOML: _build_tracked_toml_preimage,
-            DigestPreimageKind.ORDERED_ROWS: _build_ordered_rows_preimage,
-            DigestPreimageKind.RELATION: _build_relation_preimage,
-        }
-    )
+DIGEST_PREIMAGE_BUILDERS: Mapping[DigestPreimageKind, DigestPreimageBuilder] = MappingProxyType(
+    {
+        DigestPreimageKind.CANONICAL_STATEMENT: (_build_canonical_statement_preimage),
+        DigestPreimageKind.RAW_BLOB: _require_exact_bytes,
+        DigestPreimageKind.TRACKED_TOML: _build_tracked_toml_preimage,
+        DigestPreimageKind.ORDERED_ROWS: _build_ordered_rows_preimage,
+        DigestPreimageKind.RELATION: _build_relation_preimage,
+    }
 )
 DIGEST_VERIFIER_PREIMAGE_BUILDERS: Mapping[
     DigestPreimageKind,
     DigestPreimageBuilder,
 ] = MappingProxyType(
     {
-        DigestPreimageKind.CANONICAL_STATEMENT: (
-            _build_canonical_statement_preimage
-        ),
+        DigestPreimageKind.CANONICAL_STATEMENT: (_build_canonical_statement_preimage),
         DigestPreimageKind.RAW_BLOB: _verify_raw_blob_preimage,
         DigestPreimageKind.TRACKED_TOML: _reparse_tracked_toml_preimage,
         DigestPreimageKind.ORDERED_ROWS: _recompute_ordered_rows_preimage,
@@ -2107,9 +2058,7 @@ DIGEST_PRODUCERS: Mapping[DigestProducerId, DigestProducer] = MappingProxyType(
 )
 DIGEST_VERIFIERS: Mapping[DigestVerifierId, DigestVerifier] = MappingProxyType(
     {
-        DigestVerifierId.RECOMPUTE_CANONICAL_STATEMENT_V1: (
-            _verify_canonical_statement_v1
-        ),
+        DigestVerifierId.RECOMPUTE_CANONICAL_STATEMENT_V1: (_verify_canonical_statement_v1),
         DigestVerifierId.REHASH_RAW_BLOB_V1: _verify_raw_blob_v1,
         DigestVerifierId.REPARSE_TRACKED_TOML_V1: _verify_tracked_toml_v1,
         DigestVerifierId.RECOMPUTE_ORDERED_ROWS_V1: _verify_ordered_rows_v1,
@@ -2166,9 +2115,7 @@ def build_digest_domain_handlers(
 
     if frozenset(DIGEST_PREIMAGE_BUILDERS) != frozenset(DigestPreimageKind):
         raise ValueError("digest preimage builder denominator is incomplete")
-    if frozenset(DIGEST_VERIFIER_PREIMAGE_BUILDERS) != frozenset(
-        DigestPreimageKind
-    ):
+    if frozenset(DIGEST_VERIFIER_PREIMAGE_BUILDERS) != frozenset(DigestPreimageKind):
         raise ValueError("digest verifier preimage denominator is incomplete")
     if frozenset(DIGEST_PRODUCERS) != frozenset(DigestProducerId):
         raise ValueError("digest producer denominator is incomplete")
@@ -2187,12 +2134,8 @@ def build_digest_domain_handlers(
             preimage_kind=row.algebra.preimage_kind,
             producer_id=row.algebra.producer_id,
             verifier_id=row.algebra.verifier_id,
-            producer_preimage_builder=DIGEST_PREIMAGE_BUILDERS[
-                row.algebra.preimage_kind
-            ],
-            verifier_preimage_builder=DIGEST_VERIFIER_PREIMAGE_BUILDERS[
-                row.algebra.preimage_kind
-            ],
+            producer_preimage_builder=DIGEST_PREIMAGE_BUILDERS[row.algebra.preimage_kind],
+            verifier_preimage_builder=DIGEST_VERIFIER_PREIMAGE_BUILDERS[row.algebra.preimage_kind],
             producer=DIGEST_PRODUCERS[row.algebra.producer_id],
             verifier=DIGEST_VERIFIERS[row.algebra.verifier_id],
             statement_codec=codec,
@@ -2310,6 +2253,7 @@ def _detect_candidate_runtime_filesystem_kind(
         return None
     resolved = Path(os.path.realpath(runtime_root))
     if sys.platform == "darwin":
+
         class _DarwinFsid(ctypes.Structure):
             _fields_ = (("values", ctypes.c_int32 * 2),)
 
@@ -2524,9 +2468,7 @@ def observe_candidate_python_runtime(
     *,
     environment_root: Path,
     runtime_root: Path,
-    environment_creation_nonce: DomainDigest[
-        Literal[DigestDomain.ENVIRONMENT_INSTANCE]
-    ],
+    environment_creation_nonce: DomainDigest[Literal[DigestDomain.ENVIRONMENT_INSTANCE]],
     executable_relative_path: evidence_module.RootedRelativePath,
     version: str,
     platform_tag: str,
@@ -2660,9 +2602,7 @@ def _unestablished_from_registry(
         for row in source_authority.digest_registry.statement.predicates
         if row.predicate_id is predicate_id
     )
-    if len(matches) != 1 or not isinstance(
-        matches[0], BidirectionalAuthorityPredicateSpec
-    ):
+    if len(matches) != 1 or not isinstance(matches[0], BidirectionalAuthorityPredicateSpec):
         raise ValueError("predicate does not have one bidirectional registry row")
     spec = matches[0]
     requirement = spec.not_established_requirement
@@ -2693,9 +2633,7 @@ def _rejected_from_registry(
         for row in source_authority.digest_registry.statement.predicates
         if row.predicate_id is predicate_id
     )
-    if len(matches) != 1 or not isinstance(
-        matches[0], BidirectionalAuthorityPredicateSpec
-    ):
+    if len(matches) != 1 or not isinstance(matches[0], BidirectionalAuthorityPredicateSpec):
         raise ValueError("predicate does not have one bidirectional registry row")
     spec = matches[0]
     return RejectedAuthorityPredicate(
@@ -2807,9 +2745,7 @@ def validate_trust_resolution_receipt(
     )
     if not expected or observed != expected:
         raise ValueError("eligible trust key denominator does not match material")
-    material_revocations = tuple(
-        ref.artifact_id for ref in material.revocation_refs
-    )
+    material_revocations = tuple(ref.artifact_id for ref in material.revocation_refs)
     receipt_revocations = tuple(
         row.revocation_ref.artifact_id for row in receipt.revocation_dispositions
     )
@@ -2820,9 +2756,7 @@ def validate_trust_resolution_receipt(
 def validate_trust_bootstrap_basis(
     snapshot: FoundryTrustBootstrapSnapshot,
     *,
-    expected_source_ref: FoundryRecordRef[
-        Literal[DigestDomain.CANONICAL_SOURCE]
-    ],
+    expected_source_ref: FoundryRecordRef[Literal[DigestDomain.CANONICAL_SOURCE]],
     expected_cutoff: GitCommitId,
 ) -> None:
     """Prevent a sealed bootstrap from moving between source bases."""
@@ -2890,9 +2824,7 @@ def validate_capsule_signed_binding_index(
 ) -> None:
     """Reconcile the capsule's direct signed-record graph as one bijection."""
 
-    row_by_domain = {
-        row.domain_id: row for row in digest_registry.statement.domains
-    }
+    row_by_domain = {row.domain_id: row for row in digest_registry.statement.domains}
     if set(row_by_domain) != set(DigestDomain):
         raise ValueError("signed binding graph uses an incomplete digest registry")
     infrastructure = {
@@ -2931,8 +2863,7 @@ def validate_capsule_signed_binding_index(
             (
                 ref
                 for ref in direct_refs
-                if row_by_domain[ref.semantic_hash.domain].signature_requirement
-                == "signed"
+                if row_by_domain[ref.semantic_hash.domain].signature_requirement == "signed"
             ),
             key=lambda ref: (
                 ref.semantic_hash.domain.value,
@@ -2949,9 +2880,7 @@ def validate_capsule_signed_binding_index(
             ),
         )
     )
-    sorted_bindings = tuple(
-        sorted(bindings, key=lambda row: row.binding_ref.artifact_id)
-    )
+    sorted_bindings = tuple(sorted(bindings, key=lambda row: row.binding_ref.artifact_id))
     if (
         statement.signed_binding_index_ref != index.index_ref
         or statement.source_authority_ref != index.statement.source_authority_ref
@@ -2960,8 +2889,7 @@ def validate_capsule_signed_binding_index(
             DigestDomain.SIGNED_BINDING_INDEX,
             index.statement,
         )
-        or index.statement.binding_refs
-        != tuple(row.binding_ref for row in sorted_bindings)
+        or index.statement.binding_refs != tuple(row.binding_ref for row in sorted_bindings)
         or bindings != sorted_bindings
         or len({row.binding_ref.artifact_id for row in bindings}) != len(bindings)
         or expected_records != actual_records
@@ -3001,9 +2929,7 @@ class ResolvedPythonRuntimeInstallation:
 @dataclass(frozen=True, slots=True)
 class _VerifiedPythonRuntimePayload:
     observed_ref: FoundryRecordRef[Literal[DigestDomain.TOOLCHAIN_RUNTIME_OBSERVED]]
-    verification_ref: FoundryRecordRef[
-        Literal[DigestDomain.TOOLCHAIN_RUNTIME_VERIFICATION]
-    ]
+    verification_ref: FoundryRecordRef[Literal[DigestDomain.TOOLCHAIN_RUNTIME_VERIFICATION]]
 
 
 @_fieldless_owner_token
@@ -3034,12 +2960,8 @@ class ResolvedFoundryTrust:
 
 @dataclass(frozen=True, slots=True)
 class _VerifiedProductionDataAppointmentPayload:
-    appointment_binding_ref: FoundryRecordRef[
-        Literal[DigestDomain.SIGNED_RECORD_BINDING]
-    ]
-    custody_binding_ref: FoundryRecordRef[
-        Literal[DigestDomain.SIGNED_RECORD_BINDING]
-    ]
+    appointment_binding_ref: FoundryRecordRef[Literal[DigestDomain.SIGNED_RECORD_BINDING]]
+    custody_binding_ref: FoundryRecordRef[Literal[DigestDomain.SIGNED_RECORD_BINDING]]
     appointment_ref: FoundryRecordRef[Literal[DigestDomain.PRODUCTION_APPOINTMENT]]
     custody_ref: FoundryRecordRef[Literal[DigestDomain.PRODUCTION_CUSTODY]]
     appointment_statement: ProductionDataInputAppointmentStatement
@@ -3085,9 +3007,7 @@ class ResolvedProductionDataMount:
 class _VerifiedProductionDataRootAccessPayload:
     statement: RootAccessAttestationStatement
     attestation_ref: FoundryRecordRef[Literal[DigestDomain.ROOT_ACCESS]]
-    signed_binding_ref: FoundryRecordRef[
-        Literal[DigestDomain.SIGNED_RECORD_BINDING]
-    ]
+    signed_binding_ref: FoundryRecordRef[Literal[DigestDomain.SIGNED_RECORD_BINDING]]
     predicate_class: Literal["independently_reconciled"]
 
 
@@ -3127,45 +3047,31 @@ class VerifiedCapsuleSignedGraph:
 
 
 PythonRuntimeInstallationResult = (
-    ResolvedPythonRuntimeInstallation
-    | RejectedAuthorityPredicate
-    | UnestablishedAuthorityPredicate
+    ResolvedPythonRuntimeInstallation | RejectedAuthorityPredicate | UnestablishedAuthorityPredicate
 )
 PythonRuntimeObservationResult = (
     VerifiedPythonRuntime | RejectedAuthorityPredicate | UnestablishedAuthorityPredicate
 )
 TrustBootstrapResult = (
-    VerifiedFoundryTrustBootstrap
-    | RejectedAuthorityPredicate
-    | UnestablishedAuthorityPredicate
+    VerifiedFoundryTrustBootstrap | RejectedAuthorityPredicate | UnestablishedAuthorityPredicate
 )
 TrustResolutionResult = (
     ResolvedFoundryTrust | RejectedAuthorityPredicate | UnestablishedAuthorityPredicate
 )
 ProductionDataAppointmentResolutionResult = (
-    VerifiedProductionDataAppointment
-    | RejectedAuthorityPredicate
-    | UnestablishedAuthorityPredicate
+    VerifiedProductionDataAppointment | RejectedAuthorityPredicate | UnestablishedAuthorityPredicate
 )
 ProductionDataMountResolutionResult = (
-    ResolvedProductionDataMount
-    | RejectedAuthorityPredicate
-    | UnestablishedAuthorityPredicate
+    ResolvedProductionDataMount | RejectedAuthorityPredicate | UnestablishedAuthorityPredicate
 )
 RootAccessAttestationResult = (
-    VerifiedProductionDataRootAccess
-    | RejectedAuthorityPredicate
-    | UnestablishedAuthorityPredicate
+    VerifiedProductionDataRootAccess | RejectedAuthorityPredicate | UnestablishedAuthorityPredicate
 )
 SignedRecordVerificationResult = (
-    VerifiedSignedFoundryRecord
-    | RejectedAuthorityPredicate
-    | UnestablishedAuthorityPredicate
+    VerifiedSignedFoundryRecord | RejectedAuthorityPredicate | UnestablishedAuthorityPredicate
 )
 CapsuleSignedGraphVerificationResult = (
-    VerifiedCapsuleSignedGraph
-    | RejectedAuthorityPredicate
-    | UnestablishedAuthorityPredicate
+    VerifiedCapsuleSignedGraph | RejectedAuthorityPredicate | UnestablishedAuthorityPredicate
 )
 
 
@@ -3175,18 +3081,14 @@ class PythonRuntimeInstallationAuthority(Protocol):
         *,
         environment_root: Path,
         admission: PythonRuntimeAdmission,
-        environment_creation_nonce: DomainDigest[
-            Literal[DigestDomain.ENVIRONMENT_INSTANCE]
-        ],
+        environment_creation_nonce: DomainDigest[Literal[DigestDomain.ENVIRONMENT_INSTANCE]],
     ) -> PythonRuntimeInstallationResult: ...
 
     def resolve_installed_root(
         self,
         *,
         environment_root: Path,
-        receipt_ref: FoundryRecordRef[
-            Literal[DigestDomain.TOOLCHAIN_RUNTIME_INSTALLATION]
-        ],
+        receipt_ref: FoundryRecordRef[Literal[DigestDomain.TOOLCHAIN_RUNTIME_INSTALLATION]],
         admission: PythonRuntimeAdmission,
     ) -> PythonRuntimeInstallationResult: ...
 
@@ -3242,9 +3144,7 @@ class ProductionDataMountResolver(Protocol):
         *,
         mount: ResolvedProductionDataMount,
     ) -> (
-        ProductionDataManifestInput
-        | RejectedAuthorityPredicate
-        | UnestablishedAuthorityPredicate
+        ProductionDataManifestInput | RejectedAuthorityPredicate | UnestablishedAuthorityPredicate
     ): ...
 
 
@@ -3306,18 +3206,14 @@ class CanonicalSignedRecordRepository(Protocol):
     def persist_binding_index(
         self,
         *,
-        source_authority_ref: FoundryRecordRef[
-            Literal[DigestDomain.CANONICAL_SOURCE]
-        ],
+        source_authority_ref: FoundryRecordRef[Literal[DigestDomain.CANONICAL_SOURCE]],
         bindings: Sequence[PersistedSignedFoundryRecordBinding[DigestDomain]],
     ) -> PersistedSignedRecordBindingIndex: ...
 
     def load_and_verify_binding(
         self,
         *,
-        binding_ref: FoundryRecordRef[
-            Literal[DigestDomain.SIGNED_RECORD_BINDING]
-        ],
+        binding_ref: FoundryRecordRef[Literal[DigestDomain.SIGNED_RECORD_BINDING]],
         expected_record_domain: DigestDomain,
         source_authority: CanonicalFoundrySourceAuthority,
     ) -> SignedRecordVerificationResult: ...
@@ -3557,9 +3453,7 @@ class _ProductionCanonicalFoundrySourceAuthorityResolver(
                 return _source_not_established(request)
             observed_commit = _git("rev-parse", "HEAD")
             observed_tree = _git("rev-parse", "HEAD^{tree}")
-            expected_tree = _git(
-                "rev-parse", f"{request.expected_source_freeze_commit}^{{tree}}"
-            )
+            expected_tree = _git("rev-parse", f"{request.expected_source_freeze_commit}^{{tree}}")
         except (OSError, subprocess.SubprocessError, ValueError):
             return _source_not_established(request)
         resolved_request = DependencyAuthorityResolvedSourceRequestStatement(
@@ -3660,9 +3554,7 @@ class RuntimeSubtreeCutoffAuthority(Protocol):
     def preflight(self) -> RuntimeCutoffUnestablishedPredicate: ...
 
 
-class _NoRuntimeSubtreeCutoffAuthority(
-    _OwnerBoundaryBase, RuntimeSubtreeCutoffAuthority
-):
+class _NoRuntimeSubtreeCutoffAuthority(_OwnerBoundaryBase, RuntimeSubtreeCutoffAuthority):
     """Explicit current owner disposition; no observation can promote it."""
 
     def preflight(self) -> RuntimeCutoffUnestablishedPredicate:
@@ -3928,11 +3820,7 @@ class _ProductionDataMountResolver(_OwnerBoundaryBase, ProductionDataMountResolv
         self,
         *,
         mount: ResolvedProductionDataMount,
-    ) -> (
-        ProductionDataManifestInput
-        | RejectedAuthorityPredicate
-        | UnestablishedAuthorityPredicate
-    ):
+    ) -> ProductionDataManifestInput | RejectedAuthorityPredicate | UnestablishedAuthorityPredicate:
         del mount
         return _unestablished_from_registry(
             self._source_authority,
@@ -3982,9 +3870,7 @@ class _ProductionPythonRuntimeInstallationAuthority(
         *,
         environment_root: Path,
         admission: PythonRuntimeAdmission,
-        environment_creation_nonce: DomainDigest[
-            Literal[DigestDomain.ENVIRONMENT_INSTANCE]
-        ],
+        environment_creation_nonce: DomainDigest[Literal[DigestDomain.ENVIRONMENT_INSTANCE]],
     ) -> PythonRuntimeInstallationResult:
         del environment_root, admission, environment_creation_nonce
         self._cutoff_authority.preflight()
@@ -3997,9 +3883,7 @@ class _ProductionPythonRuntimeInstallationAuthority(
         self,
         *,
         environment_root: Path,
-        receipt_ref: FoundryRecordRef[
-            Literal[DigestDomain.TOOLCHAIN_RUNTIME_INSTALLATION]
-        ],
+        receipt_ref: FoundryRecordRef[Literal[DigestDomain.TOOLCHAIN_RUNTIME_INSTALLATION]],
         admission: PythonRuntimeAdmission,
     ) -> PythonRuntimeInstallationResult:
         del environment_root, receipt_ref, admission
@@ -4083,9 +3967,7 @@ def _load_cas_statement_bytes(
 ) -> bytes:
     artifact_id = _strict_artifact_id(record)
     raw = store.get_bytes(artifact_id)
-    return core_artifacts.read_core_json_artifact_bytes(
-        store, artifact_id, raw_payload_bytes=raw
-    )
+    return core_artifacts.read_core_json_artifact_bytes(store, artifact_id, raw_payload_bytes=raw)
 
 
 class FileSystemCASFoundryBootstrapEvidencePort(FoundryBootstrapEvidencePort):
@@ -4112,9 +3994,7 @@ class FileSystemCASFoundryBootstrapEvidencePort(FoundryBootstrapEvidencePort):
             self._store,
             cast("FoundryRecordRef[DigestDomain]", index_ref),
         )
-        statement = evidence_module.SignedRecordBindingIndexStatement.model_validate_json(
-            raw
-        )
+        statement = evidence_module.SignedRecordBindingIndexStatement.model_validate_json(raw)
         _require_exact_statement_ref(
             domain=DigestDomain.SIGNED_BINDING_INDEX,
             expected_ref=cast("FoundryRecordRef[DigestDomain]", index_ref),
@@ -4136,9 +4016,7 @@ class FileSystemCASFoundryBootstrapEvidencePort(FoundryBootstrapEvidencePort):
             self._store,
             cast("FoundryRecordRef[DigestDomain]", binding_ref),
         )
-        statement = SignedFoundryRecordBindingStatement[DigestDomain].model_validate_json(
-            raw
-        )
+        statement = SignedFoundryRecordBindingStatement[DigestDomain].model_validate_json(raw)
         _require_exact_statement_ref(
             domain=DigestDomain.SIGNED_RECORD_BINDING,
             expected_ref=cast("FoundryRecordRef[DigestDomain]", binding_ref),
@@ -4217,9 +4095,7 @@ class FileSystemCASSignedRecordRepository(
 
     def _load_binding(
         self,
-        binding_ref: FoundryRecordRef[
-            Literal[DigestDomain.SIGNED_RECORD_BINDING]
-        ],
+        binding_ref: FoundryRecordRef[Literal[DigestDomain.SIGNED_RECORD_BINDING]],
     ) -> PersistedSignedFoundryRecordBinding[DigestDomain]:
         return FileSystemCASFoundryBootstrapEvidencePort(
             store=self._store,
@@ -4250,22 +4126,16 @@ class FileSystemCASSignedRecordRepository(
     def persist_binding_index(
         self,
         *,
-        source_authority_ref: FoundryRecordRef[
-            Literal[DigestDomain.CANONICAL_SOURCE]
-        ],
+        source_authority_ref: FoundryRecordRef[Literal[DigestDomain.CANONICAL_SOURCE]],
         bindings: Sequence[PersistedSignedFoundryRecordBinding[DigestDomain]],
     ) -> PersistedSignedRecordBindingIndex:
         del source_authority_ref, bindings
-        raise RuntimeError(
-            "owner_resolved_resolution_receipt_store is absent/unallocated"
-        )
+        raise RuntimeError("owner_resolved_resolution_receipt_store is absent/unallocated")
 
     def load_and_verify_binding(
         self,
         *,
-        binding_ref: FoundryRecordRef[
-            Literal[DigestDomain.SIGNED_RECORD_BINDING]
-        ],
+        binding_ref: FoundryRecordRef[Literal[DigestDomain.SIGNED_RECORD_BINDING]],
         expected_record_domain: DigestDomain,
         source_authority: CanonicalFoundrySourceAuthority,
     ) -> SignedRecordVerificationResult:
@@ -4287,8 +4157,7 @@ class FileSystemCASSignedRecordRepository(
                 )
                 if (
                     registry_row.signature_requirement != "signed"
-                    or registry_row.required_signer_role
-                    is not binding.statement.required_role
+                    or registry_row.required_signer_role is not binding.statement.required_role
                 ):
                     raise ValueError("signed record role differs from its registry row")
                 source_ref = source.authority_ref
@@ -4358,8 +4227,7 @@ class FileSystemCASSignedRecordRepository(
                 _RESOLVED_TRUST_SPEC,
             ) as trust_payload:
                 if (
-                    trust_payload.receipt.receipt_ref
-                    != basis.trust_resolution_receipt_ref
+                    trust_payload.receipt.receipt_ref != basis.trust_resolution_receipt_ref
                     or trust_payload.receipt.statement != receipt_statement
                 ):
                     raise ValueError("trust resolver returned a different receipt")
@@ -4370,10 +4238,7 @@ class FileSystemCASSignedRecordRepository(
                     signature,
                     strict_identity=True,
                 )
-                if (
-                    verification.status
-                    is not core_artifacts.SignatureVerificationStatus.VALID
-                ):
+                if verification.status is not core_artifacts.SignatureVerificationStatus.VALID:
                     raise ValueError("detached signature is not valid for the bound record")
             load_strict_foundry_statement(record=record, raw=record_raw)
             return _mint_owner_capability(
@@ -4454,9 +4319,7 @@ _CANONICAL_SOURCE_SPEC: _OwnerPayloadSpec[
     kind=OwnerCapabilityKind.CANONICAL_SOURCE,
     token_type=CanonicalFoundrySourceAuthority,
     payload_type=_CanonicalFoundrySourceAuthorityPayload,
-    exact_concrete_leaves=(
-        _OwnerPayloadLeafSpec(("source_root",), _PosixOpenedDirectoryHandle),
-    ),
+    exact_concrete_leaves=(_OwnerPayloadLeafSpec(("source_root",), _PosixOpenedDirectoryHandle),),
     dynamic_record_domain_path=None,
     dynamic_record_ref_domain_path=None,
     child_resource_paths=(("source_root",),),
@@ -4513,9 +4376,7 @@ _RESOLVED_TRUST_SPEC: _OwnerPayloadSpec[
     kind=OwnerCapabilityKind.RESOLVED_TRUST,
     token_type=ResolvedFoundryTrust,
     payload_type=_ResolvedFoundryTrustPayload,
-    exact_concrete_leaves=(
-        _OwnerPayloadLeafSpec(("verifier",), core_artifacts.Ed25519Verifier),
-    ),
+    exact_concrete_leaves=(_OwnerPayloadLeafSpec(("verifier",), core_artifacts.Ed25519Verifier),),
     dynamic_record_domain_path=None,
     dynamic_record_ref_domain_path=None,
     child_resource_paths=(),
@@ -4849,9 +4710,7 @@ def recompute_candidate_installed_source_binding(
     *,
     source_authority: _CanonicalFoundrySourceAuthorityPayload,
     selected_evidence: evidence_module.SelectedDistributionArtifactEvidence,
-    observed_stable_manifest_ref: FoundryRecordRef[
-        Literal[DigestDomain.INSTALLED_STABLE]
-    ],
+    observed_stable_manifest_ref: FoundryRecordRef[Literal[DigestDomain.INSTALLED_STABLE]],
     observed_artifact_bytes: bytes | None = None,
     resolved_build_lineage: evidence_module.PersistedBuildLineageEvidence | None = None,
 ) -> CandidateInstalledSourceBinding | AuthorityPredicateFailure:
@@ -4862,9 +4721,7 @@ def recompute_candidate_installed_source_binding(
         return _rejected_from_registry(
             source_authority,
             AuthorityPredicateId.INSTALLED_SOURCE,
-            evidence_refs=(
-                cast("FoundryRecordRef[DigestDomain]", observed_stable_manifest_ref),
-            ),
+            evidence_refs=(cast("FoundryRecordRef[DigestDomain]", observed_stable_manifest_ref),),
         )
 
     selected_ref = cast(
@@ -4989,9 +4846,10 @@ class CandidateInstitutionalRootResolver(Protocol):
     def __call__(
         self,
         requested_root: Path,
-    ) -> evidence_module.ExternalAuthorityRef[
-        Literal[ExternalAuthorityKind.INSTITUTIONAL_ROOT]
-    ] | None: ...
+    ) -> (
+        evidence_module.ExternalAuthorityRef[Literal[ExternalAuthorityKind.INSTITUTIONAL_ROOT]]
+        | None
+    ): ...
 
 
 class CandidateRootAccessAttestor(Protocol):
@@ -5234,12 +5092,8 @@ def build_candidate_python_runtime_installation(
     source_authority: _CanonicalFoundrySourceAuthorityPayload,
     environment_root: Path,
     admission: PythonRuntimeAdmission,
-    environment_creation_nonce: DomainDigest[
-        Literal[DigestDomain.ENVIRONMENT_INSTANCE]
-    ],
-    installer_provenance_ref: FoundryRecordRef[
-        Literal[DigestDomain.VERIFIER_PROVENANCE]
-    ],
+    environment_creation_nonce: DomainDigest[Literal[DigestDomain.ENVIRONMENT_INSTANCE]],
+    installer_provenance_ref: FoundryRecordRef[Literal[DigestDomain.VERIFIER_PROVENANCE]],
 ) -> CandidatePythonRuntimeInstallation | BidirectionalUnestablishedAuthorityPredicate:
     """Build reference installation evidence without entering the production graph."""
 
@@ -5440,8 +5294,7 @@ def _observe_and_verify_candidate_python_runtime(
         statement.source_authority_ref != source_authority.authority_ref
         or statement.selected_artifact_ref != admission.selected_artifact_ref
         or statement.runtime_manifest_ref != admission.expected_runtime_manifest_ref
-        or statement.runtime_source_binding_ref
-        != admission.expected_runtime_source_binding_ref
+        or statement.runtime_source_binding_ref != admission.expected_runtime_source_binding_ref
         or statement.runtime_root_instance != observed.root_token
         or statement.runtime_root_identity != observed.root_identity
         or recomputed_runtime_ref != admission.expected_runtime_manifest_ref
@@ -5465,6 +5318,7 @@ def _observe_and_verify_candidate_python_runtime(
             ),
         ),
     )
+
 
 DependencyAuthorityComponentResolution = (
     ResolvedDependencyAuthorityComponents
@@ -5672,9 +5526,7 @@ class _ProductionMethodCatalogDependencyAuthority(
                 _CANONICAL_SOURCE_SPEC,
             ) as source_payload:
                 resolved_request = DependencyAuthorityResolvedSourceRequestStatement(
-                    schema_version=(
-                        "polisyos.foundry.dependency-resolved-source-request.v1"
-                    ),
+                    schema_version=("polisyos.foundry.dependency-resolved-source-request.v1"),
                     pre_source_request=_pre_source_statement(request),
                     expected_source_tree_id=source_payload.statement.source_tree_id,
                 )
@@ -5688,8 +5540,9 @@ class _ProductionMethodCatalogDependencyAuthority(
             _release_owner_capability(source, _CANONICAL_SOURCE_SPEC)
 
 
-def _build_production_canonical_source_resolver(
-) -> _ProductionCanonicalFoundrySourceAuthorityResolver:
+def _build_production_canonical_source_resolver() -> (
+    _ProductionCanonicalFoundrySourceAuthorityResolver
+):
     """Construct the exact source owner; callers cannot inject a snapshot."""
 
     return _ProductionCanonicalFoundrySourceAuthorityResolver()
@@ -5717,10 +5570,7 @@ def validate_negative_only_dependency_authority_abi() -> None:
     }
     if variants != expected:
         raise AssertionError("dependency authority result denominator changed")
-    statuses = {
-        variant.model_fields["status"].annotation
-        for variant in variants
-    }
+    statuses = {variant.model_fields["status"].annotation for variant in variants}
     if not statuses:
         raise AssertionError("dependency authority result status denominator is empty")
     validate_public_catalog_negative_graph()
@@ -5752,8 +5602,7 @@ def validate_no_owner_capability_in_persisted_schemas() -> None:
         value
         for value in globals().values()
         if isinstance(value, type)
-        and vars(value).get("__owner_token_class_marker__")
-        is _OWNER_TOKEN_CLASS_MARKER
+        and vars(value).get("__owner_token_class_marker__") is _OWNER_TOKEN_CLASS_MARKER
     }
     if len(token_types) != len(OwnerCapabilityKind):
         raise AssertionError("owner token denominator is not capability-complete")
@@ -5849,10 +5698,7 @@ def validate_decisive_domain_coverage() -> None:
                     continue
                 if domain_origin is Literal:
                     literal_values = get_args(domain)
-                    if (
-                        len(literal_values) == 1
-                        and type(literal_values[0]) is DigestDomain
-                    ):
+                    if len(literal_values) == 1 and type(literal_values[0]) is DigestDomain:
                         continue
                 if getattr(domain, "__bound__", None) is DigestDomain:
                     continue
@@ -5883,7 +5729,10 @@ def validate_authority_predicate_coverage() -> None:
                 raise AssertionError("predicate branch did not decode discriminately")
             if not row.admitted_classes:
                 raise AssertionError("bidirectional predicate has no admitted P37 class")
-        elif row.not_established_code is not AuthorityFailureCode.RUNTIME_SUBTREE_CUTOFF_NOT_ESTABLISHED:
+        elif (
+            row.not_established_code
+            is not AuthorityFailureCode.RUNTIME_SUBTREE_CUTOFF_NOT_ESTABLISHED
+        ):
             raise AssertionError("one-sided predicate uses the wrong failure code")
 
 
@@ -5908,8 +5757,7 @@ def validate_public_catalog_negative_graph(
     definitions = {
         node.name: node
         for node in snapshot_tree.body
-        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
-        and node.name in public_names
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name in public_names
     }
     if set(definitions) != public_names:
         raise AssertionError("public catalog negative graph lost a builder")
@@ -5924,23 +5772,18 @@ def validate_public_catalog_negative_graph(
     for name, definition in definitions.items():
         keyword_only = {argument.arg for argument in definition.args.kwonlyargs}
         if "dependency_authority_request" not in keyword_only:
-            raise AssertionError(
-                f"public catalog negative graph {name} lost its owner request"
-            )
+            raise AssertionError(f"public catalog negative graph {name} lost its owner request")
         calls = tuple(
             call_name
             for node in ast.walk(definition)
-            if isinstance(node, ast.Call)
-            and (call_name := _call_name(node)) is not None
+            if isinstance(node, ast.Call) and (call_name := _call_name(node)) is not None
         )
         if (
             calls.count("build_production_method_catalog_dependency_authority") != 1
             or calls.count("resolve") != 1
             or forbidden_calls.intersection(calls)
         ):
-            raise AssertionError(
-                f"public catalog negative graph {name} reaches candidate posture"
-            )
+            raise AssertionError(f"public catalog negative graph {name} reaches candidate posture")
 
     if scan_roots is None:
         scan_roots = (
@@ -5968,12 +5811,9 @@ def validate_public_catalog_negative_graph(
                 if canonical_name not in public_names:
                     continue
                 if not any(
-                    keyword.arg == "dependency_authority_request"
-                    for keyword in call.keywords
+                    keyword.arg == "dependency_authority_request" for keyword in call.keywords
                 ):
-                    missing_request.append(
-                        f"{candidate.relative_to(_PRODUCT_ROOT)}:{call.lineno}"
-                    )
+                    missing_request.append(f"{candidate.relative_to(_PRODUCT_ROOT)}:{call.lineno}")
     if missing_request:
         raise AssertionError(
             "public catalog negative graph caller lacks owner request: "
@@ -5999,16 +5839,10 @@ def derive_owner_protocol_concrete_pairs_from_source(
     """Derive every owner Protocol/concrete pair from source and live MROs."""
 
     tree = ast.parse(module_file.read_text(encoding="utf-8"), filename=str(module_file))
-    source_classes = {
-        node.name: node
-        for node in tree.body
-        if isinstance(node, ast.ClassDef)
-    }
+    source_classes = {node.name: node for node in tree.body if isinstance(node, ast.ClassDef)}
     bases = {
         name: tuple(
-            base_name
-            for base in node.bases
-            if (base_name := _ast_base_name(base)) is not None
+            base_name for base in node.bases if (base_name := _ast_base_name(base)) is not None
         )
         for name, node in source_classes.items()
     }
@@ -6018,8 +5852,7 @@ def derive_owner_protocol_concrete_pairs_from_source(
             raise AssertionError("owner class graph contains a cycle")
         direct = bases.get(name, ())
         return target in direct or any(
-            parent in bases and inherits(parent, target, seen | {name})
-            for parent in direct
+            parent in bases and inherits(parent, target, seen | {name}) for parent in direct
         )
 
     source_owner_names = {
@@ -6067,17 +5900,12 @@ def derive_owner_protocol_concrete_pairs_from_source(
             implementation = concrete.__dict__.get(method_name)
             if not callable(implementation):
                 raise AssertionError(
-                    f"{concrete_name} inherits an unimplemented Protocol method "
-                    f"{method_name}"
+                    f"{concrete_name} inherits an unimplemented Protocol method {method_name}"
                 )
             protocol_signature = inspect.signature(protocol.__dict__[method_name])
             concrete_signature = inspect.signature(implementation)
-            if tuple(protocol_signature.parameters) != tuple(
-                concrete_signature.parameters
-            ):
-                raise AssertionError(
-                    f"{concrete_name}.{method_name} changes Protocol parameters"
-                )
+            if tuple(protocol_signature.parameters) != tuple(concrete_signature.parameters):
+                raise AssertionError(f"{concrete_name}.{method_name} changes Protocol parameters")
         pairs.append((concrete, protocol))
     return tuple(pairs)
 
@@ -6099,14 +5927,9 @@ def derive_owner_entrypoint_denominator_from_source(
 
     tree = ast.parse(module_file.read_text(encoding="utf-8"), filename=str(module_file))
     source_functions = {
-        node.name
-        for node in tree.body
-        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+        node.name for node in tree.body if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
     }
-    spec_by_token = {
-        spec.token_type: spec
-        for spec in _OWNER_CAPABILITY_SPECS
-    }
+    spec_by_token = {spec.token_type: spec for spec in _OWNER_CAPABILITY_SPECS}
     predicate_by_kind = {
         OwnerCapabilityKind.CANONICAL_SOURCE: AuthorityPredicateId.SOURCE_FREEZE,
         OwnerCapabilityKind.RUNTIME_INSTALLATION: AuthorityPredicateId.PYTHON_RUNTIME,
@@ -6121,9 +5944,7 @@ def derive_owner_entrypoint_denominator_from_source(
         OwnerCapabilityKind.RESOLVED_COMPONENTS: AuthorityPredicateId.TRUST_SIGNATURE,
     }
     registry = load_digest_domain_registry(_DIGEST_REGISTRY_PATH)
-    row_by_id = {
-        row.predicate_id: row for row in registry.statement.predicates
-    }
+    row_by_id = {row.predicate_id: row for row in registry.statement.predicates}
 
     def policies(function: Callable[..., object]) -> tuple[OwnerFaultPolicy, ...]:
         hints = get_type_hints(function, include_extras=True)
@@ -6239,8 +6060,7 @@ def derive_owner_entrypoint_denominator_from_source(
             key=lambda row: (
                 row.target.target_kind.value,
                 (
-                    f"{row.target.concrete_owner_type.__qualname__}."
-                    f"{row.target.method_name}"
+                    f"{row.target.concrete_owner_type.__qualname__}.{row.target.method_name}"
                     if isinstance(row.target, OwnerMethodTarget)
                     else row.target.function_name
                 ),
@@ -6304,15 +6124,12 @@ def derive_owner_borrow_reachability_from_source(
     while changed:
         changed = False
         for candidate in ast.walk(tree):
-            if (
-                not isinstance(candidate, (ast.Assign, ast.AnnAssign))
-                or not isinstance(candidate.value, (ast.Name, ast.Attribute))
+            if not isinstance(candidate, (ast.Assign, ast.AnnAssign)) or not isinstance(
+                candidate.value, (ast.Name, ast.Attribute)
             ):
                 continue
             targets = (
-                candidate.targets
-                if isinstance(candidate, ast.Assign)
-                else (candidate.target,)
+                candidate.targets if isinstance(candidate, ast.Assign) else (candidate.target,)
             )
             source_name = (
                 candidate.value.id
@@ -6323,10 +6140,7 @@ def derive_owner_borrow_reachability_from_source(
             if terminal not in forbidden_calls and terminal not in function_nodes:
                 continue
             for target in targets:
-                if (
-                    isinstance(target, ast.Name)
-                    and callable_aliases.get(target.id) != terminal
-                ):
+                if isinstance(target, ast.Name) and callable_aliases.get(target.id) != terminal:
                     callable_aliases[target.id] = terminal
                     changed = True
 
@@ -6475,25 +6289,17 @@ def derive_owner_borrow_reachability_from_source(
                     if isinstance(expression.func, ast.Attribute)
                     else None
                 )
-                argument_infos = tuple(
-                    analyze_expression(argument) for argument in expression.args
-                )
+                argument_infos = tuple(analyze_expression(argument) for argument in expression.args)
                 keyword_infos = tuple(
                     analyze_expression(keyword.value) for keyword in expression.keywords
                 )
                 name = _call_name(expression)
                 terminal_name = callable_aliases.get(name or "", name)
                 if terminal_name in forbidden_calls:
-                    raise AssertionError(
-                        f"owner borrow reaches process primitive {terminal_name}"
-                    )
+                    raise AssertionError(f"owner borrow reaches process primitive {terminal_name}")
                 if name in {"len", "iter"} and argument_infos:
-                    if argument_infos[0] is not None and not exact_builtin_tuple(
-                        argument_infos[0]
-                    ):
-                        raise AssertionError(
-                            f"owner payload reaches implicit dispatch {name}"
-                        )
+                    if argument_infos[0] is not None and not exact_builtin_tuple(argument_infos[0]):
+                        raise AssertionError(f"owner payload reaches implicit dispatch {name}")
                 if name in pure_calls:
                     return None
                 target_names = callback_targets.get(name or "")
@@ -6507,9 +6313,8 @@ def derive_owner_borrow_reachability_from_source(
                 global_target = globals().get(name or "")
                 if global_target is None:
                     global_target = getattr(evidence_module, name or "", None)
-                safe_model_constructor = (
-                    isinstance(global_target, type)
-                    and issubclass(global_target, FoundryAuthorityModel)
+                safe_model_constructor = isinstance(global_target, type) and issubclass(
+                    global_target, FoundryAuthorityModel
                 )
                 if (
                     not safe_model_constructor
@@ -6530,9 +6335,7 @@ def derive_owner_borrow_reachability_from_source(
                 for generator in expression.generators:
                     info = analyze_expression(generator.iter)
                     if info is not None and not exact_builtin_tuple(info):
-                        raise AssertionError(
-                            "owner payload reaches implicit dispatch iteration"
-                        )
+                        raise AssertionError("owner payload reaches implicit dispatch iteration")
                     bind_target(generator.target, info)
                     local_infos.append((generator, info))
                     for condition in generator.ifs:
@@ -6545,9 +6348,7 @@ def derive_owner_borrow_reachability_from_source(
                 for generator in expression.generators:
                     info = analyze_expression(generator.iter)
                     if info is not None and not exact_builtin_tuple(info):
-                        raise AssertionError(
-                            "owner payload reaches implicit dispatch iteration"
-                        )
+                        raise AssertionError("owner payload reaches implicit dispatch iteration")
                     bind_target(generator.target, info)
                     for condition in generator.ifs:
                         analyze_expression(condition)
@@ -6569,9 +6370,7 @@ def derive_owner_borrow_reachability_from_source(
             if isinstance(statement, (ast.Assign, ast.AnnAssign)):
                 value = analyze_expression(statement.value)
                 targets = (
-                    statement.targets
-                    if isinstance(statement, ast.Assign)
-                    else (statement.target,)
+                    statement.targets if isinstance(statement, ast.Assign) else (statement.target,)
                 )
                 for target in targets:
                     bind_target(target, value)
@@ -6598,9 +6397,7 @@ def derive_owner_borrow_reachability_from_source(
             if isinstance(statement, (ast.For, ast.AsyncFor)):
                 info = analyze_expression(statement.iter)
                 if info is not None and not exact_builtin_tuple(info):
-                    raise AssertionError(
-                        "owner payload reaches implicit dispatch iteration"
-                    )
+                    raise AssertionError("owner payload reaches implicit dispatch iteration")
                 nested_taints = dict(taints)
                 if isinstance(statement.target, ast.Name) and info is not None:
                     nested_taints[statement.target.id] = info
@@ -6689,9 +6486,7 @@ def derive_owner_borrow_reachability_from_source(
             owner_class = class_stack[-1] if class_stack else None
             lexical_key = (owner_class, node.name)
             for with_node in (
-                candidate
-                for candidate in ast.walk(node)
-                if isinstance(candidate, ast.With)
+                candidate for candidate in ast.walk(node) if isinstance(candidate, ast.With)
             ):
                 for item in with_node.items:
                     expression = item.context_expr
@@ -6706,9 +6501,7 @@ def derive_owner_borrow_reachability_from_source(
                     evaluated: list[OwnerBorrowEvaluationNode] = []
                     for occurrence, occurrence_path in occurrences(synthetic):
                         call_name = (
-                            _call_name(occurrence)
-                            if isinstance(occurrence, ast.Call)
-                            else None
+                            _call_name(occurrence) if isinstance(occurrence, ast.Call) else None
                         )
                         if call_name in forbidden_calls:
                             raise AssertionError(
@@ -6722,14 +6515,21 @@ def derive_owner_borrow_reachability_from_source(
                                 for member in ast.walk(value)
                             ):
                                 raise AssertionError("owner payload escapes its lexical borrow")
-                        if isinstance(occurrence, (ast.Global, ast.Nonlocal)) and borrowed in occurrence.names:
+                        if (
+                            isinstance(occurrence, (ast.Global, ast.Nonlocal))
+                            and borrowed in occurrence.names
+                        ):
                             raise AssertionError("owner payload is declared nonlocal/global")
-                        if isinstance(occurrence, ast.Assign) and any(
-                            isinstance(target, (ast.Attribute, ast.Subscript))
-                            for target in occurrence.targets
-                        ) and any(
-                            isinstance(member, ast.Name) and member.id == borrowed
-                            for member in ast.walk(occurrence.value)
+                        if (
+                            isinstance(occurrence, ast.Assign)
+                            and any(
+                                isinstance(target, (ast.Attribute, ast.Subscript))
+                                for target in occurrence.targets
+                            )
+                            and any(
+                                isinstance(member, ast.Name) and member.id == borrowed
+                                for member in ast.walk(occurrence.value)
+                            )
                         ):
                             raise AssertionError("owner payload escapes into mutable state")
                         span = (
@@ -6753,9 +6553,7 @@ def derive_owner_borrow_reachability_from_source(
                                     operand_exact_types=(),
                                     implicit_method_names=(),
                                     disposition=(
-                                        "traversed"
-                                        if call_name is not None
-                                        else "no_user_dispatch"
+                                        "traversed" if call_name is not None else "no_user_dispatch"
                                     ),
                                     traversed_qualified_functions=(
                                         (call_name,) if call_name is not None else ()
@@ -6779,9 +6577,7 @@ def derive_owner_borrow_reachability_from_source(
                                 occurrence_id=AstOccurrenceId(occurrence_path),
                                 source_span=span,
                                 disposition=(
-                                    "lowered"
-                                    if terminal_edges
-                                    else "syntactic_container"
+                                    "lowered" if terminal_edges else "syntactic_container"
                                 ),
                                 terminal_edges=terminal_edges,
                             )
@@ -6806,9 +6602,7 @@ def derive_owner_borrow_reachability_from_source(
                         entrypoint = OwnerFunctionTarget(
                             target_kind=OwnerEntrypointTargetKind.MODULE_FUNCTION,
                             module_qualname=(
-                                __name__
-                                if owner_class is None
-                                else f"{__name__}.{owner_class}"
+                                __name__ if owner_class is None else f"{__name__}.{owner_class}"
                             ),
                             function_name=node.name,
                         )
@@ -6843,8 +6637,7 @@ def derive_owner_borrow_reachability_from_source(
                 row.entrypoint.target_kind.value,
                 row.entrypoint.function_name
                 if isinstance(row.entrypoint, OwnerFunctionTarget)
-                else f"{row.entrypoint.concrete_owner_type.__name__}."
-                f"{row.entrypoint.method_name}",
+                else f"{row.entrypoint.concrete_owner_type.__name__}.{row.entrypoint.method_name}",
                 row.borrowed_name,
             ),
         )
@@ -6951,11 +6744,7 @@ def validate_owner_entrypoint_failure_mapping() -> None:
         module_file=module_file,
         owner_entrypoints=entrypoints,
     )
-    token_kinds = {
-        policy.capability_kind
-        for row in entrypoints
-        for policy in row.fault_policies
-    }
+    token_kinds = {policy.capability_kind for row in entrypoints for policy in row.fault_policies}
     if not token_kinds.issubset(set(OwnerCapabilityKind)):
         raise AssertionError("owner fault policy names an unregistered capability")
     for row in entrypoints:
@@ -7073,11 +6862,7 @@ def validate_production_owner_composition_bijection() -> None:
         name: resolve_calls.index(name)
         for name in ("resolve", "preflight", "build_runtime_cutoff_refusal")
     }
-    if not (
-        ordering["resolve"]
-        < ordering["preflight"]
-        < ordering["build_runtime_cutoff_refusal"]
-    ):
+    if not (ordering["resolve"] < ordering["preflight"] < ordering["build_runtime_cutoff_refusal"]):
         raise AssertionError("production negative graph is not cutoff-first")
     forbidden = {
         "_open_production_dependency_authority_repository",
@@ -7139,9 +6924,7 @@ POST_SOURCE_NEGATIVE_AUTHORITY_STAGES = MappingProxyType(
     {
         NegativeDependencyAuthorityResultKind.RUNTIME_CUTOFF_NOT_ESTABLISHED: (
             PostSourceNegativeAuthorityStageSpec(
-                result_kind=(
-                    NegativeDependencyAuthorityResultKind.RUNTIME_CUTOFF_NOT_ESTABLISHED
-                ),
+                result_kind=(NegativeDependencyAuthorityResultKind.RUNTIME_CUTOFF_NOT_ESTABLISHED),
                 status=OwnerCapabilityFaultDisposition.NOT_ESTABLISHED,
                 predicate_id=AuthorityPredicateId.RUNTIME_SUBTREE_CUTOFF,
                 required_branch_shape="not_established_only",

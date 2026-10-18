@@ -42,8 +42,7 @@ class PermutationImportanceAdapter:
                 shifted[feature] = rows[(index + 1) % len(rows)][feature]
                 shifted_outputs.append(float(model(shifted)))
             attributions[feature] = sum(
-                abs(left - right)
-                for left, right in zip(baseline, shifted_outputs, strict=True)
+                abs(left - right) for left, right in zip(baseline, shifted_outputs, strict=True)
             ) / len(rows)
         return RawExplanation(
             method_id=self.method_id,

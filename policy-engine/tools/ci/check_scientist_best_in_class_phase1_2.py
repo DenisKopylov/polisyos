@@ -50,9 +50,7 @@ REQUIRED_NEGATIVE_TEST_TOKENS: dict[Path, tuple[str, ...]] = {
         "acyclic",
         "hidden artifact ref",
     ),
-    Path("tests/unit/scientist/methods/research_dag/test_persistence.py"): (
-        "legacy_missing",
-    ),
+    Path("tests/unit/scientist/methods/research_dag/test_persistence.py"): ("legacy_missing",),
 }
 INTEGRATION_FILES: tuple[Path, ...] = (
     Path("src/polisyos/scientist/orchestration/engine/executor.py"),

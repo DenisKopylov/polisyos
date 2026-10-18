@@ -129,9 +129,9 @@ def load_academic_shadow_bundle(root: str | Path) -> AcademicShadowBundle:
         )
     schema_generation_current = schema_generation.is_current and materialized_schema_current
     readiness["schema_generation_current"] = schema_generation_current
-    readiness["consumer_ready"] = _bool_value(
-        readiness.get("consumer_ready")
-    ) and schema_generation_current
+    readiness["consumer_ready"] = (
+        _bool_value(readiness.get("consumer_ready")) and schema_generation_current
+    )
     if not schema_generation.is_current:
         warnings.append(
             "academic SKG schema generation drift: "

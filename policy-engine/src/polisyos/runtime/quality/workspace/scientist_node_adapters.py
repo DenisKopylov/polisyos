@@ -801,9 +801,7 @@ def _read_binding(
     if require_profiled_json:
         if typed.media_type != "application/json":
             raise ValueError("profiled_semantic_read_requires_json_media_type")
-        core_artifacts.read_core_json_artifact_bytes(
-            store, typed, raw_payload_bytes=raw
-        )
+        core_artifacts.read_core_json_artifact_bytes(store, typed, raw_payload_bytes=raw)
     return (
         AdapterArtifactByteBinding(
             path=path,

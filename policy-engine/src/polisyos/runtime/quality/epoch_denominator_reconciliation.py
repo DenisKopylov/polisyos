@@ -100,6 +100,7 @@ def _read_transition_exact(
     ref: ArtifactRef,
 ) -> tuple[EpochValidityTransitionArtifact, bytes]:
     from polisyos.core.artifacts import validate_core_model_json_artifact
+
     try:
         manifest = store.get_manifest(ref)
         raw = store.get_bytes(ref)
@@ -143,6 +144,7 @@ def _read_snapshot_exact(
     handle: DecisionValidityEpochImpactSnapshotHandle,
 ) -> PersistedDecisionValidityEpochImpactSnapshot:
     from polisyos.core.artifacts import load_core_json_artifact
+
     try:
         ref = handle.snapshot_ref
         manifest = store.get_manifest(ref)
@@ -304,6 +306,7 @@ class EpochTransitionDenominatorReconciliationReader:
         handle: EpochTransitionDenominatorReconciliationHandle,
     ) -> PersistedEpochTransitionDenominatorReconciliation:
         from polisyos.core.artifacts import load_core_json_artifact
+
         try:
             ref = handle.reconciliation_receipt_ref
             manifest = self._store.get_manifest(ref)
@@ -437,7 +440,9 @@ class EpochTransitionDenominatorReconciliationReader:
                     load_core_json_artifact(
                         self._store,
                         artifact_id,
-                        manifest_profile_sha256=artifacts.artifact_manifest_profile_sha256(manifest),
+                        manifest_profile_sha256=artifacts.artifact_manifest_profile_sha256(
+                            manifest
+                        ),
                     )
                 )
                 candidate = self.resolve_exact(

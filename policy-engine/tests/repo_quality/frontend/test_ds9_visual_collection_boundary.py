@@ -49,6 +49,5 @@ def test_publication_packet_collection_closure_excludes_react_and_locale_catalog
         or source in {"react", "react/jsx-runtime"}
     )
     assert presentation_sources == [], (
-        "publication-packet Node collection reached presentation modules: "
-        f"{presentation_sources}"
+        f"publication-packet Node collection reached presentation modules: {presentation_sources}"
     )

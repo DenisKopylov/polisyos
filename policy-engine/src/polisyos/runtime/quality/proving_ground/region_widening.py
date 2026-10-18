@@ -36,9 +36,7 @@ DEFAULT_REPO_ROOT = Path(__file__).resolve().parents[5]
 G7_PINNED_CASE_ID = read_layer3_gx_pinned_case_id(DEFAULT_REPO_ROOT)
 POLICY_DESIGN_CASE_DIR = Path("architecture/policy_design_case")
 G1_READINESS_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g1_readiness_manifest.json"
-G1_SEARCH_RECALL_FRESHNESS_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g1_search_recall_freshness.json"
-)
+G1_SEARCH_RECALL_FRESHNESS_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g1_search_recall_freshness.json"
 G1_GROUNDED_SOURCE_CONTRACTS_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g1_grounded_source_contracts.json"
 )
@@ -71,9 +69,7 @@ G6_GROUNDED_RESULT_OR_ABSTENTION_PATH = (
 )
 G6_SEARCH_LEDGER_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g6_search_ledger.json"
 G6_AGENT_RUN_RECORDS_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g6_agent_run_records.json"
-G6_GROUNDING_DEMAND_RECORD_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g6_grounding_demand_record.json"
-)
+G6_GROUNDING_DEMAND_RECORD_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g6_grounding_demand_record.json"
 G6_ORCHESTRATION_CHOICE_AUDIT_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g6_orchestration_choice_audit.json"
 )
@@ -89,9 +85,7 @@ S14_ASSURANCE_MANIFEST_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer2_s14_universality_assurance_manifest.json"
 )
 GL_READINESS_PATH = POLICY_DESIGN_CASE_DIR / "layer3_gl_readiness_manifest.json"
-GL_LEGAL_AUTHORITY_REPORT_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_gl_legal_authority_report.json"
-)
+GL_LEGAL_AUTHORITY_REPORT_PATH = POLICY_DESIGN_CASE_DIR / "layer3_gl_legal_authority_report.json"
 G7_DEPENDENCY_PATHS: tuple[Path, ...] = (
     G1_READINESS_PATH,
     G1_SEARCH_RECALL_FRESHNESS_PATH,
@@ -120,9 +114,7 @@ G7_DEPENDENCY_PATHS: tuple[Path, ...] = (
 G7_SCHEMA_VERSION: str = "policyos.policy_design_case.layer3_g7_region_widening.v1"
 G7_RULE_VERSION: str = "policyos.layer3.g7.region_widening.v1"
 G7_SURFACE_ID: str = "layer3_g7_region_widening_surface"
-G7_GENERATED_ARTIFACT_FAMILY_ID: str = (
-    "policy-design-case-layer3-g7-region-widening-artifacts"
-)
+G7_GENERATED_ARTIFACT_FAMILY_ID: str = "policy-design-case-layer3-g7-region-widening-artifacts"
 
 G7_AUTHORITATIVE_FOR: tuple[str, ...] = (
     "layer3_g7_region_widening_audit",
@@ -262,61 +254,33 @@ G7_CONFORMANCE_NEGATIVE_EXPECTED_ISSUE_CODES: dict[str, tuple[str, ...]] = {
     "grounded_case_without_governed_promotion": (
         "layer3_g7_grounded_case_without_governed_promotion",
     ),
-    "g4_seed_promotion_as_region_governance": (
-        "layer3_g7_g4_seed_promotion_projected_to_region",
-    ),
-    "g4_promotion_without_full_gate_shape": (
-        "layer3_g7_g4_promotion_gate_shape_missing",
-    ),
+    "g4_seed_promotion_as_region_governance": ("layer3_g7_g4_seed_promotion_projected_to_region",),
+    "g4_promotion_without_full_gate_shape": ("layer3_g7_g4_promotion_gate_shape_missing",),
     "g4_mapping_fallback_as_region_governance": (
         "layer3_g7_g4_mapping_fallback_counted_as_governed",
     ),
-    "bespoke_patch_as_mechanism_reuse": (
-        "layer3_g7_bespoke_patch_counted_as_reuse",
-    ),
-    "sublinear_cost_without_cost_ledger": (
-        "layer3_g7_marginal_cost_without_cost_ledger",
-    ),
-    "sublinear_cost_without_grounded_cases": (
-        "layer3_g7_sublinear_claim_without_grounded_cases",
-    ),
+    "bespoke_patch_as_mechanism_reuse": ("layer3_g7_bespoke_patch_counted_as_reuse",),
+    "sublinear_cost_without_cost_ledger": ("layer3_g7_marginal_cost_without_cost_ledger",),
+    "sublinear_cost_without_grounded_cases": ("layer3_g7_sublinear_claim_without_grounded_cases",),
     "s12_growth_thermometer_missing": ("layer3_g7_s12_growth_thermometer_missing",),
     "s12_projection_bypasses_resource_economics_shape": (
         "layer3_g7_s12_projection_bypasses_resource_economics_shape",
     ),
-    "s12_growth_without_certified_delta": (
-        "layer3_g7_s12_growth_without_certified_delta",
-    ),
-    "s12_held_out_status_overclaimed": (
-        "layer3_g7_s12_held_out_status_overclaimed",
-    ),
+    "s12_growth_without_certified_delta": ("layer3_g7_s12_growth_without_certified_delta",),
+    "s12_held_out_status_overclaimed": ("layer3_g7_s12_held_out_status_overclaimed",),
     "s12_deny_list_omitted": ("layer3_g7_s12_deny_list_omitted",),
     "s13_certified_delta_missing": ("layer3_g7_s13_certified_delta_missing",),
-    "pending_delta_as_region_expansion": (
-        "layer3_g7_pending_delta_counted_as_expansion",
-    ),
-    "semantic_loss_hidden_by_region_score": (
-        "layer3_g7_semantic_loss_hidden_by_region_score",
-    ),
-    "effective_independence_inflated": (
-        "layer3_g7_effective_independence_inflated",
-    ),
+    "pending_delta_as_region_expansion": ("layer3_g7_pending_delta_counted_as_expansion",),
+    "semantic_loss_hidden_by_region_score": ("layer3_g7_semantic_loss_hidden_by_region_score",),
+    "effective_independence_inflated": ("layer3_g7_effective_independence_inflated",),
     "g5_may_not_use_for_ignored": ("layer3_g7_g5_may_not_use_for_ignored",),
     "g6_may_not_use_for_ignored": ("layer3_g7_g6_may_not_use_for_ignored",),
     "s14_feed_missing": ("layer3_g7_s14_feed_missing",),
-    "s14_battery_input_manifest_missing": (
-        "layer3_g7_s14_battery_input_manifest_missing",
-    ),
+    "s14_battery_input_manifest_missing": ("layer3_g7_s14_battery_input_manifest_missing",),
     "s14_feed_uses_fixtures": ("layer3_g7_s14_feed_uses_fixtures",),
-    "s14_manifest_as_runner_output": (
-        "layer3_g7_s14_manifest_runner_output_conflated",
-    ),
-    "universal_claim_without_s14_gate": (
-        "layer3_g7_universal_claim_without_s14_gate",
-    ),
-    "public_projection_authority_leak": (
-        "layer3_g7_public_projection_authority_leak",
-    ),
+    "s14_manifest_as_runner_output": ("layer3_g7_s14_manifest_runner_output_conflated",),
+    "universal_claim_without_s14_gate": ("layer3_g7_universal_claim_without_s14_gate",),
+    "public_projection_authority_leak": ("layer3_g7_public_projection_authority_leak",),
     "public_projection_raw_payload_leak": ("layer3_g7_public_raw_payload_leak",),
     "public_projection_required_deny_list_missing": (
         "layer3_g7_projection_omits_required_deny_list",
@@ -324,17 +288,13 @@ G7_CONFORMANCE_NEGATIVE_EXPECTED_ISSUE_CODES: dict[str, tuple[str, ...]] = {
     "public_projection_contract_missing_or_failed": (
         "layer3_g7_public_projection_contract_failed",
     ),
-    "generated_artifacts_family_missing": (
-        "layer3_g7_generated_artifacts_family_missing",
-    ),
+    "generated_artifacts_family_missing": ("layer3_g7_generated_artifacts_family_missing",),
     "inventory_surface_missing": ("layer3_g7_inventory_surface_missing",),
     "reference_index_missing": ("layer3_g7_reference_index_missing",),
     "route_contract_registry_missing": ("layer3_g7_route_contract_registry_missing",),
     "manifest_runtime_drift": ("layer3_g7_manifest_runtime_drift",),
     "replay_manifest_missing": ("layer3_g7_replay_manifest_missing",),
-    "orchestration_continuity_missing": (
-        "layer3_g7_orchestration_continuity_missing",
-    ),
+    "orchestration_continuity_missing": ("layer3_g7_orchestration_continuity_missing",),
     "replay_helper_bypassed": ("layer3_g7_replay_helper_bypassed",),
     "closed_case_replay_mutated": ("layer3_g7_closed_case_replay_mutated",),
 }
@@ -508,9 +468,7 @@ class Layer3G7RegionCaseConversionInput(_G7Model):
     source_contract_status: str = "pass"
     search_health_status: str = "pass"
     effective_independence_status: str = "pass"
-    search_status: Literal["adapter_backed", "hit_without_adapter", "missing"] = (
-        "adapter_backed"
-    )
+    search_status: Literal["adapter_backed", "hit_without_adapter", "missing"] = "adapter_backed"
     g4_record_source: str = "persisted_g4_record"
     blocker_refs: tuple[str, ...] = Field(default=())
     limitation_refs: tuple[str, ...] = Field(default=())
@@ -550,9 +508,7 @@ class Layer3G7RegionConversionRecord(_G7Model):
     source_contract_status: str = "pass"
     search_health_status: str = "pass"
     effective_independence_status: str = "pass"
-    search_status: Literal["adapter_backed", "hit_without_adapter", "missing"] = (
-        "adapter_backed"
-    )
+    search_status: Literal["adapter_backed", "hit_without_adapter", "missing"] = "adapter_backed"
     g4_promotion_record_ref: str | None = None
     g4_governed_promotion_join_status: Layer3G7GovernedPromotionJoinStatus
     g4_grounded_contract_set_ref: str | None = None
@@ -603,9 +559,7 @@ class Layer3G7S12GrowthThermometerProjection(_G7Model):
     held_out_battery_ref: str | None = None
     certified_envelope_delta_refs: tuple[str, ...] = Field(default=())
     growth_without_envelope_delta_count: int = Field(default=0, ge=0)
-    growth_counting_disposition: Layer3G7GrowthCountingDisposition = (
-        "counted_mechanism_growth"
-    )
+    growth_counting_disposition: Layer3G7GrowthCountingDisposition = "counted_mechanism_growth"
     reuse_rate: float = Field(default=0.0, ge=0.0)
     s12_projection_contract_status: str = "missing"
     s12_projection_contract_issue_codes: tuple[str, ...] = Field(default=())
@@ -883,15 +837,11 @@ class Layer3G7RegionWideningAuditSurface(_G7Model):
     REVIEWER: dict[str, Any] = Field(default_factory=dict)
     EXPERT: dict[str, Any] = Field(default_factory=dict)
     MACHINE: dict[str, Any] = Field(default_factory=dict)
-    s12_resource_projection_contract_verification: dict[str, Any] = Field(
+    s12_resource_projection_contract_verification: dict[str, Any] = Field(default_factory=dict)
+    s13_post_deploy_accountability_projection_contract_verification: dict[str, Any] = Field(
         default_factory=dict
     )
-    s13_post_deploy_accountability_projection_contract_verification: dict[
-        str, Any
-    ] = Field(default_factory=dict)
-    s14_universality_projection_contract_verification: dict[str, Any] = Field(
-        default_factory=dict
-    )
+    s14_universality_projection_contract_verification: dict[str, Any] = Field(default_factory=dict)
     public_projection_contract_verification: dict[str, Any] = Field(default_factory=dict)
     projection_contract_statuses: dict[str, str] = Field(default_factory=dict)
     source_fingerprints: dict[str, str] = Field(default_factory=dict)
@@ -925,9 +875,7 @@ class Layer3G7OrchestrationContinuity(_G7Model):
     region_ref: str = Field(min_length=1)
     status: Layer3G7ReplayStatus
     record: dict[str, Any] = Field(default_factory=dict)
-    upstream_closed_case_replay_refs: dict[str, dict[str, str]] = Field(
-        default_factory=dict
-    )
+    upstream_closed_case_replay_refs: dict[str, dict[str, str]] = Field(default_factory=dict)
     continuity_fingerprint: str | None = None
     issue_codes: tuple[str, ...] = Field(default=())
     authoritative_for: tuple[str, ...] = ("layer3_g7_region_widening_audit",)
@@ -1321,9 +1269,7 @@ def build_g7_region_grounding_matrix(
         grounded_count=grounded_count,
     )
     if coverage_status == "blocked_control_plane_only":
-        issue_codes = _dedupe(
-            (*issue_codes, "layer3_g7_candidate_set_hardcoded_as_coverage")
-        )
+        issue_codes = _dedupe((*issue_codes, "layer3_g7_candidate_set_hardcoded_as_coverage"))
     if coverage_status == "blocked_search_control_plane_only":
         issue_codes = _dedupe((*issue_codes, "layer3_g7_search_hit_counted_as_coverage"))
     return Layer3G7RegionGroundingMatrix(
@@ -1426,9 +1372,7 @@ _DEFAULT_S12_PROJECTION: object = object()
 def build_g7_s12_growth_thermometer_projection(
     *,
     conversion_records: Iterable[
-        Mapping[str, object]
-        | Layer3G7RegionCaseConversionInput
-        | Layer3G7RegionConversionRecord
+        Mapping[str, object] | Layer3G7RegionCaseConversionInput | Layer3G7RegionConversionRecord
     ],
     demand_pull_refs: Iterable[str] = (),
     accountable_principal_refs: Iterable[str] = (),
@@ -1438,9 +1382,7 @@ def build_g7_s12_growth_thermometer_projection(
     held_out_battery_ref: str | None = None,
     certified_envelope_delta_refs: Iterable[str] = (),
     growth_without_envelope_delta_count: int = 0,
-    growth_counting_disposition: Layer3G7GrowthCountingDisposition = (
-        "counted_mechanism_growth"
-    ),
+    growth_counting_disposition: Layer3G7GrowthCountingDisposition = ("counted_mechanism_growth"),
     may_not_use_for: Iterable[str] = (),
     repo_root: Path = DEFAULT_REPO_ROOT,
 ) -> Layer3G7S12GrowthThermometerProjection:
@@ -1497,9 +1439,7 @@ def build_g7_s12_growth_thermometer_projection(
         thermometer_ref="s12-growth-thermometer://layer3-g7/ua-msme-adjacent",
         g5_demand_pull_attempt_ref=G5_DEMAND_PULL_ATTEMPT_RECORD_PATH.as_posix(),
         g5_envelope_expansion_delta_ref=G5_ENVELOPE_EXPANSION_DELTA_PATH.as_posix(),
-        g5_dependency_health_snapshot_ref=(
-            G5_DEPENDENCY_HEALTH_METRIC_SNAPSHOT_PATH.as_posix()
-        ),
+        g5_dependency_health_snapshot_ref=(G5_DEPENDENCY_HEALTH_METRIC_SNAPSHOT_PATH.as_posix()),
         demand_pull_refs=resolved_demand_refs,
         accountable_principal_refs=resolved_principal_refs,
         reused_primitive_refs=resolved_reuse_refs,
@@ -1521,13 +1461,9 @@ def build_g7_s12_growth_thermometer_projection(
 def build_g7_mechanism_reuse_ledger(
     *,
     conversion_records: Iterable[
-        Mapping[str, object]
-        | Layer3G7RegionCaseConversionInput
-        | Layer3G7RegionConversionRecord
+        Mapping[str, object] | Layer3G7RegionCaseConversionInput | Layer3G7RegionConversionRecord
     ],
-    s12_growth_thermometer_projection: (
-        Layer3G7S12GrowthThermometerProjection | None
-    ) = None,
+    s12_growth_thermometer_projection: (Layer3G7S12GrowthThermometerProjection | None) = None,
     bespoke_patch_refs: Iterable[str] = (),
     one_off_growth_refs: Iterable[str] = (),
     reuse_threshold: float = 0.5,
@@ -1598,9 +1534,7 @@ def build_g7_mechanism_reuse_ledger(
 def build_g7_marginal_grounding_cost_ledger(
     *,
     conversion_records: Iterable[
-        Mapping[str, object]
-        | Layer3G7RegionCaseConversionInput
-        | Layer3G7RegionConversionRecord
+        Mapping[str, object] | Layer3G7RegionCaseConversionInput | Layer3G7RegionConversionRecord
     ],
     mechanism_reuse_ledger: Layer3G7MechanismReuseLedger,
     s12_growth_thermometer_projection: (
@@ -1613,9 +1547,7 @@ def build_g7_marginal_grounding_cost_ledger(
 
     rows = _coerce_g7_conversion_records(conversion_records)
     if s12_growth_thermometer_projection is _DEFAULT_S12_PROJECTION:
-        growth_projection = build_g7_s12_growth_thermometer_projection(
-            conversion_records=rows
-        )
+        growth_projection = build_g7_s12_growth_thermometer_projection(conversion_records=rows)
     elif isinstance(s12_growth_thermometer_projection, Layer3G7S12GrowthThermometerProjection):
         growth_projection = s12_growth_thermometer_projection
     else:
@@ -1633,9 +1565,7 @@ def build_g7_marginal_grounding_cost_ledger(
         semantic_loss_ledger.semantic_loss_blocker_count
         if semantic_loss_ledger is not None
         else sum(
-            1
-            for row in rows
-            if "layer3_g7_semantic_loss_hidden_by_region_score" in row.issue_codes
+            1 for row in rows if "layer3_g7_semantic_loss_hidden_by_region_score" in row.issue_codes
         )
     )
     if semantic_loss_ledger is not None:
@@ -1656,9 +1586,7 @@ def build_g7_marginal_grounding_cost_ledger(
         added_case_effort_units=added_case_efforts,
         mean_added_case_effort_units=mean_added,
         marginal_cost_ratio_to_seed=ratio,
-        cumulative_grounding_cost_curve=tuple(
-            row.cumulative_effort_units for row in cost_rows
-        ),
+        cumulative_grounding_cost_curve=tuple(row.cumulative_effort_units for row in cost_rows),
         grounded_region_case_count=len(grounded_rows),
         added_region_case_count=len(grounded_rows),
         bespoke_patch_count=mechanism_reuse_ledger.bespoke_patch_count,
@@ -1672,9 +1600,7 @@ def build_g7_marginal_grounding_cost_ledger(
 def build_g7_region_envelope_expansion_delta(
     *,
     conversion_records: Iterable[
-        Mapping[str, object]
-        | Layer3G7RegionCaseConversionInput
-        | Layer3G7RegionConversionRecord
+        Mapping[str, object] | Layer3G7RegionCaseConversionInput | Layer3G7RegionConversionRecord
     ],
     certified_envelope_delta_refs: Iterable[str] = (),
     envelope_revision_direction: Layer3G7EnvelopeRevisionDirection = "expand",
@@ -1724,9 +1650,7 @@ def build_g7_region_envelope_expansion_delta(
         expanded_case_count=expanded_count,
         denominator=denominator,
         envelope_expansion_rate=expansion_rate,
-        expanded_case_refs=tuple(row.case_id for row in grounded_rows)
-        if expanded_count
-        else (),
+        expanded_case_refs=tuple(row.case_id for row in grounded_rows) if expanded_count else (),
         blocker_refs=tuple(blocker_refs),
         limitation_refs=tuple(limitation_refs),
         issue_codes=tuple(issue_codes),
@@ -1736,9 +1660,7 @@ def build_g7_region_envelope_expansion_delta(
 def build_g7_region_semantic_loss_ledger(
     *,
     conversion_records: Iterable[
-        Mapping[str, object]
-        | Layer3G7RegionCaseConversionInput
-        | Layer3G7RegionConversionRecord
+        Mapping[str, object] | Layer3G7RegionCaseConversionInput | Layer3G7RegionConversionRecord
     ],
     source_truth_lost_case_ids: Iterable[str] = (),
     lineage_collapsed_case_ids: Iterable[str] = (),
@@ -1776,9 +1698,7 @@ def build_g7_region_semantic_loss_ledger(
         )
         for row in rows
     )
-    blocker_count = sum(
-        1 for row in semantic_rows if row.semantic_loss_status == "blocked"
-    )
+    blocker_count = sum(1 for row in semantic_rows if row.semantic_loss_status == "blocked")
     return Layer3G7RegionSemanticLossLedger(
         ledger_id="layer3-g7://region-semantic-loss-ledger/ua-msme-adjacent",
         semantic_loss_status="blocked" if blocker_count else "pass",
@@ -1824,9 +1744,7 @@ def build_g7_health_metric_delta(
     return Layer3G7HealthMetricDelta(
         status=status,
         metrics=metrics,
-        envelope_expansion_rate_region=(
-            region_envelope_expansion_delta.envelope_expansion_rate
-        ),
+        envelope_expansion_rate_region=(region_envelope_expansion_delta.envelope_expansion_rate),
         issue_codes=_dedupe(issue_codes),
     )
 
@@ -1882,9 +1800,7 @@ def build_g7_s14_grounded_breadth_feed(
     *,
     region_ref: str,
     conversion_records: Iterable[
-        Mapping[str, object]
-        | Layer3G7RegionCaseConversionInput
-        | Layer3G7RegionConversionRecord
+        Mapping[str, object] | Layer3G7RegionCaseConversionInput | Layer3G7RegionConversionRecord
     ],
     region_envelope_expansion_delta: Layer3G7RegionEnvelopeExpansionDelta | None = None,
     fixture_grounded_refs: Iterable[str] = (),
@@ -1909,9 +1825,7 @@ def build_g7_s14_grounded_breadth_feed(
     if not grounded_rows:
         issue_codes.append("layer3_g7_s14_feed_missing")
     grounded_authority = _build_g7_s14_grounded_authority_coverage(grounded_rows)
-    envelope_dynamics = _build_g7_s14_envelope_revision_dynamics(
-        region_envelope_expansion_delta
-    )
+    envelope_dynamics = _build_g7_s14_envelope_revision_dynamics(region_envelope_expansion_delta)
     missing_limitations = _g7_s14_missing_grounding_limitations(grounded_rows)
     limitations.extend(missing_limitations)
     status: Layer3G7S14FeedStatus = (
@@ -1959,9 +1873,7 @@ def build_g7_s14_mechanism_generality_projection(
         "thermometer_ref": s12_growth_thermometer_projection.thermometer_ref,
         "held_out_status": s12_growth_thermometer_projection.held_out_status,
         "reuse_rate": s12_growth_thermometer_projection.reuse_rate,
-        "reused_primitive_refs": list(
-            s12_growth_thermometer_projection.reused_primitive_refs
-        ),
+        "reused_primitive_refs": list(s12_growth_thermometer_projection.reused_primitive_refs),
         "one_off_growth_refs": list(one_off_refs),
     }
     report = build_s14_mechanism_generality_from_growth_thermometer(
@@ -1999,9 +1911,7 @@ def build_g7_s14_battery_input_manifest(
     return Layer3G7S14BatteryInputManifest(
         s14_battery_input_manifest_id="layer3-g7-s14-battery-input:ua-msme-adjacent",
         grounded_breadth_feed_ref=grounded_breadth_feed.feed_ref,
-        mechanism_generality_projection_ref=(
-            mechanism_generality_projection.projection_ref
-        ),
+        mechanism_generality_projection_ref=(mechanism_generality_projection.projection_ref),
         grounded_authority_coverage_ref=(
             grounded_breadth_feed.grounded_authority_coverage_refs[0]
             if grounded_breadth_feed.grounded_authority_coverage_refs
@@ -2041,9 +1951,9 @@ def build_g7_s14_consumer_gate(
         issue_codes.append("layer3_g7_universal_claim_without_s14_gate")
         s14_issue_codes.extend(
             _as_str_tuple(
-                verify_universality_claim_authority(
-                    {"claim_text": universality_claim_text}
-                ).get("false_clear_counts")
+                verify_universality_claim_authority({"claim_text": universality_claim_text}).get(
+                    "false_clear_counts"
+                )
             )
         )
     if public_projection_payload is not None:
@@ -2110,9 +2020,7 @@ def build_g7_region_scorecard(
                 {
                     "case_id": row.case_id,
                     "g4_promotion_record_ref": row.g4_promotion_record_ref,
-                    "g4_governed_promotion_join_status": (
-                        row.g4_governed_promotion_join_status
-                    ),
+                    "g4_governed_promotion_join_status": (row.g4_governed_promotion_join_status),
                 }
                 for row in region_conversion_status_matrix.records
             ]
@@ -2126,9 +2034,7 @@ def build_g7_region_scorecard(
         "marginal_cost_ledger_fingerprint": _fingerprint(
             marginal_cost_ledger.model_dump(mode="json")
         ),
-        "s14_feed_fingerprint": _fingerprint(
-            s14_grounded_breadth_feed.model_dump(mode="json")
-        ),
+        "s14_feed_fingerprint": _fingerprint(s14_grounded_breadth_feed.model_dump(mode="json")),
     }
     scorecard_payload = {
         "region_ref": region_ref,
@@ -2305,9 +2211,7 @@ def build_g7_orchestration_continuity(
 ) -> Layer3G7OrchestrationContinuity:
     """Build G7 orchestration continuity with closed G5/G6 refs by fingerprint."""
 
-    normalized_refs = _normalize_g7_upstream_closed_replay_refs(
-        upstream_closed_case_replay_refs
-    )
+    normalized_refs = _normalize_g7_upstream_closed_replay_refs(upstream_closed_case_replay_refs)
     issue_codes: list[str] = []
     if set(normalized_refs) < {"g5", "g6"}:
         issue_codes.append("layer3_g7_orchestration_continuity_missing")
@@ -2457,9 +2361,7 @@ def build_g7_conformance_report(
     region_grounding_matrix: Layer3G7RegionGroundingMatrix | None = None,
     region_conversion_status_matrix: Layer3G7RegionConversionStatusMatrix | None = None,
     status_composition_ledger: Layer3G7StatusCompositionLedger | None = None,
-    s12_growth_thermometer_projection: (
-        Layer3G7S12GrowthThermometerProjection | None
-    ) = None,
+    s12_growth_thermometer_projection: (Layer3G7S12GrowthThermometerProjection | None) = None,
     mechanism_reuse_ledger: Layer3G7MechanismReuseLedger | None = None,
     marginal_cost_ledger: Layer3G7MarginalGroundingCostLedger | None = None,
     region_envelope_expansion_delta: Layer3G7RegionEnvelopeExpansionDelta | None = None,
@@ -2515,9 +2417,7 @@ def build_g7_conformance_report(
             issue_codes.append(str(negative_id))
             continue
         observed_codes = _dedupe(observed_map.get(negative_id, ()))
-        missing_issue_codes = tuple(
-            code for code in expected_codes if code not in observed_codes
-        )
+        missing_issue_codes = tuple(code for code in expected_codes if code not in observed_codes)
         if missing_issue_codes:
             failing_negative_ids.append(negative_id)
             issue_codes.extend(missing_issue_codes)
@@ -2539,9 +2439,7 @@ def build_g7_conformance_report(
     )
     return Layer3G7ConformanceReport(
         status=status,
-        capability_reality_label=(
-            "implemented" if status == "pass" else "semantic_test_missing"
-        ),
+        capability_reality_label=("implemented" if status == "pass" else "semantic_test_missing"),
         required_negative_ids=required,
         negative_results=tuple(results),
         missing_negative_ids=tuple(missing_negative_ids),
@@ -2635,14 +2533,11 @@ def build_g7_dependency_readiness_snapshot(repo_root: Path) -> Layer3G7Dependenc
         missing_paths=missing_paths,
         g1_status=_readiness_presence_status(g1_readiness),
         g4_status=str(
-            g4_readiness.get("g4_g5_promotion_handoff_status")
-            or _manifest_status(g4_readiness)
+            g4_readiness.get("g4_g5_promotion_handoff_status") or _manifest_status(g4_readiness)
         ),
         g5_status=_manifest_status(g5_readiness),
         g6_status=_manifest_status(g6_readiness),
-        s14_status=_readiness_presence_status(
-            _as_mapping(payloads[S14_ASSURANCE_MANIFEST_PATH])
-        ),
+        s14_status=_readiness_presence_status(_as_mapping(payloads[S14_ASSURANCE_MANIFEST_PATH])),
         s14_helper_status=_s14_helper_availability_status(),
     )
 
@@ -2716,9 +2611,7 @@ def build_g7_dependency_readiness_snapshot(repo_root: Path) -> Layer3G7Dependenc
         g6_orchestration_continuity_status=_status_value(
             _as_mapping(payloads[G6_ORCHESTRATION_CONTINUITY_PATH])
         ),
-        g6_replay_manifest_status=_status_value(
-            _as_mapping(payloads[G6_REPLAY_MANIFEST_PATH])
-        ),
+        g6_replay_manifest_status=_status_value(_as_mapping(payloads[G6_REPLAY_MANIFEST_PATH])),
         g6_may_not_use_for=g6_may_not_use_for,
         s14_assurance_manifest_status=_readiness_presence_status(
             _as_mapping(payloads[S14_ASSURANCE_MANIFEST_PATH])
@@ -2930,16 +2823,12 @@ def _g7_public_projection(
     if s12_growth_thermometer_projection is not None:
         payload.update(
             {
-                "s12_resource_posture_ref": (
-                    s12_growth_thermometer_projection.thermometer_ref
-                ),
+                "s12_resource_posture_ref": (s12_growth_thermometer_projection.thermometer_ref),
                 "resource_allocation_policy_ref": (
                     s12_growth_thermometer_projection.thermometer_ref
                 ),
                 "explore_exploit_posture": "blocked",
-                "growth_thermometer_ref": (
-                    s12_growth_thermometer_projection.thermometer_ref
-                ),
+                "growth_thermometer_ref": (s12_growth_thermometer_projection.thermometer_ref),
                 "reuse_rate_trend": "projection_only",
                 "override_rate_trend": "not_applicable",
                 "s12_public_growth_limitation": (
@@ -3035,13 +2924,9 @@ def _g7_public_projection(
                     s14_battery_input_manifest.mechanism_generality_projection_ref
                 ),
                 "mechanism_generality_status": (
-                    "blocked"
-                    if s14_battery_input_manifest.issue_codes
-                    else "projection_ready"
+                    "blocked" if s14_battery_input_manifest.issue_codes else "projection_ready"
                 ),
-                "sublinear_marginal_bespoke_cost_status": (
-                    scorecard.marginal_cost_status
-                ),
+                "sublinear_marginal_bespoke_cost_status": (scorecard.marginal_cost_status),
                 "s9_projection_faithfulness_refs": (
                     "s9-faithfulness://layer3-g7/public-projection",
                 ),
@@ -3154,9 +3039,7 @@ def _g7_policy_design_projection_contract_payload(
 ) -> dict[str, Any]:
     can_closeout = public_projection.get("g7_region_value_closure_status") == "pass"
     blocker_codes = (
-        ()
-        if can_closeout
-        else ("layer3_g7_public_projection_exposes_blocked_region_state",)
+        () if can_closeout else ("layer3_g7_public_projection_exposes_blocked_region_state",)
     )
     return {
         "generated_at": datetime.now(UTC),
@@ -3224,9 +3107,7 @@ def _g7_projection_contract_statuses(
     s14_verification: Mapping[str, Any],
 ) -> dict[str, str]:
     return {
-        "s12_resource_projection_contract_status": str(
-            s12_verification.get("status") or "fail"
-        ),
+        "s12_resource_projection_contract_status": str(s12_verification.get("status") or "fail"),
         "s13_post_deploy_accountability_projection_contract_status": str(
             s13_verification.get("status") or "fail"
         ),
@@ -3304,9 +3185,7 @@ def _g7_audit_source_fingerprints(
         _fingerprint({"not_written": "grounding_matrix"}),
     )
     optional_payloads = {
-        "s12_growth_thermometer_projection_fingerprint": (
-            s12_growth_thermometer_projection
-        ),
+        "s12_growth_thermometer_projection_fingerprint": (s12_growth_thermometer_projection),
         "region_envelope_expansion_delta_fingerprint": region_envelope_expansion_delta,
         "semantic_loss_ledger_fingerprint": semantic_loss_ledger,
         "s14_battery_input_manifest_fingerprint": s14_battery_input_manifest,
@@ -3341,9 +3220,7 @@ def _g7_continuity_surfaces(
     upstream_closed_case_replay_refs: Mapping[str, Mapping[str, str]],
 ) -> dict[str, dict[str, Any]]:
     refs = _g7_runtime_quality_refs(scorecard.region_ref)
-    upstream_refs = {
-        key: dict(value) for key, value in upstream_closed_case_replay_refs.items()
-    }
+    upstream_refs = {key: dict(value) for key, value in upstream_closed_case_replay_refs.items()}
     common = {
         "runtime_quality_refs": refs,
         "region_ref": scorecard.region_ref,
@@ -3403,12 +3280,8 @@ def _g7_runtime_quality_refs(region_ref: str) -> dict[str, Any]:
         "carrier_ref": f"evidence-spine://layer3-g7/{slug}",
         "concept_spine_ref": "concept-spine://policy-design-case/layer3-g7-region",
         "jurisdiction_spine_ref": f"jurisdiction-spine://{slug}",
-        "producer_handshake_ledger_ref": (
-            "producer-handshake-ledger://layer3-g7/region-widening"
-        ),
-        "runtime_claim_registry_ref": (
-            "runtime-claim-registry://layer3-g7/region-widening"
-        ),
+        "producer_handshake_ledger_ref": ("producer-handshake-ledger://layer3-g7/region-widening"),
+        "runtime_claim_registry_ref": ("runtime-claim-registry://layer3-g7/region-widening"),
         "selected_binding_refs": [
             "producer-binding://layer3-g7/region-conversion",
             "producer-binding://layer3-g7/s14-grounded-breadth-feed",
@@ -3541,9 +3414,7 @@ def _g7_default_conformance_observed_issue_codes(
         conversion_records=positive_records,
         s12_growth_thermometer_projection=positive_s12,
     )
-    positive_semantic = build_g7_region_semantic_loss_ledger(
-        conversion_records=positive_records
-    )
+    positive_semantic = build_g7_region_semantic_loss_ledger(conversion_records=positive_records)
     positive_expansion = build_g7_region_envelope_expansion_delta(
         conversion_records=positive_records,
         certified_envelope_delta_refs=("s13-envelope-delta://g7/conformance",),
@@ -3666,9 +3537,7 @@ def _g7_default_conformance_observed_issue_codes(
                 conversion_records=(),
                 s12_growth_thermometer_projection=positive_s12,
             ),
-            semantic_loss_ledger=build_g7_region_semantic_loss_ledger(
-                conversion_records=()
-            ),
+            semantic_loss_ledger=build_g7_region_semantic_loss_ledger(conversion_records=()),
         ).issue_codes,
         "s12_growth_thermometer_missing": build_g7_marginal_grounding_cost_ledger(
             conversion_records=positive_records,
@@ -3719,9 +3588,7 @@ def _g7_default_conformance_observed_issue_codes(
             region_envelope_expansion_delta=positive_expansion,
             fixture_grounded_refs=("fixture://g7/conformance",),
         ).issue_codes,
-        "s14_manifest_as_runner_output": (
-            "layer3_g7_s14_manifest_runner_output_conflated",
-        ),
+        "s14_manifest_as_runner_output": ("layer3_g7_s14_manifest_runner_output_conflated",),
         "universal_claim_without_s14_gate": _g7_universal_claim_probe_issue_codes(
             positive_records=positive_records,
             region_ref=region_ref,
@@ -3745,9 +3612,7 @@ def _g7_default_conformance_observed_issue_codes(
             _g7_public_projection_probe_issue_codes(
                 region_ref=region_ref,
                 records=positive_records,
-                public_projection_overrides={
-                    "may_not_be_used_for": ("claim_authority",)
-                },
+                public_projection_overrides={"may_not_be_used_for": ("claim_authority",)},
             )
         ),
         "public_projection_contract_missing_or_failed": (
@@ -3771,14 +3636,10 @@ def _g7_default_conformance_observed_issue_codes(
     }
     observed.update(
         {
-            "generated_artifacts_family_missing": (
-                "layer3_g7_generated_artifacts_family_missing",
-            ),
+            "generated_artifacts_family_missing": ("layer3_g7_generated_artifacts_family_missing",),
             "inventory_surface_missing": ("layer3_g7_inventory_surface_missing",),
             "reference_index_missing": ("layer3_g7_reference_index_missing",),
-            "route_contract_registry_missing": (
-                "layer3_g7_route_contract_registry_missing",
-            ),
+            "route_contract_registry_missing": ("layer3_g7_route_contract_registry_missing",),
             "manifest_runtime_drift": ("layer3_g7_manifest_runtime_drift",),
             "replay_manifest_missing": ("layer3_g7_replay_manifest_missing",),
             "replay_helper_bypassed": ("layer3_g7_replay_helper_bypassed",),
@@ -3997,12 +3858,8 @@ def _build_g7_s14_grounded_authority_coverage(
         claim_evidence_binding_refs=[
             f"claim-evidence-binding://g7/{_slug_ref(ref)}" for ref in case_refs
         ],
-        value_choice_provenance_refs=[
-            f"value-choice://g7/{_slug_ref(ref)}" for ref in case_refs
-        ],
-        mandate_legitimacy_refs=[
-            f"mandate-legal://g7/{_slug_ref(ref)}" for ref in case_refs
-        ],
+        value_choice_provenance_refs=[f"value-choice://g7/{_slug_ref(ref)}" for ref in case_refs],
+        mandate_legitimacy_refs=[f"mandate-legal://g7/{_slug_ref(ref)}" for ref in case_refs],
         capacity_check_refs=[f"capacity://g7/{_slug_ref(ref)}" for ref in case_refs],
         regime_refs=[f"regime://g7/{_slug_ref(ref)}" for ref in case_refs],
         coupling_refs=[f"coupling://g7/{_slug_ref(ref)}" for ref in case_refs],
@@ -4048,9 +3905,7 @@ def _g7_s14_missing_grounding_limitations(
 
 def _coerce_g7_conversion_records(
     conversion_records: Iterable[
-        Mapping[str, object]
-        | Layer3G7RegionCaseConversionInput
-        | Layer3G7RegionConversionRecord
+        Mapping[str, object] | Layer3G7RegionCaseConversionInput | Layer3G7RegionConversionRecord
     ],
 ) -> tuple[Layer3G7RegionConversionRecord, ...]:
     raw_rows = tuple(conversion_records)
@@ -4059,9 +3914,7 @@ def _coerce_g7_conversion_records(
     return build_g7_region_conversion_records(
         region_ref="region://ua/msme-adjacent",
         conversion_inputs=(
-            row
-            for row in raw_rows
-            if not isinstance(row, Layer3G7RegionConversionRecord)
+            row for row in raw_rows if not isinstance(row, Layer3G7RegionConversionRecord)
         ),
     )
 
@@ -4072,13 +3925,9 @@ def _g5_s12_projection_inputs(*, repo_root: Path) -> dict[str, tuple[str, ...]]:
     envelope_delta = _as_mapping(_read_json(root / G5_ENVELOPE_EXPANSION_DELTA_PATH))
     return {
         "demand_pull_refs": _as_str_tuple(demand_pull.get("demand_pull_refs")),
-        "accountable_principal_refs": _as_str_tuple(
-            demand_pull.get("accountable_principal_refs")
-        ),
+        "accountable_principal_refs": _as_str_tuple(demand_pull.get("accountable_principal_refs")),
         "reuse_refs": _as_str_tuple(demand_pull.get("s12_reuse_acquisition_refs")),
-        "certified_envelope_delta_refs": _as_str_tuple(
-            envelope_delta.get("envelope_delta_refs")
-        ),
+        "certified_envelope_delta_refs": _as_str_tuple(envelope_delta.get("envelope_delta_refs")),
     }
 
 
@@ -4123,9 +3972,7 @@ def _verify_s12_projection_contract(payload: Mapping[str, Any]) -> dict[str, Any
         verify_s12_resource_projection_consumer_contract,
     )
 
-    return verify_s12_resource_projection_consumer_contract(
-        projections={"PUBLIC": payload}
-    )
+    return verify_s12_resource_projection_consumer_contract(projections={"PUBLIC": payload})
 
 
 def _conversion_reuse_refs(
@@ -4275,9 +4122,7 @@ def _build_g7_semantic_loss_row(
         g6_candidate_text_as_evidence=g6_candidate_text_as_evidence,
         case_caveats_disappeared=case_caveats_disappeared,
         certified_delta_ref_dropped=certified_delta_ref_dropped,
-        issue_codes=("layer3_g7_semantic_loss_hidden_by_region_score",)
-        if has_loss
-        else (),
+        issue_codes=("layer3_g7_semantic_loss_hidden_by_region_score",) if has_loss else (),
     )
 
 
@@ -4397,12 +4242,8 @@ def _build_g7_region_conversion_record(
         g4_governed_promotion_join_status=promotion_join.status,
         g4_grounded_contract_set_ref=promotion_join.g4_grounded_contract_set_ref,
         g4_a_completeness_ledger_ref=promotion_join.g4_a_completeness_ledger_ref,
-        g4_weakest_boundary_composition_ref=(
-            promotion_join.g4_weakest_boundary_composition_ref
-        ),
-        g4_human_decision_integrity_gate_ref=(
-            promotion_join.g4_human_decision_integrity_gate_ref
-        ),
+        g4_weakest_boundary_composition_ref=(promotion_join.g4_weakest_boundary_composition_ref),
+        g4_human_decision_integrity_gate_ref=(promotion_join.g4_human_decision_integrity_gate_ref),
         g4_g5_handoff_ref=promotion_join.g4_g5_handoff_ref,
         blocker_refs=_dedupe(blocker_refs),
         limitation_refs=_dedupe(limitation_refs),
@@ -4518,9 +4359,7 @@ def _promotion_join_from_validated_record(
         g4_promotion_record_ref=_optional_str(record.get("promotion_record_id")),
         g4_promotion_state=str(record.get("promotion_state") or "missing"),
         g4_grounded_contract_set_ref=_optional_str(record.get("grounded_contract_set_ref")),
-        g4_a_completeness_ledger_ref=_optional_str(
-            record.get("a_completeness_ledger_ref")
-        ),
+        g4_a_completeness_ledger_ref=_optional_str(record.get("a_completeness_ledger_ref")),
         g4_weakest_boundary_composition_ref=_optional_str(
             record.get("weakest_boundary_composition_ref")
         ),
@@ -4635,8 +4474,7 @@ def _synthetic_g4_promotion_record(
         "blocker_refs": ("blocker://g7/source-design-record-digest-missing",),
         "limitation_refs": (),
         "upstream_contract_refs": (
-            f"repo://architecture/policy_design_case/g7_synthetic/{case_id}/"
-            "source_contracts.json",
+            f"repo://architecture/policy_design_case/g7_synthetic/{case_id}/source_contracts.json",
         ),
         "closeout_consumer_gate_ref": (
             f"repo://architecture/policy_design_case/g7_synthetic/{case_id}/"
@@ -4647,8 +4485,7 @@ def _synthetic_g4_promotion_record(
             "pdc_compiler_consumer_gate.json"
         ),
         "g5_handoff_ref": (
-            f"repo://architecture/policy_design_case/g7_synthetic/{case_id}/"
-            "g5_handoff.json"
+            f"repo://architecture/policy_design_case/g7_synthetic/{case_id}/g5_handoff.json"
         ),
         "registry_ratchet_delta_ref": (
             f"repo://architecture/policy_design_case/g7_synthetic/{case_id}/"
@@ -4778,9 +4615,7 @@ def _engineering_readiness_status(
 ) -> Layer3G7EngineeringReadinessStatus:
     if missing_paths:
         return "fail"
-    if {g1_status, g4_status, g5_status, g6_status, s14_status, s14_helper_status} <= {
-        "pass"
-    }:
+    if {g1_status, g4_status, g5_status, g6_status, s14_status, s14_helper_status} <= {"pass"}:
         return "pass"
     return "fail"
 
@@ -4840,7 +4675,9 @@ def _g1_source_contract_refs(value: object) -> tuple[str, ...]:
         )
         refs.append(str(ref))
     if not refs and value:
-        refs.append("repo://architecture/policy_design_case/layer3_g1_grounded_source_contracts.json")
+        refs.append(
+            "repo://architecture/policy_design_case/layer3_g1_grounded_source_contracts.json"
+        )
     return tuple(dict.fromkeys(refs))
 
 
@@ -4949,7 +4786,9 @@ def _build_grounding_matrix_row(
         gl_legal_status="available" if legal_refs else "not_required",
         gl_legal_refs=legal_refs,
         s14_declared_envelope_refs=s14_declared_refs,
-        s14_pending_feed_refs=("repo://architecture/policy_design_case/layer2_s14_universality_assurance_manifest.json",),
+        s14_pending_feed_refs=(
+            "repo://architecture/policy_design_case/layer2_s14_universality_assurance_manifest.json",
+        ),
         demand_refs=candidate.demand_refs,
         s12_voi_refs=candidate.s12_voi_refs,
         s3_demand_pull_refs=candidate.s3_demand_pull_refs,

@@ -367,8 +367,7 @@ def _attach_morris_uncertainty(
         return
     try:
         parameter_bounds = {
-            spec.name: (spec.lower_bound, spec.upper_bound)
-            for spec in plan.parameter_specs
+            spec.name: (spec.lower_bound, spec.upper_bound) for spec in plan.parameter_specs
         }
         elementary_effects = morris_elementary_effects_from_samples(
             samples,

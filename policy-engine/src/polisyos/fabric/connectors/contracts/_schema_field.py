@@ -144,9 +144,7 @@ def normalize_schema_id_part(value: object) -> str:
     raw = re.sub(r"[\s/\\:]+", ".", raw)
     raw = re.sub(r"\.+", ".", raw)
     segments = [
-        normalized
-        for part in raw.split(".")
-        if (normalized := _normalize_identifier_segment(part))
+        normalized for part in raw.split(".") if (normalized := _normalize_identifier_segment(part))
     ]
     return ".".join(segments)
 

@@ -27,8 +27,7 @@ def _sha(char: str) -> str:
 
 def _load_cases() -> list[dict[str, Any]]:
     return [
-        json.loads(path.read_text(encoding="utf-8"))
-        for path in sorted(FIXTURE_DIR.glob("*.json"))
+        json.loads(path.read_text(encoding="utf-8")) for path in sorted(FIXTURE_DIR.glob("*.json"))
     ]
 
 
@@ -170,9 +169,7 @@ def test_security_abuse_fixtures_fail_closed_with_operator_envelopes(
     assert issue["layer"] == "security"
     assert issue["retryable"] is False
     assert issue["retryability"] == "not_retryable"
-    assert issue["evidence_ref"].startswith(
-        f"quality_evidence/{SECURITY_REPORT_FILE}#/issues/"
-    )
+    assert issue["evidence_ref"].startswith(f"quality_evidence/{SECURITY_REPORT_FILE}#/issues/")
     assert issue["next_action"]
 
     rendered = json.dumps(report, sort_keys=True)
@@ -208,9 +205,7 @@ def test_security_report_gate_rejects_inconsistent_or_malformed_inputs() -> None
 
 def test_security_report_gate_consumes_builder_output_and_accepts_unknown_fields() -> None:
     report = build_security_assurance_report(
-        payloads={
-            "artifact": {"rendered_content": "<script>window.__bad__=true</script>"}
-        },
+        payloads={"artifact": {"rendered_content": "<script>window.__bad__=true</script>"}},
         now=datetime(2026, 5, 15, tzinfo=UTC),
     )
     assert report["status"] == "fail"
@@ -317,9 +312,7 @@ def test_security_report_passes_clean_llm_tool_data_artifact_api_dashboard_paths
 def test_security_report_blocks_scorecard_approval_with_security_layer_gate() -> None:
     report = build_security_assurance_report(
         payloads={
-            "artifact": {
-                "rendered_content": "<script>window.__POLICYOS_XSS__=true</script>"
-            }
+            "artifact": {"rendered_content": "<script>window.__POLICYOS_XSS__=true</script>"}
         },
         now=datetime(2026, 5, 13, 10, 0, tzinfo=UTC),
     )
@@ -339,9 +332,7 @@ def test_security_report_blocks_scorecard_approval_with_security_layer_gate() ->
         quality_evidence=quality_evidence,
     )
 
-    security_gates = [
-        gate for gate in scorecard["quality_gates"] if gate["layer"] == "security"
-    ]
+    security_gates = [gate for gate in scorecard["quality_gates"] if gate["layer"] == "security"]
     assert scorecard["quality_status"] == "fail"
     assert scorecard["approval_state"] == "quality_failed"
     assert scorecard["evidence_refs"]["security_assurance_report"] == (

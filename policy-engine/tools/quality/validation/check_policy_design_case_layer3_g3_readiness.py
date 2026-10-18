@@ -28,37 +28,23 @@ L2_SKG_PROOF_CANDIDATE_BINDINGS_PATH = (
 IR_ANALYTICS_SEARCH_LEDGERS_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g3_ir_analytics_search_ledgers.json"
 )
-IR_ANALYTICS_QUERY_TRACES_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g3_ir_analytics_query_traces.json"
-)
+IR_ANALYTICS_QUERY_TRACES_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g3_ir_analytics_query_traces.json"
 IR_CATALOG_COVERAGE_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g3_ir_catalog_coverage.json"
-IR_ARTIFACT_STORE_INDEX_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g3_ir_artifact_store_index.json"
-)
+IR_ARTIFACT_STORE_INDEX_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g3_ir_artifact_store_index.json"
 CERTIFICATE_RESOLUTION_REPORT_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g3_certificate_resolution_report.json"
 )
-SEARCH_RECALL_FRESHNESS_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g3_search_recall_freshness.json"
-)
+SEARCH_RECALL_FRESHNESS_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g3_search_recall_freshness.json"
 METHOD_REQUIREMENT_BINDINGS_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g3_method_requirement_bindings.json"
 )
-SEMANTIC_SPINE_BINDINGS_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g3_semantic_spine_bindings.json"
-)
+SEMANTIC_SPINE_BINDINGS_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g3_semantic_spine_bindings.json"
 PROOF_CARRYING_ANALYTICS_RECORDS_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g3_proof_carrying_analytics_records.json"
 )
-IR_ANALYTICS_CLAIM_BRIDGE_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g3_ir_analytics_claim_bridge.json"
-)
-S11_PREREQUISITE_BINDINGS_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g3_s11_prerequisite_bindings.json"
-)
-S11_CALIBRATION_BINDINGS_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g3_s11_calibration_bindings.json"
-)
+IR_ANALYTICS_CLAIM_BRIDGE_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g3_ir_analytics_claim_bridge.json"
+S11_PREREQUISITE_BINDINGS_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g3_s11_prerequisite_bindings.json"
+S11_CALIBRATION_BINDINGS_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g3_s11_calibration_bindings.json"
 S11_PREDICTIVE_POSTURE_BINDINGS_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g3_s11_predictive_posture_bindings.json"
 )
@@ -77,9 +63,7 @@ PROOF_CARRYING_AUDIT_SURFACE_PATH = (
 )
 CONFORMANCE_REPORT_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g3_conformance_report.json"
 HEALTH_METRIC_DELTA_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g3_health_metric_delta.toml"
-ADAPTER_CONTRACT_REGISTRY_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g3_adapter_contract_registry.toml"
-)
+ADAPTER_CONTRACT_REGISTRY_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g3_adapter_contract_registry.toml"
 READINESS_MANIFEST_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g3_readiness_manifest.json"
 
 GENERATED_ARTIFACTS_TOML_PATH = Path("architecture/generated_artifacts.toml")
@@ -166,9 +150,7 @@ def validate_layer3_g3_readiness(repo_root: Path, *, write: bool = False) -> dic
     else:
         written_artifact_paths = []
 
-    runtime_report = g3.validate_layer3_g3_bundle(root, runtime_bundle).model_dump(
-        mode="json"
-    )
+    runtime_report = g3.validate_layer3_g3_bundle(root, runtime_bundle).model_dump(mode="json")
     drift_keys = _manifest_runtime_drift_keys(root, runtime_bundle)
     issues: list[dict[str, str]] = []
     issues.extend(_normalize_issues(runtime_report.get("issues", [])))
@@ -185,9 +167,7 @@ def validate_layer3_g3_readiness(repo_root: Path, *, write: bool = False) -> dic
         "issues": normalized_issues,
         "summary": _summary(root, runtime_bundle, runtime_report, drift_keys),
         "artifacts": {
-            "expected_artifact_paths": [
-                path.as_posix() for path in EXPECTED_ARTIFACT_PATHS
-            ],
+            "expected_artifact_paths": [path.as_posix() for path in EXPECTED_ARTIFACT_PATHS],
             "written_artifact_paths": written_artifact_paths,
             "missing_persisted_artifact_paths": [
                 path.as_posix()
@@ -211,9 +191,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     report = validate_layer3_g3_readiness(args.repo_root, write=args.write)
-    rendered = (
-        _json_dumps(report) if args.output_format == "json" else _render_text_report(report)
-    )
+    rendered = _json_dumps(report) if args.output_format == "json" else _render_text_report(report)
     if args.output is not None:
         output_path = _resolve_repo_path(Path(args.repo_root).resolve(), args.output)
         atomic_write_text(output_path, rendered)
@@ -233,9 +211,7 @@ def _write_artifacts(repo_root: Path, bundle: g3.Layer3G3Bundle) -> list[str]:
         },
         L2_SKG_PROOF_CANDIDATE_BINDINGS_PATH: {
             **base,
-            "l2_skg_proof_candidate_bindings": _dump(
-                bundle.l2_skg_proof_candidate_bindings
-            ),
+            "l2_skg_proof_candidate_bindings": _dump(bundle.l2_skg_proof_candidate_bindings),
         },
         IR_ANALYTICS_SEARCH_LEDGERS_PATH: {
             **base,
@@ -271,9 +247,7 @@ def _write_artifacts(repo_root: Path, bundle: g3.Layer3G3Bundle) -> list[str]:
         },
         PROOF_CARRYING_ANALYTICS_RECORDS_PATH: {
             **base,
-            "proof_carrying_analytics_records": _dump(
-                bundle.proof_carrying_analytics_records
-            ),
+            "proof_carrying_analytics_records": _dump(bundle.proof_carrying_analytics_records),
         },
         IR_ANALYTICS_CLAIM_BRIDGE_PATH: {
             **base,
@@ -289,9 +263,7 @@ def _write_artifacts(repo_root: Path, bundle: g3.Layer3G3Bundle) -> list[str]:
         },
         S11_PREDICTIVE_POSTURE_BINDINGS_PATH: {
             **base,
-            "s11_predictive_posture_bindings": _dump(
-                bundle.s11_predictive_posture_bindings
-            ),
+            "s11_predictive_posture_bindings": _dump(bundle.s11_predictive_posture_bindings),
         },
         CLAIM_REGISTRY_CONSUMER_GATE_PATH: {
             **base,
@@ -299,9 +271,7 @@ def _write_artifacts(repo_root: Path, bundle: g3.Layer3G3Bundle) -> list[str]:
         },
         BASELINE_COMPARISON_CONSUMER_GATE_PATH: {
             **base,
-            "baseline_comparison_consumer_gate": _dump(
-                bundle.baseline_comparison_consumer_gate
-            ),
+            "baseline_comparison_consumer_gate": _dump(bundle.baseline_comparison_consumer_gate),
         },
         W12D_CONSUMER_GATE_PATH: {
             **base,
@@ -406,9 +376,8 @@ def _manifest_runtime_drift_issues(drift_keys: Sequence[str]) -> list[dict[str, 
 def _validate_registration_and_docs(repo_root: Path) -> list[dict[str, str]]:
     issues: list[dict[str, str]] = []
     generated_text = _read_text_or_empty(repo_root, GENERATED_ARTIFACTS_TOML_PATH)
-    if (
-        g3.LAYER3_G3_GENERATED_ARTIFACT_FAMILY_ID not in generated_text
-        or not all(path.as_posix() in generated_text for path in EXPECTED_ARTIFACT_PATHS)
+    if g3.LAYER3_G3_GENERATED_ARTIFACT_FAMILY_ID not in generated_text or not all(
+        path.as_posix() in generated_text for path in EXPECTED_ARTIFACT_PATHS
     ):
         issues.append(
             _issue(
@@ -481,7 +450,11 @@ def _validate_runtime_surfaces(bundle: g3.Layer3G3Bundle) -> list[dict[str, str]
             "G3 health metric delta must include all expected metric ids.",
         ),
     )
-    return [_issue(code, "$.readiness_manifest", message) for passed, code, message in checks if not passed]
+    return [
+        _issue(code, "$.readiness_manifest", message)
+        for passed, code, message in checks
+        if not passed
+    ]
 
 
 def _summary(
@@ -644,8 +617,7 @@ def _render_text_report(report: Mapping[str, Any]) -> str:
         for issue in issues:
             if isinstance(issue, Mapping):
                 lines.append(
-                    f"- {issue.get('code', '')} {issue.get('path', '')}: "
-                    f"{issue.get('message', '')}"
+                    f"- {issue.get('code', '')} {issue.get('path', '')}: {issue.get('message', '')}"
                 )
     return "\n".join(lines).rstrip() + "\n"
 

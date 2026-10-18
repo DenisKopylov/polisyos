@@ -147,9 +147,7 @@ def test_phase_1_1_policy_design_case_contract_fixtures_are_frozen() -> None:
                 "governed",
                 "production",
             }
-            assert envelope["same_input_closure"]["policy_intent_ref"].startswith(
-                "cas://sha256/"
-            )
+            assert envelope["same_input_closure"]["policy_intent_ref"].startswith("cas://sha256/")
             assert isinstance(fixture["payload"], dict)
 
             if status_from_name == "pass":
@@ -170,9 +168,7 @@ def test_phase_1_1_policy_design_case_contract_fixtures_are_frozen() -> None:
                 }
                 assert envelope["validation_status"] in {"blocked", "fail"}
                 assert envelope["same_input_closure"]["status"] != "closed"
-                assert envelope["rejection"]["failure_code"] == fixture[
-                    "expected_failure_code"
-                ]
+                assert envelope["rejection"]["failure_code"] == fixture["expected_failure_code"]
                 if envelope["provenance_kind"] == "static_inventory":
                     assert envelope["authority_role"] == "not_authoritative"
                     assert envelope["cas_ref"] is None
@@ -188,9 +184,7 @@ def test_phase_1_1_policy_design_case_contract_fixtures_are_frozen() -> None:
 
 def test_wave_6_walking_skeleton_case_fixture_is_research_only_runtime_authority() -> None:
     path = (
-        FIXTURE_ROOT
-        / "walking_skeleton_case_contract"
-        / "walking_skeleton_case_contract_pass.json"
+        FIXTURE_ROOT / "walking_skeleton_case_contract" / "walking_skeleton_case_contract_pass.json"
     )
     case = _read_fixture(path)
 
@@ -210,6 +204,7 @@ def test_wave_6_walking_skeleton_case_fixture_is_research_only_runtime_authority
     for node in nodes.values():
         assert node["runtime_authority_envelope"]["provenance_kind"] == "runtime_emitted"
         assert node["runtime_authority_envelope"]["cas_ref"] == node["cas_ref"]
-        assert node["runtime_authority_envelope"]["diagnostic_event_ref"] == (
-            node["diagnostic_event_ref"]
+        assert (
+            node["runtime_authority_envelope"]["diagnostic_event_ref"]
+            == (node["diagnostic_event_ref"])
         )

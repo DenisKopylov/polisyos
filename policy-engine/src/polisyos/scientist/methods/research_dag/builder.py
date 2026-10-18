@@ -154,9 +154,9 @@ class ResearchDAGBuilder:
             untrusted_metadata, untrusted_labels = untrusted_content_summary(untrusted_text)
             safe_metadata.update(untrusted_metadata)
             labels.extend(untrusted_labels)
-            output_fingerprint = output_fingerprint or untrusted_metadata[
-                "untrusted_content_fingerprint"
-            ]
+            output_fingerprint = (
+                output_fingerprint or untrusted_metadata["untrusted_content_fingerprint"]
+            )
         resolved_node_id = self._unique_node_id(
             node_id
             or _node_id_from_parts(

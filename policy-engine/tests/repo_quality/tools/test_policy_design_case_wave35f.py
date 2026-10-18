@@ -13,7 +13,8 @@ from tools.quality.validation import check_policy_design_case_wave35f_integrity 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 WAVE35_STAGE_PREREQUISITES = (
     REPO_ROOT / "_build/policy-design-case/rebaseline/wave-35/pass2_disposition.json",
-    REPO_ROOT / "_build/policy-design-case/rebaseline/wave-35E/trust_framing_ui_negative_tests.json",
+    REPO_ROOT
+    / "_build/policy-design-case/rebaseline/wave-35E/trust_framing_ui_negative_tests.json",
 )
 pytestmark = pytest.mark.skipif(
     os.environ.get("POLISYOS_RUN_STAGED_REBASELINE_TESTS") != "1"

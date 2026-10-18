@@ -12,8 +12,7 @@ from tools.quality.validation import check_policy_design_case_layer2_readiness a
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 S14_MANIFEST = (
-    REPO_ROOT
-    / "architecture/policy_design_case/layer2_s14_universality_assurance_manifest.json"
+    REPO_ROOT / "architecture/policy_design_case/layer2_s14_universality_assurance_manifest.json"
 )
 S14_MANIFEST_PATH = (
     "architecture/policy_design_case/layer2_s14_universality_assurance_manifest.json"
@@ -124,8 +123,7 @@ def _runner() -> Any:
 
 def _runner_payload() -> dict[str, Any]:
     battery_root = (
-        REPO_ROOT
-        / "tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/"
+        REPO_ROOT / "tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/"
         "layer2-sealed-universality-battery"
     )
     return dict(
@@ -152,8 +150,9 @@ def _inventory_artifact() -> dict[str, Any]:
 
 def _cluster_map() -> dict[str, Any]:
     return tomllib.loads(
-        (REPO_ROOT / "architecture/policy_design_case/cluster_ownership_map.toml")
-        .read_text(encoding="utf-8")
+        (REPO_ROOT / "architecture/policy_design_case/cluster_ownership_map.toml").read_text(
+            encoding="utf-8"
+        )
     )
 
 
@@ -311,16 +310,12 @@ def test_s14_manifest_keeps_current_open_cell_count_zero() -> None:
 def test_s14_artifact_traceability_is_implemented_once() -> None:
     payloads = _payloads()
     trace_s14_artifacts = [
-        row
-        for row in payloads["artifact_traceability"]["artifact"]
-        if row.get("slice") == "S14"
+        row for row in payloads["artifact_traceability"]["artifact"] if row.get("slice") == "S14"
     ]
 
     assert {str(row["name"]) for row in trace_s14_artifacts} == S14_REQUIRED_ARTIFACTS
     for artifact_name in S14_REQUIRED_ARTIFACTS:
-        matching = [
-            row for row in trace_s14_artifacts if row.get("name") == artifact_name
-        ]
+        matching = [row for row in trace_s14_artifacts if row.get("name") == artifact_name]
         assert len(matching) == 1
         assert matching[0]["maturity"] == "implemented"
 
@@ -382,8 +377,9 @@ def test_s14_readiness_validator_accepts_universality_assurance() -> None:
 def test_s14_corpus_partition_rotates_freeze_hash_and_keeps_hidden_access_rule() -> None:
     manifest = _manifest()
     partition = json.loads(
-        (REPO_ROOT / "architecture/policy_design_case/layer2_corpus_partition.json")
-        .read_text(encoding="utf-8")
+        (REPO_ROOT / "architecture/policy_design_case/layer2_corpus_partition.json").read_text(
+            encoding="utf-8"
+        )
     )["sealed_universality_battery"]
 
     assert partition["path"] == (

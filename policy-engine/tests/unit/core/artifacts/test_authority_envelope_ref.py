@@ -291,16 +291,13 @@ def test_inline_and_selected_manifest_authority_are_both_constraints(tmp_path) -
     assert all(decision.visible_downgrade for decision in decisions)
     assert all(decision.reason == "authority_purpose_forbidden" for decision in decisions)
     assert all(
-        "selected_manifest_authority" in decision.composed_gate_inputs
-        for decision in decisions
+        "selected_manifest_authority" in decision.composed_gate_inputs for decision in decisions
     )
 
     inline_permit_decision, inline_deny_decision = decisions
     assert inline_permit_decision.authority_boundary_ref == "boundary://linked-deny"
     assert "dashboard_display" in inline_permit_decision.may_not_use_for
-    permit_contributors = {
-        row.basis: row for row in inline_permit_decision.authority_contributors
-    }
+    permit_contributors = {row.basis: row for row in inline_permit_decision.authority_contributors}
     assert permit_contributors["base_surface"].authority_boundary_ref == (
         "boundary://inline-permit"
     )
@@ -310,12 +307,8 @@ def test_inline_and_selected_manifest_authority_are_both_constraints(tmp_path) -
     assert permit_contributors["selected_manifest"].reason == "authority_purpose_forbidden"
     assert inline_deny_decision.authority_boundary_ref == "boundary://inline-deny"
     assert "dashboard_display" in inline_deny_decision.may_not_use_for
-    deny_contributors = {
-        row.basis: row for row in inline_deny_decision.authority_contributors
-    }
-    assert deny_contributors["base_surface"].authority_boundary_ref == (
-        "boundary://inline-deny"
-    )
+    deny_contributors = {row.basis: row for row in inline_deny_decision.authority_contributors}
+    assert deny_contributors["base_surface"].authority_boundary_ref == ("boundary://inline-deny")
     assert deny_contributors["selected_manifest"].authority_boundary_ref == (
         "boundary://linked-allow"
     )
@@ -352,6 +345,4 @@ def test_inline_and_selected_manifest_authority_are_both_constraints(tmp_path) -
     ]
     assert both_deny.authority_boundary_ref == "boundary://linked-deny"
     assert both_permit.status == "allowed"
-    assert all(
-        row.status == "allowed" for row in both_permit.authority_contributors
-    )
+    assert all(row.status == "allowed" for row in both_permit.authority_contributors)

@@ -27,30 +27,20 @@ DEPENDENCY_READINESS_SNAPSHOT_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g7_dependency_readiness_snapshot.json"
 )
 REGION_CANDIDATE_SET_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g7_region_candidate_set.json"
-REGION_GROUNDING_MATRIX_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g7_region_grounding_matrix.json"
-)
+REGION_GROUNDING_MATRIX_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g7_region_grounding_matrix.json"
 REGION_CASE_CONVERSION_INPUTS_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g7_region_case_conversion_inputs.json"
 )
-REGION_CONVERSION_RECORDS_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g7_region_conversion_records.json"
-)
+REGION_CONVERSION_RECORDS_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g7_region_conversion_records.json"
 REGION_CONVERSION_STATUS_MATRIX_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g7_region_conversion_status_matrix.json"
 )
-GOVERNED_PROMOTION_JOIN_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g7_governed_promotion_join.json"
-)
-STATUS_COMPOSITION_LEDGER_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g7_status_composition_ledger.json"
-)
+GOVERNED_PROMOTION_JOIN_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g7_governed_promotion_join.json"
+STATUS_COMPOSITION_LEDGER_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g7_status_composition_ledger.json"
 S12_GROWTH_THERMOMETER_PROJECTION_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g7_s12_growth_thermometer_projection.json"
 )
-MECHANISM_REUSE_LEDGER_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g7_mechanism_reuse_ledger.json"
-)
+MECHANISM_REUSE_LEDGER_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g7_mechanism_reuse_ledger.json"
 MARGINAL_GROUNDING_COST_LEDGER_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g7_marginal_grounding_cost_ledger.json"
 )
@@ -66,9 +56,7 @@ SEARCH_RECALL_FRESHNESS_JOIN_PATH = (
 G5_G6_AUTHORITY_BOUNDARY_REPORT_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g7_g5_g6_authority_boundary_report.json"
 )
-S14_GROUNDED_BREADTH_FEED_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g7_s14_grounded_breadth_feed.json"
-)
+S14_GROUNDED_BREADTH_FEED_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g7_s14_grounded_breadth_feed.json"
 S14_MECHANISM_GENERALITY_PROJECTION_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g7_s14_mechanism_generality_projection.json"
 )
@@ -83,18 +71,14 @@ REGION_WIDENING_AUDIT_SURFACE_PATH = (
 PUBLIC_EXPORT_PROJECTION_REFS_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g7_public_export_projection_refs.json"
 )
-ORCHESTRATION_CONTINUITY_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g7_orchestration_continuity.json"
-)
+ORCHESTRATION_CONTINUITY_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g7_orchestration_continuity.json"
 REPLAY_MANIFEST_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g7_replay_manifest.json"
 CONFORMANCE_REPORT_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g7_conformance_report.json"
 HEALTH_METRIC_DELTA_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g7_health_metric_delta.toml"
 REGION_ROUTE_CONTRACT_REGISTRY_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g7_region_route_contract_registry.toml"
 )
-REGISTRY_RATCHET_DELTA_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g7_registry_ratchet_delta.json"
-)
+REGISTRY_RATCHET_DELTA_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g7_registry_ratchet_delta.json"
 READINESS_MANIFEST_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g7_readiness_manifest.json"
 
 GENERATED_ARTIFACTS_TOML_PATH = Path("architecture/generated_artifacts.toml")
@@ -212,9 +196,7 @@ def validate_layer3_g7_readiness(repo_root: Path, *, write: bool = False) -> dic
         "issues": normalized_issues,
         "summary": _summary(bundle, drift_keys, registration_statuses),
         "artifacts": {
-            "expected_artifact_paths": [
-                path.as_posix() for path in EXPECTED_ARTIFACT_PATHS
-            ],
+            "expected_artifact_paths": [path.as_posix() for path in EXPECTED_ARTIFACT_PATHS],
             "written_artifact_paths": written_artifact_paths,
             "missing_persisted_artifact_paths": [
                 path.as_posix()
@@ -238,9 +220,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     report = validate_layer3_g7_readiness(args.repo_root, write=args.write)
-    rendered = (
-        _json_dumps(report) if args.output_format == "json" else _render_text_report(report)
-    )
+    rendered = _json_dumps(report) if args.output_format == "json" else _render_text_report(report)
     if args.output is not None:
         output_path = _resolve_repo_path(Path(args.repo_root).resolve(), args.output)
         atomic_write_text(output_path, rendered)
@@ -389,9 +369,7 @@ def _build_runtime_bundle(repo_root: Path) -> dict[str, Any]:
         "region_envelope_expansion_delta": region_expansion,
         "region_semantic_loss_ledger": semantic_loss,
         "search_recall_freshness_join": grounding_matrix.search_recall_freshness_join,
-        "g5_g6_authority_boundary_report": _g5_g6_authority_boundary_report(
-            dependency_snapshot
-        ),
+        "g5_g6_authority_boundary_report": _g5_g6_authority_boundary_report(dependency_snapshot),
         "s14_grounded_breadth_feed": s14_feed,
         "s14_mechanism_generality_projection": s14_mechanism,
         "s14_battery_input_manifest": s14_manifest,
@@ -422,30 +400,18 @@ def _write_artifacts(repo_root: Path, bundle: Mapping[str, Any]) -> list[str]:
         REGION_GROUNDING_MATRIX_PATH: bundle["region_grounding_matrix"],
         REGION_CASE_CONVERSION_INPUTS_PATH: bundle["region_case_conversion_inputs"],
         REGION_CONVERSION_RECORDS_PATH: bundle["region_conversion_records"],
-        REGION_CONVERSION_STATUS_MATRIX_PATH: bundle[
-            "region_conversion_status_matrix"
-        ],
+        REGION_CONVERSION_STATUS_MATRIX_PATH: bundle["region_conversion_status_matrix"],
         GOVERNED_PROMOTION_JOIN_PATH: bundle["governed_promotion_join"],
         STATUS_COMPOSITION_LEDGER_PATH: bundle["status_composition_ledger"],
-        S12_GROWTH_THERMOMETER_PROJECTION_PATH: bundle[
-            "s12_growth_thermometer_projection"
-        ],
+        S12_GROWTH_THERMOMETER_PROJECTION_PATH: bundle["s12_growth_thermometer_projection"],
         MECHANISM_REUSE_LEDGER_PATH: bundle["mechanism_reuse_ledger"],
-        MARGINAL_GROUNDING_COST_LEDGER_PATH: bundle[
-            "marginal_grounding_cost_ledger"
-        ],
-        REGION_ENVELOPE_EXPANSION_DELTA_PATH: bundle[
-            "region_envelope_expansion_delta"
-        ],
+        MARGINAL_GROUNDING_COST_LEDGER_PATH: bundle["marginal_grounding_cost_ledger"],
+        REGION_ENVELOPE_EXPANSION_DELTA_PATH: bundle["region_envelope_expansion_delta"],
         REGION_SEMANTIC_LOSS_LEDGER_PATH: bundle["region_semantic_loss_ledger"],
         SEARCH_RECALL_FRESHNESS_JOIN_PATH: bundle["search_recall_freshness_join"],
-        G5_G6_AUTHORITY_BOUNDARY_REPORT_PATH: bundle[
-            "g5_g6_authority_boundary_report"
-        ],
+        G5_G6_AUTHORITY_BOUNDARY_REPORT_PATH: bundle["g5_g6_authority_boundary_report"],
         S14_GROUNDED_BREADTH_FEED_PATH: bundle["s14_grounded_breadth_feed"],
-        S14_MECHANISM_GENERALITY_PROJECTION_PATH: bundle[
-            "s14_mechanism_generality_projection"
-        ],
+        S14_MECHANISM_GENERALITY_PROJECTION_PATH: bundle["s14_mechanism_generality_projection"],
         S14_BATTERY_INPUT_MANIFEST_PATH: bundle["s14_battery_input_manifest"],
         S14_CONSUMER_GATE_PATH: bundle["s14_consumer_gate"],
         REGION_SCORECARD_PATH: bundle["region_scorecard"],
@@ -572,8 +538,8 @@ def _registration_statuses(repo_root: Path) -> dict[str, str]:
         and "source_of_truth =" in generated_text
         and "regenerate_commands =" in generated_text
         and "check_command =" in generated_text
-        and "stale_output_behavior = \"fail\"" in generated_text
-        and "drift_gate = \"automated\"" in generated_text
+        and 'stale_output_behavior = "fail"' in generated_text
+        and 'drift_gate = "automated"' in generated_text
         and all(path.as_posix() in generated_text for path in EXPECTED_ARTIFACT_PATHS)
     )
     inventory_ok = (
@@ -597,9 +563,7 @@ def _registration_statuses(repo_root: Path) -> dict[str, str]:
         (REFERENCE_INDEX_PATH, "Policy Design Case Layer 3 Region Widening"),
         (Path("src/polisyos/runtime/quality/README.md"), "layer3_region_widening.py"),
     )
-    docs_ok = all(
-        needle in _read_text_or_empty(repo_root, path) for path, needle in docs_checks
-    )
+    docs_ok = all(needle in _read_text_or_empty(repo_root, path) for path, needle in docs_checks)
     route_text = _read_text_or_empty(repo_root, REGION_ROUTE_CONTRACT_REGISTRY_PATH)
     registry_text = _read_text_or_empty(repo_root, REGISTRY_RATCHET_DELTA_PATH)
     return {
@@ -608,12 +572,14 @@ def _registration_statuses(repo_root: Path) -> dict[str, str]:
         "docs": "pass" if docs_ok else "fail",
         "route_contract_registry": (
             "pass"
-            if "route_contract_registry_kind = \"generated_region_route_contract_registry\""
+            if 'route_contract_registry_kind = "generated_region_route_contract_registry"'
             in route_text
             and "adapter_contract_registry" not in route_text
             else "fail"
         ),
-        "registry_ratchet": "pass" if "layer3_g7_registry_ratchet_delta" in registry_text else "fail",
+        "registry_ratchet": "pass"
+        if "layer3_g7_registry_ratchet_delta" in registry_text
+        else "fail",
     }
 
 
@@ -667,8 +633,7 @@ def _validate_runtime_surfaces(bundle: Mapping[str, Any]) -> list[dict[str, str]
     conformance = _mapping(bundle["conformance_report"])
     checks = (
         (
-            snapshot.region_value_closure_status
-            == "blocked_by_current_g5_unchanged_blocker",
+            snapshot.region_value_closure_status == "blocked_by_current_g5_unchanged_blocker",
             "layer3_g7_current_g5_unchanged_blocker",
             "Current G5 unchanged blocker must remain the G7 region-value blocker.",
         ),
@@ -698,8 +663,7 @@ def _validate_runtime_surfaces(bundle: Mapping[str, Any]) -> list[dict[str, str]
             "G7 region expansion requires certified expand deltas.",
         ),
         (
-            public_surface.public_projection_contract_verification.get("status")
-            == "pass",
+            public_surface.public_projection_contract_verification.get("status") == "pass",
             "layer3_g7_public_projection_contract_failed",
             "G7 PUBLIC projection must pass projection-only authority checks.",
         ),
@@ -761,9 +725,7 @@ def _summary(
             if snapshot.g5_conversion_outcome == "unchanged_blocker"
             else "not_current_blocker"
         ),
-        "g7_g1_search_control_plane_status": (
-            snapshot.g1_substrate_search_control_plane_status
-        ),
+        "g7_g1_search_control_plane_status": (snapshot.g1_substrate_search_control_plane_status),
         "g7_g1_free_growth_status": "pass",
         "g7_g1_no_hardcode_lint_status": "pass",
         "g7_g4_promotion_gate_shape_status": (
@@ -776,9 +738,7 @@ def _summary(
             if conversion_matrix.grounded_region_case_count == 0
             else "pass"
         ),
-        "g7_g5_g6_authority_boundary_status": (
-            bundle["g5_g6_authority_boundary_report"]["status"]
-        ),
+        "g7_g5_g6_authority_boundary_status": (bundle["g5_g6_authority_boundary_report"]["status"]),
         "g7_region_candidate_set_status": candidate_set.coverage_authority_status,
         "g7_region_grounding_matrix_status": grounding_matrix.coverage_status,
         "g7_region_grounded_case_count": conversion_matrix.grounded_region_case_count,
@@ -791,8 +751,7 @@ def _summary(
         ),
         "g7_s13_certified_delta_status": (
             "pass"
-            if expansion.expansion_status != "pass"
-            or expansion.certified_envelope_delta_refs
+            if expansion.expansion_status != "pass" or expansion.certified_envelope_delta_refs
             else "fail"
         ),
         "g7_mechanism_reuse_status": reuse.reuse_status,
@@ -921,12 +880,8 @@ def _governed_promotion_join_projection(
             "g4_promotion_record_ref": record.g4_promotion_record_ref,
             "g4_grounded_contract_set_ref": record.g4_grounded_contract_set_ref,
             "g4_a_completeness_ledger_ref": record.g4_a_completeness_ledger_ref,
-            "g4_weakest_boundary_composition_ref": (
-                record.g4_weakest_boundary_composition_ref
-            ),
-            "g4_human_decision_integrity_gate_ref": (
-                record.g4_human_decision_integrity_gate_ref
-            ),
+            "g4_weakest_boundary_composition_ref": (record.g4_weakest_boundary_composition_ref),
+            "g4_human_decision_integrity_gate_ref": (record.g4_human_decision_integrity_gate_ref),
             "g4_g5_handoff_ref": record.g4_g5_handoff_ref,
             "issue_codes": list(record.issue_codes),
         }
@@ -1159,8 +1114,7 @@ def _render_text_report(report: Mapping[str, Any]) -> str:
         for issue in issues:
             if isinstance(issue, Mapping):
                 lines.append(
-                    f"- {issue.get('code', '')} {issue.get('path', '')}: "
-                    f"{issue.get('message', '')}"
+                    f"- {issue.get('code', '')} {issue.get('path', '')}: {issue.get('message', '')}"
                 )
     return "\n".join(lines).rstrip() + "\n"
 

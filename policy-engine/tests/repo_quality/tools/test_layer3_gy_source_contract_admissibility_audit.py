@@ -80,9 +80,7 @@ def test_gy_source_contract_admissibility_rejects_executor_gate_claim() -> None:
     audit["summary"]["executor_consumes_source_contract_gate"] = True
     row = _row(audit, "fetch.executor.admission_consumer")
     row["capability_state"] = "executor_consumes_source_contract_gate"
-    row["gap_labels"] = [
-        label for label in row["gap_labels"] if label != "consumer_missing"
-    ]
+    row["gap_labels"] = [label for label in row["gap_labels"] if label != "consumer_missing"]
 
     codes = _codes(validator.validate(audit))
     assert "summary_semantics_drift" in codes

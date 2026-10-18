@@ -587,14 +587,10 @@ class EpochTransitionDenominatorReconciliationReceipt(BaseModel):
             or mapping_keys != target_keys
         ):
             raise ValueError("epoch_reconciliation_mapping_denominator_mismatch")
-        owner_artifacts = {
-            row.dependency_key: row.artifact_id for row in self.scientist_owner_rows
-        }
+        owner_artifacts = {row.dependency_key: row.artifact_id for row in self.scientist_owner_rows}
         for owner in self.scientist_owner_rows:
             candidates = tuple(
-                ref
-                for ref in self.runtime_target_refs
-                if str(ref.artifact_id) == owner.artifact_id
+                ref for ref in self.runtime_target_refs if str(ref.artifact_id) == owner.artifact_id
             )
             if len(candidates) != 1:
                 raise ValueError("epoch_denominator_membership_mismatch")
@@ -658,8 +654,7 @@ class PersistedEpochTransitionDenominatorReconciliation(BaseModel):
             != str(self.handle.reconciliation_receipt_ref.artifact_id)
             or to_canonical_bytes(parsed.model_dump(mode="json"), _CANON_SPEC) != self.receipt_bytes
             or parsed != self.receipt
-            or self.handle.reconciliation_receipt_content_hash
-            != parsed.reconciliation_content_hash
+            or self.handle.reconciliation_receipt_content_hash != parsed.reconciliation_content_hash
         ):
             raise ValueError("epoch_reconciliation_receipt_bytes_mismatch")
         return self

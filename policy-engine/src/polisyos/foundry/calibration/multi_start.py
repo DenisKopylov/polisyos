@@ -87,9 +87,7 @@ def _select_best_loss(
 ) -> tuple[int, str]:
     """Select run with min loss among those with acceptable Hessian condition."""
     finite_runs = [
-        (i, loss)
-        for i, run in enumerate(runs)
-        if (loss := _finite_loss(run)) is not None
+        (i, loss) for i, run in enumerate(runs) if (loss := _finite_loss(run)) is not None
     ]
     if not finite_runs:
         raise ValueError("No run has a finite loss")
@@ -132,9 +130,7 @@ def _select_best_identifiability(
     """Select run with most identified parameters; break ties by condition then loss."""
 
     finite_runs = [
-        (index, loss)
-        for index, run in enumerate(runs)
-        if (loss := _finite_loss(run)) is not None
+        (index, loss) for index, run in enumerate(runs) if (loss := _finite_loss(run)) is not None
     ]
     if not finite_runs:
         raise ValueError("No run has a finite loss")
@@ -145,8 +141,7 @@ def _select_best_identifiability(
         n_id = r.identifiability.n_identified if r.identifiability else 0
         condition = (
             float(r.hessian_result.condition_number)
-            if r.hessian_result is not None
-            and _finite_condition(r.hessian_result.condition_number)
+            if r.hessian_result is not None and _finite_condition(r.hessian_result.condition_number)
             else float("inf")
         )
         return (-n_id, condition, loss, index)  # maximize identified, then minimize condition/loss
@@ -156,8 +151,7 @@ def _select_best_identifiability(
     n_id = r.identifiability.n_identified if r.identifiability else 0
     condition = (
         float(r.hessian_result.condition_number)
-        if r.hessian_result is not None
-        and _finite_condition(r.hessian_result.condition_number)
+        if r.hessian_result is not None and _finite_condition(r.hessian_result.condition_number)
         else float("inf")
     )
     condition_status = _condition_status(r, float("inf"))

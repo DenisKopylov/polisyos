@@ -104,9 +104,7 @@ class RunsStreamTimeout(_StrictOutboundChannelModel):
     )
     cursor: AwareDatetime
     generated_at: AwareDatetime
-    reason: Literal["stream_timeout_budget_exhausted"] = (
-        "stream_timeout_budget_exhausted"
-    )
+    reason: Literal["stream_timeout_budget_exhausted"] = "stream_timeout_budget_exhausted"
 
 
 class RunsSnapshotDataEvent(_StrictOutboundChannelModel):
@@ -228,9 +226,7 @@ def validate_runs_channel_data_event(
 ) -> RunsChannelDataEvent:
     """Validate one data-bearing runs SSE event at the emission boundary."""
 
-    return _RUNS_CHANNEL_DATA_EVENT_ADAPTER.validate_python(
-        {"event": event, "payload": payload}
-    )
+    return _RUNS_CHANNEL_DATA_EVENT_ADAPTER.validate_python({"event": event, "payload": payload})
 
 
 def validate_review_snapshot(payload: object) -> ReviewSnapshot:

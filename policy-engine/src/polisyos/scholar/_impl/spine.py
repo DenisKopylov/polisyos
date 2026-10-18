@@ -18,8 +18,7 @@ def build_scholar_spine_evidence_binding(
     literature_refs: Sequence[Any] | None = None,
     spine_context: Mapping[str, Any] | None = None,
     blocker_refs: Sequence[Any] | None = None,
-    requirement_specs: Sequence[Mapping[str, Any] | ScholarSupportRequirementSpec]
-    | None = None,
+    requirement_specs: Sequence[Mapping[str, Any] | ScholarSupportRequirementSpec] | None = None,
 ) -> dict[str, Any]:
     """Return Scholar's spine-consumer fields for literature evidence."""
 

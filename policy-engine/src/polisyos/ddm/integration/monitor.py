@@ -167,8 +167,7 @@ def _validate_window_input_identities(
         if event.model_id != model_id or event.model_version != model_version:
             mismatches.append(f"shift_events[{index}]")
     if degradation_event is not None and (
-        degradation_event.model_id != model_id
-        or degradation_event.model_version != model_version
+        degradation_event.model_id != model_id or degradation_event.model_version != model_version
     ):
         mismatches.append("degradation_event")
     for index, signal in enumerate(data_quality_signals or []):

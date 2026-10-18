@@ -73,10 +73,7 @@ class BaselineComparisonCompiler:
             if isinstance(payload, BaselineComparisonInput)
             else BaselineComparisonInput.model_validate(dict(payload))
         )
-        existing = {
-            record.comparison_id: record
-            for record in item.claim_ledger.comparison_records
-        }
+        existing = {record.comparison_id: record for record in item.claim_ledger.comparison_records}
         new_records = [
             self._compile_claim_comparison(item, claim)
             for claim in item.claim_ledger.claims
@@ -189,9 +186,7 @@ class BaselineComparisonCompiler:
                 f"superiority claim '{claim.claim_id}' has no selected option evidence"
             )
         if not comparison_method_refs:
-            raise ValueError(
-                f"superiority claim '{claim.claim_id}' has no comparison method refs"
-            )
+            raise ValueError(f"superiority claim '{claim.claim_id}' has no comparison method refs")
 
         dominated = self._dominated_frontier_records(
             item,
@@ -740,17 +735,9 @@ def _refs_from_value(value: object) -> set[str]:
     if isinstance(value, str):
         return {value} if value else set()
     if isinstance(value, Mapping):
-        return {
-            text
-            for item in value.values()
-            for text in _refs_from_value(item)
-        }
+        return {text for item in value.values() for text in _refs_from_value(item)}
     if isinstance(value, Iterable):
-        return {
-            text
-            for item in value
-            for text in _refs_from_value(item)
-        }
+        return {text for item in value for text in _refs_from_value(item)}
     text = _text(value)
     return {text} if text else set()
 

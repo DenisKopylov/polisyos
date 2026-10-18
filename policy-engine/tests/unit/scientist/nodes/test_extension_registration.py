@@ -30,9 +30,7 @@ def _scientist_node_extension_point() -> dict[str, str]:
     extension_points = tomllib.loads(
         (repo_root / "architecture/extension_points.toml").read_text(encoding="utf-8")
     )["extension_point"]
-    matches = [
-        row for row in extension_points if row.get("name") == "polisyos.scientist_nodes"
-    ]
+    matches = [row for row in extension_points if row.get("name") == "polisyos.scientist_nodes"]
     if len(matches) != 1:
         raise AssertionError("Scientist node extension point must be unique")
     row = matches[0]
@@ -63,9 +61,7 @@ def _assert_declared_loader_identity(report, *, name: str, target: str, group: s
         group=group,
     )
     assert report.manifest.declared_builtin_loaders == (identity,)
-    assert report.manifest.content_payload()["declared_builtin_loaders"] == [
-        identity.as_dict()
-    ]
+    assert report.manifest.content_payload()["declared_builtin_loaders"] == [identity.as_dict()]
 
 
 def test_builtin_nodes_are_component_providers() -> None:
@@ -167,9 +163,7 @@ def test_extension_point_target_drives_real_builtin_provider_and_registry() -> N
 def test_invalid_declared_target_does_not_become_a_registered_provider() -> None:
     extension = _scientist_node_extension_point()
     declared_target = extension["builtin_loader"]
-    wrong_target = declared_target.replace(
-        "__polisyos_components__", "__missing_components__"
-    )
+    wrong_target = declared_target.replace("__polisyos_components__", "__missing_components__")
     assert wrong_target != declared_target
     assert extension["builtin_loader"] == SCIENTIST_NODE_BUILTIN_LOADER
 

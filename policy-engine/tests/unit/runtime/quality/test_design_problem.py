@@ -110,9 +110,7 @@ def _projection_signature(problem: DesignProblem) -> dict[str, Any]:
         "stakeholders": [item.model_dump(mode="json") for item in problem.stakeholders],
         "outcome_of_interest": problem.outcome_of_interest.model_dump(mode="json"),
         "candidate_lever_space": problem.candidate_lever_space.model_dump(mode="json"),
-        "evidence_acquisition_needs": problem.evidence_acquisition_needs.model_dump(
-            mode="json"
-        ),
+        "evidence_acquisition_needs": problem.evidence_acquisition_needs.model_dump(mode="json"),
         "model_spec_ref": problem.model_spec_ref,
     }
 
@@ -152,9 +150,7 @@ def test_design_problem_v1_keeps_its_historical_unqualified_slot_grammar() -> No
 
     payload = _design_problem().model_dump(mode="json")
     payload["schema_version"] = "policyos.runtime.design_problem.v1"
-    payload["candidate_lever_space"]["candidate_levers"][0]["target_slot"] = (
-        "government.balance"
-    )
+    payload["candidate_lever_space"]["candidate_levers"][0]["target_slot"] = "government.balance"
 
     with pytest.raises(ValueError, match="design_problem_v1_target_slot_invalid"):
         DesignProblem.model_validate(payload)
@@ -171,29 +167,21 @@ def test_design_problem_v2_accepts_canonical_qualified_slot_and_v1_control() -> 
 
     payload = _design_problem().model_dump(mode="json")
     payload["schema_version"] = "policyos.runtime.design_problem.v2"
-    payload["candidate_lever_space"]["candidate_levers"][0]["target_slot"] = (
-        "government.balance"
-    )
+    payload["candidate_lever_space"]["candidate_levers"][0]["target_slot"] = "government.balance"
     current = DesignProblem.model_validate(payload)
-    assert current.candidate_lever_space.candidate_levers[0].target_slot == (
-        "government.balance"
-    )
+    assert current.candidate_lever_space.candidate_levers[0].target_slot == ("government.balance")
 
     legacy_payload = _design_problem().model_dump(mode="json")
     legacy_payload["schema_version"] = "policyos.runtime.design_problem.v1"
     legacy = DesignProblem.model_validate(legacy_payload)
-    assert legacy.candidate_lever_space.candidate_levers[0].target_slot == (
-        "credit_access"
-    )
+    assert legacy.candidate_lever_space.candidate_levers[0].target_slot == ("credit_access")
 
 
 def test_v2_projection_decoder_remains_supported_after_v3_becomes_current() -> None:
     """Explicit v2 projections remain reconstructable after the current bump."""
 
     problem = _design_problem(schema_version="policyos.runtime.design_problem.v2")
-    projected = DesignProblem._from_projection_payload(
-        problem.model_dump(mode="json")
-    )
+    projected = DesignProblem._from_projection_payload(problem.model_dump(mode="json"))
     assert projected == problem
 
 
@@ -249,9 +237,7 @@ def test_design_problem_outcome_json_schema_matches_versioned_runtime_grammar() 
     ):
         payload = _design_problem().model_dump(mode="json")
         payload["schema_version"] = schema_version
-        payload["candidate_lever_space"]["candidate_levers"][0]["target_slot"] = (
-            target_slot
-        )
+        payload["candidate_lever_space"]["candidate_levers"][0]["target_slot"] = target_slot
         assert validator.is_valid(payload) is expected, (schema_version, target_slot)
 
 
@@ -276,9 +262,7 @@ def test_standalone_outcome_of_interest_remains_unqualified() -> None:
             "target_variable": "government_balance",
         }
     )
-    forged_instance = valid.model_copy(
-        update={"target_variable": "government.balance"}
-    )
+    forged_instance = valid.model_copy(update={"target_variable": "government.balance"})
     with pytest.raises(ValueError):
         OutcomeOfInterest.model_validate(forged_instance)
 
@@ -297,9 +281,7 @@ def test_design_problem_unknown_historical_schema_keeps_legacy_slot_grammar() ->
     payload["schema_version"] = "policyos.runtime.design_problem.legacy-import"
     assert DesignProblem.model_validate(payload).schema_version == payload["schema_version"]
 
-    payload["candidate_lever_space"]["candidate_levers"][0]["target_slot"] = (
-        "government.balance"
-    )
+    payload["candidate_lever_space"]["candidate_levers"][0]["target_slot"] = "government.balance"
     with pytest.raises(ValueError, match="design_problem_legacy_target_slot_invalid"):
         DesignProblem.model_validate(payload)
 
@@ -325,9 +307,7 @@ def test_design_problem_json_schema_matches_versioned_slot_grammar() -> None:
             payload.pop("schema_version", None)
         else:
             payload["schema_version"] = schema_version
-        payload["candidate_lever_space"]["candidate_levers"][0]["target_slot"] = (
-            target_slot
-        )
+        payload["candidate_lever_space"]["candidate_levers"][0]["target_slot"] = target_slot
         assert validator.is_valid(payload) is expected, (
             schema_version,
             target_slot,
@@ -351,14 +331,12 @@ def test_candidate_lever_accepts_canonical_qualified_ir_slot() -> None:
                     "operator_kind": "credit_guarantee",
                     "instrument": "state-backed credit guarantee",
                     "target_slot": "government.balance",
-                }
+                },
             ],
-        }
+        },
     )
 
-    assert tuple(
-        lever.target_slot for lever in problem.candidate_lever_space.candidate_levers
-    ) == (
+    assert tuple(lever.target_slot for lever in problem.candidate_lever_space.candidate_levers) == (
         "credit_access",
         "government.balance",
     )

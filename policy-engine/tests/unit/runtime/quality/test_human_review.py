@@ -44,17 +44,17 @@ def test_deterministic_review_fixtures_cover_governance_outcomes_without_private
     assert report["summary"]["unresolved_disagreement_count"] == 1
     assert report["reviewer_burden"]["total_minutes"] > 0
     assert {
-        decision["reviewer_identity"]
-        for decision in report["reviewer_attributed_decisions"]
+        decision["reviewer_identity"] for decision in report["reviewer_attributed_decisions"]
     } >= {"reviewer.alpha@example.test", "reviewer.beta@example.test"}
 
     public_export = human_review_public_export(report)
     assert "private_notes" not in str(public_export)
     assert "raw reviewer note" not in str(public_export)
     assert public_export["summary"]["unresolved_disagreement_count"] == 1
-    assert public_export["reviewer_burden"]["total_minutes"] == report["reviewer_burden"][
-        "total_minutes"
-    ]
+    assert (
+        public_export["reviewer_burden"]["total_minutes"]
+        == report["reviewer_burden"]["total_minutes"]
+    )
 
 
 def test_low_agreement_and_high_override_rate_emit_fail_quality_signals() -> None:

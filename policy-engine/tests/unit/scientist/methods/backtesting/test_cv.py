@@ -92,6 +92,7 @@ class TestRunForwardChainingCV:
         observed_shapes = []
 
         with monkeypatch.context() as scoped:
+
             def bounded_range(*args):
                 nonlocal materialized_items
                 requested = real_range(*args)
@@ -123,9 +124,9 @@ class TestRunForwardChainingCV:
             (500, [500]),
             (999, [999]),
         ]
-        assert sum(
-            len(fold.train_indices) + len(fold.test_indices) for fold in result.folds
-        ) == 1504
+        assert (
+            sum(len(fold.train_indices) + len(fold.test_indices) for fold in result.folds) == 1504
+        )
         assert observed_shapes == [(2, 1), (500, 1), (999, 1)]
 
     def test_basic_cv(self):

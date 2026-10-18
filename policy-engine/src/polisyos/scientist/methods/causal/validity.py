@@ -857,9 +857,7 @@ def _load_candidate_graph(
                 _ensure_ir_artifact_store(ctx.store),
                 CausalGraphModelRef.model_validate(ref.model_dump(mode="json")),
             )
-            graph = load_causal_graph_model(
-                _ensure_ir_artifact_store(ctx.store), selected_ref
-            )
+            graph = load_causal_graph_model(_ensure_ir_artifact_store(ctx.store), selected_ref)
         except Exception:
             # A supplied but invalid selector is not absence and cannot be
             # replaced by a sibling state key.

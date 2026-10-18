@@ -171,10 +171,7 @@ def test_accepted_npa_artifact_root_is_recorded() -> None:
 def test_legal_batch_complexity_exceptions_are_burned_down() -> None:
     payload = tomllib.loads(
         (
-            Path(__file__).resolve().parents[3]
-            / "architecture"
-            / "exceptions"
-            / "complexity.toml"
+            Path(__file__).resolve().parents[3] / "architecture" / "exceptions" / "complexity.toml"
         ).read_text(encoding="utf-8")
     )
     exception_paths = {

@@ -128,12 +128,8 @@ class ProjectionAlgebraRequest(Layer2ReadinessModel):
     def _validate_projection_request(self) -> ProjectionAlgebraRequest:
         if self.audience == "PUBLIC" and self.redaction == "machine_full":
             raise ValueError("PUBLIC projection cannot use machine_full redaction")
-        if (
-            self.operation == "projection"
-            and (
-                self.aspect in _LEGAL_BUDGET_PROCEDURE_ASPECTS
-                or self.depth == "legal_budget_procedure"
-            )
+        if self.operation == "projection" and (
+            self.aspect in _LEGAL_BUDGET_PROCEDURE_ASPECTS or self.depth == "legal_budget_procedure"
         ):
             raise ValueError(
                 "projection requests cannot mint legal/budget/procedure lowering content"
@@ -314,9 +310,7 @@ class ProjectionLoweringIntegrityReport(Layer2ReadinessModel):
     lowering_gate_count: int = Field(ge=0)
     case_count: int = Field(ge=0)
     floor_id: Literal["s9_projection_faithfulness"] = S9_PROJECTION_FLOOR_ID
-    metric_name: Literal["projection_faithfulness_pass_rate"] = (
-        "projection_faithfulness_pass_rate"
-    )
+    metric_name: Literal["projection_faithfulness_pass_rate"] = "projection_faithfulness_pass_rate"
     authority_boundary: AuthorityBoundary
     rule_version_ref: str = Field(..., min_length=1, max_length=300)
     created_at: AwareDatetime = _CREATED_AT
@@ -635,9 +629,7 @@ def append_verified_lowering_artifact(
 
 def s9_projection_lowering_integrity(
     *,
-    projection_faithfulness_records: Sequence[
-        ProjectionFaithfulnessRecord | Mapping[str, object]
-    ],
+    projection_faithfulness_records: Sequence[ProjectionFaithfulnessRecord | Mapping[str, object]],
     lowering_gate_records: Sequence[LoweringAuthorityGateRecord | Mapping[str, object]] = (),
     negative_control_results: Mapping[str, object] | None = None,
 ) -> ProjectionLoweringIntegrityReport:
@@ -657,11 +649,7 @@ def s9_projection_lowering_integrity(
     ]
     denominator = len(faithfulness_records)
     numerator = sum(1 for record in faithfulness_records if record.faithfulness_status == "pass")
-    issue_counts = Counter(
-        issue
-        for record in faithfulness_records
-        for issue in record.issue_codes
-    )
+    issue_counts = Counter(issue for record in faithfulness_records for issue in record.issue_codes)
     negative_controls = dict(negative_control_results or {})
     false_clear_counts = {
         str(name): _negative_control_false_clear_count(result)
@@ -672,9 +660,7 @@ def s9_projection_lowering_integrity(
         report_ref="pdc://layer2/s9/projection-lowering-integrity",
         projection_faithfulness_denominator=denominator,
         projection_faithfulness_numerator=numerator,
-        projection_faithfulness_pass_rate=(
-            1.0 if denominator == 0 else numerator / denominator
-        ),
+        projection_faithfulness_pass_rate=(1.0 if denominator == 0 else numerator / denominator),
         false_clear_counts=false_clear_counts,
         issue_counts=dict(issue_counts),
         negative_control_results=negative_controls,
@@ -783,11 +769,15 @@ def _projection_mints_authority(render: ProjectionRenderRecord) -> bool:
 
 
 def _requires_grounding(request: LoweringRequestRecord) -> bool:
-    return request.lowering_kind in {
-        "legal_diff",
-        "budget_package",
-        "implementation_procedure",
-    } or request.requested_depth == "legal_budget_procedure"
+    return (
+        request.lowering_kind
+        in {
+            "legal_diff",
+            "budget_package",
+            "implementation_procedure",
+        }
+        or request.requested_depth == "legal_budget_procedure"
+    )
 
 
 def _negative_control_false_clear_count(result: object) -> int:
@@ -813,11 +803,7 @@ def _digest_mapping(payload: Mapping[str, object]) -> str:
 
 def _slug(value: str) -> str:
     return (
-        value.lower()
-        .replace("://", ".")
-        .replace("/", ".")
-        .replace("_", "-")
-        .replace(" ", "-")
+        value.lower().replace("://", ".").replace("/", ".").replace("_", "-").replace(" ", "-")
     )[:120]
 
 

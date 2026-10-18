@@ -19,9 +19,7 @@ from tools.lib.runner import render_command, run_command
 REPO_ROOT, _SRC_ROOT = ensure_repo_import_roots(__file__)
 
 SCHEMA_VERSION = "policyos.policy_design_case.w12g.rollout_decision.v1"
-MANIFEST_SCHEMA_VERSION = (
-    "policyos.policy_design_case.wave12g.rollout_decision_manifest.v1"
-)
+MANIFEST_SCHEMA_VERSION = "policyos.policy_design_case.wave12g.rollout_decision_manifest.v1"
 TOOL_NAME = "quality.validation.run-policy-design-case-rollout-decision"
 GENERATED_AT = "2026-05-25T00:00:00Z"
 PHASE_ID = "W12.G"
@@ -39,15 +37,9 @@ DEFAULT_W12B_REPORT = Path(
 DEFAULT_W12C_REPORT = Path(
     "_build/.tmp/production-quality/w12c_domain_coverage_critic_diversity_audit.json"
 )
-DEFAULT_W12D_REPORT = Path(
-    "_build/.tmp/production-quality/w12d_universal_outcome_corpus_run.json"
-)
-DEFAULT_W12E_REPORT = Path(
-    "_build/.tmp/production-quality/w12e_bundle_replay_inspection.json"
-)
-DEFAULT_W12F_REPORT = Path(
-    "_build/.tmp/production-quality/w12f_cloud_one_lane_revalidation.json"
-)
+DEFAULT_W12D_REPORT = Path("_build/.tmp/production-quality/w12d_universal_outcome_corpus_run.json")
+DEFAULT_W12E_REPORT = Path("_build/.tmp/production-quality/w12e_bundle_replay_inspection.json")
+DEFAULT_W12F_REPORT = Path("_build/.tmp/production-quality/w12f_cloud_one_lane_revalidation.json")
 CONSUMED_PHASES = ("W12.A", "W12.B", "W12.C", "W12.D", "W12.E", "W12.F")
 ROLLOUT_POSTURES = ("research-only", "governed-pilot", "production-capable")
 FLOOR_POLICY: Mapping[str, Mapping[str, float | None]] = {
@@ -247,9 +239,7 @@ def build_w12g_manifest() -> dict[str, Any]:
             "POLICYOS_UNIVERSAL_POLICY_DESIGN_CASE_IMPLEMENTATION_PLAN.md"
             "#w12g-rollout-decision"
         ),
-        "tool_ref": (
-            "repo://tools/quality/validation/run_policy_design_case_rollout_decision.py"
-        ),
+        "tool_ref": ("repo://tools/quality/validation/run_policy_design_case_rollout_decision.py"),
         "consumes_phase_reports": list(CONSUMED_PHASES),
         "command_contract": {
             "command": render_command(command),
@@ -633,9 +623,7 @@ def _metric_citations(
                 w12d_real_summary.get("useful_design_rate"),
             ),
             "source_phase": "W12.D",
-            "mode": "real_producer"
-            if w12d_real_report
-            else "missing_real_producer",
+            "mode": "real_producer" if w12d_real_report else "missing_real_producer",
         },
         "corpus_stub_useful_design_probe_rate": {
             "value": _first_float(
@@ -654,13 +642,9 @@ def _metric_citations(
             "source_phase": "W12.C/W12.D",
         },
         "useful_design_alignment_rate": {
-            "value": _first_float(
-                w12d_real_summary.get("useful_design_alignment_rate")
-            ),
+            "value": _first_float(w12d_real_summary.get("useful_design_alignment_rate")),
             "source_phase": "W12.D",
-            "mode": "real_producer"
-            if w12d_real_report
-            else "missing_real_producer",
+            "mode": "real_producer" if w12d_real_report else "missing_real_producer",
         },
         "stub_alignment_probe_rate": {
             "value": _first_float(w12d_stub_summary.get("useful_design_alignment_rate")),
@@ -668,15 +652,11 @@ def _metric_citations(
             "mode": "corpus_stub" if w12d_stub_report else "missing_corpus_stub",
         },
         "compilation_truthfulness_rate": {
-            "value": _first_float(
-                w12b_summary.get("aggregate_compilation_truthfulness_rate")
-            ),
+            "value": _first_float(w12b_summary.get("aggregate_compilation_truthfulness_rate")),
             "source_phase": "W12.B",
         },
         "critic_ensemble_diversity_jaccard": {
-            "value": _first_float(
-                w12c_summary.get("aggregate_critic_ensemble_diversity_jaccard")
-            ),
+            "value": _first_float(w12c_summary.get("aggregate_critic_ensemble_diversity_jaccard")),
             "source_phase": "W12.C",
         },
     }

@@ -15,6 +15,8 @@ if str(REPO_ROOT) not in sys.path:
 
 settings.register_profile(
     "repo_quality",
-    database=DirectoryBasedExampleDatabase(str(REPO_ROOT / "_cache" / "hypothesis" / "repo_quality")),
+    database=DirectoryBasedExampleDatabase(
+        str(REPO_ROOT / "_cache" / "hypothesis" / "repo_quality")
+    ),
 )
 settings.load_profile("repo_quality")

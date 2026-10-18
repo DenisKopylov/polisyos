@@ -480,6 +480,7 @@ class NodeResultCache:
     ) -> tuple[NodeCacheEntry, NodeOutcome, bool]:
         """Decode one entry, verify its custody, and check its replay proof."""
         from polisyos.core.artifacts import load_core_json_artifact
+
         self._check_deadline(deadline_monotonic)
         payload = load_core_json_artifact(self._store, entry_ref)
         self._check_deadline(deadline_monotonic)

@@ -110,8 +110,7 @@ def build_compilation_truthfulness_report(
         corpus = root / corpus
     cases, load_issues = _load_cases(corpus)
     case_reports = [
-        _audit_case(case, repo_root=root, source_path=case.get("_source_path"))
-        for case in cases
+        _audit_case(case, repo_root=root, source_path=case.get("_source_path")) for case in cases
     ]
     issues = [*load_issues, *(issue for case in case_reports for issue in case["issues"])]
     if not cases:
@@ -371,9 +370,7 @@ def _audit_case(
         obligation_buckets=buckets,
     )
     score = (
-        0.0
-        if any(issue.get("severity") == "fail" for issue in issues)
-        else _score_buckets(buckets)
+        0.0 if any(issue.get("severity") == "fail" for issue in issues) else _score_buckets(buckets)
     )
     status = "blocked" if any(issue.get("severity") == "fail" for issue in issues) else "pass"
     return {
@@ -614,9 +611,9 @@ def _compare_obligations(
 
 
 def _score_buckets(buckets: Mapping[str, Sequence[Any]]) -> float:
-    positive = len(buckets["true_positive_obligations"]) * SCORE_WEIGHTS[
-        "true_positive_obligations"
-    ]
+    positive = (
+        len(buckets["true_positive_obligations"]) * SCORE_WEIGHTS["true_positive_obligations"]
+    )
     penalty = sum(
         len(buckets[bucket]) * SCORE_WEIGHTS[bucket]
         for bucket in W11E_BUCKETS
@@ -633,10 +630,7 @@ def _best_compiled_match(
 ) -> tuple[Mapping[str, Any], str] | None:
     if not compiled_obligations:
         return None
-    scored = [
-        (_match_score(annotation, compiled), compiled)
-        for compiled in compiled_obligations
-    ]
+    scored = [(_match_score(annotation, compiled), compiled) for compiled in compiled_obligations]
     scored.sort(key=lambda item: item[0][0], reverse=True)
     (score, basis), compiled = scored[0]
     if score >= 40:
@@ -718,8 +712,7 @@ def _compiled_obligation_records(graph: ObligationGraph) -> list[dict[str, Any]]
                 "source_classes": [source.value for source in item.source_classes],
                 "candidate_refs": list(item.candidate_refs),
                 "required_evidence_constructs": _construct_refs(
-                    metadata.get("required_evidence_constructs")
-                    or metadata.get("construct_refs")
+                    metadata.get("required_evidence_constructs") or metadata.get("construct_refs")
                 ),
                 "truthfulness_scope": (
                     "vertical_case_annotation"
@@ -728,9 +721,7 @@ def _compiled_obligation_records(graph: ObligationGraph) -> list[dict[str, Any]]
                 ),
             }
         )
-    vertical_annotation_records = [
-        row for row in records if row.get("annotation_obligation_id")
-    ]
+    vertical_annotation_records = [row for row in records if row.get("annotation_obligation_id")]
     if vertical_annotation_records:
         records = vertical_annotation_records
     records.sort(
@@ -755,9 +746,7 @@ def _expected_annotation_records(case: Mapping[str, Any]) -> list[dict[str, Any]
             {
                 "annotation_id": _text(row.get("obligation_id") or row.get("id"))
                 or f"annotation-obligation-{index:04d}",
-                "family": _normalized_token(
-                    _annotation_family(row)
-                ),
+                "family": _normalized_token(_annotation_family(row)),
                 "remedy_path": _annotation_remedy(row),
                 "scope": _normalized_scope(row.get("scope")),
                 "authority_level": _annotation_authority(row),
@@ -811,9 +800,7 @@ def _compare_construct_vocabulary(
     expected_set = set(expected)
     authority_drift_constructs = {
         construct
-        for row in _sequence(
-            (obligation_buckets or {}).get("authority_drift_obligations")
-        )
+        for row in _sequence((obligation_buckets or {}).get("authority_drift_obligations"))
         if isinstance(row, Mapping)
         for construct in _construct_refs(row.get("construct_refs"))
     }
@@ -986,12 +973,10 @@ def _summary(case_reports: Sequence[Mapping[str, Any]], *, status: str) -> dict[
                 len(_sequence(row.get("missed_constructs"))) for row in construct_rows
             ),
             "hallucinated_construct_count": sum(
-                len(_sequence(row.get("hallucinated_constructs")))
-                for row in construct_rows
+                len(_sequence(row.get("hallucinated_constructs"))) for row in construct_rows
             ),
             "authority_drift_construct_count": sum(
-                len(_sequence(row.get("authority_drift_constructs")))
-                for row in construct_rows
+                len(_sequence(row.get("authority_drift_constructs"))) for row in construct_rows
             ),
         },
         "by_domain": _slice_summary(case_reports, "domain"),
@@ -1096,8 +1081,7 @@ def _concept_spine_refs(case: Mapping[str, Any], *, case_id: str) -> PolicyGramm
             field_name="jurisdiction_spine_ref",
         ),
         canonical_concept_refs=tuple(
-            _sequence(refs.get("canonical_concept_refs"))
-            or (f"concept://w11e/{_slug(case_id)}",)
+            _sequence(refs.get("canonical_concept_refs")) or (f"concept://w11e/{_slug(case_id)}",)
         ),
         facet_concept_refs=_mapping(refs.get("facet_concept_refs")),
     )

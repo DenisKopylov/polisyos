@@ -114,9 +114,7 @@ def git_changed_files(
         except OSError as exc:
             raise ValueError(f"changed-only Git command failed: {exc}") from exc
 
-    root_result = _run_git(
-        ["git", "-C", str(requested_root), "rev-parse", "--show-toplevel"]
-    )
+    root_result = _run_git(["git", "-C", str(requested_root), "rev-parse", "--show-toplevel"])
     root_text = root_result.stdout.strip()
     if root_result.returncode != 0 or not root_text:
         detail = root_result.stderr.strip() or root_text or "unknown Git error"
@@ -126,8 +124,7 @@ def git_changed_files(
         product_prefix = requested_root.relative_to(git_root)
     except ValueError as exc:
         raise ValueError(
-            "changed-only Git worktree root is unavailable: "
-            f"{requested_root} is outside {git_root}"
+            f"changed-only Git worktree root is unavailable: {requested_root} is outside {git_root}"
         ) from exc
 
     path_args: list[str] = []
@@ -138,9 +135,7 @@ def git_changed_files(
             try:
                 path_args.append(spec_path.resolve().relative_to(git_root).as_posix())
             except ValueError as exc:
-                raise ValueError(
-                    f"changed-only Git pathspec is outside worktree: {raw}"
-                ) from exc
+                raise ValueError(f"changed-only Git pathspec is outside worktree: {raw}") from exc
         else:
             path_args.append((product_prefix / spec_path).as_posix())
 

@@ -44,9 +44,7 @@ def _write_bundle(
                     {
                         "name": "normative_evidence_present",
                         "status": "pass",
-                        "reader_gate_version": (
-                            "runtime.scorecard.normative_evidence_present.v2"
-                        ),
+                        "reader_gate_version": ("runtime.scorecard.normative_evidence_present.v2"),
                     }
                 ],
             }
@@ -186,9 +184,7 @@ def test_cli_can_emit_fail_closed_closeout_reader_skeleton(tmp_path: Path) -> No
     assert payload["can_closeout"] is False
     assert payload["compatibility_record"]["status"] == "pass"
     assert payload["authority_envelope"]["authoritative_for"] == ["closeout_verdict"]
-    assert "closeout_module_reader_stubbed" in {
-        issue["code"] for issue in payload["issues"]
-    }
+    assert "closeout_module_reader_stubbed" in {issue["code"] for issue in payload["issues"]}
 
 
 def test_cli_can_emit_w4_closeout_integration_verdict_from_bundle(tmp_path: Path) -> None:
@@ -215,9 +211,9 @@ def test_cli_can_emit_w4_closeout_integration_verdict_from_bundle(tmp_path: Path
     assert payload["can_closeout"] is True
     assert payload["summary"]["module_reader_count"] >= 10
     assert payload["compatibility_record"]["status"] == "pass"
-    assert {
-        row["module_id"]: row["status"] for row in payload["module_reader_results"]
-    }["source_truth"] == "pass"
+    assert {row["module_id"]: row["status"] for row in payload["module_reader_results"]}[
+        "source_truth"
+    ] == "pass"
 
 
 def test_w4_closeout_integration_requires_real_i4_wave4_records(tmp_path: Path) -> None:
@@ -271,9 +267,7 @@ def test_w4_closeout_integration_requires_real_i4_wave4_records(tmp_path: Path) 
     assert payload["schema_version"] == "policyos.runtime.can_i_closeout.integration.v1"
     assert payload["status"] == "incomplete"
     missing_modules = {
-        row["module_id"]
-        for row in payload["module_reader_results"]
-        if row["status"] == "missing"
+        row["module_id"] for row in payload["module_reader_results"] if row["status"] == "missing"
     }
     assert missing_modules >= {
         "i4_policy_design_case_graph",

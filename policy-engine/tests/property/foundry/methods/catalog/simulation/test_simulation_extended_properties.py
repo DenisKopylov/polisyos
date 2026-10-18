@@ -34,7 +34,12 @@ class TestStockFlowProperties:
         suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
     )
     def test_stock_flow_output_finite(
-        self, initial_stock, inflow_rate, outflow_rate, n_steps, isolated_registry,
+        self,
+        initial_stock,
+        inflow_rate,
+        outflow_rate,
+        n_steps,
+        isolated_registry,
         property_method_dispatcher,
     ):
         method = isolated_registry.get("simulation.system_dynamics.stock_flow@1.0.0")

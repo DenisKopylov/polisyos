@@ -323,8 +323,7 @@ def test_scientist_reflexion_replay_eval_preserves_input_and_failure_exit(
 
 def test_scientist_handlers_no_longer_live_under_core() -> None:
     core_handler = (
-        Path(__file__).resolve().parents[4]
-        / "src/polisyos/core/components/_cli_scientist.py"
+        Path(__file__).resolve().parents[4] / "src/polisyos/core/components/_cli_scientist.py"
     )
 
     assert not core_handler.exists()

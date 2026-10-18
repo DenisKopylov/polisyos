@@ -428,9 +428,10 @@ def _metric_result(
         return _missing_metric(target, "Diagnostic SLO observation evidence ref is missing.")
     if observed_at is None:
         return _missing_metric(target, "Diagnostic SLO observation timestamp is missing.")
-    if bool(observation.get("stale")) or (
-        now - observed_at
-    ).total_seconds() > target.stale_after_seconds:
+    if (
+        bool(observation.get("stale"))
+        or (now - observed_at).total_seconds() > target.stale_after_seconds
+    ):
         return _metric_payload(
             target,
             value=value,
@@ -585,8 +586,7 @@ def _freshness_blockers(report: Mapping[str, Any], *, now: datetime) -> list[dic
                     f"{_required_text(metric.get('metric_id'), 'diagnostic_slo')}: "
                     "Diagnostic SLO evidence is stale."
                 ),
-                "evidence_ref": _text_or_none(metric.get("evidence_ref"))
-                or DEFAULT_EVIDENCE_REF,
+                "evidence_ref": _text_or_none(metric.get("evidence_ref")) or DEFAULT_EVIDENCE_REF,
                 "next_action": DEFAULT_NEXT_DIAGNOSTIC_COMMAND,
             }
         )
@@ -749,10 +749,7 @@ def _control_kind(row: Mapping[str, Any]) -> str:
 
 def _observed_status(row: Mapping[str, Any]) -> str:
     return str(
-        row.get("observed_status")
-        or row.get("status")
-        or row.get("result_status")
-        or ""
+        row.get("observed_status") or row.get("status") or row.get("result_status") or ""
     ).casefold()
 
 
@@ -796,9 +793,7 @@ def _stale_evidence_rate(
 
 
 def _redaction_coverage_rate(quality_evidence: Mapping[str, Any]) -> float | None:
-    bundle = quality_evidence.get("public_export_bundle") or quality_evidence.get(
-        "public_export"
-    )
+    bundle = quality_evidence.get("public_export_bundle") or quality_evidence.get("public_export")
     if not isinstance(bundle, Mapping):
         return None
     summary = bundle.get("redaction_summary")

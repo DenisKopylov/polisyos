@@ -79,7 +79,9 @@ class TestSIRProperties:
         deadline=10000,
         suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
     )
-    def test_sir_compartments_non_negative(self, data, isolated_registry, property_method_dispatcher):
+    def test_sir_compartments_non_negative(
+        self, data, isolated_registry, property_method_dispatcher
+    ):
         """Emitted S, I, R population counts must be non-negative."""
         method = isolated_registry.get("simulation.compartmental.sir@1.0.0")
         result = invoke_property_method(
@@ -122,9 +124,7 @@ class TestMonteCarloProperties:
         population = int(data["N"])
         prior_seed = 20261010
         prior_rng = np.random.default_rng(prior_seed)
-        initial_infections = prior_rng.integers(
-            1, population // 10 + 1, size=replicate_count
-        )
+        initial_infections = prior_rng.integers(1, population // 10 + 1, size=replicate_count)
         sir = isolated_registry.get("simulation.compartmental.sir@1.0.0")
         terminal_states = []
         first_trajectory = None
@@ -144,9 +144,7 @@ class TestMonteCarloProperties:
                 },
                 seed=prior_seed + run_index,
             )
-            trajectory = np.asarray(
-                simulation.output["result"]["trajectory"], dtype=float
-            )
+            trajectory = np.asarray(simulation.output["result"]["trajectory"], dtype=float)
             assert trajectory.shape == (data["n_steps"], output_count)
             if first_trajectory is None:
                 first_trajectory = trajectory

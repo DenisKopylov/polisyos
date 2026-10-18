@@ -453,10 +453,7 @@ def build_canary_evidence_handoff_ledger(
                 carrier_ref=carrier_ref,
             )
         )
-    records = [
-        _handoff_with_continuity_context(handoff, handoff_context)
-        for handoff in handoffs
-    ]
+    records = [_handoff_with_continuity_context(handoff, handoff_context) for handoff in handoffs]
     required_kinds = [
         *REQUIRED_HANDOFF_KINDS,
         "replay_result",
@@ -738,9 +735,7 @@ def _quality_output_refs(quality_evidence_payload: Mapping[str, Any]) -> tuple[s
             "quality_evidence/scenario_contract_propagation_graph.json"
         ),
     }
-    return tuple(
-        filename for key, filename in filenames.items() if key in quality_evidence_payload
-    )
+    return tuple(filename for key, filename in filenames.items() if key in quality_evidence_payload)
 
 
 def _surface_present(

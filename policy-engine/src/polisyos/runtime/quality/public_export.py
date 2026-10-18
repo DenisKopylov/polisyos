@@ -166,9 +166,7 @@ def project_promotion_open_world_limitation(
             str(exc),
         ) from exc
     if source is None:
-        raise PublicExportRedactionError(
-            "generation_cycle_blocked_before_n9_cannot_supply_receipt"
-        )
+        raise PublicExportRedactionError("generation_cycle_blocked_before_n9_cannot_supply_receipt")
     if n9_source is not None and (
         type(n9_source) is not N9EligibleRunSource or n9_source.run is not run
     ):

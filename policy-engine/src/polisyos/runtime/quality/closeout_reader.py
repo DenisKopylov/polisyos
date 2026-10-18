@@ -571,9 +571,7 @@ def build_can_i_closeout_verdict(
         ),
         "run_id": _text(run_id),
         "integration_slice": "I4",
-        "capability_reality_state": (
-            "bridge_missing" if status == "incomplete" else "implemented"
-        ),
+        "capability_reality_state": ("bridge_missing" if status == "incomplete" else "implemented"),
         "authority_envelope": _closeout_authority_envelope(run_id=run_id),
         "summary": {
             "module_reader_count": len(module_results),
@@ -1297,9 +1295,7 @@ def _surface_blockers(surface: str, record: Mapping[str, Any]) -> list[dict[str,
                 "source_status": status,
                 "source_schema_version": _text(record.get("schema_version")),
                 "source_producer": _source_producer(record, record),
-                "next_action": (
-                    f"Resolve the {surface} blocker and rerun closeout integration."
-                ),
+                "next_action": (f"Resolve the {surface} blocker and rerun closeout integration."),
             }
         )
     for key in ("blocking_quality_failures", "failures", "blockers"):

@@ -127,9 +127,7 @@ def validate_evidence_portfolio_design_record(
                 "claim_ids",
             )
         strand_claims = {
-            claim_id
-            for strand in normalized_strands
-            for claim_id in _claim_ids(strand)
+            claim_id for strand in normalized_strands for claim_id in _claim_ids(strand)
         }
         missing_strand_claims = [
             claim_id for claim_id in required_claims if claim_id not in strand_claims
@@ -245,9 +243,7 @@ def validate_portfolio_predeclaration_before_evidence_acceptance(
         "accepted_claim_ids": accepted_claim_ids,
         "blocked_claim_ids": blocked_claim_ids,
         "portfolio_design_ids": list(dict.fromkeys(portfolio_design_ids)),
-        "producer_execution_started_at": _datetime_input_to_text(
-            producer_execution_started_at
-        ),
+        "producer_execution_started_at": _datetime_input_to_text(producer_execution_started_at),
         "contract_id": EVIDENCE_PORTFOLIO_DESIGN_CONTRACT_ID,
     }
 
@@ -268,9 +264,7 @@ _STRAND_REQUIRED_FIELDS = {
     "authority_level": "policy_design_portfolio_strand_authority_level_missing",
     "candidate_data_source_families": "policy_design_portfolio_candidate_data_missing",
     "candidate_method_families": "policy_design_portfolio_candidate_methods_missing",
-    "defensible_specification_space": (
-        "policy_design_portfolio_specification_space_missing"
-    ),
+    "defensible_specification_space": ("policy_design_portfolio_specification_space_missing"),
     "inclusion_rules": "policy_design_portfolio_inclusion_rules_missing",
     "exclusion_rules": "policy_design_portfolio_exclusion_rules_missing",
     "disconfirming_lines": "policy_design_portfolio_disconfirming_lines_missing",

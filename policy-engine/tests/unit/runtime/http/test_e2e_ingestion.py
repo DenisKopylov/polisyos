@@ -55,11 +55,14 @@ def secured_ingestion_request(runtime_api_env, request: pytest.FixtureRequest):
     )
     with client:
         step_up = f"{_install_bound_test_step_up(client)}-{bearer}"
-        yield client, {
-            "Authorization": f"Bearer {bearer}",
-            "X-Tenant-ID": runtime_api_env["tenant_a"],
-            "X-PolicyOS-Step-Up": step_up,
-        }
+        yield (
+            client,
+            {
+                "Authorization": f"Bearer {bearer}",
+                "X-Tenant-ID": runtime_api_env["tenant_a"],
+                "X-PolicyOS-Step-Up": step_up,
+            },
+        )
 
 
 # ---------------------------------------------------------------------------

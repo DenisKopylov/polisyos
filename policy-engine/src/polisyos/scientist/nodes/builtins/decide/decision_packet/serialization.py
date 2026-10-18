@@ -409,6 +409,7 @@ def _load_json_payload_by_ref(
     artifact_key: str | None = None,
 ) -> dict[str, Any] | None:
     from polisyos.core.artifacts import load_core_json_artifact
+
     if not isinstance(ref_value, str) or not ref_value:
         return None
     try:

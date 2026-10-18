@@ -550,7 +550,9 @@ def test_provider_preflight_no_key_path_does_not_construct_client(
     async def _unexpected_preflight(**_kwargs: object) -> object:
         raise AssertionError("provider preflight should not be called without an API key")
 
-    monkeypatch.setattr(local_prod_debug_probe, "run_provider_preflight", _unexpected_preflight, raising=False)
+    monkeypatch.setattr(
+        local_prod_debug_probe, "run_provider_preflight", _unexpected_preflight, raising=False
+    )
     context = local_prod_debug_probe.ProbeContext.for_tests(
         repo_root=Path.cwd(),
         output=tmp_path / "probe.json",

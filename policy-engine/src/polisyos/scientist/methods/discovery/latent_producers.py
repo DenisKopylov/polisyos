@@ -46,13 +46,10 @@ def produce_latent_discovery_bundle(
 
     admitted_graph = report.graph_for_analysis()
     if graph is not None:
-        if (
-            admitted_graph is None
-            or graph_content_sha256(graph) != graph_content_sha256(admitted_graph)
+        if admitted_graph is None or graph_content_sha256(graph) != graph_content_sha256(
+            admitted_graph
         ):
-            raise ValueError(
-                "latent producer graph input differs from the admitted report graph"
-            )
+            raise ValueError("latent producer graph input differs from the admitted report graph")
     working_graph = admitted_graph
     bundle = report.latent_discovery
     if working_graph is None:

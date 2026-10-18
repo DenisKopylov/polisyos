@@ -106,9 +106,10 @@ def test_domain_coverage_breadth_self_test_cli_writes_report(tmp_path: Path) -> 
     assert exit_code == 0
     payload = json.loads(output_path.read_text(encoding="utf-8"))
     assert payload["summary"]["domain_coverage_breadth"] >= 1
-    assert payload["summary"]["per_authority_expert_useful_design_ceiling"]["production"][
-        "case_count"
-    ] >= 1
+    assert (
+        payload["summary"]["per_authority_expert_useful_design_ceiling"]["production"]["case_count"]
+        >= 1
+    )
 
 
 def _write_case(path: Path, payload: dict[str, object]) -> None:
@@ -145,8 +146,7 @@ def _case_payload(
             "use_seed_rule_catalog": False,
             "complexity_budget": {"max_frontier_items": 10},
             "candidate_sources": [
-                _candidate(case_id=case_id, family=family)
-                for family in candidate_families
+                _candidate(case_id=case_id, family=family) for family in candidate_families
             ],
         },
         "expected_closeout_states": {

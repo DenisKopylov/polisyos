@@ -38,11 +38,9 @@ def build_claim_support_links(
             ((lexical_support_score(claim_text, snippet.text), snippet) for snippet in snippets),
             key=lambda item: (-item[0], item[1].source_id, item[1].snippet_id),
         )
-        selected = [
-            (score, snippet)
-            for score, snippet in ranked
-            if score >= score_threshold
-        ][:max_snippets_per_claim]
+        selected = [(score, snippet) for score, snippet in ranked if score >= score_threshold][
+            :max_snippets_per_claim
+        ]
         snippet_ids = [snippet.snippet_id for _, snippet in selected]
         source_ids = sorted(dict.fromkeys(snippet.source_id for _, snippet in selected))
         support_score = sum(score for score, _ in selected) / max(len(selected), 1)
@@ -101,7 +99,9 @@ def validate_claim_support_links(bundle: WebEvidenceBundle) -> list[str]:
         missing_snippets = [item for item in support.snippet_ids if item not in snippet_ids]
         if missing_snippets:
             violations.append(f"missing_snippet_id:{support.claim_id}:{missing_snippets[0]}")
-        missing_sources = [item for item in support.source_ids if source_ids and item not in source_ids]
+        missing_sources = [
+            item for item in support.source_ids if source_ids and item not in source_ids
+        ]
         if missing_sources:
             violations.append(f"missing_source_id:{support.claim_id}:{missing_sources[0]}")
         if (
@@ -125,10 +125,7 @@ def build_source_verification_voi_decisions(
     """Prioritize source verification for unsupported, weak or contested claims."""
 
     ranked = sorted(
-        (
-            (_source_verification_risk(claim), index, claim)
-            for index, claim in enumerate(claims)
-        ),
+        ((_source_verification_risk(claim), index, claim) for index, claim in enumerate(claims)),
         key=lambda item: (-item[0], item[1]),
     )
     decisions: list[VOIDecisionRecord] = []

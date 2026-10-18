@@ -12,9 +12,7 @@ from polisyos.foundry.validation.causal_validity import (
     persist_causal_statistical_validity_report,
 )
 
-FIXTURE_PATH = (
-    Path(__file__).parents[3] / "_golden" / "foundry" / "causal_validity" / "cases.json"
-)
+FIXTURE_PATH = Path(__file__).parents[3] / "_golden" / "foundry" / "causal_validity" / "cases.json"
 REQUIRED_SCENARIOS = {
     "known_answer",
     "placebo",
@@ -60,9 +58,7 @@ def test_causal_validity_report_declares_method_contracts_and_passes_fixtures() 
         assert family["expected_assumptions"]
         assert family["failure_modes"]
 
-    known_answers = [
-        case for case in report["cases"] if case["scenario"] == "known_answer"
-    ]
+    known_answers = [case for case in report["cases"] if case["scenario"] == "known_answer"]
     assert known_answers
     assert all(case["known_answer"]["within_tolerance"] for case in known_answers)
 
@@ -106,9 +102,7 @@ def test_placebo_and_negative_controls_block_confident_causal_outputs() -> None:
         "standard_error": 0.009,
     }
 
-    report = build_causal_statistical_validity_report(
-        benchmark_cases=[placebo, negative_control]
-    )
+    report = build_causal_statistical_validity_report(benchmark_cases=[placebo, negative_control])
 
     issue_codes = {issue["code"] for issue in report["issues"]}
     assert report["status"] == "fail"

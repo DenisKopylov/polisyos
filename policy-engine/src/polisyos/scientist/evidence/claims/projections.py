@@ -64,7 +64,9 @@ def deterministic_claim_id(
 def has_decision_bearing_content(payload: Mapping[str, Any]) -> bool:
     """Return whether a payload has fields that require claim projection."""
 
-    return any(_has_meaningful_value(payload.get(field)) for field in DECISION_BEARING_PACKET_FIELDS)
+    return any(
+        _has_meaningful_value(payload.get(field)) for field in DECISION_BEARING_PACKET_FIELDS
+    )
 
 
 def project_decision_packet_claims(
@@ -179,7 +181,9 @@ def project_decision_packet_claims(
                 source_label="decision_packet.causal",
                 readiness_level=readiness_level,
                 evidence_refs=source_refs,
-                counterevidence_refs=[] if causal.get("refutation_robust") is not False else source_refs,
+                counterevidence_refs=[]
+                if causal.get("refutation_robust") is not False
+                else source_refs,
                 source_attribution=["causal_effect_report"],
                 uncertainty_profile_ref=_first_ref_by_kind(source_refs, "uncertainty"),
             )
@@ -326,7 +330,9 @@ def project_governance_report_claims(
                 source_attribution=["governance_report.verdict"],
             )
         )
-    for index, issue in enumerate(payload.get("issues", []) if isinstance(payload.get("issues"), list) else []):
+    for index, issue in enumerate(
+        payload.get("issues", []) if isinstance(payload.get("issues"), list) else []
+    ):
         if isinstance(issue, Mapping):
             text = _string_or_none(issue.get("message")) or _string_or_none(issue.get("code"))
             if text:
@@ -450,7 +456,9 @@ def project_frontier_runtime_claims(
         for index, capability in enumerate(capabilities):
             if not isinstance(capability, Mapping):
                 continue
-            capability_id = _string_or_none(capability.get("capability_id")) or f"capability_{index}"
+            capability_id = (
+                _string_or_none(capability.get("capability_id")) or f"capability_{index}"
+            )
             status = _string_or_none(capability.get("status")) or "unknown"
             claims.append(
                 _claim(

@@ -146,22 +146,26 @@ def test_scholar_requirement_result_is_persisted_for_adapter_replay(tmp_path) ->
 
 
 def test_scholar_consumes_construct_linked_skg_capabilities_and_degrades_low_transport() -> None:
-    spec = ScholarSupportRequirementCompiler().compile(
-        {
-            "run_id": "run.scholar.phase5",
-            "authority_level": "production",
-            "claims": [
-                {
-                    "claim_id": "claim.firm_survival",
-                    "claim_text": "Credit access improves firm survival.",
-                    "claim_type": "causal",
-                    "claim_family": "causal",
-                    "claim_use": "decision_support",
-                    "concept_spine_refs": ["concept:firm_survival"],
-                }
-            ],
-        }
-    ).requirements[0]
+    spec = (
+        ScholarSupportRequirementCompiler()
+        .compile(
+            {
+                "run_id": "run.scholar.phase5",
+                "authority_level": "production",
+                "claims": [
+                    {
+                        "claim_id": "claim.firm_survival",
+                        "claim_text": "Credit access improves firm survival.",
+                        "claim_type": "causal",
+                        "claim_family": "causal",
+                        "claim_use": "decision_support",
+                        "concept_spine_refs": ["concept:firm_survival"],
+                    }
+                ],
+            }
+        )
+        .requirements[0]
+    )
 
     report = build_scholar_capability_requirement_bindings(
         scholar_support_requirement_specs=[spec],
@@ -178,9 +182,7 @@ def test_scholar_consumes_construct_linked_skg_capabilities_and_degrades_low_tra
                 "evidence_mode": "scholarly_causal_support",
                 "metadata": {
                     "ac_skg_edge_refs": ["ac_skg_edges:credit_access__firm_survival"],
-                    "ac_skg_transport_score_refs": [
-                        "ac_skg_transport_scores:ua_wartime_msme"
-                    ],
+                    "ac_skg_transport_score_refs": ["ac_skg_transport_scores:ua_wartime_msme"],
                     "transport_score": 0.42,
                     "ac_skg_contested_edge_refs": [
                         "ac_skg_contested_edges:credit_access__firm_survival"
@@ -188,9 +190,7 @@ def test_scholar_consumes_construct_linked_skg_capabilities_and_degrades_low_tra
                     "ac_parameter_estimate_refs": [
                         "ac_parameter_estimates:credit_survival_hazard_ratio"
                     ],
-                    "ac_boundary_condition_refs": [
-                        "ac_boundary_conditions:registered_firms_only"
-                    ],
+                    "ac_boundary_condition_refs": ["ac_boundary_conditions:registered_firms_only"],
                 },
             }
         ],
@@ -203,9 +203,7 @@ def test_scholar_consumes_construct_linked_skg_capabilities_and_degrades_low_tra
     assert link["capability_ref"] == "capability:scholar_firm_survival_edges"
     assert link["construct_ref"] == "construct:firm_survival"
     assert link["ac_skg_edge_refs"] == ["ac_skg_edges:credit_access__firm_survival"]
-    assert link["ac_skg_transport_score_refs"] == [
-        "ac_skg_transport_scores:ua_wartime_msme"
-    ]
+    assert link["ac_skg_transport_score_refs"] == ["ac_skg_transport_scores:ua_wartime_msme"]
     assert link["transport_score"] == 0.42
     assert link["authority_degradation_reason"] == "transport_score_below_0_5"
     assert blocker["code"] == "scholar_capability_transport_below_floor"

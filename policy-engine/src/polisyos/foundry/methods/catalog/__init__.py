@@ -131,12 +131,19 @@ def ensure_all_methods_registered(
     )
 
 
-
-
 _LAZY_EXPORTS: dict[str, tuple[str, str]] = {
-    "DependencyProfileResolutionFailure": ("dependency_authority", "DependencyProfileResolutionFailure"),
-    "MethodCatalogDependencyAuthorityRequest": ("dependency_authority", "MethodCatalogDependencyAuthorityRequest"),
-    "build_method_catalog_provenance_manifest": ("snapshot", "build_method_catalog_provenance_manifest"),
+    "DependencyProfileResolutionFailure": (
+        "dependency_authority",
+        "DependencyProfileResolutionFailure",
+    ),
+    "MethodCatalogDependencyAuthorityRequest": (
+        "dependency_authority",
+        "MethodCatalogDependencyAuthorityRequest",
+    ),
+    "build_method_catalog_provenance_manifest": (
+        "snapshot",
+        "build_method_catalog_provenance_manifest",
+    ),
     "build_method_catalog_runtime_identity": ("snapshot", "build_method_catalog_runtime_identity"),
 }
 
@@ -150,6 +157,7 @@ def __getattr__(name: str) -> Any:
     value = getattr(import_module(f"{__name__}.{module_name}"), attribute_name)
     globals()[name] = value
     return value
+
 
 __all__ = [
     "DependencyProfileResolutionFailure",

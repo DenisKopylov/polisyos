@@ -180,9 +180,7 @@ def test_replay_under_original_rules_reproduces_closed_semantic_outputs() -> Non
 
 def test_original_replay_fails_closed_when_closed_outputs_do_not_match() -> None:
     closed_case = _closed_case()
-    closed_case["closed_semantic_outputs"] = deepcopy(
-        closed_case["closed_semantic_outputs"]
-    )
+    closed_case["closed_semantic_outputs"] = deepcopy(closed_case["closed_semantic_outputs"])
     closed_case["closed_semantic_outputs"][0]["evaluation_status"] = "blocked"
     change_record = _stricter_change_record(closed_case["rule_evolution_registry"])
 
@@ -194,9 +192,7 @@ def test_original_replay_fails_closed_when_closed_outputs_do_not_match() -> None
 
     assert replay["semantic_replay_status"] == "mismatch"
     assert replay["reproduces_closed_outputs"] is False
-    assert {issue["code"] for issue in replay["issues"]} == {
-        "closed_rule_replay_output_mismatch"
-    }
+    assert {issue["code"] for issue in replay["issues"]} == {"closed_rule_replay_output_mismatch"}
 
 
 def test_replay_under_new_rules_exposes_changed_admissibility() -> None:
@@ -213,9 +209,7 @@ def test_replay_under_new_rules_exposes_changed_admissibility() -> None:
     assert replay["replay_mode"] == "new_rules"
     assert replay["semantic_replay_status"] == "changed_from_closed_outputs"
     assert replay["semantic_outputs"][0]["requirement_id"] == "req.credit_support"
-    assert replay["semantic_outputs"][0]["current_requirement_id"] == (
-        "req.credit_support.v2"
-    )
+    assert replay["semantic_outputs"][0]["current_requirement_id"] == ("req.credit_support.v2")
     assert replay["semantic_outputs"][0]["evaluation_status"] == "blocked"
     assert replay["semantic_outputs"][0]["threshold"] == 0.35
 
@@ -240,18 +234,12 @@ def test_comparison_report_triggers_mandatory_revalidation_and_claim_lifecycle(
     assert report["revalidation_trigger"]["mandatory_revalidation"] is True
     assert report["revalidation_trigger"]["public_effect"] == "mandatory_revalidation"
     assert report["public_comparison_report"]["silent_upgrade_allowed"] is False
-    assert report["public_comparison_report"]["closed_case_historical_meaning"] == (
-        "preserved"
-    )
+    assert report["public_comparison_report"]["closed_case_historical_meaning"] == ("preserved")
 
     lifecycle_report = report["lifecycle_reissue_report"]
-    assert lifecycle_report["public_revision_state"]["affected_claim_ids"] == [
-        "claim_credit_gap"
-    ]
+    assert lifecycle_report["public_revision_state"]["affected_claim_ids"] == ["claim_credit_gap"]
     assert lifecycle_report["public_revision_state"]["unaffected_claim_ids"] == []
-    assert lifecycle_report["claim_revision_states"][0]["lifecycle_action"] == (
-        "partial_reissue"
-    )
+    assert lifecycle_report["claim_revision_states"][0]["lifecycle_action"] == ("partial_reissue")
     assert lifecycle_report["claim_revision_states"][0]["public_revision_status"] == (
         "revalidation_required"
     )
@@ -264,17 +252,6 @@ def test_comparison_report_triggers_mandatory_revalidation_and_claim_lifecycle(
 def test_c33_change_class_table_distinguishes_notice_from_mandatory_revalidation() -> None:
     assert C33_RULE_CHANGE_CLASS_TABLE["editorial"]["mandatory_revalidation"] is False
     assert C33_RULE_CHANGE_CLASS_TABLE["editorial"]["public_effect"] == "no_notice"
-    assert (
-        C33_RULE_CHANGE_CLASS_TABLE["schema_compatible"]["public_effect"]
-        == "internal_migration"
-    )
-    assert (
-        C33_RULE_CHANGE_CLASS_TABLE["stricter_admissibility"][
-            "mandatory_revalidation"
-        ]
-        is True
-    )
-    assert (
-        C33_RULE_CHANGE_CLASS_TABLE["new_blocker"]["public_effect"]
-        == "mandatory_revalidation"
-    )
+    assert C33_RULE_CHANGE_CLASS_TABLE["schema_compatible"]["public_effect"] == "internal_migration"
+    assert C33_RULE_CHANGE_CLASS_TABLE["stricter_admissibility"]["mandatory_revalidation"] is True
+    assert C33_RULE_CHANGE_CLASS_TABLE["new_blocker"]["public_effect"] == "mandatory_revalidation"

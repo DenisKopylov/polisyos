@@ -27,4 +27,3 @@ __all__ = [
     "make_source_profile_id",
     "scaffold_source_artifacts",
 ]
-

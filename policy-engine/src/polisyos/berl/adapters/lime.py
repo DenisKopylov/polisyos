@@ -112,10 +112,11 @@ class LIMEAdapter:
     def estimator_uncertainty(self, explanation: RawExplanation) -> UncertaintyReport:
         se_payload = explanation.estimator_uncertainty.get("standard_errors", {})
         ci_payload = explanation.estimator_uncertainty.get("confidence_intervals", {})
-        standard_errors = {
-            str(feature): float(value)
-            for feature, value in se_payload.items()
-        } if isinstance(se_payload, Mapping) else {}
+        standard_errors = (
+            {str(feature): float(value) for feature, value in se_payload.items()}
+            if isinstance(se_payload, Mapping)
+            else {}
+        )
         intervals: dict[str, tuple[float, float]] = {}
         if isinstance(ci_payload, Mapping):
             for feature, raw_interval in ci_payload.items():

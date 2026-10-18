@@ -63,7 +63,9 @@ def test_chronology_validation_result_separates_governing_and_ambient_channels(
     governing = checker.validate_payload(payload, repo_root=REPO_ROOT)
 
     diagnostic = _failed_dependency_diagnostic(companion)
-    monkeypatch.setattr(n8, "_current_dependency_environment_diagnostic", lambda _profile: diagnostic)
+    monkeypatch.setattr(
+        n8, "_current_dependency_environment_diagnostic", lambda _profile: diagnostic
+    )
     result = result_builder(
         payload,
         repo_root=REPO_ROOT,

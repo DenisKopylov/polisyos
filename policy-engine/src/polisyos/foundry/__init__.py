@@ -103,8 +103,14 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
         "polisyos.foundry.methods.catalog.causal.gcm_fit",
         "validate_persisted_gcm_spec",
     ),
-    "InputContractMethodSelection": ("polisyos.foundry.methods.selection", "InputContractMethodSelection"),
-    "select_method_for_input_contract": ("polisyos.foundry.methods.selection", "select_method_for_input_contract"),
+    "InputContractMethodSelection": (
+        "polisyos.foundry.methods.selection",
+        "InputContractMethodSelection",
+    ),
+    "select_method_for_input_contract": (
+        "polisyos.foundry.methods.selection",
+        "select_method_for_input_contract",
+    ),
     "DependencyProfileResolutionFailure": (
         "polisyos.foundry.methods.catalog.dependency_authority",
         "DependencyProfileResolutionFailure",

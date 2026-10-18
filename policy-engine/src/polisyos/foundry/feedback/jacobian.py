@@ -108,8 +108,7 @@ def summarize_jacobian(
         notes.append("near_flip")
 
     near_loss_of_stability = bool(
-        spectral_radius is not None
-        and abs(spectral_radius - 1.0) <= stability_radius_tolerance
+        spectral_radius is not None and abs(spectral_radius - 1.0) <= stability_radius_tolerance
     )
     if near_loss_of_stability:
         notes.append("near_loss_of_stability")

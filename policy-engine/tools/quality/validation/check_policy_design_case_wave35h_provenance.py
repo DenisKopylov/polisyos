@@ -222,8 +222,9 @@ def _validate_wave35g_boundary(wave35g_path: Path, errors: list[str]) -> None:
     if not payload:
         return
     errors.extend(
-        build_policy_design_case_wave35g_institutional_provenance
-        .validate_institutional_provenance_boundary_ledger(payload)
+        build_policy_design_case_wave35g_institutional_provenance.validate_institutional_provenance_boundary_ledger(
+            payload
+        )
     )
     summary = _mapping(payload.get("summary"))
     if summary.get("runtime_owned_provenance_count") != 6:

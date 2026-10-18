@@ -6,57 +6,57 @@ from importlib import import_module
 from typing import TYPE_CHECKING
 
 _LAZY_EXPORTS: dict[str, tuple[str, str | None]] = {
-    'UKRAINE_ASSET_GROUP': ('.assets', 'UKRAINE_ASSET_GROUP'),
-    'UKRAINE_DEMOGRAPHY_DONOR_POOL_KEY': ('.assets', 'UKRAINE_DEMOGRAPHY_DONOR_POOL_KEY'),
-    'UKRAINE_DEMOGRAPHY_PRIORS_KEY': ('.assets', 'UKRAINE_DEMOGRAPHY_PRIORS_KEY'),
-    'UKRAINE_DEMOGRAPHY_SOURCE_INVENTORY_KEY': (
-        '.assets',
-        'UKRAINE_DEMOGRAPHY_SOURCE_INVENTORY_KEY',
+    "UKRAINE_ASSET_GROUP": (".assets", "UKRAINE_ASSET_GROUP"),
+    "UKRAINE_DEMOGRAPHY_DONOR_POOL_KEY": (".assets", "UKRAINE_DEMOGRAPHY_DONOR_POOL_KEY"),
+    "UKRAINE_DEMOGRAPHY_PRIORS_KEY": (".assets", "UKRAINE_DEMOGRAPHY_PRIORS_KEY"),
+    "UKRAINE_DEMOGRAPHY_SOURCE_INVENTORY_KEY": (
+        ".assets",
+        "UKRAINE_DEMOGRAPHY_SOURCE_INVENTORY_KEY",
     ),
-    'UKRAINE_DEMOGRAPHY_TARGETS_KEY': ('.assets', 'UKRAINE_DEMOGRAPHY_TARGETS_KEY'),
-    'UKRAINE_NORMALIZED_SOURCES_KEY': ('.assets', 'UKRAINE_NORMALIZED_SOURCES_KEY'),
-    'UKRAINE_RAW_SOURCES_KEY': ('.assets', 'UKRAINE_RAW_SOURCES_KEY'),
-    'UKRAINE_READINESS_KEY': ('.assets', 'UKRAINE_READINESS_KEY'),
-    'UKRAINE_SOURCE_CONFIG_KEY': ('.assets', 'UKRAINE_SOURCE_CONFIG_KEY'),
-    'UKRAINE_STATIC_AGING_INPUTS_KEY': ('.assets', 'UKRAINE_STATIC_AGING_INPUTS_KEY'),
-    'REAL_BACKTEST_BUNDLE_CONTRACT_FQN': ('.contracts', 'REAL_BACKTEST_BUNDLE_CONTRACT_FQN'),
-    'RealBacktestBundleContract': ('.contracts', 'RealBacktestBundleContract'),
-    'DemographyRoleProjection': ('.demography', 'DemographyRoleProjection'),
-    'DemographySourceEvidence': ('.demography', 'DemographySourceEvidence'),
-    'DemographySourceRequest': ('.demography', 'DemographySourceRequest'),
-    'HistoricalLayoutRequest': ('.demography', 'HistoricalLayoutRequest'),
-    'InventorySourceRequest': ('.demography', 'InventorySourceRequest'),
-    'SourceResolutionRefusalError': ('.demography', 'SourceResolutionRefusalError'),
-    'UkraineDemographyArtifacts': ('.demography', 'UkraineDemographyArtifacts'),
-    'load_demography_artifacts': ('.demography', 'load_demography_artifacts'),
-    'load_donor_pool': ('.demography', 'load_donor_pool'),
-    'load_reconciled_targets': ('.demography', 'load_reconciled_targets'),
-    'load_transition_priors': ('.demography', 'load_transition_priors'),
-    'UkraineReadinessSummary': ('.shadow', 'UkraineReadinessSummary'),
-    'UkraineShadowArtifact': ('.shadow', 'UkraineShadowArtifact'),
-    'UkraineShadowBundle': ('.shadow', 'UkraineShadowBundle'),
-    'UkraineShadowDiff': ('.shadow', 'UkraineShadowDiff'),
-    'UkraineSourceSummary': ('.shadow', 'UkraineSourceSummary'),
-    'compare_ukraine_shadow_bundles': ('.shadow', 'compare_ukraine_shadow_bundles'),
-    'load_ukraine_shadow_bundle': ('.shadow', 'load_ukraine_shadow_bundle'),
-    'UkraineLexPreShardDiff': ('.sharding', 'UkraineLexPreShardDiff'),
-    'UkraineLexPreShardSummary': ('.sharding', 'UkraineLexPreShardSummary'),
-    'UkraineLexShardEntry': ('.sharding', 'UkraineLexShardEntry'),
-    'UkraineLexShardPassSummary': ('.sharding', 'UkraineLexShardPassSummary'),
-    'compare_lex_pre_shard_summaries': ('.sharding', 'compare_lex_pre_shard_summaries'),
-    'infer_lex_snapshot_label': ('.sharding', 'infer_lex_snapshot_label'),
-    'lex_pre_shard_index': ('.sharding', 'lex_pre_shard_index'),
-    'lex_pre_shard_pass_name': ('.sharding', 'lex_pre_shard_pass_name'),
-    'load_lex_pre_shard_summary': ('.sharding', 'load_lex_pre_shard_summary'),
-    'build_static_aging_state': ('.static_aging', 'build_static_aging_state'),
-    'assets': ('.assets', None),
-    'contracts': ('.contracts', None),
-    'demography': ('.demography', None),
-    'manifests': ('.manifests', None),
-    'models': ('.models', None),
-    'shadow': ('.shadow', None),
-    'sharding': ('.sharding', None),
-    'static_aging': ('.static_aging', None),
+    "UKRAINE_DEMOGRAPHY_TARGETS_KEY": (".assets", "UKRAINE_DEMOGRAPHY_TARGETS_KEY"),
+    "UKRAINE_NORMALIZED_SOURCES_KEY": (".assets", "UKRAINE_NORMALIZED_SOURCES_KEY"),
+    "UKRAINE_RAW_SOURCES_KEY": (".assets", "UKRAINE_RAW_SOURCES_KEY"),
+    "UKRAINE_READINESS_KEY": (".assets", "UKRAINE_READINESS_KEY"),
+    "UKRAINE_SOURCE_CONFIG_KEY": (".assets", "UKRAINE_SOURCE_CONFIG_KEY"),
+    "UKRAINE_STATIC_AGING_INPUTS_KEY": (".assets", "UKRAINE_STATIC_AGING_INPUTS_KEY"),
+    "REAL_BACKTEST_BUNDLE_CONTRACT_FQN": (".contracts", "REAL_BACKTEST_BUNDLE_CONTRACT_FQN"),
+    "RealBacktestBundleContract": (".contracts", "RealBacktestBundleContract"),
+    "DemographyRoleProjection": (".demography", "DemographyRoleProjection"),
+    "DemographySourceEvidence": (".demography", "DemographySourceEvidence"),
+    "DemographySourceRequest": (".demography", "DemographySourceRequest"),
+    "HistoricalLayoutRequest": (".demography", "HistoricalLayoutRequest"),
+    "InventorySourceRequest": (".demography", "InventorySourceRequest"),
+    "SourceResolutionRefusalError": (".demography", "SourceResolutionRefusalError"),
+    "UkraineDemographyArtifacts": (".demography", "UkraineDemographyArtifacts"),
+    "load_demography_artifacts": (".demography", "load_demography_artifacts"),
+    "load_donor_pool": (".demography", "load_donor_pool"),
+    "load_reconciled_targets": (".demography", "load_reconciled_targets"),
+    "load_transition_priors": (".demography", "load_transition_priors"),
+    "UkraineReadinessSummary": (".shadow", "UkraineReadinessSummary"),
+    "UkraineShadowArtifact": (".shadow", "UkraineShadowArtifact"),
+    "UkraineShadowBundle": (".shadow", "UkraineShadowBundle"),
+    "UkraineShadowDiff": (".shadow", "UkraineShadowDiff"),
+    "UkraineSourceSummary": (".shadow", "UkraineSourceSummary"),
+    "compare_ukraine_shadow_bundles": (".shadow", "compare_ukraine_shadow_bundles"),
+    "load_ukraine_shadow_bundle": (".shadow", "load_ukraine_shadow_bundle"),
+    "UkraineLexPreShardDiff": (".sharding", "UkraineLexPreShardDiff"),
+    "UkraineLexPreShardSummary": (".sharding", "UkraineLexPreShardSummary"),
+    "UkraineLexShardEntry": (".sharding", "UkraineLexShardEntry"),
+    "UkraineLexShardPassSummary": (".sharding", "UkraineLexShardPassSummary"),
+    "compare_lex_pre_shard_summaries": (".sharding", "compare_lex_pre_shard_summaries"),
+    "infer_lex_snapshot_label": (".sharding", "infer_lex_snapshot_label"),
+    "lex_pre_shard_index": (".sharding", "lex_pre_shard_index"),
+    "lex_pre_shard_pass_name": (".sharding", "lex_pre_shard_pass_name"),
+    "load_lex_pre_shard_summary": (".sharding", "load_lex_pre_shard_summary"),
+    "build_static_aging_state": (".static_aging", "build_static_aging_state"),
+    "assets": (".assets", None),
+    "contracts": (".contracts", None),
+    "demography": (".demography", None),
+    "manifests": (".manifests", None),
+    "models": (".models", None),
+    "shadow": (".shadow", None),
+    "sharding": (".sharding", None),
+    "static_aging": (".static_aging", None),
 }
 
 __all__ = [
@@ -102,6 +102,7 @@ __all__ = [
     "load_ukraine_shadow_bundle",
 ]
 
+
 def __getattr__(name: str) -> object:
     """Resolve the historical compatibility surface to its original provider."""
     if name not in _LAZY_EXPORTS:
@@ -112,9 +113,11 @@ def __getattr__(name: str) -> object:
     globals()[name] = value
     return value
 
+
 def __dir__() -> list[str]:
     """List the compatibility surface without importing its providers."""
     return sorted({*globals(), *_LAZY_EXPORTS})
+
 
 if TYPE_CHECKING:
     from .assets import (

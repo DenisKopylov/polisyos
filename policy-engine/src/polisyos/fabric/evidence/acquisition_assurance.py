@@ -31,8 +31,17 @@ from polisyos.fabric.evidence.non_data_acquisition import (
 )
 
 WIRE_FIELDS = (
-    "case_id", "shape", "types", "state", "terminal", "ceiling", "authority",
-    "signer", "reentry", "event", "reason",
+    "case_id",
+    "shape",
+    "types",
+    "state",
+    "terminal",
+    "ceiling",
+    "authority",
+    "signer",
+    "reentry",
+    "event",
+    "reason",
 )
 MUTANTS = (
     "mutant.row_count_auto_closes_relation_estimand_mandate",
@@ -93,7 +102,10 @@ class _ReferenceVerifier:
         self.case = case
 
     def verify(
-        self, *, demand: Mapping[str, Any], candidate: Mapping[str, Any],
+        self,
+        *,
+        demand: Mapping[str, Any],
+        candidate: Mapping[str, Any],
         context: AcquisitionEvaluationContext,
     ) -> bool:
         """Compare resolved observations against separately bound owner demands."""
@@ -124,7 +136,10 @@ class _ReferenceDemandingOwner:
         self.event_effect = "none"
 
     def verify(
-        self, *, demand: Mapping[str, Any], candidate: Mapping[str, Any],
+        self,
+        *,
+        demand: Mapping[str, Any],
+        candidate: Mapping[str, Any],
         context: AcquisitionEvaluationContext,
     ) -> bool:
         """Resolve actual values; a document, signature or favorable label is unused."""
@@ -178,7 +193,10 @@ class _ReferenceDemandingOwner:
         return available
 
     def reenter(
-        self, *, demand: Mapping[str, Any], candidate: Mapping[str, Any],
+        self,
+        *,
+        demand: Mapping[str, Any],
+        candidate: Mapping[str, Any],
         context: AcquisitionEvaluationContext,
     ) -> bool:
         """Rerun the demanding predicate; receipt alone never changes availability."""
@@ -242,30 +260,42 @@ def _finite_boundary_holds(basis: Mapping[str, Any], demand: Mapping[str, Any]) 
     if prop == "invalid_operation":
         return demand["mutation"]["operation"] not in basis["ontology"].values()
     if prop == "higher_prohibition":
-        request = {"actor": demand["act"]["office"], "action": demand["act"]["action"],
-                   "jurisdiction": demand["act"]["jurisdiction"]}
-        matching = [row for row in basis["rules"].values()
-                    if all(row.get(k) == v for k, v in request.items())]
+        request = {
+            "actor": demand["act"]["office"],
+            "action": demand["act"]["action"],
+            "jurisdiction": demand["act"]["jurisdiction"],
+        }
+        matching = [
+            row
+            for row in basis["rules"].values()
+            if all(row.get(k) == v for k, v in request.items())
+        ]
         if not matching:
             return False
         priority = max(row["priority"] for row in matching)
-        return all(row["disposition"] == "prohibited"
-                   for row in matching if row["priority"] == priority)
+        return all(
+            row["disposition"] == "prohibited" for row in matching if row["priority"] == priority
+        )
     if prop == "competent_disapproval":
-        request = {key: demand["determination"][key]
-                   for key in ("regime", "procedure", "issuer", "purpose")}
+        request = {
+            key: demand["determination"][key]
+            for key in ("regime", "procedure", "issuer", "purpose")
+        }
         return bool(basis["determinations"]) and all(
-            all(row.get(k) == v for k, v in request.items())
-            and row["disposition"] == "disapproved" for row in basis["determinations"].values()
+            all(row.get(k) == v for k, v in request.items()) and row["disposition"] == "disapproved"
+            for row in basis["determinations"].values()
         )
     if prop == "capacity_horizon":
         required = demand["commitment"]
         horizon = basis["horizons"][required["horizon"]]
-        return all(row["capacity"] < required["load"] or row["ready_day"] > horizon
-                   for row in basis["alternatives"].values())
+        return all(
+            row["capacity"] < required["load"] or row["ready_day"] > horizon
+            for row in basis["alternatives"].values()
+        )
     if prop == "competent_roster_absence":
-        return all(demand["judgment"]["competence"] not in skills
-                   for skills in basis["roster"].values())
+        return all(
+            demand["judgment"]["competence"] not in skills for skills in basis["roster"].values()
+        )
     if prop == "independent_provider_absence":
         return basis["subject"] == demand["engagement"]["subject"] and all(
             row["implemented_subject"] is True or row["financial_interest"] is True
@@ -291,8 +321,16 @@ def reference_terminal_knowledge(
     if receipt.resolution_state != "reentry_provisional_refusal":
         return "provisional"
     required = {
-        "kind", "scope", "epoch", "valid_until", "rule", "basis_hash", "searched",
-        "unknown_remainder", "challenger", "reentry_requires",
+        "kind",
+        "scope",
+        "epoch",
+        "valid_until",
+        "rule",
+        "basis_hash",
+        "searched",
+        "unknown_remainder",
+        "challenger",
+        "reentry_requires",
     }
     basis = case.get("terminal_basis")
     if set(boundary) != required or not isinstance(basis, dict):
@@ -353,13 +391,18 @@ class _MutationRuntime(NonDataAcquisitionRuntime):
         rows_close = self.mutant == MUTANTS[0] and self.row_count > 0
         removal = self.mutant == MUTANTS[6]
         if (rows_close or removal) and result.reason_codes == ("non_data_object_missing",):
-            return result.model_copy(update={"resolution_state": "reentry_closed", "reason_codes": ()})
+            return result.model_copy(
+                update={"resolution_state": "reentry_closed", "reason_codes": ()}
+            )
         return result
 
 
 def execute_case(
-    case: Mapping[str, Any], vocabulary: Mapping[str, Any], scratch: Path,
-    *, mutant: str | None = None,
+    case: Mapping[str, Any],
+    vocabulary: Mapping[str, Any],
+    scratch: Path,
+    *,
+    mutant: str | None = None,
 ) -> AcquisitionObservation:
     """Execute AQ1 intake/CAS/re-entry and recompute its persisted consumer result."""
     if mutant is not None and mutant not in MUTANTS:
@@ -367,7 +410,8 @@ def execute_case(
     owner = _ReferenceDemandingOwner(case, mutant)
     store = FileSystemCAS(scratch / "cas")
     runtime = _MutationRuntime(
-        store=store, journal_path=scratch / "events.jsonl",
+        store=store,
+        journal_path=scratch / "events.jsonl",
         demanding_owner=owner if case.get("owner_available", True) else None,
         independent_verifier=_ReferenceVerifier(case),
     )
@@ -378,15 +422,20 @@ def execute_case(
     ceiling_fact = "not_evaluated"
     at = _time(case["evaluated_at"])
     if case["candidate"] is not None:
-        candidate_ref = runtime.persist_candidate({
-            "object_type": case["discriminator"], "demand_hash": demand_hash(case["demand"]),
-            "body": case["candidate"], "ceiling": case["candidate_ceiling"],
-        })
+        candidate_ref = runtime.persist_candidate(
+            {
+                "object_type": case["discriminator"],
+                "demand_hash": demand_hash(case["demand"]),
+                "body": case["candidate"],
+                "ceiling": case["candidate_ceiling"],
+            }
+        )
         vocabulary_ref = runtime.persist_vocabulary(vocabulary)
         relation = evaluate_ceiling(
             vocabulary=CeilingVocabulary.model_validate(vocabulary),
             requested=CeilingScope.model_validate(case["requested_use"]),
-            ceiling=CeilingScope.model_validate(case["candidate_ceiling"]), at=at,
+            ceiling=CeilingScope.model_validate(case["candidate_ceiling"]),
+            at=at,
         )
         refused = [name for name, passed in relation.relations.items() if not passed]
         if mutant == MUTANTS[3] and not refused:
@@ -395,8 +444,12 @@ def execute_case(
         if not relation.exact_controls:
             ceiling_fact = "refused:exact_controls"
     request = NonDataRequest(
-        request_id=case["case_id"], claim_ref="synthetic:claim", gap_id="synthetic:gap",
-        demand=case["demand"], candidate_ref=candidate_ref, vocabulary_ref=vocabulary_ref,
+        request_id=case["case_id"],
+        claim_ref="synthetic:claim",
+        gap_id="synthetic:gap",
+        demand=case["demand"],
+        candidate_ref=candidate_ref,
+        vocabulary_ref=vocabulary_ref,
         requested_use=case["requested_use"],
     )
     receipt = runtime.acquire(request, at=at, row_count=case["row_count"])
@@ -404,21 +457,29 @@ def execute_case(
     if consumed != receipt or not store.get_bytes(receipt.artifact_ref):
         raise ValueError("persisted_consumer_assertion_failed")
     journal_path = scratch / "events.jsonl"
-    new_rules = {event["rule"] for event in case["events"]
-                 if event["rule"] != request.requested_use.rule_version_ref
-                 and event["producer"] == "synthetic:producer"
-                 and event["claim"] == request.claim_ref}
+    new_rules = {
+        event["rule"]
+        for event in case["events"]
+        if event["rule"] != request.requested_use.rule_version_ref
+        and event["producer"] == "synthetic:producer"
+        and event["claim"] == request.claim_ref
+    }
     if len(new_rules) == 1:
         historical_ref = receipt.artifact_ref
         next_rule = next(iter(new_rules))
         current_use = request.requested_use.model_copy(update={"rule_version_ref": next_rule})
-        current_request = request.model_copy(update={
-            "request_id": request.request_id + ":current", "requested_use": current_use,
-        })
+        current_request = request.model_copy(
+            update={
+                "request_id": request.request_id + ":current",
+                "requested_use": current_use,
+            }
+        )
         current_owner = _ReferenceDemandingOwner(case, mutant)
         current_runtime = _MutationRuntime(
-            store=store, journal_path=scratch / "current-events.jsonl",
-            demanding_owner=current_owner, independent_verifier=_ReferenceVerifier(case),
+            store=store,
+            journal_path=scratch / "current-events.jsonl",
+            demanding_owner=current_owner,
+            independent_verifier=_ReferenceVerifier(case),
         )
         current_runtime.mutant = mutant
         receipt = current_runtime.acquire(current_request, at=at)
@@ -444,13 +505,18 @@ def execute_case(
         mutant == MUTANTS[5] and receipt.resolution_state == "reentry_closed"
     )
     return AcquisitionObservation(
-        case_id=case["case_id"], shape=receipt.shape.outcome,
-        types=",".join(receipt.shape.acquisition_types) or "-", state=receipt.resolution_state,
-        terminal=reference_terminal_knowledge(case, receipt, mutant=mutant), ceiling=ceiling_fact,
+        case_id=case["case_id"],
+        shape=receipt.shape.outcome,
+        types=",".join(receipt.shape.acquisition_types) or "-",
+        state=receipt.resolution_state,
+        terminal=reference_terminal_knowledge(case, receipt, mutant=mutant),
+        ceiling=ceiling_fact,
         authority="true" if authority else "false",
         signer="empty" if receipt.institutional_signer is None else "present",
-        reentry="performed" if owner.reentry_calls else "absent", event=event_effect,
-        reason=",".join(receipt.reason_codes) or "-", receipt_ref=receipt.artifact_ref,
+        reentry="performed" if owner.reentry_calls else "absent",
+        event=event_effect,
+        reason=",".join(receipt.reason_codes) or "-",
+        receipt_ref=receipt.artifact_ref,
         consumer_recomputed=True,
     )
 
@@ -482,6 +548,7 @@ def data_availability_positive_control(scratch: Path) -> tuple[bool, bool]:
 
     def available(ref: str | None) -> bool:
         from polisyos.core.artifacts import load_core_json_artifact
+
         if ref is None:
             return False
         raw = store.get_bytes(ref)
@@ -491,15 +558,24 @@ def data_availability_positive_control(scratch: Path) -> tuple[bool, bool]:
         if observations.get("subject") != "synthetic:data-availability":
             return False
         records = observations.get("observations", [])
-        return ({row["assignment"] for row in records} == required_assignments
-                and all(type(row["outcome"]) in (int, float) for row in records))
+        return {row["assignment"] for row in records} == required_assignments and all(
+            type(row["outcome"]) in (int, float) for row in records
+        )
 
     before = available(None)
-    payload = {"subject": "synthetic:data-availability", "observations": [
-        {"assignment": 0, "outcome": 1}, {"assignment": 1, "outcome": 2},
-    ]}
-    ref = store.put_bytes(json.dumps(payload, sort_keys=True).encode(), opts=PutOptions(
-        kind="gy.as1.synthetic_observations", media_type="application/json",
-        schema=SchemaInfo(name="gy.as1.synthetic_observations", version="1"),
-    ))
+    payload = {
+        "subject": "synthetic:data-availability",
+        "observations": [
+            {"assignment": 0, "outcome": 1},
+            {"assignment": 1, "outcome": 2},
+        ],
+    }
+    ref = store.put_bytes(
+        json.dumps(payload, sort_keys=True).encode(),
+        opts=PutOptions(
+            kind="gy.as1.synthetic_observations",
+            media_type="application/json",
+            schema=SchemaInfo(name="gy.as1.synthetic_observations", version="1"),
+        ),
+    )
     return before, available(str(ref.artifact_id))

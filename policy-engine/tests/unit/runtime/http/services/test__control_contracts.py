@@ -14,9 +14,7 @@ from polisyos.runtime.http.services.control import (
     run_lifecycle,
 )
 
-control_artifacts = importlib.import_module(
-    "polisyos.runtime.http.services.control.artifacts"
-)
+control_artifacts = importlib.import_module("polisyos.runtime.http.services.control.artifacts")
 
 
 def test_control_contract_helpers_are_reexported_from_runtime_module() -> None:

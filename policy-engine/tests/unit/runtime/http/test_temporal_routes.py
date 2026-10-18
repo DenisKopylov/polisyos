@@ -437,9 +437,7 @@ def test_temporal_service_rejects_corrupt_same_coordinate_recompute_receipt(
     tmp_path: Path,
 ) -> None:
     setup = _temporal_recompute_setup(tmp_path, run_id="run-corrupt-recompute")
-    blob_path, _ = setup.fixture.store._paths(
-        setup.persisted.receipt_artifact_ref.artifact_id
-    )
+    blob_path, _ = setup.fixture.store._paths(setup.persisted.receipt_artifact_ref.artifact_id)
     blob_path.write_bytes(blob_path.read_bytes() + b"corrupt")
 
     with pytest.raises(RuntimeHTTPError) as exc_info:

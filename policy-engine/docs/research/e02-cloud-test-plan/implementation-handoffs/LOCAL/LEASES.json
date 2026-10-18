@@ -13524,5 +13524,38 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-native-format-reviewed1411-20261018": {
+    "slice_base": "2b3febdbba8d33ab21aaff32f976b8c31ad183de",
+    "canonical_writer": "ROOT only, independently reviewed exact git-apply postimages",
+    "mechanism_paths_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-format-current-ab831d-qualification-20261018/selected-postimage-hashes.json",
+      "sha256": "df3e1b2fb75f31dbef948fe91ca59acc132b3b70a9b7826ec4ff899cc0515bcd"
+    },
+    "path_rule": "all and only changed=true rows, prefix policy-engine/",
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ],
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-format-reviewed1411-application-20261018/source-application.json",
+      "sha256": "82b70150dbfa01f7d11a38189eb3cf64335818a1b61d8f2b00c8d64e47f2e234"
+    },
+    "native_scope_qualification": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-format-reviewed1411-application-20261018/native-scope-qualification.json",
+      "sha256": "e88bec108a37feba003c1c0e3d66ef8985c8dc678ea730f115dc39148206b559"
+    },
+    "bounded_proof": "6611-file formatter selector green; native strict authored 6394 and evidence 39 lint roles green; exact reviewed AST/comment/directive-preserving postimages",
+    "remaining_native_ruff": "Phase8 178 files has 5 I001 diagnostics on five unchanged formatter paths; not inherited, P41 not_established; separate reviewed repair in progress",
+    "supplemental_strict_benchmark_check": "12 diagnostics on benchmarks/advanced/common.py preserved; native Phase8 has a different declared rule set",
+    "limitations": [
+      "Old Mypy assessment integrity HOLD persists",
+      "No aggregate native SOTA, type, runtime or authority acceptance claim"
+    ],
+    "runtime": "UNRUN after formatter application",
+    "next_check": "Repair actual five native Phase8 import-order defects, integrate remaining semantic candidates, then freeze and composed replay",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

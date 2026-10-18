@@ -614,9 +614,7 @@ def test_swapped_monitor_event_refs_cannot_bind_shaped_events(tmp_path: Path) ->
         case_id="case-ds18-swapped-refs",
     )
 
-    refs_by_event = {
-        row.event_id: row.monitor_event_ref for row in result.transition_records
-    }
+    refs_by_event = {row.event_id: row.monitor_event_ref for row in result.transition_records}
     assert refs_by_event == {
         incident.event_id: incident_ref,
         appeal.event_id: appeal_ref,

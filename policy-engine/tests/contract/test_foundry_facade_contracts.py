@@ -42,10 +42,12 @@ def test_route_constraint_facade_reuses_actual_input_contract_owner() -> None:
     assert MethodRouteConstraint is advisor.MethodRouteConstraint
     assert method_accepts_input_contract is advisor.method_accepts_input_contract
     assert method_accepts_input_contract(
-        SurvivalAnalysisEstimator, "foundry.ml.survival_data.v1",
+        SurvivalAnalysisEstimator,
+        "foundry.ml.survival_data.v1",
     )
     assert not method_accepts_input_contract(
-        SurvivalAnalysisEstimator, "foundry.ml.nonexistent_survival_data.v1",
+        SurvivalAnalysisEstimator,
+        "foundry.ml.nonexistent_survival_data.v1",
     )
 
 
@@ -56,7 +58,9 @@ def test_route_constraint_facade_allows_same_owner_lazy_reentry() -> None:
 
     result = subprocess.run(
         [sys.executable, "-m", "tests.contract.test_foundry_facade_contracts"],
-        capture_output=True, text=True, timeout=180,
+        capture_output=True,
+        text=True,
+        timeout=180,
     )
     assert result.returncode == 0, result.stdout + result.stderr
     assert "same_owner_reentry_passed_and_nonreentrant_removal_timed_out" in result.stdout
@@ -92,7 +96,10 @@ def _facade_reentry_probe() -> None:
         facade._RESOLVED_EXPORTS.pop("MethodRouteConstraint", None)
         signal.setitimer(signal.ITIMER_REAL, 2)
         try:
-            assert facade._resolve_lazy_export("MethodRouteConstraint") is advisor.MethodRouteConstraint
+            assert (
+                facade._resolve_lazy_export("MethodRouteConstraint")
+                is advisor.MethodRouteConstraint
+            )
         finally:
             signal.setitimer(signal.ITIMER_REAL, 0)
 

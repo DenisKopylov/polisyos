@@ -106,9 +106,7 @@ def test_layer3_g2_readiness_requires_persisted_artifacts(monkeypatch: Any) -> N
     validation = validator.validate_layer3_g2_readiness(REPO_ROOT)
 
     assert validation["status"] == "fail"
-    assert validation["artifacts"]["missing_persisted_artifact_paths"] == [
-        missing_path.as_posix()
-    ]
+    assert validation["artifacts"]["missing_persisted_artifact_paths"] == [missing_path.as_posix()]
     assert "layer3_g2_persisted_artifact_missing" in {
         issue["code"] for issue in validation["issues"]
     }
@@ -153,9 +151,7 @@ def test_layer3_g2_readiness_fails_when_write_path_omits_binding_or_consumer_rec
     monkeypatch.setattr(
         validator,
         "_write_artifacts",
-        lambda _repo_root, _bundle: [
-            path.as_posix() for path in expected_paths if path != omitted
-        ],
+        lambda _repo_root, _bundle: [path.as_posix() for path in expected_paths if path != omitted],
     )
 
     validation = validator.validate_layer3_g2_readiness(REPO_ROOT, write=True)
@@ -201,9 +197,7 @@ def test_layer3_g2_readiness_fails_when_conformance_report_fails(
 
     assert validation["status"] == "fail"
     assert validation["summary"]["g2_conformance_status"] == "fail"
-    assert "layer3_g2_forecast_support_missing" in {
-        issue["code"] for issue in validation["issues"]
-    }
+    assert "layer3_g2_forecast_support_missing" in {issue["code"] for issue in validation["issues"]}
 
 
 @pytest.mark.parametrize(

@@ -60,9 +60,7 @@ class BenchmarkContaminationError(ValueError):
     def __init__(self, *, surface: str, findings: list[dict[str, str]]) -> None:
         self.surface = surface
         self.findings = findings
-        tokens = ", ".join(
-            f"{finding['token_kind']}:{finding['token']}" for finding in findings
-        )
+        tokens = ", ".join(f"{finding['token_kind']}:{finding['token']}" for finding in findings)
         super().__init__(f"{surface} benchmark contamination detected: {tokens}")
 
 
@@ -501,9 +499,7 @@ def _pack_by_id(catalog: dict[str, Any], pack_id: str) -> dict[str, Any]:
 
 
 def _pack_with_scenarios(catalog: dict[str, Any], pack: dict[str, Any]) -> dict[str, Any]:
-    scenario_index = {
-        str(scenario["scenario_id"]): scenario for scenario in catalog["scenarios"]
-    }
+    scenario_index = {str(scenario["scenario_id"]): scenario for scenario in catalog["scenarios"]}
     pack_kind = str(pack["pack_kind"])
     output = dict(pack)
     output["scenarios"] = [

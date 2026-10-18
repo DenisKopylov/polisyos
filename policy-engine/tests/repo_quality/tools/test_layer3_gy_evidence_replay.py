@@ -8,6 +8,7 @@ production catalog required) and prove the methodology is now time-invariant and
 deterministic. A catalog-backed re-derivation runs only when production_data is
 present.
 """
+
 from __future__ import annotations
 
 import builtins
@@ -22,11 +23,16 @@ import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 CENSUS_PATH = (
-    REPO_ROOT / "architecture" / "policy_design_case" / "layer3_gy_task0_audit"
+    REPO_ROOT
+    / "architecture"
+    / "policy_design_case"
+    / "layer3_gy_task0_audit"
     / "layer3_gy_engine_census.json"
 )
 PROD_CATALOG = (
-    REPO_ROOT / "production_data" / "datasets_full_phase3full_20260327_183054"
+    REPO_ROOT
+    / "production_data"
+    / "datasets_full_phase3full_20260327_183054"
     / "dataset_catalog.duckdb"
 )
 
@@ -176,14 +182,17 @@ def test_production_replay_output_hash_is_time_invariant() -> None:
 
 
 def test_strip_volatile_drops_timing_keys() -> None:
-    stripped = _canon().strip_volatile({"keep": 1, "ms": 2, "x_ms": 3, "created_at": "z", "top": [{"sim": 1, "took_ms": 9}]})
+    stripped = _canon().strip_volatile(
+        {"keep": 1, "ms": 2, "x_ms": 3, "created_at": "z", "top": [{"sim": 1, "took_ms": 9}]}
+    )
     assert stripped == {"keep": 1, "top": [{"sim": 1}]}
 
 
 def test_census_search_rows_use_reproducible_hash() -> None:
     census = json.loads(CENSUS_PATH.read_text(encoding="utf-8"))
     search_rows = [
-        r for r in census["rows"]
+        r
+        for r in census["rows"]
         if r["asset_id"].startswith("data_forge.DatasetCatalog")
         and (r.get("execution_evidence") or {}).get("output_hash")
     ]
@@ -198,6 +207,7 @@ def test_census_search_rows_use_reproducible_hash() -> None:
 def test_search_evidence_hash_replays_against_catalog() -> None:
     """When the catalog is present, the recorded search hash must re-derive identically."""
     import sys
+
     sys.path.insert(0, str(REPO_ROOT / "src"))
     try:
         from loguru import logger as _l  # type: ignore

@@ -76,9 +76,7 @@ def test_async_handoff_links_job_progress_to_cas_bundle_and_readiness(tmp_path) 
                 "readiness": "_build/.tmp/production-quality/final_readiness.json",
             },
             "artifacts": {
-                "cas_ownership_manifest": (
-                    "cas_manifests/quality_artifact_ownership.manifest.json"
-                )
+                "cas_ownership_manifest": ("cas_manifests/quality_artifact_ownership.manifest.json")
             },
         },
     )

@@ -10,7 +10,9 @@ from tools.quality.validation import check_policy_design_case_cluster_ownership_
 from tools.quality.validation import check_policy_design_case_layer2_readiness as readiness
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-S9_MANIFEST = REPO_ROOT / "architecture/policy_design_case/layer2_s9_projection_lowering_manifest.json"
+S9_MANIFEST = (
+    REPO_ROOT / "architecture/policy_design_case/layer2_s9_projection_lowering_manifest.json"
+)
 S9_MANIFEST_PATH = "architecture/policy_design_case/layer2_s9_projection_lowering_manifest.json"
 PDC_DESIGN_SEARCH = REPO_ROOT / "src/polisyos/pdc/_impl/layer2_design_search.py"
 S9_REQUIRED_ARTIFACTS = {
@@ -38,9 +40,7 @@ S9_FALSE_CLEAR_FIELDS = {
     ),
     "machine_ref_omission_false_clear_count": "machine_ref_omission",
     "revision_mismatch_false_clear_count": "revision_mismatch",
-    "universal_self_claim_without_s14_false_clear_count": (
-        "universal_self_claim_without_s14"
-    ),
+    "universal_self_claim_without_s14_false_clear_count": ("universal_self_claim_without_s14"),
 }
 S9_REQUIRED_DENY = {
     "production_recommendation",
@@ -89,17 +89,16 @@ def test_layer2_s9_manifest_is_valid_and_open_count_stays_3() -> None:
     assert manifest["slice"] == "S9"
     assert manifest["depends_on"] == ["S2", "S5", "S8"]
     assert manifest["cells_closed"] == []
-    assert manifest["layer_cells_advanced"] == [
-        "DESIGNER_ITSELF.closeout_projection_ratchet"
-    ]
+    assert manifest["layer_cells_advanced"] == ["DESIGNER_ITSELF.closeout_projection_ratchet"]
     assert manifest["expected_current_open_cell_count"] == 3
     summary = validation["summary"]
     assert summary["current_open_cell_count"] >= 0
     assert summary["s9_case_count"] == 13
     assert summary["s9_projection_render_count"] >= 52
     assert summary["s9_projection_faithfulness_denominator"] >= 52
-    assert summary["s9_projection_faithfulness_numerator"] == (
-        summary["s9_projection_faithfulness_denominator"]
+    assert (
+        summary["s9_projection_faithfulness_numerator"]
+        == (summary["s9_projection_faithfulness_denominator"])
     )
     assert summary["s9_projection_faithfulness_pass_rate"] == 1.0
     assert summary["s9_lowering_gate_count"] >= 13
@@ -152,8 +151,9 @@ def test_layer2_s9_floor_is_governed_without_denominator_change() -> None:
     assert floor["floor_owner"] == "team-runtime-quality"
     assert floor["revision_rule"] == "faithfulness_negative_controls_required"
     assert manifest["projection_faithfulness_denominator"] >= 52
-    assert manifest["projection_faithfulness_numerator"] == (
-        manifest["projection_faithfulness_denominator"]
+    assert (
+        manifest["projection_faithfulness_numerator"]
+        == (manifest["projection_faithfulness_denominator"])
     )
     assert manifest["projection_faithfulness_pass_rate"] == 1.0
     assert manifest["lowering_gate_count"] >= 13
@@ -187,9 +187,7 @@ def test_layer2_s9_projection_laundering_negative_controls_fail_closed() -> None
 
 
 def test_layer2_s9_verifier_reuse_blocks_universal_self_claim_without_s14_refs() -> None:
-    verifier = (
-        projection_semantics.verify_s9_projection_faithfulness_for_pdc_consumer_contract
-    )
+    verifier = projection_semantics.verify_s9_projection_faithfulness_for_pdc_consumer_contract
 
     result = verifier(
         projections={
@@ -226,9 +224,7 @@ def test_layer2_s9_verifier_reuse_blocks_universal_self_claim_without_s14_refs()
 
 
 def test_layer2_s9_verifier_allows_scoped_universal_projection_with_s14_refs() -> None:
-    verifier = (
-        projection_semantics.verify_s9_projection_faithfulness_for_pdc_consumer_contract
-    )
+    verifier = projection_semantics.verify_s9_projection_faithfulness_for_pdc_consumer_contract
     s14_verifier = projection_semantics.verify_s14_universality_projection_consumer_contract
     projection = {
         "audience": "public",
@@ -303,9 +299,7 @@ def test_layer2_s9_verifier_allows_scoped_universal_projection_with_s14_refs() -
         "value_choice_provenance_refs": ["value-choice://s8/s14/authorized-schedule"],
         "mandate_legitimacy_refs": ["mandate://s14/governance-board/universality-claim"],
         "capacity_check_refs": ["capacity://s14/capacity-constrained-cases"],
-        "evaluation_status_composition_ref": (
-            "pdc://layer2/s14/evaluation-status-composition"
-        ),
+        "evaluation_status_composition_ref": ("pdc://layer2/s14/evaluation-status-composition"),
         "status_composition_limit_refs": ["status://s14/projection-only"],
         "axis_scorecard_ref": "pdc://layer2/s14/axis-scorecard",
         "axis_scorecard_rows": [
@@ -339,9 +333,7 @@ def test_layer2_s9_verifier_allows_scoped_universal_projection_with_s14_refs() -
             "frozen_once_defeater": "pass",
             "first_call_defeater": "pass",
         },
-        "s9_projection_faithfulness_refs": [
-            "pdc://layer2/s9/faithfulness/public-universal-claim"
-        ],
+        "s9_projection_faithfulness_refs": ["pdc://layer2/s9/faithfulness/public-universal-claim"],
         "public_universality_limitation": "limited to the declared operation envelope",
         "authority_boundary": {
             "authoritative_for": ["s14_universality_claim_gate"],
@@ -375,9 +367,7 @@ def test_layer2_s9_verifier_allows_scoped_universal_projection_with_s14_refs() -
     s14_result = s14_verifier(projections={"public": projection})
 
     assert s9_result["status"] == "pass", s9_result["issues"]
-    assert s9_result["s9_projection_faithfulness"]["authority_boundary"][
-        "authoritative_for"
-    ] == []
+    assert s9_result["s9_projection_faithfulness"]["authority_boundary"]["authoritative_for"] == []
     assert s14_result["status"] == "pass", s14_result["issues"]
     public_projection = s14_result["public_projection"]
     assert public_projection["authority_role"] == "projection_only"

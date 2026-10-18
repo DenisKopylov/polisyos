@@ -77,8 +77,8 @@ _ISSUE_TEXT = {
     "prompt_injection_detected": (
         "Untrusted LLM-facing text attempted to override system or scoring instructions.",
         (
-            'Quarantine the prompt/source text, preserve it as evidence, and rerun with t'
-            'rusted instructions only.'
+            "Quarantine the prompt/source text, preserve it as evidence, and rerun with t"
+            "rusted instructions only."
         ),
         "llm.prompt_injection",
     ),
@@ -95,8 +95,8 @@ _ISSUE_TEXT = {
     "provider_response_poisoning_detected": (
         "Provider output attempted to impersonate privileged roles or mutate governance status.",
         (
-            'Discard the provider response, rotate to a clean deterministic fixture, and i'
-            'nspect provider logs.'
+            "Discard the provider response, rotate to a clean deterministic fixture, and i"
+            "nspect provider logs."
         ),
         "llm.provider_response_poisoning",
     ),
@@ -108,27 +108,27 @@ _ISSUE_TEXT = {
     "ssrf_url_blocked": (
         "Runtime or tool payload referenced a local, private, metadata, or file URL.",
         (
-            'Block outbound fetches to this target and restrict URL fetches to approved s'
-            'ource allowlists.'
+            "Block outbound fetches to this target and restrict URL fetches to approved s"
+            "ource allowlists."
         ),
         "runtime_api.ssrf",
     ),
     "path_traversal_blocked": (
         "Runtime or artifact payload attempted path traversal or sensitive local file access.",
         (
-            'Reject the path and resolve artifacts through CAS identifiers or approved w'
-            'orkspace roots only.'
+            "Reject the path and resolve artifacts through CAS identifiers or approved w"
+            "orkspace roots only."
         ),
         "runtime_api.path_traversal",
     ),
     "secret_exfiltration_blocked": (
         (
-            'A payload attempted to expose a secret, bearer token, API key, credential, or e'
-            'nvironment value.'
+            "A payload attempted to expose a secret, bearer token, API key, credential, or e"
+            "nvironment value."
         ),
         (
-            'Redact the value, rotate any exposed credential, and rerun after removing the e'
-            'xfiltration path.'
+            "Redact the value, rotate any exposed credential, and rerun after removing the e"
+            "xfiltration path."
         ),
         "security.secret_exfiltration",
     ),

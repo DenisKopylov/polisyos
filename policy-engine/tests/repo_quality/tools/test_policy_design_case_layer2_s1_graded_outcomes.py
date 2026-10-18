@@ -95,9 +95,7 @@ def test_s1_manifest_is_registered_in_inventory() -> None:
     assert row["validator"] == (
         "tools/quality/validation/check_policy_design_case_layer2_s1_graded_outcomes.py"
     )
-    assert row["canonical_route"] == (
-        "tools/quality/validation/run_universal_outcome_corpus.py"
-    )
+    assert row["canonical_route"] == ("tools/quality/validation/run_universal_outcome_corpus.py")
 
 
 def test_s1_validator_reports_governed_limitations_and_production_strictness() -> None:

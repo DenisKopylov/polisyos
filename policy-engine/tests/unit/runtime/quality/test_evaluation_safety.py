@@ -37,15 +37,11 @@ def _copy_with_recomputed_hash(
     payload = value.model_dump(mode="python", exclude={hash_field})
     payload.update(updates)
     content_hash = _content_hash_values(payload)
-    return value.model_copy(
-        update={**updates, hash_field: content_hash}
-    )
+    return value.model_copy(update={**updates, hash_field: content_hash})
 
 
 def _content_hash_values(values: dict[str, object]) -> str:
-    encoded = json.dumps(
-        to_jsonable_python(values), sort_keys=True, separators=(",", ":")
-    ).encode()
+    encoded = json.dumps(to_jsonable_python(values), sort_keys=True, separators=(",", ":")).encode()
     return "sha256:" + hashlib.sha256(encoded).hexdigest()
 
 
@@ -126,9 +122,7 @@ def _request(
         world_model_record_ref=intake.world_model_record_ref,
         evaluation_mode=intake.mode_resolution.canonical_mode,
         domain_pack_ref=intake.domain_pack_ref,
-        semantic_facet_denominator_receipt_ref=(
-            denominator_ref or _ref("2", "facet-denominator")
-        ),
+        semantic_facet_denominator_receipt_ref=(denominator_ref or _ref("2", "facet-denominator")),
         target_population_scope_ref=intake.target_population_scope_ref,
         evaluation_input_refs=intake.evaluation_input_refs,
         evaluation_input_provenance=intake.evaluation_input_provenance,
@@ -241,9 +235,7 @@ def _result(
         rule_version=request.rule_version,
         intended_start_at=request.intended_start_at,
         evidence_ref=evidence_ref,
-        evidence_producer_component_id=core_components.ComponentId(
-            "transit_lab.sensor@1.0.0"
-        ),
+        evidence_producer_component_id=core_components.ComponentId("transit_lab.sensor@1.0.0"),
         verifier_component_id=verifier_component_id,
         verification_receipt_ref=_ref("c", "verification"),
         status="passed",
@@ -311,7 +303,8 @@ def _facet_basis() -> tuple[object, object, ArtifactRef, ArtifactRef]:
         facet_registry_content_hash=registry.registry_content_hash,
         values=(value,),
         denominator_hash=semantic_epoch._model_hash(  # noqa: SLF001
-            semantic_epoch._FACET_DENOMINATOR_PREFIX, denominator_payload  # noqa: SLF001
+            semantic_epoch._FACET_DENOMINATOR_PREFIX,
+            denominator_payload,  # noqa: SLF001
         ),
         status="resolved",
         failure_codes=(),
@@ -328,7 +321,9 @@ def _facet_basis() -> tuple[object, object, ArtifactRef, ArtifactRef]:
 def test_strict_mode_resolution_never_defaults_to_simulation() -> None:
     from polisyos.runtime.quality.evaluation_modes import resolve_evaluation_mode
 
-    observed = tuple(resolve_evaluation_mode(token) for token in (None, "unknown", "simulation_only"))
+    observed = tuple(
+        resolve_evaluation_mode(token) for token in (None, "unknown", "simulation_only")
+    )
     assert tuple(row.status for row in observed) == ("missing", "invalid", "invalid")
     assert all(row.canonical_mode is None for row in observed)
     assert tuple(row.blocker_code for row in observed) == (
@@ -464,20 +459,17 @@ def test_promotion_state_injection_cannot_change_safety_core(
         profile = c4_profile(record)
         return core_artifacts.ArtifactRef(
             artifact_id=core_artifacts.ArtifactID(_digest(label)),
-            kind=profile.kind, media_type=profile.media_type,
+            kind=profile.kind,
+            media_type=profile.media_type,
         )
 
     open_core_ref = core_ref("5", "open_world_risk_vector")
     epoch_core_ref = core_ref("6", "epoch_validity_gate_receipt")
-    open_ref = es.near_miss_resolver_basis_reference(
-        open_core_ref, record="open_world_risk_vector"
-    )
+    open_ref = es.near_miss_resolver_basis_reference(open_core_ref, record="open_world_risk_vector")
     epoch_ref = es.near_miss_resolver_basis_reference(
         epoch_core_ref, record="epoch_validity_gate_receipt"
     )
-    design_binding = SimpleNamespace(
-        model_dump=lambda **_kwargs: {"design": "bound"}
-    )
+    design_binding = SimpleNamespace(model_dump=lambda **_kwargs: {"design": "bound"})
     owner_projection = SimpleNamespace(
         open_world_gate=SimpleNamespace(vector_artifact_ref=open_core_ref),
         epoch_validity_projection=SimpleNamespace(gate_receipt_ref=epoch_core_ref),
@@ -516,9 +508,7 @@ def test_promotion_state_injection_cannot_change_safety_core(
         "promotion-receipt",
         gy_content_hash(fake_receipt.model_dump()),
     )
-    canonical_input_ref = named_ref(
-        "promotion-input", "promotion-input", projection_hash
-    )
+    canonical_input_ref = named_ref("promotion-input", "promotion-input", projection_hash)
     design_ref = named_ref(
         "design-binding",
         "design-binding",
@@ -582,9 +572,7 @@ def test_promotion_state_injection_cannot_change_safety_core(
         "epoch_validity_resolver": SimpleNamespace(),
         "core": core,
     }
-    assert classification_producer(
-        **{**classification_inputs, "n9_source": None}
-    ) is None
+    assert classification_producer(**{**classification_inputs, "n9_source": None}) is None
     assert receipt_parse_calls == [], "a missing N9 source reached receipt parsing"
     classification = classification_producer(**classification_inputs)
     assert classification is not None
@@ -611,9 +599,7 @@ def test_promotion_state_injection_cannot_change_safety_core(
     )
     assert classified_event.promotion_safe_facet is True
     assert sibling_event.promotion_safe_facet is None and not sibling_event.near_miss
-    public_core = es.EvaluationSafetyDecisionCore.model_validate(
-        core.model_dump(mode="python")
-    )
+    public_core = es.EvaluationSafetyDecisionCore.model_validate(core.model_dump(mode="python"))
     with pytest.raises(ValueError, match="decision_core_unreconciled"):
         es.build_evaluation_safety_decision_event(
             core=public_core,
@@ -639,9 +625,7 @@ def test_unseen_domain_pack_resolves_or_refuses_without_engine_conditional() -> 
         es.EvalSafetyModeBasis.build(
             schema_version="polisyos.eval_safety.mode_basis.v1",
             rule_version="transit_lab.eval_safety@1.0.0",
-            profiles=(
-                es.EvalSafetyModeProfile(mode="field_pilot", all_of=(pack_requirement,)),
-            ),
+            profiles=(es.EvalSafetyModeProfile(mode="field_pilot", all_of=(pack_requirement,)),),
             producer_authority_ref=_ref("d", "authority"),
             verifier_receipt_ref=_ref("e", "verification"),
             valid_from=NOW - timedelta(days=1),
@@ -650,9 +634,7 @@ def test_unseen_domain_pack_resolves_or_refuses_without_engine_conditional() -> 
     basis = es.EvalSafetyModeBasis.build(
         schema_version="polisyos.eval_safety.mode_basis.v1",
         rule_version="transit_lab.eval_safety@1.0.0",
-        profiles=(
-            es.EvalSafetyModeProfile(mode="field_pilot", all_of=(basis_requirement,)),
-        ),
+        profiles=(es.EvalSafetyModeProfile(mode="field_pilot", all_of=(basis_requirement,)),),
         producer_authority_ref=_ref("d", "authority"),
         verifier_receipt_ref=_ref("e", "verification"),
         valid_from=NOW - timedelta(days=1),
@@ -699,16 +681,12 @@ def test_unseen_domain_pack_resolves_or_refuses_without_engine_conditional() -> 
                         else "polisyos.eval_safety.basis_verifier@1.0.0"
                     ),
                 )
-            binding = cause_bindings.get(
-                (artifact_ref.artifact_id, artifact_ref.content_hash)
-            )
+            binding = cause_bindings.get((artifact_ref.artifact_id, artifact_ref.content_hash))
             if binding is None:
                 return es.EvalSafetyAuthorityResolution(
                     status="blocked",
                     artifact_ref=artifact_ref,
-                    blocker_codes=(
-                        "polisyos.eval_safety.revision_cause_unresolved@1.0.0",
-                    ),
+                    blocker_codes=("polisyos.eval_safety.revision_cause_unresolved@1.0.0",),
                     predicate_provenance=(),
                     resolved_at=NOW,
                 )
@@ -717,14 +695,10 @@ def test_unseen_domain_pack_resolves_or_refuses_without_engine_conditional() -> 
                 artifact_ref=artifact_ref,
                 blocker_codes=(),
                 predicate_provenance=("independently_reconciled",),
-                resolved_at=binding.get(
-                    "resolved_at", NOW - timedelta(days=2)
-                ),
+                resolved_at=binding.get("resolved_at", NOW - timedelta(days=2)),
                 attestation_role="independent_verification",
                 subject_refs=binding["subject_refs"],
-                subject_schema_version=(
-                    "polisyos.eval_safety.certificate_revision.v1"
-                ),
+                subject_schema_version=("polisyos.eval_safety.certificate_revision.v1"),
                 subject_rule_version=None,
                 subject_purpose=binding["subject_purpose"],
                 subject_effective_at=binding["subject_effective_at"],
@@ -778,17 +752,13 @@ def test_unseen_domain_pack_resolves_or_refuses_without_engine_conditional() -> 
     pack = es.DomainEvalSafetyPack.build(
         schema_version="polisyos.eval_safety.domain_pack.v1",
         rule_version="transit_lab.eval_safety@1.0.0",
-        pack_component_id=core_components.ComponentId(
-            "transit_lab.platform_crowding_guard@1.0.0"
-        ),
+        pack_component_id=core_components.ComponentId("transit_lab.platform_crowding_guard@1.0.0"),
         source_pack_ref=_ref("8", "domain-pack-source"),
         mode_basis_ref=mode_basis_ref,
         semantic_facet_registry_ref=registry_ref,
         semantic_facet_denominator_receipt_ref=denominator_ref,
         verifier_appointment_refs=appointment_refs,
-        profiles=(
-            es.EvalSafetyModeProfile(mode="field_pilot", all_of=(pack_requirement,)),
-        ),
+        profiles=(es.EvalSafetyModeProfile(mode="field_pilot", all_of=(pack_requirement,)),),
         valid_from=NOW - timedelta(days=1),
         valid_until=NOW + timedelta(days=1),
     )
@@ -842,9 +812,9 @@ def test_unseen_domain_pack_resolves_or_refuses_without_engine_conditional() -> 
                 status="verified" if present else "blocked",
                 appointment_ref=ref,
                 appointment=appointment if present else None,
-                blocker_codes=() if present else (
-                    "polisyos.eval_safety.verifier_unappointed@1.0.0",
-                ),
+                blocker_codes=()
+                if present
+                else ("polisyos.eval_safety.verifier_unappointed@1.0.0",),
                 predicate_provenance=("independently_reconciled",),
                 verified_at=NOW,
             )
@@ -871,11 +841,7 @@ def test_unseen_domain_pack_resolves_or_refuses_without_engine_conditional() -> 
     class Registry:
         def resolve(self, evidence_contract_id: str) -> Verifier | None:
             appointment = next(
-                (
-                    row
-                    for row in appointments
-                    if row.evidence_contract_id == evidence_contract_id
-                ),
+                (row for row in appointments if row.evidence_contract_id == evidence_contract_id),
                 None,
             )
             return Verifier(appointment) if appointment is not None else None
@@ -1046,9 +1012,7 @@ def test_unseen_domain_pack_resolves_or_refuses_without_engine_conditional() -> 
     assert core.status == "passed" and core.certificate_eligible
     assert certificate.evaluation_mode == "field_pilot"
     assert revision.action == "issue" and consumer.status == "verified"
-    changed_replay_context = context.model_copy(
-        update={"evaluation_mode": "deployment"}
-    )
+    changed_replay_context = context.model_copy(update={"evaluation_mode": "deployment"})
     fresh_call_challenge = es.EvalSafetyAdmissionChallenge.fresh(
         consumer_component_id=context.evaluator_owner_id
     )
@@ -1067,9 +1031,7 @@ def test_unseen_domain_pack_resolves_or_refuses_without_engine_conditional() -> 
         current_requirement_results=results,
         verified_at=NOW,
     )
-    assert es.evaluation_safety_consumer_admission_is_verified(
-        consumer, context, challenge
-    )
+    assert es.evaluation_safety_consumer_admission_is_verified(consumer, context, challenge)
     replay_observed = (
         es.evaluation_safety_consumer_admission_is_verified(
             consumer, changed_replay_context, challenge
@@ -1146,20 +1108,14 @@ def test_unseen_domain_pack_resolves_or_refuses_without_engine_conditional() -> 
     assert substituted_input_admission.status == "blocked"
 
     weakened_basis = verified_basis.model_copy(
-        update={
-            "profiles": (
-                es.EvalSafetyModeProfile(mode="field_pilot", all_of=()),
-            )
-        }
+        update={"profiles": (es.EvalSafetyModeProfile(mode="field_pilot", all_of=()),)}
     )
     weakened_basis_admission = es.admit_domain_evaluation_safety_pack(
         **{**admission_args, "mode_basis": weakened_basis},
         pack=pack,
         appointment_resolver=Resolver(),
     )
-    copied_pack_admission = admitted.model_copy(
-        update={"resolved_appointment_refs": ()}
-    )
+    copied_pack_admission = admitted.model_copy(update={"resolved_appointment_refs": ()})
     copied_pack_core = es.decide_evaluation_safety_core(
         intake=intake,
         intake_ref=intake_ref,
@@ -1205,9 +1161,7 @@ def test_unseen_domain_pack_resolves_or_refuses_without_engine_conditional() -> 
         request=request,
         request_ref=request_ref,
         certificate_ref=certificate_ref,
-        certificate=certificate.model_copy(
-            update={"valid_until": NOW + timedelta(days=365)}
-        ),
+        certificate=certificate.model_copy(update={"valid_until": NOW + timedelta(days=365)}),
         decision_ref=decision_ref,
         decision=decision,
         decision_core=core,
@@ -1228,9 +1182,7 @@ def test_unseen_domain_pack_resolves_or_refuses_without_engine_conditional() -> 
         revision=copied_revision,
     )
     copied_revision_admission = es.verify_evaluation_safety_consumer_admission(
-        context=context.model_copy(
-            update={"eval_safety_revision_head_ref": copied_revision_ref}
-        ),
+        context=context.model_copy(update={"eval_safety_revision_head_ref": copied_revision_ref}),
         challenge=challenge,
         intake=intake,
         request=request,
@@ -1257,15 +1209,9 @@ def test_unseen_domain_pack_resolves_or_refuses_without_engine_conditional() -> 
         source_pack_ref=_ref("8", "domain-pack-source"),
         verifier_appointment_refs=(appointment_refs[1],),
     )
-    missing_basis_pack_ref = _ref(
-        "e", "domain-pack", content_hash=missing_basis_pack.content_hash
-    )
-    missing_basis_intake = intake.model_copy(
-        update={"domain_pack_ref": missing_basis_pack_ref}
-    )
-    missing_basis_request = request.model_copy(
-        update={"domain_pack_ref": missing_basis_pack_ref}
-    )
+    missing_basis_pack_ref = _ref("e", "domain-pack", content_hash=missing_basis_pack.content_hash)
+    missing_basis_intake = intake.model_copy(update={"domain_pack_ref": missing_basis_pack_ref})
+    missing_basis_request = request.model_copy(update={"domain_pack_ref": missing_basis_pack_ref})
     missing_basis_appointment = es.admit_domain_evaluation_safety_pack(
         **{
             **admission_args,
@@ -1278,8 +1224,7 @@ def test_unseen_domain_pack_resolves_or_refuses_without_engine_conditional() -> 
     assert missing_basis_intake.domain_pack_ref == missing_basis_pack_ref
     assert missing_basis_appointment.status == "refused"
     assert (
-        "polisyos.eval_safety.verifier_unappointed@1.0.0"
-        in missing_basis_appointment.blocker_codes
+        "polisyos.eval_safety.verifier_unappointed@1.0.0" in missing_basis_appointment.blocker_codes
     )
     changed_intake = intake.model_copy(
         update={
@@ -1318,14 +1263,14 @@ def test_unseen_domain_pack_resolves_or_refuses_without_engine_conditional() -> 
         action="revoke",
         certificate_ref=certificate_ref,
         verified_cause_ref=register_cause(
-                _ref("5", "cause"),
-                subject_refs=(issue_ref, certificate_ref),
-                subject_purpose="certificate_revision_revoke",
-                subject_effective_at=NOW,
-            ),
-            cause_resolver=AuthorityResolver(),
-            effective_at=NOW,
-        )
+            _ref("5", "cause"),
+            subject_refs=(issue_ref, certificate_ref),
+            subject_purpose="certificate_revision_revoke",
+            subject_effective_at=NOW,
+        ),
+        cause_resolver=AuthorityResolver(),
+        effective_at=NOW,
+    )
     fork_a = es.EvalSafetyCertificateRevision.transition(
         revision_lineage_id=certificate.revision_lineage_id,
         predecessor_ref=issue_ref,
@@ -1422,9 +1367,7 @@ def test_unseen_domain_pack_resolves_or_refuses_without_engine_conditional() -> 
         cause_resolver=AuthorityResolver(),
         effective_at=NOW + timedelta(minutes=10),
     )
-    cyclic_head = fork_a.model_copy(
-        update={"predecessor_ref": revision_ref(cycle_tail, "9")}
-    )
+    cyclic_head = fork_a.model_copy(update={"predecessor_ref": revision_ref(cycle_tail, "9")})
 
     def revision_node(row: object, char: str) -> object:
         return es.EvalSafetyCertificateRevisionNode(
@@ -1458,19 +1401,23 @@ def test_unseen_domain_pack_resolves_or_refuses_without_engine_conditional() -> 
         ).status
 
     assert consumer_status((issue_node, revision_node(revoke, "5"))) == "blocked"
-    assert consumer_status(
-        (issue_node, revision_node(fork_a, "6"), revision_node(fork_b, "7"))
-    ) == "blocked"
-    assert consumer_status(
-        (
-            issue_node,
-            es.EvalSafetyCertificateRevisionNode.model_construct(
-                revision_ref=revision_ref(cyclic_head, "8"),
-                revision=cyclic_head,
-            ),
-            revision_node(cycle_tail, "9"),
+    assert (
+        consumer_status((issue_node, revision_node(fork_a, "6"), revision_node(fork_b, "7")))
+        == "blocked"
+    )
+    assert (
+        consumer_status(
+            (
+                issue_node,
+                es.EvalSafetyCertificateRevisionNode.model_construct(
+                    revision_ref=revision_ref(cyclic_head, "8"),
+                    revision=cyclic_head,
+                ),
+                revision_node(cycle_tail, "9"),
+            )
         )
-    ) == "blocked"
+        == "blocked"
+    )
     assert consumer_status((issue_node,), ()) == "blocked"
     parsed_revision = es.EvalSafetyCertificateRevision.model_validate(
         revision.model_dump(mode="python")
@@ -1489,46 +1436,52 @@ def test_unseen_domain_pack_resolves_or_refuses_without_engine_conditional() -> 
         revision=replayed_revisions[0],
     )
     assert consumer_status((replayed_node,)) == "verified"
-    assert consumer_status(
-        (issue_node, revision_node(future_revoke, "a"))
-    ) == "verified"
-    assert consumer_status(
-        (issue_node, revision_node(future_supersede, "b"))
-    ) == "verified"
+    assert consumer_status((issue_node, revision_node(future_revoke, "a"))) == "verified"
+    assert consumer_status((issue_node, revision_node(future_supersede, "b"))) == "verified"
     nonmonotone_node = revision_node(nonmonotone_supersede, "c")
-    assert consumer_status(
-        (issue_node, nonmonotone_node),
-        bound_context=context.model_copy(
-            update={"eval_safety_revision_head_ref": nonmonotone_node.revision_ref}
-        ),
-    ) == "blocked"
+    assert (
+        consumer_status(
+            (issue_node, nonmonotone_node),
+            bound_context=context.model_copy(
+                update={"eval_safety_revision_head_ref": nonmonotone_node.revision_ref}
+            ),
+        )
+        == "blocked"
+    )
     future_issue_node = revision_node(future_issue, "d")
-    assert consumer_status(
-        (future_issue_node,),
-        bound_context=context.model_copy(
-            update={"eval_safety_revision_head_ref": future_issue_node.revision_ref}
-        ),
-    ) == "blocked"
+    assert (
+        consumer_status(
+            (future_issue_node,),
+            bound_context=context.model_copy(
+                update={"eval_safety_revision_head_ref": future_issue_node.revision_ref}
+            ),
+        )
+        == "blocked"
+    )
     fork_a_node = revision_node(fork_a, "6")
     fork_a_context = context.model_copy(
         update={"eval_safety_revision_head_ref": fork_a_node.revision_ref}
     )
-    assert consumer_status(
-        (issue_node, fork_a_node),
-        bound_context=fork_a_context,
-        at=NOW + timedelta(minutes=1),
-    ) == "verified"
+    assert (
+        consumer_status(
+            (issue_node, fork_a_node),
+            bound_context=fork_a_context,
+            at=NOW + timedelta(minutes=1),
+        )
+        == "verified"
+    )
     aliased_issue_node = es.EvalSafetyCertificateRevisionNode(
-        revision_ref=_ref(
-            "b", "certificate-revision", content_hash=revision.content_hash
-        ),
+        revision_ref=_ref("b", "certificate-revision", content_hash=revision.content_hash),
         revision=revision,
     )
-    assert consumer_status(
-        (aliased_issue_node, fork_a_node),
-        bound_context=fork_a_context,
-        at=NOW + timedelta(minutes=1),
-    ) == "blocked"
+    assert (
+        consumer_status(
+            (aliased_issue_node, fork_a_node),
+            bound_context=fork_a_context,
+            at=NOW + timedelta(minutes=1),
+        )
+        == "blocked"
+    )
     replay_inputs = {
         "intake_ref": intake_ref,
         "intake": intake,
@@ -1591,10 +1544,7 @@ def test_unseen_domain_pack_resolves_or_refuses_without_engine_conditional() -> 
     assert replay_consumer.status == "verified"
     assert "intake_ref" not in intake.model_dump(mode="json")
     assert request.intake_ref == intake_ref
-    assert all(
-        row.request_ref == request_ref
-        for row in replay.decision_requirement_results
-    )
+    assert all(row.request_ref == request_ref for row in replay.decision_requirement_results)
     assert replay.decision_core.request_ref == request_ref
     assert replay.certificate.request_ref == request_ref
     later_replay = es.replay_evaluation_safety_authority(
@@ -1610,20 +1560,14 @@ def test_unseen_domain_pack_resolves_or_refuses_without_engine_conditional() -> 
     assert later_replay is not None
     assert later_replay.decision.content_hash == decision.content_hash
     assert wrong_decision_time is None
-    substituted_revision_ref = _ref(
-        "a", "certificate-revision", content_hash=revision.content_hash
-    )
+    substituted_revision_ref = _ref("a", "certificate-revision", content_hash=revision.content_hash)
     substituted_node = es.EvalSafetyCertificateRevisionNode(
         revision_ref=substituted_revision_ref,
         revision=revision,
     )
     assert consumer_status((substituted_node,)) == "blocked"
-    substituted_decision_ref = _ref(
-        "a", "decision", content_hash=decision.content_hash
-    )
-    assert consumer_status(
-        (issue_node,), bound_decision_ref=substituted_decision_ref
-    ) == "blocked"
+    substituted_decision_ref = _ref("a", "decision", content_hash=decision.content_hash)
+    assert consumer_status((issue_node,), bound_decision_ref=substituted_decision_ref) == "blocked"
     assert hashlib.sha256(Path(es.__file__).read_bytes()).hexdigest() == engine_digest
     assert b"transit_lab" not in Path(es.__file__).read_bytes()
 
@@ -1674,20 +1618,12 @@ def test_unseen_domain_pack_resolves_or_refuses_without_engine_conditional() -> 
         semantic_hash=_digest("e"),
     )
     wrong_facet_pack = es.DomainEvalSafetyPack.build(
-        **pack.model_dump(
-            mode="python", exclude={"content_hash", "profiles", "source_pack_ref"}
-        ),
+        **pack.model_dump(mode="python", exclude={"content_hash", "profiles", "source_pack_ref"}),
         source_pack_ref=_ref("8", "domain-pack-source"),
-        profiles=(
-            es.EvalSafetyModeProfile(
-                mode="field_pilot", all_of=(wrong_facet_requirement,)
-            ),
-        ),
+        profiles=(es.EvalSafetyModeProfile(mode="field_pilot", all_of=(wrong_facet_requirement,)),),
     )
     basis_override_pack = es.DomainEvalSafetyPack.build(
-        **pack.model_dump(
-            mode="python", exclude={"content_hash", "profiles", "source_pack_ref"}
-        ),
+        **pack.model_dump(mode="python", exclude={"content_hash", "profiles", "source_pack_ref"}),
         source_pack_ref=_ref("8", "domain-pack-source"),
         profiles=(
             es.EvalSafetyModeProfile(
@@ -1704,9 +1640,7 @@ def test_unseen_domain_pack_resolves_or_refuses_without_engine_conditional() -> 
         ),
     )
     changed_contract_override_pack = es.DomainEvalSafetyPack.build(
-        **pack.model_dump(
-            mode="python", exclude={"content_hash", "profiles", "source_pack_ref"}
-        ),
+        **pack.model_dump(mode="python", exclude={"content_hash", "profiles", "source_pack_ref"}),
         source_pack_ref=_ref("8", "domain-pack-source"),
         profiles=(
             es.EvalSafetyModeProfile(
@@ -1716,9 +1650,7 @@ def test_unseen_domain_pack_resolves_or_refuses_without_engine_conditional() -> 
                         registry_ref=registry_ref,
                         denominator_ref=denominator_ref,
                         requirement_id=basis_requirement.requirement_id,
-                        evidence_contract_id=(
-                            "transit_lab.changed_basis_contract@1.0.0"
-                        ),
+                        evidence_contract_id=("transit_lab.changed_basis_contract@1.0.0"),
                     ),
                 ),
             ),
@@ -1767,9 +1699,7 @@ def test_unseen_domain_pack_resolves_or_refuses_without_engine_conditional() -> 
         es.admit_domain_evaluation_safety_pack(
             **{
                 **admission_args,
-                "pack_ref": _ref(
-                    "8", "domain-pack", content_hash=wrong_facet_pack.content_hash
-                ),
+                "pack_ref": _ref("8", "domain-pack", content_hash=wrong_facet_pack.content_hash),
             },
             pack=wrong_facet_pack,
             appointment_resolver=Resolver(),
@@ -1777,9 +1707,7 @@ def test_unseen_domain_pack_resolves_or_refuses_without_engine_conditional() -> 
         es.admit_domain_evaluation_safety_pack(
             **{
                 **admission_args,
-                "pack_ref": _ref(
-                    "8", "domain-pack", content_hash=basis_override_pack.content_hash
-                ),
+                "pack_ref": _ref("8", "domain-pack", content_hash=basis_override_pack.content_hash),
             },
             pack=basis_override_pack,
             appointment_resolver=Resolver(),
@@ -1791,7 +1719,6 @@ def test_unseen_domain_pack_resolves_or_refuses_without_engine_conditional() -> 
         in changed_contract_override.blocker_codes
     )
     assert all(
-        "polisyos.eval_safety.verifier_independence_invalid@1.0.0"
-        in row.blocker_codes
+        "polisyos.eval_safety.verifier_independence_invalid@1.0.0" in row.blocker_codes
         for row in (self_verifying, aliased_authority)
     )

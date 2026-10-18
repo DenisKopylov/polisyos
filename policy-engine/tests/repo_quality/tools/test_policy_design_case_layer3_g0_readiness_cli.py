@@ -20,7 +20,9 @@ def test_layer3_g0_readiness_cli_delegates_to_runtime_validator_and_reports_issu
     validator = _validator()
     calls: list[Path] = []
 
-    def fake_validate_layer3_g0_readiness(repo_root: Path, *, write: bool = False) -> dict[str, Any]:
+    def fake_validate_layer3_g0_readiness(
+        repo_root: Path, *, write: bool = False
+    ) -> dict[str, Any]:
         calls.append(Path(repo_root))
         return {
             "status": "fail",

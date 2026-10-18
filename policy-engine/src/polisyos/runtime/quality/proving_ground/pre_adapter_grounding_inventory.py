@@ -1136,7 +1136,7 @@ def build_grounding_search_contracts(repo_root: Path) -> GroundingSearchDiscipli
             expected_freshness_window="P30D",
             staleness_status="fresh",
             blocked_authority_effects=[],
-        )
+        ),
     ]
     free_growth = [
         FreeGrowthFixture(
@@ -1600,8 +1600,7 @@ def build_status_composition_matrix() -> StatusCompositionMatrix:
                 composed_result="invalid",
                 issue_code="layer3_g0_search_recall_seed_miss_blocks_domain_ceiling",
                 negative_fixture_ref=(
-                    "tests/fixtures/layer3/g0/"
-                    "malformed_search_seed_recall_miss_domain_ceiling.json"
+                    "tests/fixtures/layer3/g0/malformed_search_seed_recall_miss_domain_ceiling.json"
                 ),
             ),
             StatusCompositionRule(
@@ -1780,10 +1779,18 @@ def validate_layer3_g0_bundle(
                 "G0 requires five health metric ledgers",
             )
         )
-    issues.extend(validate_grounding_search_discipline_payload(bundle.grounding_search_discipline).issues)
-    issues.extend(validate_resource_discovery_inventory_payload(bundle.resource_discovery_inventory).issues)
-    issues.extend(validate_no_hardcode_enumeration_lint_payload(bundle.no_hardcode_enumeration_lint).issues)
-    issues.extend(validate_engineering_quality_check_payload(bundle.engineering_quality_check).issues)
+    issues.extend(
+        validate_grounding_search_discipline_payload(bundle.grounding_search_discipline).issues
+    )
+    issues.extend(
+        validate_resource_discovery_inventory_payload(bundle.resource_discovery_inventory).issues
+    )
+    issues.extend(
+        validate_no_hardcode_enumeration_lint_payload(bundle.no_hardcode_enumeration_lint).issues
+    )
+    issues.extend(
+        validate_engineering_quality_check_payload(bundle.engineering_quality_check).issues
+    )
     if bundle.import_firewall_lint.violations:
         issues.append(
             _issue(
@@ -1839,12 +1846,8 @@ def validate_grounding_search_discipline_payload(
     ledger_ids = {str(row.get("ledger_id")) for row in ledgers}
     claims = [_mapping(row) for row in _sequence(discipline.get("search_claims"))]
     recall_seeds = [_mapping(row) for row in _sequence(discipline.get("recall_seeds"))]
-    freshness = [
-        _mapping(row) for row in _sequence(discipline.get("index_freshness_records"))
-    ]
-    free_growth = [
-        _mapping(row) for row in _sequence(discipline.get("free_growth_fixtures"))
-    ]
+    freshness = [_mapping(row) for row in _sequence(discipline.get("index_freshness_records"))]
+    free_growth = [_mapping(row) for row in _sequence(discipline.get("free_growth_fixtures"))]
     mechanism_fixtures = [
         _mapping(row) for row in _sequence(discipline.get("mechanism_generality_fixtures"))
     ]
@@ -1904,16 +1907,11 @@ def validate_grounding_search_discipline_payload(
             )
 
     for index, fixture in enumerate(free_growth):
-        if (
-            fixture.get("expected_posture") == "executable"
-            and (
-                fixture.get("observed_posture") != "executable"
-                or not fixture.get("expected_executable_use_path")
-                or not str(fixture.get("index_refresh_receipt_ref", "")).startswith(
-                    "receipt://"
-                )
-                or fixture.get("no_code_change_assertion") is not True
-            )
+        if fixture.get("expected_posture") == "executable" and (
+            fixture.get("observed_posture") != "executable"
+            or not fixture.get("expected_executable_use_path")
+            or not str(fixture.get("index_refresh_receipt_ref", "")).startswith("receipt://")
+            or fixture.get("no_code_change_assertion") is not True
         ):
             issues.append(
                 _issue(
@@ -2311,10 +2309,7 @@ def validate_data_asset_inventory_payload(
                 _issue(
                     "layer3_g0_data_asset_source_contract_readiness_missing",
                     f"$.data_asset_ports[{index}].source_contract_readiness",
-                    (
-                        "data asset ports require explicit SourceContract/readiness "
-                        "classification"
-                    ),
+                    ("data asset ports require explicit SourceContract/readiness classification"),
                 )
             )
         if not _sequence(_mapping(port).get("index_refs")):
@@ -2384,15 +2379,15 @@ def validate_runtime_quality_touchpoint_inventory(
     for index, touchpoint in enumerate(discovered):
         if str(touchpoint.get("touchpoint_id")) not in registered_ids:
             issues.append(
-                    _issue(
-                        "layer3_g0_source_touchpoint_registration_missing",
-                        f"$.discovered_touchpoints[{index}]",
-                        (
-                            "every runtime/quality subordinate import requires "
-                            "SourceTouchpointRegistration"
-                        ),
-                    )
+                _issue(
+                    "layer3_g0_source_touchpoint_registration_missing",
+                    f"$.discovered_touchpoints[{index}]",
+                    (
+                        "every runtime/quality subordinate import requires "
+                        "SourceTouchpointRegistration"
+                    ),
                 )
+            )
     for index, registration in enumerate(registrations):
         if registration.get("admission_allowed") is True and not registration.get(
             "existing_source_truth_adapter_path_ref"
@@ -2609,8 +2604,7 @@ def _default_triage_records() -> list[CapabilityTriageRecord]:
             capability_id="scenario_family_authority_selector",
             disposition="quarantine",
             rationale=(
-                "Scenario-family selectors are projection-only and cannot be "
-                "adapter authority."
+                "Scenario-family selectors are projection-only and cannot be adapter authority."
             ),
             evidence_refs=[
                 "repo://src/polisyos/runtime/quality/scenario_evidence_contract.py#L349",
@@ -2668,9 +2662,9 @@ def _complete_triage_records(
                     "Inventory row is visible to G0 but is not adapter-admitted by "
                     "pre-adapter triage."
                 ),
-                evidence_refs=list(
-                    dict.fromkeys(entry.source_refs or [entry.owner_evidence_ref])
-                )[:60],
+                evidence_refs=list(dict.fromkeys(entry.source_refs or [entry.owner_evidence_ref]))[
+                    :60
+                ],
                 missing_capability_labels=[entry.current_capability_label],
                 quarantine_ref=None,
                 adapter_admissibility="not_admitted_pre_adapter",
@@ -2893,9 +2887,7 @@ def _bundle_counts(
         **touchpoints.summary,
         **hardcode_backlog.summary,
         "data_asset_port_count": len(data_ports),
-        "data_asset_source_contract_readiness_coverage": _data_asset_readiness_coverage(
-            data_ports
-        ),
+        "data_asset_source_contract_readiness_coverage": _data_asset_readiness_coverage(data_ports),
         "data_asset_source_contract_readiness_status": "pass"
         if _data_asset_readiness_coverage(data_ports) == 1.0
         else "fail",
@@ -3158,10 +3150,7 @@ def _hardcode_enumeration_patterns(
     repo_root: Path,
 ) -> dict[str, tuple[HardcodeEnumerationKind, str]]:
     backlog = build_hardcode_enumeration_backlog(repo_root)
-    return {
-        entry.pattern: (entry.enumeration_kind, entry.backlog_id)
-        for entry in backlog.entries
-    }
+    return {entry.pattern: (entry.enumeration_kind, entry.backlog_id) for entry in backlog.entries}
 
 
 def _immediate_polisyos_roots(repo_root: Path) -> list[str]:

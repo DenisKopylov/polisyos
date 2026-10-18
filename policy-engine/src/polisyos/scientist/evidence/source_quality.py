@@ -561,7 +561,9 @@ def _coerce_source_metadata(
             provider=str(item.get("provider") or ""),
             search_query=str(item.get("search_query") or ""),
             search_rank=int(item.get("search_rank") or 0),
-            fetched_at=item.get("fetched_at") if isinstance(item.get("fetched_at"), datetime) else None,
+            fetched_at=item.get("fetched_at")
+            if isinstance(item.get("fetched_at"), datetime)
+            else None,
             published_at=(
                 item.get("published_at") if isinstance(item.get("published_at"), datetime) else None
             ),

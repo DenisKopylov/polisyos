@@ -262,8 +262,7 @@ def test_origin_reader_replays_current_receipt_projection_input(tmp_path: Path) 
     assert projection_ref is not None
     manifest = fixture.store.get_manifest(receipt.receipt_ref.artifact_id)
     assert any(
-        item.artifact_id == projection_ref.artifact_id
-        and item.role == "epoch_production_input"
+        item.artifact_id == projection_ref.artifact_id and item.role == "epoch_production_input"
         for item in manifest.inputs
     )
 
@@ -338,7 +337,8 @@ def test_origin_index_is_scoped_at_operation_time_and_survives_restart(tmp_path:
     for tenant, cell in (("tenant-a", "cell-a"), ("tenant-b", "cell-a"), ("tenant-a", "cell-b")):
         with tenant_scope(None, tenant_id=tenant, cell_id=cell):
             producer, _, profiles, _fixture, repository, kwargs = _producer_fixture(
-                tmp_path / f"{tenant}-{cell}", store=store,
+                tmp_path / f"{tenant}-{cell}",
+                store=store,
                 authority_purpose=f"origin-scope:{tenant}:{cell}",
             )
             receipt = _fixture.current_receipt
@@ -359,10 +359,7 @@ def test_origin_index_is_scoped_at_operation_time_and_survives_restart(tmp_path:
                 # Reused bytes get a tenant-owned selected view, and the receipt
                 # manifest must bind that exact view rather than only the blob ID.
                 assert bundle_ref.manifest_profile_sha256 is not None
-                assert (
-                    bundle_edge.manifest_profile_sha256
-                    == bundle_ref.manifest_profile_sha256
-                )
+                assert bundle_edge.manifest_profile_sha256 == bundle_ref.manifest_profile_sha256
                 with pytest.raises(
                     artifacts.ArtifactOwnershipError,
                     match=r"write input manifest:epoch_production_input",

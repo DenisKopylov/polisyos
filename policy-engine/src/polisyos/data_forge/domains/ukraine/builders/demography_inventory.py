@@ -34,9 +34,7 @@ def build_demography_source_inventory_stage(config: PipelineConfig) -> StageBuil
     envelope = produced.envelope
 
     output_dir = (
-        config.build_root.bundles_dir
-        / "demography_source_inventory"
-        / envelope.inventory_id
+        config.build_root.bundles_dir / "demography_source_inventory" / envelope.inventory_id
     )
     output_path = output_dir / "inventory.json"
     if output_path.resolve() in {Path(item.path).resolve() for item in produced.stage_inputs}:

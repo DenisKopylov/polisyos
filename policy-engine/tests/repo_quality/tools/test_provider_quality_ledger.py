@@ -10,9 +10,7 @@ import pytest
 from tools.ops_runners.runtime import canary_matrix
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-LEDGER_MODULE_PATH = (
-    REPO_ROOT / "tools" / "ops_runners" / "runtime" / "provider_quality_ledger.py"
-)
+LEDGER_MODULE_PATH = REPO_ROOT / "tools" / "ops_runners" / "runtime" / "provider_quality_ledger.py"
 
 
 def _ledger_module():
@@ -233,9 +231,7 @@ def _write_controlled_lane_bundle(
                 "disagreement_detected": False,
                 "refusal_detected": not schema_valid,
                 "degradation_behavior": None if schema_valid else "fallback_plain_json",
-                "request_fingerprint": (
-                    f"sha256:{request_fingerprint_prefix}-controlled-{index}"
-                ),
+                "request_fingerprint": (f"sha256:{request_fingerprint_prefix}-controlled-{index}"),
                 "latency_ms": 100.0 + index,
                 "cost_usd": 0.001,
                 "context_pressure": 0.25,
@@ -311,9 +307,10 @@ def test_provider_quality_ledger_cli_builds_from_simulated_and_quarantined_lanes
     assert payload["summary"]["simulated_observations"] == 1
     assert payload["summary"]["quarantined_live_observations"] == 1
     assert payload["default_model_reviews"][0]["action"] == "approve"
-    assert {
-        tuple(entry["evidence_lane_kinds"]) for entry in payload["entries"]
-    } == {("simulated",), ("quarantined_live",)}
+    assert {tuple(entry["evidence_lane_kinds"]) for entry in payload["entries"]} == {
+        ("simulated",),
+        ("quarantined_live",),
+    }
     assert "sk-never-leak" not in rendered
     assert "HIDDEN_HOLDOUT_ANSWER" not in rendered
 
@@ -373,10 +370,7 @@ def test_provider_quality_ledger_marks_live_samples_system_confounded(
                 "--generated-at",
                 "2026-05-13T12:00:00+00:00",
                 "--default-production-model",
-                (
-                    "gonka_proxy:Qwen/Qwen3-235B-A22B-Instruct-2507-FP8:"
-                    "qwen-live-fp:policy_drafting"
-                ),
+                ("gonka_proxy:Qwen/Qwen3-235B-A22B-Instruct-2507-FP8:qwen-live-fp:policy_drafting"),
             ]
         )
         == 0
@@ -456,9 +450,7 @@ def test_provider_quality_ledger_cli_writes_controlled_qwen_kimi_comparison(
     rendered = json.dumps(comparison, sort_keys=True)
     rows = {row["model_id"]: row for row in comparison["rows"]}
 
-    assert comparison["schema_version"] == (
-        "policyos.provider_controlled_grounding_comparison.v1"
-    )
+    assert comparison["schema_version"] == ("policyos.provider_controlled_grounding_comparison.v1")
     assert comparison["summary"]["status"] == "pass"
     assert comparison["default_model_gate"]["action"] == "approve"
     assert rows["Qwen/Qwen3-235B-A22B-Instruct-2507-FP8"]["sample_count"] == 3

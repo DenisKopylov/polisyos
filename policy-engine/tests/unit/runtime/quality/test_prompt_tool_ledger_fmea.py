@@ -145,15 +145,13 @@ def test_repair_machinery_failures_surface_in_scorecard_operator_payload() -> No
     gates = {gate["code"]: gate for gate in scorecard["quality_gates"]}
     assert gates["prompt_tool_repair_decision_fmea_observed"]["status"] == "warn"
     assert gates["prompt_tool_repair_decision_fmea_observed"]["blocking"] is False
-    assert scorecard["operator_machinery_failures"][0]["failure_mode"] == (
-        "parser_contract_repair"
-    )
+    assert scorecard["operator_machinery_failures"][0]["failure_mode"] == ("parser_contract_repair")
     assert scorecard["operator_machinery_failures"][0]["cause"] == (
         "model_output_failed_parser_contract"
     )
-    assert scorecard["soft_gate_telemetry"]["repair_decision_fmea"][
-        "machinery_failures"
-    ][0]["recommended_mitigation"].startswith("Keep strict parser validation")
+    assert scorecard["soft_gate_telemetry"]["repair_decision_fmea"]["machinery_failures"][0][
+        "recommended_mitigation"
+    ].startswith("Keep strict parser validation")
 
 
 def test_repair_machinery_failures_surface_as_closeout_limitations() -> None:

@@ -292,6 +292,7 @@ def recompute_assurance_payload(payload: Mapping[str, Any]) -> CandidateAssuranc
 def replay_assurance_result(cas: FileSystemCAS, artifact_ref: str) -> CandidateAssuranceResult:
     """Recompute historical bytes without asserting present validity or authority."""
     from polisyos.core.artifacts import load_core_json_artifact
+
     if not cas.verify(artifact_ref).ok or cas.get_manifest(artifact_ref).kind != KIND:
         raise ValueError("assurance_content_integrity_failed")
     return recompute_assurance_payload(load_core_json_artifact(cas, artifact_ref))
@@ -300,6 +301,7 @@ def replay_assurance_result(cas: FileSystemCAS, artifact_ref: str) -> CandidateA
 def _revoked(cas: FileSystemCAS, artifact_ref: str) -> bool:
     # Enumerate the existing CAS owner's complete kind denominator: no parallel mutable ledger.
     from polisyos.core.artifacts import load_core_json_artifact
+
     for member in cas.iter_artifact_ids():
         if cas.get_manifest(member).kind != KIND:
             continue
@@ -431,6 +433,7 @@ def read_source_content(
 ) -> dict[str, Any]:
     """Resolve preserved bytes for the exact named source-content scope only."""
     from polisyos.core.artifacts import load_core_json_artifact
+
     if not cas.verify(artifact_ref).ok or cas.get_manifest(artifact_ref).kind != KIND:
         raise ValueError("source_content_integrity_failed")
     result = recompute_source_content(load_core_json_artifact(cas, artifact_ref))

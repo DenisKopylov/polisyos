@@ -185,6 +185,7 @@ class ProductionCG2CalibrationSource:
     ) -> ProductionGroundingSourceResolution:
         """Recompute source and exact request before returning any audit projection."""
         from polisyos.core.artifacts import validate_core_model_json_artifact
+
         manifest = self._store.get_manifest(ref)
         if (
             manifest.kind != _KIND

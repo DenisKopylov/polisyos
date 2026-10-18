@@ -53,15 +53,22 @@ def validate_corpus(path: Path = CORPUS) -> dict[str, Any]:
     if first != second or len({identity for identity, _ in first}) != len(first):
         raise ValueError("corpus_parser_or_unique_identity_mismatch")
     types = {kind.value for kind in AcquisitionType}
-    ids = {f"{family}.{kind}" for family in
-           ("happy", "form", "provisional", "deeper", "reentry", "ceiling") for kind in types}
-    ids.update(f"rows.{kind}.{count}" for kind in
-               ("grounding_relation", "estimand_binding", "legal_mandate")
-               for count in (0, 1, 1000, 1000000))
+    ids = {
+        f"{family}.{kind}"
+        for family in ("happy", "form", "provisional", "deeper", "reentry", "ceiling")
+        for kind in types
+    }
+    ids.update(
+        f"rows.{kind}.{count}"
+        for kind in ("grounding_relation", "estimand_binding", "legal_mandate")
+        for count in (0, 1, 1000, 1000000)
+    )
     ids.update(f"capstone.{name}" for name in ("education", "first_vertical", "unseen"))
     if ids != {identity for identity, _ in first}:
         raise ValueError("research_case_denominator_mismatch")
-    research = (ROOT / "docs/research/policy-operations/int-r2/operational-closure-and-fixtures.md").read_text()
+    research = (
+        ROOT / "docs/research/policy-operations/int-r2/operational-closure-and-fixtures.md"
+    ).read_text()
     family_table = research.split("## 4. Public regression fixture denominator", 1)[1].split(
         "### 4.1", 1
     )[0]
@@ -72,14 +79,26 @@ def validate_corpus(path: Path = CORPUS) -> dict[str, Any]:
     if sum(source_counts) != int(stated_total.group(1)) or sum(source_counts) != len(second):
         raise ValueError("research_total_reconciliation_failed")
     families = Counter(family for _, family in first)
-    if families != {"happy": 8, "form": 8, "rows": 12, "provisional": 8,
-                    "deeper": 8, "reentry": 8, "ceiling": 8, "capstone": 3}:
+    if families != {
+        "happy": 8,
+        "form": 8,
+        "rows": 12,
+        "provisional": 8,
+        "deeper": 8,
+        "reentry": 8,
+        "ceiling": 8,
+        "capstone": 3,
+    }:
         raise ValueError("research_family_denominator_mismatch")
-    if len(first) != 63 or not all(row["authority_purpose"] == "contract_testing"
-                                   for row in subject["cases"]):
+    if len(first) != 63 or not all(
+        row["authority_purpose"] == "contract_testing" for row in subject["cases"]
+    ):
         raise ValueError("research_corpus_boundary_mismatch")
-    full_demands = {row["discriminator"]: row["required_facts"] for row in subject["cases"]
-                    if row["family"] == "happy"}
+    full_demands = {
+        row["discriminator"]: row["required_facts"]
+        for row in subject["cases"]
+        if row["family"] == "happy"
+    }
     for row in subject["cases"]:
         if row["family"] == "form":
             expected = full_demands[row["discriminator"]]
@@ -91,11 +110,21 @@ def validate_corpus(path: Path = CORPUS) -> dict[str, Any]:
 
 def evaluate_wire(wire: str, *, challenge: str | None = None) -> subprocess.CompletedProcess[str]:
     """Call the root-owned isolated oracle; share only serialized observations."""
-    command = [sys.executable, "-I", "-S", str(ORACLE), "--expectations", str(EXPECTED),
-               "--expected-sha256", EXPECTED_SHA256]
+    command = [
+        sys.executable,
+        "-I",
+        "-S",
+        str(ORACLE),
+        "--expectations",
+        str(EXPECTED),
+        "--expected-sha256",
+        EXPECTED_SHA256,
+    ]
     if challenge:
         command.extend(("--challenge", challenge))
-    return subprocess.run(command, input=wire, capture_output=True, text=True, check=False, timeout=30)
+    return subprocess.run(
+        command, input=wire, capture_output=True, text=True, check=False, timeout=30
+    )
 
 
 def _scratch_root() -> Path:
@@ -129,8 +158,9 @@ def mutation_battery(*, corpus_path: Path = CORPUS) -> int:
         sys.stdout.write(result.stdout)
         sys.stderr.write(result.stderr)
         prefix = f"{identity}\t{field}\t"
-        if result.returncode != 1 or not any(line.startswith(prefix)
-                                             for line in result.stdout.splitlines()):
+        if result.returncode != 1 or not any(
+            line.startswith(prefix) for line in result.stdout.splitlines()
+        ):
             sys.stdout.write(f"MUTANT_NOT_KILLED\t{mutant}\t{reason}\n")
             return 1
         sys.stdout.write(f"MUTANT_KILLED\t{mutant}\t{reason}\n")

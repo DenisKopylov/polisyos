@@ -131,10 +131,7 @@ def build_wave36_closeout_outputs(
         "exit_fence_ref": _rel_path(wave36_path / EXIT_FENCE_OUTPUT, repo_root),
         "verification": {
             "acceptance_commands": [
-                (
-                    "uv run pytest "
-                    "tests/repo_quality/tools/test_policy_design_case_wave36.py -q"
-                ),
+                ("uv run pytest tests/repo_quality/tools/test_policy_design_case_wave36.py -q"),
                 (
                     "uv run python tools/quality/validation/"
                     "check_policy_design_case_wave36_closeout.py --repo-root ."
@@ -394,7 +391,10 @@ def _wave35_remediation_fences_entry(repo_root: Path) -> dict[str, Any]:
     rows: list[dict[str, Any]] = []
     errors: list[str] = []
     for wave in ("35A", "35B", "35C", "35D", "35E"):
-        path = repo_root / f"_build/policy-design-case/rebaseline/wave-{wave}/wave35_disposition_update.json"
+        path = (
+            repo_root
+            / f"_build/policy-design-case/rebaseline/wave-{wave}/wave35_disposition_update.json"
+        )
         try:
             payload = _load_json(path)
         except (OSError, ValueError, json.JSONDecodeError) as exc:
@@ -600,9 +600,7 @@ def _build_exit_fence(
         "deterministic_matrix_passed": deterministic_passed,
         "serious_scorecards_all_pass": serious_scorecards_all_pass,
         "serious_lane_ids": list(deterministic.get("serious_lane_ids") or []),
-        "serious_scorecard_statuses": dict(
-            _mapping(deterministic.get("scorecard_statuses"))
-        ),
+        "serious_scorecard_statuses": dict(_mapping(deterministic.get("scorecard_statuses"))),
         "dev_smoke_lane_ids": list(dev_smoke_boundary.get("lane_ids") or []),
         "dev_smoke_excluded_from_closeout": dev_smoke_excluded,
         "dev_smoke_counts_toward_closeout": False,

@@ -168,14 +168,18 @@ def build_citation_faithfulness_report(
             issue.get("claim_id") == claim_id and issue.get("severity") == "fail"
             for issue in issues
         )
-        claim_status = "fail" if (
-            claim_has_blocking_issue
-            or any(
-                citation["label"] in BLOCKING_CITATION_LABELS
-                for citation in citation_reports
-                if _is_public_factual_or_legal_claim(claim)
+        claim_status = (
+            "fail"
+            if (
+                claim_has_blocking_issue
+                or any(
+                    citation["label"] in BLOCKING_CITATION_LABELS
+                    for citation in citation_reports
+                    if _is_public_factual_or_legal_claim(claim)
+                )
             )
-        ) else "pass"
+            else "pass"
+        )
         claim_reports.append(
             {
                 "claim_id": claim_id,
@@ -193,9 +197,7 @@ def build_citation_faithfulness_report(
         for claim_report in claim_reports
         for citation in claim_report["citations"]
     )
-    blocking_issues = [
-        issue for issue in issues if str(issue.get("severity")) == "fail"
-    ]
+    blocking_issues = [issue for issue in issues if str(issue.get("severity")) == "fail"]
     return {
         "schema_version": SCHEMA_VERSION,
         "status": "fail" if blocking_issues else "pass",
@@ -779,9 +781,7 @@ def _span_support_gateway_model_name() -> str:
 def _bounded_agent_module() -> Any:
     import importlib
 
-    return importlib.import_module(
-        "polisyos.runtime.quality.proving_ground.bounded_request_agent"
-    )
+    return importlib.import_module("polisyos.runtime.quality.proving_ground.bounded_request_agent")
 
 
 def _evaluate_claim_support_assessment(claim: Mapping[str, Any]) -> Any:
@@ -1125,9 +1125,7 @@ def _looks_contradictory(claim_text: str, evidence_text: str) -> bool:
     if len(claim_tokens.intersection(evidence_tokens)) < 3:
         return False
     claim_permits = bool(
-        claim_tokens.intersection(
-            {"allow", "allows", "permit", "permits", "permitted"}
-        )
+        claim_tokens.intersection({"allow", "allows", "permit", "permits", "permitted"})
     )
     evidence_prohibits = bool(
         evidence_tokens.intersection(
@@ -1144,16 +1142,12 @@ def _looks_contradictory(claim_text: str, evidence_text: str) -> bool:
         )
     )
     claim_available = bool(
-        claim_tokens.intersection(
-            {"available", "eligible", "qualify", "qualifies"}
-        )
+        claim_tokens.intersection({"available", "eligible", "qualify", "qualifies"})
     )
     evidence_excludes = bool(
         evidence_tokens.intersection({"exclude", "excluded", "excludes", "except", "ineligible"})
     )
-    return (claim_permits and evidence_prohibits) or (
-        claim_available and evidence_excludes
-    )
+    return (claim_permits and evidence_prohibits) or (claim_available and evidence_excludes)
 
 
 def _direction_contradicts_span(claim: Mapping[str, Any], evidence_text: str) -> bool:
@@ -1307,9 +1301,7 @@ def _tool_call_arguments(call: Any) -> dict[str, Any]:
     if isinstance(call, Mapping):
         function = call.get("function")
         raw_arguments = (
-            function.get("arguments")
-            if isinstance(function, Mapping)
-            else call.get("arguments")
+            function.get("arguments") if isinstance(function, Mapping) else call.get("arguments")
         )
     else:
         raw_arguments = getattr(call, "arguments", {})

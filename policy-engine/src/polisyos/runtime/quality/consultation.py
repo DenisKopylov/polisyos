@@ -6,12 +6,8 @@ from collections.abc import Mapping, Sequence
 from datetime import UTC, datetime
 from typing import Any
 
-JUDGEMENT_SCHEMA_VERSION = (
-    "policyos.runtime.policy_design_case.structured_expert_judgement.v1"
-)
-CONSULTATION_SCHEMA_VERSION = (
-    "policyos.runtime.policy_design_case.consultation_record.v1"
-)
+JUDGEMENT_SCHEMA_VERSION = "policyos.runtime.policy_design_case.structured_expert_judgement.v1"
+CONSULTATION_SCHEMA_VERSION = "policyos.runtime.policy_design_case.consultation_record.v1"
 HUMAN_OVERSIGHT_SCHEMA_VERSION = "policyos.runtime.policy_design_case.human_oversight.v1"
 LEGITIMACY_VALIDATION_SCHEMA_VERSION = (
     "policyos.runtime.policy_design_case.legitimacy_validation.v1"
@@ -204,11 +200,7 @@ def validate_consultation_record(record: Mapping[str, Any]) -> dict[str, Any]:
     objections = _list_of_mappings(record.get("objection_records"))
     responses = _list_of_mappings(record.get("response_to_comment_reasoning"))
     response_ids = _response_objection_ids(responses)
-    unresolved = [
-        objection
-        for objection in objections
-        if _is_unresolved_objection(objection)
-    ]
+    unresolved = [objection for objection in objections if _is_unresolved_objection(objection)]
     for objection in unresolved:
         severity = _severity(objection.get("severity"))
         objection_id = _text(objection.get("objection_id"))
@@ -251,11 +243,15 @@ def validate_policy_design_case_legitimacy_records(
         "structured_judgement_records",
         "expert_judgements",
     )
-    if final_claims and not judgement_records and not _record_family_blocked(
-        case,
-        "structured_expert_judgement",
-        "structured_judgement",
-        "expert_judgement",
+    if (
+        final_claims
+        and not judgement_records
+        and not _record_family_blocked(
+            case,
+            "structured_expert_judgement",
+            "structured_judgement",
+            "expert_judgement",
+        )
     ):
         issues.append(
             _issue(
@@ -275,10 +271,14 @@ def validate_policy_design_case_legitimacy_records(
         "consultation_records",
         "stakeholder_consultations",
     )
-    if final_claims and not consultation_records and not _record_family_blocked(
-        case,
-        "consultation",
-        "stakeholder_consultation",
+    if (
+        final_claims
+        and not consultation_records
+        and not _record_family_blocked(
+            case,
+            "consultation",
+            "stakeholder_consultation",
+        )
     ):
         issues.append(
             _issue(
@@ -370,26 +370,20 @@ def _human_oversight_shape_issues(record: Mapping[str, Any]) -> list[dict[str, A
         or _text_values(record.get("exposure_order_refs"))
     ):
         issues.append(_human_oversight_required_field_issue("exposure_order"))
-    if _positive_int(
-        record.get("time_spent_seconds")
-        or record.get("average_time_spent_seconds")
-        or record.get("minimum_time_spent_seconds")
-    ) is None:
+    if (
+        _positive_int(
+            record.get("time_spent_seconds")
+            or record.get("average_time_spent_seconds")
+            or record.get("minimum_time_spent_seconds")
+        )
+        is None
+    ):
         issues.append(_human_oversight_required_field_issue("time_spent_seconds"))
-    if not (
-        isinstance(record.get("dissent_records"), list)
-        or "dissent_count" in record
-    ):
+    if not (isinstance(record.get("dissent_records"), list) or "dissent_count" in record):
         issues.append(_human_oversight_required_field_issue("dissent_records"))
-    if not (
-        isinstance(record.get("change_requests"), list)
-        or "change_request_count" in record
-    ):
+    if not (isinstance(record.get("change_requests"), list) or "change_request_count" in record):
         issues.append(_human_oversight_required_field_issue("change_requests"))
-    if not (
-        isinstance(record.get("override_decisions"), list)
-        or "override_count" in record
-    ):
+    if not (isinstance(record.get("override_decisions"), list) or "override_count" in record):
         issues.append(_human_oversight_required_field_issue("override_decisions"))
     if not _text(record.get("rubber_stamp_risk")):
         issues.append(_human_oversight_required_field_issue("rubber_stamp_risk"))
@@ -456,9 +450,7 @@ def _judgement_case_issues(
     validation = validate_structured_expert_judgement_record(record)
     classification = _judgement_classification(record)
     judgement_id = _text(
-        record.get("judgement_id")
-        or record.get("record_id")
-        or record.get("evidence_id")
+        record.get("judgement_id") or record.get("record_id") or record.get("evidence_id")
     )
     for validation_issue in validation["issues"]:
         if validation_issue.get("code") == "expert_judgement_classification_invalid":
@@ -648,17 +640,19 @@ def _final_claims(case: Mapping[str, Any]) -> tuple[Mapping[str, Any], ...]:
     return tuple(
         claim
         for claim in claims
-        if isinstance(claim, Mapping)
-        and bool(claim.get("major") is not False)
+        if isinstance(claim, Mapping) and bool(claim.get("major") is not False)
     )
 
 
 def _judgement_classification(record: Mapping[str, Any]) -> str:
-    return _text(
-        record.get("classification")
-        or record.get("evidence_classification")
-        or record.get("record_classification")
-    ) or ""
+    return (
+        _text(
+            record.get("classification")
+            or record.get("evidence_classification")
+            or record.get("record_classification")
+        )
+        or ""
+    )
 
 
 def _stakeholders(value: object) -> list[Mapping[str, Any]]:

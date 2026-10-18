@@ -85,12 +85,8 @@ class MethodCatalogProfileAdmission(FoundryAuthorityModel):
     profile_id: IdentityText
     declaration_ref: FoundryRecordRef[Literal[DigestDomain.PROFILE_DECLARATION]]
     python_runtime_ref: FoundryRecordRef[Literal[DigestDomain.TOOLCHAIN_RUNTIME]]
-    uv_executable_ref: FoundryRecordRef[
-        Literal[DigestDomain.TOOLCHAIN_EXECUTABLE]
-    ]
-    production_data_trust_policy_ref: FoundryRecordRef[
-        Literal[DigestDomain.TRUST_POLICY]
-    ]
+    uv_executable_ref: FoundryRecordRef[Literal[DigestDomain.TOOLCHAIN_EXECUTABLE]]
+    production_data_trust_policy_ref: FoundryRecordRef[Literal[DigestDomain.TRUST_POLICY]]
     predicate_class: Literal["recomputed"]
 
 
@@ -146,9 +142,7 @@ class DependencyProfileDiscriminant(FoundryAuthorityModel):
             raise ValueError("distribution set is not bound to the resolved rows")
         expected_discriminant = domain_digest(
             DigestDomain.DEPENDENCY_DISCRIMINANT,
-            canonical_json_bytes(
-                self.model_dump(mode="json", exclude={"discriminant_ref"})
-            ),
+            canonical_json_bytes(self.model_dump(mode="json", exclude={"discriminant_ref"})),
         )
         if self.discriminant_ref != expected_discriminant:
             raise ValueError("discriminant ref is not bound to the dependency statement")
@@ -367,15 +361,12 @@ class ReceiptBackedDependencyEnvironmentObservation(FoundryAuthorityModel):
 
 
 DependencyEnvironmentObservation = Annotated[
-    AmbientDependencyEnvironmentObservation
-    | ReceiptBackedDependencyEnvironmentObservation,
+    AmbientDependencyEnvironmentObservation | ReceiptBackedDependencyEnvironmentObservation,
     Field(discriminator="observation_kind"),
 ]
 
 
-_DEPENDENCY_ENVIRONMENT_OBSERVATION_ADAPTER = TypeAdapter(
-    DependencyEnvironmentObservation
-)
+_DEPENDENCY_ENVIRONMENT_OBSERVATION_ADAPTER = TypeAdapter(DependencyEnvironmentObservation)
 
 
 @dataclass(frozen=True, slots=True)
@@ -385,9 +376,7 @@ class _ComparableInstalledDistribution:
     name: str
     version: str
     source_kind: str | None
-    selected_artifact: (
-        DomainDigest[Literal[DigestDomain.SELECTED_DISTRIBUTION]] | None
-    )
+    selected_artifact: DomainDigest[Literal[DigestDomain.SELECTED_DISTRIBUTION]] | None
 
 
 class DependencyProfileReconciliationPass(FoundryAuthorityModel):
@@ -537,19 +526,22 @@ def resolve_profile_declaration_for_purpose(
     matches = tuple(
         row
         for row in admissions
-        if isinstance(row, Mapping)
-        and row.get("authority_purpose") == authority_purpose
+        if isinstance(row, Mapping) and row.get("authority_purpose") == authority_purpose
     )
     if len(matches) != 1:
         raise ValueError("authority purpose must resolve to exactly one profile")
     row = matches[0]
-    if set(row) != {
-        "authority_purpose",
-        "profile_id",
-        "declaration_artifact_id",
-        "declaration_semantic_hash",
-        "predicate_class",
-    } or row.get("predicate_class") != "recomputed":
+    if (
+        set(row)
+        != {
+            "authority_purpose",
+            "profile_id",
+            "declaration_artifact_id",
+            "declaration_semantic_hash",
+            "predicate_class",
+        }
+        or row.get("predicate_class") != "recomputed"
+    ):
         raise ValueError("authority purpose admission has an invalid shape")
     profile_id = row.get("profile_id")
     if type(profile_id) is not str:
@@ -593,8 +585,7 @@ def _marker_selected(
     missing_marker_keys = marker_keys.difference(marker_environment)
     if missing_marker_keys:
         raise ValueError(
-            "marker environment is missing used keys: "
-            + ",".join(sorted(missing_marker_keys))
+            "marker environment is missing used keys: " + ",".join(sorted(missing_marker_keys))
         )
     return parsed.evaluate(environment=dict(marker_environment))
 
@@ -609,7 +600,9 @@ def _resolve_selected_lock_row(
     """Resolve one edge to exactly one complete row, never a name-only overwrite."""
 
     name = edge.get("name")
-    if type(name) is not str or set(edge).difference({"name", "version", "source", "marker", "extra"}):
+    if type(name) is not str or set(edge).difference(
+        {"name", "version", "source", "marker", "extra"}
+    ):
         raise ValueError("selected dependency edge is invalid")
     if "version" in edge and type(edge["version"]) is not str:
         raise ValueError("selected dependency version is invalid")
@@ -777,9 +770,7 @@ def resolve_dependency_discriminant(
         pyproject = tomllib.loads(pyproject_bytes.decode("utf-8"))
         project = pyproject["project"]
         lock = tomllib.loads(lockfile_bytes.decode("utf-8"))
-        if canonicalize_name(project["name"]) != canonicalize_name(
-            declaration.root_distribution
-        ):
+        if canonicalize_name(project["name"]) != canonicalize_name(declaration.root_distribution):
             raise ValueError("root distribution mismatch")
         used_marker_keys: set[str] = set()
         rows = _selected_lock_rows(
@@ -806,17 +797,10 @@ def resolve_dependency_discriminant(
                 name=canonicalize_name(str(row["name"])),
                 version=str(row.get("version") or "editable"),
                 source_kind=next(iter(row.get("source", {"unknown": ""}))),
-                selected_artifact=domain_digest(
-                    DigestDomain.SELECTED_DISTRIBUTION, canonical_row
-                ),
+                selected_artifact=domain_digest(DigestDomain.SELECTED_DISTRIBUTION, canonical_row),
             )
         )
-    marker_rows = tuple(
-        sorted(
-            (key, str(marker_environment[key]))
-            for key in used_marker_keys
-        )
-    )
+    marker_rows = tuple(sorted((key, str(marker_environment[key])) for key in used_marker_keys))
     distribution_rows = [row.model_dump(mode="json") for row in distributions]
     distribution_set = domain_digest(
         DigestDomain.DISTRIBUTION_SET, canonical_json_bytes(distribution_rows)
@@ -889,9 +873,7 @@ def resolve_dependency_profile(
     )
     if not isinstance(discriminant, DependencyProfileDiscriminant):
         return discriminant
-    distribution_rows = [
-        row.model_dump(mode="json") for row in discriminant.resolved_distributions
-    ]
+    distribution_rows = [row.model_dump(mode="json") for row in discriminant.resolved_distributions]
     stable_content_set = domain_digest(
         DigestDomain.CONTENT_SET_STABLE,
         canonical_json_bytes([row["selected_artifact"] for row in distribution_rows]),
@@ -946,9 +928,7 @@ def observe_installed_distributions(
     expected_names = {row.name for row in discriminant.resolved_distributions}
     observed: list[InstalledDistributionObservation] = []
     population = (
-        metadata.distributions()
-        if installed_distributions is None
-        else installed_distributions
+        metadata.distributions() if installed_distributions is None else installed_distributions
     )
     for distribution in population:
         raw_name = distribution.metadata.get("Name")
@@ -977,8 +957,7 @@ def _source_evidence_not_established(
         status="not_established",
         code="installed_distribution_source_evidence_not_established",
         missing_coordinates=tuple(
-            f"distribution:{row.name}:source_kind"
-            for row in discriminant.resolved_distributions
+            f"distribution:{row.name}:source_kind" for row in discriminant.resolved_distributions
         ),
         predicate_class="not_established",
     )
@@ -990,10 +969,7 @@ def _resolve_receipt_backed_distributions(
     observation: ReceiptBackedDependencyEnvironmentObservation,
     environment_root: Path | None,
     evidence: DependencyProfileEnvironmentEvidence | None,
-) -> (
-    tuple[_ComparableInstalledDistribution, ...]
-    | DependencyEnvironmentDiagnosticNotEstablished
-):
+) -> tuple[_ComparableInstalledDistribution, ...] | DependencyEnvironmentDiagnosticNotEstablished:
     if environment_root is None or evidence is None:
         return _source_evidence_not_established(discriminant)
     statement = _reopen_reconciled_environment_statement(
@@ -1018,9 +994,7 @@ def _normalize_distribution_observations(
     *,
     discriminant: DependencyProfileDiscriminant,
     observed_distributions: (
-        DependencyEnvironmentObservation
-        | Mapping[str, object]
-        | Sequence[Mapping[str, object]]
+        DependencyEnvironmentObservation | Mapping[str, object] | Sequence[Mapping[str, object]]
     ),
     environment_root: Path | None,
     evidence: DependencyProfileEnvironmentEvidence | None,
@@ -1041,9 +1015,7 @@ def _normalize_distribution_observations(
                     ReceiptBackedDependencyEnvironmentObservation,
                 ),
             )
-            else _DEPENDENCY_ENVIRONMENT_OBSERVATION_ADAPTER.validate_python(
-                observed_distributions
-            )
+            else _DEPENDENCY_ENVIRONMENT_OBSERVATION_ADAPTER.validate_python(observed_distributions)
         )
     except ValidationError:
         return _source_evidence_not_established(discriminant)
@@ -1171,9 +1143,7 @@ def diagnose_dependency_environment(
     *,
     discriminant: DependencyProfileDiscriminant,
     observed_distributions: (
-        DependencyEnvironmentObservation
-        | Mapping[str, object]
-        | Sequence[Mapping[str, object]]
+        DependencyEnvironmentObservation | Mapping[str, object] | Sequence[Mapping[str, object]]
     ),
     environment_root: Path | None = None,
     evidence: DependencyProfileEnvironmentEvidence | None = None,
@@ -1230,9 +1200,7 @@ class DependencyProfileEnvironmentEvidence(Protocol):
     def read_blob(self, *, record_ref: FoundryRecordRef[DigestDomain]) -> bytes: ...
 
 
-_ENVIRONMENT_MARKER_RELATIVE_PATH = Path(
-    ".polisyos-foundry-authority-v1/environment-marker.json"
-)
+_ENVIRONMENT_MARKER_RELATIVE_PATH = Path(".polisyos-foundry-authority-v1/environment-marker.json")
 
 
 def _profile_admission_ref(
@@ -1258,9 +1226,7 @@ def _missing_environment_marker() -> MissingPredicateEvidence:
 def _reopen_bound_environment_marker(
     *,
     environment_root: Path,
-    expected_marker_ref: FoundryRecordRef[
-        Literal[DigestDomain.ENVIRONMENT_MARKER]
-    ],
+    expected_marker_ref: FoundryRecordRef[Literal[DigestDomain.ENVIRONMENT_MARKER]],
     evidence: DependencyProfileEnvironmentEvidence,
 ) -> DependencyEnvironmentMarkerStatement | AuthorityPredicateFailure:
     """Reopen one target marker from both its bound path and retained bytes."""
@@ -1321,12 +1287,8 @@ def _reopen_reconciled_environment_statement(
     observed_statement = statement.model_copy(
         update={
             "stable_closure": reopened_marker.stable_closure,
-            "python_runtime_installation_ref": (
-                reopened_marker.python_runtime_installation_ref
-            ),
-            "python_runtime_verification_ref": (
-                reopened_marker.python_runtime_verification_ref
-            ),
+            "python_runtime_installation_ref": (reopened_marker.python_runtime_installation_ref),
+            "python_runtime_verification_ref": (reopened_marker.python_runtime_verification_ref),
             "instance_content_set": reopened_marker.instance_content_set,
         }
     )
@@ -1370,8 +1332,7 @@ def reconcile_bound_installed_environment(
     statement = reopened_statement
     expected_names = {row.name for row in profile.distributions}
     expected = {
-        (row.name, row.version, row.selected_artifact.value)
-        for row in profile.distributions
+        (row.name, row.version, row.selected_artifact.value) for row in profile.distributions
     }
     observed = {
         (
@@ -1406,8 +1367,9 @@ def reconcile_bound_installed_environment(
             DigestDomain.CONTENT_SET_STABLE,
             canonical_json_bytes(
                 [
-                    observed_by_name[row.name]
-                    .selected_artifact_ref.semantic_hash.model_dump(mode="json")
+                    observed_by_name[row.name].selected_artifact_ref.semantic_hash.model_dump(
+                        mode="json"
+                    )
                     for row in profile.distributions
                     if row.name in observed_by_name
                 ]

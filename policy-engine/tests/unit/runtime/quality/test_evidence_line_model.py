@@ -19,9 +19,7 @@ from polisyos.runtime.quality.evidence_portfolio import (
 from tests._helpers.hds_quality import sha
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
-SCHEMA_PATH = (
-    REPO_ROOT / "schemas/runtime_quality/policy_design_evidence_line_v1.schema.json"
-)
+SCHEMA_PATH = REPO_ROOT / "schemas/runtime_quality/policy_design_evidence_line_v1.schema.json"
 
 
 def _portfolio_design() -> dict[str, object]:

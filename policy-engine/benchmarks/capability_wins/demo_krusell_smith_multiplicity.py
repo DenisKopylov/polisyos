@@ -104,10 +104,7 @@ def run_demo() -> dict[str, Any]:
         parameter_hash="synthetic:two_regime_v1",
     )
     num_equilibria = report.global_diagnostics.num_equilibria
-    basin_mass = sum(
-        estimate.share_hat or 0.0
-        for estimate in report.basin_estimates
-    )
+    basin_mass = sum(estimate.share_hat or 0.0 for estimate in report.basin_estimates)
     passed = num_equilibria == 2 and abs(basin_mass - 1.0) <= 1.0e-9
     return {
         "benchmark_id": "demo_krusell_smith_multiplicity",

@@ -1292,8 +1292,10 @@ def _build_constraint_updates(
 ) -> list[BlindSpotConstraintStoreUpdate]:
     updates: list[BlindSpotConstraintStoreUpdate] = []
     for record in records:
-        status: ConstraintStatus = "pass" if record.firewall_disposition == "pass" else (
-            "block" if record.firewall_disposition == "block" else "limit"
+        status: ConstraintStatus = (
+            "pass"
+            if record.firewall_disposition == "pass"
+            else ("block" if record.firewall_disposition == "block" else "limit")
         )
         route = _refinement_route(record)
         for consumer in _BRIDGE_CONSUMERS_BY_AXIS[_AXIS_BY_CELL[record.cell_ref]]:

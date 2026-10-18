@@ -14,7 +14,6 @@ if TYPE_CHECKING:
 ROOT = Path(__file__).resolve().parents[3]
 
 
-
 class _WorldBankFetchOwner(Protocol):
     """Expose the real producer fixture's typed inputs without copying its setup."""
 

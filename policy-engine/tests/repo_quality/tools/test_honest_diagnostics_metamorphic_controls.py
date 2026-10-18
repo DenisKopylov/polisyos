@@ -30,9 +30,7 @@ def test_phase56_catalog_declares_required_cross_domain_scenarios() -> None:
         )
         profile = contract["diagnostic_control_profile"]
         assert profile["phase"] == "5.6"
-        assert set(profile["cross_domain_controls"]) >= set(
-            REQUIRED_CROSS_DOMAIN_CONTROL_IDS
-        )
+        assert set(profile["cross_domain_controls"]) >= set(REQUIRED_CROSS_DOMAIN_CONTROL_IDS)
         variant_ids = {
             variant["variant_id"]
             for variant in contract["metamorphic_prompt_variants"]
@@ -69,20 +67,16 @@ def test_cross_domain_controls_detect_semantic_collapse_for_each_scenario(
     ]
     assert controls["manifest_role_source_selection"]["failure_codes"] == [
         "semantic_manifest_role_source_selection_false_pass",
-        "semantic_intent_collapsed_to_generic_evidence"
+        "semantic_intent_collapsed_to_generic_evidence",
     ]
     assert controls["generic_method_selection"]["failure_codes"] == [
         "semantic_intent_collapsed_to_generic_evidence"
     ]
-    assert controls["no_norm_false_pass"]["failure_codes"] == [
-        "semantic_no_norm_false_pass"
-    ]
+    assert controls["no_norm_false_pass"]["failure_codes"] == ["semantic_no_norm_false_pass"]
     assert controls["data_present_but_irrelevant_pass"]["failure_codes"] == [
         "semantic_data_present_but_irrelevant"
     ]
-    assert controls["unsupported_final_claim"]["failure_codes"] == [
-        "major_claim_missing_grounding"
-    ]
+    assert controls["unsupported_final_claim"]["failure_codes"] == ["major_claim_missing_grounding"]
 
 
 @pytest.mark.parametrize("scenario_id", PHASE56_CROSS_DOMAIN_SCENARIO_IDS)
@@ -145,9 +139,7 @@ def test_metamorphic_ambiguous_prompt_blocks_instead_of_rebinding_context() -> N
         for variant in report["variants"]
         if variant["status"] == "blocked"
     }
-    assert blocked["ambiguous_jurisdiction_and_time"][
-        "ambiguity_blocker_codes"
-    ] == [
+    assert blocked["ambiguous_jurisdiction_and_time"]["ambiguity_blocker_codes"] == [
         "ambiguous_jurisdiction",
         "ambiguous_time_context",
     ]

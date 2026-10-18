@@ -1391,7 +1391,9 @@ def _ordinary_model_type(value: BaseModel) -> type[BaseModel]:
         if runtime_state is not None and (
             type(runtime_state) is not dict or dict.__len__(runtime_state) != 0
         ):
-            raise TypeError("state mutation journaling refuses private or extra model runtime state")
+            raise TypeError(
+                "state mutation journaling refuses private or extra model runtime state"
+            )
     return original
 
 
@@ -1857,9 +1859,7 @@ def _wrap_mutable_value(
         if tracked is None:
             # Copy Pydantic's full metadata and preserve its effective generic type.
             # A bare generic has origin=None; its effective origin is its own class.
-            generic_metadata: dict[str, Any] = dict(
-                original.__pydantic_generic_metadata__
-            )
+            generic_metadata: dict[str, Any] = dict(original.__pydantic_generic_metadata__)
             if generic_metadata.get("origin") is None and generic_metadata.get("parameters"):
                 generic_metadata["origin"] = original
             model_metaclass: Any = type(original)

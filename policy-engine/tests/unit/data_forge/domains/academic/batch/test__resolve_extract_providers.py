@@ -8,4 +8,3 @@ def test_resolve_extract_provider_helpers_keep_empty_response_contract() -> None
     response = providers._empty_provider_response(error_class="provider_timeout")
     assert response.error_class == "provider_timeout"
     assert facade._empty_provider_response(error_class="parse_error").parse_status == "empty"
-

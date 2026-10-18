@@ -136,8 +136,9 @@ def build_policy_design_case_drift_payload(
         if violation.code == "pdc_second_authority_profile_taxonomy"
     ]
     reuse_violations = [
-        violation for violation in violations if violation.code.startswith("pdc_")
-        and violation.code != "pdc_parallel_case_authority"
+        violation
+        for violation in violations
+        if violation.code.startswith("pdc_") and violation.code != "pdc_parallel_case_authority"
     ]
     runtime_quality_authority_paths = []
     runtime_quality_authority = repo_root / RUNTIME_QUALITY_AUTHORITY_PATH
@@ -185,9 +186,7 @@ def render_text(payload: dict[str, Any]) -> str:
     return "\n".join(lines) + "\n"
 
 
-def _load_capability_map(
-    *, repo_root: Path, sdd_path: Path | None
-) -> dict[str, Any]:
+def _load_capability_map(*, repo_root: Path, sdd_path: Path | None) -> dict[str, Any]:
     if sdd_path is None:
         return {"source": None, "entries": [], "violations": []}
     resolved = _resolve(repo_root, sdd_path)

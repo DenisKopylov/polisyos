@@ -115,9 +115,7 @@ def dependency_discriminant_consumer_fields(result: object) -> dict[str, Any]:
     """Project one consumer's content binding and non-decisive ambient case."""
 
     return {
-        "dependency_discriminant_content_ref": _dependency_result_field(
-            result, "content_ref"
-        ),
+        "dependency_discriminant_content_ref": _dependency_result_field(result, "content_ref"),
         "dependency_discriminant_ref": _json_transport(
             _dependency_result_field(result, "discriminant_ref")
         ),
@@ -1670,9 +1668,7 @@ def build_readback(
             expected_head=expected_head,
         )
     )
-    discriminant_readback = reconcile_dependency_discriminant_consumers(
-        dependency_consumer_results
-    )
+    discriminant_readback = reconcile_dependency_discriminant_consumers(dependency_consumer_results)
     return with_receipt_hash(
         {
             "schema_version": READBACK_SCHEMA,

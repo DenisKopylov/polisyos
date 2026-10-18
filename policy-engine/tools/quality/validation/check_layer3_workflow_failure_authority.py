@@ -529,17 +529,30 @@ def _progress_output_bodies(progress: dict[str, Any]) -> list[tuple[dict[str, An
 
     return [
         (
-            {key: progress.get(key) for key in (
-                "state", "phase", "authority_path", "authority_result",
-                "legacy_path_disposition", "failure",
-            )},
+            {
+                key: progress.get(key)
+                for key in (
+                    "state",
+                    "phase",
+                    "authority_path",
+                    "authority_result",
+                    "legacy_path_disposition",
+                    "failure",
+                )
+            },
             "pdc.gy.workflow_failure_non_authority",
             "polisyos.pdc.gy.WorkflowFailureNonAuthority",
         ),
-        (progress["authority_boundary"], "pdc.gy.workflow_failure_authority_boundary",
-         "polisyos.pdc.gy.WorkflowFailureAuthorityBoundary"),
-        (progress["authority_surface_packet"], "pdc.gy.workflow_failure_authority_surface_packet",
-         "polisyos.pdc.gy.WorkflowFailureAuthoritySurfacePacket"),
+        (
+            progress["authority_boundary"],
+            "pdc.gy.workflow_failure_authority_boundary",
+            "polisyos.pdc.gy.WorkflowFailureAuthorityBoundary",
+        ),
+        (
+            progress["authority_surface_packet"],
+            "pdc.gy.workflow_failure_authority_surface_packet",
+            "polisyos.pdc.gy.WorkflowFailureAuthoritySurfacePacket",
+        ),
     ]
 
 
@@ -552,7 +565,10 @@ def _all_cas_references(value: Any) -> set[str]:
 
 
 def _validate_progress_reference_closure(
-    proof: WorkflowFailureAuthorityProof, progress: dict[str, Any], *, store: Any = None,
+    proof: WorkflowFailureAuthorityProof,
+    progress: dict[str, Any],
+    *,
+    store: Any = None,
 ) -> None:
     from polisyos.runtime.quality.authority import ProductionLoopRunProof
 
@@ -571,18 +587,28 @@ def _validate_progress_reference_closure(
         (ref, body, kind, schema)
         for ref, (body, kind, schema) in zip(loop.output_cas_refs, outputs, strict=True)
     ]
-    records.append((
-        progress["production_loop_run_proof_ref"], raw_loop,
-        "pdc.gy.production_loop_run_proof", "polisyos.runtime.ProductionLoopRunProof",
-    ))
+    records.append(
+        (
+            progress["production_loop_run_proof_ref"],
+            raw_loop,
+            "pdc.gy.production_loop_run_proof",
+            "polisyos.runtime.ProductionLoopRunProof",
+        )
+    )
     for ref, body, kind, schema in records:
         decoded = _verified_recorded_payload(body, ref)
-        if store is not None and _read_cas_json(store, ref, kind=kind, schema_name=schema) != decoded:
+        if (
+            store is not None
+            and _read_cas_json(store, ref, kind=kind, schema_name=schema) != decoded
+        ):
             raise ValueError("workflow_progress_record_content_mismatch")
     if (
-        loop.run_id != proof.run_id or loop.job_id != proof.job_id
-        or loop.endpoint != proof.endpoint or loop.job_kind != proof.job_kind
-        or loop.worker_id != proof.worker_id or loop.worker_lease_id != proof.worker_id
+        loop.run_id != proof.run_id
+        or loop.job_id != proof.job_id
+        or loop.endpoint != proof.endpoint
+        or loop.job_kind != proof.job_kind
+        or loop.worker_id != proof.worker_id
+        or loop.worker_lease_id != proof.worker_id
         or _utc_coordinate(loop.enqueued_at) != proof.enqueued_at
         or loop.http_request_id != "control-job:" + proof.job_id
         or loop.input_artifacts != proof.input_artifacts
@@ -624,13 +650,18 @@ def _semantic_record_digest(body: dict[str, Any]) -> str:
     from polisyos.core.canon import CanonSpec, to_canonical_bytes
 
     # This is explicitly a comparison digest, never an address usable in CAS.
-    return "semantic:sha256:" + hashlib.sha256(
-        to_canonical_bytes(body, spec=CanonSpec(forbid_floats=False))
-    ).hexdigest()
+    return (
+        "semantic:sha256:"
+        + hashlib.sha256(to_canonical_bytes(body, spec=CanonSpec(forbid_floats=False))).hexdigest()
+    )
 
 
 def _project_recorded_progress(
-    progress: dict[str, Any], *, run_id: str, boundary: str, projected: str,
+    progress: dict[str, Any],
+    *,
+    run_id: str,
+    boundary: str,
+    projected: str,
 ) -> dict[str, Any]:
     """Project the complete content-bound quantity, including repeated identities."""
 
@@ -639,8 +670,10 @@ def _project_recorded_progress(
         return result
     loop = result["production_loop_run_proof"]
     for key, replacement in (
-        ("job_id", "{job_id}"), ("http_request_id", "control-job:{job_id}"),
-        ("enqueued_at", "{observed_utc}"), ("worker_id", "{worker_id}"),
+        ("job_id", "{job_id}"),
+        ("http_request_id", "control-job:{job_id}"),
+        ("enqueued_at", "{observed_utc}"),
+        ("worker_id", "{worker_id}"),
         ("worker_lease_id", "{worker_id}"),
         ("_execute_workflow_invocation_id", "{execute_workflow_invocation_id}"),
         ("workspace_loop_invocation_id", "{workspace_loop_invocation_id}"),
@@ -648,13 +681,19 @@ def _project_recorded_progress(
         loop[key] = replacement
     replacements = {
         ref: _semantic_record_digest(body)
-        for ref, (body, _, _) in zip(loop["output_cas_refs"], _progress_output_bodies(result), strict=True)
+        for ref, (body, _, _) in zip(
+            loop["output_cas_refs"], _progress_output_bodies(result), strict=True
+        )
     }
     result = _replace_bound_values(result, replacements)
-    return _replace_bound_values(result, {
-        result["production_loop_run_proof_ref"]:
-        _semantic_record_digest(result["production_loop_run_proof"]),
-    })
+    return _replace_bound_values(
+        result,
+        {
+            result["production_loop_run_proof_ref"]: _semantic_record_digest(
+                result["production_loop_run_proof"]
+            ),
+        },
+    )
 
 
 def comparison_payload(payload: dict[str, Any]) -> dict[str, Any]:
@@ -700,7 +739,10 @@ def comparison_payload(payload: dict[str, Any]) -> dict[str, Any]:
         proof["progress_artifact_ref"] = "{content_checked_progress_ref}"
         proof["authority_boundary_ref"] = projected_boundary
         proof["progress_payload"] = _project_recorded_progress(
-            proof["progress_payload"], run_id=run_id, boundary=boundary, projected=projected_boundary,
+            proof["progress_payload"],
+            run_id=run_id,
+            boundary=boundary,
+            projected=projected_boundary,
         )
 
         def project_decisions(

@@ -195,10 +195,7 @@ def build_wave40_readiness_outputs(
         "exit_fence_ref": _rel_path(wave40_path / EXIT_FENCE_OUTPUT, repo_root),
         "verification": {
             "acceptance_commands": [
-                (
-                    "uv run pytest "
-                    "tests/repo_quality/tools/test_policy_design_case_wave40.py -q"
-                ),
+                ("uv run pytest tests/repo_quality/tools/test_policy_design_case_wave40.py -q"),
                 (
                     "uv run python tools/quality/validation/"
                     "check_policy_design_case_wave40_readiness.py --repo-root ."
@@ -294,9 +291,7 @@ def _institutional_ledgers_entry(wave35e_path: Path) -> dict[str, Any]:
             errors.append(f"{filename}: manual assertions remain")
         for index, row in enumerate(_mapping_rows(payload, "rows"), start=1):
             authority = str(
-                row.get("evidence_authority_class")
-                or row.get("evidence_authority")
-                or ""
+                row.get("evidence_authority_class") or row.get("evidence_authority") or ""
             )
             runtime_provenance = _mapping(row.get("runtime_owned_provenance"))
             row_status = "pass"
@@ -532,8 +527,7 @@ def _sdd_record_family_mapping(
     rows: list[dict[str, Any]] = []
     issues: list[str] = []
     runtime_coverage_payload = _mapping(
-        payload.get("runtime_record_family_coverage")
-        or payload.get("record_family_coverage")
+        payload.get("runtime_record_family_coverage") or payload.get("record_family_coverage")
     )
     runtime_coverage_summary = _mapping(runtime_coverage_payload.get("summary"))
     runtime_coverage_rows = {
@@ -596,9 +590,7 @@ def _sdd_record_family_mapping(
                 "maturity_floor": row.get("maturity_floor"),
                 "evidence_mapping": authority_policy,
                 "runtime_record_count": runtime_record_count,
-                "runtime_record_family_coverage_status": runtime_coverage_row.get(
-                    "status"
-                ),
+                "runtime_record_family_coverage_status": runtime_coverage_row.get("status"),
                 "errors": row_errors,
             }
         )
@@ -617,12 +609,8 @@ def _sdd_record_family_mapping(
         "runtime_record_family_coverage": {
             "status": runtime_coverage_status,
             "summary": dict(runtime_coverage_summary),
-            "record_family_count": _int(
-                runtime_coverage_summary.get("record_family_count")
-            ),
-            "runtime_record_count": _int(
-                runtime_coverage_summary.get("runtime_record_count")
-            ),
+            "record_family_count": _int(runtime_coverage_summary.get("record_family_count")),
+            "runtime_record_count": _int(runtime_coverage_summary.get("runtime_record_count")),
             "issue_count": _int(runtime_coverage_summary.get("issue_count"))
             or len(runtime_coverage_issues),
             "issues": runtime_coverage_issues,
@@ -656,18 +644,14 @@ def _pass1b_closeout_mapping(
             if row.get("authority_boundary") != "record_is_evidence_only":
                 row_errors.append("authority_boundary must be record_is_evidence_only")
             if row_errors:
-                issues.extend(
-                    f"Pass 1B {group_id}:{pdd_id}: {error}" for error in row_errors
-                )
+                issues.extend(f"Pass 1B {group_id}:{pdd_id}: {error}" for error in row_errors)
             pdd_rows.append(
                 {
                     "group_id": str(group_id),
                     "pdd_id": str(pdd_id),
                     "status": "pass" if not row_errors else "fail",
                     "owner": row.get("owner"),
-                    "implemented_evidence_contract": row.get(
-                        "implemented_evidence_contract"
-                    ),
+                    "implemented_evidence_contract": row.get("implemented_evidence_contract"),
                     "scorecard_gate": row.get("scorecard_gate"),
                     "readiness_check": row.get("readiness_check"),
                     "closeout_gate": row.get("closeout_gate"),

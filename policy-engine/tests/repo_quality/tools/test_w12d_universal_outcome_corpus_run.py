@@ -13,13 +13,10 @@ from tools.quality.validation import run_universal_outcome_corpus as w12d
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 MANIFEST_PATH = (
-    REPO_ROOT
-    / "architecture/policy_design_case/"
-    "wave12d_universal_outcome_corpus_run_manifest.json"
+    REPO_ROOT / "architecture/policy_design_case/wave12d_universal_outcome_corpus_run_manifest.json"
 )
 SINGLE_CASE_PATH = (
-    REPO_ROOT
-    / "tests/fixtures/universal-corpus/cases/ua-msme-affordable-loans-2022.json"
+    REPO_ROOT / "tests/fixtures/universal-corpus/cases/ua-msme-affordable-loans-2022.json"
 )
 G1_FIXTURE_DIR = REPO_ROOT / "tests/fixtures/layer3/g1"
 
@@ -122,16 +119,8 @@ def test_w12d_manifest_is_deterministic_and_runs_real_corpus() -> None:
         "publish-with-limitation",
     ]
     assert manifest["metric_policy"]["typed_blockers_count_as_useful_design"] is False
-    assert (
-        manifest["metric_policy"]["layer3_g0_pre_adapter_blocks_count_as_useful_design"]
-        is False
-    )
-    assert (
-        manifest["metric_policy"][
-            "no_hit_domain_ceiling_requires_g1_search_adapter"
-        ]
-        is True
-    )
+    assert manifest["metric_policy"]["layer3_g0_pre_adapter_blocks_count_as_useful_design"] is False
+    assert manifest["metric_policy"]["no_hit_domain_ceiling_requires_g1_search_adapter"] is True
     assert manifest["layer3_g0_pre_adapter_readiness"] == {
         "readiness_gate_ref": (
             "repo://architecture/policy_design_case/layer3_g0_readiness_manifest.json"
@@ -224,9 +213,7 @@ def test_w12d_runs_single_real_case_through_w6_w7_w8(tmp_path: Path) -> None:
         blocker["code"] for blocker in case["typed_blockers"]
     }
     assert case["expert_adjudication_delta"]["expert_label"] == "limitation_required"
-    assert case["expert_adjudication_delta"]["expected_outcome"] == (
-        "publish-with-limitation"
-    )
+    assert case["expert_adjudication_delta"]["expected_outcome"] == ("publish-with-limitation")
     assert case["expert_adjudication_delta"]["status"] == "delta"
 
 
@@ -289,41 +276,30 @@ def test_w12d_layer3_g0_blocks_all_corpus_conversion_without_useful_design_credi
     assert report["summary"]["grounded_conversion_count_source"] == "layer3_g5_conversion_gate"
     assert report["summary"]["layer3_g5_grounded_limited_count"] == 0
     assert report["summary"]["layer3_g0_pre_adapter_block_count"] == 13
-    assert report["summary"]["first_vertical_corpus_case_id"] == (
-        "ua-msme-affordable-loans-2022"
-    )
+    assert report["summary"]["first_vertical_corpus_case_id"] == ("ua-msme-affordable-loans-2022")
     assert report["summary"]["first_vertical_construct_bundle_id"] == (
         "ukrainian_msme_credit_constructs"
     )
     assert len(gates) == 13
     assert all(gate["status"] == "blocked_pre_adapter" for gate in gates)
-    assert all(
-        gate["conversion_outcome"] == "not_attempted_g0_pre_adapter"
-        for gate in gates
-    )
+    assert all(gate["conversion_outcome"] == "not_attempted_g0_pre_adapter" for gate in gates)
     assert all(gate["admitted_adapter_count"] == 0 for gate in gates)
     assert all(gate["grounded_conversion_count"] == 0 for gate in gates)
     assert all(gate["counts_as_useful_design"] is False for gate in gates)
     assert all(
-        gate["first_vertical_corpus_case_id"] == "ua-msme-affordable-loans-2022"
+        gate["first_vertical_corpus_case_id"] == "ua-msme-affordable-loans-2022" for gate in gates
+    )
+    assert all(
+        gate["first_vertical_construct_bundle_id"] == "ukrainian_msme_credit_constructs"
         for gate in gates
     )
     assert all(
-        gate["first_vertical_construct_bundle_id"]
-        == "ukrainian_msme_credit_constructs"
-        for gate in gates
+        case["conversion_outcome"] == "not_attempted_g0_pre_adapter" for case in report["cases"]
     )
-    assert all(
-        case["conversion_outcome"] == "not_attempted_g0_pre_adapter"
-        for case in report["cases"]
+    assert all(blocker["counts_as_useful_design"] is False for blocker in report["typed_blockers"])
+    assert (
+        report["summary"]["runtime_useful_design_count"] == report["summary"]["useful_design_count"]
     )
-    assert all(
-        blocker["counts_as_useful_design"] is False
-        for blocker in report["typed_blockers"]
-    )
-    assert report["summary"]["runtime_useful_design_count"] == report["summary"][
-        "useful_design_count"
-    ]
 
 
 def test_w12d_layer3_g0_readiness_blocks_no_hit_domain_ceiling_summaries() -> None:
@@ -399,9 +375,9 @@ def test_w12d_layer3_g1_raw_fixture_binding_does_not_count_as_grounded() -> None
         expert_label="limitation_required",
         runtime_pdc_graph_status="blocked",
     )
-    case["layer3_g1_candidate_fixture"] = _g1_fixture(
-        "raw_data_forge_output_without_adapter.json"
-    )["payload"]
+    case["layer3_g1_candidate_fixture"] = _g1_fixture("raw_data_forge_output_without_adapter.json")[
+        "payload"
+    ]
 
     report = w12d.build_w12d_universal_outcome_corpus_report(
         case_results=[case],
@@ -418,7 +394,9 @@ def test_w12d_layer3_g1_raw_fixture_binding_does_not_count_as_grounded() -> None
     assert report["summary"]["layer3_g1_grounded_or_uncertain_construct_count"] == 0
 
 
-def test_w12d_layer3_g1_gate_is_inserted_before_summary_without_overwriting_g0_conversion_outcome() -> None:
+def test_w12d_layer3_g1_gate_is_inserted_before_summary_without_overwriting_g0_conversion_outcome() -> (
+    None
+):
     report = w12d.build_w12d_universal_outcome_corpus_report(
         case_results=[
             _case_result(
@@ -441,13 +419,12 @@ def test_w12d_layer3_g1_gate_is_inserted_before_summary_without_overwriting_g0_c
     assert case["layer3_g0_grounding_gate"]["conversion_outcome"] == (
         "not_attempted_g0_pre_adapter"
     )
-    assert gate["layer3_g1_grounding_outcome"] == report["summary"][
-        "layer3_g1_grounding_closure_outcome"
-    ]
-    assert report["summary"]["layer3_g1_w12d_conversion_outcome_overwrite_count"] == 0
-    assert report["summary"]["layer3_g1_w12d_gate_injection_order"] == (
-        "after_g0_before_summary"
+    assert (
+        gate["layer3_g1_grounding_outcome"]
+        == report["summary"]["layer3_g1_grounding_closure_outcome"]
     )
+    assert report["summary"]["layer3_g1_w12d_conversion_outcome_overwrite_count"] == 0
+    assert report["summary"]["layer3_g1_w12d_gate_injection_order"] == ("after_g0_before_summary")
 
 
 def test_w12d_layer3_g2_forecast_gate_consumes_posture_after_g1_without_authority() -> None:
@@ -497,15 +474,14 @@ def test_w12d_layer3_g2_forecast_gate_consumes_posture_after_g1_without_authorit
     assert gate["recommendation_authority_claimed"] is False
     assert gate["claim_authority_claimed"] is False
     assert "claim_authority" in gate["may_not_use_for"]
-    assert first_case["conversion_outcome"] == first_case["layer3_g0_grounding_gate"][
-        "conversion_outcome"
-    ]
+    assert (
+        first_case["conversion_outcome"]
+        == first_case["layer3_g0_grounding_gate"]["conversion_outcome"]
+    )
     assert lightweight_case["layer3_g2_forecast_gate"]["status"] == "pass"
     assert lightweight_case["layer3_g2_forecast_gate"]["posture_consumed"] is False
     assert lightweight_case["layer3_g2_forecast_gate"]["lightweight_posture_ref"]
-    assert report["summary"]["layer3_g2_w12d_gate_injection_order"] == (
-        "after_g1_before_summary"
-    )
+    assert report["summary"]["layer3_g2_w12d_gate_injection_order"] == ("after_g1_before_summary")
     assert report["summary"]["layer3_g2_full_s2_consumer_case_count"] == 1
     assert report["summary"]["layer3_g2_useful_design_delta_count"] == 0
 
@@ -643,9 +619,9 @@ def test_w12d_corpus_route_emits_s2_shadow_design_search_for_first_proving_case(
     }
     assert s2["search_ledger"]["acquisition_branch_state"] == "bridge_missing"
     assert s2["design_record"]["projection_status"] == "shadow"
-    assert "production_recommendation" in s2["design_record"]["authority_boundary"][
-        "may_not_use_for"
-    ]
+    assert (
+        "production_recommendation" in s2["design_record"]["authority_boundary"]["may_not_use_for"]
+    )
 
 
 def test_w12d_s2_shadow_search_does_not_change_canonical_closeout_outcome(
@@ -687,9 +663,7 @@ def test_w12d_s1_route_does_not_override_production_or_hard_blockers(
         capability_index_path=index_dir / "capability_index_v1.duckdb",
     )
     governed_case = governed_report["cases"][0]
-    assert governed_case["authority_outcomes"]["governed"]["outcome"] == (
-        "publish-with-limitation"
-    )
+    assert governed_case["authority_outcomes"]["governed"]["outcome"] == ("publish-with-limitation")
     assert governed_case["authority_outcomes"]["production"]["outcome"] == "typed_blocker"
 
     blocked_report = w12d.run_w12d_universal_outcome_corpus(
@@ -816,13 +790,9 @@ def test_w12d_real_producer_consumes_s3_closed_acquisition_binding(
     assert grounded_rows
     assert {row["status"] for row in grounded_rows} == {"selected_exact"}
     assert all(
-        row["capability_index_ref"] == s3["frozen"]["capability_index_ref"]
-        for row in grounded_rows
+        row["capability_index_ref"] == s3["frozen"]["capability_index_ref"] for row in grounded_rows
     )
-    assert all(
-        "production_claim_authority" in row["may_not_use_for"]
-        for row in grounded_rows
-    )
+    assert all("production_claim_authority" in row["may_not_use_for"] for row in grounded_rows)
     assert case["authority_outcomes"]["production"]["outcome"] == "typed_blocker"
 
 
@@ -845,8 +815,7 @@ def test_w12d_emits_s4_regime_for_13_cases(tmp_path: Path) -> None:
     assert all(block["predicted_regime"] != "risk" for block in s4_blocks)
     assert all(block["regime_claim_ref"].startswith("pdc://layer2/s4/") for block in s4_blocks)
     assert all(
-        block["commitment_profile_ref"].startswith("pdc://layer2/s4/")
-        for block in s4_blocks
+        block["commitment_profile_ref"].startswith("pdc://layer2/s4/") for block in s4_blocks
     )
     assert all(
         block["axis_projection"]["position"]["cell_ref"] == "KNOWLEDGE.epistemic_regime"
@@ -870,8 +839,9 @@ def test_w12d_s4_records_w12_hypothesis(tmp_path: Path) -> None:
     assert 0.0 <= summary["commitment_profile_adequacy"] <= 1.0
     assert summary["w12_overblocking_hypothesis"] in {"confirmed", "revised"}
     assert summary["limitation_required_case_count"] == 9
-    assert sum(summary["limitation_required_non_risk_breakdown"].values()) == (
-        summary["limitation_required_non_risk_count"]
+    assert (
+        sum(summary["limitation_required_non_risk_breakdown"].values())
+        == (summary["limitation_required_non_risk_count"])
     )
     assert summary["limitation_required_non_risk_count"] == 9
     assert summary["w12_overblocking_hypothesis"] == "confirmed"
@@ -913,9 +883,7 @@ def test_w12d_emits_s5_coupling_for_13_cases(tmp_path: Path) -> None:
     assert len(s5_blocks) == 13
     assert {block["classifier_owner"] for block in s5_blocks} == {"A_gate"}
     assert all(block["coupling_graph_ref"].startswith("pdc://layer2/s5/") for block in s5_blocks)
-    assert all(
-        block["module_discovery_ref"].startswith("pdc://layer2/s5/") for block in s5_blocks
-    )
+    assert all(block["module_discovery_ref"].startswith("pdc://layer2/s5/") for block in s5_blocks)
     assert all(
         block["decomposition_result_ref"].startswith("pdc://layer2/s5/") for block in s5_blocks
     )
@@ -939,9 +907,9 @@ def test_w12d_emits_s5_coupling_for_13_cases(tmp_path: Path) -> None:
 
 def test_w12d_s5_prediction_inputs_do_not_contain_gold_labels() -> None:
     signals = json.loads(
-        (
-            REPO_ROOT / "tests/fixtures/layer2/s5/s5_coupling_case_signals.json"
-        ).read_text(encoding="utf-8")
+        (REPO_ROOT / "tests/fixtures/layer2/s5/s5_coupling_case_signals.json").read_text(
+            encoding="utf-8"
+        )
     )
     forbidden = {
         "expert_coupling_regime",
@@ -1094,9 +1062,10 @@ def test_w12d_cli_writes_report_for_existing_single_case(
     assert payload["status"] == "pass"
     assert payload["summary"]["runtime_useful_design_rate"] == 0.0
     assert payload["summary"]["layer3_g5_runtime_useful_design_credit_count"] == 0
-    assert payload["cases"][0]["capability_graph_trace"]["s3_acquisition"][
-        "terminal"
-    ] == "closed_as_binding"
+    assert (
+        payload["cases"][0]["capability_graph_trace"]["s3_acquisition"]["terminal"]
+        == "closed_as_binding"
+    )
     assert "w12d_producer_pipeline_blocked" not in {
         blocker["code"] for blocker in payload["typed_blockers"]
     }
@@ -1114,12 +1083,10 @@ def test_w12d_emits_s6_blind_spot_firewalls_for_13_cases(tmp_path: Path) -> None
     assert all(block["matches_gold"] is True for block in s6_blocks)
     assert all(block["canonical_outcome_effect"] == "none_shadow_only" for block in s6_blocks)
     assert all(
-        block["measurability_record_ref"].startswith("pdc://layer2/s6/")
-        for block in s6_blocks
+        block["measurability_record_ref"].startswith("pdc://layer2/s6/") for block in s6_blocks
     )
     assert all(
-        block["strategic_response_record_ref"].startswith("pdc://layer2/s6/")
-        for block in s6_blocks
+        block["strategic_response_record_ref"].startswith("pdc://layer2/s6/") for block in s6_blocks
     )
 
 
@@ -1141,18 +1108,17 @@ def test_w12d_s6_records_per_axis_fail_closed_coverage(tmp_path: Path) -> None:
 
 def test_w12d_s6_gold_labels_cover_all_13_cases_and_five_axes() -> None:
     signals = json.loads(
-        (
-            REPO_ROOT / "tests/fixtures/layer2/s6/s6_blind_spot_case_signals.json"
-        ).read_text(encoding="utf-8")
+        (REPO_ROOT / "tests/fixtures/layer2/s6/s6_blind_spot_case_signals.json").read_text(
+            encoding="utf-8"
+        )
     )
     labels = json.loads(
-        (
-            REPO_ROOT / "tests/fixtures/layer2/s6/s6_blind_spot_expert_labels.json"
-        ).read_text(encoding="utf-8")
+        (REPO_ROOT / "tests/fixtures/layer2/s6/s6_blind_spot_expert_labels.json").read_text(
+            encoding="utf-8"
+        )
     )
     expected_cases = {
-        path.stem
-        for path in (REPO_ROOT / "tests/fixtures/universal-corpus/cases").glob("*.json")
+        path.stem for path in (REPO_ROOT / "tests/fixtures/universal-corpus/cases").glob("*.json")
     }
 
     assert set(labels["cases"]) == expected_cases
@@ -1216,9 +1182,9 @@ def test_w12d_s6_pinned_case_injects_posture_into_s2(tmp_path: Path) -> None:
     assert {
         row["cell_ref"] for row in s2["constraint_store"]["constraint_records"]
     } >= _S6_AXIS_CELLS
-    assert set(
-        s2["design_record"]["envelope"]["cluster_authority_dimension_refs"]
-    ) == set(s6["cluster_authority_dimension_refs"])
+    assert set(s2["design_record"]["envelope"]["cluster_authority_dimension_refs"]) == set(
+        s6["cluster_authority_dimension_refs"]
+    )
     assert set(s2["design_record"]["ledger_refs"]) >= {
         s6["measurability_record_ref"],
         s6["aggregation_validity_record_ref"],
@@ -1234,17 +1200,13 @@ def test_w12d_s6_reflexive_other_agents_flow_updates_system_dgp(tmp_path: Path) 
     strategic_blocks = [
         case["s6_blind_spot_firewalls"]
         for case in report["cases"]
-        if case["s6_blind_spot_firewalls"]["strategic_response_record"][
-            "firewall_disposition"
-        ]
+        if case["s6_blind_spot_firewalls"]["strategic_response_record"]["firewall_disposition"]
         == "block"
     ]
     assert strategic_blocks
     assert all(block["post_intervention_dgp_update_ref"] for block in strategic_blocks)
     assert all(block["system_dynamics_handoff_required"] is True for block in strategic_blocks)
-    assert report["s6_blind_spot_summary"]["system_dynamics_handoff_count"] >= len(
-        strategic_blocks
-    )
+    assert report["s6_blind_spot_summary"]["system_dynamics_handoff_count"] >= len(strategic_blocks)
 
 
 def test_w12d_s6_bridge_consumer_table_covers_cluster_map_consumers(
@@ -1516,15 +1478,11 @@ def test_w12d_emits_s8_value_choice_blocks_for_13_cases(tmp_path: Path) -> None:
         for block in s8_blocks
     )
     assert all(
-        block["value_choice_provenance_ref"].startswith("pdc://layer2/s8/")
-        for block in s8_blocks
+        block["value_choice_provenance_ref"].startswith("pdc://layer2/s8/") for block in s8_blocks
     )
+    assert all("production_recommendation" in block["may_not_use_for"] for block in s8_blocks)
     assert all(
-        "production_recommendation" in block["may_not_use_for"] for block in s8_blocks
-    )
-    assert all(
-        block["canonical_outcome_effect"]
-        == "none_shadow_or_governed_pilot_value_context_only"
+        block["canonical_outcome_effect"] == "none_shadow_or_governed_pilot_value_context_only"
         for block in s8_blocks
     )
 
@@ -1586,15 +1544,9 @@ def test_w12d_s8_pinned_s2_case_injects_value_posture(tmp_path: Path) -> None:
     case = report["cases"][0]
     s2 = case["s2_design_search"]
     s8 = case["s8_value_choice"]
-    assert (
-        s2["value_posture"]["value_choice_provenance_ref"]
-        == s8["value_choice_provenance_ref"]
-    )
+    assert s2["value_posture"]["value_choice_provenance_ref"] == s8["value_choice_provenance_ref"]
     assert s8["pareto_archive_ref"] in s2["search_ledger"]["pareto_archive_refs"]
-    assert (
-        s8["value_choice_provenance_ref"]
-        in s2["search_ledger"]["value_choice_provenance_refs"]
-    )
+    assert s8["value_choice_provenance_ref"] in s2["search_ledger"]["value_choice_provenance_refs"]
     assert s8["value_choice_provenance_ref"] in s2["design_record"]["ledger_refs"]
 
 
@@ -1603,10 +1555,7 @@ def test_w12d_s8_preserves_s2_shadow_only_outcome_effects(tmp_path: Path) -> Non
 
     for case in report["cases"]:
         s8 = case["s8_value_choice"]
-        assert (
-            s8["canonical_outcome_effect"]
-            == "none_shadow_or_governed_pilot_value_context_only"
-        )
+        assert s8["canonical_outcome_effect"] == "none_shadow_or_governed_pilot_value_context_only"
         if case["case_id"] == "ua-msme-affordable-loans-2022":
             assert case["s2_design_search"]["canonical_outcome_effect"] == "none_shadow_only"
     assert report["s8_value_choice_summary"]["s2_value_posture_injection_count"] == 1
@@ -1712,8 +1661,7 @@ def _case_result(
         "authority_outcomes": {
             authority_level: {
                 "outcome": outcome,
-                "counts_toward_useful_design": outcome
-                in {"pass", "publish-with-limitation"},
+                "counts_toward_useful_design": outcome in {"pass", "publish-with-limitation"},
             }
         },
         "typed_blockers": (
@@ -1841,12 +1789,8 @@ def test_w12d_s10_blocks_consume_s5_s6_s8_without_rerunning_them(
             s6["strategic_response_record_ref"],
         }
         assert s10["s8_value_choice_provenance_ref"] == s8["value_choice_provenance_ref"]
-        assert s10["s8_value_tradeoff_disclosure_ref"] == (
-            s8["value_tradeoff_disclosure_ref"]
-        )
-        assert s10["canonical_outcome_effect"] == (
-            "forecast_support_only_not_outcome_authority"
-        )
+        assert s10["s8_value_tradeoff_disclosure_ref"] == (s8["value_tradeoff_disclosure_ref"])
+        assert s10["canonical_outcome_effect"] == ("forecast_support_only_not_outcome_authority")
 
 
 def test_w12d_s10_injects_first_case_s2_posture_without_full_search_for_all_cases(
@@ -1861,9 +1805,7 @@ def test_w12d_s10_injects_first_case_s2_posture_without_full_search_for_all_case
         s10 = dict(case["s10_outcome_prediction"])
         if case["case_id"] == "ua-msme-affordable-loans-2022":
             first_case_count += 1
-            assert s2["forecast_posture"]["forecast_support_ref"] == (
-                s10["forecast_support_ref"]
-            )
+            assert s2["forecast_posture"]["forecast_support_ref"] == (s10["forecast_support_ref"])
             assert s10["forecast_support_ref"] in s2["search_ledger"]["forecast_support_refs"]
         else:
             lightweight_case_count += 1
@@ -1882,8 +1824,9 @@ def test_w12d_s10_summary_records_calibration_and_negative_controls(
 
     assert summary["case_count"] == 13
     assert summary["observable_subset_calibration_denominator"] >= 4
-    assert summary["observable_subset_calibration_numerator"] == (
-        summary["observable_subset_calibration_denominator"]
+    assert (
+        summary["observable_subset_calibration_numerator"]
+        == (summary["observable_subset_calibration_denominator"])
     )
     assert summary["observable_subset_calibration_status"] == "pass"
     assert summary["observable_subset_calibration_floor_passed"] is True
@@ -1945,11 +1888,13 @@ def test_w12d_s11_injects_first_case_s2_posture_without_full_search_for_all_case
         s11 = dict(case["s11_predictive_knowledge"])
         if case["case_id"] == "ua-msme-affordable-loans-2022":
             first_case_count += 1
-            assert s2["predictive_posture"]["predictive_knowledge_ref"] == (
-                s11["predictive_knowledge_ref"]
+            assert (
+                s2["predictive_posture"]["predictive_knowledge_ref"]
+                == (s11["predictive_knowledge_ref"])
             )
-            assert s11["predictive_knowledge_ref"] in (
-                s2["search_ledger"]["predictive_knowledge_refs"]
+            assert (
+                s11["predictive_knowledge_ref"]
+                in (s2["search_ledger"]["predictive_knowledge_refs"])
             )
         else:
             lightweight_case_count += 1
@@ -2002,13 +1947,12 @@ def test_w12d_layer3_g3_consumes_resolved_first_case_proof_in_s11_s2_route(
     assert gate["g3_proof_carrying_analytics_ref"].startswith("pdc://layer3/g3/")
     assert s11["proof_carrying_analytics_ref"] == gate["g3_proof_carrying_analytics_ref"]
     assert s11["predictive_knowledge_ref"] in search_ledger["predictive_knowledge_refs"]
-    assert gate["g3_proof_carrying_analytics_ref"] in (
-        search_ledger["proof_carrying_analytics_refs"]
+    assert (
+        gate["g3_proof_carrying_analytics_ref"] in (search_ledger["proof_carrying_analytics_refs"])
     )
     assert s11_constraints
     assert all(
-        gate["g3_proof_carrying_analytics_ref"] in row["evidence_refs"]
-        for row in s11_constraints
+        gate["g3_proof_carrying_analytics_ref"] in row["evidence_refs"] for row in s11_constraints
     )
     assert axis_positions
     assert gate["g3_proof_carrying_analytics_ref"] in axis_positions[0]["evidence_refs"]
@@ -2057,8 +2001,7 @@ def test_w12d_layer3_g3_gate_does_not_overwrite_g0_g1_g2_or_useful_design(
     assert summary["g1_conversion_outcome_overwrite_count"] == 0
     assert summary["g2_conversion_outcome_overwrite_count"] == 0
     assert all(
-        case["counts_toward_useful_design"]
-        == (case["outcome"] in w12d.USEFUL_DESIGN_OUTCOMES)
+        case["counts_toward_useful_design"] == (case["outcome"] in w12d.USEFUL_DESIGN_OUTCOMES)
         for case in w12d_s9_report["cases"]
     )
 
@@ -2150,8 +2093,7 @@ def test_w12d_layer3_g5_current_committed_grounding_fails_validation(
     resolution = dict(gate["committed_grounding_resolution"])
     g2_payload = json.loads(
         (
-            REPO_ROOT
-            / "architecture/policy_design_case/layer3_g2_forecast_support_bindings.json"
+            REPO_ROOT / "architecture/policy_design_case/layer3_g2_forecast_support_bindings.json"
         ).read_text(encoding="utf-8")
     )
     g3_payload = json.loads(
@@ -2196,7 +2138,9 @@ def test_w12d_layer3_g5_grounding_gate_is_general_not_case_pinned(
     case["case_id"] = "second-grounded-partial-probe"
     case["layer3_g2_forecast_gate"]["case_id"] = case["case_id"]
     case["layer3_g3_analytics_search_gate"]["case_id"] = case["case_id"]
-    source_payload = json.loads((REPO_ROOT / case["source_path"].removeprefix("repo://")).read_text())
+    source_payload = json.loads(
+        (REPO_ROOT / case["source_path"].removeprefix("repo://")).read_text()
+    )
     source_hash = source_payload["redacted_source_hash"]
     forecast_ref = "pdc://layer3/g2/second-grounded-partial-probe/forecast-support/w12d"
     calibration_ref = "pdc://layer3/g2/second-grounded-partial-probe/calibration/w12d"
@@ -2291,9 +2235,7 @@ def test_w12d_layer3_g5_grounding_gate_is_general_not_case_pinned(
                         "status": "pass",
                         "transport_status": "limited",
                         "forecast_support_refs": [forecast_ref],
-                        "forecast_support_binding_refs": [
-                            "g2-second-grounded-partial-probe"
-                        ],
+                        "forecast_support_binding_refs": ["g2-second-grounded-partial-probe"],
                         "skg_transport_score_refs": [skg_transport_ref],
                         "transport_confidence_by_ref": {skg_transport_ref: 0.72},
                     }
@@ -2376,9 +2318,9 @@ def test_w12d_layer3_g5_grounding_gate_is_general_not_case_pinned(
     ungrounded["layer3_g2_forecast_gate"]["forecast_support_refs"] = [
         "pdc://layer3/g2/uncommitted/forecast-support"
     ]
-    ungrounded["layer3_g3_analytics_search_gate"][
-        "g3_proof_carrying_analytics_ref"
-    ] = "pdc://layer3/g3/uncommitted/proof"
+    ungrounded["layer3_g3_analytics_search_gate"]["g3_proof_carrying_analytics_ref"] = (
+        "pdc://layer3/g3/uncommitted/proof"
+    )
 
     blocked = w12d._with_layer3_g5_conversion_gate(
         ungrounded,
@@ -2515,15 +2457,15 @@ def test_w12d_s11_summary_records_per_axis_calibration_floor_and_negative_contro
 
     assert summary["case_count"] == 13
     assert summary["axis_count"] == 52
-    assert summary["per_axis_predictive_calibration_denominator"] == (
-        summary["axis_count"]
+    assert summary["per_axis_predictive_calibration_denominator"] == (summary["axis_count"])
+    assert (
+        summary["per_axis_predictive_calibration_numerator"]
+        <= (summary["per_axis_predictive_calibration_denominator"])
     )
-    assert summary["per_axis_predictive_calibration_numerator"] <= (
-        summary["per_axis_predictive_calibration_denominator"]
+    assert (
+        summary["predictive_axis_count"] + summary["reverted_fail_closed_axis_count"]
+        == summary["axis_count"]
     )
-    assert summary["predictive_axis_count"] + summary[
-        "reverted_fail_closed_axis_count"
-    ] == summary["axis_count"]
     assert summary["per_axis_predictive_calibration_threshold_ref"]
     for false_clear_field in w12d.S11_FALSE_CLEAR_FIELDS:
         flat_field = f"{false_clear_field}_false_clear_count"
@@ -2630,8 +2572,9 @@ def test_w12d_s12_preserves_s2_shadow_only_outcome_effects(
             "resource_allocation_only_not_production_authority"
         )
         if case["case_id"] == "ua-msme-affordable-loans-2022":
-            assert s2["resource_posture"]["resource_allocation_policy_ref"] == (
-                s12["resource_allocation_policy_ref"]
+            assert (
+                s2["resource_posture"]["resource_allocation_policy_ref"]
+                == (s12["resource_allocation_policy_ref"])
             )
             assert s2["canonical_outcome_effect"] == "none_shadow_only"
         else:
@@ -2762,14 +2705,14 @@ def test_w12d_s13_design_time_gate_posture_does_not_inject_post_deploy_learning_
 
 def test_w12d_s13_gold_labels_cover_all_13_cases_without_leaking_gold_into_signals() -> None:
     labels = json.loads(
-        (
-            REPO_ROOT / "tests/fixtures/layer2/s13/s13_post_deploy_expert_labels.json"
-        ).read_text(encoding="utf-8")
+        (REPO_ROOT / "tests/fixtures/layer2/s13/s13_post_deploy_expert_labels.json").read_text(
+            encoding="utf-8"
+        )
     )
     signals = json.loads(
-        (
-            REPO_ROOT / "tests/fixtures/layer2/s13/s13_post_deploy_case_signals.json"
-        ).read_text(encoding="utf-8")
+        (REPO_ROOT / "tests/fixtures/layer2/s13/s13_post_deploy_case_signals.json").read_text(
+            encoding="utf-8"
+        )
     )
     expected_cases = {
         path.stem for path in (REPO_ROOT / "tests/fixtures/universal-corpus/cases").glob("*.json")
@@ -2782,8 +2725,7 @@ def test_w12d_s13_gold_labels_cover_all_13_cases_without_leaking_gold_into_signa
         for row in labels["cases"].values()
     )
     assert any(
-        row["expected_envelope_revision_direction"] == "expand"
-        for row in labels["cases"].values()
+        row["expected_envelope_revision_direction"] == "expand" for row in labels["cases"].values()
     )
 
     forbidden_gold_fields = {
@@ -2878,14 +2820,14 @@ def test_w12d_s14_scorecard_refs_are_pending_sealed_not_passed_in_dev(
 
 def test_w12d_s14_gold_labels_cover_13_cases_without_leaking_into_signals() -> None:
     labels = json.loads(
-        (
-            REPO_ROOT / "tests/fixtures/layer2/s14/s14_universality_expert_labels.json"
-        ).read_text(encoding="utf-8")
+        (REPO_ROOT / "tests/fixtures/layer2/s14/s14_universality_expert_labels.json").read_text(
+            encoding="utf-8"
+        )
     )
     signals = json.loads(
-        (
-            REPO_ROOT / "tests/fixtures/layer2/s14/s14_universality_dev_signals.json"
-        ).read_text(encoding="utf-8")
+        (REPO_ROOT / "tests/fixtures/layer2/s14/s14_universality_dev_signals.json").read_text(
+            encoding="utf-8"
+        )
     )
     expected_cases = {
         path.stem for path in (REPO_ROOT / "tests/fixtures/universal-corpus/cases").glob("*.json")
@@ -2894,8 +2836,7 @@ def test_w12d_s14_gold_labels_cover_13_cases_without_leaking_into_signals() -> N
     assert set(labels["cases"]) == expected_cases
     assert set(signals["cases"]) == expected_cases
     assert any(
-        row["expected_declared_posture"] == "out_of_envelope"
-        for row in labels["cases"].values()
+        row["expected_declared_posture"] == "out_of_envelope" for row in labels["cases"].values()
     )
 
     forbidden_gold_fields = {

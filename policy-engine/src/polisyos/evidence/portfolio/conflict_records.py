@@ -12,9 +12,7 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
 CONFLICT_RECORD_SCHEMA_VERSION = "policyos.evidence.portfolio.conflict_record.v1"
-CONFLICT_PORTFOLIO_INDEX_SCHEMA_VERSION = (
-    "policyos.evidence.portfolio.conflict_index.v1"
-)
+CONFLICT_PORTFOLIO_INDEX_SCHEMA_VERSION = "policyos.evidence.portfolio.conflict_index.v1"
 CONFLICT_RECORD_CONTRACT_ID = "policy_design_case.conflict_record.v1"
 CONFLICT_PORTFOLIO_INDEX_CONTRACT_ID = "policy_design_case.conflict_portfolio_index.v1"
 
@@ -74,8 +72,7 @@ class ConflictAuthorityEnvelope(BaseModel):
         missing = {"claim_authority", "support_strength"} - set(self.may_not_use_for)
         if missing:
             raise ValueError(
-                "conflict records must not be usable for "
-                + ", ".join(sorted(missing))
+                "conflict records must not be usable for " + ", ".join(sorted(missing))
             )
         return self
 
@@ -88,9 +85,7 @@ class PolicyConflictRecord(BaseModel):
     schema_version: Literal["policyos.evidence.portfolio.conflict_record.v1"] = (
         CONFLICT_RECORD_SCHEMA_VERSION
     )
-    contract_id: Literal["policy_design_case.conflict_record.v1"] = (
-        CONFLICT_RECORD_CONTRACT_ID
-    )
+    contract_id: Literal["policy_design_case.conflict_record.v1"] = CONFLICT_RECORD_CONTRACT_ID
     conflict_id: str = Field(min_length=1)
     run_id: str = Field(min_length=1)
     claim_ids: list[str] = Field(min_length=1)
@@ -129,9 +124,7 @@ class PolicyConflictRecord(BaseModel):
         "publish_as_contested",
         "advisory_only",
     ] = "requires_review"
-    authority_envelope: ConflictAuthorityEnvelope = Field(
-        default_factory=ConflictAuthorityEnvelope
-    )
+    authority_envelope: ConflictAuthorityEnvelope = Field(default_factory=ConflictAuthorityEnvelope)
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
@@ -141,8 +134,7 @@ class PolicyConflictRecord(BaseModel):
         if not _clean_texts(self.conflicting_source_refs):
             raise ValueError("conflict records must bind conflicting source refs")
         if (
-            self.resolution_route
-            is ConflictResolutionRoute.PERSISTENT_CONTESTED_STATE
+            self.resolution_route is ConflictResolutionRoute.PERSISTENT_CONTESTED_STATE
             and self.closeout_effect == "advisory_only"
         ):
             raise ValueError("persistent contested conflicts cannot be advisory only")
@@ -409,9 +401,7 @@ def _portfolio_ids_by_claim_from_registry(
         if not claim_id:
             continue
         result.setdefault(claim_id, [])
-        result[claim_id] = _dedupe(
-            [*result[claim_id], *_clean_texts(row.get("portfolio_refs"))]
-        )
+        result[claim_id] = _dedupe([*result[claim_id], *_clean_texts(row.get("portfolio_refs"))])
     return {claim_id: tuple(ids) for claim_id, ids in result.items()}
 
 

@@ -226,9 +226,7 @@ def test_doc_normalize_uses_grobid_when_pdf_source_is_available(tmp_path, monkey
 
 
 @pytest.mark.parametrize("raw", [b"[]\n", b"{bad json}\n", b"\xff\n"])
-def test_doc_normalize_resume_refuses_bad_substrate_without_mutation(
-    tmp_path, raw: bytes
-) -> None:
+def test_doc_normalize_resume_refuses_bad_substrate_without_mutation(tmp_path, raw: bytes) -> None:
     config = AcademicBatchConfig(snapshot_root=tmp_path / "snap", resume=True)
     _write_jsonl(
         config.selected_global_works_path,

@@ -51,9 +51,9 @@ def test_reader_skeleton_emits_incomplete_closeout_only_verdict() -> None:
     issue_codes = {issue["code"] for issue in verdict["issues"]}
     assert "closeout_module_reader_stubbed" in issue_codes
     assert "closeout_module_evidence_missing" in issue_codes
-    assert {
-        row["module_id"]: row["status"] for row in verdict["module_reader_results"]
-    }["closeout_compatibility"] == "pass"
+    assert {row["module_id"]: row["status"] for row in verdict["module_reader_results"]}[
+        "closeout_compatibility"
+    ] == "pass"
 
 
 def test_projection_readiness_packaging_and_public_export_cannot_satisfy_closeout() -> None:
@@ -128,9 +128,9 @@ def test_projection_only_module_record_is_negative_closeout_evidence() -> None:
         },
     )
 
-    semantic_binding = {
-        row["module_id"]: row for row in verdict["module_reader_results"]
-    }["semantic_binding"]
+    semantic_binding = {row["module_id"]: row for row in verdict["module_reader_results"]}[
+        "semantic_binding"
+    ]
     assert semantic_binding["status"] == "fail"
     assert semantic_binding["issue_codes"] == ["closeout_projection_only_not_authority"]
     assert "closeout_projection_only_not_authority" in {
@@ -198,13 +198,13 @@ def test_rule_evolution_revalidation_state_is_closeout_consumed() -> None:
         },
     )
 
-    rule_evolution = {
-        row["module_id"]: row for row in verdict["module_reader_results"]
-    }["rule_evolution"]
+    rule_evolution = {row["module_id"]: row for row in verdict["module_reader_results"]}[
+        "rule_evolution"
+    ]
     assert rule_evolution["status"] == "fail"
     assert rule_evolution["source_status"] == "blocked"
-    assert "rule_alias_semantic_change_detected" in (
-        rule_evolution["issues"][0]["child_issue_codes"]
+    assert (
+        "rule_alias_semantic_change_detected" in (rule_evolution["issues"][0]["child_issue_codes"])
     )
 
 
@@ -244,17 +244,15 @@ def test_cost_degradation_telemetry_is_observable_not_required_closeout_blocker(
         },
     )
 
-    cost_row = {
-        row["module_id"]: row for row in verdict["module_reader_results"]
-    }["cost_degradation_telemetry"]
+    cost_row = {row["module_id"]: row for row in verdict["module_reader_results"]}[
+        "cost_degradation_telemetry"
+    ]
 
     assert verdict["status"] == "closed"
     assert verdict["can_closeout"] is True
     assert cost_row["status"] == "observe"
     assert cost_row["blocking"] is False
-    assert "closeout_module_evidence_failed" not in {
-        issue["code"] for issue in verdict["issues"]
-    }
+    assert "closeout_module_evidence_failed" not in {issue["code"] for issue in verdict["issues"]}
 
 
 def test_w4_closeout_integration_closes_with_real_records_and_preserves_deficits() -> None:
@@ -303,12 +301,11 @@ def test_w4_closeout_integration_closes_with_real_records_and_preserves_deficits
     assert verdict["summary"]["accepted_deficit_count"] == 1
     assert verdict["summary"]["limitation_count"] == 1
     assert {
-        item["deficit_id"]: item["source_module_id"]
-        for item in verdict["accepted_deficits"]
+        item["deficit_id"]: item["source_module_id"] for item in verdict["accepted_deficits"]
     } == {"deficit-scholar-accepted": "deficit_crosswalk"}
-    assert {
-        item["deficit_id"]: item["source_module_id"] for item in verdict["limitations"]
-    } == {"deficit-source-limited": "deficit_crosswalk"}
+    assert {item["deficit_id"]: item["source_module_id"] for item in verdict["limitations"]} == {
+        "deficit-source-limited": "deficit_crosswalk"
+    }
     assert {row["surface"] for row in verdict["observed_surfaces"]} >= {
         "readiness",
         "scorecard",
@@ -355,8 +352,7 @@ def test_w4_closeout_preserves_upstream_blocker_when_readiness_and_scorecard_pas
     assert blocker["source_producer"] == "polisyos.runtime.quality.semantic_binding"
     assert blocker["claim_id"] == "claim-msme-1"
     assert {
-        row["surface"]: row["closeout_authority_effect"]
-        for row in verdict["observed_surfaces"]
+        row["surface"]: row["closeout_authority_effect"] for row in verdict["observed_surfaces"]
     } == {"readiness": "observed_only", "scorecard": "observed_only"}
 
 
@@ -369,26 +365,24 @@ def test_w8e_missing_conflict_materialization_record_blocks_closeout() -> None:
         severity=ConflictSeverity.HIGH,
         description="Legal prohibits what academic evidence supports.",
     )
-    module_records["conflict_materialization"] = (
-        build_conflict_materialization_closeout_record(
-            {
-                "conflict_records": [],
-                "claim_registry": {"claims": []},
-                "portfolio_index": {"conflict_records": []},
-                "issues": list(
-                    validate_conflict_backstop_coverage(
-                        [detector_conflict],
-                        conflict_records=[],
-                    )
-                ),
-                "detector_conflicts": [
-                    {
-                        "need_id": detector_conflict.need_id,
-                        "dimension": detector_conflict.dimension,
-                    }
-                ],
-            }
-        )
+    module_records["conflict_materialization"] = build_conflict_materialization_closeout_record(
+        {
+            "conflict_records": [],
+            "claim_registry": {"claims": []},
+            "portfolio_index": {"conflict_records": []},
+            "issues": list(
+                validate_conflict_backstop_coverage(
+                    [detector_conflict],
+                    conflict_records=[],
+                )
+            ),
+            "detector_conflicts": [
+                {
+                    "need_id": detector_conflict.need_id,
+                    "dimension": detector_conflict.dimension,
+                }
+            ],
+        }
     )
 
     verdict = build_can_i_closeout_verdict(
@@ -398,12 +392,12 @@ def test_w8e_missing_conflict_materialization_record_blocks_closeout() -> None:
 
     assert verdict["status"] == "blocked"
     assert verdict["can_closeout"] is False
-    assert {
-        blocker["upstream_issue_code"] for blocker in verdict["blockers"]
-    } >= {"policy_design_conflict_materialization_missing"}
-    conflict_reader = {
-        row["module_id"]: row for row in verdict["module_reader_results"]
-    }["conflict_materialization"]
+    assert {blocker["upstream_issue_code"] for blocker in verdict["blockers"]} >= {
+        "policy_design_conflict_materialization_missing"
+    }
+    conflict_reader = {row["module_id"]: row for row in verdict["module_reader_results"]}[
+        "conflict_materialization"
+    ]
     assert conflict_reader["status"] == "fail"
 
 
@@ -421,9 +415,9 @@ def test_w4_closeout_missing_real_reader_is_integration_blocker_not_stub() -> No
     issue_codes = {issue["code"] for issue in verdict["issues"]}
     assert "closeout_module_evidence_missing" in issue_codes
     assert "closeout_module_reader_stubbed" not in issue_codes
-    source_truth = {
-        row["module_id"]: row for row in verdict["module_reader_results"]
-    }["source_truth"]
+    source_truth = {row["module_id"]: row for row in verdict["module_reader_results"]}[
+        "source_truth"
+    ]
     assert source_truth["stubbed"] is False
     assert source_truth["status"] == "missing"
 
@@ -454,9 +448,7 @@ def _w4_passing_module_records() -> dict[str, dict[str, object]]:
             }
         ),
         "attestation": _w4_record("policyos.runtime.attestation.v1"),
-        "closeout_compatibility": _w4_record(
-            "policyos.runtime.can_i_closeout_compatibility.v1"
-        ),
+        "closeout_compatibility": _w4_record("policyos.runtime.can_i_closeout_compatibility.v1"),
         "semantic_binding": _w4_record("policyos.runtime.semantic_binding.v1"),
         "claim_registry": _w4_record("policyos.runtime.claim_registry.v1"),
         "pdc_record_family_status": _w4_record(
@@ -465,9 +457,7 @@ def _w4_passing_module_records() -> dict[str, dict[str, object]]:
         "projection_publication_state": _w4_record(
             "policyos.runtime.policy_design_case.projection_publication_state.v1"
         ),
-        "complexity_self_fmea": _w4_record(
-            "policyos.runtime.run_cost_proportionality.v1"
-        ),
+        "complexity_self_fmea": _w4_record("policyos.runtime.run_cost_proportionality.v1"),
         "audit_verifier_ingestion": _w4_record("policyos.runtime.audit_verifier.v1"),
     }
 

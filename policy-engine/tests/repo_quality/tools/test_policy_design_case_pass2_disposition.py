@@ -42,9 +42,7 @@ def test_wave35_findings_ledger_represents_every_wave34_artifact(
     assert ledger["summary"]["finding_count"] == 113
     assert ledger["summary"]["zero_finding_pdd_ids"] == ["PDD-088"]
 
-    pdd100 = next(
-        row for row in ledger["findings"] if row["pdd_id"] == "PDD-100"
-    )
+    pdd100 = next(row for row in ledger["findings"] if row["pdd_id"] == "PDD-100")
     assert pdd100["recommended_remediation_id"] == "PDD-100-A1"
     assert pdd100["recommended_gate"]
     assert pdd100["source_evidence"]["detail_artifact"].endswith(
@@ -62,19 +60,14 @@ def test_wave35_root_cause_clusters_cover_every_finding_once(
 
     finding_ids = {row["finding_id"] for row in ledger["findings"]}
     covered_ids = [
-        finding_id
-        for cluster in clusters["clusters"]
-        for finding_id in cluster["finding_ids"]
+        finding_id for cluster in clusters["clusters"] for finding_id in cluster["finding_ids"]
     ]
 
     assert set(covered_ids) == finding_ids
     assert len(covered_ids) == len(finding_ids)
-    assert {cluster["cluster_id"] for cluster in clusters["clusters"]} == set(
-        build.CLUSTER_SPECS
-    )
+    assert {cluster["cluster_id"] for cluster in clusters["clusters"]} == set(build.CLUSTER_SPECS)
     assert all(
-        cluster["target_plan_wave"].startswith("Wave 35")
-        for cluster in clusters["clusters"]
+        cluster["target_plan_wave"].startswith("Wave 35") for cluster in clusters["clusters"]
     )
 
 
@@ -92,15 +85,8 @@ def test_wave35_disposition_classifies_every_finding_and_not_triggered_artifact(
     assert disposition["summary"]["must_fix_unresolved_count"] == 0
     assert disposition["summary"]["classification_counts"]["next_plan_remediation"] > 0
     assert disposition["summary"]["classification_counts"]["accepted_blocker"] > 0
-    assert (
-        disposition["summary"]["classification_counts"][
-            "false_alarm_with_evidence"
-        ]
-        > 0
-    )
-    assert {row["pdd_id"] for row in disposition["artifact_dispositions"]} == {
-        "PDD-088"
-    }
+    assert disposition["summary"]["classification_counts"]["false_alarm_with_evidence"] > 0
+    assert {row["pdd_id"] for row in disposition["artifact_dispositions"]} == {"PDD-088"}
 
     for row in disposition["dispositions"]:
         assert row["rationale"]
@@ -220,8 +206,7 @@ def test_wave35_validator_fails_when_remediation_wave_spec_is_too_vague(
     )
 
     assert any(
-        "Wave 35A: remediation wave spec missing marker: scenario_variant_inventory.json"
-        in error
+        "Wave 35A: remediation wave spec missing marker: scenario_variant_inventory.json" in error
         for error in errors
     )
 

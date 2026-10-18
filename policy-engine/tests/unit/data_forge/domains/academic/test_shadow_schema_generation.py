@@ -83,9 +83,7 @@ def test_shadow_consumer_reports_an_unrecorded_schema_generation(tmp_path: Path)
 
     assert bundle.consumer_ready is False
     assert bundle.readiness["schema_generation_current"] is False
-    assert bundle.readiness_summary.failed_readiness_checks == (
-        "schema_generation_current",
-    )
+    assert bundle.readiness_summary.failed_readiness_checks == ("schema_generation_current",)
     assert bundle.warnings == (
         "academic SKG schema generation drift: status=missing; "
         f"recorded_generation=unrecorded; current_generation={current.basis_digest}; "

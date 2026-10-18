@@ -64,9 +64,7 @@ def test_every_public_capability_assertion_resolves_to_claim_posture() -> None:
     assert "src/shared/i18n/locales/uk.json" in local_paths
 
     inbound = report["inbound_links"]
-    assert inbound["tracked_production_tsx_count"] == len(
-        inbound["tracked_production_tsx_paths"]
-    )
+    assert inbound["tracked_production_tsx_count"] == len(inbound["tracked_production_tsx_paths"])
     assert inbound["tracked_production_tsx_paths"] == sorted(
         set(inbound["tracked_production_tsx_paths"])
     )
@@ -86,9 +84,7 @@ def test_every_public_capability_assertion_resolves_to_claim_posture() -> None:
 
     inventory = report["claim_copy_inventory"]
     assert inventory["expression_count"] == len(inventory["expressions"])
-    assert inventory["artifact_fields"] == sorted(
-        set(inventory["artifact_fields"])
-    )
+    assert inventory["artifact_fields"] == sorted(set(inventory["artifact_fields"]))
     assert inventory["artifact_fields"]
 
 
@@ -125,7 +121,6 @@ def test_public_claim_copy_checker_rejects_claim_text_outside_posture(
     report = _report(completed)
     assert any(
         violation["code"] == "raw_claim_copy"
-        and violation["path"]
-        == "src/features/trust/routes/TrustPosturePage.tsx"
+        and violation["path"] == "src/features/trust/routes/TrustPosturePage.tsx"
         for violation in report["violations"]
     )

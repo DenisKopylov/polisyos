@@ -298,8 +298,6 @@ def constructor_census() -> tuple[list[ConstructorSite], dict[str, Any]]:
     }
 
 
-
-
 def _construct(
     site: ConstructorSite, context: dict[str, Any], monkeypatch, *, remove_catalog=False
 ):
@@ -339,8 +337,6 @@ def test_complete_constructor_census():
     sites, report = constructor_census()
     assert sites, report
     sys.__stdout__.write(json.dumps({"constructor_census": report}, indent=2) + "\n")
-
-
 
 
 def _fetch_context(owner, root: Path, monkeypatch):

@@ -419,8 +419,7 @@ def compile_participation_requirements_from_claim_ledger(
             "metadata": {
                 "source": "claim_decomposition_ledger",
                 "bridge": (
-                    "scientist.policy_design."
-                    "claim_decomposition_to_participation_requirement"
+                    "scientist.policy_design.claim_decomposition_to_participation_requirement"
                 ),
             },
         }

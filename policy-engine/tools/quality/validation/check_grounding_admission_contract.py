@@ -547,18 +547,14 @@ def corrupt_field_drift_check(repo_root: Path | None = None) -> dict[str, Any]:
 
     live = build_live_payload(repo_root)
     corrupted = _copy(live)
-    corrupted["probes"]["admit_real_novel_data_only_free_grow"]["decision"] = (
-        "acquire_then_decide"
-    )
+    corrupted["probes"]["admit_real_novel_data_only_free_grow"]["decision"] = "acquire_then_decide"
     corrupted["probes"]["acquire_missing_mechanism_unknown_never_reject"]["decision"] = (
         "reject_hallucination"
     )
-    corrupted["probes"]["reject_hallucination_subtypes"]["outcome_wish"][
-        "decision"
-    ] = "admit_new_lever"
-    corrupted["probes"]["fabricated_mechanism_proof_fail_closed"][
-        "decision"
-    ] = "admit_new_lever"
+    corrupted["probes"]["reject_hallucination_subtypes"]["outcome_wish"]["decision"] = (
+        "admit_new_lever"
+    )
+    corrupted["probes"]["fabricated_mechanism_proof_fail_closed"]["decision"] = "admit_new_lever"
     corrupted["probes"]["low_trust_hop_chain"]["data_trust_cap"] = 0.95
     corrupted["behavioral_mutations"][0]["status"] = "green"
     corrupted["probes"]["admit_real_novel_data_only_free_grow"]["production_promotable"] = True
@@ -584,7 +580,9 @@ def _core_issues(
 
     issues: list[dict[str, Any]] = [
         {"code": code}
-        for code in grounding_proof_world_input_evidence_issues(payload.get("proof_world_input", {}))
+        for code in grounding_proof_world_input_evidence_issues(
+            payload.get("proof_world_input", {})
+        )
     ]
     if payload.get("schema_version") != SCHEMA_VERSION:
         issues.append({"code": "grounding_admission_schema_mismatch"})
@@ -619,30 +617,43 @@ def _core_issues(
             or row.get("authority_limitation") != "synthetic_input_cannot_grant_authority"
             or row.get("production_promotable") is not False
         ):
-            issues.append({"code": "grounding_admission_synthetic_authority_escape", "probe": identity})
+            issues.append(
+                {"code": "grounding_admission_synthetic_authority_escape", "probe": identity}
+            )
         if row.get("registry_patch_id") and (
-            row.get("registry_patch_schema_version") != "policyos.runtime.grounding_lever_registry_patch.v2"
+            row.get("registry_patch_schema_version")
+            != "policyos.runtime.grounding_lever_registry_patch.v2"
             or row.get("registry_patch_synthetic") is not True
-            or row.get("admission_ledger_schema_version") != "policyos.runtime.grounding_admission_ledger.v2"
+            or row.get("admission_ledger_schema_version")
+            != "policyos.runtime.grounding_admission_ledger.v2"
             or row.get("admission_ledger_synthetic") is not True
         ):
-            issues.append({"code": "grounding_admission_child_source_provenance_missing", "probe": identity})
+            issues.append(
+                {"code": "grounding_admission_child_source_provenance_missing", "probe": identity}
+            )
     source_mutation = next(
         (
-            row for row in payload.get("behavioral_mutations", [])
-            if isinstance(row, dict) and row.get("mutation_id") == "source_authority_resolution_removed"
+            row
+            for row in payload.get("behavioral_mutations", [])
+            if isinstance(row, dict)
+            and row.get("mutation_id") == "source_authority_resolution_removed"
         ),
         {},
     )
     source_current = _probe(probes, "admit_real_novel_data_only_free_grow")
     source_removed = source_mutation.get("probe", {})
     receipt = payload.get("source_authority_strangle", {})
-    if not receipt or receipt != _source_authority_receipt(
-        reference_hash=receipt.get("reference_hash"),
-        source_synthetic=receipt.get("source_synthetic"),
-        current=source_current,
-        removed=source_removed,
-    ) or receipt.get("default_flipped") is not True:
+    if (
+        not receipt
+        or receipt
+        != _source_authority_receipt(
+            reference_hash=receipt.get("reference_hash"),
+            source_synthetic=receipt.get("source_synthetic"),
+            current=source_current,
+            removed=source_removed,
+        )
+        or receipt.get("default_flipped") is not True
+    ):
         issues.append({"code": "grounding_admission_source_authority_strangle_failed"})
     issues.extend(
         _expect_decision(
@@ -682,9 +693,13 @@ def _core_issues(
     for subtype in ("outcome_wish", "proxy_manipulation", "impossible_type"):
         row = _probe(hallucinations, subtype)
         if row.get("decision") != "reject_hallucination":
-            issues.append({"code": "grounding_admission_hallucination_not_rejected", "subtype": subtype})
+            issues.append(
+                {"code": "grounding_admission_hallucination_not_rejected", "subtype": subtype}
+            )
         if row.get("decisive_reason") != subtype:
-            issues.append({"code": "grounding_admission_hallucination_reason_wrong", "subtype": subtype})
+            issues.append(
+                {"code": "grounding_admission_hallucination_reason_wrong", "subtype": subtype}
+            )
     issues.extend(
         _expect_decision(
             probes,
@@ -782,7 +797,10 @@ def _core_issues(
     outcome_map = _probe(probes, "outcome_like_map_mentioned_slot")
     if outcome_map.get("decision") == "admit_new_lever":
         issues.append({"code": "grounding_admission_map_mentioned_outcome_admitted"})
-    if outcome_map.get("mechanism_evidence", {}).get("actuatability", {}).get("actuatable") is not False:
+    if (
+        outcome_map.get("mechanism_evidence", {}).get("actuatability", {}).get("actuatable")
+        is not False
+    ):
         issues.append({"code": "grounding_admission_map_mentioned_outcome_actuatable"})
     denominator = _probe(probes, "live_actuatability_denominator")
     expected_targets = {
@@ -825,12 +843,20 @@ def _core_issues(
     for probe_id, row in sorted(boundary.items()):
         if row.get("accepted") is not False:
             issues.append(
-                {"code": "grounding_admission_public_policy_accepted_authority_knob", "probe": probe_id}
+                {
+                    "code": "grounding_admission_public_policy_accepted_authority_knob",
+                    "probe": probe_id,
+                }
             )
     real_n4 = _probe(probes, "real_n4_recorded_handoff")
     if real_n4.get("cg2_decision") != "novel_candidate":
         issues.append({"code": "grounding_admission_real_n4_not_cg2_novel_candidate"})
-    if real_n4.get("decision") not in {"admit_new_lever", "acquire_then_decide", "reject_hallucination", "non_new"}:
+    if real_n4.get("decision") not in {
+        "admit_new_lever",
+        "acquire_then_decide",
+        "reject_hallucination",
+        "non_new",
+    }:
         issues.append({"code": "grounding_admission_real_n4_no_verdict"})
     if require_mutations:
         mutations = {
@@ -1159,8 +1185,11 @@ def _admission_rows(value: Any, prefix: str = "") -> list[tuple[str, dict[str, A
 
 
 def _source_authority_receipt(
-    *, reference_hash: Any, source_synthetic: Any,
-    current: dict[str, Any], removed: dict[str, Any],
+    *,
+    reference_hash: Any,
+    source_synthetic: Any,
+    current: dict[str, Any],
+    removed: dict[str, Any],
 ) -> dict[str, Any]:
     """Hash the observed default transition; no receipt author supplies its verdict."""
     flipped = (
@@ -1187,7 +1216,9 @@ def _source_authority_receipt(
         "removal_certificate_hash": removed.get("content_hash"),
         "default_flipped": flipped,
     }
-    encoded = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode()
+    encoded = json.dumps(
+        payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+    ).encode()
     return {**payload, "content_hash": f"sha256:{hashlib.sha256(encoded).hexdigest()}"}
 
 
@@ -1219,7 +1250,9 @@ def _source_authority_control(reference: Any, cg1: Any, cg2: Any, current: Any) 
     }
 
 
-def _contract_testing_scope(reference: Any, substrate_registry: Any, cg1: Any, cg2: Any) -> dict[str, Any]:
+def _contract_testing_scope(
+    reference: Any, substrate_registry: Any, cg1: Any, cg2: Any
+) -> dict[str, Any]:
     from polisyos.runtime.quality.grounding_admission import GroundingAdmissionEngine
 
     certificate = GroundingAdmissionEngine.for_contract_testing(
@@ -1551,7 +1584,9 @@ def _mutation_row(
 
 def _real_n4_probe(repo_root: Path, reference: Any) -> dict[str, Any]:
     del reference
-    contract_path = repo_root / "architecture/policy_design_case/layer3_gy_design_generation_contract.json"
+    contract_path = (
+        repo_root / "architecture/policy_design_case/layer3_gy_design_generation_contract.json"
+    )
     payload = json.loads(contract_path.read_text(encoding="utf-8"))
     for result in payload.get("generation_results") or []:
         if not isinstance(result, dict):

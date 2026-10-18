@@ -568,7 +568,9 @@ def _cmd_scientist_calibration_report(args: Any) -> int:
 
     payload = json.loads(Path(args.config).read_text(encoding="utf-8"))
     cas = build_cli_filesystem_cas(Path(args.cas_root))
-    search_calibration = importlib.import_module("polisyos.scientist.methods.search.calibration_report")
+    search_calibration = importlib.import_module(
+        "polisyos.scientist.methods.search.calibration_report"
+    )
     search_cold_start = importlib.import_module("polisyos.scientist.methods.search.cold_start")
     search_lessons = importlib.import_module("polisyos.scientist.methods.search.lessons")
     search_sentinels = importlib.import_module("polisyos.scientist.methods.search.sentinels")

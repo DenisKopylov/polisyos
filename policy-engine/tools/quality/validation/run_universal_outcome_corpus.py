@@ -239,9 +239,7 @@ PHASE_NAME = "Universal Outcome Corpus Run"
 DEFAULT_CORPUS_PATH = Path("tests/fixtures/universal-corpus")
 DEFAULT_OUTPUT = Path("_build/.tmp/production-quality/w12d_universal_outcome_corpus_run.json")
 DEFAULT_GRAPH_OUTPUT_DIR = Path("_build/.tmp/production-quality/w12d-runtime-pdc-graphs")
-DEFAULT_HYPOTHESIS_LEDGER_DIR = Path(
-    "_build/.tmp/production-quality/w12d-hypothesis-ledgers"
-)
+DEFAULT_HYPOTHESIS_LEDGER_DIR = Path("_build/.tmp/production-quality/w12d-hypothesis-ledgers")
 DEFAULT_CRITIC_REPORT_DIR = Path("_build/.tmp/production-quality/w12d-critic-reports")
 DEFAULT_PRODUCER_STUB_DIR = Path("tests/fixtures/universal-corpus/producer_stubs")
 DEFAULT_CAPABILITY_INDEX = Path(
@@ -295,40 +293,20 @@ S7_CASE_SIGNALS_PATH = Path("tests/fixtures/layer2/s7/s7_delegation_case_signals
 S7_EXPERT_LABELS_PATH = Path("tests/fixtures/layer2/s7/s7_delegation_expert_labels.json")
 S8_CASE_SIGNALS_PATH = Path("tests/fixtures/layer2/s8/s8_value_choice_case_signals.json")
 S8_EXPERT_LABELS_PATH = Path("tests/fixtures/layer2/s8/s8_value_choice_expert_labels.json")
-S10_CASE_SIGNALS_PATH = Path(
-    "tests/fixtures/layer2/s10/s10_outcome_prediction_case_signals.json"
-)
-S10_EXPERT_LABELS_PATH = Path(
-    "tests/fixtures/layer2/s10/s10_outcome_prediction_expert_labels.json"
-)
-S11_CASE_SIGNALS_PATH = Path(
-    "tests/fixtures/layer2/s11/s11_predictive_knowledge_case_signals.json"
-)
+S10_CASE_SIGNALS_PATH = Path("tests/fixtures/layer2/s10/s10_outcome_prediction_case_signals.json")
+S10_EXPERT_LABELS_PATH = Path("tests/fixtures/layer2/s10/s10_outcome_prediction_expert_labels.json")
+S11_CASE_SIGNALS_PATH = Path("tests/fixtures/layer2/s11/s11_predictive_knowledge_case_signals.json")
 S11_EXPERT_LABELS_PATH = Path(
     "tests/fixtures/layer2/s11/s11_predictive_knowledge_expert_labels.json"
 )
-S12_CASE_SIGNALS_PATH = Path(
-    "tests/fixtures/layer2/s12/s12_resource_economics_case_signals.json"
-)
-S12_EXPERT_LABELS_PATH = Path(
-    "tests/fixtures/layer2/s12/s12_resource_economics_expert_labels.json"
-)
-S13_CASE_SIGNALS_PATH = Path(
-    "tests/fixtures/layer2/s13/s13_post_deploy_case_signals.json"
-)
-S13_EXPERT_LABELS_PATH = Path(
-    "tests/fixtures/layer2/s13/s13_post_deploy_expert_labels.json"
-)
+S12_CASE_SIGNALS_PATH = Path("tests/fixtures/layer2/s12/s12_resource_economics_case_signals.json")
+S12_EXPERT_LABELS_PATH = Path("tests/fixtures/layer2/s12/s12_resource_economics_expert_labels.json")
+S13_CASE_SIGNALS_PATH = Path("tests/fixtures/layer2/s13/s13_post_deploy_case_signals.json")
+S13_EXPERT_LABELS_PATH = Path("tests/fixtures/layer2/s13/s13_post_deploy_expert_labels.json")
 S14_DEV_SIGNALS_PATH = Path("tests/fixtures/layer2/s14/s14_universality_dev_signals.json")
-S14_EXPERT_LABELS_PATH = Path(
-    "tests/fixtures/layer2/s14/s14_universality_expert_labels.json"
-)
-S14_D4_TRACK_COVERAGE_PATH = Path(
-    "tests/fixtures/layer2/s14/s14_d4_corpus_track_coverage.json"
-)
-S14_ORACLE_BOOTSTRAP_PATH = Path(
-    "tests/fixtures/layer2/s14/s14_expert_oracle_bootstrap.json"
-)
+S14_EXPERT_LABELS_PATH = Path("tests/fixtures/layer2/s14/s14_universality_expert_labels.json")
+S14_D4_TRACK_COVERAGE_PATH = Path("tests/fixtures/layer2/s14/s14_d4_corpus_track_coverage.json")
+S14_ORACLE_BOOTSTRAP_PATH = Path("tests/fixtures/layer2/s14/s14_expert_oracle_bootstrap.json")
 S14_BREADTH_FLOOR_PATH = Path(
     "tests/fixtures/layer2/s14/s14_universality_breadth_floor_config.json"
 )
@@ -353,9 +331,7 @@ W12D_FORMULATOR_TOOL_REFS: tuple[str, ...] = (
     "tool:w12d.universal_outcome_corpus_run",
     "tool:llm_formulator_runtime",
 )
-W12D_FORMULATOR_REPAIR_LINEAGE: tuple[str, ...] = (
-    "repair:none",
-)
+W12D_FORMULATOR_REPAIR_LINEAGE: tuple[str, ...] = ("repair:none",)
 # Authority slots the W6.F firewall must keep candidates out of when the
 # universal compilation pipeline drives downstream readers. The slots match the
 # default ``CANDIDATE_AUTHORITY_SLOTS`` from ``candidate_firewall`` and are
@@ -468,65 +444,100 @@ S10_NEGATIVE_CONTROL_PROBE_PATHS: tuple[Path, ...] = (
     Path("tests/fixtures/layer2/s10/production_authority_from_forecast_probe.json"),
     Path("tests/fixtures/layer2/s10/missing_design_graph_context_probe.json"),
     Path("tests/fixtures/layer2/s10/observed_outcome_without_credible_evaluation_probe.json"),
-    Path(
-        "tests/fixtures/layer2/s10/"
-        "validated_local_model_without_method_validity_probe.json"
-    ),
+    Path("tests/fixtures/layer2/s10/validated_local_model_without_method_validity_probe.json"),
     Path("tests/fixtures/layer2/s10/scalar_welfare_hides_pareto_tradeoff_probe.json"),
     Path("tests/fixtures/layer2/s10/weakest_boundary_ignored_probe.json"),
 )
 S11_NEGATIVE_CONTROL_PROBE_PATHS: tuple[Path, ...] = (
     Path("tests/fixtures/layer2/s11/negative_controls/stale_calibration_relaxation_probe.json"),
-    Path("tests/fixtures/layer2/s11/negative_controls/scope_mismatched_historical_prior_probe.json"),
+    Path(
+        "tests/fixtures/layer2/s11/negative_controls/scope_mismatched_historical_prior_probe.json"
+    ),
     Path("tests/fixtures/layer2/s11/negative_controls/unbound_ir_analytics_probe.json"),
     Path("tests/fixtures/layer2/s11/negative_controls/negative_certificate_ignored_probe.json"),
     Path("tests/fixtures/layer2/s11/negative_controls/missing_method_validity_probe.json"),
     Path("tests/fixtures/layer2/s11/negative_controls/missing_s6_floor_ref_probe.json"),
     Path("tests/fixtures/layer2/s11/negative_controls/mandate_axis_predictive_upgrade_probe.json"),
-    Path("tests/fixtures/layer2/s11/negative_controls/production_authority_from_predictive_upgrade_probe.json"),
-    Path("tests/fixtures/layer2/s11/negative_controls/rich_simulation_authority_laundering_probe.json"),
+    Path(
+        "tests/fixtures/layer2/s11/negative_controls/production_authority_from_predictive_upgrade_probe.json"
+    ),
+    Path(
+        "tests/fixtures/layer2/s11/negative_controls/rich_simulation_authority_laundering_probe.json"
+    ),
     Path("tests/fixtures/layer2/s11/negative_controls/weakest_boundary_bypass_probe.json"),
 )
 S12_NEGATIVE_CONTROL_PROBE_PATHS: tuple[Path, ...] = (
     Path("tests/fixtures/layer2/s12/negative_controls/bespoke_one_off_growth_probe.json"),
-    Path("tests/fixtures/layer2/s12/negative_controls/allocation_gaming_internal_metrics_probe.json"),
-    Path("tests/fixtures/layer2/s12/negative_controls/floor_lowering_for_useful_design_rate_probe.json"),
+    Path(
+        "tests/fixtures/layer2/s12/negative_controls/allocation_gaming_internal_metrics_probe.json"
+    ),
+    Path(
+        "tests/fixtures/layer2/s12/negative_controls/floor_lowering_for_useful_design_rate_probe.json"
+    ),
     Path("tests/fixtures/layer2/s12/negative_controls/b_faster_than_a_growth_probe.json"),
     Path("tests/fixtures/layer2/s12/negative_controls/meta_regress_past_principal_probe.json"),
     Path("tests/fixtures/layer2/s12/negative_controls/interchangeable_budget_probe.json"),
     Path("tests/fixtures/layer2/s12/negative_controls/growth_without_envelope_delta_probe.json"),
 )
 S13_NEGATIVE_CONTROL_PROBE_PATHS: tuple[Path, ...] = (
-    Path("tests/fixtures/layer2/s13/negative_controls/post_policy_data_as_pre_policy_evidence_probe.json"),
-    Path("tests/fixtures/layer2/s13/negative_controls/learned_prior_in_current_evidence_slot_probe.json"),
+    Path(
+        "tests/fixtures/layer2/s13/negative_controls/post_policy_data_as_pre_policy_evidence_probe.json"
+    ),
+    Path(
+        "tests/fixtures/layer2/s13/negative_controls/learned_prior_in_current_evidence_slot_probe.json"
+    ),
     Path("tests/fixtures/layer2/s13/negative_controls/unattributable_updates_model_probe.json"),
     Path("tests/fixtures/layer2/s13/negative_controls/silent_closed_case_rewrite_probe.json"),
     Path("tests/fixtures/layer2/s13/negative_controls/learning_without_attribution_probe.json"),
-    Path("tests/fixtures/layer2/s13/negative_controls/envelope_shrink_without_assurance_delta_probe.json"),
+    Path(
+        "tests/fixtures/layer2/s13/negative_controls/envelope_shrink_without_assurance_delta_probe.json"
+    ),
     Path("tests/fixtures/layer2/s13/negative_controls/b_update_before_a_firewall_probe.json"),
-    Path("tests/fixtures/layer2/s13/negative_controls/implementation_failure_as_theory_refutation_probe.json"),
-    Path("tests/fixtures/layer2/s13/negative_controls/outcome_learning_without_counterfactual_probe.json"),
-    Path("tests/fixtures/layer2/s13/negative_controls/s13_as_production_or_recommendation_authority_probe.json"),
-    Path("tests/fixtures/layer2/s13/negative_controls/monitoring_missing_for_deployable_probe.json"),
+    Path(
+        "tests/fixtures/layer2/s13/negative_controls/implementation_failure_as_theory_refutation_probe.json"
+    ),
+    Path(
+        "tests/fixtures/layer2/s13/negative_controls/outcome_learning_without_counterfactual_probe.json"
+    ),
+    Path(
+        "tests/fixtures/layer2/s13/negative_controls/s13_as_production_or_recommendation_authority_probe.json"
+    ),
+    Path(
+        "tests/fixtures/layer2/s13/negative_controls/monitoring_missing_for_deployable_probe.json"
+    ),
 )
 S14_NEGATIVE_CONTROL_PROBE_PATHS: tuple[Path, ...] = (
-    Path("tests/fixtures/layer2/s14/negative_controls/bare_universal_claim_without_battery_probe.json"),
+    Path(
+        "tests/fixtures/layer2/s14/negative_controls/bare_universal_claim_without_battery_probe.json"
+    ),
     Path("tests/fixtures/layer2/s14/negative_controls/sealed_battery_dev_access_probe.json"),
-    Path("tests/fixtures/layer2/s14/negative_controls/aggregate_universal_number_laundering_probe.json"),
-    Path("tests/fixtures/layer2/s14/negative_controls/untested_axis_combination_in_envelope_probe.json"),
-    Path("tests/fixtures/layer2/s14/negative_controls/bespoke_cost_hidden_as_generality_probe.json"),
+    Path(
+        "tests/fixtures/layer2/s14/negative_controls/aggregate_universal_number_laundering_probe.json"
+    ),
+    Path(
+        "tests/fixtures/layer2/s14/negative_controls/untested_axis_combination_in_envelope_probe.json"
+    ),
+    Path(
+        "tests/fixtures/layer2/s14/negative_controls/bespoke_cost_hidden_as_generality_probe.json"
+    ),
     Path("tests/fixtures/layer2/s14/negative_controls/skeptic_defeater_ignored_probe.json"),
     Path("tests/fixtures/layer2/s14/negative_controls/faithfulness_claim_without_s9_probe.json"),
-    Path("tests/fixtures/layer2/s14/negative_controls/battery_result_as_production_authority_probe.json"),
+    Path(
+        "tests/fixtures/layer2/s14/negative_controls/battery_result_as_production_authority_probe.json"
+    ),
     Path("tests/fixtures/layer2/s14/negative_controls/gold_label_leak_into_dev_signal_probe.json"),
     Path("tests/fixtures/layer2/s14/negative_controls/freeze_hash_mismatch_accepted_probe.json"),
     Path("tests/fixtures/layer2/s14/negative_controls/d4_breadth_floor_missing_probe.json"),
     Path("tests/fixtures/layer2/s14/negative_controls/expert_oracle_bootstrap_missing_probe.json"),
     Path("tests/fixtures/layer2/s14/negative_controls/weak_gold_floor_laundering_probe.json"),
-    Path("tests/fixtures/layer2/s14/negative_controls/shadow_candidate_oracle_laundering_probe.json"),
+    Path(
+        "tests/fixtures/layer2/s14/negative_controls/shadow_candidate_oracle_laundering_probe.json"
+    ),
     Path("tests/fixtures/layer2/s14/negative_controls/grounded_authority_refs_missing_probe.json"),
     Path("tests/fixtures/layer2/s14/negative_controls/status_composition_laundering_probe.json"),
-    Path("tests/fixtures/layer2/s14/negative_controls/envelope_revision_freeze_laundering_probe.json"),
+    Path(
+        "tests/fixtures/layer2/s14/negative_controls/envelope_revision_freeze_laundering_probe.json"
+    ),
     Path("tests/fixtures/layer2/s14/negative_controls/baseline_comparison_missing_probe.json"),
 )
 S8_MAY_NOT_USE_FOR: tuple[str, ...] = (
@@ -757,8 +768,7 @@ def build_w12d_universal_outcome_corpus_report(
             "bridge_ref": "repo://tools/quality/validation/run_universal_outcome_corpus.py",
             "consumer_ref": "repo://tools/quality/validation/run_universal_outcome_corpus.py",
             "verification_ref": (
-                "repo://tests/repo_quality/tools/"
-                "test_w12d_universal_outcome_corpus_run.py"
+                "repo://tests/repo_quality/tools/test_w12d_universal_outcome_corpus_run.py"
             ),
             "surface_ref": "repo://tools/quality/validation/README.md#w12d-universal-outcome-corpus-run",
             "semantic_test_ref": (
@@ -883,9 +893,7 @@ def run_w12d_universal_outcome_corpus(
     critic_dir = _resolve(root, Path(critic_report_output_dir))
     stub_dir = _resolve(root, Path(producer_stub_dir))
     capability_index = (
-        _resolve(root, Path(capability_index_path))
-        if capability_index_path is not None
-        else None
+        _resolve(root, Path(capability_index_path)) if capability_index_path is not None else None
     )
     if mode not in {"real_producer", "corpus_stub"}:
         raise ValueError(f"unknown W12.D mode: {mode}")
@@ -1048,9 +1056,7 @@ def _run_case(
         "candidate_firewall": None,
     }
     corpus_stub_summary = (
-        corpus_stub_authority_boundary({"case_id": case_id})
-        if mode == "corpus_stub"
-        else None
+        corpus_stub_authority_boundary({"case_id": case_id}) if mode == "corpus_stub" else None
     )
     s1_graded_outcome: dict[str, Any] = _s1_not_applicable_summary(
         authority_level=authority_level,
@@ -1086,9 +1092,7 @@ def _run_case(
                     case_id=case_id,
                 )
             critic_report_ref: str | None = None
-            critic_report_payload = _mapping(
-                llm_artifacts.get("critic_ensemble_report_payload")
-            )
+            critic_report_payload = _mapping(llm_artifacts.get("critic_ensemble_report_payload"))
             if critic_report_payload:
                 critic_report_payload = {
                     **critic_report_payload,
@@ -1149,9 +1153,7 @@ def _run_case(
                 capability_graph_trace.get("capability_bindings")
             ),
         )
-        producer_decisions = list(
-            _sequence_of_mappings(pipeline.get("producer_binding_decisions"))
-        )
+        producer_decisions = list(_sequence_of_mappings(pipeline.get("producer_binding_decisions")))
         claim_bindings = _claim_bindings_from_pipeline(
             case_id=case_id,
             claims=_sequence_of_mappings(compiled.get("claims")),
@@ -1179,9 +1181,7 @@ def _run_case(
             "diagnostic_codes": _producer_pipeline_diagnostic_codes(pipeline),
             "producer_binding_decision_count": len(producer_decisions),
             "producer_binding_decisions": producer_decisions,
-            "cross_modal_consistency": dict(
-                _mapping(pipeline.get("cross_modal_consistency"))
-            ),
+            "cross_modal_consistency": dict(_mapping(pipeline.get("cross_modal_consistency"))),
             "claim_bindings": claim_bindings,
             "claim_binding_count": len(claim_bindings),
             "capability_ref_count": len(
@@ -1476,9 +1476,7 @@ def _s2_design_search_summary(
                     "forecast_calibration_record_ref": _text(
                         s10_outcome_prediction.get("forecast_calibration_record_ref")
                     ),
-                    "forecast_tier": _text(
-                        s10_outcome_prediction.get("forecast_tier")
-                    ),
+                    "forecast_tier": _text(s10_outcome_prediction.get("forecast_tier")),
                     "forecast_authority_boundary": _mapping(
                         s10_outcome_prediction.get("authority_boundary")
                     ),
@@ -1494,9 +1492,7 @@ def _s2_design_search_summary(
                         s11_predictive_knowledge.get("proof_carrying_analytics_ref")
                     ),
                     "per_axis_predictive_calibration_status": _text(
-                        s11_predictive_knowledge.get(
-                            "per_axis_predictive_calibration_status"
-                        )
+                        s11_predictive_knowledge.get("per_axis_predictive_calibration_status")
                     ),
                     "effective_predictive_posture": _text(
                         s11_predictive_knowledge.get("effective_predictive_posture")
@@ -1527,20 +1523,17 @@ def _s2_design_search_summary(
                         s13_accountability_posture.accountability_posture_ref
                     ),
                     "accountability_phase": s13_accountability_posture.phase,
-                    "deployment_dossier_ref": (
-                        s13_accountability_posture.deployment_dossier_ref
-                    ),
+                    "deployment_dossier_ref": (s13_accountability_posture.deployment_dossier_ref),
                     "accountability_authority_boundary": (
-                        s13_accountability_posture.authority_boundary.model_dump(
-                            mode="json"
-                        )
+                        s13_accountability_posture.authority_boundary.model_dump(mode="json")
                     ),
                 }
             )
         return summary
     s2_manifest = json.loads(
-        (REPO_ROOT / "architecture/policy_design_case/layer2_s2_design_search_manifest.json")
-        .read_text(encoding="utf-8")
+        (
+            REPO_ROOT / "architecture/policy_design_case/layer2_s2_design_search_manifest.json"
+        ).read_text(encoding="utf-8")
     )
     candidate_space = dict(s2_manifest["candidate_space"])
     input_row = Layer2S2DesignSearchInput(
@@ -1566,29 +1559,15 @@ def _s2_design_search_summary(
         rule_version_ref="policyos.layer2.s2.design_search.v1",
     )
     composition_posture = (
-        _s5_composition_posture_input(s5_coupling_composition)
-        if s5_coupling_composition
-        else None
+        _s5_composition_posture_input(s5_coupling_composition) if s5_coupling_composition else None
     )
     blind_spot_posture = (
-        _s6_blind_spot_posture_input(s6_blind_spot_firewalls)
-        if s6_blind_spot_firewalls
-        else None
+        _s6_blind_spot_posture_input(s6_blind_spot_firewalls) if s6_blind_spot_firewalls else None
     )
-    delegation_posture = (
-        _s7_delegation_posture_input(s7_delegation)
-        if s7_delegation
-        else None
-    )
-    value_posture = (
-        _s8_value_posture_input(s8_value_choice)
-        if s8_value_choice
-        else None
-    )
+    delegation_posture = _s7_delegation_posture_input(s7_delegation) if s7_delegation else None
+    value_posture = _s8_value_posture_input(s8_value_choice) if s8_value_choice else None
     forecast_posture = (
-        _s10_forecast_posture_input(s10_outcome_prediction)
-        if s10_outcome_prediction
-        else None
+        _s10_forecast_posture_input(s10_outcome_prediction) if s10_outcome_prediction else None
     )
     predictive_posture = (
         _s11_predictive_posture_input(s11_predictive_knowledge)
@@ -1596,9 +1575,7 @@ def _s2_design_search_summary(
         else None
     )
     resource_posture = (
-        _s12_resource_posture_input(s12_resource_economics)
-        if s12_resource_economics
-        else None
+        _s12_resource_posture_input(s12_resource_economics) if s12_resource_economics else None
     )
     if s4_epistemic_regime:
         run = run_s2_shadow_design_loop(
@@ -1606,12 +1583,8 @@ def _s2_design_search_summary(
             regime=_text(s4_epistemic_regime.get("predicted_regime")),  # type: ignore[arg-type]
             design_strategy=_text(s4_epistemic_regime.get("selected_strategy")),
             regime_claim_ref=_text(s4_epistemic_regime.get("regime_claim_ref")),
-            commitment_profile_ref=_text(
-                s4_epistemic_regime.get("commitment_profile_ref")
-            ),
-            commitment_stakes=_text(
-                _nested(s4_epistemic_regime, ("derived_commitment", "stakes"))
-            ),  # type: ignore[arg-type]
+            commitment_profile_ref=_text(s4_epistemic_regime.get("commitment_profile_ref")),
+            commitment_stakes=_text(_nested(s4_epistemic_regime, ("derived_commitment", "stakes"))),  # type: ignore[arg-type]
             composition_posture=composition_posture,
             blind_spot_posture=blind_spot_posture,
             delegation_posture=delegation_posture,
@@ -1642,9 +1615,7 @@ def _s2_design_search_summary(
             else None
         ),
         "value_posture": (
-            run.value_posture.model_dump(mode="json")
-            if run.value_posture is not None
-            else None
+            run.value_posture.model_dump(mode="json") if run.value_posture is not None else None
         ),
         "forecast_posture": (
             run.forecast_posture.model_dump(mode="json")
@@ -1881,9 +1852,7 @@ def _s5_coupling_summary(cases: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
         "false_entangled_count": accuracy["false_entangled_count"],
         "penalized_score": accuracy["penalized_score"],
         "system_evidence_required_count": sum(
-            1
-            for row in rows
-            if row.get("composition_disposition") == "system_evidence_required"
+            1 for row in rows if row.get("composition_disposition") == "system_evidence_required"
         ),
         "coupling_regime_counts": dict(
             Counter(str(row.get("predicted_coupling_regime")) for row in rows)
@@ -1908,9 +1877,7 @@ def _s5_coupling_summary(cases: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
                 "predicted_coupling_regime": row.get("predicted_coupling_regime"),
                 "expert_coupling_regime": row.get("expert_coupling_regime"),
                 "composition_disposition": row.get("composition_disposition"),
-                "boundary_count": len(
-                    _sequence_of_mappings(row.get("boundary_coupling_table"))
-                ),
+                "boundary_count": len(_sequence_of_mappings(row.get("boundary_coupling_table"))),
             }
             for row in rows
         ],
@@ -1945,17 +1912,13 @@ def _s5_composition_posture_input(
             s5_coupling_composition.get("composition_receipt_ref"),
             field_name="composition_receipt_ref",
         ),
-        dynamics_requirement_ref=_text(
-            s5_coupling_composition.get("dynamics_requirement_ref")
-        )
+        dynamics_requirement_ref=_text(s5_coupling_composition.get("dynamics_requirement_ref"))
         or None,
         tractability_budget_ref=_text(s5_coupling_composition.get("tractability_budget_ref"))
         or None,
         boundary_coupling_rows=[
             dict(row)
-            for row in _sequence_of_mappings(
-                s5_coupling_composition.get("boundary_coupling_table")
-            )
+            for row in _sequence_of_mappings(s5_coupling_composition.get("boundary_coupling_table"))
         ],
         forecast_support_label=_text(
             _nested(s5_coupling_composition, ("forecast_support_scope", "support_label"))
@@ -1964,9 +1927,7 @@ def _s5_composition_posture_input(
         critical_path_module_refs=[
             str(ref) for ref in _sequence(s5_coupling_composition.get("critical_path_module_refs"))
         ],
-        residual_interaction_risk=_text(
-            s5_coupling_composition.get("residual_interaction_risk")
-        )
+        residual_interaction_risk=_text(s5_coupling_composition.get("residual_interaction_risk"))
         or None,
         authority_mode=_required_text(
             s5_coupling_composition.get("authority_mode"),
@@ -2073,7 +2034,9 @@ def _s6_blind_spot_summary(
     axis_positions, firewall_statuses = s6_firewall_report_to_axis_positions(report)
     constraints = s6_firewall_report_to_constraint_store_updates(report)
     c3_rows = s6_firewall_report_to_c3_dimension_records(report)
-    constraint_entries = [_s6_constraint_entry_payload(row.model_dump(mode="json")) for row in constraints]
+    constraint_entries = [
+        _s6_constraint_entry_payload(row.model_dump(mode="json")) for row in constraints
+    ]
     c3_payloads = [row.model_dump(mode="json") for row in c3_rows]
     bridge_payloads = [row.model_dump(mode="json") for row in report.bridge_consumer_rows]
     record_payloads = {
@@ -2105,9 +2068,7 @@ def _s6_blind_spot_summary(
             str(row.get("dimension_ref")) for row in c3_payloads if row.get("dimension_ref")
         ],
         "bridge_consumer_table": bridge_payloads,
-        "constraint_store_update_table": [
-            row.model_dump(mode="json") for row in constraints
-        ],
+        "constraint_store_update_table": [row.model_dump(mode="json") for row in constraints],
         "constraint_store_entry_table": constraint_entries,
         "c3_authority_dimension_table": c3_payloads,
         "post_intervention_dgp_update_ref": report.post_intervention_dgp_update_ref,
@@ -2136,9 +2097,7 @@ def _s6_blind_spot_corpus_summary(
         for case in cases
         if isinstance(case.get("s6_blind_spot_firewalls"), Mapping)
     ]
-    axis_counts: dict[str, Counter[str]] = {
-        cell_ref: Counter() for cell_ref in S6_AXIS_CELLS
-    }
+    axis_counts: dict[str, Counter[str]] = {cell_ref: Counter() for cell_ref in S6_AXIS_CELLS}
     per_case_axis_table: list[dict[str, object]] = []
     bridge_seen: set[str] = set()
     c3_seen: set[str] = set()
@@ -2181,16 +2140,14 @@ def _s6_blind_spot_corpus_summary(
             }
         ),
         "all_five_axes_covered": all(
-            sum(axis_counts.get(cell_ref, Counter()).values()) > 0
-            for cell_ref in S6_AXIS_CELLS
+            sum(axis_counts.get(cell_ref, Counter()).values()) > 0 for cell_ref in S6_AXIS_CELLS
         ),
         "per_axis_fail_closed_negative_control_pass_rate": probe_coverage[
             "per_axis_fail_closed_negative_control_pass_rate"
         ],
         "false_clear_count": probe_coverage["false_clear_count"],
         "per_axis_disposition_counts": {
-            cell_ref: dict(axis_counts.get(cell_ref, Counter()))
-            for cell_ref in S6_AXIS_CELLS
+            cell_ref: dict(axis_counts.get(cell_ref, Counter())) for cell_ref in S6_AXIS_CELLS
         },
         "bridge_consumer_coverage": {
             consumer_ref: consumer_ref in bridge_seen for consumer_ref in S6_BRIDGE_CONSUMERS
@@ -2198,9 +2155,7 @@ def _s6_blind_spot_corpus_summary(
         "c3_authority_dimension_coverage": {
             dimension: dimension in c3_seen for dimension in S6_C3_AUTHORITY_DIMENSIONS
         },
-        "overall_posture_counts": dict(
-            Counter(str(row.get("overall_posture")) for row in rows)
-        ),
+        "overall_posture_counts": dict(Counter(str(row.get("overall_posture")) for row in rows)),
         "system_dynamics_handoff_count": sum(
             1 for row in rows if bool(row.get("system_dynamics_handoff_required"))
         ),
@@ -2249,27 +2204,17 @@ def _s6_blind_spot_posture_input(
             dict(row) for row in _sequence_of_mappings(s6_block.get("bridge_consumer_table"))
         ],
         constraint_store_updates=[
-            dict(row)
-            for row in _sequence_of_mappings(s6_block.get("constraint_store_entry_table"))
+            dict(row) for row in _sequence_of_mappings(s6_block.get("constraint_store_entry_table"))
         ],
         c3_authority_dimension_rows=[
-            dict(row)
-            for row in _sequence_of_mappings(s6_block.get("c3_authority_dimension_table"))
+            dict(row) for row in _sequence_of_mappings(s6_block.get("c3_authority_dimension_table"))
         ],
         axis_rows=[dict(row) for row in _sequence_of_mappings(s6_block.get("axis_rows"))],
-        blocking_axis_refs=[
-            str(ref) for ref in _sequence(s6_block.get("blocking_axis_refs"))
-        ],
-        limiting_axis_refs=[
-            str(ref) for ref in _sequence(s6_block.get("limiting_axis_refs"))
-        ],
-        post_intervention_dgp_update_ref=_text(
-            s6_block.get("post_intervention_dgp_update_ref")
-        )
+        blocking_axis_refs=[str(ref) for ref in _sequence(s6_block.get("blocking_axis_refs"))],
+        limiting_axis_refs=[str(ref) for ref in _sequence(s6_block.get("limiting_axis_refs"))],
+        post_intervention_dgp_update_ref=_text(s6_block.get("post_intervention_dgp_update_ref"))
         or None,
-        system_dynamics_handoff_required=bool(
-            s6_block.get("system_dynamics_handoff_required")
-        ),
+        system_dynamics_handoff_required=bool(s6_block.get("system_dynamics_handoff_required")),
         regime_reissue_required=bool(s6_block.get("regime_reissue_required")),
         limitation_summary=_required_text(
             s6_block.get("limitation_summary"),
@@ -2427,9 +2372,7 @@ def _s7_delegation_summary(
             if record_payload is not None
             else signals.get("five_rights_check")
         ),
-        "decision_options": [
-            option.model_dump(mode="json") for option in request.decision_options
-        ],
+        "decision_options": [option.model_dump(mode="json") for option in request.decision_options],
         "recommendation_ref": signals.get("recommendation_ref") or request.recommendation_ref,
         "provenance_refs": list(_sequence(signals.get("provenance_refs")))
         or list(request.provenance_refs),
@@ -2445,7 +2388,9 @@ def _s7_delegation_summary(
             _sequence(signals.get("what_changes_under_each_choice"))
         )
         or list(request.what_changes_under_each_choice),
-        "attention_cost_rank": int(signals.get("attention_cost_rank") or request.attention_cost_rank),
+        "attention_cost_rank": int(
+            signals.get("attention_cost_rank") or request.attention_cost_rank
+        ),
         "responsibility_integrity_status": report.responsibility_integrity.status,
         "responsibility_integrity_check": report.responsibility_integrity.model_dump(mode="json"),
         "mandate_record_ref": mandate_record_ref,
@@ -2459,7 +2404,9 @@ def _s7_delegation_summary(
             else signals.get("decided_at")
         ),
         "actor_ref": (
-            record_payload.get("actor_ref") if record_payload is not None else signals.get("actor_ref")
+            record_payload.get("actor_ref")
+            if record_payload is not None
+            else signals.get("actor_ref")
         ),
         "voi_rank": int(signals.get("voi_rank") or request.voi_rank),
         "authority_boundary": report.authority_boundary.model_dump(mode="json"),
@@ -2520,9 +2467,7 @@ def _s7_delegation_corpus_summary(
         "case_count": len(rows),
         "delegation_precision": integrity["delegation_precision"],
         "delegation_recall": integrity["delegation_recall"],
-        "responsibility_integrity_pass_rate": integrity[
-            "responsibility_integrity_pass_rate"
-        ],
+        "responsibility_integrity_pass_rate": integrity["responsibility_integrity_pass_rate"],
         "oversight_theater_false_clear_count": _s7_false_clear_count(
             negative_results,
             "oversight_theater_probe",
@@ -2597,13 +2542,17 @@ def _s7_delegation_posture_input(
             s7_delegation.get("decision_class_id"),
             field_name="decision_class_id",
         ),
-        required_role=_required_text(s7_delegation.get("required_role"), field_name="required_role"),
+        required_role=_required_text(
+            s7_delegation.get("required_role"), field_name="required_role"
+        ),
         interaction_mode=_required_text(
             s7_delegation.get("interaction_mode"),
             field_name="interaction_mode",
         ),
         disposition=_required_text(s7_delegation.get("disposition"), field_name="disposition"),
-        available_actions=[str(action) for action in _sequence(s7_delegation.get("available_actions"))],
+        available_actions=[
+            str(action) for action in _sequence(s7_delegation.get("available_actions"))
+        ],
         decision_action_exercised=_text(s7_delegation.get("decision_action_exercised")) or None,
         five_rights_requirement=dict(_mapping(s7_delegation.get("five_rights_requirement"))),
         five_rights_check=(
@@ -2654,7 +2603,9 @@ def _s7_delegation_posture_input(
             dict(row)
             for row in _sequence_of_mappings(s7_delegation.get("constraint_store_updates"))
         ],
-        handoff_rows=[dict(row) for row in _sequence_of_mappings(s7_delegation.get("handoff_rows"))],
+        handoff_rows=[
+            dict(row) for row in _sequence_of_mappings(s7_delegation.get("handoff_rows"))
+        ],
         limitation_summary=_required_text(
             s7_delegation.get("limitation_summary"),
             field_name="limitation_summary",
@@ -2726,9 +2677,7 @@ def _s8_value_choice_summary(
         "shadow_scenario_value_schedule_refs": [
             str(ref) for ref in _sequence(signals.get("shadow_scenario_value_schedule_refs"))
         ],
-        "objective_function_provenance_ref": fixed_refs[
-            "objective_function_provenance_ref"
-        ],
+        "objective_function_provenance_ref": fixed_refs["objective_function_provenance_ref"],
         "pareto_archive_ref": fixed_refs["pareto_archive_ref"],
         "value_tradeoff_disclosure_ref": fixed_refs["value_tradeoff_disclosure_ref"],
         "mandate_record_ref": mandate_ref,
@@ -2752,8 +2701,7 @@ def _s8_value_choice_summary(
             for row in _sequence_of_mappings(signals.get("alternative_schedule_sensitivity"))
         ],
         "rejected_nondominated_alternative_ids": [
-            str(item)
-            for item in _sequence(signals.get("rejected_nondominated_alternative_ids"))
+            str(item) for item in _sequence(signals.get("rejected_nondominated_alternative_ids"))
         ],
         "social_weight_provenance_refs": _s8_social_weight_provenance_refs(
             case_id,
@@ -2810,7 +2758,9 @@ def _s8_value_choice_corpus_summary(
     ]
     negative_results = _s8_negative_control_probe_results(repo_root)
     expected_authorized = [
-        row for row in rows if "authorized_schedule_present" in set(_sequence(row.get("coverage_labels")))
+        row
+        for row in rows
+        if "authorized_schedule_present" in set(_sequence(row.get("coverage_labels")))
     ]
     authorized_recall = (
         sum(1 for row in expected_authorized if row.get("authorized_value_schedule_ref"))
@@ -2912,9 +2862,7 @@ def _s9_projection_lowering_case_block(
         else []
     )
     lowering_gate_refs = (
-        [f"pdc://layer2/s9/{case_id}/lowering-gate/{lowering_kind}"]
-        if lowering_requested
-        else []
+        [f"pdc://layer2/s9/{case_id}/lowering-gate/{lowering_kind}"] if lowering_requested else []
     )
     load_bearing_limitation_refs = _text_list(signals.get("load_bearing_limitation_refs"))
     s2_design_record = _mapping(s2_design_search.get("design_record"))
@@ -2927,9 +2875,7 @@ def _s9_projection_lowering_case_block(
         "lowering_request_refs": lowering_request_refs,
         "lowering_gate_refs": lowering_gate_refs,
         "lowering_artifact_refs": _text_list(signals.get("lowering_artifact_refs")),
-        "lowering_append_receipt_refs": _text_list(
-            signals.get("lowering_append_receipt_refs")
-        ),
+        "lowering_append_receipt_refs": _text_list(signals.get("lowering_append_receipt_refs")),
         "source_design_record_ref": _required_text(
             signals.get("source_design_record_ref"),
             field_name="source_design_record_ref",
@@ -2969,8 +2915,7 @@ def _s9_projection_lowering_case_block(
         "abstention_refs": _text_list(signals.get("abstention_refs")),
         "lowering_requested": lowering_requested,
         "lowering_kind": lowering_kind,
-        "post_closeout_state": _text(signals.get("post_closeout_state"))
-        or "open_projection_only",
+        "post_closeout_state": _text(signals.get("post_closeout_state")) or "open_projection_only",
         "canonical_outcome_effect": "none_projection_only_or_reissue_required",
         "authority_role": "projection_only",
         "public_projection_omission_manifest": [
@@ -2987,9 +2932,7 @@ def _s9_projection_lowering_case_block(
         "s2_projection_status": _text(s2_design_record.get("projection_status")) or "shadow",
         "s2_design_record_ref": _text(s2_design_record.get("record_ref"))
         or _text(signals.get("source_design_record_ref")),
-        "s8_value_choice_provenance_ref": _text(
-            s8_value_choice.get("value_choice_provenance_ref")
-        ),
+        "s8_value_choice_provenance_ref": _text(s8_value_choice.get("value_choice_provenance_ref")),
         "s8_value_tradeoff_disclosure_ref": _text(
             s8_value_choice.get("value_tradeoff_disclosure_ref")
         ),
@@ -3020,10 +2963,7 @@ def _s9_projection_lowering_summary(
         if isinstance(case.get("s9_projection_lowering"), Mapping)
     ]
     negative_results = _s9_negative_control_probe_results(repo_root)
-    denominator = sum(
-        len(_sequence(row.get("required_audiences"))) or 4
-        for row in rows
-    )
+    denominator = sum(len(_sequence(row.get("required_audiences"))) or 4 for row in rows)
     numerator = sum(
         (len(_sequence(row.get("required_audiences"))) or 4)
         for row in rows
@@ -3083,9 +3023,7 @@ def _s9_projection_lowering_summary(
         "projection_faithfulness_pass_rate": _rate(numerator, denominator),
         "audience_projection_counts": dict(
             Counter(
-                audience
-                for row in rows
-                for audience in _sequence(row.get("required_audiences"))
+                audience for row in rows for audience in _sequence(row.get("required_audiences"))
             )
         ),
         "lowering_gate_counts": dict(
@@ -3112,9 +3050,7 @@ def _s9_projection_lowering_summary(
         "projection_mints_authority_false_clear_count": false_clear_counts[
             "projection_mints_authority"
         ],
-        "redaction_hides_blocker_false_clear_count": false_clear_counts[
-            "redaction_hides_blocker"
-        ],
+        "redaction_hides_blocker_false_clear_count": false_clear_counts["redaction_hides_blocker"],
         "post_closeout_lowering_without_reissue_false_clear_count": false_clear_counts[
             "post_closeout_lowering_without_reissue"
         ],
@@ -3150,10 +3086,7 @@ def _s9_negative_control_probe_results(
         )
         expected_false_clear = bool(payload.get("expected_false_clear"))
         predicted_disposition = _s9_probe_disposition(payload)
-        false_clear = (
-            predicted_disposition != expected_disposition
-            or expected_false_clear is True
-        )
+        false_clear = predicted_disposition != expected_disposition or expected_false_clear is True
         results[case_id] = {
             "case_id": case_id,
             "failure_pattern": failure_pattern,
@@ -3200,11 +3133,9 @@ def _s9_false_clear_count(
 
 def _s9_matches_gold(block: Mapping[str, object], labels: Mapping[str, object]) -> bool:
     expected = _text(labels.get("expected_faithfulness_status")) or "pass"
-    return (
-        _text(block.get("faithfulness_status")) == expected
-        and _text(block.get("lowering_gate_status"))
-        == _text(labels.get("expected_lowering_gate_status"))
-    )
+    return _text(block.get("faithfulness_status")) == expected and _text(
+        block.get("lowering_gate_status")
+    ) == _text(labels.get("expected_lowering_gate_status"))
 
 
 def _s9_case_signals(repo_root: Path) -> dict[str, dict[str, Any]]:
@@ -3237,9 +3168,7 @@ def _s8_value_posture_input(
             s8_value_choice.get("value_choice_provenance_ref"),
             field_name="value_choice_provenance_ref",
         ),
-        authorized_value_schedule_ref=_text(
-            s8_value_choice.get("authorized_value_schedule_ref")
-        )
+        authorized_value_schedule_ref=_text(s8_value_choice.get("authorized_value_schedule_ref"))
         or None,
         shadow_scenario_value_schedule_refs=[
             str(ref)
@@ -3289,8 +3218,7 @@ def _s8_value_posture_input(
             dict(row) for row in _sequence_of_mappings(s8_value_choice.get("conflict_rows"))
         ],
         affected_group_rows=[
-            dict(row)
-            for row in _sequence_of_mappings(s8_value_choice.get("affected_group_rows"))
+            dict(row) for row in _sequence_of_mappings(s8_value_choice.get("affected_group_rows"))
         ],
         dissent_refs=[str(ref) for ref in _sequence(s8_value_choice.get("dissent_refs"))],
         blocking_rights_refs=[
@@ -3311,8 +3239,7 @@ def _s8_value_posture_input(
         ],
         delegation_refs=[str(ref) for ref in _sequence(s8_value_choice.get("delegation_refs"))],
         value_authorization_decision_refs=[
-            str(ref)
-            for ref in _sequence(s8_value_choice.get("value_authorization_decision_refs"))
+            str(ref) for ref in _sequence(s8_value_choice.get("value_authorization_decision_refs"))
         ],
         constraint_store_updates=[
             dict(row)
@@ -3481,9 +3408,7 @@ def _s8_fixed_refs(case_id: str) -> dict[str, str]:
             f"pdc://layer2/s8/{case_id}/objective-function-provenance"
         ),
         "pareto_archive_ref": f"pdc://layer2/s8/{case_id}/pareto-archive",
-        "value_tradeoff_disclosure_ref": (
-            f"pdc://layer2/s8/{case_id}/value-tradeoff-disclosure"
-        ),
+        "value_tradeoff_disclosure_ref": (f"pdc://layer2/s8/{case_id}/value-tradeoff-disclosure"),
     }
 
 
@@ -3643,21 +3568,15 @@ def _s10_outcome_prediction_case_block(
         ),
         "source_contract_ref": _text(signals.get("source_contract_ref")) or None,
         "method_validity_ref": _text(signals.get("method_validity_ref")) or None,
-        "credible_evaluation_evidence_ref": _text(
-            signals.get("credible_evaluation_evidence_ref")
-        )
+        "credible_evaluation_evidence_ref": _text(signals.get("credible_evaluation_evidence_ref"))
         or None,
         "source_lineage_refs": _text_list(signals.get("source_lineage_refs")),
         "method_lineage_refs": _text_list(signals.get("method_lineage_refs")),
         "sensitivity_analysis_ref": _text(signals.get("sensitivity_analysis_ref")) or None,
-        "dynamic_equilibrium_check_ref": _text(
-            signals.get("dynamic_equilibrium_check_ref")
-        )
+        "dynamic_equilibrium_check_ref": _text(signals.get("dynamic_equilibrium_check_ref"))
         or None,
         "equilibrium_caveat_refs": _text_list(signals.get("equilibrium_caveat_refs")),
-        "strategic_response_caveat_refs": _text_list(
-            signals.get("strategic_response_caveat_refs")
-        ),
+        "strategic_response_caveat_refs": _text_list(signals.get("strategic_response_caveat_refs")),
         "outcome_distribution_refs": _text_list(signals.get("outcome_distribution_refs")),
         "welfare_comparison_ref": _text(signals.get("welfare_comparison_ref")) or None,
         "forecast_authority_disposition_reason": _required_text(
@@ -3696,9 +3615,7 @@ def _s10_outcome_prediction_case_block(
         "forecast_support_ref": support.support_ref,
         "forecast_calibration_record_ref": calibration_ref or None,
         "forecast_tier": support.forecast_tier,
-        "forecast_authority_disposition_reason": (
-            support.forecast_authority_disposition_reason
-        ),
+        "forecast_authority_disposition_reason": (support.forecast_authority_disposition_reason),
         "forecast_support_label": support.s5_support_label,
         "design_graph_ref": support.design_graph_ref,
         "prediction_context_ref": support.prediction_context_ref,
@@ -3739,9 +3656,7 @@ def _s10_outcome_prediction_case_block(
         "calibration_numerator": numerator,
         "calibration_pass_rate": _rate(numerator, denominator),
         "uncertainty_interval_refs": list(support.uncertainty_interval_refs),
-        "non_observable_downgrade_reason": _text(
-            signals.get("non_observable_downgrade_reason")
-        )
+        "non_observable_downgrade_reason": _text(signals.get("non_observable_downgrade_reason"))
         or None,
         "authority_boundary": support.authority_boundary.model_dump(mode="json"),
         "may_not_use_for": list(support.may_not_use_for),
@@ -3916,29 +3831,21 @@ def _s10_forecast_posture_input(
             s10_outcome_prediction.get("baseline_design_ref"),
             field_name="baseline_design_ref",
         ),
-        alternative_design_refs=_text_list(
-            s10_outcome_prediction.get("alternative_design_refs")
-        ),
+        alternative_design_refs=_text_list(s10_outcome_prediction.get("alternative_design_refs")),
         prediction_horizon_ref=_required_text(
             s10_outcome_prediction.get("prediction_horizon_ref"),
             field_name="prediction_horizon_ref",
         ),
-        observable_subset_ref=_text(s10_outcome_prediction.get("observable_subset_ref"))
-        or None,
+        observable_subset_ref=_text(s10_outcome_prediction.get("observable_subset_ref")) or None,
         uncertainty_interval_refs=_text_list(
             s10_outcome_prediction.get("uncertainty_interval_refs")
         ),
-        welfare_comparison_ref=_text(
-            s10_outcome_prediction.get("welfare_comparison_ref")
-        )
-        or None,
+        welfare_comparison_ref=_text(s10_outcome_prediction.get("welfare_comparison_ref")) or None,
         s5_forecast_support_ref=_required_text(
             s10_outcome_prediction.get("s5_forecast_support_ref"),
             field_name="s5_forecast_support_ref",
         ),
-        s6_firewall_status_refs=_text_list(
-            s10_outcome_prediction.get("s6_firewall_status_refs")
-        ),
+        s6_firewall_status_refs=_text_list(s10_outcome_prediction.get("s6_firewall_status_refs")),
         s8_value_choice_provenance_ref=_required_text(
             s10_outcome_prediction.get("s8_value_choice_provenance_ref"),
             field_name="s8_value_choice_provenance_ref",
@@ -3947,10 +3854,8 @@ def _s10_forecast_posture_input(
             s10_outcome_prediction.get("s8_value_tradeoff_disclosure_ref"),
             field_name="s8_value_tradeoff_disclosure_ref",
         ),
-        source_contract_ref=_text(s10_outcome_prediction.get("source_contract_ref"))
-        or None,
-        method_validity_ref=_text(s10_outcome_prediction.get("method_validity_ref"))
-        or None,
+        source_contract_ref=_text(s10_outcome_prediction.get("source_contract_ref")) or None,
+        method_validity_ref=_text(s10_outcome_prediction.get("method_validity_ref")) or None,
         credible_evaluation_evidence_ref=_text(
             s10_outcome_prediction.get("credible_evaluation_evidence_ref")
         )
@@ -3959,9 +3864,7 @@ def _s10_forecast_posture_input(
             s10_outcome_prediction.get("dynamic_equilibrium_check_ref")
         )
         or None,
-        sensitivity_analysis_ref=_text(
-            s10_outcome_prediction.get("sensitivity_analysis_ref")
-        )
+        sensitivity_analysis_ref=_text(s10_outcome_prediction.get("sensitivity_analysis_ref"))
         or None,
         authority_boundary=dict(_mapping(s10_outcome_prediction.get("authority_boundary"))),
         may_not_use_for=_text_list(s10_outcome_prediction.get("may_not_use_for")),
@@ -3988,9 +3891,9 @@ def _s11_predictive_knowledge_case_block(
         s6_blind_spot_firewalls,
         fallback=_sequence(signals.get("s6_floor_status_refs")),
     )
-    s6_axis_rows = list(
-        _sequence_of_mappings(s6_blind_spot_firewalls.get("axis_rows"))
-    ) or list(_sequence_of_mappings(signals.get("s6_axis_rows")))
+    s6_axis_rows = list(_sequence_of_mappings(s6_blind_spot_firewalls.get("axis_rows"))) or list(
+        _sequence_of_mappings(signals.get("s6_axis_rows"))
+    )
     s6_bridge_rows = list(
         _sequence_of_mappings(s6_blind_spot_firewalls.get("bridge_consumer_table"))
     ) or list(_sequence_of_mappings(signals.get("s6_bridge_consumer_rows")))
@@ -4110,8 +4013,7 @@ def _s11_axis_records(
     axis = _required_text(row.get("axis"), field_name="axis")
     cell_ref = _required_text(row.get("cell_ref"), field_name="cell_ref")
     calibration_ref = _required_text(
-        row.get("calibration_record_ref")
-        or f"pdc://layer2/s11/{case_id}/calibration/{axis}",
+        row.get("calibration_record_ref") or f"pdc://layer2/s11/{case_id}/calibration/{axis}",
         field_name="calibration_record_ref",
     )
     s6_floor_record_ref = _required_text(
@@ -4121,9 +4023,7 @@ def _s11_axis_records(
     denominator = int(row.get("denominator") or 1)
     numerator = int(row.get("numerator") or 0)
     threshold = float(
-        row.get("threshold")
-        or signals.get("per_axis_predictive_calibration_threshold")
-        or 0.5
+        row.get("threshold") or signals.get("per_axis_predictive_calibration_threshold") or 0.5
     )
     floor_passed = bool(row.get("floor_passed"))
     calibration = build_predictive_axis_calibration_record(
@@ -4146,8 +4046,7 @@ def _s11_axis_records(
             field_name="calibration_ledger_ref",
         ),
         calibration_scope_ref=_required_text(
-            row.get("calibration_scope_ref")
-            or f"scope://layer2/s11/{case_id}/{axis}/current",
+            row.get("calibration_scope_ref") or f"scope://layer2/s11/{case_id}/{axis}/current",
             field_name="calibration_scope_ref",
         ),
         prediction_context_ref=_required_text(
@@ -4175,16 +4074,13 @@ def _s11_axis_records(
             field_name="method_validity_ref",
         ),
         method_infrastructure_refs=_text_list(
-            row.get("method_infrastructure_refs")
-            or signals.get("method_infrastructure_refs")
+            row.get("method_infrastructure_refs") or signals.get("method_infrastructure_refs")
         ),
         source_lineage_refs=_text_list(
-            row.get("source_lineage_refs")
-            or s10_outcome_prediction.get("source_lineage_refs")
+            row.get("source_lineage_refs") or s10_outcome_prediction.get("source_lineage_refs")
         ),
         method_lineage_refs=_text_list(
-            row.get("method_lineage_refs")
-            or s10_outcome_prediction.get("method_lineage_refs")
+            row.get("method_lineage_refs") or s10_outcome_prediction.get("method_lineage_refs")
         ),
         effective_independence_refs=_text_list(
             row.get("effective_independence_refs")
@@ -4200,10 +4096,7 @@ def _s11_axis_records(
             s10_outcome_prediction.get("credible_evaluation_evidence_ref")
         )
         or None,
-        counterfactual_credibility_ref=_text(
-            row.get("counterfactual_credibility_ref")
-        )
-        or None,
+        counterfactual_credibility_ref=_text(row.get("counterfactual_credibility_ref")) or None,
         prediction_time=datetime(2024, 1, 1, tzinfo=UTC),
         observation_time=datetime(2025, 1, 1, tzinfo=UTC),
         policy_effective_time=datetime(2023, 1, 1, tzinfo=UTC),
@@ -4257,8 +4150,7 @@ def _s11_axis_records(
             dict(item) for item in _sequence_of_mappings(row.get("capacity_dimension_rows"))
         ],
         strategic_response_channel_rows=[
-            dict(item)
-            for item in _sequence_of_mappings(row.get("strategic_response_channel_rows"))
+            dict(item) for item in _sequence_of_mappings(row.get("strategic_response_channel_rows"))
         ],
         calibration_record_ref=calibration.calibration_ref,
         proof_carrying_analytics_ref=proof_ref,
@@ -4275,10 +4167,7 @@ def _s11_axis_records(
             signals.get("forecast_quality_disposition"),
             field_name="forecast_quality_disposition",
         ),
-        regime_strategy_constraint_ref=_text(
-            signals.get("regime_strategy_constraint_ref")
-        )
-        or None,
+        regime_strategy_constraint_ref=_text(signals.get("regime_strategy_constraint_ref")) or None,
         residual_limitation_refs=_text_list(row.get("residual_limitation_refs")),
         constraint_store_update_refs=_text_list(
             row.get("constraint_store_update_refs")
@@ -4374,12 +4263,8 @@ def _layer3_g3_first_case_proof_context(
         "ir_analytics_refs": list(proof.s11_record.get("ir_analytics_refs", ())),
         "method_output_refs": list(proof.s11_record.get("method_output_refs", ())),
         "ir_certificate_refs": list(proof.s11_record.get("ir_certificate_refs", ())),
-        "certificate_resolution_record_refs": list(
-            proof.certificate_resolution_record_refs
-        ),
-        "fixture_s11_regression_context_ref": _text(
-            signals.get("proof_carrying_analytics_ref")
-        ),
+        "certificate_resolution_record_refs": list(proof.certificate_resolution_record_refs),
+        "fixture_s11_regression_context_ref": _text(signals.get("proof_carrying_analytics_ref")),
     }
 
 
@@ -4405,9 +4290,7 @@ def _s11_proof_record(
             s10_outcome_prediction.get("baseline_design_ref"),
             field_name="baseline_design_ref",
         ),
-        alternative_design_refs=_text_list(
-            s10_outcome_prediction.get("alternative_design_refs")
-        ),
+        alternative_design_refs=_text_list(s10_outcome_prediction.get("alternative_design_refs")),
         ir_analytics_refs=_text_list(g3_context.get("ir_analytics_refs"))
         or [f"ir://layer2/s11/{case_id}/predictive-analytics"],
         method_output_refs=_text_list(g3_context.get("method_output_refs"))
@@ -4419,9 +4302,7 @@ def _s11_proof_record(
         proof_composability_status="revalidate",
         proof_composability_refs=[f"proof-composability://layer2/s11/{case_id}"],
         method_requirement_refs=_text_list(signals.get("method_infrastructure_refs")),
-        uncertainty_refs=_text_list(
-            s10_outcome_prediction.get("uncertainty_interval_refs")
-        ),
+        uncertainty_refs=_text_list(s10_outcome_prediction.get("uncertainty_interval_refs")),
         independence_refs=[f"independence://layer2/s11/{case_id}/effective"],
         effective_independence_collapse_refs=[],
         counter_evidence_refs=[],
@@ -4454,9 +4335,7 @@ def _s11_predictive_posture_input(
         axis_upgrade_refs=_text_list(s11_predictive_knowledge.get("axis_upgrade_refs")),
         predictive_axis_rows=[
             dict(row)
-            for row in _sequence_of_mappings(
-                s11_predictive_knowledge.get("axis_upgrade_rows")
-            )
+            for row in _sequence_of_mappings(s11_predictive_knowledge.get("axis_upgrade_rows"))
         ],
         proof_carrying_analytics_ref=_required_text(
             s11_predictive_knowledge.get("proof_carrying_analytics_ref"),
@@ -4474,12 +4353,9 @@ def _s11_predictive_posture_input(
             s11_predictive_knowledge.get("s10_forecast_tier"),
             field_name="s10_forecast_tier",
         ),  # type: ignore[arg-type]
-        s6_floor_status_refs=_text_list(
-            s11_predictive_knowledge.get("s6_floor_status_refs")
-        ),
+        s6_floor_status_refs=_text_list(s11_predictive_knowledge.get("s6_floor_status_refs")),
         s6_axis_rows=[
-            dict(row)
-            for row in _sequence_of_mappings(s11_predictive_knowledge.get("s6_axis_rows"))
+            dict(row) for row in _sequence_of_mappings(s11_predictive_knowledge.get("s6_axis_rows"))
         ],
         s6_bridge_consumer_rows=[
             dict(row)
@@ -4518,22 +4394,17 @@ def _s11_predictive_posture_input(
             s11_predictive_knowledge.get("residual_limitation_refs")
         ),
         per_axis_predictive_calibration_threshold_ref=_required_text(
-            s11_predictive_knowledge.get(
-                "per_axis_predictive_calibration_threshold_ref"
-            ),
+            s11_predictive_knowledge.get("per_axis_predictive_calibration_threshold_ref"),
             field_name="per_axis_predictive_calibration_threshold_ref",
         ),
         per_axis_predictive_calibration_denominator=int(
-            s11_predictive_knowledge.get("per_axis_predictive_calibration_denominator")
-            or 0
+            s11_predictive_knowledge.get("per_axis_predictive_calibration_denominator") or 0
         ),
         per_axis_predictive_calibration_numerator=int(
-            s11_predictive_knowledge.get("per_axis_predictive_calibration_numerator")
-            or 0
+            s11_predictive_knowledge.get("per_axis_predictive_calibration_numerator") or 0
         ),
         per_axis_predictive_calibration_pass_rate=float(
-            s11_predictive_knowledge.get("per_axis_predictive_calibration_pass_rate")
-            or 0.0
+            s11_predictive_knowledge.get("per_axis_predictive_calibration_pass_rate") or 0.0
         ),
         per_axis_predictive_calibration_status=_required_text(
             _s11_pdc_calibration_status(
@@ -4545,9 +4416,7 @@ def _s11_predictive_posture_input(
             s11_predictive_knowledge.get("weakest_boundary_reason"),
             field_name="weakest_boundary_reason",
         ),
-        authority_boundary=dict(
-            _mapping(s11_predictive_knowledge.get("authority_boundary"))
-        ),
+        authority_boundary=dict(_mapping(s11_predictive_knowledge.get("authority_boundary"))),
         may_not_use_for=_text_list(s11_predictive_knowledge.get("may_not_use_for")),
         rule_version_ref=LAYER2_S11_PREDICTIVE_KNOWLEDGE_RULE_VERSION,
     )
@@ -4564,19 +4433,14 @@ def _s11_predictive_knowledge_summary(
         if isinstance(case.get("s11_predictive_knowledge"), Mapping)
     ]
     axis_rows = [
-        row
-        for block in rows
-        for row in _sequence_of_mappings(block.get("axis_upgrade_rows"))
+        row for block in rows for row in _sequence_of_mappings(block.get("axis_upgrade_rows"))
     ]
     calibration_refs = [
-        ref
-        for block in rows
-        for ref in _text_list(block.get("s11_calibration_record_refs"))
+        ref for block in rows for ref in _text_list(block.get("s11_calibration_record_refs"))
     ]
     negative_results = _s11_negative_control_probe_results(repo_root)
     false_clear_counts = {
-        field: _s11_false_clear_count(negative_results, field)
-        for field in S11_FALSE_CLEAR_FIELDS
+        field: _s11_false_clear_count(negative_results, field) for field in S11_FALSE_CLEAR_FIELDS
     }
     threshold = _s11_summary_threshold(rows)
     threshold_ref = (
@@ -4590,16 +4454,10 @@ def _s11_predictive_knowledge_summary(
         calibration_records=[],
         proof_records=[],
         method_infrastructure_refs=[
-            ref
-            for block in rows
-            for ref in _text_list(block.get("method_infrastructure_refs"))
+            ref for block in rows for ref in _text_list(block.get("method_infrastructure_refs"))
         ],
         cells_closed=sorted(
-            {
-                _text(row.get("cell_ref"))
-                for row in axis_rows
-                if _text(row.get("cell_ref"))
-            }
+            {_text(row.get("cell_ref")) for row in axis_rows if _text(row.get("cell_ref"))}
         ),
         threshold=threshold,
         threshold_ref=threshold_ref,
@@ -4607,8 +4465,7 @@ def _s11_predictive_knowledge_summary(
     integrity.update(
         {
             "schema_version": (
-                "policyos.policy_design_case.layer2_s11."
-                "predictive_knowledge_corpus_summary.v1"
+                "policyos.policy_design_case.layer2_s11.predictive_knowledge_corpus_summary.v1"
             ),
             "floor_id": S11_AXIS_CALIBRATION_FLOOR_ID,
             "metric_name": "per_axis_predictive_calibration",
@@ -4633,10 +4490,7 @@ def _s11_predictive_knowledge_summary(
             "per_axis_predictive_calibration_floor_passed": bool(
                 len(axis_rows)
                 and _rate(
-                    sum(
-                        row.get("effective_maturity") == "predictive"
-                        for row in axis_rows
-                    ),
+                    sum(row.get("effective_maturity") == "predictive" for row in axis_rows),
                     len(axis_rows),
                 )
                 >= threshold
@@ -4697,9 +4551,7 @@ def _s11_weakest_boundary_reason(block: Mapping[str, object]) -> str:
         if row.get("effective_maturity") == "fail_closed"
     ]
     if reverted:
-        return "S11 inherits weakest fail-closed S6/S10 boundary for: " + ", ".join(
-            reverted
-        )
+        return "S11 inherits weakest fail-closed S6/S10 boundary for: " + ", ".join(reverted)
     return "S11 predictive posture remains shadow-only and bounded by authority denials."
 
 
@@ -4738,8 +4590,7 @@ def _s11_negative_control_probe_results(
         expected_false_clear_count = int(payload.get("expected_false_clear_count") or 0)
         predicted_disposition = _s11_probe_disposition(payload)
         false_clear = (
-            predicted_disposition != expected_disposition
-            or expected_false_clear_count != 0
+            predicted_disposition != expected_disposition or expected_false_clear_count != 0
         )
         results[probe_id] = {
             "probe_id": probe_id,
@@ -4821,8 +4672,7 @@ def _s12_resource_economics_case_block(
     allocation_policy = build_resource_allocation_policy(
         case_id=case_id,
         delegation_contract_ref=_required_text(
-            s7_delegation.get("delegation_contract_ref")
-            or signals.get("delegation_contract_ref"),
+            s7_delegation.get("delegation_contract_ref") or signals.get("delegation_contract_ref"),
             field_name="delegation_contract_ref",
         ),
         explore_exploit_dial_ref=_required_text(
@@ -4852,9 +4702,7 @@ def _s12_resource_economics_case_block(
             field_name="legal_access",
         ),
         rule_version_ref=LAYER2_S12_RESOURCE_ECONOMICS_RULE_VERSION,
-    ).model_copy(
-        update={"explore_exploit_posture": _s12_explore_exploit_posture(signals)}
-    )
+    ).model_copy(update={"explore_exploit_posture": _s12_explore_exploit_posture(signals)})
     growth_entries, blocked_growth_entries = _s12_growth_entries(signals, case_id=case_id)
     envelope_growth_ledger = build_envelope_growth_ledger(
         case_id=case_id,
@@ -4898,9 +4746,7 @@ def _s12_resource_economics_case_block(
                 row.voi_estimate_ref for row in allocation_policy.voi_allocations
             ],
             "voi_site_count": allocation_policy.voi_site_count,
-            "typed_budget_refs": [
-                row.budget_ref for row in allocation_policy.typed_budget_rows
-            ],
+            "typed_budget_refs": [row.budget_ref for row in allocation_policy.typed_budget_rows],
             "pareto_archive_ref": allocation_policy.pareto_archive_ref,
             "resource_allocation_policy_ref": allocation_policy.policy_ref,
             "envelope_growth_ledger_ref": envelope_growth_ledger.ledger_ref,
@@ -4912,22 +4758,16 @@ def _s12_resource_economics_case_block(
             "counted_mechanism_growth_count": (
                 envelope_growth_ledger.counted_mechanism_growth_count
             ),
-            "flagged_bespoke_one_off_count": (
-                envelope_growth_ledger.flagged_bespoke_one_off_count
-            ),
+            "flagged_bespoke_one_off_count": (envelope_growth_ledger.flagged_bespoke_one_off_count),
             "growth_without_envelope_delta_count": 0,
             "blocked_growth_entries": blocked_growth_entries,
             "growth_entries": [
-                entry.model_dump(mode="json")
-                for entry in envelope_growth_ledger.growth_entries
+                entry.model_dump(mode="json") for entry in envelope_growth_ledger.growth_entries
             ],
             "allocation_priority_rows": [
-                row.model_dump(mode="json")
-                for row in allocation_policy.allocation_priority_rows
+                row.model_dump(mode="json") for row in allocation_policy.allocation_priority_rows
             ],
-            "authority_boundary": allocation_policy.authority_boundary.model_dump(
-                mode="json"
-            ),
+            "authority_boundary": allocation_policy.authority_boundary.model_dump(mode="json"),
             "may_not_use_for": list(S12_MAY_NOT_USE_FOR),
             "s7_delegation_contract_ref": s7_delegation.get("delegation_contract_ref"),
             "s8_pareto_archive_ref": s8_value_choice.get("pareto_archive_ref"),
@@ -4955,9 +4795,7 @@ def _s12_resource_posture_input(
             s12_resource_economics.get("explore_exploit_posture"),
             field_name="explore_exploit_posture",
         ),  # type: ignore[arg-type]
-        explore_exploit_dial_ref=_text(
-            s12_resource_economics.get("explore_exploit_dial_ref")
-        )
+        explore_exploit_dial_ref=_text(s12_resource_economics.get("explore_exploit_dial_ref"))
         or None,
         delegation_contract_ref=_required_text(
             s12_resource_economics.get("delegation_contract_ref")
@@ -4973,9 +4811,7 @@ def _s12_resource_posture_input(
         ),
         allocation_priority_rows=[
             dict(row)
-            for row in _sequence_of_mappings(
-                s12_resource_economics.get("allocation_priority_rows")
-            )
+            for row in _sequence_of_mappings(s12_resource_economics.get("allocation_priority_rows"))
         ],
         envelope_growth_ledger_ref=_required_text(
             s12_resource_economics.get("envelope_growth_ledger_ref"),
@@ -4998,9 +4834,7 @@ def _s12_resource_posture_input(
             s12_resource_economics.get("knowledge_governance_throughput_ledger_ref"),
             field_name="knowledge_governance_throughput_ledger_ref",
         ),
-        residual_limitation_refs=_text_list(
-            s12_resource_economics.get("residual_limitation_refs")
-        ),
+        residual_limitation_refs=_text_list(s12_resource_economics.get("residual_limitation_refs")),
         authority_boundary=dict(_mapping(s12_resource_economics.get("authority_boundary"))),
         may_not_use_for=_text_list(s12_resource_economics.get("may_not_use_for")),
         rule_version_ref=LAYER2_S12_RESOURCE_ECONOMICS_RULE_VERSION,
@@ -5019,26 +4853,20 @@ def _s12_resource_economics_summary(
     ]
     negative_results = _s12_negative_control_probe_results(repo_root)
     false_clear_counts = {
-        field: _s12_false_clear_count(negative_results, field)
-        for field in S12_FALSE_CLEAR_FIELDS
+        field: _s12_false_clear_count(negative_results, field) for field in S12_FALSE_CLEAR_FIELDS
     }
     counted = sum(int(row.get("counted_mechanism_growth_count") or 0) for row in rows)
     flagged = sum(int(row.get("flagged_bespoke_one_off_count") or 0) for row in rows)
     summary: dict[str, object] = {
         "schema_version": (
-            "policyos.policy_design_case.layer2_s12."
-            "resource_economics_corpus_summary.v1"
+            "policyos.policy_design_case.layer2_s12.resource_economics_corpus_summary.v1"
         ),
         "case_count": len(rows),
         "voi_site_count": max([int(row.get("voi_site_count") or 0) for row in rows], default=0),
         "typed_budget_count": len(S12_TYPED_BUDGETS),
         "voi_sites": list(S12_VOI_SITES),
-        "override_rate_trend": _s12_summary_trend(
-            [row.get("override_rate_trend") for row in rows]
-        ),
-        "reuse_rate_trend": _s12_summary_trend(
-            [row.get("reuse_rate_trend") for row in rows]
-        ),
+        "override_rate_trend": _s12_summary_trend([row.get("override_rate_trend") for row in rows]),
+        "reuse_rate_trend": _s12_summary_trend([row.get("reuse_rate_trend") for row in rows]),
         "held_out_status": "pending_s14",
         "counted_mechanism_growth_count": counted,
         "flagged_bespoke_one_off_count": flagged,
@@ -5052,18 +4880,12 @@ def _s12_resource_economics_summary(
         "per_case_resource_table": [
             {
                 "case_id": row.get("case_id"),
-                "resource_allocation_policy_ref": row.get(
-                    "resource_allocation_policy_ref"
-                ),
+                "resource_allocation_policy_ref": row.get("resource_allocation_policy_ref"),
                 "explore_exploit_posture": row.get("explore_exploit_posture"),
                 "voi_site_count": row.get("voi_site_count"),
                 "typed_budget_count": len(_text_list(row.get("typed_budget_refs"))),
-                "counted_mechanism_growth_count": row.get(
-                    "counted_mechanism_growth_count"
-                ),
-                "flagged_bespoke_one_off_count": row.get(
-                    "flagged_bespoke_one_off_count"
-                ),
+                "counted_mechanism_growth_count": row.get("counted_mechanism_growth_count"),
+                "flagged_bespoke_one_off_count": row.get("flagged_bespoke_one_off_count"),
                 "matches_gold": row.get("matches_gold"),
             }
             for row in rows
@@ -5232,8 +5054,7 @@ def _s12_matches_gold(block: Mapping[str, object], labels: Mapping[str, object])
         == _text(labels.get("expected_explore_exploit_posture"))
         and _text(block.get("override_rate_trend"))
         == _text(labels.get("expected_override_rate_trend"))
-        and _text(block.get("reuse_rate_trend"))
-        == _text(labels.get("expected_reuse_rate_trend"))
+        and _text(block.get("reuse_rate_trend")) == _text(labels.get("expected_reuse_rate_trend"))
         and int(block.get("counted_mechanism_growth_count") or 0)
         == int(labels.get("expected_counted_mechanism_growth_count") or 0)
         and int(block.get("flagged_bespoke_one_off_count") or 0)
@@ -5360,8 +5181,7 @@ def _s13_post_deploy_accountability_case_block(
                 field_name="learning_update_target",
             ),
             "envelope_revision_direction": envelope_revision.direction,
-            "assurance_case_change": _text(signals.get("assurance_case_change"))
-            or None,
+            "assurance_case_change": _text(signals.get("assurance_case_change")) or None,
             "seeded_disconfirmation": bool(signals.get("seeded_disconfirmation")),
             "validated_reuse": bool(signals.get("validated_reuse")),
             "unattributable": bool(signals.get("unattributable")),
@@ -5375,12 +5195,8 @@ def _s13_post_deploy_accountability_case_block(
             "oversight_effectiveness_ref": divergence.oversight_effectiveness_ref,
             "effective_oversight": divergence.effective_oversight,
             "oversight_accountability_state": divergence.oversight_accountability_state,
-            "human_decision_request_refs": _text_list(
-                signals.get("human_decision_request_refs")
-            ),
-            "human_decision_record_refs": _text_list(
-                signals.get("human_decision_record_refs")
-            ),
+            "human_decision_request_refs": _text_list(signals.get("human_decision_request_refs")),
+            "human_decision_record_refs": _text_list(signals.get("human_decision_record_refs")),
             "historical_prior_influence_refs": _text_list(
                 signals.get("historical_prior_influence_refs")
             ),
@@ -5388,33 +5204,24 @@ def _s13_post_deploy_accountability_case_block(
                 signals.get("public_accountability_note_ref"),
                 field_name="public_accountability_note_ref",
             ),
-            "public_revision_state_ref": _text(signals.get("public_revision_state_ref"))
-            or None,
+            "public_revision_state_ref": _text(signals.get("public_revision_state_ref")) or None,
             "shrink_latency_days": signals.get("shrink_latency_days"),
             "s9_projection_render_refs": _text_list(
                 s9_projection_lowering.get("projection_render_refs")
             ),
-            "s9_source_revision_ref": _text(
-                s9_projection_lowering.get("source_revision_ref")
-            )
+            "s9_source_revision_ref": _text(s9_projection_lowering.get("source_revision_ref"))
             or None,
             "artifacts": {
                 "deployment_dossier": dossier.model_dump(mode="json"),
                 "divergence_record": divergence.model_dump(mode="json"),
                 "learning_update_proposal": (
-                    proposal.model_dump(mode="json")
-                    if proposal is not None
-                    else None
+                    proposal.model_dump(mode="json") if proposal is not None else None
                 ),
                 "certified_envelope_delta": (
-                    certified_delta.model_dump(mode="json")
-                    if certified_delta is not None
-                    else None
+                    certified_delta.model_dump(mode="json") if certified_delta is not None else None
                 ),
                 "assurance_case_delta": (
-                    assurance_delta.model_dump(mode="json")
-                    if assurance_delta is not None
-                    else None
+                    assurance_delta.model_dump(mode="json") if assurance_delta is not None else None
                 ),
                 "envelope_revision": envelope_revision.model_dump(mode="json"),
                 "mape_k_trace": mape_k_trace.model_dump(mode="json"),
@@ -5474,9 +5281,7 @@ def _s13_case_artifacts(
         case_id=case_id,
         signals=signals,
         divergence_record_ref=divergence.divergence_ref,
-        learning_update_proposal_ref=(
-            proposal.proposal_ref if proposal is not None else None
-        ),
+        learning_update_proposal_ref=(proposal.proposal_ref if proposal is not None else None),
         assurance_case_delta_ref=(
             assurance_delta.delta_ref if assurance_delta is not None else None
         ),
@@ -5489,9 +5294,7 @@ def _s13_case_artifacts(
         signals=signals,
         deployment_dossier_ref=dossier.dossier_ref,
         divergence_record_ref=divergence.divergence_ref,
-        learning_update_proposal_ref=(
-            proposal.proposal_ref if proposal is not None else None
-        ),
+        learning_update_proposal_ref=(proposal.proposal_ref if proposal is not None else None),
         envelope_revision_ref=envelope_revision.revision_ref,
         s9_projection_lowering=s9_projection_lowering,
     )
@@ -5617,13 +5420,10 @@ def _s13_divergence_record(
             if _text(signals.get("oversight_effectiveness_ref"))
             else None
         ),
-        oversight_effectiveness_ref=_text(signals.get("oversight_effectiveness_ref"))
-        or None,
+        oversight_effectiveness_ref=_text(signals.get("oversight_effectiveness_ref")) or None,
         effective_oversight=signals.get("effective_oversight"),
         rubber_stamp_risk=_text(signals.get("rubber_stamp_risk")) or None,
-        oversight_accountability_state=_text(
-            signals.get("oversight_accountability_state")
-        )
+        oversight_accountability_state=_text(signals.get("oversight_accountability_state"))
         or "not_applicable",
         policy_theory_refuted=False,
         rule_version_ref=LAYER2_S13_POST_DEPLOY_ACCOUNTABILITY_RULE_VERSION,
@@ -5675,16 +5475,12 @@ def _s13_learning_update_proposal(
         human_decision_record_refs=_text_list(signals.get("human_decision_record_refs")),
         historical_prior_influence_refs=historical_prior_refs,
         historical_prior_provenance_ref=(
-            f"provenance://{slug}/s13/historical-prior"
-            if historical_prior_refs
-            else None
+            f"provenance://{slug}/s13/historical-prior" if historical_prior_refs else None
         ),
         historical_prior_ttl="P180D" if historical_prior_refs else None,
         historical_prior_decay="linear" if historical_prior_refs else None,
         contamination_control_refs=(
-            [f"memory-contamination-check://{slug}/s13/clean"]
-            if historical_prior_refs
-            else []
+            [f"memory-contamination-check://{slug}/s13/clean"] if historical_prior_refs else []
         ),
         lifecycle_reissue_disposition=_s13_lifecycle_reissue_disposition(signals),
         assurance_case_delta_ref=assurance_case_delta_ref,
@@ -5781,9 +5577,7 @@ def _s13_envelope_revision(
         assurance_case_delta_ref=assurance_case_delta_ref,
         certified_envelope_delta_ref=certified_envelope_delta_ref,
         disconfirming_signal_time=(
-            "2023-05-01T00:00:00+00:00"
-            if direction in {"shrink", "split"}
-            else None
+            "2023-05-01T00:00:00+00:00" if direction in {"shrink", "split"} else None
         ),
         revision_effective_time=_s13_revision_effective_time(direction),
         shrink_latency_days=int(shrink_latency) if shrink_latency is not None else None,
@@ -5859,8 +5653,7 @@ def _s13_post_deploy_accountability_summary(
     ).model_dump(mode="json")
     negative_results = _s13_negative_control_probe_results(repo_root)
     false_clear_counts = {
-        field: _s13_false_clear_count(negative_results, field)
-        for field in S13_FALSE_CLEAR_FIELDS
+        field: _s13_false_clear_count(negative_results, field) for field in S13_FALSE_CLEAR_FIELDS
     }
     summary["false_clear_counts"] = false_clear_counts
     summary["negative_control_false_clear_count"] = sum(false_clear_counts.values())
@@ -5932,9 +5725,7 @@ def _s14_universality_dev_case_block(
         )
         or _text_list(s9_projection_lowering.get("projection_render_refs")),
         "grounded_authority_ref": _text(signals.get("grounded_authority_ref")) or None,
-        "capability_reality_report_ref": _text(
-            signals.get("capability_reality_report_ref")
-        )
+        "capability_reality_report_ref": _text(signals.get("capability_reality_report_ref"))
         or None,
         "growth_thermometer_ref": _text(signals.get("growth_thermometer_ref"))
         or _text(s12_resource_economics.get("growth_thermometer_ref"))
@@ -5956,9 +5747,7 @@ def _s14_universality_dev_case_block(
         "evaluation_status_composition_ref": "pdc://layer2/s14/evaluation-status-composition",
         "envelope_revision_dynamics_ref": "pdc://layer2/s14/envelope-revision-dynamics",
         "signal_limitation_refs": _text_list(signals.get("signal_limitation_refs")),
-        "canonical_outcome_effect": (
-            "universality_assurance_dev_shadow_only_not_claim_authority"
-        ),
+        "canonical_outcome_effect": ("universality_assurance_dev_shadow_only_not_claim_authority"),
         "authority_role": "projection_only",
         "authority_boundary": boundary.model_dump(mode="json"),
         "may_not_use_for": list(boundary.may_not_use_for),
@@ -5987,8 +5776,7 @@ def _s14_universality_dev_summary(
     envelope = _s14_fixture(repo_root, S14_ENVELOPE_REVISION_DYNAMICS_PATH)
     negative_results = _s14_negative_control_probe_results(repo_root)
     false_clear_counts = {
-        field: _s14_false_clear_count(negative_results, field)
-        for field in S14_FALSE_CLEAR_FIELDS
+        field: _s14_false_clear_count(negative_results, field) for field in S14_FALSE_CLEAR_FIELDS
     }
     universal_statuses = {_text(row.get("universal_claim_gate_status")) for row in rows}
     universal_claim_gate_status = "pending_sealed"
@@ -6008,14 +5796,11 @@ def _s14_universality_dev_summary(
         "d4_corpus_track_count": len(_sequence_of_mappings(d4.get("track_rows"))),
         "expert_oracle_layer_count": len(_sequence_of_mappings(oracle.get("oracle_layers"))),
         "breadth_floor_status": _s14_breadth_floor_status(breadth),
-        "grounded_authority_coverage_status": _text(grounded.get("coverage_status"))
-        or "blocked",
-        "baseline_comparison_status": _text(baseline.get("comparison_status"))
-        or "blocked",
+        "grounded_authority_coverage_status": _text(grounded.get("coverage_status")) or "blocked",
+        "baseline_comparison_status": _text(baseline.get("comparison_status")) or "blocked",
         "evaluation_status_composition_status": _text(composition.get("composition_status"))
         or "blocked",
-        "envelope_revision_dynamics_status": _text(envelope.get("dynamics_status"))
-        or "blocked",
+        "envelope_revision_dynamics_status": _text(envelope.get("dynamics_status")) or "blocked",
         "bare_universal_claim_block_count": _s14_block_count(
             negative_results,
             "bare_universal_claim_without_battery",
@@ -6067,8 +5852,7 @@ def _s14_negative_control_probe_results(
         expected_false_clear_count = int(payload.get("expected_false_clear_count") or 0)
         verification = verify_universality_claim_authority(payload)
         issue_codes = [
-            _text(issue.get("code"))
-            for issue in _sequence_of_mappings(verification.get("issues"))
+            _text(issue.get("code")) for issue in _sequence_of_mappings(verification.get("issues"))
         ]
         observed_disposition = _s14_probe_disposition(issue_codes)
         negative_control_false_clear = observed_disposition != expected_disposition
@@ -6087,8 +5871,7 @@ def _s14_negative_control_probe_results(
             "false_clear_count": false_clear_count,
             "expected_false_clear_count": expected_false_clear_count,
             "negative_control_false_clear": (
-                negative_control_false_clear
-                or false_clear_count != expected_false_clear_count
+                negative_control_false_clear or false_clear_count != expected_false_clear_count
             ),
         }
     return results
@@ -6192,8 +5975,7 @@ def _s13_negative_control_probe_results(
             "false_clear_count": false_clear_count,
             "expected_false_clear_count": expected_false_clear_count,
             "negative_control_false_clear": (
-                negative_control_false_clear
-                or false_clear_count != expected_false_clear_count
+                negative_control_false_clear or false_clear_count != expected_false_clear_count
             ),
         }
     return results
@@ -6236,14 +6018,12 @@ def _s13_false_clear_count(
 
 def _s13_matches_gold(block: Mapping[str, object], labels: Mapping[str, object]) -> bool:
     return (
-        _text(block.get("attribution_class"))
-        == _text(labels.get("expected_attribution_class"))
+        _text(block.get("attribution_class")) == _text(labels.get("expected_attribution_class"))
         and _text(block.get("attribution_status"))
         == _text(labels.get("expected_attribution_status"))
         and _text(block.get("envelope_revision_direction"))
         == _text(labels.get("expected_envelope_revision_direction"))
-        and bool(block.get("learning_allowed"))
-        is bool(labels.get("expected_learning_allowed"))
+        and bool(block.get("learning_allowed")) is bool(labels.get("expected_learning_allowed"))
         and bool(block.get("public_accountability_note_ref"))
         is bool(labels.get("expected_public_accountability_note"))
     )
@@ -6253,12 +6033,7 @@ def _s13_artifact_rows(
     artifacts: Sequence[Mapping[str, object]],
     key: str,
 ) -> list[Mapping[str, object]]:
-    return [
-        dict(row)
-        for artifact in artifacts
-        for row in [_mapping(artifact.get(key))]
-        if row
-    ]
+    return [dict(row) for artifact in artifacts for row in [_mapping(artifact.get(key))] if row]
 
 
 def _s13_learning_allowed(
@@ -6348,9 +6123,7 @@ def _s13_ex_post_learning_record(*, case_id: str, slug: str) -> dict[str, object
                 "reassessment_ref": f"reassessment://{slug}/s13",
                 "reassessment_status": "confirmed",
                 "future_method_prior_ref": f"future-prior://{slug}/s13/method",
-                "future_uncertainty_prior_ref": (
-                    f"future-prior://{slug}/s13/uncertainty"
-                ),
+                "future_uncertainty_prior_ref": (f"future-prior://{slug}/s13/uncertainty"),
                 "evidence_ref": "sha256:" + "a" * 64,
                 "runtime_event_ref": f"event://{slug}/s13/outcome-link",
             }
@@ -6424,8 +6197,7 @@ def _s13_signal_slug(signals: Mapping[str, object], *, case_id: str) -> str:
 
 def _s13_monitoring_missing_for_deployable(payload: Mapping[str, object]) -> bool:
     disposition = _text(
-        payload.get("deployment_readiness_disposition")
-        or payload.get("readiness_disposition")
+        payload.get("deployment_readiness_disposition") or payload.get("readiness_disposition")
     )
     return disposition == "deployable" and not (
         _text(payload.get("monitoring_design_ref")) and _text(payload.get("owner"))
@@ -6531,10 +6303,7 @@ def _s10_negative_control_probe_results(
         )
         expected_false_clear = bool(payload.get("expected_false_clear"))
         predicted_disposition = _s10_probe_disposition(payload)
-        false_clear = (
-            predicted_disposition != expected_disposition
-            or expected_false_clear is True
-        )
+        false_clear = predicted_disposition != expected_disposition or expected_false_clear is True
         results[case_id] = {
             "case_id": case_id,
             "failure_pattern": failure_pattern,
@@ -6568,8 +6337,7 @@ def _s10_matches_gold(block: Mapping[str, object], labels: Mapping[str, object])
         _text(block.get("forecast_tier")) == _text(labels.get("expected_forecast_tier"))
         and _text(block.get("calibration_status"))
         == _text(labels.get("expected_calibration_status"))
-        and bool(block.get("calibration_floor_passed"))
-        == bool(labels.get("expected_floor_passed"))
+        and bool(block.get("calibration_floor_passed")) == bool(labels.get("expected_floor_passed"))
     )
 
 
@@ -6672,8 +6440,14 @@ def _s7_negative_control_probe_results(repo_root: Path) -> dict[str, dict[str, o
         else:
             typed_refs = list(_sequence(payload.get("typed_producer_artifact_refs")))
             handoffs = list(_sequence(payload.get("cluster_handoff_records")))
-            expected = _required_text(payload.get("expected_disposition"), field_name="expected_disposition")
-            predicted = "workflow_only_summary_rejected" if not typed_refs and not handoffs else "workflow_summary_accepted"
+            expected = _required_text(
+                payload.get("expected_disposition"), field_name="expected_disposition"
+            )
+            predicted = (
+                "workflow_only_summary_rejected"
+                if not typed_refs and not handoffs
+                else "workflow_summary_accepted"
+            )
             result = {
                 "case_id": case_id,
                 "predicted_disposition": predicted,
@@ -6732,7 +6506,9 @@ def _s7_record_probe_result(
 
 def _s7_probe_request(payload: Mapping[str, object]) -> Any:
     case_id = _required_text(payload.get("case_id"), field_name="case_id")
-    rule_version_ref = _required_text(payload.get("rule_version_ref"), field_name="rule_version_ref")
+    rule_version_ref = _required_text(
+        payload.get("rule_version_ref"), field_name="rule_version_ref"
+    )
     request_payload = _mapping(payload.get("request"))
     registry = build_governance_decision_class_registry(
         case_id=case_id,
@@ -6840,9 +6616,7 @@ def _s7_constraint_store_updates(
             "status": status,
             "source_ref": request_ref,
             "consumer_ref": "INTERVENTION.design_candidate",
-            "refinement_route": (
-                "none" if disposition == "no_interrupt" else "human_decision"
-            ),
+            "refinement_route": ("none" if disposition == "no_interrupt" else "human_decision"),
             "evidence_refs": [request_ref],
             "reason": (
                 "S7 delegation posture routes or records mandate-bounded human decision state."
@@ -6926,9 +6700,7 @@ def _s6_fixed_refs(case_id: str) -> dict[str, str]:
         "cluster_authority_dimensions_ref": (
             f"pdc://layer2/s6/{case_id}/cluster-authority-dimensions"
         ),
-        "post_intervention_dgp_update_ref": (
-            f"pdc://layer2/s6/{case_id}/post-intervention-dgp"
-        ),
+        "post_intervention_dgp_update_ref": (f"pdc://layer2/s6/{case_id}/post-intervention-dgp"),
     }
 
 
@@ -6970,9 +6742,7 @@ def _s6_matches_gold(block: Mapping[str, object], labels: Mapping[str, object]) 
         "SYSTEM.subject_granularity": labels.get("expected_aggregation_disposition"),
         "ACTOR.state_capacity_feasibility": labels.get("expected_capacity_disposition"),
         "ACTOR.mandate_legitimacy": labels.get("expected_mandate_disposition"),
-        "OTHER_AGENTS.strategic_response": labels.get(
-            "expected_strategic_response_disposition"
-        ),
+        "OTHER_AGENTS.strategic_response": labels.get("expected_strategic_response_disposition"),
     }
     bridge_consumers = {
         str(row.get("consumer_ref"))
@@ -7207,17 +6977,20 @@ def _s4_regime_summary(cases: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
         for row in rows
         if _text(row.get("expert_regime")) not in {None, "unknown"}
     ]
-    accuracy = regime_accuracy(predicted=predicted, gold=gold) if gold else {
-        "accuracy": 0.0,
-        "false_risk_count": 0,
-        "false_caution_count": 0,
-        "penalized_score": 0.0,
-    }
+    accuracy = (
+        regime_accuracy(predicted=predicted, gold=gold)
+        if gold
+        else {
+            "accuracy": 0.0,
+            "false_risk_count": 0,
+            "false_caution_count": 0,
+            "penalized_score": 0.0,
+        }
+    )
     commitment_gold_rows = [
         row
         for row in rows
-        if isinstance(row.get("gold_commitment"), Mapping)
-        and row.get("gold_commitment")
+        if isinstance(row.get("gold_commitment"), Mapping) and row.get("gold_commitment")
     ]
     commitment_match_count = sum(
         1 for row in commitment_gold_rows if row.get("commitment_profile_matches_gold")
@@ -7228,14 +7001,10 @@ def _s4_regime_summary(cases: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
         if isinstance(case.get("s4_epistemic_regime"), Mapping)
         and _s4_case_expert_label(case) == "limitation_required"
     ]
-    non_risk_rows = [
-        row for row in limitation_rows if row.get("predicted_regime") != "risk"
-    ]
+    non_risk_rows = [row for row in limitation_rows if row.get("predicted_regime") != "risk"]
     non_risk_breakdown = Counter(str(row.get("predicted_regime")) for row in non_risk_rows)
     hypothesis = (
-        "confirmed"
-        if limitation_rows and len(non_risk_rows) == len(limitation_rows)
-        else "revised"
+        "confirmed" if limitation_rows and len(non_risk_rows) == len(limitation_rows) else "revised"
     )
     return {
         "schema_version": "policyos.policy_design_case.layer2_s4.regime_corpus_summary.v1",
@@ -7445,9 +7214,7 @@ def _s4_per_case_summary_row(case: Mapping[str, Any]) -> dict[str, Any]:
         "gold_reversibility": _text(gold.get("reversibility")),
         "derived_stakes": _text(derived.get("stakes")),
         "gold_stakes": _text(gold.get("stakes")),
-        "commitment_profile_matches_gold": bool(
-            row.get("commitment_profile_matches_gold")
-        ),
+        "commitment_profile_matches_gold": bool(row.get("commitment_profile_matches_gold")),
     }
 
 
@@ -7474,9 +7241,7 @@ def _s4_substrate_binding_status(
             return "selected_exact"
     labels = {
         _normalized_token(row.get("admissibility_label") or row.get("expected_support_status"))
-        for row in _sequence_of_mappings(
-            _nested(case, ("claim_evidence_annotations", "claims"))
-        )
+        for row in _sequence_of_mappings(_nested(case, ("claim_evidence_annotations", "claims")))
     }
     labels.update(
         _normalized_token(row.get("expected_support_status"))
@@ -7513,11 +7278,7 @@ def _s4_expert_disagreement(case: Mapping[str, Any]) -> str:
 
 def _s4_gold_commitment(labels: Mapping[str, Any]) -> dict[str, str]:
     keys = ("reversibility", "option_value", "lifecycle_stage", "transition_cost", "stakes")
-    return {
-        key: text
-        for key in keys
-        if (text := _text(labels.get(key))) is not None
-    }
+    return {key: text for key in keys if (text := _text(labels.get(key))) is not None}
 
 
 def _s4_commitment_matches_gold(
@@ -7526,10 +7287,9 @@ def _s4_commitment_matches_gold(
 ) -> bool:
     if not gold:
         return False
-    return (
-        _text(derived.get("reversibility")) == _text(gold.get("reversibility"))
-        and _text(derived.get("stakes")) == _text(gold.get("stakes"))
-    )
+    return _text(derived.get("reversibility")) == _text(gold.get("reversibility")) and _text(
+        derived.get("stakes")
+    ) == _text(gold.get("stakes"))
 
 
 def _axis_position_payload(position: Any) -> dict[str, Any]:
@@ -7817,9 +7577,7 @@ def _append_unique_text(value: object, *items: str) -> list[str]:
 
 
 def _w8e_conflict_signals(bindings: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
-    marker_count = sum(
-        len(_sequence(binding.get("conflict_markers"))) for binding in bindings
-    )
+    marker_count = sum(len(_sequence(binding.get("conflict_markers"))) for binding in bindings)
     return {
         "visible": True,
         "conflict_marker_count": marker_count,
@@ -7857,9 +7615,7 @@ def _capability_query_for_spec(
     scope = _mapping(payload.get("scope"))
     family = _first_sequence_text(payload.get("required_data_families"))
     geography = (
-        _text(scope.get("jurisdiction"))
-        or _text(scope.get("geography"))
-        or _jurisdiction(case)
+        _text(scope.get("jurisdiction")) or _text(scope.get("geography")) or _jurisdiction(case)
     )
     return RequirementToCapabilityQuery(
         requirement_id=requirement_id,
@@ -7946,8 +7702,7 @@ def _producer_decisions_for_claim(
         row
         for row in decisions
         if any(
-            token in _text(row.get("requirement_ref"))
-            or token in _text(row.get("binding_id"))
+            token in _text(row.get("requirement_ref")) or token in _text(row.get("binding_id"))
             for token in tokens
         )
     ]
@@ -7957,13 +7712,7 @@ def _refs_from_decisions(
     decisions: Sequence[Mapping[str, Any]],
     key: str,
 ) -> list[str]:
-    return list(
-        dict.fromkeys(
-            text
-            for row in decisions
-            if (text := _text(row.get(key)))
-        )
-    )
+    return list(dict.fromkeys(text for row in decisions if (text := _text(row.get(key)))))
 
 
 def _first_construct_ref(
@@ -8089,9 +7838,7 @@ def _compile_case_artifacts(
     )
     if compiled_case.facets is None:
         blocker_codes = [blocker.code for blocker in compiled_case.blockers]
-        raise W12DCaseRunError(
-            "W6.A grammar compilation blocked: " + ", ".join(blocker_codes)
-        )
+        raise W12DCaseRunError("W6.A grammar compilation blocked: " + ", ".join(blocker_codes))
 
     graph = _compile_obligation_graph(
         case,
@@ -8343,9 +8090,7 @@ def _run_case_pipeline(
         spine_context=_spine_context(case, compiled_case=compiled["compiled_case"]),
         claims=_sequence_of_mappings(compiled["claims"]),
         data_requirement_specs=_sequence(compiled["data_requirement_specs"]),
-        legal_authority_requirement_specs=_sequence(
-            compiled["legal_authority_requirement_specs"]
-        ),
+        legal_authority_requirement_specs=_sequence(compiled["legal_authority_requirement_specs"]),
         method_validity_requirement_specs=_sequence(compiled["method_validity_requirement_specs"]),
         scholar_support_requirement_specs=_sequence(compiled["scholar_support_requirement_specs"]),
         participation_provenance_requirement_specs=_sequence(
@@ -8378,8 +8123,7 @@ def _runtime_pdc_graph_summary(pipeline: Mapping[str, Any]) -> dict[str, Any]:
         "claim_count": smoke.get("claim_count"),
         "edge_count": smoke.get("edge_count"),
         "warrant_structure_count": smoke.get("warrant_structure_count"),
-        "authority_envelope": smoke.get("authority_envelope")
-        or graph.get("authority_envelope"),
+        "authority_envelope": smoke.get("authority_envelope") or graph.get("authority_envelope"),
         "capability_reality_label": smoke.get("capability_reality_label")
         or pipeline.get("capability_reality_label"),
         "blockers": list(_sequence_of_mappings(smoke.get("blockers"))),
@@ -8490,10 +8234,7 @@ def _run_llm_formulator_and_critics(
             "run_id": run_id,
             "job_id": f"job-{_slug(case_id)}",
             "hypothesis_ledger_ref": f"hypothesis-ledger:{_slug(run_id)}",
-            "entries": [
-                entry.model_dump(mode="json", exclude_none=True)
-                for entry in sink.entries
-            ],
+            "entries": [entry.model_dump(mode="json", exclude_none=True) for entry in sink.entries],
         }
     )
     ledger_payload = serialize_hypothesis_ledger(ledger)
@@ -8599,10 +8340,7 @@ def _finalize_expert_adjudication_delta(
     else:
         delta["status"] = "delta"
         delta["delta_codes"] = [
-            (
-                f"canonical_runtime_{_slug(canonical_runtime_outcome)}"
-                f"_vs_expert_{_slug(expected)}"
-            )
+            (f"canonical_runtime_{_slug(canonical_runtime_outcome)}_vs_expert_{_slug(expected)}")
         ]
     return delta
 
@@ -8830,9 +8568,7 @@ def _s1_graded_outcome_summary(
             module_records=module_records,
         )
         projection_surface_status = (
-            "pass"
-            if closeout_verdict.get("status") == "closed_with_limitations"
-            else "blocked"
+            "pass" if closeout_verdict.get("status") == "closed_with_limitations" else "blocked"
         )
 
     return {
@@ -8949,9 +8685,7 @@ def _s1_blocked_by(
     typed_blockers: Sequence[Mapping[str, Any]],
 ) -> str | None:
     codes = {
-        _normalized_token(blocker.get("code"))
-        for blocker in typed_blockers
-        if blocker.get("code")
+        _normalized_token(blocker.get("code")) for blocker in typed_blockers if blocker.get("code")
     }
     if any("non_overridable" in code for code in codes):
         return "non_overridable_gate"
@@ -9051,9 +8785,7 @@ def _s1_passing_closeout_records() -> dict[str, dict[str, object]]:
             "policyos.runtime.policy_design_case.conflict_materialization_closeout.v1"
         ),
         "attestation": _s1_w4_record("policyos.runtime.attestation.v1"),
-        "closeout_compatibility": _s1_w4_record(
-            "policyos.runtime.can_i_closeout_compatibility.v1"
-        ),
+        "closeout_compatibility": _s1_w4_record("policyos.runtime.can_i_closeout_compatibility.v1"),
         "semantic_binding": _s1_w4_record("policyos.runtime.semantic_binding.v1"),
         "claim_registry": _s1_w4_record("policyos.runtime.claim_registry.v1"),
         "pdc_record_family_status": _s1_w4_record(
@@ -9063,13 +8795,9 @@ def _s1_passing_closeout_records() -> dict[str, dict[str, object]]:
             "policyos.runtime.policy_design_case.projection_publication_state.v1"
         ),
         "run_cost_gate": _s1_w4_record("policyos.runtime.run_cost_gate.v1"),
-        "complexity_self_fmea": _s1_w4_record(
-            "policyos.runtime.run_cost_proportionality.v1"
-        ),
+        "complexity_self_fmea": _s1_w4_record("policyos.runtime.run_cost_proportionality.v1"),
         "audit_verifier_ingestion": _s1_w4_record("policyos.runtime.audit_verifier.v1"),
-        "prompt_tool_repair_fmea": _s1_w4_record(
-            "policyos.runtime.prompt_tool_repair_fmea.v1"
-        ),
+        "prompt_tool_repair_fmea": _s1_w4_record("policyos.runtime.prompt_tool_repair_fmea.v1"),
     }
 
 
@@ -9141,7 +8869,7 @@ def _authority_outcomes(
     rows = _expected_closeout_rows(case)
     if not rows:
         authority_level = _normalized_token(case.get("authority_level") or "research")
-        rows = ({ "authority_level": authority_level, "state": outcome },)
+        rows = ({"authority_level": authority_level, "state": outcome},)
     authority_outcomes: dict[str, dict[str, Any]] = {}
     for row in rows:
         authority_level = _normalized_token(row.get("authority_level") or "research")
@@ -9197,9 +8925,7 @@ def _summary(cases: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
         outcome_counts.setdefault(outcome, 0)
         outcome_counts[outcome] += 1
     runtime_useful_case_ids = {
-        str(case.get("case_id") or "")
-        for case in cases
-        if case.get("counts_toward_useful_design")
+        str(case.get("case_id") or "") for case in cases if case.get("counts_toward_useful_design")
     }
     g5_runtime_useful_case_ids = {
         str(case.get("case_id") or "")
@@ -9212,11 +8938,7 @@ def _summary(cases: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
     }
     runtime_useful_case_ids.update(case_id for case_id in g5_runtime_useful_case_ids if case_id)
     runtime_useful_count = len(runtime_useful_case_ids)
-    expert_useful_count = sum(
-        1
-        for case in cases
-        if _expert_expected_useful_design(case)
-    )
+    expert_useful_count = sum(1 for case in cases if _expert_expected_useful_design(case))
     aligned_useful_count = sum(
         1
         for case in cases
@@ -9224,9 +8946,7 @@ def _summary(cases: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
         and str(case.get("case_id") or "") in runtime_useful_case_ids
     )
     graph_pass_count = sum(
-        1
-        for case in cases
-        if _nested(case, ("runtime_pdc_graph", "status")) == "pass"
+        1 for case in cases if _nested(case, ("runtime_pdc_graph", "status")) == "pass"
     )
     closeout_honest_count = sum(1 for case in cases if _closeout_honest(case))
     expected_negative_control_count = sum(
@@ -9252,9 +8972,7 @@ def _summary(cases: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
         int(gate.get("grounded_conversion_count") or 0) for gate in g0_gates
     )
     layer3_g0_pre_adapter_block_count = sum(
-        1
-        for gate in g0_gates
-        if gate.get("conversion_outcome") == "not_attempted_g0_pre_adapter"
+        1 for gate in g0_gates if gate.get("conversion_outcome") == "not_attempted_g0_pre_adapter"
     )
     layer3_g1_summary = _layer3_g1_summary(cases)
     layer3_g2_summary = _layer3_g2_summary(cases)
@@ -9266,9 +8984,7 @@ def _summary(cases: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
         else layer3_g0_grounded_conversion_count
     )
     grounded_conversion_count_source = (
-        "layer3_g5_conversion_gate"
-        if layer3_g5_routed
-        else "layer3_g0_grounding_gate"
+        "layer3_g5_conversion_gate" if layer3_g5_routed else "layer3_g0_grounding_gate"
     )
     return {
         "case_count": len(cases),
@@ -9283,9 +8999,7 @@ def _summary(cases: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
         "runtime_useful_design_rate": _rate(runtime_useful_count, len(cases)),
         "expert_useful_design_ceiling_count": expert_useful_count,
         "expert_useful_design_ceiling": _rate(expert_useful_count, len(cases)),
-        "useful_design_alignment_rate": _rate(
-            aligned_useful_count, expert_useful_count
-        ),
+        "useful_design_alignment_rate": _rate(aligned_useful_count, expert_useful_count),
         "useful_design_alignment_count": aligned_useful_count,
         # Backward-compatible legacy keys; downstream W12.A ladder reads new
         # names by preference but falls back to these while consumers migrate.
@@ -9294,9 +9008,7 @@ def _summary(cases: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
         "runtime_pdc_graph_pass_count": graph_pass_count,
         "runtime_pdc_graph_pass_rate": _rate(graph_pass_count, len(cases)),
         "expert_adjudication_delta_count": sum(
-            1
-            for case in cases
-            if _nested(case, ("expert_adjudication_delta", "status")) == "delta"
+            1 for case in cases if _nested(case, ("expert_adjudication_delta", "status")) == "delta"
         ),
         "typed_blocker_case_count": outcome_counts.get("typed_blocker", 0),
         "closeout_honesty_count": closeout_honest_count,
@@ -9327,9 +9039,7 @@ def _layer3_g0_grounding_context(repo_root: Path) -> dict[str, Any]:
         "readiness_manifest_id": bundle.readiness_manifest.manifest_id,
         "readiness_manifest_ref": LAYER3_G0_READINESS_MANIFEST_REF,
         "admitted_adapter_count": int(counts.get("admitted_adapter_count") or 0),
-        "source_truth_adapter_path_count": int(
-            counts.get("source_truth_adapter_path_count") or 0
-        ),
+        "source_truth_adapter_path_count": int(counts.get("source_truth_adapter_path_count") or 0),
         "runtime_quality_touchpoint_count": int(
             counts.get("runtime_quality_touchpoint_count") or 0
         ),
@@ -9423,18 +9133,12 @@ def _layer3_g1_grounding_context(repo_root: Path) -> dict[str, Any]:
         "l1_l5_l6_index_coverage_status": str(
             counts.get("g1_l1_l5_l6_index_coverage_status") or "unknown"
         ),
-        "search_recall_status": str(
-            counts.get("g1_search_recall_status") or "unknown"
-        ),
-        "index_freshness_status": str(
-            counts.get("g1_index_freshness_status") or "unknown"
-        ),
+        "search_recall_status": str(counts.get("g1_search_recall_status") or "unknown"),
+        "index_freshness_status": str(counts.get("g1_index_freshness_status") or "unknown"),
         "search_engineering_quality_status": str(
             counts.get("g1_search_engineering_quality_status") or "unknown"
         ),
-        "acquisition_gap_record_count": int(
-            counts.get("acquisition_gap_record_count") or 0
-        ),
+        "acquisition_gap_record_count": int(counts.get("acquisition_gap_record_count") or 0),
         "hardcode_fallback_deletion_status": str(
             counts.get("g1_hardcode_fallback_deletion_status") or "unknown"
         ),
@@ -9445,9 +9149,7 @@ def _layer3_g1_grounding_context(repo_root: Path) -> dict[str, Any]:
             counts.get("production_claim_authority_count") or 0
         ),
         "useful_design_credit_count": int(counts.get("useful_design_credit_count") or 0),
-        "claim_authority_leak_count": int(
-            counts.get("layer3_g1_claim_authority_leak_count") or 0
-        ),
+        "claim_authority_leak_count": int(counts.get("layer3_g1_claim_authority_leak_count") or 0),
         "authoritative_for": list(G1_AUTHORITATIVE_FOR),
         "may_not_use_for": list(G1_MAY_NOT_USE_FOR),
     }
@@ -9515,16 +9217,11 @@ def _layer3_g1_grounding_gate(
         else (
             "fixture_validation_failed_closed"
             if fixture_failed_closed
-            else str(
-                g1_context.get("grounding_closure_outcome")
-                or "grounded_or_uncertain"
-            )
+            else str(g1_context.get("grounding_closure_outcome") or "grounded_or_uncertain")
         )
     )
     grounded_construct_refs = (
-        []
-        if fixture_failed_closed
-        else list(_sequence(g1_context.get("grounded_construct_refs")))
+        [] if fixture_failed_closed else list(_sequence(g1_context.get("grounded_construct_refs")))
     )
     grounded_abstention_domain_ceiling_refs: list[str] = []
     claim_authority_leak_count = sum(
@@ -9539,9 +9236,7 @@ def _layer3_g1_grounding_gate(
         "rule_version": str(g1_context.get("rule_version") or ""),
         "gate_id": "layer3.g1.grounding_gate",
         "case_id": str(case.get("case_id") or G1_PINNED_CASE_ID),
-        "construct_bundle_id": str(
-            g1_context.get("construct_bundle_id") or G1_CONSTRUCT_BUNDLE_ID
-        ),
+        "construct_bundle_id": str(g1_context.get("construct_bundle_id") or G1_CONSTRUCT_BUNDLE_ID),
         "readiness_manifest_id": str(g1_context.get("readiness_manifest_id") or ""),
         "status": "fail_closed" if fixture_failed_closed else "routed",
         "layer3_g1_grounding_outcome": grounding_outcome,
@@ -9572,9 +9267,7 @@ def _layer3_g1_grounding_gate(
             if "layer3_g1_search_engineering_quality_failed" in issue_codes
             else g1_context.get("search_engineering_quality_status") or "unknown"
         ),
-        "acquisition_gap_record_count": int(
-            g1_context.get("acquisition_gap_record_count") or 0
-        ),
+        "acquisition_gap_record_count": int(g1_context.get("acquisition_gap_record_count") or 0),
         "hardcode_fallback_deletion_status": str(
             g1_context.get("hardcode_fallback_deletion_status") or "unknown"
         ),
@@ -9616,16 +9309,13 @@ def _layer3_g1_summary(cases: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
             first_gate.get("layer3_g1_grounding_outcome") or "not_routed"
         ),
         "layer3_g1_grounded_or_uncertain_construct_count": sum(
-            int(gate.get("grounded_or_uncertain_construct_count") or 0)
-            for gate in gates
+            int(gate.get("grounded_or_uncertain_construct_count") or 0) for gate in gates
         ),
         "layer3_g1_grounded_abstention_domain_ceiling_count": sum(
-            int(gate.get("grounded_abstention_domain_ceiling_count") or 0)
-            for gate in gates
+            int(gate.get("grounded_abstention_domain_ceiling_count") or 0) for gate in gates
         ),
         "layer3_g1_search_ceiling_repair_required_count": sum(
-            int(gate.get("search_ceiling_repair_required_count") or 0)
-            for gate in gates
+            int(gate.get("search_ceiling_repair_required_count") or 0) for gate in gates
         ),
         "layer3_g1_search_ledger_count": sum(
             int(gate.get("search_ledger_count") or 0) for gate in gates
@@ -9658,9 +9348,7 @@ def _layer3_g1_summary(cases: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
             int(gate.get("hardcode_fallback_closure_count") or 0) for gate in gates
         ),
         "layer3_g1_w12d_conversion_outcome_overwrite_count": conversion_overwrite_count,
-        "layer3_g1_w12d_gate_injection_order": "after_g0_before_summary"
-        if gates
-        else "not_routed",
+        "layer3_g1_w12d_gate_injection_order": "after_g0_before_summary" if gates else "not_routed",
     }
 
 
@@ -9668,9 +9356,7 @@ def _layer3_g2_causal_forecast_context(repo_root: Path) -> dict[str, Any]:
     """Build the deterministic W12D G2 forecast-support consumer context."""
 
     _ = repo_root
-    forecast_support_ref = (
-        f"pdc://layer3/g2/{S3_FIRST_PROVING_CASE_ID}/forecast-support/w12d"
-    )
+    forecast_support_ref = f"pdc://layer3/g2/{S3_FIRST_PROVING_CASE_ID}/forecast-support/w12d"
     posture = Layer2S10ForecastPostureInput(
         forecast_support_ref=forecast_support_ref,
         forecast_tier=f"observable_{ADAPTER_MATURITY_CALIBRATED}",
@@ -9692,15 +9378,9 @@ def _layer3_g2_causal_forecast_context(repo_root: Path) -> dict[str, Any]:
         uncertainty_interval_refs=["interval://ua-msme/credit-access/95"],
         welfare_comparison_ref="welfare://ua-msme/value-grounded",
         s5_forecast_support_ref="pdc://layer2/s5/ua-msme/system-effect-support",
-        s6_firewall_status_refs=[
-            "pdc://layer2/s6/ua-msme/measurability-adequacy"
-        ],
-        s8_value_choice_provenance_ref=(
-            "pdc://layer2/s8/ua-msme/value-choice-provenance"
-        ),
-        s8_value_tradeoff_disclosure_ref=(
-            "pdc://layer2/s8/ua-msme/value-tradeoff-disclosure"
-        ),
+        s6_firewall_status_refs=["pdc://layer2/s6/ua-msme/measurability-adequacy"],
+        s8_value_choice_provenance_ref=("pdc://layer2/s8/ua-msme/value-choice-provenance"),
+        s8_value_tradeoff_disclosure_ref=("pdc://layer2/s8/ua-msme/value-tradeoff-disclosure"),
         source_contract_ref="source-contract://ua-msme/server-support",
         method_validity_ref="method-validity://foundry/causal/local",
         credible_evaluation_evidence_ref="evidence://ua-msme/credible-evaluation",
@@ -9801,16 +9481,13 @@ def _layer3_g2_summary(cases: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
         if gate and case.get("conversion_outcome") != g0_gate.get("conversion_outcome"):
             conversion_overwrite_count += 1
     return {
-        "layer3_g2_w12d_gate_injection_order": "after_g1_before_summary"
-        if gates
-        else "not_routed",
+        "layer3_g2_w12d_gate_injection_order": "after_g1_before_summary" if gates else "not_routed",
         "layer3_g2_w12d_gate_count": len(gates),
         "layer3_g2_full_s2_consumer_case_count": sum(
             int(gate.get("full_s2_consumer_case_count") or 0) for gate in gates
         ),
         "layer3_g2_lightweight_forecast_posture_ref_count": sum(
-            int(gate.get("lightweight_forecast_posture_ref_count") or 0)
-            for gate in gates
+            int(gate.get("lightweight_forecast_posture_ref_count") or 0) for gate in gates
         ),
         "layer3_g2_useful_design_delta_count": sum(
             int(gate.get("useful_design_delta_count") or 0) for gate in gates
@@ -9824,8 +9501,7 @@ def _layer3_g2_summary(cases: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
         "layer3_g2_w12d_not_routed_count": sum(
             1
             for gate in gates
-            if "layer3_g2_w12d_not_routed_closeout"
-            in _sequence(gate.get("issue_codes"))
+            if "layer3_g2_w12d_not_routed_closeout" in _sequence(gate.get("issue_codes"))
         ),
         "layer3_g2_w12d_conversion_outcome_overwrite_count": conversion_overwrite_count,
     }
@@ -9867,9 +9543,7 @@ def _layer3_g3_summary(cases: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
     gates = [_mapping(case.get("layer3_g3_analytics_search_gate")) for case in cases]
     gates = [gate for gate in gates if gate]
     return {
-        "layer3_g3_gate_injection_order": "after_g2_before_summary"
-        if gates
-        else "not_routed",
+        "layer3_g3_gate_injection_order": "after_g2_before_summary" if gates else "not_routed",
         "g3_consumer_gate_count": len(gates),
         "full_consumer_case_count": sum(
             int(gate.get("full_consumer_case_count") or 0) for gate in gates
@@ -10079,10 +9753,7 @@ def _layer3_g5_w12d_bridge(
         promotion_records_payload={
             "promotion_records": [
                 {
-                    "promotion_record_id": (
-                        "g4-promotion-record:w12d-g5-graded:"
-                        f"{case_id}"
-                    ),
+                    "promotion_record_id": (f"g4-promotion-record:w12d-g5-graded:{case_id}"),
                     "case_id": case_id,
                     "promotion_state": "governed_promoted",
                     "promotion_scope": {
@@ -10210,8 +9881,7 @@ def _layer3_g5_w12d_bridge(
     )
     record = Layer3G5ConversionRecord(
         conversion_record_id=(
-            "layer3-g5-conversion-record:"
-            f"{case_id}:w12d-grounded-limited-graded"
+            f"layer3-g5-conversion-record:{case_id}:w12d-grounded-limited-graded"
         ),
         case_id=case_id,
         conversion_outcome=eligibility.conversion_outcome,
@@ -10244,7 +9914,9 @@ def _layer3_g5_matching_graded_terminal(
     terminal_cap = _mapping(case.get("layer3_g5_terminal_cap"))
     if _layer3_g5_is_usable_graded_terminal(terminal_cap):
         return terminal_cap
-    report_path = repo_root / "architecture/policy_design_case/layer3_gy_graded_outcome_routing_report.json"
+    report_path = (
+        repo_root / "architecture/policy_design_case/layer3_gy_graded_outcome_routing_report.json"
+    )
     try:
         report = json.loads(report_path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
@@ -10316,14 +9988,10 @@ def _with_layer3_g5_conversion_gate(
         case,
         conversion_records=bridge.get("conversion_records", ()),
         status_composition_ledger=bridge.get("status_composition_ledger"),
-        useful_design_metric_eligibility_join=bridge.get(
-            "useful_design_metric_eligibility_join"
-        ),
+        useful_design_metric_eligibility_join=bridge.get("useful_design_metric_eligibility_join"),
         grounding_issue_codes=bridge.get("grounding_issue_codes", ()),
     ).model_dump(mode="json")
-    conversion_classification = str(
-        gate.get("conversion_classification") or "unchanged_blocker"
-    )
+    conversion_classification = str(gate.get("conversion_classification") or "unchanged_blocker")
     status_composition_status = str(
         gate.get("status_composition_status") or gate.get("status") or "missing"
     )
@@ -10344,9 +10012,7 @@ def _with_layer3_g5_conversion_gate(
         and bool(gate.get("counts_toward_useful_design"))
         else 0
     )
-    s4_s14_block_keys = [
-        key for key in S4_S14_CASE_BLOCK_KEYS if _mapping(case.get(key))
-    ]
+    s4_s14_block_keys = [key for key in S4_S14_CASE_BLOCK_KEYS if _mapping(case.get(key))]
     missing_s4_s14_block_keys = [
         key for key in S4_S14_CASE_BLOCK_KEYS if key not in s4_s14_block_keys
     ]
@@ -10365,9 +10031,7 @@ def _with_layer3_g5_conversion_gate(
             "per_case_s4_s14_block_keys": s4_s14_block_keys,
             "missing_per_case_s4_s14_block_keys": missing_s4_s14_block_keys,
             "per_case_s4_s14_block_count": len(s4_s14_block_keys),
-            "counts_toward_useful_design": bool(
-                gate.get("counts_toward_useful_design")
-            ),
+            "counts_toward_useful_design": bool(gate.get("counts_toward_useful_design")),
             "useful_design_credit_count": useful_design_credit_count,
             "genuine_partial_evidence_refs": bridge.get(
                 "genuine_partial_evidence_refs",
@@ -10403,64 +10067,47 @@ def _layer3_g5_summary(cases: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
     grounded_limited_count = sum(
         1
         for gate in gates
-        if gate.get("conversion_classification")
-        == "typed_blocker -> grounded_limited"
+        if gate.get("conversion_classification") == "typed_blocker -> grounded_limited"
     )
     grounded_abstention_count = sum(
         1
         for gate in gates
-        if gate.get("conversion_classification")
-        == "typed_blocker -> grounded_abstention"
+        if gate.get("conversion_classification") == "typed_blocker -> grounded_abstention"
     )
     grounded_limited_status_composed_count = sum(
         1
         for gate in gates
-        if gate.get("conversion_classification")
-        == "typed_blocker -> grounded_limited"
+        if gate.get("conversion_classification") == "typed_blocker -> grounded_limited"
         and gate.get("status_composition_status") == "pass"
     )
     runtime_useful_design_credit_count = sum(
         int(gate.get("useful_design_credit_count") or 0)
         for gate in gates
-        if gate.get("conversion_classification")
-        == "typed_blocker -> grounded_limited"
+        if gate.get("conversion_classification") == "typed_blocker -> grounded_limited"
         and gate.get("status_composition_status") == "pass"
         and bool(gate.get("counts_toward_useful_design"))
     )
     return {
-        "layer3_g5_gate_injection_order": "after_g3_before_summary"
-        if gates
-        else "not_routed",
+        "layer3_g5_gate_injection_order": "after_g3_before_summary" if gates else "not_routed",
         "layer3_g5_gate_count": len(gates),
-        "layer3_g5_routed_count": sum(
-            1 for gate in gates if gate.get("status") == "pass"
-        ),
+        "layer3_g5_routed_count": sum(1 for gate in gates if gate.get("status") == "pass"),
         "layer3_g5_not_routed_count": sum(
             1 for gate in gates if gate.get("status") == "not_routed"
         ),
-        "layer3_g5_fail_count": sum(
-            1 for gate in gates if gate.get("status") == "fail"
-        ),
+        "layer3_g5_fail_count": sum(1 for gate in gates if gate.get("status") == "fail"),
         "layer3_g5_grounded_limited_count": grounded_limited_count,
         "layer3_g5_grounded_abstention_count": grounded_abstention_count,
         "layer3_g5_unchanged_blocker_count": sum(
-            1
-            for gate in gates
-            if gate.get("conversion_classification") == "unchanged_blocker"
+            1 for gate in gates if gate.get("conversion_classification") == "unchanged_blocker"
         ),
         "layer3_g5_grounded_conversion_count": grounded_conversion_count,
         "layer3_g5_grounded_limited_status_composed_count": (
             grounded_limited_status_composed_count
         ),
-        "layer3_g5_runtime_useful_design_credit_count": (
-            runtime_useful_design_credit_count
-        ),
-        "layer3_g5_g3_summary_location": "top_level_report_field"
-        if gates
-        else "not_routed",
+        "layer3_g5_runtime_useful_design_credit_count": (runtime_useful_design_credit_count),
+        "layer3_g5_g3_summary_location": "top_level_report_field" if gates else "not_routed",
         "layer3_g5_g0_g1_g2_g3_history_overwrite_count": sum(
-            int(gate.get("g0_g1_g2_g3_history_overwrite_count") or 0)
-            for gate in gates
+            int(gate.get("g0_g1_g2_g3_history_overwrite_count") or 0) for gate in gates
         ),
     }
 
@@ -10501,9 +10148,7 @@ def _layer3_g0_grounding_gate(
         "rule_version": str(g0_context.get("rule_version") or ""),
         "gate_id": "layer3.g0.grounding_gate",
         "case_id": case_id,
-        "status": "blocked_pre_adapter"
-        if blocked_pre_adapter
-        else "adapter_grounding_required",
+        "status": "blocked_pre_adapter" if blocked_pre_adapter else "adapter_grounding_required",
         "conversion_outcome": conversion_outcome,
         "grounded_conversion_count": 0,
         "admitted_adapter_count": admitted_adapter_count,
@@ -10592,10 +10237,7 @@ def _authority_stratification(
         for authority_level in AUTHORITY_LEVELS:
             row = _mapping(authority_outcomes.get(authority_level))
             rows[authority_level].append(str(row.get("outcome") or case.get("outcome")))
-    return {
-        authority_level: _metric_row(outcomes)
-        for authority_level, outcomes in rows.items()
-    }
+    return {authority_level: _metric_row(outcomes) for authority_level, outcomes in rows.items()}
 
 
 def _domain_authority_stratification(
@@ -10609,13 +10251,10 @@ def _domain_authority_stratification(
         authority_outcomes = _mapping(case.get("authority_outcomes"))
         for authority_level in AUTHORITY_LEVELS:
             row = _mapping(authority_outcomes.get(authority_level))
-            grouped[domain][authority_level].append(
-                str(row.get("outcome") or case.get("outcome"))
-            )
+            grouped[domain][authority_level].append(str(row.get("outcome") or case.get("outcome")))
     return {
         domain: {
-            authority_level: _metric_row(outcomes)
-            for authority_level, outcomes in rows.items()
+            authority_level: _metric_row(outcomes) for authority_level, outcomes in rows.items()
         }
         for domain, rows in sorted(grouped.items())
     }
@@ -10664,14 +10303,12 @@ def _typed_blocker_from_case(
             )
         ),
         "expected_negative_control": bool(
-            blocker.get("expected_negative_control")
-            or _expected_negative_control_case(case)
+            blocker.get("expected_negative_control") or _expected_negative_control_case(case)
         ),
         "counts_as_useful_design": False,
         "counts_as_closeout_honesty_failure": False,
         "counts_as_closeout_honesty": bool(
-            blocker.get("counts_as_closeout_honesty")
-            or _expected_negative_control_case(case)
+            blocker.get("counts_as_closeout_honesty") or _expected_negative_control_case(case)
         ),
     }
 
@@ -10866,8 +10503,7 @@ def _concept_spine_refs(case: Mapping[str, Any], *, case_id: str) -> PolicyGramm
             field_name="jurisdiction_spine_ref",
         ),
         canonical_concept_refs=tuple(
-            _sequence(refs.get("canonical_concept_refs"))
-            or (f"concept://w12d/{_slug(case_id)}",)
+            _sequence(refs.get("canonical_concept_refs")) or (f"concept://w12d/{_slug(case_id)}",)
         ),
         facet_concept_refs=_mapping(refs.get("facet_concept_refs")),
     )
@@ -10880,8 +10516,7 @@ def _spine_context(case: Mapping[str, Any], *, compiled_case: Any) -> dict[str, 
         "jurisdiction_spine_ref": refs.get("jurisdiction_spine_ref")
         or compiled_case.jurisdiction_spine_ref,
         "canonical_concept_refs": list(
-            _sequence(refs.get("canonical_concept_refs"))
-            or (compiled_case.concept_spine_ref,)
+            _sequence(refs.get("canonical_concept_refs")) or (compiled_case.concept_spine_ref,)
         ),
         "as_of": _policy_time(case),
     }
@@ -10889,9 +10524,7 @@ def _spine_context(case: Mapping[str, Any], *, compiled_case: Any) -> dict[str, 
 
 def _named_alternatives(case: Mapping[str, Any], *, case_id: str) -> list[dict[str, Any]]:
     alternatives = [
-        dict(row)
-        for row in _sequence(case.get("named_alternatives"))
-        if isinstance(row, Mapping)
+        dict(row) for row in _sequence(case.get("named_alternatives")) if isinstance(row, Mapping)
     ]
     if alternatives:
         return alternatives
@@ -11018,15 +10651,19 @@ def _authority_type_for_level(authority_level: str) -> str:
 
 
 def _jurisdiction(case: Mapping[str, Any]) -> str:
-    return _text(_nested(case, ("intent", "jurisdiction"))) or _text(
-        _nested(case, ("metadata", "jurisdiction"))
-    ) or "global"
+    return (
+        _text(_nested(case, ("intent", "jurisdiction")))
+        or _text(_nested(case, ("metadata", "jurisdiction")))
+        or "global"
+    )
 
 
 def _policy_time(case: Mapping[str, Any]) -> str:
-    return _text(_nested(case, ("intent", "policy_time"))) or _text(
-        _nested(case, ("metadata", "policy_time"))
-    ) or "2026-05-25"
+    return (
+        _text(_nested(case, ("intent", "policy_time")))
+        or _text(_nested(case, ("metadata", "policy_time")))
+        or "2026-05-25"
+    )
 
 
 def _instrument(case: Mapping[str, Any], *, case_id: str) -> str:

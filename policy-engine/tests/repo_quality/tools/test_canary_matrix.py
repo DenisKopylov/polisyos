@@ -44,8 +44,7 @@ def test_canary_matrix_keeps_ci_lanes_deterministic_and_live_lanes_quarantined()
     assert ci_lane["runner"]["module"] == "tools.ops_runners.runtime.local_production_canary"
     assert "--mode=simulated" in ci_lane["runner"]["argv"]
     assert (
-        "--production-data-root=tests/_data/data_forge/ukraine_shadow"
-        in ci_lane["runner"]["argv"]
+        "--production-data-root=tests/_data/data_forge/ukraine_shadow" in ci_lane["runner"]["argv"]
     )
     assert "--execution-profile=dev" in ci_lane["runner"]["argv"]
     assert "--canary-kind=dev" in ci_lane["runner"]["argv"]
@@ -105,9 +104,7 @@ def test_canary_matrix_every_lane_declares_required_evidence_files_and_missing_l
     dashboard_lane = next(lane for lane in lanes if lane["ui"] == "dashboard_smoke")
     assert "dashboard.json" in dashboard_lane["required_evidence_files"]
 
-    production_data_lane = next(
-        lane for lane in lanes if lane["data"] == "canonical_production"
-    )
+    production_data_lane = next(lane for lane in lanes if lane["data"] == "canonical_production")
     assert "production_data_evidence.json" in production_data_lane["required_evidence_files"]
 
 
@@ -249,9 +246,7 @@ def test_simulated_serious_lane_keeps_unobserved_pass1b_limited() -> None:
             canary_kind="production",
         ),
     )
-    blocking_codes = {
-        failure["code"] for failure in scorecard["blocking_quality_failures"]
-    }
+    blocking_codes = {failure["code"] for failure in scorecard["blocking_quality_failures"]}
     assert "policy_design_pass1b_hardening_record_missing" in blocking_codes
     claim_registry = runtime_evidence["policy_design_case"]["claim_registry"]
     claim_row = claim_registry["claims"][0]
@@ -321,10 +316,7 @@ def _write_fake_lane_bundle(
     )
     if not write_required:
         return
-    lanes = {
-        str(lane["lane_id"]): lane
-        for lane in canary_matrix.build_canary_lanes()
-    }
+    lanes = {str(lane["lane_id"]): lane for lane in canary_matrix.build_canary_lanes()}
     lane = lanes.get(bundle_dir.name)
     if lane is None:
         return
@@ -679,8 +671,9 @@ def test_real_canary_matrix_fails_lane_when_required_evidence_is_missing(
     payload = json.loads(output.read_text(encoding="utf-8"))
     failure = payload["lanes"][0]["failure_envelope"]
     assert failure["code"] == "canary_required_evidence_missing"
-    assert "quality_evidence/provider_model_quality_ledger.json" in (
-        failure["missing_required_evidence"]
+    assert (
+        "quality_evidence/provider_model_quality_ledger.json"
+        in (failure["missing_required_evidence"])
     )
 
 
@@ -755,10 +748,7 @@ def test_real_canary_matrix_fails_missing_dashboard_evidence(
 
 
 def test_real_canary_matrix_can_select_one_lane_or_one_scenario() -> None:
-    lane_id = (
-        "profile-dev__provider-simulated__data-fixture"
-        "__scenario-public_golden__ui-api_only"
-    )
+    lane_id = "profile-dev__provider-simulated__data-fixture__scenario-public_golden__ui-api_only"
 
     by_lane = run_canary_matrix.select_lanes(
         canary_matrix.build_canary_lanes(),
@@ -899,10 +889,7 @@ def test_live_provider_lane_requires_credentials_and_explicit_flag(tmp_path, mon
     monkeypatch.setattr(run_canary_matrix, "_run_lane_command", fake_run)
     monkeypatch.delenv("POLISYOS_LLM_GATEWAY_API_KEY", raising=False)
 
-    assert (
-        run_canary_matrix.main(["--lane-id", lane_id, "--json-output", str(output)])
-        == 2
-    )
+    assert run_canary_matrix.main(["--lane-id", lane_id, "--json-output", str(output)]) == 2
     blocked_payload = json.loads(output.read_text(encoding="utf-8"))
     failure = blocked_payload["lanes"][0]["failure_envelope"]
     assert calls == []
@@ -1039,10 +1026,7 @@ def test_governed_production_lane_selection_surfaces_typed_setup_error(
 
     monkeypatch.setattr(run_canary_matrix, "_run_lane_command", fake_run)
 
-    assert (
-        run_canary_matrix.main(["--lane-id", lane_id, "--json-output", str(output)])
-        == 2
-    )
+    assert run_canary_matrix.main(["--lane-id", lane_id, "--json-output", str(output)]) == 2
 
     payload = json.loads(output.read_text(encoding="utf-8"))
     result = payload["lanes"][0]

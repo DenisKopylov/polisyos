@@ -66,9 +66,7 @@ def _iter_python_files(repo_root: Path) -> list[Path]:
     files: list[Path] = []
     for current, dirnames, filenames in os.walk(repo_root):
         dirnames[:] = [
-            name
-            for name in dirnames
-            if name not in IGNORED_DIR_NAMES and not name.startswith(".")
+            name for name in dirnames if name not in IGNORED_DIR_NAMES and not name.startswith(".")
         ]
         current_path = Path(current)
         for filename in filenames:
@@ -217,9 +215,7 @@ def _scan_ast_imports(
                     shim_id_by_source=shim_id_by_source,
                     migration_target_by_source=migration_target_by_source,
                     importer_path=importer_path,
-                    import_kind="from_import"
-                    if module == source_fqn
-                    else "from_import_submodule",
+                    import_kind="from_import" if module == source_fqn else "from_import_submodule",
                     import_name=module,
                     line=node.lineno,
                 )
@@ -306,9 +302,7 @@ def _caller_role_counts(callers: Sequence[Mapping[str, Any]]) -> dict[str, int]:
 def collect_shim_callers(repo_root: Path = REPO_ROOT) -> dict[str, Any]:
     repo_root = repo_root.resolve()
     retained = _retained_python_import_shims(repo_root)
-    shim_id_by_source = {
-        row["source_fqn"]: shim_id for shim_id, row in retained.items()
-    }
+    shim_id_by_source = {row["source_fqn"]: shim_id for shim_id, row in retained.items()}
     migration_target_by_source = {
         row["source_fqn"]: row["migration_target"] for row in retained.values()
     }
@@ -352,9 +346,7 @@ def collect_shim_callers(repo_root: Path = REPO_ROOT) -> dict[str, Any]:
     for shim_id, entry in retained.items():
         callers = _dedupe_callers(rows[shim_id])
         non_compatibility_callers = [
-            caller
-            for caller in callers
-            if not caller.get("intentional_compatibility_exercise")
+            caller for caller in callers if not caller.get("intentional_compatibility_exercise")
         ]
         total_callers += len(callers)
         total_non_compatibility_callers += len(non_compatibility_callers)
@@ -373,12 +365,9 @@ def collect_shim_callers(repo_root: Path = REPO_ROOT) -> dict[str, Any]:
             "registry_sections": entry["registry_sections"],
             "caller_count": len(callers),
             "non_compatibility_caller_count": len(non_compatibility_callers),
-            "intentional_compatibility_caller_count": len(callers)
-            - len(non_compatibility_callers),
+            "intentional_compatibility_caller_count": len(callers) - len(non_compatibility_callers),
             "caller_role_counts": _caller_role_counts(callers),
-            "non_compatibility_caller_role_counts": _caller_role_counts(
-                non_compatibility_callers
-            ),
+            "non_compatibility_caller_role_counts": _caller_role_counts(non_compatibility_callers),
             "callers": callers,
         }
 
@@ -395,21 +384,15 @@ def collect_shim_callers(repo_root: Path = REPO_ROOT) -> dict[str, Any]:
         "removal_policy": {"phase_2_3": REMOVAL_RULE},
         "summary": {
             "shim_count": len(shims),
-            "registry_entry_count": sum(
-                len(row["registry_ids"]) for row in retained.values()
-            ),
+            "registry_entry_count": sum(len(row["registry_ids"]) for row in retained.values()),
             "caller_count": total_callers,
             "non_compatibility_caller_count": total_non_compatibility_callers,
             "zero_caller_shim_count": len(zero_caller_shims),
             "zero_caller_shims": zero_caller_shims,
-            "zero_non_compatibility_caller_shim_count": len(
-                zero_non_compatibility_caller_shims
-            ),
+            "zero_non_compatibility_caller_shim_count": len(zero_non_compatibility_caller_shims),
             "zero_non_compatibility_caller_shims": zero_non_compatibility_caller_shims,
             "shims_with_first_party_source_callers": shims_with_source_callers,
-            "shims_with_non_compatibility_callers": (
-                shims_with_non_compatibility_callers
-            ),
+            "shims_with_non_compatibility_callers": (shims_with_non_compatibility_callers),
         },
         "shims": shims,
     }

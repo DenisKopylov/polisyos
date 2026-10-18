@@ -151,6 +151,7 @@ def __dir__() -> list[str]:
 
     return sorted(set(globals()) | _SNAPSHOT_EXPORT_NAMES)
 
+
 __all__ = [
     "SEGMENTS_INDEX_NAME",
     "QuarantineRecord",

@@ -23,9 +23,7 @@ def test_serious_canary_bundle_writes_assurance_case_and_diagnostic_slos(tmp_pat
         (output / "quality_evidence" / "assurance_case.json").read_text(encoding="utf-8")
     )
     diagnostic_slos = json.loads(
-        (output / "quality_evidence" / "diagnostic_slo_report.json").read_text(
-            encoding="utf-8"
-        )
+        (output / "quality_evidence" / "diagnostic_slo_report.json").read_text(encoding="utf-8")
     )
 
     assert bundle["files"]["quality_evidence"]["assurance_case"] == (

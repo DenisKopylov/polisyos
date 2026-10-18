@@ -305,7 +305,6 @@ def test_fci_discovery_graceful_fallback_on_timeout(monkeypatch) -> None:
     assert any("timeout" in warning.lower() for warning in report.warnings)
 
 
-
 def test_successful_empty_fci_source_projects_but_timeout_source_does_not(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -318,12 +317,10 @@ def test_successful_empty_fci_source_projects_but_timeout_source_does_not(
             timed_out=False,
         )
 
-    monkeypatch.setattr(
-        constraint_module, "_run_discovery_with_timeout", _successful_empty_runner
-    )
-    report = FCIDiscovery.pure_step(
-        _state(), params={"timeout_seconds": 1, "n_bootstrap": 0}
-    )["report"]
+    monkeypatch.setattr(constraint_module, "_run_discovery_with_timeout", _successful_empty_runner)
+    report = FCIDiscovery.pure_step(_state(), params={"timeout_seconds": 1, "n_bootstrap": 0})[
+        "report"
+    ]
 
     assert report.graph.graph_type is GraphType.PAG
     assert report.graph.edges == []
@@ -362,10 +359,7 @@ def test_fci_boundary_retains_unresolved_pag_instead_of_empty_fallback() -> None
     assert resolved_graph is None
     assert graph.metadata["resolved_graph_status"] == "blocked_partial_graph_profile"
     assert "resolved_graph_limitation" in graph.metadata
-    assert any(
-        "unsupported partial-graph source retained" in warning
-        for warning in warnings
-    )
+    assert any("unsupported partial-graph source retained" in warning for warning in warnings)
 
 
 def test_ges_discovery_bootstrap_stability_is_bounded(monkeypatch) -> None:
@@ -447,13 +441,9 @@ def test_fci_report_keeps_pag_when_projection_is_unresolved(monkeypatch) -> None
     assert report.graph.edges[0].mark_src is EdgeMark.CIRCLE
     assert report.graph.edges[0].mark_dst is EdgeMark.ARROW
     assert report.resolved_graph is None
-    assert (
-        report.graph.metadata["resolved_graph_status"]
-        == "blocked_partial_graph_profile"
-    )
+    assert report.graph.metadata["resolved_graph_status"] == "blocked_partial_graph_profile"
     assert any(
-        "unsupported partial-graph source retained" in warning
-        for warning in report.warnings
+        "unsupported partial-graph source retained" in warning for warning in report.warnings
     )
 
 
@@ -982,9 +972,15 @@ def test_identity_dag_auto_trek_diagnostics_keep_unknown_scope() -> None:
     )
 
     assert report.algebraic_constraints is not None
-    assert AlgebraicConstraintFamily.TREK_RANK.value in report.metadata["algebraic_constraint_families_run"]
+    assert (
+        AlgebraicConstraintFamily.TREK_RANK.value
+        in report.metadata["algebraic_constraint_families_run"]
+    )
     assert report.algebraic_constraints.tested_by_family["trek_rank"] >= 1
-    assert report.algebraic_constraints.blocker_conditions_met_by_family.get("trek_rank", False) is False
+    assert (
+        report.algebraic_constraints.blocker_conditions_met_by_family.get("trek_rank", False)
+        is False
+    )
     assert any(
         constraint.source_block_id and constraint.source_block_id.startswith("auto_trek_rank:")
         for constraint in report.algebraic_constraints.implied_constraints_preview
@@ -1089,9 +1085,12 @@ def test_binary_iv_algebraic_geometry_block_emits_graph_class_blocker() -> None:
     assert report.algebraic_constraints.severity == "blocker"
     assert report.algebraic_constraints.tested_by_family["algebraic_geometry_invariant"] == 4
     assert report.algebraic_constraints.violated_by_family["algebraic_geometry_invariant"] >= 1
-    assert report.algebraic_constraints.blocker_conditions_met_by_family[
-        "algebraic_geometry_invariant"
-    ] is True
+    assert (
+        report.algebraic_constraints.blocker_conditions_met_by_family[
+            "algebraic_geometry_invariant"
+        ]
+        is True
+    )
 
 
 def test_nested_verma_block_is_recorded_as_research_preview(monkeypatch) -> None:
@@ -1195,8 +1194,7 @@ def test_fci_var1_emits_pag_uncertainty_when_causallearn_available() -> None:
 
     assert report.graph.graph_type is GraphType.PAG
     has_unresolved_endpoint = any(
-        edge.mark_src is EdgeMark.CIRCLE
-        or edge.mark_dst is EdgeMark.CIRCLE
+        edge.mark_src is EdgeMark.CIRCLE or edge.mark_dst is EdgeMark.CIRCLE
         for edge in report.graph.edges
     )
     has_bidirected_edge = any(

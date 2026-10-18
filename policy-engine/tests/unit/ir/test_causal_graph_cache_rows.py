@@ -164,9 +164,7 @@ def test_graph_content_hash_revalidates_constructed_graphs_from_declared_fields(
 
 def test_graph_content_hash_tracks_model_fields_and_rejects_forged_storage() -> None:
     graph = _graph()
-    changed_metadata = graph.model_copy(
-        update={"metadata": {"nested": {"tags": ["changed"]}}}
-    )
+    changed_metadata = graph.model_copy(update={"metadata": {"nested": {"tags": ["changed"]}}})
     assert graph_content_sha256(changed_metadata) != graph_content_sha256(graph)
 
     forged = _graph()

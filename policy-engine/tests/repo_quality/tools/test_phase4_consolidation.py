@@ -140,7 +140,7 @@ def test_phase1d_legacy_tool_paths_are_retired() -> None:
 
 
 def test_ci_policy_flags_retired_surfaces_and_deprecated_tool_usage(tmp_path: Path) -> None:
-    legacy_ops_runner = "tools/" "ops/"
+    legacy_ops_runner = "tools/ops/"
     workflow_dir = tmp_path / ".github" / "workflows"
     workflow_dir.mkdir(parents=True)
     (workflow_dir / "legacy.yml").write_text(
@@ -177,12 +177,7 @@ def test_ci_policy_flags_retired_surfaces_and_deprecated_tool_usage(tmp_path: Pa
 
 def test_prepare_shards_defaults_to_canonical_assets_dir() -> None:
     script = (
-        REPO_ROOT
-        / "tools"
-        / "ops_runners"
-        / "cloud"
-        / "shards"
-        / "prepare_shards.sh"
+        REPO_ROOT / "tools" / "ops_runners" / "cloud" / "shards" / "prepare_shards.sh"
     ).read_text(encoding="utf-8")
 
     assert "ops/cloud/deploy/assets" in script

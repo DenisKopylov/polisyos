@@ -35,10 +35,7 @@ def build_policy_design_jurisdiction_spine_boundary_record(
             issues=[
                 _issue(
                     "policy_design_jurisdiction_spine_missing",
-                    (
-                        "Policy Design Case jurisdiction spine is missing before "
-                        "PDC compilation."
-                    ),
+                    ("Policy Design Case jurisdiction spine is missing before PDC compilation."),
                 )
             ],
         )
@@ -86,9 +83,7 @@ def _boundary_record(
 ) -> dict[str, Any]:
     blockers = blockers or []
     issues = issues or []
-    evidence_ref = _first_ref(source, ("jurisdiction_spine_ref", "cas_ref")) or _derived_ref(
-        source
-    )
+    evidence_ref = _first_ref(source, ("jurisdiction_spine_ref", "cas_ref")) or _derived_ref(source)
     runtime_event_ref = (
         _text(source.get("runtime_event_ref"))
         or f"event://policy-design-case/jurisdiction-spine-boundary/{evidence_ref}"

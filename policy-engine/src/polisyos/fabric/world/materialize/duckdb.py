@@ -182,7 +182,9 @@ def _ensure_column(
 ) -> None:
     if _column_exists(db, table_name, column_name):
         return
-    table_sql = quote_sql_identifier(f"world.{table_name}", what="world migration table", allow_dotted=True)
+    table_sql = quote_sql_identifier(
+        f"world.{table_name}", what="world migration table", allow_dotted=True
+    )
     column_sql = quote_sql_identifier(column_name, what="world migration column")
     db.conn.execute(f"ALTER TABLE {table_sql} ADD COLUMN {column_sql} {ddl_type}")
 

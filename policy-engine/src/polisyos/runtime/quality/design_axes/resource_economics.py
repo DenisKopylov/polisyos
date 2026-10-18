@@ -14,9 +14,7 @@ from polisyos.runtime.quality.design_axes.value_choice_provenance import Ranking
 LAYER2_S12_RESOURCE_ECONOMICS_SCHEMA_VERSION = (
     "policyos.policy_design_case.layer2_s12_resource_economics.v1"
 )
-LAYER2_S12_RESOURCE_ECONOMICS_RULE_VERSION = (
-    "policyos.layer2.s12.resource_economics.v1"
-)
+LAYER2_S12_RESOURCE_ECONOMICS_RULE_VERSION = "policyos.layer2.s12.resource_economics.v1"
 S12_GROWTH_THERMOMETERS_FLOOR_ID = "s12_growth_thermometers"
 S12_VOI_SITES: tuple[str, ...] = (
     "acquisition",
@@ -227,9 +225,7 @@ class ResourceAllocationPolicy(Layer2ReadinessModel):
             raise ValueError("voi_site_count must equal distinct VOI sites")
         if {row.budget_kind for row in self.typed_budget_rows} != set(S12_TYPED_BUDGETS):
             raise ValueError("typed_budget_rows must carry all S12 typed budgets")
-        if self.explore_exploit_dial_ref and self.ranking_mode != (
-            "ranked_with_authorized_values"
-        ):
+        if self.explore_exploit_dial_ref and self.ranking_mode != ("ranked_with_authorized_values"):
             raise ValueError("authorized explore/exploit dial requires authorized ranking mode")
         if not self.explore_exploit_dial_ref and self.selected_policy_ref:
             raise ValueError("selected allocation policy requires principal dial ref")
@@ -243,10 +239,13 @@ class S12ResourceReferenceResolution(Layer2ReadinessModel):
 
     source_ref: str = Field(..., min_length=1, max_length=300)
     resolved: bool
-    resolved_object_type: Literal[
-        "ValueOfInformationAllocation",
-        "ResourceAllocationPolicy",
-    ] | None = None
+    resolved_object_type: (
+        Literal[
+            "ValueOfInformationAllocation",
+            "ResourceAllocationPolicy",
+        ]
+        | None
+    ) = None
     resolved_object_ref: str | None = Field(default=None, max_length=300)
     disposition: Literal["authority_admitted", "candidate_only"]
     issue_codes: tuple[str, ...] = Field(default=())
@@ -365,8 +364,7 @@ class GrowthThermometerRecord(Layer2ReadinessModel):
         ):
             raise ValueError("non-regressing override trend requires fixed questions")
         if self.floor_passed and (
-            self.override_rate_trend == "regressing"
-            or self.reuse_rate_trend == "regressing"
+            self.override_rate_trend == "regressing" or self.reuse_rate_trend == "regressing"
         ):
             raise ValueError("S12 thermometer floor cannot pass regressing trends")
         return self
@@ -545,9 +543,7 @@ def build_resource_allocation_policy(
         rule_version_ref=rule_version_ref,
     )
     ranking_mode: RankingMode = (
-        "ranked_with_authorized_values"
-        if explore_exploit_dial_ref
-        else "unranked_frontier_only"
+        "ranked_with_authorized_values" if explore_exploit_dial_ref else "unranked_frontier_only"
     )
     candidates = [str(ref) for ref in candidate_policy_refs if str(ref)] or [
         f"allocation-policy://{case_id}/acquisition",
@@ -684,16 +680,13 @@ def build_envelope_growth_ledger(
         case_id=case_id,
         growth_entries=entries,
         counted_mechanism_growth_count=sum(
-            entry.growth_counting_disposition == "counted_mechanism_growth"
-            for entry in entries
+            entry.growth_counting_disposition == "counted_mechanism_growth" for entry in entries
         ),
         flagged_bespoke_one_off_count=sum(
-            entry.growth_counting_disposition == "flagged_bespoke_one_off"
-            for entry in entries
+            entry.growth_counting_disposition == "flagged_bespoke_one_off" for entry in entries
         ),
         blocked_no_envelope_delta_count=sum(
-            entry.growth_counting_disposition == "blocked_no_envelope_delta"
-            for entry in entries
+            entry.growth_counting_disposition == "blocked_no_envelope_delta" for entry in entries
         ),
         cluster_map_open_cell_count_before=cluster_map_open_cell_count_before,
         cluster_map_open_cell_count_after=cluster_map_open_cell_count_after,
@@ -761,9 +754,7 @@ def build_growth_thermometers(
             override_rate_trend in {"improving", "flat"}
             and reuse_rate_trend in {"improving", "flat"}
         ),
-        threshold_ref=(
-            "repo://architecture/policy_design_case/layer2_floor_governance.toml#s12"
-        ),
+        threshold_ref=("repo://architecture/policy_design_case/layer2_floor_governance.toml#s12"),
         authority_boundary=build_s12_resource_authority_boundary(
             authoritative_for=["growth_thermometers"],
             rule_version_ref=rule_version_ref,
@@ -830,11 +821,7 @@ def verify_resource_authority_envelope(
     probe = dict(probe_or_payload or {})
     issue_codes = _dedupe(
         [
-            *(
-                [str(false_clear_field)]
-                if false_clear_field in set(S12_FALSE_CLEAR_FIELDS)
-                else []
-            ),
+            *([str(false_clear_field)] if false_clear_field in set(S12_FALSE_CLEAR_FIELDS) else []),
             *(_probe_issue_codes(probe) if probe else []),
             *(_policy_issue_codes(policy) if policy is not None else []),
             *(_ledger_issue_codes(ledger) if ledger is not None else []),
@@ -938,9 +925,7 @@ def build_s12_resource_economics_posture(
         "explore_exploit_posture": allocation_policy.explore_exploit_posture,
         "explore_exploit_dial_ref": allocation_policy.explore_exploit_dial_ref,
         "delegation_contract_ref": allocation_policy.delegation_contract_ref,
-        "voi_allocation_refs": [
-            row.voi_estimate_ref for row in allocation_policy.voi_allocations
-        ],
+        "voi_allocation_refs": [row.voi_estimate_ref for row in allocation_policy.voi_allocations],
         "voi_site_count": allocation_policy.voi_site_count,
         "typed_budget_refs": [row.budget_ref for row in allocation_policy.typed_budget_rows],
         "pareto_archive_ref": allocation_policy.pareto_archive_ref,

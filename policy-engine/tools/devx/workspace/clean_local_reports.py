@@ -67,7 +67,9 @@ def build_cleanup_plan(
     candidates: list[CleanupCandidate] = []
     manual: list[CleanupCandidate] = []
     candidates.extend(_stale_children(repo_root / ".polisyos" / "reports", cutoff, "local_report"))
-    candidates.extend(_stale_children(repo_root / "benchmarks" / "_reports", cutoff, "benchmark_report"))
+    candidates.extend(
+        _stale_children(repo_root / "benchmarks" / "_reports", cutoff, "benchmark_report")
+    )
     candidates.extend(_stale_build_audit_children(repo_root / "_build", cutoff))
     phase_junk_candidates, phase_junk_manual = _phase_local_junk_roots(repo_root)
     candidates.extend(phase_junk_candidates)
@@ -150,7 +152,9 @@ def run_cli(argv: list[str] | None = None) -> int:
 
     if args.json_output:
         args.json_output.parent.mkdir(parents=True, exist_ok=True)
-        args.json_output.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+        args.json_output.write_text(
+            json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+        )
 
     print(
         "clean-local-reports: "
@@ -226,7 +230,9 @@ def _stale_build_audit_children(root: Path, cutoff: float) -> list[CleanupCandid
             continue
         for child in sorted(current_path.iterdir()):
             if _older_than(child, cutoff):
-                candidates.append(CleanupCandidate(child, "build_audit", "stale build audit output"))
+                candidates.append(
+                    CleanupCandidate(child, "build_audit", "stale build audit output")
+                )
     return candidates
 
 
@@ -238,9 +244,7 @@ def _phase_local_junk_roots(
         return [], []
     candidates: list[CleanupCandidate] = []
     manual: list[CleanupCandidate] = []
-    phase_junk_roots = (
-        path for path in build_root.glob(PHASE_LOCAL_JUNK_PATTERN) if path.is_dir()
-    )
+    phase_junk_roots = (path for path in build_root.glob(PHASE_LOCAL_JUNK_PATTERN) if path.is_dir())
     for child in sorted(phase_junk_roots):
         if _contains_tracked_file(repo_root, child):
             manual.append(
@@ -287,17 +291,23 @@ def _source_adjacent_residue(repo_root: Path) -> list[CleanupCandidate]:
             dirnames[:] = [name for name in dirnames if name not in SKIP_DIR_NAMES]
             current_path = Path(current)
             if current_path.name == "__pycache__":
-                candidates.append(CleanupCandidate(current_path, "pycache", "Python bytecode cache"))
+                candidates.append(
+                    CleanupCandidate(current_path, "pycache", "Python bytecode cache")
+                )
                 dirnames[:] = []
                 continue
             if current_path.name.endswith(".egg-info"):
-                candidates.append(CleanupCandidate(current_path, "egg_info", "local package metadata"))
+                candidates.append(
+                    CleanupCandidate(current_path, "egg_info", "local package metadata")
+                )
                 dirnames[:] = []
                 continue
             for filename in filenames:
                 if filename == ".DS_Store":
                     candidates.append(
-                        CleanupCandidate(current_path / filename, "ds_store", "macOS Finder residue")
+                        CleanupCandidate(
+                            current_path / filename, "ds_store", "macOS Finder residue"
+                        )
                     )
     return candidates
 

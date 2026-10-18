@@ -37,8 +37,7 @@ PDD_SPECS: dict[str, dict[str, str]] = {
         "slug": "institutional_competence_authority_audit",
         "title": "Audit Institutional Competence And Implementing Authority",
         "question": (
-            "Does each recommendation identify a legally competent implementing "
-            "authority?"
+            "Does each recommendation identify a legally competent implementing authority?"
         ),
     },
     "PDD-050": {
@@ -186,21 +185,14 @@ def load_wave33_evidence(
 
     wave_files = {
         "claim_argument": _load_json(wave33_path / "claim_argument.json"),
-        "policy_design_case_sample": _load_json(
-            wave33_path / "policy_design_case_sample.json"
-        ),
-        "policy_grounding_matrix": _load_json(
-            wave33_path / "policy_grounding_matrix.json"
-        ),
-        "production_data_evidence": _load_json(
-            wave33_path / "production_data_evidence.json"
-        ),
+        "policy_design_case_sample": _load_json(wave33_path / "policy_design_case_sample.json"),
+        "policy_grounding_matrix": _load_json(wave33_path / "policy_grounding_matrix.json"),
+        "production_data_evidence": _load_json(wave33_path / "production_data_evidence.json"),
         "quality_scorecard": _load_json(wave33_path / "quality_scorecard.json"),
         "readiness": _load_json(wave33_path / "readiness.json"),
     }
     quality_files = {
-        name: _load_optional_json(quality_dir / f"{name}.json")
-        for name in QUALITY_FILES
+        name: _load_optional_json(quality_dir / f"{name}.json") for name in QUALITY_FILES
     }
     if quality_files["quality_scorecard"] is None:
         quality_files["quality_scorecard"] = wave_files["quality_scorecard"]
@@ -959,9 +951,7 @@ def _diagnose_pdd_087(evidence: Mapping[str, Any]) -> dict[str, Any]:
                     if isinstance(claim, Mapping)
                 ],
                 "semantic_model_dependency_refs": model_dependency_refs,
-                "foundry_method_result_refs": foundry.get("summary", {}).get(
-                    "method_result_refs"
-                )
+                "foundry_method_result_refs": foundry.get("summary", {}).get("method_result_refs")
                 if isinstance(foundry.get("summary"), Mapping)
                 else None,
             },

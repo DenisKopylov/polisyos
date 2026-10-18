@@ -187,9 +187,7 @@ class TestRetryIntegration:
 
         def _execute(_ctx, attempt_state):
             calls["n"] += 1
-            attempt_state.params["counter"] = int(
-                attempt_state.params.get("counter", 0)
-            ) + 1
+            attempt_state.params["counter"] = int(attempt_state.params.get("counter", 0)) + 1
             attempt_state.params.setdefault("attempt_history", []).append(calls["n"])
             attempt_state.budgets["run_spent_usd"] = attempt_state.budgets.get(
                 "run_spent_usd",
@@ -246,9 +244,7 @@ class TestRetryIntegration:
             if line.strip()
         ]
         retry_events = [record for record in records if record.event == "NODE_RETRY"]
-        dead_letter_events = [
-            record for record in records if record.event == "NODE_DEAD_LETTER"
-        ]
+        dead_letter_events = [record for record in records if record.event == "NODE_DEAD_LETTER"]
         assert len(retry_events) == 1
         assert retry_events[0].metrics["attempt"] == 1
         assert retry_events[0].metrics["failed_cost_usd"] == 0.25

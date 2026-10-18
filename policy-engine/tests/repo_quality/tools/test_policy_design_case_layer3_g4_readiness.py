@@ -180,7 +180,9 @@ TASK7_CONFORMANCE_NEGATIVE_IDS = {
 
 def _validator() -> Any:
     try:
-        return import_module("tools.quality.validation.check_policy_design_case_layer3_g4_readiness")
+        return import_module(
+            "tools.quality.validation.check_policy_design_case_layer3_g4_readiness"
+        )
     except ModuleNotFoundError as exc:
         if exc.name == "tools.quality.validation.check_policy_design_case_layer3_g4_readiness":
             pytest.fail(
@@ -192,9 +194,7 @@ def _validator() -> Any:
 
 
 def _dependency_audit() -> dict[str, Any]:
-    return json.loads(
-        (FIXTURE_DIR / "dependency_audit_expected.json").read_text(encoding="utf-8")
-    )
+    return json.loads((FIXTURE_DIR / "dependency_audit_expected.json").read_text(encoding="utf-8"))
 
 
 def test_layer3_g4_dependency_audit_records_hard_and_context_dependencies() -> None:
@@ -233,9 +233,7 @@ def test_layer3_g4_readiness_fails_for_missing_persisted_artifacts(
 
     assert validation["status"] == "fail"
     assert set(validation["summary"]) >= EXPECTED_MANIFEST_DRIFT_KEYS
-    assert validation["artifacts"]["missing_persisted_artifact_paths"] == [
-        missing_path.as_posix()
-    ]
+    assert validation["artifacts"]["missing_persisted_artifact_paths"] == [missing_path.as_posix()]
     assert "layer3_g4_persisted_artifact_missing" in {
         issue["code"] for issue in validation["issues"]
     }
@@ -264,9 +262,7 @@ def test_layer3_g4_manifest_drift_checks_summary_and_top_level(tmp_path: Path) -
     persisted["summary"]["g4_promotion_blocked_count"] = (
         int(persisted["summary"]["g4_promotion_blocked_count"]) + 1
     )
-    manifest_path = (
-        tmp_path / "architecture/policy_design_case/layer3_g4_readiness_manifest.json"
-    )
+    manifest_path = tmp_path / "architecture/policy_design_case/layer3_g4_readiness_manifest.json"
     manifest_path.parent.mkdir(parents=True)
     manifest_path.write_text(json.dumps(persisted), encoding="utf-8")
 
@@ -278,10 +274,9 @@ def test_layer3_g4_manifest_drift_checks_summary_and_top_level(tmp_path: Path) -
 def test_layer3_g4_readiness_persisted_conformance_covers_task7_negatives() -> None:
     validation = _validator().validate_layer3_g4_readiness(REPO_ROOT)
     conformance = json.loads(
-        (
-            REPO_ROOT
-            / "architecture/policy_design_case/layer3_g4_conformance_report.json"
-        ).read_text(encoding="utf-8")
+        (REPO_ROOT / "architecture/policy_design_case/layer3_g4_conformance_report.json").read_text(
+            encoding="utf-8"
+        )
     )
     results = {item["negative_id"]: item for item in conformance["negative_results"]}
 
@@ -289,8 +284,7 @@ def test_layer3_g4_readiness_persisted_conformance_covers_task7_negatives() -> N
     assert set(conformance["negative_ids"]) >= TASK7_CONFORMANCE_NEGATIVE_IDS
     assert set(results) >= TASK7_CONFORMANCE_NEGATIVE_IDS
     assert all(
-        results[negative_id]["status"] == "pass"
-        for negative_id in TASK7_CONFORMANCE_NEGATIVE_IDS
+        results[negative_id]["status"] == "pass" for negative_id in TASK7_CONFORMANCE_NEGATIVE_IDS
     )
     assert conformance["performance_contract"]["status"] == "pass"
     assert validation["summary"]["g4_conformance_negative_count"] >= len(
@@ -306,14 +300,12 @@ def test_layer3_g4_persisted_adapter_registry_and_throughput_are_semantic() -> N
     validation = _validator().validate_layer3_g4_readiness(REPO_ROOT)
     adapter_registry = tomllib.loads(
         (
-            REPO_ROOT
-            / "architecture/policy_design_case/layer3_g4_adapter_contract_registry.toml"
+            REPO_ROOT / "architecture/policy_design_case/layer3_g4_adapter_contract_registry.toml"
         ).read_text(encoding="utf-8")
     )
     throughput = json.loads(
         (
-            REPO_ROOT
-            / "architecture/policy_design_case/layer3_g4_governance_throughput_delta.json"
+            REPO_ROOT / "architecture/policy_design_case/layer3_g4_governance_throughput_delta.json"
         ).read_text(encoding="utf-8")
     )
 
@@ -356,9 +348,7 @@ def test_layer3_g4_write_path_omission_keeps_readiness_red(monkeypatch: Any) -> 
     monkeypatch.setattr(
         validator,
         "_write_artifacts",
-        lambda _repo_root, _bundle: [
-            path.as_posix() for path in expected_paths if path != omitted
-        ],
+        lambda _repo_root, _bundle: [path.as_posix() for path in expected_paths if path != omitted],
     )
 
     validation = validator.validate_layer3_g4_readiness(REPO_ROOT, write=True)

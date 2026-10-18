@@ -15,9 +15,7 @@ from polisyos.runtime.quality.report_registry import (
 COST_DEGRADATION_TELEMETRY_SCHEMA_VERSION = (
     "policyos.runtime.policy_design_case.cost_degradation_telemetry.v1"
 )
-COST_DEGRADATION_TELEMETRY_CONTRACT_ID = (
-    "policy_design_case.cost_degradation_telemetry.v1"
-)
+COST_DEGRADATION_TELEMETRY_CONTRACT_ID = "policy_design_case.cost_degradation_telemetry.v1"
 
 _VALID_METRIC_TYPES = frozenset(
     {

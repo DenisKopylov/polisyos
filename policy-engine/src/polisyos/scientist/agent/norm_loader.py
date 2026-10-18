@@ -98,6 +98,7 @@ class CASNormPackLoader:
 
     def _load_from_cas(self, artifact_id: str) -> NormPack | None:
         from polisyos.core.artifacts import load_core_json_artifact
+
         try:
             aid = ArtifactID.model_validate(artifact_id)
             payload = load_core_json_artifact(self._cas, aid)

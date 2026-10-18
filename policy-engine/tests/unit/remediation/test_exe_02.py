@@ -157,9 +157,7 @@ async def _run_witness(
         return NodeOutcome(status="ok", state=node_state), 1, False, None
 
     executor = _executor(_nodes(overlap=overlap), _execute_node)
-    task = asyncio.create_task(
-        executor.execute(_workflow(c_depends_on=c_depends_on), state)
-    )
+    task = asyncio.create_task(executor.execute(_workflow(c_depends_on=c_depends_on), state))
     await asyncio.wait_for(b_started.wait(), timeout=1)
     return task, b_release, c_started, b_finished, started, c_inputs
 

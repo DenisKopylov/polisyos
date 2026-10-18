@@ -17,9 +17,7 @@ AUDIT_PATH = (
 
 
 def _validator() -> Any:
-    return import_module(
-        "tools.quality.validation.check_layer3_gy_lex_frontier_root_cause_audit"
-    )
+    return import_module("tools.quality.validation.check_layer3_gy_lex_frontier_root_cause_audit")
 
 
 def _load_audit() -> dict[str, Any]:
@@ -79,13 +77,9 @@ def test_gy_lex_frontier_root_cause_audit_rejects_frontier_greenwash() -> None:
 def test_gy_lex_frontier_root_cause_audit_rejects_laundering_observed_claim() -> None:
     validator = _validator()
     audit = _load_audit()
-    audit["classification"]["root_cause_matrix"]["frontier_objective_laundering"][
-        "observed"
-    ] = True
+    audit["classification"]["root_cause_matrix"]["frontier_objective_laundering"]["observed"] = True
     audit["summary"]["frontier_laundering_observed"] = True
-    audit["probes"]["frontier_semantics"][
-        "current_run_laundering_status"
-    ] = "observed"
+    audit["probes"]["frontier_semantics"]["current_run_laundering_status"] = "observed"
 
     codes = _codes(validator.validate(audit))
     assert "root_cause_matrix_drift" in codes

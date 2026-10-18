@@ -135,24 +135,32 @@ def test_report_classifies_stale_unknown_renamed_missing_status_and_semantic_los
     )
     rows = _row_map(payload)
 
-    assert rows[("_build/runtime_quality/stale_bundle.json", "bundle_assembler")][
-        "decision"
-    ] == "stale_schema_blocked"
-    assert rows[("_build/runtime_quality/unknown_schema_report.json", "scorecard")][
-        "decision"
-    ] == "unknown_schema_blocked"
-    assert rows[("_build/runtime_quality/renamed_field_report.json", "scorecard")][
-        "decision"
-    ] == "compatible_with_migration"
-    assert rows[("_build/runtime_quality/renamed_field_report.json", "scorecard")][
-        "migration_verified"
-    ] is True
-    assert rows[("_build/runtime_quality/missing_status_report.json", "scorecard")][
-        "reason"
-    ] == "missing_required_semantic_fields"
-    assert rows[("_build/runtime_quality/semantic_loss_report.json", "scorecard")][
-        "reason"
-    ] == "legacy_migration_semantic_loss"
+    assert (
+        rows[("_build/runtime_quality/stale_bundle.json", "bundle_assembler")]["decision"]
+        == "stale_schema_blocked"
+    )
+    assert (
+        rows[("_build/runtime_quality/unknown_schema_report.json", "scorecard")]["decision"]
+        == "unknown_schema_blocked"
+    )
+    assert (
+        rows[("_build/runtime_quality/renamed_field_report.json", "scorecard")]["decision"]
+        == "compatible_with_migration"
+    )
+    assert (
+        rows[("_build/runtime_quality/renamed_field_report.json", "scorecard")][
+            "migration_verified"
+        ]
+        is True
+    )
+    assert (
+        rows[("_build/runtime_quality/missing_status_report.json", "scorecard")]["reason"]
+        == "missing_required_semantic_fields"
+    )
+    assert (
+        rows[("_build/runtime_quality/semantic_loss_report.json", "scorecard")]["reason"]
+        == "legacy_migration_semantic_loss"
+    )
     assert payload["summary"]["production_closeout_blocked_count"] >= 4  # type: ignore[index]
 
 

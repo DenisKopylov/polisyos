@@ -85,6 +85,7 @@ _MAUP_POSITIVITY_BLOCK_THRESHOLD = 0.01
 # Shared output slots
 # ──────────────────────────────────────────────────────────────────────────────
 
+
 def _interference_output_slots() -> frozenset[SlotSpec]:
     return frozenset(
         {

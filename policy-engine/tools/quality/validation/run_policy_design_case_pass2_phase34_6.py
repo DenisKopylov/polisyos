@@ -173,7 +173,10 @@ def _diagnose_pdd_034(context: Mapping[str, Any]) -> dict[str, Any]:
                 "control response shaping exposes authoritative_scorecard_ref and projection_source fields",
             ],
             "gate_matrix": [
-                {"requirement": "API projection diff against immutable authorities", "verdict": "fail"},
+                {
+                    "requirement": "API projection diff against immutable authorities",
+                    "verdict": "fail",
+                },
                 {"requirement": "Dashboard traces for required states", "verdict": "fail"},
                 {"requirement": "Projection-only boundaries", "verdict": "partial"},
                 {"requirement": "Projection masking negative controls", "verdict": "not_proven"},
@@ -238,7 +241,10 @@ def _diagnose_pdd_069(context: Mapping[str, Any]) -> dict[str, Any]:
                 "one failed serious-run dashboard smoke journey exists",
             ],
             "gate_matrix": [
-                {"requirement": "Operator journeys for every serious failure class", "verdict": "fail"},
+                {
+                    "requirement": "Operator journeys for every serious failure class",
+                    "verdict": "fail",
+                },
                 {"requirement": "Freshness and source-of-truth indicators", "verdict": "partial"},
                 {"requirement": "Dashboard-to-readiness diff", "verdict": "fail"},
                 {"requirement": "Artifact/ref navigation to root cause", "verdict": "partial"},
@@ -298,7 +304,10 @@ def _diagnose_pdd_083(context: Mapping[str, Any]) -> dict[str, Any]:
             "gate_matrix": [
                 {"requirement": "Memory-use ledger", "verdict": "fail"},
                 {"requirement": "Source-run and tenant/cell scope refs", "verdict": "fail"},
-                {"requirement": "Applicability, freshness, and confidence verdicts", "verdict": "fail"},
+                {
+                    "requirement": "Applicability, freshness, and confidence verdicts",
+                    "verdict": "fail",
+                },
                 {"requirement": "Hidden-eval/canary contamination verdicts", "verdict": "fail"},
                 {"requirement": "No-memory attestation", "verdict": "fail"},
             ],
@@ -367,10 +376,16 @@ def _diagnose_pdd_097(context: Mapping[str, Any]) -> dict[str, Any]:
             ],
             "gate_matrix": [
                 {"requirement": "Implementing authority and delivery refs", "verdict": "fail"},
-                {"requirement": "Capacity, procurement, staffing, enforcement, appeal, rollout refs", "verdict": "fail"},
+                {
+                    "requirement": "Capacity, procurement, staffing, enforcement, appeal, rollout refs",
+                    "verdict": "fail",
+                },
                 {"requirement": "Monitoring ownership and evaluation plan", "verdict": "fail"},
                 {"requirement": "Claim-to-implementation-risk binding", "verdict": "fail"},
-                {"requirement": "Fail closed when implementation evidence is missing", "verdict": "partial_fail"},
+                {
+                    "requirement": "Fail closed when implementation evidence is missing",
+                    "verdict": "partial_fail",
+                },
             ],
         },
         recommended_gate=(
@@ -438,10 +453,16 @@ def _diagnose_pdd_099(context: Mapping[str, Any]) -> dict[str, Any]:
                 "stale, reissue, supersede, and withdraw lifecycle reports exist",
             ],
             "gate_matrix": [
-                {"requirement": "Standing, grounds, deadline, submitted evidence, owner, SLA, disposition refs", "verdict": "fail"},
+                {
+                    "requirement": "Standing, grounds, deadline, submitted evidence, owner, SLA, disposition refs",
+                    "verdict": "fail",
+                },
                 {"requirement": "Accepted challenge affects publication state", "verdict": "fail"},
                 {"requirement": "Local-only dispute negative scenarios", "verdict": "fail"},
-                {"requirement": "Block closeout when appeals are unresolved or detached", "verdict": "not_proven"},
+                {
+                    "requirement": "Block closeout when appeals are unresolved or detached",
+                    "verdict": "not_proven",
+                },
             ],
         },
         recommended_gate=(
@@ -520,7 +541,10 @@ def _diagnose_pdd_103(context: Mapping[str, Any]) -> dict[str, Any]:
             "gate_matrix": [
                 {"requirement": "Label/icon/color/copy-to-authority mapping", "verdict": "fail"},
                 {"requirement": "Equal caveats beside strong trust cues", "verdict": "fail"},
-                {"requirement": "Negative tests for weak/disputed/simulated/stale/draft/override states", "verdict": "fail"},
+                {
+                    "requirement": "Negative tests for weak/disputed/simulated/stale/draft/override states",
+                    "verdict": "fail",
+                },
                 {"requirement": "Public/operator comprehension checks", "verdict": "fail"},
             ],
         },

@@ -202,9 +202,7 @@ async def test_simulated_gateway_emits_required_schema_version_from_tool_contrac
                 "name": "emit_design_problem",
                 "parameters": {
                     "type": "object",
-                    "properties": {
-                        "schema_version": {"const": schema_version, "type": "string"}
-                    },
+                    "properties": {"schema_version": {"const": schema_version, "type": "string"}},
                     "required": ["schema_version"],
                 },
             },

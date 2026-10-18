@@ -196,9 +196,7 @@ def validate(repo_root: Path | None = None) -> dict[str, Any]:
         "outputs": declared_outputs(),
         "scoreboard_hash": scoreboard["content_hash"],
         "headline": scoreboard["headline"],
-        "growth_epochs": [
-            row["epoch_id"] for row in scoreboard.get("growth_epochs", [])
-        ],
+        "growth_epochs": [row["epoch_id"] for row in scoreboard.get("growth_epochs", [])],
         "liveness": {
             row["variant_id"]: {
                 "confident_wrong_count": row["confident_wrong_count"],
@@ -256,9 +254,7 @@ def corrupt_field_drift_check(repo_root: Path | None = None) -> dict[str, Any]:
     corrupted["frozen_precision_recall_mutation"] = frozen_pr
     scoreboard["content_hash"] = "sha256:" + "0" * 64
     report = validate_payload(corrupted)
-    frozen_report = validate_payload(
-        {**_copy(live), "scoreboard": frozen_pr}
-    )
+    frozen_report = validate_payload({**_copy(live), "scoreboard": frozen_pr})
     return {
         "status": "pass"
         if report["status"] == "fail" and frozen_report["status"] == "fail"
@@ -269,9 +265,7 @@ def corrupt_field_drift_check(repo_root: Path | None = None) -> dict[str, Any]:
         "corrupt_report_status": report["status"],
         "corrupt_issue_codes": [issue["code"] for issue in report["issues"]],
         "frozen_precision_recall_status": frozen_report["status"],
-        "frozen_precision_recall_issue_codes": [
-            issue["code"] for issue in frozen_report["issues"]
-        ],
+        "frozen_precision_recall_issue_codes": [issue["code"] for issue in frozen_report["issues"]],
     }
 
 
@@ -315,9 +309,7 @@ def _core_issues(payload: dict[str, Any]) -> list[dict[str, Any]]:
             (row.baseline_id, row.epoch_id, row.stream, row.family)
             for row in scoreboard.score_slices
         }
-        case_groups = {
-            (case.epoch_id, case.stream, case.family) for case in scoreboard.cases
-        }
+        case_groups = {(case.epoch_id, case.stream, case.family) for case in scoreboard.cases}
         for baseline in EXPECTED_BASELINES:
             for epoch_id, stream, family in case_groups:
                 if (baseline, epoch_id, stream, family) not in score_keys:
@@ -330,9 +322,7 @@ def _core_issues(payload: dict[str, Any]) -> list[dict[str, Any]]:
                             "family": family,
                         }
                     )
-        stress_families = {
-            case.family for case in scoreboard.cases if case.stream == "stress"
-        }
+        stress_families = {case.family for case in scoreboard.cases if case.stream == "stress"}
         missing_stress = sorted(EXPECTED_STRESS_FAMILIES.difference(stress_families))
         if missing_stress:
             issues.append(
@@ -388,9 +378,7 @@ def _core_issues(payload: dict[str, Any]) -> list[dict[str, Any]]:
                             "metric": metric_name,
                         }
                     )
-        liveness = {
-            row.variant_id: row for row in scoreboard.detector_liveness
-        }
+        liveness = {row.variant_id: row for row in scoreboard.detector_liveness}
         missing_liveness = sorted(EXPECTED_LIVENESS.difference(liveness))
         if missing_liveness:
             issues.append(
@@ -407,7 +395,10 @@ def _core_issues(payload: dict[str, Any]) -> list[dict[str, Any]]:
                         "variant": variant_id,
                     }
                 )
-            if liveness[variant_id].confident_wrong_interval.denominator != liveness[variant_id].denominator:
+            if (
+                liveness[variant_id].confident_wrong_interval.denominator
+                != liveness[variant_id].denominator
+            ):
                 issues.append(
                     {
                         "code": "grounding_benchmark_detector_liveness_interval_missing",
@@ -419,7 +410,10 @@ def _core_issues(payload: dict[str, Any]) -> list[dict[str, Any]]:
         case_ids = {case.case_id for case in scoreboard.cases}
         dropped_ids = {case.case_id for case in scoreboard.dropped_cases}
         for case in scoreboard.cases:
-            if case.label_derivation.derivation_kind == "hand_asserted" and case.case_id not in dropped_ids:
+            if (
+                case.label_derivation.derivation_kind == "hand_asserted"
+                and case.case_id not in dropped_ids
+            ):
                 issues.append(
                     {
                         "code": "grounding_benchmark_label_authoring_accepted",

@@ -322,12 +322,12 @@ def test_discovery_manifest_ignores_editable_checkout_address(
     (first_checkout / "source.py").write_bytes(source_bytes)
     (second_checkout / "source.py").write_bytes(source_bytes)
     assert first_checkout.resolve() != second_checkout.resolve()
-    assert hashlib.sha256((first_checkout / "source.py").read_bytes()).digest() == hashlib.sha256(
-        (second_checkout / "source.py").read_bytes()
-    ).digest()
+    assert (
+        hashlib.sha256((first_checkout / "source.py").read_bytes()).digest()
+        == hashlib.sha256((second_checkout / "source.py").read_bytes()).digest()
+    )
     entry_points_text = (
-        "[polisyos.foundry_methods]\n"
-        "roads.method.direct_url = roads.method.direct_url:factory\n"
+        "[polisyos.foundry_methods]\nroads.method.direct_url = roads.method.direct_url:factory\n"
     )
 
     first = _discover_manifest_for_distribution(
@@ -371,13 +371,9 @@ def test_discovery_manifest_ignores_editable_direct_url_serialization(
     monkeypatch,
 ) -> None:
     entry_points_text = (
-        "[polisyos.foundry_methods]\n"
-        "roads.method.direct_url = roads.method.direct_url:factory\n"
+        "[polisyos.foundry_methods]\nroads.method.direct_url = roads.method.direct_url:factory\n"
     )
-    compact = (
-        '{"url":"file:///same/checkout/policy-engine",'
-        '"dir_info":{"editable":true}}'
-    )
+    compact = '{"url":"file:///same/checkout/policy-engine","dir_info":{"editable":true}}'
     reordered = (
         "{\n"
         '  "dir_info": {\n'
@@ -425,8 +421,7 @@ def test_discovery_manifest_records_editable_identity_as_not_established(
                 "roads.method.direct_url = roads.method.direct_url:factory\n"
             ),
             direct_url_text=(
-                '{"url":"file:///checkout/policy-engine",'
-                '"dir_info":{"editable":true}}'
+                '{"url":"file:///checkout/policy-engine","dir_info":{"editable":true}}'
             ),
         ),
     )
@@ -441,9 +436,7 @@ def test_discovery_manifest_records_editable_identity_as_not_established(
         "polisyos.foundry_methods:roads.method.direct_url:"
         "roads.method.direct_url:factory",
     )
-    predicate_rows = {
-        row.predicate: row.classification for row in manifest.predicate_provenance
-    }
+    predicate_rows = {row.predicate: row.classification for row in manifest.predicate_provenance}
     assert predicate_rows["entry_point_distribution_identity"] == "recomputed"
     assert predicate_rows["entry_point_source_byte_closure"] == "not_established"
 
@@ -452,8 +445,7 @@ def test_discovery_manifest_keeps_noneditable_direct_url_content_bound(
     monkeypatch,
 ) -> None:
     entry_points_text = (
-        "[polisyos.foundry_methods]\n"
-        "roads.method.direct_url = roads.method.direct_url:factory\n"
+        "[polisyos.foundry_methods]\nroads.method.direct_url = roads.method.direct_url:factory\n"
     )
     first_direct_url = (
         '{"url":"https://example.invalid/roads.whl",'
@@ -496,8 +488,7 @@ def test_discovery_manifest_keeps_malformed_direct_url_bytes_bound(
     monkeypatch,
 ) -> None:
     entry_points_text = (
-        "[polisyos.foundry_methods]\n"
-        "roads.method.direct_url = roads.method.direct_url:factory\n"
+        "[polisyos.foundry_methods]\nroads.method.direct_url = roads.method.direct_url:factory\n"
     )
     first_direct_url = '{"url":"file:///unknown-a",'
     second_direct_url = '{"url":"file:///unknown-b",'

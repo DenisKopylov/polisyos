@@ -238,14 +238,11 @@ def _select_observation_for_period(
     ranked = sorted(records, key=_observation_selection_key, reverse=True)
     winner = ranked[0]
     winner_key = _observation_selection_key(winner)
-    tied = [
-        record for record in ranked if _observation_selection_key(record) == winner_key
-    ]
+    tied = [record for record in ranked if _observation_selection_key(record) == winner_key]
     if len(tied) > 1:
         winner_payload = winner.model_dump(exclude={"observation_id"})
         if any(
-            record.model_dump(exclude={"observation_id"}) != winner_payload
-            for record in tied[1:]
+            record.model_dump(exclude={"observation_id"}) != winner_payload for record in tied[1:]
         ):
             raise ValueError(
                 "Ambiguous observations for target "
@@ -535,8 +532,7 @@ def _as_1d_array(value: Any, *, dtype: Any) -> jnp.ndarray:
         arr = arr.reshape(1)
     elif arr.ndim != 1:
         raise ValueError(
-            "Measurement weights and metadata must be one-dimensional, "
-            f"got {arr.shape}"
+            f"Measurement weights and metadata must be one-dimensional, got {arr.shape}"
         )
     return arr
 
@@ -620,25 +616,19 @@ def compute_effective_weight(
     if lag_days_estimate is None:
         lag = jnp.zeros_like(normalized_trust)
     else:
-        lag = _broadcast_to(
-            _as_1d_array(lag_days_estimate, dtype=jnp.float32), int(trust.shape[0])
-        )
+        lag = _broadcast_to(_as_1d_array(lag_days_estimate, dtype=jnp.float32), int(trust.shape[0]))
     lag_discount = jnp.power(0.5, lag / float(config.lag_half_life_days))
 
     if censoring_mask is None:
         censor = jnp.zeros_like(normalized_trust, dtype=bool)
     else:
-        censor = _broadcast_to(
-            _as_1d_array(censoring_mask, dtype=bool), int(trust.shape[0])
-        )
+        censor = _broadcast_to(_as_1d_array(censoring_mask, dtype=bool), int(trust.shape[0]))
     censor_discount = jnp.where(censor, config.censoring_discount, 1.0)
 
     if shock_mask is None:
         shock = jnp.zeros_like(normalized_trust, dtype=bool)
     else:
-        shock = _broadcast_to(
-            _as_1d_array(shock_mask, dtype=bool), int(trust.shape[0])
-        )
+        shock = _broadcast_to(_as_1d_array(shock_mask, dtype=bool), int(trust.shape[0]))
     shock_discount = jnp.where(shock, config.shock_discount, 1.0)
 
     boundary_mask = _schema_regime_boundary_mask(schema_regime_id)

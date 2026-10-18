@@ -100,9 +100,7 @@ _SYMBOL_TO_MODULE = {
     "critique_to_lesson_cards": "polisyos.scientist.policy_design.critic",
     "compile_claim_decomposition": "polisyos.scientist.policy_design.claim_decomposition",
     "compile_baseline_comparisons": "polisyos.scientist.policy_design.baseline_compiler",
-    "baseline_comparison_audit_surface": (
-        "polisyos.scientist.policy_design.baseline_compiler"
-    ),
+    "baseline_comparison_audit_surface": ("polisyos.scientist.policy_design.baseline_compiler"),
     "compile_participation_requirements_from_claim_ledger": (
         "polisyos.scientist.policy_design.claim_decomposition"
     ),

@@ -1,4 +1,3 @@
-
 """
 Property-based tests for Difference-in-Differences methods.
 
@@ -66,7 +65,9 @@ def test_did_standard_no_nan(data, isolated_registry, property_method_dispatcher
     deadline=15_000,
     suppress_health_check=[HealthCheck.function_scoped_fixture],
 )
-def test_did_standard_output_has_report(data, isolated_registry, property_method_dispatcher) -> None:
+def test_did_standard_output_has_report(
+    data, isolated_registry, property_method_dispatcher
+) -> None:
     """The typed consumer returns its DiD report with the requested estimand and basis size."""
     output = _invoke_standard_did(data, isolated_registry, property_method_dispatcher)
     report = output["report"]

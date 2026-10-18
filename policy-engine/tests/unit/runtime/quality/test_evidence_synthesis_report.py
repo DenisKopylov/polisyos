@@ -19,16 +19,13 @@ from tests._helpers.hds_quality import sha
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
 SCHEMA_PATH = (
-    REPO_ROOT
-    / "schemas/runtime_quality/policy_design_evidence_synthesis_report_v1.schema.json"
+    REPO_ROOT / "schemas/runtime_quality/policy_design_evidence_synthesis_report_v1.schema.json"
 )
 
 
 def _multiverse_curve() -> dict[str, object]:
     return {
-        "schema_version": (
-            "policyos.runtime.policy_design_case.multiverse_specification_curve.v1"
-        ),
+        "schema_version": ("policyos.runtime.policy_design_case.multiverse_specification_curve.v1"),
         "curve_id": "multiverse-rec-1",
         "claim_ids": ["rec_1"],
         "portfolio_id": "portfolio-rec-1",
@@ -127,9 +124,7 @@ def _multiverse_curve() -> dict[str, object]:
 
 def _disconfirming_ledger() -> dict[str, object]:
     return {
-        "schema_version": (
-            "policyos.runtime.policy_design_case.disconfirming_evidence_ledger.v1"
-        ),
+        "schema_version": ("policyos.runtime.policy_design_case.disconfirming_evidence_ledger.v1"),
         "ledger_id": "disconfirming-ledger-rec-1",
         "portfolio_id": "portfolio-rec-1",
         "claim_ids": ["rec_1"],
@@ -288,9 +283,10 @@ def test_synthesis_report_records_weighting_certainty_bias_stopping_and_cost() -
     assert validated["sensitivity_to_synthesis_rules"][0]["direction_changed"] is True
     assert validated["effective_evidence_mass"]["effective_support_mass"] == 3.0
     assert validated["effective_evidence_mass"]["effective_counterevidence_mass"] == 1.0
-    assert validated["effective_evidence_mass"]["raw_count_display_policy"][
-        "raw_count_authority"
-    ] == "diagnostic_only"
+    assert (
+        validated["effective_evidence_mass"]["raw_count_display_policy"]["raw_count_authority"]
+        == "diagnostic_only"
+    )
 
 
 def test_synthesis_report_projects_claim_ref_axis_for_compiler() -> None:

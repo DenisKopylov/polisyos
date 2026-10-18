@@ -83,8 +83,9 @@ def _inventory_artifact() -> dict[str, Any]:
 
 def _cluster_map() -> dict[str, Any]:
     return tomllib.loads(
-        (REPO_ROOT / "architecture/policy_design_case/cluster_ownership_map.toml")
-        .read_text(encoding="utf-8")
+        (REPO_ROOT / "architecture/policy_design_case/cluster_ownership_map.toml").read_text(
+            encoding="utf-8"
+        )
     )
 
 
@@ -151,16 +152,12 @@ def test_s13_manifest_keeps_current_open_cell_count_zero() -> None:
 def test_s13_artifact_traceability_is_implemented_once() -> None:
     payloads = _payloads()
     trace_s13_artifacts = [
-        row
-        for row in payloads["artifact_traceability"]["artifact"]
-        if row.get("slice") == "S13"
+        row for row in payloads["artifact_traceability"]["artifact"] if row.get("slice") == "S13"
     ]
 
     assert {str(row["name"]) for row in trace_s13_artifacts} == S13_REQUIRED_ARTIFACTS
     for artifact_name in S13_REQUIRED_ARTIFACTS:
-        matching = [
-            row for row in trace_s13_artifacts if row.get("name") == artifact_name
-        ]
+        matching = [row for row in trace_s13_artifacts if row.get("name") == artifact_name]
         assert len(matching) == 1
         assert matching[0]["maturity"] == "implemented"
 

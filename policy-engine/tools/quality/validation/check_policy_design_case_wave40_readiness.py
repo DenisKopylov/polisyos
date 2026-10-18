@@ -197,9 +197,10 @@ def _validate_sdd_mapping(payload: Mapping[str, Any], errors: list[str]) -> None
             "typed_out_of_scope_authority_policy",
         }:
             errors.append(f"SDD {family_id}: evidence_mapping is invalid")
-        if row.get("evidence_mapping") == "runtime_evidence" and _int(
-            row.get("runtime_record_count")
-        ) <= 0:
+        if (
+            row.get("evidence_mapping") == "runtime_evidence"
+            and _int(row.get("runtime_record_count")) <= 0
+        ):
             errors.append(f"SDD {family_id}: missing runtime record-family coverage")
 
 
@@ -256,9 +257,9 @@ def _validate_exit_fence(
         _mapping(closeout.get("coverage")).get("status") == "pass"
     ):
         errors.append("exit_fence: coverage target decision drifted")
-    if exit_fence.get("anti_drift_non_goal_violations") != _mapping(
-        closeout.get("anti_drift")
-    ).get("anti_drift_non_goal_violation_count"):
+    if exit_fence.get("anti_drift_non_goal_violations") != _mapping(closeout.get("anti_drift")).get(
+        "anti_drift_non_goal_violation_count"
+    ):
         errors.append("exit_fence: anti-drift non-goal count drifted")
     if exit_fence.get("static_inventory_is_producer_map_only") is not (
         _mapping(closeout.get("static_inventory")).get("producer_map_only") is True

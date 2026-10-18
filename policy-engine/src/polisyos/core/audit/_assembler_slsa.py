@@ -261,6 +261,7 @@ def extract_sbom_metadata(sbom_data: dict[str, Any]) -> dict[str, Any]:
 
 def _load_json_payload(cas: FileSystemCAS, artifact_id: ArtifactID) -> dict[str, Any]:
     from polisyos.core.artifacts import load_core_json_artifact
+
     try:
         payload = load_core_json_artifact(cas, artifact_id)
     except (ValueError, TypeError, UnicodeDecodeError, json.JSONDecodeError):

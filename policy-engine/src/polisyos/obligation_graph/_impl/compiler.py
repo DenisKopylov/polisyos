@@ -314,13 +314,11 @@ def _structured_pattern_matches(
     all_predicates = _sequence_of_mappings(logic.get("facet_match_all"))
     any_predicates = _sequence_of_mappings(logic.get("facet_match_any"))
     if any(
-        not _facet_predicate_matches(predicate, by_type=by_type)
-        for predicate in all_predicates
+        not _facet_predicate_matches(predicate, by_type=by_type) for predicate in all_predicates
     ):
         return False
     if any_predicates and not any(
-        _facet_predicate_matches(predicate, by_type=by_type)
-        for predicate in any_predicates
+        _facet_predicate_matches(predicate, by_type=by_type) for predicate in any_predicates
     ):
         return False
     geography = _text_or_none(logic.get("geography_predicate_eq"))
@@ -576,9 +574,7 @@ def _bundle_metadata(
 ) -> dict[str, Any]:
     metadata = dict(canonical.metadata)
     metadata["candidate_metadata_refs"] = {
-        entry.candidate_id: dict(entry.metadata)
-        for entry in entries
-        if entry.metadata
+        entry.candidate_id: dict(entry.metadata) for entry in entries if entry.metadata
     }
     return {key: value for key, value in metadata.items() if value not in ({}, [], ())}
 
@@ -624,9 +620,7 @@ def _promote_frontier(
         entries = entries_by_bundle_id[bundle.bundle_id]
         blocker = _bundle_blocker(entries)
         if blocker is not None:
-            visibility_records.append(
-                _visibility_record(bundle, blocker, observed_at=observed_at)
-            )
+            visibility_records.append(_visibility_record(bundle, blocker, observed_at=observed_at))
             continue
         if bundle.canonical_priority not in _FRONTIER_PRIORITIES:
             visibility_records.append(
@@ -871,8 +865,7 @@ def _adapt_obligation_rule_catalog_row(row: Mapping[str, Any]) -> dict[str, Any]
     vertical_rule = bool(logic.get("vertical_rule"))
     priority = (
         PriorityClass.AUTHORITY_LEVEL_MANDATORY
-        if authority_level == "production"
-        and not vertical_rule
+        if authority_level == "production" and not vertical_rule
         else PriorityClass.MANDATORY
     )
     if vertical_rule:
@@ -895,8 +888,7 @@ def _adapt_obligation_rule_catalog_row(row: Mapping[str, Any]) -> dict[str, Any]
             f"{predicate.replace('_', ' ')}."
         ),
         "authority_profile": authority_profiles[0] if authority_profiles else authority_level,
-        "temporal_window": _text_or_none(scope_payload.get("temporal_window"))
-        or "case_lifecycle",
+        "temporal_window": _text_or_none(scope_payload.get("temporal_window")) or "case_lifecycle",
         "remedy_path": evidence_family or _remedy_path_for_rule(rule_id),
         "logic": logic,
         "metadata": {
@@ -915,8 +907,7 @@ def _adapt_obligation_rule_catalog_row(row: Mapping[str, Any]) -> dict[str, Any]
             if key in logic
         },
         "required_facets": {
-            _required_text(key): _required_text(value)
-            for key, value in required_facets.items()
+            _required_text(key): _required_text(value) for key, value in required_facets.items()
         },
         "priority_ceiling": priority,
         "authority_allowance_passed": True,

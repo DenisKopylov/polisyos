@@ -55,20 +55,24 @@ def test_compiler_emits_production_prevalence_spec_from_preference_claim() -> No
 
 
 def test_thin_consultation_downgrades_prevalence_without_blocking_case() -> None:
-    requirement = ParticipationProvenanceCompiler().compile(
-        {
-            "run_id": "run-w7e",
-            "claims": [
-                {
-                    "claim_id": "claim-preference",
-                    "claim_family": "preference",
-                    "authority_level": "production",
-                    "population_scope": "affected_population",
-                    "text": "Affected population preference claim.",
-                }
-            ],
-        }
-    ).requirements[0]
+    requirement = (
+        ParticipationProvenanceCompiler()
+        .compile(
+            {
+                "run_id": "run-w7e",
+                "claims": [
+                    {
+                        "claim_id": "claim-preference",
+                        "claim_family": "preference",
+                        "authority_level": "production",
+                        "population_scope": "affected_population",
+                        "text": "Affected population preference claim.",
+                    }
+                ],
+            }
+        )
+        .requirements[0]
+    )
     consultation = ParticipationProvenanceRecord(
         participation_ref="participation:thin-consultation",
         claim_refs=("claim-preference",),
@@ -98,21 +102,25 @@ def test_thin_consultation_downgrades_prevalence_without_blocking_case() -> None
 
 
 def test_llm_speculation_cannot_satisfy_legitimacy_requirement() -> None:
-    requirement = ParticipationProvenanceCompiler().compile(
-        {
-            "run_id": "run-w7e",
-            "claims": [
-                {
-                    "claim_id": "claim-legitimacy",
-                    "claim_family": "legitimacy",
-                    "claim_use": "participation_legitimacy",
-                    "authority_level": "governed",
-                    "population_scope": "affected_population",
-                    "text": "The process is legitimate for affected groups.",
-                }
-            ],
-        }
-    ).requirements[0]
+    requirement = (
+        ParticipationProvenanceCompiler()
+        .compile(
+            {
+                "run_id": "run-w7e",
+                "claims": [
+                    {
+                        "claim_id": "claim-legitimacy",
+                        "claim_family": "legitimacy",
+                        "claim_use": "participation_legitimacy",
+                        "authority_level": "governed",
+                        "population_scope": "affected_population",
+                        "text": "The process is legitimate for affected groups.",
+                    }
+                ],
+            }
+        )
+        .requirements[0]
+    )
     llm_summary = ParticipationProvenanceRecord(
         participation_ref="hypothesis-candidate:participation-summary",
         claim_refs=("claim-legitimacy",),
@@ -171,21 +179,25 @@ def test_participation_requirement_bundle_is_persisted_for_projection_replay(
 
 
 def test_participation_consumes_capability_graph_consent_envelope_and_source_limits() -> None:
-    requirement = ParticipationProvenanceCompiler().compile(
-        {
-            "run_id": "run-w7e-phase5",
-            "claims": [
-                {
-                    "claim_id": "claim-legitimacy",
-                    "claim_family": "legitimacy",
-                    "claim_use": "participation_legitimacy",
-                    "authority_level": "governed",
-                    "population_scope": "affected_population",
-                    "text": "The wartime MSME credit process is legitimate for affected groups.",
-                }
-            ],
-        }
-    ).requirements[0]
+    requirement = (
+        ParticipationProvenanceCompiler()
+        .compile(
+            {
+                "run_id": "run-w7e-phase5",
+                "claims": [
+                    {
+                        "claim_id": "claim-legitimacy",
+                        "claim_family": "legitimacy",
+                        "claim_use": "participation_legitimacy",
+                        "authority_level": "governed",
+                        "population_scope": "affected_population",
+                        "text": "The wartime MSME credit process is legitimate for affected groups.",
+                    }
+                ],
+            }
+        )
+        .requirements[0]
+    )
 
     evaluation = evaluate_participation_requirement(
         requirement,
@@ -226,29 +238,31 @@ def test_participation_consumes_capability_graph_consent_envelope_and_source_lim
     assert evaluation.capability_index_ref == "capability-index:phase5"
     assert evaluation.construct_registry_ref == "construct-registry:v1"
     assert evaluation.authority_composition_rule_ref == "capability-authority-v1.0"
-    assert evaluation.consent_envelope["consent_redaction_state"] == (
-        "process_safe_public_summary"
-    )
+    assert evaluation.consent_envelope["consent_redaction_state"] == ("process_safe_public_summary")
     assert "self_selected_process" in evaluation.source_limitations
     assert row.evidence_ref == "participation-evidence:consultation-2022"
 
 
 def test_participation_consumes_all_phase5_provenance_capability_classes() -> None:
-    requirement = ParticipationProvenanceCompiler().compile(
-        {
-            "run_id": "run-w7e-phase5-all-classes",
-            "claims": [
-                {
-                    "claim_id": "claim-legitimacy",
-                    "claim_family": "legitimacy",
-                    "claim_use": "participation_legitimacy",
-                    "authority_level": "governed",
-                    "population_scope": "affected_population",
-                    "text": "The process has affected-person legitimacy.",
-                }
-            ],
-        }
-    ).requirements[0]
+    requirement = (
+        ParticipationProvenanceCompiler()
+        .compile(
+            {
+                "run_id": "run-w7e-phase5-all-classes",
+                "claims": [
+                    {
+                        "claim_id": "claim-legitimacy",
+                        "claim_family": "legitimacy",
+                        "claim_use": "participation_legitimacy",
+                        "authority_level": "governed",
+                        "population_scope": "affected_population",
+                        "text": "The process has affected-person legitimacy.",
+                    }
+                ],
+            }
+        )
+        .requirements[0]
+    )
     capability_classes = {
         "participation_provenance": "capability:affected_person_process_record",
         "civic_legitimacy_signal": "capability:civic_legitimacy_signal",
@@ -297,21 +311,25 @@ def test_participation_consumes_all_phase5_provenance_capability_classes() -> No
 
 
 def test_absent_participation_capability_emits_typed_limitation_not_silent_pass() -> None:
-    requirement = ParticipationProvenanceCompiler().compile(
-        {
-            "run_id": "run-w7e-phase5-missing",
-            "claims": [
-                {
-                    "claim_id": "claim-legitimacy",
-                    "claim_family": "legitimacy",
-                    "claim_use": "participation_legitimacy",
-                    "authority_level": "governed",
-                    "population_scope": "affected_population",
-                    "text": "The process is legitimate.",
-                }
-            ],
-        }
-    ).requirements[0]
+    requirement = (
+        ParticipationProvenanceCompiler()
+        .compile(
+            {
+                "run_id": "run-w7e-phase5-missing",
+                "claims": [
+                    {
+                        "claim_id": "claim-legitimacy",
+                        "claim_family": "legitimacy",
+                        "claim_use": "participation_legitimacy",
+                        "authority_level": "governed",
+                        "population_scope": "affected_population",
+                        "text": "The process is legitimate.",
+                    }
+                ],
+            }
+        )
+        .requirements[0]
+    )
 
     evaluation = evaluate_participation_requirement(requirement, records=[])
 

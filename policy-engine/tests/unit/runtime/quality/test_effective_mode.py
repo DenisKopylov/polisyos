@@ -80,8 +80,7 @@ def test_effective_mode_ledger_records_requested_and_effective_dimensions() -> N
 
 def test_production_live_effective_mode_fixture_satisfies_serious_policy() -> None:
     payload_path = (
-        REPO_ROOT
-        / "tests/fixtures/runtime_quality/effective_mode/production_live_mode_pass.json"
+        REPO_ROOT / "tests/fixtures/runtime_quality/effective_mode/production_live_mode_pass.json"
     )
     fixture = json.loads(payload_path.read_text(encoding="utf-8"))
     ledger = EffectiveModeLedger.from_mapping(fixture["payload"])

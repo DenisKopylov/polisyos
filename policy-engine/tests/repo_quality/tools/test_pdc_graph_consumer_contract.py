@@ -152,9 +152,7 @@ def _compile_one_superiority_comparison(
         }
     )
     ledger = claim_ledger.model_copy(update={"claims": [claim, *claim_ledger.claims[1:]]})
-    superiority_claims = [
-        row for row in ledger.claims if row.claim_use is ClaimUse.SUPERIORITY
-    ]
+    superiority_claims = [row for row in ledger.claims if row.claim_use is ClaimUse.SUPERIORITY]
     selected_option = claim.alternative_refs[0]
     return BaselineComparisonCompiler().compile(
         {
@@ -185,9 +183,7 @@ def _compile_one_superiority_comparison(
                     {
                         "claim_id": row.claim_id,
                         "ir_analytics_refs": [f"ir:{intent_id}:{row.claim_id}:comparison"],
-                        "ir_certificate_refs": [
-                            f"ir-cert:{intent_id}:{row.claim_id}:comparison"
-                        ],
+                        "ir_certificate_refs": [f"ir-cert:{intent_id}:{row.claim_id}:comparison"],
                     }
                     for row in superiority_claims
                 ],

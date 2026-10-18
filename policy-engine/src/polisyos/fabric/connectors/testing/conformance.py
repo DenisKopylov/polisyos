@@ -109,7 +109,9 @@ def validate_source_conformance_v2(
 
     schema_contract_ids = {contract.contract_id for contract in schema_contracts}
     schema_ref = source_contract.schema.schema_contract_ref or ""
-    if source_contract.schema.fields or any(contract_id in schema_ref for contract_id in schema_contract_ids):
+    if source_contract.schema.fields or any(
+        contract_id in schema_ref for contract_id in schema_contract_ids
+    ):
         pass
     elif not source_contract.schema.has_schema_evidence:
         issues.append(ConformanceIssue("schema_contract", "schema evidence is missing"))
@@ -172,7 +174,10 @@ def validate_source_conformance_v2(
     }:
         issues.append(ConformanceIssue("access_classification", "invalid classification"))
     _validate_field_access_policies(source_contract, issues)
-    if source_contract.retention.artifact_retention_days < source_contract.retention.min_retention_days:
+    if (
+        source_contract.retention.artifact_retention_days
+        < source_contract.retention.min_retention_days
+    ):
         issues.append(ConformanceIssue("retention", "artifact retention is shorter than minimum"))
 
     _validate_slo_metadata(source_contract, issues)
@@ -256,9 +261,7 @@ def _validate_bounded_read_evidence(
     runtime_limits = {
         "max_response_bytes": getattr(runtime_profile, "max_response_bytes", None),
         "max_json_bytes": getattr(runtime_profile, "max_json_bytes", None),
-        "max_decompressed_bytes": getattr(
-            runtime_profile, "max_decompressed_bytes", None
-        ),
+        "max_decompressed_bytes": getattr(runtime_profile, "max_decompressed_bytes", None),
         "max_rows": getattr(runtime_profile, "max_rows", None),
     }
     profile_limits: dict[str, int | float | str | None] = {}
@@ -282,9 +285,7 @@ def _validate_bounded_read_evidence(
         if key != "timeout_seconds"
     )
     has_runtime_bound = any(value is not None and value > 0 for value in runtime_limits.values())
-    has_timeout_bound = (
-        source_profile is not None and int(source_profile.timeout_seconds or 0) > 0
-    )
+    has_timeout_bound = source_profile is not None and int(source_profile.timeout_seconds or 0) > 0
 
     if not has_contract_check:
         issues.append(
@@ -386,9 +387,7 @@ class ConnectorConformanceHarnessV2(ConnectorTestHarness):
             schema_contracts=self.schema_contracts,
             replay_fixture_exists=self.replay_fixture_exists,
         )
-        assert report.passed, [
-            f"{issue.check_id}: {issue.message}" for issue in report.issues
-        ]
+        assert report.passed, [f"{issue.check_id}: {issue.message}" for issue in report.issues]
 
 
 __all__ = [

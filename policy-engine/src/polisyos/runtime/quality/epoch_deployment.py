@@ -246,9 +246,7 @@ class EpochDeployment:
         return store
 
     def _runtime_repository(self) -> FileSystemSignedArtifactEvidenceRepository:
-        return FileSystemSignedArtifactEvidenceRepository(
-            self._required_runtime_artifact_store()
-        )
+        return FileSystemSignedArtifactEvidenceRepository(self._required_runtime_artifact_store())
 
     def _repository(self) -> FileSystemSignedArtifactEvidenceRepository:
         return self._runtime_repository()

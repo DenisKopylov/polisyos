@@ -102,8 +102,9 @@ def test_runtime_claim_registry_preserves_lex_legal_authority_refs() -> None:
     assert registry["status"] == "pass"
     assert row["legal_authority_record_refs"] == anchor["legal_authority_record_refs"]
     assert row["selected_producer_refs"]["lex"] == ["norm.ua.credit_eligibility"]
-    assert row["selected_producer_refs"]["lex_legal_authority"] == (
-        anchor["legal_authority_record_refs"]
+    assert (
+        row["selected_producer_refs"]["lex_legal_authority"]
+        == (anchor["legal_authority_record_refs"])
     )
 
 

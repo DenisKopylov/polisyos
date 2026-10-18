@@ -37,24 +37,35 @@ def recorded_panel_owner(tmp_path, monkeypatch):
         connection.executemany(
             "INSERT INTO observations VALUES (?, ?, ?, ?, ?)",
             [
-                (entity, f"2018-{month:02d}-01", float(index * 10 + month),
-                 "budget_flows", "amount")
+                (
+                    entity,
+                    f"2018-{month:02d}-01",
+                    float(index * 10 + month),
+                    "budget_flows",
+                    "amount",
+                )
                 for index, entity in enumerate(("alpha", "beta", "gamma"))
                 for month in range(5, 9)
             ],
         )
         connection.execute("COPY observations TO ? (FORMAT PARQUET)", [str(parquet)])
     manifest = bundle / "calibration_bundle_manifest.json"
-    manifest.write_text(json.dumps({
-        "artifact_name": manifest.name,
-        "outputs": {parquet.name: {
-            "path": f"/recorded/owner/{parquet.name}",
-            "sha256": hashlib.sha256(parquet.read_bytes()).hexdigest(),
-            "size_bytes": parquet.stat().st_size,
-        }},
-        "metrics": {"families_present": ["budget_flows"]},
-        "validation": [],
-    }))
+    manifest.write_text(
+        json.dumps(
+            {
+                "artifact_name": manifest.name,
+                "outputs": {
+                    parquet.name: {
+                        "path": f"/recorded/owner/{parquet.name}",
+                        "sha256": hashlib.sha256(parquet.read_bytes()).hexdigest(),
+                        "size_bytes": parquet.stat().st_size,
+                    }
+                },
+                "metrics": {"families_present": ["budget_flows"]},
+                "validation": [],
+            }
+        )
+    )
     monkeypatch.setattr(owner, "_recorded_panel_bundle_dir", lambda: bundle, raising=False)
     return owner, artifacts.FileSystemCAS(tmp_path / "cas"), parquet, manifest
 
@@ -62,15 +73,19 @@ def recorded_panel_owner(tmp_path, monkeypatch):
 def _recorded_recipe(owner):
     return owner.RecordedPanelRecipe(
         entity_ids=("alpha", "beta", "gamma"),
-        period_start="2018-05-01", period_end="2018-08-01", period_count=4,
-        treatment=(1, 0, 0), time_treatment=2,
+        period_start="2018-05-01",
+        period_end="2018-08-01",
+        period_count=4,
+        treatment=(1, 0, 0),
+        time_treatment=2,
     )
 
 
 def _produce_recorded(recorded_panel_owner):
     owner, store, _, _ = recorded_panel_owner
     return owner.produce_recorded_panel_method_input(
-        store=store, method_fqn="causal.inference.synthetic_control@2.0.0",
+        store=store,
+        method_fqn="causal.inference.synthetic_control@2.0.0",
         recipe=_recorded_recipe(owner),
     )
 
@@ -79,11 +94,14 @@ def test_recorded_panel_method_input_roundtrips_measured_and_assumed_fields(reco
     owner, store, parquet, manifest = recorded_panel_owner
     result = _produce_recorded(recorded_panel_owner)
     verified = owner.verify_recorded_panel_method_input(
-        store=store, binding_receipt_ref=result.binding_receipt_ref,
+        store=store,
+        binding_receipt_ref=result.binding_receipt_ref,
     )
     assert verified == result
     assert result.contract_payload["outcome"] == [
-        [5.0, 6.0, 7.0, 8.0], [15.0, 16.0, 17.0, 18.0], [25.0, 26.0, 27.0, 28.0],
+        [5.0, 6.0, 7.0, 8.0],
+        [15.0, 16.0, 17.0, 18.0],
+        [25.0, 26.0, 27.0, 28.0],
     ]
     receipt = result.receipt
     assert receipt.source_sha256 == hashlib.sha256(parquet.read_bytes()).hexdigest()
@@ -100,18 +118,27 @@ def test_recorded_measurement_root_does_not_alias_its_materialized_method_dto(re
 
     owner, store, _, _ = recorded_panel_owner
     bound = _produce_recorded(recorded_panel_owner)
-    method_ref = store.put_json(bound.contract_payload, artifacts.PutOptions(
-        kind="foundry.ukraine_method_input", media_type="application/json",
-        schema=artifacts.SchemaInfo(name=bound.contract_target["contract_id"], version="1.0"),
-    ), canon_spec=canon.CanonSpec(forbid_floats=False))
+    method_ref = store.put_json(
+        bound.contract_payload,
+        artifacts.PutOptions(
+            kind="foundry.ukraine_method_input",
+            media_type="application/json",
+            schema=artifacts.SchemaInfo(name=bound.contract_target["contract_id"], version="1.0"),
+        ),
+        canon_spec=canon.CanonSpec(forbid_floats=False),
+    )
     assert bound.observational_data_ref.artifact_id != method_ref.artifact_id
     assert store.get_manifest(method_ref.artifact_id).kind == method_ref.kind
     assert store.get_manifest(bound.observational_data_ref.artifact_id).kind == (
         bound.observational_data_ref.kind
     )
-    assert owner.verify_recorded_panel_method_input(
-        store=store, binding_receipt_ref=bound.binding_receipt_ref,
-    ) == bound
+    assert (
+        owner.verify_recorded_panel_method_input(
+            store=store,
+            binding_receipt_ref=bound.binding_receipt_ref,
+        )
+        == bound
+    )
 
 
 def test_causal_reader_materializes_actual_recorded_root(recorded_panel_owner):
@@ -126,7 +153,9 @@ def test_causal_reader_materializes_actual_recorded_root(recorded_panel_owner):
     bound = _produce_recorded(recorded_panel_owner)
     data = _load_observational_data(
         SimpleNamespace(store=store),
-        ExperimentState(run_id="recorded-root-reader", observational_data_ref=bound.observational_data_ref),
+        ExperimentState(
+            run_id="recorded-root-reader", observational_data_ref=bound.observational_data_ref
+        ),
         bound.receipt.method_fqn,
     )
     assert data.model_dump(mode="json") == bound.contract_payload
@@ -145,10 +174,17 @@ def test_causal_reader_cannot_treat_a_stripped_envelope_as_a_bare_dto(recorded_p
     owner, original_store, _, _ = recorded_panel_owner
     bound = _produce_recorded(recorded_panel_owner)
     store = artifacts.FileSystemCAS(original_store.root.parent / "stripped-envelope-cas")
-    stripped = store.put_json(bound.contract_payload, artifacts.PutOptions(
-        kind="ir.observation_method_input", media_type="application/json",
-        schema=artifacts.SchemaInfo(name=owner.WORKSPACE_RECORDED_PANEL_SCHEMA_VERSION, version="3.0"),
-    ), canon_spec=canon.CanonSpec(forbid_floats=False))
+    stripped = store.put_json(
+        bound.contract_payload,
+        artifacts.PutOptions(
+            kind="ir.observation_method_input",
+            media_type="application/json",
+            schema=artifacts.SchemaInfo(
+                name=owner.WORKSPACE_RECORDED_PANEL_SCHEMA_VERSION, version="3.0"
+            ),
+        ),
+        canon_spec=canon.CanonSpec(forbid_floats=False),
+    )
     with pytest.raises(ValueError):
         _load_observational_data(
             SimpleNamespace(store=store),
@@ -157,12 +193,17 @@ def test_causal_reader_cannot_treat_a_stripped_envelope_as_a_bare_dto(recorded_p
         )
 
 
-@pytest.mark.parametrize("discriminator", [
-    "policyos.ir.observation.method_input_envelope.v1",
-    "policyos.ir.observation.method_input_envelope.v999",
-])
+@pytest.mark.parametrize(
+    "discriminator",
+    [
+        "policyos.ir.observation.method_input_envelope.v1",
+        "policyos.ir.observation.method_input_envelope.v999",
+    ],
+)
 def test_causal_reader_recognizes_discriminator_without_other_envelope_fields(
-    recorded_panel_owner, tmp_path, discriminator,
+    recorded_panel_owner,
+    tmp_path,
+    discriminator,
 ):
     from types import SimpleNamespace
 
@@ -175,10 +216,15 @@ def test_causal_reader_recognizes_discriminator_without_other_envelope_fields(
     bound = _produce_recorded(recorded_panel_owner)
     payload = {**bound.contract_payload, "schema_version": discriminator}
     store = artifacts.FileSystemCAS(tmp_path / "discriminator-only-envelope")
-    stripped = store.put_json(payload, artifacts.PutOptions(
-        kind="ir.observational_data", media_type="application/json",
-        schema=artifacts.SchemaInfo(name="polisyos.ir.ObservationalData", version="1.0"),
-    ), canon_spec=canon.CanonSpec(forbid_floats=False))
+    stripped = store.put_json(
+        payload,
+        artifacts.PutOptions(
+            kind="ir.observational_data",
+            media_type="application/json",
+            schema=artifacts.SchemaInfo(name="polisyos.ir.ObservationalData", version="1.0"),
+        ),
+        canon_spec=canon.CanonSpec(forbid_floats=False),
+    )
     with pytest.raises(ValueError):
         _load_observational_data(
             SimpleNamespace(store=store),
@@ -187,12 +233,25 @@ def test_causal_reader_recognizes_discriminator_without_other_envelope_fields(
         )
 
 
-@pytest.mark.parametrize("mutation", [
-    "target_fqn", "target_id", "schema_version", "payload_null", "payload_empty",
-    "payload_absent", "target_absent", "unexpected_authority", "ref_kind", "manifest_kind",
-])
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        "target_fqn",
+        "target_id",
+        "schema_version",
+        "payload_null",
+        "payload_empty",
+        "payload_absent",
+        "target_absent",
+        "unexpected_authority",
+        "ref_kind",
+        "manifest_kind",
+    ],
+)
 def test_recorded_envelope_content_is_consumed_by_reader_and_measurement_gate(
-    recorded_panel_owner, tmp_path, mutation,
+    recorded_panel_owner,
+    tmp_path,
+    mutation,
 ):
     """Malformed envelope content cannot stand for the complete selected DTO."""
     from types import SimpleNamespace
@@ -226,12 +285,20 @@ def test_recorded_envelope_content_is_consumed_by_reader_and_measurement_gate(
         payload["measurement_verified"] = True
     store = artifacts.FileSystemCAS(tmp_path / "mutant-envelope")
     original_manifest = original_store.get_manifest(bound.observational_data_ref.artifact_id)
-    altered = store.put_json(payload, artifacts.PutOptions(
-        kind=("ir.observational_data" if mutation == "manifest_kind"
-              else bound.observational_data_ref.kind),
-        media_type=bound.observational_data_ref.media_type,
-        schema=original_manifest.artifact_schema, producer=original_manifest.producer,
-    ), canon_spec=canon.CanonSpec(forbid_floats=False))
+    altered = store.put_json(
+        payload,
+        artifacts.PutOptions(
+            kind=(
+                "ir.observational_data"
+                if mutation == "manifest_kind"
+                else bound.observational_data_ref.kind
+            ),
+            media_type=bound.observational_data_ref.media_type,
+            schema=original_manifest.artifact_schema,
+            producer=original_manifest.producer,
+        ),
+        canon_spec=canon.CanonSpec(forbid_floats=False),
+    )
     if mutation == "ref_kind":
         altered = altered.model_copy(update={"kind": "ir.observational_data"})
     state = ExperimentState(run_id="envelope-content-refusal", observational_data_ref=altered)
@@ -240,11 +307,17 @@ def test_recorded_envelope_content_is_consumed_by_reader_and_measurement_gate(
     receipt = bound.receipt.model_dump(mode="json")
     receipt["observational_data_ref"] = altered.model_dump(mode="json")
     receipt_manifest = original_store.get_manifest(bound.binding_receipt_ref.artifact_id)
-    receipt_ref = store.put_json(receipt, artifacts.PutOptions(
-        kind=bound.binding_receipt_ref.kind, media_type=bound.binding_receipt_ref.media_type,
-        schema=receipt_manifest.artifact_schema, producer=receipt_manifest.producer,
-        inputs=[artifacts.InputRef(artifact_id=altered.artifact_id, role="observational_data")],
-    ), canon_spec=canon.CanonSpec(forbid_floats=False))
+    receipt_ref = store.put_json(
+        receipt,
+        artifacts.PutOptions(
+            kind=bound.binding_receipt_ref.kind,
+            media_type=bound.binding_receipt_ref.media_type,
+            schema=receipt_manifest.artifact_schema,
+            producer=receipt_manifest.producer,
+            inputs=[artifacts.InputRef(artifact_id=altered.artifact_id, role="observational_data")],
+        ),
+        canon_spec=canon.CanonSpec(forbid_floats=False),
+    )
     with pytest.raises(owner.MeasurementRootBindingError):
         owner.verify_recorded_panel_method_input(store=store, binding_receipt_ref=receipt_ref)
 
@@ -255,20 +328,33 @@ def test_current_recorded_binding_refuses_prior_naked_root_epoch(recorded_panel_
     owner, _, _, _ = recorded_panel_owner
     bound = _produce_recorded(recorded_panel_owner)
     store = artifacts.FileSystemCAS(tmp_path / "prior-recorded-epoch")
-    old_root = store.put_json(bound.contract_payload, artifacts.PutOptions(
-        kind="ir.observational_data", media_type="application/json",
-        schema=artifacts.SchemaInfo(
-            name="policyos.gy.phase2.recorded_panel_measurement_root.v2", version="2.0",
+    old_root = store.put_json(
+        bound.contract_payload,
+        artifacts.PutOptions(
+            kind="ir.observational_data",
+            media_type="application/json",
+            schema=artifacts.SchemaInfo(
+                name="policyos.gy.phase2.recorded_panel_measurement_root.v2",
+                version="2.0",
+            ),
         ),
-    ), canon_spec=canon.CanonSpec(forbid_floats=False))
+        canon_spec=canon.CanonSpec(forbid_floats=False),
+    )
     old_receipt = bound.receipt.model_dump(mode="json")
     old_receipt["schema_version"] = "policyos.gy.phase2.recorded_panel_method_binding.v1"
     old_receipt["observational_data_ref"] = old_root.model_dump(mode="json")
-    old_ref = store.put_json(old_receipt, artifacts.PutOptions(
-        kind=bound.binding_receipt_ref.kind, media_type="application/json",
-        schema=artifacts.SchemaInfo(name=old_receipt["schema_version"], version="1.0"),
-        inputs=[artifacts.InputRef(artifact_id=old_root.artifact_id, role="observational_data")],
-    ), canon_spec=canon.CanonSpec(forbid_floats=False))
+    old_ref = store.put_json(
+        old_receipt,
+        artifacts.PutOptions(
+            kind=bound.binding_receipt_ref.kind,
+            media_type="application/json",
+            schema=artifacts.SchemaInfo(name=old_receipt["schema_version"], version="1.0"),
+            inputs=[
+                artifacts.InputRef(artifact_id=old_root.artifact_id, role="observational_data")
+            ],
+        ),
+        canon_spec=canon.CanonSpec(forbid_floats=False),
+    )
     with pytest.raises(owner.MeasurementRootBindingError, match="artifact_identity_mismatch"):
         owner.verify_recorded_panel_method_input(store=store, binding_receipt_ref=old_ref)
 
@@ -289,7 +375,8 @@ def test_recorded_panel_manifest_mutation_invalidates_existing_receipt(recorded_
     manifest.write_text(json.dumps(payload))
     with pytest.raises(owner.MeasurementRootBindingError, match="manifest_hash_mismatch"):
         owner.verify_recorded_panel_method_input(
-            store=store, binding_receipt_ref=original.binding_receipt_ref,
+            store=store,
+            binding_receipt_ref=original.binding_receipt_ref,
         )
     refreshed = _produce_recorded(recorded_panel_owner)
     assert refreshed.receipt.manifest_sha256 != original.receipt.manifest_sha256
@@ -299,20 +386,30 @@ def test_recorded_panel_manifest_mutation_invalidates_existing_receipt(recorded_
 def test_recorded_panel_data_only_recipe_growth_uses_real_source_values(recorded_panel_owner):
     owner, store, _, _ = recorded_panel_owner
     original = _produce_recorded(recorded_panel_owner)
-    recipe = _recorded_recipe(owner).model_copy(update={
-        "entity_ids": ("gamma", "alpha"), "treatment": (0, 1),
-    })
+    recipe = _recorded_recipe(owner).model_copy(
+        update={
+            "entity_ids": ("gamma", "alpha"),
+            "treatment": (0, 1),
+        }
+    )
     changed = owner.produce_recorded_panel_method_input(
-        store=store, method_fqn=original.receipt.method_fqn, recipe=recipe,
+        store=store,
+        method_fqn=original.receipt.method_fqn,
+        recipe=recipe,
     )
     assert changed.contract_payload["outcome"] == [
-        original.contract_payload["outcome"][2], original.contract_payload["outcome"][0],
+        original.contract_payload["outcome"][2],
+        original.contract_payload["outcome"][0],
     ]
     assert changed.receipt.source_sha256 == original.receipt.source_sha256
     assert changed.receipt.selected_rows_sha256 != original.receipt.selected_rows_sha256
-    assert owner.verify_recorded_panel_method_input(
-        store=store, binding_receipt_ref=changed.binding_receipt_ref,
-    ) == changed
+    assert (
+        owner.verify_recorded_panel_method_input(
+            store=store,
+            binding_receipt_ref=changed.binding_receipt_ref,
+        )
+        == changed
+    )
 
 
 def test_recorded_panel_binding_ref_kind_is_consumed(recorded_panel_owner):
@@ -323,17 +420,25 @@ def test_recorded_panel_binding_ref_kind_is_consumed(recorded_panel_owner):
         owner.verify_recorded_panel_method_input(store=store, binding_receipt_ref=wrong_ref)
 
 
-def test_recorded_panel_registered_method_does_not_repeat_discovery(recorded_panel_owner, monkeypatch):
+def test_recorded_panel_registered_method_does_not_repeat_discovery(
+    recorded_panel_owner, monkeypatch
+):
     from polisyos.foundry import methods
 
     owner, store, _, _ = recorded_panel_owner
     _produce_recorded(recorded_panel_owner)
     bootstrap_calls = []
-    monkeypatch.setattr(methods, "ensure_all_methods_registered", lambda: bootstrap_calls.append(True))
+    monkeypatch.setattr(
+        methods, "ensure_all_methods_registered", lambda: bootstrap_calls.append(True)
+    )
     result = _produce_recorded(recorded_panel_owner)
-    assert owner.verify_recorded_panel_method_input(
-        store=store, binding_receipt_ref=result.binding_receipt_ref,
-    ) == result
+    assert (
+        owner.verify_recorded_panel_method_input(
+            store=store,
+            binding_receipt_ref=result.binding_receipt_ref,
+        )
+        == result
+    )
     assert bootstrap_calls == []
 
 
@@ -348,37 +453,59 @@ def test_recorded_panel_receipt_manifest_has_observation_ancestry(recorded_panel
 
 @pytest.mark.parametrize("wrong_schema_artifact", ["root", "receipt"])
 def test_recorded_panel_actual_manifest_schema_is_consumed(
-    recorded_panel_owner, tmp_path, wrong_schema_artifact,
+    recorded_panel_owner,
+    tmp_path,
+    wrong_schema_artifact,
 ):
     from polisyos.core import artifacts, canon
 
     owner, original_store, _, _ = recorded_panel_owner
     result = _produce_recorded(recorded_panel_owner)
     alternate_store = artifacts.FileSystemCAS(tmp_path / "wrong-schema-cas")
-    alternate_store.put_json(canon.from_canonical_bytes(
-        original_store.get_bytes(result.observational_data_ref.artifact_id)
-    ), artifacts.PutOptions(
-        kind=result.observational_data_ref.kind, media_type="application/json",
-        schema=artifacts.SchemaInfo(
-            name=("unrelated.schema.v1" if wrong_schema_artifact == "root"
-                  else owner.WORKSPACE_RECORDED_PANEL_SCHEMA_VERSION), version="3.0",
+    alternate_store.put_json(
+        canon.from_canonical_bytes(
+            original_store.get_bytes(result.observational_data_ref.artifact_id)
         ),
-    ), canon_spec=canon.CanonSpec(forbid_floats=False))
-    receipt_ref = alternate_store.put_json(result.receipt.model_dump(mode="json"),
         artifacts.PutOptions(
-            kind=result.binding_receipt_ref.kind, media_type="application/json",
+            kind=result.observational_data_ref.kind,
+            media_type="application/json",
             schema=artifacts.SchemaInfo(
-                name=("unrelated.schema.v1" if wrong_schema_artifact == "receipt"
-                      else owner.RECORDED_PANEL_BINDING_SCHEMA_VERSION), version="2.0",
+                name=(
+                    "unrelated.schema.v1"
+                    if wrong_schema_artifact == "root"
+                    else owner.WORKSPACE_RECORDED_PANEL_SCHEMA_VERSION
+                ),
+                version="3.0",
             ),
-            inputs=[artifacts.InputRef(
-                artifact_id=result.observational_data_ref.artifact_id, role="observational_data",
-            )],
-        ), canon_spec=canon.CanonSpec(forbid_floats=False),
+        ),
+        canon_spec=canon.CanonSpec(forbid_floats=False),
+    )
+    receipt_ref = alternate_store.put_json(
+        result.receipt.model_dump(mode="json"),
+        artifacts.PutOptions(
+            kind=result.binding_receipt_ref.kind,
+            media_type="application/json",
+            schema=artifacts.SchemaInfo(
+                name=(
+                    "unrelated.schema.v1"
+                    if wrong_schema_artifact == "receipt"
+                    else owner.RECORDED_PANEL_BINDING_SCHEMA_VERSION
+                ),
+                version="2.0",
+            ),
+            inputs=[
+                artifacts.InputRef(
+                    artifact_id=result.observational_data_ref.artifact_id,
+                    role="observational_data",
+                )
+            ],
+        ),
+        canon_spec=canon.CanonSpec(forbid_floats=False),
     )
     with pytest.raises(owner.MeasurementRootBindingError, match="artifact_identity_mismatch"):
         owner.verify_recorded_panel_method_input(
-            store=alternate_store, binding_receipt_ref=receipt_ref,
+            store=alternate_store,
+            binding_receipt_ref=receipt_ref,
         )
 
 
@@ -392,40 +519,62 @@ def test_recorded_panel_fabricated_values_are_refused_with_all_markers(recorded_
     )
     fabricated["contract_payload"]["outcome"][0][0] = 987654.0
     root_manifest = store.get_manifest(original.observational_data_ref.artifact_id)
-    fake_ref = store.put_json(fabricated, artifacts.PutOptions(
-        kind=original.observational_data_ref.kind, media_type="application/json",
-        schema=root_manifest.artifact_schema, producer=root_manifest.producer,
-    ), canon_spec=canon.CanonSpec(forbid_floats=False))
+    fake_ref = store.put_json(
+        fabricated,
+        artifacts.PutOptions(
+            kind=original.observational_data_ref.kind,
+            media_type="application/json",
+            schema=root_manifest.artifact_schema,
+            producer=root_manifest.producer,
+        ),
+        canon_spec=canon.CanonSpec(forbid_floats=False),
+    )
     receipt = original.receipt.model_dump(mode="json")
     receipt["observational_data_ref"] = fake_ref.model_dump(mode="json")
     receipt_manifest = store.get_manifest(original.binding_receipt_ref.artifact_id)
-    fake_receipt_ref = store.put_json(receipt, artifacts.PutOptions(
-        kind=original.binding_receipt_ref.kind, media_type="application/json",
-        schema=receipt_manifest.artifact_schema, producer=receipt_manifest.producer,
-        inputs=[artifacts.InputRef(artifact_id=fake_ref.artifact_id, role="observational_data")],
-    ), canon_spec=canon.CanonSpec(forbid_floats=False))
+    fake_receipt_ref = store.put_json(
+        receipt,
+        artifacts.PutOptions(
+            kind=original.binding_receipt_ref.kind,
+            media_type="application/json",
+            schema=receipt_manifest.artifact_schema,
+            producer=receipt_manifest.producer,
+            inputs=[
+                artifacts.InputRef(artifact_id=fake_ref.artifact_id, role="observational_data")
+            ],
+        ),
+        canon_spec=canon.CanonSpec(forbid_floats=False),
+    )
     with pytest.raises(owner.MeasurementRootBindingError, match="extraction_mismatch"):
         owner.verify_recorded_panel_method_input(store=store, binding_receipt_ref=fake_receipt_ref)
 
 
-def test_recorded_panel_novel_entities_and_unknown_owner_fail_closed(recorded_panel_owner, tmp_path):
+def test_recorded_panel_novel_entities_and_unknown_owner_fail_closed(
+    recorded_panel_owner, tmp_path
+):
     owner, store, parquet, manifest = recorded_panel_owner
     recipe = _recorded_recipe(owner).model_copy(update={"entity_ids": ("absent", "beta", "gamma")})
     with pytest.raises(owner.MeasurementRootBindingError, match="incomplete_recorded_panel"):
         owner.produce_recorded_panel_method_input(
-            store=store, method_fqn="causal.inference.synthetic_control@2.0.0", recipe=recipe,
+            store=store,
+            method_fqn="causal.inference.synthetic_control@2.0.0",
+            recipe=recipe,
         )
     counterfeit = tmp_path / "counterfeit"
     counterfeit.mkdir()
     (counterfeit / parquet.name).write_bytes(parquet.read_bytes())
     (counterfeit / manifest.name).write_bytes(manifest.read_bytes())
-    with pytest.raises(owner.MeasurementRootBindingError, match="unrecognized_recorded_source_owner"):
+    with pytest.raises(
+        owner.MeasurementRootBindingError, match="unrecognized_recorded_source_owner"
+    ):
         owner.produce_recorded_panel_method_input(
-            store=store, method_fqn="causal.inference.synthetic_control@2.0.0",
+            store=store,
+            method_fqn="causal.inference.synthetic_control@2.0.0",
             source=owner.RecordedPanelSource(
                 parquet_path=counterfeit / parquet.name,
                 manifest_path=counterfeit / manifest.name,
-            ), recipe=_recorded_recipe(owner),
+            ),
+            recipe=_recorded_recipe(owner),
         )
 
 
@@ -541,9 +690,7 @@ def test_data_forge_snapshot_binding_covers_required_read_api_surfaces() -> None
         "claim_requirement_binding_count": 4,
         "issue_count": 0,
     }
-    surfaces = {
-        binding["role"]: binding["read_api_surface"] for binding in report["bindings"]
-    }
+    surfaces = {binding["role"]: binding["read_api_surface"] for binding in report["bindings"]}
     assert surfaces == {
         "legal": "legal",
         "catalog": "catalog",
@@ -551,8 +698,7 @@ def test_data_forge_snapshot_binding_covers_required_read_api_surfaces() -> None
         "domain": "ukraine",
     }
     assert all(
-        binding["manifest_artifact_id"].startswith("sha256:")
-        for binding in report["bindings"]
+        binding["manifest_artifact_id"].startswith("sha256:") for binding in report["bindings"]
     )
     assert all(binding["release_id"] for binding in report["bindings"])
     assert all(binding["merkle_root"] for binding in report["bindings"])
@@ -774,9 +920,7 @@ def test_data_forge_finalize_emits_official_binding_consumed_by_runtime(tmp_path
     )
 
     assert report["status"] == "pass"
-    assert {
-        binding["role"]: binding["read_api_surface"] for binding in report["bindings"]
-    } == {
+    assert {binding["role"]: binding["read_api_surface"] for binding in report["bindings"]} == {
         "legal": "legal",
         "catalog": "catalog",
         "academic": "academic",
@@ -855,11 +999,7 @@ def test_serious_scorecard_uses_data_forge_snapshot_binding_gate() -> None:
 
 
 def _issue_codes(report: dict[str, object]) -> set[str]:
-    return {
-        str(issue["code"])
-        for issue in report.get("issues", [])
-        if isinstance(issue, dict)
-    }
+    return {str(issue["code"]) for issue in report.get("issues", []) if isinstance(issue, dict)}
 
 
 def _blocking_codes(scorecard: dict[str, object]) -> set[str]:
@@ -914,7 +1054,10 @@ def test_recorded_extraction_preserves_exact_sum_across_all_row_permutations(
             connection.execute("COPY observations TO ? (FORMAT PARQUET)", [str(parquet)])
         source_hash = hashlib.sha256(parquet.read_bytes()).hexdigest()
         actual = owner._extract_recorded_panel_rows.__wrapped__(
-            str(parquet), source_hash, "controlled-direct-extraction", recipe.model_dump_json(),
+            str(parquet),
+            source_hash,
+            "controlled-direct-extraction",
+            recipe.model_dump_json(),
         )
         observations.append((ordered, actual))
     assert len(observations) == math.factorial(len(values))

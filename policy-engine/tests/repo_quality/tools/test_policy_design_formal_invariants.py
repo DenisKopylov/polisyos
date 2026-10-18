@@ -48,9 +48,7 @@ def test_policy_design_formal_invariant_specs_reject_missing_evidence_artifact()
     validation = validate_formal_invariant_specs_payload(mutated, repo_root=REPO_ROOT)
 
     assert validation.status == "fail"
-    assert "formal_invariant_list_field_empty" in {
-        issue.code for issue in validation.issues
-    }
+    assert "formal_invariant_list_field_empty" in {issue.code for issue in validation.issues}
 
 
 def test_policy_design_formal_invariant_cli_fails_incomplete_registry(
@@ -58,9 +56,7 @@ def test_policy_design_formal_invariant_cli_fails_incomplete_registry(
 ) -> None:
     payload = _actual_payload()
     mutated = copy.deepcopy(payload)
-    mutated["specs"] = [
-        row for row in mutated["specs"] if row["spec_id"] != "authority_ordering"
-    ]
+    mutated["specs"] = [row for row in mutated["specs"] if row["spec_id"] != "authority_ordering"]
     registry = tmp_path / "formal_invariant_specs.toml"
     registry.write_text(_toml_specs(mutated["specs"]), encoding="utf-8")
 

@@ -477,9 +477,7 @@ def validate_ex_post_learning_record(
         )
     normalized["claim_prediction_links"] = links
     normalized["calibration"] = _validate_calibration(record.get("calibration"))
-    normalized["learning_records"] = _validate_learning_records(
-        record.get("learning_records")
-    )
+    normalized["learning_records"] = _validate_learning_records(record.get("learning_records"))
     normalized["memory_contamination_check"] = _validate_memory_contamination_check(
         record.get("memory_contamination_check"),
         learning_records=normalized["learning_records"],
@@ -591,17 +589,14 @@ def build_lifecycle_reissue_report(
         generated_at=generated,
         rule_evolution_replay_context=rule_evolution_replay_context,
     )
-    report_ref = (
-        _text(evidence_ref)
-        or _stable_ref(
-            {
-                "report_id": report_id,
-                "case_id": case_id,
-                "claim_ids": known_claim_ids,
-                "event_impacts": impacts,
-                "public_revision_state": public_revision_state,
-            }
-        )
+    report_ref = _text(evidence_ref) or _stable_ref(
+        {
+            "report_id": report_id,
+            "case_id": case_id,
+            "claim_ids": known_claim_ids,
+            "event_impacts": impacts,
+            "public_revision_state": public_revision_state,
+        }
     )
     report_id_text = _required_text(
         report_id,
@@ -609,8 +604,7 @@ def build_lifecycle_reissue_report(
         "policy_design_lifecycle_reissue_report_id_missing",
     )
     event_ref = (
-        _text(runtime_event_ref)
-        or f"event://policy-design-case/lifecycle-reissue/{report_id_text}"
+        _text(runtime_event_ref) or f"event://policy-design-case/lifecycle-reissue/{report_id_text}"
     )
     payload = {
         "schema_version": LIFECYCLE_REISSUE_REPORT_SCHEMA_VERSION,
@@ -941,8 +935,7 @@ def _state_is_stale(current_state: str, events: Iterable[Mapping[str, Any]]) -> 
     if current_state == "stale":
         return True
     return any(
-        _text(event.get("event_type")) == "stale"
-        or _text(event.get("new_state")) == "stale"
+        _text(event.get("event_type")) == "stale" or _text(event.get("new_state")) == "stale"
         for event in events
     )
 
@@ -956,8 +949,7 @@ def _has_stale_resolution(
     stale_indexes = [
         index
         for index, event in enumerate(ordered_events)
-        if _text(event.get("event_type")) == "stale"
-        or _text(event.get("new_state")) == "stale"
+        if _text(event.get("event_type")) == "stale" or _text(event.get("new_state")) == "stale"
     ]
     last_stale_index = max(stale_indexes, default=-1)
     for index, event in enumerate(ordered_events):
@@ -1323,8 +1315,7 @@ def _event_lifecycle_impact(
             _lifecycle_reissue_issue(
                 code="policy_design_lifecycle_event_unknown_claim_scope",
                 message=(
-                    "Lifecycle event references claim ids outside the closed case "
-                    "revision scope."
+                    "Lifecycle event references claim ids outside the closed case revision scope."
                 ),
                 field="affected_claim_ids",
                 event_id=event_id,
@@ -1393,18 +1384,15 @@ def _rule_evolution_lifecycle_impact(
         claim_ids=claim_ids,
     )
     event = {
-        "event_id": "rule-evolution:" + (
-            _text(replay_context.get("current_rule_registry_version")) or "current"
-        ),
+        "event_id": "rule-evolution:"
+        + (_text(replay_context.get("current_rule_registry_version")) or "current"),
         "event_type": "rule_evolution_semantic_change",
         "affected_claim_ids": claims,
         "reason": "Rule or taxonomy semantics changed; closed case replays under original logic.",
         "evidence_ref": replay_context.get("current_rule_registry_ref"),
         "runtime_event_ref": "event://rule-evolution/public-revalidation",
         "lifecycle_action": "partial_reissue",
-        "closure_time": _first_mapping(replay_context.get("time_roles"), {}).get(
-            "closure_time"
-        )
+        "closure_time": _first_mapping(replay_context.get("time_roles"), {}).get("closure_time")
         if isinstance(replay_context.get("time_roles"), Mapping)
         else None,
         "replay_time": _first_mapping(replay_context.get("time_roles"), {}).get("replay_time")
@@ -1775,8 +1763,7 @@ def _lifecycle_reissue_report_issues(
             PolicyDesignLifecycleIssue(
                 code=str(issue.get("code") or "policy_design_lifecycle_reissue_invalid"),
                 message=str(
-                    issue.get("message")
-                    or "Lifecycle reissue report contains a blocking issue."
+                    issue.get("message") or "Lifecycle reissue report contains a blocking issue."
                 ),
                 field=str(issue.get("field") or "lifecycle_reissue_report"),
                 evidence_ref=_text(issue.get("evidence_ref") or report.get("evidence_ref")),
@@ -1784,8 +1771,7 @@ def _lifecycle_reissue_report_issues(
                 next_action=str(
                     issue.get("next_action")
                     or (
-                        "Resolve scoped lifecycle event mapping before public "
-                        "revision or closeout."
+                        "Resolve scoped lifecycle event mapping before public revision or closeout."
                     )
                 ),
             )
@@ -2027,11 +2013,7 @@ def _text_values(value: object) -> list[str]:
         text = _text(value)
         return [] if text is None else [text]
     if isinstance(value, Mapping):
-        return [
-            text
-            for text in (_text(item) for item in value.values())
-            if text is not None
-        ]
+        return [text for text in (_text(item) for item in value.values()) if text is not None]
     if isinstance(value, Iterable):
         return [text for text in (_text(item) for item in value) if text is not None]
     return []

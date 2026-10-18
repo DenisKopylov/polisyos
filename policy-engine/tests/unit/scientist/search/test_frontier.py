@@ -38,9 +38,7 @@ def test_policy_candidate_hash_preserves_semantic_dates() -> None:
     base = {
         "candidate_id": "policy-a",
         "semantic": {
-            "interventions": [
-                {"target": "households", "starts_at": "2026-04-11T10:00:00Z"}
-            ]
+            "interventions": [{"target": "households", "starts_at": "2026-04-11T10:00:00Z"}]
         },
         "_strategy_metadata": {
             "trace_id": "trace-1",
@@ -57,9 +55,7 @@ def test_policy_candidate_hash_preserves_semantic_dates() -> None:
     changed_subject_matter = {
         **same_semantic_input,
         "semantic": {
-            "interventions": [
-                {"target": "households", "starts_at": "2026-04-12T10:00:00Z"}
-            ]
+            "interventions": [{"target": "households", "starts_at": "2026-04-12T10:00:00Z"}]
         },
     }
 

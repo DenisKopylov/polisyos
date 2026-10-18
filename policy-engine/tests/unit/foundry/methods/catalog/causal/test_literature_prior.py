@@ -97,9 +97,7 @@ def test_build_literature_prior_withholds_declared_historical_confidence(
     _seed_skg_db(db_path)
     with db_path.open("rb") as source:
         digest = hashlib.file_digest(source, "sha256").hexdigest()
-    monkeypatch.setattr(
-        skg_versioning, "_HISTORICAL_SNAPSHOT_SHA256", digest, raising=False
-    )
+    monkeypatch.setattr(skg_versioning, "_HISTORICAL_SNAPSHOT_SHA256", digest, raising=False)
     payload = LiteraturePriorBuildData(
         variables=["tax", "employment"],
         skg_db_path=str(db_path),
@@ -131,8 +129,7 @@ def test_build_literature_prior_decodes_persisted_declared_absence(tmp_path) -> 
     con = duckdb.connect(str(db_path))
     try:
         con.execute(
-            "UPDATE ac_skg_edges SET evidence_strength = 'not_established' "
-            "WHERE edge_id = 'e1'"
+            "UPDATE ac_skg_edges SET evidence_strength = 'not_established' WHERE edge_id = 'e1'"
         )
     finally:
         con.close()

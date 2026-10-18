@@ -55,8 +55,10 @@ def test_zero_effective_support_has_finite_primal_and_reverse_gradient() -> None
     weights = jnp.zeros_like(pointwise)
 
     loss = reduce_weighted_loss(pointwise, weights)
+
     def objective(value):
         return reduce_weighted_loss(value**2, weights)
+
     value = jnp.asarray([1.0, 2.0], dtype=jnp.float32)
     gradient = jax.grad(objective)(value)
     jitted_loss = jax.jit(objective)(value)

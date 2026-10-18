@@ -22,20 +22,109 @@ def _make_v1_db(tmp_path, *, duplicate: bool = False):
     path = tmp_path / "claims.duckdb"
     con = duckdb.connect(str(path))
     con.execute("CREATE TABLE ac_works (id VARCHAR PRIMARY KEY, title VARCHAR, year INTEGER)")
-    con.execute("CREATE TABLE ac_causal_claims_raw (id VARCHAR PRIMARY KEY, work_id VARCHAR NOT NULL, cause VARCHAR NOT NULL, effect VARCHAR NOT NULL, direction VARCHAR, strength VARCHAR, claim_text VARCHAR, claim_explicitness VARCHAR, design_family_hint VARCHAR, source_basis VARCHAR, claim_extraction_confidence FLOAT DEFAULT 0.0, strong_design_evidence BOOLEAN DEFAULT FALSE, design_quality_tier INTEGER, publish_to_graph BOOLEAN DEFAULT FALSE, publish_blockers VARCHAR DEFAULT '', span_contamination_detected BOOLEAN DEFAULT FALSE, mechanism VARCHAR, domain VARCHAR, trust_score FLOAT DEFAULT 0.0)")
-    con.execute("CREATE TABLE ac_causal_claims (id VARCHAR PRIMARY KEY, work_id VARCHAR NOT NULL, cause VARCHAR NOT NULL, effect VARCHAR NOT NULL, direction VARCHAR, strength VARCHAR, design_family_hint VARCHAR, claim_extraction_confidence FLOAT DEFAULT 0.0, strong_design_evidence BOOLEAN DEFAULT FALSE, design_quality_tier INTEGER, publish_blockers VARCHAR DEFAULT '', candidate_layer VARCHAR DEFAULT 'candidate', mechanism VARCHAR, domain VARCHAR, trust_score FLOAT DEFAULT 0.0)")
+    con.execute(
+        "CREATE TABLE ac_causal_claims_raw (id VARCHAR PRIMARY KEY, work_id VARCHAR NOT NULL, cause VARCHAR NOT NULL, effect VARCHAR NOT NULL, direction VARCHAR, strength VARCHAR, claim_text VARCHAR, claim_explicitness VARCHAR, design_family_hint VARCHAR, source_basis VARCHAR, claim_extraction_confidence FLOAT DEFAULT 0.0, strong_design_evidence BOOLEAN DEFAULT FALSE, design_quality_tier INTEGER, publish_to_graph BOOLEAN DEFAULT FALSE, publish_blockers VARCHAR DEFAULT '', span_contamination_detected BOOLEAN DEFAULT FALSE, mechanism VARCHAR, domain VARCHAR, trust_score FLOAT DEFAULT 0.0)"
+    )
+    con.execute(
+        "CREATE TABLE ac_causal_claims (id VARCHAR PRIMARY KEY, work_id VARCHAR NOT NULL, cause VARCHAR NOT NULL, effect VARCHAR NOT NULL, direction VARCHAR, strength VARCHAR, design_family_hint VARCHAR, claim_extraction_confidence FLOAT DEFAULT 0.0, strong_design_evidence BOOLEAN DEFAULT FALSE, design_quality_tier INTEGER, publish_blockers VARCHAR DEFAULT '', candidate_layer VARCHAR DEFAULT 'candidate', mechanism VARCHAR, domain VARCHAR, trust_score FLOAT DEFAULT 0.0)"
+    )
     con.execute("INSERT INTO ac_works VALUES ('w1', 'Work 1', 2024), ('w2', 'Work 2', 2023)")
     rows = [
-        ('c1', 'w1', 'cause', 'effect', 'positive', 'moderate', 'text', 'explicit', 'rct', 'fulltext', 0.91, True, 1, True, '', False, 'm', 'd', 0.8),
-        ('c2', 'w2', 'cause', 'effect', 'negative', 'rct', 'text', 'explicit', 'theoretical', 'abstract_only', 0.42, False, 4, False, 'blocked', False, 'm2', 'd', 0.4),
-        ('c3', 'w1', 'cause2', 'effect2', 'mixed', 'observational', '', '', '', '', 0.0, False, None, False, '', False, '', '', 0.2),
+        (
+            "c1",
+            "w1",
+            "cause",
+            "effect",
+            "positive",
+            "moderate",
+            "text",
+            "explicit",
+            "rct",
+            "fulltext",
+            0.91,
+            True,
+            1,
+            True,
+            "",
+            False,
+            "m",
+            "d",
+            0.8,
+        ),
+        (
+            "c2",
+            "w2",
+            "cause",
+            "effect",
+            "negative",
+            "rct",
+            "text",
+            "explicit",
+            "theoretical",
+            "abstract_only",
+            0.42,
+            False,
+            4,
+            False,
+            "blocked",
+            False,
+            "m2",
+            "d",
+            0.4,
+        ),
+        (
+            "c3",
+            "w1",
+            "cause2",
+            "effect2",
+            "mixed",
+            "observational",
+            "",
+            "",
+            "",
+            "",
+            0.0,
+            False,
+            None,
+            False,
+            "",
+            False,
+            "",
+            "",
+            0.2,
+        ),
     ]
-    con.executemany("INSERT INTO ac_causal_claims_raw VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", rows)
-    con.executemany("INSERT INTO ac_causal_claims VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [
-        (r[0], r[1], r[2], r[3], r[4], r[5], r[8], r[10], r[11], r[12], r[14], 'candidate', r[16], r[17], r[18]) for r in rows[:2]
-    ])
+    con.executemany(
+        "INSERT INTO ac_causal_claims_raw VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        rows,
+    )
+    con.executemany(
+        "INSERT INTO ac_causal_claims VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        [
+            (
+                r[0],
+                r[1],
+                r[2],
+                r[3],
+                r[4],
+                r[5],
+                r[8],
+                r[10],
+                r[11],
+                r[12],
+                r[14],
+                "candidate",
+                r[16],
+                r[17],
+                r[18],
+            )
+            for r in rows[:2]
+        ],
+    )
     if duplicate:
-        con.execute("CREATE TABLE duplicate_raw (id VARCHAR, work_id VARCHAR, cause VARCHAR, effect VARCHAR, strength VARCHAR)")
+        con.execute(
+            "CREATE TABLE duplicate_raw (id VARCHAR, work_id VARCHAR, cause VARCHAR, effect VARCHAR, strength VARCHAR)"
+        )
     con.close()
     return path
 
@@ -91,7 +180,9 @@ def _make_v2_raw_db(tmp_path):
     return path
 
 
-@pytest.mark.parametrize("label", ["moderate", "rct", "theoretical", "observational", "", " malformed ", "future"])
+@pytest.mark.parametrize(
+    "label", ["moderate", "rct", "theoretical", "observational", "", " malformed ", "future"]
+)
 def test_legacy_claim_projection_keeps_generic_strength_audit_only(tmp_path, label):
     path = _make_v1_db(tmp_path)
     con = duckdb.connect(str(path))
@@ -159,23 +250,27 @@ def test_explicit_v2_future_or_value_status_mismatch_fails_typed(
 
 def test_causal_claim_result_v2_forbids_strength():
     with pytest.raises(ValidationError, match="strength"):
-        CausalClaimResultV2.model_validate({
-            "id": "c",
-            "cause": "a",
-            "effect": "b",
-            "projection_binding": {
-                "projection_rule_version": "policyos.academic.claim-vocabulary-projection.v2",
-                "subject_kind": "claim_row",
-                "source_rows": [{
-                    "source_table": "ac_causal_claims",
-                    "source_schema_version": "legacy_v1",
-                    "source_identity": "c",
-                    "source_row_sha256": "0" * 64,
-                }],
-                "projected_vocabulary_sha256": "1" * 64,
-            },
-            "strength": "moderate",
-        })
+        CausalClaimResultV2.model_validate(
+            {
+                "id": "c",
+                "cause": "a",
+                "effect": "b",
+                "projection_binding": {
+                    "projection_rule_version": "policyos.academic.claim-vocabulary-projection.v2",
+                    "subject_kind": "claim_row",
+                    "source_rows": [
+                        {
+                            "source_table": "ac_causal_claims",
+                            "source_schema_version": "legacy_v1",
+                            "source_identity": "c",
+                            "source_row_sha256": "0" * 64,
+                        }
+                    ],
+                    "projected_vocabulary_sha256": "1" * 64,
+                },
+                "strength": "moderate",
+            }
+        )
 
 
 def test_deprecated_v1_audit_always_returns_strength_none_with_limitation(tmp_path):
@@ -344,7 +439,9 @@ def test_filtered_legacy_audit_rejects_duplicate_full_relation_before_empty_cand
 def test_partial_or_future_claim_table_schema_fails_typed(tmp_path):
     path = _make_v1_db(tmp_path)
     con = duckdb.connect(str(path))
-    con.execute("ALTER TABLE ac_causal_claims_raw ADD COLUMN claim_vocabulary_schema_version VARCHAR")
+    con.execute(
+        "ALTER TABLE ac_causal_claims_raw ADD COLUMN claim_vocabulary_schema_version VARCHAR"
+    )
     con.close()
     with pytest.raises(ClaimTableSchemaError):
         ScholarKnowledgeStore(path, tmp_path).audit_claim_lineage()
@@ -367,9 +464,7 @@ def test_filtered_v2_audit_cannot_hide_invalid_rows(tmp_path, assignment):
     con.close()
 
     with pytest.raises(ClaimTableSchemaError, match="invalid explicit_v2 row"):
-        ScholarKnowledgeStore(path, tmp_path).audit_claim_lineage(
-            status="not_established"
-        )
+        ScholarKnowledgeStore(path, tmp_path).audit_claim_lineage(status="not_established")
 
 
 def test_projection_binding_rejects_non_sha256_digests():
@@ -378,12 +473,14 @@ def test_projection_binding_rejects_non_sha256_digests():
             {
                 "projection_rule_version": "policyos.academic.claim-vocabulary-projection.v2",
                 "subject_kind": "claim_row",
-                "source_rows": [{
-                    "source_table": "ac_causal_claims",
-                    "source_schema_version": "legacy_v1",
-                    "source_identity": "c1",
-                    "source_row_sha256": "not-a-sha256" + "0" * 53,
-                }],
+                "source_rows": [
+                    {
+                        "source_table": "ac_causal_claims",
+                        "source_schema_version": "legacy_v1",
+                        "source_identity": "c1",
+                        "source_row_sha256": "not-a-sha256" + "0" * 53,
+                    }
+                ],
                 "projected_vocabulary_sha256": "f" * 64,
             }
         )
@@ -413,10 +510,7 @@ def test_projection_binding_distinguishes_physical_and_projected_mutations(tmp_p
         operational_change.source_rows[0].source_row_sha256
         != original.source_rows[0].source_row_sha256
     )
-    assert (
-        operational_change.projected_vocabulary_sha256
-        == original.projected_vocabulary_sha256
-    )
+    assert operational_change.projected_vocabulary_sha256 == original.projected_vocabulary_sha256
 
     con = duckdb.connect(str(path))
     con.execute("UPDATE ac_causal_claims SET strength = 'future-label' WHERE id = 'c1'")
@@ -436,7 +530,9 @@ def test_projection_binding_distinguishes_physical_and_projected_mutations(tmp_p
 def test_edge_projection_binds_physical_row_and_rejects_forged_source_bytes(tmp_path):
     path = tmp_path / "edges.duckdb"
     con = duckdb.connect(str(path))
-    con.execute("CREATE TABLE ac_skg_edges (edge_id VARCHAR PRIMARY KEY, src VARCHAR, dst VARCHAR, direction VARCHAR, evidence_strength VARCHAR, confidence FLOAT)")
+    con.execute(
+        "CREATE TABLE ac_skg_edges (edge_id VARCHAR PRIMARY KEY, src VARCHAR, dst VARCHAR, direction VARCHAR, evidence_strength VARCHAR, confidence FLOAT)"
+    )
     con.execute("INSERT INTO ac_skg_edges VALUES ('e1', 'a', 'b', 'positive', 'rct', 0.9)")
     con.close()
     store = ScholarKnowledgeStore(path, tmp_path)
@@ -463,10 +559,15 @@ def test_streaming_projection_matches_normal_reader_work_enrichment(tmp_path):
     assert [(item.id, item.work_title, item.work_year) for item in streamed] == [
         (item.id, item.work_title, item.work_year) for item in normal
     ]
-    assert streamed[0].projection_binding.source_rows[0].source_row_sha256 == normal[0].projection_binding.source_rows[0].source_row_sha256
+    assert (
+        streamed[0].projection_binding.source_rows[0].source_row_sha256
+        == normal[0].projection_binding.source_rows[0].source_row_sha256
+    )
 
 
-@pytest.mark.parametrize("encoded", ['["review", "missing_basis"]', "review,missing_basis", "review; missing_basis"])
+@pytest.mark.parametrize(
+    "encoded", ['["review", "missing_basis"]', "review,missing_basis", "review; missing_basis"]
+)
 def test_store_preserves_operational_blocker_encodings(tmp_path, encoded):
     path = _make_v1_db(tmp_path)
     con = duckdb.connect(str(path))
@@ -503,7 +604,9 @@ def test_edge_projection_rejects_semantics_that_do_not_match_physical_row(tmp_pa
         "CREATE TABLE ac_skg_edges (edge_id VARCHAR PRIMARY KEY, src VARCHAR, dst VARCHAR, "
         "direction VARCHAR, evidence_strength VARCHAR, confidence FLOAT)"
     )
-    con.execute("INSERT INTO ac_skg_edges VALUES ('e1', 'physical-a', 'physical-b', 'negative', 'rct', 0.9)")
+    con.execute(
+        "INSERT INTO ac_skg_edges VALUES ('e1', 'physical-a', 'physical-b', 'negative', 'rct', 0.9)"
+    )
     con.close()
 
     store = ScholarKnowledgeStore(path, tmp_path)
@@ -572,10 +675,7 @@ def test_edge_projection_preserves_explicit_theoretical_evidence(tmp_path):
         "CREATE TABLE ac_skg_edges (edge_id VARCHAR PRIMARY KEY, src VARCHAR, dst VARCHAR, "
         "direction VARCHAR, evidence_strength VARCHAR, confidence FLOAT)"
     )
-    con.execute(
-        "INSERT INTO ac_skg_edges VALUES "
-        "('e1', 'a', 'b', 'positive', 'theoretical', 0.4)"
-    )
+    con.execute("INSERT INTO ac_skg_edges VALUES ('e1', 'a', 'b', 'positive', 'theoretical', 0.4)")
     con.close()
 
     projected = ScholarKnowledgeStore(path, tmp_path).project_edge_summary(

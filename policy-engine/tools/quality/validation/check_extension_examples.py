@@ -205,9 +205,7 @@ def _validate_entry_point_coverage(repo_root: Path, examples: Sequence[ExampleSp
             contract_groups.add(group)
         legacy_groups = row.get("legacy_entry_point_groups", [])
         if isinstance(legacy_groups, list):
-            contract_groups.update(
-                str(item).strip() for item in legacy_groups if str(item).strip()
-            )
+            contract_groups.update(str(item).strip() for item in legacy_groups if str(item).strip())
 
     errors: list[str] = []
     for group in sorted(project_entry_points):

@@ -10,9 +10,7 @@ from polisyos.data_forge.read_api import normalize_privacy_compliance_report
 PRIVACY_COMPLIANCE_REPORT_KEY = "privacy_compliance_report"
 PRIVACY_COMPLIANCE_REPORT_FILENAME = "privacy_compliance_report.json"
 PRIVACY_COMPLIANCE_REPORT_REF_KEY = "privacy_compliance_report_ref"
-PRIVACY_COMPLIANCE_REPORT_EVIDENCE_REF = (
-    f"quality_evidence/{PRIVACY_COMPLIANCE_REPORT_FILENAME}"
-)
+PRIVACY_COMPLIANCE_REPORT_EVIDENCE_REF = f"quality_evidence/{PRIVACY_COMPLIANCE_REPORT_FILENAME}"
 
 
 def normalize_runtime_privacy_compliance_report(report: Mapping[str, Any]) -> dict[str, Any]:
@@ -28,17 +26,9 @@ def privacy_compliance_gate_details(report: Any) -> dict[str, Any] | None:
         return None
     normalized = normalize_runtime_privacy_compliance_report(report)
     status = str(normalized.get("status") or "missing").casefold()
-    issues = [
-        dict(issue)
-        for issue in normalized.get("issues", [])
-        if isinstance(issue, Mapping)
-    ]
+    issues = [dict(issue) for issue in normalized.get("issues", []) if isinstance(issue, Mapping)]
     first_blocking = next(
-        (
-            issue
-            for issue in issues
-            if str(issue.get("severity") or "").casefold() == "blocking"
-        ),
+        (issue for issue in issues if str(issue.get("severity") or "").casefold() == "blocking"),
         None,
     )
     first_issue = first_blocking or (issues[0] if issues else None)
@@ -47,9 +37,7 @@ def privacy_compliance_gate_details(report: Any) -> dict[str, Any] | None:
     next_action = None
     if status == "fail":
         code = str(first_issue.get("code") or "privacy_compliance_blocking_failure")
-        message = (
-            "Privacy, licensing, or public-export compliance evidence has blocking issues."
-        )
+        message = "Privacy, licensing, or public-export compliance evidence has blocking issues."
         next_action = str(
             first_issue.get("next_action")
             or "Resolve compliance failures before production artifact publication."

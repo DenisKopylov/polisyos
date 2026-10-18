@@ -120,9 +120,7 @@ def test_materializer_bridges_detector_conflict_to_registry_and_portfolio() -> N
     result = materialize_cross_graph_conflicts(
         _conflicting_profile(),
         run_id="run-w8e",
-        claim_id_by_need_id={
-            "legal_applicability_need:credit_guarantee": ["rec_credit_guarantee"]
-        },
+        claim_id_by_need_id={"legal_applicability_need:credit_guarantee": ["rec_credit_guarantee"]},
         claim_registry=_registry_row(),
         portfolio_designs=[
             {
@@ -202,9 +200,7 @@ def test_construct_conflict_marker_exposes_conflict_class_through_binding_output
     materialized = materialize_cross_graph_conflicts(
         _conflicting_profile(),
         run_id="run-w8e",
-        claim_id_by_need_id={
-            "legal_applicability_need:credit_guarantee": ["rec_credit_guarantee"]
-        },
+        claim_id_by_need_id={"legal_applicability_need:credit_guarantee": ["rec_credit_guarantee"]},
         claim_registry=_registry_row(),
     )
     record = {

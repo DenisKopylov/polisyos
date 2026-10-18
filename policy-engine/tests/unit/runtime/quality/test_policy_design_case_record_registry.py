@@ -402,9 +402,7 @@ def test_substrate_residual_binding_gates_include_phase_28_2_registry_failures()
         if binding["diagnostic_id"] != "PDD-084"
     ]
 
-    gates = pdc.policy_design_case_record_registry_scorecard_gates(
-        registry_payload=payload
-    )
+    gates = pdc.policy_design_case_record_registry_scorecard_gates(registry_payload=payload)
 
     assert "policy_design_case_substrate_residual_binding_missing" in {
         gate["code"] for gate in gates

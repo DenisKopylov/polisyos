@@ -732,9 +732,12 @@ def test_mgraph_internal_profiles_follow_resolved_endpoint_marks(monkeypatch) ->
     reverse_profile = _project_to_base_dag(reverse_stored, reverse_meta)
     assert reverse_profile.graph_type is GraphType.ADMG
     assert admg_ops.extract_directed_edges(reverse_profile) == frozenset({("X", "Y")})
-    assert test_recoverability(
-        query_vars=frozenset({"X"}), graph=reverse_stored, mgraph_meta=reverse_meta
-    ).status is RecoverabilityStatus.RECOVERABLE
+    assert (
+        test_recoverability(
+            query_vars=frozenset({"X"}), graph=reverse_stored, mgraph_meta=reverse_meta
+        ).status
+        is RecoverabilityStatus.RECOVERABLE
+    )
 
     confounded = make_confounded_mcar_mgraph()
     confounded_meta = extract_mgraph_metadata(confounded)
@@ -743,9 +746,12 @@ def test_mgraph_internal_profiles_follow_resolved_endpoint_marks(monkeypatch) ->
     assert admg_ops.extract_bidirected_edges(confounded_profile) == frozenset(
         {frozenset({"X", "Y"})}
     )
-    assert test_recoverability(
-        query_vars=frozenset({"X"}), graph=confounded, mgraph_meta=confounded_meta
-    ).status is RecoverabilityStatus.RECOVERABLE
+    assert (
+        test_recoverability(
+            query_vars=frozenset({"X"}), graph=confounded, mgraph_meta=confounded_meta
+        ).status
+        is RecoverabilityStatus.RECOVERABLE
+    )
 
     # Removing the endpoint-derived type premise routes the same resolved input
     # through the forbidden PAG boundary, which must still refuse it.
@@ -755,9 +761,7 @@ def test_mgraph_internal_profiles_follow_resolved_endpoint_marks(monkeypatch) ->
         lambda _edges: GraphType.PAG,
     )
     with pytest.raises(admg_ops.PartialGraphCompletionSemanticsError):
-        test_recoverability(
-            query_vars=frozenset({"X"}), graph=directed, mgraph_meta=directed_meta
-        )
+        test_recoverability(query_vars=frozenset({"X"}), graph=directed, mgraph_meta=directed_meta)
 
 
 @pytest.mark.parametrize(

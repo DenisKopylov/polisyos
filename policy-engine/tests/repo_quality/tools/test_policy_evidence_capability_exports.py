@@ -14,8 +14,7 @@ from tools.quality.validation import inspect_policy_evidence_capability_index as
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 WAVE12_ARCHIVE_DIFF_PATH = (
-    REPO_ROOT
-    / "architecture/policy_design_case/wave12_capability_graph_archive_diff_manifest.json"
+    REPO_ROOT / "architecture/policy_design_case/wave12_capability_graph_archive_diff_manifest.json"
 )
 
 
@@ -37,9 +36,7 @@ def test_capability_index_exports_dcat_prov_inspection_and_cards(tmp_path: Path)
     dcat_validation = dcat.validate_dcat_export(dcat_payload)
     assert dcat_validation["status"] == "pass", dcat_validation["issues"]
     assert dcat_validation["rdf_graph_triple_count"] > 0
-    assert dcat_validation["dcat_dataset_triple_count"] == _active_capability_count(
-        index_path
-    )
+    assert dcat_validation["dcat_dataset_triple_count"] == _active_capability_count(index_path)
     assert dcat_payload["@type"] == "dcat:Catalog"
     assert "dcat" in dcat_payload["@context"]
     assert len(dcat_payload["dcat:dataset"]) == _active_capability_count(index_path)
@@ -50,9 +47,7 @@ def test_capability_index_exports_dcat_prov_inspection_and_cards(tmp_path: Path)
     prov_validation = prov.validate_prov_turtle(prov_ttl)
     assert prov_validation["status"] == "pass", prov_validation["issues"]
     assert prov_validation["rdf_graph_triple_count"] > 0
-    assert prov_validation["prov_entity_triple_count"] >= _active_capability_count(
-        index_path
-    )
+    assert prov_validation["prov_entity_triple_count"] >= _active_capability_count(index_path)
     assert "prov:Entity" in prov_ttl
     assert "prov:Activity" in prov_ttl
     assert "prov:Agent" in prov_ttl
@@ -102,9 +97,7 @@ def test_prov_validation_rejects_malformed_turtle() -> None:
     validation = prov.validate_prov_turtle("@prefix prov: <http://www.w3.org/ns/prov#> .\n<bad")
 
     assert validation["status"] == "fail"
-    assert {
-        issue["code"] for issue in validation["issues"]
-    } >= {"prov_turtle_parse_error"}
+    assert {issue["code"] for issue in validation["issues"]} >= {"prov_turtle_parse_error"}
 
 
 def test_export_clis_write_phase7_artifacts(tmp_path: Path) -> None:
@@ -119,14 +112,8 @@ def test_export_clis_write_phase7_artifacts(tmp_path: Path) -> None:
 
     assert dcat.main(["--capability-index", str(index_path), "--output", str(dcat_path)]) == 0
     assert prov.main(["--capability-index", str(index_path), "--output", str(prov_path)]) == 0
-    assert (
-        inspect.main(["--capability-index", str(index_path), "--output", str(inspect_path)])
-        == 0
-    )
-    assert (
-        cards.main(["--capability-index", str(index_path), "--output-dir", str(cards_dir)])
-        == 0
-    )
+    assert inspect.main(["--capability-index", str(index_path), "--output", str(inspect_path)]) == 0
+    assert cards.main(["--capability-index", str(index_path), "--output-dir", str(cards_dir)]) == 0
 
     assert json.loads(dcat_path.read_text(encoding="utf-8"))["@type"] == "dcat:Catalog"
     assert "prov:Entity" in prov_path.read_text(encoding="utf-8")
@@ -153,12 +140,13 @@ def test_wave12_capability_graph_archive_diff_manifest_references_required_artif
         "capability_cards",
     ):
         assert refs[key].startswith(("repo://", "artifact://")), key
-    assert "production_data_scenario_contracts_missing" in manifest["baseline_diff"][
-        "removed_generic_blockers"
-    ]
-    assert "w12d_producer_pipeline_blocked" in manifest["baseline_diff"][
-        "replaced_generic_blockers"
-    ]
+    assert (
+        "production_data_scenario_contracts_missing"
+        in manifest["baseline_diff"]["removed_generic_blockers"]
+    )
+    assert (
+        "w12d_producer_pipeline_blocked" in manifest["baseline_diff"]["replaced_generic_blockers"]
+    )
     assert {
         "blocked_acquisition_required",
         "blocked_construct_validity_below_floor",

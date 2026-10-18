@@ -162,51 +162,29 @@ G4_CONFORMANCE_EXPECTED_ISSUE_CODES: dict[str, tuple[str, ...]] = {
         "layer3_g4_grounded_contract_ref_missing",
         "layer3_g4_missing_g1_grounded_source_contract",
     ),
-    "source_design_record_resolution_unresolved": (
-        "layer3_g4_source_design_record_unresolved",
-    ),
-    "source_design_record_digest_missing": (
-        "layer3_g4_source_design_record_digest_missing",
-    ),
-    "dependency_artifact_shape_mismatch": (
-        "layer3_g4_dependency_artifact_shape_mismatch",
-    ),
-    "effect_claim_without_g2_forecast_support": (
-        "layer3_g4_missing_g2_forecast_support",
-    ),
+    "source_design_record_resolution_unresolved": ("layer3_g4_source_design_record_unresolved",),
+    "source_design_record_digest_missing": ("layer3_g4_source_design_record_digest_missing",),
+    "dependency_artifact_shape_mismatch": ("layer3_g4_dependency_artifact_shape_mismatch",),
+    "effect_claim_without_g2_forecast_support": ("layer3_g4_missing_g2_forecast_support",),
     "proof_claim_without_g3_proof_record": ("layer3_g4_missing_g3_proof_record",),
-    "legal_claim_without_gl_legal_authority": (
-        "layer3_g4_missing_gl_legal_authority",
-    ),
+    "legal_claim_without_gl_legal_authority": ("layer3_g4_missing_gl_legal_authority",),
     "missing_a_firewall_ref_promoted": ("layer3_g4_missing_a_firewall_ref",),
-    "gl_reissue_required_promoted": (
-        "layer3_g4_gl_reissue_required_blocks_promotion",
-    ),
+    "gl_reissue_required_promoted": ("layer3_g4_gl_reissue_required_blocks_promotion",),
     "gl_g4_compatibility_gate_overclaimed_as_legal_authority": (
         "layer3_g4_gl_compatibility_gate_overclaimed",
     ),
-    "readiness_summary_only_promoted": (
-        "layer3_g4_readiness_summary_only_promotion",
-    ),
+    "readiness_summary_only_promoted": ("layer3_g4_readiness_summary_only_promotion",),
     "search_ledger_only_promoted": ("layer3_g4_search_ledger_only_promotion",),
     "s7_manifest_only_promoted": ("layer3_g4_s7_manifest_only_human_decision",),
-    "s2_ledger_ref_only_human_decision": (
-        "layer3_g4_s2_ledger_ref_only_human_decision",
-    ),
+    "s2_ledger_ref_only_human_decision": ("layer3_g4_s2_ledger_ref_only_human_decision",),
     "w12d_manifest_only_source_payload": ("layer3_g4_w12d_manifest_only_not_payload",),
-    "source_design_record_ref_only_promoted": (
-        "layer3_g4_source_design_record_payload_ref_only",
-    ),
+    "source_design_record_ref_only_promoted": ("layer3_g4_source_design_record_payload_ref_only",),
     "data_promotion_lane_reused_for_g4": ("layer3_g4_data_promotion_lane_confused",),
     "generated_artifact_promotion_target_reused_for_g4": (
         "layer3_g4_generated_artifact_promotion_target_confused",
     ),
-    "upstream_builder_rerun_in_request_path": (
-        "layer3_g4_upstream_builder_rerun_in_request_path",
-    ),
-    "upstream_may_not_use_for_ignored": (
-        "layer3_g4_upstream_may_not_use_for_ignored",
-    ),
+    "upstream_builder_rerun_in_request_path": ("layer3_g4_upstream_builder_rerun_in_request_path",),
+    "upstream_may_not_use_for_ignored": ("layer3_g4_upstream_may_not_use_for_ignored",),
     "weakest_boundary_ignored": ("layer3_g4_weakest_boundary_ignored",),
     "human_decision_missing_for_high_stakes": (
         "layer3_g4_human_decision_required",
@@ -220,30 +198,18 @@ G4_CONFORMANCE_EXPECTED_ISSUE_CODES: dict[str, tuple[str, ...]] = {
         "layer3_g4_human_decision_overrides_a_incompleteness",
     ),
     "promotion_record_claims_closeout": ("layer3_g4_closeout_authority_leak",),
-    "promotion_record_rewrites_closeout_reader": (
-        "layer3_g4_closeout_reader_rewrite_attempt",
-    ),
-    "promotion_record_claims_pdc_compile_authority": (
-        "layer3_g4_pdc_compile_authority_leak",
-    ),
-    "promotion_record_rewrites_pdc_compiler": (
-        "layer3_g4_pdc_compiler_graph_rewrite_attempt",
-    ),
+    "promotion_record_rewrites_closeout_reader": ("layer3_g4_closeout_reader_rewrite_attempt",),
+    "promotion_record_claims_pdc_compile_authority": ("layer3_g4_pdc_compile_authority_leak",),
+    "promotion_record_rewrites_pdc_compiler": ("layer3_g4_pdc_compiler_graph_rewrite_attempt",),
     "promotion_record_claims_production": ("layer3_g4_production_authority_leak",),
     "promotion_record_claims_publication": ("layer3_g4_publication_authority_leak",),
     "promotion_record_claims_approval": ("layer3_g4_approval_authority_leak",),
     "promotion_record_claims_scorecard": ("layer3_g4_scorecard_authority_leak",),
-    "promotion_record_claims_useful_design_credit": (
-        "layer3_g4_useful_design_credit_leak",
-    ),
-    "promotion_record_incomplete_may_not_use_for": (
-        "layer3_g4_may_not_use_for_incomplete",
-    ),
+    "promotion_record_claims_useful_design_credit": ("layer3_g4_useful_design_credit_leak",),
+    "promotion_record_incomplete_may_not_use_for": ("layer3_g4_may_not_use_for_incomplete",),
     "public_projection_raw_payload_leak": ("layer3_g4_public_raw_payload_leak",),
     "public_export_hook_overclaimed": ("layer3_g4_public_export_hook_overclaimed",),
-    "policy_design_case_projection_authority_leak": (
-        "layer3_g4_policy_projection_authority_leak",
-    ),
+    "policy_design_case_projection_authority_leak": ("layer3_g4_policy_projection_authority_leak",),
     "manifest_runtime_drift": ("layer3_g4_manifest_runtime_drift",),
     "promotion_state_vocab_drops_shadow": (
         "layer3_g4_shared_promotion_state_vocabulary_dropped_shadow",
@@ -261,12 +227,8 @@ POLICY_DESIGN_CASE_DIR = Path("architecture/policy_design_case")
 GENERATED_ARTIFACTS_REF = Path("architecture/generated_artifacts.toml")
 INVENTORY_REF = POLICY_DESIGN_CASE_DIR / "inventory.json"
 G0_READINESS_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g0_readiness_manifest.json"
-G0_DISCOVERY_SEARCH_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_discovery_search_discipline.json"
-)
-G0_ENGINEERING_QUALITY_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_engineering_quality_check.json"
-)
+G0_DISCOVERY_SEARCH_PATH = POLICY_DESIGN_CASE_DIR / "layer3_discovery_search_discipline.json"
+G0_ENGINEERING_QUALITY_PATH = POLICY_DESIGN_CASE_DIR / "layer3_engineering_quality_check.json"
 G1_READINESS_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g1_readiness_manifest.json"
 G2_READINESS_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g2_readiness_manifest.json"
 G3_READINESS_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g3_readiness_manifest.json"
@@ -738,9 +700,7 @@ class Layer3G4WeakestBoundaryComposition(_G4Model):
     """Weakest-boundary composition over upstream contract refs."""
 
     status: Literal["pass", "fail"] = "fail"
-    promotion_state: Literal["governed_promoted", "promotion_blocked"] = (
-        "promotion_blocked"
-    )
+    promotion_state: Literal["governed_promoted", "promotion_blocked"] = "promotion_blocked"
     promotion_scope: dict[str, Any] = Field(default_factory=dict)
     weakest_boundary_reason: str | None = None
     limitation_refs: tuple[str, ...] = Field(default=())
@@ -848,9 +808,9 @@ class Layer3G4PublicExportProjectionRefSurface(_G4Model):
 
     surface_id: str = G4_SURFACE_ID
     projection_mode: str = "projection_only"
-    public_export_hook_status: Literal[
-        "implemented", "out_of_scope_reference_only", "blocked"
-    ] = "out_of_scope_reference_only"
+    public_export_hook_status: Literal["implemented", "out_of_scope_reference_only", "blocked"] = (
+        "out_of_scope_reference_only"
+    )
     public_export_bundle_route_registered: bool = False
     audiences: tuple[str, ...] = ("PUBLIC", "REVIEWER", "EXPERT", "MACHINE")
     PUBLIC: dict[str, Any] = Field(default_factory=dict)
@@ -926,9 +886,7 @@ class Layer3G4Bundle(_G4Model):
     schema_version: str = LAYER3_G4_SCHEMA_VERSION
     rule_version: str = LAYER3_G4_RULE_VERSION
     dependency_readiness_snapshot: Layer3G4DependencyReadinessSnapshot
-    dependency_artifact_shapes: tuple[Layer3G4DependencyArtifactShape, ...] = Field(
-        default=()
-    )
+    dependency_artifact_shapes: tuple[Layer3G4DependencyArtifactShape, ...] = Field(default=())
     naming_collision_guard: Layer3G4NamingCollisionGuard
     promotion_input_set: Layer3G4PromotionInputSet = Field(
         default_factory=Layer3G4PromotionInputSet
@@ -964,9 +922,7 @@ class Layer3G4Bundle(_G4Model):
     public_export_projection_refs: Layer3G4PublicExportProjectionRefSurface = Field(
         default_factory=Layer3G4PublicExportProjectionRefSurface
     )
-    conformance_report: Layer3G4ConformanceReport = Field(
-        default_factory=Layer3G4ConformanceReport
-    )
+    conformance_report: Layer3G4ConformanceReport = Field(default_factory=Layer3G4ConformanceReport)
     performance_contract_report: Layer3G4PerformanceContractReport = Field(
         default_factory=Layer3G4PerformanceContractReport
     )
@@ -1288,9 +1244,7 @@ def load_g4_dependency_artifacts(
     shapes: list[Layer3G4DependencyArtifactShape] = []
     for family in required_families:
         family_key = str(family).lower()
-        for artifact_id, relative_path, key_path in G4_FAMILY_ARTIFACT_SHAPES.get(
-            family_key, ()
-        ):
+        for artifact_id, relative_path, key_path in G4_FAMILY_ARTIFACT_SHAPES.get(family_key, ()):
             path = repo_root / relative_path
             if not path.exists():
                 shapes.append(
@@ -1559,8 +1513,10 @@ def build_g4_grounded_contract_set(
             limitation_refs = _as_str_tuple(row.get("limitation_refs", ()))
             amendment_status = row.get("amendment_lineage_status")
             reference_status = row.get("reference_resolution_status")
-            if limitation_refs or amendment_status == "reissue_required" or reference_status == (
-                "reissue_required"
+            if (
+                limitation_refs
+                or amendment_status == "reissue_required"
+                or reference_status == ("reissue_required")
             ):
                 limited = True
             adapter_admission_refs = _as_str_tuple(
@@ -1584,9 +1540,7 @@ def build_g4_grounded_contract_set(
             evidence_scope = _optional_str(row.get("evidence_scope"))
             if evidence_scope == "fixture_scoped":
                 if "layer3_g4_fixture_scoped_grounding_non_authoritative" not in row_issue_codes:
-                    row_issue_codes.append(
-                        "layer3_g4_fixture_scoped_grounding_non_authoritative"
-                    )
+                    row_issue_codes.append("layer3_g4_fixture_scoped_grounding_non_authoritative")
                 if "layer3_g4_governed_promotion_state" not in may_not_use_for:
                     may_not_use_for.append("layer3_g4_governed_promotion_state")
                 issue_codes.append("layer3_g4_fixture_scoped_grounding_non_authoritative")
@@ -1604,12 +1558,10 @@ def build_g4_grounded_contract_set(
                     ),
                     lineage_refs=_as_str_tuple(row.get("lineage_refs", ())),
                     coverage_refs=_as_str_tuple(
-                        row.get("coverage_refs", ())
-                        or row.get("coverage_period_ref")
+                        row.get("coverage_refs", ()) or row.get("coverage_period_ref")
                     ),
                     freshness_refs=_as_str_tuple(
-                        row.get("freshness_refs", ())
-                        or row.get("freshness_ref")
+                        row.get("freshness_refs", ()) or row.get("freshness_ref")
                     ),
                     a_firewall_refs=_as_str_tuple(row.get("a_firewall_refs", ())),
                     adapter_admission_refs=adapter_admission_refs,
@@ -1640,16 +1592,10 @@ def build_g4_grounded_contract_set(
                     certificate_resolution_refs=_as_str_tuple(
                         row.get("certificate_resolution_refs", ())
                     ),
-                    method_requirement_refs=_as_str_tuple(
-                        row.get("method_requirement_refs", ())
-                    ),
+                    method_requirement_refs=_as_str_tuple(row.get("method_requirement_refs", ())),
                     s6_mandate_refs=_as_str_tuple(row.get("s6_mandate_refs", ())),
-                    s8_value_choice_refs=_as_str_tuple(
-                        row.get("s8_value_choice_refs", ())
-                    ),
-                    s10_prerequisite_refs=_as_str_tuple(
-                        row.get("s10_prerequisite_refs", ())
-                    ),
+                    s8_value_choice_refs=_as_str_tuple(row.get("s8_value_choice_refs", ())),
+                    s10_prerequisite_refs=_as_str_tuple(row.get("s10_prerequisite_refs", ())),
                     s11_predictive_posture_refs=_as_str_tuple(
                         row.get("s11_predictive_posture_refs", ())
                     ),
@@ -1662,9 +1608,7 @@ def build_g4_grounded_contract_set(
                     legal_authority_refs=_as_str_tuple(row.get("legal_authority_refs", ())),
                     mandate_refs=_as_str_tuple(row.get("mandate_refs", ())),
                     threshold_refs=_as_str_tuple(row.get("threshold_refs", ())),
-                    temporal_competence_refs=_as_str_tuple(
-                        row.get("temporal_competence_refs", ())
-                    ),
+                    temporal_competence_refs=_as_str_tuple(row.get("temporal_competence_refs", ())),
                     amendment_lineage_status=(
                         str(amendment_status) if amendment_status is not None else None
                     ),
@@ -1749,12 +1693,7 @@ def _is_required_cross_slice_ref(ref: str) -> bool:
 
 
 def _g4_normalize_binding_selector(value: str | None) -> str:
-    return (
-        str(value or "")
-        .removeprefix("construct:")
-        .removeprefix("source-contract://")
-        .strip()
-    )
+    return str(value or "").removeprefix("construct:").removeprefix("source-contract://").strip()
 
 
 def _contract_refs_by_family(
@@ -1774,20 +1713,25 @@ def _required_families_for_input(
     claim_families = {str(value) for value in scope.get("claim_families", ())}
     if "source_data" in claim_families:
         families.add("g1_source_contract")
-    if (
-        scope.get("requires_causal_or_forecast_authority")
-        or claim_families & {"causal_forecast", "causal", "forecast", "effect"}
-    ):
+    if scope.get("requires_causal_or_forecast_authority") or claim_families & {
+        "causal_forecast",
+        "causal",
+        "forecast",
+        "effect",
+    }:
         families.add("g2_forecast_support")
-    if (
-        scope.get("requires_proof_or_analytics_authority")
-        or claim_families & {"proof_analytics", "proof", "analytics"}
-    ):
+    if scope.get("requires_proof_or_analytics_authority") or claim_families & {
+        "proof_analytics",
+        "proof",
+        "analytics",
+    }:
         families.add("g3_proof_record")
-    if (
-        scope.get("requires_legal_or_mandate_authority")
-        or claim_families & {"legal_mandate", "legal", "mandate", "threshold"}
-    ):
+    if scope.get("requires_legal_or_mandate_authority") or claim_families & {
+        "legal_mandate",
+        "legal",
+        "mandate",
+        "threshold",
+    }:
         families.add("gl_legal_mandate")
     return tuple(sorted(families))
 
@@ -1796,10 +1740,9 @@ def _policy_program_composition_issue_codes(
     requests: Sequence[Mapping[str, Any]],
 ) -> tuple[str, ...]:
     for request in requests:
-        if (
-            _request_targets_policy_program(request)
-            and not _request_has_valid_composition_certificate(request)
-        ):
+        if _request_targets_policy_program(
+            request
+        ) and not _request_has_valid_composition_certificate(request):
             return ("layer3_g4_policy_program_composition_certificate_missing",)
     return ()
 
@@ -1831,8 +1774,7 @@ def _request_targets_policy_program(request: Mapping[str, Any]) -> bool:
 
 def _request_has_valid_composition_certificate(request: Mapping[str, Any]) -> bool:
     return any(
-        resolve_bind_verify(ref, context=_composition_certificate_context(request))
-        is not None
+        resolve_bind_verify(ref, context=_composition_certificate_context(request)) is not None
         for ref in _composition_certificate_refs(request)
     )
 
@@ -1951,14 +1893,12 @@ def _contract_support_issue_codes(
             issues.append("layer3_g4_adapter_conformance_failed")
         if (
             ref.search_recall_status
-            and _status_value(ref.search_recall_status)
-            in G4_SEARCH_HEALTH_BLOCKING_STATUSES
+            and _status_value(ref.search_recall_status) in G4_SEARCH_HEALTH_BLOCKING_STATUSES
         ):
             issues.append("layer3_g4_search_recall_dependency_unhealthy")
         if (
             ref.index_freshness_status
-            and _status_value(ref.index_freshness_status)
-            in G4_INDEX_FRESHNESS_BLOCKING_STATUSES
+            and _status_value(ref.index_freshness_status) in G4_INDEX_FRESHNESS_BLOCKING_STATUSES
         ):
             issues.append("layer3_g4_stale_upstream_index_blocks_promotion")
         if (
@@ -1967,9 +1907,11 @@ def _contract_support_issue_codes(
         ):
             issues.append("layer3_g4_upstream_may_not_use_for_ignored")
 
-    if required_family == "g1_source_contract" and promotion_scope.get(
-        "requires_a_firewall_ref"
-    ) and not any(ref.a_firewall_refs for ref in refs):
+    if (
+        required_family == "g1_source_contract"
+        and promotion_scope.get("requires_a_firewall_ref")
+        and not any(ref.a_firewall_refs for ref in refs)
+    ):
         issues.append("layer3_g4_missing_a_firewall_ref")
     if required_family == "g2_forecast_support":
         if not any(ref.calibration_refs for ref in refs) and not any(
@@ -2037,10 +1979,9 @@ def build_g4_a_completeness_ledger(
                         issue_codes=posture_codes,
                     )
                 )
-        if (
-            _scope_requests_production_strict(promotion_input.promotion_scope)
-            and _refs_have_partial_limitations(contract_set.grounded_contract_refs)
-        ):
+        if _scope_requests_production_strict(
+            promotion_input.promotion_scope
+        ) and _refs_have_partial_limitations(contract_set.grounded_contract_refs):
             issue_codes.append("layer3_g4_partial_evidence_production_strict")
             blocker_refs.append("layer3_g4_partial_evidence_production_strict")
             for claim_ref in promotion_input.claim_refs or ("promotion_scope",):
@@ -2056,8 +1997,7 @@ def build_g4_a_completeness_ledger(
                                     limitation
                                     for ref in contract_set.grounded_contract_refs
                                     for limitation in (
-                                        ref.limitation_refs
-                                        + ref.transport_limitation_refs
+                                        ref.limitation_refs + ref.transport_limitation_refs
                                     )
                                 }
                             )
@@ -2079,9 +2019,7 @@ def build_g4_a_completeness_ledger(
                         {
                             limitation
                             for ref in family_refs
-                            for limitation in (
-                                ref.limitation_refs + ref.transport_limitation_refs
-                            )
+                            for limitation in (ref.limitation_refs + ref.transport_limitation_refs)
                         }
                     )
                 )
@@ -2221,20 +2159,12 @@ def _resolved_s7_payload_issue_codes(
 
     record_payload = _record_payload_from_decision_wrapper(payload)
     if record_payload is None:
-        return tuple(
-            dict.fromkeys(
-                (*issue_codes, "layer3_g4_p26_responsibility_integrity_failed")
-            )
-        )
+        return tuple(dict.fromkeys((*issue_codes, "layer3_g4_p26_responsibility_integrity_failed")))
 
     try:
         record = HumanDecisionRecord.model_validate(record_payload)
     except ValidationError:
-        return tuple(
-            dict.fromkeys(
-                (*issue_codes, "layer3_g4_p26_responsibility_integrity_failed")
-            )
-        )
+        return tuple(dict.fromkeys((*issue_codes, "layer3_g4_p26_responsibility_integrity_failed")))
 
     if record.case_id != str(request.get("case_id", "")):
         issue_codes.append("layer3_g4_human_decision_scope_mismatch")
@@ -2358,15 +2288,9 @@ def build_g4_human_decision_integrity_gate(
     human_required = _scope_requires_human_decision(scope, stakes_profile)
     if not human_required and _policy_declares_human_not_required(policy):
         status: Literal["fail", "not_required"] = (
-            "not_required"
-            if _human_not_required_has_bounded_rationale(scope, policy)
-            else "fail"
+            "not_required" if _human_not_required_has_bounded_rationale(scope, policy) else "fail"
         )
-        issue_codes = (
-            ()
-            if status == "not_required"
-            else ("layer3_g4_human_decision_required",)
-        )
+        issue_codes = () if status == "not_required" else ("layer3_g4_human_decision_required",)
         return Layer3G4HumanDecisionIntegrityGate(
             status=status,
             human_decision_required=False,
@@ -2474,9 +2398,7 @@ def build_g4_weakest_boundary_composition(
     sorted_blockers = tuple(sorted(blocker_refs))
     sorted_limitations = tuple(sorted(limitation_refs))
     promotion_scope = (
-        dict(input_set.promotion_inputs[0].promotion_scope)
-        if input_set.promotion_inputs
-        else {}
+        dict(input_set.promotion_inputs[0].promotion_scope) if input_set.promotion_inputs else {}
     )
     decision = reduce_g4_promotion_state(
         G4PromotionStateInputs(
@@ -2526,9 +2448,7 @@ def _contract_ref_values(
 ) -> tuple[str, ...]:
     if contract_set is None:
         return ()
-    return tuple(
-        dict.fromkeys(ref.ref for ref in contract_set.grounded_contract_refs if ref.ref)
-    )
+    return tuple(dict.fromkeys(ref.ref for ref in contract_set.grounded_contract_refs if ref.ref))
 
 
 def _contract_limitation_values(
@@ -2727,12 +2647,8 @@ def build_g4_promotion_records(
                 candidate_ref=promotion_input.candidate_ref,
                 source_design_record_ref=promotion_input.source_design_record_ref,
                 source_design_record_digest=promotion_input.source_design_record_digest,
-                grounded_contract_set_ref=_g4_artifact_ref(
-                    "layer3_g4_grounded_contract_set.json"
-                ),
-                a_completeness_ledger_ref=_g4_artifact_ref(
-                    "layer3_g4_a_completeness_ledger.json"
-                ),
+                grounded_contract_set_ref=_g4_artifact_ref("layer3_g4_grounded_contract_set.json"),
+                a_completeness_ledger_ref=_g4_artifact_ref("layer3_g4_a_completeness_ledger.json"),
                 weakest_boundary_composition_ref=_g4_artifact_ref(
                     "layer3_g4_weakest_boundary_composition.json"
                 ),
@@ -2941,16 +2857,12 @@ def build_g4_public_export_projection_refs(
     refs, records = _record_refs_and_records(promotion_records)
     states = [record.promotion_state for record in records]
     public_blockers = sorted({code for record in records for code in record.blocker_refs})
-    public_limitations = sorted(
-        {code for record in records for code in record.limitation_refs}
-    )
+    public_limitations = sorted({code for record in records for code in record.limitation_refs})
     public_scopes = [dict(record.promotion_scope) for record in records]
     safe_evidence_refs = [
         record.source_design_record_ref for record in records if record.source_design_record_ref
     ]
-    expert_refs = sorted(
-        {ref for record in records for ref in record.upstream_contract_refs}
-    )
+    expert_refs = sorted({ref for record in records for ref in record.upstream_contract_refs})
     return Layer3G4PublicExportProjectionRefSurface(
         PUBLIC={
             "promotion_states": states,
@@ -3024,8 +2936,8 @@ def _request_chain_issue_codes(
     report = validate_layer3_g4_bundle(repo_root, _conformance_payload(repo_root, request))
     codes.extend(_validation_report_issue_codes(report))
     try:
-        input_set, contract_set, ledger, weakest, human_gate, records = (
-            _build_g4_promotion_chain(repo_root, request)
+        input_set, contract_set, ledger, weakest, human_gate, records = _build_g4_promotion_chain(
+            repo_root, request
         )
     except (ValidationError, ValueError, TypeError) as exc:
         return tuple(dict.fromkeys((*codes, f"layer3_g4_chain_probe_error:{exc}")))
@@ -3077,9 +2989,7 @@ def _authority_bypass_issue_codes(repo_root: Path, negative_id: str) -> tuple[st
     elif negative_id == "promotion_record_rewrites_closeout_reader":
         payload["closeout_consumer_gate"] = {"closeout_reader_rewrite_attempted": True}
     elif negative_id == "promotion_record_rewrites_pdc_compiler":
-        payload["pdc_compiler_consumer_gate"] = {
-            "compiler_graph_rewrite_attempted": True
-        }
+        payload["pdc_compiler_consumer_gate"] = {"compiler_graph_rewrite_attempted": True}
     elif negative_id == "public_projection_raw_payload_leak":
         payload["public_export_projection_refs"] = {
             "PUBLIC": {"raw_upstream_payload": {"claim": "unsafe"}},
@@ -3191,11 +3101,17 @@ def _conformance_request_for_negative(negative_id: str) -> dict[str, Any]:
         ]
     elif negative_id == "readiness_summary_only_promoted":
         request["grounded_contract_rows"] = [
-            {"family": "readiness_manifest", "ref": "repo://architecture/policy_design_case/layer3_g1_readiness_manifest.json"}
+            {
+                "family": "readiness_manifest",
+                "ref": "repo://architecture/policy_design_case/layer3_g1_readiness_manifest.json",
+            }
         ]
     elif negative_id == "search_ledger_only_promoted":
         request["grounded_contract_rows"] = [
-            {"family": "search_ledger", "ref": "repo://architecture/policy_design_case/layer3_g1_substrate_search_ledgers.json#0"}
+            {
+                "family": "search_ledger",
+                "ref": "repo://architecture/policy_design_case/layer3_g1_substrate_search_ledgers.json#0",
+            }
         ]
     elif negative_id == "s7_manifest_only_promoted":
         request["promotion_scope"]["high_stakes"] = True
@@ -3207,7 +3123,9 @@ def _conformance_request_for_negative(negative_id: str) -> dict[str, Any]:
         request["promotion_scope"]["high_stakes"] = True
         request["human_decision_policy"] = {
             "human_decision_required": True,
-            "s2_delegation_ledger_refs": ["repo://architecture/policy_design_case/layer2_s2_design_search_manifest.json"],
+            "s2_delegation_ledger_refs": [
+                "repo://architecture/policy_design_case/layer2_s2_design_search_manifest.json"
+            ],
         }
     elif negative_id == "w12d_manifest_only_source_payload":
         request["source_design_record"]["payload_status"] = "manifest_only"
@@ -3370,8 +3288,7 @@ def validate_g4_performance_contract(
     """Validate G4's bounded request-path performance/scaling contract."""
 
     source_text_by_ref = {
-        ref.as_posix(): _read_optional_text(repo_root, ref)
-        for ref in G4_PERFORMANCE_SOURCE_REFS
+        ref.as_posix(): _read_optional_text(repo_root, ref) for ref in G4_PERFORMANCE_SOURCE_REFS
     }
     patterns = _g4_forbidden_source_patterns()
     recursive_hits = [
@@ -3394,9 +3311,9 @@ def validate_g4_performance_contract(
         for ref, text in source_text_by_ref.items()
         if any(pattern in text for pattern in patterns["mutable_global_cache"])
     ]
-    bounded_path_count = sum(
-        len(paths) for paths in G4_FAMILY_ARTIFACT_SHAPES.values()
-    ) + len(G4_PERFORMANCE_SOURCE_REFS)
+    bounded_path_count = sum(len(paths) for paths in G4_FAMILY_ARTIFACT_SHAPES.values()) + len(
+        G4_PERFORMANCE_SOURCE_REFS
+    )
     issue_codes: list[str] = []
     if not bounded_path_count:
         issue_codes.append("layer3_g4_unbounded_artifact_scan")
@@ -3495,8 +3412,7 @@ def _default_g4_promoted_request(repo_root: Path | None = None) -> dict[str, Any
         "human_decision_policy": {
             "human_decision_required": False,
             "rationale": (
-                "Routine, non-high-stakes source/data-only promotion within a bounded "
-                "envelope."
+                "Routine, non-high-stakes source/data-only promotion within a bounded envelope."
             ),
         },
         "grounded_contract_rows": [_default_g4_grounded_g1_row()],
@@ -3532,9 +3448,7 @@ def _g4_default_source_design_record(repo_root: Path | None) -> dict[str, Any]:
         return {
             "ref": "cas://s2/design-record/ua-msme-credit-support",
             "replay_ref": "cas://s2/search-run/ua-msme-credit-support",
-            "digest": (
-                "sha256:387c808045e3204fa0ea285fa7d2d4810ba9986989b752758150a160150b6b63"
-            ),
+            "digest": ("sha256:387c808045e3204fa0ea285fa7d2d4810ba9986989b752758150a160150b6b63"),
             "payload_status": "full_payload",
             "authority_posture": "shadow",
             "resolution_strategy": "conformance_fixture_full_payload",
@@ -3572,8 +3486,7 @@ def _default_g4_grounded_g1_row() -> dict[str, Any]:
         "coverage_period_ref": "coverage-period://ua-msme/2022-02-open",
         "freshness_ref": "freshness://ukraine_server_support_20260410",
         "adapter_admission_ref": (
-            "repo://architecture/policy_design_case/"
-            "layer3_g1_adapter_admission_registry.json#g1"
+            "repo://architecture/policy_design_case/layer3_g1_adapter_admission_registry.json#g1"
         ),
         "conformance_ref": (
             "repo://architecture/policy_design_case/layer3_g1_conformance_report.json#g1"
@@ -3593,10 +3506,7 @@ def _fixture_g4_grounded_g1_row(
         "production_authority",
         "layer3_g4_governed_promotion_state",
     ]
-    if (
-        block_governed_promotion
-        and "layer3_g4_governed_promotion_state" not in may_not_use_for
-    ):
+    if block_governed_promotion and "layer3_g4_governed_promotion_state" not in may_not_use_for:
         may_not_use_for.append("layer3_g4_governed_promotion_state")
     return {
         "family": "g1_source_contract",
@@ -3605,9 +3515,7 @@ def _fixture_g4_grounded_g1_row(
             f"g1_grounded_source_contracts_valid.json#bindings/{construct_ref}"
         ),
         "binding_id": f"g1-binding:{construct_ref.replace('_', '-')}",
-        "lineage_refs": [
-            "repo://tests/fixtures/layer3/g4/g1_grounded_source_contracts_valid.json"
-        ],
+        "lineage_refs": ["repo://tests/fixtures/layer3/g4/g1_grounded_source_contracts_valid.json"],
         "evidence_scope": "fixture_scoped",
         "fixture_scope_reason": (
             "G4 readiness uses a fixture G1 grounded-source row when the "
@@ -3617,8 +3525,7 @@ def _fixture_g4_grounded_g1_row(
         "coverage_period_ref": "coverage-period://ua-msme/2022-02-open",
         "freshness_ref": "freshness://ukraine_server_support_20260410",
         "adapter_admission_ref": (
-            "repo://architecture/policy_design_case/"
-            "layer3_g1_adapter_admission_registry.json#g1"
+            "repo://architecture/policy_design_case/layer3_g1_adapter_admission_registry.json#g1"
         ),
         "conformance_ref": (
             "repo://architecture/policy_design_case/layer3_g1_conformance_report.json#g1"
@@ -3644,9 +3551,7 @@ def _persisted_g4_runtime_request_payloads(repo_root: Path) -> tuple[dict[str, A
     blocked = json.loads(json.dumps(promoted))
     blocked["request_id"] = "g4-request:upstream-may-not-use-blocked"
     blocked["candidate_ref"] = "s2-design-candidate:blocked-upstream-boundary"
-    blocked["grounded_contract_rows"] = [
-        _fixture_g4_grounded_g1_row(block_governed_promotion=True)
-    ]
+    blocked["grounded_contract_rows"] = [_fixture_g4_grounded_g1_row(block_governed_promotion=True)]
     return (*gx_requests, promoted, blocked)
 
 
@@ -3886,15 +3791,11 @@ def _build_g4_promotion_chains_from_requests(
 def _combined_promotion_input_set(
     *input_sets: Layer3G4PromotionInputSet,
 ) -> Layer3G4PromotionInputSet:
-    issue_codes = tuple(
-        dict.fromkeys(code for item in input_sets for code in item.issue_codes)
-    )
+    issue_codes = tuple(dict.fromkeys(code for item in input_sets for code in item.issue_codes))
     return Layer3G4PromotionInputSet(
         status="pass" if not issue_codes and input_sets else "fail",
         promotion_inputs=tuple(
-            promotion_input
-            for item in input_sets
-            for promotion_input in item.promotion_inputs
+            promotion_input for item in input_sets for promotion_input in item.promotion_inputs
         ),
         promotion_requests=tuple(
             request for item in input_sets for request in item.promotion_requests
@@ -3907,9 +3808,7 @@ def _combined_grounded_contract_set(
     *contract_sets: Layer3G4GroundedContractSet,
 ) -> Layer3G4GroundedContractSet:
     refs = tuple(ref for item in contract_sets for ref in item.grounded_contract_refs)
-    issue_codes = tuple(
-        dict.fromkeys(code for item in contract_sets for code in item.issue_codes)
-    )
+    issue_codes = tuple(dict.fromkeys(code for item in contract_sets for code in item.issue_codes))
     if issue_codes:
         status: Literal["pass", "pass_with_limitations", "fail"] = "fail"
     elif any(item.status == "pass_with_limitations" for item in contract_sets):
@@ -4132,19 +4031,13 @@ def _g4_bundle_summary(
         ),
         "g4_promotion_input_count": len(bundle.promotion_input_set.promotion_inputs),
         "g4_grounded_contract_set_status": bundle.grounded_contract_set.status,
-        "g4_grounded_contract_ref_count": len(
-            bundle.grounded_contract_set.grounded_contract_refs
-        ),
+        "g4_grounded_contract_ref_count": len(bundle.grounded_contract_set.grounded_contract_refs),
         "g4_grounded_contract_binding_scope": (
-            "persisted_g1_bound"
-            if persisted_g1_binding_count > 0
-            else "fixture_scoped"
+            "persisted_g1_bound" if persisted_g1_binding_count > 0 else "fixture_scoped"
         ),
         "g4_persisted_g1_binding_count": persisted_g1_binding_count,
         "g4_a_completeness_status": bundle.a_completeness_ledger.status,
-        "g4_a_completeness_requirement_count": len(
-            bundle.a_completeness_ledger.requirements
-        ),
+        "g4_a_completeness_requirement_count": len(bundle.a_completeness_ledger.requirements),
         "g4_a_completeness_missing_requirement_count": (
             bundle.a_completeness_ledger.missing_requirement_count
         ),
@@ -4168,9 +4061,7 @@ def _g4_bundle_summary(
             for record in bundle.promotion_records
             if record.promotion_state == "promotion_blocked"
         ),
-        "g4_may_not_use_for_completeness_status": (
-            "pass" if may_not_use_complete else "fail"
-        ),
+        "g4_may_not_use_for_completeness_status": ("pass" if may_not_use_complete else "fail"),
         "g4_closeout_consumer_gate_status": bundle.closeout_consumer_gate.status,
         "g4_pdc_compiler_consumer_gate_status": bundle.pdc_compiler_consumer_gate.status,
         "g4_g5_promotion_handoff_status": bundle.g5_promotion_handoff.status,
@@ -4190,9 +4081,7 @@ def _g4_bundle_summary(
         "g4_bounded_artifact_path_count": performance_report.bounded_artifact_path_count,
         "g4_adapter_contract_registry_status": adapter_status,
         "g4_registry_ratchet_delta_status": bundle.registry_ratchet_delta.status,
-        "g4_promotion_gate_admission_maturity": (
-            bundle.registry_ratchet_delta.admission_maturity
-        ),
+        "g4_promotion_gate_admission_maturity": (bundle.registry_ratchet_delta.admission_maturity),
         "g4_promotion_gate_admission_conformance_ref_count": len(
             bundle.registry_ratchet_delta.conformance_refs
         ),
@@ -4205,8 +4094,7 @@ def _g4_bundle_summary(
 
 def _persisted_g1_grounded_contract_binding_count(repo_root: Path) -> int:
     path = (
-        Path(repo_root)
-        / "architecture/policy_design_case/layer3_g1_grounded_source_contracts.json"
+        Path(repo_root) / "architecture/policy_design_case/layer3_g1_grounded_source_contracts.json"
     )
     try:
         payload = json.loads(path.read_text(encoding="utf-8"))
@@ -4240,9 +4128,7 @@ def _validate_public_projection(payload: Mapping[str, Any]) -> list[Layer3G4Vali
                     "PUBLIC G4 projection cannot include raw upstream payloads.",
                 )
             )
-        authoritative_for = {
-            str(value) for value in public_projection.get("authoritative_for", ())
-        }
+        authoritative_for = {str(value) for value in public_projection.get("authoritative_for", ())}
         if authoritative_for & {"claim_authority", "policy_recommendation"}:
             issues.append(
                 _issue(
@@ -4251,9 +4137,8 @@ def _validate_public_projection(payload: Mapping[str, Any]) -> list[Layer3G4Vali
                     "G4 projections are projection-only and cannot claim policy authority.",
                 )
             )
-    if (
-        projection.get("public_export_hook_status") == "implemented"
-        and not projection.get("public_export_bundle_route_registered")
+    if projection.get("public_export_hook_status") == "implemented" and not projection.get(
+        "public_export_bundle_route_registered"
     ):
         issues.append(
             _issue(
@@ -4443,8 +4328,10 @@ def _validate_task7_closeout_contracts(
     weakest_blocked = False
     if isinstance(weakest, Mapping):
         blocker_refs = _as_str_tuple(weakest.get("blocker_refs", ()))
-        weakest_blocked = bool(blocker_refs) or weakest.get("status") == "fail" or (
-            weakest.get("promotion_state") == "promotion_blocked"
+        weakest_blocked = (
+            bool(blocker_refs)
+            or weakest.get("status") == "fail"
+            or (weakest.get("promotion_state") == "promotion_blocked")
         )
 
     records = payload.get("promotion_records", ())
@@ -4456,9 +4343,7 @@ def _validate_task7_closeout_contracts(
         and not isinstance(records, str | bytes | bytearray)
     ):
         record_states = {
-            str(record.get("promotion_state"))
-            for record in records
-            if isinstance(record, Mapping)
+            str(record.get("promotion_state")) for record in records if isinstance(record, Mapping)
         }
         blocked_record_preserved = "promotion_blocked" in record_states
         for index, record in enumerate(records):
@@ -4492,9 +4377,8 @@ def _validate_request(
         issues.append(
             _issue(code, f"{path}.source_design_record", "Source design record is not replayable.")
         )
-    if (
-        _request_targets_policy_program(request)
-        and not _request_has_valid_composition_certificate(request)
+    if _request_targets_policy_program(request) and not _request_has_valid_composition_certificate(
+        request
     ):
         issues.append(
             _issue(
@@ -4541,9 +4425,10 @@ def _validate_request(
                 "Runtime HTTP PromotionLane is not G4 governed promotion.",
             )
         )
-    if candidate_source == "generated_artifact_lifecycle" or request.get(
-        "promotion_state_source"
-    ) == "promotion_target":
+    if (
+        candidate_source == "generated_artifact_lifecycle"
+        or request.get("promotion_state_source") == "promotion_target"
+    ):
         issues.append(
             _issue(
                 "layer3_g4_generated_artifact_promotion_target_confused",
@@ -4551,9 +4436,10 @@ def _validate_request(
                 "generated_artifacts.toml promotion_target is not G4 promotion state.",
             )
         )
-    if candidate_source == "llm_candidate" or request.get(
-        "promotion_asserted_by"
-    ) == "candidate_self_attested":
+    if (
+        candidate_source == "llm_candidate"
+        or request.get("promotion_asserted_by") == "candidate_self_attested"
+    ):
         issues.append(
             _issue(
                 "layer3_g4_shadow_self_promotion",
@@ -4650,11 +4536,11 @@ def _validate_request(
 
     human_gate = build_g4_human_decision_integrity_gate(request)
     for code in human_gate.issue_codes:
-        issues.append(
-            _issue(code, f"{path}.human_decision_policy", "Human-decision gate failed.")
-        )
-    if human_gate.human_decision_record_refs and _requires_g1(request) and not _has_g1_grounded_row(
-        request
+        issues.append(_issue(code, f"{path}.human_decision_policy", "Human-decision gate failed."))
+    if (
+        human_gate.human_decision_record_refs
+        and _requires_g1(request)
+        and not _has_g1_grounded_row(request)
     ):
         issues.append(
             _issue(
@@ -4672,9 +4558,7 @@ def validate_layer3_g4_bundle(
 ) -> Layer3G4ValidationReport:
     """Validate a G4 runtime bundle or candidate payload."""
 
-    payload = (
-        bundle.model_dump(mode="json") if isinstance(bundle, Layer3G4Bundle) else dict(bundle)
-    )
+    payload = bundle.model_dump(mode="json") if isinstance(bundle, Layer3G4Bundle) else dict(bundle)
     issues: list[Layer3G4ValidationIssue] = []
     snapshot_payload = payload.get("dependency_readiness") or payload.get(
         "dependency_readiness_snapshot"
@@ -4730,9 +4614,7 @@ def validate_layer3_g4_bundle(
     missing_grounded_contract = bool(
         {issue.code for issue in issues} & {"layer3_g4_grounded_contract_ref_missing"}
     )
-    summary["g4_grounded_contract_set_status"] = (
-        "fail" if missing_grounded_contract else "pass"
-    )
+    summary["g4_grounded_contract_set_status"] = "fail" if missing_grounded_contract else "pass"
     return Layer3G4ValidationReport(status=status, issues=tuple(issues), summary=summary)
 
 

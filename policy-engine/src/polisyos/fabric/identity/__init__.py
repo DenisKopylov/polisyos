@@ -27,4 +27,3 @@ __all__ = [
     "ReconciliationReport",
     "write_segment_manifest",
 ]
-

@@ -133,12 +133,8 @@ def test_requirement_id_alias_with_changed_logic_hash_requires_revalidation() ->
     assert remap["semantic_change_detected"] is True
     assert remap["source_logic_hash"] != remap["target_logic_hash"]
     assert registry["revalidation_state"]["state"] == "revalidation_required"
-    assert registry["revalidation_state"]["affected_requirement_ids"] == [
-        "req.credit_support.v2"
-    ]
-    assert "rule_alias_semantic_change_detected" in {
-        issue["code"] for issue in registry["issues"]
-    }
+    assert registry["revalidation_state"]["affected_requirement_ids"] == ["req.credit_support.v2"]
+    assert "rule_alias_semantic_change_detected" in {issue["code"] for issue in registry["issues"]}
     assert registry["public_annotation"]["public_annotation_state"] == "semantic_change"
 
 
@@ -185,8 +181,9 @@ def test_closed_case_replay_uses_original_logic_when_current_registry_changes() 
     assert replay["semantic_change_detected"] is True
     assert replay["original_rule_registry_ref"] == old_registry["rule_registry_ref"]
     assert replay["current_rule_registry_ref"] == current_registry["rule_registry_ref"]
-    assert replay["original_logic_hashes"]["req.credit_support"] == (
-        old_registry["rule_refs"][0]["logic_hash"]
+    assert (
+        replay["original_logic_hashes"]["req.credit_support"]
+        == (old_registry["rule_refs"][0]["logic_hash"])
     )
     assert replay["revalidation_state"]["state"] == "legacy_replay_only"
     assert replay["public_annotation"]["legacy_case_annotation"] == (
@@ -203,9 +200,7 @@ def test_rule_evolution_registry_persists_as_runtime_artifact(tmp_path) -> None:
 
     assert str(ref.artifact_id).startswith("sha256:")
     assert stored == registry
-    assert stored["runtime_authority_envelope"]["authoritative_for"] == [
-        "rule_evolution_replay"
-    ]
+    assert stored["runtime_authority_envelope"]["authoritative_for"] == ["rule_evolution_replay"]
 
 
 def test_public_annotation_can_be_built_from_existing_registry() -> None:

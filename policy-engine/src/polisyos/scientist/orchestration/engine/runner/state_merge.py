@@ -169,8 +169,7 @@ def merge_tier_outcomes(
         )
 
     resolved_write_specs = {
-        alias: list((write_specs or {}).get(alias, _DEFAULT_WRITE_FIELDS))
-        for alias in successful
+        alias: list((write_specs or {}).get(alias, _DEFAULT_WRITE_FIELDS)) for alias in successful
     }
     merged = merge_parallel_outcomes(
         base_state,

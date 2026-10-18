@@ -220,6 +220,7 @@ def _load(
     model: type[_StrictModel],
 ) -> Any:
     from polisyos.core.artifacts import load_core_json_artifact
+
     manifest = store.get_manifest(ref)
     if (
         ref.kind != kind
@@ -233,9 +234,7 @@ def _load(
     # Do not trust an ArtifactStore implementation to validate a supplied ref.
     if canon.content_hash(payload, prefix=True) != str(ref.artifact_id):
         raise ValueError("legal_subject_source_content_mismatch")
-    return model.model_validate(
-        load_core_json_artifact(store, ref, raw_payload_bytes=payload)
-    )
+    return model.model_validate(load_core_json_artifact(store, ref, raw_payload_bytes=payload))
 
 
 def _ancestry(
@@ -263,7 +262,9 @@ def _ancestry(
     def visit(selector: artifacts.ArtifactID | artifacts.ArtifactRef) -> None:
         from polisyos.core.artifacts import artifact_ref_for_manifest, load_core_json_artifact
 
-        artifact_id = selector.artifact_id if isinstance(selector, artifacts.ArtifactRef) else selector
+        artifact_id = (
+            selector.artifact_id if isinstance(selector, artifacts.ArtifactRef) else selector
+        )
         key = str(artifact_id)
         if key in active:
             raise ValueError("legal_subject_source_circular")

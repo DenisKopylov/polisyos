@@ -99,9 +99,7 @@ def test_phase_5_5_report_only_readiness_lanes_do_not_claim_runtime_authority() 
         assert evidence["runtime_owned"] is False
         assert evidence["emission_mode"] == "report_only"
         assert evidence["artifact_kind"] == "runtime.resilience_lane_evidence"
-        assert evidence["evidence_ref"].startswith(
-            "quality_evidence/resilience_lanes/"
-        )
+        assert evidence["evidence_ref"].startswith("quality_evidence/resilience_lanes/")
         assert evidence["diagnostic_event"]["emitted"] is False
 
 
@@ -160,7 +158,9 @@ def test_phase_5_5_emits_runtime_owned_cas_and_durable_events(tmp_path: Path) ->
         assert slo_evidence["emission_mode"] == "runtime_cas_event"
         assert slo_evidence["slo_evidence_ref"].startswith("sha256:")
         assert artifact_store.has(slo_evidence["slo_evidence_ref"])
-        assert all(metric["evidence_ref"] == evidence["evidence_ref"] for metric in slo_evidence["metrics"])
+        assert all(
+            metric["evidence_ref"] == evidence["evidence_ref"] for metric in slo_evidence["metrics"]
+        )
 
 
 def test_phase_5_5_each_readiness_lane_emits_diagnostic_slo_evidence() -> None:
@@ -252,12 +252,7 @@ def test_operator_findings_expose_bottleneck_layer_phase_value_budget_and_action
 def test_runtime_resilience_matrix_cli_writes_stable_json(tmp_path: Path) -> None:
     output = tmp_path / "resilience_matrix.json"
 
-    assert (
-        runtime_resilience_matrix.main(
-            ["--deterministic", "--json-output", str(output)]
-        )
-        == 0
-    )
+    assert runtime_resilience_matrix.main(["--deterministic", "--json-output", str(output)]) == 0
 
     payload = json.loads(output.read_text(encoding="utf-8"))
     assert payload == runtime_resilience_matrix.build_matrix_payload(

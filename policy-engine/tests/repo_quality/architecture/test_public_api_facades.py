@@ -84,7 +84,9 @@ def test_normative_job_surface_uses_the_core_contract_facade() -> None:
 
 def test_governed_public_record_facade_preserves_owner_objects() -> None:
     facade = importlib.import_module("polisyos.scientist.governance.continuous")
-    owner = importlib.import_module("polisyos.scientist.governance.continuous.governed_public_record")
+    owner = importlib.import_module(
+        "polisyos.scientist.governance.continuous.governed_public_record"
+    )
     assert set(owner.__all__) <= set(facade.__all__)
     for name in owner.__all__:
         assert getattr(facade, name) is getattr(owner, name)

@@ -27,9 +27,7 @@ def test_diagnostic_slo_report_covers_every_phase_44_metric() -> None:
 
     assert report["status"] == "pass"
     assert report["readiness_decision"] == "pass"
-    assert {metric["metric_id"] for metric in report["metrics"]} == set(
-        DIAGNOSTIC_SLO_METRIC_IDS
-    )
+    assert {metric["metric_id"] for metric in report["metrics"]} == set(DIAGNOSTIC_SLO_METRIC_IDS)
     assert report["error_budget_policy"]["decision"] == "pass"
     assert diagnostic_slo_gates(report, canary_kind="production", now=observed_at) == []
 
@@ -99,12 +97,10 @@ def test_observed_self_deception_failure_requires_active_fitness_control() -> No
     )
 
     assert report["status"] == "fail"
-    assert report["fitness_registry"]["missing_active_controls"] == [
-        "new_false_pass_mode"
-    ]
-    assert {
-        blocker["code"] for blocker in report["blockers"]
-    } >= {"diagnostic_fitness_control_missing"}
+    assert report["fitness_registry"]["missing_active_controls"] == ["new_false_pass_mode"]
+    assert {blocker["code"] for blocker in report["blockers"]} >= {
+        "diagnostic_fitness_control_missing"
+    }
 
 
 def test_context_builder_requires_real_control_and_redaction_observations() -> None:
@@ -134,9 +130,7 @@ def test_context_builder_requires_real_control_and_redaction_observations() -> N
         "redaction_coverage",
         "operator_time_to_root_cause",
     } <= missing_metrics
-    assert "diagnostic_slo_evidence_missing" in {
-        blocker["code"] for blocker in report["blockers"]
-    }
+    assert "diagnostic_slo_evidence_missing" in {blocker["code"] for blocker in report["blockers"]}
 
 
 def test_context_builder_accepts_explicit_wave4_slo_observations() -> None:

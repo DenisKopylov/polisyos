@@ -130,7 +130,9 @@ class PublicationSigningSlot:
                 type(key) is not PublicationTrustedKey
                 for key in self.publisher_trusted_keys + self.mandate_trusted_keys
             )
-            or (self.mandate_ref is not None and type(self.mandate_ref) is not artifacts.ArtifactRef)
+            or (
+                self.mandate_ref is not None and type(self.mandate_ref) is not artifacts.ArtifactRef
+            )
         ):
             raise ValueError("publication_signing_slot_invalid")
 

@@ -175,7 +175,6 @@ def test_single_skip_is_not_added_to_checkpoint_completed_set() -> None:
     assert [call["completed_nodes"] for call in hook.node_calls] == [["after"]]
 
 
-
 def test_independent_neighbor_does_not_promote_parallel_skip_to_completed() -> None:
     state = ExperimentState(run_id="res-02-parallel-skip")
     hook = _RecordingCheckpointHook()
@@ -223,8 +222,7 @@ def test_independent_neighbor_does_not_promote_parallel_skip_to_completed() -> N
     assert hook.tier_calls[0]["completed_nodes"] == ["independent"]
     assert hook.node_calls[0]["completed_nodes"] == ["independent", "after"]
     assert all(
-        "skipped" not in call["completed_nodes"]
-        for call in [*hook.tier_calls, *hook.node_calls]
+        "skipped" not in call["completed_nodes"] for call in [*hook.tier_calls, *hook.node_calls]
     )
     assert result.state.params == {"independent": True, "after": True}
 

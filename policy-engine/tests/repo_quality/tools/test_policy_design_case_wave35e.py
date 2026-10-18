@@ -30,12 +30,9 @@ def test_wave35e_outputs_close_human_facing_cluster(tmp_path: Path) -> None:
 
     projection = outputs["projection_operator_truthfulness"]
     assert projection["status"] == "complete"
-    assert set(projection["observed_projection_states"]) == set(
-        build.REQUIRED_PROJECTION_STATES
-    )
+    assert set(projection["observed_projection_states"]) == set(build.REQUIRED_PROJECTION_STATES)
     assert {
-        row["masking_case"]
-        for row in projection["projection_masking_negative_controls"]
+        row["masking_case"] for row in projection["projection_masking_negative_controls"]
     } == set(build.PROJECTION_MASKING_FAILURES)
     assert all(
         row["projection_promotion_allowed"] is False
@@ -46,10 +43,7 @@ def test_wave35e_outputs_close_human_facing_cluster(tmp_path: Path) -> None:
     assert projection["failure_class_journey"]["status"] == "covered"
     assert projection["denominator_caveats"]["zero_review_caveat_required"] is True
     assert projection["runtime_enforcement_evidence"]["status"] == "test_observed"
-    assert (
-        projection["runtime_enforcement_evidence"]["evidence_authority_class"]
-        == "test_observed"
-    )
+    assert projection["runtime_enforcement_evidence"]["evidence_authority_class"] == "test_observed"
     assert any(
         "publicationPacket.test.ts" in ref
         for ref in projection["runtime_enforcement_evidence"]["test_refs"]
@@ -60,9 +54,10 @@ def test_wave35e_outputs_close_human_facing_cluster(tmp_path: Path) -> None:
         if row["masking_case"] == "projection_only"
     )
     assert projection_only_control["evidence_authority_class"] == "test_observed"
-    assert "publicationPacket.ts#buildProjectionSemantics" in projection_only_control[
-        "runtime_enforcement_ref"
-    ]
+    assert (
+        "publicationPacket.ts#buildProjectionSemantics"
+        in projection_only_control["runtime_enforcement_ref"]
+    )
 
     memory = outputs["memory_authority"]
     assert memory["status"] == "complete"
@@ -104,9 +99,7 @@ def test_wave35e_outputs_close_human_facing_cluster(tmp_path: Path) -> None:
 
     trust = outputs["trust_framing_ui_negative_tests"]
     assert trust["status"] == "complete"
-    assert {row["scenario"] for row in trust["rows"]} == set(
-        build.TRUST_NEGATIVE_SCENARIOS
-    )
+    assert {row["scenario"] for row in trust["rows"]} == set(build.TRUST_NEGATIVE_SCENARIOS)
     assert all(row["label"] for row in trust["rows"])
     assert all(row["icon"] for row in trust["rows"])
     assert all(row["color"] for row in trust["rows"])
@@ -123,10 +116,7 @@ def test_wave35e_outputs_close_human_facing_cluster(tmp_path: Path) -> None:
         trust["runtime_enforcement_evidence"]["evidence_authority_class"]
         == "mixed_test_observed_and_synthetic_remediation_overlay"
     )
-    assert (
-        trust["runtime_enforcement_evidence"]["scenario_specific_screenshot_coverage"]
-        is False
-    )
+    assert trust["runtime_enforcement_evidence"]["scenario_specific_screenshot_coverage"] is False
 
     update = outputs["disposition_update"]
     assert update["status"] == "resolved"

@@ -1,4 +1,3 @@
-
 """Property-based tests for global sensitivity analysis methods."""
 
 from __future__ import annotations

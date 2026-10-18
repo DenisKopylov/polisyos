@@ -33,7 +33,9 @@ EXPECTED_WRITE_ARTIFACTS = [
 
 def _validator() -> Any:
     try:
-        return import_module("tools.quality.validation.check_policy_design_case_layer3_g4_readiness")
+        return import_module(
+            "tools.quality.validation.check_policy_design_case_layer3_g4_readiness"
+        )
     except ModuleNotFoundError as exc:
         if exc.name == "tools.quality.validation.check_policy_design_case_layer3_g4_readiness":
             pytest.fail(

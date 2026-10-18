@@ -473,6 +473,7 @@ def _run_primary_causal_job(
     evaluation permission, identification or real-world provenance.
     """
     from polisyos.core.artifacts import load_core_json_artifact
+
     source = _to_core_artifact_ref(state.observational_data_ref)
     if source is None:
         raise ValueError("primary causal job requires its actual observational source")
@@ -583,6 +584,7 @@ def _verify_selected_tmle_projection(
 def _reconcile_selected_causal_output(*, ctx: ExecutionContext, result: JobResult) -> None:
     """Read the canonical method artifact before consuming its peer projection."""
     from polisyos.core.artifacts import load_core_json_artifact
+
     if result.method_result_ref is None:
         raise ValueError("selected causal job has no persisted result")
     saved = load_core_json_artifact(ctx.store, result.method_result_ref)
@@ -680,6 +682,7 @@ def _load_observational_data(
     | GraphCausalDataV1
 ):
     from polisyos.core.artifacts import load_core_json_artifact
+
     if state.observational_data_ref is None:
         raise ValueError("observational_data_ref is required for causal evaluation")
     ref = _to_core_artifact_ref(state.observational_data_ref)
@@ -784,6 +787,7 @@ def _load_output_contract_json(
     ctx: ExecutionContext, ref: core_artifacts.ArtifactRef
 ) -> dict[str, Any]:
     from polisyos.core.artifacts import load_core_json_artifact
+
     ref = core_artifacts.ArtifactRef.model_validate(ref)
     if not ctx.store.verify(ref).ok:
         raise ValueError("output_contract_cas_integrity_failed")

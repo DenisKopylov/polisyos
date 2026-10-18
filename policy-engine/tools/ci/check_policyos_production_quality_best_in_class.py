@@ -710,9 +710,7 @@ def _policy_design_evidence_portfolio_design_contract_component(
         coverage_payload = build_policy_design_case_coverage.build_coverage_payload(
             repo_root=repo_root
         )
-        metric = dict(
-            coverage_payload.get("metrics", {}).get("portfolio_predeclaration_pct", {})
-        )
+        metric = dict(coverage_payload.get("metrics", {}).get("portfolio_predeclaration_pct", {}))
     except build_policy_design_case_coverage.CoverageInputError as exc:
         status = "fail"
         missing.append("coverage.portfolio_predeclaration_pct")
@@ -853,9 +851,7 @@ def _policy_design_best_in_class_benchmarking_contract_component(
             "numerator": metric.get("numerator"),
             "denominator": metric.get("denominator"),
         },
-        "contract_surfaces": list(
-            POLICY_DESIGN_BEST_IN_CLASS_BENCHMARKING_CONTRACT_SURFACES
-        ),
+        "contract_surfaces": list(POLICY_DESIGN_BEST_IN_CLASS_BENCHMARKING_CONTRACT_SURFACES),
         "validator": "validate_policy_benchmarking_record",
         "scorecard_gate": "policy_design_wave31_best_in_class_benchmarking",
         "expected_verification_command": (
@@ -1665,9 +1661,10 @@ def _scorecard_blocking_gate_results(
     emitted: set[tuple[str, str]] = set()
 
     for gate in _scorecard_blocking_gate_rows(scorecard):
-        code = _text_value(
-            gate.get("code") or gate.get("gate") or gate.get("name")
-        ) or "quality_scorecard_blocking_gate_failed"
+        code = (
+            _text_value(gate.get("code") or gate.get("gate") or gate.get("name"))
+            or "quality_scorecard_blocking_gate_failed"
+        )
         gate_name = _text_value(gate.get("name") or gate.get("gate"))
         emitted_key = (code, gate_name)
         if emitted_key in emitted:
@@ -1698,11 +1695,7 @@ def _scorecard_blocking_gate_rows(scorecard: Mapping[str, Any]) -> list[Mapping[
 
     blocking_failures = scorecard.get("blocking_quality_failures")
     if isinstance(blocking_failures, list):
-        rows.extend(
-            failure
-            for failure in blocking_failures
-            if isinstance(failure, Mapping)
-        )
+        rows.extend(failure for failure in blocking_failures if isinstance(failure, Mapping))
     return rows
 
 
@@ -1719,9 +1712,10 @@ def _scorecard_blocking_gate_failure(
     scorecard: Mapping[str, Any],
     gate: Mapping[str, Any],
 ) -> dict[str, Any]:
-    code = _text_value(
-        gate.get("code") or gate.get("gate") or gate.get("name")
-    ) or "quality_scorecard_blocking_gate_failed"
+    code = (
+        _text_value(gate.get("code") or gate.get("gate") or gate.get("name"))
+        or "quality_scorecard_blocking_gate_failed"
+    )
     gate_name = _text_value(gate.get("name") or gate.get("gate")) or code
     next_command = _text_value(gate.get("next_command"))
     return {
@@ -2797,9 +2791,7 @@ def build_readiness_payload(
         )
         minimum_closeout_failures.extend(bundle_minimum_failures)
         minimum_closeout_warnings.extend(bundle_minimum_warnings)
-        compatibility_record = build_closeout_compatibility_record_from_bundle_dir(
-            bundle["root"]
-        )
+        compatibility_record = build_closeout_compatibility_record_from_bundle_dir(bundle["root"])
         compatibility_record["bundle_root"] = str(bundle["root"])
         compatibility_record["source"] = bundle.get("source")
         closeout_compatibility.append(compatibility_record)

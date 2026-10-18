@@ -275,6 +275,7 @@ def load_bootstrap_stability_report(
 ) -> BootstrapStabilityReport:
     """Load bootstrap stability report."""
     from polisyos.core.artifacts import load_core_json_artifact
+
     payload = load_core_json_artifact(store, ref)
     return BootstrapStabilityReport.model_validate(payload)
 

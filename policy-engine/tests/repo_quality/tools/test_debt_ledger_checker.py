@@ -1830,7 +1830,8 @@ def test_debt_register_publishes_both_lifecycle_tables() -> None:
 
 
 def test_measurement_reports_actual_reads_and_uninterpreted_gy_ruling(
-    tmp_path: Path, capsys: object,
+    tmp_path: Path,
+    capsys: object,
 ) -> None:
     checker = _checker()
     repo = _fixture(
@@ -1853,27 +1854,42 @@ def test_measurement_reports_actual_reads_and_uninterpreted_gy_ruling(
     assert "ledger_missing_id" in {finding.code for finding in report.blocking_findings}
     assert checker.main(["--check", "--repo-root", str(repo)]) == 1
     output = capsys.readouterr().out
-    printed = json.loads(next(line.removeprefix("measurement=") for line in output.splitlines()
-                              if line.startswith("measurement=")))
+    printed = json.loads(
+        next(
+            line.removeprefix("measurement=")
+            for line in output.splitlines()
+            if line.startswith("measurement=")
+        )
+    )
     assert printed["inputs"] == receipt["inputs"]
     assert printed["unresolved_by_construction"] == receipt["unresolved_by_construction"]
 
 
 def test_measurement_read_failure_is_unrun_with_partial_inputs(
-    tmp_path: Path, capsys: object,
+    tmp_path: Path,
+    capsys: object,
 ) -> None:
     checker = _checker()
     repo = _fixture(tmp_path)
     (repo / checker.GY_PATH).unlink()
     assert checker.main(["--check", "--repo-root", str(repo)]) == 2
     output = capsys.readouterr().out
-    receipt = json.loads(next(line.removeprefix("measurement=") for line in output.splitlines()
-                              if line.startswith("measurement=")))
+    receipt = json.loads(
+        next(
+            line.removeprefix("measurement=")
+            for line in output.splitlines()
+            if line.startswith("measurement=")
+        )
+    )
     assert receipt["complete_verdict"] is False
-    assert any(row["path"] == checker.GY_PATH.as_posix() and row["status"] == "unreadable"
-               for row in receipt["inputs"])
-    assert any(row["path"] == checker.REGISTER_PATH.as_posix() and row["status"] == "read"
-               for row in receipt["inputs"])
+    assert any(
+        row["path"] == checker.GY_PATH.as_posix() and row["status"] == "unreadable"
+        for row in receipt["inputs"]
+    )
+    assert any(
+        row["path"] == checker.REGISTER_PATH.as_posix() and row["status"] == "read"
+        for row in receipt["inputs"]
+    )
     assert "UNRUN" in output
 
 
@@ -1898,8 +1914,10 @@ def test_shifted_open_unmerged_still_checks_real_branch_ancestry(tmp_path: Path)
     checker = _checker()
     repo = _fixture(
         tmp_path,
-        a_rows=("| `open-debt` | enum `one|two` | team-runtime | `open_unmerged` | branch `codex/fixture` |\n"
-                "| ~~`struck-pipe`~~ | enum `one|two` | team-runtime | `open_unmerged` | branch `codex/fixture` |"),
+        a_rows=(
+            "| `open-debt` | enum `one|two` | team-runtime | `open_unmerged` | branch `codex/fixture` |\n"
+            "| ~~`struck-pipe`~~ | enum `one|two` | team-runtime | `open_unmerged` | branch `codex/fixture` |"
+        ),
     )
     _git(repo, "branch", "codex/fixture")
     report = checker.audit_repository(repo)
@@ -1924,9 +1942,16 @@ def test_malformed_disposition_is_unrun_with_retained_reads(tmp_path: Path, caps
     (repo / checker.DISPOSITION_PATH).write_text("{broken")
     assert checker.main(["--check", "--repo-root", str(repo)]) == 2
     output = capsys.readouterr().out
-    receipt = json.loads(next(line.removeprefix("measurement=")
-                             for line in output.splitlines() if line.startswith("measurement=")))
+    receipt = json.loads(
+        next(
+            line.removeprefix("measurement=")
+            for line in output.splitlines()
+            if line.startswith("measurement=")
+        )
+    )
     assert receipt["complete_verdict"] is False
-    assert any(item["path"] == checker.DISPOSITION_PATH.as_posix() and item["status"] == "read"
-               for item in receipt["inputs"])
+    assert any(
+        item["path"] == checker.DISPOSITION_PATH.as_posix() and item["status"] == "read"
+        for item in receipt["inputs"]
+    )
     assert "JSONDecodeError" in output and "partial coverage" in output

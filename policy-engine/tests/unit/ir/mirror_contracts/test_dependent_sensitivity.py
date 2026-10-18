@@ -2,4 +2,4 @@ from tests._helpers.mirror_contracts import assert_source_stem_has_static_contra
 
 
 def test_dependent_sensitivity_source_modules_have_static_contracts() -> None:
-    assert_source_stem_has_static_contract('ir', 'dependent_sensitivity')
+    assert_source_stem_has_static_contract("ir", "dependent_sensitivity")

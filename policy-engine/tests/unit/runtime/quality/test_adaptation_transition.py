@@ -47,9 +47,7 @@ def _request(api):
 
 
 def _runtime(api, root: Path):
-    return api.AdaptationTransitionRuntime.open(
-        root=root, tenant_id="tenant-1", cell_id="cell-1"
-    )
+    return api.AdaptationTransitionRuntime.open(root=root, tenant_id="tenant-1", cell_id="cell-1")
 
 
 def test_unsigned_request_fails_safe_and_names_role(tmp_path: Path) -> None:
@@ -138,16 +136,22 @@ def _assert_one_publication(root: Path) -> None:
     assert len(request_rows) == 1
     manifests = [json.loads(path.read_text()) for path in (root / "cas").rglob("*.manifest.json")]
     decisions = {
-        manifest["artifact_id"] for manifest in manifests
+        manifest["artifact_id"]
+        for manifest in manifests
         if manifest["kind"] == "runtime.adaptation_decision_record"
     }
     assert decisions == {json.loads(rows[0][0])["artifact_ref"]}
-    sys.stdout.write(json.dumps({
-        "complete_sql_request_count": len(request_rows),
-        "complete_sql_decision_count": len(rows),
-        "independent_cas_decision_refs": sorted(decisions),
-        "request_ticket": request_rows[0][0],
-    }) + "\n")
+    sys.stdout.write(
+        json.dumps(
+            {
+                "complete_sql_request_count": len(request_rows),
+                "complete_sql_decision_count": len(rows),
+                "independent_cas_decision_refs": sorted(decisions),
+                "request_ticket": request_rows[0][0],
+            }
+        )
+        + "\n"
+    )
     api = _api()
     runtime = _runtime(api, root)
     snapshot = runtime.snapshot(request_rows[0][0], as_of=datetime.now(UTC))
@@ -194,10 +198,17 @@ def test_actual_sigkill_and_duplicate_preserve_single_custody_publication(
         os.kill(pid, signal.SIGKILL)
         worker.join(timeout=30)
         assert worker.exitcode == -signal.SIGKILL
-        sys.stdout.write(json.dumps({
-            "killed_pid": pid, "boundary": boundary, "exitcode": worker.exitcode,
-            "request_ticket": ticket,
-        }) + "\n")
+        sys.stdout.write(
+            json.dumps(
+                {
+                    "killed_pid": pid,
+                    "boundary": boundary,
+                    "exitcode": worker.exitcode,
+                    "request_ticket": ticket,
+                }
+            )
+            + "\n"
+        )
     finally:
         if worker.is_alive():
             worker.kill()
@@ -228,9 +239,11 @@ def test_corrupt_persisted_request_fails_closed(tmp_path: Path) -> None:
     runtime = _runtime(api, tmp_path)
     ticket = runtime.submit(_request(api))
     with sqlite3.connect(tmp_path / "control.sqlite") as connection:
-        payload = json.loads(connection.execute(
-            "SELECT payload_json FROM control_outbox_events WHERE event_id = ?", (ticket,)
-        ).fetchone()[0])
+        payload = json.loads(
+            connection.execute(
+                "SELECT payload_json FROM control_outbox_events WHERE event_id = ?", (ticket,)
+            ).fetchone()[0]
+        )
     digest = payload["artifact_ref"].removeprefix("sha256:")
     blob = tmp_path / "cas/artifacts/sha256" / digest[:2] / digest[2:4] / f"{digest}.blob"
     blob.write_text('{"appointed_signer":"system"}')
@@ -295,9 +308,12 @@ def test_snapshot_refuses_future_decision_and_request_observation(tmp_path, monk
     runtime.process(ticket)
     with pytest.raises(ValueError, match="decision_not_available_as_of"):
         runtime.snapshot(ticket, as_of=t0 + timedelta(seconds=30))
-    future = _request(api).model_copy(update={
-        "request_id": "future-observation", "observed_at": t0 + timedelta(days=1),
-    })
+    future = _request(api).model_copy(
+        update={
+            "request_id": "future-observation",
+            "observed_at": t0 + timedelta(days=1),
+        }
+    )
     future_ticket = runtime.submit(future)
     with pytest.raises(ValueError, match="request_observation_after_snapshot"):
         runtime.snapshot(future_ticket, as_of=t0 + timedelta(minutes=2))
@@ -315,10 +331,14 @@ def test_restart_projection_distinguishes_availability_and_expiry(tmp_path, monk
     snapshot = runtime.snapshot(ticket, as_of=t0)
     restart = api.RestartEvidenceRecord(
         prior_decision_ref=snapshot.decision_ref,
-        repair_ref="candidate-repair", test_refs=("candidate-test",),
-        measurement_health_ref="candidate-health", residual_harm_refs=("unknown",),
-        historical_claim_status="withheld", observed_at=t0 + timedelta(minutes=1),
-        expires_at=t0 + timedelta(hours=1), provenance_refs=("external-candidate",),
+        repair_ref="candidate-repair",
+        test_refs=("candidate-test",),
+        measurement_health_ref="candidate-health",
+        residual_harm_refs=("unknown",),
+        historical_claim_status="withheld",
+        observed_at=t0 + timedelta(minutes=1),
+        expires_at=t0 + timedelta(hours=1),
+        provenance_refs=("external-candidate",),
     )
     clock[0] = t0 + timedelta(minutes=2)
     restart_ref = runtime.record_restart(ticket, restart)

@@ -390,23 +390,36 @@ def test_phase2_state_carries_the_real_recorded_binding_without_faking_stage_int
         return SimpleNamespace(observational_data_ref=root, binding_receipt_ref=root)
 
     monkeypatch.setattr(owner, "produce_recorded_panel_method_input", produce, raising=False)
-    monkeypatch.setattr(owner, "_phase2_value_method_selection", lambda *a, **k: {
-        "status": "selected", "input_contract_id": "foundry.causal.panel_observational_data.v1",
-        "required_output_slots": ["report"],
-        "selected_method_fqn": "causal.inference.synthetic_control@2.0.0",
-        "denominator_established": True,
-        "denominator": ["causal.inference.synthetic_control@2.0.0"],
-        "candidates": [{"method_fqn": "causal.inference.synthetic_control@2.0.0", "disposition": "eligible"}],
-        "ranked_method_fqns": ["causal.inference.synthetic_control@2.0.0"],
-        "context_content_hash": "sha256:" + "3" * 64,
-    })
+    monkeypatch.setattr(
+        owner,
+        "_phase2_value_method_selection",
+        lambda *a, **k: {
+            "status": "selected",
+            "input_contract_id": "foundry.causal.panel_observational_data.v1",
+            "required_output_slots": ["report"],
+            "selected_method_fqn": "causal.inference.synthetic_control@2.0.0",
+            "denominator_established": True,
+            "denominator": ["causal.inference.synthetic_control@2.0.0"],
+            "candidates": [
+                {
+                    "method_fqn": "causal.inference.synthetic_control@2.0.0",
+                    "disposition": "eligible",
+                }
+            ],
+            "ranked_method_fqns": ["causal.inference.synthetic_control@2.0.0"],
+            "context_content_hash": "sha256:" + "3" * 64,
+        },
+    )
     state = WorkspaceLoop()._phase2_state(
-        workspace_id="binding-transport", intent=problem.to_workspace_intent(),
+        workspace_id="binding-transport",
+        intent=problem.to_workspace_intent(),
         design_problem=problem,
     )
     assert len(observed) == 1
     assert observed[0]["method_fqn"] == state.causal_method_fqn
-    assert state.artifacts_index["foundry_input_binding_receipt_ref"] == state.observational_data_ref
+    assert (
+        state.artifacts_index["foundry_input_binding_receipt_ref"] == state.observational_data_ref
+    )
     assert "ukraine_foundry_intake_receipt_ref" not in state.artifacts_index
 
 
@@ -414,7 +427,9 @@ def test_phase2_recorded_binding_refusal_is_a_typed_terminal(monkeypatch) -> Non
     from polisyos.runtime.quality.data_forge_binding import MeasurementRootBindingError
 
     def refuse(*args, **kwargs):
-        raise MeasurementRootBindingError("selected.method: recorded_input_method_contract_incompatible")
+        raise MeasurementRootBindingError(
+            "selected.method: recorded_input_method_contract_incompatible"
+        )
 
     monkeypatch.setattr(WorkspaceLoop, "_phase2_context", lambda *a, **k: (None, None))
     monkeypatch.setattr(WorkspaceLoop, "_phase2_state", refuse)
@@ -550,10 +565,12 @@ def test_playbook_admission_does_not_reuse_prior_output_as_current_production(
             ctx.calls.append("execute")
             current = []
             if emit_unrelated_artifact:
-                current.append(ctx.store.put_json(
-                    {"unrelated": "current invocation emitted this"},
-                    PutOptions(kind="ir.unrelated", media_type="application/json"),
-                ))
+                current.append(
+                    ctx.store.put_json(
+                        {"unrelated": "current invocation emitted this"},
+                        PutOptions(kind="ir.unrelated", media_type="application/json"),
+                    )
+                )
             return NodeOutcome(status="ok", state=state, artifacts=current)
 
     ctx, state = _station(tmp_path)
@@ -584,9 +601,7 @@ def test_playbook_admission_does_not_reuse_prior_output_as_current_production(
     assert admission.step is None, admission.conformance.model_dump(mode="json")
     assert admission.conformance.passed is False
     failures = set(admission.conformance.failures)
-    assert {
-        f"output_not_emitted_current_attempt:{key}" for key in node.spec.produces
-    } <= failures
+    assert {f"output_not_emitted_current_attempt:{key}" for key in node.spec.produces} <= failures
 
 
 def test_phase2_explicit_causal_method_uses_contract_route_not_value_population() -> None:
@@ -594,10 +609,13 @@ def test_phase2_explicit_causal_method_uses_contract_route_not_value_population(
     from polisyos.runtime.quality.workspace import loop as owner
 
     problem_payload = _design_problem().model_dump(mode="json")
-    problem_payload["runtime_hints"]["causal_method_fqn"] = "causal.inference.synthetic_control@2.0.0"
+    problem_payload["runtime_hints"]["causal_method_fqn"] = (
+        "causal.inference.synthetic_control@2.0.0"
+    )
     problem = DesignProblem.model_validate(problem_payload)
     result = owner._phase2_value_method_selection(
-        problem.to_workspace_intent(), design_problem=problem,
+        problem.to_workspace_intent(),
+        design_problem=problem,
     )
     assert result["status"] == "selected", result
     assert result["selected_method_fqn"] == "causal.inference.synthetic_control@2.0.0"
@@ -611,11 +629,14 @@ def test_phase2_default_method_accepts_actual_recorded_input_and_report_port() -
 
     problem = _design_problem()
     result = owner._phase2_value_method_selection(
-        problem.to_workspace_intent(), design_problem=problem,
+        problem.to_workspace_intent(),
+        design_problem=problem,
     )
     assert result["status"] == "selected", result
     method = MethodRegistry.get_instance().get(result["selected_method_fqn"])
-    assert method_accepts_input_contract(method, "foundry.causal.panel_observational_data.v1"), result
+    assert method_accepts_input_contract(method, "foundry.causal.panel_observational_data.v1"), (
+        result
+    )
     assert "report" in {slot.name for slot in method.signature.output_slots}, result
 
 
@@ -624,9 +645,13 @@ def test_phase2_selection_refusal_stops_before_binding_and_retains_result(monkey
     from polisyos.runtime.quality.workspace import loop as owner
 
     refusal = {
-        "status": "blocked", "input_contract_id": "foundry.causal.panel_observational_data.v1",
-        "required_output_slots": ["report"], "selected_method_fqn": None,
-        "denominator_established": True, "denominator": [], "candidates": [],
+        "status": "blocked",
+        "input_contract_id": "foundry.causal.panel_observational_data.v1",
+        "required_output_slots": ["report"],
+        "selected_method_fqn": None,
+        "denominator_established": True,
+        "denominator": [],
+        "candidates": [],
         "context_content_hash": "sha256:" + "3" * 64,
         "blockers": ["input_contract_method_no_eligible_candidate"],
     }
@@ -639,7 +664,8 @@ def test_phase2_selection_refusal_stops_before_binding_and_retains_result(monkey
     problem = _design_problem()
     with pytest.raises(MeasurementRootBindingError) as caught:
         WorkspaceLoop()._phase2_state(
-            workspace_id="refused-selection", intent=problem.to_workspace_intent(),
+            workspace_id="refused-selection",
+            intent=problem.to_workspace_intent(),
             design_problem=problem,
         )
     receipt = caught.value.selection
@@ -648,12 +674,16 @@ def test_phase2_selection_refusal_stops_before_binding_and_retains_result(monkey
 
 
 @pytest.mark.parametrize("supplied", [None, "unbound-observation-marker"])
-def test_phase2_supplied_observation_without_contract_is_not_recorded_default(monkeypatch, supplied) -> None:
+def test_phase2_supplied_observation_without_contract_is_not_recorded_default(
+    monkeypatch, supplied
+) -> None:
     from polisyos.runtime.quality.data_forge_binding import MeasurementRootBindingError
     from polisyos.runtime.quality.workspace import loop as owner
 
     def forbidden_default(*args, **kwargs):
-        raise AssertionError("supplied input was silently replaced with the recorded/synthetic default")
+        raise AssertionError(
+            "supplied input was silently replaced with the recorded/synthetic default"
+        )
 
     monkeypatch.setattr(owner, "produce_recorded_panel_method_input", forbidden_default)
     monkeypatch.setattr(WorkspaceLoop, "_phase2_observational_data_ref", forbidden_default)
@@ -662,6 +692,7 @@ def test_phase2_supplied_observation_without_contract_is_not_recorded_default(mo
     problem = DesignProblem.model_validate(problem_payload)
     with pytest.raises(MeasurementRootBindingError, match="supplied_observation"):
         WorkspaceLoop()._phase2_state(
-            workspace_id="unbound-input", intent=problem.to_workspace_intent(),
+            workspace_id="unbound-input",
+            intent=problem.to_workspace_intent(),
             design_problem=problem,
         )

@@ -39,16 +39,14 @@ def run_linear_migration(
     while current_version != target_version:
         if current_version in visited:
             raise ValueError(
-                f"Migration loop detected for '{artifact}': "
-                f"{current_version} -> {target_version}"
+                f"Migration loop detected for '{artifact}': {current_version} -> {target_version}"
             )
         visited.add(current_version)
 
         edge = edge_lookup(artifact, current_version)
         if edge is None:
             raise ValueError(
-                f"No migrator for '{artifact}' from "
-                f"{current_version} to {target_version}"
+                f"No migrator for '{artifact}' from {current_version} to {target_version}"
             )
         next_version = profile.edge_target(edge)
         current_data = profile.apply_step(

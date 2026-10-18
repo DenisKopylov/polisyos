@@ -230,8 +230,7 @@ class EvalSafetyAuthorityResolution(_FrozenModel):
     @model_validator(mode="after")
     def _verify_resolution_shape(self) -> Self:
         trusted = bool(self.predicate_provenance) and all(
-            row in {"recomputed", "independently_reconciled"}
-            for row in self.predicate_provenance
+            row in {"recomputed", "independently_reconciled"} for row in self.predicate_provenance
         )
         verified_shape = bool(
             not self.blocker_codes
@@ -564,9 +563,7 @@ class EvaluationSafetyDecisionCore(_FrozenModel):
                 raise ValueError("eval_safety_core_attempt_class_provenance_incoherent")
         elif self.attempt_class_provenance != "recomputed":
             raise ValueError("eval_safety_core_attempt_class_provenance_incoherent")
-        if self.safety_semantic_hash != _content_hash(
-            self, exclude={"safety_semantic_hash"}
-        ):
+        if self.safety_semantic_hash != _content_hash(self, exclude={"safety_semantic_hash"}):
             raise ValueError("eval_safety_core_semantic_hash_mismatch")
         return self
 
@@ -842,9 +839,7 @@ class EvalSafetyCertificateRevision(_FrozenModel):
         return self
 
 
-class _ProducedEvalSafetyCertificateRevision(
-    _ProducerOwned, EvalSafetyCertificateRevision
-):
+class _ProducedEvalSafetyCertificateRevision(_ProducerOwned, EvalSafetyCertificateRevision):
     """Owner-produced revision node; parsed public nodes carry no authority."""
 
 
@@ -865,8 +860,7 @@ def _revision_cause_resolution_matches(
         and resolution.artifact_ref == cause_ref
         and resolution.attestation_role == "independent_verification"
         and resolution.subject_refs == subject_refs
-        and resolution.subject_schema_version
-        == "polisyos.eval_safety.certificate_revision.v1"
+        and resolution.subject_schema_version == "polisyos.eval_safety.certificate_revision.v1"
         and resolution.subject_rule_version is None
         and resolution.subject_purpose == purpose
         and resolution.subject_effective_at == effective_at
@@ -879,9 +873,7 @@ def _revision_cause_resolution_matches(
 def _produce_certificate_revision(
     values: dict[str, object],
 ) -> EvalSafetyCertificateRevision:
-    result = _ProducedEvalSafetyCertificateRevision(
-        **values, content_hash=_content_hash(values)
-    )
+    result = _ProducedEvalSafetyCertificateRevision(**values, content_hash=_content_hash(values))
     _mark_produced(result)
     return result
 
@@ -1118,10 +1110,7 @@ def admit_domain_evaluation_safety_pack(
                     for row in resolution.predicate_provenance
                 )
                 or admitted_at < appointment.valid_from
-                or (
-                    appointment.valid_until is not None
-                    and admitted_at >= appointment.valid_until
-                )
+                or (appointment.valid_until is not None and admitted_at >= appointment.valid_until)
             ):
                 blockers.append(_blocker("verifier_unappointed"))
                 continue
@@ -1200,9 +1189,7 @@ def verify_evaluation_safety_requirements(
     profile = admitted_pack.effective_profile
     if (
         admitted_pack.status != "admitted"
-        or not _is_produced(
-            admitted_pack, _ProducedEvalSafetyPackAdmissionReceipt
-        )
+        or not _is_produced(admitted_pack, _ProducedEvalSafetyPackAdmissionReceipt)
         or profile is None
         or profile.mode != request.evaluation_mode
     ):
@@ -1248,9 +1235,7 @@ def verify_evaluation_safety_requirements(
         if (
             result.verifier_component_id != verifier.component_id
             or result.evidence_ref != evidence_ref
-            or not _result_matches_request(
-                result, requirement, request, request_ref, evaluated_at
-            )
+            or not _result_matches_request(result, requirement, request, request_ref, evaluated_at)
         ):
             continue
         produced = _ProducedEvalSafetyRequirementResult.model_validate(
@@ -1280,9 +1265,7 @@ class EvalSafetyAuthoritySurfacePacket(_FrozenModel):
 
     schema_version: Literal["policyos.runtime.eval_safety_surface_packet.v1"]
     boundary: AuthorityBoundary
-    surfaces: dict[
-        Literal["run", "artifact", "lineage", "dashboard"], EvalSafetySurfaceDisposition
-    ]
+    surfaces: dict[Literal["run", "artifact", "lineage", "dashboard"], EvalSafetySurfaceDisposition]
 
 
 @dataclass(frozen=True, slots=True)
@@ -1294,9 +1277,7 @@ class EvaluationSafetyArtifactIdentity:
     schema: str
     reader_contract: str
     evidence_class: Literal["authority_bearing", "diagnostic_supporting"]
-    authority_role: Literal[
-        "producer_authority", "projection_only", "not_authoritative"
-    ]
+    authority_role: Literal["producer_authority", "projection_only", "not_authoritative"]
 
 
 def _evaluation_safety_artifact_identity(key: str) -> EvaluationSafetyArtifactIdentity:
@@ -1312,9 +1293,7 @@ def _evaluation_safety_artifact_identity(key: str) -> EvaluationSafetyArtifactId
         kind=stem,
         schema=f"{stem}.v1",
         reader_contract=f"{stem}.reader",
-        evidence_class=(
-            "authority_bearing" if authority_bearing else "diagnostic_supporting"
-        ),
+        evidence_class=("authority_bearing" if authority_bearing else "diagnostic_supporting"),
         authority_role=(
             "projection_only"
             if key == "metrics_projection"
@@ -1360,9 +1339,7 @@ def evaluation_safety_metrics_projection_identity(
         kind=row.kind,
         schema_name=row.schema,
         schema_version="1.0",
-        purpose=(
-            "dashboard_display" if surface == "dashboard" else "runtime_closeout_authority"
-        ),
+        purpose=("dashboard_display" if surface == "dashboard" else "runtime_closeout_authority"),
     )
 
 
@@ -1462,9 +1439,8 @@ def decide_evaluation_safety_core(
             blockers.append(_blocker("request_ref_missing"))
         if admitted_pack is None:
             blockers.append(_blocker("domain_pack_missing"))
-        elif (
-            admitted_pack.status == "admitted"
-            and not _is_produced(admitted_pack, _ProducedEvalSafetyPackAdmissionReceipt)
+        elif admitted_pack.status == "admitted" and not _is_produced(
+            admitted_pack, _ProducedEvalSafetyPackAdmissionReceipt
         ):
             blockers.append(_blocker("domain_pack_admission_unverified"))
         elif admitted_pack.status != "admitted":
@@ -1626,9 +1602,7 @@ def _result_matches_request(
 def evaluation_safety_core_bytes(core: EvaluationSafetyDecisionCore) -> bytes:
     """Return deterministic canonical JSON bytes for a frozen safety core."""
 
-    return json.dumps(
-        core.model_dump(mode="json"), sort_keys=True, separators=(",", ":")
-    ).encode()
+    return json.dumps(core.model_dump(mode="json"), sort_keys=True, separators=(",", ":")).encode()
 
 
 def evaluation_safety_decision_id(core: EvaluationSafetyDecisionCore) -> str:
@@ -1646,11 +1620,7 @@ def build_evaluation_safety_decision_event(
 
     if not _is_produced(core, _ProducedEvaluationSafetyDecisionCore):
         raise ValueError("eval_safety_decision_core_unreconciled")
-    admitted = (
-        classification
-        if _classification_is_produced(classification, core)
-        else None
-    )
+    admitted = classification if _classification_is_produced(classification, core) else None
     facet = admitted.promotion_safe_facet if admitted is not None else None
     values = {
         "decision_id": evaluation_safety_decision_id(core),
@@ -1662,9 +1632,7 @@ def build_evaluation_safety_decision_event(
         "promotion_safe_facet": facet,
         "near_miss": core.status == "blocked" and facet is True,
     }
-    result = _ProducedEvaluationSafetyDecisionEvent(
-        **values, content_hash=_content_hash(values)
-    )
+    result = _ProducedEvaluationSafetyDecisionEvent(**values, content_hash=_content_hash(values))
     _mark_produced(result)
     return result
 
@@ -1682,8 +1650,11 @@ def near_miss_resolver_basis_reference(
         raise ValueError("near_miss_resolver_basis_profile_mismatch")
     identity = str(ref.artifact_id)
     return ArtifactRef(
-        artifact_id=identity, artifact_type=profile.kind, content_hash=identity,
-        schema_ref=profile.schema_name, version=profile.schema_version,
+        artifact_id=identity,
+        artifact_type=profile.kind,
+        content_hash=identity,
+        schema_ref=profile.schema_name,
+        version=profile.schema_version,
         uri=f"cas://sha256/{identity.removeprefix('sha256:')}",
     )
 
@@ -1979,8 +1950,7 @@ def replay_evaluation_safety_authority(
     )
     if (
         decision_evaluated_at != decision.safety.evaluated_at
-        or
-        rebuilt_decision.model_dump(mode="json") != decision.model_dump(mode="json")
+        or rebuilt_decision.model_dump(mode="json") != decision.model_dump(mode="json")
         or decision_ref.content_hash != rebuilt_decision.content_hash
     ):
         return None
@@ -1992,8 +1962,7 @@ def replay_evaluation_safety_authority(
         decision_ref=decision_ref,
     )
     if (
-        rebuilt_certificate.model_dump(mode="json")
-        != certificate.model_dump(mode="json")
+        rebuilt_certificate.model_dump(mode="json") != certificate.model_dump(mode="json")
         or certificate_ref.content_hash != rebuilt_certificate.content_hash
     ):
         return None
@@ -2066,9 +2035,8 @@ def verify_evaluation_safety_consumer_admission(
         or context.intended_start_at != intake.intended_start_at
         or context.evaluation_input_refs != intake.evaluation_input_refs
         or context.evaluation_input_provenance != intake.evaluation_input_provenance
-        or context.attempt_class != recompute_attempt_class(
-            intake.evaluation_input_refs, intake.evaluation_input_provenance
-        )
+        or context.attempt_class
+        != recompute_attempt_class(intake.evaluation_input_refs, intake.evaluation_input_provenance)
         or context.attempt_class != "non_simulation"
     ):
         blockers.append(_blocker("execution_context_binding_mismatch"))
@@ -2107,11 +2075,9 @@ def verify_evaluation_safety_consumer_admission(
             or request.evaluation_input_refs != context.evaluation_input_refs
             or request.evaluation_input_provenance != context.evaluation_input_provenance
             or decision_core.evaluation_input_refs != context.evaluation_input_refs
-            or decision_core.evaluation_input_provenance
-            != context.evaluation_input_provenance
+            or decision_core.evaluation_input_provenance != context.evaluation_input_provenance
             or certificate.evaluation_input_refs != context.evaluation_input_refs
-            or certificate.evaluation_input_provenance
-            != context.evaluation_input_provenance
+            or certificate.evaluation_input_provenance != context.evaluation_input_provenance
             or certificate.rule_version != context.rule_version
             or certificate.rule_version != request.rule_version
             or context.intended_start_at != request.intended_start_at
@@ -2127,16 +2093,14 @@ def verify_evaluation_safety_consumer_admission(
                 verified_at=verified_at,
             )
         )
-        current_by_requirement = {
-            row.requirement_id: row for row in current_requirement_results
-        }
+        current_by_requirement = {row.requirement_id: row for row in current_requirement_results}
         if (
             len(current_by_requirement) != len(current_requirement_results)
             or set(current_by_requirement)
             != {row.requirement_id for row in decision_core.requirement_results}
             or any(
-            not _is_produced(row, _ProducedEvalSafetyRequirementResult)
-            for row in current_requirement_results
+                not _is_produced(row, _ProducedEvalSafetyRequirementResult)
+                for row in current_requirement_results
             )
             or any(
                 not _current_result_matches_original(
@@ -2151,14 +2115,9 @@ def verify_evaluation_safety_consumer_admission(
         ):
             blockers.append(_blocker("certificate_evidence_head_invalid"))
     current_head_ref = (
-        _current_revision_head_ref(revision_nodes, verified_at)
-        if not blockers
-        else None
+        _current_revision_head_ref(revision_nodes, verified_at) if not blockers else None
     )
-    if (
-        not blockers
-        and current_head_ref != context.eval_safety_revision_head_ref
-    ):
+    if not blockers and current_head_ref != context.eval_safety_revision_head_ref:
         blockers.append(_blocker("certificate_revision_head_binding_mismatch"))
         current_head_ref = None
     result = _ProducedEvalSafetyConsumerAdmissionReceipt(
@@ -2210,15 +2169,9 @@ def _revision_head_blockers(
     if not revision_nodes:
         return (_blocker("certificate_revision_head_invalid"),)
     revisions = tuple(node.revision for node in revision_nodes)
-    if any(
-        node.revision_ref.content_hash != node.revision.content_hash
-        for node in revision_nodes
-    ):
+    if any(node.revision_ref.content_hash != node.revision.content_hash for node in revision_nodes):
         return (_blocker("certificate_revision_ref_content_mismatch"),)
-    if any(
-        not _is_produced(row, _ProducedEvalSafetyCertificateRevision)
-        for row in revisions
-    ):
+    if any(not _is_produced(row, _ProducedEvalSafetyCertificateRevision) for row in revisions):
         return (_blocker("certificate_revision_unverified"),)
     if any(row.revision_lineage_id != certificate.revision_lineage_id for row in revisions):
         return (_blocker("certificate_revision_lineage_mismatch"),)
@@ -2239,14 +2192,10 @@ def _revision_head_blockers(
             if predecessor_identity not in by_ref:
                 break
             cursor = by_ref[predecessor_identity]
-    roots = tuple(
-        node for node in revision_nodes if node.revision.predecessor_ref is None
-    )
+    roots = tuple(node for node in revision_nodes if node.revision.predecessor_ref is None)
     if len(roots) != 1 or roots[0].revision.action != "issue":
         return (_blocker("certificate_revision_root_invalid"),)
-    successors: dict[
-        tuple[str, str], list[EvalSafetyCertificateRevisionNode]
-    ] = {
+    successors: dict[tuple[str, str], list[EvalSafetyCertificateRevisionNode]] = {
         key: [] for key in by_ref
     }
     for node in revision_nodes:
@@ -2255,10 +2204,7 @@ def _revision_head_blockers(
         predecessor_identity = _identity(node.revision.predecessor_ref)
         if predecessor_identity not in by_ref:
             return (_blocker("certificate_revision_predecessor_missing"),)
-        if (
-            node.revision.effective_at
-            < by_ref[predecessor_identity].revision.effective_at
-        ):
+        if node.revision.effective_at < by_ref[predecessor_identity].revision.effective_at:
             return (_blocker("certificate_revision_time_nonmonotone"),)
         successors[predecessor_identity].append(node)
     if any(len(rows) > 1 for rows in successors.values()):
@@ -2279,16 +2225,11 @@ def _revision_head_blockers(
         if not rows:
             break
         cursor = rows[0]
-    if (
-        _identity(cursor.revision_ref) in visited
-        and successors[_identity(cursor.revision_ref)]
-    ):
+    if _identity(cursor.revision_ref) in visited and successors[_identity(cursor.revision_ref)]:
         return (_blocker("certificate_revision_cyclic"),)
     if visited != set(by_ref):
         return (_blocker("certificate_revision_disconnected"),)
-    active = tuple(
-        node for node in ordered if node.revision.effective_at <= verified_at
-    )
+    active = tuple(node for node in ordered if node.revision.effective_at <= verified_at)
     if not active:
         return (_blocker("certificate_revision_not_effective"),)
     current = active[-1]
@@ -2308,11 +2249,7 @@ def _current_revision_head_ref(
     revision_nodes: tuple[EvalSafetyCertificateRevisionNode, ...],
     verified_at: datetime,
 ) -> ArtifactRef | None:
-    active = tuple(
-        node
-        for node in revision_nodes
-        if node.revision.effective_at <= verified_at
-    )
+    active = tuple(node for node in revision_nodes if node.revision.effective_at <= verified_at)
     if not active:
         return None
     predecessor_identities = {
@@ -2321,9 +2258,7 @@ def _current_revision_head_ref(
         if node.revision.predecessor_ref is not None
     }
     heads = tuple(
-        node
-        for node in active
-        if _identity(node.revision_ref) not in predecessor_identities
+        node for node in active if _identity(node.revision_ref) not in predecessor_identities
     )
     if len(heads) != 1:
         return None

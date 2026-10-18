@@ -87,6 +87,7 @@ class GlobalCaseIndexProducer:
     def produce(self) -> tuple[artifacts.ArtifactRef, GlobalCaseIndexSnapshot]:
         """Verify the complete visible binding set and persist its candidate snapshot."""
         from polisyos.core.artifacts import validate_core_model_json_artifact
+
         try:
             tenant_id = get_current_tenant_id()
             cell_id = get_current_cell_id()
@@ -166,6 +167,7 @@ def _verified_payload(
 ) -> object:
     """Resolve bytes, exact schema and producer provenance at one intake."""
     from polisyos.core.artifacts import load_core_json_artifact
+
     manifest = store.get_manifest(artifact_id)
     if (
         manifest.kind != kind

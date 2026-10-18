@@ -74,9 +74,7 @@ HIGH_VOLUME_SUBTREE_DOCS: dict[str, tuple[str, ...]] = {
 
 EXTENSION_HOST_READMES = {
     "polisyos.fabric_connectors": "src/polisyos/fabric/connectors/sources/README.md",
-    "polisyos.scientist_governance_passes": (
-        "src/polisyos/scientist/governance/passes/README.md"
-    ),
+    "polisyos.scientist_governance_passes": ("src/polisyos/scientist/governance/passes/README.md"),
     "polisyos.foundry_methods": "src/polisyos/foundry/methods/README.md",
     "polisyos.scientist_nodes": "src/polisyos/scientist/nodes/README.md",
     "polisyos.data_forge_domains": "src/polisyos/data_forge/domains/README.md",
@@ -149,9 +147,9 @@ def test_extension_hosts_have_readme_coverage() -> None:
 
 
 def test_frontend_subtree_contracts_define_feature_module_convention() -> None:
-    workspace_contract = (
-        REPO_ROOT / "docs/reference/frontend/workspace-contract.md"
-    ).read_text(encoding="utf-8")
+    workspace_contract = (REPO_ROOT / "docs/reference/frontend/workspace-contract.md").read_text(
+        encoding="utf-8"
+    )
     for required in (
         "apps/runtime-dashboard/src/app/",
         "apps/runtime-dashboard/src/features/",
@@ -162,15 +160,15 @@ def test_frontend_subtree_contracts_define_feature_module_convention() -> None:
     ):
         assert required in workspace_contract
 
-    feature_readme = (
-        REPO_ROOT / "apps/runtime-dashboard/src/features/README.md"
-    ).read_text(encoding="utf-8")
+    feature_readme = (REPO_ROOT / "apps/runtime-dashboard/src/features/README.md").read_text(
+        encoding="utf-8"
+    )
     for required in ("domain/", "components/", "routes/", "hooks/", "api/", "state/"):
         assert required in feature_readme
 
-    api_authoring = (
-        REPO_ROOT / "apps/runtime-dashboard/src/api/AUTHORING.md"
-    ).read_text(encoding="utf-8")
+    api_authoring = (REPO_ROOT / "apps/runtime-dashboard/src/api/AUTHORING.md").read_text(
+        encoding="utf-8"
+    )
     assert "types.ts" in api_authoring
     assert "generate:api" in api_authoring
 

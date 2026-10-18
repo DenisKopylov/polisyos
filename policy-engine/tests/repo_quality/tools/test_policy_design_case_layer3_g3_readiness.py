@@ -163,9 +163,7 @@ def test_layer3_g3_readiness_requires_persisted_artifacts(monkeypatch: Any) -> N
     validation = validator.validate_layer3_g3_readiness(REPO_ROOT)
 
     assert validation["status"] == "fail"
-    assert validation["artifacts"]["missing_persisted_artifact_paths"] == [
-        missing_path.as_posix()
-    ]
+    assert validation["artifacts"]["missing_persisted_artifact_paths"] == [missing_path.as_posix()]
     assert "layer3_g3_persisted_artifact_missing" in {
         issue["code"] for issue in validation["issues"]
     }
@@ -210,9 +208,7 @@ def test_layer3_g3_readiness_fails_when_write_path_omits_resolution_or_consumer_
     monkeypatch.setattr(
         validator,
         "_write_artifacts",
-        lambda _repo_root, _bundle: [
-            path.as_posix() for path in expected_paths if path != omitted
-        ],
+        lambda _repo_root, _bundle: [path.as_posix() for path in expected_paths if path != omitted],
     )
 
     validation = validator.validate_layer3_g3_readiness(REPO_ROOT, write=True)
@@ -224,7 +220,9 @@ def test_layer3_g3_readiness_fails_when_write_path_omits_resolution_or_consumer_
     assert omitted.as_posix() not in validation["artifacts"]["written_artifact_paths"]
 
 
-def test_layer3_g3_readiness_reports_resolution_bridge_s11_consumer_and_registry_issue_codes() -> None:
+def test_layer3_g3_readiness_reports_resolution_bridge_s11_consumer_and_registry_issue_codes() -> (
+    None
+):
     issue_codes = set(_validator().ALL_ISSUE_CODES)
 
     assert issue_codes >= REQUIRED_ISSUE_CODES

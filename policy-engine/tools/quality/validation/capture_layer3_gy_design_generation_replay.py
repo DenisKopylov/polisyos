@@ -104,9 +104,7 @@ async def _run(args: argparse.Namespace) -> int:
     for index, model_id in enumerate(model_plan, start=1):
         problem_id = f"{args.problem_id_prefix}_{index}_{_timestamp_id()}"
         print(f"ATTEMPT_START {index}/{attempts} model={model_id} problem={problem_id}", flush=True)
-        journal_path = (
-            repo_root / ".tmp" / "gy-n4-capture-journals" / f"{problem_id}.jsonl"
-        )
+        journal_path = repo_root / ".tmp" / "gy-n4-capture-journals" / f"{problem_id}.jsonl"
         previous_journal = os.environ.get("POLISYOS_N4_CALL_JOURNAL_PATH")
         os.environ["POLISYOS_N4_CALL_JOURNAL_PATH"] = str(journal_path)
         try:
@@ -209,8 +207,7 @@ def _resolve_capture_world_model_record_ref(
     resolved = str(owner_projection["world_model_record_id"])
     if requested is not None and str(requested) != resolved:
         raise RuntimeError(
-            "gy_n4_capture_world_model_record_ref_not_current:"
-            f"{requested}!={resolved}"
+            f"gy_n4_capture_world_model_record_ref_not_current:{requested}!={resolved}"
         )
     return resolved
 
@@ -285,7 +282,9 @@ def _diagnostic_from_result(
     world_model_record_ref: str,
 ) -> dict[str, Any]:
     return {
-        "archive_reason": "generated_run_not_recordable" if result.status == "generated" else "generation_not_generated",
+        "archive_reason": "generated_run_not_recordable"
+        if result.status == "generated"
+        else "generation_not_generated",
         "attempt_source": "live_gateway_accumulating_harness",
         "recorded_at": _now_iso(),
         "counts_toward_replay_coverage": False,

@@ -96,9 +96,7 @@ def test_supplied_inventory_cannot_hide_or_invent_controlled_records(issued_owne
     }
     serialized = result.model_dump(mode="json")
     serialized_inventory_reads = serialized["inventory_reads"]
-    serialized_reads = {
-        item["boundary"]: item for item in serialized_inventory_reads
-    }
+    serialized_reads = {item["boundary"]: item for item in serialized_inventory_reads}
     assert len(serialized_reads) == len(serialized_inventory_reads)
     assert set(serialized_reads) == {"admission_owner", "report_source"}
     assert serialized_reads["report_source"]["input_reads"] == []
@@ -152,6 +150,7 @@ def _preserve_locator(locator: Path, tmp_path: Path) -> Path:
     preserved_locator = preserved_directory / locator.name
     locator.rename(preserved_locator)
     return preserved_locator
+
 
 def test_absent_locator_is_reconciled_as_absent(issued_owner, tmp_path: Path):
     """A genuine missing locator remains recoverable through its owner transaction."""

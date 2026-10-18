@@ -201,11 +201,7 @@ def test_legacy_checkpoint_fails_closed_for_unbound_request(tmp_path, change) ->
         node_timing_ms=[1.0],
     )
     initial_state = {"value": 4 if change == "input" else 3}
-    params = (
-        {chain.execution_order[0]: {"factor": 3}}
-        if change == "parameter"
-        else None
-    )
+    params = {chain.execution_order[0]: {"factor": 3}} if change == "parameter" else None
     seed = 99 if change == "seed" else 7
 
     with pytest.raises(CheckpointDigestMismatchError, match="lacks execution identity"):

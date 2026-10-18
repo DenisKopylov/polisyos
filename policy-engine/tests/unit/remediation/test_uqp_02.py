@@ -362,14 +362,18 @@ def test_incompatible_empirical_axes_are_not_sampled_as_independent() -> None:
         "a": _empirical_env((-1.0, 0.0, 0.0, 1.0), sample_axis="row-a"),
         "b": _empirical_env((-1.0, 0.0, 0.0, 1.0), sample_axis="row-b"),
     }
-    result = MonteCarloPropagator(
-        PropagationConfig(mc_n_samples=128, mc_batch_size=128, mc_min_valid_samples=20)
-    ).propagate(
-        lambda **params: {"y": params["a"] - params["b"]},
-        {"a": 0.0, "b": 0.0},
-        envelopes,
-        ["y"],
-    )[0].envelope
+    result = (
+        MonteCarloPropagator(
+            PropagationConfig(mc_n_samples=128, mc_batch_size=128, mc_min_valid_samples=20)
+        )
+        .propagate(
+            lambda **params: {"y": params["a"] - params["b"]},
+            {"a": 0.0, "b": 0.0},
+            envelopes,
+            ["y"],
+        )[0]
+        .envelope
+    )
 
     assert result.distribution_family is DistributionFamily.UNKNOWN
     assert result.gate_eligible is False
@@ -382,14 +386,18 @@ def test_same_empirical_axis_with_different_weights_is_not_a_joint_law() -> None
         "a": _empirical_env((-1.0, 0.0, 0.0, 1.0), weights=(1.0, 1.0, 1.0, 1.0)),
         "b": _empirical_env((-1.0, 0.0, 0.0, 1.0), weights=(1.0, 2.0, 1.0, 1.0)),
     }
-    result = MonteCarloPropagator(
-        PropagationConfig(mc_n_samples=128, mc_batch_size=128, mc_min_valid_samples=20)
-    ).propagate(
-        lambda **params: {"y": params["a"] - params["b"]},
-        {"a": 0.0, "b": 0.0},
-        envelopes,
-        ["y"],
-    )[0].envelope
+    result = (
+        MonteCarloPropagator(
+            PropagationConfig(mc_n_samples=128, mc_batch_size=128, mc_min_valid_samples=20)
+        )
+        .propagate(
+            lambda **params: {"y": params["a"] - params["b"]},
+            {"a": 0.0, "b": 0.0},
+            envelopes,
+            ["y"],
+        )[0]
+        .envelope
+    )
 
     assert result.distribution_family is DistributionFamily.UNKNOWN
     assert result.gate_eligible is False
@@ -402,14 +410,18 @@ def test_same_empirical_axis_with_different_lengths_is_not_a_joint_law() -> None
         "a": _empirical_env((-1.0, 0.0, 0.0, 1.0)),
         "b": _empirical_env((-1.0, 0.0)),
     }
-    result = MonteCarloPropagator(
-        PropagationConfig(mc_n_samples=128, mc_batch_size=128, mc_min_valid_samples=20)
-    ).propagate(
-        lambda **params: {"y": params["a"] - params["b"]},
-        {"a": 0.0, "b": 0.0},
-        envelopes,
-        ["y"],
-    )[0].envelope
+    result = (
+        MonteCarloPropagator(
+            PropagationConfig(mc_n_samples=128, mc_batch_size=128, mc_min_valid_samples=20)
+        )
+        .propagate(
+            lambda **params: {"y": params["a"] - params["b"]},
+            {"a": 0.0, "b": 0.0},
+            envelopes,
+            ["y"],
+        )[0]
+        .envelope
+    )
 
     assert result.distribution_family is DistributionFamily.UNKNOWN
     assert result.gate_eligible is False
@@ -422,14 +434,18 @@ def test_mixed_empirical_and_parametric_inputs_are_not_assumed_independent() -> 
         "a": _empirical_env((-1.0, 0.0, 1.0)),
         "b": _normal_env(0.0, 1.0),
     }
-    result = MonteCarloPropagator(
-        PropagationConfig(mc_n_samples=128, mc_batch_size=128, mc_min_valid_samples=20)
-    ).propagate(
-        lambda **params: {"y": params["a"] - params["b"]},
-        {"a": 0.0, "b": 0.0},
-        envelopes,
-        ["y"],
-    )[0].envelope
+    result = (
+        MonteCarloPropagator(
+            PropagationConfig(mc_n_samples=128, mc_batch_size=128, mc_min_valid_samples=20)
+        )
+        .propagate(
+            lambda **params: {"y": params["a"] - params["b"]},
+            {"a": 0.0, "b": 0.0},
+            envelopes,
+            ["y"],
+        )[0]
+        .envelope
+    )
 
     assert result.distribution_family is DistributionFamily.UNKNOWN
     assert result.gate_eligible is False
@@ -442,14 +458,18 @@ def test_default_empirical_draws_without_shared_identity_are_not_coupled() -> No
         "a": _empirical_env((-1.0, 0.0, 1.0), joint_id=None),
         "b": _empirical_env((-1.0, 0.0, 1.0), joint_id=None),
     }
-    result = MonteCarloPropagator(
-        PropagationConfig(mc_n_samples=128, mc_batch_size=128, mc_min_valid_samples=20)
-    ).propagate(
-        lambda **params: {"y": params["a"] - params["b"]},
-        {"a": 0.0, "b": 0.0},
-        envelopes,
-        ["y"],
-    )[0].envelope
+    result = (
+        MonteCarloPropagator(
+            PropagationConfig(mc_n_samples=128, mc_batch_size=128, mc_min_valid_samples=20)
+        )
+        .propagate(
+            lambda **params: {"y": params["a"] - params["b"]},
+            {"a": 0.0, "b": 0.0},
+            envelopes,
+            ["y"],
+        )[0]
+        .envelope
+    )
 
     assert result.distribution_family is DistributionFamily.UNKNOWN
     assert result.gate_eligible is False
@@ -468,15 +488,17 @@ def test_unknown_dependency_does_not_fall_back_to_independent_normal() -> None:
         calls.append(params)
         return {"y": params["a"] - params["b"]}
 
-    result = PropagationDispatcher(
-        PropagationConfig(preferred_method="analytical")
-    ).propagate(
-        simulation,
-        {"a": 0.0, "b": 0.0},
-        envelopes,
-        ["y"],
-        weights={"a": 1.0, "b": -1.0},
-    )[0].envelope
+    result = (
+        PropagationDispatcher(PropagationConfig(preferred_method="analytical"))
+        .propagate(
+            simulation,
+            {"a": 0.0, "b": 0.0},
+            envelopes,
+            ["y"],
+            weights={"a": 1.0, "b": -1.0},
+        )[0]
+        .envelope
+    )
 
     assert result.distribution_family is DistributionFamily.UNKNOWN
     assert result.gate_eligible is False
@@ -546,9 +568,7 @@ def test_non_gate_input_stays_non_gate_through_all_propagators() -> None:
         input_envelopes=input_envelopes,
         output_metric_id="y",
     )
-    delta = DeltaMethodPropagator(
-        PropagationConfig(delta_use_full_covariance=True)
-    ).propagate(
+    delta = DeltaMethodPropagator(PropagationConfig(delta_use_full_covariance=True)).propagate(
         simulation,
         {"a": 0.0},
         input_envelopes,

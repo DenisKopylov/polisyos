@@ -19,7 +19,9 @@ def invoke(observed: str, *, challenge: str | None = None, isolated: bool = True
     assert ORACLE.is_file(), "independent acquisition oracle is missing"
     command = [sys.executable, *(["-I", "-S"] if isolated else []), str(ORACLE)]
     command += [
-        "--expectations", str(EXPECTED), "--expected-sha256",
+        "--expectations",
+        str(EXPECTED),
+        "--expected-sha256",
         hashlib.sha256(EXPECTED.read_bytes()).hexdigest(),
     ]
     if challenge is not None:

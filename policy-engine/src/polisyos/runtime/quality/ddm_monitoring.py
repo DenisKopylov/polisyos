@@ -339,9 +339,7 @@ def _validate_ddm_event(
 def _validate_incident_root_cause_links(
     monitoring: Mapping[str, list[dict[str, Any]]],
 ) -> None:
-    root_cause_ids = {
-        event["event_id"] for event in monitoring.get("root_cause_events", [])
-    }
+    root_cause_ids = {event["event_id"] for event in monitoring.get("root_cause_events", [])}
     for incident in monitoring.get("incident_events", []):
         refs = set(_text_values(incident.get("root_cause_event_ids")))
         if not refs or refs.isdisjoint(root_cause_ids):
@@ -354,8 +352,7 @@ def _validate_incident_root_cause_links(
 
 def _ddm_event_groups(value: Mapping[str, Any]) -> dict[str, list[dict[str, Any]]]:
     return {
-        group: [dict(row) for row in _mapping_rows(value.get(group))]
-        for group in DDM_EVENT_GROUPS
+        group: [dict(row) for row in _mapping_rows(value.get(group))] for group in DDM_EVENT_GROUPS
     }
 
 
@@ -422,11 +419,7 @@ def _text_values(value: object) -> list[str]:
         text = _text(value)
         return [] if text is None else [text]
     if isinstance(value, Mapping):
-        return [
-            text
-            for text in (_text(item) for item in value.values())
-            if text is not None
-        ]
+        return [text for text in (_text(item) for item in value.values()) if text is not None]
     if isinstance(value, Iterable):
         return [text for text in (_text(item) for item in value) if text is not None]
     return []

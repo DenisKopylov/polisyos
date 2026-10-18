@@ -133,9 +133,7 @@ def test_verify_signature_rejects_malformed_artifact_ref_before_cas_reads(
         b"artifact",
         PutOptions(kind="test.bytes", media_type="application/octet-stream"),
     )
-    malformed_ref: ArtifactRef = ref.model_copy(
-        update={"artifact_id": "not-an-artifact-id"}
-    )
+    malformed_ref: ArtifactRef = ref.model_copy(update={"artifact_id": "not-an-artifact-id"})
     read_attempts: list[str] = []
 
     def record_forbidden_read(*_args: object, **_kwargs: object) -> None:
@@ -192,9 +190,7 @@ def test_verify_signature_rejects_mutated_artifact_id_root_before_cas_reads(
 
     assert result.status == SignatureVerificationStatus.ERROR
     assert result.artifact_id == "<malformed-artifact-id>"
-    assert result.message == (
-        "Malformed artifact reference" if nested else "Malformed artifact ID"
-    )
+    assert result.message == ("Malformed artifact reference" if nested else "Malformed artifact ID")
     assert read_attempts == []
 
 

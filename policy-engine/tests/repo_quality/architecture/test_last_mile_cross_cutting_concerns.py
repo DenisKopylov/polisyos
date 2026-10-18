@@ -54,9 +54,7 @@ def _public_canonical_interfaces() -> set[str]:
 def _supported_entrypoints_by_module() -> dict[str, set[str]]:
     contract = _load_toml(PUBLIC_SURFACE_CONTRACT)
     return {
-        str(package["module"]): {
-            str(entrypoint) for entrypoint in package["supported_entrypoints"]
-        }
+        str(package["module"]): {str(entrypoint) for entrypoint in package["supported_entrypoints"]}
         for package in contract["package"]
     }
 
@@ -70,9 +68,7 @@ def _primary_supported_entrypoints_by_module() -> dict[str, set[str]]:
             continue
         entrypoints[str(package["module"])] = {
             str(entrypoint)
-            for entrypoint in contract.get("public_surface", {}).get(
-                "supported_entrypoints", []
-            )
+            for entrypoint in contract.get("public_surface", {}).get("supported_entrypoints", [])
         }
     return entrypoints
 
@@ -129,8 +125,7 @@ def test_phase1_5_public_canonical_interfaces_are_supported_or_registered_deferr
         module: primary_supported_by_module.get(module, set())
         for module in TOUCHED_PUBLIC_SURFACE_MODULES
     } == {
-        module: supported_by_module.get(module, set())
-        for module in TOUCHED_PUBLIC_SURFACE_MODULES
+        module: supported_by_module.get(module, set()) for module in TOUCHED_PUBLIC_SURFACE_MODULES
     }
 
 
@@ -162,11 +157,7 @@ def test_phase1_5_terminal_debt_cannot_authorize_deferred_interface(
     monkeypatch.setattr(
         "tests.repo_quality.architecture.test_last_mile_cross_cutting_concerns."
         "DEFERRED_PUBLIC_CANONICAL_INTERFACES",
-        {
-            "polisyos.core.observability": (
-                "core-observability-canonical-interface-contract-drift"
-            )
-        },
+        {"polisyos.core.observability": ("core-observability-canonical-interface-contract-drift")},
     )
 
     with pytest.raises(AssertionError):
@@ -235,8 +226,8 @@ def _write_contract(
                 'adapter_policy = "package adapters import the canonical home"',
                 'sunset = "none"',
                 'file_names = ["observability"]',
-                'allowed_adapters = []',
-                'unresolved_collisions = []',
+                "allowed_adapters = []",
+                "unresolved_collisions = []",
                 "",
                 "[[concern]]",
                 'name = "registry"',
@@ -250,8 +241,8 @@ def _write_contract(
                 'adapter_policy = "package adapters import the canonical home"',
                 'sunset = "none"',
                 'file_names = ["registry"]',
-                'allowed_adapters = []',
-                'unresolved_collisions = []',
+                "allowed_adapters = []",
+                "unresolved_collisions = []",
                 *exception_lines,
             ]
         )
@@ -302,8 +293,7 @@ def test_phase1_5_non_canonical_root_concern_file_fails(tmp_path: Path) -> None:
         check_package_import_gates.Finding(
             "cross-cutting-concern-home",
             "src/polisyos/fabric/observability.py",
-            "cross-cutting concern root is outside its canonical home and lacks "
-            "a scoped exception",
+            "cross-cutting concern root is outside its canonical home and lacks a scoped exception",
             "concern=observability canonical_home=polisyos.core.observability",
         )
     ]

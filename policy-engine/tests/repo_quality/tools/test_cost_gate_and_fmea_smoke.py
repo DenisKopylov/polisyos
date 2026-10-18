@@ -128,12 +128,12 @@ def test_i10_cost_gate_fmea_and_r14_smoke_closes_wave_10_exit_gate() -> None:
 
     assert cost_report["status"] == "blocked"
     assert cost_report["closeout_effect"] == "blocking"
-    assert {blocker["code"] for blocker in cost_report["blockers"]} == {
-        "run_cost_budget_exceeded"
+    assert {blocker["code"] for blocker in cost_report["blockers"]} == {"run_cost_budget_exceeded"}
+    assert {blocker["dimension"] for blocker in cost_report["blockers"]} >= {
+        "provider_api_calls",
+        "wall_clock_seconds",
+        "retries",
     }
-    assert {
-        blocker["dimension"] for blocker in cost_report["blockers"]
-    } >= {"provider_api_calls", "wall_clock_seconds", "retries"}
 
     cost_gates = cost_gate_scorecard_gates(
         quality_evidence={"run_cost_gate": cost_report},
@@ -157,9 +157,7 @@ def test_i10_cost_gate_fmea_and_r14_smoke_closes_wave_10_exit_gate() -> None:
         authority_handoff_refs=[runtime_cas_refs()[PROMPT_TOOL_LEDGER_REF_KEY]],
     )
     ledger_payload = serialize_prompt_tool_ledger(ledger)
-    ledger_payload[PROMPT_TOOL_LEDGER_REF_KEY] = runtime_cas_refs()[
-        PROMPT_TOOL_LEDGER_REF_KEY
-    ]
+    ledger_payload[PROMPT_TOOL_LEDGER_REF_KEY] = runtime_cas_refs()[PROMPT_TOOL_LEDGER_REF_KEY]
 
     quality_evidence = complete_quality_evidence()
     quality_evidence["run_cost_gate"] = cost_report
@@ -169,15 +167,11 @@ def test_i10_cost_gate_fmea_and_r14_smoke_closes_wave_10_exit_gate() -> None:
         quality_evidence=quality_evidence,
     )
 
-    blocking_codes = {
-        failure["code"] for failure in scorecard["blocking_quality_failures"]
-    }
+    blocking_codes = {failure["code"] for failure in scorecard["blocking_quality_failures"]}
     assert "run_cost_authority_budget_blocking" in blocking_codes
     gates_by_code = {gate["code"]: gate for gate in scorecard["quality_gates"]}
     assert gates_by_code["prompt_tool_repair_decision_fmea_observed"]["status"] == "warn"
-    assert scorecard["operator_machinery_failures"][0]["failure_mode"] == (
-        "parser_contract_repair"
-    )
+    assert scorecard["operator_machinery_failures"][0]["failure_mode"] == ("parser_contract_repair")
     assert scorecard["operator_machinery_failures"][0]["recommended_mitigation"].startswith(
         "Keep strict parser validation"
     )
@@ -203,9 +197,7 @@ def test_i10_cost_gate_fmea_and_r14_smoke_closes_wave_10_exit_gate() -> None:
     )
 
     fixture = json.loads(
-        (R14_FIXTURE_ROOT / "authority_spoofing_fake_envelope.json").read_text(
-            encoding="utf-8"
-        )
+        (R14_FIXTURE_ROOT / "authority_spoofing_fake_envelope.json").read_text(encoding="utf-8")
     )
     probe_result = evaluate_r14_adversarial_probe_fixture(fixture)
 

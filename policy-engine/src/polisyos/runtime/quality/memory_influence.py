@@ -86,10 +86,7 @@ class _ProvenancePayloadError(ValueError):
         self.path = path
         self.value_type = type(value).__name__
         location = _payload_path(path) if path else "$"
-        super().__init__(
-            "unsupported provenance payload value at "
-            f"{location}: {self.value_type}"
-        )
+        super().__init__(f"unsupported provenance payload value at {location}: {self.value_type}")
 
 
 class MemoryInfluenceRecord(BaseModel):
@@ -185,8 +182,7 @@ def build_memory_influence_record(
     applicability = _evaluate_payload_applicability(payload, context_payload)
     if not applicability["applies"]:
         raise ValueError(
-            "balanced memory cannot influence run: "
-            + ",".join(applicability["reasons"])
+            "balanced memory cannot influence run: " + ",".join(applicability["reasons"])
         )
     boundary = _mapping(payload.get("authority_boundary"))
     return MemoryInfluenceRecord(
@@ -221,8 +217,7 @@ def assert_memory_influence_not_claim_evidence(
     missing = set(CORE_FORBIDDEN_CURRENT_USES) - set(record.may_not_use_for)
     if missing:
         raise ValueError(
-            "memory influence boundary missing forbidden current uses: "
-            + ",".join(sorted(missing))
+            "memory influence boundary missing forbidden current uses: " + ",".join(sorted(missing))
         )
     _assert_markers_in_owner_declared_positions(record)
     return record
@@ -514,16 +509,12 @@ def _collect_payload_provenance_values(
         for key, item in value.items():
             if not isinstance(key, str):
                 raise _ProvenancePayloadError(path=(*path, "<mapping-key>"), value=key)
-            values.extend(
-                _collect_payload_provenance_values(item, path=(*path, key))
-            )
+            values.extend(_collect_payload_provenance_values(item, path=(*path, key)))
         return values
     if isinstance(value, list | tuple):
         values = []
         for index, item in enumerate(value):
-            values.extend(
-                _collect_payload_provenance_values(item, path=(*path, f"[{index}]"))
-            )
+            values.extend(_collect_payload_provenance_values(item, path=(*path, f"[{index}]")))
         return values
     raise _ProvenancePayloadError(path=path, value=value)
 

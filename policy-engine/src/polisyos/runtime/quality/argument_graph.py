@@ -417,13 +417,16 @@ def build_argument_graph(
 
         for argument in matched_arguments or ():
             argument_id = _identity(argument, "argument")
-            argument_warrants = _matched_rows(
-                argument,
-                matched_warrants,
-                surface="warrant",
-                ref_keys=("warrant_refs", "warrant_ref", "warrant_node_refs"),
-                claim_id=claim_id,
-            ) or matched_warrants
+            argument_warrants = (
+                _matched_rows(
+                    argument,
+                    matched_warrants,
+                    surface="warrant",
+                    ref_keys=("warrant_refs", "warrant_ref", "warrant_node_refs"),
+                    claim_id=claim_id,
+                )
+                or matched_warrants
+            )
             for warrant in argument_warrants:
                 warrant_node, warrant_issues = _warrant_node(warrant, claim_id=claim_id)
                 issues.extend(warrant_issues)
@@ -441,18 +444,21 @@ def build_argument_graph(
 
         for warrant in matched_warrants:
             warrant_id = _identity(warrant, "warrant")
-            warrant_evidence = _matched_rows(
-                warrant,
-                matched_evidence,
-                surface="evidence",
-                ref_keys=(
-                    "evidence_refs",
-                    "evidence_ref",
-                    "producer_evidence_refs",
-                    "producer_evidence_ref",
-                ),
-                claim_id=claim_id,
-            ) or matched_evidence
+            warrant_evidence = (
+                _matched_rows(
+                    warrant,
+                    matched_evidence,
+                    surface="evidence",
+                    ref_keys=(
+                        "evidence_refs",
+                        "evidence_ref",
+                        "producer_evidence_refs",
+                        "producer_evidence_ref",
+                    ),
+                    claim_id=claim_id,
+                )
+                or matched_evidence
+            )
             for evidence in warrant_evidence:
                 evidence_node = _evidence_node(evidence, claim_id=claim_id)
                 if evidence_node["node_id"] not in seen_evidence:
@@ -533,9 +539,7 @@ def build_argument_graph(
         "run_id": _text(policy_design_case.get("run_id")),
         "job_id": _text(policy_design_case.get("job_id")),
         "tenant_id": _text(policy_design_case.get("tenant_id")),
-        "effective_execution_profile": _text(
-            policy_design_case.get("effective_execution_profile")
-        ),
+        "effective_execution_profile": _text(policy_design_case.get("effective_execution_profile")),
         "authority_boundary": _authority_boundary(),
         "profile_metadata": {
             "extends": "polisyos.runtime.quality.assurance_case",
@@ -673,9 +677,7 @@ def export_argument_graph(
                 "justification": warrant_refs,
                 "solution": evidence_refs,
                 "context": authority_refs,
-                "undeveloped": readiness_refs
-                if graph.get("status") != "pass"
-                else [],
+                "undeveloped": readiness_refs if graph.get("status") != "pass" else [],
             }
         claims.append(row)
 
@@ -835,9 +837,7 @@ def _runtime_pdc_graph_argument_surface(case: Mapping[str, Any]) -> Mapping[str,
                         }
                     ],
                     "confidence_refs": producer_refs,
-                    "reliability_refs": _text_values(
-                        raw_claim.get("effective_independence_refs")
-                    )
+                    "reliability_refs": _text_values(raw_claim.get("effective_independence_refs"))
                     or producer_refs,
                     "limits": [
                         {
@@ -939,12 +939,8 @@ def _warrant_node(
                     row.get("rationale"),
                     row.get("text"),
                 ),
-                "argument_refs": _text_values(
-                    row.get("argument_refs") or row.get("argument_ref")
-                ),
-                "evidence_refs": _text_values(
-                    row.get("evidence_refs") or row.get("evidence_ref")
-                ),
+                "argument_refs": _text_values(row.get("argument_refs") or row.get("argument_ref")),
+                "evidence_refs": _text_values(row.get("evidence_refs") or row.get("evidence_ref")),
                 "requires_berl_reliability": warrant_requires_berl_reliability(row),
                 "semantics": semantics.as_dict(),
                 "machine_inspectable": not issues,
@@ -1143,11 +1139,7 @@ def _warrant_semantic_issues(
                 field="warrants.applicability_predicates",
             )
         )
-    if not (
-        semantics.confidence_refs
-        or semantics.reliability_refs
-        or semantics.berl_refs
-    ):
+    if not (semantics.confidence_refs or semantics.reliability_refs or semantics.berl_refs):
         issues.append(
             _issue(
                 "argument_graph_warrant_confidence_or_reliability_refs_missing",
@@ -1219,9 +1211,7 @@ def _applicability_predicate(item: object, *, index: int) -> ApplicabilityPredic
             ),
             source_refs=_text_values(item.get("source_refs") or item.get("evidence_refs")),
         )
-    return ApplicabilityPredicate(
-        expression=_required_text(_text(item), f"applicability.{index}")
-    )
+    return ApplicabilityPredicate(expression=_required_text(_text(item), f"applicability.{index}"))
 
 
 def _warrant_limit(item: object, *, index: int) -> WarrantLimit:

@@ -68,9 +68,7 @@ def evidence_path_from_fabric_decision_data(
         lineage_id=str(lineage.get("id") or "untraced"),
         source_contract_id=str(source_contract.get("id") or "unknown_source_contract"),
         source_contract_version=(
-            None
-            if source_contract.get("version") is None
-            else str(source_contract.get("version"))
+            None if source_contract.get("version") is None else str(source_contract.get("version"))
         ),
         quality_status=str(quality.get("status") or "unknown_quality"),
         quality_score=_optional_float(quality.get("score")),
@@ -88,8 +86,7 @@ def evidence_path_from_fabric_decision_data(
         if isinstance(export_links, Mapping)
         else {},
         citation_label=citation_label or _citation_label(payload),
-        source_trust_tier=source_trust_tier
-        or _optional_str(metadata.get("source_trust_tier")),
+        source_trust_tier=source_trust_tier or _optional_str(metadata.get("source_trust_tier")),
         stale=lineage_freshness == "stale",
     )
 
@@ -133,7 +130,9 @@ def _optional_str(value: Any) -> str | None:
 
 def _citation_label(payload: Mapping[str, Any]) -> str:
     value = _mapping(payload.get("value"))
-    return str(value.get("label") or value.get("metric_id") or payload.get("id") or "Fabric evidence")
+    return str(
+        value.get("label") or value.get("metric_id") or payload.get("id") or "Fabric evidence"
+    )
 
 
 __all__ = [

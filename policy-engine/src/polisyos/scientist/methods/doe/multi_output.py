@@ -111,9 +111,7 @@ class MultiOutputAnalyzer:
         # Analyze each component
         per_component: list[SensitivityResult] = []
         total_variance_explained = float(sum(variance_ratio))
-        variance_threshold_met = (
-            total_variance_explained + 1e-12 >= self._min_variance
-        )
+        variance_threshold_met = total_variance_explained + 1e-12 >= self._min_variance
         variance_threshold_status = "met" if variance_threshold_met else "unmet_limited"
         for i, pc_scores in enumerate(components):
             result = analyze_sensitivity(

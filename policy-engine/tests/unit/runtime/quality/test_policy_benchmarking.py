@@ -197,9 +197,7 @@ def test_best_in_class_benchmarking_scorecard_blocks_unfalsifiable_claim() -> No
 
     scorecard = scorecard_for(quality_evidence=evidence)
 
-    assert "policy_design_best_in_class_benchmarking_record_missing" in blocking_codes(
-        scorecard
-    )
+    assert "policy_design_best_in_class_benchmarking_record_missing" in blocking_codes(scorecard)
 
 
 def test_best_in_class_benchmarking_record_is_public_runtime_quality_api() -> None:
@@ -222,6 +220,4 @@ def test_best_in_class_benchmarking_contract_has_schema_and_reference_docs() -> 
 
     assert schema_path.exists()
     assert docs_path.exists()
-    assert POLICY_BENCHMARKING_RECORD_SCHEMA_VERSION in docs_path.read_text(
-        encoding="utf-8"
-    )
+    assert POLICY_BENCHMARKING_RECORD_SCHEMA_VERSION in docs_path.read_text(encoding="utf-8")

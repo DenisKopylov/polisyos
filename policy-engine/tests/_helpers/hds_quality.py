@@ -365,9 +365,7 @@ def complete_data_forge_snapshot_binding() -> dict[str, Any]:
                     "authority_level": "closeout",
                     "time_role": "publication_time",
                     "supported_by": [snapshot_ref],
-                    "lifecycle_dependency_refs": [
-                        f"event://data-forge/{role}/R_hds_red_control"
-                    ],
+                    "lifecycle_dependency_refs": [f"event://data-forge/{role}/R_hds_red_control"],
                 }
             ],
         }
@@ -751,8 +749,7 @@ def complete_semantic_binding_ledger() -> dict[str, Any]:
                     }
                 ],
                 "assumption_gate_refs": [
-                    "foundry-assumption-gate:"
-                    "causal.difference_in_differences:parallel_trends"
+                    "foundry-assumption-gate:causal.difference_in_differences:parallel_trends"
                 ],
                 "input_coverage": [{"source_ref": "production-msme-panel", "status": "pass"}],
                 "sample_power_adequacy": [{"method_ref": "causal.difference_in_differences"}],
@@ -865,8 +862,7 @@ def _complete_claim_evidence_paths() -> list[dict[str, Any]]:
             "selected_method_refs": ["causal.difference_in_differences"],
             "method_output_refs": ["method-output:causal.difference_in_differences"],
             "assumption_gate_refs": [
-                "foundry-assumption-gate:"
-                "causal.difference_in_differences:parallel_trends"
+                "foundry-assumption-gate:causal.difference_in_differences:parallel_trends"
             ],
             "uncertainty_refs": ["uncertainty:survival-v1"],
             "scientist_claim_refs": ["claim:rec_1"],
@@ -2233,8 +2229,7 @@ def policy_design_phase30_records() -> dict[str, Any]:
         "run_cost_proportionality_ledgers": [
             {
                 "schema_version": (
-                    "policyos.runtime.policy_design_case."
-                    "run_cost_proportionality_ledger.v1"
+                    "policyos.runtime.policy_design_case.run_cost_proportionality_ledger.v1"
                 ),
                 "ledger_id": "run-cost-ledger-R_hds_red_control",
                 "run_id": "R_hds_red_control",
@@ -2262,17 +2257,14 @@ def policy_design_phase30_records() -> dict[str, Any]:
                     "observed_heterogeneity": "moderate",
                     "effective_independent_evidence_count": 4,
                     "minimum_effective_independent_evidence_count": 4,
-                    "stopping_rule": (
-                        "stop after saturation and no recent direction changes"
-                    ),
+                    "stopping_rule": ("stop after saturation and no recent direction changes"),
                     "stopping_decision": "stop",
                     "stopping_rule_result_ref": sha("8"),
                 },
                 "proportionality_evidence": {
                     "status": "proportional",
                     "rationale": (
-                        "Production authority and high public impact justify "
-                        "the observed run cost."
+                        "Production authority and high public impact justify the observed run cost."
                     ),
                     "evidence_ref": sha("9"),
                 },
@@ -2597,8 +2589,7 @@ def complete_quality_evidence(*, authority_envelopes: bool = True) -> dict[str, 
                         }
                     ],
                     "assumption_gate_refs": [
-                        "foundry-assumption-gate:"
-                        "causal.difference_in_differences:parallel_trends"
+                        "foundry-assumption-gate:causal.difference_in_differences:parallel_trends"
                     ],
                     "identification_requirements": {
                         "estimand": "ATT",
@@ -2749,9 +2740,7 @@ def complete_quality_evidence(*, authority_envelopes: bool = True) -> dict[str, 
             "issues": [],
             "claim_evidence_contract": {
                 "status": "pass",
-                "requirement": (
-                    "every_major_statement_has_evidence_refs_or_typed_blocker"
-                ),
+                "requirement": ("every_major_statement_has_evidence_refs_or_typed_blocker"),
                 "statements": [
                     {
                         "claim_id": "rec_1",

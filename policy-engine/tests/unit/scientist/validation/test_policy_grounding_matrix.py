@@ -120,10 +120,7 @@ def test_policy_grounding_matrix_rejects_global_evidence_without_claim_registry_
     assert report["status"] == "fail"
     assert "runtime_claim_registry_entry_missing" in issue_codes
     assert report["runtime_claim_registry"]["summary"]["global_norm_ref_count"] == 1
-    assert (
-        report["runtime_claim_registry"]["summary"]["generic_global_method_ref_count"]
-        == 1
-    )
+    assert report["runtime_claim_registry"]["summary"]["generic_global_method_ref_count"] == 1
 
 
 def test_policy_grounding_matrix_uses_claim_registry_as_claim_bound_surface() -> None:
@@ -165,12 +162,8 @@ def test_policy_grounding_matrix_uses_claim_registry_as_claim_bound_surface() ->
     assert report["status"] == "pass"
     assert report["runtime_claim_registry"]["status"] == "pass"
     assert report["claims"][0]["grounding"]["data_refs"] == ["production-msme-panel"]
-    assert report["claims"][0]["grounding"]["norm_refs"] == [
-        "norm.ua.credit_eligibility"
-    ]
-    assert report["claims"][0]["grounding"]["method_refs"] == [
-        "causal.difference_in_differences"
-    ]
+    assert report["claims"][0]["grounding"]["norm_refs"] == ["norm.ua.credit_eligibility"]
+    assert report["claims"][0]["grounding"]["method_refs"] == ["causal.difference_in_differences"]
 
 
 def test_policy_grounding_matrix_consumes_ir_analytics_bridge_refs() -> None:
@@ -462,9 +455,7 @@ def test_policy_grounding_matrix_accepts_claim_family_aliases() -> None:
 
 def test_policy_grounding_matrix_fails_numerical_claim_mismatch() -> None:
     context = _evidence_context()
-    context["foundry_method_report"]["selected_methods"][0]["output_ref"] = (
-        "sha256:" + "2" * 64
-    )
+    context["foundry_method_report"]["selected_methods"][0]["output_ref"] = "sha256:" + "2" * 64
     report = build_policy_grounding_matrix_report(
         claims=[
             {
@@ -482,9 +473,7 @@ def test_policy_grounding_matrix_fails_numerical_claim_mismatch() -> None:
 
     issue_codes = {issue["code"] for issue in report["issues"]}
     mismatch = next(
-        issue
-        for issue in report["issues"]
-        if issue["code"] == "numeric_claim_mismatch"
+        issue for issue in report["issues"] if issue["code"] == "numeric_claim_mismatch"
     )
     assert report["status"] == "fail"
     assert "numeric_claim_mismatch" in issue_codes
@@ -855,9 +844,7 @@ def test_policy_grounding_matrix_blocks_major_causal_claim_on_power_failure() ->
             "tolerance": 0.03,
         },
     }
-    causal_validity_report = build_causal_statistical_validity_report(
-        benchmark_cases=[bad_case]
-    )
+    causal_validity_report = build_causal_statistical_validity_report(benchmark_cases=[bad_case])
 
     report = build_policy_grounding_matrix_report(
         claims=[
@@ -877,8 +864,7 @@ def test_policy_grounding_matrix_blocks_major_causal_claim_on_power_failure() ->
     folded = next(
         issue
         for issue in report["issues"]
-        if issue["phase"] == "causal_statistical_validity"
-        and issue["code"] == "power_failure"
+        if issue["phase"] == "causal_statistical_validity" and issue["code"] == "power_failure"
     )
     assert report["status"] == "fail"
     assert folded["severity"] == "fail"
@@ -922,9 +908,7 @@ def test_policy_grounding_matrix_blocks_major_numerical_claim_on_sensitivity_fai
             "tolerance": 0.03,
         },
     }
-    causal_validity_report = build_causal_statistical_validity_report(
-        benchmark_cases=[bad_case]
-    )
+    causal_validity_report = build_causal_statistical_validity_report(benchmark_cases=[bad_case])
 
     report = build_policy_grounding_matrix_report(
         claims=[

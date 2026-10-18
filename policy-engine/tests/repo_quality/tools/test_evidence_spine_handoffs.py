@@ -33,9 +33,7 @@ def _bundle_dir(tmp_path: Path, *, ledger: dict[str, object] | None) -> Path:
             "run_id": "R_handoff",
             "progress": {
                 "quality_evidence_bundle_path": str(bundle_dir),
-                "evidence_refs": {
-                    "quality_scorecard": "quality_evidence/quality_scorecard.json"
-                },
+                "evidence_refs": {"quality_scorecard": "quality_evidence/quality_scorecard.json"},
             },
         },
     )

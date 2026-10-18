@@ -101,7 +101,9 @@ def _load_append_only_claim_ledger(
         or str(ref.artifact_id) != str(manifest.artifact_id)
     ):
         raise ValueError("claim_ledger_v2_profile_mismatch")
-    ledger = AppendOnlyClaimLedger.model_validate(load_core_json_artifact(store, ref, raw_payload_bytes=raw))
+    ledger = AppendOnlyClaimLedger.model_validate(
+        load_core_json_artifact(store, ref, raw_payload_bytes=raw)
+    )
     if to_canonical_bytes(ledger, CanonSpec(forbid_floats=False)) != raw:
         raise ValueError("claim_ledger_v2_canonical_mismatch")
     return ledger

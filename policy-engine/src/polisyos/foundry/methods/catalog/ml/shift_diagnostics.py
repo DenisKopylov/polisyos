@@ -573,7 +573,9 @@ def _univariate_detectors(
             feature_name=item.name,
             feature_type=cast(
                 "Literal['numeric', 'categorical', 'binary', 'text', 'embedding', 'missingness_indicator']",
-                "missingness_indicator" if item.name.endswith("__missingness") else item.feature_type,
+                "missingness_indicator"
+                if item.name.endswith("__missingness")
+                else item.feature_type,
             ),
             severity_score=item.severity_score,
             q_value=item.q_value,
@@ -736,9 +738,7 @@ def _c2st_detector(
 ) -> tuple[ShiftComponent, DetectorResult, C2STEvidence]:
     reference, current = _encoded_matrix(data)
     names = _feature_names(data)
-    feature_columns = tuple(
-        name for name in names for _ in (0, 1)
-    )
+    feature_columns = tuple(name for name in names for _ in (0, 1))
     if reference.shape == current.shape and np.allclose(reference, current, equal_nan=True):
         evidence = C2STEvidence(
             auc=0.5,
@@ -803,7 +803,10 @@ def _c2st_detector(
                 importances[name] = importances.get(name, 0.0) + float(value / total)
 
     auc = max(auc, 1.0 - auc)
-    se = sqrt((reference.shape[0] + current.shape[0] + 1.0) / (12.0 * reference.shape[0] * current.shape[0]))
+    se = sqrt(
+        (reference.shape[0] + current.shape[0] + 1.0)
+        / (12.0 * reference.shape[0] * current.shape[0])
+    )
     p_value = _normal_two_sided_p((auc - 0.5) / max(se, 1e-12))
     score = _score_from_p_effect(p_value, abs(auc - 0.5), 0.18)
     bucket = _severity_bucket(score)
@@ -880,14 +883,8 @@ def _support_detector(
     rare_combination_rate = 0.0
     if cat_indices:
         selected = cat_indices[:5]
-        ref_combos = {
-            tuple(_category_key(row[idx]) for idx in selected)
-            for row in reference
-        }
-        cur_combos = [
-            tuple(_category_key(row[idx]) for idx in selected)
-            for row in current
-        ]
+        ref_combos = {tuple(_category_key(row[idx]) for idx in selected) for row in reference}
+        cur_combos = [tuple(_category_key(row[idx]) for idx in selected) for row in current]
         rare_combination_rate = float(np.mean([combo not in ref_combos for combo in cur_combos]))
 
     ess_ratio: float | None = None
@@ -1064,8 +1061,12 @@ def _concept_detector(
             ),
             None,
         )
-    ref_loss = _loss_vector(data.task_type, np.asarray(ref_y, dtype=float), np.asarray(ref_pred, dtype=float))
-    cur_loss = _loss_vector(data.task_type, np.asarray(cur_y, dtype=float), np.asarray(cur_pred, dtype=float))
+    ref_loss = _loss_vector(
+        data.task_type, np.asarray(ref_y, dtype=float), np.asarray(ref_pred, dtype=float)
+    )
+    cur_loss = _loss_vector(
+        data.task_type, np.asarray(cur_y, dtype=float), np.asarray(cur_pred, dtype=float)
+    )
     weights = c2st.reference_density_ratio
     if weights is None or weights.shape[0] != ref_loss.shape[0]:
         weights = np.ones_like(ref_loss)
@@ -1079,7 +1080,9 @@ def _concept_detector(
     p_value = _normal_two_sided_p(delta / max(se, 1e-12))
     score = _score_from_p_effect(p_value, max(delta, 0.0), 0.10)
     bucket = _severity_bucket(score)
-    status: ShiftStatus = "confirmed" if bucket in {"high", "severe"} and delta > 0.0 else _detected_status(bucket)
+    status: ShiftStatus = (
+        "confirmed" if bucket in {"high", "severe"} and delta > 0.0 else _detected_status(bucket)
+    )
     component = ShiftComponent(
         status=status,
         severity_score=score,
@@ -1141,9 +1144,7 @@ def _harmful_shift_component(
         severity_score=score,
         severity_bucket=bucket,
         effect_size=score,
-        notes=(
-            "proxy_harmful_shift_risk_combines_prediction_output_support_and_concept_evidence",
-        ),
+        notes=("proxy_harmful_shift_risk_combines_prediction_output_support_and_concept_evidence",),
     )
 
 
@@ -1158,7 +1159,10 @@ def _subgroup_diagnostics(
             continue
         ref = np.asarray([_category_key(value) for value in np.asarray(ref_values, dtype=object)])
         cur = np.asarray(
-            [_category_key(value) for value in np.asarray(data.current_subgroups[group_name], dtype=object)]
+            [
+                _category_key(value)
+                for value in np.asarray(data.current_subgroups[group_name], dtype=object)
+            ]
         )
         _, p_value, tv = _categorical_test(ref, cur)
         score = _score_from_p_effect(p_value, tv, 0.20)
@@ -1257,7 +1261,9 @@ def _component_max(left: ShiftComponent, right: ShiftComponent) -> ShiftComponen
     return left if left_score >= right_score else right
 
 
-def _readiness_reasons_and_actions(report_like: Any, downgrade: int) -> tuple[tuple[str, ...], tuple[str, ...]]:
+def _readiness_reasons_and_actions(
+    report_like: Any, downgrade: int
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
     reasons: list[str] = []
     actions: list[str] = []
     if report_like.schema_shift.severity_bucket in {"high", "severe"}:
@@ -1471,7 +1477,9 @@ def build_shift_diagnostic_report(
 
     merged = _merge_params(data, params)
     diagnostic_input = (
-        merged if isinstance(merged, ShiftDiagnosticInput) else ShiftDiagnosticInput.model_validate(merged)
+        merged
+        if isinstance(merged, ShiftDiagnosticInput)
+        else ShiftDiagnosticInput.model_validate(merged)
     )
     alpha = _safe_float((params or {}).get("feature_q_threshold", 0.05), 0.05)
     permutations = max(0, int((params or {}).get("mmd_permutations", 39)))
@@ -1499,7 +1507,9 @@ def build_shift_diagnostic_report(
         _key(diagnostic_input, "classifier_two_sample"),
         random_state=random_state,
     )
-    marginal_component = _component_max(uni_component, _component_max(mmd_component, c2st_component))
+    marginal_component = _component_max(
+        uni_component, _component_max(mmd_component, c2st_component)
+    )
     support_component, support_detector, support_evidence = _support_detector(
         diagnostic_input,
         c2st_evidence,
@@ -1577,7 +1587,9 @@ def build_shift_diagnostic_report(
         )
     )
     calibration = _calibration(diagnostic_input, power_status)
-    generated_at = diagnostic_input.generated_at or datetime.now(UTC).replace(microsecond=0).isoformat()
+    generated_at = (
+        diagnostic_input.generated_at or datetime.now(UTC).replace(microsecond=0).isoformat()
+    )
     report_id = diagnostic_input.report_id or (
         f"shift:{diagnostic_input.model_id}:{diagnostic_input.current_window_id}:"
         f"{diagnostic_input.reference_comparison_type}"
@@ -1595,10 +1607,16 @@ def build_shift_diagnostic_report(
         current_window_id=diagnostic_input.current_window_id,
         current_window_start=diagnostic_input.current_window_start,
         current_window_end=diagnostic_input.current_window_end,
-        n_reference=int(_as_2d_object(diagnostic_input.reference_features, "reference_features").shape[0]),
-        n_current=int(_as_2d_object(diagnostic_input.current_features, "current_features").shape[0]),
+        n_reference=int(
+            _as_2d_object(diagnostic_input.reference_features, "reference_features").shape[0]
+        ),
+        n_current=int(
+            _as_2d_object(diagnostic_input.current_features, "current_features").shape[0]
+        ),
         effective_n_reference=_weighted_effective_n(
-            _as_optional_vector(diagnostic_input.reference_sample_weight, "reference_sample_weight"),
+            _as_optional_vector(
+                diagnostic_input.reference_sample_weight, "reference_sample_weight"
+            ),
             _as_2d_object(diagnostic_input.reference_features, "reference_features").shape[0],
         ),
         effective_n_current=_weighted_effective_n(
@@ -1808,7 +1826,9 @@ class ShiftDiagnosticEstimator:
     )
 
     @staticmethod
-    def materialize_input(bound_inputs: Mapping[str, Any], fallback_state: Any) -> ShiftDiagnosticInput:
+    def materialize_input(
+        bound_inputs: Mapping[str, Any], fallback_state: Any
+    ) -> ShiftDiagnosticInput:
         if "shift_diagnostic_input" in bound_inputs:
             payload = bound_inputs["shift_diagnostic_input"]
         else:
@@ -1816,13 +1836,19 @@ class ShiftDiagnosticEstimator:
         if isinstance(payload, ShiftDiagnosticInput):
             return payload
         if not isinstance(payload, Mapping):
-            raise TypeError("ShiftDiagnosticEstimator state must be a mapping or ShiftDiagnosticInput")
+            raise TypeError(
+                "ShiftDiagnosticEstimator state must be a mapping or ShiftDiagnosticInput"
+            )
         merged = dict(payload)
-        merged.update({key: value for key, value in bound_inputs.items() if key != "shift_diagnostic_input"})
+        merged.update(
+            {key: value for key, value in bound_inputs.items() if key != "shift_diagnostic_input"}
+        )
         return ShiftDiagnosticInput.model_validate(merged)
 
     @staticmethod
-    def pure_step(state: ShiftDiagnosticInput | Mapping[str, Any], params: Mapping[str, Any]) -> dict[str, Any]:
+    def pure_step(
+        state: ShiftDiagnosticInput | Mapping[str, Any], params: Mapping[str, Any]
+    ) -> dict[str, Any]:
         report_mode = str(params.get("report_mode", "single"))
         if report_mode == "all_reference_comparisons":
             reports = build_shift_reference_comparison_reports(state, params=params)

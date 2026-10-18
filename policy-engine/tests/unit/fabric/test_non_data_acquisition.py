@@ -358,24 +358,18 @@ def test_every_semantic_port_receives_bound_current_use_context(tmp_path, port, 
         def verify(self, *, demand, candidate, context):
             return CandidateOwner.verify(
                 self, demand=demand, candidate=candidate, context=context
-            ) and (
-                port != "demanding_verification" or accepts_context(context)
-            )
+            ) and (port != "demanding_verification" or accepts_context(context))
 
         def reenter(self, *, demand, candidate, context):
             return CandidateOwner.verify(
                 self, demand=demand, candidate=candidate, context=context
-            ) and (
-                port != "reentry" or accepts_context(context)
-            )
+            ) and (port != "reentry" or accepts_context(context))
 
     class ContextVerifier(CandidateVerifier):
         def verify(self, *, demand, candidate, context):
             return CandidateVerifier.verify(
                 self, demand=demand, candidate=candidate, context=context
-            ) and (
-                port != "independent_verification" or accepts_context(context)
-            )
+            ) and (port != "independent_verification" or accepts_context(context))
 
     runtime.demanding_owner = ContextOwner()
     runtime.independent_verifier = ContextVerifier()
@@ -391,9 +385,11 @@ def test_every_semantic_port_receives_bound_current_use_context(tmp_path, port, 
     later = now
     if changed == "purpose":
         altered = request.model_copy(
-            update={"requested_use": request.requested_use.model_copy(
-                update={"purpose_ref": "purpose:research"}
-            )}
+            update={
+                "requested_use": request.requested_use.model_copy(
+                    update={"purpose_ref": "purpose:research"}
+                )
+            }
         )
     elif changed == "evaluation_time":
         later = datetime(2026, 9, 11, tzinfo=UTC)

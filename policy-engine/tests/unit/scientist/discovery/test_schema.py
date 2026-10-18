@@ -149,7 +149,9 @@ def _rich_current_graph_hypothesis() -> GraphHypothesis:
     )
 
 
-def _nested_model_types(annotation: object, seen: set[type[BaseModel]] | None = None) -> set[type[BaseModel]]:
+def _nested_model_types(
+    annotation: object, seen: set[type[BaseModel]] | None = None
+) -> set[type[BaseModel]]:
     found = seen if seen is not None else set()
     try:
         is_model_type = isinstance(annotation, type) and issubclass(annotation, BaseModel)
@@ -168,7 +170,9 @@ def _nested_model_types(annotation: object, seen: set[type[BaseModel]] | None = 
     return found
 
 
-def _nested_model_paths(value: object, path: tuple[object, ...] = ()) -> list[tuple[tuple[object, ...], BaseModel]]:
+def _nested_model_paths(
+    value: object, path: tuple[object, ...] = ()
+) -> list[tuple[tuple[object, ...], BaseModel]]:
     if isinstance(value, BaseModel):
         found = [(path, value)]
         fields = object.__getattribute__(value, "__dict__")
@@ -211,11 +215,7 @@ def _nested_model_field_targets(
         fields = object.__getattribute__(value, "__dict__")
         for name in type(value).model_fields:
             if name in fields:
-                targets.extend(
-                    _nested_model_field_targets(
-                        fields[name], (*path, ("field", name))
-                    )
-                )
+                targets.extend(_nested_model_field_targets(fields[name], (*path, ("field", name))))
         return targets
     if isinstance(value, dict):
         targets = []
@@ -264,18 +264,14 @@ def _nested_value_at_path(value: object, path: tuple[object, ...]) -> object:
     return current
 
 
-def _replace_nested_value(
-    value: object, path: tuple[object, ...], replacement: object
-) -> Any:
+def _replace_nested_value(value: object, path: tuple[object, ...], replacement: object) -> Any:
     if not path:
         return replacement
     kind, key = path[0]
     child_path = path[1:]
     if kind == "field":
         child = object.__getattribute__(value, "__dict__")[key]
-        return value.model_copy(
-            update={key: _replace_nested_value(child, child_path, replacement)}
-        )
+        return value.model_copy(update={key: _replace_nested_value(child, child_path, replacement)})
     if kind == "index":
         items = list(list.__iter__(value))
         items[key] = _replace_nested_value(items[key], child_path, replacement)
@@ -382,12 +378,16 @@ def test_graph_hypothesis_writer_revalidates_version_before_cas_write(tmp_path) 
     )
     forged = hypothesis.model_copy(update={"schema_version": "1.0"})
     store = FileSystemCAS(tmp_path)
-    before_files = sorted(path.relative_to(tmp_path) for path in tmp_path.rglob("*") if path.is_file())
+    before_files = sorted(
+        path.relative_to(tmp_path) for path in tmp_path.rglob("*") if path.is_file()
+    )
 
     with pytest.raises(ValidationError):
         persist_graph_hypothesis(store, forged)
 
-    after_files = sorted(path.relative_to(tmp_path) for path in tmp_path.rglob("*") if path.is_file())
+    after_files = sorted(
+        path.relative_to(tmp_path) for path in tmp_path.rglob("*") if path.is_file()
+    )
     assert after_files == before_files
 
 
@@ -441,9 +441,7 @@ def test_writer_revalidates_every_declared_nested_model_field_before_cas_write(
 
 def test_writer_rejects_forged_nested_footprint_before_any_cas_write(tmp_path) -> None:
     hypothesis = _rich_current_graph_hypothesis()
-    forged_footprint = hypothesis.compute_footprint.model_copy(
-        update={"runtime_seconds": -1.0}
-    )
+    forged_footprint = hypothesis.compute_footprint.model_copy(update={"runtime_seconds": -1.0})
     forged = hypothesis.model_copy(update={"compute_footprint": forged_footprint})
     store = FileSystemCAS(tmp_path)
     before_files = sorted(
@@ -468,18 +466,14 @@ def test_writer_rejects_forged_graph_disposition_confidence_and_members(
 ) -> None:
     hypothesis = _rich_current_graph_hypothesis()
     if forgery == "graph_edge":
-        forged_edge = hypothesis.graph.edges[0].model_copy(
-            update={"mark_src": EdgeMark.CIRCLE}
-        )
+        forged_edge = hypothesis.graph.edges[0].model_copy(update={"mark_src": EdgeMark.CIRCLE})
         forged_graph = hypothesis.graph.model_copy(update={"edges": [forged_edge]})
         forged = hypothesis.model_copy(update={"graph": forged_graph})
     elif forgery == "disposition":
         forged_disposition = hypothesis.projection_disposition.model_copy(
             update={"source_graph_sha256": "not-a-content-hash"}
         )
-        forged = hypothesis.model_copy(
-            update={"projection_disposition": forged_disposition}
-        )
+        forged = hypothesis.model_copy(update={"projection_disposition": forged_disposition})
     elif forgery == "confidence":
         forged = hypothesis.model_copy(update={"edge_confidence": {"X->Y": 1.1}})
     else:
@@ -487,9 +481,7 @@ def test_writer_rejects_forged_graph_disposition_confidence_and_members(
         forged_constraints = hypothesis.algebraic_constraints.model_copy(
             update={"violated_constraints_preview": [object()]}
         )
-        forged = hypothesis.model_copy(
-            update={"algebraic_constraints": forged_constraints}
-        )
+        forged = hypothesis.model_copy(update={"algebraic_constraints": forged_constraints})
 
     store = FileSystemCAS(tmp_path)
     before_files = sorted(
@@ -533,9 +525,7 @@ def test_recursive_writer_removal_probe_keeps_markers_but_reopens_reader_failure
     tmp_path, monkeypatch
 ) -> None:
     hypothesis = _rich_current_graph_hypothesis()
-    forged_footprint = hypothesis.compute_footprint.model_copy(
-        update={"runtime_seconds": -1.0}
-    )
+    forged_footprint = hypothesis.compute_footprint.model_copy(update={"runtime_seconds": -1.0})
     forged = hypothesis.model_copy(update={"compute_footprint": forged_footprint})
     monkeypatch.setattr(
         discovery_schema,
@@ -796,8 +786,7 @@ def test_historical_partial_hypothesis_refusal_keeps_report_ref() -> None:
     assert legacy.graph_for_analysis() is None
 
 
-def test_explicit_null_hypothesis_disposition_is_not_legacy_absence(
-) -> None:
+def test_explicit_null_hypothesis_disposition_is_not_legacy_absence() -> None:
     graph = _graph(
         graph_type=GraphType.PAG,
         edges=[CausalEdge(src="X", dst="Y", mark_src=EdgeMark.CIRCLE)],
@@ -1041,12 +1030,8 @@ def test_hypothesis_accessor_revalidates_a_copied_projection_disposition() -> No
         graph=graph,
         projection_disposition=refusal,
     )
-    forged_identity = refusal.model_copy(
-        update={"status": GraphProjectionStatus.IDENTITY}
-    )
-    copied_hypothesis = hypothesis.model_copy(
-        update={"projection_disposition": forged_identity}
-    )
+    forged_identity = refusal.model_copy(update={"status": GraphProjectionStatus.IDENTITY})
+    copied_hypothesis = hypothesis.model_copy(update={"projection_disposition": forged_identity})
 
     with pytest.raises(ValueError):
         copied_hypothesis.graph_for_analysis()

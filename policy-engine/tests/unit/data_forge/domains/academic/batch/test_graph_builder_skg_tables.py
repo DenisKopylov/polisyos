@@ -111,7 +111,9 @@ def test_graph_writer_inactive_preflight_uses_the_shared_vocabulary_admission_ca
     assert skg_store.preflight_candidate_claim_vocabulary is admit_candidate_claim_vocabulary
     assert graph_builder.preflight_candidate_claim_vocabulary(transport) == transport
 
-    bad = transport.model_copy(update={"occurrence": {**transport.occurrence, "strength": "moderate"}})
+    bad = transport.model_copy(
+        update={"occurrence": {**transport.occurrence, "strength": "moderate"}}
+    )
     with pytest.raises(ValidationError, match="strength"):
         graph_builder.preflight_candidate_claim_vocabulary(bad)
 
@@ -138,10 +140,7 @@ def test_all_inactive_writer_aliases_reject_forged_nested_sidecar_state() -> Non
 
 @pytest.mark.parametrize(
     "claim",
-    [
-        {"strength": placeholder}
-        for placeholder in ("strong", "very_strong", "moderate", "weak")
-    ]
+    [{"strength": placeholder} for placeholder in ("strong", "very_strong", "moderate", "weak")]
     + [
         {
             "design_family_hint": design.value,

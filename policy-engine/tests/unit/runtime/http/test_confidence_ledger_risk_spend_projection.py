@@ -98,18 +98,10 @@ def coherent_over_spend_artifact(
         if event["event_type"] == "prepared":
             filtrations[request_key] = head
         check["filtration_projection_hash"] = filtrations[request_key]
-        check_spend = (
-            exact_spend
-            if check["execution_ordinal"] == target_ordinal
-            else Fraction()
-        )
+        check_spend = exact_spend if check["execution_ordinal"] == target_ordinal else Fraction()
         _rebind_check(check, check_spend)
         event["event_projection_hash"] = _ledger_hash(
-            {
-                key: value
-                for key, value in event.items()
-                if key != "event_projection_hash"
-            }
+            {key: value for key, value in event.items() if key != "event_projection_hash"}
         )
         head = event["event_projection_hash"]
         current[request_key] = copy.deepcopy(check)
@@ -119,25 +111,19 @@ def coherent_over_spend_artifact(
         "numerator": exact_spend.numerator,
         "denominator": exact_spend.denominator,
     }
-    real["total_spend"] = (
-        {"numerator": 0, "denominator": 1} if stale_total else exact_amount
-    )
+    real["total_spend"] = {"numerator": 0, "denominator": 1} if stale_total else exact_amount
     real["total_spend_decimal"] = "0.02"
     real["within_budget"] = stale_total
     real["projection_hash"] = _ledger_hash(
         {key: value for key, value in real.items() if key != "projection_hash"}
     )
 
-    checks_by_certificate = {
-        check["certificate_ref"]: check for check in real["checks"]
-    }
+    checks_by_certificate = {check["certificate_ref"]: check for check in real["checks"]}
     accounted = artifact["accounted_run"]
     for row in accounted["evidence_rows"]:
         check = checks_by_certificate[row["certificate_ref"]]
         row["check_projection_hash"] = check["check_projection_hash"]
-        row["claim_execution_projection_hash"] = check[
-            "claim_execution_projection_hash"
-        ]
+        row["claim_execution_projection_hash"] = check["claim_execution_projection_hash"]
         row["spend_numerator"] = check["spend"]["numerator"]
         row["spend_denominator"] = check["spend"]["denominator"]
     accounted["total_spend_numerator"] = exact_spend.numerator
@@ -189,9 +175,7 @@ def test_guarded_source_is_catalogued_without_widening_dynamic_projection_ids() 
     catalog_ids = {entry.projection_id for entry in service.catalog()}
 
     assert set(ProjectionId).issubset(catalog_ids)
-    assert catalog_ids - set(ProjectionId) == {
-        GuardedProjectionId.CONFIDENCE_LEDGER_RISK_SPEND
-    }
+    assert catalog_ids - set(ProjectionId) == {GuardedProjectionId.CONFIDENCE_LEDGER_RISK_SPEND}
     with pytest.raises(ValueError):
         service.get(GuardedProjectionId.CONFIDENCE_LEDGER_RISK_SPEND.value)
 

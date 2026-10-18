@@ -31,7 +31,9 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 FIRST_PROVING_CASE_PATH = (
     REPO_ROOT / "architecture/policy_design_case/layer2_first_proving_case.json"
 )
-S2_MANIFEST_PATH = REPO_ROOT / "architecture/policy_design_case/layer2_s2_design_search_manifest.json"
+S2_MANIFEST_PATH = (
+    REPO_ROOT / "architecture/policy_design_case/layer2_s2_design_search_manifest.json"
+)
 NOW = datetime(2026, 5, 30, tzinfo=UTC)
 
 
@@ -123,9 +125,7 @@ def _s6_blind_spot_posture(
             "cell_ref": "OTHER_AGENTS.strategic_response",
             "record_ref": "pdc://layer2/s6/ua-msme/strategic-response",
             "firewall_pattern_id": "P24",
-            "disposition": (
-                "block" if "OTHER_AGENTS.strategic_response" in blocking else "limit"
-            ),
+            "disposition": ("block" if "OTHER_AGENTS.strategic_response" in blocking else "limit"),
             "decision_reason": "Goodhart risk requires post-intervention DGP update",
         },
     ]
@@ -404,9 +404,7 @@ def _s8_value_posture(
             "foundry://welfare/social-weight-provenance/public-budget-2026"
         ],
         delegation_refs=["pdc://layer2/s7/ua-msme/value-authorization-request"],
-        value_authorization_decision_refs=[
-            "pdc://layer2/s7/ua-msme/value-authorization-record"
-        ],
+        value_authorization_decision_refs=["pdc://layer2/s7/ua-msme/value-authorization-record"],
         constraint_store_updates=[
             {
                 "constraint_id": "layer2.s8.value_choice.blocked",
@@ -653,9 +651,7 @@ def _s11_predictive_posture(**overrides: object) -> object:
 def _s12_resource_posture(**overrides: object) -> object:
     posture_model = pdc.Layer2S12ResourceEconomicsPostureInput
     payload: dict[str, object] = {
-        "resource_allocation_policy_ref": (
-            "pdc://layer2/s12/ua-msme/resource-allocation-policy"
-        ),
+        "resource_allocation_policy_ref": ("pdc://layer2/s12/ua-msme/resource-allocation-policy"),
         "explore_exploit_posture": "balanced_governed",
         "explore_exploit_dial_ref": "pdc://layer2/s7/ua-msme/explore-exploit-dial",
         "delegation_contract_ref": "pdc://layer2/s7/ua-msme/delegation-contract",
@@ -751,12 +747,8 @@ def _s13_accountability_posture(**overrides: object) -> object:
         "phase": "post_deploy_finalized",
         "accountability_posture_ref": "pdc://layer2/s13/ua-msme/accountability-posture",
         "deployment_dossier_ref": "pdc://layer2/s13/ua-msme/deployment-dossier",
-        "divergence_record_refs": [
-            "pdc://layer2/s13/ua-msme/divergence/seeded-disconfirmation"
-        ],
-        "learning_update_proposal_refs": [
-            "learning-proposal://ua-msme/envelope-shrink"
-        ],
+        "divergence_record_refs": ["pdc://layer2/s13/ua-msme/divergence/seeded-disconfirmation"],
+        "learning_update_proposal_refs": ["learning-proposal://ua-msme/envelope-shrink"],
         "envelope_revision_ref": "envelope-revision://ua-msme/shrink/001",
         "certified_envelope_delta_ref": "certified-envelope-delta://ua-msme/s12-growth",
         "assurance_case_delta_ref": "assurance-delta://ua-msme/s13/weakened",
@@ -1216,9 +1208,7 @@ def test_s2_persists_design_record_and_search_ledger(tmp_path: Path) -> None:
 
     binding_sidecar = store.get_manifest(refs.binding_ref.artifact_id)
     assert binding_sidecar.artifact_schema is not None
-    assert binding_sidecar.artifact_schema.name == (
-        "policyos.pdc.run_bound_design_record_binding"
-    )
+    assert binding_sidecar.artifact_schema.name == ("policyos.pdc.run_bound_design_record_binding")
     assert binding_sidecar.artifact_schema.version == (
         "policyos.pdc.run_bound_design_record_binding.v1"
     )
@@ -1390,9 +1380,7 @@ def test_four_audience_surface_renders_composition_posture() -> None:
         projections["EXPERT"]["boundary_coupling_rows"][0]["boundary_ref"]
         == "boundary://credit/fiscal"
     )
-    assert projections["EXPERT"]["forecast_support_label"] == (
-        "transported_with_heavy_limitation"
-    )
+    assert projections["EXPERT"]["forecast_support_label"] == ("transported_with_heavy_limitation")
     assert projections["MACHINE"]["critical_path_module_refs"] == [
         "module://credit",
         "module://fiscal",
@@ -1460,7 +1448,8 @@ def test_entangled_composition_routes_refinement_to_decompose_not_point_optimize
 def test_injected_s6_blind_spot_posture_recorded_without_b_side_self_classification() -> None:
     pure_s2 = run_s2_shadow_design_loop(_input())
     assert not any(
-        status.cell_ref == "SYSTEM.measurability" for status in pure_s2.design_record.firewall_status
+        status.cell_ref == "SYSTEM.measurability"
+        for status in pure_s2.design_record.firewall_status
     )
 
     run = run_s2_shadow_design_loop(_input(), blind_spot_posture=_s6_blind_spot_posture())
@@ -1533,10 +1522,14 @@ def test_s6_constraints_written_to_constraint_store_snapshot() -> None:
 def test_s6_constraint_records_are_typed_not_projection_only() -> None:
     run = run_s2_shadow_design_loop(_input(), blind_spot_posture=_s6_blind_spot_posture())
 
-    assert all(isinstance(entry, ConstraintStoreEntry) for entry in run.constraint_store.constraint_records)
-    assert {
-        entry.refinement_route for entry in run.constraint_store.constraint_records
-    } >= {"block_candidate", "human_decision", "pending_consumer_constraint"}
+    assert all(
+        isinstance(entry, ConstraintStoreEntry) for entry in run.constraint_store.constraint_records
+    )
+    assert {entry.refinement_route for entry in run.constraint_store.constraint_records} >= {
+        "block_candidate",
+        "human_decision",
+        "pending_consumer_constraint",
+    }
 
 
 def test_s6_cluster_authority_dimension_refs_enter_certified_envelope() -> None:
@@ -2039,9 +2032,7 @@ def test_s2_s10_replay_digest_changes_only_when_forecast_posture_changes() -> No
         _input(),
         forecast_posture=_s10_forecast_posture(
             forecast_support_ref="pdc://layer2/s10/ua-msme/forecast-support/revision-2",
-            forecast_calibration_record_ref=(
-                "pdc://layer2/s10/ua-msme/calibration/revision-2"
-            ),
+            forecast_calibration_record_ref=("pdc://layer2/s10/ua-msme/calibration/revision-2"),
         ),
     )
 
@@ -2153,24 +2144,16 @@ def test_s2_consumes_injected_s11_posture_without_runtime_producer_import() -> N
     run = run_s2_shadow_design_loop(_input(), predictive_posture=posture)
 
     assert run.predictive_posture == posture
-    assert run.search_ledger.predictive_knowledge_refs == [
-        posture.predictive_knowledge_ref
-    ]
-    assert run.search_ledger.predictive_axis_upgrade_refs == list(
-        posture.axis_upgrade_refs
-    )
-    assert run.search_ledger.proof_carrying_analytics_refs == [
-        posture.proof_carrying_analytics_ref
-    ]
+    assert run.search_ledger.predictive_knowledge_refs == [posture.predictive_knowledge_ref]
+    assert run.search_ledger.predictive_axis_upgrade_refs == list(posture.axis_upgrade_refs)
+    assert run.search_ledger.proof_carrying_analytics_refs == [posture.proof_carrying_analytics_ref]
     assert run.search_ledger.ir_analytics_bridge_refs == [posture.ir_analytics_bridge_ref]
-    assert run.search_ledger.predictive_authority_status == (
-        posture.effective_predictive_posture
-    )
+    assert run.search_ledger.predictive_authority_status == (posture.effective_predictive_posture)
     assert run.search_ledger.predictive_authority_boundary == posture.authority_boundary
 
-    source = (
-        REPO_ROOT / "src/polisyos/pdc/_impl/layer2_design_search.py"
-    ).read_text(encoding="utf-8")
+    source = (REPO_ROOT / "src/polisyos/pdc/_impl/layer2_design_search.py").read_text(
+        encoding="utf-8"
+    )
     assert "layer2_predictive_knowledge" not in source
 
 
@@ -2273,9 +2256,7 @@ def test_s2_s11_persisted_search_ledger_round_trips_predictive_refs(
 
     assert loaded.predictive_knowledge_refs == [posture.predictive_knowledge_ref]
     assert loaded.predictive_axis_upgrade_refs == list(posture.axis_upgrade_refs)
-    assert loaded.proof_carrying_analytics_refs == [
-        posture.proof_carrying_analytics_ref
-    ]
+    assert loaded.proof_carrying_analytics_refs == [posture.proof_carrying_analytics_ref]
     assert loaded.s11_calibration_record_refs == list(posture.s11_calibration_record_refs)
     assert loaded.predictive_authority_status == posture.effective_predictive_posture
 
@@ -2289,9 +2270,7 @@ def test_s2_consumes_injected_s12_posture_without_runtime_producer_import() -> N
     assert run.search_ledger.resource_allocation_policy_refs == [
         posture.resource_allocation_policy_ref
     ]
-    assert run.search_ledger.envelope_growth_ledger_refs == [
-        posture.envelope_growth_ledger_ref
-    ]
+    assert run.search_ledger.envelope_growth_ledger_refs == [posture.envelope_growth_ledger_ref]
     assert run.search_ledger.growth_thermometer_refs == [posture.growth_thermometer_ref]
     assert run.search_ledger.voi_allocation_refs == list(posture.voi_allocation_refs)
     assert run.search_ledger.explore_exploit_posture == posture.explore_exploit_posture
@@ -2371,9 +2350,7 @@ def test_s2_s12_persisted_search_ledger_round_trips_resource_refs(
 
     loaded = load_s2_search_ledger(store=store, artifact_ref=refs.search_ledger_ref)
 
-    assert loaded.resource_allocation_policy_refs == [
-        posture.resource_allocation_policy_ref
-    ]
+    assert loaded.resource_allocation_policy_refs == [posture.resource_allocation_policy_ref]
     assert loaded.envelope_growth_ledger_refs == [posture.envelope_growth_ledger_ref]
     assert loaded.growth_thermometer_refs == [posture.growth_thermometer_ref]
     assert loaded.voi_allocation_refs == list(posture.voi_allocation_refs)
@@ -2401,31 +2378,29 @@ def test_s2_s12_handoff_records_consumed_posture_not_recommendation_authority() 
 
 
 def test_s2_does_not_import_layer2_resource_economics() -> None:
-    source = (
-        REPO_ROOT / "src/polisyos/pdc/_impl/layer2_design_search.py"
-    ).read_text(encoding="utf-8")
+    source = (REPO_ROOT / "src/polisyos/pdc/_impl/layer2_design_search.py").read_text(
+        encoding="utf-8"
+    )
 
     assert "polisyos.runtime.quality.design_axes.resource_economics" not in source
     assert "layer2_resource_economics" not in source
     assert "build_s12_resource_economics_posture" not in source
 
 
-def test_s2_consumes_s13_posture_as_reissue_accountability_constraint_not_recommendation_authority() -> None:
+def test_s2_consumes_s13_posture_as_reissue_accountability_constraint_not_recommendation_authority() -> (
+    None
+):
     posture = _s13_accountability_posture()
 
     run = run_s2_shadow_design_loop(_input(), accountability_posture=posture)
     public_projection = project_s2_design_search(run, audiences=("PUBLIC",))["PUBLIC"]
 
     assert run.accountability_posture == posture
-    assert run.search_ledger.accountability_posture_refs == [
-        posture.accountability_posture_ref
-    ]
+    assert run.search_ledger.accountability_posture_refs == [posture.accountability_posture_ref]
     assert run.search_ledger.lifecycle_reissue_dispositions == [
         posture.lifecycle_reissue_disposition
     ]
-    assert "recommendation_authority" in public_projection["authority_boundary"][
-        "may_not_use_for"
-    ]
+    assert "recommendation_authority" in public_projection["authority_boundary"]["may_not_use_for"]
     assert "production_recommendation_text" not in json.dumps(public_projection)
 
 
@@ -2554,9 +2529,7 @@ def test_s2_s13_design_time_gate_posture_is_gate_only_without_post_deploy_refs()
     with pytest.raises(Exception, match=r"design_time_gate|post_deploy"):
         _s13_accountability_posture(
             phase="design_time_gate",
-            divergence_record_refs=[
-                "pdc://layer2/s13/ua-msme/divergence/seeded-disconfirmation"
-            ],
+            divergence_record_refs=["pdc://layer2/s13/ua-msme/divergence/seeded-disconfirmation"],
         )
 
 
@@ -2594,9 +2567,9 @@ def test_s2_s13_uses_existing_governance_decision_refs_without_local_reissue_enu
 
 
 def test_s2_does_not_import_layer2_post_deploy_accountability() -> None:
-    source = (
-        REPO_ROOT / "src/polisyos/pdc/_impl/layer2_design_search.py"
-    ).read_text(encoding="utf-8")
+    source = (REPO_ROOT / "src/polisyos/pdc/_impl/layer2_design_search.py").read_text(
+        encoding="utf-8"
+    )
 
     assert "polisyos.runtime.quality.design_axes.post_deploy_accountability" not in source
     assert "layer2_post_deploy_accountability" not in source
@@ -2614,9 +2587,7 @@ def test_s11_weakest_boundary_caps_search_ledger_projection() -> None:
     projection = project_s2_design_search(run, audiences=("REVIEWER",))["REVIEWER"]
 
     assert run.search_ledger.predictive_authority_status == "fail_closed"
-    assert "limitation://s11/stale-calibration" in (
-        run.search_ledger.s11_residual_limitation_refs
-    )
+    assert "limitation://s11/stale-calibration" in (run.search_ledger.s11_residual_limitation_refs)
     assert projection["predictive_authority_status"] == "fail_closed"
     assert projection["weakest_boundary_reason"] == posture.weakest_boundary_reason
     assert "production_recommendation_text" not in projection
@@ -2726,9 +2697,10 @@ def test_s2_projection_feed_carries_s9_source_refs_without_authority() -> None:
     assert machine["canonical_design_record_ref"] == context["canonical_design_record_ref"]
     assert machine["s9_source_revision_ref"] == context["s9_source_revision_ref"]
     assert machine["s9_projection_authority_boundary"]["posture"] == "shadow"
-    assert "production_claim_authority" in machine["s9_projection_authority_boundary"][
-        "may_not_use_for"
-    ]
+    assert (
+        "production_claim_authority"
+        in machine["s9_projection_authority_boundary"]["may_not_use_for"]
+    )
 
 
 def test_s2_public_projection_remains_shadow_when_s9_projection_passes() -> None:
@@ -2756,9 +2728,7 @@ def test_s2_public_projection_remains_shadow_when_s9_projection_passes() -> None
     assert public_projection["canonical_outcome_effect"] == "none_shadow_only"
     assert public_projection["s9_projection_policy"] == "reads_canonical_design_record"
     assert public_projection["s9_lowering_boundary"] == "projection_only_until_grounded"
-    assert "production_recommendation" in public_projection["authority_boundary"][
-        "may_not_use_for"
-    ]
+    assert "production_recommendation" in public_projection["authority_boundary"]["may_not_use_for"]
 
 
 def test_s2_machine_projection_exposes_s9_faithfulness_and_lowering_boundary() -> None:
@@ -2773,12 +2743,11 @@ def test_s2_machine_projection_exposes_s9_faithfulness_and_lowering_boundary() -
 
     assert machine_projection["s9_faithfulness_ref"] == context["s9_faithfulness_ref"]
     assert machine_projection["s9_lowering_gate_ref"] == context["s9_lowering_gate_ref"]
-    assert machine_projection["s9_lowering_gate_status"] == (
-        "lowering_blocked_missing_grounding"
-    )
+    assert machine_projection["s9_lowering_gate_status"] == ("lowering_blocked_missing_grounding")
     assert machine_projection["s9_lowering_boundary"] == "projection_only_until_grounded"
-    assert machine_projection["canonical_design_record_digest"] == (
-        context["canonical_design_record_digest"]
+    assert (
+        machine_projection["canonical_design_record_digest"]
+        == (context["canonical_design_record_digest"])
     )
 
 

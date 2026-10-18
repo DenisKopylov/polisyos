@@ -18,12 +18,8 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from polisyos.core.artifacts import ArtifactRef
 from polisyos.core.canon import CanonSpec, to_canonical_bytes
 
-SCOPE_ADJUDICATION_CANDIDATE_SCHEMA_VERSION = (
-    "polisyos.core.scope-adjudication-candidate.v1"
-)
-SCOPE_ADJUDICATION_AUTHORITY_PURPOSE: Literal["scope_adjudication"] = (
-    "scope_adjudication"
-)
+SCOPE_ADJUDICATION_CANDIDATE_SCHEMA_VERSION = "polisyos.core.scope-adjudication-candidate.v1"
+SCOPE_ADJUDICATION_AUTHORITY_PURPOSE: Literal["scope_adjudication"] = "scope_adjudication"
 
 ScopeDigest = Annotated[str, Field(pattern=r"^sha256:[0-9a-f]{64}$", strict=True)]
 ScopePredicateClass = Literal[
@@ -41,9 +37,7 @@ ScopeAdjudicationProhibitedUse = Literal[
     "institutional_execution",
 ]
 
-SCOPE_ADJUDICATION_PROHIBITED_USES: tuple[
-    ScopeAdjudicationProhibitedUse, ...
-] = (
+SCOPE_ADJUDICATION_PROHIBITED_USES: tuple[ScopeAdjudicationProhibitedUse, ...] = (
     "scope_ruling",
     "claim_lifecycle_transition",
     "claim_head_advance",
@@ -51,9 +45,7 @@ SCOPE_ADJUDICATION_PROHIBITED_USES: tuple[
     "institutional_execution",
 )
 
-_ADMITTED_PREDICATE_CLASSES = frozenset(
-    {"recomputed", "independently_reconciled"}
-)
+_ADMITTED_PREDICATE_CLASSES = frozenset({"recomputed", "independently_reconciled"})
 _CANON_SPEC = CanonSpec(
     name="polisyos.canon.json",
     version="0.2.0",
@@ -88,9 +80,7 @@ class ScopeAdjudicationPredicate(StrEnum):
         "absence_makes_policyos_published_claim_silently_false"
     )
     OUTPUT_CHANGES_OUR_CLAIM_VALIDITY = "output_changes_policyos_claim_validity"
-    CHANGES_ONLY_WHO_ANSWERS_FOR_OUR_CLAIMS = (
-        "changes_only_who_answers_for_policyos_claim"
-    )
+    CHANGES_ONLY_WHO_ANSWERS_FOR_OUR_CLAIMS = "changes_only_who_answers_for_policyos_claim"
 
 
 class ScopeAdjudicationRuling(StrEnum):
@@ -131,9 +121,8 @@ class ScopePredicateObservation(_StrictFrozenModel):
     def _validate_evidence_and_establishment(self) -> ScopePredicateObservation:
         if (self.evidence_ref is None) != (self.evidence_content_digest is None):
             raise ValueError("scope_evidence_binding_pair_incomplete")
-        if (
-            self.evidence_ref is not None
-            and self.evidence_content_digest != str(self.evidence_ref.artifact_id)
+        if self.evidence_ref is not None and self.evidence_content_digest != str(
+            self.evidence_ref.artifact_id
         ):
             raise ValueError("scope_evidence_content_digest_mismatch")
         if self.value is None and self.predicate_class != "not_established":
@@ -151,9 +140,9 @@ class ScopePredicateObservation(_StrictFrozenModel):
 class ScopeAdjudicationCandidate(_StrictFrozenModel):
     """Content-bound proposal that explicitly has no authority or closure effect."""
 
-    schema_version: Literal[
-        "polisyos.core.scope-adjudication-candidate.v1"
-    ] = SCOPE_ADJUDICATION_CANDIDATE_SCHEMA_VERSION
+    schema_version: Literal["polisyos.core.scope-adjudication-candidate.v1"] = (
+        SCOPE_ADJUDICATION_CANDIDATE_SCHEMA_VERSION
+    )
     candidate_function_id: str = Field(min_length=1)
     candidate_description: str = Field(min_length=1)
     plane: ScopeAdjudicationPlane
@@ -165,20 +154,14 @@ class ScopeAdjudicationCandidate(_StrictFrozenModel):
     rule_effective_at: datetime
     valid_at: datetime
     known_at: datetime
-    authority_purpose: Literal["scope_adjudication"] = (
-        SCOPE_ADJUDICATION_AUTHORITY_PURPOSE
-    )
-    observations: tuple[ScopePredicateObservation, ...] = Field(
-        min_length=3, max_length=3
-    )
+    authority_purpose: Literal["scope_adjudication"] = SCOPE_ADJUDICATION_AUTHORITY_PURPOSE
+    observations: tuple[ScopePredicateObservation, ...] = Field(min_length=3, max_length=3)
     proposed_ruling: ScopeAdjudicationRuling | None
     status: Literal["candidate_only"] = "candidate_only"
     authority_effect: Literal["none"] = "none"
     closure_effect: Literal["none"] = "none"
     authoritative_for: tuple[str, ...] = Field(default=(), max_length=0)
-    may_not_use_for: tuple[ScopeAdjudicationProhibitedUse, ...] = (
-        SCOPE_ADJUDICATION_PROHIBITED_USES
-    )
+    may_not_use_for: tuple[ScopeAdjudicationProhibitedUse, ...] = SCOPE_ADJUDICATION_PROHIBITED_USES
     limitations: tuple[str, ...] = Field(min_length=2)
     payload_digest: ScopeDigest
 
@@ -202,9 +185,7 @@ class ScopeAdjudicationCandidate(_StrictFrozenModel):
             _require_aware(value, field_name=field_name)
         if self.rule_effective_at > self.valid_at:
             raise ValueError("scope_rule_not_effective_at_valid_time")
-        if tuple(observation.predicate for observation in self.observations) != (
-            _PREDICATE_ORDER
-        ):
+        if tuple(observation.predicate for observation in self.observations) != (_PREDICATE_ORDER):
             raise ValueError("scope_candidate_predicate_order_mismatch")
         if any(observation.plane is not self.plane for observation in self.observations):
             raise ValueError("scope_candidate_mixed_plane")
@@ -264,9 +245,7 @@ def build_scope_adjudication_candidate(
         payload_digest="sha256:" + "0" * 64,
     )
     payload_digest = scope_adjudication_candidate_digest(draft)
-    return ScopeAdjudicationCandidate.model_validate(
-        {**values, "payload_digest": payload_digest}
-    )
+    return ScopeAdjudicationCandidate.model_validate({**values, "payload_digest": payload_digest})
 
 
 def scope_adjudication_candidate_digest(
@@ -274,9 +253,7 @@ def scope_adjudication_candidate_digest(
 ) -> ScopeDigest:
     """Recompute the candidate digest from every semantic field."""
 
-    return _digest_mapping(
-        candidate.model_dump(mode="json", exclude={"payload_digest"})
-    )
+    return _digest_mapping(candidate.model_dump(mode="json", exclude={"payload_digest"}))
 
 
 def verify_scope_adjudication_candidate(

@@ -35,9 +35,7 @@ _PRINCIPAL = RuntimePrincipal(
 )
 
 
-def _within_fixture_owner(
-    function, *args, owner: RuntimePrincipal = _PRINCIPAL, **kwargs
-):
+def _within_fixture_owner(function, *args, owner: RuntimePrincipal = _PRINCIPAL, **kwargs):
     """Admit this controlled fixture's reads and writes under its explicit owner."""
     assert owner.tenant_id is not None
     assert owner.cell_id is not None

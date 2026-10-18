@@ -145,9 +145,7 @@ def build_compatibility_report(
             "production_closeout_blocked_count": sum(
                 1 for row in entries if not row["production_closeout_allowed"]
             ),
-            "diagnostic_readable_count": sum(
-                1 for row in entries if row["diagnostic_readable"]
-            ),
+            "diagnostic_readable_count": sum(1 for row in entries if row["diagnostic_readable"]),
             "migration_required_count": sum(1 for row in entries if row["migration_required"]),
             "verified_migration_count": sum(1 for row in entries if row["migration_verified"]),
             "decision_counts": dict(sorted(decision_counts.items())),
@@ -239,8 +237,7 @@ def check_artifacts(
     for path, expected_content in expected.items():
         if not path.exists():
             failures.append(
-                "generated schema compatibility report missing: "
-                f"{_rel(path, repo_root)}"
+                f"generated schema compatibility report missing: {_rel(path, repo_root)}"
             )
             continue
         if path.read_text(encoding="utf-8") != expected_content:
@@ -393,8 +390,7 @@ def _is_candidate_report_file(rel_path: str) -> bool:
 def _is_excluded_path(rel_path: str) -> bool:
     lowered = rel_path.lower()
     return any(
-        lowered == prefix or lowered.startswith(f"{prefix}/")
-        for prefix in EXCLUDED_PREFIXES
+        lowered == prefix or lowered.startswith(f"{prefix}/") for prefix in EXCLUDED_PREFIXES
     )
 
 

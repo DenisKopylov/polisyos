@@ -373,11 +373,7 @@ def _simulation_dgp_requirement(tokens: set[str]) -> SimulationDGPRequirement:
         dgp_lineage_required=required,
         calibration_required=bool({"simulation", "dgp", "forecast"} & tokens),
         behavioral_response_required=bool({"take_up", "behavioral", "strategic"} & tokens),
-        rationale=(
-            "Claim requires simulation DGP lineage and calibration."
-            if required
-            else ""
-        ),
+        rationale=("Claim requires simulation DGP lineage and calibration." if required else ""),
     )
 
 

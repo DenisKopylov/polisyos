@@ -82,9 +82,7 @@ def _opts(source_ref: str) -> PutOptions:
         ),
         governance=ArtifactGovernanceInfo(classification="internal"),
         inputs=[
-            InputRef.model_validate(
-                {"artifact_id": source_ref, "role": "policy_grounding_input"}
-            )
+            InputRef.model_validate({"artifact_id": source_ref, "role": "policy_grounding_input"})
         ],
     )
 
@@ -457,8 +455,7 @@ def test_outbox_events_dedupe_by_topic_and_event_key(tmp_path: Path) -> None:
     matching = [
         event
         for event in store.list_outbox_events(state=None, limit=50)
-        if event.topic == "control.job.completed"
-        and event.event_key == "job-52:job_completed"
+        if event.topic == "control.job.completed" and event.event_key == "job-52:job_completed"
     ]
     assert len(matching) == 1
 
@@ -494,9 +491,7 @@ def test_duplicate_diagnostic_events_are_idempotent_only_for_full_retry_identity
         )
     assert payload_collision.value.code == "authority_event_collision"
 
-    closure_drift = original.model_copy(
-        update={"input_refs": ("same-input-closure:bbb",)}
-    )
+    closure_drift = original.model_copy(update={"input_refs": ("same-input-closure:bbb",)})
     with pytest.raises(DiagnosticEventContractError) as closure_collision:
         store.append_diagnostic_event(
             event=closure_drift,

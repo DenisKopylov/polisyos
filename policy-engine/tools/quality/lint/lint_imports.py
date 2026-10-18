@@ -541,8 +541,7 @@ def _read_package_governance(
     undeclared_source_roots = sorted(source_package_roots - known_roots)
     if undeclared_source_roots:
         raise ValueError(
-            "direction matrix missing source package roots: "
-            + ", ".join(undeclared_source_roots)
+            "direction matrix missing source package roots: " + ", ".join(undeclared_source_roots)
         )
 
     data = tomllib.loads(boundary_path.read_text(encoding="utf-8"))
@@ -558,10 +557,7 @@ def _read_package_governance(
             f"{PACKAGE_BOUNDARIES_VERSION}, got {boundary_version!r}"
         )
     if contract.get("contract_role") != OWNERSHIP_NARROWING_ROLE:
-        raise ValueError(
-            "package_boundaries.contract_role must be "
-            f"{OWNERSHIP_NARROWING_ROLE!r}"
-        )
+        raise ValueError(f"package_boundaries.contract_role must be {OWNERSHIP_NARROWING_ROLE!r}")
 
     packages = data.get("package", [])
     if not isinstance(packages, list):
@@ -622,9 +618,7 @@ def _read_package_governance(
         narrowed_targets: dict[str, set[str]] = {}
         for dependency in dependencies:
             if not isinstance(dependency, str):
-                raise ValueError(
-                    f"package boundary root {source_root} has a non-string dependency"
-                )
+                raise ValueError(f"package boundary root {source_root} has a non-string dependency")
             parts = dependency.split(".")
             if len(parts) < 2 or parts[0] != internal_prefix:
                 continue
@@ -1268,6 +1262,7 @@ def _changed_scan_scope(
         path.resolve() for path in changed_under_src if path.suffix == ".py" and path.exists()
     }
     return changed_python, False
+
 
 def _build_fingerprint(
     *,

@@ -362,17 +362,18 @@ def test_typed_transient_and_validation_categories_control_raised_retry() -> Non
     assert transient.calls == 2
 
     validation = _RaisedNode(_ValidationRuntimeError("invalid contract"))
-    with patch("polisyos.scientist.orchestration.engine.retry.time.sleep"), pytest.raises(
-        RetryExhaustedError
+    with (
+        patch("polisyos.scientist.orchestration.engine.retry.time.sleep"),
+        pytest.raises(RetryExhaustedError),
     ):
-            execute_with_retry_sync(
-                validation,
-                _context(),
-                ExperimentState(run_id="run-03-validation-classified"),
-                retry_policy=RetryPolicy(max_retries=2, backoff_base_s=0.1, jitter="none"),
-                timeout_s=None,
-                alias="run-03-validation-classified",
-            )
+        execute_with_retry_sync(
+            validation,
+            _context(),
+            ExperimentState(run_id="run-03-validation-classified"),
+            retry_policy=RetryPolicy(max_retries=2, backoff_base_s=0.1, jitter="none"),
+            timeout_s=None,
+            alias="run-03-validation-classified",
+        )
     assert validation.calls == 1
 
 

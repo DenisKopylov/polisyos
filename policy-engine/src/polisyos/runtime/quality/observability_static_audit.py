@@ -164,12 +164,8 @@ def build_freshness_policy_time_semantics_record(
         "status": status,
         "policy_time": policy_time,
         "evidence_time_bindings": [dict(row) for row in evidence_time_bindings],
-        "continuous_governance_triggers": [
-            dict(row) for row in continuous_governance_triggers
-        ],
-        "final_artifact_date_assumptions": [
-            dict(row) for row in final_artifact_date_assumptions
-        ],
+        "continuous_governance_triggers": [dict(row) for row in continuous_governance_triggers],
+        "final_artifact_date_assumptions": [dict(row) for row in final_artifact_date_assumptions],
         "evidence_ref": evidence_ref,
         "runtime_event_ref": runtime_event_ref,
         "next_diagnostic_command": next_diagnostic_command,
@@ -208,8 +204,7 @@ def validate_observability_orchestration_static_audit_records(
             _issue(
                 code="policy_design_skip_causality_ledger_missing",
                 message=(
-                    "Policy Design Case is missing the PDD-018 skip-causality "
-                    "preservation ledger."
+                    "Policy Design Case is missing the PDD-018 skip-causality preservation ledger."
                 ),
                 field=SKIP_CAUSALITY_LEDGER_RECORD_KEY,
             )
@@ -287,11 +282,7 @@ def _dormant_capability_inventory_issues(
         "current_break_point",
     )
     for index, row in enumerate(rows):
-        missing = [
-            field
-            for field in required_fields
-            if row.get(field) in (None, "", [], {})
-        ]
+        missing = [field for field in required_fields if row.get(field) in (None, "", [], {})]
         if missing:
             issues.append(
                 _issue(
@@ -364,11 +355,7 @@ def _skip_causality_ledger_issues(
         "node_event_ref",
     )
     for index, row in enumerate(skipped_nodes):
-        missing = [
-            field
-            for field in required_fields
-            if row.get(field) in (None, "", [], {})
-        ]
+        missing = [field for field in required_fields if row.get(field) in (None, "", [], {})]
         if missing:
             issues.append(
                 _issue(
@@ -379,8 +366,7 @@ def _skip_causality_ledger_issues(
                         "policy, and raw/progress/node event refs."
                     ),
                     field=(
-                        f"{SKIP_CAUSALITY_LEDGER_RECORD_KEY}."
-                        f"skipped_nodes[{index}].{missing[0]}"
+                        f"{SKIP_CAUSALITY_LEDGER_RECORD_KEY}.skipped_nodes[{index}].{missing[0]}"
                     ),
                     evidence_ref=evidence_ref,
                 )
@@ -462,8 +448,7 @@ def _freshness_policy_time_semantics_issues(
                     "continuous-governance triggers."
                 ),
                 field=(
-                    f"{FRESHNESS_POLICY_TIME_SEMANTICS_RECORD_KEY}."
-                    "continuous_governance_triggers"
+                    f"{FRESHNESS_POLICY_TIME_SEMANTICS_RECORD_KEY}.continuous_governance_triggers"
                 ),
                 evidence_ref=evidence_ref,
             )
@@ -472,13 +457,9 @@ def _freshness_policy_time_semantics_issues(
         issues.append(
             _issue(
                 code="policy_design_policy_time_metadata_missing",
-                message=(
-                    "Freshness semantics record must expose final artifact date "
-                    "assumptions."
-                ),
+                message=("Freshness semantics record must expose final artifact date assumptions."),
                 field=(
-                    f"{FRESHNESS_POLICY_TIME_SEMANTICS_RECORD_KEY}."
-                    "final_artifact_date_assumptions"
+                    f"{FRESHNESS_POLICY_TIME_SEMANTICS_RECORD_KEY}.final_artifact_date_assumptions"
                 ),
                 evidence_ref=evidence_ref,
             )
@@ -536,8 +517,7 @@ def _freshness_binding_issues(
                 code="policy_design_freshness_policy_time_stale",
                 message="Freshness binding is stale for its policy-time semantics.",
                 field=f"{prefix}.freshness_status",
-                evidence_ref=_text(row.get("evidence_ref") or row.get("cas_ref"))
-                or evidence_ref,
+                evidence_ref=_text(row.get("evidence_ref") or row.get("cas_ref")) or evidence_ref,
             )
         )
     elif status and normalized_status not in PASSING_FRESHNESS_STATUSES:
@@ -546,8 +526,7 @@ def _freshness_binding_issues(
                 code="policy_design_freshness_policy_time_status_invalid",
                 message="Freshness binding must use a passing freshness status.",
                 field=f"{prefix}.freshness_status",
-                evidence_ref=_text(row.get("evidence_ref") or row.get("cas_ref"))
-                or evidence_ref,
+                evidence_ref=_text(row.get("evidence_ref") or row.get("cas_ref")) or evidence_ref,
             )
         )
     if policy_time and evidence_as_of:
@@ -556,8 +535,7 @@ def _freshness_binding_issues(
             evidence_as_of=evidence_as_of,
             window_days=_recency_window_days(row),
             field_prefix=prefix,
-            evidence_ref=_text(row.get("evidence_ref") or row.get("cas_ref"))
-            or evidence_ref,
+            evidence_ref=_text(row.get("evidence_ref") or row.get("cas_ref")) or evidence_ref,
         )
         if age_issue is not None:
             issues.append(age_issue)
@@ -641,8 +619,7 @@ def _freshness_age_issue(
         return _issue(
             code="policy_design_freshness_policy_time_stale",
             message=(
-                "Evidence is older than the accepted recency window for the "
-                "normalized policy time."
+                "Evidence is older than the accepted recency window for the normalized policy time."
             ),
             field=f"{field_prefix}.acceptable_recency_window_days",
             evidence_ref=evidence_ref,

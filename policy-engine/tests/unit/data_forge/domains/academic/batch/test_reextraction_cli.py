@@ -425,28 +425,33 @@ def test_recover_cli_delegates_exact_stop_without_provider_calls(tmp_path, monke
     plan_path = tmp_path / "authorized.json"
     plan_path.write_text(plan.model_dump_json())
     monkeypatch.setattr(owner, "SDKExtractionTransport", _never)
-    assert owner.main(
-        [
-            "recover",
-            "--plan",
-            str(plan_path),
-            "--stop-path",
-            stop["path"],
-            "--stop-sha256",
-            stop["sha256"],
-            "--acknowledgment-ref",
-            "synthetic:operator",
-            "--reason",
-            "Synthetic credential repaired; retain consumed budget",
-        ]
-    ) == 0
+    assert (
+        owner.main(
+            [
+                "recover",
+                "--plan",
+                str(plan_path),
+                "--stop-path",
+                stop["path"],
+                "--stop-sha256",
+                stop["sha256"],
+                "--acknowledgment-ref",
+                "synthetic:operator",
+                "--reason",
+                "Synthetic credential repaired; retain consumed budget",
+            ]
+        )
+        == 0
+    )
     assert len(calls) == 1 and (output / stop["path"]).read_bytes() == stop_bytes
     monkeypatch.setattr(owner, "SDKExtractionTransport", SyntheticTransport)
     resumed = asyncio.run(owner.run_plan(plan))
     assert resumed["works"] == {"complete": 2} and len(calls) == 3
 
 
-def test_finalize_cli_replays_historical_input_and_refuses_incomplete(tmp_path, monkeypatch, capsys):
+def test_finalize_cli_replays_historical_input_and_refuses_incomplete(
+    tmp_path, monkeypatch, capsys
+):
     owner = _owner()
     assert hasattr(owner, "finalize_plan"), "campaign_graph_cli_bridge_missing"
     from polisyos.data_forge.domains.academic.batch import reextraction_campaign as campaign

@@ -144,9 +144,7 @@ class ScenarioEvidenceContract:
             "pack": self.pack,
             "requirements": [item.to_dict() for item in self.requirements],
             "requirement_count": len(self.requirements),
-            "admissible_data_source_families": list(
-                self.admissible_data_source_families
-            ),
+            "admissible_data_source_families": list(self.admissible_data_source_families),
             "data_requirement_specs": [
                 item.model_dump(mode="json") for item in self.data_requirement_specs
             ],
@@ -164,9 +162,7 @@ def normalize_scenario_evidence_contract(
     metadata = _mapping(scenario.get("scenario_evidence_contract"))
     jurisdiction = _jurisdiction_from_context(context)
     temporal_scope = _optional_text(
-        context.get("policy_time")
-        or context.get("data_time")
-        or metadata.get("temporal_scope")
+        context.get("policy_time") or context.get("data_time") or metadata.get("temporal_scope")
     )
     authority_scope = _text_tuple(
         metadata.get("authority_scope")
@@ -307,8 +303,7 @@ def _legacy_data_requirement_specs(
     filtered = [
         spec
         for spec in specs
-        if spec.required_data_families
-        and spec.required_data_families[0] in family_order
+        if spec.required_data_families and spec.required_data_families[0] in family_order
     ]
     if not filtered:
         return specs
@@ -343,8 +338,7 @@ def evaluate_source_family_binding(
     expected = _required_text(requirement_dict.get("expected_family"), "expected_family")
     selected = _required_text(selected_source_family, "selected_source_family")
     projected_match = (
-        requirement_dict.get("domain") == "data"
-        and selected.casefold() == expected.casefold()
+        requirement_dict.get("domain") == "data" and selected.casefold() == expected.casefold()
     )
     if projected_match:
         return {
@@ -455,11 +449,7 @@ def _text_tuple(value: Any) -> tuple[str, ...]:
     if value is None:
         return ()
     raw_values = value if isinstance(value, (list, tuple, set)) else (value,)
-    return tuple(
-        text
-        for text in (_optional_text(item) for item in raw_values)
-        if text is not None
-    )
+    return tuple(text for text in (_optional_text(item) for item in raw_values) if text is not None)
 
 
 __all__ = [

@@ -135,10 +135,7 @@ class ProviderModelQualityObservation(BaseModel):
             )
         self.upstream_spine_blocker_refs = [
             ref
-            for ref in (
-                _clean_text(item, fallback="")
-                for item in self.upstream_spine_blocker_refs
-            )
+            for ref in (_clean_text(item, fallback="") for item in self.upstream_spine_blocker_refs)
             if ref
         ]
         return self
@@ -354,8 +351,7 @@ def provider_model_evidence_key(
 def build_provider_model_quality_ledger(
     observations: Iterable[ProviderModelQualityObservation | Mapping[str, Any]],
     *,
-    default_model_choices: Iterable[DefaultProductionModelChoice | Mapping[str, Any]]
-    | None = None,
+    default_model_choices: Iterable[DefaultProductionModelChoice | Mapping[str, Any]] | None = None,
     generated_at: datetime | None = None,
     thresholds: ProviderModelQualityThresholds | None = None,
     max_evidence_age_days: int = 14,
@@ -364,9 +360,7 @@ def build_provider_model_quality_ledger(
     """Aggregate lane observations into a sanitized provider/model quality ledger."""
     generated = _ensure_aware_utc(generated_at or datetime.now(UTC))
     active_thresholds = thresholds or ProviderModelQualityThresholds()
-    hidden_tokens = {
-        token for token in (str(item) for item in hidden_answer_tokens or []) if token
-    }
+    hidden_tokens = {token for token in (str(item) for item in hidden_answer_tokens or []) if token}
     grouped: dict[str, list[ProviderModelQualityObservation]] = defaultdict(list)
     parsed_observations = [
         item
@@ -444,9 +438,7 @@ def compare_provider_models(
                 selected_variant_quality_avg=metrics.selected_variant_quality_avg,
                 schema_failure_rate=metrics.schema_failure_rate,
                 grounding_failure_rate=metrics.grounding_failure_rate,
-                citation_faithfulness_failure_rate=(
-                    metrics.citation_faithfulness_failure_rate
-                ),
+                citation_faithfulness_failure_rate=(metrics.citation_faithfulness_failure_rate),
                 disagreement_rate=metrics.disagreement_rate,
                 refusal_rate=metrics.refusal_rate,
                 degradation_rate=metrics.degradation_rate,
@@ -698,11 +690,7 @@ def _controlled_default_model_gate(
     )
     row = next((item for item in rows if item.evidence_key == evidence_key), None)
     review = next(
-        (
-            item
-            for item in ledger.default_model_reviews
-            if item.evidence_key == evidence_key
-        ),
+        (item for item in ledger.default_model_reviews if item.evidence_key == evidence_key),
         None,
     )
     reasons: list[str] = []
@@ -753,9 +741,7 @@ def _controlled_comparison_summary(
     default_gate: Mapping[str, Any],
     min_samples_per_model: int,
 ) -> dict[str, Any]:
-    under_sampled = [
-        row.evidence_key for row in rows if row.sample_count < min_samples_per_model
-    ]
+    under_sampled = [row.evidence_key for row in rows if row.sample_count < min_samples_per_model]
     action = str(default_gate.get("action") or "")
     if action == "approve" and not under_sampled:
         status = "pass"
@@ -872,14 +858,10 @@ def _build_entry(
     metrics = _metrics(observations)
     drift_action, drift_reasons = _drift_decision(metrics, thresholds=thresholds)
     if metrics.system_confounded_sample_count:
-        drift_reasons = sorted(
-            {*drift_reasons, "system_confounded_samples_excluded"}
-        )
+        drift_reasons = sorted({*drift_reasons, "system_confounded_samples_excluded"})
         if metrics.decision_sample_count <= 0:
             drift_action = "require_review"
-            drift_reasons = sorted(
-                {*drift_reasons, "controlled_evidence_bound_task_required"}
-            )
+            drift_reasons = sorted({*drift_reasons, "controlled_evidence_bound_task_required"})
         elif drift_action == "approve":
             drift_action = "require_review"
     return ProviderModelQualityEntry(
@@ -919,16 +901,12 @@ def _metrics(
     observations: list[ProviderModelQualityObservation],
 ) -> ProviderModelQualityMetrics:
     count = len(observations)
-    decision_observations = [
-        item for item in observations if not item.system_confounded
-    ]
+    decision_observations = [item for item in observations if not item.system_confounded]
     decision_count = len(decision_observations)
     latencies = [item.latency_ms for item in decision_observations if item.latency_ms is not None]
     costs = [item.cost_usd for item in decision_observations if item.cost_usd is not None]
     context_pressures = [
-        item.context_pressure
-        for item in decision_observations
-        if item.context_pressure is not None
+        item.context_pressure for item in decision_observations if item.context_pressure is not None
     ]
     selected_quality = [
         item.selected_variant_quality
@@ -940,13 +918,9 @@ def _metrics(
         decision_sample_count=decision_count,
         simulated_sample_count=sum(1 for item in observations if item.lane_kind == "simulated"),
         quarantined_live_sample_count=sum(
-            1
-            for item in observations
-            if item.lane_kind == "quarantined_live" or item.quarantined
+            1 for item in observations if item.lane_kind == "quarantined_live" or item.quarantined
         ),
-        system_confounded_sample_count=sum(
-            1 for item in observations if item.system_confounded
-        ),
+        system_confounded_sample_count=sum(1 for item in observations if item.system_confounded),
         schema_failure_rate=_rate(
             sum(1 for item in decision_observations if not item.schema_valid),
             decision_count,
@@ -969,11 +943,7 @@ def _metrics(
             decision_count,
         ),
         citation_faithfulness_failure_rate=_rate(
-            sum(
-                1
-                for item in decision_observations
-                if not item.citation_faithfulness_valid
-            ),
+            sum(1 for item in decision_observations if not item.citation_faithfulness_valid),
             decision_count,
         ),
         disagreement_rate=_rate(
@@ -986,9 +956,7 @@ def _metrics(
         cost_usd_total=_round_float(sum(costs)) if costs else 0.0,
         cost_usd_avg=_avg(costs),
         context_pressure_avg=_avg(context_pressures),
-        context_pressure_max=(
-            _round_float(max(context_pressures)) if context_pressures else None
-        ),
+        context_pressure_max=(_round_float(max(context_pressures)) if context_pressures else None),
         provider_error_rate=_rate(
             sum(1 for item in decision_observations if item.provider_error_code),
             decision_count,
@@ -1051,8 +1019,7 @@ def _drift_decision(
         _append_if(
             demote_reasons,
             "selected_variant_quality",
-            metrics.selected_variant_quality_avg
-            < thresholds.demote_selected_variant_quality,
+            metrics.selected_variant_quality_avg < thresholds.demote_selected_variant_quality,
         )
 
     if demote_reasons:
@@ -1094,8 +1061,7 @@ def _drift_decision(
         _append_if(
             review_reasons,
             "selected_variant_quality",
-            metrics.selected_variant_quality_avg
-            < thresholds.review_selected_variant_quality,
+            metrics.selected_variant_quality_avg < thresholds.review_selected_variant_quality,
         )
     if review_reasons:
         return "require_review", sorted(set(review_reasons))
@@ -1172,20 +1138,12 @@ def _ledger_summary(
     return {
         "status": status,
         "observation_count": len(observations),
-        "decision_observation_count": sum(
-            1 for item in observations if not item.system_confounded
-        ),
-        "system_confounded_observations": sum(
-            1 for item in observations if item.system_confounded
-        ),
+        "decision_observation_count": sum(1 for item in observations if not item.system_confounded),
+        "system_confounded_observations": sum(1 for item in observations if item.system_confounded),
         "entry_count": len(entries),
-        "simulated_observations": sum(
-            1 for item in observations if item.lane_kind == "simulated"
-        ),
+        "simulated_observations": sum(1 for item in observations if item.lane_kind == "simulated"),
         "quarantined_live_observations": sum(
-            1
-            for item in observations
-            if item.lane_kind == "quarantined_live" or item.quarantined
+            1 for item in observations if item.lane_kind == "quarantined_live" or item.quarantined
         ),
         "default_model_review_count": len(reviews),
         "default_model_actions": sorted(review_actions),
@@ -1202,9 +1160,7 @@ def _observation_evidence_sample(
         sample["confounding_signal"] = (
             observation.confounding_signal or "upstream_evidence_spine_incomplete"
         )
-        sample["upstream_spine_blocker_refs"] = list(
-            observation.upstream_spine_blocker_refs
-        )
+        sample["upstream_spine_blocker_refs"] = list(observation.upstream_spine_blocker_refs)
     return sample
 
 
@@ -1271,8 +1227,7 @@ def _redacted_secret(value: object) -> dict[str, object]:
         return {"present": False}
     return {
         "present": True,
-        "fingerprint": "sha256:"
-        + hashlib.sha256(str(value).encode("utf-8")).hexdigest()[:12],
+        "fingerprint": "sha256:" + hashlib.sha256(str(value).encode("utf-8")).hexdigest()[:12],
     }
 
 

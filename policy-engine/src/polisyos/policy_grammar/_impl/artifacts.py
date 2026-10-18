@@ -52,6 +52,7 @@ def load_universal_policy_design_case(
 ) -> UniversalPolicyDesignCase:
     """Load and validate a persisted universal policy design case artifact."""
     from polisyos.core.artifacts import load_core_json_artifact
+
     payload = load_core_json_artifact(store, artifact_ref)
     case = UniversalPolicyDesignCase.model_validate(payload)
     return case.model_copy(update={"persisted_artifact_ref": artifact_ref})

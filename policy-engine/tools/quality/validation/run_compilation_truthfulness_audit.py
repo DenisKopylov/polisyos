@@ -157,12 +157,8 @@ def build_w12b_manifest() -> dict[str, Any]:
             "POLICYOS_UNIVERSAL_POLICY_DESIGN_CASE_IMPLEMENTATION_PLAN.md"
             "#w12b-compilation-truthfulness-audit-run"
         ),
-        "tool_ref": (
-            "repo://tools/quality/validation/run_compilation_truthfulness_audit.py"
-        ),
-        "w11e_tool_ref": (
-            "repo://tools/quality/validation/check_compilation_truthfulness.py"
-        ),
+        "tool_ref": ("repo://tools/quality/validation/run_compilation_truthfulness_audit.py"),
+        "w11e_tool_ref": ("repo://tools/quality/validation/check_compilation_truthfulness.py"),
         "command_contract": {
             "command": render_command(command),
             "output_refs": [
@@ -193,8 +189,7 @@ def build_w12b_manifest() -> dict[str, Any]:
         },
         "validation": {
             "test_ref": (
-                "repo://tests/repo_quality/tools/"
-                "test_w12b_compilation_truthfulness_audit.py"
+                "repo://tests/repo_quality/tools/test_w12b_compilation_truthfulness_audit.py"
             ),
             "command_ref": render_command(command),
         },
@@ -337,25 +332,20 @@ def _evaluate_floors(
 
     aggregate_rate = _float_or_zero(summary.get("aggregate_compilation_truthfulness_rate"))
     below_cases = [
-        str(case.get("case_id"))
-        for case in cases
-        if case.get("floor_status") == "below_floor"
+        str(case.get("case_id")) for case in cases if case.get("floor_status") == "below_floor"
     ]
     by_domain = _mapping_of_mappings(summary.get("by_domain"))
     minimum_domain = float(policy["minimum_domain_rate"] or 0.0)
     below_domains = [
         domain
         for domain, row in sorted(by_domain.items())
-        if _float_or_zero(row.get("aggregate_compilation_truthfulness_rate"))
-        < minimum_domain
+        if _float_or_zero(row.get("aggregate_compilation_truthfulness_rate")) < minimum_domain
     ]
     minimum_aggregate = float(policy["minimum_aggregate_rate"] or 0.0)
     aggregate_below = aggregate_rate < minimum_aggregate
     return {
         "rollout_posture": rollout_posture,
-        "status": (
-            "not_met" if below_cases or below_domains or aggregate_below else "met"
-        ),
+        "status": ("not_met" if below_cases or below_domains or aggregate_below else "met"),
         "minimum_case_score": policy["minimum_case_score"],
         "minimum_aggregate_rate": policy["minimum_aggregate_rate"],
         "minimum_domain_rate": policy["minimum_domain_rate"],

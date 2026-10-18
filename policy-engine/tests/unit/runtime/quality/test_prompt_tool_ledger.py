@@ -128,9 +128,7 @@ def test_prompt_tool_ledger_persists_prompt_tool_parser_authority(tmp_path) -> N
     assert payload["steps"][0]["prompt"]["template_id"] == "scientist.formalizer"
     assert payload["steps"][0]["prompt"]["rendered_input_refs"] == [sha("c"), sha("d")]
     assert payload["steps"][0]["tool_allowlist"] == ["scholar_search"]
-    assert payload["steps"][0]["tool_schemas"][0]["schema_fingerprint"] == (
-        "sha256:" + "2" * 64
-    )
+    assert payload["steps"][0]["tool_schemas"][0]["schema_fingerprint"] == ("sha256:" + "2" * 64)
     assert payload["steps"][0]["parser_contract"]["contract_ref"] == sha("6")
     assert payload["steps"][0]["validation_refs"][0]["validation_ref"] == sha("9")
     assert payload["steps"][0]["authority_handoff_refs"][0]["handoff_ref"] == sha("0")

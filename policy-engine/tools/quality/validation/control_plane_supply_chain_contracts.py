@@ -774,7 +774,9 @@ def _package_owner_records() -> list[dict[str, str]]:
             }
         )
 
-    public_surface = tomllib.loads((REPO_ROOT / "architecture/public_surface/contract.toml").read_text())
+    public_surface = tomllib.loads(
+        (REPO_ROOT / "architecture/public_surface/contract.toml").read_text()
+    )
     for item in public_surface.get("package", []):
         records.append(
             {
@@ -787,7 +789,9 @@ def _package_owner_records() -> list[dict[str, str]]:
 
 
 def _public_stable_modules() -> set[str]:
-    public_surface = tomllib.loads((REPO_ROOT / "architecture/public_surface/contract.toml").read_text())
+    public_surface = tomllib.loads(
+        (REPO_ROOT / "architecture/public_surface/contract.toml").read_text()
+    )
     return {
         str(item.get("module", ""))
         for item in public_surface.get("package", [])
@@ -796,7 +800,9 @@ def _public_stable_modules() -> set[str]:
 
 
 def _public_surface_owner(module: str) -> str:
-    public_surface = tomllib.loads((REPO_ROOT / "architecture/public_surface/contract.toml").read_text())
+    public_surface = tomllib.loads(
+        (REPO_ROOT / "architecture/public_surface/contract.toml").read_text()
+    )
     for item in public_surface.get("package", []):
         if item.get("module") == module:
             return str(item.get("owner", ""))
@@ -914,8 +920,8 @@ def _job_permissions(path: Path) -> dict[str, dict[str, str]]:
                 continue
             permission_match = PERMISSION_ITEM_RE.match(line)
             if permission_match:
-                jobs[current_job][permission_match.group("permission")] = (
-                    permission_match.group("level")
+                jobs[current_job][permission_match.group("permission")] = permission_match.group(
+                    "level"
                 )
     return jobs
 
@@ -955,10 +961,7 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--crosswalk-json",
         type=Path,
-        help=(
-            "Write the external Scorecard/SLSA-style supply-chain control "
-            "crosswalk report."
-        ),
+        help=("Write the external Scorecard/SLSA-style supply-chain control crosswalk report."),
     )
     return parser
 

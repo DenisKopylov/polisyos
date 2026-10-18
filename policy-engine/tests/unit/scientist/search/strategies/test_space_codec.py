@@ -78,9 +78,7 @@ def test_sobol_checkpoint_rejects_same_dimension_space_change(
     strategy = RandomSearchStrategy(space=simple_space, seed=123)
     strategy._sobol_candidate(1)
     state = strategy.get_state()
-    different_space = SearchSpace(
-        bounds=[ParameterBounds(name="x", lower=-10.0, upper=10.0)]
-    )
+    different_space = SearchSpace(bounds=[ParameterBounds(name="x", lower=-10.0, upper=10.0)])
 
     restored = RandomSearchStrategy(space=different_space, seed=999)
     with pytest.raises(ValueError, match="search space changed"):

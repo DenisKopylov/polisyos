@@ -85,9 +85,7 @@ def _config(tmp_path: Path) -> tuple[PipelineConfig, SourceConfig, pd.DataFrame]
 def _batch(frame: pd.DataFrame, *, size: int) -> Any:
     """Return one real Arrow record batch without changing production code."""
     pa = pytest.importorskip("pyarrow")
-    return pa.Table.from_pandas(frame, preserve_index=False).to_batches(
-        max_chunksize=size
-    )[0]
+    return pa.Table.from_pandas(frame, preserve_index=False).to_batches(max_chunksize=size)[0]
 
 
 def test_partial_batch_failure_resumes_without_republishing_confirmed_prefix(
@@ -113,9 +111,11 @@ def test_partial_batch_failure_resumes_without_republishing_confirmed_prefix(
             if self.instance == 0:
                 yield _batch(frame.iloc[:2], size=2)
                 raise OSError("controlled reader failure after first batch")
-            yield from __import__("pyarrow").Table.from_pandas(
-                frame, preserve_index=False
-            ).to_batches(max_chunksize=2)
+            yield from (
+                __import__("pyarrow")
+                .Table.from_pandas(frame, preserve_index=False)
+                .to_batches(max_chunksize=2)
+            )
 
     import pyarrow.parquet as parquet
 

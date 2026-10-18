@@ -197,9 +197,7 @@ async def test_openalex_attempt_trace_counts_actual_response_and_constraints(
         "polisyos.scholar.search.providers._read_url_text",
         _fake_read_url_text,
     )
-    policy = ProviderFailoverPolicy(
-        [OpenAlexWorksProvider(endpoint="https://openalex.test/works")]
-    )
+    policy = ProviderFailoverPolicy([OpenAlexWorksProvider(endpoint="https://openalex.test/works")])
 
     provider_name, hits, error, attempts = await policy.search_with_attempts(
         "loan guarantees SMEs firm survival impact evaluation",

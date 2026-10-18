@@ -122,7 +122,9 @@ TASK7_EXPECTED_ISSUE_CODES = {
 
 def _validator() -> Any:
     try:
-        return import_module("tools.quality.validation.check_policy_design_case_layer3_g5_readiness")
+        return import_module(
+            "tools.quality.validation.check_policy_design_case_layer3_g5_readiness"
+        )
     except ModuleNotFoundError as exc:
         if exc.name == "tools.quality.validation.check_policy_design_case_layer3_g5_readiness":
             pytest.fail(
@@ -177,9 +179,7 @@ def test_layer3_g5_readiness_fails_for_missing_persisted_artifacts(
 
     assert validation["status"] == "fail"
     assert set(validation["summary"]) >= EXPECTED_MANIFEST_DRIFT_KEYS
-    assert validation["artifacts"]["missing_persisted_artifact_paths"] == [
-        missing_path.as_posix()
-    ]
+    assert validation["artifacts"]["missing_persisted_artifact_paths"] == [missing_path.as_posix()]
     assert "layer3_g5_persisted_artifact_missing" in {
         issue["code"] for issue in validation["issues"]
     }
@@ -218,9 +218,7 @@ def test_layer3_g5_write_path_must_include_every_expected_artifact(monkeypatch: 
     monkeypatch.setattr(
         validator,
         "_write_artifacts",
-        lambda _repo_root, _bundle: [
-            path.as_posix() for path in expected_paths if path != omitted
-        ],
+        lambda _repo_root, _bundle: [path.as_posix() for path in expected_paths if path != omitted],
     )
 
     validation = validator.validate_layer3_g5_readiness(REPO_ROOT, write=True)
@@ -239,9 +237,9 @@ def test_layer3_g5_generated_artifacts_and_inventory_are_registered() -> None:
     generated_text = (REPO_ROOT / "architecture/generated_artifacts.toml").read_text(
         encoding="utf-8"
     )
-    inventory_text = (
-        REPO_ROOT / "architecture/policy_design_case/inventory.json"
-    ).read_text(encoding="utf-8")
+    inventory_text = (REPO_ROOT / "architecture/policy_design_case/inventory.json").read_text(
+        encoding="utf-8"
+    )
 
     assert validation["summary"]["g5_generated_artifacts_registration_status"] == "pass"
     assert validation["summary"]["g5_inventory_surface_status"] == "pass"
@@ -286,9 +284,10 @@ def test_layer3_g5_uses_conversion_route_registry_not_adapter_registry() -> None
     assert route_registry["conversion_route_records"][0]["route_id"].startswith(
         "layer3.g5.conversion_route."
     )
-    assert "conversion_authority_without_g5" in route_registry[
-        "conversion_route_records"
-    ][0]["may_not_use_for"]
+    assert (
+        "conversion_authority_without_g5"
+        in route_registry["conversion_route_records"][0]["may_not_use_for"]
+    )
 
 
 def test_layer3_g5_public_projection_reuses_runtime_projection_authority_checks() -> None:
@@ -331,14 +330,11 @@ def test_layer3_g5_task7_conformance_performance_and_closeout_are_persisted() ->
     validator = _validator()
     validation = validator.validate_layer3_g5_readiness(REPO_ROOT, write=True)
     conformance = json.loads(
-        (
-            REPO_ROOT
-            / "architecture/policy_design_case/layer3_g5_conformance_report.json"
-        ).read_text(encoding="utf-8")
+        (REPO_ROOT / "architecture/policy_design_case/layer3_g5_conformance_report.json").read_text(
+            encoding="utf-8"
+        )
     )
-    negative_results = {
-        result["negative_id"]: result for result in conformance["negative_results"]
-    }
+    negative_results = {result["negative_id"]: result for result in conformance["negative_results"]}
     observed_issue_codes = {
         code
         for result in conformance["negative_results"]

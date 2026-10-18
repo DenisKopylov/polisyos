@@ -78,8 +78,11 @@ def test_complete_target_census_refuses_missing_unselected_owner_member(tmp_path
     outside = _put_json(store, {"target": "outside"}, kind="runtime.epoch_target")
     for target, key in ((selected, "epoch::selected"), (outside, "epoch::outside")):
         _register_reconciliation_packet(
-            service, store, dependency_key=key,
-            dependency_artifact_id=str(target.artifact_id), lineage_key=f"lineage-{key}",
+            service,
+            store,
+            dependency_key=key,
+            dependency_artifact_id=str(target.artifact_id),
+            lineage_key=f"lineage-{key}",
         )
     service._state._dependency_path("epoch::outside").unlink()
     with pytest.raises(RuntimeError, match=r"^decision_validity_owner_state_corrupt$"):
@@ -101,8 +104,11 @@ def test_complete_target_census_rejects_false_profile_with_real_impact(tmp_path:
     service = DecisionValidityService(store)
     target = _put_json(store, {"target": "selected"}, kind="runtime.epoch_target")
     _register_reconciliation_packet(
-        service, store, dependency_key="epoch::selected",
-        dependency_artifact_id=str(target.artifact_id), lineage_key="lineage-selected",
+        service,
+        store,
+        dependency_key="epoch::selected",
+        dependency_artifact_id=str(target.artifact_id),
+        lineage_key="lineage-selected",
     )
     exact = service.persist_epoch_impact_snapshot_for_targets(
         target_refs=(target,), requested_query_context_ref="sha256:" + "c" * 64
@@ -134,8 +140,11 @@ def test_complete_target_census_cannot_admit_another_tenants_packet(tmp_path: Pa
         with tenant_scope(None, tenant_id=tenant, cell_id="cell-a"):
             target = _put_json(store, {"target": "shared"}, kind="runtime.epoch_target")
             packets[tenant] = _register_reconciliation_packet(
-                service, store, dependency_key=f"epoch::{tenant}",
-                dependency_artifact_id=str(target.artifact_id), lineage_key=f"lineage-{tenant}",
+                service,
+                store,
+                dependency_key=f"epoch::{tenant}",
+                dependency_artifact_id=str(target.artifact_id),
+                lineage_key=f"lineage-{tenant}",
             )
     with tenant_scope(None, tenant_id="tenant-b", cell_id="cell-a"):
         with pytest.raises(PermissionError):
@@ -168,8 +177,11 @@ def test_complete_target_census_normalizes_unreadable_packet(tmp_path: Path, fai
     service = DecisionValidityService(store)
     target = _put_json(store, {"target": "selected"}, kind="runtime.epoch_target")
     packet = _register_reconciliation_packet(
-        service, store, dependency_key="epoch::selected",
-        dependency_artifact_id=str(target.artifact_id), lineage_key="lineage-selected",
+        service,
+        store,
+        dependency_key="epoch::selected",
+        dependency_artifact_id=str(target.artifact_id),
+        lineage_key="lineage-selected",
     )
     if failure == "backend-key-error":
         store.missing_packet = packet

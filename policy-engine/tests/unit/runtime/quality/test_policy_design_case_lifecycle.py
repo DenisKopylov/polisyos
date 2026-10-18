@@ -196,9 +196,9 @@ def test_lifecycle_reissue_report_rejects_unscoped_events_without_whole_case_rew
 
     assert report["status"] == "fail"
     assert report["summary"]["affected_claim_count"] == 0
-    assert {
-        issue["code"] for issue in report["issues"]
-    } == {"policy_design_lifecycle_event_claim_scope_missing"}
+    assert {issue["code"] for issue in report["issues"]} == {
+        "policy_design_lifecycle_event_claim_scope_missing"
+    }
     assert report["public_revision_state"]["affected_claim_ids"] == []
     assert report["public_revision_state"]["unaffected_claim_ids"] == ["rec_1", "rec_2"]
 
@@ -244,8 +244,7 @@ def _phase27_case() -> dict[str, Any]:
 def _implementation_monitoring_record() -> dict[str, Any]:
     return {
         "schema_version": (
-            "policyos.runtime.policy_design_case."
-            "implementation_monitoring_evaluation.v1"
+            "policyos.runtime.policy_design_case.implementation_monitoring_evaluation.v1"
         ),
         "record_id": "implementation-monitoring-rec-1",
         "case_id": "pdc-R_hds_red_control",

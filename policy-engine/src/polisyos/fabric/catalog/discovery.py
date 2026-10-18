@@ -254,8 +254,7 @@ class DatasetDiscoveryBenchmarkPack:
             benchmark_id=str(payload.get("benchmark_id") or "fabric_discovery_eval"),
             benchmark_version=str(payload.get("benchmark_version") or "1"),
             cases=tuple(
-                DatasetDiscoveryEvalCase.from_mapping(item)
-                for item in payload.get("cases", ())
+                DatasetDiscoveryEvalCase.from_mapping(item) for item in payload.get("cases", ())
             ),
             minimum_pass_rate=float(payload.get("minimum_pass_rate", 1.0)),
             maximum_false_positive_failures=max(
@@ -515,9 +514,7 @@ class SemanticDatasetCatalog:
             outcomes.append(
                 DatasetDiscoveryEvalOutcome(
                     case=case,
-                    matched_source_contract_id=(
-                        None if best is None else best.source_contract_id
-                    ),
+                    matched_source_contract_id=(None if best is None else best.source_contract_id),
                     matched_score=0.0 if best is None else best.score,
                     matched_rank=matched_rank,
                     passed=passed,

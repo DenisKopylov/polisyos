@@ -1179,9 +1179,7 @@ def _accepted_dependency_consumers(**_kwargs: object) -> tuple[dict[str, object]
             "dependency_discriminant_content_ref": content_ref,
             "dependency_discriminant_ref": discriminant_ref,
             "dependency_environment_status": "fail",
-            "dependency_environment_first_case": {
-                "coordinate": "distribution:fixture:version"
-            },
+            "dependency_environment_first_case": {"coordinate": "distribution:fixture:version"},
         }
         for identity in (
             "layer3_gy_value_gate_contract.validate_foundry_dependency_discriminant",
@@ -1261,7 +1259,7 @@ def test_readback_binds_final_to_declaration_parent_and_exact_target_map(
                 "consumer": "layer3_gy_epoch_chronology_contract.read_foundry_dependency_discriminant",
                 "status": "fail",
                 "first_case": {"coordinate": "distribution:fixture:version"},
-            }
+            },
         ],
     }
 
@@ -2556,9 +2554,7 @@ def test_invalid_and_removed_diagnostics_cannot_govern_shared_consumer_results()
         diagnostic_verification={"status": "fail", "ordered_cases": []},
     )
 
-    assert _governing_consumer_bytes(invalid_results) == _governing_consumer_bytes(
-        removed_results
-    )
+    assert _governing_consumer_bytes(invalid_results) == _governing_consumer_bytes(removed_results)
     assert getattr(invalid_results[1], "status", None) == "not_established"
     assert getattr(invalid_results[2], "status", None) == "not_established"
 
@@ -2633,6 +2629,6 @@ def test_default_dependency_readback_probe_runs_the_exact_three_consumers() -> N
         "layer3_gy_epoch_chronology_contract.read_foundry_dependency_discriminant",
     )
     assert receipt["content_ref"] == companion.content_ref
-    assert receipt["discriminant_ref"] == companion.profile_discriminant.discriminant_ref.model_dump(
-        mode="json"
-    )
+    assert receipt[
+        "discriminant_ref"
+    ] == companion.profile_discriminant.discriminant_ref.model_dump(mode="json")

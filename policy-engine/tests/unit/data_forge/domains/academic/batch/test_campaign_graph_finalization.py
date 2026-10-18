@@ -27,8 +27,11 @@ def _input_projection(root: Path) -> dict[str, str]:
     paths = [root / "plan.json", root / "checkpoint.sqlite3"]
     for directory in ("inputs", "intents", "attempts", "works", "strangles"):
         paths.extend((root / directory).rglob("*.json"))
-    return {path.relative_to(root).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
-            for path in paths if path.is_file()}
+    return {
+        path.relative_to(root).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
+        for path in paths
+        if path.is_file()
+    }
 
 
 def _candidate_checkpoint(root: Path, count: int = 3):
@@ -44,18 +47,24 @@ def _candidate_checkpoint(root: Path, count: int = 3):
     works = [_work(index) for index in range(count)]
     plan = _plan(owner, works, max_attempts=count * 3)
     transport = _SyntheticTransport()
-    result = asyncio.run(owner.run_campaign(
-        plan, works=iter(works), output_root=root, client_factory=transport.bind,
-        safe_write_json=_writer(),
-    ))
+    result = asyncio.run(
+        owner.run_campaign(
+            plan,
+            works=iter(works),
+            output_root=root,
+            client_factory=transport.bind,
+            safe_write_json=_writer(),
+        )
+    )
     assert result["works"] == {"complete": count}
     assert result["outcomes"] == {"extracted": count}
     return plan, transport
 
 
 def _database(root: Path, packet: dict) -> Path:
-    paths = [root / item["path"] for item in packet["artifacts"]
-             if item["path"].endswith(".duckdb")]
+    paths = [
+        root / item["path"] for item in packet["artifacts"] if item["path"].endswith(".duckdb")
+    ]
     assert len(paths) == 1
     return paths[0]
 
@@ -109,7 +118,8 @@ def test_graph_finalizer_preserves_all_outcome_dispositions(tmp_path: Path) -> N
 
 
 def test_actual_extraction_graph_historical_replay_and_complete_artifact_refusal(
-    tmp_path: Path, monkeypatch,
+    tmp_path: Path,
+    monkeypatch,
 ) -> None:
     """Current graph construction consumes intact old outputs, never new API calls."""
     import duckdb
@@ -138,8 +148,10 @@ def test_actual_extraction_graph_historical_replay_and_complete_artifact_refusal
     assert packet["graph_metrics"]["skg_edges"] == 0
     assert len(transport.calls) == calls
     assert _input_projection(root) == original
-    assert all(value["synthetic"] is True and value["authority"] == "candidate_only"
-               for value in packet["staging_usage"].values())
+    assert all(
+        value["synthetic"] is True and value["authority"] == "candidate_only"
+        for value in packet["staging_usage"].values()
+    )
     with duckdb.connect(str(_database(root, packet)), read_only=True) as con:
         assert con.execute("SELECT id FROM ac_works ORDER BY id").fetchall() == [
             (f"synthetic:{index}",) for index in range(3)
@@ -160,7 +172,10 @@ def test_actual_extraction_graph_historical_replay_and_complete_artifact_refusal
         raw = json.dumps(mutant).encode()
         manifest_path.write_bytes(raw)
         mutated_ref = ArtifactRef(path=ref.path, sha256=hashlib.sha256(raw).hexdigest())
-        with pytest.raises(ValueError, match=r"campaign_graph_(artifact_membership|manifest_artifact_identity|strangle_recomputation)_mismatch"):
+        with pytest.raises(
+            ValueError,
+            match=r"campaign_graph_(artifact_membership|manifest_artifact_identity|strangle_recomputation)_mismatch",
+        ):
             pipeline.resolve_extraction_campaign_graph(plan, root, mutated_ref)
     manifest_path.write_bytes(saved)
     database = _database(root, packet)
@@ -199,14 +214,18 @@ def test_completed_envelope_disk_refusal_precedes_publication(tmp_path: Path) ->
 
     with pytest.raises(GraphCapacityError, match="max_disk_bytes"):
         pipeline.finalize_extraction_campaign_graph(
-            plan, root, safe_write_json=padded_writer,
+            plan,
+            root,
+            safe_write_json=padded_writer,
             capacity_limits=replace(GraphCapacityLimits(), max_disk_bytes=limit),
         )
     assert {path.name for path in (root / "graphs").iterdir()} == completed_before
     assert _input_projection(root) == original
     assert len(transport.calls) == 3
     bounded_ref = pipeline.finalize_extraction_campaign_graph(
-        plan, root, safe_write_json=writer,
+        plan,
+        root,
+        safe_write_json=writer,
         capacity_limits=replace(GraphCapacityLimits(), max_disk_bytes=limit),
     )
     assert pipeline.resolve_extraction_campaign_graph(plan, root, bounded_ref)["synthetic"] is True
@@ -231,15 +250,18 @@ def test_capacity_refusal_preserves_inputs_and_publishes_no_graph(tmp_path: Path
     calls = len(transport.calls)
     with pytest.raises(GraphCapacityError, match="max_record_bytes"):
         pipeline.finalize_extraction_campaign_graph(
-            plan, root, safe_write_json=_writer(),
+            plan,
+            root,
+            safe_write_json=_writer(),
             capacity_limits=replace(GraphCapacityLimits(), max_record_bytes=10),
         )
     assert _input_projection(root) == original
     assert len(transport.calls) == calls
     assert not (root / "graphs").exists()
     ref = pipeline.finalize_extraction_campaign_graph(plan, root, safe_write_json=_writer())
-    assert pipeline.resolve_extraction_campaign_graph(plan, root, ref)["graph_metrics"]["works"] == 1
-
+    assert (
+        pipeline.resolve_extraction_campaign_graph(plan, root, ref)["graph_metrics"]["works"] == 1
+    )
 
 
 def test_raw_finalized_graph_retains_candidates_until_adjudicated(tmp_path: Path) -> None:
@@ -259,11 +281,18 @@ def test_raw_finalized_graph_retains_candidates_until_adjudicated(tmp_path: Path
     assert packet["graph_metrics"]["claims"] == 0
     assert packet["graph_metrics"]["skg_edges"] == 0
     assert edges == ()
-    print(json.dumps({"synthetic": True, "actual_raw_claims": 1,
-                      "actual_forwardable_l2_identities": [],
-                      "governed_forwarding": "not_established",
-                      "missing_input": "independently_admitted_claim_adjudication",
-                      "synthetic_specific_refusal_proven_by_this_case": False}))
+    print(
+        json.dumps(
+            {
+                "synthetic": True,
+                "actual_raw_claims": 1,
+                "actual_forwardable_l2_identities": [],
+                "governed_forwarding": "not_established",
+                "missing_input": "independently_admitted_claim_adjudication",
+                "synthetic_specific_refusal_proven_by_this_case": False,
+            }
+        )
+    )
 
 
 def test_graph_owner_signed_synthetic_reassembly_remains_governed(tmp_path, monkeypatch) -> None:
@@ -275,7 +304,8 @@ def test_graph_owner_signed_synthetic_reassembly_remains_governed(tmp_path, monk
 
     test_signed_synthetic_graph_reassembly_preserves_source_limit_into_cg2(tmp_path / "control")
     test_removal_of_synthetic_authority_refusal_breaks_downstream_gate(
-        tmp_path / "removal", monkeypatch,
+        tmp_path / "removal",
+        monkeypatch,
     )
 
 
@@ -307,11 +337,16 @@ def test_actual_sigkill_finalization_rebuilds_without_repeating_extraction(tmp_p
     plan, transport = _candidate_checkpoint(root, 2)
     original = _input_projection(root)
     calls = len(transport.calls)
-    command = [sys.executable, "-m",
-               "tests.unit.data_forge.domains.academic.batch.test_campaign_graph_finalization",
-               "--interrupt-finalizer", str(root)]
-    child = subprocess.Popen(command, env=os.environ.copy(), stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE, text=True)
+    command = [
+        sys.executable,
+        "-m",
+        "tests.unit.data_forge.domains.academic.batch.test_campaign_graph_finalization",
+        "--interrupt-finalizer",
+        str(root),
+    ]
+    child = subprocess.Popen(
+        command, env=os.environ.copy(), stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
+    )
     ready = root / "synthetic-graph-loaded.json"
     deadline = time.monotonic() + 120
     try:
@@ -319,10 +354,18 @@ def test_actual_sigkill_finalization_rebuilds_without_repeating_extraction(tmp_p
             time.sleep(0.02)
         if not ready.exists() and child.poll() is not None:
             stdout, stderr = child.communicate(timeout=10)
-            raise AssertionError("actual_graph_load_child_exited:" + json.dumps({
-                "synthetic": True, "returncode": child.returncode, "stdout": stdout,
-                "stderr": stderr, "module": __name__,
-            }))
+            raise AssertionError(
+                "actual_graph_load_child_exited:"
+                + json.dumps(
+                    {
+                        "synthetic": True,
+                        "returncode": child.returncode,
+                        "stdout": stdout,
+                        "stderr": stderr,
+                        "module": __name__,
+                    }
+                )
+            )
         assert ready.exists(), "actual_graph_load_boundary_not_reached"
         assert not (root / "graphs").exists()
         child.kill()
@@ -342,11 +385,18 @@ def test_actual_sigkill_finalization_rebuilds_without_repeating_extraction(tmp_p
     )
     assert _input_projection(root) == original
     assert len(transport.calls) == calls
-    print(json.dumps({"synthetic": True, "child_returncode": child.returncode,
-                      "completed_input_identity_hashes": original,
-                      "provider_calls_before_after": [calls, len(transport.calls)],
-                      "completed_graphs": [first.path, second.path],
-                      "complete_database_identity_values_equal": True}))
+    print(
+        json.dumps(
+            {
+                "synthetic": True,
+                "child_returncode": child.returncode,
+                "completed_input_identity_hashes": original,
+                "provider_calls_before_after": [calls, len(transport.calls)],
+                "completed_graphs": [first.path, second.path],
+                "complete_database_identity_values_equal": True,
+            }
+        )
+    )
 
 
 if __name__ == "__main__":

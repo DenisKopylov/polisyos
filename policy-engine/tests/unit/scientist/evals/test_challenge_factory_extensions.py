@@ -92,8 +92,6 @@ def test_participation_speculation_probe_uses_requirement_compiler_and_firewall(
     result = ParticipationSpeculationProbe().evaluate(fixture)
 
     assert result.metadata["participation_requirement_statuses"] == ["blocked"]
-    assert result.metadata["participation_blocker_codes"] == [
-        "llm_speculation_not_participation"
-    ]
+    assert result.metadata["participation_blocker_codes"] == ["llm_speculation_not_participation"]
     assert "candidate_firewall_rejected_speculation" in result.metadata["firewall_issue_codes"]
     assert "r14_participation_speculation_blocked" in result.failure_codes

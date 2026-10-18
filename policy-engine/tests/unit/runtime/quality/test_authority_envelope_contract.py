@@ -35,6 +35,7 @@ def test_bundle_local_quality_evidence_paths_do_not_satisfy_runtime_ref_gates() 
         "conflict_check_present",
     }
 
+
 def test_report_embedded_ref_must_match_runtime_cas_ref() -> None:
     evidence = complete_quality_evidence()
     evidence["policy_grounding_matrix"]["policy_grounding_matrix_ref"] = sha("0")
@@ -181,6 +182,7 @@ def test_warn_scorecards_fail_serious_deterministic_closeout() -> None:
     assert scorecard["approval_state"] == "quality_failed"
     assert "serious_warn_scorecard_blocks_closeout" in blocking_codes(scorecard)
 
+
 def test_every_runtime_ref_scorecard_gate_requires_authority_envelope_identity() -> None:
     scorecard = scorecard_for(
         job_payload=complete_job_payload(runtime_refs=runtime_cas_refs()),
@@ -209,26 +211,24 @@ def test_security_assurance_owner_matches_exact_runtime_artifact_identity() -> N
         "validation_status": "pass",
     }
 
-    assert authority_envelope_ownership_issues(
-        envelope=valid, report_key="security_assurance_report", report=report
-    ) == []
+    assert (
+        authority_envelope_ownership_issues(
+            envelope=valid, report_key="security_assurance_report", report=report
+        )
+        == []
+    )
 
     wrong_kind = {**valid, "artifact_kind": "runtime.other_security_report"}
     kind_issues = authority_envelope_ownership_issues(
         envelope=wrong_kind, report_key="security_assurance_report", report=report
     )
-    assert {issue["code"] for issue in kind_issues} == {
-        "authority_envelope_artifact_kind_mismatch"
-    }
+    assert {issue["code"] for issue in kind_issues} == {"authority_envelope_artifact_kind_mismatch"}
 
     wrong_schema = {**valid, "schema_name": "polisyos.runtime.OtherQualityReport"}
     schema_issues = authority_envelope_ownership_issues(
         envelope=wrong_schema, report_key="security_assurance_report", report=report
     )
-    assert {issue["code"] for issue in schema_issues} == {
-        "authority_envelope_schema_mismatch"
-    }
-
+    assert {issue["code"] for issue in schema_issues} == {"authority_envelope_schema_mismatch"}
 
 
 def test_authority_event_profile_must_match_report_and_reject_malformed_present_values() -> None:
@@ -250,11 +250,14 @@ def test_authority_event_profile_must_match_report_and_reject_malformed_present_
         "runtime_event_ref": event_id,
         "runtime_event_manifest_profile_sha256": event_profile,
     }
-    assert authority_envelope_ownership_issues(
-        envelope=envelope,
-        report_key="security_assurance_report",
-        report=report,
-    ) == []
+    assert (
+        authority_envelope_ownership_issues(
+            envelope=envelope,
+            report_key="security_assurance_report",
+            report=report,
+        )
+        == []
+    )
     wrong_profile = {**envelope, "runtime_event_manifest_profile_sha256": "sha256:" + "c" * 64}
     issues = authority_envelope_ownership_issues(
         envelope=wrong_profile,

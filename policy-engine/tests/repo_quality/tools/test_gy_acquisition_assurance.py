@@ -28,7 +28,9 @@ def test_removing_oracle_independence_refuses(challenge):
 
 def test_corrupt_immutable_input_refuses_before_grade(tmp_path):
     corrupted = tmp_path / "corpus.json"
-    corrupted.write_bytes(checker.CORPUS.read_bytes().replace(b'"row_count":0', b'"row_count":1', 1))
+    corrupted.write_bytes(
+        checker.CORPUS.read_bytes().replace(b'"row_count":0', b'"row_count":1', 1)
+    )
     with pytest.raises(ValueError, match="immutable_corpus_drift"):
         checker.validate_corpus(corrupted)
 
@@ -38,9 +40,11 @@ def test_oracle_does_not_import_subject_decoder_or_comparison(monkeypatch, tmp_p
     corpus = checker.validate_corpus()
     observed = checker.run_corpus(corpus, tmp_path)
     wire = checker.observation_wire(observed)
-    monkeypatch.setattr(checker, "decode_case_inputs", lambda _: (_ for _ in ()).throw(
-        AssertionError("shared decoder")
-    ))
+    monkeypatch.setattr(
+        checker,
+        "decode_case_inputs",
+        lambda _: (_ for _ in ()).throw(AssertionError("shared decoder")),
+    )
     monkeypatch.setattr(checker, "observation_wire", lambda _: "poisoned comparison")
     assert checker.evaluate_wire(wire).returncode == 0
     lines = wire.splitlines()

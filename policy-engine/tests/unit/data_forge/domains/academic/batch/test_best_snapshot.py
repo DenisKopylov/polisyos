@@ -237,9 +237,7 @@ def test_snapshot_clone_rejects_invalid_v2_axes_before_replacing_destination(
                 target, source_alias="source_src", table_name="ac_causal_claims"
             )
 
-        assert target.execute("SELECT * FROM ac_causal_claims").fetchall() == [
-            ("keep-existing",)
-        ]
+        assert target.execute("SELECT * FROM ac_causal_claims").fetchall() == [("keep-existing",)]
     finally:
         target.close()
 
@@ -261,9 +259,7 @@ def test_snapshot_legacy_schema_allows_discriminator_free_evidence_lookalike(
     )
 
     assert (
-        best_snapshot._validate_claim_snapshot_copy_schema(
-            con, qualified_table="ac_causal_claims"
-        )
+        best_snapshot._validate_claim_snapshot_copy_schema(con, qualified_table="ac_causal_claims")
         == "legacy_v1"
     )
     con.close()

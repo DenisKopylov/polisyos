@@ -608,7 +608,9 @@ def test_run_transportability_uses_ensemble_consensus_graph_when_available(
     assert loaded_graph_profiles == [consensus_graph_ref.manifest_profile_sha256]
 
 
-@pytest.mark.parametrize("corruption", ["missing", "wrong-role", "duplicate", "id-mismatch", "fake-profile"])
+@pytest.mark.parametrize(
+    "corruption", ["missing", "wrong-role", "duplicate", "id-mismatch", "fake-profile"]
+)
 def test_explicit_ensemble_consensus_refuses_bad_lineage_without_fallback(
     tmp_path,
     corruption: str,
@@ -746,7 +748,6 @@ def test_run_transportability_fails_on_explicit_consensus_without_lineage(tmp_pa
     assert "exactly one selected lineage edge" in outcome.error.message
 
 
-
 def test_ensemble_without_consensus_keeps_legacy_fallback_boundary(tmp_path) -> None:
     ctx = _build_ctx(tmp_path, run_id="R_transport_legacy_no_consensus")
     store = _ensure_ir_artifact_store(ctx.store)
@@ -801,9 +802,7 @@ def test_invalid_supplied_ensemble_ref_does_not_fall_back(tmp_path) -> None:
             ),
         ),
     )
-    invalid_ref = ensemble_ref.model_copy(
-        update={"manifest_profile_sha256": "sha256:" + "f" * 64}
-    )
+    invalid_ref = ensemble_ref.model_copy(update={"manifest_profile_sha256": "sha256:" + "f" * 64})
     state = ExperimentState(
         run_id="R_transport_bad_ensemble_ref",
         artifacts_index={

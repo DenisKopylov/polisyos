@@ -662,13 +662,16 @@ def test_public_read_closure_is_per_record_replayable_and_revocable(tmp_path: Pa
     assert withdrawn["status"] == "revoked"
     assert withdrawn["epoch"] == 2
     assert withdrawn["operation_refs"] == operation_refs
-    assert index._public_read_closure_matches(
-        record_id,
-        store_identity="sha256:" + "a" * 64,
-        epoch=1,
-        operation="get_bytes",
-        ref_identity=(str(artifact_id), "test.public_member", "application/json", None),
-    ) is False
+    assert (
+        index._public_read_closure_matches(
+            record_id,
+            store_identity="sha256:" + "a" * 64,
+            epoch=1,
+            operation="get_bytes",
+            ref_identity=(str(artifact_id), "test.public_member", "application/json", None),
+        )
+        is False
+    )
 
 
 def test_empty_index_evidence_is_ephemeral_and_read_only(tmp_path: Path) -> None:
@@ -889,13 +892,7 @@ def test_final_cas_parent_sync_failure_prevents_owner_generation_commit(
     store = FileSystemCAS(root).for_tenant("tenant-a", cell_id="cell-a")
     payload = b"durability must precede tenant owner-generation admission"
     artifact_id = ArtifactID.from_sha256_hex(hashlib.sha256(payload).hexdigest())
-    final_parent = (
-        root
-        / "artifacts"
-        / "sha256"
-        / artifact_id.hex[:2]
-        / artifact_id.hex[2:4]
-    )
+    final_parent = root / "artifacts" / "sha256" / artifact_id.hex[:2] / artifact_id.hex[2:4]
     original_fsync_directory = atomic_write_module.fsync_directory
     failed_final_sync = False
 

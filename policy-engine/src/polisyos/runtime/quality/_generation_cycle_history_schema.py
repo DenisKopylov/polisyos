@@ -53,9 +53,7 @@ FROZEN_DESIGN_PROBLEM_SLOT_PATTERNS: Final = {
 # owner. The history serializer checks the live field annotation against this
 # frozen v3 union and checks the actual child owner against the parent-version
 # variants below; old v1/v2 payloads remain restricted to the original owner.
-_DESIGN_PROBLEM_OUTCOME_OWNER: Final = (
-    "polisyos.runtime.quality.design_problem.OutcomeOfInterest"
-)
+_DESIGN_PROBLEM_OUTCOME_OWNER: Final = "polisyos.runtime.quality.design_problem.OutcomeOfInterest"
 _DESIGN_PROBLEM_V3_OUTCOME_OWNER: Final = (
     "polisyos.runtime.quality.design_problem._QualifiedOutcomeOfInterestV3"
 )
@@ -64,12 +62,8 @@ FROZEN_DESIGN_PROBLEM_OUTCOME_FIELD_EDGES: Final = (
     (("union:1",), _DESIGN_PROBLEM_V3_OUTCOME_OWNER),
 )
 FROZEN_DESIGN_PROBLEM_OUTCOME_OWNER_VARIANTS: Final = {
-    FROZEN_DESIGN_PROBLEM_V1_SCHEMA_VERSION: (
-        (((), _DESIGN_PROBLEM_OUTCOME_OWNER),),
-    ),
-    FROZEN_DESIGN_PROBLEM_V2_SCHEMA_VERSION: (
-        (((), _DESIGN_PROBLEM_OUTCOME_OWNER),),
-    ),
+    FROZEN_DESIGN_PROBLEM_V1_SCHEMA_VERSION: ((((), _DESIGN_PROBLEM_OUTCOME_OWNER),),),
+    FROZEN_DESIGN_PROBLEM_V2_SCHEMA_VERSION: ((((), _DESIGN_PROBLEM_OUTCOME_OWNER),),),
     FROZEN_DESIGN_PROBLEM_V3_SCHEMA_VERSION: (
         (((), _DESIGN_PROBLEM_OUTCOME_OWNER),),
         (((), _DESIGN_PROBLEM_V3_OUTCOME_OWNER),),

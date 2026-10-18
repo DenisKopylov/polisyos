@@ -209,9 +209,7 @@ class PromptSanitizer:
         if isinstance(value, tuple):
             return tuple(self.sanitize_payload(item) for item in value)
         if isinstance(value, dict):
-            return {
-                key: self._sanitize_keyed_value(str(key), item) for key, item in value.items()
-            }
+            return {key: self._sanitize_keyed_value(str(key), item) for key, item in value.items()}
         return value
 
     def restore_payload(self, value: Any) -> Any:

@@ -322,8 +322,7 @@ def _text(value: object) -> str:
 
 def _slug(value: object) -> str:
     text = "".join(
-        ch if ch.isalnum() or ch in {".", "_", "-", ":"} else "-"
-        for ch in _text(value)
+        ch if ch.isalnum() or ch in {".", "_", "-", ":"} else "-" for ch in _text(value)
     ).strip("-")
     return text or "method"
 
@@ -382,6 +381,7 @@ def _merge_ref_mappings(*values: object) -> dict[str, str]:
 
 def _load_json_artifact(store: object, ref_value: object) -> dict[str, Any] | None:
     from polisyos.core.artifacts import load_core_json_artifact
+
     artifact_id = _ref_id(ref_value)
     if artifact_id is None or store is None:
         return None
@@ -410,9 +410,7 @@ def _method_id(method: dict[str, Any]) -> str:
 
 def _method_family(method: dict[str, Any]) -> str:
     return _text(
-        method.get("method_family")
-        or method.get("family")
-        or method.get("method_expectation")
+        method.get("method_family") or method.get("family") or method.get("method_expectation")
     )
 
 
@@ -1071,8 +1069,7 @@ def _build_method_obligations(
         matching_methods = [
             method
             for method in selected_methods
-            if isinstance(method, dict)
-            and _method_matches_obligation(method, expectation)
+            if isinstance(method, dict) and _method_matches_obligation(method, expectation)
         ]
         satisfied_method_ids: list[str] = []
         missing_facets: set[str] = set(facets)
@@ -1278,10 +1275,9 @@ def _validate_method(
                     ),
                 )
             )
-        elif (
-            _has_serious_method_expectations(expected_method_expectations)
-            and _generic_execution_candidate(method)
-        ):
+        elif _has_serious_method_expectations(
+            expected_method_expectations
+        ) and _generic_execution_candidate(method):
             issues.append(
                 _issue(
                     code="generic_method_not_admissible",
@@ -1308,8 +1304,7 @@ def _validate_method(
                     code="method_identification_requirements_missing",
                     method_id=method_id,
                     message=(
-                        f"Method {method_id or '<missing>'} is missing identification "
-                        "requirements."
+                        f"Method {method_id or '<missing>'} is missing identification requirements."
                     ),
                     next_action=(
                         "Emit the estimand and identification requirements selected by "
@@ -1323,8 +1318,7 @@ def _validate_method(
                     code="method_transportability_limits_missing",
                     method_id=method_id,
                     message=(
-                        f"Method {method_id or '<missing>'} is missing transportability "
-                        "limits."
+                        f"Method {method_id or '<missing>'} is missing transportability limits."
                     ),
                     next_action=(
                         "Emit target-population and support limits before using the "
@@ -1337,13 +1331,8 @@ def _validate_method(
                 _issue(
                     code="method_specification_space_missing",
                     method_id=method_id,
-                    message=(
-                        f"Method {method_id or '<missing>'} is missing specification "
-                        "space."
-                    ),
-                    next_action=(
-                        "Record the primary specification and robustness alternatives."
-                    ),
+                    message=(f"Method {method_id or '<missing>'} is missing specification space."),
+                    next_action=("Record the primary specification and robustness alternatives."),
                 )
             )
         if not _result_refs(method):
@@ -1352,9 +1341,7 @@ def _validate_method(
                     code="method_result_refs_missing",
                     method_id=method_id,
                     message=f"Method {method_id or '<missing>'} is missing result refs.",
-                    next_action=(
-                        "Persist method-result refs from the executed Foundry method."
-                    ),
+                    next_action=("Persist method-result refs from the executed Foundry method."),
                 )
             )
         issues.extend(_registry_surface_issues(method, method_id=method_id))
@@ -1448,8 +1435,7 @@ def _validate_method(
                 method_id=method_id,
                 message=f"Method {method_id or '<missing>'} has failing assumption gates.",
                 next_action=(
-                    "Reject, degrade, or rerun the method before binding its outputs "
-                    "to claims."
+                    "Reject, degrade, or rerun the method before binding its outputs to claims."
                 ),
             )
         )
@@ -1466,8 +1452,7 @@ def _validate_method(
                 code=code,
                 method_id=method_id,
                 message=(
-                    f"Method {method_id or '<missing>'} has no passing uncertainty "
-                    "diagnostics."
+                    f"Method {method_id or '<missing>'} has no passing uncertainty diagnostics."
                 ),
                 next_action="Attach uncertainty interval/envelope before policy approval.",
             )
@@ -1562,10 +1547,9 @@ def _validate_method(
                 )
             )
 
-    if (
-        _method_family(method).casefold() == "simulation"
-        and not _simulation_assumption_lineage_refs(method)
-    ):
+    if _method_family(
+        method
+    ).casefold() == "simulation" and not _simulation_assumption_lineage_refs(method):
         issues.append(
             _issue(
                 code="simulation_assumption_lineage_missing",
@@ -1653,9 +1637,7 @@ def _infer_method_family(
     output: dict[str, Any],
 ) -> str:
     explicit = _text(
-        output.get("method_family")
-        or report.get("method_family")
-        or evidence.get("method_family")
+        output.get("method_family") or report.get("method_family") or evidence.get("method_family")
     )
     if explicit:
         return explicit
@@ -2118,10 +2100,9 @@ def _reconcile_selected_methods(
     selected: list[dict[str, Any]] = []
     rejected: list[dict[str, Any]] = []
     for method in selected_methods:
-        if (
-            _has_serious_method_expectations(expected_method_expectations)
-            and _generic_execution_candidate(method)
-        ):
+        if _has_serious_method_expectations(
+            expected_method_expectations
+        ) and _generic_execution_candidate(method):
             rejected.append(
                 _rejection_row(
                     method,
@@ -2160,10 +2141,9 @@ def _select_methods_after_execution(
                 )
             )
             continue
-        if (
-            _has_serious_method_expectations(expected_method_expectations)
-            and _generic_execution_candidate(method)
-        ):
+        if _has_serious_method_expectations(
+            expected_method_expectations
+        ) and _generic_execution_candidate(method):
             rejected.append(
                 _rejection_row(
                     method,
@@ -2197,8 +2177,7 @@ def _selection_issues_from_rejections(
     if selected_methods:
         return []
     has_causal_generic_rejection = any(
-        _text(method.get("reason_code"))
-        == "generic_simulation_not_valid_for_expected_method"
+        _text(method.get("reason_code")) == "generic_simulation_not_valid_for_expected_method"
         for method in rejected_methods
     )
     has_generic_method_rejection = any(
@@ -2207,10 +2186,7 @@ def _selection_issues_from_rejections(
         for method in rejected_methods
     )
     issues: list[dict[str, Any]] = []
-    if (
-        "causal_effect_estimation" in expected_method_expectations
-        and has_causal_generic_rejection
-    ):
+    if "causal_effect_estimation" in expected_method_expectations and has_causal_generic_rejection:
         issues.append(
             _issue(
                 code="generic_simulation_false_pass",
@@ -2292,9 +2268,7 @@ def build_foundry_method_report(
             if isinstance(method, dict)
         )
     selected_methods = [
-        _enrich_method_surfaces(method)
-        for method in selected_methods
-        if isinstance(method, dict)
+        _enrich_method_surfaces(method) for method in selected_methods if isinstance(method, dict)
     ]
     normalized_rejected_methods = [*normalized_rejected_methods, *reconciled_rejections]
     method_obligations = _build_method_obligations(
@@ -2348,8 +2322,7 @@ def build_foundry_method_report(
         "foundry_input_refs": normalized_foundry_input_refs,
         "expected_method_expectations": sorted(expected),
         "method_requirements": [
-            requirement.model_dump(mode="json")
-            for requirement in normalized_method_requirements
+            requirement.model_dump(mode="json") for requirement in normalized_method_requirements
         ],
         "method_requirement_statuses": (
             dict(requirement_selection_report.get("method_requirement_statuses") or {})
@@ -2428,9 +2401,7 @@ def build_foundry_method_report(
                 component="foundry",
                 spine_context=spine_context,
                 candidate_refs=[
-                    _method_id(method)
-                    for method in selected_methods
-                    if isinstance(method, dict)
+                    _method_id(method) for method in selected_methods if isinstance(method, dict)
                 ],
                 blocker_refs=[issue.get("code") for issue in issues],
             )
@@ -2465,10 +2436,14 @@ def normalize_foundry_method_report(
         method for method in report.get("rejected_methods", []) if isinstance(method, dict)
     ]
     expected = expected_method_expectations or report.get("expected_method_expectations") or []
-    expected = [_text(value) for value in expected if _text(value)] if isinstance(
-        expected,
-        list,
-    ) else []
+    expected = (
+        [_text(value) for value in expected if _text(value)]
+        if isinstance(
+            expected,
+            list,
+        )
+        else []
+    )
     normalized = build_foundry_method_report(
         selected_methods=selected_methods,
         candidate_methods=candidate_methods or None,

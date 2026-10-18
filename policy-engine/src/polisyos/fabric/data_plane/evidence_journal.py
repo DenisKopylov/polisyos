@@ -1662,8 +1662,7 @@ class AppendOnlyEvidenceJournal:
             event = resolve_journal_event_ref(request_ref)
             request = event.get("request")
             if (
-                set(event)
-                != {"sequence", "event_kind", "attempt_id", "request", "request_sha256"}
+                set(event) != {"sequence", "event_kind", "attempt_id", "request", "request_sha256"}
                 or event.get("attempt_id") != binding.attempt_id
                 or not isinstance(request, Mapping)
                 or request.get("connector_id") != binding.connector_id

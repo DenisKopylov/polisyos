@@ -44,11 +44,7 @@ def _morris_plan(
 
 def _numpy_state_equal(left: tuple[object, ...], right: tuple[object, ...]) -> bool:
     """Compare legacy NumPy RandomState snapshots without consuming either state."""
-    return (
-        left[0] == right[0]
-        and np.array_equal(left[1], right[1])
-        and left[2:] == right[2:]
-    )
+    return left[0] == right[0] and np.array_equal(left[1], right[1]) and left[2:] == right[2:]
 
 
 def test_legacy_nonuniform_plan_fails_closed_without_typed_distribution_spec() -> None:

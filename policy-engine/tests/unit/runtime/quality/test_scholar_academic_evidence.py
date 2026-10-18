@@ -197,9 +197,9 @@ def test_scholar_academic_evidence_missing_is_producer_owned_boundary() -> None:
     assert boundary["reader_owner"] == "team-runtime-quality"
     assert boundary["record_family"] == "scholar_academic_evidence.v1"
     assert boundary["runtime_authority_envelope"]["provenance_kind"] == "runtime_blocker"
-    assert {
-        issue["code"] for issue in boundary["issues"]
-    } == {"policy_design_scholar_academic_evidence_missing"}
+    assert {issue["code"] for issue in boundary["issues"]} == {
+        "policy_design_scholar_academic_evidence_missing"
+    }
 
 
 def test_scholar_academic_evidence_incomplete_claim_support_reports_all_facets() -> None:
@@ -480,8 +480,7 @@ def test_scholar_web_bundle_adapter_emits_w3d_markers_and_participation_downgrad
             query_node_id="q1",
             perspective="academic evidence",
             text=(
-                "The study reports improved access to finance, but not "
-                "affected-person preference."
+                "The study reports improved access to finance, but not affected-person preference."
             ),
             start_char=10,
             end_char=88,
@@ -682,30 +681,32 @@ def test_scholar_web_bundle_adapter_discounts_same_family_without_duplicate_flag
             "effective_source_count": 1,
         }
     ]
-    assert {
-        row["source_id"]: row["independence_score"] for row in report["source_scoring"]
-    } == {
+    assert {row["source_id"]: row["independence_score"] for row in report["source_scoring"]} == {
         "literature:working-paper": 0.5,
         "literature:journal-version": 0.5,
     }
 
 
 def test_scholar_adapter_blocks_requirement_support_inflation_from_dependent_corpus() -> None:
-    spec = ScholarSupportRequirementCompiler().compile(
-        {
-            "run_id": "run.scholar.w7d",
-            "authority_level": "production",
-            "claims": [
-                {
-                    "claim_id": "rec_1",
-                    "claim_text": "Credit guarantees improve MSME survival.",
-                    "claim_type": "causal",
-                    "claim_family": "causal",
-                    "claim_use": "decision_support",
-                }
-            ],
-        }
-    ).requirements[0]
+    spec = (
+        ScholarSupportRequirementCompiler()
+        .compile(
+            {
+                "run_id": "run.scholar.w7d",
+                "authority_level": "production",
+                "claims": [
+                    {
+                        "claim_id": "rec_1",
+                        "claim_text": "Credit guarantees improve MSME survival.",
+                        "claim_type": "causal",
+                        "claim_family": "causal",
+                        "claim_use": "decision_support",
+                    }
+                ],
+            }
+        )
+        .requirements[0]
+    )
     bundle = {
         "bundle_id": "bundle-shared-study",
         "brief": {
@@ -813,9 +814,7 @@ def test_scholar_adapter_blocks_requirement_support_inflation_from_dependent_cor
     assert report["support_links"][0]["effective_support_count"] == 1
     assert report["support_links"][0]["required_replication_count"] == 2
     assert report["dependence_records"][0]["collapse_reasons"] == ["shared_underlying_study"]
-    assert {
-        blocker["code"] for blocker in report["literature_deficit_blockers"]
-    } >= {
+    assert {blocker["code"] for blocker in report["literature_deficit_blockers"]} >= {
         "policy_design_scholar_requirement_replication_unmet",
         "policy_design_scholar_requirement_independence_unmet",
     }
@@ -1040,9 +1039,7 @@ def test_scholar_requirement_deficits_are_claim_bound() -> None:
 
     assert report["status"] == "blocked"
     assert report["support_links"][0]["required_recency_days"] == 365
-    assert {
-        blocker["code"] for blocker in report["literature_deficit_blockers"]
-    } >= {
+    assert {blocker["code"] for blocker in report["literature_deficit_blockers"]} >= {
         "policy_design_scholar_requirement_publication_tier_unmet",
         "policy_design_scholar_requirement_recency_unmet",
         "policy_design_scholar_requirement_citation_network_depth_unmet",
@@ -1050,22 +1047,26 @@ def test_scholar_requirement_deficits_are_claim_bound() -> None:
 
 
 def test_scholar_adapter_preserves_participation_firewall_with_requirement_spec() -> None:
-    spec = ScholarSupportRequirementCompiler().compile(
-        {
-            "run_id": "run.scholar.participation",
-            "authority_level": "production",
-            "claims": [
-                {
-                    "claim_id": "rec_1",
-                    "claim_text": "Affected MSMEs prefer credit guarantees.",
-                    "claim_type": "factual",
-                    "claim_family": "preference",
-                    "claim_use": "prevalence",
-                    "population_scope": "affected_population",
-                }
-            ],
-        }
-    ).requirements[0]
+    spec = (
+        ScholarSupportRequirementCompiler()
+        .compile(
+            {
+                "run_id": "run.scholar.participation",
+                "authority_level": "production",
+                "claims": [
+                    {
+                        "claim_id": "rec_1",
+                        "claim_text": "Affected MSMEs prefer credit guarantees.",
+                        "claim_type": "factual",
+                        "claim_family": "preference",
+                        "claim_use": "prevalence",
+                        "population_scope": "affected_population",
+                    }
+                ],
+            }
+        )
+        .requirements[0]
+    )
     scholar = _scholar_academic_evidence()
     scholar["support_requirement_specs"] = [spec.model_dump(mode="json")]
     scholar["support_links"] = [

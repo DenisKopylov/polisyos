@@ -103,9 +103,7 @@ def test_gy_p2_semantic_evidence_quality_rejects_scholar_web_bundle_laundering()
     audit["summary"]["g2_guard_rejects_web_bundle_as_l2_skg"] = False
     web_path = audit["scholar_openalex_knowledge_toolkit"]["web_evidence_runtime_path"]
     web_path["classification"] = "canonical_l2_skg_authority"
-    _negative(audit, "do_not_count_web_evidence_bundle_as_l2_skg")[
-        "assertion_holds"
-    ] = False
+    _negative(audit, "do_not_count_web_evidence_bundle_as_l2_skg")["assertion_holds"] = False
 
     codes = _codes(validator.validate(audit))
     assert "summary_semantics_drift" in codes
@@ -133,9 +131,7 @@ def test_gy_p2_semantic_evidence_quality_rejects_missing_acceptance_signal() -> 
     validator = _validator()
     audit = _load_audit()
     audit["acceptance_signal_for_future_repairs"] = [
-        item
-        for item in audit["acceptance_signal_for_future_repairs"]
-        if "SKGQuery" not in item
+        item for item in audit["acceptance_signal_for_future_repairs"] if "SKGQuery" not in item
     ]
 
     assert "missing_acceptance_signal" in _codes(validator.validate(audit))

@@ -1,7 +1,5 @@
 """Scenario-aware Lex query normalization for legal authority retrieval."""
 
-
-
 from __future__ import annotations
 
 from collections.abc import Mapping, Sequence
@@ -198,9 +196,7 @@ def normalize_lex_query_terms(
     language_coverage = {
         "required": required_languages,
         "covered": covered_languages,
-        "status": "pass"
-        if set(required_languages).issubset(set(covered_languages))
-        else "fail",
+        "status": "pass" if set(required_languages).issubset(set(covered_languages)) else "fail",
     }
     resolved_blocker = _text(blocker_code) or None
     if candidate_norm_count == 0 and resolved_blocker is None:
@@ -249,9 +245,7 @@ def legal_requirements_from_query_normalization_report(
 
     payload = _mapping(query_normalization_report)
     nested = _mapping(payload.get("query_normalization_report"))
-    candidates = _list(payload.get("legal_requirements")) or _list(
-        nested.get("legal_requirements")
-    )
+    candidates = _list(payload.get("legal_requirements")) or _list(nested.get("legal_requirements"))
     requirements: list[dict[str, Any]] = []
     for item in candidates:
         requirement = _mapping(item)

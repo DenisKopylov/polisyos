@@ -68,9 +68,10 @@ def test_layer3_g1_readiness_passes_with_persisted_runtime_bundle() -> None:
     assert validation["summary"]["schema_version"].endswith("layer3_g1_substrate_grounding.v1")
     assert validation["summary"]["g0_v2_dependency_status"] == "pass"
     assert validation["summary"]["g1_substrate_search_ledger_count"] >= 1
-    assert validation["summary"]["source_contract_snapshot_count"] >= validation["summary"][
-        "grounded_or_uncertain_construct_count"
-    ]
+    assert (
+        validation["summary"]["source_contract_snapshot_count"]
+        >= validation["summary"]["grounded_or_uncertain_construct_count"]
+    )
     assert validation["summary"]["useful_design_credit_count"] == 0
     assert validation["summary"]["production_claim_authority_count"] == 0
 
@@ -83,9 +84,7 @@ def test_layer3_g1_readiness_requires_persisted_artifacts(monkeypatch: Any) -> N
     validation = validator.validate_layer3_g1_readiness(REPO_ROOT)
 
     assert validation["status"] == "fail"
-    assert validation["artifacts"]["missing_persisted_artifact_paths"] == [
-        missing_path.as_posix()
-    ]
+    assert validation["artifacts"]["missing_persisted_artifact_paths"] == [missing_path.as_posix()]
     assert "layer3_g1_persisted_artifact_missing" in {
         issue["code"] for issue in validation["issues"]
     }
@@ -108,9 +107,7 @@ def test_layer3_g1_validator_detects_persisted_manifest_count_drift(
 
     issues = validator._validate_manifest_runtime_drift(tmp_path, bundle)
 
-    assert "layer3_g1_manifest_runtime_drift" in {
-        issue["code"] for issue in issues
-    }
+    assert "layer3_g1_manifest_runtime_drift" in {issue["code"] for issue in issues}
 
 
 def test_layer3_g1_surface_registered_for_expert_and_machine() -> None:
@@ -192,9 +189,7 @@ def test_layer3_g1_validator_blocks_domain_ceiling_on_recall_or_freshness_failur
     recall_report = _assert_fixture_fails("search_recall_seed_miss_domain_ceiling.json")
     stale_report = _assert_fixture_fails("stale_index_domain_ceiling.json")
 
-    assert "layer3_g1_search_recall_seed_miss_blocks_domain_ceiling" in _issue_codes(
-        recall_report
-    )
+    assert "layer3_g1_search_recall_seed_miss_blocks_domain_ceiling" in _issue_codes(recall_report)
     assert "layer3_g1_stale_index_blocks_domain_ceiling" in _issue_codes(stale_report)
 
 
@@ -210,9 +205,7 @@ def test_layer3_g1_validator_requires_free_growth_and_mechanism_generality() -> 
     single_shape_report = _assert_fixture_fails("mechanism_generality_single_request.json")
     free_growth_report = _g1().build_g1_free_growth_report(REPO_ROOT)
 
-    assert "layer3_g1_mechanism_generality_single_request" in _issue_codes(
-        single_shape_report
-    )
+    assert "layer3_g1_mechanism_generality_single_request" in _issue_codes(single_shape_report)
     assert _dump(free_growth_report)["status"] == "pass"
     assert _dump(free_growth_report)["free_growth_fixture_count"] == 0
 
@@ -235,9 +228,7 @@ def test_layer3_g1_validator_requires_all_five_health_metric_deltas() -> None:
     payload = {
         "schema_version": "policyos.policy_design_case.layer3_g1_substrate_grounding.v1",
         "rule_version": "policyos.layer3.g1.substrate_grounding_search.v1",
-        "health_metric_delta": {
-            "metric_ids": sorted(recorded_metric_ids)
-        },
+        "health_metric_delta": {"metric_ids": sorted(recorded_metric_ids)},
     }
 
     report = _g1().validate_layer3_g1_bundle(REPO_ROOT, payload)

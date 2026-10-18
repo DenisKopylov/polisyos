@@ -9,9 +9,7 @@ from typing import Any
 DISCONFIRMING_EVIDENCE_LEDGER_SCHEMA_VERSION = (
     "policyos.runtime.policy_design_case.disconfirming_evidence_ledger.v1"
 )
-DISCONFIRMING_EVIDENCE_LEDGER_CONTRACT_ID = (
-    "policy_design_case.disconfirming_evidence_ledger.v1"
-)
+DISCONFIRMING_EVIDENCE_LEDGER_CONTRACT_ID = "policy_design_case.disconfirming_evidence_ledger.v1"
 
 _DEFAULT_DEFICIT_PROFILES = frozenset({"exploratory", "research"})
 _ACCEPTABLE_DEFICIT_KINDS = frozenset(
@@ -89,9 +87,7 @@ def build_disconfirming_evidence_ledger(
         "ir_falsification_reports": [
             _normalizable_mapping_or_value(report) for report in ir_falsification_reports
         ],
-        "adversarial_plans": [
-            _normalizable_mapping_or_value(plan) for plan in adversarial_plans
-        ],
+        "adversarial_plans": [_normalizable_mapping_or_value(plan) for plan in adversarial_plans],
         "severe_tests": [dict(record) for record in severe_test_records],
     }
     if evidence_ref is not None:
@@ -167,10 +163,7 @@ def validate_disconfirming_evidence_ledger_record(
 
     combined_deficits = [
         *[dict(deficit) for deficit in accepted_deficits if isinstance(deficit, Mapping)],
-        *[
-            dict(deficit)
-            for deficit in _sequence_of_mappings(record.get("accepted_deficits"))
-        ],
+        *[dict(deficit) for deficit in _sequence_of_mappings(record.get("accepted_deficits"))],
     ]
     accepted_deficit = disconfirming_deficit_accepted(
         combined_deficits,

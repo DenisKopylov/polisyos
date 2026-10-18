@@ -198,9 +198,7 @@ def default_source_field_access_policies(
     field_ids = tuple(field.stable_id for field in fields) or ("*",)
     policy_ref = (
         "fabric.access.source_default"
-        if classification != "public"
-        or pii_tier != "none"
-        or tenant_scope != "shared_public"
+        if classification != "public" or pii_tier != "none" or tenant_scope != "shared_public"
         else None
     )
     return tuple(
@@ -213,8 +211,7 @@ def default_source_field_access_policies(
             redaction="none",
             policy_ref=policy_ref,
             reason=(
-                f"{field_id} inherits SourceContract security classification "
-                f"{classification!r}."
+                f"{field_id} inherits SourceContract security classification {classification!r}."
             ),
         )
         for field_id in field_ids
@@ -302,9 +299,7 @@ class SourceContractReplay(BaseModel):
         if self.required and not self.fixture_ref:
             raise ValueError("replay.fixture_ref is required when replay.required=true")
         if not self.required and not self.non_replayable_reason:
-            raise ValueError(
-                "replay.non_replayable_reason is required when replay.required=false"
-            )
+            raise ValueError("replay.non_replayable_reason is required when replay.required=false")
         return self
 
     @property
@@ -403,9 +398,7 @@ class SourceContract(BaseModel):
     replay: SourceContractReplay
     lineage: SourceContractLineage
     source_trust: SourceContractTrust
-    processing: ProcessingGuaranteeContract = Field(
-        default_factory=ProcessingGuaranteeContract
-    )
+    processing: ProcessingGuaranteeContract = Field(default_factory=ProcessingGuaranteeContract)
     retention: SourceContractRetention = Field(default_factory=SourceContractRetention)
     docs: SourceContractDocs = Field(default_factory=SourceContractDocs)
     status: SourceStatus = "active"
@@ -432,10 +425,11 @@ class SourceContract(BaseModel):
                 raise ValueError("active SourceContract requires lineage seed")
             if not self.processing.idempotency.enabled:
                 raise ValueError("active SourceContract requires idempotency policy")
-            if self.processing.idempotency.replay_retention_days < self.retention.min_retention_days:
-                raise ValueError(
-                    "processing replay retention must cover minimum source retention"
-                )
+            if (
+                self.processing.idempotency.replay_retention_days
+                < self.retention.min_retention_days
+            ):
+                raise ValueError("processing replay retention must cover minimum source retention")
             if (
                 ProcessingGuarantee(self.processing.guarantee)
                 == ProcessingGuarantee.EXACTLY_ONCE_NARROW
@@ -445,17 +439,13 @@ class SourceContract(BaseModel):
             self._validate_active_field_access_policies()
         if self.status in {"deprecated", "sunset"}:
             if self.deprecation is None:
-                raise ValueError(
-                    "deprecated/sunset SourceContract requires deprecation policy"
-                )
+                raise ValueError("deprecated/sunset SourceContract requires deprecation policy")
             if not self.deprecation.reason or not self.deprecation.migration_note:
                 raise ValueError(
                     "deprecated/sunset SourceContract requires reason and migration_note"
                 )
             if self.deprecation.sunset_at is None:
-                raise ValueError(
-                    "deprecated/sunset SourceContract requires a sunset_at date"
-                )
+                raise ValueError("deprecated/sunset SourceContract requires a sunset_at date")
         return self
 
     def _validate_active_field_access_policies(self) -> None:
@@ -469,8 +459,7 @@ class SourceContract(BaseModel):
             if missing and "*" not in policy_ids:
                 joined = ", ".join(missing[:8])
                 raise ValueError(
-                    "active SourceContract missing field access policies for: "
-                    f"{joined}"
+                    f"active SourceContract missing field access policies for: {joined}"
                 )
         elif "*" not in policy_ids:
             raise ValueError(
@@ -478,13 +467,9 @@ class SourceContract(BaseModel):
                 "field access policy"
             )
         source_rank = _CLASSIFICATION_RANK[self.security.classification]
-        max_field_rank = max(
-            _CLASSIFICATION_RANK[policy.classification] for policy in policies
-        )
+        max_field_rank = max(_CLASSIFICATION_RANK[policy.classification] for policy in policies)
         if max_field_rank > source_rank:
-            raise ValueError(
-                "source-level classification must cover all field access policies"
-            )
+            raise ValueError("source-level classification must cover all field access policies")
 
     @property
     def schema(self) -> SourceContractSchema:
@@ -531,11 +516,7 @@ class SourceContract(BaseModel):
             if metadata is not None and metadata.quality_contract_id
             else f"fabric.quality.{schema_contract.contract_id}.v1"
         )
-        classification = (
-            metadata.data_classification
-            if metadata is not None
-            else "public"
-        )
+        classification = metadata.data_classification if metadata is not None else "public"
         field_policies = default_source_field_access_policies(
             schema_contract.schema.fields,
             classification=classification,  # type: ignore[arg-type]
@@ -573,7 +554,9 @@ class SourceContract(BaseModel):
                     "bounded_reads",
                 ),
             ),
-            sla=SourceContractSLA.from_metadata(metadata) if metadata is not None else SourceContractSLA(),
+            sla=SourceContractSLA.from_metadata(metadata)
+            if metadata is not None
+            else SourceContractSLA(),
             terms=SourceContractTerms(
                 terms_url=source_url,
                 attribution_required=bool(source_org),
@@ -599,9 +582,7 @@ class SourceContract(BaseModel):
                 calibration_status="heuristic",
                 rationale="Migrated from ConnectorSchemaContract and connector metadata.",
             ),
-            processing=default_processing_contract_for_connector(
-                schema_contract.connector_id
-            ),
+            processing=default_processing_contract_for_connector(schema_contract.connector_id),
         )
 
     def to_snapshot_record(self) -> dict[str, Any]:
@@ -649,16 +630,12 @@ def source_contracts_compatibility_evidence(
         for contract in rows
         if not contract.is_replayable and contract.replay.non_replayable_reason
     ]
-    field_policy_contracts = [
-        contract for contract in active if contract.security.field_policies
-    ]
+    field_policy_contracts = [contract for contract in active if contract.security.field_policies]
     field_policy_rows = [
         policy for contract in active for policy in contract.security.field_policies
     ]
     schema_field_policy_coverage = [
-        contract
-        for contract in active
-        if _has_complete_field_policy_coverage(contract)
+        contract for contract in active if _has_complete_field_policy_coverage(contract)
     ]
     return {
         "schema_version": SOURCE_CONTRACT_SCHEMA_VERSION,

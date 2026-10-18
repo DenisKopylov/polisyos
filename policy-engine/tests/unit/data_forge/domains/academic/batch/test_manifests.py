@@ -129,9 +129,7 @@ def test_publish_manifest_contains_pipeline_name(tmp_path) -> None:
         status="ok",
         metrics={
             "schema_generation": skg_schema_generation_basis().to_dict(),
-            "materialized_schema_identity": skg_materialized_schema_identity(
-                config.db_path
-            ),
+            "materialized_schema_identity": skg_materialized_schema_identity(config.db_path),
         },
         artifacts=[config.db_path],
     )

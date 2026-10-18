@@ -171,12 +171,10 @@ def test_published_graph_rejects_nested_topology_mutation(mutation: str) -> None
         "nodes_append": lambda: graph.nodes.append("C"),
         "edges_clear": graph.edges.clear,
         "edge_sources_append": lambda: graph.edges[0].sources.append(EdgeSource.EXPERT),
-        "edge_metadata_nested_append": lambda: graph.edges[0].metadata["lineage"]["tags"].append(
-            "hostile"
-        ),
-        "graph_metadata_nested_append": lambda: graph.metadata["lineage"]["tags"].append(
-            "hostile"
-        ),
+        "edge_metadata_nested_append": lambda: graph.edges[0]
+        .metadata["lineage"]["tags"]
+        .append("hostile"),
+        "graph_metadata_nested_append": lambda: graph.metadata["lineage"]["tags"].append("hostile"),
     }
 
     with pytest.raises((AttributeError, TypeError)):

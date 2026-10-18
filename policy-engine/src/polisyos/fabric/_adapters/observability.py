@@ -56,6 +56,7 @@ def get_fabric_observability_adapter() -> FabricObservabilityAdapter:
     """Return the default Fabric observability adapter."""
     return FabricObservabilityAdapter()
 
+
 __all__ = [
     "DEFAULT_FABRIC_SLO_TARGETS",
     "FABRIC_ERROR_TAXONOMY",

@@ -2,4 +2,4 @@ from tests._helpers.mirror_contracts import assert_source_stem_has_static_contra
 
 
 def test_decision_layer_source_modules_have_static_contracts() -> None:
-    assert_source_stem_has_static_contract('ir', 'decision_layer')
+    assert_source_stem_has_static_contract("ir", "decision_layer")

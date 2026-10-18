@@ -182,9 +182,7 @@ def test_all_mode_paths_forward_the_supplied_dependencies_and_store(
     async def capture_stream_dataset(**kwargs: Any) -> SimpleNamespace:
         assert kwargs["registry"] is dependencies.registry
         assert kwargs["store"] is store
-        streaming_observations.append(
-            (kwargs["store"], kwargs["cursor_store"], kwargs["registry"])
-        )
+        streaming_observations.append((kwargs["store"], kwargs["cursor_store"], kwargs["registry"]))
         return SimpleNamespace(
             warnings=[],
             chunk_refs=[source_ref],
@@ -211,13 +209,9 @@ def test_all_mode_paths_forward_the_supplied_dependencies_and_store(
         return evidence_ref
 
     monkeypatch.setattr(modes_module, "_connector_is_registered", lambda *_a, **_k: True)
-    monkeypatch.setattr(
-        streaming_module, "_resolve_stream_schema_binding", lambda *_a, **_k: None
-    )
+    monkeypatch.setattr(streaming_module, "_resolve_stream_schema_binding", lambda *_a, **_k: None)
     monkeypatch.setattr(streaming_module, "process_stream_dataset", capture_stream_dataset)
-    monkeypatch.setattr(
-        modes_module, "_persist_streaming_manifest_async", capture_stream_manifest
-    )
+    monkeypatch.setattr(modes_module, "_persist_streaming_manifest_async", capture_stream_manifest)
     monkeypatch.setattr(evidence_module, "build_evidence_bundle", capture_evidence_bundle)
     monkeypatch.setattr(evidence_module, "persist_evidence_bundle", capture_persist_evidence)
 
@@ -497,6 +491,7 @@ def test_streaming_snapshot_uses_owner_tenant_store_for_the_full_artifact_chain(
     finally:
         guarded_store.close()
         registry.shutdown()
+
 
 @pytest.mark.parametrize("owner_entrypoint", ["orchestrated", "direct_ingestion"])
 def test_wrong_root_store_is_refused_by_owner_before_fetch_or_persist(

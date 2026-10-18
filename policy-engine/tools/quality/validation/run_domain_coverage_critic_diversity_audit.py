@@ -39,8 +39,7 @@ DEFAULT_CRITIC_OUTPUT = Path(
     "_build/.tmp/production-quality/w12c_critic_ensemble_diversity_report.json"
 )
 DEFAULT_MANIFEST_OUTPUT = Path(
-    "architecture/policy_design_case/"
-    "wave12c_domain_coverage_critic_diversity_audit_manifest.json"
+    "architecture/policy_design_case/wave12c_domain_coverage_critic_diversity_audit_manifest.json"
 )
 ROLLOUT_POSTURES = ("research-only", "governed-pilot", "production-capable")
 AUTHORITY_LEVELS = w11f_domain.AUTHORITY_LEVELS
@@ -102,18 +101,14 @@ def build_w12c_domain_coverage_critic_diversity_audit(
     if rollout_posture not in ROLLOUT_POSTURES:
         raise ValueError(f"unknown rollout posture: {rollout_posture}")
 
-    domain_validation = w11f_domain.validate_domain_coverage_breadth_report(
-        domain_coverage_report
-    )
+    domain_validation = w11f_domain.validate_domain_coverage_breadth_report(domain_coverage_report)
     critic_validation = w11f_critic.validate_critic_ensemble_diversity_report(
         critic_diversity_report
     )
     domain_summary = _mapping(domain_coverage_report.get("summary"))
     critic_summary = _mapping(critic_diversity_report.get("summary"))
     domain_matrix = _domain_authority_matrix(domain_coverage_report)
-    critic_summary_decorated = _critic_diversity_jaccard_summary(
-        critic_diversity_report
-    )
+    critic_summary_decorated = _critic_diversity_jaccard_summary(critic_diversity_report)
     floor_evaluation = _evaluate_floors(
         domain_matrix=domain_matrix,
         domain_summary=domain_summary,
@@ -197,9 +192,7 @@ def build_w12c_domain_coverage_critic_diversity_audit(
         "domain_coverage_breadth_summary": {
             "domain_coverage_breadth": int(domain_summary.get("domain_coverage_breadth") or 0),
             "committed_domain_count": int(domain_summary.get("committed_domain_count") or 0),
-            "non_trivial_domain_ids": list(
-                _sequence(domain_summary.get("non_trivial_domain_ids"))
-            ),
+            "non_trivial_domain_ids": list(_sequence(domain_summary.get("non_trivial_domain_ids"))),
             "domains": _mapping_of_mappings(domain_coverage_report.get("domains")),
         },
         "critic_diversity_jaccard_summary": critic_summary_decorated,
@@ -251,8 +244,7 @@ def build_w12c_manifest() -> dict[str, Any]:
             "#w12c-domain-coverage-and-critic-diversity-audit-run"
         ),
         "tool_ref": (
-            "repo://tools/quality/validation/"
-            "run_domain_coverage_critic_diversity_audit.py"
+            "repo://tools/quality/validation/run_domain_coverage_critic_diversity_audit.py"
         ),
         "w11f_tool_refs": [
             "repo://tools/quality/validation/check_domain_coverage_breadth.py",
@@ -272,8 +264,7 @@ def build_w12c_manifest() -> dict[str, Any]:
             ),
         },
         "floor_policy": {
-            posture: _json_floor_policy(policy)
-            for posture, policy in FLOOR_POLICY.items()
+            posture: _json_floor_policy(policy) for posture, policy in FLOOR_POLICY.items()
         },
         "metric_policy": {
             "domain_authority_useful_design_matrix_required": True,
@@ -516,16 +507,12 @@ def _domain_authority_matrix(
                     for label in _sequence(row.get("adjudication_labels"))
                     if _normalized_token(label)
                 }
-                cell["adjudication_labels"] = sorted(
-                    {*cell["adjudication_labels"], *labels}
-                )
+                cell["adjudication_labels"] = sorted({*cell["adjudication_labels"], *labels})
                 if labels and labels <= {"false_pass", "fabricated_unverifiable"}:
                     cell["negative_control_case_ids"].append(case_id)
                 blocker_code = row.get("blocker_code")
                 if blocker_code:
-                    cell["blocker_codes"] = sorted(
-                        {*cell["blocker_codes"], str(blocker_code)}
-                    )
+                    cell["blocker_codes"] = sorted({*cell["blocker_codes"], str(blocker_code)})
 
     for rows in matrix.values():
         for cell in rows.values():
@@ -535,9 +522,7 @@ def _domain_authority_matrix(
                 int(cell["case_count"]),
             )
             cell["useful_case_ids"] = sorted(dict.fromkeys(cell["useful_case_ids"]))
-            cell["non_useful_case_ids"] = sorted(
-                dict.fromkeys(cell["non_useful_case_ids"])
-            )
+            cell["non_useful_case_ids"] = sorted(dict.fromkeys(cell["non_useful_case_ids"]))
             cell["blocker_codes"] = sorted(dict.fromkeys(cell["blocker_codes"]))
             cell["negative_control_case_ids"] = sorted(
                 dict.fromkeys(cell["negative_control_case_ids"])
@@ -595,13 +580,10 @@ def _critic_diversity_jaccard_summary(
         ),
         "diversity_floor": _float_or_zero(summary.get("diversity_floor")),
         "cases_below_diversity_floor": int(summary.get("cases_below_diversity_floor") or 0),
-        "cases_with_monoculture_warning": int(
-            summary.get("cases_with_monoculture_warning") or 0
-        ),
+        "cases_with_monoculture_warning": int(summary.get("cases_with_monoculture_warning") or 0),
         "required_critic_roles": list(_sequence(summary.get("required_critic_roles"))),
         "by_domain": {
-            domain: _critic_domain_summary(cases)
-            for domain, cases in sorted(by_domain.items())
+            domain: _critic_domain_summary(cases) for domain, cases in sorted(by_domain.items())
         },
         "cases": [
             {
@@ -624,10 +606,7 @@ def _critic_diversity_jaccard_summary(
 
 
 def _critic_domain_summary(cases: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
-    diversities = [
-        _float_or_zero(case.get("critic_ensemble_diversity_jaccard"))
-        for case in cases
-    ]
+    diversities = [_float_or_zero(case.get("critic_ensemble_diversity_jaccard")) for case in cases]
     return {
         "case_count": len(cases),
         "aggregate_critic_ensemble_diversity_jaccard": _rate_sum(diversities),
@@ -683,23 +662,14 @@ def _evaluate_floors(
     )
     critic_cases_below_floor = int(critic_summary.get("cases_below_diversity_floor") or 0)
     floor_required = any(
-        value is not None
-        for value in (minimum_rate, minimum_breadth, minimum_critic_diversity)
+        value is not None for value in (minimum_rate, minimum_breadth, minimum_critic_diversity)
     )
     breadth_below_floor = minimum_breadth is not None and breadth < int(minimum_breadth)
-    useful_rate_below_floor = (
-        minimum_rate is not None and aggregate_rate < float(minimum_rate)
+    useful_rate_below_floor = minimum_rate is not None and aggregate_rate < float(minimum_rate)
+    critic_below_floor = minimum_critic_diversity is not None and (
+        critic_diversity < float(minimum_critic_diversity) or critic_cases_below_floor > 0
     )
-    critic_below_floor = (
-        minimum_critic_diversity is not None
-        and (
-            critic_diversity < float(minimum_critic_diversity)
-            or critic_cases_below_floor > 0
-        )
-    )
-    blocker_floor_not_met = bool(
-        below_slices or breadth_below_floor or useful_rate_below_floor
-    )
+    blocker_floor_not_met = bool(below_slices or breadth_below_floor or useful_rate_below_floor)
     status = (
         "not_required"
         if not floor_required
@@ -770,8 +740,7 @@ def _typed_domain_coverage_blockers(
                 rollout_posture=rollout_posture,
                 actual_score=float(cell.get("useful_design_count") or 0),
                 floor=float(
-                    floor_evaluation.get("minimum_domain_authority_useful_design_count")
-                    or 0
+                    floor_evaluation.get("minimum_domain_authority_useful_design_count") or 0
                 ),
                 next_action=(
                     "Repair the case outcome, add a useful-design corpus case for "
@@ -830,9 +799,7 @@ def _held_domain_slices(
                 "rollout_posture": rollout_posture,
                 "classification": "negative_control_only",
                 "case_count": int(cell.get("case_count") or 0),
-                "negative_control_case_ids": list(
-                    _sequence(cell.get("negative_control_case_ids"))
-                ),
+                "negative_control_case_ids": list(_sequence(cell.get("negative_control_case_ids"))),
                 "blocks_governed_pilot": False,
                 "blocks_production_capable": True,
                 "counts_as_useful_design": False,
@@ -907,9 +874,7 @@ def _critic_monoculture_warnings(
             "maximum_posture": "governed-pilot",
             "requested_posture_allowed": _posture_rank(rollout_posture)
             <= _posture_rank("governed-pilot"),
-            "actual_score": floor_evaluation[
-                "aggregate_critic_ensemble_diversity_jaccard"
-            ],
+            "actual_score": floor_evaluation["aggregate_critic_ensemble_diversity_jaccard"],
             "floor": floor_evaluation["minimum_critic_diversity_jaccard"],
             "case_ids_below_floor": below_case_ids,
             "message": (
@@ -932,8 +897,7 @@ def _rollout_cap(*, critic_warning_active: bool, rollout_posture: str) -> dict[s
         "maximum_posture": maximum,
         "reason": "critic_monoculture" if critic_warning_active else None,
         "requested_posture": rollout_posture,
-        "requested_posture_allowed": _posture_rank(rollout_posture)
-        <= _posture_rank(maximum),
+        "requested_posture_allowed": _posture_rank(rollout_posture) <= _posture_rank(maximum),
     }
 
 
@@ -1030,8 +994,7 @@ def _issue(
 
 def _json_floor_policy(policy: Mapping[str, Any]) -> dict[str, Any]:
     return {
-        key: list(value) if isinstance(value, tuple) else value
-        for key, value in policy.items()
+        key: list(value) if isinstance(value, tuple) else value for key, value in policy.items()
     }
 
 

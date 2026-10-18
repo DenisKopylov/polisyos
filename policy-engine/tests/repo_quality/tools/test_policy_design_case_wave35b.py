@@ -42,8 +42,7 @@ def test_wave35b_outputs_close_adversarial_cluster(tmp_path: Path) -> None:
     assert cache["rejected_or_quarantined_count"] == cache["control_count"]
     assert cache["accepted_blocker_honesty"]
     assert all(
-        row["expected_rejection_code"] == row["observed_rejection_code"]
-        for row in cache["rows"]
+        row["expected_rejection_code"] == row["observed_rejection_code"] for row in cache["rows"]
     )
 
     taxonomy = outputs["error_taxonomy"]
@@ -54,21 +53,13 @@ def test_wave35b_outputs_close_adversarial_cluster(tmp_path: Path) -> None:
         == "preserved_as_false_alarm_positive_evidence"
     )
     assert (
-        taxonomy["readiness_dashboard_projection_contract"][
-            "generic_failure_only_allowed"
-        ]
-        is False
+        taxonomy["readiness_dashboard_projection_contract"]["generic_failure_only_allowed"] is False
     )
 
     strategic = outputs["strategic_ledger"]
     assert strategic["status"] == "complete"
-    assert {"gaming", "fraud", "arbitrage", "monitoring"} <= set(
-        strategic["risk_classes"]
-    )
-    assert (
-        strategic["generic_monitoring_prose_disposition"]["status"]
-        == "rejected_as_insufficient"
-    )
+    assert {"gaming", "fraud", "arbitrage", "monitoring"} <= set(strategic["risk_classes"])
+    assert strategic["generic_monitoring_prose_disposition"]["status"] == "rejected_as_insufficient"
     assert all(row["mechanism_bound"] for row in strategic["rows"])
 
     update = outputs["disposition_update"]

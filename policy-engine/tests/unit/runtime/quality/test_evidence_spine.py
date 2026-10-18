@@ -114,9 +114,7 @@ def test_spine_graph_fails_when_producer_drops_consumed_contract_id() -> None:
         if isinstance(finding, dict) and finding["status"] == "fail"
     } == {"evidence_spine_contract_dropped"}
     assert graph["findings"][0]["producer_component"] == "fabric"
-    assert graph["findings"][0]["artifact_ref"] == (
-        "quality_evidence/fabric_retrieval_trace.json"
-    )
+    assert graph["findings"][0]["artifact_ref"] == ("quality_evidence/fabric_retrieval_trace.json")
 
 
 def test_spine_graph_passes_when_contract_and_requirement_ids_propagate() -> None:

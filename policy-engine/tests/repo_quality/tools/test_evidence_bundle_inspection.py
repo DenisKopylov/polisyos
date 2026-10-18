@@ -48,9 +48,7 @@ def _fresh_serious_bundle(tmp_path: Path, *, canary_kind: str = "research") -> P
     public_export_path = bundle / "quality_evidence" / "public_export_bundle.json"
     public_export = json.loads(public_export_path.read_text(encoding="utf-8"))
     public_export["artifacts"]["quality_scorecard_summary"]["quality_status"] = "pass"
-    public_export["artifacts"]["quality_scorecard_summary"]["approval_state"] = (
-        "approval_ready"
-    )
+    public_export["artifacts"]["quality_scorecard_summary"]["approval_state"] = "approval_ready"
     public_export["artifacts"]["quality_scorecard_summary"]["blocking_failure_count"] = 0
     public_export_path.write_text(json.dumps(public_export), encoding="utf-8")
     return bundle
@@ -193,9 +191,7 @@ def test_phase64_inspection_flags_borrowed_report_authority_envelope(
 ) -> None:
     bundle = _fresh_serious_bundle(tmp_path, canary_kind="research")
     production_data = json.loads(
-        (bundle / "quality_evidence" / "production_data_quality.json").read_text(
-            encoding="utf-8"
-        )
+        (bundle / "quality_evidence" / "production_data_quality.json").read_text(encoding="utf-8")
     )
     stale_path = bundle / "quality_evidence" / "continuous_governance_stale_report.json"
     stale = json.loads(stale_path.read_text(encoding="utf-8"))
@@ -225,9 +221,7 @@ def test_phase64_inspection_blocks_missing_required_component_and_public_leak(
     (bundle / "quality_evidence" / "prompt_tool_ledger.json").unlink()
     public_export = bundle / "quality_evidence" / "public_export_bundle.json"
     payload = json.loads(public_export.read_text(encoding="utf-8"))
-    payload["artifacts"]["unsafe_debug"] = {
-        "provider_credential": "sk-test-should-never-be-public"
-    }
+    payload["artifacts"]["unsafe_debug"] = {"provider_credential": "sk-test-should-never-be-public"}
     public_export.write_text(json.dumps(payload), encoding="utf-8")
 
     report = build_evidence_bundle_inspection_report(
@@ -293,9 +287,7 @@ def test_phase64_matrix_non_ready_governed_production_uses_typed_setup_evidence(
     )
 
     production = next(
-        item
-        for item in report["bundle_inspections"]
-        if item["profile"] == "production"
+        item for item in report["bundle_inspections"] if item["profile"] == "production"
     )
     assert report["status"] == "pass"
     assert report["summary"]["selected_serious_count"] == 2
@@ -356,9 +348,7 @@ def test_phase64_matrix_failed_research_lane_preserves_typed_failure_envelope(
     assert report["status"] == "fail"
     assert inspection["status"] == "failed"
     assert inspection["setup_evidence"]["code"] == "source_family_mismatch"
-    assert inspection["matrix_failure_envelope"]["root_cause_class"] == (
-        "runtime_domain_failure"
-    )
+    assert inspection["matrix_failure_envelope"]["root_cause_class"] == ("runtime_domain_failure")
     assert _failure_codes(report) >= {"phase64_matrix_lane_not_passed"}
     finding = next(
         item for item in report["findings"] if item["code"] == "phase64_matrix_lane_not_passed"

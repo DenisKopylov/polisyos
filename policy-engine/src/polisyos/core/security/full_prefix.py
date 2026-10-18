@@ -334,9 +334,7 @@ class FullPrefixVerifier:
                     contract.FullPrefixEnvelopeFailureCode.NON_CANONICAL_HEADER
                 )
             if raw_header.get("format") != contract.FULL_PREFIX_FORMAT:
-                envelope_failures.append(
-                    contract.FullPrefixEnvelopeFailureCode.UNSUPPORTED_FORMAT
-                )
+                envelope_failures.append(contract.FullPrefixEnvelopeFailureCode.UNSUPPORTED_FORMAT)
             if raw_header.get("profile") != contract.FULL_PREFIX_PROFILE:
                 envelope_failures.append(contract.FullPrefixEnvelopeFailureCode.UNKNOWN_PROFILE)
         header: contract.ChronologyBundleHeader | None = None
@@ -380,9 +378,7 @@ class FullPrefixVerifier:
         predecessor: contract.Digest = genesis
         first_commitment: contract.Digest | None = None
         expected_prefix_head: contract.Digest | None = (
-            genesis
-            if expected_prefix is not None and expected_prefix.member_count == 0
-            else None
+            genesis if expected_prefix is not None and expected_prefix.member_count == 0 else None
         )
         native_bytes_total = 0
         verified_count = 0
@@ -437,15 +433,11 @@ class FullPrefixVerifier:
                     raise ValueError("member frame is non-canonical")
                 member_frame = _MemberFrame.model_validate(raw_member)
             except (UnicodeDecodeError, json.JSONDecodeError, TypeError, ValueError):
-                failures.append(
-                    contract.FullPrefixMemberFailureCode.NON_CANONICAL_MEMBER_FRAME
-                )
+                failures.append(contract.FullPrefixMemberFailureCode.NON_CANONICAL_MEMBER_FRAME)
             try:
                 native_view, after_native = _read_frame(view, after_member)
             except ValueError:
-                failures.append(
-                    contract.FullPrefixMemberFailureCode.NON_CANONICAL_MEMBER_FRAME
-                )
+                failures.append(contract.FullPrefixMemberFailureCode.NON_CANONICAL_MEMBER_FRAME)
                 native_view = memoryview(b"")
                 after_native = len(view)
 
@@ -460,9 +452,7 @@ class FullPrefixVerifier:
                     member_frame.native_schema_profile,
                 )
                 if observed_domain_fields != header_domain_fields:
-                    failures.append(
-                        contract.FullPrefixMemberFailureCode.NON_CANONICAL_MEMBER_FRAME
-                    )
+                    failures.append(contract.FullPrefixMemberFailureCode.NON_CANONICAL_MEMBER_FRAME)
                 if member_frame.member_ordinal != ordinal:
                     failures.append(contract.FullPrefixMemberFailureCode.ORDINAL_MISMATCH)
                 if member_frame.predecessor_commitment != predecessor:
@@ -473,9 +463,7 @@ class FullPrefixVerifier:
                     )
             if failures:
                 ordered = tuple(
-                    code
-                    for code in contract.FullPrefixMemberFailureCode
-                    if code in set(failures)
+                    code for code in contract.FullPrefixMemberFailureCode if code in set(failures)
                 )
                 return _build_full_prefix_result(
                     result_kind="member_rejected",
@@ -492,17 +480,12 @@ class FullPrefixVerifier:
                 first_commitment = commitment
             predecessor = commitment
             verified_count += 1
-            if (
-                expected_prefix is not None
-                and expected_prefix.member_count == verified_count
-            ):
+            if expected_prefix is not None and expected_prefix.member_count == verified_count:
                 expected_prefix_head = commitment
             native_bytes_total += len(native_view)
             offset = after_native
 
-        consistency_failures: list[
-            contract.FullPrefixInternalConsistencyFailureCode
-        ] = []
+        consistency_failures: list[contract.FullPrefixInternalConsistencyFailureCode] = []
         if offset != len(view):
             consistency_failures.append(
                 contract.FullPrefixInternalConsistencyFailureCode.MEMBER_COUNT_MISMATCH
@@ -545,9 +528,7 @@ class FullPrefixVerifier:
         if expected_prefix is not None:
             prefix_failures: list[contract.FullPrefixExpectedPrefixFailureCode] = []
             if expected_prefix.domain != expected_domain:
-                prefix_failures.append(
-                    contract.FullPrefixExpectedPrefixFailureCode.DOMAIN_MISMATCH
-                )
+                prefix_failures.append(contract.FullPrefixExpectedPrefixFailureCode.DOMAIN_MISMATCH)
             if expected_prefix.member_count > verified_count:
                 prefix_failures.append(contract.FullPrefixExpectedPrefixFailureCode.OUT_OF_RANGE)
             else:

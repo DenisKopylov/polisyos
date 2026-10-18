@@ -96,7 +96,9 @@ def write_markdown(path: Path, text: str) -> None:
     path.write_text(text.strip() + "\n", encoding="utf-8")
 
 
-def run_cmd(cmd: list[str], *, timeout: int = 3600, check: bool = True) -> subprocess.CompletedProcess[str]:
+def run_cmd(
+    cmd: list[str], *, timeout: int = 3600, check: bool = True
+) -> subprocess.CompletedProcess[str]:
     return subprocess.run(cmd, text=True, capture_output=True, timeout=timeout, check=check)
 
 
@@ -155,8 +157,16 @@ def policy_numeric_features(policies: dict[str, dict[str, Any]]) -> dict[str, di
     features: dict[str, dict[str, float]] = {}
     for policy_id, policy in policies.items():
         levers = policy.get("levers", {}) if isinstance(policy.get("levers"), dict) else {}
-        target = policy.get("target_population", {}) if isinstance(policy.get("target_population"), dict) else {}
-        priority = target.get("priority_groups", {}) if isinstance(target.get("priority_groups"), dict) else {}
+        target = (
+            policy.get("target_population", {})
+            if isinstance(policy.get("target_population"), dict)
+            else {}
+        )
+        priority = (
+            target.get("priority_groups", {})
+            if isinstance(target.get("priority_groups"), dict)
+            else {}
+        )
         features[policy_id] = {
             "grant_cap": safe_float(levers.get("grant_cap_uah")) / 300000.0,
             "loan_cap": safe_float(levers.get("loan_cap_uah")) / 1500000.0,
@@ -169,12 +179,16 @@ def policy_numeric_features(policies: dict[str, dict[str, Any]]) -> dict[str, di
             "idp_priority": 1.0 if priority.get("idp") else 0.0,
             "women_priority": 1.0 if priority.get("women_owned") else 0.0,
             "veteran_priority": 1.0 if priority.get("veteran") else 0.0,
-            "frontline_priority": 1.0 if str(target.get("region_priority", "")).lower() == "frontline" else 0.0,
+            "frontline_priority": 1.0
+            if str(target.get("region_priority", "")).lower() == "frontline"
+            else 0.0,
         }
     return features
 
 
-def build_core_applicant_panel(rows: int, seed: int) -> tuple[np.ndarray, list[str], dict[str, Any]]:
+def build_core_applicant_panel(
+    rows: int, seed: int
+) -> tuple[np.ndarray, list[str], dict[str, Any]]:
     data = v2.generate_dgp("heterogeneous_effects", rows, seed)
     rng = np.random.default_rng(seed + 17)
     x = data.x
@@ -184,11 +198,19 @@ def build_core_applicant_panel(rows: int, seed: int) -> tuple[np.ndarray, list[s
     collateral = x[:, 3] + 0.18 * credit_access + rng.normal(0, 0.10, rows)
     admin_capacity = x[:, 4] - 0.18 * conflict + rng.normal(0, 0.08, rows)
     baseline_productivity = x[:, 5] + 0.25 * digital + 0.20 * collateral + rng.normal(0, 0.12, rows)
-    sector_pressure = (data.sector.astype(float) - np.mean(data.sector)) / max(1.0, float(np.std(data.sector)))
+    sector_pressure = (data.sector.astype(float) - np.mean(data.sector)) / max(
+        1.0, float(np.std(data.sector))
+    )
     treatment = data.treatment.astype(float)
-    grant_intensity = np.clip(0.15 + 0.45 * treatment + 0.20 * data.propensity + rng.normal(0, 0.08, rows), 0, 1)
-    governance_risk = sigmoid(0.35 * conflict - 0.25 * admin_capacity + 0.20 * sector_pressure + rng.normal(0, 0.20, rows))
-    survival_24m = sigmoid(0.55 * data.outcome + 0.30 * grant_intensity - 0.25 * conflict + 0.15 * admin_capacity)
+    grant_intensity = np.clip(
+        0.15 + 0.45 * treatment + 0.20 * data.propensity + rng.normal(0, 0.08, rows), 0, 1
+    )
+    governance_risk = sigmoid(
+        0.35 * conflict - 0.25 * admin_capacity + 0.20 * sector_pressure + rng.normal(0, 0.20, rows)
+    )
+    survival_24m = sigmoid(
+        0.55 * data.outcome + 0.30 * grant_intensity - 0.25 * conflict + 0.15 * admin_capacity
+    )
     employment_growth = data.outcome + 0.18 * survival_24m + rng.normal(0, 0.08, rows)
     names = [
         "conflict_exposure",
@@ -228,7 +250,9 @@ def build_core_applicant_panel(rows: int, seed: int) -> tuple[np.ndarray, list[s
     return standardize(matrix), names, meta
 
 
-def build_policy_world_panel(source_run: Path, max_rows: int, seed: int) -> tuple[np.ndarray, list[str], dict[str, Any]]:
+def build_policy_world_panel(
+    source_run: Path, max_rows: int, seed: int
+) -> tuple[np.ndarray, list[str], dict[str, Any]]:
     outcome_path = source_run / "07_robust_policy_tournament" / "policy_world_outcomes.csv"
     world_path = source_run / "07_robust_policy_tournament" / "world_design_matrix.csv"
     policy_path = source_run / "03_policy_formalization" / "normalized_policy_designs.jsonl"
@@ -300,7 +324,9 @@ def build_policy_world_panel(source_run: Path, max_rows: int, seed: int) -> tupl
     return standardize(np.asarray(rows, dtype=float)), names, meta
 
 
-def build_regional_temporal_panel(periods: int, seed: int) -> tuple[np.ndarray, list[str], dict[str, Any]]:
+def build_regional_temporal_panel(
+    periods: int, seed: int
+) -> tuple[np.ndarray, list[str], dict[str, Any]]:
     rng = np.random.default_rng(seed + 53)
     regions = ["Kyiv", "Lviv", "Kharkiv", "Dnipro", "Odesa", "Zaporizhzhia", "Donetsk", "Kherson"]
     names = [
@@ -328,14 +354,48 @@ def build_regional_temporal_panel(periods: int, seed: int) -> tuple[np.ndarray, 
             shock = rng.normal(0, 0.035)
             seasonal = math.sin(month / 12.0 * 2 * math.pi)
             conflict = np.clip(0.70 * conflict + 0.08 * seasonal + 0.12 * (ridx >= 5) + shock, 0, 1)
-            displacement = np.clip(0.65 * displacement + 0.25 * conflict + rng.normal(0, 0.025), 0, 1)
+            displacement = np.clip(
+                0.65 * displacement + 0.25 * conflict + rng.normal(0, 0.025), 0, 1
+            )
             energy = np.clip(0.62 * energy + 0.18 * conflict + rng.normal(0, 0.03), 0, 1)
-            credit = np.clip(0.58 * credit + 0.16 * energy + 0.12 * conflict - 0.05 * admin + rng.normal(0, 0.025), 0, 1)
-            program = np.clip(0.55 * program + 0.18 * displacement + 0.10 * credit + rng.normal(0, 0.025), 0, 1)
-            admin = np.clip(0.72 * admin - 0.10 * conflict + 0.04 * program + rng.normal(0, 0.02), 0, 1)
-            survival = np.clip(0.60 * survival + 0.16 * program + 0.10 * admin - 0.20 * conflict - 0.12 * credit + rng.normal(0, 0.025), 0, 1)
-            employment = np.clip(0.58 * employment + 0.20 * survival + 0.10 * program - 0.12 * energy - 0.10 * credit + rng.normal(0, 0.025), 0, 1)
-            rows.append([conflict, displacement, energy, credit, program, admin, survival, employment])
+            credit = np.clip(
+                0.58 * credit
+                + 0.16 * energy
+                + 0.12 * conflict
+                - 0.05 * admin
+                + rng.normal(0, 0.025),
+                0,
+                1,
+            )
+            program = np.clip(
+                0.55 * program + 0.18 * displacement + 0.10 * credit + rng.normal(0, 0.025), 0, 1
+            )
+            admin = np.clip(
+                0.72 * admin - 0.10 * conflict + 0.04 * program + rng.normal(0, 0.02), 0, 1
+            )
+            survival = np.clip(
+                0.60 * survival
+                + 0.16 * program
+                + 0.10 * admin
+                - 0.20 * conflict
+                - 0.12 * credit
+                + rng.normal(0, 0.025),
+                0,
+                1,
+            )
+            employment = np.clip(
+                0.58 * employment
+                + 0.20 * survival
+                + 0.10 * program
+                - 0.12 * energy
+                - 0.10 * credit
+                + rng.normal(0, 0.025),
+                0,
+                1,
+            )
+            rows.append(
+                [conflict, displacement, energy, credit, program, admin, survival, employment]
+            )
             region_index.append({"region": region, "region_index": ridx, "month": month})
     meta = {
         "rows": len(rows),
@@ -349,7 +409,12 @@ def build_regional_temporal_panel(periods: int, seed: int) -> tuple[np.ndarray, 
 
 def save_panel(path: Path, matrix: np.ndarray, names: list[str], meta: dict[str, Any]) -> None:
     ensure_dir(path.parent)
-    np.savez_compressed(path, matrix=np.asarray(matrix, dtype=float), names=np.asarray(names, dtype=object), meta=json.dumps(meta, ensure_ascii=False))
+    np.savez_compressed(
+        path,
+        matrix=np.asarray(matrix, dtype=float),
+        names=np.asarray(names, dtype=object),
+        meta=json.dumps(meta, ensure_ascii=False),
+    )
 
 
 def load_panel(path: str | Path) -> tuple[np.ndarray, list[str], dict[str, Any]]:
@@ -367,7 +432,9 @@ def _sample_rows(matrix: np.ndarray, n: int, seed: int) -> np.ndarray:
     return matrix[idx]
 
 
-def _edge_from_matrix(matrix: np.ndarray, names: list[str], *, min_abs: float = 1e-12) -> list[dict[str, Any]]:
+def _edge_from_matrix(
+    matrix: np.ndarray, names: list[str], *, min_abs: float = 1e-12
+) -> list[dict[str, Any]]:
     edges: list[dict[str, Any]] = []
     p = len(names)
     for i in range(p):
@@ -435,7 +502,11 @@ def run_pc(data: np.ndarray, names: list[str], params: dict[str, Any]) -> dict[s
         node_names=names,
     )
     matrix = np.asarray(graph.G.graph, dtype=float)
-    return {"edges": _edge_from_matrix(matrix, names), "raw_edges": _edge_objects(graph.G), "matrix": matrix.tolist()}
+    return {
+        "edges": _edge_from_matrix(matrix, names),
+        "raw_edges": _edge_objects(graph.G),
+        "matrix": matrix.tolist(),
+    }
 
 
 def run_fci(data: np.ndarray, names: list[str], params: dict[str, Any]) -> dict[str, Any]:
@@ -452,7 +523,11 @@ def run_fci(data: np.ndarray, names: list[str], params: dict[str, Any]) -> dict[
         node_names=names,
     )
     matrix = np.asarray(graph.graph, dtype=float)
-    return {"edges": _edge_from_matrix(matrix, names), "raw_edges": [str(edge) for edge in raw_edges], "matrix": matrix.tolist()}
+    return {
+        "edges": _edge_from_matrix(matrix, names),
+        "raw_edges": [str(edge) for edge in raw_edges],
+        "matrix": matrix.tolist(),
+    }
 
 
 def run_ges(data: np.ndarray, names: list[str], params: dict[str, Any]) -> dict[str, Any]:
@@ -507,7 +582,11 @@ def run_dagma(data: np.ndarray, names: list[str], params: dict[str, Any]) -> dic
                         "weight": weight,
                     }
                 )
-    return {"edges": edges, "raw_edges": [f"{e['source']}->{e['target']}:{e['weight']:.4f}" for e in edges], "matrix": weights.tolist()}
+    return {
+        "edges": edges,
+        "raw_edges": [f"{e['source']}->{e['target']}:{e['weight']:.4f}" for e in edges],
+        "matrix": weights.tolist(),
+    }
 
 
 def run_lingam(data: np.ndarray, names: list[str], params: dict[str, Any]) -> dict[str, Any]:
@@ -535,7 +614,11 @@ def run_lingam(data: np.ndarray, names: list[str], params: dict[str, Any]) -> di
                         "weight": weight,
                     }
                 )
-    return {"edges": edges, "raw_edges": [f"{e['source']}->{e['target']}:{e['weight']:.4f}" for e in edges], "matrix": adjacency.tolist()}
+    return {
+        "edges": edges,
+        "raw_edges": [f"{e['source']}->{e['target']}:{e['weight']:.4f}" for e in edges],
+        "matrix": adjacency.tolist(),
+    }
 
 
 def run_pcmci(data: np.ndarray, names: list[str], params: dict[str, Any]) -> dict[str, Any]:
@@ -559,7 +642,11 @@ def run_pcmci(data: np.ndarray, names: list[str], params: dict[str, Any]) -> dic
             for lag in range(1, min(tau_max + 1, p_matrix.shape[2])):
                 p_value = float(p_matrix[target_idx, source_idx, lag])
                 value = float(val_matrix[target_idx, source_idx, lag])
-                if np.isfinite(p_value) and p_value <= alpha and abs(value) >= float(params.get("min_abs_val", 0.02)):
+                if (
+                    np.isfinite(p_value)
+                    and p_value <= alpha
+                    and abs(value) >= float(params.get("min_abs_val", 0.02))
+                ):
                     edges.append(
                         {
                             "source": source,
@@ -572,7 +659,12 @@ def run_pcmci(data: np.ndarray, names: list[str], params: dict[str, Any]) -> dic
                             "p_value": p_value,
                         }
                     )
-    return {"edges": edges, "raw_edges": [f"{e['source']}(t-{e['lag']})->{e['target']}:{e.get('p_value', 1):.4g}" for e in edges]}
+    return {
+        "edges": edges,
+        "raw_edges": [
+            f"{e['source']}(t-{e['lag']})->{e['target']}:{e.get('p_value', 1):.4g}" for e in edges
+        ],
+    }
 
 
 def run_one_task(task: dict[str, Any]) -> dict[str, Any]:
@@ -654,7 +746,9 @@ def config_for_mode(mode: str) -> DiscoveryConfig:
     return DiscoveryConfig(120, 72, 96, 48, 144, 24)
 
 
-def make_tasks(ctx: dict[str, Any], panel_paths: dict[str, Path], cfg: DiscoveryConfig, include_lingam: bool) -> list[dict[str, Any]]:
+def make_tasks(
+    ctx: dict[str, Any], panel_paths: dict[str, Path], cfg: DiscoveryConfig, include_lingam: bool
+) -> list[dict[str, Any]]:
     tasks: list[dict[str, Any]] = []
     seed_base = int(ctx["seed"])
     sample_rows = int(ctx["sample_rows"])
@@ -698,7 +792,12 @@ def make_tasks(ctx: dict[str, Any], panel_paths: dict[str, Path], cfg: Discovery
                     "bootstrap_id": i,
                     "seed": stable_seed(seed_base, panel_id, "fci", i),
                     "sample_rows": int(sample_rows * 0.75),
-                    "params": {"alpha": alpha, "depth": 3, "max_path_length": 4, "indep_test": "fisherz"},
+                    "params": {
+                        "alpha": alpha,
+                        "depth": 3,
+                        "max_path_length": 4,
+                        "indep_test": "fisherz",
+                    },
                 }
             )
         for i in range(cfg.ges_reps_per_panel):
@@ -758,16 +857,28 @@ def make_tasks(ctx: dict[str, Any], panel_paths: dict[str, Path], cfg: Discovery
             }
         )
     method_priority = {"pc": 0, "fci": 1, "ges": 2, "dagma": 3, "pcmci": 4, "lingam": 5}
-    tasks.sort(key=lambda task: (task["bootstrap_id"], method_priority.get(task["method"], 99), task["panel_id"]))
+    tasks.sort(
+        key=lambda task: (
+            task["bootstrap_id"],
+            method_priority.get(task["method"], 99),
+            task["panel_id"],
+        )
+    )
     return tasks
 
 
 def build_panels(ctx: dict[str, Any]) -> dict[str, Path]:
     panels_dir = ensure_dir(ctx["output_dir"] / "panels")
     source_run = Path(ctx["source_run"])
-    core, core_names, core_meta = build_core_applicant_panel(int(ctx["core_rows"]), int(ctx["seed"]))
-    policy, policy_names, policy_meta = build_policy_world_panel(source_run, int(ctx["policy_world_rows"]), int(ctx["seed"]))
-    temporal, temporal_names, temporal_meta = build_regional_temporal_panel(int(ctx["temporal_periods"]), int(ctx["seed"]))
+    core, core_names, core_meta = build_core_applicant_panel(
+        int(ctx["core_rows"]), int(ctx["seed"])
+    )
+    policy, policy_names, policy_meta = build_policy_world_panel(
+        source_run, int(ctx["policy_world_rows"]), int(ctx["seed"])
+    )
+    temporal, temporal_names, temporal_meta = build_regional_temporal_panel(
+        int(ctx["temporal_periods"]), int(ctx["seed"])
+    )
     panel_data = {
         "core_applicant_panel": (core, core_names, core_meta),
         "policy_world_panel": (policy, policy_names, policy_meta),
@@ -789,7 +900,10 @@ def build_panels(ctx: dict[str, Any]) -> dict[str, Path]:
                 **{k: v for k, v in meta.items() if k != "region_index"},
             }
         )
-    write_json(ctx["output_dir"] / "panel_manifest.json", {"panels": manifest_rows, "created_at": utc_now()})
+    write_json(
+        ctx["output_dir"] / "panel_manifest.json",
+        {"panels": manifest_rows, "created_at": utc_now()},
+    )
     write_csv(ctx["output_dir"] / "panel_manifest.csv", manifest_rows)
     return paths
 
@@ -798,7 +912,11 @@ def sync_output(ctx: dict[str, Any]) -> None:
     if not ctx.get("sync_enabled", True):
         return
     try:
-        run_cmd(["gcloud", "storage", "rsync", "-r", str(ctx["output_dir"]), str(ctx["gcs_prefix"])], timeout=3600, check=False)
+        run_cmd(
+            ["gcloud", "storage", "rsync", "-r", str(ctx["output_dir"]), str(ctx["gcs_prefix"])],
+            timeout=3600,
+            check=False,
+        )
     except Exception:
         pass
 
@@ -856,7 +974,9 @@ def flatten_edges(results: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 def build_consensus(results: list[dict[str, Any]], out: Path) -> dict[str, Any]:
     completed = [r for r in results if r.get("status") == "completed"]
-    by_panel_method: Counter[tuple[str, str]] = Counter((r["panel_id"], r["method"]) for r in completed)
+    by_panel_method: Counter[tuple[str, str]] = Counter(
+        (r["panel_id"], r["method"]) for r in completed
+    )
     edge_counts: Counter[tuple[str, str, str, int, str]] = Counter()
     edge_weights: dict[tuple[str, str, str, int, str], list[float]] = defaultdict(list)
     orientation_counts: Counter[tuple[str, str, str, int, str, str]] = Counter()
@@ -870,12 +990,18 @@ def build_consensus(results: list[dict[str, Any]], out: Path) -> dict[str, Any]:
             key = (panel, src, dst, lag, method)
             edge_counts[key] += 1
             edge_weights[key].append(abs(safe_float(edge.get("weight"), 1.0)))
-            orientation_counts[(panel, src, dst, lag, method, str(edge.get("orientation", "unknown")))] += 1
+            orientation_counts[
+                (panel, src, dst, lag, method, str(edge.get("orientation", "unknown")))
+            ] += 1
     method_rows = []
     for (panel, src, dst, lag, method), count in sorted(edge_counts.items()):
         denom = max(1, by_panel_method.get((panel, method), 1))
         top_orientation = max(
-            ((ori_key[-1], ori_count) for ori_key, ori_count in orientation_counts.items() if ori_key[:5] == (panel, src, dst, lag, method)),
+            (
+                (ori_key[-1], ori_count)
+                for ori_key, ori_count in orientation_counts.items()
+                if ori_key[:5] == (panel, src, dst, lag, method)
+            ),
             key=lambda item: item[1],
             default=("unknown", 0),
         )
@@ -921,8 +1047,16 @@ def build_consensus(results: list[dict[str, Any]], out: Path) -> dict[str, Any]:
     for entry in consensus.values():
         method_count = len(set(entry["methods"]))
         reliability = float(entry["method_support_sum"]) / max(1, method_count)
-        verdict = "stable_consensus" if entry["methods_supporting"] >= 3 and reliability >= 0.35 else "method_specific_or_unstable"
-        if entry["panel_id"] == "regional_temporal_panel" and entry["methods_supporting"] >= 1 and reliability >= 0.35:
+        verdict = (
+            "stable_consensus"
+            if entry["methods_supporting"] >= 3 and reliability >= 0.35
+            else "method_specific_or_unstable"
+        )
+        if (
+            entry["panel_id"] == "regional_temporal_panel"
+            and entry["methods_supporting"] >= 1
+            and reliability >= 0.35
+        ):
             verdict = "stable_temporal_link"
         consensus_rows.append(
             {
@@ -934,14 +1068,25 @@ def build_consensus(results: list[dict[str, Any]], out: Path) -> dict[str, Any]:
                 "method_count": method_count,
                 "mean_method_support": reliability,
                 "max_method_support": entry["max_method_support"],
-                "mean_abs_weight": float(np.mean(entry["mean_abs_weight"])) if entry["mean_abs_weight"] else 0.0,
+                "mean_abs_weight": float(np.mean(entry["mean_abs_weight"]))
+                if entry["mean_abs_weight"]
+                else 0.0,
                 "verdict": verdict,
                 "methods": ",".join(sorted(set(entry["methods"]))),
             }
         )
-    consensus_rows.sort(key=lambda r: (r["panel_id"], -safe_float(r["mean_method_support"]), r["source"], r["target"]))
+    consensus_rows.sort(
+        key=lambda r: (
+            r["panel_id"],
+            -safe_float(r["mean_method_support"]),
+            r["source"],
+            r["target"],
+        )
+    )
     write_csv(out / "consensus_edge_reliability.csv", consensus_rows)
-    pag_edges = [r for r in consensus_rows if r["verdict"] in {"stable_consensus", "stable_temporal_link"}]
+    pag_edges = [
+        r for r in consensus_rows if r["verdict"] in {"stable_consensus", "stable_temporal_link"}
+    ]
     write_json(
         out / "consensus_pag.json",
         {
@@ -956,7 +1101,9 @@ def build_consensus(results: list[dict[str, Any]], out: Path) -> dict[str, Any]:
             "created_at": utc_now(),
             "claim": "DAG projection for downstream diagnostics only; uncertain/PAG edges are not treated as settled causal truth.",
             "edges": [
-                {**edge, "projection_rule": "retain_stable_direction_or_temporal_lag"} for edge in pag_edges if edge["source"] != edge["target"]
+                {**edge, "projection_rule": "retain_stable_direction_or_temporal_lag"}
+                for edge in pag_edges
+                if edge["source"] != edge["target"]
             ],
         },
     )
@@ -985,7 +1132,10 @@ def build_consensus(results: list[dict[str, Any]], out: Path) -> dict[str, Any]:
             "latent_confounding_reason": "FCI/PAG relation repeatedly appears but direction is not stable across methods.",
         }
         for row in consensus_rows
-        if row["method_count"] >= 2 and row["methods_supporting"] >= 1 and "fci" in row["methods"] and row["verdict"] != "stable_consensus"
+        if row["method_count"] >= 2
+        and row["methods_supporting"] >= 1
+        and "fci" in row["methods"]
+        and row["verdict"] != "stable_consensus"
     ]
     write_csv(out / "latent_confounding_candidates.csv", latent[:500])
     return {
@@ -997,7 +1147,9 @@ def build_consensus(results: list[dict[str, Any]], out: Path) -> dict[str, Any]:
     }
 
 
-def write_summary(ctx: dict[str, Any], results: list[dict[str, Any]], consensus: dict[str, Any]) -> None:
+def write_summary(
+    ctx: dict[str, Any], results: list[dict[str, Any]], consensus: dict[str, Any]
+) -> None:
     completed = [r for r in results if r.get("status") == "completed"]
     failed = [r for r in results if r.get("status") != "completed"]
     runtime = sum(float(r.get("runtime_seconds", 0.0)) for r in results)
@@ -1027,7 +1179,11 @@ def write_summary(ctx: dict[str, Any], results: list[dict[str, Any]], consensus:
             "method": method,
             "completed_runs": count,
             "failed_runs": sum(1 for r in failed if r["method"] == method),
-            "mean_runtime_seconds": float(np.mean([r["runtime_seconds"] for r in results if r["method"] == method])) if any(r["method"] == method for r in results) else 0.0,
+            "mean_runtime_seconds": float(
+                np.mean([r["runtime_seconds"] for r in results if r["method"] == method])
+            )
+            if any(r["method"] == method for r in results)
+            else 0.0,
         }
         for method, count in sorted(by_method.items())
     ]
@@ -1037,8 +1193,8 @@ def write_summary(ctx: dict[str, Any], results: list[dict[str, Any]], consensus:
         f"""
 # MSME Causal Discovery Addendum
 
-Run ID: `{ctx['run_id']}`.
-Source v3 run: `{ctx['source_run']}`.
+Run ID: `{ctx["run_id"]}`.
+Source v3 run: `{ctx["source_run"]}`.
 
 This addendum strengthens the final experiment with package-backed causal
 discovery. It is a diagnostic and triangulation layer, not a claim that the
@@ -1046,8 +1202,8 @@ observational data uniquely identify a single true DAG.
 
 Completed tasks: `{len(completed)}`.
 Failed tasks: `{len(failed)}`.
-Stable consensus edges: `{consensus.get('stable_edges')}`.
-Latent-confounding candidates: `{consensus.get('latent_candidates')}`.
+Stable consensus edges: `{consensus.get("stable_edges")}`.
+Latent-confounding candidates: `{consensus.get("latent_candidates")}`.
 
 Methods used:
 
@@ -1093,7 +1249,11 @@ def parse_args() -> argparse.Namespace:
 
 def build_context(args: argparse.Namespace) -> dict[str, Any]:
     source_workdir = Path(args.source_workdir)
-    source_run = source_workdir / args.source_run_id if args.source_run_id else latest_source_run(source_workdir)
+    source_run = (
+        source_workdir / args.source_run_id
+        if args.source_run_id
+        else latest_source_run(source_workdir)
+    )
     run_id = args.run_id or f"{EXPERIMENT_ID}_{datetime.now(UTC).strftime('%Y%m%d-%H%M%S')}"
     output_dir = ensure_dir(Path(args.workdir) / run_id)
     return {
@@ -1142,17 +1302,31 @@ def main() -> int:
     ensure_dir(ctx["output_dir"] / "_logs")
     ensure_dir(ctx["output_dir"] / "_manifests")
     packages = package_inventory(bool(ctx["include_lingam_requested"]))
-    write_json(ctx["output_dir"] / "_manifests" / "effective_config.json", {k: str(v) if isinstance(v, Path) else v for k, v in ctx.items()})
+    write_json(
+        ctx["output_dir"] / "_manifests" / "effective_config.json",
+        {k: str(v) if isinstance(v, Path) else v for k, v in ctx.items()},
+    )
     write_json(ctx["output_dir"] / "_manifests" / "package_inventory.json", packages)
     if not (packages["causal_learn"] and packages["tigramite"] and packages["dagma"]):
-        write_json(ctx["output_dir"] / "failure.json", {"status": "failed_missing_required_packages", "packages": packages})
-        print(json.dumps({"status": "failed_missing_required_packages", "packages": packages}, ensure_ascii=False))
+        write_json(
+            ctx["output_dir"] / "failure.json",
+            {"status": "failed_missing_required_packages", "packages": packages},
+        )
+        print(
+            json.dumps(
+                {"status": "failed_missing_required_packages", "packages": packages},
+                ensure_ascii=False,
+            )
+        )
         return 2
 
     panel_paths = build_panels(ctx)
     cfg = config_for_mode(str(ctx["mode"]))
     tasks = make_tasks(ctx, panel_paths, cfg, include_lingam=bool(packages["include_lingam"]))
-    write_json(ctx["output_dir"] / "_manifests" / "task_manifest.json", {"tasks_total": len(tasks), "mode": ctx["mode"], "tasks": tasks})
+    write_json(
+        ctx["output_dir"] / "_manifests" / "task_manifest.json",
+        {"tasks_total": len(tasks), "mode": ctx["mode"], "tasks": tasks},
+    )
     sync_output(ctx)
 
     started = time.perf_counter()

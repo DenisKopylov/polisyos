@@ -750,8 +750,6 @@ _NUMERIC_UNITFUL_HINT_RE = re.compile(
 _VAR_SPLIT_RE = re.compile(r"[^a-z0-9]+")
 
 
-
-
 def _build_claim_inventory(
     result: ArticleExtractionResult, canonizer: VariableCanonizer
 ) -> list[dict[str, str]]:

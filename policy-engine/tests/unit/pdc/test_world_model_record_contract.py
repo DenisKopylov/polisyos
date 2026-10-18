@@ -172,9 +172,7 @@ def test_world_model_artifact_views_normalize_ref_subclasses_losslessly() -> Non
             "7", "runtime.quality.production_data_substrate_registry"
         ),
         "program_graph_refs": (
-            ProgramGraphRef(
-                **base_ref("8", "foundry.program_graph").model_dump(mode="python")
-            ),
+            ProgramGraphRef(**base_ref("8", "foundry.program_graph").model_dump(mode="python")),
         ),
         "ncm_refs": (base_ref("9", "ir.ncm_spec"),),
     }
@@ -193,9 +191,7 @@ def test_world_model_artifact_views_normalize_ref_subclasses_losslessly() -> Non
                 )
         else:
             assert type(normalized) is ArtifactRef
-            assert normalized.model_dump(mode="python") == original.model_dump(
-                mode="python"
-            )
+            assert normalized.model_dump(mode="python") == original.model_dump(mode="python")
 
 
 def test_world_model_record_v1_projection_omits_new_view_bundle() -> None:

@@ -405,9 +405,7 @@ def test_raw_response_resolution_requires_the_exact_linked_request(tmp_path: Pat
     )
     assert resolve_raw_response_body(raw_ref) == b'{"value":187.2}'
 
-    path.write_bytes(
-        path.read_bytes().replace(b"FP.CPI.TOTL", b"FP.CPI.TOTX", 1)
-    )
+    path.write_bytes(path.read_bytes().replace(b"FP.CPI.TOTL", b"FP.CPI.TOTX", 1))
     assert verify_journal_event_ref(raw_ref)
     with pytest.raises(EvidenceJournalError, match="linked_request_event_unresolved"):
         resolve_raw_response_body(raw_ref)

@@ -109,9 +109,7 @@ def test_exported_training_entrypoints_reject_malformed_selector_before_setup(
 
     monkeypatch.setattr(jit_training_module, "create_jit_trainer", unexpected("trainer"))
     monkeypatch.setattr(training_module, "get_logger", unexpected("logger"))
-    monkeypatch.setattr(
-        EnvironmentFingerprint, "capture", staticmethod(unexpected("fingerprint"))
-    )
+    monkeypatch.setattr(EnvironmentFingerprint, "capture", staticmethod(unexpected("fingerprint")))
     monkeypatch.setattr(training_module.jax.random, "PRNGKey", unexpected("prng"))
 
     config = TrainingConfig(gini_population_profile=profile)
@@ -185,8 +183,7 @@ def test_jit_training_entrypoint_preserves_valid_selector_semantics(
                     jit_training_module._ActiveWealthTrajectoryValidation(
                         initial_state_checked=True,
                         episodes_checked=int(config.n_episodes),
-                        transitions_checked=int(config.n_episodes)
-                        * int(config.steps_per_episode),
+                        transitions_checked=int(config.n_episodes) * int(config.steps_per_episode),
                         active_wealth_supported=True,
                     )
                 )

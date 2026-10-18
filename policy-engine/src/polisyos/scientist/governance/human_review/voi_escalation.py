@@ -64,9 +64,7 @@ def build_human_escalation_voi_decision(
             "reviewer_independence_required": requirement.reviewer_independence_required,
             "separation_of_duty_required": requirement.separation_of_duty_required,
             "minimum_time_spent_seconds": requirement.minimum_time_spent_seconds,
-            "require_change_request_or_dissent": (
-                requirement.require_change_request_or_dissent
-            ),
+            "require_change_request_or_dissent": (requirement.require_change_request_or_dissent),
             "reasons": list(requirement.reasons),
             "overrideable_by_human": True,
         },
@@ -87,20 +85,19 @@ def validate_human_escalation_voi_decision(
     if requirement.required and action not in {"request_human_review", "run_required_gate"}:
         violations.append(f"required_human_review_suppressed:{decision.decision_id}")
     metadata = decision.metadata
-    if requirement.reviewer_independence_required and metadata.get(
-        "reviewer_independent"
-    ) is not True:
+    if (
+        requirement.reviewer_independence_required
+        and metadata.get("reviewer_independent") is not True
+    ):
         violations.append(f"reviewer_independence_missing:{decision.decision_id}")
-    if requirement.separation_of_duty_required and metadata.get(
-        "separation_of_duty_attested"
-    ) is not True:
+    if (
+        requirement.separation_of_duty_required
+        and metadata.get("separation_of_duty_attested") is not True
+    ):
         violations.append(f"separation_of_duty_missing:{decision.decision_id}")
     if requirement.minimum_time_spent_seconds:
         observed_seconds = _int_metadata(metadata.get("time_spent_seconds"))
-        if (
-            observed_seconds is None
-            or observed_seconds < requirement.minimum_time_spent_seconds
-        ):
+        if observed_seconds is None or observed_seconds < requirement.minimum_time_spent_seconds:
             violations.append(f"effective_review_time_missing:{decision.decision_id}")
     if requirement.require_change_request_or_dissent:
         change_count = _int_metadata(metadata.get("change_request_count")) or 0
@@ -142,8 +139,7 @@ def _risk_reduction(
         0.0,
         min(
             2.0,
-            (max(expected_harm, 0.0) * max(reversal_risk, 0.0) * tier_multiplier)
-            + required_bonus,
+            (max(expected_harm, 0.0) * max(reversal_risk, 0.0) * tier_multiplier) + required_bonus,
         ),
     )
 

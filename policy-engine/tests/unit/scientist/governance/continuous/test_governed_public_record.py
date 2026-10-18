@@ -201,8 +201,7 @@ def test_real_owner_signed_mandate_issuance_readback_and_custody(
     configured._resolve_public_index(record_id)
     response = configured.verify(record_id)
     assert response.report_authentication == "verified", (
-        f"reason_codes={response.reason_codes!r}; "
-        f"boundary_reads={configured.last_boundary_reads!r}"
+        f"reason_codes={response.reason_codes!r}; boundary_reads={configured.last_boundary_reads!r}"
     )
     assert response.public_document == draft.public_document
     assert response.dimensions.current_authority == "not_established"
@@ -280,9 +279,7 @@ def test_gpr_prepare_refuses_a_falsified_retained_receipt_pin(
     elif tamper == "receipt_digest":
         pin_hash = "sha256:" + "0" * 64
     elif tamper == "provenance":
-        forged_receipt = receipt.model_copy(
-            update={"verifier_provenance_ref": packet_ref}
-        )
+        forged_receipt = receipt.model_copy(update={"verifier_provenance_ref": packet_ref})
         pin_ref, pin_hash = _persist_profiled_statement(
             store=owner.store,
             record="claim_ledger_root_verification",
@@ -391,12 +388,14 @@ def test_real_owner_publication_relocates_selected_manifest_views(tmp_path):
         ownership_requires_scope=False,
     )
     raw = b"Explicitly synthetic evidence with two honest manifest profiles."
+
     def options(version: str) -> ArtifactWriteOptions:
         return ArtifactWriteOptions(
             kind="fixture.claim_evidence",
             media_type="text/plain",
             schema=SchemaInfo(name="fixture.claim_evidence", version=version),
         )
+
     default_ref = store.put_bytes(raw, options("1"))
     selected_refs = (store.put_bytes(raw, options("2")), store.put_bytes(raw, options("3")))
     assert all(ref.artifact_id == default_ref.artifact_id for ref in selected_refs)
@@ -409,9 +408,7 @@ def test_real_owner_publication_relocates_selected_manifest_views(tmp_path):
         completed_batches=DecisionValidityService(store),
         evidence_refs=selected_refs,
     )
-    configured, draft = appoint_synthetic_publication(
-        owner, packet_ref, institution, slot
-    )
+    configured, draft = appoint_synthetic_publication(owner, packet_ref, institution, slot)
     private = configured._read(
         draft.candidate_ref, _PrivateDraft, "scientist.publication.private_draft"
     )
@@ -426,9 +423,10 @@ def test_real_owner_publication_relocates_selected_manifest_views(tmp_path):
     )
     for index, source_ref in enumerate(selected_refs):
         assert evidence[index]["artifact_id"] == private.relocation[str(source_ref.artifact_id)]
-        assert evidence[index]["manifest_profile_sha256"] == private.relocation[
-            source_ref.manifest_profile_sha256
-        ]
+        assert (
+            evidence[index]["manifest_profile_sha256"]
+            == private.relocation[source_ref.manifest_profile_sha256]
+        )
 
     record_id = configured.issue(
         decision_id="packet-snapshot", decision_packet_ref=packet_ref, issued_at=NOW
@@ -437,8 +435,7 @@ def test_real_owner_publication_relocates_selected_manifest_views(tmp_path):
     assert response.report_authentication == "verified"
     assert response.public_document == draft.public_document
     assert all(
-        ref.manifest_profile_sha256 not in response.model_dump_json()
-        for ref in selected_refs
+        ref.manifest_profile_sha256 not in response.model_dump_json() for ref in selected_refs
     )
 
 
@@ -450,18 +447,17 @@ def test_selector_free_v1_projection_preserves_current_legacy_wire_shape(case):
     )
 
     owner, _, packet_ref, _, _ = case
-    source = owner.claim_owner.resolve_current_for_packet(
-        decision_packet_ref=packet_ref
-    ).ledger
+    source = owner.claim_owner.resolve_current_for_packet(decision_packet_ref=packet_ref).ledger
     document, _ = _project(source, version="v1")
 
     assert document["schema_version"] == "polisyos.governed_public_document.v1"
     assert document["profile"] == PUBLICATION_PROFILE_V1
     source_ref = source.current_claims[0].evidence_refs[0]
     assert source_ref.manifest_profile_sha256 is None
-    assert "manifest_profile_sha256" not in document["ledger"]["current_claims"][0][
-        "evidence_refs"
-    ][0]
+    assert (
+        "manifest_profile_sha256" not in document["ledger"]["current_claims"][0]["evidence_refs"][0]
+    )
+
 
 def test_whole_raw_tree_is_preserved_modulo_injective_reference_relocation(case):
     owner, _, packet_ref, _, _ = case

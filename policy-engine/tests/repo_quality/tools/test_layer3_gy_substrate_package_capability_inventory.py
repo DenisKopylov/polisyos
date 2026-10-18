@@ -108,9 +108,7 @@ def test_gy_substrate_inventory_rejects_missing_package_row() -> None:
     validator = _validator()
     inventory = _load_inventory()
     inventory["package_inventory"] = [
-        row
-        for row in inventory["package_inventory"]
-        if row.get("module") != "polisyos.calibration"
+        row for row in inventory["package_inventory"] if row.get("module") != "polisyos.calibration"
     ]
 
     codes = _codes(validator.validate(inventory))

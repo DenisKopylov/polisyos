@@ -190,9 +190,7 @@ def _regenerated_owner_bytes(
         raise ValueError("owner profile identity is invalid")
     current = resolve_profile_declaration(registry, profile_id=profile_id)
     source_pyproject = (
-        (root / "pyproject.toml").read_bytes()
-        if pyproject_bytes is None
-        else pyproject_bytes
+        (root / "pyproject.toml").read_bytes() if pyproject_bytes is None else pyproject_bytes
     )
     updated = current.model_copy(
         update={
@@ -298,8 +296,7 @@ def _run_regenerate_owner(args: argparse.Namespace) -> int:
         corrupt_profile, corrupt_authority, _declaration = _regenerated_owner_bytes(
             root,
             authority_purpose=args.authority_purpose,
-            pyproject_bytes=(root / "pyproject.toml").read_bytes()
-            + b"\n# corrupt-byte-probe\n",
+            pyproject_bytes=(root / "pyproject.toml").read_bytes() + b"\n# corrupt-byte-probe\n",
         )
         stale = (
             corrupt_profile != profile_path.read_bytes()

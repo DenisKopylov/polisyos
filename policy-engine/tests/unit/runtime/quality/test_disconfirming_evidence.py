@@ -252,8 +252,7 @@ def test_disconfirming_ledger_requires_previous_wave_refs() -> None:
 
 def test_disconfirming_ledger_is_public_runtime_quality_api() -> None:
     assert (
-        runtime_quality.build_disconfirming_evidence_ledger
-        is build_disconfirming_evidence_ledger
+        runtime_quality.build_disconfirming_evidence_ledger is build_disconfirming_evidence_ledger
     )
     assert (
         runtime_quality.validate_disconfirming_evidence_ledger_record

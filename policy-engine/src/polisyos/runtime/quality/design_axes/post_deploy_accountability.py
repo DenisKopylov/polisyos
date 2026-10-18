@@ -212,9 +212,7 @@ class DeploymentDossier(Layer2ReadinessModel):
                 if not _text(value)
             ]
             if missing:
-                raise ValueError(
-                    "deployable DeploymentDossier missing " + ", ".join(missing)
-                )
+                raise ValueError("deployable DeploymentDossier missing " + ", ".join(missing))
             if not self.monitorability_floor_passed:
                 raise ValueError("deployable DeploymentDossier requires monitorability floor")
         if self.readiness_disposition == "accountability_only":
@@ -277,12 +275,8 @@ class DivergenceRecord(Layer2ReadinessModel):
             raise ValueError("closed action item requires closure ref")
         if (
             self.attribution_class == "design_error"
-            and (
-                self.effective_oversight is False
-                or _text(self.rubber_stamp_risk) == "high"
-            )
-            and self.oversight_accountability_state
-            != "rubber_stamp_divergence_review_required"
+            and (self.effective_oversight is False or _text(self.rubber_stamp_risk) == "high")
+            and self.oversight_accountability_state != "rubber_stamp_divergence_review_required"
         ):
             raise ValueError(
                 "design_error after ineffective review requires rubber-stamp accountability"
@@ -374,15 +368,13 @@ class LearningUpdateProposal(Layer2ReadinessModel):
                 raise ValueError("reissue change control requires lifecycle disposition")
             if not self.human_decision_record_refs:
                 raise ValueError("reissue requires HumanDecisionRecord human_decision_record ref")
-        if (
-            self.change_control_class in {"envelope_shrink", "reissue_required"}
-            and not (self.human_decision_record_refs or self.governance_decision_class_ref)
+        if self.change_control_class in {"envelope_shrink", "reissue_required"} and not (
+            self.human_decision_record_refs or self.governance_decision_class_ref
         ):
             raise ValueError("high-stakes envelope revision requires governance refs")
         if self.historical_prior_influence_refs:
             if not all(
-                is_historical_prior_ref(ref)
-                for ref in self.historical_prior_influence_refs
+                is_historical_prior_ref(ref) for ref in self.historical_prior_influence_refs
             ):
                 raise ValueError("historical prior influence refs require recognized prefix")
             if not (
@@ -722,22 +714,17 @@ def summarize_post_deploy_accountability(
         "action_item_closure_rate": _action_item_closure_rate(divergence_rows),
         "oversight_effectiveness_link_rate": _oversight_link_rate(divergence_rows),
         "rubber_stamp_divergence_review_required_count": sum(
-            row.oversight_accountability_state
-            == "rubber_stamp_divergence_review_required"
+            row.oversight_accountability_state == "rubber_stamp_divergence_review_required"
             for row in divergence_rows
         ),
         "learning_without_attribution_count": sum(
-            row.learning_allowed and row.attribution_status != "attributed"
-            for row in proposal_rows
+            row.learning_allowed and row.attribution_status != "attributed" for row in proposal_rows
         ),
         "growth_without_assurance_delta_count": sum(
-            row.direction != "hold" and not row.assurance_case_delta_ref
-            for row in revision_rows
+            row.direction != "hold" and not row.assurance_case_delta_ref for row in revision_rows
         ),
         "false_clear_counts": false_clear_counts,
-        "authority_boundary": build_s13_accountability_authority_boundary().model_dump(
-            mode="json"
-        ),
+        "authority_boundary": build_s13_accountability_authority_boundary().model_dump(mode="json"),
         "rule_version_ref": LAYER2_S13_POST_DEPLOY_ACCOUNTABILITY_RULE_VERSION,
     }
     for field in S13_FALSE_CLEAR_FIELDS:
@@ -763,9 +750,7 @@ def build_s13_post_deploy_accountability_posture(
     proposal_rows = [_as_learning_proposal(row) for row in learning_update_proposals]
     revision = _as_envelope_revision(envelope_revision) if envelope_revision else None
     certified_delta = (
-        _as_certified_delta(certified_envelope_delta)
-        if certified_envelope_delta
-        else None
+        _as_certified_delta(certified_envelope_delta) if certified_envelope_delta else None
     )
     assurance_delta = _as_assurance_delta(assurance_case_delta) if assurance_case_delta else None
     trace = _as_mape_k_trace(mape_k_trace) if mape_k_trace else None
@@ -794,9 +779,7 @@ def build_s13_post_deploy_accountability_posture(
         "attribution_classes": [row.attribution_class for row in divergence_rows]
         if finalized
         else [],
-        "learning_change_control_classes": [
-            row.change_control_class for row in proposal_rows
-        ]
+        "learning_change_control_classes": [row.change_control_class for row in proposal_rows]
         if finalized
         else [],
         "lifecycle_reissue_disposition": _first_value(
@@ -810,9 +793,7 @@ def build_s13_post_deploy_accountability_posture(
         ),
         "mape_k_trace_ref": trace.trace_ref if finalized and trace else None,
         "public_revision_state_ref": (
-            assurance_delta.public_revision_state_ref
-            if finalized and assurance_delta
-            else None
+            assurance_delta.public_revision_state_ref if finalized and assurance_delta else None
         ),
         "public_accountability_note_ref": _first_value(
             [row.public_accountability_note_ref for row in proposal_rows]
@@ -823,9 +804,7 @@ def build_s13_post_deploy_accountability_posture(
         if finalized
         else None,
         "action_item_closure_refs": [
-            row.action_item_closure_ref
-            for row in divergence_rows
-            if row.action_item_closure_ref
+            row.action_item_closure_ref for row in divergence_rows if row.action_item_closure_ref
         ]
         if finalized
         else [],
@@ -929,9 +908,7 @@ def _post_policy_data_in_pre_policy_slots(payload: Mapping[str, object]) -> bool
     pre_policy_refs = _text_values(payload.get("pre_policy_evidence_refs"))
     post_policy_refs = set(_text_values(payload.get("post_deploy_signal_refs")))
     return any(
-        ref.startswith("post-policy-")
-        or ref.startswith("post_policy_")
-        or ref in post_policy_refs
+        ref.startswith("post-policy-") or ref.startswith("post_policy_") or ref in post_policy_refs
         for ref in pre_policy_refs
     )
 
@@ -1033,11 +1010,7 @@ def _trace_complete(trace: PostDeployMapeKTrace) -> bool:
 
 
 def _action_item_closure_rate(divergences: Sequence[DivergenceRecord]) -> float:
-    owned = [
-        row
-        for row in divergences
-        if row.action_item_owner and row.action_item_due_date
-    ]
+    owned = [row for row in divergences if row.action_item_owner and row.action_item_due_date]
     return _ratio(
         sum(
             row.action_item_status == "closed" and bool(row.action_item_closure_ref)
@@ -1067,11 +1040,7 @@ def _digest_payload(
     exclude: set[str] | None = None,
 ) -> str:
     excluded = exclude or set()
-    stable_payload = {
-        key: value
-        for key, value in payload.items()
-        if key not in excluded
-    }
+    stable_payload = {key: value for key, value in payload.items() if key not in excluded}
     rendered = json.dumps(stable_payload, sort_keys=True, default=str, separators=(",", ":"))
     return "sha256:" + hashlib.sha256(rendered.encode("utf-8")).hexdigest()
 

@@ -37,9 +37,7 @@ def _workflow_import_stubs() -> dict[str, ModuleType]:
         module = ModuleType(module_name)
 
         def build_spec(*, _alias: str = alias) -> SimpleNamespace:
-            return SimpleNamespace(
-                nodes=[SimpleNamespace(alias=_alias, node_id=f"{_alias}-node")]
-            )
+            return SimpleNamespace(nodes=[SimpleNamespace(alias=_alias, node_id=f"{_alias}-node")])
 
         setattr(module, function_name, build_spec)
         modules[module_name] = module

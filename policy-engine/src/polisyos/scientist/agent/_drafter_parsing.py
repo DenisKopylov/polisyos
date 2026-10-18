@@ -53,9 +53,7 @@ class _DrafterParsingMixin:
         pass_name: str,
     ) -> tuple[list[PassFinding], float | None, bool, str | None]:
         try:
-            payload = _CritiquePayload.model_validate(
-                extract_llm_json_object(raw_response)
-            )
+            payload = _CritiquePayload.model_validate(extract_llm_json_object(raw_response))
         except (JSONDecodeError, ValidationError):
             return [], None, False, None
 
@@ -91,9 +89,7 @@ class _DrafterParsingMixin:
         original: DraftResult,
     ) -> tuple[DraftResult, bool]:
         try:
-            payload = _ConsolidationPayload.model_validate(
-                extract_llm_json_object(raw_response)
-            )
+            payload = _ConsolidationPayload.model_validate(extract_llm_json_object(raw_response))
         except (JSONDecodeError, ValidationError):
             return original, False
 

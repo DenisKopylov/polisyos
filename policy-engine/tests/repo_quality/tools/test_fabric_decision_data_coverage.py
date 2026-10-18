@@ -36,11 +36,7 @@ def test_decision_data_coverage_has_required_typed_gap_states() -> None:
 
 def test_checked_in_decision_data_coverage_artifact_is_current() -> None:
     report_path = (
-        REPO_ROOT
-        / "tools"
-        / "quality"
-        / "validation"
-        / "fabric_decision_data_coverage.json"
+        REPO_ROOT / "tools" / "quality" / "validation" / "fabric_decision_data_coverage.json"
     )
 
     assert report_path.read_text(encoding="utf-8") == fabric_decision_data_coverage.dump_json(

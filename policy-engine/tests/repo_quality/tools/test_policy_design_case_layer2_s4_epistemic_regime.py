@@ -9,10 +9,7 @@ from tools.quality.validation import check_policy_design_case_cluster_ownership_
 from tools.quality.validation import check_policy_design_case_layer2_readiness as readiness
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-S4_MANIFEST = (
-    REPO_ROOT
-    / "architecture/policy_design_case/layer2_s4_epistemic_regime_manifest.json"
-)
+S4_MANIFEST = REPO_ROOT / "architecture/policy_design_case/layer2_s4_epistemic_regime_manifest.json"
 S4_MANIFEST_PATH = "architecture/policy_design_case/layer2_s4_epistemic_regime_manifest.json"
 S4_CELLS = {
     "KNOWLEDGE.epistemic_regime",
@@ -96,18 +93,16 @@ def test_layer2_s4_manifest_records_cells_metrics_and_authority_boundary() -> No
 def test_layer2_s4_cluster_map_marks_cells_implemented_and_not_open() -> None:
     payload = cluster_map.load_cluster_ownership_map(REPO_ROOT)
 
-    assert payload["cell"]["KNOWLEDGE"]["epistemic_regime"]["ratchet_state"] == (
-        "implemented"
+    assert payload["cell"]["KNOWLEDGE"]["epistemic_regime"]["ratchet_state"] == ("implemented")
+    assert payload["cell"]["KNOWLEDGE"]["epistemic_regime"]["p01_chain"] == ("implemented")
+    assert (
+        payload["cell"]["INTERVENTION"]["reversibility_lifecycle_stakes"]["ratchet_state"]
+        == "implemented"
     )
-    assert payload["cell"]["KNOWLEDGE"]["epistemic_regime"]["p01_chain"] == (
-        "implemented"
+    assert (
+        payload["cell"]["INTERVENTION"]["reversibility_lifecycle_stakes"]["p01_chain"]
+        == "implemented"
     )
-    assert payload["cell"]["INTERVENTION"]["reversibility_lifecycle_stakes"][
-        "ratchet_state"
-    ] == "implemented"
-    assert payload["cell"]["INTERVENTION"]["reversibility_lifecycle_stakes"][
-        "p01_chain"
-    ] == "implemented"
     open_closures = payload.get("open_cell_closure", {})
     assert "epistemic_regime" not in open_closures.get("KNOWLEDGE", {})
     assert "reversibility_lifecycle_stakes" not in open_closures.get("INTERVENTION", {})
@@ -136,9 +131,7 @@ def test_layer2_s4_expert_labels_cover_13_cases_with_regime_and_commitment_gold(
 
 def test_layer2_s4_outcome_split_comes_from_corpus_not_the_fixture() -> None:
     counts = Counter(
-        json.loads(path.read_text(encoding="utf-8"))["expert_adjudication"][
-            "case_label"
-        ]
+        json.loads(path.read_text(encoding="utf-8"))["expert_adjudication"]["case_label"]
         for path in CORPUS_CASES.glob("*.json")
     )
 

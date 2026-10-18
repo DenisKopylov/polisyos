@@ -20,9 +20,7 @@ SCHEMA_VERSION = "policyos.policy_design_case.cluster_ownership_map.v1"
 TOOL_NAME = "quality.validation.check-policy-design-case-cluster-ownership-map"
 DEFAULT_MAP_PATH = Path("architecture/policy_design_case/cluster_ownership_map.toml")
 DEFAULT_INVENTORY_PATH = Path("architecture/policy_design_case/inventory.json")
-DEFAULT_RATCHET_REPORT_PATH = Path(
-    "architecture/policy_design_case/capability_reality_report.json"
-)
+DEFAULT_RATCHET_REPORT_PATH = Path("architecture/policy_design_case/capability_reality_report.json")
 DEFAULT_FAILURE_PATTERN_REGISTER_PATH = Path(
     "docs/reference/policy-design-case-failure-patterns.md"
 )
@@ -287,7 +285,9 @@ def validate_cluster_ownership_map(
         root / inventory_rel,
         issues,
         map_path=map_rel,
-        validator_path=Path("tools/quality/validation/check_policy_design_case_cluster_ownership_map.py"),
+        validator_path=Path(
+            "tools/quality/validation/check_policy_design_case_cluster_ownership_map.py"
+        ),
     )
 
     return _validation_result(
@@ -572,8 +572,12 @@ def _validate_handshake_graph(
                     f"{flow_id} target {target!r} is not declared.",
                 )
             )
-        producer_publishes = {str(value) for value in cells_by_id[producer].get("publishes", []) or []}
-        consumer_consumes = {str(value) for value in cells_by_id[consumer].get("consumes", []) or []}
+        producer_publishes = {
+            str(value) for value in cells_by_id[producer].get("publishes", []) or []
+        }
+        consumer_consumes = {
+            str(value) for value in cells_by_id[consumer].get("consumes", []) or []
+        }
         if target not in producer_publishes:
             issues.append(
                 _issue(
@@ -645,9 +649,7 @@ def _validate_open_cell_closures(
     ratchet_states: set[str],
 ) -> dict[str, Any]:
     closures = _flatten_open_cell_closures(payload.get("open_cell_closure"), issues)
-    closures_by_id = {
-        f"{closure['cluster']}.{closure['axis']}": closure for closure in closures
-    }
+    closures_by_id = {f"{closure['cluster']}.{closure['axis']}": closure for closure in closures}
     open_cells_by_id = {
         cell_id: cell
         for cell_id, cell in cells_by_id.items()
@@ -659,8 +661,7 @@ def _validate_open_cell_closures(
         issues.append(
             _issue(
                 "cluster_ownership_open_cell_closure_missing",
-                "Open cells without closure contracts: "
-                + ", ".join(sorted(missing_closures)),
+                "Open cells without closure contracts: " + ", ".join(sorted(missing_closures)),
             )
         )
 

@@ -230,9 +230,7 @@ class ReconciledConcept(BaseModel):
     def _strip_optional_construct_ref(cls, value: str | None) -> str | None:
         text = _optional_text(value)
         if text is not None and not _POLICY_CONSTRUCT_REF_RE.fullmatch(text):
-            raise ValueError(
-                "bearing_policy_construct must be a governed construct:<id> ref"
-            )
+            raise ValueError("bearing_policy_construct must be a governed construct:<id> ref")
         return text
 
     @field_validator(
@@ -413,9 +411,7 @@ def build_hybrid_concept_spine_carrier(
             "tenant_id": tenant_id,
             "authority_profile": authority_profile,
             "namespaces": [item.model_dump(mode="json") for item in namespaces],
-            "concepts": [
-                item.model_dump(mode="json", exclude_none=True) for item in concepts
-            ],
+            "concepts": [item.model_dump(mode="json", exclude_none=True) for item in concepts],
             "relations": [item.model_dump(mode="json") for item in relation_models],
         },
     )
@@ -493,8 +489,7 @@ def validate_hybrid_concept_spine_carrier(carrier: Mapping[str, Any]) -> dict[st
             "Hybrid concept spine carrier schema_version is invalid.",
         )
     namespaces = [
-        _namespace_model(item)
-        for item in _mapping_rows(payload.get("governed_namespace_refs"))
+        _namespace_model(item) for item in _mapping_rows(payload.get("governed_namespace_refs"))
     ]
     if not namespaces:
         raise PolicyDesignCaseAuthorityError(
@@ -513,12 +508,7 @@ def validate_hybrid_concept_spine_carrier(carrier: Mapping[str, Any]) -> dict[st
     relations = [_relation_model(item) for item in _mapping_rows(payload.get("relations"))]
     namespace_ids = {item.namespace_id for item in namespaces}
     missing_namespaces = sorted(
-        {
-            ref
-            for concept in concepts
-            for ref in concept.namespace_refs
-            if ref not in namespace_ids
-        }
+        {ref for concept in concepts for ref in concept.namespace_refs if ref not in namespace_ids}
         | {
             relation.namespace_ref
             for relation in relations
@@ -749,14 +739,18 @@ def build_producer_handshake_record(
         redaction_integrity_status="pass",
     )
     status = "pass" if state in _PASS_HANDSHAKE_STATES else "blocked"
-    blockers = [
-        _handshake_blocker(
-            code=f"producer_handshake_{state}_blocker",
-            producer_component=producer,
-            state=state,
-            refs=blocked_refs,
-        )
-    ] if status == "blocked" else []
+    blockers = (
+        [
+            _handshake_blocker(
+                code=f"producer_handshake_{state}_blocker",
+                producer_component=producer,
+                state=state,
+                refs=blocked_refs,
+            )
+        ]
+        if status == "blocked"
+        else []
+    )
     return {
         "schema_version": CONCEPT_SPINE_HANDSHAKE_RECORD_SCHEMA_VERSION,
         "handshake_id": handshake_id,
@@ -1139,8 +1133,7 @@ def _hybrid_concept_blockers(
                 "conflict_refs": list(concept.conflict_refs),
                 "capability_label": "bridge_missing",
                 "message": (
-                    "Concept spine cannot close while a shared policy concept is "
-                    f"{concept.status}."
+                    f"Concept spine cannot close while a shared policy concept is {concept.status}."
                 ),
                 "next_action": (
                     "Resolve the governed namespace relation, split the claim, or emit "

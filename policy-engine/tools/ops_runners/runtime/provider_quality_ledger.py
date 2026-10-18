@@ -74,9 +74,7 @@ def main(argv: list[str] | None = None) -> int:
         encoding="utf-8",
     )
     if args.controlled_grounding_comparison_output:
-        candidate_models = [
-            _parse_candidate_model(value) for value in args.candidate_model
-        ]
+        candidate_models = [_parse_candidate_model(value) for value in args.candidate_model]
         default_controlled = (
             _parse_default_model(args.default_controlled_model)
             if args.default_controlled_model
@@ -210,9 +208,7 @@ def _observations_from_llm_variants(bundle_dir: Path) -> list[ProviderModelQuali
     lane_id = _lane_id(bundle, bundle_dir=bundle_dir)
     lane_kind = _lane_kind(bundle, lane_id=lane_id)
     scenario_pack_id = _scenario_pack_id(bundle_dir, bundle)
-    observed_at = _parse_datetime(
-        str(bundle.get("created_at") or datetime.now(UTC).isoformat())
-    )
+    observed_at = _parse_datetime(str(bundle.get("created_at") or datetime.now(UTC).isoformat()))
     upstream_blockers = _upstream_spine_blocker_refs_from_bundle(bundle_dir)
     observations: list[ProviderModelQualityObservation] = []
     for surface in ("job.json", "run.json", "agents.json"):
@@ -269,9 +265,7 @@ def _observation_from_variant(
         json_valid=bool(variant.get("json_valid", schema_valid)),
         tool_call_valid=bool(variant.get("tool_call_valid", True)),
         grounding_valid=bool(variant.get("grounding_valid", True)),
-        citation_faithfulness_valid=bool(
-            variant.get("citation_faithfulness_valid", True)
-        ),
+        citation_faithfulness_valid=bool(variant.get("citation_faithfulness_valid", True)),
         disagreement_detected=bool(variant.get("disagreement_detected", False)),
         latency_ms=_optional_float(variant.get("latency_ms")),
         cost_usd=_optional_float(variant.get("cost_usd") or variant.get("estimated_cost_usd")),
@@ -388,8 +382,7 @@ def _scorecard_upstream_blocker_refs(scorecard: object | None) -> list[str]:
         if status not in {"fail", "failed", "blocked", "block"}:
             continue
         haystack = " ".join(
-            str(gate.get(key) or "")
-            for key in ("name", "phase", "code", "root_cause_class")
+            str(gate.get(key) or "") for key in ("name", "phase", "code", "root_cause_class")
         ).casefold()
         if any(needle in haystack for needle in needles):
             code = str(gate.get("code") or "upstream_spine_blocker")

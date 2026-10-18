@@ -11,12 +11,10 @@ REPO_ROOT = Path(__file__).resolve().parents[3]
 UA_MSME_CASE_ID = "ua-msme-affordable-loans-2022"
 TOURISM_CASE_ID = "tourism_local_development_ceiling_probe"
 UA_MSME_GX_DATA_HOME_REF = (
-    "repo://architecture/policy_design_case/layer3_gx_data_home/cases/"
-    f"{UA_MSME_CASE_ID}"
+    f"repo://architecture/policy_design_case/layer3_gx_data_home/cases/{UA_MSME_CASE_ID}"
 )
 UA_MSME_GX_REPORT_REF = (
-    "repo://architecture/policy_design_case/layer3_gx_reports/"
-    f"{UA_MSME_CASE_ID}"
+    f"repo://architecture/policy_design_case/layer3_gx_reports/{UA_MSME_CASE_ID}"
 )
 
 
@@ -75,15 +73,24 @@ def test_gx_validator_records_current_expected_red_overclaims() -> None:
         row["producer_ref"]: row
         for row in report["artifacts"]["layer3_gx_producer_registry"]["producers"]
     }
-    assert producers[
-        "external-request://layer3-gx/pinned-request/ua-msme-affordable-loans-2022"
-    ]["producer_type"] == "external_request"
-    assert producers[
-        "external-request://layer3-gx/scope/ua-msme-affordable-loans-2022"
-    ]["producer_type"] == "external_request"
-    assert producers[
-        "external-request://layer3-gx/demand-pull/ua-msme-affordable-loans-2022"
-    ]["producer_type"] == "external_request"
+    assert (
+        producers["external-request://layer3-gx/pinned-request/ua-msme-affordable-loans-2022"][
+            "producer_type"
+        ]
+        == "external_request"
+    )
+    assert (
+        producers["external-request://layer3-gx/scope/ua-msme-affordable-loans-2022"][
+            "producer_type"
+        ]
+        == "external_request"
+    )
+    assert (
+        producers["external-request://layer3-gx/demand-pull/ua-msme-affordable-loans-2022"][
+            "producer_type"
+        ]
+        == "external_request"
+    )
 
 
 def test_gx_validator_case_selector_runs_real_tourism_case() -> None:
@@ -106,26 +113,20 @@ def test_gx_validator_case_selector_runs_real_tourism_case() -> None:
     tourism_baseline = tourism["artifacts"]["layer3_gx_baseline_note"]
 
     assert tourism_request["case_id"] == TOURISM_CASE_ID
-    assert tourism_request["request_ref"] == (
-        f"external-request://layer3-gx/{TOURISM_CASE_ID}"
-    )
-    assert {
-        row["construct_ref"] for row in tourism_request["requested_constructs"]
-    } == {
+    assert tourism_request["request_ref"] == (f"external-request://layer3-gx/{TOURISM_CASE_ID}")
+    assert {row["construct_ref"] for row in tourism_request["requested_constructs"]} == {
         "local_tourism_site_traffic",
         "tourism_attraction_accessibility",
         "municipal_acquisition_capacity",
     }
-    assert {
-        row["construct_ref"] for row in tourism_request["requested_constructs"]
-    } != {row["construct_ref"] for row in ua_request["requested_constructs"]}
+    assert {row["construct_ref"] for row in tourism_request["requested_constructs"]} != {
+        row["construct_ref"] for row in ua_request["requested_constructs"]
+    }
     assert tourism_route["case_id"] == TOURISM_CASE_ID
     assert tourism_route["request_ref"].endswith(TOURISM_CASE_ID)
     assert tourism_route["route_replay_key"] != ua_route["route_replay_key"]
     assert tourism_final["final_run_hash"] != ua_final["final_run_hash"]
-    assert any(
-        TOURISM_CASE_ID in ref for ref in tourism_final["persisted_artifact_refs"]
-    )
+    assert any(TOURISM_CASE_ID in ref for ref in tourism_final["persisted_artifact_refs"])
     assert "ua-msme-affordable-loans-2022" not in json.dumps(
         tourism,
         sort_keys=True,
@@ -148,8 +149,7 @@ def test_gx_declared_outputs_match_actual_write_set(tmp_path: Path) -> None:
     assert "architecture/policy_design_case/layer3_gx_baseline_note.json" not in declared
     assert "architecture/policy_design_case/layer3_gx_data_home/cases.json" not in declared
     assert not any(
-        Path(path).parent.as_posix() == "architecture/policy_design_case"
-        for path in declared
+        Path(path).parent.as_posix() == "architecture/policy_design_case" for path in declared
     )
 
 
@@ -172,9 +172,10 @@ def test_task6_gx_data_mutation_free_growth_report_covers_required_slices() -> N
         "can_create_promotion": False,
         "can_create_conversion": False,
     }
-    assert rows["canonical_corpus_pinned_request_search_health"][
-        "requires_corpus_snapshot_hash"
-    ] is True
+    assert (
+        rows["canonical_corpus_pinned_request_search_health"]["requires_corpus_snapshot_hash"]
+        is True
+    )
 
 
 def test_gx_producer_registry_wires_g1_measurement_replay_contracts() -> None:
@@ -182,9 +183,7 @@ def test_gx_producer_registry_wires_g1_measurement_replay_contracts() -> None:
 
     registry = validator.build_producer_registry(REPO_ROOT)
     producers = {
-        row["producer_ref"]: row
-        for row in registry["producers"]
-        if row.get("producer_ref")
+        row["producer_ref"]: row for row in registry["producers"] if row.get("producer_ref")
     }
 
     assert {
@@ -197,10 +196,7 @@ def test_gx_producer_registry_wires_g1_measurement_replay_contracts() -> None:
     ):
         producer = producers[producer_ref]
         assert producer["producer_type"] == "measurement"
-        assert all(
-            producer.get(key)
-            for key in validator.MEASUREMENT_REPLAY_REQUIRED_KEYS
-        )
+        assert all(producer.get(key) for key in validator.MEASUREMENT_REPLAY_REQUIRED_KEYS)
 
     replay = validator.build_measurement_replay_report(
         REPO_ROOT,
@@ -252,15 +248,11 @@ def test_gx_producer_registry_refreshes_g1_measurement_rows_from_artifacts(
 
     registry = validator.build_producer_registry(tmp_path)
     producers = {
-        row["producer_ref"]: row
-        for row in registry["producers"]
-        if row.get("producer_ref")
+        row["producer_ref"]: row for row in registry["producers"] if row.get("producer_ref")
     }
     producer = producers["measurement://layer3-g1/l1-dcat-search-recall"]
 
-    assert producer["corpus_ref"] == (
-        "duckdb://fresh/dataset_catalog.duckdb#ds_metric_bindings"
-    )
+    assert producer["corpus_ref"] == ("duckdb://fresh/dataset_catalog.duckdb#ds_metric_bindings")
     assert producer["expected_output_hash"] == "sha256:" + "b" * 64
     assert producer["measurement_id"] == "layer3-g1-l1-dcat-search-recall"
 
@@ -291,8 +283,7 @@ def test_task9_gx_g4_g5_waist_court_report_is_registered_and_diagnostic() -> Non
 def test_gx_correction_log_records_recomputed_clean_replacement(tmp_path: Path) -> None:
     validator = _validator()
     hardcode_delta = (
-        tmp_path
-        / "architecture/policy_design_case/layer3_g1_hardcode_strangle_delta.json"
+        tmp_path / "architecture/policy_design_case/layer3_g1_hardcode_strangle_delta.json"
     )
     _write_json(
         hardcode_delta,
@@ -317,8 +308,7 @@ def test_gx_correction_log_records_recomputed_clean_replacement(tmp_path: Path) 
     )
     assert report["records"][0]["replacement_status"] == "recomputed_clean"
     assert (
-        report["records"][0]["recomputed_replacement_status"]
-        == "deleted_or_disabled_no_fallback"
+        report["records"][0]["recomputed_replacement_status"] == "deleted_or_disabled_no_fallback"
     )
 
 
@@ -386,8 +376,7 @@ def test_gx_task1_runtime_core_has_no_forbidden_domain_identifiers() -> None:
     forbidden_identifier_issues = [
         issue
         for issue in report["issues"]
-        if issue["code"] == "layer3_gx_runtime_literal_forbidden"
-        and issue.get("identifier")
+        if issue["code"] == "layer3_gx_runtime_literal_forbidden" and issue.get("identifier")
     ]
     assert forbidden_identifier_issues == []
 
@@ -640,7 +629,9 @@ def test_gx_reducer_decision_report_enumerates_required_task4_reducers(
         "reduce_g7_region_closure",
         "reduce_g8_domain_vs_search_ceiling",
     } <= reducer_ids
-    assert all(row["produced_by"]["output_hash"].startswith("sha256:") for row in report["decisions"])
+    assert all(
+        row["produced_by"]["output_hash"].startswith("sha256:") for row in report["decisions"]
+    )
 
 
 def test_gx_vertical_pinned_route_uses_data_home_measured_search_and_reducers() -> None:
@@ -806,8 +797,7 @@ def test_gx_final_task12_pinned_route_outcome_uses_g8_audit_surface() -> None:
         ("outcome_kind", "typed_blocker", "search_ceiling_repair_required"),
         ("g8_open_question_surface_status", "not_required_until_task11", "blocked"),
     } <= {
-        (row["field"], row["provisional"], row["final"])
-        for row in comparison["changed_statuses"]
+        (row["field"], row["provisional"], row["final"]) for row in comparison["changed_statuses"]
     }
     assert any(
         row["reducer_id"] == "reduce_g8_domain_vs_search_ceiling"
@@ -827,10 +817,7 @@ def test_gx_final_task12_blocker_audit_consumes_task11_g8_surface() -> None:
 
     audit = validator.build_layer3_gx_final_blocker_audit_record(REPO_ROOT)
 
-    assert (
-        audit["schema_version"]
-        == "policyos.policy_design_case.layer3_gx_final_blocker_audit.v1"
-    )
+    assert audit["schema_version"] == "policyos.policy_design_case.layer3_gx_final_blocker_audit.v1"
     assert audit["audit_phase"] == "final_task12"
     assert audit["status"] == "blocked"
     assert audit["answer_status"] == "blocked_not_currently_publishable"
@@ -883,9 +870,7 @@ def test_gx_readiness_manifest_cannot_override_reducer_blocker(
     assert report["status"] == "fail"
     assert "layer3_gx_readiness_manifest_overrides_reducer_output" in _codes(report)
     g5 = next(
-        row
-        for row in report["decisions"]
-        if row["reducer_id"] == "reduce_g5_conversion_outcome"
+        row for row in report["decisions"] if row["reducer_id"] == "reduce_g5_conversion_outcome"
     )
     assert g5["status"] == "unchanged_blocker"
     assert g5["readiness_status"] == "fail"
@@ -906,9 +891,7 @@ def test_gx_allows_g7_local_blocker_as_reducer_blocked_diagnostic(
             "region_closure_authority_status": "blocked",
             "g7_region_value_closure_status": "blocked_by_current_g5_unchanged_blocker",
             "summary": {
-                "g7_region_value_closure_status": (
-                    "blocked_by_current_g5_unchanged_blocker"
-                ),
+                "g7_region_value_closure_status": ("blocked_by_current_g5_unchanged_blocker"),
                 "g7_current_g5_unchanged_blocker_status": "blocked",
             },
         },
@@ -934,7 +917,9 @@ def test_gx_allows_g7_local_blocker_as_reducer_blocked_diagnostic(
 
 
 def test_g7_readiness_manifest_declares_status_boundary() -> None:
-    validator = import_module("tools.quality.validation.check_policy_design_case_layer3_g7_readiness")
+    validator = import_module(
+        "tools.quality.validation.check_policy_design_case_layer3_g7_readiness"
+    )
 
     manifest = validator._readiness_manifest(
         REPO_ROOT,
@@ -948,9 +933,7 @@ def test_g7_readiness_manifest_declares_status_boundary() -> None:
         == "artifact_family_integrity_only_not_region_closure_authority"
     )
     assert manifest["region_closure_authority_status"] == "blocked"
-    assert manifest["g7_region_value_closure_status"] == (
-        "blocked_by_current_g5_unchanged_blocker"
-    )
+    assert manifest["g7_region_value_closure_status"] == ("blocked_by_current_g5_unchanged_blocker")
 
 
 def test_gx_reducer_integrity_requires_valid_producer_root_chain() -> None:
@@ -1023,9 +1006,7 @@ def test_gx_validation_authority_boundary_denies_legacy_green_g5() -> None:
     assert rows["G5"]["readiness_authority"] == "legacy_diagnostic_only"
     assert rows["G5"]["may_count_for_gx_closeout"] is False
     assert rows["G5"]["issue_codes"] == []
-    assert "layer3_gx_legacy_green_not_authoritative" in rows["G5"][
-        "legacy_diagnostic_codes"
-    ]
+    assert "layer3_gx_legacy_green_not_authoritative" in rows["G5"]["legacy_diagnostic_codes"]
     assert rows["G5"]["expected_red_eligible"] is False
 
 

@@ -56,8 +56,10 @@ def _boundary() -> AuthorityBoundary:
     return AuthorityBoundary(
         authoritative_for=["candidate_response_custody"],
         may_not_use_for=[
-            "protected_action_authorization", "external_policy_execution",
-            "restart_authorization", "signer_appointment",
+            "protected_action_authorization",
+            "external_policy_execution",
+            "restart_authorization",
+            "signer_appointment",
         ],
         source_authority="deterministic_producer",
         posture="shadow",
@@ -183,8 +185,12 @@ class AdaptationTransitionRuntime:
     """
 
     def __init__(
-        self, *, store: ControlPlaneStore, artifact_store: ArtifactStore,
-        tenant_id: str, cell_id: str,
+        self,
+        *,
+        store: ControlPlaneStore,
+        artifact_store: ArtifactStore,
+        tenant_id: str,
+        cell_id: str,
     ) -> None:
         self._store = store
         self._cas = artifact_store
@@ -215,7 +221,8 @@ class AdaptationTransitionRuntime:
                 tenant_id=tenant_id,
                 cell_id=cell_id,
             ),
-            tenant_id=tenant_id, cell_id=cell_id,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
         )
 
     def submit(self, request: AdaptationTransitionRequest) -> str:
@@ -224,8 +231,10 @@ class AdaptationTransitionRuntime:
         self._check_scope(request)
         reference = self._persist(request)
         record = self._enqueue_exact(
-            topic=REQUEST_TOPIC, key=self._request_key(request),
-            payload={"artifact_ref": reference}, conflict="request_identity_conflict",
+            topic=REQUEST_TOPIC,
+            key=self._request_key(request),
+            payload={"artifact_ref": reference},
+            conflict="request_identity_conflict",
         )
         return record.event_id
 
@@ -235,7 +244,8 @@ class AdaptationTransitionRuntime:
         decision = self._expected_decision(row, request)
         reference = self._persist(decision)
         self._enqueue_exact(
-            topic=DECISION_TOPIC, key=str(row.event_key),
+            topic=DECISION_TOPIC,
+            key=str(row.event_key),
             payload={"artifact_ref": reference, "request_ref": decision.request_ref},
             conflict="custody_publication_conflict",
         )
@@ -255,14 +265,19 @@ class AdaptationTransitionRuntime:
             raise ValueError("restart_decision_mismatch")
         reference = self._persist(evidence)
         self._enqueue_exact(
-            topic=RESTART_TOPIC, key=reference,
+            topic=RESTART_TOPIC,
+            key=reference,
             payload={"artifact_ref": reference, "request_ref": row.payload["artifact_ref"]},
             conflict="restart_publication_conflict",
         )
         return reference
 
     def snapshot(
-        self, ticket: str, *, as_of: datetime, restart_ref: str | None = None,
+        self,
+        ticket: str,
+        *,
+        as_of: datetime,
+        restart_ref: str | None = None,
     ) -> KPIControlStateSnapshot:
         """Independently read and persist the exact custody state and clock projection."""
         if as_of.tzinfo is None:
@@ -280,7 +295,8 @@ class AdaptationTransitionRuntime:
         if restart_ref is not None:
             restart_row = self._by_key(RESTART_TOPIC, restart_ref)
             if restart_row is None or restart_row.payload != {
-                "artifact_ref": restart_ref, "request_ref": row.payload["artifact_ref"],
+                "artifact_ref": restart_ref,
+                "request_ref": row.payload["artifact_ref"],
             }:
                 raise ValueError("restart_receipt_missing")
             evidence = self._load(restart_ref, RestartEvidenceRecord)
@@ -293,15 +309,22 @@ class AdaptationTransitionRuntime:
             )
         escalate_at = row.created_at + timedelta(seconds=request.charter.escalation_after_seconds)
         snapshot = KPIControlStateSnapshot(
-            request_ref=row.payload["artifact_ref"], decision_ref=decision_ref,
-            restart_ref=restart_ref, restart_disposition=restart_disposition,
+            request_ref=row.payload["artifact_ref"],
+            decision_ref=decision_ref,
+            restart_ref=restart_ref,
+            restart_disposition=restart_disposition,
             status="failed_safe" if decision is not None else "pending",
             missing_role=request.charter.required_signer_role,
-            current_context=request.current_context, requested_context=request.requested_context,
-            contract_ref=request.contract_ref, open_diagnosis_refs=request.diagnosis_refs,
-            observed_at=request.observed_at, received_at=row.created_at,
+            current_context=request.current_context,
+            requested_context=request.requested_context,
+            contract_ref=request.contract_ref,
+            open_diagnosis_refs=request.diagnosis_refs,
+            observed_at=request.observed_at,
+            received_at=row.created_at,
             decision_recorded_at=decision_row.created_at if decision_row is not None else None,
-            as_of=as_of, escalate_at=escalate_at, escalation_due=as_of >= escalate_at,
+            as_of=as_of,
+            escalate_at=escalate_at,
+            escalation_due=as_of >= escalate_at,
         )
         self._persist(snapshot)
         return snapshot
@@ -312,7 +335,12 @@ class AdaptationTransitionRuntime:
         return self._store._get_outbox_event_by_key(topic=topic, event_key=key)
 
     def _enqueue_exact(
-        self, *, topic: str, key: str, payload: dict[str, str], conflict: str,
+        self,
+        *,
+        topic: str,
+        key: str,
+        payload: dict[str, str],
+        conflict: str,
     ) -> ControlOutboxRecord:
         try:
             row = self._store.enqueue_outbox_event(topic=topic, event_key=key, payload=payload)
@@ -344,7 +372,9 @@ class AdaptationTransitionRuntime:
         return row, request
 
     def _read_decision(
-        self, row: ControlOutboxRecord, request: AdaptationTransitionRequest,
+        self,
+        row: ControlOutboxRecord,
+        request: AdaptationTransitionRequest,
     ) -> tuple[ControlOutboxRecord | None, AdaptationDecisionRecord | None]:
         publication = self._by_key(DECISION_TOPIC, str(row.event_key))
         if publication is None:
@@ -352,16 +382,16 @@ class AdaptationTransitionRuntime:
         if set(publication.payload) != {"artifact_ref", "request_ref"}:
             raise ValueError("custody_publication_conflict")
         decision = self._load(publication.payload["artifact_ref"], AdaptationDecisionRecord)
-        if (
-            publication.payload["request_ref"] != row.payload["artifact_ref"]
-            or decision != self._expected_decision(row, request)
-        ):
+        if publication.payload["request_ref"] != row.payload[
+            "artifact_ref"
+        ] or decision != self._expected_decision(row, request):
             raise ValueError("custody_publication_conflict")
         return publication, decision
 
     @staticmethod
     def _expected_decision(
-        row: ControlOutboxRecord, request: AdaptationTransitionRequest,
+        row: ControlOutboxRecord,
+        request: AdaptationTransitionRequest,
     ) -> AdaptationDecisionRecord:
         return AdaptationDecisionRecord(
             request_ref=row.payload["artifact_ref"],
@@ -378,8 +408,11 @@ class AdaptationTransitionRuntime:
 
     @staticmethod
     def _request_key(request: AdaptationTransitionRequest) -> str:
-        payload = {"tenant_id": request.tenant_id, "cell_id": request.cell_id,
-                   "request_id": request.request_id}
+        payload = {
+            "tenant_id": request.tenant_id,
+            "cell_id": request.cell_id,
+            "request_id": request.request_id,
+        }
         return hashlib.sha256(to_canonical_bytes(payload)).hexdigest()
 
     def _persist(self, record: _CandidateRecord) -> str:
@@ -388,21 +421,26 @@ class AdaptationTransitionRuntime:
         # put/readback across cooperating CR1 writers sharing this local CAS root.
         lock_path = self._cas_root / "artifacts/ownership/adaptation-transition.lock"
         with atomic.file_lock(lock_path):
-            reference = str(self._cas.put_json(
-                record.model_dump(mode="json"),
-                ArtifactWriteOptions(
-                    kind=record.artifact_kind, media_type="application/json",
-                    schema=SchemaInfo(
-                        name=f"polisyos.runtime.{type(record).__name__}", version="1.0",
+            reference = str(
+                self._cas.put_json(
+                    record.model_dump(mode="json"),
+                    ArtifactWriteOptions(
+                        kind=record.artifact_kind,
+                        media_type="application/json",
+                        schema=SchemaInfo(
+                            name=f"polisyos.runtime.{type(record).__name__}",
+                            version="1.0",
+                        ),
                     ),
-                ),
-            ).artifact_id)
+                ).artifact_id
+            )
             if self._load(reference, type(record)) != record:
                 raise ValueError("candidate_artifact_readback_mismatch")
         return reference
 
     def _load[T: _CandidateRecord](self, reference: str, record_type: type[T]) -> T:
         from polisyos.core.artifacts import validate_core_model_json_artifact
+
         record = validate_core_model_json_artifact(record_type, self._cas, reference)
         manifest = self._cas.get_manifest(reference)
         if (
@@ -430,14 +468,17 @@ def main(argv: Sequence[str] | None = None) -> int:
     snapshot.add_argument("ticket")
     args = parser.parse_args(argv)
     runtime = AdaptationTransitionRuntime.open(
-        root=args.root, tenant_id=args.tenant, cell_id=args.cell,
+        root=args.root,
+        tenant_id=args.tenant,
+        cell_id=args.cell,
     )
     if args.command == "submit":
         request = AdaptationTransitionRequest.model_validate_json(args.request_file.read_bytes())
         sys.stdout.write(runtime.submit(request) + "\n")
     else:
         result = (
-            runtime.process(args.ticket) if args.command == "process"
+            runtime.process(args.ticket)
+            if args.command == "process"
             else runtime.snapshot(args.ticket, as_of=datetime.now(UTC))
         )
         sys.stdout.write(result.model_dump_json(indent=2) + "\n")

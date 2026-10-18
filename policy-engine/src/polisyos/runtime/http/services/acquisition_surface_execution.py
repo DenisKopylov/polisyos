@@ -616,9 +616,7 @@ class WorldBankWDIAcquisitionExecutionPort:
         """Project only a selected, reverified current growth outcome."""
         bridge = self._world_growth_bridge
         return (
-            ("not_established", None)
-            if bridge is None
-            else bridge.project_growth_outcome(closure)
+            ("not_established", None) if bridge is None else bridge.project_growth_outcome(closure)
         )
 
     def reenter(

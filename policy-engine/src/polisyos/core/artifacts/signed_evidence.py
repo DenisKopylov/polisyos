@@ -172,9 +172,7 @@ class FileSystemSignedArtifactEvidenceRepository:
             _record_options(
                 inputs=[
                     input_ref_from_artifact_ref(artifact_ref, role="signed_artifact"),
-                    input_ref_from_artifact_ref(
-                        signature_ref, role="exact_signature_bytes"
-                    ),
+                    input_ref_from_artifact_ref(signature_ref, role="exact_signature_bytes"),
                 ]
             ),
         )

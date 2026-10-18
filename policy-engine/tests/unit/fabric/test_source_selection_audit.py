@@ -127,7 +127,7 @@ def _scenario_contract(source_family: str) -> dict[str, object]:
         "requirements": [
             {
                 "requirement_id": (
-                    "scenario:ukraine_msme_wartime_credit_support:data:" f"{source_family}"
+                    f"scenario:ukraine_msme_wartime_credit_support:data:{source_family}"
                 ),
                 "domain": "data",
                 "expected_family": source_family,
@@ -186,9 +186,7 @@ def test_source_selection_trace_passes_for_relevant_production_source() -> None:
 def test_source_selection_trace_fails_for_wrong_selected_family() -> None:
     trace = build_fabric_source_selection_trace(
         query_intent={"policy_domain": "wartime_msme_support"},
-        candidate_sources=[
-            _source(source_id="macro-panel", source_family="macro_indicators")
-        ],
+        candidate_sources=[_source(source_id="macro-panel", source_family="macro_indicators")],
         selected_source_ids=["macro-panel"],
         rejected_sources=[],
         expected_source_families=["production_msme_panel"],
@@ -217,8 +215,7 @@ def test_source_selection_trace_fails_contract_when_generic_bundle_selected() ->
             "scenario_binding_findings": [
                 {
                     "requirement_id": (
-                        "scenario:ukraine_msme_wartime_credit_support:data:"
-                        "production_msme_panel"
+                        "scenario:ukraine_msme_wartime_credit_support:data:production_msme_panel"
                     ),
                     "expected_family": "production_msme_panel",
                     "candidate_ref": None,
@@ -237,9 +234,7 @@ def test_source_selection_trace_fails_contract_when_generic_bundle_selected() ->
     assert trace["source_family_blockers"][0]["expected_family"] == "production_msme_panel"
     assert trace["selected_contract_binding"] is None
     assert trace["rejected_contract_bindings"][0]["status"] == "blocked"
-    assert trace["selected_sources"][0]["selection_status"] == (
-        "non_admissible_context_only"
-    )
+    assert trace["selected_sources"][0]["selection_status"] == ("non_admissible_context_only")
     assert trace["selected_sources"][0]["authority_surface"] == "context_inventory"
 
 
@@ -253,8 +248,7 @@ def test_normalize_trace_fails_when_fabric_drops_consumed_scenario_contract_id()
             "rejected_sources": [],
             "production_data_contract_binding_report": {
                 "scenario_contract_id": (
-                    "scenario-evidence-contract:"
-                    "ukraine_msme_wartime_credit_support:v1"
+                    "scenario-evidence-contract:ukraine_msme_wartime_credit_support:v1"
                 ),
                 "scenario_binding_findings": [
                     {
@@ -379,12 +373,8 @@ def test_source_selection_trace_passes_with_contract_index_candidate_and_rejecti
     assert trace["selected_sources"][0]["selection_status"] == (
         "claim_admissible_contract_selected"
     )
-    assert trace["selected_sources"][0]["authority_surface"] == (
-        "claim_admissible_contract"
-    )
-    assert trace["fabric_spine_bindings"]["selected_contract_binding_refs"] == [
-        candidate_ref
-    ]
+    assert trace["selected_sources"][0]["authority_surface"] == ("claim_admissible_contract")
+    assert trace["fabric_spine_bindings"]["selected_contract_binding_refs"] == [candidate_ref]
 
 
 def test_source_selection_trace_requires_selected_source_diagnostics() -> None:
@@ -491,8 +481,7 @@ def test_source_selection_trace_requires_reason_for_unselected_plausible_candida
     assert trace["status"] == "fail"
     assert "plausible_rejected_source_missing_reason_code" in issue_codes
     assert any(
-        source["source_id"] == "nearby-production-source"
-        for source in trace["rejected_sources"]
+        source["source_id"] == "nearby-production-source" for source in trace["rejected_sources"]
     )
 
 

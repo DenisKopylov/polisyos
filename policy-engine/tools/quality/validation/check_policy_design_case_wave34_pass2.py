@@ -125,9 +125,7 @@ def validate_wave34_pass2(
             detail_json = diagnostics_root / pdd_id.lower() / f"{slug}.json"
             detail_md = diagnostics_root / pdd_id.lower() / f"{slug}.md"
             summary_md = diagnostics_root / pdd_id.lower() / "summary.md"
-            fragment_md = (
-                diagnostics_root / "pass2" / "backlog_fragments" / f"{pdd_id.lower()}.md"
-            )
+            fragment_md = diagnostics_root / "pass2" / "backlog_fragments" / f"{pdd_id.lower()}.md"
             for path, label in (
                 (detail_json, "detail JSON"),
                 (detail_md, "detail Markdown"),
@@ -141,9 +139,7 @@ def validate_wave34_pass2(
                 _validate_detail(detail, pdd_id, phase, errors)
 
     if len(seen) != expected_count:
-        errors.append(
-            f"expected {expected_count} PDD ids but validated {len(seen)} unique ids"
-        )
+        errors.append(f"expected {expected_count} PDD ids but validated {len(seen)} unique ids")
     return errors
 
 
@@ -237,9 +233,7 @@ def _validate_no_same_wave_dependency(
     for path, value in _walk_strings(scanned):
         text = value.replace("\\", "/")
         if any(marker in text for marker in SAME_WAVE_DEPENDENCY_MARKERS):
-            errors.append(
-                f"{pdd_id}: same-wave diagnostic dependency in {'.'.join(path)}: {value}"
-            )
+            errors.append(f"{pdd_id}: same-wave diagnostic dependency in {'.'.join(path)}: {value}")
 
 
 def _allowed_empty_findings(payload: Mapping[str, Any], pdd_id: str) -> bool:

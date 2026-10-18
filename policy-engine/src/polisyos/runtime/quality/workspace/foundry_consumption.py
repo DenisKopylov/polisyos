@@ -940,13 +940,9 @@ class ConstraintStoreIngestor:
         ) -> tuple[core_artifacts.ArtifactRef, bytes, ArtifactManifest]:
             selected_profile = ref.get("manifest_profile_sha256")
             manifest = (
-                resolve_manifest_by_profile(
-                    self._store, ref["artifact_id"], selected_profile
-                )
+                resolve_manifest_by_profile(self._store, ref["artifact_id"], selected_profile)
                 if selected_profile is not None
-                else ArtifactManifest.model_validate(
-                    self._store.get_manifest(ref["artifact_id"])
-                )
+                else ArtifactManifest.model_validate(self._store.get_manifest(ref["artifact_id"]))
             )
             typed = core_artifacts.ArtifactRef(
                 artifact_id=ref["artifact_id"],

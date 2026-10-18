@@ -12,7 +12,9 @@ PYTHON_IMPORT_ROOTS = (
     REPO_ROOT / "tests",
     REPO_ROOT / "tools",
 )
-LEGACY_IMPORT_RE = re.compile(r"(?m)^\s*(?:from\s+schemas(?:\.|\s+import)|import\s+schemas(?:\.|\s|$))")
+LEGACY_IMPORT_RE = re.compile(
+    r"(?m)^\s*(?:from\s+schemas(?:\.|\s+import)|import\s+schemas(?:\.|\s|$))"
+)
 
 
 def test_top_level_schemas_is_not_a_python_package() -> None:

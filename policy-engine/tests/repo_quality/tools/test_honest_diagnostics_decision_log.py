@@ -5,10 +5,7 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 DECISION_LOG = (
-    REPO_ROOT
-    / "docs"
-    / "system-design-decisions"
-    / "honest-diagnostics-substrate-decision-log.md"
+    REPO_ROOT / "docs" / "system-design-decisions" / "honest-diagnostics-substrate-decision-log.md"
 )
 
 REQUIRED_ENTRY_FIELDS = {

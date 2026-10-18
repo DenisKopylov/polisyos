@@ -131,9 +131,7 @@ class TestDemographicConsistencyEstimator:
             "prior_flows": np.array([0.8, 0.2, 1.0], dtype=float),
             "target_state_totals": np.array([10.0, 20.0], dtype=float),
         }
-        result = method.pure_step(
-            state, {"max_iterations": 250, "tolerance": 1e-8}
-        )["result"]
+        result = method.pure_step(state, {"max_iterations": 250, "tolerance": 1e-8})["result"]
 
         assert np.allclose(result.calibrated_flows, np.array([1.0, 0.0, 2.0]))
         assert np.allclose(result.achieved_row_totals, np.array([1.0, 2.0]))
@@ -205,9 +203,7 @@ class TestDemographicConsistencyEstimator:
             "prior_flows": np.array([0.8, 0.2, 0.1, 0.9], dtype=float),
             "target_state_totals": np.array([1.0, 1.0], dtype=float),
         }
-        result = method.pure_step(
-            state, {"max_iterations": 100, "tolerance": 1e-10}
-        )["result"]
+        result = method.pure_step(state, {"max_iterations": 100, "tolerance": 1e-10})["result"]
 
         assert np.all(result.calibrated_flows > 0.0)
         assert np.allclose(result.achieved_row_totals, state["base_weights"])
@@ -247,9 +243,7 @@ class TestDemographicConsistencyEstimator:
             "target_state_totals": np.array([0.0, 0.0], dtype=float),
         }
 
-        result = method.pure_step(
-            state, {"max_iterations": 4, "tolerance": 1e-8}
-        )["result"]
+        result = method.pure_step(state, {"max_iterations": 4, "tolerance": 1e-8})["result"]
 
         assert np.array_equal(result.calibrated_flows, np.zeros(3))
         assert np.array_equal(result.record_survivor_weights, np.zeros(2))

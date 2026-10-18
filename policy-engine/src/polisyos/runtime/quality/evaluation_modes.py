@@ -11,9 +11,7 @@ from polisyos.pdc import EvaluationMode, EvaluationModeResolution
 _MISSING = "polisyos.eval_safety.evaluation_mode_missing@1.0.0"
 _INVALID = "polisyos.eval_safety.evaluation_mode_unknown@1.0.0"
 _MODES = frozenset(get_args(EvaluationMode))
-EVAL_SAFETY_REQUIRED_MODES = frozenset(
-    {"sandbox_pilot", "field_pilot", "deployment"}
-)
+EVAL_SAFETY_REQUIRED_MODES = frozenset({"sandbox_pilot", "field_pilot", "deployment"})
 DATA_TRUST_REQUIRED_MODES = frozenset({"retrospective", "measurement_audit"})
 
 
@@ -69,9 +67,10 @@ def execution_intent_band_for_mode(mode: str | None) -> ExecutionIntentBand:
 def resolve_evaluation_mode(token: str | None) -> EvaluationModeResolution:
     """Resolve a mode without trimming, aliasing, or simulation fallback."""
 
-    digest = "sha256:" + hashlib.sha256(
-        ("<missing>" if token is None else token).encode("utf-8")
-    ).hexdigest()
+    digest = (
+        "sha256:"
+        + hashlib.sha256(("<missing>" if token is None else token).encode("utf-8")).hexdigest()
+    )
     if token is None or token == "":
         return EvaluationModeResolution(
             status="missing",

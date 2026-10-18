@@ -122,9 +122,7 @@ def test_scenario_lineage_head_change_after_opa_binding_fails_before_projection(
             json={"lineage_ids": [f"scenario:{scenario_id}:model"]},
         )
         assert stable.status_code == 200, stable.json()
-        assert stable.json()["lineages"][0]["metadata"]["manifest_hash"] == (
-            first.manifest_hash
-        )
+        assert stable.json()["lineages"][0]["metadata"]["manifest_hash"] == (first.manifest_hash)
         opa.callback = lambda: ctx.scenarios.create_for_run(
             run=run,
             request=scenario_request,
@@ -145,9 +143,9 @@ def test_scenario_lineage_head_change_after_opa_binding_fails_before_projection(
 
 def test_auth_me_openapi_permission_example_equals_canonical_analyst_grants() -> None:
     openapi = create_runtime_api_app().openapi()
-    example = openapi["paths"]["/api/v1/auth/me"]["get"]["responses"]["200"][
-        "content"
-    ]["application/json"]["examples"]["default"]["value"]
+    example = openapi["paths"]["/api/v1/auth/me"]["get"]["responses"]["200"]["content"][
+        "application/json"
+    ]["examples"]["default"]["value"]
 
     assert example["permissions"] == [
         permission.value for permission in permissions_for_roles([PolicyOSRole.ANALYST])

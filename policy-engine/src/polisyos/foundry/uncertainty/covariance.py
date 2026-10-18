@@ -185,6 +185,7 @@ def build_covariance_matrix(
         raise ValueError("covariance matrix must contain finite values")
     return jnp.asarray(covariance, dtype=jnp.float32)
 
+
 def preserve_singular_covariance(
     covariance: object,
     *,

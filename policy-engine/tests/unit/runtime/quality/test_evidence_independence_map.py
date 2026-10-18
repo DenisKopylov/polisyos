@@ -31,9 +31,7 @@ from polisyos.runtime.quality.evidence_portfolio import (
 from tests._helpers.hds_quality import sha
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
-SCHEMA_PATH = (
-    REPO_ROOT / "schemas/runtime_quality/policy_design_independence_map_v1.schema.json"
-)
+SCHEMA_PATH = REPO_ROOT / "schemas/runtime_quality/policy_design_independence_map_v1.schema.json"
 
 
 def _portfolio_design() -> dict[str, object]:
@@ -214,9 +212,7 @@ def _equivalence_reports() -> list[dict[str, Any]]:
 
 def test_independence_map_collapses_400_raw_lines_to_small_effective_count() -> None:
     lines = [
-        _evidence_line(cluster=cluster, index=index)
-        for cluster in range(4)
-        for index in range(100)
+        _evidence_line(cluster=cluster, index=index) for cluster in range(4) for index in range(100)
     ]
 
     independence_map = build_evidence_independence_map(
@@ -232,9 +228,7 @@ def test_independence_map_collapses_400_raw_lines_to_small_effective_count() -> 
     assert independence_map["raw_evidence_line_count"] == 400
     assert independence_map["effective_independent_evidence_count"] == 4
     assert len(independence_map["collapse_clusters"]) == 4
-    assert {cluster["raw_line_count"] for cluster in independence_map["collapse_clusters"]} == {
-        100
-    }
+    assert {cluster["raw_line_count"] for cluster in independence_map["collapse_clusters"]} == {100}
     assert {
         cluster["collapse_dimensions"]["method_cluster_id"]
         for cluster in independence_map["collapse_clusters"]
@@ -245,10 +239,7 @@ def test_independence_map_collapses_400_raw_lines_to_small_effective_count() -> 
         "foundry.did.cluster3.primary",
     }
     assert independence_map["effective_mass_report"]["raw_evidence_line_count"] == 400
-    assert (
-        independence_map["effective_mass_report"]["effective_independent_evidence_count"]
-        == 4
-    )
+    assert independence_map["effective_mass_report"]["effective_independent_evidence_count"] == 4
     assert independence_map["effective_mass_report"]["effective_support_mass"] == 4.0
     assert independence_map["effective_mass_report"]["dominant_collapse_reasons"]
     assert all(
@@ -402,9 +393,7 @@ def test_independence_map_classifies_rare_domain_scarcity_without_support_inflat
     assert scarcity["status"] == "scarcity_structural"
     assert scarcity["support_inflation_allowed"] is False
     assert scarcity["effective_support_mass_after_scarcity"] == 1.0
-    assert "scarcity_structural" in independence_map["effective_mass_report"][
-        "limiting_deficits"
-    ]
+    assert "scarcity_structural" in independence_map["effective_mass_report"]["limiting_deficits"]
 
     invalid = deepcopy(independence_map)
     invalid["rare_domain_scarcity"]["effective_support_mass_after_scarcity"] = 3.0
@@ -451,6 +440,4 @@ def test_independence_map_json_schema_requires_raw_and_effective_counts() -> Non
         "graded_independence",
         "rare_domain_scarcity",
     }
-    assert "collapse_reasons" in schema["properties"]["collapse_clusters"]["items"][
-        "properties"
-    ]
+    assert "collapse_reasons" in schema["properties"]["collapse_clusters"]["items"]["properties"]

@@ -132,7 +132,9 @@ def _autoregression_prior_sensitivity_report(
         credible_intervals=credible_intervals,
         credible_interval_level=credible_mass,
         baseline_prior_scale=prior_scale,
-        estimand_ids=tuple(key for key in credible_intervals if key.startswith("phi_") or key == "intercept"),
+        estimand_ids=tuple(
+            key for key in credible_intervals if key.startswith("phi_") or key == "intercept"
+        ),
         ess_threshold=float(params["prior_sensitivity_ess_threshold"])
         if "prior_sensitivity_ess_threshold" in params
         else None,

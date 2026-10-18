@@ -14,8 +14,7 @@ from pydantic import ValidationError
 REPO_ROOT = Path(__file__).resolve().parents[4]
 S14_FIXTURE_DIR = REPO_ROOT / "tests/fixtures/layer2/s14"
 SEALED_BATTERY_ROOT = (
-    REPO_ROOT
-    / "tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/"
+    REPO_ROOT / "tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/"
     "layer2-sealed-universality-battery"
 )
 S14_SCHEMA_VERSION = "policyos.policy_design_case.layer2_s14_universality_assurance.v1"
@@ -95,8 +94,9 @@ def _negative_probe(false_clear_field: str) -> dict[str, Any]:
 
 def _cluster_axis_refs() -> list[str]:
     payload = tomllib.loads(
-        (REPO_ROOT / "architecture/policy_design_case/cluster_ownership_map.toml")
-        .read_text(encoding="utf-8")
+        (REPO_ROOT / "architecture/policy_design_case/cluster_ownership_map.toml").read_text(
+            encoding="utf-8"
+        )
     )
     return [
         f"{cluster}.{axis}"
@@ -305,9 +305,7 @@ def _axis_rows() -> list[dict[str, object]]:
                 "battery_status": "not_tested" if not_tested else "pass",
                 "threshold_ref": f"repo://architecture/policy_design_case/layer2_floor_governance.toml#s14/{axis_ref}",
                 "floor_passed": not not_tested,
-                "hard_corner_case_refs": [
-                    "sealed://s14/capacity-constrained-refugee-services"
-                ],
+                "hard_corner_case_refs": ["sealed://s14/capacity-constrained-refugee-services"],
                 "mechanism_refs": [f"mechanism://s14/{axis_ref}"],
                 "limitation_refs": [f"limitation://s14/{axis_ref}"] if not_tested else [],
                 "failure_refs": [],
@@ -407,7 +405,9 @@ def _assurance_payload(**overrides: object) -> dict[str, object]:
         "s9_projection_faithfulness_refs": ["pdc://layer2/s9/faithfulness/public-universal-claim"],
         "projection_refs": ["projection://s14/public"],
         "status_composition_ref": "pdc://layer2/s14/evaluation-status-composition",
-        "skeptic_defeater_refs": [f"pdc://layer2/s14/defeater/{row['defeater_id']}" for row in _skeptic_records()],
+        "skeptic_defeater_refs": [
+            f"pdc://layer2/s14/defeater/{row['defeater_id']}" for row in _skeptic_records()
+        ],
         "authority_boundary": _authority_boundary(),
         "replay_digest": "sha256:" + "2" * 64,
         "rule_version_ref": S14_RULE_VERSION_REF,
@@ -529,8 +529,9 @@ def test_s14_contracts_are_strict_replayable_and_exported() -> None:
 def test_sealed_battery_integrity_requires_partition_path_freeze_hash_and_owner() -> None:
     s14 = _s14()
     partition = json.loads(
-        (REPO_ROOT / "architecture/policy_design_case/layer2_corpus_partition.json")
-        .read_text(encoding="utf-8")
+        (REPO_ROOT / "architecture/policy_design_case/layer2_corpus_partition.json").read_text(
+            encoding="utf-8"
+        )
     )["sealed_universality_battery"]
 
     assert partition["path"].endswith("layer2-sealed-universality-battery")
@@ -729,9 +730,7 @@ def test_breadth_floor_config_names_domain_jurisdiction_scale_regime_coupling_ta
 def test_grounded_authority_requires_a_firewall_claim_value_mandate_capacity_refs() -> None:
     s14 = _s14()
 
-    coverage = s14.GroundedAuthorityCoverageRecord.model_validate(
-        _grounded_authority_payload()
-    )
+    coverage = s14.GroundedAuthorityCoverageRecord.model_validate(_grounded_authority_payload())
 
     assert coverage.coverage_status == "pass"
     assert coverage.a_firewall_refs
@@ -831,9 +830,7 @@ def test_skeptic_defeaters_are_projected_from_assurance_case_defeaters() -> None
 def test_frozen_once_defeater_requires_expand_and_shrink_revision_evidence() -> None:
     s14 = _s14()
 
-    dynamics = s14.EnvelopeRevisionDynamicsRecord.model_validate(
-        _envelope_dynamics_payload()
-    )
+    dynamics = s14.EnvelopeRevisionDynamicsRecord.model_validate(_envelope_dynamics_payload())
 
     assert dynamics.s12_expansion_evidence_refs
     assert dynamics.s13_shrink_or_split_refs
@@ -961,9 +958,7 @@ def test_universality_assurance_cannot_mint_production_or_recommendation_authori
     )
 
     assert result["status"] == "fail"
-    assert "battery_result_as_production_authority" in {
-        issue["code"] for issue in result["issues"]
-    }
+    assert "battery_result_as_production_authority" in {issue["code"] for issue in result["issues"]}
 
 
 def test_universality_authority_verifier_does_not_echo_probe_false_clear_field() -> None:
@@ -973,12 +968,8 @@ def test_universality_authority_verifier_does_not_echo_probe_false_clear_field()
         {
             "false_clear_field": "baseline_comparison_missing",
             "baseline_comparison_ref": "pdc://layer2/s14/baseline-comparison",
-            "universality_baseline_comparison_ref": (
-                "pdc://layer2/s14/baseline-comparison"
-            ),
-            "s14_universality_assurance_refs": [
-                "pdc://layer2/s14/universality-assurance-case"
-            ],
+            "universality_baseline_comparison_ref": ("pdc://layer2/s14/baseline-comparison"),
+            "s14_universality_assurance_refs": ["pdc://layer2/s14/universality-assurance-case"],
         }
     )
 

@@ -60,6 +60,4 @@ def test_scientist_phase2_0_gate_fails_without_adr_token(
 
     assert exit_code == 1
     assert payload["passes_all"] is False
-    assert any(
-        "__missing_phase2_0_adr_token__" in note for note in payload["notes"]
-    )
+    assert any("__missing_phase2_0_adr_token__" in note for note in payload["notes"])

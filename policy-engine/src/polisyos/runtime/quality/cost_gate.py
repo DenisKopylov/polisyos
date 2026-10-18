@@ -153,19 +153,13 @@ def build_run_cost_gate_report(
     gate_rows = [row for row in gate_rows if row is not None]
 
     blockers = [
-        _typed_blocker(row, run_id=run_id)
-        for row in gate_rows
-        if row["status"] == "blocked"
+        _typed_blocker(row, run_id=run_id) for row in gate_rows if row["status"] == "blocked"
     ]
     limitations = [
-        _typed_limitation(row, run_id=run_id)
-        for row in gate_rows
-        if row["status"] == "limited"
+        _typed_limitation(row, run_id=run_id) for row in gate_rows if row["status"] == "limited"
     ]
     warnings = [
-        _typed_warning(row, run_id=run_id)
-        for row in gate_rows
-        if row["status"] == "warning"
+        _typed_warning(row, run_id=run_id) for row in gate_rows if row["status"] == "warning"
     ]
     issues = [
         *[_issue_from_item(item, severity="fail") for item in blockers],
@@ -186,9 +180,7 @@ def build_run_cost_gate_report(
         "contract_id": RUN_COST_GATE_CONTRACT_ID,
         "gate_id": f"run-cost-gate-{_slug(run_id)}",
         "run_id": run_id,
-        "job_id": _text(
-            _nested_get(job_payload, "job_id") or _nested_get(run_payload, "job_id")
-        ),
+        "job_id": _text(_nested_get(job_payload, "job_id") or _nested_get(run_payload, "job_id")),
         "authority_level": effective_authority,
         "generated_at": _utc(now).isoformat(),
         "status": status,
@@ -314,9 +306,7 @@ def validate_run_cost_gate_report(record: Mapping[str, Any]) -> dict[str, Any]:
     normalized["limitations"] = limitations
     normalized["warnings"] = warnings
     normalized["issues"] = [dict(row) for row in _rows(record.get("issues"))]
-    normalized["deficit_crosswalk"] = [
-        dict(row) for row in _rows(record.get("deficit_crosswalk"))
-    ]
+    normalized["deficit_crosswalk"] = [dict(row) for row in _rows(record.get("deficit_crosswalk"))]
     normalized["summary"] = _validated_summary(
         record.get("summary"),
         gate_rows=gate_rows,
@@ -593,9 +583,7 @@ def _evaluate_limit(
     observation = observations.get(dimension) or {}
     observed_value = _number(observation.get("observed_value")) or 0.0
     exceeded = observed_value > budget_value
-    desired_effect = _closeout_effect(
-        limit.get("closeout_effect") or policy.get("closeout_effect")
-    )
+    desired_effect = _closeout_effect(limit.get("closeout_effect") or policy.get("closeout_effect"))
     authority_policy_ref = _text(
         limit.get("authority_policy_ref") or policy.get("authority_policy_ref")
     )
@@ -627,8 +615,7 @@ def _evaluate_limit(
         "authority_policy_ref": authority_policy_ref,
         "owner": _text(limit.get("owner") or policy.get("owner")) or _DEFAULT_OWNER,
         "ttl_seconds": int(
-            _number(limit.get("ttl_seconds") or policy.get("ttl_seconds"))
-            or _DEFAULT_TTL_SECONDS
+            _number(limit.get("ttl_seconds") or policy.get("ttl_seconds")) or _DEFAULT_TTL_SECONDS
         ),
         "next_action": _text(limit.get("next_action") or policy.get("next_action"))
         or f"Review {dimension} budget before authority promotion.",

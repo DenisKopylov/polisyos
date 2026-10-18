@@ -395,11 +395,7 @@ def _safe_find_in_page_handler(service: ScholarDeepSearchService):
 
 async def _call_service(method: Any, **kwargs: Any) -> dict[str, Any]:
     signature = inspect.signature(method)
-    accepted = {
-        key: value
-        for key, value in kwargs.items()
-        if key in signature.parameters
-    }
+    accepted = {key: value for key, value in kwargs.items() if key in signature.parameters}
     result = method(**accepted)
     if inspect.isawaitable(result):
         result = await result

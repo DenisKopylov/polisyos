@@ -79,9 +79,7 @@ def test_registry_rejects_missing_projection_policy() -> None:
     result = validate_invariant_registry_payload({"invariants": [row]}, repo_root=REPO_ROOT)
 
     assert result.status == "fail"
-    assert "invariant_dashboard_projection_policy_missing" in _issue_codes(
-        result.as_dict()
-    )
+    assert "invariant_dashboard_projection_policy_missing" in _issue_codes(result.as_dict())
 
 
 def test_registry_rejects_missing_failure_code() -> None:
@@ -115,9 +113,7 @@ def test_registry_rejects_missing_known_minimum_closeout_gate() -> None:
     result = validate_invariant_registry_payload(payload, repo_root=REPO_ROOT)
 
     assert result.status == "fail"
-    assert "invariant_minimum_closeout_gate_unregistered" in _issue_codes(
-        result.as_dict()
-    )
+    assert "invariant_minimum_closeout_gate_unregistered" in _issue_codes(result.as_dict())
 
 
 def test_registry_rejects_duplicate_minimum_closeout_gate_without_policy() -> None:
@@ -183,7 +179,7 @@ def test_registry_cli_reports_diffs_and_fails_invalid_registry(tmp_path: Path) -
                 ),
                 (
                     'negative_tests = ["tests/unit/runtime/quality/test_scorecard.py::'
-                    'test_runtime_quality_scorecard_fails_closed_for_serious_profiles_'
+                    "test_runtime_quality_scorecard_fails_closed_for_serious_profiles_"
                     'missing_runtime_refs"]'
                 ),
             ]
@@ -255,8 +251,4 @@ def _actual_registry_payload() -> dict[str, Any]:
 
 
 def _issue_codes(report: dict[str, Any]) -> set[str]:
-    return {
-        str(issue["code"])
-        for issue in report.get("issues", [])
-        if isinstance(issue, dict)
-    }
+    return {str(issue["code"]) for issue in report.get("issues", []) if isinstance(issue, dict)}

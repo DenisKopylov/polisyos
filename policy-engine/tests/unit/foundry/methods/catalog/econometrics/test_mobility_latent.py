@@ -18,12 +18,7 @@ from polisyos.ir.analytics.mobility import MobilityReport
 def _latent_mobility_benchmark_runner():
     module_path = None
     for parent in Path(__file__).resolve().parents:
-        candidate = (
-            parent
-            / "benchmarks"
-            / "distributional"
-            / "phase2_mobility_latent_frontier.py"
-        )
+        candidate = parent / "benchmarks" / "distributional" / "phase2_mobility_latent_frontier.py"
         if candidate.exists():
             module_path = candidate
             break

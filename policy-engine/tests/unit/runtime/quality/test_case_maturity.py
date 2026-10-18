@@ -48,9 +48,9 @@ def test_case_maturity_profile_covers_every_record_family_with_ordered_levels() 
     assert RECORD_FAMILY_MATURITY_LEVELS == EXPECTED_MATURITY_LEVELS
     assert profile["schema_version"] == CASE_MATURITY_PROFILE_SCHEMA_VERSION
     assert set(profile["maturity_levels"]) == set(EXPECTED_MATURITY_LEVELS)
-    assert {
-        row["family_id"] for row in profile["record_family_maturities"]
-    } == set(POLICY_DESIGN_CASE_MINIMUM_RECORD_FAMILIES)
+    assert {row["family_id"] for row in profile["record_family_maturities"]} == set(
+        POLICY_DESIGN_CASE_MINIMUM_RECORD_FAMILIES
+    )
     assert result.status == "pass"
     assert result.as_dict()["summary"]["record_family_count"] == len(
         POLICY_DESIGN_CASE_MINIMUM_RECORD_FAMILIES
@@ -77,9 +77,7 @@ def test_case_maturity_rejects_evidence_complete_without_evidence_refs() -> None
     result = validate_case_maturity_profile(profile)
 
     assert result.status == "fail"
-    assert "policy_design_case_maturity_evidence_refs_missing" in _issue_codes(
-        result.as_dict()
-    )
+    assert "policy_design_case_maturity_evidence_refs_missing" in _issue_codes(result.as_dict())
 
 
 def test_case_maturity_rejects_evidence_complete_with_non_runtime_evidence_refs() -> None:
@@ -102,9 +100,7 @@ def test_case_maturity_rejects_evidence_complete_with_non_runtime_evidence_refs(
     result = validate_case_maturity_profile(profile)
 
     assert result.status == "fail"
-    assert "policy_design_case_maturity_evidence_refs_invalid" in _issue_codes(
-        result.as_dict()
-    )
+    assert "policy_design_case_maturity_evidence_refs_invalid" in _issue_codes(result.as_dict())
 
 
 def test_scorecard_blocks_case_maturity_inflated_without_evidence() -> None:
@@ -212,8 +208,4 @@ def _complete_family_maturities() -> dict[str, dict[str, object]]:
 
 
 def _issue_codes(report: dict[str, object]) -> set[str]:
-    return {
-        str(issue["code"])
-        for issue in report.get("issues", [])
-        if isinstance(issue, dict)
-    }
+    return {str(issue["code"]) for issue in report.get("issues", []) if isinstance(issue, dict)}

@@ -1050,6 +1050,7 @@ def _ref_to_artifact_id(value: Any) -> str | None:
 
 def _load_ref_payload(ctx: ExecutionContext, ref_text: str) -> Any | None:
     from polisyos.core.artifacts import load_core_json_artifact
+
     store = _ctx_store(ctx)
     if store is None:
         return None

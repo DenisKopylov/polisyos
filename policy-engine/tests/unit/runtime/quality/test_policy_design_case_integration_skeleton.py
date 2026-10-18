@@ -17,9 +17,7 @@ from polisyos.runtime.quality.projection_semantics import (
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
-COMMITTED_I2_BUNDLE_DIR = (
-    REPO_ROOT / "architecture/policy_design_case/wave2_i2_walking_skeleton"
-)
+COMMITTED_I2_BUNDLE_DIR = REPO_ROOT / "architecture/policy_design_case/wave2_i2_walking_skeleton"
 
 
 def test_wave2_i2_walking_skeleton_traverses_runtime_seam(tmp_path: PathType) -> None:
@@ -49,18 +47,15 @@ def test_wave2_i2_walking_skeleton_traverses_runtime_seam(tmp_path: PathType) ->
 
     claim_row = claim_registry["claims"][0]
     assert claim_row["concept_spine_ref"] == concept_spine["concept_spine_ref"]
-    assert claim_row["producer_handshake_ledger_ref"] == (
-        handshake_ledger["producer_handshake_ledger_ref"]
+    assert (
+        claim_row["producer_handshake_ledger_ref"]
+        == (handshake_ledger["producer_handshake_ledger_ref"])
     )
-    assert claim_row["producer_handshake_refs"] == [
-        handshake_ledger["records"][0]["handshake_id"]
-    ]
+    assert claim_row["producer_handshake_refs"] == [handshake_ledger["records"][0]["handshake_id"]]
 
     handoff_ledger = artifacts["evidence_spine_handoff_ledger"]
     assert handoff_ledger["status"] == "pass"
-    assert {
-        handoff["bridge_authority_ref"] for handoff in handoff_ledger["handoffs"]
-    } >= {
+    assert {handoff["bridge_authority_ref"] for handoff in handoff_ledger["handoffs"]} >= {
         concept_spine["bridge_authority"]["bridge_ref"],
         handshake_ledger["records"][0]["bridge_authority"]["bridge_ref"],
     }
@@ -83,9 +78,10 @@ def test_wave2_i2_walking_skeleton_traverses_runtime_seam(tmp_path: PathType) ->
         (tmp_path / "wave2-i2" / "manifest.json").read_text(encoding="utf-8")
     )
     assert persisted_manifest["integration_slice"] == "I2"
-    assert persisted_manifest["refs"]["closeout_verdict"] == closeout["authority_envelope"][
-        "reader_contract"
-    ]
+    assert (
+        persisted_manifest["refs"]["closeout_verdict"]
+        == closeout["authority_envelope"]["reader_contract"]
+    )
 
 
 def test_wave2_i2_committed_bundle_matches_fresh_runtime_generation(

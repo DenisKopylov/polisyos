@@ -153,7 +153,5 @@ def test_admitted_candidate_without_prompt_tool_repair_lineage_is_blocked() -> N
         surface="claim_registry",
     )
 
-    assert {issue["code"] for issue in issues} == {
-        "candidate_firewall_admission_lineage_missing"
-    }
+    assert {issue["code"] for issue in issues} == {"candidate_firewall_admission_lineage_missing"}
     assert issues[0]["candidate_id"] == "hypothesis-candidate:legal-reading-1"

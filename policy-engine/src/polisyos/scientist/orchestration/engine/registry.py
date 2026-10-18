@@ -125,10 +125,7 @@ class NodeRegistry(BaseRegistry[str, Node]):
         results: list[NodeSpec] = []
         for node in items:
             spec = node.spec
-            if (
-                capability is not None
-                and spec.metadata.capabilities & capability != capability
-            ):
+            if capability is not None and spec.metadata.capabilities & capability != capability:
                 continue
             if tag is not None and tag not in spec.metadata.tags:
                 continue

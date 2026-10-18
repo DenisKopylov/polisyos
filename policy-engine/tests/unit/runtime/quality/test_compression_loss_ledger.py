@@ -186,9 +186,7 @@ def _policy_grammar_projection(request_id: str) -> dict[str, object]:
         },
         "concept_spine_refs": {
             "concept_spine_ref": f"cas://concept-spine/layer3-g6/{request_id}",
-            "jurisdiction_spine_ref": (
-                f"cas://jurisdiction-spine/layer3-g6/{request_id}"
-            ),
+            "jurisdiction_spine_ref": (f"cas://jurisdiction-spine/layer3-g6/{request_id}"),
         },
         "issue_codes": (),
         "authoritative_for": ("layer3_g6_policy_grammar_routing_facets",),
@@ -309,10 +307,7 @@ def test_framing_narrowing_governance_burden_without_delta_fails_closed() -> Non
     )
 
     assert receipt.status == "blocked"
-    assert (
-        "compression_governance_burden_narrowed_without_delta"
-        in receipt.issue_codes
-    )
+    assert "compression_governance_burden_narrowed_without_delta" in receipt.issue_codes
     assert receipt.emitted_summary is None
 
 
@@ -450,8 +445,7 @@ def test_fake_or_missing_choice_kind_fails_owner_validation() -> None:
     assert "orchestration_choice_kind_unowned" in with_fake.completeness.issue_codes
     assert with_missing.completeness.status == "fail"
     assert (
-        "orchestration_choice_owner_population_incomplete"
-        in with_missing.completeness.issue_codes
+        "orchestration_choice_owner_population_incomplete" in with_missing.completeness.issue_codes
     )
 
 
@@ -460,10 +454,7 @@ def test_choice_kind_catalog_grows_by_data_only(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     source_catalog = ledger_owner._ORCHESTRATION_CHOICE_POLICY_PATH
-    target_catalog = (
-        tmp_path
-        / "architecture/production_quality/orchestration_choice_policies.toml"
-    )
+    target_catalog = tmp_path / "architecture/production_quality/orchestration_choice_policies.toml"
     target_catalog.parent.mkdir(parents=True)
     target_catalog.write_text(
         source_catalog.read_text(encoding="utf-8")
@@ -513,17 +504,12 @@ governance_burden_change_allowed = false
 def test_candidate_partition_is_validated_before_delta_emission() -> None:
     contexts = _choice_contexts()
     first = contexts[0]
-    overlapping = first.model_copy(
-        update={"rejected": (*first.rejected, first.selected[0])}
-    )
+    overlapping = first.model_copy(update={"rejected": (*first.rejected, first.selected[0])})
 
     derivation = build_orchestration_authority_deltas((overlapping, *contexts[1:]))
 
     assert derivation.completeness.status == "fail"
-    assert (
-        "orchestration_choice_candidate_partition_invalid"
-        in derivation.completeness.issue_codes
-    )
+    assert "orchestration_choice_candidate_partition_invalid" in derivation.completeness.issue_codes
 
 
 def test_completeness_contract_rejects_owner_validation_bypass() -> None:
@@ -531,9 +517,7 @@ def test_completeness_contract_rejects_owner_validation_bypass() -> None:
     valid = build_orchestration_authority_deltas(contexts)
     forged = valid.deltas[0].model_copy(
         update={
-            "decision_policy_ref": (
-                "policyos://orchestration-choice-policy/attacker-supplied/v1"
-            )
+            "decision_policy_ref": ("policyos://orchestration-choice-policy/attacker-supplied/v1")
         }
     )
 
@@ -544,19 +528,14 @@ def test_completeness_contract_rejects_owner_validation_bypass() -> None:
 
     assert valid.completeness.status == "pass"
     assert validation.status == "fail"
-    assert (
-        "orchestration_authority_delta_owner_validation_failed"
-        in validation.issue_codes
-    )
+    assert "orchestration_authority_delta_owner_validation_failed" in validation.issue_codes
     assert isinstance(forged, OrchestrationAuthorityDelta)
 
 
 def test_compression_rejects_detached_completeness_receipt() -> None:
     contexts = _choice_contexts()
     derivation = build_orchestration_authority_deltas(contexts)
-    detached = derivation.completeness.model_copy(
-        update={"emitted_delta_count": 0}
-    )
+    detached = derivation.completeness.model_copy(update={"emitted_delta_count": 0})
 
     receipt = build_compression_loss_receipt(
         receipt_id="compression-loss:detached-completeness",
@@ -623,12 +602,8 @@ def test_typed_material_copy_cannot_reuse_stale_content_fingerprint(
         candidate_summary=source,
     )
     items = getattr(source, category)
-    tampered_item = items[0].model_copy(
-        update={"content": f"{items[0].content} attacker-authored"}
-    )
-    tampered_source = source.model_copy(
-        update={category: (tampered_item, *items[1:])}
-    )
+    tampered_item = items[0].model_copy(update={"content": f"{items[0].content} attacker-authored"})
+    tampered_source = source.model_copy(update={category: (tampered_item, *items[1:])})
 
     with pytest.raises(PromptToolLedgerError):
         build_compression_loss_receipt(
@@ -697,12 +672,8 @@ def test_g6_public_export_emits_refusal_not_clean_summary_for_tampered_receipt()
     ledger = projection.prompt_tool_ledger
     receipt = ledger.compression_loss_receipts[0]
     tampered = receipt.model_copy(update={"retained_limitations": ()})
-    tampered_ledger = ledger.model_copy(
-        update={"compression_loss_receipts": (tampered,)}
-    )
-    tampered_projection = projection.model_copy(
-        update={"prompt_tool_ledger": tampered_ledger}
-    )
+    tampered_ledger = ledger.model_copy(update={"compression_loss_receipts": (tampered,)})
+    tampered_projection = projection.model_copy(update={"prompt_tool_ledger": tampered_ledger})
     tampered_record = record.model_copy(
         update={"prompt_tool_ledger_projection": tampered_projection}
     )
@@ -717,12 +688,8 @@ def test_g6_public_export_emits_refusal_not_clean_summary_for_tampered_receipt()
     assert surface.PUBLIC["compression_result"]["status"] == "blocked"
     assert "summary" not in surface.PUBLIC["compression_result"]
     exported = bundle["artifacts"]["g6_summary_authority_preservation"]
-    assert exported["compression_result"]["terminal_result"]["result_kind"] == (
-        "governed_refusal"
-    )
-    protected = exported["compression_result"]["terminal_result"][
-        "protected_material"
-    ]
+    assert exported["compression_result"]["terminal_result"]["result_kind"] == ("governed_refusal")
+    protected = exported["compression_result"]["terminal_result"]["protected_material"]
     assert protected["counterevidence"]
     assert protected["limitations"]
     assert protected["denied_uses"]
@@ -736,9 +703,7 @@ def test_g6_consumer_rejects_owner_validation_bypass() -> None:
     ledger = projection.prompt_tool_ledger
     forged = ledger.orchestration_authority_deltas[0].model_copy(
         update={
-            "decision_policy_ref": (
-                "policyos://orchestration-choice-policy/attacker-supplied/v1"
-            )
+            "decision_policy_ref": ("policyos://orchestration-choice-policy/attacker-supplied/v1")
         }
     )
     bypassed_ledger = ledger.model_copy(
@@ -749,9 +714,7 @@ def test_g6_consumer_rejects_owner_validation_bypass() -> None:
             )
         }
     )
-    bypassed_projection = projection.model_copy(
-        update={"prompt_tool_ledger": bypassed_ledger}
-    )
+    bypassed_projection = projection.model_copy(update={"prompt_tool_ledger": bypassed_ledger})
     bypassed_record = record.model_copy(
         update={"prompt_tool_ledger_projection": bypassed_projection}
     )
@@ -762,10 +725,7 @@ def test_g6_consumer_rejects_owner_validation_bypass() -> None:
 
     assert clean_verification.status == "pass"
     assert verification.status == "fail"
-    assert (
-        "layer3_g6_authority_delta_owner_validation_failed"
-        in verification.issue_codes
-    )
+    assert "layer3_g6_authority_delta_owner_validation_failed" in verification.issue_codes
     assert surface.status == "fail"
 
 
@@ -777,9 +737,7 @@ async def test_g6_bounded_loop_emits_compression_and_choice_receipts() -> None:
         repo_root=REPO_ROOT,
         raw_request="Can Ukraine improve affordable loans for wartime MSMEs?",
         request_id="req-compression-bounded-loop",
-        policy_grammar_projection=_policy_grammar_projection(
-            "req-compression-bounded-loop"
-        ),
+        policy_grammar_projection=_policy_grammar_projection("req-compression-bounded-loop"),
         client=g6.FakeG6ToolCallingClient(
             tool_sequence=(
                 "layer3_g6_classify_request",
@@ -808,9 +766,7 @@ async def test_g6_blocked_loop_emits_governed_compression_receipt(
         repo_root=REPO_ROOT,
         raw_request="Can Ukraine improve affordable loans for wartime MSMEs?",
         request_id="req-compression-blocked-loop",
-        policy_grammar_projection=_policy_grammar_projection(
-            "req-compression-blocked-loop"
-        ),
+        policy_grammar_projection=_policy_grammar_projection("req-compression-blocked-loop"),
         client=None,
         max_iterations=3,
     )

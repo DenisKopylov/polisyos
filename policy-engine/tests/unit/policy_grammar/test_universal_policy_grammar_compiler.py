@@ -156,10 +156,14 @@ def test_compiler_reuses_problem_frame_and_policy_spec_without_new_ir_enum_strin
     assert compiled.facets.method_need.value is IdentificationMode.SEQUENTIAL
     assert "polisyos.ir.governance.problem_frame.ProblemDomain" in compiled.reuse_evidence
     assert "polisyos.ir.governance.policy_spec.PolicySpec" in compiled.reuse_evidence
-    assert "polisyos.scientist.policy_design.schema.PolicyCandidateSchema" in compiled.reuse_evidence
+    assert (
+        "polisyos.scientist.policy_design.schema.PolicyCandidateSchema" in compiled.reuse_evidence
+    )
     assert "polisyos.scientist.policy_design.critic.ConstraintCritic" in compiled.reuse_evidence
     assert "polisyos.scientist.evals.challenge_factory.ChallengeClass" in compiled.reuse_evidence
-    assert "polisyos.ir.governance.temporal_logic.TemporalPolicyConstraint" in compiled.reuse_evidence
+    assert (
+        "polisyos.ir.governance.temporal_logic.TemporalPolicyConstraint" in compiled.reuse_evidence
+    )
 
 
 def test_missing_concept_spine_refs_blocks_consumer_ready_facets() -> None:

@@ -97,9 +97,7 @@ def _first_json_differences(left: object, right: object) -> list[str]:
             return
         if left_value != right_value:
             pointer = "/" + "/".join(path)
-            differences.append(
-                f"{pointer}:{left_value!r}!={right_value!r}"[:500]
-            )
+            differences.append(f"{pointer}:{left_value!r}!={right_value!r}"[:500])
 
     walk(left, right, ())
     return differences
@@ -242,18 +240,14 @@ def _run_n10a_owner(product_root: Path) -> tuple[bytes, int, int, int]:
     assert promotion["status"] == "not_promoted"
     assert promotion["reason"] == "verification_n9_sequence_non_consumer"
     receipts = tuple(promotion["receipts"])
-    verification, non_promotable, receipt_lineage = (
-        _validated_promotion_receipt_counts(receipts)
-    )
+    verification, non_promotable, receipt_lineage = _validated_promotion_receipt_counts(receipts)
     assert isinstance(replay_receipt["call_rebindings"], list)
     comparison_plan = owner._cycle_trace_plan_from_manifest(trace)
     assert trace["comparison_content_hash"] == owner._cycle_trace_comparison_content_hash(
         trace,
         comparison_plan,
     )
-    output = (
-        owner._canonical_json(comparison_plan.project(trace)) + "\n"
-    ).encode("utf-8")
+    output = (owner._canonical_json(comparison_plan.project(trace)) + "\n").encode("utf-8")
     return output, verification, non_promotable, receipt_lineage + 1
 
 
@@ -275,21 +269,20 @@ def _run_depth_n_owner(product_root: Path) -> tuple[bytes, int, int, int]:
             historical_domain_run=frozen["domain_runs"][role],
         )
     )
-    assert owner._authority_source_migration_receipt_issues(
-        recording,
-        replayed_domain_run=domain_run,
-    ) == ()
+    assert (
+        owner._authority_source_migration_receipt_issues(
+            recording,
+            replayed_domain_run=domain_run,
+        )
+        == ()
+    )
     migration = recording["authority_source_migration_receipt"]
     assert migration["schema_version"] == (
         "policyos.layer3.gy.n10.authority_source_migration_receipt.v1"
     )
-    assert migration["migration_reason"] == (
-        "ambient_canonical_repo_to_isolated_verification"
-    )
+    assert migration["migration_reason"] == ("ambient_canonical_repo_to_isolated_verification")
     assert migration["consumer_effect"] == "non_authorizing_verification_only"
-    assert migration["predicate_provenance"] == (
-        owner._authority_source_predicate_provenance()
-    )
+    assert migration["predicate_provenance"] == (owner._authority_source_predicate_provenance())
 
     promotion = domain_run["stage_trace"]["promotion"]
     assert promotion["authority_provenance"] == ["verification"]
@@ -305,9 +298,7 @@ def _run_depth_n_owner(product_root: Path) -> tuple[bytes, int, int, int]:
         owner_output,
         admissions=admissions,
     )
-    output = (
-        owner._canonical_json(comparison_plan.project(owner_output)) + "\n"
-    ).encode("utf-8")
+    output = (owner._canonical_json(comparison_plan.project(owner_output)) + "\n").encode("utf-8")
     return output, receipt_count, receipt_count, 1
 
 
@@ -322,29 +313,28 @@ def _run_n11_owner(product_root: Path) -> tuple[bytes, int, int, int]:
         N13bAcquisitionExecutorContract,
     )
 
-    capstone = json.loads(
-        (product_root / adapter.DEFAULT_N10_CAPSTONE).read_text(encoding="utf-8")
-    )
+    capstone = json.loads((product_root / adapter.DEFAULT_N10_CAPSTONE).read_text(encoding="utf-8"))
     assert depth_n.validate_payload(capstone)["status"] == "pass"
     lineage_count = 0
     for role, recording in capstone["proof_recordings"].items():
-        assert depth_n._authority_source_migration_receipt_issues(
-            recording,
-            replayed_domain_run=capstone["domain_runs"][role],
-        ) == ()
+        assert (
+            depth_n._authority_source_migration_receipt_issues(
+                recording,
+                replayed_domain_run=capstone["domain_runs"][role],
+            )
+            == ()
+        )
         lineage_count += 1
 
     n13b = N13bAcquisitionExecutorContract.model_validate_json(
         (product_root / DEFAULT_N13B_CONTRACT).read_bytes()
     )
     catalog_path = (
-        product_root
-        / "production_data/datasets_full_phase3full_20260327_183054/"
+        product_root / "production_data/datasets_full_phase3full_20260327_183054/"
         "dataset_catalog.duckdb"
     )
     l5_path = (
-        product_root
-        / "production_data/canonical/local_data_20260501/"
+        product_root / "production_data/canonical/local_data_20260501/"
         "ukraine_server_support_20260410/runtime_calibration_internals/"
         "calibration/d2/measurement_registry.json"
     )
@@ -353,9 +343,7 @@ def _run_n11_owner(product_root: Path) -> tuple[bytes, int, int, int]:
     original_bundle_loader = owner.load_owner_bundle
     try:
         adapter._recompute_n10_capstone = lambda _root: capstone
-        adapter._recompute_n13b_contract = (
-            lambda _root, *, catalog_path, l5_path: n13b
-        )
+        adapter._recompute_n13b_contract = lambda _root, *, catalog_path, l5_path: n13b
         adapter.clear_owner_bundle_cache()
         bundle = adapter.load_owner_bundle(
             product_root,
@@ -381,9 +369,7 @@ def _run_n11_owner(product_root: Path) -> tuple[bytes, int, int, int]:
         contract.n9_promotion_projection,
         contract.n12_epoch_reference_projection,
     )
-    assert {projection.authority_provenance for projection in projections} == {
-        "verification"
-    }
+    assert {projection.authority_provenance for projection in projections} == {"verification"}
     checks = (
         tuple(contract.real_ledger_projection.checks)
         + tuple(contract.conformance_ledger_projection.checks)

@@ -287,16 +287,12 @@ def _participation_report(
                 else "satisfied",
                 "participation_ref": f"corpus-stub:participation:{_slug(requirement_id)}",
                 "downgrade_reason": "corpus_stub_limited" if status in _LIMITED else None,
-                "blocker_code": "corpus_stub_participation_blocked"
-                if status in _BLOCKED
-                else None,
+                "blocker_code": "corpus_stub_participation_blocked" if status in _BLOCKED else None,
             }
         )
     return {
         "schema_version": "policyos.participation_requirement.pipeline_evaluations.v1",
-        "status": "blocked"
-        if any(row["status"] == "blocked" for row in evaluations)
-        else "pass",
+        "status": "blocked" if any(row["status"] == "blocked" for row in evaluations) else "pass",
         "evaluations": evaluations,
         "summary": {
             "satisfied": sum(1 for row in evaluations if row["status"] == "satisfied"),
@@ -345,9 +341,7 @@ def _capability_fields(
         "construct_ref": _construct_ref(spec, requirement_id=requirement_id),
         "capability_index_ref": binding_context["capability_index_ref"],
         "construct_registry_ref": binding_context["construct_registry_ref"],
-        "authority_composition_rule_ref": binding_context[
-            "authority_composition_rule_ref"
-        ],
+        "authority_composition_rule_ref": binding_context["authority_composition_rule_ref"],
     }
 
 

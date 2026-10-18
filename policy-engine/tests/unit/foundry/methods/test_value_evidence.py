@@ -590,9 +590,7 @@ def test_method_value_evidence_rejects_projection_kind_not_owned_by_contract() -
 
     forged = evidence.model_dump(mode="python")
     forged["native_projection_capability"]["projection_kind"] = "econometric"
-    forged_without_hash = {
-        key: value for key, value in forged.items() if key != "content_hash"
-    }
+    forged_without_hash = {key: value for key, value in forged.items() if key != "content_hash"}
     from polisyos.foundry.methods.components.value_evidence import _content_hash
 
     forged["content_hash"] = _content_hash(forged_without_hash)

@@ -110,11 +110,15 @@ def test_graph_prior_bundle_round_trip_preserves_contract(tmp_path) -> None:
 
 def test_graph_prior_builder_and_cas_preserve_typed_candidate_scope(tmp_path) -> None:
     matrix = EdgeConfidenceMatrix(entries=[], hypothesis_weights={}, metadata={})
-    score = _utility_report().scores[0].model_copy(
-        update={
-            "graph_derived_assumption_status": AlgebraicAssumptionStatus.UNKNOWN,
-            "graph_derived_scope_of_falsification": AlgebraicFalsificationScope.RANKING_ONLY,
-        }
+    score = (
+        _utility_report()
+        .scores[0]
+        .model_copy(
+            update={
+                "graph_derived_assumption_status": AlgebraicAssumptionStatus.UNKNOWN,
+                "graph_derived_scope_of_falsification": AlgebraicFalsificationScope.RANKING_ONLY,
+            }
+        )
     )
     report = _utility_report().model_copy(update={"scores": [score]})
     bundle = GraphPriorBuilder().build(matrix, report)
@@ -222,20 +226,22 @@ def test_graph_prior_writer_rejects_forged_historical_version_before_cas(tmp_pat
 
 def test_graph_prior_writer_revalidates_nested_scope_before_cas(tmp_path) -> None:
     matrix = EdgeConfidenceMatrix(entries=[], hypothesis_weights={}, metadata={})
-    score = _utility_report().scores[0].model_copy(
-        update={
-            "graph_derived_assumption_status": AlgebraicAssumptionStatus.UNKNOWN,
-            "graph_derived_scope_of_falsification": AlgebraicFalsificationScope.RANKING_ONLY,
-        }
+    score = (
+        _utility_report()
+        .scores[0]
+        .model_copy(
+            update={
+                "graph_derived_assumption_status": AlgebraicAssumptionStatus.UNKNOWN,
+                "graph_derived_scope_of_falsification": AlgebraicFalsificationScope.RANKING_ONLY,
+            }
+        )
     )
     report = _utility_report().model_copy(update={"scores": [score]})
     bundle = GraphPriorBuilder().build(matrix, report)
     evidence = bundle.hypothesis_identification["pc_main"].model_copy(
         update={"graph_derived_assumption_status": "invented_status"}
     )
-    forged = bundle.model_copy(
-        update={"hypothesis_identification": {"pc_main": evidence}}
-    )
+    forged = bundle.model_copy(update={"hypothesis_identification": {"pc_main": evidence}})
     store = FileSystemCAS(tmp_path / "writer-revalidates-nested-scope")
 
     from unittest.mock import patch

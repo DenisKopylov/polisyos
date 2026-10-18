@@ -214,9 +214,7 @@ def test_coherent_offline_identity_substitution_is_only_a_structural_candidate()
     validation["worker_validation_receipt_hash"] = forged_receipt
     _rebind_available_packet(candidate)
 
-    parsed_candidate = TypeAdapter(
-        ConfidenceLedgerRiskSpendPacketCandidate
-    ).validate_json(
+    parsed_candidate = TypeAdapter(ConfidenceLedgerRiskSpendPacketCandidate).validate_json(
         json.dumps(candidate),
         strict=True,
     )

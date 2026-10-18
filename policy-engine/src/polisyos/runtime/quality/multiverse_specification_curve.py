@@ -12,9 +12,7 @@ from typing import Any
 MULTIVERSE_SPECIFICATION_CURVE_SCHEMA_VERSION = (
     "policyos.runtime.policy_design_case.multiverse_specification_curve.v1"
 )
-MULTIVERSE_SPECIFICATION_CURVE_CONTRACT_ID = (
-    "policy_design_case.multiverse_specification_curve.v1"
-)
+MULTIVERSE_SPECIFICATION_CURVE_CONTRACT_ID = "policy_design_case.multiverse_specification_curve.v1"
 
 REQUIRED_MULTIVERSE_SOURCE_KINDS = (
     "scientist_doe",
@@ -261,8 +259,7 @@ def validate_multiverse_specification_curve_record(
             "specification_records",
         )
     records = _sorted_records(
-        _validate_specification_record(item, index=index)
-        for index, item in enumerate(raw_records)
+        _validate_specification_record(item, index=index) for index, item in enumerate(raw_records)
     )
     if not records:
         raise MultiverseSpecificationCurveError(
@@ -328,9 +325,7 @@ def _project_output(
         specification_ids = _sequence_or_none(raw_specification_ids)
         estimates = _float_sequence_or_none(raw_estimates)
         standard_errors = _float_sequence_or_none(
-            payload.get("standard_errors")
-            or payload.get("se")
-            or payload.get("std_errors")
+            payload.get("standard_errors") or payload.get("se") or payload.get("std_errors")
         )
         if specification_ids is None or estimates is None:
             raise MultiverseSpecificationCurveError(
@@ -340,9 +335,7 @@ def _project_output(
             )
         if standard_errors is None:
             standard_errors = [0.0 for _ in specification_ids]
-        if not (
-            len(specification_ids) == len(estimates) == len(standard_errors)
-        ):
+        if not (len(specification_ids) == len(estimates) == len(standard_errors)):
             raise MultiverseSpecificationCurveError(
                 "policy_design_multiverse_bundled_output_shape_mismatch",
                 "Bundled specification_ids, estimates, and standard_errors must align.",
@@ -779,9 +772,7 @@ def _claim_markers(records: list[dict[str, Any]], claim_ids: list[str]) -> list[
         claim_records = [
             record for record in records if claim_id in set(record.get("claim_ids") or [])
         ]
-        defensible = [
-            record for record in claim_records if record["decision"] == "defensible"
-        ]
+        defensible = [record for record in claim_records if record["decision"] == "defensible"]
         defensible_signs = {
             str(record["sign"]) for record in defensible if record["sign"] != "zero"
         }
@@ -905,9 +896,7 @@ def _normalize_drivers(value: object) -> dict[str, Any]:
 
 
 def _decision(payload: Mapping[str, Any]) -> str:
-    raw = _text(
-        _first_present(payload, "decision", "status", "verdict", "result_status")
-    )
+    raw = _text(_first_present(payload, "decision", "status", "verdict", "result_status"))
     if _text(payload.get("rejection_reason")) is not None:
         return "rejected"
     if raw is not None:

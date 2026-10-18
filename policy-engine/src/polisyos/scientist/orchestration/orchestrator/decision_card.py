@@ -188,17 +188,24 @@ class DecisionCard:
         if not isinstance(blocked_summary, dict):
             blocked_summary = {}
         blocker_count = int(blocked_summary.get("blocked_count", 0) or 0)
-        warning_count = 1 if payload.get("continuous_governance", {}).get("status") in {
-            "review_required",
-            "stale",
-        } else 0
+        warning_count = (
+            1
+            if payload.get("continuous_governance", {}).get("status")
+            in {
+                "review_required",
+                "stale",
+            }
+            else 0
+        )
         issues = IssuesSummary(blocker_count=blocker_count, warning_count=warning_count)
         policy_summary = _compiler_policy_summary(payload)
         claim_count = trust.claim_count if trust is not None else 0
         audience_label = _enum_or_text(_read(export, "audience", "unknown"))
         badges = [
             DiagnosticBadge(label=f"compiler:{audience_label}", kind="info"),
-            DiagnosticBadge(label=f"claims:{claim_count}", kind="ok" if blocker_count == 0 else "warn"),
+            DiagnosticBadge(
+                label=f"claims:{claim_count}", kind="ok" if blocker_count == 0 else "warn"
+            ),
         ]
         if trust is not None and trust.research_dag_status:
             badges.append(

@@ -27,9 +27,7 @@ def _hte_payload() -> dict[str, np.ndarray]:
     return {
         "outcome": np.linspace(0.0, 1.0, n_obs),
         "treatment": np.asarray([0, 1] * (n_obs // 2)),
-        "covariates": np.column_stack(
-            (np.linspace(-1.0, 1.0, n_obs), np.ones(n_obs, dtype=float))
-        ),
+        "covariates": np.column_stack((np.linspace(-1.0, 1.0, n_obs), np.ones(n_obs, dtype=float))),
     }
 
 
@@ -96,9 +94,7 @@ def test_dml_input_materializer_preserves_existing_structured_hte_payloads(
 
 def test_dml_input_materializer_rejects_matrix_without_a_column_contract() -> None:
     payload = _hte_payload()
-    matrix = np.column_stack(
-        (payload["outcome"], payload["treatment"], payload["covariates"])
-    )
+    matrix = np.column_stack((payload["outcome"], payload["treatment"], payload["covariates"]))
 
     with pytest.raises(ValidationError):
         materialize_method_input(

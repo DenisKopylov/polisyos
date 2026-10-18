@@ -67,9 +67,7 @@ _HISTORICAL_V1_REQUEST_BYTES = bytes.fromhex(
     "6f745f65737461626c6973686564222c2263616e6469646174655f65766964656e63655f73656d616e746963735f6e6f745f61646d6974746564222c"
     "2263616e6469646174655f65766964656e63655f7265666572656e6365735f6e6f745f72656164225d7d"
 )
-_HISTORICAL_V1_REQUEST_SHA256 = (
-    "08997fdd3abceecfb56847524a708849b2aac978bd6f0fdbb77a068cf2883a04"
-)
+_HISTORICAL_V1_REQUEST_SHA256 = "08997fdd3abceecfb56847524a708849b2aac978bd6f0fdbb77a068cf2883a04"
 
 
 def test_protected_n9_intake_persists_scoped_request_before_refusing(tmp_path):
@@ -154,9 +152,7 @@ def test_source_signature_intake_normalizes_before_strict_typed_verifier(tmp_pat
     reference, trust = _signed_source(store, scope)
     uppercase = f"sha256:{reference.removeprefix('sha256:').upper()}"
     verifier = _DirectBoundSignatureVerifier(store)
-    owner = safety.PromotionSafetyOwner(
-        store=store, trust=trust, signature_verifier=verifier
-    )
+    owner = safety.PromotionSafetyOwner(store=store, trust=trust, signature_verifier=verifier)
 
     attempt = owner._source_attempt(uppercase, scope)
 
@@ -356,9 +352,7 @@ def test_signature_verification_failure_taxonomy_is_typed_and_fail_closed(
                 raise RuntimeDependencyUnavailableError("signature_verifier")
             if failure == "verifier_raised":
                 raise RuntimeError("exception detail must not be persisted")
-            valid = store.verify_signature(
-                artifact_id, verifier, strict_identity=strict_identity
-            )
+            valid = store.verify_signature(artifact_id, verifier, strict_identity=strict_identity)
             return valid.model_copy(update={"artifact_id": "sha256:" + "f" * 64})
 
     owner = safety.PromotionSafetyOwner(

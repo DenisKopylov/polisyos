@@ -10,11 +10,9 @@ class DataForgeDomainPlugin(Protocol):
     """Component-style plugin that exposes a Data Forge domain package."""
 
     @property
-    def metadata(self) -> object:
-        ...
+    def metadata(self) -> object: ...
 
-    def create(self) -> object:
-        ...
+    def create(self) -> object: ...
 
 
 __all__ = ["DataForgeDomainPlugin"]

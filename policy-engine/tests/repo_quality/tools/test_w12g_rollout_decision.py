@@ -7,9 +7,7 @@ from pathlib import Path
 from tools.quality.validation import run_policy_design_case_rollout_decision as w12g
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-MANIFEST_PATH = (
-    REPO_ROOT / "architecture/policy_design_case/wave12g_rollout_decision_manifest.json"
-)
+MANIFEST_PATH = REPO_ROOT / "architecture/policy_design_case/wave12g_rollout_decision_manifest.json"
 
 
 def test_w12g_manifest_is_deterministic_and_consumes_w12_evidence_chain() -> None:
@@ -144,9 +142,7 @@ def test_w12g_uses_w12d_rollout_blockers_not_expected_negative_control_audit_blo
     )
 
     assert report["status"] == "pass"
-    assert not any(
-        blocker.get("upstream_phase") == "W12.D" for blocker in report["typed_blockers"]
-    )
+    assert not any(blocker.get("upstream_phase") == "W12.D" for blocker in report["typed_blockers"])
 
 
 def test_w12g_corpus_stub_mode_never_promotes_production_capable() -> None:
@@ -202,12 +198,8 @@ def test_w12g_uses_real_producer_for_runtime_rate_and_labels_stub_probe() -> Non
     assert report["status"] == "blocked"
     assert report["decision"] == "hold_for_remediation"
     assert report["metric_citations"]["runtime_useful_design_rate"]["value"] == 0.0
-    assert report["metric_citations"]["runtime_useful_design_rate"]["mode"] == (
-        "real_producer"
-    )
-    assert report["metric_citations"]["corpus_stub_useful_design_probe_rate"][
-        "value"
-    ] == 0.9231
+    assert report["metric_citations"]["runtime_useful_design_rate"]["mode"] == ("real_producer")
+    assert report["metric_citations"]["corpus_stub_useful_design_probe_rate"]["value"] == 0.9231
     assert report["metric_citations"]["stub_alignment_probe_rate"]["value"] == 0.9231
     assert "w12g_runtime_useful_design_floor_not_met" in {
         blocker["code"] for blocker in report["typed_blockers"]
@@ -232,9 +224,7 @@ def test_w12g_governed_pilot_blocks_when_only_stub_runtime_metric_exists() -> No
 
     assert report["status"] == "blocked"
     assert report["metric_citations"]["runtime_useful_design_rate"]["value"] is None
-    assert report["metric_citations"]["corpus_stub_useful_design_probe_rate"][
-        "value"
-    ] == 0.9231
+    assert report["metric_citations"]["corpus_stub_useful_design_probe_rate"]["value"] == 0.9231
     assert "w12g_runtime_useful_design_floor_not_met" in {
         blocker["code"] for blocker in report["typed_blockers"]
     }

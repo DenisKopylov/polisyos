@@ -37,9 +37,7 @@ def build_static_aging_state(
         state["donor_state_index"] = np.asarray(artifacts.donor_state_index, dtype=np.int64)
     if artifacts.donor_record_index is not None:
         state["donor_record_index"] = np.asarray(artifacts.donor_record_index, dtype=np.int64)
-    state["demography_source_evidence"] = artifacts.source_evidence.model_dump(
-        mode="json"
-    )
+    state["demography_source_evidence"] = artifacts.source_evidence.model_dump(mode="json")
     if exit_weights is not None:
         state["exit_weights"] = np.asarray(exit_weights, dtype=float)
     if microsim_calibration_report is not None:

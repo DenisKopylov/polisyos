@@ -89,9 +89,7 @@ def _source_id(source: dict[str, Any]) -> str:
 
 def _source_family(source: dict[str, Any]) -> str:
     return _text(
-        source.get("source_family")
-        or source.get("family")
-        or source.get("data_source_family")
+        source.get("source_family") or source.get("family") or source.get("data_source_family")
     )
 
 
@@ -338,8 +336,7 @@ def _validate_selected_source(
                     "for the golden scenario."
                 ),
                 next_action=(
-                    "Select an admissible production source family or update the "
-                    "scenario contract."
+                    "Select an admissible production source family or update the scenario contract."
                 ),
             )
         )
@@ -351,8 +348,7 @@ def _validate_selected_source(
                 source_id=source_id,
                 message=f"Selected source {source_id} appears to be fixture/mock evidence.",
                 next_action=(
-                    "Use production data sources for research/governed/production "
-                    "canaries."
+                    "Use production data sources for research/governed/production canaries."
                 ),
             )
         )
@@ -377,24 +373,15 @@ def _validate_selected_source(
             continue
         if isinstance(diagnostic, dict):
             status = _status_value(diagnostic)
-            diagnostic_code = _text(
-                diagnostic.get("code") or diagnostic.get("reason_code")
-            )
+            diagnostic_code = _text(diagnostic.get("code") or diagnostic.get("reason_code"))
             issues.append(
                 _issue(
                     code=diagnostic_code or code,
                     source_id=source_id,
-                    severity=(
-                        "warn"
-                        if status in {"warn", "warning", "degraded"}
-                        else "fail"
-                    ),
+                    severity=("warn" if status in {"warn", "warning", "degraded"} else "fail"),
                     message=(
                         _text(diagnostic.get("message"))
-                        or (
-                            f"Selected source {source_id} has failing {field} "
-                            "diagnostics."
-                        )
+                        or (f"Selected source {source_id} has failing {field} diagnostics.")
                     ),
                     next_action=_text(diagnostic.get("next_action")) or next_action,
                 )
@@ -735,8 +722,7 @@ def _classify_selected_sources(
     selected_contract_source_ids = {
         source_id
         for binding in contract_projection.get("selected_contract_bindings") or []
-        if isinstance(binding, Mapping)
-        and _contract_binding_status(binding) == "satisfied"
+        if isinstance(binding, Mapping) and _contract_binding_status(binding) == "satisfied"
         for source_id in binding.get("selected_source_ids") or []
         if _text(source_id)
     }
@@ -838,17 +824,13 @@ def build_fabric_source_selection_trace(
     production_data_contract_binding_report: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Build a strict source-selection audit trace from Fabric candidates."""
-    scenario_expected_families = _scenario_expected_source_families(
-        scenario_evidence_contract
-    )
+    scenario_expected_families = _scenario_expected_source_families(scenario_evidence_contract)
     expected_families = {
         source_family.casefold()
         for source_family in (expected_source_families or scenario_expected_families or [])
         if _text(source_family)
     }
-    contract_findings = _contract_binding_findings(
-        production_data_contract_binding_report
-    )
+    contract_findings = _contract_binding_findings(production_data_contract_binding_report)
     scenario_contract_id = _scenario_contract_id_from_inputs(
         scenario_evidence_contract=scenario_evidence_contract,
         production_data_contract_binding_report=production_data_contract_binding_report,
@@ -991,14 +973,10 @@ def normalize_fabric_retrieval_trace(
     query_intent = report.get("query_intent")
     query_intent = query_intent if isinstance(query_intent, dict) else {}
     selected_sources = [
-        source
-        for source in report.get("selected_sources", [])
-        if isinstance(source, dict)
+        source for source in report.get("selected_sources", []) if isinstance(source, dict)
     ]
     candidate_sources = [
-        source
-        for source in report.get("candidate_sources", [])
-        if isinstance(source, dict)
+        source for source in report.get("candidate_sources", []) if isinstance(source, dict)
     ]
     if not candidate_sources:
         candidate_sources = list(selected_sources)
@@ -1006,15 +984,17 @@ def normalize_fabric_retrieval_trace(
     if not isinstance(selected_source_ids, list):
         selected_source_ids = [_source_id(source) for source in selected_sources]
     rejected_sources = [
-        source
-        for source in report.get("rejected_sources", [])
-        if isinstance(source, dict)
+        source for source in report.get("rejected_sources", []) if isinstance(source, dict)
     ]
     expected = expected_source_families or report.get("expected_source_families") or []
-    expected = [_text(value) for value in expected if _text(value)] if isinstance(
-        expected,
-        list,
-    ) else []
+    expected = (
+        [_text(value) for value in expected if _text(value)]
+        if isinstance(
+            expected,
+            list,
+        )
+        else []
+    )
     scenario_contract_payload = (
         dict(report.get("scenario_evidence_contract"))
         if isinstance(report.get("scenario_evidence_contract"), dict)
@@ -1101,9 +1081,7 @@ def _source_facets(
     facets.setdefault(
         "source_rights",
         _optional_text(
-            source.get("source_rights")
-            or source.get("rights")
-            or source.get("license")
+            source.get("source_rights") or source.get("rights") or source.get("license")
         ),
     )
     facets.setdefault("dataset_ref", _first_ref(source, "dataset_ref", "dataset_id") or source_id)
@@ -1145,10 +1123,7 @@ def _source_facets(
     )
     facets.setdefault(
         "missingness_refs",
-        _refs_from_value(
-            source.get("missingness_refs")
-            or source.get("missingness")
-        ),
+        _refs_from_value(source.get("missingness_refs") or source.get("missingness")),
     )
     facets.setdefault(
         "freshness_refs",
@@ -1161,10 +1136,7 @@ def _source_facets(
     )
     facets.setdefault(
         "transformation_refs",
-        _refs_from_value(
-            source.get("transformation_refs")
-            or source.get("transformations")
-        ),
+        _refs_from_value(source.get("transformation_refs") or source.get("transformations")),
     )
     explicit_data_forge_refs = _refs_from_value(source.get("data_forge_snapshot_refs"))
     facets.setdefault(

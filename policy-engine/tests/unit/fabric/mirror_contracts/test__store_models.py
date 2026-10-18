@@ -2,4 +2,4 @@ from tests._helpers.mirror_contracts import assert_source_stem_has_static_contra
 
 
 def test__store_models_source_modules_have_static_contracts() -> None:
-    assert_source_stem_has_static_contract('fabric', '_store_models')
+    assert_source_stem_has_static_contract("fabric", "_store_models")

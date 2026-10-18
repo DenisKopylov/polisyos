@@ -169,9 +169,7 @@ def _allocation_policy_payload(**overrides: object) -> dict[str, object]:
         "pareto_archive_ref": "pdc://layer2/s8/ua-msme/allocation-pareto-archive",
         "ranking_mode": "ranked_with_authorized_values",
         "selected_policy_ref": "allocation-policy://ua-msme/balanced-governed",
-        "rejected_nondominated_policy_refs": [
-            "allocation-policy://ua-msme/acquisition-heavy"
-        ],
+        "rejected_nondominated_policy_refs": ["allocation-policy://ua-msme/acquisition-heavy"],
         "allocation_priority_rows": [
             {
                 "priority_ref": "priority://ua-msme/acquisition/source-rights",
@@ -337,8 +335,9 @@ def _assert_probe_blocks(name: str) -> None:
 
     assert payload["disposition"] == probe["expected_disposition"]
     assert probe["false_clear_field"] in set(payload["issue_codes"])
-    assert payload["false_clear_counts"][probe["false_clear_field"]] == (
-        probe["expected_false_clear_count"]
+    assert (
+        payload["false_clear_counts"][probe["false_clear_field"]]
+        == (probe["expected_false_clear_count"])
     )
 
 
@@ -387,7 +386,9 @@ def test_voi_allocation_uses_shared_currency_across_at_least_three_sites() -> No
         "refinement",
         "attention",
     }
-    assert all(row.shared_currency == "ValueOfInformationEstimate" for row in allocation.voi_allocations)
+    assert all(
+        row.shared_currency == "ValueOfInformationEstimate" for row in allocation.voi_allocations
+    )
     assert all(row.numeric_voi_score is None for row in allocation.voi_allocations)
 
 
@@ -434,9 +435,7 @@ def test_s12_resource_refs_resolve_real_objects_and_downgrade_authorial_refs() -
 
 
 def test_typed_budgets_are_not_freely_interchangeable() -> None:
-    policy = _runtime_attr("ResourceAllocationPolicy").model_validate(
-        _allocation_policy_payload()
-    )
+    policy = _runtime_attr("ResourceAllocationPolicy").model_validate(_allocation_policy_payload())
 
     assert {_row_value(row, "budget_kind") for row in policy.typed_budget_rows} == set(
         _runtime_attr("S12_TYPED_BUDGETS")
@@ -476,9 +475,7 @@ def test_explore_exploit_posture_reads_s7_delegation_dial_not_self_set() -> None
 
 
 def test_allocation_policy_presents_pareto_frontier_not_hidden_scalar() -> None:
-    policy = _runtime_attr("ResourceAllocationPolicy").model_validate(
-        _allocation_policy_payload()
-    )
+    policy = _runtime_attr("ResourceAllocationPolicy").model_validate(_allocation_policy_payload())
 
     assert policy.pareto_archive_ref
     assert policy.ranking_mode == "ranked_with_authorized_values"
@@ -551,9 +548,7 @@ def test_meta_regress_stops_at_principal() -> None:
 
 
 def test_reuse_rate_up_and_override_rate_down_trend_passes_floor() -> None:
-    thermometer = _runtime_attr("GrowthThermometerRecord").model_validate(
-        _thermometer_payload()
-    )
+    thermometer = _runtime_attr("GrowthThermometerRecord").model_validate(_thermometer_payload())
 
     assert thermometer.floor_id == "s12_growth_thermometers"
     assert thermometer.floor_passed is True
@@ -585,9 +580,7 @@ def test_held_out_status_is_pending_s14_not_executed() -> None:
 def test_s12_integrity_report_requires_exact_false_clear_keys() -> None:
     report_model = _runtime_attr("ResourceEconomicsIntegrityReport")
     false_clear_counts = _false_clear_counts()
-    report = report_model.model_validate(
-        _integrity_payload(false_clear_counts=false_clear_counts)
-    )
+    report = report_model.model_validate(_integrity_payload(false_clear_counts=false_clear_counts))
 
     assert set(report.false_clear_counts) == set(_runtime_attr("S12_FALSE_CLEAR_FIELDS"))
     assert all(value == 0 for value in report.false_clear_counts.values())

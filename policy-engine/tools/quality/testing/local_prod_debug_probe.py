@@ -649,6 +649,7 @@ def run_provider_preflight_check(context: ProbeContext) -> dict[str, Any]:
         details={"provider_call_started": False},
     )
 
+
 def run_provider_quality_controlled_check(context: ProbeContext) -> dict[str, Any]:
     """Refuse direct provider samples without a durable actor-scoped cost owner."""
     api_key = context.runtime_env.get("POLISYOS_LLM_GATEWAY_API_KEY")
@@ -681,6 +682,7 @@ def run_provider_quality_controlled_check(context: ProbeContext) -> dict[str, An
             "provider_call_started": False,
         },
     )
+
 
 def run_live_research_lane_check(context: ProbeContext) -> dict[str, Any]:
     """Run the one approved live research lane through the matrix wrapper."""

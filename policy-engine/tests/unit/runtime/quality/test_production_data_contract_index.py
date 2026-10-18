@@ -49,12 +49,14 @@ def test_contract_index_maps_curated_source_binding_to_scenario_family(
         "credit_program_registry"
     ]
     assert "source_contract_binding" in report["runtime_authority_envelope"]["authoritative_for"]
-    assert "scenario_source_family_admissibility" not in report[
-        "runtime_authority_envelope"
-    ]["authoritative_for"]
-    assert "scenario_family_authority_lookup" in report[
-        "runtime_authority_envelope"
-    ]["may_not_use_for"]
+    assert (
+        "scenario_source_family_admissibility"
+        not in report["runtime_authority_envelope"]["authoritative_for"]
+    )
+    assert (
+        "scenario_family_authority_lookup"
+        in report["runtime_authority_envelope"]["may_not_use_for"]
+    )
     assert "legal_authority" in report["runtime_authority_envelope"]["may_not_use_for"]
     assert report["compatibility_projection"]["scenario_family_authority_status"] == (
         "sunset_projection_only"
@@ -330,8 +332,7 @@ def test_contract_index_satisfies_all_public_golden_scenario_source_families(
     )
 
     findings = {
-        finding["expected_family"]: finding
-        for finding in report["scenario_binding_findings"]
+        finding["expected_family"]: finding for finding in report["scenario_binding_findings"]
     }
     assert report["summary"] == {
         "requirements": 3,
@@ -485,9 +486,7 @@ def test_contract_index_can_bind_directly_against_compiled_data_requirement_spec
     )
     spec = _data_requirement_spec("credit_program_registry")
 
-    report = ProductionDataContractIndex.load(root).build_data_requirement_binding_report(
-        [spec]
-    )
+    report = ProductionDataContractIndex.load(root).build_data_requirement_binding_report([spec])
 
     assert report["requirement_source"] == "compiled_data_requirement_spec"
     assert report["summary"] == {
@@ -672,9 +671,7 @@ def _source_contract_record(
 
 def _requirement(source_family: str) -> ScenarioEvidenceRequirement:
     return ScenarioEvidenceRequirement(
-        requirement_id=(
-            "scenario:ukraine_msme_wartime_credit_support:data:" f"{source_family}"
-        ),
+        requirement_id=(f"scenario:ukraine_msme_wartime_credit_support:data:{source_family}"),
         domain="data",
         expected_family=source_family,
         required_facets=DATA_REQUIRED_FACETS,

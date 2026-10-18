@@ -1,4 +1,3 @@
-
 """Property-based tests for mechanism runtime methods."""
 
 from __future__ import annotations

@@ -212,9 +212,7 @@ async def _worker_harness(
     calls: list[str] = []
     service._authority_provider = _Provider(calls=calls, decision_missing=decision_missing)
     with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
-        closure = service._resolve(
-            tenant_id="tenant-a", cell_id="cell-a", run_id="run-ds15"
-        )
+        closure = service._resolve(tenant_id="tenant-a", cell_id="cell-a", run_id="run-ds15")
         assert closure.source_job_id == fixture_closure.source_job_id
         assert closure.compiled_ref == fixture_closure.compiled_ref
         owner_ref = control._put_json_artifact(
@@ -296,25 +294,24 @@ async def _worker_harness(
             assert manifest.kind == expected_kind
             assert artifact_store.get_bytes(artifact_ref)
 
-        assert control.acquisition_route_sink.resolve_action_generation(
-            tenant_id="tenant-a",
-            cell_id="cell-a",
-            run_id=requested.run_id,
-            source_job_id=requested.source_job_id,
-            route_id=requested.route_id,
-            job_id=requested.job_id,
-        ) == requested.action_generation
+        assert (
+            control.acquisition_route_sink.resolve_action_generation(
+                tenant_id="tenant-a",
+                cell_id="cell-a",
+                run_id=requested.run_id,
+                source_job_id=requested.source_job_id,
+                route_id=requested.route_id,
+                job_id=requested.job_id,
+            )
+            == requested.action_generation
+        )
 
     with tenant_scope(None, tenant_id="tenant-b", cell_id="cell-b"):
         for artifact_ref in owned_refs:
             with pytest.raises(ArtifactOwnershipError):
                 artifact_store.get_bytes(artifact_ref)
-    created_payload = control._control_store.get_job_created_event_payload(
-        persisted_job.job_id
-    )
-    created_outbox = control._control_store.get_job_created_outbox_event(
-        persisted_job.job_id
-    )
+    created_payload = control._control_store.get_job_created_event_payload(persisted_job.job_id)
+    created_outbox = control._control_store.get_job_created_outbox_event(persisted_job.job_id)
     assert created_outbox is not None
     assert created_outbox.topic == "control.job.created"
     assert created_outbox.job_id == persisted_job.job_id
@@ -404,6 +401,7 @@ async def test_worker_loads_durable_decision_before_sealed_effect_and_terminal(
         assert head is not None
         assert head.receipt_phase == "terminal"
         assert head.recovery_state == "complete"
+
 
 def _new_lease_fence_job(store, *, job_id: str = "job-lease-fence"):
     store.create_job(

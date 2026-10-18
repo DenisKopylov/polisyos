@@ -345,9 +345,7 @@ def _abm_inline_input_cases(
             outcome_slope=1.0,
             outcome_noise_std=0.2,
         )
-        abstraction_map = FiniteStateAbstractionMap.model_validate(
-            _continuous_abstraction_map()
-        )
+        abstraction_map = FiniteStateAbstractionMap.model_validate(_continuous_abstraction_map())
         payload_prefix = "continuous"
         params["continuous_abstraction_bound_config"] = {
             "family": "continuous_linear_gaussian",
@@ -436,9 +434,7 @@ def test_run_abm_consistency_node_persists_exact_abstraction_certificate(tmp_pat
     assert map_source_ref.manifest_profile_sha256 != unselected_map_view.manifest_profile_sha256
     conflicting_fallback_ref = profile_bound_ref(
         store,
-        persist_structural_causal_model_spec(
-            store, _finite_state_scm(macro=True, mismatch=True)
-        ),
+        persist_structural_causal_model_spec(store, _finite_state_scm(macro=True, mismatch=True)),
     )
     state = ExperimentState(
         run_id="R_abm_exact",
@@ -511,9 +507,7 @@ def test_abm_rejects_conflicting_inline_and_ref_for_every_selected_input_pair(
     ctx = _build_ctx(tmp_path, run_id=run_id)
     params, cases = _abm_inline_input_cases(ctx, family)
     _payload_key, ref_key, selected_value, persist = cases[slot]
-    params[ref_key] = persist(_different_abm_input(slot, selected_value)).model_dump(
-        mode="json"
-    )
+    params[ref_key] = persist(_different_abm_input(slot, selected_value)).model_dump(mode="json")
 
     outcome = RunABMConsistencyCheckNode().execute(
         ctx,

@@ -98,11 +98,7 @@ def test_default_metric_registry_accepts_real_nl_policy_outcome_metrics() -> Non
 
     _, report = link_trinity(bundle, _default_registries())
 
-    assert not [
-        issue
-        for issue in report.issues
-        if issue.code == LinkIssueCode.UNKNOWN_METRIC
-    ]
+    assert not [issue for issue in report.issues if issue.code == LinkIssueCode.UNKNOWN_METRIC]
 
 
 def test_linker_reports_unknown_mechanism() -> None:

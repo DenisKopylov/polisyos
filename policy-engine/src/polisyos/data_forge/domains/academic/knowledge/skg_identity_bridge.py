@@ -335,6 +335,7 @@ def replay_source_identity_bundle(
     audit projection, not a transferable production authority token.
     """
     from polisyos.core.artifacts import validate_core_model_json_artifact
+
     manifest = store.get_manifest(ref)
     if (
         manifest.kind != _KIND

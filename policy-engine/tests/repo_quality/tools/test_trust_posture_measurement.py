@@ -27,7 +27,8 @@ def source_repo(tmp_path: Path) -> Path:
         "\n".join(
             item["source_content"]
             for item in rebound_register("``left`|right``")["custody_appointment_sources"]
-        ) + "\n"
+        )
+        + "\n"
     )
     return tmp_path
 
@@ -35,9 +36,7 @@ def source_repo(tmp_path: Path) -> Path:
 def call_report(root: Path, capsys, mode: str, compact: bool) -> dict:
     target = root / checker._OUTPUT_PATH
     before = target.read_bytes() if mode == "--check" else None
-    assert checker.main(
-        ["--repo-root", str(root), mode, *(["--json"] if compact else [])]
-    ) == 0
+    assert checker.main(["--repo-root", str(root), mode, *(["--json"] if compact else [])]) == 0
     report = json.loads(capsys.readouterr().out)
     assert report["verdict"] == "PASS"
     assert report["measurement"]["complete_verdict"] is True
@@ -56,20 +55,24 @@ def call_report(root: Path, capsys, mode: str, compact: bool) -> dict:
 
 def read_fact(report: dict, path: str) -> dict:
     return next(
-        item for item in report["measurement"]["inputs"]
+        item
+        for item in report["measurement"]["inputs"]
         if item["path"] == path and item["operation"] == "read_bytes"
     )
 
 
 def path_fact(report: dict, path: str, operation: str) -> dict:
     return next(
-        item for item in report["measurement"]["inputs"]
+        item
+        for item in report["measurement"]["inputs"]
         if item["path"] == path and item["operation"] == operation
     )
 
 
 @pytest.mark.parametrize("compact", [False, True])
-@pytest.mark.parametrize("mode", ["--check-sources", "--write", "--check", "--corrupt-field-drift-check"])
+@pytest.mark.parametrize(
+    "mode", ["--check-sources", "--write", "--check", "--corrupt-field-drift-check"]
+)
 def test_cli_discloses_actual_inputs_and_outside_selector_evidence_stays_unresolved(
     source_repo: Path, capsys, compact: bool, mode: str
 ) -> None:
@@ -82,16 +85,23 @@ def test_cli_discloses_actual_inputs_and_outside_selector_evidence_stays_unresol
     assert before == after
     measurement = after["measurement"]
     assert measurement["source_python_read_count"] == 1
-    assert read_fact(after, "src/example.py")["sha256"] == sha256(
-        (source_repo / "src/example.py").read_bytes()
-    ).hexdigest()
+    assert (
+        read_fact(after, "src/example.py")["sha256"]
+        == sha256((source_repo / "src/example.py").read_bytes()).hexdigest()
+    )
     custody = checker._DEBT_REGISTER_PATH.as_posix()
-    assert read_fact(after, custody)["sha256"] == sha256(
-        (source_repo / custody).read_bytes()
-    ).hexdigest()
+    assert (
+        read_fact(after, custody)["sha256"]
+        == sha256((source_repo / custody).read_bytes()).hexdigest()
+    )
     assert measurement["selectors"]["custody_ids"] == list(checker.CUSTODY_APPOINTMENT_DEBT_IDS)
-    assert any("schema_and_evidence_only:" in item for item in measurement["unresolved_by_construction"])
-    assert any("unselected_authority_documents:" in item for item in measurement["unresolved_by_construction"])
+    assert any(
+        "schema_and_evidence_only:" in item for item in measurement["unresolved_by_construction"]
+    )
+    assert any(
+        "unselected_authority_documents:" in item
+        for item in measurement["unresolved_by_construction"]
+    )
     assert "docs/outside-authority.md" not in {item["path"] for item in measurement["inputs"]}
 
 
@@ -101,12 +111,17 @@ def test_cli_reads_whole_register_but_selects_only_appointed_ids(
 ) -> None:
     before = call_report(source_repo, capsys, "--check-sources", compact)
     custody = source_repo / checker._DEBT_REGISTER_PATH
-    custody.write_bytes(custody.read_bytes() + b"| `OUTSIDE` | other | `fake` | `active` | `fake` |\n")
+    custody.write_bytes(
+        custody.read_bytes() + b"| `OUTSIDE` | other | `fake` | `active` | `fake` |\n"
+    )
     after = call_report(source_repo, capsys, "--check-sources", compact)
     assert before["payload_digest"] == after["payload_digest"]
     path = checker._DEBT_REGISTER_PATH.as_posix()
     assert read_fact(before, path)["sha256"] != read_fact(after, path)["sha256"]
-    assert any("unselected_custody_rows:" in item for item in after["measurement"]["unresolved_by_construction"])
+    assert any(
+        "unselected_custody_rows:" in item
+        for item in after["measurement"]["unresolved_by_construction"]
+    )
 
 
 @pytest.mark.parametrize("compact", [False, True])
@@ -117,7 +132,7 @@ def test_cli_returns_fail_for_present_invalid_custody_contract(
     custody.write_bytes(custody.read_bytes().replace(b"team-scientist", b"team-forged"))
 
     exit_code = checker.main(
-        ["--repo-root", str(source_repo), "--check-sources", *( ["--json"] if compact else [])]
+        ["--repo-root", str(source_repo), "--check-sources", *(["--json"] if compact else [])]
     )
     output = capsys.readouterr().out
     report = json.loads(output)
@@ -128,9 +143,10 @@ def test_cli_returns_fail_for_present_invalid_custody_contract(
     assert report["measurement"]["complete_verdict"] is True
     assert report["measurement"]["finding_coverage"].startswith("decisive predicate failure")
     assert report["failure_code"] == "DS11-CUSTODY-APPOINTMENT-CONTRACT"
-    assert read_fact(report, checker._DEBT_REGISTER_PATH.as_posix())["sha256"] == sha256(
-        custody.read_bytes()
-    ).hexdigest()
+    assert (
+        read_fact(report, checker._DEBT_REGISTER_PATH.as_posix())["sha256"]
+        == sha256(custody.read_bytes()).hexdigest()
+    )
 
 
 @pytest.mark.parametrize("compact", [False, True])
@@ -152,13 +168,14 @@ def test_cli_returns_unrun_for_missing_or_unreadable_custody_input(
         monkeypatch.setattr(Path, "read_bytes", denied)
 
     exit_code = checker.main(
-        ["--repo-root", str(source_repo), "--check-sources", *( ["--json"] if compact else [])]
+        ["--repo-root", str(source_repo), "--check-sources", *(["--json"] if compact else [])]
     )
     output = capsys.readouterr().out
     report = json.loads(output)
     expected_status = "absent" if mutation == "missing" else "unreadable"
     custody_facts = [
-        item for item in report["measurement"]["inputs"]
+        item
+        for item in report["measurement"]["inputs"]
         if item["path"] == checker._DEBT_REGISTER_PATH.as_posix()
     ]
 
@@ -182,7 +199,7 @@ def test_cli_missing_generated_target_is_determinate_drift_fail(
     target.unlink()
 
     exit_code = checker.main(
-        ["--repo-root", str(source_repo), "--check", *( ["--json"] if compact else [])]
+        ["--repo-root", str(source_repo), "--check", *(["--json"] if compact else [])]
     )
     output = capsys.readouterr().out
     report = json.loads(output)
@@ -215,7 +232,7 @@ def test_cli_unreadable_generated_target_is_unrun_not_drift_fail(
 
     monkeypatch.setattr(Path, "read_bytes", denied)
     exit_code = checker.main(
-        ["--repo-root", str(source_repo), "--check", *( ["--json"] if compact else [])]
+        ["--repo-root", str(source_repo), "--check", *(["--json"] if compact else [])]
     )
     output = capsys.readouterr().out
     report = json.loads(output)
@@ -226,7 +243,9 @@ def test_cli_unreadable_generated_target_is_unrun_not_drift_fail(
     assert report["failure_stage"] == "generated_artifact_byte_read"
     assert report["unrun_code"] == "DS11-INSPECTION-INCOMPLETE"
     assert report["measurement"]["complete_verdict"] is False
-    assert path_fact(report, checker._OUTPUT_PATH.as_posix(), "read_bytes")["status"] == "unreadable"
+    assert (
+        path_fact(report, checker._OUTPUT_PATH.as_posix(), "read_bytes")["status"] == "unreadable"
+    )
     assert report["write_set"] == []
     assert original(target) == frozen_artifact
 
@@ -253,7 +272,7 @@ def test_cli_rejects_same_byte_generated_target_symlink_escape_before_read(
 
     monkeypatch.setattr(filesystem, "measured_read_bytes", record_read)
     exit_code = checker.main(
-        ["--repo-root", str(source_repo), "--check", *( ["--json"] if compact else [])]
+        ["--repo-root", str(source_repo), "--check", *(["--json"] if compact else [])]
     )
     output = capsys.readouterr().out
     report = json.loads(output)

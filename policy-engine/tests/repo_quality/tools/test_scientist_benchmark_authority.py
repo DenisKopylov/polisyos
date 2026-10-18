@@ -69,10 +69,7 @@ def _write_minimal_repo(repo_root: Path, *, omitted_doc_entry: str) -> None:
                 "benchmark_authority_not_allowed\n"
             )
         if path.name == "frontier_runtime.py":
-            content += (
-                "require_benchmark_authority\n"
-                "benchmark_authority_default_enable_allowed\n"
-            )
+            content += "require_benchmark_authority\nbenchmark_authority_default_enable_allowed\n"
         absolute.write_text(content, encoding="utf-8")
 
     for path in gate.REQUIRED_TEST_FILES:
@@ -88,11 +85,7 @@ def _write_minimal_repo(repo_root: Path, *, omitted_doc_entry: str) -> None:
     (repo_root / gate.REFERENCE_DOC).parent.mkdir(parents=True, exist_ok=True)
     reference_tokens = [
         *gate.REFERENCE_TOKENS,
-        *[
-            token
-            for token in gate.REQUIRED_SPLIT_DOC_TOKENS
-            if token != omitted_doc_entry
-        ],
+        *[token for token in gate.REQUIRED_SPLIT_DOC_TOKENS if token != omitted_doc_entry],
     ]
     (repo_root / gate.REFERENCE_DOC).write_text(
         "\n".join(reference_tokens),

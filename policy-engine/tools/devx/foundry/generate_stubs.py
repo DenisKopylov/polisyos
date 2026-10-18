@@ -46,11 +46,7 @@ REEXPORT_STUBS: dict[str, str] = {
 
 def _run_stubgen(module: str, out_dir: Path, *, verbose: bool) -> Path | None:
     stubgen = Path(sys.executable).with_name("stubgen")
-    launcher = (
-        (str(stubgen),)
-        if stubgen.is_file()
-        else (sys.executable, "-m", "mypy.stubgen")
-    )
+    launcher = (str(stubgen),) if stubgen.is_file() else (sys.executable, "-m", "mypy.stubgen")
     cmd = (
         *launcher,
         "-m",

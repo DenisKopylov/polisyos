@@ -208,9 +208,7 @@ class EvalSafetyConsumerAdmissionReceipt(_FrozenModel):
         return self
 
 
-class _ProducedEvalSafetyConsumerAdmissionReceipt(
-    EvalSafetyConsumerAdmissionReceipt
-):
+class _ProducedEvalSafetyConsumerAdmissionReceipt(EvalSafetyConsumerAdmissionReceipt):
     """Neutral marker whose private seal is invoked only by Runtime's minting path."""
 
     _producer_token: object | None = PrivateAttr(default=None)

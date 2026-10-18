@@ -7,7 +7,5 @@ from polisyos.scientist.nodes.builtins.decide.decision_packet import (
 )
 
 __all__ = _decision_packet_api.__all__
-globals().update(
-    {name: getattr(_decision_packet_api, name) for name in __all__}
-)
+globals().update({name: getattr(_decision_packet_api, name) for name in __all__})
 del _decision_packet_api

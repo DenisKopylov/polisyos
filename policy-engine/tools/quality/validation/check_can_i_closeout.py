@@ -48,8 +48,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--reader-integration",
         action="store_true",
         help=(
-            "Emit the W4.D closeout integration verdict over module-owned "
-            "quality_evidence records."
+            "Emit the W4.D closeout integration verdict over module-owned quality_evidence records."
         ),
     )
     return parser
@@ -60,9 +59,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.reader_skeleton and args.reader_integration:
         raise SystemExit("--reader-skeleton and --reader-integration are mutually exclusive")
     repo_root = args.repo_root.resolve()
-    bundle_dir = (
-        args.bundle_dir if args.bundle_dir.is_absolute() else repo_root / args.bundle_dir
-    )
+    bundle_dir = args.bundle_dir if args.bundle_dir.is_absolute() else repo_root / args.bundle_dir
     if not bundle_dir.exists():
         compatibility_payload = {
             "schema_version": "policyos.runtime.can_i_closeout_compatibility.v1",
@@ -103,9 +100,7 @@ def main(argv: list[str] | None = None) -> int:
             else payload.get("status") == "pass"
         )
         exit_code = 0 if passed else 2
-    output = (
-        args.json_output if args.json_output.is_absolute() else repo_root / args.json_output
-    )
+    output = args.json_output if args.json_output.is_absolute() else repo_root / args.json_output
     atomic_write_text(
         output,
         json.dumps(

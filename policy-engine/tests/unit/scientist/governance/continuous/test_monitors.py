@@ -242,9 +242,7 @@ def test_six_perturbation_classes_round_trip_as_exact_distinct_bytes(
     assert loaded.event.perturbation.source_class == source_class
     assert loaded.event.advisory_posture == "review_required"
 
-    selected_ref, missing_ref, raw = _selected_and_missing_profile(
-        store, persisted.event_ref
-    )
+    selected_ref, missing_ref, raw = _selected_and_missing_profile(store, persisted.event_ref)
     selected = resolve_governance_monitor_event(store, selected_ref)
     assert selected.event_ref == selected_ref
     assert selected.event == event

@@ -19,12 +19,9 @@ def test_incident_monitor_bridge_removes_exactly_its_static_scc(monkeypatch) -> 
     monitors = "polisyos.scientist.governance.continuous.monitors"
 
     graph = decomposition_preflight.collect_import_graph()
-    canonical_edges = {
-        (str(edge["source"]), str(edge["target"])) for edge in graph["edges"]
-    }
+    canonical_edges = {(str(edge["source"]), str(edge["target"])) for edge in graph["edges"]}
     canonical_cycles = {
-        tuple(sorted(str(module) for module in cycle["modules"]))
-        for cycle in graph["cycles"]
+        tuple(sorted(str(module) for module in cycle["modules"])) for cycle in graph["cycles"]
     }
 
     assert (incident, monitors) in canonical_edges
@@ -45,8 +42,7 @@ def test_incident_monitor_bridge_removes_exactly_its_static_scc(monkeypatch) -> 
         tree = original_parse(path)
         if tree is not None and path.resolve() == monitors_path:
             counter_edge = ast.parse(
-                "from polisyos.scientist.governance.continuous.incident "
-                "import IncidentReport"
+                "from polisyos.scientist.governance.continuous.incident import IncidentReport"
             ).body[0]
             tree.body.insert(0, counter_edge)
         return tree

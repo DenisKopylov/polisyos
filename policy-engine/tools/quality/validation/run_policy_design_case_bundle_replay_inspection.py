@@ -22,19 +22,13 @@ from polisyos.runtime.quality.argument_graph import (  # noqa: E402
 )
 
 SCHEMA_VERSION = "policyos.policy_design_case.w12e.bundle_replay_inspection.v1"
-MANIFEST_SCHEMA_VERSION = (
-    "policyos.policy_design_case.wave12e.bundle_replay_inspection_manifest.v1"
-)
+MANIFEST_SCHEMA_VERSION = "policyos.policy_design_case.wave12e.bundle_replay_inspection_manifest.v1"
 TOOL_NAME = "quality.validation.run-policy-design-case-bundle-replay-inspection"
 GENERATED_AT = "2026-05-25T00:00:00Z"
 PHASE_ID = "W12.E"
 PHASE_NAME = "Bundle, Replay, And Inspection"
-DEFAULT_W12D_REPORT = Path(
-    "_build/.tmp/production-quality/w12d_universal_outcome_corpus_run.json"
-)
-DEFAULT_OUTPUT = Path(
-    "_build/.tmp/production-quality/w12e_bundle_replay_inspection.json"
-)
+DEFAULT_W12D_REPORT = Path("_build/.tmp/production-quality/w12d_universal_outcome_corpus_run.json")
+DEFAULT_OUTPUT = Path("_build/.tmp/production-quality/w12e_bundle_replay_inspection.json")
 DEFAULT_MANIFEST_OUTPUT = Path(
     "architecture/policy_design_case/wave12e_bundle_replay_inspection_manifest.json"
 )
@@ -192,8 +186,7 @@ def build_w12e_manifest() -> dict[str, Any]:
             "#w12e-bundle-replay-and-inspection"
         ),
         "tool_ref": (
-            "repo://tools/quality/validation/"
-            "run_policy_design_case_bundle_replay_inspection.py"
+            "repo://tools/quality/validation/run_policy_design_case_bundle_replay_inspection.py"
         ),
         "required_bundle_components": list(REQUIRED_COMPONENT_IDS),
         "command_contract": {
@@ -225,10 +218,7 @@ def build_w12e_manifest() -> dict[str, Any]:
             "missing_capability_labels": [],
         },
         "validation": {
-            "test_ref": (
-                "repo://tests/repo_quality/tools/"
-                "test_w12e_bundle_replay_inspection.py"
-            ),
+            "test_ref": ("repo://tests/repo_quality/tools/test_w12e_bundle_replay_inspection.py"),
             "command_ref": render_command(command),
         },
     }
@@ -312,14 +302,11 @@ def _component_from_case(
         "pdc_projection": _mapping(case.get("projection")).get(
             "projection_ref", f"{artifact_ref}#projection"
         ),
-        "closeout": _mapping(case.get("closeout")).get(
-            "closeout_ref", f"{artifact_ref}#closeout"
-        ),
+        "closeout": _mapping(case.get("closeout")).get("closeout_ref", f"{artifact_ref}#closeout"),
         "compatibility": _mapping(case.get("compatibility")).get(
             "compatibility_ref", f"{artifact_ref}#compatibility"
         ),
-        "rule_refs": universal.get("rule_version_refs")
-        or [universal.get("obligation_graph_ref")],
+        "rule_refs": universal.get("rule_version_refs") or [universal.get("obligation_graph_ref")],
         "tuned_config_refs": universal.get("tuned_config_refs") or ["tuned-config:runtime"],
         "source_provenance": producer.get("source_provenance_refs")
         or [producer.get("producer_pipeline_ref")],
@@ -352,12 +339,9 @@ def _component_from_case(
                 capability_label="artifact_missing",
             )
         )
-    if (
-        component_id == "argument_graph"
-        and not _argument_graph_component_has_warrants(
-            runtime_graph=runtime_graph,
-            inspection=argument_graph_inspection,
-        )
+    if component_id == "argument_graph" and not _argument_graph_component_has_warrants(
+        runtime_graph=runtime_graph,
+        inspection=argument_graph_inspection,
     ):
         blocked_reasons.append(
             _blocker(
@@ -501,8 +485,7 @@ def _compare_replay_evidence_graph(
     replay_graphs = [
         component
         for component in components
-        if component.get("component_id") == "pdc_graph"
-        and component.get("status") == "present"
+        if component.get("component_id") == "pdc_graph" and component.get("status") == "present"
     ]
     mismatches: list[dict[str, Any]] = []
     if len(live_graphs) != len(replay_graphs):
@@ -558,9 +541,7 @@ def _packaging_authority_blockers(
     for component in components:
         boundary = _mapping(component.get("authority_boundary"))
         authoritative_for = {
-            str(item)
-            for item in _sequence(boundary.get("authoritative_for"))
-            if str(item)
+            str(item) for item in _sequence(boundary.get("authoritative_for")) if str(item)
         }
         leaked = sorted(authoritative_for & FORBIDDEN_PACKAGING_AUTHORITY)
         if leaked:

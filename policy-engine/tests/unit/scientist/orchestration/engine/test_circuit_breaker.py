@@ -275,7 +275,10 @@ class TestCircuitBreakerRetryIntegration:
         ctx = _make_ctx()
 
         policy = RetryPolicy(max_retries=1, backoff_base_s=0.1, backoff_factor=1.0)
-        with patch("polisyos.scientist.orchestration.engine.retry.time.sleep"), pytest.raises(Exception):
+        with (
+            patch("polisyos.scientist.orchestration.engine.retry.time.sleep"),
+            pytest.raises(Exception),
+        ):
             execute_with_retry_sync(
                 node,
                 ctx,
@@ -301,7 +304,10 @@ class TestCircuitBreakerRetryIntegration:
         ctx.store.put_json.side_effect = OSError("disk full")
 
         policy = RetryPolicy(max_retries=1, backoff_base_s=0.1, backoff_factor=1.0)
-        with patch("polisyos.scientist.orchestration.engine.retry.time.sleep"), pytest.raises(Exception):
+        with (
+            patch("polisyos.scientist.orchestration.engine.retry.time.sleep"),
+            pytest.raises(Exception),
+        ):
             execute_with_retry_sync(
                 node,
                 ctx,

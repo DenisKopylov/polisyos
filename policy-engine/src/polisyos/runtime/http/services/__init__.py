@@ -39,6 +39,7 @@ def __dir__() -> list[str]:
     """Return public service names without resolving their implementations."""
     return sorted({*globals(), *_EXPORTS})
 
+
 __all__ = [
     "ArtifactInspectorService",
     "AttractorAnalysisService",

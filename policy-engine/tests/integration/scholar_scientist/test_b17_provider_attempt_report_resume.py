@@ -87,9 +87,7 @@ class _FailOnceAfterProgress:
             if hasattr(outcome, "__await__"):
                 await outcome
 
-        await self._delegate.deep_search(
-            **{**kwargs, "progress_callback": _checkpoint_progress}
-        )
+        await self._delegate.deep_search(**{**kwargs, "progress_callback": _checkpoint_progress})
         raise RuntimeError("controlled interruption after persisted progress")
 
 
@@ -174,9 +172,7 @@ async def test_provider_attempts_survive_checkpoint_resume_and_reach_fresh_cas_r
     )
     cas = FileSystemCAS(tmp_path / "cas")
     service = ScholarDeepSearchService(
-        provider_policy=ProviderFailoverPolicy(
-            [_PrivacyFailureProvider(), _SuccessfulProvider()]
-        ),
+        provider_policy=ProviderFailoverPolicy([_PrivacyFailureProvider(), _SuccessfulProvider()]),
         cas=cas,
     )
     manager = DeepResearchJobManager(
@@ -204,9 +200,7 @@ async def test_provider_attempts_survive_checkpoint_resume_and_reach_fresh_cas_r
     checkpoint_bytes = cas.get_bytes(checkpoint_artifact_id)
     checkpoint = json.loads(checkpoint_bytes)
     assert checkpoint["bundle"]["schema_version"] == "1.1"
-    checkpoint_trace = _provider_trace_with_attempts(
-        checkpoint["bundle"]["query_traces"]
-    )
+    checkpoint_trace = _provider_trace_with_attempts(checkpoint["bundle"]["query_traces"])
     assert checkpoint_trace["provider_attempts"][0]["error_type"] == "provider_exception"
 
     resumed_job_id = await manager.resume(
@@ -223,9 +217,7 @@ async def test_provider_attempts_survive_checkpoint_resume_and_reach_fresh_cas_r
     status_path = tmp_path / "cas" / "scholar_web_jobs" / "status_index.json"
     status_bytes = status_path.read_bytes()
     checkpoint_id = ArtifactID.model_validate(checkpoint_artifact_id)
-    report_id = ArtifactID.model_validate(
-        completed_status.scholar_academic_evidence_artifact_id
-    )
+    report_id = ArtifactID.model_validate(completed_status.scholar_academic_evidence_artifact_id)
     default_view_ids = {str(artifact_id) for artifact_id in cas.iter_artifact_ids()}
     assert str(checkpoint_id) in default_view_ids
     assert str(report_id) in default_view_ids
@@ -266,9 +258,7 @@ async def test_provider_attempts_survive_checkpoint_resume_and_reach_fresh_cas_r
 
         blob_bytes = cas.get_bytes(ref)
         assert len(blob_bytes) == entry.blob_byte_size
-        assert hashlib.sha256(blob_bytes).hexdigest() == entry.blob_sha256.removeprefix(
-            "sha256:"
-        )
+        assert hashlib.sha256(blob_bytes).hexdigest() == entry.blob_sha256.removeprefix("sha256:")
         persisted_payloads[blob_key] = blob_bytes
 
         manifest_bytes = cas.get_manifest_bytes(ref)
@@ -336,7 +326,5 @@ async def test_provider_attempts_survive_checkpoint_resume_and_reach_fresh_cas_r
 
     persisted_status = json.loads(status_bytes)[job_id]
     assert persisted_status["status"] == "completed"
-    status_trace = _provider_trace_with_attempts(
-        persisted_status["result_bundle"]["query_traces"]
-    )
+    status_trace = _provider_trace_with_attempts(persisted_status["result_bundle"]["query_traces"])
     assert status_trace["provider_attempts"] == attempts

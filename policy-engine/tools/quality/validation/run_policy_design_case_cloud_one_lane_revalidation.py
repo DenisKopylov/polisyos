@@ -30,9 +30,7 @@ DEFAULT_CLOUD_LANE_ID = (
     "profile-research__provider-live_gonka_proxy__data-canonical_production"
     "__scenario-public_golden__ui-api_only"
 )
-DEFAULT_OUTPUT = Path(
-    "_build/.tmp/production-quality/w12f_cloud_one_lane_revalidation.json"
-)
+DEFAULT_OUTPUT = Path("_build/.tmp/production-quality/w12f_cloud_one_lane_revalidation.json")
 DEFAULT_MANIFEST_OUTPUT = Path(
     "architecture/policy_design_case/wave12f_cloud_one_lane_revalidation_manifest.json"
 )
@@ -43,12 +41,8 @@ DEFAULT_W12B_REPORT = Path(
 DEFAULT_W12C_REPORT = Path(
     "_build/.tmp/production-quality/w12c_domain_coverage_critic_diversity_audit.json"
 )
-DEFAULT_W12D_REPORT = Path(
-    "_build/.tmp/production-quality/w12d_universal_outcome_corpus_run.json"
-)
-DEFAULT_W12E_REPORT = Path(
-    "_build/.tmp/production-quality/w12e_bundle_replay_inspection.json"
-)
+DEFAULT_W12D_REPORT = Path("_build/.tmp/production-quality/w12d_universal_outcome_corpus_run.json")
+DEFAULT_W12E_REPORT = Path("_build/.tmp/production-quality/w12e_bundle_replay_inspection.json")
 ROLLOUT_POSTURES = ("research-only", "governed-pilot", "production-capable")
 FLOOR_POLICY: Mapping[str, Mapping[str, float | None]] = {
     "research-only": {
@@ -195,8 +189,7 @@ def build_w12f_manifest() -> dict[str, Any]:
             "#w12f-cloud-one-lane-revalidation"
         ),
         "tool_ref": (
-            "repo://tools/quality/validation/"
-            "run_policy_design_case_cloud_one_lane_revalidation.py"
+            "repo://tools/quality/validation/run_policy_design_case_cloud_one_lane_revalidation.py"
         ),
         "canary_matrix_tool_ref": "repo://tools/ops_runners/runtime/run_canary_matrix.py",
         "command_contract": {
@@ -235,8 +228,7 @@ def build_w12f_manifest() -> dict[str, Any]:
         },
         "validation": {
             "test_ref": (
-                "repo://tests/repo_quality/tools/"
-                "test_w12f_cloud_one_lane_revalidation.py"
+                "repo://tests/repo_quality/tools/test_w12f_cloud_one_lane_revalidation.py"
             ),
             "command_ref": render_command(report_command),
         },
@@ -456,9 +448,7 @@ def _outcome_metrics(
             "source_phase": "W12.D",
         },
         "compilation_truthfulness_rate": {
-            "value": _float_or_none(
-                w12b_summary.get("aggregate_compilation_truthfulness_rate")
-            ),
+            "value": _float_or_none(w12b_summary.get("aggregate_compilation_truthfulness_rate")),
             "source_phase": "W12.B",
         },
         "critic_ensemble_diversity_jaccard": {

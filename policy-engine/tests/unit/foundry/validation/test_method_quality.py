@@ -125,9 +125,7 @@ def test_method_report_emits_runtime_assumption_and_uncertainty_surfaces() -> No
             "status": "pass",
         },
     ]
-    assert selected["uncertainty_envelope_refs"] == {
-        "uncertainty_envelope_ref": _sha("f")
-    }
+    assert selected["uncertainty_envelope_refs"] == {"uncertainty_envelope_ref": _sha("f")}
     assert selected["limitation_refs"] == {"method_limitation_ref": _sha("b")}
     assert report["summary"]["assumption_gate_ref_count"] == 2
     assert report["summary"]["method_output_ref_count"] == 1
@@ -242,9 +240,7 @@ def test_normalize_report_refuses_raw_pass_without_uncertainty() -> None:
     normalized = normalize_foundry_method_report(
         {
             "status": "pass",
-            "selected_methods": [
-                _method(uncertainty={}, result_summary={"effect_estimate": 0.04})
-            ],
+            "selected_methods": [_method(uncertainty={}, result_summary={"effect_estimate": 0.04})],
         },
         expected_method_expectations=["causal_effect_estimation"],
         canary_kind="production",
@@ -297,20 +293,20 @@ def test_builds_method_report_from_actual_execution_outputs_with_foundry_refs() 
                         },
                     }
                 },
-                    "method_evidence": {
-                        "method_fqn": "causal.inference.difference_in_differences@1.0.0",
-                        "backend": "numpy",
-                        "result_ref": method_result_ref,
-                    },
-                    "identification_result_ref": _sha("1"),
-                    "transportability_result_ref": _sha("2"),
-                    "partial_identification_result_ref": _sha("3"),
-                    "recoverability_result_ref": _sha("4"),
-                    "causal_ensemble_result_ref": _sha("5"),
-                    "falsification_result_ref": _sha("6"),
-                    "certificate_proof_ref": _sha("7"),
-                }
-            ],
+                "method_evidence": {
+                    "method_fqn": "causal.inference.difference_in_differences@1.0.0",
+                    "backend": "numpy",
+                    "result_ref": method_result_ref,
+                },
+                "identification_result_ref": _sha("1"),
+                "transportability_result_ref": _sha("2"),
+                "partial_identification_result_ref": _sha("3"),
+                "recoverability_result_ref": _sha("4"),
+                "causal_ensemble_result_ref": _sha("5"),
+                "falsification_result_ref": _sha("6"),
+                "certificate_proof_ref": _sha("7"),
+            }
+        ],
         foundry_input_refs={
             "data_snapshot_ref": data_snapshot_ref,
             "input_bindings_ref": input_bindings_ref,
@@ -448,9 +444,7 @@ def test_execution_report_selects_causal_method_after_execution() -> None:
         "parallel_trends",
         "overlap",
     ]
-    assert selected["missingness_handling"]["strategy"] == (
-        "complete_case_with_ipw_sensitivity"
-    )
+    assert selected["missingness_handling"]["strategy"] == ("complete_case_with_ipw_sensitivity")
     assert selected["transportability_limits"]["target_population"] == "wartime_msmes"
     assert selected["specification_space"]["alternatives"] == [
         "event_study",
@@ -465,9 +459,7 @@ def test_execution_report_selects_causal_method_after_execution() -> None:
         "falsification",
         "certificate_proof",
     }
-    assert selected["validity_surfaces"]["identification"]["ref"] == (
-        "sha256:" + "1" * 64
-    )
+    assert selected["validity_surfaces"]["identification"]["ref"] == ("sha256:" + "1" * 64)
 
 
 def test_generic_simulation_false_pass_blocks_expected_causal_method() -> None:
@@ -540,9 +532,7 @@ def test_generic_foundry_execute_cannot_satisfy_policy_method_obligations() -> N
     }
     assert report["status"] == "fail"
     assert report["selected_methods"] == []
-    assert report["rejected_methods"][0]["reason_code"] == (
-        "generic_method_not_admissible"
-    )
+    assert report["rejected_methods"][0]["reason_code"] == ("generic_method_not_admissible")
     assert "generic_method_not_admissible" in issue_codes
     assert "method_obligation_missing" in issue_codes
     assert obligation_statuses == {
@@ -584,9 +574,9 @@ def test_method_report_records_simulation_assumption_lineage_and_independence_co
     assert report["summary"]["selected_method_count"] == 2
     assert report["summary"]["effective_independent_method_count"] == 1
     assert report["selected_methods"][0]["simulation_assumption_lineage_refs"] == shared_lineage
-    assert {
-        issue["code"] for issue in report["issues"]
-    } == {"method_independence_collapsed_by_shared_assumptions"}
+    assert {issue["code"] for issue in report["issues"]} == {
+        "method_independence_collapsed_by_shared_assumptions"
+    }
 
 
 def test_selected_generic_foundry_execute_is_demoted_under_serious_obligations() -> None:
@@ -684,18 +674,14 @@ def test_explicit_policy_method_obligations_pass_with_refs_and_limitations() -> 
             "requirement_id": "foundry.method.distributional_evidence",
             "expectation": "distributional_evidence",
             "status": "satisfied",
-            "selected_method_refs": [
-                "foundry.method.wartime_msme_distributional_feasibility"
-            ],
+            "selected_method_refs": ["foundry.method.wartime_msme_distributional_feasibility"],
             "missing_facets": [],
         },
         {
             "requirement_id": "foundry.method.implementation_feasibility",
             "expectation": "implementation_feasibility",
             "status": "satisfied",
-            "selected_method_refs": [
-                "foundry.method.wartime_msme_distributional_feasibility"
-            ],
+            "selected_method_refs": ["foundry.method.wartime_msme_distributional_feasibility"],
             "missing_facets": [],
         },
     ]

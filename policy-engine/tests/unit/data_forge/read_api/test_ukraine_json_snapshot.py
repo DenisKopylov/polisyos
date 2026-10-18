@@ -65,11 +65,15 @@ def test_profileless_stage_json_is_a_typed_candidate_with_exact_raw_identity(tmp
     assert read.provenance.currentness_provenance == "not_established"
     assert read.raw_payload_bytes == payload
     assert read.value_for_candidate().state_ids == ["a", "b"]
-    with pytest.raises(UkraineJSONSnapshotRefusalError, match="ukraine_snapshot_profile_not_verified"):
+    with pytest.raises(
+        UkraineJSONSnapshotRefusalError, match="ukraine_snapshot_profile_not_verified"
+    ):
         _ = read.value
 
 
-def test_declared_unknown_profile_is_raw_only_without_decoding_and_requires_exact_selector(tmp_path) -> None:
+def test_declared_unknown_profile_is_raw_only_without_decoding_and_requires_exact_selector(
+    tmp_path,
+) -> None:
     store = FileSystemCAS(tmp_path)
     payload = b"not-json-under-an-unknown-profile"
     digest = hashlib.sha256(payload).hexdigest()
@@ -104,10 +108,14 @@ def test_declared_unknown_profile_is_raw_only_without_decoding_and_requires_exac
     assert read.provenance.content_sha256 == digest
     assert read.provenance.artifact_ref.manifest_profile_sha256 == ref.manifest_profile_sha256
     assert read.raw_only_candidate_bytes == payload
-    with pytest.raises(UkraineJSONSnapshotRefusalError, match="ukraine_snapshot_unknown_profile_raw_only"):
+    with pytest.raises(
+        UkraineJSONSnapshotRefusalError, match="ukraine_snapshot_unknown_profile_raw_only"
+    ):
         read.value_for_candidate()
     unqualified_ref = ref.model_copy(update={"manifest_profile_sha256": None})
-    with pytest.raises(UkraineJSONSnapshotRefusalError, match="ukraine_snapshot_profile_selector_missing"):
+    with pytest.raises(
+        UkraineJSONSnapshotRefusalError, match="ukraine_snapshot_profile_selector_missing"
+    ):
         read_ukraine_json_snapshot(
             store,
             unqualified_ref,
@@ -130,11 +138,18 @@ def test_profileless_snapshot_refuses_duplicate_keys_and_content_identity_drift(
         return_selected_profile=True,
     )
     duplicate = b'{"state_ids":["a"],"state_ids":["b"]}'
-    with pytest.raises(UkraineJSONSnapshotRefusalError, match="ukraine_snapshot_content_binding_mismatch"):
+    with pytest.raises(
+        UkraineJSONSnapshotRefusalError, match="ukraine_snapshot_content_binding_mismatch"
+    ):
         read_ukraine_json_snapshot(
-            store, ref, raw_payload_bytes=duplicate, expected_sha256=digest,
-            expected_size_bytes=len(duplicate), expected_kind="data_forge.ukraine.stage_output_snapshot",
-            consumer_contract="unit.duplicate", model_type=_StatePayload,
+            store,
+            ref,
+            raw_payload_bytes=duplicate,
+            expected_sha256=digest,
+            expected_size_bytes=len(duplicate),
+            expected_kind="data_forge.ukraine.stage_output_snapshot",
+            consumer_contract="unit.duplicate",
+            model_type=_StatePayload,
         )
     duplicate_digest = hashlib.sha256(duplicate).hexdigest()
     duplicate_ref = store.put_bytes(
@@ -142,15 +157,24 @@ def test_profileless_snapshot_refuses_duplicate_keys_and_content_identity_drift(
         PutOptions(kind="data_forge.ukraine.stage_output_snapshot", media_type="application/json"),
         return_selected_profile=True,
     )
-    with pytest.raises(UkraineJSONSnapshotRefusalError, match="ukraine_snapshot_json_or_schema_invalid"):
+    with pytest.raises(
+        UkraineJSONSnapshotRefusalError, match="ukraine_snapshot_json_or_schema_invalid"
+    ):
         read_ukraine_json_snapshot(
-            store, duplicate_ref, raw_payload_bytes=duplicate,
+            store,
+            duplicate_ref,
+            raw_payload_bytes=duplicate,
             expected_sha256=duplicate_digest,
-            expected_size_bytes=len(duplicate), expected_kind="data_forge.ukraine.stage_output_snapshot",
-            consumer_contract="unit.duplicate", model_type=_StatePayload,
+            expected_size_bytes=len(duplicate),
+            expected_kind="data_forge.ukraine.stage_output_snapshot",
+            consumer_contract="unit.duplicate",
+            model_type=_StatePayload,
         )
 
-def test_declared_profile_reader_constructs_prefixed_selection_and_bare_content_digest(tmp_path) -> None:
+
+def test_declared_profile_reader_constructs_prefixed_selection_and_bare_content_digest(
+    tmp_path,
+) -> None:
     store = FileSystemCAS(tmp_path)
     ref = store.put_json(
         {"state_ids": ["a", "b"]},

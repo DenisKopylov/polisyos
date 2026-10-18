@@ -75,7 +75,10 @@ def latin_hypercube_starts(
         jitter = rng.random(count)
         unit = (perm + jitter) / float(count)
         samples[:, index] = lower[index] + unit * (upper[index] - lower[index])
-    return [np.minimum(np.maximum(sample, prepared.lower_bounds), prepared.upper_bounds) for sample in samples]
+    return [
+        np.minimum(np.maximum(sample, prepared.lower_bounds), prepared.upper_bounds)
+        for sample in samples
+    ]
 
 
 def assign_cluster(
@@ -89,7 +92,9 @@ def assign_cluster(
 
     distances = [
         (
-            scaled_inf_norm(np.asarray(solution, dtype=float) - cluster.solution, prepared=prepared),
+            scaled_inf_norm(
+                np.asarray(solution, dtype=float) - cluster.solution, prepared=prepared
+            ),
             cluster,
         )
         for cluster in clusters
@@ -174,11 +179,7 @@ def wilson_interval(hits: int, draws: int) -> EquilibriumBasinInterval:
     p_hat = hits / draws
     denom = 1.0 + (z * z) / draws
     center = (p_hat + (z * z) / (2.0 * draws)) / denom
-    half = (
-        z
-        * np.sqrt((p_hat * (1.0 - p_hat) + (z * z) / (4.0 * draws)) / draws)
-        / denom
-    )
+    half = z * np.sqrt((p_hat * (1.0 - p_hat) + (z * z) / (4.0 * draws)) / draws) / denom
     return EquilibriumBasinInterval(
         lower=max(0.0, float(center - half)),
         upper=min(1.0, float(center + half)),

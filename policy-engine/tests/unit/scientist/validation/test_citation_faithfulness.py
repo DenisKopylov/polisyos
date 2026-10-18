@@ -18,11 +18,7 @@ from polisyos.scientist.validation.citation_faithfulness import (
 )
 
 GOLDEN_PATH = (
-    Path(__file__).parents[3]
-    / "_golden"
-    / "quality"
-    / "citation_faithfulness"
-    / "cases.json"
+    Path(__file__).parents[3] / "_golden" / "quality" / "citation_faithfulness" / "cases.json"
 )
 
 
@@ -111,8 +107,7 @@ def test_span_support_tool_arguments_remain_strict() -> None:
         {
             "function": {
                 "arguments": (
-                    '<think>judge reasoning</think>{"decision":"supported",'
-                    '"confidence":0.9}'
+                    '<think>judge reasoning</think>{"decision":"supported","confidence":0.9}'
                 )
             }
         }
@@ -167,9 +162,7 @@ def test_golden_cases_label_cited_evidence_offline(case: dict[str, object]) -> N
 def test_required_mismatch_dimensions_are_represented_in_fixtures() -> None:
     golden = _golden()
     represented = {
-        str(case.get("mismatch_dimension"))
-        for case in _cases()
-        if case.get("mismatch_dimension")
+        str(case.get("mismatch_dimension")) for case in _cases() if case.get("mismatch_dimension")
     }
 
     assert represented == set(golden["required_mismatch_dimensions"])
@@ -192,9 +185,7 @@ def test_public_factual_and_legal_claims_cannot_pass_with_bad_refs() -> None:
             evidence=case["evidence"],
         )
         labels = {
-            citation["label"]
-            for claim in report["claims"]
-            for citation in claim["citations"]
+            citation["label"] for claim in report["claims"] for citation in claim["citations"]
         }
         blocking_codes = {issue["code"] for issue in report["issues"]}
 
@@ -218,9 +209,7 @@ def test_public_factual_claim_without_citation_fails_claim_status() -> None:
 
     assert report["status"] == "fail"
     assert report["claims"][0]["status"] == "fail"
-    assert {issue["code"] for issue in report["issues"]} == {
-        "public_claim_missing_citation"
-    }
+    assert {issue["code"] for issue in report["issues"]} == {"public_claim_missing_citation"}
 
 
 def test_policy_context_helper_builds_offline_evidence_from_runtime_payloads() -> None:
@@ -251,9 +240,7 @@ def test_policy_context_helper_builds_offline_evidence_from_runtime_payloads() -
 
 
 def test_checker_reports_residual_risk_and_false_pass_limits() -> None:
-    case = next(
-        item for item in _cases() if item["case_id"] == "supports_public_legal_claim"
-    )
+    case = next(item for item in _cases() if item["case_id"] == "supports_public_legal_claim")
 
     report = build_citation_faithfulness_report(
         claims=[case["claim"]],
@@ -333,7 +320,9 @@ def test_span_claim_support_content_judge_abstains_on_invalid_response() -> None
     assert "span_support_agent_abstained" in result["reason_codes"]
 
 
-def test_span_claim_support_fails_closed_without_real_agent(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_span_claim_support_fails_closed_without_real_agent(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     import polisyos.scientist.validation.citation_faithfulness as cf
 
     monkeypatch.setattr(cf, "_create_default_span_support_client", lambda: None)
@@ -459,6 +448,6 @@ def test_span_support_replay_manifest_explains_judgment_drift() -> None:
 
     assert drift["status"] == "unexplained_drift"
     assert drift["production_readiness"] == "fail"
-    assert {
-        difference["path"] for difference in drift["differences"]
-    } >= {"$.prompt_tool_parser_ledger.judgment.decision"}
+    assert {difference["path"] for difference in drift["differences"]} >= {
+        "$.prompt_tool_parser_ledger.judgment.decision"
+    }

@@ -157,11 +157,7 @@ def normalize_privacy_compliance_report(report: Mapping[str, Any]) -> dict[str, 
     normalized = dict(report)
     normalized.setdefault("schema_version", PRIVACY_COMPLIANCE_REPORT_SCHEMA_VERSION)
     normalized.setdefault("generated_at", datetime.now(UTC).replace(microsecond=0).isoformat())
-    issues = [
-        dict(issue)
-        for issue in normalized.get("issues", [])
-        if isinstance(issue, Mapping)
-    ]
+    issues = [dict(issue) for issue in normalized.get("issues", []) if isinstance(issue, Mapping)]
     blocking_count = sum(
         1 for issue in issues if str(issue.get("severity") or "").casefold() == "blocking"
     )
@@ -201,17 +197,18 @@ def _source_summary(
     index: int,
     issues: list[dict[str, Any]],
 ) -> dict[str, Any]:
-    source_id = _clean_text(
-        source.get("source_id")
-        or source.get("id")
-        or source.get("dataset_id")
-        or source.get("name")
-    ) or f"production_source_{index + 1}"
+    source_id = (
+        _clean_text(
+            source.get("source_id")
+            or source.get("id")
+            or source.get("dataset_id")
+            or source.get("name")
+        )
+        or f"production_source_{index + 1}"
+    )
     fields = _field_specs(source)
     pii_fields = [
-        _pii_field_summary(field, source)
-        for field in fields
-        if _field_is_pii_like(field, source)
+        _pii_field_summary(field, source) for field in fields if _field_is_pii_like(field, source)
     ]
     for field in pii_fields:
         if not field["basis"] and not _redaction_approved(field["redaction_status"]):
@@ -222,9 +219,7 @@ def _source_summary(
                     subject_type="production_data_source",
                     subject_id=source_id,
                     field=str(field["field"]),
-                    message=(
-                        "PII/PHI-like field has no approved basis and no approved redaction."
-                    ),
+                    message=("PII/PHI-like field has no approved basis and no approved redaction."),
                     next_action=(
                         "Provide consent/authority basis, remove the field, or mark an "
                         "approved redaction status before production approval."
@@ -267,9 +262,7 @@ def _source_summary(
         "source_family": _clean_text(source.get("source_family")),
         "source_kind": _clean_text(source.get("source_kind")) or "production_data",
         "jurisdiction": _clean_text(source.get("jurisdiction")),
-        "retention_class": _clean_text(
-            source.get("retention_class") or source.get("retention")
-        ),
+        "retention_class": _clean_text(source.get("retention_class") or source.get("retention")),
         "license": license_text,
         "public_export_allowed": public_export_allowed,
         "source_attribution": _attribution_present(source),
@@ -289,12 +282,15 @@ def _artifact_summary(
     index: int,
     issues: list[dict[str, Any]],
 ) -> dict[str, Any]:
-    artifact_family = _clean_text(
-        artifact.get("artifact_family")
-        or artifact.get("family")
-        or artifact.get("artifact_kind")
-        or artifact.get("name")
-    ) or f"public_artifact_family_{index + 1}"
+    artifact_family = (
+        _clean_text(
+            artifact.get("artifact_family")
+            or artifact.get("family")
+            or artifact.get("artifact_kind")
+            or artifact.get("name")
+        )
+        or f"public_artifact_family_{index + 1}"
+    )
     license_text = _clean_text(artifact.get("license"))
     public_export_allowed = _bool_or_none(artifact.get("public_export_allowed"))
     if _license_conflicts(license_text):
@@ -445,9 +441,7 @@ def _override_summary(override: Mapping[str, Any] | None) -> dict[str, Any]:
             "missing_fields": required,
         }
     missing = [
-        field
-        for field in required
-        if not _override_field_present(field, override.get(field))
+        field for field in required if not _override_field_present(field, override.get(field))
     ]
     return {
         "status": "valid" if not missing else "invalid",

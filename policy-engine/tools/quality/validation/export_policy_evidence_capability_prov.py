@@ -121,15 +121,11 @@ def validate_prov_turtle(payload: str) -> dict[str, object]:
         graph.parse(data=payload, format="turtle")
         prov_ns = Namespace("http://www.w3.org/ns/prov#")
         rdf_graph_triple_count = len(graph)
-        prov_entity_triple_count = sum(
-            1 for _subject in graph.subjects(RDF.type, prov_ns.Entity)
-        )
+        prov_entity_triple_count = sum(1 for _subject in graph.subjects(RDF.type, prov_ns.Entity))
         prov_activity_triple_count = sum(
             1 for _subject in graph.subjects(RDF.type, prov_ns.Activity)
         )
-        prov_agent_triple_count = sum(
-            1 for _subject in graph.subjects(RDF.type, prov_ns.Agent)
-        )
+        prov_agent_triple_count = sum(1 for _subject in graph.subjects(RDF.type, prov_ns.Agent))
         if prov_entity_triple_count < 1:
             issues.append(
                 {

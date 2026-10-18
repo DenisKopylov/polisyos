@@ -45,9 +45,7 @@ def completed_worker(tmp_path_factory, controlled_recursive_result):
     with pytest.MonkeyPatch.context() as patches:
         patches.setattr(ControlPlaneService, "_process_control_job", capture)
         patches.setattr(ControlPlaneService, "close", lambda self: None)
-        asyncio.run(
-            _worker_example(patches, tmp_path, "missing", controlled_recursive_result)
-        )
+        asyncio.run(_worker_example(patches, tmp_path, "missing", controlled_recursive_result))
     service = captured["service"]
     record = service.get_job_status(captured["job_id"])
     compiled = bridge.CompiledRecursiveGenerationCycleRun.model_validate(
@@ -76,10 +74,14 @@ def _secure_client(service):
     )
     registry.register_cell(cell)
     registry.register_tenant(
-        TenantSpec(name="fixture", region="test").model_copy(update={"tenant_id": "tenant-fixture"}), cell.cell_id
+        TenantSpec(name="fixture", region="test").model_copy(
+            update={"tenant_id": "tenant-fixture"}
+        ),
+        cell.cell_id,
     )
     registry.register_tenant(
-        TenantSpec(name="other", region="test").model_copy(update={"tenant_id": "tenant-other"}), cell.cell_id
+        TenantSpec(name="other", region="test").model_copy(update={"tenant_id": "tenant-other"}),
+        cell.cell_id,
     )
     opa = _CaptureOPA()
     context = build_runtime_api_context(
@@ -91,11 +93,13 @@ def _secure_client(service):
         cas_root=service._cas_root,
         core_runs_root=service._core_runs_root,
         enable_security_middlewares=True,
-        identity_provider=_IdentityProvider({
-            "fixture-token": _fixture_claims(),
-            "permissionless-token": _fixture_claims().model_copy(update={"roles": frozenset()}),
-            "foreign-token": _fixture_claims().model_copy(update={"tenant_id": "tenant-other"}),
-        }),
+        identity_provider=_IdentityProvider(
+            {
+                "fixture-token": _fixture_claims(),
+                "permissionless-token": _fixture_claims().model_copy(update={"roles": frozenset()}),
+                "foreign-token": _fixture_claims().model_copy(update={"tenant_id": "tenant-other"}),
+            }
+        ),
         cell_registry=registry,
         opa_client=opa,
         authz_enforce=True,
@@ -171,15 +175,19 @@ def test_post_source_signature_advances_both_current_job_readers(completed_worke
 
         node, refs = next(iter(evidence["by_node"].items()))
         authorization = s8.NormativeAuthorizationRecordV2.model_validate(
-            canon.from_canonical_bytes(service._artifact_store.get_bytes(
-                artifacts.ArtifactID.model_validate(refs["authorization_ref"])
-            ))
-        )
-        substituted = authorization.model_copy(update={
-            "generation_binding": authorization.generation_binding.model_copy(
-                update={"source_run_ref": "sha256:" + "e" * 64}
+            canon.from_canonical_bytes(
+                service._artifact_store.get_bytes(
+                    artifacts.ArtifactID.model_validate(refs["authorization_ref"])
+                )
             )
-        })
+        )
+        substituted = authorization.model_copy(
+            update={
+                "generation_binding": authorization.generation_binding.model_copy(
+                    update={"source_run_ref": "sha256:" + "e" * 64}
+                )
+            }
+        )
         substituted_ref = service._artifact_store.put_json(
             substituted.model_dump(mode="json"),
             artifacts.PutOptions(
@@ -191,12 +199,23 @@ def test_post_source_signature_advances_both_current_job_readers(completed_worke
                 ),
             ),
         )
-        original_sign(substituted_ref.artifact_id, signers[authorization.authorizer_identity],
-                      signer_identity=authorization.authorizer_identity)
-        wrong_evidence = {"by_node": {node: {**refs, "authorization_ref": str(substituted_ref.artifact_id)}}}
-        refused = client.post(path, headers=headers, json={
-            **body, "expected_prior_head_ref": head_ref, "evidence": wrong_evidence,
-        })
+        original_sign(
+            substituted_ref.artifact_id,
+            signers[authorization.authorizer_identity],
+            signer_identity=authorization.authorizer_identity,
+        )
+        wrong_evidence = {
+            "by_node": {node: {**refs, "authorization_ref": str(substituted_ref.artifact_id)}}
+        }
+        refused = client.post(
+            path,
+            headers=headers,
+            json={
+                **body,
+                "expected_prior_head_ref": head_ref,
+                "evidence": wrong_evidence,
+            },
+        )
         assert refused.status_code == 422, refused.text
         assert refused.json()["status"] == "refused"
         attempted = service._current_normative_generation_projection(
@@ -210,37 +229,63 @@ def test_post_source_signature_advances_both_current_job_readers(completed_worke
             "p20_normative_generation_binding_mismatch"
         ]
         assert refused.json()["head_ref"] == head_ref
-        assert refused.json()["job"]["progress"]["normative_disposition"]["authorization_status"] == "authorized"
+        assert (
+            refused.json()["job"]["progress"]["normative_disposition"]["authorization_status"]
+            == "authorized"
+        )
         events = service._control_store._fetchall(
             "SELECT event_type, payload_json FROM control_job_events WHERE job_id = ? AND event_type LIKE 'normative_evidence_%' ORDER BY event_id",
             (before.job_id,),
         )
         assert [row[0] for row in events] == [
-            "normative_evidence_admitted", "normative_evidence_conflict", "normative_evidence_refused"
+            "normative_evidence_admitted",
+            "normative_evidence_conflict",
+            "normative_evidence_refused",
         ]
-        assert json.loads(events[-1][1])["attempted_disposition_ref"] == refused.json()["attempted_disposition_ref"]
+        assert (
+            json.loads(events[-1][1])["attempted_disposition_ref"]
+            == refused.json()["attempted_disposition_ref"]
+        )
 
         for token in ("permissionless-token", "foreign-token"):
-            denied = client.post(path, headers={**headers, "Authorization": f"Bearer {token}"}, json=body)
+            denied = client.post(
+                path, headers={**headers, "Authorization": f"Bearer {token}"}, json=body
+            )
             assert denied.status_code == 403, denied.text
-            expected_code = "action_permission_denied" if token.startswith("permissionless") else "authorization_binding_run_tenant_mismatch"
+            expected_code = (
+                "action_permission_denied"
+                if token.startswith("permissionless")
+                else "authorization_binding_run_tenant_mismatch"
+            )
             assert denied.json()["code"] == expected_code
         wrong_job = client.post(path, headers=headers, json={**body, "job_id": "other-job"})
         assert wrong_job.status_code == 400
         for extra in ({"compiled_run_ref": head.compiled_run_ref}, {"trust": {}}):
             malformed = client.post(path, headers=headers, json={**body, **extra})
             assert malformed.status_code == 422
-        malformed = client.post(path, headers=headers, json={**body, "expected_prior_head_ref": "not-a-ref"})
+        malformed = client.post(
+            path, headers=headers, json={**body, "expected_prior_head_ref": "not-a-ref"}
+        )
         assert malformed.status_code == 422
-        assert service._control_store.get_normative_evidence_head(before.job_id)["head_ref"] == head_ref
+        assert (
+            service._control_store.get_normative_evidence_head(before.job_id)["head_ref"]
+            == head_ref
+        )
         assert service._control_store.get_job(before.job_id).progress == original_progress
 
 
 def _another_completed_job(service, before, *, job_id):
     service._control_store.create_job(
-        job_id=job_id, kind="natural_language_run", run_id=before.run_id, pipeline_id=None,
-        requested_execution_profile=None, effective_execution_profile="dev", policy_flags={},
-        capability_manifest_ref=None, payload_ref=None, submitted_by=None,
+        job_id=job_id,
+        kind="natural_language_run",
+        run_id=before.run_id,
+        pipeline_id=None,
+        requested_execution_profile=None,
+        effective_execution_profile="dev",
+        policy_flags={},
+        capability_manifest_ref=None,
+        payload_ref=None,
+        submitted_by=None,
     )
     # Each clone is explicitly newer; the existing store has second-resolution clocks.
     service._control_store._execute(
@@ -248,8 +293,11 @@ def _another_completed_job(service, before, *, job_id):
         (datetime.now(UTC).isoformat(), job_id),
     )
     service._control_store.complete_job(
-        job_id=job_id, run_id=before.run_id, progress={
-            key: value for key, value in before.progress.items()
+        job_id=job_id,
+        run_id=before.run_id,
+        progress={
+            key: value
+            for key, value in before.progress.items()
             if key not in {"normative_head_ref", "normative_head_strangle_receipt"}
         },
     )
@@ -268,15 +316,17 @@ def test_current_head_replays_all_source_bindings_and_preserves_refusal_frontier
     result = service.submit_normative_evidence(
         run_id=before.run_id,
         submission=bridge.NormativeEvidenceSubmissionRequest(
-            job_id=job_id, expected_prior_head_ref=None, evidence=evidence,
+            job_id=job_id,
+            expected_prior_head_ref=None,
+            evidence=evidence,
         ),
     )
     assert result.status == "admitted"
     assert result.job.progress["normative_disposition"]["authorization_status"] == "authorized"
     event = service._control_store.get_normative_evidence_head(job_id)
-    head = canon.from_canonical_bytes(service._artifact_store.get_bytes(
-        artifacts.ArtifactID.model_validate(result.head_ref)
-    ))
+    head = canon.from_canonical_bytes(
+        service._artifact_store.get_bytes(artifacts.ArtifactID.model_validate(result.head_ref))
+    )
     if field in {"schema_version", "job_id", "run_id"}:
         head[field] = "foreign"
     elif field in {"compiled_run_ref", "previous_head_ref"}:
@@ -295,30 +345,38 @@ def test_current_head_replays_all_source_bindings_and_preserves_refusal_frontier
         # Equal decoded instant, distinct stored bytes: CAS otherwise reuses the
         # already correct manifest and no epoch property has actually been broken.
         head["evaluated_at"] = datetime.fromisoformat(head["evaluated_at"]).isoformat()
-        assert bridge.NormativeGenerationHead.model_validate(head) == bridge.load_normative_generation_head(
-            service._artifact_store, result.head_ref
-        )
+        assert bridge.NormativeGenerationHead.model_validate(
+            head
+        ) == bridge.load_normative_generation_head(service._artifact_store, result.head_ref)
     if field == "missing_cas":
         corrupt_ref = "sha256:" + "e" * 64
     else:
         corrupt = service._artifact_store.put_json(
-            head, artifacts.PutOptions(
+            head,
+            artifacts.PutOptions(
                 kind=bridge.NORMATIVE_GENERATION_HEAD_KIND,
                 media_type="application/json",
                 schema=artifacts.SchemaInfo(
                     name=bridge.NORMATIVE_GENERATION_HEAD_KIND,
-                    version=("novel-epoch" if field == "manifest_epoch" else bridge.NORMATIVE_GENERATION_HEAD_SCHEMA),
+                    version=(
+                        "novel-epoch"
+                        if field == "manifest_epoch"
+                        else bridge.NORMATIVE_GENERATION_HEAD_SCHEMA
+                    ),
                 ),
             ),
         )
         corrupt_ref = str(corrupt.artifact_id)
     # Event/CAS corruption probe, never an admission or a production policy fixture.
     service._control_store.append_event(
-        job_id=job_id, event_type="normative_evidence_admitted",
+        job_id=job_id,
+        event_type="normative_evidence_admitted",
         payload={**event, "head_ref": corrupt_ref},
     )
     source_fronts = {
-        node.node_ref: {name: list(ids) for name, ids in node.cycle_run.fronts.candidate_ids_by_front().items()}
+        node.node_ref: {
+            name: list(ids) for name, ids in node.cycle_run.fronts.candidate_ids_by_front().items()
+        }
         for node in compiled.recursive_run.leaf_nodes
     }
     for current in (service.get_job_status(job_id), service.get_latest_job_for_run(before.run_id)):
@@ -326,8 +384,14 @@ def test_current_head_replays_all_source_bindings_and_preserves_refusal_frontier
         assert disposition["authorization_status"] == "blocked"
         assert disposition["ranked_recommendations"] == []
         assert current.progress["normative_head_limitation"]
-        assert {node: item["candidate_fronts"] for node, item in disposition["leaf_dispositions"].items()} == source_fronts
-        assert all(item["decision_request"] is not None for item in disposition["leaf_dispositions"].values())
+        assert {
+            node: item["candidate_fronts"]
+            for node, item in disposition["leaf_dispositions"].items()
+        } == source_fronts
+        assert all(
+            item["decision_request"] is not None
+            for item in disposition["leaf_dispositions"].values()
+        )
 
 
 def test_current_head_survives_shared_progress_copy_and_refuses_owned_source_rebind(
@@ -340,7 +404,9 @@ def test_current_head_survives_shared_progress_copy_and_refuses_owned_source_reb
     result = service.submit_normative_evidence(
         run_id=before.run_id,
         submission=bridge.NormativeEvidenceSubmissionRequest(
-            job_id=job_id, expected_prior_head_ref=None, evidence=evidence,
+            job_id=job_id,
+            expected_prior_head_ref=None,
+            evidence=evidence,
         ),
     )
     assert result.status == "admitted"
@@ -349,36 +415,55 @@ def test_current_head_survives_shared_progress_copy_and_refuses_owned_source_reb
     current = service.get_job_status(job_id)
     assert current.progress["normative_disposition"]["authorization_status"] == "authorized"
     source_fronts = {
-        node.node_ref: {name: list(ids) for name, ids in node.cycle_run.fronts.candidate_ids_by_front().items()}
+        node.node_ref: {
+            name: list(ids) for name, ids in node.cycle_run.fronts.candidate_ids_by_front().items()
+        }
         for node in compiled.recursive_run.leaf_nodes
     }
 
     def assert_source_refusal():
-        for current in (service.get_job_status(job_id), service.get_latest_job_for_run(before.run_id)):
+        for current in (
+            service.get_job_status(job_id),
+            service.get_latest_job_for_run(before.run_id),
+        ):
             disposition = current.progress["normative_disposition"]
             assert disposition["authorization_status"] == "blocked"
             assert disposition["ranked_recommendations"] == []
-            assert {node: item["candidate_fronts"] for node, item in disposition["leaf_dispositions"].items()} == source_fronts
-            assert all(item["decision_request"] for item in disposition["leaf_dispositions"].values())
+            assert {
+                node: item["candidate_fronts"]
+                for node, item in disposition["leaf_dispositions"].items()
+            } == source_fronts
+            assert all(
+                item["decision_request"] for item in disposition["leaf_dispositions"].values()
+            )
             assert "normative_head_ref" not in current.progress
-            assert current.progress["compiled_recursive_generation_cycle_ref"] == before.progress["compiled_recursive_generation_cycle_ref"]
+            assert (
+                current.progress["compiled_recursive_generation_cycle_ref"]
+                == before.progress["compiled_recursive_generation_cycle_ref"]
+            )
 
     with monkeypatch.context() as patches:
         patches.setattr(service._control_store, "get_normative_evidence_head", lambda _: None)
         assert_source_refusal()
-    service._control_store.upsert_progress(job_id=job_id, progress={
-        **result.job.progress, "compiled_recursive_generation_cycle_ref": "sha256:" + "f" * 64,
-    })
+    service._control_store.upsert_progress(
+        job_id=job_id,
+        progress={
+            **result.job.progress,
+            "compiled_recursive_generation_cycle_ref": "sha256:" + "f" * 64,
+        },
+    )
     assert_source_refusal()
 
 
-def test_terminal_candidate_publication_reuses_owned_source_and_refuses_replacement(completed_worker):
+def test_terminal_candidate_publication_reuses_owned_source_and_refuses_replacement(
+    completed_worker,
+):
     service, before, _ = completed_worker
     job = service._control_store.get_job(before.job_id)
     compiled_ref, normative_ref = service._normative_owned_job_source(job)
-    assert str(compiled_ref.artifact_id) == before.progress[
-        "compiled_recursive_generation_cycle_ref"
-    ]
+    assert (
+        str(compiled_ref.artifact_id) == before.progress["compiled_recursive_generation_cycle_ref"]
+    )
     assert str(normative_ref.artifact_id) == before.progress["normative_disposition_ref"]
     with pytest.raises(ValueError, match="normative_evidence_owned_output_selection_mismatch"):
         service._normative_owned_job_source(

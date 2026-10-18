@@ -54,13 +54,20 @@ def test_truthfulness_validate_and_extract_preserve_strict_semantics() -> None:
     validated = ir_truthfulness.validate_truthfulness_receipt(payload)
 
     assert validated is not None
-    assert validated.runtime_truthfulness_tier is ir_truthfulness.TruthfulnessTier.APPROXIMATE_CALIBRATED
-    assert ir_truthfulness.extract_truthfulness_receipt(
-        {"nested": {"truthfulness_receipt": payload}}
-    ) == validated
-    assert ir_truthfulness.extract_truthfulness_receipt(
-        {"truthfulness_receipt": {"runtime_truthfulness_tier": "not-a-tier"}}
-    ) is None
+    assert (
+        validated.runtime_truthfulness_tier
+        is ir_truthfulness.TruthfulnessTier.APPROXIMATE_CALIBRATED
+    )
+    assert (
+        ir_truthfulness.extract_truthfulness_receipt({"nested": {"truthfulness_receipt": payload}})
+        == validated
+    )
+    assert (
+        ir_truthfulness.extract_truthfulness_receipt(
+            {"truthfulness_receipt": {"runtime_truthfulness_tier": "not-a-tier"}}
+        )
+        is None
+    )
     with pytest.raises(TypeError, match="mapping or TruthfulnessReceipt"):
         ir_truthfulness.validate_truthfulness_receipt("not-a-receipt")
 

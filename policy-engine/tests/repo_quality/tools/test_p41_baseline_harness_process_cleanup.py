@@ -17,9 +17,7 @@ from types import ModuleType
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-HARNESS_PATH = (
-    REPO_ROOT / "docs/plans/active/agent-packages/PolicyOS_E02R2/BASELINE_HARNESS.py"
-)
+HARNESS_PATH = REPO_ROOT / "docs/plans/active/agent-packages/PolicyOS_E02R2/BASELINE_HARNESS.py"
 
 
 @lru_cache(maxsize=1)
@@ -166,7 +164,7 @@ def test_eperm_timeout_is_typed_unrun_and_preserves_process_state(
 
 
 def test_esrch_is_recorded_as_absent_group_not_permission_denial(
-    monkeypatch: pytest.MonkeyPatch
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     harness = _harness()
     process = _FakeProcess()
@@ -287,7 +285,9 @@ def test_registration_failure_plus_eperm_returns_unrun_and_persists_fence(
     fence_dir = tmp_path / "fences"
     monkeypatch.setattr(harness, "PROCESS_GROUP_FENCE_DIR", fence_dir)
     monkeypatch.setattr(harness, "PROCESS_GROUP_FENCE_FAILURE_DIR", tmp_path / "fence-failures")
-    monkeypatch.setattr(harness, "PROCESS_GROUP_FENCE_LEGACY_FAILURE_PATH", tmp_path / "legacy-fence.flag")
+    monkeypatch.setattr(
+        harness, "PROCESS_GROUP_FENCE_LEGACY_FAILURE_PATH", tmp_path / "legacy-fence.flag"
+    )
     process = _FakeProcess(terminate=False)
     ready = threading.Event()
 
@@ -322,7 +322,9 @@ def test_restart_fence_blocks_before_subprocess_and_checkpoint_reuse(
     fence_dir = tmp_path / "fences"
     monkeypatch.setattr(harness, "PROCESS_GROUP_FENCE_DIR", fence_dir)
     monkeypatch.setattr(harness, "PROCESS_GROUP_FENCE_FAILURE_DIR", tmp_path / "fence-failures")
-    monkeypatch.setattr(harness, "PROCESS_GROUP_FENCE_LEGACY_FAILURE_PATH", tmp_path / "legacy-fence.flag")
+    monkeypatch.setattr(
+        harness, "PROCESS_GROUP_FENCE_LEGACY_FAILURE_PATH", tmp_path / "legacy-fence.flag"
+    )
 
     # First invocation enters its matrix runner and hits an uncertain timeout.
     # The worker must persist its pending group before that invocation releases
@@ -381,7 +383,9 @@ def test_restart_fence_blocks_before_subprocess_and_checkpoint_reuse(
     spec.loader.exec_module(restarted)
     monkeypatch.setattr(restarted, "PROCESS_GROUP_FENCE_DIR", fence_dir)
     monkeypatch.setattr(restarted, "PROCESS_GROUP_FENCE_FAILURE_DIR", tmp_path / "fence-failures")
-    monkeypatch.setattr(restarted, "PROCESS_GROUP_FENCE_LEGACY_FAILURE_PATH", tmp_path / "legacy-fence.flag")
+    monkeypatch.setattr(
+        restarted, "PROCESS_GROUP_FENCE_LEGACY_FAILURE_PATH", tmp_path / "legacy-fence.flag"
+    )
 
     def unexpected_external_process(*_args, **_kwargs):
         raise AssertionError("the restart admission gate reached a subprocess")
@@ -430,7 +434,9 @@ def test_fallback_fence_marker_can_be_owner_resolved_and_admit_fresh_invocation(
     failure_path = failure_dir / "failure-fallback-write.json"
     monkeypatch.setattr(harness, "PROCESS_GROUP_FENCE_DIR", fence_dir)
     monkeypatch.setattr(harness, "PROCESS_GROUP_FENCE_FAILURE_DIR", failure_dir)
-    monkeypatch.setattr(harness, "PROCESS_GROUP_FENCE_LEGACY_FAILURE_PATH", tmp_path / "legacy-fence.flag")
+    monkeypatch.setattr(
+        harness, "PROCESS_GROUP_FENCE_LEGACY_FAILURE_PATH", tmp_path / "legacy-fence.flag"
+    )
     append_event = harness._append_process_group_fence_event
 
     def primary_fence_write_failure(_event):
@@ -489,7 +495,9 @@ def test_fallback_fence_marker_can_be_owner_resolved_and_admit_fresh_invocation(
     spec.loader.exec_module(restarted)
     monkeypatch.setattr(restarted, "PROCESS_GROUP_FENCE_DIR", fence_dir)
     monkeypatch.setattr(restarted, "PROCESS_GROUP_FENCE_FAILURE_DIR", failure_dir)
-    monkeypatch.setattr(restarted, "PROCESS_GROUP_FENCE_LEGACY_FAILURE_PATH", tmp_path / "legacy-fence.flag")
+    monkeypatch.setattr(
+        restarted, "PROCESS_GROUP_FENCE_LEGACY_FAILURE_PATH", tmp_path / "legacy-fence.flag"
+    )
     admitted: list[bool] = []
     monkeypatch.setattr(restarted, "run_matrix", lambda _args: admitted.append(True) or 0)
     monkeypatch.setattr(
@@ -743,7 +751,9 @@ def test_removing_startup_gate_reaches_subprocess_with_pending_marker_retained(
     fence_dir = tmp_path / "fences"
     monkeypatch.setattr(harness, "PROCESS_GROUP_FENCE_DIR", fence_dir)
     monkeypatch.setattr(harness, "PROCESS_GROUP_FENCE_FAILURE_DIR", tmp_path / "fence-failures")
-    monkeypatch.setattr(harness, "PROCESS_GROUP_FENCE_LEGACY_FAILURE_PATH", tmp_path / "legacy-fence.flag")
+    monkeypatch.setattr(
+        harness, "PROCESS_GROUP_FENCE_LEGACY_FAILURE_PATH", tmp_path / "legacy-fence.flag"
+    )
     _pending_event(harness)
 
     class RemovalProbeReachedProcessBoundaryError(RuntimeError):
@@ -787,7 +797,9 @@ def test_owner_resolution_requires_exact_fence_and_observed_absent_group(
     fence_dir = tmp_path / "fences"
     monkeypatch.setattr(harness, "PROCESS_GROUP_FENCE_DIR", fence_dir)
     monkeypatch.setattr(harness, "PROCESS_GROUP_FENCE_FAILURE_DIR", tmp_path / "fence-failures")
-    monkeypatch.setattr(harness, "PROCESS_GROUP_FENCE_LEGACY_FAILURE_PATH", tmp_path / "legacy-fence.flag")
+    monkeypatch.setattr(
+        harness, "PROCESS_GROUP_FENCE_LEGACY_FAILURE_PATH", tmp_path / "legacy-fence.flag"
+    )
     _pending_event(harness)
     attempted: list[tuple[int, int]] = []
 
@@ -841,7 +853,9 @@ def test_owner_resolution_does_not_clear_live_or_inaccessible_group(
     fence_dir = tmp_path / "fences"
     monkeypatch.setattr(harness, "PROCESS_GROUP_FENCE_DIR", fence_dir)
     monkeypatch.setattr(harness, "PROCESS_GROUP_FENCE_FAILURE_DIR", tmp_path / "fence-failures")
-    monkeypatch.setattr(harness, "PROCESS_GROUP_FENCE_LEGACY_FAILURE_PATH", tmp_path / "legacy-fence.flag")
+    monkeypatch.setattr(
+        harness, "PROCESS_GROUP_FENCE_LEGACY_FAILURE_PATH", tmp_path / "legacy-fence.flag"
+    )
     _pending_event(harness)
     monkeypatch.setattr(harness.os, "killpg", probe)
 
@@ -1071,8 +1085,7 @@ def test_scheduler_default_keeps_unknown_jobs_serial_and_opt_in_caps_at_two(
         lambda *_, **__: (True, None, False),
     )
     jobs = [
-        _pilot_job(harness, path=f"policy-engine/tests/unit/item_{index}.py")
-        for index in range(3)
+        _pilot_job(harness, path=f"policy-engine/tests/unit/item_{index}.py") for index in range(3)
     ]
     revision = {
         "key": "fixture",

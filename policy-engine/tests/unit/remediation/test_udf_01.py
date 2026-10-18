@@ -113,9 +113,7 @@ def test_calibration_alias_and_package_facade_share_the_canonical_owner() -> Non
         "polisyos.data_forge.domains.ukraine.builders.governance_handoff"
     )
     assert calibration.__all__ == ("build_d4_stage",)
-    assert {
-        name for name in vars(calibration) if not name.startswith("_")
-    } == {"build_d4_stage"}
+    assert {name for name in vars(calibration) if not name.startswith("_")} == {"build_d4_stage"}
 
 
 def test_d4_contract_and_handoff_namespaces_do_not_leak_common_builders() -> None:

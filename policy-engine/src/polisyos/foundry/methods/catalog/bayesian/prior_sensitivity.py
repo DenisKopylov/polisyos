@@ -55,7 +55,11 @@ def _enum_payload(value: Any) -> str:
 
 
 def _coerce_model_family(value: BayesianPolicyModelFamily | str) -> BayesianPolicyModelFamily:
-    return value if isinstance(value, BayesianPolicyModelFamily) else BayesianPolicyModelFamily(str(value))
+    return (
+        value
+        if isinstance(value, BayesianPolicyModelFamily)
+        else BayesianPolicyModelFamily(str(value))
+    )
 
 
 def _coerce_readiness_tier(value: ReadinessTier | str) -> ReadinessTier:
@@ -63,11 +67,7 @@ def _coerce_readiness_tier(value: ReadinessTier | str) -> ReadinessTier:
 
 
 def _coerce_conditioning_mode(value: DataConditioningMode | str) -> DataConditioningMode:
-    return (
-        value
-        if isinstance(value, DataConditioningMode)
-        else DataConditioningMode(str(value))
-    )
+    return value if isinstance(value, DataConditioningMode) else DataConditioningMode(str(value))
 
 
 class PriorConstraintRecord(BaseModel):
@@ -231,7 +231,9 @@ class PriorSensitivityReport(BaseModel):
             return value
         payload = dict(value)
         uses_outcome = bool(payload.get("uses_outcome_to_set_prior", False))
-        mode = _enum_payload(payload.get("data_conditioning_mode", DataConditioningMode.NONE)).lower()
+        mode = _enum_payload(
+            payload.get("data_conditioning_mode", DataConditioningMode.NONE)
+        ).lower()
         if uses_outcome and mode not in {
             DataConditioningMode.SPLIT.value,
             DataConditioningMode.FULL_PROCEDURE_CALIBRATED.value,
@@ -430,9 +432,13 @@ def build_admissible_prior_class(
     hp = dict(hyperparameters or {})
     ctx = dict(policy_context or {})
     conditioning_mode = _coerce_conditioning_mode(
-        hp.get("data_conditioning_mode", ctx.get("data_conditioning_mode", DataConditioningMode.NONE))
+        hp.get(
+            "data_conditioning_mode", ctx.get("data_conditioning_mode", DataConditioningMode.NONE)
+        )
     )
-    uses_outcome = bool(hp.get("uses_outcome_to_set_prior", ctx.get("uses_outcome_to_set_prior", False)))
+    uses_outcome = bool(
+        hp.get("uses_outcome_to_set_prior", ctx.get("uses_outcome_to_set_prior", False))
+    )
     leakage_ok = (not uses_outcome) or conditioning_mode in {
         DataConditioningMode.SPLIT,
         DataConditioningMode.FULL_PROCEDURE_CALIBRATED,
@@ -494,7 +500,9 @@ def build_admissible_prior_class(
                     np.mean((sigma_values >= float(sigma_min)) & (sigma_values <= float(sigma_max)))
                 )
             else:
-                sigma_probability = 1.0 if float(sigma_min) <= sigma_scale <= float(sigma_max) else 0.0
+                sigma_probability = (
+                    1.0 if float(sigma_min) <= sigma_scale <= float(sigma_max) else 0.0
+                )
             constraints.append(
                 _constraint(
                     "sigma_prior_envelope",
@@ -632,7 +640,9 @@ def build_admissible_prior_class(
         treatment_effect_bound = ctx.get("treatment_effect_bound")
         treatment_effect_sup = hp.get("treatment_effect_sup")
         if treatment_effect_bound is not None and treatment_effect_sup is not None:
-            probability = 1.0 if float(treatment_effect_sup) <= float(treatment_effect_bound) else 0.0
+            probability = (
+                1.0 if float(treatment_effect_sup) <= float(treatment_effect_bound) else 0.0
+            )
             constraints.append(
                 _constraint(
                     "treatment_effect_heterogeneity_envelope",
@@ -977,9 +987,7 @@ def prior_predictive_rank_test(
     for col in range(values.shape[1]):
         column = values[:, col]
         for row in range(values.shape[0]):
-            ranks[row, col] = (1.0 + float(np.sum(column <= column[row]))) / (
-                values.shape[0] + 1.0
-            )
+            ranks[row, col] = (1.0 + float(np.sum(column <= column[row]))) / (values.shape[0] + 1.0)
     nonconformity = np.max(np.abs(2.0 * ranks - 1.0), axis=1)
     p_value = (1.0 + float(np.sum(nonconformity[1:] >= nonconformity[0]))) / (
         simulations.shape[0] + 1.0
@@ -1094,8 +1102,12 @@ def build_sensitivity_record_from_intervals(
     for point in points:
         by_hyperparameter.setdefault(point.hyperparameter, []).append(point)
     for name, grouped in by_hyperparameter.items():
-        lower = next((point for point in grouped if point.multiplier and point.multiplier < 1.0), None)
-        upper = next((point for point in grouped if point.multiplier and point.multiplier > 1.0), None)
+        lower = next(
+            (point for point in grouped if point.multiplier and point.multiplier < 1.0), None
+        )
+        upper = next(
+            (point for point in grouped if point.multiplier and point.multiplier > 1.0), None
+        )
         if lower is not None and upper is not None:
             denominator = np.log(float(upper.multiplier)) - np.log(float(lower.multiplier))
             if abs(denominator) > 1e-12 and lower.half_width > 0.0 and upper.half_width > 0.0:
@@ -1271,7 +1283,9 @@ def assemble_prior_sensitivity_report(
         if prior_class_calibration is not None
         else class_adjusted_pass
     )
-    sensitivity_records = tuple(sensitivity_by_estimand or ([sensitivity] if sensitivity is not None else []))
+    sensitivity_records = tuple(
+        sensitivity_by_estimand or ([sensitivity] if sensitivity is not None else [])
+    )
     achieved = achieved_readiness_tier(
         prior_predictive_check=prior_predictive_check,
         sensitivity=sensitivity,
@@ -1296,7 +1310,9 @@ def assemble_prior_sensitivity_report(
     ):
         reasons.append("class_adjusted_prior_predictive_p_min_below_calibrated_cutoff")
     if sensitivity is not None and not sensitivity.pass_:
-        thresholds = _READINESS_THRESHOLDS.get(requested, _READINESS_THRESHOLDS[ReadinessTier.TIER_1])
+        thresholds = _READINESS_THRESHOLDS.get(
+            requested, _READINESS_THRESHOLDS[ReadinessTier.TIER_1]
+        )
         width_max = thresholds.get("width_factor_max")
         center_max = thresholds.get("center_shift_max")
         stability_min = thresholds.get("decision_stability_min")
@@ -1557,7 +1573,9 @@ def prior_scale_sensitivity_from_samples(
     if estimand_id not in samples:
         raise ValueError(f"estimand samples missing: {estimand_id}")
     scale0 = _finite_positive(baseline_prior_scale, 1.0)
-    flattened = {name: np.asarray(value, dtype=float).reshape(-1) for name, value in samples.items()}
+    flattened = {
+        name: np.asarray(value, dtype=float).reshape(-1) for name, value in samples.items()
+    }
     n_draws = len(next(iter(flattened.values())))
     if any(value.shape[0] != n_draws for value in flattened.values()):
         raise ValueError("all sample arrays must have the same number of draws")

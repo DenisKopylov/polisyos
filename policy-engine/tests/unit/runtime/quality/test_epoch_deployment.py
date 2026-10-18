@@ -261,9 +261,7 @@ def test_composed_signed_admission_denial_uses_exact_runtime_store(
     finally:
         runtime_store.close()
 
-    assert denied_store.denied_reads == [
-        ("verify", str(evidence_record_ref.artifact_id))
-    ]
+    assert denied_store.denied_reads == [("verify", str(evidence_record_ref.artifact_id))]
     assert raw_root.get_bytes(evidence_record_ref.artifact_id) == evidence_record_bytes
 
 

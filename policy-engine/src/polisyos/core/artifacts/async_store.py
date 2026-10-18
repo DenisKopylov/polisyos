@@ -89,8 +89,11 @@ class AsyncArtifactStoreAdapter:
             await run_blocking_async(
                 reader,
                 artifact_id,
-                **({"manifest_profile_sha256": manifest_profile_sha256}
-                   if manifest_profile_sha256 is not None else {}),
+                **(
+                    {"manifest_profile_sha256": manifest_profile_sha256}
+                    if manifest_profile_sha256 is not None
+                    else {}
+                ),
                 timeout_seconds=self.timeout_seconds,
                 unbounded=self.unbounded,
             ),
@@ -217,8 +220,11 @@ class AsyncFileSystemArtifactStore:
             await run_blocking_async(
                 reader,
                 artifact_id,
-                **({"manifest_profile_sha256": manifest_profile_sha256}
-                   if manifest_profile_sha256 is not None else {}),
+                **(
+                    {"manifest_profile_sha256": manifest_profile_sha256}
+                    if manifest_profile_sha256 is not None
+                    else {}
+                ),
                 timeout_seconds=self.timeout_seconds,
                 unbounded=self.unbounded,
             ),

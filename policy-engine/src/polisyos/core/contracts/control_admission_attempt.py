@@ -19,9 +19,7 @@ ControlPreAdmissionAttemptStatus = Literal[
 ]
 ProducerCallState = Literal["not_applicable", "no_call", "complete", "unavailable"]
 ControlPreAdmissionEventObservation = ProducerCallState
-NoCallReason = Literal[
-    "producer_run_binding_not_established", "provider_preflight_not_started"
-]
+NoCallReason = Literal["producer_run_binding_not_established", "provider_preflight_not_started"]
 
 PRODUCER_CALL_STATE_VALUES = frozenset(get_args(ProducerCallState))
 NO_CALL_REASON_VALUES = frozenset(get_args(NoCallReason))
@@ -50,9 +48,7 @@ class ControlPreAdmissionAttemptEventInfo(BaseModel):
     producer_event_ids: list[str] = Field(default_factory=list)
     producer_event_observation: ControlPreAdmissionEventObservation = "not_applicable"
     producer_no_call_reason: NoCallReason | None = None
-    failure_code: str | None = Field(
-        default=None, pattern=r"^[A-Za-z0-9._-]{1,96}$"
-    )
+    failure_code: str | None = Field(default=None, pattern=r"^[A-Za-z0-9._-]{1,96}$")
     job_id: str | None = None
 
     @model_validator(mode="after")
@@ -102,9 +98,7 @@ class ControlPreAdmissionAttemptResponse(BaseModel):
     producer_event_ids: list[str] = Field(default_factory=list)
     producer_event_observation: ControlPreAdmissionEventObservation = "not_applicable"
     producer_no_call_reason: NoCallReason | None = None
-    failure_code: str | None = Field(
-        default=None, pattern=r"^[A-Za-z0-9._-]{1,96}$"
-    )
+    failure_code: str | None = Field(default=None, pattern=r"^[A-Za-z0-9._-]{1,96}$")
     created_at: datetime
     updated_at: datetime
     history: list[ControlPreAdmissionAttemptEventInfo] = Field(min_length=1)

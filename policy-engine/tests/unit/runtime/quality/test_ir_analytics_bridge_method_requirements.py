@@ -86,6 +86,6 @@ def test_ir_bridge_satisfies_negative_certificate_requirement_without_method_out
         issue["code"] == "ir_analytics_method_requirement_method_output_missing"
         for issue in bridge["issues"]
     )
-    assert {
-        issue["code"] for issue in bridge["issues"]
-    } == {"runtime_claim_registry_ir_analytics_blocked"}
+    assert {issue["code"] for issue in bridge["issues"]} == {
+        "runtime_claim_registry_ir_analytics_blocked"
+    }

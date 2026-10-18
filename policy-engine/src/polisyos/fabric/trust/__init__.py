@@ -13,4 +13,3 @@ __all__ = [
     "two_pass_compare",
     "two_pass_compare_with_envelope",
 ]
-

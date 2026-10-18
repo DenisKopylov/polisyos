@@ -137,9 +137,7 @@ def _variant_ref(variant: Mapping[str, Any], index: int) -> dict[str, str]:
 
 def _claims_from_variant(variant: Mapping[str, Any]) -> list[dict[str, Any]]:
     raw_claims = (
-        variant.get("claims")
-        or variant.get("policy_claims")
-        or variant.get("recommendations")
+        variant.get("claims") or variant.get("policy_claims") or variant.get("recommendations")
     )
     if raw_claims is None:
         report = variant.get("final_policy_claims")
@@ -214,9 +212,7 @@ def _material_disagreements(
         signatures_by_variant[variant_id] = signatures
         ref_payload = variant.get("variant_ref")
         variant_refs.append(
-            dict(ref_payload)
-            if isinstance(ref_payload, Mapping)
-            else _variant_ref(variant, index)
+            dict(ref_payload) if isinstance(ref_payload, Mapping) else _variant_ref(variant, index)
         )
     if len({tuple(value) for value in signatures_by_variant.values()}) <= 1:
         return []
@@ -225,8 +221,7 @@ def _material_disagreements(
             "code": DISAGREEMENT_CODE,
             "severity": "fail",
             "message": (
-                "LLM model variants produced materially different major "
-                "recommendation actions."
+                "LLM model variants produced materially different major recommendation actions."
             ),
             "variant_refs": variant_refs,
             "variant_signatures": signatures_by_variant,

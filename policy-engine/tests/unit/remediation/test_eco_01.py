@@ -96,9 +96,7 @@ def test_legacy_policy_loss_fn_keeps_native_numeric_guard_fail_closed(state: Glo
 def test_income_tax_and_economic_tax_keep_distinct_tax_bases() -> None:
     state = _global_state([100.0, 200.0])
     state = state.replace(
-        agents=state.agents.replace(
-            reported_income=jnp.asarray([10.0, 20.0], dtype=jnp.float32)
-        )
+        agents=state.agents.replace(reported_income=jnp.asarray([10.0, 20.0], dtype=jnp.float32))
     )
     npt.assert_allclose(
         compute_tax(state, jnp.asarray(0.2, dtype=jnp.float32)),

@@ -744,9 +744,7 @@ def test_default_batch_tolerates_hidden_tenant_and_signature_only_writes(
     assert report.total == 1
     assert report.valid == 1
     assert report.errors == 0
-    assert [item.artifact_id for item in report.details] == [
-        str(current_ref.artifact_id)
-    ]
+    assert [item.artifact_id for item in report.details] == [str(current_ref.artifact_id)]
 
 
 def test_bulk_sign_worker_inherits_the_callers_tenant_scope(
@@ -868,9 +866,7 @@ def test_default_and_explicit_bulk_reads_keep_foreign_tenant_bytes_unread(
 
     assert default_report.total == 1
     assert default_report.valid == 1
-    assert [item.artifact_id for item in default_report.details] == [
-        str(tenant_a_ref.artifact_id)
-    ]
+    assert [item.artifact_id for item in default_report.details] == [str(tenant_a_ref.artifact_id)]
     assert blob_reads == 1
 
     blob_reads = 0

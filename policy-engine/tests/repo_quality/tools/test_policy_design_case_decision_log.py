@@ -13,9 +13,7 @@ PLAN = (
     / "archive"
     / "2026-05-19-policyos-policy-design-case-implementation-plan.md"
 )
-DECISION_LOG = (
-    REPO_ROOT / "docs" / "system-design-decisions" / "policy-design-case-decision-log.md"
-)
+DECISION_LOG = REPO_ROOT / "docs" / "system-design-decisions" / "policy-design-case-decision-log.md"
 
 REQUIRED_ENTRY_FIELDS = {
     "Date",

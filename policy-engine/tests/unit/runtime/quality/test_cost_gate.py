@@ -181,8 +181,7 @@ def test_production_authority_over_budget_emits_typed_cost_blockers() -> None:
     }
     assert all(blocker["status"] == "blocked" for blocker in validated["blockers"])
     assert all(
-        blocker["authority_policy_ref"].startswith("policy://")
-        for blocker in validated["blockers"]
+        blocker["authority_policy_ref"].startswith("policy://") for blocker in validated["blockers"]
     )
     assert validated["deficit_crosswalk"][0]["closeout_effect"] == "closeout_blocked"
 
@@ -206,9 +205,9 @@ def test_research_authority_over_budget_is_limitation_not_blocker() -> None:
     assert validated["summary"]["limitation_count"] > 0
     assert validated["blockers"] == []
     assert {issue["severity"] for issue in validated["issues"]} == {"limitation"}
-    assert {
-        row["closeout_effect"] for row in validated["deficit_crosswalk"]
-    } == {"publish_with_limitation"}
+    assert {row["closeout_effect"] for row in validated["deficit_crosswalk"]} == {
+        "publish_with_limitation"
+    }
 
 
 def test_cost_gate_scorecard_gate_blocks_production_authority_only() -> None:

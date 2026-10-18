@@ -42,7 +42,6 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 
-
 class RunPaperProjectionService:
     """Build run paper only from a tenant-bound, verified terminal manifest."""
 
@@ -149,9 +148,7 @@ class RunPaperProjectionService:
             ),
             admission_nonreceipt=RunPaperAuthorityNonReceipt(
                 missing_authority="hypothesis_ledger_admission_authority",
-                owner_route=(
-                    "polisyos.runtime.quality.hypothesis_ledger.HypothesisAdmissionState"
-                ),
+                owner_route=("polisyos.runtime.quality.hypothesis_ledger.HypothesisAdmissionState"),
                 denied_uses=(
                     "admission_state",
                     "admitted_case_projection",
@@ -190,8 +187,7 @@ class RunPaperProjectionService:
         replay_address = build_export_replay_address(stable_address, pin_values)
         report_stable_address = f"/runs/{manifest.run_id}/report"
         report_href = (
-            f"{build_export_replay_address(report_stable_address, pin_values)}"
-            "#stage-trace"
+            f"{build_export_replay_address(report_stable_address, pin_values)}#stage-trace"
         )
         return RunPaperPacket(
             run=paper_run,
@@ -218,9 +214,7 @@ class RunPaperProjectionService:
         if artifact_id is None:
             return False
         try:
-            selected_ref = (
-                artifact_ref if isinstance(artifact_ref, artifacts.ArtifactRef) else None
-            )
+            selected_ref = artifact_ref if isinstance(artifact_ref, artifacts.ArtifactRef) else None
             target = selected_ref if selected_ref is not None else artifact_id
             verification = self._store.verify(target)
             if not verification.ok:
@@ -228,18 +222,14 @@ class RunPaperProjectionService:
             sidecar = self._store.get_manifest(target)
         except (OSError, TypeError, ValueError):
             return False
-        verified = (
-            sidecar.kind == getattr(artifact_ref, "kind", None)
-            and sidecar.media_type == getattr(artifact_ref, "media_type", None)
-        )
-        if (
-            not verified
-            or (
-                selected_ref is not None
-                and selected_ref.manifest_profile_sha256 is not None
-                and artifacts.artifact_manifest_profile_sha256(sidecar)
-                != selected_ref.manifest_profile_sha256
-            )
+        verified = sidecar.kind == getattr(
+            artifact_ref, "kind", None
+        ) and sidecar.media_type == getattr(artifact_ref, "media_type", None)
+        if not verified or (
+            selected_ref is not None
+            and selected_ref.manifest_profile_sha256 is not None
+            and artifacts.artifact_manifest_profile_sha256(sidecar)
+            != selected_ref.manifest_profile_sha256
         ):
             return False
         decision = authority_surface_decision(

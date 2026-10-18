@@ -307,6 +307,7 @@ class NonDataAcquisitionRuntime:
 
     def _resolve(self, ref: str, kind: str) -> dict[str, Any]:
         from polisyos.core.artifacts import load_core_json_artifact
+
         try:
             blob = self.store.get_bytes(ref)
             import hashlib

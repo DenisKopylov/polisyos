@@ -723,9 +723,10 @@ def test_layer3_g5_persisted_bundle_uses_compute_path_not_green_unchanged_blocke
         assert payload["envelope_expansion_delta"]["conversion_reason"] == (
             "grounded_abstention_no_useful_design_credit"
         )
-        assert payload["useful_design_metric_eligibility_join"][
-            "counts_toward_runtime_useful_design"
-        ] is False
+        assert (
+            payload["useful_design_metric_eligibility_join"]["counts_toward_runtime_useful_design"]
+            is False
+        )
     assert not payload["demand_pull_attempt_record"]["s3_demand_pull_refs"]
     assert payload["demand_pull_attempt_record"]["s12_demand_act_refs"] == [
         "demand-act://layer3-gx/ua-msme-affordable-loans-2022"
@@ -801,15 +802,14 @@ def test_layer3_g5_dependency_resolver_reads_slice_specific_readiness_keys() -> 
 
     snapshot = g5.build_g5_dependency_readiness_snapshot(REPO_ROOT)
     g1_manifest = json.loads(
-        (REPO_ROOT / "architecture/policy_design_case/layer3_g1_readiness_manifest.json")
-        .read_text(encoding="utf-8")
+        (REPO_ROOT / "architecture/policy_design_case/layer3_g1_readiness_manifest.json").read_text(
+            encoding="utf-8"
+        )
     )
 
     assert snapshot.status == "pass"
     assert snapshot.g1_grounding_status == "typed_blocker"
-    assert snapshot.g1_search_recall_status == g1_manifest["counts"][
-        "g1_search_recall_status"
-    ]
+    assert snapshot.g1_search_recall_status == g1_manifest["counts"]["g1_search_recall_status"]
     assert snapshot.g2_w12d_consumer_gate_status == "fail"
     assert snapshot.g2_conformance_status == "fail"
     assert snapshot.g3_w12d_consumer_gate_status == "fail"
@@ -936,8 +936,16 @@ def test_layer3_g5_g4_grounded_contract_duplicates_do_not_inflate_evidence() -> 
     g5 = _g5()
     evidence = g5.build_g5_grounded_result_evidence_set(
         [
-            {"ref": "repo://contract/1", "lineage_refs": ["lineage://a"], "source_hash": "sha256:a"},
-            {"ref": "repo://contract/1", "lineage_refs": ["lineage://a"], "source_hash": "sha256:a"},
+            {
+                "ref": "repo://contract/1",
+                "lineage_refs": ["lineage://a"],
+                "source_hash": "sha256:a",
+            },
+            {
+                "ref": "repo://contract/1",
+                "lineage_refs": ["lineage://a"],
+                "source_hash": "sha256:a",
+            },
         ]
     )
 
@@ -1094,9 +1102,7 @@ def test_layer3_g5_independence_adapter_uses_existing_collapse_dimensions() -> N
 
     assert adapter["schema_version"] == "policyos.runtime.policy_design_case.independence_map.v1"
     assert "source_lineage_cluster_id" in adapter["collapse_dimensions_used"]
-    assert adapter["raw_evidence_line_count"] >= adapter[
-        "effective_independent_evidence_count"
-    ]
+    assert adapter["raw_evidence_line_count"] >= adapter["effective_independent_evidence_count"]
 
 
 def test_layer3_g5_gl_pass_with_reissue_required_narrows_or_blocks_legal_scope() -> None:
@@ -1218,7 +1224,9 @@ def test_layer3_g5_s2_acquisition_required_routes_to_abstention_or_blocker() -> 
     assert "layer3_g5_s2_bridge_missing_unresolved" in bundle.issue_codes
 
 
-def test_layer3_g5_design_record_firewall_warn_limit_block_statuses_compose_before_conversion() -> None:
+def test_layer3_g5_design_record_firewall_warn_limit_block_statuses_compose_before_conversion() -> (
+    None
+):
     g5 = _g5()
     case = _minimal_w12d_case()
     case["s2_design_search"]["design_record"]["firewall_status"].append(
@@ -1248,7 +1256,9 @@ def test_layer3_g5_constraint_store_block_status_blocks_or_limits_conversion() -
     assert "layer3_g5_constraint_store_block_ignored" in bundle.issue_codes
 
 
-def test_layer3_g5_p26_resolver_reads_s7_delegation_record_ref_not_only_generic_human_refs() -> None:
+def test_layer3_g5_p26_resolver_reads_s7_delegation_record_ref_not_only_generic_human_refs() -> (
+    None
+):
     g5 = _g5()
 
     bundle = g5.build_g5_pinned_case_input_bundle(
@@ -1272,7 +1282,9 @@ def test_layer3_g5_s12_growth_entry_demand_act_and_envelope_delta_are_reused() -
     assert bundle.s12_certified_envelope_delta_refs == ("envelope-delta://ua-msme/first",)
 
 
-def test_layer3_g5_s14_pending_sealed_limits_universality_claim_but_not_declared_envelope_ref() -> None:
+def test_layer3_g5_s14_pending_sealed_limits_universality_claim_but_not_declared_envelope_ref() -> (
+    None
+):
     g5 = _g5()
 
     bundle = g5.build_g5_pinned_case_input_bundle(
@@ -1330,8 +1342,7 @@ def test_layer3_g5_current_ua_grounding_does_not_grade_without_validated_records
     g5 = _g5()
     source_payload = json.loads(
         (
-            REPO_ROOT
-            / "tests/fixtures/universal-corpus/cases/ua-msme-affordable-loans-2022.json"
+            REPO_ROOT / "tests/fixtures/universal-corpus/cases/ua-msme-affordable-loans-2022.json"
         ).read_text(encoding="utf-8")
     )
 
@@ -1340,10 +1351,7 @@ def test_layer3_g5_current_ua_grounding_does_not_grade_without_validated_records
         forecast_support_ref=(
             "pdc://layer3/g2/ua-msme-affordable-loans-2022/forecast-support/w12d"
         ),
-        proof_ref=(
-            "pdc://layer3/g3/ua-msme-affordable-loans-2022/"
-            "proof/3bdd1eb4e0b3ca33f093ce1e"
-        ),
+        proof_ref=("pdc://layer3/g3/ua-msme-affordable-loans-2022/proof/3bdd1eb4e0b3ca33f093ce1e"),
         source_hash=source_payload["redacted_source_hash"],
         source_payload=source_payload,
         case_id=source_payload["case_id"],
@@ -1536,9 +1544,9 @@ def test_layer3_g5_committed_grounding_rejects_borrowed_records(
     )
     _patch_grounding_payloads(monkeypatch, g5, payloads)
     source_payload = json.loads(
-        (
-            REPO_ROOT / "tests/fixtures/universal-corpus/cases/w11a_us_ppp_2020.json"
-        ).read_text(encoding="utf-8")
+        (REPO_ROOT / "tests/fixtures/universal-corpus/cases/w11a_us_ppp_2020.json").read_text(
+            encoding="utf-8"
+        )
     )
 
     resolved = g5.resolve_g5_committed_grounding_refs(
@@ -1607,9 +1615,7 @@ def test_layer3_g5_source_only_promotion_cannot_claim_grounded_limited() -> None
     )
 
     assert ledger.grounding_disposition == "ungrounded_blocked"
-    assert "layer3_g5_source_only_promotion_overclaims_grounded_limited" in (
-        ledger.issue_codes
-    )
+    assert "layer3_g5_source_only_promotion_overclaims_grounded_limited" in (ledger.issue_codes)
 
 
 def test_layer3_g5_grounded_limited_requires_g2_g3_design_support() -> None:
@@ -1628,9 +1634,7 @@ def test_layer3_g5_grounded_limited_requires_g2_g3_design_support() -> None:
     )
 
     assert ledger.conversion_outcome == "unchanged_blocker"
-    assert "layer3_g5_grounded_limited_without_g2_g3_design_support" in (
-        ledger.issue_codes
-    )
+    assert "layer3_g5_grounded_limited_without_g2_g3_design_support" in (ledger.issue_codes)
 
 
 def test_layer3_g5_does_not_treat_g4_pass_as_design_level_promotion() -> None:
@@ -1753,7 +1757,9 @@ def test_layer3_g5_raw_ref_dedup_without_independence_map_blocks_grounded_limite
     assert "layer3_g5_raw_ref_dedup_used_as_independence" in ledger.issue_codes
 
 
-def test_layer3_g5_grounded_limited_requires_useful_design_metric_eligibility_join_for_credit() -> None:
+def test_layer3_g5_grounded_limited_requires_useful_design_metric_eligibility_join_for_credit() -> (
+    None
+):
     g5 = _g5()
 
     ledger = g5.build_g5_conversion_eligibility_ledger(
@@ -1768,9 +1774,7 @@ def test_layer3_g5_grounded_limited_requires_useful_design_metric_eligibility_jo
     )
 
     assert composition.counts_toward_runtime_useful_design is False
-    assert "layer3_g5_useful_design_metric_eligibility_join_missing" in (
-        composition.issue_codes
-    )
+    assert "layer3_g5_useful_design_metric_eligibility_join_missing" in (composition.issue_codes)
 
 
 def test_layer3_g5_expert_useful_design_ceiling_is_not_runtime_credit() -> None:
@@ -1784,9 +1788,7 @@ def test_layer3_g5_expert_useful_design_ceiling_is_not_runtime_credit() -> None:
     )
 
     assert join.counts_toward_runtime_useful_design is False
-    assert "layer3_g5_expert_useful_design_ceiling_used_as_runtime_credit" in (
-        join.issue_codes
-    )
+    assert "layer3_g5_expert_useful_design_ceiling_used_as_runtime_credit" in (join.issue_codes)
 
 
 def test_layer3_g5_w11c_gate_counts_field_authorizes_metric_join() -> None:
@@ -1878,9 +1880,7 @@ def test_layer3_g5_relabelled_blocker_as_publish_with_limitation_is_rejected() -
 
     assert composition.counts_toward_runtime_useful_design is False
     assert composition.w12d_outcome == "typed_blocker"
-    assert "layer3_g5_blocker_relabelled_as_publish_with_limitation" in (
-        composition.issue_codes
-    )
+    assert "layer3_g5_blocker_relabelled_as_publish_with_limitation" in (composition.issue_codes)
 
 
 def test_layer3_g5_genuine_blocker_stays_blocker_and_useful_unchanged() -> None:
@@ -1917,9 +1917,7 @@ def test_layer3_g5_genuine_blocker_stays_blocker_and_useful_unchanged() -> None:
     assert ledger.conversion_outcome == "unchanged_blocker"
     assert "layer3_g5_blocked_promotion_used_as_conversion" in ledger.issue_codes
     assert composition.counts_toward_runtime_useful_design is False
-    assert "layer3_g5_blocker_relabelled_as_publish_with_limitation" in (
-        composition.issue_codes
-    )
+    assert "layer3_g5_blocker_relabelled_as_publish_with_limitation" in (composition.issue_codes)
 
 
 def test_layer3_g5_grounded_limited_requires_scope_covering_evidence() -> None:
@@ -1989,9 +1987,7 @@ def test_task9_g5_conversion_eligibility_is_reducer_authored_waist_court() -> No
     assert ledger.conversion_outcome == "unchanged_blocker"
     assert "layer3_g5_g4_dependency_not_ready" in ledger.issue_codes
     assert ledger.produced_by["reducer_id"] == "reduce_g5_conversion_outcome"
-    assert ledger.produced_by["rule_version"] == (
-        "policyos.layer3.gx.reducer_only_status.v1"
-    )
+    assert ledger.produced_by["rule_version"] == ("policyos.layer3.gx.reducer_only_status.v1")
     assert ledger.produced_by["output_hash"].startswith("sha256:")
     assert ledger.produced_by["input_hashes"]
 
@@ -2323,9 +2319,7 @@ def test_layer3_g5_gl_requirement_artifact_does_not_override_applicability_fail(
 
     assert ledger.conversion_outcome == "unchanged_blocker"
     assert "layer3_g5_gl_applicability_fail_blocks_conversion" in ledger.issue_codes
-    assert "layer3_g5_gl_requirement_artifact_overrides_applicability" in (
-        ledger.issue_codes
-    )
+    assert "layer3_g5_gl_requirement_artifact_overrides_applicability" in (ledger.issue_codes)
 
 
 def test_layer3_g5_gl_mandate_compatibility_only_blocks_mandate_conversion() -> None:
@@ -2340,9 +2334,7 @@ def test_layer3_g5_gl_mandate_compatibility_only_blocks_mandate_conversion() -> 
     )
 
     assert ledger.conversion_outcome == "unchanged_blocker"
-    assert "layer3_g5_gl_mandate_compatibility_only_blocks_conversion" in (
-        ledger.issue_codes
-    )
+    assert "layer3_g5_gl_mandate_compatibility_only_blocks_conversion" in (ledger.issue_codes)
 
 
 def test_layer3_g5_s14_grounded_authority_pass_does_not_override_pending_sealed_gate() -> None:
@@ -2443,9 +2435,7 @@ def test_layer3_g5_grounded_abstention_requires_demand_pull_attempt_refs() -> No
     )
 
     assert ledger.conversion_outcome == "unchanged_blocker"
-    assert "layer3_g5_grounded_abstention_without_demand_pull_attempt" in (
-        ledger.issue_codes
-    )
+    assert "layer3_g5_grounded_abstention_without_demand_pull_attempt" in (ledger.issue_codes)
 
 
 def test_task9_g5_bare_s3_demand_pull_string_blocks_grounded_abstention() -> None:
@@ -2472,9 +2462,7 @@ def test_task9_g5_bare_s3_demand_pull_string_blocks_grounded_abstention() -> Non
     )
 
     assert ledger.conversion_outcome == "unchanged_blocker"
-    assert "layer3_g5_grounded_abstention_without_demand_pull_attempt" in (
-        ledger.issue_codes
-    )
+    assert "layer3_g5_grounded_abstention_without_demand_pull_attempt" in (ledger.issue_codes)
 
 
 def test_layer3_g5_demand_pull_resolves_from_s12_case_signals() -> None:
@@ -2770,9 +2758,7 @@ def test_layer3_g5_task7_conformance_report_covers_negative_and_performance_cont
     report = bundle.conformance_report
     negative_results = {result.negative_id: result for result in report.negative_results}
     observed_issue_codes = {
-        code
-        for result in report.negative_results
-        for code in result.observed_issue_codes
+        code for result in report.negative_results for code in result.observed_issue_codes
     }
     performance = report.performance_contract
 

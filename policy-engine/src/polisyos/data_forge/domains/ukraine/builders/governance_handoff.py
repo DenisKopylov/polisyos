@@ -41,9 +41,7 @@ def build_d4_stage(config: PipelineConfig) -> StageBuildResult:
         },
     )
     return StageBuildResult(
-        outputs={
-            _D4_GOVERNANCE_REQUEST_OUTPUT: ArtifactRecord.from_path(request_path)
-        },
+        outputs={_D4_GOVERNANCE_REQUEST_OUTPUT: ArtifactRecord.from_path(request_path)},
         metrics={
             "producer_handoff_ready": True,
         },

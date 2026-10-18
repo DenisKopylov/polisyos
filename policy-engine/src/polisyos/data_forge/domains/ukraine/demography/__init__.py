@@ -58,10 +58,7 @@ def _layout_member_paths(
     layout: _DemographyLayout,
 ) -> dict[str, Path]:
     """Resolve every member path for one declared demographic layout."""
-    return {
-        member: root / relative_path
-        for member, relative_path in _LAYOUT_PATHS[layout].items()
-    }
+    return {member: root / relative_path for member, relative_path in _LAYOUT_PATHS[layout].items()}
 
 
 def _classify_member_entry(path: Path) -> Literal["absent", "file", "invalid"]:
@@ -92,13 +89,9 @@ def _select_demography_layout(
     standalone_member: str | None = None,
 ) -> tuple[_DemographyLayout | None, dict[str, Path]]:
     """Select one complete layout; mixed, multiple, or malformed layouts refuse."""
-    layout_paths = {
-        layout: _layout_member_paths(root, layout) for layout in _LAYOUT_PATHS
-    }
+    layout_paths = {layout: _layout_member_paths(root, layout) for layout in _LAYOUT_PATHS}
     member_states = {
-        layout: {
-            member: _classify_member_entry(path) for member, path in paths.items()
-        }
+        layout: {member: _classify_member_entry(path) for member, path in paths.items()}
         for layout, paths in layout_paths.items()
     }
     invalid_members = tuple(
@@ -138,13 +131,10 @@ def _select_demography_layout(
             )
         other_layout = "legacy" if requested_layout == "new" else "new"
         other_members = tuple(
-            member
-            for member, state in member_states[other_layout].items()
-            if state != "absent"
+            member for member, state in member_states[other_layout].items() if state != "absent"
         )
         if other_members and not all(
-            member_states[other_layout][member] == "file"
-            for member in _REQUIRED_LAYOUT_MEMBERS
+            member_states[other_layout][member] == "file" for member in _REQUIRED_LAYOUT_MEMBERS
         ):
             raise ValueError(
                 "demographic layouts are mixed or incomplete; explicit selection "
@@ -157,9 +147,7 @@ def _select_demography_layout(
         selected_layout = complete_layouts[0]
         other_layout = "legacy" if selected_layout == "new" else "new"
         other_members = tuple(
-            member
-            for member, state in member_states[other_layout].items()
-            if state != "absent"
+            member for member, state in member_states[other_layout].items() if state != "absent"
         )
         if other_members:
             raise ValueError(
@@ -180,11 +168,7 @@ def _select_demography_layout(
             "demographic layout is incomplete; required targets and priors "
             f"were not found as one declared snapshot: {present_members}"
         )
-    if (
-        standalone_member == "donor"
-        and requested_layout is None
-        and root.is_dir()
-    ):
+    if standalone_member == "donor" and requested_layout is None and root.is_dir():
         return None, {}
     raise FileNotFoundError(f"no complete demographic layout exists under {root}")
 
@@ -303,9 +287,7 @@ def _resolve_reader_source(
         return resolve_demography_source(source)
     if root is None:
         raise ValueError("provide an inventory source or a historical filesystem root")
-    if layout is not None and (
-        not isinstance(layout, str) or layout not in _LAYOUT_PATHS
-    ):
+    if layout is not None and (not isinstance(layout, str) or layout not in _LAYOUT_PATHS):
         raise ValueError(f"unsupported demographic layout: {layout}")
     return resolve_demography_source(
         HistoricalLayoutRequest(kind="historical_layout", root=Path(root), layout=layout),
@@ -405,9 +387,7 @@ def _read_demography_role(
     standalone_member: Literal["targets", "priors", "donor"],
 ) -> DemographyRoleProjection:
     """Validate candidate snapshots as a whole before returning one role."""
-    resolved = _resolve_reader_source(
-        root, layout, source, standalone_member=standalone_member
-    )
+    resolved = _resolve_reader_source(root, layout, source, standalone_member=standalone_member)
     if resolved.status == "candidate_only":
         _artifacts_from_resolved_source(
             resolved,
@@ -470,6 +450,7 @@ def load_demography_artifacts(
     """Resolve and validate one complete demographic snapshot."""
     resolved = _resolve_reader_source(root, layout, source)
     return _artifacts_from_resolved_source(resolved)
+
 
 __all__ = [
     "DemographyRoleProjection",

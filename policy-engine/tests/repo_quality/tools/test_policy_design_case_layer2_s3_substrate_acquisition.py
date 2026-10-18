@@ -8,8 +8,7 @@ from tools.quality.validation import check_policy_design_case_layer2_readiness a
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 S3_MANIFEST = (
-    REPO_ROOT
-    / "architecture/policy_design_case/layer2_s3_substrate_acquisition_manifest.json"
+    REPO_ROOT / "architecture/policy_design_case/layer2_s3_substrate_acquisition_manifest.json"
 )
 FIRST_PROVING = REPO_ROOT / "architecture/policy_design_case/layer2_first_proving_case.json"
 INVENTORY = REPO_ROOT / "architecture/policy_design_case/inventory.json"
@@ -71,7 +70,9 @@ def test_layer2_s3_grounded_and_staged_constructs_are_disjoint_and_complete() ->
 def test_layer2_s3_manifest_is_registered_in_inventory() -> None:
     inventory = json.loads(INVENTORY.read_text(encoding="utf-8"))
     artifacts = {artifact["path"]: artifact for artifact in inventory["artifacts"]}
-    artifact = artifacts["architecture/policy_design_case/layer2_s3_substrate_acquisition_manifest.json"]
+    artifact = artifacts[
+        "architecture/policy_design_case/layer2_s3_substrate_acquisition_manifest.json"
+    ]
 
     assert artifact["id"] == "layer2_s3_substrate_acquisition_manifest"
     assert artifact["kind"] == "layer2_s3_substrate_acquisition_manifest"
@@ -84,9 +85,7 @@ def test_layer2_s3_manifest_is_registered_in_inventory() -> None:
 def test_layer2_s3_readiness_rejects_incomplete_authority_boundary() -> None:
     payloads = readiness.load_layer2_readiness_payloads(REPO_ROOT)
     payloads = copy.deepcopy(payloads)
-    payloads["s3_substrate_acquisition"]["may_not_use_for"] = [
-        "production_claim_authority"
-    ]
+    payloads["s3_substrate_acquisition"]["may_not_use_for"] = ["production_claim_authority"]
 
     validation = readiness.validate_layer2_readiness_payloads(payloads)
 

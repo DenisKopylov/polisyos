@@ -169,7 +169,9 @@ def sobol_linear_function(x: np.ndarray, coefficients: Mapping[str, float]) -> n
     return samples @ coeff_vector
 
 
-def sobol_linear_truth(coefficients: Mapping[str, float], *, benchmark_id: str = "sobol_linear") -> SensitivityTruth:
+def sobol_linear_truth(
+    coefficients: Mapping[str, float], *, benchmark_id: str = "sobol_linear"
+) -> SensitivityTruth:
     """Analytic Sobol truth for ``f(x)=sum a_i x_i`` with iid U(0,1) inputs."""
 
     names = list(coefficients)
@@ -231,7 +233,9 @@ def sobol_g_function(x: np.ndarray, a_values: Mapping[str, float]) -> np.ndarray
 
     samples = np.asarray(x, dtype=float)
     a_vector = np.asarray([float(value) for value in a_values.values()], dtype=float)
-    return np.prod((np.abs(4.0 * samples - 2.0) + a_vector[None, :]) / (1.0 + a_vector[None, :]), axis=1)
+    return np.prod(
+        (np.abs(4.0 * samples - 2.0) + a_vector[None, :]) / (1.0 + a_vector[None, :]), axis=1
+    )
 
 
 def sobol_g_function_truth(
@@ -274,7 +278,9 @@ def sobol_sparse_interaction_function(
     name_to_idx = {name: idx for idx, name in enumerate(names)}
     for pair, coeff in interactions.items():
         left, right = pair.split(":", 1)
-        values = values + float(coeff) * samples[:, name_to_idx[left]] * samples[:, name_to_idx[right]]
+        values = (
+            values + float(coeff) * samples[:, name_to_idx[left]] * samples[:, name_to_idx[right]]
+        )
     return values
 
 
@@ -300,7 +306,9 @@ def sobol_sparse_interaction_truth(
     s1 = {name: (additive[name] / total if total > 0.0 else 0.0) for name in names}
     st = {}
     for name in names:
-        interaction_share = sum(value for pair, value in pair_vars.items() if name in pair.split(":"))
+        interaction_share = sum(
+            value for pair, value in pair_vars.items() if name in pair.split(":")
+        )
         st[name] = (additive[name] + interaction_share) / total if total > 0.0 else 0.0
     return SensitivityTruth(
         benchmark_id=benchmark_id,
@@ -308,7 +316,9 @@ def sobol_sparse_interaction_truth(
         indices={
             "S1": s1,
             "ST": st,
-            "S2": {pair: (value / total if total > 0.0 else 0.0) for pair, value in pair_vars.items()},
+            "S2": {
+                pair: (value / total if total > 0.0 else 0.0) for pair, value in pair_vars.items()
+            },
         },
         rank_metric="ST",
     )
@@ -400,7 +410,9 @@ def reference_sobol_truth(
     )
 
 
-def morris_linear_truth(coefficients: Mapping[str, float], *, benchmark_id: str = "morris_linear") -> SensitivityTruth:
+def morris_linear_truth(
+    coefficients: Mapping[str, float], *, benchmark_id: str = "morris_linear"
+) -> SensitivityTruth:
     """Analytic Morris truth for a linear additive function."""
 
     names = list(coefficients)
@@ -487,7 +499,9 @@ def morris_nonmonotonic_truth(
         indices={
             "mu": dict.fromkeys(names, 0.0),
             "mu_star": {name: 4.0 * abs(float(coefficients[name])) for name in names},
-            "sigma": {name: math.sqrt(2.0) * math.pi * abs(float(coefficients[name])) for name in names},
+            "sigma": {
+                name: math.sqrt(2.0) * math.pi * abs(float(coefficients[name])) for name in names
+            },
         },
         rank_metric="mu_star",
         truth_source="analytic_derivative_reference",
@@ -517,7 +531,10 @@ def morris_grouped_truth(
 ) -> SensitivityTruth:
     """Group-level Morris truth when a group is moved as one linear factor block."""
 
-    group_mu = {group: sum(float(coefficients.get(name, 0.0)) for name in members) for group, members in groups.items()}
+    group_mu = {
+        group: sum(float(coefficients.get(name, 0.0)) for name in members)
+        for group, members in groups.items()
+    }
     return SensitivityTruth(
         benchmark_id=benchmark_id,
         parameter_names=list(groups),
@@ -568,7 +585,9 @@ def default_sobol_benchmark_cases(
 
     linear_coefficients = {"x1": 2.0, "x2": 1.0, "x3": 0.25}
     g_values = {"x1": 0.0, "x2": 1.0, "x3": 9.0, "x4": 99.0}
-    sparse_coefficients = {f"x{i}": (2.0 if i == 1 else 0.2 if i <= 4 else 0.0) for i in range(1, 21)}
+    sparse_coefficients = {
+        f"x{i}": (2.0 if i == 1 else 0.2 if i <= 4 else 0.0) for i in range(1, 21)
+    }
     sparse_interactions = {"x1:x2": 1.5, "x3:x4": 0.5}
     threshold_weights = {"x1": 1.0, "x2": 0.7, "x3": 0.2, "x4": 0.1}
     heavy_coefficients = {"x1": 2.0, "x2": 1.0, "x3": 0.0}
@@ -606,7 +625,9 @@ def default_sobol_benchmark_cases(
         SobolBenchmarkCase(
             benchmark_id="sobol_sparse_high_d_interactions",
             parameter_names=tuple(sparse_coefficients),
-            evaluator=lambda x: sobol_sparse_interaction_function(x, sparse_coefficients, sparse_interactions),
+            evaluator=lambda x: sobol_sparse_interaction_function(
+                x, sparse_coefficients, sparse_interactions
+            ),
             truth=sobol_sparse_interaction_truth(
                 sparse_coefficients,
                 sparse_interactions,
@@ -740,7 +761,9 @@ def evaluate_coverage_observation(
             item.diagnostics.degenerate or item.diagnostics.bootstrap_out_of_bounds_rate > 0.05
         )
         if item.simultaneous_ci is not None:
-            simultaneous_flags.append(item.simultaneous_ci.low <= true_value <= item.simultaneous_ci.high)
+            simultaneous_flags.append(
+                item.simultaneous_ci.low <= true_value <= item.simultaneous_ci.high
+            )
 
     rank_covered = _rank_covered(bundle, truth)
     top_k_covered = _top_k_covered(bundle, truth, top_k=top_k)
@@ -779,11 +802,17 @@ def summarize_coverage_observations(
     all_covered = [flag for obs in observations for flag in obs.covered.values()]
     all_widths = [width for obs in observations for width in obs.widths.values()]
     all_scores = [score for obs in observations for score in obs.interval_scores.values()]
-    below = sum(1 for obs in observations for value in obs.miss_direction.values() if value == "below")
-    above = sum(1 for obs in observations for value in obs.miss_direction.values() if value == "above")
+    below = sum(
+        1 for obs in observations for value in obs.miss_direction.values() if value == "below"
+    )
+    above = sum(
+        1 for obs in observations for value in obs.miss_direction.values() if value == "above"
+    )
     misses = below + above
     boundary = [flag for obs in observations for flag in obs.boundary_failures.values()]
-    simultaneous = [obs.simultaneous_covered for obs in observations if obs.simultaneous_covered is not None]
+    simultaneous = [
+        obs.simultaneous_covered for obs in observations if obs.simultaneous_covered is not None
+    ]
     rank = [obs.rank_covered for obs in observations if obs.rank_covered is not None]
     top_k = [obs.top_k_covered for obs in observations if obs.top_k_covered is not None]
 
@@ -828,7 +857,9 @@ def evaluate_acceptance(
         if result.marginal_coverage < criteria.marginal_stress_floor:
             notes.append("marginal_coverage_below_stress_floor")
     elif not (
-        criteria.marginal_ordinary_low <= result.marginal_coverage <= criteria.marginal_ordinary_high
+        criteria.marginal_ordinary_low
+        <= result.marginal_coverage
+        <= criteria.marginal_ordinary_high
     ):
         notes.append("marginal_coverage_outside_ordinary_band")
     if (
@@ -928,7 +959,9 @@ def run_sobol_iid_coverage_benchmark(
     rng = np.random.default_rng(seed)
     observations: list[CoverageObservation] = []
     for rep in range(repetitions):
-        blocks = _sample_sobol_pick_freeze_blocks(evaluator, truth.parameter_names, sample_size, rng)
+        blocks = _sample_sobol_pick_freeze_blocks(
+            evaluator, truth.parameter_names, sample_size, rng
+        )
         rep_cfg = cfg.model_copy(update={"random_seed": seed + rep})
         bundle = analyze_sobol_paired_bootstrap(blocks, rep_cfg)
         observations.append(evaluate_coverage_observation(bundle, truth, level=cfg.level))
@@ -984,7 +1017,9 @@ def run_morris_effect_coverage_benchmark(
     )
 
 
-def learn_calibrated_multiplier(required_ratios: Sequence[float], *, nominal_level: float = 0.95) -> float:
+def learn_calibrated_multiplier(
+    required_ratios: Sequence[float], *, nominal_level: float = 0.95
+) -> float:
     """Learn a conservative interval-width multiplier from holdout required-width ratios."""
 
     ratios = np.asarray(required_ratios, dtype=float)
@@ -1146,11 +1181,7 @@ def _aggregate_pairwise_bins(observations: Sequence[CoverageObservation]) -> dic
         for label, (correct, total) in observation.pairwise_bins.items():
             prev_correct, prev_total = totals.get(label, (0, 0))
             totals[label] = (prev_correct + correct, prev_total + total)
-    return {
-        label: correct / total
-        for label, (correct, total) in totals.items()
-        if total > 0
-    }
+    return {label: correct / total for label, (correct, total) in totals.items() if total > 0}
 
 
 def _dominance_bin(probability: float) -> str:

@@ -41,8 +41,7 @@ PHASE34_1_BUILD_COMMAND = (
     "--phase 34.1"
 )
 PHASE34_1_CHECK_COMMAND = (
-    "uv run python tools/quality/validation/check_policy_design_case_wave34_pass2.py "
-    "--repo-root ."
+    "uv run python tools/quality/validation/check_policy_design_case_wave34_pass2.py --repo-root ."
 )
 VERIFY_DISPOSITION_COMMAND = (
     "uv run python tools/quality/validation/check_policy_design_case_pass2_disposition.py "
@@ -300,7 +299,9 @@ def _build_cross_domain_bundles(
         "wave": "35A",
         "phase": "35A.1",
         "pdd_id": "PDD-037",
-        "status": "complete" if len(rows) == len(PHASE56_CROSS_DOMAIN_SCENARIO_IDS) else "incomplete",
+        "status": "complete"
+        if len(rows) == len(PHASE56_CROSS_DOMAIN_SCENARIO_IDS)
+        else "incomplete",
         "scenario_count": len(rows),
         "rows": rows,
     }
@@ -361,21 +362,17 @@ def _build_metamorphic_variants(
                         "status": observed_status,
                         "assertion_status": assertion_status,
                         "observed_canonical": variant.get("observed_canonical"),
-                        "ambiguity_blocker_codes": variant.get(
-                            "ambiguity_blocker_codes"
-                        )
-                        or [],
+                        "ambiguity_blocker_codes": variant.get("ambiguity_blocker_codes") or [],
                     },
                     "failure_code": None
                     if assertion_status == "pass"
-                    else (
-                        (variant.get("failure_codes") or ["metamorphic_assertion_failed"])[
-                            0
-                        ]
-                    ),
+                    else ((variant.get("failure_codes") or ["metamorphic_assertion_failed"])[0]),
                     "source_artifacts": [
                         "tools/ops_runners/runtime/golden_quality_scenarios.json",
-                        _rel(bundle_path / "quality_evidence/golden_scenario_contract.json", repo_root),
+                        _rel(
+                            bundle_path / "quality_evidence/golden_scenario_contract.json",
+                            repo_root,
+                        ),
                     ],
                 }
             )
@@ -459,7 +456,10 @@ def _build_language_pairs(
                     },
                     "source_artifacts": [
                         "tools/ops_runners/runtime/golden_quality_scenarios.json",
-                        _rel(bundle_path / "quality_evidence/golden_scenario_contract.json", repo_root),
+                        _rel(
+                            bundle_path / "quality_evidence/golden_scenario_contract.json",
+                            repo_root,
+                        ),
                     ],
                 }
             )
@@ -711,9 +711,7 @@ def _build_disposition_update(
             "hardcoded_language_rejected_literal_count": hardcoded_audit.get(
                 "rejected_literal_count"
             ),
-            "phase34_1_rerun_exit_code": _mapping(phase34_rerun).get(
-                "overall_exit_code"
-            ),
+            "phase34_1_rerun_exit_code": _mapping(phase34_rerun).get("overall_exit_code"),
             "no_runtime_scenario_variant_coverage_deferrals": not unresolved_cluster,
         },
         "updated_rows": updated_rows,
@@ -912,17 +910,72 @@ def _mixed_language_prompt(
 
 def _transliterate_ukrainian(value: str) -> str:
     table = {
-        "А": "A", "а": "a", "Б": "B", "б": "b", "В": "V", "в": "v",
-        "Г": "H", "г": "h", "Ґ": "G", "ґ": "g", "Д": "D", "д": "d",
-        "Е": "E", "е": "e", "Є": "Ye", "є": "ie", "Ж": "Zh", "ж": "zh",
-        "З": "Z", "з": "z", "И": "Y", "и": "y", "І": "I", "і": "i",
-        "Ї": "Yi", "ї": "i", "Й": "Y", "й": "i", "К": "K", "к": "k",
-        "Л": "L", "л": "l", "М": "M", "м": "m", "Н": "N", "н": "n",
-        "О": "O", "о": "o", "П": "P", "п": "p", "Р": "R", "р": "r",
-        "С": "S", "с": "s", "Т": "T", "т": "t", "У": "U", "у": "u",
-        "Ф": "F", "ф": "f", "Х": "Kh", "х": "kh", "Ц": "Ts", "ц": "ts",
-        "Ч": "Ch", "ч": "ch", "Ш": "Sh", "ш": "sh", "Щ": "Shch", "щ": "shch",
-        "Ю": "Yu", "ю": "iu", "Я": "Ya", "я": "ia", "Ь": "", "ь": "",
+        "А": "A",
+        "а": "a",
+        "Б": "B",
+        "б": "b",
+        "В": "V",
+        "в": "v",
+        "Г": "H",
+        "г": "h",
+        "Ґ": "G",
+        "ґ": "g",
+        "Д": "D",
+        "д": "d",
+        "Е": "E",
+        "е": "e",
+        "Є": "Ye",
+        "є": "ie",
+        "Ж": "Zh",
+        "ж": "zh",
+        "З": "Z",
+        "з": "z",
+        "И": "Y",
+        "и": "y",
+        "І": "I",
+        "і": "i",
+        "Ї": "Yi",
+        "ї": "i",
+        "Й": "Y",
+        "й": "i",
+        "К": "K",
+        "к": "k",
+        "Л": "L",
+        "л": "l",
+        "М": "M",
+        "м": "m",
+        "Н": "N",
+        "н": "n",
+        "О": "O",
+        "о": "o",
+        "П": "P",
+        "п": "p",
+        "Р": "R",
+        "р": "r",
+        "С": "S",
+        "с": "s",
+        "Т": "T",
+        "т": "t",
+        "У": "U",
+        "у": "u",
+        "Ф": "F",
+        "ф": "f",
+        "Х": "Kh",
+        "х": "kh",
+        "Ц": "Ts",
+        "ц": "ts",
+        "Ч": "Ch",
+        "ч": "ch",
+        "Ш": "Sh",
+        "ш": "sh",
+        "Щ": "Shch",
+        "щ": "shch",
+        "Ю": "Yu",
+        "ю": "iu",
+        "Я": "Ya",
+        "я": "ia",
+        "Ь": "",
+        "ь": "",
         "'": "",
     }
     return "".join(table.get(char, char) for char in value)

@@ -24,8 +24,7 @@ def test_public_surface_snapshot_resolves_exported_class_alias_from_source(
     package = source_root / "polisyos" / "fixture"
     package.mkdir(parents=True)
     (package / "__init__.py").write_text(
-        "from .owner import SharedReady as PackageReady\n"
-        "__all__ = ['PackageReady']\n",
+        "from .owner import SharedReady as PackageReady\n__all__ = ['PackageReady']\n",
         encoding="utf-8",
     )
     (package / "owner.py").write_text(
@@ -34,23 +33,19 @@ def test_public_surface_snapshot_resolves_exported_class_alias_from_source(
     )
     compatibility = package / "compat.py"
     compatibility.write_text(
-        "from .owner import SharedReady as LegacyReady\n"
-        "__all__ = ['LegacyReady']\n",
+        "from .owner import SharedReady as LegacyReady\n__all__ = ['LegacyReady']\n",
         encoding="utf-8",
     )
     chained = package / "chain.py"
     chained.write_text(
-        "from .compat import LegacyReady as ChainedReady\n"
-        "__all__ = ['ChainedReady']\n",
+        "from .compat import LegacyReady as ChainedReady\n__all__ = ['ChainedReady']\n",
         encoding="utf-8",
     )
     monkeypatch.setattr(decomposition_preflight, "REPO_ROOT", tmp_path.resolve())
     monkeypatch.setattr(decomposition_preflight, "SRC_ROOT", source_root)
 
     snapshot = decomposition_preflight.collect_public_surface_snapshot()
-    fixture = next(
-        row for row in snapshot["packages"] if row["package"] == "polisyos.fixture"
-    )
+    fixture = next(row for row in snapshot["packages"] if row["package"] == "polisyos.fixture")
     modules = {row["module"]: row for row in fixture["modules"]}
     alias = next(
         row
@@ -82,9 +77,7 @@ def test_public_surface_snapshot_resolves_exported_class_alias_from_source(
     compatibility.write_text("__all__ = ['LegacyReady']\n", encoding="utf-8")
     removed = decomposition_preflight.collect_public_surface_snapshot()
     removed_fixture = next(
-        row
-        for row in removed["packages"]
-        if row["package"] == "polisyos.fixture"
+        row for row in removed["packages"] if row["package"] == "polisyos.fixture"
     )
     removed_modules = {row["module"]: row for row in removed_fixture["modules"]}
     assert removed_modules["polisyos.fixture.compat"]["__all__"] == ["LegacyReady"]
@@ -96,7 +89,6 @@ def test_public_surface_snapshot_resolves_exported_class_alias_from_source(
         row["fqn"] != "polisyos.fixture.chain.ChainedReady"
         for row in removed_modules["polisyos.fixture.chain"]["objects"]
     )
-
 
 
 def test_public_surface_snapshot_gate_ignores_only_source_coordinates(
@@ -118,9 +110,7 @@ def test_public_surface_snapshot_gate_ignores_only_source_coordinates(
     baseline_path = tmp_path / "public_surface.json"
     monkeypatch.setattr(decomposition_preflight, "REPO_ROOT", tmp_path.resolve())
     monkeypatch.setattr(decomposition_preflight, "SRC_ROOT", source_root)
-    monkeypatch.setattr(
-        decomposition_preflight, "PUBLIC_SURFACE_BASELINE_PATH", baseline_path
-    )
+    monkeypatch.setattr(decomposition_preflight, "PUBLIC_SURFACE_BASELINE_PATH", baseline_path)
     baseline_path.write_text(
         json.dumps(decomposition_preflight.collect_public_surface_snapshot()),
         encoding="utf-8",
@@ -128,18 +118,14 @@ def test_public_surface_snapshot_gate_ignores_only_source_coordinates(
     baseline_snapshot = json.loads(baseline_path.read_text(encoding="utf-8"))
     baseline_module = baseline_snapshot["packages"][0]["modules"][0]
     baseline_line = next(
-        row["line"]
-        for row in baseline_module["objects"]
-        if row["name"] == "public_api"
+        row["line"] for row in baseline_module["objects"] if row["name"] == "public_api"
     )
 
     source.write_text("\n\n" + original, encoding="utf-8")
     shifted_snapshot = decomposition_preflight.collect_public_surface_snapshot()
     shifted_module = shifted_snapshot["packages"][0]["modules"][0]
     shifted_line = next(
-        row["line"]
-        for row in shifted_module["objects"]
-        if row["name"] == "public_api"
+        row["line"] for row in shifted_module["objects"] if row["name"] == "public_api"
     )
     assert shifted_line == baseline_line + 2
     assert validate_public_surface_snapshot() == []
@@ -197,9 +183,7 @@ def test_public_surface_snapshot_normalization_preserves_api_fields() -> None:
     changed["packages"][0]["modules"][0]["objects"][0]["kind"] = "function"
     changes.append(changed)
     changed = copy.deepcopy(baseline)
-    changed["packages"][0]["modules"][0]["objects"][0]["fqn"] = (
-        "polisyos.fixture.RenamedRecord"
-    )
+    changed["packages"][0]["modules"][0]["objects"][0]["fqn"] = "polisyos.fixture.RenamedRecord"
     changes.append(changed)
     changed = copy.deepcopy(baseline)
     changed["packages"][0]["modules"][0]["objects"][0]["bases"] = ["Protocol"]
@@ -208,9 +192,7 @@ def test_public_surface_snapshot_normalization_preserves_api_fields() -> None:
     changed["packages"][0]["modules"][0]["objects"][0]["pydantic"] = False
     changes.append(changed)
     changed = copy.deepcopy(baseline)
-    changed["packages"][0]["modules"][0]["objects"][1]["signature"] = (
-        "(value: bytes)"
-    )
+    changed["packages"][0]["modules"][0]["objects"][1]["signature"] = "(value: bytes)"
     changes.append(changed)
     changed = copy.deepcopy(baseline)
     changed["packages"][0]["modules"][0]["__all__"] = ["PublicRecord"]
@@ -228,12 +210,9 @@ def test_public_surface_snapshot_normalization_preserves_api_fields() -> None:
     changed["packages"][0]["modules"][0]["objects"][0]["metadata"]["line"] = 2
     changes.append(changed)
 
-    normalized_baseline = decomposition_preflight._normalize_public_surface_snapshot(
-        baseline
-    )
+    normalized_baseline = decomposition_preflight._normalize_public_surface_snapshot(baseline)
     assert all(
-        decomposition_preflight._normalize_public_surface_snapshot(change)
-        != normalized_baseline
+        decomposition_preflight._normalize_public_surface_snapshot(change) != normalized_baseline
         for change in changes
     )
 
@@ -286,9 +265,7 @@ def test_public_surface_snapshot_gate_preserves_coordinates_for_non_v1_versions(
     baseline_path = tmp_path / "public_surface.json"
     baseline_path.write_text(json.dumps(baseline), encoding="utf-8")
     monkeypatch.setattr(decomposition_preflight, "REPO_ROOT", tmp_path.resolve())
-    monkeypatch.setattr(
-        decomposition_preflight, "PUBLIC_SURFACE_BASELINE_PATH", baseline_path
-    )
+    monkeypatch.setattr(decomposition_preflight, "PUBLIC_SURFACE_BASELINE_PATH", baseline_path)
     monkeypatch.setattr(
         decomposition_preflight,
         "collect_public_surface_snapshot",
@@ -335,9 +312,7 @@ def test_public_surface_snapshot_gate_preserves_invalid_coordinates(
     baseline_path = tmp_path / "public_surface.json"
     baseline_path.write_text(json.dumps(baseline), encoding="utf-8")
     monkeypatch.setattr(decomposition_preflight, "REPO_ROOT", tmp_path.resolve())
-    monkeypatch.setattr(
-        decomposition_preflight, "PUBLIC_SURFACE_BASELINE_PATH", baseline_path
-    )
+    monkeypatch.setattr(decomposition_preflight, "PUBLIC_SURFACE_BASELINE_PATH", baseline_path)
     monkeypatch.setattr(
         decomposition_preflight,
         "collect_public_surface_snapshot",
@@ -380,9 +355,7 @@ def test_public_surface_snapshot_gate_preserves_unknown_v1_object_shape(
     baseline_path = tmp_path / "public_surface.json"
     baseline_path.write_text(json.dumps(baseline), encoding="utf-8")
     monkeypatch.setattr(decomposition_preflight, "REPO_ROOT", tmp_path.resolve())
-    monkeypatch.setattr(
-        decomposition_preflight, "PUBLIC_SURFACE_BASELINE_PATH", baseline_path
-    )
+    monkeypatch.setattr(decomposition_preflight, "PUBLIC_SURFACE_BASELINE_PATH", baseline_path)
     monkeypatch.setattr(
         decomposition_preflight,
         "collect_public_surface_snapshot",

@@ -343,8 +343,7 @@ class ProductionDataContractIndex:
             spec_rows
             if spec_rows
             else [
-                _data_requirement_spec_from_legacy_requirement(item)
-                for item in legacy_requirements
+                _data_requirement_spec_from_legacy_requirement(item) for item in legacy_requirements
             ]
         )
         return self.build_data_requirement_binding_report(
@@ -378,13 +377,10 @@ class ProductionDataContractIndex:
         source_contract_binding_report = _build_source_contract_requirement_bindings(
             data_requirement_specs=specs,
             source_contract_candidates=[
-                _candidate_for_data_requirement_adapter(candidate)
-                for candidate in self.candidates
+                _candidate_for_data_requirement_adapter(candidate) for candidate in self.candidates
             ],
             selected_candidate_refs=[
-                str(item.get("candidate_ref"))
-                for item in findings
-                if item.get("candidate_ref")
+                str(item.get("candidate_ref")) for item in findings if item.get("candidate_ref")
             ],
         )
         return {
@@ -428,9 +424,7 @@ class ProductionDataContractIndex:
                 "blocked": statuses.count("blocked"),
             },
             "required_scenario_facets": list(SCENARIO_ADMISSIBLE_REQUIRED_FACETS),
-            "compiled_data_requirement_specs": [
-                spec.model_dump(mode="json") for spec in specs
-            ],
+            "compiled_data_requirement_specs": [spec.model_dump(mode="json") for spec in specs],
             "missing_scenario_source_families": missing_source_families,
             "scenario_binding_findings": findings,
             "source_contract_bindings": list(
@@ -443,9 +437,7 @@ class ProductionDataContractIndex:
 
         expected_family = _text(requirement.get("expected_family"))
         required_facets = tuple(
-            str(item)
-            for item in requirement.get("required_facets") or ()
-            if str(item).strip()
+            str(item) for item in requirement.get("required_facets") or () if str(item).strip()
         )
         admissible_required_facets = tuple(
             dict.fromkeys((*required_facets, *SCENARIO_ADMISSIBLE_REQUIRED_FACETS))
@@ -488,9 +480,7 @@ class ProductionDataContractIndex:
 
         candidate = _best_candidate(matching, admissible_required_facets)
         present = set(candidate.present_facets)
-        missing_required = [
-            facet for facet in admissible_required_facets if facet not in present
-        ]
+        missing_required = [facet for facet in admissible_required_facets if facet not in present]
         missing_quality = [facet for facet in QUALITY_REQUIRED_FACETS if facet not in present]
         missing_facets = sorted(set(missing_required + missing_quality))
         source_contract_validation = dict(candidate.source_contract_validation)
@@ -532,8 +522,7 @@ class ProductionDataContractIndex:
             "missing_facets": missing_facets,
             "present_facets": sorted(present),
             "facet_refs": {
-                str(key): _json_like(value)
-                for key, value in candidate.facet_refs.items()
+                str(key): _json_like(value) for key, value in candidate.facet_refs.items()
             },
             "source_family": candidate.source_family,
             "bundle_role": candidate.bundle_role,
@@ -724,9 +713,7 @@ def _build_candidates(
     source_contracts: Mapping[str, Mapping[str, Any]],
 ) -> tuple[ProductionDataContractCandidate, ...]:
     contracts_by_id = {
-        contract_id: contract
-        for contract in contracts
-        if (contract_id := _contract_id(contract))
+        contract_id: contract for contract in contracts if (contract_id := _contract_id(contract))
     }
     emitted: dict[str, ProductionDataContractCandidate] = {}
     curated_bundle = bundles.get("curated") or {}
@@ -807,8 +794,7 @@ def _candidate_from_rows(
     facet_refs = {
         facet: value
         for facet, value in (
-            (facet, _facet_ref(root=root, rows=rows, facet=facet))
-            for facet in _FACET_ALIASES
+            (facet, _facet_ref(root=root, rows=rows, facet=facet)) for facet in _FACET_ALIASES
         )
         if _present(value)
     }
@@ -910,13 +896,10 @@ def _limitation(
         "facet": facet,
         "severity": severity,
         "claim_scope": [
-            str(item)
-            for item in requirement.get("claim_scope") or ()
-            if str(item).strip()
+            str(item) for item in requirement.get("claim_scope") or () if str(item).strip()
         ],
         "limitation_ref": (
-            _explicit_limitation_ref(candidate, facet)
-            or f"limitation:{requirement_id}:{facet}"
+            _explicit_limitation_ref(candidate, facet) or f"limitation:{requirement_id}:{facet}"
         ),
         "degrade_reason": degrade_reason,
         "candidate_ref": candidate.candidate_ref,
@@ -1320,11 +1303,7 @@ def _manifest_bundles(manifest: Mapping[str, Any]) -> dict[str, Mapping[str, Any
     bundles = manifest.get("bundles")
     if not isinstance(bundles, Mapping):
         return {}
-    return {
-        str(role): bundle
-        for role, bundle in bundles.items()
-        if isinstance(bundle, Mapping)
-    }
+    return {str(role): bundle for role, bundle in bundles.items() if isinstance(bundle, Mapping)}
 
 
 def _load_mapping(path: Path | None) -> Mapping[str, Any]:

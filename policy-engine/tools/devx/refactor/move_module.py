@@ -69,8 +69,7 @@ def _exported_names(source_path: Path) -> list[str]:
         if (
             isinstance(node, ast.Assign)
             and any(
-                isinstance(target, ast.Name) and target.id == "__all__"
-                for target in node.targets
+                isinstance(target, ast.Name) and target.id == "__all__" for target in node.targets
             )
             and isinstance(node.value, (ast.Tuple, ast.List))
         ):
@@ -148,7 +147,7 @@ def _shim_source(
                 "def __getattr__(name: str) -> Any:",
                 "    if name not in _LAZY_IMPORTS:",
                 f"        raise AttributeError(f\"module '{old_module}' "
-                f"has no attribute {{name!r}}\")",
+                f'has no attribute {{name!r}}")',
                 "    module_name, attr_name = _LAZY_IMPORTS[name]",
                 "    value = getattr(importlib.import_module(module_name), attr_name)",
                 "    globals()[name] = value",
@@ -482,9 +481,7 @@ def move_module(repo_root: Path, old_module: str, new_module: str, *, dry_run: b
         # POSIX resolves relative PATH entries after changing to the child cwd.
         resolved_repo_root = repo_root.resolve()
         git_search_path = os.pathsep.join(
-            entry
-            if os.path.isabs(entry)
-            else str(resolved_repo_root / entry)
+            entry if os.path.isabs(entry) else str(resolved_repo_root / entry)
             for entry in git_search_path.split(os.pathsep)
         )
     git_command = shutil.which("git", path=git_search_path)

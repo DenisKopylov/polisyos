@@ -29,9 +29,7 @@ def test_research_smoke_proves_ref_path_without_promoting_stub_domains() -> None
     ]
     assert research["accepted_deficits"] == ["single_line_evidence_deficit"]
     assert research["implemented_domain_record_families"] == []
-    assert research["stub_record_families"] == [
-        "walking_skeleton_stub_producer_evidence.v1"
-    ]
+    assert research["stub_record_families"] == ["walking_skeleton_stub_producer_evidence.v1"]
 
 
 def test_walking_skeleton_readiness_governed_and_production_fail_with_typed_blockers() -> None:
@@ -48,9 +46,7 @@ def test_walking_skeleton_readiness_governed_and_production_fail_with_typed_bloc
         assert "accepted_deficit_not_allowed" in blocker_types
         assert "missing_domain_evidence" in blocker_types
         assert result["implemented_domain_record_families"] == []
-        assert result["stub_record_families"] == [
-            "walking_skeleton_stub_producer_evidence.v1"
-        ]
+        assert result["stub_record_families"] == ["walking_skeleton_stub_producer_evidence.v1"]
 
 
 def test_walking_skeleton_readiness_main_writes_rebaseline_artifact(

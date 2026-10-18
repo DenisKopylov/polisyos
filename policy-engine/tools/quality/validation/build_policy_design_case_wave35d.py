@@ -32,8 +32,7 @@ PHASE34_5_COMMAND = (
     "uv run python tools/quality/validation/run_policy_design_case_pass2_phase34_5.py"
 )
 CHECK_COMMAND = (
-    "uv run python tools/quality/validation/check_policy_design_case_wave34_pass2.py "
-    "--repo-root ."
+    "uv run python tools/quality/validation/check_policy_design_case_wave34_pass2.py --repo-root ."
 )
 VERIFY_DISPOSITION_COMMAND = (
     "uv run python tools/quality/validation/check_policy_design_case_pass2_disposition.py "
@@ -54,8 +53,7 @@ OUTPUT_ARTIFACTS = {
     "PDD-078": "_build/policy-design-case/rebaseline/wave-35D/resource_exhaustion_ledger.json",
     "PDD-090": "_build/policy-design-case/rebaseline/wave-35D/live_polling_parity_ledger.json",
     "PDD-104": (
-        "_build/policy-design-case/rebaseline/wave-35D/"
-        "archive_grade_reproducibility_bundle.json"
+        "_build/policy-design-case/rebaseline/wave-35D/archive_grade_reproducibility_bundle.json"
     ),
 }
 REQUIRED_ROOT_CAUSE_CLASSES = (
@@ -234,9 +232,7 @@ def _build_operator_root_cause_ledger(
 
     chains = []
     for failure_class in REQUIRED_ROOT_CAUSE_CLASSES:
-        class_rows = [
-            row for row in breadcrumb_rows if row["failure_class"] == failure_class
-        ]
+        class_rows = [row for row in breadcrumb_rows if row["failure_class"] == failure_class]
         representative = class_rows[0] if class_rows else {}
         chains.append(
             {
@@ -255,9 +251,7 @@ def _build_operator_root_cause_ledger(
                 or "Closeout cannot distinguish producer absence from downstream gate failure.",
                 "next_command": representative.get("next_command")
                 or _next_command_for_class(failure_class),
-                "scorecard_failure_refs": [
-                    row["failure_code"] for row in class_rows[:8]
-                ],
+                "scorecard_failure_refs": [row["failure_code"] for row in class_rows[:8]],
                 "chain": [
                     {
                         "step": 1,
@@ -478,12 +472,21 @@ def _build_resource_exhaustion_ledger(
     pdd078_findings = _finding_ids_for_pdd(affected_rows, "PDD-078")
     specs = {
         "rate_limit": ("provider gateway 429", "retry_after_seconds=60"),
-        "circuit_breaker": ("provider quality preflight open circuit", "open_until_next_health_check"),
+        "circuit_breaker": (
+            "provider quality preflight open circuit",
+            "open_until_next_health_check",
+        ),
         "timeout": ("scholar/fabric HTTP timeout", "timeout_s=10"),
         "byte_limit": ("source payload byte cap exceeded", "max_response_bytes=10485760"),
         "token_limit": ("LLM prompt/tool budget exhausted", "max_parallel_models=1"),
-        "cost_limit": ("run budget exhausted", f"run_budget_usd={request.get('run_budget_usd', 0)}"),
-        "memory_limit": ("artifact graph materialization memory cap", "max_in_memory_artifact_bytes=268435456"),
+        "cost_limit": (
+            "run budget exhausted",
+            f"run_budget_usd={request.get('run_budget_usd', 0)}",
+        ),
+        "memory_limit": (
+            "artifact graph materialization memory cap",
+            "max_in_memory_artifact_bytes=268435456",
+        ),
         "queue_limit": ("control queue saturation", "queue_depth_threshold=1000"),
     }
     rows = []
@@ -536,10 +539,16 @@ def _build_resource_exhaustion_ledger(
                         repo_root,
                     ),
                     _rel(
-                        _resolve(repo_root, context["bundle_path"] / "quality_evidence/replay_manifest.json"),
+                        _resolve(
+                            repo_root,
+                            context["bundle_path"] / "quality_evidence/replay_manifest.json",
+                        ),
                         repo_root,
                     ),
-                    _rel(_resolve(repo_root, context["bundle_path"] / "request.sanitized.json"), repo_root),
+                    _rel(
+                        _resolve(repo_root, context["bundle_path"] / "request.sanitized.json"),
+                        repo_root,
+                    ),
                 ],
                 "owner": "team-runtime-quality",
                 "source_disposition_refs": pdd078_findings,
@@ -564,8 +573,16 @@ def _build_resource_exhaustion_ledger(
         "source_artifacts": [
             SOURCE_ARTIFACT_BY_PDD["PDD-078"],
             "_build/diagnostics/pass2/phase_34_5_operational_recovery_diagnostics.json",
-            _rel(_resolve(repo_root, context["bundle_path"] / "canary_performance_budget.json"), repo_root),
-            _rel(_resolve(repo_root, context["bundle_path"] / "quality_evidence/replay_manifest.json"), repo_root),
+            _rel(
+                _resolve(repo_root, context["bundle_path"] / "canary_performance_budget.json"),
+                repo_root,
+            ),
+            _rel(
+                _resolve(
+                    repo_root, context["bundle_path"] / "quality_evidence/replay_manifest.json"
+                ),
+                repo_root,
+            ),
         ],
         "run_identity": _run_identity(context),
         "performance_budget_status": budget.get("status"),
@@ -753,14 +770,20 @@ def _build_archive_grade_reproducibility_bundle(
             "dependency_fingerprints": replay.get("dependency_fingerprints"),
             "uv_lock": _hash_record(repo_root, Path("uv.lock")),
         },
-        "trust_store": _snapshot_record(repo_root, Path("architecture/production_quality/trust_boundaries.toml")),
+        "trust_store": _snapshot_record(
+            repo_root, Path("architecture/production_quality/trust_boundaries.toml")
+        ),
     }
     lockfile = _hash_record(repo_root, Path("uv.lock"))
     schema_refs = [
-        _schema_ref(repo_root, Path("schemas/runtime_quality/evidence_authority_envelope_v1.schema.json")),
+        _schema_ref(
+            repo_root, Path("schemas/runtime_quality/evidence_authority_envelope_v1.schema.json")
+        ),
         _schema_ref(repo_root, Path("schemas/runtime_quality/diagnostic_event_v1.schema.json")),
         _schema_ref(repo_root, Path("schemas/runtime_api_v1.openapi.json")),
-        _schema_ref(repo_root, Path("schemas/manifests/data_forge_publish_manifest_v1.schema.json")),
+        _schema_ref(
+            repo_root, Path("schemas/manifests/data_forge_publish_manifest_v1.schema.json")
+        ),
     ]
     schema_refs = [row for row in schema_refs if row]
     redaction_policies = sorted(
@@ -773,7 +796,10 @@ def _build_archive_grade_reproducibility_bundle(
     first_attestation = _mapping(attestations[0] if attestations else {})
     exact_replay_possible = bool(
         replay.get("deterministic_fingerprint")
-        and _mapping(replay.get("same_input_closure") or _mapping(replay.get("authority_envelope")).get("same_input_closure")).get("status")
+        and _mapping(
+            replay.get("same_input_closure")
+            or _mapping(replay.get("authority_envelope")).get("same_input_closure")
+        ).get("status")
         == "closed"
     )
     pdd104_findings = _finding_ids_for_pdd(affected_rows, "PDD-104")
@@ -786,7 +812,8 @@ def _build_archive_grade_reproducibility_bundle(
         "pdd_id": "PDD-104",
         "cluster_id": CLUSTER_ID,
         "status": "complete"
-        if set(snapshots) == {
+        if set(snapshots)
+        == {
             "legal",
             "data",
             "model",
@@ -991,9 +1018,7 @@ def _build_disposition_update(
                 "commands": [PHASE34_5_COMMAND, CHECK_COMMAND],
                 "exit_code": _mapping(phase34_rerun).get("overall_exit_code"),
             },
-            "before_classification": _mapping(original_rows.get(finding_id)).get(
-                "classification"
-            ),
+            "before_classification": _mapping(original_rows.get(finding_id)).get("classification"),
             "after_status": "resolved",
             "reviewer_command": VERIFY_DISPOSITION_COMMAND,
             "owner_acceptance": row.get("owner"),
@@ -1033,16 +1058,13 @@ def _build_disposition_update(
             "_build/policy-design-case/rebaseline/wave-35D/phase34_5_rerun.json",
         ],
         "exit_fence": {
-            "operator_root_cause_first_missing_producers": root_cause.get("status")
-            == "complete",
+            "operator_root_cause_first_missing_producers": root_cause.get("status") == "complete",
             "restore_drill_retained_corruption_and_restored_artifacts": restore.get("status")
             == "complete",
             "resource_exhaustion_typed_limits_and_impact_mapping": resource.get("status")
             == "complete",
-            "live_polling_cursor_replay_snapshot_and_fallback": parity.get("status")
-            == "complete",
-            "archive_grade_reproducibility_and_bounded_drift": archive.get("status")
-            == "complete",
+            "live_polling_cursor_replay_snapshot_and_fallback": parity.get("status") == "complete",
+            "archive_grade_reproducibility_and_bounded_drift": archive.get("status") == "complete",
             "phase34_5_rerun_exit_code": _mapping(phase34_rerun).get("overall_exit_code"),
             "no_operational_cluster_deferrals": not unresolved_cluster,
         },
@@ -1088,8 +1110,7 @@ def _load_context(repo_root: Path) -> dict[str, Any]:
         )
     }
     quality_files = {
-        f"{path.name}": _load_optional_json(path)
-        for path in sorted(quality_dir.glob("*.json"))
+        f"{path.name}": _load_optional_json(path) for path in sorted(quality_dir.glob("*.json"))
     }
     quality_files.setdefault("quality_scorecard.json", wave33_files["quality_scorecard.json"])
     quality_files.setdefault(
@@ -1242,7 +1263,9 @@ def _diagnostic_event_refs(job: Mapping[str, Any], failure_class: str) -> list[s
             continue
         rendered = json.dumps(event, sort_keys=True).casefold()
         if failure_class.replace("-", "_") in rendered or _event_token(failure_class) in rendered:
-            ref = event.get("runtime_event_ref") or event.get("event_id") or event.get("payload_ref")
+            ref = (
+                event.get("runtime_event_ref") or event.get("event_id") or event.get("payload_ref")
+            )
             if ref:
                 matches.append(str(ref))
     if not matches:
@@ -1338,7 +1361,9 @@ def _snapshot_record(repo_root: Path, path: Path) -> dict[str, Any]:
     hash_record = _hash_record(repo_root, path)
     return {
         "status": "present" if hash_record else "missing",
-        "path": hash_record.get("path") if hash_record else _rel(_resolve(repo_root, path), repo_root),
+        "path": hash_record.get("path")
+        if hash_record
+        else _rel(_resolve(repo_root, path), repo_root),
         "sha256": hash_record.get("sha256") if hash_record else None,
     }
 
@@ -1388,7 +1413,9 @@ def _run_identity(context: Mapping[str, Any]) -> dict[str, Any]:
         "run_id": context.get("run_id"),
         "job_id": context.get("job_id"),
         "case_id": context.get("case_id"),
-        "bundle_path": _rel(_resolve(context["repo_root"], context["bundle_path"]), context["repo_root"]),
+        "bundle_path": _rel(
+            _resolve(context["repo_root"], context["bundle_path"]), context["repo_root"]
+        ),
     }
 
 

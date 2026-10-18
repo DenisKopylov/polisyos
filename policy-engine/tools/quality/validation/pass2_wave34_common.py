@@ -30,9 +30,7 @@ REQUIRED_WAVE33_ARTIFACTS: tuple[str, ...] = (
     "policy_grounding_matrix.json",
 )
 
-OPTIONAL_WAVE33_ARTIFACTS: tuple[str, ...] = (
-    "coverage.json",
-)
+OPTIONAL_WAVE33_ARTIFACTS: tuple[str, ...] = ("coverage.json",)
 
 COMMON_QUALITY_EVIDENCE_FILES: tuple[str, ...] = (
     "attestation_records.json",
@@ -72,8 +70,7 @@ def load_wave33_context(
     repo_root = repo_root.resolve()
     wave33_path = resolve_path(repo_root, wave33_dir)
     wave_files = {
-        filename: load_json(wave33_path / filename)
-        for filename in REQUIRED_WAVE33_ARTIFACTS
+        filename: load_json(wave33_path / filename) for filename in REQUIRED_WAVE33_ARTIFACTS
     }
     for filename in OPTIONAL_WAVE33_ARTIFACTS:
         wave_files[filename] = load_optional_json(wave33_path / filename)
@@ -198,9 +195,7 @@ def canonical_finding(finding: Mapping[str, Any]) -> dict[str, Any]:
         or finding.get("id")
         or _slugify(str(finding.get("title") or finding.get("summary") or "finding"))
     )
-    summary = str(
-        finding.get("summary") or finding.get("title") or finding.get("finding") or code
-    )
+    summary = str(finding.get("summary") or finding.get("title") or finding.get("finding") or code)
     payload: dict[str, Any] = {
         "code": code,
         "severity": str(finding.get("severity") or "blocker"),
@@ -289,9 +284,7 @@ def write_phase_outputs(
             "not_triggered_count": sum(
                 1
                 for diagnostic in diagnostics.values()
-                if str(diagnostic["acceptance_gate_status"]).startswith(
-                    "not_triggered"
-                )
+                if str(diagnostic["acceptance_gate_status"]).startswith("not_triggered")
             ),
             "backlog_fragment_count": len(diagnostics),
         },
@@ -421,9 +414,7 @@ def render_summary_markdown(diagnostic: Mapping[str, Any], slug: str) -> str:
     if findings:
         for index, finding in enumerate(findings, start=1):
             if isinstance(finding, Mapping):
-                lines.append(
-                    f"{index}. `{finding.get('code')}` - {finding.get('summary')}"
-                )
+                lines.append(f"{index}. `{finding.get('code')}` - {finding.get('summary')}")
     else:
         lines.append("1. No active violation detected in Wave 33 evidence.")
     lines.extend(
@@ -530,9 +521,7 @@ def load_json(path: Path) -> dict[str, Any]:
     try:
         payload = json.loads(path.read_text(encoding="utf-8"))
     except json.JSONDecodeError as exc:
-        raise Pass2Wave34InputError(
-            f"Wave 33 artifact is invalid JSON: {path}: {exc.msg}"
-        ) from exc
+        raise Pass2Wave34InputError(f"Wave 33 artifact is invalid JSON: {path}: {exc.msg}") from exc
     if not isinstance(payload, dict):
         raise Pass2Wave34InputError(f"Wave 33 artifact must be a JSON object: {path}")
     return payload

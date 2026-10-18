@@ -80,7 +80,9 @@ def _intervention(**overrides: Any) -> InterventionSpec:
 
 def _bundle(intervention: InterventionSpec) -> TrinityBundle:
     return TrinityBundle(
-        problem_frame=ProblemFrame(problem_id="problem_ua_msme_credit", domain=ProblemDomain.FISCAL),
+        problem_frame=ProblemFrame(
+            problem_id="problem_ua_msme_credit", domain=ProblemDomain.FISCAL
+        ),
         policy_spec=PolicySpec(
             policy_id="policy_ua_msme_credit",
             problem_frame_ref=_ref("a"),
@@ -122,7 +124,9 @@ def _query_target() -> QueryTarget:
     )
 
 
-def _context(intervention: InterventionSpec, *, selector_ref: str | None = None) -> InterventionContext:
+def _context(
+    intervention: InterventionSpec, *, selector_ref: str | None = None
+) -> InterventionContext:
     return InterventionContext(
         source_domain="observed_ua_msme_panel",
         target_domain="wartime_msme",
@@ -365,8 +369,7 @@ def test_frozen_n4_null_normalization_rows_keep_historical_hashes(
     repo_root = Path(__file__).resolve().parents[4]
     payload = json.loads(
         (
-            repo_root
-            / "architecture/policy_design_case/layer3_gy_design_generation_contract.json"
+            repo_root / "architecture/policy_design_case/layer3_gy_design_generation_contract.json"
         ).read_text(encoding="utf-8")
     )
     row = payload["generation_results"][1]["candidates"][candidate_index]["atom"]
@@ -454,15 +457,11 @@ def test_persisted_atom_revalidates_normalization_provenance_binding(
     if mutation == "normalized_kind":
         payload["normalized_from"]["normalized_kind"] = "cash_transfer"
     elif mutation == "normalized_slots":
-        payload["normalized_from"]["normalized_target_world_slots"] = (
-            "agents.income",
-        )
+        payload["normalized_from"]["normalized_target_world_slots"] = ("agents.income",)
     else:
         payload["provenance_refs"] = ("trinity_bundle:policy_ua_msme_credit",)
     fields = {
-        key: value
-        for key, value in payload.items()
-        if key not in {"atom_id", "content_hash"}
+        key: value for key, value in payload.items() if key not in {"atom_id", "content_hash"}
     }
     content_hash = gy_content_hash(_content_payload_from_fields(fields))
     payload["atom_id"] = f"atom_{content_hash.removeprefix('sha256:')[:16]}"

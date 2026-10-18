@@ -52,9 +52,7 @@ def test_bayesian_regression_output_is_finite(data: dict, property_method_dispat
     deadline=20_000,
     suppress_health_check=[HealthCheck.function_scoped_fixture],
 )
-def test_bayesian_regression_posterior_mean_shape(
-    data: dict, property_method_dispatcher
-) -> None:
+def test_bayesian_regression_posterior_mean_shape(data: dict, property_method_dispatcher) -> None:
     """Posterior mean must have shape (n_features,)."""
     assume(np.isfinite(data["X"]).all())
     assume(np.isfinite(data["y"]).all())

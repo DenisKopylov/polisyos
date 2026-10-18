@@ -217,9 +217,7 @@ def test_layer3_g7_readiness_passes_current_blocked_runtime_bundle() -> None:
     assert validation["summary"]["g7_region_value_closure_status"] == (
         "blocked_by_current_g5_unchanged_blocker"
     )
-    assert validation["summary"]["g7_current_g5_conversion_outcome"] == (
-        "unchanged_blocker"
-    )
+    assert validation["summary"]["g7_current_g5_conversion_outcome"] == ("unchanged_blocker")
     assert validation["summary"]["g7_current_g5_unchanged_blocker_status"] == "blocked"
     assert validation["summary"]["g7_region_grounded_case_count"] == 0
     assert validation["summary"]["g7_marginal_cost_status"] == (
@@ -289,9 +287,7 @@ def test_layer3_g7_write_path_must_include_every_expected_artifact(
     monkeypatch.setattr(
         validator,
         "_write_artifacts",
-        lambda _repo_root, _bundle: [
-            path.as_posix() for path in expected_paths if path != omitted
-        ],
+        lambda _repo_root, _bundle: [path.as_posix() for path in expected_paths if path != omitted],
     )
 
     validation = validator.validate_layer3_g7_readiness(REPO_ROOT, write=True)
@@ -311,7 +307,9 @@ def test_layer3_g7_route_registry_is_generated_route_contract_registry() -> None
     registry_text = registry_path.read_text(encoding="utf-8")
 
     assert validation["summary"]["g7_route_contract_registry_status"] == "pass"
-    assert "route_contract_registry_kind = \"generated_region_route_contract_registry\"" in registry_text
+    assert (
+        'route_contract_registry_kind = "generated_region_route_contract_registry"' in registry_text
+    )
     assert "adapter_contract_registry" not in registry_text
 
 
@@ -327,28 +325,19 @@ def test_layer3_g7_stale_persisted_manifest_fails_closed(monkeypatch: Any) -> No
     validation = validator.validate_layer3_g7_readiness(REPO_ROOT)
 
     assert validation["status"] == "fail"
-    assert "layer3_g7_manifest_runtime_drift" in {
-        issue["code"] for issue in validation["issues"]
-    }
+    assert "layer3_g7_manifest_runtime_drift" in {issue["code"] for issue in validation["issues"]}
 
 
 def test_layer3_g7_readiness_writes_complete_conformance_negative_matrix() -> None:
     validator = _validator()
 
     validation = validator.validate_layer3_g7_readiness(REPO_ROOT, write=True)
-    conformance = (
-        REPO_ROOT / "architecture/policy_design_case/layer3_g7_conformance_report.json"
-    )
+    conformance = REPO_ROOT / "architecture/policy_design_case/layer3_g7_conformance_report.json"
     payload = validator._read_json(conformance)
-    results = {
-        result["negative_id"]: result
-        for result in payload["negative_results"]
-    }
+    results = {result["negative_id"]: result for result in payload["negative_results"]}
 
     assert validation["summary"]["g7_conformance_status"] == "pass"
-    assert set(g7.REQUIRED_G7_CONFORMANCE_NEGATIVE_IDS) == (
-        REQUIRED_G7_CONFORMANCE_NEGATIVE_IDS
-    )
+    assert set(g7.REQUIRED_G7_CONFORMANCE_NEGATIVE_IDS) == (REQUIRED_G7_CONFORMANCE_NEGATIVE_IDS)
     assert set(results) == REQUIRED_G7_CONFORMANCE_NEGATIVE_IDS
     assert payload["missing_negative_ids"] == []
     assert payload["failing_negative_ids"] == []
@@ -386,6 +375,4 @@ def test_layer3_g7_readiness_fails_when_conformance_negative_is_missing(
 
     assert validation["status"] == "fail"
     assert validation["summary"]["g7_conformance_status"] == "fail"
-    assert "layer3_g7_replay_helper_bypassed" in {
-        issue["code"] for issue in validation["issues"]
-    }
+    assert "layer3_g7_replay_helper_bypassed" in {issue["code"] for issue in validation["issues"]}

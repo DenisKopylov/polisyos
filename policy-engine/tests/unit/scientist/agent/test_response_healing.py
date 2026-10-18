@@ -151,9 +151,7 @@ async def test_llm_formalizer_parses_think_prefixed_bundle_without_fallback(
 ) -> None:
     draft = create_mock_draft(draft_id="draft_think_prefixed_formalizer")
     expected = await MockFormalizerAgent().formalize(draft)
-    raw = "<think>formalizer reasoning</think>" + json.dumps(
-        expected.model_dump(mode="json")
-    )
+    raw = "<think>formalizer reasoning</think>" + json.dumps(expected.model_dump(mode="json"))
 
     async def _unexpected_fallback(*args: object, **kwargs: object) -> object:
         del args, kwargs

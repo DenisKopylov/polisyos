@@ -94,9 +94,7 @@ class GroundingWorldCache:
         self._design_generation_module = importlib.import_module(
             "polisyos.runtime.quality.design_generation"
         )
-        self._original_build_credal_reference = (
-            self._credal_reference_module.build_credal_reference
-        )
+        self._original_build_credal_reference = self._credal_reference_module.build_credal_reference
         self._original_relation_engine_init = (
             self._grounding_relation_module.GroundingRelationEngine.__init__
         )
@@ -126,8 +124,7 @@ class GroundingWorldCache:
         if entry.key != key:
             self.stats["stale_rejections"] += 1
             raise StaleGroundingWorldCacheHitError(
-                "grounding_world_cache_stale_hit:"
-                f"{entry.key.to_payload()}!={key.to_payload()}"
+                f"grounding_world_cache_stale_hit:{entry.key.to_payload()}!={key.to_payload()}"
             )
         return entry
 
@@ -188,11 +185,7 @@ class GroundingWorldCache:
             "changed_key": changed_key.to_payload(),
             "miss_for_changed_owner_key": miss_for_changed_key,
             "original_key": entry.key.to_payload(),
-            "status": (
-                "pass"
-                if miss_for_changed_key and stale_hit_rejected
-                else "fail"
-            ),
+            "status": ("pass" if miss_for_changed_key and stale_hit_rejected else "fail"),
             "stale_hit_rejected": stale_hit_rejected,
         }
 
@@ -203,9 +196,7 @@ class GroundingWorldCache:
             self.repo_root,
             world_model_record=world_model_record,
         )
-        relation_engine = self._grounding_relation_module.GroundingRelationEngine(
-            reference
-        )
+        relation_engine = self._grounding_relation_module.GroundingRelationEngine(reference)
         prewarm_wall = self._prewarm_relation_engine(relation_engine)
         wall_seconds = max(0.0, time.monotonic() - started)
         key = key_for_reference(reference)

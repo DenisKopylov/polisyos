@@ -130,9 +130,7 @@ class ScholarSupportRequirementSpec(BaseModel):
     required_replication_count: int = Field(ge=1, le=20)
     required_independence_breadth: int = Field(ge=1, le=20)
     required_citation_network_depth: int = Field(ge=0, le=10)
-    dependent_corpus_collapse_rules: list[ScholarDependentCorpusCollapseRule] = Field(
-        min_length=1
-    )
+    dependent_corpus_collapse_rules: list[ScholarDependentCorpusCollapseRule] = Field(min_length=1)
     participation_like_claim: bool = False
     participation_claim_use_requested: str = "academic_support"
     participation_claim_use_allowed: str = "academic_support"
@@ -188,9 +186,7 @@ def build_scholar_capability_requirement_bindings(
     parameter, and boundary-condition refs visible to downstream orchestration.
     """
 
-    requirements = normalize_scholar_support_requirement_specs(
-        scholar_support_requirement_specs
-    )
+    requirements = normalize_scholar_support_requirement_specs(scholar_support_requirement_specs)
     bindings = [_payload(binding) for binding in capability_bindings]
     support_links: list[dict[str, Any]] = []
     blockers: list[dict[str, Any]] = []
@@ -283,9 +279,7 @@ class ScholarRequirementCompilationInput(BaseModel):
     authority_level: str = "research"
     default_recency_days: int | None = Field(default=None, ge=1, le=3650)
     rule_version: str = "scholar_support_requirement.v1"
-    created_by_node_id: str = (
-        "polisyos.scholar_requirement.ScholarSupportRequirementCompiler"
-    )
+    created_by_node_id: str = "polisyos.scholar_requirement.ScholarSupportRequirementCompiler"
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @model_validator(mode="after")
@@ -520,9 +514,7 @@ def _scholar_support_link_from_capability(
     requirement: ScholarSupportRequirementSpec,
 ) -> dict[str, Any]:
     metadata = _mapping(binding.get("metadata"))
-    capability_ref = _text(
-        binding.get("selected_capability_ref") or binding.get("capability_ref")
-    )
+    capability_ref = _text(binding.get("selected_capability_ref") or binding.get("capability_ref"))
     transport_score = _float(metadata.get("transport_score"))
     if transport_score is None:
         transport_score = _float(binding.get("transport_score"))
@@ -539,29 +531,18 @@ def _scholar_support_link_from_capability(
         "capability_index_ref": _text(binding.get("capability_index_ref")),
         "construct_registry_ref": _text(binding.get("construct_registry_ref")),
         "authority_composition_rule_ref": _text(
-            binding.get("authority_composition_rule_ref")
-            or binding.get("rule_version_ref")
+            binding.get("authority_composition_rule_ref") or binding.get("rule_version_ref")
         ),
         "authority_envelope_result": "limited" if degraded else "advisory",
         "support_status": "limited" if degraded else "supported",
         "support_score": _float(metadata.get("support_score")) or 0.0,
         "transport_score": transport_score,
-        "authority_degradation_reason": "transport_score_below_0_5"
-        if degraded
-        else None,
+        "authority_degradation_reason": "transport_score_below_0_5" if degraded else None,
         "ac_skg_edge_refs": _text_list(metadata.get("ac_skg_edge_refs")),
-        "ac_skg_transport_score_refs": _text_list(
-            metadata.get("ac_skg_transport_score_refs")
-        ),
-        "ac_skg_contested_edge_refs": _text_list(
-            metadata.get("ac_skg_contested_edge_refs")
-        ),
-        "ac_parameter_estimate_refs": _text_list(
-            metadata.get("ac_parameter_estimate_refs")
-        ),
-        "ac_boundary_condition_refs": _text_list(
-            metadata.get("ac_boundary_condition_refs")
-        ),
+        "ac_skg_transport_score_refs": _text_list(metadata.get("ac_skg_transport_score_refs")),
+        "ac_skg_contested_edge_refs": _text_list(metadata.get("ac_skg_contested_edge_refs")),
+        "ac_parameter_estimate_refs": _text_list(metadata.get("ac_parameter_estimate_refs")),
+        "ac_boundary_condition_refs": _text_list(metadata.get("ac_boundary_condition_refs")),
         "limitations": _text_list(binding.get("limitations")),
         "metadata": metadata,
     }
@@ -588,10 +569,7 @@ def _scholar_binding_matches_requirement(
     construct = _text(binding.get("construct_ref")).removeprefix("construct:")
     if not construct:
         return False
-    return any(
-        construct in ref.removeprefix("concept:")
-        for ref in requirement.concept_spine_refs
-    )
+    return any(construct in ref.removeprefix("concept:") for ref in requirement.concept_spine_refs)
 
 
 def _scholar_binding_rank(binding: Mapping[str, Any]) -> tuple[int, str]:
@@ -621,8 +599,7 @@ def _text_list(value: object) -> list[str]:
         return []
     values = (
         value
-        if isinstance(value, Sequence)
-        and not isinstance(value, str | bytes | bytearray)
+        if isinstance(value, Sequence) and not isinstance(value, str | bytes | bytearray)
         else (value,)
     )
     result: list[str] = []

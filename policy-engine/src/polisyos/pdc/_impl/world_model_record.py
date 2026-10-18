@@ -411,9 +411,10 @@ def _validate_world_model_artifact_views(record: WorldModelRecord) -> None:
     substrate_id = record.substrate_registry_ref.registry_artifact_ref
     if (views.substrate_registry_ref is None) != (substrate_id is None):
         raise ValueError("world_model_substrate_registry_view_mismatch")
-    if views.substrate_registry_ref is not None and str(
-        views.substrate_registry_ref.artifact_id
-    ) != substrate_id:
+    if (
+        views.substrate_registry_ref is not None
+        and str(views.substrate_registry_ref.artifact_id) != substrate_id
+    ):
         raise ValueError("world_model_substrate_registry_view_mismatch")
     graph_ids = tuple(str(ref.artifact_id) for ref in views.program_graph_refs)
     ncm_ids = tuple(str(ref.artifact_id) for ref in views.ncm_refs)

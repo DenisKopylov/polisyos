@@ -189,17 +189,13 @@ def graded_outcome_closeout_record(
         closeout-visible issue summaries.
     """
 
-    deficit_records = [
-        row for decision in decisions for row in decision.deficit_records
-    ]
+    deficit_records = [row for decision in decisions for row in decision.deficit_records]
     envelope = build_status_envelope(
         local_statuses=[],
         deficits=deficit_records,
         now=generated_at,
     )
-    blocking_decisions = [
-        decision for decision in decisions if decision.outcome == "typed_blocker"
-    ]
+    blocking_decisions = [decision for decision in decisions if decision.outcome == "typed_blocker"]
     payload = status_envelope_payload(envelope)
     payload.update(
         {
@@ -234,13 +230,9 @@ def _require_limitation_commit(input: GradedOutcomeEvidenceInput) -> None:
             "publish_with_limitation requires decision_owner_ref and review_refs"
         )
     if not input.authority_profile_ref:
-        raise GradedOutcomeInputError(
-            "publish_with_limitation requires authority_profile_ref"
-        )
+        raise GradedOutcomeInputError("publish_with_limitation requires authority_profile_ref")
     if not input.public_limitation_note:
-        raise GradedOutcomeInputError(
-            "publish_with_limitation requires public_limitation_note"
-        )
+        raise GradedOutcomeInputError("publish_with_limitation requires public_limitation_note")
 
 
 def _limitation_decision(

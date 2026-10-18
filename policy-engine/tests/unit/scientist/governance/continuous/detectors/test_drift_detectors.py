@@ -122,10 +122,7 @@ def test_calibration_detector_emits_sparse_event_without_blocking() -> None:
 
 def test_calibration_detector_blocks_only_mature_governed_adverse_history() -> None:
     ledger = build_calibration_ledger(
-        entries=[
-            _calibration_entry(index, false_pass=index <= 31)
-            for index in range(1, 211)
-        ],
+        entries=[_calibration_entry(index, false_pass=index <= 31) for index in range(1, 211)],
         target_scope=_scope(),
         target_run_id="run-future",
         target_claim_id="claim-future",
@@ -260,9 +257,7 @@ def test_policy_context_detector_consumes_stream_and_balanced_memory_context() -
     assert event.severity == "block"
     assert event.affected_claim_ids == ["claim-legal"]
     assert event.scope["jurisdiction"] == "UA"
-    assert event.metadata["balanced_memory_context"]["applicable_memory_ids"] == [
-        memory.memory_id
-    ]
+    assert event.metadata["balanced_memory_context"]["applicable_memory_ids"] == [memory.memory_id]
     assert (
         "current_claim_evidence"
         in event.metadata["balanced_memory_context"]["authority_boundary"]["may_not_use_for"]

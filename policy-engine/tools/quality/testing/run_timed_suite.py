@@ -79,9 +79,7 @@ def _parse_args() -> argparse.Namespace:
     if not args.argv:
         parser.error("provide a command after '--'")
     if args.capture_pytest_workload != (args.receipt_output is not None):
-        parser.error(
-            "--capture-pytest-workload and --receipt-output must be supplied together"
-        )
+        parser.error("--capture-pytest-workload and --receipt-output must be supplied together")
     args.cwd = _validated_repo_path(args.cwd)
     return args
 
@@ -205,9 +203,7 @@ def _bound_execution_receipt(
         for path, node_ids in node_map_payload.items()
     ):
         raise ValueError("pytest workload sidecar node map is malformed")
-    node_ids_by_path = {
-        path: tuple(node_ids) for path, node_ids in node_map_payload.items()
-    }
+    node_ids_by_path = {path: tuple(node_ids) for path, node_ids in node_map_payload.items()}
     identity = _identity_from_payload(sidecar["workload_identity"])
     config_source = REPO_ROOT / identity.config_path
     verify_pytest_workload_identity(
@@ -242,9 +238,7 @@ def _bound_execution_receipt(
             "sha256:" + hashlib.sha256(raw_record.encode("utf-8")).hexdigest()
         ),
         "workload_identity": workload_identity,
-        "node_ids_by_path": {
-            path: list(node_ids_by_path[path]) for path in identity.test_paths
-        },
+        "node_ids_by_path": {path: list(node_ids_by_path[path]) for path in identity.test_paths},
     }
 
 

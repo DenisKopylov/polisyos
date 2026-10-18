@@ -305,9 +305,7 @@ class HypothesisLedgerEntry(BaseModel):
             if missing:
                 raise ValueError("candidate envelope must forbid target authority slots")
         if self.source_class.startswith("llm_") and not self.has_admission_lineage:
-            raise ValueError(
-                "LLM hypothesis ledger entries require prompt/tool/repair lineage"
-            )
+            raise ValueError("LLM hypothesis ledger entries require prompt/tool/repair lineage")
         return self
 
     @property
@@ -365,9 +363,7 @@ class LLMFormulatorInput(BaseModel):
     run_id: str = Field(default="w6e_llm_formulator", min_length=1)
     prompt_fingerprint: str | None = None
     tool_refs: tuple[str, ...] = Field(default=DEFAULT_FORMULATOR_TOOL_REFS)
-    repair_decision_lineage: tuple[str, ...] = Field(
-        default=DEFAULT_REPAIR_DECISION_LINEAGE
-    )
+    repair_decision_lineage: tuple[str, ...] = Field(default=DEFAULT_REPAIR_DECISION_LINEAGE)
     metadata: dict[str, Any] = Field(default_factory=dict)
 
     @field_validator("intent", "authority_profile_ref", "run_id", "prompt_fingerprint")
@@ -522,8 +518,7 @@ class LLMFormulator:
                 _candidate(
                     kind="obligation",
                     text=(
-                        "Candidate obligation: compile governed obligations before "
-                        "downstream use."
+                        "Candidate obligation: compile governed obligations before downstream use."
                     ),
                     provenance=provenance,
                     metadata={"basis": "empty_obligation_graph_guard"},
@@ -590,11 +585,7 @@ def mapping_from_any(value: object) -> dict[str, Any]:
         if isinstance(dumped, Mapping):
             return dict(dumped)
     if hasattr(value, "__dict__"):
-        return {
-            key: item
-            for key, item in vars(value).items()
-            if not key.startswith("_")
-        }
+        return {key: item for key, item in vars(value).items() if not key.startswith("_")}
     return {}
 
 
@@ -756,9 +747,7 @@ def _as_text_tuple(value: object) -> tuple[str, ...]:
     if isinstance(value, str):
         return (_non_empty(value),) if value.strip() else ()
     if isinstance(value, Sequence):
-        return tuple(
-            dict.fromkeys(str(item).strip() for item in value if str(item).strip())
-        )
+        return tuple(dict.fromkeys(str(item).strip() for item in value if str(item).strip()))
     return (str(value).strip(),) if str(value).strip() else ()
 
 

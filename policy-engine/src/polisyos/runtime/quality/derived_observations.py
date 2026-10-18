@@ -1075,9 +1075,7 @@ def _canonical_payload(
     raw: bytes, *, store: artifacts.FileSystemCAS, selector: artifacts.ArtifactRef
 ) -> dict[str, object]:
     try:
-        value = artifacts.load_core_json_artifact(
-            store, selector, raw_payload_bytes=raw
-        )
+        value = artifacts.load_core_json_artifact(store, selector, raw_payload_bytes=raw)
     except CanonicalProfileRefusalError as exc:
         raise ValueError("canonical artifact profile is unavailable") from exc
     if not isinstance(value, Mapping):
@@ -1321,6 +1319,7 @@ def _load_source(
     refusal_code: DerivationRefusalCode,
 ) -> SourceSeries:
     from polisyos.core.artifacts import load_core_json_artifact
+
     current = _manifest_projection(store, _projection_ref(projection))
     if current != projection:
         raise DerivationRefusalError(
@@ -1393,6 +1392,7 @@ def _load_transform_family_registry_artifact(
     refusal_code: DerivationRefusalCode,
 ) -> TransformFamilyRegistry:
     from polisyos.core.artifacts import load_core_json_artifact
+
     current = _manifest_projection(store, _projection_ref(projection))
     if current != projection:
         raise DerivationRefusalError(

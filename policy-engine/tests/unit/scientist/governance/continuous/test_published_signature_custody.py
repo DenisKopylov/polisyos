@@ -45,9 +45,7 @@ def _selected_view(
 ) -> core_artifacts.ArtifactRef:
     store.put_json(
         payload,
-        core_artifacts.PutOptions(
-            kind=f"{kind}.default", media_type="application/json"
-        ),
+        core_artifacts.PutOptions(kind=f"{kind}.default", media_type="application/json"),
     )
     return store.put_json(
         payload,

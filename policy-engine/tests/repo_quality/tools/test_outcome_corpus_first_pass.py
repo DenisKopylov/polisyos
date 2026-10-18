@@ -50,9 +50,7 @@ def test_i11_outcome_corpus_first_pass_exercises_truthfulness_breadth_and_divers
         min_candidates_per_family_layer=1,
         min_family_layers=2,
     )
-    breadth_validation = domain_breadth.validate_domain_coverage_breadth_report(
-        breadth_report
-    )
+    breadth_validation = domain_breadth.validate_domain_coverage_breadth_report(breadth_report)
     assert breadth_validation["status"] == "pass", breadth_validation["issues"]
     assert breadth_report["summary"]["domain_coverage_breadth"] >= 3
     assert sum(1 for case in breadth_report["cases"] if case["non_trivial_graph"]) >= 3
@@ -62,9 +60,7 @@ def test_i11_outcome_corpus_first_pass_exercises_truthfulness_breadth_and_divers
         input_path=CORPUS_ROOT,
         diversity_floor=0.25,
     )
-    critic_validation = critic_diversity.validate_critic_ensemble_diversity_report(
-        critic_report
-    )
+    critic_validation = critic_diversity.validate_critic_ensemble_diversity_report(critic_report)
     assert critic_validation["status"] == "pass", critic_validation["issues"]
     measured_critic_cases = [
         case

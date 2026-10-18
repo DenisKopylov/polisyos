@@ -639,9 +639,7 @@ def _prepared(tmp_path, *, summaries: tuple[CandidateSummary, ...] | None = None
 def test_design_problem_snapshot_writes_exact_selected_core_json_view(tmp_path) -> None:
     store = FileSystemCAS(tmp_path / "selected")
     problem = _problem()
-    expected_raw = core_contracts.chronology._canonical_raw_bytes(
-        problem.model_dump(mode="json")
-    )
+    expected_raw = core_contracts.chronology._canonical_raw_bytes(problem.model_dump(mode="json"))
 
     ref, semantic_hash = open_world_module.persist_and_verify_design_problem_snapshot(
         store=store,
@@ -1374,9 +1372,7 @@ def test_owner_query_v3_profile_uses_artifact_ref_owned_projection() -> None:
     ) == independent_digest(expected_selected_a)
     assert c4_framed_semantic_projection_digest(
         "aggregate_context_v3", {"input_ref": selected_a}
-    ) != c4_framed_semantic_projection_digest(
-        "aggregate_context_v3", {"input_ref": selected_b}
-    )
+    ) != c4_framed_semantic_projection_digest("aggregate_context_v3", {"input_ref": selected_b})
 
 
 def test_owner_query_v2_replay_helpers_preserve_both_historical_projections() -> None:
@@ -1447,19 +1443,17 @@ def test_owner_query_v2_replay_helpers_preserve_both_historical_projections() ->
 
 
 @pytest.mark.parametrize("algorithm", ["pre_001b", "post_001b"])
-def test_owner_query_v2_exact_history_is_limited_by_current_reader(tmp_path, algorithm: str) -> None:
+def test_owner_query_v2_exact_history_is_limited_by_current_reader(
+    tmp_path, algorithm: str
+) -> None:
     runtime, batch = _prepared(tmp_path)
     current_statement = batch.contexts.aggregate_context.statement
     projection = epoch_cascade_module._promotion_owner_query_context_projection(
         design_problem_binding_ref=current_statement.design_problem_binding_ref,
-        design_problem_binding_content_hash=(
-            current_statement.design_problem_binding_content_hash
-        ),
+        design_problem_binding_content_hash=(current_statement.design_problem_binding_content_hash),
         authority_purpose=current_statement.authority_purpose,
         candidate_denominator_ref=current_statement.candidate_denominator_ref,
-        candidate_denominator_content_hash=(
-            current_statement.candidate_denominator_content_hash
-        ),
+        candidate_denominator_content_hash=(current_statement.candidate_denominator_content_hash),
         ordered_candidate_contexts=current_statement.ordered_candidate_contexts,
     )
     historical_digest = getattr(
@@ -1490,9 +1484,12 @@ def test_owner_query_v2_exact_history_is_limited_by_current_reader(tmp_path, alg
     assert isinstance(current_read, PromotionOwnerQueryContextNonReceipt)
     assert current_read.status == "not_established"
     assert current_read.code == "historical_serialization_requires_current_owner_query"
-    assert runtime.context_repository.resolve_verified(
-        context_ref=batch.contexts.aggregate_context.context_ref
-    ) == batch.contexts.aggregate_context
+    assert (
+        runtime.context_repository.resolve_verified(
+            context_ref=batch.contexts.aggregate_context.context_ref
+        )
+        == batch.contexts.aggregate_context
+    )
 
     wrong_bytes = runtime.context_repository.verify_exact(
         context_ref=historical_ref,
@@ -1545,9 +1542,7 @@ def test_owner_query_reader_dispatches_from_exact_selected_manifest_profile(
         )
         assert type(exact_source) is epoch_cascade_module.PersistedPromotionOwnerQueryContext
         assert exact_source.serialization_status == "current_serialization"
-        source_default_read = runtime.context_repository.resolve_verified(
-            context_ref=source_ref
-        )
+        source_default_read = runtime.context_repository.resolve_verified(context_ref=source_ref)
         assert type(source_default_read) is epoch_cascade_module.PersistedPromotionOwnerQueryContext
     else:
         projection = epoch_cascade_module._promotion_owner_query_context_projection(
@@ -1585,15 +1580,10 @@ def test_owner_query_reader_dispatches_from_exact_selected_manifest_profile(
         )
         assert type(exact_source) is epoch_cascade_module.HistoricalPromotionOwnerQueryContext
         assert exact_source.historical_statement == historical_statement
-        source_default_read = runtime.context_repository.resolve_verified(
-            context_ref=source_ref
-        )
+        source_default_read = runtime.context_repository.resolve_verified(context_ref=source_ref)
         assert isinstance(source_default_read, PromotionOwnerQueryContextNonReceipt)
         assert source_default_read.status == "not_established"
-        assert (
-            source_default_read.code
-            == "historical_serialization_requires_current_owner_query"
-        )
+        assert source_default_read.code == "historical_serialization_requires_current_owner_query"
 
     sibling = c4_profile(sibling_profile)
     sibling_ref = runtime.store.put_bytes(
@@ -1632,9 +1622,7 @@ def test_owner_query_reader_dispatches_from_exact_selected_manifest_profile(
     assert exact_sibling.status == "rejected"
     assert exact_sibling.code == "promotion_query_context_binding_mismatch"
 
-    default_sibling_read = runtime.context_repository.resolve_verified(
-        context_ref=sibling_ref
-    )
+    default_sibling_read = runtime.context_repository.resolve_verified(context_ref=sibling_ref)
     assert isinstance(default_sibling_read, PromotionOwnerQueryContextNonReceipt)
     assert default_sibling_read.status == "rejected"
     assert default_sibling_read.code == "promotion_query_context_binding_mismatch"
@@ -2506,9 +2494,7 @@ def test_owner_conflict_scan_finds_typed_denominator_sibling_view(tmp_path) -> N
             media_type="application/octet-stream",
         ),
     )
-    typed_ref = target.put_bytes(
-        denominator_bytes, _c4_write_options("candidate_denominator")
-    )
+    typed_ref = target.put_bytes(denominator_bytes, _c4_write_options("candidate_denominator"))
     assert typed_ref.artifact_id == denominator_ref.artifact_id
     assert typed_ref.manifest_profile_sha256 is not None
     assert target.verify(typed_ref).ok
@@ -2530,11 +2516,9 @@ def test_owner_conflict_scan_finds_typed_denominator_sibling_view(tmp_path) -> N
             denominator_ref=denominator_ref,
         )
     )
-    typed_denominator, typed_snapshot = (
-        epoch_cascade_module._load_verified_candidate_denominator(
-            artifacts=target,
-            denominator_ref=typed_ref,
-        )
+    typed_denominator, typed_snapshot = epoch_cascade_module._load_verified_candidate_denominator(
+        artifacts=target,
+        denominator_ref=typed_ref,
     )
     assert ordinary_denominator == denominator
     assert ordinary_snapshot == source_snapshot
@@ -2547,19 +2531,14 @@ def test_owner_conflict_scan_finds_typed_denominator_sibling_view(tmp_path) -> N
         summaries=(changed,),
     )
     controlled = _InventoryControlledStore(target)
-    owner = epoch_cascade_module.ArtifactPromotionCandidateDenominatorOwner(
-        artifacts=controlled
-    )
+    owner = epoch_cascade_module.ArtifactPromotionCandidateDenominatorOwner(artifacts=controlled)
     result = owner.freeze_completed_generation(completed_batch=batch)
 
     assert isinstance(result, PromotionOwnerQueryContextNonReceipt)
     assert result.status == "rejected"
     assert result.code == "promotion_candidate_denominator_mismatch"
     _assert_passed_owner_inventory_scans(controlled, expected_calls=1)
-    assert any(
-        entry.artifact_ref == typed_ref
-        for entry in controlled.snapshots[0].entries
-    )
+    assert any(entry.artifact_ref == typed_ref for entry in controlled.snapshots[0].entries)
 
 
 @pytest.mark.parametrize(
@@ -2577,9 +2556,7 @@ def test_owner_requires_complete_inventory_without_id_fallback(
     store = FileSystemCAS(tmp_path / inventory_mode)
     batch = _new_owner_batch(store, summary=_summary())
     controlled = _InventoryControlledStore(store, inventory_mode=inventory_mode)
-    owner = epoch_cascade_module.ArtifactPromotionCandidateDenominatorOwner(
-        artifacts=controlled
-    )
+    owner = epoch_cascade_module.ArtifactPromotionCandidateDenominatorOwner(artifacts=controlled)
 
     result = owner.freeze_completed_generation(completed_batch=batch)
 
@@ -2656,9 +2633,7 @@ def test_owner_rechecks_exact_inventory_after_write_for_competing_view(tmp_path)
                 candidate_id=summary.candidate_id,
                 candidate_content_hash=summary.content_hash,
                 candidate_summary=summary,
-                candidate_summary_content_hash=promotion_candidate_summary_content_hash(
-                    summary
-                ),
+                candidate_summary_content_hash=promotion_candidate_summary_content_hash(summary),
                 cycle_index=summary.cycle_index,
             )
             ref, semantic, _ = _persist_model(
@@ -2680,12 +2655,8 @@ def test_owner_rechecks_exact_inventory_after_write_for_competing_view(tmp_path)
         race_evidence["denominator_ref"] = denominator_ref
         race_evidence["statement"] = statement
 
-    controlled = _InventoryControlledStore(
-        store, after_second_scan=persist_competing_denominator
-    )
-    owner = epoch_cascade_module.ArtifactPromotionCandidateDenominatorOwner(
-        artifacts=controlled
-    )
+    controlled = _InventoryControlledStore(store, after_second_scan=persist_competing_denominator)
+    owner = epoch_cascade_module.ArtifactPromotionCandidateDenominatorOwner(artifacts=controlled)
 
     result = owner.freeze_completed_generation(completed_batch=primary)
 
@@ -2713,10 +2684,7 @@ def test_owner_rechecks_exact_inventory_after_write_for_competing_view(tmp_path)
         )
     )
     assert loaded_competing_denominator == competing_statement
-    assert (
-        loaded_competing_snapshot.design_problem_binding_ref
-        == competing.design_problem_ref
-    )
+    assert loaded_competing_snapshot.design_problem_binding_ref == competing.design_problem_ref
     assert (
         loaded_competing_snapshot.design_problem_binding_content_hash
         == competing.design_problem_content_hash

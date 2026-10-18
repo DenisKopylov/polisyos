@@ -1,4 +1,3 @@
-
 """Property-based tests for validation methods."""
 
 from __future__ import annotations
@@ -139,12 +138,12 @@ class TestNormalScoresProperties:
             "predictive_mean": observations + 1.0,
             "predictive_std": std,
         }
-        centered = _invoke(
-            isolated_registry, property_method_dispatcher, fqn, centered_state
-        )["result"]
-        shifted = _invoke(
-            isolated_registry, property_method_dispatcher, fqn, shifted_state
-        )["result"]
+        centered = _invoke(isolated_registry, property_method_dispatcher, fqn, centered_state)[
+            "result"
+        ]
+        shifted = _invoke(isolated_registry, property_method_dispatcher, fqn, shifted_state)[
+            "result"
+        ]
 
         assert np.isfinite(centered["mean_crps"])
         assert centered["mean_crps"] >= 0.0

@@ -162,7 +162,8 @@ class TestCountDataProperties:
                 state=state,
                 params={},
                 seed=0,
-            ), fqn
+            ),
+            fqn,
         )
         second = _dict_result(
             invoke_property_method(
@@ -171,7 +172,8 @@ class TestCountDataProperties:
                 state=state,
                 params={},
                 seed=0,
-            ), fqn
+            ),
+            fqn,
         )
         expected = {"coefficients", "log_likelihood", "deviance", "dispersion", "n_obs"}
         assert set(first) == set(second) == expected
@@ -196,7 +198,8 @@ class TestDiscreteChoiceProperties:
                 state=state,
                 params={},
                 seed=0,
-            ), fqn
+            ),
+            fqn,
         )
         coefficients = np.asarray(result["coefficients"], dtype=float)
         assert coefficients.shape == (state["X"].shape[1] + 1,)
@@ -223,7 +226,8 @@ class TestDiscreteChoiceProperties:
                 state=state,
                 params={},
                 seed=0,
-            ), fqn
+            ),
+            fqn,
         )
         assert set(result) == {"coefficients", "log_likelihood", "accuracy", "n_obs", "n_features"}
         assert result["n_features"] == state["X"].shape[1]
@@ -327,9 +331,7 @@ def _fixed_effects_panel_candidate(*, seed: int = 20261010) -> dict[str, np.ndar
     time_ids = np.tile(np.arange(n_periods), n_entities)
     within_time = np.tile(np.linspace(-1.0, 1.0, n_periods), n_entities)
     entity_offset = np.repeat(np.linspace(-0.75, 0.75, n_entities), n_periods)
-    exog = (
-        within_time + entity_offset + rng.normal(0.0, 0.05, n_obs)
-    ).reshape(n_obs, 1)
+    exog = (within_time + entity_offset + rng.normal(0.0, 0.05, n_obs)).reshape(n_obs, 1)
     entity_effect = np.repeat(rng.normal(0.0, 1.0, n_entities), n_periods)
     dependent = 0.8 * exog[:, 0] + entity_effect + rng.normal(0.0, 0.2, n_obs)
     return {

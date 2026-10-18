@@ -75,9 +75,7 @@ def test_academic_shadow_bundle_loads_without_legacy_academic_imports() -> None:
     assert bundle.readiness["canonical_runtime_ready"] is True
     assert bundle.readiness["schema_generation_current"] is False
     assert bundle.readiness_summary.consumer_ready is False
-    assert bundle.readiness_summary.failed_readiness_checks == (
-        "schema_generation_current",
-    )
+    assert bundle.readiness_summary.failed_readiness_checks == ("schema_generation_current",)
     assert bundle.benchmark_metrics["parameter_supported_ratio"] == 0.7
     assert bundle.qc_metrics["runtime_demanded_canonical_resolution_rate_pct"] == 95.0
     assert len(bundle.artifacts) == 5

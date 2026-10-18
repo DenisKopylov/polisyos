@@ -140,4 +140,6 @@ def _write_minimal_repo(repo_root: Path, *, omit_research_dag_in_executor: bool)
     )
     fixture = repo_root / gate.PUBLIC_DAG_FIXTURE
     fixture.parent.mkdir(parents=True, exist_ok=True)
-    fixture.write_text('{"run_id":"fixture","workflow_id":"scientist_policy_design"}\n', encoding="utf-8")
+    fixture.write_text(
+        '{"run_id":"fixture","workflow_id":"scientist_policy_design"}\n', encoding="utf-8"
+    )

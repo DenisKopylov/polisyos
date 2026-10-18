@@ -351,7 +351,9 @@ class GroupMetricBreakdownEstimator:
 
         diagnostics.extend(_missingness_diagnostics(missingness, config))
         diagnostics.extend(_declared_value_diagnostics(audit_input.protected, attribute_configs))
-        diagnostics.extend(_missingness_by_group_diagnostics(audit_input.protected, attribute_configs))
+        diagnostics.extend(
+            _missingness_by_group_diagnostics(audit_input.protected, attribute_configs)
+        )
         diagnostics.append(
             {
                 "code": "LABEL_BIAS_WARNING",
@@ -429,14 +431,18 @@ class ParityGapTestEstimator:
             _decorate_test_decision(test, self.config)
         return {"parity_tests": tests}
 
-    def _pairwise_metric_tests(self, group_metrics: list[dict[str, object]]) -> list[dict[str, object]]:
+    def _pairwise_metric_tests(
+        self, group_metrics: list[dict[str, object]]
+    ) -> list[dict[str, object]]:
         tests: list[dict[str, object]] = []
         by_attr: dict[str, list[dict[str, object]]] = {}
         for entry in group_metrics:
             by_attr.setdefault(str(entry["attribute"]), []).append(entry)
         for attr, entries in by_attr.items():
             reference_group = str(entries[0].get("reference_group", ""))
-            ref_entry = next((entry for entry in entries if str(entry["group"]) == reference_group), None)
+            ref_entry = next(
+                (entry for entry in entries if str(entry["group"]) == reference_group), None
+            )
             if ref_entry is None:
                 continue
             for entry in entries:
@@ -447,7 +453,9 @@ class ParityGapTestEstimator:
                     tests.append(_pairwise_metric_test(attr, entry, ref_entry, metric, self.config))
         return tests
 
-    def _aggregate_gap_tests(self, group_metrics: list[dict[str, object]]) -> list[dict[str, object]]:
+    def _aggregate_gap_tests(
+        self, group_metrics: list[dict[str, object]]
+    ) -> list[dict[str, object]]:
         tests: list[dict[str, object]] = []
         by_attr: dict[str, list[dict[str, object]]] = {}
         for entry in group_metrics:
@@ -507,7 +515,9 @@ class ParityGapTestEstimator:
             ]
             if len(computable) < 2:
                 continue
-            ordered = sorted(computable, key=lambda entry: _metric_estimate(entry, component) or 0.0)
+            ordered = sorted(
+                computable, key=lambda entry: _metric_estimate(entry, component) or 0.0
+            )
             gap = (_metric_estimate(ordered[-1], component) or 0.0) - (
                 _metric_estimate(ordered[0], component) or 0.0
             )
@@ -617,9 +627,7 @@ class CounterfactualFairnessEstimator:
     def _build(self) -> dict[str, object]:
         threshold = _threshold_for("counterfactual_fairness", self.config)
         spec = self.causal_spec
-        if spec is None or (
-            not spec.counterfactual_scores and not spec.counterfactual_predictions
-        ):
+        if spec is None or (not spec.counterfactual_scores and not spec.counterfactual_predictions):
             if spec is not None and self.features is not None:
                 scm_result = _counterfactual_residual_scm_result(
                     y_pred=self.y_pred,
@@ -683,9 +691,7 @@ class CounterfactualFairnessEstimator:
             threshold=threshold,
             config=self.config,
         )
-        status = _worst_status(
-            [str(payload.get("status", "PASS")) for payload in scores.values()]
-        )
+        status = _worst_status([str(payload.get("status", "PASS")) for payload in scores.values()])
         return {
             "enabled": True,
             "status": status,
@@ -902,37 +908,49 @@ class FairnessAuditRunner:
             decision_threshold=decision_threshold,
             task_type=config.task_type,
         )
-        parity_result = ParityGapTestEstimator().fit(
-            y_true=audit_input.y_true,
-            y_pred=audit_input.y_pred,
-            y_score=audit_input.y_score,
-            protected=audit_input.protected,
-            features=audit_input.features,
-            sample_weight=audit_input.sample_weight,
-            causal_spec=causal,
-            config=config,
-            group_result=group_result,
-        ).test()
-        counterfactual = CounterfactualFairnessEstimator().fit(
-            y_true=audit_input.y_true,
-            y_pred=audit_input.y_pred,
-            y_score=audit_input.y_score,
-            protected=audit_input.protected,
-            features=audit_input.features,
-            sample_weight=audit_input.sample_weight,
-            causal_spec=causal,
-            config=config,
-        ).test()
-        path_specific = PathSpecificFairnessEstimator().fit(
-            y_true=audit_input.y_true,
-            y_pred=audit_input.y_pred,
-            y_score=audit_input.y_score,
-            protected=audit_input.protected,
-            features=audit_input.features,
-            sample_weight=audit_input.sample_weight,
-            causal_spec=causal,
-            config=config,
-        ).test()
+        parity_result = (
+            ParityGapTestEstimator()
+            .fit(
+                y_true=audit_input.y_true,
+                y_pred=audit_input.y_pred,
+                y_score=audit_input.y_score,
+                protected=audit_input.protected,
+                features=audit_input.features,
+                sample_weight=audit_input.sample_weight,
+                causal_spec=causal,
+                config=config,
+                group_result=group_result,
+            )
+            .test()
+        )
+        counterfactual = (
+            CounterfactualFairnessEstimator()
+            .fit(
+                y_true=audit_input.y_true,
+                y_pred=audit_input.y_pred,
+                y_score=audit_input.y_score,
+                protected=audit_input.protected,
+                features=audit_input.features,
+                sample_weight=audit_input.sample_weight,
+                causal_spec=causal,
+                config=config,
+            )
+            .test()
+        )
+        path_specific = (
+            PathSpecificFairnessEstimator()
+            .fit(
+                y_true=audit_input.y_true,
+                y_pred=audit_input.y_pred,
+                y_score=audit_input.y_score,
+                protected=audit_input.protected,
+                features=audit_input.features,
+                sample_weight=audit_input.sample_weight,
+                causal_spec=causal,
+                config=config,
+            )
+            .test()
+        )
         causal_audits = {
             "counterfactual_fairness": counterfactual,
             "path_specific_fairness": path_specific,
@@ -1038,13 +1056,9 @@ def fairness_gate_response(
         return None
     refusal_policy = audit.get("refusal_policy")
     runtime_behavior = (
-        refusal_policy.get("runtime_behavior", {})
-        if isinstance(refusal_policy, Mapping)
-        else {}
+        refusal_policy.get("runtime_behavior", {}) if isinstance(refusal_policy, Mapping) else {}
     )
-    fallback = str(
-        runtime_behavior.get("fallback", "human_review_or_approved_fallback_policy")
-    )
+    fallback = str(runtime_behavior.get("fallback", "human_review_or_approved_fallback_policy"))
     return {
         "decision": None,
         "status": "refused",
@@ -1074,7 +1088,9 @@ def predict_with_fairness_gate(
     return predict(features)
 
 
-def _coerce_config(config: FairnessAuditConfig | Mapping[str, object] | None) -> FairnessAuditConfig:
+def _coerce_config(
+    config: FairnessAuditConfig | Mapping[str, object] | None,
+) -> FairnessAuditConfig:
     if config is None:
         return FairnessAuditConfig()
     if isinstance(config, FairnessAuditConfig):
@@ -1320,7 +1336,11 @@ def _config_for_attribute(
 
 
 def _reference_group(values: np.ndarray, config: ProtectedAttributeConfig | None) -> str | None:
-    if config is not None and config.reference == "configured" and config.reference_value is not None:
+    if (
+        config is not None
+        and config.reference == "configured"
+        and config.reference_value is not None
+    ):
         return str(config.reference_value)
     if (
         config is not None
@@ -1425,7 +1445,9 @@ def _rate_metric(
     weights: np.ndarray,
     alpha: float,
 ) -> dict[str, object]:
-    return _conditional_rate_metric(group_mask, event_mask, np.ones_like(event_mask, dtype=bool), weights, alpha)
+    return _conditional_rate_metric(
+        group_mask, event_mask, np.ones_like(event_mask, dtype=bool), weights, alpha
+    )
 
 
 def _conditional_rate_metric(
@@ -1836,7 +1858,10 @@ def _numeric_check_refuses(check: Mapping[str, object], config: FairnessAuditCon
     except (TypeError, ValueError):
         return False
     if point is not None and p_value_adjusted is not None:
-        if abs(float(point)) > threshold_float and float(p_value_adjusted) < config.statistical_tests.alpha:
+        if (
+            abs(float(point)) > threshold_float
+            and float(p_value_adjusted) < config.statistical_tests.alpha
+        ):
             return True
     ci_high = check.get("ci_high")
     if ci_low is None:
@@ -2308,7 +2333,11 @@ def _path_effect_payloads(
         ]
     for raw in raw_effects:
         path_value = raw.get("path", [])
-        path = [str(item) for item in path_value] if isinstance(path_value, list) else [str(path_value)]
+        path = (
+            [str(item) for item in path_value]
+            if isinstance(path_value, list)
+            else [str(path_value)]
+        )
         estimate_raw = raw.get("estimate")
         threshold_value = raw.get("threshold")
         if threshold_value is None:
@@ -2384,9 +2413,7 @@ def _path_specific_catalog_result(
     if x_matrix is None:
         return None
     mediator_matrix = (
-        _numeric_feature_matrix(features, spec.mediator_columns)
-        if spec.mediator_columns
-        else None
+        _numeric_feature_matrix(features, spec.mediator_columns) if spec.mediator_columns else None
     )
     try:
         from polisyos.foundry.methods.catalog.causal.fairness import (
@@ -2426,7 +2453,11 @@ def _path_specific_catalog_result(
         return None
     raw_effects: list[dict[str, object]] = []
     for path_label, effect in path_effects.items():
-        fair = bool(path_fairness.get(path_label, True)) if isinstance(path_fairness, Mapping) else True
+        fair = (
+            bool(path_fairness.get(path_label, True))
+            if isinstance(path_fairness, Mapping)
+            else True
+        )
         raw_effects.append(
             {
                 "path": _split_path_label(str(path_label)),
@@ -2491,7 +2522,11 @@ def _path_status(
     threshold_float = float(threshold)
     abs_estimate = abs(estimate)
     abs_ci_high = max(abs(ci_low or 0.0), abs(ci_high or 0.0)) if ci_high is not None else None
-    abs_ci_low = min(abs(ci_low or 0.0), abs(ci_high or 0.0)) if ci_low is not None and ci_high is not None else None
+    abs_ci_low = (
+        min(abs(ci_low or 0.0), abs(ci_high or 0.0))
+        if ci_low is not None and ci_high is not None
+        else None
+    )
     if abs_ci_high is not None and abs_ci_high <= threshold_float:
         return "PASS"
     if abs_ci_low is not None and abs_ci_low > threshold_float:

@@ -475,6 +475,7 @@ class GovernedPublicRecordOwner:
 
     def _read(self, ref: artifacts.ArtifactRef, cls: type[_T], name: str) -> _T:
         from polisyos.core.artifacts import validate_core_model_json_artifact
+
         self._raw(ref)
         manifest = self.store.get_manifest(ref)
         raw = self.store.get_bytes(ref)

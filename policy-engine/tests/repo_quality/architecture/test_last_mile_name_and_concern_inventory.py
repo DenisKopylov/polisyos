@@ -9,9 +9,7 @@ from typing import Any
 from tools.quality.validation import repository_last_mile_inventory as last_mile
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-BASELINE_DIR = (
-    REPO_ROOT / "architecture" / "baselines" / "repository_best_in_class_last_mile"
-)
+BASELINE_DIR = REPO_ROOT / "architecture" / "baselines" / "repository_best_in_class_last_mile"
 NAME_REGISTRY = REPO_ROOT / "architecture" / "name_registry.toml"
 CONCERN_CONTRACT = REPO_ROOT / "architecture" / "policies" / "cross_cutting_concerns.toml"
 
@@ -114,8 +112,7 @@ def test_phase0_4_cross_cutting_concerns_have_canonical_homes_and_adapter_policy
 def test_phase0_4_scientist_parallel_families_map_to_wave2_actions() -> None:
     inventory = _inventory()
     families = {
-        row["family_id"]: row
-        for row in inventory["scientist_parallel_implementations"]["families"]
+        row["family_id"]: row for row in inventory["scientist_parallel_implementations"]["families"]
     }
 
     assert set(families) >= REQUIRED_SCIENTIST_FAMILIES

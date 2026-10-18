@@ -303,7 +303,9 @@ def resolve_governance_monitor_event(
         or manifest.canon != CanonInfo.from_spec(CanonSpec(forbid_floats=False))
     ):
         raise ValueError("governance monitor event artifact profile mismatch")
-    event = GovernanceMonitorEvent.model_validate(load_core_json_artifact(store, ref, raw_payload_bytes=raw))
+    event = GovernanceMonitorEvent.model_validate(
+        load_core_json_artifact(store, ref, raw_payload_bytes=raw)
+    )
     if to_canonical_bytes(event, CanonSpec(forbid_floats=False)) != raw:
         raise ValueError("governance monitor event canonical bytes mismatch")
     return PersistedGovernanceMonitorEvent(

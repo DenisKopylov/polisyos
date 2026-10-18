@@ -280,13 +280,17 @@ def test_world_snapshot_write_propagates_internal_import_defects(
         level: int = 0,
     ) -> object:
         if name == "polisyos.fabric.io.db":
-            raise ModuleNotFoundError("internal backend dependency missing", name="internal_missing")
+            raise ModuleNotFoundError(
+                "internal backend dependency missing", name="internal_missing"
+            )
         return real_import(name, globals, locals, fromlist, level)
 
     monkeypatch.setattr(world_write._importlib_util, "find_spec", lambda _name: object())
     monkeypatch.setattr(builtins, "__import__", _import_with_internal_defect)
 
-    with pytest.raises(ModuleNotFoundError, match="internal backend dependency missing") as exc_info:
+    with pytest.raises(
+        ModuleNotFoundError, match="internal backend dependency missing"
+    ) as exc_info:
         write_world_snapshot(tmp_path / "fabric-world.duckdb", _request(tmp_path))
 
     assert exc_info.value.name == "internal_missing"

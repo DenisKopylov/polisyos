@@ -45,9 +45,7 @@ def _bundle_dir(tmp_path: Path, *, fabric_contract_id: str | None) -> Path:
             },
             "files": {
                 "quality_evidence": {
-                    "fabric_retrieval_trace": (
-                        "quality_evidence/fabric_retrieval_trace.json"
-                    ),
+                    "fabric_retrieval_trace": ("quality_evidence/fabric_retrieval_trace.json"),
                     "normative_evidence": "quality_evidence/normative_evidence.json",
                 }
             },
@@ -76,9 +74,7 @@ def _bundle_dir(tmp_path: Path, *, fabric_contract_id: str | None) -> Path:
             "schema_version": "polisyos.lex.NormativeApplicabilityReport.v1",
             "scenario_evidence_contract_id": SCENARIO_CONTRACT_ID,
             "legal_requirements": [{"requirement_id": LEGAL_REQ}],
-            "query_normalization_report": {
-                "legal_requirements": [{"requirement_id": LEGAL_REQ}]
-            },
+            "query_normalization_report": {"legal_requirements": [{"requirement_id": LEGAL_REQ}]},
         },
     )
     return bundle_dir

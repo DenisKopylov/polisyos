@@ -39,9 +39,7 @@ class _ReplayStoreStub:
 
     def save_record_session(self, session: object) -> SimpleNamespace:
         del session
-        return SimpleNamespace(
-            artifact_id=ArtifactID.model_validate("sha256:" + "b" * 64)
-        )
+        return SimpleNamespace(artifact_id=ArtifactID.model_validate("sha256:" + "b" * 64))
 
     def load_record_session(self, artifact_id: object) -> object:
         del artifact_id
@@ -213,7 +211,6 @@ def test_run_replay_mode_does_not_fallback_to_live_after_fixture_failure(
         )
 
     assert live_calls == []
-
 
 
 def _make_real_replay_case(tmp_path, fixture_body: bytes | None):
@@ -432,6 +429,7 @@ def test_run_replay_mode_uses_recorded_bytes_without_native_transport(
     assert simulators[0].call_log[0]["url"] == case["canonical_url"]
     assert native_requests == []
     assert ordinary_calls == []
+
 
 def test_run_streaming_windowed_legacy_path_uses_async_store_adapter(
     monkeypatch,

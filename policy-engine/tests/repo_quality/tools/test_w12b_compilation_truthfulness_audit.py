@@ -144,8 +144,7 @@ def _truthfulness_report(
             "case_count": len(cases),
             "blocked_case_count": 0,
             "aggregate_compilation_truthfulness_rate": round(
-                sum(float(case["per_case_truthfulness_score"]) for case in cases)
-                / len(cases),
+                sum(float(case["per_case_truthfulness_score"]) for case in cases) / len(cases),
                 2,
             ),
             "by_domain": _slice_summary(cases, "domain"),
@@ -209,8 +208,7 @@ def _slice_summary(cases: list[dict[str, object]], field: str) -> dict[str, dict
             "case_count": len(rows := [case for case in cases if case[field] == value]),
             "blocked_case_count": 0,
             "aggregate_compilation_truthfulness_rate": round(
-                sum(float(case["per_case_truthfulness_score"]) for case in rows)
-                / len(rows),
+                sum(float(case["per_case_truthfulness_score"]) for case in rows) / len(rows),
                 2,
             ),
         }

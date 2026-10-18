@@ -280,9 +280,7 @@ def build_degradation_record(
         override_policy=override_policy,
         signed_exception_ref=signed_exception_ref,
     )
-    blocking_status = (
-        "non_blocking" if profile_allowed or signed_allowed else "blocking"
-    )
+    blocking_status = "non_blocking" if profile_allowed or signed_allowed else "blocking"
     blocker_model = TypedBlocker.model_validate(typed_blocker) if typed_blocker else None
     return DegradationLedgerRecord(
         degradation_id=record_id,

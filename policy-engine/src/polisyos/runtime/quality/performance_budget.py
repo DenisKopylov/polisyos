@@ -402,9 +402,7 @@ def _dashboard_rows(dashboard_evidence: Mapping[str, Any] | None) -> list[dict[s
                 phase,
                 duration,
                 budget_ms=(
-                    budget_ms
-                    if budget_ms is not None
-                    else _BUDGETS_MS["dashboard.route_render"]
+                    budget_ms if budget_ms is not None else _BUDGETS_MS["dashboard.route_render"]
                 ),
                 path=path,
             )
@@ -434,9 +432,7 @@ def _summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
 
 def _performance_budget_wall_clock_ms(performance_budget: Mapping[str, Any]) -> float | None:
     rows = [
-        row
-        for row in performance_budget.get("phase_budgets") or ()
-        if isinstance(row, Mapping)
+        row for row in performance_budget.get("phase_budgets") or () if isinstance(row, Mapping)
     ]
     for row in rows:
         if row.get("phase") == "control.job_total":

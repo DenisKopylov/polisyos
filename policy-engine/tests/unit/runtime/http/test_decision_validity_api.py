@@ -471,10 +471,15 @@ def test_canonical_epoch_origin_reaches_registered_http_batch_intake(
             # The shared HTTP fixture seeds packets under cell-a. Include those
             # exact fixture artifacts in this client's cell so the independent
             # Claim root walk can inspect every packet without dropping members.
-            for seed_key in ("decision_packet_artifact_id", "decision_packet_artifact_id_secondary"):
+            for seed_key in (
+                "decision_packet_artifact_id",
+                "decision_packet_artifact_id_secondary",
+            ):
                 store.record_artifact_owner(
-                    runtime_api_env[seed_key], tenant_id=runtime_api_env["tenant_a"],
-                    cell_id=cell.cell_id, writer="tests.runtime_http.canonical_epoch_claim_head",
+                    runtime_api_env[seed_key],
+                    tenant_id=runtime_api_env["tenant_a"],
+                    cell_id=cell.cell_id,
+                    writer="tests.runtime_http.canonical_epoch_claim_head",
                 )
             # The real Claim owner mechanism consumes exact persisted fixture
             # issuance evidence. This configures no production institution.
@@ -495,9 +500,16 @@ def test_canonical_epoch_origin_reaches_registered_http_batch_intake(
             )
             base_ledger = _claim_ledger()
             base_ledger = base_ledger.model_copy(
-                update={"claims": [base_ledger.claims[0].model_copy(
-                    update={"publishability": ClaimPublishability.PUBLISHABLE, "evidence_refs": [target]}
-                )]}
+                update={
+                    "claims": [
+                        base_ledger.claims[0].model_copy(
+                            update={
+                                "publishability": ClaimPublishability.PUBLISHABLE,
+                                "evidence_refs": [target],
+                            }
+                        )
+                    ]
+                }
             )
             prepared = claim_owner.prepare_initial_ledger(
                 base_claims_ref=claim_owner.persist_candidate_ledger(ledger=base_ledger),
@@ -507,22 +519,31 @@ def test_canonical_epoch_origin_reaches_registered_http_batch_intake(
             envelope = DecisionValidityEnvelope(
                 decision_lineage_key="http-canonical-epoch",
                 policy_fingerprint="http-canonical-epoch",
-                knowledge_basis=DecisionBasisSection(dependencies=[DecisionDependencyRef(
-                    kind=DecisionDependencyKind.SEMANTIC_EPOCH,
-                    key=str(target.artifact_id), artifact_id=str(target.artifact_id),
-                )]),
+                knowledge_basis=DecisionBasisSection(
+                    dependencies=[
+                        DecisionDependencyRef(
+                            kind=DecisionDependencyKind.SEMANTIC_EPOCH,
+                            key=str(target.artifact_id),
+                            artifact_id=str(target.artifact_id),
+                        )
+                    ]
+                ),
             )
             baseline = DecisionValidityEvaluation(
                 decision_lineage_key=envelope.decision_lineage_key,
                 status=DecisionValidityStatus.ACTIVE,
                 dependency_keys=envelope.dependency_keys(),
             )
-            packet_ref = _put_json(store, {
-                "schema_version": "3.4",
-                "claim_ledger_v2_ref": str(prepared.initial_ledger_ref.artifact_id),
-                "decision_validity_envelope": envelope.model_dump(mode="json"),
-                "decision_validity_baseline": baseline.model_dump(mode="json"),
-            }, kind="scientist.decision_packet")
+            packet_ref = _put_json(
+                store,
+                {
+                    "schema_version": "3.4",
+                    "claim_ledger_v2_ref": str(prepared.initial_ledger_ref.artifact_id),
+                    "decision_validity_envelope": envelope.model_dump(mode="json"),
+                    "decision_validity_baseline": baseline.model_dump(mode="json"),
+                },
+                kind="scientist.decision_packet",
+            )
             initial = claim_owner.finalize_initial_root(
                 preparation_ref=prepared.preparation_ref, decision_packet_ref=packet_ref
             )
@@ -577,7 +598,9 @@ def test_canonical_epoch_origin_reaches_registered_http_batch_intake(
         body = response.json()
         assert body["affected_packet_refs"] == [packet]
         assert body["completion_receipt"]["targets"][0]["status"] == "stale"
-        assert body["claim_bridge_result_refs"], "completed batch must advance the persisted Claim head"
+        assert body["claim_bridge_result_refs"], (
+            "completed batch must advance the persisted Claim head"
+        )
         assert owner.read_current_projection(packet).status == DecisionValidityStatus.STALE
         assert control._epoch_claim_lifecycle_bridge.completed_batches is owner
         retained = owner.resolve_completed_epoch_batch_evidence_by_id(batch_id=body["batch_id"])
@@ -591,7 +614,9 @@ def test_canonical_epoch_origin_reaches_registered_http_batch_intake(
             bridge_ref = ArtifactRef.model_validate(body["claim_bridge_result_refs"][0])
             assert current.statement.bridge_result_refs == (bridge_ref,)
             bridge_statement = _read_profiled_statement(
-                store=store, record="claim_bridge_result", ref=bridge_ref,
+                store=store,
+                record="claim_bridge_result",
+                ref=bridge_ref,
                 model=ClaimLifecycleBridgeResultStatement,
             )
             assert bridge_statement.batch_receipt_ref == retained.batch_receipt_ref

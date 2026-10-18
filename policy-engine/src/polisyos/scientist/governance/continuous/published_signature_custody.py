@@ -733,7 +733,9 @@ def persist_published_signature_custody_scan(
     raw = store.get_bytes(ref)
     report = store.verify(ref)
     manifest = store.get_manifest(ref)
-    persisted = PublishedSignatureCustodyScan.model_validate(load_core_json_artifact(store, ref, raw_payload_bytes=raw))
+    persisted = PublishedSignatureCustodyScan.model_validate(
+        load_core_json_artifact(store, ref, raw_payload_bytes=raw)
+    )
     if (
         not report.ok
         or persisted != scan

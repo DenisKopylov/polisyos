@@ -150,9 +150,7 @@ def test_cost_degradation_telemetry_is_scorecard_observable_without_silent_block
         canary_kind="production",
     )
 
-    assert [gate["name"] for gate in gates] == [
-        "policy_design_w2c_cost_degradation_telemetry"
-    ]
+    assert [gate["name"] for gate in gates] == ["policy_design_w2c_cost_degradation_telemetry"]
     assert gates[0]["status"] == "pass"
     assert gates[0]["blocking"] is False
     assert gates[0]["closeout_effect"] == "observe_only"

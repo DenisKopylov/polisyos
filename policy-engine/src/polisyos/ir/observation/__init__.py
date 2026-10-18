@@ -184,10 +184,12 @@ __all__ = [
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "OBSERVATION_METHOD_INPUT_KIND": (
-        "polisyos.ir.observation.bundles", "OBSERVATION_METHOD_INPUT_KIND",
+        "polisyos.ir.observation.bundles",
+        "OBSERVATION_METHOD_INPUT_KIND",
     ),
     "ObservationMethodInputEnvelope": (
-        "polisyos.ir.observation.bundles", "ObservationMethodInputEnvelope",
+        "polisyos.ir.observation.bundles",
+        "ObservationMethodInputEnvelope",
     ),
     "ObservationFamily": ("polisyos.ir.observation.contracts", "ObservationFamily"),
     "EntityScope": ("polisyos.ir.observation.contracts", "EntityScope"),

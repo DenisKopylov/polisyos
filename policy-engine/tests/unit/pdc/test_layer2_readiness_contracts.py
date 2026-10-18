@@ -245,9 +245,7 @@ def test_canonical_design_record_preserves_v0_shadow_projection_status() -> None
 
 
 def test_design_record_maturity_report_requires_s2_s5_s8_refs_for_s9() -> None:
-    report = runtime_quality.DesignRecordMaturityReport.model_validate(
-        _maturity_report_payload()
-    )
+    report = runtime_quality.DesignRecordMaturityReport.model_validate(_maturity_report_payload())
 
     assert report.design_record_ref == SOURCE_DESIGN_RECORD_REF
     assert report.canonical_design_record_ref == CANONICAL_RECORD_REF
@@ -538,9 +536,7 @@ def test_layer2_s12_resource_economics_posture_input_is_strict_and_exported() ->
     assert posture_model.model_config.get("extra") == "forbid"
 
     posture = posture_model(
-        resource_allocation_policy_ref=(
-            "pdc://layer2/s12/ua-msme/resource-allocation-policy"
-        ),
+        resource_allocation_policy_ref=("pdc://layer2/s12/ua-msme/resource-allocation-policy"),
         explore_exploit_posture="balanced_governed",
         explore_exploit_dial_ref="pdc://layer2/s7/ua-msme/explore-exploit-dial",
         delegation_contract_ref="pdc://layer2/s7/ua-msme/delegation-contract",
@@ -650,12 +646,8 @@ def test_layer2_s13_post_deploy_accountability_posture_input_is_strict_and_expor
         phase="post_deploy_finalized",
         accountability_posture_ref="pdc://layer2/s13/ua-msme/accountability-posture",
         deployment_dossier_ref="pdc://layer2/s13/ua-msme/deployment-dossier",
-        divergence_record_refs=[
-            "pdc://layer2/s13/ua-msme/divergence/seeded-disconfirmation"
-        ],
-        learning_update_proposal_refs=[
-            "learning-proposal://ua-msme/envelope-shrink"
-        ],
+        divergence_record_refs=["pdc://layer2/s13/ua-msme/divergence/seeded-disconfirmation"],
+        learning_update_proposal_refs=["learning-proposal://ua-msme/envelope-shrink"],
         envelope_revision_ref="envelope-revision://ua-msme/shrink/001",
         certified_envelope_delta_ref="certified-envelope-delta://ua-msme/s12-growth",
         assurance_case_delta_ref="assurance-delta://ua-msme/s13/weakened",
@@ -675,9 +667,7 @@ def test_layer2_s13_post_deploy_accountability_posture_input_is_strict_and_expor
         oversight_effectiveness_ref="oversight://ua-msme/effectiveness/001",
         oversight_accountability_state="rubber_stamp_divergence_review_required",
         a_before_b_status="pass",
-        historical_prior_influence_refs=[
-            "historical-prior-influence:ua-msme/default-risk-route"
-        ],
+        historical_prior_influence_refs=["historical-prior-influence:ua-msme/default-risk-route"],
         replay_digest="sha256:" + "a" * 64,
         authority_boundary={
             "authoritative_for": [

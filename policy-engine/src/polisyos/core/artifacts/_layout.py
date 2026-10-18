@@ -31,12 +31,7 @@ class CASPathLayout:
         """Return the immutable manifest path for a selected profile view."""
         profile_hex = self._profile_hex(profile_sha256)
         hex64 = artifact_id.hex
-        return (
-            self.base
-            / hex64[:2]
-            / hex64[2:4]
-            / f"{hex64}.view.{profile_hex}.manifest.json"
-        )
+        return self.base / hex64[:2] / hex64[2:4] / f"{hex64}.view.{profile_hex}.manifest.json"
 
     def view_sig_path(self, artifact_id: ArtifactID, profile_sha256: str) -> Path:
         """Return the detached-signature path for one selected profile view."""

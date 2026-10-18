@@ -88,7 +88,11 @@ class _BoundClient:
         self.synthetic = transport.synthetic or context.get("synthetic") is True
 
     async def chat(
-        self, *, model: str, temperature: float, prompt: str,
+        self,
+        *,
+        model: str,
+        temperature: float,
+        prompt: str,
     ) -> tuple[dict[str, Any], dict[str, Any]]:
         return await self.transport._attempt(self.context, model, temperature, prompt)
 
@@ -97,8 +101,14 @@ class SDKExtractionTransport:
     """Make one SDK request per reserved campaign attempt, with no hidden retries."""
 
     def __init__(
-        self, *, api_key: str, base_url: str, model_id: str, output_root: Path,
-        timeout_seconds: float, max_completion_tokens: int,
+        self,
+        *,
+        api_key: str,
+        base_url: str,
+        model_id: str,
+        output_root: Path,
+        timeout_seconds: float,
+        max_completion_tokens: int,
         http_client: httpx.AsyncClient | None = None,
         prompt_estimator: Callable[[str, list[dict[str, str]]], int] | None = None,
     ) -> None:
@@ -118,8 +128,12 @@ class SDKExtractionTransport:
         for name in ("openai", "httpx", "httpcore"):
             logging.getLogger(name).setLevel(logging.CRITICAL)
         self._client = AsyncOpenAI(
-            api_key=api_key, base_url=base_url, timeout=timeout_seconds,
-            max_retries=0, http_client=http_client or httpx.AsyncClient(
+            api_key=api_key,
+            base_url=base_url,
+            timeout=timeout_seconds,
+            max_retries=0,
+            http_client=http_client
+            or httpx.AsyncClient(
                 limits=httpx.Limits(max_connections=64, max_keepalive_connections=64),
             ),
         )
@@ -145,7 +159,11 @@ class SDKExtractionTransport:
         return _BoundClient(self, value)
 
     async def _attempt(
-        self, context: dict[str, Any], model: str, temperature: float, prompt: str,
+        self,
+        context: dict[str, Any],
+        model: str,
+        temperature: float,
+        prompt: str,
     ) -> tuple[dict[str, Any], dict[str, Any]]:
         if model != self.model_id or temperature != 0.0:
             raise ValueError("provider_model_or_temperature_changed")
@@ -156,15 +174,21 @@ class SDKExtractionTransport:
         observation: dict[str, Any] = {
             "schema_version": OBSERVATION_EPOCH,
             "synthetic": self.synthetic or context.get("synthetic") is True,
-            "authority_status": "candidate_only", "context": context,
-            "model_id": model, "base_url": PROVIDER_BASE_URL,
+            "authority_status": "candidate_only",
+            "context": context,
+            "model_id": model,
+            "base_url": PROVIDER_BASE_URL,
             "prompt_hash": "sha256:" + hashlib.sha256(prompt.encode()).hexdigest(),
             "local_prompt_token_estimate": estimated,
             "local_estimator": "injected_repository_estimator" if self.prompt_estimator else None,
             "estimator_elapsed_seconds": time.monotonic() - estimator_started,
-            "status": "failed", "error_kind": None, "retryable": False,
+            "status": "failed",
+            "error_kind": None,
+            "retryable": False,
             "reported_model_id": None,
-            "status_code": None, "usage": None, "provider_usage": None,
+            "status_code": None,
+            "usage": None,
+            "provider_usage": None,
             "response_content_hash": None,
         }
         parsed: dict[str, Any] | None = None
@@ -172,8 +196,11 @@ class SDKExtractionTransport:
         started = time.monotonic()
         try:
             response = await self._client.chat.completions.create(
-                model=model, messages=messages, temperature=temperature,
-                response_format={"type": "json_object"}, max_tokens=self.max_completion_tokens,
+                model=model,
+                messages=messages,
+                temperature=temperature,
+                response_format={"type": "json_object"},
+                max_tokens=self.max_completion_tokens,
             )
             # Check the complete returned envelope before any parser or owner log.
             self.check_payload(response.model_dump(mode="json"))
@@ -181,7 +208,8 @@ class SDKExtractionTransport:
             usage = response.usage.model_dump(mode="json") if response.usage else {}
             observation["provider_usage"] = usage if response.usage else None
             observation["usage"] = {
-                key: usage[key] for key in ("prompt_tokens", "completion_tokens", "total_tokens")
+                key: usage[key]
+                for key in ("prompt_tokens", "completion_tokens", "total_tokens")
                 if type(usage.get(key)) is int and usage[key] >= 0
             }
             observation["reported_model_id"] = response.model
@@ -198,7 +226,8 @@ class SDKExtractionTransport:
             )
             observation["response_content_hash"] = (
                 "sha256:" + hashlib.sha256(content.encode()).hexdigest()
-                if isinstance(content, str) else None
+                if isinstance(content, str)
+                else None
             )
             if choice.finish_reason == "length":
                 raise ExtractionRequestError("output_truncated", False, 200)
@@ -216,11 +245,17 @@ class SDKExtractionTransport:
             # Scan the exact object crossing into the owner, before owner logging.
             self.check_payload(parsed)
             observation["status"] = "returned"
-            observation["parsed_response_hash"] = "sha256:" + hashlib.sha256(
-                json.dumps(
-                    parsed, sort_keys=True, separators=(",", ":"), ensure_ascii=False,
-                ).encode()
-            ).hexdigest()
+            observation["parsed_response_hash"] = (
+                "sha256:"
+                + hashlib.sha256(
+                    json.dumps(
+                        parsed,
+                        sort_keys=True,
+                        separators=(",", ":"),
+                        ensure_ascii=False,
+                    ).encode()
+                ).hexdigest()
+            )
         except ExtractionRequestError as exc:
             failure = exc
         except APITimeoutError:
@@ -230,9 +265,13 @@ class SDKExtractionTransport:
         except APIStatusError as exc:
             status = exc.status_code
             kind = (
-                "upstream_rate_limit" if status == 429 else
-                "upstream_error" if status >= 500 else
-                "authentication_error" if status in {401, 403} else "request_rejected"
+                "upstream_rate_limit"
+                if status == 429
+                else "upstream_error"
+                if status >= 500
+                else "authentication_error"
+                if status in {401, 403}
+                else "request_rejected"
             )
             failure = ExtractionRequestError(kind, status == 429 or status >= 500, status)
         except ValueError:
@@ -243,7 +282,8 @@ class SDKExtractionTransport:
             observation["transport_elapsed_seconds"] = time.monotonic() - started
             if failure is not None:
                 observation.update(
-                    error_kind=failure.kind, retryable=failure.retryable,
+                    error_kind=failure.kind,
+                    retryable=failure.retryable,
                     status_code=failure.status_code,
                 )
             name = str(context["attempt_id"]).removeprefix("sha256:") + ".json"

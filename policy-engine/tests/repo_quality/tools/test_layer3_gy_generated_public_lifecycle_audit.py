@@ -21,7 +21,9 @@ AUDIT_PATH = (
 
 
 def _validator() -> Any:
-    return import_module("tools.quality.validation.check_layer3_gy_generated_public_lifecycle_audit")
+    return import_module(
+        "tools.quality.validation.check_layer3_gy_generated_public_lifecycle_audit"
+    )
 
 
 def _load_audit() -> dict[str, Any]:
@@ -94,9 +96,7 @@ def test_inventory_registration_is_recomputed_from_custody(
 
 
 @pytest.mark.parametrize("suffix", [".blob", ".jsonl"])
-def test_output_root_census_includes_unregistered_cas_members(
-    tmp_path: Path, suffix: str
-) -> None:
+def test_output_root_census_includes_unregistered_cas_members(tmp_path: Path, suffix: str) -> None:
     root = tmp_path / "architecture/cas"
     root.mkdir(parents=True)
     artifact = root / f"unregistered{suffix}"
@@ -111,7 +111,10 @@ def test_output_root_census_includes_unregistered_cas_members(
     ("prefix", "schema"),
     [
         ("policyos.gy_n10.cg1_l2_prior_census", "policyos.gy_n10.cg1_l2_prior_census.compact.v1"),
-        ("policyos.policy_design_case.gy_n13a.acquisition_census", "policyos.policy_design_case.gy_n13a.acquisition_census.v1"),
+        (
+            "policyos.policy_design_case.gy_n13a.acquisition_census",
+            "policyos.policy_design_case.gy_n13a.acquisition_census.v1",
+        ),
         ("policyos.layer3.gy.n13b", "policyos.layer3.gy.n13b.lifecycle_manifest.v3"),
     ],
 )
@@ -129,7 +132,14 @@ def test_actual_producer_namespaces_have_bounded_lifecycle_custody(
 
 
 @pytest.mark.parametrize(
-    "prefix", ["policyos", "policyos.layer3", "policyos.layer3.gy", "policyos.gy_", "policyos.policy_design_case"]
+    "prefix",
+    [
+        "policyos",
+        "policyos.layer3",
+        "policyos.layer3.gy",
+        "policyos.gy_",
+        "policyos.policy_design_case",
+    ],
 )
 def test_lifecycle_custody_rejects_unbounded_namespaces(prefix: str) -> None:
     assert not _validator()._is_bounded_family_lifecycle_schema_prefix(prefix)
@@ -140,7 +150,11 @@ def test_inventory_byte_drift_reaches_its_registered_verifier(tmp_path: Path) ->
     relative = "architecture/policy_design_case/inventory.json"
     registry = (REPO_ROOT / "architecture/generated_artifacts.toml").read_text()
     blocks = ["[[family]]" + block for block in registry.split("[[family]]")[1:]]
-    owners = [block for block in blocks if relative in tomllib.loads(block)["family"][0].get("outputs", [])]
+    owners = [
+        block
+        for block in blocks
+        if relative in tomllib.loads(block)["family"][0].get("outputs", [])
+    ]
     assert len(owners) == 1
     inventory = tmp_path / relative
     inventory.parent.mkdir(parents=True)
@@ -154,7 +168,9 @@ def test_inventory_byte_drift_reaches_its_registered_verifier(tmp_path: Path) ->
     (tmp_path / "architecture/generated_artifacts.toml").write_text(block)
     validator = _validator()
     before = validator.validate_gy_lifecycle_registry(tmp_path)
-    assert not any(issue["code"] == "layer3_gy_source_output_integrity_drift" for issue in before["issues"])
+    assert not any(
+        issue["code"] == "layer3_gy_source_output_integrity_drift" for issue in before["issues"]
+    )
     inventory.write_bytes(inventory.read_bytes() + b"\n")
     after = validator.validate_gy_lifecycle_registry(tmp_path)
     assert any(
@@ -170,7 +186,9 @@ def test_real_alternative_namespaces_are_discovered_without_registration(tmp_pat
         "policy-design-case-layer3-gy-n13a-acquisition-census",
         "policy-design-case-layer3-gy-n13b-acquisition-executor",
     }
-    families = tomllib.loads((REPO_ROOT / "architecture/generated_artifacts.toml").read_text())["family"]
+    families = tomllib.loads((REPO_ROOT / "architecture/generated_artifacts.toml").read_text())[
+        "family"
+    ]
     selected = [family for family in families if family["id"] in family_ids]
     assert {family["id"] for family in selected} == family_ids
     expected = set()
@@ -273,9 +291,7 @@ def test_gy_generated_public_lifecycle_rejects_missing_pattern_and_acceptance() 
         pattern for pattern in audit["classification"]["patterns"] if pattern != "P31"
     ]
     audit["acceptance_signal"] = [
-        item
-        for item in audit["acceptance_signal"]
-        if "producer write-closure" not in item
+        item for item in audit["acceptance_signal"] if "producer write-closure" not in item
     ]
 
     codes = _codes(validator.validate(audit))

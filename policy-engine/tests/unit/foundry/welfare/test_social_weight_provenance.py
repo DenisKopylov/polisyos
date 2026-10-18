@@ -40,9 +40,7 @@ def test_social_weight_provenance_requires_governance_lineage() -> None:
             chosen_by=(),
             mandate=_mandate(),
             chosen_at=datetime(2026, 5, 24, tzinfo=UTC),
-            affected_groups=(
-                AffectedGroupWeight(group_id="low_income", weight=2.0),
-            ),
+            affected_groups=(AffectedGroupWeight(group_id="low_income", weight=2.0),),
             sponsor_disclosure_status="none_disclosed",
             review_status="approved",
             claim_refs=("claim:welfare:1",),
@@ -57,9 +55,7 @@ def test_llm_social_weight_candidate_cannot_be_used_for_value_choice() -> None:
         chosen_by=(_actor(),),
         mandate=_mandate(),
         chosen_at=datetime(2026, 5, 24, tzinfo=UTC),
-        affected_groups=(
-            AffectedGroupWeight(group_id="low_income", weight=2.0),
-        ),
+        affected_groups=(AffectedGroupWeight(group_id="low_income", weight=2.0),),
         sponsor_disclosure_status="none_disclosed",
         review_status="approved",
         claim_refs=("claim:welfare:1",),

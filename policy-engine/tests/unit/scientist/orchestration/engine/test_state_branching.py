@@ -675,9 +675,11 @@ def test_journaled_model_equality_preserves_typed_values_and_tracking() -> None:
         run_id="R_generic_model_value_equality",
         artifacts_index={"generic": generic_ref},
     )
-    tracked_generic = branch_state(
-        generic_state, write_paths=("artifacts_index",)
-    ).state.artifacts_index["generic"].payload
+    tracked_generic = (
+        branch_state(generic_state, write_paths=("artifacts_index",))
+        .state.artifacts_index["generic"]
+        .payload
+    )
     assert tracked_generic == generic_any
     assert generic_any == tracked_generic
     source_generic_metadata = generic_int.__pydantic_generic_metadata__
@@ -693,9 +695,7 @@ def test_journaled_model_equality_preserves_typed_values_and_tracking() -> None:
     assert generic_any == deep_copied_generic
     completed_generic = _completed_producer_value(tracked_generic)
     assert type(completed_generic) is type(generic_int)
-    assert dict(completed_generic.__pydantic_generic_metadata__) == dict(
-        source_generic_metadata
-    )
+    assert dict(completed_generic.__pydantic_generic_metadata__) == dict(source_generic_metadata)
     assert completed_generic == generic_any
     assert generic_any == completed_generic
 
@@ -710,9 +710,11 @@ def test_journaled_model_equality_preserves_typed_values_and_tracking() -> None:
         run_id="R_bare_generic_model_value_equality",
         artifacts_index={"generic": generic_bare_ref},
     )
-    tracked_bare_generic = branch_state(
-        generic_bare_state, write_paths=("artifacts_index",)
-    ).state.artifacts_index["generic"].payload
+    tracked_bare_generic = (
+        branch_state(generic_bare_state, write_paths=("artifacts_index",))
+        .state.artifacts_index["generic"]
+        .payload
+    )
     tracked_bare_metadata = tracked_bare_generic.__pydantic_generic_metadata__
     expected_bare_metadata = dict(bare_generic_metadata)
     expected_bare_metadata["origin"] = type(generic_bare)
@@ -733,9 +735,7 @@ def test_journaled_model_equality_preserves_typed_values_and_tracking() -> None:
             assert ordinary_generic == copied_bare_generic
     completed_bare_generic = _completed_producer_value(tracked_bare_generic)
     assert type(completed_bare_generic) is type(generic_bare)
-    assert dict(completed_bare_generic.__pydantic_generic_metadata__) == dict(
-        bare_generic_metadata
-    )
+    assert dict(completed_bare_generic.__pydantic_generic_metadata__) == dict(bare_generic_metadata)
     for ordinary_generic in (generic_bare, generic_int, generic_any):
         assert completed_bare_generic == ordinary_generic
         assert ordinary_generic == completed_bare_generic
@@ -810,9 +810,11 @@ def test_journaled_model_equality_preserves_typed_values_and_tracking() -> None:
         run_id="R_typed_root_annotation_equality",
         artifacts_index={"root": typed_root_ref},
     )
-    tracked_int_root = branch_state(
-        typed_root_state, write_paths=("artifacts_index",)
-    ).state.artifacts_index["root"].payload
+    tracked_int_root = (
+        branch_state(typed_root_state, write_paths=("artifacts_index",))
+        .state.artifacts_index["root"]
+        .payload
+    )
     assert tracked_int_root != any_int_root
     assert any_int_root != tracked_int_root
 
@@ -828,9 +830,11 @@ def test_journaled_model_equality_preserves_typed_values_and_tracking() -> None:
         run_id="R_parameterized_root_metadata_equality",
         artifacts_index={"root": parameterized_root_ref},
     )
-    tracked_parameterized_root = branch_state(
-        parameterized_root_state, write_paths=("artifacts_index",)
-    ).state.artifacts_index["root"].payload
+    tracked_parameterized_root = (
+        branch_state(parameterized_root_state, write_paths=("artifacts_index",))
+        .state.artifacts_index["root"]
+        .payload
+    )
     source_root_metadata = parameterized_root.__pydantic_generic_metadata__
     tracked_root_metadata = tracked_parameterized_root.__pydantic_generic_metadata__
     assert tracked_root_metadata is not source_root_metadata
@@ -863,13 +867,17 @@ def test_journaled_model_equality_preserves_typed_values_and_tracking() -> None:
         run_id="R_bare_generic_root_model_equality",
         artifacts_index={"root": bare_generic_root_ref},
     )
-    tracked_bare_generic_root = branch_state(
-        bare_generic_root_state, write_paths=("artifacts_index",)
-    ).state.artifacts_index["root"].payload
+    tracked_bare_generic_root = (
+        branch_state(bare_generic_root_state, write_paths=("artifacts_index",))
+        .state.artifacts_index["root"]
+        .payload
+    )
     expected_bare_root_metadata = dict(bare_root_metadata)
     expected_bare_root_metadata["origin"] = type(bare_generic_root)
     assert tracked_bare_generic_root.__pydantic_generic_metadata__ is not bare_root_metadata
-    assert dict(tracked_bare_generic_root.__pydantic_generic_metadata__) == expected_bare_root_metadata
+    assert (
+        dict(tracked_bare_generic_root.__pydantic_generic_metadata__) == expected_bare_root_metadata
+    )
     assert tracked_bare_generic_root == bare_generic_root
     assert bare_generic_root == tracked_bare_generic_root
 
@@ -887,9 +895,7 @@ def test_journaled_model_equality_preserves_typed_values_and_tracking() -> None:
         assert bare_generic_root == copied_bare_root
     completed_bare_root = _completed_producer_value(tracked_bare_generic_root)
     assert type(completed_bare_root) is type(bare_generic_root)
-    assert dict(completed_bare_root.__pydantic_generic_metadata__) == dict(
-        bare_root_metadata
-    )
+    assert dict(completed_bare_root.__pydantic_generic_metadata__) == dict(bare_root_metadata)
     assert completed_bare_root == bare_generic_root
     assert bare_generic_root == completed_bare_root
 
@@ -1047,6 +1053,7 @@ def test_journaled_model_equality_preserves_typed_values_and_tracking() -> None:
         assert current_extra == extra_values
         assert mutation_journal_for_state(source) is None
 
+
 def test_journaled_model_wrapper_preserves_exact_private_and_extra_slots() -> None:
     class SlotStateArtifactRef(ArtifactRef):
         model_config = ConfigDict(extra="allow")
@@ -1125,15 +1132,12 @@ def test_journaled_model_wrapper_preserves_exact_private_and_extra_slots() -> No
         assert completed_empty != completed_absent
 
 
-
 def test_journaled_cow_preserves_field_presence_until_producer_assignment() -> None:
     class PresenceModel(BaseModel):
         model_config = ConfigDict(populate_by_name=True)
 
         items: list[int] = Field(default_factory=lambda: [1], alias="wireItems")
-        mapping: dict[str, list[int]] = Field(
-            default_factory=lambda: {"selected": [2]}
-        )
+        mapping: dict[str, list[int]] = Field(default_factory=lambda: {"selected": [2]})
         optional_label: str | None = Field(default=None, alias="wireLabel")
 
     class PresenceRoot(RootModel[dict[str, PresenceModel]]):
@@ -1205,9 +1209,7 @@ def test_journaled_cow_preserves_field_presence_until_producer_assignment() -> N
         assert tracked_record == record
         assert record == tracked_record
         assignment = branch.journal.operations[-1]
-        assert assignment.path == (
-            "artifacts_index.reference.payload.root.first.optional_label"
-        )
+        assert assignment.path == ("artifacts_index.reference.payload.root.first.optional_label")
         assert assignment.operation == "set"
         assert assignment.value is None
         with pytest.raises(TypeError, match="model field deletion is not replayable"):
@@ -1256,9 +1258,7 @@ def test_cache_mutation_canonical_payload_preserves_operation_semantics() -> Non
     ) != canonical_state_mutation_operations((integer,), require_complete=True)
     assert canonical_state_mutation_operations(
         (operation(value=("a", "b")),), require_complete=True
-    ) == canonical_state_mutation_operations(
-        (operation(value=["a", "b"]),), require_complete=True
-    )
+    ) == canonical_state_mutation_operations((operation(value=["a", "b"]),), require_complete=True)
     assert canonical_state_mutation_operations(
         (operation(value={"body": "left"}),), require_complete=True
     ) != canonical_state_mutation_operations(
@@ -1287,9 +1287,7 @@ def test_cache_mutation_canonical_payload_preserves_operation_semantics() -> Non
         canonical_state_mutation_operations((explicit_null,))
     )
 
-    missing_value = StateMutation.model_validate(
-        {"path": "params.value", "operation": "set"}
-    )
+    missing_value = StateMutation.model_validate({"path": "params.value", "operation": "set"})
     assert canonical_state_mutation_operations((missing_value,)) != (
         canonical_state_mutation_operations((explicit_null,))
     )

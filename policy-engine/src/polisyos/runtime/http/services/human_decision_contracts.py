@@ -666,9 +666,8 @@ class HumanDecisionGateResponse(Layer2ReadinessModel):
                 or selector.exposure_session_ref != self.exposure.exposure_session_ref
             ):
                 raise ValueError("replay continuation differs from the gate projection")
-            if (
-                isinstance(selector, HumanDecisionPA2ReplaySelector)
-                and (self.mandate is None or selector.action_kind != self.mandate.action_kind)
+            if isinstance(selector, HumanDecisionPA2ReplaySelector) and (
+                self.mandate is None or selector.action_kind != self.mandate.action_kind
             ):
                 raise ValueError("PA2 continuation differs from the resolved mandate action")
         if self.submission is not None:
@@ -715,12 +714,8 @@ class HumanDecisionReviewEffectivenessResponse(Layer2ReadinessModel):
     malformed_json_line_count: int = Field(ge=0)
     nonobject_line_count: int = Field(ge=0)
     audit_read_error_count: int = Field(ge=0)
-    audit_predicate_provenance: Literal["institutionally_supplied"] = (
-        "institutionally_supplied"
-    )
-    coverage_claim_scope: Literal["retained_trail_bytes_only"] = (
-        "retained_trail_bytes_only"
-    )
+    audit_predicate_provenance: Literal["institutionally_supplied"] = "institutionally_supplied"
+    coverage_claim_scope: Literal["retained_trail_bytes_only"] = "retained_trail_bytes_only"
     authorization_allow_count: int = Field(ge=0)
     candidate_human_decision_count: int = Field(ge=0)
     completed_human_decision_count: int = Field(ge=0)

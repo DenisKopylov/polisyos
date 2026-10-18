@@ -131,9 +131,7 @@ def _replay_hash(*, source_ref: str, source_hash: str, source: object) -> str:
     )
 
 
-def _verifier_provenance_hash(
-    *, source_ref: str, source_hash: str, replay_hash: str
-) -> str:
+def _verifier_provenance_hash(*, source_ref: str, source_hash: str, replay_hash: str) -> str:
     return fingerprint(
         {
             "verifier_ref": _VERIFIER,
@@ -254,13 +252,9 @@ def test_every_delta_amount_binds_exact_envelope_scope_and_both_riders() -> None
                 amount=shaped, envelope=envelope, registry=registry
             )
 
-    swapped = envelope.model_copy(
-        update={"scope_id": "confidence-risk-scope:sha256:" + "9" * 64}
-    )
+    swapped = envelope.model_copy(update={"scope_id": "confidence-risk-scope:sha256:" + "9" * 64})
     with pytest.raises((TypeError, ValueError), match=r"scope|envelope|binding"):
-        _surface().bind_conditional_delta_amount(
-            amount=amount, envelope=swapped, registry=registry
-        )
+        _surface().bind_conditional_delta_amount(amount=amount, envelope=swapped, registry=registry)
 
 
 def test_content_bound_matching_cas_witness_moves_the_same_derivation(tmp_path: Path) -> None:
@@ -279,9 +273,7 @@ def test_content_bound_matching_cas_witness_moves_the_same_derivation(tmp_path: 
     assert moved.assessment.value == "known_incomplete"
     assert moved.witness_refs == (witness_ref,)
     assert moved.reason_codes[0].value == "DS17-COVERAGE-KNOWN-INCOMPLETE"
-    assert "DS17-COVERAGE-OPEN-WORLD" not in {
-        reason.value for reason in moved.reason_codes
-    }
+    assert "DS17-COVERAGE-OPEN-WORLD" not in {reason.value for reason in moved.reason_codes}
 
     for shaped in (
         {"receipt_ref": witness_ref},
@@ -313,9 +305,7 @@ def test_signed_exact_scope_witness_traverses_projection_and_exact_admission(
         witness_verifier=verifier,
         witness_refs=(witness_ref,),
     )
-    moved = _coverage().ObligationCoverageEnvelope.model_validate_json(
-        moved.model_dump_json()
-    )
+    moved = _coverage().ObligationCoverageEnvelope.model_validate_json(moved.model_dump_json())
     with pytest.raises((TypeError, ValueError), match=r"witness|signature|resolver"):
         _surface().project_confidence_ledger_risk_spend(
             registry=registry,
@@ -384,17 +374,13 @@ def test_signed_exact_scope_witness_traverses_projection_and_exact_admission(
             "scope_id": forged["scope_id"],
             "owner_scope_key": forged["owner_scope_key"],
             "protected_action_id": action_b,
-            "sources": [
-                row.model_dump(mode="json") for row in moved.source_identities
-            ],
+            "sources": [row.model_dump(mode="json") for row in moved.source_identities],
         },
         prefix=True,
         canon_spec=_CANON,
     )
     forged_body = {
-        key: value
-        for key, value in forged.items()
-        if key not in {"envelope_hash", "envelope_ref"}
+        key: value for key, value in forged.items() if key not in {"envelope_hash", "envelope_ref"}
     }
     forged_hash = fingerprint(forged_body, prefix=True, canon_spec=_CANON)
     cross_action = _coverage().ObligationCoverageEnvelope.model_validate(
@@ -404,9 +390,7 @@ def test_signed_exact_scope_witness_traverses_projection_and_exact_admission(
             "envelope_ref": f"coverage-envelope:{forged_hash}",
         }
     )
-    with pytest.raises(
-        (TypeError, ValueError), match=r"scope|assessment|coverage|derivation"
-    ):
+    with pytest.raises((TypeError, ValueError), match=r"scope|assessment|coverage|derivation"):
         _surface().project_confidence_ledger_risk_spend(
             registry=registry,
             semantic_ledger=semantic,
@@ -421,9 +405,9 @@ def test_real_gy_omission_witness_is_rejected_as_cross_scope(tmp_path: Path) -> 
     envelope = _envelope()
     gy = json.loads(_GY.read_text())
     witness = gy["obligation_instance_mutation_witness"]
-    gy_scope = gy["contract_lane_anytime_refusal"][
-        "confidence_ledger_semantic_projection"
-    ]["risk_scope"]
+    gy_scope = gy["contract_lane_anytime_refusal"]["confidence_ledger_semantic_projection"][
+        "risk_scope"
+    ]
     source = {
         "schema_version": "policyos.runtime.obligation_coverage.witness-source.v1",
         "risk_scope": gy_scope,
@@ -502,9 +486,7 @@ def test_witness_resolver_rejects_key_corruption_manifest_and_duplicate_refs(
             witness_refs=(signed_ref,),
         )
 
-    corrupt_cas, corrupt_verifier, corrupt_ref, _ = _put_witness(
-        tmp_path / "corrupt", envelope
-    )
+    corrupt_cas, corrupt_verifier, corrupt_ref, _ = _put_witness(tmp_path / "corrupt", envelope)
     blob_path, _ = corrupt_cas._paths(ArtifactID.model_validate(corrupt_ref))
     blob_path.write_bytes(b"corrupted witness bytes")
     with pytest.raises(ValueError, match=r"CAS"):
@@ -606,9 +588,7 @@ def test_negative_envelope_has_no_positive_completion_or_fake_search_basis() -> 
         "DS17-COVERAGE-EXCLUSIONS-NOT-ESTABLISHED",
         "DS17-COVERAGE-INDEPENDENCE-MISSING",
     ]
-    assert payload["source_identities"][0]["admission_state"] == (
-        "canonical_registry_validated"
-    )
+    assert payload["source_identities"][0]["admission_state"] == ("canonical_registry_validated")
     assert payload["source_identities"][1]["admission_state"] == (
         "worker_admission_not_established"
     )
@@ -630,7 +610,13 @@ def test_negative_envelope_has_no_positive_completion_or_fake_search_basis() -> 
         coverage.CoverageAssessment("bounded_complete")
 
     bad_updates = (
-        {"unknown_remainder": {"kind": "", "cardinality": "not_estimated", "probability": "not_calibrated"}},
+        {
+            "unknown_remainder": {
+                "kind": "",
+                "cardinality": "not_estimated",
+                "probability": "not_calibrated",
+            }
+        },
         {"unknown_remainder": 3},
         {"search_basis_state": "established", "searched_sources": []},
         {"exclusion_basis_state": "established", "exclusions": []},
@@ -651,9 +637,7 @@ def test_negative_envelope_has_no_positive_completion_or_fake_search_basis() -> 
         for key, value in duplicated.items()
         if key not in {"envelope_hash", "envelope_ref"}
     }
-    envelope_hash = fingerprint(
-        body, prefix=True, canon_spec=CanonSpec(exclude_none=False)
-    )
+    envelope_hash = fingerprint(body, prefix=True, canon_spec=CanonSpec(exclude_none=False))
     duplicated["envelope_hash"] = envelope_hash
     duplicated["envelope_ref"] = f"coverage-envelope:{envelope_hash}"
     with pytest.raises(ValueError, match=r"denominator"):

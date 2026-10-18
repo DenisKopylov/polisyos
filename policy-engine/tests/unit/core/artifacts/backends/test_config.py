@@ -68,7 +68,9 @@ class TestBuildArtifactStore:
         owner = build_artifact_store(config, tenant_id="tenant-a", cell_id="cell-a")
         reference = owner.put_bytes(
             b"custodied bytes",
-            ArtifactWriteOptions(kind="test.factory_custody", media_type="application/octet-stream"),
+            ArtifactWriteOptions(
+                kind="test.factory_custody", media_type="application/octet-stream"
+            ),
         )
         reopened = build_artifact_store(config, tenant_id="tenant-a", cell_id="cell-a")
         assert reopened.get_bytes(reference.artifact_id) == b"custodied bytes"

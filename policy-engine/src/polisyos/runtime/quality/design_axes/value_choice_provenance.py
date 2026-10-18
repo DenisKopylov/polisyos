@@ -38,9 +38,7 @@ P20_VALUE_SCHEDULE_REF_UNRESOLVABLE_CODE = "p20_value_schedule_ref_unresolvable"
 NORMATIVE_AUTHORIZATION_SCHEMA_VERSION = "policyos.normative_authorization.v1"
 NORMATIVE_GENERATION_AUTHORIZATION_SCHEMA_VERSION = "policyos.normative_authorization.v2"
 NORMATIVE_GENERATION_DISPOSITION_SCHEMA_VERSION = "policyos.normative_generation_disposition.v1"
-NORMATIVE_GENERATION_DISPOSITION_V2_SCHEMA_VERSION = (
-    "policyos.normative_generation_disposition.v2"
-)
+NORMATIVE_GENERATION_DISPOSITION_V2_SCHEMA_VERSION = "policyos.normative_generation_disposition.v2"
 NORMATIVE_GENERATION_DISPOSITION_KIND = "runtime_quality.normative_generation_disposition"
 NORMATIVE_GENERATION_SOURCE_KIND = "runtime_quality.normative_generation_source"
 NORMATIVE_AUTHORIZATION_KIND = "runtime_quality.normative_authorization"
@@ -558,9 +556,9 @@ class NormativeGenerationDisposition(_NormativeModel):
 class _NormativeGenerationDispositionV2(_NormativeModel):
     """Internal CAS envelope retaining a frozen v1 projection and its N6 admission read."""
 
-    schema_version: Literal[
-        "policyos.normative_generation_disposition.v2"
-    ] = NORMATIVE_GENERATION_DISPOSITION_V2_SCHEMA_VERSION
+    schema_version: Literal["policyos.normative_generation_disposition.v2"] = (
+        NORMATIVE_GENERATION_DISPOSITION_V2_SCHEMA_VERSION
+    )
     disposition_v1: NormativeGenerationDisposition
     n6_currentness_at_admission: N6DeploymentCurrentnessObservation
 
@@ -665,6 +663,7 @@ class NormativeValueScheduleOwner:
 
     def _read(self, ref: str, *, kind: str, schema: str) -> dict[str, Any]:
         from polisyos.core.artifacts import load_core_json_artifact
+
         try:
             artifact_id = artifacts.ArtifactID.model_validate(ref)
             raw = self._store.get_bytes(artifact_id)
@@ -694,9 +693,7 @@ class NormativeValueScheduleOwner:
                     raise ValueError(
                         "generation source schema does not match its historical manifest"
                     )
-                if raw != canon.to_canonical_bytes(
-                    payload, canon.CanonSpec(forbid_floats=False)
-                ):
+                if raw != canon.to_canonical_bytes(payload, canon.CanonSpec(forbid_floats=False)):
                     raise P20NormativeChoiceError(
                         "p20_normative_generation_history_invalid",
                         code="p20_normative_generation_history_invalid",
@@ -1180,9 +1177,7 @@ class NormativeValueScheduleOwner:
             ).artifact_id
         )
 
-    def replay_generation_disposition(
-        self, disposition_ref: str
-    ) -> NormativeGenerationDisposition:
+    def replay_generation_disposition(self, disposition_ref: str) -> NormativeGenerationDisposition:
         """Replay the persisted v1 leaf bytes without a live currentness or S8 read."""
 
         return self._read_generation_disposition_record(disposition_ref).disposition
@@ -1192,9 +1187,7 @@ class NormativeValueScheduleOwner:
     ) -> N6DeploymentCurrentnessObservation | None:
         """Return only the persisted admission read; legacy v1 records return ``None``."""
 
-        return self._read_generation_disposition_record(
-            disposition_ref
-        ).n6_currentness_at_admission
+        return self._read_generation_disposition_record(disposition_ref).n6_currentness_at_admission
 
     def project_generation_disposition(
         self, disposition_ref: str, *, evaluated_at: datetime
@@ -1264,9 +1257,7 @@ class NormativeValueScheduleOwner:
                 existing.authorization_ref
                 if existing is not None
                 else (
-                    recorded.evidence.authorization_ref
-                    if recorded.evidence is not None
-                    else None
+                    recorded.evidence.authorization_ref if recorded.evidence is not None else None
                 )
             ),
             reason_codes=reason_codes,

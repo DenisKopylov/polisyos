@@ -26,18 +26,12 @@ DEPENDENCY_READINESS_SNAPSHOT_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g6_dependency_readiness_snapshot.json"
 )
 REQUEST_ENVELOPE_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g6_request_envelope.json"
-REQUEST_CLASSIFICATION_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g6_request_classification.json"
-)
-POLICY_GRAMMAR_PROJECTION_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g6_policy_grammar_projection.json"
-)
+REQUEST_CLASSIFICATION_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g6_request_classification.json"
+POLICY_GRAMMAR_PROJECTION_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g6_policy_grammar_projection.json"
 GRAMMAR_EXPANSION_CANDIDATES_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g6_grammar_expansion_candidates.json"
 )
-GROUNDING_DEMAND_RECORD_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g6_grounding_demand_record.json"
-)
+GROUNDING_DEMAND_RECORD_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g6_grounding_demand_record.json"
 TOOL_CONTRACT_SUMMARY_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g6_tool_contract_summary.json"
 PROMPT_TOOL_LEDGER_PROJECTION_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g6_prompt_tool_ledger_projection.json"
@@ -60,9 +54,7 @@ CANDIDATE_AUTHORITY_FIREWALL_REPORT_PATH = (
 )
 G5_INVOCATION_PLAN_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g6_g5_invocation_plan.json"
 G5_CONSUMER_GATE_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g6_g5_consumer_gate.json"
-ORCHESTRATION_CONTINUITY_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g6_orchestration_continuity.json"
-)
+ORCHESTRATION_CONTINUITY_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g6_orchestration_continuity.json"
 REPLAY_MANIFEST_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g6_replay_manifest.json"
 AGENT_RUN_RECORDS_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g6_agent_run_records.json"
 GROUNDED_RESULT_OR_ABSTENTION_PATH = (
@@ -80,9 +72,7 @@ HEALTH_METRIC_DELTA_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g6_health_metric_del
 AGENT_ROUTE_CONTRACT_REGISTRY_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g6_agent_route_contract_registry.toml"
 )
-REGISTRY_RATCHET_DELTA_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g6_registry_ratchet_delta.json"
-)
+REGISTRY_RATCHET_DELTA_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g6_registry_ratchet_delta.json"
 READINESS_MANIFEST_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g6_readiness_manifest.json"
 
 GENERATED_ARTIFACTS_TOML_PATH = Path("architecture/generated_artifacts.toml")
@@ -183,10 +173,10 @@ def _build_policy_grammar_projection_for_g6(
             issue_codes=("layer3_g6_policy_grammar_concept_refs_missing",),
             compiled_case_status="blocked",
         )
-    if not refs_payload.get("canonical_concept_refs") and not refs_payload.get("facet_concept_refs"):
-        refs_payload["canonical_concept_refs"] = (
-            f"concept:layer3-g6:{request_id}:canonical",
-        )
+    if not refs_payload.get("canonical_concept_refs") and not refs_payload.get(
+        "facet_concept_refs"
+    ):
+        refs_payload["canonical_concept_refs"] = (f"concept:layer3-g6:{request_id}:canonical",)
 
     compiler = PolicyGrammarCompiler()
     intent = PolicyGrammarIntent(intent_id=f"layer3-g6:{request_id}", text=raw_request)
@@ -330,9 +320,7 @@ def validate_layer3_g6_readiness(repo_root: Path, *, write: bool = False) -> dic
         "issues": normalized_issues,
         "summary": _summary(root, bundle, drift_keys, registration_statuses),
         "artifacts": {
-            "expected_artifact_paths": [
-                path.as_posix() for path in EXPECTED_ARTIFACT_PATHS
-            ],
+            "expected_artifact_paths": [path.as_posix() for path in EXPECTED_ARTIFACT_PATHS],
             "written_artifact_paths": written_artifact_paths,
             "missing_persisted_artifact_paths": [
                 path.as_posix()
@@ -356,9 +344,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     report = validate_layer3_g6_readiness(args.repo_root, write=args.write)
-    rendered = (
-        _json_dumps(report) if args.output_format == "json" else _render_text_report(report)
-    )
+    rendered = _json_dumps(report) if args.output_format == "json" else _render_text_report(report)
     if args.output is not None:
         output_path = _resolve_repo_path(Path(args.repo_root).resolve(), args.output)
         atomic_write_text(output_path, rendered)
@@ -480,9 +466,7 @@ def _write_artifacts(repo_root: Path, bundle: Mapping[str, Any]) -> list[str]:
         ORCHESTRATION_CHOICE_AUDIT_PATH: bundle["orchestration_choice_audit"],
         COUNTEREXAMPLE_REFINEMENT_RECORD_PATH: bundle["counterexample_refinement_record"],
         DESIGN_RECORD_CANDIDATE_HANDOFF_PATH: bundle["design_record_candidate_handoff"],
-        CANDIDATE_AUTHORITY_FIREWALL_REPORT_PATH: bundle[
-            "candidate_authority_firewall_report"
-        ],
+        CANDIDATE_AUTHORITY_FIREWALL_REPORT_PATH: bundle["candidate_authority_firewall_report"],
         G5_INVOCATION_PLAN_PATH: bundle["g5_invocation_plan"],
         G5_CONSUMER_GATE_PATH: bundle["g5_consumer_gate"],
         ORCHESTRATION_CONTINUITY_PATH: bundle["orchestration_continuity"],
@@ -493,9 +477,7 @@ def _write_artifacts(repo_root: Path, bundle: Mapping[str, Any]) -> list[str]:
             "agent_run_records": bundle["agent_run_records"],
         },
         GROUNDED_RESULT_OR_ABSTENTION_PATH: bundle["grounded_result_or_abstention"],
-        DEMAND_PULL_VS_ABSTENTION_DELTA_PATH: bundle[
-            "demand_pull_vs_abstention_delta"
-        ],
+        DEMAND_PULL_VS_ABSTENTION_DELTA_PATH: bundle["demand_pull_vs_abstention_delta"],
         AGENT_AUDIT_SURFACE_PATH: bundle["agent_audit_surface"],
         PUBLIC_EXPORT_PROJECTION_REFS_PATH: bundle["public_export_projection_refs"],
         CONFORMANCE_REPORT_PATH: bundle["conformance_report"],
@@ -586,9 +568,7 @@ def _validate_persisted_artifacts(repo_root: Path) -> list[dict[str, str]]:
         )
     try:
         expected_surface = g6.build_g6_agent_audit_surface(record)
-        expected_public_export = g6.build_g6_authority_preserving_public_export(
-            record
-        )
+        expected_public_export = g6.build_g6_authority_preserving_public_export(record)
         expected_public_projection_refs = _dump(
             _public_export_projection_refs(
                 expected_surface,
@@ -713,8 +693,8 @@ def _registration_statuses(repo_root: Path) -> dict[str, str]:
             "pass"
             if g6.G6_GENERATED_ARTIFACT_FAMILY_ID in generated_text
             and all(path.as_posix() in generated_text for path in EXPECTED_ARTIFACT_PATHS)
-            and "stale_output_behavior = \"fail\"" in generated_text
-            and "drift_gate = \"automated\"" in generated_text
+            and 'stale_output_behavior = "fail"' in generated_text
+            and 'drift_gate = "automated"' in generated_text
             else "fail"
         ),
         "inventory": (
@@ -723,10 +703,7 @@ def _registration_statuses(repo_root: Path) -> dict[str, str]:
             and public_export_registration.get("projection_mode") == "projection_only"
             and public_export_registration.get("public_export_hook_status")
             == "authority_preserving_public_export"
-            and public_export_registration.get(
-                "public_export_bundle_route_registered"
-            )
-            is True
+            and public_export_registration.get("public_export_bundle_route_registered") is True
             and "public_export_bundle"
             not in _sequence(public_export_registration.get("may_not_use_for"))
             else "fail"
@@ -900,8 +877,7 @@ def _summary(
         "g6_agent_loop_trace_status": agent_loop.agent_loop_trace.status,
         "g6_llm_client_status": (
             "blocked_with_typed_issue"
-            if "layer3_g6_llm_client_unavailable"
-            in agent_loop.agent_loop_trace.issue_codes
+            if "layer3_g6_llm_client_unavailable" in agent_loop.agent_loop_trace.issue_codes
             else "pass"
         ),
         "g6_search_ledger_status": record.search_ledger.status,
@@ -921,13 +897,9 @@ def _summary(
         ),
         "g6_g5_bridge_status": record.g5_invocation_plan.status,
         "g6_g5_may_not_use_for_boundary_status": (
-            "pass"
-            if conformance.g5_bridge_check.get("status") == "pass"
-            else "fail"
+            "pass" if conformance.g5_bridge_check.get("status") == "pass" else "fail"
         ),
-        "g6_orchestration_choice_audit_status": (
-            record.orchestration_choice_audit.status
-        ),
+        "g6_orchestration_choice_audit_status": (record.orchestration_choice_audit.status),
         **authority_statuses,
         "g6_authority_preserving_public_export_status": (
             _g6_authority_preserving_public_export_status(bundle)
@@ -944,9 +916,7 @@ def _summary(
         "g6_outside_envelope_abstention_quality_status": (
             "pass" if conformance.g5_bridge_check.get("status") == "pass" else "fail"
         ),
-        "g6_demand_pull_vs_abstention_status": (
-            bundle["demand_pull_vs_abstention_delta"].status
-        ),
+        "g6_demand_pull_vs_abstention_status": (bundle["demand_pull_vs_abstention_delta"].status),
         "g6_conformance_status": conformance.status,
         "g6_generated_artifacts_registration_status": registration_statuses.get(
             "generated_artifacts",
@@ -960,9 +930,7 @@ def _summary(
         "g6_manifest_runtime_drift_key_count": len(drift_keys),
         "expected_artifact_count": len(EXPECTED_ARTIFACT_PATHS),
         "persisted_g6_artifact_count": sum(
-            1
-            for path in EXPECTED_ARTIFACT_PATHS
-            if _resolve_repo_path(repo_root, path).exists()
+            1 for path in EXPECTED_ARTIFACT_PATHS if _resolve_repo_path(repo_root, path).exists()
         ),
         "issue_codes": [],
     }
@@ -973,9 +941,7 @@ def _g6_summary_authority_statuses(bundle: Mapping[str, Any]) -> dict[str, str]:
     agent_loop = bundle["agent_loop_result"]
     run_verification = g6.verify_g6_summary_authority_preservation(record)
     loop_verification = g6.verify_g6_loop_summary_authority_preservation(agent_loop)
-    verification_pass = (
-        run_verification.status == "pass" and loop_verification.status == "pass"
-    )
+    verification_pass = run_verification.status == "pass" and loop_verification.status == "pass"
     projections = (
         record.prompt_tool_ledger_projection,
         agent_loop.prompt_tool_ledger_projection,
@@ -1000,12 +966,8 @@ def _g6_summary_authority_statuses(bundle: Mapping[str, Any]) -> dict[str, str]:
         )
     return {
         "g6_compression_loss_receipt_status": "pass" if receipt_pass else "fail",
-        "g6_authority_delta_completeness_status": (
-            "pass" if completeness_pass else "fail"
-        ),
-        "g6_summary_authority_preservation_status": (
-            "pass" if verification_pass else "fail"
-        ),
+        "g6_authority_delta_completeness_status": ("pass" if completeness_pass else "fail"),
+        "g6_summary_authority_preservation_status": ("pass" if verification_pass else "fail"),
     }
 
 
@@ -1014,9 +976,7 @@ def _g6_authority_preserving_public_export_status(
 ) -> str:
     public_export_bundle = bundle.get("public_export_bundle")
     artifacts = (
-        public_export_bundle.get("artifacts")
-        if isinstance(public_export_bundle, Mapping)
-        else None
+        public_export_bundle.get("artifacts") if isinstance(public_export_bundle, Mapping) else None
     )
     exported = (
         artifacts.get("g6_summary_authority_preservation")
@@ -1024,9 +984,7 @@ def _g6_authority_preserving_public_export_status(
         else None
     )
     compression_result = (
-        exported.get("compression_result")
-        if isinstance(exported, Mapping)
-        else None
+        exported.get("compression_result") if isinstance(exported, Mapping) else None
     )
     return (
         "pass"
@@ -1342,8 +1300,7 @@ def _render_text_report(report: Mapping[str, Any]) -> str:
         for issue in issues:
             if isinstance(issue, Mapping):
                 lines.append(
-                    f"- {issue.get('code', '')} {issue.get('path', '')}: "
-                    f"{issue.get('message', '')}"
+                    f"- {issue.get('code', '')} {issue.get('path', '')}: {issue.get('message', '')}"
                 )
     return "\n".join(lines).rstrip() + "\n"
 

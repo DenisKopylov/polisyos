@@ -224,9 +224,9 @@ class PolicyDesignCaseProjection(BaseModel):
     contested_records: tuple[PolicyDesignCaseContestedRecord, ...] = Field(default=())
     recourse_pointer: PolicyDesignCaseRecoursePointer | None = None
     deficit_register: tuple[PolicyDesignCaseDeficitProjection, ...] = Field(default=())
-    participation_requirements: tuple[
-        PolicyDesignCaseParticipationRequirementProjection, ...
-    ] = Field(default=())
+    participation_requirements: tuple[PolicyDesignCaseParticipationRequirementProjection, ...] = (
+        Field(default=())
+    )
     invariant_summary: PolicyDesignCaseInvariantSummary = Field(
         default_factory=PolicyDesignCaseInvariantSummary
     )

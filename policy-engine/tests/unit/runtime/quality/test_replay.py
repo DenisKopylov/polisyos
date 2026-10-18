@@ -143,18 +143,14 @@ def test_replay_manifest_records_sanitized_deterministic_refs_and_persists(
 def test_policy_evidence_replay_refs_fail_closed_for_missing_or_mutable_refs() -> None:
     validation = validate_policy_evidence_capability_replay_refs(
         {
-            "capability_index_ref": (
-                "production_data/current/capability_index_v1.duckdb"
-            ),
+            "capability_index_ref": ("production_data/current/capability_index_v1.duckdb"),
             "construct_registry_ref": "construct-registry:latest",
         }
     )
 
     issues_by_key = {issue["ref_key"]: issue for issue in validation["issues"]}
 
-    assert validation["schema_version"] == (
-        "policyos.policy_evidence_capability_replay_refs.v1"
-    )
+    assert validation["schema_version"] == ("policyos.policy_evidence_capability_replay_refs.v1")
     assert validation["status"] == "fail"
     assert validation["refs"] == {}
     assert issues_by_key["capability_index_ref"]["code"] == (
@@ -176,12 +172,8 @@ def test_policy_evidence_replay_refs_accept_frozen_release_refs() -> None:
         {
             "capability_index_ref": "capability-index:2026-05-25:" + _sha("1"),
             "construct_registry_ref": "construct-registry:2026-05-25:" + _sha("2"),
-            "authority_composition_rule_ref": (
-                "authority-rule:2026-05-25:" + _sha("3")
-            ),
-            "production_data_release_ref": (
-                "production-data-release:2026-05-25:" + _sha("4")
-            ),
+            "authority_composition_rule_ref": ("authority-rule:2026-05-25:" + _sha("3")),
+            "production_data_release_ref": ("production-data-release:2026-05-25:" + _sha("4")),
         }
     )
 
@@ -211,9 +203,9 @@ def test_legacy_pdc_replay_does_not_silently_use_current_filesystem() -> None:
     assert replay_policy["legacy_reader_ref"] == "legacy_scenario_family_reader_frozen_v1"
     assert replay_policy["legacy_reader_expires_at"] == "2027-12-31"
     assert replay_policy["refs"] == {}
-    assert {
-        warning["code"] for warning in replay_policy["warnings"]
-    } == {"pdcs_without_capability_index_ref"}
+    assert {warning["code"] for warning in replay_policy["warnings"]} == {
+        "pdcs_without_capability_index_ref"
+    }
     assert "current" not in json.dumps(replay_policy).casefold()
     assert "production_data/" not in json.dumps(replay_policy).casefold()
 
@@ -230,9 +222,7 @@ def test_partial_pdc_replay_is_best_effort_with_typed_warnings() -> None:
 
     assert replay_policy["status"] == "best_effort_with_warnings"
     assert replay_policy["replay_mode"] == "frozen_capability_index_best_effort"
-    assert {
-        warning["code"] for warning in replay_policy["warnings"]
-    } == {"pdcs_with_partial_refs"}
+    assert {warning["code"] for warning in replay_policy["warnings"]} == {"pdcs_with_partial_refs"}
     assert replay_policy["validation"]["status"] == "fail"
 
 
@@ -289,8 +279,7 @@ def test_full_pdc_replay_loads_frozen_artifacts_and_detects_mutation(
 
     refs = {
         "capability_index_ref": (
-            "capability-index:2026-05-25:"
-            + compute_logical_duckdb_digest(capability_index_path)
+            "capability-index:2026-05-25:" + compute_logical_duckdb_digest(capability_index_path)
         ),
         "construct_registry_ref": "construct-registry:2026-05-25:"
         + _canonical_sha(construct_registry),
@@ -326,9 +315,9 @@ def test_full_pdc_replay_loads_frozen_artifacts_and_detects_mutation(
     assert first == second
     assert first["status"] == "deterministic"
     assert first["artifact_validation"]["status"] == "pass"
-    assert first["artifact_validation"]["artifacts"]["capability_index_ref"][
-        "loaded_from"
-    ] == str(capability_index_path)
+    assert first["artifact_validation"]["artifacts"]["capability_index_ref"]["loaded_from"] == str(
+        capability_index_path
+    )
 
     with duckdb.connect(str(capability_index_path)) as con:
         con.execute("INSERT INTO capabilities VALUES ('capability:mutated')")
@@ -347,9 +336,9 @@ def test_full_pdc_replay_loads_frozen_artifacts_and_detects_mutation(
 
     assert mutated["status"] == "artifact_mismatch"
     assert mutated["artifact_validation"]["status"] == "fail"
-    assert {
-        issue["code"] for issue in mutated["artifact_validation"]["issues"]
-    } == {"policy_evidence_replay_artifact_digest_mismatch"}
+    assert {issue["code"] for issue in mutated["artifact_validation"]["issues"]} == {
+        "policy_evidence_replay_artifact_digest_mismatch"
+    }
 
 
 def test_replay_manifest_carries_rule_evolution_old_logic_context() -> None:
@@ -448,12 +437,8 @@ def test_replay_manifest_includes_runtime_ledgers_and_registry_versions() -> Non
 
     assert manifest["runtime_event_log"]["runtime_event_log_ref"] == _sha("e")
     assert manifest["authority_envelopes"][0]["cas_ref"] == _sha("f")
-    assert manifest["schema_compatibility_decisions"]["scorecard"]["decision"] == (
-        "compatible"
-    )
-    assert manifest["effective_mode_ledger"]["effective_execution_profile"] == (
-        "production"
-    )
+    assert manifest["schema_compatibility_decisions"]["scorecard"]["decision"] == ("compatible")
+    assert manifest["effective_mode_ledger"]["effective_execution_profile"] == ("production")
     assert manifest["degradation_ledger"]["degradation_ledger_ref"] == _sha("d")
     assert manifest["semantic_binding_ledger"]["status"] == "pass"
     assert manifest["prompt_tool_parser_ledger"]["status"] == "pass"
@@ -483,16 +468,12 @@ def test_identical_deterministic_refs_match_execution_and_quality_summaries(tmp_
     ("mutator", "expected_path", "expected_source"),
     [
         (
-            lambda replay: replay["norm_refs"].__setitem__(
-                "ua_credit_normpack", _sha("a")
-            ),
+            lambda replay: replay["norm_refs"].__setitem__("ua_credit_normpack", _sha("a")),
             "$.norm_refs.ua_credit_normpack",
             "norm",
         ),
         (
-            lambda replay: replay["data_refs"].__setitem__(
-                "production_snapshot", _sha("b")
-            ),
+            lambda replay: replay["data_refs"].__setitem__("production_snapshot", _sha("b")),
             "$.data_refs.production_snapshot",
             "data",
         ),
@@ -574,15 +555,11 @@ def test_replay_explains_substituted_runtime_registry_versions(registry_key: str
     assert explanation["status"] == "unexplained_drift"
     assert explanation["production_readiness"] == "fail"
     assert explanation["summary"]["drift_sources"] == ["registry"]
-    assert {
-        difference["path"] for difference in explanation["differences"]
-    } == {
+    assert {difference["path"] for difference in explanation["differences"]} == {
         f"$.registry_refs.{registry_key}.ref",
         f"$.registry_refs.{registry_key}.version",
     }
-    assert {difference["impact"] for difference in explanation["differences"]} == {
-        "high"
-    }
+    assert {difference["impact"] for difference in explanation["differences"]} == {"high"}
 
 
 def test_accepted_difference_requires_typed_source_and_bounded_impact() -> None:
@@ -648,9 +625,9 @@ def test_accepted_high_impact_registry_drift_is_typed_non_ready() -> None:
     assert explanation["production_readiness"] == "fail"
     assert explanation["summary"]["max_impact"] == "high"
     assert explanation["blocking_failure"]["code"] == "authority_replay_drift_unbounded"
-    assert {
-        difference["status"] for difference in explanation["differences"]
-    } == {"accepted_non_ready"}
+    assert {difference["status"] for difference in explanation["differences"]} == {
+        "accepted_non_ready"
+    }
 
 
 def test_unexplained_drift_fails_production_readiness() -> None:
@@ -671,9 +648,7 @@ def test_unexplained_drift_fails_production_readiness() -> None:
     assert explanation["production_readiness"] == "fail"
     assert explanation["quality_summary_match"] is False
     assert explanation["summary"]["unexplained_difference_count"] == 3
-    assert {difference["status"] for difference in explanation["differences"]} == {
-        "unexplained"
+    assert {difference["status"] for difference in explanation["differences"]} == {"unexplained"}
+    assert {difference["drift_source"] for difference in explanation["differences"]} == {
+        "nondeterminism"
     }
-    assert {
-        difference["drift_source"] for difference in explanation["differences"]
-    } == {"nondeterminism"}

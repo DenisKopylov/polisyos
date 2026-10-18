@@ -13,8 +13,7 @@ SERIOUS_LANE_ID = (
     "__scenario-public_golden__ui-api_only"
 )
 DEV_SMOKE_LANE_ID = (
-    "profile-dev__provider-simulated__data-fixture"
-    "__scenario-public_golden__ui-api_only"
+    "profile-dev__provider-simulated__data-fixture__scenario-public_golden__ui-api_only"
 )
 ENTRY_CRITERIA_IDS = (
     "pass2_disposition_passing",
@@ -70,9 +69,7 @@ def _matrix_payload(
             "failed": 0 if scorecard_status == "pass" else 1,
             "blocked": 0,
             "skipped": 0,
-            "lane_statuses": {
-                lane_id: "passed" if scorecard_status == "pass" else "failed"
-            },
+            "lane_statuses": {lane_id: "passed" if scorecard_status == "pass" else "failed"},
             "bundle_paths": {lane_id: str(Path("/tmp") / lane_id)},
             "scorecard_statuses": {lane_id: scorecard_status},
             "failure_envelope": None
@@ -92,7 +89,12 @@ def _matrix_payload(
                 "bundle_path": str(Path("/tmp") / lane_id),
                 "scorecard_status": scorecard_status,
                 "failure_envelope": None,
-                "command": ["uv", "run", "python", "tools/ops_runners/runtime/run_canary_matrix.py"],
+                "command": [
+                    "uv",
+                    "run",
+                    "python",
+                    "tools/ops_runners/runtime/run_canary_matrix.py",
+                ],
             }
         ],
         "selected_lane_ids": [lane_id],
@@ -150,10 +152,7 @@ def test_wave36_closeout_records_serious_matrix_and_excludes_dev_smoke(
     assert exit_fence["serious_scorecards_all_pass"] is True
     assert exit_fence["dev_smoke_excluded_from_closeout"] is True
 
-    assert (
-        check.validate_wave36_closeout(repo_root=REPO_ROOT, wave36_dir=wave36_dir)
-        == []
-    )
+    assert check.validate_wave36_closeout(repo_root=REPO_ROOT, wave36_dir=wave36_dir) == []
 
 
 def test_wave36_matrix_mode_cleans_generated_roots_before_running(

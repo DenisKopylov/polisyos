@@ -181,6 +181,7 @@ class AuditPackageAssembler:
 
     def _load_manifest_from_trace(self, run_dir: Path, run_id: str) -> RunManifest:
         from polisyos.core.artifacts import load_core_json_artifact
+
         try:
             recovered_ref = recover_pending_run_finalize(self._cas, run_dir)
         except ValueError as exc:
@@ -521,6 +522,7 @@ class AuditPackageAssembler:
 
 def _load_json_payload(cas: FileSystemCAS, artifact_id: ArtifactID) -> dict[str, Any]:
     from polisyos.core.artifacts import load_core_json_artifact
+
     blob = cas.get_bytes(artifact_id)
     try:
         payload = load_core_json_artifact(cas, artifact_id, raw_payload_bytes=blob)

@@ -89,9 +89,7 @@ def build_live_payload(repo_root: Path | None = None) -> dict[str, Any]:
         modality: {
             "n_total": modality_counts["total"],
             "n_statused": sum(
-                count
-                for status, count in modality_counts.items()
-                if status in REFERENCE_STATUSES
+                count for status, count in modality_counts.items() if status in REFERENCE_STATUSES
             ),
             "status_counts": {
                 status: count
@@ -172,8 +170,7 @@ def build_live_payload(repo_root: Path | None = None) -> dict[str, Any]:
         "gy_lifecycle_marker": SCHEMA_VERSION,
         "contract_id": "policyos.runtime.grounding_credal_reference",
         "owner": (
-            "polisyos.runtime.quality.credal_reference view over existing "
-            "L2/L3/L6/WMR owners"
+            "polisyos.runtime.quality.credal_reference view over existing L2/L3/L6/WMR owners"
         ),
         "source_modules": [
             "src/polisyos/runtime/quality/credal_reference.py",
@@ -208,8 +205,7 @@ def build_live_payload(repo_root: Path | None = None) -> dict[str, Any]:
         },
         "capability_reality": {
             "typed_contract_artifact": (
-                "CredalReference + CredalReferenceEdge + "
-                "GroundingBackendAvailability"
+                "CredalReference + CredalReferenceEdge + GroundingBackendAvailability"
             ),
             "producer": "build_credal_reference over L2/L3/L6/WMR owners",
             "persisted_artifact_event": OUTPUT_PATH,
@@ -218,9 +214,7 @@ def build_live_payload(repo_root: Path | None = None) -> dict[str, Any]:
                 "for CG1/CG2 relation binding"
             ),
             "consumer": "CGF relation lifting and GroundingCertificate epoch binding",
-            "verification": (
-                "this recomputing validator plus focused tests/mutation probes"
-            ),
+            "verification": ("this recomputing validator plus focused tests/mutation probes"),
             "surface": "generated Policy Design Case CGF contract artifact",
             "semantic_test": (
                 "contested set-valued lift, fake-edge fail-closed, free-grow "
@@ -268,9 +262,7 @@ def build_live_payload(repo_root: Path | None = None) -> dict[str, Any]:
                 ),
                 "completion_kinds": [
                     completion["completion_kind"]
-                    for completion in contested_lift_payload[
-                        "admissible_completions"
-                    ]
+                    for completion in contested_lift_payload["admissible_completions"]
                 ],
                 "lift": contested_lift_payload,
             },
@@ -294,8 +286,7 @@ def build_live_payload(repo_root: Path | None = None) -> dict[str, Any]:
                 "edge_known_to_code": False,
                 "status": free_grow_edge.status,
                 "admissible_completions": [
-                    completion.to_payload()
-                    for completion in free_grow_edge.admissible_completions
+                    completion.to_payload() for completion in free_grow_edge.admissible_completions
                 ],
                 "provenance": dict(free_grow_edge.provenance),
             },
@@ -364,9 +355,7 @@ def validate(
     live = live_payload or build_live_payload(repo_root)
     issues = _core_issues(live, require_mutations=True)
     if not output_path.is_file():
-        issues.append(
-            {"code": "grounding_credal_reference_contract_missing", "path": OUTPUT_PATH}
-        )
+        issues.append({"code": "grounding_credal_reference_contract_missing", "path": OUTPUT_PATH})
         committed: dict[str, Any] | None = None
     else:
         try:
@@ -381,9 +370,7 @@ def validate(
                 }
             )
     if committed is not None and committed != live:
-        issues.append(
-            {"code": "grounding_credal_reference_contract_drift", "path": OUTPUT_PATH}
-        )
+        issues.append({"code": "grounding_credal_reference_contract_drift", "path": OUTPUT_PATH})
     return {
         "status": "pass" if not issues else "fail",
         "issues": issues,
@@ -701,9 +688,7 @@ def _first_edge(
 
 def _contains_key(value: Any, key_name: str) -> bool:
     if isinstance(value, dict):
-        return key_name in value or any(
-            _contains_key(child, key_name) for child in value.values()
-        )
+        return key_name in value or any(_contains_key(child, key_name) for child in value.values())
     if isinstance(value, list):
         return any(_contains_key(child, key_name) for child in value)
     return False

@@ -2,4 +2,4 @@ from tests._helpers.mirror_contracts import assert_source_stem_has_static_contra
 
 
 def test_cell_router_middleware_source_modules_have_static_contracts() -> None:
-    assert_source_stem_has_static_contract('runtime', 'cell_router_middleware')
+    assert_source_stem_has_static_contract("runtime", "cell_router_middleware")

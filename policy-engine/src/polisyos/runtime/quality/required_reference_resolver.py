@@ -246,9 +246,7 @@ def _generated_artifact_outputs(
             continue
         family_id = str(family.get("id") or "")
         family_outputs = tuple(
-            str(output)
-            for output in family.get("outputs", ())
-            if isinstance(output, str)
+            str(output) for output in family.get("outputs", ()) if isinstance(output, str)
         )
         outputs.update(family_outputs)
         if family_id:
@@ -365,9 +363,7 @@ def _resolve_binding_alias(payload: object, tokens: Sequence[str]) -> object:
             candidates = {
                 _normalize_binding_selector(_optional_text(binding.get("binding_id"))),
                 _normalize_binding_selector(_optional_text(binding.get("construct_ref"))),
-                _normalize_binding_selector(
-                    _optional_text(binding.get("source_contract_ref"))
-                ),
+                _normalize_binding_selector(_optional_text(binding.get("source_contract_ref"))),
             }
             if normalized_selector in candidates:
                 return binding
@@ -375,18 +371,11 @@ def _resolve_binding_alias(payload: object, tokens: Sequence[str]) -> object:
 
 
 def _normalize_binding_selector(value: str | None) -> str:
-    return (
-        str(value or "")
-        .removeprefix("construct:")
-        .removeprefix("source-contract://")
-        .strip()
-    )
+    return str(value or "").removeprefix("construct:").removeprefix("source-contract://").strip()
 
 
 def _digest_payload(payload: object) -> str:
-    raw = json.dumps(payload, sort_keys=True, separators=(",", ":"), default=str).encode(
-        "utf-8"
-    )
+    raw = json.dumps(payload, sort_keys=True, separators=(",", ":"), default=str).encode("utf-8")
     return f"{SHA256_PREFIX}{hashlib.sha256(raw).hexdigest()}"
 
 

@@ -18,15 +18,12 @@ from unittest.mock import patch
 from pydantic import ValidationError
 
 FAMILY_ID = "policy-design-case-layer3-time-source-authority"
-TIME_SOURCE_AUDIT_PATH = (
-    "architecture/policy_design_case/layer3_gy_time_source_envelope_audit.json"
-)
+TIME_SOURCE_AUDIT_PATH = "architecture/policy_design_case/layer3_gy_time_source_envelope_audit.json"
 AUTHORITY_INVENTORY_PATH = (
     "architecture/policy_design_case/layer3_gy_authority_candidate_inventory.json"
 )
 TASK0_AUDIT_PATH = (
-    "architecture/policy_design_case/layer3_gy_task0_audit/"
-    "layer3_gy_p0_coverage_audit.json"
+    "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_p0_coverage_audit.json"
 )
 GX_PROVENANCE_PATH = "architecture/policy_design_case/layer3_gx_positive_status_provenance.json"
 OUTPUTS = [TIME_SOURCE_AUDIT_PATH, AUTHORITY_INVENTORY_PATH]
@@ -273,8 +270,7 @@ def _build_time_source_payload(repo_root: Path) -> dict[str, Any]:
     audits = [clean, stale_watermark, legal_outside_replay]
     return {
         "schema_version": (
-            "policyos.policy_design_case.layer3_gy."
-            "time_source_consistency_audit_projection.v1"
+            "policyos.policy_design_case.layer3_gy.time_source_consistency_audit_projection.v1"
         ),
         "owner": "team-runtime-quality",
         "proof_source": "catalog_temporal_consistency_s12_recompute",
@@ -488,7 +484,9 @@ def _validate_time_source_audit(
     real = deref.get("real_ref_results")
     if not isinstance(real, list) or not real:
         issues.append({"code": "s12_real_ref_results_missing"})
-    elif any(item.get("disposition") != "authority_admitted" for item in real if isinstance(item, dict)):
+    elif any(
+        item.get("disposition") != "authority_admitted" for item in real if isinstance(item, dict)
+    ):
         issues.append({"code": "s12_real_ref_not_admitted"})
     negative = deref.get("authorial_negative_fixture")
     if not isinstance(negative, dict):
@@ -564,9 +562,7 @@ def _extract_g5_s12_refs(repo_root: Path) -> list[str]:
 
 
 def _collect_s12_refs(value: object, refs: list[str]) -> None:
-    if isinstance(value, str) and (
-        value.startswith("voi://") or value.startswith("s12://")
-    ):
+    if isinstance(value, str) and (value.startswith("voi://") or value.startswith("s12://")):
         refs.append(value)
         return
     if isinstance(value, Mapping):

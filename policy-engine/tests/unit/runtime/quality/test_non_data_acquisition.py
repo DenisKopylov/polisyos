@@ -159,9 +159,7 @@ def test_projection_binds_verified_member_receipts_from_one_stream_pass(
     assert len(receipts) == 1
     blob_receipt = receipts.pop()
     assert blob_receipt.member.endswith(".blob")
-    blob_relative = (
-        f"{bridge.NON_DATA_PROJECTION_FAMILY}/cas/{blob_receipt.member}"
-    )
+    blob_relative = f"{bridge.NON_DATA_PROJECTION_FAMILY}/cas/{blob_receipt.member}"
     assert bindings[blob_relative] == f"sha256:{blob_receipt.sha256}"
 
     manifest = store.get_manifest(artifact_ref)
@@ -169,9 +167,7 @@ def test_projection_binds_verified_member_receipts_from_one_stream_pass(
     assert len(receipts) == 1
     manifest_receipt = receipts.pop()
     assert manifest_receipt.member.endswith(".manifest.json")
-    manifest_relative = (
-        f"{bridge.NON_DATA_PROJECTION_FAMILY}/cas/{manifest_receipt.member}"
-    )
+    manifest_relative = f"{bridge.NON_DATA_PROJECTION_FAMILY}/cas/{manifest_receipt.member}"
     assert bindings[manifest_relative] == f"sha256:{manifest_receipt.sha256}"
     assert store.unresolved_dependency is False
 

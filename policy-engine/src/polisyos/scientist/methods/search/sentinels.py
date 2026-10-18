@@ -155,6 +155,7 @@ def persist_sentinel_set(
 def load_sentinel_set(store: FileSystemCAS, ref: ArtifactRef | str) -> SentinelSet:
     """Load sentinel set."""
     from polisyos.core.artifacts import load_core_json_artifact
+
     return SentinelSet.model_validate(load_core_json_artifact(store, ref))
 
 

@@ -103,9 +103,7 @@ def build_wave5_metamorphic_report() -> dict[str, Any]:
         "schema_version": "policyos.hds.wave5.metamorphic_controls_report.v1",
         "generated_at": GENERATED_AT,
         "status": (
-            "pass"
-            if all(report["status"] == "pass" for report in scenario_reports)
-            else "fail"
+            "pass" if all(report["status"] == "pass" for report in scenario_reports) else "fail"
         ),
         "scenario_count": len(scenario_reports),
         "scenario_reports": scenario_reports,
@@ -202,9 +200,7 @@ def write_wave5_evidence_reports(
         "schema_version": SCHEMA_VERSION,
         "generated_at": GENERATED_AT,
         "status": (
-            "pass"
-            if all(_payload_status(payloads[key]) == "pass" for key in paths)
-            else "fail"
+            "pass" if all(_payload_status(payloads[key]) == "pass" for key in paths) else "fail"
         ),
         "reports": {key: _rel(path, repo_root) for key, path in paths.items()},
     }

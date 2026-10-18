@@ -17,6 +17,4 @@ def test_local_integration_stack_uses_playwright_fixture_metadata_path() -> None
 
 
 def test_local_integration_stack_runtime_defaults_to_simulated_llm() -> None:
-    assert local_integration_stack._runtime_env_overrides() == {
-        "POLISYOS_LLM_SIMULATION_MODE": "1"
-    }
+    assert local_integration_stack._runtime_env_overrides() == {"POLISYOS_LLM_SIMULATION_MODE": "1"}

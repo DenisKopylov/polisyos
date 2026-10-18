@@ -152,9 +152,7 @@ def test_runtime_corpus_edge_is_replaced_by_live_projection_denominator(
                 if target_module == "polisyos.corpus" or target_module.startswith(
                     "polisyos.corpus."
                 ):
-                    corpus_rows.append(
-                        (path.relative_to(SOURCE_ROOT).as_posix(), target_module)
-                    )
+                    corpus_rows.append((path.relative_to(SOURCE_ROOT).as_posix(), target_module))
     assert corpus_rows == []
 
     worker = (
@@ -186,9 +184,7 @@ def test_scientist_runtime_declared_cycle_is_removed_after_eval_safety_split() -
     for path in sorted(scientist_root.rglob("*.py")):
         tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
         parents = {
-            child: parent
-            for parent in ast.walk(tree)
-            for child in ast.iter_child_nodes(parent)
+            child: parent for parent in ast.walk(tree) for child in ast.iter_child_nodes(parent)
         }
         for node in ast.walk(tree):
             targets: tuple[tuple[str, tuple[str, ...]], ...]

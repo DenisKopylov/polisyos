@@ -73,9 +73,7 @@ class MemoryAuthorityRecord(BaseModel):
             if not self.no_memory_reason:
                 raise ValueError("no_memory_abstention requires no_memory_reason")
             if self.empty_replay_surface_accepted_without_runtime_record:
-                raise ValueError(
-                    "empty replay surface cannot be accepted without runtime record"
-                )
+                raise ValueError("empty replay surface cannot be accepted without runtime record")
         if self.authority_kind == "memory_use_authority":
             if not self.memory_used:
                 raise ValueError("memory_use_authority requires memory_used")
@@ -130,8 +128,7 @@ def build_no_memory_abstention_record(
         prompt_authority_refs=dict(prompt_authority_refs),
         tool_authority_refs=dict(tool_authority_refs),
         contamination_checks=[
-            MemoryAuthorityContaminationCheck.model_validate(row)
-            for row in contamination_checks
+            MemoryAuthorityContaminationCheck.model_validate(row) for row in contamination_checks
         ],
         emission_order=emission_order,
         serious_output_influence_order=serious_output_influence_order,
@@ -172,8 +169,7 @@ def build_memory_use_authority_record(
         prompt_authority_refs=dict(prompt_authority_refs),
         tool_authority_refs=dict(tool_authority_refs),
         contamination_checks=[
-            MemoryAuthorityContaminationCheck.model_validate(row)
-            for row in contamination_checks
+            MemoryAuthorityContaminationCheck.model_validate(row) for row in contamination_checks
         ],
         emission_order=emission_order,
         serious_output_influence_order=serious_output_influence_order,

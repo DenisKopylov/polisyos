@@ -193,9 +193,7 @@ class _RootTransactionCoordinator:
         ensure_directory_durable(self.lock_directory)
         AtomicFileWriter.write_once(self.root_lock_path, b"", durable_parent=True)
         self._root_gate = _WriterPreferringRWLock()
-        self._artifact_locks = tuple(
-            threading.RLock() for _ in range(self.STRIPE_COUNT)
-        )
+        self._artifact_locks = tuple(threading.RLock() for _ in range(self.STRIPE_COUNT))
         self._active = threading.local()
         self._stage_recovery_lock = threading.Lock()
         self._stage_recovery_complete = False
@@ -218,9 +216,12 @@ class _RootTransactionCoordinator:
     @contextmanager
     def root_exclusive(self) -> Iterator[None]:
         """Hold the permanent root barrier exclusively for bounded maintenance."""
-        with self._root_gate.exclusive(), self._lock_file(
-            self.root_lock_path,
-            fcntl.LOCK_EX,
+        with (
+            self._root_gate.exclusive(),
+            self._lock_file(
+                self.root_lock_path,
+                fcntl.LOCK_EX,
+            ),
         ):
             yield
 
@@ -427,12 +428,7 @@ class ArtifactOwnershipIndex:
         return self._coordinator.transaction_root
 
     def _transaction_intent_path(self, artifact_id: ArtifactID) -> Path:
-        return (
-            self.transaction_root
-            / "intents"
-            / artifact_id.hex[:2]
-            / f"{artifact_id.hex}.json"
-        )
+        return self.transaction_root / "intents" / artifact_id.hex[:2] / f"{artifact_id.hex}.json"
 
     def _read_transaction_intent(self, artifact_id: ArtifactID) -> dict[str, Any] | None:
         path = self._transaction_intent_path(artifact_id)
@@ -470,11 +466,15 @@ class ArtifactOwnershipIndex:
         )
         if set(document) != expected_fields:
             raise ValueError("artifact_ownership_transaction_intent_invalid")
-        allowed_modes = {"publish"} if legacy_v1 or legacy_v2 else {
-            "publish",
-            "import",
-            "signature",
-        }
+        allowed_modes = (
+            {"publish"}
+            if legacy_v1 or legacy_v2
+            else {
+                "publish",
+                "import",
+                "signature",
+            }
+        )
         if (
             schema_version
             not in {
@@ -530,9 +530,8 @@ class ArtifactOwnershipIndex:
             ):
                 raise ValueError("artifact_ownership_transaction_intent_invalid")
             selector = view["selector"]
-            if (
-                selector in selectors
-                or (selector != "default" and selector != view["manifest_profile_sha256"])
+            if selector in selectors or (
+                selector != "default" and selector != view["manifest_profile_sha256"]
             ):
                 raise ValueError("artifact_ownership_transaction_intent_invalid")
             selectors.add(selector)
@@ -569,10 +568,7 @@ class ArtifactOwnershipIndex:
         mode = document["mode"]
         if (
             (mode == "signature" and len(signatures) != 1)
-            or (
-                mode == "signature"
-                and signatures[0]["signature_stage"] is None
-            )
+            or (mode == "signature" and signatures[0]["signature_stage"] is None)
             or (
                 mode == "signature"
                 and (
@@ -613,10 +609,8 @@ class ArtifactOwnershipIndex:
                 or (selector != "default" and _HEX_SHA256.fullmatch(selector) is None)
                 for selector in affected["signature_profiles"]
             )
-            or len(set(affected["manifest_profiles"]))
-            != len(affected["manifest_profiles"])
-            or len(set(affected["signature_profiles"]))
-            != len(affected["signature_profiles"])
+            or len(set(affected["manifest_profiles"])) != len(affected["manifest_profiles"])
+            or len(set(affected["signature_profiles"])) != len(affected["signature_profiles"])
         ):
             raise ValueError("artifact_ownership_transaction_intent_invalid")
 
@@ -756,13 +750,7 @@ class ArtifactOwnershipIndex:
 
     def _intent_completion_is_recomputed(self, document: dict[str, Any]) -> bool:
         artifact_id = ArtifactID.model_validate(document["artifact_id"])
-        directory = (
-            self.root
-            / "artifacts"
-            / "sha256"
-            / artifact_id.hex[:2]
-            / artifact_id.hex[2:4]
-        )
+        directory = self.root / "artifacts" / "sha256" / artifact_id.hex[:2] / artifact_id.hex[2:4]
         blob_path = directory / f"{artifact_id.hex}.blob"
         try:
             if self._path_has_symlink_component(blob_path):
@@ -841,10 +829,7 @@ class ArtifactOwnershipIndex:
 
     def _committed_intent_matches_current_state(self, document: dict[str, Any]) -> bool:
         """Require the same durable intent to be committed and still fully recomputed."""
-        return (
-            document["status"] == "committed"
-            and self._intent_completion_is_recomputed(document)
-        )
+        return document["status"] == "committed" and self._intent_completion_is_recomputed(document)
 
     def require_no_pending_transaction(
         self,
@@ -864,8 +849,7 @@ class ArtifactOwnershipIndex:
         # bytes and claims cannot complete a different operation on its behalf.
         affected = document["affected"]
         signature_is_affected = (
-            signature_profile is not None
-            and signature_profile in affected["signature_profiles"]
+            signature_profile is not None and signature_profile in affected["signature_profiles"]
         )
         if (
             affected["ambient_artifact"]
@@ -925,9 +909,8 @@ class ArtifactOwnershipIndex:
     def _recover_orphan_stages_locked(self) -> None:
         stage_root = self.transaction_root / "stage"
         intent_root = self.transaction_root / "intents"
-        if (
-            self._path_has_symlink_component(stage_root)
-            or self._path_has_symlink_component(intent_root)
+        if self._path_has_symlink_component(stage_root) or self._path_has_symlink_component(
+            intent_root
         ):
             return
         if not stage_root.is_dir():
@@ -944,9 +927,7 @@ class ArtifactOwnershipIndex:
                     self._read_private_file_no_follow(intent_path),
                     reject_duplicate_keys=True,
                 )
-                artifact_text = (
-                    document.get("artifact_id") if isinstance(document, dict) else None
-                )
+                artifact_text = document.get("artifact_id") if isinstance(document, dict) else None
                 artifact_id = ArtifactID.model_validate(artifact_text)
                 self._validate_transaction_intent(document, artifact_id)
                 if intent_path != self._transaction_intent_path(artifact_id):
@@ -954,12 +935,9 @@ class ArtifactOwnershipIndex:
                 operation_id = document["operation_id"]
                 if document["blob_stage"] is not None:
                     referenced.add(operation_id)
-                if (
-                    any(view["manifest_stage"] is not None for view in document["views"])
-                    or any(
-                        signature["signature_stage"] is not None
-                        for signature in document.get("signatures", [])
-                    )
+                if any(view["manifest_stage"] is not None for view in document["views"]) or any(
+                    signature["signature_stage"] is not None
+                    for signature in document.get("signatures", [])
                 ):
                     referenced.add(operation_id)
         except (OSError, ValueError, TypeError, UnicodeDecodeError, json.JSONDecodeError):
@@ -2228,10 +2206,7 @@ def _normalize_public_read_operation_refs(
             or not media_type.strip()
             or (
                 profile is not None
-                and (
-                    not isinstance(profile, str)
-                    or _HEX_SHA256.fullmatch(profile) is None
-                )
+                and (not isinstance(profile, str) or _HEX_SHA256.fullmatch(profile) is None)
             )
         ):
             raise ValueError("public_read_closure_artifact_ref_invalid")

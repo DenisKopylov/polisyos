@@ -32,7 +32,9 @@ def test_post_g0_registry_admits_new_contract_from_data_only_mutation(tmp_path: 
 
     assert bare.status == "fail"
     assert "layer3_g3_adapter_capability_admission_missing" in bare.issue_codes
-    assert all(record.get("adapter_id") != NEW_ADAPTER_ID for record in bare.adapter_admission_records)
+    assert all(
+        record.get("adapter_id") != NEW_ADAPTER_ID for record in bare.adapter_admission_records
+    )
 
     verified_path = mutated_registry(tmp_path / "verified.toml", include_capability=True)
     verified = build_g3_adapter_contract_registry_status(
@@ -82,6 +84,5 @@ def test_post_g0_registry_admits_new_contract_from_data_only_mutation(tmp_path: 
     assert stale.status == "fail"
     assert "layer3_g3_adapter_currentness_invalid" in stale.issue_codes
     assert all(
-        record.get("adapter_id") != NEW_ADAPTER_ID
-        for record in stale.adapter_admission_records
+        record.get("adapter_id") != NEW_ADAPTER_ID for record in stale.adapter_admission_records
     )

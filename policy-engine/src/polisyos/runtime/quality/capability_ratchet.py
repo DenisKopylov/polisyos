@@ -209,25 +209,19 @@ def evaluate_capability_claim(
     owner = _text(row.get("owner"))
     expiry = _text(row.get("expiry") or row.get("review_date"))
     expired = _is_expired(expiry, as_of=as_of)
-    ownerless_or_expired = reality_state != IMPLEMENTED_STATE and (
-        not owner or expired
-    )
+    ownerless_or_expired = reality_state != IMPLEMENTED_STATE and (not owner or expired)
     ownerless_or_expired_premium = 1.0 if ownerless_or_expired else 0.0
     serious_profile_premium = (
         1.0
-        if serious_profile
-        and reality_state not in {IMPLEMENTED_STATE, "surface_out_of_scope"}
+        if serious_profile and reality_state not in {IMPLEMENTED_STATE, "surface_out_of_scope"}
         else 0.0
     )
     sole_authority_path = bool(
-        row.get("sole_authority_path")
-        or row.get("sole_path")
-        or row.get("sole_inspection_path")
+        row.get("sole_authority_path") or row.get("sole_path") or row.get("sole_inspection_path")
     )
     sole_path_premium = (
         1.0
-        if sole_authority_path
-        and reality_state not in {IMPLEMENTED_STATE, "surface_out_of_scope"}
+        if sole_authority_path and reality_state not in {IMPLEMENTED_STATE, "surface_out_of_scope"}
         else 0.0
     )
     mitigation_credit = _mitigation_credit(row, reality_state=reality_state)
@@ -251,8 +245,10 @@ def evaluate_capability_claim(
         promised_audiences=_sequence_of_text(row.get("promised_audiences")),
     )
     graduation_allowed = reality_state in {IMPLEMENTED_STATE, "surface_out_of_scope"}
-    readiness_effect = "blocked" if blocker_reasons else (
-        "ready" if severity in {"none", "low", "medium"} else "conditional"
+    readiness_effect = (
+        "blocked"
+        if blocker_reasons
+        else ("ready" if severity in {"none", "low", "medium"} else "conditional")
     )
     if reality_state != IMPLEMENTED_STATE and not owner:
         issues.append(
@@ -376,9 +372,7 @@ def build_capability_reality_report(
     blocker_records = [record for record in records if record["release_blocker"]]
     authority_weighted_debt = round(
         sum(
-            float(record["local_points"])
-            for record in records
-            if record.get("authority_weighted")
+            float(record["local_points"]) for record in records if record.get("authority_weighted")
         ),
         3,
     )
@@ -388,9 +382,7 @@ def build_capability_reality_report(
         default="none",
     )
     report_issues = [
-        issue
-        for record in records
-        for issue in _sequence_of_mappings(record.get("issues"))
+        issue for record in records for issue in _sequence_of_mappings(record.get("issues"))
     ]
     readiness = _readiness(
         records=records,
@@ -517,9 +509,7 @@ def _cluster_premiums(
                 "chain_id": chain_id,
                 "reason": reason,
                 "premium": premium,
-                "capability_ids": [
-                    str(record.get("capability_id")) for record in chain_records
-                ],
+                "capability_ids": [str(record.get("capability_id")) for record in chain_records],
             }
         )
     return premiums, clusters
@@ -538,11 +528,7 @@ def _readiness(
         for record in records
         if record.get("reality_state") != IMPLEMENTED_STATE
     )
-    high_records = [
-        record
-        for record in records
-        if str(record.get("local_severity")) == "high"
-    ]
+    high_records = [record for record in records if str(record.get("local_severity")) == "high"]
     high_outside_authority_closeout = [
         record
         for record in high_records
@@ -556,10 +542,7 @@ def _readiness(
         band = "orange"
         decision = "not_ready"
     elif (
-        (
-            len(high_records) == 1
-            and len(high_outside_authority_closeout) == 1
-        )
+        (len(high_records) == 1 and len(high_outside_authority_closeout) == 1)
         or 12 <= authority_weighted_debt < 20
     ) and owned_and_expiring:
         band = "yellow"
@@ -601,11 +584,7 @@ def _blocker_reasons(
 
 
 def _evidence_refs(row: Mapping[str, Any]) -> dict[str, str]:
-    return {
-        field: _text(row.get(field))
-        for field, _state in CHAIN_FIELDS
-        if _text(row.get(field))
-    }
+    return {field: _text(row.get(field)) for field, _state in CHAIN_FIELDS if _text(row.get(field))}
 
 
 def _traceability(row: Mapping[str, Any]) -> dict[str, Any]:
@@ -615,9 +594,7 @@ def _traceability(row: Mapping[str, Any]) -> dict[str, Any]:
         "decision_refs": list(_sequence_of_text(row.get("decision_refs"))),
         "no_adr_required": _text(row.get("no_adr_required")),
         "reuse_classification": _normalized_label(row.get("reuse_classification")),
-        "rejected_reuse_evidence": list(
-            _sequence_of_text(row.get("rejected_reuse_evidence"))
-        ),
+        "rejected_reuse_evidence": list(_sequence_of_text(row.get("rejected_reuse_evidence"))),
         "rollout_refs": dict(rollout_refs) if isinstance(rollout_refs, Mapping) else {},
     }
     return {

@@ -767,9 +767,7 @@ def test_invalid_or_unresolved_supplied_profile_ref_is_not_absence(
     raw_ref: object,
     store: object | None,
 ) -> None:
-    state: dict[str, object] = {
-        "artifacts_index": {"cross_graph_evidence_profile_ref": raw_ref}
-    }
+    state: dict[str, object] = {"artifacts_index": {"cross_graph_evidence_profile_ref": raw_ref}}
     if store is not None:
         state["_store"] = store
 
@@ -927,9 +925,7 @@ def test_cross_graph_profile_partial_candidate_warns_outside_strict() -> None:
 def test_cross_graph_profile_direct_and_cas_aliases_are_reconciled_once(tmp_path) -> None:
     profile = _cross_graph_profile()
     store = FileSystemCAS(tmp_path)
-    profile_ref = persist_cross_graph_evidence_profile(
-        _ensure_ir_artifact_store(store), profile
-    )
+    profile_ref = persist_cross_graph_evidence_profile(_ensure_ir_artifact_store(store), profile)
     ctx = _strict_context(
         {
             "cross_graph_evidence_profile": profile,
@@ -951,9 +947,7 @@ def test_conflicting_direct_and_cas_profiles_do_not_select_either(tmp_path) -> N
         need_id="cas_profile",
     )
     store = FileSystemCAS(tmp_path)
-    profile_ref = persist_cross_graph_evidence_profile(
-        _ensure_ir_artifact_store(store), persisted
-    )
+    profile_ref = persist_cross_graph_evidence_profile(_ensure_ir_artifact_store(store), persisted)
     ctx = _strict_context(
         {
             "cross_graph_evidence_profile": direct,
@@ -989,9 +983,7 @@ def test_mutated_typed_report_is_revalidated_before_transport_classification() -
         update={"transport_result": "forged"}
     )
 
-    issues = TransportabilityRequiredPass().validate(
-        _strict_context({"causal_report": report})
-    )
+    issues = TransportabilityRequiredPass().validate(_strict_context({"causal_report": report}))
 
     assert len(issues) == 1
     assert issues[0].code == "TRANSPORT_REPORT_INPUT_INVALID"

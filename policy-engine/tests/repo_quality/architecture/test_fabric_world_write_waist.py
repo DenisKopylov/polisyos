@@ -68,12 +68,9 @@ def _module_import_bindings(
         elif isinstance(node, ast.ImportFrom) and node.level == 0 and node.module:
             for alias in node.names:
                 public_name = alias.asname or alias.name
-                mutable_bindings.setdefault(public_name, set()).add(
-                    (node.module, alias.name)
-                )
+                mutable_bindings.setdefault(public_name, set()).add((node.module, alias.name))
     bindings = {
-        public_name: tuple(sorted(origins))
-        for public_name, origins in mutable_bindings.items()
+        public_name: tuple(sorted(origins)) for public_name, origins in mutable_bindings.items()
     }
     cache[module] = bindings
     return bindings
@@ -143,15 +140,11 @@ def _absolute_imports(
     | None = None,
 ) -> tuple[tuple[int, str, str | None, str], ...]:
     alias_cache = alias_cache if alias_cache is not None else {}
-    module_bindings_cache = (
-        module_bindings_cache if module_bindings_cache is not None else {}
-    )
+    module_bindings_cache = module_bindings_cache if module_bindings_cache is not None else {}
     imports: set[tuple[int, str, str | None, str]] = set()
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
-            imports.update(
-                (node.lineno, alias.name, None, alias.name) for alias in node.names
-            )
+            imports.update((node.lineno, alias.name, None, alias.name) for alias in node.names)
         elif isinstance(node, ast.ImportFrom) and node.level == 0 and node.module:
             for alias in node.names:
                 imports.add((node.lineno, node.module, alias.name, node.module))
@@ -212,9 +205,7 @@ def _public_fabric_reexports(src_root: Path) -> frozenset[tuple[str, str]]:
         elif target.id == "_LAZY_IMPORTS":
             lazy_imports = ast.literal_eval(value)
     return frozenset(
-        origin
-        for public_name, origin in lazy_imports.items()
-        if public_name in declared_names
+        origin for public_name, origin in lazy_imports.items() if public_name in declared_names
     )
 
 
@@ -293,8 +284,7 @@ def world_write_private_modules(src_root: Path, owner_path: Path) -> frozenset[s
         module_file = module_path.with_suffix(".py")
         if package_init.exists():
             derived_modules.update(
-                _module_name(src_root, descendant)
-                for descendant in module_path.rglob("*.py")
+                _module_name(src_root, descendant) for descendant in module_path.rglob("*.py")
             )
         elif module_file.exists():
             derived_modules.add(_module_name(src_root, module_file))
@@ -347,8 +337,7 @@ def external_world_write_violations(src_root: Path) -> tuple[str, ...]:
                 violations.add(f"{relative}:{lineno}: deep-import {source_module}")
                 continue
             imports_forbidden_backend = any(
-                imported_module == forbidden
-                or imported_module.startswith(f"{forbidden}.")
+                imported_module == forbidden or imported_module.startswith(f"{forbidden}.")
                 for forbidden in forbidden_modules
             )
             is_public_shared_symbol = (
@@ -626,7 +615,9 @@ def test_owned_table_derivation_detects_a_fourth_ddl_target(tmp_path: Path) -> N
     )
 
     assert "world.fourth_table" in world_owned_tables(ddl_path)
-    assert any("mutates world.fourth_table" in item for item in external_world_write_violations(src_root))
+    assert any(
+        "mutates world.fourth_table" in item for item in external_world_write_violations(src_root)
+    )
 
 
 def test_legitimate_world_event_reader_is_not_forbidden_by_package_location(

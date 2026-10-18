@@ -34,7 +34,9 @@ def test_wave35d_outputs_close_operational_recovery_cluster(tmp_path: Path) -> N
         root_cause["observed_failure_classes"]
     )
     assert root_cause["top_level_diagnostic_command_list"]
-    assert all(row["first_missing_producer"] for row in root_cause["scorecard_failure_breadcrumb_rows"])
+    assert all(
+        row["first_missing_producer"] for row in root_cause["scorecard_failure_breadcrumb_rows"]
+    )
     assert all(row["next_command"] for row in root_cause["scorecard_failure_breadcrumb_rows"])
     assert all(row["event_refs"] for row in root_cause["scorecard_failure_breadcrumb_rows"])
     assert all(row["timeline_refs"] for row in root_cause["scorecard_failure_breadcrumb_rows"])
@@ -70,8 +72,7 @@ def test_wave35d_outputs_close_operational_recovery_cluster(tmp_path: Path) -> N
     assert parity["polling_snapshot"]["snapshot_hash"]
     assert len(parity["snapshot_hash_trail"]) == 3
     assert all(
-        row["parity_status"] == "pass"
-        for row in parity["dropped_reordered_reconnect_scenarios"]
+        row["parity_status"] == "pass" for row in parity["dropped_reordered_reconnect_scenarios"]
     )
     assert parity["governance_wait_parity"]["status"] == "pass"
     assert parity["terminal_state_parity"]["status"] == "pass"

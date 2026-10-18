@@ -117,18 +117,15 @@ def test_append_only_loader_rejects_removed_selected_manifest_view(tmp_path) -> 
     absent_profile = next(
         f"sha256:{digit * 64}"
         for digit in "0123456789abcdef"
-        if f"sha256:{digit * 64}" not in {
+        if f"sha256:{digit * 64}"
+        not in {
             default_ref.manifest_profile_sha256,
             selected_ref.manifest_profile_sha256,
         }
-        and not store.has_manifest_view(
-            selected_ref.artifact_id, f"sha256:{digit * 64}"
-        )
+        and not store.has_manifest_view(selected_ref.artifact_id, f"sha256:{digit * 64}")
     )
     assert not store.has_manifest_view(selected_ref.artifact_id, absent_profile)
-    missing_view = selected_ref.model_copy(
-        update={"manifest_profile_sha256": absent_profile}
-    )
+    missing_view = selected_ref.model_copy(update={"manifest_profile_sha256": absent_profile})
     with pytest.raises((KeyError, OSError, ValueError)):
         _load_append_only_claim_ledger(store, missing_view)
 

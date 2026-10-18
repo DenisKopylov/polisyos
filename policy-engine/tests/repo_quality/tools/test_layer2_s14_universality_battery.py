@@ -8,8 +8,7 @@ from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 SEALED_BATTERY_ROOT = (
-    REPO_ROOT
-    / "tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/"
+    REPO_ROOT / "tests/fixtures/policy_design_case/semantic_evaluation_packs/hidden/"
     "layer2-sealed-universality-battery"
 )
 S14_SKEPTIC_DEFEATER_IDS = {
@@ -60,22 +59,25 @@ def test_s14_battery_runner_refuses_sealed_pack_without_allow_flag() -> None:
 def test_s14_battery_runner_verifies_freeze_hash() -> None:
     result = _run_battery()
     partition = json.loads(
-        (REPO_ROOT / "architecture/policy_design_case/layer2_corpus_partition.json")
-        .read_text(encoding="utf-8")
+        (REPO_ROOT / "architecture/policy_design_case/layer2_corpus_partition.json").read_text(
+            encoding="utf-8"
+        )
     )["sealed_universality_battery"]
 
     assert result["status"] == "pass"
     assert result["sealed_universality_battery_run"]["partition_path"] == partition["path"]
     assert result["sealed_universality_battery_run"]["owner"] == "governance-board"
     assert result["sealed_universality_battery_run"]["access_mode"] == "ci_gate_only"
-    assert result["sealed_universality_battery_run"]["computed_freeze_hash"] == (
-        partition["freeze_hash"]
+    assert (
+        result["sealed_universality_battery_run"]["computed_freeze_hash"]
+        == (partition["freeze_hash"])
     )
     assert result["sealed_battery_freeze_hash_match"] is True
 
 
-def test_s14_battery_runner_emits_d4_oracle_breadth_scorecard_skeptic_defeaters_and_summary(
-) -> None:
+def test_s14_battery_runner_emits_d4_oracle_breadth_scorecard_skeptic_defeaters_and_summary() -> (
+    None
+):
     result = _run_battery()
     summary = result["s14_universality_assurance_summary"]
 
@@ -93,8 +95,7 @@ def test_s14_battery_runner_emits_d4_oracle_breadth_scorecard_skeptic_defeaters_
     assert len(result["expert_oracle_bootstrap"]["oracle_layers"]) == 4
 
 
-def test_s14_battery_runner_emits_baseline_grounded_authority_and_status_composition(
-) -> None:
+def test_s14_battery_runner_emits_baseline_grounded_authority_and_status_composition() -> None:
     result = _run_battery()
 
     assert result["universality_baseline_comparison"]["comparison_status"] == "pass"
@@ -124,8 +125,7 @@ def test_s14_battery_runner_emits_required_substrate_reuse_refs() -> None:
     assert result["universality_claim_assurance_case"]["cae_defeater_refs"]
 
 
-def test_s14_battery_runner_reports_claim_disposition_not_capability_gate_status(
-) -> None:
+def test_s14_battery_runner_reports_claim_disposition_not_capability_gate_status() -> None:
     result = _run_battery()
     summary = result["s14_universality_assurance_summary"]
     public_summary = result["public_summary"]
@@ -173,15 +173,9 @@ def test_s14_battery_runner_reads_g7_manifest_without_mutating_freeze_hash(
                 "mechanism_generality_projection_ref": (
                     "layer3-g7://s14/mechanism-generality-projection"
                 ),
-                "grounded_authority_coverage_ref": (
-                    "layer3-g7://s14/grounded-authority-coverage"
-                ),
-                "envelope_revision_dynamics_ref": (
-                    "layer3-g7://s14/envelope-revision-dynamics"
-                ),
-                "certified_envelope_delta_refs": [
-                    "s13-envelope-delta://ua-msme/expand-region"
-                ],
+                "grounded_authority_coverage_ref": ("layer3-g7://s14/grounded-authority-coverage"),
+                "envelope_revision_dynamics_ref": ("layer3-g7://s14/envelope-revision-dynamics"),
+                "certified_envelope_delta_refs": ["s13-envelope-delta://ua-msme/expand-region"],
                 "visible_limitation_refs": ["limitation://g7/s14/region-only"],
                 "sealed_battery_mutation_status": "not_mutated",
                 "hidden_case_access_status": "not_accessed_by_g7",
@@ -194,15 +188,18 @@ def test_s14_battery_runner_reads_g7_manifest_without_mutating_freeze_hash(
     without_manifest = _run_battery()
     with_manifest = _run_battery(g7_grounded_breadth_input_manifest=manifest_path)
 
-    assert with_manifest["sealed_battery_freeze_hash"] == without_manifest[
-        "sealed_battery_freeze_hash"
-    ]
-    assert with_manifest["sealed_battery_computed_freeze_hash"] == without_manifest[
-        "sealed_battery_computed_freeze_hash"
-    ]
-    assert with_manifest["sealed_universality_battery_run"] == without_manifest[
-        "sealed_universality_battery_run"
-    ]
+    assert (
+        with_manifest["sealed_battery_freeze_hash"]
+        == without_manifest["sealed_battery_freeze_hash"]
+    )
+    assert (
+        with_manifest["sealed_battery_computed_freeze_hash"]
+        == without_manifest["sealed_battery_computed_freeze_hash"]
+    )
+    assert (
+        with_manifest["sealed_universality_battery_run"]
+        == without_manifest["sealed_universality_battery_run"]
+    )
     hook = with_manifest["external_grounded_breadth_input"]
     assert hook == {
         "status": "present",
@@ -211,6 +208,7 @@ def test_s14_battery_runner_reads_g7_manifest_without_mutating_freeze_hash(
     }
     assert "external_grounded_breadth_input" not in without_manifest
     assert "sealed_case_rows" not in with_manifest
-    assert with_manifest["grounded_authority_coverage"] == without_manifest[
-        "grounded_authority_coverage"
-    ]
+    assert (
+        with_manifest["grounded_authority_coverage"]
+        == without_manifest["grounded_authority_coverage"]
+    )

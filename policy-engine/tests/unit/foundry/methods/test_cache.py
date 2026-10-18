@@ -158,9 +158,7 @@ def test_value_output_capability_round_trips_through_registry_cache(tmp_path) ->
 
     restored_entry = next(iter(restored_registry.snapshot().entries()))
     restored_slot = next(iter(restored_entry.signature.output_slots))
-    assert restored_entry.signature.stable_digest() == (
-        _CapabilityMethod.signature.stable_digest()
-    )
+    assert restored_entry.signature.stable_digest() == (_CapabilityMethod.signature.stable_digest())
     assert restored_slot.contract_capabilities == frozenset(
         {OutputContractCapability.VALUE_UNCERTAINTY_PROJECTION}
     )

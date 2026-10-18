@@ -369,9 +369,7 @@ def _build_report(
         units_processed=max(0, int(units_processed)),
         unit_name=str(unit_name),
         throughput_per_second=throughput,
-        latency_quantiles_ms=_latency_quantiles_from_samples(
-            [float(elapsed_seconds) * 1000.0]
-        ),
+        latency_quantiles_ms=_latency_quantiles_from_samples([float(elapsed_seconds) * 1000.0]),
         correctness_counters=dict(correctness_counters or {}),
         labels=dict(labels),
         metadata=dict(metadata),

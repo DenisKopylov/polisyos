@@ -97,9 +97,7 @@ class WorldSnapshotWriteRequest(_WorldSnapshotWriteModel):
         }
         nodes_without_facts = declared_nodes - referenced_nodes
         if nodes_without_facts:
-            raise ValueError(
-                f"world_snapshot_nodes_without_facts: {sorted(nodes_without_facts)!r}"
-            )
+            raise ValueError(f"world_snapshot_nodes_without_facts: {sorted(nodes_without_facts)!r}")
         return self
 
 

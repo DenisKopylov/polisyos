@@ -85,8 +85,7 @@ def emit_contestability_appeals_runtime_provenance(
     context = _serious_run_context(run_context)
     timestamp = generated_at or _now()
     records = [
-        _appeal_record(row=row, context=context, generated_at=timestamp)
-        for row in appeal_rows
+        _appeal_record(row=row, context=context, generated_at=timestamp) for row in appeal_rows
     ]
     for record in records:
         validate_runtime_owned_provenance(record, surface="contestability_appeals")

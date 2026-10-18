@@ -216,8 +216,7 @@ def test_gen_schema_changed_only_reports_indeterminate_git_state(
     captured = capsys.readouterr()
     assert exit_code == 2
     assert captured.err.strip() == (
-        "ABI schema snapshot generation failed: "
-        "changed-only Git base ref is not a commit: missing"
+        "ABI schema snapshot generation failed: changed-only Git base ref is not a commit: missing"
     )
 
 
@@ -394,9 +393,7 @@ def test_lint_imports_changed_only_normalizes_nested_source_path(tmp_path: Path)
     assert payload["data"]["scan_mode"] == "changed-only"
     assert payload["data"]["changed_file_count"] == 1
     assert payload["data"]["violation_count"] == 1
-    assert payload["messages"][0]["message"].startswith(
-        "src/polisyos/ir/sample.py:1 [ARCH002]"
-    )
+    assert payload["messages"][0]["message"].startswith("src/polisyos/ir/sample.py:1 [ARCH002]")
 
 
 def test_lint_imports_changed_only_rejects_unresolvable_base_ref(tmp_path: Path) -> None:
@@ -430,9 +427,7 @@ def test_lint_imports_changed_only_rejects_unresolvable_base_ref(tmp_path: Path)
     payload = json.loads(output.read_text(encoding="utf-8"))
     assert exit_code == 2
     assert payload["status"] == "failed"
-    assert payload["summary"].endswith(
-        "changed-only Git base ref is not a commit: does-not-exist"
-    )
+    assert payload["summary"].endswith("changed-only Git base ref is not a commit: does-not-exist")
 
 
 def test_changed_only_converts_later_git_launch_error_to_gate_failure(

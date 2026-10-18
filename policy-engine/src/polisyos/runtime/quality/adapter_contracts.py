@@ -30,12 +30,8 @@ class AdapterContractError(ValueError):
         super().__init__(f"{code}: {message}")
 
 
-VERIFIED_ADAPTER_ADMISSION_PRODUCER_REF = (
-    "runtime-quality:verified-adapter-admission-producer"
-)
-ADAPTER_CAPABILITY_DECLARATION_SCHEMA_VERSION = (
-    "policyos.adapter_capability_declaration.v1"
-)
+VERIFIED_ADAPTER_ADMISSION_PRODUCER_REF = "runtime-quality:verified-adapter-admission-producer"
+ADAPTER_CAPABILITY_DECLARATION_SCHEMA_VERSION = "policyos.adapter_capability_declaration.v1"
 ADAPTER_ADMISSION_EVIDENCE_SCHEMA_VERSION = "policyos.adapter_admission_evidence.v1"
 ADAPTER_CURRENTNESS_RECEIPT_SCHEMA_VERSION = "policyos.adapter_currentness_receipt.v1"
 ADAPTER_CAPABILITY_PASSPORT_SCHEMA_VERSION = "policyos.adapter_capability_passport.v1"
@@ -132,8 +128,7 @@ class AdapterCurrentnessReceipt(_AdapterAdmissionModel):
     @model_validator(mode="after")
     def _observation_is_inside_validity(self) -> AdapterCurrentnessReceipt:
         if any(
-            value.tzinfo is None
-            for value in (self.observed_at, self.valid_from, self.valid_until)
+            value.tzinfo is None for value in (self.observed_at, self.valid_from, self.valid_until)
         ):
             raise ValueError("adapter currentness times must be timezone-aware")
         if not self.valid_from <= self.observed_at < self.valid_until:
@@ -1073,8 +1068,7 @@ def execute_declared_adapter_operation(
         return AdapterSurfacePayload(
             surface=contract.target_surface,
             field_families={
-                family: dict(payload)
-                for family, payload in before.field_families.items()
+                family: dict(payload) for family, payload in before.field_families.items()
             },
         )
     raise AdapterContractError(

@@ -57,8 +57,6 @@ def test_random_state_json_roundtrip_preserves_next_values_and_rejects_wrong_ver
 
     payload = json.loads(artifact.decode("utf-8"))
     payload["rng_state"]["python"]["version"] += 1
-    incompatible = StrategyState.from_artifact(
-        json.dumps(payload, sort_keys=True).encode("utf-8")
-    )
+    incompatible = StrategyState.from_artifact(json.dumps(payload, sort_keys=True).encode("utf-8"))
     with pytest.raises(ValueError, match="Python random state version"):
         restored.set_state(incompatible)

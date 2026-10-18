@@ -19,9 +19,7 @@ REPO_ROOT, _SRC_ROOT = ensure_repo_import_roots(__file__)
 DEFAULT_PLAN_PATH = Path(
     "docs/plans/archive/2026-05-19-policyos-policy-design-case-implementation-plan.md"
 )
-DEFAULT_DECISION_LOG = Path(
-    "docs/system-design-decisions/policy-design-case-decision-log.md"
-)
+DEFAULT_DECISION_LOG = Path("docs/system-design-decisions/policy-design-case-decision-log.md")
 
 REQUIRED_DISPOSITION_FIELDS = (
     "classification",
@@ -183,9 +181,7 @@ def _validate_ledger(
             f"extra={sorted(observed_details - expected_details)}"
         )
 
-    expected_phase_count = int(
-        expected_ledger.get("summary", {}).get("phase_index_count") or 0
-    )
+    expected_phase_count = int(expected_ledger.get("summary", {}).get("phase_index_count") or 0)
     observed_phase_count = len(_as_list(ledger.get("phase_indexes")))
     if observed_phase_count != expected_phase_count:
         errors.append(
@@ -249,9 +245,7 @@ def _validate_clusters(
                 errors.append(f"{cluster_id}: missing cluster field {field}")
         covered.extend(str(item) for item in _as_list(cluster.get("finding_ids")))
     covered_counts = Counter(covered)
-    duplicate_ids = sorted(
-        finding_id for finding_id, count in covered_counts.items() if count != 1
-    )
+    duplicate_ids = sorted(finding_id for finding_id, count in covered_counts.items() if count != 1)
     if set(covered) != finding_ids or duplicate_ids:
         errors.append(
             "root-cause clusters must cover every finding exactly once: "
@@ -273,9 +267,7 @@ def _validate_disposition(
         row for row in _as_list(disposition.get("dispositions")) if isinstance(row, Mapping)
     ]
     disposition_ids = [
-        str(row.get("finding_id"))
-        for row in disposition_rows
-        if _present(row.get("finding_id"))
+        str(row.get("finding_id")) for row in disposition_rows if _present(row.get("finding_id"))
     ]
     disposition_counts = Counter(disposition_ids)
     duplicate_ids = sorted(
@@ -319,8 +311,7 @@ def _validate_disposition(
                 errors.append(f"{finding_id}: missing false_alarm_evidence")
     if unresolved_must_fix:
         errors.append(
-            "must_fix_before_closeout findings remain unresolved: "
-            + ", ".join(unresolved_must_fix)
+            "must_fix_before_closeout findings remain unresolved: " + ", ".join(unresolved_must_fix)
         )
 
     expected_zero_pdds = {
@@ -407,9 +398,7 @@ def _validate_decision_log(
     disposition: Mapping[str, Any],
     errors: list[str],
 ) -> None:
-    rows = [
-        row for row in _as_list(disposition.get("dispositions")) if isinstance(row, Mapping)
-    ]
+    rows = [row for row in _as_list(disposition.get("dispositions")) if isinstance(row, Mapping)]
     needed_clusters = {
         str(row.get("root_cause_cluster_id"))
         for row in rows

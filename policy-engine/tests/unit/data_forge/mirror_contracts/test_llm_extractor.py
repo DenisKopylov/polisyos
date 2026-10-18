@@ -18,23 +18,27 @@ from tests._helpers.mirror_contracts import assert_source_stem_has_static_contra
 def _extract_with_stub(abstract: str) -> tuple[str, dict[str, Any]]:
     """Capture the actual model-facing request without constructing a network client."""
     response = {
-        "causal_claims": [{
-            "cause": "tax rate",
-            "effect": "employment",
-            "direction": "negative",
-            "mechanism": "labour cost",
-            "design_family_hint": "ols",
-            "evidence_strength": "rct",
-        }]
+        "causal_claims": [
+            {
+                "cause": "tax rate",
+                "effect": "employment",
+                "direction": "negative",
+                "mechanism": "labour cost",
+                "design_family_hint": "ols",
+                "evidence_strength": "rct",
+            }
+        ]
     }
     client = create_autospec(AcademicLLMClient, instance=True)
     client.chat_completion.return_value = {"content": json.dumps(response)}
-    result = asyncio.run(extract_with_llm(
-        abstract=abstract,
-        topic="unused-topic-must-not-appear",
-        work_id="synthetic:prompt-regression",
-        client=client,
-    ))
+    result = asyncio.run(
+        extract_with_llm(
+            abstract=abstract,
+            topic="unused-topic-must-not-appear",
+            work_id="synthetic:prompt-regression",
+            client=client,
+        )
+    )
     client.chat_completion.assert_awaited_once()
     (message,) = client.chat_completion.call_args.kwargs["messages"]
     assert message["role"] == "user"
@@ -43,7 +47,7 @@ def _extract_with_stub(abstract: str) -> tuple[str, dict[str, Any]]:
 
 
 def test_llm_extractor_source_modules_have_static_contracts() -> None:
-    assert_source_stem_has_static_contract('data_forge', 'llm_extractor')
+    assert_source_stem_has_static_contract("data_forge", "llm_extractor")
 
 
 def test_future_llm_claim_serializer_keeps_named_candidate_axes_separate() -> None:

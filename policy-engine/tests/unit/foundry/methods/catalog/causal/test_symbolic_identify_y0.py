@@ -71,9 +71,7 @@ def _diagram_frontdoor_like() -> SelectionDiagram:
 def _y0_surrogate_data_profile() -> dict[str, object]:
     return {
         "schema_version": "policyos.y0.surrogate-data-profile.v1",
-        "populations": [
-            {"population_id": "pi1", "outcomes": ["Y"], "interventions": ["X"]}
-        ],
+        "populations": [{"population_id": "pi1", "outcomes": ["Y"], "interventions": ["X"]}],
     }
 
 
@@ -417,7 +415,10 @@ def test_symbolic_partial_graph_refusal_gate_removal_control(monkeypatch) -> Non
     removed_result = TransportabilityResult.model_validate(without_gate["transport_result"])
     assert removed_result.status is TransportabilityStatus.UNSUPPORTED
     assert removed_result.transport_formula is None
-    assert removed_result.unsupported_reason == "y0_trso_api_error:PartialGraphCompletionSemanticsError"
+    assert (
+        removed_result.unsupported_reason
+        == "y0_trso_api_error:PartialGraphCompletionSemanticsError"
+    )
     assert without_gate["proof_bundle"]["proof_status"] == "oracle_needed"
     assert "negative_certificate" not in without_gate
 
@@ -612,7 +613,12 @@ def test_symbolic_serialized_graph_type_alias_matches_typed_profile() -> None:
     [
         (False, None, "y0_surrogate_data_profile_absent", "absent"),
         (True, None, "y0_surrogate_data_profile_null", "null"),
-        (True, {"schema_version": "wrong", "populations": []}, "y0_surrogate_data_profile_invalid", "invalid"),
+        (
+            True,
+            {"schema_version": "wrong", "populations": []},
+            "y0_surrogate_data_profile_invalid",
+            "invalid",
+        ),
     ],
 )
 def test_trso_profile_input_failures_are_distinct_typed_limitations(
@@ -1228,9 +1234,7 @@ def test_public_dispatcher_refuses_model_copy_hidden_s_nodes(
 @pytest.mark.parametrize(("route", "method", "params"), _GRAPH_ADMISSION_ROUTES)
 def test_public_dispatcher_refuses_model_copy_partial_admg_before_claim(
     route: str,
-    method: (
-        type[CheckTransportability] | type[SymbolicIdentify] | type[SymbolicIdentifyV2]
-    ),
+    method: (type[CheckTransportability] | type[SymbolicIdentify] | type[SymbolicIdentifyV2]),
     params: dict[str, object],
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -1261,9 +1265,7 @@ def test_public_dispatcher_refuses_model_copy_partial_admg_before_claim(
             ]
         }
     )
-    diagram = _diagram_frontdoor_like().model_copy(
-        update={"base_graph": partial_graph}
-    )
+    diagram = _diagram_frontdoor_like().model_copy(update={"base_graph": partial_graph})
     dispatched = MethodDispatcher(enable_runtime_selection=False).dispatch(
         method_class=method,
         signature=method.signature,

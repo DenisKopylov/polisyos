@@ -48,7 +48,9 @@ def test_v2_envelope_rejects_generic_strength_and_legacy_adapter_is_explicit() -
     adapted = adapt_legacy_claim_occurrence_as_v2_absence(_legacy_occurrence())
 
     assert adapted.legacy_strength_label == "moderate"
-    assert VersionedClaimVocabularyEnvelope.model_validate_json(adapted.model_dump_json()) == adapted
+    assert (
+        VersionedClaimVocabularyEnvelope.model_validate_json(adapted.model_dump_json()) == adapted
+    )
     assert json.loads(adapted.model_dump_json())["schema_version"] == "2.0"
 
 
@@ -66,10 +68,7 @@ def test_legacy_moderate_is_audited_without_typed_axis_or_false_default() -> Non
     assert adapted.source_basis is None
     assert adapted.design_family_hint_status is ClaimVocabularyAxisStatus.NOT_ESTABLISHED
     assert adapted.evidence_strength_status is ClaimVocabularyAxisStatus.NOT_ESTABLISHED
-    assert (
-        adapted.claim_extraction_confidence_status
-        is ClaimVocabularyAxisStatus.NOT_ESTABLISHED
-    )
+    assert adapted.claim_extraction_confidence_status is ClaimVocabularyAxisStatus.NOT_ESTABLISHED
     assert adapted.source_basis_status is ClaimVocabularyAxisStatus.NOT_ESTABLISHED
     assert adapted.legacy_strength_label == "moderate"
     assert adapted.record_extraction_mode == "deterministic"
@@ -128,7 +127,11 @@ def test_persisted_v1_work_record_is_adapted_before_strict_work_record_admission
     assert "schema_version" not in json.loads(legacy_json)
     with pytest.raises(ValueError):
         adapt_jsonl_work_record_claims(
-            {"id": "W1", "title": "Envelope record", "causal_claims": [legacy | {"schema_version": "2.0"}]},
+            {
+                "id": "W1",
+                "title": "Envelope record",
+                "causal_claims": [legacy | {"schema_version": "2.0"}],
+            },
             provenance="legacy_jsonl",
         )
     assert claim.cause_variable == "tax rate"

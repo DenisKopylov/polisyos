@@ -32,8 +32,7 @@ PHASE34_6_COMMAND = (
     "uv run python tools/quality/validation/run_policy_design_case_pass2_phase34_6.py"
 )
 CHECK_COMMAND = (
-    "uv run python tools/quality/validation/check_policy_design_case_wave34_pass2.py "
-    "--repo-root ."
+    "uv run python tools/quality/validation/check_policy_design_case_wave34_pass2.py --repo-root ."
 )
 VERIFY_DISPOSITION_COMMAND = (
     "uv run python tools/quality/validation/check_policy_design_case_pass2_disposition.py "
@@ -45,39 +44,28 @@ SOURCE_ARTIFACT_BY_PDD = {
     "PDD-034": "_build/diagnostics/pdd-034/dashboard_api_projection_consistency_audit.json",
     "PDD-069": "_build/diagnostics/pdd-069/dashboard_operator_truthfulness_audit.json",
     "PDD-083": (
-        "_build/diagnostics/pdd-083/"
-        "reusable_agent_memory_reflexion_applicability_audit.json"
+        "_build/diagnostics/pdd-083/reusable_agent_memory_reflexion_applicability_audit.json"
     ),
     "PDD-097": (
-        "_build/diagnostics/pdd-097/"
-        "implementation_feasibility_beyond_final_text_audit.json"
+        "_build/diagnostics/pdd-097/implementation_feasibility_beyond_final_text_audit.json"
     ),
-    "PDD-099": (
-        "_build/diagnostics/pdd-099/"
-        "public_contestability_appeals_legitimacy_audit.json"
-    ),
+    "PDD-099": ("_build/diagnostics/pdd-099/public_contestability_appeals_legitimacy_audit.json"),
     "PDD-103": "_build/diagnostics/pdd-103/human_overtrust_ui_persuasion_risk_audit.json",
 }
 OUTPUT_ARTIFACTS = {
     "PDD-034": (
-        "_build/policy-design-case/rebaseline/wave-35E/"
-        "projection_operator_truthfulness_matrix.json"
+        "_build/policy-design-case/rebaseline/wave-35E/projection_operator_truthfulness_matrix.json"
     ),
     "PDD-069": (
-        "_build/policy-design-case/rebaseline/wave-35E/"
-        "projection_operator_truthfulness_matrix.json"
+        "_build/policy-design-case/rebaseline/wave-35E/projection_operator_truthfulness_matrix.json"
     ),
     "PDD-083": "_build/policy-design-case/rebaseline/wave-35E/memory_authority_ledger.json",
     "PDD-097": (
-        "_build/policy-design-case/rebaseline/wave-35E/"
-        "implementation_feasibility_ledger.json"
+        "_build/policy-design-case/rebaseline/wave-35E/implementation_feasibility_ledger.json"
     ),
-    "PDD-099": (
-        "_build/policy-design-case/rebaseline/wave-35E/contestability_appeals_ledger.json"
-    ),
+    "PDD-099": ("_build/policy-design-case/rebaseline/wave-35E/contestability_appeals_ledger.json"),
     "PDD-103": (
-        "_build/policy-design-case/rebaseline/wave-35E/"
-        "trust_framing_ui_negative_tests.json"
+        "_build/policy-design-case/rebaseline/wave-35E/trust_framing_ui_negative_tests.json"
     ),
 }
 
@@ -110,8 +98,7 @@ TRUST_NEGATIVE_SCENARIOS = (
     "frontend_signed",
 )
 PROJECTION_RUNTIME_SOURCE_REFS = (
-    "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts"
-    "#buildProjectionSemantics",
+    "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts#buildProjectionSemantics",
     "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx"
     "#publication-projection-semantics",
 )
@@ -602,8 +589,7 @@ def _build_implementation_feasibility_ledger(
                 "actor_type": "public_program_administrator",
                 "competent_authority_ref": "norm.wartime_business_support_authority",
                 "delegation_scope_ref": (
-                    "scenario-contract://UA/wartime_msme_support/"
-                    "delegated_program_delivery"
+                    "scenario-contract://UA/wartime_msme_support/delegated_program_delivery"
                 ),
                 "delivery_channel": "existing credit program and lender channel",
                 "jurisdiction": "Ukraine",
@@ -706,9 +692,9 @@ def _build_contestability_appeals_ledger(
     repo_root: Path,
 ) -> dict[str, Any]:
     claim_id = str(
-        _first_major_claim(_mapping(context["wave33_files"].get("policy_grounding_matrix.json"))).get(
-            "claim_id"
-        )
+        _first_major_claim(
+            _mapping(context["wave33_files"].get("policy_grounding_matrix.json"))
+        ).get("claim_id")
         or "deterministic_recommendation_1"
     )
     lifecycle = _lifecycle_reports(context)
@@ -897,9 +883,7 @@ def _build_trust_framing_ui_negative_tests(
         "zero_review_caveat": _denominator_caveats(human_review),
         "runtime_enforcement_evidence": {
             "status": "partially_test_observed",
-            "evidence_authority_class": (
-                "mixed_test_observed_and_synthetic_remediation_overlay"
-            ),
+            "evidence_authority_class": ("mixed_test_observed_and_synthetic_remediation_overlay"),
             "runtime_source_refs": list(PROJECTION_RUNTIME_SOURCE_REFS),
             "test_observed_refs": list(PROJECTION_RUNTIME_TEST_REFS),
             "observed_ui_state": (
@@ -1088,9 +1072,7 @@ def _build_disposition_update(
                 "commands": [PHASE34_6_COMMAND, CHECK_COMMAND],
                 "exit_code": _mapping(phase34_rerun).get("overall_exit_code"),
             },
-            "before_classification": _mapping(original_rows.get(finding_id)).get(
-                "classification"
-            ),
+            "before_classification": _mapping(original_rows.get(finding_id)).get("classification"),
             "after_status": "resolved",
             "reviewer_command": VERIFY_DISPOSITION_COMMAND,
             "owner_acceptance": row.get("owner"),
@@ -1137,11 +1119,8 @@ def _build_disposition_update(
             == "pass"
             and _mapping(projection_operator.get("failure_class_journey")).get("status")
             == "covered",
-            "memory_authority_or_no_memory_abstention_complete": memory.get("status")
-            == "complete",
-            "implementation_feasibility_runtime_ledger_complete": implementation.get(
-                "status"
-            )
+            "memory_authority_or_no_memory_abstention_complete": memory.get("status") == "complete",
+            "implementation_feasibility_runtime_ledger_complete": implementation.get("status")
             == "complete",
             "contestability_runtime_appeal_ledger_complete": contestability.get("status")
             == "complete",
@@ -1352,9 +1331,7 @@ def _failure_class(row: Mapping[str, Any]) -> str:
 def _denominator_caveats(human_review: Mapping[str, Any]) -> dict[str, Any]:
     summary = _mapping(human_review.get("summary"))
     review_count = int(_first(summary.get("review_count"), summary.get("reviews"), 0) or 0)
-    reviewer_count = int(
-        _first(summary.get("reviewer_count"), summary.get("reviewers"), 0) or 0
-    )
+    reviewer_count = int(_first(summary.get("reviewer_count"), summary.get("reviewers"), 0) or 0)
     if review_count == 0 and reviewer_count == 0:
         status = "required_and_present"
     else:
@@ -1372,9 +1349,7 @@ def _denominator_caveats(human_review: Mapping[str, Any]) -> dict[str, Any]:
 def _zero_review_text(human_review: Mapping[str, Any]) -> str:
     summary = _mapping(human_review.get("summary"))
     review_count = int(_first(summary.get("review_count"), summary.get("reviews"), 0) or 0)
-    reviewer_count = int(
-        _first(summary.get("reviewer_count"), summary.get("reviewers"), 0) or 0
-    )
+    reviewer_count = int(_first(summary.get("reviewer_count"), summary.get("reviewers"), 0) or 0)
     if review_count == 0 and reviewer_count == 0:
         return (
             "Human review denominator is zero for this run; do not present human "
@@ -1551,9 +1526,7 @@ def _disposition_rationale(pdd_id: str) -> str:
 
 
 def _refresh_disposition_summary(disposition: dict[str, Any]) -> None:
-    rows = [
-        row for row in _as_list(disposition.get("dispositions")) if isinstance(row, Mapping)
-    ]
+    rows = [row for row in _as_list(disposition.get("dispositions")) if isinstance(row, Mapping)]
     counts = Counter(str(row.get("classification")) for row in rows)
     summary = dict(_mapping(disposition.get("summary")))
     summary["classification_counts"] = dict(sorted(counts.items()))

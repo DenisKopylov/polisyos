@@ -86,9 +86,7 @@ QUALITY_REPORT_FILES = {
     "conflict_materialization": "conflict_materialization_closeout.json",
     "attestation": "attestation.json",
     "policy_design_case_i4_graph": "policy_design_case_i4_graph.json",
-    "policy_design_portfolio_effective_support": (
-        "policy_design_portfolio_effective_support.json"
-    ),
+    "policy_design_portfolio_effective_support": ("policy_design_portfolio_effective_support.json"),
     "lifecycle_reissue_report": "lifecycle_reissue_report.json",
     "policy_design_case_projection": "policy_design_case_projection.json",
     "projection_publication_state": "projection_publication_state.json",
@@ -190,9 +188,7 @@ def _build_quality_report_intake_registry() -> tuple[tuple[str, ...], dict[str, 
     return tuple(sorted(ref_keys)), body_ref_keys
 
 
-QUALITY_REPORT_REF_KEYS, QUALITY_REPORT_BODY_REF_KEYS = (
-    _build_quality_report_intake_registry()
-)
+QUALITY_REPORT_REF_KEYS, QUALITY_REPORT_BODY_REF_KEYS = _build_quality_report_intake_registry()
 
 
 def quality_report_ref_intake_registry() -> tuple[tuple[str, ...], dict[str, str]]:

@@ -86,8 +86,7 @@ def _minimal_report() -> CausalDiscoveryReport:
     )
 
 
-def test_historical_graph_receipt_adapter_replays_or_refuses_without_losing_source(
-) -> None:
+def test_historical_graph_receipt_adapter_replays_or_refuses_without_losing_source() -> None:
     source = CausalGraphModel(
         graph_type=GraphType.CPDAG,
         nodes=["X", "Y", "Z"],
@@ -139,8 +138,7 @@ def test_historical_graph_receipt_adapter_replays_or_refuses_without_losing_sour
     assert refused.graph_for_analysis() is None
 
 
-def test_explicit_null_partial_graph_disposition_is_invalid_not_legacy_absence(
-) -> None:
+def test_explicit_null_partial_graph_disposition_is_invalid_not_legacy_absence() -> None:
     source = CausalGraphModel(
         graph_type=GraphType.PAG,
         nodes=["X", "Y"],
@@ -496,9 +494,7 @@ def test_mutated_identity_disposition_and_malformed_dag_fail_shared_admission() 
         status=GraphProjectionStatus.UNSUPPORTED,
         reason_code="partial_graph_profile_not_admitted",
     )
-    forged_identity = refusal.model_copy(
-        update={"status": GraphProjectionStatus.IDENTITY}
-    )
+    forged_identity = refusal.model_copy(update={"status": GraphProjectionStatus.IDENTITY})
     with pytest.raises(ValueError):
         graph_for_analysis(source, None, forged_identity)
 
@@ -507,9 +503,7 @@ def test_mutated_identity_disposition_and_malformed_dag_fail_shared_admission() 
         graph=source,
         projection_disposition=refusal,
     )
-    copied_report = report.model_copy(
-        update={"projection_disposition": forged_identity}
-    )
+    copied_report = report.model_copy(update={"projection_disposition": forged_identity})
     with pytest.raises(ValueError):
         copied_report.graph_for_analysis()
 

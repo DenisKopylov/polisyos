@@ -16,9 +16,7 @@ PASS1B_TENANT_CAS_APPROVAL_GOVERNANCE_SCHEMA_VERSION = (
 PASS1B_TENANT_CAS_APPROVAL_GOVERNANCE_CONTRACT_ID = (
     "policy_design_case.pass1b_tenant_cas_approval_governance.v1"
 )
-PASS1B_TENANT_CAS_APPROVAL_GOVERNANCE_RECORD_KEY = (
-    "pass1b_tenant_cas_approval_governance"
-)
+PASS1B_TENANT_CAS_APPROVAL_GOVERNANCE_RECORD_KEY = "pass1b_tenant_cas_approval_governance"
 PASS1B_HARDENING_SCORECARD_GATE = "policy_design_case.pass1b_hardening"
 PASS1B_HARDENING_READINESS_CHECK = "policy_design_case.pass1b_hardening"
 PASS1B_HARDENING_NEXT_ACTION = (
@@ -229,8 +227,7 @@ def build_pass1b_tenant_cas_approval_governance_record(
         "hardening_group": "tenant_cas_approval_governance",
         "pdd_bindings": [dict(row) for row in pdd_bindings],
         "case_bindings": {
-            str(surface): dict(binding)
-            for surface, binding in case_bindings.items()
+            str(surface): dict(binding) for surface, binding in case_bindings.items()
         },
         "evidence_ref": evidence_ref,
         "runtime_event_ref": runtime_event_ref,
@@ -249,20 +246,16 @@ def validate_pass1b_tenant_cas_approval_governance_record(
     normalized = dict(record)
     normalized["schema_version"] = PASS1B_TENANT_CAS_APPROVAL_GOVERNANCE_SCHEMA_VERSION
     normalized["contract_id"] = (
-        _text(record.get("contract_id"))
-        or PASS1B_TENANT_CAS_APPROVAL_GOVERNANCE_CONTRACT_ID
+        _text(record.get("contract_id")) or PASS1B_TENANT_CAS_APPROVAL_GOVERNANCE_CONTRACT_ID
     )
     normalized["status"] = _text(record.get("status")) or "pass"
     normalized["record_family"] = (
-        _text(record.get("record_family"))
-        or "pass1b_tenant_cas_approval_governance.v1"
+        _text(record.get("record_family")) or "pass1b_tenant_cas_approval_governance.v1"
     )
     normalized["hardening_group"] = (
         _text(record.get("hardening_group")) or "tenant_cas_approval_governance"
     )
-    normalized["pdd_bindings"] = [
-        dict(row) for row in _mapping_rows(record.get("pdd_bindings"))
-    ]
+    normalized["pdd_bindings"] = [dict(row) for row in _mapping_rows(record.get("pdd_bindings"))]
     normalized["case_bindings"] = {
         str(surface): dict(binding)
         for surface, binding in _mapping(record.get("case_bindings")).items()
@@ -606,10 +599,7 @@ def _surface_semantic_issues(
             issues.append(
                 _issue(
                     "policy_design_pass1b_public_trust_signature_invalid",
-                    (
-                        "Public trust binding must prove a valid signing and key "
-                        "lifecycle chain."
-                    ),
+                    ("Public trust binding must prove a valid signing and key lifecycle chain."),
                     "case_bindings.signing_public_trust.trust_status",
                     record=record,
                     surface=surface,

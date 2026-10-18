@@ -104,7 +104,9 @@ def build_cleanup_report(
     unknown = tuple(slot for slot in requested if slot not in state_classes)
     if unknown:
         available = ", ".join(sorted(state_classes))
-        raise ValueError(f"Unknown runtime-state slot(s): {', '.join(unknown)}. Available: {available}")
+        raise ValueError(
+            f"Unknown runtime-state slot(s): {', '.join(unknown)}. Available: {available}"
+        )
 
     dry_run = not apply
     summaries: list[SlotCleanupSummary] = []

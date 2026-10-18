@@ -1,4 +1,3 @@
-
 """Property-based tests for sensitivity analysis methods — Sobol, Morris, specification curve."""
 
 from __future__ import annotations
@@ -111,7 +110,9 @@ class TestSpecificationCurveProperties:
         deadline=15000,
         suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
     )
-    def test_specification_curve_output_dict(self, data, isolated_registry, property_method_dispatcher):
+    def test_specification_curve_output_dict(
+        self, data, isolated_registry, property_method_dispatcher
+    ):
         estimates = np.asarray(data["Y"], dtype=float)
         state = {
             "estimates": estimates,
@@ -137,7 +138,9 @@ class TestSpecificationCurveProperties:
         deadline=15000,
         suppress_health_check=[HealthCheck.too_slow, HealthCheck.function_scoped_fixture],
     )
-    def test_specification_curve_deterministic(self, data, isolated_registry, property_method_dispatcher):
+    def test_specification_curve_deterministic(
+        self, data, isolated_registry, property_method_dispatcher
+    ):
         estimates = np.asarray(data["Y"], dtype=float)
         state = {
             "estimates": estimates,

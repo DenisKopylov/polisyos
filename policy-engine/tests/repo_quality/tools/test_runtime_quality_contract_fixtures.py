@@ -54,8 +54,7 @@ def _fixture_status(path: Path) -> str:
         if path.stem.endswith(f"_{status}"):
             return status
     raise AssertionError(
-        f"{path.relative_to(REPO_ROOT)} must end with one of: "
-        f"{sorted(STATUS_TOKENS)}"
+        f"{path.relative_to(REPO_ROOT)} must end with one of: {sorted(STATUS_TOKENS)}"
     )
 
 

@@ -51,8 +51,7 @@ BASE_INVARIANT: dict[str, Any] = {
     "dependencies": [],
     "consumers": ["runtime.scorecard"],
     "next_diagnostic_command": (
-        "uv run pytest tests/unit/runtime/quality/"
-        "test_runtime_quality_negative.py -q"
+        "uv run pytest tests/unit/runtime/quality/test_runtime_quality_negative.py -q"
     ),
     "negative_tests": [NEGATIVE_TEST_REF],
 }
@@ -316,9 +315,7 @@ def _write_minimal_hds_repo(
     )
 
     invariant_payload = invariant if invariant is not None else BASE_INVARIANT
-    fitness_payload = (
-        fitness_function if fitness_function is not None else BASE_FITNESS_FUNCTION
-    )
+    fitness_payload = fitness_function if fitness_function is not None else BASE_FITNESS_FUNCTION
     _write_table_array(
         production_quality / "invariant_registry.toml",
         "invariants",
@@ -346,10 +343,7 @@ def _write_minimal_hds_repo(
                     {
                         "id": "lex.normative_evidence",
                         "status": "runtime_emitted",
-                        "expected_ref": (
-                            "runtime_quality_ref#"
-                            "normative_applicability_report_ref"
-                        ),
+                        "expected_ref": ("runtime_quality_ref#normative_applicability_report_ref"),
                         "producer": {"name": "lex.normative_applicability"},
                     }
                 ],
@@ -372,7 +366,7 @@ def _write_event_registry(
     *,
     authority_role: str,
 ) -> None:
-    lines = ['[registry]', 'name = "hds-test-events"', 'version = "1"', ""]
+    lines = ["[registry]", 'name = "hds-test-events"', 'version = "1"', ""]
     for event_name in event_names:
         lines.extend(
             [

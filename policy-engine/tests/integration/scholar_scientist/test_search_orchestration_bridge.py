@@ -119,9 +119,7 @@ async def test_scholar_search_projects_into_scientist_research_dag(
     )
 
     node_types = {node.node_type for node in dag.nodes}
-    support_nodes = [
-        node for node in dag.nodes if node.producer == "scholar.claim_support"
-    ]
+    support_nodes = [node for node in dag.nodes if node.producer == "scholar.claim_support"]
 
     assert bundle.sources[0].domain == "openalex.org"
     assert bundle.claim_supports[0].snippet_ids
@@ -129,8 +127,6 @@ async def test_scholar_search_projects_into_scientist_research_dag(
     assert ResearchNodeType.SOURCE_READ in node_types
     assert ResearchNodeType.EXTRACTION in node_types
     assert ResearchNodeType.VERIFICATION in node_types
-    assert support_nodes[0].metadata["snippet_count"] == len(
-        bundle.claim_supports[0].snippet_ids
-    )
+    assert support_nodes[0].metadata["snippet_count"] == len(bundle.claim_supports[0].snippet_ids)
     assert any(edge.edge_type is ResearchEdgeType.SUPPORTS for edge in dag.edges)
     assert "government spending and poverty rate evidence" not in dag.model_dump_json()

@@ -107,9 +107,7 @@ G4_G5_DEREFERENCE_WAIST_COURT_REPORT_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_gx_g4_g5_dereference_waist_court_report.json"
 )
 G8_READINESS_MANIFEST_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g8_readiness_manifest.json"
-G8_CROSS_METRIC_DIAGNOSIS_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g8_cross_metric_diagnosis.json"
-)
+G8_CROSS_METRIC_DIAGNOSIS_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g8_cross_metric_diagnosis.json"
 G8_DOMAIN_VS_SEARCH_CEILING_GATE_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g8_domain_vs_search_ceiling_gate.json"
 )
@@ -122,9 +120,7 @@ G8_METRIC_GOVERNANCE_AUDIT_SURFACE_PATH = (
 G8_CLOSEOUT_SIGNAL_CONSUMER_GATE_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g8_closeout_signal_consumer_gate.json"
 )
-G1_SEARCH_RECALL_FRESHNESS_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g1_search_recall_freshness.json"
-)
+G1_SEARCH_RECALL_FRESHNESS_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g1_search_recall_freshness.json"
 G1_SUBSTRATE_SEARCH_LEDGERS_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g1_substrate_search_ledgers.json"
 )
@@ -209,6 +205,7 @@ def declared_outputs() -> list[str]:
                 if path.name not in GX_DATA_HOME_INPUT_FILENAMES
             )
     return sorted(outputs)
+
 
 FORBIDDEN_DOMAIN_LITERALS: frozenset[str] = frozenset(
     {
@@ -844,12 +841,8 @@ def _g1_search_recall_measurement_row(
     query_or_probe = {
         "measurement_provenance": search_health.get("measurement_provenance"),
         "query_trace_refs": _string_list(search_health.get("query_trace_refs")),
-        "query_expansion_trace_refs": _string_list(
-            search_health.get("query_expansion_trace_refs")
-        ),
-        "resolved_corpus_row_refs": _string_list(
-            search_health.get("resolved_corpus_row_refs")
-        ),
+        "query_expansion_trace_refs": _string_list(search_health.get("query_expansion_trace_refs")),
+        "resolved_corpus_row_refs": _string_list(search_health.get("resolved_corpus_row_refs")),
     }
     if not any(query_or_probe.values()):
         return None
@@ -870,9 +863,7 @@ def _g1_search_recall_measurement_row(
             "artifact_hash": _hash_file(repo_root / path),
             "corpus_kind": _first_text(search_health.get("corpus_kind")),
             "search_recall_status": _first_text(search_health.get("search_recall_status")),
-            "index_freshness_status": _first_text(
-                search_health.get("index_freshness_status")
-            ),
+            "index_freshness_status": _first_text(search_health.get("index_freshness_status")),
         },
         "expected_output_hash": str(search_health["replay_expected_output_hash"]),
         "replay_command": str(search_health["replay_command"]),
@@ -1062,11 +1053,11 @@ def build_measurement_replay_report(
             )
     if not measurements:
         issues.append(
-                _issue(
-                    "layer3_gx_measurement_replay_not_measured",
-                    _gx_case_path(PRODUCER_REGISTRY_PATH).as_posix(),
-                    "No measurement roots are available for GX replay.",
-                )
+            _issue(
+                "layer3_gx_measurement_replay_not_measured",
+                _gx_case_path(PRODUCER_REGISTRY_PATH).as_posix(),
+                "No measurement roots are available for GX replay.",
+            )
         )
     normalized = _deduplicate_issues(issues)
     return {
@@ -1780,9 +1771,7 @@ def build_layer3_gx_final_blocker_audit_record(
         "audit_phase": "final_task12",
         "status": status,
         "answer_status": (
-            "candidate_requires_replay"
-            if status == "pass"
-            else "blocked_not_currently_publishable"
+            "candidate_requires_replay" if status == "pass" else "blocked_not_currently_publishable"
         ),
         "case_id": route.get("case_id") or "",
         "request_ref": route.get("request_ref") or "",
@@ -1884,10 +1873,10 @@ def build_layer3_gx_final_pinned_route_outcome_report(
         classification=classification,
     )
     reducer_calls = [
-            _gx_reducer_call_row(
-                _as_mapping(decision),
-                _gx_repo_ref(VERTICAL_PINNED_ROUTE_REPORT_PATH, f"#decisions/{index}"),
-            )
+        _gx_reducer_call_row(
+            _as_mapping(decision),
+            _gx_repo_ref(VERTICAL_PINNED_ROUTE_REPORT_PATH, f"#decisions/{index}"),
+        )
         for index, decision in enumerate(_as_list(route.get("decisions")))
         if isinstance(decision, Mapping)
     ]
@@ -2012,12 +2001,12 @@ def build_reducer_integrity_report(
     ]
     if missing:
         issues.append(
-                _issue(
-                    "layer3_gx_reducer_provenance_missing",
-                    _gx_case_path(POSITIVE_STATUS_PROVENANCE_PATH).as_posix(),
-                    "One or more positive statuses lack reducer provenance.",
-                    missing_record_count=len(missing),
-                )
+            _issue(
+                "layer3_gx_reducer_provenance_missing",
+                _gx_case_path(POSITIVE_STATUS_PROVENANCE_PATH).as_posix(),
+                "One or more positive statuses lack reducer provenance.",
+                missing_record_count=len(missing),
+            )
         )
     invalid_root_records = [
         record
@@ -2026,12 +2015,12 @@ def build_reducer_integrity_report(
     ]
     if invalid_root_records:
         issues.append(
-                _issue(
-                    "layer3_gx_reducer_producer_root_chain_invalid",
-                    _gx_case_path(PRODUCER_ROOT_CHAIN_REPORT_PATH).as_posix(),
-                    "Reducer provenance is insufficient when producer-root validation fails.",
-                    invalid_record_count=len(invalid_root_records),
-                )
+            _issue(
+                "layer3_gx_reducer_producer_root_chain_invalid",
+                _gx_case_path(PRODUCER_ROOT_CHAIN_REPORT_PATH).as_posix(),
+                "Reducer provenance is insufficient when producer-root validation fails.",
+                invalid_record_count=len(invalid_root_records),
+            )
         )
     reducer_decisions = _as_list((reducer_decision_report or {}).get("decisions"))
     manifest_override_issues = _as_list((reducer_decision_report or {}).get("issues"))
@@ -2312,9 +2301,7 @@ def build_validation_authority_boundary(repo_root: Path) -> dict[str, Any]:
         "legacy_green_slice_count": sum(
             1 for row in slices if row["old_validator_status"] == "pass"
         ),
-        "legacy_diagnostic_count": sum(
-            len(row["legacy_diagnostic_codes"]) for row in slices
-        ),
+        "legacy_diagnostic_count": sum(len(row["legacy_diagnostic_codes"]) for row in slices),
         "issues": _authority_boundary_issues({"slices": slices}),
     }
 
@@ -3478,9 +3465,7 @@ def _positive_status_classification_record(status: PositiveStatus) -> dict[str, 
 def _default_artifact_paths(repo_root: Path) -> tuple[Path, ...]:
     selection = _CURRENT_GX_SELECTION.get()
     if selection is not None:
-        gx_files = {
-            _gx_case_path(path, selection=selection) for path in GX_DATA_HOME_INPUT_PATHS
-        }
+        gx_files = {_gx_case_path(path, selection=selection) for path in GX_DATA_HOME_INPUT_PATHS}
         paths: list[Path] = list(gx_files)
         for pattern in DEFAULT_ARTIFACT_GLOBS:
             paths.extend(
@@ -3597,10 +3582,7 @@ def _render_selected_case_token(value: Any, case_id: str) -> Any:
     if isinstance(value, list):
         return [_render_selected_case_token(item, case_id) for item in value]
     if isinstance(value, dict):
-        return {
-            key: _render_selected_case_token(item, case_id)
-            for key, item in value.items()
-        }
+        return {key: _render_selected_case_token(item, case_id) for key, item in value.items()}
     return value
 
 
@@ -3742,9 +3724,7 @@ def _write_artifacts(repo_root: Path, artifacts: Mapping[str, Any]) -> list[str]
         _gx_case_path(PERSISTED_STATUS_RECOMPUTE_DRIFT_PATH): artifacts[
             "layer3_gx_persisted_status_recompute_drift"
         ],
-        _gx_case_path(STATUS_VOCABULARY_DELTA_PATH): artifacts[
-            "layer3_gx_status_vocabulary_delta"
-        ],
+        _gx_case_path(STATUS_VOCABULARY_DELTA_PATH): artifacts["layer3_gx_status_vocabulary_delta"],
         _gx_case_path(CORRECTION_RETRACTION_LOG_PATH): artifacts[
             "layer3_gx_correction_retraction_log"
         ],
@@ -3755,9 +3735,7 @@ def _write_artifacts(repo_root: Path, artifacts: Mapping[str, Any]) -> list[str]
             "layer3_gx_validation_authority_boundary"
         ],
         _gx_case_path(EXPECTED_RED_CHECKS_PATH): artifacts["layer3_gx_expected_red_checks"],
-        _gx_case_path(HUMAN_APPROVAL_RECEIPTS_PATH): artifacts[
-            "layer3_gx_human_approval_receipts"
-        ],
+        _gx_case_path(HUMAN_APPROVAL_RECEIPTS_PATH): artifacts["layer3_gx_human_approval_receipts"],
     }
     written: list[str] = []
     for path, payload in mapping.items():

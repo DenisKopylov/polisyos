@@ -94,6 +94,7 @@ def serialize_llm_claim_occurrence_vocabulary(
         ),
     )
 
+
 EXTRACTION_PROMPT = """Extract causal and quantitative evidence from this abstract.
 
 Return strict JSON object with fields:

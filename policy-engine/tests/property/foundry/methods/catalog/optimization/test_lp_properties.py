@@ -1,4 +1,3 @@
-
 """
 Property-based tests for Linear Programming optimization methods.
 """
@@ -166,5 +165,8 @@ def test_lp_deterministic_given_same_seed(
     assert np.isclose(result1["objective_value"], result2["objective_value"], rtol=1e-8, atol=1e-8)
     assert set(result1["variables"]) == set(result2["variables"])
     np.testing.assert_allclose(
-        list(result1["variables"].values()), list(result2["variables"].values()), rtol=1e-8, atol=1e-8
+        list(result1["variables"].values()),
+        list(result2["variables"].values()),
+        rtol=1e-8,
+        atol=1e-8,
     )

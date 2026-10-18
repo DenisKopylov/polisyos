@@ -525,11 +525,7 @@ def _context_claim_supports(problem_frame: ProblemFrame) -> list[dict[str, Any]]
     seen: set[str] = set()
     for index, item in enumerate(supports):
         fingerprint = str(
-            item.get("claim_id")
-            or item.get("id")
-            or item.get("text")
-            or item.get("claim")
-            or index
+            item.get("claim_id") or item.get("id") or item.get("text") or item.get("claim") or index
         )
         if fingerprint in seen:
             continue

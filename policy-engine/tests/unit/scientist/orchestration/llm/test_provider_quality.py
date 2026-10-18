@@ -216,9 +216,7 @@ def test_default_production_models_need_recent_quality_evidence() -> None:
         max_evidence_age_days=14,
     )
 
-    reviews = {
-        review.model_fingerprint: review for review in ledger.default_model_reviews
-    }
+    reviews = {review.model_fingerprint: review for review in ledger.default_model_reviews}
 
     assert reviews["good-fp"].action == "approve"
     assert reviews["review-fp"].action == "require_review"
@@ -342,10 +340,7 @@ def test_controlled_model_comparison_blocks_default_promotion_before_three_sampl
     observations = [
         _controlled_observation(**qwen, sample_index=0),
         _controlled_observation(**qwen, sample_index=1),
-        *[
-            _controlled_observation(**kimi, sample_index=index)
-            for index in range(3)
-        ],
+        *[_controlled_observation(**kimi, sample_index=index) for index in range(3)],
     ]
 
     comparison = build_controlled_provider_model_comparison(
@@ -482,14 +477,13 @@ def test_provider_quality_drift_blocks_production_scorecard_approval() -> None:
     )
 
     assert provider_gate["status"] == "fail"
-    assert provider_gate["code"] == (
-        "provider_model_quality_default_model_demoted"
-    )
+    assert provider_gate["code"] == ("provider_model_quality_default_model_demoted")
     assert scorecard["quality_status"] == "fail"
     assert scorecard["approval_state"] == "quality_failed"
     assert scorecard["approval_eligibility"]["eligible"] is False
-    assert "provider_model_quality_default_model_demoted" in (
-        scorecard["approval_eligibility"]["reasons"]
+    assert (
+        "provider_model_quality_default_model_demoted"
+        in (scorecard["approval_eligibility"]["reasons"])
     )
 
 
@@ -543,8 +537,7 @@ def _controlled_observation(
     cost_usd: float = 0.001,
 ) -> ProviderModelQualityObservation:
     request_fingerprint = (
-        "sha256:"
-        f"{'qwen' if 'Qwen' in model_id else 'kimi'}-controlled-fingerprint-{sample_index}"
+        f"sha256:{'qwen' if 'Qwen' in model_id else 'kimi'}-controlled-fingerprint-{sample_index}"
     )
     return build_controlled_grounding_observation(
         provider=provider,

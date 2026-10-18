@@ -109,9 +109,12 @@ def test_selection_fails_closed_on_profile_missing_path_and_cross_root(tmp_path:
         selection=selection,
         requested_profile="prod_full",
     )
-    with catalog_serving_source_scope(source), pytest.raises(
-        SubstrateRegistryError,
-        match="catalog_source_repo_root_mismatch",
+    with (
+        catalog_serving_source_scope(source),
+        pytest.raises(
+            SubstrateRegistryError,
+            match="catalog_source_repo_root_mismatch",
+        ),
     ):
         l1_dcat_variable_availability(tmp_path / "other", "employment_rate")
 
@@ -147,6 +150,7 @@ def test_snapshot_root_symlink_is_canonicalized_and_db_member_symlink_refuses(
             ),
             requested_profile="prod_full",
         )
+
 
 def test_nl_wrapper_binds_selected_source_for_sync_consumers(tmp_path: Path) -> None:
     legacy = (
@@ -195,6 +199,7 @@ def test_nl_wrapper_binds_selected_source_for_sync_consumers(tmp_path: Path) -> 
 
     assert result["status"] == "available"
     assert l1_dcat_variable_availability(tmp_path, "employment_rate").status == "unavailable"
+
 
 def test_malformed_selection_refuses_instead_of_falling_back_to_legacy(tmp_path: Path) -> None:
     with pytest.raises(SubstrateRegistryError, match="catalog_source_selection_invalid"):

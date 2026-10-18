@@ -81,9 +81,7 @@ class PolicyCaseReference(BaseModel):
     @model_validator(mode="after")
     def _require_source_or_hash(self) -> PolicyCaseReference:
         if not self.source_ref and not self.redacted_source_hash:
-            raise ValueError(
-                "policy case references require source_ref or redacted_source_hash"
-            )
+            raise ValueError("policy case references require source_ref or redacted_source_hash")
         if self.redacted_source_hash and not self.redacted_source_hash.startswith("sha256:"):
             raise ValueError("redacted_source_hash must use sha256:<digest>")
         return self
@@ -333,9 +331,7 @@ class PolicyCaseAnnotation(BaseModel):
     references: tuple[PolicyCaseReference, ...] = Field(min_length=1)
     claims: tuple[ClaimAnnotationRecord, ...] = Field(min_length=1)
     obligations: tuple[ObligationAnnotation, ...] = Field(min_length=1)
-    known_outcomes_or_failures: tuple[KnownOutcomeOrFailureAnnotation, ...] = Field(
-        min_length=1
-    )
+    known_outcomes_or_failures: tuple[KnownOutcomeOrFailureAnnotation, ...] = Field(min_length=1)
     annotation_provenance: AnnotationProvenance
     authority_boundary: AnnotationAuthorityBoundary = Field(
         default_factory=AnnotationAuthorityBoundary
@@ -402,9 +398,7 @@ class PolicyCaseAnnotation(BaseModel):
             used_refs.extend(claim.risks)
             used_refs.extend(claim.tradeoffs)
             used_refs.extend(claim.limitation_refs)
-        used_refs.extend(
-            finding.source_ref for finding in self.known_outcomes_or_failures
-        )
+        used_refs.extend(finding.source_ref for finding in self.known_outcomes_or_failures)
         missing = sorted({ref for ref in used_refs if ref not in registered_refs})
         if missing:
             raise ValueError(f"unregistered annotation refs: {missing}")

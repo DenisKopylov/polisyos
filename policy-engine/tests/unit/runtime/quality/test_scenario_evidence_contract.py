@@ -36,15 +36,17 @@ def test_normalizes_public_golden_scenario_to_typed_runtime_obligations() -> Non
         "credit_program_registry",
         "regional_displacement_indicators",
     ]
-    assert {
-        item.expected_family for item in _requirements_by_domain(contract, "legal")
-    } >= {"wartime_business_support_authority", "credit_eligibility_rule"}
-    assert {
-        item.expected_family for item in _requirements_by_domain(contract, "method")
-    } >= {"causal_effect_estimation", "uncertainty_interval"}
-    assert {
-        item.expected_family for item in _requirements_by_domain(contract, "claim")
-    } >= {"recommendation_without_budget_guardrail"}
+    assert {item.expected_family for item in _requirements_by_domain(contract, "legal")} >= {
+        "wartime_business_support_authority",
+        "credit_eligibility_rule",
+    }
+    assert {item.expected_family for item in _requirements_by_domain(contract, "method")} >= {
+        "causal_effect_estimation",
+        "uncertainty_interval",
+    }
+    assert {item.expected_family for item in _requirements_by_domain(contract, "claim")} >= {
+        "recommendation_without_budget_guardrail"
+    }
 
 
 def test_data_requirements_carry_source_admissibility_facets_and_owners() -> None:

@@ -117,9 +117,7 @@ def test_ir_package_contract_covers_live_first_level_roots() -> None:
         Path(entry).name for entry in package_contract["layout"]["implementation_roots"]
     }
     live_roots = {
-        path.name
-        for path in ir_root.iterdir()
-        if path.is_dir() and path.name != "__pycache__"
+        path.name for path in ir_root.iterdir() if path.is_dir() and path.name != "__pycache__"
     }
 
     assert live_roots <= declared_roots

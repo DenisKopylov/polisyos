@@ -402,9 +402,7 @@ def test_empty_status_blind_checkpoint_establishes_contract_after_native_success
 ) -> None:
     run_id = "R_distributed_tier_empty_status_blind"
     store = FileSystemCAS(tmp_path / "cas")
-    store_config = ArtifactStoreConfig(
-        backend="filesystem", root=str(tmp_path / "cas")
-    )
+    store_config = ArtifactStoreConfig(backend="filesystem", root=str(tmp_path / "cas"))
     initial_hook = CASCheckpointHook(
         store=store,
         run_dir=tmp_path / "runs" / run_id,
@@ -454,9 +452,7 @@ def test_empty_status_blind_checkpoint_establishes_contract_after_native_success
     )
 
     assert deserialize_state(result.state_bytes).params == {"native": True}
-    resolved = resolve_latest_checkpoint(
-        store, run_id, run_dir=tmp_path / "runs" / run_id
-    )
+    resolved = resolve_latest_checkpoint(store, run_id, run_dir=tmp_path / "runs" / run_id)
     assert resolved is not None
     _, checkpoint = resolved
     assert checkpoint.metadata.completed_nodes == ["native"]

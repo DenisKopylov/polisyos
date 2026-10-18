@@ -1424,9 +1424,10 @@ def _write_nonempty_v2_owner_pair(
     }
     index_bytes = (json.dumps(payload, indent=2, sort_keys=True) + "\n").encode()
     index.path.write_bytes(index_bytes)
-    index_digest = "sha256:" + hashlib.sha256(
-        to_canonical_bytes(payload, CanonSpec(forbid_floats=False))
-    ).hexdigest()
+    index_digest = (
+        "sha256:"
+        + hashlib.sha256(to_canonical_bytes(payload, CanonSpec(forbid_floats=False))).hexdigest()
+    )
     signature = index._signature_payload(payload, digest=index_digest)
     signature_bytes = (json.dumps(signature, indent=2, sort_keys=True) + "\n").encode()
     index.signature_path.write_bytes(signature_bytes)
@@ -1517,16 +1518,17 @@ def test_v2_currentness_gate_refuses_pointer_and_digest_markers_do_not_substitut
 
     owner_after = fixture.base.store.ownership_evidence(tenant_id="tenant-a")
     assert owner_before["ownership_index_digest"] != owner_after["ownership_index_digest"]
-    assert packet.evidence_refs["artifact_ownership_index"] == owner_before["ownership_index_digest"]
-    assert packet.evidence_refs["artifact_ownership_index_signature"] == (
-        owner_before["ownership_index_signature_digest"]
+    assert (
+        packet.evidence_refs["artifact_ownership_index"] == owner_before["ownership_index_digest"]
+    )
+    assert (
+        packet.evidence_refs["artifact_ownership_index_signature"]
+        == (owner_before["ownership_index_signature_digest"])
     )
 
     sink_type = type(fixture.base.service._sink)
     original_reader = sink_type.ownership_evidence
-    empty_owner_evidence = _ephemeral_empty_owner_evidence(
-        tmp_path / "ephemeral-empty-owner"
-    )
+    empty_owner_evidence = _ephemeral_empty_owner_evidence(tmp_path / "ephemeral-empty-owner")
     requires_v3 = "DS9-APPROVAL-OWNER-BINDING-REQUIRES-V3"
     unresolved = "DS9-APPROVAL-OWNER-BINDING-UNRESOLVED"
     owner_states = (
@@ -1571,9 +1573,7 @@ def test_v2_currentness_gate_refuses_pointer_and_digest_markers_do_not_substitut
     from polisyos.runtime.quality.approval import ProductionApprovalPacket
 
     historical_bytes = fixture.base.service._sink.get_artifact_bytes(receipt.packet_ref)
-    assert ProductionApprovalPacket.model_validate(
-        from_canonical_bytes(historical_bytes)
-    ) == packet
+    assert ProductionApprovalPacket.model_validate(from_canonical_bytes(historical_bytes)) == packet
     assert fixture.base.service._sink.verify_artifact_signature(
         receipt.packet_ref,
         fixture.base.service.custody.verifier,
@@ -1606,11 +1606,13 @@ def test_v2_currentness_gate_refuses_pointer_and_digest_markers_do_not_substitut
         evaluated_at=NOW,
     )
     assert unguarded.packet_ref == receipt.packet_ref
-    assert unguarded.packet.evidence_refs["artifact_ownership_index"] == (
-        owner_before["ownership_index_digest"]
+    assert (
+        unguarded.packet.evidence_refs["artifact_ownership_index"]
+        == (owner_before["ownership_index_digest"])
     )
-    assert unguarded.packet.evidence_refs["artifact_ownership_index_signature"] == (
-        owner_before["ownership_index_signature_digest"]
+    assert (
+        unguarded.packet.evidence_refs["artifact_ownership_index_signature"]
+        == (owner_before["ownership_index_signature_digest"])
     )
     assert v2_index.path.read_bytes() == v2_index_bytes
     assert v2_index.signature_path.read_bytes() == v2_signature_bytes
@@ -1665,9 +1667,7 @@ def test_v2_packet_issuer_refuses_empty_legacy_and_pointer_owner_states(
     )
     packets_before = _production_approval_packet_ids(fixture.base.store)
 
-    empty_owner_evidence = _ephemeral_empty_owner_evidence(
-        tmp_path / "ephemeral-empty-owner"
-    )
+    empty_owner_evidence = _ephemeral_empty_owner_evidence(tmp_path / "ephemeral-empty-owner")
     requires_v3 = "DS9-APPROVAL-OWNER-BINDING-REQUIRES-V3"
     unresolved = "DS9-APPROVAL-OWNER-BINDING-UNRESOLVED"
     owner_states = (

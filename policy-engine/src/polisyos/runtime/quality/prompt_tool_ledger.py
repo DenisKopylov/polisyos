@@ -42,16 +42,12 @@ COMPRESSION_LOSS_SCHEMA_VERSION = "policyos.runtime.compression_loss_receipt.v1"
 ORCHESTRATION_CHOICE_POLICY_CATALOG_SCHEMA_VERSION = (
     "policyos.runtime.orchestration_choice_policy_catalog.v1"
 )
-ORCHESTRATION_AUTHORITY_DELTA_SCHEMA_VERSION = (
-    "policyos.runtime.orchestration_authority_delta.v1"
-)
+ORCHESTRATION_AUTHORITY_DELTA_SCHEMA_VERSION = "policyos.runtime.orchestration_authority_delta.v1"
 _POLICY_ENGINE_ROOT = Path(__file__).resolve().parents[4]
 _ORCHESTRATION_CHOICE_POLICY_RELATIVE_PATH = Path(
     "architecture/production_quality/orchestration_choice_policies.toml"
 )
-_ORCHESTRATION_CHOICE_POLICY_PATH = (
-    _POLICY_ENGINE_ROOT / _ORCHESTRATION_CHOICE_POLICY_RELATIVE_PATH
-)
+_ORCHESTRATION_CHOICE_POLICY_PATH = _POLICY_ENGINE_ROOT / _ORCHESTRATION_CHOICE_POLICY_RELATIVE_PATH
 _ORCHESTRATION_CHOICE_POLICY_OWNER = "team-runtime-quality"
 _COMPRESSION_MAY_NOT_USE_FOR = (
     "claim_authority",
@@ -130,9 +126,7 @@ class OrchestrationChoicePolicy(BaseModel):
                 "choice_kind": self.choice_kind,
                 "decision_policy_ref": self.decision_policy_ref,
                 "authority_effect": self.authority_effect,
-                "governance_burden_change_allowed": (
-                    self.governance_burden_change_allowed
-                ),
+                "governance_burden_change_allowed": (self.governance_burden_change_allowed),
                 "policy_owner": self.policy_owner,
                 "approval_owner": self.approval_owner,
                 "authoritative_for": [],
@@ -427,8 +421,7 @@ class CompressionTerminalResult(BaseModel):
             "constitutive_step",
         }
         if any(
-            claim.claim_kind not in allowed_claim_kinds
-            for claim in self.protected_material.claims
+            claim.claim_kind not in allowed_claim_kinds for claim in self.protected_material.claims
         ):
             raise ValueError("governed refusal includes an unsafe claim kind")
         if self.retained_limitations != tuple(
@@ -469,17 +462,11 @@ class CompressionLossReceipt(BaseModel):
     retained_counterevidence: tuple[str, ...] = Field(default=())
     dropped_counterevidence: tuple[str, ...] = Field(default=())
     introduced_summary_items: tuple[str, ...] = Field(default=())
-    dropped_item_dispositions: tuple[CompressionDroppedItemDisposition, ...] = (
-        Field(default=())
-    )
+    dropped_item_dispositions: tuple[CompressionDroppedItemDisposition, ...] = Field(default=())
     evidence_independence_status_by_claim: dict[str, str] = Field(default_factory=dict)
-    orchestration_choice_contexts: tuple[OrchestrationChoiceContext, ...] = Field(
-        default=()
-    )
+    orchestration_choice_contexts: tuple[OrchestrationChoiceContext, ...] = Field(default=())
     authority_deltas: tuple[OrchestrationAuthorityDelta, ...] = Field(default=())
-    authority_delta_completeness: (
-        OrchestrationAuthorityDeltaCompletenessReceipt | None
-    ) = None
+    authority_delta_completeness: OrchestrationAuthorityDeltaCompletenessReceipt | None = None
     issue_codes: tuple[str, ...] = Field(default=())
     authoritative_for: tuple[str, ...] = Field(default=())
     may_not_use_for: tuple[str, ...] = _COMPRESSION_MAY_NOT_USE_FOR
@@ -492,10 +479,7 @@ class CompressionLossReceipt(BaseModel):
             raise ValueError("compression-loss receipts cannot grant authority")
         if self.source_fingerprint != self.source_material.material_fingerprint:
             raise ValueError("compression source fingerprint mismatch")
-        if (
-            self.candidate_summary_fingerprint
-            != self.candidate_summary.material_fingerprint
-        ):
+        if self.candidate_summary_fingerprint != self.candidate_summary.material_fingerprint:
             raise ValueError("compression candidate-summary fingerprint mismatch")
         if self.status == "pass":
             if self.issue_codes or self.emitted_summary is None or self.terminal_result:
@@ -509,9 +493,7 @@ def load_orchestration_choice_policies() -> tuple[OrchestrationChoicePolicy, ...
     """Load the fixed owner policy catalog for orchestration choices."""
 
     try:
-        document = tomllib.loads(
-            _ORCHESTRATION_CHOICE_POLICY_PATH.read_text(encoding="utf-8")
-        )
+        document = tomllib.loads(_ORCHESTRATION_CHOICE_POLICY_PATH.read_text(encoding="utf-8"))
     except (OSError, tomllib.TOMLDecodeError) as exc:
         raise PromptToolLedgerError(
             "orchestration_choice_owner_policy_unavailable",
@@ -599,9 +581,7 @@ def build_orchestration_authority_deltas(
                 authority_effect=policy.authority_effect,
                 governance_burden_before=context.governance_burden_before,
                 governance_burden_after=context.governance_burden_after,
-                governance_burden_change_allowed=(
-                    policy.governance_burden_change_allowed
-                ),
+                governance_burden_change_allowed=(policy.governance_burden_change_allowed),
             )
         )
     completeness = _authority_delta_completeness_receipt(
@@ -645,8 +625,7 @@ def build_compression_terminal_result(
         claims=tuple(
             claim
             for claim in source.claims
-            if claim.claim_kind
-            in {"procedural_binding", "negative_terminal", "constitutive_step"}
+            if claim.claim_kind in {"procedural_binding", "negative_terminal", "constitutive_step"}
         ),
         limitations=source.limitations,
         denied_uses=source.denied_uses,
@@ -657,12 +636,8 @@ def build_compression_terminal_result(
     return CompressionTerminalResult(
         issue_codes=tuple(issue_codes),
         protected_material=protected_material,
-        retained_limitations=tuple(
-            item.content for item in protected_material.limitations
-        ),
-        retained_denied_uses=tuple(
-            item.content for item in protected_material.denied_uses
-        ),
+        retained_limitations=tuple(item.content for item in protected_material.limitations),
+        retained_denied_uses=tuple(item.content for item in protected_material.denied_uses),
     )
 
 
@@ -677,9 +652,7 @@ def build_compression_loss_receipt(
     authority_delta_completeness: (
         OrchestrationAuthorityDeltaCompletenessReceipt | Mapping[str, Any] | None
     ) = None,
-    orchestration_choice_contexts: Iterable[
-        OrchestrationChoiceContext | Mapping[str, Any]
-    ] = (),
+    orchestration_choice_contexts: Iterable[OrchestrationChoiceContext | Mapping[str, Any]] = (),
     evidence_independence_bases: Mapping[
         str,
         CompressionEvidenceIndependenceBasis | Mapping[str, Any],
@@ -690,19 +663,13 @@ def build_compression_loss_receipt(
 
     source = _canonical_compression_material(source_material)
     summary = _canonical_compression_material(candidate_summary)
-    context_rows, context_parse_issues = _coerce_choice_contexts(
-        orchestration_choice_contexts
-    )
+    context_rows, context_parse_issues = _coerce_choice_contexts(orchestration_choice_contexts)
     delta_rows, delta_parse_issues = _coerce_authority_deltas(authority_deltas)
-    completeness = _coerce_authority_delta_completeness(
-        authority_delta_completeness
-    )
+    completeness = _coerce_authority_delta_completeness(authority_delta_completeness)
     policies = load_orchestration_choice_policies()
     policy_by_kind = {policy.choice_kind: policy for policy in policies}
     issues = [*context_parse_issues, *delta_parse_issues]
-    authority_material_present = bool(
-        context_rows or delta_rows or completeness is not None
-    )
+    authority_material_present = bool(context_rows or delta_rows or completeness is not None)
     if authority_material_present and completeness is None:
         issues.append("compression_authority_delta_completeness_missing")
     elif authority_material_present and (
@@ -728,12 +695,8 @@ def build_compression_loss_receipt(
         for category in ("claims", "limitations", "denied_uses", "counterevidence")
     }
     retained_claims, dropped_claims, introduced_claims = partitions["claims"]
-    retained_limitations, dropped_limitations, introduced_limitations = partitions[
-        "limitations"
-    ]
-    retained_denied_uses, dropped_denied_uses, introduced_denied_uses = partitions[
-        "denied_uses"
-    ]
+    retained_limitations, dropped_limitations, introduced_limitations = partitions["limitations"]
+    retained_denied_uses, dropped_denied_uses, introduced_denied_uses = partitions["denied_uses"]
     (
         retained_counterevidence,
         dropped_counterevidence,
@@ -781,9 +744,7 @@ def build_compression_loss_receipt(
         if status != "sufficient":
             issues.append("compression_broad_consensus_not_supported")
 
-    burden_narrowed = bool(
-        set(source.governance_burden_refs) - set(summary.governance_burden_refs)
-    )
+    burden_narrowed = bool(set(source.governance_burden_refs) - set(summary.governance_burden_refs))
     if burden_narrowed and not any(
         _delta_records_governance_change(
             delta,
@@ -883,9 +844,7 @@ def validate_compression_loss_receipt(
             else receipt
         )
     except ValidationError as exc:
-        raise PromptToolLedgerError(
-            "compression_loss_receipt_owner_validation_failed"
-        ) from exc
+        raise PromptToolLedgerError("compression_loss_receipt_owner_validation_failed") from exc
     recomputed = build_compression_loss_receipt(
         receipt_id=parsed.receipt_id,
         source_ref=parsed.source_ref,
@@ -926,14 +885,10 @@ def _canonical_compression_material(
 ) -> CompressionMaterialSet:
     try:
         return CompressionMaterialSet.model_validate(
-            value.model_dump(mode="python")
-            if isinstance(value, CompressionMaterialSet)
-            else value
+            value.model_dump(mode="python") if isinstance(value, CompressionMaterialSet) else value
         )
     except ValidationError as exc:
-        raise PromptToolLedgerError(
-            "compression_material_content_binding_failed"
-        ) from exc
+        raise PromptToolLedgerError("compression_material_content_binding_failed") from exc
 
 
 def _coerce_authority_deltas(
@@ -1003,8 +958,7 @@ def _authority_delta_completeness_receipt(
             or delta.rejected != context.rejected
             or delta.governance_burden_before != context.governance_burden_before
             or delta.governance_burden_after != context.governance_burden_after
-            or delta.decision_context_fingerprint
-            != _choice_context_fingerprint(context)
+            or delta.decision_context_fingerprint != _choice_context_fingerprint(context)
         )
         if policy_issue is not None or context_mismatch:
             issues.append("orchestration_authority_delta_owner_validation_failed")
@@ -1055,11 +1009,9 @@ def _completeness_matches_deltas(
         contexts=contexts,
         deltas=deltas,
     )
-    return (
-        recomputed.status == "pass"
-        and recomputed.model_dump(mode="json")
-        == completeness.model_dump(mode="json")
-    )
+    return recomputed.status == "pass" and recomputed.model_dump(
+        mode="json"
+    ) == completeness.model_dump(mode="json")
 
 
 def _owner_policy_catalog_fingerprint(
@@ -1093,8 +1045,7 @@ def _authority_delta_owner_issue(
         or delta.decision_policy_owner != policy.policy_owner
         or delta.owner_policy_fingerprint != policy.policy_fingerprint
         or delta.authority_effect != policy.authority_effect
-        or delta.governance_burden_change_allowed
-        != policy.governance_burden_change_allowed
+        or delta.governance_burden_change_allowed != policy.governance_burden_change_allowed
         or delta.predicate_provenance != "recomputed"
         or delta.authoritative_for
         or _choice_partition_issue(delta) is not None
@@ -1132,12 +1083,8 @@ def _compression_partition(
     source_items: Sequence[CompressionMaterialItem],
     summary_items: Sequence[CompressionMaterialItem],
 ) -> tuple[tuple[str, ...], tuple[str, ...], tuple[str, ...]]:
-    source_by_fingerprint = {
-        str(item.item_fingerprint): item for item in source_items
-    }
-    summary_by_fingerprint = {
-        str(item.item_fingerprint): item for item in summary_items
-    }
+    source_by_fingerprint = {str(item.item_fingerprint): item for item in source_items}
+    summary_by_fingerprint = {str(item.item_fingerprint): item for item in summary_items}
     retained_fingerprints = set(source_by_fingerprint) & set(summary_by_fingerprint)
     dropped_fingerprints = set(source_by_fingerprint) - set(summary_by_fingerprint)
     introduced_fingerprints = set(summary_by_fingerprint) - set(source_by_fingerprint)
@@ -1191,9 +1138,7 @@ def _dropped_item_dispositions(
                         else "claim_omitted_authority_reduced"
                     ),
                     authority_effect=(
-                        "material_omission_blocks_summary"
-                        if blocks
-                        else "authority_reduced"
+                        "material_omission_blocks_summary" if blocks else "authority_reduced"
                     ),
                 )
             )
@@ -1631,9 +1576,7 @@ class PromptToolParserAuthorityLedger(BaseModel):
     model_variant_id: str | None = None
     prompt_tool_ledger_ref: str | None = None
     steps: tuple[ModelAssistedStepLedger, ...]
-    orchestration_authority_deltas: tuple[OrchestrationAuthorityDelta, ...] = Field(
-        default=()
-    )
+    orchestration_authority_deltas: tuple[OrchestrationAuthorityDelta, ...] = Field(default=())
     authority_delta_completeness_receipts: tuple[
         OrchestrationAuthorityDeltaCompletenessReceipt, ...
     ] = Field(default=())
@@ -1706,27 +1649,19 @@ class PromptToolParserAuthorityLedger(BaseModel):
                 1
                 for step in self.steps
                 for decision in step.repair_decisions
-                if decision.status != "not_applicable"
-                and decision.fmea_annotation is not None
+                if decision.status != "not_applicable" and decision.fmea_annotation is not None
             ),
-            "orchestration_authority_delta_count": len(
-                self.orchestration_authority_deltas
-            ),
+            "orchestration_authority_delta_count": len(self.orchestration_authority_deltas),
             "authority_delta_completeness_receipt_count": len(
                 self.authority_delta_completeness_receipts
             ),
             "compression_loss_receipt_count": len(self.compression_loss_receipts),
             "blocked_compression_loss_receipt_count": sum(
-                receipt.status == "blocked"
-                for receipt in self.compression_loss_receipts
+                receipt.status == "blocked" for receipt in self.compression_loss_receipts
             ),
             "finding_count": len(self.findings),
             "upstream_spine_blocker_refs": sorted(
-                {
-                    ref
-                    for finding in self.findings
-                    for ref in finding.upstream_spine_blocker_refs
-                }
+                {ref for finding in self.findings for ref in finding.upstream_spine_blocker_refs}
             ),
         }
         if unannotated_repairs:
@@ -1734,8 +1669,7 @@ class PromptToolParserAuthorityLedger(BaseModel):
         if self.orchestration_authority_deltas and (
             not self.authority_delta_completeness_receipts
             or any(
-                receipt.status != "pass"
-                for receipt in self.authority_delta_completeness_receipts
+                receipt.status != "pass" for receipt in self.authority_delta_completeness_receipts
             )
         ):
             self.summary["status"] = "fail"
@@ -1985,8 +1919,7 @@ def prompt_tool_repair_fmea_closeout_record(
             "code": "prompt_tool_repair_fmea_refs_missing",
             "severity": "fail",
             "message": (
-                f"Prompt/tool repair decision {row['decision']} is missing W10.F "
-                "FMEA refs."
+                f"Prompt/tool repair decision {row['decision']} is missing W10.F FMEA refs."
             ),
             "next_action": (
                 "Annotate the repair decision with failure_mode, severity, cause, "

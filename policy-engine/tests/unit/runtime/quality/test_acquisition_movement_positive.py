@@ -92,9 +92,7 @@ def test_native_supplier_requires_separate_gy_act_then_projects_to_cycle_board(
 
     from polisyos.runtime.quality.epoch_deployment import build_epoch_deployment
 
-    selected = _configured_movement_service(
-        supplier, unallocated, movement, tmp_path / "gy-owner"
-    )
+    selected = _configured_movement_service(supplier, unallocated, movement, tmp_path / "gy-owner")
     selected_config = selected._evidence_owner._state().config
     missing_verification_config = selected_config.model_copy(
         update={"predicate_owner_verification_refs": ()}
@@ -162,7 +160,10 @@ def test_revised_source_basis_survives_served_admission_reentry_and_movement(
     assert subject == closure.generation_run.design_problem_ref
     assert subject == closure.source_cycle.design_problem_ref
     assert subject != basis
-    assert closure.design_problem_basis == closure.generation_run.cycles[0].revision_request.revised_problem
+    assert (
+        closure.design_problem_basis
+        == closure.generation_run.cycles[0].revision_request.revised_problem
+    )
 
     unallocated = _movement_service(supplier)
     movement = unallocated._derive_movement(supplier.supplier_receipt_ref)
@@ -170,14 +171,14 @@ def test_revised_source_basis_survives_served_admission_reentry_and_movement(
     assert movement.source_cycle_index == 1
     assert movement.new_cycle_index == 2
 
-    selected = _configured_movement_service(
-        supplier, unallocated, movement, tmp_path / "gy-owner"
-    )
+    selected = _configured_movement_service(supplier, unallocated, movement, tmp_path / "gy-owner")
     admitted = selected.consume_terminal(supplier_receipt_ref=supplier.supplier_receipt_ref)
     assert admitted.status == "admitted", admitted.reason
     assert admitted.movement_record is not None
     row = next(
-        row for row in _board(selected, supplier).get().payload.rows if row.row_id == movement.row_id
+        row
+        for row in _board(selected, supplier).get().payload.rows
+        if row.row_id == movement.row_id
     )
     assert row.movement_records == (admitted.movement_record,)
 
@@ -226,9 +227,7 @@ def test_remove_decisive_native_bytes_keeps_receipt_markers_but_retracts_board_m
     supplier = _supplier(tmp_path / "supplier", monkeypatch)
     unallocated = _movement_service(supplier)
     movement = unallocated._derive_movement(supplier.supplier_receipt_ref)
-    selected = _configured_movement_service(
-        supplier, unallocated, movement, tmp_path / "gy-owner"
-    )
+    selected = _configured_movement_service(supplier, unallocated, movement, tmp_path / "gy-owner")
     admitted = selected.consume_terminal(supplier_receipt_ref=supplier.supplier_receipt_ref)
     assert admitted.status == "admitted", admitted.reason
     assert admitted.movement_record is not None

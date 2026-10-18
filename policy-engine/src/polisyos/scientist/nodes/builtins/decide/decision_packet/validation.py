@@ -532,6 +532,7 @@ def _append_link_report_warnings(
     warnings: list[str],
 ) -> None:
     from polisyos.core.artifacts import load_core_json_artifact
+
     link_report_ref = state.reports_index.get(REPORT_LINK_REPORT_REF)
     if link_report_ref is not None:
         try:
@@ -555,6 +556,7 @@ def _append_compile_report_warnings(
     warnings: list[str],
 ) -> None:
     from polisyos.core.artifacts import load_core_json_artifact
+
     compile_report_ref = state.reports_index.get(REPORT_COMPILE_REPORT_REF)
     if compile_report_ref is not None:
         try:
@@ -588,6 +590,7 @@ def _load_resolved_fidelity_level(
     state: ExperimentState,
 ) -> str | None:
     from polisyos.core.artifacts import load_core_json_artifact
+
     lowered_ir_ref = state.artifacts_index.get(ARTIFACT_LOWERED_IR_REF)
     if lowered_ir_ref is None:
         return None

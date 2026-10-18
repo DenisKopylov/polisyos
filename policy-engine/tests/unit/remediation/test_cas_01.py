@@ -79,10 +79,7 @@ def _install_same_id_stripe_removal_probe(
 
     def route_same_id_away(candidate_id: ArtifactID) -> int:
         stripe = original_stripe(candidate_id)
-        if (
-            candidate_id == artifact_id
-            and threading.current_thread().name == contender_name
-        ):
+        if candidate_id == artifact_id and threading.current_thread().name == contender_name:
             return (stripe + 1) % len(locks)
         return stripe
 
@@ -203,13 +200,16 @@ def test_distinct_profiles_get_honest_views_of_one_blob(tmp_path: Path) -> None:
         schema_name="cas.first.v1",
     )
     first_options = first_options.__class__(
-        **{**first_options.__dict__, "inputs": [
-            InputRef(
-                artifact_id=ArtifactID.from_sha256_hex("a" * 64),
-                role="first_basis",
-                manifest_profile_sha256="sha256:" + "1" * 64,
-            )
-        ]}
+        **{
+            **first_options.__dict__,
+            "inputs": [
+                InputRef(
+                    artifact_id=ArtifactID.from_sha256_hex("a" * 64),
+                    role="first_basis",
+                    manifest_profile_sha256="sha256:" + "1" * 64,
+                )
+            ],
+        }
     )
     second_options = _options(
         "cas.second_writer",
@@ -218,13 +218,16 @@ def test_distinct_profiles_get_honest_views_of_one_blob(tmp_path: Path) -> None:
         schema_name="cas.second.v1",
     )
     second_options = second_options.__class__(
-        **{**second_options.__dict__, "inputs": [
-            InputRef(
-                artifact_id=ArtifactID.from_sha256_hex("b" * 64),
-                role="second_basis",
-                manifest_profile_sha256="sha256:" + "2" * 64,
-            )
-        ]}
+        **{
+            **second_options.__dict__,
+            "inputs": [
+                InputRef(
+                    artifact_id=ArtifactID.from_sha256_hex("b" * 64),
+                    role="second_basis",
+                    manifest_profile_sha256="sha256:" + "2" * 64,
+                )
+            ],
+        }
     )
 
     first_ref = store.put_bytes(PAYLOAD, first_options)
@@ -367,7 +370,9 @@ def test_integrity_verification_uses_the_selected_manifest_view(tmp_path: Path) 
         selected.artifact_id,
         selected.manifest_profile_sha256,
     )
-    selected_path.write_bytes(selected_path.read_bytes().replace(b"cas.verify.selected", b"cas.verify.tampered"))
+    selected_path.write_bytes(
+        selected_path.read_bytes().replace(b"cas.verify.selected", b"cas.verify.tampered")
+    )
 
     report = store.verify(selected)
 
@@ -510,9 +515,7 @@ def test_concurrent_writers_publish_only_the_persisted_first_writer_profile(
             intent = store._ownership_index._read_transaction_intent(artifact_id)
             assert intent is not None
             assert intent["status"] == "pending"
-            default_view = next(
-                view for view in intent["views"] if view["selector"] == "default"
-            )
+            default_view = next(view for view in intent["views"] if view["selector"] == "default")
             assert default_view["manifest_profile_sha256"] == first_profile
             first_intent_persisted.set()
             if not release_first_publication.wait(timeout=5):
@@ -580,19 +583,13 @@ def test_concurrent_writers_publish_only_the_persisted_first_writer_profile(
     assert first_ref.manifest_profile_sha256 is None
     assert second_ref.manifest_profile_sha256 is not None
     _assert_manifest_profile(store.get_manifest(first_ref), first_options, data=PAYLOAD)
-    _assert_manifest_profile(
-        store.get_manifest(second_ref), second_options, data=PAYLOAD
-    )
-    _assert_manifest_profile(
-        store.get_manifest(artifact_id), first_options, data=PAYLOAD
-    )
+    _assert_manifest_profile(store.get_manifest(second_ref), second_options, data=PAYLOAD)
+    _assert_manifest_profile(store.get_manifest(artifact_id), first_options, data=PAYLOAD)
     assert store.get_bytes(first_ref) == store.get_bytes(second_ref) == PAYLOAD
 
     repeated_ref = store.put_bytes(PAYLOAD, second_options)
     assert repeated_ref == second_ref
-    _assert_manifest_profile(
-        store.get_manifest(repeated_ref), second_options, data=PAYLOAD
-    )
+    _assert_manifest_profile(store.get_manifest(repeated_ref), second_options, data=PAYLOAD)
 
 
 def test_exception_releases_same_id_lock_for_scoped_view_waiter(
@@ -659,16 +656,12 @@ def test_exception_releases_same_id_lock_for_scoped_view_waiter(
         *,
         expected_sha256: str,
     ) -> bool:
-        if (
-            final_path == failed_view_path
-            and threading.current_thread().name == "cas-failed-view"
-        ):
+        if final_path == failed_view_path and threading.current_thread().name == "cas-failed-view":
             intent = store._ownership_index._read_transaction_intent(artifact_id)
             assert intent is not None
             assert intent["status"] == "pending"
             assert any(
-                view["manifest_profile_sha256"] == failed_profile
-                for view in intent["views"]
+                view["manifest_profile_sha256"] == failed_profile for view in intent["views"]
             )
             failed_publish_entered.set()
             if not release_failed_publish.wait(timeout=5):
@@ -737,35 +730,25 @@ def test_exception_releases_same_id_lock_for_scoped_view_waiter(
     assert pending is not None
     assert pending["status"] == "pending"
     assert pending["mode"] == "publish"
-    assert any(
-        view["manifest_profile_sha256"] == failed_profile for view in pending["views"]
-    )
-    assert not any(
-        view["manifest_profile_sha256"] == waiting_profile for view in pending["views"]
-    )
+    assert any(view["manifest_profile_sha256"] == failed_profile for view in pending["views"])
+    assert not any(view["manifest_profile_sha256"] == waiting_profile for view in pending["views"])
     assert not failed_view_path.exists()
     assert not waiting_view_path.exists()
     assert store.get_bytes(default_ref) == PAYLOAD
-    _assert_manifest_profile(
-        store.get_manifest(default_ref), default_options, data=PAYLOAD
-    )
+    _assert_manifest_profile(store.get_manifest(default_ref), default_options, data=PAYLOAD)
 
     recovered_ref = store.put_bytes(PAYLOAD, failed_options)
     assert recovered_ref.artifact_id == artifact_id
     assert recovered_ref.manifest_profile_sha256 == failed_profile
     assert store._ownership_index._read_transaction_intent(artifact_id) is None
     assert failed_view_path.is_file()
-    _assert_manifest_profile(
-        store.get_manifest(recovered_ref), failed_options, data=PAYLOAD
-    )
+    _assert_manifest_profile(store.get_manifest(recovered_ref), failed_options, data=PAYLOAD)
 
     waiting_ref = store.put_bytes(PAYLOAD, waiting_options)
     assert waiting_ref.artifact_id == artifact_id
     assert waiting_ref.manifest_profile_sha256 == waiting_profile
     assert waiting_view_path.is_file()
-    _assert_manifest_profile(
-        store.get_manifest(waiting_ref), waiting_options, data=PAYLOAD
-    )
+    _assert_manifest_profile(store.get_manifest(waiting_ref), waiting_options, data=PAYLOAD)
     assert store.put_bytes(PAYLOAD, waiting_options) == waiting_ref
 
 
@@ -912,9 +895,7 @@ def test_lock_registry_is_bounded_without_evicting_active_waiters(
             excluded_active_stripe_ids,
         )
         record_property("b153_pressure_owner_pool_size", pool_size)
-        record_property(
-            "b153_pressure_actual_lock_acquisitions", len(selected_owner_locks)
-        )
+        record_property("b153_pressure_actual_lock_acquisitions", len(selected_owner_locks))
         record_property("b153_pressure_actual_unique_locks", len(selected_lock_ids))
         record_property("b153_pressure_unbounded_mutant_locks", len(per_id_locks))
 
@@ -1215,9 +1196,7 @@ def test_transfer_resolves_distinct_optional_integrity_views(tmp_path: Path) -> 
         }
     )
     optional_profile = ManifestLifecycle.profile_sha256(optional_manifest)
-    optional_path = source._layout.view_manifest_path(
-        stored_ref.artifact_id, optional_profile
-    )
+    optional_path = source._layout.view_manifest_path(stored_ref.artifact_id, optional_profile)
     optional_path.write_bytes(ManifestLifecycle.to_bytes(optional_manifest))
     optional_ref = ArtifactRef(
         artifact_id=stored_ref.artifact_id,
@@ -1226,9 +1205,7 @@ def test_transfer_resolves_distinct_optional_integrity_views(tmp_path: Path) -> 
         manifest_profile_sha256=optional_profile,
     )
 
-    export = source.export_subgraph(
-        [base_ref, optional_ref], tmp_path / "integrity-views.tar.gz"
-    )
+    export = source.export_subgraph([base_ref, optional_ref], tmp_path / "integrity-views.tar.gz")
     report = target.import_subgraph(export.output_path, verify_integrity=True)
 
     assert report.verification_failed == []

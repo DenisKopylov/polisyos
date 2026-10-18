@@ -70,9 +70,7 @@ def test_source_matches_persist_and_replay_without_becoming_relation_calibration
     manifest = store.get_manifest(ref)
     assert manifest.canon == artifacts.CanonInfo.from_spec(_SOURCE_CANON)
     assert ref.manifest_profile_sha256 == artifacts.artifact_manifest_profile_sha256(manifest)
-    assert artifacts.validate_core_model_json_artifact(
-        type(result), store, ref
-    ) == result
+    assert artifacts.validate_core_model_json_artifact(type(result), store, ref) == result
     assert store.get_bytes(ref)
     assert result.source_population.row_count == 30
     assert len(result.source_population.literal_target_row_indices) == 30

@@ -128,9 +128,7 @@ def test_benchmark_suite_codec_lives_in_ir_and_scientist_reexports_it(tmp_path) 
     backlog_path = tmp_path / "need_backlog.jsonl"
     write_need_backlog(backlog_path, [{"need_id": "need-1"}])
 
-    assert suite.scenarios[0].causal_edges[0] == BenchmarkCausalEdge(
-        cause="cause", effect="effect"
-    )
+    assert suite.scenarios[0].causal_edges[0] == BenchmarkCausalEdge(cause="cause", effect="effect")
     assert backlog_path.read_text(encoding="utf-8") == '{"need_id": "need-1"}\n'
     assert feedback.AcademicBenchmarkSuite is AcademicBenchmarkSuite
     assert feedback.load_benchmark_suite is load_benchmark_suite

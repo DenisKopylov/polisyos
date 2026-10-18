@@ -174,8 +174,7 @@ def _valid_payload() -> dict[str, object]:
                 "ref_id": "source:redacted-bank-panel",
                 "ref_type": "source",
                 "redacted_source_hash": (
-                    "sha256:5979a23d573a65d5a3b64a9c4b33f5ce2de6c844b2efb50b"
-                    "94f9d24bb7d84354"
+                    "sha256:5979a23d573a65d5a3b64a9c4b33f5ce2de6c844b2efb50b94f9d24bb7d84354"
                 ),
                 "title": "Redacted bank portfolio panel",
             },

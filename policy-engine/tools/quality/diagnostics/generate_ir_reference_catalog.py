@@ -86,8 +86,7 @@ def render_ir_schema_catalog(catalog: IRSchemaCatalog) -> str:
         "",
         "Related reference: [Schemas](../schemas.md).",
         "",
-        "> This page is generated from `polisyos.ir.schemas` "
-        "and the current package facades.",
+        "> This page is generated from `polisyos.ir.schemas` and the current package facades.",
         "",
         "Canonical regeneration command (snapshots + reference docs):",
         "",

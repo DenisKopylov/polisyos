@@ -91,12 +91,10 @@ def summarize_tool_contracts(
 
     blocker_count = len({issue.tool_name for issue in issues if issue.severity == "blocker"})
     schema_ready = bool(definitions) and not any(
-        issue.issue_code.startswith("schema_") and issue.severity == "blocker"
-        for issue in issues
+        issue.issue_code.startswith("schema_") and issue.severity == "blocker" for issue in issues
     )
     runtime_caps_ready = bool(definitions) and not any(
-        issue.issue_code.startswith("runtime_") and issue.severity == "blocker"
-        for issue in issues
+        issue.issue_code.startswith("runtime_") and issue.severity == "blocker" for issue in issues
     )
     structured_error_taxonomy_ready = set(STRUCTURED_TOOL_ERROR_TYPES).issubset(
         {"unknown_tool", "invalid_arguments", "timeout", "handler_error", "circuit_breaker_open"}

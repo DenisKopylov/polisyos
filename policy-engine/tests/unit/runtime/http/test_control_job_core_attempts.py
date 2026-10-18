@@ -367,8 +367,7 @@ def test_retry_selects_only_winning_attempt_core_trace_and_manifest(tmp_path) ->
             )
         assert selected_after_stale_write.run_id == winning_attempt_observation["core_run_id"]
         assert (
-            selected_after_stale_write.manifest_ref
-            == winning_attempt_observation["manifest_ref"]
+            selected_after_stale_write.manifest_ref == winning_attempt_observation["manifest_ref"]
         )
     finally:
         let_first_finalize.set()

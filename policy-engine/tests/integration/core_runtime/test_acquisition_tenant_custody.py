@@ -73,9 +73,9 @@ async def test_actual_acquisition_producers_preserve_tenant_custody_through_reen
         snapshots = tuple(snapshots_by_view.values())
         assert snapshots
         assert all(store.get_manifest(ref).kind == "fabric.data_snapshot" for ref in snapshots)
-        assert {
-            str(ref.artifact_id) for ref in snapshots
-        }.issubset(served.committed.owner_receipt_refs)
+        assert {str(ref.artifact_id) for ref in snapshots}.issubset(
+            served.committed.owner_receipt_refs
+        )
         original = {str(ref): store.get_bytes(ref) for ref in snapshots}
         assert all(store.verify(ref).ok for ref in snapshots)
 
@@ -123,9 +123,7 @@ def test_standalone_n7_owner_uses_explicit_tenant_store(
     from polisyos.runtime.quality.acquisition_planner import RealAcquisitionOwnerGateway
 
     store_root = tmp_path / "explicit-n7-owner-cas"
-    store = with_ambient_ownership_enforcement_if_supported(
-        artifacts.FileSystemCAS(store_root)
-    )
+    store = with_ambient_ownership_enforcement_if_supported(artifacts.FileSystemCAS(store_root))
     reader_stores = []
     spec, record = _n7_skg_spec_and_record()
     gateway = RealAcquisitionOwnerGateway(
@@ -146,12 +144,8 @@ def test_standalone_n7_owner_uses_explicit_tenant_store(
             ref = artifacts.ArtifactRef.model_validate(
                 artifact.payload["owner_response"]["resolution_ref"]
             )
-            tenant_store = artifacts.FileSystemCAS(store_root).for_tenant(
-                "tenant-a", "cell-a"
-            )
-            foreign_store = artifacts.FileSystemCAS(store_root).for_tenant(
-                "tenant-b", "cell-b"
-            )
+            tenant_store = artifacts.FileSystemCAS(store_root).for_tenant("tenant-a", "cell-a")
+            foreign_store = artifacts.FileSystemCAS(store_root).for_tenant("tenant-b", "cell-b")
             reader_stores.extend((tenant_store, foreign_store))
             assert tenant_store.get_manifest(ref).kind == (
                 "runtime.production_grounding_source_resolution"
@@ -255,9 +249,7 @@ async def test_control_service_serves_n7_through_runtime_store_with_tenant_custo
 
             monkeypatch.setattr(cycle_module.N4GenerationPort, "__call__", generate)
             monkeypatch.setattr(cycle_module.PolicyGroundingPort, "__call__", ground)
-            monkeypatch.setattr(
-                cycle_module.JointSimulationPort, "__call__", block_simulation
-            )
+            monkeypatch.setattr(cycle_module.JointSimulationPort, "__call__", block_simulation)
 
             original_acquisition = cycle_module.run_acquisition_closed_loop
 

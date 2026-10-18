@@ -83,6 +83,7 @@ def load_actionable_side_information(
 ) -> ActionableSideInformation:
     """Load actionable side information."""
     from polisyos.core.artifacts import load_core_json_artifact
+
     selector = ref if isinstance(ref, ArtifactRef) else ArtifactID.model_validate(ref)
     payload = load_core_json_artifact(store, selector)
     return cast(

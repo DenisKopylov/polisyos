@@ -69,9 +69,7 @@ def test_layer3_g6_readiness_cli_delegates_to_validator_and_reports_issue_codes(
     assert exit_code == 1
     assert calls == [(REPO_ROOT, False)]
     assert payload["status"] == "fail"
-    assert payload["issues"][0]["code"] == (
-        "layer3_g6_orchestration_continuity_refs_missing"
-    )
+    assert payload["issues"][0]["code"] == ("layer3_g6_orchestration_continuity_refs_missing")
     assert "layer3_g6_orchestration_continuity_refs_missing" in stdout
 
 

@@ -64,9 +64,7 @@ class ModelRegistryReadinessRecord(BaseModel):
     # Optional keeps pre-binding registry payloads readable; a record built by
     # the current producer always carries this source-identity projection.
     identity_binding: RegistryIdentityBinding | None = None
-    _calibration_validity_evidence: _CalibrationValidityEvidence | None = PrivateAttr(
-        default=None
-    )
+    _calibration_validity_evidence: _CalibrationValidityEvidence | None = PrivateAttr(default=None)
 
 
 class RegistryGateDecision(BaseModel):
@@ -299,18 +297,14 @@ def _registry_identity_binding_reasons(
     reasons: list[str] = []
     if calibration_audit.model_id is None or calibration_audit.model_version is None:
         reasons.append("calibration_model_identity_not_established")
-    elif (
-        calibration_audit.model_id != model_id
-        or calibration_audit.model_version != model_version
-    ):
+    elif calibration_audit.model_id != model_id or calibration_audit.model_version != model_version:
         reasons.append("calibration_model_identity_mismatch")
 
     if metric_budget.model_id != model_id or metric_budget.model_version != model_version:
         reasons.append("metric_budget_model_identity_mismatch")
 
     if last_shift_event is not None and (
-        last_shift_event.model_id != model_id
-        or last_shift_event.model_version != model_version
+        last_shift_event.model_id != model_id or last_shift_event.model_version != model_version
     ):
         reasons.append("shift_event_model_identity_mismatch")
 
@@ -337,9 +331,7 @@ def _build_registry_identity_binding(
         calibration_model_version=calibration_audit.model_version,
         metric_budget_model_id=metric_budget.model_id,
         metric_budget_model_version=metric_budget.model_version,
-        last_shift_event_model_id=(
-            None if last_shift_event is None else last_shift_event.model_id
-        ),
+        last_shift_event_model_id=(None if last_shift_event is None else last_shift_event.model_id),
         last_shift_event_model_version=(
             None if last_shift_event is None else last_shift_event.model_version
         ),

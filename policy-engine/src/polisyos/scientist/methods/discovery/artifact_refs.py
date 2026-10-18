@@ -12,7 +12,9 @@ from polisyos.core.artifacts import FileSystemCAS, artifact_manifest_profile_sha
 TArtifactRef = TypeVar("TArtifactRef", bound=BaseModel)
 
 
-def profile_bound_written_ref[TArtifactRef: BaseModel](store: FileSystemCAS, ref: TArtifactRef) -> TArtifactRef:
+def profile_bound_written_ref[TArtifactRef: BaseModel](
+    store: FileSystemCAS, ref: TArtifactRef
+) -> TArtifactRef:
     """Return the same typed ref pinned to its freshly persisted manifest view.
 
     The CAS writer intentionally returns ``manifest_profile_sha256=None`` when

@@ -86,9 +86,7 @@ def test_shared_cas_blocks_cross_tenant_runtime_lineage_scorecard_approval_and_e
             PutOptions(
                 kind="runtime_quality.governed_lineage_descendant",
                 media_type="application/json",
-                inputs=[
-                    {"artifact_id": str(runtime_ref.artifact_id), "role": "runtime_ref"}
-                ],
+                inputs=[{"artifact_id": str(runtime_ref.artifact_id), "role": "runtime_ref"}],
             ),
         )
 
@@ -199,8 +197,6 @@ def test_public_export_redacts_tenant_private_runtime_refs_from_payload_and_proj
     ]
     assert redacted_runtime_ref["redacted"] is True
     assert redacted_runtime_ref["reason"] == "tenant_private_ref"
-    redacted_nested_ref = public_bundle["artifacts"]["audit"]["future_extension"][0][
-        "opaque_value"
-    ]
+    redacted_nested_ref = public_bundle["artifacts"]["audit"]["future_extension"][0]["opaque_value"]
     assert redacted_nested_ref["redacted"] is True
     assert redacted_nested_ref["reason"] == "tenant_private_ref"

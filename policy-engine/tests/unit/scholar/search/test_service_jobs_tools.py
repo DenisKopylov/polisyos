@@ -54,12 +54,15 @@ def _assert_expected_validation_error(
     """Require one specific typed validation failure, not an earlier decode error."""
     errors = error.errors(include_url=False)
     assert errors
-    assert expected_location_suffix is not None or expected_error_type is not None or expected_message is not None
+    assert (
+        expected_location_suffix is not None
+        or expected_error_type is not None
+        or expected_message is not None
+    )
     assert any(
         (
             expected_location_suffix is None
-            or tuple(item["loc"][-len(expected_location_suffix) :])
-            == expected_location_suffix
+            or tuple(item["loc"][-len(expected_location_suffix) :]) == expected_location_suffix
         )
         and (expected_error_type is None or item["type"] == expected_error_type)
         and (expected_message is None or expected_message in item["msg"])
@@ -227,21 +230,25 @@ async def test_deep_search_consumes_scholar_requirement_spec(monkeypatch, tmp_pa
         "polisyos.scholar.search.service.fetch_open_page",
         _fake_fetch_open_page,
     )
-    spec = ScholarSupportRequirementCompiler().compile(
-        {
-            "run_id": "run.scholar.search",
-            "authority_level": "production",
-            "claims": [
-                {
-                    "claim_id": "claim.1",
-                    "claim_text": "Minimum wage increased earnings.",
-                    "claim_type": "causal",
-                    "claim_family": "causal",
-                    "claim_use": "decision_support",
-                }
-            ],
-        }
-    ).requirements[0]
+    spec = (
+        ScholarSupportRequirementCompiler()
+        .compile(
+            {
+                "run_id": "run.scholar.search",
+                "authority_level": "production",
+                "claims": [
+                    {
+                        "claim_id": "claim.1",
+                        "claim_text": "Minimum wage increased earnings.",
+                        "claim_type": "causal",
+                        "claim_family": "causal",
+                        "claim_use": "decision_support",
+                    }
+                ],
+            }
+        )
+        .requirements[0]
+    )
     provider = _CapturingProvider()
     service = ScholarDeepSearchService(
         provider_policy=ProviderFailoverPolicy([provider]),
@@ -662,9 +669,7 @@ async def test_deep_search_persists_inaccessible_text_and_budget_stop_separately
     persisted = json.loads(cas.get_bytes(ref))
 
     assert len(persisted["query_traces"]) == 1
-    assert persisted["query_traces"][0]["provider_attempts"][0]["reason"] == (
-        "not_established"
-    )
+    assert persisted["query_traces"][0]["provider_attempts"][0]["reason"] == ("not_established")
     assert len(persisted["sources"]) == 1
     assert persisted["sources"][0]["fetch_status"] == "blocked"
     assert persisted["sources"][0]["error"] == "blocked_domain"
@@ -672,7 +677,6 @@ async def test_deep_search_persists_inaccessible_text_and_budget_stop_separately
     assert persisted["sources"][0]["search_query"] == brief.question
     assert "stopped:max_search_queries" in persisted["uncertainty_notes"]
     assert "stopped:max_fetch_pages" not in persisted["uncertainty_notes"]
-
 
 
 @pytest.mark.parametrize(
@@ -788,10 +792,7 @@ async def test_deep_search_persists_safe_provider_error_aggregate_and_rejects_ta
     assert manifest.artifact_schema.version == "1.1"
     payload_bytes = cas.get_bytes(ref)
     payload_text = payload_bytes.decode("utf-8")
-    assert all(
-        marker not in payload_text
-        for marker in (url_marker, mailto_marker, payload_marker)
-    )
+    assert all(marker not in payload_text for marker in (url_marker, mailto_marker, payload_marker))
     persisted = json.loads(payload_text)
     trace = persisted["query_traces"][0]
     attempt = trace["provider_attempts"][0]
@@ -886,9 +887,7 @@ async def test_legacy_v1_bundle_resume_projects_errors_without_rewriting_old_cas
         lineage_ref="scholar-lineage:legacy-provider-error",
     )
     assert sentinel not in json.dumps(legacy_report, sort_keys=True)
-    assert legacy_report["provider_traces"][0]["error"] == (
-        "legacy_error_not_established"
-    )
+    assert legacy_report["provider_traces"][0]["error"] == ("legacy_error_not_established")
     unversioned_payload = dict(legacy_payload)
     unversioned_payload.pop("schema_version")
     with pytest.raises(ValueError, match="unversioned provider errors"):
@@ -974,9 +973,10 @@ async def test_legacy_v1_bundle_resume_projects_errors_without_rewriting_old_cas
     assert status.result_bundle.query_traces[0].error == "legacy_error_not_established"
     assert status.result_bundle.no_hit_frontier[0].error == "legacy_error_not_established"
     assert reopened_cas.get_bytes(legacy_ref) == legacy_bytes
-    assert sentinel.encode() not in (
-        tmp_path / "job-status" / "scholar_web_jobs" / "status_index.json"
-    ).read_bytes()
+    assert (
+        sentinel.encode()
+        not in (tmp_path / "job-status" / "scholar_web_jobs" / "status_index.json").read_bytes()
+    )
 
     direct_legacy_ref = service.persist_bundle(legacy_bundle)
     direct_legacy_bytes = reopened_cas.get_bytes(direct_legacy_ref)
@@ -1009,9 +1009,7 @@ async def test_legacy_v1_bundle_resume_projects_errors_without_rewriting_old_cas
     report_bytes = reopened_cas.get_bytes(status.scholar_academic_evidence_artifact_id)
     report_payload = json.loads(report_bytes)
     assert sentinel.encode() not in report_bytes
-    assert report_payload["provider_traces"][0]["error"] == (
-        "legacy_error_not_established"
-    )
+    assert report_payload["provider_traces"][0]["error"] == ("legacy_error_not_established")
 
     malformed_query = copy.deepcopy(typed_bundle_payload)
     malformed_query["query_traces"][0].pop("provider_attempts", None)

@@ -301,8 +301,7 @@ def evaluate_expert_adjudication_manifest(payload: Mapping[str, Any]) -> dict[st
                     ExpertAdjudicationIssue(
                         code="expert_adjudication_unexpected_claim_id",
                         message=(
-                            "Claim-level adjudication targets a claim outside "
-                            "expected_claim_ids."
+                            "Claim-level adjudication targets a claim outside expected_claim_ids."
                         ),
                         field=f"{field}.claim_id",
                     )
@@ -325,8 +324,7 @@ def evaluate_expert_adjudication_manifest(payload: Mapping[str, Any]) -> dict[st
                     ExpertAdjudicationIssue(
                         code="expert_adjudication_gold_card_missing",
                         message=(
-                            "Every rejected structural pass requires the C30 gold-card "
-                            "fields."
+                            "Every rejected structural pass requires the C30 gold-card fields."
                         ),
                         field=f"{field}.gold_card",
                     )
@@ -359,9 +357,7 @@ def evaluate_expert_adjudication_manifest(payload: Mapping[str, Any]) -> dict[st
             )
         )
 
-    missing_claim_ids = tuple(
-        sorted(set(manifest.expected_claim_ids).difference(claim_label_ids))
-    )
+    missing_claim_ids = tuple(sorted(set(manifest.expected_claim_ids).difference(claim_label_ids)))
     if missing_claim_ids:
         issues.append(
             ExpertAdjudicationIssue(
@@ -575,8 +571,7 @@ def _evaluation_result(
 ) -> dict[str, Any]:
     return {
         "schema_version": (
-            "policyos.universal_policy_design.outcome_corpus."
-            "expert_adjudication.evaluation.v1"
+            "policyos.universal_policy_design.outcome_corpus.expert_adjudication.evaluation.v1"
         ),
         "contract_id": EXPERT_ADJUDICATION_CONTRACT_ID,
         "manifest_id": manifest_id,

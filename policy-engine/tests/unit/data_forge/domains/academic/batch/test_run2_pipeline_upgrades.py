@@ -687,9 +687,7 @@ def test_edge_synthesize_builds_family_edges_and_review_queue(tmp_path) -> None:
         source_quality = con.execute(
             "SELECT quality_signals_json FROM ac_skg_edges WHERE edge_id='e1'"
         ).fetchone()
-        absent_sibling = con.execute(
-            "SELECT 1 FROM ac_skg_edges WHERE edge_id='e2'"
-        ).fetchone()
+        absent_sibling = con.execute("SELECT 1 FROM ac_skg_edges WHERE edge_id='e2'").fetchone()
     finally:
         con.close()
     assert row[:4] == ("institutional_quality", "gdp_growth", 2, 2)

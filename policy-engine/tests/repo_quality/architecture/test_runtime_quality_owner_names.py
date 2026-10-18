@@ -35,9 +35,7 @@ OLD_RUNTIME_QUALITY_IMPORT_NAMES = (
 
 def test_runtime_quality_python_filenames_use_owner_names() -> None:
     offenders = sorted(
-        _rel(path)
-        for path in QUALITY_ROOT.rglob("*.py")
-        if PROVENANCE_FILENAME.match(path.name)
+        _rel(path) for path in QUALITY_ROOT.rglob("*.py") if PROVENANCE_FILENAME.match(path.name)
     )
 
     assert offenders == []

@@ -11,8 +11,7 @@ from tools.quality.validation import (
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 MANIFEST_PATH = (
-    REPO_ROOT
-    / "architecture/policy_design_case/wave12e_bundle_replay_inspection_manifest.json"
+    REPO_ROOT / "architecture/policy_design_case/wave12e_bundle_replay_inspection_manifest.json"
 )
 
 
@@ -41,13 +40,11 @@ def test_w12e_passes_when_bundle_components_and_replay_match() -> None:
     assert report["summary"]["present_component_count"] == len(w12e.REQUIRED_COMPONENT_IDS)
     assert report["summary"]["replay_mismatch_count"] == 0
     assert report["typed_blockers"] == []
-    assert {
-        component["component_id"] for component in report["bundle"]["components"]
-    } == set(w12e.REQUIRED_COMPONENT_IDS)
+    assert {component["component_id"] for component in report["bundle"]["components"]} == set(
+        w12e.REQUIRED_COMPONENT_IDS
+    )
     assert report["replay_evidence_graph_comparison"]["status"] == "pass"
-    assert report["authority_boundary"]["authoritative_for"] == [
-        "w12e_bundle_replay_inspection"
-    ]
+    assert report["authority_boundary"]["authoritative_for"] == ["w12e_bundle_replay_inspection"]
     assert "producer_domain_truth" in report["authority_boundary"]["may_not_use_for"]
 
 
@@ -190,8 +187,7 @@ def test_w12e_separates_argument_graph_bridge_from_readiness(
     assert argument_component["summary"]["argument_graph_bridge_status"] == "pass"
     assert argument_component["summary"]["argument_graph_readiness_status"] == "blocked"
     assert not any(
-        blocker["code"] == "w12e_argument_graph_incomplete"
-        for blocker in report["typed_blockers"]
+        blocker["code"] == "w12e_argument_graph_incomplete" for blocker in report["typed_blockers"]
     )
 
 

@@ -51,9 +51,7 @@ REPO_ROOT = Path(__file__).resolve().parents[5]
 G5_PINNED_CASE_ID = read_layer3_gx_pinned_case_id(REPO_ROOT)
 G5_SURFACE_ID = "layer3_g5_first_proving_ground_conversion_surface"
 G5_READINESS_CHECK_ID = "layer3_g5_first_proving_ground_conversion"
-G5_GENERATED_ARTIFACT_FAMILY_ID = (
-    "policy-design-case-layer3-g5-proving-ground-conversion-artifacts"
-)
+G5_GENERATED_ARTIFACT_FAMILY_ID = "policy-design-case-layer3-g5-proving-ground-conversion-artifacts"
 W12D_ALLOWED_OUTCOMES: tuple[str, ...] = (
     "pass",
     "publish-with-limitation",
@@ -159,9 +157,7 @@ G1_READINESS_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g1_readiness_manifest.json"
 G1_GROUNDED_SOURCE_CONTRACTS_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g1_grounded_source_contracts.json"
 )
-G1_SEARCH_RECALL_FRESHNESS_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g1_search_recall_freshness.json"
-)
+G1_SEARCH_RECALL_FRESHNESS_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g1_search_recall_freshness.json"
 G2_READINESS_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g2_readiness_manifest.json"
 G2_GROUNDED_FORECAST_HANDOFFS_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g2_grounded_forecast_handoffs.json"
@@ -169,16 +165,10 @@ G2_GROUNDED_FORECAST_HANDOFFS_PATH = (
 G2_FORECAST_SUPPORT_BINDINGS_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g2_forecast_support_bindings.json"
 )
-G2_W12D_CONSUMER_GATE_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g2_w12d_consumer_gate.json"
-)
+G2_W12D_CONSUMER_GATE_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g2_w12d_consumer_gate.json"
 G2_CONFORMANCE_REPORT_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g2_conformance_report.json"
-G2_SEARCH_RECALL_FRESHNESS_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g2_search_recall_freshness.json"
-)
-G2_L2_SKG_SEARCH_LEDGERS_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g2_l2_skg_search_ledgers.json"
-)
+G2_SEARCH_RECALL_FRESHNESS_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g2_search_recall_freshness.json"
+G2_L2_SKG_SEARCH_LEDGERS_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g2_l2_skg_search_ledgers.json"
 G2_L2_SKG_QUERY_TRACES_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g2_l2_skg_query_traces.json"
 G2_TRANSPORT_LIMIT_DECLARATIONS_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g2_transport_limit_declarations.json"
@@ -187,23 +177,15 @@ G3_READINESS_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g3_readiness_manifest.json"
 G3_PROOF_CARRYING_ANALYTICS_RECORDS_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g3_proof_carrying_analytics_records.json"
 )
-G3_W12D_CONSUMER_GATE_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g3_w12d_consumer_gate.json"
-)
+G3_W12D_CONSUMER_GATE_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g3_w12d_consumer_gate.json"
 G3_CONFORMANCE_REPORT_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g3_conformance_report.json"
-G3_SEARCH_RECALL_FRESHNESS_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g3_search_recall_freshness.json"
-)
-G3_IR_ARTIFACT_STORE_INDEX_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g3_ir_artifact_store_index.json"
-)
+G3_SEARCH_RECALL_FRESHNESS_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g3_search_recall_freshness.json"
+G3_IR_ARTIFACT_STORE_INDEX_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g3_ir_artifact_store_index.json"
 G3_CERTIFICATE_RESOLUTION_REPORT_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g3_certificate_resolution_report.json"
 )
 GL_READINESS_PATH = POLICY_DESIGN_CASE_DIR / "layer3_gl_readiness_manifest.json"
-GL_LEGAL_AUTHORITY_REPORT_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_gl_legal_authority_report.json"
-)
+GL_LEGAL_AUTHORITY_REPORT_PATH = POLICY_DESIGN_CASE_DIR / "layer3_gl_legal_authority_report.json"
 GL_REFERENCE_RESOLUTION_RECORDS_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_gl_reference_resolution_records.json"
 )
@@ -211,17 +193,11 @@ GL_AMENDMENT_LINEAGE_RECORDS_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_gl_amendment_lineage_records.json"
 )
 GL_CONFORMANCE_REPORT_PATH = POLICY_DESIGN_CASE_DIR / "layer3_gl_conformance_report.json"
-GL_SEARCH_RECALL_FRESHNESS_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_gl_search_recall_freshness.json"
-)
+GL_SEARCH_RECALL_FRESHNESS_PATH = POLICY_DESIGN_CASE_DIR / "layer3_gl_search_recall_freshness.json"
 G4_READINESS_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g4_readiness_manifest.json"
-G4_G5_PROMOTION_HANDOFF_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g4_g5_promotion_handoff.json"
-)
+G4_G5_PROMOTION_HANDOFF_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g4_g5_promotion_handoff.json"
 G4_PROMOTION_RECORDS_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g4_promotion_records.json"
-G4_GROUNDED_CONTRACT_SET_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g4_grounded_contract_set.json"
-)
+G4_GROUNDED_CONTRACT_SET_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g4_grounded_contract_set.json"
 G4_WEAKEST_BOUNDARY_COMPOSITION_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g4_weakest_boundary_composition.json"
 )
@@ -603,8 +579,8 @@ class Layer3G5G4HandoffResolution(_G5Model):
     limitation_refs: tuple[str, ...] = Field(default=())
     governed_promotion_input_count: int = Field(default=0, ge=0)
     blocked_promotion_input_count: int = Field(default=0, ge=0)
-    promotion_record_resolutions: tuple[Layer3G5G4PromotionRecordResolution, ...] = (
-        Field(default=())
+    promotion_record_resolutions: tuple[Layer3G5G4PromotionRecordResolution, ...] = Field(
+        default=()
     )
     issue_codes: tuple[str, ...] = Field(default=())
 
@@ -859,9 +835,7 @@ class Layer3G5ConversionAuditSurface(_G5Model):
     surface_id: str = G5_SURFACE_ID
     status: Literal["pass", "fail", "not_built"] = "not_built"
     audiences: tuple[str, ...] = Field(default=("PUBLIC", "REVIEWER", "EXPERT", "MACHINE"))
-    surface_audiences: tuple[str, ...] = Field(
-        default=("PUBLIC", "REVIEWER", "EXPERT", "MACHINE")
-    )
+    surface_audiences: tuple[str, ...] = Field(default=("PUBLIC", "REVIEWER", "EXPERT", "MACHINE"))
     conversion_record_refs: tuple[str, ...] = Field(default=())
     blocker_refs: tuple[str, ...] = Field(default=())
     limitation_refs: tuple[str, ...] = Field(default=())
@@ -942,8 +916,7 @@ class Layer3G5RegistryRatchetDelta(_G5Model):
     status: Literal["pass", "implemented", "missing", "not_built"] = "not_built"
     generated_artifact_family_id: str = G5_GENERATED_ARTIFACT_FAMILY_ID
     conversion_route_contract_registry_ref: str = (
-        "repo://architecture/policy_design_case/"
-        "layer3_g5_conversion_route_contract_registry.toml"
+        "repo://architecture/policy_design_case/layer3_g5_conversion_route_contract_registry.toml"
     )
     conformance_refs: tuple[str, ...] = Field(default=())
     missing_labels: tuple[str, ...] = Field(default=())
@@ -1066,7 +1039,9 @@ def build_layer3_g5_bundle(repo_root: Path) -> Layer3G5Bundle:
         denominator=1,
         conversion_reason=envelope_conversion_reason,
         region_ref="region://ua",
-        search_health_refs=("repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json",),
+        search_health_refs=(
+            "repo://architecture/policy_design_case/layer3_g1_search_recall_freshness.json",
+        ),
     )
     health_snapshot = build_g5_dependency_health_metric_snapshot(
         envelope_expansion_delta=envelope_delta,
@@ -1143,9 +1118,7 @@ def build_layer3_g5_bundle(repo_root: Path) -> Layer3G5Bundle:
                 *status_composition.issue_codes,
             )
         )
-    readiness_status: Literal["pass", "fail"] = (
-        "pass" if not readiness_issue_codes else "fail"
-    )
+    readiness_status: Literal["pass", "fail"] = "pass" if not readiness_issue_codes else "fail"
     summary = {
         **summary,
         "status": readiness_status,
@@ -1239,23 +1212,17 @@ def _g5_readiness_w12d_payload() -> dict[str, Any]:
         "outcome": "typed_blocker",
         "conversion_outcome": "not_attempted_g0_pre_adapter",
         "counts_toward_useful_design": False,
-        "source_path": (
-            f"repo://tests/fixtures/universal-corpus/cases/{G5_PINNED_CASE_ID}.json"
-        ),
+        "source_path": (f"repo://tests/fixtures/universal-corpus/cases/{G5_PINNED_CASE_ID}.json"),
         "s2_design_search": {
             "status": "shadow_ready",
             "deterministic_replay_key": "replay://layer2/s2/ua-msme",
             "search_ledger": {
                 "acquisition_branch_state": "resolved",
-                "delegation_record_refs": (
-                    "human-decision-record://ua-msme/final-choice",
-                ),
+                "delegation_record_refs": ("human-decision-record://ua-msme/final-choice",),
             },
             "design_record": {
                 "ref": "pdc://layer2/s2/ua-msme/design-record-v0",
-                "firewall_status": (
-                    {"cell_ref": "KNOWLEDGE.predictive", "status": "pass"},
-                ),
+                "firewall_status": ({"cell_ref": "KNOWLEDGE.predictive", "status": "pass"},),
             },
             "constraint_store": {
                 "constraint_records": (
@@ -1263,12 +1230,8 @@ def _g5_readiness_w12d_payload() -> dict[str, Any]:
                 )
             },
             "delegation_posture": {
-                "human_decision_record_ref": (
-                    "human-decision-record://ua-msme/final-choice"
-                ),
-                "human_decision_request_ref": (
-                    "human-decision-request://ua-msme/final-choice"
-                ),
+                "human_decision_record_ref": ("human-decision-record://ua-msme/final-choice"),
+                "human_decision_request_ref": ("human-decision-request://ua-msme/final-choice"),
             },
         },
         "s4_epistemic_regime": {"status": "pass", "regime_ref": "s4://ua-msme"},
@@ -1335,9 +1298,7 @@ def _g5_readiness_w12d_payload() -> dict[str, Any]:
 def _g5_s12_readiness_signals(
     pinned: Layer3G5PinnedCaseInputBundle,
 ) -> dict[str, Any]:
-    demand_refs = pinned.s12_demand_act_refs or (
-        "demand-act://ua-msme/first-proving-ground",
-    )
+    demand_refs = pinned.s12_demand_act_refs or ("demand-act://ua-msme/first-proving-ground",)
     envelope_delta_refs = pinned.s12_certified_envelope_delta_refs or (
         "envelope-delta://ua-msme/first-proving-ground",
     )
@@ -1417,9 +1378,7 @@ def _build_g5_public_export_projection_refs(
         issue_codes.append("layer3_g5_projection_omits_required_deny_list")
     public_projection["g5_conversion_record_ref"] = conversion_record.conversion_record_id
     public_projection["g5_conversion_outcome"] = conversion_record.conversion_outcome
-    public_projection["g5_envelope_expansion_rate"] = (
-        envelope_delta.envelope_expansion_rate
-    )
+    public_projection["g5_envelope_expansion_rate"] = envelope_delta.envelope_expansion_rate
     public_projection["s12_public_growth_limitation"] = (
         "G5 demand/growth refs are diagnostic and cannot allocate budget."
     )
@@ -1532,9 +1491,7 @@ def _g5_s12_projection_payload(
             "G5 demand-pull and growth refs disclose pressure only; they do not "
             "recommend allocation or relax useful-design floors."
         ),
-        "authority_boundary": {
-            "may_not_use_for": list(G5_S12_PROJECTION_MAY_NOT_USE_FOR)
-        },
+        "authority_boundary": {"may_not_use_for": list(G5_S12_PROJECTION_MAY_NOT_USE_FOR)},
     }
 
 
@@ -1551,15 +1508,9 @@ def _g5_s14_projection_payload(
         "d4_corpus_track_coverage_ref": "d4://layer3-g5/corpus-track-coverage",
         "expert_oracle_bootstrap_ref": "expert-oracle://layer3-g5/bootstrap",
         "breadth_floor_config_ref": "breadth-floor://layer3-g5/config",
-        "universality_baseline_comparison_ref": (
-            "universality-baseline://layer3-g5/comparison"
-        ),
-        "grounded_authority_coverage_ref": (
-            "grounded-authority://layer3-g5/coverage"
-        ),
-        "evaluation_status_composition_ref": (
-            "status-composition://layer3-g5/evaluation"
-        ),
+        "universality_baseline_comparison_ref": ("universality-baseline://layer3-g5/comparison"),
+        "grounded_authority_coverage_ref": ("grounded-authority://layer3-g5/coverage"),
+        "evaluation_status_composition_ref": ("status-composition://layer3-g5/evaluation"),
         "axis_scorecard_ref": "axis-scorecard://layer3-g5",
         "sealed_battery_run_ref": "sealed-battery://layer3-g5/not-accessed",
         "mechanism_generality_report_ref": "mechanism-generality://layer3-g5/report",
@@ -1628,11 +1579,7 @@ def check_g5_closed_case_replay_integrity(
 
     pre = _mapping(pre_g5_payload)
     post = _mapping(post_g5_payload)
-    mutated_keys = [
-        str(key)
-        for key, value in pre.items()
-        if post.get(key) != value
-    ]
+    mutated_keys = [str(key) for key, value in pre.items() if post.get(key) != value]
     foreign_overlay_keys = [
         str(key)
         for key in post
@@ -1662,9 +1609,7 @@ def check_g5_closeout_boundary(
     observed_surfaces = tuple(
         str(value) for value in _sequence(payload.get("observed_surface_refs"))
     )
-    authoritative_for = tuple(
-        str(value) for value in _sequence(payload.get("authoritative_for"))
-    )
+    authoritative_for = tuple(str(value) for value in _sequence(payload.get("authoritative_for")))
     issue_codes: list[str] = []
     if bool(payload.get("substitutes_module_owned_closeout_evidence")):
         issue_codes.append("layer3_g5_closeout_surface_substitution_attempt")
@@ -1716,8 +1661,7 @@ def check_g5_warning_lifecycle(
             continue
         observed.append(str(payload.get("warning_ref") or f"warning_like:{index}"))
         has_owned_lifecycle = bool(
-            payload.get("warning_lifecycle_ref")
-            or payload.get("owned_warning_lifecycle_ref")
+            payload.get("warning_lifecycle_ref") or payload.get("owned_warning_lifecycle_ref")
         )
         has_hard_resolution = bool(
             payload.get("limitation_ref")
@@ -1727,9 +1671,7 @@ def check_g5_warning_lifecycle(
         )
         if not has_owned_lifecycle and not has_hard_resolution:
             issue_codes.append("layer3_g5_unowned_warning_lifecycle")
-        if payload.get("conversion_pass_effect") or payload.get(
-            "useful_design_credit_effect"
-        ):
+        if payload.get("conversion_pass_effect") or payload.get("useful_design_credit_effect"):
             issue_codes.append("layer3_g5_warning_used_as_conversion_pass")
     return Layer3G5ProjectionCloseoutBoundaryCheck(
         check_id="layer3_g5_warning_lifecycle",
@@ -1921,9 +1863,7 @@ def _build_g5_task7_conformance_report(
         performance_contract={
             "status": "pass",
             "bounded_artifact_read_policy": "explicit_expected_paths_only",
-            "bounded_artifact_paths": [
-                path.as_posix() for path in BOUNDED_DEPENDENCY_PATHS
-            ],
+            "bounded_artifact_paths": [path.as_posix() for path in BOUNDED_DEPENDENCY_PATHS],
             "bounded_artifact_read_count": len(BOUNDED_DEPENDENCY_PATHS),
             "request_path_repo_glob_allowed": False,
             "unbounded_repo_scan": False,
@@ -1980,11 +1920,7 @@ def _check_g5_request_scope_boundary(
     return Layer3G5ProjectionCloseoutBoundaryCheck(
         check_id="layer3_g5_request_scope_boundary",
         status="fail" if issue_codes else "pass",
-        observed_surface_refs=tuple(
-            value
-            for value in (request_mode, requested_region)
-            if value
-        ),
+        observed_surface_refs=tuple(value for value in (request_mode, requested_region) if value),
         issue_codes=tuple(dict.fromkeys(issue_codes)),
     )
 
@@ -2018,12 +1954,10 @@ def _build_g5_conversion_route_contract_registry() -> dict[str, Any]:
                 "producer": "polisyos.runtime.quality.proving_ground.proving_ground_conversion",
                 "consumer": "tools.quality.validation.run_universal_outcome_corpus",
                 "artifact_ref": (
-                    "repo://architecture/policy_design_case/"
-                    "layer3_g5_conversion_records.json"
+                    "repo://architecture/policy_design_case/layer3_g5_conversion_records.json"
                 ),
                 "consumer_gate_ref": (
-                    "repo://architecture/policy_design_case/"
-                    "layer3_g5_w12d_consumer_gate.json"
+                    "repo://architecture/policy_design_case/layer3_g5_w12d_consumer_gate.json"
                 ),
                 "authority_purpose": "w12d_layer3_conversion_gate",
                 "authoritative_for": list(G5_AUTHORITATIVE_FOR),
@@ -2032,8 +1966,7 @@ def _build_g5_conversion_route_contract_registry() -> dict[str, Any]:
                     "conversion_authority_without_g5",
                 ],
                 "verification_refs": [
-                    "tests/repo_quality/tools/"
-                    "test_policy_design_case_layer3_g5_readiness.py"
+                    "tests/repo_quality/tools/test_policy_design_case_layer3_g5_readiness.py"
                 ],
             }
         ],
@@ -2083,9 +2016,7 @@ def _g5_readiness_summary(
         if record.conversion_outcome == "typed_blocker -> grounded_abstention"
     )
     unchanged_blocker_count = sum(
-        1
-        for record in conversion_records
-        if record.conversion_outcome == "unchanged_blocker"
+        1 for record in conversion_records if record.conversion_outcome == "unchanged_blocker"
     )
     return {
         "status": "pass",
@@ -2106,12 +2037,8 @@ def _g5_readiness_summary(
         "g5_g1_source_contract_hash_status": "pass"
         if matrix.g1_source_contract_content_hash
         else "missing",
-        "g5_g1_observed_through_status": "pass"
-        if matrix.g1_observed_through
-        else "missing",
-        "g5_g1_may_not_use_for_status": "pass"
-        if matrix.g1_may_not_use_for
-        else "missing",
+        "g5_g1_observed_through_status": "pass" if matrix.g1_observed_through else "missing",
+        "g5_g1_may_not_use_for_status": "pass" if matrix.g1_may_not_use_for else "missing",
         "g5_lineage_deduplication_status": "pass"
         if not evidence.lineage_deduplication_record.duplicate_refs
         else "fail",
@@ -2126,8 +2053,7 @@ def _g5_readiness_summary(
         "g5_s2_design_search_status": pinned.s2_status,
         "g5_s2_acquisition_branch_status": pinned.s2_acquisition_branch_state,
         "g5_design_record_firewall_status": "pass"
-        if "layer3_g5_design_record_firewall_status_flattened"
-        not in pinned.issue_codes
+        if "layer3_g5_design_record_firewall_status_flattened" not in pinned.issue_codes
         else "limited",
         "g5_constraint_store_status": "pass"
         if "layer3_g5_constraint_store_block_ignored" not in pinned.issue_codes
@@ -2143,9 +2069,7 @@ def _g5_readiness_summary(
         "g5_s14_declared_envelope_status": "pass"
         if pinned.s14_declared_envelope_ref
         else "missing",
-        "g5_composed_loop_completeness_status": (
-            pinned.composed_loop_completeness_gate.status
-        ),
+        "g5_composed_loop_completeness_status": (pinned.composed_loop_completeness_gate.status),
         "g5_s14_gate_status": pinned.s14_grounded_authority_status,
         "g5_g4_handoff_resolution_status": handoff.status,
         "g5_g4_handoff_blocker_status": "blocked"
@@ -2164,9 +2088,7 @@ def _g5_readiness_summary(
         "g5_g2_design_record_alias_resolution_status": (
             matrix.g2_design_record_alias_resolution.status
         ),
-        "g5_g2_s2_replay_key_ref_status": "pass"
-        if matrix.g2_s2_replay_key_refs
-        else "missing",
+        "g5_g2_s2_replay_key_ref_status": "pass" if matrix.g2_s2_replay_key_refs else "missing",
         "g5_g2_source_contract_join_status": "pass"
         if matrix.g2_source_contract_ref == matrix.g1_source_contract_ref
         else "limited",
@@ -2183,9 +2105,7 @@ def _g5_readiness_summary(
         "g5_effective_evidence_independence_status": (
             evidence.effective_independence_record.status
         ),
-        "g5_evidence_independence_map_status": (
-            evidence.effective_independence_record.status
-        ),
+        "g5_evidence_independence_map_status": (evidence.effective_independence_record.status),
         "g5_useful_design_metric_eligibility_status": useful_join.status,
         "g5_runtime_vs_expert_metric_separation_status": "pass",
         "g5_conversion_record_count": len(conversion_records),
@@ -2240,9 +2160,7 @@ def _g5_readiness_summary(
         "g5_conformance_status": conformance_report.status,
         "g5_conformance_negative_count": len(conformance_report.negative_results),
         "g5_conformance_negative_pass_count": sum(
-            1
-            for result in conformance_report.negative_results
-            if result.status == "pass"
+            1 for result in conformance_report.negative_results if result.status == "pass"
         ),
         "g5_registry_ratchet_delta_status": registry_ratchet.status,
         "g5_generated_artifacts_registration_status": "unknown",
@@ -2545,9 +2463,7 @@ def build_g5_pinned_case_input_bundle(
         and not bounded_graded_terminal_cap
     ):
         issue_codes.append("layer3_g5_design_record_firewall_status_flattened")
-    constraint_statuses = _status_tuple_from_records(
-        constraint_store.get("constraint_records")
-    )
+    constraint_statuses = _status_tuple_from_records(constraint_store.get("constraint_records"))
     if (
         any(status in {"block", "blocked", "fail", "failed"} for status in constraint_statuses)
         and not bounded_graded_terminal_cap
@@ -2569,9 +2485,7 @@ def build_g5_pinned_case_input_bundle(
         delegation_posture.get("human_decision_request_ref"),
     )
 
-    s12_demand_refs, s12_envelope_delta_refs, s12_issue_codes = (
-        _extract_s12_demand_growth_refs(s12)
-    )
+    s12_demand_refs, s12_envelope_delta_refs, s12_issue_codes = _extract_s12_demand_growth_refs(s12)
     issue_codes.extend(s12_issue_codes)
 
     s14_universal_status = _first_text(s14.get("universal_claim_gate_status"))
@@ -2819,9 +2733,7 @@ def build_g5_conversion_eligibility_ledger(
     )
     issue_codes.extend(snapshot.issue_codes)
     issue_codes.extend(handoff.issue_codes)
-    legal_scope_requested = bool(
-        set(requested_families) & {"legal_mandate", "legal", "mandate"}
-    )
+    legal_scope_requested = bool(set(requested_families) & {"legal_mandate", "legal", "mandate"})
     issue_codes.extend(
         code
         for code in matrix.issue_codes
@@ -2890,10 +2802,7 @@ def build_g5_conversion_eligibility_ledger(
     if (
         requested_conversion_outcome == "typed_blocker -> grounded_limited"
         and genuine_partial_evidence
-        and (
-            _scope_requests_production_strict(scope)
-            or _scope_requests_production_strict(weakest)
-        )
+        and (_scope_requests_production_strict(scope) or _scope_requests_production_strict(weakest))
     ):
         issue_codes.append("layer3_g5_partial_evidence_production_strict")
     if requested_conversion_outcome == "typed_blocker -> grounded_limited" and (
@@ -2988,9 +2897,7 @@ def build_g5_conversion_eligibility_ledger(
             g4_design_scope_status=g4_design_scope_status,
             requested_claim_families=requested_families,
             blocker_refs=_dedupe(blocker_refs),
-            limitation_refs=_dedupe(
-                (*limitation_refs, "layer3_g5_no_governed_g4_input")
-            ),
+            limitation_refs=_dedupe((*limitation_refs, "layer3_g5_no_governed_g4_input")),
             may_not_use_for=(),
             weakest_boundary_status=weakest_status,
             weakest_boundary_reason=weakest_reason,
@@ -3008,10 +2915,7 @@ def build_g5_conversion_eligibility_ledger(
     limited_blocked = _has_grounded_limited_blocking_issue(issue_codes)
     abstention_blocked = _has_grounded_abstention_blocking_issue(issue_codes)
     reducer_requested_outcome = "unchanged_blocker"
-    if (
-        requested_conversion_outcome == "typed_blocker -> grounded_limited"
-        and not limited_blocked
-    ):
+    if requested_conversion_outcome == "typed_blocker -> grounded_limited" and not limited_blocked:
         reducer_requested_outcome = "grounded_limited"
     elif (
         requested_conversion_outcome == "typed_blocker -> grounded_abstention"
@@ -3105,9 +3009,7 @@ def build_g5_s12_demand_growth_evidence(
     )
     reuse_refs: list[str] = list(_as_str_tuple(signals.get("reuse_acquisition_refs", ())))
     voi_refs: list[str] = list(_as_str_tuple(signals.get("voi_allocation_refs", ())))
-    principal_refs: list[str] = list(
-        _as_str_tuple(signals.get("accountable_principal_refs", ()))
-    )
+    principal_refs: list[str] = list(_as_str_tuple(signals.get("accountable_principal_refs", ())))
     principal_refs.extend(_as_str_tuple(signals.get("principal_ref")))
     for index, entry in enumerate(_sequence_of_mappings(signals.get("growth_entries"))):
         entry_ref = _first_optional_text(entry.get("growth_entry_ref")) or (
@@ -3129,8 +3031,7 @@ def build_g5_s12_demand_growth_evidence(
             issue_codes.append("layer3_g5_s12_growth_without_envelope_delta")
         reuse_refs.extend(
             _as_str_tuple(
-                entry.get("reuse_acquisition_ref")
-                or entry.get("reuse_acquisition_refs", ())
+                entry.get("reuse_acquisition_ref") or entry.get("reuse_acquisition_refs", ())
             )
         )
         voi_refs.extend(_as_str_tuple(entry.get("voi_allocation_refs", ())))
@@ -3561,9 +3462,7 @@ def build_g5_dependency_readiness_snapshot(
         ),
         gl_amendment_lineage_status=_first_text(gl.get("gl_amendment_lineage_status")),
         gl_applicability_status=_first_text(gl_legal.get("applicability_status")),
-        g4_g5_promotion_handoff_status=_first_text(
-            g4.get("g4_g5_promotion_handoff_status")
-        ),
+        g4_g5_promotion_handoff_status=_first_text(g4.get("g4_g5_promotion_handoff_status")),
         g4_promotion_record_count=_as_int(g4.get("g4_promotion_record_count")),
         g4_governed_promoted_count=_as_int(g4.get("g4_governed_promoted_count")),
         g4_promotion_blocked_count=_as_int(g4.get("g4_promotion_blocked_count")),
@@ -3618,13 +3517,11 @@ def resolve_g5_g4_handoff(
     governed_count = sum(
         1
         for record in records
-        if record.promotion_state == "governed_promoted"
-        and record.admitted_for_g5_conversion
+        if record.promotion_state == "governed_promoted" and record.admitted_for_g5_conversion
     )
     blocked_count = sum(1 for record in records if record.promotion_state == "promotion_blocked")
     invalid_governed_record = any(
-        record.promotion_state == "governed_promoted" and record.issue_codes
-        for record in records
+        record.promotion_state == "governed_promoted" and record.issue_codes for record in records
     )
     if not records:
         issue_codes.append("layer3_g5_promotion_record_missing")
@@ -3632,11 +3529,7 @@ def resolve_g5_g4_handoff(
     if blocker_refs and _scope_mentions(requested_scope, "causal_forecast"):
         issue_codes.append("layer3_g5_g4_handoff_pass_with_blockers_overclaimed")
     status: Literal["pass", "pass_with_blockers", "fail"]
-    if (
-        "layer3_g5_g4_handoff_missing" in issue_codes
-        or not records
-        or invalid_governed_record
-    ):
+    if "layer3_g5_g4_handoff_missing" in issue_codes or not records or invalid_governed_record:
         status = "fail"
     elif issue_codes or blocker_refs or blocked_count or governed_count == 0:
         status = "pass_with_blockers"
@@ -3722,8 +3615,10 @@ def build_g5_upstream_scope_join_matrix(
     if not g2_replay_refs:
         issues.append("layer3_g5_g2_s2_replay_key_ref_missing")
     source_contract_ref = _optional_str(g2.get("source_contract_ref"))
-    if source_contract_ref and g1.get("source_contract_ref") and source_contract_ref != str(
-        g1["source_contract_ref"]
+    if (
+        source_contract_ref
+        and g1.get("source_contract_ref")
+        and source_contract_ref != str(g1["source_contract_ref"])
     ):
         issues.append("layer3_g5_g2_source_contract_ref_mismatch")
     if not _as_str_tuple(g2.get("calibration_record_refs", ())):
@@ -3896,9 +3791,7 @@ def resolve_g5_committed_grounding_refs(
     g2_payload = _read_optional_json(root, G2_FORECAST_SUPPORT_BINDINGS_PATH) or {}
     g3_payload = _read_optional_json(root, G3_PROOF_CARRYING_ANALYTICS_RECORDS_PATH) or {}
     g2_records = tuple(_sequence_of_mappings(g2_payload.get("forecast_support_bindings")))
-    g3_records = tuple(
-        _sequence_of_mappings(g3_payload.get("proof_carrying_analytics_records"))
-    )
+    g3_records = tuple(_sequence_of_mappings(g3_payload.get("proof_carrying_analytics_records")))
     g2_record = next(
         (
             dict(record)
@@ -3908,11 +3801,7 @@ def resolve_g5_committed_grounding_refs(
         {},
     )
     g3_record = next(
-        (
-            dict(record)
-            for record in g3_records
-            if str(record.get("proof_ref") or "") == proof_ref
-        ),
+        (dict(record) for record in g3_records if str(record.get("proof_ref") or "") == proof_ref),
         {},
     )
     if not g2_record or _status_text(g2_record.get("status")) in {
@@ -4141,7 +4030,9 @@ def _g5_g2_transport_validated(
         declared_transport_refs = set(
             _as_str_tuple(declaration.get("skg_transport_score_refs", ()))
         )
-        declared_transport_refs.update(_mapping(declaration.get("transport_confidence_by_ref")).keys())
+        declared_transport_refs.update(
+            _mapping(declaration.get("transport_confidence_by_ref")).keys()
+        )
         if transport_refs <= declared_transport_refs:
             return True
     return False
@@ -4490,8 +4381,7 @@ def _has_grounded_limited_blocking_issue(issue_codes: Sequence[str]) -> bool:
         "layer3_g5_s14_pending_sealed_overclaimed",
     }
     return any(
-        code.startswith("layer3_g5_") and code not in nonblocking_codes
-        for code in issue_codes
+        code.startswith("layer3_g5_") and code not in nonblocking_codes for code in issue_codes
     )
 
 
@@ -4669,8 +4559,7 @@ def _extract_layer3_gate_statuses(case: Mapping[str, Any]) -> dict[str, str]:
         "layer3_g3_analytics_search_gate",
     )
     return {
-        key: _first_text(_mapping(case.get(key)).get("status"), case.get(key))
-        for key in gate_keys
+        key: _first_text(_mapping(case.get(key)).get("status"), case.get(key)) for key in gate_keys
     }
 
 
@@ -4923,9 +4812,7 @@ def _build_independence_adapter_payload(
             "effective_counterevidence_mass": 0.0,
             "effective_context_mass": 0.0,
             "balance_status": "support_dominant" if raw_count else "insufficient",
-            "independence_status": "sufficient"
-            if effective_count > 1
-            else "singular",
+            "independence_status": "sufficient" if effective_count > 1 else "singular",
             "largest_hard_collapse_cluster": max(
                 (len(cluster["line_ids"]) for cluster in clusters),
                 default=0,

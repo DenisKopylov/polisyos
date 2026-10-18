@@ -57,9 +57,7 @@ class DependencyTracker:
             relative = absolute.relative_to(self._root)
         except ValueError:
             return None
-        if not relative.parts or any(
-            part in _IGNORED_DEPENDENCY_PARTS for part in relative.parts
-        ):
+        if not relative.parts or any(part in _IGNORED_DEPENDENCY_PARTS for part in relative.parts):
             return None
         return relative.as_posix(), absolute
 
@@ -192,8 +190,7 @@ class DependencyTracker:
         """Return current bindings and detect a dependency that changed mid-run."""
 
         current = {
-            relative: self.identity(self._root / relative)
-            for relative in sorted(self._initial)
+            relative: self.identity(self._root / relative) for relative in sorted(self._initial)
         }
         issues = () if current == self._initial else ("dependency_changed_during_validation",)
         return current, issues

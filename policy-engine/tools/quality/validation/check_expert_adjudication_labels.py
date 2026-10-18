@@ -116,8 +116,7 @@ def validate_expert_adjudication_labels(
 
     return {
         "schema_version": (
-            "policyos.universal_policy_design.outcome_corpus."
-            "expert_adjudication.validation.v1"
+            "policyos.universal_policy_design.outcome_corpus.expert_adjudication.validation.v1"
         ),
         "tool": TOOL_NAME,
         "status": "fail" if issues else "pass",

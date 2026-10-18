@@ -426,9 +426,7 @@ def test_resolution_loop_carries_unresolved_legal_mapping_into_review_state(
         surrogate_data_profile={"schema_version": "caller-profile"},
     )
 
-    assert observed_solver_inputs["surrogate_data_profile"] == {
-        "schema_version": "caller-profile"
-    }
+    assert observed_solver_inputs["surrogate_data_profile"] == {"schema_version": "caller-profile"}
     assert result.legal_s_nodes == []
     assert result.requires_expert_review is True
     assert "source_data_authority_not_established" in result.expert_review_reasons

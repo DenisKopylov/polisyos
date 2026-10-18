@@ -19,8 +19,7 @@ SCIENTIST_NODES_ENTRY_POINT_GROUP = ENTRY_POINT_GROUP_SCIENTIST_NODES
 class ScientistGovernancePassPlugin(Protocol):
     """Entry-point plugin that creates a Scientist governance pass."""
 
-    def __call__(self) -> object:
-        ...
+    def __call__(self) -> object: ...
 
 
 @runtime_checkable
@@ -28,11 +27,9 @@ class ScientistNodePlugin(Protocol):
     """Component-style plugin that creates a Scientist DAG node."""
 
     @property
-    def metadata(self) -> object:
-        ...
+    def metadata(self) -> object: ...
 
-    def create(self) -> object:
-        ...
+    def create(self) -> object: ...
 
 
 __all__ = [

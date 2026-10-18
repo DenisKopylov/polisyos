@@ -29,12 +29,8 @@ def _load_builder_surface() -> tuple[Any, Any, Any, Any, Any]:
         observation = importlib.import_module(
             "polisyos.data_forge.domains.ukraine.builders.observation"
         )
-        common = importlib.import_module(
-            "polisyos.data_forge.domains.ukraine.builders.common"
-        )
-        sources = importlib.import_module(
-            "polisyos.data_forge.domains.ukraine.builders.sources"
-        )
+        common = importlib.import_module("polisyos.data_forge.domains.ukraine.builders.common")
+        sources = importlib.import_module("polisyos.data_forge.domains.ukraine.builders.sources")
         demography = importlib.import_module(
             "polisyos.data_forge.domains.ukraine.builders.demography"
         )
@@ -158,9 +154,7 @@ def test_source_observation_consumer_uses_canonical_period_bounds() -> None:
     valid = observations.loc[observations["entity_id"] == "household::valid"].iloc[0]
     assert valid["period_start"] == "2024-02-01"
     assert valid["period_end"] == "2024-02-29"
-    assert not observations["period_start"].astype("string").str.contains(
-        "2025", na=False
-    ).any()
+    assert not observations["period_start"].astype("string").str.contains("2025", na=False).any()
     assert not observations["period_end"].astype("string").str.contains("2025", na=False).any()
 
 
@@ -184,9 +178,7 @@ def test_household_demography_consumer_preserves_valid_period_and_rejects_bad_da
     valid = observations.loc[observations["cell_id"] == "cell::01::valid"].iloc[0]
     assert valid["period_start"] == "2024-02-01"
     assert valid["period_end"] == "2024-02-29"
-    assert not observations["period_start"].astype("string").str.contains(
-        "2025", na=False
-    ).any()
+    assert not observations["period_start"].astype("string").str.contains("2025", na=False).any()
     assert not observations["period_end"].astype("string").str.contains("2025", na=False).any()
 
 

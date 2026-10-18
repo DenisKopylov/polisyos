@@ -183,9 +183,7 @@ def expected_wave35f_coverage(disposition: Mapping[str, Any]) -> dict[str, list[
         if finding_id:
             remediated_ids.add(finding_id)
         artifact_paths.update(
-            str(path)
-            for path in _as_list(evidence.get("implementation_artifacts"))
-            if path
+            str(path) for path in _as_list(evidence.get("implementation_artifacts")) if path
         )
 
     for row in _as_list(disposition.get("artifact_dispositions")):
@@ -193,9 +191,7 @@ def expected_wave35f_coverage(disposition: Mapping[str, Any]) -> dict[str, list[
             continue
         false_alarm = _mapping(row.get("false_alarm_evidence"))
         artifact_paths.update(
-            str(path)
-            for path in _as_list(false_alarm.get("implementation_artifacts"))
-            if path
+            str(path) for path in _as_list(false_alarm.get("implementation_artifacts")) if path
         )
     return {
         "remediated_finding_ids": sorted(remediated_ids),
@@ -266,17 +262,11 @@ def _build_classification(
 
     coverage = expected_wave35f_coverage(disposition)
     observed_remediated = {
-        str(row["finding_id"])
-        for row in rows
-        if row.get("row_type") == "finding_remediation"
+        str(row["finding_id"]) for row in rows if row.get("row_type") == "finding_remediation"
     }
     observed_artifacts = {str(row["artifact_path"]) for row in rows}
-    missing_findings = sorted(
-        set(coverage["remediated_finding_ids"]) - observed_remediated
-    )
-    missing_artifacts = sorted(
-        set(coverage["disposition_artifact_paths"]) - observed_artifacts
-    )
+    missing_findings = sorted(set(coverage["remediated_finding_ids"]) - observed_remediated)
+    missing_artifacts = sorted(set(coverage["disposition_artifact_paths"]) - observed_artifacts)
     class_counts = Counter(str(row["evidence_authority_class"]) for row in rows)
     return {
         "schema_version": SCHEMA_VERSION,
@@ -302,9 +292,7 @@ def _build_classification(
             "expected_remediated_finding_ids": coverage["remediated_finding_ids"],
             "observed_remediated_finding_ids": sorted(observed_remediated),
             "missing_remediated_finding_ids": missing_findings,
-            "expected_disposition_artifact_paths": coverage[
-                "disposition_artifact_paths"
-            ],
+            "expected_disposition_artifact_paths": coverage["disposition_artifact_paths"],
             "observed_disposition_artifact_paths": sorted(observed_artifacts),
             "missing_disposition_artifact_paths": missing_artifacts,
         },
@@ -343,9 +331,7 @@ def _classification_row(
     counts_toward_closeout = (
         closeout_critical and authority_class in RUNTIME_OR_TEST_AUTHORITY_CLASSES
     )
-    row_id = "W35F-CLASS-" + _stable_digest(
-        "|".join((row_type, finding_id, artifact_path))
-    )
+    row_id = "W35F-CLASS-" + _stable_digest("|".join((row_type, finding_id, artifact_path)))
     return {
         "row_id": row_id,
         "row_type": row_type,
@@ -378,9 +364,7 @@ def _classification_row(
         "closeout_critical": closeout_critical,
         "counts_toward_deterministic_closeout": counts_toward_closeout,
         "deterministic_closeout_authority": (
-            "may_count"
-            if counts_toward_closeout
-            else "not_closeout_authority"
+            "may_count" if counts_toward_closeout else "not_closeout_authority"
         ),
     }
 
@@ -420,14 +404,13 @@ def _build_authority_map(
                     "upstream_sources": sorted(
                         set(_collect_ref_strings(payload)) | set(backfill_refs)
                     ),
-                    "runtime_fact_produced": authority_class in {
+                    "runtime_fact_produced": authority_class
+                    in {
                         "runtime_emitted",
                         "runtime_derived",
                         "test_observed",
                     },
-                    "remediation_overlay_only": (
-                        authority_class in OVERLAY_AUTHORITY_CLASSES
-                    ),
+                    "remediation_overlay_only": (authority_class in OVERLAY_AUTHORITY_CLASSES),
                     "source_kind_explanation": _source_kind_explanation(
                         rel_path,
                         authority_class,
@@ -485,18 +468,15 @@ def _build_gap_ledger(
             blocks_release = False
         rows.append(
             {
-                "gap_id": "W35F-GAP-" + _stable_digest(
-                    str(classified.get("row_id") or artifact_path)
-                ),
+                "gap_id": "W35F-GAP-"
+                + _stable_digest(str(classified.get("row_id") or artifact_path)),
                 "classification_row_id": classified.get("row_id"),
                 "wave": classified.get("wave"),
                 "cluster_id": classified.get("cluster_id"),
                 "pdd_id": classified.get("pdd_id"),
                 "finding_id": finding_id,
                 "artifact_path": artifact_path,
-                "evidence_authority_class": classified.get(
-                    "evidence_authority_class"
-                ),
+                "evidence_authority_class": classified.get("evidence_authority_class"),
                 "missing_runtime_api_ui_enforcement": _missing_enforcement(
                     artifact_path,
                 ),
@@ -522,9 +502,7 @@ def _build_gap_ledger(
                 "reviewer_command": classified.get("reviewer_command"),
             }
         )
-    blocking = [
-        row for row in rows if row["wave36_blocking_decision"] == "block_wave36_release"
-    ]
+    blocking = [row for row in rows if row["wave36_blocking_decision"] == "block_wave36_release"]
     return {
         "schema_version": SCHEMA_VERSION,
         "tool": TOOL_NAME,
@@ -550,9 +528,7 @@ def _build_human_surface_audit(*, repo_root: Path, generated_at: str) -> dict[st
     for control in _as_list(projection.get("projection_masking_negative_controls")):
         if not isinstance(control, Mapping):
             continue
-        authority_class = _normalize_authority_class(
-            control.get("evidence_authority_class")
-        )
+        authority_class = _normalize_authority_class(control.get("evidence_authority_class"))
         has_runtime_or_test = authority_class in {"runtime_emitted", "test_observed"}
         rows.append(
             {
@@ -635,9 +611,7 @@ def _build_human_surface_audit(*, repo_root: Path, generated_at: str) -> dict[st
     for trust_row in _as_list(trust.get("rows")):
         if not isinstance(trust_row, Mapping):
             continue
-        authority_class = _normalize_authority_class(
-            trust_row.get("evidence_authority_class")
-        )
+        authority_class = _normalize_authority_class(trust_row.get("evidence_authority_class"))
         has_runtime_or_test = authority_class in {"runtime_emitted", "test_observed"}
         rows.append(
             {
@@ -673,9 +647,7 @@ def _build_human_surface_audit(*, repo_root: Path, generated_at: str) -> dict[st
         "generated_at": generated_at,
         "wave": "35F",
         "phase": "35F.1",
-        "status": (
-            "pass_with_not_closeout_authority_caveats" if caveat_count else "pass"
-        ),
+        "status": ("pass_with_not_closeout_authority_caveats" if caveat_count else "pass"),
         "required_surfaces": sorted(set(HUMAN_SURFACE_BY_ARTIFACT.values())),
         "summary": {
             "row_count": len(rows),
@@ -700,11 +672,7 @@ def _build_exit_fence(
     ]
     blocking_gap_ids = sorted(str(row.get("gap_id")) for row in blocking)
     blocking_finding_ids = sorted(
-        {
-            str(row.get("finding_id"))
-            for row in blocking
-            if row.get("finding_id")
-        }
+        {str(row.get("finding_id")) for row in blocking if row.get("finding_id")}
     )
     return {
         "schema_version": SCHEMA_VERSION,
@@ -722,17 +690,13 @@ def _build_exit_fence(
                 "coverage",
                 {},
             ).get("missing_remediated_finding_ids")
-            and not classification.get("coverage", {}).get(
-                "missing_disposition_artifact_paths"
-            ),
+            and not classification.get("coverage", {}).get("missing_disposition_artifact_paths"),
             "overlay_rows_have_accepted_boundaries": all(
-                _mapping(row).get("accepted_boundary")
-                for row in _as_list(gap_ledger.get("rows"))
+                _mapping(row).get("accepted_boundary") for row in _as_list(gap_ledger.get("rows"))
             ),
             "human_surface_rows_have_runtime_or_caveat": all(
                 row.get("runtime_or_test_observed")
-                or row.get("closeout_authority_decision")
-                == "not_closeout_authority"
+                or row.get("closeout_authority_decision") == "not_closeout_authority"
                 for row in _as_list(human_surface_audit.get("rows"))
                 if isinstance(row, Mapping)
             ),
@@ -841,8 +805,7 @@ def _apply_wave35g_authority_class(
         return "test_observed"
     if (
         filename == "memory_authority_ledger.json"
-        and {"PDD-083-F001", "PDD-083-F002", "PDD-083-F003"}
-        <= runtime_or_test_findings
+        and {"PDD-083-F001", "PDD-083-F002", "PDD-083-F003"} <= runtime_or_test_findings
     ):
         return "runtime_emitted"
     if (
@@ -877,9 +840,7 @@ def _wave35g_backfill_refs(
             "_build/policy-design-case/rebaseline/wave-35G/"
             "projection_fail_closed_runtime_backfill.json"
         )
-    if filename == "memory_authority_ledger.json" and _mapping(
-        wave35g_backfill.get("memory")
-    ):
+    if filename == "memory_authority_ledger.json" and _mapping(wave35g_backfill.get("memory")):
         refs.append(
             "_build/policy-design-case/rebaseline/wave-35G/"
             "memory_authority_runtime_abstention_trace.json"
@@ -1031,9 +992,7 @@ def _classify_artifact(path: str, payload: Mapping[str, Any]) -> str:
     if "phase34" in filename and "rerun" in filename:
         return "test_observed"
     runtime_evidence = _mapping(payload.get("runtime_enforcement_evidence"))
-    authority_class = _normalize_authority_class(
-        runtime_evidence.get("evidence_authority_class")
-    )
+    authority_class = _normalize_authority_class(runtime_evidence.get("evidence_authority_class"))
     if authority_class in ALLOWED_AUTHORITY_CLASSES:
         return authority_class
     return "runtime_derived"
@@ -1052,9 +1011,7 @@ def _institutional_ledger_runtime_authority_class(
     payload: Mapping[str, Any],
 ) -> str | None:
     runtime_evidence = _mapping(payload.get("runtime_enforcement_evidence"))
-    authority_class = _normalize_authority_class(
-        runtime_evidence.get("evidence_authority_class")
-    )
+    authority_class = _normalize_authority_class(runtime_evidence.get("evidence_authority_class"))
     if authority_class not in RUNTIME_OR_TEST_AUTHORITY_CLASSES:
         return None
     if runtime_evidence.get("runtime_owned_provenance_present") is not True:

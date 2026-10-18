@@ -309,9 +309,7 @@ def build_coverage_payload(
         "source": {
             "baseline_coverage": _rel(baseline_file, repo_root),
             "baseline_gaps": (
-                _rel(baseline_gaps_file, repo_root)
-                if baseline_gaps_file.is_file()
-                else None
+                _rel(baseline_gaps_file, repo_root) if baseline_gaps_file.is_file() else None
             ),
             "sdd": _rel(sdd_file, repo_root),
             "formal_invariant_specs": _rel(formal_invariant_specs_file, repo_root),
@@ -349,23 +347,19 @@ def build_coverage_payload(
                 "runtime_quality_profile_coverage_pct": metric_rows[
                     "runtime_quality_profile_coverage_pct"
                 ]["value"],
-                "intent_capability_gate_pct": metric_rows[
-                    "intent_capability_gate_pct"
-                ]["value"],
-                "concept_spine_closure_pct": metric_rows[
-                    "concept_spine_closure_pct"
-                ]["value"],
+                "intent_capability_gate_pct": metric_rows["intent_capability_gate_pct"]["value"],
+                "concept_spine_closure_pct": metric_rows["concept_spine_closure_pct"]["value"],
             },
             "portfolio_independence_synthesis_coverage": {
-                "portfolio_predeclaration_pct": metric_rows[
-                    "portfolio_predeclaration_pct"
-                ]["value"],
-                "effective_independent_count_pct": metric_rows[
-                    "effective_independent_count_pct"
-                ]["value"],
-                "evidence_synthesis_report_pct": metric_rows[
-                    "evidence_synthesis_report_pct"
-                ]["value"],
+                "portfolio_predeclaration_pct": metric_rows["portfolio_predeclaration_pct"][
+                    "value"
+                ],
+                "effective_independent_count_pct": metric_rows["effective_independent_count_pct"][
+                    "value"
+                ],
+                "evidence_synthesis_report_pct": metric_rows["evidence_synthesis_report_pct"][
+                    "value"
+                ],
             },
             "reuse_violation_count": int(drift_payload["reuse_violation_count"]),
             "parallel_case_authority_violation_count": int(
@@ -399,8 +393,7 @@ def validate_metric_definitions(
     ]
     if invalid:
         raise CoverageDefinitionError(
-            "Incomplete Policy Design Case coverage metric definitions: "
-            + ", ".join(invalid)
+            "Incomplete Policy Design Case coverage metric definitions: " + ", ".join(invalid)
         )
 
 
@@ -628,16 +621,10 @@ def _apply_final_target_evidence(
     )
     registry_metrics = {
         "structured_judgement_consultation_pct": "structured_judgement_and_consultation.v1",
-        "implementation_monitoring_evaluation_pct": (
-            "implementation_monitoring_and_evaluation.v1"
-        ),
-        "human_oversight_independence_pct": (
-            "human_oversight_independence_and_review.v1"
-        ),
+        "implementation_monitoring_evaluation_pct": ("implementation_monitoring_and_evaluation.v1"),
+        "human_oversight_independence_pct": ("human_oversight_independence_and_review.v1"),
         "integrity_self_fmea_maturity_pct": "integrity_self_fmea_and_maturity.v1",
-        "publication_external_audit_pct": (
-            "publication_trust_and_external_governance.v1"
-        ),
+        "publication_external_audit_pct": ("publication_trust_and_external_governance.v1"),
     }
     for metric_id, family_id in registry_metrics.items():
         covered = registry_report.get("status") == "pass" and family_id in registry_family_ids

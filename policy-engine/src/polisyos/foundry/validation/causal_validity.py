@@ -238,24 +238,16 @@ def _scenario(case: dict[str, Any]) -> str:
 def _known_answer_diagnostic(case: dict[str, Any]) -> dict[str, Any]:
     expected = _to_float(case.get("expected_effect"))
     observed = _to_float(
-        case.get("observed_effect")
-        if "observed_effect" in case
-        else case.get("effect_estimate")
+        case.get("observed_effect") if "observed_effect" in case else case.get("effect_estimate")
     )
     tolerance = _to_float(case.get("tolerance"))
-    delta = (
-        abs(observed - expected)
-        if observed is not None and expected is not None
-        else None
-    )
+    delta = abs(observed - expected) if observed is not None and expected is not None else None
     return {
         "expected_effect": expected,
         "observed_effect": observed,
         "tolerance": tolerance,
         "absolute_error": delta,
-        "within_tolerance": (
-            delta is not None and tolerance is not None and delta <= tolerance
-        ),
+        "within_tolerance": (delta is not None and tolerance is not None and delta <= tolerance),
     }
 
 
@@ -482,8 +474,7 @@ def _validate_sample_diagnostics(
                 scenario=scenario,
                 failure_mode="power_failure",
                 message=(
-                    f"Benchmark case {case_id} has power={power} below "
-                    f"minimum={minimum_power}."
+                    f"Benchmark case {case_id} has power={power} below minimum={minimum_power}."
                 ),
                 next_action=(
                     "Treat causal or numerical claims from this method as blocking "
@@ -744,11 +735,7 @@ def build_causal_statistical_validity_report(
 
     status = _status_from_issues(issues)
     scenarios = sorted(
-        {
-            _text(case.get("scenario"))
-            for case in normalized_cases
-            if _text(case.get("scenario"))
-        }
+        {_text(case.get("scenario")) for case in normalized_cases if _text(case.get("scenario"))}
     )
     families = sorted(
         {
@@ -765,14 +752,11 @@ def build_causal_statistical_validity_report(
         "deterministic": True,
         "method_defaults_changed": False,
         "method_families": {
-            family: dict(contract)
-            for family, contract in sorted(_METHOD_FAMILY_CONTRACTS.items())
+            family: dict(contract) for family, contract in sorted(_METHOD_FAMILY_CONTRACTS.items())
         },
         "cases": normalized_cases,
         "issues": issues,
-        "blocking_issue_count": sum(
-            1 for issue in issues if issue.get("severity") == "fail"
-        ),
+        "blocking_issue_count": sum(1 for issue in issues if issue.get("severity") == "fail"),
         "summary": {
             "case_count": len(normalized_cases),
             "method_family_count": len(families),
@@ -795,10 +779,14 @@ def normalize_causal_statistical_validity_report(report: dict[str, Any]) -> dict
     if not isinstance(report, dict):
         report = {}
     raw_cases = report.get("cases") or report.get("benchmark_cases") or []
-    cases = [case for case in raw_cases if isinstance(case, dict)] if isinstance(
-        raw_cases,
-        list,
-    ) else []
+    cases = (
+        [case for case in raw_cases if isinstance(case, dict)]
+        if isinstance(
+            raw_cases,
+            list,
+        )
+        else []
+    )
     normalized = build_causal_statistical_validity_report(
         benchmark_cases=cases,
         benchmark_suite_id=_text(report.get("benchmark_suite_id"))

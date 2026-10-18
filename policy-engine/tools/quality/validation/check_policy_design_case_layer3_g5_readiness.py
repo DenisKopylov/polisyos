@@ -24,18 +24,12 @@ G5_RULE_VERSION = g5.G5_RULE_VERSION
 DEPENDENCY_READINESS_SNAPSHOT_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g5_dependency_readiness_snapshot.json"
 )
-PINNED_CASE_INPUT_BUNDLE_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g5_pinned_case_input_bundle.json"
-)
-W12D_CASE_BLOCK_INDEX_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g5_w12d_case_block_index.json"
-)
+PINNED_CASE_INPUT_BUNDLE_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g5_pinned_case_input_bundle.json"
+W12D_CASE_BLOCK_INDEX_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g5_w12d_case_block_index.json"
 COMPOSED_LOOP_COMPLETENESS_GATE_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g5_composed_loop_completeness_gate.json"
 )
-G4_HANDOFF_RESOLUTION_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g5_g4_handoff_resolution.json"
-)
+G4_HANDOFF_RESOLUTION_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g5_g4_handoff_resolution.json"
 G4_PROMOTION_RECORD_RESOLUTION_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g5_g4_promotion_record_resolution.json"
 )
@@ -54,9 +48,7 @@ USEFUL_DESIGN_METRIC_ELIGIBILITY_JOIN_PATH = (
 CONVERSION_ELIGIBILITY_LEDGER_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g5_conversion_eligibility_ledger.json"
 )
-STATUS_COMPOSITION_LEDGER_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g5_status_composition_ledger.json"
-)
+STATUS_COMPOSITION_LEDGER_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g5_status_composition_ledger.json"
 GROUNDED_ABSTENTION_QUALITY_RECORD_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g5_grounded_abstention_quality_record.json"
 )
@@ -66,14 +58,10 @@ DEMAND_PULL_ATTEMPT_RECORD_PATH = (
 DEPENDENCY_HEALTH_METRIC_SNAPSHOT_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g5_dependency_health_metric_snapshot.json"
 )
-ENVELOPE_EXPANSION_DELTA_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g5_envelope_expansion_delta.json"
-)
+ENVELOPE_EXPANSION_DELTA_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g5_envelope_expansion_delta.json"
 CONVERSION_RECORDS_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g5_conversion_records.json"
 W12D_CONSUMER_GATE_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g5_w12d_consumer_gate.json"
-CONVERSION_AUDIT_SURFACE_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g5_conversion_audit_surface.json"
-)
+CONVERSION_AUDIT_SURFACE_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g5_conversion_audit_surface.json"
 PUBLIC_EXPORT_PROJECTION_REFS_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g5_public_export_projection_refs.json"
 )
@@ -82,17 +70,13 @@ HEALTH_METRIC_DELTA_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g5_health_metric_del
 CONVERSION_ROUTE_CONTRACT_REGISTRY_PATH = (
     POLICY_DESIGN_CASE_DIR / "layer3_g5_conversion_route_contract_registry.toml"
 )
-REGISTRY_RATCHET_DELTA_PATH = (
-    POLICY_DESIGN_CASE_DIR / "layer3_g5_registry_ratchet_delta.json"
-)
+REGISTRY_RATCHET_DELTA_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g5_registry_ratchet_delta.json"
 READINESS_MANIFEST_PATH = POLICY_DESIGN_CASE_DIR / "layer3_g5_readiness_manifest.json"
 
 GENERATED_ARTIFACTS_TOML_PATH = Path("architecture/generated_artifacts.toml")
 GENERATED_ARTIFACTS_DOC_PATH = DOCS_REFERENCE_DIR / "generated-artifacts.md"
 INVENTORY_PATH = POLICY_DESIGN_CASE_DIR / "inventory.json"
-DOCS_SURFACE_PATH = (
-    DOCS_REFERENCE_DIR / "policy-design-case-layer3-proving-ground-conversion.md"
-)
+DOCS_SURFACE_PATH = DOCS_REFERENCE_DIR / "policy-design-case-layer3-proving-ground-conversion.md"
 DOCUMENTATION_INVENTORY_PATH = DOCS_REFERENCE_DIR / "documentation-inventory.md"
 REFERENCE_INDEX_PATH = DOCS_REFERENCE_DIR / "index.md"
 PUBLIC_SURFACE_DOC_PATH = DOCS_REFERENCE_DIR / "public-surface.md"
@@ -165,9 +149,7 @@ def validate_layer3_g5_readiness(repo_root: Path, *, write: bool = False) -> dic
     root = Path(repo_root).resolve()
     runtime_bundle = g5.build_layer3_g5_bundle(root)
     written_artifact_paths = _write_artifacts(root, runtime_bundle) if write else []
-    runtime_report = g5.validate_layer3_g5_bundle(root, runtime_bundle).model_dump(
-        mode="json"
-    )
+    runtime_report = g5.validate_layer3_g5_bundle(root, runtime_bundle).model_dump(mode="json")
     drift_keys = _manifest_runtime_drift_keys(root, runtime_bundle)
     registration_statuses = _registration_statuses(root)
     issues: list[dict[str, str]] = []
@@ -190,9 +172,7 @@ def validate_layer3_g5_readiness(repo_root: Path, *, write: bool = False) -> dic
             registration_statuses,
         ),
         "artifacts": {
-            "expected_artifact_paths": [
-                path.as_posix() for path in EXPECTED_ARTIFACT_PATHS
-            ],
+            "expected_artifact_paths": [path.as_posix() for path in EXPECTED_ARTIFACT_PATHS],
             "written_artifact_paths": written_artifact_paths,
             "missing_persisted_artifact_paths": [
                 path.as_posix()
@@ -216,9 +196,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     report = validate_layer3_g5_readiness(args.repo_root, write=args.write)
-    rendered = (
-        _json_dumps(report) if args.output_format == "json" else _render_text_report(report)
-    )
+    rendered = _json_dumps(report) if args.output_format == "json" else _render_text_report(report)
     if args.output is not None:
         output_path = _resolve_repo_path(Path(args.repo_root).resolve(), args.output)
         atomic_write_text(output_path, rendered)
@@ -231,9 +209,7 @@ def _write_artifacts(repo_root: Path, bundle: g5.Layer3G5Bundle) -> list[str]:
     payloads: dict[Path, Any] = {
         DEPENDENCY_READINESS_SNAPSHOT_PATH: _dump(bundle.dependency_readiness_snapshot),
         PINNED_CASE_INPUT_BUNDLE_PATH: _dump(bundle.pinned_case_input_bundle),
-        W12D_CASE_BLOCK_INDEX_PATH: _dump(
-            bundle.pinned_case_input_bundle.w12d_case_block_index
-        ),
+        W12D_CASE_BLOCK_INDEX_PATH: _dump(bundle.pinned_case_input_bundle.w12d_case_block_index),
         COMPOSED_LOOP_COMPLETENESS_GATE_PATH: _dump(
             bundle.pinned_case_input_bundle.composed_loop_completeness_gate
         ),
@@ -252,17 +228,11 @@ def _write_artifacts(repo_root: Path, bundle: g5.Layer3G5Bundle) -> list[str]:
         USEFUL_DESIGN_METRIC_ELIGIBILITY_JOIN_PATH: _dump(
             bundle.useful_design_metric_eligibility_join
         ),
-        CONVERSION_ELIGIBILITY_LEDGER_PATH: _dump(
-            bundle.conversion_eligibility_ledger
-        ),
+        CONVERSION_ELIGIBILITY_LEDGER_PATH: _dump(bundle.conversion_eligibility_ledger),
         STATUS_COMPOSITION_LEDGER_PATH: _dump(bundle.status_composition_ledger),
-        GROUNDED_ABSTENTION_QUALITY_RECORD_PATH: _dump(
-            bundle.grounded_abstention_quality_record
-        ),
+        GROUNDED_ABSTENTION_QUALITY_RECORD_PATH: _dump(bundle.grounded_abstention_quality_record),
         DEMAND_PULL_ATTEMPT_RECORD_PATH: _dump(bundle.demand_pull_attempt_record),
-        DEPENDENCY_HEALTH_METRIC_SNAPSHOT_PATH: _dump(
-            bundle.dependency_health_metric_snapshot
-        ),
+        DEPENDENCY_HEALTH_METRIC_SNAPSHOT_PATH: _dump(bundle.dependency_health_metric_snapshot),
         ENVELOPE_EXPANSION_DELTA_PATH: _dump(bundle.envelope_expansion_delta),
         CONVERSION_RECORDS_PATH: {
             **base,
@@ -396,8 +366,8 @@ def _registration_statuses(repo_root: Path) -> dict[str, str]:
             "pass"
             if g5.G5_GENERATED_ARTIFACT_FAMILY_ID in generated_text
             and all(path.as_posix() in generated_text for path in EXPECTED_ARTIFACT_PATHS)
-            and "stale_output_behavior = \"fail\"" in generated_text
-            and "drift_gate = \"automated\"" in generated_text
+            and 'stale_output_behavior = "fail"' in generated_text
+            and 'drift_gate = "automated"' in generated_text
             else "fail"
         ),
         "inventory": "pass" if g5.G5_SURFACE_ID in inventory_text else "fail",
@@ -451,21 +421,15 @@ def _validate_runtime_surfaces(bundle: g5.Layer3G5Bundle) -> list[dict[str, str]
         if isinstance(record, Mapping)
     )
     negative_results = {
-        result.negative_id: result
-        for result in bundle.conformance_report.negative_results
+        result.negative_id: result for result in bundle.conformance_report.negative_results
     }
-    missing_negative_ids = sorted(
-        set(g5.G5_CONFORMANCE_NEGATIVE_IDS) - set(negative_results)
-    )
+    missing_negative_ids = sorted(set(g5.G5_CONFORMANCE_NEGATIVE_IDS) - set(negative_results))
     failed_negative_ids = [
-        negative_id
-        for negative_id, result in negative_results.items()
-        if result.status != "pass"
+        negative_id for negative_id, result in negative_results.items() if result.status != "pass"
     ]
     performance = bundle.conformance_report.performance_contract
     public_may_not = {
-        str(value)
-        for value in _sequence(public_projection.get("may_not_be_used_for"))
+        str(value) for value in _sequence(public_projection.get("may_not_be_used_for"))
     }
     checks = (
         (
@@ -533,8 +497,7 @@ def _validate_runtime_surfaces(bundle: g5.Layer3G5Bundle) -> list[dict[str, str]
         ),
         (
             performance.get("status") == "pass"
-            and performance.get("bounded_artifact_read_policy")
-            == "explicit_expected_paths_only"
+            and performance.get("bounded_artifact_read_policy") == "explicit_expected_paths_only"
             and performance.get("request_path_repo_glob_allowed") is False
             and performance.get("upstream_builder_rerun_in_request_path") is False
             and performance.get("w12d_import_mode") == "lazy",
@@ -542,8 +505,7 @@ def _validate_runtime_surfaces(bundle: g5.Layer3G5Bundle) -> list[dict[str, str]
             "G5 performance/scaling contract must pass before readiness closes.",
         ),
         (
-            bundle.conformance_report.closed_case_replay_integrity.get("status")
-            == "pass",
+            bundle.conformance_report.closed_case_replay_integrity.get("status") == "pass",
             "layer3_g5_pre_g5_closed_case_replay_mutated",
             "G5 readiness must prove pre-G5 replay payloads are not mutated.",
         ),
@@ -750,8 +712,7 @@ def _render_text_report(report: Mapping[str, Any]) -> str:
         for issue in issues:
             if isinstance(issue, Mapping):
                 lines.append(
-                    f"- {issue.get('code', '')} {issue.get('path', '')}: "
-                    f"{issue.get('message', '')}"
+                    f"- {issue.get('code', '')} {issue.get('path', '')}: {issue.get('message', '')}"
                 )
     return "\n".join(lines).rstrip() + "\n"
 

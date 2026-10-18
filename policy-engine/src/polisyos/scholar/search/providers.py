@@ -142,9 +142,7 @@ class ProviderFailoverPolicy:
                         timeout_s=timeout_s,
                     )
                     if not isinstance(observed, _ProviderSearchOutcome):
-                        raise TypeError(
-                            "provider search diagnostics have an invalid shape"
-                        )
+                        raise TypeError("provider search diagnostics have an invalid shape")
                     hits = list(observed.hits)
                     if not observed.diagnostics_available:
                         outcome = "returned_hits" if hits else "returned_no_hits"
@@ -158,12 +156,8 @@ class ProviderFailoverPolicy:
                         raw_result_count = observed.raw_result_count
                         candidate_count = observed.pre_filter_candidate_count
                         eligible_count = observed.eligible_candidate_count
-                        normalization_rejections = dict(
-                            observed.normalization_rejection_counts
-                        )
-                        constraint_rejections = dict(
-                            observed.constraint_rejection_counts
-                        )
+                        normalization_rejections = dict(observed.normalization_rejection_counts)
+                        constraint_rejections = dict(observed.constraint_rejection_counts)
                         if hits:
                             outcome = "returned_hits"
                             reason = "provider_returned_hits"
@@ -399,12 +393,9 @@ class OpenAlexWorksProvider:
             max_results=max_results,
             timeout_s=timeout_s,
         )
-        normalization_rejections = Counter(
-            reason for _rank, reason in result.excluded_results
-        )
+        normalization_rejections = Counter(reason for _rank, reason in result.excluded_results)
         eligible_count = (
-            result.pre_filter_hit_count
-            - sum(dict(result.filter_rejection_counts).values())
+            result.pre_filter_hit_count - sum(dict(result.filter_rejection_counts).values())
             if result.pre_filter_hit_count is not None
             else None
         )
@@ -413,9 +404,7 @@ class OpenAlexWorksProvider:
             raw_result_count=result.raw_result_count,
             pre_filter_candidate_count=result.pre_filter_hit_count,
             eligible_candidate_count=eligible_count,
-            normalization_rejection_counts=tuple(
-                sorted(normalization_rejections.items())
-            ),
+            normalization_rejection_counts=tuple(sorted(normalization_rejections.items())),
             constraint_rejection_counts=result.filter_rejection_counts,
             diagnostics_available=result.diagnostics_available,
         )
@@ -434,13 +423,23 @@ class OpenAlexWorksProvider:
 
         if constraints.source_types and "academic" not in constraints.source_types:
             return OpenAlexWorksResult(
-                query, (), (), {}, hashlib.sha256(b"{}").hexdigest(), (),
+                query,
+                (),
+                (),
+                {},
+                hashlib.sha256(b"{}").hexdigest(),
+                (),
                 diagnostics_available=False,
             )
         search_query = query.strip()
         if not search_query:
             return OpenAlexWorksResult(
-                query, (), (), {}, hashlib.sha256(b"{}").hexdigest(), (),
+                query,
+                (),
+                (),
+                {},
+                hashlib.sha256(b"{}").hexdigest(),
+                (),
                 diagnostics_available=False,
             )
         params = {
@@ -502,9 +501,7 @@ class OpenAlexWorksProvider:
             constraints=constraints,
             max_results=max_results,
             raw_result_count=len(results),
-            normalization_rejection_counts=dict(
-                Counter(reason for _rank, reason in excluded)
-            ),
+            normalization_rejection_counts=dict(Counter(reason for _rank, reason in excluded)),
         )
         return OpenAlexWorksResult(
             query=query,

@@ -711,6 +711,7 @@ def _load_payload(
     ref: ArtifactRef | ArtifactID | str,
 ) -> dict[str, Any]:
     from polisyos.core.artifacts import load_core_json_artifact
+
     if isinstance(ref, (ArtifactRef, ArtifactID)):
         artifact_reference = ref
     else:

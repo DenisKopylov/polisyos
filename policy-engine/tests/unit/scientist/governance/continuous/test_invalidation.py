@@ -168,7 +168,9 @@ def test_evidence_validity_event_binds_complete_publication_path(
     tmp_path: Path,
     event_class: Literal["correction", "retraction"],
 ) -> None:
-    replacements = (_ref("5", kind="scientist.evidence_line"),) if event_class == "correction" else ()
+    replacements = (
+        (_ref("5", kind="scientist.evidence_line"),) if event_class == "correction" else ()
+    )
     event = EvidenceValidityEvent(
         event_id=f"evidence-{event_class}",
         event_class=event_class,

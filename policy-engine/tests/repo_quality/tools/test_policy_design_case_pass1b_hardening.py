@@ -138,9 +138,7 @@ def test_pass1b_hardening_payload_fails_when_phase_28_1_pdd_is_missing() -> None
     )
 
     assert payload["status"] == "fail"
-    assert "policy_design_pass1b_pdd_missing" in {
-        issue["code"] for issue in payload["issues"]
-    }
+    assert "policy_design_pass1b_pdd_missing" in {issue["code"] for issue in payload["issues"]}
 
 
 def test_pass1b_hardening_payload_fails_when_any_required_group_is_missing() -> None:
@@ -201,8 +199,4 @@ def test_pass1b_hardening_main_writes_report(tmp_path: Path) -> None:
 
 
 def _issue_codes(payload: dict[str, object]) -> set[str]:
-    return {
-        str(issue["code"])
-        for issue in payload.get("issues", [])
-        if isinstance(issue, dict)
-    }
+    return {str(issue["code"]) for issue in payload.get("issues", []) if isinstance(issue, dict)}

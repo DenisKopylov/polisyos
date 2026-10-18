@@ -79,9 +79,7 @@ def _synthetic_bundle(
         trim_mask=np.ones(6, dtype=bool),
         scaler=scaler,
         contract=contract,
-        split_manifest=[
-            {"repeat": 0, "seed": contract.random_seed, "folds": [{"fold": 0}]}
-        ],
+        split_manifest=[{"repeat": 0, "seed": contract.random_seed, "folds": [{"fold": 0}]}],
         calibration_modes=["none"],
         propensity_backends=["synthetic"],
         outcome_backends=["synthetic"],
@@ -121,12 +119,8 @@ def test_diagnostic_contract_change_reuses_fit_and_rebinds_current_diagnostics(
         min_effective_sample_size=100.0,
         coverage_guard="off",
     )
-    cold = tmle_core.fit_crossfit_nuisance_bundle(
-        covariates, treatment, outcome, cold_contract
-    )
-    warm = tmle_core.fit_crossfit_nuisance_bundle(
-        covariates, treatment, outcome, warm_contract
-    )
+    cold = tmle_core.fit_crossfit_nuisance_bundle(covariates, treatment, outcome, cold_contract)
+    warm = tmle_core.fit_crossfit_nuisance_bundle(covariates, treatment, outcome, warm_contract)
 
     assert len(calls) == 1
     assert warm is not cold
@@ -158,9 +152,7 @@ def test_cached_fit_isolation_prevents_one_consumer_mutating_the_next_hit(
         ),
     )
 
-    first = tmle_core.fit_crossfit_nuisance_bundle(
-        covariates, treatment, outcome, contract
-    )
+    first = tmle_core.fit_crossfit_nuisance_bundle(covariates, treatment, outcome, contract)
     expected_propensity = first.propensity.copy()
     expected_manifest = deepcopy(first.split_manifest)
 
@@ -175,18 +167,13 @@ def test_cached_fit_isolation_prevents_one_consumer_mutating_the_next_hit(
     with suppress(AttributeError, TypeError):
         first.calibration_modes.append("consumer-mutation")
 
-    second = tmle_core.fit_crossfit_nuisance_bundle(
-        covariates, treatment, outcome, contract
-    )
+    second = tmle_core.fit_crossfit_nuisance_bundle(covariates, treatment, outcome, contract)
 
     assert second is not first
     assert np.array_equal(second.propensity, expected_propensity)
     assert len(second.split_manifest) == len(expected_manifest) == 1
     assert len(second.split_manifest[0]["folds"]) == 1
-    assert (
-        second.split_manifest[0]["folds"][0]["fold"]
-        == expected_manifest[0]["folds"][0]["fold"]
-    )
+    assert second.split_manifest[0]["folds"][0]["fold"] == expected_manifest[0]["folds"][0]["fold"]
     assert "consumer-mutation" not in second.calibration_modes
 
 
@@ -212,9 +199,7 @@ def test_changed_data_or_seed_requires_a_new_fit(
 
     monkeypatch.setattr(tmle_core, "_fit_crossfit_nuisance_bundle_uncached", fake_uncached)
     contract = _contract()
-    tmle_core.fit_crossfit_nuisance_bundle(
-        covariates, treatment, outcome, contract
-    )
+    tmle_core.fit_crossfit_nuisance_bundle(covariates, treatment, outcome, contract)
 
     if changed_dimension == "data":
         changed_covariates = covariates.copy()
@@ -333,10 +318,7 @@ def test_native_fit_preserves_all_folds_repeats_and_seeds() -> None:
 
     assert len(bundle.split_manifest) == contract.n_repeats
     assert [entry["seed"] for entry in bundle.split_manifest] == [31, 211]
-    assert all(
-        len(entry["folds"]) == contract.crossfit_folds
-        for entry in bundle.split_manifest
-    )
+    assert all(len(entry["folds"]) == contract.crossfit_folds for entry in bundle.split_manifest)
     assert bundle.propensity.shape == treatment.shape
     assert np.all(np.isfinite(bundle.propensity))
     assert np.all(np.isfinite(bundle.mu1))

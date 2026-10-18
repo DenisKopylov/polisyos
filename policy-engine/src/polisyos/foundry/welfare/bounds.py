@@ -58,6 +58,7 @@ def load_observed_range_bundle(
 ) -> ObservedRangeBundle:
     """Load an observed/calibrated range bundle."""
     from polisyos.core.artifacts import load_core_json_artifact
+
     return ObservedRangeBundle.model_validate(load_core_json_artifact(store, ref))
 
 
@@ -89,6 +90,7 @@ def load_welfare_bound_report(
 ) -> WelfareBoundReport:
     """Load a persisted welfare-bound report."""
     from polisyos.core.artifacts import load_core_json_artifact
+
     return WelfareBoundReport.model_validate(load_core_json_artifact(store, ref))
 
 

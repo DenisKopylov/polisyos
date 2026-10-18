@@ -108,9 +108,7 @@ def test_registry_loader_resolves_selected_top_level_bundle_without_fallback(tmp
     root = tmp_path / "cas"
     owner_store = FileSystemCAS(root).for_tenant("tenant-owner")
     bundle = build_default_registry_bundle(owner_store)
-    selected_bundle_ref = _alternate_manifest_profile(
-        owner_store, owner_store, bundle.bundle_ref
-    )
+    selected_bundle_ref = _alternate_manifest_profile(owner_store, owner_store, bundle.bundle_ref)
 
     assert selected_bundle_ref.artifact_id == bundle.bundle_ref.artifact_id
     assert selected_bundle_ref.manifest_profile_sha256 is not None
@@ -126,9 +124,7 @@ def test_registry_loader_resolves_selected_top_level_bundle_without_fallback(tmp
         load_registry_bundle_content(owner_store, unheld_ref)
 
 
-def test_registry_builder_rejects_a_profileless_selected_write(
-    tmp_path, monkeypatch
-) -> None:
+def test_registry_builder_rejects_a_profileless_selected_write(tmp_path, monkeypatch) -> None:
     store = FileSystemCAS(tmp_path)
     original_put_json = store.put_json
 

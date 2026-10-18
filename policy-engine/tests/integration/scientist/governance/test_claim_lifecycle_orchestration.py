@@ -122,8 +122,10 @@ def test_monitor_event_persists_claim_supersession_without_in_place_edit(http_ow
         assert container.claim_ledger_owner is owner
         assert container.epoch_claim_lifecycle_bridge.claim_owner is owner
         first = _read_http_bridge(
-            store, _post_monitor(client, bearer, tenant, monitor.event_ref),
-            tenant_id=tenant, cell_id=cell_id,
+            store,
+            _post_monitor(client, bearer, tenant, monitor.event_ref),
+            tenant_id=tenant,
+            cell_id=cell_id,
         )
         assert first.owner_event_outcome.code == "claim_owner_event_rejected"
         event_ref = ArtifactRef.model_validate(first.metadata["owner_event_ref"])
@@ -132,8 +134,10 @@ def test_monitor_event_persists_claim_supersession_without_in_place_edit(http_ow
                 event_ref.artifact_id, signer, signer_identity="fixture-supersession-owner"
             )
         bridged = _read_http_bridge(
-            store, _post_monitor(client, bearer, tenant, monitor.event_ref),
-            tenant_id=tenant, cell_id=cell_id,
+            store,
+            _post_monitor(client, bearer, tenant, monitor.event_ref),
+            tenant_id=tenant,
+            cell_id=cell_id,
         )
         assert bridged.owner_event_outcome.result_kind == "advanced"
         assert bridged.monitor_projection_authority == "advisory"
@@ -147,8 +151,10 @@ def test_monitor_event_persists_claim_supersession_without_in_place_edit(http_ow
             current = owner.resolve_current(owner_key=prepared.owner_key)
         assert current.statement.generation == initial.new_head.statement.generation + 1
         again = _read_http_bridge(
-            store, _post_monitor(client, bearer, tenant, monitor.event_ref),
-            tenant_id=tenant, cell_id=cell_id,
+            store,
+            _post_monitor(client, bearer, tenant, monitor.event_ref),
+            tenant_id=tenant,
+            cell_id=cell_id,
         )
         assert again.owner_event_outcome.new_head == current
         with tenant_scope(None, tenant_id=tenant, cell_id=cell_id):
@@ -167,8 +173,10 @@ def test_default_http_supersession_request_preserves_unappointed_owner_limit(
         owner = client.app.state.runtime_container.claim_ledger_owner
         assert isinstance(owner, UnappointedClaimLedgerOwner)
         result = _read_http_bridge(
-            store, _post_monitor(client, bearer, tenant, monitor.event_ref),
-            tenant_id=tenant, cell_id=cell_id,
+            store,
+            _post_monitor(client, bearer, tenant, monitor.event_ref),
+            tenant_id=tenant,
+            cell_id=cell_id,
         )
         assert result.metadata["owner_event_production_result"]["code"] == "claim_head_absent"
         assert result.owner_event_outcome is None

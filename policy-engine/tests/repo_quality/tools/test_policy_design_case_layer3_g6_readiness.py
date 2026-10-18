@@ -116,9 +116,7 @@ def test_layer3_g6_readiness_passes_for_persisted_runtime_bundle() -> None:
     assert validation["summary"]["g6_compression_loss_receipt_status"] == "pass"
     assert validation["summary"]["g6_authority_delta_completeness_status"] == "pass"
     assert validation["summary"]["g6_summary_authority_preservation_status"] == "pass"
-    assert validation["summary"]["g6_authority_preserving_public_export_status"] == (
-        "pass"
-    )
+    assert validation["summary"]["g6_authority_preserving_public_export_status"] == ("pass")
     assert validation["summary"]["g6_orchestration_continuity_status"] == "pass"
     assert validation["summary"]["g6_replay_manifest_status"] == "pass"
     assert validation["summary"]["g6_runtime_import_boundary_status"] == "pass"
@@ -237,9 +235,7 @@ def test_layer3_g6_write_path_must_include_every_expected_artifact(
     monkeypatch.setattr(
         validator,
         "_write_artifacts",
-        lambda _repo_root, _bundle: [
-            path.as_posix() for path in expected_paths if path != omitted
-        ],
+        lambda _repo_root, _bundle: [path.as_posix() for path in expected_paths if path != omitted],
     )
 
     validation = validator.validate_layer3_g6_readiness(REPO_ROOT, write=True)
@@ -269,9 +265,7 @@ def test_layer3_g6_persisted_compression_tamper_fails_closed(
 
     issues = validator._validate_persisted_artifacts(tmp_path)
 
-    assert "layer3_g6_compression_loss_receipt_blocked" in {
-        issue["code"] for issue in issues
-    }
+    assert "layer3_g6_compression_loss_receipt_blocked" in {issue["code"] for issue in issues}
 
 
 def test_layer3_g6_persisted_public_export_tamper_fails_closed(
@@ -293,6 +287,4 @@ def test_layer3_g6_persisted_public_export_tamper_fails_closed(
 
     issues = validator._validate_persisted_artifacts(tmp_path)
 
-    assert "layer3_g6_public_projection_contract_failed" in {
-        issue["code"] for issue in issues
-    }
+    assert "layer3_g6_public_projection_contract_failed" in {issue["code"] for issue in issues}

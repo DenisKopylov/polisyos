@@ -84,9 +84,7 @@ class _HTTPReplayConnector(BaseConnector[list[dict[str, Any]]]):
         del request
         import aiohttp
 
-        async with aiohttp.ClientSession() as session, session.get(
-            handle.config.url
-        ) as response:
+        async with aiohttp.ClientSession() as session, session.get(handle.config.url) as response:
             rows = await response.json()
         now = datetime.now(UTC)
         payload = json.dumps(rows, sort_keys=True, separators=(",", ":")).encode()
@@ -148,9 +146,7 @@ def _persist_session(store: ArtifactStore, *, response_body: bytes | None) -> tu
         RecordSession(
             session_id="b88-served-replay-session",
             fixtures=fixtures,
-            connector_datasets=[
-                {"connector_id": _CONNECTOR_ID, "dataset_id": _DATASET_ID}
-            ],
+            connector_datasets=[{"connector_id": _CONNECTOR_ID, "dataset_id": _DATASET_ID}],
             recorded_at="2026-09-28T00:00:00+00:00",
         )
     )
@@ -247,12 +243,8 @@ def test_served_replay_loads_the_cas_session_and_binds_fixture_output_to_evidenc
     )
     with client:
         store = client.app.state.runtime_container.runtime_api_context.store
-        with tenant_scope(
-            None, tenant_id=runtime_api_env["tenant_a"], cell_id=cell_id
-        ):
-            replay_ref, request_hash = _persist_session(
-                store, response_body=fixture_body
-            )
+        with tenant_scope(None, tenant_id=runtime_api_env["tenant_a"], cell_id=cell_id):
+            replay_ref, request_hash = _persist_session(store, response_body=fixture_body)
         response = _post_ingest(client, headers, replay_ref=replay_ref)
 
         assert response.status_code == 200
@@ -269,12 +261,8 @@ def test_served_replay_loads_the_cas_session_and_binds_fixture_output_to_evidenc
         assert native_requests == []
         assert ordinary_calls == []
 
-        with tenant_scope(
-            None, tenant_id=runtime_api_env["tenant_a"], cell_id=cell_id
-        ):
-            replayed = ReplayStore(store).load_record_session(
-                ArtifactID.model_validate(replay_ref)
-            )
+        with tenant_scope(None, tenant_id=runtime_api_env["tenant_a"], cell_id=cell_id):
+            replayed = ReplayStore(store).load_record_session(ArtifactID.model_validate(replay_ref))
             assert len(replayed.fixtures) == 1
             assert replayed.fixtures[0]["request_hash"] == request_hash
             assert base64.b64decode(replayed.fixtures[0]["body"]) == fixture_body
@@ -318,12 +306,8 @@ def test_served_replay_fixture_failures_do_not_fall_back_to_ordinary_ingestion(
     )
     with client:
         store = client.app.state.runtime_container.runtime_api_context.store
-        with tenant_scope(
-            None, tenant_id=runtime_api_env["tenant_a"], cell_id=cell_id
-        ):
-            replay_ref, _request_hash = _persist_session(
-                store, response_body=fixture_body
-            )
+        with tenant_scope(None, tenant_id=runtime_api_env["tenant_a"], cell_id=cell_id):
+            replay_ref, _request_hash = _persist_session(store, response_body=fixture_body)
         response = _post_ingest(client, headers, replay_ref=replay_ref)
 
     assert len(simulators) == 1
@@ -384,9 +368,7 @@ def test_served_record_ref_replays_its_exact_response_and_evidence(
 
     raw_body = b'[{"value":716,"marker":"b88-issued-session"}]'
     expected_rows = json.loads(raw_body)
-    expected_bytes = json.dumps(
-        expected_rows, sort_keys=True, separators=(",", ":")
-    ).encode()
+    expected_bytes = json.dumps(expected_rows, sort_keys=True, separators=(",", ":")).encode()
     expected_hash = "sha256:" + hashlib.sha256(expected_bytes).hexdigest()
     canonical_url = _canonicalize_url(_URL, None)
     request_hash = _request_hash("GET", canonical_url, "none", b"")
@@ -419,9 +401,7 @@ def test_served_record_ref_replays_its_exact_response_and_evidence(
         store = container.runtime_api_context.store
         assert container.control_service._artifact_store is store
 
-        recorded_response = _post_ingest(
-            client, headers, replay_ref=None, record_mode=True
-        )
+        recorded_response = _post_ingest(client, headers, replay_ref=None, record_mode=True)
         assert recorded_response.status_code == 200
         recorded = recorded_response.json()
         assert recorded["status"] == "completed"
@@ -463,9 +443,7 @@ def test_served_record_ref_replays_its_exact_response_and_evidence(
                 replayed["evidence_bundle_ref"],
             ):
                 bundle_id = ArtifactID.model_validate(
-                    bundle_ref
-                    if bundle_ref.startswith("sha256:")
-                    else f"sha256:{bundle_ref}"
+                    bundle_ref if bundle_ref.startswith("sha256:") else f"sha256:{bundle_ref}"
                 )
                 bundle = EvidenceBundle.model_validate(
                     from_canonical_bytes(store.get_bytes(bundle_id))
@@ -482,9 +460,7 @@ def test_served_record_ref_replays_its_exact_response_and_evidence(
             tenant_scope(None, tenant_id=runtime_api_env["tenant_b"], cell_id=cell_id),
             pytest.raises(ArtifactOwnershipError),
         ):
-            ReplayStore(store).load_record_session(
-                ArtifactID.model_validate(record_ref)
-            )
+            ReplayStore(store).load_record_session(ArtifactID.model_validate(record_ref))
 
 
 def test_served_ordinary_ingestion_remains_available_without_replay_reference(
@@ -545,9 +521,7 @@ def test_served_ordinary_ingestion_remains_available_without_replay_reference(
         assert simulators == []
         assert observed_requests == [("GET", _canonicalize_url(_URL, None))]
         store = client.app.state.runtime_container.runtime_api_context.store
-        with tenant_scope(
-            None, tenant_id=runtime_api_env["tenant_a"], cell_id=cell_id
-        ):
+        with tenant_scope(None, tenant_id=runtime_api_env["tenant_a"], cell_id=cell_id):
             _assert_evidence_contains_source_bytes(
                 store,
                 body["evidence_bundle_ref"],

@@ -21,9 +21,7 @@ from polisyos.runtime.quality.capability_index import (
     FailureModeNode,
 )
 
-CAPABILITY_WHITE_SPACE_REPORT_SCHEMA_VERSION = (
-    "policyos.capability_white_space_report.v1"
-)
+CAPABILITY_WHITE_SPACE_REPORT_SCHEMA_VERSION = "policyos.capability_white_space_report.v1"
 DEFAULT_REVIEW_TTL = "P30D"
 DEFAULT_REVIEW_CADENCE = "P14D"
 
@@ -196,8 +194,7 @@ def _strategy_lifecycle_errors(
         and not strategy.requires_construct_validity_review
     ):
         errors.append(
-            f"{prefix} claims production admissible without "
-            "requires_construct_validity_review"
+            f"{prefix} claims production admissible without requires_construct_validity_review"
         )
     return errors
 
@@ -294,9 +291,7 @@ def _failure_node(item: FailureModeNode | Mapping[str, Any]) -> FailureModeNode:
 
 def _strategy(item: AcquisitionStrategy | Mapping[str, Any]) -> AcquisitionStrategy:
     return (
-        item
-        if isinstance(item, AcquisitionStrategy)
-        else AcquisitionStrategy.model_validate(item)
+        item if isinstance(item, AcquisitionStrategy) else AcquisitionStrategy.model_validate(item)
     )
 
 
@@ -316,8 +311,7 @@ def _status_from_gap_type(gap_type: str) -> str:
 def _government_data_involved(authority_class: str) -> bool:
     normalized = authority_class.casefold()
     return any(
-        marker in normalized
-        for marker in ("government", "official", "registry", "administrative")
+        marker in normalized for marker in ("government", "official", "registry", "administrative")
     )
 
 

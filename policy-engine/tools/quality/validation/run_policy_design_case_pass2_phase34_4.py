@@ -170,8 +170,7 @@ def _diagnose_pdd_100(context: Mapping[str, Any]) -> dict[str, Any]:
     ]
     evidence = {
         "policy_design_case_extraction_keys": {
-            "has_extraction_quality_ledgers": "extraction_quality_ledgers"
-            in case_sample,
+            "has_extraction_quality_ledgers": "extraction_quality_ledgers" in case_sample,
             "concept_spine_node_count": len(as_list(case_sample.get("nodes"))),
         },
         "scorecard_extraction_gates": [
@@ -276,21 +275,16 @@ def _diagnose_pdd_101(context: Mapping[str, Any]) -> dict[str, Any]:
         {
             "code": "method_blockers_not_survey_measurement_specific",
             "severity": "medium",
-            "summary": (
-                "Method blockers are generic rather than survey-measurement-specific."
-            ),
+            "summary": ("Method blockers are generic rather than survey-measurement-specific."),
             "evidence": "quality_evidence/foundry_method_report.json",
         },
     ]
     evidence = {
         "policy_design_case_survey_keys": {
             "has_survey_to_claim_ledgers": "survey_to_claim_ledgers" in case_sample,
-            "has_measurement_error_ledgers": "measurement_error_ledgers"
-            in case_sample,
+            "has_measurement_error_ledgers": "measurement_error_ledgers" in case_sample,
         },
-        "production_data_construct_validity": production_quality.get(
-            "construct_validity"
-        ),
+        "production_data_construct_validity": production_quality.get("construct_validity"),
         "claim_data_refs": _claim_data_refs(grounding),
         "foundry_issue_codes": _issue_codes(foundry),
     }
@@ -301,9 +295,7 @@ def _diagnose_pdd_101(context: Mapping[str, Any]) -> dict[str, Any]:
         schema_version=SCHEMA_VERSION,
         phase=PHASE_ID,
         verdict="confirmed_no_survey_to_claim_measurement_ledger",
-        acceptance_gate_status=(
-            "failed_for_survey_capability_current_claim_not_survey_selected"
-        ),
+        acceptance_gate_status=("failed_for_survey_capability_current_claim_not_survey_selected"),
         findings=findings,
         evidence=evidence,
         recommended_gate=(

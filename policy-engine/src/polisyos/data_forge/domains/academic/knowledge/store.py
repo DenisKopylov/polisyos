@@ -60,9 +60,7 @@ _LEGACY_LOOKALIKE_COLUMNS = {
     "source_basis",
     "claim_extraction_confidence",
 }
-_V2_REQUIRED_COLUMNS = set(CLAIM_VOCABULARY_STORE_COLUMNS) | {
-    CLAIM_VOCABULARY_DISCRIMINATOR_COLUMN
-}
+_V2_REQUIRED_COLUMNS = set(CLAIM_VOCABULARY_STORE_COLUMNS) | {CLAIM_VOCABULARY_DISCRIMINATOR_COLUMN}
 _V2_COLUMN_CONTRACT = CLAIM_VOCABULARY_COLUMN_CONTRACT
 _CLAIM_BASE_COLUMNS = {
     "id",
@@ -393,8 +391,7 @@ class ScholarKnowledgeStore:
         pattern = f"%{query}%"
         rows = self._select_claim_rows(
             "ac_causal_claims",
-            "(c.cause ILIKE ? OR c.effect ILIKE ? OR c.mechanism ILIKE ?) "
-            "AND c.trust_score >= ?",
+            "(c.cause ILIKE ? OR c.effect ILIKE ? OR c.mechanism ILIKE ?) AND c.trust_score >= ?",
             [pattern, pattern, pattern, min_trust],
             order_by="c.trust_score DESC, c.id ASC",
             limit=top_k,
@@ -460,7 +457,9 @@ class ScholarKnowledgeStore:
                 missing = sorted(_V2_REQUIRED_COLUMNS - columns)
                 raise ClaimTableSchemaError(f"partial v2 claim schema {table}; missing {missing}")
             if "strength" in columns:
-                raise ClaimTableSchemaError(f"generic strength is forbidden in explicit v2 table {table}")
+                raise ClaimTableSchemaError(
+                    f"generic strength is forbidden in explicit v2 table {table}"
+                )
             actual_contract = {
                 str(name): (str(data_type), str(nullable), default)
                 for name, data_type, nullable, default in descriptor
@@ -469,15 +468,21 @@ class ScholarKnowledgeStore:
             if actual_contract != _V2_COLUMN_CONTRACT:
                 raise ClaimTableSchemaError(f"v2 claim schema contract mismatch in {table}")
             if self._identity_constraint_descriptor(table) is None:
-                raise ClaimTableSchemaError(f"canonical claim identity constraint is missing in {table}")
+                raise ClaimTableSchemaError(
+                    f"canonical claim identity constraint is missing in {table}"
+                )
             schema = "explicit_v2"
             self._claim_schema_cache[table] = schema
             return schema
         unexpected = columns & sidecar_columns - _LEGACY_LOOKALIKE_COLUMNS
         if unexpected:
-            raise ClaimTableSchemaError(f"partial v2 claim schema {table}; found {sorted(unexpected)}")
+            raise ClaimTableSchemaError(
+                f"partial v2 claim schema {table}; found {sorted(unexpected)}"
+            )
         if "strength" not in columns:
-            raise ClaimTableSchemaError(f"legacy claim table {table} is missing base columns ['strength']")
+            raise ClaimTableSchemaError(
+                f"legacy claim table {table} is missing base columns ['strength']"
+            )
         schema = "legacy_v1"
         self._claim_schema_cache[table] = schema
         return schema
@@ -502,7 +507,9 @@ class ScholarKnowledgeStore:
         columns = [str(item[0]) for item in rows.description]
         return [dict(zip(columns, row, strict=True)) for row in rows.fetchall()]
 
-    def _project_claim_row(self, row: Mapping[str, object], *, source_table: str) -> CausalClaimResultV2:
+    def _project_claim_row(
+        self, row: Mapping[str, object], *, source_table: str
+    ) -> CausalClaimResultV2:
         schema = self._claim_table_schema(source_table)
         source_schema = "explicit_v2" if schema == "explicit_v2" else "legacy_v1"
         try:
@@ -543,9 +550,13 @@ class ScholarKnowledgeStore:
             source_row_sha256=_json_hash(selected),
         )
         vocabulary_payload = {
-            "design_family_hint": envelope.design_family_hint.value if envelope.design_family_hint else None,
+            "design_family_hint": envelope.design_family_hint.value
+            if envelope.design_family_hint
+            else None,
             "design_family_hint_status": envelope.design_family_hint_status.value,
-            "evidence_strength": envelope.evidence_strength.value if envelope.evidence_strength else None,
+            "evidence_strength": envelope.evidence_strength.value
+            if envelope.evidence_strength
+            else None,
             "evidence_strength_status": envelope.evidence_strength_status.value,
             "claim_extraction_confidence": envelope.claim_extraction_confidence,
             "claim_extraction_confidence_status": envelope.claim_extraction_confidence_status.value,
@@ -587,7 +598,9 @@ class ScholarKnowledgeStore:
             else (),
             projection_binding=binding,
             strong_design_evidence=bool(row.get("strong_design_evidence") or False),
-            design_quality_tier=int(row["design_quality_tier"]) if row.get("design_quality_tier") is not None else None,
+            design_quality_tier=int(row["design_quality_tier"])
+            if row.get("design_quality_tier") is not None
+            else None,
             publish_blockers=_parse_publish_blockers(row.get("publish_blockers")),
             candidate_layer=str(row.get("candidate_layer") or "candidate"),
         )
@@ -724,7 +737,9 @@ class ScholarKnowledgeStore:
         columns = [str(item[0]) for item in result.description]
         row = result.fetchone()
         if row is None:
-            raise ClaimTableSchemaError(f"missing edge source row: {source_table}/{source_identity}")
+            raise ClaimTableSchemaError(
+                f"missing edge source row: {source_table}/{source_identity}"
+            )
         mapped = dict(zip(columns, row, strict=True))
         binding = ClaimVocabularySourceRowBinding(
             source_table=source_table,
@@ -758,9 +773,7 @@ class ScholarKnowledgeStore:
         try:
             evidence, _ = decode_edge_evidence_strength(row.get("evidence_strength"))
         except ValueError as exc:
-            raise ClaimTableSchemaError(
-                f"invalid evidence_strength in {source_table}"
-            ) from exc
+            raise ClaimTableSchemaError(f"invalid evidence_strength in {source_table}") from exc
         direction = str(row.get(columns[2]) or "")
         if source_table == "ac_skg_contested_edges" and not direction:
             direction = "mixed"
@@ -937,7 +950,8 @@ class ScholarKnowledgeStore:
                     raise ValueError("cursor checksum mismatch")
                 if (
                     payload.get("status") != status
-                    or payload.get("projection_rule_version") != CLAIM_VOCABULARY_PROJECTION_RULE_VERSION
+                    or payload.get("projection_rule_version")
+                    != CLAIM_VOCABULARY_PROJECTION_RULE_VERSION
                     or payload.get("schema_hash") != schema_hash
                     or payload.get("identity_witness") != identity_witness
                 ):
@@ -1037,7 +1051,9 @@ class ScholarKnowledgeStore:
                 "identity_witness": identity_witness,
             }
             next_cursor = base64.urlsafe_b64encode(
-                json.dumps({**payload, "checksum": _json_hash(payload)}, sort_keys=True).encode("utf-8")
+                json.dumps({**payload, "checksum": _json_hash(payload)}, sort_keys=True).encode(
+                    "utf-8"
+                )
             ).decode("ascii")
         return ClaimLineageAuditPage(
             items=tuple(records),
@@ -1185,7 +1201,9 @@ def iter_causal_claim_results_v2(
         if not batch:
             break
         for row in batch:
-            yield store._project_claim_row(dict(zip(columns, row, strict=True)), source_table="ac_causal_claims")
+            yield store._project_claim_row(
+                dict(zip(columns, row, strict=True)), source_table="ac_causal_claims"
+            )
 
 
 def audit_academic_claim_lineage(

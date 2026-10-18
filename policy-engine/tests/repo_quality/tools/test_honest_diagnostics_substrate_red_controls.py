@@ -98,6 +98,7 @@ def test_no_norms_retrieved_requires_lex_no_norm_authority_blocker() -> None:
     assert scorecard["quality_status"] == "fail"
     assert "lex_no_norm_authority_blocker_missing" in blocking_codes(scorecard)
 
+
 def test_data_exists_requires_semantic_binding_ledger() -> None:
     evidence = complete_quality_evidence()
     evidence["fabric_retrieval_trace"]["candidate_sources"][0].update(
@@ -127,6 +128,7 @@ def test_data_exists_requires_semantic_binding_ledger() -> None:
     assert scorecard["quality_status"] == "fail"
     assert "hds_semantic_binding_missing" in blocking_codes(scorecard)
 
+
 def test_quality_status_pass_in_bundle_files_cannot_satisfy_readiness_runtime_refs(
     monkeypatch,
     tmp_path,
@@ -140,9 +142,7 @@ def test_quality_status_pass_in_bundle_files_cannot_satisfy_readiness_runtime_re
                 "schema_version": "policyos.canary_evidence.v1",
                 "quality_status": "pass",
                 "runtime_quality_refs": {
-                    "policy_grounding_matrix_ref": (
-                        "quality_evidence/policy_grounding_matrix.json"
-                    )
+                    "policy_grounding_matrix_ref": ("quality_evidence/policy_grounding_matrix.json")
                 },
             }
         ),
@@ -155,9 +155,7 @@ def test_quality_status_pass_in_bundle_files_cannot_satisfy_readiness_runtime_re
                 "quality_status": "pass",
                 "approval_state": "approval_ready",
                 "evidence_refs": {
-                    "policy_grounding_matrix_ref": (
-                        "quality_evidence/policy_grounding_matrix.json"
-                    )
+                    "policy_grounding_matrix_ref": ("quality_evidence/policy_grounding_matrix.json")
                 },
             }
         ),

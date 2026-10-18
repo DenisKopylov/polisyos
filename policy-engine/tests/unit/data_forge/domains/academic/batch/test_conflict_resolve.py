@@ -53,7 +53,6 @@ def test_conflict_resolve_detects_directional_conflict(tmp_path) -> None:
     ]
     assert resolution_rows[0]["runtime_support"] == "MIXED"
     claim_set_rows = [
-        json.loads(line)
-        for line in config.claim_sets_path.read_text(encoding="utf-8").splitlines()
+        json.loads(line) for line in config.claim_sets_path.read_text(encoding="utf-8").splitlines()
     ]
     assert claim_set_rows[0]["publishable_claims"] == 0

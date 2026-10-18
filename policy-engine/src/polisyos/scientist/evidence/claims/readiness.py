@@ -70,14 +70,10 @@ def assess_claim_readiness(claim: ClaimRecord) -> ClaimReadinessAssessment:
         review.append("counterevidence_requires_review")
     if claim.claim_type in HIGH_STAKES_CLAIM_TYPES and not claim.evidence_refs:
         review.append("high_stakes_claim_missing_evidence")
-    if (
-        claim.claim_type in DECISION_BEARING_CLAIM_TYPES
-        and claim.support_status
-        in {
-            ClaimSupportStatus.UNSUPPORTED,
-            ClaimSupportStatus.NOT_EVALUABLE,
-        }
-    ):
+    if claim.claim_type in DECISION_BEARING_CLAIM_TYPES and claim.support_status in {
+        ClaimSupportStatus.UNSUPPORTED,
+        ClaimSupportStatus.NOT_EVALUABLE,
+    }:
         review.append("decision_bearing_claim_not_supported")
     if claim.support_status is ClaimSupportStatus.WEAKLY_SUPPORTED:
         review.append("weak_support_requires_review")

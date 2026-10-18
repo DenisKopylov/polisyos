@@ -78,9 +78,7 @@ def test_candidate_ref_without_runtime_ledger_fails_closed() -> None:
         surface="claim_registry",
     )
 
-    assert {issue["code"] for issue in issues} == {
-        "candidate_firewall_hypothesis_ledger_missing"
-    }
+    assert {issue["code"] for issue in issues} == {"candidate_firewall_hypothesis_ledger_missing"}
 
 
 def test_authority_candidate_inventory_uses_firewall_rows_and_blocks_promotion() -> None:

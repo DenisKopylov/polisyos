@@ -315,9 +315,7 @@ S9_FALSE_CLEAR_FIELDS = {
     ),
     "machine_ref_omission_false_clear_count": "machine_ref_omission",
     "revision_mismatch_false_clear_count": "revision_mismatch",
-    "universal_self_claim_without_s14_false_clear_count": (
-        "universal_self_claim_without_s14"
-    ),
+    "universal_self_claim_without_s14_false_clear_count": ("universal_self_claim_without_s14"),
 }
 S9_INVENTORY_ID = "layer2_s9_projection_lowering_manifest"
 S9_EXPECTED_OPEN_CELLS = {
@@ -359,28 +357,18 @@ S10_FALSE_CLEAR_FIELDS = {
     "simulation_only_evidence_laundering_false_clear_count": (
         "simulation_only_evidence_laundering"
     ),
-    "uncalibrated_observable_promotion_false_clear_count": (
-        "uncalibrated_observable_promotion"
-    ),
-    "welfare_without_value_provenance_false_clear_count": (
-        "welfare_without_value_provenance"
-    ),
+    "uncalibrated_observable_promotion_false_clear_count": ("uncalibrated_observable_promotion"),
+    "welfare_without_value_provenance_false_clear_count": ("welfare_without_value_provenance"),
     "fail_closed_axis_prediction_promotion_false_clear_count": (
         "fail_closed_axis_prediction_promotion"
     ),
-    "regime_forecast_tier_laundering_false_clear_count": (
-        "regime_forecast_tier_laundering"
-    ),
+    "regime_forecast_tier_laundering_false_clear_count": ("regime_forecast_tier_laundering"),
     "transported_estimate_without_limitation_false_clear_count": (
         "transported_estimate_without_limitation"
     ),
     "hidden_uncertainty_interval_false_clear_count": "hidden_uncertainty_interval",
-    "non_observable_claim_as_calibrated_false_clear_count": (
-        "non_observable_claim_as_calibrated"
-    ),
-    "production_authority_from_forecast_false_clear_count": (
-        "production_authority_from_forecast"
-    ),
+    "non_observable_claim_as_calibrated_false_clear_count": ("non_observable_claim_as_calibrated"),
+    "production_authority_from_forecast_false_clear_count": ("production_authority_from_forecast"),
     "missing_design_graph_context_false_clear_count": "missing_design_graph_context",
     "observed_outcome_without_credible_evaluation_false_clear_count": (
         "observed_outcome_without_credible_evaluation"
@@ -1045,22 +1033,12 @@ def validate_layer2_readiness_payloads(payloads: dict[str, Any]) -> dict[str, An
         {
             "s9_case_count": s9.get("case_count"),
             "s9_projection_render_count": s9.get("projection_render_count"),
-            "s9_projection_faithfulness_denominator": s9.get(
-                "projection_faithfulness_denominator"
-            ),
-            "s9_projection_faithfulness_numerator": s9.get(
-                "projection_faithfulness_numerator"
-            ),
-            "s9_projection_faithfulness_pass_rate": s9.get(
-                "projection_faithfulness_pass_rate"
-            ),
+            "s9_projection_faithfulness_denominator": s9.get("projection_faithfulness_denominator"),
+            "s9_projection_faithfulness_numerator": s9.get("projection_faithfulness_numerator"),
+            "s9_projection_faithfulness_pass_rate": s9.get("projection_faithfulness_pass_rate"),
             "s9_lowering_gate_count": s9.get("lowering_gate_count"),
-            "s9_lowering_append_receipt_count": s9.get(
-                "lowering_append_receipt_count"
-            ),
-            "s9_expected_current_open_cell_count": s9.get(
-                "expected_current_open_cell_count"
-            ),
+            "s9_lowering_append_receipt_count": s9.get("lowering_append_receipt_count"),
+            "s9_expected_current_open_cell_count": s9.get("expected_current_open_cell_count"),
             "s9_false_clear_counts": s9_false_clear_counts,
             **{f"s9_{field}": s9.get(field) for field in S9_FALSE_CLEAR_FIELDS},
         }
@@ -1079,12 +1057,8 @@ def validate_layer2_readiness_payloads(payloads: dict[str, Any]) -> dict[str, An
     s10_summary = (
         {
             "s10_case_count": s10.get("case_count"),
-            "s10_expected_current_open_cell_count": s10.get(
-                "expected_current_open_cell_count"
-            ),
-            "s10_observable_subset_case_count": s10.get(
-                "observable_subset_case_count"
-            ),
+            "s10_expected_current_open_cell_count": s10.get("expected_current_open_cell_count"),
+            "s10_observable_subset_case_count": s10.get("observable_subset_case_count"),
             "s10_observable_subset_calibration_denominator": s10.get(
                 "observable_subset_calibration_denominator"
             ),
@@ -1103,18 +1077,14 @@ def validate_layer2_readiness_payloads(payloads: dict[str, Any]) -> dict[str, An
             "s10_observable_subset_calibration_threshold_ref": s10.get(
                 "observable_subset_calibration_threshold_ref"
             ),
-            "s10_non_observable_downgrade_count": s10.get(
-                "non_observable_downgrade_count"
-            ),
+            "s10_non_observable_downgrade_count": s10.get("non_observable_downgrade_count"),
             "s10_equilibrium_contested_single_forecast_block_count": s10.get(
                 "equilibrium_contested_single_forecast_block_count"
             ),
             "s10_simulation_only_evidence_block_count": s10.get(
                 "simulation_only_evidence_block_count"
             ),
-            "s10_weakest_boundary_inheritance_count": s10.get(
-                "weakest_boundary_inheritance_count"
-            ),
+            "s10_weakest_boundary_inheritance_count": s10.get("weakest_boundary_inheritance_count"),
             "s10_false_clear_counts": s10_false_clear_counts,
             **{f"s10_{field}": s10.get(field) for field in S10_FALSE_CLEAR_FIELDS},
         }
@@ -1123,19 +1093,14 @@ def validate_layer2_readiness_payloads(payloads: dict[str, Any]) -> dict[str, An
     )
     s11 = payloads.get("s11_predictive_knowledge")
     s11_false_clear_counts = (
-        {
-            field: s11.get(f"{field}_false_clear_count")
-            for field in S11_FALSE_CLEAR_FIELDS
-        }
+        {field: s11.get(f"{field}_false_clear_count") for field in S11_FALSE_CLEAR_FIELDS}
         if isinstance(s11, dict) and s11
         else {}
     )
     s11_summary = (
         {
             "s11_case_count": s11.get("case_count"),
-            "s11_expected_current_open_cell_count": s11.get(
-                "expected_current_open_cell_count"
-            ),
+            "s11_expected_current_open_cell_count": s11.get("expected_current_open_cell_count"),
             "s11_axis_count": s11.get("axis_count"),
             "s11_per_axis_predictive_calibration_threshold_ref": s11.get(
                 "per_axis_predictive_calibration_threshold_ref"
@@ -1156,33 +1121,19 @@ def validate_layer2_readiness_payloads(payloads: dict[str, Any]) -> dict[str, An
                 "per_axis_predictive_calibration_floor_passed"
             ),
             "s11_predictive_axis_count": s11.get("predictive_axis_count"),
-            "s11_reverted_fail_closed_axis_count": s11.get(
-                "reverted_fail_closed_axis_count"
-            ),
+            "s11_reverted_fail_closed_axis_count": s11.get("reverted_fail_closed_axis_count"),
             "s11_proof_bound_claim_count": s11.get("proof_bound_claim_count"),
-            "s11_unbound_analytics_rejected_count": s11.get(
-                "unbound_analytics_rejected_count"
-            ),
-            "s11_negative_certificate_block_count": s11.get(
-                "negative_certificate_block_count"
-            ),
-            "s11_forecast_quality_downgrade_count": s11.get(
-                "forecast_quality_downgrade_count"
-            ),
-            "s11_regime_strategy_constraint_count": s11.get(
-                "regime_strategy_constraint_count"
-            ),
+            "s11_unbound_analytics_rejected_count": s11.get("unbound_analytics_rejected_count"),
+            "s11_negative_certificate_block_count": s11.get("negative_certificate_block_count"),
+            "s11_forecast_quality_downgrade_count": s11.get("forecast_quality_downgrade_count"),
+            "s11_regime_strategy_constraint_count": s11.get("regime_strategy_constraint_count"),
             "s11_method_infrastructure_consumed_count": s11.get(
                 "method_infrastructure_consumed_count"
             ),
-            "s11_weakest_boundary_inheritance_count": s11.get(
-                "weakest_boundary_inheritance_count"
-            ),
+            "s11_weakest_boundary_inheritance_count": s11.get("weakest_boundary_inheritance_count"),
             "s11_false_clear_counts": s11_false_clear_counts,
             **{
-                f"s11_{field}_false_clear_count": s11.get(
-                    f"{field}_false_clear_count"
-                )
+                f"s11_{field}_false_clear_count": s11.get(f"{field}_false_clear_count")
                 for field in S11_FALSE_CLEAR_FIELDS
             },
         }
@@ -1198,9 +1149,7 @@ def validate_layer2_readiness_payloads(payloads: dict[str, Any]) -> dict[str, An
     s12_summary = (
         {
             "s12_case_count": s12.get("case_count"),
-            "s12_expected_current_open_cell_count": s12.get(
-                "expected_current_open_cell_count"
-            ),
+            "s12_expected_current_open_cell_count": s12.get("expected_current_open_cell_count"),
             "s12_remaining_open_cells": s12.get("remaining_open_cells"),
             "s12_burn_down_complete": s12.get("burn_down_complete"),
             "s12_voi_site_count": s12.get("voi_site_count"),
@@ -1208,20 +1157,14 @@ def validate_layer2_readiness_payloads(payloads: dict[str, Any]) -> dict[str, An
             "s12_override_rate_trend": s12.get("override_rate_trend"),
             "s12_reuse_rate_trend": s12.get("reuse_rate_trend"),
             "s12_held_out_status": s12.get("held_out_status"),
-            "s12_counted_mechanism_growth_count": s12.get(
-                "counted_mechanism_growth_count"
-            ),
-            "s12_flagged_bespoke_one_off_count": s12.get(
-                "flagged_bespoke_one_off_count"
-            ),
+            "s12_counted_mechanism_growth_count": s12.get("counted_mechanism_growth_count"),
+            "s12_flagged_bespoke_one_off_count": s12.get("flagged_bespoke_one_off_count"),
             "s12_growth_without_envelope_delta_count": s12.get(
                 "growth_without_envelope_delta_count"
             ),
             "s12_false_clear_counts": s12_false_clear_counts,
             **{
-                f"s12_{field}_false_clear_count": s12.get(
-                    f"{field}_false_clear_count"
-                )
+                f"s12_{field}_false_clear_count": s12.get(f"{field}_false_clear_count")
                 for field in S12_FALSE_CLEAR_FIELDS
             },
         }
@@ -1237,17 +1180,13 @@ def validate_layer2_readiness_payloads(payloads: dict[str, Any]) -> dict[str, An
     s13_summary = (
         {
             "s13_case_count": s13.get("case_count"),
-            "s13_expected_current_open_cell_count": s13.get(
-                "expected_current_open_cell_count"
-            ),
+            "s13_expected_current_open_cell_count": s13.get("expected_current_open_cell_count"),
             "s13_remaining_open_cells": s13.get("remaining_open_cells"),
             "s13_burn_down_complete": s13.get("burn_down_complete"),
             "s13_required_artifact_count": len(s13.get("required_artifacts", [])),
             "s13_monitorability_rate": s13.get("monitorability_rate"),
             "s13_a_before_b_ratio": s13.get("a_before_b_ratio"),
-            "s13_attribution_resolution_rate": s13.get(
-                "attribution_resolution_rate"
-            ),
+            "s13_attribution_resolution_rate": s13.get("attribution_resolution_rate"),
             "s13_envelope_shrink_count": s13.get("envelope_shrink_count"),
             "s13_envelope_expansion_count": s13.get("envelope_expansion_count"),
             "s13_envelope_shrink_latency_recorded_count": s13.get(
@@ -1256,27 +1195,19 @@ def validate_layer2_readiness_payloads(payloads: dict[str, Any]) -> dict[str, An
             "s13_unattributable_accountability_without_training_count": s13.get(
                 "unattributable_accountability_without_training_count"
             ),
-            "s13_mape_k_trace_completeness_rate": s13.get(
-                "mape_k_trace_completeness_rate"
-            ),
+            "s13_mape_k_trace_completeness_rate": s13.get("mape_k_trace_completeness_rate"),
             "s13_action_item_closure_rate": s13.get("action_item_closure_rate"),
-            "s13_oversight_effectiveness_link_rate": s13.get(
-                "oversight_effectiveness_link_rate"
-            ),
+            "s13_oversight_effectiveness_link_rate": s13.get("oversight_effectiveness_link_rate"),
             "s13_rubber_stamp_divergence_review_required_count": s13.get(
                 "rubber_stamp_divergence_review_required_count"
             ),
-            "s13_learning_without_attribution_count": s13.get(
-                "learning_without_attribution_count"
-            ),
+            "s13_learning_without_attribution_count": s13.get("learning_without_attribution_count"),
             "s13_growth_without_assurance_delta_count": s13.get(
                 "growth_without_assurance_delta_count"
             ),
             "s13_false_clear_counts": s13_false_clear_counts,
             **{
-                f"s13_{field}_false_clear_count": s13.get(
-                    f"{field}_false_clear_count"
-                )
+                f"s13_{field}_false_clear_count": s13.get(f"{field}_false_clear_count")
                 for field in S13_FALSE_CLEAR_FIELDS
             },
         }
@@ -1285,18 +1216,13 @@ def validate_layer2_readiness_payloads(payloads: dict[str, Any]) -> dict[str, An
     )
     s14 = payloads.get("s14_universality_assurance")
     s14_false_clear_counts = (
-        {
-            field: s14.get(f"{field}_false_clear_count")
-            for field in S14_FALSE_CLEAR_FIELDS
-        }
+        {field: s14.get(f"{field}_false_clear_count") for field in S14_FALSE_CLEAR_FIELDS}
         if isinstance(s14, dict) and s14
         else {}
     )
     s14_summary = (
         {
-            "s14_expected_current_open_cell_count": s14.get(
-                "expected_current_open_cell_count"
-            ),
+            "s14_expected_current_open_cell_count": s14.get("expected_current_open_cell_count"),
             "s14_remaining_open_cells": s14.get("remaining_open_cells"),
             "s14_burn_down_complete": s14.get("burn_down_complete"),
             "s14_required_artifact_count": len(s14.get("required_artifacts", [])),
@@ -1306,15 +1232,11 @@ def validate_layer2_readiness_payloads(payloads: dict[str, Any]) -> dict[str, An
             "s14_axis_scorecard_row_count": s14.get("axis_scorecard_row_count"),
             "s14_skeptic_defeater_count": s14.get("skeptic_defeater_count"),
             "s14_universal_claim_gate_status": s14.get("universal_claim_gate_status"),
-            "s14_sealed_battery_integrity_status": s14.get(
-                "sealed_battery_integrity_status"
-            ),
+            "s14_sealed_battery_integrity_status": s14.get("sealed_battery_integrity_status"),
             "s14_sealed_battery_freeze_hash": s14.get("sealed_battery_freeze_hash"),
             "s14_false_clear_counts": s14_false_clear_counts,
             **{
-                f"s14_{field}_false_clear_count": s14.get(
-                    f"{field}_false_clear_count"
-                )
+                f"s14_{field}_false_clear_count": s14.get(f"{field}_false_clear_count")
                 for field in S14_FALSE_CLEAR_FIELDS
             },
         }
@@ -2812,9 +2734,7 @@ def _validate_s9_projection_lowering(
                 "S9 advances projection maturity only; it closes no cluster cell.",
             )
         )
-    if s9.get("layer_cells_advanced") != [
-        "DESIGNER_ITSELF.closeout_projection_ratchet"
-    ]:
+    if s9.get("layer_cells_advanced") != ["DESIGNER_ITSELF.closeout_projection_ratchet"]:
         issues.append(
             _issue(
                 "layer2_s9_layer_cells_advanced_invalid",
@@ -2891,9 +2811,7 @@ def _validate_s9_projection_lowering(
                 "S9 projection faithfulness denominator must be at least 52.",
             )
         )
-    if s9.get("projection_faithfulness_numerator") != s9.get(
-        "projection_faithfulness_denominator"
-    ):
+    if s9.get("projection_faithfulness_numerator") != s9.get("projection_faithfulness_denominator"):
         issues.append(
             _issue(
                 "layer2_s9_projection_faithfulness_numerator_mismatch",
@@ -3162,8 +3080,7 @@ def _validate_s10_outcome_prediction(
         or not floor
         or floor.get("metric") != s10.get("floor_metric")
         or floor.get("floor_owner") != "team-research"
-        or floor.get("revision_rule")
-        != "forecast_support_tier_change_requires_calibration_record"
+        or floor.get("revision_rule") != "forecast_support_tier_change_requires_calibration_record"
     ):
         issues.append(
             _issue(
@@ -3456,9 +3373,7 @@ def _validate_s11_predictive_knowledge(
                 "S11 must close calibration and proof-carrying analytics cells exactly.",
             )
         )
-    if set(s11.get("layer_cells_advanced", [])) != {
-        "CROSS_CUTTING.method_infrastructure"
-    }:
+    if set(s11.get("layer_cells_advanced", [])) != {"CROSS_CUTTING.method_infrastructure"}:
         issues.append(
             _issue(
                 "layer2_s11_layer_cells_advanced_invalid",
@@ -3557,8 +3472,7 @@ def _validate_s11_predictive_knowledge(
         or not floor
         or floor.get("metric") != s11.get("floor_metric")
         or floor.get("floor_owner") != "team-research"
-        or floor.get("revision_rule")
-        != "model_relaxation_requires_calibration_before_relaxation"
+        or floor.get("revision_rule") != "model_relaxation_requires_calibration_before_relaxation"
     ):
         issues.append(
             _issue(
@@ -3694,19 +3608,17 @@ def _validate_s11_predictive_knowledge(
             )
         )
     authority_boundary = s11.get("authority_boundary")
-    if not isinstance(authority_boundary, dict) or set(
-        authority_boundary.get("authoritative_for", [])
-    ) != S11_REQUIRED_AUTHORITY_SCOPE:
+    if (
+        not isinstance(authority_boundary, dict)
+        or set(authority_boundary.get("authoritative_for", [])) != S11_REQUIRED_AUTHORITY_SCOPE
+    ):
         issues.append(
             _issue(
                 "layer2_s11_authority_boundary_invalid",
                 "S11 authority_boundary must expose only predictive-knowledge authority.",
             )
         )
-    if (
-        s11.get("canonical_route")
-        != "tools/quality/validation/run_universal_outcome_corpus.py"
-    ):
+    if s11.get("canonical_route") != "tools/quality/validation/run_universal_outcome_corpus.py":
         issues.append(
             _issue(
                 "layer2_s11_canonical_route_invalid",
@@ -3818,9 +3730,7 @@ def _validate_s11_predictive_knowledge(
         if isinstance(row, dict)
     }
     future_cell_refs = {
-        cell_ref
-        for cell_ref, slice_name in assignments.items()
-        if slice_name in set()
+        cell_ref for cell_ref, slice_name in assignments.items() if slice_name in set()
     }
     production_authority_refs = {
         f"{cluster}.{axis}"
@@ -3927,11 +3837,7 @@ def _validate_s12_resource_economics(
             )
         )
 
-    cell = (
-        cluster_map_payload.get("cell", {})
-        .get("DESIGNER_ITSELF", {})
-        .get("envelope_growth", {})
-    )
+    cell = cluster_map_payload.get("cell", {}).get("DESIGNER_ITSELF", {}).get("envelope_growth", {})
     if not isinstance(cell, dict) or cell.get("ratchet_state") != "implemented":
         issues.append(
             _issue(
@@ -4096,28 +4002,22 @@ def _validate_s12_resource_economics(
                 "S12 may_not_use_for must block production, future-slice, optimizer, and budget laundering.",
             )
         )
-    if (
-        set(s12.get("authority_scope", []))
-        & {
-            "production_authority",
-            "production_recommendation",
-            "preference_learning_authority",
-            "mdp_bandit_optimizer_authority",
-            "s13_envelope_shrink",
-            "s13_accountability_closure",
-            "s14_universality",
-        }
-    ):
+    if set(s12.get("authority_scope", [])) & {
+        "production_authority",
+        "production_recommendation",
+        "preference_learning_authority",
+        "mdp_bandit_optimizer_authority",
+        "s13_envelope_shrink",
+        "s13_accountability_closure",
+        "s14_universality",
+    }:
         issues.append(
             _issue(
                 "layer2_s12_future_or_production_authority_claimed",
                 "S12 must not claim production, optimizer, S13, or S14 authority.",
             )
         )
-    if (
-        s12.get("canonical_route")
-        != "tools/quality/validation/run_universal_outcome_corpus.py"
-    ):
+    if s12.get("canonical_route") != "tools/quality/validation/run_universal_outcome_corpus.py":
         issues.append(
             _issue(
                 "layer2_s12_canonical_route_invalid",
@@ -4172,7 +4072,14 @@ def _validate_s12_resource_economics(
                 "S12 inventory schema_version must match the manifest.",
             )
         )
-    for field in ("owner", "status", "authority_scope", "may_not_use_for", "validator", "canonical_route"):
+    for field in (
+        "owner",
+        "status",
+        "authority_scope",
+        "may_not_use_for",
+        "validator",
+        "canonical_route",
+    ):
         if inventory_artifact.get(field) != s12.get(field):
             issues.append(
                 _issue(
@@ -4292,11 +4199,7 @@ def _validate_s13_post_deploy_accountability(
             )
         )
 
-    cell = (
-        cluster_map_payload.get("cell", {})
-        .get("DESIGNER_ITSELF", {})
-        .get("envelope_growth", {})
-    )
+    cell = cluster_map_payload.get("cell", {}).get("DESIGNER_ITSELF", {}).get("envelope_growth", {})
     if not isinstance(cell, dict) or cell.get("ratchet_state") != "implemented":
         issues.append(
             _issue(
@@ -4551,10 +4454,7 @@ def _validate_s13_post_deploy_accountability(
                 "S13 authority_boundary must mirror S13 scope and anti-learning denials.",
             )
         )
-    if (
-        s13.get("canonical_route")
-        != "tools/quality/validation/run_universal_outcome_corpus.py"
-    ):
+    if s13.get("canonical_route") != "tools/quality/validation/run_universal_outcome_corpus.py":
         issues.append(
             _issue(
                 "layer2_s13_canonical_route_invalid",
@@ -4685,9 +4585,7 @@ def _validate_s14_universality_assurance(
                 "S14 manifest must be active and owned by governance-board.",
             )
         )
-    if s14.get("slice") != "S14" or s14.get("depends_on") != [
-        f"S{number}" for number in range(14)
-    ]:
+    if s14.get("slice") != "S14" or s14.get("depends_on") != [f"S{number}" for number in range(14)]:
         issues.append(
             _issue(
                 "layer2_s14_slice_or_dependencies_invalid",
@@ -4734,8 +4632,7 @@ def _validate_s14_universality_assurance(
         or not floor
         or floor.get("metric") != s14.get("floor_metric")
         or floor.get("floor_owner") != "governance-board"
-        or floor.get("revision_rule")
-        != "sealed_battery_change_requires_freeze_hash_rotation"
+        or floor.get("revision_rule") != "sealed_battery_change_requires_freeze_hash_rotation"
     ):
         issues.append(
             _issue(
@@ -5007,9 +4904,11 @@ def _validate_s14_universality_assurance(
                 "S14 mechanism-generality report must reuse S12 growth thermometers with held_out_status=pending_s14.",
             )
         )
-    if not s14.get("s12_expansion_evidence_refs") or not s14.get(
-        "s13_envelope_revision_refs"
-    ) or not s14.get("s13_certified_envelope_delta_refs"):
+    if (
+        not s14.get("s12_expansion_evidence_refs")
+        or not s14.get("s13_envelope_revision_refs")
+        or not s14.get("s13_certified_envelope_delta_refs")
+    ):
         issues.append(
             _issue(
                 "layer2_s14_envelope_revision_dynamics_refs_missing",
@@ -5046,9 +4945,10 @@ def _validate_s14_universality_assurance(
                 )
             )
     baseline_record = supporting_records.get("UniversalityBaselineComparison", {})
-    if not isinstance(baseline_record, dict) or set(
-        baseline_record.get("baseline_families", [])
-    ) != S14_REQUIRED_BASELINE_FAMILIES:
+    if (
+        not isinstance(baseline_record, dict)
+        or set(baseline_record.get("baseline_families", [])) != S14_REQUIRED_BASELINE_FAMILIES
+    ):
         issues.append(
             _issue(
                 "layer2_s14_baseline_support_invalid",
@@ -5082,9 +4982,7 @@ def _validate_s14_universality_assurance(
         )
 
     cell = (
-        cluster_map_payload.get("cell", {})
-        .get("DESIGNER_ITSELF", {})
-        .get("evaluation_corpus", {})
+        cluster_map_payload.get("cell", {}).get("DESIGNER_ITSELF", {}).get("evaluation_corpus", {})
     )
     action = str(cell.get("action", "")) if isinstance(cell, dict) else ""
     if (

@@ -177,6 +177,7 @@ def test_scm03_b224_pruning_preserves_logical_draws_for_relevant_chain(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Adding a noisy irrelevant root must not shift relevant seeded draws."""
+
     def make_scm(*, include_irrelevant_root: bool) -> StructuralCausalModelSpec:
         nodes = ["U", "Z", "X", "Y"]
         mechanisms = [

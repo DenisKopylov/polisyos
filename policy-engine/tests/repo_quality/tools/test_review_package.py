@@ -1187,19 +1187,25 @@ def test_committed_ratio_fixture_receipt_is_replayable(tmp_path: Path) -> None:
 
     full_output_again = repo / "reviews" / "full-again.review"
     delta_output_again = repo / "reviews" / "delta-again.review"
-    assert _run_builder(
-        repo,
-        base=base,
-        head=prior_review_point,
-        output=full_output_again,
-    ).returncode == 0
-    assert _run_builder(
-        repo,
-        base=prior_review_point,
-        head=head,
-        output=delta_output_again,
-        prior_findings=findings,
-    ).returncode == 0
+    assert (
+        _run_builder(
+            repo,
+            base=base,
+            head=prior_review_point,
+            output=full_output_again,
+        ).returncode
+        == 0
+    )
+    assert (
+        _run_builder(
+            repo,
+            base=prior_review_point,
+            head=head,
+            output=delta_output_again,
+            prior_findings=findings,
+        ).returncode
+        == 0
+    )
 
     full_bytes = full_output.read_bytes()
     delta_bytes = delta_output.read_bytes()
@@ -1284,21 +1290,24 @@ def test_delta_scope_notice_does_not_break_the_one_tenth_ratio(tmp_path: Path) -
     )
     prior_review_point = _commit(repo, "first reviewed change")
     full_output = repo / "full.review"
-    assert _run_builder(
-        repo, base=base, head=prior_review_point, output=full_output
-    ).returncode == 0
+    assert (
+        _run_builder(repo, base=base, head=prior_review_point, output=full_output).returncode == 0
+    )
 
     (repo / "policy" / "fix.py").write_text("FAIL_CLOSED = True\n", encoding="utf-8")
     head = _commit(repo, "apply the review fix")
     findings = repo / "prior-findings.md"
     findings.write_text("1. Confirm the fix closes the finding.\n", encoding="utf-8")
     delta_output = repo / "delta.review"
-    assert _run_builder(
-        repo,
-        base=prior_review_point,
-        head=head,
-        output=delta_output,
-        prior_findings=findings,
-    ).returncode == 0
+    assert (
+        _run_builder(
+            repo,
+            base=prior_review_point,
+            head=head,
+            output=delta_output,
+            prior_findings=findings,
+        ).returncode
+        == 0
+    )
 
     assert delta_output.stat().st_size * 10 <= full_output.stat().st_size

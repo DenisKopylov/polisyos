@@ -130,8 +130,7 @@ class _WrongConnectorScopeCatalog(_ScopedBindingCatalog):
     def resolve_metric_bindings(self, metric_name: str, *, top_k: int | None = 20):
         bindings = super().resolve_metric_bindings(metric_name, top_k=top_k)
         return [
-            binding.model_copy(update={"connector_id": "other.connector"})
-            for binding in bindings
+            binding.model_copy(update={"connector_id": "other.connector"}) for binding in bindings
         ]
 
     def reconciled_metric_binding_population(self, metric_name: str):
@@ -222,9 +221,7 @@ def _actual_scope_catalog(
         + "\n",
         encoding="utf-8",
     )
-    config = DatasetBatchConfig(
-        snapshot_root=tmp_path / "snapshot", registry_path=registry_path
-    )
+    config = DatasetBatchConfig(snapshot_root=tmp_path / "snapshot", registry_path=registry_path)
     build_graph(
         records=iter(
             [
@@ -248,18 +245,14 @@ def _actual_scope_catalog(
                     preferred_distribution_id="dist-scope",
                     coverage=coverage
                     if coverage is not None
-                    else DatasetCoverage(
-                        countries=["DEU"], time_start="2020", time_end="2030"
-                    ),
+                    else DatasetCoverage(countries=["DEU"], time_start="2020", time_end="2030"),
                 )
             ]
         ),
         db_path=config.db_path,
     )
     config.merged_records_path.write_text('{"title":"Scoped GDP"}\n', encoding="utf-8")
-    config.duplicates_report_path.write_text(
-        "dataset_id,duplicate_id\n", encoding="utf-8"
-    )
+    config.duplicates_report_path.write_text("dataset_id,duplicate_id\n", encoding="utf-8")
     config.qc_report_path.write_text(
         json.dumps(
             {
@@ -293,9 +286,7 @@ def _actual_scope_catalog(
                     "benchmark_bulk_equivalence_blocking_sources_total": 0,
                 },
                 "source_preflight": {
-                    "sources": [
-                        {"source": "worldbank", "status": "complete", "ready": True}
-                    ]
+                    "sources": [{"source": "worldbank", "status": "complete", "ready": True}]
                 },
             }
         ),
@@ -304,10 +295,9 @@ def _actual_scope_catalog(
     run_content_stage_with_receipt(config, "publish")
     if profile_registry is not None:
         state = json.loads(config.stage_state_path.read_text(encoding="utf-8"))
-        saved_profiles = (
-            state["publish"]["input_basis"]["config"]["effective_producer_config"]
-            ["resolved_profile_input_coverage"]["profiles"]
-        )
+        saved_profiles = state["publish"]["input_basis"]["config"]["effective_producer_config"][
+            "resolved_profile_input_coverage"
+        ]["profiles"]
         assert saved_profiles == {"worldbank_wdi": "none"}
     return DatasetCatalogGraph(
         config.db_path,
@@ -340,9 +330,7 @@ def _resolve_scoped_need(
 ):
     curated_dir = tmp_path / "curated"
     curated_dir.mkdir()
-    service = RetrievalService(
-        curated_dir=curated_dir, dataset_catalog=catalog, profiles=profiles
-    )
+    service = RetrievalService(curated_dir=curated_dir, dataset_catalog=catalog, profiles=profiles)
     return service.resolve(
         DataResolveRequest(
             data_needs=[need],
@@ -441,9 +429,7 @@ class _TargetCatalog:
 def test_catalog_resolution_uses_request_dataset_id(tmp_path) -> None:
     curated_dir = tmp_path / "curated"
     curated_dir.mkdir()
-    service = RetrievalService(
-        curated_dir=curated_dir, dataset_catalog=_BindingCatalog()
-    )
+    service = RetrievalService(curated_dir=curated_dir, dataset_catalog=_BindingCatalog())
     plans, candidates = service._resolve_via_catalog_rows(
         [DataNeed(metric="gdp")],
         run_profile="prod_full",
@@ -461,9 +447,7 @@ def test_catalog_resolution_uses_request_dataset_id(tmp_path) -> None:
 def test_catalog_resolution_skips_unfetchable_targets(tmp_path) -> None:
     curated_dir = tmp_path / "curated"
     curated_dir.mkdir()
-    service = RetrievalService(
-        curated_dir=curated_dir, dataset_catalog=_TargetCatalog()
-    )
+    service = RetrievalService(curated_dir=curated_dir, dataset_catalog=_TargetCatalog())
     plans, candidates = service._resolve_via_catalog_rows(
         [DataNeed(metric="gdp")],
         run_profile="prod_full",
@@ -611,9 +595,7 @@ def test_catalog_resolution_excludes_known_year_mismatch(tmp_path) -> None:
     assert "catalog_scope_incompatible:scope_metric:catalog-scope" in outcome.warnings
 
 
-def test_catalog_resolution_keeps_unknown_coverage_declared_unknown(
-    tmp_path, monkeypatch
-) -> None:
+def test_catalog_resolution_keeps_unknown_coverage_declared_unknown(tmp_path, monkeypatch) -> None:
     profile_registry = _install_builtin_worldbank_profile_scope(monkeypatch)
     catalog = _actual_scope_catalog(
         tmp_path, coverage=DatasetCoverage(), profile_registry=profile_registry
@@ -635,14 +617,11 @@ def test_catalog_resolution_keeps_unknown_coverage_declared_unknown(
 
     assert len(outcome.fetch_plans) == 1
     assert any(
-        item.startswith("catalog_scope_unverified:scope_metric:")
-        for item in outcome.warnings
+        item.startswith("catalog_scope_unverified:scope_metric:") for item in outcome.warnings
     )
 
 
-def test_catalog_resolution_does_not_default_malformed_time_scope(
-    tmp_path, monkeypatch
-) -> None:
+def test_catalog_resolution_does_not_default_malformed_time_scope(tmp_path, monkeypatch) -> None:
     profile_registry = _install_builtin_worldbank_profile_scope(monkeypatch)
     catalog = _actual_scope_catalog(tmp_path, profile_registry=profile_registry)
     try:
@@ -664,8 +643,7 @@ def test_catalog_resolution_does_not_default_malformed_time_scope(
     assert outcome.fetch_plans[0].date_start == "not-a-date"
     assert outcome.fetch_plans[0].date_end == "2025"
     assert any(
-        item.startswith("catalog_scope_unverified:scope_metric:")
-        for item in outcome.warnings
+        item.startswith("catalog_scope_unverified:scope_metric:") for item in outcome.warnings
     )
 
 
@@ -763,9 +741,7 @@ def test_catalog_resolution_keeps_partial_time_overlap_unverified(
     profile_registry = _install_builtin_worldbank_profile_scope(monkeypatch)
     catalog = _actual_scope_catalog(
         tmp_path,
-        coverage=DatasetCoverage(
-            countries=["DEU"], time_start="2020", time_end="2024"
-        ),
+        coverage=DatasetCoverage(countries=["DEU"], time_start="2020", time_end="2024"),
         profile_registry=profile_registry,
     )
     try:
@@ -788,9 +764,7 @@ def test_catalog_resolution_keeps_partial_time_overlap_unverified(
         item == "catalog_scope_unverified:scope_metric:time_coverage_partial_overlap"
         for item in outcome.warnings
     )
-    assert not any(
-        item.startswith("catalog_scope_incompatible:") for item in outcome.warnings
-    )
+    assert not any(item.startswith("catalog_scope_incompatible:") for item in outcome.warnings)
 
 
 @pytest.mark.parametrize(
@@ -933,10 +907,7 @@ def test_same_metric_need_occurrences_are_not_collapsed_to_last_scope(
 
     assert retained == [_selected_scope_plan()]
     assert "catalog_scope_incompatible:scope_metric:catalog-scope" in warnings
-    assert (
-        "catalog_scope_unverified:scope_metric:duplicate_need_scope_ambiguous"
-        in warnings
-    )
+    assert "catalog_scope_unverified:scope_metric:duplicate_need_scope_ambiguous" in warnings
 
 
 def test_actual_catalog_route_does_not_publish_incompatible_candidate(
@@ -962,8 +933,7 @@ def test_actual_catalog_route_does_not_publish_incompatible_candidate(
     assert outcome.fetch_plans == []
     assert outcome.candidates == []
     assert any(
-        item.startswith("catalog_scope_incompatible:scope_metric:")
-        for item in outcome.warnings
+        item.startswith("catalog_scope_incompatible:scope_metric:") for item in outcome.warnings
     )
 
 
@@ -1005,8 +975,7 @@ def test_two_explicitly_incompatible_need_occurrences_publish_no_candidate(
     assert outcome.fetch_plans == []
     assert outcome.candidates == []
     assert any(
-        item.startswith("catalog_scope_incompatible:scope_metric:")
-        for item in outcome.warnings
+        item.startswith("catalog_scope_incompatible:scope_metric:") for item in outcome.warnings
     )
 
 
@@ -1095,18 +1064,14 @@ def test_fallback_with_alternate_metric_uses_parent_request_scope(tmp_path) -> N
                     execution_tier="fetchable",
                     source="worldbank",
                 )
-                for catalog_id, request_dataset_id in self._bindings.get(
-                    metric_name, []
-                )
+                for catalog_id, request_dataset_id in self._bindings.get(metric_name, [])
             ]
 
         def get_dataset(self, dataset_id: str):
             coverage = self._coverage.get(dataset_id)
             if coverage is None:
                 return None
-            return DatasetSearchResult(
-                id=dataset_id, title=dataset_id, coverage=coverage
-            )
+            return DatasetSearchResult(id=dataset_id, title=dataset_id, coverage=coverage)
 
     curated_dir = tmp_path / "curated"
     curated_dir.mkdir()
@@ -1157,10 +1122,7 @@ def test_fallback_with_alternate_metric_uses_parent_request_scope(tmp_path) -> N
     assert [fallback.dataset_id for fallback in outcome.fetch_plans[0].fallbacks] == [
         "fallback-good"
     ]
-    assert (
-        "catalog_scope_incompatible:scope_metric:catalog-fallback-bad"
-        in outcome.warnings
-    )
+    assert "catalog_scope_incompatible:scope_metric:catalog-fallback-bad" in outcome.warnings
 
 
 def test_fallback_without_matching_request_scope_is_unverified(tmp_path) -> None:
@@ -1204,10 +1166,7 @@ def test_fallback_without_matching_request_scope_is_unverified(tmp_path) -> None
     assert [fallback.dataset_id for fallback in outcome.fetch_plans[0].fallbacks] == [
         "fallback-dataset"
     ]
-    assert (
-        "catalog_scope_unverified:unrequested_metric:request_scope_unmatched"
-        in outcome.warnings
-    )
+    assert "catalog_scope_unverified:unrequested_metric:request_scope_unmatched" in outcome.warnings
 
 
 def test_known_incompatible_fallback_is_removed_but_unknown_fallback_remains(
@@ -1249,15 +1208,11 @@ def test_known_incompatible_fallback_is_removed_but_unknown_fallback_remains(
             }.get(dataset_id)
             if coverage is None:
                 return None
-            return DatasetSearchResult(
-                id=dataset_id, title=dataset_id, coverage=coverage
-            )
+            return DatasetSearchResult(id=dataset_id, title=dataset_id, coverage=coverage)
 
     curated_dir = tmp_path / "curated"
     curated_dir.mkdir()
-    service = RetrievalService(
-        curated_dir=curated_dir, dataset_catalog=_FallbackCatalog()
-    )
+    service = RetrievalService(curated_dir=curated_dir, dataset_catalog=_FallbackCatalog())
     plan = FetchPlan(
         plan_id="scope-with-fallbacks",
         metric_id="scope_metric",
@@ -1304,9 +1259,7 @@ def test_known_incompatible_fallback_is_removed_but_unknown_fallback_remains(
         "unknown-dataset",
     ]
     assert "catalog_scope_incompatible:scope_metric:catalog-bad" in warnings
-    assert (
-        "catalog_scope_unverified:scope_metric:catalog_identity_unresolved" in warnings
-    )
+    assert "catalog_scope_unverified:scope_metric:catalog_identity_unresolved" in warnings
 
 
 def test_actual_catalog_route_uses_reconciled_binding_and_exact_dataset_reader(
@@ -1347,9 +1300,7 @@ def test_actual_catalog_route_keeps_stale_rows_candidate_only_after_registry_dri
         assert changed != original and len(changed) == len(original)
         registry_path.write_bytes(changed)
         os.utime(registry_path, ns=(before.st_atime_ns, before.st_mtime_ns))
-        state = json.loads(
-            (tmp_path / "snapshot/datasets/manifests/stage_state.json").read_text()
-        )
+        state = json.loads((tmp_path / "snapshot/datasets/manifests/stage_state.json").read_text())
         assert state["publish"]["status"] == "complete"
         outcome = _resolve_scoped_need(
             tmp_path,
@@ -1385,9 +1336,7 @@ def test_actual_catalog_refusals_are_not_downgraded_to_scope_warnings(
             def refuse_population(_metric_name: str):
                 raise ValueError("catalog_metric_binding_population_identity_drift")
 
-            monkeypatch.setattr(
-                catalog, "reconciled_metric_binding_population", refuse_population
-            )
+            monkeypatch.setattr(catalog, "reconciled_metric_binding_population", refuse_population)
             expected = "catalog_metric_binding_population_identity_drift"
         else:
             monkeypatch.setattr(catalog, "get_dataset", lambda _dataset_id: None)
@@ -1551,9 +1500,7 @@ def test_fallback_to_plan_updates_metric_id_and_analytics() -> None:
     assert fallback.metric_id == "metric.corrected"
     assert fallback.metadata["resolution_route"] == "manual_binding"
     assert fallback.metadata["fallback_reason"] == "operator_override"
-    assert (
-        fallback.metadata["fallback_history"][0]["from_metric_id"] == "metric.primary"
-    )
+    assert fallback.metadata["fallback_history"][0]["from_metric_id"] == "metric.primary"
 
 
 class _RecordingTracer:
@@ -2033,19 +1980,13 @@ def test_excluded_profile_value_change_is_not_current_or_reusable(
             resume=True,
         )
         assert not _should_skip_stage(config, "publish")
-        assert current_content_stage_receipt(config, "publish")["state"] == (
-            "not_established"
-        )
-        assert current_catalog_publish_receipt(config.db_path)["state"] == (
-            "not_established"
-        )
+        assert current_content_stage_receipt(config, "publish")["state"] == ("not_established")
+        assert current_catalog_publish_receipt(config.db_path)["state"] == ("not_established")
 
         run_content_stage_with_receipt(config, "publish")
         completed_state = json.loads(stage_path.read_text(encoding="utf-8"))
         assert completed_state["publish"]["status"] == "complete"
-        assert completed_state["publish"]["metadata"]["currentness_state"] == (
-            "not_established"
-        )
+        assert completed_state["publish"]["metadata"]["currentness_state"] == ("not_established")
         assert "fixture-header-A" not in json.dumps(completed_state)
         assert "fixture-header-B" not in json.dumps(completed_state)
 
@@ -2067,9 +2008,7 @@ def test_excluded_profile_value_change_is_not_current_or_reusable(
     assert outcome.fetch_plans == []
     assert len(outcome.candidates) == 1
     assert outcome.candidates[0].metadata["source_currentness"] == "not_established"
-    assert any(
-        item.startswith("catalog_source_not_established:") for item in outcome.warnings
-    )
+    assert any(item.startswith("catalog_source_not_established:") for item in outcome.warnings)
 
 
 def test_actual_catalog_route_keeps_headerful_generation_candidate_only_after_headers_removed(
@@ -2100,9 +2039,7 @@ def test_actual_catalog_route_keeps_headerful_generation_candidate_only_after_he
             (tmp_path / "snapshot/datasets/manifests/stage_state.json").read_text()
         )["publish"]["input_basis"]["config"]["effective_producer_config"]
         assert (
-            publish_config["resolved_profile_input_coverage"]["profiles"][
-                "worldbank_wdi"
-            ]
+            publish_config["resolved_profile_input_coverage"]["profiles"]["worldbank_wdi"]
             == "excluded_present"
         )
 
@@ -2141,12 +2078,14 @@ def test_catalog_plan_requires_generation_profile_input_coverage(
         "profiles": {"fixture_profile": "excluded_present"},
     }
 
-    assert service._catalog_profile_plan_admission(
-        "fixture_profile", none_coverage
-    ) == (True, "catalog_profile_inputs_covered")
-    assert service._catalog_profile_plan_admission(
-        "fixture_profile", excluded_coverage
-    ) == (False, "catalog_profile_inputs_not_established")
+    assert service._catalog_profile_plan_admission("fixture_profile", none_coverage) == (
+        True,
+        "catalog_profile_inputs_covered",
+    )
+    assert service._catalog_profile_plan_admission("fixture_profile", excluded_coverage) == (
+        False,
+        "catalog_profile_inputs_not_established",
+    )
     assert service._catalog_profile_plan_admission("fixture_profile", None) == (
         False,
         "catalog_profile_input_coverage_unknown",

@@ -189,9 +189,7 @@ def merge_and_dedup(config: AcademicBatchConfig) -> MergeStats:
                 line = line.strip()
                 if not line:
                     continue
-                rec = adapt_jsonl_work_record_claims(
-                    json.loads(line), provenance="legacy_jsonl"
-                )
+                rec = adapt_jsonl_work_record_claims(json.loads(line), provenance="legacy_jsonl")
                 key = rec.id
                 if key in seen:
                     duplicates.append((key, file_path.name))

@@ -18,15 +18,9 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-PARTICIPATION_REQUIREMENT_SPEC_SCHEMA_VERSION = (
-    "policyos.participation_requirement.spec.v1"
-)
-PARTICIPATION_REQUIREMENT_BUNDLE_SCHEMA_VERSION = (
-    "policyos.participation_requirement.bundle.v1"
-)
-PARTICIPATION_EVALUATION_SCHEMA_VERSION = (
-    "policyos.participation_requirement.evaluation.v1"
-)
+PARTICIPATION_REQUIREMENT_SPEC_SCHEMA_VERSION = "policyos.participation_requirement.spec.v1"
+PARTICIPATION_REQUIREMENT_BUNDLE_SCHEMA_VERSION = "policyos.participation_requirement.bundle.v1"
+PARTICIPATION_EVALUATION_SCHEMA_VERSION = "policyos.participation_requirement.evaluation.v1"
 PARTICIPATION_RULE_VERSION = "adr-0167.participation-legitimacy-matrix.v1"
 
 
@@ -539,9 +533,7 @@ class ParticipationProvenanceCompiler:
             required_modes=matrix["required_modes"],
             required_sampling_frame=matrix["required_sampling_frame"],
             minimum_provenance_class=matrix["minimum_provenance_class"],
-            minimum_representativeness_class=matrix[
-                "minimum_representativeness_class"
-            ],
+            minimum_representativeness_class=matrix["minimum_representativeness_class"],
             consent_redaction=matrix["consent_redaction"],
             dissent_handling=matrix["dissent_handling"],
             sponsor_disclosure=matrix["sponsor_disclosure"],
@@ -646,10 +638,14 @@ def evaluate_participation_requirement(
             blocker_code="participation_provenance_missing",
         )
 
-    if record.source_kind in {
-        ParticipationSourceKind.LLM_SPECULATION,
-        ParticipationSourceKind.ANALYST_SUMMARY,
-    } or record.provenance_class is ParticipationProvenanceClass.D_UNVERIFIABLE_OR_SPECULATIVE:
+    if (
+        record.source_kind
+        in {
+            ParticipationSourceKind.LLM_SPECULATION,
+            ParticipationSourceKind.ANALYST_SUMMARY,
+        }
+        or record.provenance_class is ParticipationProvenanceClass.D_UNVERIFIABLE_OR_SPECULATIVE
+    ):
         return _evaluation(
             spec,
             record=record,
@@ -779,9 +775,7 @@ def _evaluation(
         metadata={
             "rule_version": spec.rule_version,
             "pattern_guards": ["P05", "P10", "P14", "P15"],
-            "typed_limitation": "participation_evidence_absent"
-            if status == "missing"
-            else None,
+            "typed_limitation": "participation_evidence_absent" if status == "missing" else None,
         },
     )
 
@@ -985,9 +979,7 @@ def _matrix_row(
             ParticipationSourceKind.CONSULTATION,
         ),
         "required_sampling_frame": "attributable_source_context",
-        "minimum_provenance_class": (
-            ParticipationProvenanceClass.C_ATTRIBUTABLE_NONREPRESENTATIVE
-        ),
+        "minimum_provenance_class": (ParticipationProvenanceClass.C_ATTRIBUTABLE_NONREPRESENTATIVE),
         "minimum_representativeness_class": (
             ParticipationRepresentativenessClass.ATTRIBUTABLE_NONREPRESENTATIVE
         ),
@@ -1034,9 +1026,7 @@ def _records_from_capability_bindings(
                 claim_refs=(spec.claim_id,),
                 source_kind=_participation_source_kind(metadata.get("source_kind")),
                 consultation_mode=_optional_text(metadata.get("consultation_mode")),
-                provenance_class=_participation_provenance_class(
-                    metadata.get("provenance_class")
-                ),
+                provenance_class=_participation_provenance_class(metadata.get("provenance_class")),
                 representativeness_class=_participation_representativeness_class(
                     metadata.get("representativeness_class")
                 ),
@@ -1049,9 +1039,7 @@ def _records_from_capability_bindings(
                     or metadata.get("consent_redaction_state")
                     or spec.consent_redaction
                 ),
-                dissent_state=_required_text(
-                    metadata.get("dissent_state") or "not_recorded"
-                ),
+                dissent_state=_required_text(metadata.get("dissent_state") or "not_recorded"),
                 sponsor_disclosure=_optional_text(metadata.get("sponsor_disclosure")),
                 limitations=tuple(
                     dict.fromkeys(
@@ -1068,8 +1056,7 @@ def _records_from_capability_bindings(
                 capability_index_ref=_optional_text(binding.get("capability_index_ref")),
                 construct_registry_ref=_optional_text(binding.get("construct_registry_ref")),
                 authority_composition_rule_ref=_optional_text(
-                    binding.get("authority_composition_rule_ref")
-                    or binding.get("rule_version_ref")
+                    binding.get("authority_composition_rule_ref") or binding.get("rule_version_ref")
                 ),
                 consent_envelope=consent,
                 source_limitations=source_limitations,
@@ -1099,9 +1086,7 @@ def _capability_matches_requirement(
     target_claim_ids = set(_text_tuple(binding.get("target_claim_ids")))
     if spec.claim_id in target_claim_ids:
         return True
-    construct = (_optional_text(binding.get("construct_ref")) or "").removeprefix(
-        "construct:"
-    )
+    construct = (_optional_text(binding.get("construct_ref")) or "").removeprefix("construct:")
     if not construct:
         return False
     return construct in {
@@ -1130,10 +1115,7 @@ def _participation_provenance_class(value: object) -> ParticipationProvenanceCla
 def _participation_representativeness_class(
     value: object,
 ) -> ParticipationRepresentativenessClass:
-    raw = (
-        _optional_text(value)
-        or ParticipationRepresentativenessClass.STRUCTURED_SUBGROUP_OR_ROLE
-    )
+    raw = _optional_text(value) or ParticipationRepresentativenessClass.STRUCTURED_SUBGROUP_OR_ROLE
     try:
         return ParticipationRepresentativenessClass(raw)
     except ValueError:
@@ -1146,8 +1128,7 @@ def _allowed_use_for_record(
 ) -> ParticipationClaimUse:
     if record.source_kind is ParticipationSourceKind.SURVEY:
         if (
-            record.provenance_class
-            is ParticipationProvenanceClass.A_REPRESENTATIVE_POPULATION
+            record.provenance_class is ParticipationProvenanceClass.A_REPRESENTATIVE_POPULATION
             and record.representativeness_class
             in {
                 ParticipationRepresentativenessClass.REPRESENTATIVE,

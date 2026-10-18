@@ -124,7 +124,8 @@ class TestDiffusionProperties:
                 state=state,
                 params=params,
                 seed=0,
-            ), fqn
+            ),
+            fqn,
         )
         trajectories = np.asarray(result.state_trajectories, dtype=float)
         assert trajectories.shape == (params["n_steps"] + 1, data["n_nodes"])
@@ -132,9 +133,7 @@ class TestDiffusionProperties:
         assert np.all((trajectories >= 0.0) & (trajectories <= 1.0))
         np.testing.assert_array_equal(trajectories[0], initial_states)
         np.testing.assert_allclose(result.node_scores, trajectories[-1])
-        assert result.metrics["final_mean_state"] == pytest.approx(
-            float(np.mean(trajectories[-1]))
-        )
+        assert result.metrics["final_mean_state"] == pytest.approx(float(np.mean(trajectories[-1])))
 
     @given(data=_adjacency_strategy())
     @settings(

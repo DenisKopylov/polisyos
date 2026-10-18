@@ -2325,12 +2325,8 @@ class TestCausalEngineTemporal:
             proof.metadata["local_independence_certificate_ref"]
         )
         fresh_store = FileSystemCAS(tmp_path / "cas")
-        raw_manifest = json.loads(
-            fresh_store.get_manifest_bytes(str(certificate_ref.artifact_id))
-        )
-        assert raw_manifest["canon"] == IRCanonInfo(forbid_floats=False).model_dump(
-            mode="json"
-        )
+        raw_manifest = json.loads(fresh_store.get_manifest_bytes(str(certificate_ref.artifact_id)))
+        assert raw_manifest["canon"] == IRCanonInfo(forbid_floats=False).model_dump(mode="json")
         certificate_payload = get_json_artifact(
             _ensure_ir_artifact_store(fresh_store), certificate_ref
         )
@@ -2441,12 +2437,8 @@ class TestCausalEngineTemporal:
             proof.metadata["temporal_identification_certificate_ref"]
         )
         fresh_store = FileSystemCAS(tmp_path / "cas")
-        raw_manifest = json.loads(
-            fresh_store.get_manifest_bytes(str(certificate_ref.artifact_id))
-        )
-        assert raw_manifest["canon"] == IRCanonInfo(forbid_floats=False).model_dump(
-            mode="json"
-        )
+        raw_manifest = json.loads(fresh_store.get_manifest_bytes(str(certificate_ref.artifact_id)))
+        assert raw_manifest["canon"] == IRCanonInfo(forbid_floats=False).model_dump(mode="json")
         persisted_certificate = get_json_artifact(
             _ensure_ir_artifact_store(fresh_store), certificate_ref
         )

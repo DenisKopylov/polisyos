@@ -26,9 +26,7 @@ class S2DesignSearchOperationResult(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    operation_id: Literal["phase2.refine.layer2_s2_design_search"] = (
-        S2_DESIGN_SEARCH_OPERATION_ID
-    )
+    operation_id: Literal["phase2.refine.layer2_s2_design_search"] = S2_DESIGN_SEARCH_OPERATION_ID
     design_record_ref: artifacts.ArtifactRef
     search_ledger_ref: artifacts.ArtifactRef
     binding_ref: artifacts.ArtifactRef

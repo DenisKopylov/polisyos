@@ -81,9 +81,7 @@ def test_run_evidence_context_reflects_live_promotion_decisions(runtime_api_env)
         source_candidates = (
             runtime_api_env["app"].state._control_service.list_promotion_candidates().candidates
         )
-        candidate = next(
-            item for item in source_candidates if item.promotion_id == promotion_id
-        )
+        candidate = next(item for item in source_candidates if item.promotion_id == promotion_id)
         retrieval = client.app.state._control_service._retrieval
         with retrieval._state_lock:
             retrieval._store_promotion_candidate_locked(candidate)
@@ -140,15 +138,18 @@ def test_run_evidence_context_links_fabric_trace_materialization_and_timeline(
 
     assert fabric_ref["artifact_id"].startswith("sha256:")
     assert fabric_ref["artifact_id"] in related_artifact_ids
-    assert materialization_refs["data_snapshot_ref"]["artifact_id"] == (
-        runtime_api_env["data_snapshot_artifact_id"]
+    assert (
+        materialization_refs["data_snapshot_ref"]["artifact_id"]
+        == (runtime_api_env["data_snapshot_artifact_id"])
     )
-    assert materialization_refs["input_bindings_ref"]["artifact_id"] == (
-        runtime_api_env["input_bindings_artifact_id"]
+    assert (
+        materialization_refs["input_bindings_ref"]["artifact_id"]
+        == (runtime_api_env["input_bindings_artifact_id"])
     )
     assert production_context["fabric_retrieval_trace_ref"] == fabric_ref["artifact_id"]
-    assert production_context["materialization_refs"]["quality_report_ref"] == (
-        runtime_api_env["quality_artifact_id"]
+    assert (
+        production_context["materialization_refs"]["quality_report_ref"]
+        == (runtime_api_env["quality_artifact_id"])
     )
 
     timeline_response = client.get(f"/api/v1/runs/{run_id}/timeline")
@@ -164,8 +165,9 @@ def test_run_evidence_context_links_fabric_trace_materialization_and_timeline(
     selection_event = selection_events[0]
     assert "prod-msme-panel" in selection_event["event"]
     assert fabric_ref["artifact_id"] in selection_event["output_artifact_ids"]
-    assert materialization_refs["data_snapshot_ref"]["artifact_id"] in (
-        selection_event["input_artifact_ids"]
+    assert (
+        materialization_refs["data_snapshot_ref"]["artifact_id"]
+        in (selection_event["input_artifact_ids"])
     )
 
 

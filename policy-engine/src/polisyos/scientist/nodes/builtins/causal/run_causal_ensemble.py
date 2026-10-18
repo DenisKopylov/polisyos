@@ -563,9 +563,7 @@ class RunCausalEnsembleNode:
                     _ensure_ir_artifact_store(ctx.store),
                     candidate.scm_inline,
                 )
-                scm_ref = profile_bound_ref(
-                    _ensure_ir_artifact_store(ctx.store), persisted_scm
-                )
+                scm_ref = profile_bound_ref(_ensure_ir_artifact_store(ctx.store), persisted_scm)
                 scm_ref = ArtifactRef.model_validate(scm_ref.model_dump(mode="json"))
                 scm_spec = candidate.scm_inline
             elif candidate.scm_ref is not None:
@@ -705,9 +703,7 @@ class RunCausalEnsembleNode:
                 )
             )
 
-            input_refs.append(
-                input_ref_from_artifact_ref(scm_ref, role=f"member_{idx}.scm_ref")
-            )
+            input_refs.append(input_ref_from_artifact_ref(scm_ref, role=f"member_{idx}.scm_ref"))
             input_refs.append(
                 input_ref_from_artifact_ref(graph_ref, role=f"member_{idx}.graph_ref")
             )
@@ -747,9 +743,7 @@ class RunCausalEnsembleNode:
         consensus_graph_ref: ArtifactRef | None = None
         if consensus_graph is not None:
             graph_inputs = [
-                input_ref_from_artifact_ref(
-                    item.graph_artifact_ref, role=f"member_{idx}.graph"
-                )
+                input_ref_from_artifact_ref(item.graph_artifact_ref, role=f"member_{idx}.graph")
                 for idx, item in enumerate(normalized_members)
             ]
             persisted_consensus = persist_causal_graph_model(
@@ -764,9 +758,7 @@ class RunCausalEnsembleNode:
                 consensus_graph_ref.model_dump(mode="json")
             )
             input_refs.append(
-                input_ref_from_artifact_ref(
-                    consensus_graph_ref, role="consensus_graph_ref"
-                )
+                input_ref_from_artifact_ref(consensus_graph_ref, role="consensus_graph_ref")
             )
 
         ensemble = CausalModelEnsemble(

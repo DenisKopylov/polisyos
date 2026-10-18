@@ -11,8 +11,7 @@ from tools.quality.validation import run_universal_outcome_corpus as w12d
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 S12_MANIFEST = (
-    REPO_ROOT
-    / "architecture/policy_design_case/layer2_s12_resource_economics_manifest.json"
+    REPO_ROOT / "architecture/policy_design_case/layer2_s12_resource_economics_manifest.json"
 )
 S12_MANIFEST_PATH = "architecture/policy_design_case/layer2_s12_resource_economics_manifest.json"
 S12_REQUIRED_ARTIFACTS = {
@@ -80,8 +79,9 @@ def _inventory_artifact() -> dict[str, Any]:
 
 def _cluster_map() -> dict[str, Any]:
     return tomllib.loads(
-        (REPO_ROOT / "architecture/policy_design_case/cluster_ownership_map.toml")
-        .read_text(encoding="utf-8")
+        (REPO_ROOT / "architecture/policy_design_case/cluster_ownership_map.toml").read_text(
+            encoding="utf-8"
+        )
     )
 
 
@@ -215,9 +215,9 @@ def test_layer2_s12_snapshot_allows_registered_s13_artifacts() -> None:
 
 
 def test_layer2_s12_b_side_does_not_import_resource_economics_producer() -> None:
-    source = (
-        REPO_ROOT / "src/polisyos/pdc/_impl/layer2_design_search.py"
-    ).read_text(encoding="utf-8")
+    source = (REPO_ROOT / "src/polisyos/pdc/_impl/layer2_design_search.py").read_text(
+        encoding="utf-8"
+    )
 
     assert "polisyos.runtime.quality.design_axes.resource_economics" not in source
     assert "layer2_resource_economics" not in source
@@ -262,8 +262,9 @@ def test_layer2_s12_manifest_metrics_match_generated_corpus_summary(tmp_path: Pa
     assert manifest["override_rate_trend"] == summary["override_rate_trend"]
     assert manifest["reuse_rate_trend"] == summary["reuse_rate_trend"]
     assert manifest["held_out_status"] == summary["held_out_status"] == "pending_s14"
-    assert manifest["growth_without_envelope_delta_count"] == (
-        summary["growth_without_envelope_delta_count"]
+    assert (
+        manifest["growth_without_envelope_delta_count"]
+        == (summary["growth_without_envelope_delta_count"])
     )
     assert manifest["false_clear_counts"] == summary["false_clear_counts"]
 

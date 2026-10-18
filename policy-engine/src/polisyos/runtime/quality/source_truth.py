@@ -552,9 +552,7 @@ def _cas_refs(payload: Mapping[str, Any]) -> tuple[str, ...]:
         if key_text in {"cas_ref", "runtime_cas_ref", "artifact_ref", "ref"}:
             refs.extend(_text_refs_from_value(value))
         elif key_text.endswith("_ref"):
-            refs.extend(
-                ref for ref in _text_refs_from_value(value) if _looks_like_cas_ref(ref)
-            )
+            refs.extend(ref for ref in _text_refs_from_value(value) if _looks_like_cas_ref(ref))
     return tuple(dict.fromkeys(refs))
 
 

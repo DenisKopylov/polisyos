@@ -169,17 +169,19 @@ def test_current_v3_requires_authorized_reissue_and_preserves_old_bytes(
 
     live, plan = current_owner_emission
     assert live["generation_cycle_run"]["schema_version"] == GENERATION_CYCLE_SCHEMA_VERSION
-    assert checker._persisted_run_currentness_observation(
-        live["generation_cycle_run"]
-    )["status"] == "pass"
+    assert (
+        checker._persisted_run_currentness_observation(live["generation_cycle_run"])["status"]
+        == "pass"
+    )
     mismatched_current_run = copy.deepcopy(live["generation_cycle_run"])
     mismatched_identity = "policy-engine-deployment:sha256:" + "f" * 64
     if mismatched_identity == mismatched_current_run["deployment_identity"]:
         mismatched_identity = "policy-engine-deployment:sha256:" + "e" * 64
     mismatched_current_run["deployment_identity"] = mismatched_identity
-    assert checker._persisted_run_currentness_observation(
-        mismatched_current_run
-    )["reason_code"] == "generation_cycle_currentness_deployment_identity_mismatch"
+    assert (
+        checker._persisted_run_currentness_observation(mismatched_current_run)["reason_code"]
+        == "generation_cycle_currentness_deployment_identity_mismatch"
+    )
     destination = tmp_path / checker.OUTPUT_PATH
     destination.parent.mkdir(parents=True)
     original = historical_owner_bytes(GENERATION_CYCLE_V1_BLOB)
@@ -245,7 +247,10 @@ def test_currentness_gate_refuses_historical_or_mismatched_identity(
         run_payload["deployment_identity_reason"] = "canonical_loaded_runtime_mismatch"
     elif mutation == "identity_mismatch":
         run_payload["deployment_identity"] = "policy-engine-deployment:sha256:" + "f" * 64
-        if run_payload["deployment_identity"] == emitted["generation_cycle_run"]["deployment_identity"]:
+        if (
+            run_payload["deployment_identity"]
+            == emitted["generation_cycle_run"]["deployment_identity"]
+        ):
             run_payload["deployment_identity"] = "policy-engine-deployment:sha256:" + "e" * 64
 
     observed = checker._persisted_run_currentness_observation(run_payload)

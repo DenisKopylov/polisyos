@@ -146,22 +146,18 @@ def build_rule_evolution_registry(
     )
     status = (
         "blocked"
-        if revalidation_state["state"]
-        in {"revalidation_required", "blocked_until_revalidated"}
+        if revalidation_state["state"] in {"revalidation_required", "blocked_until_revalidated"}
         else "pass"
     )
-    registry_ref = (
-        _text(evidence_ref)
-        or _derived_ref(
-            {
-                "registry_id": registry_id,
-                "version": version,
-                "effective_at": effective_at,
-                "rule_refs": normalized_rules,
-                "taxonomy_refs": normalized_taxonomy,
-                "alias_remaps": normalized_remaps,
-            }
-        )
+    registry_ref = _text(evidence_ref) or _derived_ref(
+        {
+            "registry_id": registry_id,
+            "version": version,
+            "effective_at": effective_at,
+            "rule_refs": normalized_rules,
+            "taxonomy_refs": normalized_taxonomy,
+            "alias_remaps": normalized_remaps,
+        }
     )
     payload: dict[str, Any] = {
         "schema_version": RULE_EVOLUTION_REGISTRY_SCHEMA_VERSION,
@@ -244,9 +240,7 @@ def build_rule_evolution_replay_context(
                     "current_logic_hash": current_hash,
                 }
             )
-    current_semantic_change = bool(
-        current_rule_registry.get("semantic_changes") or mismatches
-    )
+    current_semantic_change = bool(current_rule_registry.get("semantic_changes") or mismatches)
     replay_mode = "original_logic" if current_semantic_change else "current_logic_compatible"
     annotation = public_rule_evolution_annotation(current_rule_registry)
     annotation["legacy_case_annotation"] = (
@@ -270,17 +264,13 @@ def build_rule_evolution_replay_context(
         "time_roles": {
             "closure_time": _required_text(closure_time, "closure_time"),
             "replay_time": _required_text(replay_time, "replay_time"),
-            "closed_registry_effective_at": _text(
-                closed_case_rule_registry.get("effective_at")
-            ),
+            "closed_registry_effective_at": _text(closed_case_rule_registry.get("effective_at")),
             "current_registry_effective_at": _text(current_rule_registry.get("effective_at")),
         },
         "revalidation_state": {
             "state": "legacy_replay_only" if current_semantic_change else "not_required",
             "affected_requirement_ids": [
-                str(row["requirement_id"])
-                for row in mismatches
-                if _text(row.get("requirement_id"))
+                str(row["requirement_id"]) for row in mismatches if _text(row.get("requirement_id"))
             ],
             "closed_cases_replay_under_original_logic": current_semantic_change,
         },
@@ -376,9 +366,7 @@ def _normalize_rule_refs(
                 )
             )
             continue
-        requirement_id = _text(
-            raw.get("requirement_id") or raw.get("rule_id") or raw.get("id")
-        )
+        requirement_id = _text(raw.get("requirement_id") or raw.get("rule_id") or raw.get("id"))
         if requirement_id is None:
             issues.append(
                 _issue(
@@ -455,9 +443,7 @@ def _normalize_taxonomy_refs(
                 )
             )
             continue
-        taxonomy_id = _text(
-            raw.get("taxonomy_id") or raw.get("id") or raw.get("taxonomy")
-        )
+        taxonomy_id = _text(raw.get("taxonomy_id") or raw.get("id") or raw.get("taxonomy"))
         if taxonomy_id is None:
             issues.append(
                 _issue(
@@ -580,8 +566,7 @@ def _normalize_alias_remaps(
             }
         )
     return [
-        {key: value for key, value in row.items() if value not in (None, "", [])}
-        for row in rows
+        {key: value for key, value in row.items() if value not in (None, "", [])} for row in rows
     ], issues
 
 
@@ -651,9 +636,7 @@ def _revalidation_state(
 def _old_logic_replay_behavior(semantic_changes: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
     return {
         "closed_cases": (
-            "replay_with_original_registry"
-            if semantic_changes
-            else "current_registry_compatible"
+            "replay_with_original_registry" if semantic_changes else "current_registry_compatible"
         ),
         "current_cases": (
             "revalidate_before_publication"
@@ -727,11 +710,7 @@ def _text_values(value: object) -> tuple[str, ...]:
         return (text,) if text else ()
     if not isinstance(value, Sequence):
         return ()
-    return tuple(
-        text
-        for item in value
-        if (text := _text(item)) is not None
-    )
+    return tuple(text for item in value if (text := _text(item)) is not None)
 
 
 def _hash_from_row(row: Mapping[str, Any]) -> str | None:

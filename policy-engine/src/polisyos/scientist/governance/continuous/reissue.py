@@ -37,11 +37,9 @@ class _JsonArtifactStore(Protocol):
         options: PutOptions,
         *,
         canon_spec: CanonSpec,
-    ) -> ArtifactRef:
-        ...
+    ) -> ArtifactRef: ...
 
-    def get_bytes(self, artifact_id: object) -> bytes:
-        ...
+    def get_bytes(self, artifact_id: object) -> bytes: ...
 
 
 class PublicRevisionDiff(BaseModel):
@@ -204,10 +202,7 @@ class ReissuePacket(BaseModel):
             affected = set(self.partial_publication_state.affected_claim_ids)
             if affected != set(self.scope_to_revise):
                 raise ValueError("scope_to_revise must match partial publication affected claims")
-            if (
-                self.partial_publication_state.unaffected_claim_ids
-                and not self.unchanged_records
-            ):
+            if self.partial_publication_state.unaffected_claim_ids and not self.unchanged_records:
                 raise ValueError("partial-scope reissue packets require unchanged_records")
             if (
                 self.status is DecisionValidityStatus.REISSUED

@@ -333,25 +333,15 @@ class TestCursorStore:
         assert loaded_checkpoint is not None
         assert loaded_checkpoint.offset == 42
 
-    def test_stream_partition_frontiers_survive_reopen_and_compensation(
-        self, tmp_path: Path
-    ):
+    def test_stream_partition_frontiers_survive_reopen_and_compensation(self, tmp_path: Path):
         """Non-default stream partitions must retain independent cursor pairs."""
 
         cas_root = tmp_path / ".polisyos"
         cursor_store = CursorStore(FileSystemCAS(cas_root))
-        left_cursor = _make_partitioned_stream_cursor(
-            partition_key="left", offset=1
-        )
-        left_checkpoint = _make_stream_checkpoint(
-            partition_key="left", offset=1
-        )
-        right_cursor = _make_partitioned_stream_cursor(
-            partition_key="right", offset=2
-        )
-        right_checkpoint = _make_stream_checkpoint(
-            partition_key="right", offset=2
-        )
+        left_cursor = _make_partitioned_stream_cursor(partition_key="left", offset=1)
+        left_checkpoint = _make_stream_checkpoint(partition_key="left", offset=1)
+        right_cursor = _make_partitioned_stream_cursor(partition_key="right", offset=2)
+        right_checkpoint = _make_stream_checkpoint(partition_key="right", offset=2)
 
         cursor_store.commit_stream_progress(
             cursor=left_cursor,
@@ -363,31 +353,26 @@ class TestCursorStore:
         )
 
         reopened = CursorStore(FileSystemCAS(cas_root))
-        assert {
-            cursor.cursor_id for cursor in reopened.list_cursors()
-        } >= {left_cursor.cursor_id, right_cursor.cursor_id}
-        assert reopened.find_latest_stream_checkpoint(
-            "stream.jsonl", "events", partition_key="left"
-        ) == left_checkpoint
-        assert reopened.find_latest_stream_checkpoint(
-            "stream.jsonl", "events", partition_key="right"
-        ) == right_checkpoint
+        assert {cursor.cursor_id for cursor in reopened.list_cursors()} >= {
+            left_cursor.cursor_id,
+            right_cursor.cursor_id,
+        }
+        assert (
+            reopened.find_latest_stream_checkpoint("stream.jsonl", "events", partition_key="left")
+            == left_checkpoint
+        )
+        assert (
+            reopened.find_latest_stream_checkpoint("stream.jsonl", "events", partition_key="right")
+            == right_checkpoint
+        )
 
-        found_left = reopened.find_latest_cursor(
-            "stream.jsonl", "events", partition_key="left"
-        )
-        found_right = reopened.find_latest_cursor(
-            "stream.jsonl", "events", partition_key="right"
-        )
+        found_left = reopened.find_latest_cursor("stream.jsonl", "events", partition_key="left")
+        found_right = reopened.find_latest_cursor("stream.jsonl", "events", partition_key="right")
         assert found_left == left_cursor
         assert found_right == right_cursor
 
-        right_next_cursor = _make_partitioned_stream_cursor(
-            partition_key="right", offset=3
-        )
-        right_next_checkpoint = _make_stream_checkpoint(
-            partition_key="right", offset=3
-        )
+        right_next_cursor = _make_partitioned_stream_cursor(partition_key="right", offset=3)
+        right_next_checkpoint = _make_stream_checkpoint(partition_key="right", offset=3)
         reopened.commit_stream_progress(
             cursor=right_next_cursor,
             checkpoint=right_next_checkpoint,
@@ -399,18 +384,22 @@ class TestCursorStore:
             restore_checkpoint=right_checkpoint,
         )
 
-        assert reopened.find_latest_cursor(
-            "stream.jsonl", "events", partition_key="left"
-        ) == left_cursor
-        assert reopened.find_latest_cursor(
-            "stream.jsonl", "events", partition_key="right"
-        ) == right_cursor
-        assert reopened.find_latest_stream_checkpoint(
-            "stream.jsonl", "events", partition_key="left"
-        ) == left_checkpoint
-        assert reopened.find_latest_stream_checkpoint(
-            "stream.jsonl", "events", partition_key="right"
-        ) == right_checkpoint
+        assert (
+            reopened.find_latest_cursor("stream.jsonl", "events", partition_key="left")
+            == left_cursor
+        )
+        assert (
+            reopened.find_latest_cursor("stream.jsonl", "events", partition_key="right")
+            == right_cursor
+        )
+        assert (
+            reopened.find_latest_stream_checkpoint("stream.jsonl", "events", partition_key="left")
+            == left_checkpoint
+        )
+        assert (
+            reopened.find_latest_stream_checkpoint("stream.jsonl", "events", partition_key="right")
+            == right_checkpoint
+        )
 
     def test_default_stream_cursor_lookup_retains_legacy_key(self, tmp_path: Path):
         """The default partition keeps the pre-partition cursor identity."""

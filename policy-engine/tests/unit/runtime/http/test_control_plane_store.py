@@ -340,9 +340,7 @@ def test_runtime_operation_intent_refusal_and_recovery_are_terminal(tmp_path) ->
         reason_code="predictive_calibration_preflight_refused",
     )
     assert refused.status == "refused"
-    assert (
-        refused_store.begin_runtime_operation_intent(refused_key).disposition == "refused"
-    )
+    assert refused_store.begin_runtime_operation_intent(refused_key).disposition == "refused"
 
     recovery_key = _operation_intent_key(intent_id="recovery")
     recovery_owner = _make_store(tmp_path).begin_runtime_operation_intent(recovery_key)
@@ -2561,13 +2559,19 @@ def test_runtime_operation_intent_route_scope_is_stable_across_candidate_run_ids
     """Route-scoped identity reuses one intent without fabricating a run binding."""
     store = _make_store(tmp_path)
     first_key = _operation_intent_key(
-        run_id="candidate-run-one", intent_id="route-attempt",
+        run_id="candidate-run-one",
+        intent_id="route-attempt",
     )
     first_key = RuntimeOperationIntentKey(
-        purpose=first_key.purpose, tenant_id=first_key.tenant_id, cell_id=first_key.cell_id,
-        actor_subject_sha256=first_key.actor_subject_sha256, run_id=first_key.run_id,
-        intent_id=first_key.intent_id, body_sha256=first_key.body_sha256,
-        scope_kind="route", scope_id="control.runs.nl",
+        purpose=first_key.purpose,
+        tenant_id=first_key.tenant_id,
+        cell_id=first_key.cell_id,
+        actor_subject_sha256=first_key.actor_subject_sha256,
+        run_id=first_key.run_id,
+        intent_id=first_key.intent_id,
+        body_sha256=first_key.body_sha256,
+        scope_kind="route",
+        scope_id="control.runs.nl",
     )
     owner = store.begin_runtime_operation_intent(first_key)
     assert owner.disposition == "owner"
@@ -2576,20 +2580,30 @@ def test_runtime_operation_intent_route_scope_is_stable_across_candidate_run_ids
     assert owner.record.scope_id == "control.runs.nl"
 
     retry_key = RuntimeOperationIntentKey(
-        purpose=first_key.purpose, tenant_id=first_key.tenant_id, cell_id=first_key.cell_id,
-        actor_subject_sha256=first_key.actor_subject_sha256, run_id="candidate-run-two",
-        intent_id=first_key.intent_id, body_sha256=first_key.body_sha256,
-        scope_kind="route", scope_id="control.runs.nl",
+        purpose=first_key.purpose,
+        tenant_id=first_key.tenant_id,
+        cell_id=first_key.cell_id,
+        actor_subject_sha256=first_key.actor_subject_sha256,
+        run_id="candidate-run-two",
+        intent_id=first_key.intent_id,
+        body_sha256=first_key.body_sha256,
+        scope_kind="route",
+        scope_id="control.runs.nl",
     )
     retry = store.begin_runtime_operation_intent(retry_key)
     assert retry.disposition == "pending"
     assert retry.record.run_id == "candidate-run-one"
 
     independent_route = RuntimeOperationIntentKey(
-        purpose=first_key.purpose, tenant_id=first_key.tenant_id, cell_id=first_key.cell_id,
-        actor_subject_sha256=first_key.actor_subject_sha256, run_id=first_key.run_id,
-        intent_id=first_key.intent_id, body_sha256=first_key.body_sha256,
-        scope_kind="route", scope_id="control.other-route",
+        purpose=first_key.purpose,
+        tenant_id=first_key.tenant_id,
+        cell_id=first_key.cell_id,
+        actor_subject_sha256=first_key.actor_subject_sha256,
+        run_id=first_key.run_id,
+        intent_id=first_key.intent_id,
+        body_sha256=first_key.body_sha256,
+        scope_kind="route",
+        scope_id="control.other-route",
     )
     assert store.begin_runtime_operation_intent(independent_route).disposition == "owner"
 
@@ -2658,8 +2672,11 @@ def test_runtime_operation_intent_migration_backfills_only_legacy_forecast_rows_
     migrated = ControlPlaneStore(backend="sqlite", sqlite_path=sqlite_path)
     key = RuntimeOperationIntentKey(
         purpose="run.predictive_calibration.v1",
-        tenant_id="tenant-a", cell_id="cell-a", actor_subject_sha256=actor,
-        run_id="legacy-run", intent_id="legacy-intent",
+        tenant_id="tenant-a",
+        cell_id="cell-a",
+        actor_subject_sha256=actor,
+        run_id="legacy-run",
+        intent_id="legacy-intent",
         body_sha256=hashlib.sha256(b"legacy-body").hexdigest(),
     )
     snapshot = migrated.get_runtime_operation_intent(key)
@@ -2671,23 +2688,37 @@ def test_runtime_operation_intent_migration_backfills_only_legacy_forecast_rows_
     reopened = ControlPlaneStore(backend="sqlite", sqlite_path=sqlite_path)
     assert reopened.get_runtime_operation_intent(key) == snapshot
     with sqlite3.connect(sqlite_path) as connection:
-        columns = {row[1] for row in connection.execute("PRAGMA table_info(runtime_operation_intents)")}
+        columns = {
+            row[1] for row in connection.execute("PRAGMA table_info(runtime_operation_intents)")
+        }
         assert {"scope_kind", "scope_id"}.issubset(columns)
         primary_key = tuple(
             str(row[1])
             for row in sorted(
-                (row for row in connection.execute("PRAGMA table_info(runtime_operation_intents)") if int(row[5])),
+                (
+                    row
+                    for row in connection.execute("PRAGMA table_info(runtime_operation_intents)")
+                    if int(row[5])
+                ),
                 key=lambda row: int(row[5]),
             )
         )
         assert primary_key == (
-            "purpose", "tenant_id", "cell_id", "actor_subject_sha256",
-            "scope_kind", "scope_id", "intent_id",
+            "purpose",
+            "tenant_id",
+            "cell_id",
+            "actor_subject_sha256",
+            "scope_kind",
+            "scope_id",
+            "intent_id",
         )
-        assert connection.execute(
-            "SELECT COUNT(*) FROM sqlite_master WHERE type = 'index' "
-            "AND name = 'idx_runtime_operation_intents_scope_identity'"
-        ).fetchone()[0] == 0
+        assert (
+            connection.execute(
+                "SELECT COUNT(*) FROM sqlite_master WHERE type = 'index' "
+                "AND name = 'idx_runtime_operation_intents_scope_identity'"
+            ).fetchone()[0]
+            == 0
+        )
 
 
 def test_runtime_operation_intent_migration_rekeys_known_route_and_preserves_run_provenance(
@@ -2716,13 +2747,17 @@ def test_runtime_operation_intent_migration_rekeys_known_route_and_preserves_run
     reopened = ControlPlaneStore(backend="sqlite", sqlite_path=sqlite_path)
     assert reopened.get_runtime_operation_intent(route_key) == snapshot
     with sqlite3.connect(sqlite_path) as connection:
-        assert connection.execute(
-            "SELECT COUNT(*) FROM runtime_operation_intents"
-        ).fetchone()[0] == 2
+        assert (
+            connection.execute("SELECT COUNT(*) FROM runtime_operation_intents").fetchone()[0] == 2
+        )
         primary_key = tuple(
             str(row[1])
             for row in sorted(
-                (row for row in connection.execute("PRAGMA table_info(runtime_operation_intents)") if int(row[5])),
+                (
+                    row
+                    for row in connection.execute("PRAGMA table_info(runtime_operation_intents)")
+                    if int(row[5])
+                ),
                 key=lambda row: int(row[5]),
             )
         )
@@ -2737,13 +2772,18 @@ def test_runtime_operation_intent_route_rekey_fails_closed_and_rolls_back_duplic
     with pytest.raises(sqlite3.IntegrityError):
         ControlPlaneStore(backend="sqlite", sqlite_path=sqlite_path)
     with sqlite3.connect(sqlite_path) as connection:
-        columns = {row[1] for row in connection.execute("PRAGMA table_info(runtime_operation_intents)")}
+        columns = {
+            row[1] for row in connection.execute("PRAGMA table_info(runtime_operation_intents)")
+        }
         assert "scope_kind" not in columns
         assert "scope_id" not in columns
-        assert connection.execute(
-            "SELECT COUNT(*) FROM runtime_operation_intents "
-            "WHERE purpose = 'control.nl_pre_admission.v1'"
-        ).fetchone()[0] == 2
+        assert (
+            connection.execute(
+                "SELECT COUNT(*) FROM runtime_operation_intents "
+                "WHERE purpose = 'control.nl_pre_admission.v1'"
+            ).fetchone()[0]
+            == 2
+        )
 
 
 def test_runtime_operation_intent_scope_migration_rolls_back_unclassified_rows(tmp_path) -> None:
@@ -2753,7 +2793,9 @@ def test_runtime_operation_intent_scope_migration_rolls_back_unclassified_rows(t
         ControlPlaneStore(backend="sqlite", sqlite_path=sqlite_path)
 
     with sqlite3.connect(sqlite_path) as connection:
-        columns = {row[1] for row in connection.execute("PRAGMA table_info(runtime_operation_intents)")}
+        columns = {
+            row[1] for row in connection.execute("PRAGMA table_info(runtime_operation_intents)")
+        }
         assert "scope_kind" not in columns
         assert "scope_id" not in columns
         rows = connection.execute(
@@ -2767,7 +2809,9 @@ def test_runtime_operation_intent_scope_migration_rolls_back_unclassified_rows(t
 
 def test_pre_admission_profile_transitions_require_the_declared_producer_basis(tmp_path) -> None:
     """Default dev can admit without a fabricated event; serious profiles need settled refs."""
-    store = ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "pre-admission-states.sqlite3")
+    store = ControlPlaneStore(
+        backend="sqlite", sqlite_path=tmp_path / "pre-admission-states.sqlite3"
+    )
 
     def start(profile: str, key: str) -> str:
         tenant_id, cell_id, actor_subject = "tenant-state", "cell-state", "actor-state"
@@ -2829,11 +2873,16 @@ def test_pre_admission_profile_transitions_require_the_declared_producer_basis(t
     assert no_call_refusal.status == "refused"
     assert no_call_refusal.producer_event_observation == "no_call"
     assert no_call_refusal.producer_no_call_reason == "provider_preflight_not_started"
-    assert store.get_pre_admission_attempt(no_call_attempt).producer_no_call_reason == "provider_preflight_not_started"
-    assert store.get_pre_admission_attempt(no_call_attempt).history[-1].producer_no_call_reason == "provider_preflight_not_started"
+    assert (
+        store.get_pre_admission_attempt(no_call_attempt).producer_no_call_reason
+        == "provider_preflight_not_started"
+    )
+    assert (
+        store.get_pre_admission_attempt(no_call_attempt).history[-1].producer_no_call_reason
+        == "provider_preflight_not_started"
+    )
     assert no_call_refusal.shared_owner.status == "refused"
     assert no_call_refusal.shared_owner.reason_code == "provider_preflight_not_started"
-
 
     missing_reason_attempt = start("research", "research-missing-no-call-reason-key")
     with pytest.raises(ValueError, match="no_call_reason_invalid"):
@@ -3048,7 +3097,9 @@ def test_pre_admission_recovery_rejects_malformed_persisted_evidence(
                 (attempt_id,),
             ).fetchone() == ("null",)
     with pytest.raises(RuntimeError, match=expected_error) as readback_error:
-        ControlPlaneStore(backend="sqlite", sqlite_path=sqlite_path).get_pre_admission_attempt(attempt_id)
+        ControlPlaneStore(backend="sqlite", sqlite_path=sqlite_path).get_pre_admission_attempt(
+            attempt_id
+        )
     if corruption == "aggregate_observation_json_null":
         assert isinstance(readback_error.value.__cause__, ValueError)
         assert str(readback_error.value.__cause__) == "control_pre_admission_observation_invalid"
@@ -3092,8 +3143,13 @@ def test_pre_admission_claim_refuses_malformed_authority_basis_before_owner_crea
             idempotency_key_sha256=key_digest,
         )
     with sqlite3.connect(sqlite_path) as connection:
-        assert connection.execute("SELECT COUNT(*) FROM runtime_operation_intents").fetchone()[0] == 0
-        assert connection.execute("SELECT COUNT(*) FROM control_pre_admission_attempts").fetchone()[0] == 0
+        assert (
+            connection.execute("SELECT COUNT(*) FROM runtime_operation_intents").fetchone()[0] == 0
+        )
+        assert (
+            connection.execute("SELECT COUNT(*) FROM control_pre_admission_attempts").fetchone()[0]
+            == 0
+        )
 
 
 def test_pre_admission_recovery_requires_the_shared_owner_result_to_join_its_job(tmp_path) -> None:
@@ -3133,10 +3189,18 @@ def test_pre_admission_recovery_requires_the_shared_owner_result_to_join_its_job
     with sqlite3.connect(sqlite_path) as connection:
         connection.execute(
             "UPDATE runtime_operation_intents SET result_ref_json = ? WHERE intent_id = ?",
-            (json.dumps({"attempt_id": attempt_id, "run_id": "run-result", "job_id": "other-job"}, sort_keys=True), attempt_id),
+            (
+                json.dumps(
+                    {"attempt_id": attempt_id, "run_id": "run-result", "job_id": "other-job"},
+                    sort_keys=True,
+                ),
+                attempt_id,
+            ),
         )
     with pytest.raises(RuntimeError, match="does not bind the admitted attempt"):
-        ControlPlaneStore(backend="sqlite", sqlite_path=sqlite_path).get_pre_admission_attempt(attempt_id)
+        ControlPlaneStore(backend="sqlite", sqlite_path=sqlite_path).get_pre_admission_attempt(
+            attempt_id
+        )
 
 
 def test_pre_admission_recovery_rejects_tampered_request_content_basis(tmp_path) -> None:
@@ -3175,10 +3239,14 @@ def test_pre_admission_recovery_rejects_tampered_request_content_basis(tmp_path)
             (json.dumps(altered, sort_keys=True, separators=(",", ":")), attempt_id),
         )
     with pytest.raises(RuntimeError, match="request binding is malformed"):
-        ControlPlaneStore(backend="sqlite", sqlite_path=sqlite_path).get_pre_admission_attempt(attempt_id)
+        ControlPlaneStore(backend="sqlite", sqlite_path=sqlite_path).get_pre_admission_attempt(
+            attempt_id
+        )
 
 
-def test_pre_admission_route_claim_shares_the_generic_owner_across_store_instances(tmp_path) -> None:
+def test_pre_admission_route_claim_shares_the_generic_owner_across_store_instances(
+    tmp_path,
+) -> None:
     """The typed R3 projection and shared route claim survive reopen without a second key index."""
     sqlite_path = tmp_path / "pre-admission-shared-owner.sqlite3"
     first_store = ControlPlaneStore(backend="sqlite", sqlite_path=sqlite_path)
@@ -3186,6 +3254,7 @@ def test_pre_admission_route_claim_shares_the_generic_owner_across_store_instanc
     tenant_id = "tenant-b"
     cell_id = "cell-b"
     actor_subject = "denis"
+
     def producer_binding_for(*, run_id: str, control_job_id: str) -> dict[str, Any]:
         """Build a canonical binding without asserting issuer or billing authority."""
         return BudgetLedgerProducerRunBinding(
@@ -3244,21 +3313,29 @@ def test_pre_admission_route_claim_shares_the_generic_owner_across_store_instanc
         f"control.nl_pre_admission.v1\0control.runs.nl\0{tenant_id}\0{cell_id}\0{actor_subject}\0{key_digest}".encode()
     ).hexdigest()[:32]
     first, created = first_store.start_pre_admission_attempt(
-        attempt_id=attempt_id, request_id="request-first", run_id=binding["run_id"],
-        candidate_job_id=binding["control_job_id"], effective_execution_profile="research",
-        intent_binding=intent, producer_run_binding=binding,
+        attempt_id=attempt_id,
+        request_id="request-first",
+        run_id=binding["run_id"],
+        candidate_job_id=binding["control_job_id"],
+        effective_execution_profile="research",
+        intent_binding=intent,
+        producer_run_binding=binding,
         idempotency_key_sha256=key_digest,
     )
     assert created is True
     assert first.status == "started"
     operation_key = RuntimeOperationIntentKey(
-        purpose="control.nl_pre_admission.v1", tenant_id=tenant_id, cell_id=cell_id,
+        purpose="control.nl_pre_admission.v1",
+        tenant_id=tenant_id,
+        cell_id=cell_id,
         actor_subject_sha256=hashlib.sha256(actor_subject.encode()).hexdigest(),
-        run_id=binding["run_id"], intent_id=attempt_id,
+        run_id=binding["run_id"],
+        intent_id=attempt_id,
         body_sha256=hashlib.sha256(
             json.dumps(intent, sort_keys=True, separators=(",", ":")).encode()
         ).hexdigest(),
-        scope_kind="route", scope_id="control.runs.nl",
+        scope_kind="route",
+        scope_id="control.runs.nl",
     )
     shared = second_store.get_runtime_operation_intent(operation_key)
     assert shared.status == "pending"
@@ -3266,10 +3343,14 @@ def test_pre_admission_route_claim_shares_the_generic_owner_across_store_instanc
 
     retry_binding = producer_binding_for(run_id="route-run-retry", control_job_id="route-job-retry")
     replay, replay_created = second_store.start_pre_admission_attempt(
-        attempt_id=attempt_id, request_id="request-retry",
-        run_id=retry_binding["run_id"], candidate_job_id=retry_binding["control_job_id"],
-        effective_execution_profile="research", intent_binding=intent,
-        producer_run_binding=retry_binding, idempotency_key_sha256=key_digest,
+        attempt_id=attempt_id,
+        request_id="request-retry",
+        run_id=retry_binding["run_id"],
+        candidate_job_id=retry_binding["control_job_id"],
+        effective_execution_profile="research",
+        intent_binding=intent,
+        producer_run_binding=retry_binding,
+        idempotency_key_sha256=key_digest,
     )
     assert replay_created is False
     assert replay.attempt_id == first.attempt_id
@@ -3277,8 +3358,10 @@ def test_pre_admission_route_claim_shares_the_generic_owner_across_store_instanc
 
     with pytest.raises(ControlPreAdmissionIdempotencyConflictError) as conflict:
         first_store.start_pre_admission_attempt(
-            attempt_id=attempt_id, request_id="request-changed-body",
-            run_id="route-run-changed", candidate_job_id="route-job-changed",
+            attempt_id=attempt_id,
+            request_id="request-changed-body",
+            run_id="route-run-changed",
+            candidate_job_id="route-job-changed",
             effective_execution_profile="research",
             intent_binding=intent_for("changed shared route owner fixture"),
             producer_run_binding=producer_binding_for(

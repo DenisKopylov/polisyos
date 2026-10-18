@@ -44,8 +44,7 @@ PHASE34_2_BUILD_COMMAND = (
     "--phase 34.2"
 )
 PHASE34_2_CHECK_COMMAND = (
-    "uv run python tools/quality/validation/check_policy_design_case_wave34_pass2.py "
-    "--repo-root ."
+    "uv run python tools/quality/validation/check_policy_design_case_wave34_pass2.py --repo-root ."
 )
 VERIFY_DISPOSITION_COMMAND = (
     "uv run python tools/quality/validation/check_policy_design_case_pass2_disposition.py "
@@ -320,12 +319,10 @@ def build_wave35b_outputs(
         if isinstance(row, Mapping)
     }
     diagnostics = {
-        pdd_id: _load_json(repo_root / path)
-        for pdd_id, path in SOURCE_ARTIFACT_BY_PDD.items()
+        pdd_id: _load_json(repo_root / path) for pdd_id, path in SOURCE_ARTIFACT_BY_PDD.items()
     }
     phase_index = _load_json(
-        repo_root
-        / "_build/diagnostics/pass2/phase34_2_adversarial_fail_closed_diagnostics.json"
+        repo_root / "_build/diagnostics/pass2/phase34_2_adversarial_fail_closed_diagnostics.json"
     )
 
     adversarial_matrix = _build_adversarial_matrix(
@@ -473,7 +470,9 @@ def _build_adversarial_matrix(
                     },
                     "model_provider": {"provider": "simulated", "model": "fixture"},
                     "tool_allowlist": ["policy.lookup"],
-                    "tool_schemas": [{"tool_name": "policy.lookup", "schema_ref": "schema://policy"}],
+                    "tool_schemas": [
+                        {"tool_name": "policy.lookup", "schema_ref": "schema://policy"}
+                    ],
                     "tool_call_refs": [
                         {
                             "tool_name": "policy.lookup",
@@ -780,8 +779,7 @@ def _build_error_taxonomy(
     positive_surfaces = [
         surface
         for surface in _as_list(details.get("surfaces"))
-        if isinstance(surface, Mapping)
-        and surface.get("status") == "preserves_root_cause"
+        if isinstance(surface, Mapping) and surface.get("status") == "preserves_root_cause"
     ]
     required_components = {
         "Lex",
@@ -1011,8 +1009,7 @@ def _build_disposition_update(
                 "taxonomy_artifact": OUTPUT_ARTIFACTS["PDD-065"],
                 "diagnostic_rerun": {
                     "artifact": (
-                        "_build/policy-design-case/rebaseline/wave-35B/"
-                        "phase34_2_rerun.json"
+                        "_build/policy-design-case/rebaseline/wave-35B/phase34_2_rerun.json"
                     ),
                     "commands": [PHASE34_2_BUILD_COMMAND, PHASE34_2_CHECK_COMMAND],
                     "exit_code": _mapping(phase34_rerun).get("overall_exit_code"),
@@ -1043,8 +1040,7 @@ def _build_disposition_update(
                 "implementation_artifacts": implementation_artifacts,
                 "diagnostic_rerun": {
                     "artifact": (
-                        "_build/policy-design-case/rebaseline/wave-35B/"
-                        "phase34_2_rerun.json"
+                        "_build/policy-design-case/rebaseline/wave-35B/phase34_2_rerun.json"
                     ),
                     "commands": [PHASE34_2_BUILD_COMMAND, PHASE34_2_CHECK_COMMAND],
                     "exit_code": _mapping(phase34_rerun).get("overall_exit_code"),
@@ -1099,25 +1095,19 @@ def _build_disposition_update(
             "_build/policy-design-case/rebaseline/wave-35B/phase34_2_rerun.json",
         ],
         "exit_fence": {
-            "adversarial_probes_fail_closed_with_runtime_codes": adversarial_matrix.get(
-                "status"
-            )
+            "adversarial_probes_fail_closed_with_runtime_codes": adversarial_matrix.get("status")
             == "complete",
             "cache_controls_reject_poison_stale_and_fingerprint_mismatches": cache_controls.get(
                 "status"
             )
             == "complete",
-            "error_taxonomy_exists_and_preserves_projection_policy": error_taxonomy.get(
-                "status"
-            )
+            "error_taxonomy_exists_and_preserves_projection_policy": error_taxonomy.get("status")
             == "complete",
             "strategic_ledger_has_mechanism_bound_gaming_fraud_arbitrage": strategic_ledger.get(
                 "status"
             )
             == "complete",
-            "phase34_2_rerun_exit_code": _mapping(phase34_rerun).get(
-                "overall_exit_code"
-            ),
+            "phase34_2_rerun_exit_code": _mapping(phase34_rerun).get("overall_exit_code"),
             "no_adversarial_fail_closed_cluster_deferrals": not unresolved_cluster,
         },
         "updated_rows": updated_rows,
@@ -1278,11 +1268,7 @@ def _phase34_2_gate_status(repo_root: Path) -> dict[str, Any]:
 
 
 def _refresh_disposition_summary(disposition: dict[str, Any]) -> None:
-    rows = [
-        row
-        for row in _as_list(disposition.get("dispositions"))
-        if isinstance(row, Mapping)
-    ]
+    rows = [row for row in _as_list(disposition.get("dispositions")) if isinstance(row, Mapping)]
     counts = Counter(str(row.get("classification")) for row in rows)
     summary = dict(_mapping(disposition.get("summary")))
     summary["classification_counts"] = dict(sorted(counts.items()))

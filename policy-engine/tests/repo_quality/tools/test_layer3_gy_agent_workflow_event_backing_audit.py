@@ -16,7 +16,9 @@ AUDIT_PATH = (
 
 
 def _validator() -> Any:
-    return import_module("tools.quality.validation.check_layer3_gy_agent_workflow_event_backing_audit")
+    return import_module(
+        "tools.quality.validation.check_layer3_gy_agent_workflow_event_backing_audit"
+    )
 
 
 def _load_audit() -> dict[str, Any]:
@@ -110,9 +112,7 @@ def test_gy_agent_workflow_event_backing_rejects_role_artifact_greenwash() -> No
 def test_gy_agent_workflow_event_backing_rejects_dev_prompt_ledger_collapse() -> None:
     validator = _validator()
     audit = _load_audit()
-    _probe(audit, "dev_simulated_nl_variant_steps")["prompt_tool_ledger_ref"] = (
-        "sha256:" + "2" * 64
-    )
+    _probe(audit, "dev_simulated_nl_variant_steps")["prompt_tool_ledger_ref"] = "sha256:" + "2" * 64
     audit["summary"]["dev_profile_persists_prompt_tool_parser_ledger_to_cas"] = True
 
     codes = _codes(validator.validate(audit))

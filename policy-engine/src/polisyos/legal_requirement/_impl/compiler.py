@@ -96,9 +96,7 @@ class LegalAuthorityRequirementCompiler:
         claim_id = _claim_id(claim)
         claim_ref = _text(claim.get("claim_ref")) or f"claim:{claim_id}"
         authority_types = _required_authority_types(claim)
-        mandatory = _claim_requires_legal_authority(claim, target_context) or bool(
-            authority_types
-        )
+        mandatory = _claim_requires_legal_authority(claim, target_context) or bool(authority_types)
         out_of_scope = not mandatory and not authority_types
         if mandatory and not authority_types:
             authority_types = ("implementing",)
@@ -156,17 +154,13 @@ class LegalAuthorityRequirementCompiler:
             required_actor_refs=required_actor_refs,
             required_implementation_authority_refs=implementation_refs,
             required_fiscal_authority_refs=fiscal_refs,
-            implementation_authority_required=_bool(
-                claim.get("implementation_authority_required")
-            )
+            implementation_authority_required=_bool(claim.get("implementation_authority_required"))
             or "implementing" in authority_types
             or "delegating" in authority_types
             or "enabling" in authority_types,
             fiscal_authority_required=_bool(claim.get("fiscal_authority_required"))
             or "funding" in authority_types,
-            contestability_or_appeal_required=_bool(
-                claim.get("contestability_authority_required")
-            )
+            contestability_or_appeal_required=_bool(claim.get("contestability_authority_required"))
             or "appeal_or_contestability" in authority_types
             or "appeals_or_contestability" in authority_types,
             scope_predicates=_scope_predicates(
@@ -186,9 +180,8 @@ class LegalAuthorityRequirementCompiler:
             )
             or None,
             facet_refs=_claim_refs(claim, "facet_refs") or _facet_refs(facets),
-            obligation_refs=_claim_refs(claim, "obligation_refs") or _legal_obligation_refs(
-                obligations
-            ),
+            obligation_refs=_claim_refs(claim, "obligation_refs")
+            or _legal_obligation_refs(obligations),
             concept_spine_refs=_text_tuple(
                 claim.get("concept_spine_refs")
                 or claim.get("concept_refs")
@@ -370,8 +363,7 @@ def _required_hierarchy_depth(
             continue
         metadata = _mapping(obligation.get("metadata")) or {}
         depth = _int_or_none(
-            obligation.get("required_hierarchy_depth")
-            or metadata.get("required_hierarchy_depth")
+            obligation.get("required_hierarchy_depth") or metadata.get("required_hierarchy_depth")
         )
         if depth is not None:
             depths.append(depth)

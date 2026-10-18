@@ -69,8 +69,7 @@ def _base_manifest() -> dict[str, object]:
                         "reviewer_id": "reviewer-policy-generalist-001",
                         "label": "limitation_required",
                         "rationale": (
-                            "The policy design is usable only with an explicit legal-scope "
-                            "limit."
+                            "The policy design is usable only with an explicit legal-scope limit."
                         ),
                         "disagreement_category": "none",
                     },
@@ -78,8 +77,7 @@ def _base_manifest() -> dict[str, object]:
                         "reviewer_id": "reviewer-legal-governance-001",
                         "label": "limitation_required",
                         "rationale": (
-                            "Municipal competence is narrower than the public surface "
-                            "implies."
+                            "Municipal competence is narrower than the public surface implies."
                         ),
                         "disagreement_category": "none",
                     },
@@ -121,8 +119,7 @@ def _base_manifest() -> dict[str, object]:
                         "reviewer_id": "reviewer-legal-governance-001",
                         "label": "semantic_pass",
                         "rationale": (
-                            "No legal-competence issue applies to this bounded empirical "
-                            "claim."
+                            "No legal-competence issue applies to this bounded empirical claim."
                         ),
                         "disagreement_category": "none",
                     },
@@ -150,8 +147,7 @@ def _base_manifest() -> dict[str, object]:
                         "reviewer_id": "reviewer-legal-governance-001",
                         "label": "false_pass",
                         "rationale": (
-                            "The structural pass used an authentic source outside "
-                            "competence scope."
+                            "The structural pass used an authentic source outside competence scope."
                         ),
                         "disagreement_category": "legal_competence",
                     },

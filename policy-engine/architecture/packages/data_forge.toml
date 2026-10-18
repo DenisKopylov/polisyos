@@ -92,12 +92,18 @@ trace_expectation = "Data Forge traces/logs carry dataset id, artifact ref, sche
 status = "declared"
 owner = "team-data-forge"
 registry = "architecture/name_registry.toml"
-allowed = ["domains", "runtime", "schemas"]
+allowed = ["domains", "runtime", "schemas", "config"]
 
 [[allowed_name_collision]]
 name = "domains"
 scope = "package-local"
 reason = "Data Forge domains are build-time source domains and must not be imported by runtime consumers except through read_api outputs."
+owner = "team-data-forge"
+
+[[allowed_name_collision]]
+name = "config"
+scope = "kernel pipeline"
+reason = "Data Forge profile and secret-backend contracts belong to kernel/pipeline; the config package remains nested under that owner instead of creating a package-root configuration facade."
 owner = "team-data-forge"
 
 [exceptions]

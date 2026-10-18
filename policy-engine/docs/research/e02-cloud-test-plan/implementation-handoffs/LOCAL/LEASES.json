@@ -8387,5 +8387,286 @@
     "index_reference_count_after_proposed_append": 206,
     "source_profile_freeze": false,
     "next_check": "After root releases the source hold, recheck branch parent 481c (or regenerate if it advanced), the three absent targets, exact known 8070 target bytes, and tracker preimage hashes. Apply exactly four receipts plus two tracker postimages; read back all six paths and confirm 206 index refs. Do not rewrite historical receipts or claim closures."
+  },
+  "phase0_current_composed_gate_source_application_20261018": {
+    "slice_base": "327a57299cf1781e93afa3cd743ef2aeeb9cb4fe",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/architecture/packages/common.toml": {
+        "operation": "write",
+        "postimage_bytes": 3887,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-phase0-current-source-application-plan-20261018/postimages/policy-engine/architecture/packages/common.toml",
+        "postimage_sha256": "074736cf5af2283e169f92e76922e536e764634f3fea7fabb88300a328aa29cb",
+        "preimage_bytes": 3606,
+        "preimage_sha256": "3560b7d1f2949bfd1322adb4a646482b563e89c6f0878556f08a3d2249a38195"
+      },
+      "policy-engine/architecture/packages/data_forge.toml": {
+        "operation": "write",
+        "postimage_bytes": 4624,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-phase0-current-source-application-plan-20261018/postimages/policy-engine/architecture/packages/data_forge.toml",
+        "postimage_sha256": "f74177fbc3f5d9f799faa904da8e8bae809d2b87c3cd9a0afe8c6cc6cb386fbd",
+        "preimage_bytes": 4324,
+        "preimage_sha256": "5512385088e9b0aef5b7fefa51f869ee6af587125c9b01aa5711213065cc1050"
+      },
+      "policy-engine/architecture/packages/fabric.toml": {
+        "operation": "write",
+        "postimage_bytes": 5662,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-phase0-current-source-application-plan-20261018/postimages/policy-engine/architecture/packages/fabric.toml",
+        "postimage_sha256": "6aeaf944374fff90f4e181f454a779838022acf20d288b949aa463dd818e6b62",
+        "preimage_bytes": 5404,
+        "preimage_sha256": "fe3187d5510d5b26f5717cd2a7daa2bbcc2be8b21f36ca93368787c0bceef04d"
+      },
+      "policy-engine/architecture/exceptions/structure_remediation.toml": {
+        "operation": "write",
+        "postimage_bytes": 2830,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-phase0-current-source-application-plan-20261018/postimages/policy-engine/architecture/exceptions/structure_remediation.toml",
+        "postimage_sha256": "c4f377184fa9ccf7738b03b7b5628df8c06dabcca5b9ef0c414128ebeeb281d4",
+        "preimage_bytes": 4203,
+        "preimage_sha256": "1b6f5bc6f910e3ce9216c7e1c404b520b15d3b92c4adc4b9a5e7d89648b1f5e8"
+      },
+      "policy-engine/architecture/name_registry.toml": {
+        "operation": "write",
+        "postimage_bytes": 36837,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-phase0-current-source-application-plan-20261018/postimages/policy-engine/architecture/name_registry.toml",
+        "postimage_sha256": "609b27dddc630966f0060eee0e0923c783530804d73933450aa50c3e13eb57df",
+        "preimage_bytes": 36693,
+        "preimage_sha256": "9b98effe236c3798041f555f8c402b76cb4f85ad87f6dde4eba8e4752ef790c8"
+      },
+      "policy-engine/tests/repo_quality/architecture/test_owner_residual_exceptions.py": {
+        "operation": "write",
+        "postimage_bytes": 10005,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-phase0-current-source-application-plan-20261018/postimages/policy-engine/tests/repo_quality/architecture/test_owner_residual_exceptions.py",
+        "postimage_sha256": "3ac77c41f79fe853b6ea29a36d689f1f1437643b3742ee2ca0fb5a9711834281",
+        "preimage_bytes": 2312,
+        "preimage_sha256": "9c78942628e3026b72e1c955fc76e395d3d486a39b9e55357e9b2acfca915a03"
+      },
+      "policy-engine/tools/quality/validation/repository_structure_phase0.py": {
+        "operation": "write",
+        "postimage_bytes": 38150,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-phase0-current-source-application-plan-20261018/postimages/policy-engine/tools/quality/validation/repository_structure_phase0.py",
+        "postimage_sha256": "9d3652483925e714fc5575b2eeffe66ea5d2d240c1627e4acfdb55834d5b21c4",
+        "preimage_bytes": 35377,
+        "preimage_sha256": "58c2c90b24a97628e1146101c3c95a936fcaa363a2d3fb826ad6613b0c952d20"
+      },
+      "policy-engine/tools/quality/validation/README.md": {
+        "operation": "write",
+        "postimage_bytes": 7745,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-phase0-current-source-application-plan-20261018/postimages/policy-engine/tools/quality/validation/README.md",
+        "postimage_sha256": "18ae7db70094b9f18daff25a0620790d1a01bd18d05bce877b5c80855d52f66f",
+        "preimage_bytes": 7123,
+        "preimage_sha256": "b8682a96f54731785f027b3d62bc420a6b2d78be7cda43e62dcad929d394331e"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase0-current-source-adoption-20261018/source-application.json",
+      "sha256": "ac61cfd8f6ce364659ce8d1d437669591582e058122c0a8417f38dc59a661aec"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase0-current-source-adoption-20261018/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "AGENTS.md",
+        "sha256": "424b84e3280df143219fe27e28149088f9e92b947e4956b2103388e11849e65c"
+      },
+      {
+        "path": "policy-engine/CONTRIBUTING.md",
+        "sha256": "e78f1bdb99a900f6426f9f451b7e9cbc0e21007eb12012eaf209d89c505f3a1f"
+      },
+      {
+        "path": "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+        "sha256": "1c34476fcc90801535e83455d9cb16509fde1ef4027730a63664d072c229f689"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-phase0-composed-gate-repair-20261018/manifest.json",
+        "sha256": "74251d5e826f86daff30f98ea0fdd517446971d065346a6ca5f123f4709ba290"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-phase0-composed-gate-repair-20261018/candidate.patch",
+        "sha256": "49ddc7e5d165982c94e07c6de6135ed0eedabbb022571b5018537e4d28b68e29"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-phase0-composed-gate-repair-20261018/decision.md",
+        "sha256": "4005238d3b7daefef7f35da95be3dec65f51d198ecf375d59a5199802d1be771"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-phase0-composed-gate-independent-20261018/review.md",
+        "sha256": "35d627f98e6cd2d22d35792fa6d1fabbafc316da4253751fb076839c488210b3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-phase0-composed-gate-repair-r2-20261018/manifest.json",
+        "sha256": "b2222e2beffc7f4274f8cb415aebd8db3ebf7cbd5f3b81ed1bf010bb717f8dcd"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-phase0-composed-gate-repair-r2-20261018/candidate.patch",
+        "sha256": "8db47b71a08e0bb54534324556231566fd92e0f21b5232ceb0939be28f475a05"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-phase0-composed-gate-repair-r2-20261018/proof.md",
+        "sha256": "caed22efe8aab3f5ca1f27c02117b480e10771295f5da2bdd6218030b9b2a369"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-phase0-composed-gate-r2-independent-20261018/manifest.json",
+        "sha256": "708a4984e948d1075968bca3520cc021a7fa4d9b2549b5c91f2e1675867cafb3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-phase0-composed-gate-r2-independent-20261018/review.md",
+        "sha256": "a4dcfce1371134c96ee0a46b6a15bd01b798d378e0d5214727ffc5bfd0cb2c22"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-phase0-composed-gate-r2-independent-20261018/review.json",
+        "sha256": "574e02aab440f0a8a52c0ef8bc0c169115cd287229c62a182618578ac16f3281"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-current-composed-wave-plan-20261018/actual-run/controller-result.json",
+        "sha256": "6261fe84d5931a095311fb7c50d47e02a544836fadb8b6b231f9cd4acf5c7d91"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-current-composed-wave-plan-20261018/actual-run/phase0_all.stdout.txt",
+        "sha256": "6b3f7c8994058b6f5b058860e499d47b19d3b8a07ee2d7602777bfb23ddd1a0e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-current-composed-wave-plan-20261018/actual-run/phase0_name_collision.stdout.txt",
+        "sha256": "ecc092a05f25d295d36551c317de47df1128d14acb2c82179cc2c28bce191896"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-current-composed-wave-plan-20261018/actual-run/phase0_empty_namespace.stdout.txt",
+        "sha256": "bcac5ccc12666c4c19a96dd79857d1c760c4b2f42e3a00d9c85d7ede0374f9a8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-current-composed-wave-plan-20261018/actual-run/pytest.xml",
+        "sha256": "3a50b67fa276748bbf4d70a9c0b53d965b00868d62cd9662e72ba4bc56b6914c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-current-composed-wave-plan-20261018/actual-run/selected-nodeids.json",
+        "sha256": "ea0a0e90373b8395454315b4dc05ec878189555bfffa61f8cb9d441b2475721d"
+      },
+      {
+        "path": "policy-engine/architecture/gates/structure_remediation.toml",
+        "sha256": "bfaec1bf34be749e8fe9e0cad8eb87df13ac90df925c3bd730bb3652b54d77f3"
+      },
+      {
+        "path": "policy-engine/architecture/packages/layout.toml",
+        "sha256": "003c6327b4cd652979f52cd56e641830ded950464fdd1d8a316a0653af7fd6f7"
+      },
+      {
+        "path": "policy-engine/docs/adr/repository-structure-0134-cross-package-name-registry.md",
+        "sha256": "b98117658fa46b88ae52db6ed52fa2fc70a0cd031d885cb5955dbb243cbab3c5"
+      },
+      {
+        "path": "policy-engine/src/polisyos/common/config/__init__.py",
+        "sha256": "cd014bf3c9b29418138127e1510498f78813cf0a1ce01fb02e38c9a89bd13453"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/kernel/pipeline/config/__init__.py",
+        "sha256": "0a9c1a236e86e662fadaa6216c19ae8d9f56dbf9a29c498c9c7b26592a97cb12"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/kernel/pipeline/config/base.py",
+        "sha256": "fa8d4b8c7c90ed84f2ab67fd8831dd6f9da477e223a752efab54bc05fc829742"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/config/README.md",
+        "sha256": "a2cac7ddc3cff2b9e73ddfcf85237b136bd4c891ac1ed45cd382d06036e77585"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/config/config.py",
+        "sha256": "e365f7df12a7d70efb03db8321881099ca50da85ad0be602e915eeb957089aa4"
+      },
+      {
+        "path": "policy-engine/tests/repo_quality/architecture/test_repository_structure_phase1a.py",
+        "sha256": "6510dab030374af422a69d074cc8680c6380ed4ce68322fa2df04636e07fb66b"
+      },
+      {
+        "path": "policy-engine/tests/repo_quality/architecture/test_repository_structure_phase1c.py",
+        "sha256": "e360664c55b5d24ac7980f874a71474cd7553c8cc52d1f585c8e1fb8be9aaddb"
+      },
+      {
+        "path": "policy-engine/tools/quality/validation/repository_structure_phase0_inventory.py",
+        "sha256": "c02393671d63aaeaa69f085d16dbc03e0342f6837fef3b5a5a200d903b68d5c5"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-phase0-current-source-application-plan-20261018/manifest.json",
+        "sha256": "e137e3f93e055a55c0ba941b1cb1c128d3fd9e548141f76a44c52aae28954a7e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-phase0-current-source-application-plan-20261018/decision.md",
+        "sha256": "1b64226b60526708015d02da906348aa5cf17461cfcc9120626c1c95274779f0"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-phase0-current-source-application-plan-20261018/candidate.patch",
+        "sha256": "c3db603b5f36e92c1de2ea151057582bcd8451e0ecb1c607e07afbdd44d3e9a7"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-phase0-current-source-application-plan-20261018/README-append-snippet.md",
+        "sha256": "a0158f49845ccbe1a880ac3a6b437eda8d760f6d7ad9527cfc19d9d5e1e6cec6"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-phase0-current-source-application-plan-20261018/source-frame-readback.json",
+        "sha256": "2420323fde9c0e2bfda57aac3813cfabc00b451b558cf99b76db4ec1033a6071"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-phase0-current-source-application-plan-20261018/ruff/owner-residual-test-format-only-delta.patch",
+        "sha256": "604148e240453c8c9ad857d49cb076a47efb204b207c19fd1f349bdcfe04855c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-phase0-current-source-application-plan-20261018/ruff-final-receipt.json",
+        "sha256": "b3298d89f6281198b501093e88339d74294d69d8232c9c1d25440bf23d22be49"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-phase0-current-source-application-plan-20261018/source-application-plan.json",
+        "sha256": "62c511b9764792e318f88c577897d288b027ce5794100f8bbd6d0e44b0dd8a5c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-phase0-current-source-composition-independent-r2-20261018/manifest.json",
+        "sha256": "6c180e2053f5768c708eb13d3e17d1643b9de9cf70e66073bcc5c3e1c389cae1"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-phase0-current-source-composition-independent-r2-20261018/review.md",
+        "sha256": "6716bc3073ba22523da142ac361df01aae637cae6cab1b1b517e5f4b87f8cd91"
+      }
+    ],
+    "P40": {
+      "bucket": "Same global exception-integrity/filter-boundary class. R1 added complete-set current-target reconciliation; its refusal channel was still projected away. R2 widens that same integrity quantity past package/scope/gate projection rather than enumerating more filters. No new exception or per-message bypass is added.",
+      "falsifier": "Use the R2 synthetic active orphan exception with selected unrelated gate and each of --package common, --scope root, --scope package-files; each must remain FAILED/exit 1 with the registry refusal visible while local loose-file findings retain requested projection. R2 semantic test encodes these controls; run after adoption.",
+      "selected_quantity": "All source-derived global registry refusal producers; local gate/package/scope findings keep their existing display projection."
+    },
+    "bounded_proof": "R1 exact source findings/exception reconciliation is pinned; R2 peer review GO covers exact two Python R2 postimages and source chain. New package postimages preserve all text outside their [name_collisions] blocks, and parsed non-target package values are equal to current. Formatting delta is exactly AST-equal and captured. The 11 R1 unchanged-input pins match current. No canonical runtime was executed.",
+    "limitations": {
+      "Ruff": "Peer-reviewed exact canonical filenames, check+format passed; root repeats actual physical checks afterapplication",
+      "mandatory_companions": {
+        "README": 1,
+        "canonical_changed_paths_if_root_applies": 10,
+        "planned_rows_including_README": 8,
+        "root_LEASES_and_delivery_index": 2
+      },
+      "mechanism_path_budget": {
+        "count": 6,
+        "denominator": "5 TOML mechanism paths plus 1 Phase0owner",
+        "P39": "test + README + LEASES + index are four mandatorycompanions excluded; total10paths"
+      },
+      "no_Phase0_CLI": true,
+      "no_environment_change": true,
+      "no_git_mutation_or_index_change": true,
+      "no_product_import": true,
+      "no_pytest": true,
+      "readiness": "SOURCE_COMPOSITION_REVIEW_GO_RUNTIME_UNRUN",
+      "root_is_only_canonical_writer": true,
+      "runtime": "UNRUN; no status/completeness/finding-coverage result inferred from source/Ruff.",
+      "source_only": true
+    },
+    "runtime": "UNRUN on adopted source",
+    "next_check": [
+      "Root or a different peer reviews the exact current\u2192composed deltas for common.toml, data_forge.toml, fabric.toml and the one-paragraph validation README append. Confirm the current package12 entrypoint/note fields remain byte-for-byte preserved; do not use the older whole-TOML R1 images.",
+      "Before application, root re-reads branch, full HEAD/tree, all eight preimage hashes and the exact reviewed input pins. Root alone applies the present candidate patch and records the root-managed lease/index companions. The formatted test bytes and package/README deltas must be included in that review.",
+      "Run canonical root-cwd Ruff check and format-check on both Python paths after adoption using literal policy-engine/.venv/bin/python -B -m ruff, workspace_root.toml and logical filenames; retain complete command output/rc.",
+      "Run the whole focused module plus the existing Phase 1C current-collision and unregistered-collision tests and the Phase 1.3 package-contract mirror test. Retain complete test ids/counts and result.",
+      "Run actual Phase 0 CLI reads from policy-engine/ with literal .venv/bin/python -B: gate all; gate all --package common; gate all --scope root; gate all --scope package-files; gate empty_namespace --scope root; gate name_collision_gate; gate empty_namespace_gate. Retain full JSON/stdout/stderr/rc and status, complete_verdict, finding_coverage, findings. Do not predict green; evaluate actual outputs.",
+      "Do not call this capability accepted until selected-filter negatives prove global registry failures remain visible/status-bearing and valid cross-gate exceptions remain accepted; no source review/Ruff output substitutes for runtime."
+    ],
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

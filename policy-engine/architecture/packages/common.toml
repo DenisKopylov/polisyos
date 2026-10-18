@@ -72,10 +72,16 @@ metric_surfaces = ["ops/components/common/runtime-contract.toml"]
 trace_expectation = "Shared helper observability keeps package.name/dependency context and delegates user-visible SLOs to consuming packages."
 
 [name_collisions]
-status = "none"
+status = "declared"
 owner = "team-core"
 registry = "architecture/name_registry.toml"
-allowed = []
+allowed = ["config"]
+
+[[allowed_name_collision]]
+name = "config"
+scope = "canonical cross-package helper home"
+reason = "Common owns runtime-agnostic configuration parsing and process bootstrap; package-specific configuration contracts remain in their owning packages."
+owner = "team-core"
 
 [exceptions]
 status = "declared"

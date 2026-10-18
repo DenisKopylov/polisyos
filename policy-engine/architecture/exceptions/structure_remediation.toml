@@ -3,17 +3,9 @@ version = 1
 status = "active"
 owner = "team-architecture"
 phase = "repository-structure-remediation-phase-7"
-reviewed_at = "2026-09-07"
-notes = "Time-bounded exceptions for fail-closed Repository Structure Remediation gates. Every entry must have owner, sunset, reason, and exact match criteria. Reviewed 2026-09-07 after all thirteen entries expired: seven whose deferred condition no longer exists were removed, and the six still live were renewed with a dated basis naming the plan that carries the engineering half. An entry whose named carrier does not exist gets a short sunset on purpose, so the date forces the ownership question instead of hiding it."
+reviewed_at = "2026-10-18"
+notes = "Time-bounded exceptions for fail-closed Repository Structure Remediation gates. Every entry must have owner, sunset, reason, and exact match criteria. Reviewed 2026-09-07 after all thirteen entries expired: seven whose deferred condition no longer exists were removed, and the six still live were renewed with a dated basis naming the plan that carries the engineering half. On 2026-10-18, complete Phase 0 findings no longer contained the calibration or Lex root-file matches; those exception rows were retired rather than renewed. Active entries must match a current finding across the full gate set before any finding is suppressed."
 
-[[exception]]
-id = "loose-root-calibration-canonical-shared-api"
-gate = "loose_files_gate"
-owner = "team-architecture"
-sunset = "2026-12-01"
-issue = "docs/plans/active/SMALL_PACKAGE_CONSOLIDATION_BLUEPRINT.md#calibration-canonical-home"
-reason = "Renewed 2026-09-07. polisyos.calibration is the canonical shared calibration diagnostics package under ADR-RSR-0139 and the blueprint records no package move for it; what remains is the shared-API ownership cleanup the blueprint assigns to team-scientist and team-foundry. The deferral is renewed because that cleanup is scoped and owned, not because the deadline arrived."
-match = { package = "calibration", message = "Top-level package has too many root .py files." }
 
 [[exception]]
 id = "loose-root-common-shared-utilities"
@@ -24,14 +16,6 @@ issue = "docs/plans/active/CORE_COMMON_RUNTIME_AUDIT_REMEDIATION_PLAN.md"
 reason = "Renewed 2026-09-07. polisyos.common still exposes shared utilities at package root. The engineering half is carried by the Core/Common runtime remediation plan, whose declared scope includes src/polisyos/common/**; the original entry named that plan in prose without pointing the issue field at it."
 match = { package = "common", message = "Top-level package has too many root .py files." }
 
-[[exception]]
-id = "loose-root-lex-follow-up"
-gate = "loose_files_gate"
-owner = "team-lex"
-sunset = "2026-10-15"
-issue = "docs/plans/active/DEBT-REGISTER.md#structure-remediation-exceptions-all-thirteen-expired"
-reason = "Renewed 2026-09-07 on a deliberately short horizon. Lex keeps several root modules as production API seams after the 140K corpus run, but measurement on 2026-09-07 found no plan carrying the Lex consolidation this entry defers to: SMALL_PACKAGE_CONSOLIDATION_BLUEPRINT.md does not mention lex at all. The short sunset exists so the missing owner is decided rather than deferred again; renewing this to 2026-12-01 would be routing work to a plan that does not exist."
-match = { package = "lex", message = "Top-level package has too many root .py files." }
 
 [[exception]]
 id = "release-ledger-root-governance-data"

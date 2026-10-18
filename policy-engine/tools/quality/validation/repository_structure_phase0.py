@@ -7,6 +7,7 @@ import argparse
 import json
 import os
 import subprocess
+from dataclasses import dataclass
 from datetime import date
 from importlib import import_module
 from pathlib import Path
@@ -340,6 +341,12 @@ def _package_from_location(location: str) -> str | None:
     return package or None
 
 
+@dataclass(frozen=True)
+class _GateFindingResult:
+    findings: list[dict[str, Any]]
+    integrity_findings: list[dict[str, Any]]
+
+
 def _load_name_registry(repo_root: Path, tracked_paths: set[Path] | None = None) -> dict[str, Any]:
     payload = _load_toml(repo_root / "architecture" / "name_registry.toml", tracked_paths)
     registry: dict[str, set[str]] = {}
@@ -457,13 +464,13 @@ def gate_loose_files(
     return findings
 
 
-def gate_name_collision(
+def _gate_name_collision_findings(
     repo_root: Path, inventory: dict[str, Any], tracked_paths: set[Path] | None = None
-) -> list[dict[str, Any]]:
+) -> _GateFindingResult:
     decisions = _load_name_registry(repo_root, tracked_paths)
     registry: dict[str, set[str]] = decisions["shared_names"]
     rename_backlog: dict[str, set[str]] = decisions["rename_backlog"]
-    findings: list[dict[str, Any]] = list(decisions["registry_findings"])
+    findings: list[dict[str, Any]] = []
     for entry in inventory["repeated_directory_names"]:
         name = entry["name"]
         packages = {package_entry["package"] for package_entry in entry["packages"]}
@@ -487,7 +494,14 @@ def gate_name_collision(
                     "unresolved_packages": sorted(packages - covered),
                 }
             )
-    return findings
+    return _GateFindingResult(findings, list(decisions["registry_findings"]))
+
+
+def gate_name_collision(
+    repo_root: Path, inventory: dict[str, Any], tracked_paths: set[Path] | None = None
+) -> list[dict[str, Any]]:
+    result = _gate_name_collision_findings(repo_root, inventory, tracked_paths)
+    return [*result.integrity_findings, *result.findings]
 
 
 def gate_pyproject_size(inventory: dict[str, Any]) -> list[dict[str, Any]]:
@@ -553,7 +567,7 @@ def gate_build_output(inventory: dict[str, Any]) -> list[dict[str, Any]]:
 GATE_FUNCTIONS = {
     "empty_namespace": lambda repo_root, inventory, tracked_paths: gate_empty_namespace(inventory),
     "loose_files": gate_loose_files,
-    "name_collision": gate_name_collision,
+    "name_collision": _gate_name_collision_findings,
     "pyproject_size": lambda repo_root, inventory, tracked_paths: gate_pyproject_size(inventory),
     "cache_dir": lambda repo_root, inventory, tracked_paths: gate_cache_dir(inventory),
     "build_output": lambda repo_root, inventory, tracked_paths: gate_build_output(inventory),
@@ -600,7 +614,10 @@ def _load_structure_exceptions(
     return list(payload.get("exception", []))
 
 
-def _exception_registry_findings(exceptions: list[dict[str, Any]]) -> list[dict[str, Any]]:
+def _exception_registry_findings(
+    exceptions: list[dict[str, Any]],
+    current_findings: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
     findings: list[dict[str, Any]] = []
     seen: set[str] = set()
     today = date.today()
@@ -628,8 +645,11 @@ def _exception_registry_findings(exceptions: list[dict[str, Any]]) -> list[dict[
             )
         seen.add(exception_id)
         sunset = str(entry.get("sunset", ""))
+        sunset_valid = True
+        active = False
         try:
-            if sunset != "none" and date.fromisoformat(sunset) < today:
+            active = sunset == "none" or date.fromisoformat(sunset) >= today
+            if sunset != "none" and not active:
                 findings.append(
                     {
                         "gate": "structure_exception_registry",
@@ -640,6 +660,7 @@ def _exception_registry_findings(exceptions: list[dict[str, Any]]) -> list[dict[
                     }
                 )
         except ValueError:
+            sunset_valid = False
             findings.append(
                 {
                     "gate": "structure_exception_registry",
@@ -650,7 +671,8 @@ def _exception_registry_findings(exceptions: list[dict[str, Any]]) -> list[dict[
                 }
             )
         match = entry.get("match", {})
-        if not isinstance(match, dict) or not match:
+        match_valid = isinstance(match, dict) and bool(match)
+        if not match_valid:
             findings.append(
                 {
                     "gate": "structure_exception_registry",
@@ -659,6 +681,18 @@ def _exception_registry_findings(exceptions: list[dict[str, Any]]) -> list[dict[
                     "id": exception_id,
                 }
             )
+        if not missing and sunset_valid and active and match_valid:
+            if not any(_finding_matches_exception(item, entry) for item in current_findings):
+                findings.append(
+                    {
+                        "gate": "structure_exception_registry",
+                        "severity": "error",
+                        "message": "Structure remediation exception matches no current gate finding.",
+                        "id": exception_id,
+                        "exception_gate": str(entry["gate"]),
+                        "match": match,
+                    }
+                )
     return findings
 
 
@@ -674,13 +708,18 @@ def _finding_matches_exception(finding: dict[str, Any], exception: dict[str, Any
     return True
 
 
-def _apply_structure_exceptions(
+def _apply_structure_exceptions_with_integrity(
     findings: list[dict[str, Any]],
     exceptions: list[dict[str, Any]],
-) -> list[dict[str, Any]]:
-    registry_findings = _exception_registry_findings(exceptions)
-    if registry_findings:
-        return [*findings, *registry_findings]
+    *,
+    current_findings: list[dict[str, Any]] | None = None,
+) -> _GateFindingResult:
+    integrity_findings = _exception_registry_findings(
+        exceptions,
+        findings if current_findings is None else current_findings,
+    )
+    if integrity_findings:
+        return _GateFindingResult(findings, integrity_findings)
     active = [
         entry
         for entry in exceptions
@@ -692,7 +731,21 @@ def _apply_structure_exceptions(
         if any(_finding_matches_exception(finding, exception) for exception in active):
             continue
         filtered.append(finding)
-    return filtered
+    return _GateFindingResult(filtered, [])
+
+
+def _apply_structure_exceptions(
+    findings: list[dict[str, Any]],
+    exceptions: list[dict[str, Any]],
+    *,
+    current_findings: list[dict[str, Any]] | None = None,
+) -> list[dict[str, Any]]:
+    result = _apply_structure_exceptions_with_integrity(
+        findings,
+        exceptions,
+        current_findings=current_findings,
+    )
+    return [*result.findings, *result.integrity_findings]
 
 
 def collect_gate_findings(
@@ -715,19 +768,33 @@ def _collect_gate_measurement(
 ) -> tuple[list[dict[str, Any]], dict[str, Any] | None]:
     gate = GATE_ALIASES.get(gate, gate)
     findings: list[dict[str, Any]] = []
+    integrity_findings: list[dict[str, Any]] = []
     try:
         tracked_paths = _tracked_entries(_git_root(repo_root.resolve()))
         inventory = collect_inventory(repo_root, tracked_paths=tracked_paths)
-        gates = GATE_FUNCTIONS.keys() if gate == "all" else (gate,)
-        for gate_id in gates:
-            findings.extend(GATE_FUNCTIONS[gate_id](repo_root, inventory, tracked_paths))
-        findings = _apply_structure_exceptions(
-            findings, _load_structure_exceptions(repo_root, tracked_paths)
+        current_findings: list[dict[str, Any]] = []
+        for gate_id, gate_function in GATE_FUNCTIONS.items():
+            gate_result = gate_function(repo_root, inventory, tracked_paths)
+            if isinstance(gate_result, _GateFindingResult):
+                gate_findings = gate_result.findings
+                integrity_findings.extend(gate_result.integrity_findings)
+            else:
+                gate_findings = gate_result
+            current_findings.extend(gate_findings)
+            if gate == "all" or gate_id == gate:
+                findings.extend(gate_findings)
+        exception_result = _apply_structure_exceptions_with_integrity(
+            findings,
+            _load_structure_exceptions(repo_root, tracked_paths),
+            current_findings=current_findings,
         )
+        findings = exception_result.findings
+        integrity_findings.extend(exception_result.integrity_findings)
     except (OSError, UnicodeError, subprocess.CalledProcessError, tomllib.TOMLDecodeError) as exc:
         findings.append({"gate": "repository_input", "severity": "error", "message": str(exc)})
         return findings, None
-    return _filter_gate_findings(findings, package=package, scope=scope), inventory
+    local_findings = _filter_gate_findings(findings, package=package, scope=scope)
+    return [*local_findings, *integrity_findings], inventory
 
 
 def render_markdown(inventory: dict[str, Any]) -> str:
@@ -890,13 +957,16 @@ def _parse_args() -> argparse.Namespace:
     gate.add_argument(
         "--package",
         default=None,
-        help="Restrict findings to one top-level package.",
+        help="Restrict package-scoped findings; global input and registry refusals remain visible.",
     )
     gate.add_argument(
         "--scope",
         choices=("all", "root", "package-files"),
         default="all",
-        help="Restrict loose_files findings to root .py or recursive package-file budget scope.",
+        help=(
+            "Restrict loose_files findings to root .py or recursive package-file budget scope; "
+            "global input and registry refusals remain visible."
+        ),
     )
     gate.add_argument("--json", action="store_true", help="Emit JSON findings.")
     return parser.parse_args()

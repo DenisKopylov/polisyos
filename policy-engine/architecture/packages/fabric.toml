@@ -119,7 +119,7 @@ trace_expectation = "Connector, materialization, and world-store paths emit comp
 status = "declared"
 owner = "team-fabric"
 registry = "architecture/name_registry.toml"
-allowed = ["contracts", "validation"]
+allowed = ["contracts", "validation", "config"]
 
 [[allowed_name_collision]]
 name = "contracts"
@@ -131,6 +131,12 @@ owner = "team-fabric"
 name = "validation"
 scope = "connector subpackages"
 reason = "Validation modules are source-contract local and must not become a cross-package facade."
+owner = "team-fabric"
+
+[[allowed_name_collision]]
+name = "config"
+scope = "package-local settings"
+reason = "Fabric config owns catalog and data-directory settings, separate from Common process bootstrap and Data Forge pipeline profile contracts."
 owner = "team-fabric"
 
 [exceptions]

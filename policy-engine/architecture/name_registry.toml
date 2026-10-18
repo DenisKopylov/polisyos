@@ -169,9 +169,9 @@ sunset = "none"
 
 [[shared_name]]
 name = "config"
-allowed_in = ["data_forge", "fabric"]
-semantic_axis = "pipeline-local configuration schemas versus Fabric package configuration"
-disambiguation = "qualified imports required; data_forge config remains nested under kernel pipeline and fabric/config owns Fabric package settings"
+allowed_in = ["common", "data_forge", "fabric"]
+semantic_axis = "Common runtime-agnostic configuration helpers, Data Forge kernel-pipeline profiles, and Fabric package settings"
+disambiguation = "qualified imports required; common/config is the canonical reusable helper home, data_forge/kernel/pipeline/config owns pipeline profile and secret contracts, and fabric/config owns Fabric catalog and data-directory settings"
 owner = "team-architecture"
 target_phase = "4.8"
 sunset = "none"

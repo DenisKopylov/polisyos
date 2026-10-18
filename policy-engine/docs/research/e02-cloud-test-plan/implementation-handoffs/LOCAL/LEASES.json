@@ -11480,5 +11480,112 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "can-generic-mapping-fresh-consumer-r1-20261018": {
+    "slice_base": "975e46788776f91ddf6fbcf8a02d92ccb91a11b4",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/unit/core/artifacts/test_ir_adapter_mapping_contract.py": {
+        "operation": "add",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-mapping-consumer-companion-r1-20261018/postimages/tests/unit/core/artifacts/test_ir_adapter_mapping_contract.py",
+        "postimage_sha256": "f4e8aceb68a8a428e4d778380dbf525c56fc3ceeb87dc0a5eca3fef0504179c7"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-mapping-975e-source-adoption-20261018/source-application.json",
+      "sha256": "7dd1b79f785ae1824ccad7d8f00517eb99109df81a4d3e94eeb9b05b8b0f11f5"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-mapping-975e-source-adoption-20261018/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-mapping-consumer-companion-r1-20261018/manifest.json",
+        "sha256": "9e02f218f69c7a41d72987e63dd9388f0cb6406370e3f80f822801b653d92561"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-mapping-companion-r1-independent-20261018/review.json",
+        "sha256": "d2c058f37de777b968812ac643e512f80babc27ba012f01e7fe2ee044fd55428"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-mapping-consumer-companion-r1-20261018/patch.diff",
+        "sha256": "cd65ecee825b73949e9109d4a85ed728e65b67aad7370a70c243cb4e7112d548"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/model_layer/canon.py",
+        "sha256": "11dd2f53089087ff5d109b2e64182104629ade457e01677588b7858ba609f112"
+      },
+      {
+        "path": "policy-engine/src/polisyos/common/canonical.py",
+        "sha256": "89394b9a3b39c07e56cf672329176c2dda4feff8c6c375190f4065a5da123f41"
+      },
+      {
+        "path": "policy-engine/src/polisyos/common/canonical_profile.py",
+        "sha256": "f06639a4f2bb772008721ae9b6ab1d8e881d6e2fb0218b9d2615ccfb3177216f"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/__init__.py",
+        "sha256": "7d9622f4c1a0383befaa12fdc906f25c2e1adb10703e93d24d7936ebf0f430d8"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/_manifest_lifecycle.py",
+        "sha256": "b0948bf37ec2fd9e7d0b893db319b63bfdc21290564a7aa414e80a97cbebf966"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/manifest.py",
+        "sha256": "3ec97132a4a04c6152ed3456f75aae4d2fc6f35b0b8921a3a8f7cefcc426df3f"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/ir_adapter.py",
+        "sha256": "d53664b18a4270dc903945f1c9107fe29eef1c70cc0de6a98bade996a66b152f"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "sha256": "e1506ceca8ad7907c85f2006e3247565f939035d9f681c97b6db6bc0a223a0f8"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/artifacts/contracts.py",
+        "sha256": "67ed1ff4c3cf0fe4f46d4534d1656d256d1c5e5bf4db70d5a3523e3579c0d6f7"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/artifacts/io.py",
+        "sha256": "c5dbd2ba226e67a748d8d4a6064ebb218042580d129d5fedda17dc621db48894"
+      },
+      {
+        "path": "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py",
+        "sha256": "56d88b241197048a07ccf56e570afd13b2826146ad4afe45e6dc5b66ca051cbb"
+      },
+      {
+        "path": "policy-engine/tests/unit/core/artifacts/test_selected_profile_core_json.py",
+        "sha256": "c04ec676dab5cd7b7057902131a858af49ab1e6fdca9bfa8bf71bb01c7ce17d2"
+      },
+      {
+        "path": "policy-engine/tests/unit/core/artifacts/test_core_json_producer_conformance.py",
+        "sha256": "1204e1355a53376f43eea6ee8ae938656bbdd8c9079e273aa83b75ba828b1b72"
+      },
+      {
+        "path": "policy-engine/tests/unit/core/artifacts/test_storage_protocol_boundaries.py",
+        "sha256": "1ee4d8fb461da34792fc09fab7deb13d68a18c61be75aaca1135ea5967ce5797"
+      }
+    ],
+    "P40": "Same Mapping-carrier/profile validation class; source review found no escape. Parameterize finite Mapping carriers and strict invalids; no per-type product patch.",
+    "bounded_proof": "Independent test-only source GO with root full-source runtime pins including ir/model_layer/canon.py; actual replay separate.",
+    "limitations": [
+      "Reader conformance is not producer attestation.",
+      "Profileless history population and rollout owner are not established.",
+      "Core/IR tag-family identity remains an unadjudicated G choice.",
+      "Whole LA-021 remains HOLD; no formal closure.",
+      "24 statically declared cases; actual collection and behavior UNRUN at adoption."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": {
+      "module": "tests/unit/core/artifacts/test_ir_adapter_mapping_contract.py",
+      "siblings": "Existing raw-null/profileless-history and Core/IR canon suites in final composed replay."
+    },
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

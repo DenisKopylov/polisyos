@@ -256,6 +256,7 @@ def test_dfk_01_census_binds_imports_strings_dynamic_loaders_and_exclusions(
             '{"module": "polisyos.foundry.domain.schema", '
             '"resource": "foundry/domain/schema.py", "symbol": "RegionProfile"}\n'
         ),
+        "generated/not-selected.bin": "import polisyos.foundry.domain.schema\n",
     }
     _init_census_repository(tmp_path, files)
     untracked = tmp_path / "generated" / "descriptor.json"
@@ -264,7 +265,13 @@ def test_dfk_01_census_binds_imports_strings_dynamic_loaders_and_exclusions(
         '{"module": "polisyos.data_forge.kernel.schemas.codegen"}\n', encoding="utf-8"
     )
     executable = tmp_path / "generated" / "tool.py"
-    executable.write_text("import polisyos.foundry.domain.schema\n", encoding="utf-8")
+    executable.write_text(
+        "import polisyos.foundry.domain.schema\n"
+        "import polisyos.foundry.domain.schema as schema_alias\n"
+        "import polisyos.foundry.domain.schema, "
+        "polisyos.data_forge.kernel.schemas.codegen as codegen_alias\n",
+        encoding="utf-8",
+    )
     executable.chmod(0o755)
     ignored = tmp_path / "ignored" / "outside.json"
     ignored.parent.mkdir()
@@ -320,6 +327,43 @@ def test_dfk_01_census_binds_imports_strings_dynamic_loaders_and_exclusions(
     )
     assert not any(hit["path"] == "ignored/outside.json" for hit in matches)
 
+    plain_import_hits = [
+        hit
+        for hit in matches
+        if hit["path"] == "generated/tool.py" and hit["evidence_kind"] == "absolute_import"
+    ]
+    assert sorted(
+        (hit["target"], hit["imported_module"], hit["line"]) for hit in plain_import_hits
+    ) == sorted(
+        [
+            (
+                "polisyos.foundry.domain.schema",
+                "polisyos.foundry.domain.schema",
+                1,
+            ),
+            (
+                "polisyos.foundry.domain.schema",
+                "polisyos.foundry.domain.schema",
+                2,
+            ),
+            (
+                "polisyos.foundry.domain.schema",
+                "polisyos.foundry.domain.schema",
+                3,
+            ),
+            (
+                "polisyos.data_forge.kernel.schemas.codegen",
+                "polisyos.data_forge.kernel.schemas.codegen",
+                3,
+            ),
+        ]
+    )
+    assert any(
+        item["path"] == "generated/not-selected.bin" and item["reason"] == "known_binary_suffix"
+        for item in selection["excluded_paths"]
+    )
+    assert not any(hit["path"] == "generated/not-selected.bin" for hit in matches)
+
     dynamic_sites = receipt["dynamic_loader_sites"]
     assert any(
         site["path"] == "src/polisyos/foundry/domain/caller.py"
@@ -339,7 +383,34 @@ def test_dfk_01_census_binds_imports_strings_dynamic_loaders_and_exclusions(
         for item in receipt["read_receipt"]["inputs"]
         if item["operation"] == "read_bytes" and item["status"] == "read"
     }
-    assert read_paths == set(files) | {"generated/descriptor.json", "generated/tool.py"}
+    assert read_paths == (set(files) - {"generated/not-selected.bin"}) | {
+        "generated/descriptor.json",
+        "generated/tool.py",
+    }
+
+    malformed = tmp_path / "generated" / "malformed.py"
+    malformed.write_text("def broken(:\n", encoding="utf-8")
+    partial, partial_receipt = _run_census(tmp_path)
+
+    assert partial.returncode == 2
+    assert partial_receipt["result"] == "partial_unsupported_or_ambiguous"
+    assert "generated/malformed.py" in partial_receipt["selection"]["untracked_paths"]
+    assert "generated/malformed.py" in partial_receipt["scanned_denominator"]["read_paths"]
+    assert any(
+        item["class"] == "unsupported_syntax_or_ast" and "generated/malformed.py" in item["detail"]
+        for item in partial_receipt["unsupported_or_ambiguous_inputs"]
+    )
+    assert "generated/not-selected.bin" not in partial_receipt["scanned_denominator"]["read_paths"]
+    assert not any(
+        hit["path"] == "generated/not-selected.bin" for hit in partial_receipt["matches"]
+    )
+    assert partial_receipt["selection"]["ignored_path_count"] is None
+    assert partial_receipt["selection"]["ignored_paths_status"] == "not_enumerated"
+    assert partial_receipt["selection"]["ignored_paths"] is None
+    assert any(
+        item["class"] == "unselected_ignored_inputs" and item["status"] == "not_established"
+        for item in partial_receipt["unresolved_by_construction"]
+    )
 
 
 def test_dfk_01_census_resolves_importfrom_package_children_and_removal(

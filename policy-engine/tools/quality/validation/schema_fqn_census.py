@@ -799,7 +799,25 @@ def _resolve_import_from(path: str, node: ast.ImportFrom) -> str | None:
     return ".".join(prefix)
 
 
-def _import_from_hits(path: str, node: ast.ImportFrom) -> list[dict[str, Any]]:
+def _import_hits(path: str, node: ast.Import | ast.ImportFrom) -> list[dict[str, Any]]:
+    """Return structured target hits for imported module paths."""
+    if isinstance(node, ast.Import):
+        hits = []
+        for alias in node.names:
+            module_name = alias.name
+            target = _target_for_module(module_name)
+            if target:
+                hits.append(
+                    {
+                        "target": target,
+                        "imported_module": module_name,
+                        "path": path,
+                        "line": node.lineno,
+                        "evidence_kind": "absolute_import",
+                    }
+                )
+        return hits
+
     module_name = _resolve_import_from(path, node)
     if module_name is None:
         return []
@@ -905,12 +923,13 @@ def _scan_python(
     imported_aliases: dict[str, str] = {}
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
+            imports.extend(_import_hits(path, node))
             for alias in node.names:
                 local_name = alias.asname or alias.name.split(".")[0]
                 imported_name = alias.name if alias.asname else alias.name.split(".")[0]
                 module_aliases[local_name] = alias.name if alias.asname else imported_name
         elif isinstance(node, ast.ImportFrom):
-            imports.extend(_import_from_hits(path, node))
+            imports.extend(_import_hits(path, node))
             if node.module in {
                 "importlib",
                 "importlib.resources",

@@ -13050,5 +13050,64 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-fqn-static-import-r4-reviewed-adoption-20261018": {
+    "slice_base": "786f44cdb0cda62df5c2a11e287d958d674bad21",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tools/quality/validation/schema_fqn_census.py": {
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fqn-static-import-family-r4-20261018/postimages/policy-engine/tools/quality/validation/schema_fqn_census.py",
+        "preimage_sha256": "f555e43e2a82e2e6e6ad70b69882d6268dc6479e85183cf90a86387bae2e219e",
+        "postimage_sha256": "c12cefb7dda1b82ef0f7e309421c5cbccc6804a3ab60bf27d1aa674f43df7e1a",
+        "operation": "modify"
+      },
+      "policy-engine/tests/unit/remediation/test_dfk_01.py": {
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fqn-static-import-family-r4-20261018/postimages/policy-engine/tests/unit/remediation/test_dfk_01.py",
+        "preimage_sha256": "931f2056831ba863fa867e1f445d8e21e9ca4193b4edd5d43508f2b99b2eb90f",
+        "postimage_sha256": "567bc05871a819af7742b974e2b45fda853a0b2aa8600c5d278d2e8d373b4dad",
+        "operation": "modify"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fqn-static-import-r4-post-outbox-adoption-20261018/source-application.json",
+      "sha256": "0233bd28e003226733e27e3ab56f3bc71e4334da4cc8834f5ff21e089bf4d719"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fqn-static-import-r4-post-outbox-adoption-20261018/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fqn-static-import-family-r4-20261018/manifest.json",
+        "sha256": "9f0f642ddc3448345790681185e47226152f090e3f5c3867afcebc8de11c4715"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fqn-static-import-family-r4-20261018/candidate.patch",
+        "sha256": "7e57f16292b6c96dc150ce89a64ca4b3146bc22a9ea448f265c4c710d2e403c1"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fqn-static-import-family-r4-20261018/decision.md",
+        "sha256": "bf732f84a9d1732fc6cfa6d9e87f03dcfdc7329b3bebba437c109128b61a6bf1"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fqn-static-import-r4-independent-20261018/review.md",
+        "sha256": "b96f5dce515fd3e60bfef9c30c0ae458f59e390ce48763e8c615af8f06cdfbff"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fqn-static-import-r4-reviewed-adoption-20261018/adoption-plan.json",
+        "sha256": "df921af6b5e88b9325e33ea0b2d99628262db9636f70ea2e715d4428dca56b1e"
+      }
+    ],
+    "P40": "New AST import producer class relative to Git completeness; generic handling covers every alias and retains complete ImportFrom processing.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Runtime remains UNRUN on adopted bytes until the combined replay.",
+      "No G acceptance or formal finding closure is claimed; exact review scope only."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run the whole DFK module and the supported guest-native Linux v3 CLI witness on the composed candidate.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

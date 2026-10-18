@@ -24,9 +24,7 @@ def _registry_bytes(families: list[dict[str, Any]]) -> bytes:
         lines.append("[[family]]")
         for key, value in family.items():
             if isinstance(value, list):
-                lines.extend(
-                    [f"{key} = [", *(f"  {json.dumps(item)}," for item in value), "]"]
-                )
+                lines.extend([f"{key} = [", *(f"  {json.dumps(item)}," for item in value), "]"])
             elif isinstance(value, dict):
                 lines.extend(
                     f"{key}.{json.dumps(item)} = {json.dumps(digest)}"
@@ -37,13 +35,46 @@ def _registry_bytes(families: list[dict[str, Any]]) -> bytes:
     return ("\n".join(lines) + "\n").encode()
 
 
+def _copy_on_write_fixture_file(root: Path, relative_path: str | Path) -> Path:
+    """Materialize an exact source fixture file before mutating its temporary copy."""
+
+    relative = Path(relative_path)
+    if relative.is_absolute() or ".." in relative.parts:
+        raise AssertionError("fixture source path must stay relative to its declared roots")
+
+    fixture_root = root.resolve(strict=True)
+    repository_root = REPO_ROOT.resolve(strict=True)
+    target = root / relative
+    parent = target.parent.resolve(strict=True)
+    if not parent.is_relative_to(fixture_root):
+        raise AssertionError("fixture target parent resolves outside the temporary fixture root")
+
+    if target.is_symlink():
+        source = target.resolve(strict=True)
+        expected_source = (repository_root / relative).resolve(strict=True)
+        if not expected_source.is_relative_to(repository_root) or source != expected_source:
+            raise AssertionError("fixture symlink does not resolve to its exact repository source")
+        payload = source.read_bytes()
+        target.unlink()
+        with target.open("xb") as stream:
+            stream.write(payload)
+    elif target.is_file():
+        if not target.resolve(strict=True).is_relative_to(fixture_root):
+            raise AssertionError("fixture target resolves outside the temporary fixture root")
+    else:
+        raise AssertionError("fixture target must be an existing regular file or source symlink")
+
+    resolved_target = target.resolve(strict=True)
+    if target.is_symlink() or not resolved_target.is_relative_to(fixture_root):
+        raise AssertionError("copy-on-write target is not a regular fixture-local file")
+    return target
+
+
 @pytest.fixture
 def split_registry(tmp_path: Path) -> tuple[Path, list[dict[str, Any]], set[str]]:
     """Split the real complete input set while reading its existing bytes."""
 
-    families = tomllib.loads((REPO_ROOT / owner.DEFAULT_GENERATED_ARTIFACTS).read_text())[
-        "family"
-    ]
+    families = tomllib.loads((REPO_ROOT / owner.DEFAULT_GENERATED_ARTIFACTS).read_text())["family"]
     original = copy.deepcopy(next(row for row in families if row["id"] == owner.N13B_FAMILY_ID))
     existing_source = next((row for row in families if row["id"] == SOURCE_FAMILY_ID), None)
     assert existing_source is not None
@@ -165,10 +196,13 @@ def test_frozen_manifest_byte_drift_cannot_be_restamped_or_admitted(
     split_registry: tuple[Path, list[dict[str, Any]], set[str]], consumer: str
 ) -> None:
     root, families, _all_paths = split_registry
-    manifest_path = next(path for path in families[1]["outputs"] if path.endswith(".manifest.json"))
-    target = root / manifest_path
+    manifest_path = next(
+        path
+        for path in families[1]["outputs"]
+        if path.endswith(".manifest.json") and ".view." not in path
+    )
+    target = _copy_on_write_fixture_file(root, manifest_path)
     altered = target.read_bytes() + b"\n"
-    target.unlink()
     target.write_bytes(altered)
     consume = (
         owner.derive_n13b_generated_registry_update
@@ -180,14 +214,45 @@ def test_frozen_manifest_byte_drift_cannot_be_restamped_or_admitted(
         consume(root)
 
 
+@pytest.mark.parametrize("mutation", ["missing", "tampered"])
+def test_frozen_selected_manifest_view_remains_content_bound(
+    split_registry: tuple[Path, list[dict[str, Any]], set[str]], mutation: str
+) -> None:
+    root, families, _all_paths = split_registry
+    view_path = next(path for path in families[1]["outputs"] if ".view." in path)
+    source_path = (REPO_ROOT / view_path).resolve(strict=True)
+    source_digest_before = hashlib.sha256(source_path.read_bytes()).hexdigest()
+    target = _copy_on_write_fixture_file(root, view_path)
+    fixture_root = root.resolve(strict=True)
+    assert source_path.is_relative_to(REPO_ROOT.resolve(strict=True))
+    assert target.resolve(strict=True).is_relative_to(fixture_root)
+    assert not target.is_symlink()
+    assert target.read_bytes() == source_path.read_bytes()
+
+    if mutation == "missing":
+        target.unlink()
+        expected_code = "n13b_cas_manifest_view_missing"
+    else:
+        target.write_bytes(target.read_bytes() + b"\n")
+        expected_code = "n13b_source_integrity_drift"
+
+    with pytest.raises(owner.N13bContractError, match=expected_code):
+        owner.derive_n13b_generated_registry_update(root)
+
+    assert hashlib.sha256(source_path.read_bytes()).hexdigest() == source_digest_before
+    if mutation == "missing":
+        assert not target.exists()
+    else:
+        assert target.read_bytes() != source_path.read_bytes()
+
+
 @pytest.mark.parametrize("consumer", ["updater", "manifest"])
 def test_frozen_non_cas_byte_drift_cannot_be_restamped_or_admitted(
     split_registry: tuple[Path, list[dict[str, Any]], set[str]], consumer: str
 ) -> None:
     root, _families, _all_paths = split_registry
-    target = root / owner.DEFAULT_N13B_PROVISION
+    target = _copy_on_write_fixture_file(root, owner.DEFAULT_N13B_PROVISION)
     altered = target.read_bytes() + b"\n"
-    target.unlink()
     target.write_bytes(altered)
     consume = (
         owner.derive_n13b_generated_registry_update
@@ -242,8 +307,12 @@ def test_split_manifest_missing_cas_member_remains_red(
     families[1]["outputs"].remove(update.required_cas_output_paths[-1])
     (root / owner.DEFAULT_GENERATED_ARTIFACTS).write_bytes(_registry_bytes(families))
 
-    with pytest.raises(owner.N13bContractError, match="n13b_generated_cas_output_denominator_drift"):
-        owner.derive_lifecycle_manifest(root, required_cas_artifact_ids=update.required_cas_artifact_ids)
+    with pytest.raises(
+        owner.N13bContractError, match="n13b_generated_cas_output_denominator_drift"
+    ):
+        owner.derive_lifecycle_manifest(
+            root, required_cas_artifact_ids=update.required_cas_artifact_ids
+        )
 
 
 @pytest.mark.parametrize("receipt_kind", ["lifecycle", "contract"])

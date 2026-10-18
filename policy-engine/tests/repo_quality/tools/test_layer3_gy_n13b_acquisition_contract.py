@@ -292,6 +292,27 @@ def test_generated_registry_update_derives_full_cas_graph_and_preserves_other_fa
         tuple(path for path in n13b_outputs if "layer3_gy_acquisition_cas/artifacts/sha256" in path)
         == update.required_cas_output_paths
     )
+    from polisyos.core.artifacts import ArtifactManifest, ManifestLifecycle
+
+    for artifact_id in update.required_cas_artifact_ids:
+        digest = artifact_id.removeprefix("sha256:")
+        manifest_path = (
+            CAS_ROOT / "artifacts/sha256" / digest[:2] / digest[2:4] / f"{digest}.manifest.json"
+        )
+        manifest = ArtifactManifest.model_validate_json(manifest_path.read_bytes())
+        profile_sha256 = ManifestLifecycle.profile_sha256(manifest)
+        view_path = manifest_path.parent / (
+            f"{digest}.view.{profile_sha256.removeprefix('sha256:')}.manifest.json"
+        )
+        assert view_path.is_file()
+        view = ArtifactManifest.model_validate_json(view_path.read_bytes())
+        assert ManifestLifecycle.profile_sha256(view) == profile_sha256
+        assert ManifestLifecycle.profile_projection(view) == (
+            ManifestLifecycle.profile_projection(manifest)
+        )
+        assert (
+            view_path.relative_to(POLICY_ENGINE_ROOT).as_posix() in update.required_cas_output_paths
+        )
     assert "sha256:244e629ceec4b53324246967388d17b706efe2207744b8148d60ea52dbccd264" in (
         update.required_cas_artifact_ids
     )

@@ -36,7 +36,9 @@ from .acquisition_contract_support import (
 )
 from .evidence_journal_custody import (
     _cas_blob_relative,
+    _cas_manifest_profile,
     _cas_manifest_relative,
+    _cas_manifest_view_relative,
     _n13b_lifecycle_families,
     _verify_n13b_source_integrity,
 )
@@ -182,6 +184,10 @@ def derive_lifecycle_manifest(
             for path in (
                 _cas_blob_relative(str(artifact_id)),
                 _cas_manifest_relative(str(artifact_id)),
+                _cas_manifest_view_relative(
+                    str(artifact_id),
+                    _cas_manifest_profile(root / DEFAULT_N13B_CAS, str(artifact_id))[1],
+                ),
             )
         }
         cas_prefix = (DEFAULT_N13B_CAS / "artifacts/sha256").as_posix() + "/"

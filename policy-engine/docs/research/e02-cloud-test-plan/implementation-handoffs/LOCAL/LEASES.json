@@ -10090,5 +10090,352 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "coordination_epoch_20261018_n13b_f759_r5_source_adoption": {
+    "slice_base": "8a8ca1cabce5071d7130809277a59a2b9fa6472c",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/architecture/generated_artifacts.toml": {
+        "operation": "write",
+        "preimage_sha256": "a87a011c201cca86df2dd3945442bfa0016028a3812745c3250cca0e96dd5f56",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-f759-fixture-cas-repair-r5-20261018/postimages/architecture/generated_artifacts.toml",
+        "postimage_sha256": "e1784ad5f62a46f6afa2a968e188dbef58cfb00bce18056976be5bd481a65b49",
+        "role": "mandatory_registry_companion"
+      },
+      "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/13/62/13621fe4601a42e3b1713c43a23b1f5c4f8a37b8cba9294845b136a31184b1f0.view.cdc212ceb81909fa6351f14535aa21ab8860401bbb46257ca5fe9c4762c81978.manifest.json": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-f759-fixture-cas-repair-r5-20261018/postimages/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/13/62/13621fe4601a42e3b1713c43a23b1f5c4f8a37b8cba9294845b136a31184b1f0.view.cdc212ceb81909fa6351f14535aa21ab8860401bbb46257ca5fe9c4762c81978.manifest.json",
+        "postimage_sha256": "123e29fe6b44a87a4a2070281cc19b31f00689a8f65b214054a6568e967dec8c",
+        "role": "selected_profile_view_artifact",
+        "preimage_state": "absent"
+      },
+      "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/24/4e/244e629ceec4b53324246967388d17b706efe2207744b8148d60ea52dbccd264.view.3b7a7f1dceedb3bc54df64ad81582ee11a366d3814a2f690472750b024364344.manifest.json": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-f759-fixture-cas-repair-r5-20261018/postimages/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/24/4e/244e629ceec4b53324246967388d17b706efe2207744b8148d60ea52dbccd264.view.3b7a7f1dceedb3bc54df64ad81582ee11a366d3814a2f690472750b024364344.manifest.json",
+        "postimage_sha256": "8690c2640658984a6c6e76a9e0cb7c300d1672b42514aa5b5fc4ff48e7db9603",
+        "role": "selected_profile_view_artifact",
+        "preimage_state": "absent"
+      },
+      "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/2c/03/2c03b35d4f4421e3e3033882e689b2c8a9c3ee813257425c3984828534c88841.view.3b7a7f1dceedb3bc54df64ad81582ee11a366d3814a2f690472750b024364344.manifest.json": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-f759-fixture-cas-repair-r5-20261018/postimages/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/2c/03/2c03b35d4f4421e3e3033882e689b2c8a9c3ee813257425c3984828534c88841.view.3b7a7f1dceedb3bc54df64ad81582ee11a366d3814a2f690472750b024364344.manifest.json",
+        "postimage_sha256": "efc5fd7b4b378b8f728e903ef032accc922a671289dfa40fcfa893d3ed2efd34",
+        "role": "selected_profile_view_artifact",
+        "preimage_state": "absent"
+      },
+      "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/2d/d2/2dd2ead90026f35274c0c4bd848da4f9f55641dfe3af66ff333b33a1522a48ec.view.c8db87676626ce5406ec7344cbadda0bbbb3a747a610d9d6bde43dce5529ea5e.manifest.json": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-f759-fixture-cas-repair-r5-20261018/postimages/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/2d/d2/2dd2ead90026f35274c0c4bd848da4f9f55641dfe3af66ff333b33a1522a48ec.view.c8db87676626ce5406ec7344cbadda0bbbb3a747a610d9d6bde43dce5529ea5e.manifest.json",
+        "postimage_sha256": "350674e460769bf8f98570f79bfacdf2d2cf55a66d130612f0ef70b83e6e346e",
+        "role": "selected_profile_view_artifact",
+        "preimage_state": "absent"
+      },
+      "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/32/99/3299c132ccefbd3de2576485b4630ea175db32c4d7935d94953936e804185e81.view.da4741720e2b4c602eda78d6b770dc3242f3ca1d1c66f598c06fddf581f369f8.manifest.json": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-f759-fixture-cas-repair-r5-20261018/postimages/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/32/99/3299c132ccefbd3de2576485b4630ea175db32c4d7935d94953936e804185e81.view.da4741720e2b4c602eda78d6b770dc3242f3ca1d1c66f598c06fddf581f369f8.manifest.json",
+        "postimage_sha256": "2535ce16a28a5ac8ca2ad2d9dd316babf2dcb81535232a42320d191c6c9e7480",
+        "role": "selected_profile_view_artifact",
+        "preimage_state": "absent"
+      },
+      "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/5f/46/5f4623f96f104c0fdcd93ef132dfaafe2721ec2f2e8ef890e16141f320ae8742.view.c8db87676626ce5406ec7344cbadda0bbbb3a747a610d9d6bde43dce5529ea5e.manifest.json": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-f759-fixture-cas-repair-r5-20261018/postimages/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/5f/46/5f4623f96f104c0fdcd93ef132dfaafe2721ec2f2e8ef890e16141f320ae8742.view.c8db87676626ce5406ec7344cbadda0bbbb3a747a610d9d6bde43dce5529ea5e.manifest.json",
+        "postimage_sha256": "aa23b718be25e0302c5343b8e01da6c87c0aacbb696b231be45b90db02c29fb0",
+        "role": "selected_profile_view_artifact",
+        "preimage_state": "absent"
+      },
+      "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/96/30/9630b0d0f0cdca75b123b1d5701a1d0fb77f53efde5d257cc5683eb91e8db875.view.b13835dd16b8d46689c88f9fba4c5bec5a1644a54faf4447f150ea9d81a8b97a.manifest.json": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-f759-fixture-cas-repair-r5-20261018/postimages/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/96/30/9630b0d0f0cdca75b123b1d5701a1d0fb77f53efde5d257cc5683eb91e8db875.view.b13835dd16b8d46689c88f9fba4c5bec5a1644a54faf4447f150ea9d81a8b97a.manifest.json",
+        "postimage_sha256": "9415f181ad40cc4833c492be5275af533acaab8eea5486f18ea9acc98bfec8cd",
+        "role": "selected_profile_view_artifact",
+        "preimage_state": "absent"
+      },
+      "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/d0/2f/d02fe93adf0e2fc031dc5fc4540c52198074270448e0b55097d5a794ca874b7e.view.ddec415604bb30f2ecca4a11d55ff0c898898b8c4e2f81ab9f9445f821eb4bd6.manifest.json": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-f759-fixture-cas-repair-r5-20261018/postimages/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/d0/2f/d02fe93adf0e2fc031dc5fc4540c52198074270448e0b55097d5a794ca874b7e.view.ddec415604bb30f2ecca4a11d55ff0c898898b8c4e2f81ab9f9445f821eb4bd6.manifest.json",
+        "postimage_sha256": "1363ec4c695723d0b6e6822115553066a2b9bb6060ff25ab991f495d68d671d4",
+        "role": "selected_profile_view_artifact",
+        "preimage_state": "absent"
+      },
+      "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/e9/52/e95265f4ee0a8a79a7e38d286a1efbf4827ed02e7470643ef5139a3e256fa5e9.view.5e650f478fc89598fca8b889801e2a2f8d0679d8b60dcc199987bd4467d7c65a.manifest.json": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-f759-fixture-cas-repair-r5-20261018/postimages/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/e9/52/e95265f4ee0a8a79a7e38d286a1efbf4827ed02e7470643ef5139a3e256fa5e9.view.5e650f478fc89598fca8b889801e2a2f8d0679d8b60dcc199987bd4467d7c65a.manifest.json",
+        "postimage_sha256": "75c45253cb3b9ccf68af1102d0cc838b701bfdde1f7236d439b5b6be7488b63d",
+        "role": "selected_profile_view_artifact",
+        "preimage_state": "absent"
+      },
+      "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/f2/d2/f2d2ad44695d034d816912c36da64e7ab0199ac974508c3b2a9dfdc0dafe5c0e.view.c8db87676626ce5406ec7344cbadda0bbbb3a747a610d9d6bde43dce5529ea5e.manifest.json": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-f759-fixture-cas-repair-r5-20261018/postimages/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/f2/d2/f2d2ad44695d034d816912c36da64e7ab0199ac974508c3b2a9dfdc0dafe5c0e.view.c8db87676626ce5406ec7344cbadda0bbbb3a747a610d9d6bde43dce5529ea5e.manifest.json",
+        "postimage_sha256": "e7fb33f0725bbb5b276545e57e97fab6cffae4b22c6dac7e5eb4695532018e31",
+        "role": "selected_profile_view_artifact",
+        "preimage_state": "absent"
+      },
+      "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/f6/ad/f6ad8bd4331081fefa631e9086aa96dbe7ce695ae3055f716a877cd936af9d83.view.c8db87676626ce5406ec7344cbadda0bbbb3a747a610d9d6bde43dce5529ea5e.manifest.json": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-f759-fixture-cas-repair-r5-20261018/postimages/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/f6/ad/f6ad8bd4331081fefa631e9086aa96dbe7ce695ae3055f716a877cd936af9d83.view.c8db87676626ce5406ec7344cbadda0bbbb3a747a610d9d6bde43dce5529ea5e.manifest.json",
+        "postimage_sha256": "9abcabbd426bb2fdcb8472f3e6b702670d404fad6a41711884b38ffd394a3e99",
+        "role": "selected_profile_view_artifact",
+        "preimage_state": "absent"
+      },
+      "policy-engine/architecture/policy_design_case/layer3_gy_n13b_lifecycle_manifest.json": {
+        "operation": "write",
+        "preimage_sha256": "8a0c0f73ce80b4f36a3ebeba0b8a55f6ef846bb69d8b2c510765f2654dc2958e",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-f759-fixture-cas-repair-r5-20261018/postimages/architecture/policy_design_case/layer3_gy_n13b_lifecycle_manifest.json",
+        "postimage_sha256": "eaabe7d584da128f30c55c50152ae3ffc938362f6e47e1ecb24c00b783ecf3cb",
+        "role": "mandatory_lifecycle_receipt_companion"
+      },
+      "policy-engine/docs/reference/generated-artifacts.md": {
+        "operation": "write",
+        "preimage_sha256": "b651e25016c27150159704fa9333bcba691a1f253cdb24fd8dbf88610997f400",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-f759-fixture-cas-repair-r5-20261018/postimages/docs/reference/generated-artifacts.md",
+        "postimage_sha256": "da6f167a6e3b92bebbaedc2f8828c0fbb59b4666eec19976ecaf73720d6469bd",
+        "role": "mandatory_generated_surface_companion"
+      },
+      "policy-engine/tests/repo_quality/tools/test_layer3_gy_acquisition_executor.py": {
+        "operation": "write",
+        "preimage_sha256": "5101d4f8761ac984793cacc0416b58bff1d2b58174a6fce702787cb016ce797f",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-f759-fixture-cas-repair-r5-20261018/postimages/tests/repo_quality/tools/test_layer3_gy_acquisition_executor.py",
+        "postimage_sha256": "9fb60b7376f3313b26824d85818674bbfdd91cdc22614cfc496710ea4329946d",
+        "role": "mandatory_fixture_test_companion"
+      },
+      "policy-engine/tests/repo_quality/tools/test_layer3_gy_n13b_acquisition_contract.py": {
+        "operation": "write",
+        "preimage_sha256": "07fa7849c33a00cd5ed268e98b4b16ba590d6c6d287e134f6d19739bb20f7ca7",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-f759-fixture-cas-repair-r5-20261018/postimages/tests/repo_quality/tools/test_layer3_gy_n13b_acquisition_contract.py",
+        "postimage_sha256": "81fd54132cab1c1148722165d0a4895f3806d26edf4aa045faee93891504295c",
+        "role": "mandatory_semantic_test_companion"
+      },
+      "policy-engine/tests/repo_quality/tools/test_layer3_gy_n13b_lifecycle_split.py": {
+        "operation": "write",
+        "preimage_sha256": "f352b539a1d375de66f6276916149b476cecd0ccface230d225dc4afa2b44fdc",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-f759-fixture-cas-repair-r5-20261018/postimages/tests/repo_quality/tools/test_layer3_gy_n13b_lifecycle_split.py",
+        "postimage_sha256": "3ca4dd645bf71fb77e4f94c6e3a040458c98432a85df8f937ac400d47abc0169",
+        "role": "mandatory_negative_test_companion"
+      },
+      "policy-engine/tools/quality/validation/artifact_lifecycle_manifest.py": {
+        "operation": "write",
+        "preimage_sha256": "4809b9afcba852da74ddca1e750a496bb8e94de037c4e54597663aeef4e6d88d",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-f759-fixture-cas-repair-r5-20261018/postimages/tools/quality/validation/artifact_lifecycle_manifest.py",
+        "postimage_sha256": "b279e3fc271562ff8af264a8f3daed59e23a44175c099e7509339bb5a6f576dd",
+        "role": "mechanism_owner"
+      },
+      "policy-engine/tools/quality/validation/evidence_journal_custody.py": {
+        "operation": "write",
+        "preimage_sha256": "0bd0d7e5c7e4ee14cdc57e116608f6b7d6975a5ba56e30eb9426839705db9c55",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-f759-fixture-cas-repair-r5-20261018/postimages/tools/quality/validation/evidence_journal_custody.py",
+        "postimage_sha256": "b772d65d349315ab8dcbe1c7f5c71dd5bb1c9cc6c9b90d6b00d6c366f3625669",
+        "role": "mechanism_owner"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-r5-8a8ca1-source-adoption-20261018/source-application.json",
+      "sha256": "f1fae733099790117a70ad742101db568ea1df84615ca4d47498c8ee0c0068a5"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-r5-8a8ca1-source-adoption-20261018/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-f759-fixture-cas-repair-r5-20261018/candidate-manifest.json",
+        "sha256": "af9114b6af77c754685236094c4305b87c79df6baf9f0c8ddb474c2bf483d8ef",
+        "role": "authoritative R5 exact 19-path pre/postimage map; source frame and class/limit record"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-f759-fixture-cas-repair-r5-20261018/candidate.patch",
+        "sha256": "11bb0a534d05fd30f161d5d52d30f5730c5dbf252afe5ed50372976209cb5d51",
+        "role": "original R5 patch, retained as immutable evidence; independent review HOLDs its malformed new-file headers"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-f759-fixture-cas-repair-r5-20261018/reviewer-handoff.md",
+        "sha256": "13a58679bbbef8632cef4fa195aedac29c9267364cfd2639e78d2d288eb58494",
+        "role": "R5 semantic proposal, test scope and explicit untested limits"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-f759-fixture-cas-repair-r4-20261018/candidate-manifest.json",
+        "sha256": "fdf20a76fbfb974257df7f737eb667c79a9fc585d3f3103923b867ffe6efa774",
+        "role": "immutable R4 predecessor content basis"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-f759-fixture-cas-repair-r4-20261018/candidate.patch",
+        "sha256": "b5a7ebdb4defe4728211c3fc5ba958ca11f6aa7b4f7503e91e3b45ffd6e6cb3e",
+        "role": "immutable R4 predecessor patch; not selected for application"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-f759-fixture-cas-repair-r4-20261018/reviewer-handoff.md",
+        "sha256": "79305c31a29433bbae5ed4f7713fc030ec6c606ca62ac31a9a434cdf26393159",
+        "role": "R4 frozen source diagnosis and baseline scope"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-f759-r4-independent-review-20261018/review.json",
+        "sha256": "219746e5d6f8fcc27f47eee9b2981b7d25a1d6de926d12d6f3a4306bc0a2dd74",
+        "role": "independent R4 review; HOLD on fixture symlink-write-through; semantic basis for R5 COW delta"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-f759-r4-independent-review-20261018/review.md",
+        "sha256": "c2a23392068d81a3bcc4801f6ed894ae98bdfce60617297dc781a803d71365ea",
+        "role": "independent R4 reviewer narrative"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-f759-r5-independent-review-20261018/review.json",
+        "sha256": "ae06b2aee3482b9266575b7c047df0e498d7414f8aae2a0ba3bab5474b4b4c63",
+        "role": "independent R5 semantic GO and original-patch packaging HOLD"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-f759-r5-independent-review-20261018/review.md",
+        "sha256": "2f2b7cfd3b48716c407bba25ca601544d2a1e06ec59bc66cc68ecae0401369d7",
+        "role": "independent R5 delta explanation and limits"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-f759-fixture-cas-repair-r5-patch-qualification-20261018/qualification-manifest.json",
+        "sha256": "9b4acc2abb87157e19b18c30a1cd0a4996a51a1f7548dc26ffca01877ca28d9f",
+        "role": "qualification of corrected cumulative patch transport only"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-f759-fixture-cas-repair-r5-patch-qualification-20261018/candidate.patch",
+        "sha256": "833e339c3d3cb7adaeedef0534778378090d27e7b4a594feb04564c3e41fd403",
+        "role": "selected patch for root application; exact R5 postimages with valid new-file headers"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-f759-fixture-cas-repair-r5-patch-qualification-20261018/reviewer-handoff.md",
+        "sha256": "3c0a6e0700690117cef28dbb7c53781043c98862b7cb2ca0f84d1fb70774bc52",
+        "role": "apply-check receipt and packaging-only scope"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-unsealed-packet-reconciliation-20261018/incident.json",
+        "sha256": "2a334cb99aa96d6f232277673d78a41917ce66628e997658e03b244fbeca9874",
+        "role": "sealed f759 frame and prior packet-overwrite disclosure; cause/actor not established"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-composed-f759-wave-20261018/profiles/n13b-current-custody/actual-run/controller-result.json",
+        "sha256": "e13d43e4ed28c7d7bdec58c00c5fd39876747c782c5f85f0dbea9fadf28b6a86",
+        "role": "actual pinned f759 source-selected baseline controller; 43 selected, 39 pass, 4 fail"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-composed-f759-wave-20261018/profiles/n13b-current-custody/actual-run/pytest.stdout.txt",
+        "sha256": "825bfe272f84f506fb0b5cf5c839038220b0e9de7f1aee1cd80becc0438fa69e",
+        "role": "complete actual pinned baseline pytest stdout"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-composed-f759-wave-20261018/profiles/n13b-current-custody/actual-run/pytest.xml",
+        "sha256": "212eb330af76f07e1ff6a7f6282599dc7ff367c3c072961985a8cbe4d56e6419",
+        "role": "actual pinned baseline JUnit"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-root-boundaries-20261015/adopt_reviewed_postimages_r1.py",
+        "sha256": "a601928ee742c72539ae6630f6c54d7d45576fc6df337a13e2ca927ffb7e9077",
+        "role": "root adoption helper schema and operation semantics; plan rows match its write-row contract"
+      },
+      {
+        "path": "policy-engine/src/polisyos/fabric/data_plane/evidence_journal.py",
+        "sha256": "f669ec9654a123cd0ec708df52fe4affd5c75201bc51bfd5a76d2428ec23f702",
+        "role": "unchanged production heartbeat contract; strict validator behind the three synthetic-fixture failures"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/canonical_profile.py",
+        "sha256": "3057b47c1bbb8312227d6e3be815b9e90f0327c0c253d429aa8bcc53f6e08c34",
+        "role": "unchanged typed profile reader; profile/runtime recomputation remains unestablished by this proposal"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/_manifest_lifecycle.py",
+        "sha256": "b0948bf37ec2fd9e7d0b893db319b63bfdc21290564a7aa414e80a97cbebf966",
+        "role": "unchanged typed lifecycle/profile codec; no product import or replay in author/review packet"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-f759-source-adoption-plan-r5-20261018/source-application-plan.json",
+        "sha256": "77b710096c3dc51071f99dcca9c5c9ca76d06267fde13d0ca915b70e75209a09",
+        "role": "originalreviewed19postimagesplan"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-r5-8a8ca1-source-adoption-20261018/root-current-source-qualification.json",
+        "sha256": "090cb3804178eb12c12a3fdc5e003444db387ce90506276069ae1750af72eefd",
+        "role": "actualslicecompatibilityandmechanicalhelperqualification"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-source-adopter-newline-patch-r3-20261018/adopt_reviewed_postimages_r3.py",
+        "sha256": "3a131943fdb3ce67e48e3fa14f6470903e35221ca897004c35067227d1d8d4f2",
+        "role": "bytepreservingrootadopter"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-source-adopter-newline-patch-r3-independent-review-20261018/r3-review.json",
+        "sha256": "73c2a4c4df184be24083c23eaf090fb8006012d562f9b9430901b41b69311ca0",
+        "role": "independentserializerLF/noLF/CRLF/emptyfilecontrols"
+      }
+    ],
+    "P40": {
+      "baseline_failure_buckets": [
+        {
+          "class_id": "synthetic_r1_live_heartbeat_fixture_incomplete",
+          "bucket": "one shared fixture-completeness class across three pinned failures; production validator unchanged"
+        },
+        {
+          "class_id": "n13b_cas_selected_manifest_view_missing",
+          "bucket": "separate selected-view publication/closure class; one consumer failure in an eleven-view closure"
+        },
+        {
+          "class_id": "test_fixture_symlink_write_through",
+          "bucket": "R4 independent review found source-write escape; R5 delta closes the same class deeper with one shared COW helper and a source-hash falsifier"
+        }
+      ],
+      "r4_to_r5_delta_classification": "SAME_CLASS_DEEPER per independent R5 review; do not treat R5 as resolving baseline test failures until the post-adoption wave runs.",
+      "closure_ids": []
+    },
+    "bounded_proof": {
+      "semantic_review": "Independent R5 review GO for exact semantic postimages; it explicitly did not run R5 pytest/runtime.",
+      "packaging": "Independent R5 review HOLDs original R5 patch. Separate qualification supplies the selected 19-path patch with correct new-file headers and reports read-only git apply --check success; root will independently revalidate applicability.",
+      "source_pins": "R5 manifest and independent review reconcile all 19 exact postimage hashes to eight exact f759 preimages and eleven absent targets; this plan rechecked those file bytes at preparation time.",
+      "not_proven": "Profile recomputation, post-repair consumer admission, runtime behavior and fixture source-immutability falsifier remain not_established until root-controlled actual wave."
+    },
+    "limitations": {
+      "mechanism_paths": 2,
+      "mandatory_companion_source_paths": 6,
+      "selected_profile_view_artifact_paths": 11,
+      "total_candidate_paths": 19,
+      "path_cap": "none declared",
+      "baseline_actual_source_wave": {
+        "selected": 43,
+        "passed": 39,
+        "failed": 4,
+        "skipped": 0,
+        "errors": 0,
+        "exit_code": 1,
+        "postrepair": false
+      },
+      "pytest": "UNRUN on R5 postimages",
+      "runtime": "UNRUN on R5 postimages",
+      "CLI": "not applicable to pinned baseline; no CLI-origin claim",
+      "selected_profile_recomputation": "not_established through product code",
+      "fixture_source_immutability_falsifier": "not_run",
+      "source_application_by_preparer": false,
+      "canonical_or_Git_mutation_by_preparer": false,
+      "G_acceptance": false,
+      "closure_ids": [],
+      "README_companion": null,
+      "source_freeze": "not asserted beyond pinned f759 evidence; root must re-read current frame before applying"
+    },
+    "runtime": "UNRUN on adopted source",
+    "next_check": [
+      "Immediately before application, ROOT re-reads branch, HEAD/tree, tracked and index status, all 19 canonical preimages/absence states, every reviewed input SHA, every R5 postimage SHA, and exact root-adoption helper/config pins. Any frame advance or mismatch requires a new plan identity and requalification.",
+      "ROOT alone performs canonical source application from these 19 rows and owns all later LEASES.json and candidate-component-delivery-index.json edits. The plan preparer did not apply a patch or write product/canonical files.",
+      "After adoption, ROOT runs the complete seven-module source-bound wave in verification_request, including all three N13b source modules and selected importers; capture full stdout/JUnit/node IDs, controller resource/origin/source-pin receipts, and classify failures against pinned baseline.",
+      "The wave must establish the four baseline tests pass, strict missing/out-of-order heartbeat negatives remain red, missing/tampered selected views fail closed, and selected-view mutation changes only fixture-local regular files while source-sidecar bytes remain unchanged before/after both variants.",
+      "Keep proposal_not_adjudicated, G_acceptance=false, closure_ids=[] until actual consumer and lifecycle evidence is reviewed; profile recomputation and authority/capability claims remain separate decisions."
+    ],
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

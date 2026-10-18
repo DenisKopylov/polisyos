@@ -58,11 +58,24 @@ def _seed_synthetic_r1(
         url=f"https://api.worldbank.org/v2/indicator/{request_dataset_id}",
         params=params,
     )
+    body = _EMPTY_WDI_PAGE
     journal.append_heartbeat(
         attempt_id=attempt_id,
         phase="attempt_started",
         progress_bytes=0,
         elapsed_seconds=6.945391583998571,
+    )
+    journal.append_heartbeat(
+        attempt_id=attempt_id,
+        phase="response_headers",
+        progress_bytes=0,
+        elapsed_seconds=6.946391583998571,
+    )
+    journal.append_heartbeat(
+        attempt_id=attempt_id,
+        phase="body_progress",
+        progress_bytes=len(body),
+        elapsed_seconds=6.947391583998571,
     )
     profile = SourceProfile(
         profile_id="worldbank_wdi",
@@ -71,7 +84,6 @@ def _seed_synthetic_r1(
         base_url="https://api.worldbank.org/v2",
         timeout_seconds=15,
     )
-    body = _EMPTY_WDI_PAGE
     raw_ref = journal.append_raw_evidence(
         attempt_id=attempt_id,
         request_ref=request_ref,

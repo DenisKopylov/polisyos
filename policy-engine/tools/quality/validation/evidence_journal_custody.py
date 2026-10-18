@@ -14,6 +14,7 @@ from typing import Any, Literal, Self
 
 from pydantic import Field, model_validator
 
+from polisyos.core.artifacts import ArtifactManifest, ManifestLifecycle
 from polisyos.fabric.data_plane import (
     canonical_json_bytes,
     content_sha256,
@@ -315,14 +316,21 @@ def derive_n13b_generated_registry_update(repo_root: Path) -> N13bGeneratedRegis
         root / DEFAULT_N13B_CAS,
         (*raw_artifact_ids, acceptance.certificate_artifact_id),
     )
+    view_paths = tuple(
+        _verify_cas_manifest_view(root / DEFAULT_N13B_CAS, artifact_id)
+        for artifact_id in artifact_ids
+    )
     required_paths = tuple(
         sorted(
-            path
-            for artifact_id in artifact_ids
-            for path in (
-                _cas_blob_relative(artifact_id),
-                _cas_manifest_relative(artifact_id),
-            )
+            [
+                path
+                for artifact_id in artifact_ids
+                for path in (
+                    _cas_blob_relative(artifact_id),
+                    _cas_manifest_relative(artifact_id),
+                )
+            ]
+            + list(view_paths)
         )
     )
     registry_path = root / DEFAULT_GENERATED_ARTIFACTS
@@ -618,3 +626,64 @@ def _cas_manifest_relative(artifact_id: str) -> str:
     return (
         DEFAULT_N13B_CAS / "artifacts/sha256" / digest[:2] / digest[2:4] / f"{digest}.manifest.json"
     ).as_posix()
+
+
+def _cas_manifest_profile(cas_root: Path, artifact_id: str) -> tuple[ArtifactManifest, str]:
+    """Read the exact typed manifest and derive its selected CAS profile."""
+
+    _require_artifact_id(artifact_id)
+    try:
+        manifest = ArtifactManifest.model_validate_json(
+            _cas_manifest_path(cas_root, artifact_id).read_bytes()
+        )
+    except (OSError, ValueError) as exc:
+        raise N13bContractError("n13b_cas_manifest_invalid", artifact_id) from exc
+    if str(manifest.artifact_id) != artifact_id:
+        raise N13bContractError("n13b_cas_manifest_identity_drift", artifact_id)
+    return manifest, ManifestLifecycle.profile_sha256(manifest)
+
+
+def _cas_manifest_view_relative(artifact_id: str, profile_sha256: str) -> str:
+    """Return the selected manifest-view path for one exact artifact profile."""
+
+    _require_artifact_id(artifact_id)
+    if re.fullmatch(SHA256_PATTERN, profile_sha256) is None:
+        raise N13bContractError("n13b_cas_manifest_profile_invalid", artifact_id)
+    digest = artifact_id.removeprefix("sha256:")
+    profile = profile_sha256.removeprefix("sha256:")
+    return (
+        DEFAULT_N13B_CAS
+        / "artifacts/sha256"
+        / digest[:2]
+        / digest[2:4]
+        / f"{digest}.view.{profile}.manifest.json"
+    ).as_posix()
+
+
+def _verify_cas_manifest_view(cas_root: Path, artifact_id: str) -> str:
+    """Require a persisted selected view matching the default manifest profile."""
+
+    default_manifest, profile_sha256 = _cas_manifest_profile(cas_root, artifact_id)
+    relative = _cas_manifest_view_relative(artifact_id, profile_sha256)
+    digest = artifact_id.removeprefix("sha256:")
+    view_path = (
+        Path(cas_root)
+        / "artifacts/sha256"
+        / digest[:2]
+        / digest[2:4]
+        / f"{digest}.view.{profile_sha256.removeprefix('sha256:')}.manifest.json"
+    )
+    if not view_path.is_file():
+        raise N13bContractError("n13b_cas_manifest_view_missing", artifact_id)
+    try:
+        view_manifest = ArtifactManifest.model_validate_json(view_path.read_bytes())
+    except (OSError, ValueError) as exc:
+        raise N13bContractError("n13b_cas_manifest_view_invalid", artifact_id) from exc
+    if (
+        str(view_manifest.artifact_id) != artifact_id
+        or ManifestLifecycle.profile_sha256(view_manifest) != profile_sha256
+        or ManifestLifecycle.profile_projection(view_manifest)
+        != ManifestLifecycle.profile_projection(default_manifest)
+    ):
+        raise N13bContractError("n13b_cas_manifest_view_drift", artifact_id)
+    return relative

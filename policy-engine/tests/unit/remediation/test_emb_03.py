@@ -436,6 +436,64 @@ def test_encoder_revision_and_dimension_change_never_reuses_old_vectors(
     assert _entity_vectors(tmp_path).shape == (2, 5)
 
 
+def test_same_dimension_encoder_revision_never_reuses_old_vectors(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    _install_fake_sentence_transformer(monkeypatch)
+    db_path = tmp_path / "lex.duckdb"
+    _prepare_lex_db(db_path, entities=[("e1", "Budget"), ("e2", "Tax")])
+
+    first_encoder = _FakeSentenceTransformer("model-a", device="cpu")
+    first = legal_embedder.build_local_embeddings_and_indexes(
+        db_path=db_path,
+        output_dir=tmp_path,
+        embedding_model="model-a",
+        embedding_device="cpu",
+        encoder=first_encoder,
+    )
+    before = _entity_vectors(tmp_path)
+    selected_before = resolve_embedding_generation(
+        tmp_path / ".legal_embedding_generations" / "lex_entity_embeddings",
+        legacy_embeddings_path=tmp_path / "lex_entity_embeddings.npz",
+        legacy_index_path=tmp_path / "lex_entity_index.hnsw",
+    )
+    assert selected_before is not None and selected_before.selected
+    assert selected_before.inventory["embedding_model"] == "model-a"
+    assert selected_before.dimension == 4
+
+    # The configured model label and vector dimension remain stable while
+    # the loaded encoder assets and output change.
+    second_encoder = _FakeSentenceTransformer("model-b", device="cpu")
+    assert second_encoder.get_sentence_embedding_dimension() == 4
+    second = legal_embedder.build_local_embeddings_and_indexes(
+        db_path=db_path,
+        output_dir=tmp_path,
+        embedding_model="model-a",
+        embedding_device="cpu",
+        encoder=second_encoder,
+        incremental=True,
+    )
+    after = _entity_vectors(tmp_path)
+    selected_after = resolve_embedding_generation(
+        tmp_path / ".legal_embedding_generations" / "lex_entity_embeddings",
+        legacy_embeddings_path=tmp_path / "lex_entity_embeddings.npz",
+        legacy_index_path=tmp_path / "lex_entity_index.hnsw",
+    )
+
+    assert first.entities_embedded == 2
+    assert second.entities_embedded == 2
+    assert second.entities_skipped == 0
+    assert before.shape == after.shape == (2, 4)
+    assert not np.array_equal(before, after)
+    assert selected_after is not None and selected_after.selected
+    assert selected_after.inventory["embedding_model"] == "model-a"
+    assert selected_after.dimension == 4
+    before_basis = selected_before.inventory["basis"]
+    after_basis = selected_after.inventory["basis"]
+    assert isinstance(before_basis, dict) and isinstance(after_basis, dict)
+    assert before_basis["generator_rule_version"] != after_basis["generator_rule_version"]
+
+
 def test_projection_rule_change_invalidates_reuse(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
@@ -2015,6 +2073,250 @@ def test_local_owned_runtime_material_producer_get_post_and_callable_falsifier(
         assert [row.fact_id for row in decoy_results] == ["fact-decoy"]
         assert decoy_calls == [query]
         assert _total_knn_calls() - knn_calls_before_gate_removal == 1
+
+        # Republish the actual E5 vectors with a candidate descriptor for a
+        # different revision. The generation writer recomputes its member basis,
+        # file inventory, selector digest, and HNSW index; only its revision
+        # binding differs from the owner-selected revision.
+        alternate_revision = "0" * 40
+        current_revision = legal_runtime_material.LEGAL_CONTROLLED_MODEL_REVISION
+        assert alternate_revision != current_revision
+        manifest_bytes = manifest_path.read_bytes()
+        revision_bytes = current_revision.encode("ascii")
+        assert manifest_bytes.count(revision_bytes) == 1
+        alternate_manifest_bytes = manifest_bytes.replace(
+            revision_bytes,
+            alternate_revision.encode("ascii"),
+            1,
+        )
+        manifest_value = json.loads(manifest_bytes)
+        raw_manifest_files = manifest_value["files"]
+        assert isinstance(raw_manifest_files, list) and len(raw_manifest_files) == 9
+        model_files = tuple(
+            {
+                "name": entry["name"],
+                "sha256": entry["sha256"],
+                "size_bytes": entry["size_bytes"],
+            }
+            for entry in sorted(raw_manifest_files, key=lambda item: str(item["name"]))
+        )
+        alternate_model_files_digest = legal_runtime_material._canonical_digest(
+            {
+                "manifest_sha256": hashlib.sha256(alternate_manifest_bytes).hexdigest(),
+                "model_id": legal_runtime_material.LEGAL_CONTROLLED_MODEL_ID,
+                "revision": alternate_revision,
+                "members": model_files,
+            }
+        )
+        alternate_binding_digest = legal_runtime_material._binding_digest(
+            model_files_digest=alternate_model_files_digest,
+            asset_identity=handle.asset_identity,
+            runtime_digest=handle._runtime_digest,
+            source_digest=handle._source_digest,
+            encode_fingerprint=handle._encode_fingerprint,
+        )
+        assert alternate_binding_digest != handle.binding_digest
+        alternate_projection_rule = (
+            f"{legal_projection.LEGAL_EMBEDDING_PROJECTION_RULE_VERSION}|"
+            f"{legal_runtime_material.LEGAL_RUNTIME_MATERIAL_RULE_VERSION}="
+            f"{alternate_binding_digest}"
+        )
+
+        with duckdb.connect(str(db_path), read_only=True) as con:
+            revision_rows = con.execute(
+                "SELECT fact_id, subject_en, subject_uk, predicate, object_en, object_uk, "
+                "fact_text, norm_type, action_canon, norm_type_canon, condition_text_uk, "
+                "exception_text_uk, procedure_text_uk, thresholds_json, source_quote_uk "
+                "FROM lex_facts ORDER BY fact_id"
+            ).fetchall()
+        generation_rows = [
+            (
+                str(row[0]),
+                legal_embedder._fact_embedding_text(tuple(row[1:]))[:32000],
+            )
+            for row in revision_rows
+        ]
+        assert [identifier for identifier, _text in generation_rows] == fact_ids
+        assert reference.selector_path is not None
+        generation_index_dir = reference.selector_path.parent
+        publish_kwargs = {
+            "rows": generation_rows,
+            "index_dir": generation_index_dir,
+            "embedding_model": str(reference.inventory["embedding_model"]),
+            "embedding_device": str(reference.inventory["embedding_device"]),
+            "embedding_dimension": reference.dimension,
+            "basis_kind": "legal_lex_facts_embedding",
+            "encoder": handle,
+            "include_live_model_state": True,
+            "require_zero_copy_identity": True,
+            "legacy_embeddings_path": tmp_path / "lex_fact_embeddings.npz",
+            "legacy_index_path": tmp_path / "lex_fact_index.hnsw",
+        }
+        legal_embedder._build_embedding_generation_from_vectors(
+            **publish_kwargs,
+            vectors=vectors,
+            projection_rule_version=alternate_projection_rule,
+        )
+        alternate_reference = resolve_embedding_generation(
+            generation_index_dir,
+            legacy_embeddings_path=tmp_path / "lex_fact_embeddings.npz",
+            legacy_index_path=tmp_path / "lex_fact_index.hnsw",
+        )
+        assert (
+            alternate_reference is not None
+            and alternate_reference.selected
+            and alternate_reference.status == "complete"
+        )
+        assert alternate_reference.ids == reference.ids
+        assert alternate_reference.dimension == reference.dimension
+        alternate_basis = alternate_reference.inventory["basis"]
+        assert isinstance(alternate_basis, dict)
+        alternate_rule = alternate_basis["generator_rule_version"]
+        assert isinstance(alternate_rule, str)
+        assert alternate_projection_rule in alternate_rule
+        with np.load(alternate_reference.embeddings_path, allow_pickle=True) as alternate_payload:
+            assert tuple(str(item) for item in alternate_payload["ids"].tolist()) == fact_ids
+            assert np.array_equal(
+                np.asarray(alternate_payload["vectors"], dtype=np.float32),
+                vectors,
+            )
+
+        alternate_profile_response = client.get(
+            "/api/v1/control/lex/search-profile",
+            params={"output_dir": str(tmp_path)},
+        )
+        assert alternate_profile_response.status_code == 200, alternate_profile_response.text
+        alternate_profile = alternate_profile_response.json()
+        assert alternate_profile["status"] == "available"
+        alternate_intent = alternate_profile["query_generation_intent"]
+        assert len(alternate_intent) == 1
+        assert (
+            json.loads(alternate_intent[0]["inventory_json"])["basis"]["generator_rule_version"]
+            == alternate_rule
+        )
+        alternate_payload = {**payload, "query_generation_intent": alternate_intent}
+        encoded_before_revision_refusal = len(encoded_texts)
+        knn_before_revision_refusal = _total_knn_calls()
+        alternate_response = client.post(
+            "/api/v1/control/lex/search",
+            json=alternate_payload,
+        )
+        assert alternate_response.status_code == 200, alternate_response.text
+        alternate_body = alternate_response.json()
+        assert alternate_body["search_mode"] == "text"
+        assert alternate_body["vector_refusal_code"] == ("query_encoder_runtime_material_changed")
+        assert len(encoded_texts) == encoded_before_revision_refusal
+        assert _total_knn_calls() == knn_before_revision_refusal
+
+        # Remove only the consumer's revision-binding comparisons while retaining
+        # the selected marker, current owner, live assets, runtime, and callable checks.
+        original_rule_builder = legal_read_api.legal_embedding_generator_rule_version
+        original_binding_check = LegalKnowledgeStore._require_query_runtime_material_binding
+        original_live_check = legal_read_api.LegalRuntimeMaterialHandle._assert_live
+
+        def _rule_without_candidate_revision(
+            *,
+            projection_rule_version: str,
+            embedding_model: str,
+            embedding_device: str,
+            embedding_dimension: int,
+            encoder_identity: legal_read_api.GenerationIdentity,
+        ) -> str:
+            if projection_rule_version == handle.projection_rule_version:
+                projection_rule_version = alternate_projection_rule
+            return original_rule_builder(
+                projection_rule_version=projection_rule_version,
+                embedding_model=embedding_model,
+                embedding_device=embedding_device,
+                embedding_dimension=embedding_dimension,
+                encoder_identity=encoder_identity,
+            )
+
+        def _binding_without_candidate_revision(
+            refusal: LegalQueryProfileError | None = None,
+            *,
+            runtime_material_owner: object | None = None,
+            runtime_material_handle: object | None = None,
+            persisted_binding: str | None = None,
+            asset_identity: legal_read_api.GenerationIdentity | None = None,
+        ) -> None:
+            if persisted_binding == alternate_binding_digest:
+                persisted_binding = handle.binding_digest
+            original_binding_check(
+                refusal,
+                runtime_material_owner=runtime_material_owner,
+                runtime_material_handle=runtime_material_handle,
+                persisted_binding=persisted_binding,
+                asset_identity=asset_identity,
+            )
+
+        def _lease_without_candidate_revision(
+            runtime_handle: legal_read_api.LegalRuntimeMaterialHandle,
+            expected_binding: str,
+            expected_assets: legal_read_api.GenerationIdentity,
+        ) -> object:
+            if expected_binding == alternate_binding_digest:
+                expected_binding = runtime_handle.binding_digest
+            return original_live_check(runtime_handle, expected_binding, expected_assets)
+
+        encoded_before_revision_removal = len(encoded_texts)
+        knn_before_revision_removal = _total_knn_calls()
+        with monkeypatch.context() as revision_removal:
+            revision_removal.setattr(
+                legal_read_api,
+                "legal_embedding_generator_rule_version",
+                _rule_without_candidate_revision,
+            )
+            revision_removal.setattr(
+                LegalKnowledgeStore,
+                "_require_query_runtime_material_binding",
+                staticmethod(_binding_without_candidate_revision),
+            )
+            revision_removal.setattr(
+                legal_read_api.LegalRuntimeMaterialHandle,
+                "_assert_live",
+                _lease_without_candidate_revision,
+            )
+            removed_revision_response = client.post(
+                "/api/v1/control/lex/search",
+                json=alternate_payload,
+            )
+            assert removed_revision_response.status_code == 200
+            removed_revision_body = removed_revision_response.json()
+            assert removed_revision_body["search_mode"] == "vector"
+            assert removed_revision_body["vector_refusal_code"] is None
+        assert len(encoded_texts) == encoded_before_revision_removal + 1
+        assert _total_knn_calls() == knn_before_revision_removal + 1
+        assert alternate_reference.inventory["basis"]["generator_rule_version"] == alternate_rule
+
+        # Restore a selected descriptor from the currently owner-bound E5
+        # profile so the following member-drift case remains independent.
+        legal_embedder._build_embedding_generation_from_vectors(
+            **publish_kwargs,
+            vectors=vectors,
+            projection_rule_version=handle.projection_rule_version,
+        )
+        restored_reference = resolve_embedding_generation(
+            generation_index_dir,
+            legacy_embeddings_path=tmp_path / "lex_fact_embeddings.npz",
+            legacy_index_path=tmp_path / "lex_fact_index.hnsw",
+        )
+        assert (
+            restored_reference is not None
+            and restored_reference.selected
+            and restored_reference.status == "complete"
+        )
+        restored_profile_response = client.get(
+            "/api/v1/control/lex/search-profile",
+            params={"output_dir": str(tmp_path)},
+        )
+        assert restored_profile_response.status_code == 200, restored_profile_response.text
+        restored_profile = restored_profile_response.json()
+        assert restored_profile["status"] == "available"
+        payload = {
+            **payload,
+            "query_generation_intent": restored_profile["query_generation_intent"],
+        }
 
         with duckdb.connect(str(db_path)) as con:
             con.execute(

@@ -13629,5 +13629,70 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-terminal-c12-composed-adoption-20261018": {
+    "slice_base": "f06db62bd3db21744d5462dbfae0895198acd1f6",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/unit/remediation/test_emb_03.py": {
+        "preimage_sha256": "2c5bbbeb0f4add80fc4e6980b8283f97a1f5db9fd0a7425324c5be9f0e2d8ddc",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-c12-reviewed-composition-20261018/postimages/policy-engine/tests/unit/remediation/test_emb_03.py",
+        "postimage_sha256": "bd9378a7759863899f62821390af5025f95d3db5245bd3c860f55d9fb3e29750",
+        "operation": "write"
+      },
+      "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py": {
+        "preimage_sha256": "68135bfcb3e20ec1428b5c6a79d884387dda6f0f0e812cf6ccb5f7d6ba02c333",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-c12-reviewed-composition-20261018/postimages/policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py",
+        "postimage_sha256": "4f86650c271202e6c19a630cf5fea91a308b0a41694fdf742066623953606e45",
+        "operation": "write"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-c12-composed-adoption-20261018/source-application.json",
+      "sha256": "4853032ec48373d065d28bdcce5a588dfae7539002140d93ebaff77718f35ec8"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-c12-composed-adoption-20261018/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-c12-reviewed-composition-20261018/composition.json",
+        "sha256": "fcf457277e249bbb15345f1d6ac41626192d267b0c41de07aac3b5e9f652c68f"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-c12-composed-independent-20261018/review.md",
+        "sha256": "9fb95cc8b4f9821a46e79da002723e6bebe595242085fd549d0d0ff70d034911"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-serving-companion-current-author-20261018/r3/manifest.json",
+        "sha256": "790d8e4e6a31f225fc95a8d1cf76a044337a7e30b841f282a50f981e4bf84d26"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-outbox-owner-envelope-join-r12-20261018/manifest.json",
+        "sha256": "37f8c29dc14e58a55a9c5a3de694155a4fae0b876818b0b19f87a7829b18a6ba"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-r11-r12-independent-20261018/review.md",
+        "sha256": "c5bac59f09d2156dfbe7c34f90b437401911120b236f57b96c6629a1fc3154cb"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-r3-serving-independent-20261018/review.md",
+        "sha256": "d3baac801457e8cf32b3d80f35155744cb3da5b187c374b0fdbb7aad0e93425e"
+      }
+    ],
+    "P40": "Same test/serving companion class with exact independently reviewed composition, no discarded prior controls.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Joined QA producer\u2192current fenced row\u2192terminal outbox\u2192fresh GET still not_established for ordinary N4 route",
+      "Alternate E5 revision is internally hash-valid constructed negative, not a genuine owner-issued second revision",
+      "NL Catalog call witness uses fake retrieval service; real generation/profile consumers require separate actual Legal/Catalog profile",
+      "Runtime on this adopted composition UNRUN"
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run current whole monetary modules and source-bound real E5 Legal/Catalog consumers on frozen profile; preserve malformed-present controls and no authority claim.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

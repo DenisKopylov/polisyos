@@ -8,6 +8,7 @@ from pathlib import Path
 from types import SimpleNamespace
 from typing import Any, ClassVar, cast
 
+import duckdb
 import pytest
 
 from polisyos.core.artifacts import artifact_manifest_profile_sha256
@@ -26,6 +27,7 @@ from polisyos.runtime.http.services.control.nl_pipeline import (
     _artifact_ref_from_ref_payload,
 )
 from polisyos.runtime.http.services.control_registry_providers import ControlRegistryProviders
+from polisyos.runtime.quality.substrate_registry import CatalogServingSourceSelection
 from polisyos.scientist.orchestration.llm.prompt_cache import (
     CachingLLMClient,
     InMemoryPromptCache,
@@ -889,9 +891,27 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
         "polisyos.scientist.orchestration.llm.factory.create_traced_gateway_client",
         _build_n4_producer_client,
     )
-    env = build_runtime_api_env(tmp_path, include_test_client=True)
+    catalog_snapshot_root = tmp_path / "candidate-catalog"
+    catalog_path = catalog_snapshot_root / "datasets/graph/dataset_catalog.duckdb"
+    catalog_path.parent.mkdir(parents=True)
+    with duckdb.connect(str(catalog_path)) as catalog:
+        catalog.execute("CREATE TABLE ds_metric_bindings(metric_id VARCHAR)")
+        catalog.execute("CREATE TABLE ds_observations(canonical_var VARCHAR)")
+        catalog.execute("CREATE TABLE ds_datasets(polisyos_metrics VARCHAR[])")
+        catalog.execute("INSERT INTO ds_metric_bindings VALUES ('employment_rate')")
+    catalog_selection = CatalogServingSourceSelection(
+        snapshot_root=catalog_snapshot_root,
+        catalog_run_profile="prod_full",
+    )
+    env = build_runtime_api_env(
+        tmp_path,
+        include_test_client=True,
+        app_kwargs={"catalog_source_selection": catalog_selection},
+    )
     control_service = cast("Any", env["app"]).state._control_service
     control_store = control_service._control_store
+    assert control_service._catalog_run_profile == "prod_full"
+    assert control_service._catalog_serving_source.selection_basis == "explicit_path_candidate_only"
     owner_projection_writes: list[tuple[str, object, dict[str, object]]] = []
     original_update_progress_state = control_store.update_progress_state
 
@@ -905,45 +925,6 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
         original_update_progress_state(**kwargs)
 
     monkeypatch.setattr(control_store, "update_progress_state", _capture_owner_projection_write)
-    terminal_source_alias_gaps: list[tuple[str, str, str]] = []
-    inject_alias_gap_for_next_terminal = False
-    original_complete_job = control_store.complete_job
-
-    def _complete_with_one_missing_flat_alias(*args: Any, **kwargs: Any) -> None:
-        if inject_alias_gap_for_next_terminal and not terminal_source_alias_gaps:
-            from polisyos.runtime.quality.refs import RuntimeQualityAuthorityRefs
-
-            job_id = str(kwargs["job_id"])
-            current_job = control_store.get_job(job_id)
-            assert current_job is not None
-            current_progress = dict(current_job.progress)
-            current_refs = current_progress.get("runtime_quality_refs")
-            assert isinstance(current_refs, dict)
-            resolution = RuntimeQualityAuthorityRefs.from_runtime_payloads(
-                job_payload={"runtime_quality_refs": current_refs}
-            )
-            assert not resolution.rejections
-            missing_alias = next(
-                (
-                    (key, value)
-                    for key, value in resolution.refs.items()
-                    if current_progress.get(key) == value
-                ),
-                None,
-            )
-            assert missing_alias is not None
-            alias_key, alias_value = missing_alias
-            del current_progress[alias_key]
-            control_store.upsert_progress(job_id=job_id, progress=current_progress)
-            terminal_progress = kwargs.get("progress")
-            assert isinstance(terminal_progress, dict)
-            terminal_progress = dict(terminal_progress)
-            terminal_progress.pop(alias_key, None)
-            kwargs = {**kwargs, "progress": terminal_progress}
-            terminal_source_alias_gaps.append((job_id, alias_key, alias_value))
-        original_complete_job(*args, **kwargs)
-
-    monkeypatch.setattr(control_store, "complete_job", _complete_with_one_missing_flat_alias)
     client_context = cast("Any", env["client"])
     assert client_context is not None
     client_entered = False
@@ -959,7 +940,15 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
         client_context.__enter__()
         client_entered = True
         client = client_context
+        previous_retrieval_count = len(_FakeRetrievalService.instances)
         ordinary_run = submit_ordinary_nl_post(env)
+        selected_retrievals = _FakeRetrievalService.instances[previous_retrieval_count:]
+        assert selected_retrievals
+        assert any(
+            run_profile == "prod_full"
+            for retrieval in selected_retrievals
+            for _requested_profile, run_profile in retrieval.resolve_profile_calls
+        )
         job = ordinary_run["job"]
         job_id = str(ordinary_run["job_id"])
         creation_payload = ordinary_run["creation_payload"]
@@ -1038,6 +1027,7 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
             payload: dict[str, Any],
             *,
             source_job_id: str = job_id,
+            source_run_id: str | None = None,
             quality_evidence: dict[str, Any] | None = None,
         ) -> dict[str, Any]:
             from tools.ops_runners.runtime.canary_evidence import _build_canary_scorecard
@@ -1046,7 +1036,7 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
                 owner_source_context=(app, client),
                 canary_kind="production",
                 job_id=source_job_id,
-                run_id=received_job.run_id,
+                run_id=received_job.run_id if source_run_id is None else source_run_id,
                 execution_status=received_job.state,
                 job_payload=payload,
                 run_payload=None,
@@ -1293,7 +1283,6 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
         assert forged_source_gate["status"] == "fail"
         assert forged_source_gate["code"] == "phase_barrier_owner_scope_not_established"
 
-        inject_alias_gap_for_next_terminal = True
         sibling_run = submit_ordinary_nl_post(
             env, request="Compare a sibling liquidity-support execution."
         )
@@ -1306,28 +1295,51 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
         sibling_job = ControlJobResponse.model_validate(sibling_response.json())
         assert sibling_record.progress == sibling_outbox.payload["progress"]
         assert sibling_job.progress == sibling_record.progress
-        assert len(terminal_source_alias_gaps) == 1
-        gap_job_id, gap_alias_key, gap_alias_value = terminal_source_alias_gaps[0]
-        assert gap_job_id == sibling_job_id
-        sibling_progress_views = (
-            sibling_record.progress,
-            sibling_outbox.payload["progress"],
-            sibling_job.progress,
-        )
-        for sibling_progress in sibling_progress_views:
-            assert gap_alias_key not in sibling_progress
-            sibling_refs = sibling_progress.get("runtime_quality_refs")
-            assert isinstance(sibling_refs, dict)
-            assert sibling_refs[gap_alias_key] == gap_alias_value
+        assert sibling_job.progress["stage"] == "n4_proposal_only"
+        assert "runtime_quality_refs" not in sibling_job.progress
         sibling_payload = sibling_job.model_dump(mode="json")
-        sibling_source_scorecard = _source_scorecard(sibling_payload)
+        from polisyos.runtime.quality.refs import RuntimeQualityAuthorityRefs
+
+        sibling_authority_refs = RuntimeQualityAuthorityRefs.from_runtime_payloads(
+            job_payload=sibling_payload
+        )
+        assert not sibling_authority_refs.rejections
+        assert sibling_authority_refs.refs == {}
+        assert sibling_authority_refs.selected_refs == {}
+
+        # A sibling job paired with the first run ID must remain refused.
+        sibling_mismatched_run_scorecard = _source_scorecard(
+            sibling_payload,
+            source_job_id=sibling_job_id,
+        )
+        sibling_mismatched_run_gate = next(
+            gate
+            for gate in sibling_mismatched_run_scorecard["quality_gates"]
+            if gate["name"] == "serious_phase_barrier_owner_scope"
+        )
+        assert sibling_mismatched_run_gate["status"] == "fail"
+        assert sibling_mismatched_run_gate["code"] == "phase_barrier_owner_scope_not_established"
+
+        assert isinstance(sibling_job.run_id, str) and sibling_job.run_id
+        sibling_source_scorecard = _source_scorecard(
+            sibling_payload,
+            source_job_id=sibling_job_id,
+            source_run_id=sibling_job.run_id,
+        )
         sibling_source_gate = next(
             gate
             for gate in sibling_source_scorecard["quality_gates"]
             if gate["name"] == "serious_phase_barrier_owner_scope"
         )
-        assert sibling_source_gate["status"] == "fail"
-        assert sibling_source_gate["code"] == "phase_barrier_owner_scope_not_established"
+        sibling_source_intent_gate = next(
+            gate
+            for gate in sibling_source_scorecard["quality_gates"]
+            if gate["name"] == "serious_phase_barrier_intent_binding"
+        )
+        assert sibling_source_gate["status"] == "pass"
+        assert sibling_source_gate["code"] == "phase_barrier_owner_scope_reconciled"
+        assert sibling_source_intent_gate["status"] == "fail"
+        assert sibling_source_intent_gate["code"] == "run_intent_binding_incomplete"
 
         tampered_outbox_payload = {
             **completion_outbox.payload,

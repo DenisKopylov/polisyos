@@ -13301,5 +13301,80 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-terminal-outbox-r10-reviewed-adoption-20261018": {
+    "slice_base": "03023644881f0fbd1908718385206e0833660eef",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py": {
+        "operation": "modify",
+        "preimage_sha256": "addcbe2f4e71aa8e1055f5383025d2e21876e6dbd72c67f77219cf3e3f58a95b",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-outbox-r10-native-format-qualified-adoption-20261018/test_nl_pipeline_cost_projection.py",
+        "postimage_sha256": "68135bfcb3e20ec1428b5c6a79d884387dda6f0f0e812cf6ccb5f7d6ba02c333"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-outbox-r10-native-format-qualified-adoption-20261018/source-application.json",
+      "sha256": "56d9a4918c1780fc62b1f524d3d124bf95b01797ffed656ca161b776ef973896"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-outbox-r10-native-format-qualified-adoption-20261018/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-outbox-owner-envelope-join-r10-20261018/candidate-manifest-v2.json",
+        "sha256": "e1171c3781e93112062938d792a280ba68732c15a22f99b82cf4dfd02460d5a8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-outbox-owner-envelope-join-r10-20261018/candidate.patch",
+        "sha256": "0b30cd20f384f56cc937e1090d47a49da2884d6edf6f2b10b53b82134588a162"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r9-outbox-controls-independent-20261018/review.md",
+        "sha256": "fd6397c8989da85198c603e4ba3e2f3a5eed07e59204e2d446debabb5bbed1a9"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r9-outbox-controls-independent-20261018/r10-manifest-v2-addendum.md",
+        "sha256": "766650daf2404a0003f88adfc5c9cc20b66fcedf10f315af9f02c9203afc500d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r9-python-three-current-actual-20261018/pytest.stdout.txt",
+        "sha256": "4029cfa5e2adcc439d9ecde17d9868852f12d8601bbdda158e5fabdfbac1466d"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/scorecard.py",
+        "sha256": "80de032898d1db1b28d020e29fdd9a87672ccd13d751e71c3680c1e4407f16ea"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/services/debug.py",
+        "sha256": "86b2c54819a49d36dc9af30833603ab4ad6c8b718c01fe0b6465ed2bd5468ea5"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py",
+        "sha256": "1fde07e8786ac0e270dc624ee139fea840dc4e0b048997d7c5fdafab2e33f09b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-outbox-r10-reviewed-adoption-20261018/adoption-plan.json",
+        "sha256": "2b61658eb4c281829a53854e62c8892740fee54eed68ddd189488ec2ce7e115f"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-outbox-r10-native-format-qualified-adoption-20261018/format-qualification.json",
+        "sha256": "74b32046bf73f9add1033c7a94fc97bc975f08685f566501df30b04c476e5ca0"
+      }
+    ],
+    "P40": "Same P38 proxy-fixture class widened across all outbox mutations and the missing-reader seam; keep actual store identity and prove the intended reader was reached.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "One test-only change. Production service graph identity and strict outbox payload comparison are retained.",
+      "R9 actual at 030 was77P/1F; its positive owner join passed, while its wrapper controls did not establish payload-bound refusal. R10 runtime remains UNRUN.",
+      "Original author manifest v2 uses name-only supersedes locator manifest.json; original actual filename is candidate-manifest.json at c358511694cae6fd053ad20bf9cdbec2667bac4468ddbb915f811dfdbb9dd282. Both identities are preserved; this plan uses direct v2 and independent review pins.",
+      "Root applied native Ruff formatting to the reviewed postimage only; complete AST and comment-token identities match. The initial failed format preflight is preserved; canonical source was unchanged at refusal."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run the complete monetary module(s) after the composed source freeze; verify all12 payload controls reached the actual reader, the exact missing-reader refusal, persisted row controls, and source-positive/missing-intent-negative pair.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

@@ -1128,29 +1128,38 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
         } == expected_outbox_envelope
         debug_service = runtime_context.debug
         original_control_job_store = debug_service._producer_control_job_store
-
-        class _CompletionOutboxPayloadOverride:
-            def __init__(self, wrapped: Any, payload: dict[str, Any]) -> None:
-                self._wrapped = wrapped
-                self._payload = payload
-
-            def __getattr__(self, name: str) -> Any:
-                return getattr(self._wrapped, name)
-
-            def get_job_completed_outbox_event(self, requested_job_id: str) -> Any:
-                outbox = self._wrapped.get_job_completed_outbox_event(requested_job_id)
-                if requested_job_id != job_id or outbox is None:
-                    return outbox
-                return replace(outbox, payload=deepcopy(self._payload))
+        assert original_control_job_store is control_store
+        assert debug_service._producer_control_job_store is control_service._control_store
 
         def _assert_completion_outbox_refused(payload: dict[str, Any]) -> None:
-            debug_service._producer_control_job_store = _CompletionOutboxPayloadOverride(
-                original_control_job_store, payload
+            reader_calls: list[str] = []
+            original_completed_outbox_reader = (
+                original_control_job_store.get_job_completed_outbox_event
             )
-            try:
+
+            def _read_overridden_completed_outbox(requested_job_id: str) -> Any:
+                reader_calls.append(requested_job_id)
+                outbox = original_completed_outbox_reader(requested_job_id)
+                if requested_job_id != job_id or outbox is None:
+                    return outbox
+                assert outbox.event_id == completion_outbox.event_id
+                assert outbox.payload == completion_outbox.payload
+                assert payload != completion_outbox.payload
+                return replace(outbox, payload=deepcopy(payload))
+
+            with monkeypatch.context() as outbox_override:
+                # Keep the installed service graph intact and override only the
+                # real store's response so the owner join reads this mutation.
+                outbox_override.setattr(
+                    original_control_job_store,
+                    "get_job_completed_outbox_event",
+                    _read_overridden_completed_outbox,
+                )
+                assert debug_service._producer_control_job_store is control_service._control_store
                 rejected_scorecard = _source_scorecard(received_payload)
-            finally:
-                debug_service._producer_control_job_store = original_control_job_store
+
+            assert reader_calls == [job_id]
+            assert debug_service._producer_control_job_store is control_service._control_store
             rejected_owner_gate = next(
                 gate
                 for gate in rejected_scorecard["quality_gates"]
@@ -1158,6 +1167,9 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
             )
             assert rejected_owner_gate["status"] == "fail"
             assert rejected_owner_gate["code"] == "phase_barrier_owner_scope_not_established"
+            assert (
+                "runtime_owner_source_service_graph_mismatch" not in rejected_owner_gate["message"]
+            )
 
         for field, expected_value in expected_outbox_envelope.items():
             missing_envelope_payload = deepcopy(completion_outbox.payload)
@@ -1242,24 +1254,17 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
         assert forged_intent_gate["status"] == "fail"
         assert forged_intent_gate["code"] == "run_intent_binding_incomplete"
 
-        class _MissingTerminalSourceReader:
-            def __init__(self, wrapped: object) -> None:
-                self._wrapped = wrapped
-
-            def __getattr__(self, name: str) -> Any:
-                if name == "get_job_terminal_source_event_record":
-                    raise AttributeError(name)
-                return getattr(self._wrapped, name)
-
-        debug_service = runtime_context.debug
-        original_control_job_store = debug_service._producer_control_job_store
-        debug_service._producer_control_job_store = _MissingTerminalSourceReader(
-            original_control_job_store
-        )
-        try:
+        with monkeypatch.context() as missing_terminal_reader:
+            # Keep the bound store object and service graph; make the required
+            # reader unavailable on that exact owner so its typed refusal runs.
+            missing_terminal_reader.setattr(
+                original_control_job_store,
+                "get_job_terminal_source_event_record",
+                None,
+            )
+            assert debug_service._producer_control_job_store is control_service._control_store
             missing_reader_scorecard = _source_scorecard(received_payload)
-        finally:
-            debug_service._producer_control_job_store = original_control_job_store
+        assert debug_service._producer_control_job_store is control_service._control_store
         missing_reader_gate = next(
             gate
             for gate in missing_reader_scorecard["quality_gates"]
@@ -1271,6 +1276,7 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
             "control_job_source_reader_unavailable:get_job_terminal_source_event_record"
             in missing_reader_gate["message"]
         )
+        assert "runtime_owner_source_service_graph_mismatch" not in missing_reader_gate["message"]
 
         forged_payload = deepcopy(received_payload)
         forged_owner = forged_payload["progress"]["execution_owner_binding"]

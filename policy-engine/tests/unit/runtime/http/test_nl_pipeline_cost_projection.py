@@ -21,13 +21,17 @@ from polisyos.core.contracts.execution_plan import MethodCatalogSnapshot, Method
 from polisyos.core.llm.traced_client import TracedLLMClient
 from polisyos.runtime.http.execution_policy import RuntimeExecutionPolicyResolver
 from polisyos.runtime.http.services.control import ControlPlaneService
-from polisyos.runtime.http.services.control.nl_pipeline import _artifact_ref_from_ref_payload
+from polisyos.runtime.http.services.control.nl_pipeline import (
+    NaturalLanguagePipelineRefusalError,
+    _artifact_ref_from_ref_payload,
+)
 from polisyos.runtime.http.services.control_registry_providers import ControlRegistryProviders
 from polisyos.scientist.orchestration.llm.prompt_cache import (
     CachingLLMClient,
     InMemoryPromptCache,
 )
 from polisyos.scientist.orchestration.llm.simulated_gateway import SimulatedGatewayLLMClient
+from tests._helpers.control_worker import dispatch_one_control_job
 from tests._helpers.runtime_http import (
     build_runtime_api_env,
     close_runtime_api_env,
@@ -265,6 +269,7 @@ def test_simulated_nl_producer_costs_settle_and_capture_four_origins(
     from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
 
     captured: dict[str, Any] = {}
+    monetary_clients: list[_CancelCacheOwnerOnce] = []
 
     def _capture_state(payload: dict[str, Any], **kwargs: Any) -> None:
         captured["payload"] = payload
@@ -284,7 +289,7 @@ def test_simulated_nl_producer_costs_settle_and_capture_four_origins(
             ttl_s=30,
             inflight_timeout_s=10,
         )
-        return _CancelCacheOwnerOnce(
+        client = _CancelCacheOwnerOnce(
             cache,
             provider,
             model_name=model,
@@ -296,6 +301,8 @@ def test_simulated_nl_producer_costs_settle_and_capture_four_origins(
             producer_settlement_store=kwargs.get("producer_settlement_store"),
             producer_budget_key=str(kwargs.get("producer_budget_key", "run")),
         )
+        monetary_clients.append(client)
+        return client
 
     monkeypatch.setattr(
         "polisyos.runtime.http.services.control.nl_pipeline.create_traced_gateway_client",
@@ -476,36 +483,104 @@ def test_simulated_nl_producer_costs_settle_and_capture_four_origins(
     )
 
     try:
-        service._execute_nl_pipeline(
+        execution_context = {
+            "tenant_id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+            "cell_id": "cell-a",
+            "jurisdiction": "UA",
+            "target_population": "wartime MSMEs",
+            "policy_time": "2026-05-15",
+            "data_time": "2024-2026",
+            "policy_problem": "Wartime MSMEs face liquidity constraints.",
+            "desired_outcome": "MSME survival",
+            "proposed_intervention": "targeted credit support",
+            "requested_authority_level": "dev",
+        }
+        pipeline_kwargs = {
+            "run_id": run_id,
+            "nl_request": "Develop an optimal policy for wartime MSMEs in Ukraine.",
+            "context": execution_context,
+            "domain_hint": "Ukraine wartime MSME support policy",
+            "data_source": None,
+            "max_iterations": 1,
+            "llm_models": ["simulated-qwen"],
+            "max_parallel_models": 1,
+            "run_budget_usd": None,
+            "per_model_budget_usd": None,
+            "checkpoint_policy": "strict",
+            "execution_plan_ref": None,
+            "execution_plan_payload": None,
+            "stop_criteria_payload": {},
+            "governance_constraints_payload": [],
+            "expected_outputs_payload": [],
+            "allow_mock_fallback": False,
+        }
+        with pytest.raises(
+            NaturalLanguagePipelineRefusalError,
+            match="control_job_execution_scope_not_established",
+        ):
+            service._execute_nl_pipeline(**pipeline_kwargs)
+        assert captured == {}
+        assert monetary_clients == []
+
+        job_id = "job-nl-producer-cost-projection"
+        payload_ref = "sha256:" + "f" * 64
+        execution_scope = {
+            "schema_version": "polisyos.runtime.control_execution_scope.v1",
+            "status": "established",
+            "tenant_id": execution_context["tenant_id"],
+            "cell_id": execution_context["cell_id"],
+            "actor_subject": "test-nl-producer-worker",
+            "actor_authenticated": True,
+            "actor_roles": ["analyst"],
+        }
+        creation_payload = {
+            "job_id": job_id,
+            "run_id": run_id,
+            "job_kind": "natural_language_run",
+            "pipeline_id": None,
+            "payload_ref": payload_ref,
+            "submitted_by": execution_scope["actor_subject"],
+            "requested_execution_profile": "dev",
+            "effective_execution_profile": "dev",
+            "policy_flags": {},
+            "capability_manifest_ref": None,
+            "execution_scope": execution_scope,
+        }
+        service._control_store.create_job(
+            job_id=job_id,
+            kind="natural_language_run",
             run_id=run_id,
-            nl_request="Develop an optimal policy for wartime MSMEs in Ukraine.",
-            context={
-                "tenant_id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
-                "cell_id": "cell-a",
-                "jurisdiction": "UA",
-                "target_population": "wartime MSMEs",
-                "policy_time": "2026-05-15",
-                "data_time": "2024-2026",
-                "policy_problem": "Wartime MSMEs face liquidity constraints.",
-                "desired_outcome": "MSME survival",
-                "proposed_intervention": "targeted credit support",
-                "requested_authority_level": "dev",
-            },
-            domain_hint="Ukraine wartime MSME support policy",
-            data_source=None,
-            max_iterations=1,
-            llm_models=["simulated-qwen"],
-            max_parallel_models=1,
-            run_budget_usd=None,
-            per_model_budget_usd=None,
-            checkpoint_policy="strict",
-            execution_plan_ref=None,
-            execution_plan_payload=None,
-            stop_criteria_payload={},
-            governance_constraints_payload=[],
-            expected_outputs_payload=[],
-            allow_mock_fallback=False,
+            pipeline_id=None,
+            requested_execution_profile="dev",
+            effective_execution_profile="dev",
+            policy_flags={},
+            capability_manifest_ref=None,
+            payload_ref=payload_ref,
+            submitted_by=execution_scope["actor_subject"],
+            initial_progress={"state": "pending", "phase": "job_admission"},
+            creation_event_payload=creation_payload,
         )
+
+        def _run_pipeline_under_live_job(_job: object) -> None:
+            captured["pipeline_result"] = service._execute_nl_pipeline(
+                **pipeline_kwargs,
+                control_job_id=job_id,
+                execution_profile="dev",
+            )
+            service._control_store.complete_job(
+                job_id=job_id,
+                run_id=run_id,
+                progress={"state": "completed", "phase": "nl_pipeline_contract"},
+            )
+
+        dispatch_one_control_job(
+            store=service._control_store,  # noqa: SLF001
+            handler=_run_pipeline_under_live_job,
+            expected_job_id=job_id,
+        )
+        completed_job = service._control_store.get_job(job_id)
+        assert completed_job is not None and completed_job.state == "completed"
+        assert completed_job.progress["execution_owner_binding"]["job_id"] == job_id
         actual_retrieval_services = [
             retrieval
             for retrieval in _FakeRetrievalService.instances
@@ -830,6 +905,45 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
         original_update_progress_state(**kwargs)
 
     monkeypatch.setattr(control_store, "update_progress_state", _capture_owner_projection_write)
+    terminal_source_alias_gaps: list[tuple[str, str, str]] = []
+    inject_alias_gap_for_next_terminal = False
+    original_complete_job = control_store.complete_job
+
+    def _complete_with_one_missing_flat_alias(*args: Any, **kwargs: Any) -> None:
+        if inject_alias_gap_for_next_terminal and not terminal_source_alias_gaps:
+            from polisyos.runtime.quality.refs import RuntimeQualityAuthorityRefs
+
+            job_id = str(kwargs["job_id"])
+            current_job = control_store.get_job(job_id)
+            assert current_job is not None
+            current_progress = dict(current_job.progress)
+            current_refs = current_progress.get("runtime_quality_refs")
+            assert isinstance(current_refs, dict)
+            resolution = RuntimeQualityAuthorityRefs.from_runtime_payloads(
+                job_payload={"runtime_quality_refs": current_refs}
+            )
+            assert not resolution.rejections
+            missing_alias = next(
+                (
+                    (key, value)
+                    for key, value in resolution.refs.items()
+                    if current_progress.get(key) == value
+                ),
+                None,
+            )
+            assert missing_alias is not None
+            alias_key, alias_value = missing_alias
+            del current_progress[alias_key]
+            control_store.upsert_progress(job_id=job_id, progress=current_progress)
+            terminal_progress = kwargs.get("progress")
+            assert isinstance(terminal_progress, dict)
+            terminal_progress = dict(terminal_progress)
+            terminal_progress.pop(alias_key, None)
+            kwargs = {**kwargs, "progress": terminal_progress}
+            terminal_source_alias_gaps.append((job_id, alias_key, alias_value))
+        original_complete_job(*args, **kwargs)
+
+    monkeypatch.setattr(control_store, "complete_job", _complete_with_one_missing_flat_alias)
     client_context = cast("Any", env["client"])
     assert client_context is not None
     client_entered = False
@@ -868,19 +982,22 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
         from polisyos.runtime.quality.scorecard import build_quality_scorecard
 
         received_payload = received_job.model_dump(mode="json")
-        persisted_job = ordinary_run["job"]
+        persisted_job = control_store.get_job(job_id)
+        assert persisted_job is not None and persisted_job.state == "completed"
         assert received_job.state == "completed"
-        received_owner = received_job.progress["execution_owner_binding"]
-        persisted_owner = persisted_job.progress["execution_owner_binding"]
-        assert (
-            job_id,
-            "job_admission",
-            received_owner,
-        ) in owner_projection_writes
+        persisted_owner = persisted_job.progress.get("execution_owner_binding")
+        assert isinstance(persisted_owner, dict)
+        completion_outbox = control_store.get_job_completed_outbox_event(job_id)
+        assert completion_outbox is not None
+        completion_progress = completion_outbox.payload["progress"]
+        assert completion_progress["execution_owner_binding"] == persisted_owner
+        assert completion_progress == persisted_job.progress == received_job.progress
+        assert (job_id, "job_admission", persisted_owner) in owner_projection_writes
+        received_owner = received_job.progress.get("execution_owner_binding")
+        assert isinstance(received_owner, dict)
         assert received_owner == persisted_owner
         assert received_owner["job_id"] == job_id
         assert received_owner["run_id"] == str(job.run_id)
-        completion_outbox = control_store.get_job_completed_outbox_event(job_id)
         assert completion_outbox.payload["progress"]["execution_owner_binding"] == received_owner
 
         def _owner_gate(payload: dict[str, Any]) -> dict[str, Any]:
@@ -1020,13 +1137,33 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
         assert forged_source_gate["status"] == "fail"
         assert forged_source_gate["code"] == "phase_barrier_owner_scope_not_established"
 
+        inject_alias_gap_for_next_terminal = True
         sibling_run = submit_ordinary_nl_post(
             env, request="Compare a sibling liquidity-support execution."
         )
         sibling_job_id = str(sibling_run["job_id"])
+        sibling_record = control_store.get_job(sibling_job_id)
+        sibling_outbox = control_store.get_job_completed_outbox_event(sibling_job_id)
+        assert sibling_record is not None and sibling_outbox is not None
         sibling_response = client.get(f"/api/v1/control/jobs/{sibling_job_id}")
         assert sibling_response.status_code == 200, sibling_response.text
-        sibling_payload = sibling_response.json()
+        sibling_job = ControlJobResponse.model_validate(sibling_response.json())
+        assert sibling_record.progress == sibling_outbox.payload["progress"]
+        assert sibling_job.progress == sibling_record.progress
+        assert len(terminal_source_alias_gaps) == 1
+        gap_job_id, gap_alias_key, gap_alias_value = terminal_source_alias_gaps[0]
+        assert gap_job_id == sibling_job_id
+        sibling_progress_views = (
+            sibling_record.progress,
+            sibling_outbox.payload["progress"],
+            sibling_job.progress,
+        )
+        for sibling_progress in sibling_progress_views:
+            assert gap_alias_key not in sibling_progress
+            sibling_refs = sibling_progress.get("runtime_quality_refs")
+            assert isinstance(sibling_refs, dict)
+            assert sibling_refs[gap_alias_key] == gap_alias_value
+        sibling_payload = sibling_job.model_dump(mode="json")
         sibling_source_scorecard = _source_scorecard(sibling_payload)
         sibling_source_gate = next(
             gate
@@ -1679,20 +1816,22 @@ def test_terminal_progress_carries_only_current_fenced_source_projections(
 
     store = ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "owner-terminal.sqlite3")
 
-    def _lease_job(job_id: str) -> tuple[Any, str]:
+    def _lease_job(job_id: str, *, scope_status: str = "established") -> tuple[Any, str]:
         run_id = f"run-{job_id}"
         worker_id = f"worker-{job_id}"
         submitted_by = f"actor-{job_id}"
         tenant_id = f"tenant-{job_id}"
         cell_id = f"cell-{job_id}"
+        assert scope_status in {"established", "not_established"}
+        established = scope_status == "established"
         scope = {
             "schema_version": "polisyos.runtime.control_execution_scope.v1",
-            "status": "established",
-            "tenant_id": tenant_id,
-            "cell_id": cell_id,
-            "actor_subject": submitted_by,
-            "actor_authenticated": True,
-            "actor_roles": ["analyst"],
+            "status": scope_status,
+            "tenant_id": tenant_id if established else None,
+            "cell_id": cell_id if established else None,
+            "actor_subject": submitted_by if established else None,
+            "actor_authenticated": established,
+            "actor_roles": ["analyst"] if established else [],
         }
         payload_ref = "sha256:" + "a" * 64
         creation_payload = {
@@ -1726,9 +1865,9 @@ def test_terminal_progress_carries_only_current_fenced_source_projections(
         assert leased.job_id == job.job_id
         return leased, worker_id
 
-    def _current_owner_binding(job_id: str) -> dict[str, object]:
+    def _current_owner_binding_or_none(job_id: str) -> dict[str, object] | None:
         admission = store.current_execution_job_admission()
-        binding = _execution_owner_binding_from_admission(
+        return _execution_owner_binding_from_admission(
             admission,
             expected_job_id=job_id,
             expected_run_id=f"run-{job_id}",
@@ -1738,6 +1877,9 @@ def test_terminal_progress_carries_only_current_fenced_source_projections(
                 "cell_id": f"cell-{job_id}",
             },
         )
+
+    def _current_owner_binding(job_id: str) -> dict[str, object]:
+        binding = _current_owner_binding_or_none(job_id)
         assert binding is not None
         return binding
 
@@ -2005,6 +2147,35 @@ def test_terminal_progress_carries_only_current_fenced_source_projections(
     assert "policy_intent_envelope_ref" not in missing_record.progress
     assert missing_record.progress["phase"] == "terminal"
 
+    unprojected_owner, unprojected_owner_worker = _lease_job("job-owner-terminal-rederived")
+    with store.job_execution_fence(
+        job_id=unprojected_owner.job_id,
+        worker_id=unprojected_owner_worker,
+        attempt=unprojected_owner.attempt,
+    ):
+        current_owner = _current_owner_binding(unprojected_owner.job_id)
+        assert "execution_owner_binding" not in store.current_execution_job_record().progress
+        store.complete_job(
+            job_id=unprojected_owner.job_id,
+            progress={"phase": "terminal"},
+        )
+    unprojected_record = store.get_job(unprojected_owner.job_id)
+    unprojected_outbox = store.get_job_completed_outbox_event(unprojected_owner.job_id)
+    assert unprojected_record is not None
+    assert unprojected_outbox is not None
+    unprojected_response = unprojected_record.to_response()
+    unprojected_views = (
+        unprojected_record.progress,
+        unprojected_outbox.payload["progress"],
+        unprojected_response.progress,
+    )
+    assert unprojected_record.progress == unprojected_outbox.payload["progress"]
+    assert unprojected_response.progress == unprojected_record.progress
+    for terminal_progress in unprojected_views:
+        assert terminal_progress["execution_owner_binding"] == current_owner
+        assert "runtime_quality_refs" not in terminal_progress
+        assert "policy_intent_envelope_ref" not in terminal_progress
+
     absent_alias, absent_alias_worker = _lease_job("job-owner-missing-flat-ref")
     with store.job_execution_fence(
         job_id=absent_alias.job_id,
@@ -2035,9 +2206,13 @@ def test_terminal_progress_carries_only_current_fenced_source_projections(
     absent_alias_outbox = store.get_job_completed_outbox_event(absent_alias.job_id)
     assert absent_alias_record is not None
     assert absent_alias_outbox is not None
+    absent_alias_response = absent_alias_record.to_response()
+    assert absent_alias_record.progress == absent_alias_outbox.payload["progress"]
+    assert absent_alias_response.progress == absent_alias_record.progress
     for terminal_progress in (
         absent_alias_record.progress,
         absent_alias_outbox.payload["progress"],
+        absent_alias_response.progress,
     ):
         assert (
             terminal_progress["runtime_quality_refs"]
@@ -2086,3 +2261,447 @@ def test_terminal_progress_carries_only_current_fenced_source_projections(
             )
         current = store.current_execution_job_record()
         assert current.state == "running"
+
+    def _well_formed_owner_guess(
+        job: Any, current_owner: dict[str, object] | None
+    ) -> dict[str, object]:
+        if current_owner is not None:
+            return dict(current_owner)
+        return {
+            "job_id": job.job_id,
+            "run_id": str(job.run_id),
+            "tenant_id": f"guessed-tenant-{job.job_id}",
+            "cell_id": f"guessed-cell-{job.job_id}",
+            "requested_execution_profile": "research",
+            "effective_execution_profile": "research",
+            "attempt": job.attempt,
+            "lease_owner": job.lease_owner,
+        }
+
+    def _intent_for_matrix(job: Any, current_owner: dict[str, object] | None) -> dict[str, object]:
+        return {
+            "run_id": str(job.run_id),
+            "tenant_id": (
+                str(current_owner["tenant_id"])
+                if current_owner is not None
+                else f"guessed-tenant-{job.job_id}"
+            ),
+            "requested_profile": (
+                str(current_owner["requested_execution_profile"])
+                if current_owner is not None
+                else "research"
+            ),
+            "policy_intent_ref": "sha256:" + "b" * 64,
+            "time_context_ref": None,
+            "same_input_closure_ref": None,
+        }
+
+    owner_state_cases: set[tuple[bool, str, bool]] = set()
+    for owner_available in (True, False):
+        for row_owner_state in ("absent", "valid", "malformed", "mismatch"):
+            for intent_present in (False, True):
+                case_id = f"{owner_available}-{row_owner_state}-{intent_present}"
+                matrix_job, matrix_worker = _lease_job(
+                    f"job-owner-matrix-{case_id}",
+                    scope_status="established" if owner_available else "not_established",
+                )
+                with store.job_execution_fence(
+                    job_id=matrix_job.job_id,
+                    worker_id=matrix_worker,
+                    attempt=matrix_job.attempt,
+                ):
+                    current_owner = _current_owner_binding_or_none(matrix_job.job_id)
+                    assert (current_owner is not None) is owner_available
+                    row_progress = dict(store.current_execution_job_record().progress)
+                    row_progress.pop("execution_owner_binding", None)
+                    row_progress.pop("run_intent_binding", None)
+                    if row_owner_state == "valid":
+                        row_progress["execution_owner_binding"] = _well_formed_owner_guess(
+                            matrix_job, current_owner
+                        )
+                    elif row_owner_state == "malformed":
+                        row_progress["execution_owner_binding"] = {"job_id": matrix_job.job_id}
+                    elif row_owner_state == "mismatch":
+                        mismatch = _well_formed_owner_guess(matrix_job, current_owner)
+                        if current_owner is not None:
+                            mismatch["tenant_id"] = f"foreign-tenant-{matrix_job.job_id}"
+                        else:
+                            mismatch["job_id"] = f"foreign-{matrix_job.job_id}"
+                        row_progress["execution_owner_binding"] = mismatch
+                    if intent_present:
+                        row_progress["run_intent_binding"] = _intent_for_matrix(
+                            matrix_job, current_owner
+                        )
+                    store.upsert_progress(job_id=matrix_job.job_id, progress=row_progress)
+
+                    terminal_progress = {
+                        "phase": "terminal",
+                        "matrix_case": case_id,
+                    }
+                    owner_state_cases.add((owner_available, row_owner_state, intent_present))
+                    should_reject = (
+                        not owner_available and (row_owner_state != "absent" or intent_present)
+                    ) or (owner_available and row_owner_state in {"malformed", "mismatch"})
+                    if should_reject:
+                        with pytest.raises(
+                            ControlJobLeaseLostError,
+                            match="control_job_terminal_owner_binding_not_current",
+                        ):
+                            store.complete_job(
+                                job_id=matrix_job.job_id,
+                                progress=terminal_progress,
+                            )
+                        current = store.current_execution_job_record()
+                        assert current.state == "running"
+                        assert current.progress == row_progress
+                        assert store.get_job_completed_outbox_event(matrix_job.job_id) is None
+                        continue
+
+                    store.complete_job(
+                        job_id=matrix_job.job_id,
+                        progress=terminal_progress,
+                    )
+                completed_record = store.get_job(matrix_job.job_id)
+                completed_outbox = store.get_job_completed_outbox_event(matrix_job.job_id)
+                assert completed_record is not None and completed_record.state == "completed"
+                assert completed_outbox is not None
+                assert completed_record.progress == completed_outbox.payload["progress"]
+                assert completed_record.progress["matrix_case"] == case_id
+                if current_owner is None:
+                    assert "execution_owner_binding" not in completed_record.progress
+                    assert "run_intent_binding" not in completed_record.progress
+                else:
+                    assert completed_record.progress["execution_owner_binding"] == current_owner
+                    if intent_present:
+                        assert (
+                            completed_record.progress["run_intent_binding"]
+                            == row_progress["run_intent_binding"]
+                        )
+                    else:
+                        assert "run_intent_binding" not in completed_record.progress
+
+    assert owner_state_cases == {
+        (owner_available, row_owner_state, intent_present)
+        for owner_available in (True, False)
+        for row_owner_state in ("absent", "valid", "malformed", "mismatch")
+        for intent_present in (False, True)
+    }
+
+    unknown_supplied, unknown_supplied_worker = _lease_job(
+        "job-owner-unknown-supplied-fields", scope_status="not_established"
+    )
+    with store.job_execution_fence(
+        job_id=unknown_supplied.job_id,
+        worker_id=unknown_supplied_worker,
+        attempt=unknown_supplied.attempt,
+    ):
+        supplied_owner = _well_formed_owner_guess(unknown_supplied, None)
+        with pytest.raises(
+            ControlJobLeaseLostError,
+            match="control_job_terminal_owner_binding_not_current",
+        ):
+            store.complete_job(
+                job_id=unknown_supplied.job_id,
+                progress={
+                    "phase": "terminal",
+                    "execution_owner_binding": supplied_owner,
+                },
+            )
+        with pytest.raises(
+            ControlJobLeaseLostError,
+            match="control_job_terminal_owner_binding_not_current",
+        ):
+            store.complete_job(
+                job_id=unknown_supplied.job_id,
+                progress={
+                    "phase": "terminal",
+                    "run_intent_binding": _intent_for_matrix(unknown_supplied, None),
+                },
+            )
+        current = store.current_execution_job_record()
+        assert current.state == "running"
+        assert "execution_owner_binding" not in current.progress
+        assert "run_intent_binding" not in current.progress
+        assert store.get_job_completed_outbox_event(unknown_supplied.job_id) is None
+
+    # P31/P40 widened control: every actual source-availability path shares the
+    # same owner/intent intake, and the finite state set comes from the helper's
+    # live-fence/admission/source derivation branches.
+    import json
+
+    availability_states = (
+        "no_fence",
+        "mismatched_fence",
+        "invalid_admission",
+        "unknown_scope",
+        "valid_fence",
+    )
+    projection_placements = ("none", "current", "supplied", "both")
+    availability_cases: set[tuple[str, str]] = set()
+
+    def _invalidate_created_admission(job_id: str) -> None:
+        outbox = store.get_job_created_outbox_event(job_id)
+        assert outbox is not None
+        payload = dict(outbox.payload)
+        scope = dict(payload["execution_scope"])
+        scope["tenant_id"] = f"foreign-{scope['tenant_id']}"
+        payload["execution_scope"] = scope
+        store._execute(  # noqa: SLF001
+            "UPDATE control_outbox_events SET payload_json = ? WHERE event_id = ?",
+            (json.dumps(payload, sort_keys=True), outbox.event_id),
+        )
+
+    for availability in availability_states:
+        for placement in projection_placements:
+            case_id = f"{availability}-{placement}"
+            job, worker = _lease_job(
+                f"job-terminal-availability-{case_id}",
+                scope_status=(
+                    "not_established" if availability == "unknown_scope" else "established"
+                ),
+            )
+            with store.job_execution_fence(
+                job_id=job.job_id,
+                worker_id=worker,
+                attempt=job.attempt,
+            ):
+                derived_owner = _current_owner_binding_or_none(job.job_id)
+                owner = derived_owner or _well_formed_owner_guess(job, None)
+                intent = _intent_for_matrix(job, owner)
+                row_progress = dict(store.current_execution_job_record().progress)
+                row_progress.pop("execution_owner_binding", None)
+                row_progress.pop("run_intent_binding", None)
+                if placement in {"current", "both"}:
+                    row_progress["execution_owner_binding"] = owner
+                    row_progress["run_intent_binding"] = intent
+                store.upsert_progress(job_id=job.job_id, progress=row_progress)
+
+                if availability == "invalid_admission":
+                    _invalidate_created_admission(job.job_id)
+
+                terminal_progress = {"phase": "terminal", "matrix_case": case_id}
+                if placement in {"supplied", "both"}:
+                    terminal_progress["execution_owner_binding"] = owner
+                    terminal_progress["run_intent_binding"] = intent
+
+                availability_cases.add((availability, placement))
+                should_reject = (availability != "valid_fence" and placement != "none") or (
+                    availability == "valid_fence" and placement == "supplied"
+                )
+
+                if availability == "mismatched_fence":
+                    # A live handler lease exists, but this invocation's fence
+                    # does not match it. The public lifecycle API rejects this
+                    # before projection; exercise the shared helper's defensive
+                    # mismatch branch against the actual active admission.
+                    mismatched_fence = (f"foreign-{worker}", job.attempt)
+                    if should_reject:
+                        with pytest.raises(
+                            ControlJobLeaseLostError,
+                            match="control_job_terminal_owner_binding_not_current",
+                        ):
+                            store._terminal_progress_with_current_source_projection(  # noqa: SLF001
+                                job_id=job.job_id,
+                                progress=terminal_progress,
+                                fence=mismatched_fence,
+                            )
+                    else:
+                        assert (
+                            store._terminal_progress_with_current_source_projection(  # noqa: SLF001
+                                job_id=job.job_id,
+                                progress=terminal_progress,
+                                fence=mismatched_fence,
+                            )
+                            == terminal_progress
+                        )
+                    current = store.current_execution_job_record()
+                    assert current.state == "running"
+                    assert current.progress == row_progress
+                    assert store.get_job_completed_outbox_event(job.job_id) is None
+                    continue
+
+                if availability == "no_fence":
+                    # The owner/intent intake still runs after the handler
+                    # context ends; an unbound terminal snapshot remains valid.
+                    pass
+                elif should_reject:
+                    with pytest.raises(
+                        ControlJobLeaseLostError,
+                        match=(
+                            "control_job_terminal_progress_source_projection_conflict"
+                            if availability == "valid_fence"
+                            else "control_job_terminal_owner_binding_not_current"
+                        ),
+                    ):
+                        store.complete_job(
+                            job_id=job.job_id,
+                            progress=terminal_progress,
+                        )
+                    current = store.current_execution_job_record()
+                    assert current.state == "running"
+                    assert current.progress == row_progress
+                    assert store.get_job_completed_outbox_event(job.job_id) is None
+                    continue
+                else:
+                    store.complete_job(
+                        job_id=job.job_id,
+                        progress=terminal_progress,
+                    )
+                    completed_record = store.get_job(job.job_id)
+                    completed_outbox = store.get_job_completed_outbox_event(job.job_id)
+                    assert completed_record is not None and completed_record.state == "completed"
+                    assert completed_outbox is not None
+                    assert completed_record.progress == completed_outbox.payload["progress"]
+                    assert completed_record.progress["matrix_case"] == case_id
+                    if availability == "valid_fence":
+                        assert completed_record.progress["execution_owner_binding"] == owner
+                        if placement in {"current", "both"}:
+                            assert completed_record.progress["run_intent_binding"] == intent
+                        else:
+                            assert "run_intent_binding" not in completed_record.progress
+                    else:
+                        assert "execution_owner_binding" not in completed_record.progress
+                        assert "run_intent_binding" not in completed_record.progress
+                    continue
+
+            if availability == "no_fence":
+                if should_reject:
+                    with pytest.raises(
+                        ControlJobLeaseLostError,
+                        match="control_job_terminal_owner_binding_not_current",
+                    ):
+                        store.complete_job(
+                            job_id=job.job_id,
+                            progress=terminal_progress,
+                        )
+                    current = store.get_job(job.job_id)
+                    assert current is not None and current.state == "running"
+                    assert current.progress == row_progress
+                    assert store.get_job_completed_outbox_event(job.job_id) is None
+                else:
+                    store.complete_job(
+                        job_id=job.job_id,
+                        progress=terminal_progress,
+                    )
+                    completed_record = store.get_job(job.job_id)
+                    completed_outbox = store.get_job_completed_outbox_event(job.job_id)
+                    assert completed_record is not None and completed_record.state == "completed"
+                    assert completed_outbox is not None
+                    assert completed_record.progress == terminal_progress
+                    assert completed_outbox.payload["progress"] == terminal_progress
+
+    assert availability_cases == {
+        (availability, placement)
+        for availability in availability_states
+        for placement in projection_placements
+    }
+
+    # Present malformed current values are not defaulted to absence.
+    malformed_current_states = (
+        ("null_owner", "execution_owner_binding", None, "owner"),
+        ("malformed_owner", "execution_owner_binding", {"job_id": "partial"}, "owner"),
+        ("null_intent", "run_intent_binding", None, "intent"),
+        ("malformed_intent", "run_intent_binding", {"run_id": "partial"}, "intent"),
+        (
+            "mismatched_intent",
+            "run_intent_binding",
+            {
+                "run_id": "foreign-run",
+                "tenant_id": "foreign-tenant",
+                "requested_profile": "research",
+            },
+            "intent",
+        ),
+    )
+    for case_id, key, malformed_value, kind in malformed_current_states:
+        job, worker = _lease_job(f"job-terminal-malformed-{case_id}")
+        with store.job_execution_fence(
+            job_id=job.job_id,
+            worker_id=worker,
+            attempt=job.attempt,
+        ):
+            owner = _current_owner_binding(job.job_id)
+            projection = {"phase": "running", "execution_owner_binding": owner}
+            if key == "run_intent_binding":
+                projection["run_intent_binding"] = _intent_for_matrix(job, owner)
+            projection[key] = malformed_value
+            store.upsert_progress(job_id=job.job_id, progress=projection)
+            error = (
+                "control_job_terminal_owner_binding_not_current"
+                if kind == "owner"
+                else "control_job_terminal_progress_source_projection_conflict"
+            )
+            with pytest.raises(ControlJobLeaseLostError, match=error):
+                store.complete_job(
+                    job_id=job.job_id,
+                    progress={"phase": "terminal", "matrix_case": case_id},
+                )
+            current = store.current_execution_job_record()
+            assert current.state == "running"
+            assert current.progress == projection
+            assert store.get_job_completed_outbox_event(job.job_id) is None
+    malformed_supplied_states = (
+        (
+            "null_owner",
+            "execution_owner_binding",
+            None,
+            "control_job_terminal_progress_owner_binding_conflict",
+        ),
+        (
+            "malformed_owner",
+            "execution_owner_binding",
+            {"job_id": "partial"},
+            "control_job_terminal_progress_owner_binding_conflict",
+        ),
+        (
+            "null_intent",
+            "run_intent_binding",
+            None,
+            "control_job_terminal_progress_source_projection_conflict",
+        ),
+        (
+            "malformed_intent",
+            "run_intent_binding",
+            {"run_id": "partial"},
+            "control_job_terminal_progress_source_projection_conflict",
+        ),
+        (
+            "mismatched_intent",
+            "run_intent_binding",
+            {
+                "run_id": "foreign-run",
+                "tenant_id": "foreign-tenant",
+                "requested_profile": "research",
+            },
+            "control_job_terminal_progress_source_projection_conflict",
+        ),
+    )
+    for case_id, key, malformed_value, error in malformed_supplied_states:
+        job, worker = _lease_job(f"job-terminal-malformed-supplied-{case_id}")
+        with store.job_execution_fence(
+            job_id=job.job_id,
+            worker_id=worker,
+            attempt=job.attempt,
+        ):
+            owner = _current_owner_binding(job.job_id)
+            intent = _intent_for_matrix(job, owner)
+            row_progress = {
+                "phase": "running",
+                "execution_owner_binding": owner,
+                "run_intent_binding": intent,
+            }
+            store.upsert_progress(job_id=job.job_id, progress=row_progress)
+            terminal_progress = {
+                "phase": "terminal",
+                "execution_owner_binding": owner,
+                "run_intent_binding": intent,
+            }
+            terminal_progress[key] = malformed_value
+            with pytest.raises(ControlJobLeaseLostError, match=error):
+                store.complete_job(job_id=job.job_id, progress=terminal_progress)
+            current = store.current_execution_job_record()
+            assert current.state == "running"
+            assert current.progress == row_progress
+            assert store.get_job_completed_outbox_event(job.job_id) is None
+
+    store.close()

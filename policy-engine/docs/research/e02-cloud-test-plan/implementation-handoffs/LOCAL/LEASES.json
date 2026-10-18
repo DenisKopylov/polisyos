@@ -9473,5 +9473,157 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "runtime-terminal-composed-repair-r3-20261018": {
+    "slice_base": "6d4511969970a0986d577cb2050f5282d063a8c9",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py": {
+        "operation": "modify",
+        "preimage_sha256": "3ef164b32506568fe939568a17ac467b487483c6d82de89c20a3e0fd4e955125",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-runtime-terminal-composed-repair-r3-20261018/postimages/policy-engine/src/polisyos/runtime/http/services/control_plane_store.py",
+        "postimage_sha256": "559e75176f818e1d12aac537439e87ec7867861b666eb265bd558c4fc6e0455c"
+      },
+      "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py": {
+        "operation": "modify",
+        "preimage_sha256": "e10747fc7002c00187cf32dbffc25748473b1a9f4dc83405c55b0d2a51252e07",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-runtime-terminal-composed-repair-r3-20261018/postimages/policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py",
+        "postimage_sha256": "d136199f4ce2c98cb492dd2b0b8720e80bab3c80b43aab07c069ef694d6798c8"
+      },
+      "policy-engine/tests/unit/runtime/http/test_control_job_execution_intent.py": {
+        "operation": "modify",
+        "preimage_sha256": "2a516b6b8a58f76744969e8e7a1455a48a613b3e19dd6a5ebee822671f9e4f54",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-runtime-terminal-composed-repair-r3-20261018/postimages/policy-engine/tests/unit/runtime/http/test_control_job_execution_intent.py",
+        "postimage_sha256": "310dc1cc554a5ea4a6bc1e5c1200d0e1229480dc7154e9068fdb54f840870fec"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime-r3-current-source-adoption-20261018/source-application.json",
+      "sha256": "5a07c53f17084f190e8b7b131d502178696d67ec8a3d37f7cc8a875a4b235b7c"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime-r3-current-source-adoption-20261018/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-runtime-terminal-composed-repair-r3-20261018/candidate-manifest.json",
+        "sha256": "cea408c71070560b6ff69d46ef8586c41bddfaed83f2a836cf791f11f6bf17ce",
+        "role": "frozen R3 candidate manifest"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-runtime-terminal-composed-repair-r3-20261018/candidate.patch",
+        "sha256": "727cfda7976f5db934a99fc1abc30f23ff82d42b157186630b8f296352b240eb",
+        "role": "frozen R3 patch"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-runtime-terminal-composed-repair-r3-20261018/candidate-review.md",
+        "sha256": "80a41d823073213910d8aa8f0da487f41f14fb02bb5aa296cfb671696d2fa624",
+        "role": "R3 author review"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-runtime-terminal-composed-repair-r3-20261018/design.md",
+        "sha256": "5fcbc45802f87dfad6f4253ac546fbdcfd4a1a6aff6e03b41142b6b37fcecd0b",
+        "role": "R3 design"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-runtime-terminal-composed-repair-r3-independent-r2-20261018/review.md",
+        "sha256": "ce979e824e1cc2de4a7587dececf442ce0b51a43faea9c6807ad38e245ef8b07",
+        "role": "corrected independent R3 review; source GO only"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-runtime-terminal-composed-repair-r3-independent-r2-20261018/full-pins.json",
+        "sha256": "bb792475511aedfd0411f4f066f35facebf906aa94e16f946001b0c353e810ee",
+        "role": "corrected independent R3 full pins"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-runtime-terminal-composed-repair-r2-20261018/candidate-manifest.json",
+        "sha256": "08341e4ad033dbdc891c5786a60d05c7dde2dbc729d4400c076dcb9094178c7c",
+        "role": "preserved R2 candidate and controls"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-runtime-terminal-composed-repair-r2-independent-20261018/review.md",
+        "sha256": "054fa01854bd895d4253ff430f31a2e118a2221d0119cfbe3f043b7ece837d98",
+        "role": "independent R2 review input preserved in R3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-runtime-terminal-composed-repair-r2-independent-20261018/full-pins.json",
+        "sha256": "7a6704f1eb50e6018c9f6b07366d9e35825ba846b62b031c7ea7c9d88262f7ad",
+        "role": "R2 independent source pins preserved in R3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-root-boundaries-20261015/adopt_reviewed_postimages_r1.py",
+        "sha256": "a601928ee742c72539ae6630f6c54d7d45576fc6df337a13e2ca927ffb7e9077",
+        "role": "ROOT adoption helper implementation"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime-r3-current-source-adoption-20261018/journal-qualification.json",
+        "sha256": "898a7fc07bf35dd3f903b2483cd5008e800fb590f542ee79a8ff45255ed999eb"
+      }
+    ],
+    "P40": {
+      "classification": "SAME_CLASS_SECOND_FINDING; mechanism widened once across the complete terminal owner/intent availability domain.",
+      "general_property": "Terminal owner and run-intent projections are carried only from the matching current fenced admission and row. If owner derivation is unavailable, owner-bearing keys in the current row or supplied terminal progress refuse; owner-free progress remains pass-through. When available, present values are validated and reconciled, and absence is not converted into a projection.",
+      "single_intake": "One availability decision inspects current-row projections even when no owner source can be derived; one shared validation path checks present current and supplied owner/intent values before terminal output.",
+      "single_emission": "The owner is emitted only from current admission recomputation; current intent is emitted only if it is present and valid in the current row; absent fields remain absent.",
+      "availability_states": [
+        "no handler fence",
+        "mismatched helper fence with a real active handler admission",
+        "rejected creation-event/outbox admission",
+        "matching live fence with unknown scope (owner derivation returns None)",
+        "matching live fence with established scope (owner derivation available)"
+      ],
+      "projection_placements": [
+        "none",
+        "execution_owner_binding and run_intent_binding in current row only",
+        "execution_owner_binding and run_intent_binding in supplied progress only",
+        "both fields in current row and supplied progress"
+      ],
+      "matrix_size": 20,
+      "required_controls": [
+        "Visit and assert all five actual-source availability states crossed with all four current-row/supplied-progress placements.",
+        "Unavailable owner source: owner-free progress remains pass-through; any owner/intent already present in current row or supplied progress refuses.",
+        "Available source: validate present current and supplied owner/intent against current admission and current row; malformed-present, null, mismatch, or unbound values refuse.",
+        "Owner is emitted only from current admission recomputation; intent only when present and valid in the current row; absence is not converted into or restored as a projection.",
+        "Preserve complete/fail/delegated lifecycle coverage, row/outbox/served-GET equality, alias non-resurrection, and typed CAS reader controls."
+      ],
+      "scope_qualifier": "The mismatched helper-fence test calls the private projection helper directly under a real active handler admission because the public lifecycle API rejects the mismatch before the helper. Do not claim a public lifecycle request with mismatched fence reached the helper.",
+      "residual": "No third same-class source escape was found in the finite helper availability domain; do not add branch-local guards for hypothetical future branches."
+    },
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "no schema change",
+      "no backfill",
+      "no new owner source",
+      "no owner invention for unknown scope",
+      "no arbitrary progress merge",
+      "no alias/ref resurrection",
+      "no lifecycle/status/authority change",
+      "no lease/fence weakening",
+      "no timeout or sleep adjustment",
+      "Independent disposition is source GO for one parent-controlled replay only; runtime behavior is NOT ESTABLISHED until that replay passes.",
+      "No public-API mismatched-fence execution claim; the mismatch falsifier is private-helper seam coverage under real admission.",
+      "No lease/fence relaxation, TTL/sleep adjustment, owner invention, schema/backfill, arbitrary progress merge, or absent-field resurrection.",
+      "No canonical source application or ROOT metadata mutation by the author; plan is for the ROOT-only adoption helper."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": {
+      "source_adoption": "ROOT uses adopt_reviewed_postimages_r1.py only after it requalifies exact current HEAD, clean status, reviewed-input hashes, exact target preimages/postimages, and read-only patch applicability. The helper itself applies the exact present-postimage patch and runs canonical Ruff check/format for changed Python paths.",
+      "working_directory": "policy-engine",
+      "command": ".venv/bin/python -m pytest tests/unit/runtime/http/test_nl_pipeline_cost_projection.py tests/unit/runtime/http/test_control_job_execution_intent.py",
+      "timeout_seconds": 600,
+      "process_tree_rss_limit_bytes": 2147483648,
+      "execution": "Parent-controlled persistent supervisor; do not use uv, install, bootstrap, or alter environment.",
+      "required_receipts": [
+        "Complete stdout and stderr, plus JUnit XML and exact selected node IDs.",
+        "Exact source frame before and after (branch, full HEAD/tree, tracked status, and hashes/origins of all three target modules).",
+        "Measured wall/monotonic duration and sampled process-tree RSS against the numeric limits.",
+        "Outcome is runtime acceptance only if the entire two-module selection passes on the integrated source frame; otherwise classify against that exact frame and preserve failure evidence."
+      ],
+      "runtime_status_before_check": "UNRUN / NOT ESTABLISHED."
+    },
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

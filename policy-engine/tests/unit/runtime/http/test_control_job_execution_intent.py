@@ -1695,6 +1695,13 @@ async def test_simulate_only_served_worker_persists_computation_without_s8_or_pu
 ) -> None:
     """Persist real N4 output with an unavailable simulation, not a fake run."""
     import polisyos.runtime.http.services.control.generation_cycle as generation_cycle_service
+    from polisyos.core.artifacts import (
+        artifact_manifest_profile_sha256,
+        read_core_json_artifact,
+        read_core_manifest_profile,
+    )
+    from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.core.canon import content_hash
     from polisyos.runtime.http.services.control import nl_pipeline
     from polisyos.runtime.quality.generation_source import (
         GenerationSourceRepository,
@@ -1876,22 +1883,49 @@ async def test_simulate_only_served_worker_persists_computation_without_s8_or_pu
         terminal_events = service._control_store.list_diagnostic_events(  # noqa: SLF001
             job_id=launch.job_id
         )
-        completed_event = next(
-            (
-                item
-                for item in terminal_events
-                if item.event.phase == "job_execution"
-                and item.event.state_after == "completed"
-                and item.payload_inline is not None
-                and item.payload_inline.get("candidate_proposal_ref")
+        completed_event_payload = None
+        for item in terminal_events:
+            if item.event.phase != "job_execution" or item.event.state_after != "completed":
+                continue
+            event_payload = item.payload_inline
+            if event_payload is None and item.payload_ref is not None:
+                payload_manifest, declaration = read_core_manifest_profile(
+                    service._artifact_store, item.payload_ref
+                )
+                payload_schema = payload_manifest.artifact_schema
+                assert declaration.status == "declared"
+                assert payload_manifest.kind == "runtime.diagnostic_event_payload"
+                assert payload_manifest.media_type == "application/json"
+                assert payload_schema is not None
+                assert payload_schema.name == "polisyos.runtime.DiagnosticEventPayload"
+                assert payload_schema.version == "1.0"
+                selected_profile_sha256 = artifact_manifest_profile_sha256(payload_manifest)
+                selected_payload_ref = ArtifactRef(
+                    artifact_id=payload_manifest.artifact_id,
+                    kind=payload_manifest.kind,
+                    media_type=payload_manifest.media_type,
+                    manifest_profile_sha256=selected_profile_sha256,
+                )
+                assert str(selected_payload_ref.artifact_id) == item.payload_ref
+                payload_read = read_core_json_artifact(
+                    service._artifact_store, selected_payload_ref
+                )
+                assert payload_read.status == "declared_bytes_conformant"
+                assert payload_read.selected_artifact_id == item.payload_ref
+                assert payload_read.selected_manifest_profile_sha256 == selected_profile_sha256
+                payload_content_hash = content_hash(payload_read.raw_payload_bytes, prefix=True)
+                assert payload_content_hash == item.payload_ref
+                assert payload_content_hash == item.payload_sha256
+                event_payload = payload_read.value
+            if (
+                isinstance(event_payload, dict)
+                and event_payload.get("candidate_proposal_ref")
                 == progress["candidate_proposal_ref"]
-            ),
-            None,
-        )
-        assert completed_event is not None
-        assert completed_event.payload_inline["generation_source_read_provenance"] == (
-            read_provenance
-        )
+            ):
+                completed_event_payload = event_payload
+                break
+        assert completed_event_payload is not None
+        assert completed_event_payload["generation_source_read_provenance"] == read_provenance
         assert len(publication_calls) == 1
 
         repository = GenerationSourceRepository(service._artifact_store)

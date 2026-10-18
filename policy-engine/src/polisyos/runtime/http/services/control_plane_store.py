@@ -4869,37 +4869,11 @@ class ControlPlaneStore:
 
         Terminal progress replaces the running snapshot. The owner is rederived
         from the creation admission and worker fence; adjacent typed candidate
-        projections are copied only from that same current row. This is a
-        projection-preservation rule, not an authority decision: downstream
-        consumers still validate refs, attestations, and phase-barrier evidence.
+        projections are copied only from that same current row. With no owner
+        derivable, progress stays unowned and owner-bearing values fail closed.
+        This preserves projections, not authority: downstream consumers still
+        validate refs, attestations, and phase-barrier evidence.
         """
-        supplied_owner_present = "execution_owner_binding" in progress
-        if fence is None:
-            if supplied_owner_present:
-                raise ControlJobLeaseLostError("control_job_terminal_owner_binding_not_current")
-            return progress
-
-        try:
-            admission = self.current_execution_job_admission()
-        except (ControlJobExecutionAdmissionError, ControlJobLeaseLostError) as exc:
-            if supplied_owner_present:
-                raise ControlJobLeaseLostError(
-                    "control_job_terminal_owner_binding_not_current"
-                ) from exc
-            return progress
-
-        current_job = admission.job
-        if (
-            current_job.job_id != job_id
-            or current_job.state != "running"
-            or current_job.attempt != fence[1]
-            or admission.attempt != fence[1]
-            or current_job.lease_owner != fence[0]
-        ):
-            if supplied_owner_present:
-                raise ControlJobLeaseLostError("control_job_terminal_owner_binding_not_current")
-            return progress
-
         from polisyos.runtime.quality.phase_barriers import (
             _execution_owner_binding_from_admission,
             _validated_execution_owner_binding,
@@ -4908,62 +4882,105 @@ class ControlPlaneStore:
         from polisyos.runtime.quality.report_registry import QUALITY_REPORT_REF_KEYS
         from polisyos.runtime.quality.run_state import RunIntentBinding
 
-        current_owner_binding = _execution_owner_binding_from_admission(
-            admission,
-            expected_job_id=job_id,
-            expected_run_id=str(current_job.run_id or ""),
-            expected_effective_profile=current_job.effective_execution_profile,
-            expected_scope={
-                "tenant_id": admission.scope.tenant_id,
-                "cell_id": admission.scope.cell_id,
-            },
-        )
-        current_progress = current_job.progress
-        persisted_owner_binding = (
-            _validated_execution_owner_binding(
-                current_progress.get("execution_owner_binding"),
-                expected=current_owner_binding,
+        admission = None
+        if fence is not None:
+            try:
+                admission = self.current_execution_job_admission()
+            except ControlJobExecutionAdmissionError:
+                admission = None
+            except ControlJobLeaseLostError:
+                admission = None
+
+        admitted_job = admission.job if admission is not None else None
+        admission_matches_fence = (
+            (
+                admitted_job is not None
+                and admitted_job.job_id == job_id
+                and admitted_job.state == "running"
+                and admitted_job.attempt == fence[1]
+                and admission.attempt == fence[1]
+                and admitted_job.lease_owner == fence[0]
             )
-            if current_owner_binding is not None
-            else None
+            if fence is not None
+            else False
         )
-        if current_owner_binding is None or persisted_owner_binding != current_owner_binding:
-            if supplied_owner_present:
+
+        current_owner_binding: dict[str, object] | None = None
+        if admission_matches_fence and admission is not None and admitted_job is not None:
+            current_job = admitted_job
+            current_progress = current_job.progress
+            current_owner_binding = _execution_owner_binding_from_admission(
+                admission,
+                expected_job_id=job_id,
+                expected_run_id=str(current_job.run_id or ""),
+                expected_effective_profile=current_job.effective_execution_profile,
+                expected_scope={
+                    "tenant_id": admission.scope.tenant_id,
+                    "cell_id": admission.scope.cell_id,
+                },
+            )
+        else:
+            # This read lets every unavailable-fence/admission path inspect the
+            # target row for owner-bearing projections. It does not establish a
+            # current worker identity and is never an owner derivation source.
+            current_record = self.get_job(job_id)
+            current_progress = current_record.progress if current_record is not None else {}
+
+        owner_projection_keys = ("execution_owner_binding", "run_intent_binding")
+        if current_owner_binding is None:
+            if any(
+                key in source
+                for source in (current_progress, progress)
+                for key in owner_projection_keys
+            ):
                 raise ControlJobLeaseLostError("control_job_terminal_owner_binding_not_current")
             return progress
 
-        if supplied_owner_present:
-            supplied_owner_binding = _validated_execution_owner_binding(
-                progress.get("execution_owner_binding"),
+        # The exact current owner is recomputable from the immutable creation
+        # admission and live worker fence. A prior progress snapshot is not the
+        # source of truth, but a present projection must agree with that source.
+        if "execution_owner_binding" in current_progress:
+            persisted_owner_binding = _validated_execution_owner_binding(
+                current_progress["execution_owner_binding"],
                 expected=current_owner_binding,
             )
-            if supplied_owner_binding != persisted_owner_binding:
+            if persisted_owner_binding != current_owner_binding:
+                raise ControlJobLeaseLostError("control_job_terminal_owner_binding_not_current")
+
+        if "execution_owner_binding" in progress:
+            supplied_owner_binding = _validated_execution_owner_binding(
+                progress["execution_owner_binding"],
+                expected=current_owner_binding,
+            )
+            if supplied_owner_binding != current_owner_binding:
                 raise ControlJobLeaseLostError(
                     "control_job_terminal_progress_owner_binding_conflict"
                 )
 
-        terminal_progress = dict(progress)
-        terminal_progress["execution_owner_binding"] = persisted_owner_binding
-
-        raw_intent_binding = current_progress.get("run_intent_binding")
         current_intent_binding: RunIntentBinding | None = None
-        if isinstance(raw_intent_binding, Mapping):
+        if "run_intent_binding" in current_progress:
             try:
-                parsed_intent = RunIntentBinding.model_validate(raw_intent_binding)
-            except (TypeError, ValueError):
-                parsed_intent = None
+                parsed_intent = RunIntentBinding.model_validate(
+                    current_progress["run_intent_binding"]
+                )
+            except (TypeError, ValueError) as exc:
+                raise ControlJobLeaseLostError(
+                    "control_job_terminal_progress_source_projection_conflict"
+                ) from exc
             if (
-                parsed_intent is not None
-                and parsed_intent.run_id == current_owner_binding["run_id"]
-                and parsed_intent.tenant_id == current_owner_binding["tenant_id"]
-                and parsed_intent.requested_profile
-                == current_owner_binding["requested_execution_profile"]
+                parsed_intent.run_id != current_owner_binding["run_id"]
+                or parsed_intent.tenant_id != current_owner_binding["tenant_id"]
+                or parsed_intent.requested_profile
+                != current_owner_binding["requested_execution_profile"]
             ):
-                current_intent_binding = parsed_intent
+                raise ControlJobLeaseLostError(
+                    "control_job_terminal_progress_source_projection_conflict"
+                )
+            current_intent_binding = parsed_intent
+
         if "run_intent_binding" in progress:
-            supplied_intent_raw = progress["run_intent_binding"]
             try:
-                supplied_intent = RunIntentBinding.model_validate(supplied_intent_raw)
+                supplied_intent = RunIntentBinding.model_validate(progress["run_intent_binding"])
             except (TypeError, ValueError) as exc:
                 raise ControlJobLeaseLostError(
                     "control_job_terminal_progress_source_projection_conflict"
@@ -4972,6 +4989,9 @@ class ControlPlaneStore:
                 raise ControlJobLeaseLostError(
                     "control_job_terminal_progress_source_projection_conflict"
                 )
+
+        terminal_progress = dict(progress)
+        terminal_progress["execution_owner_binding"] = current_owner_binding
         if current_intent_binding is not None:
             terminal_progress["run_intent_binding"] = current_intent_binding.model_dump(mode="json")
 

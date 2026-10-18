@@ -10952,5 +10952,127 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "b214-persisted-legal-fixture-isolation-r4-20261018": {
+    "slice_base": "c92760930cac558923a4622aae7139336522351f",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/unit/scientist/methods/causal/test_run_transportability_partial_graph_admission.py": {
+        "operation": "modify",
+        "preimage_sha256": "ed46310c655a5328395130efeffe50841eb16bca4c232e326f72546137990301",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-persisted-companion-repair-r4-20261018/postimages/policy-engine/tests/unit/scientist/methods/causal/test_run_transportability_partial_graph_admission.py",
+        "postimage_sha256": "c5f3a57e8e51b95d85fc1466d33c035630327a5656f5d84f652565d26b635b4f"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-r4-c927-source-adoption-20261018/source-application.json",
+      "sha256": "920e836b15de407673c6e7ada6d636ee152d87ea921430a420369a7b3bd21156"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-r4-c927-source-adoption-20261018/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/causal/resolve_transport.py",
+        "sha256": "8a0bdbb558fe06bf49f7ead05fe52bf89e044382c4a1a82d57f4e45d6ea30a6d"
+      },
+      {
+        "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/transport_engine.py",
+        "sha256": "88b6d2c286acf93ce8a1f50adb15ca3f7beaa8b146cc6ab6ce094883d6c6d12a"
+      },
+      {
+        "path": "policy-engine/src/polisyos/lex/legal_evaluation/transport_constraints.py",
+        "sha256": "5a8939c2ae9a5402afded38922ba1f57cf001685d61c238222d5901d4329c412"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/legal/source_relation.py",
+        "sha256": "c116b86285706b3d2577dc49258233b460ba23c411e963d3cd192ebf776ad4d2"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/causal.py",
+        "sha256": "8d9f455691fa394e6c36013821bd3f95be8bd93de2c2abaa898ddd1b28fb6264"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/decision_packet/causal_sections.py",
+        "sha256": "ffad4970b6ae14512edfe17ea56486a88c109b7bb687dc173b5158484aac73ab"
+      },
+      {
+        "path": "policy-engine/tests/unit/lex/legal_evaluation/test_transport_constraints.py",
+        "sha256": "f3f1ccca57d8292e93e8b5740345e15e18fa3a086e3c6bd85d4230c37f5d9537"
+      },
+      {
+        "path": "policy-engine/tests/unit/lex/test_api_transport_constraints.py",
+        "sha256": "d7660a5b394da60ea76c86bd5494b3ea643bda01f07d7522448235f6c38ebeb5"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/causal/test_run_transportability_node.py",
+        "sha256": "8624abd36be18fff9194656b3b27541f84b7b9aa11c0e926faf6720821c392de"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/methods/causal/test_transport_resolution_cache.py",
+        "sha256": "4cfc62562507f8e07450ab2ed94f9b795fc03d8273d64a9adebfeda4f0338250"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-persisted-companion-repair-r4-20261018/file-manifest-r4.json",
+        "sha256": "ca87f3cc18d06b6561892acaa4cc7d7f1b041e1b0126c4b5701cb92eb127c590"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-persisted-companion-repair-r4-20261018/source-pins-r4.json",
+        "sha256": "e2fe079dc1cb512fc61a430a14acaa3cb56d8dad63f24834522ae716eee36a11"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-persisted-companion-repair-r4-20261018/candidate-r4.patch",
+        "sha256": "62c3d6cc1bd0828ea889a72560189107633c4b0f5e1968536dd1364b9ec97fd8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-persisted-companion-repair-r4-20261018/decision-r4.md",
+        "sha256": "7e5e64f38a6ea71f6cca32547e802777f6d8a3fe08699b71847294fa11332dc7"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-persisted-companion-repair-r4-20261018/removal-controls-r4.json",
+        "sha256": "6eb864d892323c105f31e8a3741671a5ce1318425024317f225d0e47cc0c6807"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-r4-companion-independent-20261018/review.json",
+        "sha256": "6983f20a9dcfd0d7db5e675b9b8d12d13a297e06530e1afc6ea259accf58cc61"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-test-write-ownership-incident-20261018/ownership-record.json",
+        "sha256": "0e4f3f3173285c81706a31bc485db8cba59bf47b6e24ef72a435769fba433057"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-source-adopter-known-owned-pending-r4-20261018/adopt_reviewed_postimages_r4.py",
+        "sha256": "f446b11a931bcd50a71cbbdf01d4b56fd078dd5bf9314cb6aca5da3306a4493f"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-source-adopter-r4-independent-20261018/manifest.json",
+        "sha256": "d6a65142a7eebcf418c651081a71f71ccb92469fd5fde2b67ebeccb7cb4fc4c6"
+      },
+      {
+        "path": "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+        "sha256": "a446cae5a425fe3c7fe59d3d14f423bf976fb30f6c121c596f4ae3cef8ba1b8e"
+      }
+    ],
+    "P40": "Same companion chain fixture class; source legal verification remains intact, scope explicitly test-only.",
+    "bounded_proof": "Independent exact test-only GO; root canonical full-file Ruff required before commit, actual pair follows.",
+    "limitations": [
+      "Typed empty legal constraints are a test double and establish no absence of real legal constraints.",
+      "Proof projection is reconstructed by the existing converter from a fresh persisted result; no separately persisted proof is claimed.",
+      "Focused pair/removal controls remain UNRUN on this repair at adoption.",
+      "Formal B214 graph completion, endpoint and cycle semantics remain held.",
+      "Seven known V5 working test drafts are preserved disjointly; no full clean native freeze or G acceptance."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": {
+      "selectors": [
+        "tests/unit/foundry/methods/catalog/causal/test_transport_check_partial_graph_admission.py",
+        "tests/unit/scientist/methods/causal/test_run_transportability_partial_graph_admission.py"
+      ],
+      "controls": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-persisted-companion-repair-r4-20261018/removal-controls-r4.json"
+    },
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

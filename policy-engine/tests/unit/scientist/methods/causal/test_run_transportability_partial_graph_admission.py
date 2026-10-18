@@ -3,6 +3,10 @@ from __future__ import annotations
 import logging
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import pytest
 
 from polisyos.core.artifacts import ensure_ir_artifact_store
 from polisyos.core.artifacts.store import FileSystemCAS
@@ -14,6 +18,7 @@ from polisyos.ir.analytics.causal import (
     EstimationStatus,
     load_causal_effect_report,
     persist_causal_effect_report,
+    proof_bundle_from_transportability_result,
 )
 from polisyos.ir.analytics.causal_graph import (
     CausalEdge,
@@ -28,6 +33,7 @@ from polisyos.ir.analytics.transportability import (
     TransportMode,
     load_transportability_result,
 )
+from polisyos.lex.legal_evaluation.transport_constraints import LegalConstraintSet
 from polisyos.scientist.nodes.builtins.causal.resolve_transport import RunTransportabilityNode
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CAUSAL_REPORT_REF,
@@ -71,7 +77,24 @@ def _base_report() -> CausalEffectReport:
     )
 
 
-def test_partial_graph_refusal_is_persisted_for_fixed_and_ambiguous_queries() -> None:
+def test_partial_graph_refusal_is_persisted_for_fixed_and_ambiguous_queries(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    legal_requests: list[dict[str, object]] = []
+
+    def _typed_empty_legal_constraints_test_double(**kwargs: object) -> LegalConstraintSet:
+        # Isolate graph admission from the independent legal-source verifier.
+        # This test double is not evidence that the policy has no legal constraints.
+        legal_requests.append(kwargs)
+        return LegalConstraintSet(
+            jurisdiction="DE",
+            policy_domain="test_graph_admission_isolation",
+        )
+
+    monkeypatch.setattr(
+        "polisyos.scientist.nodes.builtins.causal.resolve_transport.evaluate_transport_constraints",
+        _typed_empty_legal_constraints_test_double,
+    )
     queries = (("X", "Y"), ("A", "B"))
     with TemporaryDirectory(prefix="partial-graph-node-") as temporary:
         root = Path(temporary)
@@ -116,7 +139,12 @@ def test_partial_graph_refusal_is_persisted_for_fixed_and_ambiguous_queries() ->
                 },
             )
 
+            legal_request_count_before = len(legal_requests)
             output = RunTransportabilityNode().execute(context, state)
+            _require(
+                len(legal_requests) > legal_request_count_before,
+                "this query must reach the scoped legal-boundary seam",
+            )
             _require(output.status == "ok", "node should complete with a persisted limitation")
             transport_ref = output.state.artifacts_index[ARTIFACT_TRANSPORTABILITY_RESULT_REF]
             result = load_transportability_result(artifact_store, transport_ref)
@@ -130,7 +158,20 @@ def test_partial_graph_refusal_is_persisted_for_fixed_and_ambiguous_queries() ->
             )
             _require(
                 result.unsupported_reason == "partial_graph_completion_semantics_not_established",
-                "the persisted limitation must retain its specific reason",
+                f"persisted reason was {result.unsupported_reason!r}",
+            )
+            proof_projection = proof_bundle_from_transportability_result(result)
+            _require(
+                proof_projection.proof_status == "oracle_needed",
+                "refusal proof remains non-adjudicative",
+            )
+            _require(
+                proof_projection.completeness_regime == "sound_incomplete",
+                "refusal proof remains incomplete",
+            )
+            _require(
+                proof_projection.metadata.get("limitation_reason") == result.unsupported_reason,
+                "decision proof projection must bind the fresh-read refusal reason",
             )
             _require(
                 result.source_graph_type is GraphType.CPDAG,
@@ -156,4 +197,19 @@ def test_partial_graph_refusal_is_persisted_for_fixed_and_ambiguous_queries() ->
             _require(
                 updated_report.transport_result == result,
                 "the fresh report read must carry the same persisted refusal",
+            )
+
+    for request in legal_requests:
+        _require(
+            request.get("jurisdiction") == "DE",
+            "test isolation must retain the requested jurisdiction",
+        )
+        graph_payload = request.get("causal_graph")
+        _require(
+            isinstance(graph_payload, dict), "legal seam must receive the concrete graph payload"
+        )
+        if isinstance(graph_payload, dict):
+            _require(
+                graph_payload.get("graph_type") == GraphType.CPDAG.value,
+                "test seam must see the partial graph",
             )

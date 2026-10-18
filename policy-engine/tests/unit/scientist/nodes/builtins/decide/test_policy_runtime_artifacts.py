@@ -71,6 +71,8 @@ def test_work_packet_cas_round_trip_binds_selected_inputs_and_refuses_tampering(
         backend_kind="production",
         source_result_ref=result_ref,
         requested_draw_count=64,
+        requested_draw_source="effective_estimation_config",
+        effective_estimation_config_sha256="b" * 64,
         input_signature="caller-input-signature",
     )
 
@@ -82,7 +84,7 @@ def test_work_packet_cas_round_trip_binds_selected_inputs_and_refuses_tampering(
 
     assert manifest.kind == "scientist.search.funnel_native_work_packet"
     assert manifest.artifact_schema == SchemaInfo(
-        name="polisyos.scientist.search.FunnelExecutedWorkPacket", version="1.0"
+        name="polisyos.scientist.search.FunnelExecutedWorkPacket", version="1.1"
     )
     assert manifest.producer is not None
     assert manifest.producer.component == "scientist.policy_runtime_work_packet"

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import math
 from collections.abc import Mapping
 from typing import TYPE_CHECKING, Any
 
@@ -12,6 +13,7 @@ from polisyos.core.canon import CanonSpec, to_canonical_bytes
 from polisyos.foundry.methods import AmbiguityCertificate
 from polisyos.ir import CrossGraphEvidenceProfile, TransportStatus
 from polisyos.ir.analytics import CausalEffectReport, DistributionalReport
+from polisyos.scientist.methods.search.objective import BudgetDeficitObjective
 from polisyos.scientist.methods.search.uncertainty import (
     UncertaintyEnvelope,
     UncertaintyType,
@@ -28,6 +30,7 @@ if TYPE_CHECKING:
     from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
     from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
 
+_FISCAL_METRIC_ALIASES = ("gov_balance", "government_balance", "budget_deficit", "deficit")
 _POLICY_RUNTIME_VALIDATION_ERRORS = (TypeError, ValidationError, ValueError)
 _POLICY_RUNTIME_LOAD_ERRORS = (
     AttributeError,
@@ -88,7 +91,6 @@ def _build_runtime_simulation_metrics(
         "welfare": welfare * fidelity_scale,
         "net_social_welfare": welfare * fidelity_scale,
         "gdp_change": welfare * fidelity_scale,
-        "gov_balance": -budget_penalty * fidelity_scale,
         "budget_penalty": budget_penalty,
     }
 
@@ -107,7 +109,7 @@ def _build_evidence_driven_simulation_metrics(
     metrics = {
         key: float(value)
         for key, value in dict(simulation_metrics or {}).items()
-        if isinstance(value, (int, float))
+        if isinstance(value, (int, float)) and not isinstance(value, bool)
     }
     source_components: list[str] = []
     notes: list[str] = []
@@ -147,7 +149,7 @@ def _build_evidence_driven_simulation_metrics(
     scaled = {
         key: (
             float(value) * fidelity_scale
-            if key not in {"budget_penalty", "ci_width"}
+            if key not in {"budget_penalty", "ci_width", *_FISCAL_METRIC_ALIASES}
             else float(value)
         )
         for key, value in metrics.items()
@@ -219,7 +221,6 @@ def _apply_distributional_and_budget_metrics(
     budget_total = _policy_budget_total(candidate)
     budget_penalty = float(metrics.get("budget_penalty", min(1.0, budget_total / 1000.0)))
     metrics["budget_penalty"] = budget_penalty
-    metrics.setdefault("gov_balance", -abs(budget_penalty))
     metrics.setdefault("net_social_welfare", metrics["welfare"])
     metrics.setdefault("gdp_change", metrics["welfare"])
     metrics.setdefault("ate", point_estimate)
@@ -363,7 +364,7 @@ def _policy_budget_total(candidate: PolicyCandidateSchema) -> float:
         amount = getattr(allocation.amount, "amount", allocation.amount)
         try:
             total += float(amount)
-        except (TypeError, ValueError):
+        except (OverflowError, TypeError, ValueError):
             continue
     return total
 
@@ -377,6 +378,77 @@ def _selection_score_impl(evaluation_vector: PolicyEvaluationVector) -> float:
     return 0.0
 
 
+def _budget_deficit_measurement(metrics: Mapping[str, Any]) -> dict[str, Any]:
+    """Retain finite fiscal aliases with the existing objective's availability result."""
+    objective = BudgetDeficitObjective().evaluate(dict(metrics))
+    source_values: dict[str, float] = {}
+    for alias in _FISCAL_METRIC_ALIASES:
+        raw_value = metrics.get(alias)
+        if raw_value is None or isinstance(raw_value, bool):
+            continue
+        try:
+            value = float(raw_value)
+        except (OverflowError, TypeError, ValueError):
+            continue
+        if math.isfinite(value):
+            source_values[alias] = value
+    usable = bool(objective.is_satisfied)
+    return {
+        "usable": usable,
+        "normalized_value": objective.raw_value if usable else None,
+        "source_values": source_values,
+    }
+
+
+def _policy_runtime_execution_metadata(
+    *,
+    evaluation_attempt_id: str | None = None,
+    effective_estimation_config: Mapping[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Bind configured bootstrap input to one runtime attempt without claiming execution."""
+    attempt_id = evaluation_attempt_id.strip() if isinstance(evaluation_attempt_id, str) else ""
+    config_digest: str | None = None
+    requested_draw_count: int | None = None
+    requested_draw_source = "unavailable"
+    if isinstance(effective_estimation_config, Mapping):
+        try:
+            config_bytes = to_canonical_bytes(
+                dict(effective_estimation_config), CanonSpec(forbid_floats=False)
+            )
+        except (TypeError, ValueError, OverflowError):
+            pass
+        else:
+            config_digest = hashlib.sha256(config_bytes).hexdigest()
+            requested_draw_source = "effective_estimation_config"
+            configured_count = effective_estimation_config.get("n_bootstrap")
+            if type(configured_count) is int and configured_count >= 0:
+                requested_draw_count = configured_count
+    return {
+        "evaluation_attempt_id": attempt_id or None,
+        "requested_draw_count": requested_draw_count,
+        "requested_draw_source": requested_draw_source,
+        "effective_estimation_config_sha256": config_digest,
+    }
+
+
+def _attach_policy_runtime_source_metadata(
+    evaluation: PolicyEvaluationVector,
+    *,
+    runtime_execution: Mapping[str, Any],
+    fiscal_measurement: Mapping[str, Any],
+) -> PolicyEvaluationVector:
+    """Preserve source-computed runtime records through objective extraction."""
+    return evaluation.model_copy(
+        update={
+            "metadata": {
+                **evaluation.metadata,
+                "policy_runtime_invocation": dict(runtime_execution),
+                "policy_runtime_fiscal_measurement": dict(fiscal_measurement),
+            }
+        }
+    )
+
+
 def _build_policy_simulation_results_impl(
     evaluation: PolicyEvaluationVector,
     *,
@@ -385,6 +457,7 @@ def _build_policy_simulation_results_impl(
     base_metrics: dict[str, float] | None = None,
     provenance: PolicyRuntimeProvenance | None = None,
     ambiguity_certificate: AmbiguityCertificate | dict[str, Any] | None = None,
+    runtime_execution: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Build policy simulation results."""
     metrics = dict(base_metrics or {})
@@ -400,8 +473,8 @@ def _build_policy_simulation_results_impl(
             _channel_higher_is_better(evaluation, "welfare", fallback=policy_value),
         )
     )
-    budget_pressure = float(metrics.get("budget_penalty", _budget_pressure(evaluation)))
-    gov_balance = float(metrics.get("gov_balance", -abs(budget_pressure)))
+    fiscal_measurement = _budget_deficit_measurement(metrics)
+    execution = dict(runtime_execution or _policy_runtime_execution_metadata())
     ate = float(metrics.get("ate", policy_value))
     statistical = (
         uncertainty.uncertainties.get(UncertaintyType.STATISTICAL)
@@ -417,20 +490,23 @@ def _build_policy_simulation_results_impl(
     if not evaluation.feasible:
         ci_width = max(ci_width, 0.35)
     ambiguity_payload = _ambiguity_certificate_payload(ambiguity_certificate)
-    return {
+    result = {
         "policy_value": policy_value,
         "employment": employment,
         "welfare": welfare,
         "net_social_welfare": float(metrics.get("net_social_welfare", welfare)),
         "gdp_change": float(metrics.get("gdp_change", welfare)),
-        "gov_balance": gov_balance,
+        "budget_deficit_objective_usable": fiscal_measurement["usable"],
+        "budget_deficit_objective_value": fiscal_measurement["normalized_value"],
         "ate": ate,
         "bootstrap": {
             "ci_width": ci_width,
-            "requested_draw_count": (
-                500 if fidelity == "full" else (64 if fidelity == "medium" else 32)
+            "evaluation_attempt_id": execution.get("evaluation_attempt_id"),
+            "requested_draw_count": execution.get("requested_draw_count"),
+            "requested_draw_source": execution.get("requested_draw_source", "unavailable"),
+            "effective_estimation_config_sha256": execution.get(
+                "effective_estimation_config_sha256"
             ),
-            "requested_draw_source": "fidelity_default",
             "draw_execution_status": "not_instrumented",
             "attempted_draw_count": None,
             "successful_draw_count": None,
@@ -456,3 +532,5 @@ def _build_policy_simulation_results_impl(
             ambiguity_payload.get("overall_status") if isinstance(ambiguity_payload, dict) else None
         ),
     }
+    result.update(fiscal_measurement["source_values"])
+    return result

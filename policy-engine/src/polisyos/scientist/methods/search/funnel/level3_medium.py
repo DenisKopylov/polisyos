@@ -27,6 +27,10 @@ from polisyos.scientist.methods.search.funnel.types import (
     parse_funnel_work_packet_feedback,
     statistical_uncertainty_from_ci_width,
 )
+from polisyos.scientist.methods.search.objective import (
+    _apply_default_search_objective_limitations,
+    _assess_default_search_objective,
+)
 from polisyos.scientist.methods.search.uncertainty import search_uncertainty_observation_ref
 from polisyos.scientist.orchestration.workflows.engine_base import WorkflowEngine
 
@@ -150,7 +154,9 @@ class Level3MediumFidelity(FunnelStage):
         verdict = feedback.get("verdict", "UNKNOWN")
 
         # Compute objective (same formula as ExpensiveStage).
-        objective = self._compute_objective(sim_results)
+        objective_assessment = _assess_default_search_objective(sim_results)
+        objective = objective_assessment.objective_value
+        _apply_default_search_objective_limitations(feedback, objective_assessment)
         is_promising = verdict == "APPROVE"
 
         # Build uncertainty envelope from reduced bootstrap.
@@ -245,9 +251,7 @@ class Level3MediumFidelity(FunnelStage):
     @staticmethod
     def _compute_objective(results: dict[str, Any]) -> float:
         """Same formula as ``ExpensiveStage._compute_default_objective``."""
-        gdp = results.get("gdp_change", 0.0)
-        deficit = abs(min(results.get("gov_balance", 0.0), 0))
-        return -(gdp - 0.5 * deficit)
+        return _assess_default_search_objective(results).objective_value
 
     # ------------------------------------------------------------------
     # Uncertainty envelope

@@ -71,11 +71,13 @@ def test_facade_projection_preserves_uninstrumented_draw_status() -> None:
     assert result["policy_value"] == 0.4
     assert result["employment"] == 0.2
     assert result["welfare"] == 0.3
-    assert result["gov_balance"] == -0.25
+    assert "gov_balance" not in result
     assert result["bootstrap"] == {
         "ci_width": 0.1,
-        "requested_draw_count": 64,
-        "requested_draw_source": "fidelity_default",
+        "evaluation_attempt_id": None,
+        "requested_draw_count": None,
+        "requested_draw_source": "unavailable",
+        "effective_estimation_config_sha256": None,
         "draw_execution_status": "not_instrumented",
         "attempted_draw_count": None,
         "successful_draw_count": None,

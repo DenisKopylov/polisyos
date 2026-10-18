@@ -27,10 +27,13 @@ from polisyos.scientist.methods.search.funnel.types import (
     FunnelExecutedWorkPacket,
     FunnelStageResult,
 )
+from polisyos.scientist.nodes.builtins.decide.policy_runtime_metrics import (
+    _build_policy_simulation_results_impl,
+    _policy_runtime_execution_metadata,
+)
 from polisyos.scientist.nodes.builtins.decide.policy_runtime_support import (
     PolicyRuntimeEvaluationArtifact,
     PolicyRuntimeProvenance,
-    build_policy_simulation_results,
     persist_funnel_executed_work_packet,
     persist_policy_evaluation_vector_to_store,
 )
@@ -68,6 +71,8 @@ class _PassingPolicyEvaluationBackend:
         cross_graph_profile: Any,
         governance_report: Any,
         ambiguity_certificate: Any = None,
+        evaluation_attempt_id: str | None = None,
+        effective_estimation_config: dict[str, Any] | None = None,
     ) -> PolicyRuntimeEvaluationArtifact:
         del (
             simulation_metrics,
@@ -77,7 +82,22 @@ class _PassingPolicyEvaluationBackend:
             governance_report,
             ambiguity_certificate,
         )
-        vector = PolicyEvaluationVector(candidate_id=candidate.candidate_id, feasible=True)
+        execution = _policy_runtime_execution_metadata(
+            evaluation_attempt_id=evaluation_attempt_id,
+            effective_estimation_config=effective_estimation_config,
+        )
+        vector = PolicyEvaluationVector(
+            candidate_id=candidate.candidate_id,
+            feasible=True,
+            metadata={
+                "policy_runtime_invocation": execution,
+                "policy_runtime_fiscal_measurement": {
+                    "usable": True,
+                    "normalized_value": 0.0,
+                    "source_values": {"gov_balance": 0.0},
+                },
+            },
+        )
         provenance = PolicyRuntimeProvenance(
             backend_kind=self.backend_kind,
             fidelity_mode=fidelity,
@@ -89,12 +109,13 @@ class _PassingPolicyEvaluationBackend:
         metrics = {"gdp_change": 0.1, "gov_balance": 0.0}
         return PolicyRuntimeEvaluationArtifact(
             simulation_metrics=metrics,
-            simulation_results=build_policy_simulation_results(
+            simulation_results=_build_policy_simulation_results_impl(
                 vector,
                 fidelity=fidelity,
                 uncertainty=uncertainty,
                 base_metrics=metrics,
                 provenance=provenance,
+                runtime_execution=execution,
             ),
             evaluation_vector=vector,
             fidelity=fidelity,
@@ -239,6 +260,31 @@ def test_same_run_direct_l4_and_l3_to_l4_persist_joined_invocations(tmp_path: Pa
     )
     assert chain_l3_packet.requested_draw_count == 64
     assert direct_packet.requested_draw_count == chain_l4_packet.requested_draw_count == 500
+    direct_source = from_canonical_bytes(
+        store.get_bytes(direct_packet.source_result_ref.artifact_id)
+    )
+    direct_invocation = direct_source["metadata"]["policy_runtime_invocation"]
+    assert direct_invocation["evaluation_attempt_id"] == direct_packet.evaluation_attempt_id
+    assert direct_invocation["requested_draw_count"] == direct_packet.requested_draw_count
+    assert direct_invocation["requested_draw_source"] == direct_packet.requested_draw_source
+    assert direct_invocation["effective_estimation_config_sha256"] == (
+        direct_packet.effective_estimation_config_sha256
+    )
+    direct_fiscal_measurement = direct_source["metadata"]["policy_runtime_fiscal_measurement"]
+    assert direct_fiscal_measurement == {
+        "usable": True,
+        "normalized_value": 0.0,
+        "source_values": {"gov_balance": 0.0},
+    }
+    assert direct_outcome.stage_results[4].simulation_results["gov_balance"] == 0.0
+    assert all(
+        packet.requested_draw_source == "effective_estimation_config"
+        and packet.effective_estimation_config_sha256 is not None
+        for packet in (direct_packet, chain_l3_packet, chain_l4_packet)
+    )
+    assert direct_packet.effective_estimation_config_sha256 == (
+        chain_l4_packet.effective_estimation_config_sha256
+    )
     for packet in (direct_packet, chain_l3_packet, chain_l4_packet):
         assert packet.attempted_invocation_count == 1
         assert packet.completed_invocation_count == 1
@@ -272,6 +318,91 @@ def test_same_run_direct_l4_and_l3_to_l4_persist_joined_invocations(tmp_path: Pa
         ]
 
 
+def test_default_l3_requested_count_comes_from_effective_config_only(tmp_path: Path) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    candidate = _policy_candidate()
+    candidate_ref = persist_policy_candidate_schema(store, candidate)
+    engine = _RecordingWorkflowEngine(fidelity="medium")
+    stage = Level3MediumFidelity(workflow_engine=engine)
+    orchestrator = FunnelOrchestrator([stage])
+    ticket = orchestrator.submit(
+        _candidate_payload(candidate), _context(store, candidate, candidate_ref)
+    )
+    outcome = orchestrator.advance(ticket, target_level=3)
+
+    result = outcome.stage_results[3]
+    packet_ref = result.executed_work_packet_ref
+    assert packet_ref is not None
+    packet = FunnelExecutedWorkPacket.model_validate(
+        from_canonical_bytes(store.get_bytes(packet_ref.artifact_id))
+    )
+    assert engine.effective_config_inputs[0]["estimation_config"]["n_bootstrap"] == 50
+    assert packet.requested_draw_count == 50
+    assert packet.requested_draw_source == "effective_estimation_config"
+    assert packet.draw_execution_status == "not_instrumented"
+    assert packet.attempted_draw_count is None
+    assert packet.successful_draw_count is None
+    assert packet.failed_draw_count is None
+    assert packet.unattempted_draw_count is None
+
+
+def test_legacy_fidelity_default_packet_is_not_admitted_as_current_config_evidence(
+    tmp_path: Path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    candidate = _policy_candidate()
+    candidate_ref = persist_policy_candidate_schema(store, candidate)
+    context = _context(store, candidate, candidate_ref)
+    evaluation_ref = persist_policy_evaluation_vector_to_store(
+        store,
+        candidate_ref=candidate_ref,
+        evaluation_vector=PolicyEvaluationVector(candidate_id=candidate.candidate_id),
+    )
+    stage = Level3MediumFidelity(workflow_engine=_RecordingWorkflowEngine(fidelity="medium"))
+    orchestrator = FunnelOrchestrator([stage])
+    ticket = orchestrator.submit(_candidate_payload(candidate), context)
+    packet = FunnelExecutedWorkPacket(
+        schema_version="1.0",
+        run_id="run_work_packet_test",
+        ticket_id=ticket.ticket_id,
+        candidate_hash=ticket.candidate_hash,
+        candidate_ref=candidate_ref,
+        stage_level=3,
+        stage_name="funnel_L3_medium",
+        fidelity="medium",
+        evaluation_attempt_id="attempt-legacy",
+        observed_at=datetime.now(UTC),
+        backend_kind="synthetic",
+        source_result_ref=evaluation_ref,
+        requested_draw_count=64,
+        requested_draw_source="fidelity_default",
+        input_signature=context["pinned_input_signature"],
+    )
+    packet_ref = persist_funnel_executed_work_packet(store, packet)
+    stage.evaluate = lambda _candidate, _context: FunnelStageResult(
+        policy_candidate=_candidate,
+        objective_value=0.0,
+        is_promising=True,
+        stage_name="funnel_L3_medium",
+        duration_seconds=0.01,
+        simulation_results={"bootstrap": {"requested_draw_count": 64}},
+        feedback={
+            "policy_runtime_fidelity": "medium",
+            "policy_runtime_backend_kind": "synthetic",
+        },
+        fidelity_level=3,
+        executed_work_packet_ref=packet_ref,
+        executed_work_packet_status="available",
+    )
+
+    outcome = orchestrator.advance(ticket, target_level=3)
+
+    assert outcome.trace[0].executed_work_packet_status == "rejected"
+    assert outcome.stage_results[3].feedback["policy_runtime_work_packet_rejection_reason"] == (
+        "work_packet_binding_mismatch"
+    )
+
+
 @pytest.mark.parametrize(
     ("packet_run_id", "packet_draw_count"),
     [("another-run", 64), ("run_work_packet_test", 500)],
@@ -284,10 +415,26 @@ def test_work_packet_consumer_rejects_wrong_run_or_draw_binding(
     store = FileSystemCAS(tmp_path / "cas")
     candidate = _policy_candidate()
     candidate_ref = persist_policy_candidate_schema(store, candidate)
+    source_invocation = {
+        "evaluation_attempt_id": "attempt-source-bound",
+        "requested_draw_count": 50,
+        "requested_draw_source": "effective_estimation_config",
+        "effective_estimation_config_sha256": "e" * 64,
+    }
     evaluation_ref = persist_policy_evaluation_vector_to_store(
         store,
         candidate_ref=candidate_ref,
-        evaluation_vector=PolicyEvaluationVector(candidate_id=candidate.candidate_id),
+        evaluation_vector=PolicyEvaluationVector(
+            candidate_id=candidate.candidate_id,
+            metadata={
+                "policy_runtime_invocation": source_invocation,
+                "policy_runtime_fiscal_measurement": {
+                    "usable": False,
+                    "normalized_value": None,
+                    "source_values": {},
+                },
+            },
+        ),
     )
     context = _context(store, candidate, candidate_ref)
     stage = Level3MediumFidelity(workflow_engine=_RecordingWorkflowEngine(fidelity="medium"))
@@ -301,16 +448,25 @@ def test_work_packet_consumer_rejects_wrong_run_or_draw_binding(
         stage_level=3,
         stage_name="funnel_L3_medium",
         fidelity="medium",
-        evaluation_attempt_id="wrong-run-attempt",
+        evaluation_attempt_id=(
+            "wrong-run-attempt"
+            if packet_run_id != "run_work_packet_test"
+            else "attempt-source-bound"
+        ),
         observed_at=datetime.now(UTC),
         backend_kind="synthetic",
         source_result_ref=evaluation_ref,
         requested_draw_count=packet_draw_count,
+        requested_draw_source="effective_estimation_config",
+        effective_estimation_config_sha256="e" * 64,
         input_signature=context["pinned_input_signature"],
     )
     wrong_run_ref = persist_funnel_executed_work_packet(store, wrong_run_packet)
     stage.evaluate = lambda _candidate, _context: stage_result_with_packet(
         wrong_run_ref,
+        evaluation_attempt_id="attempt-source-bound",
+        requested_draw_count=50,
+        config_digest="e" * 64,
     )
 
     outcome = orchestrator.advance(ticket, target_level=3)
@@ -320,6 +476,94 @@ def test_work_packet_consumer_rejects_wrong_run_or_draw_binding(
     assert (
         outcome.stage_results[3].feedback["policy_runtime_work_packet_rejection_reason"]
         == "work_packet_binding_mismatch"
+    )
+
+
+@pytest.mark.parametrize("mismatch", ["attempt", "config_digest"])
+def test_work_packet_consumer_rejects_rebound_attempt_or_config_digest(
+    tmp_path: Path,
+    mismatch: str,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    candidate = _policy_candidate()
+    candidate_ref = persist_policy_candidate_schema(store, candidate)
+    context = _context(store, candidate, candidate_ref)
+    source_attempt = "attempt-source-bound"
+    config_digest = "e" * 64
+    vector = PolicyEvaluationVector(
+        candidate_id=candidate.candidate_id,
+        metadata={
+            "policy_runtime_invocation": {
+                "evaluation_attempt_id": source_attempt,
+                "requested_draw_count": 50,
+                "requested_draw_source": "effective_estimation_config",
+                "effective_estimation_config_sha256": config_digest,
+            },
+            "policy_runtime_fiscal_measurement": {
+                "usable": False,
+                "normalized_value": None,
+                "source_values": {},
+            },
+        },
+    )
+    evaluation_ref = persist_policy_evaluation_vector_to_store(
+        store,
+        candidate_ref=candidate_ref,
+        evaluation_vector=vector,
+    )
+    packet_attempt = "rebound-attempt" if mismatch == "attempt" else source_attempt
+    packet_digest = "f" * 64 if mismatch == "config_digest" else config_digest
+    stage = Level3MediumFidelity(workflow_engine=_RecordingWorkflowEngine(fidelity="medium"))
+    orchestrator = FunnelOrchestrator([stage])
+    ticket = orchestrator.submit(_candidate_payload(candidate), context)
+    packet = FunnelExecutedWorkPacket(
+        run_id="run_work_packet_test",
+        ticket_id=ticket.ticket_id,
+        candidate_hash=ticket.candidate_hash,
+        candidate_ref=candidate_ref,
+        stage_level=3,
+        stage_name="funnel_L3_medium",
+        fidelity="medium",
+        evaluation_attempt_id=packet_attempt,
+        observed_at=datetime.now(UTC),
+        backend_kind="synthetic",
+        source_result_ref=evaluation_ref,
+        requested_draw_count=50,
+        requested_draw_source="effective_estimation_config",
+        effective_estimation_config_sha256=packet_digest,
+        input_signature=context["pinned_input_signature"],
+    )
+    packet_ref = persist_funnel_executed_work_packet(store, packet)
+    stage.evaluate = lambda _candidate, _context: FunnelStageResult(
+        policy_candidate=_candidate,
+        objective_value=0.0,
+        is_promising=True,
+        stage_name="funnel_L3_medium",
+        duration_seconds=0.01,
+        simulation_results={
+            "budget_deficit_objective_usable": False,
+            "budget_deficit_objective_value": None,
+            "bootstrap": {
+                "evaluation_attempt_id": source_attempt,
+                "requested_draw_count": 50,
+                "requested_draw_source": "effective_estimation_config",
+                "effective_estimation_config_sha256": config_digest,
+            },
+        },
+        feedback={
+            "policy_runtime_fidelity": "medium",
+            "policy_runtime_backend_kind": "synthetic",
+        },
+        fidelity_level=3,
+        executed_work_packet_ref=packet_ref,
+        executed_work_packet_status="available",
+    )
+
+    outcome = orchestrator.advance(ticket, target_level=3)
+
+    assert outcome.trace[0].executed_work_packet_status == "rejected"
+    assert outcome.stage_results[3].feedback["policy_runtime_work_packet_rejection_reason"] == (
+        "work_packet_binding_mismatch"
     )
 
 
@@ -353,10 +597,26 @@ def test_work_packet_consumer_rejects_nonexact_input_edge_multiset(
     assert foreign_ref.artifact_id == candidate_ref.artifact_id
     assert foreign_ref.manifest_profile_sha256 != candidate_ref.manifest_profile_sha256
 
+    edge_invocation = {
+        "evaluation_attempt_id": "attempt-foreign-profile-edge",
+        "requested_draw_count": 64,
+        "requested_draw_source": "effective_estimation_config",
+        "effective_estimation_config_sha256": "d" * 64,
+    }
     evaluation_ref = persist_policy_evaluation_vector_to_store(
         store,
         candidate_ref=candidate_ref,
-        evaluation_vector=PolicyEvaluationVector(candidate_id=candidate.candidate_id),
+        evaluation_vector=PolicyEvaluationVector(
+            candidate_id=candidate.candidate_id,
+            metadata={
+                "policy_runtime_invocation": edge_invocation,
+                "policy_runtime_fiscal_measurement": {
+                    "usable": False,
+                    "normalized_value": None,
+                    "source_values": {},
+                },
+            },
+        ),
     )
     context = _context(store, candidate, candidate_ref)
     stage = Level3MediumFidelity(workflow_engine=_RecordingWorkflowEngine(fidelity="medium"))
@@ -375,6 +635,8 @@ def test_work_packet_consumer_rejects_nonexact_input_edge_multiset(
         backend_kind="synthetic",
         source_result_ref=evaluation_ref,
         requested_draw_count=64,
+        requested_draw_source="effective_estimation_config",
+        effective_estimation_config_sha256="d" * 64,
         input_signature=context["pinned_input_signature"],
     )
     candidate_input = input_ref_from_artifact_ref(candidate_ref, role="candidate")
@@ -405,7 +667,7 @@ def test_work_packet_consumer_rejects_nonexact_input_edge_multiset(
             media_type="application/json",
             schema=SchemaInfo(
                 name="polisyos.scientist.search.FunnelExecutedWorkPacket",
-                version="1.0",
+                version=packet.schema_version,
             ),
             producer=ProducerInfo(
                 component="scientist.policy_runtime_work_packet",
@@ -415,7 +677,12 @@ def test_work_packet_consumer_rejects_nonexact_input_edge_multiset(
         ),
         canon_spec=CanonSpec(forbid_floats=False),
     )
-    stage.evaluate = lambda _candidate, _context: stage_result_with_packet(packet_ref)
+    stage.evaluate = lambda _candidate, _context: stage_result_with_packet(
+        packet_ref,
+        evaluation_attempt_id=edge_invocation["evaluation_attempt_id"],
+        requested_draw_count=edge_invocation["requested_draw_count"],
+        config_digest=edge_invocation["effective_estimation_config_sha256"],
+    )
 
     outcome = orchestrator.advance(ticket, target_level=3)
 
@@ -439,13 +706,28 @@ def test_policy_runtime_reports_work_packet_unavailable_without_run_binding() ->
     assert "policy_runtime_work_packet_ref" not in result["feedback"]
 
 
-def stage_result_with_packet(ref: ArtifactRef) -> FunnelStageResult:
+def stage_result_with_packet(
+    ref: ArtifactRef,
+    *,
+    evaluation_attempt_id: str,
+    requested_draw_count: int,
+    config_digest: str,
+) -> FunnelStageResult:
     return FunnelStageResult(
         policy_candidate={},
         objective_value=0.0,
         is_promising=True,
         stage_name="funnel_L3_medium",
-        simulation_results={"bootstrap": {"requested_draw_count": 64}},
+        simulation_results={
+            "budget_deficit_objective_usable": False,
+            "budget_deficit_objective_value": None,
+            "bootstrap": {
+                "evaluation_attempt_id": evaluation_attempt_id,
+                "requested_draw_count": requested_draw_count,
+                "requested_draw_source": "effective_estimation_config",
+                "effective_estimation_config_sha256": config_digest,
+            },
+        },
         feedback={
             "policy_runtime_fidelity": "medium",
             "policy_runtime_backend_kind": "synthetic",
@@ -454,3 +736,40 @@ def stage_result_with_packet(ref: ArtifactRef) -> FunnelStageResult:
         executed_work_packet_ref=ref,
         executed_work_packet_status="available",
     )
+
+
+class _UnavailableFiscalWorkflowEngine:
+    def run(self, initial_state: dict[str, Any]) -> dict[str, Any]:
+        del initial_state
+        return {
+            "simulation_results": {
+                "gdp_change": 0.1,
+                "budget_deficit_objective_usable": False,
+                "budget_deficit_objective_value": None,
+            },
+            "feedback": {"verdict": "APPROVE"},
+        }
+
+
+class _ObjectiveRecordingVOI:
+    def observe_stage_result(self, **kwargs: Any) -> None:
+        self.actual_objective_value = kwargs["actual_objective_value"]
+
+
+def test_unavailable_fiscal_signal_is_labeled_but_reaches_scalar_voi_consumer() -> None:
+    scheduler = _ObjectiveRecordingVOI()
+    stage = Level3MediumFidelity(workflow_engine=_UnavailableFiscalWorkflowEngine())
+    orchestrator = FunnelOrchestrator([stage], voi_scheduler=scheduler)
+    candidate = _policy_candidate()
+    outcome = orchestrator.advance(
+        orchestrator.submit(_candidate_payload(candidate), {}),
+        target_level=3,
+    )
+
+    result = outcome.stage_results[3]
+    limitation = "budget_deficit_unavailable_required_float_legacy_zero"
+    assert result.simulation_results["budget_deficit_objective_usable"] is False
+    assert result.feedback["objective_limitations"] == [limitation]
+    assert result.objective_value == -0.1
+    assert outcome.trace[0].objective_value == -0.1
+    assert scheduler.actual_objective_value == -0.1

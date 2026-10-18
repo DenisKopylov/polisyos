@@ -6,7 +6,7 @@ import math
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Protocol
+from typing import Any, Literal, Protocol
 
 _MISSING = object()
 _INVALID = object()
@@ -21,9 +21,11 @@ def _read_metric_aliases(results: dict[str, Any], aliases: tuple[str, ...]) -> o
         raw_value = results.get(alias, _MISSING)
         if raw_value is _MISSING or raw_value is None:
             continue
+        if isinstance(raw_value, bool):
+            return _INVALID
         try:
             value = float(raw_value)
-        except (TypeError, ValueError):
+        except (OverflowError, TypeError, ValueError):
             return _INVALID
         if not math.isfinite(value):
             return _INVALID
@@ -189,6 +191,56 @@ class BudgetDeficitObjective(BaseObjective):
         if deficit is _INVALID or deficit is _MISSING:
             return math.nan
         return abs(float(deficit))
+
+
+_DefaultSearchObjectiveLimitation = Literal["budget_deficit_unavailable_required_float_legacy_zero"]
+_DEFAULT_SEARCH_OBJECTIVE_FALLBACK_LIMITATION: _DefaultSearchObjectiveLimitation = (
+    "budget_deficit_unavailable_required_float_legacy_zero"
+)
+
+
+@dataclass(frozen=True)
+class _DefaultSearchObjectiveAssessment:
+    """One source-derived scalar assessment and its typed limitations."""
+
+    objective_value: float
+    limitations: tuple[_DefaultSearchObjectiveLimitation, ...] = ()
+
+
+def _assess_default_search_objective(
+    results: dict[str, Any],
+) -> _DefaultSearchObjectiveAssessment:
+    """Evaluate the legacy scalar and availability limitation from one fiscal result."""
+    gdp = results.get("gdp_change", 0.0)
+    fiscal = BudgetDeficitObjective().evaluate(results)
+    if fiscal.is_satisfied:
+        deficit = fiscal.raw_value
+        limitations: tuple[_DefaultSearchObjectiveLimitation, ...] = ()
+    else:
+        deficit = 0.0
+        limitations = (_DEFAULT_SEARCH_OBJECTIVE_FALLBACK_LIMITATION,)
+    return _DefaultSearchObjectiveAssessment(
+        objective_value=-(gdp - 0.5 * deficit),
+        limitations=limitations,
+    )
+
+
+def _apply_default_search_objective_limitations(
+    feedback: dict[str, Any],
+    assessment: _DefaultSearchObjectiveAssessment,
+) -> None:
+    """Replace only this objective's limitation with the source-derived value."""
+    previous = feedback.get("objective_limitations")
+    retained = (
+        [item for item in previous if item != _DEFAULT_SEARCH_OBJECTIVE_FALLBACK_LIMITATION]
+        if isinstance(previous, (list, tuple))
+        else []
+    )
+    limitations = [*retained, *assessment.limitations]
+    if limitations:
+        feedback["objective_limitations"] = limitations
+    else:
+        feedback.pop("objective_limitations", None)
 
 
 class InequalityObjective(BaseObjective):

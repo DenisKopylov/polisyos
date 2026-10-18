@@ -352,17 +352,72 @@ def _persist_policy_runtime_work_packet(
     if fidelity not in {"medium", "full"}:
         return None, "unsupported_fidelity"
 
+    simulation_results = runtime_artifact.simulation_results
+    bootstrap = simulation_results.get("bootstrap")
+    vector_metadata = runtime_artifact.evaluation_vector.metadata
+    invocation = (
+        vector_metadata.get("policy_runtime_invocation")
+        if isinstance(vector_metadata, Mapping)
+        else None
+    )
+    fiscal_measurement = (
+        vector_metadata.get("policy_runtime_fiscal_measurement")
+        if isinstance(vector_metadata, Mapping)
+        else None
+    )
+    if not isinstance(bootstrap, Mapping) or not isinstance(invocation, Mapping):
+        return None, "runtime_execution_binding_unavailable"
+    requested_draw_count = bootstrap.get("requested_draw_count")
+    if requested_draw_count is not None and (
+        isinstance(requested_draw_count, bool) or not isinstance(requested_draw_count, int)
+    ):
+        return None, "runtime_execution_binding_unavailable"
+    requested_draw_source = bootstrap.get("requested_draw_source")
+    config_digest = bootstrap.get("effective_estimation_config_sha256")
+    invocation_fields = (
+        "evaluation_attempt_id",
+        "requested_draw_count",
+        "requested_draw_source",
+        "effective_estimation_config_sha256",
+    )
+    if (
+        invocation.get("evaluation_attempt_id") != evaluation_attempt_id
+        or any(invocation.get(key) != bootstrap.get(key) for key in invocation_fields)
+        or not isinstance(requested_draw_source, str)
+        or requested_draw_source not in {"effective_estimation_config", "unavailable"}
+        or (
+            requested_draw_source == "effective_estimation_config"
+            and (
+                not isinstance(config_digest, str)
+                or len(config_digest) != 64
+                or any(character not in "0123456789abcdef" for character in config_digest)
+            )
+        )
+        or (
+            requested_draw_source == "unavailable"
+            and (requested_draw_count is not None or config_digest is not None)
+        )
+        or not isinstance(fiscal_measurement, Mapping)
+    ):
+        return None, "runtime_execution_binding_unavailable"
+    fiscal_aliases = ("gov_balance", "government_balance", "budget_deficit", "deficit")
+    expected_fiscal_measurement = {
+        "usable": simulation_results.get("budget_deficit_objective_usable"),
+        "normalized_value": simulation_results.get("budget_deficit_objective_value"),
+        "source_values": {
+            alias: simulation_results[alias]
+            for alias in fiscal_aliases
+            if alias in simulation_results
+        },
+    }
+    if fiscal_measurement != expected_fiscal_measurement:
+        return None, "runtime_execution_binding_unavailable"
+
     result_ref = persist_policy_evaluation_vector_to_store(
         store,
         candidate_ref=candidate_ref,
         evaluation_vector=runtime_artifact.evaluation_vector,
     )
-    bootstrap = runtime_artifact.simulation_results.get("bootstrap", {})
-    requested_draw_count = (
-        bootstrap.get("requested_draw_count") if isinstance(bootstrap, Mapping) else None
-    )
-    if isinstance(requested_draw_count, bool) or not isinstance(requested_draw_count, int):
-        requested_draw_count = None
     packet = FunnelExecutedWorkPacket(
         run_id=run_id,
         ticket_id=ticket_id,
@@ -376,6 +431,8 @@ def _persist_policy_runtime_work_packet(
         backend_kind=runtime_artifact.provenance.backend_kind,
         source_result_ref=result_ref,
         requested_draw_count=requested_draw_count,
+        requested_draw_source=requested_draw_source,
+        effective_estimation_config_sha256=config_digest,
         input_signature=(
             str(initial_state["pinned_input_signature"])
             if initial_state.get("pinned_input_signature")

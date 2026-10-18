@@ -46,10 +46,24 @@ def _candidate(candidate_id: str) -> PolicyCandidateSchema:
 def _runtime_artifact(
     candidate: PolicyCandidateSchema, fidelity: str
 ) -> PolicyRuntimeEvaluationArtifact:
+    runtime_invocation = {
+        "evaluation_attempt_id": f"attempt:{fidelity}",
+        "requested_draw_count": 17,
+        "requested_draw_source": "effective_estimation_config",
+        "effective_estimation_config_sha256": "c" * 64,
+    }
     vector = PolicyEvaluationVector(
         candidate_id=candidate.candidate_id,
         feasible=True,
-        metadata={"fidelity_observed": fidelity},
+        metadata={
+            "fidelity_observed": fidelity,
+            "policy_runtime_invocation": runtime_invocation,
+            "policy_runtime_fiscal_measurement": {
+                "usable": False,
+                "normalized_value": None,
+                "source_values": {},
+            },
+        },
     )
     provenance = PolicyRuntimeProvenance(
         backend_kind="typed_work_packet_fixture",
@@ -59,7 +73,19 @@ def _runtime_artifact(
     )
     return PolicyRuntimeEvaluationArtifact(
         simulation_metrics={"gdp_change": 0.2},
-        simulation_results={"gdp_change": 0.2, "bootstrap": {"requested_draw_count": 64}},
+        simulation_results={
+            "gdp_change": 0.2,
+            "budget_deficit_objective_usable": False,
+            "budget_deficit_objective_value": None,
+            "bootstrap": {
+                **runtime_invocation,
+                "draw_execution_status": "not_instrumented",
+                "attempted_draw_count": None,
+                "successful_draw_count": None,
+                "failed_draw_count": None,
+                "unattempted_draw_count": None,
+            },
+        },
         evaluation_vector=vector,
         fidelity=fidelity,
         provenance=provenance,
@@ -119,7 +145,10 @@ def test_engine_persists_typed_work_packet_with_candidate_and_result_cas_lineage
         fidelity,
     )
     assert packet.input_signature == "signature:run_engine_positive"
-    assert packet.requested_draw_count == 64
+    assert packet.schema_version == "1.1"
+    assert packet.requested_draw_count == 17
+    assert packet.requested_draw_source == "effective_estimation_config"
+    assert packet.effective_estimation_config_sha256 == "c" * 64
     assert packet.draw_execution_status == "not_instrumented"
     assert packet.attempted_draw_count is None
     assert packet.successful_draw_count is None
@@ -132,6 +161,10 @@ def test_engine_persists_typed_work_packet_with_candidate_and_result_cas_lineage
     result_payload = from_canonical_bytes(store.get_bytes(packet.source_result_ref.artifact_id))
     assert result_payload["candidate_id"] == candidate.candidate_id
     assert result_payload["metadata"]["fidelity_observed"] == fidelity
+    assert (
+        result_payload["metadata"]["policy_runtime_invocation"]["evaluation_attempt_id"]
+        == f"attempt:{fidelity}"
+    )
     result_manifest = store.get_manifest(packet.source_result_ref)
     packet_manifest = store.get_manifest(packet_ref)
     assert result_manifest.artifact_id == packet.source_result_ref.artifact_id

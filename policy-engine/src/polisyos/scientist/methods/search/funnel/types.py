@@ -75,7 +75,7 @@ class FunnelExecutedWorkPacket(ArtifactMinimalityMixin):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    schema_version: Literal["1.0"] = "1.0"
+    schema_version: Literal["1.0", "1.1"] = "1.1"
     authority_purpose: Literal["engineering_execution_observation"] = (
         "engineering_execution_observation"
     )
@@ -100,13 +100,26 @@ class FunnelExecutedWorkPacket(ArtifactMinimalityMixin):
     failed_invocation_count: Literal[0] = 0
     source_result_ref: ArtifactRef
     requested_draw_count: int | None = Field(default=None, ge=0, strict=True)
-    requested_draw_source: Literal["fidelity_default"] = "fidelity_default"
+    requested_draw_source: Literal[
+        "fidelity_default", "effective_estimation_config", "unavailable"
+    ] = "unavailable"
+    effective_estimation_config_sha256: str | None = Field(default=None, pattern=r"^[a-f0-9]{64}$")
     draw_execution_status: Literal["not_instrumented"] = "not_instrumented"
     attempted_draw_count: None = None
     successful_draw_count: None = None
     failed_draw_count: None = None
     unattempted_draw_count: None = None
     input_signature: str | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def _preserve_legacy_draw_source(cls, value: Any) -> Any:
+        if not isinstance(value, Mapping):
+            return value
+        payload = dict(value)
+        if payload.get("schema_version") == "1.0" and "requested_draw_source" not in payload:
+            payload["requested_draw_source"] = "fidelity_default"
+        return payload
 
     @model_validator(mode="after")
     def _validate_runtime_binding(self) -> FunnelExecutedWorkPacket:
@@ -120,6 +133,22 @@ class FunnelExecutedWorkPacket(ArtifactMinimalityMixin):
         }[self.stage_level]
         if (self.stage_name, self.fidelity) != expected:
             raise ValueError("work packet stage and fidelity do not match")
+        if self.schema_version == "1.0":
+            if (
+                self.requested_draw_source != "fidelity_default"
+                or self.effective_estimation_config_sha256 is not None
+            ):
+                raise ValueError("legacy work packet draw source is invalid")
+        elif self.requested_draw_source == "fidelity_default":
+            raise ValueError("new work packets require a source-bound draw request")
+        elif self.requested_draw_source == "effective_estimation_config":
+            if self.effective_estimation_config_sha256 is None:
+                raise ValueError("effective draw configuration digest is required")
+        elif (
+            self.requested_draw_count is not None
+            or self.effective_estimation_config_sha256 is not None
+        ):
+            raise ValueError("unavailable draw source cannot carry a request")
         return self
 
 

@@ -86,10 +86,9 @@ from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
 from polisyos.scientist.policy_design.schema import PolicyCandidateSchema
 
 
-@pytest.mark.parametrize(("fidelity", "requested_draw_count"), [("medium", 64), ("full", 500)])
-def test_policy_runtime_keeps_requested_draws_separate_from_unobserved_execution_counts(
+@pytest.mark.parametrize("fidelity", ["medium", "full"])
+def test_policy_runtime_keeps_draw_request_unknown_without_effective_config(
     fidelity: str,
-    requested_draw_count: int,
 ) -> None:
     evaluation = PolicyEvaluationVector(candidate_id="candidate_work_count")
 
@@ -100,8 +99,10 @@ def test_policy_runtime_keeps_requested_draws_separate_from_unobserved_execution
     )
 
     bootstrap = results["bootstrap"]
-    assert bootstrap.get("requested_draw_count") == requested_draw_count
-    assert bootstrap.get("requested_draw_source") == "fidelity_default"
+    assert bootstrap.get("evaluation_attempt_id") is None
+    assert bootstrap.get("requested_draw_count") is None
+    assert bootstrap.get("requested_draw_source") == "unavailable"
+    assert bootstrap.get("effective_estimation_config_sha256") is None
     assert bootstrap.get("draw_execution_status") == "not_instrumented"
     assert bootstrap.get("attempted_draw_count") is None
     assert bootstrap.get("successful_draw_count") is None

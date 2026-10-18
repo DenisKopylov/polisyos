@@ -1071,6 +1071,54 @@ class FunnelOrchestrator:
             )
             if isinstance(requested_draw_count, bool) or not isinstance(requested_draw_count, int):
                 requested_draw_count = None
+            runtime_binding_matches = packet.schema_version == "1.1"
+            if packet.schema_version == "1.1":
+                source_metadata = source_result_payload.get("metadata")
+                invocation = (
+                    source_metadata.get("policy_runtime_invocation")
+                    if isinstance(source_metadata, Mapping)
+                    else None
+                )
+                fiscal_measurement = (
+                    source_metadata.get("policy_runtime_fiscal_measurement")
+                    if isinstance(source_metadata, Mapping)
+                    else None
+                )
+                fiscal_aliases = (
+                    "gov_balance",
+                    "government_balance",
+                    "budget_deficit",
+                    "deficit",
+                )
+                expected_fiscal_measurement = {
+                    "usable": result.simulation_results.get("budget_deficit_objective_usable"),
+                    "normalized_value": result.simulation_results.get(
+                        "budget_deficit_objective_value"
+                    ),
+                    "source_values": {
+                        alias: result.simulation_results[alias]
+                        for alias in fiscal_aliases
+                        if alias in result.simulation_results
+                    },
+                }
+                runtime_binding_matches = (
+                    isinstance(bootstrap, Mapping)
+                    and isinstance(invocation, Mapping)
+                    and packet.evaluation_attempt_id
+                    == invocation.get("evaluation_attempt_id")
+                    == bootstrap.get("evaluation_attempt_id")
+                    and packet.requested_draw_count
+                    == invocation.get("requested_draw_count")
+                    == bootstrap.get("requested_draw_count")
+                    and packet.requested_draw_source
+                    == invocation.get("requested_draw_source")
+                    == bootstrap.get("requested_draw_source")
+                    and packet.effective_estimation_config_sha256
+                    == invocation.get("effective_estimation_config_sha256")
+                    == bootstrap.get("effective_estimation_config_sha256")
+                    and isinstance(fiscal_measurement, Mapping)
+                    and dict(fiscal_measurement) == expected_fiscal_measurement
+                )
             if (
                 ref.kind != "scientist.search.funnel_native_work_packet"
                 or packet_manifest.kind != "scientist.search.funnel_native_work_packet"
@@ -1099,6 +1147,7 @@ class FunnelOrchestrator:
                 or result_candidate_inputs
                 != [input_ref_from_artifact_ref(packet.candidate_ref, role="candidate")]
                 or packet.requested_draw_count != requested_draw_count
+                or not runtime_binding_matches
                 or packet.input_signature
                 != (
                     str(ticket.context.get("pinned_input_signature"))

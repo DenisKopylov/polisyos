@@ -320,6 +320,9 @@ class _PolicyRuntimeWorkflowEngine(WorkflowEngine):
         if not isinstance(candidate, PolicyCandidateSchema):
             raise ValueError("policy_candidate_schema is required for policy runtime workflow.")
         evaluation_attempt_id = str(uuid4())
+        effective_estimation_config = initial_state.get("estimation_config")
+        if not isinstance(effective_estimation_config, Mapping):
+            effective_estimation_config = None
         runtime_artifact = self._backend.evaluate(
             candidate,
             fidelity=self._fidelity,
@@ -330,6 +333,8 @@ class _PolicyRuntimeWorkflowEngine(WorkflowEngine):
             cross_graph_profile=initial_state.get("cross_graph_profile"),
             governance_report=initial_state.get("governance_report"),
             ambiguity_certificate=initial_state.get("ambiguity_certificate"),
+            evaluation_attempt_id=evaluation_attempt_id,
+            effective_estimation_config=effective_estimation_config,
         )
         work_packet_ref, work_packet_unavailability_reason = _persist_policy_runtime_work_packet(
             initial_state=initial_state,

@@ -46,9 +46,16 @@ def test_budget_deficit_keeps_non_finite_metric_unusable(balance: float) -> None
     """Non-finite primary values must not silently fall back or become scores."""
     # Catches the production mutation that treats NaN/inf as an ordinary
     # balance and lets a non-finite result pass the objective gate.
-    evaluated = BudgetDeficitObjective().evaluate(
-        {"gov_balance": balance, "budget_deficit": 100.0}
-    )
+    evaluated = BudgetDeficitObjective().evaluate({"gov_balance": balance, "budget_deficit": 100.0})
+
+    assert math.isnan(evaluated.raw_value)
+    assert evaluated.is_satisfied is False
+
+
+@pytest.mark.parametrize("value", [True, False])
+def test_budget_deficit_rejects_boolean_measurements(value: bool) -> None:
+    """Boolean flags are not numeric fiscal measurements."""
+    evaluated = BudgetDeficitObjective().evaluate({"budget_deficit": value})
 
     assert math.isnan(evaluated.raw_value)
     assert evaluated.is_satisfied is False

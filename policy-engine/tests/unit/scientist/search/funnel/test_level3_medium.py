@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock
 
+import pytest
+
 from polisyos.scientist.methods.search.funnel.level3_medium import (
     _FORBIDDEN_PRUNING_METRICS,
     Level3MediumFidelity,
@@ -115,6 +117,67 @@ class TestLevel3MediumFidelity:
 
         expected = -(0.05 - 0.5 * 0.02)  # -(gdp - 0.5 * deficit)
         assert abs(result.objective_value - expected) < 1e-10
+
+    def test_budget_deficit_alias_contributes_to_the_existing_objective(self):
+        engine = _make_mock_engine(
+            {
+                "simulation_results": {
+                    "gdp_change": 0.05,
+                    "budget_deficit": 0.02,
+                    "budget_deficit_objective_usable": True,
+                },
+                "feedback": {"verdict": "APPROVE"},
+            }
+        )
+        result = Level3MediumFidelity(workflow_engine=engine).evaluate(_make_candidate(), {})
+
+        assert abs(result.objective_value - (-(0.05 - 0.5 * 0.02))) < 1e-10
+
+    @pytest.mark.parametrize(
+        ("simulation_results", "expected_score", "limited"),
+        [
+            pytest.param({"gdp_change": 0.05}, -0.05, True, id="marker-absent"),
+            pytest.param(
+                {"gdp_change": 0.05, "budget_deficit_objective_usable": True},
+                -0.05,
+                True,
+                id="stale-available-marker",
+            ),
+            pytest.param(
+                {"gdp_change": 0.05, "budget_deficit": 0.02},
+                -0.04,
+                False,
+                id="valid-alias-marker-absent",
+            ),
+            pytest.param(
+                {
+                    "gdp_change": 0.05,
+                    "budget_deficit": 0.02,
+                    "budget_deficit_objective_usable": False,
+                },
+                -0.04,
+                False,
+                id="stale-unavailable-marker",
+            ),
+        ],
+    )
+    def test_objective_limitation_comes_from_fiscal_assessment(
+        self, simulation_results, expected_score, limited
+    ):
+        feedback = {"verdict": "APPROVE"}
+        if not limited:
+            feedback["objective_limitations"] = [
+                "budget_deficit_unavailable_required_float_legacy_zero"
+            ]
+        engine = _make_mock_engine({"simulation_results": simulation_results, "feedback": feedback})
+
+        result = Level3MediumFidelity(workflow_engine=engine).evaluate(_make_candidate(), {})
+
+        assert result.objective_value == pytest.approx(expected_score)
+        assert (
+            "budget_deficit_unavailable_required_float_legacy_zero"
+            in result.feedback.get("objective_limitations", [])
+        ) is limited
 
     def test_duration_based_cost_is_explicitly_estimated(self):
         engine = _make_mock_engine()

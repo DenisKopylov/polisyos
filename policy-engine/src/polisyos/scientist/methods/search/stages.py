@@ -13,6 +13,10 @@ from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
+from polisyos.scientist.methods.search.objective import (
+    _apply_default_search_objective_limitations,
+    _assess_default_search_objective,
+)
 from polisyos.scientist.methods.search.stage_contracts import SearchStage, StageResult
 from polisyos.scientist.orchestration.workflows.engine_base import WorkflowEngine
 
@@ -186,9 +190,12 @@ class ExpensiveStage(SearchStage):
 
         sim_results = result.get("simulation_results", {})
         feedback = result.get("feedback", {})
+        feedback = dict(feedback) if isinstance(feedback, dict) else {}
         verdict = feedback.get("verdict", "UNKNOWN")
 
-        objective = self._compute_default_objective(sim_results)
+        objective_assessment = _assess_default_search_objective(sim_results)
+        objective = objective_assessment.objective_value
+        _apply_default_search_objective_limitations(feedback, objective_assessment)
 
         is_promising = verdict == "APPROVE"
 
@@ -204,11 +211,8 @@ class ExpensiveStage(SearchStage):
         )
 
     def _compute_default_objective(self, results: dict[str, Any]) -> float:
-        """Compute simple objective from simulation results."""
-        gdp = results.get("gdp_change", 0.0)
-        deficit = abs(min(results.get("gov_balance", 0.0), 0))
-
-        return -(gdp - 0.5 * deficit)
+        """Compute the existing scalar objective using supplied fiscal aliases."""
+        return _assess_default_search_objective(results).objective_value
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -419,8 +423,7 @@ class CorrelationTracker:
 
     def promotion_ban_active(self, *, window_size: int | None = None) -> bool:
         return any(
-            alert.code == "PROMOTION_BAN"
-            for alert in self.drift_alerts(window_size=window_size)
+            alert.code == "PROMOTION_BAN" for alert in self.drift_alerts(window_size=window_size)
         )
 
     def routing_mode(self, *, window_size: int | None = None) -> str:
@@ -569,9 +572,8 @@ class CorrelationTracker:
     ) -> CorrelationTracker:
         """Load tracker state from CAS snapshot."""
         from polisyos.core.artifacts import load_core_json_artifact
-        snapshot = CorrelationTrackerSnapshot.model_validate(
-            load_core_json_artifact(store, ref)
-        )
+
+        snapshot = CorrelationTrackerSnapshot.model_validate(load_core_json_artifact(store, ref))
         return cls.from_snapshot(snapshot)
 
     def to_jsonl_rows(self) -> list[dict[str, Any]]:

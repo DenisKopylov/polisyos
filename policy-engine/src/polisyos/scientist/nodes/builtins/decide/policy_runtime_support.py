@@ -292,6 +292,8 @@ class PolicyEvaluationBackend(Protocol):
         cross_graph_profile: CrossGraphEvidenceProfile | None,
         governance_report: GovernanceReport | None,
         ambiguity_certificate: AmbiguityCertificate | dict[str, Any] | None = None,
+        evaluation_attempt_id: str | None = None,
+        effective_estimation_config: Mapping[str, Any] | None = None,
     ) -> PolicyRuntimeEvaluationArtifact: ...
 
 
@@ -357,7 +359,13 @@ class ProductionPolicyEvaluationBackend:
         cross_graph_profile: CrossGraphEvidenceProfile | None,
         governance_report: GovernanceReport | None,
         ambiguity_certificate: AmbiguityCertificate | dict[str, Any] | None = None,
+        evaluation_attempt_id: str | None = None,
+        effective_estimation_config: Mapping[str, Any] | None = None,
     ) -> PolicyRuntimeEvaluationArtifact:
+        runtime_execution = _runtime_metrics._policy_runtime_execution_metadata(
+            evaluation_attempt_id=evaluation_attempt_id,
+            effective_estimation_config=effective_estimation_config,
+        )
         safety_blockers = _production_policy_evaluation_safety_blockers(
             context=self.eval_safety_execution_context,
             verifier=self.eval_safety_verifier,
@@ -387,6 +395,7 @@ class ProductionPolicyEvaluationBackend:
         source_components_list = list(source_components)
         if ambiguity_certificate is not None:
             source_components_list.append("ambiguity_certificate")
+        fiscal_measurement = _runtime_metrics._budget_deficit_measurement(metrics)
         evaluation_vector = ObjectiveStack().evaluate(
             PolicyEvaluationBundle(
                 candidate=candidate,
@@ -400,8 +409,15 @@ class ProductionPolicyEvaluationBackend:
                 metadata={
                     "generated_by": f"policy_runtime::{self.backend_kind}::{fidelity}",
                     "source_components": list(dict.fromkeys(source_components_list)),
+                    "policy_runtime_invocation": runtime_execution,
+                    "policy_runtime_fiscal_measurement": fiscal_measurement,
                 },
             )
+        )
+        evaluation_vector = _runtime_metrics._attach_policy_runtime_source_metadata(
+            evaluation_vector,
+            runtime_execution=runtime_execution,
+            fiscal_measurement=fiscal_measurement,
         )
         promotable_source = (
             fidelity == "full"
@@ -420,13 +436,14 @@ class ProductionPolicyEvaluationBackend:
         )
         return PolicyRuntimeEvaluationArtifact(
             simulation_metrics=metrics,
-            simulation_results=build_policy_simulation_results(
+            simulation_results=_runtime_metrics._build_policy_simulation_results_impl(
                 evaluation_vector,
                 fidelity=fidelity,
                 uncertainty=uncertainty,
                 base_metrics=metrics,
                 provenance=provenance,
                 ambiguity_certificate=ambiguity_certificate,
+                runtime_execution=runtime_execution,
             ),
             evaluation_vector=evaluation_vector,
             fidelity=fidelity,
@@ -452,6 +469,8 @@ class SyntheticPolicyEvaluationBackend:
         cross_graph_profile: CrossGraphEvidenceProfile | None,
         governance_report: GovernanceReport | None,
         ambiguity_certificate: AmbiguityCertificate | dict[str, Any] | None = None,
+        evaluation_attempt_id: str | None = None,
+        effective_estimation_config: Mapping[str, Any] | None = None,
     ) -> PolicyRuntimeEvaluationArtifact:
         del simulation_metrics, causal_effect_report, cross_graph_profile
         metrics = _build_runtime_simulation_metrics(
@@ -460,6 +479,11 @@ class SyntheticPolicyEvaluationBackend:
             governance_report=governance_report,
             distributional_report=distributional_report,
         )
+        runtime_execution = _runtime_metrics._policy_runtime_execution_metadata(
+            evaluation_attempt_id=evaluation_attempt_id,
+            effective_estimation_config=effective_estimation_config,
+        )
+        fiscal_measurement = _runtime_metrics._budget_deficit_measurement(metrics)
         evaluation_vector = ObjectiveStack().evaluate(
             PolicyEvaluationBundle(
                 candidate=candidate,
@@ -477,8 +501,15 @@ class SyntheticPolicyEvaluationBackend:
                         if ambiguity_certificate is not None
                         else ["synthetic_policy_runtime"]
                     ),
+                    "policy_runtime_invocation": runtime_execution,
+                    "policy_runtime_fiscal_measurement": fiscal_measurement,
                 },
             )
+        )
+        evaluation_vector = _runtime_metrics._attach_policy_runtime_source_metadata(
+            evaluation_vector,
+            runtime_execution=runtime_execution,
+            fiscal_measurement=fiscal_measurement,
         )
         source_components = (
             ("synthetic_policy_runtime", "ambiguity_certificate")
@@ -495,13 +526,14 @@ class SyntheticPolicyEvaluationBackend:
         )
         return PolicyRuntimeEvaluationArtifact(
             simulation_metrics=metrics,
-            simulation_results=build_policy_simulation_results(
+            simulation_results=_runtime_metrics._build_policy_simulation_results_impl(
                 evaluation_vector,
                 fidelity=fidelity,
                 uncertainty=uncertainty,
                 base_metrics=metrics,
                 provenance=provenance,
                 ambiguity_certificate=ambiguity_certificate,
+                runtime_execution=runtime_execution,
             ),
             evaluation_vector=evaluation_vector,
             fidelity=fidelity,

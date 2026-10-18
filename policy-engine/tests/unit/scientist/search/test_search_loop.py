@@ -2442,6 +2442,62 @@ class TestObjectives:
         assert value.is_satisfied
 
 
+@pytest.mark.parametrize(
+    ("simulation_results", "expected_score", "limited"),
+    [
+        pytest.param({"gdp_change": 0.05}, -0.05, True, id="marker-absent"),
+        pytest.param(
+            {"gdp_change": 0.05, "budget_deficit_objective_usable": True},
+            -0.05,
+            True,
+            id="stale-available-marker",
+        ),
+        pytest.param(
+            {"gdp_change": 0.05, "budget_deficit": 0.02},
+            -0.04,
+            False,
+            id="valid-alias-marker-absent",
+        ),
+        pytest.param(
+            {
+                "gdp_change": 0.05,
+                "budget_deficit": 0.02,
+                "budget_deficit_objective_usable": False,
+            },
+            -0.04,
+            False,
+            id="stale-unavailable-marker",
+        ),
+    ],
+)
+def test_expensive_stage_derives_fiscal_limitation_from_embedded_results(
+    simulation_results: dict[str, Any], expected_score: float, limited: bool
+) -> None:
+    """The cold-start embedded producer cannot suppress source-derived limitation."""
+    from polisyos.scientist.methods.search.cold_start import (
+        _EmbeddedResultsWorkflowEngine,
+    )
+
+    feedback: dict[str, Any] = {"verdict": "APPROVE"}
+    if not limited:
+        feedback["objective_limitations"] = [
+            "budget_deficit_unavailable_required_float_legacy_zero"
+        ]
+    candidate = {
+        "expected_stage4": {
+            "simulation_results": simulation_results,
+            "feedback": feedback,
+        }
+    }
+    result = ExpensiveStage(_EmbeddedResultsWorkflowEngine()).evaluate(candidate, {})
+
+    assert result.objective_value == pytest.approx(expected_score)
+    assert (
+        "budget_deficit_unavailable_required_float_legacy_zero"
+        in result.feedback.get("objective_limitations", [])
+    ) is limited
+
+
 # ─────────────────────────────────────────────────────────────────────────────
 # Integration Test
 # ─────────────────────────────────────────────────────────────────────────────

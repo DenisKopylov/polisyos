@@ -43,17 +43,50 @@ def test_executed_work_packet_separates_completed_runtime_call_from_draw_counts(
         backend_kind="production",
         source_result_ref=result_ref,
         requested_draw_count=64,
+        requested_draw_source="effective_estimation_config",
+        effective_estimation_config_sha256="a" * 64,
         input_signature="input-signature-1",
     )
 
     assert packet.attempted_invocation_count == 1
     assert packet.completed_invocation_count == 1
     assert packet.failed_invocation_count == 0
+    assert packet.schema_version == "1.1"
+    assert packet.requested_draw_source == "effective_estimation_config"
+    assert packet.effective_estimation_config_sha256 == "a" * 64
     assert packet.draw_execution_status == "not_instrumented"
     assert packet.attempted_draw_count is None
     assert packet.successful_draw_count is None
     assert packet.failed_draw_count is None
     assert packet.unattempted_draw_count is None
+
+
+def test_legacy_work_packet_keeps_its_fidelity_default_source() -> None:
+    payload = {
+        "schema_version": "1.0",
+        "run_id": "run-legacy",
+        "ticket_id": "ticket-legacy",
+        "candidate_hash": "a" * 16,
+        "candidate_ref": _artifact_ref("1", "scientist.policy_design.candidate"),
+        "stage_level": 3,
+        "stage_name": "funnel_L3_medium",
+        "fidelity": "medium",
+        "evaluation_attempt_id": "attempt-legacy",
+        "observed_at": datetime.now(UTC),
+        "backend_kind": "production",
+        "source_result_ref": _artifact_ref("2", "scientist.policy_evaluation_vector"),
+        "requested_draw_count": 64,
+    }
+
+    legacy = FunnelExecutedWorkPacket.model_validate(payload)
+    assert legacy.schema_version == "1.0"
+    assert legacy.requested_draw_source == "fidelity_default"
+    assert legacy.effective_estimation_config_sha256 is None
+
+    payload["schema_version"] = "1.1"
+    payload["requested_draw_source"] = "fidelity_default"
+    with pytest.raises(ValueError, match="new work packets require a source-bound"):
+        FunnelExecutedWorkPacket.model_validate(payload)
 
 
 def test_executed_work_packet_rejects_self_labelled_draw_counts() -> None:
@@ -70,6 +103,8 @@ def test_executed_work_packet_rejects_self_labelled_draw_counts() -> None:
         "backend_kind": "production",
         "source_result_ref": _artifact_ref("2", "scientist.policy_evaluation_vector"),
         "requested_draw_count": 64,
+        "requested_draw_source": "effective_estimation_config",
+        "effective_estimation_config_sha256": "a" * 64,
         "input_signature": "input-signature-1",
         "successful_draw_count": 64,
     }

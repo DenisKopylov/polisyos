@@ -1,0 +1,181 @@
+{
+  "schema": "polisyos.e02.actual_test_verification_receipt.v1",
+  "record_type": "actual_test_verification_receipt",
+  "status": "completed_bounded_source_frame_passed",
+  "identity": "v5-current-eleven-modules-at-3c51aa7afbbab",
+  "proposal_not_adjudicated": true,
+  "relationship_to_source_commits": [
+    {
+      "implementation_commit": "3c51aa7afbbab44485e0bf80ef08d208dea8b5c4",
+      "tree": "ba4344d1a359b7246d301e2811277ec9f531a45b",
+      "role": "Exact historical source frame; not current source acceptance."
+    }
+  ],
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "3c51aa7afbbab44485e0bf80ef08d208dea8b5c4",
+    "tree": "ba4344d1a359b7246d301e2811277ec9f531a45b"
+  },
+  "profile": {
+    "scope": "Fresh full eleven affected Search test modules after three-case focused companions passed; complete runtime source, caller, packet and production-backend companion regression. Resolve actual selected vector profile and actual packet selector; bind both attempts to own persisted packets, compare all other metrics. Controlled backend fixtures. B108 nullable scoring, B157 scientific MethodJob/data/outcome/actual-count join and authority not established. Focused source-bound run, not final composed native freeze or all-thirdparty/pre-sitecustomize proof.",
+    "selected_test_files": [
+      "tests/unit/scientist/methods/search/test_objective.py",
+      "tests/unit/scientist/nodes/builtins/decide/test_policy_blueprint_runtime_engine.py",
+      "tests/unit/scientist/nodes/builtins/decide/test_policy_runtime_artifacts.py",
+      "tests/unit/scientist/nodes/builtins/decide/test_policy_runtime_metrics.py",
+      "tests/unit/scientist/nodes/builtins/decide/test_policy_runtime_support.py",
+      "tests/unit/scientist/nodes/builtins/decide/test_policy_runtime_support_decomposition.py",
+      "tests/unit/scientist/search/funnel/test_level3_medium.py",
+      "tests/unit/scientist/search/funnel/test_policy_runtime_work_packets.py",
+      "tests/unit/scientist/search/funnel/test_types.py",
+      "tests/unit/scientist/search/test_search_loop.py",
+      "tests/unit/scientist/search/funnel/test_policy_runtime_production_source_join.py"
+    ],
+    "selection_kind": "eleven whole selected modules",
+    "junit_summary": {
+      "cases": 148,
+      "passed": 148,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "case_denominator": "Complete JUnit testcase set emitted by exact command and reconciled with result.json.",
+    "whole_selected_modules": true
+  },
+  "property_vs_measurement": {
+    "property": "Selected Search source/caller/packet production-backend regression including profile and invocation joins.",
+    "measured_by": "Exact eleven-module pytest run plus JUnit and module-origin capture.",
+    "divergent_case_or_boundary": "B108 nullable scoring and B157 scientific MethodJob/data/outcome/actual-count join and authority remain not established; source frame is historical."
+  },
+  "execution": {
+    "argv": [
+      ".venv/bin/python",
+      "-B",
+      "-m",
+      "pytest",
+      "-p",
+      "e02_wave_capture",
+      "-q",
+      "--basetemp",
+      "/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/v5-eleven-modules-20261018-01/pytest-temp",
+      "-o",
+      "cache_dir=/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/v5-eleven-modules-20261018-01/pytest-cache",
+      "--junitxml",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-current-eleven-modules-actual-20261018/pytest.xml",
+      "tests/unit/scientist/methods/search/test_objective.py",
+      "tests/unit/scientist/nodes/builtins/decide/test_policy_blueprint_runtime_engine.py",
+      "tests/unit/scientist/nodes/builtins/decide/test_policy_runtime_artifacts.py",
+      "tests/unit/scientist/nodes/builtins/decide/test_policy_runtime_metrics.py",
+      "tests/unit/scientist/nodes/builtins/decide/test_policy_runtime_support.py",
+      "tests/unit/scientist/nodes/builtins/decide/test_policy_runtime_support_decomposition.py",
+      "tests/unit/scientist/search/funnel/test_level3_medium.py",
+      "tests/unit/scientist/search/funnel/test_policy_runtime_work_packets.py",
+      "tests/unit/scientist/search/funnel/test_types.py",
+      "tests/unit/scientist/search/test_search_loop.py",
+      "tests/unit/scientist/search/funnel/test_policy_runtime_production_source_join.py"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "return_code": 0,
+    "complete": true,
+    "status": "passed",
+    "aborted_reason": null,
+    "wall_seconds": 42.16420704196207,
+    "max_sampled_process_tree_rss_bytes": 960544768,
+    "minimum_sampled_disk_free_bytes": 14645129216,
+    "sample_count": 76
+  },
+  "source_pin_observations": {
+    "all_tracked_working_bytes_unchanged": true,
+    "tracked_pin_count": 25614,
+    "observed_product_origins": 1582,
+    "matched_regular_module_origins": 1582,
+    "origin_mismatches": [],
+    "qualification_limit": "Regular module-origin mapping only, not startup/all-third-party provenance."
+  },
+  "deciding_outputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-current-eleven-modules-actual-20261018/result.json",
+      "bytes": 45240,
+      "sha256": "1ad85c5a3e812d915242a957252c0eff577373b5dae7f0f8ab79e0f630039984",
+      "role": "supervisor/run result"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-current-eleven-modules-actual-20261018/pytest.xml",
+      "bytes": 25906,
+      "sha256": "118ed6d28d54e8a585a52d6417cb50b60e50c21eec1f1b6ae7ed85cf740efa0b",
+      "role": "complete JUnit"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-current-eleven-modules-actual-20261018/pytest.stdout.txt",
+      "bytes": 1019,
+      "sha256": "5d5d32773780a29f43a9ae7f736472679ec8778e9ddd745e9844b445423ab007",
+      "role": "full stdout"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-current-eleven-modules-actual-20261018/pytest.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "full stderr"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-current-eleven-modules-actual-20261018/execution-provenance.json",
+      "bytes": 1493898,
+      "sha256": "b5b994b3e528e65fe6f1897a034eaa9a69304f06e234d644e7ae67dcb557a4ce",
+      "role": "runtime-origin provenance"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-current-eleven-modules-actual-20261018/working-source-before.json",
+      "bytes": 4679981,
+      "sha256": "38f42742cef961553f889751da1206f5d3cee999efc49a2796f29dbeb2bfe47b",
+      "role": "full tracked input pin set"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-current-eleven-modules-actual-20261018/controller-events.jsonl",
+      "bytes": 1776,
+      "sha256": "c8d1e305ea1831a1e2df54693c410a6c55acf65d5dd0a06958bbd8517a2e23da",
+      "role": "controller lifecycle"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-current-eleven-modules-actual-20261018/phase-output.jsonl",
+      "bytes": 1712,
+      "sha256": "659c02517f958018465e5b7a823ed4b4f1a726dbbddfb003421d675565518dd7",
+      "role": "phase output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-current-eleven-modules-actual-20261018/process-tree.jsonl",
+      "bytes": 127359,
+      "sha256": "622699f6b942a5627328864fc7eebda5ee976626e488dd95b613065e07e95296",
+      "role": "process tree"
+    }
+  ],
+  "limits": [
+    "148/148 passed only for this exact historical eleven-module profile.",
+    "Not current whole source freeze, not all-third-party proof, not G acceptance.",
+    "B108 and B157 semantics/authority remain not established."
+  ],
+  "next_check": "Run separately scoped current-source property/consumer replay and resolve B108/B157 with the relevant owners.",
+  "G_acceptance": false,
+  "closure_ids": [],
+  "predicate_provenance": [
+    {
+      "predicate": "source frame",
+      "classification": "recomputed",
+      "basis": "Exact Git commit/tree recorded in the result."
+    },
+    {
+      "predicate": "test counts",
+      "classification": "independently_reconciled",
+      "basis": "Parsed complete JUnit."
+    },
+    {
+      "predicate": "pins and module origins",
+      "classification": "consumer_asserted",
+      "basis": "Captured runner outputs."
+    },
+    {
+      "predicate": "B108/B157 authority and currentness",
+      "classification": "not_established",
+      "basis": "Profile scope."
+    }
+  ]
+}

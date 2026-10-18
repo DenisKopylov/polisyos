@@ -1,0 +1,176 @@
+{
+  "schema": "polisyos.e02.actual_test_verification_receipt.v1",
+  "record_type": "actual_test_verification_receipt",
+  "status": "completed_bounded_source_frame_red",
+  "identity": "monetary-r7-three-python-modules-at-2e4c0dbb6848",
+  "proposal_not_adjudicated": true,
+  "relationship_to_source_commits": [
+    {
+      "implementation_commit": "2e4c0dbb6848456a5f8c879fdab973896ff10812",
+      "tree": "d3cf680d8c6dc900b462141d4b96ff7e49d49b9e",
+      "role": "Exact R7 implementation source frame used by this command."
+    }
+  ],
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "2e4c0dbb6848456a5f8c879fdab973896ff10812",
+    "tree": "d3cf680d8c6dc900b462141d4b96ff7e49d49b9e"
+  },
+  "profile": {
+    "scope": "Fresh canonical three whole monetary route/ledger/settlement modules at committed R7 on macOS, current repository package imports/default pytest plugins. Controlled producer and persisted-event fixtures. Separate TS actual was171P5F. Not live billing/currentness, exact-HTTP-to-TS bridge or final composed freeze. Capture plugin full runtime_module_origins is limited to its namespace; requested tools origins are separately recorded, no all-thirdparty/pre-sitecustomize proof.",
+    "selected_test_files": [
+      "tests/unit/runtime/http/test_nl_pipeline_cost_projection.py",
+      "tests/unit/scientist/orchestration/engine/test_budget_ledger_producer_events.py",
+      "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py"
+    ],
+    "invocation_selectors": [
+      "tests/unit/runtime/http/test_nl_pipeline_cost_projection.py",
+      "tests/unit/scientist/orchestration/engine/test_budget_ledger_producer_events.py",
+      "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py"
+    ],
+    "selection_kind": "three whole selected Python modules",
+    "junit_summary": {
+      "cases": 78,
+      "passed": 76,
+      "failed": 2,
+      "errors": 0,
+      "skipped": 0
+    },
+    "case_denominator": "JUnit testcase elements from exact command, parsed and reconciled to result.json.",
+    "whole_selected_modules": true
+  },
+  "property_vs_measurement": {
+    "property": "R7 durable monetary route/ledger/settlement projections and owner/scope behavior in three selected whole modules.",
+    "measured_by": "Exact pytest invocation plus JUnit and captured regular module origins.",
+    "divergent_case_or_boundary": "Two assertions failed; this controlled profile is not a live billing/currentness or HTTP-wire-to-dashboard joined replay."
+  },
+  "execution": {
+    "argv": [
+      ".venv/bin/python",
+      "-B",
+      "-m",
+      "pytest",
+      "-p",
+      "e02_wave_capture",
+      "-q",
+      "--basetemp",
+      "/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/monetary-r7-python-three-20261018-01/pytest-temp",
+      "-o",
+      "cache_dir=/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/monetary-r7-python-three-20261018-01/pytest-cache",
+      "--junitxml",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r7-python-three-modules-actual-20261018/pytest.xml",
+      "tests/unit/runtime/http/test_nl_pipeline_cost_projection.py",
+      "tests/unit/scientist/orchestration/engine/test_budget_ledger_producer_events.py",
+      "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "return_code": 1,
+    "complete": true,
+    "status": "command_failed",
+    "aborted_reason": null,
+    "wall_seconds": 34.289728458970785,
+    "max_sampled_process_tree_rss_bytes": 1161527296,
+    "minimum_sampled_disk_free_bytes": 13213253632,
+    "sample_count": 64,
+    "started_at": "2026-10-18T16:25:47.504151+00:00",
+    "finished_at": "2026-10-18T16:26:21.793929+00:00"
+  },
+  "source_pin_observations": {
+    "all_tracked_working_bytes_unchanged": true,
+    "tracked_pin_count": 25626,
+    "observed_product_origins": 1721,
+    "matched_regular_module_origins": 1721,
+    "origin_mismatches": [],
+    "qualification": "Captured regular product-module origin census only; no all-third-party/pre-sitecustomize proof."
+  },
+  "failure_cases": [
+    {
+      "test": "tests/unit/runtime/http/test_nl_pipeline_cost_projection.py::test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen",
+      "observed": "Response included blocked normative_disposition with reason normative_evidence_owned_run_source_mismatch, absent from expected response shape."
+    },
+    {
+      "test": "tests/unit/runtime/http/test_nl_pipeline_cost_projection.py::test_agent_pipeline_projection_requires_explicit_root_owner_context",
+      "observed": "Four AgentPipelineUnattributedCostScalar records appeared with scope not_established; the assertion expected an empty list."
+    }
+  ],
+  "deciding_outputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r7-python-three-modules-actual-20261018/result.json",
+      "bytes": 27060,
+      "sha256": "82ff3ada5e16f869f3d7ef162ed41c420a94b3e61dac0970740715f7cb3130d1",
+      "role": "supervisor/run result"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r7-python-three-modules-actual-20261018/pytest.xml",
+      "bytes": 32820,
+      "sha256": "63fbaa0b6c5b45822402163e17a550315215f6f0f3406d55b5ccc8bdad0efad1",
+      "role": "complete JUnit"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r7-python-three-modules-actual-20261018/pytest.stdout.txt",
+      "bytes": 17646,
+      "sha256": "0846c3b8fc20a0a090df0350eef4c51c4e5dffe3fb80d0e476aa027c76017c9c",
+      "role": "full pytest stdout"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r7-python-three-modules-actual-20261018/pytest.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "full pytest stderr"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r7-python-three-modules-actual-20261018/controller-events.jsonl",
+      "bytes": 1243,
+      "sha256": "08ceeccf3599c45b8eb707a1b3a634049c73bd8c4e1a6297689f88ad7d8d6f31",
+      "role": "controller lifecycle"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r7-python-three-modules-actual-20261018/phase-output.jsonl",
+      "bytes": 1177,
+      "sha256": "15177611405c3e078f054c10b0442cceb8b77a4f66072c4c62912e1c417c943f",
+      "role": "phase output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r7-python-three-modules-actual-20261018/execution-provenance.json",
+      "bytes": 1598816,
+      "sha256": "af38d4b3dede6d376281ca9f0f7445448b8e09bc8a9228e05af40ebe4e3e1d9f",
+      "role": "runtime provenance"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r7-python-three-modules-actual-20261018/process-tree.jsonl",
+      "bytes": 139305,
+      "sha256": "06a6da32bca4dcde01cea386ee8777da3c02c0bcd8034917b57570bb1ebfeea4",
+      "role": "process tree"
+    }
+  ],
+  "limits": [
+    "76/78 passing is a bounded red result, not whole-property acceptance.",
+    "No external billing authority, live currentness, or exact HTTP JSON-to-TypeScript bridge is established.",
+    "P40 diagnosis/bucket assignment across the seven R7 actual failures was pending; no class or repair is adjudicated."
+  ],
+  "next_check": "Jointly diagnose all seven R7 actual failures, repair the evidenced semantic class and replay full relevant Python and TypeScript modules plus joined consumer path.",
+  "G_acceptance": false,
+  "closure_ids": [],
+  "predicate_provenance": [
+    {
+      "predicate": "source frame identity",
+      "classification": "recomputed",
+      "basis": "result.json and commit object metadata."
+    },
+    {
+      "predicate": "pytest/JUnit outcomes",
+      "classification": "independently_reconciled",
+      "basis": "Parsed complete XML."
+    },
+    {
+      "predicate": "working bytes and regular module origins",
+      "classification": "consumer_asserted",
+      "basis": "Captured runner fields."
+    },
+    {
+      "predicate": "external authority, currentness and closure",
+      "classification": "not_established",
+      "basis": "Explicit scope limits."
+    }
+  ]
+}

@@ -1,0 +1,132 @@
+{
+  "schema": "polisyos.e02.g_choice_decision_proposal.v1",
+  "record_type": "g_choice_decision_proposal",
+  "proposal_id": "b108-cross-measurement-contract-r3-20261018",
+  "target_record_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/b108-cross-measurement-contract-r3-G-choice-20261018.json",
+  "decision_status": "proposal_not_adjudicated",
+  "root_g_adjudication": "NOT_PERFORMED",
+  "decision_authority": "Root and current finding/package owner required.",
+  "proposal_not_adjudicated": true,
+  "finding": "B108",
+  "source_frame": {
+    "head": "3c51aa7afbbab44485e0bf80ef08d208dea8b5c4",
+    "tree": "ba4344d1a359b7246d301e2811277ec9f531a45b",
+    "qualification": "Historical R3 packet; no source edits, product imports or runtime tests."
+  },
+  "question": "What typed, source-backed relation, if any, makes alternate fiscal measurement fields comparable for candidate objectives and authoritative ranking?",
+  "current_status": "partial",
+  "existing_package_gap_label": "consumer_missing",
+  "current_knowledge": {
+    "cross_family_relationship": "not_established",
+    "typed_basis_at_objective_input": "not_established",
+    "external_authority_requirement": "not_established",
+    "processing_timestamp_substitutes_for_measurement_time": false
+  },
+  "interim_recommendation": {
+    "choice": "candidate_only_typed_limitation_authority_refusal",
+    "binding": false,
+    "statement": "Preserve B108 alternate-field requirement; use candidate-only limitation pending an owner-approved source-backed measurement relation; do not choose a primary family or assert cross-family equivalence.",
+    "precondition": "A real consumer must carry a limited objective without numeric fiscal ranking; owner-approved cross-family measurement semantics are required before comparison."
+  },
+  "alternatives": [
+    {
+      "id": "A_primary_authoritative_family",
+      "selected": false,
+      "requires_owner_decision": true,
+      "required_semantics": [
+        "authoritative family",
+        "canonical quantity",
+        "presence/null behavior",
+        "sign transform",
+        "unit and scale",
+        "period basis",
+        "source binding",
+        "secondary-family malformed/conflict handling"
+      ],
+      "note": "Any removal of alternate fallback explicitly changes the B108 requirement."
+    },
+    {
+      "id": "B_typed_common_basis",
+      "selected": false,
+      "requires_owner_decision": true,
+      "required_semantics": [
+        "cross-family measure relation",
+        "canonical quantity",
+        "unit and scale",
+        "period/time basis",
+        "sign/normalization",
+        "source provenance",
+        "exactness/tolerance or authorized conversion"
+      ],
+      "note": "Same numeric value or same unit alone is not proof of comparability."
+    },
+    {
+      "id": "C_candidate_limited_authority_refusal",
+      "selected_as_interim_recommendation": true,
+      "binding": false,
+      "candidate_may_continue": "Only where the consumer can carry an unavailable/limited objective without numeric fiscal ranking.",
+      "authority": "Refuse ranking, promotion, or publication that depends on the unqualified fiscal comparison."
+    }
+  ],
+  "migration_and_temporal_semantics": {
+    "preserve_alternate_field_requirement": true,
+    "old_numeric_only_records": "historical_unqualified_no_backfill_or_authoritative_rescore",
+    "requalification_triggers": [
+      "unit",
+      "scale",
+      "sign/normalization",
+      "period/time basis",
+      "source binding",
+      "comparison tolerance/conversion rule"
+    ],
+    "no_backfill_or_authoritative_rescore": true,
+    "do_not_claim_measurement_time_from_processing_timestamp": true
+  },
+  "falsifier": "Keep alias keys and raw numbers fixed while changing only unit, scale, period, sign mapping, or source binding. The authority comparator must refuse unless an explicit qualified relation authorizes the comparison.",
+  "pattern_classification": {
+    "P35": "Source census denominator pinned by R1: 2782 tracked Python files.",
+    "P37": {
+      "cross_family_basis": "not_established",
+      "numeric_parsing": "recomputed"
+    },
+    "P38": "Current alias precedence and numeric transforms do not prove a comparable measurement.",
+    "P40": "SAME monetary-measurement-qualification class; widen through full input and consumer path."
+  },
+  "references": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b108-cross-measurement-contract-r3-20261018/manifest.json",
+      "bytes": 1282,
+      "sha256": "5aa94996848e09748855277b907bdce0c8fbb514afdf51e57d0148d93df26822",
+      "role": "R3 packet manifest"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b108-cross-measurement-contract-r3-20261018/decision.json",
+      "bytes": 4787,
+      "sha256": "ffd778fffbc14ee9cb3debdef2ea08189f69819f8da3a7b27bc4780f3f326766",
+      "role": "R3 reviewed decision facts"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b108-cross-measurement-contract-r3-20261018/decision.md",
+      "bytes": 14511,
+      "sha256": "d4c4dc41106b5bae4cd60c67808113c5e0ae376d85c6444071a80ee2f8b61a83",
+      "role": "R3 complete analysis"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b108-cross-measurement-contract-r3-20261018/source-frame.json",
+      "bytes": 2086,
+      "sha256": "8cf58fc396a1ac8bc986ddc655e4979148f10f4740f8c2a9dac1211d84c94349",
+      "role": "historical decision frame"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b108-cross-measurement-contract-r3-20261018/r1-prototype-reference.json",
+      "bytes": 1236,
+      "sha256": "7b560558b359a1794f0333b97e1e9af4a0b65c0b82a710bd41ae2d9053a45f9b",
+      "role": "unchanged R1 prototype reference"
+    }
+  ],
+  "next_check": "Obtain owner-authored source-backed relations for unit, scale, sign, period/time basis, provenance, and conversion/tolerance; exercise the actual consumer to prove limited objectives stay unranked and publication/ranking refuses when unresolved cross-family comparison is required.",
+  "product_changes": [],
+  "runtime_tests_run": false,
+  "G_acceptance": false,
+  "closure_ids": []
+}

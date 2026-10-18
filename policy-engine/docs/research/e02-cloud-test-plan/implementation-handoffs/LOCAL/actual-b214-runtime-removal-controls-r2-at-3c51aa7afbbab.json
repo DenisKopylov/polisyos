@@ -1,0 +1,552 @@
+{
+  "schema": "polisyos.e02.actual_test_verification_receipt.v1",
+  "record_type": "actual_test_verification_receipt",
+  "status": "completed_bounded_source_frame_mixed_controls_red",
+  "identity": "b214-r2-runtime-removal-controls-at-3c51aa7afbbab",
+  "proposal_not_adjudicated": true,
+  "relationship_to_source_commits": [
+    {
+      "implementation_commit": "3c51aa7afbbab44485e0bf80ef08d208dea8b5c4",
+      "tree": "ba4344d1a359b7246d301e2811277ec9f531a45b",
+      "role": "Exact historical frame for all five profiles."
+    }
+  ],
+  "source_frame": {
+    "branch": "refs/heads/codex/e02-unified-local-20261009",
+    "head": "3c51aa7afbbab44485e0bf80ef08d208dea8b5c4",
+    "tree": "ba4344d1a359b7246d301e2811277ec9f531a45b",
+    "unchanged_after": true
+  },
+  "profile": {
+    "scope": "One current-positive pair followed by four distinct negative/removal profiles; command failure is not proof the desired negative assertion was observed.",
+    "profile_count": 5,
+    "positive_profiles": [
+      "current_positive_pair"
+    ],
+    "control_profiles": [
+      "guard_removed",
+      "reason_corrupted",
+      "proof_binding_corrupted",
+      "legal_fixture_seam_removed"
+    ],
+    "whole_selected_modules": false,
+    "positive_pair_cases": 2,
+    "positive_pair_status": "passed",
+    "control_observed_count": 0,
+    "control_profile_count": 4
+  },
+  "property_vs_measurement": {
+    "property": "B214 partial-graph refusal persists through producer/consumer, while removal/corruption controls prove the designated guard is active.",
+    "measured_by": "One positive pair and four separate controls whose own property-specific matcher must observe the intended assertion.",
+    "divergent_case_or_boundary": "All four commands returned nonzero but the property-specific assertion was not observed; nonzero exit by itself is a proxy and does not establish control sensitivity."
+  },
+  "profile_results": [
+    {
+      "profile": "current_positive_pair",
+      "kind": "positive",
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_wave_capture",
+        "-p",
+        "b214_removal_controls",
+        "-q",
+        "--basetemp",
+        "/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/b214-removal-controls-r2-20261018/current_positive_pair/pytest-temp",
+        "-o",
+        "cache_dir=/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/b214-removal-controls-r2-20261018/current_positive_pair/pytest-cache",
+        "--junitxml",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r2-20261018/pytest.current_positive_pair.xml",
+        "tests/unit/foundry/methods/catalog/causal/test_transport_check_partial_graph_admission.py::test_legacy_entry_refuses_fixed_and_ambiguous_queries_for_partial_graphs",
+        "tests/unit/scientist/methods/causal/test_run_transportability_partial_graph_admission.py::test_partial_graph_refusal_is_persisted_for_fixed_and_ambiguous_queries"
+      ],
+      "complete": true,
+      "status": "passed",
+      "return_code": 0,
+      "validation_findings": [],
+      "outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r2-20261018/control-events.current_positive_pair.jsonl",
+          "bytes": 3936,
+          "sha256": "67010dabae78cead97e5a9de9727087d7461880c31b7aa71790a4387fbf70798",
+          "role": "controller events"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r2-20261018/pytest.current_positive_pair.xml",
+          "bytes": 665,
+          "sha256": "fd7728d5252b38c5c79cd5252ed410cbaca5b9269c2f7846559f9dbae3ffdcf8",
+          "role": "JUnit"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r2-20261018/execution-provenance.current_positive_pair.json",
+          "bytes": 800338,
+          "sha256": "d4b926918dc9b418f23d790a13ada37b0f19bee6e6a1061c772c78a10f16e6b3",
+          "role": "execution provenance"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r2-20261018/pytest-current_positive_pair.stdout.txt",
+          "bytes": 80,
+          "sha256": "99db33d5c94c6f7da021687c7391181685cc33299c5435b1c861e2db3be3ec87",
+          "role": "stdout"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r2-20261018/pytest-current_positive_pair.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "role": "stderr"
+        }
+      ]
+    },
+    {
+      "profile": "guard_removed",
+      "kind": "control",
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_wave_capture",
+        "-p",
+        "b214_removal_controls",
+        "-q",
+        "--basetemp",
+        "/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/b214-removal-controls-r2-20261018/guard_removed/pytest-temp",
+        "-o",
+        "cache_dir=/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/b214-removal-controls-r2-20261018/guard_removed/pytest-cache",
+        "--junitxml",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r2-20261018/pytest.guard_removed.xml",
+        "tests/unit/foundry/methods/catalog/causal/test_transport_check_partial_graph_admission.py::test_legacy_entry_refuses_fixed_and_ambiguous_queries_for_partial_graphs",
+        "tests/unit/scientist/methods/causal/test_run_transportability_partial_graph_admission.py::test_partial_graph_refusal_is_persisted_for_fixed_and_ambiguous_queries"
+      ],
+      "complete": true,
+      "status": "command_failed",
+      "return_code": 1,
+      "validation_findings": [
+        "tests/unit/foundry/methods/catalog/causal/test_transport_check_partial_graph_admission.py::test_legacy_entry_refuses_fixed_and_ambiguous_queries_for_partial_graphs: property-specific assertion failure was not observed",
+        "tests/unit/scientist/methods/causal/test_run_transportability_partial_graph_admission.py::test_partial_graph_refusal_is_persisted_for_fixed_and_ambiguous_queries: property-specific assertion failure was not observed"
+      ],
+      "outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r2-20261018/control-events.guard_removed.jsonl",
+          "bytes": 17321,
+          "sha256": "d6c51472119d44f90f7c062ce3f8628819c4cd640dbb44ea2019a70a4f506311",
+          "role": "controller events"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r2-20261018/pytest.guard_removed.xml",
+          "bytes": 7774,
+          "sha256": "5f6ec44c66c05f5e34b32f506368dd81a5db16e0cdf471cfde55b35669c6781a",
+          "role": "JUnit"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r2-20261018/execution-provenance.guard_removed.json",
+          "bytes": 800346,
+          "sha256": "deb92620ad59ab546d6a136496aa848cbb17db9ed74620f1939862c2fa8ede67",
+          "role": "execution provenance"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r2-20261018/pytest-guard_removed.stdout.txt",
+          "bytes": 7649,
+          "sha256": "31ec8d394a788f465321a294b4006ddbd4b1e608503ca893ecd9cd43f63413f8",
+          "role": "stdout"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r2-20261018/pytest-guard_removed.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "role": "stderr"
+        }
+      ]
+    },
+    {
+      "profile": "reason_corrupted",
+      "kind": "control",
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_wave_capture",
+        "-p",
+        "b214_removal_controls",
+        "-q",
+        "--basetemp",
+        "/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/b214-removal-controls-r2-20261018/reason_corrupted/pytest-temp",
+        "-o",
+        "cache_dir=/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/b214-removal-controls-r2-20261018/reason_corrupted/pytest-cache",
+        "--junitxml",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r2-20261018/pytest.reason_corrupted.xml",
+        "tests/unit/foundry/methods/catalog/causal/test_transport_check_partial_graph_admission.py::test_legacy_entry_refuses_fixed_and_ambiguous_queries_for_partial_graphs",
+        "tests/unit/scientist/methods/causal/test_run_transportability_partial_graph_admission.py::test_partial_graph_refusal_is_persisted_for_fixed_and_ambiguous_queries"
+      ],
+      "complete": true,
+      "status": "command_failed",
+      "return_code": 1,
+      "validation_findings": [
+        "tests/unit/foundry/methods/catalog/causal/test_transport_check_partial_graph_admission.py::test_legacy_entry_refuses_fixed_and_ambiguous_queries_for_partial_graphs: property-specific assertion failure was not observed",
+        "tests/unit/scientist/methods/causal/test_run_transportability_partial_graph_admission.py::test_partial_graph_refusal_is_persisted_for_fixed_and_ambiguous_queries: property-specific assertion failure was not observed"
+      ],
+      "outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r2-20261018/control-events.reason_corrupted.jsonl",
+          "bytes": 17587,
+          "sha256": "3fe786285e97b851335dd1889aca9ebdca7f4ef4265e26abd36bfb522028b486",
+          "role": "controller events"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r2-20261018/pytest.reason_corrupted.xml",
+          "bytes": 8192,
+          "sha256": "6d4bf4cbbdea547ed16b8fce0f0bfa54543daa486aba2fe8141fd278c534c8ef",
+          "role": "JUnit"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r2-20261018/execution-provenance.reason_corrupted.json",
+          "bytes": 800349,
+          "sha256": "a019874b5f8d65d3dddc80c549537128046ef0f52a16a0468f871e2aecebff40",
+          "role": "execution provenance"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r2-20261018/pytest-reason_corrupted.stdout.txt",
+          "bytes": 8065,
+          "sha256": "a3f132f6e1fb4cc2455d9d45fa27dd267fb4c2cb5ae6edcadc4d73afb50698d0",
+          "role": "stdout"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r2-20261018/pytest-reason_corrupted.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "role": "stderr"
+        }
+      ]
+    },
+    {
+      "profile": "proof_binding_corrupted",
+      "kind": "control",
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_wave_capture",
+        "-p",
+        "b214_removal_controls",
+        "-q",
+        "--basetemp",
+        "/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/b214-removal-controls-r2-20261018/proof_binding_corrupted/pytest-temp",
+        "-o",
+        "cache_dir=/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/b214-removal-controls-r2-20261018/proof_binding_corrupted/pytest-cache",
+        "--junitxml",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r2-20261018/pytest.proof_binding_corrupted.xml",
+        "tests/unit/scientist/methods/causal/test_run_transportability_partial_graph_admission.py::test_partial_graph_refusal_is_persisted_for_fixed_and_ambiguous_queries"
+      ],
+      "complete": true,
+      "status": "command_failed",
+      "return_code": 1,
+      "validation_findings": [
+        "tests/unit/scientist/methods/causal/test_run_transportability_partial_graph_admission.py::test_partial_graph_refusal_is_persisted_for_fixed_and_ambiguous_queries: property-specific assertion failure was not observed"
+      ],
+      "outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r2-20261018/control-events.proof_binding_corrupted.jsonl",
+          "bytes": 9004,
+          "sha256": "04eb8191d8f86b0e11b963d4e2cf6de6152bb0ff66a1ec97056954f2b1734b51",
+          "role": "controller events"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r2-20261018/pytest.proof_binding_corrupted.xml",
+          "bytes": 5902,
+          "sha256": "24e6d0739643125d646b6a42eb19d0152a8c82c8a30b5d6f554ac940cdbc1464",
+          "role": "JUnit"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r2-20261018/execution-provenance.proof_binding_corrupted.json",
+          "bytes": 783464,
+          "sha256": "4e3c002fee318b68d6c0640c0aa44d7ba23c41dda140d1a5de9c94aa08ed5ec8",
+          "role": "execution provenance"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r2-20261018/pytest-proof_binding_corrupted.stdout.txt",
+          "bytes": 5791,
+          "sha256": "38f6d36cfae7fcf0862a2dc34c1de4495df4f1fa4f95e9b9a96f678295d5a183",
+          "role": "stdout"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r2-20261018/pytest-proof_binding_corrupted.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "role": "stderr"
+        }
+      ]
+    },
+    {
+      "profile": "legal_fixture_seam_removed",
+      "kind": "control",
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-p",
+        "e02_wave_capture",
+        "-p",
+        "b214_removal_controls",
+        "-q",
+        "--basetemp",
+        "/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/b214-removal-controls-r2-20261018/legal_fixture_seam_removed/pytest-temp",
+        "-o",
+        "cache_dir=/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/b214-removal-controls-r2-20261018/legal_fixture_seam_removed/pytest-cache",
+        "--junitxml",
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r2-20261018/pytest.legal_fixture_seam_removed.xml",
+        "tests/unit/scientist/methods/causal/test_run_transportability_partial_graph_admission.py::test_partial_graph_refusal_is_persisted_for_fixed_and_ambiguous_queries"
+      ],
+      "complete": true,
+      "status": "command_failed",
+      "return_code": 1,
+      "validation_findings": [
+        "tests/unit/scientist/methods/causal/test_run_transportability_partial_graph_admission.py::test_partial_graph_refusal_is_persisted_for_fixed_and_ambiguous_queries: property-specific assertion failure was not observed"
+      ],
+      "outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r2-20261018/control-events.legal_fixture_seam_removed.jsonl",
+          "bytes": 10238,
+          "sha256": "53bab399abd27143aa489293b26dcde5baf329c4277580371f1e4c2a4869bfc0",
+          "role": "controller events"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r2-20261018/pytest.legal_fixture_seam_removed.xml",
+          "bytes": 4297,
+          "sha256": "fa855f4462d1e4674c8fcd414613ac55da9ea856369a395493e05559adfd4adc",
+          "role": "JUnit"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r2-20261018/execution-provenance.legal_fixture_seam_removed.json",
+          "bytes": 783467,
+          "sha256": "99c8ee28565469e44bef0a6859a6ea4c950c29b0dd39c97dedecef89300c55cc",
+          "role": "execution provenance"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r2-20261018/pytest-legal_fixture_seam_removed.stdout.txt",
+          "bytes": 4199,
+          "sha256": "8043e4a402f44b96133da2b66f8058dbe5e2d6cec5cf43f2e814de6bc86d8d3d",
+          "role": "stdout"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r2-20261018/pytest-legal_fixture_seam_removed.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "role": "stderr"
+        }
+      ]
+    }
+  ],
+  "source_pin_observations": {
+    "all_tracked_working_bytes_unchanged": true,
+    "current_source_positive_pair_observed": true,
+    "all_four_removal_controls_observed": false,
+    "formal_B214_closure": false,
+    "tracked_path_count_before": 25613,
+    "tracked_path_count_after": 25613,
+    "tracked_source_map_sha256_before": "b8d1d056c0a038884b1d240a8e46f6ecd3c36cf4806a360c3a5a3fb90052c1fa",
+    "tracked_source_map_sha256_after": "b8d1d056c0a038884b1d240a8e46f6ecd3c36cf4806a360c3a5a3fb90052c1fa"
+  },
+  "deciding_outputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r2-20261018/result.json",
+      "bytes": 66190,
+      "sha256": "6beeecf2d955d1fb873dec58a781e0321080d43767d1aca5642ce825aa067aef",
+      "role": "complete positive+four-control result"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r2-20261018/source-pins.json",
+      "bytes": 3661,
+      "sha256": "52675afff0d3293375630ee0757e61d0bbfd8f4ed4afe055851855ce61e2d9c0",
+      "role": "source pin/preflight map"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r2-20261018/control-events.current_positive_pair.jsonl",
+      "bytes": 3936,
+      "sha256": "67010dabae78cead97e5a9de9727087d7461880c31b7aa71790a4387fbf70798",
+      "role": "controller events"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r2-20261018/pytest.current_positive_pair.xml",
+      "bytes": 665,
+      "sha256": "fd7728d5252b38c5c79cd5252ed410cbaca5b9269c2f7846559f9dbae3ffdcf8",
+      "role": "JUnit"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r2-20261018/execution-provenance.current_positive_pair.json",
+      "bytes": 800338,
+      "sha256": "d4b926918dc9b418f23d790a13ada37b0f19bee6e6a1061c772c78a10f16e6b3",
+      "role": "execution provenance"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r2-20261018/pytest-current_positive_pair.stdout.txt",
+      "bytes": 80,
+      "sha256": "99db33d5c94c6f7da021687c7391181685cc33299c5435b1c861e2db3be3ec87",
+      "role": "stdout"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r2-20261018/pytest-current_positive_pair.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "stderr"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r2-20261018/control-events.guard_removed.jsonl",
+      "bytes": 17321,
+      "sha256": "d6c51472119d44f90f7c062ce3f8628819c4cd640dbb44ea2019a70a4f506311",
+      "role": "controller events"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r2-20261018/pytest.guard_removed.xml",
+      "bytes": 7774,
+      "sha256": "5f6ec44c66c05f5e34b32f506368dd81a5db16e0cdf471cfde55b35669c6781a",
+      "role": "JUnit"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r2-20261018/execution-provenance.guard_removed.json",
+      "bytes": 800346,
+      "sha256": "deb92620ad59ab546d6a136496aa848cbb17db9ed74620f1939862c2fa8ede67",
+      "role": "execution provenance"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r2-20261018/pytest-guard_removed.stdout.txt",
+      "bytes": 7649,
+      "sha256": "31ec8d394a788f465321a294b4006ddbd4b1e608503ca893ecd9cd43f63413f8",
+      "role": "stdout"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r2-20261018/pytest-guard_removed.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "stderr"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r2-20261018/control-events.reason_corrupted.jsonl",
+      "bytes": 17587,
+      "sha256": "3fe786285e97b851335dd1889aca9ebdca7f4ef4265e26abd36bfb522028b486",
+      "role": "controller events"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r2-20261018/pytest.reason_corrupted.xml",
+      "bytes": 8192,
+      "sha256": "6d4bf4cbbdea547ed16b8fce0f0bfa54543daa486aba2fe8141fd278c534c8ef",
+      "role": "JUnit"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r2-20261018/execution-provenance.reason_corrupted.json",
+      "bytes": 800349,
+      "sha256": "a019874b5f8d65d3dddc80c549537128046ef0f52a16a0468f871e2aecebff40",
+      "role": "execution provenance"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r2-20261018/pytest-reason_corrupted.stdout.txt",
+      "bytes": 8065,
+      "sha256": "a3f132f6e1fb4cc2455d9d45fa27dd267fb4c2cb5ae6edcadc4d73afb50698d0",
+      "role": "stdout"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r2-20261018/pytest-reason_corrupted.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "stderr"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r2-20261018/control-events.proof_binding_corrupted.jsonl",
+      "bytes": 9004,
+      "sha256": "04eb8191d8f86b0e11b963d4e2cf6de6152bb0ff66a1ec97056954f2b1734b51",
+      "role": "controller events"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r2-20261018/pytest.proof_binding_corrupted.xml",
+      "bytes": 5902,
+      "sha256": "24e6d0739643125d646b6a42eb19d0152a8c82c8a30b5d6f554ac940cdbc1464",
+      "role": "JUnit"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r2-20261018/execution-provenance.proof_binding_corrupted.json",
+      "bytes": 783464,
+      "sha256": "4e3c002fee318b68d6c0640c0aa44d7ba23c41dda140d1a5de9c94aa08ed5ec8",
+      "role": "execution provenance"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r2-20261018/pytest-proof_binding_corrupted.stdout.txt",
+      "bytes": 5791,
+      "sha256": "38f6d36cfae7fcf0862a2dc34c1de4495df4f1fa4f95e9b9a96f678295d5a183",
+      "role": "stdout"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r2-20261018/pytest-proof_binding_corrupted.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "stderr"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r2-20261018/control-events.legal_fixture_seam_removed.jsonl",
+      "bytes": 10238,
+      "sha256": "53bab399abd27143aa489293b26dcde5baf329c4277580371f1e4c2a4869bfc0",
+      "role": "controller events"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r2-20261018/pytest.legal_fixture_seam_removed.xml",
+      "bytes": 4297,
+      "sha256": "fa855f4462d1e4674c8fcd414613ac55da9ea856369a395493e05559adfd4adc",
+      "role": "JUnit"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r2-20261018/execution-provenance.legal_fixture_seam_removed.json",
+      "bytes": 783467,
+      "sha256": "99c8ee28565469e44bef0a6859a6ea4c950c29b0dd39c97dedecef89300c55cc",
+      "role": "execution provenance"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r2-20261018/pytest-legal_fixture_seam_removed.stdout.txt",
+      "bytes": 4199,
+      "sha256": "8043e4a402f44b96133da2b66f8058dbe5e2d6cec5cf43f2e814de6bc86d8d3d",
+      "role": "stdout"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r2-20261018/pytest-legal_fixture_seam_removed.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "stderr"
+    }
+  ],
+  "limits": [
+    "Current positive pair passes; all four control checks are red at the intended-property matcher.",
+    "Formal B214 criterion and full consumer denominator remain unestablished.",
+    "No product defect is inferred solely from the control matcher miss."
+  ],
+  "next_check": "Diagnose why each control fails its property-specific matcher, repair the control harness or establish its exact intended witness, then rerun controls plus the owner-authorized complete consumer property.",
+  "G_acceptance": false,
+  "closure_ids": [],
+  "predicate_provenance": [
+    {
+      "predicate": "source pin frame",
+      "classification": "consumer_asserted",
+      "basis": "Top-level source pin map and profile outputs."
+    },
+    {
+      "predicate": "positive and control profile outcomes",
+      "classification": "independently_reconciled",
+      "basis": "Per-profile validator findings, retained JUnit/stdout/stderr; top-level four-control flag is false."
+    },
+    {
+      "predicate": "formal B214 closure",
+      "classification": "not_established",
+      "basis": "No accepted formal criterion or complete consumer proof."
+    }
+  ]
+}

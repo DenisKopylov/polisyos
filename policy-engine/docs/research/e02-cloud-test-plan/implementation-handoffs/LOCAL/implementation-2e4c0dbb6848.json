@@ -1,0 +1,436 @@
+{
+  "schema": "polisyos.e02.native_source_commit_receipt.v1",
+  "record_type": "implementation_commit_receipt",
+  "status": "source_committed_static_ruff_pass_bounded_runtime_red",
+  "proposal_not_adjudicated": true,
+  "source_commit": {
+    "sha": "2e4c0dbb6848456a5f8c879fdab973896ff10812",
+    "tree": "d3cf680d8c6dc900b462141d4b96ff7e49d49b9e",
+    "parents": [
+      "f21fa93bcfffae8d68e85dad1dedf34bfcb76c33"
+    ],
+    "subject": "fix(runtime): bind monetary projections to persisted owner and scope",
+    "branch_ref": "refs/heads/codex/e02-unified-local-20261009"
+  },
+  "source_base": {
+    "sha": "f21fa93bcfffae8d68e85dad1dedf34bfcb76c33",
+    "tree": "554243b53c973a415c6f562ac54b49c60926e8da"
+  },
+  "changed_path_count": 25,
+  "mechanism_path_count": 23,
+  "mandatory_coordination_companions_outside_mechanism_count": [
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+    "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+  ],
+  "changed_paths": [
+    {
+      "change": "M",
+      "path": "policy-engine/apps/runtime-dashboard/src/api/types.ts",
+      "category": "source_contract_schema_generated_ui_locale",
+      "preimage_sha256": "44c5e3cadd004106f2eda178d985287f6cea73085824d4a0f3fff8372f78a952",
+      "sha256_at_commit": "861f42ae225e2f80e3582fa1a11cd4a4d121591186bf3c0231952234e2d5dc1b",
+      "bytes": 901047
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/apps/runtime-dashboard/src/api/validators.test.ts",
+      "category": "source_contract_schema_generated_ui_locale",
+      "preimage_sha256": "24794bb42121ce68c3cb0c0bc3b935a880635f1ab22337167bd7cf57f791550c",
+      "sha256_at_commit": "568f64be8151f05a918e2759dc5708cc7c8e0977c16ef3cfcbb2f204e3ef7c88",
+      "bytes": 145629
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/apps/runtime-dashboard/src/api/validators.ts",
+      "category": "source_contract_schema_generated_ui_locale",
+      "preimage_sha256": "1676b44ccacb9cfbd758d28de2ae01e3dddecb5074b8ab9f8d7dd8972be00742",
+      "sha256_at_commit": "5cfa5a399ee0d5eb34220a277d29bb827e82860d0d3914d1462e5c6f1528eac0",
+      "bytes": 192224
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/apps/runtime-dashboard/src/features/runs/components/AgentPipelinePanel.tsx",
+      "category": "source_contract_schema_generated_ui_locale",
+      "preimage_sha256": "740fa5c11378eecb30c73139ec1c36c7d256a31a61bfce8525e38132f1fb6675",
+      "sha256_at_commit": "4866a44bebd64ca580687e1880d0947bd5d92e8639136a3f27e84bbdb4fd413b",
+      "bytes": 37418
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/apps/runtime-dashboard/src/features/runs/components/pipelinePanels.test.tsx",
+      "category": "source_contract_schema_generated_ui_locale",
+      "preimage_sha256": "79001a7c1596b3ec014c2f2b995ace4590dc2761181d8c4b4f8c2f64e552a52d",
+      "sha256_at_commit": "e09a480da79c2a1b69b4898e71de41b71e2012393671f00cc4bcc1f7453a5b5e",
+      "bytes": 22841
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/en.json",
+      "category": "source_contract_schema_generated_ui_locale",
+      "preimage_sha256": "66de9f1e794e37bfc2da32efc2186d84a2bad62ce45f695ce217f0a054c6e005",
+      "sha256_at_commit": "57a14248a17a3710b0ab4229311518f7d5f2f3ad10e7c675bc16b05a9b4e3012",
+      "bytes": 165808
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/ru.json",
+      "category": "source_contract_schema_generated_ui_locale",
+      "preimage_sha256": "f3079ad75caa5b0f9b1f2b33cd6b3ace07f93fa42620cb9e4f9973585cb08833",
+      "sha256_at_commit": "a4bdc2a87c5450f1b11246bdb6870401863f7d1f8ff3402f059a70e262037f4e",
+      "bytes": 152070
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/uk.json",
+      "category": "source_contract_schema_generated_ui_locale",
+      "preimage_sha256": "ed90e180e9c807ffe96bb5e37c50130ac44533769cd19974eff12cbfbb25744e",
+      "sha256_at_commit": "ac7530dce76581179c9c2712c754a96c3cbd5831db9c1a284220a3c372fb07b8",
+      "bytes": 218110
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/apps/runtime-dashboard/src/shared/lib/domain/agents.test.ts",
+      "category": "source_contract_schema_generated_ui_locale",
+      "preimage_sha256": "d2751c499e943ee305afd959baea9c37510ca5740e335626a72842b814cb0970",
+      "sha256_at_commit": "75393b7c44b2a8a9d53a5ba715122277c29a9708d674f64cb3b16832e1f1a479",
+      "bytes": 26320
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/apps/runtime-dashboard/src/shared/lib/domain/agents.ts",
+      "category": "source_contract_schema_generated_ui_locale",
+      "preimage_sha256": "ed5d7a7035dd9c4edc2c65774d22362db80dc701a6df37389a3891c6092f330d",
+      "sha256_at_commit": "4a40174985ed63e62ef4362eb659dc18ff38e024b6cd3e7447932f4d49286ce9",
+      "bytes": 27602
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "category": "coordination_metadata",
+      "preimage_sha256": "d01cd037f44b83264f98454e1c85432a26a4cb3f137b196fca14bac62ca51b75",
+      "sha256_at_commit": "a842bd41e8b00d8c025026b2ca06a5dccad42cf9d5ee97a5979c85cc392eb929",
+      "bytes": 871553
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "category": "coordination_metadata",
+      "preimage_sha256": "58a50c6b90f3f3cae3a6043721b2de04a3c70b32104a492476b9511e3b39ccbb",
+      "sha256_at_commit": "0536d846f3958330d2d0fcb5e01008fbbd1e42cabcd4ae6ee83ac5e5cea06f34",
+      "bytes": 77110
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/packages/runtime-api-client/types.ts",
+      "category": "source_contract_schema_generated_ui_locale",
+      "preimage_sha256": "9bbec9c49b9a546bf588510b7a641c0b06d7df557d000b9c1403009a16fd6dc2",
+      "sha256_at_commit": "d5d11ae65aa39d3b13ba1386a9dd1269ebc4eb61231d7613d1f2b025fe95a4c9",
+      "bytes": 1078378
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/schemas/runtime_api_v1.openapi.json",
+      "category": "source_contract_schema_generated_ui_locale",
+      "preimage_sha256": "44c1787a6eb1195292e01d953633d3c94ce16820943b222c4b1e26347f18f95a",
+      "sha256_at_commit": "cda728719c170185b50b8be6ddbca88410313a25f63306f2f0cecf68f69b3778",
+      "bytes": 3084189
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/src/polisyos/core/contracts/__init__.py",
+      "category": "source_contract_schema_generated_ui_locale",
+      "preimage_sha256": "08067d0f203f67ed5fc979275ea1981ae210b6f51db36befcee952b0ae58ab44",
+      "sha256_at_commit": "7848afa922f753e2fb993ef5e5926ff5d9ff246621a73a8434c97635d67489fa",
+      "bytes": 68274
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/src/polisyos/core/contracts/runtime.py",
+      "category": "source_contract_schema_generated_ui_locale",
+      "preimage_sha256": "4e931bac26e293d26f4866f1086aec81e12ed0938a941cd238e39c75e4c621c1",
+      "sha256_at_commit": "b9e8d5faf9f0f905859f77d09f1a0cd192d0768103a8598dd7c0e75add6ed6ef",
+      "bytes": 217086
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/job_nl_admission.py",
+      "category": "source_contract_schema_generated_ui_locale",
+      "preimage_sha256": "c0e178920d51ea0fa7357cd3099b968f2169e38e961c2c36299e968312e24bc0",
+      "sha256_at_commit": "7805d2aad60929258c4b024c2d03dd7d19bac25ffcf0b4beef4d87962a02535d",
+      "bytes": 31492
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "category": "source_contract_schema_generated_ui_locale",
+      "preimage_sha256": "6c66f2a13b3af06f34abeee80c0e2f2b0d7c49663b027ed3e0f6f6c65ef2daa3",
+      "sha256_at_commit": "9989287b4b803179d36bd56dade55b9ba87630bde571a971e88ba1693ddcdee3",
+      "bytes": 253012
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/src/polisyos/runtime/http/services/debug.py",
+      "category": "source_contract_schema_generated_ui_locale",
+      "preimage_sha256": "ff809b3a48ea99dc105d5a22e60beed4ec253912b79a9e26958697ef7a02d4f2",
+      "sha256_at_commit": "008e4728ffda8f1843873287285fa00995201b2b58f1c4b6548324e83f3f33c2",
+      "bytes": 167928
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+      "category": "source_contract_schema_generated_ui_locale",
+      "preimage_sha256": "56f86f1c976b54c8b91d6d3baf915053d91f920dc380672ee6d564bda526ab79",
+      "sha256_at_commit": "5de4782a9158f38333e76727fa21a20f80d00efd0cb337430fdfd5fd9d62e51d",
+      "bytes": 47349
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+      "category": "source_contract_schema_generated_ui_locale",
+      "preimage_sha256": "2b39861329dd273d026cf46062d38f03af417fb3c0d3ce04e6103a8a97aed79c",
+      "sha256_at_commit": "b06d8e4d741553ac0d3ad8cdd7b4c632827ea905dfe9c4f607c1c38429feb443",
+      "bytes": 15499
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/src/polisyos/scientist/orchestration/llm/provider_verification.py",
+      "category": "source_contract_schema_generated_ui_locale",
+      "preimage_sha256": "decf01600124602a621f73a86286c977c10cd3b5dce498f3a47bf43a63fbb2a8",
+      "sha256_at_commit": "938746b1711c437c196957c4dc12d68c4721f5e954942257ad86dbfe0f5f247b",
+      "bytes": 67627
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py",
+      "category": "test",
+      "preimage_sha256": "898d23efa9f1c74acd6a0d945aa1f8c9a5ec0f4094be3cfc983b27e248f3f43a",
+      "sha256_at_commit": "9f394606ab5751a1f5d3b9d07a1751c44913497e398ab95f8bcf8f3e1f871b9a",
+      "bytes": 162668
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_producer_events.py",
+      "category": "test",
+      "preimage_sha256": "2482d9c6f7ff6e1d1c435c0c0aa47c7d0b42c8a21b6bda9b11bb0089e1695c38",
+      "sha256_at_commit": "40205848aae53a79e782c336db3e9bcbfb32636d96ff06aea2dd481a93e35cee",
+      "bytes": 20753
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+      "category": "test",
+      "preimage_sha256": "a99bda71a98dcc3a6c1014c626f84cd61d7eba802e050d7ebce5cfa01e1a8f36",
+      "sha256_at_commit": "83985216fb9a4d073a9bc3f9120046c6dc44f145afed57343079421229461629",
+      "bytes": 13682
+    }
+  ],
+  "source_application": {
+    "identity": "root-monetary-r7-native-qualified-checkpoint-20261018",
+    "lease_key": "monetary-owner-qualified-and-opaque-details-r7-20261018",
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r7-native-qualified-checkpoint-20261018/source-application.json",
+      "bytes": 23795,
+      "sha256": "78850e251dfbd2a899724395a80f677dc1d85b608caab1c46cd26b4366fac541"
+    },
+    "plan": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r7-f21fa-source-adoption-20261018/adoption-plan.json",
+      "bytes": 18422,
+      "sha256": "f774bb54ee915ff406859b4b98bbeb8d69c4a963aab29b406de09982ab996756"
+    },
+    "commit_request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r7-native-qualified-checkpoint-20261018/commit-request.json",
+      "bytes": 4864,
+      "sha256": "14c75e723f61878a0c0699de604128f26d71a9e557fc567afe904d4aa595fd02"
+    },
+    "commit_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r7-native-qualified-checkpoint-20261018/monetary-owner-qualified-red-runtime-checkpoint-r7-20261018-readback.json",
+      "bytes": 6016,
+      "sha256": "4c6eb405f44ae899e1a73260926963df811a01ad09c2875eea43e39d736cab5a"
+    }
+  },
+  "review_refs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r7-monetary-details-qualified-projection-20261018/candidate-manifest-r7.json",
+      "bytes": 9960,
+      "sha256": "65d7f291a69a0f787bd59f9c59d9d5397196c2950a9ebff9c076002f48f09962",
+      "role": "source proposal, independent review, or static qualification input"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r7-monetary-details-qualified-projection-20261018/candidate-files-r7.json",
+      "bytes": 7167,
+      "sha256": "18e2e52cd0ba98ba4a7e8056b0d4318fe7f78eab689c54744c1f157fe8fa13a9",
+      "role": "source proposal, independent review, or static qualification input"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r7-monetary-details-qualified-projection-20261018/candidate-r7.patch",
+      "bytes": 201843,
+      "sha256": "ca04f72a1db6dd6d94c4c2dfd27560688aba34a4f9c96e91271ff90034e46337",
+      "role": "source proposal, independent review, or static qualification input"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r7-monetary-details-qualified-projection-20261018/source-requalification-r7.json",
+      "bytes": 7597,
+      "sha256": "99f039329c40b5b69c36dc8d3d4bfdbc25ab1bd8e8247b645f2ada06c40eec3d",
+      "role": "source proposal, independent review, or static qualification input"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r7-independent-20261018/review.md",
+      "bytes": 5345,
+      "sha256": "744cd4a3964ef94c5125bda849de3a1673e9be8dd2473f636ef9870d03347c20",
+      "role": "source proposal, independent review, or static qualification input"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r7-monetary-details-qualified-projection-20261018/ruff-r7.json",
+      "bytes": 14572,
+      "sha256": "402487c5f5042e51cc8322f88341eae6b564c76cbd5e83d6310e029d3954275e",
+      "role": "source proposal, independent review, or static qualification input"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r7-monetary-details-qualified-projection-20261018/prettier-r7.json",
+      "bytes": 4110,
+      "sha256": "58db05ce512762b9f7cf79a49541b213f2e5d6d0e5e3c10834b6bc4e579fca37",
+      "role": "source proposal, independent review, or static qualification input"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r7-monetary-details-qualified-projection-20261018/prettier-runtime-api-client-r7.json",
+      "bytes": 647,
+      "sha256": "047880dd8ec91e586afe42da485dd062df942dde42c23ad54d931aa329b632b2",
+      "role": "source proposal, independent review, or static qualification input"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r7-monetary-details-qualified-projection-20261018/static-r7.json",
+      "bytes": 7483,
+      "sha256": "60b8009c8cd0a1bca1f600283eba3b58716159cf082398296d26a06c256ab899",
+      "role": "source proposal, independent review, or static qualification input"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r7-monetary-details-qualified-projection-20261018/patch-check-r7.json",
+      "bytes": 4963,
+      "sha256": "3566727403dbff777ff316cc348340d9a0e21078f4c609823f6b25c87457c00f",
+      "role": "source proposal, independent review, or static qualification input"
+    }
+  ],
+  "property": "Current step/attempt/pipeline monetary totals derive only from eligible persisted events bound to actual control-job owner attempt. Raw scalar claims and opaque diagnostic containers remain explicitly not_established; model variant ordinal is never substituted for owner attempt. Shared server/DTO/client projections preserve historical unknownness and cumulative job-budget semantics.",
+  "static_quality": {
+    "ruff_version": "0.14.10",
+    "check_and_format_check": "PASS",
+    "receipts": [
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/src/polisyos/core/contracts/__init__.py",
+          "policy-engine/src/polisyos/core/contracts/runtime.py",
+          "policy-engine/src/polisyos/runtime/http/services/control/job_nl_admission.py",
+          "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+          "policy-engine/src/polisyos/runtime/http/services/debug.py",
+          "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+          "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+          "policy-engine/src/polisyos/scientist/orchestration/llm/provider_verification.py",
+          "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py",
+          "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_producer_events.py",
+          "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py"
+        ],
+        "exit_code": 0,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r7-f21fa-source-adoption-20261018/check.stdout.txt",
+          "bytes": 19,
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r7-f21fa-source-adoption-20261018/check.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/src/polisyos/core/contracts/__init__.py",
+          "policy-engine/src/polisyos/core/contracts/runtime.py",
+          "policy-engine/src/polisyos/runtime/http/services/control/job_nl_admission.py",
+          "policy-engine/src/polisyos/runtime/http/services/control/run_lifecycle.py",
+          "policy-engine/src/polisyos/runtime/http/services/debug.py",
+          "policy-engine/src/polisyos/scientist/orchestration/engine/budget_ledger.py",
+          "policy-engine/src/polisyos/scientist/orchestration/engine/budget_middleware.py",
+          "policy-engine/src/polisyos/scientist/orchestration/llm/provider_verification.py",
+          "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py",
+          "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_producer_events.py",
+          "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py"
+        ],
+        "exit_code": 0,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r7-f21fa-source-adoption-20261018/format.stdout.txt",
+          "bytes": 27,
+          "sha256": "75b7030be9d7de96bf4e76e79b1f03f14af8899d169fd8d79564d59167d1ab80"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r7-f21fa-source-adoption-20261018/format.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    ],
+    "native_dashboard_lint_and_format": "Separate captured TypeScript actual at parent frame f21fa; it is not a lint run on this commit."
+  },
+  "runtime_status_at_source_adoption": "UNRUN at adoption. Later TypeScript actual at parent f21fa is separately recorded as red; Python actual ran at exact 2e4 and is red.",
+  "known_bounded_actuals": [
+    {
+      "target_record": "LOCAL/actual-monetary-r7-typescript-at-f21fa93bcfffa.json",
+      "result": "171/176 Vitest pass; five fail; ESLint/Prettier pass; exact run frame is the parent."
+    },
+    {
+      "target_record": "LOCAL/actual-monetary-r7-python-at-2e4c0dbb6848.json",
+      "result": "76/78 Python pass; two fail; exact run frame is 2e4."
+    }
+  ],
+  "source_relationship_check": {
+    "observed_preparation_frame": {
+      "branch": "codex/e02-unified-local-20261009",
+      "head": "19312672830c94375082e468c88a45dc320075ef",
+      "tree": "4df45ca22557163a8be0fe77c208d5735effeae5"
+    },
+    "R7_commit_is_ancestor_of_observed_head": true,
+    "TS_parent_run_functional_paths_match_R7_commit": true,
+    "TS_parent_run_coordination_paths_that_differ": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ],
+    "qualification": "The earlier TypeScript run did not execute against 2e4. All 23 functional source/test blobs match; the two coordination metadata files have expected earlier-frame hashes."
+  },
+  "limits": [
+    "23 cohesive code/test/schema/generated/UI/locale/export paths. Native source Ruff before commit; author package-context Prettier passes.",
+    "Same-HTTP-response fresh GET to Zod/normalizer/component consumer must be executed; separate fixtures are not a joined chain.",
+    "Opaque details are preserved under fixed not_established scope; their arbitrary nested monetary-looking values have no typed current-cost authority.",
+    "Current cost event reconciliation does not establish institutional payment, live billing/currentness or permission.",
+    "Five current Vitest failures are retained and independently diagnosed before a coherent successor. This implementation checkpoint is not accepted behavior or closure.",
+    "Seven red R7 cases are retained; independent P40 diagnosis/bucket assignment was pending. No failure class is declared repaired or adjudicated.",
+    "No whole current freeze, exact HTTP-JSON-to-TypeScript bridge, generator, live billing/currentness, external payment authority, or formal G closure is established."
+  ],
+  "next_check": {
+    "required": [
+      "Independently diagnose and repair all five actual Vitest failures as a complete semantic/oracle class; replay all three whole modules.",
+      "Actual complete Python monetary importer/settlement/route test modules",
+      "Real OpenAPI/client/dashboard generation to RAW and byte compare, retained generator scratch",
+      "Actual dashboard validators/normalizer/component tests and typecheck",
+      "Real persisted ledger to fresh TestClient GET exact JSON bytes to TypeScript validator/normalizer/component bridge",
+      "Old-wire/scalar-only/ownerless/malformed/stale/variant-ordinal adversarial controls"
+    ]
+  },
+  "G_acceptance": false,
+  "closure_ids": []
+}

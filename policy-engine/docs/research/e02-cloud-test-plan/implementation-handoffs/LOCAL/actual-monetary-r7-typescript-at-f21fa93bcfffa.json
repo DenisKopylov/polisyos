@@ -1,0 +1,285 @@
+{
+  "schema": "polisyos.e02.actual_test_verification_receipt.v1",
+  "record_type": "actual_test_verification_receipt",
+  "status": "completed_bounded_source_frame_red",
+  "identity": "monetary-r7-three-typescript-modules-at-f21fa93",
+  "proposal_not_adjudicated": true,
+  "relationship_to_source_commits": [
+    {
+      "implementation_commit": "2e4c0dbb6848456a5f8c879fdab973896ff10812",
+      "tree": "d3cf680d8c6dc900b462141d4b96ff7e49d49b9e",
+      "role": "Child source; its 23 functional inputs match this earlier run, but no actual command ran at the child commit."
+    }
+  ],
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "f21fa93bcfffae8d68e85dad1dedf34bfcb76c33",
+    "tree": "554243b53c973a415c6f562ac54b49c60926e8da"
+  },
+  "profile": {
+    "scope": "Three whole dashboard Vitest modules for monetary response validation, route-shaped pipeline presentation, and agent cost projection; exact HTTP GET-to-TypeScript bridge not run.",
+    "selected_test_files": [
+      "src/api/validators.test.ts",
+      "src/features/runs/components/pipelinePanels.test.tsx",
+      "src/shared/lib/domain/agents.test.ts"
+    ],
+    "junit_summary": {
+      "cases": 176,
+      "passed": 171,
+      "failed": 5,
+      "errors": 0,
+      "skipped": 0
+    },
+    "case_denominator": "JUnit testcase elements from this invocation, parsed and reconciled with stored result.",
+    "whole_selected_modules": true
+  },
+  "property_vs_measurement": {
+    "property": "Projected current monetary scopes derive from eligible persisted events bound to owner attempt; opaque or ownerless inputs remain unestablished.",
+    "measured_by": "Three whole Vitest modules; ESLint and Prettier commands are separately recorded.",
+    "divergent_case_or_boundary": "Five assertions fail; no complete HTTP-to-dashboard bridge or authority claim."
+  },
+  "execution": {
+    "commands": [
+      {
+        "id": "eslint",
+        "argv": [
+          "corepack",
+          "pnpm",
+          "--dir",
+          "apps/runtime-dashboard",
+          "exec",
+          "eslint",
+          "src/api/types.ts",
+          "src/api/validators.test.ts",
+          "src/api/validators.ts",
+          "src/features/runs/components/AgentPipelinePanel.tsx",
+          "src/features/runs/components/pipelinePanels.test.tsx",
+          "src/shared/lib/domain/agents.test.ts",
+          "src/shared/lib/domain/agents.ts"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "status": "passed",
+        "return_code": 0,
+        "complete": true,
+        "aborted_reason": null,
+        "wall_seconds": 26.59152829204686,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r7-native-r3-actual-20261018/eslint.stdout.txt",
+          "bytes": 335,
+          "sha256": "1a6b474b049149d45f524068da26e9a401bd2a7ee744b6ab77e0cc8c40404f4b"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r7-native-r3-actual-20261018/eslint.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "id": "prettier",
+        "argv": [
+          "corepack",
+          "pnpm",
+          "--dir",
+          "apps/runtime-dashboard",
+          "exec",
+          "prettier",
+          "--check",
+          "--config",
+          ".prettierrc.json",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/apps/runtime-dashboard/src/api/types.ts",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/apps/runtime-dashboard/src/api/validators.test.ts",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/apps/runtime-dashboard/src/api/validators.ts",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/apps/runtime-dashboard/src/features/runs/components/AgentPipelinePanel.tsx",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/apps/runtime-dashboard/src/features/runs/components/pipelinePanels.test.tsx",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/en.json",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/ru.json",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/apps/runtime-dashboard/src/shared/i18n/locales/uk.json",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/apps/runtime-dashboard/src/shared/lib/domain/agents.test.ts",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/apps/runtime-dashboard/src/shared/lib/domain/agents.ts"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "status": "passed",
+        "return_code": 0,
+        "complete": true,
+        "aborted_reason": null,
+        "wall_seconds": 2.1474132500588894,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r7-native-r3-actual-20261018/prettier.stdout.txt",
+          "bytes": 66,
+          "sha256": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r7-native-r3-actual-20261018/prettier.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "id": "vitest",
+        "argv": [
+          "corepack",
+          "pnpm",
+          "--dir",
+          "apps/runtime-dashboard",
+          "exec",
+          "vitest",
+          "run",
+          "src/api/validators.test.ts",
+          "src/features/runs/components/pipelinePanels.test.tsx",
+          "src/shared/lib/domain/agents.test.ts",
+          "--maxWorkers=1",
+          "--reporter=default",
+          "--reporter=junit",
+          "--outputFile=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r7-native-r3-actual-20261018/vitest.junit.xml"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "status": "command_failed",
+        "return_code": 1,
+        "complete": true,
+        "aborted_reason": null,
+        "wall_seconds": 5.947568917181343,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r7-native-r3-actual-20261018/vitest.stdout.txt",
+          "bytes": 16874,
+          "sha256": "70f47edf588b726bdb2bf7ee10af082eb66a7ac82ac591da23a279d609558277"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r7-native-r3-actual-20261018/vitest.stderr.txt",
+          "bytes": 11317,
+          "sha256": "a23a186b0ff47fcb0da45e4ef381faa2c93c264f7299aa9e979c39dbad2f1587"
+        }
+      }
+    ],
+    "test_command_return_code": 1,
+    "complete": true,
+    "status": "red"
+  },
+  "source_pin_observations": {
+    "tracked_changed_paths_unchanged": true,
+    "result_source_path_count": 25,
+    "functional_source_test_paths_matching_child_commit": 23,
+    "parent_frame_coordination_metadata_differences": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ]
+  },
+  "failure_cases": [
+    {
+      "suite": "src/api/validators.test.ts",
+      "test": "artifact preview canonical read status custody > defaults opaque step details to an unestablished cost scope",
+      "assertion": "expected false to be true // Object.is equality"
+    },
+    {
+      "suite": "src/api/validators.test.ts",
+      "test": "artifact preview canonical read status custody > rejects current cost projections without a verified owner context",
+      "assertion": "expected false to be true // Object.is equality"
+    },
+    {
+      "suite": "src/features/runs/components/pipelinePanels.test.tsx",
+      "test": "pipeline surfaces > uses the verified owner attempt in the actual route-shaped model comparison",
+      "assertion": "Unable to find an element with the text: Owner scope: ControlJob lease attempt 2.. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.  Ignored nodes: comments, script, style [36m<body>[39m   [36m<div>[39m     [36m<div[39m       [33mclass[39m=[32m\"space-y-4\"[39m     [36m>[39m       [36m<div[39m         [33mclass[39m=[32m\"grid gap-2 md:grid-cols-4\"[39m       [36m>[39m         [36m<div[39m           [33mclass[39m=[32m\"border-line rounded-xl border p-2 text-sm\"[39m         [36m>[39m           [36m<p[39m             [33mclass[39m=[32m\"text-muted text-xs uppercase\"[39m           [36m>[39m             [0mpanels.agentPipeline.attempts[0m           [36m</p>[39m           [36m<p[39m             [33mclass[39m=[32m\"font-semibold\"[39m           [36m>[39m             [0m3[0m           [36m</p>[39m         [36m</div>[39m         [36m<div[39m           [33mclass[39m=[32m\"border-line rounded-xl border p-2 text-sm\"[39m         [36m>[39m           [36m<p[39m             [33mclass[39m=[32m\"text-muted text-xs uppercase\"[39m           [36m>[39m             [0mpanels.agentPipeline.latestVerdict[0m           [36m</p>[39m           [36m<p[39m             [33mclass[39m=[32m\"font-semibold\"[39m           [36m>[39m             [36m<span[39m               [33mdata-decision-grade-presentation[39m=[32m\"unrecognized\"[39m             [36m>[39m               [0mcommon.unknown[0m             [36m</span>[39m           [36m</p>[39m         [36m</div>[39m         [36m<div[39m           [33mclass[39m=[32m\"border-line rounded-xl border p-2 text-sm\"[39m         [36m>[39m           [36m<p[39m             [33mclass[39m=[32m\"text-muted text-xs uppercase\"[39m           [36m>[39m             [0mpanels.agentPipeline.source[0m           [36m</p>[39m           [36m<p[39m             [33mclass[39m=[32m\"font-semibold\"[39m           [36m>[39m             [0m-[0m           [36m</p>[39m         [36m</div>[39m         [36m<div[39m           [33mclass[39m=[32m\"border-line rounded-xl border p-2 text-sm\"[39m         [36m>[39m           [36m<p[39m             [33mclass[39m=[32m\"text-muted text-xs uppercase\"[39m           [36m>[39m             [0mpanels.agentPipeline.promptData[0m           [36m</p>[39m           [36m<p[39m             [33mclass[39m=[32m\"font-semibold\"[39m           [36m>[39m             [0mcommon.no[0m           [36m</p>[39m         [36m</div>[39m       [36m</div>[39m       [36m<section[39m         [33mclass[39m=[32m\"bg-warning/5 border-warning/30 rounded-xl border p-3\"[39m       [36m>[39m         [36m<h4[39m           [33mclass[39m=[32m\"mb-2 text-sm font-semibold\"[39m         [36m>[39m           [0mpanels.agentPipeline.unattributedCostScalars[0m         [36m</h4>[39m         [36m<p[39m           [33mclass[39m=[32m\"text-muted mb-2 text-xs\"[39m         [36m>[39m           [0mpanels.agentPipeline.unassignedScalarScope[0m         [36m</p>[39m         [36m<ul[39m           [33mclass[39m=[32m\"space-y-1 text-xs\"[39m         [36m>[39m           [36m<li>[39m             [36m<span[39m               [33mclass[39m=[32m\"font-mono\"[39m             [36m>[39m               [0mstep_summary[0m               [0m.[0m               [0mcost_usd[0m             [36m</span>[39m             [0m · [0m             [0m$0.41[0m             [0m · [0m             [0mnot_established[0m             [0m · legacy-scalar-variant[0m           [36m</li>[39m         [36m</ul>[39m       [36m</section>[39m       [36m<section[39m         [33mclass[39m=[32m\"bg-panel/65 border-line rounded-xl border p-3\"[39m       [36m>[39m         [36m<div[39m           [33mclass[39m=[32m\"mb-2 flex items-center justify-between gap-2\"[39m         [36m>[39m           [36m<h4[39m             [33mclass[39m=[32m\"text-sm font-semibold\"[39m           [36m>[39m             [0mpanels.agentPipeline.modelComparison[0m           [36m</h4>[39m           [36m<p[39m             [33mclass[39m=[32m\"text-muted text-xs\"[39m           [36m>[39m             [0mpanels.agentPipeline.variants:{\"count\":\"3\"}[0m           [36m</p>[39m         [36m</div>[39m         [36m<p[39m           [33mclass[39m=[32m\"text-muted mb-2 text-xs\"[39m         [36m>[39m           [0mpanels.agentPipeline.ownerAttemptScope:{\"attempt\":2}[0m         [36m</p>[39m         [36m<div[39m           [33mclass[39m=[32m\"space-y-2\"[39m         [36m>[39m           [36m<div[39m             [33mclass[39m=[32m\"bg-canvas/30 border-line grid gap-2 rounded-lg border p-2 text-xs md:grid-cols-7\"[39m           [36m>[39m             [36m<div>[39m               [36m<p[39m                 [33mclass[39m=[32m\"text-muted text-[10px] uppercase\"[39m               [36m>[39m                 [0mpanels.agentPipeline.model[0m               [36m</p>[39m               [36m<p[39m                 [33mclass[39m=[32m\"font-semibold\"[39m               [36m>[39m                 [0mmock[0m               [36m</p>[39m             [36m</div>[39m             [36m<div>[39m               [36m<p[39m                 [33mclass[39m=[32m\"text-muted text-[10px] uppercase\"[39m               [36m>[39m                 [0mpanels.agentPipeline.variant[0m               [36m</p>[39m               [36m<p>[39m                 [0m-[0m               [36m</p>[39m             [36m</div>[39m             [36m<div>[39m               [36m<p[39m                 [33mclass[39m=[32m\"text-muted text-[10px] uppercase\"[39m               [36m>[39m                 [0mpanels.agentPipeline.provider[0m               [36m</p>[39m               [36m<p>[39m                 [0m-[0m               [36m</p>[39m             [36m</div>[39m             [36m<div>[39m               [36m<p[39m                 [33mclass[39m=[32m\"text-muted text-[10px] uppercase\"[39m               [36m>[39m                 [0mpanels.agentPipeline.tokens[0m               [36m</p>[39m               [36m<p>[39m                 [0m0[0m               [36m</p>[39m             [36m</div>[39m             [36m<div>[39m               [36m<p[39m                 [33mclass[39m=[32m\"text-muted text-[10px] uppercase\"[39m               [36m>[39m                 [0mpanels.agentPipeline.promptCompletion[0m               [36m</p>[39m               [36m<p>[39m                 [0m0[0m                 [0m /[0m                 [0m [0m                 [0m0[0m               [36m</p>[39m             [36m</div>[39m             [36m<div>[39m               [36m<p[39m                 [33mclass[39m=[32m\"text-muted text-[10px] uppercase\"[39m               [36m>[39m                 [0mpanels.agentPipeline.latency[0m               [36m</p>[39m               [36m<p>[39m                 [0m0 ms[0m               [36m</p>[39m             [36m</div>[39m             [36m<div>[39m               [36m<p[39m                 [33mclass[39m=[32m\"text-muted text-[10px] uppercase\"[39m            ..."
+    },
+    {
+      "suite": "src/shared/lib/domain/agents.test.ts",
+      "test": "agents domain > keeps eventless scalar claims out of current totals and excludes stale lease attempts",
+      "assertion": "expected false to be true // Object.is equality"
+    },
+    {
+      "suite": "src/shared/lib/domain/agents.test.ts",
+      "test": "agents domain > keeps ownerless scalar and event inputs unassigned at every projection level",
+      "assertion": "expected undefined to be null"
+    }
+  ],
+  "deciding_outputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r7-native-r3-actual-20261018/result.json",
+      "bytes": 9275,
+      "sha256": "36ad6d7e8029c33d12b368096ba3cec8fe3190107f044cdbba4715e3271ff25a",
+      "role": "supervisor/run result"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r7-native-r3-actual-20261018/vitest.result.json",
+      "bytes": 1294,
+      "sha256": "03e5358d07ad26ba6b0d73574f0ef4984e6d99c4c4ba14d24c492e9361bb90b6",
+      "role": "Vitest structured result"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r7-native-r3-actual-20261018/vitest.junit.xml",
+      "bytes": 53888,
+      "sha256": "bc070567fcf0a3c580e218c57d8d2c49a40f2b94b2e4e39eb6b26746f81b6a97",
+      "role": "complete JUnit"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r7-native-r3-actual-20261018/vitest.stdout.txt",
+      "bytes": 16874,
+      "sha256": "70f47edf588b726bdb2bf7ee10af082eb66a7ac82ac591da23a279d609558277",
+      "role": "full Vitest stdout"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r7-native-r3-actual-20261018/vitest.stderr.txt",
+      "bytes": 11317,
+      "sha256": "a23a186b0ff47fcb0da45e4ef381faa2c93c264f7299aa9e979c39dbad2f1587",
+      "role": "full Vitest stderr"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r7-native-r3-actual-20261018/controller-events.jsonl",
+      "bytes": 3488,
+      "sha256": "81ef8a7c99a2c026704c39ed81771edd64c7ebec679fad726d65f50ed19d8dc2",
+      "role": "controller lifecycle"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r7-native-r3-actual-20261018/phase-output.jsonl",
+      "bytes": 3298,
+      "sha256": "24e44d28166e09e5511f8c1be71fc57ff7fdad65db63d4075457da19602e5bc8",
+      "role": "phase output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r7-native-r3-actual-20261018/process-tree.jsonl",
+      "bytes": 85031,
+      "sha256": "21144f3cbf2edb6270256affa020100971006a49bc4a0fbd93ba7cdbaa2e3aba",
+      "role": "process tree"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r7-native-r3-actual-20261018/eslint.result.json",
+      "bytes": 1124,
+      "sha256": "3eed72102b89b853a3b7fef8b3be2d30da80f98706febf9506cba43517cba7e4",
+      "role": "ESLint result"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r7-native-r3-actual-20261018/prettier.result.json",
+      "bytes": 2399,
+      "sha256": "d825b7ddbb6703726a42778b6719538c350519a6e36bad87bef380a28a931b9a",
+      "role": "Prettier result"
+    }
+  ],
+  "limits": [
+    "171/176 passing does not override five red assertions.",
+    "P40 diagnosis/bucket assignment for all seven R7 failures was pending; no shared class or repair is declared.",
+    "No current whole-property, complete producer/fresh-GET/TypeScript consumer, or external authority is established."
+  ],
+  "next_check": "Independently diagnose all five TypeScript and two Python failures together, repair the validated class coherently, rerun all three whole modules, then run the persisted ledger to fresh HTTP JSON to TypeScript consumer path and adversarial controls.",
+  "G_acceptance": false,
+  "closure_ids": [],
+  "predicate_provenance": [
+    {
+      "predicate": "Git source/parent relationship",
+      "classification": "recomputed",
+      "basis": "Exact object identity and all changed path blob SHA comparisons."
+    },
+    {
+      "predicate": "Vitest test outcomes",
+      "classification": "independently_reconciled",
+      "basis": "Parsed complete JUnit and matched result JSON."
+    },
+    {
+      "predicate": "run-time tracked-path unchanged claim",
+      "classification": "consumer_asserted",
+      "basis": "Captured supervisor result."
+    },
+    {
+      "predicate": "joined consumer behavior and formal acceptance",
+      "classification": "not_established",
+      "basis": "Scope and five red cases."
+    }
+  ]
+}

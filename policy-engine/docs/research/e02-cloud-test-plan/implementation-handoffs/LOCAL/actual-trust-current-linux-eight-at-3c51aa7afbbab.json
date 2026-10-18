@@ -1,0 +1,210 @@
+{
+  "schema": "polisyos.e02.actual_test_verification_receipt.v1",
+  "record_type": "actual_test_verification_receipt",
+  "status": "completed_bounded_linux_container_red",
+  "identity": "trust-current-linux-focused-eight-at-3c51aa7afbbab",
+  "proposal_not_adjudicated": true,
+  "relationship_to_source_commits": [
+    {
+      "implementation_commit": "3c51aa7afbbab44485e0bf80ef08d208dea8b5c4",
+      "tree": "ba4344d1a359b7246d301e2811277ec9f531a45b",
+      "role": "Exact source frame frozen into the focused Linux bundle."
+    }
+  ],
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "3c51aa7afbbab44485e0bf80ef08d208dea8b5c4",
+    "tree": "ba4344d1a359b7246d301e2811277ec9f531a45b"
+  },
+  "profile": {
+    "scope": "Focused current canonical tools runner import closure and selected 8-test module only; not full project pytest, default project Linux, C05, full15 or G closure.",
+    "selected_test_files": [
+      "policy-engine/tests/unit/tools/test_runner.py"
+    ],
+    "requested_test_count": 8,
+    "observed_junit_summary": {
+      "cases": 8,
+      "passed": 7,
+      "failed": 1,
+      "errors": 0,
+      "skipped": 0
+    },
+    "whole_selected_modules": true,
+    "environment_qualification": "Focused Linux container; PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 and bundle staged under /tmp; not project-default Linux.",
+    "container_name": "e02-trust-current-linux-runner-20261018-r1"
+  },
+  "property_vs_measurement": {
+    "property": "Focused runner import closure and temporary-base safety on an exact source bundle.",
+    "measured_by": "Single isolated container command with complete outputs and before/after source binding readback.",
+    "divergent_case_or_boundary": "repo_root was a pytest tmp_path checkout under /tmp/pytest-of-root, making selected default /tmp an ancestor; production correctly rejected the input. Reconciliation classifies a fixture portability/environment overlap, not product failure or project-default Linux acceptance."
+  },
+  "execution": {
+    "started_at_utc": "2026-10-18T15:30:36.812188+00:00",
+    "finished_at_utc": "2026-10-18T15:30:37.190009+00:00",
+    "wall_seconds": 0.378,
+    "return_code": 1,
+    "complete": true,
+    "watchdog_seconds": 150,
+    "watchdog_fired": false,
+    "container_name": "e02-trust-current-linux-runner-20261018-r1",
+    "docker_sample_count": 2,
+    "container_inspect_returncode": 0
+  },
+  "source_pin_observations": {
+    "all_10_source_bindings_unchanged": true,
+    "sealed_packet_manifest_sha256": "d70f9d800f6d68fee81a687cdf16ade3fca1196e48d6c548a2ab1b7c6b17392f",
+    "qualification": "Only ten bundled source files were checked; no full-project source or third-party freeze.",
+    "verified_binding_count": 10,
+    "binding_detail_reference": "Complete ten-file binding detail is in the manifest-listed execution-result source_after field; no duplicate pin map is embedded."
+  },
+  "failure_reconciliation": {
+    "outcome": {
+      "docker_run_returncode": 1,
+      "pytest_summary": "1 failed, 7 passed in 0.07s",
+      "failed_test": "test_external_temporary_base_uses_default_only_when_unset",
+      "skipped": 0,
+      "timed_out": false,
+      "oom_killed": false,
+      "acceptance": "FAIL; this focused run is not a pass or G/native-Linux acceptance."
+    },
+    "failure_boundary": {
+      "classification": "test-fixture portability/environment overlap; no product-code mutation or retry performed",
+      "traceback_repo_root": "/tmp/pytest-of-root/pytest-0/test_external_temporary_base_u0/checkout",
+      "fixture_relation": "pytest tmp_path created checkout under /tmp/pytest-of-root; the test passes that fixture directory as repo_root.",
+      "selected_default": "/tmp",
+      "source_condition": "runner.resolve_external_temporary_base rejects when the selected canonical temporary base is an ancestor of repo_root (runner.py line 143). Here /tmp is an ancestor of the fixture checkout, so the rejection is correct for this input.",
+      "scope_note": "The failing repo_root is the test tmp_path fixture, not the extracted source tree path. The source archive is staged under /tmp too, but that is not what establishes this failure.",
+      "evidence": "Full traceback and pytest summary are retained in docker-run.stdout.txt; the traceback names runner.py:143 and the fixture checkout path above."
+    },
+    "no_retry_or_cleanup": true
+  },
+  "deciding_outputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-current-linux-eight-actual-20261018/packet-manifest-v2.json",
+      "bytes": 2420,
+      "sha256": "ba10f0d056e67fdf6e8ff49cb355880d3862719c52a94ac62bfffde817396d92",
+      "role": "manifest for the complete 13-file packet"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-current-linux-eight-actual-20261018/preflight.json",
+      "bytes": 5141,
+      "sha256": "7c6034c2028e13c5403b504cfbc1f91df6cf1308174e81e284d34cb8c4f00e3d",
+      "role": "source/grant preflight"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-current-linux-eight-actual-20261018/execution-result.json",
+      "bytes": 4419,
+      "sha256": "20633776ea3c369463fd5d4f76e3922eab3a2b000ce536cd002549a8e77cd43e",
+      "role": "container execution"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-current-linux-eight-actual-20261018/failure-reconciliation.json",
+      "bytes": 6355,
+      "sha256": "73be4b25e6a35b0a2eb06d288c98afd1ddd7146cf674c9d36918d8f21b92b8ac",
+      "role": "failure boundary/no-retry readback"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-current-linux-eight-actual-20261018/README.md",
+      "bytes": 1044,
+      "sha256": "773e078061b163fea9eb0149ae05a2a5b9320057b685a7461dc7c08666c41060",
+      "role": "complete manifest-listed Linux run artifact"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-current-linux-eight-actual-20261018/container-inspect.json",
+      "bytes": 16256,
+      "sha256": "e2a98efb919d66d6c0e039e6ff34673b10e362c02c2a1010e1f7eeeca2641e67",
+      "role": "complete manifest-listed Linux run artifact"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-current-linux-eight-actual-20261018/container-summary.json",
+      "bytes": 1966,
+      "sha256": "4e3ab8e150e998be0995510fe111b74f594742e5dc677074224bab1c340b3803",
+      "role": "complete manifest-listed Linux run artifact"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-current-linux-eight-actual-20261018/docker-monitor.jsonl",
+      "bytes": 18998,
+      "sha256": "90f0a23c3d9e0da99ed30a6e36bc83f5776f132b90169defd44c74abc617fa5c",
+      "role": "complete manifest-listed Linux run artifact"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-current-linux-eight-actual-20261018/docker-run.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete manifest-listed Linux run artifact"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-current-linux-eight-actual-20261018/docker-run.stdout.txt",
+      "bytes": 6173,
+      "sha256": "a391aa843430111bc99171b1e6ed1e9d8f052972f0bc9b3fe6b54aae53615afd",
+      "role": "complete manifest-listed Linux run artifact"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-current-linux-eight-actual-20261018/execution-argv.json",
+      "bytes": 4780,
+      "sha256": "74dc00a0fe8aa2958fb97b5743c2a0291788a7eea23064eeb2f8c03e19160029",
+      "role": "complete manifest-listed Linux run artifact"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-current-linux-eight-actual-20261018/execution-result.json",
+      "bytes": 4419,
+      "sha256": "20633776ea3c369463fd5d4f76e3922eab3a2b000ce536cd002549a8e77cd43e",
+      "role": "complete manifest-listed Linux run artifact"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-current-linux-eight-actual-20261018/failure-reconciliation.json",
+      "bytes": 6355,
+      "sha256": "73be4b25e6a35b0a2eb06d288c98afd1ddd7146cf674c9d36918d8f21b92b8ac",
+      "role": "complete manifest-listed Linux run artifact"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-current-linux-eight-actual-20261018/packet-manifest.json",
+      "bytes": 1948,
+      "sha256": "3a0c0543ea7fe42348cdfd903d9e24d1ef185d53fd2d96c1673a45b617b53323",
+      "role": "complete manifest-listed Linux run artifact"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-current-linux-eight-actual-20261018/preflight.json",
+      "bytes": 5141,
+      "sha256": "7c6034c2028e13c5403b504cfbc1f91df6cf1308174e81e284d34cb8c4f00e3d",
+      "role": "complete manifest-listed Linux run artifact"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-current-linux-eight-actual-20261018/recipe-reference.json",
+      "bytes": 5420,
+      "sha256": "9d4f65edd2057c73c31bcd06e653bef2d790034cf55b02fa9ffa3605b9bb98c3",
+      "role": "complete manifest-listed Linux run artifact"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-current-linux-eight-actual-20261018/root-grant.txt",
+      "bytes": 1312,
+      "sha256": "989efa08ae70feb6e14b1dcbc2d75af57049c65ff1b2b914476f910ff9ce9bb2",
+      "role": "complete manifest-listed Linux run artifact"
+    }
+  ],
+  "limits": [
+    "One focused Linux container run; not full project pytest, project-default Linux, C05/full15, or G closure.",
+    "Seven passes do not make the eight-test profile green.",
+    "No retry or cleanup occurred."
+  ],
+  "next_check": "If Linux semantics remain in scope, use a checkout outside the selected temporary base and separately reviewed project-default Linux profile.",
+  "G_acceptance": false,
+  "closure_ids": [],
+  "predicate_provenance": [
+    {
+      "predicate": "source frame and bundled file hashes",
+      "classification": "recomputed",
+      "basis": "Preflight and ten-file post-run hash readback."
+    },
+    {
+      "predicate": "test summary/exit",
+      "classification": "independently_reconciled",
+      "basis": "Complete stdout, failure reconciliation and return code agree."
+    },
+    {
+      "predicate": "project-default Linux acceptance",
+      "classification": "not_established",
+      "basis": "Focused /tmp-staged container profile with plugin autoload disabled."
+    }
+  ]
+}

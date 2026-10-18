@@ -1,0 +1,165 @@
+{
+  "schema": "polisyos.e02.actual_test_verification_receipt.v1",
+  "record_type": "actual_test_verification_receipt",
+  "status": "completed_controlled_sourceview_attempt_red",
+  "identity": "n11-r8-semantic-controlled-sourceview-attempt-20261018",
+  "proposal_not_adjudicated": true,
+  "relationship_to_source_commits": [],
+  "source_frame": {
+    "kind": "controlled_sourceview",
+    "root": "/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/n11-r8-style-20261018-01/sourceview",
+    "qualification": "This staged sourceview is not a run against current canonical HEAD; no commit identity is inferred from its path."
+  },
+  "profile": {
+    "scope": "One exact controlled-sourceview semantic attempt; no canonical adoption, external authority, or G acceptance.",
+    "requested_profile_case_count": 21,
+    "observed_junit_summary": {
+      "cases": 21,
+      "passed": 14,
+      "failed": 6,
+      "errors": 1,
+      "skipped": 0
+    },
+    "summary_basis": "Child runtime result and outer supervisor report 14 passed, 6 failed, 1 errored in the requested 21-case profile.",
+    "whole_selected_modules": false
+  },
+  "property_vs_measurement": {
+    "property": "N11 integrity/authority import-closure behavior, including defaults mutation and exact source-path proof.",
+    "measured_by": "One granted sourceview attempt with the staged observer payloads and child semantic test result.",
+    "divergent_case_or_boundary": "Snapshot witness did not pass, two temporary external aliases lack pinned source counterparts, and requested tests were 14/6/1. This result is neither current canonical nor a product-wide finding."
+  },
+  "execution": {
+    "argv": [
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+      "-B",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-r8-semantic-profile-r8-20261018/run_n11_r8_semantic_profile_r8.py",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-r8-semantic-profile-r8-20261018/runtime-request-r8.json",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-r8-semantic-profile-r8-20261018/root-runtime-grant-r8.json"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/n11-r8-style-20261018-01/sourceview/policy-engine",
+    "return_code": 1,
+    "complete": true,
+    "status": "command_failed",
+    "aborted_reason": null,
+    "wall_seconds": 25.923926749965176,
+    "max_sampled_process_tree_rss_bytes": 1041186816,
+    "minimum_sampled_disk_free_bytes": 14569652224,
+    "sample_count": 48,
+    "grant": {
+      "control_mode": "semantic_21_case_execution",
+      "expected_case_count": 21,
+      "expected_test_body_count": 21,
+      "expected_unique_test_functions": 18,
+      "inventory_sha256": "b9decaebf610d3641baa9a29c483c3826f7b4ccab6ebdfcfbec890a4be5dc67e",
+      "kernel_hard_limit": false,
+      "minimum_free_bytes": 1073741824,
+      "one_attempt": true,
+      "request_sha256": "6a7f3590943bbdafb761220f88702a5fae0cb75c49fc68cafaab03b36e90e9ce",
+      "sampled_process_tree_rss_limit_bytes": 2147483648,
+      "schema": "e02.n11_r8_control_grant.v2",
+      "sourceview_root": "/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/n11-r8-style-20261018-01/sourceview",
+      "status": "AUTHORIZED_EXACTLY_ONCE",
+      "wall_limit_seconds": 180
+    }
+  },
+  "failure_observations": {
+    "observed_junit_summary": {
+      "cases": 21,
+      "passed": 14,
+      "failed": 6,
+      "errors": 1,
+      "skipped": 0
+    },
+    "categories": [
+      "JUnit semantic reconciliation failed with non-passing requested cases.",
+      "Pre-test default-mutation snapshot capture did not pass; the snapshot witness is absent/incomplete.",
+      "Two temporary external alias module families have no pinned source counterpart.",
+      "Several selected phases/tests failed or errored; detailed findings remain in the original external runtime result."
+    ],
+    "full_error_list_reference": {
+      "path": "/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/n11-r8-style-20261018-01/run-semantic-r8/runtime-result.json",
+      "bytes": 6325195,
+      "sha256": "ef13e5ea4783d145b3c1180e648182e3ebfe337ab59284aba9d5b4052cf0ebc1"
+    }
+  },
+  "deciding_outputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-r8-r8-semantic-actual-20261018/outer-result.json",
+      "bytes": 5743,
+      "sha256": "1ca02c53ca4b3255d3a4a398d1cdab5f96ff35bc8f131b98a4b478eae84a906f",
+      "role": "outer supervisor result"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-r8-r8-semantic-actual-20261018/parent.stdout.txt",
+      "bytes": 3877,
+      "sha256": "d0abe0ec57fa741733dd598b6a7139f3f0ba2995803b7dbb6b8c79132e102e7b",
+      "role": "complete parent stdout"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-r8-r8-semantic-actual-20261018/parent.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "role": "complete parent stderr"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-r8-r8-semantic-actual-20261018/controller-events.jsonl",
+      "bytes": 1158,
+      "sha256": "f9f94e02b10339b3ca53a35a3b9af4b54c0700e697b88afa125ba41a930e1a71",
+      "role": "controller lifecycle"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-r8-r8-semantic-actual-20261018/phase-output.jsonl",
+      "bytes": 1092,
+      "sha256": "63dde6b6228560060e9cc8bfe8d715118ffe37ee775eaf476dd33762f98f1d3b",
+      "role": "phase output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-r8-r8-semantic-actual-20261018/process-tree.jsonl",
+      "bytes": 197807,
+      "sha256": "3a9c6296e3986fad5d980dd3a09d417c8b511b0d16522e60e42ad5814582d102",
+      "role": "process tree"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-r8-r8-semantic-actual-20261018/staging-and-grant.json",
+      "bytes": 4755,
+      "sha256": "f19bc26cfdd9d15f9857523a932506ca2fce583b8e20b61a59689db3aaa5e8d7",
+      "role": "observer payload pins and exact grant"
+    },
+    {
+      "path": "/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/n11-r8-style-20261018-01/run-semantic-r8/runtime-result.json",
+      "bytes": 6325195,
+      "sha256": "ef13e5ea4783d145b3c1180e648182e3ebfe337ab59284aba9d5b4052cf0ebc1",
+      "role": "external sourceview runtime result retained in visualization state; not copied"
+    }
+  ],
+  "limits": [
+    "Bounded controlled-sourceview red attempt only; no current canonical, external authority, or G acceptance.",
+    "The external runtime result is retained at its original 6.3 MB path; not copied.",
+    "Missing fixture pins/snapshot failures are not promoted to generalized product defects absent current-source replay."
+  ],
+  "next_check": "Repair observer/sourceview provenance and snapshot witness in a separately reviewed packet; only a new exact source-bound run can support current-canonical claims.",
+  "G_acceptance": false,
+  "closure_ids": [],
+  "predicate_provenance": [
+    {
+      "predicate": "outer/inner status and child artifact hash",
+      "classification": "independently_reconciled",
+      "basis": "Outer result exact path/hash/bytes compared with retained external runtime artifact."
+    },
+    {
+      "predicate": "sourceview currentness",
+      "classification": "not_established",
+      "basis": "Controlled staged sourceview has no current canonical frame binding in this receipt."
+    },
+    {
+      "predicate": "requested test cases",
+      "classification": "consumer_asserted",
+      "basis": "Captured supervisor/child JUnit reconciliation is red."
+    },
+    {
+      "predicate": "G acceptance or closure",
+      "classification": "not_established",
+      "basis": "None claimed."
+    }
+  ]
+}

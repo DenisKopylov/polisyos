@@ -984,6 +984,38 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/actual-trust-runner-eight-at-3c51aa7afbbab.json",
       "sha256": "c7b6f03a9355296f2028d79fb415111055818e65531637936d891891f60df7af"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-2e4c0dbb6848.json",
+      "sha256": "e5e00a0d5f2657f5b9266b7ff20da29d3f9dcaecba88bf7314298724b278c082"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/actual-monetary-r7-typescript-at-f21fa93bcfffa.json",
+      "sha256": "b3a4bdf29c69a2699f445e9d91298fbb80e819754b36ed90902ede69b25d85d4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/actual-monetary-r7-python-at-2e4c0dbb6848.json",
+      "sha256": "719cf140c592431fd00aa0fe74d906ab4a956513d33e4d435a9967708d206bfc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/actual-v5-current-eleven-modules-at-3c51aa7afbbab.json",
+      "sha256": "62a3ffae1efd27e8d05e0541bad048a773dc822bf7c758dd80cb858be05d2bd8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/actual-b214-runtime-removal-controls-r2-at-3c51aa7afbbab.json",
+      "sha256": "5cc2b325b878f6207e513fa3ff5fecd1ec1f578556305b52857ec37fad6628dd"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/actual-n11-r8-semantic-sourceview-attempt-20261018.json",
+      "sha256": "7c31543d9058ed472f1cfc6b70264fc4cc33bc35641b458129b712ba2dcc5e0a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/actual-trust-current-linux-eight-at-3c51aa7afbbab.json",
+      "sha256": "d5e230f90e915e461840bcd3694dd6a333e8e355f786446534b82b6736474661"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/b108-cross-measurement-contract-r3-G-choice-20261018.json",
+      "sha256": "acb13fd24d57a1be24e25d9c475e2d8f4d71d32a875996bbf0bdd89f812d50ae"
     }
   ],
   "canonical_denominator_recomputed": {

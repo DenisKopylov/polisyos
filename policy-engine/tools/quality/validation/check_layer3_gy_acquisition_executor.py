@@ -24,6 +24,7 @@ from polisyos.core.contracts.control import DataNeed, DataResolveRequest
 from polisyos.data_forge import read_api as data_forge_read_api
 from polisyos.fabric.data_plane import (
     AppendOnlyEvidenceJournal,
+    EvidenceJournalError,
     canonical_json_bytes,
     content_sha256,
 )
@@ -52,6 +53,7 @@ from tools.quality.validation.layer3_gy_acquisition_executor import (
     DEFAULT_TARGET_AUTHORITY_PROVISION,
     DEFAULT_TARGET_AUTHORITY_REGISTRY,
     DEFAULT_TARGET_HARNESS_RECEIPT,
+    D6MetadataProbeOwner,
     D6RouteSelection,
     MetadataProbeExecutionEvidence,
     bytes_sha256,
@@ -1202,6 +1204,70 @@ def _stream_file_sha256(path: Path) -> str:
     return f"sha256:{digest.hexdigest()}"
 
 
+def _require_current_metadata_journal_refs(
+    evidence: MetadataProbeExecutionEvidence,
+    *,
+    journal_path: Path,
+) -> None:
+    refs = (
+        evidence.request_ref,
+        evidence.terminal.request_ref,
+        evidence.raw_evidence_ref,
+        evidence.terminal.raw_evidence_ref,
+        *(
+            (
+                evidence.transport_trace.request_ref,
+                evidence.transport_trace.transport_attempt_ref,
+                *evidence.transport_trace.heartbeat_refs,
+                evidence.transport_trace.raw_evidence_ref,
+            )
+            if evidence.transport_trace is not None
+            else ()
+        ),
+    )
+    expected = Path(journal_path).as_posix()
+    for ref in refs:
+        if ref is not None and ref.journal_path != expected:
+            raise EvidenceJournalError("journal_event_ref_unresolved", ref.event_sha256)
+
+
+def _reopen_current_d6_primary_metadata_evidence(
+    *,
+    route: D6RouteSelection,
+    catalog_path: Path,
+    journal_path: Path,
+    cas_root: Path,
+) -> MetadataProbeExecutionEvidence:
+    """Reopen R3 from its current owner and require its exact persisted payload."""
+
+    try:
+        stored = MetadataProbeExecutionEvidence.model_validate_json(
+            (POLICY_ENGINE_ROOT / DEFAULT_D6_PRIMARY_METADATA_EVIDENCE).read_bytes()
+        )
+        _require_current_metadata_journal_refs(stored, journal_path=journal_path)
+        owner = D6MetadataProbeOwner.model_validate_json(
+            (POLICY_ENGINE_ROOT / DEFAULT_D6_PRIMARY_METADATA_OWNER).read_bytes()
+        )
+    except (OSError, ValueError) as exc:
+        raise RuntimeError("n13b_reentry_source_artifact_invalid") from exc
+    evidence = derive_d6_metadata_probe_execution_evidence(
+        owner=owner,
+        selection=route,
+        journal_path=journal_path,
+        cas_root=cas_root,
+        baseline_path=catalog_path,
+    )
+    _check_payloads(
+        {
+            DEFAULT_D6_PRIMARY_METADATA_EVIDENCE: canonical_json_bytes(
+                evidence.model_dump(mode="json")
+            )
+        },
+        label="d6_metadata_evidence",
+    )
+    return evidence
+
+
 def _recompute_n13b_reentry_trace(
     *,
     catalog_path: Path,
@@ -1211,9 +1277,6 @@ def _recompute_n13b_reentry_trace(
         route = D6RouteSelection.model_validate_json(
             (POLICY_ENGINE_ROOT / DEFAULT_D6_ROUTE_SELECTION).read_bytes()
         )
-        primary = MetadataProbeExecutionEvidence.model_validate_json(
-            (POLICY_ENGINE_ROOT / DEFAULT_D6_PRIMARY_METADATA_EVIDENCE).read_bytes()
-        )
         acceptance = AcceptanceCaseReceipt.model_validate_json(
             (POLICY_ENGINE_ROOT / DEFAULT_ACCEPTANCE_CASE).read_bytes()
         )
@@ -1222,6 +1285,12 @@ def _recompute_n13b_reentry_trace(
     baseline_sha = _stream_file_sha256(Path(catalog_path))
     if baseline_sha != route.baseline_sha256:
         raise RuntimeError("n13b_reentry_baseline_drift")
+    primary = _reopen_current_d6_primary_metadata_evidence(
+        route=route,
+        catalog_path=Path(catalog_path),
+        journal_path=POLICY_ENGINE_ROOT / DEFAULT_RAW_JOURNAL,
+        cas_root=POLICY_ENGINE_ROOT / DEFAULT_CAS_ROOT,
+    )
     substrate = json.loads(Path(substrate_path).read_text(encoding="utf-8"))
     substrate_projection = _substrate_slot_projection(
         substrate,

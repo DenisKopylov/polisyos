@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+import importlib.util
 import json
-import shutil
 from pathlib import Path
 from typing import Any
 
@@ -17,8 +17,171 @@ _EMPTY_WDI_PAGE = (
 
 
 def _write_json(path: Path, value: object) -> Path:
+    path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(value), encoding="utf-8")
     return path
+
+
+def _seed_synthetic_r1(
+    *,
+    journal_path: Path,
+    cas_root: Path,
+    request_dataset_id: str = "GC.BAL.CASH.CD",
+) -> Any:
+    """Create a complete, temp-owned prior data attempt and reopen its R1 receipt."""
+
+    from polisyos.core.artifacts import ArtifactWriteOptions, FileSystemCAS
+    from polisyos.fabric.connectors.profiles.models import SourceProfile
+    from polisyos.fabric.data_plane import (
+        AppendOnlyEvidenceJournal,
+        derive_live_http_budget,
+    )
+
+    attempt_id = "fixture-r1-government-balance-001"
+    journal = AppendOnlyEvidenceJournal(journal_path)
+    request_ref = journal.append_request(
+        attempt_id=attempt_id,
+        request={
+            "call_class": "data_fetch",
+            "connector_id": "worldbank.wdi",
+            "profile_id": "worldbank_wdi",
+            "request_dataset_id": request_dataset_id,
+            "variable_id": request_dataset_id,
+            "schema_contract": {"columns": ["country_code", "year", "value"]},
+        },
+    )
+    params = {"format": "json", "page": "1", "per_page": "1"}
+    transport_ref = journal.append_transport_attempt(
+        attempt_id=attempt_id,
+        request_ref=request_ref,
+        connector_id="worldbank.wdi",
+        url=f"https://api.worldbank.org/v2/indicator/{request_dataset_id}",
+        params=params,
+    )
+    journal.append_heartbeat(
+        attempt_id=attempt_id,
+        phase="attempt_started",
+        progress_bytes=0,
+        elapsed_seconds=6.945391583998571,
+    )
+    profile = SourceProfile(
+        profile_id="worldbank_wdi",
+        display_name="World Bank WDI fixture",
+        connector_family="worldbank",
+        base_url="https://api.worldbank.org/v2",
+        timeout_seconds=15,
+    )
+    body = _EMPTY_WDI_PAGE
+    raw_ref = journal.append_raw_evidence(
+        attempt_id=attempt_id,
+        request_ref=request_ref,
+        transport_ref=transport_ref,
+        payload=body,
+        status_code=200,
+        response_headers={"content-type": "application/json"},
+        budget=derive_live_http_budget(
+            profile,
+            max_response_bytes=16_384,
+            max_decompressed_bytes=16_384,
+        ),
+    )
+    FileSystemCAS(cas_root, ownership_enforced=False).put_bytes(
+        body,
+        ArtifactWriteOptions(
+            kind="fabric.acquisition.raw_evidence",
+            media_type="application/json",
+        ),
+    )
+    journal.append_failure_terminal(
+        attempt_id=attempt_id,
+        request_ref=request_ref,
+        failure_code="r1_fixture_response",
+        raw_evidence_ref=raw_ref,
+    )
+    return executor.derive_r1_forensic_receipt(
+        journal_path=journal_path,
+        cas_root=cas_root,
+        request_dataset_id=request_dataset_id,
+    )
+
+
+def _synthetic_acceptance_case(tmp_path: Path) -> Any:
+    fixture_path = Path(__file__).with_name("_layer3_gy_n13b_acceptance_fixtures.py")
+    spec = importlib.util.spec_from_file_location(
+        "_layer3_gy_n13b_acceptance_fixtures_for_reentry",
+        fixture_path,
+    )
+    if spec is None or spec.loader is None:
+        raise RuntimeError("layer3_gy_n13b_acceptance_fixture_module_unresolved")
+    fixture_module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(fixture_module)
+    return fixture_module.build_synthetic_acceptance_case(tmp_path)
+
+
+def _fake_metadata_response(owner: Any, body: bytes) -> Any:
+    from polisyos.fabric.connectors.sources.http_base import _raw_http_response_observer
+    from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
+
+    async def fake_metadata(
+        _self: WorldBankConnector,
+        handle: Any,
+        _indicator_id: str,
+    ) -> tuple[Any, dict[str, str], bytes]:
+        observer = _raw_http_response_observer(handle)
+        assert observer is not None
+        params = {str(key): str(value) for key, value in owner.request["params"].items()}
+        endpoint = str(owner.request["endpoint_url"])
+        observer.before_request("worldbank.wdi", endpoint, params)
+        observer.on_response_headers(
+            "worldbank.wdi",
+            endpoint,
+            params,
+            200,
+            {"Content-Type": "application/json"},
+        )
+        observer.on_body_progress("worldbank.wdi", endpoint, params, len(body))
+        observer.on_raw_response(
+            "worldbank.wdi",
+            endpoint,
+            params,
+            200,
+            {"Content-Type": "application/json"},
+            body,
+        )
+        return json.loads(body), {"Content-Type": "application/json"}, body
+
+    return fake_metadata
+
+
+def _write_model(root: Path, relative: Path, value: Any) -> Path:
+    from polisyos.fabric.data_plane import canonical_json_bytes
+
+    path = root / relative
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(canonical_json_bytes(value.model_dump(mode="json")))
+    return path
+
+
+def _cas_blob_path(cas_root: Path, artifact_id: str) -> Path:
+    artifact_hex = artifact_id.removeprefix("sha256:")
+    return (
+        cas_root
+        / "artifacts/sha256"
+        / artifact_hex[:2]
+        / artifact_hex[2:4]
+        / f"{artifact_hex}.blob"
+    )
+
+
+def _mutate_raw_journal_bytes(journal_bytes: bytes, evidence: Any) -> bytes:
+    ref = evidence.raw_evidence_ref
+    assert ref is not None
+    raw_line = journal_bytes[ref.byte_offset : ref.byte_offset + ref.byte_length]
+    marker = b'"bounded_body_base64":"'
+    mutation_offset = ref.byte_offset + raw_line.index(marker) + len(marker)
+    changed = bytearray(journal_bytes)
+    changed[mutation_offset] = ord("A") if changed[mutation_offset] != ord("A") else ord("B")
+    return bytes(changed)
 
 
 def _synthetic_d6_transform_sources() -> tuple[dict[str, object], dict[str, object]]:
@@ -618,21 +781,9 @@ def test_metadata_one_shot_journals_raw_before_classification_and_updates_d3(
     from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
 
     catalog, _census, _substrate = selection_inputs
-    repo_root = Path(__file__).resolve().parents[3]
-    source_journal = (
-        repo_root / "architecture/policy_design_case/layer3_gy_acquisition_raw_journal.jsonl"
-    )
-    source_cas = repo_root / "architecture/policy_design_case/layer3_gy_acquisition_cas"
     journal = tmp_path / "journal.jsonl"
     cas_root = tmp_path / "cas"
-    shutil.copy2(source_journal, journal)
-    shutil.copytree(source_cas, cas_root)
-    r1 = executor.derive_r1_forensic_receipt(
-        journal_path=journal,
-        cas_root=cas_root,
-        request_dataset_id="GC.BAL.CASH.CD",
-    )
-    journal.write_bytes(journal.read_bytes()[: r1.journal_prefix_byte_length])
+    r1 = _seed_synthetic_r1(journal_path=journal, cas_root=cas_root)
     owner = executor.derive_metadata_probe_owner(
         r1_receipt=r1,
         baseline_path=catalog,
@@ -702,6 +853,120 @@ def test_metadata_one_shot_journals_raw_before_classification_and_updates_d3(
     assert update.metadata_attempt.raw_evidence_event_sha256 == (
         evidence.raw_evidence_ref.event_sha256
     )
+
+    from polisyos.core.artifacts import ArtifactIntegrityError
+    from polisyos.fabric.data_plane import EvidenceJournalError, canonical_json_bytes
+    from tools.quality.validation.acquisition_admission_contract import (
+        _require_exact_artifact_payload,
+    )
+
+    evidence_path = tmp_path / "r2-evidence.json"
+    carrier_path = tmp_path / "carrier-update.json"
+    evidence_payload = canonical_json_bytes(evidence.model_dump(mode="json"))
+    evidence_path.write_bytes(evidence_payload)
+    carrier_path.write_bytes(canonical_json_bytes(update.model_dump(mode="json")))
+    _require_exact_artifact_payload(evidence_path, evidence, label="metadata_evidence")
+    _require_exact_artifact_payload(carrier_path, update, label="metadata_evidence")
+
+    declared_journal = journal.read_bytes()
+    assert evidence.raw_evidence_ref is not None
+    raw_start = evidence.raw_evidence_ref.byte_offset
+    raw_line = declared_journal[raw_start : raw_start + evidence.raw_evidence_ref.byte_length]
+    marker = b'"bounded_body_base64":"'
+    marker_offset = raw_line.index(marker) + len(marker)
+    mutation_offset = raw_start + marker_offset
+    changed = bytearray(declared_journal)
+    changed[mutation_offset] = ord("A") if changed[mutation_offset] != ord("A") else ord("B")
+    journal.write_bytes(changed)
+    with pytest.raises(EvidenceJournalError) as journal_error:
+        executor.derive_metadata_probe_execution_evidence(
+            owner=owner,
+            r1_receipt=r1,
+            journal_path=journal,
+            cas_root=cas_root,
+            baseline_path=catalog,
+        )
+    assert journal_error.value.code == "live_terminal_raw_link_invalid"
+    assert evidence_path.read_bytes() == evidence_payload
+
+    journal.write_bytes(declared_journal)
+    assert evidence.raw_artifact_id is not None
+    artifact_hex = evidence.raw_artifact_id.removeprefix("sha256:")
+    blob_path = (
+        cas_root
+        / "artifacts/sha256"
+        / artifact_hex[:2]
+        / artifact_hex[2:4]
+        / f"{artifact_hex}.blob"
+    )
+    declared_blob = blob_path.read_bytes()
+    changed_blob = bytearray(declared_blob)
+    changed_blob[0] ^= 1
+    blob_path.write_bytes(changed_blob)
+    with pytest.raises(ArtifactIntegrityError):
+        executor.derive_metadata_probe_execution_evidence(
+            owner=owner,
+            r1_receipt=r1,
+            journal_path=journal,
+            cas_root=cas_root,
+            baseline_path=catalog,
+        )
+    assert evidence_path.read_bytes() == evidence_payload
+
+
+def test_rawless_terminal_refuses_stale_classification(
+    selection_inputs: tuple[Path, Path, Path],
+    tmp_path: Path,
+) -> None:
+    from polisyos.fabric.data_plane import AppendOnlyEvidenceJournal, canonical_json_bytes
+
+    catalog, _census, _substrate = selection_inputs
+    journal = tmp_path / "rawless-journal.jsonl"
+    cas_root = tmp_path / "rawless-cas"
+    r1 = _seed_synthetic_r1(journal_path=journal, cas_root=cas_root)
+    owner = executor.derive_metadata_probe_owner(
+        r1_receipt=r1,
+        baseline_path=catalog,
+        fixture_root=tmp_path / "rawless-replay-fixtures",
+    )
+    attempt_id = owner.authorization.attempt_id
+    journal_owner = AppendOnlyEvidenceJournal(journal)
+    request_ref = journal_owner.append_request(attempt_id=attempt_id, request=owner.request)
+    journal_owner.append_failure_terminal(
+        attempt_id=attempt_id,
+        request_ref=request_ref,
+        failure_code="metadata_raw_response_missing",
+    )
+
+    events = [json.loads(line) for line in journal.read_text(encoding="utf-8").splitlines()]
+    terminal_index = next(
+        index
+        for index, event in enumerate(events)
+        if event.get("event_kind") == "live_attempt_terminal"
+        and event.get("attempt_id") == attempt_id
+    )
+    terminal_event = events[terminal_index]
+    stale_classification = {
+        "sequence": terminal_event["sequence"],
+        "event_kind": "classification",
+        "attempt_id": attempt_id,
+        "evidence_event_sha256": "sha256:" + "0" * 64,
+        "classification": {"disposition": "carrier_current"},
+    }
+    events.insert(terminal_index, stale_classification)
+    for sequence, event in enumerate(events, start=1):
+        event["sequence"] = sequence
+    journal.write_bytes(b"\n".join(canonical_json_bytes(event) for event in events) + b"\n")
+
+    with pytest.raises(executor.AcquisitionSelectionError) as raised:
+        executor.derive_metadata_probe_execution_evidence(
+            owner=owner,
+            r1_receipt=r1,
+            journal_path=journal,
+            cas_root=cas_root,
+            baseline_path=catalog,
+        )
+    assert raised.value.code == "metadata_classification_without_raw"
 
 
 def test_second_attempt_gets_a_distinct_exact_harness_receipt(
@@ -932,69 +1197,277 @@ def test_d6_route_selection_keeps_frozen_v1_receipt_parseable() -> None:
     assert route.selection_policy is None
 
 
-def test_d6_metadata_owner_binds_route_and_paid_latency(
+def test_current_metadata_receipts_reopen_through_contract_and_reentry(
     selection_inputs: tuple[Path, Path, Path],
     tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    from polisyos.core.artifacts import ArtifactIntegrityError
+    from polisyos.fabric.connectors.sources.world_bank import WorldBankConnector
+    from polisyos.fabric.data_plane import EvidenceJournalError
+    from polisyos.runtime.quality.data_state_substrate import L1VariableAvailability
+    from tools.quality.validation import (
+        acquisition_admission_contract as admission,
+    )
+    from tools.quality.validation import (
+        layer3_gy_n13b_acquisition_contract as contract_facade,
+    )
+    from tools.quality.validation.acquisition_contract_support import (
+        DEFAULT_CARRIER_LIVENESS,
+        DEFAULT_D6_ROUTE,
+        DEFAULT_N13B_CAS,
+        DEFAULT_N13B_JOURNAL,
+        DEFAULT_R2_METADATA_EVIDENCE,
+        DEFAULT_R3_METADATA_EVIDENCE,
+        AdmissionDependencies,
+    )
+    from tools.quality.validation.layer3_gy_n13b_acceptance import DEFAULT_ACCEPTANCE_CASE
+    from tools.quality.validation.layer3_gy_n13b_reentry import N7CatalogResolutionProjection
+
     catalog, census, substrate = selection_inputs
-    con = duckdb.connect(str(catalog))
+    connection = duckdb.connect(str(catalog))
     try:
-        con.execute(
+        connection.execute(
             "UPDATE ds_datasets SET themes = ? WHERE id = 'percent-dataset'",
             [json.dumps(["WDI Database Archives"])],
         )
-        con.execute(
+        connection.execute(
             "INSERT INTO ds_datasets VALUES "
             "('gdp-dataset', 'worldbank', 'World Bank', 'GDP (current US$)', "
             "'Gross domestic product in current United States dollars.', NULL, NULL, "
             "'CC-BY-4.0', FALSE, 'transport_ready', ?)",
             [json.dumps(["World Development Indicators"])],
         )
-        con.execute(
+        connection.execute(
             "INSERT INTO ds_distributions VALUES "
             "('gdp-dist', 'gdp-dataset', 'https://api.worldbank.org/v2', "
             "'worldbank.wdi', 'worldbank_wdi', 'fixture', ?, 1.0, TRUE)",
             [json.dumps({"indicator_id": "NY.GDP.MKTP.CD"})],
         )
-        con.execute(
+        connection.execute(
             "INSERT INTO ds_metric_bindings VALUES "
             "('synthetic_scale_metric', 'gdp-dataset', 'gdp-dist', 'worldbank.wdi', "
             "'worldbank_wdi', 'NY.GDP.MKTP.CD', 0.87, '{}', 'transport_ready')"
         )
     finally:
-        con.close()
-    repo_root = Path(__file__).resolve().parents[3]
-    r1 = executor.derive_r1_forensic_receipt(
-        journal_path=(
-            repo_root / "architecture/policy_design_case/layer3_gy_acquisition_raw_journal.jsonl"
-        ),
-        cas_root=repo_root / "architecture/policy_design_case/layer3_gy_acquisition_cas",
-        request_dataset_id="GC.BAL.CASH.CD",
+        connection.close()
+
+    current_root = tmp_path / "current-consumer-root"
+    journal = current_root / DEFAULT_N13B_JOURNAL
+    cas_root = current_root / DEFAULT_N13B_CAS
+    r1 = _seed_synthetic_r1(journal_path=journal, cas_root=cas_root)
+    r2_owner = executor.derive_metadata_probe_owner(
+        r1_receipt=r1,
+        baseline_path=catalog,
+        fixture_root=tmp_path / "r2-replay-fixtures",
     )
+    r2_body = (
+        b'[{"page":1,"pages":1,"per_page":"1","total":1},'
+        b'[{"id":"GC.BAL.CASH.CD","name":"Cash balance",'
+        b'"source":{"id":"2","value":"World Development Indicators"},'
+        b'"unit":"current US$"}]]'
+    )
+    monkeypatch.setattr(
+        WorldBankConnector,
+        "fetch_indicator_metadata_raw",
+        _fake_metadata_response(r2_owner, r2_body),
+    )
+    checker._execute_metadata_probe(owner=r2_owner, journal_path=journal, cas_root=cas_root)
+    r2_evidence, carrier_update = executor.derive_metadata_probe_execution_evidence(
+        owner=r2_owner,
+        r1_receipt=r1,
+        journal_path=journal,
+        cas_root=cas_root,
+        baseline_path=catalog,
+    )
+    carrier_path = _write_model(current_root, DEFAULT_CARRIER_LIVENESS, carrier_update)
+
     transform_registry, selection_policy = _synthetic_d6_transform_sources()
-    selection = executor.derive_d6_route_selection(
+    route = executor.derive_d6_route_selection(
         catalog_path=catalog,
         census_path=census,
         substrate_path=substrate,
         r1_receipt=r1,
-        carrier_liveness_path=(
-            repo_root / "architecture/policy_design_case/"
-            "layer3_gy_n13a_worldbank_government_balance_carrier_liveness.json"
-        ),
+        carrier_liveness_path=carrier_path,
         transform_registry_source=transform_registry,
         selection_policy_source=selection_policy,
     )
-
-    owner = executor.derive_d6_metadata_probe_owner(
-        selection=selection,
+    r3_owner = executor.derive_d6_metadata_probe_owner(
+        selection=route,
         r1_receipt=r1,
         baseline_path=catalog,
-        fixture_root=tmp_path / "missing-replay-fixtures",
+        fixture_root=tmp_path / "r3-replay-fixtures",
     )
+    r3_body = (
+        b'[{"page":1,"pages":1,"per_page":"1","total":1},'
+        b'[{"id":"GC.BAL.CASH.GD.ZS","name":"Fiscal balance",'
+        b'"source":{"id":"2","value":"World Development Indicators"},'
+        b'"unit":"% of GDP"}]]'
+    )
+    monkeypatch.setattr(
+        WorldBankConnector,
+        "fetch_indicator_metadata_raw",
+        _fake_metadata_response(r3_owner, r3_body),
+    )
+    checker._execute_metadata_probe(owner=r3_owner, journal_path=journal, cas_root=cas_root)
+    r3_evidence = executor.derive_d6_metadata_probe_execution_evidence(
+        owner=r3_owner,
+        selection=route,
+        journal_path=journal,
+        cas_root=cas_root,
+        baseline_path=catalog,
+    )
+    assert r2_evidence.raw_evidence_ref is not None
+    assert r3_evidence.raw_evidence_ref is not None
+    assert r2_evidence.raw_evidence_ref.journal_path == journal.as_posix()
+    assert r3_evidence.raw_evidence_ref.journal_path == journal.as_posix()
 
-    assert owner.route_selection_sha256 == selection.selection_sha256
-    assert owner.request["request_variables"] == ["GC.BAL.CASH.GD.ZS"]
-    assert owner.authorization.budget.timeout_cap_seconds == 14.0
-    assert owner.authorization.call_class == "indicator_metadata"
-    assert owner.harness.actual_network_call_count == 0
-    assert owner.harness.safe_dry_run_passed is True
+    r2_path = _write_model(current_root, DEFAULT_R2_METADATA_EVIDENCE, r2_evidence)
+    route_path = _write_model(current_root, DEFAULT_D6_ROUTE, route)
+    r3_path = _write_model(current_root, executor.DEFAULT_D6_PRIMARY_METADATA_EVIDENCE, r3_evidence)
+    _write_model(current_root, executor.DEFAULT_METADATA_PROBE_OWNER, r2_owner)
+    _write_model(current_root, executor.DEFAULT_D6_PRIMARY_METADATA_OWNER, r3_owner)
+
+    dependencies = AdmissionDependencies(
+        derive_lifecycle_manifest=contract_facade.derive_lifecycle_manifest,
+        derive_metadata_probe_execution_evidence=executor.derive_metadata_probe_execution_evidence,
+        derive_d6_metadata_probe_execution_evidence=(
+            executor.derive_d6_metadata_probe_execution_evidence
+        ),
+    )
+    reopened_r2, reopened_r3 = admission._reopen_current_metadata_receipts(
+        root=current_root,
+        baseline_path=catalog,
+        r1=r1,
+        d6=route,
+        dependencies=dependencies,
+    )
+    assert reopened_r2 == r2_evidence
+    assert reopened_r3 == r3_evidence
+
+    monkeypatch.setattr(checker, "POLICY_ENGINE_ROOT", current_root)
+    reopened_reentry = checker._reopen_current_d6_primary_metadata_evidence(
+        route=route,
+        catalog_path=catalog,
+        journal_path=journal,
+        cas_root=cas_root,
+    )
+    assert reopened_reentry == r3_evidence
+
+    acceptance = _synthetic_acceptance_case(tmp_path / "synthetic-acceptance")
+    _write_model(current_root, DEFAULT_ACCEPTANCE_CASE, acceptance)
+
+    def current_availability(
+        _catalog_root: Path,
+        variable_id: str,
+        *,
+        overlay_path: Path,
+    ) -> L1VariableAvailability:
+        del overlay_path
+        return L1VariableAvailability(
+            variable_id=variable_id,
+            status="unavailable",
+            dataset_count=0,
+            metric_binding_count=0,
+            observation_count=0,
+            coverage_ref=(f"repo://fixture/dataset_catalog.duckdb#variable/{variable_id}"),
+        )
+
+    monkeypatch.setattr(checker, "_catalog_repo_root", lambda _path: tmp_path)
+    monkeypatch.setattr(checker, "l1_dcat_variable_availability", current_availability)
+    monkeypatch.setattr(
+        checker,
+        "_resolve_reentry_catalog",
+        lambda **kwargs: N7CatalogResolutionProjection(
+            target_variable=str(kwargs["target_variable"]),
+            mode="hybrid",
+            fetch_plan_count=0,
+            candidate_count=0,
+            warnings=("no_fetch_plans_resolved",),
+            fetch_plan_execution_count=0,
+        ),
+    )
+    reentry_trace = checker._recompute_n13b_reentry_trace(
+        catalog_path=catalog,
+        substrate_path=substrate,
+    )
+    assert reentry_trace.primary_metadata_evidence_sha256 == r3_evidence.evidence_sha256
+
+    original_journal = journal.read_bytes()
+    stored_receipts = {path: path.read_bytes() for path in (r2_path, r3_path)}
+    old_root = tmp_path / "old-locator-root"
+    for relative in (
+        DEFAULT_CARRIER_LIVENESS,
+        DEFAULT_D6_ROUTE,
+        DEFAULT_R2_METADATA_EVIDENCE,
+        DEFAULT_R3_METADATA_EVIDENCE,
+        executor.DEFAULT_METADATA_PROBE_OWNER,
+        executor.DEFAULT_D6_PRIMARY_METADATA_OWNER,
+        DEFAULT_ACCEPTANCE_CASE,
+    ):
+        source_path = current_root / relative
+        target_path = old_root / relative
+        target_path.parent.mkdir(parents=True, exist_ok=True)
+        target_path.write_bytes(source_path.read_bytes())
+    monkeypatch.setattr(checker, "POLICY_ENGINE_ROOT", old_root)
+    with pytest.raises(EvidenceJournalError) as old_contract_locator:
+        admission._reopen_current_metadata_receipts(
+            root=old_root,
+            baseline_path=catalog,
+            r1=r1,
+            d6=route,
+            dependencies=dependencies,
+        )
+    assert old_contract_locator.value.code == "journal_event_ref_unresolved"
+    with pytest.raises(EvidenceJournalError) as old_reentry_locator:
+        checker._recompute_n13b_reentry_trace(
+            catalog_path=catalog,
+            substrate_path=substrate,
+        )
+    assert old_reentry_locator.value.code == "journal_event_ref_unresolved"
+
+    monkeypatch.setattr(checker, "POLICY_ENGINE_ROOT", current_root)
+    for evidence in (r2_evidence, r3_evidence):
+        journal.write_bytes(_mutate_raw_journal_bytes(original_journal, evidence))
+        with pytest.raises(EvidenceJournalError):
+            admission._reopen_current_metadata_receipts(
+                root=current_root,
+                baseline_path=catalog,
+                r1=r1,
+                d6=route,
+                dependencies=dependencies,
+            )
+        with pytest.raises(EvidenceJournalError):
+            checker._recompute_n13b_reentry_trace(
+                catalog_path=catalog,
+                substrate_path=substrate,
+            )
+        assert {path: path.read_bytes() for path in stored_receipts} == stored_receipts
+        journal.write_bytes(original_journal)
+
+    for evidence, require_reentry_refusal in (
+        (r2_evidence, False),
+        (r3_evidence, True),
+    ):
+        assert evidence.raw_artifact_id is not None
+        blob_path = _cas_blob_path(cas_root, evidence.raw_artifact_id)
+        declared_blob = blob_path.read_bytes()
+        changed_blob = bytearray(declared_blob)
+        changed_blob[0] ^= 1
+        blob_path.write_bytes(changed_blob)
+        with pytest.raises(ArtifactIntegrityError):
+            admission._reopen_current_metadata_receipts(
+                root=current_root,
+                baseline_path=catalog,
+                r1=r1,
+                d6=route,
+                dependencies=dependencies,
+            )
+        if require_reentry_refusal:
+            with pytest.raises(ArtifactIntegrityError):
+                checker._recompute_n13b_reentry_trace(
+                    catalog_path=catalog,
+                    substrate_path=substrate,
+                )
+        assert {path: path.read_bytes() for path in stored_receipts} == stored_receipts
+        blob_path.write_bytes(declared_blob)

@@ -528,46 +528,46 @@ def test_decisive_projection_fields_are_content_bound() -> None:
         JournalEvidenceProjection.model_validate(journal_payload)
 
 
-def test_contract_recomputes_honest_terminal_and_closes_lifecycle_residuals() -> None:
+def test_contract_requires_explicit_current_baseline() -> None:
     from tools.quality.validation.layer3_gy_n13b_acquisition_contract import (
-        N13bAcquisitionExecutorContract,
+        N13bContractError,
         derive_n13b_acquisition_executor_contract,
     )
 
-    provision = catalog_read_api.AcquisitionAuthorityProvision.model_validate_json(
-        PROVISION_PATH.read_bytes()
-    )
-    registry = catalog_read_api.AcquisitionAuthorityRegistry.model_validate_json(
-        (
-            POLICY_ENGINE_ROOT
-            / "architecture/policy_design_case/layer3_gy_n13b_acquisition_registry.json"
-        ).read_bytes()
+    with pytest.raises(N13bContractError) as exc_info:
+        derive_n13b_acquisition_executor_contract(
+            repo_root=Path("/path/not-read-before-baseline-validation"),
+            baseline_sha256="sha256:" + "0" * 64,
+            l5_sha256="sha256:" + "1" * 64,
+        )
+
+    assert exc_info.value.code == "n13b_current_baseline_required"
+
+
+def test_contract_facade_uses_call_time_metadata_producer_bindings(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from tools.quality.validation import layer3_gy_n13b_acquisition_contract as facade
+
+    r2_callback = object()
+    r3_callback = object()
+
+    def capture_dependencies(**kwargs: object) -> object:
+        return kwargs["_dependencies"]
+
+    monkeypatch.setattr(facade, "derive_metadata_probe_execution_evidence", r2_callback)
+    monkeypatch.setattr(facade, "derive_d6_metadata_probe_execution_evidence", r3_callback)
+    monkeypatch.setattr(
+        facade,
+        "_derive_n13b_acquisition_executor_contract_impl",
+        capture_dependencies,
     )
 
-    contract = derive_n13b_acquisition_executor_contract(
-        repo_root=POLICY_ENGINE_ROOT,
-        baseline_sha256=provision.baseline_content_sha256,
-        l5_sha256=registry.l5_measurement_registry_sha256,
+    dependencies = facade.derive_n13b_acquisition_executor_contract(
+        repo_root=Path("unused"),
+        baseline_sha256="sha256:" + "0" * 64,
+        l5_sha256="sha256:" + "1" * 64,
     )
 
-    assert isinstance(contract, N13bAcquisitionExecutorContract)
-    assert contract.demonstration_status == "typed_deeper_terminal"
-    assert contract.world_growth.status == "no_growth"
-    assert contract.world_growth.event_count == 0
-    assert contract.world_growth.overlay_epoch_count == 0
-    assert contract.world_growth.availability_count_delta == 0
-    assert contract.resumption_budget.spent_call_count == 3
-    assert contract.resumption_budget.remaining_call_count == 3
-    assert contract.d2_source_growth.carrier_receipt_denominator_count == 1
-    assert contract.d2_source_growth.connector_gap_count == 1
-    assert contract.d2_source_growth.rows[0].missing_request_lever == "source_selector:11"
-    assert contract.local_lift.residual_denominator_count == 15
-    assert contract.residual_closure.owner_registration_derivation_missing_closed is True
-    assert contract.residual_closure.journal_raw_evidence_persistence_missing_closed is True
-    assert contract.capstone_routes.laundered_route_count == 0
-    assert contract.quarantine.response_admitted_count == 0
-
-    payload = contract.model_dump(mode="json")
-    payload["world_growth"]["status"] = "grew"
-    with pytest.raises(ValidationError):
-        N13bAcquisitionExecutorContract.model_validate(payload)
+    assert dependencies.derive_metadata_probe_execution_evidence is r2_callback
+    assert dependencies.derive_d6_metadata_probe_execution_evidence is r3_callback

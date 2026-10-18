@@ -315,9 +315,7 @@ def _load_owner_bundle_cached(
     )
     _report_owner_progress("n13b_owner_projection_complete")
     try:
-        consumed_inputs = SealedConsumedInputSet.model_validate_json(
-            consumed_input_cache_key
-        )
+        consumed_inputs = SealedConsumedInputSet.model_validate_json(consumed_input_cache_key)
     except ValueError as exc:
         raise OwnerProjectionError("owner_consumed_input_cache_key_invalid", str(exc)) from exc
     values = {
@@ -437,6 +435,7 @@ def _recompute_n13b_contract(
             repo_root=repo_root,
             baseline_sha256=_file_sha256(catalog_path),
             l5_sha256=_file_sha256(l5_path),
+            baseline_path=catalog_path,
         )
     except OwnerProjectionError:
         raise
@@ -867,9 +866,7 @@ def _temporary_owner_environment(values: Mapping[str, str]) -> Iterator[None]:
     """Apply and restore the declared environment for the whole owner derivation."""
 
     missing = object()
-    previous: dict[str, str | object] = {
-        name: os.environ.get(name, missing) for name in values
-    }
+    previous: dict[str, str | object] = {name: os.environ.get(name, missing) for name in values}
     os.environ.update(values)
     try:
         yield
@@ -941,9 +938,7 @@ def _owner_consumed_input_set(
             _resolved_consumed_member(
                 member_id=f"owner-record:{member_id}",
                 member_kind=_owner_record_member_kind(member_id),
-                identity=_content_sha256(
-                    {"member_id": member_id, "resolved_identity": identity}
-                ),
+                identity=_content_sha256({"member_id": member_id, "resolved_identity": identity}),
             )
         )
     for module_name, relative_path in _owner_source_closure(repo_root):
@@ -960,9 +955,7 @@ def _owner_consumed_input_set(
             ConsumedInputMember(
                 member_id=name,
                 member_kind="environment",
-                declared_identity=_content_sha256(
-                    {"name": name, "value": declared_value}
-                ),
+                declared_identity=_content_sha256({"name": name, "value": declared_value}),
                 resolved_identity=(
                     _content_sha256({"name": name, "value": actual_value})
                     if actual_value is not None

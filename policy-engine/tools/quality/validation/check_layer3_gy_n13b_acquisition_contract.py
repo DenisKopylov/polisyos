@@ -168,6 +168,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         l5_sha256=l5_sha,
         universality_receipt=first_universality,
         generated_artifacts_bytes=registry_update.registry_bytes,
+        baseline_path=args.catalog_path,
     )
     second = derive_n13b_acquisition_executor_contract(
         repo_root=POLICY_ENGINE_ROOT,
@@ -175,6 +176,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         l5_sha256=l5_sha,
         universality_receipt=second_universality,
         generated_artifacts_bytes=registry_update.registry_bytes,
+        baseline_path=args.catalog_path,
     )
     first_contract = canonical_json_bytes(first.model_dump(mode="json"))
     second_contract = canonical_json_bytes(second.model_dump(mode="json"))

@@ -1,0 +1,788 @@
+"""Live target selection and authority-entry evidence owners."""
+
+from __future__ import annotations
+
+import hashlib
+import json
+import re
+from collections import Counter
+from collections.abc import Mapping, Sequence
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any, Literal, Self
+
+import duckdb
+from pydantic import Field, model_validator
+
+from polisyos.data_forge import read_api as data_forge_read_api
+from polisyos.data_forge.domains.catalog.knowledge.variable_alignment import (
+    VariablePairAlignmentScore,  # noqa: TC001 - Pydantic resolves this at runtime.
+)
+from polisyos.fabric.connectors.sources._contracts import WDI_GENERIC_SCHEMA
+from polisyos.fabric.data_plane import canonical_json_bytes, content_sha256
+
+from .acquisition_executor_support import (
+    DEFAULT_TARGET_HARNESS_RECEIPT,
+    _json_object,
+    _read_mapping,
+    bytes_sha256,
+)
+from .acquisition_response_receipts import (
+    AcquisitionSelectionError,
+    _StrictModel,
+)
+from .d6_route_selection import (
+    _growth_backlog,
+    _live_family_denominator,
+    _slot_units,
+)
+
+TARGET_SELECTION_SCHEMA_VERSION = "policyos.layer3.gy.n13b.live_target_selection.v1"
+
+DEFAULT_TARGET_AUTHORITY_REGISTRY = Path(
+    "architecture/policy_design_case/layer3_gy_n13b_acquisition_registry.json"
+)
+
+DEFAULT_TARGET_AUTHORITY_PROVISION = Path(
+    "architecture/policy_design_case/layer3_gy_n13b_acquisition_provision.json"
+)
+
+
+@dataclass(frozen=True)
+class TargetAuthorityOwners:
+    """Byte-stable owner artifacts required before the selected live call."""
+
+    selection: LiveTargetSelection
+    entry: Any
+    registry: Any
+    provision: Any
+    family_receipt: Any
+    family_receipt_bytes: bytes
+    additional_family_receipts: tuple[Any, ...]
+    additional_family_receipt_payloads: tuple[tuple[Path, bytes], ...]
+    registry_bytes: bytes
+    provision_bytes: bytes
+
+    def payloads(self) -> dict[Path, bytes]:
+        """Return canonical repository-relative owner payloads."""
+
+        payloads = {
+            DEFAULT_TARGET_AUTHORITY_REGISTRY: self.registry_bytes,
+            DEFAULT_TARGET_AUTHORITY_PROVISION: self.provision_bytes,
+            DEFAULT_TARGET_HARNESS_RECEIPT: self.family_receipt_bytes,
+        }
+        payloads.update(dict(self.additional_family_receipt_payloads))
+        return payloads
+
+
+class LiveTargetSelection(_StrictModel):
+    """One target selected from complete source denominators and owner evidence."""
+
+    schema_version: Literal["policyos.layer3.gy.n13b.live_target_selection.v1"] = (
+        TARGET_SELECTION_SCHEMA_VERSION
+    )
+    selection_content_sha256: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    target_variable: str = Field(min_length=1)
+    canonical_unit: str = Field(min_length=1)
+    backlog_rank: int = Field(ge=1)
+    demand_sources: tuple[str, ...] = Field(min_length=1)
+    live_family_denominator: tuple[str, ...] = Field(min_length=1)
+    eligible_target_denominator: tuple[str, ...] = Field(min_length=1)
+    catalog_candidate_denominator: int = Field(ge=1)
+    eligible_catalog_candidate_count: int = Field(ge=1)
+    rejected_candidate_counts: dict[str, int]
+    source_catalog_dataset_id: str = Field(min_length=1)
+    source_catalog_distribution_id: str = Field(min_length=1)
+    connector_id: str = Field(min_length=1)
+    profile_id: str = Field(min_length=1)
+    request_dataset_id: str = Field(min_length=1)
+    upstream_metric_id: str = Field(min_length=1)
+    source: str = Field(min_length=1)
+    agency: str = Field(min_length=1)
+    source_locator: str = Field(min_length=1)
+    title: str = Field(min_length=1)
+    description: str = Field(min_length=1)
+    access_license: str = Field(min_length=1)
+    execution_tier: Literal["fetchable", "transport_ready"]
+    binding_confidence: float = Field(ge=0.0, le=1.0)
+    distribution_quality_score: float = Field(ge=0.0, le=1.0)
+    temporal_start: str | None = None
+    temporal_end: str | None = None
+    alignment_score: VariablePairAlignmentScore
+
+    @model_validator(mode="after")
+    def _selection_is_recomputed(self) -> Self:
+        if self.demand_sources != tuple(sorted(set(self.demand_sources))):
+            raise ValueError("demand sources must be unique and sorted")
+        if self.live_family_denominator != tuple(sorted(set(self.live_family_denominator))):
+            raise ValueError("live family denominator must be unique and sorted")
+        if self.eligible_target_denominator != tuple(sorted(set(self.eligible_target_denominator))):
+            raise ValueError("eligible target denominator must be unique and sorted")
+        if self.target_variable not in self.eligible_target_denominator:
+            raise ValueError("selected target must belong to the eligible denominator")
+        if self.connector_id not in self.live_family_denominator:
+            raise ValueError("selected connector must belong to the live denominator")
+        if any(count < 0 for count in self.rejected_candidate_counts.values()):
+            raise ValueError("rejected candidate counts must be nonnegative")
+        if (
+            self.eligible_catalog_candidate_count + sum(self.rejected_candidate_counts.values())
+            != self.catalog_candidate_denominator
+        ):
+            raise ValueError("candidate outcomes must cover the complete denominator")
+        owner_unit = data_forge_read_api.catalog.derive_catalog_unit_from_text(
+            f"{self.title} {self.description}"
+        )
+        if owner_unit != self.canonical_unit:
+            raise ValueError("selected catalog unit must match the demanded owner unit")
+        expected_score = data_forge_read_api.catalog.score_variable_pair(
+            left_name=self.target_variable,
+            right_name=self.upstream_metric_id,
+            left_unit=self.canonical_unit,
+            right_unit=owner_unit,
+        )
+        if self.alignment_score != expected_score:
+            raise ValueError("alignment score must be recomputed by its owner")
+        if self.selection_content_sha256 != content_sha256(self.identity_payload()):
+            raise ValueError("selection identity must be recomputed")
+        return self
+
+    def identity_payload(self) -> dict[str, object]:
+        """Return the source-evidence projection defining target selection."""
+
+        return {
+            key: value
+            for key, value in self.model_dump(mode="json").items()
+            if key != "selection_content_sha256"
+        }
+
+
+def derive_live_target_selection(
+    *,
+    catalog_path: Path,
+    census_path: Path,
+    substrate_path: Path,
+) -> LiveTargetSelection:
+    """Select one honest live carrier from the full evidence-derived denominator."""
+
+    census = _read_mapping(census_path, code="n13a_census")
+    substrate = _read_mapping(substrate_path, code="intervention_substrate")
+    backlog = _growth_backlog(census)
+    live_families = _live_family_denominator(census)
+    owner_units = _slot_units(substrate)
+    eligible_targets = tuple(
+        sorted(
+            variable_id
+            for variable_id, row in backlog.items()
+            if row["gap_kind"] == "binding_gap" and len(owner_units.get(variable_id, ())) == 1
+        )
+    )
+    if not eligible_targets:
+        raise AcquisitionSelectionError("live_target_owner_unit_denominator_empty")
+
+    rows = _read_catalog_candidates(
+        Path(catalog_path),
+        live_families=live_families,
+    )
+    if not rows:
+        raise AcquisitionSelectionError("live_catalog_candidate_denominator_empty")
+    rejected: Counter[str] = Counter()
+    ranked: list[tuple[tuple[object, ...], dict[str, object]]] = []
+    for target_variable in eligible_targets:
+        units = owner_units[target_variable]
+        canonical_unit = units[0]
+        for row in rows:
+            catalog_unit = data_forge_read_api.catalog.derive_catalog_unit_from_text(
+                f"{row['title']} {row['description']}"
+            )
+            if catalog_unit is None:
+                rejected["catalog_unit_unresolved"] += 1
+                continue
+            if catalog_unit != canonical_unit:
+                rejected["unit_mismatch"] += 1
+                continue
+            if (
+                data_forge_read_api.catalog.derive_license_disposition(
+                    str(row["access_license"])
+                ).value
+                != "admissible_open"
+            ):
+                rejected["license_not_admissible"] += 1
+                continue
+            if bool(row["access_auth_required"]):
+                rejected["auth_required"] += 1
+                continue
+            if not bool(row["parser_supported"]):
+                rejected["parser_unsupported"] += 1
+                continue
+            score = data_forge_read_api.catalog.score_variable_pair(
+                left_name=target_variable,
+                right_name=str(row["upstream_metric_id"]),
+                left_unit=canonical_unit,
+                right_unit=catalog_unit,
+            )
+            rank_key = (
+                int(backlog[target_variable]["rank"]),
+                -score.overall_score,
+                -float(row["binding_confidence"]),
+                -float(row["distribution_quality_score"]),
+                str(row["source_catalog_dataset_id"]),
+                str(row["source_catalog_distribution_id"]),
+                str(row["request_dataset_id"]),
+                str(row["upstream_metric_id"]),
+            )
+            ranked.append(
+                (
+                    rank_key,
+                    {
+                        **row,
+                        "target_variable": target_variable,
+                        "canonical_unit": canonical_unit,
+                        "alignment_score": score,
+                    },
+                )
+            )
+    if not ranked:
+        raise AcquisitionSelectionError(
+            "live_catalog_candidate_not_admissible",
+            json.dumps(dict(sorted(rejected.items())), sort_keys=True),
+        )
+
+    selected = min(ranked, key=lambda item: item[0])[1]
+    target_variable = str(selected["target_variable"])
+    backlog_row = backlog[target_variable]
+    values: dict[str, object] = {
+        "target_variable": target_variable,
+        "canonical_unit": selected["canonical_unit"],
+        "backlog_rank": backlog_row["rank"],
+        "demand_sources": backlog_row["demand_sources"],
+        "live_family_denominator": live_families,
+        "eligible_target_denominator": eligible_targets,
+        "catalog_candidate_denominator": len(rows) * len(eligible_targets),
+        "eligible_catalog_candidate_count": len(ranked),
+        "rejected_candidate_counts": dict(sorted(rejected.items())),
+        "source_catalog_dataset_id": selected["source_catalog_dataset_id"],
+        "source_catalog_distribution_id": selected["source_catalog_distribution_id"],
+        "connector_id": selected["connector_id"],
+        "profile_id": selected["profile_id"],
+        "request_dataset_id": selected["request_dataset_id"],
+        "upstream_metric_id": selected["upstream_metric_id"],
+        "source": selected["source"],
+        "agency": selected["agency"],
+        "source_locator": selected["source_locator"],
+        "title": selected["title"],
+        "description": selected["description"],
+        "access_license": selected["access_license"],
+        "execution_tier": selected["execution_tier"],
+        "binding_confidence": selected["binding_confidence"],
+        "distribution_quality_score": selected["distribution_quality_score"],
+        "temporal_start": selected["temporal_start"],
+        "temporal_end": selected["temporal_end"],
+        "alignment_score": selected["alignment_score"],
+    }
+    provisional = LiveTargetSelection.model_construct(
+        **values,
+        selection_content_sha256="sha256:" + "0" * 64,
+    )
+    return LiveTargetSelection(
+        **values,
+        selection_content_sha256=content_sha256(provisional.identity_payload()),
+    )
+
+
+def build_selected_live_authority_entry(
+    selection: LiveTargetSelection,
+    *,
+    l5_family_id: str,
+    country_codes: tuple[str, ...],
+) -> Any:
+    """Build the last-mile registry edge from selection and connector schema owners."""
+
+    selected = LiveTargetSelection.model_validate(selection.model_dump(mode="python"))
+    if selected.connector_id != "worldbank.wdi":
+        raise AcquisitionSelectionError(
+            "live_connector_schema_owner_unimplemented",
+            selected.connector_id,
+        )
+    value_fields = tuple(
+        field
+        for field in WDI_GENERIC_SCHEMA.fields
+        if field.name not in WDI_GENERIC_SCHEMA.primary_key and field.additivity is not None
+    )
+    if len(value_fields) != 1:
+        raise AcquisitionSelectionError("connector_value_field_ambiguous")
+    raw_field = value_fields[0].name
+    schema_columns = tuple(
+        sorted(
+            (
+                data_forge_read_api.catalog.AuthoritySchemaColumn(
+                    name=field.name,
+                    logical_types=(field.data_type.value,),
+                    nullable=field.nullable,
+                )
+                for field in WDI_GENERIC_SCHEMA.fields
+            ),
+            key=lambda field: field.name,
+        )
+    )
+    landing_suffix = selected.selection_content_sha256.removeprefix("sha256:")[:20]
+    evidence_refs = (
+        f"repo://architecture/policy_design_case/"
+        f"layer3_gy_n13a_acquisition_census.json#/growth_backlog/{selected.backlog_rank - 1}",
+        "repo://architecture/policy_design_case/"
+        "layer3_gy_intervention_substrate_contract.json#slot/"
+        f"{selected.target_variable}",
+        "repo://production_data/datasets_full_phase3full_20260327_183054/"
+        "dataset_catalog.duckdb#ds_metric_bindings/"
+        f"{selected.source_catalog_dataset_id}/{selected.source_catalog_distribution_id}/"
+        f"{selected.upstream_metric_id}",
+        "python://polisyos.data_forge.domains.catalog.knowledge.variable_alignment/"
+        "score_variable_pair",
+    )
+    return data_forge_read_api.catalog.build_authority_entry(
+        source_lane="live_fetch",
+        target_variable=selected.target_variable,
+        landing_dataset_id=f"acquisition.live.{landing_suffix}",
+        landing_distribution_id=f"acquisition.live.{landing_suffix}.wdi",
+        source_catalog_dataset_id=selected.source_catalog_dataset_id,
+        source_catalog_distribution_id=selected.source_catalog_distribution_id,
+        upstream_metric_id=selected.upstream_metric_id,
+        catalog_raw_variable=selected.request_dataset_id,
+        raw_field=raw_field,
+        raw_unit=selected.canonical_unit,
+        canonical_unit=selected.canonical_unit,
+        unit_transform="identity",
+        unit_transform_ref=f"fabric://units/{selected.canonical_unit}-identity/v1",
+        alignment_method="semantic",
+        alignment_confidence=selected.alignment_score.overall_score,
+        is_proxy=False,
+        proxy_penalty=0.0,
+        aggregation_method="identity",
+        valid_min=None,
+        valid_max=None,
+        evidence_refs=evidence_refs,
+        schema_contract_ref=(
+            f"fabric://{WDI_GENERIC_SCHEMA.schema_id}@{WDI_GENERIC_SCHEMA.version}"
+        ),
+        schema_columns=schema_columns,
+        l5_family_id=l5_family_id,
+        title=f"Acquired {selected.title}",
+        description=(
+            "Passport-admitted acquisition overlay rows selected from the N13a "
+            f"backlog for {selected.target_variable}."
+        ),
+        country_codes=tuple(sorted(set(country_codes))),
+        temporal_start=selected.temporal_start,
+        temporal_end=selected.temporal_end,
+    )
+
+
+def derive_live_attempt_id(
+    selection: LiveTargetSelection,
+    *,
+    attempt_ordinal: int = 1,
+) -> str:
+    """Derive the stable one-variable attempt identity from selected evidence."""
+
+    selected = LiveTargetSelection.model_validate(selection.model_dump(mode="python"))
+    if isinstance(attempt_ordinal, bool) or not 1 <= attempt_ordinal <= 999:
+        raise AcquisitionSelectionError("live_attempt_ordinal_invalid")
+    family = re.sub(r"[^a-z0-9]+", "-", selected.connector_id.casefold()).strip("-")
+    target = re.sub(r"[^a-z0-9]+", "-", selected.target_variable.casefold()).strip("-")
+    unit = re.sub(r"[^a-z0-9]+", "-", selected.canonical_unit.casefold()).strip("-")
+    return f"gy-n13b-{family}-{target}-{unit}-{attempt_ordinal:03d}"
+
+
+def derive_target_family_receipt(
+    selection: LiveTargetSelection,
+    *,
+    catalog_path: Path,
+    fixture_root: Path,
+    attempt_ordinal: int = 1,
+) -> Any:
+    """Run the exact selected carrier through the N13a zero-network E7 owner."""
+
+    from tools.quality.validation import layer3_gy_n13a_acquisition_census as census
+
+    selected = LiveTargetSelection.model_validate(selection.model_dump(mode="python"))
+    con = duckdb.connect(str(catalog_path), read_only=True)
+    try:
+        rows = con.execute(
+            """
+            SELECT
+                b.metric_id,
+                b.dataset_id,
+                b.distribution_id,
+                b.connector_id,
+                b.profile_id,
+                b.request_dataset_id,
+                b.confidence,
+                b.default_filters,
+                b.execution_tier,
+                x.url,
+                x.connector_params,
+                x.quality_score,
+                x.parser_supported,
+                d.access_license,
+                d.access_auth_required,
+                p.columns_json,
+                p.sample_row_count,
+                p.preview_sample_hash,
+                p.inference_mode,
+                p.parser_mode
+            FROM ds_metric_bindings b
+            JOIN ds_datasets d ON d.id = b.dataset_id
+            JOIN ds_distributions x
+              ON x.id = b.distribution_id AND x.dataset_id = b.dataset_id
+             AND x.connector_type = b.connector_id AND x.profile_id = b.profile_id
+            LEFT JOIN ds_schema_profiles p
+              ON p.distribution_id = b.distribution_id AND p.dataset_id = b.dataset_id
+            WHERE b.dataset_id = ? AND b.distribution_id = ?
+              AND b.metric_id = ? AND b.request_dataset_id = ?
+              AND b.connector_id = ? AND b.profile_id = ?
+            """,
+            [
+                selected.source_catalog_dataset_id,
+                selected.source_catalog_distribution_id,
+                selected.upstream_metric_id,
+                selected.request_dataset_id,
+                selected.connector_id,
+                selected.profile_id,
+            ],
+        ).fetchall()
+    finally:
+        con.close()
+    if len(rows) != 1:
+        raise AcquisitionSelectionError("target_harness_catalog_edge_unresolved")
+    row = rows[0]
+    if row[15] is None:
+        raise AcquisitionSelectionError("target_harness_schema_profile_missing")
+    schema_profile = census.derive_schema_profile_contract(
+        distribution_id=str(row[2]),
+        dataset_id=str(row[1]),
+        profile_id=str(row[4]),
+        columns_json=row[15],
+        sample_row_count=int(row[16] or 0),
+        preview_sample_hash=str(row[17]) if row[17] is not None else None,
+        inference_mode=str(row[18] or "metadata_only"),
+        parser_mode=str(row[19] or "metadata_only"),
+    )
+    quality = float(row[11] or 0.0)
+    quality_bucket = census.derive_quality_bucket(quality)
+    stratum_id = f"{row[8]}:{quality_bucket}"
+    candidate = census.ProbeCandidate(
+        attempt_id=derive_live_attempt_id(
+            selected,
+            attempt_ordinal=attempt_ordinal,
+        ),
+        connector_id=str(row[3]),
+        metric_id=str(row[0]),
+        dataset_id=str(row[1]),
+        distribution_id=str(row[2]),
+        profile_id=str(row[4]),
+        request_dataset_id=str(row[5]),
+        execution_tier=str(row[8]),
+        quality_score=quality,
+        quality_bucket=quality_bucket,
+        binding_confidence=float(row[6] or 0.0),
+        endpoint_url=str(row[9] or ""),
+        connector_params=_json_object(row[10]),
+        filters=_json_string_lists(row[7]),
+        access_license=str(row[13] or ""),
+        auth_required=bool(row[14]),
+        parser_supported=bool(row[12]),
+        schema_profile=schema_profile,
+        family_sample_rank=1,
+        stratum_id=stratum_id,
+        stratum_rank=1,
+    )
+    plan = census.ProbeSelectionPlan(
+        family_projection_binding=census.ProjectionBinding(
+            projection_id="n13b_selected_live_connector_family",
+            source_artifact=(
+                "architecture/policy_design_case/"
+                "layer3_gy_n13a_acquisition_census.json#family_scorecards"
+            ),
+            projection_content_sha256=selected.selection_content_sha256,
+            projected_item_count=1,
+        ),
+        target_per_family=1,
+        sampling_receipts=(
+            census.FamilySamplingReceipt(
+                connector_id=selected.connector_id,
+                available_distribution_count=1,
+                target_probe_count=1,
+                selected_probe_count=1,
+                stratum_population_counts={stratum_id: 1},
+                selected_stratum_counts={stratum_id: 1},
+                open_license_available_count=(
+                    1
+                    if data_forge_read_api.catalog.derive_license_disposition(
+                        str(row[13] or "")
+                    ).value
+                    == "admissible_open"
+                    else 0
+                ),
+                auth_required_available_count=int(bool(row[14])),
+                schema_profile_available_count=1,
+            ),
+        ),
+        candidates=(candidate,),
+    )
+    receipts = census.derive_connector_family_receipts(
+        plan,
+        fixture_root=fixture_root,
+    )
+    if len(receipts) != 1:
+        raise AcquisitionSelectionError("target_harness_receipt_ambiguous")
+    receipt = receipts[0]
+    if not receipt.safe_dry_run_passed:
+        raise AcquisitionSelectionError("target_harness_dry_run_failed")
+    return receipt
+
+
+def derive_target_authority_owners(
+    selection: LiveTargetSelection,
+    *,
+    family_receipt: object,
+    additional_family_receipts: tuple[tuple[int, object], ...] = (),
+    baseline_path: Path,
+    baseline_owner_ref: str,
+    l5_path: Path,
+    l5_owner_ref: str,
+    receipt_owner_ref: str,
+    country_codes: tuple[str, ...],
+) -> TargetAuthorityOwners:
+    """Derive registry, provision, and exact E7 receipt bytes without live I/O."""
+
+    from tools.quality.validation import layer3_gy_n13a_acquisition_census as census
+
+    selected = LiveTargetSelection.model_validate(selection.model_dump(mode="python"))
+    receipt = census.ConnectorFamilyReceipt.model_validate(family_receipt)
+    expected_attempt_id = derive_live_attempt_id(selected)
+    _validate_target_family_receipt(
+        selected,
+        receipt,
+        attempt_ordinal=1,
+    )
+    family_receipt_bytes = canonical_json_bytes(receipt.model_dump(mode="json"))
+    additional_receipts: list[Any] = []
+    additional_payloads: list[tuple[Path, bytes]] = []
+    receipt_provisions: list[dict[str, str]] = [
+        {
+            "entry_id": "",
+            "attempt_id": expected_attempt_id,
+            "receipt_owner_ref": receipt_owner_ref,
+            "receipt_content_sha256": bytes_sha256(family_receipt_bytes),
+        }
+    ]
+    ordinals = tuple(ordinal for ordinal, _ in additional_family_receipts)
+    if ordinals != tuple(sorted(set(ordinals))) or any(ordinal <= 1 for ordinal in ordinals):
+        raise AcquisitionSelectionError("additional_harness_attempt_ordinals_invalid")
+    for ordinal, raw_receipt in additional_family_receipts:
+        resolved_receipt = census.ConnectorFamilyReceipt.model_validate(raw_receipt)
+        _validate_target_family_receipt(
+            selected,
+            resolved_receipt,
+            attempt_ordinal=ordinal,
+        )
+        receipt_bytes = canonical_json_bytes(resolved_receipt.model_dump(mode="json"))
+        receipt_path = target_harness_receipt_path(ordinal)
+        additional_receipts.append(resolved_receipt)
+        additional_payloads.append((receipt_path, receipt_bytes))
+        receipt_provisions.append(
+            {
+                "entry_id": "",
+                "attempt_id": derive_live_attempt_id(
+                    selected,
+                    attempt_ordinal=ordinal,
+                ),
+                "receipt_owner_ref": f"repo://{receipt_path.as_posix()}",
+                "receipt_content_sha256": bytes_sha256(receipt_bytes),
+            }
+        )
+    l5_family_id = _derive_l5_family_id(Path(l5_path))
+    entry = build_selected_live_authority_entry(
+        selected,
+        l5_family_id=l5_family_id,
+        country_codes=country_codes,
+    )
+    baseline_sha256 = _file_sha256(Path(baseline_path))
+    l5_sha256 = _file_sha256(Path(l5_path))
+    registry = data_forge_read_api.catalog.build_authority_registry(
+        baseline_content_sha256=baseline_sha256,
+        l5_measurement_registry_sha256=l5_sha256,
+        entries=(entry,),
+    )
+    for provision in receipt_provisions:
+        provision["entry_id"] = entry.entry_id
+    provision = data_forge_read_api.catalog.build_acquisition_authority_provision(
+        baseline_owner_ref=baseline_owner_ref,
+        baseline_content_sha256=baseline_sha256,
+        l5_measurement_registry_owner_ref=l5_owner_ref,
+        l5_measurement_registry_content_sha256=l5_sha256,
+        live_harness_receipts=tuple(receipt_provisions),
+    )
+    return TargetAuthorityOwners(
+        selection=selected,
+        entry=entry,
+        registry=registry,
+        provision=provision,
+        family_receipt=receipt,
+        family_receipt_bytes=family_receipt_bytes,
+        additional_family_receipts=tuple(additional_receipts),
+        additional_family_receipt_payloads=tuple(additional_payloads),
+        registry_bytes=canonical_json_bytes(registry.model_dump(mode="json")),
+        provision_bytes=canonical_json_bytes(provision.model_dump(mode="json")),
+    )
+
+
+def target_harness_receipt_path(attempt_ordinal: int) -> Path:
+    """Return the canonical receipt path for one exact live attempt."""
+
+    if isinstance(attempt_ordinal, bool) or not 1 <= attempt_ordinal <= 999:
+        raise AcquisitionSelectionError("live_attempt_ordinal_invalid")
+    if attempt_ordinal == 1:
+        return DEFAULT_TARGET_HARNESS_RECEIPT
+    return DEFAULT_TARGET_HARNESS_RECEIPT.with_name(
+        DEFAULT_TARGET_HARNESS_RECEIPT.stem
+        + f"_attempt_{attempt_ordinal:03d}"
+        + DEFAULT_TARGET_HARNESS_RECEIPT.suffix
+    )
+
+
+def _validate_target_family_receipt(
+    selection: LiveTargetSelection,
+    receipt: Any,
+    *,
+    attempt_ordinal: int,
+) -> None:
+    expected_attempt_id = derive_live_attempt_id(
+        selection,
+        attempt_ordinal=attempt_ordinal,
+    )
+    if (
+        receipt.connector_id != selection.connector_id
+        or not receipt.safe_dry_run_passed
+        or receipt.carrier_denominator != 1
+        or len(receipt.dry_run_attempts) != 1
+        or receipt.dry_run_attempts[0].attempt_id != expected_attempt_id
+        or receipt.dry_run_attempts[0].request_dataset_id != selection.request_dataset_id
+    ):
+        raise AcquisitionSelectionError("target_harness_owner_projection_drift")
+
+
+def _read_catalog_candidates(
+    catalog_path: Path,
+    *,
+    live_families: tuple[str, ...],
+) -> tuple[dict[str, object], ...]:
+    if not catalog_path.is_file():
+        raise AcquisitionSelectionError("catalog_missing", catalog_path.as_posix())
+    con = duckdb.connect(str(catalog_path), read_only=True)
+    try:
+        rows = con.execute(
+            """
+            SELECT
+                d.id,
+                x.id,
+                b.connector_id,
+                b.profile_id,
+                b.request_dataset_id,
+                b.metric_id,
+                d.source,
+                d.agency,
+                COALESCE(x.source_locator, x.url),
+                d.title,
+                COALESCE(d.description, ''),
+                d.access_license,
+                d.access_auth_required,
+                b.execution_tier,
+                b.confidence,
+                x.quality_score,
+                x.parser_supported,
+                d.temporal_start,
+                d.temporal_end
+            FROM ds_metric_bindings b
+            JOIN ds_datasets d ON d.id = b.dataset_id
+            JOIN ds_distributions x
+              ON x.id = b.distribution_id AND x.dataset_id = b.dataset_id
+            WHERE b.connector_id IN (SELECT UNNEST(?))
+              AND b.execution_tier IN ('fetchable', 'transport_ready')
+              AND x.connector_type = b.connector_id
+              AND x.profile_id = b.profile_id
+            ORDER BY d.id, x.id, b.metric_id, b.request_dataset_id
+            """,
+            [list(live_families)],
+        ).fetchall()
+    except Exception as exc:
+        raise AcquisitionSelectionError(
+            "catalog_candidate_query_failed",
+            type(exc).__name__,
+        ) from exc
+    finally:
+        con.close()
+
+    keys = (
+        "source_catalog_dataset_id",
+        "source_catalog_distribution_id",
+        "connector_id",
+        "profile_id",
+        "request_dataset_id",
+        "upstream_metric_id",
+        "source",
+        "agency",
+        "source_locator",
+        "title",
+        "description",
+        "access_license",
+        "access_auth_required",
+        "execution_tier",
+        "binding_confidence",
+        "distribution_quality_score",
+        "parser_supported",
+        "temporal_start",
+        "temporal_end",
+    )
+    return tuple(dict(zip(keys, raw, strict=True)) for raw in rows)
+
+
+def _json_string_lists(value: object) -> dict[str, list[str]]:
+    parsed = _json_object(value)
+    normalized: dict[str, list[str]] = {}
+    for key, item in parsed.items():
+        if not isinstance(item, Sequence) or isinstance(item, (str, bytes, bytearray)):
+            raise AcquisitionSelectionError("target_harness_filter_list_required", key)
+        normalized[key] = [str(member) for member in item]
+    return normalized
+
+
+def _derive_l5_family_id(l5_path: Path) -> str:
+    l5 = _read_mapping(l5_path, code="l5_measurement_registry")
+    coverage = l5.get("coverage_rules")
+    if not isinstance(coverage, Mapping):
+        raise AcquisitionSelectionError("l5_coverage_rules_missing")
+    schema_tags = {str(tag).casefold() for tag in WDI_GENERIC_SCHEMA.tags}
+    candidates = tuple(
+        sorted(
+            str(family_id)
+            for family_id in coverage
+            if schema_tags
+            & {token for token in re.split(r"[^a-z0-9]+", str(family_id).casefold()) if token}
+        )
+    )
+    if len(candidates) != 1:
+        raise AcquisitionSelectionError(
+            "l5_schema_family_ambiguous",
+            ",".join(candidates),
+        )
+    return candidates[0]
+
+
+def _file_sha256(path: Path) -> str:
+    if not path.is_file():
+        raise AcquisitionSelectionError("owner_file_missing", path.as_posix())
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return f"sha256:{digest.hexdigest()}"

@@ -9223,5 +9223,255 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "native_n13b_current_custody_r3_source_application_20261018": {
+    "slice_base": "cb641b74ff2c100144dd458b99e9add4a976e59b",
+    "canonical_writer": "root only; reviewed R3 postimages with one test import-order qualification",
+    "mechanism_and_mandatory_companion_paths": [
+      {
+        "operation": "write",
+        "path": "policy-engine/tests/repo_quality/tools/_layer3_gy_n13b_acceptance_fixtures.py",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-n13b-current-custody-author-r3-20261018/postimages/tests/tests/repo_quality/tools/_layer3_gy_n13b_acceptance_fixtures.py",
+        "postimage_sha256": "bc1a382163cd5f2cf63cc76b1d3278ba47a708eab01a9d4bf717a059157ba491"
+      },
+      {
+        "operation": "write",
+        "path": "policy-engine/tests/repo_quality/tools/test_layer3_gy_acquisition_executor.py",
+        "preimage_sha256": "1ac5ecd43b16068267cfac1df015f33ed525e569abdac8ea97455560b22e1da2",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-r3-import-format-qualification-20261018/test_layer3_gy_acquisition_executor.py",
+        "postimage_sha256": "5101d4f8761ac984793cacc0416b58bff1d2b58174a6fce702787cb016ce797f",
+        "root_reviewed_postimage_sha256": "33a355f9c899b6b4c8a71fabb855f99202bcaa964db2b209428b9ba298b8dfd0"
+      },
+      {
+        "operation": "write",
+        "path": "policy-engine/tests/repo_quality/tools/test_layer3_gy_n13b_acceptance.py",
+        "preimage_sha256": "d5bf98f41bf679e7b929125cfc432a5e349346efdf2b39f94c3973fc0ae16504",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-n13b-current-custody-author-r3-20261018/postimages/tests/tests/repo_quality/tools/test_layer3_gy_n13b_acceptance.py",
+        "postimage_sha256": "740bb10368857be4c01dae118d8840651a6148e4244c3837018e27aa32ed2b96"
+      },
+      {
+        "operation": "write",
+        "path": "policy-engine/tests/repo_quality/tools/test_layer3_gy_n13b_acquisition_contract.py",
+        "preimage_sha256": "3dd16370821bbe7e58f9950c9c766f7aa56dbdc27d91217bd3445ea62ee73917",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-n13b-current-custody-author-r3-20261018/postimages/tests/tests/repo_quality/tools/test_layer3_gy_n13b_acquisition_contract.py",
+        "postimage_sha256": "07fa7849c33a00cd5ed268e98b4b16ba590d6c6d287e134f6d19739bb20f7ca7"
+      },
+      {
+        "operation": "write",
+        "path": "policy-engine/tools/quality/validation/acquisition_admission_contract.py",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-n13b-current-custody-author-r3-20261018/postimages/tools/quality/validation/acquisition_admission_contract.py",
+        "postimage_sha256": "9e6160ad5c2f3e53cf1f3c857ddb750d0a61585604ed65ad825e5a1198996b99"
+      },
+      {
+        "operation": "write",
+        "path": "policy-engine/tools/quality/validation/acquisition_contract_support.py",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-n13b-current-custody-author-r3-20261018/postimages/tools/quality/validation/acquisition_contract_support.py",
+        "postimage_sha256": "ae2ba5e22c3a5553d2b62355a5007cdc7a23c245e41fa8ee10f16fd6c2e65a27"
+      },
+      {
+        "operation": "write",
+        "path": "policy-engine/tools/quality/validation/acquisition_executor_support.py",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-n13b-current-custody-author-r3-20261018/postimages/tools/quality/validation/acquisition_executor_support.py",
+        "postimage_sha256": "4dc98a11f5d655359c29118e66a1392bdb50350ee3bd112a5985177b1b1fa044"
+      },
+      {
+        "operation": "write",
+        "path": "policy-engine/tools/quality/validation/acquisition_response_receipts.py",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-n13b-current-custody-author-r3-20261018/postimages/tools/quality/validation/acquisition_response_receipts.py",
+        "postimage_sha256": "b2bddc81d090ef49c115886a27f70132d1a98365a8379b8abcf6d853ac6a1b84"
+      },
+      {
+        "operation": "write",
+        "path": "policy-engine/tools/quality/validation/artifact_lifecycle_manifest.py",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-n13b-current-custody-author-r3-20261018/postimages/tools/quality/validation/artifact_lifecycle_manifest.py",
+        "postimage_sha256": "4809b9afcba852da74ddca1e750a496bb8e94de037c4e54597663aeef4e6d88d"
+      },
+      {
+        "operation": "write",
+        "path": "policy-engine/tools/quality/validation/catalog_candidate_admission.py",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-n13b-current-custody-author-r3-20261018/postimages/tools/quality/validation/catalog_candidate_admission.py",
+        "postimage_sha256": "e27311698f1de2a895d0ca57ef12cc1991fc316c2dd8360b940ae1ce562da799"
+      },
+      {
+        "operation": "write",
+        "path": "policy-engine/tools/quality/validation/check_layer3_gy_acquisition_executor.py",
+        "preimage_sha256": "88d6d669ab700d0e411e63c37c3506d4c5607dd2e25ce2f8af5bc12cae4d2329",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-n13b-current-custody-author-r3-20261018/postimages/tools/quality/validation/check_layer3_gy_acquisition_executor.py",
+        "postimage_sha256": "ac6185819af5035448cd1c13b23dd2a97e014483a7c7f2374061ceb684ceca55"
+      },
+      {
+        "operation": "write",
+        "path": "policy-engine/tools/quality/validation/check_layer3_gy_n13b_acquisition_contract.py",
+        "preimage_sha256": "c8d532be4ff110312b5c0e446385b992f4ab513c44e18a005905a9f40dd305ea",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-n13b-current-custody-author-r3-20261018/postimages/tools/quality/validation/check_layer3_gy_n13b_acquisition_contract.py",
+        "postimage_sha256": "f1779ffff788856dcd1092da58331a264a19813bf68de2f0b868af90e64ba691"
+      },
+      {
+        "operation": "write",
+        "path": "policy-engine/tools/quality/validation/d6_route_selection.py",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-n13b-current-custody-author-r3-20261018/postimages/tools/quality/validation/d6_route_selection.py",
+        "postimage_sha256": "87e9081ff1b8d4165b5152057b69b12f7a0c4f873c50b9c2e9109fc647a5321c"
+      },
+      {
+        "operation": "write",
+        "path": "policy-engine/tools/quality/validation/demand_gap_projections.py",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-n13b-current-custody-author-r3-20261018/postimages/tools/quality/validation/demand_gap_projections.py",
+        "postimage_sha256": "95dabf524e5a605118e26aea7ebb7e87709369969458a5c94239269d467a2af3"
+      },
+      {
+        "operation": "write",
+        "path": "policy-engine/tools/quality/validation/derivation_route_projections.py",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-n13b-current-custody-author-r3-20261018/postimages/tools/quality/validation/derivation_route_projections.py",
+        "postimage_sha256": "cdbc2d54039d175a3395d9a3e7670e0b181cfbd4d4b03c41490cbe75ea8ff51e"
+      },
+      {
+        "operation": "write",
+        "path": "policy-engine/tools/quality/validation/evidence_journal_custody.py",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-n13b-current-custody-author-r3-20261018/postimages/tools/quality/validation/evidence_journal_custody.py",
+        "postimage_sha256": "0bd0d7e5c7e4ee14cdc57e116608f6b7d6975a5ba56e30eb9426839705db9c55"
+      },
+      {
+        "operation": "write",
+        "path": "policy-engine/tools/quality/validation/layer3_gy_acquisition_executor.py",
+        "preimage_sha256": "1c0072d2eb9802b28ec11c15cf2d710ce7247f0a2abb237474fa75f1d66a44d9",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-n13b-current-custody-author-r3-20261018/postimages/tools/quality/validation/layer3_gy_acquisition_executor.py",
+        "postimage_sha256": "70b706e5b83d3da2ce73b9a15a85e25a728b85a665b314931fc89cef8692ff62"
+      },
+      {
+        "operation": "write",
+        "path": "policy-engine/tools/quality/validation/layer3_gy_confidence_ledger_contract.py",
+        "preimage_sha256": "9512007d60762775760c3a0f7bce25656121d9797586ba9e37dc325615f2e7c0",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-n13b-current-custody-author-r3-20261018/postimages/tools/quality/validation/layer3_gy_confidence_ledger_contract.py",
+        "postimage_sha256": "f948087dac2ac3abacbef593d4cb749a34c0e0e9588e24a2bed82f49a1116b98"
+      },
+      {
+        "operation": "write",
+        "path": "policy-engine/tools/quality/validation/layer3_gy_n13b_acquisition_contract.py",
+        "preimage_sha256": "2338dc12f8480423e580b82d33e31e5cb69e152acc9715180880af65242edb2f",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-n13b-current-custody-author-r3-20261018/postimages/tools/quality/validation/layer3_gy_n13b_acquisition_contract.py",
+        "postimage_sha256": "14e040adc06768a6fc08e354e6e8c5b3628ed2ad01fab69a0104d9e17e6af64f"
+      },
+      {
+        "operation": "write",
+        "path": "policy-engine/tools/quality/validation/live_target_authority.py",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-n13b-current-custody-author-r3-20261018/postimages/tools/quality/validation/live_target_authority.py",
+        "postimage_sha256": "b91dd937f2c5f933d2c571f50e2218ac05b0b805722da933832da7b3e43be1a3"
+      },
+      {
+        "operation": "write",
+        "path": "policy-engine/tools/quality/validation/metadata_execution_evidence.py",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-n13b-current-custody-author-r3-20261018/postimages/tools/quality/validation/metadata_execution_evidence.py",
+        "postimage_sha256": "cea2ef3131c04b57f4707a5751c02b108be035edd73c5fab27e373da1d3ceccf"
+      }
+    ],
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-r3-import-format-qualification-20261018/qualified-source-application-r2.json",
+      "sha256": "38cba683db30a13a57c4e87d87a302fe8cc06927ea57ad0193f61c7a987b57e6"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-n13b-current-custody-r3-independent-20261018/manifest.json",
+        "sha256": "105c06f5fe91405241190c0ce161f32312b097b5d074dfb5241b010e93315eaa"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-n13b-current-custody-author-r3-20261018/candidate-composed-r3.patch",
+        "sha256": "25f30b7ca650713b637d5bc589b32c299304f032fe5c11ab0df60f0aa88c0929"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-n13b-current-custody-author-r3-20261018/author-report-r3.md",
+        "sha256": "f82d66d8de55f64449abdd5ce2e28d9dcdde84e140ac2e04146d0178f731a089"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-n13b-current-custody-author-r3-20261018/candidate-source-manifest-r3.json",
+        "sha256": "6f581ce11cc9a8e42da70cfe04bbd01c81be46214de182b2a97f63c61ecdbb5e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-n13b-current-custody-author-r3-20261018/ast-api-preservation-r3.json",
+        "sha256": "ed2e3d5266476ae1966dd31b59429a47fcbac99c6568b4c6d4fb36b63343ea92"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-n13b-current-custody-author-r3-20261018/ruff-r3-final-21-own-root.json",
+        "sha256": "48d3aff7122f840094c3b3df71f8505a05bf7fd2aa883a52882555c35e52dc56"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-n13b-current-custody-r3-independent-20261018/review.json",
+        "sha256": "7da3f071ec5aa9659753146241773a946b99027456b734bb2688e6c3bd81f5b5"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-n13b-current-custody-r3-independent-20261018/review.md",
+        "sha256": "2a64f6a871bf676f229180c7bdf3ef9ff04ec38450ff64ea2e73a241a4cae3f8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-n13b-current-custody-r3-independent-20261018/static-source-checks.json",
+        "sha256": "831c52d6b85377f01f3ae944d299384776c1d84deaaee36279bdeb9ad642bfa1"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-n13b-current-custody-r3-independent-20261018/ruff-independent-r3.json",
+        "sha256": "161a075720d8f68e39f884a46942d8be63c643a1b6ad65301579198e7764285c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-n13b-current-custody-r3-independent-20261018/patch-dry-run-product-root.json",
+        "sha256": "9009ce11a703f41c8e91348bdea2a7ff722ef9c1cb4e667958f4e809e936afbe"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-n13b-current-custody-r3-independent-20261018/patch-dry-run.json",
+        "sha256": "cca9077a24a85662cc30e350befbc5c66aea9563a53cd6c9450e53f9f877e555"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-n13b-current-custody-independent-r2-20261018/review.json",
+        "sha256": "5f09e3e9ca96cab3eb5cc2cc59ddc5f560d6f38cd2bd9bd4674d70c758af4cb8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-n13b-current-custody-independent-r2-20261018/review.md",
+        "sha256": "55095ff767a6db26dd62c412e1cb39a75eeb03a828f87ae17b1cdbfc45195a89"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-root-boundaries-20261015/adopt_reviewed_postimages_r1.py",
+        "sha256": "a601928ee742c72539ae6630f6c54d7d45576fc6df337a13e2ca927ffb7e9077"
+      }
+    ],
+    "P40": {
+      "bucket": "SAME current-custody class as R2, widened across the finite R2/R3 producer, contract join, and re-entry consumer path.",
+      "whole_quantity": "Adopt all 17 mechanism paths and four mandatory test/support companions together as one mechanism plus its required evidence; do not apply a leaf-only subset.",
+      "falsifier": "Keep declarations and stored candidate payloads unchanged while mutating current journal bytes or a referenced CAS blob. Any contract/re-entry consumer that still admits the cached payload falsifies the closure.",
+      "second_finding_policy": "A further same-class escape requires widening to the whole dependent custody quantity or recording a bounded residual with its smallest absent closing capability and falsifier; no one-leaf patch ladder."
+    },
+    "limitations": {
+      "mechanism_paths": 17,
+      "mechanism": "The extracted validation producer, receipt, custody, route, projection, admission, and manifest owners in the exact 17-source candidate inventory.",
+      "mandatory_companion_paths": 4,
+      "companions": "Three semantic test modules/files and the shared synthetic acceptance fixture helper; required test/support evidence is outside the P39 mechanism-path count. Root-managed LEASES.json and the component delivery index are adoption records, also outside that count.",
+      "metric": "The author manifest records 13,877 logical lines across the 21 Python paths; this is descriptive and does not alter the path budget.",
+      "runtime": "UNRUN on adopted canonical source until root applies the reviewed candidate and separately authorizes the controlled runtime wave.",
+      "outer_contract_receipt": "The positive test reaches the production contract-join helper, not construction of the outer N13b contract receipt. Do not claim the outer receipt boundary was exercised or proven.",
+      "external_authority": "External issuer authority, production-catalog currentness, historical artifact reissuance, and production data/journal/CAS currentness remain not_established.",
+      "cli_and_workflow": "No CLI, end-to-end workflow, release, or source-profile freeze conclusion is established.",
+      "documentation": "No README source change is included; root may insert only an already-required shared validation README snippet."
+    },
+    "runtime": "UNRUN",
+    "next_check": [
+      "At application time, root rereads the attached branch, HEAD and tree and verifies every present preimage, every expected-absent path, all 21 postimage hashes, and every reviewed-input digest. The authoring-time base is the actually observed e157b785127999badc00d54d23f10bc1d6c2be68 / tree 14f36733934b8406de9869fcaad05321db75b1c0; any intervening HEAD change requires a new versioned root requalification against the then-observed identity.",
+      "The adoption helper cannot run in the worktree state observed at plan authoring: three unrelated tracked files are modified. Preserve those changes. Root must first commit/resolve the existing work without rewriting history, then requalify this plan against the actually observed HEAD/tree, or obtain a clean authorized base before applying.",
+      "Root alone composes/applies all 21 rows together, records the append-only LEASES.json and delivery-index companions, preserves unrelated untracked material, and does not rewrite history. No deletion or native-Trash operation is part of this candidate.",
+      "After composition, run the configured Ruff 0.14.10 check and format check on all 21 paths from OWN root with the literal policy-engine/.venv/bin/python and workspace_root.toml profile; retain complete outputs.",
+      "After independent source review and separate root runtime grant, run the full three affected test modules from policy-engine/: test_layer3_gy_acquisition_executor.py, test_layer3_gy_n13b_acquisition_contract.py, and test_layer3_gy_n13b_acceptance.py. Read back selected counts, full outputs, and exit status. The producer-generated positive must reach contract join and actual re-entry; preserve the stated outer-contract-receipt limitation unless that boundary is separately exercised.",
+      "Keep runtime acceptance UNRUN until the authorized run completes; make no G acceptance, source freeze, or closure claim from static adoption evidence alone."
+    ],
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

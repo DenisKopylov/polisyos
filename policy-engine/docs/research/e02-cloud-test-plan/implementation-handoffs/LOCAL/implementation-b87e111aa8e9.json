@@ -1,0 +1,160 @@
+{
+  "G_acceptance": false,
+  "P40": "same whole-selector formatter class; one coherent complete reviewed transformation",
+  "P41": "not_established; no inherited-red exclusion",
+  "changed_path_denominator": {
+    "changed_path_rows": null,
+    "complete_direct_path_scope": {
+      "direct_formatter_paths": 1411,
+      "full_selector_reconciled_count": 6611,
+      "note": "Complete 1411-path direct list is in readback; full 6611-file selector map is cited by path@sha rather than copied.",
+      "selected_postimage_map": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-format-current-ab831d-qualification-20261018/selected-postimage-hashes.json",
+        "sha256": "df3e1b2fb75f31dbef948fe91ca59acc132b3b70a9b7826ec4ff899cc0515bcd"
+      },
+      "source_or_tool_python_paths": 527,
+      "test_python_paths": 884
+    },
+    "complete_path_list_ref": {
+      "bytes": 318851,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-format-reviewed1411-application-20261018/root-native-format-reviewed1411-20261018-readback.json",
+      "sha256": "9e315d80d040944b1cc7884e254842db920084fd550b63d11f3ed7c6f229b0d5"
+    },
+    "coordination_metadata_path_names": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ],
+    "coordination_metadata_paths": 2,
+    "derivation": "git diff-tree --no-commit-id --name-status -r <commit>; complete names reconciled with pinned commit readback.",
+    "direct_paths": 1411,
+    "git_diff_tree_name_status_sha256": "f49b85c6f283d8682c905912ee6904113461d8cc814d13ca3e32089a8e36cd19",
+    "mandatory_documentation_companion_paths": 0,
+    "mandatory_test_companion_paths": 884,
+    "source_or_tool_paths": 527,
+    "total_git_changed_paths": 1413
+  },
+  "closure_ids": [],
+  "limits": [],
+  "next_check_at_adoption": "Run a separately scoped behavioral profile on a frozen current source.",
+  "preparation_frame": {
+    "branch": "refs/heads/codex/e02-unified-local-20261009",
+    "focused_freeze": {
+      "bytes": 2828,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-focused-source-profile-freeze-445f897-20261018/freeze.json",
+      "sha256": "8e0825e3db3d426b0809576d4111a6c596f6c8c06db5e0acabf807726ef1c9ff"
+    },
+    "freeze_scope": "Focused current-candidate replay of integrated source; not final global E02 closeout freeze",
+    "head": "445f897fac7a6c863a6e7cae017338f4d6bc3183",
+    "tree": "31786df46b9789a111846e31623a31e7b124a201"
+  },
+  "property": "Independent full reconstruction of all changed postimages with AST, ordered comment tokens, and 902 directive bindings preserved; exact postimage hashes rechecked after canonical application",
+  "proposal_ids": [],
+  "proposal_not_adjudicated": true,
+  "record_type": "implementation_commit_receipt",
+  "review_refs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-format-2b3feb-independent-20261018/index.json",
+      "sha256": "d36699ef5482105fba8dbfa33748a3f369d541f44f7308e59a069d0f767604c9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-format-2b3feb-independent-20261018/review.json",
+      "sha256": "652c4a544add7e7a04b2e7347dd429dd515192194db39ddc5cebe681de141201"
+    }
+  ],
+  "runtime_status_at_source_adoption": "UNRUN after this application",
+  "schema": "polisyos.e02.native_source_commit_receipt.v1",
+  "source_application": {
+    "commit_readback": {
+      "bytes": 318851,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-format-reviewed1411-application-20261018/root-native-format-reviewed1411-20261018-readback.json",
+      "sha256": "9e315d80d040944b1cc7884e254842db920084fd550b63d11f3ed7c6f229b0d5"
+    },
+    "identity": "root-native-format-reviewed1411-application-20261018",
+    "peer_and_review_refs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-format-2b3feb-independent-20261018/index.json",
+        "sha256": "d36699ef5482105fba8dbfa33748a3f369d541f44f7308e59a069d0f767604c9"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-format-2b3feb-independent-20261018/review.json",
+        "sha256": "652c4a544add7e7a04b2e7347dd429dd515192194db39ddc5cebe681de141201"
+      }
+    ],
+    "plan_and_application_refs": [
+      {
+        "bytes": 3253183,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-format-current-ab831d-qualification-20261018/format-diff.patch",
+        "role": "patch",
+        "sha256": "107ae3a223f328e906448bdf91071108fa73e1967033802be2d1116e61fd2380"
+      },
+      {
+        "bytes": 3078072,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-format-current-ab831d-qualification-20261018/selected-postimage-hashes.json",
+        "role": "selected_postimage_map",
+        "sha256": "df3e1b2fb75f31dbef948fe91ca59acc132b3b70a9b7826ec4ff899cc0515bcd"
+      }
+    ],
+    "readback_scope": "Complete Git path set and source_sha256 map are retained in cited readback; no large path/hash array is copied.",
+    "source_application": {
+      "bytes": 683310,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-format-reviewed1411-application-20261018/source-application.json",
+      "sha256": "82b70150dbfa01f7d11a38189eb3cf64335818a1b61d8f2b00c8d64e47f2e234"
+    },
+    "status": "commit_readback_verified"
+  },
+  "source_base": {
+    "sha": "2b3febdbba8d33ab21aaff32f976b8c31ad183de",
+    "tree": "93554100f8dc966b7a6d6d9d869b6e1b03a9ca21"
+  },
+  "source_commit": {
+    "branch_ref": "refs/heads/codex/e02-unified-local-20261009",
+    "parents": [
+      "2b3febdbba8d33ab21aaff32f976b8c31ad183de"
+    ],
+    "reachable_from_preparation_head": true,
+    "sha": "b87e111aa8e90a93eba4d0b5c25273a059f189c9",
+    "subject": "style(e02): apply reviewed canonical Ruff formatting across native selector",
+    "tree": "63c00b7134140d6aef1331a257ee5d75308def60"
+  },
+  "source_freeze_at_application": false,
+  "static_quality": {
+    "complete_run_record": {
+      "bytes": 683310,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-format-reviewed1411-application-20261018/source-application.json",
+      "sha256": "82b70150dbfa01f7d11a38189eb3cf64335818a1b61d8f2b00c8d64e47f2e234"
+    },
+    "counts_by_mode_and_exit": [
+      {
+        "count": 5,
+        "exit_code": 0,
+        "mode": "check"
+      },
+      {
+        "count": 1,
+        "exit_code": 1,
+        "mode": "check"
+      },
+      {
+        "count": 27,
+        "exit_code": 0,
+        "mode": "format"
+      }
+    ],
+    "failure_output_refs": [
+      {
+        "exit_code": 1,
+        "mode": "check",
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-format-reviewed1411-application-20261018/check-0.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-format-reviewed1411-application-20261018/check-0.stdout.txt",
+          "sha256": "1a26823f1826097ceadfa4a963d8a7732cc750bf1e23abbac23b1e086d0775bf"
+        }
+      }
+    ],
+    "status": "APPLICATION_HAD_FAILURE"
+  },
+  "status": "source_commit_readback_verified_application_check_red_runtime_unrun_at_adoption"
+}

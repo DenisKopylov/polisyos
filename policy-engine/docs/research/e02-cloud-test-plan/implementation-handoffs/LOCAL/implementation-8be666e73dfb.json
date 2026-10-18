@@ -1,0 +1,188 @@
+{
+  "G_acceptance": false,
+  "P40": "No separate P40 reclassification is made in this receipt; preserve referenced source application and review classifications.",
+  "P41": "No inherited-red exclusion claim is made by this receipt.",
+  "changed_path_denominator": {
+    "changed_path_rows": [
+      {
+        "category": "mandatory_test_companion",
+        "path": "policy-engine/tests/unit/remediation/test_emb_03.py",
+        "sha256_at_commit": "bd9378a7759863899f62821390af5025f95d3db5245bd3c860f55d9fb3e29750"
+      },
+      {
+        "category": "mandatory_test_companion",
+        "path": "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py",
+        "sha256_at_commit": "4f86650c271202e6c19a630cf5fea91a308b0a41694fdf742066623953606e45"
+      }
+    ],
+    "complete_path_list_ref": {
+      "bytes": 1318,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-c12-composed-adoption-20261018/root-terminal-c12-composed-adoption-20261018-readback.json",
+      "sha256": "593bbb6be62070e2b87580952407c041fb34d14541498283ced55094ebb53a9a"
+    },
+    "coordination_metadata_path_names": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ],
+    "coordination_metadata_paths": 2,
+    "derivation": "git diff-tree --no-commit-id --name-status -r <commit>; complete names reconciled with pinned commit readback.",
+    "direct_paths": 2,
+    "git_diff_tree_name_status_sha256": "053e04391d56c66b11fc92dd1daa2a49f4b35b0a46967545490b5acd4be42850",
+    "mandatory_documentation_companion_paths": 0,
+    "mandatory_test_companion_paths": 2,
+    "source_or_tool_paths": 0,
+    "total_git_changed_paths": 4
+  },
+  "closure_ids": [],
+  "limits": [
+    "Joined QA producer→current fenced row→terminal outbox→fresh GET still not_established for ordinary N4 route",
+    "Alternate E5 revision is internally hash-valid constructed negative, not a genuine owner-issued second revision",
+    "NL Catalog call witness uses fake retrieval service; real generation/profile consumers require separate actual Legal/Catalog profile",
+    "Runtime on this adopted composition UNRUN"
+  ],
+  "next_check_at_adoption": "Run current whole monetary modules and source-bound real E5 Legal/Catalog consumers on frozen profile; preserve malformed-present controls and no authority claim.",
+  "preparation_frame": {
+    "branch": "refs/heads/codex/e02-unified-local-20261009",
+    "focused_freeze": {
+      "bytes": 2828,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-focused-source-profile-freeze-445f897-20261018/freeze.json",
+      "sha256": "8e0825e3db3d426b0809576d4111a6c596f6c8c06db5e0acabf807726ef1c9ff"
+    },
+    "freeze_scope": "Focused current-candidate replay of integrated source; not final global E02 closeout freeze",
+    "head": "445f897fac7a6c863a6e7cae017338f4d6bc3183",
+    "tree": "31786df46b9789a111846e31623a31e7b124a201"
+  },
+  "property": "Ordinary N4 fresh GET distinguishes truly absent QA refs from malformed supplied maps and keeps wrong-owner/intent refusal. C12 real E5 consumer tests bind selected generation/revision and immutable request intent; same label/device/dimension cannot authorize an encoder revision substitution.",
+  "proposal_ids": [],
+  "proposal_not_adjudicated": true,
+  "record_type": "implementation_commit_receipt",
+  "review_refs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-c12-composed-independent-20261018/review.md",
+      "sha256": "9fb95cc8b4f9821a46e79da002723e6bebe595242085fd549d0d0ff70d034911"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-r11-r12-independent-20261018/review.md",
+      "sha256": "c5bac59f09d2156dfbe7c34f90b437401911120b236f57b96c6629a1fc3154cb"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-r3-serving-independent-20261018/review.md",
+      "sha256": "d3baac801457e8cf32b3d80f35155744cb3da5b187c374b0fdbb7aad0e93425e"
+    }
+  ],
+  "runtime_status_at_source_adoption": "UNRUN on adopted canonical source; bounded candidate evidence is separately referenced",
+  "schema": "polisyos.e02.native_source_commit_receipt.v1",
+  "source_application": {
+    "commit_readback": {
+      "bytes": 1318,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-c12-composed-adoption-20261018/root-terminal-c12-composed-adoption-20261018-readback.json",
+      "sha256": "593bbb6be62070e2b87580952407c041fb34d14541498283ced55094ebb53a9a"
+    },
+    "identity": "root-terminal-c12-composed-adoption-20261018",
+    "peer_and_review_refs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-c12-composed-independent-20261018/review.md",
+        "sha256": "9fb95cc8b4f9821a46e79da002723e6bebe595242085fd549d0d0ff70d034911"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-r11-r12-independent-20261018/review.md",
+        "sha256": "c5bac59f09d2156dfbe7c34f90b437401911120b236f57b96c6629a1fc3154cb"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c12-r3-serving-independent-20261018/review.md",
+        "sha256": "d3baac801457e8cf32b3d80f35155744cb3da5b187c374b0fdbb7aad0e93425e"
+      }
+    ],
+    "plan_and_application_refs": [
+      {
+        "bytes": 3990,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-c12-composed-adoption-20261018/plan.json",
+        "role": "plan",
+        "sha256": "4b2f4f93428f4961c5061cc17f739a554a3a06267bf1a57e75815ed100618cce"
+      },
+      {
+        "bytes": 24925,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-c12-composed-adoption-20261018/reviewed-present-postimages.patch",
+        "role": "present_patch",
+        "sha256": "f32e0b13c6b131d9ac548b0155b416b80c17c66441218cf57717f7a778b52b8e"
+      },
+      {
+        "bytes": 197,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-c12-composed-adoption-20261018/native-trash-receipt.json",
+        "role": "native_trash_receipt",
+        "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+      }
+    ],
+    "readback_scope": "Complete Git path set and source_sha256 map are retained in cited readback; no large path/hash array is copied.",
+    "source_application": {
+      "bytes": 6839,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-c12-composed-adoption-20261018/source-application.json",
+      "sha256": "4853032ec48373d065d28bdcce5a588dfae7539002140d93ebaff77718f35ec8"
+    },
+    "status": "commit_readback_verified"
+  },
+  "source_base": {
+    "sha": "f06db62bd3db21744d5462dbfae0895198acd1f6",
+    "tree": "e8e26e30a0f65ed451407c9979aa0dacf1f84514"
+  },
+  "source_commit": {
+    "branch_ref": "refs/heads/codex/e02-unified-local-20261009",
+    "parents": [
+      "f06db62bd3db21744d5462dbfae0895198acd1f6"
+    ],
+    "reachable_from_preparation_head": true,
+    "sha": "8be666e73dfb2efc8d8cff16777c1f4c151bf728",
+    "subject": "test(e02): align ordinary owner route and encoder revision consumers",
+    "tree": "0f33e672951579b04e6b30072cb5a25524142924"
+  },
+  "source_freeze_at_application": false,
+  "static_quality": {
+    "complete_run_record": {
+      "bytes": 6839,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-c12-composed-adoption-20261018/source-application.json",
+      "sha256": "4853032ec48373d065d28bdcce5a588dfae7539002140d93ebaff77718f35ec8"
+    },
+    "runs": [
+      {
+        "argv_prefix": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache"
+        ],
+        "exit_code": 0,
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-c12-composed-adoption-20261018/check.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-c12-composed-adoption-20261018/check.stdout.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+        }
+      },
+      {
+        "argv_prefix": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check"
+        ],
+        "exit_code": 0,
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-c12-composed-adoption-20261018/format.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-c12-composed-adoption-20261018/format.stdout.txt",
+          "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+        }
+      }
+    ],
+    "status": "PASS"
+  },
+  "status": "source_commit_readback_verified_static_ruff_pass_runtime_unrun_at_adoption"
+}

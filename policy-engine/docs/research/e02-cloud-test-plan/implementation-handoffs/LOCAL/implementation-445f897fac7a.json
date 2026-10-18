@@ -1,0 +1,202 @@
+{
+  "G_acceptance": false,
+  "P40": "No separate P40 reclassification is made in this receipt; preserve referenced source application and review classifications.",
+  "P41": "No inherited-red exclusion claim is made by this receipt.",
+  "changed_path_denominator": {
+    "changed_path_rows": [
+      {
+        "category": "source_or_tool_path",
+        "path": "policy-engine/benchmarks/econometrics/phase2_frontier.py",
+        "sha256_at_commit": "532e39c111df42038ccf77901618461b9c2105cdbf9a9780c9dc064c35497619"
+      },
+      {
+        "category": "source_or_tool_path",
+        "path": "policy-engine/benchmarks/network/phase2_identification_frontier.py",
+        "sha256_at_commit": "21671a5da27db464c69998457ffd70858bcdec99de0d20d5aaf6da424772eb5a"
+      },
+      {
+        "category": "source_or_tool_path",
+        "path": "policy-engine/benchmarks/temporal/fixtures.py",
+        "sha256_at_commit": "020ee8421b9426a0c8e49897e9b4eb960d870a6caa27e6519374d114c7bac438"
+      },
+      {
+        "category": "source_or_tool_path",
+        "path": "policy-engine/tools/research/demos/run_udf_hybrid_demo.py",
+        "sha256_at_commit": "c2631eb401a64f8c16a0e7bff4148bbe65efb722de413cc6fa805e624653f789"
+      },
+      {
+        "category": "source_or_tool_path",
+        "path": "policy-engine/tools/research/demos/run_udf_query_demo.py",
+        "sha256_at_commit": "2f95113873ee6cf6a2497ff5022b469258113911c5a182e186a78c96694eea52"
+      }
+    ],
+    "complete_path_list_ref": {
+      "bytes": 1876,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-phase8-five-reviewed-adoption-20261018/root-native-phase8-five-reviewed-adoption-20261018-readback.json",
+      "sha256": "0cdcfbb446591e50b6f2419f930342012a1d2c6940c1439bff897528a4366240"
+    },
+    "coordination_metadata_path_names": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ],
+    "coordination_metadata_paths": 2,
+    "derivation": "git diff-tree --no-commit-id --name-status -r <commit>; complete names reconciled with pinned commit readback.",
+    "direct_paths": 5,
+    "git_diff_tree_name_status_sha256": "bacc465164e0eb2c71c1f9fd00658f387a04be060d3abfc3c5d1617f188706d6",
+    "mandatory_documentation_companion_paths": 0,
+    "mandatory_test_companion_paths": 0,
+    "source_or_tool_paths": 5,
+    "total_git_changed_paths": 7
+  },
+  "closure_ids": [],
+  "limits": [
+    "Legacy UDF demo imports reference absent modules; runtime import side-effect order not_established",
+    "No type/scientific/runtime capability closure",
+    "Supplemental strict benchmark diagnostics preserved; no inheritedP41claim"
+  ],
+  "next_check_at_adoption": "Execute the full native Phase8 178-file check, then freeze candidate/profile and run focused composed Python behavior.",
+  "preparation_frame": {
+    "branch": "refs/heads/codex/e02-unified-local-20261009",
+    "focused_freeze": {
+      "bytes": 2828,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-focused-source-profile-freeze-445f897-20261018/freeze.json",
+      "sha256": "8e0825e3db3d426b0809576d4111a6c596f6c8c06db5e0acabf807726ef1c9ff"
+    },
+    "freeze_scope": "Focused current-candidate replay of integrated source; not final global E02 closeout freeze",
+    "head": "445f897fac7a6c863a6e7cae017338f4d6bc3183",
+    "tree": "31786df46b9789a111846e31623a31e7b124a201"
+  },
+  "property": "Correct the five actual Phase8 I001 import grouping defects under the exact native E,F,I,UP / E402,E501 profile, retaining import-token/comment multisets and non-import AST.",
+  "proposal_ids": [],
+  "proposal_not_adjudicated": true,
+  "record_type": "implementation_commit_receipt",
+  "review_refs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-phase8-i001-five-candidate-20261018/review.md",
+      "sha256": "2ce315c36189ac668b2acfe297e3e7ac2e39e0970c6ca8aa613285cab47763fe"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-phase8-i001-five-independent-20261018/r4-delta.json",
+      "sha256": "723b56240895a67483c630c9e93cec73d1e41b2e720f45fc05f32b2bd5ad4626"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-root-boundaries-20261015/adopt_reviewed_postimages_r4.py",
+      "sha256": "eb0d0716bb37dac3abb3137c45739d3f7a86a5bfe46dc37c6b9b2680808199b4"
+    }
+  ],
+  "runtime_status_at_source_adoption": "UNRUN on adopted canonical source; bounded candidate evidence is separately referenced",
+  "schema": "polisyos.e02.native_source_commit_receipt.v1",
+  "source_application": {
+    "commit_readback": {
+      "bytes": 1876,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-phase8-five-reviewed-adoption-20261018/root-native-phase8-five-reviewed-adoption-20261018-readback.json",
+      "sha256": "0cdcfbb446591e50b6f2419f930342012a1d2c6940c1439bff897528a4366240"
+    },
+    "identity": "root-native-phase8-five-reviewed-adoption-20261018",
+    "peer_and_review_refs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-phase8-i001-five-candidate-20261018/review.md",
+        "sha256": "2ce315c36189ac668b2acfe297e3e7ac2e39e0970c6ca8aa613285cab47763fe"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-phase8-i001-five-independent-20261018/r4-delta.json",
+        "sha256": "723b56240895a67483c630c9e93cec73d1e41b2e720f45fc05f32b2bd5ad4626"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-root-boundaries-20261015/adopt_reviewed_postimages_r4.py",
+        "sha256": "eb0d0716bb37dac3abb3137c45739d3f7a86a5bfe46dc37c6b9b2680808199b4"
+      }
+    ],
+    "plan_and_application_refs": [
+      {
+        "bytes": 5326,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-phase8-five-reviewed-adoption-20261018/plan.json",
+        "role": "plan",
+        "sha256": "6342b4a173e5ff63d0d75d6dafb2e2793a3a8202d79f57ecfa35e73c29954ef1"
+      },
+      {
+        "bytes": 3773,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-phase8-five-reviewed-adoption-20261018/reviewed-present-postimages.patch",
+        "role": "present_patch",
+        "sha256": "4ab4c7deea90bedfcd55c1e9dde4748b1fba66f21e013c2c39698f5d646afe89"
+      },
+      {
+        "bytes": 197,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-phase8-five-reviewed-adoption-20261018/native-trash-receipt.json",
+        "role": "native_trash_receipt",
+        "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+      }
+    ],
+    "readback_scope": "Complete Git path set and source_sha256 map are retained in cited readback; no large path/hash array is copied.",
+    "source_application": {
+      "bytes": 9032,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-phase8-five-reviewed-adoption-20261018/source-application.json",
+      "sha256": "8fecf6b124a9a4590286b1a71f8eb7967f97e2562c637a4bd7466f7f1ae998a3"
+    },
+    "status": "commit_readback_verified"
+  },
+  "source_base": {
+    "sha": "8be666e73dfb2efc8d8cff16777c1f4c151bf728",
+    "tree": "0f33e672951579b04e6b30072cb5a25524142924"
+  },
+  "source_commit": {
+    "branch_ref": "refs/heads/codex/e02-unified-local-20261009",
+    "parents": [
+      "8be666e73dfb2efc8d8cff16777c1f4c151bf728"
+    ],
+    "reachable_from_preparation_head": true,
+    "sha": "445f897fac7a6c863a6e7cae017338f4d6bc3183",
+    "subject": "style(e02): align Phase8 import groups with native Ruff policy",
+    "tree": "31786df46b9789a111846e31623a31e7b124a201"
+  },
+  "source_freeze_at_application": false,
+  "static_quality": {
+    "complete_run_record": {
+      "bytes": 9032,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-phase8-five-reviewed-adoption-20261018/source-application.json",
+      "sha256": "8fecf6b124a9a4590286b1a71f8eb7967f97e2562c637a4bd7466f7f1ae998a3"
+    },
+    "runs": [
+      {
+        "argv_prefix": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache"
+        ],
+        "exit_code": 0,
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-phase8-five-reviewed-adoption-20261018/check-native-role-0.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-phase8-five-reviewed-adoption-20261018/check-native-role-0.stdout.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+        }
+      },
+      {
+        "argv_prefix": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check"
+        ],
+        "exit_code": 0,
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-phase8-five-reviewed-adoption-20261018/format-native-role-0.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-phase8-five-reviewed-adoption-20261018/format-native-role-0.stdout.txt",
+          "sha256": "f114d83b30c5c657ee43a847a45bafccaea255d82673feb87c26d252c61e29c1"
+        }
+      }
+    ],
+    "status": "PASS"
+  },
+  "status": "source_commit_readback_verified_static_ruff_pass_runtime_unrun_at_adoption"
+}

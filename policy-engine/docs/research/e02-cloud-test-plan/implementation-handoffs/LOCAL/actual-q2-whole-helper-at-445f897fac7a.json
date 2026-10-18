@@ -1,0 +1,323 @@
+{
+  "schema": "policyos.e02.bounded_local_handoff_actual_draft.v1",
+  "draft_id": "q2-whole-helper-actual-445-r3",
+  "draft_status": "RAW_DRAFT_FOR_ROOT_REVIEW; no LOCAL handoff target written",
+  "subject": "Q2 whole-helper module actual run at frozen 445 source frame",
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "445f897fac7a6c863a6e7cae017338f4d6bc3183",
+    "tree": "31786df46b9789a111846e31623a31e7b124a201",
+    "tracked_entries": 25654,
+    "freeze": {
+      "role": "full source freeze",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-focused-source-profile-freeze-445f897-20261018/freeze.json",
+      "sha256": "8e0825e3db3d426b0809576d4111a6c596f6c8c06db5e0acabf807726ef1c9ff",
+      "bytes": 2828
+    },
+    "tracked_snapshot": {
+      "role": "complete frozen tracked source snapshot",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-focused-source-profile-freeze-445f897-20261018/tracked-source-freeze.json",
+      "sha256": "d1edba41c29d6b909f2b095bde1c1a3cd4ac37c4c16ac0af7d39d1b920a85e4d",
+      "bytes": 19343093
+    }
+  },
+  "selected_profile": {
+    "kind": "one complete existing helper test module",
+    "test_module": "policy-engine/tests/repo_quality/tools/test_q2_build_tool_wheel_lock.py",
+    "test_module_sha256": "dc86dff1519420dd299522367bf2372acb36787f65a4c877a13851ec3708a4ed",
+    "selected_q2_inputs": "The exact Q2 input pin set is carried by the execution request and actual request; no copied pin map is included here.",
+    "capture_profile": {
+      "role": "R8 one-module capture profile",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-selection-observer-native-api-r8-20261018/module-receipt-profile.json",
+      "sha256": "694b69d0f5abfa70f20d92a5edf09f3ea667c1aa4f0170539c4adbb12ec3d5c9",
+      "bytes": 8422
+    },
+    "selection_method": "Explicit whole-module selector; no -k/-m/deselect; one worker; default pytest plugin autoload preserved."
+  },
+  "command_binding": {
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "exact_argv": [
+      ".venv/bin/python",
+      "-B",
+      "-m",
+      "pytest",
+      "-p",
+      "e02_wave_capture_r8",
+      "-q",
+      "--basetemp",
+      "/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/root-q2-r8-current-whole-helper-r3-20261018-01/pytest-temp",
+      "-o",
+      "cache_dir=/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/root-q2-r8-current-whole-helper-r3-20261018-01/pytest-cache",
+      "--junitxml",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-r8-current-whole-helper-actual-r3-20261018/pytest.xml",
+      "tests/repo_quality/tools/test_q2_build_tool_wheel_lock.py"
+    ],
+    "request_record": {
+      "role": "source-bound exact command and environment",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-r8-current-whole-helper-actual-r3-20261018/request.json",
+      "sha256": "aa6c65601a792537c3bf89cb92723a2c7bcd2cb7ec5b5a188e01393bb6dac138",
+      "bytes": 10305
+    },
+    "runner_manifest": {
+      "role": "runner/source-slice binding",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-r8-current-whole-helper-actual-prepare-r3-20261018/manifest.json",
+      "sha256": "33b205ac644d8fc93c3d03e568bf564097fa09dac3e903d57c998c925f6fa0f4",
+      "bytes": 7284
+    },
+    "runner": {
+      "role": "execution runner",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-r8-current-whole-helper-actual-prepare-r3-20261018/run.py",
+      "sha256": "fd7d6962d6ddd1b668299ecd41a947f511e4619a7524749ff812b027f6113f83",
+      "bytes": 40104
+    },
+    "command_result": {
+      "return_code": 0,
+      "wall_seconds": 1.6360693748574704,
+      "process_group_gone": true,
+      "aborted": false
+    },
+    "external_scratch": "/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/root-q2-r8-current-whole-helper-r3-20261018-01"
+  },
+  "environment": {
+    "interpreter": {
+      "executable_sha256": "14a816f493d6b12ff5f1edec695edcb3590d683c3a904f9e6ea8c171c7a6f403",
+      "path": "policy-engine/.venv/bin/python",
+      "pytest_plugin_autoload": "default plugin autoload preserved; only the pinned R8 capture plugin is added explicitly",
+      "python_version": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+      "pyvenv_cfg_sha256": "1eaa0e4e4be4b02929ffdec9fc56fea39faecd1c3d04bf1edad29a62549c5046",
+      "resolved_path": "/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/bin/python3.14",
+      "selected_inherited_environment": {
+        "PYTEST_ADDOPTS": null,
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": null,
+        "PYTEST_PLUGINS": null,
+        "PYTHONHOME": null,
+        "PYTHONNOUSERSITE": null,
+        "PYTHONPATH": null,
+        "PYTHONUSERBASE": null,
+        "PYTHONWARNINGS": null
+      }
+    },
+    "default_plugin_autoload_preserved": true,
+    "inherited_selection_environment": {
+      "PYTEST_ADDOPTS": null,
+      "PYTEST_DISABLE_PLUGIN_AUTOLOAD": null,
+      "PYTEST_PLUGINS": null,
+      "PYTHONHOME": null,
+      "PYTHONNOUSERSITE": null,
+      "PYTHONPATH": null,
+      "PYTHONUSERBASE": null,
+      "PYTHONWARNINGS": null
+    },
+    "extra_environment": {
+      "E02_CAPTURE_PATH": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-r8-current-whole-helper-actual-r3-20261018/pytest-provenance.json",
+      "E02_CAPTURE_PHASE": "test",
+      "E02_ORIGIN_MODULES": "[\"tools.quality.validation.q2_build_tool_wheel_lock\"]",
+      "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-selection-observer-native-api-r8-20261018"
+    },
+    "workers": 1,
+    "selection_filters_empty": true,
+    "runtime_origin_scope": {
+      "captured_product_namespace_module_count": 70,
+      "matched_regular_module_origins": 70,
+      "origin_mismatches": [],
+      "scope_limit": "Capture plugin covers polisyos/tools namespaces only; this does not attest all third-party imports or pre-sitecustomize interpreter startup.",
+      "unhashed_or_namespace_origins": 0
+    }
+  },
+  "observed_result": {
+    "status": "22 passed; 0 failed/error/skipped/deselected",
+    "collected": 22,
+    "executed": 22,
+    "junit": {
+      "cases": 22,
+      "errors": 0,
+      "failed": 0,
+      "passed": 22,
+      "skipped": 0
+    },
+    "sampled_process_tree_rss_peak_bytes": 111771648,
+    "sample_count": 3,
+    "minimum_sampled_disk_free_bytes": 10845229056,
+    "resource_envelope": {
+      "wall_seconds": 300,
+      "sampled_process_tree_rss_cap_bytes": 2147483648,
+      "disk_floor_bytes": 1073741824,
+      "sample_interval_seconds": 0.5,
+      "rss_cap_is_sampled_not_kernel_enforced": true
+    }
+  },
+  "semantic_controls_witnessed_by_selected_tests": [
+    "complete locked source closure accepted; wheelhouse missing/extra member refusals",
+    "retained quarantine reverified before setup; active dependency and metadata-edge removal fail closure",
+    "optional extra transitive closure; unsupported markers fail closed",
+    "orphan/corrupt wheel RECORD; duplicate lock keys and source-byte drift",
+    "exact pyproject/backend/CPython source profile; profile/lock/helper source archive removal despite retained markers",
+    "wrong URL host/size; redirects rejected; cumulative download cap; all locked hashes required by requirements"
+  ],
+  "source_reconciliation": {
+    "before_after_maps_equal": true,
+    "tracked_bytes_equal": true,
+    "index_equal": true,
+    "POSIX_map_equal": true,
+    "venv_config_equal": true,
+    "reviewed_frozen_bytes_index_POSIX_venv_match": true,
+    "runtime_origins_matched": 70,
+    "runtime_origins_unmatched": 0
+  },
+  "limitations": [
+    "This is one bounded whole-module helper-test receipt only; package build, installed consumer, tiny proof, Phase0, C7 and final E02 acceptance remain not established.",
+    "Passing tests do not establish producer authority, external currentness, or product acceptance.",
+    "Runtime origins cover the captured polisyos/tools namespaces only; third-party modules and pre-capture interpreter startup are outside the claim.",
+    "The separately required R8 parent monitor admission is pending and has not run."
+  ],
+  "next_check": "Complete the separately scoped R8 parent monitor admission; preserve the later tiny-proof/source_projection boundary as not established until separately evidenced.",
+  "capability_reality": "bounded_test_evidence_only; downstream package/consumer and final acceptance not established",
+  "G_acceptance": false,
+  "closure_ids": [],
+  "evidence_references": [
+    {
+      "role": "exact child execution request",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-r8-current-whole-helper-actual-r3-20261018/execution-request.json",
+      "sha256": "fe4b281042e7fe73aaff4c41e7b9684be4ac5ac7a1855f20037168e66b4848f4",
+      "bytes": 10163
+    },
+    {
+      "role": "one-use root grant",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-r8-current-whole-helper-actual-r3-20261018/root-grant.json",
+      "sha256": "5dad15c38e5076c2b586eb23a4f171db677678d6abe6678ed33deb06e1758182",
+      "bytes": 1731
+    },
+    {
+      "role": "actual request and exact argv/environment binding",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-r8-current-whole-helper-actual-r3-20261018/request.json",
+      "sha256": "aa6c65601a792537c3bf89cb92723a2c7bcd2cb7ec5b5a188e01393bb6dac138",
+      "bytes": 10305
+    },
+    {
+      "role": "actual run result",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-r8-current-whole-helper-actual-r3-20261018/run-result.json",
+      "sha256": "bc07a54da65d3bb8c196153cf03d446b8cb527d5472ccd63223eb86481c0f870",
+      "bytes": 24164
+    },
+    {
+      "role": "whole module receipt",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-r8-current-whole-helper-actual-r3-20261018/whole-module-receipt.json",
+      "sha256": "82a4cf9122e0cc96c81d49c358994044d1a5e8c841a1e7092c3e094a686bd19b",
+      "bytes": 5419
+    },
+    {
+      "role": "in-process capture",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-r8-current-whole-helper-actual-r3-20261018/pytest-provenance.json",
+      "sha256": "60c833ec72c8e1646864a6e4fbf633d27146093fa30aabd4d45a316b36b562c8",
+      "bytes": 136353
+    },
+    {
+      "role": "JUnit",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-r8-current-whole-helper-actual-r3-20261018/pytest.xml",
+      "sha256": "251379afe6a9c30d8a264f39fa87d3796cf64acd9b9acb2a127fc4df87fa4beb",
+      "bytes": 3872
+    },
+    {
+      "role": "controller event stream",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-r8-current-whole-helper-actual-r3-20261018/controller-events.jsonl",
+      "sha256": "aafc891330e8d5669dc366ef982b2687e0d40368ba7d65748fbec3a66c035e11",
+      "bytes": 1091
+    },
+    {
+      "role": "phase output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-r8-current-whole-helper-actual-r3-20261018/phase-output.jsonl",
+      "sha256": "af3018197fff7bf7f0863cf356ffd94129a37d5e9caf60807217593c5b41c4e3",
+      "bytes": 1026
+    },
+    {
+      "role": "sampled process tree",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-r8-current-whole-helper-actual-r3-20261018/process-tree.jsonl",
+      "sha256": "8cccde36adf1a6cff2eaba907a46032e7be91ea7957eeea8a69075124219ec84",
+      "bytes": 3060
+    },
+    {
+      "role": "pre-run tracked source map",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-r8-current-whole-helper-actual-r3-20261018/working-source-before.json",
+      "sha256": "0da7db7094a5a6563abd0e45f91f675bce2fbd2017d5e532b6d7ddbd27987fcb",
+      "bytes": 19343082
+    },
+    {
+      "role": "post-run tracked source map",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-r8-current-whole-helper-actual-r3-20261018/working-source-after.json",
+      "sha256": "0da7db7094a5a6563abd0e45f91f675bce2fbd2017d5e532b6d7ddbd27987fcb",
+      "bytes": 19343082
+    },
+    {
+      "role": "stdout",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-r8-current-whole-helper-actual-r3-20261018/pytest.stdout.txt",
+      "sha256": "e2289c230135b682d66e48107f8caab30f5b37878e8daf2e9fb92df9aebb1375",
+      "bytes": 80
+    },
+    {
+      "role": "stderr",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-r8-current-whole-helper-actual-r3-20261018/pytest.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "role": "R3 runner manifest",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-r8-current-whole-helper-actual-prepare-r3-20261018/manifest.json",
+      "sha256": "33b205ac644d8fc93c3d03e568bf564097fa09dac3e903d57c998c925f6fa0f4",
+      "bytes": 7284
+    },
+    {
+      "role": "R3 runner",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-r8-current-whole-helper-actual-prepare-r3-20261018/run.py",
+      "sha256": "fd7d6962d6ddd1b668299ecd41a947f511e4619a7524749ff812b027f6113f83",
+      "bytes": 40104
+    },
+    {
+      "role": "R3 runner delta review",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-r8-current-whole-helper-actual-prepare-r3-20261018/delta-review.json",
+      "sha256": "7c1d08ed4b8b7d4e2d535a8ea9f4765d01ad5ccebb1a60ca2eaf9a85dc4d3a1c",
+      "bytes": 2713
+    },
+    {
+      "role": "R8 selector and observer manifest",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-selection-observer-native-api-r8-20261018/manifest.json",
+      "sha256": "387f1f7f09dbfc8f4a4c866b5cb4347310e879dcbe259277a3e575fe24152d13",
+      "bytes": 24581
+    },
+    {
+      "role": "effective-selection and origin observer",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-selection-observer-native-api-r8-20261018/e02_wave_capture_r8.py",
+      "sha256": "6dd8a0f6009ff90b5d1d951975e2322ce97411865258cf9bd9988ed09d032658",
+      "bytes": 14410
+    },
+    {
+      "role": "single module capture profile",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-selection-observer-native-api-r8-20261018/module-receipt-profile.json",
+      "sha256": "694b69d0f5abfa70f20d92a5edf09f3ea667c1aa4f0170539c4adbb12ec3d5c9",
+      "bytes": 8422
+    },
+    {
+      "role": "independent R8 API review",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-r8-native-api-independent-20261018/review.json",
+      "sha256": "e5c0dd5bd7921904de909c8c47c4ccc2c84cedb71580df434e6babec8d136c78",
+      "bytes": 8675
+    },
+    {
+      "role": "independent actual-run reconciliation",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-r8-current-whole-helper-actual-independent-20261018/review.json",
+      "sha256": "3143fc3aeef51bebc988e71f4f2f5be291daa027c6c367afece9e1990c55823e",
+      "bytes": 3722
+    },
+    {
+      "role": "445 source freeze record",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-focused-source-profile-freeze-445f897-20261018/freeze.json",
+      "sha256": "8e0825e3db3d426b0809576d4111a6c596f6c8c06db5e0acabf807726ef1c9ff",
+      "bytes": 2828
+    },
+    {
+      "role": "complete frozen tracked source snapshot",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-focused-source-profile-freeze-445f897-20261018/tracked-source-freeze.json",
+      "sha256": "d1edba41c29d6b909f2b095bde1c1a3cd4ac37c4c16ac0af7d39d1b920a85e4d",
+      "bytes": 19343093
+    }
+  ]
+}

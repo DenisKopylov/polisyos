@@ -1,0 +1,249 @@
+{
+  "G_acceptance": false,
+  "P40": "No separate P40 reclassification is made in this receipt; preserve referenced source application and review classifications.",
+  "P41": "No inherited-red exclusion claim is made by this receipt.",
+  "changed_path_denominator": {
+    "changed_path_rows": [
+      {
+        "category": "source_or_tool_path",
+        "path": "policy-engine/src/polisyos/runtime/http/routes/runs.py",
+        "sha256_at_commit": "1c9d074718875c65280342021c987d08b3514874f296539084f0da084768798d"
+      },
+      {
+        "category": "source_or_tool_path",
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/generation_cycle.py",
+        "sha256_at_commit": "bdce8e32b0a07d3b9b85c59740f2e6583c1c175b64eddac1cc57d18ddf2b85b0"
+      },
+      {
+        "category": "source_or_tool_path",
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/job_nl_admission.py",
+        "sha256_at_commit": "e88e5b246b4a8c1af0960de663461c9a8b18cebb395d9ea9cb2725b14ae76589"
+      },
+      {
+        "category": "source_or_tool_path",
+        "path": "policy-engine/src/polisyos/runtime/quality/cycle_substrate.py",
+        "sha256_at_commit": "fa41b25c7d0c78d4482e99f73a6dc773820c5eebd81f48b6bb57022532b6f5ac"
+      },
+      {
+        "category": "source_or_tool_path",
+        "path": "policy-engine/src/polisyos/runtime/quality/design_generation.py",
+        "sha256_at_commit": "e8b7a1709ea7431f1026e152857b1b359c76a9cfc8fcff5316be2a7e815e8a8a"
+      },
+      {
+        "category": "source_or_tool_path",
+        "path": "policy-engine/src/polisyos/runtime/quality/generation_cycle.py",
+        "sha256_at_commit": "94ef79709f4d885d60abf88526893a834567d9ed8df7ac3899a9531dfd3060f2"
+      },
+      {
+        "category": "source_or_tool_path",
+        "path": "policy-engine/src/polisyos/runtime/quality/generic_simulation_admission.py",
+        "sha256_at_commit": "74b190bf66a720c211fc5d585ab55952021d4b74fbb5aac76ee913be56eb8f2c"
+      },
+      {
+        "category": "source_or_tool_path",
+        "path": "policy-engine/src/polisyos/runtime/quality/recursive_generation_cycle.py",
+        "sha256_at_commit": "cb2e3391ed2d6f3301f2c4a15dbb2dd104dec6223e226e9357c131bd788a3af3"
+      },
+      {
+        "category": "mandatory_test_companion",
+        "path": "policy-engine/tests/_helpers/candidate_cycle_source_profile.py",
+        "sha256_at_commit": "1eea4ac9ec6e54a7645ed6676506a62d4a8c905e9d025bb68f39c5139c78783a"
+      },
+      {
+        "category": "mandatory_test_companion",
+        "path": "policy-engine/tests/integration/runtime_quality/test_configured_candidate_simulation_served.py",
+        "sha256_at_commit": "18762bbdf4ba162451c0a98d921ea4ec3aec34309c6209ca43489fc28a8eab3c"
+      },
+      {
+        "category": "mandatory_test_companion",
+        "path": "policy-engine/tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py",
+        "sha256_at_commit": "237f62fea9908b35608ef6c9f388d230333f55c245a8c1d0a92f0af6092f4060"
+      },
+      {
+        "category": "mandatory_test_companion",
+        "path": "policy-engine/tests/unit/runtime/quality/test_cycle_substrate.py",
+        "sha256_at_commit": "c318a2ce2c4650bd22faf33722b0d9ab8d62049854c80da495bdf82162981537"
+      },
+      {
+        "category": "mandatory_test_companion",
+        "path": "policy-engine/tests/unit/runtime/quality/test_design_generation.py",
+        "sha256_at_commit": "923639118d14cce01f252ef8632f1439049c63173bf8cb3b365e3f4f63095e5f"
+      },
+      {
+        "category": "mandatory_test_companion",
+        "path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+        "sha256_at_commit": "4ab1322d99e1bcf26e5f40527a110ee121c1ec2571061edeaab8191454a43bb2"
+      },
+      {
+        "category": "mandatory_test_companion",
+        "path": "policy-engine/tests/unit/runtime/quality/test_generation_cycle_history.py",
+        "sha256_at_commit": "feb70a588d914e683793f82cbec4a84d6f363833174e6ca16dd2fe1ce3ace797"
+      },
+      {
+        "category": "mandatory_test_companion",
+        "path": "policy-engine/tests/unit/runtime/quality/test_generic_n5_v3_binding.py",
+        "sha256_at_commit": "ac62b88d637055e2b06ba1f731834d0fc9eb95c4ddf013d79a44980cdf4ee719"
+      }
+    ],
+    "complete_path_list_ref": {
+      "bytes": 4498,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b27-r2-post-outbox-r10-adoption-20261018/root-b27-r2-reviewed-adoption-20261018-readback.json",
+      "sha256": "aa4a9c0457ecd7b155dc42043c57a6d51f6c8d6d618f989957e3eda10dd54514"
+    },
+    "coordination_metadata_path_names": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ],
+    "coordination_metadata_paths": 2,
+    "derivation": "git diff-tree --no-commit-id --name-status -r <commit>; complete names reconciled with pinned commit readback.",
+    "direct_paths": 16,
+    "git_diff_tree_name_status_sha256": "8e8e8545c198844f114e05f920cb961e070c8d758636b78c6ff645c3116398e0",
+    "mandatory_documentation_companion_paths": 0,
+    "mandatory_test_companion_paths": 8,
+    "source_or_tool_paths": 8,
+    "total_git_changed_paths": 18
+  },
+  "closure_ids": [],
+  "limits": [
+    "Source/runtime verification remains UNRUN on adopted bytes; no G acceptance or formal closure.",
+    "The full reviewed footprint has17 files; core/contracts/runtime.py is a verified unchanged mandatory owner input and is excluded from the16 actual changed-path rows.",
+    "B09, real N7 acquisition, source currentness and general NCM structural compatibility retain their explicitly documented limitations; history verification does not grant current execution authority."
+  ],
+  "next_check_at_adoption": "Fresh complete producer/context/N4/N5/reissue/history modules with persisted CAS and served GET positive; malformed/cross-cycle/foreign/empty-profile and removal controls. Preserve B09 and genuine acquisition boundaries separately.",
+  "preparation_frame": {
+    "branch": "refs/heads/codex/e02-unified-local-20261009",
+    "focused_freeze": {
+      "bytes": 2828,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-focused-source-profile-freeze-445f897-20261018/freeze.json",
+      "sha256": "8e0825e3db3d426b0809576d4111a6c596f6c8c06db5e0acabf807726ef1c9ff"
+    },
+    "freeze_scope": "Focused current-candidate replay of integrated source; not final global E02 closeout freeze",
+    "head": "445f897fac7a6c863a6e7cae017338f4d6bc3183",
+    "tree": "31786df46b9789a111846e31623a31e7b124a201"
+  },
+  "property": "Every served generation cycle resolves its own persisted problem and typed source context; cycle0 preserves the admitted initial family reference, subsequent reissues bind the exact revised basis and immutable simulation profile, and empty source-profile lever sets cannot become wildcard admission.",
+  "proposal_ids": [],
+  "proposal_not_adjudicated": true,
+  "record_type": "implementation_commit_receipt",
+  "review_refs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b27-general-cycle-owner-rebind-r2-20261018/candidate-review.md",
+      "sha256": "79398aaf38c3e8854aec1335a0adac5a6cace0c6ed3835500a529b842ab224e8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b27-r2-independent-source-20261018/review.json",
+      "sha256": "2206f2a345c85816854d49891d525a623369b92b861f2ba69e63a91a4835cfcf"
+    }
+  ],
+  "runtime_status_at_source_adoption": "UNRUN on adopted canonical source; bounded candidate evidence is separately referenced",
+  "schema": "polisyos.e02.native_source_commit_receipt.v1",
+  "source_application": {
+    "commit_readback": {
+      "bytes": 4498,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b27-r2-post-outbox-r10-adoption-20261018/root-b27-r2-reviewed-adoption-20261018-readback.json",
+      "sha256": "aa4a9c0457ecd7b155dc42043c57a6d51f6c8d6d618f989957e3eda10dd54514"
+    },
+    "identity": "root-b27-r2-post-outbox-r10-adoption-20261018",
+    "peer_and_review_refs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b27-general-cycle-owner-rebind-r2-20261018/candidate-review.md",
+        "sha256": "79398aaf38c3e8854aec1335a0adac5a6cace0c6ed3835500a529b842ab224e8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b27-r2-independent-source-20261018/review.json",
+        "sha256": "2206f2a345c85816854d49891d525a623369b92b861f2ba69e63a91a4835cfcf"
+      }
+    ],
+    "plan_and_application_refs": [
+      {
+        "bytes": 12501,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b27-r2-post-outbox-r10-adoption-20261018/adoption-plan.json",
+        "role": "plan",
+        "sha256": "2d334fd932e3e3dda2715ad4a5cb56dee0d19405efbd28533dcd2dbd6a447bf5"
+      },
+      {
+        "bytes": 167075,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b27-r2-post-outbox-r10-adoption-20261018/reviewed-present-postimages.patch",
+        "role": "present_patch",
+        "sha256": "65a59f6c5f9972a8457f53dea3eabaddfde2589dc67a8ee4b75ac3e419f7f59c"
+      },
+      {
+        "bytes": 197,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b27-r2-post-outbox-r10-adoption-20261018/native-trash-receipt.json",
+        "role": "native_trash_receipt",
+        "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+      }
+    ],
+    "readback_scope": "Complete Git path set and source_sha256 map are retained in cited readback; no large path/hash array is copied.",
+    "source_application": {
+      "bytes": 16127,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b27-r2-post-outbox-r10-adoption-20261018/source-application.json",
+      "sha256": "a855fa7597ee98ae8010d0f54b15974fe3c87923246a5d61ea8b8ec8189b49b0"
+    },
+    "status": "commit_readback_verified"
+  },
+  "source_base": {
+    "sha": "55395b825080b408589c6f3363a351ef9779b40e",
+    "tree": "dc322e0dbdbc0fa980999cc433b8d076a13110d4"
+  },
+  "source_commit": {
+    "branch_ref": "refs/heads/codex/e02-unified-local-20261009",
+    "parents": [
+      "55395b825080b408589c6f3363a351ef9779b40e"
+    ],
+    "reachable_from_preparation_head": true,
+    "sha": "ab831d75146fb4736c692ddf941fa9a1873639ec",
+    "subject": "fix(runtime): bind cycle reissues and served history to their exact source",
+    "tree": "10a834fea5763fc4cf7d775feb1cae7e4f1e3f58"
+  },
+  "source_freeze_at_application": false,
+  "static_quality": {
+    "complete_run_record": {
+      "bytes": 16127,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b27-r2-post-outbox-r10-adoption-20261018/source-application.json",
+      "sha256": "a855fa7597ee98ae8010d0f54b15974fe3c87923246a5d61ea8b8ec8189b49b0"
+    },
+    "runs": [
+      {
+        "argv_prefix": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache"
+        ],
+        "exit_code": 0,
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b27-r2-post-outbox-r10-adoption-20261018/check.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b27-r2-post-outbox-r10-adoption-20261018/check.stdout.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+        }
+      },
+      {
+        "argv_prefix": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check"
+        ],
+        "exit_code": 0,
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b27-r2-post-outbox-r10-adoption-20261018/format.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b27-r2-post-outbox-r10-adoption-20261018/format.stdout.txt",
+          "sha256": "7ff2df5e4a19c344d6ea2dfc25c25d2370159894cbac570f392753b22180e09c"
+        }
+      }
+    ],
+    "status": "PASS"
+  },
+  "status": "source_commit_readback_verified_static_ruff_pass_runtime_unrun_at_adoption"
+}

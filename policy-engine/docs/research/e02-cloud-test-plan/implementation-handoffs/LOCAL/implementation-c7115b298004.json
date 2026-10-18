@@ -1,0 +1,57 @@
+{
+  "record_type": "implementation_commit_receipt",
+  "source_frame": {
+    "slice_base": "445f897fac7a6c863a6e7cae017338f4d6bc3183",
+    "candidate": "c7115b298004cf27a6de269d0280d47e25c54af1",
+    "tree": "29472fb131d4f97c2e22672d13ba033f466789a8",
+    "parents": [
+      "445f897fac7a6c863a6e7cae017338f4d6bc3183"
+    ],
+    "branch": "codex/e02-unified-local-20261009"
+  },
+  "property": "Credal served test imports the three extracted N4 replay helpers from their canonical shared test-helper owner.",
+  "full_code_test_config_and_mandatory_companion_footprint": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "git_mode": "100644",
+      "git_blob": "e7dff02543e329f2dbde9f6b74cd18a1fae70bb4",
+      "bytes": 995752,
+      "sha256": "1949378ec208e433271ad24f0cf0ab6ea7cae3a4ea1b41f3ad4c9052966fb4d2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "git_mode": "100644",
+      "git_blob": "782606668cebf9b8c4a1910d9a9853ffe911be1e",
+      "bytes": 82318,
+      "sha256": "5147a8e2666f6031cbca8c6d4c086c8fedd1776e255188930c639489d9898fa3"
+    },
+    {
+      "path": "policy-engine/tests/integration/runtime_quality/test_generic_credal_source_attempt_served.py",
+      "git_mode": "100644",
+      "git_blob": "4f18fdbe1ebc5a620e6c422e58fd069d0ff699cd",
+      "bytes": 15462,
+      "sha256": "c831a1e649c7dd13c05621c7eac370bc8d26e8692edbcc9551a998635b476117"
+    }
+  ],
+  "application": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-credal-helper-reviewed-adoption-20261019/source-application.json",
+    "sha256": "2667261e78b2953427177b6e9a0696ebf125fec1ad1bfdd53e5d82f89c48b992"
+  },
+  "independent_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-credal-served-helper-independent-20261019/review.md",
+    "sha256": "12a2c25eec48e6035d8fc059ee5cf166f0316d3744be0a1d501f8d3bfe89398e"
+  },
+  "consumer_denominator": {
+    "root": "policy-engine/tests/**/*.py",
+    "tracked_python_files": 3090,
+    "stale_import_edges_before": 1,
+    "stale_import_edges_after": 0
+  },
+  "static_verification": "Canonical Ruff check/format passed; full 3090 tracked-test AST census and one-edge patch independently verified.",
+  "runtime": "UNRUN on c711 candidate; previous 445 attempt ended during collection with 0 test bodies executed.",
+  "capability_label": "verification_missing",
+  "next_check": "Freeze current source and run complete composed 99-module selection; inspect actual producer/artifact/bridge/consumer paths and controls.",
+  "G_acceptance": false,
+  "closure_ids": [],
+  "proposal_outcomes": []
+}

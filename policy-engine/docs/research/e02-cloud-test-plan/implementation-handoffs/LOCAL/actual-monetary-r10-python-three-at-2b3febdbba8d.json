@@ -1,0 +1,165 @@
+{
+  "G_acceptance": false,
+  "P40": "Same fixture/source-seam class as R9 at a second quantity. The ordinary route must first witness a current persisted ref-bearing snapshot before a flat-alias mutation. If absent, use a separate real fenced-store producer witness; do not fall back to terminal-only authority or normalize malformed-present data to absence.",
+  "closure_ids": [],
+  "deciding_outputs": [
+    {
+      "bytes": 45388,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r10-python-three-current-actual-20261018/result.json",
+      "sha256": "04711a4bf2e161e3d4a33028f97b6a5c13797b3a95b11360b73a6a9ae5360379"
+    },
+    {
+      "bytes": 6359,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r10-python-three-current-actual-20261018/request.json",
+      "sha256": "f85f499477a93f3e6325450f7b8442ab1fe43665a4647856381ee1ec37815ec6"
+    },
+    {
+      "bytes": 31410,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r10-python-three-current-actual-20261018/pytest.stdout.txt",
+      "sha256": "99440a6bec6ae6f1c6ceb793fa810062316e232b8a4f9b1013f1f3bcb8dd0984"
+    },
+    {
+      "bytes": 49011,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r10-python-three-current-actual-20261018/pytest.xml",
+      "sha256": "e00ff36f9efdc747d16f27d73b52a2fdadd9680f77822910ffbe0611b2f149f0"
+    },
+    {
+      "bytes": 1615357,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r10-python-three-current-actual-20261018/execution-provenance.json",
+      "sha256": "7dddb0cc60ab3d0238832ffdeff91e55a2e33e6102144cfaa5ceddb680eac985"
+    },
+    {
+      "bytes": 8313,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r10-terminal-fixture-independent-20261018/review.md",
+      "sha256": "bb330e5c720decb7bbe28ffdfe5e83f9ead2b6019b3cda18fef4eee7d4b3316e"
+    }
+  ],
+  "execution": {
+    "execution_provenance": {
+      "bytes": 1615357,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r10-python-three-current-actual-20261018/execution-provenance.json",
+      "sha256": "7dddb0cc60ab3d0238832ffdeff91e55a2e33e6102144cfaa5ceddb680eac985"
+    },
+    "junit": {
+      "bytes": 49011,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r10-python-three-current-actual-20261018/pytest.xml",
+      "sha256": "e00ff36f9efdc747d16f27d73b52a2fdadd9680f77822910ffbe0611b2f149f0"
+    },
+    "request": {
+      "bytes": 6359,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r10-python-three-current-actual-20261018/request.json",
+      "sha256": "f85f499477a93f3e6325450f7b8442ab1fe43665a4647856381ee1ec37815ec6"
+    },
+    "result": {
+      "bytes": 45388,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r10-python-three-current-actual-20261018/result.json",
+      "sha256": "04711a4bf2e161e3d4a33028f97b6a5c13797b3a95b11360b73a6a9ae5360379"
+    },
+    "runtime_origins": {
+      "captured_product_namespace_module_count": 1737,
+      "matched_regular_module_origins": 1737,
+      "origin_mismatches": [],
+      "scope_limit": "Capture plugin covers polisyos/tools namespaces only; this does not attest all third-party imports or pre-sitecustomize interpreter startup.",
+      "unhashed_or_namespace_origins": 0
+    },
+    "source_after": {
+      "bytes": 19337631,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r10-python-three-current-actual-20261018/source-after.json",
+      "sha256": "5c66e7d372e718fc5cdcd01d6c6c2610a51c5329ee7801f1e0bf569edc1f2013"
+    },
+    "source_before": {
+      "bytes": 19337631,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r10-python-three-current-actual-20261018/source-before.json",
+      "sha256": "5c66e7d372e718fc5cdcd01d6c6c2610a51c5329ee7801f1e0bf569edc1f2013"
+    },
+    "source_capture": {
+      "after_path": "source-after.json",
+      "after_sha256": "5c66e7d372e718fc5cdcd01d6c6c2610a51c5329ee7801f1e0bf569edc1f2013",
+      "all_source_maps_equal": true,
+      "before_path": "source-before.json",
+      "before_sha256": "5c66e7d372e718fc5cdcd01d6c6c2610a51c5329ee7801f1e0bf569edc1f2013",
+      "frame_equal": true,
+      "full_posix_lstat_map_equal": true,
+      "git_index_normalized_map_equal": true,
+      "tracked_entry_count_observed": 25645,
+      "tracked_worktree_bytes_equal": true,
+      "venv_config_equal": true
+    },
+    "stderr": {
+      "bytes": 0,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r10-python-three-current-actual-20261018/pytest.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stdout": {
+      "bytes": 31410,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r10-python-three-current-actual-20261018/pytest.stdout.txt",
+      "sha256": "99440a6bec6ae6f1c6ceb793fa810062316e232b8a4f9b1013f1f3bcb8dd0984"
+    }
+  },
+  "identity": "monetary-r10-python-three-modules-at-2b3febdbba8d",
+  "limits": [
+    "Captured namespace origins cover polisyos/tools, not third-party imports or pre-sitecustomize startup.",
+    "A controlled fixture does not attest external billing, live currentness, or producer authority.",
+    "Sibling equality/no-resurrection and subsequent terminal tamper, attempt, lease-owner and event controls remain unrun after failure."
+  ],
+  "next_check": "Make the fixture phase-aware: observe a valid current persisted worker snapshot before removing exactly its matching flat alias, preserve nested refs, call original completion once, and assert completed row/outbox/fresh GET. If ordinary POST never persists that snapshot, use a separate real fenced-store producer witness while preserving the honest absence case.",
+  "predicate_provenance": {
+    "case counts": "recomputed from full JUnit and collection",
+    "current source equivalence": "not_established",
+    "origin map": "reconciled within stated namespace scope",
+    "producer callback and product attribution": "not_established"
+  },
+  "profile": {
+    "collected": 78,
+    "errors": 0,
+    "executed": 78,
+    "failed": 1,
+    "passed": 77,
+    "return_code": 1,
+    "runtime_origins": {
+      "captured_product_namespace_module_count": 1737,
+      "matched_regular_module_origins": 1737,
+      "origin_mismatches": [],
+      "scope_limit": "Capture plugin covers polisyos/tools namespaces only; this does not attest all third-party imports or pre-sitecustomize interpreter startup.",
+      "unhashed_or_namespace_origins": 0
+    },
+    "selected_modules": [
+      "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_producer_events.py",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py"
+    ],
+    "semantic_acceptance": {
+      "missing_intent": "must remain a refusal in the complete selected modules",
+      "ordinary_post_outbox_fresh_get_scorecard_owner_gate": "must be a passing semantic test in the complete selected modules",
+      "status": "not_established_by_runner_alone",
+      "tamper_controls": "crosswalk every source-declared control to the complete collected and executed nodeids after fresh source binding"
+    },
+    "skipped": 0
+  },
+  "property_vs_measurement": {
+    "failure_class": "The only failure is a test-fixture boundary failure before production completion runs. A later alias-gap hook requires runtime_quality_refs on the earlier running job_admission snapshot; its assertion stops before the captured original_complete_job call. This does not establish a terminal projection product defect.",
+    "measured": "All three selected modules collected and executed 78 cases: 77 passed, one failed, none errored or skipped; 1737 captured polisyos/tools origins matched.",
+    "passed_controls": "Twelve envelope mutation assertions and missing-terminal-reader control passed on the bound store before failure. Sibling row/outbox/fresh-GET/no-resurrection and later terminal controls were not reached.",
+    "semantic_acceptance": "not_established_by_runner_alone"
+  },
+  "proposal_ids": [],
+  "proposal_not_adjudicated": true,
+  "record_type": "actual_test_verification_receipt",
+  "relationship_to_source_commits": {
+    "source_frame_is_historical": "2b3febdbba8d predates the 1411-path formatting and later integration commits; no current equivalence to these adopted source bytes is claimed."
+  },
+  "review_refs": [
+    {
+      "bytes": 8313,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r10-terminal-fixture-independent-20261018/review.md",
+      "sha256": "bb330e5c720decb7bbe28ffdfe5e83f9ead2b6019b3cda18fef4eee7d4b3316e"
+    }
+  ],
+  "schema": "polisyos.e02.actual_test_verification_receipt.v1",
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "2b3febdbba8d33ab21aaff32f976b8c31ad183de",
+    "tree": "93554100f8dc966b7a6d6d9d869b6e1b03a9ca21"
+  },
+  "status": "bounded_historical_pytest_red_77_pass_1_fail"
+}

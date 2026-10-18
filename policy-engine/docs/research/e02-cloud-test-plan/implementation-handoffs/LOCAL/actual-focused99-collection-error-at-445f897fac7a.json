@@ -1,0 +1,382 @@
+{
+  "schema": "policyos.e02.bounded_local_handoff_actual_draft.v1",
+  "draft_id": "main99-445-collection-only-actual-r5-r2",
+  "draft_status": "RAW_DRAFT_FOR_ROOT_REVIEW; no LOCAL handoff target written",
+  "subject": "Main 99-module current-wave actual at frozen 445 source frame",
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "445f897fac7a6c863a6e7cae017338f4d6bc3183",
+    "tree": "31786df46b9789a111846e31623a31e7b124a201",
+    "tracked_entries": 25654,
+    "freeze": {
+      "role": "full source freeze",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-focused-source-profile-freeze-445f897-20261018/freeze.json",
+      "sha256": "8e0825e3db3d426b0809576d4111a6c596f6c8c06db5e0acabf807726ef1c9ff",
+      "bytes": 2828
+    },
+    "tracked_snapshot": {
+      "role": "complete frozen tracked source snapshot",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-focused-source-profile-freeze-445f897-20261018/tracked-source-freeze.json",
+      "sha256": "d1edba41c29d6b909f2b095bde1c1a3cd4ac37c4c16ac0af7d39d1b920a85e4d",
+      "bytes": 19343093
+    }
+  },
+  "selected_profile": {
+    "kind": "fresh whole-module selector set derived from complete test-source census",
+    "selected_module_count": 99,
+    "census": {
+      "pytest_named_module_count": 2952,
+      "python_file_count_under_tests": 3090,
+      "parse_error_count": 0,
+      "derivation": "AST direct-import census over pytest-named *.py modules; matches Import/ImportFrom and literal __import__, importlib.import_module, pytest.importorskip calls against source module names derived from the B27 adopted source-application.",
+      "limitation": "Literal direct import census only; runtime denominator remains all actually loaded polisyos.* and tools.* origins captured by the supervisor. No transitive import completeness is claimed here."
+    },
+    "count_components": {
+      "b27_changed_test_importer_overlap": 7,
+      "b27_changed_test_modules": 7,
+      "b27_direct_importer_modules": 68,
+      "monetary_importer_overlap": 1,
+      "monetary_modules": 3,
+      "prior_importer_overlap": 0,
+      "prior_modules": 29,
+      "prior_monetary_overlap": 0,
+      "unique_whole_modules": 99
+    },
+    "exact_selector_hash_map": "Retained in source-bound request.json and scope-derived-445.json; not copied into this draft.",
+    "scope_freeze": {
+      "role": "fresh scope freeze",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-post-integration-focused-wave-prepare-20261018/scope-freeze-445/scope-freeze-445.json",
+      "sha256": "32b8c1e9539cd4c3e40d38a76c18a857c28a3157f166511d221fe4c4bcabd06e",
+      "bytes": 43201
+    },
+    "derived_scope": {
+      "role": "complete current selector derivation",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-post-integration-focused-wave-prepare-20261018/scope-freeze-445/scope-derived-445.json",
+      "sha256": "3b824240280c7b118cc662a091223693b0df9998ac5eb54f49802db75d075b41",
+      "bytes": 37316
+    }
+  },
+  "command_binding": {
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "argv_sha256": "3a13c4735f7e83e938555c602190cb8fafe32e2410f88303173dfac87bf59b34",
+    "argv_reference": {
+      "role": "exact 99-selector argv and child invocation",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-post-integration-focused99-current-actual-445-20261018/request.json",
+      "sha256": "37cb9992ca2e38e5ab037807732cf77d980cda0beb2e90c4da2f3584198514e4",
+      "bytes": 43283
+    },
+    "selector_count": 99,
+    "runner": {
+      "role": "source-bound R5 runner",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-post-integration-focused-wave-prepare-20261018/runner-r5/run.py",
+      "sha256": "717e9322ae756dab34e6cdc5df12f4418a5093302c800c9c9545a68fd79d1f81",
+      "bytes": 64279
+    },
+    "runner_sha256": "717e9322ae756dab34e6cdc5df12f4418a5093302c800c9c9545a68fd79d1f81",
+    "launcher": {
+      "role": "fresh root-launch binding implementation",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-focused99-launch-binding-445-20261018/launch_r3.py",
+      "sha256": "4c973561266f503aa94f993167d99dd1a498a5d91245435f024f798faca576b3",
+      "bytes": 7795
+    },
+    "launcher_binding": {
+      "role": "exact source frame, selected run and grant binding",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-focused99-launch-binding-445-20261018/launch.json",
+      "sha256": "512c782e87d21a6d00fed7c48f86778c1ecb0e84ddf987dd02067a3eccca9519",
+      "bytes": 1662
+    },
+    "external_scratch": "/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/post-integration-focused-wave-20261018-r5"
+  },
+  "environment": {
+    "interpreter": {
+      "executable_sha256": "14a816f493d6b12ff5f1edec695edcb3590d683c3a904f9e6ea8c171c7a6f403",
+      "origin_list_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-post-integration-focused-wave-prepare-20261018/runner-r4/origin-modules-r4.json",
+      "origin_list_sha256": "029031b183b28ceb42d5b5956824ed66decaa4e2da6940081e5376302f5cf12b",
+      "path": "policy-engine/.venv/bin/python",
+      "pytest_plugin_autoload": "Default plugin loading is preserved; the selection wrapper delegates to the pinned base capture owner.",
+      "python_version": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]",
+      "pyvenv_cfg_sha256": "1eaa0e4e4be4b02929ffdec9fc56fea39faecd1c3d04bf1edad29a62549c5046",
+      "resolved_path": "/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/bin/python3.14",
+      "scope_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-post-integration-focused-wave-prepare-20261018/scope-r1.json",
+      "scope_sha256": "d315f0ee2cea24f7abfa74dda1824067f08c22515093c7020a7246dd2e5b4838",
+      "selected_inherited_environment": {
+        "PYTEST_ADDOPTS": null,
+        "PYTEST_DISABLE_PLUGIN_AUTOLOAD": null,
+        "PYTEST_PLUGINS": null,
+        "PYTHONHOME": null,
+        "PYTHONNOUSERSITE": null,
+        "PYTHONPATH": null,
+        "PYTHONUSERBASE": null,
+        "PYTHONWARNINGS": null
+      }
+    },
+    "default_plugin_autoload_preserved": true,
+    "inherited_selection_environment": {
+      "PYTEST_ADDOPTS": null,
+      "PYTEST_DISABLE_PLUGIN_AUTOLOAD": null,
+      "PYTEST_PLUGINS": null,
+      "PYTHONHOME": null,
+      "PYTHONNOUSERSITE": null,
+      "PYTHONPATH": null,
+      "PYTHONUSERBASE": null,
+      "PYTHONWARNINGS": null
+    },
+    "workers": 1,
+    "effective_selection_qualified": false,
+    "no_k_or_m_or_deselect_filters": false,
+    "runtime_origins": {
+      "loaded_product_tool_origin_count": 1942,
+      "matched": 1942,
+      "mismatches": [],
+      "qualified": true
+    },
+    "capture_environment_binding": {
+      "capture_phase": "test",
+      "capture_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-post-integration-focused99-current-actual-445-20261018/execution-provenance.json",
+      "origin_modules": "Bound by actual request.json; full origin list cited separately instead of duplicated here.",
+      "origin_list": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-post-integration-focused-wave-prepare-20261018/runner-r4/origin-modules-r4.json",
+        "sha256": "029031b183b28ceb42d5b5956824ed66decaa4e2da6940081e5376302f5cf12b",
+        "bytes": 8722
+      },
+      "PYTHONPATH": "The R8 observer directory, exactly recorded in request.json."
+    }
+  },
+  "observed_result": {
+    "status": "collection failed; no test bodies executed",
+    "collected_nodeids": 2713,
+    "executed_nodeids": 0,
+    "junit": {
+      "cases": 1,
+      "errors": 1,
+      "failed": 0,
+      "passed": 0,
+      "skipped": 0
+    },
+    "actual_error": "Collection of tests/integration/runtime_quality/test_generic_credal_source_attempt_served.py failed at line 13: ImportError because _RECORDING_ID is not importable from tests.integration.runtime_quality/test_generic_n4_child_profile_set_served.py. No product test body ran; this receipt does not establish a product semantic failure or pass.",
+    "process_return_code": 2,
+    "wall_seconds": 22.72239595791325,
+    "sampled_process_tree_rss_peak_bytes": 1457111040,
+    "minimum_sampled_disk_free_bytes": 10799280128,
+    "sample_count": 42,
+    "resource_envelope": {
+      "wall_seconds_cap": 600,
+      "sampled_process_tree_rss_cap_bytes": 2684354560,
+      "disk_floor_bytes": 1073741824,
+      "sample_interval_seconds": 0.5,
+      "rss_cap_is_sampled_not_kernel_enforced": true
+    }
+  },
+  "admission_reconciliation": {
+    "expected_envelope_schema": "policyos.e02.current_composed_wave_pytest_provenance.v1",
+    "actual_envelope_schema": "policyos.e02.current_composed_wave_pytest_provenance.r2",
+    "envelope_admission": {
+      "problems": [
+        "schema_mismatch",
+        "executed_nodeids_malformed_empty_or_duplicated"
+      ],
+      "qualified": false,
+      "scope": "top-level envelope only; source-origin, effective-selection, JUnit and semantic results require their independent joined checks"
+    },
+    "effective_selection_qualified": false,
+    "whole_module_collection_valid": false,
+    "junit_identity_bijection": false,
+    "junit_no_failures_errors_skips": false,
+    "postgate_G": false,
+    "source_unchanged": true,
+    "origins_qualified": true
+  },
+  "semantic_tests_and_controls": {
+    "actual_semantic_assertions": "none; all test bodies unrun",
+    "required_future_controls": [
+      "missing intent remains a refusal",
+      "ordinary post-outbox fresh GET scorecard owner gate passes",
+      "source-declared tamper controls crosswalk to complete collected and executed nodeids after fresh source binding"
+    ],
+    "live_authority_or_currentness": "not established; controlled test fixtures are not evidence of live billing, external currentness, or producer authority"
+  },
+  "source_reconciliation": {
+    "before_after_map_sha256": "d1edba41c29d6b909f2b095bde1c1a3cd4ac37c4c16ac0af7d39d1b920a85e4d",
+    "after_map_sha256": "d1edba41c29d6b909f2b095bde1c1a3cd4ac37c4c16ac0af7d39d1b920a85e4d",
+    "source_maps_equal": true,
+    "tracked_bytes_equal": true,
+    "index_equal": true,
+    "POSIX_map_equal": true,
+    "venv_config_equal": true,
+    "tracked_entries": 25654
+  },
+  "limitations": [
+    "This is a current source-qualified collection attempt, not execution evidence: 2,713 nodeids were collected but zero bodies ran.",
+    "The admission gate is red: expected provenance envelope is v1 but captured execution provenance is r2; execution nodeid admission is malformed/empty; effective-selection qualification, JUnit identity bijection and no-error predicates are false.",
+    "One test import error blocks collection; a separately reviewed correction and new source freeze, scope-bound request and fresh one-use grant are required before another run.",
+    "No producer authority, live currentness, outbox semantic acceptance or capability closure is established.",
+    "Independent docs-factor review remains pending."
+  ],
+  "next_check": "Root to decide and review the bounded collection/admission correction, then derive a fresh source-bound request and obtain a new one-use grant before any rerun; do not reuse this failed run as body evidence.",
+  "capability_reality": "collection_only_red; semantic verification and product acceptance not established",
+  "G_acceptance": false,
+  "closure_ids": [],
+  "evidence_references": [
+    {
+      "role": "actual request with exact 99-selector argv and environment",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-post-integration-focused99-current-actual-445-20261018/request.json",
+      "sha256": "37cb9992ca2e38e5ab037807732cf77d980cda0beb2e90c4da2f3584198514e4",
+      "bytes": 43283
+    },
+    {
+      "role": "actual whole-wave result",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-post-integration-focused99-current-actual-445-20261018/result.json",
+      "sha256": "b84c8f8cac1a90555b29d833faa6c5a69aed725026c7804302499cb014da5646",
+      "bytes": 817475
+    },
+    {
+      "role": "in-process execution provenance",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-post-integration-focused99-current-actual-445-20261018/execution-provenance.json",
+      "sha256": "b8af26323fc3a79dc4a90e6b09af30ef5b8f410c7068887ec221e89b3655aaec",
+      "bytes": 3835995
+    },
+    {
+      "role": "JUnit collection result",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-post-integration-focused99-current-actual-445-20261018/pytest.xml",
+      "sha256": "34f206bc46d4e75f5531eb437de26b7637bd7b29f178698d213a932a745a138a",
+      "bytes": 1215
+    },
+    {
+      "role": "controller event stream",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-post-integration-focused99-current-actual-445-20261018/controller-events.jsonl",
+      "sha256": "1af2b519443eec51910a5412c40806a66d90067e6ed6ba08ce29d6b92647baf7",
+      "bytes": 7109
+    },
+    {
+      "role": "phase output",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-post-integration-focused99-current-actual-445-20261018/phase-output.jsonl",
+      "sha256": "094ca401d76ac8e96524875ab9893033aa410375c9f9b2d7886d2b7c4271c90f",
+      "bytes": 7044
+    },
+    {
+      "role": "sampled process tree",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-post-integration-focused99-current-actual-445-20261018/process-tree.jsonl",
+      "sha256": "f0774f47022d3439c18105e713d977ab7db7b61d9497c30ecfd3aff050cb0c18",
+      "bytes": 282957
+    },
+    {
+      "role": "pytest stdout with collection failure",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-post-integration-focused99-current-actual-445-20261018/pytest.stdout.txt",
+      "sha256": "fcef248785851d97a41703c1e7186032e07e9baf99b6f9b9b0c6c80dc2a7433c",
+      "bytes": 1791
+    },
+    {
+      "role": "pytest stderr",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-post-integration-focused99-current-actual-445-20261018/pytest.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "role": "pre-run tracked source map",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-post-integration-focused99-current-actual-445-20261018/source-before.json",
+      "sha256": "d1edba41c29d6b909f2b095bde1c1a3cd4ac37c4c16ac0af7d39d1b920a85e4d",
+      "bytes": 19343093
+    },
+    {
+      "role": "post-run tracked source map",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-post-integration-focused99-current-actual-445-20261018/source-after.json",
+      "sha256": "d1edba41c29d6b909f2b095bde1c1a3cd4ac37c4c16ac0af7d39d1b920a85e4d",
+      "bytes": 19343093
+    },
+    {
+      "role": "one-use root grant",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-focused99-launch-binding-445-20261018/root-grant.json",
+      "sha256": "60806a0914eafe1f9c7409f29b230010712a78ef7deb3eb063bd91122f27a8d5",
+      "bytes": 3745
+    },
+    {
+      "role": "source/head/tree-bound launcher invocation",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-focused99-launch-binding-445-20261018/launch.json",
+      "sha256": "512c782e87d21a6d00fed7c48f86778c1ecb0e84ddf987dd02067a3eccca9519",
+      "bytes": 1662
+    },
+    {
+      "role": "expected v1 envelope",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-focused99-launch-binding-445-20261018/expected-provenance-envelope.json",
+      "sha256": "33d4aff328c91e6c73e5e72dec54c0d5f265e7ba52a7c88a17081a2afedd69bd",
+      "bytes": 663
+    },
+    {
+      "role": "actual envelope admission; rejected",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-focused99-launch-binding-445-20261018/envelope-admission.json",
+      "sha256": "61b82503ca2f89d596483c3c9db2b59fbc5bfd5be8e2d59545f11364d1a6b6fd",
+      "bytes": 901
+    },
+    {
+      "role": "fresh source-frame/scope freeze",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-post-integration-focused-wave-prepare-20261018/scope-freeze-445/scope-freeze-445.json",
+      "sha256": "32b8c1e9539cd4c3e40d38a76c18a857c28a3157f166511d221fe4c4bcabd06e",
+      "bytes": 43201
+    },
+    {
+      "role": "complete 99-module AST-derived selector set",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-post-integration-focused-wave-prepare-20261018/scope-freeze-445/scope-derived-445.json",
+      "sha256": "3b824240280c7b118cc662a091223693b0df9998ac5eb54f49802db75d075b41",
+      "bytes": 37316
+    },
+    {
+      "role": "bound R5 runner",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-post-integration-focused-wave-prepare-20261018/runner-r5/run.py",
+      "sha256": "717e9322ae756dab34e6cdc5df12f4418a5093302c800c9c9545a68fd79d1f81",
+      "bytes": 64279
+    },
+    {
+      "role": "R8 selector and observer manifest",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-selection-observer-native-api-r8-20261018/manifest.json",
+      "sha256": "387f1f7f09dbfc8f4a4c866b5cb4347310e879dcbe259277a3e575fe24152d13",
+      "bytes": 24581
+    },
+    {
+      "role": "effective-selection and origin observer",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-selection-observer-native-api-r8-20261018/e02_wave_capture_r8.py",
+      "sha256": "6dd8a0f6009ff90b5d1d951975e2322ce97411865258cf9bd9988ed09d032658",
+      "bytes": 14410
+    },
+    {
+      "role": "capture profile",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-selection-observer-native-api-r8-20261018/module-receipt-profile.json",
+      "sha256": "694b69d0f5abfa70f20d92a5edf09f3ea667c1aa4f0170539c4adbb12ec3d5c9",
+      "bytes": 8422
+    },
+    {
+      "role": "independent R8 API review",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-r8-native-api-independent-20261018/review.json",
+      "sha256": "e5c0dd5bd7921904de909c8c47c4ccc2c84cedb71580df434e6babec8d136c78",
+      "bytes": 8675
+    },
+    {
+      "role": "445 source freeze record",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-focused-source-profile-freeze-445f897-20261018/freeze.json",
+      "sha256": "8e0825e3db3d426b0809576d4111a6c596f6c8c06db5e0acabf807726ef1c9ff",
+      "bytes": 2828
+    },
+    {
+      "role": "complete frozen tracked source snapshot",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-focused-source-profile-freeze-445f897-20261018/tracked-source-freeze.json",
+      "sha256": "d1edba41c29d6b909f2b095bde1c1a3cd4ac37c4c16ac0af7d39d1b920a85e4d",
+      "bytes": 19343093
+    },
+    {
+      "role": "exact product/tool origin module allowlist bound into capture",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-post-integration-focused-wave-prepare-20261018/runner-r4/origin-modules-r4.json",
+      "sha256": "029031b183b28ceb42d5b5956824ed66decaa4e2da6940081e5376302f5cf12b",
+      "bytes": 8722
+    },
+    {
+      "role": "independent actual-run reconciliation; confirms the same collection/envelope HOLD facts",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-post-integration-focused99-actual-independent-20261018/reconciliation.json",
+      "sha256": "0e68c352bdd85e641e6ad2c5221d568ea17c72247f6792698b181870730e37e3",
+      "bytes": 12750
+    }
+  ],
+  "supersedes_raw_draft": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-main99-445-actual-receipts-20261018/main99-collection-only-actual-handoff-draft.json",
+    "sha256": "6c0fd28a1ec2aea0c164f0fa9bda54db78222e881408007c9b4e53e5561f8e6b",
+    "bytes": 20431
+  }
+}

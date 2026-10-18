@@ -1,0 +1,506 @@
+{
+  "G_acceptance": false,
+  "P40": "Same bounded R9 execution-evidence class; the independent reconciliation found no new defect class. Scope gaps remain explicit and are not repaired by green command counts.",
+  "closure_ids": [],
+  "deciding_outputs": [
+    {
+      "bytes": 19594,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r9-ts-composed-current-actual-20261018/result.json",
+      "sha256": "233d443d78e83d55df6b97f9810082554d0b57526ced22ac3c198a8458f81d97"
+    },
+    {
+      "bytes": 45516,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r9-ts-current-prepare-r2-20261018/execution-request.json",
+      "sha256": "22da0effbb8ac0c874374eed3e1bf8e487738f8db067a18a8be7990ceb05e725"
+    },
+    {
+      "bytes": 39119,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r9-ts-composed-current-actual-20261018/vitest.junit.xml",
+      "sha256": "3279d372e087a548f224166d65cb37008a1bbecda0b3b9c6b4cf0661abcb87fd"
+    },
+    {
+      "bytes": 45516,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r9-ts-composed-current-actual-20261018/execution-request.json",
+      "sha256": "22da0effbb8ac0c874374eed3e1bf8e487738f8db067a18a8be7990ceb05e725"
+    },
+    {
+      "bytes": 5997,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r9-ts-composed-current-actual-20261018/output-manifest.json",
+      "sha256": "1e841d0d786413265bd6a42b02f3f5cd65a5fdbc64ba11641baecc41c0ee1617"
+    },
+    {
+      "bytes": 4593,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r9-ts-actual-independent-20261018/review.json",
+      "sha256": "6ad8f9973c0d68ec5627b432fcbe0d9f126f18232a91371624cf0f4ca8bca87f"
+    }
+  ],
+  "execution": {
+    "complete_stdout_stderr_refs": [
+      {
+        "bytes": 752,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r9-ts-composed-current-actual-20261018/vitest-whole-three.stdout.txt",
+        "sha256": "4200b835aa8116fe477c04bb8209fa4d327c20da8ec00e950b93aeb1d84f06ef"
+      },
+      {
+        "bytes": 0,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r9-ts-composed-current-actual-20261018/vitest-whole-three.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "bytes": 0,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r9-ts-composed-current-actual-20261018/eslint-dashboard-scope.stdout.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "bytes": 0,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r9-ts-composed-current-actual-20261018/eslint-dashboard-scope.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "bytes": 352,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r9-ts-composed-current-actual-20261018/eslint-runtime-api-client.stdout.txt",
+        "sha256": "c7116c890b298ff5cf9e449714b7ec46d0eb5b89e5e53bc5fee7429a3caf859d"
+      },
+      {
+        "bytes": 0,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r9-ts-composed-current-actual-20261018/eslint-runtime-api-client.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "bytes": 66,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r9-ts-composed-current-actual-20261018/prettier-dashboard-scope.stdout.txt",
+        "sha256": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20"
+      },
+      {
+        "bytes": 0,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r9-ts-composed-current-actual-20261018/prettier-dashboard-scope.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "bytes": 254,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r9-ts-composed-current-actual-20261018/prettier-runtime-api-client.stdout.txt",
+        "sha256": "2a823ba0a96a0b82880b2b34a83beb62620c1108da2f82e56dbc8c4d0b6cea61"
+      },
+      {
+        "bytes": 0,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r9-ts-composed-current-actual-20261018/prettier-runtime-api-client.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "bytes": 271,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r9-ts-composed-current-actual-20261018/typecheck-runtime-dashboard.stdout.txt",
+        "sha256": "c4740b76023a08cf9c2bdda4a123f9e92ae58b4bcc3204da23c1afb1bf8fd0ac"
+      },
+      {
+        "bytes": 0,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r9-ts-composed-current-actual-20261018/typecheck-runtime-dashboard.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "bytes": 196,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r9-ts-composed-current-actual-20261018/typecheck-runtime-api-client.stdout.txt",
+        "sha256": "641c63b5eac771ef85718d094e57a6010703f7e2436cc4fb00f11393f73ed9ff"
+      },
+      {
+        "bytes": 0,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r9-ts-composed-current-actual-20261018/typecheck-runtime-api-client.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "bytes": 176,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r9-ts-composed-current-actual-20261018/typecheck-atlas-ui.stdout.txt",
+        "sha256": "4d8f14e1fb565f114051aa5bd9c3d27d3343d60bdf2eca61f1f041e8bda89f56"
+      },
+      {
+        "bytes": 0,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r9-ts-composed-current-actual-20261018/typecheck-atlas-ui.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "full_result_manifest": "The result file records each argv, completion/exit state and output path; output bytes are retained in its RAW directory.",
+    "independent_reconciliation": {
+      "commands": {
+        "all_process_groups_gone": true,
+        "all_return_code_zero": true,
+        "observed": 8,
+        "requested": 8
+      },
+      "output_inventory": {
+        "actual_files_including_manifest": 36,
+        "all_entries_match": true,
+        "manifest_entries_excluding_manifest_self": 35,
+        "no_missing_or_unexpected_targets": true
+      },
+      "source_frame_interpretation": "03023644881f historical frame only; no equivalence to later 2b3feb source asserted.",
+      "verdict": "PASS_BOUNDED_R9_EXECUTION_RECEIPT"
+    },
+    "independent_review": {
+      "bytes": 4593,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r9-ts-actual-independent-20261018/review.json",
+      "sha256": "6ad8f9973c0d68ec5627b432fcbe0d9f126f18232a91371624cf0f4ca8bca87f"
+    },
+    "output_manifest": {
+      "bytes": 5997,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r9-ts-composed-current-actual-20261018/output-manifest.json",
+      "sha256": "1e841d0d786413265bd6a42b02f3f5cd65a5fdbc64ba11641baecc41c0ee1617"
+    },
+    "request": {
+      "bytes": 45516,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r9-ts-composed-current-actual-20261018/execution-request.json",
+      "sha256": "22da0effbb8ac0c874374eed3e1bf8e487738f8db067a18a8be7990ceb05e725"
+    },
+    "result": {
+      "bytes": 19594,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r9-ts-composed-current-actual-20261018/result.json",
+      "sha256": "233d443d78e83d55df6b97f9810082554d0b57526ced22ac3c198a8458f81d97"
+    },
+    "source_snapshot": {
+      "after_posix_record_count": 25640,
+      "after_tracked_byte_mode_path": "tracked-byte-mode-after.jsonl",
+      "after_tracked_entry_count": 25640,
+      "all_source_and_configuration_unchanged": true,
+      "before_tracked_byte_mode_path": "tracked-byte-mode-before.jsonl",
+      "before_tracked_entry_count": 25640,
+      "comparison_path": "tracked-byte-mode-comparison.json",
+      "frame_equal": true,
+      "full_posix_lstat_equal": true,
+      "git_index_normalized_equal": true,
+      "tracked_bytes_equal": true,
+      "venv_configuration_equal": true
+    }
+  },
+  "identity": "monetary-r9-typescript-three-modules-at-03023644881f",
+  "limits": [
+    "Historical 030236 frame predates current integrated source.",
+    "Only the listed package commands and three Vitest modules were executed.",
+    "No formal finding closure or policy runtime acceptance is claimed."
+  ],
+  "next_check": "If needed for current acceptance, replay the scoped UI/API-client behavior on a separately frozen current source and assess the relevant consumer property.",
+  "predicate_provenance": {
+    "Vitest outcomes": "reconciled from retained JUnit and stdout",
+    "command_exit_states": "recomputed from complete result rows",
+    "current source equivalence": "not_established"
+  },
+  "profile": {
+    "all_commands_complete_zero": true,
+    "command_rows": [
+      {
+        "aborted_reason": null,
+        "argv": [
+          "corepack",
+          "pnpm",
+          "--dir",
+          "apps/runtime-dashboard",
+          "exec",
+          "vitest",
+          "run",
+          "src/api/validators.test.ts",
+          "src/features/runs/components/pipelinePanels.test.tsx",
+          "src/shared/lib/domain/agents.test.ts",
+          "--maxWorkers=1",
+          "--reporter=default",
+          "--reporter=junit",
+          "--outputFile=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r9-ts-composed-current-actual-20261018/vitest.junit.xml"
+        ],
+        "complete": true,
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "disk_free_before_bytes": 11178287104,
+        "finished_at": "2026-10-18T18:33:55.234854+00:00",
+        "id": "vitest-whole-three",
+        "max_sampled_process_tree_rss_bytes": 539983872,
+        "minimum_sampled_disk_free_bytes": 11171590144,
+        "pid": 99876,
+        "process_group_gone": true,
+        "purpose": "Run every test in each of the three complete selected modules; retain JUnit and full stdout/stderr, then reconcile collected/executed/failure counts from both.",
+        "return_code": 0,
+        "sample_count": 18,
+        "sequential_position": 1,
+        "started_at": "2026-10-18T18:33:44.616443+00:00",
+        "status": "passed",
+        "stderr_path": "vitest-whole-three.stderr.txt",
+        "stdout_path": "vitest-whole-three.stdout.txt",
+        "termination_signal": null,
+        "wall_seconds": 10.618382166838273,
+        "wall_total_before_seconds": 3.416603431105614e-05
+      },
+      {
+        "aborted_reason": null,
+        "argv": [
+          "corepack",
+          "pnpm",
+          "--dir",
+          "apps/runtime-dashboard",
+          "exec",
+          "eslint",
+          "src/api/validators.test.ts",
+          "src/api/validators.ts",
+          "src/features/runs/components/AgentPipelinePanel.tsx",
+          "src/features/runs/components/pipelinePanels.test.tsx",
+          "src/shared/lib/domain/agents.test.ts",
+          "src/shared/lib/domain/agents.ts",
+          "--max-warnings=0"
+        ],
+        "complete": true,
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "disk_free_before_bytes": 11177648128,
+        "finished_at": "2026-10-18T18:34:24.958953+00:00",
+        "id": "eslint-dashboard-scope",
+        "max_sampled_process_tree_rss_bytes": 1954611200,
+        "minimum_sampled_disk_free_bytes": 10891272192,
+        "pid": 102,
+        "process_group_gone": true,
+        "purpose": "Lint all selected eligible dashboard source/test paths with zero warnings. src/api/types.ts is omitted because the owning flat config globally ignores it; no warning suppression or ignore override is used.",
+        "return_code": 0,
+        "sample_count": 55,
+        "sequential_position": 2,
+        "started_at": "2026-10-18T18:33:55.235819+00:00",
+        "status": "passed",
+        "stderr_path": "eslint-dashboard-scope.stderr.txt",
+        "stdout_path": "eslint-dashboard-scope.stdout.txt",
+        "termination_signal": null,
+        "wall_seconds": 29.723061374854296,
+        "wall_total_before_seconds": 3.0208146199584007e-05
+      },
+      {
+        "aborted_reason": null,
+        "argv": [
+          "corepack",
+          "pnpm",
+          "--filter",
+          "@polisyos/runtime-api-client",
+          "run",
+          "lint"
+        ],
+        "complete": true,
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "disk_free_before_bytes": 11151818752,
+        "finished_at": "2026-10-18T18:34:26.604903+00:00",
+        "id": "eslint-runtime-api-client",
+        "max_sampled_process_tree_rss_bytes": 362496000,
+        "minimum_sampled_disk_free_bytes": 11151695872,
+        "pid": 340,
+        "process_group_gone": true,
+        "purpose": "Run the package-owned ESLint script over generated client declarations and package checks.",
+        "return_code": 0,
+        "sample_count": 3,
+        "sequential_position": 3,
+        "started_at": "2026-10-18T18:34:24.961049+00:00",
+        "status": "passed",
+        "stderr_path": "eslint-runtime-api-client.stderr.txt",
+        "stdout_path": "eslint-runtime-api-client.stdout.txt",
+        "termination_signal": null,
+        "wall_seconds": 1.6438504999969155,
+        "wall_total_before_seconds": 4.0082959458231926e-05
+      },
+      {
+        "aborted_reason": null,
+        "argv": [
+          "corepack",
+          "pnpm",
+          "--dir",
+          "apps/runtime-dashboard",
+          "exec",
+          "prettier",
+          "--check",
+          "--config",
+          ".prettierrc.json",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/apps/runtime-dashboard/src/api/types.ts",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/apps/runtime-dashboard/src/api/validators.test.ts",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/apps/runtime-dashboard/src/api/validators.ts",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/apps/runtime-dashboard/src/features/runs/components/AgentPipelinePanel.tsx",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/apps/runtime-dashboard/src/features/runs/components/pipelinePanels.test.tsx",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/apps/runtime-dashboard/src/shared/lib/domain/agents.test.ts",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/apps/runtime-dashboard/src/shared/lib/domain/agents.ts"
+        ],
+        "complete": true,
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "disk_free_before_bytes": 11151687680,
+        "finished_at": "2026-10-18T18:34:29.114008+00:00",
+        "id": "prettier-dashboard-scope",
+        "max_sampled_process_tree_rss_bytes": 457441280,
+        "minimum_sampled_disk_free_bytes": 11151683584,
+        "pid": 395,
+        "process_group_gone": true,
+        "purpose": "Read-only format check in the dashboard workspace for the generated DTOs, three target tests, and direct importers.",
+        "return_code": 0,
+        "sample_count": 4,
+        "sequential_position": 4,
+        "started_at": "2026-10-18T18:34:26.607301+00:00",
+        "status": "passed",
+        "stderr_path": "prettier-dashboard-scope.stderr.txt",
+        "stdout_path": "prettier-dashboard-scope.stdout.txt",
+        "termination_signal": null,
+        "wall_seconds": 2.50668887514621,
+        "wall_total_before_seconds": 4.858383908867836e-05
+      },
+      {
+        "aborted_reason": null,
+        "argv": [
+          "corepack",
+          "pnpm",
+          "--filter",
+          "@polisyos/runtime-api-client",
+          "run",
+          "format:check"
+        ],
+        "complete": true,
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "disk_free_before_bytes": 11151667200,
+        "finished_at": "2026-10-18T18:34:30.212575+00:00",
+        "id": "prettier-runtime-api-client",
+        "max_sampled_process_tree_rss_bytes": 243269632,
+        "minimum_sampled_disk_free_bytes": 11151663104,
+        "pid": 411,
+        "process_group_gone": true,
+        "purpose": "Run the generated owner package format check without rewriting files.",
+        "return_code": 0,
+        "sample_count": 2,
+        "sequential_position": 5,
+        "started_at": "2026-10-18T18:34:29.115682+00:00",
+        "status": "passed",
+        "stderr_path": "prettier-runtime-api-client.stderr.txt",
+        "stdout_path": "prettier-runtime-api-client.stdout.txt",
+        "termination_signal": null,
+        "wall_seconds": 1.096883499994874,
+        "wall_total_before_seconds": 8.175009861588478e-05
+      },
+      {
+        "aborted_reason": null,
+        "argv": [
+          "corepack",
+          "pnpm",
+          "--filter",
+          "@polisyos/runtime-dashboard",
+          "run",
+          "typecheck"
+        ],
+        "complete": true,
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "disk_free_before_bytes": 11151654912,
+        "finished_at": "2026-10-18T18:34:47.982717+00:00",
+        "id": "typecheck-runtime-dashboard",
+        "max_sampled_process_tree_rss_bytes": 1760886784,
+        "minimum_sampled_disk_free_bytes": 11146473472,
+        "pid": 438,
+        "process_group_gone": true,
+        "purpose": "Run the full configured app, node, and tools DTO typecheck configs after the test-scope repair.",
+        "return_code": 0,
+        "sample_count": 33,
+        "sequential_position": 6,
+        "started_at": "2026-10-18T18:34:30.214932+00:00",
+        "status": "passed",
+        "stderr_path": "typecheck-runtime-dashboard.stderr.txt",
+        "stdout_path": "typecheck-runtime-dashboard.stdout.txt",
+        "termination_signal": null,
+        "wall_seconds": 17.76776095898822,
+        "wall_total_before_seconds": 9.85830556601286e-05
+      },
+      {
+        "aborted_reason": null,
+        "argv": [
+          "corepack",
+          "pnpm",
+          "--filter",
+          "@polisyos/runtime-api-client",
+          "run",
+          "typecheck"
+        ],
+        "complete": true,
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "disk_free_before_bytes": 11150520320,
+        "finished_at": "2026-10-18T18:34:49.056863+00:00",
+        "id": "typecheck-runtime-api-client",
+        "max_sampled_process_tree_rss_bytes": 280412160,
+        "minimum_sampled_disk_free_bytes": 11150516224,
+        "pid": 654,
+        "process_group_gone": true,
+        "purpose": "Typecheck the generated owner and its public runtime client type tests.",
+        "return_code": 0,
+        "sample_count": 2,
+        "sequential_position": 7,
+        "started_at": "2026-10-18T18:34:47.983743+00:00",
+        "status": "passed",
+        "stderr_path": "typecheck-runtime-api-client.stderr.txt",
+        "stdout_path": "typecheck-runtime-api-client.stdout.txt",
+        "termination_signal": null,
+        "wall_seconds": 1.0731137089896947,
+        "wall_total_before_seconds": 2.6665860787034035e-05
+      },
+      {
+        "aborted_reason": null,
+        "argv": [
+          "corepack",
+          "pnpm",
+          "--filter",
+          "@polisyos/atlas-ui",
+          "run",
+          "typecheck"
+        ],
+        "complete": true,
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "disk_free_before_bytes": 11150503936,
+        "finished_at": "2026-10-18T18:34:51.208831+00:00",
+        "id": "typecheck-atlas-ui",
+        "max_sampled_process_tree_rss_bytes": 542097408,
+        "minimum_sampled_disk_free_bytes": 11150393344,
+        "pid": 693,
+        "process_group_gone": true,
+        "purpose": "Typecheck the second direct workspace consumer of runtime API client DTOs.",
+        "return_code": 0,
+        "sample_count": 4,
+        "sequential_position": 8,
+        "started_at": "2026-10-18T18:34:49.057582+00:00",
+        "status": "passed",
+        "stderr_path": "typecheck-atlas-ui.stderr.txt",
+        "stdout_path": "typecheck-atlas-ui.stdout.txt",
+        "termination_signal": null,
+        "wall_seconds": 2.1512421669904143,
+        "wall_total_before_seconds": 3.541610203683376e-05
+      }
+    ],
+    "elapsed_seconds": 71.45302424998954,
+    "errors": 0,
+    "failed": 0,
+    "junit": {
+      "bytes": 39119,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r9-ts-composed-current-actual-20261018/vitest.junit.xml",
+      "sha256": "3279d372e087a548f224166d65cb37008a1bbecda0b3b9c6b4cf0661abcb87fd"
+    },
+    "observed_commands": 8,
+    "passed": 179,
+    "requested_commands": 8,
+    "skipped": 0,
+    "vitest_cases": 179,
+    "vitest_modules": 3
+  },
+  "property_vs_measurement": {
+    "measurement": "Eight requested package commands completed with zero exit; complete selected three-module Vitest JUnit has 179 passing cases.",
+    "not_established": "This focused UI/API-client profile does not prove policy runtime semantics or whole E02 acceptance."
+  },
+  "proposal_ids": [],
+  "proposal_not_adjudicated": true,
+  "record_type": "actual_test_verification_receipt",
+  "relationship_to_source_commits": {
+    "source_frame_is_historical_base": "03023644881f predates the six implementation commits in this batch; no current source equivalence is claimed."
+  },
+  "review_refs": [
+    {
+      "bytes": 4593,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r9-ts-actual-independent-20261018/review.json",
+      "sha256": "6ad8f9973c0d68ec5627b432fcbe0d9f126f18232a91371624cf0f4ca8bca87f"
+    }
+  ],
+  "revision": "r2: add the required independent evidence review and complete output/request inventory references; original RAW draft remains immutable.",
+  "schema": "polisyos.e02.actual_test_verification_receipt.v1",
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "03023644881f0fbd1908718385206e0833660eef",
+    "tree": "66dc573595dfad8a5622749b268c8513cb266c81"
+  },
+  "status": "bounded_historical_profile_all_8_commands_zero",
+  "supersedes_draft": {
+    "bytes": 21446,
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current-deliveries-receipts-445f897-20261018/actual-monetary-r9-typescript-three-at-03023644881f.json",
+    "sha256": "645f1b7902b408f18c87370f856042f584fc5c27932d17b2dca1aefbf54376da"
+  }
+}

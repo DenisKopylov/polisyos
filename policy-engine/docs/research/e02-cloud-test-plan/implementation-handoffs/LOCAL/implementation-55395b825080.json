@@ -1,0 +1,175 @@
+{
+  "G_acceptance": false,
+  "P40": "No separate P40 reclassification is made in this receipt; preserve referenced source application and review classifications.",
+  "P41": "No inherited-red exclusion claim is made by this receipt.",
+  "changed_path_denominator": {
+    "changed_path_rows": [
+      {
+        "category": "mandatory_test_companion",
+        "path": "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py",
+        "sha256_at_commit": "68135bfcb3e20ec1428b5c6a79d884387dda6f0f0e812cf6ccb5f7d6ba02c333"
+      }
+    ],
+    "complete_path_list_ref": {
+      "bytes": 1130,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-outbox-r10-native-format-qualified-adoption-20261018/root-terminal-outbox-r10-reviewed-adoption-20261018-readback.json",
+      "sha256": "7340ffd705ac3d9dc2c5801e5b86b8812b958d071e85826b90f5a0097e3f5be3"
+    },
+    "coordination_metadata_path_names": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ],
+    "coordination_metadata_paths": 2,
+    "derivation": "git diff-tree --no-commit-id --name-status -r <commit>; complete names reconciled with pinned commit readback.",
+    "direct_paths": 1,
+    "git_diff_tree_name_status_sha256": "50991bec970f84d4eb6f972a195ab4a9841c6b7bed3be446fc0f78f85ff530ce",
+    "mandatory_documentation_companion_paths": 0,
+    "mandatory_test_companion_paths": 1,
+    "source_or_tool_paths": 0,
+    "total_git_changed_paths": 3
+  },
+  "closure_ids": [],
+  "limits": [
+    "One test-only change. Production service graph identity and strict outbox payload comparison are retained.",
+    "R9 actual at 030 was77P/1F; its positive owner join passed, while its wrapper controls did not establish payload-bound refusal. R10 runtime remains UNRUN.",
+    "Original author manifest v2 uses name-only supersedes locator manifest.json; original actual filename is candidate-manifest.json at c358511694cae6fd053ad20bf9cdbec2667bac4468ddbb915f811dfdbb9dd282. Both identities are preserved; this plan uses direct v2 and independent review pins.",
+    "Root applied native Ruff formatting to the reviewed postimage only; complete AST and comment-token identities match. The initial failed format preflight is preserved; canonical source was unchanged at refusal."
+  ],
+  "next_check_at_adoption": "Run the complete monetary module(s) after the composed source freeze; verify all12 payload controls reached the actual reader, the exact missing-reader refusal, persisted row controls, and source-positive/missing-intent-negative pair.",
+  "preparation_frame": {
+    "branch": "refs/heads/codex/e02-unified-local-20261009",
+    "focused_freeze": {
+      "bytes": 2828,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-focused-source-profile-freeze-445f897-20261018/freeze.json",
+      "sha256": "8e0825e3db3d426b0809576d4111a6c596f6c8c06db5e0acabf807726ef1c9ff"
+    },
+    "freeze_scope": "Focused current-candidate replay of integrated source; not final global E02 closeout freeze",
+    "head": "445f897fac7a6c863a6e7cae017338f4d6bc3183",
+    "tree": "31786df46b9789a111846e31623a31e7b124a201"
+  },
+  "property": "Each completion-outbox payload mutation is read from the actual installed ControlPlaneStore while service/store identity remains intact; the owner join then refuses the altered payload.",
+  "proposal_ids": [],
+  "proposal_not_adjudicated": true,
+  "record_type": "implementation_commit_receipt",
+  "review_refs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r9-outbox-controls-independent-20261018/review.md",
+      "sha256": "fd6397c8989da85198c603e4ba3e2f3a5eed07e59204e2d446debabb5bbed1a9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r9-outbox-controls-independent-20261018/r10-manifest-v2-addendum.md",
+      "sha256": "766650daf2404a0003f88adfc5c9cc20b66fcedf10f315af9f02c9203afc500d"
+    }
+  ],
+  "runtime_status_at_source_adoption": "UNRUN on adopted canonical source; bounded candidate evidence is separately referenced",
+  "schema": "polisyos.e02.native_source_commit_receipt.v1",
+  "source_application": {
+    "commit_readback": {
+      "bytes": 1130,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-outbox-r10-native-format-qualified-adoption-20261018/root-terminal-outbox-r10-reviewed-adoption-20261018-readback.json",
+      "sha256": "7340ffd705ac3d9dc2c5801e5b86b8812b958d071e85826b90f5a0097e3f5be3"
+    },
+    "identity": "root-terminal-outbox-r10-native-format-qualified-adoption-20261018",
+    "peer_and_review_refs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r9-outbox-controls-independent-20261018/review.md",
+        "sha256": "fd6397c8989da85198c603e4ba3e2f3a5eed07e59204e2d446debabb5bbed1a9"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r9-outbox-controls-independent-20261018/r10-manifest-v2-addendum.md",
+        "sha256": "766650daf2404a0003f88adfc5c9cc20b66fcedf10f315af9f02c9203afc500d"
+      }
+    ],
+    "plan_and_application_refs": [
+      {
+        "bytes": 4804,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-outbox-r10-native-format-qualified-adoption-20261018/adoption-plan.json",
+        "role": "plan",
+        "sha256": "1ae284762d10dd680d30b408920e71b6e7ad4f5a62d1f1726bb9b51b2b32792c"
+      },
+      {
+        "bytes": 5767,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-outbox-r10-native-format-qualified-adoption-20261018/reviewed-present-postimages.patch",
+        "role": "present_patch",
+        "sha256": "f37e80a2b41f2faab4f70ae1869607122721ef4a4fb5032049b94d77eb03e437"
+      },
+      {
+        "bytes": 197,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-outbox-r10-native-format-qualified-adoption-20261018/native-trash-receipt.json",
+        "role": "native_trash_receipt",
+        "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+      }
+    ],
+    "readback_scope": "Complete Git path set and source_sha256 map are retained in cited readback; no large path/hash array is copied.",
+    "source_application": {
+      "bytes": 7543,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-outbox-r10-native-format-qualified-adoption-20261018/source-application.json",
+      "sha256": "56d9a4918c1780fc62b1f524d3d124bf95b01797ffed656ca161b776ef973896"
+    },
+    "status": "commit_readback_verified"
+  },
+  "source_base": {
+    "sha": "03023644881f0fbd1908718385206e0833660eef",
+    "tree": "66dc573595dfad8a5622749b268c8513cb266c81"
+  },
+  "source_commit": {
+    "branch_ref": "refs/heads/codex/e02-unified-local-20261009",
+    "parents": [
+      "03023644881f0fbd1908718385206e0833660eef"
+    ],
+    "reachable_from_preparation_head": true,
+    "sha": "55395b825080b408589c6f3363a351ef9779b40e",
+    "subject": "test(runtime): exercise owner refusals through the installed store",
+    "tree": "dc322e0dbdbc0fa980999cc433b8d076a13110d4"
+  },
+  "source_freeze_at_application": false,
+  "static_quality": {
+    "complete_run_record": {
+      "bytes": 7543,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-outbox-r10-native-format-qualified-adoption-20261018/source-application.json",
+      "sha256": "56d9a4918c1780fc62b1f524d3d124bf95b01797ffed656ca161b776ef973896"
+    },
+    "runs": [
+      {
+        "argv_prefix": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache"
+        ],
+        "exit_code": 0,
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-outbox-r10-native-format-qualified-adoption-20261018/check.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-outbox-r10-native-format-qualified-adoption-20261018/check.stdout.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+        }
+      },
+      {
+        "argv_prefix": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check"
+        ],
+        "exit_code": 0,
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-outbox-r10-native-format-qualified-adoption-20261018/format.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-outbox-r10-native-format-qualified-adoption-20261018/format.stdout.txt",
+          "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+        }
+      }
+    ],
+    "status": "PASS"
+  },
+  "status": "source_commit_readback_verified_static_ruff_pass_runtime_unrun_at_adoption"
+}

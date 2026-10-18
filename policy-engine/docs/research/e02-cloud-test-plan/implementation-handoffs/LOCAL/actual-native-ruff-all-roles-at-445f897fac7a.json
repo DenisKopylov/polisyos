@@ -1,0 +1,76 @@
+{
+  "G_acceptance": false,
+  "closure_ids": [],
+  "deciding_outputs": [
+    {
+      "bytes": 1121242,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-ruff-all-roles-after-integration-20261018/result.json",
+      "sha256": "c6ed83047405f40bf7c79170202c36d2c620e5a39799ff93d62ae2067c6580a3"
+    },
+    {
+      "bytes": 2828,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-focused-source-profile-freeze-445f897-20261018/freeze.json",
+      "sha256": "8e0825e3db3d426b0809576d4111a6c596f6c8c06db5e0acabf807726ef1c9ff"
+    }
+  ],
+  "execution": {
+    "complete_tracked_freeze_map": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-focused-source-profile-freeze-445f897-20261018/tracked-source-freeze.json",
+      "sha256": "d1edba41c29d6b909f2b095bde1c1a3cd4ac37c4c16ac0af7d39d1b920a85e4d"
+    },
+    "focused_source_freeze": {
+      "bytes": 2828,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-focused-source-profile-freeze-445f897-20261018/freeze.json",
+      "sha256": "8e0825e3db3d426b0809576d4111a6c596f6c8c06db5e0acabf807726ef1c9ff"
+    },
+    "freeze_scope": "Focused current-candidate replay of integrated source; not final global E02 closeout freeze",
+    "result": {
+      "bytes": 1121242,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-ruff-all-roles-after-integration-20261018/result.json",
+      "sha256": "c6ed83047405f40bf7c79170202c36d2c620e5a39799ff93d62ae2067c6580a3"
+    }
+  },
+  "identity": "native-ruff-all-roles-at-445f897fac7a",
+  "limits": [
+    "445 is focused current-candidate freeze, not final global E02 closeout.",
+    "99-module and Q2 whole-module commands require separate execution grants.",
+    "Runtime native SOTA aggregate is UNRUN/not_established by Ruff."
+  ],
+  "next_check": "Use a separately authorized source-bound behavior profile for the target property; keep this record limited to the focused 445 Ruff gate.",
+  "predicate_provenance": {
+    "56 command exits": "recomputed from complete retained command rows",
+    "6611 selector inputs": "reconciled by full result",
+    "runtime semantic property": "not_established by Ruff"
+  },
+  "profile": {
+    "all_commands_exit_zero": true,
+    "commands": 56,
+    "role_counts": {
+      "format-authored": 6572,
+      "format-evidence": 39,
+      "lint-authored": 6394,
+      "lint-evidence": 39,
+      "lint-phase8": 178
+    },
+    "runtime_native_SOTA_aggregate": "UNRUN/not_established by Ruff checks",
+    "source_index_and_frame_unchanged": true,
+    "unique_input_paths": 6611
+  },
+  "property_vs_measurement": {
+    "measured": "Complete pinned 6611-path native Ruff selector ran 56 role commands with exit 0; exact output refs are in the complete result.",
+    "not_measured": "Ruff covers selected static style/lint properties only; no runtime semantics or G acceptance."
+  },
+  "proposal_ids": [],
+  "proposal_not_adjudicated": true,
+  "record_type": "actual_static_verification_receipt",
+  "schema": "polisyos.e02.actual_test_verification_receipt.v1",
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "445f897fac7a6c863a6e7cae017338f4d6bc3183",
+    "parents": [
+      "8be666e73dfb2efc8d8cff16777c1f4c151bf728"
+    ],
+    "tree": "31786df46b9789a111846e31623a31e7b124a201"
+  },
+  "status": "bounded_native_ruff_all_roles_56_commands_zero"
+}

@@ -1,0 +1,124 @@
+{
+  "G_acceptance": false,
+  "P40": "Same already-declared opaque import-time closure/owner-evidence class at a deeper instance. Fold the unrun mutation body into the bounded residual; do not hardcode BaseRegistry, synthesize an owner row, or add a per-test exception. The generic source-built facade/owner closure capability remains the missing closure move.",
+  "closure_ids": [],
+  "deciding_outputs": [
+    {
+      "bytes": 1626,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-r10-semantic-sourceview-actual-r2-20261018/outer-result.json",
+      "sha256": "026be782bda3948d17d6d1204dc3d75cea0d0904955788fe44793c4135c5fdc5"
+    },
+    {
+      "bytes": 3676,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-r10-semantic-sourceview-actual-r2-20261018/root-execution-binding.json",
+      "sha256": "3d5e6b024076008e570e09a0838f85df1cd46a18bcb1b11aeb4a9bfcad2376ae"
+    },
+    {
+      "bytes": 52392,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-r10-runtime-prepare-20261018/runtime-request-r10-v3.json",
+      "sha256": "749da2f0f701bad0d77ca8e2a57e30af5f8a905ce8ebc3bccb780aae5981c29a"
+    },
+    {
+      "bytes": 6463363,
+      "path": "/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/n11-r8-style-20261018-01/run-semantic-r10-mapped-facade-r1/runtime-result.json",
+      "sha256": "50f8af6fb45ba101bf6b1de7efa39e6430f30abee1e6808e9d03c725f193147f"
+    },
+    {
+      "bytes": 9189,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-r10-actual-independent-20261018/review.json",
+      "sha256": "0702e13b37950242732e0eab363f7a6ab0d15e51bf70d29018c5930fd4f17aa6"
+    }
+  ],
+  "execution": {
+    "execution_binding": {
+      "bytes": 3676,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-r10-semantic-sourceview-actual-r2-20261018/root-execution-binding.json",
+      "sha256": "3d5e6b024076008e570e09a0838f85df1cd46a18bcb1b11aeb4a9bfcad2376ae"
+    },
+    "external_result_copied": false,
+    "external_runtime_result": {
+      "bytes": 6463363,
+      "path": "/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/n11-r8-style-20261018-01/run-semantic-r10-mapped-facade-r1/runtime-result.json",
+      "sha256": "50f8af6fb45ba101bf6b1de7efa39e6430f30abee1e6808e9d03c725f193147f"
+    },
+    "independent_review": {
+      "bytes": 9189,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-r10-actual-independent-20261018/review.json",
+      "sha256": "0702e13b37950242732e0eab363f7a6ab0d15e51bf70d29018c5930fd4f17aa6"
+    },
+    "outer_result": {
+      "bytes": 1626,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-r10-semantic-sourceview-actual-r2-20261018/outer-result.json",
+      "sha256": "026be782bda3948d17d6d1204dc3d75cea0d0904955788fe44793c4135c5fdc5"
+    },
+    "output_reconciliation_in_review": {
+      "additional_actual_sidecar": {
+        "bytes": 2670,
+        "contents": "Self-consistent failed capture for the exact selector; request and inventory hashes match the run.",
+        "listed_in_postflight_output_files": false,
+        "name": "integrity-snapshot-witness.json",
+        "path": "/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/n11-r8-style-20261018-01/run-semantic-r10-mapped-facade-r1/integrity-snapshot-witness.json",
+        "sha256": "3be28adb074ed61e8b3daaef148b5e33d40b0640dff4813db7b385bb0d898c33"
+      },
+      "all_seven_listed_files": "Readback sizes and SHA-256 match the postflight output manifest.",
+      "listed_output_files": {
+        "process-tree.jsonl": "68a0434ad6131bc61701aa48b86761ed1d148d87c619bcb5631064c8a056cb1b",
+        "pytest-configure-witness.json": "e6006a9da71a2250e74f460292a60f8cd0959946d4107f390980723c2283b631",
+        "pytest-junit.xml": "372c864d3ee062e67db7f2014fc2debd742f007feaad96e542aa430e45189925",
+        "pytest-origin-witness.json": "aad3288524a8e18d012199cd2bb5904fc13919e4938dc738be0156b324b6f991",
+        "pytest.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "pytest.stdout.txt": "b06a4ba87efed0112f6a984d98f48e6847cd1b52c6421e9e52e3daa30697b94a",
+        "runtime-started.json": "e0b6dbacad761a754cb6dc47218e8190091cfe48b71e3ed03e1fb4c7f48c83cf"
+      },
+      "self_receipt": "runtime-result.json is not listed in its own postflight output map, as expected for a self-receipt."
+    },
+    "request": {
+      "bytes": 52392,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n11-r10-runtime-prepare-20261018/runtime-request-r10-v3.json",
+      "sha256": "749da2f0f701bad0d77ca8e2a57e30af5f8a905ce8ebc3bccb780aae5981c29a"
+    }
+  },
+  "identity": "n11-r10-semantic-sourceview-v3-attempt-20261018",
+  "limits": [
+    "Historical controlled sourceview only; current canonical source equivalence is not established.",
+    "The mutation body is unrun; the 23 other cases are partial evidence.",
+    "Full external runtime result is cited by absolute path and SHA-256, not copied."
+  ],
+  "next_check": "After the generic source-built facade/owner closure witness supplies a nonempty bound loaded-code manifest and owner/normalizer rows, rerun the exact selected mutation and verify that mutation invalidates its prior passing assertion; preserve this failed setup record unchanged.",
+  "predicate_provenance": {
+    "JUnit_and_phase_counts": "reconciled in independent review",
+    "canonical source equivalence": "not_established",
+    "mutation behavior": "not_established; body unrun",
+    "sourceview identity": "reconciled only within controlled sourceview"
+  },
+  "profile": {
+    "errors": 1,
+    "failed": 0,
+    "failed_selector": "tests/unit/runtime/quality/test_confidence_ledger.py::test_integrity_assertion_rechecks_live_function_defaults_after_prior_pass",
+    "failure_phase": "setup failed before test body; call phase is absent/UNRUN; teardown passed.",
+    "passed": 23,
+    "requested_cases": 24,
+    "return_code": 1,
+    "skipped": 0,
+    "unique_test_functions": 21,
+    "wall_seconds": 28.25616579200141
+  },
+  "property_vs_measurement": {
+    "measured": "23 cases passed and one errored during pytest setup in a historical controlled sourceview.",
+    "not_established": "Selected mutation test body and call phase did not run; this does not establish target runtime mutation behavior, DS17/native green, current canonical behavior, or G acceptance.",
+    "setup_failure": "The fail-closed pre-mutation snapshot lacked a bound loaded-code manifest, ledger owner row, and local normalizer-default binding; canonical loaded runtime mismatch and unresolved polisyos.core.registry.BaseRegistry export left the oracle unadmitted."
+  },
+  "proposal_ids": [],
+  "proposal_not_adjudicated": true,
+  "record_type": "actual_test_verification_receipt",
+  "schema": "polisyos.e02.actual_test_verification_receipt.v1",
+  "source_frame": {
+    "boundary": "Historical controlled R10 sourceview, not canonical current capability or G acceptance",
+    "canonical_head": null,
+    "current_canonical_source_equivalence": "not_established",
+    "kind": "historical controlled R10 sourceview",
+    "sourceview_cwd": "/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/n11-r8-style-20261018-01/sourceview/policy-engine",
+    "sourceview_inventory_sha256": "9266a1a6e830171d12b078fc8413b63810f4131e0d9f1dc60fa6a53633e2b6ff"
+  },
+  "status": "historical_controlled_sourceview_red_setup_error_test_body_unrun"
+}

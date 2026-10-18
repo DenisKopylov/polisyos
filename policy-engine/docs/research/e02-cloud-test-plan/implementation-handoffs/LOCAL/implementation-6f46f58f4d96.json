@@ -1,0 +1,181 @@
+{
+  "G_acceptance": false,
+  "P40": "No separate P40 reclassification is made in this receipt; preserve referenced source application and review classifications.",
+  "P41": "No inherited-red exclusion claim is made by this receipt.",
+  "changed_path_denominator": {
+    "changed_path_rows": [
+      {
+        "category": "mandatory_documentation_companion",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/README.md",
+        "sha256_at_commit": "ac2fa69117440e497867928aa9e426eea17a811e006a4a278eefe73d0da0c56e"
+      },
+      {
+        "category": "source_or_tool_path",
+        "path": "policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py",
+        "sha256_at_commit": "12cfb068a2f9d563be46396caa48631a6a5cca19ff435af1d0e3bf7926694eac"
+      },
+      {
+        "category": "mandatory_test_companion",
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_blocking_worker_lifecycle.py",
+        "sha256_at_commit": "ca15d26c7da1c187ed7234d0dfce06570c477b8d6729627aac1c194b258ddf4f"
+      },
+      {
+        "category": "mandatory_test_companion",
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_idempotency.py",
+        "sha256_at_commit": "e5a409bc49f58db53a131e39f06785b65dff1cc8f32aa1bcfdb196c28b877f06"
+      }
+    ],
+    "complete_path_list_ref": {
+      "bytes": 1846,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-r6-formatted-source-adoption-20261018/root-b14-r6-formatted-source-adoption-20261018-readback.json",
+      "sha256": "f4389acaef7dec8d1bc839faad9c87425dc1e0126a33f30b8589aa70012eb0a1"
+    },
+    "coordination_metadata_path_names": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ],
+    "coordination_metadata_paths": 2,
+    "derivation": "git diff-tree --no-commit-id --name-status -r <commit>; complete names reconciled with pinned commit readback.",
+    "direct_paths": 4,
+    "git_diff_tree_name_status_sha256": "29de975acb8b1436d5f8520b2ee350ddc89d2512fbb1e245a6fd5c8546b2a7f3",
+    "mandatory_documentation_companion_paths": 1,
+    "mandatory_test_companion_paths": 2,
+    "source_or_tool_paths": 1,
+    "total_git_changed_paths": 6
+  },
+  "closure_ids": [],
+  "limits": [
+    "Global 63-call/14-file durable-effect denominator remains HOLD",
+    "Runtime on this composition UNRUN",
+    "Orphan CAS bytes may remain; stale publication is fenced"
+  ],
+  "next_check_at_adoption": "Run both full idempotency and blocking-worker-lifecycle modules in the current composed wave; existing platform guard retained.",
+  "preparation_frame": {
+    "branch": "refs/heads/codex/e02-unified-local-20261009",
+    "focused_freeze": {
+      "bytes": 2828,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-focused-source-profile-freeze-445f897-20261018/freeze.json",
+      "sha256": "8e0825e3db3d426b0809576d4111a6c596f6c8c06db5e0acabf807726ef1c9ff"
+    },
+    "freeze_scope": "Focused current-candidate replay of integrated source; not final global E02 closeout freeze",
+    "head": "445f897fac7a6c863a6e7cae017338f4d6bc3183",
+    "tree": "31786df46b9789a111846e31623a31e7b124a201"
+  },
+  "property": "All live API-entered cache operations register before the provider queue, retain short index-lock checks, and reject stale token/deadline admission on discard, clear or applicable prune with finally cleanup. Unrelated keys preserve validity.",
+  "proposal_ids": [],
+  "proposal_not_adjudicated": true,
+  "record_type": "implementation_commit_receipt",
+  "review_refs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-r6-independent-20261018/review.json",
+      "sha256": "e9b1df6574e0e4b07fe892f8b3babf58766e79e5c36c7802d3c4b9efc5643ec1"
+    }
+  ],
+  "runtime_status_at_source_adoption": "UNRUN on adopted canonical source; bounded candidate evidence is separately referenced",
+  "schema": "polisyos.e02.native_source_commit_receipt.v1",
+  "source_application": {
+    "commit_readback": {
+      "bytes": 1846,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-r6-formatted-source-adoption-20261018/root-b14-r6-formatted-source-adoption-20261018-readback.json",
+      "sha256": "f4389acaef7dec8d1bc839faad9c87425dc1e0126a33f30b8589aa70012eb0a1"
+    },
+    "identity": "root-b14-r6-formatted-source-adoption-20261018",
+    "peer_and_review_refs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-r6-independent-20261018/review.json",
+        "sha256": "e9b1df6574e0e4b07fe892f8b3babf58766e79e5c36c7802d3c4b9efc5643ec1"
+      }
+    ],
+    "plan_and_application_refs": [
+      {
+        "bytes": 4607,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-r6-formatted-source-adoption-20261018/plan.json",
+        "role": "plan",
+        "sha256": "9bbb69747f2d0517ab645445040d7550278f71fd3a0ca37f5287125dd0d0f3af"
+      },
+      {
+        "bytes": 38887,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-r6-formatted-source-adoption-20261018/reviewed-present-postimages.patch",
+        "role": "present_patch",
+        "sha256": "4f2b0d0148bf28b09242d7c49a541829766d19875455a0e5369b9022432d8192"
+      },
+      {
+        "bytes": 197,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-r6-formatted-source-adoption-20261018/native-trash-receipt.json",
+        "role": "native_trash_receipt",
+        "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+      }
+    ],
+    "readback_scope": "Complete Git path set and source_sha256 map are retained in cited readback; no large path/hash array is copied.",
+    "source_application": {
+      "bytes": 7690,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-r6-formatted-source-adoption-20261018/source-application.json",
+      "sha256": "1ada1c82b97d57ff497d019df5ae9d68637a711693e61caa467dbc947df8eb51"
+    },
+    "status": "commit_readback_verified"
+  },
+  "source_base": {
+    "sha": "b87e111aa8e90a93eba4d0b5c25273a059f189c9",
+    "tree": "63c00b7134140d6aef1331a257ee5d75308def60"
+  },
+  "source_commit": {
+    "branch_ref": "refs/heads/codex/e02-unified-local-20261009",
+    "parents": [
+      "b87e111aa8e90a93eba4d0b5c25273a059f189c9"
+    ],
+    "reachable_from_preparation_head": true,
+    "sha": "6f46f58f4d96a2f298f3372c8b4bea00ecbee2fc",
+    "subject": "fix(e02): fence queued and active cache operations across invalidation",
+    "tree": "e181fd2556e7cdd027bfe2388e6b84e5d3072cca"
+  },
+  "source_freeze_at_application": false,
+  "static_quality": {
+    "complete_run_record": {
+      "bytes": 7690,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-r6-formatted-source-adoption-20261018/source-application.json",
+      "sha256": "1ada1c82b97d57ff497d019df5ae9d68637a711693e61caa467dbc947df8eb51"
+    },
+    "runs": [
+      {
+        "argv_prefix": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache"
+        ],
+        "exit_code": 0,
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-r6-formatted-source-adoption-20261018/check.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-r6-formatted-source-adoption-20261018/check.stdout.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+        }
+      },
+      {
+        "argv_prefix": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check"
+        ],
+        "exit_code": 0,
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-r6-formatted-source-adoption-20261018/format.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-r6-formatted-source-adoption-20261018/format.stdout.txt",
+          "sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd"
+        }
+      }
+    ],
+    "status": "PASS"
+  },
+  "status": "source_commit_readback_verified_static_ruff_pass_runtime_unrun_at_adoption"
+}

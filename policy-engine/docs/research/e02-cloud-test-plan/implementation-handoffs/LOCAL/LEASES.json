@@ -13109,5 +13109,130 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-search-scc-r4-reviewed-adoption-20261018": {
+    "slice_base": "aabfd1e0cef90132d459299c92247f02d10d9053",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py": {
+        "operation": "modify",
+        "preimage_sha256": "04d6ea950525d1821f54c3d690a2faacfc380f2be3ada4ddea519cbabb5ec529",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-lifecycle-scc-owner-repair-r4-20261018/postimages/src/polisyos/scientist/methods/autotune/runtime.py",
+        "postimage_sha256": "78cd1a47aaed5ff52a75768b2136fcab38be72292d2e22938b122a60700e8482"
+      },
+      "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py": {
+        "operation": "modify",
+        "preimage_sha256": "897ea87510c147939b52c5643aa0c8ad230aa7454e1dba93024b9095e1d57003",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-lifecycle-scc-owner-repair-r4-20261018/postimages/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+        "postimage_sha256": "160f882ecf22acd736416e72acf03fcfa0057a9f9229930a1f7e1a38380224ac"
+      },
+      "policy-engine/src/polisyos/scientist/methods/search/contracts.py": {
+        "operation": "modify",
+        "preimage_sha256": "ad88ef507754b35ec64ee306a6915268cdf4fca9bf50e458f567454ee07b1073",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-lifecycle-scc-owner-repair-r4-20261018/postimages/src/polisyos/scientist/methods/search/contracts.py",
+        "postimage_sha256": "981d9426e68461319200b4f4dde4fd5db9ab567a39959884e6d84c5eab7722c2"
+      },
+      "policy-engine/src/polisyos/scientist/methods/search/controller.py": {
+        "operation": "modify",
+        "preimage_sha256": "56e0e133d3d88c2ec3f66fa9c149a371cc69e0e3bab2c24e528fe554c33fa609",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-lifecycle-scc-owner-repair-r4-20261018/postimages/src/polisyos/scientist/methods/search/controller.py",
+        "postimage_sha256": "de5818a3d04c890c38d3c87504390e891e45efd92dbb3590ff6d2781fb2254f0"
+      },
+      "policy-engine/src/polisyos/scientist/methods/search/lifecycle.py": {
+        "operation": "modify",
+        "preimage_sha256": "bc6b54bcc46284fe1afe27752e97b934b99eb064038f8087fb8d5d93ea4363ca",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-lifecycle-scc-owner-repair-r4-20261018/postimages/src/polisyos/scientist/methods/search/lifecycle.py",
+        "postimage_sha256": "e7303698c0363abca7179a1ebdb30d072241b83cd8b29c49ebfd649f11ed9e89"
+      },
+      "policy-engine/tests/repo_quality/architecture/test_autotune_search_scc_contracts.py": {
+        "operation": "modify",
+        "preimage_sha256": "a455f8463efbfc2921049cf86cadb5ae3ae9ec669b4256ac4ad81e2b0a50424f",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-lifecycle-scc-owner-repair-r4-20261018/postimages/tests/repo_quality/architecture/test_autotune_search_scc_contracts.py",
+        "postimage_sha256": "a8b9ceaae234c946e4b1e59820617cb0f5ff4813aa644ca6edaa9ea81f46c0cf"
+      },
+      "policy-engine/tests/unit/scientist/search/test_controller_api.py": {
+        "operation": "modify",
+        "preimage_sha256": "c09a00d0692c525ec2e592f3fd853743484d9569ba05364ca7a9db33ba2b8447",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-lifecycle-scc-owner-repair-r4-20261018/postimages/tests/unit/scientist/search/test_controller_api.py",
+        "postimage_sha256": "f5d791bc80fac626cce55d18da48b9462a6e7aa13ee69cdb5ba0b8bbb30bcfb0"
+      },
+      "policy-engine/src/polisyos/scientist/methods/search/README.md": {
+        "operation": "modify",
+        "preimage_sha256": "155ccbff6ba2fac88a1023763efd5929396c46a25f9e08130fcbf899f5e5080b",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-lifecycle-scc-owner-repair-r4-20261018/postimages/src/polisyos/scientist/methods/search/README.md",
+        "postimage_sha256": "efae8bca433a6a5004b2c4288d100f81ff0909fc09242928b47f4a8dd1d50b0e"
+      },
+      "policy-engine/src/polisyos/scientist/methods/autotune/README.md": {
+        "operation": "modify",
+        "preimage_sha256": "4d659700d8671ca689048dc582400bd723a973e2559e08f82b68a4356e113a5a",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-lifecycle-scc-owner-repair-r4-20261018/postimages/src/polisyos/scientist/methods/autotune/README.md",
+        "postimage_sha256": "a26f95c35a2a4d5d51bd9945f231032f77c1cdfd11aef1792342d260040ea1d2"
+      },
+      "policy-engine/src/polisyos/scientist/methods/autotune/source_profile_verification.py": {
+        "operation": "add",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-lifecycle-scc-owner-repair-r4-20261018/postimages/src/polisyos/scientist/methods/autotune/source_profile_verification.py",
+        "postimage_sha256": "d71767497360484e4e7b4d3076e702b15a9991cba613deaac95673a6aecf3e47"
+      },
+      "policy-engine/src/polisyos/scientist/methods/search/lifecycle_support.py": {
+        "operation": "add",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-lifecycle-scc-owner-repair-r4-20261018/postimages/src/polisyos/scientist/methods/search/lifecycle_support.py",
+        "postimage_sha256": "8cbd3cc825e80b8947cdca7b14aaf3566d98319d8b9b1f53580b9633017ba6b3"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-scc-r4-post-outbox-fqn-adoption-20261018/source-application.json",
+      "sha256": "4abf0e230b9e2252c5e346052c21494738660d8a802f315be42d8f8199677cf7"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-scc-r4-post-outbox-fqn-adoption-20261018/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-lifecycle-scc-owner-repair-r4-20261018/candidate-manifest.json",
+        "sha256": "8f7d79e3f5a614be83d18ca0972bbe2e2ca25a0117429612b2fcb43a871a1c22"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-lifecycle-scc-owner-repair-r4-20261018/seal.json",
+        "sha256": "44000fdf0aee683c777d43d1636ee3def0fffbe39cea15f1fe57e09e12925473"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-lifecycle-scc-owner-repair-r4-20261018/candidate.patch",
+        "sha256": "0092fbda006dd4fed1a87af1066741844c756f70f3d64e5c24e476e8da988cec"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-lifecycle-scc-owner-repair-r4-20261018/handoff.md",
+        "sha256": "f7b5ebc1662adf8ebbf8b0d0b2ad76291a8e41a2f221f9c519fc19a658f127ec"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-lifecycle-scc-owner-repair-r4-20261018/validation/full-graph-overlay.json",
+        "sha256": "4d576d7b43580a50ffc5f60f6e90f8b1f0a4c5277243a35d8c811942cda95208"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-lifecycle-scc-owner-repair-r4-20261018/validation/ast-preservation.json",
+        "sha256": "63a07f88ce15e882a085da3cb8a0f99fba4626975405e2b58261d9f104ad752b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-scc-r4-independent-20261018/review.json",
+        "sha256": "49df13ad6e9d9e61664bda894186470eb841c42f335200b5887f78eca6e29b7c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-scc-r4-reviewed-adoption-20261018/adoption-plan.json",
+        "sha256": "7e57b83df65fef78c3a980c3fcf7b264c5888e15bfd24879dadd20fe13482708"
+      }
+    ],
+    "P40": "Same ownership-extraction class widened to the complete observed seven-module SCC and independent backedge restoration falsifiers.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Runtime remains UNRUN on adopted bytes; independent source review is bounded and is not G acceptance.",
+      "OpenAPI generation, installed consumers and native whole-repository gates remain separate required checks."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Freeze the composed candidate and replay the complete affected modules and all parser consumers with retained deciding outputs.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

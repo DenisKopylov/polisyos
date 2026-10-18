@@ -401,7 +401,7 @@ class BayesianCandidateGenerator:
             )
             return
         compatible_profiles: list[Any] = []
-        from .runtime import _verify_search_source_profile_receipt
+        from .source_profile_verification import _verify_search_source_profile_receipt
 
         target_method_run_profile = self._search_method_run_profile
         if target_method_run_profile is None:
@@ -1068,7 +1068,7 @@ class BayesianCandidateGenerator:
             )
             evaluation_ref_payload = stage_b_metadata.get("evaluation_artifact_ref")
             proposal_metadata = _as_mapping(candidate.get("_strategy_metadata"))
-            from .runtime import _verify_search_source_profile_receipt
+            from .source_profile_verification import _verify_search_source_profile_receipt
 
             verified = _verify_search_source_profile_receipt(
                 store=self._source_store,

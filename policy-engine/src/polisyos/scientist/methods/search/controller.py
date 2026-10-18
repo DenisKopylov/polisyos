@@ -33,12 +33,15 @@ from pydantic import BaseModel, ValidationError
 from pydantic_core import PydanticSerializationError, SchemaSerializer, core_schema
 from pydantic_core.core_schema import CoreSchema
 
-from polisyos.common.logger import get_logger
 from polisyos.scientist.methods.search.contracts import (
+    CandidatePayload,
     ParetoBasisScope,
+    SearchContext,
     SearchIteration,
     SearchResult,
     SearchStatus,
+    StageAEvaluator,
+    StageBEvaluator,
     _EvaluationDisposition,
     _EvaluationTransition,
 )
@@ -47,6 +50,27 @@ from polisyos.scientist.methods.search.frontier import (
     dominates,
     policy_candidate_hash,
     update_legacy_pareto_front,
+)
+from polisyos.scientist.methods.search.lifecycle_support import (
+    _IMPORT_ERRORS as _IMPORT_ERRORS,
+)
+from polisyos.scientist.methods.search.lifecycle_support import (
+    _SEARCH_DEGRADED_ERRORS as _SEARCH_DEGRADED_ERRORS,
+)
+from polisyos.scientist.methods.search.lifecycle_support import (
+    _as_bool as _as_bool,
+)
+from polisyos.scientist.methods.search.lifecycle_support import (
+    _default_metrics as _default_metrics,
+)
+from polisyos.scientist.methods.search.lifecycle_support import (
+    _PolicyEvaluationResolution as _PolicyEvaluationResolution,
+)
+from polisyos.scientist.methods.search.lifecycle_support import (
+    _search_degraded as _search_degraded,
+)
+from polisyos.scientist.methods.search.lifecycle_support import (
+    logger as logger,
 )
 from polisyos.scientist.methods.search.objective import (
     CompositeObjective,
@@ -58,7 +82,6 @@ from polisyos.scientist.methods.search.stopping import (
     StoppingCondition,
     StoppingCriterion,
 )
-from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 
 if TYPE_CHECKING:
     from polisyos.core.llm import TracedLLMClient
@@ -79,55 +102,8 @@ if TYPE_CHECKING:
         PolicyEvaluationVector,
     )
 
-logger = get_logger(__name__)
-
-_IMPORT_ERRORS = (ImportError, ModuleNotFoundError)
-_SEARCH_DEGRADED_ERRORS = (AttributeError, TypeError, ValidationError, ValueError)
-
-CandidatePayload = dict[str, Any]
-SearchContext = dict[str, Any]
-StageAEvaluator = Callable[[CandidatePayload, SearchContext], tuple[float, bool]]
-StageBEvaluator = Callable[[CandidatePayload, SearchContext], dict[str, Any]]
-
-
-def _default_metrics() -> MetricsRegistry:
-    from polisyos.core.observability import get_metrics
-
-    return get_metrics()
-
-
-def _search_degraded(
-    *,
-    operation: str,
-    reason: str,
-    exc: BaseException,
-    details: dict[str, Any] | None = None,
-) -> dict[str, Any]:
-    return emit_degraded_path(
-        component="search.controller",
-        operation=operation,
-        reason=reason,
-        exc=exc,
-        details=details,
-        log=logger,
-    )
-
-
-def _as_bool(raw: str | None, default: bool = False) -> bool:
-    if raw is None:
-        return default
-    return raw.strip().lower() in {"1", "true", "yes", "on"}
-
 
 @dataclass(frozen=True)
-class _PolicyEvaluationResolution:
-    """Keep absent, valid, and invalid typed results distinct at the consumer."""
-
-    value: Any | None
-    status: str
-    reason: str | None = None
-
-
 class _OwnerBudgetStopping(StoppingCriterion):
     """Fail closed unless one exact durable owner snapshot leaves budget."""
 
@@ -189,27 +165,6 @@ def _non_reentrant_run(
             run_lock.release()
 
     return guarded
-
-
-class CandidateGenerator(Protocol):
-    """Generate the next candidate proposal from search history and context."""
-
-    def generate(
-        self,
-        history: list[SearchIteration],
-        current_best: dict[str, Any] | None,
-        context: dict[str, Any],
-    ) -> dict[str, Any]:
-        """Propose one candidate payload for the next evaluator round.
-
-        Args:
-            history: Prior iterations with objective values and Stage B feedback.
-            current_best: Current best candidate payload, if any.
-            context: Planner/runtime context assembled by the caller.
-
-        Returns:
-            JSON-compatible candidate payload accepted by the Stage A/B evaluators.
-        """
 
 
 class SearchBudgetProducerUnsupportedError(RuntimeError):
@@ -1378,6 +1333,27 @@ class TracedLLMCandidateGenerator:
         return validated_candidate
 
 
+class CandidateGenerator(Protocol):
+    """Generate the next candidate proposal from search history and context."""
+
+    def generate(
+        self,
+        history: list[SearchIteration],
+        current_best: dict[str, Any] | None,
+        context: dict[str, Any],
+    ) -> dict[str, Any]:
+        """Propose one candidate payload for the next evaluator round.
+
+        Args:
+            history: Prior iterations with objective values and Stage B feedback.
+            current_best: Current best candidate payload, if any.
+            context: Planner/runtime context assembled by the caller.
+
+        Returns:
+            JSON-compatible candidate payload accepted by the Stage A/B evaluators.
+        """
+
+
 class BatchCandidateGenerator(CandidateGenerator, Protocol):
     """Generate a batch of candidate proposals for parallel Stage B evaluation."""
 
@@ -1485,6 +1461,8 @@ class SearchController:
             stage_b_evaluator=stage_b_evaluator,
             evaluators=evaluators,
             metrics=metrics,
+            metrics_factory=_default_metrics,
+            bound_owner_validator=TracedLLMCandidateGenerator.require_bound_owner,
         )
 
     @property

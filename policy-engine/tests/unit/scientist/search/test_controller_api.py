@@ -51,3 +51,21 @@ def test_search_controller_accepts_evaluator_ports_value_object() -> None:
     assert result.best_objective == 3.0
     assert result.stage_a_evaluations == 1
     assert result.stage_b_evaluations == 1
+
+
+def test_search_controller_uses_facade_default_metrics_binding(monkeypatch) -> None:
+    """Keep the historical facade global as the lifecycle metrics factory seam."""
+    import polisyos.scientist.methods.search.controller as controller_module
+
+    metrics = object()
+    monkeypatch.setattr(controller_module, "_default_metrics", lambda: metrics)
+
+    controller = SearchController(
+        SearchConfig(
+            stopping=MaxIterations(1),
+            objective=_SingleObjective(),
+        ),
+        candidate_generator=_NoopGenerator(),
+    )
+
+    assert controller._metrics is metrics

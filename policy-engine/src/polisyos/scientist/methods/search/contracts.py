@@ -1,16 +1,16 @@
 """Canonical ask/tell and funnel contracts for search runtimes.
 
-This module intentionally contains only DTOs and protocols.  The concrete
+This module intentionally contains only DTOs and protocols. The concrete
 bridges for the legacy controller and funnel live in :mod:`adapters` and are
 resolved lazily for the historical imports that remain part of the supported
-surface.  Keeping the bridge out of this module makes contract-only imports
-safe for planners and import-boundary checks.
+surface. The lifecycle config protocol describes the existing facade object
+structurally, so the owner does not import that facade back.
 """
 
 from __future__ import annotations
 
 import importlib
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import Enum
@@ -254,9 +254,7 @@ class FunnelService(Protocol):
         context: dict[str, Any] | None = None,
     ) -> FunnelTicket: ...
 
-    def get_result(
-        self, ticket: FunnelTicket | str
-    ) -> FunnelOutcome: ...
+    def get_result(self, ticket: FunnelTicket | str) -> FunnelOutcome: ...
 
 
 class SearchStatus(str, Enum):
@@ -285,6 +283,50 @@ class SearchIteration:
     timestamp: datetime = field(default_factory=lambda: datetime.now(UTC))
     policy_evaluation_status: str = "missing"
     policy_evaluation_error: str | None = None
+
+
+CandidatePayload = dict[str, Any]
+SearchContext = dict[str, Any]
+StageAEvaluator = Callable[[CandidatePayload, SearchContext], tuple[float, bool]]
+StageBEvaluator = Callable[[CandidatePayload, SearchContext], dict[str, Any]]
+
+
+class _SearchCandidateGenerator(Protocol):
+    """Generate the next candidate proposal from search history and context."""
+
+    def generate(
+        self,
+        history: list[SearchIteration],
+        current_best: dict[str, Any] | None,
+        context: dict[str, Any],
+    ) -> dict[str, Any]:
+        """Propose one JSON-compatible candidate for Stage A/B evaluation."""
+
+
+class _SearchEvaluatorPorts(Protocol):
+    """Describe the evaluator bundle consumed by the private lifecycle owner."""
+
+    stage_a: StageAEvaluator
+    stage_b: StageBEvaluator
+
+
+class _SearchLifecycleConfig(Protocol):
+    """Describe existing SearchConfig fields consumed by the lifecycle owner."""
+
+    stopping: Any
+    objective: Any
+    max_iterations_hard_limit: int
+    enable_stage_a: bool
+    batch_size: int
+    resource_arbiter: Any | None
+    transfer_manager: Any | None
+    initial_evaluations: list[dict[str, Any]]
+    policy_objective_stack: Any | None
+    pareto_registry: Any | None
+    pareto_objective_basis_by_view: dict[str, ParetoBasisScope]
+    max_empty_generation_attempts: int
+    producer_settlement_store: Any | None
+    producer_run_binding: Any | None
 
 
 @dataclass
@@ -352,9 +394,7 @@ class _StoppingCheckView(Protocol):
 class _StoppingCriterionPort(Protocol):
     """Describe the configured stop check without importing its implementation."""
 
-    def check(
-        self, history: list[dict[str, Any]], state: dict[str, Any]
-    ) -> _StoppingCheckView: ...
+    def check(self, history: list[dict[str, Any]], state: dict[str, Any]) -> _StoppingCheckView: ...
 
 
 class _NativeSearchConfigPort(Protocol):

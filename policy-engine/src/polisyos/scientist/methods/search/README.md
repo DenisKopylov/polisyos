@@ -13,7 +13,7 @@ logic used by policy-design and promotion workflows.
 
 - Root facade and lazy exports: [`__init__.py`](__init__.py)
 - Legacy ask/evaluate compatibility facade: [`controller.py`](controller.py)
-- Private lifecycle owner: [`lifecycle.py`](lifecycle.py)
+- Private lifecycle owner and shared facade bindings: [`lifecycle.py`](lifecycle.py) and [`lifecycle_support.py`](lifecycle_support.py)
 - Native ask/tell service bridge: [`service.py`](service.py)
 - Shared contract/type leaf and evaluation primitives: [`contracts.py`](contracts.py), [`objective.py`](objective.py), [`stages.py`](stages.py), and [`stopping.py`](stopping.py)
 - Promotion funnel and rollout logic: [`funnel/`](funnel/), [`readiness.py`](readiness.py), and [`promotion_evidence.py`](promotion_evidence.py)

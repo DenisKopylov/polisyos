@@ -12,38 +12,41 @@ from threading import Lock
 from typing import TYPE_CHECKING, Any, cast
 from uuid import uuid4
 
-from polisyos.scientist.methods.search import controller as _controller_module
 from polisyos.scientist.methods.search.contracts import (
+    CandidatePayload,
+    SearchContext,
     SearchIteration,
     SearchResult,
     SearchStatus,
-    _EvaluationDisposition,
-)
-from polisyos.scientist.methods.search.controller import (
-    _IMPORT_ERRORS,
-    _SEARCH_DEGRADED_ERRORS,
-    CandidateGenerator,
-    CandidatePayload,
-    SearchConfig,
-    SearchContext,
-    SearchEvaluatorPorts,
-    SearchRunState,
     StageAEvaluator,
     StageBEvaluator,
-    TracedLLMCandidateGenerator,
-    _as_bool,
+    _EvaluationDisposition,
     _EvaluationTransition,
-    _PolicyEvaluationResolution,
-    _search_degraded,
+    _SearchEvaluatorPorts,
+    _SearchLifecycleConfig,
+)
+from polisyos.scientist.methods.search.contracts import (
+    _SearchCandidateGenerator as CandidateGenerator,
+)
+from polisyos.scientist.methods.search.frontier import (
     dominates,
-    extract_sentinel_metadata,
     policy_candidate_hash,
     update_legacy_pareto_front,
 )
-from polisyos.scientist.methods.search.controller import (
+from polisyos.scientist.methods.search.lifecycle_support import (
+    _IMPORT_ERRORS,
+    _SEARCH_DEGRADED_ERRORS,
+    _as_bool,
+    _default_metrics,
+    _PolicyEvaluationResolution,
+    _search_degraded,
+)
+from polisyos.scientist.methods.search.lifecycle_support import (
     logger as controller_logger,
 )
 from polisyos.scientist.methods.search.objective import ObjectiveValue
+from polisyos.scientist.methods.search.run_state import SearchRunState
+from polisyos.scientist.methods.search.sentinels import extract_sentinel_metadata
 
 if TYPE_CHECKING:
     from polisyos.core.observability import MetricsRegistry
@@ -67,19 +70,23 @@ class _SearchLifecycleOwner:
 
     def __init__(
         self,
-        config: SearchConfig,
+        config: _SearchLifecycleConfig,
         candidate_generator: CandidateGenerator,
         stage_a_evaluator: StageAEvaluator | None = None,
         stage_b_evaluator: StageBEvaluator | None = None,
         *,
-        evaluators: SearchEvaluatorPorts | None = None,
+        evaluators: _SearchEvaluatorPorts | None = None,
         metrics: MetricsRegistry | None = None,
+        metrics_factory: Callable[[], MetricsRegistry] | None = None,
+        bound_owner_validator: Callable[[CandidateGenerator, Any, Any], None] | None = None,
     ) -> None:
         self._config = config
         self._generator = candidate_generator
         if config.producer_settlement_store is not None:
             assert config.producer_run_binding is not None
-            TracedLLMCandidateGenerator.require_bound_owner(
+            if bound_owner_validator is None:
+                raise ValueError("protected search requires a bound-owner validator")
+            bound_owner_validator(
                 candidate_generator,
                 config.producer_settlement_store,
                 config.producer_run_binding,
@@ -99,7 +106,7 @@ class _SearchLifecycleOwner:
         self._run_lock = Lock()
         self._run_state = SearchRunState(status=SearchStatus.NOT_STARTED)
         self._source_budget_snapshot: dict[str, Any] = {"status": "not_configured"}
-        self._metrics = metrics if metrics is not None else _controller_module._default_metrics()
+        self._metrics = metrics if metrics is not None else (metrics_factory or _default_metrics)()
         self._diversity_enabled = _as_bool(
             os.getenv("POLISYOS_SEARCH_DIVERSITY_ENABLED"),
             default=False,

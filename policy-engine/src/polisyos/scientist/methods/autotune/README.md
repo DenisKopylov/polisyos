@@ -54,6 +54,11 @@ direction and valid bounds. Those values are encoded explicitly and their constr
 owner type remains bound into the fingerprint; arbitrary infinite values and all NaN
 state still refuse.
 
+The shared fresh-read verifier for source-profile receipts and fitted-basis
+recomputation is owned by [`source_profile_verification.py`](source_profile_verification.py).
+`runtime.py` retains compatibility re-exports; `bayesian_generator.py` consumes the
+same verifier owner directly, avoiding a runtime-to-producer import cycle.
+
 The transfer bridge persists search histories through CAS and reads canonical
 numeric values back into typed records. Warm-start history remains candidate
 evidence; it does not establish an external source's authority or eligibility.

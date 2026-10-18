@@ -95,7 +95,7 @@
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
-      "sha256": "caa5755cc7d406eece618c7e2ecadfb16c38ab287e57c0e41505b38ce5580df7",
+      "sha256": "16e5106c01d66d52c6cdc4092aa0cfabc2aa8a763633d60491dc5ef4faa8c052",
       "record_type": "current_coordination_snapshot",
       "previous_unqualified_digest": "1c2ae874ad7a12ac5c8ce69c580be992eef49a0ba58164893eff9a679a1ff9e5",
       "qualification": "Current LEASES bytes are pinned by this digest and the containing index commit. historical_original_source_commit names only the first recorded B194 snapshot; it is not the source of the current lease bytes. Source and native verification remain separately scoped.",
@@ -856,6 +856,38 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native-owner-source-adoption-481c-20261018.json",
       "sha256": "3170921ee05eb9b13dee79ab736eeb49f41251b379e50f6a8135dddcc558ee38"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/hds-semantic-scope-G-choice-20261018.json",
+      "sha256": "ed2a83d748956f23e16d87973bcf5b7fc83f2662bf6da48a45f1cfbb99ddf163"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/docs-lifecycle-artifact-role-G-choice-20261018.json",
+      "sha256": "f2d79bd8269731dd1edbd7ac192ef1b9cbb9075901a8aea79c89efb949f3a453"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/la036-conditional-law-profile-G-choice-20261018.json",
+      "sha256": "b81a9a046b39dc2cb8d21c1ae5e08ff53f9f618a5039b0e014ef60da0a538cac"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/can-profile-law-G-choice-20261018.json",
+      "sha256": "584f05e1921139a5713e6dfb6d985956b960c05484e258e46b7a89d45c07e08b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native-owner-481c-runtime-abort-and-harness-repair-20261018.json",
+      "sha256": "b77538204054b505f2c1487cc84465724e69b82ef98e2902cf1abcf3007bd6d6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/c05-registry-live-view-compatibility-G-choice-20261018.json",
+      "sha256": "8fe6a2cec1ee462e16c0f8ccf291dc81c2ccc8f141980f175eedfb3206002106"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native-inventory-fixture-consumer-closure-G-choice-20261018.json",
+      "sha256": "30acb85db67051e7a2c9addf07e816c325a567dd768d2974ddcd56c9dc0dee17"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native-reviewed-source-batch-f508-20261018.json",
+      "sha256": "2abdedad569e3717edf26268204ed6b687339799281e8583bf20fc65ba0516b7"
     }
   ],
   "canonical_denominator_recomputed": {
@@ -907,29 +939,58 @@
   ],
   "retention": "Complete deciding outputs and removal controls are pinned by receipts under ignored LOCAL/raw on the candidate checkout. Tracked source is cited by path@sha/commit, not copied. Large RAW availability is local; no archive payload census or duplicate environment.",
   "latest_reconciled_source_cut": {
-    "head": "b6f115016f87ac8fdea0d2e640f6c32f9ae6caaf",
-    "tree": "f73bd377fbfe692ad921296eb75ccd12b8af2d5c",
+    "head": "f508fa13707043a55b8278178c30acc22f599080",
+    "tree": "299d8af15136666084134489044cd99ce48a7893",
     "parents": [
-      "c5611db921ab48d07416e95746b85e189baa16c1"
+      "6d4511969970a0986d577cb2050f5282d063a8c9"
     ],
     "source_freeze": false,
     "tracked_source_clean_at_observation": true,
+    "prior_reconciled_source_cut": {
+      "head": "b6f115016f87ac8fdea0d2e640f6c32f9ae6caaf",
+      "tree": "f73bd377fbfe692ad921296eb75ccd12b8af2d5c",
+      "parents": [
+        "c5611db921ab48d07416e95746b85e189baa16c1"
+      ],
+      "source_freeze": false,
+      "tracked_source_clean_at_observation": true,
+      "prior_index_observation": {
+        "commit": "b6f115016f87ac8fdea0d2e640f6c32f9ae6caaf",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "sha256": "4757b00c01d290c2e8d0deea4f50dbf75e8da636bd40533637d840b3636a3021"
+      },
+      "published_candidate_last_verified": {
+        "sha": "b6f115016f87ac8fdea0d2e640f6c32f9ae6caaf",
+        "tree": "f73bd377fbfe692ad921296eb75ccd12b8af2d5c",
+        "readback": {
+          "path": "raw/resume-candidate-push-b6f115016f87-20261015/remote-readback.json",
+          "sha256": "a36ced3b89802327289a98f6865fe1e496d509ed1b7cef0acb62c3d523092e32"
+        },
+        "G_remote_observed": "93d6aa62a8d236667fdf322a5fc17962523b185e",
+        "G_acceptance": false
+      },
+      "meaning": "128 reviewed implementation paths plus two companions delivered in b6f. Actual selected behavior includes passes, four N11 failures and an R15 collection error; full ratchetCLI is red. Complete original291occurrence proposals remain separate. This receipt delivery adds no productsource and claims no global/native acceptance."
+    },
     "prior_index_observation": {
-      "commit": "b6f115016f87ac8fdea0d2e640f6c32f9ae6caaf",
+      "commit": "f508fa13707043a55b8278178c30acc22f599080",
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
-      "sha256": "4757b00c01d290c2e8d0deea4f50dbf75e8da636bd40533637d840b3636a3021"
+      "sha256": "5c2e9127f2542fa88bd7064cee58d894d4e2ecb87c7a76acb953b7bec5e5dfc5"
     },
     "published_candidate_last_verified": {
-      "sha": "b6f115016f87ac8fdea0d2e640f6c32f9ae6caaf",
-      "tree": "f73bd377fbfe692ad921296eb75ccd12b8af2d5c",
+      "sha": "8c692577b722e0645d1e6a6562e285590049abd4",
+      "tree": "61d20980e71c14950f49b83e8188c73483163c03",
       "readback": {
-        "path": "raw/resume-candidate-push-b6f115016f87-20261015/remote-readback.json",
-        "sha256": "a36ced3b89802327289a98f6865fe1e496d509ed1b7cef0acb62c3d523092e32"
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-candidate-push-8c692577b722-20261015/remote-readback.json",
+        "sha256": "f9909f63f312bd2c27f2ee1baeb0f8ea65bd78d5dfde4950aef7c2d77107bf75"
       },
       "G_remote_observed": "93d6aa62a8d236667fdf322a5fc17962523b185e",
       "G_acceptance": false
     },
-    "meaning": "128 reviewed implementation paths plus two companions delivered in b6f. Actual selected behavior includes passes, four N11 failures and an R15 collection error; full ratchetCLI is red. Complete original291occurrence proposals remain separate. This receipt delivery adds no productsource and claims no global/native acceptance."
+    "source_handoff": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native-reviewed-source-batch-f508-20261018.json",
+      "sha256": "2abdedad569e3717edf26268204ed6b687339799281e8583bf20fc65ba0516b7"
+    },
+    "meaning": "Six reviewed implementation commits since 8c692; 45 distinct paths (29 mechanism, 11 tests, 1 artifact, 2 docs, 2 records). Exact physical source Ruff checks pass. Composed runtime/native/SOTA outcomes remain UNRUN; Wave35B and N11 remain separately held. Receipt batch adds seven proposals/evidence records plus this source handoff; no G acceptance or closures."
   },
   "next_check": "Finish independent reviews and root-controlled blocking fixes; freeze explicit source/profile/inputs, execute actual N4/V3 and composed/native/Linux/installed/browser/authentic consumers, then publish the full 291-occurrence proposal to independent G. No global closeout or formal closures are claimed."
 }

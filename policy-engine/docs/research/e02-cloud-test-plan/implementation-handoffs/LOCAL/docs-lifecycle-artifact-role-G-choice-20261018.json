@@ -1,0 +1,116 @@
+{
+  "schema": "e02.g-choice-decision-packet/v1",
+  "proposal_id": "docs-lifecycle-artifact-role-G-choice",
+  "target_record_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/docs-lifecycle-artifact-role-G-choice-20261018.json",
+  "decision_status": "proposal_not_adjudicated",
+  "root_g_adjudication": "NOT_PERFORMED",
+  "closure_ids": [],
+  "source_frame": {
+    "head": "481c4345be0fd611e91e9110a10832fb507d0e4e",
+    "tree": "9f18fef6d8ffe4e2513303128088bca329454719",
+    "qualification": "pinned source/prototype frame; this packet is proposal-only"
+  },
+  "decision_question": "Are failed stdout captures and producer-bound test-falsifier bytes live-reference inputs, or can a verified forensic_attachment role put an exact bound item outside the domain? If in scope, should failed stdout be scanned as captured text/bytes rather than validated as a JSON report?",
+  "recommendation": {
+    "choice": "extend-existing-after-G",
+    "rule": "Keep current reader behavior and selected paths in scope until G adopts a generic content-bound producer-role rule. Bind exact tracked path/hash, role/media, producer attempt/source/tree/command/cwd/status/completeness, validation, adopted scope, verifier, captured_at, and effective/validity time. Real reader resolves evidence; missing, unbound, mismatched, stale, or unverified records remain selected and unresolved. Retries stay distinct.",
+    "not_authorized": "No generic raw exclusion, empty-default rule, forensic byte rewrite, production selector/decoder change, or full-current-scan claim."
+  },
+  "ownership_time_authority": {
+    "source_owner": "Not appointed: G must appoint a canonical owner across team-architecture/team-devx measurement-instrument owners and F/G artifact custodians.",
+    "time": "Capture and policy validity times are distinct; missing/stale records remain unresolved. Historic replay is not current evidence.",
+    "authority_limit": "No generic raw exclusion, empty-default rule, forensic byte rewrite, production selector/decoder change, or full-current-scan claim."
+  },
+  "alternatives": {
+    "reuse": "Keep bounded journal/archive/historical-audit rules; do not classify these capture roles.",
+    "extend": "Recommended after G: versioned typed producer role resolved by the lifecycle reader against exact bytes and verifier evidence.",
+    "consolidate": "If reused across F/G, normalize role records under one canonical registry and migration owner.",
+    "build_new": "Not justified before extending existing provenance; avoid duplicate catalog/CAS boundary."
+  },
+  "pattern_pass": {
+    "relevant": [
+      "P32",
+      "P37",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "finding": "No generic raw exclusion, empty-default rule, forensic byte rewrite, production selector/decoder change, or full-current-scan claim.",
+    "target": "Keep current reader behavior and selected paths in scope until G adopts a generic content-bound producer-role rule. Bind exact tracked path/hash, role/media, producer attempt/source/tree/command/cwd/status/completeness, validation, adopted scope, verifier, captured_at, and effective/validity time. Real reader resolves evidence; missing, unbound, mismatched, stale, or unverified records remain selected and unresolved. Retries stay distinct.",
+    "acceptance": "Git-backed reader preserves refs on missing/mismatched/unverified evidence, admits only exact bound reports, and applies the adopted G scope rule."
+  },
+  "falsifiers": [
+    "Current census: 25,526 tracked, 25,308 selected, 218 excluded; versus 8070 historical 25,496/25,278, with +30 selected and no removals.",
+    "Historic 8070 result was partial (24,333 text, 942 opaque, 3 ambiguous); current full CLI result is not established.",
+    "Prototype has 8 assertions: valid content-bound report scans; marker-only/hash mismatch/unverified producer/remove-property stay unresolved; failed capture and forensic attachment require G scope.",
+    "Three records: empty launcher stdout with pre-output /usr/bin/time assertion; empty TMLE stdout whose record points to /tmp and exit 1/import failure; 50-byte DFK falsifier whose bytes match but scope is unresolved."
+  ],
+  "sources": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-docs-lifecycle-engineering-g-decision-20261018/decision-packet.json",
+      "sha256": "1e202cd8e94b2f4569d255909a5ae0bf6889fb61510d8b88c4cfc2c608f58050"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-docs-lifecycle-engineering-g-decision-20261018/review.md",
+      "sha256": "b933f317b63eb4e1380745d837cd0cb763a06eb9296ff9402aaa471e190f5712"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-docs-lifecycle-engineering-g-decision-20261018/role_admission_miniprototype.py",
+      "sha256": "aee7b9a3ac10eff5481e19e0c79b07b93af1aebef999e22c66c622815c245c52"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-docs-lifecycle-engineering-g-decision-20261018/role_admission_miniprototype-result.json",
+      "sha256": "5774b81b8adccf6861ff2dece899e1cca02c55e857fe730ebeabec50333e2c55"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-docs-lifecycle-engineering-g-decision-20261018/role_admission_probe.py",
+      "sha256": "66294eee7b79c1c94d48fdb9b280365ef09dc8ce215674d7265a1525ad61988c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-docs-lifecycle-engineering-g-decision-20261018/role_admission_probe-result.json",
+      "sha256": "5ccc4c9297527651049f76ecdae29b64c20e0fac0fe3cada0f4dcc7238529943"
+    }
+  ],
+  "canonical_occurrences": [
+    {
+      "path": "policy-engine/tools/quality/validation/docs_lifecycle_reference_scan.py",
+      "lines": "80-123,180-241,297-315"
+    },
+    {
+      "path": "policy-engine/tools/lib/document_references.py",
+      "lines": "1-120"
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/check_docs_lifecycle.py",
+      "lines": "142-158"
+    }
+  ],
+  "current_selected_pathset_sha256": "2f92c6acf32f02a36d9a140d3f27af2459da881500b10ccec31402b3038cfc3",
+  "historical_selected_pathset_sha256": "accadc0e60fb1fe68add949c0997e8726e6282fc3e7cec36a9864c08df082e0d",
+  "capability_labels": [
+    "contract_only: role evidence not wired to reader",
+    "consumer_missing: generic resolver absent",
+    "verification_missing: current full replay/admission unestablished"
+  ],
+  "root_tracking_qualification": {
+    "role": "tracked proposal and evidence; not G adjudication",
+    "prepared_postimage": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-g-choice-and-harness-receipt-batch-20261018/postimages/docs-lifecycle-artifact-role-G-choice-20261018.json",
+      "sha256": "55e8a81a4795d0574149840c5af737eeb74f3a2feffd8ce75c020eea96831544"
+    },
+    "original_source": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-g-choice-handoff-prepare-20261018/docs-lifecycle-artifact-role-G-choice-20261018.json",
+      "sha256": "55e8a81a4795d0574149840c5af737eeb74f3a2feffd8ce75c020eea96831544"
+    },
+    "source_at_adoption": {
+      "head": "f508fa13707043a55b8278178c30acc22f599080",
+      "tree": "299d8af15136666084134489044cd99ce48a7893",
+      "parents": [
+        "6d4511969970a0986d577cb2050f5282d063a8c9"
+      ]
+    },
+    "historical_draft_fields": "Any original RAW-only/written=false/pending-review text describes the preserved draft snapshot. This tracked copy is adopted by root; it grants no future run, authority, or formal closure.",
+    "G_adjudication": "NOT_PERFORMED",
+    "closure_ids": []
+  }
+}

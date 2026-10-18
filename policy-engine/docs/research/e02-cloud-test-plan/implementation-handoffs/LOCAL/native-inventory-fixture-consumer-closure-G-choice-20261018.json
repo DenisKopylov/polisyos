@@ -1,0 +1,126 @@
+{
+  "schema": "polisyos.e02.native_inventory_fixture_consumer_closure_g_choice_proposal.v1",
+  "record_type": "G_choice_decision_packet",
+  "proposal_id": "native-inventory-fixture-consumer-closure-G-choice",
+  "decision_status": "proposal_not_adjudicated",
+  "root_g_adjudication": "NOT_PERFORMED",
+  "closure_ids": [],
+  "target_record_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native-inventory-fixture-consumer-closure-G-choice-20261018.json",
+  "source_frame": {
+    "head": "481c4345be0fd611e91e9110a10832fb507d0e4e",
+    "tree": "9f18fef6d8ffe4e2513303128088bca329454719",
+    "qualification": "historical R2 candidate/review frame; not current batch base"
+  },
+  "decision_question": "Should generic producer closure proceed now, or remain held until an owner-approved source-bound strategy-offer and admission contract exists?",
+  "recommendation": {
+    "choice": "hold-producer-completion; retain-producer-missing",
+    "rule": "Keep the three route distinctions in a controlled supplied-candidate consumer fixture, not as producer-positive evidence. Do not add a credit-specific compiler branch or a catalog that manufactures active status. Simulation stays advisory and blocked for production claim evidence. Require a separate G decision before extending input/schema or implementing generic producer bridge.",
+    "status": "R2 repairs inventory and consumer fixture scope only; route producer remains missing. No runtime-emitted route records, owner admission, or formal G acceptance is asserted."
+  },
+  "alternatives": [
+    {
+      "id": "A",
+      "choice": "derive-from-ADR-0166-planner-matrix",
+      "assessment": "Not sufficient as-is: no route-specific source refs or typed AcquisitionStrategy lifecycle/result-envelope records; construct-keyed mapping would be special-cased."
+    },
+    {
+      "id": "B",
+      "choice": "generic-source-bound-strategy-offer-input",
+      "assessment": "Plausible future closure after owner decisions on custody, candidate/admitted distinction, authority, generic composition, replay and persistence; not authorized here."
+    },
+    {
+      "id": "C",
+      "choice": "hold-producer-and-keep-consumer-tests-narrow",
+      "assessment": "Recommended for this slice; preserve producer_missing and separate current consumer evidence from future producer design."
+    }
+  ],
+  "current_capability_state": "producer_missing",
+  "pattern_ids": [
+    "P27",
+    "P29",
+    "P37",
+    "P38",
+    "P40"
+  ],
+  "authority_boundaries": {
+    "supplied_records": "candidate input only; no producer custody or active admission",
+    "tax_relief_proxy": "source and validation basis remain unknown until supplied and independently checked",
+    "simulation": "advisory planning only; cannot satisfy production claim evidence",
+    "not_authorized": [
+      "credit-specific source branch",
+      "self-attested active route",
+      "invented rights or verified source basis",
+      "producer closure",
+      "formal G acceptance",
+      "future run authorization"
+    ]
+  },
+  "evidence_refs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-inventory-fixture-consumer-repair-r2-20261018/producer-closure-decision.md",
+      "sha256": "9b25a6a5a7a6473258a72238aec77fbbc09b2b06d6e5ef540e328a5b115c511e",
+      "role": "author G decision, alternatives, contract questions and falsifiers"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-inventory-fixture-consumer-repair-r2-20261018/manifest.json",
+      "sha256": "022ced383cbe060d91277844313ff31bed2a7e506ecf8498e05e099aa2aaa824"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-inventory-fixture-consumer-repair-r2-20261018/candidate.patch",
+      "sha256": "368080f668637116f7ff3cc2d752f229d97ce3dd948792edda546ca8f812bdd3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-inventory-fixture-consumer-repair-r2-20261018/source-manifest.json",
+      "sha256": "b115d97042fb5a5ff83d48c1d1b0b316f0d3c8439072791ff0a15c86b0643d62"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-inventory-fixture-consumer-repair-r2-20261018/verification.txt",
+      "sha256": "eb299dd4fd20d9c99fae1973f71174681b5470dc99b6aae0c5dc1bc7b28dc958"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-inventory-fixture-consumer-repair-r2-20261018/source-census.txt",
+      "sha256": "1492fa52e24cb29c209dd1867253c8371b03bb5a2fa61c78cea70550fc755ae3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-inventory-fixture-consumer-r2-independent-20261018/manifest.json",
+      "sha256": "f0c231820b2f6e67aec733449c7c78484d0542b932f9d988b1a31dd2cf5c929a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-inventory-fixture-consumer-r2-independent-20261018/review.md",
+      "sha256": "cd83efdc26573e0eb8d56c083535e762e12fe9283c0982b1111ee91b0357d532"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-inventory-routine-independent-20261018/review.md",
+      "sha256": "92c24441d357b36b330677d13fe15a0124b609e3432b182f82f3b2148476638e"
+    }
+  ],
+  "limitations": [
+    "R2 focused test modules and owner --check remain unrun.",
+    "No product imports, pytest, regeneration, canonical writes, environment changes, builds, or Git mutation are claimed.",
+    "This proposal does not claim source implementation, acceptance, or producer closure."
+  ],
+  "global_acceptance": false,
+  "implementation_commit": null,
+  "final_commit_base": null,
+  "root_tracking_qualification": {
+    "role": "tracked proposal and evidence; not G adjudication",
+    "prepared_postimage": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-g-choice-and-harness-receipt-batch-20261018/postimages/native-inventory-fixture-consumer-closure-G-choice-20261018.json",
+      "sha256": "7e935dbe4626177740ef4a442deef3a5cfd56c0d0a61d56774afb746f784dac1"
+    },
+    "original_source": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-inventory-fixture-consumer-repair-r2-20261018/producer-closure-decision.md",
+      "sha256": "9b25a6a5a7a6473258a72238aec77fbbc09b2b06d6e5ef540e328a5b115c511e"
+    },
+    "source_at_adoption": {
+      "head": "f508fa13707043a55b8278178c30acc22f599080",
+      "tree": "299d8af15136666084134489044cd99ce48a7893",
+      "parents": [
+        "6d4511969970a0986d577cb2050f5282d063a8c9"
+      ]
+    },
+    "historical_draft_fields": "Any original RAW-only/written=false/pending-review text describes the preserved draft snapshot. This tracked copy is adopted by root; it grants no future run, authority, or formal closure.",
+    "G_adjudication": "NOT_PERFORMED",
+    "closure_ids": []
+  }
+}

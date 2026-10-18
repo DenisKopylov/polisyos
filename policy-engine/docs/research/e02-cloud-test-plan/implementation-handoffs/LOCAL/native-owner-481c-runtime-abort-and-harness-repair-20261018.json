@@ -1,0 +1,528 @@
+{
+  "authority_status": "candidate evidence; not formal G acceptance",
+  "closure_ids": [],
+  "controller_patch_proposal": {
+    "applied": false,
+    "base_supervisor": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-owner-481c-actual-plan-20261018/supervise.py",
+      "sha256": "f6619d0d5186b6eeae607fb36d1dab59c3354bae6e95db6e40d5764210a46700"
+    },
+    "candidate_delta_parse_compile": "AST parse and compile passed using the active stdlib interpreter; no module import, controller invocation, pytest, or CLI execution.",
+    "candidate_full_wave_component": {
+      "cli_ids": [
+        "directory_health_json_markdown",
+        "package_mirror_report"
+      ],
+      "resource_profile": "Historical 600s/2.5GiB settings are evidence for the 481c abort only; remeasure and obtain fresh authorization for the combined future wave.",
+      "source_frame_binding": "Root must rebind after the blocking source batch is integrated and a new source/profile freeze is issued.",
+      "status": "selection component only; not frozen, not authorized, not launchable",
+      "whole_module_count": 7,
+      "whole_module_paths": [
+        "tests/repo_quality/tools/test_directory_health.py",
+        "tests/repo_quality/tools/test_directory_health_inventory.py",
+        "tests/repo_quality/tools/test_directory_hygiene_assets.py",
+        "tests/repo_quality/tools/test_instrument_input_scope.py",
+        "tests/repo_quality/tools/test_layer3_gy_openalex_artifacts.py",
+        "tests/repo_quality/tools/test_layer3_gy_promotion_contract.py",
+        "tests/repo_quality/tools/test_layer3_gy_promotion_contract_verdict.py"
+      ]
+    },
+    "deltas": [
+      {
+        "change": "After all external-path/resource checks and source/grant validation, create exactly the fresh external pytest state root with mode 0700, parents=False, exist_ok=False before run/launch records and child execution. Record root creation in launch metadata; do not precreate pytest basetemp/cache children.",
+        "witness": "R3/R4 paired tmp_path control above."
+      },
+      {
+        "change": "Aggregate only actual disk readings: include disk_free_before_bytes and minimum_sampled_disk_free_bytes when type(value) is int; exclude skipped records with no reading; return null if no command has a reading. Remove the floor sentinel default.",
+        "witness": "The original run has 19,350,913,024 bytes as the minimum observed value; current aggregate incorrectly reports 1,073,741,824 bytes from skipped CLIs."
+      }
+    ],
+    "patch": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-owner-481c-runtime-abort-and-harness-repair-supervise-delta-20261018.patch",
+      "sha256": "461243515f6ed1e0db0063f556da591c6759a0727c69266e579272a6da7feb07"
+    },
+    "postimage_written": false,
+    "review_checks": [
+      "Confirm one-use external root creation occurs only after source/grant/freshness/resource preflight and before any pytest child launch.",
+      "Confirm the controller leaves per-phase basetemp/cache paths absent for pytest to create.",
+      "Probe an actual skipped CLI record with no disk fields: it must not inject the configured disk floor into the aggregate.",
+      "Probe a disk-floor prelaunch skip with disk_free_before_bytes: that measured value must remain eligible for the minimum.",
+      "Probe no measured values: aggregate is null rather than a configured limit.",
+      "Use the retained R3 FileNotFoundError and R4 passing control as the real setup-boundary witness; do not count R3 as a product failure."
+    ],
+    "review_status": "pending independent peer review; root to assign reviewer; no self-review claim"
+  },
+  "formal_G_acceptance": null,
+  "original_481c_actual_wave": {
+    "authorization_refs": {
+      "freeze.json": {
+        "bytes": 4669987,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-owner-481c-actual-plan-20261018/freeze.json",
+        "sha256": "10ed613cd5f0f18d309137258c81376b237faa84a6755b79c496f2f6c1c58322"
+      },
+      "request.json": {
+        "bytes": 12116,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-owner-481c-actual-plan-20261018/request.json",
+        "sha256": "67396abf192541a32877b172507810e49279716493edb26341bebf1120579290"
+      },
+      "root-grant.json": {
+        "bytes": 1404,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-owner-481c-actual-plan-20261018/root-grant.json",
+        "sha256": "4d90693a2255662e70f18b4330212ddf60686ae47c3a6235d01174eb58394f1d"
+      }
+    },
+    "cli": {
+      "recorded_statuses": {
+        "directory_health_json_markdown": "skipped_after_supervisor_stop",
+        "package_mirror_report": "skipped_after_supervisor_stop"
+      },
+      "scheduled_ids": [
+        "directory_health_json_markdown",
+        "package_mirror_report"
+      ],
+      "verdict": "unrun; both commands skipped after the pytest RSS supervisor stop"
+    },
+    "controller_complete": true,
+    "controller_record": {
+      "bytes": 9361983,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-owner-481c-actual-plan-20261018/actual-run/controller-result.json",
+      "sha256": "6b0785189a1c6d5ed71bd581e8d333b63166a114b6870bcd9fe6855d9ce9d720"
+    },
+    "controller_status": "completed_with_abort",
+    "disk_measurement": {
+      "bug": "The aggregate substituted the 1 GiB disk floor for skipped command records lacking measurements. The actual started-command minimum was 19,350,913,024 bytes; no process measured the floor.",
+      "legacy_top_level_minimum_sampled_disk_free_bytes": 1073741824,
+      "minimum_from_actual_command_observations_bytes": 19350913024,
+      "observations": [
+        {
+          "bytes": 19377246208,
+          "command_id": "pytest-collection",
+          "field": "disk_free_before_bytes"
+        },
+        {
+          "bytes": 19375804416,
+          "command_id": "pytest-collection",
+          "field": "minimum_sampled_disk_free_bytes"
+        },
+        {
+          "bytes": 19375915008,
+          "command_id": "pytest",
+          "field": "disk_free_before_bytes"
+        },
+        {
+          "bytes": 19350913024,
+          "command_id": "pytest",
+          "field": "minimum_sampled_disk_free_bytes"
+        }
+      ],
+      "unmeasured_skipped_commands_excluded": true
+    },
+    "execution": {
+      "abort_reason": "sampled_process_tree_rss_cap",
+      "execution_provenance_error": "execution_provenance_missing",
+      "junit_summary": null,
+      "peak_sampled_process_tree_rss_bytes": 2831859712,
+      "return_code": -15,
+      "rss_cap_bytes": 2684354560,
+      "semantic_passed": false,
+      "source_qualified": false,
+      "status": "resource_limit_abort",
+      "verdict": "not established; execution was resource-aborted before a JUnit/provenance verdict"
+    },
+    "historical_source_frame": {
+      "branch": "refs/heads/codex/e02-unified-local-20261009",
+      "head": "481c4345be0fd611e91e9110a10832fb507d0e4e",
+      "tree": "9f18fef6d8ffe4e2513303128088bca329454719"
+    },
+    "outer_exec_return_code_reported_by_root": 1,
+    "raw_output_bundle": {
+      "all_retained_files": [
+        {
+          "bytes": 16777,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-owner-481c-actual-plan-20261018/actual-run/controller-events.jsonl",
+          "sha256": "2656a03a50197d974c2754502287727f4c03803f856c08053293d448ef873822"
+        },
+        {
+          "bytes": 9361983,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-owner-481c-actual-plan-20261018/actual-run/controller-result.json",
+          "sha256": "6b0785189a1c6d5ed71bd581e8d333b63166a114b6870bcd9fe6855d9ce9d720"
+        },
+        {
+          "bytes": 89,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-owner-481c-actual-plan-20261018/actual-run/controller-result.sha256",
+          "sha256": "8dfab18a5004d42be3304c827a0d2ad2376f01ad5d28325210f36c524519febb"
+        },
+        {
+          "bytes": 4671027,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-owner-481c-actual-plan-20261018/actual-run/launch_started.json",
+          "sha256": "ae086504958f1a9333c2594d83530d721df60f03ace56f68b4610ecf9489320e"
+        },
+        {
+          "bytes": 16950,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-owner-481c-actual-plan-20261018/actual-run/phase-output.jsonl",
+          "sha256": "3ada22216f5bd266e6cb3c4cfb67aa3668f455fc91f9c17df0c441b8c807ffab"
+        },
+        {
+          "bytes": 5386622,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-owner-481c-actual-plan-20261018/actual-run/process-tree.jsonl",
+          "sha256": "061711f22f33d792a482388b5305561c72056a2bcdd1ec579df085d4eac55ddb"
+        },
+        {
+          "bytes": 1295912,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-owner-481c-actual-plan-20261018/actual-run/pytest-collection-provenance.json",
+          "sha256": "ccc264a09f9bd3d993da30b4d6c7fff3e7eb2c626dd0da01a07be83125dd81c1"
+        },
+        {
+          "bytes": 0,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-owner-481c-actual-plan-20261018/actual-run/pytest-collection.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "bytes": 443,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-owner-481c-actual-plan-20261018/actual-run/pytest-collection.stdout.txt",
+          "sha256": "f9278360abbb480b27cb058e6548345f0bea105819fdfed06a5f3c9fb58ae6f3"
+        },
+        {
+          "bytes": 0,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-owner-481c-actual-plan-20261018/actual-run/pytest.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "bytes": 35,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-owner-481c-actual-plan-20261018/actual-run/pytest.stdout.txt",
+          "sha256": "0db3066ec499404e6e5536c48268aaa48f566e8844891c0ee7057d7cee97883e"
+        },
+        {
+          "bytes": 16809,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-owner-481c-actual-plan-20261018/actual-run/selected-nodeids.json",
+          "sha256": "d159aa03df8f2948c080a789faa80baf120b29fbdc47503fc131adab811964ee"
+        }
+      ],
+      "artifact_receipt_index_embedded_in_controller_result": true,
+      "complete": true,
+      "controller_result": {
+        "bytes": 9361983,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-owner-481c-actual-plan-20261018/actual-run/controller-result.json",
+        "sha256": "6b0785189a1c6d5ed71bd581e8d333b63166a114b6870bcd9fe6855d9ce9d720"
+      },
+      "raw_directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-owner-481c-actual-plan-20261018/actual-run"
+    },
+    "selection": {
+      "actual_test_file_count": 7,
+      "collected_cases": 108,
+      "request": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-owner-481c-actual-plan-20261018/request.json",
+        "sha256": "67396abf192541a32877b172507810e49279716493edb26341bebf1120579290"
+      },
+      "requested_test_file_count": 7,
+      "selected_nodeids": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-owner-481c-actual-plan-20261018/actual-run/selected-nodeids.json",
+        "sha256": "d159aa03df8f2948c080a789faa80baf120b29fbdc47503fc131adab811964ee"
+      },
+      "whole_module_count": 7,
+      "whole_module_paths": [
+        "tests/repo_quality/tools/test_directory_health.py",
+        "tests/repo_quality/tools/test_directory_health_inventory.py",
+        "tests/repo_quality/tools/test_directory_hygiene_assets.py",
+        "tests/repo_quality/tools/test_instrument_input_scope.py",
+        "tests/repo_quality/tools/test_layer3_gy_openalex_artifacts.py",
+        "tests/repo_quality/tools/test_layer3_gy_promotion_contract.py",
+        "tests/repo_quality/tools/test_layer3_gy_promotion_contract_verdict.py"
+      ]
+    },
+    "source_pin_count": 25555,
+    "source_pins_unchanged": true
+  },
+  "paired_tmp_path_harness_control": {
+    "R3_missing_parent": {
+      "authorization_refs": {
+        "diagnostic_wrapper.py": {
+          "bytes": 9382,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-owner-481c-setup-error-diagnostic-r3-20261018/diagnostic-wrapper.py",
+          "sha256": "bd79e929404907ed189ddded5b447de48f9501f8b6950265c541c110f5c8dbc5"
+        },
+        "request.json": {
+          "bytes": 4942,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-owner-481c-setup-error-diagnostic-r3-20261018/request.json",
+          "sha256": "c7a4f99bbb368521ed895a21b52ec4ff7647a8daded998c11eecbc636cfcd620"
+        },
+        "root-grant.json": {
+          "bytes": 1584,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-owner-481c-setup-error-diagnostic-r3-20261018/root-grant.json",
+          "sha256": "7836e640a04fb13e0f158146f737782ff25fb28381afa3983e107bcf084afead"
+        }
+      },
+      "child_return_code": 1,
+      "controller_result": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-owner-481c-setup-error-diagnostic-r3-20261018/actual-run/controller-result.json",
+        "sha256": "112f06777bd546c4e81a8fb1ad453df725bf0517c157f22ceb92bced7f59d03c"
+      },
+      "external_root": {
+        "absent_before_launch": true,
+        "creation_observation": "R3 launch intentionally did not create this root; pytest cache later created the missing parent while the fixture setup failed. The resulting root is preserved.",
+        "path": "/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/native-481c-setup-diagnostic-r1",
+        "preserved_after_attempt": true
+      },
+      "failure_class": "pytest tmp_path fixture setup FileNotFoundError for basetemp below an absent parent; harness setup failure, not product failure",
+      "junit": {
+        "errors": 1,
+        "failures": 0,
+        "passed": 0,
+        "skipped": 0,
+        "tests": 1
+      },
+      "outer_exec_return_code_reported_by_root": 0,
+      "raw_output_bundle": {
+        "all_retained_files": [
+          {
+            "bytes": 1234,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-owner-481c-setup-error-diagnostic-r3-20261018/actual-run/controller-events.jsonl",
+            "sha256": "20cfedd0790635c63d35624b9ee471b09aa75098caf4e1452fba95c31bba32a2"
+          },
+          {
+            "bytes": 5910,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-owner-481c-setup-error-diagnostic-r3-20261018/actual-run/controller-result.json",
+            "sha256": "112f06777bd546c4e81a8fb1ad453df725bf0517c157f22ceb92bced7f59d03c"
+          },
+          {
+            "bytes": 89,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-owner-481c-setup-error-diagnostic-r3-20261018/actual-run/controller-result.sha256",
+            "sha256": "40c8c7dd1de13cd8e2b0b66f0d5e501dc2fd9e68ce8ca9a083e033ca66375988"
+          },
+          {
+            "bytes": 3261,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-owner-481c-setup-error-diagnostic-r3-20261018/actual-run/launch_started.json",
+            "sha256": "bcf130f8758cb49f0444daca4821765a0e10dafbbda1b6f2cab22108be8f983b"
+          },
+          {
+            "bytes": 1221,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-owner-481c-setup-error-diagnostic-r3-20261018/actual-run/phase-output.jsonl",
+            "sha256": "d273f15b273489601a424b3fbc8f27bd6762925c0bd3eec8a0444919e54aba9f"
+          },
+          {
+            "bytes": 3368,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-owner-481c-setup-error-diagnostic-r3-20261018/actual-run/process-tree.jsonl",
+            "sha256": "3fd4cd5fdcff38541054ea147b8ee9f8a61597294fe9a6c4575fa677ad376981"
+          },
+          {
+            "bytes": 80977,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-owner-481c-setup-error-diagnostic-r3-20261018/actual-run/pytest-provenance.json",
+            "sha256": "0624149b063998e6cef5ba7ca7a91e8a494eb68b0174407a68aed02dad3db26e"
+          },
+          {
+            "bytes": 0,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-owner-481c-setup-error-diagnostic-r3-20261018/actual-run/pytest-tmp-path-setup-diagnostic.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "bytes": 2637,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-owner-481c-setup-error-diagnostic-r3-20261018/actual-run/pytest-tmp-path-setup-diagnostic.stdout.txt",
+            "sha256": "f16982f0e7d0f237fac8465d60faf57322c60aa2e767d8ac09858c3b375fbdad"
+          },
+          {
+            "bytes": 1196,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-owner-481c-setup-error-diagnostic-r3-20261018/actual-run/pytest.xml",
+            "sha256": "2c9415174d34ccefa22c897016fd1bebc211add024aa12971640c57fa70a90d4"
+          }
+        ],
+        "artifact_receipt_index_embedded_in_controller_result": true,
+        "complete": true,
+        "controller_result": {
+          "bytes": 5910,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-owner-481c-setup-error-diagnostic-r3-20261018/actual-run/controller-result.json",
+          "sha256": "112f06777bd546c4e81a8fb1ad453df725bf0517c157f22ceb92bced7f59d03c"
+        },
+        "raw_directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-owner-481c-setup-error-diagnostic-r3-20261018/actual-run"
+      },
+      "resource_observation": {
+        "minimum_measured_disk_free_bytes": 19275362304,
+        "peak_rss_bytes": 108281856,
+        "process_group_gone": true
+      }
+    },
+    "R4_parent_created_control": {
+      "authorization_refs": {
+        "diagnostic_wrapper.py": {
+          "bytes": 11283,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-owner-481c-setup-parent-control-r4-20261018/diagnostic-wrapper.py",
+          "sha256": "dc0c8989561a302ab1db378610516f301a8dd579ebc2f28c2463366b7b156f89"
+        },
+        "request.json": {
+          "bytes": 14150,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-owner-481c-setup-parent-control-r4-20261018/request.json",
+          "sha256": "1e7fcf816c77f02849860fcd529365822f1201e98aeb0a6e5f10efed14e7e50d"
+        },
+        "root-grant.json": {
+          "bytes": 1911,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-owner-481c-setup-parent-control-r4-20261018/root-grant.json",
+          "sha256": "cb03d65d4efd0e226bec5795f71f11c1ee4713a6a7d22e611d93d711b9e0a165"
+        }
+      },
+      "case_provenance_qualified": true,
+      "child_return_code": 0,
+      "controller_result": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-owner-481c-setup-parent-control-r4-20261018/actual-run/controller-result.json",
+        "sha256": "9cb514050a292a473dc814cb2463df8a14773232fdce07c882eee2014ff78da0"
+      },
+      "external_root_created_by_controller": true,
+      "junit": {
+        "errors": 0,
+        "failures": 0,
+        "passed": 1,
+        "skipped": 0,
+        "tests": 1
+      },
+      "not_exercised_requested_module_count": 7,
+      "outer_exec_return_code_reported_by_root": 0,
+      "raw_output_bundle": {
+        "all_retained_files": [
+          {
+            "bytes": 1230,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-owner-481c-setup-parent-control-r4-20261018/actual-run/controller-events.jsonl",
+            "sha256": "d684021dec640b0183d53ed57a7a36826870ade113f4961f9c06a6461cab232c"
+          },
+          {
+            "bytes": 5907,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-owner-481c-setup-parent-control-r4-20261018/actual-run/controller-result.json",
+            "sha256": "9cb514050a292a473dc814cb2463df8a14773232fdce07c882eee2014ff78da0"
+          },
+          {
+            "bytes": 89,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-owner-481c-setup-parent-control-r4-20261018/actual-run/controller-result.sha256",
+            "sha256": "99a76c881e9aaed7750297bfc9a6349de8d3f2524d5dca5a6c07e24220ff3120"
+          },
+          {
+            "bytes": 3514,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-owner-481c-setup-parent-control-r4-20261018/actual-run/launch_started.json",
+            "sha256": "221980e061792cdc75cd026ab1b944d029a50015e721f9626f94a71bf118d5ed"
+          },
+          {
+            "bytes": 1219,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-owner-481c-setup-parent-control-r4-20261018/actual-run/phase-output.jsonl",
+            "sha256": "656cd38dcbedd13f82f3eb2f9a77bb6786734a53ed14a1726c0854066ef74f0c"
+          },
+          {
+            "bytes": 3393,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-owner-481c-setup-parent-control-r4-20261018/actual-run/process-tree.jsonl",
+            "sha256": "6fb503d72978dd01a57293cc47a73cc6ef6f55f5fbe6188cb3f87ebd936d3831"
+          },
+          {
+            "bytes": 80977,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-owner-481c-setup-parent-control-r4-20261018/actual-run/pytest-provenance.json",
+            "sha256": "d4c5f76dc69778a642f1e30528686b3cf5f5c56b1b5268b2e1cc74671b45bedc"
+          },
+          {
+            "bytes": 0,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-owner-481c-setup-parent-control-r4-20261018/actual-run/pytest-tmp-path-setup-diagnostic.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          {
+            "bytes": 1701,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-owner-481c-setup-parent-control-r4-20261018/actual-run/pytest-tmp-path-setup-diagnostic.stdout.txt",
+            "sha256": "b802c406e5b9b3fc5d3848fa0dc2dadba3d8e06bb64269ecfc0f9b079bb770a2"
+          },
+          {
+            "bytes": 409,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-owner-481c-setup-parent-control-r4-20261018/actual-run/pytest.xml",
+            "sha256": "409fe0b8cff1e12e62fdb88b7d019cce6c33f2ecd33eaefa4501cda11e5ab1a9"
+          }
+        ],
+        "artifact_receipt_index_embedded_in_controller_result": true,
+        "complete": true,
+        "controller_result": {
+          "bytes": 5907,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-owner-481c-setup-parent-control-r4-20261018/actual-run/controller-result.json",
+          "sha256": "9cb514050a292a473dc814cb2463df8a14773232fdce07c882eee2014ff78da0"
+        },
+        "raw_directory": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-owner-481c-setup-parent-control-r4-20261018/actual-run"
+      },
+      "resource_observation": {
+        "minimum_measured_disk_free_bytes": 19244904448,
+        "peak_rss_bytes": 97271808,
+        "process_group_gone": true,
+        "wall_seconds": 1.597965749911964
+      },
+      "result": "same tmp_path case passed when the wrapper created only the fresh external root before launch; pytest basetemp/cache children remained pytest-created",
+      "runtime_loaded_module_count": 84,
+      "runtime_origins_qualified": true,
+      "source_pin_count": 25555,
+      "source_pins_unchanged": true
+    },
+    "interpretation": "The paired 1-error/1-pass outcomes isolate the missing external parent as the R3 setup cause. They do not establish product-suite results or a formal closure.",
+    "test_nodeid": "tests/repo_quality/tools/test_directory_health.py::test_phase1_3_phase_local_junk_build_residue_fails_hygiene"
+  },
+  "proposed_tracked_target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native-owner-481c-runtime-abort-and-harness-repair-20261018.json",
+  "raw_availability": {
+    "R3_and_R4_full_harness_outputs_retained": true,
+    "full_original_RSS_abort_outputs_retained": true,
+    "host": "Local worktree at /Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "raw_root": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw",
+    "source_pin_maps_copied": false,
+    "tracked_target_exists": false
+  },
+  "record_type": "source-bound actual-wave and harness-control handoff",
+  "schema": "policyos.e02.native_owner_runtime_abort_harness_repair_receipt.v1",
+  "source_footprint": {
+    "commit_changed_paths": 28,
+    "formal_G_acceptance": null,
+    "full_changed_path_and_postimage_sha256_denominator": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-three-owner-source-application-plan-20261018/root-three-native-owner-source-application-20261018-readback.json",
+      "sha256": "8e33355577ebe00c327d37dcaeff90c801cb6164500e831e13e9329a32440387"
+    },
+    "mandatory_companions_outside_mechanism_count": {
+      "LEASES_and_delivery_index": 2,
+      "P39_note": "Five tests, one README, LEASES and delivery index are required companions outside the 20-path mechanism count.",
+      "README": 1,
+      "tests": 5
+    },
+    "mechanism_paths": {
+      "classification": "11 Python owner files + 9 primary package TOMLs; mechanism count only",
+      "count": 20,
+      "primary_package_tomls": 9,
+      "python_owner_files": 11
+    },
+    "pin_map_copied": false,
+    "source_adoption_record": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native-owner-source-adoption-481c-20261018.json",
+      "sha256": "3170921ee05eb9b13dee79ab736eeb49f41251b379e50f6a8135dddcc558ee38"
+    }
+  },
+  "source_frame": {
+    "historical_test_source_frame": {
+      "branch": "refs/heads/codex/e02-unified-local-20261009",
+      "head": "481c4345be0fd611e91e9110a10832fb507d0e4e",
+      "tree": "9f18fef6d8ffe4e2513303128088bca329454719"
+    },
+    "same_source_frame_for_paired_diagnostic_controls": true
+  },
+  "status": "proposal only; no source mutation, no closure, no future run authorization",
+  "decision_status": "proposal_not_adjudicated",
+  "root_g_adjudication": "NOT_PERFORMED",
+  "target_record_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native-owner-481c-runtime-abort-and-harness-repair-20261018.json",
+  "root_tracking_qualification": {
+    "role": "tracked proposal and evidence; not G adjudication",
+    "prepared_postimage": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-g-choice-and-harness-receipt-batch-20261018/postimages/native-owner-481c-runtime-abort-and-harness-repair-20261018.json",
+      "sha256": "ecbfb9c0dc86c09c7b0c87c5e48be76bf1ccec39a0b2d614eb2601fcca55eee4"
+    },
+    "original_source": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-owner-481c-runtime-abort-and-harness-repair-20261018.json",
+      "sha256": "0ca15ec9f93ea9bd449f04e15caff0452ef16344e33619a0e204545aa6de19bb"
+    },
+    "source_at_adoption": {
+      "head": "f508fa13707043a55b8278178c30acc22f599080",
+      "tree": "299d8af15136666084134489044cd99ce48a7893",
+      "parents": [
+        "6d4511969970a0986d577cb2050f5282d063a8c9"
+      ]
+    },
+    "historical_draft_fields": "Any original RAW-only/written=false/pending-review text describes the preserved draft snapshot. This tracked copy is adopted by root; it grants no future run, authority, or formal closure.",
+    "G_adjudication": "NOT_PERFORMED",
+    "closure_ids": [],
+    "later_controller_source_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-supervisor-parent-minspace-independent-20261018/review.md",
+      "sha256": "ab2627ef47cc1c99ed7904b2e5e215bc1c4af66039edc3c218d33624a867a5f6",
+      "verdict": "GO to newly source-bound profile only; no controller or product suite execution"
+    }
+  }
+}

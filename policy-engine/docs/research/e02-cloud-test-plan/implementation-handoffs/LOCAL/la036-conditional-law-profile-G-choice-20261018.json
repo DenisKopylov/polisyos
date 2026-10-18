@@ -1,0 +1,129 @@
+{
+  "schema": "e02.g-choice-decision-packet/v1",
+  "proposal_id": "la036-conditional-law-profile-G-choice",
+  "target_record_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/la036-conditional-law-profile-G-choice-20261018.json",
+  "decision_status": "proposal_not_adjudicated",
+  "root_g_adjudication": "NOT_PERFORMED",
+  "closure_ids": [],
+  "source_frame": {
+    "head": "481c4345be0fd611e91e9110a10832fb507d0e4e",
+    "tree": "9f18fef6d8ffe4e2513303128088bca329454719",
+    "qualification": "pinned source/prototype frame; this packet is proposal-only"
+  },
+  "decision_question": "May a separately named exact finite-empirical source-row profile be considered as a bounded conditional sampler while keeping conditional_observational refused and general SCM-law claims out of scope?",
+  "recommendation": {
+    "choice": "extend-existing-as-bounded-profile-only",
+    "rule": "Candidate profile conditional_empirical_source_rows: use equal-weight exact SCMTrainingRows only, require target row/x and ordered schema match, condition by exact support, and refuse without marginal fallback. A typed selected SCM ref/profile must be revalidated; persist law/source lineage and resolve it through a fresh BERL reader. Keep the current refusal until producer, sampler, persistence, and consumer exist.",
+    "not_authorized": "No general observed-feature law, population representativeness, calibration/currentness, causal effect, production positive route, formal LA-036 closure, or forced Phase-5-report→Runtime bridge."
+  },
+  "ownership_time_authority": {
+    "source_owner": "Not appointed in reviewed packets; G must name Foundry/IR source and BERL method/sampler/persistence/reader owner(s) before implementation.",
+    "time": "The finite table has no validity/currentness interval. Any future contract must declare source and policy time semantics; missing or stale validity remains unresolved.",
+    "authority_limit": "No general observed-feature law, population representativeness, calibration/currentness, causal effect, production positive route, formal LA-036 closure, or forced Phase-5-report→Runtime bridge."
+  },
+  "alternatives": {
+    "reuse": "Retain current conditional refusal and honest requested/effective method identity; safe but no conditional attribution.",
+    "extend": "Recommended only for finite profile, reusing SCMTrainingRows/ref/validator and KernelSHAP enumeration with a real sampler, persistence, and fresh reader.",
+    "consolidate": "Only after a validated law contract recurs across consumers; unify typed law ref/resolver.",
+    "build_new": "A general SCM-law engine is not supported by the eight-row witness."
+  },
+  "pattern_pass": {
+    "relevant": [
+      "P04",
+      "P05",
+      "P07",
+      "P08",
+      "P10",
+      "P29",
+      "P32",
+      "P37",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "finding": "No general observed-feature law, population representativeness, calibration/currentness, causal effect, production positive route, formal LA-036 closure, or forced Phase-5-report→Runtime bridge.",
+    "target": "Candidate profile conditional_empirical_source_rows: use equal-weight exact SCMTrainingRows only, require target row/x and ordered schema match, condition by exact support, and refuse without marginal fallback. A typed selected SCM ref/profile must be revalidated; persist law/source lineage and resolve it through a fresh BERL reader. Keep the current refusal until producer, sampler, persistence, and consumer exist.",
+    "acceptance": "Actual BERL request recomputes from exact selected rows, persists and reloads law evidence, distinguishes finite conditional from marginal, and refuses removed property/mismatch/unsupported x without claims beyond source scope."
+  },
+  "falsifiers": [
+    "Eight-row witness: conditional Shapley (.375,.125), marginal replacement (.5,0), out-of-support refusal. Arithmetic only; no PolicyOS/CAS/BERL wiring, source authorization, calibration, or causal identification.",
+    "Separate continuous Gaussian oracle rho=.8 expects conditional (.6,.4), marginal (1,0); finite table does not satisfy it.",
+    "Current conditional route is typed refusal/UnavailableAdapter; IR ConditionalSamplerSpec is declaration vocabulary, not a sampler.",
+    "Broader closure ledger says partial / producer_missing and not adjudicated; original identity criterion is distinct and does not require a Phase-5-report→Runtime edge."
+  ],
+  "sources": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la036-scm-law-compatibility-prototype-20261018/review.md",
+      "sha256": "4b6f076cb21dd63d630316860145e2df07877450c2118b4865feb5134cb0944c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la036-scm-law-compatibility-prototype-20261018/finite_empirical_conditional_oracle.py",
+      "sha256": "644eeb2659f7c81c545bbaffcf3d68ed25c2d7d25eb57dd9d86709a01bdec9d0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la036-original-callers-review-20261018/review.md",
+      "sha256": "f77b9c095000fb7de7884aa7803769808ee83adbb17b0f0a2e215a1bb448d566"
+    }
+  ],
+  "canonical_occurrences": [
+    {
+      "id": "LA-036",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "lines": "2103-2145",
+      "blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260"
+    },
+    {
+      "id": "LA-036 §22.2",
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "lines": "2226-2228",
+      "blob": "4bdf76e99f0c26e40bc2a71e76d4940c23712260"
+    },
+    {
+      "id": "coverage.json findings[id=LA-036]",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/closure-decisions/coverage.json",
+      "line": "around 11033",
+      "blob": "8c0a7af03fbebb3e57475bc3b2fcf0d3eb6104bf"
+    },
+    {
+      "path": "policy-engine/src/polisyos/scientist/validation/phase5_preflight.py",
+      "lines": "214-320,1063-1074"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/quality/explanation_reliability.py",
+      "lines": "543-620"
+    },
+    {
+      "path": "policy-engine/src/polisyos/berl/service/__init__.py",
+      "lines": "486-540"
+    }
+  ],
+  "capability_labels": [
+    "contract_only: IR declaration",
+    "producer_missing",
+    "artifact_missing",
+    "bridge_missing",
+    "consumer_missing",
+    "verification_missing"
+  ],
+  "root_tracking_qualification": {
+    "role": "tracked proposal and evidence; not G adjudication",
+    "prepared_postimage": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-g-choice-and-harness-receipt-batch-20261018/postimages/la036-conditional-law-profile-G-choice-20261018.json",
+      "sha256": "48ef4d240903ad46516824f15d7e4d4899f110f608f651afb1c008898c9ec927"
+    },
+    "original_source": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-g-choice-handoff-prepare-20261018/la036-conditional-law-profile-G-choice-20261018.json",
+      "sha256": "48ef4d240903ad46516824f15d7e4d4899f110f608f651afb1c008898c9ec927"
+    },
+    "source_at_adoption": {
+      "head": "f508fa13707043a55b8278178c30acc22f599080",
+      "tree": "299d8af15136666084134489044cd99ce48a7893",
+      "parents": [
+        "6d4511969970a0986d577cb2050f5282d063a8c9"
+      ]
+    },
+    "historical_draft_fields": "Any original RAW-only/written=false/pending-review text describes the preserved draft snapshot. This tracked copy is adopted by root; it grants no future run, authority, or formal closure.",
+    "G_adjudication": "NOT_PERFORMED",
+    "closure_ids": []
+  }
+}

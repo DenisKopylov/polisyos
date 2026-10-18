@@ -1,0 +1,378 @@
+{
+  "artifact_role": "Tracked G-choice proposal; original RAW decision and prototype remain immutable",
+  "artifact_version": "root-c05-profile-snapshot-consistency-author-20261018.v2",
+  "bounded_census": {
+    "method": "stdlib walk of all Python files under the stated roots; literal SourceProfileRegistry references counted; no imports or Git query",
+    "scope_limit": "This is a complete literal-name file census, not proof that dynamically loaded plugin code has no aliases; direct first-party callsites are enumerated above and via source pins. No general production mutation absence claim is made.",
+    "src_polisyos": {
+      "complete_file_list": [
+        "src/polisyos/data_forge/domains/catalog/batch/config.py",
+        "src/polisyos/data_forge/domains/catalog/batch/core_sources/api.py",
+        "src/polisyos/data_forge/domains/catalog/knowledge/acquisition_authority.py",
+        "src/polisyos/fabric/catalog/providers.py",
+        "src/polisyos/fabric/connectors/__init__.py",
+        "src/polisyos/fabric/connectors/_registry_lifecycle.py",
+        "src/polisyos/fabric/connectors/profiles/__init__.py",
+        "src/polisyos/fabric/connectors/profiles/registry.py",
+        "src/polisyos/fabric/retrieval/executor.py",
+        "src/polisyos/fabric/retrieval/explore_lane.py",
+        "src/polisyos/fabric/retrieval/providers.py",
+        "src/polisyos/fabric/retrieval/service.py",
+        "src/polisyos/runtime/http/services/control/run_lifecycle.py",
+        "src/polisyos/runtime/http/services/control_registry_providers.py",
+        "src/polisyos/runtime/quality/capability_discovery.py"
+      ],
+      "denominator": 2782,
+      "file_type": "*.py",
+      "literal_ref_files": 15,
+      "path_root": "src/polisyos"
+    },
+    "tests": {
+      "complete_file_list": [
+        "tests/_helpers/acquisition_production.py",
+        "tests/unit/architecture/test_full413_route_identity.py",
+        "tests/unit/data_forge/domains/catalog/batch/core_sources/test_registry.py",
+        "tests/unit/data_forge/domains/catalog/batch/core_sources/test_writers.py",
+        "tests/unit/data_forge/domains/catalog/batch/test_pipeline.py",
+        "tests/unit/data_forge/domains/catalog/batch/test_publish.py",
+        "tests/unit/data_forge/domains/catalog/knowledge/test_acquisition_authority.py",
+        "tests/unit/fabric/connectors/profiles/test_source_profiles.py",
+        "tests/unit/fabric/connectors/sources/test_connector_family_expansion.py",
+        "tests/unit/fabric/connectors/sources/test_wave1_integration.py",
+        "tests/unit/fabric/connectors/sources/test_wave2_integration.py",
+        "tests/unit/fabric/connectors/sources/test_wave3_integration.py",
+        "tests/unit/fabric/connectors/test_registry.py",
+        "tests/unit/fabric/connectors/test_source_contract_v2.py",
+        "tests/unit/fabric/test_concurrency_bounded_runtime_phase2.py",
+        "tests/unit/fabric/test_discovery_intelligence.py",
+        "tests/unit/fabric/test_retrieval_fetch_custody.py",
+        "tests/unit/fabric/test_retrieval_service_catalog.py",
+        "tests/unit/remediation/test_dfi_03.py",
+        "tests/unit/remediation/test_dfk_02.py",
+        "tests/unit/runtime/http/test_architecture_boundaries.py",
+        "tests/unit/runtime/http/test_control_service_di.py",
+        "tests/unit/runtime/http/test_e2e_ingestion.py",
+        "tests/unit/runtime/quality/test_capability_discovery.py",
+        "tests/unit/runtime/quality/test_live_acquisition_executor.py"
+      ],
+      "denominator": 3081,
+      "file_type": "*.py",
+      "literal_ref_files": 25,
+      "path_root": "tests"
+    }
+  },
+  "caller_trace": {
+    "live_read_consumers": [
+      {
+        "consumer": "connection configuration / execution policy resolution",
+        "lines": [
+          1148,
+          1206
+        ],
+        "path": "src/polisyos/data_forge/domains/catalog/batch/core_sources/api.py"
+      },
+      {
+        "consumer": "re-resolves profile family/config/content identity; this is not external legal authority",
+        "lines": [
+          1355,
+          1391,
+          1478
+        ],
+        "path": "src/polisyos/data_forge/domains/catalog/knowledge/acquisition_authority.py"
+      },
+      {
+        "consumer": "startup default-config wiring",
+        "line": 522,
+        "path": "src/polisyos/fabric/connectors/_registry_lifecycle.py"
+      },
+      {
+        "consumer": "fetch plan connection configuration",
+        "line": 317,
+        "path": "src/polisyos/fabric/retrieval/executor.py"
+      },
+      {
+        "consumer": "family profile selects discovery connection/default profile ID",
+        "lines": [
+          198,
+          204
+        ],
+        "path": "src/polisyos/fabric/retrieval/explore_lane.py"
+      },
+      {
+        "consumer": "connection config and read-only source-profile/connector API projections",
+        "lines": [
+          5260,
+          5634,
+          5664,
+          5691
+        ],
+        "path": "src/polisyos/runtime/http/services/control/run_lifecycle.py"
+      },
+      {
+        "consumer": "injected provider resolves selected profile before HTTPS/config checks",
+        "line": 767,
+        "path": "src/polisyos/runtime/quality/acquisition_executor.py"
+      },
+      {
+        "consumer": "dynamic list_all reads profiles to persist a typed registry snapshot and candidate rows; unlike batch config, it does not request snapshot_all",
+        "lines": [
+          2243,
+          2263
+        ],
+        "path": "src/polisyos/runtime/quality/capability_discovery.py"
+      },
+      {
+        "consumer": "uses snapshot_all for the runtime profile/config snapshot",
+        "line": 582,
+        "path": "src/polisyos/data_forge/domains/catalog/batch/config.py"
+      }
+    ],
+    "observed_update_style": "In inspected production/test scenarios, profile changes are represented as a new typed model and admitted through register(..., override=True), rather than mutating a profile alias in place. This is a reviewed-callsite observation, not a claim that every dynamic client follows it.",
+    "writers_and_updates": [
+      {
+        "behavior": "_bootstrap passes built-in profile objects to register; register retains the exact object. The inspected source has no public mutation method beyond register(..., override=True).",
+        "line": "90-94",
+        "path": "src/polisyos/fabric/connectors/profiles/registry.py"
+      },
+      {
+        "behavior": "fixtures call register; the snapshot test replaces through a deep model_copy and override=True; it tests detached snapshot vs later replacement, not input/get/list aliases.",
+        "line": "133-172",
+        "path": "tests/unit/fabric/connectors/profiles/test_source_profiles.py"
+      },
+      {
+        "behavior": "same-ID source changes are expressed as model_copy(update=..., deep=True) followed by register(..., override=True).",
+        "line": "1526-1635",
+        "path": "tests/unit/remediation/test_dfi_03.py"
+      },
+      {
+        "behavior": "material profile changes use model_copy plus register override; no direct profile-field mutation. Candidate-only stale/not-established controls are present.",
+        "line": "1996-2123",
+        "path": "tests/unit/fabric/test_retrieval_service_catalog.py"
+      }
+    ]
+  },
+  "execution_limits": {
+    "allowed_work_performed": "Read-only source/docs/tests inspection, SHA-256 pins, complete Python-file literal-name census, stdlib dataclass prototype only.",
+    "not_performed": "No canonical/product source writes, product imports, pytest, CAS or production data access, environment modification, Git commands, children, or authority claims.",
+    "result": "The G choice is open; this is not a source fix, verification receipt, or closure artifact.",
+    "runtime_profile": "not_run; Product SourceProfile runtime behavior is statically bound to source pins, not product-import execution."
+  },
+  "g_choice": {
+    "choice_required": "Whether the documented live get/list_all compatibility contract remains, or is deliberately versioned into detached registry views.",
+    "classification": "same live-alias class at deeper boundary, not a new class; P40 says do not patch channel-by-channel and call the class closed",
+    "option_break_contract": {
+      "effect": "Make the whole SourceProfileRegistry boundary copy-in and copy-out with model_copy(deep=True) while holding the lock for register/get/list_all/list_by_family; keep the typed SourceProfile and same profile_id, and retain register(..., override=True) as the only update owner.",
+      "required_companions": "Registry unit tests for input alias, get, list_all, list_by_family, snapshot_all, nested mapping/list edits, same-ID override and reader mutation; migrate any in-place caller to model_copy + register override; preserve the stale/not-established candidate-only retrieval tests. Consider the cost of copying a profile on every public read before selecting this option.",
+      "risk": "The class docstring explicitly says get/list_all live references are retained for compatibility, so this is an API behavior change even if current inspected callsites use register override. Do not land without owner/version decision and consumer audit."
+    },
+    "option_frozen_model": "A stronger breaking alternative is to make SourceProfile immutable and require rebuilding/re-registering values. It crosses beyond registry alias repair and is not the recommended first option.",
+    "option_preserve": {
+      "bounded_residual": "Callers can still mutate profiles returned by get/list APIs outside the registry lock and change the profile basis without register; no uniform atomic snapshot guarantee over arbitrary aliases is established. Smallest later capability to close this is an intentional API-versioned immutable/detached boundary plus caller migration, not a per-caller defensive copy.",
+      "effect": "No SourceProfileRegistry API behavior change. Keep the observable live references and existing register(..., override=True) update channel.",
+      "falsifier": "After taking a detached snapshot, mutate the original register input and a prior get/list/list_by_family alias. Verify the snapshot bytes stay fixed while the live registry can change through aliases; verify persistence consumers using snapshot_all do not serialize a mixed alias view.",
+      "migration": "Clarify docs that register input, get, list_all, and list_by_family expose mutable identity; state that snapshot_all detaches output only and external aliases are outside its atomicity guarantee. For each persisted snapshot consumer, explicitly select snapshot_all if it needs register/override coherence. Preserve currentness/stale rows as candidate-only."
+    },
+    "recommendation": "Preserve the declared live get/list_all behavior until an owner explicitly versions the API. Use register(..., override=True) for updates; consumers requiring a coherent detached registry view must use the existing snapshot_all owner API. Record list_by_family and register-input alias behavior as exposed by current implementation. Do not claim the current lock makes external alias mutations atomic."
+  },
+  "next_request": {
+    "closure_receipt": "not issued",
+    "decision": "Owner should choose preserve-live API or version detached-copy API before product edits.",
+    "if_break": "Narrow product candidate is one structural registry edit in `src/polisyos/fabric/connectors/profiles/registry.py` with mirrored tests in `tests/unit/fabric/connectors/profiles/test_source_profiles.py`; enumerate all callers first and run the same candidate-only negative tests. No private payload or external source data needed.",
+    "if_preserve": "Narrow product candidate is registry doc clarification plus the existing persisted snapshot caller(s) selecting snapshot_all; prove `test_excluded_profile_value_change_is_not_current_or_reusable` and `test_actual_catalog_route_keeps_headerful_generation_candidate_only_after_headers_removed` remain candidate-only, with the source snapshot's same-ID nested mutation falsifier."
+  },
+  "observed_contract": {
+    "documented_compatibility": "registry.py states get and list_all retain live-object behavior for compatibility, and in-place mutation of profiles obtained from them bypasses the registry lock. list_by_family has the same behavior by implementation, while its docstring does not state it. register input identity is observable but not separately documented.",
+    "get": "Returns the stored object under the lock; the returned object remains mutable after lock release.",
+    "list_all": "Returns a sorted list containing stored objects under the lock; profile objects remain mutable after lock release.",
+    "list_by_family": "Returns stored objects filtered by family under the lock; profile objects remain mutable after lock release.",
+    "model": "SourceProfile is a mutable Pydantic BaseModel with extra=forbid. Its nested mutable fields include headers: dict[str,str], dataset_discovery_hints: list[str], and tags: list[str]. SourceExecutionPolicy is frozen. No private SourceProfile attrs were found in the model declaration.",
+    "register": "Stores the exact caller SourceProfile object under the lock; caller-held input aliases remain connected after return.",
+    "snapshot_all": "Returns deep model copies created under the lock; this detaches the emitted copies from later replacement and alias mutation, but intake aliases can still mutate the stored object before or after snapshot creation."
+  },
+  "owner": "la036_persistence_consumer_author",
+  "pattern_pass": {
+    "authority_boundary": "No law, rights, source-custody, external-currentness, calibration, or publication authority is established by profile registry membership or this prototype. Capability discovery remains candidate-only.",
+    "existing_risk": "A partial clone of only get, only list_by_family, or only register input would leave sibling aliases open (P31/P40); a single dataclass demo is a witness, not Product proof (P33/P38); the class-reference census is bounded by full *.py roots and listed complete file sets (P35).",
+    "ids": [
+      "P31",
+      "P33",
+      "P35",
+      "P38",
+      "P40"
+    ],
+    "semantic_test_missing": "No actual product test in this pass mutates a SourceProfile returned by register/get/list_all/list_by_family and asserts the registry/snapshot result. Existing snapshot test covers only later override isolation.",
+    "target": "One owner decision over all mutable intake and emission channels; preserve a declared residual if public compatibility wins, or copy the full registry boundary if the contract is versioned."
+  },
+  "property": "For any SourceProfileRegistry access, state exactly which mutations may affect the registry and whether the returned profile set is detached and coherent with register/override; do not infer lock coverage from method names.",
+  "prototype": {
+    "command": "python3 -B docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-profile-snapshot-consistency-author-20261018/prototype.py",
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "exit_code": 0,
+    "falsifier": "For each intake/read channel, mutate same-profile_id base_url and nested headers/tags/discovery-hints after the method returns, then re-read the registry. The current live design changes; the proposed deep-copy boundary remains unchanged. snapshot_all itself is detached, but does not isolate its register input alias.",
+    "kind": "bounded stdlib dataclass model; no PolicyOS/Pydantic imports, no product runtime execution",
+    "readback_execution": "standalone RAW source executed once; full observed output recorded here; stdlib dataclass model only, not product execution",
+    "source_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-profile-snapshot-consistency-author-20261018/prototype.py",
+    "source_sha256": "4a2ea6c1fac9057a105e6827abd33afa7b1129511fe38e2ee2d070cba408487d",
+    "stderr": "",
+    "stdout": "{'live_intake_alias_changes_registry': True, 'live_get_alias_changes_registry': True, 'live_list_all_alias_changes_registry': True, 'live_list_by_family_alias_changes_registry': True, 'live_snapshot_alias_changes_registry': False, 'live_same_id_override_preserves_typed_identity': True, 'detached_intake_alias_changes_registry': False, 'detached_get_alias_changes_registry': False, 'detached_list_all_alias_changes_registry': False, 'detached_list_by_family_alias_changes_registry': False, 'detached_snapshot_alias_changes_registry': False, 'detached_same_id_override_preserves_typed_identity': True}\nprototype=PASS; scope=stdlib dataclass model of observed registry boundary, not product execution\n",
+    "stream_note": "exec_command returned one output field. This script writes only to stdout via print and emitted no diagnostics; stderr was empty in the observed successful run.",
+    "wall_time_seconds": 0.1
+  },
+  "semantic_controls_to_preserve": [
+    {
+      "expected": "material header changes invalidate reuse; receipt/currentness remains not_established; output retains one candidate, no fetch plan, and no raw header values",
+      "line": 1996,
+      "path": "tests/unit/fabric/test_retrieval_service_catalog.py",
+      "test": "test_excluded_profile_value_change_is_not_current_or_reusable"
+    },
+    {
+      "expected": "stale source row remains candidate-only with no fetch plan after header removal",
+      "line": 2075,
+      "path": "tests/unit/fabric/test_retrieval_service_catalog.py",
+      "test": "test_actual_catalog_route_keeps_headerful_generation_candidate_only_after_headers_removed"
+    },
+    {
+      "expected": "same profile ID with changed typed source profile material changes run signature and invalidates stale stage receipts via explicit override",
+      "line": 1526,
+      "path": "tests/unit/remediation/test_dfi_03.py",
+      "test": "test_same_id_live_source_profile_change_invalidates_stage_receipts"
+    }
+  ],
+  "source_frame": {
+    "prior_noop_facade_candidate": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-facade-companion-author-20261018/candidate.json",
+      "preservation": "not modified",
+      "sha256": "e5979b58142237d5c917c870784e4fbd964b277226a022c350e8daa05fee0d99"
+    },
+    "prior_source_assessment": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current-c05-material-basis-review-20261018/review.json",
+      "preservation": "not modified",
+      "sha256": "6d6ab02ce42aa865559c0c575d827d646be6f7d48a4df34c3d266bb29e8f1ca3"
+    },
+    "product_root": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "source_head_or_tree": "not_observed; Git was outside this task's allowed operations"
+  },
+  "source_pins": [
+    {
+      "anchors": "register 49-55; get 57-61; list_all 63-66; snapshot_all 69-81; list_by_family 84-88; _bootstrap 90-94",
+      "bytes": 3529,
+      "path": "src/polisyos/fabric/connectors/profiles/registry.py",
+      "sha256": "fa29381bdf081f481d77e0544eed83fe975113189e24db972571e18d014e88a4"
+    },
+    {
+      "anchors": "SourceProfile 12-68; mutable ConfigDict extra=forbid 34; nested fields 41,66-67; frozen SourceExecutionPolicy 71-",
+      "bytes": 4495,
+      "path": "src/polisyos/fabric/connectors/profiles/models.py",
+      "sha256": "cd1278772bb443d2a8b4b2e37e0d8c1e8fd3a32c4e6007cc92d0b5c0209b809a"
+    },
+    {
+      "anchors": "registry lookup and family lookup 77-78; no contrary live/detached guarantee",
+      "bytes": 9031,
+      "path": "docs/reference/fabric/profiles.md",
+      "sha256": "f82039357541dc37a9bb849ae74abd0b4c6d63651bed80afc9b854c31de730cc"
+    },
+    {
+      "anchors": "public entrypoints and package ownership; no contrary live/detached guarantee",
+      "bytes": 7407,
+      "path": "src/polisyos/fabric/connectors/README.md",
+      "sha256": "f42fbfbd519c9091550279e6ad3fab51d293751ef602a793ff7869a2ff681f2b"
+    },
+    {
+      "anchors": "profile-to-connection/execution config resolution",
+      "bytes": 4382,
+      "path": "src/polisyos/fabric/connectors/profiles/resolver.py",
+      "sha256": "103ebf2a10333525e755eb43bcc1246ab853bb5b8b2ecd0c960fdbb5b55f81da"
+    },
+    {
+      "anchors": "get at 317; profile config resolution",
+      "bytes": 16955,
+      "path": "src/polisyos/fabric/retrieval/executor.py",
+      "sha256": "44c12ead31962575e77eceeccc74f284ef4e037b7683f55e56684e537f131685"
+    },
+    {
+      "anchors": "family lookup at 198,204; selected family profile feeds connection config/default id",
+      "bytes": 9294,
+      "path": "src/polisyos/fabric/retrieval/explore_lane.py",
+      "sha256": "02fb7729b689172b4d92828d0c92fd020a25400247f0ae55635026c63d1460a7"
+    },
+    {
+      "anchors": "list_all at 522; bootstraps connector default config from profiles",
+      "bytes": 44984,
+      "path": "src/polisyos/fabric/connectors/_registry_lifecycle.py",
+      "sha256": "098196835cf3fd1e6a2ba208af8e5fb281486da69ac8921cf3e03c73cef6eb88"
+    },
+    {
+      "anchors": "snapshot_all at 582 for coherent runtime source profile snapshot",
+      "bytes": 29179,
+      "path": "src/polisyos/data_forge/domains/catalog/batch/config.py",
+      "sha256": "411c69ac27b003e7a5a8a97a468692a78f9694b9091afde2d48cc8b309b9334d"
+    },
+    {
+      "anchors": "get at 1148 and 1206 for ConnectionConfig and SourceExecutionPolicy resolution",
+      "bytes": 147910,
+      "path": "src/polisyos/data_forge/domains/catalog/batch/core_sources/api.py",
+      "sha256": "cdc9587279db23a2d99b419bf385961e555db2b0c68dae252293f53733542c23"
+    },
+    {
+      "anchors": "get at 1355,1391,1478; recomputes profile/config identity during acquisition checks; profile metadata itself is not external legal authority",
+      "bytes": 103308,
+      "path": "src/polisyos/data_forge/domains/catalog/knowledge/acquisition_authority.py",
+      "sha256": "984953283f027fd2fbda70ca5f1c04c2c7670a5bf7916b011c0b872cc4d00155"
+    },
+    {
+      "anchors": "injected source_profiles.get at 767; resolves selected live source profile",
+      "bytes": 111500,
+      "path": "src/polisyos/runtime/quality/acquisition_executor.py",
+      "sha256": "889ddaa3af9b65f0f1729b43d66c974746339ff1c34e5e2e1772af93116b55fb"
+    },
+    {
+      "anchors": "producer 1009; dynamic list_all 2243-2263; persists validated profile snapshot and candidate rows; no authority claim",
+      "bytes": 139764,
+      "path": "src/polisyos/runtime/quality/capability_discovery.py",
+      "sha256": "24d804795f99d9c1a3069202ad030bc75f04743bdea017baafa1d0fd7ba52e2a"
+    },
+    {
+      "anchors": "SourceProfileRegistryLike read contract 31-36; default factory 236-239",
+      "bytes": 13204,
+      "path": "src/polisyos/runtime/http/services/control_registry_providers.py",
+      "sha256": "9865e36378dbc20c0125bc5eb30fcefc80b48485051648b69ea450ed4d30225f"
+    },
+    {
+      "anchors": "get at 5260; family list 5634; list_all 5664,5691; API DTO projection reads fields",
+      "bytes": 252937,
+      "path": "src/polisyos/runtime/http/services/control/run_lifecycle.py",
+      "sha256": "6c66f2a13b3af06f34abeee80c0e2f2b0d7c49663b027ed3e0f6f6c65ef2daa3"
+    }
+  ],
+  "status": "candidate_for_owner_decision",
+  "supersedes_invalid_serialization": {
+    "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-profile-snapshot-consistency-author-20261018/decision.json",
+    "reason": "v1 prototype.source serialized a placeholder expression instead of source; v1 remains immutable.",
+    "sha256": "2174ffca4069b8156a07e2c1ef1cd581c0318b328f51fc9ad5f1228191a34d90"
+  },
+  "decision_status": "proposal_not_adjudicated",
+  "root_g_adjudication": "NOT_PERFORMED",
+  "closure_ids": [],
+  "target_record_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/c05-registry-live-view-compatibility-G-choice-20261018.json",
+  "root_tracking_qualification": {
+    "role": "tracked proposal and evidence; not G adjudication",
+    "prepared_postimage": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-g-choice-and-harness-receipt-batch-20261018/postimages/c05-registry-live-view-compatibility-G-choice-20261018.json",
+      "sha256": "d41e537672d827bfe1e451877fb37c8fc40f189367b88052edab013cc9d33f54"
+    },
+    "original_source": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-profile-snapshot-consistency-author-20261018/decision-r2.json",
+      "sha256": "5d1845ccbe0246e2cc2c07baee2f49cbb518dfab36a928875853fa394a608c50"
+    },
+    "source_at_adoption": {
+      "head": "f508fa13707043a55b8278178c30acc22f599080",
+      "tree": "299d8af15136666084134489044cd99ce48a7893",
+      "parents": [
+        "6d4511969970a0986d577cb2050f5282d063a8c9"
+      ]
+    },
+    "historical_draft_fields": "Any original RAW-only/written=false/pending-review text describes the preserved draft snapshot. This tracked copy is adopted by root; it grants no future run, authority, or formal closure.",
+    "G_adjudication": "NOT_PERFORMED",
+    "closure_ids": []
+  }
+}

@@ -1,0 +1,635 @@
+{
+  "schema": "polisyos.e02.la021-g-decision-packet.v1",
+  "packet_id": "LA-021-CAN-profile-law-G-choice-20261018",
+  "status": "proposal_not_adjudicated",
+  "proposal_state": "proposal_only_no_finding_closure",
+  "source_frame": {
+    "root": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "source_hold": "481c (parent supplied; Git/HEAD not independently verified)",
+    "review_basis": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current-can-composition-review-20261018/review.md",
+      "sha256": "aa1a010628f5ef08dfe4716cd567344117cfb033c08c3b84d4ff376a872ac24b"
+    },
+    "review_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current-can-composition-review-20261018/manifest.json",
+      "sha256": "10d1db5a48da9237bdd6e8744bbb1d29a20a18712bc1c08ff6bcee7d1c5de5af"
+    },
+    "tracked_sources_copied": false
+  },
+  "adoption_target": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/can-profile-law-G-choice-20261018.json",
+    "written": false,
+    "owner_action": "Parent may adopt this proposal into the tracked target after review; this RAW packet is the only file authored here."
+  },
+  "binding": {
+    "original_finding_ids": [
+      "LA-021"
+    ],
+    "criterion": {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727",
+      "pointer": "§ LA-021, lines 990-1018",
+      "property": "Preserve persisted bytes/hash behavior, strictness/depth/numeric/date/null/tag behavior, distinct exception identity and imports while consolidating common mechanics without silently widening IR; complete bidirectional legacy compatibility is required beyond a ten-value characterization sample."
+    },
+    "current_unified_task": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json",
+      "sha256": "a37c75cfe09d33c1f50379d5bbfd04bdb728c990e832aec3bf19c0d17035734c",
+      "pointer": "/tasks/Q1; lines 277-289; finding_ids includes LA-021",
+      "binding": "Q1 requires actual Core/IR write-option and profile/content conformance plus G choices for tag law and profileless-history behavior; source-DAG selection does not close LA-021."
+    },
+    "execution_rule": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/EXECUTION-PLAN.md",
+      "sha256": "bd85cdc09532760fd3eb142b66942ffc7e3d4f75d742dcbb5d8c8faf366c7abb",
+      "pointer": "lines 3-5",
+      "rule": "Q1 source selection is not the LA-021 compatibility/legacy outcome."
+    }
+  },
+  "decision_authority": "G alone adjudicates the persisted Core/IR profile law and any history compatibility policy. This local proposal neither creates a profile law nor grants producer authority.",
+  "prior_g_admission": {
+    "review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/G/local-transition-20261009/reviews/review-C06-CAN.md",
+      "sha256": "dd5bfcd3cbfc8b50f32d12d4bd6c7ee9a52cc38e90e15846a0d7760f7cabe9ac"
+    },
+    "admission": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/G/local-transition-20261009/ADMISSION.json",
+      "sha256": "15cdf71665d265ec9d8f4309c4dea572d71a6ac11e55680ce18017c3ddc0c639"
+    },
+    "scope": "historical bounded GO for strict presented-profile IR reader only; it is not LA-021 whole-property acceptance or a formal closure.",
+    "current_2026_10_17_packet": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/la021-can-profile-law-history-g-decision-20261017.json",
+      "sha256": "5bd9cb1d5144e6d00f2d0dd17a4dacaef2f08256ee7feccfccac9aeed88699ee"
+    },
+    "current_packet_state": "decision_request_only; global_acceptance=false; formal_closure_ids=[]"
+  },
+  "current_contract_facts": {
+    "mapping_options": {
+      "classification": "routine_existing_owner_behavior; no new G norm requested",
+      "behavior": "Core-to-IR adapter accepts typed options and Mapping inputs, normalizes all 12 current ArtifactWriteOptions fields including warnings, rejects unknown fields, validates a supplied nested canon value strictly, and guards field-set drift.",
+      "evidence": [
+        {
+          "path": "policy-engine/src/polisyos/core/artifacts/write_contract.py",
+          "sha256": "434ffb9075f9a84b14352f5626803d7be8f69e586520e844cde2632b7aa236ef"
+        },
+        {
+          "path": "policy-engine/src/polisyos/core/artifacts/ir_adapter.py",
+          "sha256": "d53664b18a4270dc903945f1c9107fe29eef1c70cc0de6a98bade996a66b152f"
+        },
+        {
+          "path": "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py",
+          "sha256": "56d88b241197048a07ccf56e570afd13b2826146ad4afe45e6dc5b66ca051cbb"
+        }
+      ],
+      "fresh_test_execution": "not_run"
+    },
+    "raw_content_profile_conformance": {
+      "classification": "routine_existing_reader_behavior; no new G norm requested",
+      "behavior": "Readers parse exact raw manifest bytes; absent profile refuses by default; malformed-present and selected-view mismatch refuse; unknown profile is raw/candidate-only; declared-profile payload hash and round-trip are checked under the selected facade allowlist.",
+      "evidence": [
+        {
+          "path": "policy-engine/src/polisyos/common/canonical_profile.py",
+          "sha256": "f06639a4f2bb772008721ae9b6ab1d8e881d6e2fb0218b9d2615ccfb3177216f"
+        },
+        {
+          "path": "policy-engine/src/polisyos/core/artifacts/canonical_profile.py",
+          "sha256": "3057b47c1bbb8312227d6e3be815b9e90f0327c0c253d429aa8bcc53f6e08c34"
+        },
+        {
+          "path": "policy-engine/src/polisyos/ir/artifacts/io.py",
+          "sha256": "c5dbd2ba226e67a748d8d4a6064ebb218042580d129d5fedda17dc621db48894"
+        },
+        {
+          "path": "policy-engine/src/polisyos/runtime/http/routes/artifacts.py",
+          "sha256": "b61343ad300331b7946a30399f2d8006f455bd368c047cab76529afae99aaa4f"
+        },
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_declared_profile_api_refusal.py",
+          "sha256": "5b9d2837360c1a4ee74225246608ef4a4e6c7c57216ccae77a3851069ab00219"
+        }
+      ],
+      "fresh_test_execution": "not_run"
+    },
+    "facade_law": {
+      "behavior": "Common canonical mechanics receive profile-specific error type and tag set. Core accepts array_digest/bytes_hex/float_hex in addition to shared tags; IR keeps its narrower set and distinct public exception identity.",
+      "evidence": [
+        {
+          "path": "policy-engine/src/polisyos/common/canonical.py",
+          "sha256": "89394b9a3b39c07e56cf672329176c2dda4feff8c6c375190f4065a5da123f41"
+        },
+        {
+          "path": "policy-engine/src/polisyos/core/canon/canon_json.py",
+          "sha256": "14626d965f82d04bedb8c57291fa230f3ab181c450e546a1d6ab5767825f93da"
+        },
+        {
+          "path": "policy-engine/src/polisyos/ir/model_layer/canon.py",
+          "sha256": "11dd2f53089087ff5d109b2e64182104629ade457e01677588b7858ba609f112"
+        },
+        {
+          "path": "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py",
+          "sha256": "56d88b241197048a07ccf56e570afd13b2826146ad4afe45e6dc5b66ca051cbb"
+        }
+      ]
+    }
+  },
+  "g_decisions_requested": [
+    {
+      "decision_id": "LA-021-1",
+      "occurrence_pointer": "Original LA-021 § lines 990-1018; unified Q1 at TASKS.json#/tasks/Q1 lines 277-289.",
+      "question": "Does polisyos.canon.json@0.2.0 name shared mechanics/settings while Core and IR retain contextual strict tag laws, or must the persisted identity/version distinguish their accepted tag grammars?",
+      "recommended_option_id": "shared_mechanics_contextual_tag_law",
+      "recommendation_while_pending": "Keep existing Core/IR allowlists and refusal behavior. Do not widen IR, rename/version persisted identities, rewrite CAS identifiers, or add a default profile before G adjudicates.",
+      "options": [
+        {
+          "option_id": "shared_mechanics_contextual_tag_law",
+          "choice": "Affirm the shared name/version labels common canonical mechanics and declared codec settings; tag acceptance remains facade-contextual and must be enforced by each strict reader.",
+          "impacts": {
+            "compatibility": "Lowest migration cost; preserves current bytes, IDs, exception identities and facade defaults.",
+            "consumer_semantics": "A shared identity does not promise identical accepted payload sets. Cross-facade semantic reads may fail closed.",
+            "authority_status_time": "The profile hash selects a manifest view. It does not attest producer identity, grant authority, or establish currentness/time validity.",
+            "required_next_check": "Record G wording that contextual tag policy is part of each facade reader contract and preserve the Core-only tag refusal falsifier."
+          }
+        },
+        {
+          "option_id": "versioned_tag_family_identity",
+          "choice": "Require explicit persisted identity/version for each accepted tag family.",
+          "impacts": {
+            "compatibility": "Higher persisted-format cost. Requires additive schema/version design, old-byte goldens, explicit compatibility readers/writers and migration treatment; preserve old addresses and do not silently rewrite.",
+            "consumer_semantics": "Accepted tag law becomes explicit in the selected profile identity.",
+            "authority_status_time": "Still does not attest producer or currentness; profile-family identity is format evidence only.",
+            "required_next_check": "Before implementation, approve the exact version/field law and demonstrate old/new readers against retained byte fixtures."
+          }
+        }
+      ],
+      "property_vs_implementation": {
+        "property": "Persisted profile identity must not imply a broader accepted grammar than the selected reader actually enforces.",
+        "current_code": "Both facades use the shared 0.2.0 label and supply distinct allowlists to common mechanics.",
+        "divergent_case": "A persisted Core array_digest artifact is accepted by Core and refused by IR. This is consistent with option shared_mechanics_contextual_tag_law and falsifies an interpretation that 0.2.0 alone means one universal grammar.",
+        "source_evidence": [
+          {
+            "path": "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py",
+            "sha256": "56d88b241197048a07ccf56e570afd13b2826146ad4afe45e6dc5b66ca051cbb"
+          },
+          {
+            "path": "policy-engine/src/polisyos/core/canon/canon_json.py",
+            "sha256": "14626d965f82d04bedb8c57291fa230f3ab181c450e546a1d6ab5767825f93da"
+          },
+          {
+            "path": "policy-engine/src/polisyos/ir/model_layer/canon.py",
+            "sha256": "11dd2f53089087ff5d109b2e64182104629ade457e01677588b7858ba609f112"
+          }
+        ]
+      },
+      "producer_profile_semantics": {
+        "status": "reader_materialized; producer_attestation_status=not_established",
+        "finding": "A caller can provide caller-owned canonical bytes and options through put_bytes; a reader can then verify the selected profile/content. This establishes reader conformance, not which producer/spec emitted the bytes.",
+        "proposal": "Keep producer origin unestablished unless a named consumer requires and supplies a separately verified typed provenance input. Do not add a self-attested issuer, producer field, or inferred authority to this decision."
+      }
+    },
+    {
+      "decision_id": "LA-021-2",
+      "occurrence_pointer": "Original LA-021 § lines 1008-1016; unified Q1 at TASKS.json#/tasks/Q1 lines 277-289.",
+      "question": "Should profileless historical JSON remain semantically refused, or is there a named owner-supported compatibility/migration route?",
+      "recommended_option_id": "retain_semantic_refusal_raw_only",
+      "recommendation_while_pending": "Keep default semantic refusal and exact-byte raw retrieval. Keep explicitly named candidate paths candidate-only; never fill a missing profile from reader defaults.",
+      "options": [
+        {
+          "option_id": "retain_semantic_refusal_raw_only",
+          "choice": "Do not migrate profileless history without a named real consumer and owner-supplied source record.",
+          "impacts": {
+            "compatibility": "Preserves strict current behavior and exact historical bytes.",
+            "status": "Absent remains distinct from declared-conformant, malformed-present, and unsupported/unknown candidate states.",
+            "authority_status_time": "No semantic or currentness claim is inferred from raw bytes or a reader-default profile.",
+            "required_next_check": "If a real consumer is identified, provide one owner-identified artifact discriminator first."
+          }
+        },
+        {
+          "option_id": "named_owner_compatibility_route",
+          "choice": "Admit a scoped legacy route only for a named owner and evidenced historical artifact class.",
+          "impacts": {
+            "compatibility": "Requires a bounded compatibility reader and later owner-qualified corpus denominator; no bulk rewrite by default.",
+            "status": "Legacy results must remain explicitly candidate/limited until their provenance and rule are reconstructed.",
+            "authority_status_time": "Carry producer/rule provenance, intended audience, status and relevant time semantics; do not promote by default.",
+            "required_next_check": "Receive the minimum named-source packet below before pricing any rollout."
+          }
+        }
+      ],
+      "minimal_named_input_to_decide_route": [
+        "owner and exact store/namespace plus artifact ID",
+        "exact raw payload bytes and raw sidecar/manifest digests",
+        "actual semantic consumer and whether service is required",
+        "producer/rule provenance sufficient to test independent reconstruction of the historical encoding rule",
+        "affected audience, status and time semantics"
+      ],
+      "next_expansion_if_route_is_chosen": "Only after that actual discriminator demonstrates impact, obtain owner-qualified history denominator and reader set; this proposal does not request a broad payload census."
+    }
+  ],
+  "caller_selection": {
+    "python_denominator": {
+      "root": "policy-engine/src/polisyos",
+      "file_types": [
+        ".py"
+      ],
+      "regular_non_symlink_count": 2782,
+      "complete_literal_selection": [
+        "policy-engine/src/polisyos/data_forge/read_api/ukraine.py:405",
+        "policy-engine/src/polisyos/runtime/http/routes/artifacts.py:1240",
+        "policy-engine/src/polisyos/runtime/http/routes/artifacts.py:1290"
+      ]
+    },
+    "http_consumer": "GET /api/v1/artifacts/{artifact_id}/content; raw bytes are a separate representation and semantic JSON uses the strict profile reader.",
+    "dashboard_denominator": {
+      "root": "policy-engine/apps/runtime-dashboard/src",
+      "file_types": [
+        ".ts",
+        ".tsx"
+      ],
+      "regular_non_symlink_count": 1134,
+      "production_callers": [
+        "policy-engine/apps/runtime-dashboard/src/features/artifacts/routes/ArtifactInspectorPage.tsx:72",
+        "policy-engine/apps/runtime-dashboard/src/features/runs/routes/useRunDetailSummary.ts:154",
+        "policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/ArtifactsTab.tsx:27",
+        "policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.tsx:64"
+      ]
+    },
+    "history_limit": "These are source call sites, not a persisted profileless-history artifact inventory or deployment denominator."
+  },
+  "minimum_behavioral_discriminators": [
+    {
+      "case": "positive_declared_profile",
+      "input": "Valid raw profile with all required fields, selected manifest view and payload bytes matching its content identity. Include a shared supported payload and the Core-only array_digest discriminator.",
+      "expected": "Supported readers produce declared byte-conformant semantics; Core accepts its declared Core tag and IR refuses that Core-only tag.",
+      "existing_test_source": {
+        "path": "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py",
+        "sha256": "56d88b241197048a07ccf56e570afd13b2826146ad4afe45e6dc5b66ca051cbb"
+      },
+      "fresh_execution": "not_run"
+    },
+    {
+      "case": "raw_present_fake_selected_view",
+      "input": "Syntactically present profile/view bytes disagree with the exact selected raw/typed manifest or the requested profile-view selector.",
+      "expected": "Fail closed on selected-view/content mismatch; do not substitute another profile or reader default. If the raw surface can independently admit the bytes, preserve them as raw only.",
+      "fresh_execution": "not_run"
+    },
+    {
+      "case": "profile_absent",
+      "input": "Profile field absent from a historical manifest.",
+      "expected": "Default semantic read refuses; exact raw bytes remain available on the raw surface; any named candidate-only path cannot expose its value as semantic .value.",
+      "existing_test_sources": [
+        {
+          "path": "policy-engine/tests/unit/runtime/http/test_declared_profile_api_refusal.py",
+          "sha256": "5b9d2837360c1a4ee74225246608ef4a4e6c7c57216ccae77a3851069ab00219"
+        },
+        {
+          "path": "policy-engine/tests/unit/data_forge/read_api/test_ukraine_json_snapshot.py",
+          "sha256": "dfcc87feb24c968a3468023592d5888528a277b5c77da1b39acfbf98be3dc4ae"
+        }
+      ],
+      "fresh_execution": "not_run"
+    },
+    {
+      "case": "profile_malformed_present",
+      "input": "Raw profile has duplicate keys, missing required CanonInfo field, wrong type or an extra field.",
+      "expected": "Strict refusal before semantic payload admission; never reinterpret as absent/default. Preserve raw bytes only where the raw route independently passes its admission.",
+      "fresh_execution": "not_run"
+    },
+    {
+      "case": "caller_claims_producer_without_attestation",
+      "input": "Caller supplies canonical bytes plus caller-owned producer/options through put_bytes; bytes and manifest are reader-conformant.",
+      "expected": "Reader may report reader_materialized/declared_bytes_conformant; producer_attestation_status stays not_established. A caller label or selected profile hash cannot promote it.",
+      "existing_source": {
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "sha256": "e1506ceca8ad7907c85f2006e3247565f939035d9f681c97b6db6bc0a223a0f8"
+      },
+      "fresh_execution": "not_run"
+    }
+  ],
+  "reuse_extend_consolidate_build": {
+    "reuse": "Recommended now: reuse common/canonical.py and common/canonical_profile.py, strict Core/IR facades, exact Core CAS profile read/write, and existing refusal/raw surfaces. Mapping projection and raw-content conformance are routine existing behavior.",
+    "extend": "Only if G chooses family-specific persisted identity: extend profile schema/read/write adapters and retained compatibility fixtures additively, without rewriting old IDs/bytes.",
+    "consolidate": "No further codec consolidation is needed for this decision: mechanics already share one owner; merging contextual allowlists would destroy the accepted IR boundary.",
+    "build": "No new authority, issuer, default profile, or history subsystem. Build only the explicitly approved profile identity/migration mechanism if G chooses it and a real consumer/input warrants it."
+  },
+  "status_authority_time": {
+    "current_statuses": "Preserve declared/conformant, absent, malformed-present, and unsupported/unknown candidate states as distinct outcomes.",
+    "authority": "The G ruling defines format identity only. It does not establish producer custody or grant publication authority.",
+    "time": "A profile selector, manifest creation time, reader materialization or raw digest does not establish producer currentness or temporal validity.",
+    "external_input": "No producer attestation or profileless-history corpus is established in the pinned evidence."
+  },
+  "pattern_pass": {
+    "ids": [
+      "P35",
+      "P37",
+      "P38",
+      "P40"
+    ],
+    "anti_patterns_found": [
+      "Equal version string treated as proof of one universal grammar.",
+      "Reader-selected profile treated as producer attestation.",
+      "Profileless history inferred from source call sites or silently normalized.",
+      "Repeating Mapping/raw-profile fixes as per-field/per-caller repairs."
+    ],
+    "target_pattern": "One shared mechanics owner with strict facade-specific reader laws; exact raw-profile/content verification; separate G semantics from routine owner behavior; carry unknown producer/history predicates explicitly.",
+    "missing_capability_state": [
+      "verification_missing: complete original golden/legacy acceptance not established at this read-only review",
+      "not_established: G identity law",
+      "not_established: producer attestation",
+      "not_established: profileless history owner/corpus/consumer"
+    ],
+    "acceptance_signal": "G records LA-021-1 and LA-021-2 separately with explicit choices or exact unavailable input; the five discriminators above exercise behavior after the choice. Formal closure remains separate."
+  },
+  "p40_classification": {
+    "classification": "The Mapping and raw-profile escapes are same source-composition class; current code has one whole-field projection and whole-profile parser. Identity meaning and profileless rollout are unadjudicated decision/input classes, not another decoder leaf escape.",
+    "repair_instruction": "Do not open a per-tag or per-caller patch ladder. If G selects a new identity law, take one shared-owner schema/read-write/golden lease across the affected facades and readers."
+  },
+  "formal_closure_ids": [],
+  "closure_ids": [],
+  "global_acceptance": false,
+  "next_checks_by_decision": {
+    "LA-021-1": "G selects shared-mechanics/contextual-law or family-specific identity. If the latter, approve the additive version/compatibility law before source edits; preserve old-byte goldens.",
+    "LA-021-2": "G retains strict/raw-only behavior or requests the minimal named owner artifact packet; only then can any rollout scope be priced.",
+    "whole_LA-021": "After decisions, verify the original golden/legacy compatibility criterion separately; this packet and the earlier bounded GO do not close it."
+  },
+  "raw_availability": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current-can-composition-review-20261018/review.md",
+      "sha256": "aa1a010628f5ef08dfe4716cd567344117cfb033c08c3b84d4ff376a872ac24b",
+      "availability": "present; read-only assessment"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current-can-composition-review-20261018/manifest.json",
+      "sha256": "10d1db5a48da9237bdd6e8744bbb1d29a20a18712bc1c08ff6bcee7d1c5de5af",
+      "availability": "present; 45 source/input pins; no tracked source copies"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/la021-can-profile-law-history-g-decision-20261017.json",
+      "sha256": "5bd9cb1d5144e6d00f2d0dd17a4dacaef2f08256ee7feccfccac9aeed88699ee",
+      "availability": "tracked prior request; not a G adjudication"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/can-profile-law-decision-proposal-20261017.json",
+      "sha256": "ea07c3feff7a5b214f5db50b6b11de4f7afc1422bbbce9a7f0d7fcd5b2601eef",
+      "availability": "tracked prior candidate; recommendation only"
+    }
+  ],
+  "input_pins": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/INPUTS.json",
+      "sha256": "b000d61906fc0d732287f1a50cbb1ca902c23f4d08a292e4330734f5147431da",
+      "bytes": 7242
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/TASKS.json",
+      "sha256": "a37c75cfe09d33c1f50379d5bbfd04bdb728c990e832aec3bf19c0d17035734c",
+      "bytes": 27989
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/EXECUTION-PLAN.md",
+      "sha256": "bd85cdc09532760fd3eb142b66942ffc7e3d4f75d742dcbb5d8c8faf366c7abb",
+      "bytes": 12680
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/execution-prompts/unified-local-2026-10-09/DECISIONS.md",
+      "sha256": "e88b59dd714a192e88ab674e2d1aba376c3881a336f89e88f6ec8093762e16df",
+      "bytes": 5747
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/bundles/CAN-01.md",
+      "sha256": "49d3280eddccadbfa85cbbdd7e811a0dbd898bedc55ed1e9452fa20ce2da0e45",
+      "bytes": 12670
+    },
+    {
+      "path": "policy-engine/docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md",
+      "sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727",
+      "bytes": 648034
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/G/local-transition-20261009/reviews/review-C06-CAN.md",
+      "sha256": "dd5bfcd3cbfc8b50f32d12d4bd6c7ee9a52cc38e90e15846a0d7760f7cabe9ac",
+      "bytes": 11322
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/G/local-transition-20261009/ADMISSION.json",
+      "sha256": "15cdf71665d265ec9d8f4309c4dea572d71a6ac11e55680ce18017c3ddc0c639",
+      "bytes": 16511
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/la021-can-profile-law-history-g-decision-20261017.json",
+      "sha256": "5bd9cb1d5144e6d00f2d0dd17a4dacaef2f08256ee7feccfccac9aeed88699ee",
+      "bytes": 17893
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/la021-whole-property-current-proposal-20261017.json",
+      "sha256": "e4a791b80973e78bb19888c5dee0e26b4318d4f4c7e02c4faa07f7fe28b2747c",
+      "bytes": 20472
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/can-profile-law-decision-proposal-20261017.json",
+      "sha256": "ea07c3feff7a5b214f5db50b6b11de4f7afc1422bbbce9a7f0d7fcd5b2601eef",
+      "bytes": 15074
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/la021-can-current-contract-delivery-20261017.json",
+      "sha256": "6f500f9f8d7fd7ef14c36ce61cd5d8d9a0d8491ed2e85ded9a3990ada7f38ace",
+      "bytes": 9840
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/la021-canon-profile-identity-and-history-rollout-20261015.json",
+      "sha256": "c1c14649ee0ffe16f81485eb78aa041529d9f0b31d28b1e8a13097ab067c3f07",
+      "bytes": 26065
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current-can-composition-review-20261018/review.md",
+      "sha256": "aa1a010628f5ef08dfe4716cd567344117cfb033c08c3b84d4ff376a872ac24b",
+      "bytes": 10294
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current-can-composition-review-20261018/manifest.json",
+      "sha256": "10d1db5a48da9237bdd6e8744bbb1d29a20a18712bc1c08ff6bcee7d1c5de5af",
+      "bytes": 11284
+    },
+    {
+      "path": "policy-engine/src/polisyos/common/canonical.py",
+      "sha256": "89394b9a3b39c07e56cf672329176c2dda4feff8c6c375190f4065a5da123f41",
+      "bytes": 10154
+    },
+    {
+      "path": "policy-engine/src/polisyos/common/canonical_profile.py",
+      "sha256": "f06639a4f2bb772008721ae9b6ab1d8e881d6e2fb0218b9d2615ccfb3177216f",
+      "bytes": 12387
+    },
+    {
+      "path": "policy-engine/src/polisyos/common/hashing.py",
+      "sha256": "c5b6e883821a3e11c11c361cd2aebec80002095304b7ed7592d7ca77be299c5d",
+      "bytes": 3383
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/canon/canon_json.py",
+      "sha256": "14626d965f82d04bedb8c57291fa230f3ab181c450e546a1d6ab5767825f93da",
+      "bytes": 3447
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/canon/hashing.py",
+      "sha256": "cedb873bdcc2970493498af29fd35145d5fa05c641f30e54c7352664d03b2e8d",
+      "bytes": 2472
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/write_contract.py",
+      "sha256": "434ffb9075f9a84b14352f5626803d7be8f69e586520e844cde2632b7aa236ef",
+      "bytes": 1137
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/manifest.py",
+      "sha256": "3ec97132a4a04c6152ed3456f75aae4d2fc6f35b0b8921a3a8f7cefcc426df3f",
+      "bytes": 13401
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+      "sha256": "e1506ceca8ad7907c85f2006e3247565f939035d9f681c97b6db6bc0a223a0f8",
+      "bytes": 224921
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/ir_adapter.py",
+      "sha256": "d53664b18a4270dc903945f1c9107fe29eef1c70cc0de6a98bade996a66b152f",
+      "bytes": 23211
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/canonical_profile.py",
+      "sha256": "3057b47c1bbb8312227d6e3be815b9e90f0327c0c253d429aa8bcc53f6e08c34",
+      "bytes": 37586
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/artifacts/owned_json.py",
+      "sha256": "9d06198e8db627491716d39b527fbce78fd99fbf68397fe486e37e972074244a",
+      "bytes": 13604
+    },
+    {
+      "path": "policy-engine/src/polisyos/core/contracts/runtime.py",
+      "sha256": "4e931bac26e293d26f4866f1086aec81e12ed0938a941cd238e39c75e4c621c1",
+      "bytes": 202158
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/model_layer/canon.py",
+      "sha256": "11dd2f53089087ff5d109b2e64182104629ade457e01677588b7858ba609f112",
+      "bytes": 4151
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/artifacts/contracts.py",
+      "sha256": "67ed1ff4c3cf0fe4f46d4534d1656d256d1c5e5bf4db70d5a3523e3579c0d6f7",
+      "bytes": 13801
+    },
+    {
+      "path": "policy-engine/src/polisyos/ir/artifacts/io.py",
+      "sha256": "c5dbd2ba226e67a748d8d4a6064ebb218042580d129d5fedda17dc621db48894",
+      "bytes": 12663
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/routes/artifacts.py",
+      "sha256": "b61343ad300331b7946a30399f2d8006f455bd368c047cab76529afae99aaa4f",
+      "bytes": 59259
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/artifact_inspector.py",
+      "sha256": "25efb2ee1f76ad82bf7c3dbd279bc0280354bed5c9ab93f6e0cd8657cc3a79ff",
+      "bytes": 41775
+    },
+    {
+      "path": "policy-engine/src/polisyos/data_forge/read_api/ukraine.py",
+      "sha256": "97ddaaa2a6e4dfbc2a2e3b7a1f505f72d67982d5360cc00a34fffc173867d8c7",
+      "bytes": 56968
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py",
+      "sha256": "56d88b241197048a07ccf56e570afd13b2826146ad4afe45e6dc5b66ca051cbb",
+      "bytes": 74340
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_selected_profile_core_json.py",
+      "sha256": "c04ec676dab5cd7b7057902131a858af49ab1e6fdca9bfa8bf71bb01c7ce17d2",
+      "bytes": 39541
+    },
+    {
+      "path": "policy-engine/tests/unit/core/artifacts/test_core_json_producer_conformance.py",
+      "sha256": "1204e1355a53376f43eea6ee8ae938656bbdd8c9079e273aa83b75ba828b1b72",
+      "bytes": 4098
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_declared_profile_api_refusal.py",
+      "sha256": "5b9d2837360c1a4ee74225246608ef4a4e6c7c57216ccae77a3851069ab00219",
+      "bytes": 65036
+    },
+    {
+      "path": "policy-engine/tests/unit/data_forge/read_api/test_ukraine_json_snapshot.py",
+      "sha256": "dfcc87feb24c968a3468023592d5888528a277b5c77da1b39acfbf98be3dc4ae",
+      "bytes": 11493
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/api/hooks/useArtifactContent.ts",
+      "sha256": "3e71d21e21f71c8d57d16fe4f35cf64cbed0f02f02fc2d7e9438e2893dfbe138",
+      "bytes": 2763
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/api/types.ts",
+      "sha256": "44c5e3cadd004106f2eda178d985287f6cea73085824d4a0f3fff8372f78a952",
+      "bytes": 899265
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/api/validators.ts",
+      "sha256": "1676b44ccacb9cfbd758d28de2ae01e3dddecb5074b8ab9f8d7dd8972be00742",
+      "bytes": 187500
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/shared/lib/domain/evidence.ts",
+      "sha256": "7d623aabe6c74594ebab7349d78c96a42694528f59b4b71ec36d7eb7a06d1d6d",
+      "bytes": 9679
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/features/artifacts/routes/ArtifactInspectorPage.tsx",
+      "sha256": "e447493da3b2674f7b38f1c8c7e2fdb4dd919df3020cd1967a79d02837f6f7f4",
+      "bytes": 25224
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/features/runs/routes/useRunDetailSummary.ts",
+      "sha256": "f9de7b05071b90ce861d31666db4f6d91e54da10d81bf84d3579c11facfa235d",
+      "bytes": 8436
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/ArtifactsTab.tsx",
+      "sha256": "252018672411fb1e22c03321d9ead36cdb78e7755aac558e1385ca074dac9939",
+      "bytes": 6618
+    },
+    {
+      "path": "policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.tsx",
+      "sha256": "1e34e3d85d31c41fc65cded845b515c0a59b5a1536e7f6062812e12e2d910fff",
+      "bytes": 74624
+    }
+  ],
+  "limitations": [
+    "No Git or tests/imports run.",
+    "No history payload census or named production profileless artifact was available.",
+    "No installed wheel/sdist or remote backend evidence was added.",
+    "This JSON is a RAW proposal only; the tracked adoption target remains unwritten."
+  ],
+  "decision_status": "proposal_not_adjudicated",
+  "root_g_adjudication": "NOT_PERFORMED",
+  "target_record_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/can-profile-law-G-choice-20261018.json",
+  "root_tracking_qualification": {
+    "role": "tracked proposal and evidence; not G adjudication",
+    "prepared_postimage": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-g-choice-and-harness-receipt-batch-20261018/postimages/can-profile-law-G-choice-20261018.json",
+      "sha256": "54d4e2568582e6b8cab3efe4eb193648eae56343a6674bef5053d2d733d3a14c"
+    },
+    "original_source": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-profile-law-g-decision-20261018/proposal.json",
+      "sha256": "4d5aadc7b2efd03fdcc6cda4cad20de4964ccf4568d1f10a15e12dce0c10b6de"
+    },
+    "source_at_adoption": {
+      "head": "f508fa13707043a55b8278178c30acc22f599080",
+      "tree": "299d8af15136666084134489044cd99ce48a7893",
+      "parents": [
+        "6d4511969970a0986d577cb2050f5282d063a8c9"
+      ]
+    },
+    "historical_draft_fields": "Any original RAW-only/written=false/pending-review text describes the preserved draft snapshot. This tracked copy is adopted by root; it grants no future run, authority, or formal closure.",
+    "G_adjudication": "NOT_PERFORMED",
+    "closure_ids": []
+  }
+}

@@ -1,0 +1,122 @@
+{
+  "schema": "e02.g-choice-decision-packet/v1",
+  "proposal_id": "hds-semantic-scope-G-choice",
+  "target_record_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/hds-semantic-scope-G-choice-20261018.json",
+  "decision_status": "proposal_not_adjudicated",
+  "root_g_adjudication": "NOT_PERFORMED",
+  "closure_ids": [],
+  "source_frame": {
+    "head": "481c4345be0fd611e91e9110a10832fb507d0e4e",
+    "tree": "9f18fef6d8ffe4e2513303128088bca329454719",
+    "qualification": "pinned source/prototype frame; this packet is proposal-only"
+  },
+  "decision_question": "What exact HDS-semantic test subjects require one tier and named CI selection, and who may bind that scope?",
+  "recommendation": {
+    "choice": "extend-existing-after-G",
+    "rule": "Keep semantic scope and gate HOLD until a G decision adopts a typed, versioned subject inventory plus generic checker. Inventory exact module/node, owner, status, closed basis (invariant-negative, fitness-proof, direct-validation-consumer, owner-attested); reconcile invariant/fitness refs, direct importers, one tier, actual job selection, and skip/xfail admissibility. Missing/extra/stale/unowned bindings HOLD. Migrate 52 candidates only after per-subject owner decisions; do not infer from path, owner, purpose, or workflow execution.",
+    "not_authorized": "No source patch, green claim, semantic inventory authority, waiver, or DL-HDS-0014 reopening."
+  },
+  "ownership_time_authority": {
+    "source_owner": "Proposed issuer team-architecture-governance; proposed approval team-quality-closeout for tier/lane impact and team-runtime-quality for test mapping. Existing CI-budget owner is team-quality-closeout; semantic owner is not established.",
+    "time": "Effective only after the G decision, inventory, consumer, negative mutations, admissibility checks, and job-consumption proof land together; revisit first HDS closeout after migration, with no blanket expiry/waiver.",
+    "authority_limit": "No source patch, green claim, semantic inventory authority, waiver, or DL-HDS-0014 reopening."
+  },
+  "alternatives": {
+    "reuse": "Keep existing bounded tier/anti-drift rules; they do not define semantic scope.",
+    "extend": "Recommended after G: typed inventory plus generic consumer of references, tier, job selection, and admissibility.",
+    "consolidate": "Only if the same scope boundary recurs; maintain one canonical inventory/issuer.",
+    "build_new": "Not justified before extending the existing registry and checker."
+  },
+  "pattern_pass": {
+    "relevant": [
+      "P32",
+      "P37",
+      "P38",
+      "P40"
+    ],
+    "finding": "No source patch, green claim, semantic inventory authority, waiver, or DL-HDS-0014 reopening.",
+    "target": "Keep semantic scope and gate HOLD until a G decision adopts a typed, versioned subject inventory plus generic checker. Inventory exact module/node, owner, status, closed basis (invariant-negative, fitness-proof, direct-validation-consumer, owner-attested); reconcile invariant/fitness refs, direct importers, one tier, actual job selection, and skip/xfail admissibility. Missing/extra/stale/unowned bindings HOLD. Migrate 52 candidates only after per-subject owner decisions; do not infer from path, owner, purpose, or workflow execution.",
+    "acceptance": "Real checker derives complete scope from the inventory, detects subject/tier/job/admissibility drift, and fails on a sibling missing all bindings."
+  },
+  "falsifiers": [
+    "Prototype status HOLD; 25 shared negative-node IDs plus 2 proof refs select 23 modules; 13 lack tiers and 14 lie outside the literal 248-module HDS workflow.",
+    "The 52 semantic-candidate set is a prior bounded inventory, not authority; 248 is execution scope, not semantic membership.",
+    "Synthetic falsifiers: missing tier; reference parity deletion; new sibling without scope/tier/CI; skipif/direct pytest.skip; removed job selection.",
+    "Bounded residual: new HDS behavior with no typed reference and no registered API import is not detectable from current sources; owner review at admission is required."
+  ],
+  "sources": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-hds-scope-g-prototype-20261018/decision.md",
+      "sha256": "531274496beacafdfe5a81a5a55575a03b844951ec6f0087557a8c103e3c60a6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-hds-scope-g-prototype-20261018/file-manifest.json",
+      "sha256": "2fd6aa325d358355e0567b8ddba35a07c34d38210101242ce2896ef330e8d605"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-hds-scope-g-prototype-20261018/prototype-readout.json",
+      "sha256": "aba140fc4be279f6f7da8b6e062519ff1ff392edb5afa4b589888d5ab8e9c2c9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-hds-scope-g-prototype-20261018/prototype-falsifier-results.json",
+      "sha256": "56e3c2d03ba30f619ccc072b3f1c3075ed869f4c584de97e6ecde7db9e074c23"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-hds-scope-g-prototype-20261018/source-pins.json",
+      "sha256": "d74d8edf9e97a758afbb074bde72b81e0a85e312616262a677898552d702019b"
+    }
+  ],
+  "canonical_occurrences": [
+    {
+      "id": "DL-HDS-0006",
+      "path": "policy-engine/docs/system-design-decisions/honest-diagnostics-substrate-decision-log.md",
+      "lines": "132-143"
+    },
+    {
+      "id": "DL-HDS-0014",
+      "path": "policy-engine/docs/system-design-decisions/honest-diagnostics-substrate-decision-log.md",
+      "lines": "245-255"
+    },
+    {
+      "id": "Phase 1.10",
+      "path": "policy-engine/docs/plans/archive/2026-05-16-policyos-honest-diagnostics-substrate-implementation-plan.md",
+      "lines": "995-1001"
+    },
+    {
+      "id": "HDS-MCG-001",
+      "path": "policy-engine/architecture/production_quality/invariant_registry.toml",
+      "lines": "1-2"
+    },
+    {
+      "id": "fitness.hds-mcg-001.serious_canary_runtime_refs",
+      "path": "policy-engine/architecture/production_quality/diagnostic_fitness_functions.toml",
+      "lines": "7-10"
+    }
+  ],
+  "capability_labels": [
+    "absent/unallocated: typed HDS scope",
+    "consumer_missing: native gate lacks scope reconciliation",
+    "semantic_test_missing: production admission unestablished"
+  ],
+  "root_tracking_qualification": {
+    "role": "tracked proposal and evidence; not G adjudication",
+    "prepared_postimage": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-g-choice-and-harness-receipt-batch-20261018/postimages/hds-semantic-scope-G-choice-20261018.json",
+      "sha256": "615e562c7b93e16a1dce1051ce3346103e51bd6854da01c59e8743cb3d419611"
+    },
+    "original_source": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-g-choice-handoff-prepare-20261018/hds-semantic-scope-G-choice-20261018.json",
+      "sha256": "615e562c7b93e16a1dce1051ce3346103e51bd6854da01c59e8743cb3d419611"
+    },
+    "source_at_adoption": {
+      "head": "f508fa13707043a55b8278178c30acc22f599080",
+      "tree": "299d8af15136666084134489044cd99ce48a7893",
+      "parents": [
+        "6d4511969970a0986d577cb2050f5282d063a8c9"
+      ]
+    },
+    "historical_draft_fields": "Any original RAW-only/written=false/pending-review text describes the preserved draft snapshot. This tracked copy is adopted by root; it grants no future run, authority, or formal closure.",
+    "G_adjudication": "NOT_PERFORMED",
+    "closure_ids": []
+  }
+}

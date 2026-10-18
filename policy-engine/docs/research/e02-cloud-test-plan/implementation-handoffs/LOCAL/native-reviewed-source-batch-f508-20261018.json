@@ -1,0 +1,435 @@
+{
+  "schema": "polisyos.e02.reviewed_native_source_batch_handoff.v1",
+  "status": "candidate_source_delivered_runtime_unrun",
+  "slice_base": "8c692577b722e0645d1e6a6562e285590049abd4",
+  "candidate": "f508fa13707043a55b8278178c30acc22f599080",
+  "tree": "299d8af15136666084134489044cd99ce48a7893",
+  "parents": [
+    "6d4511969970a0986d577cb2050f5282d063a8c9"
+  ],
+  "source_commits": [
+    {
+      "candidate": "280e0fa679e6daed5f2b29c083b748877449089c",
+      "tree": "49ab14761b5269ac2bb5a63a62516aeca58ceed1",
+      "parents": [
+        "8c692577b722e0645d1e6a6562e285590049abd4"
+      ],
+      "subject": "refactor(quality): bind Trust posture owners to live dependencies",
+      "changed_paths": [
+        "policy-engine/docs/plans/active/DEBT-REGISTER.md",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "policy-engine/tests/repo_quality/tools/test_trust_claim_posture.py",
+        "policy-engine/tools/quality/validation/README.md",
+        "policy-engine/tools/quality/validation/check_trust_claim_posture.py",
+        "policy-engine/tools/quality/validation/trust_claim_posture_accessibility.py",
+        "policy-engine/tools/quality/validation/trust_claim_posture_artifact_lifecycle.py",
+        "policy-engine/tools/quality/validation/trust_claim_posture_semantics.py",
+        "policy-engine/tools/quality/validation/trust_claim_posture_source_bindings.py",
+        "policy-engine/tools/quality/validation/trust_claim_posture_tokenizer.py"
+      ],
+      "source_application": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r3-current-source-adoption-20261018/source-application.json",
+        "sha256": "23ece04e088934168f807d2bf3c8e03473c156edacd9021767d0d6137645b5df"
+      },
+      "actual_Ruff_check_format": "PASS",
+      "runtime": "UNRUN at this composed source frame"
+    },
+    {
+      "candidate": "75cc3b7f84c89d33639b8123e987f951122da3f1",
+      "tree": "90cd84ccfa17e4260640a407b28f454bcfc28022",
+      "parents": [
+        "280e0fa679e6daed5f2b29c083b748877449089c"
+      ],
+      "subject": "fix(e02): preserve builtin identity across full binding knowledge",
+      "changed_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "policy-engine/tests/unit/remediation/test_hyg_04.py",
+        "policy-engine/tools/quality/validation/decomposition_preflight.py"
+      ],
+      "source_application": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-hyg-r8-current-source-adoption-20261018/source-application.json",
+        "sha256": "d1899b911b4b1530057dcb8480417b3ada1817a7cda0695d629edb473cda71f2"
+      },
+      "actual_Ruff_check_format": "PASS",
+      "runtime": "UNRUN at this composed source frame"
+    },
+    {
+      "candidate": "e157b785127999badc00d54d23f10bc1d6c2be68",
+      "tree": "14f36733934b8406de9869fcaad05321db75b1c0",
+      "parents": [
+        "75cc3b7f84c89d33639b8123e987f951122da3f1"
+      ],
+      "subject": "refactor(quality): extract Phase 34 pass-two diagnostics behind the stable facade",
+      "changed_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "policy-engine/tests/repo_quality/tools/test_policy_design_case_pass2_diagnostics.py",
+        "policy-engine/tools/quality/validation/build_policy_design_case_pass2_diagnostics.py",
+        "policy-engine/tools/quality/validation/pass2_diagnostics_support.py",
+        "policy-engine/tools/quality/validation/pass2_phase34_1_diagnostics.py",
+        "policy-engine/tools/quality/validation/pass2_phase34_2_diagnostics.py"
+      ],
+      "source_application": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase34-r2-current-source-adoption-20261018/source-application.json",
+        "sha256": "cab4c2f48c27d8e2042b350ef46fef0377c3021da6b585b460e5c9ffb2a29b99"
+      },
+      "actual_Ruff_check_format": "PASS",
+      "runtime": "UNRUN at this composed source frame"
+    },
+    {
+      "candidate": "cb641b74ff2c100144dd458b99e9add4a976e59b",
+      "tree": "44880089dee7af6d1d638ecc9bfe3ea311b87416",
+      "parents": [
+        "e157b785127999badc00d54d23f10bc1d6c2be68"
+      ],
+      "subject": "test(e02): bind inventory fixtures to current consumer evidence",
+      "changed_paths": [
+        "policy-engine/architecture/baselines/production_quality/evidence_inventory.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "policy-engine/tests/repo_quality/tools/test_production_quality_evidence_inventory.py",
+        "policy-engine/tests/unit/runtime/quality/test_capability_white_space.py"
+      ],
+      "source_application": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-inventory-r2-format-qualification-20261018/qualified-source-application-r2.json",
+        "sha256": "d50060208cd7bdbe5c207d89027233fceff2005af907d07d4a8abc4089a9a545"
+      },
+      "actual_Ruff_check_format": "PASS",
+      "runtime": "UNRUN at this composed source frame"
+    },
+    {
+      "candidate": "6d4511969970a0986d577cb2050f5282d063a8c9",
+      "tree": "556dfdf561dffa15b9cdc1c80b4482c2d9a10c19",
+      "parents": [
+        "cb641b74ff2c100144dd458b99e9add4a976e59b"
+      ],
+      "subject": "refactor(quality): extract N13b current-custody verification into bounded owners",
+      "changed_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "policy-engine/tests/repo_quality/tools/_layer3_gy_n13b_acceptance_fixtures.py",
+        "policy-engine/tests/repo_quality/tools/test_layer3_gy_acquisition_executor.py",
+        "policy-engine/tests/repo_quality/tools/test_layer3_gy_n13b_acceptance.py",
+        "policy-engine/tests/repo_quality/tools/test_layer3_gy_n13b_acquisition_contract.py",
+        "policy-engine/tools/quality/validation/acquisition_admission_contract.py",
+        "policy-engine/tools/quality/validation/acquisition_contract_support.py",
+        "policy-engine/tools/quality/validation/acquisition_executor_support.py",
+        "policy-engine/tools/quality/validation/acquisition_response_receipts.py",
+        "policy-engine/tools/quality/validation/artifact_lifecycle_manifest.py",
+        "policy-engine/tools/quality/validation/catalog_candidate_admission.py",
+        "policy-engine/tools/quality/validation/check_layer3_gy_acquisition_executor.py",
+        "policy-engine/tools/quality/validation/check_layer3_gy_n13b_acquisition_contract.py",
+        "policy-engine/tools/quality/validation/d6_route_selection.py",
+        "policy-engine/tools/quality/validation/demand_gap_projections.py",
+        "policy-engine/tools/quality/validation/derivation_route_projections.py",
+        "policy-engine/tools/quality/validation/evidence_journal_custody.py",
+        "policy-engine/tools/quality/validation/layer3_gy_acquisition_executor.py",
+        "policy-engine/tools/quality/validation/layer3_gy_confidence_ledger_contract.py",
+        "policy-engine/tools/quality/validation/layer3_gy_n13b_acquisition_contract.py",
+        "policy-engine/tools/quality/validation/live_target_authority.py",
+        "policy-engine/tools/quality/validation/metadata_execution_evidence.py"
+      ],
+      "source_application": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-r3-import-format-qualification-20261018/qualified-source-application-r2.json",
+        "sha256": "38cba683db30a13a57c4e87d87a302fe8cc06927ea57ad0193f61c7a987b57e6"
+      },
+      "actual_Ruff_check_format": "PASS",
+      "runtime": "UNRUN at this composed source frame"
+    },
+    {
+      "candidate": "f508fa13707043a55b8278178c30acc22f599080",
+      "tree": "299d8af15136666084134489044cd99ce48a7893",
+      "parents": [
+        "6d4511969970a0986d577cb2050f5282d063a8c9"
+      ],
+      "subject": "fix(runtime): preserve terminal owner and intent projection admission",
+      "changed_paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py",
+        "policy-engine/tests/unit/runtime/http/test_control_job_execution_intent.py",
+        "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py"
+      ],
+      "source_application": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime-r3-current-source-adoption-20261018/source-application.json",
+        "sha256": "5a07c53f17084f190e8b7b131d502178696d67ec8a3d37f7cc8a875a4b235b7c"
+      },
+      "actual_Ruff_check_format": "PASS",
+      "runtime": "UNRUN at this composed source frame"
+    }
+  ],
+  "full_composed_changed_footprint": [
+    {
+      "path": "policy-engine/architecture/baselines/production_quality/evidence_inventory.json",
+      "sha256": "4811c59c256983b08cb31d852f1e557a9b5d0c1342b55e7033a8d487bf2e9868",
+      "role": "artifact"
+    },
+    {
+      "path": "policy-engine/docs/plans/active/DEBT-REGISTER.md",
+      "sha256": "c9240beb279e660be9a208f5f1c7da90ace006a7447699ad764ad735272157ac",
+      "role": "documentation_companion"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "sha256": "caa5755cc7d406eece618c7e2ecadfb16c38ab287e57c0e41505b38ce5580df7",
+      "role": "mandatory_record"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "sha256": "5c2e9127f2542fa88bd7064cee58d894d4e2ecb87c7a76acb953b7bec5e5dfc5",
+      "role": "mandatory_record"
+    },
+    {
+      "path": "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py",
+      "sha256": "559e75176f818e1d12aac537439e87ec7867861b666eb265bd558c4fc6e0455c",
+      "role": "mechanism"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/_layer3_gy_n13b_acceptance_fixtures.py",
+      "sha256": "bc1a382163cd5f2cf63cc76b1d3278ba47a708eab01a9d4bf717a059157ba491",
+      "role": "test_companion"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_layer3_gy_acquisition_executor.py",
+      "sha256": "5101d4f8761ac984793cacc0416b58bff1d2b58174a6fce702787cb016ce797f",
+      "role": "test_companion"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_layer3_gy_n13b_acceptance.py",
+      "sha256": "740bb10368857be4c01dae118d8840651a6148e4244c3837018e27aa32ed2b96",
+      "role": "test_companion"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_layer3_gy_n13b_acquisition_contract.py",
+      "sha256": "07fa7849c33a00cd5ed268e98b4b16ba590d6c6d287e134f6d19739bb20f7ca7",
+      "role": "test_companion"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_policy_design_case_pass2_diagnostics.py",
+      "sha256": "7128ab19c483742102fb29c448ab7defe21fb4688c99fd95d720cb95d54b6d23",
+      "role": "test_companion"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_production_quality_evidence_inventory.py",
+      "sha256": "e13707a0d524be874a683a68dc446eea76ce217cd4ee191ec6f7b71004e9f27e",
+      "role": "test_companion"
+    },
+    {
+      "path": "policy-engine/tests/repo_quality/tools/test_trust_claim_posture.py",
+      "sha256": "5e4bdf4977dcaf34d8a1b7ef8de4b740f3c248cdca74bc724b34e572ad6e71c9",
+      "role": "test_companion"
+    },
+    {
+      "path": "policy-engine/tests/unit/remediation/test_hyg_04.py",
+      "sha256": "23af8e255ae6b967f6bcc4ed5e9779affb4463345cd8acad2758356a9625f383",
+      "role": "test_companion"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_control_job_execution_intent.py",
+      "sha256": "310dc1cc554a5ea4a6bc1e5c1200d0e1229480dc7154e9068fdb54f840870fec",
+      "role": "test_companion"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py",
+      "sha256": "d136199f4ce2c98cb492dd2b0b8720e80bab3c80b43aab07c069ef694d6798c8",
+      "role": "test_companion"
+    },
+    {
+      "path": "policy-engine/tests/unit/runtime/quality/test_capability_white_space.py",
+      "sha256": "a6bd3f974abb34f3a4643b096cf38e1860e9697a0c9de11a48c75b2e01252142",
+      "role": "test_companion"
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/README.md",
+      "sha256": "cc7e1391d23e7b630ebbd021c5be1d248d1a83db31c44a9114474a092b933a4d",
+      "role": "documentation_companion"
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/acquisition_admission_contract.py",
+      "sha256": "9e6160ad5c2f3e53cf1f3c857ddb750d0a61585604ed65ad825e5a1198996b99",
+      "role": "mechanism"
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/acquisition_contract_support.py",
+      "sha256": "ae2ba5e22c3a5553d2b62355a5007cdc7a23c245e41fa8ee10f16fd6c2e65a27",
+      "role": "mechanism"
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/acquisition_executor_support.py",
+      "sha256": "4dc98a11f5d655359c29118e66a1392bdb50350ee3bd112a5985177b1b1fa044",
+      "role": "mechanism"
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/acquisition_response_receipts.py",
+      "sha256": "b2bddc81d090ef49c115886a27f70132d1a98365a8379b8abcf6d853ac6a1b84",
+      "role": "mechanism"
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/artifact_lifecycle_manifest.py",
+      "sha256": "4809b9afcba852da74ddca1e750a496bb8e94de037c4e54597663aeef4e6d88d",
+      "role": "mechanism"
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/build_policy_design_case_pass2_diagnostics.py",
+      "sha256": "8aac9e298bf9ba11c42da6c1ed774777999d73f9bc98aafac9d577a9f65f2785",
+      "role": "mechanism"
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/catalog_candidate_admission.py",
+      "sha256": "e27311698f1de2a895d0ca57ef12cc1991fc316c2dd8360b940ae1ce562da799",
+      "role": "mechanism"
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/check_layer3_gy_acquisition_executor.py",
+      "sha256": "ac6185819af5035448cd1c13b23dd2a97e014483a7c7f2374061ceb684ceca55",
+      "role": "mechanism"
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/check_layer3_gy_n13b_acquisition_contract.py",
+      "sha256": "f1779ffff788856dcd1092da58331a264a19813bf68de2f0b868af90e64ba691",
+      "role": "mechanism"
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/check_trust_claim_posture.py",
+      "sha256": "27a3c448c1eb70ada48c6d6484451de765a468b3b672e56066f2595a882f600b",
+      "role": "mechanism"
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/d6_route_selection.py",
+      "sha256": "87e9081ff1b8d4165b5152057b69b12f7a0c4f873c50b9c2e9109fc647a5321c",
+      "role": "mechanism"
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/decomposition_preflight.py",
+      "sha256": "dd3e22a3dbc9be382bcc57520a198082952f35ae763896936a2e8d3d1f56327b",
+      "role": "mechanism"
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/demand_gap_projections.py",
+      "sha256": "95dabf524e5a605118e26aea7ebb7e87709369969458a5c94239269d467a2af3",
+      "role": "mechanism"
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/derivation_route_projections.py",
+      "sha256": "cdbc2d54039d175a3395d9a3e7670e0b181cfbd4d4b03c41490cbe75ea8ff51e",
+      "role": "mechanism"
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/evidence_journal_custody.py",
+      "sha256": "0bd0d7e5c7e4ee14cdc57e116608f6b7d6975a5ba56e30eb9426839705db9c55",
+      "role": "mechanism"
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/layer3_gy_acquisition_executor.py",
+      "sha256": "70b706e5b83d3da2ce73b9a15a85e25a728b85a665b314931fc89cef8692ff62",
+      "role": "mechanism"
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/layer3_gy_confidence_ledger_contract.py",
+      "sha256": "f948087dac2ac3abacbef593d4cb749a34c0e0e9588e24a2bed82f49a1116b98",
+      "role": "mechanism"
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/layer3_gy_n13b_acquisition_contract.py",
+      "sha256": "14e040adc06768a6fc08e354e6e8c5b3628ed2ad01fab69a0104d9e17e6af64f",
+      "role": "mechanism"
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/live_target_authority.py",
+      "sha256": "b91dd937f2c5f933d2c571f50e2218ac05b0b805722da933832da7b3e43be1a3",
+      "role": "mechanism"
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/metadata_execution_evidence.py",
+      "sha256": "cea2ef3131c04b57f4707a5751c02b108be035edd73c5fab27e373da1d3ceccf",
+      "role": "mechanism"
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/pass2_diagnostics_support.py",
+      "sha256": "6ca2beb921aadc06bd3f2e0535b8e17fd86ea43b5564d65eae38e83cb325a65d",
+      "role": "mechanism"
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/pass2_phase34_1_diagnostics.py",
+      "sha256": "504e5505c7e4b4c0ad1ed462182a9f0bd10ffd380d22e7cf56f1468a839bd431",
+      "role": "mechanism"
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/pass2_phase34_2_diagnostics.py",
+      "sha256": "18f860ddf24998d6a239abc5d69c115a96061e38c56a12c9aff0fafa9be89034",
+      "role": "mechanism"
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/trust_claim_posture_accessibility.py",
+      "sha256": "9c08964a5dfde368b94c79650cc9b84b2b963611c805003b689a85795aadc709",
+      "role": "mechanism"
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/trust_claim_posture_artifact_lifecycle.py",
+      "sha256": "e45537548282bd89b73ab961b3fd4acb349fcf55ce91ed6e703ed40079564fe9",
+      "role": "mechanism"
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/trust_claim_posture_semantics.py",
+      "sha256": "1aab341ff19622dd835dc81d27181394687a3537045e5e3915499aeb29fe11a1",
+      "role": "mechanism"
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/trust_claim_posture_source_bindings.py",
+      "sha256": "51538933bf4481a2db7526687312062aa81d74c7ce92f4d610fd99a659c531fb",
+      "role": "mechanism"
+    },
+    {
+      "path": "policy-engine/tools/quality/validation/trust_claim_posture_tokenizer.py",
+      "sha256": "b542725c9154ea17797cd93be05fa52b504a63c2d0b477576cc2e3bbf87eaea7",
+      "role": "mechanism"
+    }
+  ],
+  "footprint_denominator": {
+    "method": "git diff --name-only of complete six-commit range, all returned paths read from candidate Git blobs",
+    "paths": 45,
+    "by_role": {
+      "artifact": 1,
+      "documentation_companion": 2,
+      "mandatory_record": 2,
+      "mechanism": 29,
+      "test_companion": 11
+    }
+  },
+  "selected_profile": {
+    "source": "own candidate checkout; literal existing policy-engine/.venv/bin/python; root workspace Ruff profile",
+    "resources": "one numerical thread; at most two bounded compute slots after live free-memory check",
+    "runtime_inputs": "Controlled fixtures and source-bound producer inputs in pinned selected test modules; no production input mutation",
+    "runtime_execution": "UNRUN; exact source/profile/input freeze, independent orchestration review and grants required"
+  },
+  "real_chains": {
+    "Trust": "compatibility facade -> typed call-scoped owner dependencies -> exact AST/token source-site composition -> strict posture artifact/consumer checks",
+    "HYG": "whole binding-knowledge identity -> runtime import observations -> HYG scanner and shared runtime graph gate",
+    "Phase34": "live facade -> complete 46-field bindings -> seven report builders -> persisted index/details -> actual validators",
+    "inventory": "current security-assurance owner fields -> baseline -> complete fixture groups -> report/resolver consumers; supplied credit routes remain candidate only",
+    "N13b": "current R2/R3 journal and CAS producers -> content-bound contract join and reentry; controlled positive reaches join helper, outer receipt remains unexercised",
+    "Runtime": "availability/intake guard -> owner/intent validation -> one terminal emission -> row/outbox/fresh HTTP projection"
+  },
+  "adversarial_controls": "Full required modules and peer-preserved removal/corrupt-current-content controls are listed in source application records; no test execution outcome inferred from their presence.",
+  "limitations": [
+    "No native SOTA, global closeout, G source acceptance, production authority/currentness or finding closure is established.",
+    "Inventory test formatting and N13b test import ordering are separately qualified root deltas; first failing physical gate outputs are retained.",
+    "Wave35B R2 is HOLD and unapplied; N11 remains controlled-sourceview work.",
+    "Original 291 occurrence report and historical closures/B198 remain unchanged."
+  ],
+  "proposal_fields": {
+    "source_delivery": "candidate only",
+    "native_verification": "pending composed replay",
+    "individual_finding_outcomes": "unchanged; use original criterion-bound report, not task PASS aggregation"
+  },
+  "G_published_checkpoint_last_observed": "93d6aa62a8d236667fdf322a5fc17962523b185e",
+  "G_acceptance": false,
+  "closure_ids": [],
+  "raw_availability": {
+    "root": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "location": "Ignored LOCAL/raw on this author checkout, available locally; no portable archive claim"
+  },
+  "next_check": "Freeze actual clean candidate after this receipt-only boundary; independently review the exact eight-profile controller/request delta, execute source-qualified composed native profiles, retain complete deciding output, and continue C05/C12/preparedB/Linux/installed/authentic consumers."
+}

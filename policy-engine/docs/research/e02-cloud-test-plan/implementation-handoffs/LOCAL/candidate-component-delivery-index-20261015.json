@@ -888,6 +888,38 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native-reviewed-source-batch-f508-20261018.json",
       "sha256": "2abdedad569e3717edf26268204ed6b687339799281e8583bf20fc65ba0516b7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-e022cb952a05.json",
+      "sha256": "e54dc496d2fa6343dccc6328e1492018cf878e2896f9e1165eb41956a8e84ec5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-879abdafd777.json",
+      "sha256": "cc575eaeb36564d4f86ed38e0723e8b5fd64c56b6847c5540c1632f2f971a4f1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-8a8ca1cabce5.json",
+      "sha256": "0476d24391bce244d9a78fc8b65945f991d6a7f4bc761733d766894e03ccf138"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-709c56166d69.json",
+      "sha256": "0d3b930ae816aa4094de204c883d9e7f8e88c6945230013092c1fba4eb667768"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-da9b9d2d512f.json",
+      "sha256": "4022f4ea6bb9a3c4411502d20f5f26d11deeee51f58bd8f71c5f11f4ce4d4101"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-f07b709102d7.json",
+      "sha256": "ef718ef854cea807d7e57f9ac5f9564eabf2774d20b8623b0d9d7e91e1b14552"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-actual-at-709c56166d69.json",
+      "sha256": "54c9fda4cdec9e610afa57c89662ca7fea227568d2eb831893bb401879fee540"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-2dead3f2aa95.json",
+      "sha256": "fd2544e985aa763efd937512cdefd0b4c25f507bdcea6cc8e522b431b5281922"
     }
   ],
   "canonical_denominator_recomputed": {

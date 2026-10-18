@@ -1,0 +1,143 @@
+{
+  "schema": "polisyos.e02.native_source_commit_receipt.v1",
+  "record_type": "implementation_commit_receipt",
+  "status": "source_committed_static_ruff_pass_runtime_unrun",
+  "proposal_not_adjudicated": true,
+  "source_commit": {
+    "sha": "e022cb952a05eed4d83280090c25a5fb178ef36f",
+    "tree": "52653bc6d29c41d5e0c1f08641ca3c3e52fff513",
+    "parents": [
+      "f7590a7b5fe93ff693bb0dce923aff7b7f839032"
+    ],
+    "subject": "test(e02): bind Q2 build-tool requirements to source lock",
+    "branch_ref": "refs/heads/codex/e02-unified-local-20261009"
+  },
+  "source_base": {
+    "sha": "f7590a7b5fe93ff693bb0dce923aff7b7f839032",
+    "tree": "d001bde194af26b7d236810fa793b15aa2c537ec"
+  },
+  "changed_paths": [
+    {
+      "change": "M",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "category": "coordination_metadata",
+      "sha256_at_commit": "de7aef6e8d7b0265501b70d448275ee16e248b68ec1eef69058cf8b3505efd16",
+      "bytes": 703073
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "category": "coordination_metadata",
+      "sha256_at_commit": "c9f696d8ceea8708191d903304827414a723b88cebf0522937713dbd6b692209",
+      "bytes": 71663
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/tests/repo_quality/tools/test_q2_build_tool_wheel_lock.py",
+      "category": "test",
+      "sha256_at_commit": "336d15f15b5996d1bde06f3b4bcfea5f2a943c703a11f417c5bfa35b2cd7dad8",
+      "bytes": 23058
+    }
+  ],
+  "source_application": {
+    "identity": "root-q2-actual-oracle-style-qualified-20261018",
+    "lease_key": "coordination_epoch_20261018_q2_actual_oracle_style_qualified",
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-actual-oracle-style-qualified-20261018/source-application.json",
+      "sha256": "717769374324894accc051ba6ce28d808d9c67bf7b3f269dbf983a837bc00be4",
+      "bytes": 10003
+    },
+    "plan": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-actual-oracle-style-qualified-20261018/source-application-plan.json",
+      "sha256": "f64071c98b0e51a0f23326232a6633e0280bf4682db0b7892acf12d663cf1282",
+      "bytes": 9528
+    },
+    "commit_request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-actual-oracle-style-qualified-20261018/commit-request.json",
+      "sha256": "d4c607e64546818065022d370aa06e6dae02b7be841838f896010b1db790954a",
+      "bytes": 1048
+    },
+    "commit_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-actual-oracle-style-qualified-20261018/root-q2-actual-oracle-style-qualified-20261018-readback.json",
+      "sha256": "8636bc2173c18e48bd50246cb4dd86006507be32a751fe32878dc283414eb02b",
+      "bytes": 1117
+    }
+  },
+  "review_refs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-current-actual-test-repair-independent-20261018/review.md",
+      "sha256": "ea20cae7dbca510cc3ecfeb03fdebfc87b77a5fe49d9a153806342ed7ff3943a",
+      "bytes": 5039,
+      "role": "independent semantic review"
+    }
+  ],
+  "property": "Q2 lock-to-generated-requirements oracle: compare the complete normalized distribution-to-exact-version-and-hash relation for every source-lock row, with separate build-system/profile binding negatives.",
+  "static_quality": {
+    "ruff_version": "0.14.10",
+    "check_and_format_check": "PASS",
+    "receipts": [
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tests/repo_quality/tools/test_q2_build_tool_wheel_lock.py"
+        ],
+        "exit_code": 0,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-actual-oracle-style-qualified-20261018/check.stdout.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+          "bytes": 19
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-actual-oracle-style-qualified-20261018/check.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tests/repo_quality/tools/test_q2_build_tool_wheel_lock.py"
+        ],
+        "exit_code": 0,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-actual-oracle-style-qualified-20261018/format.stdout.txt",
+          "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50",
+          "bytes": 25
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-actual-oracle-style-qualified-20261018/format.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      }
+    ]
+  },
+  "runtime_status_at_source_adoption": "UNRUN on adopted canonical source; bounded candidate evidence is separately referenced",
+  "limits": [
+    "Test-only change; not a product wheel/sdist proof.",
+    "R2 tiny-proof remains prepared_not_executed.",
+    "The later 21-case run is separately recorded at the 709c561 frame; this adoption receipt itself had runtime UNRUN.",
+    "No CLI execution or G acceptance."
+  ],
+  "G_acceptance": false,
+  "closure_ids": [],
+  "linked_actual_verification": {
+    "record_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-six-source-q2-actual-receipt-batch-20261018/q2-actual-at-709c56166d69.json",
+    "relationship": "separate later source-qualified Q2 module run at the exact 709c561 frame"
+  }
+}

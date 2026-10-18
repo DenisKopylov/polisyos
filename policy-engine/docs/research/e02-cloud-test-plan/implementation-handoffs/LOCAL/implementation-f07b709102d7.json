@@ -1,0 +1,139 @@
+{
+  "schema": "polisyos.e02.native_source_commit_receipt.v1",
+  "record_type": "implementation_commit_receipt",
+  "status": "source_committed_static_ruff_pass_runtime_unrun",
+  "proposal_not_adjudicated": true,
+  "source_commit": {
+    "sha": "f07b709102d796d92f7dafc0ee200596e8ab697e",
+    "tree": "6df6be6969af6ce644226e7ecc384573852d25ea",
+    "parents": [
+      "da9b9d2d512fd7e2f210c7c6dbf61980b46a8297"
+    ],
+    "subject": "test(c05): isolate controlled law and SKG fixtures before writes",
+    "branch_ref": "refs/heads/codex/e02-unified-local-20261009"
+  },
+  "source_base": {
+    "sha": "da9b9d2d512fd7e2f210c7c6dbf61980b46a8297",
+    "tree": "3ca33a3c85bff4e326faad3a71243f472cdbaff8"
+  },
+  "changed_paths": [
+    {
+      "change": "M",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "category": "coordination_metadata",
+      "sha256_at_commit": "f022c8d17ab2a373c84a1e16bb015f2d87e96cb20d99d58a0808818cefadf13c",
+      "bytes": 777897
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "category": "coordination_metadata",
+      "sha256_at_commit": "9f8ed028984583498bf0a474997f46252179e0b8753eb08cf9594b2547fcad11",
+      "bytes": 71663
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/tests/unit/runtime/quality/test_credal_reference.py",
+      "category": "test",
+      "sha256_at_commit": "7ce8cab2729f3e88800a64c91b84a8ec54f203a3b67ebdf92228f31789c76528",
+      "bytes": 136861
+    }
+  ],
+  "source_application": {
+    "identity": "c05-controlled-fixture-preflight-r3-20261018",
+    "lease_key": "c05-controlled-fixture-preflight-r3-20261018",
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-r3-da9b-source-adoption-20261018/source-application.json",
+      "sha256": "756ddeeb584eece2fb635739d9894f59643882a119434f159804e0bccf750093",
+      "bytes": 10628
+    },
+    "plan": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-r3-da9b-source-adoption-20261018/adoption-plan.json",
+      "sha256": "2b1e7ba0b0da9a347d00ae08f18707c24dc603bfe8a5b29c314384324c5d821a",
+      "bytes": 8275
+    },
+    "commit_request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-r3-da9b-source-adoption-20261018/commit-request.json",
+      "sha256": "2c6ccf21e45e04505d7062ad2e06bbc9b429ec6e674dcba16c79d3854912c698",
+      "bytes": 1042
+    },
+    "commit_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-r3-da9b-source-adoption-20261018/c05-controlled-fixture-preflight-r3-20261018-readback.json",
+      "sha256": "e1363b60e03be2c57f36001d10f60c12c489be2d362353373fdef33c42b4778f",
+      "bytes": 1112
+    }
+  },
+  "review_refs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-f759-credal-fixture-r3-independent-20261018/review.md",
+      "sha256": "9b33220580ebc99cc4f469681f73c35bdb5da99774a089cb6e68486300e46aeb",
+      "bytes": 5198,
+      "role": "independent static GO for selected fixture-preflight candidate"
+    }
+  ],
+  "property": "For C05 tests, materialize controlled fixtures under a fresh selected root, preflight every writer-owned destination before side effects, and require typed law refusal across every atom-law projection; do not substitute or alter ambient production_data.",
+  "static_quality": {
+    "ruff_version": "0.14.10",
+    "check_and_format_check": "PASS",
+    "receipts": [
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tests/unit/runtime/quality/test_credal_reference.py"
+        ],
+        "exit_code": 0,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-r3-da9b-source-adoption-20261018/check.stdout.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+          "bytes": 19
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-r3-da9b-source-adoption-20261018/check.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tests/unit/runtime/quality/test_credal_reference.py"
+        ],
+        "exit_code": 0,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-r3-da9b-source-adoption-20261018/format.stdout.txt",
+          "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50",
+          "bytes": 25
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c05-r3-da9b-source-adoption-20261018/format.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      }
+    ]
+  },
+  "runtime_status_at_source_adoption": "UNRUN on adopted canonical source; bounded candidate evidence is separately referenced",
+  "limits": [
+    "Whole-module runtime replay is UNRUN.",
+    "No external law/issuer authority, production currentness, calibration, causal effect, CAS persistence, fresh-reader behavior, publication, or closure is established.",
+    "Fixture containment is not atomic against concurrent adversarial filesystem replacement between preflight and writer open.",
+    "No G acceptance or formal closure."
+  ],
+  "G_acceptance": false,
+  "closure_ids": []
+}

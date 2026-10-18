@@ -1,0 +1,157 @@
+{
+  "schema": "polisyos.e02.native_source_commit_receipt.v1",
+  "record_type": "implementation_commit_receipt",
+  "status": "source_committed_static_ruff_pass_runtime_unrun",
+  "proposal_not_adjudicated": true,
+  "source_commit": {
+    "sha": "da9b9d2d512fd7e2f210c7c6dbf61980b46a8297",
+    "tree": "3ca33a3c85bff4e326faad3a71243f472cdbaff8",
+    "parents": [
+      "709c56166d693189ac94b5cdd2defe764903ac69"
+    ],
+    "subject": "test(quality): repair source-sensitive docs-quality assertions",
+    "branch_ref": "refs/heads/codex/e02-unified-local-20261009"
+  },
+  "source_base": {
+    "sha": "709c56166d693189ac94b5cdd2defe764903ac69",
+    "tree": "59902bd2736cb086b4c9b7e266aac1b9c4a0308c"
+  },
+  "changed_paths": [
+    {
+      "change": "M",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "category": "coordination_metadata",
+      "sha256_at_commit": "1524482a341a74572ba808138a7987c0612032bf17ce0f54c1ecbaeea32f0861",
+      "bytes": 769033
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "category": "coordination_metadata",
+      "sha256_at_commit": "db790b4e723c2ffba5c641ac9964a6414e0e1acb473f494623e1803a3b96540b",
+      "bytes": 71663
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/tests/repo_quality/architecture/test_repository_best_in_class_phase1_3_contracts.py",
+      "category": "test",
+      "sha256_at_commit": "ff925976328bb7e1dad8b00368f929e1c27dfbb725b3cfe87d0360e5618cafc0",
+      "bytes": 67784
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/tests/repo_quality/architecture/test_repository_structure_phase1c.py",
+      "category": "test",
+      "sha256_at_commit": "c1dfed02dd667b06e9126f7241a0267f0bbd10bf128daff2020bfff173bc94d8",
+      "bytes": 4289
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/tests/repo_quality/tools/test_honest_diagnostics_coverage.py",
+      "category": "test",
+      "sha256_at_commit": "8681570463f33a983cb6c5bb45e2be37720e25fc3c215e9f916e75791ab9e405",
+      "bytes": 20147
+    }
+  ],
+  "source_application": {
+    "identity": "native-docs-quality-test-repair-f759-20261018",
+    "lease_key": "native-docs-quality-test-repair-f759-20261018",
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-docs-quality-test-repair-source-adoption-20261018/source-application.json",
+      "sha256": "d5920ee0113dce9aed7ab0a6bce0e25a057e64abc7c77d233a465c3a27283d6f",
+      "bytes": 16378
+    },
+    "plan": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-docs-quality-test-repair-source-adoption-20261018/adoption-plan.json",
+      "sha256": "887f8737db4a7e80c294b4014219983917a3dfcf51b929ee403ccdb4f29ee32a",
+      "bytes": 24521
+    },
+    "commit_request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-docs-quality-test-repair-source-adoption-20261018/commit-request.json",
+      "sha256": "dcb4ffa7425d1470d9d16f68b7e10934bd97f871cb48403c79fc65adb728cb13",
+      "bytes": 1401
+    },
+    "commit_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-docs-quality-test-repair-source-adoption-20261018/native-docs-quality-test-repair-f759-20261018-readback.json",
+      "sha256": "153fbfd6a2389b564d008343181a7c216678bcb1d8d7fa51251bca8f904eb20d",
+      "bytes": 1654
+    }
+  },
+  "review_refs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-docs-quality-test-repair-independent-20261018/review.md",
+      "sha256": "7e364c0e240e8158282f1d0ee1532bc6ef0bc0e87bcfb014f641a090bf92370b",
+      "bytes": 7791,
+      "role": "independent semantic GO for the three test postimages"
+    }
+  ],
+  "property": "Repair source-sensitive docs-quality test assertions for module-loader lifecycle, source-derived fail-closed mirror coverage, and comparator behavior independent of live anti-drift state, retaining a negative composition control.",
+  "static_quality": {
+    "ruff_version": "0.14.10",
+    "check_and_format_check": "PASS",
+    "receipts": [
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tests/repo_quality/architecture/test_repository_structure_phase1c.py",
+          "policy-engine/tests/repo_quality/architecture/test_repository_best_in_class_phase1_3_contracts.py",
+          "policy-engine/tests/repo_quality/tools/test_honest_diagnostics_coverage.py"
+        ],
+        "exit_code": 0,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-docs-quality-test-repair-source-adoption-20261018/check.stdout.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+          "bytes": 19
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-docs-quality-test-repair-source-adoption-20261018/check.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tests/repo_quality/architecture/test_repository_structure_phase1c.py",
+          "policy-engine/tests/repo_quality/architecture/test_repository_best_in_class_phase1_3_contracts.py",
+          "policy-engine/tests/repo_quality/tools/test_honest_diagnostics_coverage.py"
+        ],
+        "exit_code": 0,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-docs-quality-test-repair-source-adoption-20261018/format.stdout.txt",
+          "sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd",
+          "bytes": 26
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-docs-quality-test-repair-source-adoption-20261018/format.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      }
+    ]
+  },
+  "runtime_status_at_source_adoption": "UNRUN on adopted canonical source; bounded candidate evidence is separately referenced",
+  "limits": [
+    "Tests only; no product validator, CLI, scanner scope, decoder, exclusion, or gate behavior changes.",
+    "No claim that original CLI results are repaired, inherited, or green; retain the original dispositions.",
+    "Focused and whole-profile pytest replays after this source change are UNRUN.",
+    "No G acceptance or formal closure."
+  ],
+  "G_acceptance": false,
+  "closure_ids": []
+}

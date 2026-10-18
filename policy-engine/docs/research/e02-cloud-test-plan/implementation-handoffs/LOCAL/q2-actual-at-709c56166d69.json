@@ -1,0 +1,187 @@
+{
+  "schema": "polisyos.e02.actual_test_verification_receipt.v1",
+  "record_type": "actual_test_verification_receipt",
+  "status": "completed_source_qualified_passed",
+  "identity": "root-postfix-709-q2-helper-actual-20261018",
+  "proposal_not_adjudicated": true,
+  "relationship_to_source_commit": {
+    "implementation_commit": "e022cb952a05eed4d83280090c25a5fb178ef36f",
+    "test_path": "policy-engine/tests/repo_quality/tools/test_q2_build_tool_wheel_lock.py",
+    "test_sha256_at_e022_and_709": "336d15f15b5996d1bde06f3b4bcfea5f2a943c703a11f417c5bfa35b2cd7dad8",
+    "note": "The implementation commit is e022; the later actual run qualified the full 709c561 source frame."
+  },
+  "source_frame": {
+    "branch": "refs/heads/codex/e02-unified-local-20261009",
+    "head": "709c56166d693189ac94b5cdd2defe764903ac69",
+    "tree": "59902bd2736cb086b4c9b7e266aac1b9c4a0308c"
+  },
+  "source_frame_after": {
+    "branch": "refs/heads/codex/e02-unified-local-20261009",
+    "head": "709c56166d693189ac94b5cdd2defe764903ac69",
+    "tree": "59902bd2736cb086b4c9b7e266aac1b9c4a0308c"
+  },
+  "source_frame_unchanged": true,
+  "source_pins_unchanged": true,
+  "profile": {
+    "scope": "one whole module; fresh collection established the exact node IDs",
+    "selected_test_files": [
+      "policy-engine/tests/repo_quality/tools/test_q2_build_tool_wheel_lock.py"
+    ],
+    "collected_cases": 21,
+    "pytest_junit_summary": {
+      "errors": 0,
+      "failures": 0,
+      "passed": 21,
+      "skipped": 0,
+      "tests": 21
+    },
+    "execution_return_code": 0,
+    "whole_module_only": true
+  },
+  "result": {
+    "complete": true,
+    "execution_passed": true,
+    "source_qualified": true,
+    "source_qualified_semantic_passed": true,
+    "all_return_codes_zero": true,
+    "all_scheduled_return_codes_zero": true
+  },
+  "resources": {
+    "wall_seconds_total": 4.215354665881023,
+    "maximum_sampled_process_tree_rss_bytes": 109035520,
+    "minimum_sampled_disk_free_bytes": 15919685632,
+    "limits": {
+      "minimum_free_disk_bytes": 1073741824,
+      "overall_wall_seconds": 600.0,
+      "sampled_process_tree_rss_bytes": 4294967296
+    }
+  },
+  "cli": {
+    "status": "not_applicable",
+    "commands_scheduled": 0,
+    "cli_origin_qualification": {
+      "command_ids": [],
+      "reason": "No CLI commands are scheduled; no CLI origin claim is made.",
+      "source_qualified_cli_claim": false,
+      "status": "not_applicable"
+    },
+    "cli_outputs_applicable": false
+  },
+  "baseline": {
+    "controller": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-composed-f759-wave-20261018/profiles/q2-helper/actual-run/controller-result.json",
+      "sha256": "d9505151cb56f5f31d41b28bea89dfae31978aa7506cb0f412802f42e9d1b9db",
+      "bytes": 9357487
+    },
+    "historical_result": "19 passed, 2 failed at f759; retained as baseline, not relabeled as current."
+  },
+  "inputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-postfix-709-q2-helper-actual-20261018/request.json",
+      "sha256": "8f8fa0aba81ed14d36b8a62d6f5728c862df2a24d20064a6a9da711de782ff4a",
+      "bytes": 10220
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-postfix-709-q2-helper-actual-20261018/freeze.json",
+      "sha256": "dd2f4dba342ff02d2772b35f75343ede17075174ff7ff2ec195e18190dbb8281",
+      "bytes": 4679211
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-postfix-709-q2-helper-actual-20261018/root-grant.json",
+      "sha256": "ddb9b328aeb699ab64be3770ebecb72fce2114bcd8dfeed18672d1cfb9789ef6",
+      "bytes": 1693
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-postfix-709-q2-helper-actual-20261018/controller-wait.json",
+      "sha256": "8310e65aa0d5dcb11314812e6f8ab01430cc92324542e42370c0dc94f0ae34de",
+      "bytes": 676
+    }
+  ],
+  "deciding_outputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-postfix-709-q2-helper-actual-20261018/actual-run/controller-result.json",
+      "sha256": "1241e591eb6f47faf678bfe28c066b3b4087c61cb56793c29e9745ff72acc5cd",
+      "bytes": 9364436
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-postfix-709-q2-helper-actual-20261018/actual-run/controller-events.jsonl",
+      "sha256": "6da4c4a47fa9b4e4028ff5561e04baff7e949e8786e67c2edf2aa6342339afef",
+      "bytes": 4704,
+      "role": "complete controller-listed run output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-postfix-709-q2-helper-actual-20261018/actual-run/launch_started.json",
+      "sha256": "f7b136488007fe65441d4d0475a5053457b3231306641861398f7c46a07eeca4",
+      "bytes": 4680415,
+      "role": "complete controller-listed run output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-postfix-709-q2-helper-actual-20261018/actual-run/phase-output.jsonl",
+      "sha256": "f8ad3dc0929180ec9a38cf0b77047e5fd6fab84bd683cccea15b940ca2d6cdce",
+      "bytes": 4596,
+      "role": "complete controller-listed run output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-postfix-709-q2-helper-actual-20261018/actual-run/process-tree.jsonl",
+      "sha256": "264963167341dda9528d815abb41f8480087c8b1064cdbb96d035e2c7a201d6f",
+      "bytes": 9875,
+      "role": "complete controller-listed run output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-postfix-709-q2-helper-actual-20261018/actual-run/pytest-collection-provenance.json",
+      "sha256": "41bbc43edeaef60c0f586c0894031c5e56dbcabd7b95660d5a98193f4b849fb1",
+      "bytes": 67154,
+      "role": "complete controller-listed run output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-postfix-709-q2-helper-actual-20261018/actual-run/pytest-collection.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "complete controller-listed run output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-postfix-709-q2-helper-actual-20261018/actual-run/pytest-collection.stdout.txt",
+      "sha256": "d867e9c3bd66e290cb2f1857b1de82041acd5394ac7e7a2ddc46666783bd3b2d",
+      "bytes": 63,
+      "role": "complete controller-listed run output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-postfix-709-q2-helper-actual-20261018/actual-run/pytest-provenance.json",
+      "sha256": "a855cbe243af6f564a0409b56049751aa334249360a5434f31c85d7bbebd0b3e",
+      "bytes": 69887,
+      "role": "complete controller-listed run output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-postfix-709-q2-helper-actual-20261018/actual-run/pytest.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "complete controller-listed run output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-postfix-709-q2-helper-actual-20261018/actual-run/pytest.stdout.txt",
+      "sha256": "32faef56d0289369b1ac111e68ee0bb7b2ed1bcf92d3f33b75313bd0556c3e6f",
+      "bytes": 80,
+      "role": "complete controller-listed run output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-postfix-709-q2-helper-actual-20261018/actual-run/pytest.xml",
+      "sha256": "6ab663e3eb1a549cab35f4fed2185abd8fa6a7ec689a05ea77e6647701dd3407",
+      "bytes": 3684,
+      "role": "complete controller-listed run output"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-postfix-709-q2-helper-actual-20261018/actual-run/selected-nodeids.json",
+      "sha256": "8c59c28b458d95059c2287670fb47988109c37f9dc9778a132f9f5761bb63ea3",
+      "bytes": 3544,
+      "role": "complete controller-listed run output"
+    }
+  ],
+  "limitations": [
+    "This proves only the selected Q2 whole test module at the exact 709c561 source frame; it is not a full product suite, packaging/wheel/sdist validation, or validation of the later da9/f07 source cut.",
+    "The separate Q2 tiny proof remains prepared_not_executed.",
+    "No CLI was scheduled and no CLI claim is made.",
+    "No G acceptance or formal closure."
+  ],
+  "G_acceptance": false,
+  "closure_ids": []
+}

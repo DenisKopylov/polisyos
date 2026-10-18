@@ -1,0 +1,169 @@
+{
+  "schema": "polisyos.e02.native_source_commit_receipt.v1",
+  "record_type": "implementation_commit_receipt",
+  "status": "source_committed_static_ruff_pass_runtime_unrun",
+  "proposal_not_adjudicated": true,
+  "source_commit": {
+    "sha": "8a8ca1cabce5071d7130809277a59a2b9fa6472c",
+    "tree": "a43be04d349677b9e64f613d3e0f2fa3f40c9db1",
+    "parents": [
+      "879abdafd77703f0b6327f7a5a09597d829b387b"
+    ],
+    "subject": "style(e02): qualify Trust R4 full-file Ruff formatting",
+    "branch_ref": "refs/heads/codex/e02-unified-local-20261009"
+  },
+  "source_base": {
+    "sha": "879abdafd77703f0b6327f7a5a09597d829b387b",
+    "tree": "92a9b8bf4d7d6fe750cebb50d14d54594222b272"
+  },
+  "changed_paths": [
+    {
+      "change": "M",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "category": "coordination_metadata",
+      "sha256_at_commit": "7352840a2239b890927dc485bb16dce47e2bc04054bd00fa9e2d08ba15038daf",
+      "bytes": 725468
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "category": "coordination_metadata",
+      "sha256_at_commit": "f717f45c03d7cb19fc3d53b672b4fb05bb8d59b8e0ac7b05fd7e70ec6b9af230",
+      "bytes": 71663
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/src/polisyos/scientist/evidence/claims/posture.py",
+      "category": "implementation_source",
+      "sha256_at_commit": "30f908c4b871b6317675a92d457467a9d26d6be25f37f9b55781963bbfe9a414",
+      "bytes": 108554
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/tests/repo_quality/tools/test_trust_claim_posture.py",
+      "category": "test",
+      "sha256_at_commit": "9ae4be1203bb134aae29d19803b35c6de3d469ede766b2c7d304e3c9f3ac4f0d",
+      "bytes": 112790
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/tools/quality/validation/trust_claim_posture_artifact_lifecycle.py",
+      "category": "implementation_source",
+      "sha256_at_commit": "66d2824241db80917726345f897aa709ee3d670eecd580a34996471561838fe2",
+      "bytes": 31748
+    }
+  ],
+  "source_application": {
+    "identity": "root-trust-r4-879abdaf-source-adoption-20261018",
+    "lease_key": "coordination_epoch_20261018_trust_r4_full_file_format_qualification",
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r4-879abdaf-source-adoption-20261018/source-application.json",
+      "sha256": "23d9c6934627047f4e41533d41b0d22fa35f192bab1e27abcc4d59b6bdc0670c",
+      "bytes": 12489
+    },
+    "plan": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r4-879abdaf-source-adoption-20261018/source-application-plan.json",
+      "sha256": "362a18b407b96248f0ce67c04548f4de974ef3d67cb0d81bba46da311b423d91",
+      "bytes": 13445
+    },
+    "commit_request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r4-879abdaf-source-adoption-20261018/commit-request.json",
+      "sha256": "c1fe4076b49a26de39ed10c19aea7dae43e4bcb9801008a70a739ccdb0b2bc0d",
+      "bytes": 1337
+    },
+    "commit_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r4-879abdaf-source-adoption-20261018/root-trust-r4-879abdaf-source-adoption-20261018-readback.json",
+      "sha256": "fc301faaf4eae69f721fbe62f0a363c9478f770b96d74cc6f5ef47c68fd6a2b5",
+      "bytes": 1558
+    }
+  },
+  "review_refs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r4-pass-intake-independent-20261018/review.md",
+      "sha256": "c32527279542764b4c72e5fe9f6aa112107968f72d61decbdcfda3695ca72eca",
+      "bytes": 5651,
+      "role": "independent R4 semantic GO; did not cover later import-order deltas"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r4-ruff-delta-independent-20261018/review.md",
+      "sha256": "d756895080657e2c4c604e84a9f3d6be45756af2f8369998b78765e91b0a7672",
+      "bytes": 3966,
+      "role": "independent E402 import-order delta review"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r4-i001-independent-20261018/review.json",
+      "sha256": "44c9c97cdc80750d14a46c7b9618af165536467a686ccea79ad63f3e20d6dd7b",
+      "bytes": 4655,
+      "role": "independent I001 import-order delta review"
+    }
+  ],
+  "property": "The commit subject says full-file Ruff formatting, but the source includes the reviewed R4 semantic pass-intake repair: compiler and source-adapter intake refuse runtime-owned per-run registry artifacts even when status is pass; strict source refusal remains. The test fixture is test data, not verified producer authority. Separate formatter and import-order qualification is also included.",
+  "static_quality": {
+    "ruff_version": "0.14.10",
+    "check_and_format_check": "PASS",
+    "receipts": [
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/src/polisyos/scientist/evidence/claims/posture.py",
+          "policy-engine/tools/quality/validation/trust_claim_posture_artifact_lifecycle.py",
+          "policy-engine/tests/repo_quality/tools/test_trust_claim_posture.py"
+        ],
+        "exit_code": 0,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r4-879abdaf-source-adoption-20261018/check.stdout.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+          "bytes": 19
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r4-879abdaf-source-adoption-20261018/check.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/src/polisyos/scientist/evidence/claims/posture.py",
+          "policy-engine/tools/quality/validation/trust_claim_posture_artifact_lifecycle.py",
+          "policy-engine/tests/repo_quality/tools/test_trust_claim_posture.py"
+        ],
+        "exit_code": 0,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r4-879abdaf-source-adoption-20261018/format.stdout.txt",
+          "sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd",
+          "bytes": 26
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r4-879abdaf-source-adoption-20261018/format.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      }
+    ]
+  },
+  "runtime_status_at_source_adoption": "UNRUN on adopted canonical source; bounded candidate evidence is separately referenced",
+  "limits": [
+    "The commit is not style-only: the R4 semantic intake/probe change is part of the committed source/test bytes.",
+    "Independent semantic review and the separate E402/I001 reviews are distinct scopes; formatter equivalence is separately pinned in source-application evidence.",
+    "No product runtime replay after this commit is recorded here; Trust behavior remains UNRUN.",
+    "No authority grant, producer verification, or G acceptance is established by the pass fixture."
+  ],
+  "G_acceptance": false,
+  "closure_ids": []
+}

@@ -1,0 +1,273 @@
+{
+  "schema": "polisyos.e02.native_source_commit_receipt.v1",
+  "record_type": "implementation_commit_receipt",
+  "status": "source_committed_static_ruff_pass_runtime_unrun",
+  "proposal_not_adjudicated": true,
+  "source_commit": {
+    "sha": "709c56166d693189ac94b5cdd2defe764903ac69",
+    "tree": "59902bd2736cb086b4c9b7e266aac1b9c4a0308c",
+    "parents": [
+      "8a8ca1cabce5071d7130809277a59a2b9fa6472c"
+    ],
+    "subject": "fix(n13b): add profile views and isolate fixture mutations",
+    "branch_ref": "refs/heads/codex/e02-unified-local-20261009"
+  },
+  "source_base": {
+    "sha": "8a8ca1cabce5071d7130809277a59a2b9fa6472c",
+    "tree": "a43be04d349677b9e64f613d3e0f2fa3f40c9db1"
+  },
+  "changed_paths": [
+    {
+      "change": "M",
+      "path": "policy-engine/architecture/generated_artifacts.toml",
+      "category": "generated_artifact_registry_config",
+      "sha256_at_commit": "e1784ad5f62a46f6afa2a968e188dbef58cfb00bce18056976be5bd481a65b49",
+      "bytes": 263033
+    },
+    {
+      "change": "A",
+      "path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/13/62/13621fe4601a42e3b1713c43a23b1f5c4f8a37b8cba9294845b136a31184b1f0.view.cdc212ceb81909fa6351f14535aa21ab8860401bbb46257ca5fe9c4762c81978.manifest.json",
+      "category": "selected_profile_view_manifest",
+      "sha256_at_commit": "123e29fe6b44a87a4a2070281cc19b31f00689a8f65b214054a6568e967dec8c",
+      "bytes": 1057
+    },
+    {
+      "change": "A",
+      "path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/24/4e/244e629ceec4b53324246967388d17b706efe2207744b8148d60ea52dbccd264.view.3b7a7f1dceedb3bc54df64ad81582ee11a366d3814a2f690472750b024364344.manifest.json",
+      "category": "selected_profile_view_manifest",
+      "sha256_at_commit": "8690c2640658984a6c6e76a9e0cb7c300d1672b42514aa5b5fc4ff48e7db9603",
+      "bytes": 329
+    },
+    {
+      "change": "A",
+      "path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/2c/03/2c03b35d4f4421e3e3033882e689b2c8a9c3ee813257425c3984828534c88841.view.3b7a7f1dceedb3bc54df64ad81582ee11a366d3814a2f690472750b024364344.manifest.json",
+      "category": "selected_profile_view_manifest",
+      "sha256_at_commit": "efc5fd7b4b378b8f728e903ef032accc922a671289dfa40fcfa893d3ed2efd34",
+      "bytes": 330
+    },
+    {
+      "change": "A",
+      "path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/2d/d2/2dd2ead90026f35274c0c4bd848da4f9f55641dfe3af66ff333b33a1522a48ec.view.c8db87676626ce5406ec7344cbadda0bbbb3a747a610d9d6bde43dce5529ea5e.manifest.json",
+      "category": "selected_profile_view_manifest",
+      "sha256_at_commit": "350674e460769bf8f98570f79bfacdf2d2cf55a66d130612f0ef70b83e6e346e",
+      "bytes": 524
+    },
+    {
+      "change": "A",
+      "path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/32/99/3299c132ccefbd3de2576485b4630ea175db32c4d7935d94953936e804185e81.view.da4741720e2b4c602eda78d6b770dc3242f3ca1d1c66f598c06fddf581f369f8.manifest.json",
+      "category": "selected_profile_view_manifest",
+      "sha256_at_commit": "2535ce16a28a5ac8ca2ad2d9dd316babf2dcb81535232a42320d191c6c9e7480",
+      "bytes": 712
+    },
+    {
+      "change": "A",
+      "path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/5f/46/5f4623f96f104c0fdcd93ef132dfaafe2721ec2f2e8ef890e16141f320ae8742.view.c8db87676626ce5406ec7344cbadda0bbbb3a747a610d9d6bde43dce5529ea5e.manifest.json",
+      "category": "selected_profile_view_manifest",
+      "sha256_at_commit": "aa23b718be25e0302c5343b8e01da6c87c0aacbb696b231be45b90db02c29fb0",
+      "bytes": 524
+    },
+    {
+      "change": "A",
+      "path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/96/30/9630b0d0f0cdca75b123b1d5701a1d0fb77f53efde5d257cc5683eb91e8db875.view.b13835dd16b8d46689c88f9fba4c5bec5a1644a54faf4447f150ea9d81a8b97a.manifest.json",
+      "category": "selected_profile_view_manifest",
+      "sha256_at_commit": "9415f181ad40cc4833c492be5275af533acaab8eea5486f18ea9acc98bfec8cd",
+      "bytes": 1169
+    },
+    {
+      "change": "A",
+      "path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/d0/2f/d02fe93adf0e2fc031dc5fc4540c52198074270448e0b55097d5a794ca874b7e.view.ddec415604bb30f2ecca4a11d55ff0c898898b8c4e2f81ab9f9445f821eb4bd6.manifest.json",
+      "category": "selected_profile_view_manifest",
+      "sha256_at_commit": "1363ec4c695723d0b6e6822115553066a2b9bb6060ff25ab991f495d68d671d4",
+      "bytes": 945
+    },
+    {
+      "change": "A",
+      "path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/e9/52/e95265f4ee0a8a79a7e38d286a1efbf4827ed02e7470643ef5139a3e256fa5e9.view.5e650f478fc89598fca8b889801e2a2f8d0679d8b60dcc199987bd4467d7c65a.manifest.json",
+      "category": "selected_profile_view_manifest",
+      "sha256_at_commit": "75c45253cb3b9ccf68af1102d0cc838b701bfdde1f7236d439b5b6be7488b63d",
+      "bytes": 945
+    },
+    {
+      "change": "A",
+      "path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/f2/d2/f2d2ad44695d034d816912c36da64e7ab0199ac974508c3b2a9dfdc0dafe5c0e.view.c8db87676626ce5406ec7344cbadda0bbbb3a747a610d9d6bde43dce5529ea5e.manifest.json",
+      "category": "selected_profile_view_manifest",
+      "sha256_at_commit": "e7fb33f0725bbb5b276545e57e97fab6cffae4b22c6dac7e5eb4695532018e31",
+      "bytes": 524
+    },
+    {
+      "change": "A",
+      "path": "policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/sha256/f6/ad/f6ad8bd4331081fefa631e9086aa96dbe7ce695ae3055f716a877cd936af9d83.view.c8db87676626ce5406ec7344cbadda0bbbb3a747a610d9d6bde43dce5529ea5e.manifest.json",
+      "category": "selected_profile_view_manifest",
+      "sha256_at_commit": "9abcabbd426bb2fdcb8472f3e6b702670d404fad6a41711884b38ffd394a3e99",
+      "bytes": 524
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/architecture/policy_design_case/layer3_gy_n13b_lifecycle_manifest.json",
+      "category": "generated_artifact_lifecycle_manifest",
+      "sha256_at_commit": "eaabe7d584da128f30c55c50152ae3ffc938362f6e47e1ecb24c00b783ecf3cb",
+      "bytes": 17720
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/docs/reference/generated-artifacts.md",
+      "category": "generated_artifact_documentation",
+      "sha256_at_commit": "da6f167a6e3b92bebbaedc2f8828c0fbb59b4666eec19976ecaf73720d6469bd",
+      "bytes": 275261
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "category": "coordination_metadata",
+      "sha256_at_commit": "745cdf430e78873be8c70598d604285d894ce5b9c3ae2bcaab4b6e77730551b9",
+      "bytes": 754049
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "category": "coordination_metadata",
+      "sha256_at_commit": "55a270e98e7cdf04e4cee291580d9eba73e154e20e9dab89edd35f95bca7dd43",
+      "bytes": 71663
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/tests/repo_quality/tools/test_layer3_gy_acquisition_executor.py",
+      "category": "test",
+      "sha256_at_commit": "9fb60b7376f3313b26824d85818674bbfdd91cdc22614cfc496710ea4329946d",
+      "bytes": 56284
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/tests/repo_quality/tools/test_layer3_gy_n13b_acquisition_contract.py",
+      "category": "test",
+      "sha256_at_commit": "81fd54132cab1c1148722165d0a4895f3806d26edf4aa045faee93891504295c",
+      "bytes": 23243
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/tests/repo_quality/tools/test_layer3_gy_n13b_lifecycle_split.py",
+      "category": "test",
+      "sha256_at_commit": "3ca4dd645bf71fb77e4f94c6e3a040458c98432a85df8f937ac400d47abc0169",
+      "bytes": 15926
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/tools/quality/validation/artifact_lifecycle_manifest.py",
+      "category": "implementation_source",
+      "sha256_at_commit": "b279e3fc271562ff8af264a8f3daed59e23a44175c099e7509339bb5a6f576dd",
+      "bytes": 13478
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/tools/quality/validation/evidence_journal_custody.py",
+      "category": "implementation_source",
+      "sha256_at_commit": "b772d65d349315ab8dcbe1c7f5c71dd5bb1c9cc6c9b90d6b00d6c366f3625669",
+      "bytes": 29567
+    }
+  ],
+  "source_application": {
+    "identity": "root-n13b-r5-8a8ca1-source-adoption-20261018",
+    "lease_key": "coordination_epoch_20261018_n13b_f759_r5_source_adoption",
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-r5-8a8ca1-source-adoption-20261018/source-application.json",
+      "sha256": "f1fae733099790117a70ad742101db568ea1df84615ca4d47498c8ee0c0068a5",
+      "bytes": 30134
+    },
+    "plan": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-r5-8a8ca1-source-adoption-20261018/source-application-plan.json",
+      "sha256": "f1192404427d8db902ae059ffe3527204739df168de2e93c66d51f860cb9213f",
+      "bytes": 31802
+    },
+    "commit_request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-r5-8a8ca1-source-adoption-20261018/commit-request.json",
+      "sha256": "7d7dcf548f38bb1a4c8977a2bdf0b262cfb3c39430ca8106fc50ea7c5a219e8d",
+      "bytes": 5572
+    },
+    "commit_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-r5-8a8ca1-source-adoption-20261018/root-n13b-r5-8a8ca1-source-adoption-20261018-readback.json",
+      "sha256": "c391bff59ef1d6a3c89dc0e4ac803a31d2c5d56a797cad84ab461e0a79993fb7",
+      "bytes": 8948
+    }
+  },
+  "review_refs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-f759-r5-independent-review-20261018/review.json",
+      "sha256": "ae06b2aee3482b9266575b7c047df0e498d7414f8aae2a0ba3bab5474b4b4c63",
+      "bytes": 11076,
+      "role": "independent R5 semantic GO; original patch packaging HOLD was separately corrected before adoption"
+    }
+  ],
+  "property": "Add typed selected-profile CAS views for all required members, complete synthetic live-heartbeat phases while retaining the strict production validator, and isolate every split-registry fixture mutation to a regular file under its selected temporary root.",
+  "static_quality": {
+    "ruff_version": "0.14.10",
+    "check_and_format_check": "PASS",
+    "receipts": [
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tests/repo_quality/tools/test_layer3_gy_acquisition_executor.py",
+          "policy-engine/tests/repo_quality/tools/test_layer3_gy_n13b_acquisition_contract.py",
+          "policy-engine/tests/repo_quality/tools/test_layer3_gy_n13b_lifecycle_split.py",
+          "policy-engine/tools/quality/validation/artifact_lifecycle_manifest.py",
+          "policy-engine/tools/quality/validation/evidence_journal_custody.py"
+        ],
+        "exit_code": 0,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-r5-8a8ca1-source-adoption-20261018/check.stdout.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+          "bytes": 19
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-r5-8a8ca1-source-adoption-20261018/check.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tests/repo_quality/tools/test_layer3_gy_acquisition_executor.py",
+          "policy-engine/tests/repo_quality/tools/test_layer3_gy_n13b_acquisition_contract.py",
+          "policy-engine/tests/repo_quality/tools/test_layer3_gy_n13b_lifecycle_split.py",
+          "policy-engine/tools/quality/validation/artifact_lifecycle_manifest.py",
+          "policy-engine/tools/quality/validation/evidence_journal_custody.py"
+        ],
+        "exit_code": 0,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-r5-8a8ca1-source-adoption-20261018/format.stdout.txt",
+          "sha256": "f114d83b30c5c657ee43a847a45bafccaea255d82673feb87c26d252c61e29c1",
+          "bytes": 26
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-r5-8a8ca1-source-adoption-20261018/format.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      }
+    ]
+  },
+  "runtime_status_at_source_adoption": "UNRUN on adopted canonical source; bounded candidate evidence is separately referenced",
+  "limits": [
+    "The recorded 43-case f759 baseline is 39 passed and 4 failed; it is historical baseline evidence, not the post-repair result.",
+    "R5 post-repair runtime replay is UNRUN; profile recomputation/currentness through product code is not established.",
+    "Source-immutability and selected-view consumer post-repair behavior are not claimed as passes here.",
+    "No whole-property acceptance, G acceptance, or formal closure."
+  ],
+  "G_acceptance": false,
+  "closure_ids": []
+}

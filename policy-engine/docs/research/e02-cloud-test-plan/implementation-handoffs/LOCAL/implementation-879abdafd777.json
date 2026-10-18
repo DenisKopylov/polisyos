@@ -1,0 +1,184 @@
+{
+  "schema": "polisyos.e02.native_source_commit_receipt.v1",
+  "record_type": "implementation_commit_receipt",
+  "status": "source_committed_static_ruff_pass_runtime_unrun",
+  "proposal_not_adjudicated": true,
+  "source_commit": {
+    "sha": "879abdafd77703f0b6327f7a5a09597d829b387b",
+    "tree": "92a9b8bf4d7d6fe750cebb50d14d54594222b272",
+    "parents": [
+      "e022cb952a05eed4d83280090c25a5fb178ef36f"
+    ],
+    "subject": "fix(runtime): preserve terminal owner and intent projection admission",
+    "branch_ref": "refs/heads/codex/e02-unified-local-20261009"
+  },
+  "source_base": {
+    "sha": "e022cb952a05eed4d83280090c25a5fb178ef36f",
+    "tree": "52653bc6d29c41d5e0c1f08641ca3c3e52fff513"
+  },
+  "changed_paths": [
+    {
+      "change": "M",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "category": "coordination_metadata",
+      "sha256_at_commit": "81755a1c8471830bf6de80d6e2bc0dba52b9b11dbdc854d97c6c114fbc6a81d2",
+      "bytes": 715173
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "category": "coordination_metadata",
+      "sha256_at_commit": "efe49f62323636cde9f60cbdad3a47ce314833a3faf3ed6c1badc614e5878a84",
+      "bytes": 71663
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py",
+      "category": "implementation_source",
+      "sha256_at_commit": "3759dabd44c03afde85473d600f8dc65f5844c918c8ca7b9b91b9d385bdc3013",
+      "bytes": 484990
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/src/polisyos/runtime/http/services/debug.py",
+      "category": "implementation_source",
+      "sha256_at_commit": "ff809b3a48ea99dc105d5a22e60beed4ec253912b79a9e26958697ef7a02d4f2",
+      "bytes": 160108
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/src/polisyos/runtime/quality/phase_barriers.py",
+      "category": "implementation_source",
+      "sha256_at_commit": "3b9b90dcbe09ed9869b7f79f1a31183f50e6c276223019786c6f08bacf780f89",
+      "bytes": 22578
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/src/polisyos/runtime/quality/scorecard.py",
+      "category": "implementation_source",
+      "sha256_at_commit": "80de032898d1db1b28d020e29fdd9a87672ccd13d751e71c3680c1e4407f16ea",
+      "bytes": 404991
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py",
+      "category": "test",
+      "sha256_at_commit": "898d23efa9f1c74acd6a0d945aa1f8c9a5ec0f4094be3cfc983b27e248f3f43a",
+      "bytes": 127805
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/tests/unit/runtime/quality/test_phase_barriers.py",
+      "category": "test",
+      "sha256_at_commit": "e78455eb00273b2bf56f585516e6dff464cdf51fd8f2b51bb348695a1ef8409e",
+      "bytes": 8263
+    }
+  ],
+  "source_application": {
+    "identity": "root-runtime-nullable-owner-e022-source-adoption-20261018",
+    "lease_key": "runtime-nullable-owner-style-qualified-20261018",
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime-nullable-owner-e022-source-adoption-20261018/source-application.json",
+      "sha256": "0dd12fa26bdcc9a0fdf27de68a3f243ab82ca040f6e4424947e76fdc6e70177a",
+      "bytes": 14433
+    },
+    "plan": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime-nullable-owner-e022-source-adoption-20261018/source-application-plan.json",
+      "sha256": "33c8687fee83358a80bb71ba53b411d542fae4a942e01a92b4a3ca505f5468b0",
+      "bytes": 23201
+    },
+    "commit_request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime-nullable-owner-e022-source-adoption-20261018/commit-request.json",
+      "sha256": "49f08ed29598f8f3d19ab53d8ff0561d5aa1f1e610cd281116eca93b70664dcd",
+      "bytes": 1770
+    },
+    "commit_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime-nullable-owner-e022-source-adoption-20261018/root-runtime-nullable-owner-e022-source-adoption-20261018-readback.json",
+      "sha256": "d12446525bbc67747a9cb10c1bf07463ea23ba9d09004dae02df76b495b538a4",
+      "bytes": 2165
+    }
+  },
+  "review_refs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime-r3-actual-rootcause-repair-independent-20261018/review.md",
+      "sha256": "de60826feda4accc0df0136f82649b46ca4f4a312365140013148652c18d52ca",
+      "bytes": 6281,
+      "role": "independent semantic review; formatting HOLD resolved by adopted Ruff-qualified postimages"
+    }
+  ],
+  "property": "Preserve nullable terminal-owner projection only from the current matching fenced admission and current row; keep strict intent/phase-barrier admission, exact currentness and lease fences, malformed-present refusal, and no absent-field resurrection or invented owner.",
+  "static_quality": {
+    "ruff_version": "0.14.10",
+    "check_and_format_check": "PASS",
+    "receipts": [
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/src/polisyos/runtime/quality/phase_barriers.py",
+          "policy-engine/src/polisyos/runtime/http/services/debug.py",
+          "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py",
+          "policy-engine/src/polisyos/runtime/quality/scorecard.py",
+          "policy-engine/tests/unit/runtime/quality/test_phase_barriers.py",
+          "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py"
+        ],
+        "exit_code": 0,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime-nullable-owner-e022-source-adoption-20261018/check.stdout.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+          "bytes": 19
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime-nullable-owner-e022-source-adoption-20261018/check.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/src/polisyos/runtime/quality/phase_barriers.py",
+          "policy-engine/src/polisyos/runtime/http/services/debug.py",
+          "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py",
+          "policy-engine/src/polisyos/runtime/quality/scorecard.py",
+          "policy-engine/tests/unit/runtime/quality/test_phase_barriers.py",
+          "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py"
+        ],
+        "exit_code": 0,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime-nullable-owner-e022-source-adoption-20261018/format.stdout.txt",
+          "sha256": "ef7d13d02214e98ca902b05257cdbe6a8e84f3b4714508efdc19766460b54209",
+          "bytes": 26
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime-nullable-owner-e022-source-adoption-20261018/format.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      }
+    ]
+  },
+  "runtime_status_at_source_adoption": "UNRUN on adopted canonical source; bounded candidate evidence is separately referenced",
+  "limits": [
+    "No schema change, backfill, new owner source, status/authority/lifecycle change, lease/fence weakening, or timeout change.",
+    "No public-API mismatched-fence claim; recorded falsifier is private-helper seam coverage under real admission.",
+    "Adjacent optional evaluation-safety behavior is not closed.",
+    "Runtime replay on this source change is UNRUN."
+  ],
+  "G_acceptance": false,
+  "closure_ids": []
+}

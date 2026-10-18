@@ -1,0 +1,170 @@
+{
+  "schema": "polisyos.e02.native_source_commit_receipt.v1",
+  "record_type": "implementation_commit_receipt",
+  "status": "source_committed_generated_write_passed_followup_check_incomplete_runtime_unrun",
+  "proposal_not_adjudicated": true,
+  "source_commit": {
+    "sha": "2dead3f2aa95c650bf86b2d0e6a32ed4ab66c46c",
+    "tree": "1df48f11aaeff72167e8f2d9704c802cb0af15e0",
+    "parents": [
+      "f07b709102d796d92f7dafc0ee200596e8ab697e"
+    ],
+    "subject": "build(trust): regenerate posture and lifecycle references",
+    "branch_ref": "refs/heads/codex/e02-unified-local-20261009"
+  },
+  "source_base": {
+    "sha": "f07b709102d796d92f7dafc0ee200596e8ab697e",
+    "tree": "6df6be6969af6ce644226e7ecc384573852d25ea"
+  },
+  "changed_paths": [
+    {
+      "change": "M",
+      "path": "policy-engine/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+      "sha256_at_commit": "ae6b32911d07a9179ec681b4e1422d7c0426ac32cc3fb6d3c5643f0cff38809c",
+      "bytes": 2386485,
+      "category": "generated_artifact_output"
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/docs/reference/generated-artifacts.md",
+      "sha256_at_commit": "83f170ff10ca6195ce52ef19dfcbe0856f7bc0021d6e5b228005fb9945471588",
+      "bytes": 275354,
+      "category": "generated_artifact_documentation"
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "sha256_at_commit": "9a5fca3118078afc2e11f505b1c21a5c619516523284b97ac864a760f5cddc66",
+      "bytes": 779432,
+      "category": "coordination_metadata"
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "sha256_at_commit": "1912a26a7bb8923e9aeb6e63e965c1d6568dd65cf517f7d51e97e0d753518b72",
+      "bytes": 71663,
+      "category": "coordination_metadata"
+    }
+  ],
+  "source_application": {
+    "identity": "trust-generated-source-f07b-20261018",
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-generated-f07b-actual-20261018/source-application.json",
+      "sha256": "9db15c1b5db23d40a7c0a62123142c39e18b18e8ce7865d584c43d65b1f8ff51",
+      "bytes": 5603
+    },
+    "commit_request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-generated-f07b-actual-20261018/commit-request.json",
+      "sha256": "e50803ad933bb83a401f0ffd9f97f558be64e6a53df6d31b5aa10adc3ec1e479",
+      "bytes": 2014
+    },
+    "commit_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-generated-f07b-actual-20261018/trust-generated-source-f07b-20261018-readback.json",
+      "sha256": "36862d9382cb92c246a5659be255b2abf6b8919ccb9736f4ad6e68ade81b2f6d",
+      "bytes": 1315
+    }
+  },
+  "review_refs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-generated-f07b-independent-20261018/review.md",
+      "sha256": "31c42db72d783824ff42d7ca5f95a3ba688fbaa320997d38d17c7db9a8d94529",
+      "bytes": 9722,
+      "role": "independent static GO for the generated artifact and generated-reference postimages; not a full checker pass or G acceptance"
+    }
+  ],
+  "property": "Regenerate Trust posture artifact and lifecycle reference from current selected source; preserve default rule/as-of date and existing authority/status/lifecycle semantics.",
+  "generation_validation": {
+    "write": {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "-m",
+        "tools.quality.validation.check_trust_claim_posture",
+        "--repo-root",
+        ".",
+        "--write",
+        "--write-generated-reference",
+        "--json"
+      ],
+      "cwd": "policy-engine",
+      "return_code": 0,
+      "status": "passed",
+      "complete": true,
+      "wall_seconds": 19.235915916971862,
+      "max_sampled_process_tree_rss_bytes": 376373248,
+      "minimum_sampled_disk_free_bytes": 15850274816,
+      "write_set_contained": true,
+      "actual_changed_paths": [
+        "policy-engine/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+        "policy-engine/docs/reference/generated-artifacts.md"
+      ],
+      "outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-generated-f07b-actual-20261018/write-result.json",
+          "sha256": "ab6c59899281291ff07400b160fadc63d283a3ad9d0373d63435bd4e15d773a8"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-generated-f07b-actual-20261018/write.stdout.txt",
+          "sha256": "2a2643415beef91f38a4142dfc93b4f2cdb29a92430f94111d50f958c49084f6"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-generated-f07b-actual-20261018/write.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    "followup_check_and_corruption_probes": {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "-m",
+        "tools.quality.validation.check_trust_claim_posture",
+        "--repo-root",
+        ".",
+        "--check",
+        "--corruption-probes",
+        "--json"
+      ],
+      "cwd": "policy-engine",
+      "return_code": 2,
+      "status": "command_failed",
+      "complete_command": true,
+      "wall_seconds": 84.21393474983051,
+      "max_sampled_process_tree_rss_bytes": 668237824,
+      "minimum_sampled_disk_free_bytes": 15797923840,
+      "actual_changed_paths": [
+        "policy-engine/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",
+        "policy-engine/docs/reference/generated-artifacts.md"
+      ],
+      "corruption_probes": "UNRUN: bounded snapshot failed on an inaccessible historical RAW fixture before probe execution; no corruption results and no native Trust green are established.",
+      "outputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-generated-f07b-actual-20261018/check-result.json",
+          "sha256": "48a3e9f6f28ec82142ef640c179fa028c2cb535a203ad35e6f425d9bdb1c43aa"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-generated-f07b-actual-20261018/check-corruption.stdout.txt",
+          "sha256": "b4224d28f5062da0f9958d19de74d4d676ef2e1fb620f8bd957ecfc3c5b2bf6d"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-generated-f07b-actual-20261018/check-corruption.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    }
+  },
+  "static_quality": {
+    "status": "not_run_for_this_generated-output-commit",
+    "reason": "This commit records generated artifact and lifecycle-reference outputs plus coordination records. The deciding source evidence is the exact generator write, follow-up check result, and independent static companion review; no Ruff result is claimed."
+  },
+  "runtime_status_at_source_adoption": "UNRUN on the adopted 2dead3f source cut.",
+  "limits": [
+    "The generated write completed with return code 0, but the follow-up --check --corruption-probes command returned 2 before corruption probes executed; neither the checker nor its negative probes are recorded as green.",
+    "The independent review grants a static GO only for the exact generated artifact and generated-reference postimages; it grants no G acceptance or formal closure.",
+    "The source application reports source_input_backend_freeze=false. This receipt pins the exact immutable commit only and does not assert a current worktree or current source freeze.",
+    "No runtime consumer, independent source truth, external authority, production currentness, calibration, publication, or lifecycle effect is established by this generated write.",
+    "No formal closure or G acceptance is proposed."
+  ],
+  "G_acceptance": false,
+  "closure_ids": []
+}

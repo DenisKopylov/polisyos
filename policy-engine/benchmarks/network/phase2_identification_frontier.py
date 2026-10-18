@@ -16,6 +16,9 @@ for _path in (str(_SRC), str(_BENCH_ROOT)):
     if _path not in sys.path:
         sys.path.insert(0, _path)
 
+from tests.foundry.methods.catalog.network.test_embedding_fidelity import _ring_adjacency
+from tests.foundry.methods.catalog.network.test_peer_effect_decomposition import _baseline_state
+
 from polisyos.foundry.methods.catalog.network.analysis import (
     PeerEffectDecompositionEstimator,
 )
@@ -24,8 +27,6 @@ from polisyos.foundry.methods.catalog.network.missingness import (
     build_network_missingness_assessment,
 )
 from polisyos.foundry.methods.network import compute_embedding_fidelity_certificate
-from tests.foundry.methods.catalog.network.test_embedding_fidelity import _ring_adjacency
-from tests.foundry.methods.catalog.network.test_peer_effect_decomposition import _baseline_state
 
 SUITE_ID = "phase2_network_identification"
 

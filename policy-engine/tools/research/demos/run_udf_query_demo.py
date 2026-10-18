@@ -8,9 +8,10 @@ if str(SRC_ROOT) not in sys.path:
     sys.path.insert(0, str(SRC_ROOT))
 
 # check_udf.py
+from polisyos.fabric.udf.engine import UDFEngine  # noqa: E402
+
 from polisyos.common.logger import logger  # noqa: E402
 from polisyos.fabric.io.db import SimulationDB  # noqa: E402
-from polisyos.fabric.udf.engine import UDFEngine  # noqa: E402
 from polisyos.ir.analytics.data_views import AccessTier, DataFilter, DataViewRequest  # noqa: E402
 
 

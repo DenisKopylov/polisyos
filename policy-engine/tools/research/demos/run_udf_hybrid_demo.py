@@ -11,10 +11,11 @@ if str(SRC_ROOT) not in sys.path:
 import os
 import shutil
 
-from polisyos.fabric.io.db import SimulationDB
 from polisyos.fabric.io.graph_store import GraphStore
 from polisyos.fabric.udf.engine import UDFEngine
 from polisyos.fabric.udf.schema import AccessTier, DataViewRequest, DataViewType
+
+from polisyos.fabric.io.db import SimulationDB
 
 
 def main():

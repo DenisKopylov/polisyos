@@ -13694,5 +13694,91 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-native-phase8-five-reviewed-adoption-20261018": {
+    "slice_base": "8be666e73dfb2efc8d8cff16777c1f4c151bf728",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/benchmarks/econometrics/phase2_frontier.py": {
+        "operation": "write",
+        "preimage_sha256": "4a40d80bf39da71987763eb4b6a94883dbbff98074c3b8b4b19fbd430d725f18",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-phase8-i001-five-candidate-20261018/postimages/policy-engine/benchmarks/econometrics/phase2_frontier.py",
+        "postimage_sha256": "532e39c111df42038ccf77901618461b9c2105cdbf9a9780c9dc064c35497619"
+      },
+      "policy-engine/benchmarks/network/phase2_identification_frontier.py": {
+        "operation": "write",
+        "preimage_sha256": "26e536c2a93786f09b3c6200b1d83beba7c559df2706000e60d416bf1532e857",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-phase8-i001-five-candidate-20261018/postimages/policy-engine/benchmarks/network/phase2_identification_frontier.py",
+        "postimage_sha256": "21671a5da27db464c69998457ffd70858bcdec99de0d20d5aaf6da424772eb5a"
+      },
+      "policy-engine/benchmarks/temporal/fixtures.py": {
+        "operation": "write",
+        "preimage_sha256": "34bf077fe3103ade1552619a65359abaaf6ca68ad2e95ad5b3aecc079f11c86b",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-phase8-i001-five-candidate-20261018/postimages/policy-engine/benchmarks/temporal/fixtures.py",
+        "postimage_sha256": "020ee8421b9426a0c8e49897e9b4eb960d870a6caa27e6519374d114c7bac438"
+      },
+      "policy-engine/tools/research/demos/run_udf_hybrid_demo.py": {
+        "operation": "write",
+        "preimage_sha256": "1e576b06270062c1e115fc34f930d1a92d526bf6f560eada6a821ae4296d8fd0",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-phase8-i001-five-candidate-20261018/postimages/policy-engine/tools/research/demos/run_udf_hybrid_demo.py",
+        "postimage_sha256": "c2631eb401a64f8c16a0e7bff4148bbe65efb722de413cc6fa805e624653f789"
+      },
+      "policy-engine/tools/research/demos/run_udf_query_demo.py": {
+        "operation": "write",
+        "preimage_sha256": "28987b18f3df5e774e319b92f6f9ab881532be6a4aaa2789cc330498afd352d7",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-phase8-i001-five-candidate-20261018/postimages/policy-engine/tools/research/demos/run_udf_query_demo.py",
+        "postimage_sha256": "2f95113873ee6cf6a2497ff5022b469258113911c5a182e186a78c96694eea52"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-phase8-five-reviewed-adoption-20261018/source-application.json",
+      "sha256": "8fecf6b124a9a4590286b1a71f8eb7967f97e2562c637a4bd7466f7f1ae998a3"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-phase8-five-reviewed-adoption-20261018/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-phase8-i001-five-candidate-20261018/postimage-manifest.json",
+        "sha256": "261f233cbedf2111295a0ba92a73345c51b9c8edde193b596581004cbad80e6d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-phase8-i001-five-candidate-20261018/verification.json",
+        "sha256": "3462d53e07d007004212bf51a9f3b6c7b491b3b2e34b762f87a90175a343f13c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-phase8-i001-five-candidate-20261018/review.md",
+        "sha256": "2ce315c36189ac668b2acfe297e3e7ac2e39e0970c6ca8aa613285cab47763fe"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-phase8-i001-five-independent-20261018/r4-delta.json",
+        "sha256": "723b56240895a67483c630c9e93cec73d1e41b2e720f45fc05f32b2bd5ad4626"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-root-boundaries-20261015/adopt_reviewed_postimages_r4.py",
+        "sha256": "eb0d0716bb37dac3abb3137c45739d3f7a86a5bfe46dc37c6b9b2680808199b4"
+      },
+      {
+        "path": "policy-engine/tools/devx/workspace/_repo_hygiene.py",
+        "sha256": "2364c99e22eaeaf8d0d6258240cb5cbcbed45ab4659aa972015e1020776218cd"
+      },
+      {
+        "path": "policy-engine/tools/devx/workspace/benchmark_surfaces.py",
+        "sha256": "f8f1c2284e636bd7362f41e3026daddb7288949279ed6a810322e5dbb0975733"
+      }
+    ],
+    "P40": "Same native role/path context class; derive profiles from canonical owners and use anchored role selection instead of individual rule suppression.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Legacy UDF demo imports reference absent modules; runtime import side-effect order not_established",
+      "No type/scientific/runtime capability closure",
+      "Supplemental strict benchmark diagnostics preserved; no inheritedP41claim"
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Execute the full native Phase8 178-file check, then freeze candidate/profile and run focused composed Python behavior.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

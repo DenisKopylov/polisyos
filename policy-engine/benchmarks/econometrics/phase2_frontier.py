@@ -14,9 +14,6 @@ for _path in (str(_SRC), str(_BENCH_ROOT)):
     if _path not in sys.path:
         sys.path.insert(0, _path)
 
-from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
-from polisyos.foundry.methods.econometrics import ensure_econometric_methods_registered
-from polisyos.foundry.methods.registry import MethodRegistry
 from tests.foundry.methods.catalog.econometrics.test_advanced import (
     _make_nonstationary_panel_data,
 )
@@ -26,6 +23,10 @@ from tests.foundry.methods.catalog.econometrics.test_iv import (
 from tests.foundry.methods.catalog.econometrics.test_thresholds import (
     _make_threshold_data,
 )
+
+from polisyos.foundry.methods.backends.dispatch import MethodDispatcher
+from polisyos.foundry.methods.econometrics import ensure_econometric_methods_registered
+from polisyos.foundry.methods.registry import MethodRegistry
 
 SUITE_ID = "phase2_econometrics_frontier"
 

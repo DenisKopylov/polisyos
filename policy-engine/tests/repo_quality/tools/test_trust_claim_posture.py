@@ -14,7 +14,13 @@ from typing import Any
 import pytest
 import yaml
 
-from polisyos.runtime.quality.claim_registry import build_runtime_claim_registry
+from polisyos.runtime.quality.claim_registry import (
+    REPORT_KIND,
+    SCHEMA_VERSION,
+    RuntimeClaimRegistry,
+    RuntimeClaimRegistryEntry,
+    build_runtime_claim_registry,
+)
 from tools.lib import fs as filesystem
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -101,8 +107,8 @@ def _copy_compiler_inputs(destination: Path, *, full_source: bool = False) -> No
     shutil.copyfile(REPO_ROOT / DEBT_REGISTER_PATH, debt_register)
 
 
-def _valid_runtime_registry(binding_ref: str) -> dict[str, object]:
-    """Build a real full-axis runtime registry binding for CC09 probes."""
+def _runtime_registry_with_unverified_legal_norm(binding_ref: str) -> dict[str, object]:
+    """Build a full-axis runtime candidate carrying the current legal-relation refusal."""
     return build_runtime_claim_registry(
         claims=[
             {
@@ -137,6 +143,58 @@ def _valid_runtime_registry(binding_ref: str) -> dict[str, object]:
         ],
         run_id="ds11-cc09-probe",
     )
+
+
+def _test_pass_runtime_registry(binding_ref: str) -> dict[str, object]:
+    """Build complete test data, not producer-verified authority."""
+    # The validating producer currently refuses selected norms. This typed fixture
+    # isolates the intake's pass-status route and is not a verified authority claim.
+    entry = RuntimeClaimRegistryEntry(
+        claim_id="runtime-final-claim",
+        scenario_requirement_refs=("scenario.req.credit_support",),
+        data_refs=("source.msme_panel",),
+        selected_norm_refs=("norm.ua.credit_guarantee",),
+        rejected_norm_refs=("norm.ua.unrelated",),
+        method_output_refs=("foundry.did.msme_survival",),
+        portfolio_refs=("portfolio.rec_credit_guarantee",),
+        argument_refs=("argument.rec_credit_guarantee",),
+        warrant_refs=("warrant.rec_credit_guarantee",),
+        rebuttal_refs=("rebuttal.rec_credit_guarantee",),
+        counter_evidence_refs=("counter.rec_credit_guarantee",),
+        limitation_refs=("limitation.rec_credit_guarantee",),
+        accepted_deficit_refs=(binding_ref,),
+        assumption_gate_refs=("assumption-gate.runtime-final-claim",),
+        legal_authority_record_refs=(),
+        legal_authority_blocker_refs=(),
+        uncertainty_refs=("uncertainty.runtime-final-claim",),
+        baseline_refs=("baseline.runtime-final-claim",),
+        alternative_refs=("alternative.runtime-final-claim",),
+        comparison_refs=("comparison.runtime-final-claim",),
+        blocker_refs=(),
+        extra={
+            "claim_family": "recommendation",
+            "claim_ref": "sha256:" + "d" * 64,
+            "runtime_event_ref": "event://runtime_claim_registry/runtime-final-claim",
+        },
+    )
+    payload = RuntimeClaimRegistry(
+        claims=(entry,),
+        status="pass",
+        issues=(),
+        summary={
+            "claim_count": 1,
+            "major_claim_count": 1,
+            "entry_count": 1,
+            "issue_count": 0,
+            "global_norm_ref_count": 0,
+            "global_method_ref_count": 0,
+            "generic_global_method_ref_count": 0,
+            "selected_data_ref_count": 0,
+        },
+        registry_ref="runtime://ds11-cc09-test-only",
+    ).to_dict()
+    payload["registry_kind"] = REPORT_KIND
+    return payload
 
 
 def _write_accessibility_document(repo: Path) -> bytes:
@@ -211,6 +269,14 @@ def _copy_page_receipt(repo: Path) -> Path:
 
 
 def _write_generated_manifest(repo: Path) -> Path:
+    for root in ("src", "tools", "architecture"):
+        (repo / root).mkdir(parents=True, exist_ok=True)
+    directory_contract = repo / "architecture/policies/directory_contracts.toml"
+    directory_contract.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(
+        REPO_ROOT / "architecture/policies/directory_contracts.toml",
+        directory_contract,
+    )
     path = repo / GENERATED_MANIFEST_PATH
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(
@@ -237,6 +303,8 @@ workflow = "tools/quality/validation/check_trust_claim_posture.py"
 check_cwd = "."
 check_command = ["uv", "run", "python", "tools/quality/validation/check_trust_claim_posture.py", "--repo-root", ".", "--check"]
 default_freshness_check = true
+probe_input_roots = ["src", "tools", "architecture"]
+probe_required_paths = ["architecture/policies/directory_contracts.toml"]
 output_probe_command = ["uv", "run", "python", "tools/quality/validation/check_trust_claim_posture.py", "--repo-root", ".", "--write", "--output-root", "{output_root}"]
 """,
         encoding="utf-8",
@@ -2345,7 +2413,12 @@ def test_generated_family_probe_contains_both_byte_inputs_before_read(
 
     guardrails = _owner("tools.devx.architecture.guardrails")
 
-    def prepare_source(_repo: Path, destination: Path) -> None:
+    def prepare_source(_repo: Path, destination: Path, *, families) -> None:
+        assert len(families) == 1
+        assert families[0].family_id == "trust-claim-posture-register"
+        assert families[0].probe_required_paths == (
+            repo / "architecture/policies/directory_contracts.toml",
+        )
         destination.mkdir(parents=True)
 
     def run_command(command, **_kwargs):
@@ -2412,6 +2485,29 @@ def test_live_generated_family_is_the_default_freshness_persistence_bridge() -> 
     assert family.stale_output_behavior == "fail"
     assert family.default_freshness_check is True
     assert family.outputs == ("apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",)
+    assert tuple(path.relative_to(REPO_ROOT).as_posix() for path in family.probe_input_roots) == (
+        "src",
+        "tools",
+        "architecture",
+        "apps/runtime-dashboard/src/features/trust",
+    )
+    assert tuple(
+        path.relative_to(REPO_ROOT).as_posix() for path in family.probe_required_paths
+    ) == (
+        "pyproject.toml",
+        "uv.lock",
+        "architecture/generated_artifacts.toml",
+        "architecture/policies/directory_contracts.toml",
+        IDENTITY_PATH,
+        A11Y_PATH,
+        DEBT_REGISTER_PATH,
+        f"{PAGE_RECEIPT_PATH}/environment-after.json",
+        f"{PAGE_RECEIPT_PATH}/environment-before.json",
+        f"{PAGE_RECEIPT_PATH}/receipt.json",
+        f"{PAGE_RECEIPT_PATH}/run-1/.last-run.json",
+        f"{PAGE_RECEIPT_PATH}/run-1/results.json",
+    )
+    assert family.probe_runtime_paths == ()
     assert "--write" in family.output_probe_command
     assert "--output-root" in family.output_probe_command
 
@@ -2560,7 +2656,7 @@ def test_generator_is_byte_deterministic_and_scratch_bounded(
 def test_runtime_producer_evidence_binding_cannot_enter_posture_compiler(
     tmp_path: Path,
 ) -> None:
-    """Catch admission of valid per-run producer evidence into posture rows or bytes."""
+    """Reject runtime-origin rows at both pass and fail statuses in the compiler path."""
     repo = tmp_path / "repo"
     _copy_compiler_inputs(repo)
     checker = _checker()
@@ -2569,30 +2665,65 @@ def test_runtime_producer_evidence_binding_cannot_enter_posture_compiler(
     )
     runtime_dir = repo / "ops/migrations/runtime_state/run_records"
     runtime_dir.mkdir(parents=True)
-    first = _valid_runtime_registry("deficit.first-runtime-binding")
-    assert first["status"] == "pass"
-    (runtime_dir / "claim-registry.json").write_text(json.dumps(first), encoding="utf-8")
-    first_register, first_bytes = checker.compile_claim_posture_register(
-        repo, register_as_of=FROZEN_AS_OF
+    runtime_payloads = (
+        _test_pass_runtime_registry("deficit.test-only-pass-runtime-binding"),
+        _runtime_registry_with_unverified_legal_norm("deficit.fail-runtime-binding"),
     )
-    second = _valid_runtime_registry("deficit.second-runtime-binding")
-    assert second["status"] == "pass"
-    (runtime_dir / "claim-registry.json").write_text(json.dumps(second), encoding="utf-8")
-    second_register, second_bytes = checker.compile_claim_posture_register(
-        repo, register_as_of=FROZEN_AS_OF
+    assert [payload["status"] for payload in runtime_payloads] == ["pass", "fail"]
+    for runtime_registry in runtime_payloads:
+        assert runtime_registry["schema_version"] == SCHEMA_VERSION
+        assert runtime_registry["registry_kind"] == REPORT_KIND
+        (runtime_dir / "claim-registry.json").write_text(
+            json.dumps(runtime_registry), encoding="utf-8"
+        )
+        compiled_register, compiled_bytes = checker.compile_claim_posture_register(
+            repo, register_as_of=FROZEN_AS_OF
+        )
+        assert compiled_register == baseline_register
+        assert compiled_bytes == baseline_bytes
+        assert b"runtime-final-claim" not in compiled_bytes
+        assert b"test-only-pass-runtime-binding" not in compiled_bytes
+        assert b"fail-runtime-binding" not in compiled_bytes
+
+
+def _assert_unverified_legal_norm_is_refused(payload: dict[str, object]) -> None:
+    assert payload["status"] == "fail"
+    issues = payload["issues"]
+    assert isinstance(issues, list)
+    assert any(
+        isinstance(issue, dict)
+        and issue.get("code") == "legal_source_relation_verification_not_established"
+        and issue.get("legal_relation_refusal")
+        == {
+            "code": "legal_source_relation_verification_not_established",
+            "status": "verification_missing",
+        }
+        for issue in issues
     )
-    assert baseline_register == first_register == second_register
-    assert baseline_bytes == first_bytes == second_bytes
-    assert b"runtime-final-claim" not in second_bytes
-    assert b"deficit.second-runtime-binding" not in second_bytes
+
+
+def test_unverified_legal_norm_keeps_runtime_producer_status_fail() -> None:
+    """Keep the current producer's legal-relation refusal independently observable."""
+    _assert_unverified_legal_norm_is_refused(
+        _runtime_registry_with_unverified_legal_norm("deficit.legal-refusal-only")
+    )
 
 
 def test_runtime_registry_payload_is_rejected_as_source_adapter() -> None:
-    """Catch a generic-adapter mutation that accepts the distinct runtime schema."""
-    runtime_registry = _valid_runtime_registry("deficit.runtime-only")
-    assert runtime_registry["status"] == "pass"
-    with pytest.raises(ValueError, match=r"RuntimeClaimRegistry|per-run|unsupported"):
-        _sources().compile_source_adapter(runtime_registry)
+    """Reject the runtime source kind even when a complete payload is pass-status test data."""
+    runtime_payloads = (
+        _test_pass_runtime_registry("deficit.test-only-pass-runtime-binding"),
+        _runtime_registry_with_unverified_legal_norm("deficit.fail-runtime-binding"),
+    )
+    assert [payload["status"] for payload in runtime_payloads] == ["pass", "fail"]
+    for runtime_registry in runtime_payloads:
+        assert runtime_registry["schema_version"] == SCHEMA_VERSION
+        assert runtime_registry["registry_kind"] == REPORT_KIND
+        with pytest.raises(
+            ValueError,
+            match=r"^RuntimeClaimRegistry is per-run and unsupported as a posture adapter$",
+        ):
+            _sources().compile_source_adapter(runtime_registry)
 
 
 @pytest.mark.parametrize(

@@ -8,6 +8,7 @@ import re
 from collections.abc import Iterable, Mapping, Sequence
 from datetime import date, timedelta
 from enum import Enum
+from pathlib import Path
 from typing import Literal, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -50,8 +51,7 @@ MACHINE_LIVE_FRESHNESS_LIMITATION = (
     "establish live repository freshness."
 )
 MACHINE_LIVE_FRESHNESS_CHECK = (
-    ".venv/bin/python tools/quality/validation/check_trust_claim_posture.py "
-    "--repo-root . --check"
+    ".venv/bin/python tools/quality/validation/check_trust_claim_posture.py --repo-root . --check"
 )
 FIXED_SEMANTIC_BINDING_COUNTS: Mapping[str, int] = {
     "current_accessibility_conformance": 1,
@@ -609,8 +609,7 @@ def _parse_projection_frontmatter(
     if (
         len(lines) < 8
         or lines[0] != "ds11_projection_index:"
-        or lines[1]
-        != "  schema_version: policyos.trust.document_projection_index.v1"
+        or lines[1] != "  schema_version: policyos.trust.document_projection_index.v1"
         or body is None
         or lines[3] != "  bindings:"
         or allowed_start <= 4
@@ -696,15 +695,14 @@ class AccessibilityDocumentBinding(_StrictModel):
             or "sha256:" + hashlib.sha256(body_bytes).hexdigest() != self.body_digest
         ):
             raise ValueError("accessibility evidence sections differ from source bytes")
-        body_sha, selectors, allowed_purposes, denied_purposes = (
-            _parse_projection_frontmatter(frontmatter)
+        body_sha, selectors, allowed_purposes, denied_purposes = _parse_projection_frontmatter(
+            frontmatter
         )
         if (
             body_sha != self.body_digest.removeprefix("sha256:")
             or allowed_purposes
             != tuple((item.purpose, item.basis) for item in self.authoritative_for)
-            or denied_purposes
-            != tuple((item.purpose, item.basis) for item in self.may_not_use_for)
+            or denied_purposes != tuple((item.purpose, item.basis) for item in self.may_not_use_for)
         ):
             raise ValueError("accessibility evidence projection differs from source bytes")
         keys = tuple(item.key for item in self.bindings)
@@ -725,8 +723,7 @@ class AccessibilityDocumentBinding(_StrictModel):
                 or body_bytes.find(exact) != item.byte_start
                 or item.byte_end != item.byte_start + len(exact)
                 or item.value.encode("utf-8") not in exact
-                or "sha256:" + hashlib.sha256(exact).hexdigest()
-                != item.exact_text_digest
+                or "sha256:" + hashlib.sha256(exact).hexdigest() != item.exact_text_digest
             ):
                 raise ValueError(
                     f"accessibility evidence selector {item.key} differs from source bytes"
@@ -821,8 +818,7 @@ def _page_result_rows(
                     message = " ".join(
                         str(result.get("error", {}).get("message", ""))
                         for result in results
-                        if isinstance(result, dict)
-                        and isinstance(result.get("error", {}), dict)
+                        if isinstance(result, dict) and isinstance(result.get("error", {}), dict)
                     )
                     failures.append(
                         PageA11yFailureBinding(
@@ -986,7 +982,7 @@ class PageA11yReceiptBinding(_StrictModel):
 
 
 class GeneratedFamilyBinding(_StrictModel):
-    """Strict generated-family subset required by the posture writer."""
+    """Strict generated-family binding, including its isolated-probe input basis."""
 
     family_id: Literal["trust-claim-posture-register"]
     lifecycle: Literal["generated_committed"]
@@ -994,6 +990,9 @@ class GeneratedFamilyBinding(_StrictModel):
     outputs: tuple[str, ...]
     default_freshness_check: Literal[True]
     output_probe_command: tuple[str, ...]
+    probe_input_roots: tuple[Path, ...]
+    probe_required_paths: tuple[Path, ...]
+    probe_runtime_paths: tuple[Path, ...]
 
 
 class ProjectionGroup(_StrictModel):
@@ -1794,14 +1793,17 @@ def _validate_derivation_receipts(
         and site.resolution == SourceResolution.RESOLVED
     )
     row_payload = [row.model_dump(mode="json") for row in inventory]
-    row_digest = "sha256:" + hashlib.sha256(
-        json.dumps(
-            row_payload,
-            ensure_ascii=False,
-            sort_keys=True,
-            separators=(",", ":"),
-        ).encode("utf-8")
-    ).hexdigest()
+    row_digest = (
+        "sha256:"
+        + hashlib.sha256(
+            json.dumps(
+                row_payload,
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+            ).encode("utf-8")
+        ).hexdigest()
+    )
     python_member_count = sum(
         member.path.startswith("src/") and member.path.endswith(".py")
         for member in admitted_sources
@@ -1909,8 +1911,7 @@ def _validate_custody_appointments(
         debt_id = binding.prerequisite_refs[0] if len(binding.prerequisite_refs) == 1 else None
         expected_state = (
             SourceClaimState.PLANNED
-            if debt_id is not None
-            and status_by_id.get(debt_id) == CustodyAppointmentStatus.OPEN
+            if debt_id is not None and status_by_id.get(debt_id) == CustodyAppointmentStatus.OPEN
             else SourceClaimState.BLOCKED
         )
         if (
@@ -2102,9 +2103,7 @@ def _validate_fixed_semantic_bindings(
     accessibility_document: AccessibilityDocumentBinding | None,
     page_receipt: PageA11yReceiptBinding | None,
     admitted_verifiers: Sequence[AdmittedVerifier],
-    custody_appointments: Sequence[
-        tuple[str, str, str, str, CustodyAppointmentStatus]
-    ],
+    custody_appointments: Sequence[tuple[str, str, str, str, CustodyAppointmentStatus]],
 ) -> None:
     """Recompute every fixed semantic arm from its admitted typed artifacts."""
     rows = {row.subject: row for row in claims if row.subject in FIXED_SEMANTIC_BINDING_COUNTS}
@@ -2178,16 +2177,12 @@ def _validate_fixed_semantic_bindings(
             custody_limitation = f"Blocked prerequisite: {debt_id}"
         else:
             custody_state = SourceClaimState.BLOCKED
-            custody_limitation = (
-                f"Closed appointment lacks an admitted closure receipt: {debt_id}"
-            )
+            custody_limitation = f"Closed appointment lacks an admitted closure receipt: {debt_id}"
         _validate_exact_fixed_binding(
             custody_by_id[debt_id],
             coordinate=identity_coordinate,
             content_digest=identity.content_digest,
-            source_state=(
-                custody_state if identity_is_exact else SourceClaimState.BLOCKED
-            ),
+            source_state=(custody_state if identity_is_exact else SourceClaimState.BLOCKED),
             subject="universal_custody_commitment",
             family="custody",
             allowed_purposes=("universal_custody_commitment",),

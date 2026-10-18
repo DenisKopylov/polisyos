@@ -23,6 +23,9 @@ from polisyos.scientist.evidence.claims.posture import (
     SourceResolution,
     validate_posture_register,
 )
+from tools.quality.validation.trust_claim_posture_contracts import (
+    _PostureInspectionError,
+)
 
 
 @dataclass(frozen=True, slots=True)
@@ -45,11 +48,6 @@ class LifecycleDependencies:
     generated_reference_path: Path
     identity_path: Path
     output_path: Path
-
-
-from tools.quality.validation.trust_claim_posture_contracts import (
-    _PostureInspectionError,
-)
 
 
 def validate_generated_family(
@@ -101,6 +99,23 @@ def validate_generated_family(
         )
     family = matches[0]
     outputs = tuple(path.relative_to(guardrails.REPO_ROOT).as_posix() for path in family.outputs)
+
+    def rebase_probe_paths(paths: tuple[Path, ...]) -> tuple[Path, ...]:
+        rebased: list[Path] = []
+        for path in paths:
+            candidate = path if path.is_absolute() else guardrails.REPO_ROOT / path
+            try:
+                relative = candidate.relative_to(guardrails.REPO_ROOT)
+            except ValueError:
+                dependencies.reject_owner_predicate(
+                    "DS11-GENERATED-FAMILY-CONTRACT",
+                    "generated_family_probe_path_containment",
+                    f"trust posture probe input is outside the declared repository: {candidate}",
+                )
+                raise AssertionError("owner predicate rejection must raise") from None
+            rebased.append(root / relative)
+        return tuple(rebased)
+
     probe = family.output_probe_command
     if (
         family.lifecycle != "generated_committed"
@@ -125,6 +140,9 @@ def validate_generated_family(
         outputs=outputs,
         default_freshness_check=True,
         output_probe_command=probe,
+        probe_input_roots=rebase_probe_paths(family.probe_input_roots),
+        probe_required_paths=rebase_probe_paths(family.probe_required_paths),
+        probe_runtime_paths=rebase_probe_paths(family.probe_runtime_paths),
     )
 
 

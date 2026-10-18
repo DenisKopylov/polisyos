@@ -9953,5 +9953,142 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "coordination_epoch_20261018_trust_r4_full_file_format_qualification": {
+    "slice_base": "879abdafd77703f0b6327f7a5a09597d829b387b",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/src/polisyos/scientist/evidence/claims/posture.py": {
+        "operation": "modify",
+        "preimage_sha256": "d5608ca790e70ba637dee4cb57f6ca473661cef852ff33d0fba07cf68f31731a",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r3-current-f759-actual-repair-r4-ruff-full-format-qualification-20261018/postimages/policy-engine/src/polisyos/scientist/evidence/claims/posture.py",
+        "postimage_sha256": "30f908c4b871b6317675a92d457467a9d26d6be25f37f9b55781963bbfe9a414"
+      },
+      "policy-engine/tools/quality/validation/trust_claim_posture_artifact_lifecycle.py": {
+        "operation": "modify",
+        "preimage_sha256": "e45537548282bd89b73ab961b3fd4acb349fcf55ce91ed6e703ed40079564fe9",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r3-current-f759-actual-repair-r4-ruff-full-format-qualification-20261018/postimages/policy-engine/tools/quality/validation/trust_claim_posture_artifact_lifecycle.py",
+        "postimage_sha256": "66d2824241db80917726345f897aa709ee3d670eecd580a34996471561838fe2"
+      },
+      "policy-engine/tests/repo_quality/tools/test_trust_claim_posture.py": {
+        "operation": "modify",
+        "preimage_sha256": "5e4bdf4977dcaf34d8a1b7ef8de4b740f3c248cdca74bc724b34e572ad6e71c9",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r3-current-f759-actual-repair-r4-ruff-full-format-qualification-20261018/lint-qualified-postimage/policy-engine/tests/repo_quality/tools/test_trust_claim_posture.py",
+        "postimage_sha256": "9ae4be1203bb134aae29d19803b35c6de3d469ede766b2c7d304e3c9f3ac4f0d"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r4-879abdaf-source-adoption-20261018/source-application.json",
+      "sha256": "23d9c6934627047f4e41533d41b0d22fa35f192bab1e27abcc4d59b6bdc0670c"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r4-879abdaf-source-adoption-20261018/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r3-current-f759-actual-repair-r4-ruff-qualification-20261018/source-pins.json",
+        "sha256": "5f4d4c0cdfa3e2b580b1256ac86b40d333a1f28b1b7f6ad2af43069870d5892e",
+        "role": "sealed E402 qualification pre/post pins"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r3-current-f759-actual-repair-r4-ruff-qualification-20261018/patch.diff",
+        "sha256": "84484269fc3242d216348c7b90dadf3a02855767a0e9f1d810d3c04d9c6568c7",
+        "role": "sealed cumulative R3/R4/E402 candidate"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r3-current-f759-actual-repair-r4-ruff-qualification-20261018/delta-from-r4.diff",
+        "sha256": "6a4bb9835b850dc5221dcc33648a327de941f1640e86a57fc555d00fbf8d5228",
+        "role": "E402 import-initialization-order delta; separate peer review required"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r3-current-f759-actual-repair-r4-20261018/source-pins.json",
+        "sha256": "e62f433083a25e10ca6b803bdd16a7e1a0c73b03493ff14a944899c38f055852",
+        "role": "sealed R4 semantic candidate pins"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r3-current-f759-actual-repair-r4-20261018/patch.diff",
+        "sha256": "7f690a0421bc0cd84f15fe3eb6b1284a8b6794de6e6b6f05f70b6e64a76be488",
+        "role": "sealed R4 semantic candidate patch"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r4-pass-intake-independent-20261018/review.md",
+        "sha256": "c32527279542764b4c72e5fe9f6aa112107968f72d61decbdcfda3695ca72eca",
+        "role": "independent R4 semantic GO; does not review later E402 import-order delta"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r3-current-f759-actual-repair-independent-20261018/review.md",
+        "sha256": "414f0aa211572708bc900f05f848be58fa76c2174cfaa485738fe225104fae7c",
+        "role": "R3 independent review referenced by R4 review"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r3-current-f759-actual-repair-r4-ruff-full-format-qualification-20261018/format-only-delta.patch",
+        "sha256": "e76ed8490e1b39a79d7eb3a65be399d0741be6d6154279d4b5ce8654d97ca321",
+        "role": "complete AST-equivalent full-file formatting delta"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r3-current-f759-actual-repair-r4-ruff-full-format-qualification-20261018/lint-order-delta.patch",
+        "sha256": "764263b762457433d1484b116d581f144257d242409d2293946a7a4984d40e93",
+        "role": "single I001 import-alias ordering delta; separate peer review required"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r3-current-f759-actual-repair-r4-ruff-full-format-qualification-20261018/ruff-receipt.json",
+        "sha256": "21b55696e5ebd2d3e8da37921520d06fc40e8de2dac104bd1dbe0ab6f8dde76c",
+        "role": "full Ruff check/format receipts"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r3-current-f759-actual-repair-r4-ruff-full-format-qualification-20261018/ast-equivalence.json",
+        "sha256": "4077409dbfd53325e5a0db21e2efcb11109c101a94e171fcd9a5bfca6004e4e8",
+        "role": "AST proof for formatter stage and isolated I001 delta"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r3-current-f759-actual-repair-r4-ruff-full-format-qualification-20261018/semantic-delta-reference.json",
+        "sha256": "ef897ff8d5ba4acb49f1f6711bb2be18fa02a73193fd94b52c5e595cc9d680b7",
+        "role": "explicit separate review scope for both import-order deltas"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r3-current-f759-actual-repair-r4-ruff-full-format-qualification-20261018/adoption-plan.json",
+        "sha256": "4e52d550edbd157bff474022d0421f39c8be29609a93c0085f3114af2dff29e6",
+        "role": "originalstylequalifiedsourceplan"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r4-879abdaf-source-adoption-20261018/root-current-source-qualification.json",
+        "sha256": "6c1b14a38513fb81848b9bd94c910fc0a8167ee9090406ef0ea79bc2fce92b53",
+        "role": "actualsliceandallsemantic/importreviewqualification"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r4-ruff-delta-independent-20261018/review.md",
+        "sha256": "d756895080657e2c4c604e84a9f3d6be45756af2f8369998b78765e91b0a7672",
+        "role": "independentboundedreview"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r4-i001-independent-20261018/review.json",
+        "sha256": "44c9c97cdc80750d14a46c7b9618af165536467a686ccea79ad63f3e20d6dd7b",
+        "role": "independentboundedreview"
+      }
+    ],
+    "P40": {
+      "classification": "same Trust R4 status-intake behavior class; this packet is a style qualification companion, not a new behavior repair round.",
+      "disposition": "Keep the reviewed R4 mechanism; isolate formatter-only and import-order deltas; do not infer runtime closure."
+    },
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "ROOT is the sole canonical writer. This packet writes only new RAW qualification artifacts.",
+      "No product imports, pytest, CLI, generated-output refresh, environment mutation, or Git mutation was performed.",
+      "The broad Ruff formatter delta is AST-exact to the sealed E402-qualified postimages.",
+      "The one I001 import alias reorder is separately isolated; AST differs only by alias order in one ImportFrom.",
+      "The E402 import-order delta and I001 alias-order companion require separate peer review; no approval is claimed here.",
+      "Actual Trust runtime tests and generated artifact/reference checks remain UNRUN / NOT ESTABLISHED."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": {
+      "source_adoption": "ROOT requalifies exact HEAD/tree, tracked index/worktree status, all reviewed-input hashes, exact three canonical preimages/final postimages, and read-only patch applicability immediately before invoking the helper.",
+      "review": "Obtain separate peer review of the E402 import initialization-order delta and the isolated I001 alias-order delta before adoption.",
+      "runtime": "After N13b and integrated source application, run focused Trust posture intake/probe tests, regenerate through the existing producer, then run --check --corruption-probes --json and retain complete outputs.",
+      "runtime_status_before_check": "UNRUN / NOT ESTABLISHED"
+    },
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

@@ -1257,6 +1257,7 @@ class DebugService:
         from polisyos.runtime.http.services.control_plane_store import (
             ControlJobExecutionAdmissionError,
             _control_job_execution_scope_from_event,
+            _control_job_outbox_identity_envelope,
             _json_values_equal_strict,
         )
         from polisyos.runtime.quality.phase_barriers import _validated_execution_owner_binding
@@ -1402,7 +1403,20 @@ class DebugService:
             return None
 
         completion_outbox_payload = getattr(completion_outbox, "payload", None)
-        expected_completion_payload = {**event_payload, "progress": progress}
+        expected_completion_payload = dict(event_payload)
+        if "progress" in event_payload and not _json_values_equal_strict(
+            event_payload["progress"], progress
+        ):
+            return None
+        expected_completion_payload["progress"] = progress
+        expected_outbox_envelope = _control_job_outbox_identity_envelope(job)
+        if any(
+            field in expected_completion_payload
+            and not _json_values_equal_strict(expected_completion_payload[field], value)
+            for field, value in expected_outbox_envelope.items()
+        ):
+            return None
+        expected_completion_payload.update(expected_outbox_envelope)
         if (
             getattr(completion_outbox, "topic", None) != "control.job.completed"
             or getattr(completion_outbox, "event_key", None) != f"{job.job_id}:job_completed"

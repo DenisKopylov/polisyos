@@ -1026,6 +1026,19 @@ class ControlJobRecord:
         )
 
 
+def _control_job_outbox_identity_envelope(
+    record: ControlJobRecord,
+) -> dict[str, str | None]:
+    """Project the producer-owned identity envelope from one durable job row."""
+    return {
+        "job_id": record.job_id,
+        "job_kind": record.kind,
+        "run_id": record.run_id,
+        "pipeline_id": record.pipeline_id,
+        "effective_execution_profile": record.effective_execution_profile,
+    }
+
+
 @dataclass(frozen=True)
 class ControlWorkerLeaseRecord:
     """Report one worker heartbeat/lease row exposed by control-plane diagnostics."""
@@ -6499,11 +6512,7 @@ class ControlPlaneStore:
         topic = _job_event_topic(event_type)
         event_key = None if event_type == "job_progress" else f"{record.job_id}:{event_type}"
         outbox_payload = {
-            "job_id": record.job_id,
-            "job_kind": record.kind,
-            "run_id": record.run_id,
-            "pipeline_id": record.pipeline_id,
-            "effective_execution_profile": record.effective_execution_profile,
+            **_control_job_outbox_identity_envelope(record),
             **payload,
         }
         self.enqueue_outbox_event(

@@ -1108,6 +1108,80 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
         assert source_intent_gate["code"] == "run_intent_binding_incomplete"
         assert source_scorecard["quality_status"] == "fail"
 
+        # The valid terminal outbox contains the complete producer-owned identity
+        # envelope. Every member must reconcile to the completed job row, while
+        # extra fields remain a refusal rather than being ignored.
+        from polisyos.runtime.http.services.control_plane_store import (
+            _control_job_outbox_identity_envelope,
+        )
+
+        expected_outbox_envelope = {
+            "job_id": persisted_job.job_id,
+            "job_kind": persisted_job.kind,
+            "run_id": persisted_job.run_id,
+            "pipeline_id": persisted_job.pipeline_id,
+            "effective_execution_profile": persisted_job.effective_execution_profile,
+        }
+        assert _control_job_outbox_identity_envelope(persisted_job) == expected_outbox_envelope
+        assert {
+            field: completion_outbox.payload[field] for field in expected_outbox_envelope
+        } == expected_outbox_envelope
+        debug_service = runtime_context.debug
+        original_control_job_store = debug_service._producer_control_job_store
+
+        class _CompletionOutboxPayloadOverride:
+            def __init__(self, wrapped: Any, payload: dict[str, Any]) -> None:
+                self._wrapped = wrapped
+                self._payload = payload
+
+            def __getattr__(self, name: str) -> Any:
+                return getattr(self._wrapped, name)
+
+            def get_job_completed_outbox_event(self, requested_job_id: str) -> Any:
+                outbox = self._wrapped.get_job_completed_outbox_event(requested_job_id)
+                if requested_job_id != job_id or outbox is None:
+                    return outbox
+                return replace(outbox, payload=deepcopy(self._payload))
+
+        def _assert_completion_outbox_refused(payload: dict[str, Any]) -> None:
+            debug_service._producer_control_job_store = _CompletionOutboxPayloadOverride(
+                original_control_job_store, payload
+            )
+            try:
+                rejected_scorecard = _source_scorecard(received_payload)
+            finally:
+                debug_service._producer_control_job_store = original_control_job_store
+            rejected_owner_gate = next(
+                gate
+                for gate in rejected_scorecard["quality_gates"]
+                if gate["name"] == "serious_phase_barrier_owner_scope"
+            )
+            assert rejected_owner_gate["status"] == "fail"
+            assert rejected_owner_gate["code"] == "phase_barrier_owner_scope_not_established"
+
+        for field, expected_value in expected_outbox_envelope.items():
+            missing_envelope_payload = deepcopy(completion_outbox.payload)
+            missing_envelope_payload.pop(field)
+            _assert_completion_outbox_refused(missing_envelope_payload)
+
+            mismatched_envelope_payload = deepcopy(completion_outbox.payload)
+            mismatched_envelope_payload[field] = (
+                "forged-envelope-value" if expected_value is None else f"{expected_value}:forged"
+            )
+            _assert_completion_outbox_refused(mismatched_envelope_payload)
+
+        mismatched_progress_payload = deepcopy(completion_outbox.payload)
+        mismatched_progress_owner = mismatched_progress_payload["progress"][
+            "execution_owner_binding"
+        ]
+        assert isinstance(mismatched_progress_owner, dict)
+        mismatched_progress_owner["lease_owner"] = "forged-terminal-progress-owner"
+        _assert_completion_outbox_refused(mismatched_progress_payload)
+
+        unexpected_envelope_payload = deepcopy(completion_outbox.payload)
+        unexpected_envelope_payload["unrecognized_owner_envelope_field"] = "forged"
+        _assert_completion_outbox_refused(unexpected_envelope_payload)
+
         # A completed owner projection can carry the declared request omission,
         # but neither effective-profile barrier records nor an intent reconstructed
         # from that effective profile may turn the omission into authority.

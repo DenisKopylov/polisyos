@@ -12989,5 +12989,66 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-terminal-outbox-r9-reviewed-adoption-20261018": {
+    "slice_base": "5ff59531ca1f98ff267ef70a376f58b58164470a",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py": {
+        "preimage_sha256": "559e75176f818e1d12aac537439e87ec7867861b666eb265bd558c4fc6e0455c",
+        "postimage_sha256": "1fde07e8786ac0e270dc624ee139fea840dc4e0b048997d7c5fdafab2e33f09b",
+        "operation": "modify",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-outbox-owner-envelope-join-r9-20261018/postimages/policy-engine/src/polisyos/runtime/http/services/control_plane_store.py"
+      },
+      "policy-engine/src/polisyos/runtime/http/services/debug.py": {
+        "preimage_sha256": "008e4728ffda8f1843873287285fa00995201b2b58f1c4b6548324e83f3f33c2",
+        "postimage_sha256": "86b2c54819a49d36dc9af30833603ab4ad6c8b718c01fe0b6465ed2bd5468ea5",
+        "operation": "modify",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-outbox-owner-envelope-join-r9-20261018/postimages/policy-engine/src/polisyos/runtime/http/services/debug.py"
+      },
+      "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py": {
+        "preimage_sha256": "8ef64911929a466f05bd4042913dba274c4c371b0a6c4b53e3049a50953a6914",
+        "postimage_sha256": "addcbe2f4e71aa8e1055f5383025d2e21876e6dbd72c67f77219cf3e3f58a95b",
+        "operation": "modify",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-outbox-owner-envelope-join-r9-20261018/postimages/policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-outbox-r9-reviewed-adoption-20261018/source-application.json",
+      "sha256": "82909e3560d5b22656f36c1f43c9c51046d4996e5d05f47b623ca69607683b10"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-outbox-r9-reviewed-adoption-20261018/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-outbox-owner-envelope-join-r9-20261018/candidate-manifest.json",
+        "sha256": "1e69ae391ced86d294e922a44c73acffa451a217f4161017790308e256b351f3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-outbox-owner-envelope-join-r9-20261018/candidate.patch",
+        "sha256": "6289193727a2d2e5ab0a5d3c112910266d7cc181185c2798bea64d2eb8c82919"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-outbox-owner-envelope-join-r9-20261018/decision.md",
+        "sha256": "195974f9e437494f5b85864fa7a8ff03a5fe8534864d96b0e250806683cd3206"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-outbox-envelope-r9-independent-20261018/review.json",
+        "sha256": "5256ccf6dd98a915d079dda5506a79823246c017dacf93f2036d233bb9cf5e37"
+      }
+    ],
+    "P40": "Same owner-source and role-join class deeper; widened to shared typed producer projection plus full mapping equality with all envelope omissions, mismatches and extra-field controls.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Runtime remains UNRUN on adopted bytes until the combined replay.",
+      "No G acceptance or formal finding closure is claimed; exact review scope only."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run all three monetary Python modules and actual HTTP owner-scorecard bridge after this source batch, preserving separate missing-intent refusal.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
 
@@ -538,6 +539,332 @@ def test_node_result_cache_serializes_concurrent_journals_consistently(tmp_path)
     assert len(refs) == len(keys)
     assert cache.size == len(keys)
     assert all(outcome is not None for outcome in outcomes)
+
+
+def test_node_result_cache_discard_revokes_blocked_write_without_waiting(tmp_path) -> None:
+    """A blocked CAS write cannot hold the cache-index lock against discard."""
+    store = FileSystemCAS(tmp_path)
+    cache = NodeResultCache(store, run_id="R_cache_discard_write")
+    key = "w" * 64
+    entered = threading.Event()
+    release = threading.Event()
+    discard_returned = threading.Event()
+    original_put_json = store.put_json
+
+    def delayed_put_json(obj, opts, *args, **kwargs):
+        if str(getattr(opts, "kind", "")) == "scientist.node_cache_entry":
+            entered.set()
+            release.wait()
+        return original_put_json(obj, opts, *args, **kwargs)
+
+    store.put_json = delayed_put_json
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        put_future = pool.submit(
+            cache.put, key, "scientist.node_test@1.0.0", _outcome(cache.run_id)
+        )
+        try:
+            assert entered.wait(timeout=3.0), "cache put did not reach its provider call"
+
+            def discard() -> None:
+                cache.discard(key)
+                discard_returned.set()
+
+            discard_future = pool.submit(discard)
+            discarded_while_write_blocked = discard_returned.wait(timeout=0.25)
+        finally:
+            release.set()
+        discard_future.result(timeout=3.0)
+        with pytest.raises(RuntimeError, match="cache_entry: publication_invalidated"):
+            put_future.result(timeout=3.0)
+
+    assert discarded_while_write_blocked is True
+    assert cache.has(key) is False
+    assert cache.size == 0
+
+
+def test_node_result_cache_discard_revokes_blocked_read_without_waiting(tmp_path) -> None:
+    """A read completed after discard is a miss and cannot resurrect its entry."""
+    store = FileSystemCAS(tmp_path)
+    cache = NodeResultCache(store, run_id="R_cache_discard_read")
+    key = "r" * 64
+    cache.put(key, "scientist.node_test@1.0.0", _outcome(cache.run_id))
+    entered = threading.Event()
+    release = threading.Event()
+    discard_returned = threading.Event()
+    original_get_bytes = store.get_bytes
+
+    def delayed_get_bytes(artifact_id):
+        entered.set()
+        release.wait()
+        return original_get_bytes(artifact_id)
+
+    store.get_bytes = delayed_get_bytes
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        read_future = pool.submit(cache.get, key)
+        try:
+            assert entered.wait(timeout=3.0), "cache read did not reach its provider call"
+
+            def discard() -> None:
+                cache.discard(key)
+                discard_returned.set()
+
+            discard_future = pool.submit(discard)
+            discarded_while_read_blocked = discard_returned.wait(timeout=0.25)
+        finally:
+            release.set()
+        discard_future.result(timeout=3.0)
+        assert read_future.result(timeout=3.0) is None
+
+    assert discarded_while_read_blocked is True
+    assert cache.has(key) is False
+    assert cache.size == 0
+
+
+def test_node_result_cache_discard_revokes_blocked_recovery_admission(tmp_path) -> None:
+    """Recovery admission is invalidated if discard arrives during entry verification."""
+    store = FileSystemCAS(tmp_path)
+    writer = NodeResultCache(store, run_id="R_cache_discard_load")
+    key = "l" * 64
+    entry_ref = writer.put(key, "scientist.node_test@1.0.0", _outcome(writer.run_id))
+    reader = NodeResultCache(store, run_id=writer.run_id)
+    entered = threading.Event()
+    release = threading.Event()
+    discard_returned = threading.Event()
+    original_get_bytes = store.get_bytes
+
+    def delayed_get_bytes(artifact_id):
+        entered.set()
+        release.wait()
+        return original_get_bytes(artifact_id)
+
+    store.get_bytes = delayed_get_bytes
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        load_future = pool.submit(reader.load_entry, entry_ref)
+        try:
+            assert entered.wait(timeout=3.0), "cache recovery did not reach its provider call"
+
+            def discard() -> None:
+                reader.discard(key)
+                discard_returned.set()
+
+            discard_future = pool.submit(discard)
+            discarded_while_load_blocked = discard_returned.wait(timeout=0.25)
+        finally:
+            release.set()
+        discard_future.result(timeout=3.0)
+        assert load_future.result(timeout=3.0) is False
+
+    assert discarded_while_load_blocked is True
+    assert reader.has(key) is False
+    assert reader.size == 0
+
+
+def _hold_cache_put_for_key(store: FileSystemCAS, blocked_key: str):
+    entered = threading.Event()
+    release = threading.Event()
+    provider_keys: list[str] = []
+    original_put_json = store.put_json
+
+    def delayed_put_json(obj, opts, *args, **kwargs):
+        if str(getattr(opts, "kind", "")) == "scientist.node_cache_entry":
+            key = str(obj["idempotency_key"])
+            provider_keys.append(key)
+            if key == blocked_key and not entered.is_set():
+                entered.set()
+                release.wait()
+        return original_put_json(obj, opts, *args, **kwargs)
+
+    store.put_json = delayed_put_json
+    return entered, release, provider_keys
+
+
+def _watch_cache_registration(cache: NodeResultCache, watched_key: str | None):
+    registered = threading.Event()
+    original_register = cache._register_io_locked
+
+    def recording_register(key: str | None):
+        operation = original_register(key)
+        if key == watched_key:
+            registered.set()
+        return operation
+
+    cache._register_io_locked = recording_register
+    return registered
+
+
+@pytest.mark.parametrize(
+    ("discard_pending_key", "pending_write_is_admitted"),
+    [(True, False), (False, True)],
+)
+def test_node_result_cache_discard_reaches_queued_write_tokens(
+    tmp_path, discard_pending_key: bool, pending_write_is_admitted: bool
+) -> None:
+    """Discard revokes matching queued writes without cancelling an unrelated key."""
+    store = FileSystemCAS(tmp_path)
+    cache = NodeResultCache(store, run_id="R_cache_queued_discard")
+    active_key = "a" * 64
+    pending_key = "b" * 64
+    unrelated_key = "u" * 64
+    entered, release, provider_keys = _hold_cache_put_for_key(store, active_key)
+    pending_registered = _watch_cache_registration(cache, pending_key)
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        active = pool.submit(
+            cache.put, active_key, "scientist.node_test@1.0.0", _outcome(cache.run_id)
+        )
+        try:
+            assert entered.wait(timeout=3.0), "active cache write did not enter the provider"
+            pending = pool.submit(
+                cache.put, pending_key, "scientist.node_test@1.0.0", _outcome(cache.run_id)
+            )
+            assert pending_registered.wait(timeout=3.0), "queued write was not registered"
+            cache.discard(pending_key if discard_pending_key else unrelated_key)
+        finally:
+            release.set()
+
+        active.result(timeout=3.0)
+        if pending_write_is_admitted:
+            pending.result(timeout=3.0)
+        else:
+            with pytest.raises(RuntimeError, match="cache_entry: publication_invalidated"):
+                pending.result(timeout=3.0)
+
+    assert provider_keys == (
+        [active_key, pending_key] if pending_write_is_admitted else [active_key]
+    )
+    assert cache.has(active_key)
+    assert cache.has(pending_key) is pending_write_is_admitted
+    assert not cache._pending_io
+
+
+def test_node_result_cache_clear_invalidates_active_and_queued_writes(tmp_path) -> None:
+    """Clear revokes all cache operations already waiting on the provider lane."""
+    store = FileSystemCAS(tmp_path)
+    cache = NodeResultCache(store, run_id="R_cache_queued_clear")
+    active_key = "c" * 64
+    pending_key = "d" * 64
+    entered, release, provider_keys = _hold_cache_put_for_key(store, active_key)
+    pending_registered = _watch_cache_registration(cache, pending_key)
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        active = pool.submit(
+            cache.put, active_key, "scientist.node_test@1.0.0", _outcome(cache.run_id)
+        )
+        try:
+            assert entered.wait(timeout=3.0), "active cache write did not enter the provider"
+            pending = pool.submit(
+                cache.put, pending_key, "scientist.node_test@1.0.0", _outcome(cache.run_id)
+            )
+            assert pending_registered.wait(timeout=3.0), "queued write was not registered"
+            cache.clear()
+        finally:
+            release.set()
+
+        with pytest.raises(RuntimeError, match="cache_entry: publication_invalidated"):
+            active.result(timeout=3.0)
+        with pytest.raises(RuntimeError, match="cache_entry: publication_invalidated"):
+            pending.result(timeout=3.0)
+
+    assert provider_keys == [active_key]
+    assert cache.size == 0
+    assert not cache.has(active_key)
+    assert not cache.has(pending_key)
+    assert not cache._pending_io
+
+
+@pytest.mark.parametrize("invalidation", ["discard", "clear", "prune"])
+def test_node_result_cache_invalidation_reaches_queued_recovery(
+    tmp_path, invalidation: str
+) -> None:
+    """Owner mutations revoke unknown-key recovery before it reads its CAS entry."""
+    store = FileSystemCAS(tmp_path)
+    run_id = "R_cache_queued_recovery_invalidation"
+    cache = NodeResultCache(store, run_id=run_id)
+    active_key = "e" * 64
+    recovery_key = "f" * 64
+    cache.put(active_key, "scientist.node_test@1.0.0", _outcome(run_id))
+    recovery_writer = NodeResultCache(store, run_id=run_id)
+    recovery_ref = recovery_writer.put(recovery_key, "scientist.node_test@1.0.0", _outcome(run_id))
+    entered, release, provider_keys = _hold_cache_put_for_key(store, active_key)
+    recovery_registered = _watch_cache_registration(cache, None)
+    original_get_bytes = store.get_bytes
+    recovery_reads: list[str] = []
+
+    def recording_get_bytes(artifact_id):
+        if str(artifact_id) == recovery_ref.artifact_id:
+            recovery_reads.append(str(artifact_id))
+        return original_get_bytes(artifact_id)
+
+    store.get_bytes = recording_get_bytes
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        active = pool.submit(cache.put, active_key, "scientist.node_test@1.0.0", _outcome(run_id))
+        try:
+            assert entered.wait(timeout=3.0), "active cache write did not enter the provider"
+            recovery = pool.submit(cache.load_entry, recovery_ref)
+            assert recovery_registered.wait(timeout=3.0), (
+                "recovery was not registered before queueing"
+            )
+            if invalidation == "discard":
+                cache.discard(recovery_key)
+            elif invalidation == "clear":
+                cache.clear()
+            else:
+                assert cache.prune(0) == 1
+        finally:
+            release.set()
+
+        if invalidation == "discard":
+            active.result(timeout=3.0)
+        else:
+            with pytest.raises(RuntimeError, match="cache_entry: publication_invalidated"):
+                active.result(timeout=3.0)
+        assert recovery.result(timeout=3.0) is False
+
+    assert provider_keys == [active_key]
+    assert recovery_reads == []
+    assert cache.has(recovery_key) is False
+    assert cache.size == (1 if invalidation == "discard" else 0)
+    assert cache.has(active_key) is (invalidation == "discard")
+    assert not cache._pending_io
+
+
+def test_node_result_cache_discard_reaches_queued_read_tokens(tmp_path) -> None:
+    """Discard stops a queued read before it reopens an evicted cache artifact."""
+    store = FileSystemCAS(tmp_path)
+    cache = NodeResultCache(store, run_id="R_cache_queued_read")
+    active_key = "g" * 64
+    pending_key = "h" * 64
+    pending_ref = cache.put(pending_key, "scientist.node_test@1.0.0", _outcome(cache.run_id))
+    entered, release, _provider_keys = _hold_cache_put_for_key(store, active_key)
+    pending_registered = _watch_cache_registration(cache, pending_key)
+    original_get_bytes = store.get_bytes
+    pending_reads: list[str] = []
+
+    def recording_get_bytes(artifact_id):
+        if str(artifact_id) == pending_ref.artifact_id:
+            pending_reads.append(str(artifact_id))
+        return original_get_bytes(artifact_id)
+
+    store.get_bytes = recording_get_bytes
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        active = pool.submit(
+            cache.put, active_key, "scientist.node_test@1.0.0", _outcome(cache.run_id)
+        )
+        try:
+            assert entered.wait(timeout=3.0), "active cache write did not enter the provider"
+            pending = pool.submit(cache.get, pending_key)
+            assert pending_registered.wait(timeout=3.0), "queued read was not registered"
+            cache.discard(pending_key)
+        finally:
+            release.set()
+
+        active.result(timeout=3.0)
+        assert pending.result(timeout=3.0) is None
+
+    assert pending_reads == []
+    assert cache.has(active_key)
+    assert not cache.has(pending_key)
+    assert not cache._pending_io
 
 
 def test_node_result_cache_corrupted_entry_is_treated_as_miss(tmp_path) -> None:

@@ -4,9 +4,12 @@ from __future__ import annotations
 
 import json
 import time
+from collections.abc import Iterator
+from contextlib import contextmanager
+from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from threading import RLock
+from threading import Lock, RLock
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -327,6 +330,14 @@ def compute_idempotency_key(
     return content_hash(canonical)
 
 
+@dataclass(slots=True, eq=False)
+class _PendingCacheOperation:
+    """Track one serialized store operation so in-memory invalidation stays prompt."""
+
+    key: str | None
+    invalidated: bool = False
+
+
 class NodeResultCache:
     """Node result cache public type."""
 
@@ -354,6 +365,11 @@ class NodeResultCache:
         # an invalid/absent reference must remain retryable, while a verified
         # reference must not be counted as a second cache entry on every resume.
         self._verified_entry_keys: dict[tuple[str, str, str, str | None], str] = {}
+        # Serialize provider calls independently from cache-index mutations.
+        # Register every live operation before it enters this queue so cache
+        # owners can revoke work that is active or still waiting for the lane.
+        self._io_lock = Lock()
+        self._pending_io: set[_PendingCacheOperation] = set()
         self._lock = RLock()
 
     @property
@@ -375,6 +391,88 @@ class NodeResultCache:
         if active_context is not None and active_context != self._tenant_context:
             raise ValueError("cache_entry: active_tenant_scope_mismatch")
 
+    def _register_io_locked(self, key: str | None) -> _PendingCacheOperation:
+        """Register one live cache operation while the caller holds the index lock."""
+        operation = _PendingCacheOperation(key=key)
+        self._pending_io.add(operation)
+        return operation
+
+    def _register_io(self, key: str | None) -> _PendingCacheOperation:
+        """Register one provider-backed call before it waits for the I/O lane."""
+        with self._lock:
+            return self._register_io_locked(key)
+
+    def _end_io(self, operation: _PendingCacheOperation) -> None:
+        """Remove an operation token after its queue wait and provider work finish."""
+        with self._lock:
+            self._pending_io.discard(operation)
+
+    def _acquire_io_lock(
+        self,
+        operation: _PendingCacheOperation,
+        deadline_monotonic: float | None,
+    ) -> bool:
+        """Wait for serialized provider access while observing invalidation and deadline."""
+        while True:
+            with self._lock:
+                if operation.invalidated:
+                    return False
+            if deadline_monotonic is None:
+                wait_seconds = 0.05
+            else:
+                remaining = deadline_monotonic - time.perf_counter()
+                if remaining <= 0:
+                    self._check_deadline(deadline_monotonic)
+                wait_seconds = min(0.05, remaining)
+            if self._io_lock.acquire(timeout=wait_seconds):
+                return True
+
+    def _invalidate_pending_locked(self, keys: set[str] | None = None) -> None:
+        """Revoke live work affected by a cache mutation; unknown-key recovery is conservative."""
+        for operation in tuple(self._pending_io):
+            if keys is None or operation.key is None or operation.key in keys:
+                operation.invalidated = True
+
+    @contextmanager
+    def _provider_operation(
+        self,
+        operation: _PendingCacheOperation,
+        deadline_monotonic: float | None,
+    ) -> Iterator[bool]:
+        """Release a registered token and provider lane on every exit path."""
+        acquired = False
+        try:
+            acquired = self._acquire_io_lock(operation, deadline_monotonic)
+            yield acquired
+        finally:
+            try:
+                self._end_io(operation)
+            finally:
+                if acquired:
+                    self._io_lock.release()
+
+    def _discard_locked(self, key: str) -> None:
+        """Invalidate one key while the caller holds the in-memory lock."""
+        self._invalidate_pending_locked({key})
+        entry_ref = self._index.pop(key)
+        self._mutation_journals.pop(key, None)
+        if entry_ref is not None:
+            self._verified_entry_keys.pop(_cache_ref_identity(entry_ref), None)
+
+    def _record_index_removals_locked(self, previous_keys: set[str]) -> None:
+        """Reconcile side maps and queued work after LRU eviction."""
+        active_keys = set(self._index.keys())
+        removed_keys = previous_keys - active_keys
+        if removed_keys:
+            self._invalidate_pending_locked(removed_keys)
+        for key in tuple(self._mutation_journals):
+            if key not in active_keys:
+                self._mutation_journals.pop(key, None)
+        active_refs = {_cache_ref_identity(ref) for _key, ref in self._index.items()}
+        for ref_identity in tuple(self._verified_entry_keys):
+            if ref_identity not in active_refs:
+                self._verified_entry_keys.pop(ref_identity, None)
+
     @property
     def size(self) -> int:
         with self._lock:
@@ -385,31 +483,22 @@ class NodeResultCache:
             return key in self._index
 
     def discard(self, key: str) -> None:
-        """Evict one cache key and its replay contract."""
+        """Evict one cache key and revoke any in-flight admission for it."""
         with self._lock:
-            entry_ref = self._index.get(key)
-            self._index.delete(key)
-            self._mutation_journals.pop(key, None)
-            if entry_ref is not None:
-                self._verified_entry_keys.pop(_cache_ref_identity(entry_ref), None)
+            self._discard_locked(key)
 
     def clear(self) -> None:
         with self._lock:
+            self._invalidate_pending_locked()
             self._index.clear()
             self._mutation_journals.clear()
             self._verified_entry_keys.clear()
 
     def prune(self, max_entries: int) -> int:
         with self._lock:
+            previous_keys = set(self._index.keys())
             removed = self._index.prune(max_entries)
-            active_keys = set(self._index.keys())
-            for key in tuple(self._mutation_journals):
-                if key not in active_keys:
-                    del self._mutation_journals[key]
-            active_refs = {_cache_ref_identity(ref) for _key, ref in self._index.items()}
-            for ref_identity in tuple(self._verified_entry_keys):
-                if ref_identity not in active_refs:
-                    del self._verified_entry_keys[ref_identity]
+            self._record_index_removals_locked(previous_keys)
             return removed
 
     def _verify_cache_artifact(
@@ -614,18 +703,25 @@ class NodeResultCache:
         *,
         deadline_monotonic: float | None = None,
     ) -> NodeOutcome | None:
+        """Read and verify an entry without holding the index lock over CAS I/O."""
         self._check_deadline(deadline_monotonic)
         self._assert_active_scope()
-        with self._lock:
-            entry_ref = self._index.get(key)
-            journal = self._mutation_journals.get(key)
-            if entry_ref is None:
+        operation = self._register_io(key)
+        with self._provider_operation(operation, deadline_monotonic) as acquired_io:
+            if not acquired_io:
                 return None
-            if journal is None:
-                # A cache entry without a proven operation contract is
-                # historical evidence only; replay it as a miss.
-                self.discard(key)
-                return None
+            self._check_deadline(deadline_monotonic)
+            with self._lock:
+                if operation.invalidated:
+                    return None
+                entry_ref = self._index.get(key)
+                journal = self._mutation_journals.get(key)
+                if entry_ref is None:
+                    return None
+                if journal is None:
+                    # Historical bytes without the replay contract remain a miss.
+                    self._discard_locked(key)
+                    return None
             try:
                 entry, outcome, proof_valid = self._read_entry(
                     entry_ref,
@@ -650,14 +746,26 @@ class NodeResultCache:
             except TimeoutError:
                 raise
             except (FileNotFoundError, OSError, TypeError, ValueError) as exc:
-                logger.debug(
-                    "Cache miss for key %s, evicting: %s",
-                    key,
-                    exc,
-                )
-                self.discard(key)
+                with self._lock:
+                    if (
+                        not operation.invalidated
+                        and self._index.get(key) == entry_ref
+                        and self._mutation_journals.get(key) is journal
+                    ):
+                        logger.debug("Cache miss for key %s, evicting: %s", key, exc)
+                        self._discard_locked(key)
                 return None
-            return outcome
+
+            self._check_deadline(deadline_monotonic)
+            with self._lock:
+                if (
+                    operation.invalidated
+                    or self._index.get(key) != entry_ref
+                    or self._mutation_journals.get(key) is not journal
+                ):
+                    return None
+                self._check_deadline(deadline_monotonic)
+                return outcome
 
     def put(
         self,
@@ -667,9 +775,17 @@ class NodeResultCache:
         *,
         deadline_monotonic: float | None = None,
     ) -> ArtifactRef:
+        """Persist one entry and admit it only while its registered owner token stays current."""
         self._check_deadline(deadline_monotonic)
-        with self._lock:
-            self._assert_active_scope()
+        operation = self._register_io(key)
+        with self._provider_operation(operation, deadline_monotonic) as acquired_io:
+            if not acquired_io:
+                raise RuntimeError("cache_entry: publication_invalidated")
+            self._check_deadline(deadline_monotonic)
+            with self._lock:
+                self._assert_active_scope()
+                if operation.invalidated:
+                    raise RuntimeError("cache_entry: publication_invalidated")
             output_aware = isinstance(outcome, OutputAwareNodeOutcome)
             cache_producer = _cache_producer(output_aware=output_aware)
             journal = mutation_journal_for_state(outcome.state)
@@ -683,7 +799,7 @@ class NodeResultCache:
                     mode="python", by_alias=True, exclude_none=False
                 ),
                 state_mutations=state_mutations,
-                state_mutations_version=STATE_MUTATIONS_VERSION if journal is not None else None,
+                state_mutations_version=(STATE_MUTATIONS_VERSION if journal is not None else None),
                 replay_epoch=REPLAY_EPOCH if journal is not None else None,
             )
             entry = (
@@ -699,11 +815,8 @@ class NodeResultCache:
                 if journal is not None
                 else entry_without_proof
             )
-            # The outcome and replay journal are one typed CAS payload. There
-            # is no preceding outcome write that can survive a failed entry
-            # publication as an orphan artifact. Deadline checks bound
-            # admission and readback; they cannot interrupt a synchronous CAS
-            # already inside the backend.
+            # The provider lane is serialized; cache owners can still revoke this
+            # registered token without waiting for synchronous storage I/O.
             self._check_deadline(deadline_monotonic)
             entry_ref = self._store.put_json(
                 entry.model_dump(mode="python", by_alias=True, exclude_none=False),
@@ -731,17 +844,21 @@ class NodeResultCache:
                     deadline_monotonic=deadline_monotonic,
                 )
             self._check_deadline(deadline_monotonic)
-            if journal is not None:
-                previous_ref = self._index.get(key)
-                self._index.set(key, entry_ref)
-                self._mutation_journals[key] = mutation_journal_from_operations(state_mutations)
-                if previous_ref is not None:
-                    self._verified_entry_keys.pop(_cache_ref_identity(previous_ref), None)
-                self._verified_entry_keys[_cache_ref_identity(entry_ref)] = key
-            else:
-                self.discard(key)
-            if self._max_entries is not None:
-                self.prune(self._max_entries)
+            with self._lock:
+                self._check_deadline(deadline_monotonic)
+                if operation.invalidated:
+                    raise RuntimeError("cache_entry: publication_invalidated")
+                if journal is not None:
+                    previous_keys = set(self._index.keys())
+                    previous_ref = self._index.get(key)
+                    self._index.set(key, entry_ref)
+                    self._mutation_journals[key] = mutation_journal_from_operations(state_mutations)
+                    if previous_ref is not None:
+                        self._verified_entry_keys.pop(_cache_ref_identity(previous_ref), None)
+                    self._verified_entry_keys[_cache_ref_identity(entry_ref)] = key
+                    self._record_index_removals_locked(previous_keys)
+                else:
+                    self._discard_locked(key)
             return entry_ref
 
     def load_entry(
@@ -750,11 +867,11 @@ class NodeResultCache:
         *,
         deadline_monotonic: float | None = None,
     ) -> bool:
-        """Verify and admit one entry within the caller's absolute read deadline."""
+        """Verify and admit one entry under a token registered before provider queueing."""
         self._check_deadline(deadline_monotonic)
+        ref_identity = _cache_ref_identity(entry_ref)
         with self._lock:
             self._check_deadline(deadline_monotonic)
-            ref_identity = _cache_ref_identity(entry_ref)
             verified_key = self._verified_entry_keys.get(ref_identity)
             if verified_key is not None:
                 indexed_ref = self._index.get(verified_key)
@@ -763,7 +880,14 @@ class NodeResultCache:
                 # The LRU may have evicted the entry since it was verified.
                 # The reference is eligible for one fresh verification.
                 self._verified_entry_keys.pop(ref_identity, None)
-
+            operation = self._register_io_locked(None)
+        with self._provider_operation(operation, deadline_monotonic) as acquired_io:
+            if not acquired_io:
+                return False
+            self._check_deadline(deadline_monotonic)
+            with self._lock:
+                if operation.invalidated:
+                    return False
             entry, _decoded, proof_valid = self._read_entry(
                 entry_ref, deadline_monotonic=deadline_monotonic
             )
@@ -771,29 +895,33 @@ class NodeResultCache:
             if entry.run_id != self._run_id or not proof_valid:
                 return False
 
-            existing_ref = self._index.get(entry.idempotency_key)
-            if existing_ref is not None:
-                if _cache_ref_identity(existing_ref) == ref_identity:
-                    self._verified_entry_keys[ref_identity] = entry.idempotency_key
-                else:
-                    # Two immutable entries with one idempotency key are not
-                    # interchangeable. Keep the first verified entry rather
-                    # than silently replacing it with different content.
-                    logger.warning(
-                        "Refusing conflicting cache entry for idempotency key %s",
-                        entry.idempotency_key,
-                    )
-                return False
+            with self._lock:
+                self._check_deadline(deadline_monotonic)
+                if operation.invalidated:
+                    return False
+                existing_ref = self._index.get(entry.idempotency_key)
+                if existing_ref is not None:
+                    if _cache_ref_identity(existing_ref) == ref_identity:
+                        self._verified_entry_keys[ref_identity] = entry.idempotency_key
+                    else:
+                        # Two immutable entries with one idempotency key are not
+                        # interchangeable. Keep the first verified entry rather
+                        # than silently replacing it with different content.
+                        logger.warning(
+                            "Refusing conflicting cache entry for idempotency key %s",
+                            entry.idempotency_key,
+                        )
+                    return False
 
-            self._check_deadline(deadline_monotonic)
-            self._index.set(entry.idempotency_key, entry_ref)
-            self._mutation_journals[entry.idempotency_key] = mutation_journal_from_operations(
-                entry.state_mutations
-            )
-            self._verified_entry_keys[ref_identity] = entry.idempotency_key
-            if self._max_entries is not None:
-                self.prune(self._max_entries)
-            return True
+                operation.key = entry.idempotency_key
+                previous_keys = set(self._index.keys())
+                self._index.set(entry.idempotency_key, entry_ref)
+                self._mutation_journals[entry.idempotency_key] = mutation_journal_from_operations(
+                    entry.state_mutations
+                )
+                self._verified_entry_keys[ref_identity] = entry.idempotency_key
+                self._record_index_removals_locked(previous_keys)
+                return True
 
     def seed_from_trace(
         self,

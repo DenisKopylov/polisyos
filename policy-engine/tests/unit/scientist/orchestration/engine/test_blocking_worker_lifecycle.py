@@ -51,6 +51,10 @@ class _CacheWriterNode:
         state.params["result"] = self.calls
         return NodeOutcome(status="ok", state=state)
 
+    async def execute_async(self, ctx, state):
+        """Use the declared async node route so cache timeout tests reach the cache."""
+        return self.execute(ctx, state)
+
 
 def _make_executor(tmp_path: Path, *, workflow_timeout_s: float | None = None):
     store = FileSystemCAS(tmp_path / "cas")
@@ -94,22 +98,23 @@ async def _wait_for_thread_event(event: threading.Event) -> None:
     await asyncio.wait_for(poll(), timeout=3.0)
 
 
-def _hold_cache_entry_write(store: FileSystemCAS, cache: NodeResultCache):
+def _hold_cache_entry_write(store: FileSystemCAS, cache: NodeResultCache, cache_key: str):
     entered = threading.Event()
     release = threading.Event()
     write_finished = threading.Event()
     worker_discarded = threading.Event()
+    index_admitted = threading.Event()
     worker_ident: int | None = None
     original_put_json = store.put_json
     original_discard = cache.discard
+    original_index_set = cache._index.set
 
     def delayed_put_json(obj, opts, canon_spec=None, *, return_selected_profile=False):
         nonlocal worker_ident
         if str(getattr(opts, "kind", "")) == "scientist.node_cache_entry":
             worker_ident = threading.get_ident()
             entered.set()
-            if not release.wait(timeout=4.0):
-                raise TimeoutError("test did not release the cache writer")
+            release.wait()
             try:
                 return original_put_json(
                     obj,
@@ -131,9 +136,15 @@ def _hold_cache_entry_write(store: FileSystemCAS, cache: NodeResultCache):
         if worker_ident is not None and threading.get_ident() == worker_ident:
             worker_discarded.set()
 
+    def recording_index_set(key: str, value) -> None:
+        original_index_set(key, value)
+        if key == cache_key:
+            index_admitted.set()
+
     store.put_json = delayed_put_json
     cache.discard = recording_discard
-    return entered, release, write_finished, worker_discarded
+    cache._index.set = recording_index_set
+    return entered, release, write_finished, worker_discarded, index_admitted
 
 
 def test_cache_timeout_returns_before_writer_finishes_and_refuses_late_cache_admission(
@@ -144,26 +155,37 @@ def test_cache_timeout_returns_before_writer_finishes_and_refuses_late_cache_adm
         tmp_path,
         workflow_timeout_s=0.25,
     )
-    entered, release, write_finished, worker_discarded = _hold_cache_entry_write(store, cache)
+    entered, release, write_finished, worker_discarded, index_admitted = _hold_cache_entry_write(
+        store, cache, cache_key
+    )
 
     async def scenario() -> None:
         result_task = asyncio.create_task(
             executor._execute_node("cached", invocation, state, workflow)
         )
-        await _wait_for_thread_event(entered)
+        release_watchdog = threading.Timer(2.0, release.set)
+        release_watchdog.start()
         try:
-            result = await result_task
+            await _wait_for_thread_event(entered)
+            done, _pending = await asyncio.wait({result_task}, timeout=0.75)
+            assert result_task in done, "cache timeout owner waited for the physical writer"
+            result = result_task.result()
             assert result[0].status == "ok"
             assert any(event.code == "node.cache_bypass" for event in result[0].events)
+            assert not release.is_set()
             assert not write_finished.is_set()
-            assert cache.size == 0
-            assert cache.has(cache_key) is False
+            assert not index_admitted.is_set()
             assert "NODE_CACHE_STORE" not in _event_types(run)
         finally:
             release.set()
+            release_watchdog.cancel()
+            if not result_task.done():
+                await asyncio.gather(result_task, return_exceptions=True)
 
         await _wait_for_thread_event(write_finished)
         await _wait_for_thread_event(worker_discarded)
+        assert not index_admitted.is_set()
+        assert not cache._pending_io
         assert cache.size == 0
         assert cache.has(cache_key) is False
         assert "NODE_CACHE_STORE" not in _event_types(run)
@@ -178,7 +200,9 @@ def test_cache_timeout_returns_before_writer_finishes_and_refuses_late_cache_adm
 async def test_caller_cancellation_waits_for_cache_writer_then_reconciles(tmp_path: Path) -> None:
     """Cancellation waits for a running writer, then removes its current cache key."""
     store, run, executor, cache, invocation, workflow, state, cache_key = _make_executor(tmp_path)
-    entered, release, write_finished, worker_discarded = _hold_cache_entry_write(store, cache)
+    entered, release, write_finished, worker_discarded, index_admitted = _hold_cache_entry_write(
+        store, cache, cache_key
+    )
     task = asyncio.create_task(executor._execute_node("cached", invocation, state, workflow))
     try:
         await _wait_for_thread_event(entered)
@@ -186,7 +210,7 @@ async def test_caller_cancellation_waits_for_cache_writer_then_reconciles(tmp_pa
         await asyncio.sleep(0)
         assert not task.done()
         assert not write_finished.is_set()
-        assert cache.size == 0
+        assert not index_admitted.is_set()
         assert "NODE_CACHE_STORE" not in _event_types(run)
     finally:
         release.set()
@@ -195,6 +219,7 @@ async def test_caller_cancellation_waits_for_cache_writer_then_reconciles(tmp_pa
         await task
     await _wait_for_thread_event(write_finished)
     await _wait_for_thread_event(worker_discarded)
+    assert not cache._pending_io
     assert cache.size == 0
     assert cache.has(cache_key) is False
     assert "NODE_CACHE_STORE" not in _event_types(run)
@@ -214,5 +239,6 @@ async def test_completed_cache_writer_publishes_current_ref_and_owner_event(tmp_
     assert cache_hit is False
     assert cache.has(cache_key)
     assert cache.size == 1
+    assert not cache._pending_io
     assert "NODE_CACHE_STORE" in _event_types(run)
     assert len(_cache_entry_ids(store)) == 1

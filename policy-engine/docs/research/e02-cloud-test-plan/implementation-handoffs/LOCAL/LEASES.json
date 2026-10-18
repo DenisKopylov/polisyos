@@ -13557,5 +13557,77 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-b14-r6-formatted-source-adoption-20261018": {
+    "slice_base": "b87e111aa8e90a93eba4d0b5c25273a059f189c9",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py": {
+        "operation": "write",
+        "preimage_sha256": "431c76199eeb1bf55071db3c62c7b9bda35e72a8ee9e0f0a76403d76c585a1ed",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-actual-cache-consumer-repair-r6-20261018/postimages/policy-engine/src/polisyos/scientist/orchestration/engine/idempotency.py",
+        "postimage_sha256": "12cfb068a2f9d563be46396caa48631a6a5cca19ff435af1d0e3bf7926694eac"
+      },
+      "policy-engine/src/polisyos/scientist/orchestration/engine/README.md": {
+        "operation": "write",
+        "preimage_sha256": "d6c287ea9553735b7d0c137523f5617915355a47560b679c62f0002e501df196",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-actual-cache-consumer-repair-r6-20261018/postimages/policy-engine/src/polisyos/scientist/orchestration/engine/README.md",
+        "postimage_sha256": "ac2fa69117440e497867928aa9e426eea17a811e006a4a278eefe73d0da0c56e"
+      },
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_idempotency.py": {
+        "operation": "write",
+        "preimage_sha256": "8cc7f8ecf3a779f489e91e54a3f0ccf60df493bc9be63d1ebf49739e1d2235f5",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-actual-cache-consumer-repair-r6-20261018/postimages/policy-engine/tests/unit/scientist/orchestration/engine/test_idempotency.py",
+        "postimage_sha256": "e5a409bc49f58db53a131e39f06785b65dff1cc8f32aa1bcfdb196c28b877f06"
+      },
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_blocking_worker_lifecycle.py": {
+        "operation": "write",
+        "preimage_sha256": "1dc00e465f34446965c8dcab64b68ea7c8e707a9c5ceda4007f3b895a720fc80",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-actual-cache-consumer-repair-r6-20261018/postimages/policy-engine/tests/unit/scientist/orchestration/engine/test_blocking_worker_lifecycle.py",
+        "postimage_sha256": "ca15d26c7da1c187ed7234d0dfce06570c477b8d6729627aac1c194b258ddf4f"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-r6-formatted-source-adoption-20261018/source-application.json",
+      "sha256": "1ada1c82b97d57ff497d019df5ae9d68637a711693e61caa467dbc947df8eb51"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-r6-formatted-source-adoption-20261018/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-actual-cache-consumer-repair-r6-20261018/manifest.json",
+        "sha256": "be0c2c8076c2895949b662d43ada0545e9854ffc0676d2e337011a3bd769bbac"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-r6-independent-20261018/review.json",
+        "sha256": "e9b1df6574e0e4b07fe892f8b3babf58766e79e5c36c7802d3c4b9efc5643ec1"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-r6-formatted-source-adoption-20261018/formatter-overlap-qualification.json",
+        "sha256": "2f1b1e08bc092d6365bb51188ccb61a59e248d9b8c0e509350c3eec2f16d77d5"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-actual-cache-consumer-repair-r6-20261018/decision.md",
+        "sha256": "d74fe5a71551eaa54f9536a44a6cda8ac0ebd919ec5d8bee6500840003b08bb2"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-actual-cache-consumer-repair-r6-20261018/static-verification.json",
+        "sha256": "bc0c19e68ce5cb279d0a348aefa72bd77613fb92dbf396170610820bf6b4b831"
+      }
+    ],
+    "P40": "Same owner-fencing class; widened active and queued operation registry rather than another per-call fix.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Global 63-call/14-file durable-effect denominator remains HOLD",
+      "Runtime on this composition UNRUN",
+      "Orphan CAS bytes may remain; stale publication is fenced"
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run both full idempotency and blocking-worker-lifecycle modules in the current composed wave; existing platform guard retained.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

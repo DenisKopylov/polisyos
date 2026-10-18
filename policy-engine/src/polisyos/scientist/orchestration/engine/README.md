@@ -151,6 +151,15 @@ cancellation cannot authorize a later successful workflow publication.
 When no owner deadline is configured, shared-executor operations explicitly
 select an unbounded wait and do not inherit the helper's default timeout.
 
+`NodeResultCache` registers each provider-backed read, write, and recovery before
+it queues behind the serialized provider lane. Its live-operation registry holds
+only queued or active tokens and is cleaned in `finally`; `discard`, `clear`, and
+index eviction revoke affected tokens before they can return or admit a current
+reference. Writers still recheck the original deadline before index admission.
+Immutable CAS objects already written by a refused call may remain, so this fence
+covers current cache references and owner events, not strict no-late-persistence
+across the artifact-store API.
+
 Checkpoint publication carries an invocation-local `CheckpointPublicationBudget`
 through artifact creation, atomic head publication and history GC. It captures
 the original caller, cancellation baseline and ownership token. The additive

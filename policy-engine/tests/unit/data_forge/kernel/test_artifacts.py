@@ -60,7 +60,7 @@ def test_kernel_json_loader_can_wrap_a_real_cas_read_error_with_cause(tmp_path: 
     cas = FileSystemCAS(tmp_path / "cas")
     missing_id = "sha256:" + "a" * 64
 
-    with pytest.raises(DataForgeValidationError, match="failed to read fixture") as raised:
+    with pytest.raises(DataForgeValidationError) as raised:
         load_json_artifact(
             cas,
             missing_id,
@@ -69,4 +69,5 @@ def test_kernel_json_loader_can_wrap_a_real_cas_read_error_with_cause(tmp_path: 
             read_error_prefix="failed to read",
         )
 
-    assert raised.value.__cause__ is not None
+    assert str(raised.value).startswith(f"failed to read {missing_id}: ")
+    assert isinstance(raised.value.__cause__, FileNotFoundError)

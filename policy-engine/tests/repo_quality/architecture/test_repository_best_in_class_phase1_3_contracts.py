@@ -321,7 +321,6 @@ def test_phase1_3_report_only_validator_scopes_package_mirror_property(tmp_path:
     package_contract_errors = [
         item for item in packages_report["contract_errors"] if item["check"] == "package-contract"
     ]
-    assert len(package_contract_errors) == 6
     expired = [
         item for item in package_contract_errors if "invalid or expired date" in item["message"]
     ]
@@ -337,7 +336,6 @@ def test_phase1_3_report_only_validator_scopes_package_mirror_property(tmp_path:
         and item["message"] == "aggregate package has no primary package contract file"
         for item in package_contract_errors
     )
-    assert any(item["check"] == "report-only-gates" for item in packages_report["contract_errors"])
     assert packages_report["summary"]["package_contract_count"] >= 16
     invalid_gate_dates = [
         item

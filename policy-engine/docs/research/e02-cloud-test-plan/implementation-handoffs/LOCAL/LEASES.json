@@ -7167,5 +7167,56 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "coordination_epoch_20261018_stale_test_oracle_contract_alignment": {
+    "slice_base": "0d06e04d5621bdba60a7ae89c98eb943522ea4f4",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/unit/data_forge/kernel/test_artifacts.py": {
+        "preimage_sha256": "95863f30fa5c49c22e1e4d0d67e5c2d00a5d637b7975f797945d313d7cb7bdc6",
+        "postimage_sha256": "c8db9583354f6146633e79c55c7d0b49056e506a82bd633738f6970bd327cf46",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-stale-test-expectations-author-20261018/policy-engine/tests/unit/data_forge/kernel/test_artifacts.py",
+        "operation": "modify"
+      },
+      "policy-engine/tests/repo_quality/architecture/test_repository_best_in_class_phase1_3_contracts.py": {
+        "preimage_sha256": "4545e31bef382a669f04c9c7c5f4c89a4fda5aecdf070a7ac018003da881420b",
+        "postimage_sha256": "82dfbf20e0171664b31a5ef9d6a3751c4be3512894b437d76cc22e28713277fb",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-stale-test-expectations-author-20261018/policy-engine/tests/repo_quality/architecture/test_repository_best_in_class_phase1_3_contracts.py",
+        "operation": "modify"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-stale-test-expectation-application-20261018/source-application.json",
+      "sha256": "3c29ecc315aeca6d825d0bf54be8bdf4f5ffc8728aba9237ac5bb0b5b84c8f52"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-stale-test-expectation-application-20261018/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-stale-test-expectations-independent-20261018/review.json",
+        "sha256": "124f367233eb848d43ea7a0be8f374082dc18257916519b8b0f8257a8d9da909"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-stale-test-expectations-author-20261018/patch.diff",
+        "sha256": "8eb57eab729ac2a776227d73bbf89373e33af3a5b8f12b66599308d2da84f03c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-stale-test-expectations-author-20261018/author-proof.md",
+        "sha256": "fa786ed1d1a4703471e7dceb1e135789a0cb9e4ffa02c62623f3a36e50106255"
+      }
+    ],
+    "P40": "Two stale test oracles for two explicit existing contracts. The scope is not a general test-maintenance waiver; no runtime repair ladder.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Only the two disproven test expectations change; no runtime behavior, expiry date, gate mode or closure state changes.",
+      "Specific genuine expired-package assertions and malformed-date/extraction-expiry controls remain. Canonical replay is required; historical040wave stays124PASS5FAIL."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run full bounded test_artifacts and phase1_3 contract modules with existing five focused eligibility/cause/refusal selectors.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

@@ -7258,5 +7258,121 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "coordination_epoch_20261018_native_docs_adr_quality_candidate_verification": {
+    "slice_base": "221d4b7644b2bd022b4ae8b53e45834f83cfc11c",
+    "canonical_writer": "root only; reviewed candidate plus reviewed canonical Ruff normalization via git apply",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/repo_quality/tools/test_docs_review.py": {
+        "preimage_sha256": "a2ee83d75ebac0999fe7fe344a4eae3f164d63d113909c76564b52b048f56323",
+        "postimage_sha256": "0d9641056c53384c8f88c2c0ced05ff40c23ad8a2391cddcadbff528b2944f52",
+        "operation": "modify"
+      },
+      "policy-engine/tools/quality/validation/docs_review_git.py": {
+        "preimage_sha256": null,
+        "postimage_sha256": "d460746cc1e5f7198e342aabafa6f84780a6a76051806531d3382b6c7fa34e79",
+        "operation": "create"
+      },
+      "policy-engine/tools/quality/validation/check_docs_review.py": {
+        "preimage_sha256": "336ca282dca0b856fd6cdd0b6487ed1002955706f1b8d160679f397c28be378d",
+        "postimage_sha256": "fd5f652df42707393aa29c1551aa5a9a6216c51e88fb931c9baef5990c5bc771",
+        "operation": "modify"
+      },
+      "policy-engine/tools/quality/validation/docs_review_artifacts.py": {
+        "preimage_sha256": null,
+        "postimage_sha256": "bcaa7f339810a153bbc08be491594cf54ab9a74b565d6d19b674ef644a4933b2",
+        "operation": "create"
+      },
+      "policy-engine/tools/quality/validation/generate_adr_index.py": {
+        "preimage_sha256": "4082c7160b614a0dbbc8b695809610f0044a0ac5f5e0b44c992b3a4f8ac7a6a5",
+        "postimage_sha256": "2357a882b0973169d73a17b819769e509e098db1ff51a035d24c88f91853daa5",
+        "operation": "modify"
+      },
+      "policy-engine/tools/quality/validation/adr_index_compiler.py": {
+        "preimage_sha256": null,
+        "postimage_sha256": "e23c775a993dab6f31d36710162e75ab902099cb2e3067b3309d3b726bf9ba26",
+        "operation": "create"
+      },
+      "policy-engine/tools/quality/validation/production_quality_evidence_inventory.py": {
+        "preimage_sha256": "1cbcf8154396e0fa73b9791662c5032f27f16de4f911f2d1803affaf14bd0f84",
+        "postimage_sha256": "e6b08673b6cb0043abd5f6d1399addff6b1915c17e2daed1b92a35da6205e583",
+        "operation": "modify"
+      },
+      "policy-engine/tools/quality/validation/production_quality_evidence_inventory_bindings.py": {
+        "preimage_sha256": null,
+        "postimage_sha256": "084b2ee55349a286317bd4ae05fb6570ff69a04c26f9cd28e7a5a8d54a5a3d00",
+        "operation": "create"
+      },
+      "policy-engine/tools/quality/validation/production_quality_evidence_inventory_contracts.py": {
+        "preimage_sha256": null,
+        "postimage_sha256": "ad611d4366c07b3a43ceb2a3a836bb7d0c3ac0a269f574cfcebd3149e3535dcb",
+        "operation": "create"
+      },
+      "policy-engine/tools/quality/validation/production_quality_evidence_inventory_reports.py": {
+        "preimage_sha256": null,
+        "postimage_sha256": "c58b60a3e8d962303b49f6a02ca8dc2d6099c039f8cd5ca12deee13266d9ebd3",
+        "operation": "create"
+      },
+      "policy-engine/tools/quality/validation/README.md": {
+        "preimage_sha256": "5f1c79447ffd394fa3a049830f5fd2ead55aa1d0682c676e663faece8befcbf2",
+        "postimage_sha256": "1280e8f9ef95c3e4398a0f45e91c0bdae78801c9008277df1302d65d97fe0771",
+        "operation": "modify"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-docs-adr-quality-candidate-20261018/canonical-final-qualification.json",
+      "sha256": "a4366865a928993afb44ce4d2b2f08e9b07834e483ace002caa36926fdb563e4"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-docs-review-owner-independent-20261018/review.md",
+        "sha256": "bd9d560e45db6a56e684c1ae2edd689ae4537cbb262fcf315b6aca6e78616494"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-docs-review-owner-author-20261018/candidate.patch",
+        "sha256": "5375188401dd355e522fca0f267aa89474e509bad649b870f19b95c4c0b3f583"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-adr-index-owner-independent-20261018/independent-review.json",
+        "sha256": "847d784e29bb4401cf0864cc339bc078911cb519400b2c878d1d37eebbfd5214"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-adr-index-owner-author-20261018/native-adr-index-owner.patch",
+        "sha256": "cf91736334391b7431daa40781a21f33acdf140855b4a793418bbe0ae29c5a73"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-quality-inventory-owner-independent-20261018/packet-index.json",
+        "sha256": "ebbeea88ed8471c42ecf5f39b422b757beebc7caaa4235c4651b37e8b27b7ae9"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-quality-inventory-owner-author-20261018/candidate.patch",
+        "sha256": "4b47ef0d0f1dc4cf9275fbed450474898bebee3bbb8fb6bd65d6744fd983142f"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-quality-physical-ruff-delta-independent-20261018/review.json",
+        "sha256": "59c6a57f70e7eacd1580fa6f71555c5df0545b475bf5ee766b7d539b6dba4c8d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-docs-adr-quality-candidate-20261018/canonical-format-imports-proposal.json",
+        "sha256": "1e9026f9ac0042750a72eca6411f141e9a075474c607eb402476a1ddac8b26c5"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-adr-index-owner-file-mode-r1-20261018/file-mode-comparison.json",
+        "sha256": "036b445b6001399356d2767541e174a67b23b9030b5579ff2ae5e8e7ae8cfff8"
+      }
+    ],
+    "P40": "Same module-size/owner-boundary class, whole semantic families with complete live facade binding review. No line-cap instance packing, new budget or exception renewal.",
+    "limitations": [
+      "This is candidate integration for verification in the single persistent OWN checkout, not G acceptance. Source reviews are GO; their runtime/adoption HOLDs remain pending actual evidence.",
+      "Instead of another complete sourceview/environment copy, actual verification will use the exact committed candidate checkout with an origin observer requiring its product and tool modules plus frozen input hashes. No RAW overlay or historical N11 sourceview enters this profile.",
+      "Quality full-file failures and 190-leaf baseline drift remain P41 not_established; no baseline, expiry, threshold, classification, authority or owner waiver changes. ADR stale report check is not runtime green.",
+      "Docs author earlier 23-pass output was not retained; no credit assigned before fresh canonical tests. Full native SOTA remains UNRUN.",
+      "README is the root mandatory companion. Extra overlay package __init__ files are runtime scaffolding and excluded from the four-path quality mechanism."
+    ],
+    "runtime": "UNRUN on integrated canonical source; separate ADR file-mode historical candidate comparison referenced",
+    "next_check": "Freeze this candidate source and explicit inputs; run full docs-review and ADR importer tests, quality binding/control and CI/Wave40 actual consumers, source-bound CLI outputs, canonical Ruff and exact module-size metric. Record all FAIL/ERROR/SKIP/UNRUN, full supervisor/result/origin outputs.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

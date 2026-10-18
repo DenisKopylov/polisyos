@@ -4,18 +4,14 @@
 from __future__ import annotations
 
 import argparse
-import base64
-import gzip
 import hashlib
 import json
 import os
 import stat
 import subprocess
 import time
-import uuid
 from collections.abc import Sequence
 from contextlib import suppress
-from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -23,6 +19,8 @@ from typing import Any
 from tools.devx.workspace._repo_hygiene import _DEFAULT_MARKDOWN_EXCLUDES
 from tools.lib.imports import repo_root_from
 from tools.quality.validation import check_docs_gate
+from tools.quality.validation import docs_review_artifacts as _docs_review_artifacts
+from tools.quality.validation import docs_review_git as _docs_review_git
 
 REPO_ROOT = repo_root_from(__file__).resolve()
 OUTPUT_ROOT = Path("_build/docs-maintenance/docs-review")
@@ -33,28 +31,217 @@ UNRUN_GATE_KEYS = {"docs_lifecycle"}
 UNRUN_INDEPENDENT_KEYS = {"docs_impact", "rendered_links"}
 
 
-@dataclass(frozen=True)
-class GitWindow:
-    """Resolved change window and its actual Git-selected paths."""
-
-    base_commit: str | None
-    head_commit: str | None
-    comparison_base: str | None
-    checkout_commit: str | None
-    workspace_matches_head: bool | None
-    workspace_mismatch_reason: str | None
-    worktree_status: bytes | None
-    paths: tuple[str, ...]
-    selection: str
-    raw_paths: tuple[bytes, ...] = ()
+GitWindow = _docs_review_git.GitWindow
+ReviewError = _docs_review_git.ReviewError
+LogBudgetExceededError = _docs_review_artifacts.LogBudgetExceededError
 
 
-class ReviewError(ValueError):
-    """Signal an input or evidence condition that prevents a review verdict."""
+def _artifact_dependencies() -> _docs_review_artifacts.ArtifactDependencies:
+    return _docs_review_artifacts.ArtifactDependencies(
+        output_root=OUTPUT_ROOT,
+        default_receipt_name=DEFAULT_RECEIPT_NAME,
+        max_compressed_log_bytes=MAX_COMPRESSED_LOG_BYTES,
+        error_type=ReviewError,
+        log_budget_error_type=LogBudgetExceededError,
+        open_output_root=_open_output_root,
+        tracked_paths_under=_tracked_paths_under,
+        git_bytes=_git_bytes,
+        nul_paths=_nul_paths,
+        safe_output_child=_safe_output_child,
+        write_artifact=_write_artifact,
+        relative=_relative,
+        sha256=_sha256,
+        gzip_bytes=_gzip_bytes,
+    )
 
 
-class LogBudgetExceededError(RuntimeError):
-    """Signal that complete command output cannot fit the configured log budget."""
+def _open_output_root(repo_root: Path) -> int:
+    return _docs_review_artifacts._open_output_root(
+        repo_root,
+        dependencies=_artifact_dependencies(),
+    )
+
+
+def _tracked_paths_under(repo_root: Path, run_directory: str, refs: Sequence[str]) -> list[str]:
+    return _docs_review_artifacts._tracked_paths_under(
+        repo_root,
+        run_directory,
+        refs,
+        dependencies=_artifact_dependencies(),
+    )
+
+
+def _resolve_output_path(
+    repo_root: Path,
+    requested: Path | None,
+    *,
+    tracked_refs: Sequence[str],
+) -> Path:
+    return _docs_review_artifacts._resolve_output_path(
+        repo_root,
+        requested,
+        tracked_refs=tracked_refs,
+        dependencies=_artifact_dependencies(),
+    )
+
+
+def _safe_output_child(output_path: Path, relative: str) -> Path:
+    return _docs_review_artifacts._safe_output_child(
+        output_path,
+        relative,
+        dependencies=_artifact_dependencies(),
+    )
+
+
+def _relative(repo_root: Path, path: Path) -> str:
+    return _docs_review_artifacts._relative(repo_root, path)
+
+
+def _sha256(data: bytes) -> str:
+    return _docs_review_artifacts._sha256(data)
+
+
+def _gzip_bytes(data: bytes) -> bytes:
+    return _docs_review_artifacts._gzip_bytes(data)
+
+
+def _write_artifact(
+    path: Path,
+    raw: bytes,
+    *,
+    compressed: bool,
+    budget_state: dict[str, int] | None = None,
+) -> dict[str, Any]:
+    return _docs_review_artifacts._write_artifact(
+        path,
+        raw,
+        compressed=compressed,
+        budget_state=budget_state,
+        dependencies=_artifact_dependencies(),
+    )
+
+
+def _changed_paths_artifact(
+    repo_root: Path,
+    output_path: Path,
+    raw_paths: Sequence[bytes],
+    budget_state: dict[str, int],
+) -> dict[str, Any]:
+    return _docs_review_artifacts._changed_paths_artifact(
+        repo_root,
+        output_path,
+        raw_paths,
+        budget_state,
+        dependencies=_artifact_dependencies(),
+    )
+
+
+def _worktree_status_artifact(
+    repo_root: Path,
+    output_path: Path,
+    status_bytes: bytes,
+    budget_state: dict[str, int],
+) -> dict[str, Any]:
+    return _docs_review_artifacts._worktree_status_artifact(
+        repo_root,
+        output_path,
+        status_bytes,
+        budget_state,
+        dependencies=_artifact_dependencies(),
+    )
+
+
+def _store_logs(
+    repo_root: Path,
+    output_path: Path,
+    lane: str,
+    sequence: int,
+    key: str,
+    stdout: bytes,
+    stderr: bytes,
+    budget_state: dict[str, int],
+) -> dict[str, dict[str, Any]]:
+    return _docs_review_artifacts._store_logs(
+        repo_root,
+        output_path,
+        lane,
+        sequence,
+        key,
+        stdout,
+        stderr,
+        budget_state,
+        dependencies=_artifact_dependencies(),
+    )
+
+
+def _git_bytes(repo_root: Path, *args: str) -> bytes:
+    return _docs_review_git._git_bytes(
+        repo_root,
+        *args,
+        environment=_git_environment(),
+        error_type=ReviewError,
+    )
+
+
+def _resolve_commit(repo_root: Path, ref: str) -> str:
+    return _docs_review_git._resolve_commit(
+        repo_root,
+        ref,
+        git_bytes=_git_bytes,
+        error_type=ReviewError,
+    )
+
+
+def _nul_paths(raw: bytes, *, command: str) -> tuple[bytes, ...]:
+    return _docs_review_git._nul_paths(raw, command=command, error_type=ReviewError)
+
+
+def _select_changed_paths(
+    repo_root: Path,
+    *,
+    comparison_base: str | None,
+    head: str,
+) -> tuple[bytes, ...]:
+    return _docs_review_git._select_changed_paths(
+        repo_root,
+        comparison_base=comparison_base,
+        head=head,
+        git_bytes=_git_bytes,
+        nul_paths=_nul_paths,
+        error_type=ReviewError,
+    )
+
+
+def _porcelain_status(repo_root: Path) -> bytes:
+    return _docs_review_git._porcelain_status(
+        repo_root,
+        git_environment=_git_environment,
+        error_type=ReviewError,
+    )
+
+
+def _git_review_dependencies() -> _docs_review_git.GitReviewDependencies:
+    return _docs_review_git.GitReviewDependencies(
+        resolve_commit=_resolve_commit,
+        select_changed_paths=_select_changed_paths,
+        porcelain_status=_porcelain_status,
+        git_environment=_git_environment,
+        error_type=ReviewError,
+    )
+
+
+def _resolve_git_window(
+    repo_root: Path,
+    *,
+    base_ref: str | None,
+    head_ref: str | None,
+) -> GitWindow:
+    return _docs_review_git._resolve_git_window(
+        repo_root,
+        base_ref=base_ref,
+        head_ref=head_ref,
+        dependencies=_git_review_dependencies(),
+    )
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -102,23 +289,6 @@ def _parser() -> argparse.ArgumentParser:
     return parser
 
 
-def _git_bytes(repo_root: Path, *args: str) -> bytes:
-    try:
-        result = subprocess.run(
-            ["git", *args],
-            cwd=repo_root,
-            check=False,
-            capture_output=True,
-            env=_git_environment(),
-        )
-    except OSError as exc:
-        raise ReviewError(f"could not run Git: {type(exc).__name__}: {exc}") from exc
-    if result.returncode != 0:
-        detail = result.stderr.decode("utf-8", errors="replace").strip()
-        raise ReviewError(f"git {' '.join(args[:2])} failed: {detail or result.returncode}")
-    return result.stdout
-
-
 def _safe_environment() -> dict[str, str]:
     environment = os.environ.copy()
     environment["UV_NO_SYNC"] = "1"
@@ -131,423 +301,6 @@ def _git_environment() -> dict[str, str]:
     environment["GIT_NO_REPLACE_OBJECTS"] = "1"
     environment["GIT_NO_LAZY_FETCH"] = "1"
     return environment
-
-
-def _resolve_commit(repo_root: Path, ref: str) -> str:
-    if ref.startswith("-"):
-        raise ReviewError(f"Git ref must not start with '-': {ref!r}")
-    value_bytes = _git_bytes(
-        repo_root, "rev-parse", "--verify", "--end-of-options", f"{ref}^{{commit}}"
-    )
-    value = value_bytes.removesuffix(b"\n").decode("ascii", errors="strict")
-    if len(value) != 40 and len(value) != 64:
-        raise ReviewError(f"Git did not resolve {ref!r} to a full commit ID")
-    return value.lower()
-
-
-def _nul_paths(raw: bytes, *, command: str) -> tuple[bytes, ...]:
-    if not raw:
-        return ()
-    if not raw.endswith(b"\0"):
-        raise ReviewError(f"git {command} returned a non-NUL-terminated path list")
-    return tuple(path for path in raw[:-1].split(b"\0") if path)
-
-
-def _select_changed_paths(
-    repo_root: Path, *, comparison_base: str | None, head: str
-) -> tuple[bytes, ...]:
-    diff_args = [
-        "diff",
-        "--name-only",
-        "-z",
-        "--no-renames",
-        "--no-ext-diff",
-        "--no-textconv",
-        "--relative",
-    ]
-    if comparison_base is None:
-        diff_args.extend(("HEAD", "--", "."))
-    else:
-        diff_args.extend((comparison_base, head, "--", "."))
-    changed = set(_nul_paths(_git_bytes(repo_root, *diff_args), command="diff --name-only -z"))
-    if head == "HEAD":
-        untracked = _git_bytes(
-            repo_root,
-            "ls-files",
-            "--others",
-            "--exclude-standard",
-            "-z",
-            "--",
-            ".",
-        )
-        changed.update(_nul_paths(untracked, command="ls-files --others -z"))
-    return tuple(sorted(changed))
-
-
-def _porcelain_status(repo_root: Path) -> bytes:
-    try:
-        result = subprocess.run(
-            [
-                "git",
-                "-C",
-                str(repo_root),
-                "status",
-                "--porcelain=v1",
-                "-z",
-                "--untracked-files=all",
-                "--",
-                ".",
-            ],
-            check=False,
-            capture_output=True,
-            env=_git_environment(),
-        )
-    except OSError as exc:
-        raise ReviewError(
-            f"could not inspect Git worktree status: {type(exc).__name__}: {exc}"
-        ) from exc
-    if result.returncode != 0:
-        detail = result.stderr.decode("utf-8", errors="replace").strip()
-        raise ReviewError(f"git status failed: {detail or result.returncode}")
-    return result.stdout
-
-
-def _resolve_git_window(
-    repo_root: Path, *, base_ref: str | None, head_ref: str | None
-) -> GitWindow:
-    if (base_ref is None) != (head_ref is None):
-        raise ReviewError("--base-ref and --head-ref must be supplied together")
-
-    if base_ref is None:
-        checkout = _resolve_commit(repo_root, "HEAD")
-        raw_paths = _select_changed_paths(repo_root, comparison_base=None, head="HEAD")
-        paths = tuple(path.decode("utf-8", errors="surrogateescape") for path in raw_paths)
-        return GitWindow(
-            base_commit=None,
-            head_commit=None,
-            comparison_base=None,
-            checkout_commit=checkout,
-            workspace_matches_head=None,
-            workspace_mismatch_reason=None,
-            worktree_status=None,
-            paths=paths,
-            selection=(
-                "Complete Git path set under the configured product root: worktree diff against "
-                "HEAD plus untracked nonignored paths; paths outside the product root are "
-                "excluded, including repository-root AGENTS.md when the product root is nested"
-            ),
-            raw_paths=raw_paths,
-        )
-
-    base = _resolve_commit(repo_root, base_ref)
-    head = _resolve_commit(repo_root, head_ref or "")
-    try:
-        merge_base_result = subprocess.run(
-            ["git", "merge-base", head, base],
-            cwd=repo_root,
-            check=False,
-            capture_output=True,
-            env=_git_environment(),
-        )
-    except OSError as exc:
-        raise ReviewError(f"could not run git merge-base: {type(exc).__name__}: {exc}") from exc
-    if merge_base_result.returncode == 0:
-        comparison_base = merge_base_result.stdout.removesuffix(b"\n").decode("ascii")
-    elif merge_base_result.returncode == 1:
-        comparison_base = base
-    else:
-        detail = merge_base_result.stderr.decode("utf-8", errors="replace").strip()
-        raise ReviewError(f"git merge-base failed: {detail or merge_base_result.returncode}")
-    checkout = _resolve_commit(repo_root, "HEAD")
-    try:
-        worktree_status = _porcelain_status(repo_root)
-    except ReviewError as exc:
-        workspace_matches = False
-        mismatch_reason = str(exc)
-        worktree_status = None
-    else:
-        workspace_matches = checkout == head and not worktree_status
-        mismatch_reason = None
-        if checkout != head:
-            mismatch_reason = "checkout HEAD differs from the requested immutable head commit"
-        elif worktree_status:
-            mismatch_reason = (
-                "product worktree has tracked or untracked changes outside the immutable head"
-            )
-    raw_paths = _select_changed_paths(repo_root, comparison_base=comparison_base, head=head)
-    paths = tuple(path.decode("utf-8", errors="surrogateescape") for path in raw_paths)
-    return GitWindow(
-        base_commit=base,
-        head_commit=head,
-        comparison_base=comparison_base,
-        checkout_commit=checkout,
-        workspace_matches_head=workspace_matches,
-        workspace_mismatch_reason=mismatch_reason,
-        worktree_status=worktree_status,
-        paths=paths,
-        selection=(
-            "Complete Git path set under the configured product root: commit diff from "
-            "merge-base(base, head), or base when no merge-base exists; paths outside the "
-            "product root are excluded, including repository-root AGENTS.md when the product "
-            "root is nested"
-        ),
-        raw_paths=raw_paths,
-    )
-
-
-def _open_output_root(repo_root: Path) -> int:
-    directory_flags = os.O_RDONLY | getattr(os, "O_DIRECTORY", 0) | getattr(os, "O_NOFOLLOW", 0)
-    try:
-        current_fd = os.open(repo_root, directory_flags)
-    except OSError as exc:
-        raise ReviewError(f"could not safely open product root: {exc}") from exc
-    for component in OUTPUT_ROOT.parts:
-        try:
-            with suppress(FileExistsError):
-                os.mkdir(component, mode=0o700, dir_fd=current_fd)
-            next_fd = os.open(component, directory_flags, dir_fd=current_fd)
-        except OSError as exc:
-            os.close(current_fd)
-            raise ReviewError(
-                f"docs-review output root has an unsafe or unusable component {component!r}: {exc}"
-            ) from exc
-        os.close(current_fd)
-        current_fd = next_fd
-    return current_fd
-
-
-def _tracked_paths_under(repo_root: Path, run_directory: str, refs: Sequence[str]) -> list[str]:
-    index_paths = _nul_paths(
-        _git_bytes(
-            repo_root,
-            "ls-files",
-            "--cached",
-            "-z",
-            "--",
-            run_directory,
-        ),
-        command="ls-files --cached -z",
-    )
-    tracked = [path.decode("utf-8", errors="surrogateescape") for path in index_paths]
-    for ref in dict.fromkeys(refs):
-        tree_paths = _nul_paths(
-            _git_bytes(
-                repo_root,
-                "ls-tree",
-                "-r",
-                "-z",
-                "--name-only",
-                ref,
-                "--",
-                run_directory,
-            ),
-            command="ls-tree -r -z",
-        )
-        tracked.extend(path.decode("utf-8", errors="surrogateescape") for path in tree_paths)
-    return tracked
-
-
-def _resolve_output_path(
-    repo_root: Path, requested: Path | None, *, tracked_refs: Sequence[str]
-) -> Path:
-    output_root = repo_root / OUTPUT_ROOT
-    if requested is None:
-        run_name = f"run-{uuid.uuid4().hex}"
-        receipt_name = DEFAULT_RECEIPT_NAME
-    else:
-        raw_path = requested if requested.is_absolute() else repo_root / requested
-        path = Path(os.path.abspath(raw_path))
-        try:
-            relative = path.relative_to(output_root)
-        except ValueError as exc:
-            raise ReviewError(f"receipt must be under {OUTPUT_ROOT.as_posix()}/") from exc
-        if len(relative.parts) != 2:
-            raise ReviewError(
-                "receipt must be a file directly inside a fresh run-<32 hex> directory"
-            )
-        run_name, receipt_name = relative.parts
-        if len(run_name) != 36 or not run_name.startswith("run-"):
-            raise ReviewError("receipt directory must use a fresh run-<32 hex> identifier")
-        try:
-            uuid.UUID(hex=run_name[4:])
-        except ValueError as exc:
-            raise ReviewError("receipt directory must use a fresh run-<32 hex> identifier") from exc
-        if run_name[4:] != run_name[4:].lower():
-            raise ReviewError("receipt directory must use a lowercase run identifier")
-        if path.suffix.lower() != ".json":
-            raise ReviewError("receipt path must end in .json")
-
-    root_fd = _open_output_root(repo_root)
-    try:
-        run_relative = (OUTPUT_ROOT / run_name).as_posix()
-        tracked = _tracked_paths_under(repo_root, run_relative, tracked_refs)
-        if tracked:
-            raise ReviewError(
-                "fresh review output directory intersects tracked paths: "
-                + ", ".join(repr(path) for path in tracked[:5])
-            )
-        try:
-            os.mkdir(run_name, mode=0o700, dir_fd=root_fd)
-        except FileExistsError as exc:
-            raise ReviewError(
-                f"review run directory already exists and is never overwritten: {run_name}"
-            ) from exc
-        except OSError as exc:
-            raise ReviewError(f"could not exclusively create review run directory: {exc}") from exc
-        run_fd = os.open(
-            run_name,
-            os.O_RDONLY | getattr(os, "O_DIRECTORY", 0) | getattr(os, "O_NOFOLLOW", 0),
-            dir_fd=root_fd,
-        )
-        try:
-            if os.listdir(run_fd):
-                raise ReviewError("new review run directory was not empty")
-        finally:
-            os.close(run_fd)
-    finally:
-        os.close(root_fd)
-    return output_root / run_name / receipt_name
-
-
-def _safe_output_child(output_path: Path, relative: str) -> Path:
-    root = output_path.parent
-    candidate = Path(relative)
-    if not candidate.parts or candidate.is_absolute() or ".." in candidate.parts:
-        raise ReviewError(f"output path escapes its fresh review directory: {relative}")
-    try:
-        root_stat = root.lstat()
-    except OSError as exc:
-        raise ReviewError(f"fresh review directory is unavailable: {exc}") from exc
-    if stat.S_ISLNK(root_stat.st_mode) or not stat.S_ISDIR(root_stat.st_mode):
-        raise ReviewError("fresh review directory must be a real directory, not a symlink")
-    current = root
-    for component in candidate.parts[:-1]:
-        current = current / component
-        with suppress(FileExistsError):
-            current.mkdir(mode=0o700)
-        try:
-            component_stat = current.lstat()
-        except OSError as exc:
-            raise ReviewError(f"could not inspect output directory {current}: {exc}") from exc
-        if stat.S_ISLNK(component_stat.st_mode) or not stat.S_ISDIR(component_stat.st_mode):
-            raise ReviewError(f"output path traverses a non-directory or symlink: {current}")
-    child = current / candidate.parts[-1]
-    if child.exists() or child.is_symlink():
-        raise ReviewError(f"output target already exists and is never overwritten: {relative}")
-    return child
-
-
-def _relative(repo_root: Path, path: Path) -> str:
-    try:
-        return path.resolve(strict=False).relative_to(repo_root.resolve()).as_posix()
-    except ValueError:
-        return str(path)
-
-
-def _sha256(data: bytes) -> str:
-    return hashlib.sha256(data).hexdigest()
-
-
-def _gzip_bytes(data: bytes) -> bytes:
-    return gzip.compress(data, compresslevel=6, mtime=0)
-
-
-def _write_artifact(
-    path: Path,
-    raw: bytes,
-    *,
-    compressed: bool,
-    budget_state: dict[str, int] | None = None,
-) -> dict[str, Any]:
-    encoded = _gzip_bytes(raw) if compressed else raw
-    if budget_state is not None and compressed:
-        if budget_state["used"] + len(encoded) > MAX_COMPRESSED_LOG_BYTES:
-            raise LogBudgetExceededError(
-                f"compressed child logs would exceed {MAX_COMPRESSED_LOG_BYTES} bytes"
-            )
-        budget_state["used"] += len(encoded)
-    flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_NOFOLLOW", 0)
-    descriptor = os.open(path, flags, 0o600)
-    try:
-        with os.fdopen(descriptor, "wb") as stream:
-            stream.write(encoded)
-    except Exception:
-        with suppress(OSError):
-            os.close(descriptor)
-        raise
-    return {
-        "path": path.as_posix(),
-        "sha256": _sha256(encoded),
-        "stored_bytes": len(encoded),
-        "original_bytes": len(raw),
-        "encoding": "gzip" if compressed else "identity",
-    }
-
-
-def _changed_paths_artifact(
-    repo_root: Path, output_path: Path, raw_paths: Sequence[bytes], budget_state: dict[str, int]
-) -> dict[str, Any]:
-    identity = b"\0".join(raw_paths)
-    if raw_paths:
-        identity += b"\0"
-    lines = [
-        json.dumps(
-            {
-                "display_path": raw_path.decode("utf-8", errors="surrogateescape"),
-                "path_bytes_base64": base64.b64encode(raw_path).decode("ascii"),
-            },
-            ensure_ascii=True,
-            sort_keys=True,
-        )
-        for raw_path in raw_paths
-    ]
-    manifest = ("\n".join(lines) + ("\n" if lines else "")).encode("utf-8")
-    path = _safe_output_child(output_path, "raw/changed-paths.jsonl.gz")
-    artifact = _write_artifact(path, manifest, compressed=True, budget_state=budget_state)
-    artifact["path"] = _relative(repo_root, path)
-    artifact["format"] = "JSON Lines with escaped display path and exact Git path bytes in base64"
-    artifact["path_count"] = len(raw_paths)
-    artifact["path_set_sha256"] = _sha256(identity)
-    return artifact
-
-
-def _worktree_status_artifact(
-    repo_root: Path, output_path: Path, status_bytes: bytes, budget_state: dict[str, int]
-) -> dict[str, Any]:
-    path = _safe_output_child(output_path, "raw/worktree-status.porcelain.gz")
-    artifact = _write_artifact(path, status_bytes, compressed=True, budget_state=budget_state)
-    artifact["path"] = _relative(repo_root, path)
-    artifact["format"] = "Git porcelain v1, NUL-delimited"
-    artifact["entry_bytes"] = len(status_bytes)
-    return artifact
-
-
-def _store_logs(
-    repo_root: Path,
-    output_path: Path,
-    lane: str,
-    sequence: int,
-    key: str,
-    stdout: bytes,
-    stderr: bytes,
-    budget_state: dict[str, int],
-) -> dict[str, dict[str, Any]]:
-    stem = f"{lane}-{sequence:02d}-{key}"
-    stdout_path = _safe_output_child(output_path, f"raw/{stem}.stdout.gz")
-    stderr_path = _safe_output_child(output_path, f"raw/{stem}.stderr.gz")
-    stdout_encoded = _gzip_bytes(stdout)
-    stderr_encoded = _gzip_bytes(stderr)
-    encoded_size = len(stdout_encoded) + len(stderr_encoded)
-    if budget_state["used"] + encoded_size > MAX_COMPRESSED_LOG_BYTES:
-        raise LogBudgetExceededError(
-            f"compressed child logs would exceed {MAX_COMPRESSED_LOG_BYTES} bytes"
-        )
-    budget_state["used"] += encoded_size
-    stdout_meta = _write_artifact(stdout_path, stdout, compressed=True)
-    stderr_meta = _write_artifact(stderr_path, stderr, compressed=True)
-    stdout_meta["path"] = _relative(repo_root, stdout_path)
-    stderr_meta["path"] = _relative(repo_root, stderr_path)
-    return {"stdout": stdout_meta, "stderr": stderr_meta}
 
 
 def _hash_file(path: Path) -> dict[str, Any] | None:

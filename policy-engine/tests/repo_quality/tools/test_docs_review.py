@@ -72,6 +72,48 @@ def test_docs_review_is_discovered_by_the_validation_cli() -> None:
     assert discovered[0].callable_name == "main"
 
 
+def test_git_window_facade_uses_current_selection_bindings(
+    git_repo: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    review = _review()
+    calls: list[str] = []
+    commit = "a" * 40
+
+    def resolve_commit(_repo_root: Path, ref: str) -> str:
+        calls.append(f"commit:{ref}")
+        return commit
+
+    def select_changed_paths(
+        _repo_root: Path, *, comparison_base: str | None, head: str
+    ) -> tuple[bytes, ...]:
+        calls.append(f"paths:{comparison_base}:{head}")
+        return (b"docs/selected.md",)
+
+    monkeypatch.setattr(review, "_resolve_commit", resolve_commit)
+    monkeypatch.setattr(review, "_select_changed_paths", select_changed_paths)
+
+    window = review._resolve_git_window(git_repo, base_ref=None, head_ref=None)
+
+    assert window.checkout_commit == commit
+    assert window.paths == ("docs/selected.md",)
+    assert calls == ["commit:HEAD", "paths:None:HEAD"]
+
+
+def test_main_uses_the_current_facade_output_root_binding(
+    git_repo: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    review = _review()
+    alternate_output_root = Path("_build/alternate-docs-review")
+    monkeypatch.setattr(review, "OUTPUT_ROOT", alternate_output_root)
+    (git_repo / "README.md").write_text("# Changed\n", encoding="utf-8")
+
+    code = review.main(["--repo-root", str(git_repo), "--dry-run"])
+
+    output = json.loads(capsys.readouterr().out)
+    assert code == 2
+    assert output["receipt"].startswith(f"{alternate_output_root.as_posix()}/run-")
+
+
 def test_dry_run_uses_real_worktree_changes_and_executes_no_checks(git_repo: Path) -> None:
     review = _review()
     (git_repo / "README.md").write_text("# Edited\n", encoding="utf-8")

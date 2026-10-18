@@ -40,3 +40,21 @@ inputs as the CLI and imported API.
 ## Repository-structure inventory
 
 `repository_structure_phase0.py` retains the CLI, gate composition, and compatibility facade. `repository_structure_phase0_inventory.py` owns the inventory scan; the facade passes its current helpers and policy constants as typed dependencies so existing callers and monkeypatch seams continue to work.
+
+### Docs review, ADR compilation and production-quality inventory
+
+`check_docs_review.py` keeps the review CLI and current facade configuration;
+`docs_review_git.py` owns Git window selection, while `docs_review_artifacts.py`
+owns review artifacts and retained command logs. Dependencies are supplied from
+the facade for each call so current output roots and command callbacks remain active.
+
+`generate_adr_index.py` keeps the CLI and current path configuration.
+`adr_index_compiler.py` owns ADR parsing, classification and index compilation;
+the facade supplies its current paths to the compiler. Generated output ownership
+and check behavior remain unchanged.
+
+`production_quality_evidence_inventory.py` keeps the inventory entry points.
+Its `_bindings`, `_contracts` and `_reports` siblings own source binding resolution,
+inventory contracts and producer report specifications. CI and Wave40 consume this
+static inventory in their existing roles; the inventory does not establish that
+those producers ran for a current transaction or authorize publication.

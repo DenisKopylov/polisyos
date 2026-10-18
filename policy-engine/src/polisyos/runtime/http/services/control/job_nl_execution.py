@@ -24,10 +24,107 @@ if TYPE_CHECKING:
 class ControlNLJobExecutionMixin:
     """Run admitted NL compilation and terminate handled candidate outcomes."""
 
+    def _persist_current_nl_owner_projection(self, context: _ControlNLJobContext) -> None:
+        """Persist the current NL worker owner before any branch can terminate."""
+        from polisyos.runtime.http.services.control_plane_store import (
+            ControlJobExecutionAdmissionError,
+            ControlJobLeaseLostError,
+        )
+        from polisyos.runtime.quality.phase_barriers import (
+            _execution_owner_binding_from_admission,
+            _validated_execution_owner_binding,
+        )
+
+        try:
+            admission = self._control_store.current_execution_job_admission()
+        except (ControlJobExecutionAdmissionError, ControlJobLeaseLostError) as exc:
+            raise ControlJobLeaseLostError("control_job_terminal_admission_not_current") from exc
+
+        original = context.admission
+        if (
+            admission.job.job_id != original.job.job_id
+            or admission.job.job_id != context.job.job_id
+            or admission.job.run_id != original.job.run_id
+            or admission.job.run_id != context.job.run_id
+            or admission.job.requested_execution_profile != original.job.requested_execution_profile
+            or admission.job.requested_execution_profile != context.job.requested_execution_profile
+            or admission.job.effective_execution_profile != original.job.effective_execution_profile
+            or admission.job.effective_execution_profile != context.job.effective_execution_profile
+            or admission.attempt != original.attempt
+            or admission.attempt != context.job.attempt
+            or admission.job.lease_owner != original.job.lease_owner
+            or admission.job.lease_owner != context.job.lease_owner
+            or admission.scope != original.scope
+            or admission.scope != context.execution_scope
+        ):
+            raise ControlJobLeaseLostError("control_job_terminal_owner_binding_not_current")
+
+        owner_binding = _execution_owner_binding_from_admission(
+            admission,
+            expected_job_id=context.job.job_id,
+            expected_run_id=str(context.job.run_id or ""),
+            expected_effective_profile=context.job.effective_execution_profile,
+            expected_scope={
+                "tenant_id": context.execution_scope.tenant_id,
+                "cell_id": context.execution_scope.cell_id,
+            },
+        )
+        if owner_binding is None:
+            # Unknown scope can remain candidate-grade. Carry no invented owner.
+            return
+
+        progress = admission.job.progress
+        persisted_owner = _validated_execution_owner_binding(
+            progress.get("execution_owner_binding"),
+            expected=owner_binding,
+        )
+        if persisted_owner is not None:
+            return
+        if "execution_owner_binding" in progress:
+            raise ControlJobLeaseLostError("control_job_terminal_owner_binding_not_current")
+
+        owner_progress = dict(progress)
+        owner_progress["state"] = "running"
+        owner_progress["execution_owner_binding"] = owner_binding
+        self._control_store.update_progress_state(
+            job_id=context.job.job_id,
+            state="running",
+            progress=owner_progress,
+            expected_lease_owner=admission.job.lease_owner,
+            expected_attempt=admission.attempt,
+        )
+
+        try:
+            current = self._control_store.current_execution_job_admission()
+        except (ControlJobExecutionAdmissionError, ControlJobLeaseLostError) as exc:
+            raise ControlJobLeaseLostError("control_job_terminal_admission_not_current") from exc
+        current_owner = _execution_owner_binding_from_admission(
+            current,
+            expected_job_id=context.job.job_id,
+            expected_run_id=str(context.job.run_id or ""),
+            expected_effective_profile=context.job.effective_execution_profile,
+            expected_scope={
+                "tenant_id": context.execution_scope.tenant_id,
+                "cell_id": context.execution_scope.cell_id,
+            },
+        )
+        persisted_owner = _validated_execution_owner_binding(
+            current.job.progress.get("execution_owner_binding"),
+            expected=owner_binding,
+        )
+        if (
+            current_owner != owner_binding
+            or current.attempt != admission.attempt
+            or current.job.lease_owner != admission.job.lease_owner
+            or persisted_owner != owner_binding
+        ):
+            raise ControlJobLeaseLostError("control_job_terminal_owner_binding_not_current")
+
     def _execute_control_nl_job(
         self, context: _ControlNLJobContext
     ) -> CompiledRecursiveGenerationCycleRun | None:
         """Compile one admitted NL job and persist any terminal candidate lane."""
+        self._persist_current_nl_owner_projection(context)
         compiled = self._compile_control_nl_job(context)
         if isinstance(compiled, N4CandidateScenarioProposalOnlyExecution):
             self._complete_nl_scenario_proposal_only(context, compiled)

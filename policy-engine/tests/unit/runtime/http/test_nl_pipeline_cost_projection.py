@@ -815,6 +815,21 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
         _build_n4_producer_client,
     )
     env = build_runtime_api_env(tmp_path, include_test_client=True)
+    control_service = cast("Any", env["app"]).state._control_service
+    control_store = control_service._control_store
+    owner_projection_writes: list[tuple[str, object, dict[str, object]]] = []
+    original_update_progress_state = control_store.update_progress_state
+
+    def _capture_owner_projection_write(**kwargs: Any) -> None:
+        progress = kwargs.get("progress")
+        owner = progress.get("execution_owner_binding") if isinstance(progress, dict) else None
+        if isinstance(owner, dict):
+            owner_projection_writes.append(
+                (str(kwargs.get("job_id")), progress.get("phase"), dict(owner))
+            )
+        original_update_progress_state(**kwargs)
+
+    monkeypatch.setattr(control_store, "update_progress_state", _capture_owner_projection_write)
     client_context = cast("Any", env["client"])
     assert client_context is not None
     client_entered = False
@@ -848,7 +863,6 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
         runtime_container = app.state.runtime_container
         runtime_context = runtime_container.runtime_api_context
         assert runtime_context is not None
-        control_store = app.state._control_service._control_store
         from copy import deepcopy
 
         from polisyos.runtime.quality.scorecard import build_quality_scorecard
@@ -858,6 +872,11 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
         assert received_job.state == "completed"
         received_owner = received_job.progress["execution_owner_binding"]
         persisted_owner = persisted_job.progress["execution_owner_binding"]
+        assert (
+            job_id,
+            "job_admission",
+            received_owner,
+        ) in owner_projection_writes
         assert received_owner == persisted_owner
         assert received_owner["job_id"] == job_id
         assert received_owner["run_id"] == str(job.run_id)
@@ -1656,6 +1675,7 @@ def test_terminal_progress_carries_only_current_fenced_source_projections(
         ControlPlaneStore,
     )
     from polisyos.runtime.quality.phase_barriers import _execution_owner_binding_from_admission
+    from polisyos.runtime.quality.refs import RuntimeQualityAuthorityRefs
 
     store = ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "owner-terminal.sqlite3")
 
@@ -1746,6 +1766,7 @@ def test_terminal_progress_carries_only_current_fenced_source_projections(
             "runtime_quality_refs": {
                 "policy_intent_envelope_ref": policy_intent_ref,
                 "security_assurance_report_ref": assurance_ref,
+                "phase": "sha256:" + "a" * 64,
             },
             "runtime_quality_artifact_refs": {
                 "security_assurance_report_ref": artifact_ref,
@@ -1770,6 +1791,23 @@ def test_terminal_progress_carries_only_current_fenced_source_projections(
             "scientist_workflow": {"event_count": 1},
         }
 
+    def _runtime_quality_ref_aliases(projection: dict[str, Any]) -> dict[str, str]:
+        resolution = RuntimeQualityAuthorityRefs.from_runtime_payloads(
+            job_payload={"runtime_quality_refs": projection.get("runtime_quality_refs")}
+        )
+        assert not resolution.rejections
+        return resolution.refs
+
+    def _assert_runtime_quality_aliases(
+        projection: dict[str, Any],
+        *terminal_progress_views: dict[str, Any],
+    ) -> None:
+        aliases = _runtime_quality_ref_aliases(projection)
+        assert "phase" not in aliases
+        for terminal_progress in terminal_progress_views:
+            for key, value in aliases.items():
+                assert terminal_progress[key] == value
+
     completed, completed_worker = _lease_job("job-owner-complete")
     with store.job_execution_fence(
         job_id=completed.job_id,
@@ -1792,15 +1830,19 @@ def test_terminal_progress_carries_only_current_fenced_source_projections(
         "runtime_quality_refs",
         "runtime_quality_artifact_refs",
         "runtime_quality_projection",
-        "security_assurance_report_ref",
-        "policy_intent_envelope_ref",
         "trust_boundary_attestations",
         "diagnostic_event_log_ref",
         "diagnostic_events",
     ):
         assert completed_record.progress[field] == completed_projection[field]
         assert completed_outbox.payload["progress"][field] == completed_projection[field]
+    _assert_runtime_quality_aliases(
+        completed_projection,
+        completed_record.progress,
+        completed_outbox.payload["progress"],
+    )
     assert completed_record.progress["phase"] == "terminal"
+    assert completed_record.progress["runtime_quality_refs"]["phase"] == "sha256:" + "a" * 64
     assert completed_record.progress["details"] == {"terminal_detail": True}
     for field in (
         "runtime_quality_diagnostic_events",
@@ -1836,9 +1878,11 @@ def test_terminal_progress_carries_only_current_fenced_source_projections(
                     "execution_owner_binding": conflicting_owner,
                 },
             )
+        selected_aliases = _runtime_quality_ref_aliases(failed_projection)
+        selected_ref_key, selected_ref_value = next(iter(selected_aliases.items()))
         conflicting_refs = {
             **failed_projection["runtime_quality_refs"],
-            "security_assurance_report_ref": "sha256:" + "f" * 64,
+            selected_ref_key: selected_ref_value + "-forged",
         }
         with pytest.raises(
             ControlJobLeaseLostError,
@@ -1847,6 +1891,17 @@ def test_terminal_progress_carries_only_current_fenced_source_projections(
             store.complete_job(
                 job_id=failed.job_id,
                 progress={"phase": "terminal", "runtime_quality_refs": conflicting_refs},
+            )
+        with pytest.raises(
+            ControlJobLeaseLostError,
+            match="control_job_terminal_progress_source_projection_conflict",
+        ):
+            store.complete_job(
+                job_id=failed.job_id,
+                progress={
+                    "phase": "terminal",
+                    selected_ref_key: selected_ref_value + "-forged",
+                },
             )
         current = store.current_execution_job_record()
         assert current.state == "running"
@@ -1873,6 +1928,11 @@ def test_terminal_progress_carries_only_current_fenced_source_projections(
     ):
         assert failed_record.progress[field] == failed_projection[field]
         assert failed_outbox.payload["progress"][field] == failed_projection[field]
+    _assert_runtime_quality_aliases(
+        failed_projection,
+        failed_record.progress,
+        failed_outbox.payload["progress"],
+    )
     assert failed_record.progress["phase"] == "failed"
     assert "details" not in failed_record.progress
 
@@ -1896,6 +1956,16 @@ def test_terminal_progress_carries_only_current_fenced_source_projections(
     assert (
         delegated_record.progress["runtime_quality_refs"]
         == delegated_projection["runtime_quality_refs"]
+    )
+    delegated_outbox = store._get_outbox_event_by_key(
+        topic="control.job.failed",
+        event_key=f"{delegated.job_id}:job_failed",
+    )
+    assert delegated_outbox is not None
+    _assert_runtime_quality_aliases(
+        delegated_projection,
+        delegated_record.progress,
+        delegated_outbox.payload["progress"],
     )
     assert delegated_record.progress["phase"] == "terminal"
     assert "details" not in delegated_record.progress
@@ -1932,4 +2002,87 @@ def test_terminal_progress_carries_only_current_fenced_source_projections(
     assert missing_record.progress["execution_owner_binding"] == missing_owner
     assert "run_intent_binding" not in missing_record.progress
     assert "runtime_quality_refs" not in missing_record.progress
+    assert "policy_intent_envelope_ref" not in missing_record.progress
     assert missing_record.progress["phase"] == "terminal"
+
+    absent_alias, absent_alias_worker = _lease_job("job-owner-missing-flat-ref")
+    with store.job_execution_fence(
+        job_id=absent_alias.job_id,
+        worker_id=absent_alias_worker,
+        attempt=absent_alias.attempt,
+    ):
+        absent_alias_owner = _current_owner_binding(absent_alias.job_id)
+        absent_alias_projection = _current_projection(absent_alias_owner)
+        consumer_aliases = _runtime_quality_ref_aliases(absent_alias_projection)
+        missing_flat_key, missing_flat_value = next(iter(consumer_aliases.items()))
+        assert (
+            absent_alias_projection["runtime_quality_refs"][missing_flat_key] == missing_flat_value
+        )
+        del absent_alias_projection[missing_flat_key]
+        assert missing_flat_key not in absent_alias_projection
+        remaining_aliases = {
+            key: value for key, value in consumer_aliases.items() if key != missing_flat_key
+        }
+        store.upsert_progress(
+            job_id=absent_alias.job_id,
+            progress=absent_alias_projection,
+        )
+        store.complete_job(
+            job_id=absent_alias.job_id,
+            progress={"phase": "terminal"},
+        )
+    absent_alias_record = store.get_job(absent_alias.job_id)
+    absent_alias_outbox = store.get_job_completed_outbox_event(absent_alias.job_id)
+    assert absent_alias_record is not None
+    assert absent_alias_outbox is not None
+    for terminal_progress in (
+        absent_alias_record.progress,
+        absent_alias_outbox.payload["progress"],
+    ):
+        assert (
+            terminal_progress["runtime_quality_refs"]
+            == absent_alias_projection["runtime_quality_refs"]
+        )
+        assert missing_flat_key not in terminal_progress
+        for key, value in remaining_aliases.items():
+            assert terminal_progress[key] == value
+    assert absent_alias_record.progress["phase"] == "terminal"
+
+    mismatched, mismatched_worker = _lease_job("job-owner-nested-flat-ref-mismatch")
+    with store.job_execution_fence(
+        job_id=mismatched.job_id,
+        worker_id=mismatched_worker,
+        attempt=mismatched.attempt,
+    ):
+        mismatched_owner = _current_owner_binding(mismatched.job_id)
+        mismatched_projection = _current_projection(mismatched_owner)
+        selected_aliases = _runtime_quality_ref_aliases(mismatched_projection)
+        selected_ref_key, selected_ref_value = next(iter(selected_aliases.items()))
+        mismatched_projection[selected_ref_key] = selected_ref_value + "-forged"
+        store.upsert_progress(job_id=mismatched.job_id, progress=mismatched_projection)
+        with pytest.raises(
+            ControlJobLeaseLostError,
+            match="control_job_terminal_progress_source_projection_conflict",
+        ):
+            store.complete_job(
+                job_id=mismatched.job_id,
+                progress={"phase": "terminal"},
+            )
+        current = store.current_execution_job_record()
+        assert current.state == "running"
+
+        malformed_projection = _current_projection(mismatched_owner)
+        malformed_refs = dict(malformed_projection["runtime_quality_refs"])
+        malformed_refs[selected_ref_key] = None
+        malformed_projection["runtime_quality_refs"] = malformed_refs
+        store.upsert_progress(job_id=mismatched.job_id, progress=malformed_projection)
+        with pytest.raises(
+            ControlJobLeaseLostError,
+            match="control_job_terminal_progress_source_projection_conflict",
+        ):
+            store.complete_job(
+                job_id=mismatched.job_id,
+                progress={"phase": "terminal"},
+            )
+        current = store.current_execution_job_record()
+        assert current.state == "running"

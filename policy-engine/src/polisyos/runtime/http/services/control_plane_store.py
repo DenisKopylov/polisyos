@@ -4904,6 +4904,7 @@ class ControlPlaneStore:
             _execution_owner_binding_from_admission,
             _validated_execution_owner_binding,
         )
+        from polisyos.runtime.quality.refs import RuntimeQualityAuthorityRefs
         from polisyos.runtime.quality.report_registry import QUALITY_REPORT_REF_KEYS
         from polisyos.runtime.quality.run_state import RunIntentBinding
 
@@ -4982,7 +4983,31 @@ class ControlPlaneStore:
             "diagnostic_events",
             "trust_boundary_attestations",
         )
-        for key in (*current_projection_keys, *QUALITY_REPORT_REF_KEYS):
+        current_quality_refs = current_progress.get("runtime_quality_refs")
+        current_quality_ref_keys: tuple[str, ...] = ()
+        if "runtime_quality_refs" in current_progress:
+            current_quality_ref_resolution = RuntimeQualityAuthorityRefs.from_runtime_payloads(
+                job_payload={"runtime_quality_refs": current_quality_refs}
+            )
+            if current_quality_ref_resolution.rejections:
+                raise ControlJobLeaseLostError(
+                    "control_job_terminal_progress_source_projection_conflict"
+                )
+            if isinstance(current_quality_refs, Mapping):
+                current_quality_ref_keys = tuple(sorted(current_quality_ref_resolution.refs))
+                for key in current_quality_ref_keys:
+                    if (
+                        key in current_progress
+                        and current_progress[key] != current_quality_refs[key]
+                    ):
+                        raise ControlJobLeaseLostError(
+                            "control_job_terminal_progress_source_projection_conflict"
+                        )
+        for key in (
+            *current_projection_keys,
+            *QUALITY_REPORT_REF_KEYS,
+            *current_quality_ref_keys,
+        ):
             source_present = key in current_progress
             supplied_present = key in progress
             if supplied_present and (not source_present or progress[key] != current_progress[key]):

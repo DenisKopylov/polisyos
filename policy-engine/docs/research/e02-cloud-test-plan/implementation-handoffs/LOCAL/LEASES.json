@@ -7374,5 +7374,63 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "coordination_epoch_20261018_terminal_projection_ref_namespace_r3": {
+    "slice_base": "05ec231f1ae794d1887933bc838c3c9a97fc1e9f",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py": {
+        "preimage_sha256": "fc1e0e14f6551121e7463b81badc3cf848e1bc3a93c687c7cc167d510a516a21",
+        "postimage_sha256": "3ef164b32506568fe939568a17ac467b487483c6d82de89c20a3e0fd4e955125",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-projection-r3-application-20261018/postimages/policy-engine/src/polisyos/runtime/http/services/control_plane_store.py",
+        "operation": "modify"
+      },
+      "policy-engine/src/polisyos/runtime/http/services/control/job_nl_execution.py": {
+        "preimage_sha256": "94396a216b085f9f0b49c7084aa763df52424cc9b30f7d77fd82f1d72cc6b5b6",
+        "postimage_sha256": "b8847acc01dce291f89eb317991373aebe16af838d019308b497c86ab32d1548",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-projection-r3-application-20261018/postimages/policy-engine/src/polisyos/runtime/http/services/control/job_nl_execution.py",
+        "operation": "modify"
+      },
+      "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py": {
+        "preimage_sha256": "2a4f58d3d4d76d675a15980c062550ed48026ac1afc876413e17269e67f14954",
+        "postimage_sha256": "e10747fc7002c00187cf32dbffc25748473b1a9f4dc83405c55b0d2a51252e07",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-projection-r3-application-20261018/postimages/policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py",
+        "operation": "modify"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-projection-r3-application-20261018/source-application.json",
+      "sha256": "aaa44afa9eb2941cf6800c31918e63693579e477edb6eec2efbf0e8018011347"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-projection-r3-application-20261018/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-terminal-projection-failure-author-r3-20261018/candidate-manifest-r3.json",
+        "sha256": "93c04014eccbaa56bc2af9b1c349096174bef54a33c86b3821dd419d7edf1344"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-terminal-projection-failure-independent-r2-20261018/review.json",
+        "sha256": "b1536d9e14c8a4b0ec08c8d98c2d2c1679966f66b69b5d6e1f6b339432f6d69b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-terminal-projection-failure-independent-r3-20261018/review.json",
+        "sha256": "1b71b16d69f35091d8bc8c71159cbb0cb0c1cd7f5551ff02f32da82d0b053a5b"
+      }
+    ],
+    "P40": "same already-widened current-source projection class; R3 adds the requested falsifier and does not add another key selector or production mechanism.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Current composition candidate implementation only; fresh actual ordinary POST/terminal/fence/refusal/outbox consumer replay remains required.",
+      "No status/authority/lease-duration/database-schema/backfill/currentness changes; previous lease-loss failure remains not_established and is a separate replay discriminator.",
+      "Canonical Ruff0.14 syntax formatting is AST-identical to source-reviewed R3; original R2/R3 issued bytes remain unchanged."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Actual bounded composed ordinary POST/N4/terminal all states/current owner fencing/outbox/refusal/no-resurrection tests plus separate lease-loss discriminator; full deciding outputs and source origins.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

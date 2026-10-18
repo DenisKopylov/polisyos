@@ -182,7 +182,7 @@ def derive_page_a11y_receipt(
             "page_a11y_results_shape",
             "page-a11y results require a suite list and stats object",
         )
-    identities, failures = _derive_page_result_rows(suites)
+    identities, failures = _derive_page_result_rows(suites, dependencies=dependencies)
     observed = {
         "collected": len(identities),
         "passed": sum(item[1] == "passed" for item in identities),
@@ -400,7 +400,9 @@ def _derive_page_result_rows(
                         PageA11yFailureBinding(
                             identity=identity,
                             test_id=str(spec.get("id")),
-                            issue_signature=_page_issue_signature(message),
+                            issue_signature=_page_issue_signature(
+                                message, dependencies=dependencies
+                            ),
                         )
                     )
         nested = suite.get("suites", [])
@@ -410,7 +412,9 @@ def _derive_page_result_rows(
                 "page_a11y_nested_suites_shape",
                 "page-a11y nested suites must be a list",
             )
-        nested_identities, nested_failures = _derive_page_result_rows(nested)
+        nested_identities, nested_failures = _derive_page_result_rows(
+            nested, dependencies=dependencies
+        )
         identities.extend(nested_identities)
         failures.extend(nested_failures)
     return tuple(identities), tuple(failures)
@@ -504,7 +508,6 @@ def evaluate_accessibility_evidence(
     return AccessibilityEvaluation(
         state=ClaimPostureState.BLOCKED if issues else ClaimPostureState.SUPPORTED,
         issue_codes=tuple(sorted(issues)),
-        dependencies=dependencies,
     )
 
 
@@ -517,11 +520,9 @@ def evaluate_scope_assumption(
             state=ClaimPostureState.BLOCKED,
             establishment_class=EstablishmentClass.NOT_ESTABLISHED,
             limitations=(f"Declared scope assumption: {scope_assumption}",),
-            dependencies=dependencies,
         )
     return ScopeEvaluation(
         state=ClaimPostureState.BLOCKED,
         establishment_class=EstablishmentClass.INSTITUTIONALLY_SUPPLIED,
         limitations=(f"Institutionally supplied scope: {scope_assumption}",),
-        dependencies=dependencies,
     )

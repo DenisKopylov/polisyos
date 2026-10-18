@@ -539,7 +539,7 @@ def _token_semantic_field_positions(
     """Derive direct and bounded local-alias decisions without AST input."""
     semantic: set[tuple[int, int]] = set()
     sources: dict[tuple[str | None, str], set[tuple[int, int]]] = {}
-    dependencies: dict[tuple[str | None, str], set[tuple[str | None, str]]] = {}
+    alias_dependencies: dict[tuple[str | None, str], set[tuple[str | None, str]]] = {}
     for statement in statements:
         depths = _token_depths(statement, dependencies=dependencies)
         assignment = next(
@@ -589,7 +589,7 @@ def _token_semantic_field_positions(
         for target_name in target_names:
             key = (symbol, target_name)
             sources.setdefault(key, set()).update(field_sources)
-            dependencies.setdefault(key, set()).update(
+            alias_dependencies.setdefault(key, set()).update(
                 (symbol, name) for name in value_names if name != target_name
             )
         for index, item in enumerate(statement):
@@ -602,7 +602,7 @@ def _token_semantic_field_positions(
     changed = True
     while changed:
         changed = False
-        for key, names in dependencies.items():
+        for key, names in alias_dependencies.items():
             before = len(sources.setdefault(key, set()))
             for name in names:
                 sources[key].update(sources.get(name, set()))

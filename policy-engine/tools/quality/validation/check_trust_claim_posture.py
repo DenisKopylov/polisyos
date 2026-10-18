@@ -60,7 +60,9 @@ from tools.quality.validation import (
     trust_claim_posture_tokenizer as _tokenizer_owner,
 )
 from tools.quality.validation.trust_claim_posture_contracts import (
+    AccessibilityEvaluation,
     CustodyAppointment,
+    ScopeEvaluation,
     _PostureInspectionError,
     _PosturePredicateError,
 )
@@ -509,6 +511,36 @@ def validate_claim_copy(
         source_row=source_row,
         admitted_sources=admitted_sources,
         requested_purpose=requested_purpose,
+        dependencies=_accessibility_dependencies(),
+    )
+
+
+def evaluate_accessibility_evidence(
+    *,
+    evidence_kind: str,
+    requested_purpose: str,
+    source_as_of: date,
+    countersign_ref: str | None,
+    register_as_of: date = date(2026, 8, 26),
+) -> AccessibilityEvaluation:
+    """Evaluate evidence against the requested accessibility purpose and date."""
+    return _accessibility_owner.evaluate_accessibility_evidence(
+        evidence_kind=evidence_kind,
+        requested_purpose=requested_purpose,
+        source_as_of=source_as_of,
+        countersign_ref=countersign_ref,
+        register_as_of=register_as_of,
+        dependencies=_accessibility_dependencies(),
+    )
+
+
+def evaluate_scope_assumption(
+    *, scope_assumption: str, adjudication_ref: str | None
+) -> ScopeEvaluation:
+    """Keep declared scope assumptions limited unless adjudication is supplied."""
+    return _accessibility_owner.evaluate_scope_assumption(
+        scope_assumption=scope_assumption,
+        adjudication_ref=adjudication_ref,
         dependencies=_accessibility_dependencies(),
     )
 

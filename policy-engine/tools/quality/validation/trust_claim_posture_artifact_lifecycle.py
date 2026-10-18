@@ -134,7 +134,7 @@ def run_generated_family_output_probe(
     """Execute the manifest probe in an isolated source and prove exact output bytes."""
     from tools.devx.architecture import guardrails
 
-    family = validate_generated_family(repo_root)
+    family = validate_generated_family(repo_root, dependencies=dependencies)
     repo = repo_root.resolve()
     source = source_root.resolve()
     output = output_root.resolve()
@@ -293,7 +293,7 @@ def write_generated_reference(
     root = repo_root.resolve()
     target_root = (output_root or root).resolve()
     manifest = (root / dependencies.generated_manifest_path).resolve()
-    validate_generated_family(root)
+    validate_generated_family(root, dependencies=dependencies)
     target = (target_root / dependencies.generated_reference_path).resolve()
     dependencies.require_contained_path(
         target,
@@ -360,7 +360,7 @@ def run_corruption_probes(
 ) -> dict[str, object]:
     """Run the closed C05 semantic mutation wave entirely in scratch roots."""
     root = repo_root.resolve()
-    before = _bounded_filesystem_snapshot(root)
+    before = _bounded_filesystem_snapshot(root, dependencies=dependencies)
     register, canonical = dependencies.compile_claim_posture_register(
         root, register_as_of=register_as_of
     )
@@ -374,33 +374,45 @@ def run_corruption_probes(
             root,
             scratch / "candidate",
             register_as_of=register_as_of,
+            dependencies=dependencies,
         )
         outcomes["forbidden_purpose_removal"] = _live_payload_mutation_is_rejected(
             register,
             root,
             _remove_forbidden_purpose,
             register_as_of=register_as_of,
+            dependencies=dependencies,
         )
         outcomes["review_refresh_without_evidence"] = _live_payload_mutation_is_rejected(
             register,
             root,
             _refresh_review_without_evidence,
             register_as_of=register_as_of,
+            dependencies=dependencies,
         )
         outcomes["source_digest_rebinding"] = _source_digest_rebinding_is_rejected(
             root,
             scratch / "source-rebinding",
             register_as_of=register_as_of,
+            dependencies=dependencies,
         )
-        outcomes["body_fact_removal"] = _body_fact_removal_is_rejected(root, scratch / "body-fact")
+        outcomes["body_fact_removal"] = _body_fact_removal_is_rejected(
+            root, scratch / "body-fact", dependencies=dependencies
+        )
         outcomes["scope_assumption_change"] = _payload_mutation_is_rejected(
             register, _change_scope_assumption
         )
         outcomes["anti_role_removal"] = _anti_role_mutation_is_rejected(
-            root, scratch / "anti-role", ", not an executor"
+            root,
+            scratch / "anti-role",
+            ", not an executor",
+            dependencies=dependencies,
         )
         outcomes["crm_omission"] = _anti_role_mutation_is_rejected(
-            root, scratch / "crm", "\nnot a CRM"
+            root,
+            scratch / "crm",
+            "\nnot a CRM",
+            dependencies=dependencies,
         )
         outcomes["manages_your_cases"] = dependencies.validate_claim_copy(
             "manages your cases", source_row=None
@@ -417,8 +429,9 @@ def run_corruption_probes(
             root,
             scratch / "dynamic",
             register_as_of=register_as_of,
+            dependencies=dependencies,
         )
-    after = _bounded_filesystem_snapshot(root)
+    after = _bounded_filesystem_snapshot(root, dependencies=dependencies)
     escaped = sorted(
         path for path in before.keys() | after.keys() if before.get(path) != after.get(path)
     )
@@ -525,9 +538,7 @@ def _minimal_probe_repo(
     return root
 
 
-def _payload_with_digest(
-    payload: Mapping[str, object], *, dependencies: LifecycleDependencies
-) -> dict[str, object]:
+def _payload_with_digest(payload: Mapping[str, object]) -> dict[str, object]:
     rebound = json.loads(json.dumps(payload, ensure_ascii=False))
     unsigned = {key: value for key, value in rebound.items() if key != "payload_digest"}
     encoded = json.dumps(
@@ -541,10 +552,7 @@ def _payload_with_digest(
 
 
 def _payload_mutation_is_rejected(
-    register: ClaimPostureRegisterV1,
-    mutate: Callable[[dict[str, object]], None],
-    *,
-    dependencies: LifecycleDependencies,
+    register: ClaimPostureRegisterV1, mutate: Callable[[dict[str, object]], None]
 ) -> bool:
     payload = register.model_dump(mode="json")
     mutate(payload)
@@ -574,15 +582,14 @@ def _live_payload_mutation_is_rejected(
             encoded,
             repo_root=repo_root,
             register_as_of=register_as_of,
+            dependencies=dependencies,
         )
     except ValueError:
         return True
     return False
 
 
-def _claim(
-    payload: Mapping[str, object], subject: str, *, dependencies: LifecycleDependencies
-) -> dict[str, object]:
+def _claim(payload: Mapping[str, object], subject: str) -> dict[str, object]:
     claims = payload.get("claims")
     if not isinstance(claims, list):
         raise ValueError("corruption payload has no claims")
@@ -592,9 +599,7 @@ def _claim(
     return matches[0]
 
 
-def _status_projection_is_rejected(
-    register: ClaimPostureRegisterV1, *, source_state: str, dependencies: LifecycleDependencies
-) -> bool:
+def _status_projection_is_rejected(register: ClaimPostureRegisterV1, *, source_state: str) -> bool:
     payload = register.model_dump(mode="json")
     claims = payload["claims"]
     if not isinstance(claims, list):
@@ -635,23 +640,20 @@ def _candidate_projection_is_rejected(
         '"source_state": "candidate", "owner": "team-scientist", '
         '"closure_signal": "pytest://candidate_probe"}\n',
         basis_root=basis_root,
+        dependencies=dependencies,
     )
     register, _ = dependencies.compile_claim_posture_register(repo, register_as_of=register_as_of)
     return _status_projection_is_rejected(register, source_state="candidate")
 
 
-def _remove_forbidden_purpose(
-    payload: dict[str, object], *, dependencies: LifecycleDependencies
-) -> None:
+def _remove_forbidden_purpose(payload: dict[str, object]) -> None:
     binding = _claim(payload, "system_identity")["source_bindings"][0]
     binding["may_not_use_for"] = [
         value for value in binding["may_not_use_for"] if value != "capability_claim"
     ]
 
 
-def _refresh_review_without_evidence(
-    payload: dict[str, object], *, dependencies: LifecycleDependencies
-) -> None:
+def _refresh_review_without_evidence(payload: dict[str, object]) -> None:
     row = _claim(payload, "current_accessibility_conformance")
     row["review_on"] = "2026-08-26"
     row["review_due"] = "2027-08-26"
@@ -660,26 +662,22 @@ def _refresh_review_without_evidence(
     binding["review_due"] = "2027-08-26"
 
 
-def _change_scope_assumption(
-    payload: dict[str, object], *, dependencies: LifecycleDependencies
-) -> None:
+def _change_scope_assumption(payload: dict[str, object]) -> None:
     binding = _claim(payload, "system_identity")["source_bindings"][0]
     binding["declared_scope_assumption"] = "global"
 
 
-def _relabel_as_performance(
-    payload: dict[str, object], *, dependencies: LifecycleDependencies
-) -> None:
+def _relabel_as_performance(payload: dict[str, object]) -> None:
     _claim(payload, "system_identity")["family"] = "grounded_performance"
 
 
-def _omit_limitation(payload: dict[str, object], *, dependencies: LifecycleDependencies) -> None:
+def _omit_limitation(payload: dict[str, object]) -> None:
     claims = payload["claims"]
     row = next(item for item in claims if item["limitations"])
     row["limitations"] = row["limitations"][1:]
 
 
-def _reorder_rows(payload: dict[str, object], *, dependencies: LifecycleDependencies) -> None:
+def _reorder_rows(payload: dict[str, object]) -> None:
     payload["claims"] = list(reversed(payload["claims"]))
 
 
@@ -690,6 +688,7 @@ def _source_digest_rebinding_is_rejected(
         scratch,
         'class Probe:\n    authoritative_for = ("probe",)\n',
         basis_root=repo_root,
+        dependencies=dependencies,
     )
     identity = repo / dependencies.identity_path
     text = dependencies.admitted_read_text(
@@ -720,6 +719,7 @@ def _body_fact_removal_is_rejected(
         scratch,
         'class Probe:\n    authoritative_for = ("probe",)\n',
         basis_root=repo_root,
+        dependencies=dependencies,
     )
     source = repo_root.resolve() / dependencies.a11y_path
     target = repo / dependencies.a11y_path
@@ -763,6 +763,7 @@ def _anti_role_mutation_is_rejected(
         scratch,
         'class Probe:\n    authoritative_for = ("probe",)\n',
         basis_root=repo_root,
+        dependencies=dependencies,
     )
     identity = repo / dependencies.identity_path
     text = dependencies.admitted_read_text(
@@ -786,7 +787,7 @@ def _anti_role_mutation_is_rejected(
 
 
 def _machine_reserialization_is_rejected(
-    register: ClaimPostureRegisterV1, canonical: bytes, *, dependencies: LifecycleDependencies
+    register: ClaimPostureRegisterV1, canonical: bytes
 ) -> bool:
     reserialized = (json.dumps(register.model_dump(mode="json"), indent=2) + "\n").encode("utf-8")
     return reserialized != canonical and validate_posture_register(reserialized) == register
@@ -802,6 +803,7 @@ def _dynamic_source_drop_is_rejected(
         "    authoritative_for = tuple(subjects)\n",
         basis_root=basis_root,
         source_name="dynamic_probe.py",
+        dependencies=dependencies,
     )
     register, _ = dependencies.compile_claim_posture_register(repo, register_as_of=register_as_of)
     path = "src/polisyos/dynamic_probe.py"
@@ -831,6 +833,7 @@ def _dynamic_source_drop_is_rejected(
             encoded,
             repo_root=repo,
             register_as_of=register_as_of,
+            dependencies=dependencies,
         )
     except ValueError:
         return True

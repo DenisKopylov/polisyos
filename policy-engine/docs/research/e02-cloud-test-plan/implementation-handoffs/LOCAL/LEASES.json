@@ -8790,5 +8790,143 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "trust_posture_r3_source_adoption_20261018": {
+    "slice_base": "8c692577b722e0645d1e6a6562e285590049abd4",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tools/quality/validation/check_trust_claim_posture.py": {
+        "operation": "write",
+        "preimage_sha256": "ca4b03234720e5c0ad9ea852b35a6969782ef7739d6ec62bd7ff752098151a6e",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-trust-composed-binding-repair-r3-20261018/revisions/census-481c-v3/policy-engine/tools/quality/validation/check_trust_claim_posture.py",
+        "postimage_sha256": "27a3c448c1eb70ada48c6d6484451de765a468b3b672e56066f2595a882f600b"
+      },
+      "policy-engine/tools/quality/validation/trust_claim_posture_accessibility.py": {
+        "operation": "write",
+        "preimage_sha256": "b9ae0671166d282f0d0f46cf74df7eb2457c36f914571bbe04470c7feb14840c",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-trust-composed-binding-repair-r3-20261018/revisions/census-481c-v3/policy-engine/tools/quality/validation/trust_claim_posture_accessibility.py",
+        "postimage_sha256": "9c08964a5dfde368b94c79650cc9b84b2b963611c805003b689a85795aadc709"
+      },
+      "policy-engine/tools/quality/validation/trust_claim_posture_artifact_lifecycle.py": {
+        "operation": "write",
+        "preimage_sha256": "82bd7a248f0c4a20f9b6e5c116406ffba61296a4ab17b33813c153410c684d48",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-trust-composed-binding-repair-r3-20261018/revisions/census-481c-v3/policy-engine/tools/quality/validation/trust_claim_posture_artifact_lifecycle.py",
+        "postimage_sha256": "e45537548282bd89b73ab961b3fd4acb349fcf55ce91ed6e703ed40079564fe9"
+      },
+      "policy-engine/tools/quality/validation/trust_claim_posture_semantics.py": {
+        "operation": "write",
+        "preimage_sha256": "c618cb947c098bb0ed77d8527cf389f1fbfe8a777f8541581e1fcd55fc42cf43",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-trust-composed-binding-repair-r3-20261018/revisions/census-481c-v3/policy-engine/tools/quality/validation/trust_claim_posture_semantics.py",
+        "postimage_sha256": "1aab341ff19622dd835dc81d27181394687a3537045e5e3915499aeb29fe11a1"
+      },
+      "policy-engine/tools/quality/validation/trust_claim_posture_source_bindings.py": {
+        "operation": "write",
+        "preimage_sha256": "f95169dc086b9307a497f9dda2439d2bed639fb032fa140fd9bb4f765ced7165",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-trust-composed-binding-repair-r3-20261018/revisions/census-481c-v3/policy-engine/tools/quality/validation/trust_claim_posture_source_bindings.py",
+        "postimage_sha256": "51538933bf4481a2db7526687312062aa81d74c7ce92f4d610fd99a659c531fb"
+      },
+      "policy-engine/tools/quality/validation/trust_claim_posture_tokenizer.py": {
+        "operation": "write",
+        "preimage_sha256": "b6c18fa0c2ccf250d24c3393c34a71d38b2070ad5d284a35f1b010e035402483",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-trust-composed-binding-repair-r3-20261018/revisions/census-481c-v3/policy-engine/tools/quality/validation/trust_claim_posture_tokenizer.py",
+        "postimage_sha256": "b542725c9154ea17797cd93be05fa52b504a63c2d0b477576cc2e3bbf87eaea7"
+      },
+      "policy-engine/tests/repo_quality/tools/test_trust_claim_posture.py": {
+        "operation": "write",
+        "preimage_sha256": "147932db660ac39da32b6887dc6ecf840bca1e4b1cd4a51a10736902843b851b",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-trust-composed-binding-repair-r3-20261018/revisions/census-481c-v3/policy-engine/tests/repo_quality/tools/test_trust_claim_posture.py",
+        "postimage_sha256": "5e4bdf4977dcaf34d8a1b7ef8de4b740f3c248cdca74bc724b34e572ad6e71c9"
+      },
+      "policy-engine/tools/quality/validation/README.md": {
+        "operation": "write",
+        "preimage_sha256": "a008a8095449ef6586a34db84596f73996e2972460b17c495a477dbf4154f4ba",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-source-batch-plans-20261018/postimages/policy-engine/tools/quality/validation/README.md",
+        "postimage_sha256": "cc7e1391d23e7b630ebbd021c5be1d248d1a83db31c44a9114474a092b933a4d"
+      },
+      "policy-engine/docs/plans/active/DEBT-REGISTER.md": {
+        "operation": "write",
+        "preimage_sha256": "133bf46f5835a73e117bcfde31edd87b98a5514c364a23b74926278c9f883f6e",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r3-current-source-adoption-20261018/DEBT-REGISTER-postimage.md",
+        "postimage_sha256": "c9240beb279e660be9a208f5f1c7da90ace006a7447699ad764ad735272157ac"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r3-current-source-adoption-20261018/source-application.json",
+      "sha256": "23ece04e088934168f807d2bf3c8e03473c156edacd9021767d0d6137645b5df"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r3-current-source-adoption-20261018/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-trust-composed-binding-repair-r3-20261018/candidate-trust-r3-481c-v3.patch",
+        "sha256": "a80d269fc6fb102de0383b29209890e9200d12565c1634d4e41e9c13fe4aa526"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-trust-composed-binding-repair-r3-20261018/handoff-index-r3.json",
+        "sha256": "9f580a24afe2937db145c782f973475209f1390bee18921e08d61f5ed5e615de"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-trust-composed-binding-repair-r3-20261018/diagnostics/census-r1/candidate-manifest-v3.json",
+        "sha256": "2aa71ff427a5dd5427e7a430c2aa5fac3e6fb5a527f18df1504bb854266f0140"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-trust-composed-binding-repair-r3-20261018/diagnostics/census-r1/source-manifest-481c.json",
+        "sha256": "8dea5b7c6c04851b744df318fe93dae83f8138e5ccfd40730195546a5d406dea"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-trust-composed-binding-repair-r3-20261018/author-report-r3.md",
+        "sha256": "66f5faaa442c5b1312bf8c3bc055246966d336fb540e780e4a4a8ba9e4cf3a44"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-trust-composed-binding-repair-r3-20261018/pattern-pass-r3.md",
+        "sha256": "bab295f3e2632daec00aa73bcc7beca6830b55dcfc88018a9181c3a3d8fbf9ce"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-trust-composed-binding-repair-r3-20261018/README-proposal-r3.md",
+        "sha256": "e28017f430f1943d9fd27ee72b3463a77f5ee14411909d21bb7e489274eeb2fa"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-trust-composed-binding-repair-r3-20261018/DEBT-REGISTER-row-proposal-r3.md",
+        "sha256": "3662d12c275b56b5dd3db43ee81ba9629c2d26637301a765b70e429f07f5fdaf"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-trust-composed-binding-repair-r3-independent-20261018/review-r3.md",
+        "sha256": "96a1098431c85e929696c8ce2f76ae369671166060729ef45a717b220a1b0813"
+      }
+    ],
+    "P40": {
+      "bucket": "SAME_CLASS, one level deeper: replace count-only census with exact full source-site composition; further growth must be represented in the complete composition, not a scalar count.",
+      "falsifier": "After adoption, run peer-selected full Trust/measurement/custody suite, including census case and strict serialization-negative case. No closure until it passes on integrated source."
+    },
+    "bounded_proof": "Peer source GO applies to the exact seven source postimages: 47 source rows equal both AST and token inventories; typed bundles reach 19 inventoried calls across five owners; 102 prior facade bindings remain with none removed and four added. One focused census test passed on pre-format v2; the two formatting-only source files are AST-equal in v3. Full Trust/measurement/custody acceptance remains HOLD / verification_missing. README is root-directed unique-snippet append; DEBT companion replaces only target narrative and acceptance, preserving owner, open status, and historical prose. Root qualification retains the original complete dated DEBT narrative and acceptance and appends new reconciliation; no native-guardrail acceptance criterion is dropped.",
+    "limitations": {
+      "readiness": "SOURCE_REVIEW_GO_TO_BOUNDED_FULL_SUITE; ACCEPTANCE_HOLD",
+      "runtime": "UNRUN on integrated adopted source. Focused census receipt is pre-format v2, not the full acceptance suite.",
+      "mechanism_path_budget": {
+        "count": 6,
+        "denominator": "six Trust production modules",
+        "P39": "One Trust semantic test, README append, DEBT row, root LEASES, and delivery-index refresh are mandatory companions excluded from mechanism count; 11 total canonical paths if all plan rows and two root records are applied."
+      },
+      "source_only": true,
+      "no_environment_change": true,
+      "no_git_mutation_by_preparer": true,
+      "no_product_import": true,
+      "no_pytest": true,
+      "root_is_only_canonical_writer": true,
+      "verification_missing": "Full selected Trust posture, measurement, and custody validation suite has not run against integrated candidate.",
+      "G_acceptance": false,
+      "closure_ids": []
+    },
+    "runtime": "UNRUN on adopted source",
+    "next_check": [
+      "Root resolves full current branch HEAD/tree, confirms all preimage and reviewed-input pins, and reads back README and single-row DEBT postimages.",
+      "Root applies seven reviewed source postimages plus README append and DEBT row update, then updates LEASES.json and candidate-component-delivery-index-20261015.json. No receipt SHA or closure ID is predeclared.",
+      "Run from policy-engine/: python -m pytest -q tests/repo_quality/tools/test_trust_claim_posture.py tests/repo_quality/tools/test_trust_posture_measurement.py tests/repo_quality/tools/test_custody_markdown.py tests/unit/scientist/evidence/claims/test_posture.py tests/unit/scientist/evidence/claims/test_posture_markdown.py tests/repo_quality/tools/test_architecture_phase3.py::test_trust_probe_basis_includes_actual_compiler_read_receipt. Retain complete outputs; change verification_missing only after reviewing results."
+    ],
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

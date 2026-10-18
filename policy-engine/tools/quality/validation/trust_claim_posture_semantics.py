@@ -70,7 +70,7 @@ if TYPE_CHECKING:
 
 
 def _semantic_predicates(
-    *, satisfied: set[str], evidence_refs: tuple[str, ...], dependencies: SemanticDependencies
+    *, satisfied: set[str], evidence_refs: tuple[str, ...]
 ) -> tuple[SupportPredicate, ...]:
     issues = {
         "content_bound_source": "DS11-SOURCE-CONTENT-NOT-BOUND",
@@ -104,7 +104,6 @@ def _semantic_evidence(
     verifier: AdmittedVerifier,
     source_as_of: date,
     establishment_class: EstablishmentClass = EstablishmentClass.RECOMPUTED,
-    dependencies: SemanticDependencies,
 ) -> EvidenceBinding:
     return EvidenceBinding(
         ref=verifier.content_ref,
@@ -252,6 +251,7 @@ def _compile_semantic_bindings(
                 if identity_is_exact_ratified_source
                 else complete_facts - {"no_blocker"}
             ),
+            dependencies=dependencies,
         )
     ]
 
@@ -300,6 +300,7 @@ def _compile_semantic_bindings(
                 prerequisite_refs=(appointment.debt_id,),
                 closure_signal=appointment.closure_signal,
                 predicate_facts=custody_facts,
+                dependencies=dependencies,
             )
         )
 
@@ -378,6 +379,7 @@ def _compile_semantic_bindings(
                 else "Accessibility document projection basis is unavailable.",
             ),
             predicate_facts=historical_facts,
+            dependencies=dependencies,
         )
     )
 
@@ -422,6 +424,7 @@ def _compile_semantic_bindings(
                 else "Current page-accessibility evidence is unavailable.",
             ),
             predicate_facts={"identity_boundary"},
+            dependencies=dependencies,
         )
     )
     bindings.append(
@@ -443,6 +446,7 @@ def _compile_semantic_bindings(
             limitation_refs=("External accessibility countersign is absent.",),
             prerequisite_refs=("DS11-EXTERNAL-A11Y-COUNTERSIGN",),
             predicate_facts={"identity_boundary"},
+            dependencies=dependencies,
         )
     )
     bindings.append(
@@ -474,6 +478,7 @@ def _compile_semantic_bindings(
                 "current_review",
                 "identity_boundary",
             },
+            dependencies=dependencies,
         )
     )
     return tuple(bindings)
@@ -543,6 +548,7 @@ def compile_claim_posture_register(
         custody_appointments=custody_appointments,
         accessibility_document=accessibility_document,
         page_receipt=page_receipt,
+        dependencies=dependencies,
     )
     register = build_posture_register(
         register_as_of=register_as_of,

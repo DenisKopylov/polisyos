@@ -454,7 +454,452 @@ def test_literal_censuses_reconcile_for_both_complete_walks() -> None:
         and site.wrapper_kind != "dynamic"
         and site.resolution == "resolved"
     )
-    assert (len(inventory_denied), len(reconciled.may_not_use_for_denied_only_sites)) == (39, 4)
+    actual_composition = tuple(
+        sorted(
+            [
+                ("inventory", site.coordinate.path, site.coordinate.symbol, site.values)
+                for site in inventory_denied
+            ]
+            + [
+                ("denied_only", site.coordinate.path, site.coordinate.symbol, site.values)
+                for site in reconciled.may_not_use_for_denied_only_sites
+            ]
+        )
+    )
+    expected_composition = (
+        (
+            "denied_only",
+            "src/polisyos/core/contracts/search.py",
+            "SearchCandidate",
+            (),
+        ),
+        (
+            "denied_only",
+            "src/polisyos/data_forge/domains/catalog/knowledge/acquisition_authority.py",
+            "AcquisitionAuthorityProvision",
+            ("acquisition_registry_self_authorization",),
+        ),
+        (
+            "denied_only",
+            "src/polisyos/runtime/http/services/predictive_calibration.py",
+            "PredictiveCalibrationAssociation",
+            (
+                "promotion",
+                "publication",
+                "policy_selection",
+                "causal_effect_claim",
+            ),
+        ),
+        (
+            "denied_only",
+            "src/polisyos/runtime/quality/approval.py",
+            "ProductionApprovalCurrentnessProjection",
+            (
+                "production_approval",
+                "publication",
+                "agent_effect",
+            ),
+        ),
+        (
+            "denied_only",
+            "src/polisyos/runtime/quality/proving_ground/pinned_route_demand_home.py",
+            "Layer3GXPinnedRequest",
+            (),
+        ),
+        (
+            "inventory",
+            "src/polisyos/core/contracts/runtime.py",
+            "UniversalAuthorityProfile",
+            (),
+        ),
+        (
+            "inventory",
+            "src/polisyos/data_forge/_ukraine_release_contracts.py",
+            "D5ReleaseHandoffRequest",
+            (
+                "legal_intervention_compilation",
+                "governance_admissibility",
+                "release_acceptance",
+                "publication",
+            ),
+        ),
+        (
+            "inventory",
+            "src/polisyos/data_forge/read_api/ukraine.py",
+            "VerifiedUkraineReleaseArtifacts",
+            (
+                "governance_admissibility",
+                "release_acceptance",
+                "publication",
+                "method_validity",
+            ),
+        ),
+        (
+            "inventory",
+            "src/polisyos/data_forge/read_api/ukraine.py",
+            "VerifiedUkraineStageArtifacts",
+            (
+                "governance_admissibility",
+                "release_acceptance",
+                "legal_intervention_compilation",
+                "method_validity",
+            ),
+        ),
+        (
+            "inventory",
+            "src/polisyos/evidence/portfolio/conflict_records.py",
+            "ConflictAuthorityEnvelope",
+            (
+                "claim_authority",
+                "support_strength",
+                "legal_authority",
+                "method_authority",
+            ),
+        ),
+        (
+            "inventory",
+            "src/polisyos/foundry/data_plane/bindings.py",
+            "_UkraineMethodInputBundle",
+            (
+                "governance_admissibility",
+                "method_validity",
+            ),
+        ),
+        (
+            "inventory",
+            "src/polisyos/foundry/validation/release_acceptance.py",
+            "FoundryReleaseAcceptanceReceipt",
+            (
+                "release_admissibility",
+                "governance_admissibility",
+                "publication_authorization",
+            ),
+        ),
+        (
+            "inventory",
+            "src/polisyos/foundry/welfare/frontier_emitter.py",
+            "ParetoFrontierRecord",
+            (
+                "value_choice_authority",
+                "scalar_welfare_authority",
+                "claim_authority",
+                "projection_authority",
+            ),
+        ),
+        (
+            "inventory",
+            "src/polisyos/foundry/welfare/frontier_emitter.py",
+            "ValueChoiceDecisionPoint",
+            (
+                "pareto_frontier_fact",
+                "scalar_welfare_authority",
+                "claim_authority",
+                "projection_authority",
+            ),
+        ),
+        (
+            "inventory",
+            "src/polisyos/foundry/welfare/frontier_emitter.py",
+            "WelfareAuditTrail",
+            (
+                "scalar_welfare_authority",
+                "claim_authority",
+                "projection_authority",
+            ),
+        ),
+        (
+            "inventory",
+            "src/polisyos/foundry/welfare/frontier_emitter.py",
+            "WelfareFrontierSurface",
+            (
+                "scalar_welfare_authority",
+                "claim_authority",
+                "runtime_closeout_authority",
+                "approval_authority",
+            ),
+        ),
+        (
+            "inventory",
+            "src/polisyos/foundry/welfare/social_weight_provenance.py",
+            "SocialWeightProvenance",
+            (
+                "claim_authority",
+                "pareto_frontier_fact",
+                "scalar_welfare_authority",
+                "projection_authority",
+            ),
+        ),
+        (
+            "inventory",
+            "src/polisyos/ir/analytics/literature.py",
+            "AdmittedClaimAdjudicationBatch",
+            (
+                "method_validity",
+                "governance_admissibility",
+            ),
+        ),
+        (
+            "inventory",
+            "src/polisyos/obligation_rules/catalog.py",
+            "ObligationRule",
+            (
+                "claim_evidence_authority",
+                "silent_rulebook_admission",
+                "llm_candidate_authority",
+            ),
+        ),
+        (
+            "inventory",
+            "src/polisyos/participation_requirement/__init__.py",
+            "ParticipationAuthorityBoundary",
+            (
+                "participation_evidence_authority",
+                "participation_authority",
+                "claim_support_authority",
+                "closeout_authority",
+                "projection_authority",
+            ),
+        ),
+        (
+            "inventory",
+            "src/polisyos/runtime/http/services/human_decision_contracts.py",
+            "HumanDecisionReviewEffectivenessResponse",
+            (
+                "current_run_closeout_block",
+                "publication_block",
+                "claim_support_downgrade",
+                "authorization_writer_provenance",
+                "forensic_tamper_detection",
+            ),
+        ),
+        (
+            "inventory",
+            "src/polisyos/runtime/quality/capability_authority.py",
+            "CapabilityBindingResult",
+            (
+                "projection_authority",
+                "scorecard_authority_without_binding_status",
+            ),
+        ),
+        (
+            "inventory",
+            "src/polisyos/runtime/quality/capability_index.py",
+            "AuthorityEnvelope",
+            (),
+        ),
+        (
+            "inventory",
+            "src/polisyos/runtime/quality/capability_index.py",
+            "CapabilityIndexDiscoveryRow",
+            (),
+        ),
+        (
+            "inventory",
+            "src/polisyos/runtime/quality/capability_index.py",
+            "EvidenceCapability",
+            (),
+        ),
+        (
+            "inventory",
+            "src/polisyos/runtime/quality/concept_spine.py",
+            "build_concept_spine_bridge_authority_record",
+            (
+                "producer_domain_truth",
+                "public_projection_authority",
+                "evidence_strength",
+            ),
+        ),
+        (
+            "inventory",
+            "src/polisyos/runtime/quality/construct_registry.py",
+            "ConstructAliasDeprecation",
+            (
+                "evidence_authority_selector",
+                "production_closeout_authority",
+            ),
+        ),
+        (
+            "inventory",
+            "src/polisyos/runtime/quality/design_axes/value_choice_provenance.py",
+            "NormativeAuthorizationRecord",
+            (
+                "legal_competence",
+                "democratic_legitimacy",
+                "claim_evidence",
+                "policy_optimality",
+            ),
+        ),
+        (
+            "inventory",
+            "src/polisyos/runtime/quality/design_axes/value_choice_provenance.py",
+            "NormativeGenerationDisposition",
+            (
+                "compiled_run_membership",
+                "pareto_dominance",
+                "empirical_value_authority",
+                "legal_competence",
+                "democratic_legitimacy",
+                "claim_evidence",
+                "publication_authority",
+            ),
+        ),
+        (
+            "inventory",
+            "src/polisyos/runtime/quality/generation_cycle.py",
+            "_s10_value_authority_boundary",
+            (
+                "production_recommendation",
+                "production_claim_authority",
+                "rollout_authority",
+                "publication_authority",
+                "claim_authority",
+                "closeout_authority",
+                "approval_authority",
+                "scorecard_authority",
+                "preference_learning_authority",
+                "s11_calibration",
+                "s12_envelope_growth",
+                "s13_accountability_closure",
+                "s14_universality",
+            ),
+        ),
+        (
+            "inventory",
+            "src/polisyos/runtime/quality/joint_simulation_horizon.py",
+            "SimulationProofReceipt",
+            (
+                "world_credal_state_shrinkage",
+                "promotion",
+            ),
+        ),
+        (
+            "inventory",
+            "src/polisyos/runtime/quality/proving_ground/causal_forecast_search.py",
+            "Layer3G2MethodValidityTransportRecord",
+            (),
+        ),
+        (
+            "inventory",
+            "src/polisyos/runtime/quality/proving_ground/governed_promotion_gate.py",
+            "Layer3G4GroundedContractRef",
+            (),
+        ),
+        (
+            "inventory",
+            "src/polisyos/runtime/quality/proving_ground/governed_promotion_gate.py",
+            "_fixture_g4_grounded_g1_row",
+            (
+                "claim_authority",
+                "production_authority",
+                "layer3_g4_governed_promotion_state",
+            ),
+        ),
+        (
+            "inventory",
+            "src/polisyos/runtime/quality/proving_ground/proving_ground_conversion.py",
+            "Layer3G5ConversionEligibilityLedger",
+            (),
+        ),
+        (
+            "inventory",
+            "src/polisyos/runtime/quality/proving_ground/proving_ground_conversion.py",
+            "Layer3G5DemandPullAttemptRecord",
+            (
+                "conversion_authority",
+                "production_authority",
+                "closeout_authority",
+                "useful_design_credit",
+            ),
+        ),
+        (
+            "inventory",
+            "src/polisyos/runtime/quality/proving_ground/proving_ground_conversion.py",
+            "Layer3G5G4HandoffResolution",
+            (),
+        ),
+        (
+            "inventory",
+            "src/polisyos/runtime/quality/proving_ground/proving_ground_conversion.py",
+            "Layer3G5G4PromotionRecordResolution",
+            (),
+        ),
+        (
+            "inventory",
+            "src/polisyos/runtime/quality/proving_ground/proving_ground_conversion.py",
+            "Layer3G5GroundedEvidenceRef",
+            (),
+        ),
+        (
+            "inventory",
+            "src/polisyos/runtime/quality/proving_ground/proving_ground_conversion.py",
+            "Layer3G5W12DConsumerGate",
+            (),
+        ),
+        (
+            "inventory",
+            "src/polisyos/runtime/quality/proving_ground/region_widening.py",
+            "Layer3G7RegionCaseConversionInput",
+            (),
+        ),
+        (
+            "inventory",
+            "src/polisyos/runtime/quality/proving_ground/region_widening.py",
+            "Layer3G7S12GrowthThermometerProjection",
+            (),
+        ),
+        (
+            "inventory",
+            "src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+            "consume_from_state",
+            (
+                "design_decision_authority",
+                "production_recommendation",
+                "publication_authority",
+                "causal_identification",
+                "execution_cost_authority",
+            ),
+        ),
+        (
+            "inventory",
+            "src/polisyos/scientist/governance/blueprint_release.py",
+            "ReleaseDecisionPacket",
+            (
+                "publication_authorization",
+                "legal_authority",
+            ),
+        ),
+        (
+            "inventory",
+            "src/polisyos/scientist/governance/blueprint_release.py",
+            "_ScientistReleasePostflightReceipt",
+            (
+                "legal_authority",
+                "publication_authorization",
+            ),
+        ),
+        (
+            "inventory",
+            "src/polisyos/scientist/governance/blueprint_release.py",
+            "_ScientistReleasePredicateReceipt",
+            (
+                "release_admissibility",
+                "publication_authorization",
+                "legal_authority",
+            ),
+        ),
+        (
+            "inventory",
+            "src/polisyos/scientist/governance/continuous/reissue.py",
+            "PartialPublicationState",
+            (
+                "claim_evidence_authority",
+                "mandatory_public_revalidation_policy",
+                "scorecard_authority",
+                "silent_current_logic_upgrade",
+            ),
+        ),
+    )
+    assert actual_composition == tuple(sorted(expected_composition))
     assert (
         (
             *inventory_denied,
@@ -728,9 +1173,7 @@ def test_producer_posture_metadata_is_strict_and_cannot_fabricate_support(
         next(row for row in register.claims if row.subject == "example_claim").effective_state
         == "planned"
     )
-    cli_exit = checker.main(
-        ["--repo-root", str(repo), "--check-sources", "--json"]
-    )
+    cli_exit = checker.main(["--repo-root", str(repo), "--check-sources", "--json"])
     cli_report = json.loads(capsys.readouterr().out)
     assert cli_exit == 0
     assert cli_report["verdict"] == "PASS"
@@ -1132,17 +1575,13 @@ def test_custody_row_bytes_are_recomputed_while_markers_stay_fixed(tmp_path: Pat
     )
     assert custody["effective_state"] == "blocked"
     assert {
-        source["debt_id"]: source["status"]
-        for source in authored["custody_appointment_sources"]
+        source["debt_id"]: source["status"] for source in authored["custody_appointment_sources"]
     } == {
         "DS11-CLAIM-LIFECYCLE-ORCHESTRATION": "blocked",
         "DS11-PUBLIC-SIGNATURE-POPULATION": "open",
         "DS11-PUBLISHED-SIGNATURE-WATCHER": "closed",
     }
-    bindings = {
-        binding["prerequisite_refs"][0]: binding
-        for binding in custody["source_bindings"]
-    }
+    bindings = {binding["prerequisite_refs"][0]: binding for binding in custody["source_bindings"]}
     assert bindings["DS11-CLAIM-LIFECYCLE-ORCHESTRATION"]["source_state"] == "blocked"
     assert bindings["DS11-PUBLIC-SIGNATURE-POPULATION"]["source_state"] == "planned"
     assert bindings["DS11-PUBLISHED-SIGNATURE-WATCHER"]["source_state"] == "blocked"
@@ -1150,8 +1589,7 @@ def test_custody_row_bytes_are_recomputed_while_markers_stay_fixed(tmp_path: Pat
         "Blocked prerequisite: DS11-CLAIM-LIFECYCLE-ORCHESTRATION"
     ]
     assert bindings["DS11-PUBLISHED-SIGNATURE-WATCHER"]["limitation_refs"] == [
-        "Closed appointment lacks an admitted closure receipt: "
-        "DS11-PUBLISHED-SIGNATURE-WATCHER"
+        "Closed appointment lacks an admitted closure receipt: DS11-PUBLISHED-SIGNATURE-WATCHER"
     ]
     marker_snapshot = tuple(
         (binding["owner"]["owner"], binding["owner"]["source_ref"], binding["closure_signal"])
@@ -1407,7 +1845,14 @@ def test_live_check_recomputes_denied_source_bytes_and_free_growth(
         )
 
     exit_code = checker.main(
-        ["--repo-root", str(repo), "--register-as-of", FROZEN_AS_OF.isoformat(), "--check", "--json"]
+        [
+            "--repo-root",
+            str(repo),
+            "--register-as-of",
+            FROZEN_AS_OF.isoformat(),
+            "--check",
+            "--json",
+        ]
     )
     output = capsys.readouterr().out
     report = json.loads(output)
@@ -1523,7 +1968,9 @@ def test_cli_transports_present_owner_predicate_failures(
     assert report["measurement"]["complete_verdict"] is True
     assert report["measurement"]["finding_coverage"].startswith("decisive predicate failure")
     assert any(
-        item["path"] == input_path and item["operation"] == "read_bytes" and item["status"] == "read"
+        item["path"] == input_path
+        and item["operation"] == "read_bytes"
+        and item["status"] == "read"
         for item in report["measurement"]["inputs"]
     )
     if owner == "generated_family":
@@ -1533,7 +1980,9 @@ def test_cli_transports_present_owner_predicate_failures(
         ]
         assert report["write_attempted"] is True
         assert report["write_set_complete"] is False
-        assert report["write_set"] == ["apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json"]
+        assert report["write_set"] == [
+            "apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json"
+        ]
     else:
         assert report["write_attempted"] is False
         assert report["write_set_complete"] is True
@@ -1874,9 +2323,7 @@ def test_generated_family_probe_executes_the_declared_command(tmp_path: Path) ->
         )
 
 
-@pytest.mark.parametrize(
-    "escape_side", ["expected", "candidate", "inside", "command_failed"]
-)
+@pytest.mark.parametrize("escape_side", ["expected", "candidate", "inside", "command_failed"])
 def test_generated_family_probe_contains_both_byte_inputs_before_read(
     tmp_path: Path, monkeypatch, escape_side: str
 ) -> None:
@@ -2046,6 +2493,33 @@ def test_metadata_without_independent_source_basis_cannot_support() -> None:
     assert (
         posture.compose_effective_state(("supported",), support_predicates=predicates) == "blocked"
     )
+
+
+def test_public_compilation_keeps_context_out_of_strict_nested_schema() -> None:
+    """Prove facade dependencies never enter claims and nested extras still fail closed."""
+    checker = _checker()
+    posture = _owner("polisyos.scientist.evidence.claims.posture")
+    _register, payload = checker.compile_claim_posture_register(
+        REPO_ROOT, register_as_of=FROZEN_AS_OF
+    )
+    compiled = json.loads(payload)
+
+    def has_dependencies_key(value: object) -> bool:
+        if isinstance(value, dict):
+            return "dependencies" in value or any(
+                has_dependencies_key(item) for item in value.values()
+            )
+        if isinstance(value, list):
+            return any(has_dependencies_key(item) for item in value)
+        return False
+
+    assert not has_dependencies_key(compiled)
+    mutated = json.loads(payload)
+    claims = mutated["claims"]
+    assert isinstance(claims, list) and claims
+    claims[0]["dependencies"] = {"authority_field": "may_not_use_for"}
+    with pytest.raises(ValueError):
+        posture.validate_posture_register(_rebind_payload_digest(mutated))
 
 
 def test_declared_scope_assumption_is_limitation_not_support() -> None:

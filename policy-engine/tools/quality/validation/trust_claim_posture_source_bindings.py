@@ -314,7 +314,6 @@ def derive_custody_appointments(
             ),
             line=line_number,
             source_content=line,
-            dependencies=dependencies,
         )
     if set(found) != required_ids:
         dependencies.reject_owner_predicate(

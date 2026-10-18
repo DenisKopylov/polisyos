@@ -215,10 +215,6 @@ def test_same_run_direct_l4_and_l3_to_l4_persist_joined_invocations(tmp_path: Pa
     assert direct_outcome.stage_results[4].is_promising
     assert chain_outcome.stage_results[3].is_promising
     assert chain_outcome.stage_results[4].is_promising
-    assert (
-        direct_outcome.stage_results[4].simulation_results
-        == chain_outcome.stage_results[4].simulation_results
-    )
     assert direct_l4_engine.effective_config_inputs == chain_l4_engine.effective_config_inputs
     l3_config = chain_l3_engine.effective_config_inputs[0]
     assert l3_config["data_config"]["subsample_fraction"] == 0.35
@@ -263,14 +259,24 @@ def test_same_run_direct_l4_and_l3_to_l4_persist_joined_invocations(tmp_path: Pa
     direct_source = from_canonical_bytes(
         store.get_bytes(direct_packet.source_result_ref.artifact_id)
     )
-    direct_invocation = direct_source["metadata"]["policy_runtime_invocation"]
-    assert direct_invocation["evaluation_attempt_id"] == direct_packet.evaluation_attempt_id
-    assert direct_invocation["requested_draw_count"] == direct_packet.requested_draw_count
-    assert direct_invocation["requested_draw_source"] == direct_packet.requested_draw_source
-    assert direct_invocation["effective_estimation_config_sha256"] == (
-        direct_packet.effective_estimation_config_sha256
+    chain_l4_source = from_canonical_bytes(
+        store.get_bytes(chain_l4_packet.source_result_ref.artifact_id)
     )
+    for packet, source in (
+        (direct_packet, direct_source),
+        (chain_l4_packet, chain_l4_source),
+    ):
+        invocation = source["metadata"]["policy_runtime_invocation"]
+        assert invocation == {
+            "evaluation_attempt_id": packet.evaluation_attempt_id,
+            "requested_draw_count": packet.requested_draw_count,
+            "requested_draw_source": packet.requested_draw_source,
+            "effective_estimation_config_sha256": (packet.effective_estimation_config_sha256),
+        }
     direct_fiscal_measurement = direct_source["metadata"]["policy_runtime_fiscal_measurement"]
+    assert chain_l4_source["metadata"]["policy_runtime_fiscal_measurement"] == (
+        direct_fiscal_measurement
+    )
     assert direct_fiscal_measurement == {
         "usable": True,
         "normalized_value": 0.0,
@@ -293,6 +299,22 @@ def test_same_run_direct_l4_and_l3_to_l4_persist_joined_invocations(tmp_path: Pa
         assert packet.successful_draw_count is None
         assert packet.failed_draw_count is None
         assert packet.unattempted_draw_count is None
+
+    direct_metrics = deepcopy(direct_outcome.stage_results[4].simulation_results)
+    chain_l4_metrics = deepcopy(chain_outcome.stage_results[4].simulation_results)
+    direct_bootstrap = direct_metrics["bootstrap"]
+    chain_l4_bootstrap = chain_l4_metrics["bootstrap"]
+    assert isinstance(direct_bootstrap, dict)
+    assert isinstance(chain_l4_bootstrap, dict)
+    direct_attempt_id = direct_bootstrap.pop("evaluation_attempt_id")
+    chain_l4_attempt_id = chain_l4_bootstrap.pop("evaluation_attempt_id")
+    assert direct_attempt_id == direct_packet.evaluation_attempt_id
+    assert chain_l4_attempt_id == chain_l4_packet.evaluation_attempt_id
+    assert direct_attempt_id != chain_l4_attempt_id
+    # Only the invocation identity varies; every physical result and the rest of
+    # the bootstrap record must agree across direct and promoted full-fidelity runs.
+    assert direct_metrics == chain_l4_metrics
+
     assert all(
         step.executed_work_packet_status == "available"
         for step in chain_outcome.trace

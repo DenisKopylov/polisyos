@@ -11803,5 +11803,108 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "v5-two-test-r2-profile-invocation-companion-20261018": {
+    "slice_base": "53e4cedf0071131328e26e4870e3c5da975d8cb8",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/unit/scientist/nodes/builtins/decide/test_policy_blueprint_runtime_engine.py": {
+        "operation": "modify",
+        "preimage_sha256": "22ea196674bce9a04a036497a9509cd17ae75f560f7133e2dffe9defa4e8a4a6",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-d398-companion-repair-r2-20261018/postimages/tests/unit/scientist/nodes/builtins/decide/test_policy_blueprint_runtime_engine.py",
+        "postimage_sha256": "366976dd82a5581071509cb7aea060a7f1d02f03626b83408c7f7410a221fd95"
+      },
+      "policy-engine/tests/unit/scientist/search/funnel/test_policy_runtime_work_packets.py": {
+        "operation": "modify",
+        "preimage_sha256": "56c4eaa5c098b8b1f3eb3cd4a70f044e9c8826018327f04537b0846c6784f5ce",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-d398-companion-repair-r2-20261018/postimages/tests/unit/scientist/search/funnel/test_policy_runtime_work_packets.py",
+        "postimage_sha256": "e129fd28a56179e70f7fb751d259b6f7f16e6858c0d15fe5c1263f7789637d65"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-two-test-r2-53e-source-adoption-20261018/source-application.json",
+      "sha256": "aac51a5825ed3614b38a36374daeb663822c0089000a2e868767b5077cd08262"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-two-test-r2-53e-source-adoption-20261018/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-d398-companion-repair-r2-20261018/manifest.json",
+        "sha256": "4ff12143ae4a2cfb35ce5bf2d38dfbb49f41bb803dfa2dabee5b6d7debd06f56"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-d398-companion-repair-r2-20261018/candidate.json",
+        "sha256": "55767402f1fe523041912a032b75c3c65332cb75e5f7fc6be6187a80d44cbfa0"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-d398-companion-repair-r2-20261018/candidate.patch",
+        "sha256": "56112e255641216a880d2e92b093439233771b3c87056b29eb7becf8395d1eca"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-two-test-companion-r2-independent-20261018/review.md",
+        "sha256": "a717cbf932d2ef973f990d7d52710d2b67b9f72489d2a7ac4486098e0a47c76a"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/__init__.py",
+        "sha256": "7d9622f4c1a0383befaa12fdc906f25c2e1adb10703e93d24d7936ebf0f430d8"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/_manifest_lifecycle.py",
+        "sha256": "b0948bf37ec2fd9e7d0b893db319b63bfdc21290564a7aa414e80a97cbebf966"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/protocol.py",
+        "sha256": "f70de7350c66639403fffc7bb28998184f00f0b6fc95a3e6e16a86ee4f6c969e"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/store.py",
+        "sha256": "e1506ceca8ad7907c85f2006e3247565f939035d9f681c97b6db6bc0a223a0f8"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/methods/search/funnel/types.py",
+        "sha256": "bb1bd23b5faca2a00bdfd6efa987c87276c51e1cebd876e2dd35beb669f02e17"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_blueprint_runtime_engine.py",
+        "sha256": "88969f72cdbaf207d33b2e2bbc57236130ec159e2bb761d516437f6e2aa48f90"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_artifacts.py",
+        "sha256": "e64066b91ec52b2adebb0bc1769ae323b229669becf41880b20bf88b77c3e344"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_metrics.py",
+        "sha256": "df88842571e51dc5a7259fa20da5a4f1b87ed8d7a3ebd75b2539168467026ab1"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/nodes/builtins/decide/policy_runtime_support.py",
+        "sha256": "b12f4ffeedaff656a0d2c0bcbf8e9fb6630a0ba44ade8f5e0d6bea8578c9f049"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scientist/policy_design/schema.py",
+        "sha256": "2f2949e3612d0d250b753c40f8a6a7c6fc28ba4b2581c5338bba6daae6306bba"
+      }
+    ],
+    "P40": "Same selected-profile and invocation-lineage companion class; general ref-aware reader and per-invocation lineage, no product semantics change.",
+    "bounded_proof": "Pinned candidate and independent semantic review, exact producer/API requalification, canonical full-file Ruff; runtime UNRUN until next separate actual packet.",
+    "limitations": [
+      "Two test companions only. Independent review GO is for focused runtime; commit is a clean source boundary to enable that source-bound run, not runtime acceptance.",
+      "Historical d398 composed run was 144 PASS / 3 FAIL; not replaced until actual fresh focused replay.",
+      "B108 nullable scoring and B157 actual scientific MethodJob/data/outcome/count join remain limited."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": {
+      "selectors": [
+        "tests/unit/scientist/nodes/builtins/decide/test_policy_blueprint_runtime_engine.py::test_engine_persists_typed_work_packet_with_candidate_and_result_cas_lineage[medium-3-funnel_L3_medium]",
+        "tests/unit/scientist/nodes/builtins/decide/test_policy_blueprint_runtime_engine.py::test_engine_persists_typed_work_packet_with_candidate_and_result_cas_lineage[full-4-funnel_L4_full]",
+        "tests/unit/scientist/search/funnel/test_policy_runtime_work_packets.py::test_same_run_direct_l4_and_l3_to_l4_persist_joined_invocations"
+      ],
+      "required": "fresh three-case focused run followed by all affected eleven modules at agreed source/input freeze"
+    },
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

@@ -5,6 +5,10 @@ from typing import Any
 
 import pytest
 
+from polisyos.core.artifacts import (
+    artifact_manifest_profile_sha256,
+    resolve_manifest_by_profile,
+)
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.ir.governance.policy_spec import PolicySpec
@@ -133,7 +137,7 @@ def test_engine_persists_typed_work_packet_with_candidate_and_result_cas_lineage
     assert unavailable_reason is None
     assert packet_ref is not None
     packet = FunnelExecutedWorkPacket.model_validate(
-        from_canonical_bytes(store.get_bytes(packet_ref.artifact_id))
+        from_canonical_bytes(store.get_bytes(packet_ref))
     )
     assert packet.run_id == "run_engine_positive"
     assert packet.ticket_id == "ticket:run_engine_positive"
@@ -152,21 +156,29 @@ def test_engine_persists_typed_work_packet_with_candidate_and_result_cas_lineage
     assert packet.draw_execution_status == "not_instrumented"
     assert packet.attempted_draw_count is None
     assert packet.successful_draw_count is None
-    # This producer writes through Core FileSystemCAS, so its refs select the
-    # default manifest view. Verify those persisted manifests and their edges
-    # instead of treating a missing IR profile selector as producer evidence.
-    assert packet.source_result_ref.manifest_profile_sha256 is None
-    assert packet_ref.manifest_profile_sha256 is None
+    # Honor each producer's persisted selector instead of requiring both refs to
+    # carry an explicit manifest profile.
+    result_profile = packet.source_result_ref.manifest_profile_sha256
+    assert result_profile is not None
+    result_manifest = resolve_manifest_by_profile(
+        store, packet.source_result_ref.artifact_id, result_profile
+    )
+    assert result_profile == artifact_manifest_profile_sha256(result_manifest)
 
-    result_payload = from_canonical_bytes(store.get_bytes(packet.source_result_ref.artifact_id))
+    packet_profile = packet_ref.manifest_profile_sha256
+    if packet_profile is None:
+        packet_manifest = store.get_manifest(packet_ref)
+    else:
+        packet_manifest = resolve_manifest_by_profile(store, packet_ref.artifact_id, packet_profile)
+        assert packet_profile == artifact_manifest_profile_sha256(packet_manifest)
+
+    result_payload = from_canonical_bytes(store.get_bytes(packet.source_result_ref))
     assert result_payload["candidate_id"] == candidate.candidate_id
     assert result_payload["metadata"]["fidelity_observed"] == fidelity
     assert (
         result_payload["metadata"]["policy_runtime_invocation"]["evaluation_attempt_id"]
         == f"attempt:{fidelity}"
     )
-    result_manifest = store.get_manifest(packet.source_result_ref)
-    packet_manifest = store.get_manifest(packet_ref)
     assert result_manifest.artifact_id == packet.source_result_ref.artifact_id
     assert packet_manifest.artifact_id == packet_ref.artifact_id
     assert result_manifest.kind == "scientist.policy_evaluation_vector"

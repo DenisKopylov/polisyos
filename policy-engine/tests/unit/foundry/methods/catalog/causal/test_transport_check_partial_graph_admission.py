@@ -35,18 +35,17 @@ def _check_typed_refusal(
     outcome: str,
 ) -> None:
     result = TransportabilityResult.model_validate(payload["transport_result"])
-    proof = ProofBundle.model_validate(payload["proof_bundle"])
     _require(
         result.status is TransportabilityStatus.UNSUPPORTED,
         "partial graph must not produce an identified scalar result",
     )
     _require(
-        result.transport_mode is TransportMode.NONE,
-        "partial graph refusal must not carry a transport mode",
-    )
-    _require(
         result.unsupported_reason == "partial_graph_completion_semantics_not_established",
         "refusal must retain the specific unresolved-completion reason",
+    )
+    _require(
+        result.transport_mode is TransportMode.NONE,
+        "partial graph refusal must not carry a transport mode",
     )
     _require(result.source_graph_type is graph_type, "refusal must retain graph type")
     _require(
@@ -58,6 +57,8 @@ def _check_typed_refusal(
     _require(result.pag_dag_sample_size is None, "refusal cannot claim sampled DAGs")
     _require(result.pag_transportable_count is None, "refusal cannot claim transport counts")
     _require(result.transport_formula is None, "refusal cannot carry a formula")
+    _require("proof_bundle" in payload, "typed refusal must include a proof bundle")
+    proof = ProofBundle.model_validate(payload["proof_bundle"])
     _require(proof.proof_status == "oracle_needed", "proof must remain candidate-grade")
     _require(proof.completeness_regime == "sound_incomplete", "proof must remain incomplete")
     _require(

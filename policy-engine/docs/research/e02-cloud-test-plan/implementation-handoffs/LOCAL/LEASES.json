@@ -12333,5 +12333,56 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "b214-assert-refusal-before-proof-read-runtime-controls-r3-20261018": {
+    "slice_base": "55a97d4dad38ca7d8578627e1bd38fef27377281",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_transport_check_partial_graph_admission.py": {
+        "operation": "modify",
+        "preimage_sha256": "e9214c21d1b04af15778e48555575f749175a1d7c3faf5f79e497a3ae845edcd",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r3-20261018/postimages/policy-engine/tests/unit/foundry/methods/catalog/causal/test_transport_check_partial_graph_admission.py",
+        "postimage_sha256": "063d2c7e1ba7b17c24b8c954482b0f12e9b935773c7c42268e3ed4a1f0b725cd"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-test-assertion-runtime-oracle-adoption-20261018/source-application.json",
+      "sha256": "90bce51e8686275bbf82f2955386c6869b12cf43f5bb2c6113f6645d8249933f"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-test-assertion-runtime-oracle-adoption-20261018/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r3-20261018/file-manifest.json",
+        "sha256": "5e5557ce5b23ac86cfbe7de2537de885ed180c5165405cfc6665a8e154a5f253"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r3-20261018/prepared-plan.json",
+        "sha256": "9311d5c975b83a6e0976412582268b00c865458f44cfb4b3b389209df43f755a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-runtime-removal-controls-r3-independent-20261018/review.json",
+        "sha256": "d2c22c589041d29163791bce97919d28ee258ecdd32e2411b547e1cfe118c6c0"
+      }
+    ],
+    "P40": "Same B214 oracle/fail-closed proof class widened to complete typed assertion and full call-report/JUnit comparison, markers retained by actual in-process controls.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "One canonical test companion; no production behavior change or formal B214 closure.",
+      "PriorR2positive2P but allfourcontrol-observed predicatesfalse; R3actualfiveprofilesUNRUN until committedpostimage.",
+      "Controlled legal fixture is candidate-only and does not establish law/issuer/productioncurrentness."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": {
+      "required": [
+        "Fresh positive pair then four realruntime removal/corruption/seam profiles through reviewedR3runner",
+        "Exact full AssertionError details matched to currentJUnit/report/PID/sourceorigins; preserveallnegativeexpectedfailoutputs"
+      ]
+    },
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

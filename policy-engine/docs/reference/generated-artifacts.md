@@ -966,7 +966,7 @@ uv run python tools/devx/architecture/guardrails.py sync --skip-deep-import-base
 
 - Family id: `architecture-package-contract-aggregates`
 - Lifecycle: `generated_committed`
-- Source of truth: architecture/packages/*.toml
+- Source of truth: primary package contracts in architecture/packages/*.toml; registered family outputs are excluded
 - Generator: canonical generator declared in regenerate_commands
 - Verifier: verifier declared by check_command, drift_gate, workflow, or manual review policy
 - Promotion target: registered committed outputs listed in outputs
@@ -987,7 +987,7 @@ Canonical regeneration commands:
 
 ```bash
 mirror package-contract changes into legacy aggregate TOML until the aggregate generator replaces hand-edits
-uv run python tools/quality/validation/architecture_report_only_contracts.py --report package-mirrors --fail-on-contract-errors
+uv run python tools/quality/validation/architecture_report_only_contracts.py --report package-mirrors --fail-on-package-mirror-errors
 ```
 
 ## `Architecture report-only contract reports`
@@ -2614,7 +2614,7 @@ Canonical regeneration commands:
 
 - Family id: `policy-design-case-grounding-bind-contract`
 - Lifecycle: `generated_committed`
-- Source of truth: Curated owner-level provenance (not a transitive import census): production_data L1-L7 inputs through canonical CG0/credal-reference owners; architecture/policy_design_case/corr/grounding_proof_world_input.json; architecture/policy_design_case/layer3_gy_design_generation_contract.json; src/polisyos/common/config.py; src/polisyos/core/artifacts/backends/config.py; src/polisyos/core/artifacts/store.py; src/polisyos/data_forge/read_api/academic.py; src/polisyos/pdc/__init__.py; src/polisyos/runtime/quality/credal_reference.py; src/polisyos/runtime/quality/grounding_bind.py; src/polisyos/runtime/quality/grounding_calibration.py; src/polisyos/runtime/quality/grounding_relation.py; src/polisyos/runtime/quality/grounding_risk.py; src/polisyos/runtime/quality/intervention_atom_binding.py; src/polisyos/runtime/quality/intervention_substrate.py; src/polisyos/runtime/quality/substrate_registry.py; src/polisyos/runtime/quality/world_model_record.py; tools/quality/validation/check_grounding_bind_contract.py; tools/quality/validation/check_grounding_relation_contract.py; tools/quality/validation/check_layer3_gy_design_generation_contract.py
+- Source of truth: Curated owner-level provenance (not a transitive import census): production_data L1-L7 inputs through canonical CG0/credal-reference owners; architecture/policy_design_case/corr/grounding_proof_world_input.json; architecture/policy_design_case/layer3_gy_design_generation_contract.json; src/polisyos/common/config/__init__.py; src/polisyos/core/artifacts/backends/config.py; src/polisyos/core/artifacts/store.py; src/polisyos/data_forge/read_api/academic.py; src/polisyos/pdc/__init__.py; src/polisyos/runtime/quality/credal_reference.py; src/polisyos/runtime/quality/grounding_bind.py; src/polisyos/runtime/quality/grounding_calibration.py; src/polisyos/runtime/quality/grounding_relation.py; src/polisyos/runtime/quality/grounding_risk.py; src/polisyos/runtime/quality/intervention_atom_binding.py; src/polisyos/runtime/quality/intervention_substrate.py; src/polisyos/runtime/quality/substrate_registry.py; src/polisyos/runtime/quality/world_model_record.py; tools/quality/validation/check_grounding_bind_contract.py; tools/quality/validation/check_grounding_relation_contract.py; tools/quality/validation/check_layer3_gy_design_generation_contract.py
 - Generator: Existing canonical producer tools.quality.validation.check_grounding_bind_contract
 - Verifier: Existing semantic owner and generated artifact lifecycle accounting
 - Promotion target: Custody and audit projection only; registration grants no task completion or evidence authority
@@ -2686,7 +2686,7 @@ Canonical regeneration commands:
 
 - Family id: `policy-design-case-grounding-relation-contract`
 - Lifecycle: `generated_committed`
-- Source of truth: Curated owner-level provenance (not a transitive import census): production_data L1-L7 inputs through canonical CG0/credal-reference owners; architecture/policy_design_case/layer3_gy_design_generation_contract.json; src/polisyos/common/config.py; src/polisyos/data_forge/read_api/academic.py; src/polisyos/pdc/__init__.py; src/polisyos/runtime/quality/credal_reference.py; src/polisyos/runtime/quality/grounding_relation.py; src/polisyos/runtime/quality/intervention_atom_binding.py; src/polisyos/runtime/quality/intervention_substrate.py; src/polisyos/runtime/quality/substrate_registry.py; src/polisyos/runtime/quality/world_model_record.py; tools/quality/validation/check_grounding_relation_contract.py; tools/quality/validation/check_layer3_gy_design_generation_contract.py
+- Source of truth: Curated owner-level provenance (not a transitive import census): production_data L1-L7 inputs through canonical CG0/credal-reference owners; architecture/policy_design_case/layer3_gy_design_generation_contract.json; src/polisyos/common/config/__init__.py; src/polisyos/data_forge/read_api/academic.py; src/polisyos/pdc/__init__.py; src/polisyos/runtime/quality/credal_reference.py; src/polisyos/runtime/quality/grounding_relation.py; src/polisyos/runtime/quality/intervention_atom_binding.py; src/polisyos/runtime/quality/intervention_substrate.py; src/polisyos/runtime/quality/substrate_registry.py; src/polisyos/runtime/quality/world_model_record.py; tools/quality/validation/check_grounding_relation_contract.py; tools/quality/validation/check_layer3_gy_design_generation_contract.py
 - Generator: Existing canonical producer tools.quality.validation.check_grounding_relation_contract
 - Verifier: Existing semantic owner and generated artifact lifecycle accounting
 - Promotion target: Custody and audit projection only; registration grants no task completion or evidence authority

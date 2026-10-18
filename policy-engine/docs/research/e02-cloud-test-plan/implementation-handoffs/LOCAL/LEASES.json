@@ -10812,5 +10812,31 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "trust-generated-source-f07b-20261018": {
+    "slice_base": "f07b709102d796d92f7dafc0ee200596e8ab697e",
+    "canonical_writer": "root; exact actual generator write set independently reviewed",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json": {
+        "base_sha256": "0482b1acd2bd254ffb47d6907d11117eb0490a2e8434eed876879d73195d17ba",
+        "candidate_sha256": "ae6b32911d07a9179ec681b4e1422d7c0426ac32cc3fb6d3c5643f0cff38809c"
+      },
+      "policy-engine/docs/reference/generated-artifacts.md": {
+        "base_sha256": "da6f167a6e3b92bebbaedc2f8828c0fbb59b4666eec19976ecaf73720d6469bd",
+        "candidate_sha256": "83f170ff10ca6195ce52ef19dfcbe0856f7bc0021d6e5b228005fb9945471588"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-generated-f07b-actual-20261018/source-application.json",
+      "sha256": "9db15c1b5db23d40a7c0a62123142c39e18b18e8ce7865d584c43d65b1f8ff51"
+    },
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-generated-f07b-independent-20261018/review.md",
+      "sha256": "31c42db72d783824ff42d7ca5f95a3ba688fbaa320997d38d17c7db9a8d94529"
+    },
+    "runtime": "Generator rc0; check+corruption rc2 UNRUN. No full Trust replay on this composition.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

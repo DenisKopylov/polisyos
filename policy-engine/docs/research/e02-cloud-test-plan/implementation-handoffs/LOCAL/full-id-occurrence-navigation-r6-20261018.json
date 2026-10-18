@@ -1,0 +1,118 @@
+{
+  "assessment_frame": "b6f/e225 source/property assessments; do not infer whole-current rebind from the later 8e306/04e4/b834 observations.",
+  "current_delivery_preflight": {
+    "check_exit_code": 0,
+    "head": "040ee7d373b1a04f204c4e4dfe65d1e9702a91b3",
+    "negative_probe_exit_code": 0,
+    "scope": "Navigation/history/source qualification only; declared historical Git frames preserved, no whole-current-property rebind."
+  },
+  "denominators": {
+    "author_proposal_occurrences": {
+      "closed": 202,
+      "held": 24,
+      "limited": 58,
+      "open": 7
+    },
+    "author_proposed_closed_occurrences": 202,
+    "author_proposed_closed_unique_ids": 198,
+    "bundles": 127,
+    "capability_labels": {
+      "bridge_missing": 14,
+      "consumer_missing": 2,
+      "implemented_but_not_orchestrated": 1,
+      "producer_missing": 9,
+      "semantic_test_missing": 12,
+      "surface_missing": 4,
+      "surface_out_of_scope": 1,
+      "verification_missing": 248
+    },
+    "current_proposal_outcomes": {
+      "held": 20,
+      "limited": 252,
+      "open": 19
+    },
+    "formal_G_closure_ids": [],
+    "historical_ledger_occurrences": {
+      "closed": 9,
+      "held": 14,
+      "open": 1,
+      "partial": 267
+    },
+    "occurrence_task_routes": 331,
+    "occurrences": 291,
+    "qualification": "2524 imported route rows are separate from 331 occurrence-task routes. 202 author-proposed closed occurrences across 198 IDs and 9 historical ledger-closed occurrences are historical only; none is a formal G closure. B198 remains current limited/verification_missing.",
+    "repeated_finding_ids": {
+      "LA-015": 2,
+      "LA-016": 2,
+      "LA-023": 2,
+      "LA-031": 3,
+      "LA-038": 2,
+      "LA-039": 2,
+      "LA-046": 2,
+      "LA-051": 2
+    },
+    "task_definitions": 26,
+    "tasks_with_finding_routes": 23,
+    "technical_closed_proposals": 0,
+    "unique_finding_ids": 282,
+    "upstream_imported_route_rows_not_occurrences": 2524
+  },
+  "navigation_artifact": {
+    "bytes": 246546,
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/full-id-navigation-successor-r6-20261018/occurrence-navigation-291-r6.json",
+    "sha256": "18a6e9cc85df95dfa02c9020c1ff64390bd7fc3fb691d2cc0e70637690fe38db"
+  },
+  "preserved_boundaries": {
+    "B198": "untouched",
+    "claim": "Navigation only; no current whole-property replay or closure.",
+    "current_proposal_outcomes": {
+      "held": 20,
+      "limited": 252,
+      "open": 19
+    },
+    "formal_G_closure_ids": [],
+    "historical_author_proposed_closed": {
+      "finding_ids": 198,
+      "formal_G_closure": false,
+      "occurrences": 202
+    },
+    "technical_closed_proposals": 0
+  },
+  "record_type": "pointer to append-only RAW navigation artifact; not a closure decision",
+  "revision_scope": {
+    "formal_G_adjudication": "not performed",
+    "formal_G_closure_ids": [],
+    "global_source_freeze": false,
+    "identity_and_history_preserved": true,
+    "only_proposal_ref_slots_updated": true,
+    "rows": 291
+  },
+  "schema": "policyos.e02.full-id-occurrence-navigation-r6-delivery.v1",
+  "verification_artifacts": [
+    {
+      "bytes": 4777,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/full-id-navigation-successor-r6-20261018/manifest-r6.json",
+      "sha256": "18989d10cafb3f640530e74735711e7ada5ee16631076f7ea10ec3da320b32fa"
+    },
+    {
+      "bytes": 766,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/full-id-navigation-successor-r6-20261018/validation-r6.json",
+      "sha256": "6938574c5e2e48353457a03b4b4dafbde862167ca5b6e014e163b813f57a2da1"
+    },
+    {
+      "bytes": 1455,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/full-id-navigation-successor-r6-20261018/corruption-probes-r6.json",
+      "sha256": "d56c91d0c3e25cab40656af3bc06e0083b6d5628812197828e8ae9f87db5a9b1"
+    },
+    {
+      "bytes": 48446,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/full-id-navigation-successor-r6-20261018/verify_navigation_r6.py",
+      "sha256": "7d22522d00a1f42dc215ed496a979e41ec420040a5b2b8329a4bca5fd94c2d35"
+    },
+    {
+      "bytes": 2220,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-full-id-navigation-r6-current-delivery-preflight-20261018/results.json",
+      "sha256": "a5e268d7eceb49913b58914654aad1db599513c5a893b2eedd77052e9c9ee8d8"
+    }
+  ]
+}

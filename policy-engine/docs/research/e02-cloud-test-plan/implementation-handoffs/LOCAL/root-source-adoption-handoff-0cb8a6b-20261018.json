@@ -1,0 +1,405 @@
+{
+  "authority": {
+    "G_acceptance": false,
+    "closure_ids": [],
+    "formal_closure_ids": [],
+    "future_receipt_commit_sha": null,
+    "source_freeze": false
+  },
+  "commands": {
+    "git_object_readbacks": [
+      {
+        "argv": [
+          "git",
+          "-C",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+          "show",
+          "-s",
+          "--format=COMMIT %H%nTREE %T%nPARENTS %P%nSUBJECT %s",
+          "0cb8a6b204f940593e1ffb9e98e520280cf3229c"
+        ],
+        "returncode": 0,
+        "output_path": "resume-receipt-batch-current-additions-r2-20261018/git-object-readbacks.jsonl",
+        "label": "source-adoption-0cb8a6b:candidate_commit"
+      },
+      {
+        "argv": [
+          "git",
+          "-C",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+          "show",
+          "-s",
+          "--format=BASE %H%nTREE %T%nPARENTS %P%nSUBJECT %s",
+          "05ec231f1ae794d1887933bc838c3c9a97fc1e9f"
+        ],
+        "returncode": 0,
+        "output_path": "resume-receipt-batch-current-additions-r2-20261018/git-object-readbacks.jsonl",
+        "label": "source-adoption-0cb8a6b:base_commit"
+      },
+      {
+        "argv": [
+          "git",
+          "-C",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+          "diff-tree",
+          "--no-commit-id",
+          "--name-status",
+          "-r",
+          "05ec231f1ae794d1887933bc838c3c9a97fc1e9f",
+          "0cb8a6b204f940593e1ffb9e98e520280cf3229c"
+        ],
+        "returncode": 0,
+        "output_path": "resume-receipt-batch-current-additions-r2-20261018/git-object-readbacks.jsonl",
+        "label": "source-adoption-0cb8a6b:complete_name_status"
+      },
+      {
+        "argv": [
+          "git",
+          "-C",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+          "diff-tree",
+          "--no-commit-id",
+          "--raw",
+          "-r",
+          "05ec231f1ae794d1887933bc838c3c9a97fc1e9f",
+          "0cb8a6b204f940593e1ffb9e98e520280cf3229c"
+        ],
+        "returncode": 0,
+        "output_path": "resume-receipt-batch-current-additions-r2-20261018/git-object-readbacks.jsonl",
+        "label": "source-adoption-0cb8a6b:complete_raw_diff"
+      },
+      {
+        "argv": [
+          "git",
+          "-C",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+          "rev-parse",
+          "0cb8a6b204f940593e1ffb9e98e520280cf3229c^{tree}"
+        ],
+        "returncode": 0,
+        "output_path": "resume-receipt-batch-current-additions-r2-20261018/git-object-readbacks.jsonl",
+        "label": "source-adoption-0cb8a6b:candidate_tree"
+      },
+      {
+        "argv": [
+          "git",
+          "-C",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+          "rev-parse",
+          "05ec231f1ae794d1887933bc838c3c9a97fc1e9f^{tree}"
+        ],
+        "returncode": 0,
+        "output_path": "resume-receipt-batch-current-additions-r2-20261018/git-object-readbacks.jsonl",
+        "label": "source-adoption-0cb8a6b:base_tree"
+      }
+    ],
+    "source_ruff": [
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py",
+          "policy-engine/src/polisyos/runtime/http/services/control/job_nl_execution.py",
+          "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.18162445910274982,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-projection-r3-application-20261018/check.stdout.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-projection-r3-application-20261018/check.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py",
+          "policy-engine/src/polisyos/runtime/http/services/control/job_nl_execution.py",
+          "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.048167333006858826,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-projection-r3-application-20261018/format.stdout.txt",
+          "sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-projection-r3-application-20261018/format.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    ]
+  },
+  "full_output_refs": [
+    {
+      "bytes": 14575,
+      "path": "resume-receipt-batch-current-additions-r2-20261018/git-object-readbacks.jsonl",
+      "role": "actual read-only Git show/tree/diff-tree outputs",
+      "sha256": "830203c18995d46457d093bdd40f211c923fbe86f95b0d8aa05577a083bfdd28"
+    },
+    {
+      "bytes": 0,
+      "path": "root-terminal-projection-r3-application-20261018/check.stderr.txt",
+      "role": "initial source Ruff stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 19,
+      "path": "root-terminal-projection-r3-application-20261018/check.stdout.txt",
+      "role": "initial source Ruff stdout",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "bytes": 0,
+      "path": "root-terminal-projection-r3-application-20261018/format.stderr.txt",
+      "role": "initial source Ruff stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 26,
+      "path": "root-terminal-projection-r3-application-20261018/format.stdout.txt",
+      "role": "initial source Ruff stdout",
+      "sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd"
+    },
+    {
+      "bytes": 653,
+      "path": "root-terminal-projection-r3-application-20261018/terminal-projection-ref-namespace-r3-commit.stderr.txt",
+      "role": "complete source commit stderr",
+      "sha256": "e7b9955d2b4f6c8a5a09b75c20836ef84a2d547e0183adf2c769d3baa8f86276"
+    },
+    {
+      "bytes": 162,
+      "path": "root-terminal-projection-r3-application-20261018/terminal-projection-ref-namespace-r3-commit.stdout.txt",
+      "role": "complete source commit stdout",
+      "sha256": "07d1e44fbc01af2c157be17ced1508dadadc1f76597da2a9167c0876f9bd2072"
+    }
+  ],
+  "input_refs": [
+    {
+      "bytes": 6836,
+      "path": "resume-terminal-projection-failure-author-r3-20261018/candidate-manifest-r3.json",
+      "role": "reviewed source input",
+      "sha256": "93c04014eccbaa56bc2af9b1c349096174bef54a33c86b3821dd419d7edf1344"
+    },
+    {
+      "bytes": 7970,
+      "path": "resume-terminal-projection-failure-independent-r2-20261018/review.json",
+      "role": "reviewed source input",
+      "sha256": "b1536d9e14c8a4b0ec08c8d98c2d2c1679966f66b69b5d6e1f6b339432f6d69b"
+    },
+    {
+      "bytes": 5563,
+      "path": "resume-terminal-projection-failure-independent-r3-20261018/review.json",
+      "role": "reviewed source input",
+      "sha256": "1b71b16d69f35091d8bc8c71159cbb0cb0c1cd7f5551ff02f32da82d0b053a5b"
+    },
+    {
+      "bytes": 3962,
+      "path": "root-terminal-projection-r3-application-20261018/adoption-plan.json",
+      "role": "adoption plan and slice base",
+      "sha256": "d7991a21f1cc58f13a37ff54b4c5d8efbf6271949d10fff1caf39b2eb2f8c16a"
+    },
+    {
+      "bytes": 197,
+      "path": "root-terminal-projection-r3-application-20261018/native-trash-receipt.json",
+      "role": "native scratch disposition receipt",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    {
+      "bytes": 45202,
+      "path": "root-terminal-projection-r3-application-20261018/postimages/policy-engine/src/polisyos/runtime/http/services/control/job_nl_execution.py",
+      "role": "original source-application postimage stage; exact committed source postimage; source application postimage",
+      "sha256": "b8847acc01dce291f89eb317991373aebe16af838d019308b497c86ab32d1548"
+    },
+    {
+      "bytes": 321850,
+      "path": "root-terminal-projection-r3-application-20261018/postimages/policy-engine/src/polisyos/runtime/http/services/control_plane_store.py",
+      "role": "original source-application postimage stage; exact committed source postimage; source application postimage",
+      "sha256": "3ef164b32506568fe939568a17ac467b487483c6d82de89c20a3e0fd4e955125"
+    },
+    {
+      "bytes": 91824,
+      "path": "root-terminal-projection-r3-application-20261018/postimages/policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py",
+      "role": "original source-application postimage stage; exact committed source postimage; source application postimage",
+      "sha256": "e10747fc7002c00187cf32dbffc25748473b1a9f4dc83405c55b0d2a51252e07"
+    },
+    {
+      "bytes": 6956,
+      "path": "root-terminal-projection-r3-application-20261018/source-application.json",
+      "role": "root source application record and exact source pins",
+      "sha256": "aaa44afa9eb2941cf6800c31918e63693579e477edb6eec2efbf0e8018011347"
+    },
+    {
+      "bytes": 1590,
+      "path": "root-terminal-projection-r3-application-20261018/terminal-projection-ref-namespace-r3-readback.json",
+      "role": "immutable per-commit Git/application readback",
+      "sha256": "efa2827ac01d2ba38e9d66612cf3c97c220608b01c77d4757abd3404eab8efbf"
+    }
+  ],
+  "limitations": [
+    "Current composition candidate implementation only; fresh actual ordinary POST/terminal/fence/refusal/outbox consumer replay remains required.",
+    "No status/authority/lease-duration/database-schema/backfill/currentness changes; previous lease-loss failure remains not_established and is a separate replay discriminator.",
+    "Canonical Ruff0.14 syntax formatting is AST-identical to source-reviewed R3; original R2/R3 issued bytes remain unchanged.",
+    "The committed footprint includes lease and candidate-index administrative companions. Canonical Ruff formatting was recorded as AST-identical to source-reviewed R3, but runtime remains unrun."
+  ],
+  "next_check": "Actual bounded composed ordinary POST/N4/terminal all states/current owner fencing/outbox/refusal/no-resurrection tests plus separate lease-loss discriminator; full deciding outputs and source origins.",
+  "observed_result": {
+    "commit": "0cb8a6b204f940593e1ffb9e98e520280cf3229c",
+    "tree": "69dd368ae5be989175dde4cc11da9949bc3d997f",
+    "parents": [
+      "05ec231f1ae794d1887933bc838c3c9a97fc1e9f"
+    ],
+    "source_subject": "fix(e02): preserve admitted refs across terminal job projections",
+    "source_application_base": "05ec231f1ae794d1887933bc838c3c9a97fc1e9f",
+    "source_application_base_tree": "5d980b59e5c08c8dd17705bf47cc9c0b5e57ff46",
+    "full_committed_footprint": [
+      {
+        "status": "M",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/job_nl_execution.py"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py"
+      }
+    ],
+    "source_application_path_count": 3,
+    "administrative_companion_paths": [
+      {
+        "status": "M",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+      }
+    ],
+    "committed_source_postimages": {
+      "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py": {
+        "path": "root-terminal-projection-r3-application-20261018/postimages/policy-engine/src/polisyos/runtime/http/services/control_plane_store.py",
+        "sha256": "3ef164b32506568fe939568a17ac467b487483c6d82de89c20a3e0fd4e955125",
+        "stage": "source application postimage"
+      },
+      "policy-engine/src/polisyos/runtime/http/services/control/job_nl_execution.py": {
+        "path": "root-terminal-projection-r3-application-20261018/postimages/policy-engine/src/polisyos/runtime/http/services/control/job_nl_execution.py",
+        "sha256": "b8847acc01dce291f89eb317991373aebe16af838d019308b497c86ab32d1548",
+        "stage": "source application postimage"
+      },
+      "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py": {
+        "path": "root-terminal-projection-r3-application-20261018/postimages/policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py",
+        "sha256": "e10747fc7002c00187cf32dbffc25748473b1a9f4dc83405c55b0d2a51252e07",
+        "stage": "source application postimage"
+      }
+    },
+    "source_ruff": {
+      "status": "PASS",
+      "final_exit_codes": [
+        0,
+        0
+      ],
+      "initial_attempts": []
+    },
+    "runtime": "UNRUN on adopted canonical source; no runtime or integration results are asserted.",
+    "source_reviews": "This receipt preserves the root application and cited review inputs; it does not upgrade their independent disposition."
+  },
+  "pattern_pass": {
+    "relevant_ids": [
+      "P06",
+      "P29",
+      "P32",
+      "P35",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "existing_anti_pattern": "Source extraction and formatting evidence can be mistaken for preserved consumer behavior or complete current-runtime coverage; commit metadata can be inferred from mutable journal adjacency.",
+    "target_pattern": "Bind exact source application, all actual Git commit objects/footprint, immutable per-commit RAW readbacks, full Ruff outputs, and leave behavior/runtime authority explicitly UNRUN.",
+    "missing_capability_labels": [
+      "verification_missing"
+    ],
+    "acceptance_signal": "Root verifies the source receipt against the candidate checkout and separately runs the scoped native runtime consumer wave with exact origin/frame evidence."
+  },
+  "proposal_status": "prepared_RAW_only_for_root_review_and_source_adoption_handoff",
+  "receipt_id": "source-adoption-0cb8a6b",
+  "schema": "policyos.e02.root_receipt_postimage.v1",
+  "selected_profile": {
+    "kind": "root_source_adoption_handoff",
+    "candidate_commit": "0cb8a6b204f940593e1ffb9e98e520280cf3229c",
+    "candidate_tree": "69dd368ae5be989175dde4cc11da9949bc3d997f",
+    "source_base": "05ec231f1ae794d1887933bc838c3c9a97fc1e9f",
+    "source_base_tree": "5d980b59e5c08c8dd17705bf47cc9c0b5e57ff46",
+    "readback_status": "Git object tree/parent/complete footprint independently matched the immutable RAW per-commit readback.",
+    "runtime": "UNRUN"
+  },
+  "slice": {
+    "base": "05ec231f1ae794d1887933bc838c3c9a97fc1e9f",
+    "base_tree": "5d980b59e5c08c8dd17705bf47cc9c0b5e57ff46",
+    "candidate_commit": "0cb8a6b204f940593e1ffb9e98e520280cf3229c",
+    "candidate_tree": "69dd368ae5be989175dde4cc11da9949bc3d997f",
+    "parents": [
+      "05ec231f1ae794d1887933bc838c3c9a97fc1e9f"
+    ],
+    "property": "Ordinary NL POST persists immutable current execution-owner intent; terminal job row and completion outbox preserve exactly the existing consumer-admitted typed ref aliases, rejecting malformed/nested-flat conflicts and preserving absence, under original execution fence.",
+    "source_application_paths": [
+      "policy-engine/src/polisyos/runtime/http/services/control/job_nl_execution.py",
+      "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py",
+      "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py"
+    ],
+    "complete_committed_footprint": [
+      {
+        "status": "M",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/job_nl_execution.py"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py"
+      }
+    ],
+    "git_raw_difftree": ":100644 100644 47926cf4b564ec0862a9429028d2fd6f44386de7 9046907103780e97aac5546628bb7452cc2a54f0 M\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json\n:100644 100644 97577d7c60c64c56abbe6229ce20952f48cba572 e0601c85143943997833a89c674fe2b5f758a71d M\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json\n:100644 100644 b74a1d403fa4a76f060bee1b17e5f844c0105885 a538f33776ee308bbbd4c9ca7b4919eb458ac4d6 M\tpolicy-engine/src/polisyos/runtime/http/services/control/job_nl_execution.py\n:100644 100644 57d775220c7ad5466c13d719a8da0747ea8e823f e5e3fadef7bb61968c8f329ac1caeb2de192e3f6 M\tpolicy-engine/src/polisyos/runtime/http/services/control_plane_store.py\n:100644 100644 9265b9f403f8362ff8046c7fa27ab30e37d08b79 0be3098d9f43b6a3c3c5eb655ad2e89551b8228f M\tpolicy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py\n",
+    "source_readback_path": "root-terminal-projection-r3-application-20261018/terminal-projection-ref-namespace-r3-readback.json",
+    "source_readback_sha256": "efa2827ac01d2ba38e9d66612cf3c97c220608b01c77d4757abd3404eab8efbf",
+    "source_application_path": "root-terminal-projection-r3-application-20261018/source-application.json",
+    "source_application_sha256": "aaa44afa9eb2941cf6800c31918e63693579e477edb6eec2efbf0e8018011347"
+  },
+  "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-source-adoption-handoff-0cb8a6b-20261018.json"
+}

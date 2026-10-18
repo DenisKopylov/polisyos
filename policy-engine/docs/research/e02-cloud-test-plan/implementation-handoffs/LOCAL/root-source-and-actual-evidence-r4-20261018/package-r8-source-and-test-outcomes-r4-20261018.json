@@ -1,0 +1,116 @@
+{
+  "schema": "policyos.local.source_bound_handoff.v1",
+  "created_date": "2026-10-18",
+  "branch": "codex/e02-unified-local-20261009",
+  "observed_source_frame": {
+    "head": "8ef3c60bd7a0fbab465f203795e33a1dcdf71490",
+    "tree": "8fea7ee9e10c764e96f3a1172193088c285c3b0d"
+  },
+  "closure_ids": [],
+  "G_acceptance": false,
+  "global_source_input_backend_freeze": false,
+  "source_freeze": false,
+  "author_proposal_is_formal_closure": false,
+  "packet_status": "reviewable local evidence payload; no formal closure or global freeze claimed",
+  "payload_id": "package-r8-source-and-test-outcomes-r4-20261018",
+  "slice_frame": {
+    "base": "5fac0a69cff3ea31f4872523ab0f1c55d3cc505d",
+    "candidate": "8e3062d8ec1268151d674932910c4694d426863b",
+    "tree": "40cde6ff5a38a512d1be8a1c919eb9d06612c4a6",
+    "parents": [
+      "5fac0a69cff3ea31f4872523ab0f1c55d3cc505d"
+    ]
+  },
+  "implementation_postimages": {
+    "policy-engine/tools/quality/validation/architecture_report_only_contracts.py": {
+      "preimage_sha256": "fc7082940ab90b046b240c93a56f3a41228889dd0012752b26f435caf60ef239",
+      "postimage_sha256": "0dc3b05d81a7e42b072fd4254b68d60a60244337d4a12d8c9fcc3fda0eda5e70"
+    },
+    "policy-engine/tests/repo_quality/architecture/test_repository_best_in_class_phase1_3_contracts.py": {
+      "preimage_sha256": "be155ef321d7990315b18813319c33ced8cafda965f6b90fa9e415eefa29155c",
+      "postimage_sha256": "7de177b4a08c9ec901b0f5839147d5ad2ed4966ba464d8b5693b56e35c1f3099"
+    },
+    "policy-engine/architecture/generated_artifacts.toml": {
+      "preimage_sha256": "92f99def5ba98204737d17a7b65cfffe239c2b6c8e57ada48bc632b58fff09e3",
+      "postimage_sha256": "a87a011c201cca86df2dd3945442bfa0016028a3812745c3250cca0e96dd5f56"
+    },
+    "policy-engine/architecture/packages/boundaries.toml": {
+      "preimage_sha256": "e822643497f797aeec90979b6658234e704c5c2f05e8c341352acede3c9a3bbf",
+      "postimage_sha256": "1eeca6d5e7e23455568d7b03322a17a0029e42b86c3254ed1f24dd8a222bea7d"
+    },
+    "policy-engine/architecture/packages/layout.toml": {
+      "preimage_sha256": "70d5d3ce88494c88691b7bc59dd16d2efa7e769b2c4d940c15901b5f68745f78",
+      "postimage_sha256": "003c6327b4cd652979f52cd56e641830ded950464fdd1d8a316a0653af7fd6f7"
+    },
+    "policy-engine/release-fragments/unreleased/2026-10-17-e02-declared-component-source-admission.toml": {
+      "preimage_sha256": null,
+      "postimage_sha256": "01df04b9a663a54b9979ded3d3326538d547b40a905a1e080bac7e4bb875bd1a"
+    }
+  },
+  "application": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-package-source-r8-adoption-20261018/source-application.json",
+    "sha256": "487dd0c141bdbde7707911b63318a020f4298a48fad439121e122d805b577e81"
+  },
+  "independent_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-package-mirror-r8-independent-review-r1-20261018/review-r8.json",
+    "sha256": "2df7372bd87d680b4a526c1a439c8b0136c98ffd6d669bd271dc5ff510f89900"
+  },
+  "historical_canonical_replay": {
+    "source_frame": {
+      "head": "8e3062d8ec1268151d674932910c4694d426863b",
+      "tree": "40cde6ff5a38a512d1be8a1c919eb9d06612c4a6"
+    },
+    "cases": 42,
+    "passed": 40,
+    "failed": 2,
+    "errors": 0,
+    "skipped": 0,
+    "actual_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/package-r8-canonical-actual-20261018/analysis.json",
+      "sha256": "5c5d93ff8b29e1bf222fb3527b4a0b073cacbe330d68dfe07487a0f696319011"
+    },
+    "deciding_outputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/package-r8-canonical-actual-20261018/pytest.stdout.txt",
+        "sha256": "ba9c53258d0400f4429b45550eb092ada33a010771b4d1b031279a9bc59bb00d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/package-r8-canonical-actual-20261018/pytest.stderr-time-l.txt",
+        "sha256": "50462eb39ac895904e649b908f384cdd37ff596c67d56e9d90a605aee28ba46f"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/package-r8-canonical-actual-20261018/pytest.xml",
+        "sha256": "440783a065c47f1cf408064e83a87ca6b06c4f8f95424af13e61dd6404f6d297"
+      }
+    ],
+    "resource_observation": {
+      "elapsed_seconds": 17.77,
+      "max_rss_bytes": 164184064
+    },
+    "failure_classes": [
+      "typed-fixture source snippet failed before malformed-field validation (later corrected and selected node passed at 04e4)",
+      "module-budget date-role assertion remains open"
+    ]
+  },
+  "later_typed_fixture_confirmation": {
+    "commit": "04e4b376053b715f55c794dc0dc269de2f32b516",
+    "source_application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-test-owner-and-fixture-application-20261018/source-application.json",
+      "sha256": "ac553759485f3778a183f8fc33f11a210fe40228409bac954c617bf5a99103c0"
+    },
+    "commit_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-test-owner-and-fixture-application-20261018/reviewed-test-owner-rehome-and-typed-fixture-readback.json",
+      "sha256": "f3d7560770b11fbf700e73d4b2e67cadd867515dc5ef12e29a4999de5a714c84"
+    },
+    "selected_node": "tests.repo_quality.architecture.test_repository_best_in_class_phase1_3_contracts::test_package_mirror_rejects_malformed_raw_typed_fields",
+    "status": "passed in the later 182-case selected wave; historical 42-case result is preserved and was not rerun here",
+    "wave_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-test-owner-r7-canonical-actual-20261018/run-result.json",
+      "sha256": "e0e151ab61920e244aeb9a31c642aa30cfb27fc2d157373e05a820c908481c7a"
+    }
+  },
+  "remaining": "The module-budget date-role assertion remains open for its owner fix and canonical replay. No waiver, date movement, or formal closure is claimed.",
+  "proposal_fields": {
+    "closures_proposed": []
+  }
+}

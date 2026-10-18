@@ -95,7 +95,7 @@
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
-      "sha256": "62c4b2791837966d2610db86651762d7842570e8b51b5a8c60620add3999a3b1",
+      "sha256": "1449f87912a3d51b37ee298c370a2b1151d7b7a4f4c1ebafcdfc069098a6f261",
       "record_type": "current_coordination_snapshot",
       "previous_unqualified_digest": "1c2ae874ad7a12ac5c8ce69c580be992eef49a0ba58164893eff9a679a1ff9e5",
       "qualification": "Current LEASES bytes are pinned by this digest and the containing index commit. historical_original_source_commit names only the first recorded B194 snapshot; it is not the source of the current lease bytes. Source and native verification remain separately scoped.",
@@ -748,6 +748,98 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/phase-barrier-owner-composed-collection-error-20261017.json",
       "sha256": "bf7c7a1491433b2c05c53f0076b340710d97eeace2b8ebaa12c8133648309659"
+    },
+      {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-source-and-actual-evidence-r4-20261018/la036-method-identity-limited-r4-20261018.json",
+      "sha256": "3cb6d80c1d1c6ac0d7462578bd6250f94765a338b317719cd5a9ee2e4df287df"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-source-and-actual-evidence-r4-20261018/package-r8-source-and-test-outcomes-r4-20261018.json",
+      "sha256": "7302c4d56f21e0ce3f5edb652374d2c3d325eab573b3cb8d825c386b836fa5be"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-source-and-actual-evidence-r4-20261018/test-owner-typed-fixture-application-and-wave-r4-20261018.json",
+      "sha256": "58c97ccbe1d7e8c2eced99339a771b3b0cc72476aceac110da58eb81e690ccd0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-source-and-actual-evidence-r4-20261018/dynamic-import-r8-source-review-and-canonical-wave-r4-20261018.json",
+      "sha256": "3abc0d86e8e82cc5f155ed3d6b8fc3b80f6a97c692559699901745cac6b8e5fb"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-source-and-actual-evidence-r4-20261018/production-inventory-and-r15-limited-r4-20261018.json",
+      "sha256": "f4dbffefe4a7ed9e10f9e4d69cae2ea7c2f0f5c528d14d1b16ccec2871f5ffa3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-source-and-actual-evidence-r4-20261018/native-helper-topology-g-decision-reference-r4-20261018.json",
+      "sha256": "3d9ea8380d6769bdc5e788b8ee69cb118dc52441cb49de5052a58558db8c7ec7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-source-adoption-chain-20261018.json",
+      "sha256": "c54f5d69794d2a370391d7da8e8209edfeef8c0de1b4dbaf379d268d00c6d7ed"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/ir-engine-delegation-two-test-actual-20261018.json",
+      "sha256": "5c3f150510ce772158a480a1e682b7ddb7ef969929cc0011e621c4ed5bd559b3"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/full-id-occurrence-navigation-r6-20261018.json",
+      "sha256": "dd7f3b4a11a3d6bf42c1b8d1f62a7b63d1fc79d051f161a259d1b16a667b9175"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native-helper-topology-g-choice-20261018.json",
+      "sha256": "8ad1c324bad6fe3dd704935142bb9fe59b1580438c67ad110af1abcedf421948"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-native-cohesive-owner-extractions-cfc6-20261018.json",
+      "sha256": "45897fda953755e1169c630ea4b5bb2daab513a17762fbbb97100134a424ab15"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-native-three-owner-cfc6-failure-20261018.json",
+      "sha256": "8ab535486b1fa53ac39b8e3d57066848417551db78232aefb54fb38ceaf15f58"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/uv-two-package-unknown-identity-incident-20261018.json",
+      "sha256": "0c8f93e91fae87d5f3621591e8ac4d38880032dbb8d2aeb74bb2983cf1e93164"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-scanner-stdlib-set-import-repair-0d06-20261018.json",
+      "sha256": "a6c3b61add157c393420e9f6c1b3269990bad5180fd752ae56947db8155d8a7a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-stale-test-oracle-contract-alignment-8d9-20261018.json",
+      "sha256": "80e4fc74a8dfa9d89f3c741af601316a1efc6dae5304ac6f099316a657fc9bea"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-la032-inventory-consumer-v2-221d-20261018.json",
+      "sha256": "73f4bdd3008a8130e0d98a53a87fd69c64d9bd94c8aa15605379f4f22cd3bf07"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-n11-controlled-sourceview-r4-actual-20261018.json",
+      "sha256": "3371b13d74151d6a60e8bad6102b7ff02db9c8a25c53443f12f9c8c1c95d592d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-la036-cas-fresh-consumer-chain-20261018.json",
+      "sha256": "d93afec30386c133c75c7ac3d8ca7a280f81dc272d69d7370c7663e7cf7a0ec4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native-quality-overlay-pyc-unlink-preservation-incident-20261018.json",
+      "sha256": "43582967f043f686d2fedf8575a9a4fadaba555e2720c16a65c4c5a589b3c0a9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-source-adoption-handoff-05ec231-20261018.json",
+      "sha256": "b325f0cd2cc84d0912d93ebbb9121b0e1dce5f43e8bb65e74725b9c0fc1ab19a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-source-adoption-handoff-0cb8a6b-20261018.json",
+      "sha256": "f477b6cbed07c4cf19b1c99131c765dbd3d3bb08f4e88bb496957e5699d63d25"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-source-adoption-handoff-8070be6-20261018.json",
+      "sha256": "cbe3dddfd7e8142c2956af004694cc7f5c439be10b8363dca3826e69af9e6f43"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-la032-fullmodule-actual-221d-20261018.json",
+      "sha256": "d9d01b3fe638b02e343b2e284c4468f3f276d75f80b0f52d2a150e7e89189b90"
     }
   ],
   "canonical_denominator_recomputed": {

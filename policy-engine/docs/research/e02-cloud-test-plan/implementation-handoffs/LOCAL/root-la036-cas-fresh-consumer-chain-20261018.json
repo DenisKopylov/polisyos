@@ -1,0 +1,568 @@
+{
+  "authority": {
+    "G_acceptance": false,
+    "closure_ids": [],
+    "formal_closure_ids": [],
+    "future_receipt_commit_sha": null,
+    "source_profile_freeze": false
+  },
+  "commands": {
+    "argv": [
+      "/usr/bin/env",
+      "PYTHONPATH=src",
+      "OPENBLAS_NUM_THREADS=1",
+      "OMP_NUM_THREADS=1",
+      "MKL_NUM_THREADS=1",
+      "VECLIB_MAXIMUM_THREADS=1",
+      "NUMEXPR_NUM_THREADS=1",
+      "CUDA_VISIBLE_DEVICES=",
+      "HIP_VISIBLE_DEVICES=",
+      "ROCR_VISIBLE_DEVICES=",
+      ".venv/bin/python",
+      "-B",
+      "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la036-persistence-consumer-author-20261018/producer_chain-r2.py",
+      "--request",
+      "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la036-persistence-consumer-author-20261018/request-r2.json",
+      "--out",
+      "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la036-persistence-consumer-author-20261018/chain-attempt-03"
+    ],
+    "command_text": "/usr/bin/env PYTHONPATH=src OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 NUMEXPR_NUM_THREADS=1 CUDA_VISIBLE_DEVICES= HIP_VISIBLE_DEVICES= ROCR_VISIBLE_DEVICES= .venv/bin/python -B docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la036-persistence-consumer-author-20261018/producer_chain-r2.py --request docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la036-persistence-consumer-author-20261018/request-r2.json --out docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la036-persistence-consumer-author-20261018/chain-attempt-03 > docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la036-persistence-consumer-author-20261018/attempt-03.stdout.txt 2> docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la036-persistence-consumer-author-20261018/attempt-03.stderr.txt",
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine"
+  },
+  "full_output_refs": [
+    {
+      "bytes": 872,
+      "path": "resume-la036-persistence-consumer-author-20261018/attempt-01-result.json",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "c4b622e2c62010713bcd0ee28135bac89353521ddef5ef1a4c70a3507faddea7"
+    },
+    {
+      "bytes": 804,
+      "path": "resume-la036-persistence-consumer-author-20261018/attempt-01.stderr.txt",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "f27754b78b1f970f0146685827c8a8a70e6a221f97f2593108d2b5dfbbbc3099"
+    },
+    {
+      "bytes": 0,
+      "path": "resume-la036-persistence-consumer-author-20261018/attempt-01.stdout.txt",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 3743,
+      "path": "resume-la036-persistence-consumer-author-20261018/attempt-03-result.json",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "f0af7a6d8e8cdbda4cdb3ef6bf5866bbf0ac64cbffd9664b17d7bcfd53bcf581"
+    },
+    {
+      "bytes": 0,
+      "path": "resume-la036-persistence-consumer-author-20261018/attempt-03.stderr.txt",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 2791,
+      "path": "resume-la036-persistence-consumer-author-20261018/attempt-03.stdout.txt",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "dcf770547ce8dda1bd29faa1c1bc399b912eee7415028ebf2754cc7bce8493c7"
+    },
+    {
+      "bytes": 5520,
+      "path": "resume-la036-persistence-consumer-author-20261018/capture_environment_r2.py",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "6e8ee7fc9a9acc971938340e58b45cd6587cf1f23eca21ad3e12df48874fbc34"
+    },
+    {
+      "bytes": 0,
+      "path": "resume-la036-persistence-consumer-author-20261018/chain-attempt-03/cas/artifacts/ownership/transactions/locks/stripe-09.lock",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "resume-la036-persistence-consumer-author-20261018/chain-attempt-03/cas/artifacts/ownership/transactions/locks/stripe-14.lock",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "resume-la036-persistence-consumer-author-20261018/chain-attempt-03/cas/artifacts/ownership/transactions/locks/stripe-19.lock",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "resume-la036-persistence-consumer-author-20261018/chain-attempt-03/cas/artifacts/ownership/transactions/locks/stripe-33.lock",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "resume-la036-persistence-consumer-author-20261018/chain-attempt-03/cas/artifacts/ownership/transactions/locks/stripe-37.lock",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "resume-la036-persistence-consumer-author-20261018/chain-attempt-03/cas/artifacts/ownership/transactions/locks/stripe-45.lock",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "resume-la036-persistence-consumer-author-20261018/chain-attempt-03/cas/artifacts/ownership/transactions/root.lock",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 3362,
+      "path": "resume-la036-persistence-consumer-author-20261018/chain-attempt-03/cas/artifacts/sha256/1f/cc/1fcca1930c90159b86cf245050e2ab747ba14fc93cca925b328f1d812aa0b913.blob",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "1fcca1930c90159b86cf245050e2ab747ba14fc93cca925b328f1d812aa0b913"
+    },
+    {
+      "bytes": 836,
+      "path": "resume-la036-persistence-consumer-author-20261018/chain-attempt-03/cas/artifacts/sha256/1f/cc/1fcca1930c90159b86cf245050e2ab747ba14fc93cca925b328f1d812aa0b913.manifest.json",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "6241329d8212335814843af3797b76c38c93b3f750a95c8b56d86db35e5eb1a3"
+    },
+    {
+      "bytes": 836,
+      "path": "resume-la036-persistence-consumer-author-20261018/chain-attempt-03/cas/artifacts/sha256/1f/cc/1fcca1930c90159b86cf245050e2ab747ba14fc93cca925b328f1d812aa0b913.view.a9f71d73cfef9d21f28799c0d84b0ee2011aba2c92231aa8c058742bad1b2d4b.manifest.json",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "6241329d8212335814843af3797b76c38c93b3f750a95c8b56d86db35e5eb1a3"
+    },
+    {
+      "bytes": 3362,
+      "path": "resume-la036-persistence-consumer-author-20261018/chain-attempt-03/cas/artifacts/sha256/67/2f/672f7ec1c700c31da4abce1ae088fc5e73be5586618c201bb54b5165e63c0409.blob",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "672f7ec1c700c31da4abce1ae088fc5e73be5586618c201bb54b5165e63c0409"
+    },
+    {
+      "bytes": 836,
+      "path": "resume-la036-persistence-consumer-author-20261018/chain-attempt-03/cas/artifacts/sha256/67/2f/672f7ec1c700c31da4abce1ae088fc5e73be5586618c201bb54b5165e63c0409.manifest.json",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "eb1f4c2f6d9040200c3bffe4c0644203ff35b766f712eafabaad6121eaa1f6ee"
+    },
+    {
+      "bytes": 836,
+      "path": "resume-la036-persistence-consumer-author-20261018/chain-attempt-03/cas/artifacts/sha256/67/2f/672f7ec1c700c31da4abce1ae088fc5e73be5586618c201bb54b5165e63c0409.view.4a0bfb77a286d0c3b010cc835706cc12896eb9acc151f0a9798e467a45bbee67.manifest.json",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "eb1f4c2f6d9040200c3bffe4c0644203ff35b766f712eafabaad6121eaa1f6ee"
+    },
+    {
+      "bytes": 8140,
+      "path": "resume-la036-persistence-consumer-author-20261018/chain-attempt-03/cas/artifacts/sha256/68/bb/68bbdf0ac7e151b2f3d7b4063b28695d9c6395d1492ca99c4a97ca50a0f37053.blob",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "68bbdf0ac7e151b2f3d7b4063b28695d9c6395d1492ca99c4a97ca50a0f37053"
+    },
+    {
+      "bytes": 656,
+      "path": "resume-la036-persistence-consumer-author-20261018/chain-attempt-03/cas/artifacts/sha256/68/bb/68bbdf0ac7e151b2f3d7b4063b28695d9c6395d1492ca99c4a97ca50a0f37053.manifest.json",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "d2cc3fd62735a55e4e429c986922fefd20f978fa5a3090ff5814ecaf8c54ebe9"
+    },
+    {
+      "bytes": 656,
+      "path": "resume-la036-persistence-consumer-author-20261018/chain-attempt-03/cas/artifacts/sha256/68/bb/68bbdf0ac7e151b2f3d7b4063b28695d9c6395d1492ca99c4a97ca50a0f37053.view.1c00b53423a603adf3d3af3e3ee024caa2dd7e2f9372b2de9a3cb0bf49d81a99.manifest.json",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "d2cc3fd62735a55e4e429c986922fefd20f978fa5a3090ff5814ecaf8c54ebe9"
+    },
+    {
+      "bytes": 3362,
+      "path": "resume-la036-persistence-consumer-author-20261018/chain-attempt-03/cas/artifacts/sha256/7c/90/7c90356656149598603ed91ca9d1d46730cae7d08b66a39fb741b1c2a7eb2e21.blob",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "7c90356656149598603ed91ca9d1d46730cae7d08b66a39fb741b1c2a7eb2e21"
+    },
+    {
+      "bytes": 836,
+      "path": "resume-la036-persistence-consumer-author-20261018/chain-attempt-03/cas/artifacts/sha256/7c/90/7c90356656149598603ed91ca9d1d46730cae7d08b66a39fb741b1c2a7eb2e21.manifest.json",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "f080eeadf53da92cfb4c9049f1491bab0334b99417775cf21eeaec94544f6b7f"
+    },
+    {
+      "bytes": 836,
+      "path": "resume-la036-persistence-consumer-author-20261018/chain-attempt-03/cas/artifacts/sha256/7c/90/7c90356656149598603ed91ca9d1d46730cae7d08b66a39fb741b1c2a7eb2e21.view.f16c3dc85a6c27b8dc68fd8b77c38e96bdfdc15744c853ac2e03a04f60061199.manifest.json",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "f080eeadf53da92cfb4c9049f1491bab0334b99417775cf21eeaec94544f6b7f"
+    },
+    {
+      "bytes": 8245,
+      "path": "resume-la036-persistence-consumer-author-20261018/chain-attempt-03/cas/artifacts/sha256/ae/e4/aee4ab3f997391bed8e6f42910dfd861a5dd63bca0a79368d095a1fe5b313ed3.blob",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "aee4ab3f997391bed8e6f42910dfd861a5dd63bca0a79368d095a1fe5b313ed3"
+    },
+    {
+      "bytes": 656,
+      "path": "resume-la036-persistence-consumer-author-20261018/chain-attempt-03/cas/artifacts/sha256/ae/e4/aee4ab3f997391bed8e6f42910dfd861a5dd63bca0a79368d095a1fe5b313ed3.manifest.json",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "7052536f228ac02f7ce02f30b8a78681e8ca01a71fe7adcbab2acf467d9e53d7"
+    },
+    {
+      "bytes": 656,
+      "path": "resume-la036-persistence-consumer-author-20261018/chain-attempt-03/cas/artifacts/sha256/ae/e4/aee4ab3f997391bed8e6f42910dfd861a5dd63bca0a79368d095a1fe5b313ed3.view.1c00b53423a603adf3d3af3e3ee024caa2dd7e2f9372b2de9a3cb0bf49d81a99.manifest.json",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "7052536f228ac02f7ce02f30b8a78681e8ca01a71fe7adcbab2acf467d9e53d7"
+    },
+    {
+      "bytes": 3362,
+      "path": "resume-la036-persistence-consumer-author-20261018/chain-attempt-03/cas/artifacts/sha256/cd/fa/cdfac4f7452c352d8e7e1e38bbb20bc22223631574a040d65fd9c37cc6359b8e.blob",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "cdfac4f7452c352d8e7e1e38bbb20bc22223631574a040d65fd9c37cc6359b8e"
+    },
+    {
+      "bytes": 836,
+      "path": "resume-la036-persistence-consumer-author-20261018/chain-attempt-03/cas/artifacts/sha256/cd/fa/cdfac4f7452c352d8e7e1e38bbb20bc22223631574a040d65fd9c37cc6359b8e.manifest.json",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "53f4881e35723e41e46677dd62458d05b1e570a410c43d2423dc079a84fbc255"
+    },
+    {
+      "bytes": 836,
+      "path": "resume-la036-persistence-consumer-author-20261018/chain-attempt-03/cas/artifacts/sha256/cd/fa/cdfac4f7452c352d8e7e1e38bbb20bc22223631574a040d65fd9c37cc6359b8e.view.261379e80d1862e7d6e862df1216b6eb8ee3e43c5c0110308140d3cc02fc6624.manifest.json",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "53f4881e35723e41e46677dd62458d05b1e570a410c43d2423dc079a84fbc255"
+    },
+    {
+      "bytes": 7343,
+      "path": "resume-la036-persistence-consumer-author-20261018/chain-attempt-03/cas/artifacts/sha256/db/97/db97c14225a153ba3b072607b26c322510593bfda18ed911b6df5fb81c50c2e5.blob",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "db97c14225a153ba3b072607b26c322510593bfda18ed911b6df5fb81c50c2e5"
+    },
+    {
+      "bytes": 656,
+      "path": "resume-la036-persistence-consumer-author-20261018/chain-attempt-03/cas/artifacts/sha256/db/97/db97c14225a153ba3b072607b26c322510593bfda18ed911b6df5fb81c50c2e5.manifest.json",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "1fec72d8316b90f2407924be8e13a1d41efec644644dae8f284c0ac5dcf3c77c"
+    },
+    {
+      "bytes": 656,
+      "path": "resume-la036-persistence-consumer-author-20261018/chain-attempt-03/cas/artifacts/sha256/db/97/db97c14225a153ba3b072607b26c322510593bfda18ed911b6df5fb81c50c2e5.view.1c00b53423a603adf3d3af3e3ee024caa2dd7e2f9372b2de9a3cb0bf49d81a99.manifest.json",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "1fec72d8316b90f2407924be8e13a1d41efec644644dae8f284c0ac5dcf3c77c"
+    },
+    {
+      "bytes": 7238,
+      "path": "resume-la036-persistence-consumer-author-20261018/chain-attempt-03/cas/artifacts/sha256/fb/5f/fb5fa11061de369c55a7afaf2124fc97f9930b15e459aba59c2c3be2d5ad322d.blob",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "fb5fa11061de369c55a7afaf2124fc97f9930b15e459aba59c2c3be2d5ad322d"
+    },
+    {
+      "bytes": 656,
+      "path": "resume-la036-persistence-consumer-author-20261018/chain-attempt-03/cas/artifacts/sha256/fb/5f/fb5fa11061de369c55a7afaf2124fc97f9930b15e459aba59c2c3be2d5ad322d.manifest.json",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "da9293c65bbed1630b6b64a7ef07269f9f78808b02417571df19045b6a8b543a"
+    },
+    {
+      "bytes": 656,
+      "path": "resume-la036-persistence-consumer-author-20261018/chain-attempt-03/cas/artifacts/sha256/fb/5f/fb5fa11061de369c55a7afaf2124fc97f9930b15e459aba59c2c3be2d5ad322d.view.1c00b53423a603adf3d3af3e3ee024caa2dd7e2f9372b2de9a3cb0bf49d81a99.manifest.json",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "da9293c65bbed1630b6b64a7ef07269f9f78808b02417571df19045b6a8b543a"
+    },
+    {
+      "bytes": 33270,
+      "path": "resume-la036-persistence-consumer-author-20261018/chain-attempt-03/cases/linear-three-feature--marginal.json",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "cf8bdd3e6fa8820ffb5ec765a5feb85a2e30734ed736401873a6fcba5f8bbb9e"
+    },
+    {
+      "bytes": 33704,
+      "path": "resume-la036-persistence-consumer-author-20261018/chain-attempt-03/cases/linear-three-feature--marginal_interventional.json",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "3b73fb69ce6eb9fad02e6c7cfbc6e2b6420a8dae69d9bd637c891a3c1650fe55"
+    },
+    {
+      "bytes": 31844,
+      "path": "resume-la036-persistence-consumer-author-20261018/chain-attempt-03/cases/linear-two-feature--marginal.json",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "777d4d8d0a6cd03cf18e75d54a1479ff41d359c896dd9c526f9de02e59390fba"
+    },
+    {
+      "bytes": 32279,
+      "path": "resume-la036-persistence-consumer-author-20261018/chain-attempt-03/cases/linear-two-feature--marginal_interventional.json",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "548eead17b7a79cded8bac69ad3f0ebb36c43093487b34044221f3a855ce18fd"
+    },
+    {
+      "bytes": 13762,
+      "path": "resume-la036-persistence-consumer-author-20261018/chain-attempt-03/chain-result.json",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "1544cc10e453a8bd7a46e05ce0ac7d9e7aeee0db4e97f7a0c5dee55426bda7bf"
+    },
+    {
+      "bytes": 3278,
+      "path": "resume-la036-persistence-consumer-author-20261018/chain-attempt-03/conditional-refusal-control.json",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "dec7a3283cc269962ec8129bb79e3d3174491448df2b8dc5e8dcff080b6f2dca"
+    },
+    {
+      "bytes": 15767,
+      "path": "resume-la036-persistence-consumer-author-20261018/chain-attempt-03/product-source-consumer-census.json",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "bf906db8e54a8a5d1bec799ed585f8ea2c50509046fe45aaeb2e5780e5548f2b"
+    },
+    {
+      "bytes": 705143,
+      "path": "resume-la036-persistence-consumer-author-20261018/chain-attempt-03/runtime-completion-metadata.json",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "02d2df5a3bb492bbaa14872514ec7c0e38eb7b691c3356dadf96dca956cf320e"
+    },
+    {
+      "bytes": 23078,
+      "path": "resume-la036-persistence-consumer-author-20261018/chain-attempt-03/runtime-preflight.json",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "9d7e61e9a8e0d46925de51a0d4deb5f4f8d59e1d1ea0535ec03b64d79de7fd78"
+    },
+    {
+      "bytes": 3463,
+      "path": "resume-la036-persistence-consumer-author-20261018/chain-attempt-03/selected-input-freeze.json",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "11f6c78efb0d337e08721ee5c23db8c833fd6fca4a6bed5e1d37cb406d3cc363"
+    },
+    {
+      "bytes": 804,
+      "path": "resume-la036-persistence-consumer-author-20261018/chain.stderr.txt",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "f27754b78b1f970f0146685827c8a8a70e6a221f97f2593108d2b5dfbbbc3099"
+    },
+    {
+      "bytes": 0,
+      "path": "resume-la036-persistence-consumer-author-20261018/chain.stdout.txt",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 86505,
+      "path": "resume-la036-persistence-consumer-author-20261018/environment-preflight-r2.json",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "dc7cb480a35d083523cf984a2fbb67e3c6fb344a9969c857ad6b0e2a014cf055"
+    },
+    {
+      "bytes": 10127,
+      "path": "resume-la036-persistence-consumer-author-20261018/handoff-r2.md",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "f171e7635ab85f58b843033fa140d46658ae4ea77b6b3b1a85a431dfa0f18219"
+    },
+    {
+      "bytes": 56351,
+      "path": "resume-la036-persistence-consumer-author-20261018/producer_chain-r1.py",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "d297c4c5b4fca6dcb8c2e1f63549e4c9dac370aaaea4903883b378b9300dab0c"
+    },
+    {
+      "bytes": 61235,
+      "path": "resume-la036-persistence-consumer-author-20261018/producer_chain-r2.py",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "a2c8ac6b98ebafacfcab4d76582300f87ab64d9f78aa6864f1ae0670627238d8"
+    },
+    {
+      "bytes": 56351,
+      "path": "resume-la036-persistence-consumer-author-20261018/producer_chain.py",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "d297c4c5b4fca6dcb8c2e1f63549e4c9dac370aaaea4903883b378b9300dab0c"
+    },
+    {
+      "bytes": 10344,
+      "path": "resume-la036-persistence-consumer-author-20261018/request-r1.json",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "04a2c6c3b220216a19ce0c70b8dfb52a6378b6978280123a81ebf0c6c09af04d"
+    },
+    {
+      "bytes": 12913,
+      "path": "resume-la036-persistence-consumer-author-20261018/request-r2.json",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "4dcf22ba19c6315484a2ba2682859a6feeec21aaa4bb2fe00eca2ba43b558317"
+    },
+    {
+      "bytes": 9543,
+      "path": "resume-la036-persistence-consumer-author-20261018/request.json",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "8aeaaacf24a6e4a24e6cd11bc6140947b263e226414506df201914b4bfaf1dd8"
+    },
+    {
+      "bytes": 8922,
+      "path": "resume-la036-persistence-consumer-author-20261018/source-input-pins.json",
+      "role": "sealed full LA-036 packet member",
+      "sha256": "b23be139c9a2fb66e43d92a15577eda396b069199fd0cf9a9d93bb4f53c34e0d"
+    }
+  ],
+  "input_refs": [
+    {
+      "bytes": 12913,
+      "path": "resume-la036-persistence-consumer-author-20261018/request-r2.json",
+      "role": "frozen request/limits",
+      "sha256": "4dcf22ba19c6315484a2ba2682859a6feeec21aaa4bb2fe00eca2ba43b558317"
+    },
+    {
+      "bytes": 3743,
+      "path": "resume-la036-persistence-consumer-author-20261018/attempt-03-result.json",
+      "role": "exact command, code, time, source pin result",
+      "sha256": "f0af7a6d8e8cdbda4cdb3ef6bf5866bbf0ac64cbffd9664b17d7bcfd53bcf581"
+    },
+    {
+      "bytes": 2791,
+      "path": "resume-la036-persistence-consumer-author-20261018/attempt-03.stdout.txt",
+      "role": "complete stdout",
+      "sha256": "dcf770547ce8dda1bd29faa1c1bc399b912eee7415028ebf2754cc7bce8493c7"
+    },
+    {
+      "bytes": 0,
+      "path": "resume-la036-persistence-consumer-author-20261018/attempt-03.stderr.txt",
+      "role": "complete stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 86505,
+      "path": "resume-la036-persistence-consumer-author-20261018/environment-preflight-r2.json",
+      "role": "current distribution/origin inventory and prior uv limitation",
+      "sha256": "dc7cb480a35d083523cf984a2fbb67e3c6fb344a9969c857ad6b0e2a014cf055"
+    },
+    {
+      "bytes": 8922,
+      "path": "resume-la036-persistence-consumer-author-20261018/source-input-pins.json",
+      "role": "full 56-file source pin manifest",
+      "sha256": "b23be139c9a2fb66e43d92a15577eda396b069199fd0cf9a9d93bb4f53c34e0d"
+    },
+    {
+      "bytes": 13762,
+      "path": "resume-la036-persistence-consumer-author-20261018/chain-attempt-03/chain-result.json",
+      "role": "four-case actual producer/CAS/fresh consumer result",
+      "sha256": "1544cc10e453a8bd7a46e05ce0ac7d9e7aeee0db4e97f7a0c5dee55426bda7bf"
+    },
+    {
+      "bytes": 23078,
+      "path": "resume-la036-persistence-consumer-author-20261018/chain-attempt-03/runtime-preflight.json",
+      "role": "pre-run runtime profile",
+      "sha256": "9d7e61e9a8e0d46925de51a0d4deb5f4f8d59e1d1ea0535ec03b64d79de7fd78"
+    },
+    {
+      "bytes": 705143,
+      "path": "resume-la036-persistence-consumer-author-20261018/chain-attempt-03/runtime-completion-metadata.json",
+      "role": "post-run process/source metadata",
+      "sha256": "02d2df5a3bb492bbaa14872514ec7c0e38eb7b691c3356dadf96dca956cf320e"
+    },
+    {
+      "bytes": 15489,
+      "path": "resume-la036-persistence-consumer-author-20261018/postrun-seal-r2.json",
+      "role": "complete seal/inventory",
+      "sha256": "5d68a5227e050c5839f3867c3648fa41e4946b855756ba6b388c086f9fb9d245"
+    },
+    {
+      "bytes": 10127,
+      "path": "resume-la036-persistence-consumer-author-20261018/handoff-r2.md",
+      "role": "interpretation/authority limits",
+      "sha256": "f171e7635ab85f58b843033fa140d46658ae4ea77b6b3b1a85a431dfa0f18219"
+    }
+  ],
+  "limitations": [
+    "Two finite local synthetic scalar fixtures only; no production data/model, corpus, load, or stability census.",
+    "Only default built-in route aliases are enumerated; arbitrary injected adapters remain outside this evidence.",
+    "No calibration_ref or training-data hash was supplied; none was inferred.",
+    "The in-memory conditional sentinel is explicitly not a verified law, and no law artifact was created.",
+    "The family has multiple requested IDs but one effective algorithm; aliases do not become independent methods or causal evidence.",
+    "Runtime exact matching caller assertion was shown not to establish claim/run/model/prediction authority; status remains not_established and fails closed.",
+    "Analyst-facing Phase-5 judge path was not run; analyst_facing=False and report readiness is only an internal candidate diagnostic.",
+    "The API summary helper exposes no per-method methods array; no HTTP/UI/history consumer was discovered in the declared complete source directories (warning text is recorded separately).",
+    "Unknown two-package uv identity remains unresolved; current 253-distribution inventory is post-event.",
+    "Complete live child-process-tree peak is not_established; kernel hard memory limit unavailable.",
+    "No tracked regression test or public API/UI/history surface was added; not formal LA-036 closure."
+  ],
+  "next_check": "For root’s persistent candidate checkout use literal product venv, exact HEAD/tree, full module-origin observer and source pins for the separate native-quality tests/CLI; keep this synthetic LA-036 witness separate and make no global acceptance claim.",
+  "observed_result": {
+    "capability_assessment": {
+      "consumers": "present and exercised: Phase-5 preflight and Runtime warrant reliability reader, each from fresh CAS instance",
+      "orchestration_bridge": "missing for an automatic product producer-to-persistence route; this local harness explicitly called the existing writer",
+      "persisted_artifact": "present; current selected-profile FileSystemCAS writer executed",
+      "producer": "present; current default BERL orchestrator executed",
+      "semantic_test": "semantic_test_missing in tracked product tests; this RAW executable record is not a durable regression gate",
+      "surface": "surface_missing for an actual HTTP/UI/history method-identity surface; summary helper and Phase-5 persisted report were exercised but no wired summary endpoint/dashboard/history reader was found in census",
+      "typed_contract": "present; strict ExplanationBundle and typed ExplanationBundleRef",
+      "typed_state": "implemented_but_not_orchestrated; local chain demonstrated, product automatic bridge remains absent",
+      "verification": "this bounded executable semantic witness passed; no tracked regression test added"
+    },
+    "fixture_count": 2,
+    "fresh_consumers": "Phase-5 and Runtime CAS readers read four persisted refs",
+    "positive_case_count": 4,
+    "product_authority_or_production_claim": "none; bounded synthetic witness only",
+    "status": "passed"
+  },
+  "pattern_pass": {
+    "acceptance_signal": "Exact-frame witness passes; any product feature claim still needs missing orchestration/test/surface.",
+    "anti_pattern_found": "A bounded producer/CAS chain may be mistaken for a wired product capability or independent method evidence.",
+    "relevant_ids": [
+      "P01",
+      "P02",
+      "P05",
+      "P10",
+      "P14",
+      "P29",
+      "P32",
+      "P37",
+      "P38",
+      "P41"
+    ],
+    "target_pattern": "Keep persisted content/fresh consumers, and state missing bridge/test/surface and one effective algorithm explicitly."
+  },
+  "proposal_status": "prepared_RAW_only_for_root_review_and_application",
+  "receipt_id": "la036-bounded-cas-fresh-phase5-runtime-chain-r2",
+  "schema": "policyos.e02.root_receipt_postimage.v1",
+  "selected_profile": {
+    "installed_distribution_count": 253,
+    "interpreter": ".venv/bin/python -B",
+    "limits": {
+      "address_space_bytes": 1073741824,
+      "child_process_budget": "not_established; runner records only its serial git subprocess commands and cumulative RUSAGE_CHILDREN.",
+      "disk_free_floor_recheck": "Runner rechecks >=1 GiB immediately before starting.",
+      "expected_generated_output_directory_absent": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la036-persistence-consumer-author-20261018/chain-attempt-03",
+      "gpu_visible_devices": "none",
+      "maximum_generated_raw_bytes": 104857600,
+      "memory_enforcement": "Process ru_maxrss high-water monitor sampled every 50 ms; abort at 1 GiB. Kernel RLIMIT_AS lower attempt and macOS host refusal are recorded. Complete live child process-tree budget remains not_established.",
+      "minimum_free_disk_bytes": 1073741824,
+      "network": "not used; no sync, install, or network command",
+      "numerical_threads": 1,
+      "raw_output_path": "assigned RAW directory only; total measured after completion, <=100 MiB.",
+      "test_suite": "No pytest or test suite; bounded actual runtime path only.",
+      "wall_clock_seconds": 600
+    },
+    "prior_uv_inventory_limit": "A preceding external uv run changed two packages without recording their names. This is a fresh current-state inventory, not proof of the pre-uv installed set; no sync or reinstall was run by this task.",
+    "seal": {
+      "exit_code": 0,
+      "git_same": true,
+      "live_child_budget": "not_established; only runner-issued serial git commands and cumulative RUSAGE_CHILDREN were observed; library-internal child lifetime/peak is not instrumented",
+      "peak_rss_bytes": 906854400,
+      "raw_cap_passed": true,
+      "rss_budget_bytes": 1073741824,
+      "source_pins_same": true,
+      "status": "passed",
+      "wall_seconds": 9.684792832937092
+    },
+    "source_pins": {
+      "count": 56,
+      "sha256": "b23be139c9a2fb66e43d92a15577eda396b069199fd0cf9a9d93bb4f53c34e0d"
+    }
+  },
+  "slice": {
+    "base": {
+      "commit": "cfc6de2d3586a4a64f7088797a0752e7786aeea5",
+      "parents": [
+        "040ee7d373b1a04f204c4e4dfe65d1e9702a91b3"
+      ],
+      "tree": "e72764d96a194834223582eb94f06d95faf43456"
+    },
+    "candidate": {
+      "commit": "cfc6de2d3586a4a64f7088797a0752e7786aeea5",
+      "parents": [
+        "040ee7d373b1a04f204c4e4dfe65d1e9702a91b3"
+      ],
+      "status": "no product source changes",
+      "tree": "e72764d96a194834223582eb94f06d95faf43456"
+    },
+    "full_footprint": []
+  },
+  "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-la036-cas-fresh-consumer-chain-20261018.json",
+  "root_journal_qualification": {
+    "mutable_journal_path": "resume-parallel-coordination-20261015/root-owned-commits.json",
+    "qualification": "Navigation only; excluded from input_refs and the input-reference manifest. Root independently reconstructed and matched the exact historical 252-record prefix to the previously observed 429,899-byte journal; the current whole journal has since been appended and is not treated as immutable evidence.",
+    "source_lineage_basis": "Commit SHA, tree, parents, and complete footprint are grounded in actual read-only Git object inspection plus immutable per-commit RAW application/readbacks. The mutable whole-journal blob is not the basis for those claims.",
+    "authority_effect": "No source/runtime acceptance, G acceptance, or closure is implied."
+  }
+}

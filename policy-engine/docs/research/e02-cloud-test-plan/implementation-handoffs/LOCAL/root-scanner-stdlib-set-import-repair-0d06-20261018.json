@@ -1,0 +1,383 @@
+{
+  "authority": {
+    "G_acceptance": false,
+    "closure_ids": [],
+    "formal_closure_ids": [],
+    "future_receipt_commit_sha": null,
+    "source_profile_freeze": false
+  },
+  "commands": {
+    "import_probes": [
+      {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-c",
+          "from collections.abc import AbstractSet"
+        ],
+        "label": "negative_original_import",
+        "returncode": 1,
+        "stderr_sha256": "4ba29fae21785ab6977f99aceb472d9ac88f971d8546c9747f0b4dfe2ac977a7",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-c",
+          "from collections.abc import Set as AbstractSet; assert isinstance(frozenset(), AbstractSet)"
+        ],
+        "label": "positive_alias_import",
+        "returncode": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "ruff": [
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tools/quality/validation/docs_lifecycle_reference_scan.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.04057041695341468,
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-scanner-stdlib-set-import-repair-20261018/check.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-scanner-stdlib-set-import-repair-20261018/check.stdout.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+        }
+      },
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tools/quality/validation/docs_lifecycle_reference_scan.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.03845945792272687,
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-scanner-stdlib-set-import-repair-20261018/format.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-scanner-stdlib-set-import-repair-20261018/format.stdout.txt",
+          "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+        }
+      }
+    ]
+  },
+  "full_output_refs": [
+    {
+      "bytes": 0,
+      "path": "root-scanner-stdlib-set-import-repair-20261018/negative_original_import.stdout.txt",
+      "role": "complete recorded output: negative_original_import.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 301,
+      "path": "root-scanner-stdlib-set-import-repair-20261018/negative_original_import.stderr.txt",
+      "role": "complete recorded output: negative_original_import.stderr.txt",
+      "sha256": "4ba29fae21785ab6977f99aceb472d9ac88f971d8546c9747f0b4dfe2ac977a7"
+    },
+    {
+      "bytes": 0,
+      "path": "root-scanner-stdlib-set-import-repair-20261018/positive_alias_import.stdout.txt",
+      "role": "complete recorded output: positive_alias_import.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "root-scanner-stdlib-set-import-repair-20261018/positive_alias_import.stderr.txt",
+      "role": "complete recorded output: positive_alias_import.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 19,
+      "path": "root-scanner-stdlib-set-import-repair-20261018/check.stdout.txt",
+      "role": "complete recorded output: check.stdout.txt",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "bytes": 0,
+      "path": "root-scanner-stdlib-set-import-repair-20261018/check.stderr.txt",
+      "role": "complete recorded output: check.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 25,
+      "path": "root-scanner-stdlib-set-import-repair-20261018/format.stdout.txt",
+      "role": "complete recorded output: format.stdout.txt",
+      "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+    },
+    {
+      "bytes": 0,
+      "path": "root-scanner-stdlib-set-import-repair-20261018/format.stderr.txt",
+      "role": "complete recorded output: format.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 369,
+      "path": "root-scanner-stdlib-set-import-repair-20261018/adopter.stdout.txt",
+      "role": "complete recorded output: adopter.stdout.txt",
+      "sha256": "34e0008ce3999be561c86a293d827d2d9830c2f8658c3908755eb5af0e4bc4d9"
+    },
+    {
+      "bytes": 0,
+      "path": "root-scanner-stdlib-set-import-repair-20261018/adopter.stderr.txt",
+      "role": "complete recorded output: adopter.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 156,
+      "path": "root-scanner-stdlib-set-import-repair-20261018/scanner-stdlib-set-import-repair-commit.stdout.txt",
+      "role": "complete recorded output: scanner-stdlib-set-import-repair-commit.stdout.txt",
+      "sha256": "04264817b91c625ccc1d39dbe0034d103ad37a05d7d2e108ccb1e5aaf65e3451"
+    },
+    {
+      "bytes": 653,
+      "path": "root-scanner-stdlib-set-import-repair-20261018/scanner-stdlib-set-import-repair-commit.stderr.txt",
+      "role": "complete recorded output: scanner-stdlib-set-import-repair-commit.stderr.txt",
+      "sha256": "fb189db688a9febcac2bc6efcd7cfe7ff05e40642d32d49c385bbea0903ae105"
+    }
+  ],
+  "input_refs": [
+    {
+      "bytes": 5992,
+      "path": "root-scanner-stdlib-set-independent-20261018/review-r1.json",
+      "role": "independent bounded source review",
+      "sha256": "55545c7e1e6fa6f1669ef01ef0781c997af59062da3e559567b5b4da705ee0e4"
+    },
+    {
+      "bytes": 2344,
+      "path": "root-scanner-stdlib-set-import-repair-20261018/candidate.json",
+      "role": "candidate and exact Python import probes",
+      "sha256": "356df075e5ba866b67950618d7d501948bd75ccf8f9e56087f674c2314073004"
+    },
+    {
+      "bytes": 5250,
+      "path": "root-scanner-stdlib-set-import-repair-20261018/source-application.json",
+      "role": "adoption and runtime status",
+      "sha256": "1ba73a5028b1348bb76525f9f1b68752ff21505711823b781b831dddb78cef52"
+    },
+    {
+      "bytes": 2592,
+      "path": "root-scanner-stdlib-set-import-repair-20261018/adoption-plan.json",
+      "role": "exact root plan",
+      "sha256": "133edebc6db53c3e78974e944a4383da379b8ff58cba96ef1d784d9c5de77f30"
+    },
+    {
+      "bytes": 15367,
+      "path": "root-scanner-stdlib-set-import-repair-20261018/docs_lifecycle_reference_scan.py.postimage",
+      "role": "source postimage hash, no source copy",
+      "sha256": "701d10f117bd064588ca26a134e8d1e73ba5915485dbfd3ea024d3e6e3454f08"
+    },
+    {
+      "bytes": 495,
+      "path": "root-scanner-stdlib-set-import-repair-20261018/candidate.patch",
+      "role": "one-file patch",
+      "sha256": "528ebd9a4975147ced5e10a0d37faa85c1df8e012d18159d5e427f244fa9341c"
+    },
+    {
+      "bytes": 1119,
+      "path": "root-scanner-stdlib-set-import-repair-20261018/scanner-stdlib-set-import-repair-readback.json",
+      "role": "root commit readback",
+      "sha256": "afb7e6de63d8d98094af58f9b1874a71fd932466dd71f83c69f0f3bfb1b3da2f"
+    }
+  ],
+  "limitations": [
+    "The import gate itself fails on original source and succeeds with the real standard-library ABC alias. Actual scanner behavior still needs the composed focused replay.",
+    "No gate policy, callback, threshold, budget, exception date or closure status changes.",
+    "The preceding cfc native wave has two collection errors, a docs CLI import failure and a separate directory-health resource-budget abort; those receipts remain failed.",
+    "Independent review was narrow and did not run composed scanner behavior."
+  ],
+  "next_check": "Repeat the bounded docs/directory/Phase0 pytest quantity after batching source fixes; keep full filesystem directory-health resource investigation separate.",
+  "observed_result": {
+    "import_probes": [
+      {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-c",
+          "from collections.abc import AbstractSet"
+        ],
+        "label": "negative_original_import",
+        "returncode": 1,
+        "stderr_sha256": "4ba29fae21785ab6977f99aceb472d9ac88f971d8546c9747f0b4dfe2ac977a7",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-c",
+          "from collections.abc import Set as AbstractSet; assert isinstance(frozenset(), AbstractSet)"
+        ],
+        "label": "positive_alias_import",
+        "returncode": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "postrepair_runtime": "UNRUN",
+    "readback": {
+      "parents": [
+        "cfc6de2d3586a4a64f7088797a0752e7786aeea5"
+      ],
+      "paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "policy-engine/tools/quality/validation/docs_lifecycle_reference_scan.py"
+      ],
+      "sha": "0d06e04d5621bdba60a7ae89c98eb943522ea4f4",
+      "tree": "736e7edd03200167cd37a8a27ec2e2b890f131ff"
+    },
+    "ruff": "check and format pass in adoption record"
+  },
+  "pattern_pass": {
+    "acceptance_signal": "Composed tests/CLI pass at exact current source frame.",
+    "anti_pattern_found": "Import probes alone cannot prove scanner behavior.",
+    "relevant_ids": [
+      "P29",
+      "P37",
+      "P38",
+      "P41"
+    ],
+    "target_pattern": "Replay scanner/lifecycle semantic behavior at committed frame with exact origin and full outputs."
+  },
+  "proposal_status": "prepared_RAW_only_for_root_review_and_application",
+  "receipt_id": "scanner-supported-set-abc-import-repair-0d06",
+  "schema": "policyos.e02.root_receipt_postimage.v1",
+  "selected_profile": {
+    "import_probes": [
+      {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-c",
+          "from collections.abc import AbstractSet"
+        ],
+        "label": "negative_original_import",
+        "returncode": 1,
+        "stderr_sha256": "4ba29fae21785ab6977f99aceb472d9ac88f971d8546c9747f0b4dfe2ac977a7",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-c",
+          "from collections.abc import Set as AbstractSet; assert isinstance(frozenset(), AbstractSet)"
+        ],
+        "label": "positive_alias_import",
+        "returncode": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "review": "GO for source delta; post-repair runtime UNRUN",
+    "review_ref": "root-scanner-stdlib-set-independent-20261018/review-r1.json",
+    "ruff": [
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tools/quality/validation/docs_lifecycle_reference_scan.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.04057041695341468,
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-scanner-stdlib-set-import-repair-20261018/check.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-scanner-stdlib-set-import-repair-20261018/check.stdout.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+        }
+      },
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tools/quality/validation/docs_lifecycle_reference_scan.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.03845945792272687,
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-scanner-stdlib-set-import-repair-20261018/format.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-scanner-stdlib-set-import-repair-20261018/format.stdout.txt",
+          "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+        }
+      }
+    ]
+  },
+  "slice": {
+    "base": {
+      "commit": "cfc6de2d3586a4a64f7088797a0752e7786aeea5",
+      "parents": [
+        "040ee7d373b1a04f204c4e4dfe65d1e9702a91b3"
+      ],
+      "tree": "e72764d96a194834223582eb94f06d95faf43456"
+    },
+    "candidate": {
+      "commit": "0d06e04d5621bdba60a7ae89c98eb943522ea4f4",
+      "parents": [
+        "cfc6de2d3586a4a64f7088797a0752e7786aeea5"
+      ],
+      "tree": "736e7edd03200167cd37a8a27ec2e2b890f131ff"
+    },
+    "full_footprint": [
+      {
+        "change": "root-owned commit",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json"
+      },
+      {
+        "change": "root-owned commit",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+      },
+      {
+        "change": "root-owned commit",
+        "path": "policy-engine/tools/quality/validation/docs_lifecycle_reference_scan.py"
+      }
+    ]
+  },
+  "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-scanner-stdlib-set-import-repair-0d06-20261018.json",
+  "root_journal_qualification": {
+    "mutable_journal_path": "resume-parallel-coordination-20261015/root-owned-commits.json",
+    "qualification": "Navigation only; excluded from input_refs and the input-reference manifest. Root independently reconstructed and matched the exact historical 252-record prefix to the previously observed 429,899-byte journal; the current whole journal has since been appended and is not treated as immutable evidence.",
+    "source_lineage_basis": "Commit SHA, tree, parents, and complete footprint are grounded in actual read-only Git object inspection plus immutable per-commit RAW application/readbacks. The mutable whole-journal blob is not the basis for those claims.",
+    "authority_effect": "No source/runtime acceptance, G acceptance, or closure is implied."
+  }
+}

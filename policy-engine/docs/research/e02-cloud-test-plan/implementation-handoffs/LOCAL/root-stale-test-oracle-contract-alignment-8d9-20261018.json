@@ -1,0 +1,355 @@
+{
+  "authority": {
+    "G_acceptance": false,
+    "closure_ids": [],
+    "formal_closure_ids": [],
+    "future_receipt_commit_sha": null,
+    "source_profile_freeze": false
+  },
+  "commands": {
+    "executed": [
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tests/unit/data_forge/kernel/test_artifacts.py",
+          "policy-engine/tests/repo_quality/architecture/test_repository_best_in_class_phase1_3_contracts.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.04154024994932115,
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-stale-test-expectation-application-20261018/check.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-stale-test-expectation-application-20261018/check.stdout.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+        }
+      },
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tests/unit/data_forge/kernel/test_artifacts.py",
+          "policy-engine/tests/repo_quality/architecture/test_repository_best_in_class_phase1_3_contracts.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.03773854183964431,
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-stale-test-expectation-application-20261018/format.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-stale-test-expectation-application-20261018/format.stdout.txt",
+          "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+        }
+      }
+    ],
+    "next_run_not_executed": {
+      "argv_prefix": [
+        "-B",
+        "-m",
+        "pytest"
+      ],
+      "interpreter": "policy-engine/.venv/bin/python",
+      "paths": [
+        "tests/unit/data_forge/kernel/test_artifacts.py",
+        "tests/repo_quality/architecture/test_repository_best_in_class_phase1_3_contracts.py"
+      ],
+      "selectors": [
+        "tests/unit/data_forge/kernel/test_artifacts.py::test_kernel_json_loader_can_wrap_a_real_cas_read_error_with_cause",
+        "tests/repo_quality/architecture/test_repository_best_in_class_phase1_3_contracts.py::test_phase1_3_report_only_validator_scopes_package_mirror_property",
+        "tests/repo_quality/architecture/test_repository_best_in_class_phase1_3_contracts.py::test_report_only_gate_rejects_invalid_not_before_date_types",
+        "tests/repo_quality/architecture/test_repository_best_in_class_phase1_3_contracts.py::test_report_only_gate_accepts_elapsed_eligibility_date_without_mode_promotion",
+        "tests/repo_quality/architecture/test_repository_best_in_class_phase1_3_contracts.py::test_validation_tooling_extraction_target_remains_an_expiry"
+      ]
+    }
+  },
+  "full_output_refs": [
+    {
+      "bytes": 19,
+      "path": "root-stale-test-expectation-application-20261018/check.stdout.txt",
+      "role": "complete lint/adoption output: check.stdout.txt",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "bytes": 0,
+      "path": "root-stale-test-expectation-application-20261018/check.stderr.txt",
+      "role": "complete lint/adoption output: check.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 26,
+      "path": "root-stale-test-expectation-application-20261018/format.stdout.txt",
+      "role": "complete lint/adoption output: format.stdout.txt",
+      "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+    },
+    {
+      "bytes": 0,
+      "path": "root-stale-test-expectation-application-20261018/format.stderr.txt",
+      "role": "complete lint/adoption output: format.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 371,
+      "path": "root-stale-test-expectation-application-20261018/adopter.stdout.txt",
+      "role": "complete lint/adoption output: adopter.stdout.txt",
+      "sha256": "36587fe9a68efabed7363f94fd5ea3c04b18ffd38da406c60ed4e20174ee0337"
+    },
+    {
+      "bytes": 0,
+      "path": "root-stale-test-expectation-application-20261018/adopter.stderr.txt",
+      "role": "complete lint/adoption output: adopter.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 161,
+      "path": "root-stale-test-expectation-application-20261018/stale-expectation-contract-alignment-commit.stdout.txt",
+      "role": "complete lint/adoption output: stale-expectation-contract-alignment-commit.stdout.txt",
+      "sha256": "e6eaff9f124a533d1a295baa8747bddee261002ee0a46585057308774da5394d"
+    },
+    {
+      "bytes": 653,
+      "path": "root-stale-test-expectation-application-20261018/stale-expectation-contract-alignment-commit.stderr.txt",
+      "role": "complete lint/adoption output: stale-expectation-contract-alignment-commit.stderr.txt",
+      "sha256": "8a73186480111d31f615fd5a6960eab22deacf33ff87550a091990d687adf173"
+    },
+    {
+      "bytes": 55797,
+      "path": "root-composed-actual-wave-040ee7d3-20261018/stdout.txt",
+      "role": "historical 040 wave output used by reviewer",
+      "sha256": "86f867cc5016e6ab6b7eeff4d515e05f09dfb54ae10687ddc4e32330c1796865"
+    }
+  ],
+  "input_refs": [
+    {
+      "bytes": 6252,
+      "path": "resume-stale-test-expectations-independent-20261018/review.json",
+      "role": "independent candidate review/selectors",
+      "sha256": "124f367233eb848d43ea7a0be8f374082dc18257916519b8b0f8257a8d9da909"
+    },
+    {
+      "bytes": 4044,
+      "path": "resume-stale-test-expectations-author-20261018/author-proof.md",
+      "role": "author proof",
+      "sha256": "fa786ed1d1a4703471e7dceb1e135789a0cb9e4ffa02c62623f3a36e50106255"
+    },
+    {
+      "bytes": 1641,
+      "path": "resume-stale-test-expectations-author-20261018/patch.diff",
+      "role": "candidate patch",
+      "sha256": "8eb57eab729ac2a776227d73bbf89373e33af3a5b8f12b66599308d2da84f03c"
+    },
+    {
+      "bytes": 291,
+      "path": "resume-stale-test-expectations-author-20261018/prehashes.sha256",
+      "role": "preimage hashes",
+      "sha256": "04faa8a7621c140dadbc16d0a2114c82e332d3d0f33e6e20d0efc8b81ceb8791"
+    },
+    {
+      "bytes": 291,
+      "path": "resume-stale-test-expectations-author-20261018/postimage-hashes.sha256",
+      "role": "postimage hashes",
+      "sha256": "84d85757ba997c6326bf67b622186fe8485ec768ae1b455f72bd7ae1c1c5a300"
+    },
+    {
+      "bytes": 5940,
+      "path": "root-stale-test-expectation-application-20261018/source-application.json",
+      "role": "root source application and runtime UNRUN",
+      "sha256": "3c29ecc315aeca6d825d0bf54be8bdf4f5ffc8728aba9237ac5bb0b5b84c8f52"
+    },
+    {
+      "bytes": 3072,
+      "path": "root-stale-test-expectation-application-20261018/adoption-plan.json",
+      "role": "root plan",
+      "sha256": "89eadbae83a985f439d67a74952e8e14a2ef08b0618e7272bdd77de8b1fc3a6e"
+    },
+    {
+      "bytes": 1641,
+      "path": "root-stale-test-expectation-application-20261018/reviewed-present-postimages.patch",
+      "role": "applied reviewed postimages",
+      "sha256": "8eb57eab729ac2a776227d73bbf89373e33af3a5b8f12b66599308d2da84f03c"
+    },
+    {
+      "bytes": 1380,
+      "path": "root-stale-test-expectation-application-20261018/stale-expectation-contract-alignment-readback.json",
+      "role": "root commit readback",
+      "sha256": "669f7aec6a2ac9999f5c9cac72b1ebbe16f6dd9f914d979d965b7717cdc25ce2"
+    },
+    {
+      "bytes": 55797,
+      "path": "root-composed-actual-wave-040ee7d3-20261018/stdout.txt",
+      "role": "historical 040 wave output used by reviewer",
+      "sha256": "86f867cc5016e6ab6b7eeff4d515e05f09dfb54ae10687ddc4e32330c1796865"
+    }
+  ],
+  "limitations": [
+    "Only the two disproven test expectations change; no runtime behavior, expiry date, gate mode or closure state changes.",
+    "Specific genuine expired-package assertions and malformed-date/extraction-expiry controls remain. Canonical replay is required; historical040wave stays124PASS5FAIL.",
+    "Two addressed stale oracles are one bounded class, not a general waiver; behavior contracts remain distinct."
+  ],
+  "next_check": "Run full bounded test_artifacts and phase1_3 contract modules with existing five focused eligibility/cause/refusal selectors.",
+  "observed_result": {
+    "P41": "no inheritance claim; historical 040 wave includes these tests; exact post-adoption replay pending",
+    "independent_findings": [
+      {
+        "assessment": "The revised assertion matches the current producer contract. An explicit read_error_prefix wins over the payload-label fallback; the message is formed as '<prefix> <artifact_id>: <cause>'. The candidate checks the complete explicit prefix plus ID and asserts the underlying cause is FileNotFoundError, matching the captured missing-CAS-file failure.",
+        "path": "policy-engine/tests/unit/data_forge/kernel/test_artifacts.py"
+      },
+      {
+        "assessment": "The report-only validator checks that target_fail_closed_not_before is a valid ISO date string; it does not reject elapsed eligibility dates. The unchanged direct regression accepts 2000-01-01 and preserves report_only mode. The candidate removes the invalid requirement that the packages report contain a report-only-gates error, and preserves the empty invalid-date finding assertion and 14-gate count.",
+        "path": "policy-engine/tests/repo_quality/architecture/test_repository_best_in_class_phase1_3_contracts.py"
+      },
+      {
+        "assessment": "All five genuine expired package findings remain asserted by exact subject and date (berl, calibration, common, ddm, fabric), along with the missing aggregate primary contract finding. At 2026-10-18, their 2026-08-01 and 2026-10-01 dates are expired. The separate extraction-target expiry test remains intact. Removing the fixed aggregate package-contract error count is acceptable: it is not a semantic invariant, and the test retains the specific findings in scope. This intentionally stops asserting that no other package-contract finding can exist; the review makes no total-error-count claim.",
+        "path": "policy-engine/tests/repo_quality/architecture/test_repository_best_in_class_phase1_3_contracts.py"
+      }
+    ],
+    "readback": {
+      "parents": [
+        "0d06e04d5621bdba60a7ae89c98eb943522ea4f4"
+      ],
+      "paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "policy-engine/tests/repo_quality/architecture/test_repository_best_in_class_phase1_3_contracts.py",
+        "policy-engine/tests/unit/data_forge/kernel/test_artifacts.py"
+      ],
+      "sha": "8d9d7a767aac3412781ab2b4c9ebcd044241b2ab",
+      "tree": "afc159899c9599a311c3a5566d70b49dfb0ee73b"
+    },
+    "source_change": "two test expectations only; runtime/date/gate/closure unchanged"
+  },
+  "pattern_pass": {
+    "acceptance_signal": "Both modules/five selectors pass at exact current frame; no formal closure inferred.",
+    "anti_pattern_found": "Test maintenance could relabel red without validating producer contract or erase genuine expiry controls.",
+    "relevant_ids": [
+      "P29",
+      "P35",
+      "P37",
+      "P40",
+      "P41"
+    ],
+    "target_pattern": "Keep source-backed expectations and expiry controls; replay all five selectors."
+  },
+  "proposal_status": "prepared_RAW_only_for_root_review_and_application",
+  "receipt_id": "stale-test-oracle-contract-alignment-8d9",
+  "schema": "policyos.e02.root_receipt_postimage.v1",
+  "selected_profile": {
+    "historical_040_result": "5 failed, 124 passed; both leased tests failed for the stale expectations addressed by this candidate",
+    "post_adoption_runtime": "UNRUN",
+    "required_selectors": [
+      "tests/unit/data_forge/kernel/test_artifacts.py::test_kernel_json_loader_can_wrap_a_real_cas_read_error_with_cause",
+      "tests/repo_quality/architecture/test_repository_best_in_class_phase1_3_contracts.py::test_phase1_3_report_only_validator_scopes_package_mirror_property",
+      "tests/repo_quality/architecture/test_repository_best_in_class_phase1_3_contracts.py::test_report_only_gate_rejects_invalid_not_before_date_types",
+      "tests/repo_quality/architecture/test_repository_best_in_class_phase1_3_contracts.py::test_report_only_gate_accepts_elapsed_eligibility_date_without_mode_promotion",
+      "tests/repo_quality/architecture/test_repository_best_in_class_phase1_3_contracts.py::test_validation_tooling_extraction_target_remains_an_expiry"
+    ],
+    "review": "GO",
+    "ruff": [
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tests/unit/data_forge/kernel/test_artifacts.py",
+          "policy-engine/tests/repo_quality/architecture/test_repository_best_in_class_phase1_3_contracts.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.04154024994932115,
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-stale-test-expectation-application-20261018/check.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-stale-test-expectation-application-20261018/check.stdout.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+        }
+      },
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tests/unit/data_forge/kernel/test_artifacts.py",
+          "policy-engine/tests/repo_quality/architecture/test_repository_best_in_class_phase1_3_contracts.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.03773854183964431,
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-stale-test-expectation-application-20261018/format.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-stale-test-expectation-application-20261018/format.stdout.txt",
+          "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+        }
+      }
+    ]
+  },
+  "slice": {
+    "base": {
+      "commit": "0d06e04d5621bdba60a7ae89c98eb943522ea4f4",
+      "parents": [
+        "cfc6de2d3586a4a64f7088797a0752e7786aeea5"
+      ],
+      "tree": "736e7edd03200167cd37a8a27ec2e2b890f131ff"
+    },
+    "candidate": {
+      "commit": "8d9d7a767aac3412781ab2b4c9ebcd044241b2ab",
+      "parents": [
+        "0d06e04d5621bdba60a7ae89c98eb943522ea4f4"
+      ],
+      "tree": "afc159899c9599a311c3a5566d70b49dfb0ee73b"
+    },
+    "full_footprint": [
+      {
+        "change": "root-owned commit",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json"
+      },
+      {
+        "change": "root-owned commit",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+      },
+      {
+        "change": "root-owned commit",
+        "path": "policy-engine/tests/repo_quality/architecture/test_repository_best_in_class_phase1_3_contracts.py"
+      },
+      {
+        "change": "root-owned commit",
+        "path": "policy-engine/tests/unit/data_forge/kernel/test_artifacts.py"
+      }
+    ]
+  },
+  "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-stale-test-oracle-contract-alignment-8d9-20261018.json",
+  "root_journal_qualification": {
+    "mutable_journal_path": "resume-parallel-coordination-20261015/root-owned-commits.json",
+    "qualification": "Navigation only; excluded from input_refs and the input-reference manifest. Root independently reconstructed and matched the exact historical 252-record prefix to the previously observed 429,899-byte journal; the current whole journal has since been appended and is not treated as immutable evidence.",
+    "source_lineage_basis": "Commit SHA, tree, parents, and complete footprint are grounded in actual read-only Git object inspection plus immutable per-commit RAW application/readbacks. The mutable whole-journal blob is not the basis for those claims.",
+    "authority_effect": "No source/runtime acceptance, G acceptance, or closure is implied."
+  }
+}

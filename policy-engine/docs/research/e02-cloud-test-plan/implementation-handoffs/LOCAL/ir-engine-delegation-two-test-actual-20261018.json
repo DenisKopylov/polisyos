@@ -1,0 +1,86 @@
+{
+  "commit_request": {
+    "bytes": 725,
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-engine-delegation-test-application-20261018/commit-request.json",
+    "sha256": "e3d323394d6d7742d1c24a20e12881c2e9fdb2d1bb62f5e8e7a0cb2144388942"
+  },
+  "completion_corrigendum": {
+    "bytes": 9027,
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r7-ir-migration-engine-delegation-canonical-replay-r1-20261018/completion-corrigendum-r1.json",
+    "sha256": "f80b23f9b861dbba5ce17c0fbeced21ae4c26c8959cd998e1ac67b2096260308"
+  },
+  "deciding_output_refs": [
+    {
+      "bytes": 3377,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r7-ir-migration-engine-delegation-canonical-replay-r1-20261018/receipts/import-origins-before-after.txt",
+      "sha256": "5c6f42c6e579aae3d78071b545451d404523e82de1fef8a41ffc83b53572c170"
+    },
+    {
+      "bytes": 777,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r7-ir-migration-engine-delegation-canonical-replay-r1-20261018/receipts/pytest.stderr-and-time-l.txt",
+      "sha256": "b1c35090e758f4242e8304610aef8f5251ca88946d12f55561d2ff16b015ab41"
+    },
+    {
+      "bytes": 80,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r7-ir-migration-engine-delegation-canonical-replay-r1-20261018/receipts/pytest.stdout.txt",
+      "sha256": "99db33d5c94c6f7da021687c7391181685cc33299c5435b1c861e2db3be3ec87"
+    },
+    {
+      "bytes": 557,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r7-ir-migration-engine-delegation-canonical-replay-r1-20261018/receipts/pytest.xml",
+      "sha256": "e785294859bf92ff4a5619e817a5b1266837154c5d3acdcac57d2e1efc75b616"
+    },
+    {
+      "bytes": 1045,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r7-ir-migration-engine-delegation-canonical-replay-r1-20261018/receipts/run-result.json",
+      "sha256": "e300a1c4c2f7c9b20fff2d6d3d14420378b7fd443bc75aa8f244f04fce9af808"
+    }
+  ],
+  "independent_review": {
+    "bytes": 11521,
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r7-ir-migration-engine-delegation-independent-review-r1-20261018/review.json",
+    "sha256": "895c83ae132e09640abe0a75acf867ecebaaa258329b7818069f36a731e7b077"
+  },
+  "limits": [
+    "This does not establish the broader migration surface or E02 closeout.",
+    "Origin observation was outside pytest; no in-process sys.modules witness was captured.",
+    "The requested integration/helper source-plan may overlap a conftest-loaded helper; do not claim zero intersection.",
+    "At post-run readback, HEAD remained at the requested commit, while the working tree had concurrent uncommitted changes. The 13 request-pinned files still matched; this report does not attribute unrelated dirty paths or claim a globally clean tree."
+  ],
+  "record_type": "bounded actual test result and source-frame pointer",
+  "recorded_authority": {
+    "G_acceptance": false,
+    "closure_ids": [],
+    "source_freeze": false
+  },
+  "result": {
+    "elapsed_seconds": 1.27,
+    "errors": 0,
+    "failed": 0,
+    "passed": 2,
+    "pytest_exit_code": 0,
+    "skipped": 0,
+    "source_input_pin_denominator": 13,
+    "source_input_pins_all_match": true,
+    "status": "PASS for the two named canonical delegation/facade tests only",
+    "tests": 2
+  },
+  "schema": "policyos.e02.ir-engine-delegation-two-test-actual.v1",
+  "source_application": {
+    "bytes": 3744,
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-engine-delegation-test-application-20261018/source-application.json",
+    "sha256": "01256184d02d74e1be45a2a519a34c021d0e64018fedda484d495ca23664bb03"
+  },
+  "source_commit_readback": {
+    "bytes": 1108,
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-ir-engine-delegation-test-application-20261018/ir-engine-delegation-test-readback.json",
+    "sha256": "9d921426cd072193764845e89e02674ebd7881d75625a29f1461be6caf476109"
+  },
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "8ef3c60bd7a0fbab465f203795e33a1dcdf71490",
+    "parent": "b8343d819056c0d257fa211dc7d1a59d49e31c5f",
+    "status": "## codex/e02-unified-local-20261009...origin/codex/e02-unified-local-20261009",
+    "tree": "8fea7ee9e10c764e96f3a1172193088c285c3b0d"
+  }
+}

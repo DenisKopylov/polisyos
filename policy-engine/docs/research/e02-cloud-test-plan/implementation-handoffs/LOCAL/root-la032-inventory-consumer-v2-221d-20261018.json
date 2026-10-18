@@ -1,0 +1,376 @@
+{
+  "authority": {
+    "G_acceptance": false,
+    "closure_ids": [],
+    "formal_closure_ids": [],
+    "future_receipt_commit_sha": null,
+    "source_profile_freeze": false
+  },
+  "commands": {
+    "executed_lint_and_format": [
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.3370370001066476,
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la032-inventory-consumer-application-v2-20261018/check.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la032-inventory-consumer-application-v2-20261018/check.stdout.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+        }
+      },
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py"
+        ],
+        "exit_code": 1,
+        "seconds": 0.047161541879177094,
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la032-inventory-consumer-application-v2-20261018/format.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la032-inventory-consumer-application-v2-20261018/format.stdout.txt",
+          "sha256": "358b512bc4583187274b1f9ed71f4ebe87a00de4f4b655e6af3ac565ae3d3dac"
+        }
+      },
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.04191762488335371,
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la032-inventory-consumer-application-v2-20261018/check-final.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la032-inventory-consumer-application-v2-20261018/check-final.stdout.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+        }
+      },
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.03858683304861188,
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la032-inventory-consumer-application-v2-20261018/format-final.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la032-inventory-consumer-application-v2-20261018/format-final.stdout.txt",
+          "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+        }
+      }
+    ],
+    "next_run_not_executed": {
+      "argv_prefix": [
+        "-B",
+        "-m",
+        "pytest"
+      ],
+      "interpreter": "policy-engine/.venv/bin/python",
+      "path": "tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py"
+    }
+  },
+  "full_output_refs": [
+    {
+      "bytes": 132,
+      "path": "root-la032-inventory-consumer-application-v2-20261018/format.stdout.txt",
+      "role": "complete recorded lint/format/adoption output: format.stdout.txt",
+      "sha256": "358b512bc4583187274b1f9ed71f4ebe87a00de4f4b655e6af3ac565ae3d3dac"
+    },
+    {
+      "bytes": 0,
+      "path": "root-la032-inventory-consumer-application-v2-20261018/format.stderr.txt",
+      "role": "complete recorded lint/format/adoption output: format.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 25,
+      "path": "root-la032-inventory-consumer-application-v2-20261018/format-final.stdout.txt",
+      "role": "complete recorded lint/format/adoption output: format-final.stdout.txt",
+      "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+    },
+    {
+      "bytes": 0,
+      "path": "root-la032-inventory-consumer-application-v2-20261018/format-final.stderr.txt",
+      "role": "complete recorded lint/format/adoption output: format-final.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 19,
+      "path": "root-la032-inventory-consumer-application-v2-20261018/check.stdout.txt",
+      "role": "complete recorded lint/format/adoption output: check.stdout.txt",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "bytes": 0,
+      "path": "root-la032-inventory-consumer-application-v2-20261018/check.stderr.txt",
+      "role": "complete recorded lint/format/adoption output: check.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 19,
+      "path": "root-la032-inventory-consumer-application-v2-20261018/check-final.stdout.txt",
+      "role": "complete recorded lint/format/adoption output: check-final.stdout.txt",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "bytes": 0,
+      "path": "root-la032-inventory-consumer-application-v2-20261018/check-final.stderr.txt",
+      "role": "complete recorded lint/format/adoption output: check-final.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 157,
+      "path": "root-la032-inventory-consumer-application-v2-20261018/la032-inventory-refresh-consumer-v2-commit.stdout.txt",
+      "role": "complete recorded lint/format/adoption output: la032-inventory-refresh-consumer-v2-commit.stdout.txt",
+      "sha256": "4d5dad2a9ccf0f69a18b94ac9f71ba40970785fdf7b7a776a7e28c58034fdca9"
+    },
+    {
+      "bytes": 653,
+      "path": "root-la032-inventory-consumer-application-v2-20261018/la032-inventory-refresh-consumer-v2-commit.stderr.txt",
+      "role": "complete recorded lint/format/adoption output: la032-inventory-refresh-consumer-v2-commit.stderr.txt",
+      "sha256": "49b4f87b3fd8e4c857ca090fca29b7c10ad953172fe1a8515787ad146803b361"
+    }
+  ],
+  "input_refs": [
+    {
+      "bytes": 4978,
+      "path": "resume-la032-inventory-cas-consumer-independent-v2-20261018",
+      "role": "independent v2 review RAW file",
+      "sha256": "7cda9e09fa941dd434f4d84d0e479b09c51b336882af0c160170bbf03d2dcee8"
+    },
+    {
+      "bytes": 5845,
+      "path": "resume-la032-inventory-cas-consumer-author-20261018/candidate-v2.json",
+      "role": "frozen v2 candidate",
+      "sha256": "4fcdaabb3c90342ef84b61c03ea68fc773d342669ce45ea8826a94805d1c2da7"
+    },
+    {
+      "bytes": 5651,
+      "path": "root-la032-inventory-consumer-application-v2-20261018/source-application.json",
+      "role": "root adoption record; runtime UNRUN",
+      "sha256": "e74ba87bfaace7aaa3660da81c65826be1be4d29bb44dd930cb25f5511d36685"
+    },
+    {
+      "bytes": 3138,
+      "path": "root-la032-inventory-consumer-application-v2-20261018/adoption-plan.json",
+      "role": "v2 adoption plan",
+      "sha256": "f418998404c859ce8d09ae1fe7928bad2d1e01fd5bda26c428ac3627e62af371"
+    },
+    {
+      "bytes": 5822,
+      "path": "root-la032-inventory-consumer-application-v2-20261018/reviewed-present-postimages.patch",
+      "role": "reviewed v2 patch",
+      "sha256": "913debd431cac5c4e9d6638bc46150d4c797309f21b4291d9ede4033bf0229b6"
+    },
+    {
+      "bytes": 3094,
+      "path": "root-la032-inventory-consumer-application-v2-20261018/canonical-format-qualification.json",
+      "role": "initial format failure and final qualification",
+      "sha256": "719478025bbed095e44141678a19309f039ddd9ad873d8ae9e02ec464b4439f4"
+    },
+    {
+      "bytes": 1152,
+      "path": "root-la032-inventory-consumer-application-v2-20261018/la032-inventory-refresh-consumer-v2-readback.json",
+      "role": "221d readback",
+      "sha256": "a349ad2406bf536112a37cf17d0c0cf40472bf247f686e9ab76b466a83935b10"
+    },
+    {
+      "bytes": 44272,
+      "path": "resume-la032-inventory-cas-consumer-author-20261018/postimages/v2/policy-engine/tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py",
+      "role": "v2 postimage hash only",
+      "sha256": "4f935cfeb5e68f3a0a261879e4968e12fc02ac3e151ee5e31f91023af1f141cf"
+    }
+  ],
+  "limitations": [
+    "LA-032#1 ordinal262 coverage#/findings/256 criterion sha5f5c7a56a652a0328e25fd8b6091a2f780750d9eaee8f10c0129b2f9f0609cf2; synthetic facts remain consumer_asserted, source authority/currentness/semantic completeness not_established.",
+    "The v2 manifest prior-v1 review hash has a missing leading b; this plan binds the actual independent v2 review, not that malformed historical pointer.",
+    "No global freeze is active. Exact canonical runtime is UNRUN; historical receipts remain historical. No closure/adjudication or runtime behavior changes.",
+    "No changing full-module actual-run bytes or outcomes are included."
+  ],
+  "next_check": "Literal existing venv -B -m pytest full test_demography_source_inventory.py with persisted complete output, JUnit and resource/supervisor result; all existing refusal/corruption/removal/no-fallback/sibling/Foundry controls preserved.",
+  "observed_result": {
+    "authority": "synthetic facts consumer_asserted; source authority/currentness/semantic completeness not_established",
+    "post_adoption_runtime": "no result cited",
+    "prior_adopter": "initial canonical formatter gate failed; no reset/restore; AST-identical format delta and final check/format outputs passed",
+    "readback": {
+      "parents": [
+        "8d9d7a767aac3412781ab2b4c9ebcd044241b2ab"
+      ],
+      "paths": [
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "policy-engine/tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py"
+      ],
+      "sha": "221d4b7644b2bd022b4ae8b53e45834f83cfc11c",
+      "tree": "61f9b37635c5356f67c5f52771095c0e0c22a896"
+    }
+  },
+  "pattern_pass": {
+    "acceptance_signal": "Fresh run at exact frame has full JUnit/output/supervisor resources; no closure or authority upgrade from fixtures.",
+    "anti_pattern_found": "A formatter-qualified test is not a post-adoption consumer replay; synthetic authority facts cannot become sourced facts.",
+    "relevant_ids": [
+      "P29",
+      "P32",
+      "P35",
+      "P37",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "target_pattern": "Run the exact full module with refusal/corruption/removal/no-fallback/sibling/Foundry controls and preserve candidate-grade authority labels."
+  },
+  "proposal_status": "prepared_RAW_only_for_root_review_and_application",
+  "receipt_id": "la032-inventory-refresh-consumer-test-221d",
+  "schema": "policyos.e02.root_receipt_postimage.v1",
+  "selected_profile": {
+    "candidate_review": "GO for v2 candidate; no runtime claim",
+    "canonical_format_qualification": {
+      "G_acceptance": false,
+      "author_postimage": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la032-inventory-cas-consumer-author-20261018/postimages/v2/policy-engine/tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py",
+        "sha256": "4f935cfeb5e68f3a0a261879e4968e12fc02ac3e151ee5e31f91023af1f141cf"
+      },
+      "canonical_format_delta_ast_identical": true,
+      "canonical_postimage_sha256": "76e5ba88eed68583219688f401a915469a3a1b93d63eebac40634dda1a40bd49",
+      "canonical_ruff": [
+        {
+          "argv": [
+            "policy-engine/.venv/bin/python",
+            "-B",
+            "-m",
+            "ruff",
+            "check",
+            "--no-cache",
+            "--config",
+            "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+            "policy-engine/tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py"
+          ],
+          "exit_code": 0,
+          "seconds": 0.04191762488335371,
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la032-inventory-consumer-application-v2-20261018/check-final.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la032-inventory-consumer-application-v2-20261018/check-final.stdout.txt",
+            "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+          }
+        },
+        {
+          "argv": [
+            "policy-engine/.venv/bin/python",
+            "-B",
+            "-m",
+            "ruff",
+            "format",
+            "--check",
+            "--no-cache",
+            "--config",
+            "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+            "policy-engine/tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py"
+          ],
+          "exit_code": 0,
+          "seconds": 0.03858683304861188,
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la032-inventory-consumer-application-v2-20261018/format-final.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la032-inventory-consumer-application-v2-20261018/format-final.stdout.txt",
+            "sha256": "fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50"
+          }
+        }
+      ],
+      "cause": "Root adopter applied reviewed candidate then canonical format gate failed in one assertion; no reset/restore. This is known root-applied state.",
+      "closure_ids": [],
+      "initial_application": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la032-inventory-consumer-application-v2-20261018/source-application.json",
+        "sha256": "e74ba87bfaace7aaa3660da81c65826be1be4d29bb44dd930cb25f5511d36685"
+      },
+      "protected_aliases_unchanged": 302,
+      "runtime": "UNRUN"
+    },
+    "post_adoption_runtime": "UNRUN in source application; later changing full-module output excluded"
+  },
+  "slice": {
+    "base": {
+      "commit": "8d9d7a767aac3412781ab2b4c9ebcd044241b2ab",
+      "parents": [
+        "0d06e04d5621bdba60a7ae89c98eb943522ea4f4"
+      ],
+      "tree": "afc159899c9599a311c3a5566d70b49dfb0ee73b"
+    },
+    "candidate": {
+      "commit": "221d4b7644b2bd022b4ae8b53e45834f83cfc11c",
+      "parents": [
+        "8d9d7a767aac3412781ab2b4c9ebcd044241b2ab"
+      ],
+      "tree": "61f9b37635c5356f67c5f52771095c0e0c22a896"
+    },
+    "full_footprint": [
+      {
+        "change": "root-owned commit",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json"
+      },
+      {
+        "change": "root-owned commit",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+      },
+      {
+        "change": "root-owned commit",
+        "path": "policy-engine/tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py"
+      }
+    ]
+  },
+  "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-la032-inventory-consumer-v2-221d-20261018.json",
+  "root_journal_qualification": {
+    "mutable_journal_path": "resume-parallel-coordination-20261015/root-owned-commits.json",
+    "qualification": "Navigation only; excluded from input_refs and the input-reference manifest. Root independently reconstructed and matched the exact historical 252-record prefix to the previously observed 429,899-byte journal; the current whole journal has since been appended and is not treated as immutable evidence.",
+    "source_lineage_basis": "Commit SHA, tree, parents, and complete footprint are grounded in actual read-only Git object inspection plus immutable per-commit RAW application/readbacks. The mutable whole-journal blob is not the basis for those claims.",
+    "authority_effect": "No source/runtime acceptance, G acceptance, or closure is implied."
+  }
+}

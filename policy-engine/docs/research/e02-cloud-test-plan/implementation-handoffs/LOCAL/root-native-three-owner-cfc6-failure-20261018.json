@@ -1,0 +1,560 @@
+{
+  "authority": {
+    "G_acceptance": false,
+    "closure_ids": [],
+    "formal_closure_ids": [],
+    "future_receipt_commit_sha": null,
+    "source_profile_freeze": false
+  },
+  "commands": {
+    "executed": [
+      {
+        "aborted_for_rss_limit": false,
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "pytest",
+          "-p",
+          "root_native_actual_wave_capture",
+          "-vv",
+          "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-three-owner-actual-cfc6de2d-20261018/pytest.xml",
+          "tests/repo_quality/tools/test_document_reference_roles.py::test_reference_scan_facade_preserves_injected_enumerator",
+          "tests/repo_quality/tools/test_document_reference_roles.py::test_reference_scan_receipt_preserves_opaque_and_selector_boundaries",
+          "tests/repo_quality/tools/test_document_reference_roles.py::test_removed_stub_presence_uses_tracked_paths_outside_text_selector",
+          "tests/repo_quality/tools/test_document_reference_roles.py::test_unreadable_committed_reference_is_ambiguous",
+          "tests/repo_quality/tools/test_document_reference_roles.py::test_empty_or_malformed_evidence_json_is_ambiguous_for_lifecycle",
+          "tests/repo_quality/tools/test_document_reference_roles.py::test_missing_repository_enumeration_fails_the_gate",
+          "tests/repo_quality/tools/test_docs_lifecycle.py::test_phase6_2_stale_removed_stub_references_are_rejected",
+          "tests/repo_quality/tools/test_docs_lifecycle.py::test_main_marks_incomplete_reference_scan_unrun_and_keeps_findings",
+          "tests/repo_quality/tools/test_directory_health.py",
+          "tests/repo_quality/architecture/test_repository_structure_phase1c.py",
+          "tests/repo_quality/architecture/test_owner_residual_exceptions.py",
+          "tests/repo_quality/architecture/test_repository_best_in_class_phase6_2_directory_health.py::test_phase6_2_directory_health_dashboard_metrics_are_regression_baselined",
+          "tests/repo_quality/architecture/test_repository_best_in_class_phase6_2_directory_health.py::test_phase6_2_directory_health_cli_can_fail_on_regression_without_findings"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "exit_code": 4,
+        "id": "pytest",
+        "max_sampled_process_tree_rss_bytes": 16367616,
+        "wall_seconds": 1.1597856250591576
+      },
+      {
+        "aborted_for_rss_limit": false,
+        "argv": [
+          "uv",
+          "run",
+          "polisyos-tools",
+          "validation",
+          "check-docs-lifecycle"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "exit_code": 1,
+        "id": "docs_lifecycle",
+        "max_sampled_process_tree_rss_bytes": 131579904,
+        "wall_seconds": 3.121624374995008
+      },
+      {
+        "aborted_for_rss_limit": true,
+        "argv": [
+          "uv",
+          "run",
+          "polisyos-tools",
+          "validation",
+          "directory-health",
+          "--repo-root",
+          ".",
+          "--fail-on-regression",
+          "--json-output",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-three-owner-actual-cfc6de2d-20261018/directory-health.json",
+          "--markdown-output",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-three-owner-actual-cfc6de2d-20261018/directory-health.md"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "exit_code": 143,
+        "id": "directory_health_json_markdown",
+        "max_sampled_process_tree_rss_bytes": 2734931968,
+        "wall_seconds": 87.44304558401927
+      }
+    ],
+    "physical_ruff_commands_not_started": [
+      {
+        "argv": [
+          "/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/bin/python3.14",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tests/repo_quality/architecture/test_repository_structure_phase1c.py",
+          "policy-engine/tests/repo_quality/tools/test_directory_health.py",
+          "policy-engine/tests/repo_quality/tools/test_document_reference_roles.py",
+          "policy-engine/tools/quality/validation/check_docs_lifecycle.py",
+          "policy-engine/tools/quality/validation/directory_health.py",
+          "policy-engine/tools/quality/validation/directory_health_dashboard.py",
+          "policy-engine/tools/quality/validation/docs_lifecycle_reference_scan.py",
+          "policy-engine/tools/quality/validation/repository_structure_phase0.py",
+          "policy-engine/tools/quality/validation/repository_structure_phase0_inventory.py"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+        "id": "ruff_check"
+      },
+      {
+        "argv": [
+          "/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/bin/python3.14",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tests/repo_quality/architecture/test_repository_structure_phase1c.py",
+          "policy-engine/tests/repo_quality/tools/test_directory_health.py",
+          "policy-engine/tests/repo_quality/tools/test_document_reference_roles.py",
+          "policy-engine/tools/quality/validation/check_docs_lifecycle.py",
+          "policy-engine/tools/quality/validation/directory_health.py",
+          "policy-engine/tools/quality/validation/directory_health_dashboard.py",
+          "policy-engine/tools/quality/validation/docs_lifecycle_reference_scan.py",
+          "policy-engine/tools/quality/validation/repository_structure_phase0.py",
+          "policy-engine/tools/quality/validation/repository_structure_phase0_inventory.py"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+        "id": "ruff_format_check"
+      }
+    ],
+    "skipped_after_abort": [
+      {
+        "argv": [
+          "uv",
+          "run",
+          "python",
+          "tools/quality/validation/repository_structure_phase0.py",
+          "gate",
+          "--gate",
+          "all",
+          "--mode",
+          "fail-closed",
+          "--json"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "id": "phase0_all",
+        "skipped": "prior command hit aborted_for_rss_limit"
+      },
+      {
+        "argv": [
+          "uv",
+          "run",
+          "python",
+          "tools/quality/validation/repository_structure_phase0.py",
+          "gate",
+          "--gate",
+          "name_collision_gate",
+          "--mode",
+          "fail-closed",
+          "--json"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "id": "phase0_name_collision",
+        "skipped": "prior command hit aborted_for_rss_limit"
+      },
+      {
+        "argv": [
+          "uv",
+          "run",
+          "python",
+          "tools/quality/validation/repository_structure_phase0.py",
+          "gate",
+          "--gate",
+          "empty_namespace_gate",
+          "--mode",
+          "fail-closed",
+          "--json"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "id": "phase0_empty_namespace",
+        "skipped": "prior command hit aborted_for_rss_limit"
+      },
+      {
+        "argv": [
+          "/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/bin/python3.14",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tests/repo_quality/architecture/test_repository_structure_phase1c.py",
+          "policy-engine/tests/repo_quality/tools/test_directory_health.py",
+          "policy-engine/tests/repo_quality/tools/test_document_reference_roles.py",
+          "policy-engine/tools/quality/validation/check_docs_lifecycle.py",
+          "policy-engine/tools/quality/validation/directory_health.py",
+          "policy-engine/tools/quality/validation/directory_health_dashboard.py",
+          "policy-engine/tools/quality/validation/docs_lifecycle_reference_scan.py",
+          "policy-engine/tools/quality/validation/repository_structure_phase0.py",
+          "policy-engine/tools/quality/validation/repository_structure_phase0_inventory.py"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+        "id": "ruff_check",
+        "skipped": "prior command hit aborted_for_rss_limit"
+      },
+      {
+        "argv": [
+          "/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none/bin/python3.14",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tests/repo_quality/architecture/test_repository_structure_phase1c.py",
+          "policy-engine/tests/repo_quality/tools/test_directory_health.py",
+          "policy-engine/tests/repo_quality/tools/test_document_reference_roles.py",
+          "policy-engine/tools/quality/validation/check_docs_lifecycle.py",
+          "policy-engine/tools/quality/validation/directory_health.py",
+          "policy-engine/tools/quality/validation/directory_health_dashboard.py",
+          "policy-engine/tools/quality/validation/docs_lifecycle_reference_scan.py",
+          "policy-engine/tools/quality/validation/repository_structure_phase0.py",
+          "policy-engine/tools/quality/validation/repository_structure_phase0_inventory.py"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+        "id": "ruff_format_check",
+        "skipped": "prior command hit aborted_for_rss_limit"
+      }
+    ]
+  },
+  "full_output_refs": [
+    {
+      "bytes": 6243,
+      "path": "root-native-three-owner-actual-cfc6de2d-20261018/argv.json",
+      "role": "controller artifact output: argv.json",
+      "sha256": "2021ce5c13858dc86cd3b27ee9f4f5fdd491c220933e1a14343159382ef5efb6"
+    },
+    {
+      "bytes": 3266,
+      "path": "root-native-three-owner-actual-cfc6de2d-20261018/controller-events.jsonl",
+      "role": "controller artifact output: controller-events.jsonl",
+      "sha256": "2ba2f9772dc68cd163d28f303fbb494e0ff4f2aeb88688c5f0959318e5b14262"
+    },
+    {
+      "bytes": 4416,
+      "path": "root-native-three-owner-actual-cfc6de2d-20261018/count-lines.json",
+      "role": "controller artifact output: count-lines.json",
+      "sha256": "0c08930060b7762f1019923f20978aab78f3804070336bd4fa90958494a0956d"
+    },
+    {
+      "bytes": 0,
+      "path": "root-native-three-owner-actual-cfc6de2d-20261018/directory_health_json_markdown.stderr.txt",
+      "role": "controller artifact output: directory_health_json_markdown.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "root-native-three-owner-actual-cfc6de2d-20261018/directory_health_json_markdown.stdout.txt",
+      "role": "controller artifact output: directory_health_json_markdown.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 577,
+      "path": "root-native-three-owner-actual-cfc6de2d-20261018/docs_lifecycle.stderr.txt",
+      "role": "controller artifact output: docs_lifecycle.stderr.txt",
+      "sha256": "c4e677e6c5b07d0933bbed050c0037e24c138d73b426aef09544b99974d3379b"
+    },
+    {
+      "bytes": 0,
+      "path": "root-native-three-owner-actual-cfc6de2d-20261018/docs_lifecycle.stdout.txt",
+      "role": "controller artifact output: docs_lifecycle.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 26876,
+      "path": "root-native-three-owner-actual-cfc6de2d-20261018/freeze.json",
+      "role": "controller artifact output: freeze.json",
+      "sha256": "461732926954609f7eda96bc2a781fa1e01ce5594a14283a49f3b65565ee0bbc"
+    },
+    {
+      "bytes": 5858,
+      "path": "root-native-three-owner-actual-cfc6de2d-20261018/launch_started.json",
+      "role": "controller artifact output: launch_started.json",
+      "sha256": "9a54379200f2a5c8a13fe5cb74d6a3bd1047abced211bd8a0c6e5873f8099fc8"
+    },
+    {
+      "bytes": 463,
+      "path": "root-native-three-owner-actual-cfc6de2d-20261018/origin-witnesses/origin-docs_lifecycle-1370.json",
+      "role": "controller artifact output: origin-witnesses/origin-docs_lifecycle-1370.json",
+      "sha256": "6c428885a226e650b52f3d481c69757a8235eba31aa933e972976d572d8ba516"
+    },
+    {
+      "bytes": 463,
+      "path": "root-native-three-owner-actual-cfc6de2d-20261018/origin-witnesses/origin-docs_lifecycle-1371.json",
+      "role": "controller artifact output: origin-witnesses/origin-docs_lifecycle-1371.json",
+      "sha256": "9546d7353ca553b69648b91b14a2de1149e80c0c0bbb10e77644577d488b16ab"
+    },
+    {
+      "bytes": 594,
+      "path": "root-native-three-owner-actual-cfc6de2d-20261018/origin-witnesses/origin-docs_lifecycle-1372.json",
+      "role": "controller artifact output: origin-witnesses/origin-docs_lifecycle-1372.json",
+      "sha256": "c5c15d498c711dc745b1b772a59209d4abac0b22f35ebedd2c564312b7656b50"
+    },
+    {
+      "bytes": 2913,
+      "path": "root-native-three-owner-actual-cfc6de2d-20261018/origin-witnesses/origin-pytest-1331.json",
+      "role": "controller artifact output: origin-witnesses/origin-pytest-1331.json",
+      "sha256": "3b157555e4c7392da2a43f6f84526ee769ad7467b6beb1da469a9c99a3f582d0"
+    },
+    {
+      "bytes": 2014,
+      "path": "root-native-three-owner-actual-cfc6de2d-20261018/phase-output.jsonl",
+      "role": "controller artifact output: phase-output.jsonl",
+      "sha256": "05168b45358c1a8880ec0a81330230fab32c4351496df4982bf96b28c834964c"
+    },
+    {
+      "bytes": 37567,
+      "path": "root-native-three-owner-actual-cfc6de2d-20261018/process-tree.jsonl",
+      "role": "controller artifact output: process-tree.jsonl",
+      "sha256": "19855bb4706cd365b73b914ce64385119343e42b8cb6f4b5f194a6ba84a4bb62"
+    },
+    {
+      "bytes": 10670,
+      "path": "root-native-three-owner-actual-cfc6de2d-20261018/pytest-provenance.json",
+      "role": "controller artifact output: pytest-provenance.json",
+      "sha256": "0a3a2238e8b50812ff5bc887720502427d5c0cd0ce170546d022f0f0ddc29791"
+    },
+    {
+      "bytes": 1887,
+      "path": "root-native-three-owner-actual-cfc6de2d-20261018/pytest.stderr.txt",
+      "role": "controller artifact output: pytest.stderr.txt",
+      "sha256": "2718e5b2d2df7e1aa1b9310f05ab5721b9314e4c20ed37524203d3f3ebea7897"
+    },
+    {
+      "bytes": 3571,
+      "path": "root-native-three-owner-actual-cfc6de2d-20261018/pytest.stdout.txt",
+      "role": "controller artifact output: pytest.stdout.txt",
+      "sha256": "4e33ac1e0fed51845192b687d6918fcc739405eff4e7eb646feec2050a91d097"
+    },
+    {
+      "bytes": 2301,
+      "path": "root-native-three-owner-actual-cfc6de2d-20261018/pytest.xml",
+      "role": "controller artifact output: pytest.xml",
+      "sha256": "1e620cf4752e21611b3d78c95834ac12b7ec3d33893056588aa22f793bd960e1"
+    },
+    {
+      "bytes": 8229,
+      "path": "root-native-three-owner-actual-cfc6de2d-20261018/request.json",
+      "role": "controller artifact output: request.json",
+      "sha256": "cf222cc9d85ef6a6118b8f27a302a4cc8cefa4a86c1fdd8ac326f163cf628a45"
+    },
+    {
+      "bytes": 2398,
+      "path": "root-native-three-owner-actual-cfc6de2d-20261018/selected-nodeids.json",
+      "role": "controller artifact output: selected-nodeids.json",
+      "sha256": "048315f9dd1e675dc5161a5aee699358e29918f4abcc2f776c0d9f1162bf4322"
+    }
+  ],
+  "input_refs": [
+    {
+      "bytes": 14226,
+      "path": "resume-receipt-batch-prepare-20261018/batch-manifest.json",
+      "role": "previous historical batch; preserve its 040 frame",
+      "sha256": "21e3e07053b08be165f2444e74c20b734a19ff53115a47691230608598ce2b3a"
+    },
+    {
+      "bytes": 8229,
+      "path": "root-native-three-owner-actual-cfc6de2d-20261018/request.json",
+      "role": "frozen request/profile",
+      "sha256": "cf222cc9d85ef6a6118b8f27a302a4cc8cefa4a86c1fdd8ac326f163cf628a45"
+    },
+    {
+      "bytes": 6243,
+      "path": "root-native-three-owner-actual-cfc6de2d-20261018/argv.json",
+      "role": "exact realized argv",
+      "sha256": "2021ce5c13858dc86cd3b27ee9f4f5fdd491c220933e1a14343159382ef5efb6"
+    },
+    {
+      "bytes": 26876,
+      "path": "root-native-three-owner-actual-cfc6de2d-20261018/freeze.json",
+      "role": "source pins and selected denominator",
+      "sha256": "461732926954609f7eda96bc2a781fa1e01ce5594a14283a49f3b65565ee0bbc"
+    },
+    {
+      "bytes": 29157,
+      "path": "root-native-three-owner-actual-cfc6de2d-20261018/controller-result.json",
+      "role": "full command/controller outcomes",
+      "sha256": "1eb82a786186921a901e7e827c34870183c99902d2d676f0cb1bef70744cf4c0"
+    },
+    {
+      "bytes": 10670,
+      "path": "root-native-three-owner-actual-cfc6de2d-20261018/pytest-provenance.json",
+      "role": "loaded pytest environment and collection provenance",
+      "sha256": "0a3a2238e8b50812ff5bc887720502427d5c0cd0ce170546d022f0f0ddc29791"
+    },
+    {
+      "bytes": 2398,
+      "path": "root-native-three-owner-actual-cfc6de2d-20261018/selected-nodeids.json",
+      "role": "selected nodeid inventory",
+      "sha256": "048315f9dd1e675dc5161a5aee699358e29918f4abcc2f776c0d9f1162bf4322"
+    }
+  ],
+  "limitations": [
+    "Exact current source frame cfc6de2; prior 040 results are not attributed to cfc6.",
+    "Zero JUnit tests collected is not a pass. Directory-health observed peak exceeded the configured 2 GiB bound before later gates.",
+    "The two uv package identities and their prior versions are unknown; see separate incident payload.",
+    "G acceptance, source freeze, and closure remain false."
+  ],
+  "next_check": "After the supported import repair, rerun exact bounded selected tests/CLIs/Ruff with output and environment provenance; keep directory-health resource cap independently enforced.",
+  "observed_result": {
+    "directory_health_cli": {
+      "aborted_for_rss_limit": true,
+      "configured_rss_bytes": 2147483648,
+      "exit_code": 143,
+      "maximum_sampled_rss_bytes": 2734931968
+    },
+    "docs_lifecycle_cli": {
+      "exit_code": 1,
+      "same_import_error": true,
+      "uv_reported": "Uninstalled 2 packages / Installed 2 packages; package identities omitted"
+    },
+    "pytest": {
+      "cause": "Python 3.14 ImportError: collections.abc.AbstractSet is unavailable; no test function ran",
+      "collected": 0,
+      "collection_errors": 2,
+      "exit_code": 4
+    },
+    "remaining_phase0_and_ruff": "skipped after RSS abort",
+    "source_frame_unchanged": true,
+    "source_hash_mismatches": [],
+    "verification": "failed/aborted, not closure"
+  },
+  "pattern_pass": {
+    "acceptance_signal": "Current bounded source-frame replay passes semantic tests with honest supervisor/resource evidence.",
+    "anti_pattern_found": "A real import failure and RSS abort would be misreported by exit status alone.",
+    "relevant_ids": [
+      "P29",
+      "P32",
+      "P37",
+      "P38",
+      "P39",
+      "P41"
+    ],
+    "target_pattern": "Bind exact commit, selectors, outputs and measured resource predicate; do not relabel this current red inherited."
+  },
+  "proposal_status": "prepared_RAW_only_for_root_review_and_application",
+  "receipt_id": "native-three-owner-actual-cfc6-failed-wave",
+  "schema": "policyos.e02.root_receipt_postimage.v1",
+  "selected_profile": {
+    "controller_limits": {
+      "disk_floor_bytes": 1073741824,
+      "process_tree_rss_bytes": 2147483648,
+      "wall_seconds_total": 600.0
+    },
+    "plugin_autoload_and_PYTEST_ADDOPTS": "preserved",
+    "request": "root-native-three-owner-actual-cfc6de2d-20261018/request.json",
+    "resource_profile": {
+      "benchmark_profile": "inherited PYTEST_ADDOPTS and pytest-benchmark plugin autoload preserved",
+      "minimum_free_disk_bytes": 1073741824,
+      "numerical_threads": 1,
+      "plugin_autoload": "preserved",
+      "process_tree_rss_limit_bytes": 2147483648,
+      "pytest_workers": 1,
+      "wall_seconds_total": 600
+    },
+    "selection": {
+      "directory_health_module_expected_test_functions": 5,
+      "docs_exact_selector_count": 8,
+      "expected_functional_test_function_count": 23,
+      "phase0_test_modules": [
+        "tests/repo_quality/tools/test_directory_health.py",
+        "tests/repo_quality/architecture/test_repository_structure_phase1c.py",
+        "tests/repo_quality/architecture/test_owner_residual_exceptions.py"
+      ],
+      "phase6_2_explicit_selector_count": 2,
+      "selected_test_file_denominator": [
+        "tests/repo_quality/architecture/test_owner_residual_exceptions.py",
+        "tests/repo_quality/architecture/test_repository_best_in_class_phase6_2_directory_health.py",
+        "tests/repo_quality/architecture/test_repository_structure_phase1c.py",
+        "tests/repo_quality/tools/test_directory_health.py",
+        "tests/repo_quality/tools/test_docs_lifecycle.py",
+        "tests/repo_quality/tools/test_document_reference_roles.py"
+      ]
+    }
+  },
+  "slice": {
+    "base": {
+      "commit": "040ee7d373b1a04f204c4e4dfe65d1e9702a91b3",
+      "parents": [
+        "f5f2db63723eaf321d442e878b2e8b2a0f1e0789"
+      ],
+      "tree": "7a3d4217d682b5d729e684bc96bc0f6d4fed3b40"
+    },
+    "candidate": {
+      "commit": "cfc6de2d3586a4a64f7088797a0752e7786aeea5",
+      "parents": [
+        "040ee7d373b1a04f204c4e4dfe65d1e9702a91b3"
+      ],
+      "tree": "e72764d96a194834223582eb94f06d95faf43456"
+    },
+    "full_footprint": [
+      {
+        "change": "root-owned commit",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json"
+      },
+      {
+        "change": "root-owned commit",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+      },
+      {
+        "change": "root-owned commit",
+        "path": "policy-engine/tests/repo_quality/architecture/test_repository_structure_phase1c.py"
+      },
+      {
+        "change": "root-owned commit",
+        "path": "policy-engine/tests/repo_quality/tools/test_directory_health.py"
+      },
+      {
+        "change": "root-owned commit",
+        "path": "policy-engine/tests/repo_quality/tools/test_document_reference_roles.py"
+      },
+      {
+        "change": "root-owned commit",
+        "path": "policy-engine/tools/quality/validation/README.md"
+      },
+      {
+        "change": "root-owned commit",
+        "path": "policy-engine/tools/quality/validation/check_docs_lifecycle.py"
+      },
+      {
+        "change": "root-owned commit",
+        "path": "policy-engine/tools/quality/validation/directory_health.py"
+      },
+      {
+        "change": "root-owned commit",
+        "path": "policy-engine/tools/quality/validation/directory_health_dashboard.py"
+      },
+      {
+        "change": "root-owned commit",
+        "path": "policy-engine/tools/quality/validation/docs_lifecycle_reference_scan.py"
+      },
+      {
+        "change": "root-owned commit",
+        "path": "policy-engine/tools/quality/validation/repository_structure_phase0.py"
+      },
+      {
+        "change": "root-owned commit",
+        "path": "policy-engine/tools/quality/validation/repository_structure_phase0_inventory.py"
+      }
+    ]
+  },
+  "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-native-three-owner-cfc6-failure-20261018.json",
+  "root_journal_qualification": {
+    "mutable_journal_path": "resume-parallel-coordination-20261015/root-owned-commits.json",
+    "qualification": "Navigation only; excluded from input_refs and the input-reference manifest. Root independently reconstructed and matched the exact historical 252-record prefix to the previously observed 429,899-byte journal; the current whole journal has since been appended and is not treated as immutable evidence.",
+    "source_lineage_basis": "Commit SHA, tree, parents, and complete footprint are grounded in actual read-only Git object inspection plus immutable per-commit RAW application/readbacks. The mutable whole-journal blob is not the basis for those claims.",
+    "authority_effect": "No source/runtime acceptance, G acceptance, or closure is implied."
+  }
+}

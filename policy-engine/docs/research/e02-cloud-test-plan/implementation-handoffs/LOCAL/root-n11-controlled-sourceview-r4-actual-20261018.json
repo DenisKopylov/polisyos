@@ -1,0 +1,534 @@
+{
+  "authority": {
+    "G_acceptance": false,
+    "closure_ids": [],
+    "formal_closure_ids": [],
+    "future_receipt_commit_sha": null,
+    "source_profile_freeze": false
+  },
+  "commands": {
+    "git_probes": [
+      {
+        "argv": [
+          "git",
+          "rev-parse",
+          "--show-toplevel"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-controlled-sourceview-plan-r4-20261018",
+        "returncode": 128,
+        "stderr": "fatal: not a git repository (or any of the parent directories): .git\n",
+        "stdout": ""
+      },
+      {
+        "argv": [
+          "git",
+          "rev-parse",
+          "--git-dir"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-controlled-sourceview-plan-r4-20261018",
+        "returncode": 128,
+        "stderr": "fatal: not a git repository (or any of the parent directories): .git\n",
+        "stdout": ""
+      },
+      {
+        "argv": [
+          "git",
+          "status",
+          "--short"
+        ],
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-controlled-sourceview-plan-r4-20261018",
+        "returncode": 128,
+        "stderr": "fatal: not a git repository (or any of the parent directories): .git\n",
+        "stdout": ""
+      }
+    ],
+    "pytest_argv": [
+      "-B",
+      "-m",
+      "pytest",
+      "-c",
+      "pytest.ini",
+      "--rootdir",
+      ".",
+      "-o",
+      "addopts=",
+      "--import-mode=importlib",
+      "--strict-markers",
+      "-ra",
+      "-vv",
+      "--tb=short",
+      "-p",
+      "no:cacheprovider",
+      "-p",
+      "n11_sourceview_observer",
+      "--basetemp",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-controlled-sourceview-plan-r4-20261018/pytest-tmp-r1",
+      "--junitxml",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-controlled-sourceview-plan-r4-20261018/run-r1/pytest.junit.xml",
+      "tests/unit/runtime/quality/test_confidence_ledger.py::test_source_facade_projection_tracks_lexical_imports_and_temporary_module_aliases",
+      "tests/unit/runtime/quality/test_confidence_ledger.py::test_integrity_assertion_rechecks_live_function_defaults_after_prior_pass",
+      "tests/unit/runtime/quality/test_confidence_ledger.py::test_crash_recovery_never_reexecutes_and_next_start_uses_fresh_ordinal",
+      "tests/unit/runtime/quality/test_confidence_ledger.py::test_import_manifest_root_rebinding_cannot_hide_genuine_orphan_event_on_fresh_session",
+      "tests/unit/core/artifacts/test_facade_lazy_exports.py::test_lazy_exports_resolve_to_the_declared_provider_without_caching",
+      "tests/unit/core/artifacts/test_facade_lazy_exports.py::test_unknown_lazy_export_remains_an_attribute_error",
+      "tests/unit/runtime/quality/test_confidence_ledger.py::test_started_probabilistic_check_burns_before_outcome_and_survives_restart",
+      "tests/unit/runtime/quality/test_confidence_ledger.py::test_prior_scope_inventory_failure_is_not_treated_as_absence",
+      "tests/unit/runtime/quality/test_confidence_ledger.py::test_historical_deployment_drift_poison_is_terminal_for_newer_session_identity",
+      "tests/unit/runtime/quality/test_confidence_ledger.py::test_authority_import_closure_actual_core_dispatch_removal_keeps_markers",
+      "tests/unit/runtime/quality/test_confidence_ledger.py::test_pinned_contract_survives_guard_removal_for_genuine_orphan_event"
+    ],
+    "supervisor_argv": [
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-controlled-sourceview-plan-r4-20261018/observer/n11_sourceview_run.py",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-controlled-sourceview-plan-r4-20261018/request-r1.json"
+    ]
+  },
+  "full_output_refs": [
+    {
+      "bytes": 37833,
+      "path": "n11-controlled-sourceview-plan-r4-20261018/materialization-result-r2.json",
+      "role": "complete N11 sourceview run output: materialization-result-r2.json",
+      "sha256": "b6e2d2922c7a3d0a23548a296cc2255e9d42167e796a2c4538ca14311182d6f6"
+    },
+    {
+      "bytes": 425638,
+      "path": "n11-controlled-sourceview-plan-r4-20261018/materialization-journal-snapshot-r2.json",
+      "role": "complete N11 sourceview run output: materialization-journal-snapshot-r2.json",
+      "sha256": "434b70ab408a17e97fb0456dc051ad5c7eea2a726bf8d3a3ac2b15ca6d41d23c"
+    },
+    {
+      "bytes": 1206,
+      "path": "n11-controlled-sourceview-plan-r4-20261018/root-preflight-r2.stdout.txt",
+      "role": "complete N11 sourceview run output: root-preflight-r2.stdout.txt",
+      "sha256": "796bdd8bf206f523a63ab8ad81130cadaf490b88bc1ffe41d2421a98857499a6"
+    },
+    {
+      "bytes": 0,
+      "path": "n11-controlled-sourceview-plan-r4-20261018/root-preflight-r2.stderr.txt",
+      "role": "complete N11 sourceview run output: root-preflight-r2.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 974,
+      "path": "n11-controlled-sourceview-plan-r4-20261018/root-runtime-budget-result-r1.json",
+      "role": "complete N11 sourceview run output: root-runtime-budget-result-r1.json",
+      "sha256": "d3891404ed5252c3af250ea22ffcca9efc333ed70633bc7043506f37092b51fd"
+    },
+    {
+      "bytes": 747,
+      "path": "n11-controlled-sourceview-plan-r4-20261018/root-runtime-r1.stdout.txt",
+      "role": "complete N11 sourceview run output: root-runtime-r1.stdout.txt",
+      "sha256": "e0dac4465786ad064d8bbe956fef31687555d887badb8db3ce518c47df18a859"
+    },
+    {
+      "bytes": 0,
+      "path": "n11-controlled-sourceview-plan-r4-20261018/root-runtime-r1.stderr.txt",
+      "role": "complete N11 sourceview run output: root-runtime-r1.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 107967,
+      "path": "n11-controlled-sourceview-plan-r4-20261018/root-runtime-r1-process-tree.jsonl",
+      "role": "complete N11 sourceview run output: root-runtime-r1-process-tree.jsonl",
+      "sha256": "4d85d1ffae7edb47bd8845962e8c2700da1bde9b1265095f4d7f2e2fc964ad78"
+    },
+    {
+      "bytes": 6893,
+      "path": "n11-controlled-sourceview-plan-r4-20261018/run-r1/supervisor-result.json",
+      "role": "complete N11 sourceview run output: run-r1/supervisor-result.json",
+      "sha256": "1f7f6081e5253d19734fd2bc96ad6174fd2791192719ba8b2c992a5b80f318d7"
+    },
+    {
+      "bytes": 11071,
+      "path": "n11-controlled-sourceview-plan-r4-20261018/run-r1/pytest.junit.xml",
+      "role": "complete N11 sourceview run output: run-r1/pytest.junit.xml",
+      "sha256": "7db3f9055041df809581b4c54889b15097e79b8db49bf51cb569eeb62b0b2509"
+    },
+    {
+      "bytes": 2861,
+      "path": "n11-controlled-sourceview-plan-r4-20261018/run-r1/pytest.stdout.txt",
+      "role": "complete N11 sourceview run output: run-r1/pytest.stdout.txt",
+      "sha256": "352b4d31e8855a04b17b4467d69c6d4e09861428e9d62f1d0a2cfcc64a02fb1a"
+    },
+    {
+      "bytes": 6791,
+      "path": "n11-controlled-sourceview-plan-r4-20261018/run-r1/pytest.stderr.txt",
+      "role": "complete N11 sourceview run output: run-r1/pytest.stderr.txt",
+      "sha256": "d9f905612d116bfbebf25a36c70f3368e7f8194584adc28834bbc4116fca19cc"
+    }
+  ],
+  "input_refs": [
+    {
+      "bytes": 7626,
+      "path": "resume-n11-sourceview-r4-independent-20261018/review-r1.json",
+      "role": "independent plan review",
+      "sha256": "64aab63fc5de12526a8ccc30e8ec99a4c6d11cf243017f11ed4f4f0a0e606ee8"
+    },
+    {
+      "bytes": 2155159,
+      "path": "n11-controlled-sourceview-plan-r1-20261018/sourceview-input-inventory.jsonl",
+      "role": "complete historical input inventory",
+      "sha256": "85bcef64c2d3a8e4d977f0f680e42af06f51a9c30b9ab8490a751f568b58dade"
+    },
+    {
+      "bytes": 11736,
+      "path": "n11-core-artifacts-facade-map-author-r4-20261018/g-decision-proposal-r3.json",
+      "role": "unaccepted G decision proposal",
+      "sha256": "021a9ec5c438ff6992781348bc9314f0238fb0cc9899a107a64dba491599447c"
+    },
+    {
+      "bytes": 17308,
+      "path": "n11-controlled-sourceview-plan-r4-20261018/request-r1.json",
+      "role": "exact request, env scrubbing, selectors/argv",
+      "sha256": "44aa98b1e06f563c79cda66c105a791eacf018dc47d23fbeea431af463c1c454"
+    },
+    {
+      "bytes": 18126,
+      "path": "n11-controlled-sourceview-plan-r4-20261018/sourceview-plan-r4.json",
+      "role": "four-postimage plan and G pointer",
+      "sha256": "7166ad34f90e24cd7f0fda18220c541422eeb27072128707fa09d6e2e9900c9b"
+    },
+    {
+      "bytes": 37833,
+      "path": "n11-controlled-sourceview-plan-r4-20261018/materialization-result-r2.json",
+      "role": "actual full materialization receipt",
+      "sha256": "b6e2d2922c7a3d0a23548a296cc2255e9d42167e796a2c4538ca14311182d6f6"
+    },
+    {
+      "bytes": 425638,
+      "path": "n11-controlled-sourceview-plan-r4-20261018/materialization-journal-snapshot-r2.json",
+      "role": "complete pinned journal snapshot",
+      "sha256": "434b70ab408a17e97fb0456dc051ad5c7eea2a726bf8d3a3ac2b15ca6d41d23c"
+    },
+    {
+      "bytes": 6893,
+      "path": "n11-controlled-sourceview-plan-r4-20261018/run-r1/supervisor-result.json",
+      "role": "actual run result/origin witness error",
+      "sha256": "1f7f6081e5253d19734fd2bc96ad6174fd2791192719ba8b2c992a5b80f318d7"
+    },
+    {
+      "bytes": 11071,
+      "path": "n11-controlled-sourceview-plan-r4-20261018/run-r1/pytest.junit.xml",
+      "role": "full JUnit",
+      "sha256": "7db3f9055041df809581b4c54889b15097e79b8db49bf51cb569eeb62b0b2509"
+    },
+    {
+      "bytes": 2861,
+      "path": "n11-controlled-sourceview-plan-r4-20261018/run-r1/pytest.stdout.txt",
+      "role": "full stdout",
+      "sha256": "352b4d31e8855a04b17b4467d69c6d4e09861428e9d62f1d0a2cfcc64a02fb1a"
+    },
+    {
+      "bytes": 6791,
+      "path": "n11-controlled-sourceview-plan-r4-20261018/run-r1/pytest.stderr.txt",
+      "role": "full stderr/observer traceback",
+      "sha256": "d9f905612d116bfbebf25a36c70f3368e7f8194584adc28834bbc4116fca19cc"
+    },
+    {
+      "bytes": 963,
+      "path": "n11-controlled-sourceview-plan-r4-20261018/materialization-preflight-r1-mode-wording-corrigendum.json",
+      "role": "scope corrigendum",
+      "sha256": "4240270cd464c8f76fb2ec2f46ac470301cf47841df678540071bc9246b21300"
+    },
+    {
+      "bytes": 5131,
+      "path": "n11-core-artifacts-facade-map-author-r4-20261018/candidate-freeze-r4.json",
+      "role": "four-path candidate manifest",
+      "sha256": "2a53763b17f97f773c12dc1e5ac785fabe46e71b61f63b30976ec47863d53a62"
+    },
+    {
+      "bytes": 49400,
+      "path": "n11-core-artifacts-facade-map-author-r4-20261018/candidate-r4.patch",
+      "role": "candidate patch hash only",
+      "sha256": "17f434c100f8fcd1ac216ebbf460d4cbdb1b361885ab3b2a3ba6f3c60b37447a"
+    }
+  ],
+  "limitations": [
+    "The nine test failures are candidate/current-sourceview outcomes; exact b834 preimage replay is absent, so P41 inheritance is not established.",
+    "Observer crashed after tests and produced no origin witness; loaded product origin predicate is not established.",
+    "The source plan/readiness GO does not establish runtime pass, import authenticity, or product authority.",
+    "The G choice remains separate; no recursive VM, bootstrap patch, source freeze, or closure is proposed."
+  ],
+  "next_check": "If another N11 sourceview run is authorized, repair the observer and obtain origin witness; compare against exact matching base before assigning ownership. Keep G decision separate.",
+  "observed_result": {
+    "G_proposal": {
+      "choices": {
+        "A_assumption": "Accept only the bounded source/result property while trusting Python import execution and mutable dependencies for the full process lifetime.",
+        "B_refusal": "Keep protected external-supplier routes not_established until a trust boundary is accepted.",
+        "C_independent_issuer": "Allocate a narrowly scoped independent runtime-integrity issuer/verifier for protected uses; none is asserted to exist."
+      },
+      "path": "n11-core-artifacts-facade-map-author-r4-20261018/g-decision-proposal-r3.json",
+      "sha256": "021a9ec5c438ff6992781348bc9314f0238fb0cc9899a107a64dba491599447c",
+      "status": "proposed, not accepted, not closure"
+    },
+    "inventory_before_after": {
+      "after": {
+        "errors": [],
+        "inventory_count": 8050,
+        "inventory_sha256": "85bcef64c2d3a8e4d977f0f680e42af06f51a9c30b9ab8490a751f568b58dade",
+        "observed_count": 8050,
+        "pathset_sha256": "28c7d5ae19778f8ff22a34dfc33e21965e6185ec579fa6e313470304d05291c8",
+        "status": "PASS"
+      },
+      "before": {
+        "errors": [],
+        "inventory_count": 8050,
+        "inventory_sha256": "85bcef64c2d3a8e4d977f0f680e42af06f51a9c30b9ab8490a751f568b58dade",
+        "observed_count": 8050,
+        "pathset_sha256": "28c7d5ae19778f8ff22a34dfc33e21965e6185ec579fa6e313470304d05291c8",
+        "status": "PASS"
+      }
+    },
+    "observer": {
+      "crash": "AttributeError: str object has no attribute resolve",
+      "origin_witness_error": "pytest origin witness missing or unreadable: FileNotFoundError",
+      "origin_witness_sha256": null,
+      "traceback": "n11_sourceview_origin.py:439"
+    },
+    "per_case_outcomes": [
+      {
+        "nodeid": "tests.unit.runtime.quality.test_confidence_ledger.test_source_facade_projection_tracks_lexical_imports_and_temporary_module_aliases",
+        "outcome": "FAIL"
+      },
+      {
+        "nodeid": "tests.unit.runtime.quality.test_confidence_ledger.test_integrity_assertion_rechecks_live_function_defaults_after_prior_pass",
+        "outcome": "FAIL"
+      },
+      {
+        "nodeid": "tests.unit.runtime.quality.test_confidence_ledger.test_crash_recovery_never_reexecutes_and_next_start_uses_fresh_ordinal",
+        "outcome": "FAIL"
+      },
+      {
+        "nodeid": "tests.unit.runtime.quality.test_confidence_ledger.test_import_manifest_root_rebinding_cannot_hide_genuine_orphan_event_on_fresh_session",
+        "outcome": "FAIL"
+      },
+      {
+        "nodeid": "tests.unit.core.artifacts.test_facade_lazy_exports.test_lazy_exports_resolve_to_the_declared_provider_without_caching",
+        "outcome": "PASS"
+      },
+      {
+        "nodeid": "tests.unit.core.artifacts.test_facade_lazy_exports.test_unknown_lazy_export_remains_an_attribute_error",
+        "outcome": "PASS"
+      },
+      {
+        "nodeid": "tests.unit.runtime.quality.test_confidence_ledger.test_started_probabilistic_check_burns_before_outcome_and_survives_restart",
+        "outcome": "FAIL"
+      },
+      {
+        "nodeid": "tests.unit.runtime.quality.test_confidence_ledger.test_prior_scope_inventory_failure_is_not_treated_as_absence",
+        "outcome": "FAIL"
+      },
+      {
+        "nodeid": "tests.unit.runtime.quality.test_confidence_ledger.test_historical_deployment_drift_poison_is_terminal_for_newer_session_identity",
+        "outcome": "FAIL"
+      },
+      {
+        "nodeid": "tests.unit.runtime.quality.test_confidence_ledger.test_authority_import_closure_actual_core_dispatch_removal_keeps_markers",
+        "outcome": "FAIL"
+      },
+      {
+        "nodeid": "tests.unit.runtime.quality.test_confidence_ledger.test_pinned_contract_survives_guard_removal_for_genuine_orphan_event",
+        "outcome": "FAIL"
+      }
+    ],
+    "pytest": {
+      "failed": 9,
+      "junit_tests": 11,
+      "passed": 2,
+      "returncode": 1
+    }
+  },
+  "pattern_pass": {
+    "acceptance_signal": "Origin witness and exact-base comparison pass; G remains independently adjudicated.",
+    "anti_pattern_found": "Pathset pass and pytest exit proxy loaded origins and ownership; origin witness failed and candidate/base overlap.",
+    "relevant_ids": [
+      "P29",
+      "P32",
+      "P35",
+      "P37",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "target_pattern": "Bind complete inventory, exact argv, full outcomes, actual loaded origin and P41 denominator separately."
+  },
+  "proposal_status": "prepared_RAW_only_for_root_review_and_application",
+  "receipt_id": "n11-controlled-sourceview-r4-actual-historical-replay",
+  "schema": "policyos.e02.root_receipt_postimage.v1",
+  "selected_profile": {
+    "environment": {
+      "GIT_CEILING_DIRECTORIES": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw",
+      "clear_all_GIT_*": true,
+      "fixed": {
+        "JAX_PLATFORMS": "cpu",
+        "MKL_NUM_THREADS": "1",
+        "NUMEXPR_NUM_THREADS": "1",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "PYTEST_ADDOPTS": "",
+        "PYTEST_CURRENT_TEST": "",
+        "PYTEST_PLUGINS": "",
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONNOUSERSITE": "1",
+        "VECLIB_MAXIMUM_THREADS": "1"
+      },
+      "observed_names": [
+        "E02_SOURCEVIEW_OUTPUT_DIR",
+        "E02_SOURCEVIEW_REQUEST",
+        "GIT_CEILING_DIRECTORIES",
+        "HOME",
+        "JAX_PLATFORMS",
+        "LANG",
+        "LC_ALL",
+        "MKL_NUM_THREADS",
+        "NUMEXPR_NUM_THREADS",
+        "OMP_NUM_THREADS",
+        "OPENBLAS_NUM_THREADS",
+        "PATH",
+        "PYTEST_ADDOPTS",
+        "PYTEST_CURRENT_TEST",
+        "PYTEST_PLUGINS",
+        "PYTHONDONTWRITEBYTECODE",
+        "PYTHONNOUSERSITE",
+        "PYTHONPATH",
+        "TMPDIR",
+        "VECLIB_MAXIMUM_THREADS"
+      ]
+    },
+    "exact_pytest_argv": [
+      "-B",
+      "-m",
+      "pytest",
+      "-c",
+      "pytest.ini",
+      "--rootdir",
+      ".",
+      "-o",
+      "addopts=",
+      "--import-mode=importlib",
+      "--strict-markers",
+      "-ra",
+      "-vv",
+      "--tb=short",
+      "-p",
+      "no:cacheprovider",
+      "-p",
+      "n11_sourceview_observer",
+      "--basetemp",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-controlled-sourceview-plan-r4-20261018/pytest-tmp-r1",
+      "--junitxml",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-controlled-sourceview-plan-r4-20261018/run-r1/pytest.junit.xml",
+      "tests/unit/runtime/quality/test_confidence_ledger.py::test_source_facade_projection_tracks_lexical_imports_and_temporary_module_aliases",
+      "tests/unit/runtime/quality/test_confidence_ledger.py::test_integrity_assertion_rechecks_live_function_defaults_after_prior_pass",
+      "tests/unit/runtime/quality/test_confidence_ledger.py::test_crash_recovery_never_reexecutes_and_next_start_uses_fresh_ordinal",
+      "tests/unit/runtime/quality/test_confidence_ledger.py::test_import_manifest_root_rebinding_cannot_hide_genuine_orphan_event_on_fresh_session",
+      "tests/unit/core/artifacts/test_facade_lazy_exports.py::test_lazy_exports_resolve_to_the_declared_provider_without_caching",
+      "tests/unit/core/artifacts/test_facade_lazy_exports.py::test_unknown_lazy_export_remains_an_attribute_error",
+      "tests/unit/runtime/quality/test_confidence_ledger.py::test_started_probabilistic_check_burns_before_outcome_and_survives_restart",
+      "tests/unit/runtime/quality/test_confidence_ledger.py::test_prior_scope_inventory_failure_is_not_treated_as_absence",
+      "tests/unit/runtime/quality/test_confidence_ledger.py::test_historical_deployment_drift_poison_is_terminal_for_newer_session_identity",
+      "tests/unit/runtime/quality/test_confidence_ledger.py::test_authority_import_closure_actual_core_dispatch_removal_keeps_markers",
+      "tests/unit/runtime/quality/test_confidence_ledger.py::test_pinned_contract_survives_guard_removal_for_genuine_orphan_event"
+    ],
+    "limits": {
+      "elapsed_seconds": 19.146566999843344,
+      "environment_copied": false,
+      "timed_out": false,
+      "wall_seconds": 180
+    },
+    "materialized_view": {
+      "APFS_clone_files": 7996,
+      "current_head": "cfc6de2d3586a4a64f7088797a0752e7786aeea5",
+      "exact_base_git_blob_files": 54,
+      "inventory_count": 8050,
+      "inventory_sha256": "85bcef64c2d3a8e4d977f0f680e42af06f51a9c30b9ab8490a751f568b58dade",
+      "journal_snapshot_sha256": "434b70ab408a17e97fb0456dc051ad5c7eea2a726bf8d3a3ac2b15ca6d41d23c",
+      "logical_bytes": 183498438,
+      "parents": [
+        "040ee7d373b1a04f204c4e4dfe65d1e9702a91b3"
+      ],
+      "pathset_sha256": "28c7d5ae19778f8ff22a34dfc33e21965e6185ec579fa6e313470304d05291c8",
+      "reconciliation": "complete inventory via pinned journal; no hardcoded delta subset",
+      "tree": "e72764d96a194834223582eb94f06d95faf43456"
+    },
+    "plan": "n11-controlled-sourceview-plan-r4-20261018/sourceview-plan-r4.json",
+    "request": "n11-controlled-sourceview-plan-r4-20261018/request-r1.json"
+  },
+  "slice": {
+    "base": {
+      "commit": "b8343d819056c0d257fa211dc7d1a59d49e31c5f",
+      "parents": [
+        "04e4b376053b715f55c794dc0dc269de2f32b516"
+      ],
+      "tree": "2bf22c4194400e520da9ad5fa785fa2c5cbb3515"
+    },
+    "candidate": {
+      "commit": null,
+      "parents": [],
+      "status": "four R4 postimages on historical view; unapplied/uncommitted",
+      "tree": null
+    },
+    "candidate_paths": [
+      {
+        "base_sha256": "7d9622f4c1a0383befaa12fdc906f25c2e1adb10703e93d24d7936ebf0f430d8",
+        "candidate_sha256": "6d69bc95559ce6dbd6bfb5d9fc8a29f190b63a7f4076816c908d1c4a3897dba4",
+        "change": "modified",
+        "mode": "100644",
+        "path": "policy-engine/src/polisyos/core/artifacts/__init__.py"
+      },
+      {
+        "base_sha256": "37cc497f58ccdf880a9b64aefd56a661fb626bfb25af422bd28e540a451fdf53",
+        "candidate_sha256": "458a6252c9a5369bbec5fb11c2b11bddce9907e6e47ee6018388ed4a1d006fac",
+        "change": "modified",
+        "mode": "100644",
+        "path": "policy-engine/src/polisyos/runtime/quality/confidence_ledger.py"
+      },
+      {
+        "base_sha256": "28025532524d3b1133361a60c91915c649b6d777bf37958b8c92fd1b9df7babc",
+        "candidate_sha256": "42165a1b52145f0e7579441880e2f9b97f810beb5c31f83d300fc7207f3cb596",
+        "change": "modified",
+        "mode": "100644",
+        "path": "policy-engine/tests/unit/runtime/quality/test_confidence_ledger.py"
+      },
+      {
+        "base_sha256": null,
+        "candidate_sha256": "fc4ea4bb4fc753e8b7340762a0b9540e04cdc252b07d65d7b08655fa740a26b4",
+        "change": "added",
+        "mode": "100644",
+        "path": "policy-engine/tests/unit/core/artifacts/test_facade_lazy_exports.py"
+      }
+    ],
+    "full_footprint": {
+      "APFS_clone_files": 7996,
+      "candidate_inventory_paths": 8050,
+      "candidate_logical_bytes": 183498438,
+      "candidate_overlay_paths": [
+        "policy-engine/src/polisyos/core/artifacts/__init__.py",
+        "policy-engine/src/polisyos/runtime/quality/confidence_ledger.py",
+        "policy-engine/tests/unit/runtime/quality/test_confidence_ledger.py",
+        "policy-engine/tests/unit/core/artifacts/test_facade_lazy_exports.py"
+      ],
+      "exact_base_git_blob_files": 54,
+      "historical_base_logical_bytes": 183464021,
+      "historical_base_paths": 8049,
+      "inventory_sha256": "85bcef64c2d3a8e4d977f0f680e42af06f51a9c30b9ab8490a751f568b58dade",
+      "journal_snapshot_sha256": "434b70ab408a17e97fb0456dc051ad5c7eea2a726bf8d3a3ac2b15ca6d41d23c",
+      "pathset_sha256": "28c7d5ae19778f8ff22a34dfc33e21965e6185ec579fa6e313470304d05291c8"
+    },
+    "observed_materialization_frame": {
+      "head": "cfc6de2d3586a4a64f7088797a0752e7786aeea5",
+      "historical_base": "b8343d819056c0d257fa211dc7d1a59d49e31c5f",
+      "parents": [
+        "040ee7d373b1a04f204c4e4dfe65d1e9702a91b3"
+      ],
+      "tree": "e72764d96a194834223582eb94f06d95faf43456"
+    }
+  },
+  "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-n11-controlled-sourceview-r4-actual-20261018.json",
+  "root_journal_qualification": {
+    "mutable_journal_path": "resume-parallel-coordination-20261015/root-owned-commits.json",
+    "qualification": "Navigation only; excluded from input_refs and the input-reference manifest. Root independently reconstructed and matched the exact historical 252-record prefix to the previously observed 429,899-byte journal; the current whole journal has since been appended and is not treated as immutable evidence.",
+    "source_lineage_basis": "Commit SHA, tree, parents, and complete footprint are grounded in actual read-only Git object inspection plus immutable per-commit RAW application/readbacks. The mutable whole-journal blob is not the basis for those claims.",
+    "authority_effect": "No source/runtime acceptance, G acceptance, or closure is implied."
+  }
+}

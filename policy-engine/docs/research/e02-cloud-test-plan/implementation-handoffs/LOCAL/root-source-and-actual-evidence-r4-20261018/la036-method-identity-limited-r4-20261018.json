@@ -1,0 +1,132 @@
+{
+  "schema": "policyos.local.source_bound_handoff.v1",
+  "created_date": "2026-10-18",
+  "branch": "codex/e02-unified-local-20261009",
+  "observed_source_frame": {
+    "head": "8ef3c60bd7a0fbab465f203795e33a1dcdf71490",
+    "tree": "8fea7ee9e10c764e96f3a1172193088c285c3b0d"
+  },
+  "closure_ids": [],
+  "G_acceptance": false,
+  "global_source_input_backend_freeze": false,
+  "source_freeze": false,
+  "author_proposal_is_formal_closure": false,
+  "packet_status": "reviewable local evidence payload; no formal closure or global freeze claimed",
+  "payload_id": "la036-method-identity-limited-r4-20261018",
+  "criterion": "LA-036 / BER-01 requested/effective method identity; original occurrence ordinal 266.",
+  "slice_frame": {
+    "candidate": "e22599c7bd6055889322640b0e7b93ca423f771a",
+    "tree": "16f7fedfdebccf1ab8f2e9c2f37a92edf51b1c83",
+    "parents": [
+      "b6f115016f87ac8fdea0d2e640f6c32f9ae6caaf"
+    ]
+  },
+  "implementation": {
+    "selected_source_test_pins": {
+      "policy-engine/src/polisyos/berl/service/results.py": "6f1a1745d21d20f77eb8999030c2493ebbb48892d0a2800227a686d0d8b2da72",
+      "policy-engine/src/polisyos/berl/service/__init__.py": "d10376b9b4a66f72692629c0142d686c08d118d245f222e3c3f84c89c1077afe",
+      "policy-engine/tests/unit/berl/test_service.py": "9ef76cea7a152430696db08526de9509f719e5a0f434d4978c6d60cdfda7b94a",
+      "policy-engine/tests/integration/scientist_berl/test_explanation_reliability_bridge.py": "b29d5a9d25c8da17d618b96fb0ce197f658b51bb79dcde20d044c5cacb7c9a13"
+    },
+    "pin_readback_at_observed_frame": {
+      "policy-engine/src/polisyos/berl/service/results.py": {
+        "recorded_sha256": "6f1a1745d21d20f77eb8999030c2493ebbb48892d0a2800227a686d0d8b2da72",
+        "current_sha256": "6f1a1745d21d20f77eb8999030c2493ebbb48892d0a2800227a686d0d8b2da72",
+        "matches": true
+      },
+      "policy-engine/src/polisyos/berl/service/__init__.py": {
+        "recorded_sha256": "d10376b9b4a66f72692629c0142d686c08d118d245f222e3c3f84c89c1077afe",
+        "current_sha256": "d10376b9b4a66f72692629c0142d686c08d118d245f222e3c3f84c89c1077afe",
+        "matches": true
+      },
+      "policy-engine/tests/unit/berl/test_service.py": {
+        "recorded_sha256": "9ef76cea7a152430696db08526de9509f719e5a0f434d4978c6d60cdfda7b94a",
+        "current_sha256": "9ef76cea7a152430696db08526de9509f719e5a0f434d4978c6d60cdfda7b94a",
+        "matches": true
+      },
+      "policy-engine/tests/integration/scientist_berl/test_explanation_reliability_bridge.py": {
+        "recorded_sha256": "b29d5a9d25c8da17d618b96fb0ce197f658b51bb79dcde20d044c5cacb7c9a13",
+        "current_sha256": "b29d5a9d25c8da17d618b96fb0ce197f658b51bb79dcde20d044c5cacb7c9a13",
+        "matches": true
+      }
+    },
+    "source_fix_commits": [
+      {
+        "sha": "ec8c7a046dc9fa9120bf2c3857dbd95e5c2b3ee7",
+        "tree": "d57db3d291808d2e435a22e67c6cb3c7a27edf13",
+        "parents": [
+          "963c9bcd563330ceedde974ef39963df6895d165"
+        ],
+        "subject": "fix(berl): withhold effective method identity without attribution execution",
+        "path_count": 6,
+        "sorted_newline_pathset_sha256": "505a5111977cc48c20ce41f23307fa8ca38d0b0fb13f90a0763d89d2f8f91020",
+        "pathset_query": "git diff-tree --no-commit-id --name-only -r COMMIT; byte-sorted UTF-8 repo-relative paths, newline after each"
+      },
+      {
+        "sha": "142779e9956816d671bb33ff4a1e114db08d5414",
+        "tree": "e76942abe0683dabca6570057b7a87363cb109c2",
+        "parents": [
+          "3d07f60e617e20814e7d5ba049a0b66d6db78974"
+        ],
+        "subject": "refactor(e02): compose native owners and source-bound candidate consumer companions",
+        "path_count": 114,
+        "sorted_newline_pathset_sha256": "8555d7b85bfbf3e5048809b2f93688e98bd0f23dcd082750a0b879167e2b6c62",
+        "pathset_query": "git diff-tree --no-commit-id --name-only -r COMMIT; byte-sorted UTF-8 repo-relative paths, newline after each"
+      }
+    ],
+    "footprint_note": "The full 142779 commit footprint is Git-resolvable at its exact object and represented by path count and sorted newline path-set hash; no 114-path list is copied."
+  },
+  "actual_result": {
+    "status": "limited selected behavior only",
+    "selected_selectors": 6,
+    "cases": 12,
+    "passed": 12,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "runtime_seconds": 1.26,
+    "rss_bytes": 144818176,
+    "full_command_and_input_profile": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la036-current-method-identity-actual-e225-r1-20261017/run-request.json",
+      "sha256": "6c1a4a3d965620281bd83baa061bea1ea5eb57b039c9730da2193bb84589df72"
+    },
+    "run_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la036-current-method-identity-actual-e225-r1-20261017/run-receipt.json",
+      "sha256": "96e4c9e02498048089a4a2de9d511d7f62d6f2198acaa870392a9292117fb2c7"
+    },
+    "actual_details": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la036-current-method-identity-actual-e225-r1-20261017/actual-details.json",
+      "sha256": "090f2ae6b2a3c765a16dc7fb47400f2e82e84534e90effe115144558b9d3a8cc"
+    },
+    "actual_results": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la036-current-method-identity-actual-e225-r1-20261017/actual-results.json",
+      "sha256": "51b3a9973f2eba63b23018a1bf9ce4a9b72f9f38ba840c22ff572b35b08ed1dc"
+    },
+    "deciding_outputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la036-current-method-identity-actual-e225-r1-20261017/pytest.stdout.txt",
+        "sha256": "826db9f94eaa790e21502fe5868758071b6045c5ddd56f3bc411fb6afcad58b8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la036-current-method-identity-actual-e225-r1-20261017/pytest.stderr-time.txt",
+        "sha256": "0cbc3f7dc21ee3369ce09af790f20bc8f988ff127b1926266203fa8f25a79992"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/la036-current-method-identity-actual-e225-r1-20261017/tests.junit.xml",
+        "sha256": "236662a1e15da0972ebbd433e216f54cc53f02191fc6a2bcf60cfebd6ffbac73"
+      }
+    ]
+  },
+  "limitations": [
+    "The six selectors establish only selected requested/effective identity behavior; cache keys, full historical rollout, dashboard/client projections, and the complete original property remain unestablished.",
+    "The post-run import-origin probe is not a snapshot of the deciding pytest process.",
+    "All four recorded source/test pins still match this packet’s observed source frame. The planned eight-owner rehome requires selector remapping and replay before this selected result is treated as current for that changed test-owner set."
+  ],
+  "proposal_fields": {
+    "LA-036": {
+      "outcome": "limited",
+      "formal_closure": false,
+      "next_check": "Remap selectors after the planned rehome and replay the source-qualified method-identity cases; complete the consumer denominator."
+    }
+  }
+}

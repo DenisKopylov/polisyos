@@ -1,0 +1,720 @@
+{
+  "authority": {
+    "G_acceptance": false,
+    "closure_ids": [],
+    "formal_closure_ids": [],
+    "future_receipt_commit_sha": null,
+    "source_freeze": false
+  },
+  "commands": {
+    "git_object_readbacks": [
+      {
+        "argv": [
+          "git",
+          "-C",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+          "show",
+          "-s",
+          "--format=COMMIT %H%nTREE %T%nPARENTS %P%nSUBJECT %s",
+          "05ec231f1ae794d1887933bc838c3c9a97fc1e9f"
+        ],
+        "returncode": 0,
+        "output_path": "resume-receipt-batch-current-additions-r2-20261018/git-object-readbacks.jsonl",
+        "label": "source-adoption-05ec231f:candidate_commit"
+      },
+      {
+        "argv": [
+          "git",
+          "-C",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+          "show",
+          "-s",
+          "--format=BASE %H%nTREE %T%nPARENTS %P%nSUBJECT %s",
+          "221d4b7644b2bd022b4ae8b53e45834f83cfc11c"
+        ],
+        "returncode": 0,
+        "output_path": "resume-receipt-batch-current-additions-r2-20261018/git-object-readbacks.jsonl",
+        "label": "source-adoption-05ec231f:base_commit"
+      },
+      {
+        "argv": [
+          "git",
+          "-C",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+          "diff-tree",
+          "--no-commit-id",
+          "--name-status",
+          "-r",
+          "221d4b7644b2bd022b4ae8b53e45834f83cfc11c",
+          "05ec231f1ae794d1887933bc838c3c9a97fc1e9f"
+        ],
+        "returncode": 0,
+        "output_path": "resume-receipt-batch-current-additions-r2-20261018/git-object-readbacks.jsonl",
+        "label": "source-adoption-05ec231f:complete_name_status"
+      },
+      {
+        "argv": [
+          "git",
+          "-C",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+          "diff-tree",
+          "--no-commit-id",
+          "--raw",
+          "-r",
+          "221d4b7644b2bd022b4ae8b53e45834f83cfc11c",
+          "05ec231f1ae794d1887933bc838c3c9a97fc1e9f"
+        ],
+        "returncode": 0,
+        "output_path": "resume-receipt-batch-current-additions-r2-20261018/git-object-readbacks.jsonl",
+        "label": "source-adoption-05ec231f:complete_raw_diff"
+      },
+      {
+        "argv": [
+          "git",
+          "-C",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+          "rev-parse",
+          "05ec231f1ae794d1887933bc838c3c9a97fc1e9f^{tree}"
+        ],
+        "returncode": 0,
+        "output_path": "resume-receipt-batch-current-additions-r2-20261018/git-object-readbacks.jsonl",
+        "label": "source-adoption-05ec231f:candidate_tree"
+      },
+      {
+        "argv": [
+          "git",
+          "-C",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+          "rev-parse",
+          "221d4b7644b2bd022b4ae8b53e45834f83cfc11c^{tree}"
+        ],
+        "returncode": 0,
+        "output_path": "resume-receipt-batch-current-additions-r2-20261018/git-object-readbacks.jsonl",
+        "label": "source-adoption-05ec231f:base_tree"
+      }
+    ],
+    "source_ruff": [
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tests/repo_quality/tools/test_docs_review.py",
+          "policy-engine/tools/quality/validation/docs_review_git.py",
+          "policy-engine/tools/quality/validation/check_docs_review.py",
+          "policy-engine/tools/quality/validation/docs_review_artifacts.py",
+          "policy-engine/tools/quality/validation/generate_adr_index.py",
+          "policy-engine/tools/quality/validation/adr_index_compiler.py",
+          "policy-engine/tools/quality/validation/production_quality_evidence_inventory.py",
+          "policy-engine/tools/quality/validation/production_quality_evidence_inventory_bindings.py",
+          "policy-engine/tools/quality/validation/production_quality_evidence_inventory_contracts.py",
+          "policy-engine/tools/quality/validation/production_quality_evidence_inventory_reports.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.05131729203276336,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-docs-adr-quality-candidate-20261018/check-final.stdout.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-docs-adr-quality-candidate-20261018/check-final.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tests/repo_quality/tools/test_docs_review.py",
+          "policy-engine/tools/quality/validation/docs_review_git.py",
+          "policy-engine/tools/quality/validation/check_docs_review.py",
+          "policy-engine/tools/quality/validation/docs_review_artifacts.py",
+          "policy-engine/tools/quality/validation/generate_adr_index.py",
+          "policy-engine/tools/quality/validation/adr_index_compiler.py",
+          "policy-engine/tools/quality/validation/production_quality_evidence_inventory.py",
+          "policy-engine/tools/quality/validation/production_quality_evidence_inventory_bindings.py",
+          "policy-engine/tools/quality/validation/production_quality_evidence_inventory_contracts.py",
+          "policy-engine/tools/quality/validation/production_quality_evidence_inventory_reports.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.040218957932665944,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-docs-adr-quality-candidate-20261018/format-final.stdout.txt",
+          "sha256": "5b9f70ad96522f492ef846065642c069b5627379aff2ab3f74acd2e3b9ecfe34"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-docs-adr-quality-candidate-20261018/format-final.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    ]
+  },
+  "full_output_refs": [
+    {
+      "bytes": 14575,
+      "path": "resume-receipt-batch-current-additions-r2-20261018/git-object-readbacks.jsonl",
+      "role": "actual read-only Git show/tree/diff-tree outputs",
+      "sha256": "830203c18995d46457d093bdd40f211c923fbe86f95b0d8aa05577a083bfdd28"
+    },
+    {
+      "bytes": 0,
+      "path": "root-native-docs-adr-quality-candidate-20261018/check-final.stderr.txt",
+      "role": "final canonical source Ruff stderr; final Ruff check stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 19,
+      "path": "root-native-docs-adr-quality-candidate-20261018/check-final.stdout.txt",
+      "role": "final canonical source Ruff stdout; final Ruff check stdout",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "bytes": 0,
+      "path": "root-native-docs-adr-quality-candidate-20261018/check.stderr.txt",
+      "role": "initial source Ruff stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1174,
+      "path": "root-native-docs-adr-quality-candidate-20261018/check.stdout.txt",
+      "role": "initial source Ruff stdout",
+      "sha256": "284ef2d0e4945e415c1d3618c9193ad4cbee90672f4d2215fb3a747a2f1d9cbc"
+    },
+    {
+      "bytes": 0,
+      "path": "root-native-docs-adr-quality-candidate-20261018/format-final.stderr.txt",
+      "role": "final canonical source Ruff stderr; final Ruff format stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 27,
+      "path": "root-native-docs-adr-quality-candidate-20261018/format-final.stdout.txt",
+      "role": "final canonical source Ruff stdout; final Ruff format stdout",
+      "sha256": "5b9f70ad96522f492ef846065642c069b5627379aff2ab3f74acd2e3b9ecfe34"
+    },
+    {
+      "bytes": 0,
+      "path": "root-native-docs-adr-quality-candidate-20261018/format.stderr.txt",
+      "role": "initial source Ruff stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 467,
+      "path": "root-native-docs-adr-quality-candidate-20261018/format.stdout.txt",
+      "role": "initial source Ruff stdout",
+      "sha256": "549d2957fbcf003aefc96a3920ebf52557a94f7eb6b1c97a6facb7e601e08ef1"
+    },
+    {
+      "bytes": 653,
+      "path": "root-native-docs-adr-quality-candidate-20261018/native-docs-adr-quality-candidate-commit.stderr.txt",
+      "role": "complete source commit stderr",
+      "sha256": "715766cefdddc059a5652c97e532fa31104579104dba943253e56027fe2d1958"
+    },
+    {
+      "bytes": 733,
+      "path": "root-native-docs-adr-quality-candidate-20261018/native-docs-adr-quality-candidate-commit.stdout.txt",
+      "role": "complete source commit stdout",
+      "sha256": "94ef4a965fd2646e9427dbe37bc6db88d6837ee4987dd5a0eca7709129458e4f"
+    }
+  ],
+  "input_refs": [
+    {
+      "bytes": 57549,
+      "path": "resume-native-adr-index-owner-author-20261018/native-adr-index-owner.patch",
+      "role": "reviewed source input",
+      "sha256": "cf91736334391b7431daa40781a21f33acdf140855b4a793418bbe0ae29c5a73"
+    },
+    {
+      "bytes": 26458,
+      "path": "resume-native-adr-index-owner-author-20261018/postimages/tools/quality/validation/adr_index_compiler.py",
+      "role": "original source-application postimage stage; exact committed source postimage; source application postimage",
+      "sha256": "e23c775a993dab6f31d36710162e75ab902099cb2e3067b3309d3b726bf9ba26"
+    },
+    {
+      "bytes": 17911,
+      "path": "resume-native-adr-index-owner-author-20261018/postimages/tools/quality/validation/generate_adr_index.py",
+      "role": "original source-application postimage stage; exact committed source postimage; source application postimage",
+      "sha256": "2357a882b0973169d73a17b819769e509e098db1ff51a035d24c88f91853daa5"
+    },
+    {
+      "bytes": 18233,
+      "path": "resume-native-adr-index-owner-independent-20261018/independent-review.json",
+      "role": "reviewed source input",
+      "sha256": "847d784e29bb4401cf0864cc339bc078911cb519400b2c878d1d37eebbfd5214"
+    },
+    {
+      "bytes": 51618,
+      "path": "resume-native-docs-review-owner-author-20261018/candidate.patch",
+      "role": "reviewed source input",
+      "sha256": "5375188401dd355e522fca0f267aa89474e509bad649b870f19b95c4c0b3f583"
+    },
+    {
+      "bytes": 25374,
+      "path": "resume-native-docs-review-owner-author-20261018/postimages/policy-engine/tests/repo_quality/tools/test_docs_review.py",
+      "role": "original source-application postimage stage; exact committed source postimage; source application postimage",
+      "sha256": "0d9641056c53384c8f88c2c0ced05ff40c23ad8a2391cddcadbff528b2944f52"
+    },
+    {
+      "bytes": 34894,
+      "path": "resume-native-docs-review-owner-author-20261018/postimages/policy-engine/tools/quality/validation/check_docs_review.py",
+      "role": "original source-application postimage stage; exact committed source postimage; source application postimage",
+      "sha256": "fd5f652df42707393aa29c1551aa5a9a6216c51e88fb931c9baef5990c5bc771"
+    },
+    {
+      "bytes": 12299,
+      "path": "resume-native-docs-review-owner-author-20261018/postimages/policy-engine/tools/quality/validation/docs_review_artifacts.py",
+      "role": "original source-application postimage stage; exact committed source postimage; source application postimage",
+      "sha256": "bcaa7f339810a153bbc08be491594cf54ab9a74b565d6d19b674ef644a4933b2"
+    },
+    {
+      "bytes": 8657,
+      "path": "resume-native-docs-review-owner-author-20261018/postimages/policy-engine/tools/quality/validation/docs_review_git.py",
+      "role": "original source-application postimage stage; exact committed source postimage; source application postimage",
+      "sha256": "d460746cc1e5f7198e342aabafa6f84780a6a76051806531d3382b6c7fa34e79"
+    },
+    {
+      "bytes": 3954,
+      "path": "resume-native-docs-review-owner-independent-20261018/review.md",
+      "role": "reviewed source input",
+      "sha256": "bd9d560e45db6a56e684c1ae2edd689ae4537cbb262fcf315b6aca6e78616494"
+    },
+    {
+      "bytes": 138182,
+      "path": "resume-native-quality-inventory-owner-author-20261018/candidate.patch",
+      "role": "reviewed source input",
+      "sha256": "4b47ef0d0f1dc4cf9275fbed450474898bebee3bbb8fb6bd65d6744fd983142f"
+    },
+    {
+      "bytes": 8701,
+      "path": "resume-native-quality-inventory-owner-author-20261018/postimages/policy-engine/tools/quality/validation/production_quality_evidence_inventory.py",
+      "role": "original source-application postimage stage",
+      "sha256": "8850f737f514c48738c578fb6ed3ef1413bd95bde1678eef278c2e9105fb8013"
+    },
+    {
+      "bytes": 13000,
+      "path": "resume-native-quality-inventory-owner-author-20261018/postimages/policy-engine/tools/quality/validation/production_quality_evidence_inventory_bindings.py",
+      "role": "original source-application postimage stage",
+      "sha256": "03a15e64186bfe450218585ca32f8d116ccc4d93bc6a4d8333afbf3f59c9100a"
+    },
+    {
+      "bytes": 15033,
+      "path": "resume-native-quality-inventory-owner-author-20261018/postimages/policy-engine/tools/quality/validation/production_quality_evidence_inventory_contracts.py",
+      "role": "original source-application postimage stage",
+      "sha256": "40858b774d1379fcebeab61f6558bf77d9f7ebe29a0fec7711170768d5f82da3"
+    },
+    {
+      "bytes": 37690,
+      "path": "resume-native-quality-inventory-owner-author-20261018/postimages/policy-engine/tools/quality/validation/production_quality_evidence_inventory_reports.py",
+      "role": "original source-application postimage stage",
+      "sha256": "e024d66b00e1224310ca7b8ab974c398832b6ba600afaa45fb6932814731f44d"
+    },
+    {
+      "bytes": 2235,
+      "path": "resume-native-quality-inventory-owner-independent-20261018/packet-index.json",
+      "role": "reviewed source input",
+      "sha256": "ebbeea88ed8471c42ecf5f39b422b757beebc7caaa4235c4651b37e8b27b7ae9"
+    },
+    {
+      "bytes": 8201,
+      "path": "resume-native-quality-physical-ruff-delta-independent-20261018/review.json",
+      "role": "independent format review",
+      "sha256": "59c6a57f70e7eacd1580fa6f71555c5df0545b475bf5ee766b7d539b6dba4c8d"
+    },
+    {
+      "bytes": 3924,
+      "path": "root-native-docs-adr-quality-candidate-20261018/README.postimage.md",
+      "role": "original source-application postimage stage; exact committed source postimage; source application postimage",
+      "sha256": "1280e8f9ef95c3e4398a0f45e91c0bdae78801c9008277df1302d65d97fe0771"
+    },
+    {
+      "bytes": 9265,
+      "path": "root-native-docs-adr-quality-candidate-20261018/adoption-plan.json",
+      "role": "adoption plan and slice base",
+      "sha256": "b66ab1b25ec7995ed34598d585d6d69f2fd6ef313c59892f0abef3b4998b3443"
+    },
+    {
+      "bytes": 7509,
+      "path": "root-native-docs-adr-quality-candidate-20261018/canonical-final-qualification.json",
+      "role": "final canonical source/Ruff qualification",
+      "sha256": "a4366865a928993afb44ce4d2b2f08e9b07834e483ace002caa36926fdb563e4"
+    },
+    {
+      "bytes": 3143,
+      "path": "root-native-docs-adr-quality-candidate-20261018/canonical-format-imports-proposal.json",
+      "role": "physical canonical normalization",
+      "sha256": "1e9026f9ac0042750a72eca6411f141e9a075474c607eb402476a1ddac8b26c5"
+    },
+    {
+      "bytes": 8752,
+      "path": "root-native-docs-adr-quality-candidate-20261018/formatted-postimages/policy-engine/tools/quality/validation/production_quality_evidence_inventory.py",
+      "role": "exact committed source postimage; canonical physical Ruff normalization",
+      "sha256": "e6b08673b6cb0043abd5f6d1399addff6b1915c17e2daed1b92a35da6205e583"
+    },
+    {
+      "bytes": 12710,
+      "path": "root-native-docs-adr-quality-candidate-20261018/formatted-postimages/policy-engine/tools/quality/validation/production_quality_evidence_inventory_bindings.py",
+      "role": "exact committed source postimage; canonical physical Ruff normalization",
+      "sha256": "084b2ee55349a286317bd4ae05fb6570ff69a04c26f9cd28e7a5a8d54a5a3d00"
+    },
+    {
+      "bytes": 14947,
+      "path": "root-native-docs-adr-quality-candidate-20261018/formatted-postimages/policy-engine/tools/quality/validation/production_quality_evidence_inventory_contracts.py",
+      "role": "exact committed source postimage; canonical physical Ruff normalization",
+      "sha256": "ad611d4366c07b3a43ceb2a3a836bb7d0c3ac0a269f574cfcebd3149e3535dcb"
+    },
+    {
+      "bytes": 37660,
+      "path": "root-native-docs-adr-quality-candidate-20261018/formatted-postimages/policy-engine/tools/quality/validation/production_quality_evidence_inventory_reports.py",
+      "role": "exact committed source postimage; canonical physical Ruff normalization",
+      "sha256": "c58b60a3e8d962303b49f6a02ca8dc2d6099c039f8cd5ca12deee13266d9ebd3"
+    },
+    {
+      "bytes": 3314,
+      "path": "root-native-docs-adr-quality-candidate-20261018/native-docs-adr-quality-candidate-readback.json",
+      "role": "immutable per-commit Git/application readback",
+      "sha256": "34221dc499c20140667d23dd49f2cb7abec3eb2d173e19865c3752868143d1fd"
+    },
+    {
+      "bytes": 197,
+      "path": "root-native-docs-adr-quality-candidate-20261018/native-trash-receipt.json",
+      "role": "native scratch disposition receipt",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    {
+      "bytes": 13245,
+      "path": "root-native-docs-adr-quality-candidate-20261018/source-application.json",
+      "role": "root source application record and exact source pins",
+      "sha256": "08f3c4cbc0990d6278d927885d35608dabc0370560dd7792413b8686b0f7a4e7"
+    }
+  ],
+  "limitations": [
+    "This is candidate integration for verification in the single persistent OWN checkout, not G acceptance. Source reviews are GO; their runtime/adoption HOLDs remain pending actual evidence.",
+    "Instead of another complete sourceview/environment copy, actual verification will use the exact committed candidate checkout with an origin observer requiring its product and tool modules plus frozen input hashes. No RAW overlay or historical N11 sourceview enters this profile.",
+    "Quality full-file failures and 190-leaf baseline drift remain P41 not_established; no baseline, expiry, threshold, classification, authority or owner waiver changes. ADR stale report check is not runtime green.",
+    "Docs author earlier 23-pass output was not retained; no credit assigned before fresh canonical tests. Full native SOTA remains UNRUN.",
+    "README is the root mandatory companion. Extra overlay package __init__ files are runtime scaffolding and excluded from the four-path quality mechanism.",
+    "The mandatory README companion is source-bound in the commit. Separate physical canonical Ruff normalization is documented by canonical-final-qualification.json and its linked proposal/review; final Ruff pass is not runtime evidence. Initial pre-normalization Ruff check/format failures remain cited; final canonical check/format both pass.",
+    "The full committed footprint also includes lease and candidate-index administrative companions; the complete path set comes from Git object inspection."
+  ],
+  "next_check": "Freeze this candidate source and explicit inputs; run full docs-review and ADR importer tests, quality binding/control and CI/Wave40 actual consumers, source-bound CLI outputs, canonical Ruff and exact module-size metric. Record all FAIL/ERROR/SKIP/UNRUN, full supervisor/result/origin outputs.",
+  "observed_result": {
+    "commit": "05ec231f1ae794d1887933bc838c3c9a97fc1e9f",
+    "tree": "5d980b59e5c08c8dd17705bf47cc9c0b5e57ff46",
+    "parents": [
+      "221d4b7644b2bd022b4ae8b53e45834f83cfc11c"
+    ],
+    "source_subject": "refactor(e02): isolate docs ADR and quality inventory owners",
+    "source_application_base": "221d4b7644b2bd022b4ae8b53e45834f83cfc11c",
+    "source_application_base_tree": "61f9b37635c5356f67c5f52771095c0e0c22a896",
+    "full_committed_footprint": [
+      {
+        "status": "M",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/tests/repo_quality/tools/test_docs_review.py"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/tools/quality/validation/README.md"
+      },
+      {
+        "status": "A",
+        "path": "policy-engine/tools/quality/validation/adr_index_compiler.py"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/tools/quality/validation/check_docs_review.py"
+      },
+      {
+        "status": "A",
+        "path": "policy-engine/tools/quality/validation/docs_review_artifacts.py"
+      },
+      {
+        "status": "A",
+        "path": "policy-engine/tools/quality/validation/docs_review_git.py"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/tools/quality/validation/generate_adr_index.py"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/tools/quality/validation/production_quality_evidence_inventory.py"
+      },
+      {
+        "status": "A",
+        "path": "policy-engine/tools/quality/validation/production_quality_evidence_inventory_bindings.py"
+      },
+      {
+        "status": "A",
+        "path": "policy-engine/tools/quality/validation/production_quality_evidence_inventory_contracts.py"
+      },
+      {
+        "status": "A",
+        "path": "policy-engine/tools/quality/validation/production_quality_evidence_inventory_reports.py"
+      }
+    ],
+    "source_application_path_count": 11,
+    "administrative_companion_paths": [
+      {
+        "status": "M",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+      }
+    ],
+    "committed_source_postimages": {
+      "policy-engine/tools/quality/validation/production_quality_evidence_inventory.py": {
+        "path": "root-native-docs-adr-quality-candidate-20261018/formatted-postimages/policy-engine/tools/quality/validation/production_quality_evidence_inventory.py",
+        "sha256": "e6b08673b6cb0043abd5f6d1399addff6b1915c17e2daed1b92a35da6205e583",
+        "stage": "canonical physical Ruff normalization",
+        "normalization": "Contiguous import aliases identical when split/merged blocks normalize; all other AST identical."
+      },
+      "policy-engine/tools/quality/validation/production_quality_evidence_inventory_bindings.py": {
+        "path": "root-native-docs-adr-quality-candidate-20261018/formatted-postimages/policy-engine/tools/quality/validation/production_quality_evidence_inventory_bindings.py",
+        "sha256": "084b2ee55349a286317bd4ae05fb6570ff69a04c26f9cd28e7a5a8d54a5a3d00",
+        "stage": "canonical physical Ruff normalization",
+        "normalization": "Contiguous import aliases identical when split/merged blocks normalize; all other AST identical."
+      },
+      "policy-engine/tools/quality/validation/production_quality_evidence_inventory_contracts.py": {
+        "path": "root-native-docs-adr-quality-candidate-20261018/formatted-postimages/policy-engine/tools/quality/validation/production_quality_evidence_inventory_contracts.py",
+        "sha256": "ad611d4366c07b3a43ceb2a3a836bb7d0c3ac0a269f574cfcebd3149e3535dcb",
+        "stage": "canonical physical Ruff normalization",
+        "normalization": "Contiguous import aliases identical when split/merged blocks normalize; all other AST identical."
+      },
+      "policy-engine/tools/quality/validation/production_quality_evidence_inventory_reports.py": {
+        "path": "root-native-docs-adr-quality-candidate-20261018/formatted-postimages/policy-engine/tools/quality/validation/production_quality_evidence_inventory_reports.py",
+        "sha256": "c58b60a3e8d962303b49f6a02ca8dc2d6099c039f8cd5ca12deee13266d9ebd3",
+        "stage": "canonical physical Ruff normalization",
+        "normalization": "Contiguous import aliases identical when split/merged blocks normalize; all other AST identical."
+      },
+      "policy-engine/tests/repo_quality/tools/test_docs_review.py": {
+        "path": "resume-native-docs-review-owner-author-20261018/postimages/policy-engine/tests/repo_quality/tools/test_docs_review.py",
+        "sha256": "0d9641056c53384c8f88c2c0ced05ff40c23ad8a2391cddcadbff528b2944f52",
+        "stage": "source application postimage"
+      },
+      "policy-engine/tools/quality/validation/docs_review_git.py": {
+        "path": "resume-native-docs-review-owner-author-20261018/postimages/policy-engine/tools/quality/validation/docs_review_git.py",
+        "sha256": "d460746cc1e5f7198e342aabafa6f84780a6a76051806531d3382b6c7fa34e79",
+        "stage": "source application postimage"
+      },
+      "policy-engine/tools/quality/validation/check_docs_review.py": {
+        "path": "resume-native-docs-review-owner-author-20261018/postimages/policy-engine/tools/quality/validation/check_docs_review.py",
+        "sha256": "fd5f652df42707393aa29c1551aa5a9a6216c51e88fb931c9baef5990c5bc771",
+        "stage": "source application postimage"
+      },
+      "policy-engine/tools/quality/validation/docs_review_artifacts.py": {
+        "path": "resume-native-docs-review-owner-author-20261018/postimages/policy-engine/tools/quality/validation/docs_review_artifacts.py",
+        "sha256": "bcaa7f339810a153bbc08be491594cf54ab9a74b565d6d19b674ef644a4933b2",
+        "stage": "source application postimage"
+      },
+      "policy-engine/tools/quality/validation/generate_adr_index.py": {
+        "path": "resume-native-adr-index-owner-author-20261018/postimages/tools/quality/validation/generate_adr_index.py",
+        "sha256": "2357a882b0973169d73a17b819769e509e098db1ff51a035d24c88f91853daa5",
+        "stage": "source application postimage"
+      },
+      "policy-engine/tools/quality/validation/adr_index_compiler.py": {
+        "path": "resume-native-adr-index-owner-author-20261018/postimages/tools/quality/validation/adr_index_compiler.py",
+        "sha256": "e23c775a993dab6f31d36710162e75ab902099cb2e3067b3309d3b726bf9ba26",
+        "stage": "source application postimage"
+      },
+      "policy-engine/tools/quality/validation/README.md": {
+        "path": "root-native-docs-adr-quality-candidate-20261018/README.postimage.md",
+        "sha256": "1280e8f9ef95c3e4398a0f45e91c0bdae78801c9008277df1302d65d97fe0771",
+        "stage": "source application postimage"
+      }
+    },
+    "source_ruff": {
+      "status": "PASS",
+      "final_exit_codes": [
+        0,
+        0
+      ],
+      "initial_attempts": [
+        {
+          "argv": [
+            "policy-engine/.venv/bin/python",
+            "-B",
+            "-m",
+            "ruff",
+            "check",
+            "--no-cache",
+            "--config",
+            "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+            "policy-engine/tests/repo_quality/tools/test_docs_review.py",
+            "policy-engine/tools/quality/validation/docs_review_git.py",
+            "policy-engine/tools/quality/validation/check_docs_review.py",
+            "policy-engine/tools/quality/validation/docs_review_artifacts.py",
+            "policy-engine/tools/quality/validation/generate_adr_index.py",
+            "policy-engine/tools/quality/validation/adr_index_compiler.py",
+            "policy-engine/tools/quality/validation/production_quality_evidence_inventory.py",
+            "policy-engine/tools/quality/validation/production_quality_evidence_inventory_bindings.py",
+            "policy-engine/tools/quality/validation/production_quality_evidence_inventory_contracts.py",
+            "policy-engine/tools/quality/validation/production_quality_evidence_inventory_reports.py"
+          ],
+          "exit_code": 1
+        },
+        {
+          "argv": [
+            "policy-engine/.venv/bin/python",
+            "-B",
+            "-m",
+            "ruff",
+            "format",
+            "--check",
+            "--no-cache",
+            "--config",
+            "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+            "policy-engine/tests/repo_quality/tools/test_docs_review.py",
+            "policy-engine/tools/quality/validation/docs_review_git.py",
+            "policy-engine/tools/quality/validation/check_docs_review.py",
+            "policy-engine/tools/quality/validation/docs_review_artifacts.py",
+            "policy-engine/tools/quality/validation/generate_adr_index.py",
+            "policy-engine/tools/quality/validation/adr_index_compiler.py",
+            "policy-engine/tools/quality/validation/production_quality_evidence_inventory.py",
+            "policy-engine/tools/quality/validation/production_quality_evidence_inventory_bindings.py",
+            "policy-engine/tools/quality/validation/production_quality_evidence_inventory_contracts.py",
+            "policy-engine/tools/quality/validation/production_quality_evidence_inventory_reports.py"
+          ],
+          "exit_code": 1
+        }
+      ]
+    },
+    "runtime": "UNRUN on adopted canonical source; no runtime or integration results are asserted.",
+    "source_reviews": "This receipt preserves the root application and cited review inputs; it does not upgrade their independent disposition.",
+    "README_physical_normalization_qualification": "README is a mandatory source companion. Separate physical canonical Ruff normalization is documented by canonical-final-qualification.json and its linked proposal/review. Final source Ruff PASS is check/format evidence, not runtime semantic evidence."
+  },
+  "pattern_pass": {
+    "relevant_ids": [
+      "P06",
+      "P29",
+      "P32",
+      "P35",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "existing_anti_pattern": "Source extraction and formatting evidence can be mistaken for preserved consumer behavior or complete current-runtime coverage; commit metadata can be inferred from mutable journal adjacency.",
+    "target_pattern": "Bind exact source application, all actual Git commit objects/footprint, immutable per-commit RAW readbacks, full Ruff outputs, and leave behavior/runtime authority explicitly UNRUN.",
+    "missing_capability_labels": [
+      "verification_missing"
+    ],
+    "acceptance_signal": "Root verifies the source receipt against the candidate checkout and separately runs the scoped native runtime consumer wave with exact origin/frame evidence."
+  },
+  "proposal_status": "prepared_RAW_only_for_root_review_and_source_adoption_handoff",
+  "receipt_id": "source-adoption-05ec231f",
+  "schema": "policyos.e02.root_receipt_postimage.v1",
+  "selected_profile": {
+    "kind": "root_source_adoption_handoff",
+    "candidate_commit": "05ec231f1ae794d1887933bc838c3c9a97fc1e9f",
+    "candidate_tree": "5d980b59e5c08c8dd17705bf47cc9c0b5e57ff46",
+    "source_base": "221d4b7644b2bd022b4ae8b53e45834f83cfc11c",
+    "source_base_tree": "61f9b37635c5356f67c5f52771095c0e0c22a896",
+    "readback_status": "Git object tree/parent/complete footprint independently matched the immutable RAW per-commit readback.",
+    "runtime": "UNRUN"
+  },
+  "slice": {
+    "base": "221d4b7644b2bd022b4ae8b53e45834f83cfc11c",
+    "base_tree": "61f9b37635c5356f67c5f52771095c0e0c22a896",
+    "candidate_commit": "05ec231f1ae794d1887933bc838c3c9a97fc1e9f",
+    "candidate_tree": "5d980b59e5c08c8dd17705bf47cc9c0b5e57ff46",
+    "parents": [
+      "221d4b7644b2bd022b4ae8b53e45834f83cfc11c"
+    ],
+    "property": "Preserve complete existing docs review, ADR compilation and production-quality static inventory contracts and active facade dependency seams while extracting cohesive typed owners.",
+    "source_application_paths": [
+      "policy-engine/tests/repo_quality/tools/test_docs_review.py",
+      "policy-engine/tools/quality/validation/README.md",
+      "policy-engine/tools/quality/validation/adr_index_compiler.py",
+      "policy-engine/tools/quality/validation/check_docs_review.py",
+      "policy-engine/tools/quality/validation/docs_review_artifacts.py",
+      "policy-engine/tools/quality/validation/docs_review_git.py",
+      "policy-engine/tools/quality/validation/generate_adr_index.py",
+      "policy-engine/tools/quality/validation/production_quality_evidence_inventory.py",
+      "policy-engine/tools/quality/validation/production_quality_evidence_inventory_bindings.py",
+      "policy-engine/tools/quality/validation/production_quality_evidence_inventory_contracts.py",
+      "policy-engine/tools/quality/validation/production_quality_evidence_inventory_reports.py"
+    ],
+    "complete_committed_footprint": [
+      {
+        "status": "M",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/tests/repo_quality/tools/test_docs_review.py"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/tools/quality/validation/README.md"
+      },
+      {
+        "status": "A",
+        "path": "policy-engine/tools/quality/validation/adr_index_compiler.py"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/tools/quality/validation/check_docs_review.py"
+      },
+      {
+        "status": "A",
+        "path": "policy-engine/tools/quality/validation/docs_review_artifacts.py"
+      },
+      {
+        "status": "A",
+        "path": "policy-engine/tools/quality/validation/docs_review_git.py"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/tools/quality/validation/generate_adr_index.py"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/tools/quality/validation/production_quality_evidence_inventory.py"
+      },
+      {
+        "status": "A",
+        "path": "policy-engine/tools/quality/validation/production_quality_evidence_inventory_bindings.py"
+      },
+      {
+        "status": "A",
+        "path": "policy-engine/tools/quality/validation/production_quality_evidence_inventory_contracts.py"
+      },
+      {
+        "status": "A",
+        "path": "policy-engine/tools/quality/validation/production_quality_evidence_inventory_reports.py"
+      }
+    ],
+    "git_raw_difftree": ":100644 100644 b2d89990ae436644a15e8cf088b3f98ec5ecec47 47926cf4b564ec0862a9429028d2fd6f44386de7 M\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json\n:100644 100644 2cab0c2ec0bd8ce81013b5d73ba5dee577ac5c00 97577d7c60c64c56abbe6229ce20952f48cba572 M\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json\n:100644 100644 0a869d97079d400cf997d53e7375a49f8a409da5 ec6e8eba5c591241f8989dfaf3492514444de584 M\tpolicy-engine/tests/repo_quality/tools/test_docs_review.py\n:100644 100644 25b7185dfd74c38dfe4eb5a66a35cb17e5818cfc b907e140244a6ff7864895e1a717c037431be22f M\tpolicy-engine/tools/quality/validation/README.md\n:000000 100644 0000000000000000000000000000000000000000 b0806052499febe4bd365e2bb0926e0df2acea60 A\tpolicy-engine/tools/quality/validation/adr_index_compiler.py\n:100644 100644 05b8745037b5aeb3b934c155b80a1ee2888f0060 221979dfc54063c267467cd49000e510029ecd18 M\tpolicy-engine/tools/quality/validation/check_docs_review.py\n:000000 100644 0000000000000000000000000000000000000000 2f0c571bf614aa2900fb651fb7a76b8c4b82bb37 A\tpolicy-engine/tools/quality/validation/docs_review_artifacts.py\n:000000 100644 0000000000000000000000000000000000000000 ad38423def0762cedf7b8949e14e6d1a7e949f6e A\tpolicy-engine/tools/quality/validation/docs_review_git.py\n:100644 100644 6a2071ffc2b830e7d905bbb8a24fd2072343b02c 6d3299ab095b8116f1679626a3bcf219ca25eef5 M\tpolicy-engine/tools/quality/validation/generate_adr_index.py\n:100644 100644 2f34b5894da81d330348461954321dac7f72dbe4 748d3ce8d0df8baedff58075946d166ee3ae008b M\tpolicy-engine/tools/quality/validation/production_quality_evidence_inventory.py\n:000000 100644 0000000000000000000000000000000000000000 e42600570aedf3d478e66c123fe06e02384f2861 A\tpolicy-engine/tools/quality/validation/production_quality_evidence_inventory_bindings.py\n:000000 100644 0000000000000000000000000000000000000000 cdfd82ceb8bcd31e4da489548103c385c84c6f18 A\tpolicy-engine/tools/quality/validation/production_quality_evidence_inventory_contracts.py\n:000000 100644 0000000000000000000000000000000000000000 1aad3b169cae1171771ac375cf3051262112d36d A\tpolicy-engine/tools/quality/validation/production_quality_evidence_inventory_reports.py\n",
+    "source_readback_path": "root-native-docs-adr-quality-candidate-20261018/native-docs-adr-quality-candidate-readback.json",
+    "source_readback_sha256": "34221dc499c20140667d23dd49f2cb7abec3eb2d173e19865c3752868143d1fd",
+    "source_application_path": "root-native-docs-adr-quality-candidate-20261018/source-application.json",
+    "source_application_sha256": "08f3c4cbc0990d6278d927885d35608dabc0370560dd7792413b8686b0f7a4e7",
+    "canonical_final_qualification_path": "root-native-docs-adr-quality-candidate-20261018/canonical-final-qualification.json"
+  },
+  "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-source-adoption-handoff-05ec231-20261018.json"
+}

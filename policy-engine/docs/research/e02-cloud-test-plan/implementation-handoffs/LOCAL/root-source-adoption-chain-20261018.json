@@ -1,0 +1,615 @@
+{
+  "authority": {
+    "closure_ids": [],
+    "formal_G_adjudication": false,
+    "global_source_input_backend_freeze": false,
+    "no_future_receipt_commit_sha": true,
+    "proposal_only": true
+  },
+  "current_040_composed_wave": {
+    "candidate_postimage_reconciliation": {
+      "R3": "24/24 match",
+      "R7": "14/14 match"
+    },
+    "collected_tests": 129,
+    "errors": 0,
+    "failed": 5,
+    "frozen_input_pins": {
+      "changed": 0,
+      "denominator": 2252,
+      "matched": 2252,
+      "missing": 0,
+      "suffix_denominator": {
+        ".cfg": 1,
+        ".ini": 1,
+        ".lock": 1,
+        ".py": 2247,
+        ".toml": 2
+      }
+    },
+    "frozen_source_frame": {
+      "branch": "refs/heads/codex/e02-unified-local-20261009",
+      "head": "040ee7d373b1a04f204c4e4dfe65d1e9702a91b3",
+      "preexisting_untracked_paths": true,
+      "tracked_status": "clean",
+      "tree": "7a3d4217d682b5d729e684bc96bc0f6d4fed3b40"
+    },
+    "outputs": [
+      {
+        "bytes": 5345958,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-composed-actual-wave-040ee7d3-20261018/freeze.json",
+        "sha256": "9972d9b644866e6634a77be0e627bc3f6341ce76212763b25c3a108f207dd0e9"
+      },
+      {
+        "bytes": 6458673,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-composed-actual-wave-040ee7d3-20261018/pytest-provenance.json",
+        "sha256": "0a37578a46db428e38a157f5652daf997e170167390dcd4612582db19950e6cc"
+      },
+      {
+        "bytes": 57964,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-composed-actual-wave-040ee7d3-20261018/pytest.xml",
+        "sha256": "b9edbc109b4c2bbf8f608293a115085b5fc7b06a0ea08b66d82668ae7ae68ad6"
+      },
+      {
+        "bytes": 55797,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-composed-actual-wave-040ee7d3-20261018/stdout.txt",
+        "sha256": "86f867cc5016e6ab6b7eeff4d515e05f09dfb54ae10687ddc4e32330c1796865"
+      },
+      {
+        "bytes": 0,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-composed-actual-wave-040ee7d3-20261018/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "bytes": 485881,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-composed-actual-wave-040ee7d3-20261018/process-tree.jsonl",
+        "sha256": "372dec3b60ab3e774243abb7c2b8442d8c60098ddc2cd6e4688a5601566eacb2"
+      },
+      {
+        "bytes": 12986,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-composed-actual-wave-040ee7d3-reconciliation-20261018/reconciliation.md",
+        "sha256": "848683787239db4fc046ecc08083c49186a57d251a37e11d67976d0f1d1aad1f"
+      }
+    ],
+    "passed": 124,
+    "pytest_exit_status": 1,
+    "runtime_completion_boundary": {
+      "limitation": "Observed samples do not span or reconcile to the pytest-reported completion interval; do not report whole-run peak resource bounds or bounded total wall time.",
+      "observed_max_rss_bytes": 1172881408,
+      "observed_min_free_disk_bytes": 12823990272,
+      "process_trace_last_sample_seconds": 171.12077979184687,
+      "process_trace_samples": 164,
+      "pytest_reported_seconds": 207.914,
+      "supervisor_exit_code": "not_established",
+      "supervisor_final_output_hashes": "not_established",
+      "supervisor_result": "absent"
+    },
+    "scope": "Focused composed 28-selector runtime replay; not global native acceptance or formal E02 closure.",
+    "selected_py_files": 21,
+    "selectors": 28,
+    "skipped": 0
+  },
+  "historical_r4_handoff_set": {
+    "handling": "Preserve every existing wrapper and every contained reference byte-for-byte at its original 8ef3 historical frame; do not rebind to 040.",
+    "handoffs": [
+      {
+        "copy_rule": "copy exact existing RAW bytes; do not rewrite or rebind their 8ef3 historical frame",
+        "source": {
+          "bytes": 7254,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-source-and-actual-evidence-20261018/r4/la036-method-identity-limited-r4-20261018.json",
+          "sha256": "3cb6d80c1d1c6ac0d7462578bd6250f94765a338b317719cd5a9ee2e4df287df"
+        },
+        "target": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-source-and-actual-evidence-r4-20261018/la036-method-identity-limited-r4-20261018.json"
+      },
+      {
+        "copy_rule": "copy exact existing RAW bytes; do not rewrite or rebind their 8ef3 historical frame",
+        "source": {
+          "bytes": 6213,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-source-and-actual-evidence-20261018/r4/package-r8-source-and-test-outcomes-r4-20261018.json",
+          "sha256": "7302c4d56f21e0ce3f5edb652374d2c3d325eab573b3cb8d825c386b836fa5be"
+        },
+        "target": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-source-and-actual-evidence-r4-20261018/package-r8-source-and-test-outcomes-r4-20261018.json"
+      },
+      {
+        "copy_rule": "copy exact existing RAW bytes; do not rewrite or rebind their 8ef3 historical frame",
+        "source": {
+          "bytes": 5552,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-source-and-actual-evidence-20261018/r4/test-owner-typed-fixture-application-and-wave-r4-20261018.json",
+          "sha256": "58c97ccbe1d7e8c2eced99339a771b3b0cc72476aceac110da58eb81e690ccd0"
+        },
+        "target": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-source-and-actual-evidence-r4-20261018/test-owner-typed-fixture-application-and-wave-r4-20261018.json"
+      },
+      {
+        "copy_rule": "copy exact existing RAW bytes; do not rewrite or rebind their 8ef3 historical frame",
+        "source": {
+          "bytes": 4340,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-source-and-actual-evidence-20261018/r4/dynamic-import-r8-source-review-and-canonical-wave-r4-20261018.json",
+          "sha256": "3abc0d86e8e82cc5f155ed3d6b8fc3b80f6a97c692559699901745cac6b8e5fb"
+        },
+        "target": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-source-and-actual-evidence-r4-20261018/dynamic-import-r8-source-review-and-canonical-wave-r4-20261018.json"
+      },
+      {
+        "copy_rule": "copy exact existing RAW bytes; do not rewrite or rebind their 8ef3 historical frame",
+        "source": {
+          "bytes": 5762,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-source-and-actual-evidence-20261018/r4/production-inventory-and-r15-limited-r4-20261018.json",
+          "sha256": "f4dbffefe4a7ed9e10f9e4d69cae2ea7c2f0f5c528d14d1b16ccec2871f5ffa3"
+        },
+        "target": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-source-and-actual-evidence-r4-20261018/production-inventory-and-r15-limited-r4-20261018.json"
+      },
+      {
+        "copy_rule": "copy exact existing RAW bytes; do not rewrite or rebind their 8ef3 historical frame",
+        "source": {
+          "bytes": 1098,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-source-and-actual-evidence-20261018/r4/native-helper-topology-g-decision-reference-r4-20261018.json",
+          "sha256": "3d9ea8380d6769bdc5e788b8ee69cb118dc52441cb49de5052a58558db8c7ec7"
+        },
+        "target": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-source-and-actual-evidence-r4-20261018/native-helper-topology-g-decision-reference-r4-20261018.json"
+      }
+    ],
+    "historical_frame": {
+      "branch": "codex/e02-unified-local-20261009",
+      "head": "8ef3c60bd7a0fbab465f203795e33a1dcdf71490",
+      "tree": "8fea7ee9e10c764e96f3a1172193088c285c3b0d"
+    },
+    "payload_index": {
+      "bytes": 4921,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-source-and-actual-evidence-20261018/r4/payloads.json",
+      "sha256": "e537f46bc7b29d1d65c5c44c3cf189dfe42bf6d7b9d35ca2414cd1a0767ce5b1"
+    }
+  },
+  "historical_test_byte_transitions": [
+    {
+      "current_040_pin": "4545e31bef382a669f04c9c7c5f4c89a4fda5aecdf070a7ac018003da881420b",
+      "date_role_commit_readback": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-date-role-r2-application-20261018/date-role-r2-readback.json",
+        "sha256": "d7de5a2968a28ba56a3acb89227931a0e560a9151133868839b51346bae07e38"
+      },
+      "date_role_source_application": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-date-role-r2-application-20261018/source-application.json",
+        "sha256": "1ca76cdf5d4f7efb90667209c403e4c4ac83232ec5a29296c024fec55167bd4a"
+      },
+      "historical_r4_pin": "ce801e84d7c2e459a828a29fe8bffd640b908089b5cc9543daf6a95df6f84469",
+      "historical_wrapper": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-source-and-actual-evidence-20261018/r4/test-owner-typed-fixture-application-and-wave-r4-20261018.json",
+        "sha256": "58c97ccbe1d7e8c2eced99339a771b3b0cc72476aceac110da58eb81e690ccd0"
+      },
+      "path": "policy-engine/tests/repo_quality/architecture/test_repository_best_in_class_phase1_3_contracts.py",
+      "transition": "The old R4 test-owner payload records the preimage later changed by the date-role R2 source commit; preserve that old R4 byte reference as historical evidence, not current test bytes."
+    }
+  ],
+  "implementation_commit_chain": [
+    {
+      "application_and_full_ruff_pins": {
+        "bytes": 19255,
+        "meaning": "This content-bound source application carries exact changed-path pre/post pins and complete Ruff check/format argv/input pins.",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fixture-owner-r5-application-20261018/source-application-canonical-topology-r2.json",
+        "sha256": "ac40508a8a718bb68964a8ffa82da7a05d4b93bca9cd30e84f590d7946759cb5"
+      },
+      "commit_request": {
+        "bytes": 4895,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fixture-owner-r5-application-20261018/commit-request-final-r2.json",
+        "sha256": "3933aa6b7bd9d4a7018f658aed60b17e43c2556e881054e0f16dcf5471edc3bc"
+      },
+      "identity": "shared-fixture-owner-r5",
+      "native_trash_receipt": {
+        "bytes": 945,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fixture-owner-r5-application-20261018/native-trash-receipt.json",
+        "sha256": "eebe5280679e028e6118ec85da2bd01dc16604ee8ef0f052ece68b9141c41035"
+      },
+      "recorded_application_state": {
+        "G_acceptance": false,
+        "closure_ids": [],
+        "runtime": "UNRUN on adopted source; candidate setup-plan only",
+        "source_freeze": false
+      },
+      "reviewed_input_refs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/fixture-owner-consolidation-r5-20261018/manifest.json",
+          "sha256": "39df8c0a0a4a687be1ef62d7ed08e8087a91f34266c6284ad5aba6a64d38aefe"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/fixture-owner-consolidation-r5-independent-review-20261018/review.json",
+          "sha256": "367a42f44ce6434e60a250a873b2f95a3cebac091f92fe3a9df81bb0b7670d56"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/fixture-owner-consolidation-r4-independent-review-20261018/review.json",
+          "sha256": "a40aba41c50863e202f4129b78ec99880753cf53f1a16698221a2cbb8c5bf34e"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/fixture-owner-consolidation-r5-20261018/r5-erratum-cacheprovider-warning.json",
+          "sha256": "8c422686c17abcbb4f2fa1e3fb188249c54ff92cde0a6d001bcd2b6900e3c793"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-r5-canonical-topology-import-only-independent-review-20261018/review.json",
+          "sha256": "842d5d37038555edc1cfdfd88cfc9be2291f03720b62c96231bba53a875579cd"
+        }
+      ],
+      "root_adoption_plans": [
+        {
+          "artifact": {
+            "bytes": 16137,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fixture-owner-r5-application-20261018/adoption-plan.json",
+            "sha256": "8b87663c4779ba044bf8fb62c90f19857595519a9c693f7d96080ae6f8549a9c"
+          },
+          "base": "8ef3c60bd7a0fbab465f203795e33a1dcdf71490",
+          "identity": "fixture-owner-r5",
+          "lease_key": "coordination_epoch_20261018_shared_fixture_owner_r5"
+        }
+      ],
+      "ruff_deciding_output_refs": [
+        {
+          "exit_code": 0,
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fixture-owner-r5-application-20261018/check-canonical-topology-r2.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fixture-owner-r5-application-20261018/check-canonical-topology-r2.stdout.txt",
+            "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+          }
+        },
+        {
+          "exit_code": 0,
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fixture-owner-r5-application-20261018/format-canonical-topology-r2.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fixture-owner-r5-application-20261018/format-canonical-topology-r2.stdout.txt",
+            "sha256": "7715b02781372f8741fb309aee97a6483e689c9039f0d78081dd910f70b0256e"
+          }
+        }
+      ],
+      "slice_base": "8ef3c60bd7a0fbab465f203795e33a1dcdf71490",
+      "slice_base_tree": "8fea7ee9e10c764e96f3a1172193088c285c3b0d",
+      "source_commit": {
+        "parents": [
+          "8ef3c60bd7a0fbab465f203795e33a1dcdf71490"
+        ],
+        "sha": "681531183338e703e94c640f7794abfc2586959b",
+        "subject": "test(e02): consolidate shared fixture owners and register real consumers",
+        "tree": "8d139613bed0dd46357c9c6584515386bff823ec"
+      },
+      "source_commit_readback": {
+        "bytes": 7369,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fixture-owner-r5-application-20261018/fixture-owner-r5-canonical-topology-readback.json",
+        "sha256": "b94d0793a5dcb8e992db273b78bafe898694910215b9e2f53e57bcec27634a84"
+      }
+    },
+    {
+      "application_and_full_ruff_pins": {
+        "bytes": 5916,
+        "meaning": "This content-bound source application carries exact changed-path pre/post pins and complete Ruff check/format argv/input pins.",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-date-role-r2-application-20261018/source-application.json",
+        "sha256": "1ca76cdf5d4f7efb90667209c403e4c4ac83232ec5a29296c024fec55167bd4a"
+      },
+      "commit_request": {
+        "bytes": 1193,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-date-role-r2-application-20261018/commit-request.json",
+        "sha256": "1714165b5b325bf8599e1094ac1ca14c7a54336b8d93e994ab41badd65e31f72"
+      },
+      "identity": "date-role-r2",
+      "native_trash_receipt": {
+        "bytes": 197,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-date-role-r2-application-20261018/native-trash-receipt.json",
+        "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+      },
+      "recorded_application_state": {
+        "G_acceptance": false,
+        "closure_ids": [],
+        "runtime": "UNRUN on adopted canonical source; bounded candidate evidence is separately referenced",
+        "source_freeze": false
+      },
+      "reviewed_input_refs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/module-size-time-role-repair-r2-20261018/manifest.json",
+          "sha256": "3850151520eec6304c4e20f92c0ed384158e90cb0b60931578948e70a98e85a0"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/module-size-time-role-independent-review-r2-delta-20261018/review.json",
+          "sha256": "016466a4e01cf0b2c4036954e7aa09953d2216cb0adbaccda032650e0068864c"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/module-size-time-role-repair-r1-20261018/control-r2/receipt.json",
+          "sha256": "9c56b579923b31dd96c04124a386e8411e078816bf201465504885758278534e"
+        }
+      ],
+      "root_adoption_plans": [
+        {
+          "artifact": {
+            "bytes": 3181,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-date-role-r2-application-20261018/adoption-plan.json",
+            "sha256": "02955b8ec2feb2d0f54e0361a6025c6b5364d05462e0c7d88b2c88231b3f4d28"
+          },
+          "base": "8ef3c60bd7a0fbab465f203795e33a1dcdf71490",
+          "identity": "date-role-r2",
+          "lease_key": "coordination_epoch_20261018_not_before_date_role_r2"
+        },
+        {
+          "artifact": {
+            "bytes": 3313,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-date-role-r2-application-20261018/adoption-plan-after-fixture.json",
+            "sha256": "27907644bad3114d4c19165aa7c9f1b562bdf4f04b2d401cd4f076447764ff8f"
+          },
+          "base": "681531183338e703e94c640f7794abfc2586959b",
+          "identity": "date-role-r2",
+          "lease_key": "coordination_epoch_20261018_not_before_date_role_r2"
+        }
+      ],
+      "ruff_deciding_output_refs": [
+        {
+          "exit_code": 0,
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-date-role-r2-application-20261018/check.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-date-role-r2-application-20261018/check.stdout.txt",
+            "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+          }
+        },
+        {
+          "exit_code": 0,
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-date-role-r2-application-20261018/format.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-date-role-r2-application-20261018/format.stdout.txt",
+            "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+          }
+        }
+      ],
+      "slice_base": "681531183338e703e94c640f7794abfc2586959b",
+      "slice_base_tree": "8d139613bed0dd46357c9c6584515386bff823ec",
+      "source_commit": {
+        "parents": [
+          "681531183338e703e94c640f7794abfc2586959b"
+        ],
+        "sha": "9c102a86308e3fecec3d415859f7c37518cd8106",
+        "subject": "fix(e02): distinguish gate eligibility dates from expiry deadlines",
+        "tree": "2aacc74a5d6cc892e01e84f94d3229416c9b1d7d"
+      },
+      "source_commit_readback": {
+        "bytes": 1414,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-date-role-r2-application-20261018/date-role-r2-readback.json",
+        "sha256": "d7de5a2968a28ba56a3acb89227931a0e560a9151133868839b51346bae07e38"
+      }
+    },
+    {
+      "application_and_full_ruff_pins": {
+        "bytes": 14543,
+        "meaning": "This content-bound source application carries exact changed-path pre/post pins and complete Ruff check/format argv/input pins.",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-owner-source-bridge-r7-application-20261018/source-application.json",
+        "sha256": "8c94ad7004f9aae65ac9864915acd47b36371c516a9243f7b5b111bf56607d41"
+      },
+      "commit_request": {
+        "bytes": 2893,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-owner-source-bridge-r7-application-20261018/commit-request.json",
+        "sha256": "5c309ac4a3219740257b83f626054858c640009e2c2d5d87c4c7fe32245bcd04"
+      },
+      "identity": "owner-source-bridge-r7",
+      "native_trash_receipt": {
+        "bytes": 197,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-owner-source-bridge-r7-application-20261018/native-trash-receipt.json",
+        "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+      },
+      "recorded_application_state": {
+        "G_acceptance": false,
+        "closure_ids": [],
+        "runtime": "UNRUN on adopted canonical source; bounded candidate evidence is separately referenced",
+        "source_freeze": false
+      },
+      "reviewed_input_refs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase-barrier-owner-source-bridge-r7-candidate-20261018/candidate-manifest.json",
+          "sha256": "202ea88ddc49e15bd15d1805eb089c6b5ab140472914454aa4cb82321eac613a"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase-barrier-owner-source-bridge-r7-candidate-20261018/candidate-r7-final.patch",
+          "sha256": "6d4dcfff5628004276eb825f471b15eaabbc12af9b90f2cd5c7b81a561183f6e"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/phase-barrier-owner-source-bridge-r7-independent-review-20261018/review.json",
+          "sha256": "e9f6326a58f129664adf9897c73eb3c2d0e66842bf61e388072a560d2de7de4b"
+        }
+      ],
+      "root_adoption_plans": [
+        {
+          "artifact": {
+            "bytes": 10700,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-owner-source-bridge-r7-application-20261018/adoption-plan.json",
+            "sha256": "52794b61103d58363f65a6456b85639f91f4ec75bcfdb36b0e18caa1ee3f8404"
+          },
+          "base": "9c102a86308e3fecec3d415859f7c37518cd8106",
+          "identity": "owner-source-bridge-r7",
+          "lease_key": "coordination_epoch_20261018_terminal_projection_and_owner_source_r7"
+        }
+      ],
+      "ruff_deciding_output_refs": [
+        {
+          "exit_code": 0,
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-owner-source-bridge-r7-application-20261018/check.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-owner-source-bridge-r7-application-20261018/check.stdout.txt",
+            "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+          }
+        },
+        {
+          "exit_code": 0,
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-owner-source-bridge-r7-application-20261018/format.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-owner-source-bridge-r7-application-20261018/format.stdout.txt",
+            "sha256": "75b7030be9d7de96bf4e76e79b1f03f14af8899d169fd8d79564d59167d1ab80"
+          }
+        }
+      ],
+      "slice_base": "9c102a86308e3fecec3d415859f7c37518cd8106",
+      "slice_base_tree": "2aacc74a5d6cc892e01e84f94d3229416c9b1d7d",
+      "source_commit": {
+        "parents": [
+          "9c102a86308e3fecec3d415859f7c37518cd8106"
+        ],
+        "sha": "f5f2db63723eaf321d442e878b2e8b2a0f1e0789",
+        "subject": "fix(e02): preserve fenced terminal projections and reconcile actual canary owner source",
+        "tree": "d0c67e597c4cd0e7e1cf6620c820c5c90d988d76"
+      },
+      "source_commit_readback": {
+        "bytes": 3937,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-owner-source-bridge-r7-application-20261018/owner-source-bridge-r7-readback.json",
+        "sha256": "5a1e921559af49ad6d5f444e55de205da711306283caf43f6a0154bf029174f5"
+      }
+    },
+    {
+      "application_and_full_ruff_pins": {
+        "bytes": 18425,
+        "meaning": "This content-bound source application carries exact changed-path pre/post pins and complete Ruff check/format argv/input pins.",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-semantic-test-owner-r3-v2-application-20261018/source-application.json",
+        "sha256": "c2e7b51eb03b7da555ce5287e854ff016085b2f81a465f9d6d8a221933ac21e7"
+      },
+      "commit_request": {
+        "bytes": 4390,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-semantic-test-owner-r3-v2-application-20261018/commit-request.json",
+        "sha256": "76d7b6a6eb05316908b0bfe9951920ffd8bf20bf226f16ba8947aa73ebc3a513"
+      },
+      "identity": "semantic-test-owner-r3-v2",
+      "native_trash_receipt": {
+        "bytes": 1348,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-semantic-test-owner-r3-v2-application-20261018/native-trash-receipt.json",
+        "sha256": "8d219c4d13726b1503474f5344f5137d73d6951db1b0601f7cc786967abe1ece"
+      },
+      "recorded_application_state": {
+        "G_acceptance": false,
+        "closure_ids": [],
+        "runtime": "UNRUN on adopted canonical source; bounded candidate evidence is separately referenced",
+        "source_freeze": false
+      },
+      "reviewed_input_refs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-test-ratchet-semantic-owner-author-r3-v2-20261018/candidate-manifest-r3.json",
+          "sha256": "b20b9bf7edc520231bb1b2915f3d4b1daf7e9f45acbd5a13460dd35dde851ab3"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-test-ratchet-semantic-owner-author-r3-v2-20261018/candidate-r3.patch",
+          "sha256": "bdbc44f5440fd686cbdd1426c64b9fe1098398f37ba178ec926876dac161726f"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-test-ratchet-semantic-owner-independent-review-r3-v2-20261018/review.json",
+          "sha256": "2464123fc77302889ada3c0070f7cf7b548e3e18773749aeef5e462038b79068"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-test-ratchet-semantic-owner-independent-review-r2-20261018/review.json",
+          "sha256": "72eeeb5858cc1505b1f3105e4e37f69d4730c07f1774d4b1598353c44da73a8f"
+        }
+      ],
+      "root_adoption_plans": [
+        {
+          "artifact": {
+            "bytes": 14486,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-semantic-test-owner-r3-v2-application-20261018/adoption-plan.json",
+            "sha256": "509faa2295a4c18c76022b4e145cedbd3a6353526a2732cded2981867ac68c1a"
+          },
+          "base": "f5f2db63723eaf321d442e878b2e8b2a0f1e0789",
+          "identity": "semantic-test-owner-r3-v2",
+          "lease_key": "coordination_epoch_20261018_eight_semantic_owner_test_composition"
+        }
+      ],
+      "ruff_deciding_output_refs": [
+        {
+          "exit_code": 0,
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-semantic-test-owner-r3-v2-application-20261018/check.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-semantic-test-owner-r3-v2-application-20261018/check.stdout.txt",
+            "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+          }
+        },
+        {
+          "exit_code": 0,
+          "stderr": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-semantic-test-owner-r3-v2-application-20261018/format.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "stdout": {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-semantic-test-owner-r3-v2-application-20261018/format.stdout.txt",
+            "sha256": "04eb0d6e6734823dcd2b2b704729e976f683df7a8f334da7216520ef1cb319bf"
+          }
+        }
+      ],
+      "slice_base": "f5f2db63723eaf321d442e878b2e8b2a0f1e0789",
+      "slice_base_tree": "d0c67e597c4cd0e7e1cf6620c820c5c90d988d76",
+      "source_commit": {
+        "parents": [
+          "f5f2db63723eaf321d442e878b2e8b2a0f1e0789"
+        ],
+        "sha": "040ee7d373b1a04f204c4e4dfe65d1e9702a91b3",
+        "subject": "test(e02): align eight semantic owner routes and preserve historical check boundaries",
+        "tree": "7a3d4217d682b5d729e684bc96bc0f6d4fed3b40"
+      },
+      "source_commit_readback": {
+        "bytes": 6561,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-semantic-test-owner-r3-v2-application-20261018/semantic-test-owner-r3-v2-readback.json",
+        "sha256": "4ac03d875b4a5fa7b4875f588b62d07b824050c1117202870349faa073f9ff62"
+      }
+    }
+  ],
+  "limitations": [
+    "The four root source commits are individually read back; their source application receipts recorded source_freeze=false and runtime as UNRUN at application time.",
+    "The later focused 040 run has 5 failing tests and pytest exit status 1; no product acceptance or formal closure follows from source-pin matches.",
+    "The supervisor completion record is absent; supervisor exit and whole-run resource bounds remain not_established.",
+    "The 291-row R6 record is navigation/history only and does not rebind the whole current property.",
+    "Three unrelated quality-factor source-owner commits expected after this frozen frame are outside this packet; retain the 040 identities and do not regenerate or retarget this evidence per advance."
+  ],
+  "record_type": "append-only source/adoption evidence; receipt delivery is separate from the implementation commits",
+  "schema": "policyos.e02.root-source-adoption-chain-receipt.v1",
+  "semantic_test_currentness": {
+    "byte_transition": {
+      "current_040_sha256": "4545e31bef382a669f04c9c7c5f4c89a4fda5aecdf070a7ac018003da881420b",
+      "evidence": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-source-and-actual-evidence-20261018/r4/test-owner-typed-fixture-application-and-wave-r4-20261018.json",
+          "sha256": "58c97ccbe1d7e8c2eced99339a771b3b0cc72476aceac110da58eb81e690ccd0"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-date-role-r2-application-20261018/source-application.json",
+          "sha256": "1ca76cdf5d4f7efb90667209c403e4c4ac83232ec5a29296c024fec55167bd4a"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-date-role-r2-application-20261018/date-role-r2-readback.json",
+          "sha256": "d7de5a2968a28ba56a3acb89227931a0e560a9151133868839b51346bae07e38"
+        }
+      ],
+      "historical_sha256": "ce801e84d7c2e459a828a29fe8bffd640b908089b5cc9543daf6a95df6f84469",
+      "interpretation": "Historical identity is retained. No R4 wrapper hash is rewritten to the current file hash.",
+      "path": "policy-engine/tests/repo_quality/architecture/test_repository_best_in_class_phase1_3_contracts.py"
+    },
+    "next_currentness_evidence": "Use only a fresh source-qualified replay after the next deliberate source freeze; the current 040 composed wave remains red and is not a closure.",
+    "producer_source_pins": "The source/producer pins remain explicitly recorded in the adoption and current-wave artifacts; this does not make the old test-byte receipts current.",
+    "status": "Old LA-032 13-case and LA-036 12-case test-byte receipts are historical after the 040 semantic-owner source/test composition. The R4 test-owner wrapper also retains the old date-role test preimage, now explicitly distinguished from the 040 postimage.",
+    "supporting_receipt": {
+      "bytes": 14486,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-semantic-test-owner-r3-v2-application-20261018/adoption-plan.json",
+      "sha256": "509faa2295a4c18c76022b4e145cedbd3a6353526a2732cded2981867ac68c1a"
+    }
+  },
+  "source_pin_freeze": {
+    "frozen_head": "040ee7d373b1a04f204c4e4dfe65d1e9702a91b3",
+    "frozen_tree": "7a3d4217d682b5d729e684bc96bc0f6d4fed3b40",
+    "reconciliation": {
+      "bytes": 12986,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-composed-actual-wave-040ee7d3-reconciliation-20261018/reconciliation.md",
+      "sha256": "848683787239db4fc046ecc08083c49186a57d251a37e11d67976d0f1d1aad1f"
+    },
+    "scope": "The 2252 frozen inputs to the focused 28-selector wave only; not a global source/profile/backend freeze.",
+    "status": "released for this frozen 040 evidence packet after complete present-time reconciliation"
+  }
+}

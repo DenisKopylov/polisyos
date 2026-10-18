@@ -1,0 +1,446 @@
+{
+  "authority": {
+    "G_acceptance": false,
+    "closure_ids": [],
+    "formal_closure_ids": [],
+    "future_receipt_commit_sha": null,
+    "source_profile_freeze": false,
+    "statement": "This records an actual bounded full-module test replay. It is not LA-032 closure, independent source authority, external currentness, or global source/profile freeze."
+  },
+  "canonical_target_existed_at_preparation": false,
+  "full_output_refs": [
+    {
+      "bytes": 2426,
+      "path": "root-la032-fullmodule-actual-221d-20261018/replay-summary.md",
+      "role": "human-readable actual replay summary",
+      "sha256": "b57ba604f69236cef522351a8041fa40a734b70ee837b933f0d031a19a72cd9d"
+    },
+    {
+      "bytes": 4021,
+      "path": "root-la032-fullmodule-actual-221d-20261018/replay-summary.json",
+      "role": "machine-readable result and command",
+      "sha256": "1b8b1e7a41c2fad9a8d0eab31c7c8fed6fb0c97b610c1d1ceb8d513eecbdc364"
+    },
+    {
+      "bytes": 80,
+      "path": "root-la032-fullmodule-actual-221d-20261018/stdout.log",
+      "role": "complete pytest stdout",
+      "sha256": "2fdbfd8ca4b1f03517583a95c9d797258bdf9116d64cf90fbdaa175b61869611"
+    },
+    {
+      "bytes": 0,
+      "path": "root-la032-fullmodule-actual-221d-20261018/stderr.log",
+      "role": "complete pytest stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 23299,
+      "path": "root-la032-fullmodule-actual-221d-20261018/junit.xml",
+      "role": "complete JUnit results",
+      "sha256": "15d9d24850cda972e581fb58bbc5c12aaa6b333b591fd6a6dd6e87486a90e080"
+    },
+    {
+      "bytes": 11621,
+      "path": "root-la032-fullmodule-actual-221d-20261018/junit-outcomes.json",
+      "role": "complete normalized case outcomes",
+      "sha256": "c4b1222a8127f3b88325537c22abc43fc3e8b1bb13279b76f646af4ede30c58b"
+    },
+    {
+      "bytes": 698,
+      "path": "root-la032-fullmodule-actual-221d-20261018/preflight.json",
+      "role": "runtime HEAD/tree/source pin before execution",
+      "sha256": "8193cef6f1a7db8fb1788792e709302becd9b6b523cf3cf385b8d4e29672b2fc"
+    },
+    {
+      "bytes": 614,
+      "path": "root-la032-fullmodule-actual-221d-20261018/postflight.json",
+      "role": "runtime HEAD/tree/source pin after execution",
+      "sha256": "b3d9795880175e7ff176689558e1f9927bbd9fbcbfe2509625445934f16cb3c0"
+    },
+    {
+      "bytes": 2531,
+      "path": "root-la032-fullmodule-actual-221d-20261018/supervisor-result.json",
+      "role": "command, wait, limits, environment, resources, exit",
+      "sha256": "e4a47d4c138544d0c46934af5697c13f5351089f65dd87aeab1244f601c21275"
+    },
+    {
+      "bytes": 496,
+      "path": "root-la032-fullmodule-actual-221d-20261018/supervisor-bootstrap-failure.json",
+      "role": "initial setup failure before pytest launch",
+      "sha256": "9d267c67290ac5b8af2b47e22d8419e4a155e18c4fe24e581a974886e22f7780"
+    },
+    {
+      "bytes": 7631,
+      "path": "root-la032-fullmodule-actual-221d-20261018/supervisor.py",
+      "role": "supervisor implementation used for this run",
+      "sha256": "e7892a9b6ce8e0cb1cd09f9701a41a47020bc1f1581603d413c819963fc9ef4c"
+    },
+    {
+      "bytes": 7954,
+      "path": "root-la032-fullmodule-actual-221d-20261018/process-tree-rss-samples.jsonl",
+      "role": "complete process-tree resource samples",
+      "sha256": "f845db77bef55fd75452e5d2896fbd98ae957dfe86399eaced73b9bda30c1afe"
+    },
+    {
+      "bytes": 402310,
+      "path": "root-la032-fullmodule-actual-221d-20261018/source-closure-before-tests.json",
+      "role": "complete import closure at collection",
+      "sha256": "330a751dfa0b05b9089adc332709a76a80b91713a70cd028e8f96839331d8d79"
+    },
+    {
+      "bytes": 402817,
+      "path": "root-la032-fullmodule-actual-221d-20261018/source-closure-after-tests.json",
+      "role": "complete import closure after session",
+      "sha256": "89f046883c1a6289757141d991eefbe8ee2eb55dfd13ceb16999749a25f96cbc"
+    },
+    {
+      "bytes": 410555,
+      "path": "root-la032-fullmodule-actual-221d-20261018/source-closure-reconciled.json",
+      "role": "complete import/source hash reconciliation",
+      "sha256": "af14d4fe93ccf071e664bca0743da91e80bf5578cf5651616d7929dce701d63c"
+    },
+    {
+      "bytes": 412256,
+      "path": "root-la032-fullmodule-actual-221d-20261018/module-origins-and-package-versions.json",
+      "role": "complete loaded module origins and versions",
+      "sha256": "23d1a59e7e4aaaa65a2d44ea418dd2c2bf665158529b1152491aa8a6715f46d4"
+    },
+    {
+      "bytes": 4606,
+      "path": "root-la032-fullmodule-actual-221d-20261018/required-package-versions.json",
+      "role": "direct and selected package versions",
+      "sha256": "9f9a87416e40960939f71426a9e909845d7ecbadfdf27d5ee8a2839321b74d24"
+    },
+    {
+      "bytes": 556,
+      "path": "root-la032-fullmodule-actual-221d-20261018/late-source-first-seen.json",
+      "role": "runtime-lazy source origin and hash",
+      "sha256": "2b011df7c19f224498c2d019f7dc2c227bf1f7d4d5e3e99659db88085990b7ba"
+    },
+    {
+      "bytes": 168378,
+      "path": "root-la032-fullmodule-actual-221d-20261018/sha256-manifest.txt",
+      "role": "full SHA-256 manifest covering the run regular-file artifacts",
+      "sha256": "90e02c13f18d8853f5d7b56e4706e81c581e5336fcae4bdac602f9079318c306"
+    }
+  ],
+  "input_refs": [
+    {
+      "bytes": 5845,
+      "path": "resume-la032-inventory-cas-consumer-author-20261018/candidate-v2.json",
+      "role": "reviewed source candidate record v2; criterion and proposed source delta",
+      "sha256": "4fcdaabb3c90342ef84b61c03ea68fc773d342669ce45ea8826a94805d1c2da7"
+    },
+    {
+      "bytes": 4978,
+      "path": "resume-la032-inventory-cas-consumer-independent-v2-20261018",
+      "role": "independent GO for v2 source delta; not runtime or LA-032 closure",
+      "sha256": "7cda9e09fa941dd434f4d84d0e479b09c51b336882af0c160170bbf03d2dcee8"
+    },
+    {
+      "bytes": 5651,
+      "path": "root-la032-inventory-consumer-application-v2-20261018/source-application.json",
+      "role": "source application record; reviewed scope and limits",
+      "sha256": "e74ba87bfaace7aaa3660da81c65826be1be4d29bb44dd930cb25f5511d36685"
+    },
+    {
+      "bytes": 3138,
+      "path": "root-la032-inventory-consumer-application-v2-20261018/adoption-plan.json",
+      "role": "source adoption plan and committed footprint",
+      "sha256": "f418998404c859ce8d09ae1fe7928bad2d1e01fd5bda26c428ac3627e62af371"
+    },
+    {
+      "bytes": 1152,
+      "path": "root-la032-inventory-consumer-application-v2-20261018/la032-inventory-refresh-consumer-v2-readback.json",
+      "role": "source commit/tree/parents and tracked path readback",
+      "sha256": "a349ad2406bf536112a37cf17d0c0cf40472bf247f686e9ab76b466a83935b10"
+    },
+    {
+      "bytes": 44282,
+      "path": "root-la032-inventory-consumer-application-v2-20261018/canonical-formatted-test.postimage.py",
+      "role": "RAW readback of exact formatted test-module bytes; no source copy added here",
+      "sha256": "76e5ba88eed68583219688f401a915469a3a1b93d63eebac40634dda1a40bd49"
+    },
+    {
+      "bytes": 18083,
+      "path": "resume-receipt-batch-current-additions-r2-20261018/root-la032-inventory-consumer-v2-221d-20261018.json",
+      "role": "R2-prepared source-only handoff receipt, not presumed canonical",
+      "sha256": "73f4bdd3008a8130e0d98a53a87fd69c64d9bd94c8aa15605379f4f22cd3bf07"
+    }
+  ],
+  "limitations": [
+    "A 46/46 full-module PASS is a bounded verification result, not LA-032 acceptance or formal closure; closure_ids remains empty.",
+    "Synthetic D1 facts remain consumer_asserted. Source authority, external currentness, and semantic completeness are not_established.",
+    "The actual source closure is complete for the 779 collection-time and 780 post-session imported product source files; it is not a full tracked-worktree status snapshot. Whole-worktree cleanliness at launch is not_established.",
+    "The run packet records HEAD/tree and imported source hashes, but no full tracked dirty-path list. Concurrent root-native edit count and identities are not claimed here.",
+    "The initial supervisor bootstrap attempt failed before pytest started; only the corrected bounded replay yielded the 46-pass result.",
+    "This receipt and input manifest are RAW preparation artifacts. The requested canonical target was absent at preparation and has no claimed canonical hash."
+  ],
+  "next_check": "Root review the RAW receipt and its input-reference manifest, then decide whether to add the receipt as a receipt-only postimage. Keep LA-032#1 limited; any future authority/currentness/completeness claim requires separately supplied or independently verified source evidence.",
+  "observed_result": {
+    "case_names_for_examples": "root-la032-fullmodule-actual-221d-20261018/junit-outcomes.json",
+    "exercised_property_examples": [
+      "D1 synthetic selected producer outputs enter the explicit inventory stage; present and intentionally-absent membership cases pass.",
+      "The inventory candidate reaches the actual reader and Foundry consumer.",
+      "Refresh reopens the current snapshot while preserving the older receipt through the historical reader.",
+      "No historical-filesystem fallback; independent-provenance labels are refused; selected CAS member loss/corruption refuses without defaults."
+    ],
+    "exit_code": 0,
+    "manifest_validation": {
+      "all_recorded_hashes_match": true,
+      "all_symlink_targets_resolve_inside_run": true,
+      "directory_entries": 950,
+      "duplicate_or_unsafe_manifest_paths": 0,
+      "extra_manifest_paths": 0,
+      "file_type_denominator": "all regular files under run directory; directories and symlinks were counted separately and are excluded from byte-entry manifest",
+      "manifest_lines": 850,
+      "manifest_self_entry_excluded": "sha256-manifest.txt",
+      "manifested_regular_files": 850,
+      "missing_or_wrong_type_or_hash_entries": 0,
+      "regular_files_including_manifest": 851,
+      "special_file_entries": 0,
+      "symlink_directory_entries": 13,
+      "symlink_file_entries": 0,
+      "symlink_targets_outside_run": 0,
+      "symlink_targets_with_manifested_regular_descendants": 12,
+      "symlink_targets_without_manifested_regular_descendants": 1,
+      "unlisted_regular_files": 0,
+      "walk_root": "root-la032-fullmodule-actual-221d-20261018"
+    },
+    "pytest_session_seconds": 30.933,
+    "resources": {
+      "disk_floor_breached": false,
+      "disk_floor_bytes": 1073741824,
+      "minimum_disk_free_bytes": 19369525248,
+      "process_tree_rss_cap_bytes": 1610612736,
+      "process_tree_rss_peak_bytes": 593166336,
+      "rss_limit_exceeded": false,
+      "rss_samples": 70,
+      "timeout": false
+    },
+    "source_closure": {
+      "canonical_tree_post_hash_mismatches": 0,
+      "changed_source_files": 0,
+      "collection_source_files": 779,
+      "complete": true,
+      "head_advanced": false,
+      "late_imported_source_file": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/data_forge/domains/ukraine/static_aging.py",
+      "late_imported_source_sha256": "6c81326f04c6ed575ccc94bd85d46adc5cbbabe99774378b235e39932b00f040",
+      "live_post_hash_mismatches": 0,
+      "missing_tree_blobs": 0,
+      "post_session_actual_imported_source_files": 780,
+      "preimages_unavailable": 0
+    },
+    "status": "PASS",
+    "supervisor_elapsed_seconds": 35.386,
+    "tests": {
+      "ERROR": 0,
+      "FAILURE": 0,
+      "PASS": 46,
+      "SKIPPED": 0,
+      "junit_xml_matches_normalized_outcomes": true
+    }
+  },
+  "pattern_pass": {
+    "acceptance_signal": "The complete 46-case module run passes on commit 221d/tree 61f9, with full run outputs and source closure refs; LA-032 remains limited and no authority or closure claim is made.",
+    "existing_anti_patterns_found": [
+      "The prior source handoff was a reviewed candidate without a canonical full-module runtime result; the new receipt binds the actual complete module replay and its outputs.",
+      "A bare exit code or one green marker would not establish the tested behavior; the receipt binds 46 JUnit outcomes, the source pin, and the full source-closure reconciliation.",
+      "Synthetic producer facts are consumer_asserted; passing inventory/CAS behavior does not establish their independent authority, currentness, or semantic completeness."
+    ],
+    "gate_predicates": {
+      "actual_imported_source_set_and_hashes": "recomputed and reconciled to the pinned tree and live files",
+      "source_authority_external_currentness_and_semantic_completeness": "not_established",
+      "source_commit_and_test_module_bytes": "independently_reconciled from the pinned Git commit plus actual preflight/postflight reads",
+      "synthetic_source_facts": "consumer_asserted",
+      "whole_tracked_worktree_status_at_launch": "not_established"
+    },
+    "implementation_vs_property": {
+      "actual_gate": "The full test module runs through pytest, with 46 individual JUnit cases and the refresh/current/historical consumer case passing on the pinned source.",
+      "divergent_case": "The test cannot establish whether synthetic facts are externally authoritative or current; those predicates are outside the fixture and remain not_established.",
+      "property_exercised": "A source-stage refresh yields a new current inventory/CAS snapshot while the retained historical receipt remains readable through separate readers, with existing failure/refusal controls preserved."
+    },
+    "p40_bucket": "The missing authority/currentness/completeness envelope remains the same LA-032 whole-candidate evidence class; this replay adds runtime evidence for the synthetic refresh property and does not create or close a new class.",
+    "relevant_ids": [
+      "P01",
+      "P02",
+      "P05",
+      "P10",
+      "P14",
+      "P29",
+      "P32",
+      "P35",
+      "P37",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "remaining_capability_labels": [
+      "producer_missing: authentic source-owner producer is absent from this synthetic route.",
+      "verification_missing: independent source authority, external currentness, and semantic completeness are not established.",
+      "surface_out_of_scope: live authoritative source admission is outside this fixture replay."
+    ],
+    "target_pattern": "Run the full existing module against the exact adopted source commit, record the real producer-to-inventory-to-CAS-to-reader behavior and refusal controls, reconcile the complete imported source closure, and preserve candidate status for unsupported source predicates."
+  },
+  "proposal_status": "prepared_RAW_only_for_root_review_and_application",
+  "receipt_id": "la032-inventory-refresh-consumer-fullmodule-221d-actual",
+  "reference_manifest": {
+    "bytes": 7288,
+    "path": "resume-la032-actual-receipt-prepare-20261018/input-refs.json",
+    "sha256": "03d6b04c4697c551b32c03802aca04fd075ae8fae942e2aecebb6e9394fe84ed"
+  },
+  "schema": "e02.actual_fullmodule_execution_receipt.v1",
+  "selected_profile": {
+    "argv": [
+      "./.venv/bin/python",
+      "-B",
+      "-m",
+      "pytest",
+      "-q",
+      "tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py"
+    ],
+    "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+    "direct_test_runtime_requirements": {
+      "numpy": {
+        "distribution": "numpy",
+        "module_origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/lib/python3.14/site-packages/numpy/__init__.py",
+        "version": "2.3.5"
+      },
+      "pydantic": {
+        "distribution": "pydantic",
+        "module_origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic/__init__.py",
+        "version": "2.12.5"
+      },
+      "pydantic_core": {
+        "distribution": "pydantic-core",
+        "module_origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pydantic_core/__init__.py",
+        "version": "2.41.5"
+      },
+      "pytest": {
+        "distribution": "pytest",
+        "module_origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/lib/python3.14/site-packages/pytest/__init__.py",
+        "version": "9.0.2"
+      }
+    },
+    "first_attempt": {
+      "reason": "Initial supervisor invocation lacked LA032_PRODUCT_ROOT; supervisor exited before opening logs or spawning pytest.",
+      "status": "bootstrap_failed_before_pytest_launch",
+      "test_process_started": false,
+      "treatment": "Recorded separately; it launched no pytest process and is not counted as a test result."
+    },
+    "kind": "bounded full-module actual replay on existing product virtual environment",
+    "limits": {
+      "disk_floor_bytes": 1073741824,
+      "process_tree_rss_cap_bytes": 1610612736,
+      "sample_interval_seconds": 0.5,
+      "supervisor_wall_seconds": 180.0
+    },
+    "loaded_site_package_root_count": 86,
+    "original_thread_environment": {
+      "ARROW_NUM_THREADS": null,
+      "BLIS_NUM_THREADS": null,
+      "MKL_NUM_THREADS": null,
+      "NUMBA_NUM_THREADS": null,
+      "NUMEXPR_NUM_THREADS": null,
+      "OMP_NUM_THREADS": null,
+      "OPENBLAS_NUM_THREADS": null,
+      "POLARS_MAX_THREADS": null,
+      "PYTHONDONTWRITEBYTECODE": null,
+      "TF_NUM_INTEROP_THREADS": null,
+      "TF_NUM_INTRAOP_THREADS": null,
+      "VECLIB_MAXIMUM_THREADS": null,
+      "XLA_FLAGS": null
+    },
+    "pytest_addopts": "--junitxml=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la032-fullmodule-actual-221d-20261018/junit.xml --basetemp=/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la032-fullmodule-actual-221d-20261018/basetemp -p no:cacheprovider -o junit_logging=all",
+    "python": {
+      "base_prefix": "/Users/deniskopylov/.local/share/uv/python/cpython-3.14.3-macos-aarch64-none",
+      "executable": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+      "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+      "prefix": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv",
+      "version": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]"
+    },
+    "runtime_inventory_ref": "root-la032-fullmodule-actual-221d-20261018/module-origins-and-package-versions.json@23d1a59e7e4aaaa65a2d44ea418dd2c2bf665158529b1152491aa8a6715f46d4",
+    "thread_environment": {
+      "ARROW_NUM_THREADS": "1",
+      "BLIS_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "NUMBA_NUM_THREADS": "1",
+      "NUMEXPR_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "OPENBLAS_NUM_THREADS": "1",
+      "POLARS_MAX_THREADS": "1",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "TF_NUM_INTEROP_THREADS": "1",
+      "TF_NUM_INTRAOP_THREADS": "1",
+      "VECLIB_MAXIMUM_THREADS": "1",
+      "XLA_FLAGS": "--xla_cpu_multi_thread_eigen=false intra_op_parallelism_threads=1"
+    },
+    "wait": {
+      "child_pid": 25214,
+      "elapsed_seconds": 35.386,
+      "finished_at_utc": "2026-10-18T07:10:42.466660+00:00",
+      "started_at_utc": "2026-10-18T07:10:07.080961+00:00",
+      "termination_reason": null,
+      "timeout": false
+    }
+  },
+  "semantic_boundary": {
+    "LA032_finding": "LA-032#1, ordinal 262, coverage.json#/findings/256; remains limited and unclosed.",
+    "external_currentness": "not_established",
+    "fixture": "synthetic D1 input and candidate inventory/CAS artifacts",
+    "implementation_vs_property": "The test exercises refresh identity/content behavior through real producer, persistence, CAS, and public readers. It does not determine whether synthetic facts are externally authoritative, current, or semantically complete; those predicates remain not_established.",
+    "member_content_and_declared_basis_binding": "recomputed within the tested synthetic candidate route",
+    "producer_consumer_chain": "Existing synthetic D1 producer → explicit demography source inventory stage → persisted inventory/CAS artifacts → separately reopened FileSystemCAS readers → public current-candidate reader and retained historical aggregate reader; module also exercises the Foundry consumer.",
+    "semantic_completeness": "not_established",
+    "source_authority": "not_established",
+    "source_facts": "consumer_asserted"
+  },
+  "source_slice": {
+    "actual_run_head_tree": {
+      "head": "221d4b7644b2bd022b4ae8b53e45834f83cfc11c",
+      "tree": "61f9b37635c5356f67c5f52771095c0e0c22a896",
+      "unchanged_after_run": true
+    },
+    "actual_test_source": {
+      "bytes": 44282,
+      "git_commit": "221d4b7644b2bd022b4ae8b53e45834f83cfc11c",
+      "git_path": "policy-engine/tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py",
+      "preflight_and_postflight_sha_equal": true,
+      "raw_readback_ref": "root-la032-inventory-consumer-application-v2-20261018/canonical-formatted-test.postimage.py@76e5ba88eed68583219688f401a915469a3a1b93d63eebac40634dda1a40bd49",
+      "sha256": "76e5ba88eed68583219688f401a915469a3a1b93d63eebac40634dda1a40bd49",
+      "source_blob_verified_against_commit": true
+    },
+    "base": {
+      "commit": "8d9d7a767aac3412781ab2b4c9ebcd044241b2ab",
+      "parents": [
+        "0d06e04d5621bdba60a7ae89c98eb943522ea4f4"
+      ],
+      "tree": "afc159899c9599a311c3a5566d70b49dfb0ee73b"
+    },
+    "candidate": {
+      "commit": "221d4b7644b2bd022b4ae8b53e45834f83cfc11c",
+      "parents": [
+        "8d9d7a767aac3412781ab2b4c9ebcd044241b2ab"
+      ],
+      "tree": "61f9b37635c5356f67c5f52771095c0e0c22a896"
+    },
+    "full_committed_footprint": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "policy-engine/tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py"
+    ],
+    "source_only_handoff": {
+      "if_absent": "The prepared source handoff is cited by its actual RAW path and SHA; no canonical-path content hash is asserted.",
+      "independent_source_review_ref": "resume-la032-inventory-cas-consumer-independent-v2-20261018@7cda9e09fa941dd434f4d84d0e479b09c51b336882af0c160170bbf03d2dcee8",
+      "prepared_receipt_ref": "resume-receipt-batch-current-additions-r2-20261018/root-la032-inventory-consumer-v2-221d-20261018.json@73f4bdd3008a8130e0d98a53a87fd69c64d9bd94c8aa15605379f4f22cd3bf07",
+      "r2_canonical_target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-la032-inventory-consumer-v2-221d-20261018.json",
+      "r2_canonical_target_present_at_preparation": false,
+      "reviewed_source_candidate_ref": "resume-la032-inventory-cas-consumer-author-20261018/candidate-v2.json@4fcdaabb3c90342ef84b61c03ea68fc773d342669ce45ea8826a94805d1c2da7"
+    },
+    "tracked_worktree_status_at_launch": {
+      "qualification": "The run artifacts do not contain a full tracked-path status snapshot. Concurrent root-native edits were outside the 780-file imported source closure, but this packet does not establish their exact count or path identities. Unchanged HEAD/tree and closure reconciliation do not attest whole-worktree cleanliness.",
+      "status": "not_established_by_this_run_packet"
+    }
+  },
+  "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-la032-fullmodule-actual-221d-20261018.json"
+}

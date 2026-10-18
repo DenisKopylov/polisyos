@@ -1,0 +1,104 @@
+{
+  "schema": "policyos.e02.native-cohesive-owner-source-adoption.v1",
+  "record_type": "post_040_source_adoption_receipt",
+  "authority": {
+    "proposal_only": true,
+    "global_source_input_backend_freeze": false,
+    "source_freeze": false,
+    "G_acceptance": false,
+    "formal_G_adjudication": false,
+    "closure_ids": [],
+    "future_receipt_commit_sha": null
+  },
+  "implementation_commit": {
+    "branch": "codex/e02-unified-local-20261009",
+    "sha": "cfc6de2d3586a4a64f7088797a0752e7786aeea5",
+    "tree": "e72764d96a194834223582eb94f06d95faf43456",
+    "parent": "040ee7d373b1a04f204c4e4dfe65d1e9702a91b3",
+    "subject": "refactor(e02): separate reference scanning, health dashboard and structure inventory owners",
+    "changed_path_count": 12,
+    "source_paths_and_postimage_hashes": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-cohesive-owner-extractions-20261018/native-cohesive-owner-extractions-r1-readback.json",
+      "sha256": "43764b6238d101c39bf7ca12ffb1a03d622a9a73e39ad8b19de63ec005563479"
+    },
+    "commit_request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-cohesive-owner-extractions-20261018/commit-request.json",
+      "sha256": "4568b9c038875f23c8f45459c864859a13998a48117be0de4c4528464e468ad6"
+    },
+    "adoption_plan": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-cohesive-owner-extractions-20261018/adoption-plan-final-after-review-corrigendum.json",
+      "sha256": "8ba94689f0abb39fe26aa88b060b9d1af74c665aa412e6a1e9020f7bc030e469"
+    },
+    "source_application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-cohesive-owner-extractions-20261018/source-application.json",
+      "sha256": "c715ef4853ae9620c1bed1d7d37ddec2b8a1a354e9625c354c6e3a183ab73398"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-cohesive-owner-extractions-20261018/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "canonical_ledger_postimages": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "sha256": "86034b79c32633f5d62b424a021ba0b8604c43395becef74beb339a7410bc4eb"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "sha256": "f86c3eb73d0db6e21dc62c8edae987be5dd540feb3aab453b0b61380680ec3b1"
+      }
+    ]
+  },
+  "review_and_verification_refs": {
+    "review_inputs_are_bound_by": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-cohesive-owner-extractions-20261018/adoption-plan-final-after-review-corrigendum.json",
+      "sha256": "8ba94689f0abb39fe26aa88b060b9d1af74c665aa412e6a1e9020f7bc030e469"
+    },
+    "Ruff_commands_and_exact_input_pins_are_bound_by": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-cohesive-owner-extractions-20261018/source-application.json",
+      "sha256": "c715ef4853ae9620c1bed1d7d37ddec2b8a1a354e9625c354c6e3a183ab73398"
+    },
+    "Ruff_outputs": [
+      {
+        "kind": "ruff_check",
+        "exit_code": 0,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-cohesive-owner-extractions-20261018/check.stdout.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-cohesive-owner-extractions-20261018/check.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "command_and_input_pins_in_source_application": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-cohesive-owner-extractions-20261018/source-application.json",
+          "sha256": "c715ef4853ae9620c1bed1d7d37ddec2b8a1a354e9625c354c6e3a183ab73398"
+        }
+      },
+      {
+        "kind": "ruff_format_check",
+        "exit_code": 0,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-cohesive-owner-extractions-20261018/format.stdout.txt",
+          "sha256": "2ce9758b9f8abd876ec3e76c589e099e8b05377b1e7ea2331e81ee80f07bdff8"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-cohesive-owner-extractions-20261018/format.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "command_and_input_pins_in_source_application": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-cohesive-owner-extractions-20261018/source-application.json",
+          "sha256": "c715ef4853ae9620c1bed1d7d37ddec2b8a1a354e9625c354c6e3a183ab73398"
+        }
+      }
+    ],
+    "protected_raw_aliases_unchanged": 302,
+    "runtime_on_adopted_canonical_source": "UNRUN",
+    "no_semantic_or_current_test_pass_claim": true
+  },
+  "post_040_limit": {
+    "base_replay_frame": "040ee7d373b1a04f204c4e4dfe65d1e9702a91b3",
+    "meaning": "This source adoption postdates the 040 2252-input / 28-selector replay. Keep that replay point-in-time; do not rewrite historical R4 wrappers or attribute its test result to these post-040 source/test bytes.",
+    "runtime": "UNRUN on this adopted canonical source at receipt preparation.",
+    "test_scope": "This commit includes test-owner changes; the 040 wave cannot establish their post-commit currentness."
+  }
+}

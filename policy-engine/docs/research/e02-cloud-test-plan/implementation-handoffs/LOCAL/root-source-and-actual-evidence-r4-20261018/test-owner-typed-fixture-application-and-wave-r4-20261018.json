@@ -1,0 +1,108 @@
+{
+  "schema": "policyos.local.source_bound_handoff.v1",
+  "created_date": "2026-10-18",
+  "branch": "codex/e02-unified-local-20261009",
+  "observed_source_frame": {
+    "head": "8ef3c60bd7a0fbab465f203795e33a1dcdf71490",
+    "tree": "8fea7ee9e10c764e96f3a1172193088c285c3b0d"
+  },
+  "closure_ids": [],
+  "G_acceptance": false,
+  "global_source_input_backend_freeze": false,
+  "source_freeze": false,
+  "author_proposal_is_formal_closure": false,
+  "packet_status": "reviewable local evidence payload; no formal closure or global freeze claimed",
+  "payload_id": "test-owner-typed-fixture-application-and-wave-r4-20261018",
+  "source_application": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-test-owner-and-fixture-application-20261018/source-application.json",
+    "sha256": "ac553759485f3778a183f8fc33f11a210fe40228409bac954c617bf5a99103c0"
+  },
+  "commit_readback": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-test-owner-and-fixture-application-20261018/reviewed-test-owner-rehome-and-typed-fixture-readback.json",
+    "sha256": "f3d7560770b11fbf700e73d4b2e67cadd867515dc5ef12e29a4999de5a714c84"
+  },
+  "commit": {
+    "sha": "04e4b376053b715f55c794dc0dc269de2f32b516",
+    "tree": "2fc8b2b040813974e849abe8e667498334d0dd9a",
+    "parents": [
+      "8e3062d8ec1268151d674932910c4694d426863b"
+    ],
+    "subject": "test(e02): align behavioral test owners and derive typed corruption fixtures"
+  },
+  "typed_fixture_postimage": {
+    "path": "policy-engine/tests/repo_quality/architecture/test_repository_best_in_class_phase1_3_contracts.py",
+    "sha256": "ce801e84d7c2e459a828a29fe8bffd640b908089b5cc9543daf6a95df6f84469"
+  },
+  "native_trash": {
+    "receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-test-owner-and-fixture-application-20261018/native-trash-receipt.json",
+      "sha256": "935216cbd39b4c238b0753b40cbf7aef0da9e485b3b88ebfb6d8ec01614393d1"
+    },
+    "retired_test_files": 5,
+    "trash_emptied": false,
+    "permanent_deletion": false
+  },
+  "actual_selected_wave": {
+    "source_frame": {
+      "branch": "refs/heads/codex/e02-unified-local-20261009",
+      "head": "04e4b376053b715f55c794dc0dc269de2f32b516",
+      "parent": "8e3062d8ec1268151d674932910c4694d426863b",
+      "tree": "2fc8b2b040813974e849abe8e667498334d0dd9a"
+    },
+    "selectors": 19,
+    "cases": 182,
+    "passed": 180,
+    "failed": 2,
+    "errors": 0,
+    "skipped": 0,
+    "exit_code": 1,
+    "runtime_seconds": 38.931,
+    "rss_mib": 104.88,
+    "command_profile_and_selector_list": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-test-owner-r7-canonical-actual-20261018/run-result.json",
+      "sha256": "e0e151ab61920e244aeb9a31c642aa30cfb27fc2d157373e05a820c908481c7a"
+    },
+    "preflight_input_denominator": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-test-owner-r7-canonical-actual-20261018/preflight.json",
+      "sha256": "8568f8b1de98ecf2b4dd307af0d3e767923cd9c662ad9319b1e1e9448ecb6ffd"
+    },
+    "completion_corrigendum": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-test-owner-r7-canonical-actual-20261018/completion-corrigendum.json",
+      "sha256": "a84232d0d89e6c2216827f5b6aff40f9e29f721c77cc38e443f37b084d1ce226"
+    },
+    "deciding_outputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-test-owner-r7-canonical-actual-20261018/stdout.txt",
+        "sha256": "2f5ca6ed7f1dfe7e809a4b8bda22b3ff7c2eac5e2cb411ba77bac779dab1fc9e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-test-owner-r7-canonical-actual-20261018/stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-test-owner-r7-canonical-actual-20261018/pytest.xml",
+        "sha256": "31742ee8ecfff8e4c702ad064ca19a9097a105352662e454df53d7675e9e7496"
+      }
+    ],
+    "typed_fixture_case": {
+      "nodeid": "tests.repo_quality.architecture.test_repository_best_in_class_phase1_3_contracts::test_package_mirror_rejects_malformed_raw_typed_fields",
+      "status": "passed"
+    },
+    "open_failures": [
+      "tests/unit/common/test_migrations_purity.py::test_shared_migration_engine_is_exported_without_copying",
+      "tests/unit/remediation/test_hyg_04.py::test_benchmark_wrapper_caller_census_is_complete_and_bounded"
+    ],
+    "scope_limit": "This was the 19-selector focused blast-radius wave only. It is not a full suite, whole ratchet, mutation-removal proof, or formal closure; both failures remain open to their named reviewers."
+  },
+  "separate_open_date_role_failure": {
+    "status": "open; awaiting owner fix and replay",
+    "evidence": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/package-r8-canonical-actual-20261018/analysis.json",
+      "sha256": "5c5d93ff8b29e1bf222fb3527b4a0b073cacbe330d68dfe07487a0f696319011"
+    },
+    "note": "The old 42-case package result and 182-case selected wave are different source frames and result sets."
+  },
+  "proposal_fields": {
+    "closures_proposed": []
+  }
+}

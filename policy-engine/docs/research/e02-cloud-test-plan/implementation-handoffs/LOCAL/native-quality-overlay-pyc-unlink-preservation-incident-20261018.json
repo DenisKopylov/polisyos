@@ -1,0 +1,275 @@
+{
+  "authority": {
+    "G_acceptance": false,
+    "closure_ids": [],
+    "formal_closure_ids": [],
+    "future_receipt_commit_sha": null,
+    "source_profile_freeze": false
+  },
+  "commands": {
+    "candidate_boundary": ".venv/bin/python -B docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-quality-inventory-owner-author-20261018/receipts/candidate-boundary-runner.py",
+    "mandatory_test_invocation": "not retained; no inference"
+  },
+  "full_output_refs": [
+    {
+      "bytes": 8897,
+      "path": "resume-native-quality-inventory-owner-independent-20261018/independent-review.md",
+      "role": "independent review: source GO, adoption/closeout HOLD, P41 not established",
+      "sha256": "c978e568dd69fb6ab8e3999b1d630481c1063baa57afcdac86d2e523177ff4c8"
+    },
+    {
+      "bytes": 3253,
+      "path": "incidents/native-quality-overlay-pyc-unlink-20261018/incident.json",
+      "role": "seven-pyc incident report",
+      "sha256": "944fa593d25d88ead1029f19ae8175a85a95154fd180872d7cacc71c6be7221b"
+    },
+    {
+      "bytes": 272,
+      "path": "resume-native-quality-inventory-owner-author-20261018/receipts/candidate-boundary-result.json",
+      "role": "boundary summary",
+      "sha256": "69799d53c6000d107e453cf11a7b29a40d9f7d5c9a57fc609ae1865ea9ca6381"
+    },
+    {
+      "bytes": 4798,
+      "path": "resume-native-quality-inventory-owner-author-20261018/receipts/source-binding-boundary-tests.xml",
+      "role": "22-case boundary JUnit",
+      "sha256": "6b224b453b9d99f9f7e6398daae988ffaddda664dab70cfc2b9c7b24309f2856"
+    },
+    {
+      "bytes": 4054,
+      "path": "resume-native-quality-inventory-owner-author-20261018/receipts/focused-tests.txt",
+      "role": "full mandatory test file with two failures",
+      "sha256": "ad3614bf5308a5b3bbb9be32cf7c0b7505fd5a9e1121ce2fbbf5489bf274f843"
+    },
+    {
+      "bytes": 3165,
+      "path": "resume-native-quality-inventory-owner-author-20261018/receipts/exact-preimage-out-of-slice-tests.txt",
+      "role": "preimage replay output",
+      "sha256": "c98c02ea1777933f7dae0d32b62843f7a345e2eaa6402773ab25968484871cf4"
+    },
+    {
+      "bytes": 3718,
+      "path": "resume-native-quality-inventory-owner-author-20261018/receipts/exact-preimage-out-of-slice-tests.xml",
+      "role": "preimage replay JUnit",
+      "sha256": "a0adbaccfdcfb31845421b04b16b78e012085503d129e0da75692c09017a646e"
+    },
+    {
+      "bytes": 7502,
+      "path": "resume-native-quality-inventory-owner-independent-20261018/review-evidence.json",
+      "role": "review evidence pins",
+      "sha256": "3e1e506aef5bcc0b359d605be1abe649135cafe81e78bece8f7348a64db2c5b1"
+    },
+    {
+      "bytes": 6104,
+      "path": "resume-native-quality-inventory-owner-independent-20261018/verification-profiles.json",
+      "role": "review verification limits/next profile",
+      "sha256": "60aaf7abd09f940a8bce10de57d0bae4dfe4e15ff64a9255dcadc5eb61d7fb97"
+    }
+  ],
+  "input_refs": [
+    {
+      "bytes": 8897,
+      "path": "resume-native-quality-inventory-owner-independent-20261018/independent-review.md",
+      "role": "independent review: source GO, adoption/closeout HOLD, P41 not established",
+      "sha256": "c978e568dd69fb6ab8e3999b1d630481c1063baa57afcdac86d2e523177ff4c8"
+    },
+    {
+      "bytes": 27978,
+      "path": "resume-native-quality-inventory-owner-author-20261018/packet-index.json",
+      "role": "candidate packet/footprint/incident context",
+      "sha256": "b1e173b8098d8e6bb234809657ebb6ce238c96f0adc317bd5b1830b2bc1db530"
+    },
+    {
+      "bytes": 138182,
+      "path": "resume-native-quality-inventory-owner-author-20261018/candidate.patch",
+      "role": "four-module candidate patch; not copied",
+      "sha256": "4b47ef0d0f1dc4cf9275fbed450474898bebee3bbb8fb6bd65d6744fd983142f"
+    },
+    {
+      "bytes": 3253,
+      "path": "incidents/native-quality-overlay-pyc-unlink-20261018/incident.json",
+      "role": "seven-pyc incident report",
+      "sha256": "944fa593d25d88ead1029f19ae8175a85a95154fd180872d7cacc71c6be7221b"
+    },
+    {
+      "bytes": 2532,
+      "path": "resume-native-quality-inventory-owner-author-20261018/receipts/candidate-boundary-command.json",
+      "role": "exact boundary command",
+      "sha256": "33afd33fbb25bef252d61976f3a7885bd1c1fdb92e744f7989bb55b8f5b50780"
+    },
+    {
+      "bytes": 272,
+      "path": "resume-native-quality-inventory-owner-author-20261018/receipts/candidate-boundary-result.json",
+      "role": "boundary summary",
+      "sha256": "69799d53c6000d107e453cf11a7b29a40d9f7d5c9a57fc609ae1865ea9ca6381"
+    },
+    {
+      "bytes": 4798,
+      "path": "resume-native-quality-inventory-owner-author-20261018/receipts/source-binding-boundary-tests.xml",
+      "role": "22-case boundary JUnit",
+      "sha256": "6b224b453b9d99f9f7e6398daae988ffaddda664dab70cfc2b9c7b24309f2856"
+    },
+    {
+      "bytes": 4054,
+      "path": "resume-native-quality-inventory-owner-author-20261018/receipts/focused-tests.txt",
+      "role": "full mandatory test file with two failures",
+      "sha256": "ad3614bf5308a5b3bbb9be32cf7c0b7505fd5a9e1121ce2fbbf5489bf274f843"
+    },
+    {
+      "bytes": 3165,
+      "path": "resume-native-quality-inventory-owner-author-20261018/receipts/exact-preimage-out-of-slice-tests.txt",
+      "role": "preimage replay output",
+      "sha256": "c98c02ea1777933f7dae0d32b62843f7a345e2eaa6402773ab25968484871cf4"
+    },
+    {
+      "bytes": 3718,
+      "path": "resume-native-quality-inventory-owner-author-20261018/receipts/exact-preimage-out-of-slice-tests.xml",
+      "role": "preimage replay JUnit",
+      "sha256": "a0adbaccfdcfb31845421b04b16b78e012085503d129e0da75692c09017a646e"
+    },
+    {
+      "bytes": 2235,
+      "path": "resume-native-quality-inventory-owner-independent-20261018/packet-index.json",
+      "role": "frozen independent review index",
+      "sha256": "ebbeea88ed8471c42ecf5f39b422b757beebc7caaa4235c4651b37e8b27b7ae9"
+    },
+    {
+      "bytes": 7502,
+      "path": "resume-native-quality-inventory-owner-independent-20261018/review-evidence.json",
+      "role": "review evidence pins",
+      "sha256": "3e1e506aef5bcc0b359d605be1abe649135cafe81e78bece8f7348a64db2c5b1"
+    },
+    {
+      "bytes": 6104,
+      "path": "resume-native-quality-inventory-owner-independent-20261018/verification-profiles.json",
+      "role": "review verification limits/next profile",
+      "sha256": "60aaf7abd09f940a8bce10de57d0bae4dfe4e15ff64a9255dcadc5eb61d7fb97"
+    }
+  ],
+  "limitations": [
+    "Seven agent-reported generated CPython 3.14 cache files under its RAW postimages only. Exact prior bytes/hashes were not recorded.",
+    "Deleted bytecode bytes/sizes/hashes cannot be reconstructed; no cleanup/reconstruction proposed.",
+    "Static source binding does not authenticate runtime mutation/import-substrate dependencies.",
+    "Parent-selected persistent checkout replaces the earlier sourceview proposal for native-quality verification; no source acceptance or G decision is asserted."
+  ],
+  "next_check": "Root may integrate already-reviewed source GO candidates in its ordinary implementation commit and run literal-v-env tests/CLI with exact HEAD/tree, module-origin observer and pins. Preserve two test failures and P41 until exact replay establishes ownership; do not reconstruct deleted pycs.",
+  "observed_result": {
+    "incident": {
+      "Trash_used": false,
+      "closure_ids": [],
+      "permanent_unlink": true,
+      "preimage_byte_custody": "not_established; exact deleted bytecode bytes unavailable",
+      "reported_action": "Packet-generation script iterated post_root.rglob('*.pyc') and called pyc.unlink() on regular files.",
+      "source_or_test_input_loss": "None reported by author. Root verifies only named cache paths absent; no prior-byte census was available."
+    },
+    "independent_decision": "source GO; adoption/closeout HOLD; P41 not_established; 2 mandatory failures remain",
+    "root_selected_runtime_route": "persistent candidate checkout, literal product venv, exact HEAD/tree, full-module origin observer and pins; engineering verification only, no G adjudication"
+  },
+  "pattern_pass": {
+    "acceptance_signal": "No deleted artifact is silently reconstructed, and new runtime evidence binds exact checkout/origins without upgrading authority or G.",
+    "anti_pattern_found": "RAW bytecode was permanently removed without exact preimages; candidate test red cannot be called inherited with overlapping inputs and missing commands.",
+    "relevant_ids": [
+      "P29",
+      "P32",
+      "P35",
+      "P37",
+      "P38",
+      "P39",
+      "P40",
+      "P41"
+    ],
+    "target_pattern": "Preserve the incident and separate source GO/adoption HOLD/P41; verify through an exact persistent candidate checkout."
+  },
+  "proposal_status": "prepared_RAW_only_for_root_review_and_application",
+  "receipt_id": "native-quality-overlay-seven-pyc-preservation-incident",
+  "schema": "policyos.e02.root_receipt_postimage.v1",
+  "selected_profile": {
+    "P41": "not_established; candidate and exact preimage reproduce same two full-test failures; source overlaps test input denominator",
+    "boundary_run": {
+      "cases": 22,
+      "errors": 0,
+      "failures": 0,
+      "origin": "author-run overlay evidence"
+    },
+    "candidate_paths": [
+      "policy-engine/tools/quality/validation/production_quality_evidence_inventory.py",
+      "policy-engine/tools/quality/validation/production_quality_evidence_inventory_bindings.py",
+      "policy-engine/tools/quality/validation/production_quality_evidence_inventory_reports.py",
+      "policy-engine/tools/quality/validation/production_quality_evidence_inventory_contracts.py"
+    ],
+    "mandatory_full_file": {
+      "exact_command": "not retained",
+      "failures": 2
+    },
+    "source_review": "GO for one source candidate; adoption/closeout HOLD"
+  },
+  "slice": {
+    "base": {
+      "branch": "codex/e02-unified-local-20261009",
+      "commit": "040ee7d373b1a04f204c4e4dfe65d1e9702a91b3",
+      "parents": [
+        "f5f2db63723eaf321d442e878b2e8b2a0f1e0789"
+      ],
+      "tree": "7a3d4217d682b5d729e684bc96bc0f6d4fed3b40"
+    },
+    "candidate": {
+      "commit": null,
+      "parents": [],
+      "status": "four source postimages remain RAW-only; root adoption separate",
+      "tree": null
+    },
+    "full_footprint": [
+      {
+        "change": "candidate RAW overlay postimage; not canonical",
+        "path": "policy-engine/tools/quality/validation/production_quality_evidence_inventory.py"
+      },
+      {
+        "change": "candidate RAW overlay postimage; not canonical",
+        "path": "policy-engine/tools/quality/validation/production_quality_evidence_inventory_bindings.py"
+      },
+      {
+        "change": "candidate RAW overlay postimage; not canonical",
+        "path": "policy-engine/tools/quality/validation/production_quality_evidence_inventory_reports.py"
+      },
+      {
+        "change": "candidate RAW overlay postimage; not canonical",
+        "path": "policy-engine/tools/quality/validation/production_quality_evidence_inventory_contracts.py"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-quality-inventory-owner-author-20261018/postimages/policy-engine/tools/__pycache__/__init__.cpython-314.pyc",
+        "state": "reported absent; prior bytes/hash not captured"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-quality-inventory-owner-author-20261018/postimages/policy-engine/tools/quality/__pycache__/__init__.cpython-314.pyc",
+        "state": "reported absent; prior bytes/hash not captured"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-quality-inventory-owner-author-20261018/postimages/policy-engine/tools/quality/validation/__pycache__/production_quality_evidence_inventory_reports.cpython-314.pyc",
+        "state": "reported absent; prior bytes/hash not captured"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-quality-inventory-owner-author-20261018/postimages/policy-engine/tools/quality/validation/__pycache__/production_quality_evidence_inventory_bindings.cpython-314.pyc",
+        "state": "reported absent; prior bytes/hash not captured"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-quality-inventory-owner-author-20261018/postimages/policy-engine/tools/quality/validation/__pycache__/production_quality_evidence_inventory_contracts.cpython-314.pyc",
+        "state": "reported absent; prior bytes/hash not captured"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-quality-inventory-owner-author-20261018/postimages/policy-engine/tools/quality/validation/__pycache__/__init__.cpython-314.pyc",
+        "state": "reported absent; prior bytes/hash not captured"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-quality-inventory-owner-author-20261018/postimages/policy-engine/tools/quality/validation/__pycache__/production_quality_evidence_inventory.cpython-314.pyc",
+        "state": "reported absent; prior bytes/hash not captured"
+      }
+    ]
+  },
+  "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native-quality-overlay-pyc-unlink-preservation-incident-20261018.json",
+  "root_journal_qualification": {
+    "mutable_journal_path": "resume-parallel-coordination-20261015/root-owned-commits.json",
+    "qualification": "Navigation only; excluded from input_refs and the input-reference manifest. Root independently reconstructed and matched the exact historical 252-record prefix to the previously observed 429,899-byte journal; the current whole journal has since been appended and is not treated as immutable evidence.",
+    "source_lineage_basis": "Commit SHA, tree, parents, and complete footprint are grounded in actual read-only Git object inspection plus immutable per-commit RAW application/readbacks. The mutable whole-journal blob is not the basis for those claims.",
+    "authority_effect": "No source/runtime acceptance, G acceptance, or closure is implied."
+  }
+}

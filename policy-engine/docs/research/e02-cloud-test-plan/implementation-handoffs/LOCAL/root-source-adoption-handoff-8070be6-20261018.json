@@ -1,0 +1,578 @@
+{
+  "authority": {
+    "G_acceptance": false,
+    "closure_ids": [],
+    "formal_closure_ids": [],
+    "future_receipt_commit_sha": null,
+    "source_freeze": false
+  },
+  "commands": {
+    "git_object_readbacks": [
+      {
+        "argv": [
+          "git",
+          "-C",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+          "show",
+          "-s",
+          "--format=COMMIT %H%nTREE %T%nPARENTS %P%nSUBJECT %s",
+          "8070be6818010569ae0a3a492e83c0892fd80c68"
+        ],
+        "returncode": 0,
+        "output_path": "resume-receipt-batch-current-additions-r2-20261018/git-object-readbacks.jsonl",
+        "label": "source-adoption-8070be6:candidate_commit"
+      },
+      {
+        "argv": [
+          "git",
+          "-C",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+          "show",
+          "-s",
+          "--format=BASE %H%nTREE %T%nPARENTS %P%nSUBJECT %s",
+          "0cb8a6b204f940593e1ffb9e98e520280cf3229c"
+        ],
+        "returncode": 0,
+        "output_path": "resume-receipt-batch-current-additions-r2-20261018/git-object-readbacks.jsonl",
+        "label": "source-adoption-8070be6:base_commit"
+      },
+      {
+        "argv": [
+          "git",
+          "-C",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+          "diff-tree",
+          "--no-commit-id",
+          "--name-status",
+          "-r",
+          "0cb8a6b204f940593e1ffb9e98e520280cf3229c",
+          "8070be6818010569ae0a3a492e83c0892fd80c68"
+        ],
+        "returncode": 0,
+        "output_path": "resume-receipt-batch-current-additions-r2-20261018/git-object-readbacks.jsonl",
+        "label": "source-adoption-8070be6:complete_name_status"
+      },
+      {
+        "argv": [
+          "git",
+          "-C",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+          "diff-tree",
+          "--no-commit-id",
+          "--raw",
+          "-r",
+          "0cb8a6b204f940593e1ffb9e98e520280cf3229c",
+          "8070be6818010569ae0a3a492e83c0892fd80c68"
+        ],
+        "returncode": 0,
+        "output_path": "resume-receipt-batch-current-additions-r2-20261018/git-object-readbacks.jsonl",
+        "label": "source-adoption-8070be6:complete_raw_diff"
+      },
+      {
+        "argv": [
+          "git",
+          "-C",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+          "rev-parse",
+          "8070be6818010569ae0a3a492e83c0892fd80c68^{tree}"
+        ],
+        "returncode": 0,
+        "output_path": "resume-receipt-batch-current-additions-r2-20261018/git-object-readbacks.jsonl",
+        "label": "source-adoption-8070be6:candidate_tree"
+      },
+      {
+        "argv": [
+          "git",
+          "-C",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+          "rev-parse",
+          "0cb8a6b204f940593e1ffb9e98e520280cf3229c^{tree}"
+        ],
+        "returncode": 0,
+        "output_path": "resume-receipt-batch-current-additions-r2-20261018/git-object-readbacks.jsonl",
+        "label": "source-adoption-8070be6:base_tree"
+      }
+    ],
+    "source_ruff": [
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tools/quality/validation/build_honest_diagnostics_coverage.py",
+          "policy-engine/tools/quality/validation/honest_diagnostics_coverage_metrics.py",
+          "policy-engine/tools/quality/validation/check_trust_claim_posture.py",
+          "policy-engine/tools/quality/validation/trust_claim_posture_accessibility.py",
+          "policy-engine/tools/quality/validation/trust_claim_posture_artifact_lifecycle.py",
+          "policy-engine/tools/quality/validation/trust_claim_posture_contracts.py",
+          "policy-engine/tools/quality/validation/trust_claim_posture_semantics.py",
+          "policy-engine/tools/quality/validation/trust_claim_posture_source_bindings.py",
+          "policy-engine/tools/quality/validation/trust_claim_posture_tokenizer.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.1723554169293493,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-honest-trust-r2-application-20261018/check.stdout.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-honest-trust-r2-application-20261018/check.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tools/quality/validation/build_honest_diagnostics_coverage.py",
+          "policy-engine/tools/quality/validation/honest_diagnostics_coverage_metrics.py",
+          "policy-engine/tools/quality/validation/check_trust_claim_posture.py",
+          "policy-engine/tools/quality/validation/trust_claim_posture_accessibility.py",
+          "policy-engine/tools/quality/validation/trust_claim_posture_artifact_lifecycle.py",
+          "policy-engine/tools/quality/validation/trust_claim_posture_contracts.py",
+          "policy-engine/tools/quality/validation/trust_claim_posture_semantics.py",
+          "policy-engine/tools/quality/validation/trust_claim_posture_source_bindings.py",
+          "policy-engine/tools/quality/validation/trust_claim_posture_tokenizer.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.039911832893267274,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-honest-trust-r2-application-20261018/format.stdout.txt",
+          "sha256": "2ce9758b9f8abd876ec3e76c589e099e8b05377b1e7ea2331e81ee80f07bdff8"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-honest-trust-r2-application-20261018/format.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    ]
+  },
+  "full_output_refs": [
+    {
+      "bytes": 14575,
+      "path": "resume-receipt-batch-current-additions-r2-20261018/git-object-readbacks.jsonl",
+      "role": "actual read-only Git show/tree/diff-tree outputs",
+      "sha256": "830203c18995d46457d093bdd40f211c923fbe86f95b0d8aa05577a083bfdd28"
+    },
+    {
+      "bytes": 0,
+      "path": "root-native-honest-trust-r2-application-20261018/check.stderr.txt",
+      "role": "initial source Ruff stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 19,
+      "path": "root-native-honest-trust-r2-application-20261018/check.stdout.txt",
+      "role": "initial source Ruff stdout",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "bytes": 0,
+      "path": "root-native-honest-trust-r2-application-20261018/format.stderr.txt",
+      "role": "initial source Ruff stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 26,
+      "path": "root-native-honest-trust-r2-application-20261018/format.stdout.txt",
+      "role": "initial source Ruff stdout",
+      "sha256": "2ce9758b9f8abd876ec3e76c589e099e8b05377b1e7ea2331e81ee80f07bdff8"
+    },
+    {
+      "bytes": 653,
+      "path": "root-native-honest-trust-r2-application-20261018/native-honest-trust-r2-commit.stderr.txt",
+      "role": "complete source commit stderr",
+      "sha256": "5008078cd40e063ed0e661a747f152ff7441163b8b1b57b0edf67b8cbca48c46"
+    },
+    {
+      "bytes": 840,
+      "path": "root-native-honest-trust-r2-application-20261018/native-honest-trust-r2-commit.stdout.txt",
+      "role": "complete source commit stdout",
+      "sha256": "e0ff1f5fe2d3b48e57ced68a5a07f657e390a807353c64316d8920d0d90975fc"
+    }
+  ],
+  "input_refs": [
+    {
+      "bytes": 75645,
+      "path": "resume-native-honest-diagnostics-owner-author-r2-20261018/patch/honest-diagnostics-coverage-owner-r2.patch",
+      "role": "reviewed source input",
+      "sha256": "24600f45cf89a9cd6b4bcee3e0e98367b08c193ec144f19cf82075cf7f0be625"
+    },
+    {
+      "bytes": 1903,
+      "path": "resume-native-honest-diagnostics-owner-author-r2-20261018/pins/artifact-identity.json",
+      "role": "reviewed source input",
+      "sha256": "63c037b314fec5f1f2543c4e4d48a394ee4e3f9d84351f7cdcc4484c482e1291"
+    },
+    {
+      "bytes": 4751,
+      "path": "resume-native-honest-diagnostics-owner-independent-r2-20261018/independent-review.md",
+      "role": "reviewed source input",
+      "sha256": "b5568cc5ec1fdec84f88415bf18bf1a81c08d7f1c0ef912cc012f4a15c2d1a90"
+    },
+    {
+      "bytes": 4600,
+      "path": "resume-native-trust-posture-owner-author-r2-20261018/candidate-manifest.json",
+      "role": "reviewed source input",
+      "sha256": "86e905b948dcae2031e39c8bfa345aa309c4ca90b87550ac1244e3b692019687"
+    },
+    {
+      "bytes": 2401,
+      "path": "resume-native-trust-posture-owner-independent-r2-20261018/consumer-read-receipt-profile.md",
+      "role": "reviewed source input",
+      "sha256": "52c0632db469cb2037159c6ca5289ed76f520225a0828d8e6f4013a67b4e3287"
+    },
+    {
+      "bytes": 7515,
+      "path": "resume-native-trust-posture-owner-independent-r2-20261018/review-report.json",
+      "role": "reviewed source input",
+      "sha256": "6e868d0ad81c4da330b4449ea78c1ad9648baf33c19dc2df23b562bcbada3ae4"
+    },
+    {
+      "bytes": 4791,
+      "path": "root-native-honest-trust-r2-application-20261018/README.postimage.md",
+      "role": "original source-application postimage stage; exact committed source postimage; source application postimage",
+      "sha256": "02526964ffb9b827d99268b98a84df1728869cc54253b6888d50f094ccb9c6ee"
+    },
+    {
+      "bytes": 9126,
+      "path": "root-native-honest-trust-r2-application-20261018/adoption-plan.json",
+      "role": "adoption plan and slice base",
+      "sha256": "c9c25ad53d3cd59a3059aa902026ca1e64a5374f5c1dd1290f7ac9ce6f8c366e"
+    },
+    {
+      "bytes": 3166,
+      "path": "root-native-honest-trust-r2-application-20261018/native-honest-trust-r2-readback.json",
+      "role": "immutable per-commit Git/application readback",
+      "sha256": "ed874dcbb26f846a3b216ed4c160474a7f7cd268622a16d849b39ff0b1ff04b6"
+    },
+    {
+      "bytes": 197,
+      "path": "root-native-honest-trust-r2-application-20261018/native-trash-receipt.json",
+      "role": "native scratch disposition receipt",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    {
+      "bytes": 13492,
+      "path": "root-native-honest-trust-r2-application-20261018/postimages/policy-engine/tools/quality/validation/build_honest_diagnostics_coverage.py",
+      "role": "original source-application postimage stage; exact committed source postimage; source application postimage",
+      "sha256": "23dc0cc4fb2d433d105457722b98246e24ed69c281ad6f66351dce171a57f133"
+    },
+    {
+      "bytes": 39968,
+      "path": "root-native-honest-trust-r2-application-20261018/postimages/policy-engine/tools/quality/validation/check_trust_claim_posture.py",
+      "role": "original source-application postimage stage; exact committed source postimage; source application postimage",
+      "sha256": "ca4b03234720e5c0ad9ea852b35a6969782ef7739d6ec62bd7ff752098151a6e"
+    },
+    {
+      "bytes": 34467,
+      "path": "root-native-honest-trust-r2-application-20261018/postimages/policy-engine/tools/quality/validation/honest_diagnostics_coverage_metrics.py",
+      "role": "original source-application postimage stage; exact committed source postimage; source application postimage",
+      "sha256": "d96b4c62db1b8f4742b26fc65ebfe05a6e370e44a09181e9a536f05b39b325ea"
+    },
+    {
+      "bytes": 21598,
+      "path": "root-native-honest-trust-r2-application-20261018/postimages/policy-engine/tools/quality/validation/trust_claim_posture_accessibility.py",
+      "role": "original source-application postimage stage; exact committed source postimage; source application postimage",
+      "sha256": "b9ae0671166d282f0d0f46cf74df7eb2457c36f914571bbe04470c7feb14840c"
+    },
+    {
+      "bytes": 30498,
+      "path": "root-native-honest-trust-r2-application-20261018/postimages/policy-engine/tools/quality/validation/trust_claim_posture_artifact_lifecycle.py",
+      "role": "original source-application postimage stage; exact committed source postimage; source application postimage",
+      "sha256": "82bd7a248f0c4a20f9b6e5c116406ffba61296a4ab17b33813c153410c684d48"
+    },
+    {
+      "bytes": 1690,
+      "path": "root-native-honest-trust-r2-application-20261018/postimages/policy-engine/tools/quality/validation/trust_claim_posture_contracts.py",
+      "role": "original source-application postimage stage; exact committed source postimage; source application postimage",
+      "sha256": "1d68b9401ad4b60e6037860897ecb82d20c0ae8f601e38ebeb416bde7ac1cd6e"
+    },
+    {
+      "bytes": 23068,
+      "path": "root-native-honest-trust-r2-application-20261018/postimages/policy-engine/tools/quality/validation/trust_claim_posture_semantics.py",
+      "role": "original source-application postimage stage; exact committed source postimage; source application postimage",
+      "sha256": "c618cb947c098bb0ed77d8527cf389f1fbfe8a777f8541581e1fcd55fc42cf43"
+    },
+    {
+      "bytes": 18264,
+      "path": "root-native-honest-trust-r2-application-20261018/postimages/policy-engine/tools/quality/validation/trust_claim_posture_source_bindings.py",
+      "role": "original source-application postimage stage; exact committed source postimage; source application postimage",
+      "sha256": "f95169dc086b9307a497f9dda2439d2bed639fb032fa140fd9bb4f765ced7165"
+    },
+    {
+      "bytes": 34706,
+      "path": "root-native-honest-trust-r2-application-20261018/postimages/policy-engine/tools/quality/validation/trust_claim_posture_tokenizer.py",
+      "role": "original source-application postimage stage; exact committed source postimage; source application postimage",
+      "sha256": "b6c18fa0c2ccf250d24c3393c34a71d38b2070ad5d284a35f1b010e035402483"
+    },
+    {
+      "bytes": 12417,
+      "path": "root-native-honest-trust-r2-application-20261018/source-application.json",
+      "role": "root source application record and exact source pins",
+      "sha256": "289674d11d0f540d76ec33460fe08e696f61be5ad989fd00ad884c05549fa846"
+    }
+  ],
+  "limitations": [
+    "Candidate implementation for verification only. Independent R2 source reviews GO; canonical focused tests, exact read-receipt removal and full native gates remain required.",
+    "Historical comparator/baseline reds remain P41 not_established; no inherited debt, baseline, budget, expiry, policy authority or status reclassification.",
+    "Trust complete observed six consumer bindings covered; dynamic assembled import consumers not excluded. Current Python-path denominator changed by known root extractions and is separately qualified in peer receipt.",
+    "Only source, new private owners and root README companion change; existing generated outputs/contracts/tests remain untouched.",
+    "The mandatory README companion is source-bound in the commit. The adoption plan records physical canonical formatting of two Python files; no semantic behavior claim is inferred from formatting.",
+    "The full committed footprint also includes lease and candidate-index administrative companions; the complete path set comes from Git object inspection."
+  ],
+  "next_check": "One source-bound focused native wave: coverage metric/comparator behavioral controls and live binding callbacks, actual trust compiler receipt test + missing-path removal assertion, source origins, full deciding outputs and canonical Ruff/module-size.",
+  "observed_result": {
+    "commit": "8070be6818010569ae0a3a492e83c0892fd80c68",
+    "tree": "6a96d4f92743516794976326f39f2a173b49b409",
+    "parents": [
+      "0cb8a6b204f940593e1ffb9e98e520280cf3229c"
+    ],
+    "source_subject": "refactor(e02): preserve live diagnostics and posture facade bindings",
+    "source_application_base": "0cb8a6b204f940593e1ffb9e98e520280cf3229c",
+    "source_application_base_tree": "69dd368ae5be989175dde4cc11da9949bc3d997f",
+    "full_committed_footprint": [
+      {
+        "status": "M",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/tools/quality/validation/README.md"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/tools/quality/validation/build_honest_diagnostics_coverage.py"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/tools/quality/validation/check_trust_claim_posture.py"
+      },
+      {
+        "status": "A",
+        "path": "policy-engine/tools/quality/validation/honest_diagnostics_coverage_metrics.py"
+      },
+      {
+        "status": "A",
+        "path": "policy-engine/tools/quality/validation/trust_claim_posture_accessibility.py"
+      },
+      {
+        "status": "A",
+        "path": "policy-engine/tools/quality/validation/trust_claim_posture_artifact_lifecycle.py"
+      },
+      {
+        "status": "A",
+        "path": "policy-engine/tools/quality/validation/trust_claim_posture_contracts.py"
+      },
+      {
+        "status": "A",
+        "path": "policy-engine/tools/quality/validation/trust_claim_posture_semantics.py"
+      },
+      {
+        "status": "A",
+        "path": "policy-engine/tools/quality/validation/trust_claim_posture_source_bindings.py"
+      },
+      {
+        "status": "A",
+        "path": "policy-engine/tools/quality/validation/trust_claim_posture_tokenizer.py"
+      }
+    ],
+    "source_application_path_count": 10,
+    "administrative_companion_paths": [
+      {
+        "status": "M",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+      }
+    ],
+    "committed_source_postimages": {
+      "policy-engine/tools/quality/validation/build_honest_diagnostics_coverage.py": {
+        "path": "root-native-honest-trust-r2-application-20261018/postimages/policy-engine/tools/quality/validation/build_honest_diagnostics_coverage.py",
+        "sha256": "23dc0cc4fb2d433d105457722b98246e24ed69c281ad6f66351dce171a57f133",
+        "stage": "source application postimage"
+      },
+      "policy-engine/tools/quality/validation/honest_diagnostics_coverage_metrics.py": {
+        "path": "root-native-honest-trust-r2-application-20261018/postimages/policy-engine/tools/quality/validation/honest_diagnostics_coverage_metrics.py",
+        "sha256": "d96b4c62db1b8f4742b26fc65ebfe05a6e370e44a09181e9a536f05b39b325ea",
+        "stage": "source application postimage"
+      },
+      "policy-engine/tools/quality/validation/check_trust_claim_posture.py": {
+        "path": "root-native-honest-trust-r2-application-20261018/postimages/policy-engine/tools/quality/validation/check_trust_claim_posture.py",
+        "sha256": "ca4b03234720e5c0ad9ea852b35a6969782ef7739d6ec62bd7ff752098151a6e",
+        "stage": "source application postimage"
+      },
+      "policy-engine/tools/quality/validation/trust_claim_posture_accessibility.py": {
+        "path": "root-native-honest-trust-r2-application-20261018/postimages/policy-engine/tools/quality/validation/trust_claim_posture_accessibility.py",
+        "sha256": "b9ae0671166d282f0d0f46cf74df7eb2457c36f914571bbe04470c7feb14840c",
+        "stage": "source application postimage"
+      },
+      "policy-engine/tools/quality/validation/trust_claim_posture_artifact_lifecycle.py": {
+        "path": "root-native-honest-trust-r2-application-20261018/postimages/policy-engine/tools/quality/validation/trust_claim_posture_artifact_lifecycle.py",
+        "sha256": "82bd7a248f0c4a20f9b6e5c116406ffba61296a4ab17b33813c153410c684d48",
+        "stage": "source application postimage"
+      },
+      "policy-engine/tools/quality/validation/trust_claim_posture_contracts.py": {
+        "path": "root-native-honest-trust-r2-application-20261018/postimages/policy-engine/tools/quality/validation/trust_claim_posture_contracts.py",
+        "sha256": "1d68b9401ad4b60e6037860897ecb82d20c0ae8f601e38ebeb416bde7ac1cd6e",
+        "stage": "source application postimage"
+      },
+      "policy-engine/tools/quality/validation/trust_claim_posture_semantics.py": {
+        "path": "root-native-honest-trust-r2-application-20261018/postimages/policy-engine/tools/quality/validation/trust_claim_posture_semantics.py",
+        "sha256": "c618cb947c098bb0ed77d8527cf389f1fbfe8a777f8541581e1fcd55fc42cf43",
+        "stage": "source application postimage"
+      },
+      "policy-engine/tools/quality/validation/trust_claim_posture_source_bindings.py": {
+        "path": "root-native-honest-trust-r2-application-20261018/postimages/policy-engine/tools/quality/validation/trust_claim_posture_source_bindings.py",
+        "sha256": "f95169dc086b9307a497f9dda2439d2bed639fb032fa140fd9bb4f765ced7165",
+        "stage": "source application postimage"
+      },
+      "policy-engine/tools/quality/validation/trust_claim_posture_tokenizer.py": {
+        "path": "root-native-honest-trust-r2-application-20261018/postimages/policy-engine/tools/quality/validation/trust_claim_posture_tokenizer.py",
+        "sha256": "b6c18fa0c2ccf250d24c3393c34a71d38b2070ad5d284a35f1b010e035402483",
+        "stage": "source application postimage"
+      },
+      "policy-engine/tools/quality/validation/README.md": {
+        "path": "root-native-honest-trust-r2-application-20261018/README.postimage.md",
+        "sha256": "02526964ffb9b827d99268b98a84df1728869cc54253b6888d50f094ccb9c6ee",
+        "stage": "source application postimage"
+      }
+    },
+    "source_ruff": {
+      "status": "PASS",
+      "final_exit_codes": [
+        0,
+        0
+      ],
+      "initial_attempts": []
+    },
+    "runtime": "UNRUN on adopted canonical source; no runtime or integration results are asserted.",
+    "source_reviews": "This receipt preserves the root application and cited review inputs; it does not upgrade their independent disposition.",
+    "README_physical_normalization_qualification": "README is a mandatory source companion. The adoption plan separately records two Python-file canonical formatting changes; keep formatting provenance distinct from runtime semantic evidence."
+  },
+  "pattern_pass": {
+    "relevant_ids": [
+      "P06",
+      "P29",
+      "P32",
+      "P35",
+      "P38",
+      "P40",
+      "P41"
+    ],
+    "existing_anti_pattern": "Source extraction and formatting evidence can be mistaken for preserved consumer behavior or complete current-runtime coverage; commit metadata can be inferred from mutable journal adjacency.",
+    "target_pattern": "Bind exact source application, all actual Git commit objects/footprint, immutable per-commit RAW readbacks, full Ruff outputs, and leave behavior/runtime authority explicitly UNRUN.",
+    "missing_capability_labels": [
+      "verification_missing"
+    ],
+    "acceptance_signal": "Root verifies the source receipt against the candidate checkout and separately runs the scoped native runtime consumer wave with exact origin/frame evidence."
+  },
+  "proposal_status": "prepared_RAW_only_for_root_review_and_source_adoption_handoff",
+  "receipt_id": "source-adoption-8070be6",
+  "schema": "policyos.e02.root_receipt_postimage.v1",
+  "selected_profile": {
+    "kind": "root_source_adoption_handoff",
+    "candidate_commit": "8070be6818010569ae0a3a492e83c0892fd80c68",
+    "candidate_tree": "6a96d4f92743516794976326f39f2a173b49b409",
+    "source_base": "0cb8a6b204f940593e1ffb9e98e520280cf3229c",
+    "source_base_tree": "69dd368ae5be989175dde4cc11da9949bc3d997f",
+    "readback_status": "Git object tree/parent/complete footprint independently matched the immutable RAW per-commit readback.",
+    "runtime": "UNRUN"
+  },
+  "slice": {
+    "base": "0cb8a6b204f940593e1ffb9e98e520280cf3229c",
+    "base_tree": "69dd368ae5be989175dde4cc11da9949bc3d997f",
+    "candidate_commit": "8070be6818010569ae0a3a492e83c0892fd80c68",
+    "candidate_tree": "6a96d4f92743516794976326f39f2a173b49b409",
+    "parents": [
+      "0cb8a6b204f940593e1ffb9e98e520280cf3229c"
+    ],
+    "property": "Preserve complete current diagnostics metric and trust posture compiler behavior and actual consumers while extracting typed semantic owners with live facade dependencies and original callable signatures.",
+    "source_application_paths": [
+      "policy-engine/tools/quality/validation/README.md",
+      "policy-engine/tools/quality/validation/build_honest_diagnostics_coverage.py",
+      "policy-engine/tools/quality/validation/check_trust_claim_posture.py",
+      "policy-engine/tools/quality/validation/honest_diagnostics_coverage_metrics.py",
+      "policy-engine/tools/quality/validation/trust_claim_posture_accessibility.py",
+      "policy-engine/tools/quality/validation/trust_claim_posture_artifact_lifecycle.py",
+      "policy-engine/tools/quality/validation/trust_claim_posture_contracts.py",
+      "policy-engine/tools/quality/validation/trust_claim_posture_semantics.py",
+      "policy-engine/tools/quality/validation/trust_claim_posture_source_bindings.py",
+      "policy-engine/tools/quality/validation/trust_claim_posture_tokenizer.py"
+    ],
+    "complete_committed_footprint": [
+      {
+        "status": "M",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/tools/quality/validation/README.md"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/tools/quality/validation/build_honest_diagnostics_coverage.py"
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/tools/quality/validation/check_trust_claim_posture.py"
+      },
+      {
+        "status": "A",
+        "path": "policy-engine/tools/quality/validation/honest_diagnostics_coverage_metrics.py"
+      },
+      {
+        "status": "A",
+        "path": "policy-engine/tools/quality/validation/trust_claim_posture_accessibility.py"
+      },
+      {
+        "status": "A",
+        "path": "policy-engine/tools/quality/validation/trust_claim_posture_artifact_lifecycle.py"
+      },
+      {
+        "status": "A",
+        "path": "policy-engine/tools/quality/validation/trust_claim_posture_contracts.py"
+      },
+      {
+        "status": "A",
+        "path": "policy-engine/tools/quality/validation/trust_claim_posture_semantics.py"
+      },
+      {
+        "status": "A",
+        "path": "policy-engine/tools/quality/validation/trust_claim_posture_source_bindings.py"
+      },
+      {
+        "status": "A",
+        "path": "policy-engine/tools/quality/validation/trust_claim_posture_tokenizer.py"
+      }
+    ],
+    "git_raw_difftree": ":100644 100644 9046907103780e97aac5546628bb7452cc2a54f0 3ba74fe371cbb50df7a6a303abed2095bfa226e9 M\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json\n:100644 100644 e0601c85143943997833a89c674fe2b5f758a71d 033236fa53d0ea27aa2a3b1adf557a9213f542ae M\tpolicy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json\n:100644 100644 b907e140244a6ff7864895e1a717c037431be22f 40350971972e2e91d28e1ac960f3679f86c985f3 M\tpolicy-engine/tools/quality/validation/README.md\n:100644 100644 c7713d13133163a567c8211f66a82dd3ff822625 403eb871fd186925157f4973a83e6a92a614a064 M\tpolicy-engine/tools/quality/validation/build_honest_diagnostics_coverage.py\n:100644 100644 a213208cf5ea11cc394ed35cca6de4da67abd9e4 cd7b879ef53a12faee883d0ff3df51f30a57a3ce M\tpolicy-engine/tools/quality/validation/check_trust_claim_posture.py\n:000000 100644 0000000000000000000000000000000000000000 d7ece9297f9257fe3a762f2b78a7774c1afbe5e7 A\tpolicy-engine/tools/quality/validation/honest_diagnostics_coverage_metrics.py\n:000000 100644 0000000000000000000000000000000000000000 f56f05e18e62d189762a2939a047097913a373ac A\tpolicy-engine/tools/quality/validation/trust_claim_posture_accessibility.py\n:000000 100644 0000000000000000000000000000000000000000 7926b61a7e133e9e89ecba1456300931f6a2be44 A\tpolicy-engine/tools/quality/validation/trust_claim_posture_artifact_lifecycle.py\n:000000 100644 0000000000000000000000000000000000000000 476fda3eb15e2038bcaf495f3d3cb193088a8f3e A\tpolicy-engine/tools/quality/validation/trust_claim_posture_contracts.py\n:000000 100644 0000000000000000000000000000000000000000 68080d5e5e975b8344283086f9481339d8b86298 A\tpolicy-engine/tools/quality/validation/trust_claim_posture_semantics.py\n:000000 100644 0000000000000000000000000000000000000000 5d5c870b966fea6dcc9f26063f36b50426292212 A\tpolicy-engine/tools/quality/validation/trust_claim_posture_source_bindings.py\n:000000 100644 0000000000000000000000000000000000000000 6c73d1476eea8f2843a96d8de7649ffa2d7ceafa A\tpolicy-engine/tools/quality/validation/trust_claim_posture_tokenizer.py\n",
+    "source_readback_path": "root-native-honest-trust-r2-application-20261018/native-honest-trust-r2-readback.json",
+    "source_readback_sha256": "ed874dcbb26f846a3b216ed4c160474a7f7cd268622a16d849b39ff0b1ff04b6",
+    "source_application_path": "root-native-honest-trust-r2-application-20261018/source-application.json",
+    "source_application_sha256": "289674d11d0f540d76ec33460fe08e696f61be5ad989fd00ad884c05549fa846"
+  },
+  "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-source-adoption-handoff-8070be6-20261018.json"
+}

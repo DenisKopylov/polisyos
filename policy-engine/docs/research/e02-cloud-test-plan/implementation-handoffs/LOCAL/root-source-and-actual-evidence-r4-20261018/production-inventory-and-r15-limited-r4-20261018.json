@@ -1,0 +1,113 @@
+{
+  "schema": "policyos.local.source_bound_handoff.v1",
+  "created_date": "2026-10-18",
+  "branch": "codex/e02-unified-local-20261009",
+  "observed_source_frame": {
+    "head": "8ef3c60bd7a0fbab465f203795e33a1dcdf71490",
+    "tree": "8fea7ee9e10c764e96f3a1172193088c285c3b0d"
+  },
+  "closure_ids": [],
+  "G_acceptance": false,
+  "global_source_input_backend_freeze": false,
+  "source_freeze": false,
+  "author_proposal_is_formal_closure": false,
+  "packet_status": "reviewable local evidence payload; no formal closure or global freeze claimed",
+  "payload_id": "production-inventory-and-r15-limited-r4-20261018",
+  "source_candidate": {
+    "base": "e22599c7bd6055889322640b0e7b93ca423f771a",
+    "candidate": "5fac0a69cff3ea31f4872523ab0f1c55d3cc505d",
+    "tree": "4421897ca282a776d6ab86590fe5b91f38c223b2",
+    "parents": [
+      "e22599c7bd6055889322640b0e7b93ca423f771a"
+    ]
+  },
+  "implementation_postimages": {
+    "policy-engine/tools/quality/validation/production_quality_evidence_inventory.py": {
+      "preimage": "34811b1393fe71166c88890b782f4fbf5e0127584146c879f2813ac31031ec05",
+      "postimage": "1cbcf8154396e0fa73b9791662c5032f27f16de4f911f2d1803affaf14bd0f84"
+    },
+    "policy-engine/tests/repo_quality/tools/test_production_quality_evidence_inventory.py": {
+      "preimage": "66ed27ed3b0be7601734ffda6fafd5c6a8a979ff3abc6e1dd42343ff940b3563",
+      "postimage": "b8b6cd27de2ba647e4d693d425fd9ceda29996561d3ae5dd33cb2eca6ce2446d"
+    }
+  },
+  "source_application": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-production-inventory-r2-adoption-20261018/source-application.json",
+    "sha256": "327d806661d771d9b71ada9a953ef4d1ed806fe1da4b8a89bc92ddf8c17eaac3"
+  },
+  "independent_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/production-quality-evidence-canonical-owner-independent-review-r2-20261017/r2-review.json",
+    "sha256": "999e2943c2057afc23aed8804dc52f9eeaeabdf0844c1bab55eca07b55b65650"
+  },
+  "production_inventory_actual": {
+    "source_frame": {
+      "head": "8e3062d8ec1268151d674932910c4694d426863b",
+      "tree": "40cde6ff5a38a512d1be8a1c919eb9d06612c4a6"
+    },
+    "cases": 21,
+    "passed": 21,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "input_denominator": "Seven exact source/test/config pins unchanged; no full runtime-currentness or whole-inventory claim.",
+    "request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/production-inventory-r2-canonical-actual-corrected-20261018/request.json",
+      "sha256": "ce6b2789a9f56e63cf4dd521449e9f684c264d6d03700ec4a3f50357a05cf214"
+    },
+    "actual_result": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/production-inventory-r2-canonical-actual-corrected-20261018/actual-result.json",
+      "sha256": "c5dbee3144d4978750543fd7179fd29f3d04f6b11dc41ad10041be57a8f3ac40"
+    },
+    "deciding_outputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/production-inventory-r2-canonical-actual-corrected-20261018/stdout.txt",
+        "sha256": "32faef56d0289369b1ac111e68ee0bb7b2ed1bcf92d3f33b75313bd0556c3e6f"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/production-inventory-r2-canonical-actual-corrected-20261018/stderr-time.txt",
+        "sha256": "21cff3a3ef196cf0a4460c10a7e14d8694daec5fdfe338b847c3655e0a7f7639"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/production-inventory-r2-canonical-actual-corrected-20261018/pytest.xml",
+        "sha256": "6462d37cd2e630c8431c6a3d3ab1473099a2dfabee450e4336e5378f8e8448ec"
+      }
+    ]
+  },
+  "r15_actual": {
+    "run_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r15-canonical-11-actual-after-owner-tool-fix-20261018/post-run.json",
+      "sha256": "32d5fc42b467bc0f9a6672fc2b932c3ac5a5c13245aa543ecab20c397a4b2176"
+    },
+    "command_and_source_pins": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r15-canonical-11-actual-after-owner-tool-fix-20261018/request-successor.json",
+      "sha256": "effda6f95b982f43bb24aa19aeba667451f85e7726edefeddc95b792e33cad11"
+    },
+    "cases": 12,
+    "passed": 10,
+    "failed": 2,
+    "errors": 0,
+    "skipped": 0,
+    "deciding_outputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r15-canonical-11-actual-after-owner-tool-fix-20261018/pytest.stdout.txt",
+        "sha256": "d857f07cf71bb25b8696e845e38677e8581f52ac82cca5c8edef385fd9d1c272"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r15-canonical-11-actual-after-owner-tool-fix-20261018/pytest.stderr-time.txt",
+        "sha256": "9447d9c2dc08c559ae931ceabda467296f2dfe04ea62e01f5fb328522d89fa75"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r15-canonical-11-actual-after-owner-tool-fix-20261018/pytest.xml",
+        "sha256": "72392311ae97f48f66046f75be1488843e26ecdc51864ac781808b33ceb7b214"
+      }
+    ],
+    "open_failure_summary": [
+      "public projection assertion lacks expected candidate-firewall code",
+      "ordinary NL durable GET lacks execution_owner_binding after reopen"
+    ],
+    "status": "R15 real terminal-drop behavior remains open; no whole-capability/native green claim."
+  },
+  "proposal_fields": {
+    "closures_proposed": []
+  }
+}

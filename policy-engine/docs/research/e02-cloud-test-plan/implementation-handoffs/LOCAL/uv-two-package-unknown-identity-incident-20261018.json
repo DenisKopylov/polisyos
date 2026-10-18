@@ -1,0 +1,169 @@
+{
+  "authority": {
+    "G_acceptance": false,
+    "closure_ids": [],
+    "formal_closure_ids": [],
+    "future_receipt_commit_sha": null,
+    "source_profile_freeze": false
+  },
+  "commands": {
+    "cfc_uv_argv": [
+      "uv",
+      "run",
+      "polisyos-tools",
+      "validation",
+      "check-docs-lifecycle"
+    ],
+    "later_la036_argv": [
+      "/usr/bin/env",
+      "PYTHONPATH=src",
+      "OPENBLAS_NUM_THREADS=1",
+      "OMP_NUM_THREADS=1",
+      "MKL_NUM_THREADS=1",
+      "VECLIB_MAXIMUM_THREADS=1",
+      "NUMEXPR_NUM_THREADS=1",
+      "CUDA_VISIBLE_DEVICES=",
+      "HIP_VISIBLE_DEVICES=",
+      "ROCR_VISIBLE_DEVICES=",
+      ".venv/bin/python",
+      "-B",
+      "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la036-persistence-consumer-author-20261018/producer_chain-r2.py",
+      "--request",
+      "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la036-persistence-consumer-author-20261018/request-r2.json",
+      "--out",
+      "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la036-persistence-consumer-author-20261018/chain-attempt-03"
+    ]
+  },
+  "full_output_refs": [
+    {
+      "bytes": 577,
+      "path": "root-native-three-owner-actual-cfc6de2d-20261018/docs_lifecycle.stderr.txt",
+      "role": "two package actions without names",
+      "sha256": "c4e677e6c5b07d0933bbed050c0037e24c138d73b426aef09544b99974d3379b"
+    },
+    {
+      "bytes": 86505,
+      "path": "resume-la036-persistence-consumer-author-20261018/environment-preflight-r2.json",
+      "role": "fresh post-event distribution inventory and provenance limit",
+      "sha256": "dc7cb480a35d083523cf984a2fbb67e3c6fb344a9969c857ad6b0e2a014cf055"
+    },
+    {
+      "bytes": 3743,
+      "path": "resume-la036-persistence-consumer-author-20261018/attempt-03-result.json",
+      "role": "later run time and argv",
+      "sha256": "f0af7a6d8e8cdbda4cdb3ef6bf5866bbf0ac64cbffd9664b17d7bcfd53bcf581"
+    },
+    {
+      "bytes": 15489,
+      "path": "resume-la036-persistence-consumer-author-20261018/postrun-seal-r2.json",
+      "role": "later sealed environment/source evidence",
+      "sha256": "5d68a5227e050c5839f3867c3648fa41e4946b855756ba6b388c086f9fb9d245"
+    }
+  ],
+  "input_refs": [
+    {
+      "bytes": 8229,
+      "path": "root-native-three-owner-actual-cfc6de2d-20261018/request.json",
+      "role": "timestamp and exact uv command",
+      "sha256": "cf222cc9d85ef6a6118b8f27a302a4cc8cefa4a86c1fdd8ac326f163cf628a45"
+    },
+    {
+      "bytes": 577,
+      "path": "root-native-three-owner-actual-cfc6de2d-20261018/docs_lifecycle.stderr.txt",
+      "role": "two package actions without names",
+      "sha256": "c4e677e6c5b07d0933bbed050c0037e24c138d73b426aef09544b99974d3379b"
+    },
+    {
+      "bytes": 29157,
+      "path": "root-native-three-owner-actual-cfc6de2d-20261018/controller-result.json",
+      "role": "command order and source frame",
+      "sha256": "1eb82a786186921a901e7e827c34870183c99902d2d676f0cb1bef70744cf4c0"
+    },
+    {
+      "bytes": 86505,
+      "path": "resume-la036-persistence-consumer-author-20261018/environment-preflight-r2.json",
+      "role": "fresh post-event distribution inventory and provenance limit",
+      "sha256": "dc7cb480a35d083523cf984a2fbb67e3c6fb344a9969c857ad6b0e2a014cf055"
+    },
+    {
+      "bytes": 3743,
+      "path": "resume-la036-persistence-consumer-author-20261018/attempt-03-result.json",
+      "role": "later run time and argv",
+      "sha256": "f0af7a6d8e8cdbda4cdb3ef6bf5866bbf0ac64cbffd9664b17d7bcfd53bcf581"
+    },
+    {
+      "bytes": 15489,
+      "path": "resume-la036-persistence-consumer-author-20261018/postrun-seal-r2.json",
+      "role": "later sealed environment/source evidence",
+      "sha256": "5d68a5227e050c5839f3867c3648fa41e4946b855756ba6b388c086f9fb9d245"
+    }
+  ],
+  "limitations": [
+    "Do not infer package names, versions, or pre-event state from the post-event inventory.",
+    "No product-source footprint or code closure is attached."
+  ],
+  "next_check": "For root’s next literal-venv candidate replay, bind exact HEAD/tree, full module origins and installed-distribution identities before/after; preserve historical unknown identities.",
+  "observed_result": {
+    "identities_and_versions": "not_established; no pre-uv package set captured",
+    "repair_or_reinstall": false,
+    "reported": "Uninstalled 2 packages / Installed 2 packages.",
+    "temporal_link": "later LA036 preflight reports a preceding external uv run changed two unnamed packages; timing/count are consistent with cfc docs-lifecycle command, but exact process attribution is not established"
+  },
+  "pattern_pass": {
+    "acceptance_signal": "A future run captures before/after package identities at its own exact frame.",
+    "anti_pattern_found": "A two-package count and later current inventory do not establish identity or pre-event state.",
+    "relevant_ids": [
+      "P30",
+      "P35",
+      "P37",
+      "P41"
+    ],
+    "target_pattern": "Preserve exact output and mark identity and causal link unknown."
+  },
+  "proposal_status": "prepared_RAW_only_for_root_review_and_application",
+  "receipt_id": "uv-two-packages-unknown-identity-provenance-incident",
+  "schema": "policyos.e02.root_receipt_postimage.v1",
+  "selected_profile": {
+    "cfc_uv_observation": {
+      "argv": [
+        "uv",
+        "run",
+        "polisyos-tools",
+        "validation",
+        "check-docs-lifecycle"
+      ],
+      "created_at": "2026-10-18T06:33:07.989645+00:00"
+    },
+    "later_la036_observation": {
+      "attempt_started_at": "2026-10-18T06:42:48.729243+00:00",
+      "current_distribution_count": 253,
+      "preflight_at": "2026-10-18T06:39:54.433418+00:00",
+      "prior_limit": "A preceding external uv run changed two packages without recording their names. This is a fresh current-state inventory, not proof of the pre-uv installed set; no sync or reinstall was run by this task."
+    }
+  },
+  "slice": {
+    "base": {
+      "commit": "cfc6de2d3586a4a64f7088797a0752e7786aeea5",
+      "parents": [
+        "040ee7d373b1a04f204c4e4dfe65d1e9702a91b3"
+      ],
+      "tree": "e72764d96a194834223582eb94f06d95faf43456"
+    },
+    "candidate": {
+      "commit": "cfc6de2d3586a4a64f7088797a0752e7786aeea5",
+      "parents": [
+        "040ee7d373b1a04f204c4e4dfe65d1e9702a91b3"
+      ],
+      "status": "environment record only; no source candidate",
+      "tree": "e72764d96a194834223582eb94f06d95faf43456"
+    },
+    "full_footprint": []
+  },
+  "target_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/uv-two-package-unknown-identity-incident-20261018.json",
+  "root_journal_qualification": {
+    "mutable_journal_path": "resume-parallel-coordination-20261015/root-owned-commits.json",
+    "qualification": "Navigation only; excluded from input_refs and the input-reference manifest. Root independently reconstructed and matched the exact historical 252-record prefix to the previously observed 429,899-byte journal; the current whole journal has since been appended and is not treated as immutable evidence.",
+    "source_lineage_basis": "Commit SHA, tree, parents, and complete footprint are grounded in actual read-only Git object inspection plus immutable per-commit RAW application/readbacks. The mutable whole-journal blob is not the basis for those claims.",
+    "authority_effect": "No source/runtime acceptance, G acceptance, or closure is implied."
+  }
+}

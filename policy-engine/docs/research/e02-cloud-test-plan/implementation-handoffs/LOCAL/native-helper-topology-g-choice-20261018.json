@@ -1,0 +1,96 @@
+{
+  "schema": "policyos.native-test-helper-topology-g-decision.v1",
+  "created_date": "2026-10-18",
+  "packet_status": "ready_for_G_choice",
+  "decision_question": "Should the test-helper ratchet keep its current hard no-growth baseline of 10 physical helper files, accept measured growth after the pending source composition and rebaseline, or treat file count as a trend while retaining structural topology checks?",
+  "scope": "This is a decision input for the team-quality test-helper topology ratchet only. It does not change product behavior, product authority, capability status, or test-suite acceptance.",
+  "source_frame": {
+    "repository_root": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "8e3062d8ec1268151d674932910c4694d426863b",
+    "tree": "40cde6ff5a38a512d1be8a1c919eb9d06612c4a6",
+    "input_status": "The targeted tests, apps, ratchet source, topology config, ratchets config, and baseline paths had no working-tree modifications. The full worktree has unrelated RAW/untracked evidence; this is not a whole-worktree cleanliness claim."
+  },
+  "p38_property_vs_predicate": {
+    "intended_property": "A bounded, reusable, correctly layered test-helper topology with actual intended consumers and no forbidden helper-to-test dependencies.",
+    "implemented_predicate": "Count physical non-init Python files under tests/_helpers; recognize test consumers only from imports/plugin declarations in tests/**/*.py; independently report reverse imports, unused files, duplicated fixture factories, and local conftests.",
+    "divergent_cases": [
+      "The 373-consumer mirror_contracts helper and a one-consumer importable worker target each add one physical helper file; the count does not encode reuse, semantic distinctness, or consolidation cost.",
+      "same_candidate_history_fixture is reported unused by the tests-only selector even though an app fixture-support script imports it; that app caller is outside the metric\u2019s consumer domain and is also not an allowed consumer under the current unused_helper_policy.",
+      "Merging many distinct helpers into one physical module can satisfy a 10-file count without reducing helper responsibilities or fixing reverse imports; conversely moving a canonical fixture owner out of tests may increase the count without worsening topology."
+    ]
+  },
+  "options_for_G": [
+    {
+      "id": "A_keep_10_as_hard_no_growth_bar",
+      "decision": "Retain the existing 10-file baseline as a blocking ceiling; do not update the baseline to accommodate current growth.",
+      "benefit": "Preserves the original no-growth pressure and forces a deliberate whole-topology consolidation or relocation plan.",
+      "migration_and_cost": "Inventory the 31 current modules by producer/test role and consumers; move one-consumer support into test-local modules where appropriate, consolidate only cohesive scenario families, and give app-facing fixture inputs a canonical non-test owner. Preserve behavior and boundary tests; do not pack unrelated helpers into an omnibus file just to meet the count.",
+      "risk": "The count can reward file packing and penalize legitimate domain-specific fixtures. The current report would remain red until both count and the independent reverse-import/unused findings are resolved.",
+      "authority_and_time": "This is a prospective team-quality engineering ceiling only. The May 2026 baseline remains the reference; no product or policy authority changes.",
+      "falsifier_and_acceptance": "After a source-complete migration, run the unchanged full report on the exact composed tree. It must show no shared-file count regression and no reverse imports, eligible unused helper, or unregistered duplicate. Add a no-consumer and reverse-import negative control to show the structural findings do not disappear when names or file grouping change."
+    },
+    {
+      "id": "B_accept_growth_and_rebaseline_after_source_freeze",
+      "decision": "Accept the eventual owner-composed topology and set a new no-growth baseline from a fresh measurement of that exact source tree.",
+      "benefit": "Keeps the ratchet\u2019s no-regression behavior while accepting that the current architecture has grown beyond the May 2026 measurement.",
+      "migration_and_cost": "Finish the source-owner moves first, then regenerate the complete report using its canonical source collector against the final tree. Set the baseline from observed output only; do not use a forecast or copy the current 31 if the composed tree has changed.",
+      "risk": "A new baseline can normalize avoidable sprawl if the owner does not resolve or separately disposition the three reverse imports and the test-selector orphan. Rebaselining the count alone leaves those independent gates red.",
+      "authority_and_time": "Team-quality G must name the new baseline\u2019s effective source frame and measurement time. It is prospective and does not rewrite the historical May 7 baseline as if it measured the October tree.",
+      "falsifier_and_acceptance": "Against the new exact baseline, a newly added helper or introduced reverse import must still make the unmodified report fail; a baseline update must not mask the structural findings. Preserve the full report output and denominator."
+    },
+    {
+      "id": "C_make_file_count_a_trend_and_gate_on_topology_properties",
+      "decision": "Keep physical file count as a visible trend, not a blocking predicate; retain fail-closed boundary checks for reverse imports, eligible test consumers, and duplicate fixture factories.",
+      "benefit": "Aligns blocking status with the properties the topology contract already names instead of file count alone; allows useful additions or owner relocations without an arbitrary file ceiling.",
+      "migration_and_cost": "Team-quality must decide whether further source-role/consumer evidence is needed and write that contract before changing the ratchet. Keep the exact AST source denominator explicit and include app fixture scripts in the relevant boundary check or move their shared inputs to an owner package.",
+      "risk": "Structural checks may not fully express a desired complexity budget. If count is made informational without a replacement review/ownership rule, helper growth could become ungoverned.",
+      "authority_and_time": "This changes only the test-quality gate, not runtime/product proof. The new rule must state owner, effective date/source frame, and whether trend review is periodic; no existing baseline dates should be rewritten by inference.",
+      "falsifier_and_acceptance": "With helper count held constant, adding a forbidden reverse import or a truly unconsumed test helper must still fail. With import direction/consumer properties unchanged, a justified source relocation must not fail solely because physical file count changes. If these outcomes are not measurable from the generic collector, do not adopt this option yet."
+    }
+  ],
+  "reviewer_recommendation": "Keep the current report red and do not change the baseline until G chooses what the count is intended to govern. Option C is the best fit if the goal is sound ownership and dependency direction; Option A is defensible only if 10 is an intentional architectural ceiling and a whole-topology migration can preserve seams. Option B is defensible only after the final source composition is fixed and measured. The pending fixture-owner candidate\u2019s projected count is not part of this evidence; remeasure it from the exact final tree.",
+  "pattern_pass": {
+    "bucket": "SAME class at a wider property boundary: P38 proxy-gate/P13 proportional-governance issue, not a new class and not a per-file ladder.",
+    "relevant_ids": [
+      "P13",
+      "P31",
+      "P35",
+      "P38",
+      "P40"
+    ],
+    "existing_issue": "A physical directory count is being treated as evidence of helper topology quality; its selector misses app fixture-support callers and its count does not distinguish one-consumer role helpers from broadly shared modules.",
+    "target_pattern": "Use complete source enumeration and a named, property-aligned topology contract; keep count as a gate only if G explicitly chooses file count as a substantive architecture invariant.",
+    "capability_state": "No new product capability is claimed; this is an engineering quality-ratchet decision."
+  },
+  "decision_needed": {
+    "from": "team-quality / G owner",
+    "choose_one": [
+      "A_keep_10_as_hard_no_growth_bar",
+      "B_accept_growth_and_rebaseline_after_source_freeze",
+      "C_make_file_count_a_trend_and_gate_on_topology_properties"
+    ],
+    "required_binding": "Record the chosen policy, owner, effective date/source frame, and treatment of the app-script caller boundary. Leave closure_ids empty for this packet."
+  },
+  "checks_not_performed": [
+    "No tests or full ratchet command were run; the independent source-only AST recheck reproduced the existing report exactly over the 3,068-file test denominator.",
+    "No candidate owner-composition patch or post-composition count was reviewed or inferred.",
+    "No source, contract, topology, baseline, Git, or canonical index was modified."
+  ],
+  "closure_ids": [],
+  "raw_full_analysis": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-helper-topology-g-decision-r1-20261018/decision.json",
+    "sha256": "bb1fc1e69dff84ce79caa062c9d2bb2f2dcdd54f9f513b44aedf5427b8746b3b",
+    "availability": "Local ignored RAW; source census and complete deciding output remain available at referenced paths."
+  },
+  "source_and_evidence_pins": {
+    "source_pins": {
+      "same_as_raw_pointer": "/source_pins"
+    },
+    "evidence": {
+      "same_as_raw_pointer": "/evidence"
+    },
+    "meaning": "All sources and measured denominator are pinned in the referenced historical8e306 packet. Later helper composition changes require fresh measurement before any gate choice is applied."
+  },
+  "current_status": "G choice pending; neither candidate helper relocation nor projected counts change the unchanged no-growth gate. No G choice or formal closure is inferred."
+}

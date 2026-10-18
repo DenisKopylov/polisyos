@@ -1,0 +1,24 @@
+{
+  "schema": "policyos.local.source_bound_handoff.v1",
+  "created_date": "2026-10-18",
+  "branch": "codex/e02-unified-local-20261009",
+  "observed_source_frame": {
+    "head": "8ef3c60bd7a0fbab465f203795e33a1dcdf71490",
+    "tree": "8fea7ee9e10c764e96f3a1172193088c285c3b0d"
+  },
+  "closure_ids": [],
+  "G_acceptance": false,
+  "global_source_input_backend_freeze": false,
+  "source_freeze": false,
+  "author_proposal_is_formal_closure": false,
+  "packet_status": "reviewable local evidence payload; no formal closure or global freeze claimed",
+  "payload_id": "native-helper-topology-g-decision-reference-r4-20261018",
+  "decision_packet": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-helper-topology-g-decision-r1-20261018/decision.json",
+    "sha256": "bb1fc1e69dff84ce79caa062c9d2bb2f2dcdd54f9f513b44aedf5427b8746b3b"
+  },
+  "decision_status": "G choice pending. The referenced packet remains its own pinned source-frame analysis and is not refreshed to this observed frame.",
+  "proposal_fields": {
+    "closures_proposed": []
+  }
+}

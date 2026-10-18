@@ -1,0 +1,84 @@
+{
+  "schema": "policyos.local.source_bound_handoff.v1",
+  "created_date": "2026-10-18",
+  "branch": "codex/e02-unified-local-20261009",
+  "observed_source_frame": {
+    "head": "8ef3c60bd7a0fbab465f203795e33a1dcdf71490",
+    "tree": "8fea7ee9e10c764e96f3a1172193088c285c3b0d"
+  },
+  "closure_ids": [],
+  "G_acceptance": false,
+  "global_source_input_backend_freeze": false,
+  "source_freeze": false,
+  "author_proposal_is_formal_closure": false,
+  "packet_status": "reviewable local evidence payload; no formal closure or global freeze claimed",
+  "payload_id": "dynamic-import-r8-source-review-and-canonical-wave-r4-20261018",
+  "source_application": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-dynamic-import-r8-application-20261018/source-application.json",
+    "sha256": "0bbebfc74853e88893a3df619b78d4d5c9e7795ae6f43e693e9b7d4062702dfe"
+  },
+  "source_commit_readback": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-dynamic-import-r8-application-20261018/dynamic-import-guarded-origin-r8-readback.json",
+    "sha256": "42dd4477b25a4cdfd25b1652491478703e0778b5ab24dc945627bebdf1ed4003"
+  },
+  "source_commit": {
+    "sha": "b8343d819056c0d257fa211dc7d1a59d49e31c5f",
+    "tree": "2bf22c4194400e520da9ad5fa785fa2c5cbb3515",
+    "parents": [
+      "04e4b376053b715f55c794dc0dc269de2f32b516"
+    ],
+    "subject": "fix(e02): preserve selected importer origin across abstract transfers"
+  },
+  "source_postimages": {
+    "policy-engine/tools/quality/validation/decomposition_preflight.py": "093a2abea4ca23ba5d5dc609620d89815a686e5f76518f4bc5466ecdaae16dfc",
+    "policy-engine/tests/repo_quality/architecture/test_decomposition_preflight_gates.py": "ff10fbee820735febc1a70fe6b3bcedeb3ddfcf9df57e5e894bc94e00fea20ed"
+  },
+  "independent_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-dynamic-import-target-relevance-r8-independent-review-20261017/review.json",
+    "sha256": "797b4f1a88fa609c96a72d0fb4860667950e9e86b7970e0ca1c7bba4271c44b6"
+  },
+  "independent_review_verdict": "bounded_go",
+  "canonical_replay": {
+    "request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-dynamic-import-target-relevance-r8-canonical45-replay-r2-20261018/request.json",
+      "sha256": "9ca9574fc051a3bf6b10c8714d8c97a5ae73c9f16266d641f29864401fb5376b"
+    },
+    "actual_results": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-dynamic-import-target-relevance-r8-canonical45-replay-r2-20261018/actual-results.json",
+      "sha256": "a4cfca8179b38b98a97531df5c83aac764e519c1e5c061c7c9f0f2b96bee1841"
+    },
+    "deciding_outputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-dynamic-import-target-relevance-r8-canonical45-replay-r2-20261018/actual-stdout.txt",
+        "sha256": "b2c6720453f06d35157bf6fc9703ffce184bf1d11bc189b38e5a9b17338d728b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-dynamic-import-target-relevance-r8-canonical45-replay-r2-20261018/actual-stderr.txt",
+        "sha256": "7d01aad28d69714cd650c005174931cdfeea47ded2f8652eca5ad5033b209c8d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-dynamic-import-target-relevance-r8-canonical45-replay-r2-20261018/actual-junit.xml",
+        "sha256": "2946a15f108376f7d9ec9180a1124dfd9e9b38c60a0e94fd24e6488dae0db134"
+      }
+    ],
+    "source_frame": {
+      "head": "b8343d819056c0d257fa211dc7d1a59d49e31c5f",
+      "tree": "2bf22c4194400e520da9ad5fa785fa2c5cbb3515"
+    },
+    "cases": 45,
+    "passed": 45,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "elapsed_seconds": 4.6954,
+    "maximum_rss_bytes": 163790848,
+    "input_pins_unchanged": true
+  },
+  "limitations": [
+    "Full repository dynamic-import collector remains UNRUN; this is not whole-source acceptance or formal closure.",
+    "No institutional/currentness authority or general Python execution completeness is claimed."
+  ],
+  "proposal_fields": {
+    "closures_proposed": []
+  }
+}

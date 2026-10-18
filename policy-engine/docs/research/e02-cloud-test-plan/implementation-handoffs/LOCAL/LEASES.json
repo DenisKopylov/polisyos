@@ -13234,5 +13234,72 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-monetary-defaults-r9-reviewed-adoption-20261018": {
+    "slice_base": "3efed62b1039636e5852648b8b3d5c031f1f55c2",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/apps/runtime-dashboard/src/api/validators.ts": {
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r9-canonical-default-consumer-20261018/postimages/policy-engine/apps/runtime-dashboard/src/api/validators.ts",
+        "postimage_sha256": "c094508a18a1361755eaa4706ca967fd7519f5d9046b660ed962e8f20c3b5546",
+        "preimage_sha256": "5cfa5a399ee0d5eb34220a277d29bb827e82860d0d3914d1462e5c6f1528eac0",
+        "operation": "modify"
+      },
+      "policy-engine/apps/runtime-dashboard/src/api/validators.test.ts": {
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r9-canonical-default-consumer-20261018/postimages/policy-engine/apps/runtime-dashboard/src/api/validators.test.ts",
+        "postimage_sha256": "9eb73f3d0aaa04de965ba33dbc5247bd52fd1fa7ce5c0f975938f21e1e61b06f",
+        "preimage_sha256": "03a130f6ce9b841443a809d3a36aaa786f6070dbfa885f58860e1bc23b6d14db",
+        "operation": "modify"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-defaults-r9-post-search-adoption-20261018/source-application.json",
+      "sha256": "922d805fd8595bef3d11fbc4c8ee9ff2fd16fd52fb8975db2f87da78e68bfebf"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-defaults-r9-post-search-adoption-20261018/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r9-canonical-default-consumer-20261018/manifest.json",
+        "sha256": "7531278219032a9463d113b89930dcf45b7e8266d39bcf41685852b74afdfc2e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r9-canonical-default-consumer-20261018/candidate.patch",
+        "sha256": "73fdfb84ab7da2a095f76032401e95bea622fbe4135960dcbd5326d69d2b741b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r9-canonical-default-consumer-20261018/review.md",
+        "sha256": "23b2c0775b3e890c22d53533fcf89a22301557ec0837fec448fa39ed99dd008f"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r9-canonical-default-consumer-20261018/field-census.json",
+        "sha256": "04d052477cd5ed0fd2c86d45ecb3efd9721a11be3c442e6c5669b0826114c989"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r9-canonical-default-consumer-20261018/lint-profile.json",
+        "sha256": "4f6301cc719b2bbf04c27e10869129d99962f284a7f8c6894a779da6cb7e38a5"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r9-defaults-independent-20261018/review.json",
+        "sha256": "0283af4f907e847b2ae693a4e2b9aa52f54ad02792d0c4593ae194b0017f817b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-defaults-r9-reviewed-adoption-20261018/adoption-plan.json",
+        "sha256": "10d2fe1971ba9124b9d40c44f9eb95094992c44ebeb62ccc5e74fe3202a076e5"
+      }
+    ],
+    "P40": "Same canonical DTO/raw-consumer omission class widened to all 87 fields and 74 defaults across the six source DTO owners; no attempt ordinal becomes owner authority.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Runtime remains UNRUN on adopted bytes; independent source review is bounded and is not G acceptance.",
+      "OpenAPI generation, installed consumers and native whole-repository gates remain separate required checks."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Freeze the composed candidate and replay the complete affected modules and all parser consumers with retained deciding outputs.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

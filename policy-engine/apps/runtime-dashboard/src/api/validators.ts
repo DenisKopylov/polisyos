@@ -2806,22 +2806,22 @@ const nodeDebugViewSchema = z.object({
 const agentPipelineCostEventSchema = z
   .object({
     event_id: z.string().min(1),
-    origin_event_id: z.string().min(1).nullable().optional(),
+    origin_event_id: z.string().min(1).nullable().default(null),
     cost_origin: z.enum(["reported", "estimated", "reuse", "unknown"]),
-    control_job_attempt: z.number().int().min(1).nullable().optional(),
+    control_job_attempt: z.number().int().min(1).nullable().default(null),
     pre_admission_attempt_id: z
       .string()
       .regex(/^[a-f0-9]{32}$/)
       .nullable()
-      .optional(),
-    amount: z.string().nullable().optional(),
-    cost_usd: z.number().nullable().optional(),
+      .default(null),
+    amount: z.string().nullable().default(null),
+    cost_usd: z.number().nullable().default(null),
     settlement_status: z.enum(["pending", "committed", "unknown", "unmanaged"]),
-    durability: z.enum(["ledger", "memory", "none"]).nullable().optional(),
-    receipts: z.array(z.string()).optional(),
-    payload_digest: z.string().min(1).nullable().optional(),
-    model: z.string().nullable().optional(),
-    provider: z.string().nullable().optional(),
+    durability: z.enum(["ledger", "memory", "none"]).nullable().default(null),
+    receipts: z.array(z.string()).default(() => []),
+    payload_digest: z.string().min(1).nullable().default(null),
+    model: z.string().nullable().default(null),
+    provider: z.string().nullable().default(null),
   })
   .strict()
   .refine(
@@ -2855,64 +2855,72 @@ const agentPipelineUnattributedCostScalarSchema = z
       "estimated_cost_usd",
     ]),
     claimed_value_usd: z.number().nonnegative(),
-    scope: z.literal("not_established"),
-    attempt: z.number().int().min(1).nullable().optional(),
-    agent: z.string().nullable().optional(),
-    model: z.string().nullable().optional(),
-    model_variant_id: z.string().nullable().optional(),
-    source_index: z.number().int().nonnegative().nullable().optional(),
+    scope: z.literal("not_established").default("not_established"),
+    attempt: z.number().int().min(1).nullable().default(null),
+    agent: z.string().nullable().default(null),
+    model: z.string().nullable().default(null),
+    model_variant_id: z.string().nullable().default(null),
+    source_index: z.number().int().nonnegative().nullable().default(null),
   })
   .strict();
 
 const agentPipelineStepSchema = z.object({
-  attempt: z.number(),
+  attempt: z.number().int().min(1).default(1),
   agent: z.string(),
   action: z.string(),
   status: z.enum(["ok", "warn", "fail", "info"]).default("info"),
-  timestamp: z.string().nullable().optional(),
-  summary: z.string().nullable().optional(),
-  details: z.record(z.string(), z.unknown()).optional(),
+  timestamp: z.string().nullable().default(null),
+  summary: z.string().nullable().default(null),
+  details: z.record(z.string(), z.unknown()).default(() => ({})),
   details_cost_scope: z.literal("not_established").default("not_established"),
-  prompt: z.string().nullable().optional(),
-  response: z.string().nullable().optional(),
-  model: z.string().nullable().optional(),
-  provider: z.string().nullable().optional(),
-  model_variant_id: z.string().nullable().optional(),
-  latency_ms: z.number().nullable().optional(),
-  cost_usd: z.number().nullable().optional(),
-  reported_cost_usd: z.number().nullable().optional(),
-  estimated_cost_usd: z.number().nullable().optional(),
+  prompt: z.string().nullable().default(null),
+  response: z.string().nullable().default(null),
+  model: z.string().nullable().default(null),
+  provider: z.string().nullable().default(null),
+  model_variant_id: z.string().nullable().default(null),
+  latency_ms: z.number().int().nonnegative().nullable().default(null),
+  cost_usd: z.number().nullable().default(null),
+  reported_cost_usd: z.number().nullable().default(null),
+  estimated_cost_usd: z.number().nullable().default(null),
   cost_origin: z
     .enum(["reported", "estimated", "reuse", "unknown"])
     .nullable()
-    .optional(),
-  cost_origin_counts: z.record(z.string(), z.number()).optional(),
-  settlement_status_counts: z.record(z.string(), z.number()).optional(),
-  settlement_event_ids: z.array(z.string()).optional(),
-  cost_events: z.array(agentPipelineCostEventSchema).optional(),
+    .default(null),
+  cost_origin_counts: z
+    .record(z.string(), z.number().int())
+    .default(() => ({})),
+  settlement_status_counts: z
+    .record(z.string(), z.number().int())
+    .default(() => ({})),
+  settlement_event_ids: z.array(z.string()).default(() => []),
+  cost_events: z.array(agentPipelineCostEventSchema).default(() => []),
   unattributed_cost_scalars: z
     .array(agentPipelineUnattributedCostScalarSchema)
-    .optional(),
-  token_usage: z.record(z.string(), z.number()).optional(),
+    .default(() => []),
+  token_usage: z.record(z.string(), z.number().int()).default(() => ({})),
 });
 
 const agentPipelineAttemptSchema = z.object({
-  attempt: z.number(),
-  status: z.string(),
-  verdict: z.string().nullable().optional(),
-  started_at: z.string().nullable().optional(),
-  finished_at: z.string().nullable().optional(),
-  duration_ms: z.number().nullable().optional(),
-  cost_usd: z.number().nullable().optional(),
-  reported_cost_usd: z.number().nullable().optional(),
-  estimated_cost_usd: z.number().nullable().optional(),
-  cost_origin_counts: z.record(z.string(), z.number()).optional(),
-  settlement_status_counts: z.record(z.string(), z.number()).optional(),
-  steps: z.array(agentPipelineStepSchema).optional(),
+  attempt: z.number().int().min(1),
+  status: z.string().default("unknown"),
+  verdict: z.string().nullable().default(null),
+  started_at: z.string().nullable().default(null),
+  finished_at: z.string().nullable().default(null),
+  duration_ms: z.number().int().nonnegative().nullable().default(null),
+  cost_usd: z.number().nullable().default(null),
+  reported_cost_usd: z.number().nullable().default(null),
+  estimated_cost_usd: z.number().nullable().default(null),
+  cost_origin_counts: z
+    .record(z.string(), z.number().int())
+    .default(() => ({})),
+  settlement_status_counts: z
+    .record(z.string(), z.number().int())
+    .default(() => ({})),
+  steps: z.array(agentPipelineStepSchema).default(() => []),
   unattributed_cost_scalars: z
     .array(agentPipelineUnattributedCostScalarSchema)
-    .optional(),
-  notes: z.array(z.string()).optional(),
+    .default(() => []),
+  notes: z.array(z.string()).default(() => []),
 });
 
 const retrievalPhaseTelemetrySchema = z.object({
@@ -3023,31 +3031,37 @@ const agentPipelineViewSchema = z
   .object({
     run_id: z.string(),
     source_kind: z.literal("core_run"),
-    total_attempts: z.number(),
-    cost_usd: z.number().nullable().optional(),
-    reported_cost_usd: z.number().nullable().optional(),
-    estimated_cost_usd: z.number().nullable().optional(),
-    cost_origin_counts: z.record(z.string(), z.number()).optional(),
-    settlement_status_counts: z.record(z.string(), z.number()).optional(),
-    latest_verdict: z.string().nullable().optional(),
-    attempts: z.array(agentPipelineAttemptSchema).optional(),
-    owner_control_job_attempt: z.number().int().min(1).nullable().optional(),
-    unattributed_cost_events: z.array(agentPipelineCostEventSchema).optional(),
+    total_attempts: z.number().int().nonnegative().default(0),
+    cost_usd: z.number().nullable().default(null),
+    reported_cost_usd: z.number().nullable().default(null),
+    estimated_cost_usd: z.number().nullable().default(null),
+    cost_origin_counts: z
+      .record(z.string(), z.number().int())
+      .default(() => ({})),
+    settlement_status_counts: z
+      .record(z.string(), z.number().int())
+      .default(() => ({})),
+    latest_verdict: z.string().nullable().default(null),
+    attempts: z.array(agentPipelineAttemptSchema).default(() => []),
+    owner_control_job_attempt: z.number().int().min(1).nullable().default(null),
+    unattributed_cost_events: z
+      .array(agentPipelineCostEventSchema)
+      .default(() => []),
     unattributed_cost_scalars: z
       .array(agentPipelineUnattributedCostScalarSchema)
-      .optional(),
-    decision_packet_ref: artifactRefSchema.nullable().optional(),
-    reflexion_terminal_ref: artifactRefSchema.nullable().optional(),
-    retrieval: retrievalTelemetryViewSchema.nullable().optional(),
-    execution_plan_ref: artifactRefSchema.nullable().optional(),
-    method_catalog_snapshot_ref: artifactRefSchema.nullable().optional(),
-    preflight: preflightReportViewSchema.nullable().optional(),
-    evaluator: evaluatorReportViewSchema.nullable().optional(),
-    iteration_lifecycle: iterationLifecycleViewSchema.nullable().optional(),
-    reproducibility: reproducibilityViewSchema.nullable().optional(),
-    performance_summary: runPerformanceSummarySchema.nullable().optional(),
-    source: z.string().nullable().optional(),
-    notes: z.array(z.string()).optional(),
+      .default(() => []),
+    decision_packet_ref: artifactRefSchema.nullable().default(null),
+    reflexion_terminal_ref: artifactRefSchema.nullable().default(null),
+    retrieval: retrievalTelemetryViewSchema.nullable().default(null),
+    execution_plan_ref: artifactRefSchema.nullable().default(null),
+    method_catalog_snapshot_ref: artifactRefSchema.nullable().default(null),
+    preflight: preflightReportViewSchema.nullable().default(null),
+    evaluator: evaluatorReportViewSchema.nullable().default(null),
+    iteration_lifecycle: iterationLifecycleViewSchema.nullable().default(null),
+    reproducibility: reproducibilityViewSchema.nullable().default(null),
+    performance_summary: runPerformanceSummarySchema.nullable().default(null),
+    source: z.string().nullable().default(null),
+    notes: z.array(z.string()).default(() => []),
   })
   .superRefine((pipeline, context) => {
     const hasCurrentProjection = (value: {

@@ -3796,6 +3796,514 @@ describe("artifact preview canonical read status custody", () => {
     ).toBe(false);
   });
 
+  it("materializes canonical defaults across nested AgentPipeline DTOs", () => {
+    const legacyResponse = {
+      meta: { request_id: "request-r9", generated_at: "2026-10-18T10:00:00Z" },
+      pipeline: {
+        run_id: "run-r9",
+        source_kind: "core_run",
+        total_attempts: 2,
+        attempts: [
+          {
+            attempt: 2,
+            steps: [
+              {
+                agent: "critic",
+                action: "approved",
+                cost_events: [
+                  {
+                    event_id: "event-r9",
+                    cost_origin: "unknown",
+                    settlement_status: "unknown",
+                  },
+                ],
+                unattributed_cost_scalars: [
+                  {
+                    source_kind: "step_summary",
+                    source_field: "cost_usd",
+                    claimed_value_usd: 0.25,
+                  },
+                ],
+              },
+              { agent: "critic", action: "reviewed" },
+            ],
+          },
+          { attempt: 3 },
+        ],
+      },
+    };
+    const parsed = runAgentsSchema.safeParse(legacyResponse);
+    expect(parsed.success).toBe(true);
+    if (!parsed.success)
+      throw new Error("expected canonical legacy defaults to parse");
+
+    const eventDefaults = {
+      event_id: "event-r9",
+      origin_event_id: null,
+      cost_origin: "unknown",
+      control_job_attempt: null,
+      pre_admission_attempt_id: null,
+      amount: null,
+      cost_usd: null,
+      settlement_status: "unknown",
+      durability: null,
+      receipts: [],
+      payload_digest: null,
+      model: null,
+      provider: null,
+    };
+    const scalarDefaults = {
+      source_kind: "step_summary",
+      source_field: "cost_usd",
+      claimed_value_usd: 0.25,
+      scope: "not_established",
+      attempt: null,
+      agent: null,
+      model: null,
+      model_variant_id: null,
+      source_index: null,
+    };
+    const stepDefaults = {
+      attempt: 1,
+      status: "info",
+      timestamp: null,
+      summary: null,
+      details: {},
+      details_cost_scope: "not_established",
+      prompt: null,
+      response: null,
+      model: null,
+      provider: null,
+      model_variant_id: null,
+      latency_ms: null,
+      cost_usd: null,
+      reported_cost_usd: null,
+      estimated_cost_usd: null,
+      cost_origin: null,
+      cost_origin_counts: {},
+      settlement_status_counts: {},
+      settlement_event_ids: [],
+      token_usage: {},
+    };
+    const attemptDefaults = {
+      status: "unknown",
+      verdict: null,
+      started_at: null,
+      finished_at: null,
+      duration_ms: null,
+      cost_usd: null,
+      reported_cost_usd: null,
+      estimated_cost_usd: null,
+      cost_origin_counts: {},
+      settlement_status_counts: {},
+      unattributed_cost_scalars: [],
+      notes: [],
+    };
+    expect(parsed.data.pipeline.owner_control_job_attempt).toBeNull();
+    expect(parsed.data.pipeline.attempts).toEqual([
+      {
+        ...attemptDefaults,
+        attempt: 2,
+        steps: [
+          {
+            ...stepDefaults,
+            agent: "critic",
+            action: "approved",
+            cost_events: [eventDefaults],
+            unattributed_cost_scalars: [scalarDefaults],
+          },
+          {
+            ...stepDefaults,
+            agent: "critic",
+            action: "reviewed",
+            cost_events: [],
+            unattributed_cost_scalars: [],
+          },
+        ],
+      },
+      { ...attemptDefaults, attempt: 3, steps: [] },
+    ]);
+    // A step default is independent of both its parent ordinal and owner evidence.
+    expect(parsed.data.pipeline.attempts[0]?.steps[0]?.attempt).toBe(1);
+  });
+
+  it("keeps required AgentPipeline fields and malformed values distinct from defaults", () => {
+    const legacyResponse = {
+      meta: {
+        request_id: "request-r9-controls",
+        generated_at: "2026-10-18T10:00:00Z",
+      },
+      pipeline: {
+        run_id: "run-r9-controls",
+        source_kind: "core_run",
+        total_attempts: 2,
+        attempts: [
+          {
+            attempt: 2,
+            steps: [
+              {
+                agent: "critic",
+                action: "approved",
+                cost_events: [
+                  {
+                    event_id: "event-r9",
+                    cost_origin: "unknown",
+                    settlement_status: "unknown",
+                  },
+                ],
+                unattributed_cost_scalars: [
+                  {
+                    source_kind: "step_summary",
+                    source_field: "cost_usd",
+                    claimed_value_usd: 0.25,
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    };
+    type Part = string | number;
+    const setPath = (value: unknown, path: Part[], replacement: unknown) => {
+      let current = value;
+      for (const part of path.slice(0, -1)) {
+        current = Array.isArray(current)
+          ? current[part as number]
+          : mutableRecord(current)[String(part)];
+      }
+      const last = path[path.length - 1];
+      if (last === undefined) throw new Error("expected non-empty path");
+      if (Array.isArray(current)) {
+        if (typeof last !== "number")
+          throw new Error("expected numeric array path");
+        current[last] = replacement;
+      } else mutableRecord(current)[String(last)] = replacement;
+    };
+    const deletePath = (value: unknown, path: Part[]) => {
+      let current = value;
+      for (const part of path.slice(0, -1)) {
+        current = Array.isArray(current)
+          ? current[part as number]
+          : mutableRecord(current)[String(part)];
+      }
+      const last = path[path.length - 1];
+      if (last === undefined) throw new Error("expected non-empty path");
+      expect(Reflect.deleteProperty(current as object, String(last))).toBe(
+        true,
+      );
+    };
+    const collectPaths = (
+      value: unknown,
+      matches: (candidate: unknown) => boolean,
+      path: Part[] = [],
+    ): Part[][] => {
+      if (matches(value)) return [path];
+      if (Array.isArray(value)) {
+        return value.flatMap((entry, index) =>
+          collectPaths(entry, matches, [...path, index]),
+        );
+      }
+      if (value && typeof value === "object") {
+        return Object.entries(value).flatMap(([key, entry]) =>
+          collectPaths(entry, matches, [...path, key]),
+        );
+      }
+      return [];
+    };
+    const output = runAgentsSchema.parse(legacyResponse);
+    const emptyObject = (value: unknown) =>
+      value !== null &&
+      typeof value === "object" &&
+      !Array.isArray(value) &&
+      Object.keys(value).length === 0;
+    for (const [matches, malformedValue] of [
+      [(value: unknown) => value === null, []],
+      [(value: unknown) => Array.isArray(value), null],
+      [emptyObject, null],
+    ] as const) {
+      for (const path of collectPaths(output, matches)) {
+        const malformed = structuredClone(legacyResponse);
+        setPath(malformed, path, malformedValue);
+        expect(runAgentsSchema.safeParse(malformed).success).toBe(false);
+      }
+    }
+
+    for (const path of collectPaths(output, (value) => value === null)) {
+      const explicitNull = structuredClone(legacyResponse);
+      setPath(explicitNull, path, null);
+      expect(runAgentsSchema.safeParse(explicitNull).success).toBe(true);
+    }
+
+    const requiredPaths: Part[][] = [
+      ["meta"],
+      ["pipeline"],
+      ["meta", "request_id"],
+      ["meta", "generated_at"],
+      ["pipeline", "run_id"],
+      ["pipeline", "source_kind"],
+      ["pipeline", "attempts", 0, "attempt"],
+      ["pipeline", "attempts", 0, "steps", 0, "agent"],
+      ["pipeline", "attempts", 0, "steps", 0, "action"],
+      ["pipeline", "attempts", 0, "steps", 0, "cost_events", 0, "event_id"],
+      ["pipeline", "attempts", 0, "steps", 0, "cost_events", 0, "cost_origin"],
+      [
+        "pipeline",
+        "attempts",
+        0,
+        "steps",
+        0,
+        "cost_events",
+        0,
+        "settlement_status",
+      ],
+      [
+        "pipeline",
+        "attempts",
+        0,
+        "steps",
+        0,
+        "unattributed_cost_scalars",
+        0,
+        "source_kind",
+      ],
+      [
+        "pipeline",
+        "attempts",
+        0,
+        "steps",
+        0,
+        "unattributed_cost_scalars",
+        0,
+        "source_field",
+      ],
+      [
+        "pipeline",
+        "attempts",
+        0,
+        "steps",
+        0,
+        "unattributed_cost_scalars",
+        0,
+        "claimed_value_usd",
+      ],
+    ];
+    expect(requiredPaths).toHaveLength(15);
+    for (const path of requiredPaths) {
+      const missing = structuredClone(legacyResponse);
+      deletePath(missing, path);
+      expect(runAgentsSchema.safeParse(missing).success).toBe(false);
+    }
+
+    const malformedValues: Array<[Part[], unknown]> = [
+      [["pipeline", "attempts", 0, "steps", 0, "attempt"], null],
+      [["pipeline", "attempts", 0, "steps", 0, "attempt"], 0],
+      [["pipeline", "attempts", 0, "steps", 0, "attempt"], 1.5],
+      [["pipeline", "attempts", 0, "steps", 0, "attempt"], true],
+      [["pipeline", "attempts", 0, "attempt"], 1.5],
+      [["pipeline", "attempts", 0, "attempt"], 0],
+      [["pipeline", "attempts", 0, "attempt"], true],
+      [["pipeline", "attempts", 0, "attempt"], null],
+      [["pipeline", "attempts", 0, "duration_ms"], 0.5],
+      [["pipeline", "attempts", 0, "cost_origin_counts"], { reported: 1.5 }],
+      [
+        ["pipeline", "attempts", 0, "settlement_status_counts"],
+        { committed: 1.5 },
+      ],
+      [["pipeline", "attempts", 0, "status"], null],
+      [["pipeline", "total_attempts"], -1],
+      [["pipeline", "total_attempts"], 0.5],
+      [["pipeline", "total_attempts"], true],
+      [["pipeline", "total_attempts"], null],
+      [["pipeline", "cost_origin_counts"], { reported: 1.5 }],
+      [["pipeline", "settlement_status_counts"], { committed: 1.5 }],
+      [["pipeline", "owner_control_job_attempt"], true],
+      [["pipeline", "owner_control_job_attempt"], 0],
+      [["pipeline", "owner_control_job_attempt"], 1.5],
+      [["pipeline", "owner_control_job_attempt"], "2"],
+      [["pipeline", "attempts", 0, "steps", 0, "latency_ms"], 1.5],
+      [
+        ["pipeline", "attempts", 0, "steps", 0, "cost_origin_counts"],
+        { reported: 1.5 },
+      ],
+      [
+        ["pipeline", "attempts", 0, "steps", 0, "settlement_status_counts"],
+        { committed: 1.5 },
+      ],
+      [["pipeline", "attempts", 0, "steps", 0, "token_usage"], { input: 1.5 }],
+      [["pipeline", "attempts", 0, "steps", 0, "status"], "blocked"],
+      [["pipeline", "attempts", 0, "steps", 0, "status"], null],
+      [
+        ["pipeline", "attempts", 0, "steps", 0, "details_cost_scope"],
+        "current",
+      ],
+      [["pipeline", "attempts", 0, "steps", 0, "details_cost_scope"], null],
+      [
+        [
+          "pipeline",
+          "attempts",
+          0,
+          "steps",
+          0,
+          "cost_events",
+          0,
+          "control_job_attempt",
+        ],
+        1.5,
+      ],
+      [
+        [
+          "pipeline",
+          "attempts",
+          0,
+          "steps",
+          0,
+          "cost_events",
+          0,
+          "control_job_attempt",
+        ],
+        0,
+      ],
+      [
+        [
+          "pipeline",
+          "attempts",
+          0,
+          "steps",
+          0,
+          "unattributed_cost_scalars",
+          0,
+          "attempt",
+        ],
+        0,
+      ],
+      [
+        [
+          "pipeline",
+          "attempts",
+          0,
+          "steps",
+          0,
+          "unattributed_cost_scalars",
+          0,
+          "scope",
+        ],
+        "current",
+      ],
+      [
+        [
+          "pipeline",
+          "attempts",
+          0,
+          "steps",
+          0,
+          "unattributed_cost_scalars",
+          0,
+          "scope",
+        ],
+        null,
+      ],
+      [
+        [
+          "pipeline",
+          "attempts",
+          0,
+          "steps",
+          0,
+          "unattributed_cost_scalars",
+          0,
+          "attempt",
+        ],
+        1.5,
+      ],
+      [
+        [
+          "pipeline",
+          "attempts",
+          0,
+          "steps",
+          0,
+          "unattributed_cost_scalars",
+          0,
+          "source_index",
+        ],
+        0.5,
+      ],
+      [
+        [
+          "pipeline",
+          "attempts",
+          0,
+          "steps",
+          0,
+          "unattributed_cost_scalars",
+          0,
+          "claimed_value_usd",
+        ],
+        true,
+      ],
+    ];
+    for (const [path, replacement] of malformedValues) {
+      const malformed = structuredClone(legacyResponse);
+      setPath(malformed, path, replacement);
+      expect(runAgentsSchema.safeParse(malformed).success).toBe(false);
+    }
+    const explicitNullOwner = structuredClone(legacyResponse);
+    setPath(explicitNullOwner, ["pipeline", "owner_control_job_attempt"], null);
+    expect(runAgentsSchema.safeParse(explicitNullOwner).success).toBe(true);
+  });
+
+  it("materializes fresh defaults for an empty AgentPipeline view", () => {
+    const response = {
+      meta: {
+        request_id: "request-empty-r9",
+        generated_at: "2026-10-18T10:00:00Z",
+      },
+      pipeline: { run_id: "run-empty-r9", source_kind: "core_run" },
+    };
+    const first = runAgentsSchema.parse(response);
+    const second = runAgentsSchema.parse(response);
+    expect(first).toEqual({
+      meta: {
+        request_id: "request-empty-r9",
+        generated_at: "2026-10-18T10:00:00Z",
+        source_kinds: [],
+      },
+      pipeline: {
+        run_id: "run-empty-r9",
+        source_kind: "core_run",
+        owner_control_job_attempt: null,
+        total_attempts: 0,
+        cost_usd: null,
+        reported_cost_usd: null,
+        estimated_cost_usd: null,
+        cost_origin_counts: {},
+        settlement_status_counts: {},
+        latest_verdict: null,
+        attempts: [],
+        unattributed_cost_events: [],
+        unattributed_cost_scalars: [],
+        decision_packet_ref: null,
+        reflexion_terminal_ref: null,
+        retrieval: null,
+        execution_plan_ref: null,
+        method_catalog_snapshot_ref: null,
+        preflight: null,
+        evaluator: null,
+        iteration_lifecycle: null,
+        reproducibility: null,
+        performance_summary: null,
+        source: null,
+        notes: [],
+      },
+    });
+    expect(first.pipeline.notes).not.toBe(second.pipeline.notes);
+    expect(first.pipeline.cost_origin_counts).not.toBe(
+      second.pipeline.cost_origin_counts,
+    );
+    expect(first.pipeline.attempts).not.toBe(second.pipeline.attempts);
+  });
+
   it("defaults opaque step details to an unestablished cost scope", () => {
     const legacyDetails = {
       meta: {

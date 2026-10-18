@@ -58,3 +58,18 @@ Its `_bindings`, `_contracts` and `_reports` siblings own source binding resolut
 inventory contracts and producer report specifications. CI and Wave40 consume this
 static inventory in their existing roles; the inventory does not establish that
 those producers ran for a current transaction or authorize publication.
+
+### Honest diagnostics and trust posture
+
+`build_honest_diagnostics_coverage.py` owns the coverage CLI, rendering and current
+configuration. `honest_diagnostics_coverage_metrics.py` owns metric definitions,
+parsing and calculations; the facade supplies its current contract bindings and
+keeps the existing one-argument validation callback.
+
+`check_trust_claim_posture.py` remains the compiler facade. Its contracts, tokenizer,
+source bindings, accessibility, semantics and artifact-lifecycle siblings own the
+corresponding calculation families. The facade supplies current callbacks for each
+call, including the probe-repository adapter used by source read-receipt checks.
+The existing source owner, generated artifact contract and output paths remain in
+place. These source extractions require behavioral and removal checks before any
+native-gate completion claim.

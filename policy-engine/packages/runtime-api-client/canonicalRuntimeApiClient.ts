@@ -60,6 +60,9 @@ export type AgentPipelineResponse =
 export type AgentPipelineStep =
   RuntimeApiComponents["schemas"]["AgentPipelineStep"];
 
+export type AgentPipelineUnattributedCostScalar =
+  RuntimeApiComponents["schemas"]["AgentPipelineUnattributedCostScalar"];
+
 export type AgentPipelineView =
   RuntimeApiComponents["schemas"]["AgentPipelineView"];
 

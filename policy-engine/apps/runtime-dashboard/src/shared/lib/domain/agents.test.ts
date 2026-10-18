@@ -575,7 +575,10 @@ describe("agents domain", () => {
       }),
     ]);
     expect(ledgerStep?.costUsd).toBe(0.03);
-    expect(ledgerStep?.costUnknown).toBe(true);
+    expect(ledgerStep?.costUnknown).toBe(false);
+    expect(ledgerStep?.costEvents[0]?.currentOwnerEligible).toBe(false);
+    expect(ledgerStep?.costEvents[0]?.costUsd).toBeNull();
+    expect(ledgerStep?.costEvents[1]?.currentOwnerEligible).toBe(true);
     expect(model.unattributedCostScalars).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -806,8 +809,22 @@ describe("agents domain", () => {
     expect(model.attempts[0]?.costOriginCounts).toEqual({});
     expect(model.attempts[0]?.settlementStatusCounts).toEqual({});
     expect(model.attempts[0]?.steps[0]?.costUsd).toBeNull();
-    expect(model.attempts[0]?.steps[0]?.reportedCostUsd).toBeNull();
-    expect(model.attempts[0]?.steps[0]?.estimatedCostUsd).toBeNull();
+    expect(model.attempts[0]?.steps[0]?.unattributedCostScalars).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          claimedValueUsd: 0.95,
+          scope: "not_established",
+          sourceField: "cost_usd",
+          sourceKind: "step_summary",
+        }),
+        expect.objectContaining({
+          claimedValueUsd: 0.94,
+          scope: "not_established",
+          sourceField: "reported_cost_usd",
+          sourceKind: "step_summary",
+        }),
+      ]),
+    );
     expect(model.attempts[0]?.steps[0]?.costEvents[0]?.costUsd).toBeNull();
     expect(model.attempts[0]?.steps[0]?.costEvents[0]?.amount).toBe("0.03");
     expect(

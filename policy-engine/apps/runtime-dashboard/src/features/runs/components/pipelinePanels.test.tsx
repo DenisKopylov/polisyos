@@ -513,7 +513,7 @@ describe("pipeline surfaces", () => {
     ).toBeInTheDocument();
     expect(screen.getByText("shared-owner-variant")).toBeInTheDocument();
     expect(
-      screen.getByText("Owner scope: ControlJob lease attempt 2."),
+      screen.getByText('panels.agentPipeline.ownerAttemptScope:{"attempt":2}'),
     ).toBeInTheDocument();
     expect(screen.getByText("$0.01")).toBeInTheDocument();
     expect(screen.getByText("$0.05")).toBeInTheDocument();

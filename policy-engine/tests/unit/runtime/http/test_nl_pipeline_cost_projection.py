@@ -995,7 +995,14 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
         assert completion_outbox is not None
         completion_progress = completion_outbox.payload["progress"]
         assert completion_progress["execution_owner_binding"] == persisted_owner
-        assert completion_progress == persisted_job.progress == received_job.progress
+        assert completion_progress == persisted_job.progress
+        received_disposition = received_job.progress.get("normative_disposition")
+        assert isinstance(received_disposition, dict)
+        assert received_disposition.get("authorization_status") == "blocked"
+        assert received_disposition.get("reason_codes") == [
+            "normative_evidence_owned_run_source_mismatch"
+        ]
+        assert received_disposition.get("source_status") == "not_established"
         assert (job_id, "job_admission", persisted_owner) in owner_projection_writes
         received_owner = received_job.progress.get("execution_owner_binding")
         assert isinstance(received_owner, dict)
@@ -3671,7 +3678,62 @@ def test_agent_pipeline_projection_requires_explicit_root_owner_context() -> Non
     assert verified.attempts[0].cost_usd == pytest.approx(0.03)
     assert verified.attempts[0].steps[0].cost_usd == pytest.approx(0.03)
     assert verified.attempts[0].steps[0].settlement_event_ids == ("provider:root-owner-context",)
-    assert verified.unattributed_cost_scalars == []
+    assert {
+        (row.source_kind, row.source_field, row.claimed_value_usd, row.scope)
+        for row in verified.unattributed_cost_scalars
+    } == {
+        ("step_summary", "estimated_cost_usd", 0.05, "not_established"),
+        ("attempt_summary", "estimated_cost_usd", 0.07, "not_established"),
+    }
+
+    reprojected_values = verified.model_dump(mode="python")
+    reprojected_values.pop("owner_control_job_attempt")
+    reprojected = AgentPipelineView._from_verified_owner_context(
+        owner_control_job_attempt=2,
+        **reprojected_values,
+    )
+    assert reprojected.cost_usd == pytest.approx(0.03)
+    assert reprojected.reported_cost_usd == pytest.approx(0.03)
+    assert {
+        (row.source_kind, row.source_field, row.claimed_value_usd, row.scope)
+        for row in reprojected.unattributed_cost_scalars
+    } == {
+        ("step_summary", "estimated_cost_usd", 0.05, "not_established"),
+        ("attempt_summary", "estimated_cost_usd", 0.07, "not_established"),
+    }
+
+    # Identical child labels and amounts are ambiguous unless every possible child
+    # is reconciled. One unsupported sibling keeps the shared claim unassigned.
+    sibling_attempt = AgentPipelineAttempt.model_validate(
+        {"attempt": 1, "steps": [raw_step, {**raw_step, "cost_events": []}]}
+    )
+    sibling_view = AgentPipelineView._from_verified_owner_context(
+        run_id="run-owner-identical-sibling",
+        source_kind="core_run",
+        owner_control_job_attempt=2,
+        attempts=[sibling_attempt],
+    )
+    assert sibling_view.cost_usd == pytest.approx(0.03)
+    assert sibling_view.attempts[0].steps[0].cost_usd == pytest.approx(0.03)
+    assert sibling_view.attempts[0].steps[1].cost_usd is None
+    sibling_claims = {
+        (row.source_field, row.claimed_value_usd, row.scope)
+        for row in sibling_view.unattributed_cost_scalars
+        if row.source_kind == "step_summary"
+    }
+    assert sibling_claims == {
+        ("cost_usd", 0.03, "not_established"),
+        ("reported_cost_usd", 0.03, "not_established"),
+        ("estimated_cost_usd", 0.05, "not_established"),
+    }
+    sibling_reprojected_values = sibling_view.model_dump(mode="python")
+    sibling_reprojected_values.pop("owner_control_job_attempt")
+    sibling_reprojected = AgentPipelineView._from_verified_owner_context(
+        owner_control_job_attempt=2,
+        **sibling_reprojected_values,
+    )
+    assert sibling_reprojected.cost_usd == pytest.approx(0.03)
+    assert sibling_reprojected.unattributed_cost_scalars == sibling_view.unattributed_cost_scalars
 
     # A summary without any eligible event remains a claim, even if the owner exists.
     no_event_rows = AgentPipelineView._from_verified_owner_context(

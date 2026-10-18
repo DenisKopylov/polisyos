@@ -3805,9 +3805,11 @@ describe("artifact preview canonical read status custody", () => {
       pipeline: {
         run_id: "run-details-scope",
         source_kind: "core_run",
+        total_attempts: 1,
         attempts: [
           {
             attempt: 1,
+            status: "completed",
             steps: [
               {
                 agent: "critic",
@@ -3867,6 +3869,7 @@ describe("artifact preview canonical read status custody", () => {
         attempts: [
           {
             attempt: 2,
+            status: "completed",
             cost_usd: 0.03,
             reported_cost_usd: 0.02,
             estimated_cost_usd: 0.01,

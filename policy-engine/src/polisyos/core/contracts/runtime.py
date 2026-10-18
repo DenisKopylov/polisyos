@@ -4016,6 +4016,53 @@ def _remove_reconciled_summary_scalar_claims(
     return retained
 
 
+def _remove_reconciled_child_step_scalar_claims(
+    rows: list[object],
+    *,
+    steps: list[AgentPipelineStep],
+    owner_attempt: int | None,
+) -> list[object]:
+    """Remove captured step claims only when every possible source child reconciles."""
+    if owner_attempt is None:
+        return rows
+
+    retained: list[object] = []
+    identity_fields = ("attempt", "agent", "model", "model_variant_id")
+    for raw in rows:
+        row = AgentPipelineUnattributedCostScalar.model_validate(raw)
+        if row.source_kind != "step_summary":
+            retained.append(row)
+            continue
+
+        # Missing labels are not identity. Treat them as wildcards so an old or
+        # partially captured row cannot be cleared by a similarly named sibling.
+        possible_sources = [
+            step
+            for step in steps
+            if all(
+                getattr(row, field) is None or getattr(row, field) == getattr(step, field)
+                for field in identity_fields
+            )
+        ]
+        if not possible_sources:
+            retained.append(row)
+            continue
+
+        reconciles_every_possible_source = all(
+            (
+                projected := _agent_pipeline_cost_projection(step.cost_events, owner_attempt).get(
+                    row.source_field
+                )
+            )
+            is not None
+            and projected == row.claimed_value_usd
+            for step in possible_sources
+        )
+        if not reconciles_every_possible_source:
+            retained.append(row)
+    return retained
+
+
 def _deduplicate_unattributed_cost_scalars(
     rows: list[object],
 ) -> list[AgentPipelineUnattributedCostScalar]:
@@ -4284,6 +4331,11 @@ class AgentPipelineAttempt(BaseModel):
                 summary_scalars,
                 source_kind="attempt_summary",
                 projection=projection,
+            )
+            summary_scalars = _remove_reconciled_child_step_scalar_claims(
+                summary_scalars,
+                steps=self.steps,
+                owner_attempt=owner_attempt,
             )
         self.unattributed_cost_scalars = _deduplicate_unattributed_cost_scalars(
             [

@@ -2506,40 +2506,44 @@ export interface components {
              */
             receipts: string[];
             /**
-         * AgentPipelineUnattributedCostScalar
-         * @description A legacy cost summary scalar without established lease-attempt attribution.
-         */
-        AgentPipelineUnattributedCostScalar: {
-            /** Agent */
-            agent?: string | null;
-            /** Attempt */
-            attempt?: number | null;
-            /** Claimed Value Usd */
-            claimed_value_usd: number;
-            /** Model */
-            model?: string | null;
-            /** Model Variant Id */
-            model_variant_id?: string | null;
-            /** Scope */
-            scope: "not_established";
-            /** Source Field */
-            source_field: "cost_usd" | "reported_cost_usd" | "estimated_cost_usd";
-            /** Source Index */
-            source_index?: number | null;
-            /** Source Kind */
-            source_kind:
-                | "step_summary"
-                | "attempt_summary"
-                | "pipeline_summary"
-                | "performance_summary_llm"
-                | "performance_summary_variant_row";
-        };
-        /**
              * Settlement Status
              * @enum {string}
              */
             settlement_status: "pending" | "committed" | "unknown" | "unmanaged";
         };
+        /**
+         * AgentPipelineUnattributedCostScalar
+         * @description A legacy cost summary scalar without established lease-attempt attribution.
+         */
+        AgentPipelineUnattributedCostScalar: {
+            agent?: string | null;
+            attempt?: number | null;
+            /** Claimed Value Usd */
+            claimed_value_usd: number;
+            model?: string | null;
+            model_variant_id?: string | null;
+            /**
+             * Scope
+             * @default not_established
+             * @constant
+             */
+            scope: "not_established";
+            /**
+             * Source Field
+             * @enum {string}
+             */
+            source_field: "cost_usd" | "reported_cost_usd" | "estimated_cost_usd";
+            source_index?: number | null;
+            /**
+             * Source Kind
+             * @enum {string}
+             */
+            source_kind: "step_summary" | "attempt_summary" | "pipeline_summary" | "performance_summary_llm" | "performance_summary_variant_row";
+        };
+        /**
+         * AgentPipelineResponse
+         * @description Response envelope returned by the agent-pipeline endpoint.
+         */
         AgentPipelineResponse: {
             meta: components["schemas"]["ApiMeta"];
             pipeline: components["schemas"]["AgentPipelineView"];
@@ -2572,8 +2576,13 @@ export interface components {
             details?: {
                 [key: string]: unknown;
             };
-            /** Details Cost Scope */
-            details_cost_scope?: "not_established";
+            /**
+             * Details Cost Scope
+             * @description Opaque diagnostic details are not reconciled to the verified ControlJob lease attempt or included in current cost totals.
+             * @default not_established
+             * @constant
+             */
+            details_cost_scope: "not_established";
             /** Estimated Cost Usd */
             estimated_cost_usd?: number | null;
             /** Latency Ms */
@@ -2640,7 +2649,11 @@ export interface components {
             method_catalog_snapshot_ref?: components["schemas"]["ArtifactRef-Output"] | null;
             /** Notes */
             notes?: string[];
-            /** Verified ControlJob lease attempt bound to this run; null means the owner attempt was not established. */
+            /**
+             * Owner Control Job Attempt
+             * @description Verified ControlJob lease attempt bound to this run; null means the owner attempt was not established.
+             * @default null
+             */
             owner_control_job_attempt?: number | null;
             /** Performance Summary */
             performance_summary?: {

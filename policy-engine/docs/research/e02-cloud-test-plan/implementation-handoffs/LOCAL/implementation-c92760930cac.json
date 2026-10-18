@@ -1,0 +1,254 @@
+{
+  "schema": "polisyos.e02.native_source_commit_receipt.v1",
+  "record_type": "implementation_commit_receipt",
+  "status": "source_committed_static_ruff_pass_runtime_unrun_at_adoption",
+  "proposal_not_adjudicated": true,
+  "source_commit": {
+    "sha": "c92760930cac558923a4622aae7139336522351f",
+    "tree": "17638cf2fd4a8ca9768215611c4163ee8ac02163",
+    "parents": [
+      "24c66bc353681c467706f1c76a2d211af762392d"
+    ],
+    "subject": "fix(causal): refuse partial graphs at legacy transport entry",
+    "branch_ref": "refs/heads/codex/e02-unified-local-20261009"
+  },
+  "source_base": {
+    "sha": "24c66bc353681c467706f1c76a2d211af762392d",
+    "tree": "19d433edad8946b5f4da0dacdd5cf4d67f099e55"
+  },
+  "changed_paths": [
+    {
+      "change": "M",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "category": "coordination_metadata",
+      "sha256_at_commit": "96571c68ab76437b4264a20673ab5cdbff82b79ed98b4751e861fb1bd5d5d94c",
+      "bytes": 787600
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "category": "coordination_metadata",
+      "sha256_at_commit": "1bbd156fe556294ce5dbf46f04e0610b60b4f46ac196059fb6f70bb9c648daa0",
+      "bytes": 73453
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/src/polisyos/foundry/methods/catalog/causal/transport_check.py",
+      "category": "implementation_source",
+      "sha256_at_commit": "11e533a94d311fdb071d8872b25fcb2692361d09c6c05af187d247cedd4d27b2",
+      "bytes": 35756,
+      "role": "source"
+    },
+    {
+      "change": "A",
+      "path": "policy-engine/tests/unit/foundry/methods/catalog/causal/test_transport_check_partial_graph_admission.py",
+      "category": "test",
+      "sha256_at_commit": "e9214c21d1b04af15778e48555575f749175a1d7c3faf5f79e497a3ae845edcd",
+      "bytes": 4283,
+      "role": "mandatory_test_companion"
+    },
+    {
+      "change": "A",
+      "path": "policy-engine/tests/unit/scientist/methods/causal/test_run_transportability_partial_graph_admission.py",
+      "category": "test",
+      "sha256_at_commit": "ed46310c655a5328395130efeffe50841eb16bca4c232e326f72546137990301",
+      "bytes": 5958,
+      "role": "mandatory_test_companion"
+    }
+  ],
+  "source_application": {
+    "identity": "b214-legacy-scalar-refusal-r3-20261018",
+    "lease_key": "b214-legacy-scalar-refusal-r3-20261018",
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-r3-24c66b-source-adoption-20261018/source-application.json",
+      "sha256": "ca1ed7be887ef2ab82c4d53955c9e5acd247f9650af00f477b8b285be34f8be2",
+      "bytes": 11893
+    },
+    "plan": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-r3-24c66b-source-adoption-20261018/adoption-plan.json",
+      "sha256": "21d9967ca555f84333081c33b4944923e7add4037b06a445bf76d3d1923d59d4",
+      "bytes": 9089
+    },
+    "commit_request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-r3-24c66b-source-adoption-20261018/commit-request.json",
+      "sha256": "d1a1276762aa61fbc4f51d2e8af8fa91476d0652423bfdae98d352e836b30bda",
+      "bytes": 1403
+    },
+    "commit_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-r3-24c66b-source-adoption-20261018/b214-legacy-scalar-refusal-r3-20261018-readback.json",
+      "sha256": "4783935c78370eec305710ebcfeb4964fafa1f7714c775e1ca39b730a0a7dac5",
+      "bytes": 1708
+    },
+    "adopted_present_patch": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-r3-24c66b-source-adoption-20261018/reviewed-present-postimages.patch",
+      "sha256": "ab9535d46227ddf8cba2d73d2a869633cb1816a2f5972a51b42d6afd108331a8",
+      "bytes": 15989
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-r3-24c66b-source-adoption-20261018/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf",
+      "bytes": 197
+    }
+  },
+  "review_refs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-current-quality-qualified-r3-20261018/review-r3-quality.md",
+      "sha256": "4dfd8cc99c6df2551af120c5b9291d3918b39c4b1a67c4af39f0b7d4f781a070",
+      "bytes": 3117,
+      "role": "source-owner quality review for exact candidate"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-r3-independent-20261018/review.md",
+      "sha256": "9e7914ab1c63bfb2fbc1ec8d1a4ffeebff93eea87cdb2d4bfd960620a599c647",
+      "bytes": 2928,
+      "role": "independent GO for bounded interim refusal; formal B214 closure held"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-r3-independent-20261018/review.json",
+      "sha256": "d5aae47e13aa51b50d44a6e6e9ac3d35538cf7bee0e42add689a43efe4a0bcf9",
+      "bytes": 9743,
+      "role": "machine-readable independent review"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-source-adopter-r4-independent-20261018/manifest.json",
+      "sha256": "d6a65142a7eebcf418c651081a71f71ccb92469fd5fde2b67ebeccb7cb4fc4c6",
+      "bytes": 840,
+      "role": "independent source-adopter boundary review"
+    }
+  ],
+  "property": "Existing scalar graph admission refusal reaches the legacy helper before scalar fallback for partial PAG/CPDAG inputs; persist typed query-bound refusal through actual node and CAS consumer.",
+  "P40": "Same partial-graph scalar-bypass class, deeper legacy entry. Bounded guard reuses canonical admission function; formal endpoint/completion semantics remain unsupported.",
+  "static_quality": {
+    "status": "PASS",
+    "tool": "Ruff check and full-file format check; exact argv and complete output refs are retained.",
+    "scope": "All Python source and test postimages in this adoption packet; static evidence only.",
+    "ruff_config": {
+      "path": "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+      "sha256": "a446cae5a425fe3c7fe59d3d14f423bf976fb30f6c121c596f4ae3cef8ba1b8e",
+      "bytes": 28194
+    },
+    "receipts": [
+      {
+        "phase": "check",
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/src/polisyos/foundry/methods/catalog/causal/transport_check.py",
+          "policy-engine/tests/unit/foundry/methods/catalog/causal/test_transport_check_partial_graph_admission.py",
+          "policy-engine/tests/unit/scientist/methods/causal/test_run_transportability_partial_graph_admission.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.04283979092724621,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-r3-24c66b-source-adoption-20261018/check.stdout.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+          "bytes": 19
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-r3-24c66b-source-adoption-20261018/check.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      },
+      {
+        "phase": "format_check",
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/src/polisyos/foundry/methods/catalog/causal/transport_check.py",
+          "policy-engine/tests/unit/foundry/methods/catalog/causal/test_transport_check_partial_graph_admission.py",
+          "policy-engine/tests/unit/scientist/methods/causal/test_run_transportability_partial_graph_admission.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.03922699997201562,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-r3-24c66b-source-adoption-20261018/format.stdout.txt",
+          "sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd",
+          "bytes": 26
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-r3-24c66b-source-adoption-20261018/format.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      }
+    ]
+  },
+  "runtime_status_at_source_adoption": "UNRUN on adopted canonical source; bounded candidate evidence is separately referenced",
+  "source_freeze_at_adoption": false,
+  "known_owned_pending_context": {
+    "source_application_ref": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-r3-24c66b-source-adoption-20261018/source-application.json",
+      "sha256": "ca1ed7be887ef2ab82c4d53955c9e5acd247f9650af00f477b8b285be34f8be2",
+      "bytes": 11893
+    },
+    "ownership_record": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-test-write-ownership-incident-20261018/ownership-record.json",
+      "sha256": "0e4f3f3173285c81706a31bc485db8cba59bf47b6e24ef72a435769fba433057",
+      "bytes": 3379
+    },
+    "path_count_in_pinned_source_application": {
+      "count": 7,
+      "denominator": "all entries in the pinned source_application.known_owned_pending_source map",
+      "file_type": "unit-test paths"
+    },
+    "disposition": "Seven known V5 draft paths were disjoint and preserved outside this B214 source commit."
+  },
+  "limits": [
+    "Formal B214 finding remains held: reversed-edge normalization, sound acyclic completion/cycle validation and query-specific admissible graph-family identification are not implemented by this slice.",
+    "Two focused new modules and removal controls remain UNRUN at adoption; only static source peer review and canonical full-file Ruff are established.",
+    "Seven known owned V5 test drafts remain unchanged and outside this disjoint source slice; no clean-tree or complete native source freeze claim.",
+    "No external causal truth, production calibration, publication or G acceptance."
+  ],
+  "next_check_at_adoption": {
+    "commands": "Run both new complete test modules with source-bound full deciding outputs, then actual guard-removal control and node/CAS projection-removal controls.",
+    "removal_control_plan": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-current-quality-qualified-r3-20261018/removal-controls.json"
+  },
+  "G_acceptance": false,
+  "closure_ids": [],
+  "later_related_evidence": {
+    "historical_run": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-c927-focused-actual-20261018/result.json",
+      "sha256": "fa76a7b8d8a71fc14171ddc0c6aa9edaf3ee00ada3a97902efecf847733be84c",
+      "bytes": 2918,
+      "note": "c927 1P/1F before fixture repair; historical only."
+    },
+    "later_repaired_pair": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-three-source-plus-b214-actual-receipt-batch-20261018/actual-b214-focused-pair-at-f6d67b46e5ba.json",
+      "sha256": "9a7e5cefec43b4e702506160c1914adfc594d9e8163654ed59f507bc14be4f68",
+      "bytes": 14093,
+      "note": "Later 2/2 run at f6d after test-only fixture repair; does not retroactively green c927."
+    }
+  },
+  "evidence_provenance": {
+    "source_commit_frame_and_changed_blob_hashes": {
+      "classification": "recomputed",
+      "basis": "Commit/tree/parent and every changed path, byte count, and SHA-256 were checked from immutable Git objects during this RAW preparation."
+    },
+    "ruff_check_and_format_outcomes": {
+      "classification": "institutionally_supplied",
+      "basis": "The exact source-application stdout/stderr receipts are pinned and hash-verified; Ruff was not rerun during receipt preparation."
+    },
+    "runtime_at_adoption": {
+      "classification": "institutionally_supplied",
+      "basis": "The cited source application reports UNRUN on adopted canonical source; later actual evidence is separately linked and does not alter this at-adoption state."
+    },
+    "complete_native_source_freeze": {
+      "classification": "not_established",
+      "basis": "Source application explicitly records source_freeze=false and preserves the owned pending test set."
+    }
+  }
+}

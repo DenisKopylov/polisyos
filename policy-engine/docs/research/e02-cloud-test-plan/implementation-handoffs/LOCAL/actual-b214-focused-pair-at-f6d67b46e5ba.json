@@ -1,0 +1,264 @@
+{
+  "schema": "polisyos.e02.actual_test_verification_receipt.v1",
+  "record_type": "actual_test_verification_receipt",
+  "status": "completed_bounded_source_frame_passed",
+  "identity": "root-b214-f6d-repaired-pair-actual-20261018",
+  "proposal_not_adjudicated": true,
+  "relationship_to_source_commits": [
+    {
+      "implementation_commit": "c92760930cac558923a4622aae7139336522351f",
+      "tree": "17638cf2fd4a8ca9768215611c4163ee8ac02163",
+      "role": "R3 introduced bounded legacy-entry scalar refusal and focused tests."
+    },
+    {
+      "implementation_commit": "f6d67b46e5ba4786a6efd6ebc79a62e7d5564fab",
+      "tree": "7adb6243b58a0999243c2952c548800d11ef96a7",
+      "role": "R4 test-only fixture repair isolates a legal prerequisite using a typed controlled test double; this is the exact frame below."
+    }
+  ],
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "f6d67b46e5ba4786a6efd6ebc79a62e7d5564fab",
+    "tree": "7adb6243b58a0999243c2952c548800d11ef96a7"
+  },
+  "profile": {
+    "scope": "Focused committed partial-graph guard pair; legal prerequisite in node fixture is typed controlled test double. Seven disjoint known V5 test drafts present, no complete clean native freeze. No pre-sitecustomize/all-thirdparty origin proof.",
+    "selected_test_files": [
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_transport_check_partial_graph_admission.py",
+      "policy-engine/tests/unit/scientist/methods/causal/test_run_transportability_partial_graph_admission.py"
+    ],
+    "collected_nodeids": [
+      "tests/unit/foundry/methods/catalog/causal/test_transport_check_partial_graph_admission.py::test_legacy_entry_refuses_fixed_and_ambiguous_queries_for_partial_graphs",
+      "tests/unit/scientist/methods/causal/test_run_transportability_partial_graph_admission.py::test_partial_graph_refusal_is_persisted_for_fixed_and_ambiguous_queries"
+    ],
+    "executed_nodeids": [
+      "tests/unit/foundry/methods/catalog/causal/test_transport_check_partial_graph_admission.py::test_legacy_entry_refuses_fixed_and_ambiguous_queries_for_partial_graphs",
+      "tests/unit/scientist/methods/causal/test_run_transportability_partial_graph_admission.py::test_partial_graph_refusal_is_persisted_for_fixed_and_ambiguous_queries"
+    ],
+    "junit_summary": {
+      "cases": 2,
+      "passed": 2,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "whole_selected_modules": true
+  },
+  "execution": {
+    "argv": [
+      ".venv/bin/python",
+      "-B",
+      "-m",
+      "pytest",
+      "-p",
+      "e02_wave_capture",
+      "-q",
+      "--basetemp",
+      "/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/b214-f6d-repaired-pair-r1/pytest-temp",
+      "-o",
+      "cache_dir=/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/b214-f6d-repaired-pair-r1/pytest-cache",
+      "--junitxml",
+      "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-f6d-repaired-pair-actual-20261018/pytest.xml",
+      "tests/unit/foundry/methods/catalog/causal/test_transport_check_partial_graph_admission.py",
+      "tests/unit/scientist/methods/causal/test_run_transportability_partial_graph_admission.py"
+    ],
+    "cwd": "policy-engine",
+    "return_code": 0,
+    "complete": true,
+    "status": "passed",
+    "wall_seconds": 9.111496541881934,
+    "maximum_sampled_process_tree_rss_bytes": 619741184,
+    "minimum_sampled_disk_free_bytes": 16159203328,
+    "sample_count": 17,
+    "process_group_gone": true
+  },
+  "source_pin_observations": {
+    "all_tracked_working_bytes_unchanged": true,
+    "tracked_pin_count": 25607,
+    "observed_product_origins": 872,
+    "matched_regular_module_origins": 872,
+    "origin_mismatches": [],
+    "qualification_limit": "Observed regular-module origins only; no pre-sitecustomize startup or all-third-party origin proof."
+  },
+  "result": {
+    "complete": true,
+    "execution_passed": true,
+    "source_bound_to_exact_frame": true,
+    "two_selected_cases_passed": true,
+    "actual_removal_controls": "UNRUN separately",
+    "G_acceptance": false,
+    "closure_ids": []
+  },
+  "inputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-f6d-repaired-pair-actual-20261018/run.py",
+      "sha256": "521b5944f180a4f4b89ce525798a7271e4ca933e7c405e463b0c9b1d15349066",
+      "bytes": 4490
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-f6d-repaired-pair-actual-20261018/working-source-before.json",
+      "sha256": "4261aea2f5b4f315a7503255917af0f9e43075be76419d5f11270fe6ec8e7ff7",
+      "bytes": 4679389
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-f6d-repaired-pair-actual-20261018/execution-provenance.json",
+      "sha256": "ff0f80de68f6ddb630b0a473c480505be65804b681d7500b05dd410d217e2d35",
+      "bytes": 793763
+    }
+  ],
+  "deciding_outputs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-f6d-repaired-pair-actual-20261018/result.json",
+      "sha256": "f6199afd1b6c6922c7385ac98db36b9300226618b1af12e4bbd73c363d3b997f",
+      "bytes": 3250
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-f6d-repaired-pair-actual-20261018/run.py",
+      "sha256": "521b5944f180a4f4b89ce525798a7271e4ca933e7c405e463b0c9b1d15349066",
+      "bytes": 4490
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-f6d-repaired-pair-actual-20261018/working-source-before.json",
+      "sha256": "4261aea2f5b4f315a7503255917af0f9e43075be76419d5f11270fe6ec8e7ff7",
+      "bytes": 4679389
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-f6d-repaired-pair-actual-20261018/execution-provenance.json",
+      "sha256": "ff0f80de68f6ddb630b0a473c480505be65804b681d7500b05dd410d217e2d35",
+      "bytes": 793763
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-f6d-repaired-pair-actual-20261018/pytest.stdout.txt",
+      "sha256": "99db33d5c94c6f7da021687c7391181685cc33299c5435b1c861e2db3be3ec87",
+      "bytes": 80
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-f6d-repaired-pair-actual-20261018/pytest.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-f6d-repaired-pair-actual-20261018/pytest.xml",
+      "sha256": "828da812226187ff9619a06020ebcd13a00bcf5b102a140a6baca303b65acc5f",
+      "bytes": 665
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-f6d-repaired-pair-actual-20261018/controller-events.jsonl",
+      "sha256": "d0af2310111954c8afe743c06df6e6f5ea3994618dcb50d59c5c8e50ba96e481",
+      "bytes": 1162
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-f6d-repaired-pair-actual-20261018/phase-output.jsonl",
+      "sha256": "06e16babe6541bcb1373ca46b008aeeaaab165b396b63cc240fea4980c29e8bd",
+      "bytes": 1098
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-f6d-repaired-pair-actual-20261018/process-tree.jsonl",
+      "sha256": "2c6314df9eca1dcfff12fe1c974add7a9908b70fbbaf58388ceec7052f77ffb0",
+      "bytes": 18500
+    }
+  ],
+  "historical_pre_fixture_run": {
+    "source_head": "c92760930cac558923a4622aae7139336522351f",
+    "junit_summary": {
+      "cases": 2,
+      "passed": 1,
+      "failed": 1,
+      "errors": 0,
+      "skipped": 0
+    },
+    "interpretation": "Historical c927 result before the f6d fixture isolation: 1 passed / 1 failed. It is not the result after the fixture repair and does not qualify the f6d run backward.",
+    "evidence_refs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-c927-focused-actual-20261018/result.json",
+        "sha256": "fa76a7b8d8a71fc14171ddc0c6aa9edaf3ee00ada3a97902efecf847733be84c",
+        "bytes": 2918
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-c927-focused-actual-20261018/working-source-before.json",
+        "sha256": "5992cdfdc95fda93a8574a07138a9166fa14f802c68a632f8ca206994871a519",
+        "bytes": 4577252
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-c927-focused-actual-20261018/origin-reconciliation-r2.json",
+        "sha256": "6402a144f3ae8741ca7afe8937d243e30eeebae986067a254e94e4ffef106f0e",
+        "bytes": 2560
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-c927-focused-actual-20261018/pytest.stdout.txt",
+        "sha256": "f7256bed5a47ce10b6bb3175b0646df61d59dbc8232bd0cb042573a97db8ff79",
+        "bytes": 4007
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-c927-focused-actual-20261018/pytest.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-c927-focused-actual-20261018/pytest.xml",
+        "sha256": "a49585209485a85c02763bb3cdc519f6d015484c84fd29100ff56c8262aafea6",
+        "bytes": 4297
+      }
+    ],
+    "selected_test_files": [
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_transport_check_partial_graph_admission.py",
+      "policy-engine/tests/unit/scientist/methods/causal/test_run_transportability_partial_graph_admission.py"
+    ],
+    "origin_reconciliation_note": "The pinned origin-reconciliation-r2 artifact corrects the earlier result postprocessor’s module-origin map key (872 of 872 regular origins matched); the c927 1P/1F pytest outcome is unchanged."
+  },
+  "review_refs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-r3-independent-20261018/review.md",
+      "sha256": "9e7914ab1c63bfb2fbc1ec8d1a4ffeebff93eea87cdb2d4bfd960620a599c647",
+      "bytes": 2928,
+      "role": "R3 independent bounded interim refusal GO; full B214 closure held"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-r4-companion-independent-20261018/review.md",
+      "sha256": "cd8a94d2e4bcffd453f4e9b7e556184ca90318c843afce083d29e6499a197b10",
+      "bytes": 3435,
+      "role": "R4 exact test-only application GO; legal test double is not absence evidence"
+    }
+  ],
+  "limits": [
+    "Only the two selected B214 cases at exact f6d tree; not a full product or full native-source replay.",
+    "Persisted-node test uses a typed controlled empty legal-constraint test double; it establishes no absence of real legal constraints.",
+    "Actual guard/projection removal controls remain UNRUN separately.",
+    "872 observed product origins matched 872 regular module origins and 25,607 tracked pins were unchanged; this is not pre-sitecustomize or all-third-party origin proof.",
+    "Seven disjoint known-owned V5 test drafts were present; no complete clean native freeze is claimed.",
+    "Formal B214 graph completion remains held: reversed-edge normalization, sound acyclic completion/cycle validation, and query-specific admissible graph-family identification are not established.",
+    "No external causal truth, production calibration, publication, G acceptance, or formal closure is established."
+  ],
+  "next_check": [
+    "If continuing the bounded guard claim, run the separately planned actual guard-removal and node/CAS projection-removal controls on an exact frozen frame.",
+    "Formal B214 closure requires an owner-admitted graph-completion/identification law with a canonical implementation and bounded result for admissible graph families."
+  ],
+  "G_acceptance": false,
+  "closure_ids": [],
+  "predicate_provenance": {
+    "source_commit_tree": {
+      "classification": "recomputed",
+      "basis": "The run frame was checked against the exact f6d Git commit/tree readback."
+    },
+    "selected_case_scope_and_outcome": {
+      "classification": "recomputed",
+      "basis": "The complete selected node-ID set and JUnit XML agree on the two selected test cases and their 2/2 pass result."
+    },
+    "observed_regular_module_origins": {
+      "classification": "institutionally_supplied",
+      "basis": "The captured run reports 872 observed product origins matched to 872 regular-module origins with no mismatches; this does not establish all-third-party or pre-sitecustomize origin coverage."
+    },
+    "complete_native_source_freeze": {
+      "classification": "not_established",
+      "basis": "The run scope explicitly retains seven disjoint owned V5 drafts and no complete clean native freeze claim."
+    },
+    "absence_of_real_legal_constraints": {
+      "classification": "not_established",
+      "basis": "R4 uses a typed controlled empty legal-constraint test double and claims no absence of real legal constraints."
+    },
+    "formal_B214_graph_completion": {
+      "classification": "not_established",
+      "basis": "Reversal normalization, sound acyclic completion/cycle validation, and query-specific admissible graph-family identification remain held."
+    }
+  }
+}

@@ -920,6 +920,22 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-2dead3f2aa95.json",
       "sha256": "fd2544e985aa763efd937512cdefd0b4c25f507bdcea6cc8e522b431b5281922"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-c92760930cac.json",
+      "sha256": "b548b48bf9f9aa59d08a92461453c654ab986f25e872d4db7181cce4fd1e87bf"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-f6d67b46e5ba.json",
+      "sha256": "01226333f49e7c57ed70ad5976d0cec82339be5b8a14bb2a3c3ba97c93bf0c73"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-d398bb0d1107.json",
+      "sha256": "043888ee01729a0ba4a7107d24ae0e0520af968a3d05fd77163d8446e9a24fb0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/actual-b214-focused-pair-at-f6d67b46e5ba.json",
+      "sha256": "9a7e5cefec43b4e702506160c1914adfc594d9e8163654ed59f507bc14be4f68"
     }
   ],
   "canonical_denominator_recomputed": {

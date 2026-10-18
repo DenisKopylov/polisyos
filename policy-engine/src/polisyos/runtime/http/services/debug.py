@@ -114,7 +114,7 @@ class _ScorecardControlJobOwnerSource:
     run_id: str
     tenant_id: str
     cell_id: str
-    requested_execution_profile: str
+    requested_execution_profile: str | None
     effective_execution_profile: str
     attempt: int
     lease_owner: str
@@ -123,7 +123,7 @@ class _ScorecardControlJobOwnerSource:
     completion_outbox_event_id: str
     core_run_id: str
 
-    def as_owner_binding(self) -> dict[str, str | int]:
+    def as_owner_binding(self) -> dict[str, str | int | None]:
         """Return the canonical transport field set after source resolution."""
         return {
             "job_id": self.job_id,
@@ -1219,16 +1219,23 @@ class DebugService:
             return None
 
         lease_owner = event_payload.get("lease_owner")
+        requested_profile = job.requested_execution_profile
         if (
             not isinstance(lease_owner, str)
             or not lease_owner.strip()
-            or not isinstance(job.requested_execution_profile, str)
-            or not job.requested_execution_profile.strip()
+            or (
+                requested_profile is not None
+                and (
+                    not isinstance(requested_profile, str)
+                    or not requested_profile.strip()
+                    or requested_profile != requested_profile.strip()
+                )
+            )
             or not isinstance(job.effective_execution_profile, str)
             or not job.effective_execution_profile.strip()
         ):
             return None
-        expected_owner: dict[str, str | int] = {
+        expected_owner: dict[str, str | int | None] = {
             "job_id": job.job_id,
             "run_id": job.run_id,
             "tenant_id": scope.tenant_id,

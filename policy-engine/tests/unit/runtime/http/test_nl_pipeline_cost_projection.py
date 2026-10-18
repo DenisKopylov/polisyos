@@ -987,6 +987,10 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
         assert received_job.state == "completed"
         persisted_owner = persisted_job.progress.get("execution_owner_binding")
         assert isinstance(persisted_owner, dict)
+        assert received_job.requested_execution_profile is None
+        assert persisted_job.requested_execution_profile is None
+        assert persisted_owner["requested_execution_profile"] is None
+        assert "run_intent_binding" not in persisted_job.progress
         completion_outbox = control_store.get_job_completed_outbox_event(job_id)
         assert completion_outbox is not None
         completion_progress = completion_outbox.payload["progress"]
@@ -998,6 +1002,8 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
         assert received_owner == persisted_owner
         assert received_owner["job_id"] == job_id
         assert received_owner["run_id"] == str(job.run_id)
+        assert received_owner["requested_execution_profile"] is None
+        assert "run_intent_binding" not in received_job.progress
         assert completion_outbox.payload["progress"]["execution_owner_binding"] == received_owner
 
         def _owner_gate(payload: dict[str, Any]) -> dict[str, Any]:
@@ -1022,7 +1028,10 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
         assert fresh_gate["code"] == "phase_barrier_owner_scope_not_established"
 
         def _source_scorecard(
-            payload: dict[str, Any], *, source_job_id: str = job_id
+            payload: dict[str, Any],
+            *,
+            source_job_id: str = job_id,
+            quality_evidence: dict[str, Any] | None = None,
         ) -> dict[str, Any]:
             from tools.ops_runners.runtime.canary_evidence import _build_canary_scorecard
 
@@ -1035,7 +1044,7 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
                 job_payload=payload,
                 run_payload=None,
                 provider_preflight=None,
-                quality_evidence={},
+                quality_evidence=quality_evidence or {},
                 quality_scorecard_ref="quality_evidence/quality_scorecard.json",
                 quality_evidence_bundle_path=".canary/owner-source-integration-test",
             )
@@ -1091,6 +1100,66 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
         assert source_intent_gate["status"] == "fail"
         assert source_intent_gate["code"] == "run_intent_binding_incomplete"
         assert source_scorecard["quality_status"] == "fail"
+
+        # A completed owner projection can carry the declared request omission,
+        # but neither effective-profile barrier records nor an intent reconstructed
+        # from that effective profile may turn the omission into authority.
+        from polisyos.runtime.quality.phase_barriers import PhaseBarrierId, PhaseBarrierRecord
+
+        effective_profile = received_job.effective_execution_profile
+        assert isinstance(effective_profile, str) and effective_profile
+        omitted_profile_barriers = [
+            PhaseBarrierRecord.pass_record(
+                barrier_id=barrier_id,
+                run_id=str(received_job.run_id),
+                tenant_id=str(persisted_owner["tenant_id"]),
+                profile=effective_profile,
+                evidence_refs=(f"event://effective-profile/{barrier_id.value}",),
+            ).model_dump(mode="json")
+            for barrier_id in PhaseBarrierId.scorecard_required()
+        ]
+        omitted_profile_scorecard = _source_scorecard(
+            received_payload,
+            quality_evidence={"phase_barrier_records": omitted_profile_barriers},
+        )
+        omitted_profile_barrier_gate = next(
+            gate
+            for gate in omitted_profile_scorecard["quality_gates"]
+            if gate["name"] == "serious_phase_barriers_closed"
+        )
+        omitted_profile_owner_gate = next(
+            gate
+            for gate in omitted_profile_scorecard["quality_gates"]
+            if gate["name"] == "serious_phase_barrier_owner_scope"
+        )
+        omitted_profile_intent_gate = next(
+            gate
+            for gate in omitted_profile_scorecard["quality_gates"]
+            if gate["name"] == "serious_phase_barrier_intent_binding"
+        )
+        assert omitted_profile_barrier_gate["status"] == "fail"
+        assert omitted_profile_barrier_gate["code"] == "phase_barrier_scope_mismatch"
+        assert omitted_profile_owner_gate["status"] == "pass"
+        assert omitted_profile_intent_gate["status"] == "fail"
+        assert omitted_profile_intent_gate["code"] == "run_intent_binding_incomplete"
+
+        forged_intent_payload = deepcopy(received_payload)
+        forged_intent_payload["progress"]["run_intent_binding"] = {
+            "run_id": str(received_job.run_id),
+            "tenant_id": str(persisted_owner["tenant_id"]),
+            "requested_profile": effective_profile,
+            "policy_intent_ref": "sha256:" + "c" * 64,
+            "time_context_ref": "sha256:" + "d" * 64,
+            "same_input_closure_ref": "sha256:" + "e" * 64,
+        }
+        forged_intent_scorecard = _source_scorecard(forged_intent_payload)
+        forged_intent_gate = next(
+            gate
+            for gate in forged_intent_scorecard["quality_gates"]
+            if gate["name"] == "serious_phase_barrier_intent_binding"
+        )
+        assert forged_intent_gate["status"] == "fail"
+        assert forged_intent_gate["code"] == "run_intent_binding_incomplete"
 
         class _MissingTerminalSourceReader:
             def __init__(self, wrapped: object) -> None:
@@ -1816,6 +1885,17 @@ def test_terminal_progress_carries_only_current_fenced_source_projections(
 
     store = ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "owner-terminal.sqlite3")
 
+    def _assert_no_completed_outbox(job_id: str) -> None:
+        events = store.list_outbox_events(state=None, limit=500)
+        assert len(events) < 500, "absence query would be truncated at the reader page cap"
+        event_key = f"{job_id}:job_completed"
+        assert not any(
+            event.topic == "control.job.completed"
+            and event.event_key == event_key
+            and event.job_id == job_id
+            for event in events
+        )
+
     def _lease_job(job_id: str, *, scope_status: str = "established") -> tuple[Any, str]:
         run_id = f"run-{job_id}"
         worker_id = f"worker-{job_id}"
@@ -2354,7 +2434,7 @@ def test_terminal_progress_carries_only_current_fenced_source_projections(
                         current = store.current_execution_job_record()
                         assert current.state == "running"
                         assert current.progress == row_progress
-                        assert store.get_job_completed_outbox_event(matrix_job.job_id) is None
+                        _assert_no_completed_outbox(matrix_job.job_id)
                         continue
 
                     store.complete_job(
@@ -2422,7 +2502,7 @@ def test_terminal_progress_carries_only_current_fenced_source_projections(
         assert current.state == "running"
         assert "execution_owner_binding" not in current.progress
         assert "run_intent_binding" not in current.progress
-        assert store.get_job_completed_outbox_event(unknown_supplied.job_id) is None
+        _assert_no_completed_outbox(unknown_supplied.job_id)
 
     # P31/P40 widened control: every actual source-availability path shares the
     # same owner/intent intake, and the finite state set comes from the helper's
@@ -2517,7 +2597,7 @@ def test_terminal_progress_carries_only_current_fenced_source_projections(
                     current = store.current_execution_job_record()
                     assert current.state == "running"
                     assert current.progress == row_progress
-                    assert store.get_job_completed_outbox_event(job.job_id) is None
+                    _assert_no_completed_outbox(job.job_id)
                     continue
 
                 if availability == "no_fence":
@@ -2540,7 +2620,7 @@ def test_terminal_progress_carries_only_current_fenced_source_projections(
                     current = store.current_execution_job_record()
                     assert current.state == "running"
                     assert current.progress == row_progress
-                    assert store.get_job_completed_outbox_event(job.job_id) is None
+                    _assert_no_completed_outbox(job.job_id)
                     continue
                 else:
                     store.complete_job(
@@ -2577,7 +2657,7 @@ def test_terminal_progress_carries_only_current_fenced_source_projections(
                     current = store.get_job(job.job_id)
                     assert current is not None and current.state == "running"
                     assert current.progress == row_progress
-                    assert store.get_job_completed_outbox_event(job.job_id) is None
+                    _assert_no_completed_outbox(job.job_id)
                 else:
                     store.complete_job(
                         job_id=job.job_id,
@@ -2639,7 +2719,7 @@ def test_terminal_progress_carries_only_current_fenced_source_projections(
             current = store.current_execution_job_record()
             assert current.state == "running"
             assert current.progress == projection
-            assert store.get_job_completed_outbox_event(job.job_id) is None
+            _assert_no_completed_outbox(job.job_id)
     malformed_supplied_states = (
         (
             "null_owner",
@@ -2702,6 +2782,55 @@ def test_terminal_progress_carries_only_current_fenced_source_projections(
             current = store.current_execution_job_record()
             assert current.state == "running"
             assert current.progress == row_progress
-            assert store.get_job_completed_outbox_event(job.job_id) is None
+            _assert_no_completed_outbox(job.job_id)
+
+    # P40 whole-schema control: the nullable requested-profile slot is valid
+    # only when it is the exact admitted value. Missing, malformed, empty, and
+    # foreign values fail at both current-row intake and supplied terminal intake.
+    missing_profile = object()
+    invalid_requested_profiles: tuple[tuple[str, object], ...] = (
+        ("absent", missing_profile),
+        ("null", None),
+        ("wrong_type", 7),
+        ("empty", ""),
+        ("foreign", "governed"),
+    )
+    for placement in ("current", "supplied"):
+        for case_id, requested_profile in invalid_requested_profiles:
+            job, worker = _lease_job(f"job-terminal-requested-profile-{placement}-{case_id}")
+            with store.job_execution_fence(
+                job_id=job.job_id,
+                worker_id=worker,
+                attempt=job.attempt,
+            ):
+                current_owner = _current_owner_binding(job.job_id)
+                malformed_owner = dict(current_owner)
+                if requested_profile is missing_profile:
+                    malformed_owner.pop("requested_execution_profile")
+                else:
+                    malformed_owner["requested_execution_profile"] = requested_profile
+                original_progress = dict(store.current_execution_job_record().progress)
+                terminal_progress: dict[str, Any] = {
+                    "phase": "terminal",
+                    "matrix_case": f"{placement}-{case_id}",
+                }
+                if placement == "current":
+                    row_progress = dict(original_progress)
+                    row_progress.pop("execution_owner_binding", None)
+                    row_progress.pop("run_intent_binding", None)
+                    row_progress["execution_owner_binding"] = malformed_owner
+                    store.upsert_progress(job_id=job.job_id, progress=row_progress)
+                    expected_error = "control_job_terminal_owner_binding_not_current"
+                    expected_progress = row_progress
+                else:
+                    terminal_progress["execution_owner_binding"] = malformed_owner
+                    expected_error = "control_job_terminal_progress_owner_binding_conflict"
+                    expected_progress = original_progress
+                with pytest.raises(ControlJobLeaseLostError, match=expected_error):
+                    store.complete_job(job_id=job.job_id, progress=terminal_progress)
+                current = store.current_execution_job_record()
+                assert current.state == "running"
+                assert current.progress == expected_progress
+                _assert_no_completed_outbox(job.job_id)
 
     store.close()

@@ -2646,16 +2646,19 @@ class NaturalLanguageRunMixin:
                         return payload_ref
                 return _clean_runtime_text(runtime_quality_refs.get("semantic_binding_ledger_ref"))
 
-            def _runtime_quality_run_intent_binding() -> dict[str, Any]:
+            def _runtime_quality_run_intent_binding() -> dict[str, Any] | None:
                 owner = runtime_quality_owner_binding
                 if owner is None:
                     raise NaturalLanguagePipelineRefusalError(
                         "control_job_execution_scope_not_established"
                     )
+                requested_profile = owner.get("requested_execution_profile")
+                if not isinstance(requested_profile, str) or not requested_profile.strip():
+                    return None
                 return {
                     "run_id": owner["run_id"],
                     "tenant_id": owner["tenant_id"],
-                    "requested_profile": owner["requested_execution_profile"],
+                    "requested_profile": requested_profile,
                     "policy_intent_ref": runtime_quality_refs.get("policy_intent_envelope_ref"),
                     "time_context_ref": None,
                     "same_input_closure_ref": None,
@@ -2702,7 +2705,9 @@ class NaturalLanguageRunMixin:
                 if provider_preflight_payload:
                     snapshot["provider_preflight"] = _progress_json(provider_preflight_payload)
                 snapshot["execution_owner_binding"] = dict(runtime_quality_owner_binding)
-                snapshot["run_intent_binding"] = _runtime_quality_run_intent_binding()
+                intent_binding = _runtime_quality_run_intent_binding()
+                if intent_binding is not None:
+                    snapshot["run_intent_binding"] = intent_binding
                 if runtime_quality_refs:
                     snapshot["runtime_quality_refs"] = _progress_json(runtime_quality_refs)
                     snapshot.update(runtime_quality_refs)

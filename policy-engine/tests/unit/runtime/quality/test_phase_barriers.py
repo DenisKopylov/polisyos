@@ -102,6 +102,39 @@ def test_owner_binding_requires_complete_current_job_identity() -> None:
         is None
     )
 
+    nullable_binding = {**binding, "requested_execution_profile": None}
+    assert (
+        _validated_execution_owner_binding(
+            nullable_binding,
+            expected={"requested_execution_profile": None},
+        )
+        == nullable_binding
+    )
+    assert (
+        _validated_execution_owner_binding(
+            nullable_binding,
+            expected={"requested_execution_profile": "production"},
+        )
+        is None
+    )
+    for malformed_profile in ("", " production ", 7, False):
+        assert (
+            _validated_execution_owner_binding(
+                {**nullable_binding, "requested_execution_profile": malformed_profile}
+            )
+            is None
+        )
+    assert (
+        _validated_execution_owner_binding(
+            {
+                key: value
+                for key, value in nullable_binding.items()
+                if key != "requested_execution_profile"
+            }
+        )
+        is None
+    )
+
 
 def test_owner_binding_is_projected_only_from_current_admitted_job_and_scope() -> None:
     job = SimpleNamespace(
@@ -147,18 +180,43 @@ def test_owner_binding_is_projected_only_from_current_admitted_job_and_scope() -
         )
         is None
     )
+    nullable_binding = {**binding, "requested_execution_profile": None}
+    nullable_admission = SimpleNamespace(
+        job=SimpleNamespace(**{**vars(job), "requested_execution_profile": None}),
+        scope=scope,
+        attempt=3,
+    )
     assert (
         _execution_owner_binding_from_admission(
-            SimpleNamespace(
-                job=SimpleNamespace(**{**vars(job), "requested_execution_profile": None}),
-                scope=scope,
-                attempt=3,
-            ),
+            nullable_admission,
+            expected_job_id="job-a",
+            expected_run_id="run-a",
+        )
+        == nullable_binding
+    )
+    missing_profile_job = SimpleNamespace(
+        **{key: value for key, value in vars(job).items() if key != "requested_execution_profile"}
+    )
+    assert (
+        _execution_owner_binding_from_admission(
+            SimpleNamespace(job=missing_profile_job, scope=scope, attempt=3),
             expected_job_id="job-a",
             expected_run_id="run-a",
         )
         is None
     )
+    for malformed_profile in ("", 7, False):
+        invalid_profile_job = SimpleNamespace(
+            **{**vars(job), "requested_execution_profile": malformed_profile}
+        )
+        assert (
+            _execution_owner_binding_from_admission(
+                SimpleNamespace(job=invalid_profile_job, scope=scope, attempt=3),
+                expected_job_id="job-a",
+                expected_run_id="run-a",
+            )
+            is None
+        )
 
 
 def test_reconciliation_matches_requested_profile_not_only_candidate_consensus() -> None:

@@ -429,17 +429,27 @@ def _validated_execution_owner_binding(
     *,
     expected: Mapping[str, object] | None = None,
 ) -> dict[str, object] | None:
-    """Validate one persisted NL owner-binding projection and optional live identity."""
+    """Validate one owner projection, preserving only an explicit profile omission."""
 
     if not isinstance(value, Mapping) or not _EXECUTION_OWNER_BINDING_FIELDS.issubset(value):
         return None
     binding = {key: value[key] for key in _EXECUTION_OWNER_BINDING_FIELDS}
-    string_fields = _EXECUTION_OWNER_BINDING_FIELDS - {"attempt"}
+    string_fields = _EXECUTION_OWNER_BINDING_FIELDS - {
+        "attempt",
+        "requested_execution_profile",
+    }
     if any(
         not isinstance(binding.get(field), str)
         or not str(binding[field]).strip()
         or str(binding[field]) != str(binding[field]).strip()
         for field in string_fields
+    ):
+        return None
+    requested_profile = binding["requested_execution_profile"]
+    if requested_profile is not None and (
+        not isinstance(requested_profile, str)
+        or not requested_profile.strip()
+        or requested_profile != requested_profile.strip()
     ):
         return None
     attempt = binding.get("attempt")
@@ -481,12 +491,16 @@ def _execution_owner_binding_from_admission(
     attempt = getattr(admission, "attempt", None)
     if type(attempt) is not int or attempt < 1 or attempt != getattr(job, "attempt", None):
         return None
+    missing_requested_profile = object()
+    requested_profile = getattr(job, "requested_execution_profile", missing_requested_profile)
+    if requested_profile is missing_requested_profile:
+        return None
     raw = {
         "job_id": getattr(job, "job_id", None),
         "run_id": getattr(job, "run_id", None),
         "tenant_id": getattr(scope, "tenant_id", None),
         "cell_id": getattr(scope, "cell_id", None),
-        "requested_execution_profile": getattr(job, "requested_execution_profile", None),
+        "requested_execution_profile": requested_profile,
         "effective_execution_profile": getattr(job, "effective_execution_profile", None),
         "attempt": attempt,
         "lease_owner": getattr(job, "lease_owner", None),

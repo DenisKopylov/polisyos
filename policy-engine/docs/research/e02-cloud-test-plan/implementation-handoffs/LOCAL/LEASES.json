@@ -9798,5 +9798,160 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "runtime-nullable-owner-style-qualified-20261018": {
+    "slice_base": "e022cb952a05eed4d83280090c25a5fb178ef36f",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/src/polisyos/runtime/quality/phase_barriers.py": {
+        "operation": "modify",
+        "preimage_sha256": "66d767bac82fa66205e1e849da1e9e183cab2be546ac91df22c928c20bb8c1a7",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime-nullable-owner-style-qualified-20261018/postimages/policy-engine/src/polisyos/runtime/quality/phase_barriers.py",
+        "postimage_sha256": "3b9b90dcbe09ed9869b7f79f1a31183f50e6c276223019786c6f08bacf780f89"
+      },
+      "policy-engine/src/polisyos/runtime/http/services/debug.py": {
+        "operation": "modify",
+        "preimage_sha256": "78f6438aa792cb170537b1b297f093b2d30db5ee215dba04d8d98447558555b6",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime-nullable-owner-style-qualified-20261018/postimages/policy-engine/src/polisyos/runtime/http/services/debug.py",
+        "postimage_sha256": "ff809b3a48ea99dc105d5a22e60beed4ec253912b79a9e26958697ef7a02d4f2"
+      },
+      "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py": {
+        "operation": "modify",
+        "preimage_sha256": "8a97790b1079c22b2e7bdc6e9afa75fc92b25b89e7d1c8415b88921d986e5d4d",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime-nullable-owner-style-qualified-20261018/postimages/policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py",
+        "postimage_sha256": "3759dabd44c03afde85473d600f8dc65f5844c918c8ca7b9b91b9d385bdc3013"
+      },
+      "policy-engine/src/polisyos/runtime/quality/scorecard.py": {
+        "operation": "modify",
+        "preimage_sha256": "c004f8597d70efc5f3b79c4be22954867217a76509883c193472c2c38a073e0b",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime-nullable-owner-style-qualified-20261018/postimages/policy-engine/src/polisyos/runtime/quality/scorecard.py",
+        "postimage_sha256": "80de032898d1db1b28d020e29fdd9a87672ccd13d751e71c3680c1e4407f16ea"
+      },
+      "policy-engine/tests/unit/runtime/quality/test_phase_barriers.py": {
+        "operation": "modify",
+        "preimage_sha256": "992299cf1d2061fa58c6a16ee3aa150126cbb6387293995a8a5b39a7b217fb32",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime-nullable-owner-style-qualified-20261018/postimages/policy-engine/tests/unit/runtime/quality/test_phase_barriers.py",
+        "postimage_sha256": "e78455eb00273b2bf56f585516e6dff464cdf51fd8f2b51bb348695a1ef8409e"
+      },
+      "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py": {
+        "operation": "modify",
+        "preimage_sha256": "d136199f4ce2c98cb492dd2b0b8720e80bab3c80b43aab07c069ef694d6798c8",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime-nullable-owner-style-qualified-20261018/postimages/policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py",
+        "postimage_sha256": "898d23efa9f1c74acd6a0d945aa1f8c9a5ec0f4094be3cfc983b27e248f3f43a"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime-nullable-owner-e022-source-adoption-20261018/source-application.json",
+      "sha256": "0dd12fa26bdcc9a0fdf27de68a3f243ab82ca040f6e4424947e76fdc6e70177a"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime-nullable-owner-e022-source-adoption-20261018/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime-r3-actual-rootcause-repair-20261018/manifest.json",
+        "sha256": "91375a5ac47f825242e85e8275d035e2b9c7c46d4631878ad00f14e347f7adb1",
+        "role": "frozen six-file semantic candidate manifest"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime-r3-actual-rootcause-repair-20261018/candidate.patch",
+        "sha256": "f5c039f5e6cc5d4191ad2a19ac579a7403c837cf1bb4dc746ed08cb1205c5f21",
+        "role": "frozen semantic candidate patch"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime-r3-actual-rootcause-repair-20261018/plan.md",
+        "sha256": "543fecee452c89bfdbb8de8193ddc74751cde9cd42b15fde8950c65b1ccac573",
+        "role": "frozen author plan"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime-r3-actual-rootcause-repair-independent-20261018/review.md",
+        "sha256": "de60826feda4accc0df0136f82649b46ca4f4a312365140013148652c18d52ca",
+        "role": "independent review: semantic GO, formatting HOLD"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime-r3-actual-rootcause-repair-independent-20261018/review.json",
+        "sha256": "603d6730d12f14ddc2ccf681feb89226acddacaeb25b1e50d60697935c8f7d55",
+        "role": "independent review machine record"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime-r3-source-adoption-plan-20261018/adoption-plan.json",
+        "sha256": "ef7b4e0b200fd8f6913e1d5d32c7ee54b971af3eb7426c8acc40a066169e4f5d",
+        "role": "prior root adoption-plan schema and semantic scope"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-composed-f759-wave-20261018/profiles/runtime-terminal/actual-run/controller-result.json",
+        "sha256": "4c1c8c759f95fe087718d17d9e68695f2c2fc429a607975b4deacf3440e61e10",
+        "role": "frozen 38-case baseline controller receipt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-composed-f759-wave-20261018/profiles/runtime-terminal/actual-run/selected-nodeids.json",
+        "sha256": "d217d9ee88c83e4fe66a448582dd3adfe67975ce840d34de7394992dffaa4a31",
+        "role": "frozen baseline selected-node set"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-root-boundaries-20261015/adopt_reviewed_postimages_r1.py",
+        "sha256": "a601928ee742c72539ae6630f6c54d7d45576fc6df337a13e2ca927ffb7e9077",
+        "role": "root-only adoption helper"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime-nullable-owner-style-qualified-20261018/ruff-receipt.json",
+        "sha256": "682ffbb64fa0c1c15ca0ce44491a084f69fdf807bac2ee41cf887418794559fa",
+        "role": "complete per-file Ruff 0.14.10 stdin check/format receipt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime-nullable-owner-style-qualified-20261018/adoption-plan.json",
+        "sha256": "d5f0f5afbdcc8aad21afc316cebe02a951179940924c85682afc046df1ff0196",
+        "role": "original independentlyreviewedstylequalifiedplan"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-runtime-nullable-owner-e022-source-adoption-20261018/root-current-source-qualification.json",
+        "sha256": "dc2cf24ef20cd2687ec37f1a3feee62a3a71658cbf4fb8386818ffdeb59c51d6",
+        "role": "actualslicecompatibilityandappendonlyjournalprefixproof"
+      }
+    ],
+    "P40": {
+      "classification": "same owner-projection class, one level deeper; the original R3 candidate already widens the shared nullable owner/currentness invariant across the actual helper availability domain. This new packet changes formatting only and opens no new semantic repair round.",
+      "disposition": "Preserve the reviewed shared intake/emission invariant and fail-closed intent/phase barriers. Do not add branch-local guards or modify adjacent optional evaluation-safety profile semantics under this style-only packet."
+    },
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "no schema change",
+      "no backfill",
+      "no new owner source",
+      "no owner invention for unknown scope",
+      "no arbitrary progress merge",
+      "no alias/ref resurrection",
+      "no lifecycle/status/authority change",
+      "no lease/fence weakening",
+      "no timeout or sleep adjustment",
+      "no environment changes or product test execution by this author",
+      "The peer semantic review is GO for the named owner-projection repair but HOLD for two Ruff formatting findings; this packet resolves only that formatting HOLD.",
+      "Runtime behavior remains NOT ESTABLISHED until the ROOT-controlled replay passes on the integrated source frame.",
+      "No public-API mismatched-fence execution claim; the mismatch falsifier is private-helper seam coverage under real admission.",
+      "No closure or defect claim for the adjacent optional evaluation-safety path at job_scope_admission.py:526-529.",
+      "No canonical source application or ROOT metadata mutation by the author; adoption remains ROOT-only."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": {
+      "source_adoption": "ROOT may use the adoption helper only after it requalifies exact current HEAD/tree, tracked status, all reviewed input hashes, exact target preimages/postimages, and read-only patch applicability. The helper/adopter owns canonical application and canonical Ruff checks.",
+      "working_directory": "policy-engine",
+      "command": "python -m pytest tests/unit/runtime/http/test_nl_pipeline_materialization.py::test_nl_pipeline_updates_control_job_progress tests/unit/runtime/http/test_control_job_execution_intent.py tests/unit/runtime/http/test_nl_pipeline_cost_projection.py tests/unit/runtime/quality/test_phase_barriers.py tests/unit/runtime/quality/test_scorecard.py::test_serious_scorecard_requires_closed_phase_barriers",
+      "selection": "Pinned baseline 38 selectors (the three original test files, including two whole HTTP test modules plus exact progress selector) plus the whole test_phase_barriers.py module and the named serious scorecard phase-barrier test.",
+      "timeout_seconds": 600,
+      "process_tree_rss_limit_bytes": 2147483648,
+      "execution": "Parent-controlled persistent supervisor; no uv, install, bootstrap, or environment change.",
+      "required_receipts": [
+        "Complete stdout and stderr, plus JUnit XML and exact selected node IDs.",
+        "Exact source frame before and after (branch, full HEAD/tree, tracked status, and hashes/origins of all six target modules).",
+        "Measured wall/monotonic duration and sampled process-tree RSS against numeric limits.",
+        "A passing result is runtime acceptance only if the complete expanded selection passes on the integrated source frame; otherwise classify against that exact frame and preserve failure evidence.",
+        "Record the separate optional evaluation-safety profile fallback as an adjacent boundary; do not infer its semantics from this owner-projection replay."
+      ],
+      "runtime_status_before_check": "UNRUN / NOT ESTABLISHED."
+    },
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

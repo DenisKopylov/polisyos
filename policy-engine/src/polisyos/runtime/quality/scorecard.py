@@ -8849,10 +8849,18 @@ def _phase_barrier_gates(
         expected=expected_owner,
     )
     expected_tenant_id = str(owner_binding["tenant_id"]) if owner_binding is not None else None
-    expected_profile = (
-        str(owner_binding["requested_execution_profile"]) if owner_binding is not None else None
+    requested_profile = (
+        owner_binding["requested_execution_profile"] if owner_binding is not None else None
     )
+    expected_profile = requested_profile if isinstance(requested_profile, str) else None
     try:
+        if owner_binding is not None and requested_profile is None and records:
+            raise PhaseBarrierViolation(
+                "phase_barrier_scope_mismatch",
+                "Phase barrier candidates cannot be reconciled because the admitted requested "
+                "profile is absent.",
+                field="profile",
+            )
         records = _reconcile_phase_barrier_subjects(
             records,
             expected_run_id=declared_run_id,
@@ -8987,6 +8995,12 @@ def _phase_barrier_gates(
     if owner_binding is not None:
         raw_intent_binding = job_progress.get("run_intent_binding")
         try:
+            if owner_binding["requested_execution_profile"] is None:
+                raise PhaseBarrierViolation(
+                    "run_intent_binding_incomplete",
+                    "Intent binding is missing requested_profile.",
+                    field="requested_profile",
+                )
             intent_binding = RunIntentBinding.model_validate(raw_intent_binding)
             if (
                 intent_binding.run_id != owner_binding["run_id"]

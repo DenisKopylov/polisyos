@@ -10838,5 +10838,119 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "b214-legacy-scalar-refusal-r3-20261018": {
+    "slice_base": "24c66bc353681c467706f1c76a2d211af762392d",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/src/polisyos/foundry/methods/catalog/causal/transport_check.py": {
+        "operation": "modify",
+        "preimage_sha256": "303531940bfe3bd1feb4be56eb277b686fa9eb0f55f3752d980b93849eda4be0",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-current-quality-qualified-r3-20261018/postimages/policy-engine/src/polisyos/foundry/methods/catalog/causal/transport_check.py",
+        "postimage_sha256": "11e533a94d311fdb071d8872b25fcb2692361d09c6c05af187d247cedd4d27b2"
+      },
+      "policy-engine/tests/unit/foundry/methods/catalog/causal/test_transport_check_partial_graph_admission.py": {
+        "operation": "add",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-current-quality-qualified-r3-20261018/postimages/policy-engine/tests/unit/foundry/methods/catalog/causal/test_transport_check_partial_graph_admission.py",
+        "postimage_sha256": "e9214c21d1b04af15778e48555575f749175a1d7c3faf5f79e497a3ae845edcd"
+      },
+      "policy-engine/tests/unit/scientist/methods/causal/test_run_transportability_partial_graph_admission.py": {
+        "operation": "add",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-current-quality-qualified-r3-20261018/postimages/policy-engine/tests/unit/scientist/methods/causal/test_run_transportability_partial_graph_admission.py",
+        "postimage_sha256": "ed46310c655a5328395130efeffe50841eb16bca4c232e326f72546137990301"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-r3-24c66b-source-adoption-20261018/source-application.json",
+      "sha256": "ca1ed7be887ef2ab82c4d53955c9e5acd247f9650af00f477b8b285be34f8be2"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-r3-24c66b-source-adoption-20261018/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-current-quality-qualified-r3-20261018/candidate-r3-quality-qualified.patch",
+        "sha256": "ab9535d46227ddf8cba2d73d2a869633cb1816a2f5972a51b42d6afd108331a8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-current-quality-qualified-r3-20261018/format-check.json",
+        "sha256": "b601bcfc43b809d5ad0763888a015504722c28de14d42203bf07c6d00142d587"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-current-quality-qualified-r3-20261018/format-report.json",
+        "sha256": "3c5bd04ed8518550a139cbe9d8f643a01cbafd1059b4258aa073402915787402"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-current-quality-qualified-r3-20261018/input-and-postimage-pins.json",
+        "sha256": "acf580e2dd0c72cbdfcc2259b9afb98bf95d81a6a03c0eabb1ae138af8e89281"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-current-quality-qualified-r3-20261018/qualification-r3.json",
+        "sha256": "6093cb0e21a732fd0d177795ca063b5f615b0685df0900c3e36140f4998c8838"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-current-quality-qualified-r3-20261018/removal-controls.json",
+        "sha256": "0eec73517f53954d72fdb56c3e71cad525f00c547800d6b564c9a0b4522b1bee"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-current-quality-qualified-r3-20261018/review-r3-quality.md",
+        "sha256": "4dfd8cc99c6df2551af120c5b9291d3918b39c4b1a67c4af39f0b7d4f781a070"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-current-quality-qualified-r3-20261018/ruff-post.json",
+        "sha256": "09d8cfbb925d4f2923017dd64f55b249e2f17d9efe0460e6539487a14d1a69ad"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-current-quality-qualified-r3-20261018/ruff-preimage.json",
+        "sha256": "0b27781006f421762adf1f897395becd28bfa8387386fd0ab84c9b434c25cac8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-r3-independent-20261018/review.json",
+        "sha256": "d5aae47e13aa51b50d44a6e6e9ac3d35538cf7bee0e42add689a43efe4a0bcf9"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-r3-independent-20261018/review.md",
+        "sha256": "9e7914ab1c63bfb2fbc1ec8d1a4ffeebff93eea87cdb2d4bfd960620a599c647"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-v5-test-write-ownership-incident-20261018/ownership-record.json",
+        "sha256": "0e4f3f3173285c81706a31bc485db8cba59bf47b6e24ef72a435769fba433057"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-source-adopter-known-owned-pending-r4-20261018/adopt_reviewed_postimages_r4.py",
+        "sha256": "f446b11a931bcd50a71cbbdf01d4b56fd078dd5bf9314cb6aca5da3306a4493f"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-source-adopter-r4-independent-20261018/manifest.json",
+        "sha256": "d6a65142a7eebcf418c651081a71f71ccb92469fd5fde2b67ebeccb7cb4fc4c6"
+      },
+      {
+        "path": "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+        "sha256": "1c34476fcc90801535e83455d9cb16509fde1ef4027730a63664d072c229f689"
+      },
+      {
+        "path": "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+        "sha256": "a446cae5a425fe3c7fe59d3d14f423bf976fb30f6c121c596f4ae3cef8ba1b8e"
+      }
+    ],
+    "P40": "Same partial-graph scalar-bypass class, deeper legacy entry. Bounded guard reuses canonical admission function; formal endpoint/completion semantics remain unsupported.",
+    "bounded_proof": "Exact independent GO for conservative legacy-entry refusal only; full-file Ruff on all three code/test companions required.",
+    "limitations": [
+      "Formal B214 finding remains held: reversed-edge normalization, sound acyclic completion/cycle validation and query-specific admissible graph-family identification are not implemented by this slice.",
+      "Two focused new modules and removal controls remain UNRUN at adoption; only static source peer review and canonical full-file Ruff are established.",
+      "Seven known owned V5 test drafts remain unchanged and outside this disjoint source slice; no clean-tree or complete native source freeze claim.",
+      "No external causal truth, production calibration, publication or G acceptance."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": {
+      "commands": "Run both new complete test modules with source-bound full deciding outputs, then actual guard-removal control and node/CAS projection-removal controls.",
+      "removal_control_plan": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b214-current-quality-qualified-r3-20261018/removal-controls.json"
+    },
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

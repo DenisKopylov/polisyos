@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
-from collections.abc import Mapping
-from typing import Any, ClassVar
+from typing import TYPE_CHECKING, Any, ClassVar
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
 
 import numpy as np
 from pydantic import BaseModel, ConfigDict
@@ -165,12 +167,14 @@ class CheckTransportability:
         )
         if malformed_graph_refusal is not None:
             proof_bundle = scalar_graph_refusal_proof_bundle(malformed_graph_refusal)
-            assert proof_bundle is not None
+            if __debug__ and proof_bundle is None:
+                raise AssertionError("proof_bundle is not None")
             return {
                 "transport_result": malformed_graph_refusal.model_dump(mode="json"),
                 "proof_bundle": proof_bundle.model_dump(mode="json"),
             }
-        assert selection_diagram is not None
+        if __debug__ and selection_diagram is None:
+            raise AssertionError("selection_diagram is not None")
         graph_admission_refusal = scalar_graph_admission_refusal(
             selection_diagram=selection_diagram,
             treatment=query_treatment,
@@ -182,7 +186,8 @@ class CheckTransportability:
         )
         if graph_admission_refusal is not None:
             proof_bundle = scalar_graph_refusal_proof_bundle(graph_admission_refusal)
-            assert proof_bundle is not None
+            if __debug__ and proof_bundle is None:
+                raise AssertionError("proof_bundle is not None")
             return {
                 "transport_result": graph_admission_refusal.model_dump(mode="json"),
                 "proof_bundle": proof_bundle.model_dump(mode="json"),
@@ -208,15 +213,15 @@ class CheckTransportability:
             return payload
 
         if result.status is TransportabilityStatus.IDENTIFIED:
-            payload["proof_bundle"] = proof_bundle_from_transportability_result(
-                result
-            ).model_dump(mode="json")
+            payload["proof_bundle"] = proof_bundle_from_transportability_result(result).model_dump(
+                mode="json"
+            )
             return payload
 
         if result.status is TransportabilityStatus.UNSUPPORTED:
-            payload["proof_bundle"] = proof_bundle_from_transportability_result(
-                result
-            ).model_dump(mode="json")
+            payload["proof_bundle"] = proof_bundle_from_transportability_result(result).model_dump(
+                mode="json"
+            )
             return payload
 
         negative_certificate = negative_certificate_from_transport_result(
@@ -261,6 +266,23 @@ def _legacy_pure_step(state: Mapping[str, Any], params: Mapping[str, Any]) -> di
     query_outcome = str(state["query_outcome"])
     graph = selection_diagram.base_graph
 
+    graph_admission_refusal = scalar_graph_admission_refusal(
+        selection_diagram=selection_diagram,
+        treatment=query_treatment,
+        outcome=query_outcome,
+        solver_mode=str(params.get("transport_solver_mode", "simplified")),
+        pag_identification_policy=params.get("pag_identification_policy"),
+        policy_present="pag_identification_policy" in params,
+    )
+    if graph_admission_refusal is not None:
+        payload: dict[str, Any] = {
+            "transport_result": graph_admission_refusal.model_dump(mode="json")
+        }
+        refusal_proof = scalar_graph_refusal_proof_bundle(graph_admission_refusal)
+        if refusal_proof is not None:
+            payload["proof_bundle"] = refusal_proof.model_dump(mode="json")
+        return payload
+
     policy = _resolve_pag_policy(
         raw=params.get("pag_identification_policy"),
         graph_type=graph.graph_type,
@@ -295,7 +317,7 @@ def _legacy_pure_step(state: Mapping[str, Any], params: Mapping[str, Any]) -> di
 
 def _resolve_pag_policy(
     *,
-    raw: Any,
+    raw: object,
     graph_type: GraphType,
 ) -> PAGIdentificationPolicy:
     if raw is None:
@@ -420,8 +442,10 @@ def _evaluate_pag_probabilistic(
             "pag_dag_sample_size": total,
             "pag_transportable_count": transportable_count,
             "identification_engine": "simplified_legacy",
-            "identification_trace": list(representative.identification_trace)
-            + [f"pag_probabilistic:{transportable_count}/{total}"],
+            "identification_trace": [
+                *representative.identification_trace,
+                f"pag_probabilistic:{transportable_count}/{total}",
+            ],
             "unsupported_reason": representative.unsupported_reason,
         }
     )

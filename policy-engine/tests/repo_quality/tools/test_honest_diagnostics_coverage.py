@@ -54,7 +54,10 @@ def test_coverage_builder_writes_required_metric_dashboard(tmp_path: Path) -> No
     assert payload["source"]["invariant_registry"].endswith(
         "architecture/production_quality/invariant_registry.toml"
     )
-    assert "| Metric | Value | Numerator | Denominator | Denominator Changed | Wave 0 | Wave 1 | Wave 3 | Wave 4 | Final |" in markdown
+    assert (
+        "| Metric | Value | Numerator | Denominator | Denominator Changed | Wave 0 | Wave 1 | Wave 3 | Wave 4 | Final |"
+        in markdown
+    )
 
     for metric_id in EXPECTED_METRICS:
         metric = metrics[metric_id]
@@ -79,9 +82,7 @@ def test_coverage_builder_strict_wave5_requires_explicit_evidence_inputs() -> No
     )
 
     assert payload["summary"]["status"] == "fail"
-    assert {
-        item["code"] for item in payload["missing_evidence"]
-    } == {
+    assert {item["code"] for item in payload["missing_evidence"]} == {
         "hds_wave5_metamorphic_report_missing",
         "hds_wave5_resilience_report_missing",
         "hds_wave5_replay_report_missing",
@@ -237,9 +238,9 @@ def test_coverage_builder_requires_passing_substrate_drift_report(
     )
 
     assert payload["summary"]["status"] == "fail"
-    assert {
-        item["code"] for item in payload["missing_evidence"]
-    } >= {"hds_substrate_drift_report_not_passing"}
+    assert {item["code"] for item in payload["missing_evidence"]} >= {
+        "hds_substrate_drift_report_not_passing"
+    }
 
 
 def test_coverage_builder_uses_wave4_operational_closeout_report(tmp_path: Path) -> None:
@@ -255,13 +256,9 @@ def test_coverage_builder_uses_wave4_operational_closeout_report(tmp_path: Path)
                     {"item_id": "public_exports_projection_only", "status": "pass"},
                 ],
                 "diagnostic_slo_refs": {
-                    f"metric_{index}": f"sha256:{index}"
-                    for index in range(16)
+                    f"metric_{index}": f"sha256:{index}" for index in range(16)
                 },
-                "attestation_refs": {
-                    f"boundary_{index}": f"sha256:{index}"
-                    for index in range(12)
-                },
+                "attestation_refs": {f"boundary_{index}": f"sha256:{index}" for index in range(12)},
             }
         )
         + "\n",
@@ -341,8 +338,9 @@ def test_coverage_builder_marks_wrong_shaped_invariant_rows_invalid(tmp_path: Pa
 
 
 def test_rebaseline_comparator_reports_missing_improved_regressed_and_denominator_changed(
-    tmp_path: Path,
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
+    _install_substrate_drift_result(monkeypatch, status="pass")
     previous_payload = coverage.build_coverage_payload(repo_root=REPO_ROOT)
     current_payload = copy.deepcopy(previous_payload)
 
@@ -403,15 +401,9 @@ def test_rebaseline_comparator_reports_missing_improved_regressed_and_denominato
     assert payload["status"] == "fail"
     assert payload["anti_drift"]["status"] == "pass"
     assert payload["summary"]["anti_drift_status"] == "pass"
-    assert _metric_ids(payload["comparisons"]["missing"]) == {
-        "legacy_quarantine_classified_pct"
-    }
-    assert "negative_control_coverage_pct" in _metric_ids(
-        payload["comparisons"]["improved"]
-    )
-    assert "authority_envelope_complete_pct" in _metric_ids(
-        payload["comparisons"]["regressed"]
-    )
+    assert _metric_ids(payload["comparisons"]["missing"]) == {"legacy_quarantine_classified_pct"}
+    assert "negative_control_coverage_pct" in _metric_ids(payload["comparisons"]["improved"])
+    assert "authority_envelope_complete_pct" in _metric_ids(payload["comparisons"]["regressed"])
     assert "fallback_ledger_coverage_pct" in _metric_ids(
         payload["comparisons"]["denominator_changed"]
     )
@@ -422,8 +414,9 @@ def test_rebaseline_comparator_reports_missing_improved_regressed_and_denominato
 
 
 def test_rebaseline_comparator_allows_drop_only_with_denominator_change_and_log_entry(
-    tmp_path: Path,
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
+    _install_substrate_drift_result(monkeypatch, status="pass")
     previous_payload = coverage.build_coverage_payload(repo_root=REPO_ROOT)
     current_payload = copy.deepcopy(previous_payload)
     _set_metric_value(
@@ -463,13 +456,14 @@ def test_rebaseline_comparator_allows_drop_only_with_denominator_change_and_log_
 
     assert payload["status"] == "pass"
     assert payload["anti_drift"]["status"] == "pass"
-    assert "authority_envelope_complete_pct" in _metric_ids(
-        payload["comparisons"]["regressed"]
-    )
+    assert "authority_envelope_complete_pct" in _metric_ids(payload["comparisons"]["regressed"])
     assert payload["violations"] == []
 
 
-def test_rebaseline_comparator_reports_typed_no_prior_baseline(tmp_path: Path) -> None:
+def test_rebaseline_comparator_reports_typed_no_prior_baseline(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    _install_substrate_drift_result(monkeypatch, status="pass")
     current_dir = _write_payload(
         tmp_path / "current",
         coverage.build_coverage_payload(repo_root=REPO_ROOT),
@@ -486,6 +480,43 @@ def test_rebaseline_comparator_reports_typed_no_prior_baseline(tmp_path: Path) -
     assert payload["comparisons"]["missing"] == []
     assert payload["anti_drift"]["status"] == "pass"
     assert payload["summary"]["anti_drift_status"] == "pass"
+
+
+def test_rebaseline_comparator_propagates_substrate_drift_failure(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    payload = coverage.build_coverage_payload(repo_root=REPO_ROOT)
+    current_dir = _write_payload(tmp_path / "current", payload)
+    previous_dir = _write_payload(tmp_path / "previous", copy.deepcopy(payload))
+    expected_drift = {"status": "fail", "source": "controlled-negative"}
+    calls: list[Path] = []
+
+    def failing_drift(*, repo_root: Path) -> dict[str, str]:
+        calls.append(repo_root)
+        return expected_drift
+
+    monkeypatch.setattr(compare.drift, "build_substrate_drift_payload", failing_drift)
+    result = compare.compare_rebaseline(
+        current_dir=current_dir,
+        previous_dir=previous_dir,
+        decision_log_path=tmp_path / "missing-decision-log.md",
+        repo_root=REPO_ROOT,
+    )
+
+    assert calls == [REPO_ROOT.resolve()]
+    assert result["status"] == "fail"
+    assert result["anti_drift"] == expected_drift
+    assert result["summary"]["anti_drift_status"] == "fail"
+    assert result["violations"] == []
+
+
+def _install_substrate_drift_result(monkeypatch: pytest.MonkeyPatch, *, status: str) -> None:
+    result = {"status": status}
+    monkeypatch.setattr(
+        compare.drift,
+        "build_substrate_drift_payload",
+        lambda **_kwargs: result,
+    )
 
 
 def _set_metric_value(

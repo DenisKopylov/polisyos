@@ -351,12 +351,7 @@ def test_phase1_3_report_only_validator_scopes_package_mirror_property(tmp_path:
         "architecture-package-contract-aggregates"
     ]
     assert family_check["status"] == "failed"
-    assert family_check["error_count"] == 14
-    assert len(family_check["errors"]) == 14
-    unbound_public_rows = family_check["unmapped_public_surface_rows"]
-    assert set(unbound_public_rows) == {"polisyos.runtime.quality"}
-    assert unbound_public_rows["polisyos.runtime.quality"]["status"] == "not_established"
-    assert len(unbound_public_rows["polisyos.runtime.quality"]["unverified_fields"]) == 8
+    _assert_unmapped_public_surface_fails_closed(family_check)
     assert mirror_report["contract_error_count"] > 0
     assert any(item["check"] == "package-contract" for item in mirror_report["contract_errors"])
 
@@ -382,11 +377,8 @@ def test_phase1_3_report_only_validator_scopes_package_mirror_property(tmp_path:
         ]
         == "failed"
     )
-    assert (
-        payload["summary"]["generated_family_checks"]["architecture-package-contract-aggregates"][
-            "error_count"
-        ]
-        == 14
+    _assert_unmapped_public_surface_fails_closed(
+        payload["summary"]["generated_family_checks"]["architecture-package-contract-aggregates"]
     )
     assert (
         phase1_3.run_cli(
@@ -404,6 +396,27 @@ def test_phase1_3_report_only_validator_scopes_package_mirror_property(tmp_path:
 
 def _read_toml(path: Path) -> dict[str, Any]:
     return tomllib.loads(path.read_text(encoding="utf-8"))
+
+
+def _assert_unmapped_public_surface_fails_closed(family_check: dict[str, Any]) -> None:
+    module = "polisyos.runtime.quality"
+    row = family_check["unmapped_public_surface_rows"][module]
+    public_rows = _read_toml(REPO_ROOT / "architecture" / "public_surface" / "contract.toml")[
+        "package"
+    ]
+    matching_rows = [item for item in public_rows if item["module"] == module]
+    assert len(matching_rows) == 1
+    source_row = matching_rows[0]
+
+    assert family_check["status"] == "failed"
+    assert row["status"] == "not_established"
+    assert row["unverified_fields"] == sorted(set(source_row) - {"module"})
+    assert any(
+        finding["subject"] == "architecture/public_surface/contract.toml"
+        and finding["message"] == "public surface row has no complete source contract"
+        and f"module={module!r} status=not_established" in finding["detail"]
+        for finding in family_check["errors"]
+    )
 
 
 def _path_pattern_exists(pattern: str) -> bool:

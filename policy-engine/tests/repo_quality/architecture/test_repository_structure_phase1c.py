@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+import sys
 import tomllib
 from pathlib import Path
 from types import ModuleType
@@ -14,11 +15,21 @@ VALIDATION_SCRIPT = (
 
 
 def _load_validation_module() -> ModuleType:
-    spec = importlib.util.spec_from_file_location("repository_structure_phase0", VALIDATION_SCRIPT)
+    module_name = "repository_structure_phase0"
+    spec = importlib.util.spec_from_file_location(module_name, VALIDATION_SCRIPT)
     assert spec is not None
     assert spec.loader is not None
     module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
+    was_registered = module_name in sys.modules
+    previous_module = sys.modules.get(module_name)
+    sys.modules[module_name] = module
+    try:
+        spec.loader.exec_module(module)
+    finally:
+        if was_registered:
+            sys.modules[module_name] = previous_module
+        else:
+            sys.modules.pop(module_name, None)
     return module
 
 

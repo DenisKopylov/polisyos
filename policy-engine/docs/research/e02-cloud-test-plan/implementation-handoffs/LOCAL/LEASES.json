@@ -10437,5 +10437,226 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "native-docs-quality-test-repair-f759-20261018": {
+    "slice_base": "709c56166d693189ac94b5cdd2defe764903ac69",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/repo_quality/architecture/test_repository_structure_phase1c.py": {
+        "operation": "modify",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-docs-quality-test-repair-20261018/postimages/test_repository_structure_phase1c.py",
+        "postimage_sha256": "c1dfed02dd667b06e9126f7241a0267f0bbd10bf128daff2020bfff173bc94d8",
+        "preimage_sha256": "e360664c55b5d24ac7980f874a71474cd7553c8cc52d1f585c8e1fb8be9aaddb"
+      },
+      "policy-engine/tests/repo_quality/architecture/test_repository_best_in_class_phase1_3_contracts.py": {
+        "operation": "modify",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-docs-quality-test-repair-20261018/postimages/test_repository_best_in_class_phase1_3_contracts.py",
+        "postimage_sha256": "ff925976328bb7e1dad8b00368f929e1c27dfbb725b3cfe87d0360e5618cafc0",
+        "preimage_sha256": "82dfbf20e0171664b31a5ef9d6a3751c4be3512894b437d76cc22e28713277fb"
+      },
+      "policy-engine/tests/repo_quality/tools/test_honest_diagnostics_coverage.py": {
+        "operation": "modify",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-docs-quality-test-repair-20261018/postimages/test_honest_diagnostics_coverage.py",
+        "postimage_sha256": "8681570463f33a983cb6c5bb45e2be37720e25fc3c215e9f916e75791ab9e405",
+        "preimage_sha256": "d0562d88efbb3b63028395b42b9942923dc31a334272c2339ccca559208947fb"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-docs-quality-test-repair-source-adoption-20261018/source-application.json",
+      "sha256": "d5920ee0113dce9aed7ab0a6bce0e25a057e64abc7c77d233a465c3a27283d6f"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-docs-quality-test-repair-source-adoption-20261018/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/architecture/public_surface/contract.toml",
+        "role": "reviewed source/gate dependency at f759",
+        "sha256": "16ebb15cbade1ee7bcc26a4413fa5be0f2b8560a262c04f876912a619a243b2b"
+      },
+      {
+        "path": "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+        "role": "Ruff workspace-root config",
+        "sha256": "a446cae5a425fe3c7fe59d3d14f423bf976fb30f6c121c596f4ae3cef8ba1b8e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-root-boundaries-20261015/adopt_reviewed_postimages_r1.py",
+        "role": "ROOT-only adoption helper version pinned for review; not executed by author",
+        "sha256": "a601928ee742c72539ae6630f6c54d7d45576fc6df337a13e2ca927ffb7e9077"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-composed-f759-cli-r2-integrated-20261018/common/source-freeze.json",
+        "role": "original f759 source freeze",
+        "sha256": "68fff5cf71cc913a8b96a62d26c52233c1b3c8acc73c471f4f8e74b3faad574a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-composed-f759-cli-r2-integrated-20261018/profiles/docs-quality/actual-run/controller-result.json",
+        "role": "source-qualified original docs-quality actual-run evidence",
+        "sha256": "738ae1967d2dd88c46b8037946152ec2cb3a6a7fcf368c278557b802bdc53914"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-composed-f759-cli-r2-integrated-20261018/profiles/docs-quality/actual-run/docs_lifecycle.stdout.txt",
+        "role": "source-qualified original docs-quality actual-run evidence",
+        "sha256": "be7eb16a72e38f356a6e3510ee77ab0cf17604cafcef46be23caf09d1426adb4"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-composed-f759-cli-r2-integrated-20261018/profiles/docs-quality/actual-run/phase0_all.stdout.txt",
+        "role": "source-qualified original docs-quality actual-run evidence",
+        "sha256": "80ccf47a7525de43d80f779a2b8ec586bdc7f543501dd38a6d7d18ac2b21f5ec"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-composed-f759-cli-r2-integrated-20261018/profiles/docs-quality/actual-run/phase0_empty_namespace_gate.stdout.txt",
+        "role": "source-qualified original docs-quality actual-run evidence",
+        "sha256": "45076af3b96e30451f174eae878a47e43b0388c5da66af7b6d3a910168b90ef0"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-composed-f759-cli-r2-integrated-20261018/profiles/docs-quality/actual-run/phase0_empty_namespace_scope_root.stdout.txt",
+        "role": "source-qualified original docs-quality actual-run evidence",
+        "sha256": "56d312a58278ed649a83682d497d3116b07c165bdae115af7cb4b4bf2887d498"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-composed-f759-cli-r2-integrated-20261018/profiles/docs-quality/actual-run/phase0_name_collision_gate.stdout.txt",
+        "role": "source-qualified original docs-quality actual-run evidence",
+        "sha256": "ed228490ec1279d989c323b76f2723ed725995fab187bc9dbd6bbc90cd7a90bd"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-composed-f759-cli-r2-integrated-20261018/profiles/docs-quality/actual-run/phase0_package_common.stdout.txt",
+        "role": "source-qualified original docs-quality actual-run evidence",
+        "sha256": "648af4032c0c92271ee578254b970a7bf6be9825d295bf3dc07321bdc8b958b6"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-composed-f759-cli-r2-integrated-20261018/profiles/docs-quality/actual-run/phase0_scope_package_files.stdout.txt",
+        "role": "source-qualified original docs-quality actual-run evidence",
+        "sha256": "d11f352bae0dcd68dc0185a12db40562d1459b94ccc88ad10a41be2bb24bf0cc"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-composed-f759-cli-r2-integrated-20261018/profiles/docs-quality/actual-run/phase0_scope_root.stdout.txt",
+        "role": "source-qualified original docs-quality actual-run evidence",
+        "sha256": "1c27f9b92778ade2159dd2b8cf1a29a047ddec25c94f6a89769c9606f68333d2"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-composed-f759-cli-r2-integrated-20261018/profiles/docs-quality/actual-run/pytest.stdout.txt",
+        "role": "source-qualified original docs-quality actual-run evidence",
+        "sha256": "bd3a41fb35b2d0a755034f251838daab398faf8390b1ffe62cd3449f5c22e7db"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-composed-f759-cli-r2-integrated-20261018/profiles/docs-quality/actual-run/pytest.xml",
+        "role": "source-qualified original docs-quality actual-run evidence",
+        "sha256": "9888755f455a8c5fbab6c4acf8e5dc3d9d4873126be66541b262f57cd0d4de50"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-docs-quality-test-repair-20261018/README.md",
+        "role": "candidate rationale and bounded CLI dispositions",
+        "sha256": "1b56565e9d4ab09752dd6c4ea0ed4a2596c93652f51e73ec40576496d48dd03c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-docs-quality-test-repair-20261018/candidate.patch",
+        "role": "frozen three-file patch",
+        "sha256": "9ca6ca6527c6b2857f9eb35110967dd6a5ab776e91aef42731a7a7a809ebd550"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-docs-quality-test-repair-20261018/manifest.json",
+        "role": "candidate manifest with exact pre/post and Ruff receipts",
+        "sha256": "5f151d62fb693b235ff76e3c25e9f362dd21d8f884719b054e81bb4a9e8c0a6f"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-docs-quality-test-repair-independent-20261018/review.md",
+        "role": "independent semantic GO review",
+        "sha256": "7e364c0e240e8158282f1d0ee1532bc6ef0bc0e87bcfb014f641a090bf92370b"
+      },
+      {
+        "path": "policy-engine/pyproject.toml",
+        "role": "Phase 0 size-gate input",
+        "sha256": "abd7daf5c8bd36c2dacf3189c65f076fbebad51c8d323ef70c18b6ef8220449b"
+      },
+      {
+        "path": "policy-engine/tools/quality/validation/architecture_report_only_contracts.py",
+        "role": "reviewed source/gate dependency at f759",
+        "sha256": "e6de2b42f97ee17259191c003bc0345e3b72a0923b7ba28930601dfd57bce01c"
+      },
+      {
+        "path": "policy-engine/tools/quality/validation/check_substrate_drift.py",
+        "role": "reviewed source/gate dependency at f759",
+        "sha256": "ef76901ec6441c61ff22eb371492dc369f3d534970cdb5991bfd3b2256255a0d"
+      },
+      {
+        "path": "policy-engine/tools/quality/validation/compare_honest_diagnostics_rebaseline.py",
+        "role": "reviewed source/gate dependency at f759",
+        "sha256": "63001fcaefa56fd997d675e0ad2ba77bffd100d1d45c3beb513ea26964aadd15"
+      },
+      {
+        "path": "policy-engine/tools/quality/validation/repository_structure_phase0.py",
+        "role": "reviewed source/gate dependency at f759",
+        "sha256": "9d3652483925e714fc5575b2eeffe66ea5d2d240c1627e4acfdb55834d5b21c4"
+      }
+    ],
+    "P40": {
+      "buckets": [
+        {
+          "class": "dynamic test-module load omits temporary sys.modules registration",
+          "classification": "NEW test-loader lifecycle class; one shared loader helper addresses four failures",
+          "finding_count": 4
+        },
+        {
+          "class": "live package-mirror test freezes source-dependent error cardinality",
+          "classification": "SAME P38 scalar-proxy class widened to identity-bound row and full current unverified-field set",
+          "finding_count": 1
+        },
+        {
+          "class": "rebaseline comparator arithmetic cases inherit live anti-drift state",
+          "classification": "single isolation class; controlled passing collaborator for arithmetic and one failing-collaborator composition negative",
+          "finding_count": 3
+        }
+      ],
+      "stopping_rule": "Do not start per-assertion repairs; findings in an existing class fold into its shared mechanism, and a new class requires explicit classification."
+    },
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "No product, validator, or CLI source changes.",
+      "No source-dependent expected-count substitution and no source/gate weakening.",
+      "No docs-lifecycle scanner scope, decoder, exclusion, or finding suppression change.",
+      "No pyproject threshold increase or relocation workaround; team-devx measurement-plane decision remains open.",
+      "No claim that either CLI result is repaired, inherited, or green.",
+      "No pytest/CLI execution, environment changes, canonical application, Git mutation, or untracked cleanup by this author."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": {
+      "CLI_replay": "Not implied; retain original eight CLI receipts and exact dispositions unless ROOT separately authorizes a new CLI profile.",
+      "execution": "No test or CLI execution by this author; root-controlled persistent supervisor owns runtime verification.",
+      "focused_11_cases": [
+        {
+          "path": "tests/repo_quality/architecture/test_repository_structure_phase1c.py",
+          "selection": "whole module, 6 cases including all 4 temporary-module loads"
+        },
+        {
+          "nodeid": "test_phase1_3_report_only_validator_scopes_package_mirror_property",
+          "path": "tests/repo_quality/architecture/test_repository_best_in_class_phase1_3_contracts.py",
+          "selection": "1 case: report and CLI fail-closed surface"
+        },
+        {
+          "nodeids": [
+            "test_rebaseline_comparator_reports_missing_improved_regressed_and_denominator_changed",
+            "test_rebaseline_comparator_allows_drop_only_with_denominator_change_and_log_entry",
+            "test_rebaseline_comparator_reports_typed_no_prior_baseline",
+            "test_rebaseline_comparator_propagates_substrate_drift_failure"
+          ],
+          "path": "tests/repo_quality/tools/test_honest_diagnostics_coverage.py",
+          "selection": "4 cases: comparison behavior and failing-gate composition control"
+        }
+      ],
+      "focused_acceptance": "All 11 selected cases pass with qualified current-source origins; capture complete stdout/stderr, JUnit, command line, and provenance.",
+      "original_selection_receipt": {
+        "controller_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-composed-f759-cli-r2-integrated-20261018/profiles/docs-quality/actual-run/controller-result.json",
+        "controller_sha256": "738ae1967d2dd88c46b8037946152ec2cb3a6a7fcf368c278557b802bdc53914",
+        "pytest_execution_argv_record": "command_results[1].argv in pinned controller JSON"
+      },
+      "source_adoption": "ROOT-only helper after fresh HEAD, tracked index/worktree, source dependencies, reviewed inputs, exact pre/postimage, and patch-applicability qualification.",
+      "then_whole_profile": "After the wider source batch is frozen, rerun the original 102-nodeid pytest selection from the pinned controller, with current source qualification. Capture outcome, JUnit, stdout/stderr, controller provenance, monotonic duration, and resource readings; report actual results rather than assume a green profile.",
+      "working_directory": "policy-engine"
+    },
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

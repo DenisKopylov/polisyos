@@ -9,8 +9,9 @@ import contextvars
 import functools
 import os
 import threading
-from dataclasses import dataclass
-from typing import TYPE_CHECKING, Literal
+import time
+from dataclasses import dataclass, field
+from typing import TYPE_CHECKING, Literal, cast
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable
@@ -384,6 +385,22 @@ def run_coro_sync[T](coro: Awaitable[T], *, timeout_seconds: float | None = None
     return _run_coro_in_fresh_loop(coro, timeout_seconds=timeout)
 
 
+@dataclass(slots=True)
+class _BlockingCallReceipt[T]:
+    """Capture callable completion before its Future reaches the event loop."""
+
+    value: T | None = None
+    error: BaseException | None = None
+    completed_at: float | None = None
+    completed: threading.Event = field(default_factory=threading.Event)
+
+    def result(self) -> T:
+        """Return the callable result or re-raise its original exception."""
+        if self.error is not None:
+            raise self.error
+        return cast("T", self.value)
+
+
 async def run_blocking_async[T](
     func: Callable[..., T],
     /,
@@ -396,8 +413,10 @@ async def run_blocking_async[T](
 
     Omitted/None timeouts retain the helper default. An owner with no configured
     deadline must explicitly pass ``unbounded=True``; combining it with a float
-    timeout is rejected before admission. Cancellation stops queued work, while
-    an already running callable retains its physical worker until it returns.
+    timeout is rejected before admission. Timely callable completion is kept even
+    if its Future reaches the event loop late. Cancellation stops queued work,
+    while an already running callable retains its physical worker until it returns.
+    This helper deadline does not extend the owner's separate commit deadline.
     """
     if unbounded and timeout_seconds is not None:
         raise ValueError("unbounded cannot be combined with timeout_seconds")
@@ -405,16 +424,39 @@ async def run_blocking_async[T](
     loop = asyncio.get_running_loop()
     call = functools.partial(func, *args, **kwargs)
     context = contextvars.copy_context()
-    future = loop.run_in_executor(_get_shared_executor(), context.run, call)
+    receipt: _BlockingCallReceipt[T] = _BlockingCallReceipt()
+
+    def invoke() -> _BlockingCallReceipt[T]:
+        try:
+            receipt.value = context.run(call)
+        except BaseException as exc:
+            receipt.error = exc
+        finally:
+            receipt.completed_at = time.monotonic()
+            receipt.completed.set()
+        return receipt
+
+    worker_future = _get_shared_executor().submit(invoke)
+    future = asyncio.wrap_future(worker_future, loop=loop)
+    deadline = None if timeout is None else time.monotonic() + timeout
     try:
-        return await asyncio.wait_for(future, timeout=timeout)
+        completed_receipt = await asyncio.wait_for(future, timeout=timeout)
     except TimeoutError as exc:
-        # ``asyncio.TimeoutError`` is the built-in ``TimeoutError`` on the
-        # supported Python versions, so this handler also catches a timeout
-        # raised by the blocking callable itself. Preserve that inner error
-        # when the executor future completed; only rewrite a wait timeout
-        # after asyncio cancelled the future.
-        if future.done() and not future.cancelled():
-            raise
-        future.cancel()
+        # Future delivery may miss the wait even when the callable finished in time.
+        if (
+            receipt.completed.is_set()
+            and receipt.completed_at is not None
+            and (deadline is None or receipt.completed_at <= deadline)
+        ):
+            return receipt.result()
+        worker_future.cancel()
         raise TimeoutError(f"Blocking call did not complete within {timeout:.3f}s") from exc
+    except asyncio.CancelledError:
+        worker_future.cancel()
+        raise
+
+    if receipt.completed_at is None or (deadline is not None and receipt.completed_at > deadline):
+        future.cancel()
+        worker_future.cancel()
+        raise TimeoutError(f"Blocking call did not complete within {timeout:.3f}s")
+    return completed_receipt.result()

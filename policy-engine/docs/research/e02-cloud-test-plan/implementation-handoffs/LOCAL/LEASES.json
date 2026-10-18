@@ -12631,5 +12631,92 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "blocking-worker-completion-receipt-b14-r4-native-qualified-20261018": {
+    "slice_base": "3c08d808c3e9e3411f3b87cd9f77863240186939",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/src/polisyos/common/async_tools/__init__.py": {
+        "operation": "modify",
+        "preimage_sha256": "38515d63870380150597d6b6a7b56873cd30b020aa458767c2d8fa281ec9d80e",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-blocking-worker-lifecycle-r4-20261018/postimages/policy-engine/src/polisyos/common/async_tools/__init__.py",
+        "postimage_sha256": "efe505d80776a6b957e869eaf07f99e9757417df630b000e1e8889d2da94926b"
+      },
+      "policy-engine/src/polisyos/common/README.md": {
+        "operation": "modify",
+        "preimage_sha256": "2a4a0460cec3194f65ab0ddbf58e5917f7b929c0bea870fccfbb3dc5d2607edb",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-blocking-worker-lifecycle-r4-20261018/postimages/policy-engine/src/polisyos/common/README.md",
+        "postimage_sha256": "9baf6433685730223958295e0974d294c2081b1f990b90752fd102d3252d5911"
+      },
+      "policy-engine/tests/unit/common/test_blocking_worker_completion.py": {
+        "operation": "add",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-r4-native-import-qualified-20261018/test_blocking_worker_completion.py",
+        "postimage_sha256": "b6d0439c04f5a3bc40415265062bcdc01cdba36d70147b3ea2e2953d5e75f05f"
+      },
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_blocking_worker_lifecycle.py": {
+        "operation": "add",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-r4-native-import-qualified-20261018/test_blocking_worker_lifecycle.py",
+        "postimage_sha256": "1dc00e465f34446965c8dcab64b68ea7c8e707a9c5ceda4007f3b895a720fc80"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-r4-native-import-qualified-20261018/source-application.json",
+      "sha256": "4005d6d5079a36fd21ae2a33703ecc9087d54b687ee61e1f81051d0da4c67859"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-r4-post-fqn-qualified-adoption-20261018/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-blocking-worker-lifecycle-r4-20261018/manifest.json",
+        "sha256": "0c3853ae56a843ca0af9c733dd4664175429db7c6c186fe5a4a8f5ffadca4880"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-r4-independent-20261018/review.json",
+        "sha256": "6fcf6734213af70dc3bb16a71fc4d51e8d2bc26fb298ed99fb8025cb268f3961"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-r3-independent-20261018/review.json",
+        "sha256": "33e57866e1db91ca10217652f2ca773088c1aea74d257d37256a9f16cb305d5d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-blocking-worker-lifecycle-r4-20261018/decision.md",
+        "sha256": "bdac63a67687730043f5d17cd1ee7ff2a0d13f0085952ea434277d0c2729666e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-r4-current-qualified-adoption-20261018/adoption-plan.json",
+        "sha256": "50357abbd1204faffa67dc5056dae774de95d907ff3e332613b823eeaafad1b5"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-r4-post-fqn-qualified-adoption-20261018/adoption-plan.json",
+        "sha256": "34ac53ecf68b9b0d43e42a48f3be79f036b7a574497c3a243552334cf29886e3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-r4-native-import-qualified-20261018/qualification.json",
+        "sha256": "95021a46a0e36a77e5638b2ad61562a4cbf9dd88643216fa98a091e86e56523e"
+      }
+    ],
+    "P40": "Same worker-lifetime class widened to generic worker receipt; four-path bounded repair preserves all 63 caller migration denominator and records persistent CAS residue as residual. No callback-specific repair ladder.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Four-path source peer GO; actual canonical helper and cache-consumer tests remain UNRUN.",
+      "Normal-return timestamp branch not established under standard scheduler; overdue-timeout test does not establish its removal falsifier.",
+      "No cancellation of running threads or global guarantee of absent persistent effects; orphan CAS bytes after refusal remain possible.",
+      "B14 formal proposal HOLD pending complete caller/ArtifactStore owner-deadline semantics G choice; closure_ids remain empty."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": {
+      "required": [
+        "Whole helper and real cache lifecycle modules at new committed source with full source/origin freeze",
+        "Existing async_tools importer/cache tests and delayed success/error/timeout cases",
+        "G decision on caller-owned persistence commit/deadline contract for all 63 calls"
+      ]
+    },
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

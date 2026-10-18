@@ -145,8 +145,17 @@ lock. `run_blocking_async(..., unbounded=True)` explicitly represents an owner
 with no configured helper deadline. Omitted/None timeouts keep the existing
 default; combining `unbounded=True` with a float timeout is invalid.
 
+`run_blocking_async` records the callable's monotonic completion time in its
+worker receipt before the executor Future is delivered to the event loop. If
+that receipt proves the callable completed within the helper wait deadline, a
+late Future callback does not discard the completed value or original error.
+A completion after that deadline remains a helper timeout. Cancelling queued
+work is supported; an already running thread remains cooperative and can finish
+after the caller receives a timeout.
+
 These helpers own execution/callback lifecycle, not tenant authority or external
-effect rollback. Callers retain their current publication and permission checks.
+effect rollback. Callers retain their current publication and permission checks;
+a timely helper completion does not extend an owner's separate commit deadline.
 
 Runtime composition may pin this same process-wide owner with the typed
 `process_worker_capacity` and `process_worker_profile_revision` settings. The
@@ -177,4 +186,4 @@ public-surface refresh, and compatibility note.
 - [Core / Common / Runtime Audit Remediation Plan](../../../docs/plans/active/CORE_COMMON_RUNTIME_AUDIT_REMEDIATION_PLAN.md)
 - [Common migrations](migrations/README.md)
 
-- Last updated: 2026-10-17
+- Last updated: 2026-10-18

@@ -171,11 +171,14 @@ def test_discovery_preserves_history_ref_and_reads_cas_without_second_ann(tmp_pa
     index = _DiscoveryIndex(history_ref=history_ref)
     manager = TransferLearningManager(store, index)
 
-    similar = manager.find_similar_runs(_fingerprint("target"), top_k=1)
+    target = _fingerprint("target")
+    similar = manager.find_similar_runs(target, top_k=1)
 
     assert len(similar) == 1
     assert similar[0].history_ref == history_ref
-    evaluations = manager.get_warm_start_evaluations(similar, max_evals=1)
+    evaluations = manager.get_warm_start_evaluations(
+        similar, max_evals=1, target_fingerprint=target
+    )
 
     assert [evaluation.candidate_id for evaluation in evaluations] == ["candidate"]
     assert len(index.query_calls) == 1
@@ -201,7 +204,9 @@ def test_history_cache_is_bound_to_snapshot_and_consumer_sort_is_non_mutating(
     new_snapshot = _fingerprint("same-run")
     new_snapshot.history_ref = new_ref
 
-    first = manager.get_warm_start_evaluations([old_snapshot], max_evals=1)
+    first = manager.get_warm_start_evaluations(
+        [old_snapshot], max_evals=1, target_fingerprint=_fingerprint("target")
+    )
 
     assert [evaluation.candidate_id for evaluation in first] == ["old-low"]
     assert first[0].stage_b_result is not None
@@ -209,8 +214,12 @@ def test_history_cache_is_bound_to_snapshot_and_consumer_sort_is_non_mutating(
     first[0].stage_b_result["metrics"]["coverage"].append(99)
     first[0].metadata["nested"]["labels"].append("mutated")
 
-    old_replay = manager.get_warm_start_evaluations([old_snapshot], max_evals=1)
-    second = manager.get_warm_start_evaluations([new_snapshot], max_evals=1)
+    old_replay = manager.get_warm_start_evaluations(
+        [old_snapshot], max_evals=1, target_fingerprint=_fingerprint("target")
+    )
+    second = manager.get_warm_start_evaluations(
+        [new_snapshot], max_evals=1, target_fingerprint=_fingerprint("target")
+    )
 
     assert [evaluation.candidate_id for evaluation in old_replay] == ["old-low"]
     assert old_replay[0].params["nested"]["labels"] == ["original"]
@@ -233,20 +242,26 @@ def test_cached_history_bytes_are_revalidated_before_reuse(tmp_path) -> None:
     source = _fingerprint("same-run")
     source.history_ref = history_ref
 
-    assert [row.candidate_id for row in manager.get_warm_start_evaluations([source], 1)] == [
-        "candidate"
-    ]
+    assert [
+        row.candidate_id
+        for row in manager.get_warm_start_evaluations(
+            [source], 1, target_fingerprint=_fingerprint("target")
+        )
+    ] == ["candidate"]
     cache_key = manager._history_cache_key(history_ref, source)
     manager._eval_cache[cache_key] = b"x" * len(manager._eval_cache[cache_key])
 
     with pytest.raises(ValueError, match="Malformed transfer history artifact"):
-        manager.get_warm_start_evaluations([source], 1)
+        manager.get_warm_start_evaluations([source], 1, target_fingerprint=_fingerprint("target"))
 
     assert cache_key not in manager._eval_cache
     assert manager._eval_cache_bytes == 0
-    assert [row.candidate_id for row in manager.get_warm_start_evaluations([source], 1)] == [
-        "candidate"
-    ]
+    assert [
+        row.candidate_id
+        for row in manager.get_warm_start_evaluations(
+            [source], 1, target_fingerprint=_fingerprint("target")
+        )
+    ] == ["candidate"]
     assert store.reads == [history_ref, history_ref]
 
 

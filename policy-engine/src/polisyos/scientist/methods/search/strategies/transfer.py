@@ -198,23 +198,25 @@ class TransferLearningManager:
         similar_runs: list[RunFingerprint],
         max_evals: int = 50,
         *,
-        target_fingerprint: RunFingerprint | None = None,
+        target_fingerprint: RunFingerprint,
     ) -> list[Evaluation]:
-        """Retrieve evaluations from similar runs for warm-start.
+        """Reuse compatible history only after a complete target identity is supplied.
 
-        Collects the best evaluations from each similar run, up to
-        ``max_evals`` total.
+        Collects the best evaluations from each binding-compatible run, up to
+        ``max_evals`` total. Incomplete or malformed target identities are
+        refused before any history read. The result remains a list so rejected
+        history rows stay visible to compatible callers.
         """
         if max_evals <= 0 or not similar_runs:
             return []
-        if target_fingerprint is not None and not self._has_complete_binding_basis(
-            target_fingerprint
-        ):
+        if not isinstance(
+            target_fingerprint, RunFingerprint
+        ) or not self._has_complete_binding_basis(target_fingerprint):
             return []
 
         prepared: list[list[Evaluation]] = []
         for fp in similar_runs:
-            if target_fingerprint is not None and not self._binding_matches(target_fingerprint, fp):
+            if not self._binding_matches(target_fingerprint, fp):
                 continue
 
             rows = self._load_run_evaluations(fp)

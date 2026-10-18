@@ -12249,5 +12249,89 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "b131-required-target-full-receiver-and-migration-companions-20261018": {
+    "slice_base": "19312672830c94375082e468c88a45dc320075ef",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/src/polisyos/scientist/methods/search/strategies/transfer.py": {
+        "preimage_sha256": "ce705a0f5b2d2b9255d77b535398d173ff1458152f513737dadfd86fce604bea",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b131-unbound-manager-admission-r1-20261018/postimages/transfer.py",
+        "postimage_sha256": "8acdedf2be4045c172a7955b574d3ab7e7c94f8b0c23a95b6698cc21fd8cff0e",
+        "operation": "modify"
+      },
+      "policy-engine/tests/unit/scientist/methods/autotune/test_warm_start.py": {
+        "preimage_sha256": "14cebed2c5511c4158ce03436910444e1b582170cf39024510208c68d7e51952",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b131-unbound-manager-admission-r1-20261018/postimages/test_warm_start.py",
+        "postimage_sha256": "b7e742307d9e2c5c034dfc6cae5a02b13636705b025c583b8e755d12be3d7391",
+        "operation": "modify"
+      },
+      "policy-engine/tests/unit/remediation/test_trn_02.py": {
+        "preimage_sha256": "bc16acefcd25b991b340f64dca49c00ed7623243dcb1d14bb94bc310a373f235",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b131-unbound-manager-admission-r1-20261018/postimages/test_trn_02.py",
+        "postimage_sha256": "594f6ea781931b4d4d7ff8aa7d188f85433bfcb2ca6588b52d92b94770852832",
+        "operation": "modify"
+      },
+      "policy-engine/src/polisyos/scientist/methods/search/strategies/README.md": {
+        "operation": "modify",
+        "preimage_sha256": "7b057a13c5b30ea74984cee7aaa78965da03c43c32127af636dfbe621e2ad0ae",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b131-target-admission-doc-companions-20261018/strategies-README.md",
+        "postimage_sha256": "1d8cf5cbf8e7e1ad4aeff27ee147d87f7c705f5aef0019af1fac9beb2e8bb536"
+      },
+      "policy-engine/release-fragments/unreleased/2026-10-18-e02-transfer-history-required-target.toml": {
+        "operation": "add",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b131-target-admission-doc-companions-20261018/2026-10-18-e02-transfer-history-required-target.toml",
+        "postimage_sha256": "3aea531d43612833098731c37a25f0f8e646be5e8df46cc9f7344095222787ed"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b131-five-path-current-adoption-20261018/source-application.json",
+      "sha256": "3081cafe0031026ec0054c4a4315b72c823181f9b739bf45c2e79ee9a988cf91"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b131-five-path-current-adoption-20261018/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b131-unbound-manager-admission-r1-20261018/mechanism-pins-final.json",
+        "sha256": "a3dd2d904f6709cc9e465fc95472b236eec40a940d2bebbe91ba5924320934fa"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b131-unbound-manager-admission-r1-20261018/manifest.json",
+        "sha256": "f3d61ee411b1b659e7bdaeab4ee52740576c275c4db6df2d73ed82378c8deb02"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b131-manager-admission-independent-20261018/review.json",
+        "sha256": "0f79103a7a74b98db7800188ca0192711802d463bd41292fcd95aff9ee5d85f5"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b131-target-admission-doc-companions-20261018/companions.json",
+        "sha256": "36cf0d1fd8e4bc16fbf287ac36ab5533685681c6258a56db785f6f1e34c0907b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b131-doc-companions-independent-20261018/review.json",
+        "sha256": "0df162442d54833be0b7b6d214391347209d64254d2bf95c6c3cee21af14854e"
+      }
+    ],
+    "P40": "Same cross-run reuse intake class widened to shared receiver chokepoint, complete direct callers and mandatory migration companions; scientific/permission predicates stay bounded.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Independent source GO_SCOPED; author14+3candidate-tests separate from canonical current runtime UNRUN.",
+      "Empty units/directions and nullable scope may still match syntactically; no equality-of-fields proves semantic comparability, permission, source or issuer custody.",
+      "Whole B131 remains limited/held for original semantic/external predicates; no formal G closures."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": {
+      "required": [
+        "Current complete warm-start and TRN02 consumer modules",
+        "Refused omitted/None/incomplete/malformed/cross-tenant target beforeCAS negative controls",
+        "Matching actual history/CAS/cache/fresh receiver checks"
+      ]
+    },
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

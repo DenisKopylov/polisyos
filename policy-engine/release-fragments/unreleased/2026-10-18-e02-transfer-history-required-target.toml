@@ -1,0 +1,16 @@
+id = "2026-10-18-e02-transfer-history-required-target"
+title = "Require an explicit target before direct transfer-history reads"
+type = "changed"
+component = "scientist"
+owner = "team-scientist"
+summary = "The transfer-history receiver refuses targetless reuse before reading CAS. Matching candidate histories retain their existing list result and content/profile checks."
+evidence = ["src/polisyos/scientist/methods/search/strategies/transfer.py", "tests/unit/scientist/methods/autotune/test_warm_start.py", "tests/unit/remediation/test_trn_02.py"]
+compatibility = "Direct internal callers must now pass keyword-only target_fingerprint; omission raises TypeError. A supplied malformed or incomplete target returns an empty evaluation list before CAS reads. WarmStartBridge already passes its current target."
+change_class = "python-runtime-behavior"
+surface_classification = "internal: TransferLearningManager direct receiver; package facade exports and supported API inventory are unchanged"
+migration = "Pass the current RunFingerprint explicitly; retain unresolved semantic units, source and permission as limitations. Historical CAS objects and index rows are not rewritten."
+limitations = "Full-field equality and complete shape do not establish scientific comparability, tenant permission, issuer authority, or source custody; empty unit/direction mappings and nullable scope still require qualified external meaning. Actual current candidate tests remain a separate verification step."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = ["src/polisyos/scientist/methods/search/strategies/README.md"]
+runbook_docs = []

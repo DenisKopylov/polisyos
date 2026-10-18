@@ -69,6 +69,13 @@ the warm-history count.
 
 ### Transfer history cache
 
+Direct `TransferLearningManager.get_warm_start_evaluations` calls must supply the
+keyword-only `target_fingerprint`. Omission raises `TypeError`; a supplied
+non-fingerprint or incomplete target returns no evaluations before any history
+read. `WarmStartBridge` already supplies its current target. Matching target and
+history fields permit candidate reuse only; they do not establish external
+permission, source custody, or semantic comparability of undeclared units.
+
 `TransferLearningManager` retains only verified canonical history bytes in its
 LRU cache. The key binds the full `ArtifactRef` (artifact ID, kind, media type,
 and selected manifest profile) to the complete run identity. On every cache hit,

@@ -406,6 +406,64 @@ class TestTransferLearningManagerWarmStart:
         with pytest.raises(ValueError, match="complete run fingerprint"):
             writer.register_run(incomplete, [_make_eval(_artifact_id("6"), 0.8, "source-run")])
 
+    def test_warm_start_requires_complete_target_before_history_read(self, tmp_path):
+        manager, sources = _manager_with_history(
+            tmp_path,
+            {"source-run": [_stored_eval(_artifact_id("t"), 0.8, "source-run")]},
+        )
+        source = sources["source-run"]
+        store = manager._store
+
+        with pytest.raises(TypeError):
+            manager.get_warm_start_evaluations([source], max_evals=1)
+        assert (
+            manager.get_warm_start_evaluations([source], max_evals=1, target_fingerprint=None) == []
+        )
+        assert store.payload_reads == []
+
+        incomplete = RunFingerprint(
+            run_id="target-run",
+            space_hash=source.space_hash,
+            objective_names=list(source.objective_names),
+        )
+        assert (
+            manager.get_warm_start_evaluations(
+                [source],
+                max_evals=1,
+                target_fingerprint=incomplete,
+            )
+            == []
+        )
+        malformed = source.model_copy(update={"tenant_id": ["tenant-a"]})
+        assert (
+            manager.get_warm_start_evaluations(
+                [source],
+                max_evals=1,
+                target_fingerprint=malformed,
+            )
+            == []
+        )
+        cross_tenant = source.model_copy(update={"run_id": "target-run", "tenant_id": "tenant-b"})
+        assert (
+            manager.get_warm_start_evaluations(
+                [source],
+                max_evals=1,
+                target_fingerprint=cross_tenant,
+            )
+            == []
+        )
+        assert store.payload_reads == []
+
+        target = source.model_copy(update={"run_id": "target-run"})
+        evaluations = manager.get_warm_start_evaluations(
+            [source],
+            max_evals=1,
+            target_fingerprint=target,
+        )
+
+        assert [evaluation.candidate_id for evaluation in evaluations] == [_artifact_id("t")]
+        assert store.payload_reads == [source.history_ref]
+
     def test_selects_lowest_normalized_score_first(self, tmp_path):
         lower_id = _artifact_id("l")
         higher_id = _artifact_id("h")
@@ -419,7 +477,11 @@ class TestTransferLearningManagerWarmStart:
             },
         )
 
-        evaluations = manager.get_warm_start_evaluations([sources["old1"]], max_evals=1)
+        evaluations = manager.get_warm_start_evaluations(
+            [sources["old1"]],
+            max_evals=1,
+            target_fingerprint=sources["old1"],
+        )
 
         assert [evaluation.candidate_id for evaluation in evaluations] == [lower_id]
 
@@ -440,9 +502,11 @@ class TestTransferLearningManagerWarmStart:
             },
         )
 
+        target = _complete_fingerprint("target-run", embedding=[])
         evaluations = manager.get_warm_start_evaluations(
             [sources["short"], sources["long"]],
             max_evals=4,
+            target_fingerprint=target,
         )
 
         assert len(evaluations) == 4
@@ -462,7 +526,11 @@ class TestTransferLearningManagerWarmStart:
             {"old1": [malformed]},
         )
 
-        evaluations = manager.get_warm_start_evaluations([sources["old1"]], max_evals=1)
+        evaluations = manager.get_warm_start_evaluations(
+            [sources["old1"]],
+            max_evals=1,
+            target_fingerprint=sources["old1"],
+        )
 
         assert len(evaluations) == 1
         assert evaluations[0].is_valid is False
@@ -498,13 +566,17 @@ class TestTransferLearningManagerWarmStart:
 
         assert [
             row.candidate_id
-            for row in manager.get_warm_start_evaluations([first_view], max_evals=1)
+            for row in manager.get_warm_start_evaluations(
+                [first_view], max_evals=1, target_fingerprint=source
+            )
         ] == [_artifact_id("p")]
         assert [
             row.candidate_id
-            for row in manager.get_warm_start_evaluations([second_view], max_evals=1)
+            for row in manager.get_warm_start_evaluations(
+                [second_view], max_evals=1, target_fingerprint=source
+            )
         ] == [_artifact_id("p")]
-        manager.get_warm_start_evaluations([first_view], max_evals=1)
+        manager.get_warm_start_evaluations([first_view], max_evals=1, target_fingerprint=source)
 
         assert len(manager._eval_cache) == 2
         assert counted_store.payload_reads == [first_ref, second_ref]
@@ -520,7 +592,9 @@ class TestTransferLearningManagerWarmStart:
         )
 
         for run_id in ("first", "second", "first", "third"):
-            manager.get_warm_start_evaluations([sources[run_id]], max_evals=1)
+            manager.get_warm_start_evaluations(
+                [sources[run_id]], max_evals=1, target_fingerprint=sources[run_id]
+            )
 
         first_ref = sources["first"].history_ref
         second_ref = sources["second"].history_ref
@@ -537,7 +611,9 @@ class TestTransferLearningManagerWarmStart:
         )
         assert manager._eval_cache_bytes <= manager._MAX_HISTORY_CACHE_BYTES
 
-        manager.get_warm_start_evaluations([sources["second"]], max_evals=1)
+        manager.get_warm_start_evaluations(
+            [sources["second"]], max_evals=1, target_fingerprint=sources["second"]
+        )
         assert manager._eval_cache_bytes == sum(
             len(payload) for payload in manager._eval_cache.values()
         )
@@ -565,8 +641,12 @@ class TestTransferLearningManagerWarmStart:
         assert first_size + second_size > byte_budget
         monkeypatch.setattr(TransferLearningManager, "_MAX_HISTORY_CACHE_BYTES", byte_budget)
 
-        manager.get_warm_start_evaluations([sources["first"]], max_evals=1)
-        manager.get_warm_start_evaluations([sources["second"]], max_evals=1)
+        manager.get_warm_start_evaluations(
+            [sources["first"]], max_evals=1, target_fingerprint=sources["first"]
+        )
+        manager.get_warm_start_evaluations(
+            [sources["second"]], max_evals=1, target_fingerprint=sources["second"]
+        )
 
         first_key = manager._history_cache_key(first_ref, sources["first"])
         second_key = manager._history_cache_key(second_ref, sources["second"])
@@ -589,7 +669,7 @@ class TestTransferLearningManagerWarmStart:
         assert payload_size > manager._MAX_HISTORY_CACHE_BYTES
 
         for _ in range(2):
-            manager.get_warm_start_evaluations([source], max_evals=1)
+            manager.get_warm_start_evaluations([source], max_evals=1, target_fingerprint=source)
 
         assert manager._eval_cache == {}
         assert manager._eval_cache_bytes == 0

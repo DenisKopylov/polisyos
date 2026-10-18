@@ -12916,5 +12916,78 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "monetary-owner-revalidation-r8-test-scope-repair-20261018": {
+    "slice_base": "0284f1919a6d8cd112265bb96694fa320d8a2699",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/apps/runtime-dashboard/src/shared/lib/domain/agents.test.ts": {
+        "operation": "modify",
+        "preimage_sha256": "8195911f6f62355791d64dee5909fa4d0c6cc56631933b3453b5ef9e0e95f5a1",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r8-test-scope-repair-20261018/postimages/policy-engine/apps/runtime-dashboard/src/shared/lib/domain/agents.test.ts",
+        "postimage_sha256": "a434480545519d92fe4222268200ca7055bfcc44b494641238d33406aa4a5040"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r8-test-scope-unique-lease-qualified-20261018/source-application.json",
+      "sha256": "86aa37f923cfdb9b9dbe8ac977c5fdbe43784932b7b01338ca769eeedf78640a"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r8-test-scope-post-search-qualified-adoption-20261018/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r8-ts-current-prepare-20261018/execution-request.json",
+        "sha256": "074928fa6044634a64f44f577cefc040095b6eb06f24817d9f39af96b0fb7780"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r8-ts-current-prepare-20261018/candidate-repair.patch",
+        "sha256": "cc0933e3e403095aceafaa4442b6d546b1e6c9b5d8121b78b2b81eeeff244bfe"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r8-test-scope-independent-20261018/review.md",
+        "sha256": "55931c10aa6eb5117504fd25151b498904f224fe17a45264e4d20b00b6d61ceb"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r8-current-qualified-adoption-20261018/adoption-plan.json",
+        "sha256": "3c3521cd877aea6304e586ac51d73194cd246cead8e7f5364335d5d678dc476e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-candidate-push-3dcd55a-20261018/push.stdout.txt",
+        "sha256": "270e1a433fda17f088b13599f725080aec4bbe61a4e7fb747365ef7846df1bfa"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-candidate-push-3dcd55a-20261018/failure-readback.json",
+        "sha256": "694dc0fc38777203644d4595cbbce54a0046810f53cb4e06c0754ddb0908ec54"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r8-test-scope-repair-20261018/adoption-plan.json",
+        "sha256": "5e648ffcd4569bbbd6bf946cdd036e27f2e3cb6f75429f865b7b01ae911c856d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r8-test-scope-post-search-qualified-adoption-20261018/adoption-plan.json",
+        "sha256": "d6154997fdad85dea297856d511c62f065c2cab2d5cc2b9b3c302b28487627b8"
+      }
+    ],
+    "P40": "NEW lexical-scope/compile-error class relative to the R7 runtime assertion failures. This is one test-local reference defect; the repair reuses the test\u2019s complete existing fixture and does not widen runtime behavior.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "The candidate postimage is derived from the reviewed patch against the 3dcd55 source bytes. The current root frame observed during preparation is recorded only as a pathwise observation; it is not an application authorization.",
+      "Only the agents.test.ts test path is proposed. The other nine paths in the R8 source footprint are unchanged by this repair.",
+      "The 3dcd55 dashboard app typecheck failed at this reference; node/tools typecheck configurations were not reached. No new Vitest, lint, format, or typecheck run is claimed.",
+      "This test-source repair establishes neither G acceptance nor any closure.",
+      "Original metadata reused the R8 lease key; source was applied before bookkeeping rejected it. New unique test-scope lease preserves the original R8 lease and source without resetting."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": {
+      "required": [
+        "Root requalifies the then-current full HEAD/tree and R8 footprint; verify the target preimage or issue a successor postimage if it has changed.",
+        "After controlled application and source readback, run the complete dashboard typecheck, the whole three-module Vitest profile, and the prepared lint/format checks under the authorized existing supervisor profile; retain complete outputs."
+      ]
+    },
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

@@ -766,36 +766,37 @@ describe("agents domain", () => {
   });
 
   it("keeps ownerless scalar and event inputs unassigned at every projection level", () => {
+    const ownerlessAttempts = [
+      {
+        attempt: 2,
+        cost_usd: 0.97,
+        reported_cost_usd: 0.96,
+        steps: [
+          {
+            agent: "llm_producer_settlement",
+            action: "durable_ledger",
+            cost_usd: 0.95,
+            reported_cost_usd: 0.94,
+            cost_events: [
+              {
+                event_id: "ownerless-raw-ledger-claim",
+                cost_origin: "reported",
+                amount: "0.03",
+                cost_usd: 0.03,
+                settlement_status: "committed",
+                durability: "ledger",
+                control_job_attempt: 2,
+                pre_admission_attempt_id: null,
+              },
+            ],
+          },
+        ],
+      },
+    ];
     const model = normalizeAgentPipeline({
       cost_usd: 0.99,
       reported_cost_usd: 0.98,
-      attempts: [
-        {
-          attempt: 2,
-          cost_usd: 0.97,
-          reported_cost_usd: 0.96,
-          steps: [
-            {
-              agent: "llm_producer_settlement",
-              action: "durable_ledger",
-              cost_usd: 0.95,
-              reported_cost_usd: 0.94,
-              cost_events: [
-                {
-                  event_id: "ownerless-raw-ledger-claim",
-                  cost_origin: "reported",
-                  amount: "0.03",
-                  cost_usd: 0.03,
-                  settlement_status: "committed",
-                  durability: "ledger",
-                  control_job_attempt: 2,
-                  pre_admission_attempt_id: null,
-                },
-              ],
-            },
-          ],
-        },
-      ],
+      attempts: ownerlessAttempts,
     });
 
     expect(model.costUsd).toBeNull();
@@ -850,7 +851,7 @@ describe("agents domain", () => {
       const malformed = normalizeAgentPipeline({
         owner_control_job_attempt: malformedOwner,
         cost_usd: 0.01,
-        attempts: payload.attempts,
+        attempts: ownerlessAttempts,
       });
       expect(malformed.ownerControlJobAttempt).toBeNull();
       expect(malformed.costUsd).toBeNull();

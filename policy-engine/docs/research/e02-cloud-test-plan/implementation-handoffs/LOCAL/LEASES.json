@@ -9672,5 +9672,131 @@
     "G_acceptance": false,
     "closure_ids": [],
     "next_check": "Freeze actual clean candidate after this receipt-only boundary; independently review the exact eight-profile controller/request delta, execute source-qualified composed native profiles, retain complete deciding output, and continue C05/C12/preparedB/Linux/installed/authentic consumers."
+  },
+  "coordination_epoch_20261018_q2_actual_oracle_style_qualified": {
+    "slice_base": "f7590a7b5fe93ff693bb0dce923aff7b7f839032",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/repo_quality/tools/test_q2_build_tool_wheel_lock.py": {
+        "operation": "write",
+        "preimage_sha256": "311ae37a25a2abf53d75283cb265398dd37a6dad472df9f41fb0545676006f13",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-actual-oracle-style-qualified-20261018/formatted-postimage.py",
+        "postimage_sha256": "336d15f15b5996d1bde06f3b4bcfea5f2a943c703a11f417c5bfa35b2cd7dad8",
+        "role": "mandatory_semantic_test_companion"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-actual-oracle-style-qualified-20261018/source-application.json",
+      "sha256": "717769374324894accc051ba6ce28d808d9c67bf7b3f269dbf983a837bc00be4"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-actual-oracle-style-qualified-20261018/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-current-actual-test-repair-20261018/manifest.json",
+        "sha256": "c8b6a524c20cb3bf43519c96179c2267694fd746544e85e96ab076f43fef05fc",
+        "role": "original test-repair candidate manifest"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-current-actual-test-repair-20261018/candidate.patch",
+        "sha256": "45ddeac3f67d481b0d034c8d2dbd66fda4bf1296a60309297ea74f90a39ebe45",
+        "role": "reviewed unformatted candidate patch"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-current-actual-test-repair-20261018/review.md",
+        "sha256": "086476d80c361837d5efaae313c0d30fbcc8e71e9bbaa9daa6604037f076b0bc",
+        "role": "author candidate review"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-current-actual-test-repair-independent-20261018/review.md",
+        "sha256": "ea20cae7dbca510cc3ecfeb03fdebfc87b77a5fe49d9a153806342ed7ff3943a",
+        "role": "independent semantic review; source-semantics GO"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-current-actual-test-repair-independent-20261018/review.json",
+        "sha256": "62f0784435df47973e68bc49e7e066de3ff429895d3ec9e3fcd7721bcbb4e0bd",
+        "role": "independent semantic review structured disposition"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-current-actual-test-repair-independent-20261018/SHA256SUMS",
+        "sha256": "ea46e00f9062f9c833f3657ef28830d94dd31b1af3b448152df33f27bb54c65f",
+        "role": "independent semantic review output checksums"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-actual-oracle-style-qualified-20261018/format-qualification.json",
+        "sha256": "07c54ba57283a57eb67ef0445969df1e9241b2f0d5c9b048a514b5c941296f82",
+        "role": "exact Ruff 0.14.10 formatting, check and AST-equivalence receipt"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-actual-oracle-style-qualified-20261018/format-only.patch",
+        "sha256": "c1fe6efea9b76bf37ee5deba1b142389c8fafa56a8fa99429b0f755f41f72318",
+        "role": "format-only delta from independently reviewed candidate"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-actual-oracle-style-qualified-20261018/qualified.patch",
+        "sha256": "a8776344bc1064639ee6295a329f91b603818cb5fc745d88af6719e0cd58b552",
+        "role": "qualified full source patch against the pinned f759 preimage"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-actual-oracle-style-qualified-20261018/formatted-postimage.py",
+        "sha256": "336d15f15b5996d1bde06f3b4bcfea5f2a943c703a11f417c5bfa35b2cd7dad8",
+        "role": "exact formatted postimage to apply"
+      },
+      {
+        "path": "policy-engine/pyproject.toml",
+        "sha256": "abd7daf5c8bd36c2dacf3189c65f076fbebad51c8d323ef70c18b6ef8220449b",
+        "role": "test input dependency and pyproject profile"
+      },
+      {
+        "path": "policy-engine/tools/quality/validation/q2_build_tool_wheel_lock.py",
+        "sha256": "1df99ed8bec4608a28776ec4e90a68370e97d00338b9749c2a50f5866a09ae94",
+        "role": "unchanged helper under test"
+      },
+      {
+        "path": "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+        "sha256": "a446cae5a425fe3c7fe59d3d14f423bf976fb30f6c121c596f4ae3cef8ba1b8e",
+        "role": "canonical Ruff configuration"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-composed-f759-wave-20261018/profiles/q2-helper/actual-run/controller-result.json",
+        "sha256": "d9505151cb56f5f31d41b28bea89dfae31978aa7506cb0f412802f42e9d1b9db",
+        "role": "source-qualified failed baseline run; 21 cases, 19 passed, 2 failed"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-composed-f759-wave-20261018/profiles/q2-helper/actual-run/pytest.xml",
+        "sha256": "1e13d1019afa285f4106223bb86395084c9715aae46001a1af046b8670b73db7",
+        "role": "full baseline JUnit result"
+      }
+    ],
+    "P40": {
+      "classification": "SAME_CLASS_SECOND_FINDING; both original failures are the same test-oracle/proxy class. This style-qualified packet changes no semantics and opens no additional repair round.",
+      "bounded_rule": "Use the complete parsed lock-to-output mapping and distinct single-field mutations; no further oracle ladder is authorized by this packet."
+    },
+    "bounded_proof": "Independent semantic review GO (SHA-pinned). Exact Ruff 0.14.10 formatter output is AST-equivalent to the reviewed candidate; exact Ruff check and format-check pass on the postimage. This packet is test-only and does not establish a product defect or run result.",
+    "limitations": {
+      "mechanism_paths": 0,
+      "mandatory_test_paths": 1,
+      "pytest": "not_run",
+      "runtime": "UNRUN",
+      "CLI": "not_run",
+      "source_application_by_author": false,
+      "G_acceptance": false,
+      "closure_ids": [],
+      "README_companion": null,
+      "R2_tiny_proof": "prepared_not_executed",
+      "source_freeze": "not asserted; three root CLI source pins are pending"
+    },
+    "runtime": "UNRUN on adopted source",
+    "next_check": [
+      "ROOT applies only after the planned source-freeze wave. Immediately before application, re-read actual branch/HEAD/tree, tracked/index status, exact test preimage, helper/pyproject/config pins, all reviewed input hashes, patch applicability, and the postimage hash. This plan records the currently observed f759 frame; any advance requires a new version requalified against actual current source.",
+      "ROOT alone applies the one reviewed postimage using adopt_reviewed_postimages_r1.py and its exact source-application plan; no lease, index, canonical source, or Git state is changed by this preparer.",
+      "After adoption, ROOT runs the complete 21-case Q2 helper module using its existing narrowed monitor and records full output, JUnit/node IDs, source frame, origins/pins, and resource receipts. This is separate from the style/static qualification.",
+      "Keep the tiny-proof R2 request unrun until source adoption and a fresh full-module result; retain the 19/2 baseline red as evidence, not as a closure."
+    ],
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

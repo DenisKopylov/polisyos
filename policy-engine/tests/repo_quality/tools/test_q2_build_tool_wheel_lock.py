@@ -12,6 +12,8 @@ from pathlib import Path
 from typing import Any
 
 import pytest
+from packaging.requirements import Requirement
+from packaging.utils import canonicalize_name
 
 from tools.quality.validation import q2_build_tool_wheel_lock as gate
 
@@ -368,10 +370,37 @@ def test_pyproject_build_system_requirement_and_backend_are_bound_to_profile() -
         lock_path=profile["lock_path"],
         lock_sha256=hashlib.sha256(lock_raw).hexdigest(),
     )
-    changed = pyproject.replace(b"hatchling>=1.27.0", b"hatchling>=1.26.0")
+    build_system_requirement = b'requires = ["hatchling>=1.27.0"]'
+    profile_requirement = b'build_system_requirement = "hatchling>=1.27.0"'
+    assert pyproject.count(build_system_requirement) == 1
+    assert pyproject.count(profile_requirement) == 1
+
+    changed_build_system = pyproject.replace(
+        build_system_requirement,
+        b'requires = ["hatchling>=1.26.0"]',
+        1,
+    )
+    assert b'requires = ["hatchling>=1.26.0"]' in changed_build_system
+    assert profile_requirement in changed_build_system
     with pytest.raises(gate.BuildToolsInputError, match="build-system"):
         gate.verify_pyproject_profile(
-            changed,
+            changed_build_system,
+            helper_path=profile["helper_path"],
+            helper_sha256=hashlib.sha256(helper_raw).hexdigest(),
+            lock_path=profile["lock_path"],
+            lock_sha256=hashlib.sha256(lock_raw).hexdigest(),
+        )
+
+    changed_profile = pyproject.replace(
+        profile_requirement,
+        b'build_system_requirement = "hatchling>=1.26.0"',
+        1,
+    )
+    assert build_system_requirement in changed_profile
+    assert b'build_system_requirement = "hatchling>=1.26.0"' in changed_profile
+    with pytest.raises(gate.BuildToolsInputError, match="profile"):
+        gate.verify_pyproject_profile(
+            changed_profile,
             helper_path=profile["helper_path"],
             helper_sha256=hashlib.sha256(helper_raw).hexdigest(),
             lock_path=profile["lock_path"],
@@ -501,8 +530,46 @@ def test_download_cumulative_cap_fails_before_unbounded_reads(tmp_path: Path) ->
         gate.fetch_locked_inputs(lock, tmp_path / "quarantine", opener=opener)
 
 
+def _assert_requirements_text_matches_lock(text: str, lock: dict[str, Any]) -> None:
+    expected: dict[str, tuple[str, str]] = {}
+    for row in lock["artifacts"]:
+        name = canonicalize_name(row["name"])
+        assert name not in expected
+        expected[name] = (row["version"], row["sha256"])
+
+    parsed: dict[str, tuple[str, str]] = {}
+    lines = text.splitlines()
+    for line in lines:
+        requirement_text, marker, digest = line.partition(" --hash=sha256:")
+        assert marker == " --hash=sha256:"
+        assert len(digest) == 64 and all(character in "0123456789abcdef" for character in digest)
+
+        requirement = Requirement(requirement_text)
+        assert requirement.url is None
+        assert requirement.marker is None
+        assert not requirement.extras
+        pins = list(requirement.specifier)
+        assert len(pins) == 1 and pins[0].operator == "=="
+        name = canonicalize_name(requirement.name)
+        assert requirement_text == f"{name}=={pins[0].version}"
+        assert name not in parsed
+        parsed[name] = (pins[0].version, digest)
+
+    assert len(lines) == len(lock["artifacts"])
+    assert parsed == expected
+
+
 def test_requirements_include_every_locked_hash_pinned_distribution() -> None:
     lock, _, _ = _make_case()
     text = gate.requirements_text(lock)
-    assert text.count("--hash=sha256:") == len(lock["artifacts"])
-    assert all(row["filename"].split("-py3")[0] in text for row in lock["artifacts"])
+    _assert_requirements_text_matches_lock(text, lock)
+
+    lines = text.splitlines()
+    first_line = lines[0]
+    first_requirement = first_line.partition(" --hash=sha256:")[0]
+    with pytest.raises(AssertionError):
+        _assert_requirements_text_matches_lock(text.replace(first_line, first_requirement, 1), lock)
+
+    without_one_distribution = "\n".join(lines[1:]) + "\n"
+    with pytest.raises(AssertionError):
+        _assert_requirements_text_matches_lock(without_one_distribution, lock)

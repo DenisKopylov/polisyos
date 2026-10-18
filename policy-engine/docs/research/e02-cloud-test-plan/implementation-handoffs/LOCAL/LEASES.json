@@ -7121,5 +7121,51 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "coordination_epoch_20261018_scanner_stdlib_set_import_repair": {
+    "slice_base": "cfc6de2d3586a4a64f7088797a0752e7786aeea5",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tools/quality/validation/docs_lifecycle_reference_scan.py": {
+        "preimage_sha256": "7effa57a0749c2046c0554e3f4676492927939a4114907117fc8ea5db4314af6",
+        "postimage_sha256": "701d10f117bd064588ca26a134e8d1e73ba5915485dbfd3ea024d3e6e3454f08",
+        "operation": "modify",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-scanner-stdlib-set-import-repair-20261018/docs_lifecycle_reference_scan.py.postimage"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-scanner-stdlib-set-import-repair-20261018/source-application.json",
+      "sha256": "1ba73a5028b1348bb76525f9f1b68752ff21505711823b781b831dddb78cef52"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-scanner-stdlib-set-import-repair-20261018/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-scanner-stdlib-set-import-repair-20261018/candidate.json",
+        "sha256": "356df075e5ba866b67950618d7d501948bd75ccf8f9e56087f674c2314073004"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-scanner-stdlib-set-independent-20261018/review-r1.json",
+        "sha256": "55545c7e1e6fa6f1669ef01ef0781c997af59062da3e559567b5b4da705ee0e4"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-three-owner-actual-cfc6de2d-20261018/controller-result.json",
+        "sha256": "1eb82a786186921a901e7e827c34870183c99902d2d676f0cb1bef70744cf4c0"
+      }
+    ],
+    "P40": "Single unavailable imported-name class; independently checked all21standard-library bindings in the complete three-new-owner .py denominator, no other missing name.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "The import gate itself fails on original source and succeeds with the real standard-library ABC alias. Actual scanner behavior still needs the composed focused replay.",
+      "No gate policy, callback, threshold, budget, exception date or closure status changes.",
+      "The preceding cfc native wave has two collection errors, a docs CLI import failure and a separate directory-health resource-budget abort; those receipts remain failed."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Repeat the bounded docs/directory/Phase0 pytest quantity after batching source fixes; keep full filesystem directory-health resource investigation separate.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

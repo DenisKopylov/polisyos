@@ -5,7 +5,8 @@ from __future__ import annotations
 import hashlib
 import json
 import os
-from collections.abc import AbstractSet, Callable, Iterable, Mapping
+from collections.abc import Callable, Iterable, Mapping
+from collections.abc import Set as AbstractSet
 from contextlib import AbstractContextManager
 from dataclasses import dataclass
 from pathlib import Path

@@ -2031,6 +2031,52 @@ def _family_with_probe_basis(
     )
 
 
+def test_family_source_copy_skips_unselected_raw_path_before_copying_siblings(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    repo = tmp_path / "repo"
+    raw_member = repo / (
+        "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/"
+        "native-package-mirror-r7-independent-review-r1-20261017/tmp/pytest/"
+        "test_legacy_operability_route_6/permission/ops/components/"
+        "declared-component-index.toml"
+    )
+    source_member = (
+        repo / "tools/quality/validation/permission/ops/components/declared-component-index.toml"
+    )
+    raw_member.parent.mkdir(parents=True)
+    raw_member.write_text("station-local scratch\n", encoding="utf-8")
+    source_member.parent.mkdir(parents=True)
+    source_member.write_text("selected source\n", encoding="utf-8")
+    (repo / "pyproject.toml").write_text("config\n", encoding="utf-8")
+    family = _family_with_probe_basis(
+        repo,
+        family_id="unselected-local-raw-control",
+        roots=("tools",),
+        required=("pyproject.toml",),
+    )
+    original_copy2 = guardrails.shutil.copy2
+    attempted_sources: list[Path] = []
+
+    def observe_copy(source: str | os.PathLike[str], target: str | os.PathLike[str]) -> str:
+        source_path = Path(source)
+        attempted_sources.append(source_path)
+        assert source_path != raw_member
+        return original_copy2(source, target)
+
+    monkeypatch.setattr(guardrails.shutil, "copy2", observe_copy)
+    destination = tmp_path / "retained/source"
+
+    guardrails._copy_isolated_probe_source(repo, destination, families=(family,))
+
+    copied_source = destination / source_member.relative_to(repo)
+    assert copied_source.read_text(encoding="utf-8") == "selected source\n"
+    assert not (destination / raw_member.relative_to(repo)).exists()
+    assert source_member in attempted_sources
+    assert raw_member not in attempted_sources
+
+
 def test_family_source_copy_includes_ignored_untracked_file_read_by_child(
     tmp_path: Path,
 ) -> None:

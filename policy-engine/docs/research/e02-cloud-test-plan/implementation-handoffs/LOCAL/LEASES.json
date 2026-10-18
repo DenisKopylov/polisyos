@@ -11684,5 +11684,124 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "trust-family-copy-and-worker-os-write-boundary-r3-20261018": {
+    "slice_base": "6e01231e178688ee7305473ffe152efc2c5e3e92",
+    "canonical_writer": "root only; reviewed semantic patch plus exact4AST-equivalent blankline corrections",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tools/devx/architecture/guardrails.py": {
+        "operation": "modify",
+        "preimage_sha256": "e62a7410d62711ec2c6c187d783ede614bb8759e458c54d55bb97ca19a1d2d8c",
+        "postimage_sha256": "73a4c496f15be8cf51b121f9dca42ef28da0ead838698b4863bc65e58de8cb4c",
+        "reviewed_semantic_postimage_sha256": "e3e166632b68e8d901a9be0f3d83f4c8891c25a144406b0b4ee8c84968f0c9aa"
+      },
+      "policy-engine/tools/lib/runner.py": {
+        "operation": "modify",
+        "preimage_sha256": "fd625d8c102c862050b20f83ddc121d5af85330b991d929466ba180dd336a3ca",
+        "postimage_sha256": "7370d00a43eda040debb5d5173d67bf4c2dae03a40799d78892a63e21a66e093",
+        "reviewed_semantic_postimage_sha256": "7370d00a43eda040debb5d5173d67bf4c2dae03a40799d78892a63e21a66e093"
+      },
+      "policy-engine/tools/quality/validation/check_trust_claim_posture.py": {
+        "operation": "modify",
+        "preimage_sha256": "27a3c448c1eb70ada48c6d6484451de765a468b3b672e56066f2595a882f600b",
+        "postimage_sha256": "0601ea26a630dc8d5df99b67c008a3f572e1d134d09d918f79922c232f04553b",
+        "reviewed_semantic_postimage_sha256": "0601ea26a630dc8d5df99b67c008a3f572e1d134d09d918f79922c232f04553b"
+      },
+      "policy-engine/tools/quality/validation/trust_claim_posture_artifact_lifecycle.py": {
+        "operation": "modify",
+        "preimage_sha256": "66d2824241db80917726345f897aa709ee3d670eecd580a34996471561838fe2",
+        "postimage_sha256": "87231a300ced337ddad5e1bd3cfeb4f45d34e8ca6007055e9f4d4b06e8a4f7c0",
+        "reviewed_semantic_postimage_sha256": "87231a300ced337ddad5e1bd3cfeb4f45d34e8ca6007055e9f4d4b06e8a4f7c0"
+      },
+      "policy-engine/tests/repo_quality/tools/test_architecture_phase3.py": {
+        "operation": "modify",
+        "preimage_sha256": "d879e45cc599a158c1bfa2d1b71d497a30ef6bf6c00368a679962be323c97bc2",
+        "postimage_sha256": "1b4f5cc215e9ba5f40941c4bfa86774fb3555eda2e390c5e1f4c6e7720bdc75b",
+        "reviewed_semantic_postimage_sha256": "18138bbca98a405ae265c3d2320e150a5a60d6cf39a2746680485c5faed15df2"
+      },
+      "policy-engine/tests/repo_quality/tools/test_trust_claim_posture.py": {
+        "operation": "modify",
+        "preimage_sha256": "9ae4be1203bb134aae29d19803b35c6de3d469ede766b2c7d304e3c9f3ac4f0d",
+        "postimage_sha256": "6912cf1c6a06b5357869d106a775b62b0b6aadd4f2841ef8bde1e6cf6d8b75fc",
+        "reviewed_semantic_postimage_sha256": "a2a77fda3f681c9cc6a85b7fe4dca906d1693e72d5e2a79d19466058cb448a71"
+      },
+      "policy-engine/tests/unit/tools/test_runner.py": {
+        "operation": "add",
+        "preimage_sha256": null,
+        "postimage_sha256": "abf1ef3053789f5e0fe3f0b96832002957a24f23c99d8624de1bfee588940d4d",
+        "reviewed_semantic_postimage_sha256": "d822046b6992dcbbb867d057221259844bfb861069d38c04e73930bea7478b2d"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r3-qualified-canonical-adoption-20261018/source-application.json",
+      "sha256": "940e8cca239eaef9cb654cac114b3b91780059bfcab665b3c717b062c0d328ac"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-original-checkout-write-boundary-r3-20261018/index.json",
+        "sha256": "620a1f260336e1a9d29fe3939fc651362bc31a12ce0e13d2b3604cea7f1078e1"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-original-checkout-write-boundary-r3-20261018/source-bindings.json",
+        "sha256": "4d19131e9979dc358e81f3874cb1f6faacc6c2fbc70773a7d5d22fac3612e8d1"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-original-checkout-write-boundary-r3-20261018/candidate.patch",
+        "sha256": "3c7c3656ac02b891cb62df4e9424e92c9d64dac4e7861331c16d23dea6742405"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r3-independent-20261018/manifest.json",
+        "sha256": "a277a85e84af76f98074b4ed0618adea7e151afdd47492e36da609e54d94a968"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r3-independent-20261018/review.md",
+        "sha256": "024ef137834bbbdfdc3de62041df97e876c6b8ffe90cbe449b637b91fb8ab445"
+      },
+      {
+        "path": "policy-engine/tools/lib/fs.py",
+        "sha256": "0ddf42f824ddfe55386f5d5d63b39cacfb53f73dad03d8d2158f19a6b9a15119"
+      },
+      {
+        "path": "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+        "sha256": "a446cae5a425fe3c7fe59d3d14f423bf976fb30f6c121c596f4ae3cef8ba1b8e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r3-6e012-source-adoption-20261018/adoption-plan.json",
+        "sha256": "db8438d40ab38d10b94035722c2bd6e860364cb30a0aca6aad62f3d9b5b372e2"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r3-6e012-source-adoption-20261018/source-application.json",
+        "sha256": "2ec951912d18aa3b48e74512ec0f1cb5f3fe1e96a88cd191df75ffeaeafef812"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r3-canonical-import-qualification-20261018/git-patch-preparation.json",
+        "sha256": "0c8c55551a00d3a046db495221abc2e39aabbfefc89bb88fe1ddbdcb066af185"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-r3-canonical-import-qualification-20261018/proposed-unapplied-git-import-only.patch",
+        "sha256": "5c14723cea93459035ec44ca00509c8b535ae5d8881fd69c8c9fa7eb52c192bf"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-four-import-delta-independent-20261018/review.json",
+        "sha256": "50c6a2e6618c42a755899f4f324133e894968a2077359976f9bd329827ec6ab8"
+      }
+    ],
+    "property": "Read only the declared generated-family copy basis for semantic corruption probes while enforcing an OS write fence over the worker process tree; validate external no-follow scratch base before allocation; preserve typed unavailable/timeout outcomes and all 15 semantic probe identities.",
+    "P40": "Same read-basis/write-confinement class, widened at shared run_command and all parent scratch allocations rather than per RAW file exceptions.",
+    "limitations": [
+      "Mac bounded OS controls and preallocation tests passed on candidate; full Trust15 probes/current native checker remain UNRUN.",
+      "Linux bwrap selected backend remains not established by generic launch alone; independently measured local provision and property probes are separate.",
+      "Concurrent external ancestor replacement after no-follow preflight remains a declared residual; no claim of atomic host directory custody.",
+      "Original generated-family snapshot integrity and worker process-tree OS write fence are distinct proof planes.",
+      "No external currentness, G acceptance, renewed exception, or formal closure."
+    ],
+    "runtime": "UNRUN on qualified canonical source; candidate OS controls separately bounded",
+    "next_check": {
+      "generic": "tests/unit/tools/test_runner.py",
+      "semantic": "check-trust-claim-posture --check --corruption-probes plus whole Trust/architecture importer profile on composed source/input freeze; regenerate canonical artifact first after all source changes"
+    },
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

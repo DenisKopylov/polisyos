@@ -373,61 +373,66 @@ def run_corruption_probe(
     return False
 
 
-def run_corruption_probes(
+def _run_corruption_probes_in_process(
     *, repo_root: Path, register_as_of: date, dependencies: LifecycleDependencies
 ) -> dict[str, object]:
-    """Run the closed C05 semantic mutation wave entirely in scratch roots."""
+    """Run the C05 mutation wave inside the OS-confined worker process."""
     root = repo_root.resolve()
-    before = _bounded_filesystem_snapshot(root, dependencies=dependencies)
-    register, canonical = dependencies.compile_claim_posture_register(
-        root, register_as_of=register_as_of
-    )
-    outcomes: dict[str, bool] = {}
+    family = validate_generated_family(root, dependencies=dependencies)
+    from tools.devx.architecture import guardrails
+
     with tempfile.TemporaryDirectory(prefix="ds11-corruption-") as temporary:
         scratch = Path(temporary).resolve()
+        probe_root = scratch / "source"
+        guardrails._copy_isolated_probe_source(root, probe_root, families=(family,))
+        before = _bounded_filesystem_snapshot(probe_root, dependencies=dependencies)
+        register, canonical = dependencies.compile_claim_posture_register(
+            probe_root, register_as_of=register_as_of
+        )
+        outcomes: dict[str, bool] = {}
         outcomes["planned_to_supported"] = _status_projection_is_rejected(
             register, source_state="planned"
         )
         outcomes["candidate_to_supported"] = _candidate_projection_is_rejected(
-            root,
+            probe_root,
             scratch / "candidate",
             register_as_of=register_as_of,
             dependencies=dependencies,
         )
         outcomes["forbidden_purpose_removal"] = _live_payload_mutation_is_rejected(
             register,
-            root,
+            probe_root,
             _remove_forbidden_purpose,
             register_as_of=register_as_of,
             dependencies=dependencies,
         )
         outcomes["review_refresh_without_evidence"] = _live_payload_mutation_is_rejected(
             register,
-            root,
+            probe_root,
             _refresh_review_without_evidence,
             register_as_of=register_as_of,
             dependencies=dependencies,
         )
         outcomes["source_digest_rebinding"] = _source_digest_rebinding_is_rejected(
-            root,
+            probe_root,
             scratch / "source-rebinding",
             register_as_of=register_as_of,
             dependencies=dependencies,
         )
         outcomes["body_fact_removal"] = _body_fact_removal_is_rejected(
-            root, scratch / "body-fact", dependencies=dependencies
+            probe_root, scratch / "body-fact", dependencies=dependencies
         )
         outcomes["scope_assumption_change"] = _payload_mutation_is_rejected(
             register, _change_scope_assumption
         )
         outcomes["anti_role_removal"] = _anti_role_mutation_is_rejected(
-            root,
+            probe_root,
             scratch / "anti-role",
             ", not an executor",
             dependencies=dependencies,
         )
         outcomes["crm_omission"] = _anti_role_mutation_is_rejected(
-            root,
+            probe_root,
             scratch / "crm",
             "\nnot a CRM",
             dependencies=dependencies,
@@ -444,12 +449,13 @@ def run_corruption_probes(
             register, canonical
         )
         outcomes["dynamic_source_silently_dropped"] = _dynamic_source_drop_is_rejected(
-            root,
+            probe_root,
             scratch / "dynamic",
             register_as_of=register_as_of,
             dependencies=dependencies,
         )
-    after = _bounded_filesystem_snapshot(root, dependencies=dependencies)
+        after = _bounded_filesystem_snapshot(probe_root, dependencies=dependencies)
+
     escaped = sorted(
         path for path in before.keys() | after.keys() if before.get(path) != after.get(path)
     )
@@ -472,6 +478,8 @@ def run_corruption_probes(
         "rejected_count": sum(item["outcome"] == "rejected" for item in results),
         "scratch_escape_count": len(escaped),
         "scratch_escape_paths": escaped,
+        "snapshot_scope": "trust_family_isolated_source_copy",
+        "source_basis_family_id": family.family_id,
         "results": results,
     }
 
@@ -479,6 +487,7 @@ def run_corruption_probes(
 def _bounded_filesystem_snapshot(
     root: Path, *, dependencies: LifecycleDependencies
 ) -> dict[str, str]:
+    """Hash the passed isolated family copy, not ambient station-local checkout files."""
     excluded = {
         ".git",
         ".mypy_cache",

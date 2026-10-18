@@ -6,10 +6,12 @@ import argparse
 import codecs
 import hashlib
 import json
+import os
 import re
 import shutil  # noqa: F401 - live checker monkeypatch binding
 import subprocess  # noqa: F401 - live checker monkeypatch binding
 import sys
+import tempfile
 from collections.abc import Iterator, Mapping, Sequence
 from contextlib import contextmanager
 from datetime import date
@@ -43,6 +45,11 @@ from tools.lib.fs import (
     admitted_read_text,
     measure_file_reads,
     resolve_admitted_path,
+)
+from tools.lib.runner import (
+    FilesystemWriteBoundaryUnavailableError,
+    resolve_external_temporary_base,
+    run_with_filesystem_write_boundary,
 )
 from tools.quality.validation import (
     trust_claim_posture_accessibility as _accessibility_owner,
@@ -626,15 +633,110 @@ def run_corruption_probe(
     )
 
 
+def _run_corruption_probes_in_process(
+    *,
+    repo_root: Path,
+    register_as_of: date,
+) -> dict[str, object]:
+    """Run the mutation wave inside the already-confined worker process."""
+    return _lifecycle_owner._run_corruption_probes_in_process(
+        repo_root=repo_root,
+        register_as_of=register_as_of,
+        dependencies=_lifecycle_dependencies(),
+    )
+
+
 def run_corruption_probes(
     *,
     repo_root: Path,
     register_as_of: date,
 ) -> dict[str, object]:
-    """Run the closed C05 semantic mutation wave entirely in scratch roots."""
-    return _lifecycle_owner.run_corruption_probes(
-        repo_root=repo_root, register_as_of=register_as_of, dependencies=_lifecycle_dependencies()
+    """Run the full C05 mutation wave under an OS-enforced write boundary."""
+    root = repo_root.resolve()
+    worker = (
+        "import json, sys\n"
+        "from datetime import date\n"
+        "from pathlib import Path\n"
+        "from tools.quality.validation.check_trust_claim_posture import "
+        "_run_corruption_probes_in_process\n"
+        "result = _run_corruption_probes_in_process(\n"
+        "    repo_root=Path(sys.argv[1]), "
+        "register_as_of=date.fromisoformat(sys.argv[2])\n"
+        ")\n"
+        "print('DS11_CORRUPTION_PROBE_RESULT:' + json.dumps(result, sort_keys=True))\n"
     )
+    prefix = "DS11_CORRUPTION_PROBE_RESULT:"
+    try:
+        temporary_base = resolve_external_temporary_base(root)
+        with tempfile.TemporaryDirectory(
+            prefix="ds11-corruption-fence-", dir=temporary_base
+        ) as temporary:
+            writable_root = Path(temporary).resolve(strict=True)
+            environment = os.environ.copy()
+            import_roots = [str(root / "src"), str(root)]
+            import_roots.extend(
+                item for item in environment.get("PYTHONPATH", "").split(os.pathsep) if item
+            )
+            environment["PYTHONPATH"] = os.pathsep.join(import_roots)
+            completed = run_with_filesystem_write_boundary(
+                [
+                    sys.executable,
+                    "-B",
+                    "-c",
+                    worker,
+                    str(root),
+                    register_as_of.isoformat(),
+                ],
+                repo_root=root,
+                cwd=root,
+                writable_root=writable_root,
+                env=environment,
+                timeout=600,
+            )
+    except FilesystemWriteBoundaryUnavailableError as error:
+        raise _PostureInspectionError(
+            f"C05 filesystem write boundary unavailable ({error.backend}): {error}",
+            stage="corruption_probe_write_confinement",
+        ) from error
+    except subprocess.TimeoutExpired as error:
+        raise _PostureInspectionError(
+            "C05 filesystem-confined corruption probe worker exceeded 600 seconds",
+            stage="corruption_probe_write_confinement_timeout",
+        ) from error
+    except (OSError, ValueError) as error:
+        raise _PostureInspectionError(
+            f"C05 filesystem write boundary could not start: {type(error).__name__}: {error}",
+            stage="corruption_probe_write_confinement",
+        ) from error
+
+    payloads = [
+        line[len(prefix) :] for line in completed.stdout.splitlines() if line.startswith(prefix)
+    ]
+    if completed.returncode != 0 or len(payloads) != 1:
+        detail = completed.stderr.strip()[-2000:]
+        raise _PostureInspectionError(
+            f"C05 confined worker did not return one result (exit={completed.returncode}); "
+            f"stderr_tail={detail!r}",
+            stage="corruption_probe_write_confinement",
+        )
+    try:
+        result = json.loads(payloads[0])
+    except json.JSONDecodeError as error:
+        raise _PostureInspectionError(
+            "C05 confined worker returned invalid JSON",
+            stage="corruption_probe_write_confinement",
+        ) from error
+    if type(result) is not dict:
+        raise _PostureInspectionError(
+            "C05 confined worker result must be a JSON object",
+            stage="corruption_probe_write_confinement",
+        )
+    result["write_boundary"] = {
+        "backend": "macos_sandbox_exec" if sys.platform == "darwin" else "linux_bubblewrap",
+        "scope": "entire_probe_worker_process_tree",
+        "writable_root": "fresh_external_temporary_directory_only",
+    }
+    return result
 
 
 def _minimal_probe_repo(
@@ -948,6 +1050,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             if args.corruption_probes:
                 if not args.check:
                     parser.error("--corruption-probes requires --check")
+                inspection_stage = "corruption_probe_write_confinement"
                 corruption = run_corruption_probes(
                     repo_root=args.repo_root,
                     register_as_of=args.register_as_of,

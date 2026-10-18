@@ -25,7 +25,7 @@ from dataclasses import MISSING, dataclass
 from dataclasses import field as dataclass_field
 from dataclasses import fields as dataclass_fields
 from pathlib import Path
-from typing import Any, Literal, get_args, get_origin, get_type_hints
+from typing import Any, Literal, Protocol, get_args, get_origin, get_type_hints
 
 import yaml
 
@@ -317,6 +317,16 @@ class GeneratedArtifactFamily:
     probe_input_roots: tuple[Path, ...] = ()
     probe_required_paths: tuple[Path, ...] = ()
     probe_runtime_paths: tuple[Path, ...] = ()
+
+
+class _ProbeInputFamily(Protocol):
+    """Structural contract shared by manifest rows and validated family bindings."""
+
+    family_id: str
+    output_probe_command: tuple[str, ...] | None
+    probe_input_roots: tuple[Path, ...]
+    probe_required_paths: tuple[Path, ...]
+    probe_runtime_paths: tuple[Path, ...]
 
 
 @dataclass(frozen=True)
@@ -4007,7 +4017,7 @@ def _trust_claim_posture_compiler_inputs(repo_root: Path) -> tuple[Path, ...]:
 
 def _selected_probe_roots(
     repo_root: Path,
-    families: tuple[GeneratedArtifactFamily, ...],
+    families: tuple[_ProbeInputFamily, ...],
 ) -> tuple[
     tuple[tuple[Path, Path], ...],
     tuple[Path, ...],
@@ -4271,7 +4281,7 @@ def _copy_isolated_probe_source(
     repo_root: Path,
     destination: Path,
     *,
-    families: tuple[GeneratedArtifactFamily, ...],
+    families: tuple[_ProbeInputFamily, ...],
 ) -> tuple[tuple[Path, ...], str | None]:
     """Copy the family-declared source basis, including ignored files under its roots."""
     if destination.exists() or destination.is_symlink():

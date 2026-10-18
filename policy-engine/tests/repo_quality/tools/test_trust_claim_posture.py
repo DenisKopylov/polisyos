@@ -1296,21 +1296,77 @@ def test_producer_posture_metadata_ast_tokenizer_disagreement_is_blocked(
     assert reconciled.rows[0].producer_metadata == ()
 
 
+def test_c05_rejects_unsafe_tmpdir_before_temporary_directory_allocation(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """The checker rejects checkout and symlink-parent temp bases before allocation."""
+    checker = _checker()
+    checkout = tmp_path / "checkout"
+    checkout.mkdir()
+    protected = checkout / "source.txt"
+    protected.write_text("source preimage\n", encoding="utf-8")
+    physical_parent = tmp_path / "physical-parent"
+    physical_parent.mkdir()
+    physical_temp = physical_parent / "temp"
+    physical_temp.mkdir()
+    symlink_parent = tmp_path / "symlink-parent"
+    symlink_parent.symlink_to(physical_parent, target_is_directory=True)
+    allocations: list[Path] = []
+
+    def record_allocation(*, prefix: str, dir: Path) -> object:
+        allocations.append(dir)
+        raise AssertionError("TemporaryDirectory must not run for an unsafe base")
+
+    monkeypatch.setattr(checker.tempfile, "TemporaryDirectory", record_allocation)
+    cases = (
+        (checkout, "outside and not an ancestor"),
+        (symlink_parent / "temp", "without symlink components"),
+    )
+    for selected_base, expected_detail in cases:
+        monkeypatch.setenv("TMPDIR", str(selected_base))
+        with pytest.raises(checker._PostureInspectionError) as failure:
+            checker.run_corruption_probes(repo_root=checkout, register_as_of=FROZEN_AS_OF)
+
+        assert failure.value.stage == "corruption_probe_write_confinement"
+        assert expected_detail in str(failure.value)
+        assert allocations == []
+        assert sorted(path.name for path in checkout.iterdir()) == ["source.txt"]
+        assert protected.read_text(encoding="utf-8") == "source preimage\n"
+        assert sorted(path.name for path in physical_parent.iterdir()) == ["temp"]
+
+
 def test_c05_corruption_matrix_is_complete_semantic_and_scratch_bounded(
     capsys: pytest.CaptureFixture[str],
 ) -> None:
-    """Expose every named C05 mutation with a deterministic rejection receipt."""
+    """Exercise all C05 mutations in the confined worker and inspect its receipt."""
     checker = _checker()
-    assert (
-        checker.main(["--repo-root", str(REPO_ROOT), "--check", "--corruption-probes", "--json"])
-        == 0
+    exit_code = checker.main(
+        ["--repo-root", str(REPO_ROOT), "--check", "--corruption-probes", "--json"]
     )
     report = json.loads(capsys.readouterr().out)
+    if report.get("verdict") == "UNRUN":
+        assert exit_code == 2
+        assert report["failure_stage"] in {
+            "corruption_probe_write_confinement",
+            "corruption_probe_write_confinement_timeout",
+        }
+        assert report["unrun_code"] == "DS11-INSPECTION-INCOMPLETE"
+        if report["failure_stage"] == "corruption_probe_write_confinement_timeout":
+            assert "worker exceeded 600 seconds" in report["error"]
+        else:
+            assert "filesystem write boundary unavailable" in report["error"]
+        pytest.skip(f"native filesystem write fence UNRUN: {report['error']}")
+
+    assert exit_code == 0
     matrix = report["corruption_probes"]
     assert matrix["probe_count"] == 15
     assert matrix["rejected_count"] == 15
     assert matrix["scratch_escape_count"] == 0
     assert matrix["scratch_escape_paths"] == []
+    assert matrix["snapshot_scope"] == "trust_family_isolated_source_copy"
+    assert matrix["source_basis_family_id"] == "trust-claim-posture-register"
+    assert matrix["write_boundary"]["scope"] == "entire_probe_worker_process_tree"
+    assert matrix["write_boundary"]["writable_root"] == "fresh_external_temporary_directory_only"
     assert [probe["probe_id"] for probe in matrix["results"]] == sorted(
         probe["probe_id"] for probe in matrix["results"]
     )

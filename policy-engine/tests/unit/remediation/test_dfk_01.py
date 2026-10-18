@@ -263,6 +263,9 @@ def test_dfk_01_census_binds_imports_strings_dynamic_loaders_and_exclusions(
     untracked.write_text(
         '{"module": "polisyos.data_forge.kernel.schemas.codegen"}\n', encoding="utf-8"
     )
+    executable = tmp_path / "generated" / "tool.py"
+    executable.write_text("import polisyos.foundry.domain.schema\n", encoding="utf-8")
+    executable.chmod(0o755)
     ignored = tmp_path / "ignored" / "outside.json"
     ignored.parent.mkdir()
     ignored.write_text('{"module": "polisyos.foundry.domain.mechanisms"}\n', encoding="utf-8")
@@ -270,13 +273,18 @@ def test_dfk_01_census_binds_imports_strings_dynamic_loaders_and_exclusions(
     completed, receipt = _run_census(tmp_path)
 
     assert completed.returncode == 0
-    assert receipt["schema"] == "polisyos.schema_fqn_census.v2"
+    assert receipt["schema"] == "polisyos.schema_fqn_census.v3"
     selection = receipt["selection"]
     assert selection["tracked_path_count"] == len(files)
-    assert selection["untracked_paths"] == ["generated/descriptor.json"]
-    assert selection["ignored_paths"] == ["ignored/outside.json"]
+    assert selection["untracked_paths"] == ["generated/descriptor.json", "generated/tool.py"]
+    assert selection["ignored_path_count"] is None
+    assert selection["ignored_paths_status"] == "not_enumerated"
+    assert selection["ignored_paths"] is None
+    assert selection["ignored_paths_total_candidate_count"] is None
+    assert receipt["git_enumeration"]["ignored_path_count"] is None
+    assert receipt["git_enumeration"]["ignored_nontracked"]["enumerated"] is False
     assert any(
-        item["class"] == "unselected_ignored_inputs" and item["status"] == "present"
+        item["class"] == "unselected_ignored_inputs" and item["status"] == "not_established"
         for item in receipt["unresolved_by_construction"]
     )
 
@@ -304,6 +312,12 @@ def test_dfk_01_census_binds_imports_strings_dynamic_loaders_and_exclusions(
         and hit["path"] == "generated/descriptor.json"
         for hit in matches
     )
+    assert any(
+        hit["target"] == "polisyos.foundry.domain.schema"
+        and hit["path"] == "generated/tool.py"
+        and hit["evidence_kind"] == "absolute_import"
+        for hit in matches
+    )
     assert not any(hit["path"] == "ignored/outside.json" for hit in matches)
 
     dynamic_sites = receipt["dynamic_loader_sites"]
@@ -325,7 +339,7 @@ def test_dfk_01_census_binds_imports_strings_dynamic_loaders_and_exclusions(
         for item in receipt["read_receipt"]["inputs"]
         if item["operation"] == "read_bytes" and item["status"] == "read"
     }
-    assert read_paths == set(files) | {"generated/descriptor.json"}
+    assert read_paths == set(files) | {"generated/descriptor.json", "generated/tool.py"}
 
 
 def test_dfk_01_census_resolves_importfrom_package_children_and_removal(
@@ -476,7 +490,7 @@ def test_dfk_01_census_observes_module_and_package_source_variants(
     completed, receipt = _run_census(tmp_path)
 
     assert completed.returncode == 0
-    assert receipt["schema"] == "polisyos.schema_fqn_census.v2"
+    assert receipt["schema"] == "polisyos.schema_fqn_census.v3"
     targets = {item["fqn"]: item for item in receipt["targets"]}
     foundry_schema_sources = targets["polisyos.foundry.domain.schema"]["source_candidates"]
     foundry_mechanisms_sources = targets["polisyos.foundry.domain.mechanisms"]["source_candidates"]
@@ -650,6 +664,101 @@ def test_dfk_01_census_does_not_turn_missing_tracked_input_into_zero(
     assert receipt["read_receipt"]["complete_verdict"] is False
     assert receipt["unreadable_paths"] == ["src/polisyos/foundry/domain/schema.py"]
     assert receipt["result"] == "partial_unreadable_input"
+
+
+@pytest.mark.parametrize(
+    "warning_boundary",
+    [
+        "tracked_paths",
+        "untracked_paths",
+        "working_tree_status",
+        "path_prefix",
+    ],
+)
+def test_dfk_01_census_fails_closed_on_git_enumeration_stderr(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    warning_boundary: str,
+) -> None:
+    """A successful Git command with path-enumeration warnings is not a complete census."""
+    from tools.quality.validation import schema_fqn_census
+
+    _init_census_repository(tmp_path, {"inside.json": "{}\n"})
+    warning = b"warning: cannot inspect one path\n"
+    warning_sha256 = hashlib.sha256(warning).hexdigest()
+    original_git_paths = schema_fqn_census._git_paths
+    original_status_paths = schema_fqn_census._git_status_paths
+
+    if warning_boundary in {"tracked_paths", "untracked_paths"}:
+
+        def git_paths_with_warning(root: Path, *args: str) -> tuple[list[str], dict[str, object]]:
+            paths, metadata = original_git_paths(root, *args)
+            expected_args = (
+                ("ls-files", "--cached")
+                if warning_boundary == "tracked_paths"
+                else ("ls-files", "--others", "--exclude-standard")
+            )
+            if args == expected_args:
+                metadata = {
+                    **metadata,
+                    "stderr_bytes": len(warning),
+                    "stderr_sha256": warning_sha256,
+                }
+            return paths, metadata
+
+        monkeypatch.setattr(schema_fqn_census, "_git_paths", git_paths_with_warning)
+    else:
+
+        def status_paths_with_warning(root: Path) -> tuple[list[str], dict[str, object]]:
+            paths, metadata = original_status_paths(root)
+            if warning_boundary == "working_tree_status":
+                metadata = {
+                    **metadata,
+                    "stderr_bytes": len(warning),
+                    "stderr_sha256": warning_sha256,
+                }
+            else:
+                metadata = {
+                    **metadata,
+                    "prefix_stderr_bytes": len(warning),
+                    "prefix_stderr_sha256": warning_sha256,
+                }
+            return paths, metadata
+
+        monkeypatch.setattr(schema_fqn_census, "_git_status_paths", status_paths_with_warning)
+
+    receipt, code = schema_fqn_census.collect_census(tmp_path)
+
+    enumeration = receipt["git_enumeration"]
+    warning_receipts = {
+        "tracked_paths": (enumeration["tracked"], "stderr_bytes", "stderr_sha256"),
+        "untracked_paths": (
+            enumeration["untracked_nonignored"],
+            "stderr_bytes",
+            "stderr_sha256",
+        ),
+        "working_tree_status": (
+            enumeration["working_tree_status"],
+            "stderr_bytes",
+            "stderr_sha256",
+        ),
+        "path_prefix": (
+            enumeration["working_tree_status"],
+            "prefix_stderr_bytes",
+            "prefix_stderr_sha256",
+        ),
+    }
+    for boundary, (metadata, byte_field, _) in warning_receipts.items():
+        expected_bytes = len(warning) if boundary == warning_boundary else 0
+        assert metadata[byte_field] == expected_bytes
+    warned_metadata, byte_field, hash_field = warning_receipts[warning_boundary]
+    assert warned_metadata[byte_field] == len(warning)
+    assert warned_metadata[hash_field] == warning_sha256
+
+    assert code == 2
+    assert receipt["result"] == "partial_unreadable_input"
+    assert receipt["git_enumeration"]["complete_verdict"] is False
+    assert receipt["read_receipt"]["complete_verdict"] is False
 
 
 def test_dfk_01_census_rejects_selected_symlink_outside_admitted_root(

@@ -262,6 +262,10 @@ PY
 
 Do not use `tests/unit/remediation/test_udf_04.py` as the Linux witness: its subprocess recorder sets `require_server_for_build=False` and mocks the child command.
 
+### Historical v2 receipt erratum
+
+The existing captured `canonical-cli/stdout.txt` files and `author-evidence/public-adoption-obligations.json` are historical v2 evidence and remain unchanged. They do not verify the v3 receipt candidate below. The recipe below is updated for a future frozen v3 source run. External and installed consumers remain `not_established`; no caller migration is claimed.
+
 The current DFK test `test_dfk_01_cli_json_escapes_surrogate_filename_without_changing_value` monkeypatches `collect_census`; it checks JSON escaping, not filesystem or Git behavior. The minimal actual Linux fixture is a guest-native temporary Git repo containing a tracked raw-byte name `b"bad_\xff.json"` (10 filename bytes) with content `b"{}\n"` (3 bytes). Invoke the real `schema_fqn_census.collect_census` and CLI against that mini repo, then assert Git enumeration returns `os.fsdecode(b"bad_\xff.json")`, the output parses as JSON, and the selected path round-trips unchanged. The expected output is `complete_for_selected_local_text_inputs`, one tracked/selected/read path, zero unreadable paths, and a `read_receipt.complete_verdict` of `true`. Keep this fixture under the Linux container's `/tmp` overlay, not an APFS bind mount. Its path length is 10 raw bytes; the content is 3 bytes, and no production corpus is read. The frozen source invokes `python -m tools.quality.validation.schema_fqn_census --repo-root "$DFK_REPO_ROOT"` from the app root after creating and committing that fixture in its temporary repo. A direct `/bin/sh -c 'command -v git'` check in the pinned Debian-slim uv image exited 127. Git is now installed in the isolated container using the Git apt stanza from `Dockerfile.reproducible` (`apt-get update && apt-get install -y --no-install-recommends git`); the full Dockerfile was not reused because its Python 3.11 base violates the root Python 3.14 contract. The container reports Git 2.47.3.
 
 The prepared guest-native DFK witness input is:
@@ -326,6 +330,7 @@ raw_stdout = Path(os.environ["RECEIPT_PATH"]).read_bytes()
 assert raw_stdout.isascii()
 assert b"bad_\\udcff.json" in raw_stdout
 receipt = json.loads(raw_stdout)
+assert receipt["schema"] == "polisyos.schema_fqn_census.v3"
 assert receipt["result"] == "complete_for_selected_local_text_inputs"
 assert receipt["selection"]["selected_paths"] == [os.fsdecode(b"bad_\xff.json")]
 assert receipt["scanned_denominator"]["read_paths"] == [os.fsdecode(b"bad_\xff.json")]
@@ -337,9 +342,14 @@ assert receipt["git_enumeration"]["complete_verdict"] is True
 assert receipt["selection"]["selected_path_count"] == 1
 assert receipt["git_enumeration"]["tracked_path_count"] == 1
 assert receipt["git_enumeration"]["untracked_path_count"] == 0
-assert receipt["git_enumeration"]["ignored_path_count"] == 0
+assert receipt["git_enumeration"]["ignored_path_count"] is None
+assert receipt["git_enumeration"]["ignored_nontracked"]["enumerated"] is False
+assert receipt["git_enumeration"]["ignored_nontracked"]["status"] == "not_established"
 assert receipt["selection"]["untracked_paths"] == []
-assert receipt["selection"]["ignored_paths"] == []
+assert receipt["selection"]["ignored_path_count"] is None
+assert receipt["selection"]["ignored_paths_status"] == "not_enumerated"
+assert receipt["selection"]["ignored_paths"] is None
+assert receipt["selection"]["ignored_paths_total_candidate_count"] is None
 assert receipt["selection"]["excluded_paths"] == []
 assert receipt["unreadable_paths"] == []
 assert receipt["unsupported_or_ambiguous_inputs"] == []
@@ -361,7 +371,7 @@ def assert_captured(command, returncode, stdout_sha256, stderr_sha256):
     assert hashlib.sha256(stderr).hexdigest() == stderr_sha256
 
 git_receipt = receipt["git_enumeration"]
-for key in ("tracked", "untracked_nonignored", "ignored_nontracked", "working_tree_status"):
+for key in ("tracked", "untracked_nonignored", "working_tree_status"):
     item = git_receipt[key]
     assert_captured(item["command"], item["returncode"], item["stdout_sha256"], item["stderr_sha256"])
 status = git_receipt["working_tree_status"]
@@ -369,7 +379,12 @@ assert_captured(status["prefix_command"], status["prefix_returncode"], status["p
 head = git_receipt["head"]
 assert_captured(head["command"], head["returncode"], head["stdout_sha256"], head["stderr_sha256"])
 children = sorted((capture / "logs").glob("dfk-*.json"))
-assert len(children) == 10, [path.name for path in children]
+assert len(children) == 9, [path.name for path in children]
+assert not any(
+    json.loads(path.read_text(encoding="utf-8"))["command"]
+    == ["git", "ls-files", "--others", "--ignored", "--exclude-standard", "-z", "--", "."]
+    for path in children
+)
 for path in children:
     meta = json.loads(path.read_text(encoding="utf-8"))
     stem = path.name.removesuffix(".json")
@@ -382,7 +397,7 @@ for path in children:
 PY
 ```
 
-Expected receipt shape for this one-file fixture: one tracked path, one selected/read UTF-8 file, no untracked or ignored candidates, no unreadable or unsupported inputs, a complete Git/read receipt, and the surrogateescaped filename represented in ASCII JSON as `bad_\\udcff.json`. The fixture commits locally using per-command `git -c` identity only, so census `HEAD` is available without changing global Git configuration or any external credentials. The complete raw stdout/stderr of fixture Git children and all CLI-internal Git children are in `logs/`; their metadata command arrays and byte hashes can be reconciled to `receipt["git_enumeration"]` before claiming the process evidence is complete.
+Expected v3 receipt shape for this one-file fixture: one tracked path, one selected/read UTF-8 file, no untracked candidates; ignored inputs are not enumerated and remain not_established, no unreadable or unsupported inputs, a complete Git/read receipt, and the surrogateescaped filename represented in ASCII JSON as `bad_\\udcff.json`. The fixture commits locally using per-command `git -c` identity only, so census `HEAD` is available without changing global Git configuration or any external credentials. The complete raw stdout/stderr of fixture Git children and all CLI-internal Git children are in `logs/`; their metadata command arrays and byte hashes can be reconciled to `receipt["git_enumeration"]` before claiming the process evidence is complete.
 
 The root-profile read-only `uv sync --dry-run --offline` plan for Python 3.14.0 with `--extra runtime --extra ml --group dev --no-install-project` selected the complete 158-package set printed by uv from the copied `policy-engine/uv.lock`. The same plan with `--no-build` stops at `autograd-gamma==0.5.0`, which has only the lock-pinned 3,952-byte source distribution, SHA-256 `f27abb7b8bb9cffc8badcbf59f3fe44a9db39e124ecacf1992b6d952934ac9c4`. Its exact sdist was downloaded, hash-verified, and inspected: setup.py uses setuptools package discovery and has no extension modules. The full root sync then succeeded with the frozen recipe and `--no-install-project`; no source/project files were needed. Exact command/output and the sdist inspection are retained in `raw/dependency-provision.log`.
 
@@ -398,7 +413,7 @@ find "$E02_CAPTURE_RUN" -type f ! -name SHA256SUMS -print0 \
 
 - B212/F: same Linux worker compatibility class at a deeper candidate revision. An older source-specific receipt exists, but it does not prove this candidate. Current result: `verification_missing` until the exact frozen source runs both real consumers.
 - LA-029: the declared Q0 Linux gate outcome remains `verification_missing`; the available unit test is a mocked local characterization, not the server-marker-on Linux gate.
-- DFK: same class as the prior C06 raw-byte filename residual, not a new class. The shared Linux runner now exists, but the current test still fakes `collect_census`. The smallest closing capability is the guest-native Git/filename fixture above. Its falsifier is a run where the real CLI loses the surrogateescaped path, cannot open it, or emits non-JSON output.
+- DFK: same class as the prior C06 raw-byte filename residual, not a new class. The surrogate-byte unit characterization still monkeypatches `collect_census`; the collector controls do not replace the guest-native CLI fixture above. Its falsifier is a frozen-source run where the real CLI loses the surrogateescaped path, cannot open it, or emits non-JSON output. The v3 ignored-input fields remain unknown and do not prove ignored consumers absent.
 
 This provision step started from branch `codex/e02-unified-local-20261009`, HEAD `9e89dddfbcc3d8c44a421cc1fc143ec84f3753ae`, parent `93d6aa62a8d236667fdf322a5fc17962523b185e`. At an earlier recipe re-read, the shared branch was at HEAD `8e69d23ee61a640621a487243a59107f0d1f232f`; the lock and recipe hashes below still match the copied files. Root later reported mutable candidate `80f043c0c007ca14dfd4927f980e391f4fcdc62a` atop receipt `021`; that candidate is superseded by the root-reported `9e02a9f49c8b01026327a9f7c7e18711b13a96f2` / tree `881a950dccb7cdefacc636515aa7dd2bceadf928`, which still awaits an import-gate repair and final freeze. I did not run Git or treat any mutable tip as a frozen identity. All test commands remain prepared-only. No source was mounted, copied, or modified. Once frozen, transfer only that exact source via the ordinary shallow-bare clone and attached `--shared` checkout described in `readiness.md`; do not bind-mount source or production data.
 

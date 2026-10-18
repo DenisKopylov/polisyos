@@ -27,7 +27,7 @@ from typing import Any
 
 from tools.lib.fs import measure_file_reads, measured_read_bytes
 
-SCHEMA = "polisyos.schema_fqn_census.v2"
+SCHEMA = "polisyos.schema_fqn_census.v3"
 TARGETS = (
     "polisyos.foundry.domain.schema",
     "polisyos.foundry.domain.mechanisms",
@@ -196,9 +196,7 @@ class _InvalidCompressedJUnitXmlError(ValueError):
     """A compressed JUnit XML stream is not valid UTF-8 XML."""
 
 
-def _decode_selected_bytes(
-    path: str, raw: bytes
-) -> tuple[bytes, dict[str, object] | None]:
+def _decode_selected_bytes(path: str, raw: bytes) -> tuple[bytes, dict[str, object] | None]:
     """Decode ordinary bytes or a bounded, well-formed compressed JUnit report."""
     if not raw.startswith(_GZIP_MAGIC):
         return raw, None
@@ -209,15 +207,11 @@ def _decode_selected_bytes(
     with gzip.GzipFile(fileobj=io.BytesIO(raw), mode="rb") as stream:
         decoded = stream.read(_MAX_GZIP_TEXT_BYTES + 1)
     if len(decoded) > _MAX_GZIP_TEXT_BYTES:
-        raise _GzipTextExpansionLimitError(
-            f"gzip text expands beyond {_MAX_GZIP_TEXT_BYTES} bytes"
-        )
+        raise _GzipTextExpansionLimitError(f"gzip text expands beyond {_MAX_GZIP_TEXT_BYTES} bytes")
     try:
         decoded.decode("utf-8")
     except UnicodeDecodeError as error:
-        raise _InvalidCompressedJUnitXmlError(
-            "decompressed .junit.xml is not UTF-8"
-        ) from error
+        raise _InvalidCompressedJUnitXmlError("decompressed .junit.xml is not UTF-8") from error
     try:
         document = ET.fromstring(decoded)
     except (ET.ParseError, LookupError, ValueError) as error:
@@ -225,9 +219,7 @@ def _decode_selected_bytes(
             f"decompressed .junit.xml is malformed: {error}"
         ) from error
     if document.tag not in {"testsuite", "testsuites"}:
-        raise _InvalidCompressedJUnitXmlError(
-            f"unsupported JUnit XML root element: {document.tag}"
-        )
+        raise _InvalidCompressedJUnitXmlError(f"unsupported JUnit XML root element: {document.tag}")
     return decoded, {
         "compression": "gzip",
         "raw_byte_count": len(raw),
@@ -315,9 +307,7 @@ def _source_pair_members(
         changes = manifest.get("changes")
         if not isinstance(changes, list):
             return None
-        candidates: list[
-            tuple[dict[str, str], dict[str, str], dict[str, str | None]]
-        ] = []
+        candidates: list[tuple[dict[str, str], dict[str, str], dict[str, str | None]]] = []
         for change in changes:
             if not isinstance(change, dict):
                 continue
@@ -365,9 +355,7 @@ def _source_pair_members(
     ):
         preimage_sha256 = manifest.get("preimage_sha256")
         postimage_sha256 = manifest.get("postimage_sha256")
-        if not _is_sha256_digest(preimage_sha256) or not _is_sha256_digest(
-            postimage_sha256
-        ):
+        if not _is_sha256_digest(preimage_sha256) or not _is_sha256_digest(postimage_sha256):
             return None
         member_hashes = {
             "preimage": preimage_sha256,
@@ -375,17 +363,11 @@ def _source_pair_members(
         }
         if member_hashes[source_role] != source_sha256:
             return None
-        role_match = re.search(
-            r"([._-])(?P<role>preimage|postimage)(\.py)$", source_path.name
-        )
+        role_match = re.search(r"([._-])(?P<role>preimage|postimage)(\.py)$", source_path.name)
         if role_match is None or role_match.group("role") != source_role:
             return None
         other_role = "postimage" if source_role == "preimage" else "preimage"
-        other_name = (
-            source_path.name[: role_match.start("role")]
-            + other_role
-            + role_match.group(3)
-        )
+        other_name = source_path.name[: role_match.start("role")] + other_role + role_match.group(3)
         member_names = {source_role: source_path.name, other_role: other_name}
         member_original_paths = {"preimage": None, "postimage": None}
         pair_format = "legacy-b114-paired-hash-record"
@@ -402,8 +384,7 @@ def _source_pair_members(
             or not Path(postimage_original_path).is_absolute()
             or Path(preimage_original_path).name != member_names["preimage"]
             or Path(postimage_original_path).name != member_names["postimage"]
-            or Path(preimage_original_path).parent
-            != Path(postimage_original_path).parent
+            or Path(preimage_original_path).parent != Path(postimage_original_path).parent
         ):
             return None
     member_receipts: list[dict[str, str]] = []
@@ -459,16 +440,13 @@ def _source_pair_members(
             }
         )
     if pair_format == "legacy-b114-paired-hash-record":
-        original_paths = {
-            item["role"]: item["original_path"] for item in member_receipts
-        }
+        original_paths = {item["role"]: item["original_path"] for item in member_receipts}
         preimage_original_path = original_paths.get("preimage")
         postimage_original_path = original_paths.get("postimage")
         if (
             not isinstance(preimage_original_path, str)
             or not isinstance(postimage_original_path, str)
-            or Path(preimage_original_path).parent
-            != Path(postimage_original_path).parent
+            or Path(preimage_original_path).parent != Path(postimage_original_path).parent
         ):
             return None
     return pair_format, member_receipts
@@ -505,15 +483,11 @@ def _indexed_evidence_snapshot(
             break
         if evidence_dir.name != "evidence" or evidence_dir.is_symlink():
             continue
-        index_relative = (
-            (evidence_dir / "artifact-index.json").relative_to(root).as_posix()
-        )
+        index_relative = (evidence_dir / "artifact-index.json").relative_to(root).as_posix()
         index_path = root / index_relative
         if index_path.is_symlink():
             continue
-        loaded_index = _read_selected_json(
-            root, index_relative, selected_paths, json_cache
-        )
+        loaded_index = _read_selected_json(root, index_relative, selected_paths, json_cache)
         if loaded_index is None:
             continue
         index, index_sha256, _ = loaded_index
@@ -553,9 +527,7 @@ def _indexed_evidence_snapshot(
         manifest_relative = manifest_path.relative_to(root).as_posix()
         if manifest_relative not in selected_paths or manifest_path.is_symlink():
             continue
-        loaded_manifest = _read_selected_json(
-            root, manifest_relative, selected_paths, json_cache
-        )
+        loaded_manifest = _read_selected_json(root, manifest_relative, selected_paths, json_cache)
         if loaded_manifest is None:
             continue
         manifest, manifest_sha256, manifest_byte_count = loaded_manifest
@@ -577,9 +549,7 @@ def _indexed_evidence_snapshot(
         if len(manifest_entries) != 1:
             continue
         manifest_original_path = manifest_entries[0].get("original_path")
-        member_original_paths = {
-            item["role"]: item["original_path"] for item in pair_binding[1]
-        }
+        member_original_paths = {item["role"]: item["original_path"] for item in pair_binding[1]}
         preimage_original_path = member_original_paths.get("preimage")
         postimage_original_path = member_original_paths.get("postimage")
         if (
@@ -588,10 +558,8 @@ def _indexed_evidence_snapshot(
             or Path(manifest_original_path).name != manifest_path.name
             or not isinstance(preimage_original_path, str)
             or not isinstance(postimage_original_path, str)
-            or Path(manifest_original_path).parent
-            != Path(preimage_original_path).parent
-            or Path(manifest_original_path).parent
-            != Path(postimage_original_path).parent
+            or Path(manifest_original_path).parent != Path(preimage_original_path).parent
+            or Path(manifest_original_path).parent != Path(postimage_original_path).parent
         ):
             continue
         pair_format, pair_members = pair_binding
@@ -761,6 +729,7 @@ def _git_status_paths(root: Path) -> tuple[list[str], dict[str, Any]]:
     metadata["prefix_returncode"] = prefix.returncode
     metadata["prefix_stdout_sha256"] = hashlib.sha256(prefix.stdout).hexdigest()
     metadata["prefix_stderr_sha256"] = hashlib.sha256(prefix.stderr).hexdigest()
+    metadata["prefix_stderr_bytes"] = len(prefix.stderr)
     prefix_value = os.fsdecode(prefix.stdout).strip("\n")
     metadata["path_prefix"] = prefix_value
     if prefix.returncode == 0 and prefix_value:
@@ -1062,25 +1031,25 @@ def collect_census(repo_root: Path) -> tuple[dict[str, Any], int]:
     root = repo_root.resolve()
     tracked, tracked_receipt = _git_paths(root, "ls-files", "--cached")
     untracked, untracked_receipt = _git_paths(root, "ls-files", "--others", "--exclude-standard")
-    ignored, ignored_receipt = _git_paths(
-        root, "ls-files", "--others", "--ignored", "--exclude-standard"
-    )
     changed, status_receipt = _git_status_paths(root)
     git_ok = (
         all(
             receipt["returncode"] == 0
-            for receipt in (tracked_receipt, untracked_receipt, ignored_receipt, status_receipt)
+            for receipt in (tracked_receipt, untracked_receipt, status_receipt)
+        )
+        and all(
+            receipt["stderr_bytes"] == 0
+            for receipt in (tracked_receipt, untracked_receipt, status_receipt)
         )
         and status_receipt.get("prefix_returncode") == 0
+        and status_receipt.get("prefix_stderr_bytes") == 0
     )
 
     tracked = sorted(set(tracked))
     untracked = sorted(set(untracked))
-    ignored = sorted(set(ignored))
     selected = sorted(path for path in set(tracked) | set(untracked) if _is_selected_text(path))
     selected_path_set = set(selected)
     evidence_json_cache: dict[str, tuple[dict[str, Any], str, int] | None] = {}
-    selected_ignored = sorted(path for path in ignored if _is_selected_text(path))
     excluded = sorted(
         {
             path: "known_binary_suffix"
@@ -1284,8 +1253,8 @@ def collect_census(repo_root: Path) -> tuple[dict[str, Any], int]:
         },
         {
             "class": "unselected_ignored_inputs",
-            "status": "present" if selected_ignored else "none_enumerated",
-            "detail": "Ignored files are enumerated by Git and deliberately not read; ignored candidate path names are listed separately.",
+            "status": "not_established",
+            "detail": "Ignored paths and contents are not enumerated or read; references in ignored inputs remain outside this census scope.",
         },
         {
             "class": "unsupported_file_types",
@@ -1310,12 +1279,16 @@ def collect_census(repo_root: Path) -> tuple[dict[str, Any], int]:
         "git_enumeration": {
             "tracked": tracked_receipt,
             "untracked_nonignored": untracked_receipt,
-            "ignored_nontracked": ignored_receipt,
+            "ignored_nontracked": {
+                "enumerated": False,
+                "status": "not_established",
+                "reason": "Ignored paths are outside selected input scope and are not enumerated.",
+            },
             "working_tree_status": status_receipt,
             "head": head_receipt,
             "tracked_path_count": len(tracked),
             "untracked_path_count": len(untracked),
-            "ignored_path_count": len(ignored),
+            "ignored_path_count": None,
             "complete_verdict": git_ok,
             "unresolved_by_construction": "Git refs/index/process reads are represented by command/output digests and path outputs; tools.lib.fs does not observe subprocess reads.",
         },
@@ -1328,18 +1301,19 @@ def collect_census(repo_root: Path) -> tuple[dict[str, Any], int]:
             },
             "tracked_path_count": len(tracked),
             "untracked_path_count": len(untracked),
-            "ignored_path_count": len(ignored),
+            "ignored_path_count": None,
             "selected_path_count": len(selected),
             "tracked_paths": tracked,
             "untracked_paths": untracked,
-            "ignored_paths": selected_ignored,
-            "ignored_paths_total_candidate_count": len(selected_ignored),
+            "ignored_paths_status": "not_enumerated",
+            "ignored_paths": None,
+            "ignored_paths_total_candidate_count": None,
             "selected_paths": selected,
             "excluded_paths": [{"path": path, "reason": reason} for path, reason in excluded],
             "excluded_path_count": len(excluded),
             "working_tree_changes": sorted(set(changed) & set(selected)),
             "unresolved_by_construction": [
-                "The selected set is Git-visible tracked plus nonignored untracked files; ignored files, external consumers, and unregistered files outside this checkout are outside selection.",
+                "Tracked and nonignored untracked files define selection. Ignored paths are not enumerated or read; ignored inputs, external consumers, and unregistered files outside this checkout remain outside scope.",
                 "File type classification is suffix/name based; unrecognized non-text formats may not be UTF-8-parsed.",
             ],
         },

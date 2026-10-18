@@ -7218,5 +7218,45 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "coordination_epoch_20261018_la032_inventory_refresh_consumer_v2": {
+    "slice_base": "8d9d7a767aac3412781ab2b4c9ebcd044241b2ab",
+    "canonical_writer": "root only; git apply reviewed source plus AST-identical canonical format",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/unit/data_forge/domains/ukraine/test_demography_source_inventory.py": {
+        "preimage_sha256": "d1a397db36c9ee8c5110a2d5c5da3789de0061b5ac1c4cfccb8513bb64a8fffc",
+        "postimage_sha256": "76e5ba88eed68583219688f401a915469a3a1b93d63eebac40634dda1a40bd49",
+        "operation": "modify"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la032-inventory-consumer-application-v2-20261018/source-application.json",
+      "sha256": "e74ba87bfaace7aaa3660da81c65826be1be4d29bb44dd930cb25f5511d36685"
+    },
+    "format_qualification": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la032-inventory-consumer-application-v2-20261018/canonical-format-qualification.json",
+      "sha256": "719478025bbed095e44141678a19309f039ddd9ad873d8ae9e02ec464b4439f4"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la032-inventory-cas-consumer-author-20261018/candidate-v2.json",
+        "sha256": "4fcdaabb3c90342ef84b61c03ea68fc773d342669ce45ea8826a94805d1c2da7"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la032-inventory-cas-consumer-independent-v2-20261018",
+        "sha256": "7cda9e09fa941dd434f4d84d0e479b09c51b336882af0c160170bbf03d2dcee8"
+      }
+    ],
+    "P40": "same class at the whole evidence-envelope level; not a new class per missing field; Apply the complete typed candidate envelope assertion to the two distinct snapshot rows required by the refresh property: refreshed current candidate and preserved historical candidate. Reuse the same assertion for the initial read and historical reopen; add no per-field or per-fixture test ladder.",
+    "limitations": [
+      "LA-032#1 ordinal262 coverage#/findings/256 criterion sha5f5c7a56a652a0328e25fd8b6091a2f780750d9eaee8f10c0129b2f9f0609cf2; synthetic facts remain consumer_asserted, source authority/currentness/semantic completeness not_established.",
+      "The v2 manifest prior-v1 review hash has a missing leading b; this plan binds the actual independent v2 review, not that malformed historical pointer.",
+      "No global freeze is active. Exact canonical runtime is UNRUN; historical receipts remain historical. No closure/adjudication or runtime behavior changes."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Literal existing venv -B -m pytest full test_demography_source_inventory.py with persisted complete output, JUnit and resource/supervisor result; all existing refusal/corruption/removal/no-fallback/sibling/Foundry controls preserved.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

@@ -514,6 +514,131 @@ def test_inventory_candidate_reaches_all_real_readers_and_foundry(
     )
 
 
+def test_inventory_refresh_reopens_current_snapshot_and_preserves_old_receipt(
+    tmp_path: Path,
+    monkeypatch: MonkeyPatch,
+) -> None:
+    """Refresh the inventory and prove fresh and historical consumers bind distinct snapshots."""
+    manifest_path, build_root, _producer_store = _make_candidate(tmp_path, monkeypatch)
+    config = build_default_pipeline_config(root=build_root)
+    first_store = FileSystemCAS(config.build_root.resolved_cas_root)
+    first_receipt = load_verified_stage_artifacts(
+        manifest_path,
+        store=first_store,
+        allowed_root=build_root,
+        expected_stage=StageId.DEMOGRAPHY_SOURCE_INVENTORY.value,
+        required_outputs=("inventory.json",),
+    )
+    first_artifacts = load_demography_candidate_artifacts(
+        manifest_path,
+        store=first_store,
+        allowed_root=build_root,
+    )
+
+    def assert_candidate_evidence_envelope(
+        evidence: DemographySourceEvidence,
+        *,
+        source_identity: str,
+        source_run_id: str,
+    ) -> None:
+        """Assert one complete candidate evidence envelope for a snapshot read."""
+        assert evidence.source_claims is not None
+        assert evidence.json_snapshot_profile_reads
+        expected = DemographySourceEvidence(
+            source_status="candidate_only",
+            source_identity=source_identity,
+            source_layout=None,
+            source_producer_identity=SOURCE_INVENTORY_PRODUCER_ID,
+            source_stage_id=StageId.D1.value,
+            source_run_id=source_run_id,
+            source_authority_provenance="not_established",
+            source_fact_provenance="consumer_asserted",
+            source_currentness_provenance="not_established",
+            member_content_binding_provenance="recomputed",
+            declared_basis_binding_provenance="recomputed",
+            semantic_completeness_provenance="not_established",
+            donor_disposition="present",
+            compatibility_notes=[],
+            source_claims=evidence.source_claims,
+            json_snapshot_profile_reads=evidence.json_snapshot_profile_reads,
+        )
+        assert evidence == expected
+
+    first_identity = first_artifacts.source_evidence.source_identity
+    assert_candidate_evidence_envelope(
+        first_artifacts.source_evidence,
+        source_identity=first_identity,
+        source_run_id="fixture-d1-run",
+    )
+    first_inventory_bytes = first_store.get_bytes(
+        first_receipt.outputs["inventory.json"].content_ref
+    )
+
+    source_manifest_path = tmp_path / "upstream" / "build_run_d1.json"
+    target_path = tmp_path / "upstream" / "d1-output" / "target_materialized.json"
+    target_payload = json.loads(target_path.read_text(encoding="utf-8"))
+    target_payload["target_state_totals"] = [30.0, 40.0]
+    _write_json(target_path, target_payload)
+    source_manifest = BuildRunManifest.model_validate_json(source_manifest_path.read_bytes())
+    refreshed_outputs = [
+        ArtifactRecord.from_path(target_path)
+        if Path(output.path).resolve() == target_path.resolve()
+        else output
+        for output in source_manifest.outputs
+    ]
+    write_manifest(
+        source_manifest_path,
+        source_manifest.model_copy(
+            update={
+                "run_id": "fixture-d1-run-refreshed",
+                "started_at": "2026-10-12T00:01:00+00:00",
+                "finished_at": "2026-10-12T00:02:00+00:00",
+                "outputs": refreshed_outputs,
+            }
+        ),
+    )
+
+    config.demography_inventory_request_path = tmp_path / "inventory-request.json"
+    orchestrator = UkraineDataOrchestrator(config=config, workspace_root=tmp_path)
+    monkeypatch.setattr(orchestrator, "_ensure_part_a_gate", lambda: None)
+    monkeypatch.setattr(orchestrator, "_ensure_previous_stage_manifests", lambda _stage: None)
+    refreshed_run = orchestrator.build_stage(StageId.DEMOGRAPHY_SOURCE_INVENTORY, resume=False)
+    assert refreshed_run.status == "completed"
+
+    fresh_store = FileSystemCAS(config.build_root.resolved_cas_root)
+    refreshed_artifacts = load_demography_candidate_artifacts(
+        manifest_path,
+        store=fresh_store,
+        allowed_root=build_root,
+    )
+    assert np.array_equal(refreshed_artifacts.target_state_totals, np.array([30.0, 40.0]))
+    refreshed_identity = refreshed_artifacts.source_evidence.source_identity
+    assert refreshed_identity != first_identity
+    assert_candidate_evidence_envelope(
+        refreshed_artifacts.source_evidence,
+        source_identity=refreshed_identity,
+        source_run_id="fixture-d1-run-refreshed",
+    )
+
+    historical_store = FileSystemCAS(config.build_root.resolved_cas_root)
+    historical_source = InventorySourceRequest(
+        kind="inventory",
+        stage_receipt=first_receipt,
+        store=historical_store,
+    )
+    historical_artifacts = load_domain_demography_artifacts(source=historical_source)
+    assert np.array_equal(historical_artifacts.target_state_totals, np.array([10.0, 20.0]))
+    assert_candidate_evidence_envelope(
+        historical_artifacts.source_evidence,
+        source_identity=first_identity,
+        source_run_id="fixture-d1-run",
+    )
+    assert (
+        historical_store.get_bytes(first_receipt.outputs["inventory.json"].content_ref)
+        == first_inventory_bytes
+    )
+
+
 def test_historical_role_projection_detaches_nested_mutable_values() -> None:
     """Historical reads and dict(result) keep ordinary mutable copies isolated."""
     baseline = (

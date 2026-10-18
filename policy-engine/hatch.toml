@@ -26,6 +26,7 @@ include = [
   "data/dataset_catalog/wvs_indicator_registry.yaml",
   "data/dataset_catalog/metrics_map.yaml",
   "architecture/production_quality/method_catalog_dependency_digest_domains.toml",
+  "architecture/packaging/q2_build_tools.toml",
   "src/polisyos",
   "benchmarks",
   "docs",

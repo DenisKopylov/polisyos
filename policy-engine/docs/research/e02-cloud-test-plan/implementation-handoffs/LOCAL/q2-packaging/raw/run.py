@@ -55,6 +55,7 @@ FORBIDDEN_ARCHIVE_SIBLING_ROOTS = (
 INSTALLED_ORIGIN_GATE_PATH = HERE / "installed_origin_gate_r4.py"
 INSTALLED_ORIGIN_GATE_SHA256 = "8acde537d5588648e042384f38e18359e6b3a103d03e8af79fca226989ae6872"
 BUILD_TOOL_HELPER_RELATIVE = "tools/quality/validation/q2_build_tool_wheel_lock.py"
+BUILD_TOOL_PROFILE_RELATIVE = "architecture/packaging/q2_build_tools.toml"
 BUILD_TOOL_LOCK_RELATIVE = (
     "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/"
     "q2-packaging/builder-inputs/hatchling-1.27.0-wheel-lock-r1.json"
@@ -1122,21 +1123,35 @@ def load_source_bound_build_tools(
     Path,
     dict[str, Any],
 ]:
-    """Bind and authenticate the pyproject, helper and lock before helper execution."""
+    """Bind and authenticate the pyproject, profile, helper and lock before helper execution."""
     project_bytes = _read_regular_without_symlink_components(
         frozen_product / "pyproject.toml", "frozen product pyproject.toml"
     )[1]
     try:
         project = tomllib.loads(project_bytes.decode("utf-8"))
-        profile = project["tool"]["policyos"]["q2_build_tools"]
+        profile_pointer = project["tool"]["policyos"]["q2_build_tools"]
     except (UnicodeDecodeError, KeyError, tomllib.TOMLDecodeError) as error:
-        raise WaveFailure("frozen pyproject does not declare the Q2 build-tools profile") from error
+        raise WaveFailure(
+            "frozen pyproject does not declare the Q2 build-tools profile path"
+        ) from error
+    if type(profile_pointer) is not dict or profile_pointer != {
+        "profile_path": BUILD_TOOL_PROFILE_RELATIVE
+    }:
+        raise WaveFailure("frozen pyproject Q2 profile pointer does not name the canonical profile")
+    profile_path = frozen_product / BUILD_TOOL_PROFILE_RELATIVE
+    profile_raw = _read_regular_without_symlink_components(
+        profile_path, "frozen Q2 build-tools source profile"
+    )[1]
+    try:
+        profile = tomllib.loads(profile_raw.decode("utf-8"))
+    except (UnicodeDecodeError, tomllib.TOMLDecodeError) as error:
+        raise WaveFailure("frozen Q2 build-tools profile is not valid UTF-8 TOML") from error
     if type(profile) is not dict or (
         profile.get("pyproject_path") != "pyproject.toml"
         or profile.get("helper_path") != BUILD_TOOL_HELPER_RELATIVE
         or profile.get("lock_path") != BUILD_TOOL_LOCK_RELATIVE
     ):
-        raise WaveFailure("frozen pyproject Q2 profile does not name the canonical helper and lock")
+        raise WaveFailure("frozen Q2 profile does not name the canonical helper and lock")
     helper_path = frozen_product / BUILD_TOOL_HELPER_RELATIVE
     lock_path = frozen_product / BUILD_TOOL_LOCK_RELATIVE
     helper_bytes = _read_regular_without_symlink_components(
@@ -1147,11 +1162,15 @@ def load_source_bound_build_tools(
     )[1]
     archive_members = {
         "pyproject.toml": project_bytes,
+        BUILD_TOOL_PROFILE_RELATIVE: profile_raw,
         BUILD_TOOL_HELPER_RELATIVE: helper_bytes,
         BUILD_TOOL_LOCK_RELATIVE: lock_bytes,
     }
     source_blobs = {
         "pyproject.toml": git_blob(repo, source_sha, "policy-engine/pyproject.toml"),
+        BUILD_TOOL_PROFILE_RELATIVE: git_blob(
+            repo, source_sha, f"policy-engine/{BUILD_TOOL_PROFILE_RELATIVE}"
+        ),
         BUILD_TOOL_HELPER_RELATIVE: git_blob(
             repo, source_sha, f"policy-engine/{BUILD_TOOL_HELPER_RELATIVE}"
         ),
@@ -1160,11 +1179,13 @@ def load_source_bound_build_tools(
         ),
     }
     if source_blobs != archive_members:
-        raise WaveFailure("source Git blobs and frozen archive profile/helper/lock members differ")
+        raise WaveFailure(
+            "source Git blobs and frozen archive project/profile/helper/lock members differ"
+        )
     helper_sha = sha256_bytes(helper_bytes)
     lock_sha = sha256_bytes(lock_bytes)
     if profile.get("helper_sha256") != helper_sha or profile.get("lock_sha256") != lock_sha:
-        raise WaveFailure("frozen helper or wheel-lock bytes differ from pyproject source bindings")
+        raise WaveFailure("frozen helper or wheel-lock bytes differ from Q2 profile bindings")
     helper_spec = importlib.util.spec_from_file_location("q2_build_tool_wheel_lock", helper_path)
     if helper_spec is None or helper_spec.loader is None:
         raise WaveFailure("cannot load the hash-bound Q2 build-tools helper")
@@ -1173,6 +1194,7 @@ def load_source_bound_build_tools(
     try:
         helper_module.verify_pyproject_profile(
             project_bytes,
+            profile_raw=profile_raw,
             helper_path=BUILD_TOOL_HELPER_RELATIVE,
             helper_sha256=helper_sha,
             lock_path=BUILD_TOOL_LOCK_RELATIVE,

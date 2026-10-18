@@ -18,6 +18,7 @@ from packaging.utils import canonicalize_name
 from tools.quality.validation import q2_build_tool_wheel_lock as gate
 
 _PRODUCT_ROOT = Path(__file__).resolve().parents[3]
+PROFILE_PATH = gate.Q2_PROFILE_PATH
 
 
 _ROOT_REQUIREMENTS = ["packaging>=1.0", "pathspec>=1.0", "pluggy>=1.0"]
@@ -331,15 +332,19 @@ def test_profile_requires_exact_pyproject_settings_and_source_hashes() -> None:
         "install_policy": "verified-wheelhouse-no-deps-no-builds",
         "profile_scope": "q2-installed-wave-build-tools-only",
     }
-    raw = (
-        '[build-system]\nrequires = ["hatchling>=1.27.0"]\nbuild-backend = "hatchling.build"\n\n'
-        + "[tool.policyos.q2_build_tools]\n"
-        + "\n".join(f"{key} = {json.dumps(value)}" for key, value in profile.items())
-        + "\n"
+    pyproject = (
+        '[build-system]\nrequires = ["hatchling>=1.27.0"]\n'
+        'build-backend = "hatchling.build"\n\n'
+        "[tool.policyos.q2_build_tools]\n"
+        f'profile_path = "{PROFILE_PATH}"\n'
+    ).encode()
+    profile_raw = (
+        "\n".join(f"{key} = {json.dumps(value)}" for key, value in profile.items()) + "\n"
     ).encode()
     assert (
         gate.verify_pyproject_profile(
-            raw,
+            pyproject,
+            profile_raw=profile_raw,
             helper_path=profile["helper_path"],
             helper_sha256=profile["helper_sha256"],
             lock_path=profile["lock_path"],
@@ -347,10 +352,14 @@ def test_profile_requires_exact_pyproject_settings_and_source_hashes() -> None:
         )
         == profile
     )
-    changed = raw.replace(b'index_policy = "offline-only"', b'index_policy = "online"')
+
+    changed_profile = profile_raw.replace(
+        b'index_policy = "offline-only"', b'index_policy = "online"'
+    )
     with pytest.raises(gate.BuildToolsInputError, match="profile"):
         gate.verify_pyproject_profile(
-            changed,
+            pyproject,
+            profile_raw=changed_profile,
             helper_path=profile["helper_path"],
             helper_sha256=profile["helper_sha256"],
             lock_path=profile["lock_path"],
@@ -360,47 +369,58 @@ def test_profile_requires_exact_pyproject_settings_and_source_hashes() -> None:
 
 def test_pyproject_build_system_requirement_and_backend_are_bound_to_profile() -> None:
     pyproject = (_PRODUCT_ROOT / "pyproject.toml").read_bytes()
-    profile = tomllib.loads(pyproject.decode())["tool"]["policyos"]["q2_build_tools"]
+    profile_raw = (_PRODUCT_ROOT / PROFILE_PATH).read_bytes()
+    profile = tomllib.loads(profile_raw.decode())
     helper_raw = (_PRODUCT_ROOT / profile["helper_path"]).read_bytes()
     lock_raw = (_PRODUCT_ROOT / profile["lock_path"]).read_bytes()
     gate.verify_pyproject_profile(
         pyproject,
+        profile_raw=profile_raw,
         helper_path=profile["helper_path"],
         helper_sha256=hashlib.sha256(helper_raw).hexdigest(),
         lock_path=profile["lock_path"],
         lock_sha256=hashlib.sha256(lock_raw).hexdigest(),
     )
-    build_system_requirement = b'requires = ["hatchling>=1.27.0"]'
+    build_requirement = b'requires = ["hatchling>=1.27.0"]'
     profile_requirement = b'build_system_requirement = "hatchling>=1.27.0"'
-    assert pyproject.count(build_system_requirement) == 1
-    assert pyproject.count(profile_requirement) == 1
+    assert pyproject.count(build_requirement) == 1
+    assert profile_raw.count(profile_requirement) == 1
 
     changed_build_system = pyproject.replace(
-        build_system_requirement,
-        b'requires = ["hatchling>=1.26.0"]',
-        1,
+        build_requirement, b'requires = ["hatchling>=1.26.0"]', 1
     )
-    assert b'requires = ["hatchling>=1.26.0"]' in changed_build_system
-    assert profile_requirement in changed_build_system
     with pytest.raises(gate.BuildToolsInputError, match="build-system"):
         gate.verify_pyproject_profile(
             changed_build_system,
+            profile_raw=profile_raw,
             helper_path=profile["helper_path"],
             helper_sha256=hashlib.sha256(helper_raw).hexdigest(),
             lock_path=profile["lock_path"],
             lock_sha256=hashlib.sha256(lock_raw).hexdigest(),
         )
 
-    changed_profile = pyproject.replace(
-        profile_requirement,
-        b'build_system_requirement = "hatchling>=1.26.0"',
-        1,
+    changed_profile = profile_raw.replace(
+        profile_requirement, b'build_system_requirement = "hatchling>=1.26.0"', 1
     )
-    assert build_system_requirement in changed_profile
-    assert b'build_system_requirement = "hatchling>=1.26.0"' in changed_profile
     with pytest.raises(gate.BuildToolsInputError, match="profile"):
         gate.verify_pyproject_profile(
-            changed_profile,
+            pyproject,
+            profile_raw=changed_profile,
+            helper_path=profile["helper_path"],
+            helper_sha256=hashlib.sha256(helper_raw).hexdigest(),
+            lock_path=profile["lock_path"],
+            lock_sha256=hashlib.sha256(lock_raw).hexdigest(),
+        )
+
+    changed_pointer = pyproject.replace(
+        f'profile_path = "{PROFILE_PATH}"'.encode(),
+        b'profile_path = "architecture/packaging/other.toml"',
+        1,
+    )
+    with pytest.raises(gate.BuildToolsInputError, match="profile path"):
+        gate.verify_pyproject_profile(
+            changed_pointer,
+            profile_raw=profile_raw,
             helper_path=profile["helper_path"],
             helper_sha256=hashlib.sha256(helper_raw).hexdigest(),
             lock_path=profile["lock_path"],
@@ -415,16 +435,18 @@ def test_lock_closure_is_bound_to_exact_cpython_profile() -> None:
         gate.validate_lock_and_wheels(lock, wheels, releases)
 
 
-@pytest.mark.parametrize("removed_member", ["lock", "helper"])
+@pytest.mark.parametrize("removed_member", ["profile", "lock", "helper"])
 def test_source_archive_member_removal_preserving_profile_markers_stops_preparation(
     removed_member: str,
 ) -> None:
     pyproject = (_PRODUCT_ROOT / "pyproject.toml").read_bytes()
-    profile = tomllib.loads(pyproject.decode())["tool"]["policyos"]["q2_build_tools"]
+    profile_raw = (_PRODUCT_ROOT / PROFILE_PATH).read_bytes()
+    profile = tomllib.loads(profile_raw.decode())
     helper_raw = (_PRODUCT_ROOT / profile["helper_path"]).read_bytes()
     lock_raw = (_PRODUCT_ROOT / profile["lock_path"]).read_bytes()
     source_blobs = {
         "pyproject.toml": pyproject,
+        PROFILE_PATH: profile_raw,
         profile["helper_path"]: helper_raw,
         profile["lock_path"]: lock_raw,
     }
@@ -440,10 +462,14 @@ def test_source_archive_member_removal_preserving_profile_markers_stops_preparat
     )
     assert admitted["action_result"] == "prepared"
     assert called == ["prepare"]
+    assert PROFILE_PATH in admitted["source_transport"]["members"]
 
-    # Keep pyproject and Git blob markers fixed while removing one archive member.
-    removed_path = profile["lock_path"] if removed_member == "lock" else profile["helper_path"]
-    removed_lock_archive = {
+    removed_path = {
+        "profile": PROFILE_PATH,
+        "lock": profile["lock_path"],
+        "helper": profile["helper_path"],
+    }[removed_member]
+    removed_archive = {
         path: value for path, value in archive_members.items() if path != removed_path
     }
     called.clear()
@@ -453,7 +479,7 @@ def test_source_archive_member_removal_preserving_profile_markers_stops_preparat
             pyproject,
             lock_raw,
             source_blobs,
-            removed_lock_archive,
+            removed_archive,
             lambda _lock: called.append("prepare"),
         )
     assert called == []

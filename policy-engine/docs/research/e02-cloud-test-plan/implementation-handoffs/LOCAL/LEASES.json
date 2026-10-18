@@ -12149,5 +12149,105 @@
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r7-native-r3-actual-20261018/result.json",
       "sha256": "36ad6d7e8029c33d12b368096ba3cec8fe3190107f044cdbba4715e3271ff25a"
     }
+  },
+  "phase0-q2-external-profile-nine-native-qualified-20261018": {
+    "slice_base": "2e4c0dbb6848456a5f8c879fdab973896ff10812",
+    "canonical_writer": "ROOT only, reviewed nine-postimage source plus one native import blank-line qualification",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/pyproject.toml": {
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-phase0-r4-recipe-companion-qualification-20261018/postimages/policy-engine/pyproject.toml",
+        "postimage_sha256": "b2d3d2629db1cb184c1dffe48a48884c4652574229021e6fab1fe47f8336873f",
+        "preimage_sha256": "abd7daf5c8bd36c2dacf3189c65f076fbebad51c8d323ef70c18b6ef8220449b",
+        "operation": "modify"
+      },
+      "policy-engine/hatch.toml": {
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-phase0-r4-recipe-companion-qualification-20261018/postimages/policy-engine/hatch.toml",
+        "postimage_sha256": "ce6da893eae24e8b9e6afd4689ba6835ac414e9971f558caa21014e01e3eb98f",
+        "preimage_sha256": "7e64dca82df9308d6af77d7b329dcd93f6062dee6db90ee5ef140fa0643f1133",
+        "operation": "modify"
+      },
+      "policy-engine/tools/quality/validation/q2_build_tool_wheel_lock.py": {
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-phase0-r4-recipe-companion-qualification-20261018/postimages/policy-engine/tools/quality/validation/q2_build_tool_wheel_lock.py",
+        "postimage_sha256": "c8c96ade5dc3456798998eba30a60ae2c8f55aa116aa7616e59d4d6da3b00446",
+        "preimage_sha256": "1df99ed8bec4608a28776ec4e90a68370e97d00338b9749c2a50f5866a09ae94",
+        "operation": "modify"
+      },
+      "policy-engine/tests/repo_quality/tools/test_q2_build_tool_wheel_lock.py": {
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase0-q2-source-nine-native-import-qualified-20261018/test_q2_build_tool_wheel_lock.py",
+        "postimage_sha256": "dc86dff1519420dd299522367bf2372acb36787f65a4c877a13851ec3708a4ed",
+        "preimage_sha256": "336d15f15b5996d1bde06f3b4bcfea5f2a943c703a11f417c5bfa35b2cd7dad8",
+        "operation": "modify"
+      },
+      "policy-engine/architecture/packaging/q2_build_tools.toml": {
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-phase0-r4-recipe-companion-qualification-20261018/postimages/policy-engine/architecture/packaging/q2_build_tools.toml",
+        "postimage_sha256": "ff70e694219fdb8b583b5e399581df7d767e2230e1374e0e1af736e8b9bd1459",
+        "preimage_sha256": null,
+        "operation": "add"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/run.py": {
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-phase0-r4-recipe-companion-qualification-20261018/postimages/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/run.py",
+        "postimage_sha256": "683e1aecdb053582d2acf8fc0d528ace60d426700c7660fb2193556c7579d3e2",
+        "preimage_sha256": "1227d84f27d9d841e5dd3f358b04d327457879d0987fe94aca96795a21c16b2a",
+        "operation": "modify"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/q2-freeze-input-audit-v2-20261011.py": {
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-phase0-r4-recipe-companion-qualification-20261018/postimages/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/raw/q2-freeze-input-audit-v2-20261011.py",
+        "postimage_sha256": "3bed9c9ab0824723a5b5ab031d7ec9aa813f68cc35167248ec689ccd0a95d76d",
+        "preimage_sha256": "e2f9e22109d0fa6d91b14d0b64c97023f775da0e9080e13cad86978d6c6f241e",
+        "operation": "modify"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/q2-packaging/installed-wave-recipe.md": {
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-phase0-r4-recipe-companion-qualification-20261018/installed-wave-recipe-qualified.md",
+        "postimage_sha256": "a68bcd69a5620edfea4ffd058ce1a5bba7abae50e5477be36e84c0d0a7fbe3bf",
+        "preimage_sha256": "35e2307ed62918125604ac748e850630345fb23ccb7a226497f86e7550eb3485",
+        "operation": "modify"
+      },
+      "policy-engine/tools/quality/validation/README.md": {
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-phase0-r4-recipe-companion-qualification-20261018/validation-README-qualified.md",
+        "postimage_sha256": "a7b66c209bb617af5707b7bf085ab9ccfd02b07da9dc129177fbe830b1448ca7",
+        "preimage_sha256": "cc7e1391d23e7b630ebbd021c5be1d248d1a83db31c44a9114474a092b933a4d",
+        "operation": "modify"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-phase0-q2-source-nine-native-import-qualified-20261018/source-application.json",
+      "sha256": "28b0832ee9fd1f7faa45a97dfba65facc413bc3b9e88638cd46ead5149ce678b"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-phase0-source-nine-independent-20261018/review.json",
+        "sha256": "e0cb58e312e403edd83c08908c43a4c1e6427dae41ef2828d09f04c1fdc2654c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-phase0-r4-recipe-companion-qualification-20261018/qualification.json",
+        "sha256": "a94fbb097b5db6681c35f7721b6be8b9220ec8bf595d9e50f6defdb86bb5245f"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-phase0-r4-recipe-companion-qualification-20261018/README-qualification.json",
+        "sha256": "7dde8fccf6e5b9e44e59906a1b77e2b08cbbec2c82ede93a3f39e26fa950ca4c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-phase0-budget-repair-r2-20261018/candidate-r4-manifest.json",
+        "sha256": "8b449ddd99f80815dbe6878d365e1ca19c392c4a6dc7e7a0f93be9987e45b7f4"
+      }
+    ],
+    "P40": "Same physical pyproject budget and complete profile/source/archive custody class widened through mandatory recipe and README companions; new nine-postimage identity preserves old R4 HOLD.",
+    "limitations": [
+      "No dependency/build-system/entrypoint-group semantic change. Existing values retained, no threshold/expiry waiver.",
+      "Independent source composition GO; actual Phase0 and current helper/source-audit/installed wheel/rebuilt-sdist consumers UNRUN.",
+      "Source freeze false, G acceptance false; no formal closures."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": {
+      "required": [
+        "Current full Q2 helper semantic module",
+        "Actual Phase0 all gate with physical pyproject292lines",
+        "Fresh Q2 source-audit prepare/check and corruption controls",
+        "Actual tiny then full wheel and rebuilt sdist consumer/resource behavior"
+      ]
+    },
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

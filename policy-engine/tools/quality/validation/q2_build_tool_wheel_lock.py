@@ -26,6 +26,7 @@ if TYPE_CHECKING:
 
 LOCK_SCHEMA = "policyos.q2.portable-build-tool-wheel-lock.v1"
 PROFILE_SCHEMA = "policyos.q2.build-tools-profile.v1"
+Q2_PROFILE_PATH = "architecture/packaging/q2_build_tools.toml"
 MAX_TOTAL_BYTES = 1_048_576
 MAX_RELEASE_JSON_BYTES = 128 * 1024
 CHUNK_BYTES = 64 * 1024
@@ -89,21 +90,31 @@ def _is_sha256(value: object) -> bool:
 def verify_pyproject_profile(
     pyproject_raw: bytes,
     *,
+    profile_raw: bytes,
     helper_path: str,
     helper_sha256: str,
     lock_path: str,
     lock_sha256: str,
 ) -> dict[str, Any]:
-    """Require the dedicated Q2 profile to bind exact helper and lock bytes."""
+    """Require the architecture-owned Q2 profile to bind exact source bytes."""
     import tomllib
 
+    if type(pyproject_raw) is not bytes or type(profile_raw) is not bytes:
+        raise BuildToolsInputError("pyproject or Q2 profile source is missing or not byte-bound")
     try:
         document = tomllib.loads(pyproject_raw.decode("utf-8"))
+        profile = tomllib.loads(profile_raw.decode("utf-8"))
     except (UnicodeDecodeError, tomllib.TOMLDecodeError) as error:
-        raise BuildToolsInputError("source pyproject.toml is not valid UTF-8 TOML") from error
+        raise BuildToolsInputError(
+            "source pyproject.toml or Q2 profile is not valid UTF-8 TOML"
+        ) from error
     tool = document.get("tool") if type(document) is dict else None
     policyos = tool.get("policyos") if type(tool) is dict else None
-    profile = policyos.get("q2_build_tools") if type(policyos) is dict else None
+    profile_pointer = policyos.get("q2_build_tools") if type(policyos) is dict else None
+    if type(profile_pointer) is not dict or profile_pointer != {"profile_path": Q2_PROFILE_PATH}:
+        raise BuildToolsInputError(
+            "pyproject Q2 build-tools profile path is absent or differs from source bindings"
+        )
     expected = {
         "schema": PROFILE_SCHEMA,
         "pyproject_path": "pyproject.toml",
@@ -124,7 +135,7 @@ def verify_pyproject_profile(
     }
     if type(profile) is not dict or profile != expected:
         raise BuildToolsInputError(
-            "pyproject Q2 build-tools profile is absent, has extra fields, or "
+            "architecture Q2 build-tools profile is absent, has extra fields, or "
             "differs from source bindings"
         )
     build_system = document.get("build-system")
@@ -223,7 +234,7 @@ def verify_source_transport(
     source_blobs: dict[str, bytes],
     archive_members: dict[str, bytes],
 ) -> dict[str, Any]:
-    """Require the complete project/helper/lock set in both Git and archive bytes."""
+    """Require the complete project/profile/helper/lock set in Git and archive bytes."""
     project_path = profile.get("pyproject_path")
     helper_path = profile.get("helper_path")
     lock_path = profile.get("lock_path")
@@ -232,11 +243,11 @@ def verify_source_transport(
         or not path
         or Path(path).is_absolute()
         or ".." in Path(path).parts
-        for path in (project_path, helper_path, lock_path)
+        for path in (project_path, Q2_PROFILE_PATH, helper_path, lock_path)
     ):
         raise BuildToolsInputError("source transport set is missing or has extra archive members")
-    required = {project_path, helper_path, lock_path}
-    if len(required) != 3 or set(source_blobs) != required or set(archive_members) != required:
+    required = {project_path, Q2_PROFILE_PATH, helper_path, lock_path}
+    if len(required) != 4 or set(source_blobs) != required or set(archive_members) != required:
         raise BuildToolsInputError("source transport set is missing or has extra archive members")
     for path in sorted(required):
         if type(source_blobs[path]) is not bytes or type(archive_members[path]) is not bytes:
@@ -246,9 +257,7 @@ def verify_source_transport(
     if sha256_bytes(source_blobs[helper_path]) != profile.get("helper_sha256") or sha256_bytes(
         source_blobs[lock_path]
     ) != profile.get("lock_sha256"):
-        raise BuildToolsInputError(
-            "source transport helper or lock hash differs from pyproject profile"
-        )
+        raise BuildToolsInputError("source transport helper or lock hash differs from Q2 profile")
     return {
         "status": "source_git_blob_archive_members_reconciled",
         "members": sorted(required),
@@ -266,8 +275,12 @@ def run_after_source_admission(
     action: Callable[[dict[str, Any]], object],
 ) -> object:
     """Call the build preparation only after profile, Git/archive, lock and closure admission."""
+    profile_raw = source_blobs.get(Q2_PROFILE_PATH)
+    if type(profile_raw) is not bytes:
+        raise BuildToolsInputError("source transport Q2 profile is missing or not byte-bound")
     validated_profile = verify_pyproject_profile(
         pyproject_raw,
+        profile_raw=profile_raw,
         helper_path=profile.get("helper_path", ""),
         helper_sha256=profile.get("helper_sha256", ""),
         lock_path=profile.get("lock_path", ""),

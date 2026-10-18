@@ -900,6 +900,9 @@ DOWHY_LOCK_REL = "policy-engine/workers/dowhy-014/uv.lock"
 DOWHY_PYTHON_REL = "policy-engine/workers/dowhy-014/.python-version"
 DOWHY_README_REL = "policy-engine/workers/dowhy-014/README.md"
 GCP_PACKAGE_REL = "policy-engine/ops/cloud/gcp/package_repo.sh"
+BUILD_TOOL_HELPER_REL = "policy-engine/tools/quality/validation/q2_build_tool_wheel_lock.py"
+BUILD_TOOL_LOCK_REL = f"{HANDOFF_REL}/builder-inputs/hatchling-1.27.0-wheel-lock-r1.json"
+BUILD_TOOL_TEST_REL = "policy-engine/tests/repo_quality/tools/test_q2_build_tool_wheel_lock.py"
 
 
 class AuditError(RuntimeError):
@@ -4270,6 +4273,9 @@ def input_file_records(
         HATCH_REL,
         APP_PROJECT_REL,
         APP_LOCK_REL,
+        BUILD_TOOL_HELPER_REL,
+        BUILD_TOOL_LOCK_REL,
+        BUILD_TOOL_TEST_REL,
         PACKAGED_RESOURCE_CONTRACT_REL,
         DOWHY_PROJECT_REL,
         DOWHY_LOCK_REL,

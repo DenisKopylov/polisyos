@@ -54,9 +54,10 @@ FORBIDDEN_ARCHIVE_SIBLING_ROOTS = (
 )
 INSTALLED_ORIGIN_GATE_PATH = HERE / "installed_origin_gate_r4.py"
 INSTALLED_ORIGIN_GATE_SHA256 = "8acde537d5588648e042384f38e18359e6b3a103d03e8af79fca226989ae6872"
-HATCHLING_INPUT_INVENTORY_PATH = HERE / "hatchling-1.27.0-input-inventory-r3.json"
-HATCHLING_INPUT_INVENTORY_SHA256 = (
-    "e4a2ca880e1b0240650a5520e6ac2007791450afc70bd5ead6255ffd2b4cb61b"
+BUILD_TOOL_HELPER_RELATIVE = "tools/quality/validation/q2_build_tool_wheel_lock.py"
+BUILD_TOOL_LOCK_RELATIVE = (
+    "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/"
+    "q2-packaging/builder-inputs/hatchling-1.27.0-wheel-lock-r1.json"
 )
 
 
@@ -419,6 +420,25 @@ def git_text(repo: Path, *args: str) -> str:
     if result.returncode:
         raise WaveFailure(f"git {' '.join(args)} failed: {result.stderr.strip()}")
     return result.stdout.strip()
+
+
+def git_blob(repo: Path, source_sha: str, relative_path: str) -> bytes:
+    """Read one regular tracked blob from the selected immutable source commit."""
+    if not re.fullmatch(r"[0-9a-f]{40}", source_sha):
+        raise WaveFailure("Git blob lookup requires a full source commit")
+    path = PurePosixPath(relative_path)
+    if path.is_absolute() or ".." in path.parts or not path.parts:
+        raise WaveFailure("Git blob lookup requires a safe repository-relative path")
+    # S603: the selected commit and source path are data arguments; shell use is disabled.
+    result = subprocess.run(  # noqa: S603
+        [_git_executable(), "-C", str(repo), "cat-file", "blob", f"{source_sha}:{path.as_posix()}"],
+        capture_output=True,
+        check=False,
+        shell=False,
+    )
+    if result.returncode:
+        raise WaveFailure(f"frozen source blob is unavailable: {relative_path}")
+    return result.stdout
 
 
 def frozen_source_preflight(repo: Path, source_sha: str, source_tree: str) -> None:
@@ -943,7 +963,10 @@ def interpreter_info(python: Path, *, log_dir: Path, name: str) -> dict[str, Any
     """Inspect a venv without importing `site` or executing any `.pth` file."""
     code = (
         "import json, sys, sysconfig; "
-        "print(json.dumps({'version': list(sys.version_info[:3]), 'executable': sys.executable, "
+        "print(json.dumps({'implementation': sys.implementation.name, "
+        "'version': list(sys.version_info[:3]), 'executable': sys.executable, "
+        "'abi': sysconfig.get_config_var('SOABI'), "
+        "'cache_tag': sys.implementation.cache_tag, "
         "'base_executable': sys._base_executable, 'prefix': sys.prefix, "
         "'purelib': sysconfig.get_paths()['purelib']}))"
     )
@@ -987,12 +1010,15 @@ def distribution_version(site: Path, distribution: str) -> str | None:
 def configure_build_env(
     uv: str,
     base_python: Path,
-    app_dependency_site: Path,
+    lock: dict[str, Any],
+    buildtools: ModuleType,
+    wheelhouse: Path,
     run_root: Path,
     env: dict[str, str],
     log_dir: Path,
-) -> Path:
-    """Create one clean build tool venv whose site appends deps without `.pth` processing."""
+) -> tuple[Path, dict[str, Any]]:
+    """Install only the complete verified wheel closure into a fresh offline venv."""
+    quarantine_proof = buildtools.validate_quarantine(lock, wheelhouse)
     venv = run_root / "build-tools-env"
     run_command(
         [uv, "venv", "--python", str(base_python), str(venv)],
@@ -1001,61 +1027,167 @@ def configure_build_env(
         log_stem=log_dir / "create-build-tools-env",
     )
     python = venv / "bin" / "python"
+    if not python.is_file():
+        raise WaveFailure(f"expected Unix virtual-environment interpreter: {python}")
     info = interpreter_info(python, log_dir=log_dir, name="build-tools-env")
-    if info["version"][:2] != [3, 14]:
-        raise WaveFailure(f"build tools env must use CPython 3.14: {info['version']}")
-    if distribution_version(app_dependency_site, "hatchling") != "1.27.0":
-        raise WaveFailure("existing app dependency site must provide Hatchling 1.27.0")
-    if not app_dependency_site.is_dir():
-        raise WaveFailure(f"locked app dependency site is missing: {app_dependency_site}")
+    if info["implementation"] != "cpython" or info["version"][:2] != [3, 14]:
+        raise WaveFailure(
+            f"build tools env must use CPython 3.14: {info['implementation']} {info['version']}"
+        )
     purelib = Path(info["purelib"]).resolve()
     if tuple(purelib.glob("*.pth")):
-        raise WaveFailure("build tools venv contains a .pth file; refusing to execute it")
-    sitecustomize = (
-        f"from pathlib import Path\nimport sys\n_q2_dependency_site = Path("
-        f"{str(app_dependency_site)!r}"
-        f").resolve()\nif not _q2_dependency_site.is_dir():\n    raise "
-        f"RuntimeError(f'Q2 dependency site is missing: "
-        f"{{_q2_dependency_site}}')\n_q2_dependency_text = "
-        f"str(_q2_dependency_site)\nif _q2_dependency_text in sys.path:\n    "
-        f"raise RuntimeError('Q2 dependency site was already processed; "
-        f"editable .pth injection is forbidden')\n"
-        f"sys.path.append(_q2_dependency_text)\n"
-    )
-    (purelib / "sitecustomize.py").write_text(sitecustomize, encoding="utf-8")
-    proof = run_command(
-        [
-            str(python),
-            "-I",
-            "-c",
-            "import json,sys,sysconfig; import importlib.metadata as metadata; "
-            "import hatchling; from pathlib import Path; "
-            f"site=Path({str(app_dependency_site)!r}).resolve(); "
-            "assert sys.path[-1]==str(site),sys.path; "
-            "assert not any(p and '/src' in p for p in sys.path),sys.path; "
-            "assert metadata.version('hatchling')=='1.27.0'; "
-            "assert Path(hatchling.__file__).resolve().is_relative_to(site); "
-            "print(json.dumps({'prefix':sys.prefix,'purelib':sysconfig.get_paths()['purelib'],"
-            "'hatchling_origin':str(Path(hatchling.__file__).resolve()),"
-            "'app_dependency_site_appended':sys.path[-1],'isolated':sys.flags.isolated}))",
-        ],
+        raise WaveFailure("fresh build-tools venv contains a .pth file")
+    requirements = run_root / "build-tools-requirements.txt"
+    requirements.write_text(buildtools.requirements_text(lock), encoding="utf-8")
+    install_argv = [
+        uv,
+        "pip",
+        "install",
+        "--offline",
+        "--no-index",
+        "--find-links",
+        str(wheelhouse),
+        "--python",
+        str(python),
+        "--only-binary",
+        ":all:",
+        "--no-deps",
+        "--require-hashes",
+        "--requirement",
+        str(requirements),
+    ]
+    run_command(
+        install_argv,
         cwd=run_root,
         env=env,
-        log_stem=log_dir / "build-tools-env-path-proof",
+        log_stem=log_dir / "install-build-tools-offline",
     )
-    if not json.loads(proof.stdout).get("isolated"):
-        raise WaveFailure("build tool environment did not start in Python isolated mode")
-    json_write(
-        run_root / "build-tools-env-config.json",
-        {
-            "python": str(python),
-            "purelib": str(purelib),
-            "base_executable": str(base_python),
-            "app_dependency_site_appended_without_pth_processing": str(app_dependency_site),
-            "hatchling": "1.27.0",
+    probe = run_command(
+        [str(python), "-I", "-S", "-c", buildtools.installed_probe_code(lock)],
+        cwd=run_root,
+        env=clean_child_env(),
+        log_stem=log_dir / "build-tools-installed-origin-proof",
+    )
+    try:
+        installed = json.loads(probe.stdout)
+    except json.JSONDecodeError as error:
+        raise WaveFailure("installed build-tools probe did not emit JSON") from error
+    if (
+        type(installed) is not dict
+        or installed.get("verified") is not True
+        or installed.get("implementation") != "cpython"
+        or installed.get("distributions")
+        != {
+            row["name"].replace("_", "-").replace(".", "-"): row["version"]
+            for row in lock["artifacts"]
+        }
+    ):
+        raise WaveFailure("offline build-tools installed-origin proof failed")
+    wrapper = run_command(
+        [str(venv / "bin" / "hatchling"), "--help"],
+        cwd=run_root,
+        env=clean_child_env(),
+        log_stem=log_dir / "hatchling-console-entrypoint-smoke",
+    )
+    if "usage:" not in wrapper.stdout.lower():
+        raise WaveFailure("verified Hatchling console entry point did not return CLI usage")
+    profile = {
+        "status": "isolated_offline_build_tools_installed",
+        "python": str(python),
+        "python_info": info,
+        "host_platform": {"system": platform.system(), "machine": platform.machine()},
+        "requirements_sha256": sha256_file(requirements),
+        "install_argv": install_argv,
+        "wheelhouse": str(wheelhouse),
+        "pre_venv_quarantine_proof": quarantine_proof,
+        "installed_origin_proof": installed,
+        "entrypoint_smoke": {
+            "status": "passed",
+            "stdout_sha256": sha256_bytes(wrapper.stdout.encode()),
         },
-    )
-    return python
+        "application_dependency_site": "not appended or consulted by the build-tools environment",
+    }
+    json_write(run_root / "build-tools-host-profile.json", profile)
+    return python, profile
+
+
+def load_source_bound_build_tools(
+    repo: Path, source_sha: str, frozen_product: Path
+) -> tuple[
+    ModuleType,
+    dict[str, Any],
+    bytes,
+    dict[str, bytes],
+    dict[str, bytes],
+    Path,
+    dict[str, Any],
+]:
+    """Bind and authenticate the pyproject, helper and lock before helper execution."""
+    project_bytes = _read_regular_without_symlink_components(
+        frozen_product / "pyproject.toml", "frozen product pyproject.toml"
+    )[1]
+    try:
+        project = tomllib.loads(project_bytes.decode("utf-8"))
+        profile = project["tool"]["policyos"]["q2_build_tools"]
+    except (UnicodeDecodeError, KeyError, tomllib.TOMLDecodeError) as error:
+        raise WaveFailure("frozen pyproject does not declare the Q2 build-tools profile") from error
+    if type(profile) is not dict or (
+        profile.get("pyproject_path") != "pyproject.toml"
+        or profile.get("helper_path") != BUILD_TOOL_HELPER_RELATIVE
+        or profile.get("lock_path") != BUILD_TOOL_LOCK_RELATIVE
+    ):
+        raise WaveFailure("frozen pyproject Q2 profile does not name the canonical helper and lock")
+    helper_path = frozen_product / BUILD_TOOL_HELPER_RELATIVE
+    lock_path = frozen_product / BUILD_TOOL_LOCK_RELATIVE
+    helper_bytes = _read_regular_without_symlink_components(
+        helper_path, "frozen Q2 build-tools source helper"
+    )[1]
+    lock_bytes = _read_regular_without_symlink_components(
+        lock_path, "frozen Q2 build-tools wheel lock"
+    )[1]
+    archive_members = {
+        "pyproject.toml": project_bytes,
+        BUILD_TOOL_HELPER_RELATIVE: helper_bytes,
+        BUILD_TOOL_LOCK_RELATIVE: lock_bytes,
+    }
+    source_blobs = {
+        "pyproject.toml": git_blob(repo, source_sha, "policy-engine/pyproject.toml"),
+        BUILD_TOOL_HELPER_RELATIVE: git_blob(
+            repo, source_sha, f"policy-engine/{BUILD_TOOL_HELPER_RELATIVE}"
+        ),
+        BUILD_TOOL_LOCK_RELATIVE: git_blob(
+            repo, source_sha, f"policy-engine/{BUILD_TOOL_LOCK_RELATIVE}"
+        ),
+    }
+    if source_blobs != archive_members:
+        raise WaveFailure("source Git blobs and frozen archive profile/helper/lock members differ")
+    helper_sha = sha256_bytes(helper_bytes)
+    lock_sha = sha256_bytes(lock_bytes)
+    if profile.get("helper_sha256") != helper_sha or profile.get("lock_sha256") != lock_sha:
+        raise WaveFailure("frozen helper or wheel-lock bytes differ from pyproject source bindings")
+    helper_spec = importlib.util.spec_from_file_location("q2_build_tool_wheel_lock", helper_path)
+    if helper_spec is None or helper_spec.loader is None:
+        raise WaveFailure("cannot load the hash-bound Q2 build-tools helper")
+    helper_module = importlib.util.module_from_spec(helper_spec)
+    helper_spec.loader.exec_module(helper_module)
+    try:
+        helper_module.verify_pyproject_profile(
+            project_bytes,
+            helper_path=BUILD_TOOL_HELPER_RELATIVE,
+            helper_sha256=helper_sha,
+            lock_path=BUILD_TOOL_LOCK_RELATIVE,
+            lock_sha256=lock_sha,
+        )
+    except ValueError as error:
+        raise WaveFailure(f"source-bound Q2 build-tools profile rejected: {error}") from error
+    binding = {
+        "profile": profile,
+        "helper_path": str(helper_path),
+        "helper_sha256": helper_sha,
+        "lock_path": str(lock_path),
+        "lock_sha256": lock_sha,
+    }
+    return helper_module, profile, lock_bytes, source_blobs, archive_members, helper_path, binding
 
 
 def configure_installed_env(
@@ -2239,48 +2371,84 @@ def run_wave(args: argparse.Namespace) -> Path:
         ).stdout.strip()
         app_python = require_absolute_file(args.app_python, "--app-python")
         app_info = interpreter_info(app_python, log_dir=run_root / "logs", name="app-build")
-        if app_info["version"][:2] != [3, 14]:
+        if app_info["implementation"] != "cpython" or app_info["version"][:2] != [3, 14]:
             raise WaveFailure(
-                f"application build interpreter must be Python 3.14: {app_info['version']}"
-            )
-        if app_info["hatchling"] != "1.27.0":
-            raise WaveFailure(
-                f"frozen app build environment must retain Hatchling 1.27.0, got "
-                f"{app_info['hatchling']}"
+                "application inventory interpreter must be CPython 3.14: "
+                f"{app_info['implementation']} {app_info['version']}"
             )
         base_python = require_absolute_file(app_info["base_executable"], "app base Python")
         dependency_site = Path(app_info["purelib"]).resolve()
-        receipt["uv"] = {"executable": str(Path(uv).resolve()), "version": uv_version}
+        receipt["uv"] = {
+            "executable": str(Path(uv).resolve()),
+            "version": uv_version,
+            "sha256": sha256_file(Path(uv).resolve()),
+        }
         receipt["app_build_interpreter"] = app_info
-        origin_gate_source, origin_gate_namespace = load_installed_origin_gate()
+        origin_gate_source, _ = load_installed_origin_gate()
         receipt["installed_origin_gate_sha256"] = INSTALLED_ORIGIN_GATE_SHA256
-        receipt["hatchling_input_snapshot"] = origin_gate_namespace[
-            "verify_hatchling_distribution"
-        ](
-            dependency_site,
-            Path(app_info["prefix"]),
-            HATCHLING_INPUT_INVENTORY_PATH,
-            HATCHLING_INPUT_INVENTORY_SHA256,
-        )
         receipt["tooling_note"] = (
-            "Observed uv version is recorded above; repository guidance cites uv 0.9.21. "
-            "The runner does not silently substitute the documented version."
+            "Hatchling distribution bytes come from the source-bound portable lock. "
+            "The app environment is retained for source-owner inventory and consumers, "
+            "not consulted by the isolated build-tools venv."
         )
-        build_python = configure_build_env(
-            uv,
-            base_python,
-            dependency_site,
-            run_root,
-            env,
-            run_root / "logs",
-        )
-        json_write(receipt_path, receipt)
-
         source_root = run_root / "frozen-source"
         archive_receipt = extract_git_archive(repo, args.source_sha, source_root, run_root / "logs")
         frozen_product = source_root / REQUIRED_PRODUCT
+        (
+            buildtools,
+            build_tool_profile,
+            build_tool_lock_bytes,
+            build_source_blobs,
+            build_archive_members,
+            _,
+            build_tool_binding,
+        ) = load_source_bound_build_tools(repo, args.source_sha, frozen_product)
+        wheelhouse = run_root / "build-tool-quarantine"
+
+        def prepare_source_bound_build_tools(lock: dict[str, Any]) -> dict[str, Any]:
+            _, _, download_receipt = buildtools.fetch_locked_inputs(lock, wheelhouse)
+            build_python_value, host_profile = configure_build_env(
+                uv,
+                base_python,
+                lock,
+                buildtools,
+                wheelhouse,
+                run_root,
+                env,
+                run_root / "logs",
+            )
+            return {
+                "download_receipt": download_receipt,
+                "python": str(build_python_value),
+                "host_profile": host_profile,
+            }
+
+        admitted = buildtools.run_after_source_admission(
+            build_tool_profile,
+            build_archive_members["pyproject.toml"],
+            build_tool_lock_bytes,
+            build_source_blobs,
+            build_archive_members,
+            prepare_source_bound_build_tools,
+        )
+        build_tool_binding["source_transport"] = admitted["source_transport"]
+        action_result = admitted["action_result"]
+        downloaded_build_tool_receipt = action_result["download_receipt"]
+        build_python = Path(action_result["python"])
+        build_host_profile = action_result["host_profile"]
+        receipt["portable_build_tool_distribution_closure"] = {
+            **build_tool_binding,
+            **downloaded_build_tool_receipt,
+            "host_profile_status": build_host_profile["status"],
+            "host_profile_path": "build-tools-host-profile.json",
+            "host_profile_sha256": sha256_file(run_root / "build-tools-host-profile.json"),
+            "upstream_release_witness": (
+                "PyPI-supplied JSON and wheel digest; no signature/attestation claim"
+            ),
+        }
+        json_write(receipt_path, receipt)
         owner_inventory = source_resource_inventory(
-            build_python,
+            app_python,
             frozen_product,
             run_root,
             run_root / "logs",

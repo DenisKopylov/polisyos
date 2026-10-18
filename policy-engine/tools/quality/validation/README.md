@@ -84,3 +84,7 @@ native-gate completion claim.
 ### Phase 0 global registry validation
 
 `repository_structure_phase0.py gate` reconciles active exception targets against the complete set of ordinary gate findings, even when `--gate` selects one gate. The `--package` and `--scope` options project local policy findings; global repository-input, name-registry, and exception-registry refusals remain visible and contribute to fail-closed status. An active exception must match a current ordinary gate finding, and registry-integrity findings cannot authorize exceptions. Filtered command output is scoped evidence, not a substitute for the complete-gate reconciliation.
+
+### Q2 portable build-tool profile
+
+`q2_build_tool_wheel_lock.py` validates the source-bound Hatchling backend profile, complete universal-wheel lock, PyPI release witnesses, exact wheel metadata and `RECORD`, and the selected source Git/archive bytes. The Q2 runner owns the isolated offline installation and records the host interpreter, platform, uv, installed origins, and entry-point observations separately from portable artifact identity. This dedicated profile is not a claim that the general project `uv.lock` locks Hatchling. It does not validate the packaged-resource manifest or authorize installed-wheel consumers; run the full source audit's `prepare` and `check` after the final source/input freeze before that consumer wave.

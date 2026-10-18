@@ -76,6 +76,7 @@ from polisyos.runtime.quality.grounding_bind import (
 )
 from polisyos.runtime.quality.grounding_relation import GroundingRelationEngine
 from polisyos.runtime.quality.promotion_sequence import (
+    CANONICAL_PROMOTION_SEQUENCE_SCHEMA_VERSION,
     CANONICAL_PROMOTION_VERIFICATION_COMPARISON_HISTORY_RULE,
     CANONICAL_PROMOTION_VERIFICATION_COMPARISON_V6_HISTORY_RULE,
     CanonicalPromotionInput,
@@ -92,55 +93,192 @@ from polisyos.runtime.quality.promotion_sequence import (
 )
 from tools.lib.fs import measure_file_reads, measured_read_bytes
 from tools.lib.timing import parse_args_for_timing, run_timed_entrypoint
+from tools.quality.validation import layer3_gy_n9_comparison_custody as _comparison_owner
+from tools.quality.validation import layer3_gy_n9_contract as _contract_owner
+from tools.quality.validation import layer3_gy_n9_contract_inputs as _input_owner
+from tools.quality.validation import layer3_gy_n9_promotion_mutations as _mutation_owner
+
+# Keep the facade's historical private import bindings available to repository callers.
+_HISTORIC_PRIVATE_IMPORT_BINDINGS = (
+    _component_versions,
+    _reference_hash,
+    _gate_outcome_hash,
+    _run_canonical_promotion_sequence_for_verification,
+    _validate_canonical_promotion_receipt_for_verification,
+)
 
 OUTPUT_PATH = "architecture/policy_design_case/layer3_gy_promotion_contract.json"
-_CONTRACT_SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy.n9_promotion_contract.v2"
-_CREDAL_REFERENCE_SOURCE = "src/polisyos/runtime/quality/credal_reference.py"
-_CONTENT_HASH_EXCLUDED_TOP_LEVEL = {"capture_wall_time_seconds", "contract_content_hash"}
+_CONTRACT_SCHEMA_VERSION = _comparison_owner._CONTRACT_SCHEMA_VERSION
+_CREDAL_REFERENCE_SOURCE = _comparison_owner._CREDAL_REFERENCE_SOURCE
+_CONTENT_HASH_EXCLUDED_TOP_LEVEL = _comparison_owner._CONTENT_HASH_EXCLUDED_TOP_LEVEL
 
-_COMPARISON_IDENTITY_FIELDS = {
-    "comparison_admission_manifest",
-    "comparison_content_hash",
-    "comparison_projection_schema_version",
-    "comparison_rule_version",
-}
+_COMPARISON_IDENTITY_FIELDS = _comparison_owner._COMPARISON_IDENTITY_FIELDS
 
 
-class _PromotionContractReconciliationDriftError(ValueError):
-    """A completed live replay rejected frozen comparison custody."""
-
-    def __init__(self, code: str, *, details: dict[str, Any]) -> None:
-        super().__init__(code)
-        self.code = code
-        self.details = details
-
-
-_SOURCE_FLIP_MUTATION_IDS: tuple[str, ...] = (
-    "source_flip_no_self_promotion_guard",
-    "source_flip_non_anytime_preflight_guard",
-    "source_flip_real_transport_refusal",
-    "source_flip_cg2_owner_call_removed",
-    "source_flip_g4_owner_resolution_removed",
-    "source_flip_timeout_to_favorable",
-    "source_flip_lower_boundary_meet",
-    "source_flip_non_promotable_bind_stamp",
-    "source_flip_n6_ledger_revalidation_removed",
-    "source_flip_vacuous_scope_autopass",
-    "source_flip_scope_insufficient_authority_guard",
-    "source_flip_invented_measurement_marker_reintroduced",
-    "source_flip_unseen_shape_panel_coupling",
-    "source_flip_live_champion_path",
-    "source_flip_confidence_projection_recompute_guard",
-    "source_flip_ledger_bypass_guard",
+_PromotionContractReconciliationDriftError = (
+    _comparison_owner._PromotionContractReconciliationDriftError
 )
-_BEHAVIORAL_MUTATION_IDS: tuple[str, ...] = (
-    "ledger_projection_hand_edit",
-    "gate_outcome_drift",
-    "fixed_time_refusal_laundered",
-    "vacuous_scope_pass",
-    "risk_budget_ignored",
-    "conditionality_clause_deleted",
-    "strangle_drift",
+
+
+_SOURCE_FLIP_MUTATION_IDS = _mutation_owner._SOURCE_FLIP_MUTATION_IDS
+_BEHAVIORAL_MUTATION_IDS = _mutation_owner._BEHAVIORAL_MUTATION_IDS
+
+
+def _producer_bindings() -> _contract_owner._PromotionProducerBindings:
+    return _contract_owner._PromotionProducerBindings(
+        confidence_ledger_session=ConfidenceLedgerSession,
+        behavioral_mutations=_behavioral_mutations,
+        source_flip_mutation_ids=_SOURCE_FLIP_MUTATION_IDS,
+    )
+
+
+def _mutation_callbacks() -> _mutation_owner._MutationCallbacks:
+    return _mutation_owner._MutationCallbacks(
+        set_comparison_identity=_set_comparison_identity,
+        contract_content_hash=_contract_content_hash,
+        validate_payload=validate_payload,
+    )
+
+
+def _comparison_callbacks() -> _comparison_owner._ComparisonCallbacks:
+    return _comparison_owner._ComparisonCallbacks(
+        output_path=OUTPUT_PATH,
+        is_authorized_corr_input_epoch_reissue=_is_authorized_corr_input_epoch_reissue,
+        is_authorized_credal_input_epoch_reissue=_is_authorized_credal_input_epoch_reissue,
+    )
+
+
+_live_om01_witness = _contract_owner._live_om01_witness
+run_source_flip_mutations = _mutation_owner.run_source_flip_mutations
+_receipt_from_payload = _mutation_owner._receipt_from_payload
+_validate_n11_projection = _mutation_owner._validate_n11_projection
+_mutate_ledger_projection = _mutation_owner._mutate_ledger_projection
+_mutate_gate_hash = _mutation_owner._mutate_gate_hash
+_mutate_fixed_time_refusal = _mutation_owner._mutate_fixed_time_refusal
+_mutate_vacuous_scope_pass = _mutation_owner._mutate_vacuous_scope_pass
+_mutate_risk_budget = _mutation_owner._mutate_risk_budget
+_mutate_conditionality_clause = _mutation_owner._mutate_conditionality_clause
+_mutate_strangle = _mutation_owner._mutate_strangle
+_SourceFlipReplacement = _mutation_owner._SourceFlipReplacement
+_SourceFlipCase = _mutation_owner._SourceFlipCase
+_run_source_flip_case = _mutation_owner._run_source_flip_case
+_source_flip_cases = _mutation_owner._source_flip_cases
+_pytest_probe = _mutation_owner._pytest_probe
+_output_tail = _mutation_owner._output_tail
+_obligation_denominator = _comparison_owner._obligation_denominator
+_scope_insufficient_promotion_policy = _comparison_owner._scope_insufficient_promotion_policy
+_contract_content_hash = _comparison_owner._contract_content_hash
+_comparison_content_hash = _comparison_owner._comparison_content_hash
+_frozen_comparison_identity_admissible = _comparison_owner._frozen_comparison_identity_admissible
+_is_authorized_corr_input_epoch_reissue = _comparison_owner._is_authorized_corr_input_epoch_reissue
+_is_authorized_credal_input_epoch_reissue = (
+    _comparison_owner._is_authorized_credal_input_epoch_reissue
+)
+_is_authorized_v3_to_v6_comparison_reissue = (
+    _comparison_owner._is_authorized_v3_to_v6_comparison_reissue
+)
+_n9_v6_scope_hash = _comparison_owner._n9_v6_scope_hash
+_translate_n9_semantic_ledger_epoch = _comparison_owner._translate_n9_semantic_ledger_epoch
+_translate_n9_v6_receipt_epoch = _comparison_owner._translate_n9_v6_receipt_epoch
+_set_comparison_identity = _comparison_owner._set_comparison_identity
+_comparison_identity_issues = _comparison_owner._comparison_identity_issues
+_obligation_detail = _comparison_owner._obligation_detail
+_promotion_input = _input_owner._promotion_input
+_summary = _input_owner._summary
+_value_receipt = _input_owner._value_receipt
+_cg2_contract_bind = _input_owner._cg2_contract_bind
+_proof_input_strangle = _input_owner._proof_input_strangle
+_boundary = _input_owner._boundary
+_s6_posture = _input_owner._s6_posture
+_s7_posture = _input_owner._s7_posture
+_s8_posture = _input_owner._s8_posture
+_credal_reference = _input_owner._credal_reference
+_operator_edge = _input_owner._operator_edge
+_target_edge = _input_owner._target_edge
+_lex_edge = _input_owner._lex_edge
+_world_slot = _input_owner._world_slot
+_policy_slot = _input_owner._policy_slot
+_tax_atom = _input_owner._tax_atom
+_pure_synonym_probe = _input_owner._pure_synonym_probe
+_hash = _input_owner._hash
+
+
+__all__ = (
+    "CANONICAL_PROMOTION_SEQUENCE_SCHEMA_VERSION",
+    "CANONICAL_PROMOTION_VERIFICATION_COMPARISON_HISTORY_RULE",
+    "CANONICAL_PROMOTION_VERIFICATION_COMPARISON_V6_HISTORY_RULE",
+    "CONDITIONAL_VALIDITY_CLAUSE",
+    "CREDAL_REFERENCE_LEGACY_SCHEMA_VERSION",
+    "GY_COMPARISON_PROJECTION_LEGACY_SCHEMA_VERSION",
+    "GY_COMPARISON_PROJECTION_SCHEMA_VERSION",
+    "GY_PROMOTION_SEQUENCE_SCHEMA_VERSION",
+    "GY_VERIFICATION_COMPARISON_LEGACY_RULE_VERSION",
+    "GY_VERIFICATION_COMPARISON_RULE_VERSION",
+    "OUTPUT_PATH",
+    "PROMOTION_RISK_CONDITIONALITY_CAVEAT",
+    "TIMING_HEALTHY_TERMINAL_EXIT_CODES",
+    "UTC",
+    "AdmissibleCompletion",
+    "Any",
+    "AuthorityBoundary",
+    "CandidateSummary",
+    "CanonicalPromotionInput",
+    "CanonicalPromotionReceipt",
+    "ConfidenceLedgerSession",
+    "CredalReference",
+    "CredalReferenceEdge",
+    "DataTrust",
+    "FileSystemCAS",
+    "GroundingBindGate",
+    "GroundingDecisionCertificate",
+    "GroundingRelationEngine",
+    "GyComparisonAdmission",
+    "GyComparisonProjectionPlan",
+    "Layer2S6BlindSpotPostureInput",
+    "Layer2S7DelegationPostureInput",
+    "Layer2S8ValuePostureInput",
+    "LegacyPromotionStrangleReceipt",
+    "N9DesignProblemBinding",
+    "Path",
+    "PromotionObligationClass",
+    "TemporaryDirectory",
+    "ValueCalibrationReceipt",
+    "ValueGateReceipt",
+    "ValueOuterSet",
+    "ValueTransportReceipt",
+    "admit_canonical_promotion_receipt_for_comparison",
+    "argparse",
+    "build_contract_json_for_write",
+    "build_gy_comparison_projection_plan",
+    "build_gy_comparison_projection_plan_from_manifest",
+    "build_payload",
+    "canonical_promotion_verification_comparison_owner_rule_registry",
+    "confidence_risk_scope_for_problem",
+    "copy",
+    "corrupt_field_drift_check",
+    "dataclass",
+    "datetime",
+    "declared_outputs",
+    "gy_comparison_content_hash",
+    "gy_content_hash",
+    "json",
+    "main",
+    "measure_file_reads",
+    "measured_read_bytes",
+    "parse_args_for_timing",
+    "parse_canonical_promotion_history_receipt",
+    "recompute_grounding_decision_content_hash",
+    "rederive_audit",
+    "replace",
+    "run_source_flip_mutations",
+    "run_timed_entrypoint",
+    "subprocess",
+    "sys",
+    "time",
+    "validate",
+    "validate_payload",
+    "validate_payload_without_mutation_check",
+    "write",
 )
 
 
@@ -157,92 +295,17 @@ def _run_with_isolated_confidence_ledger(
     promotion_input: CanonicalPromotionInput,
     produce_om01_witness: bool = False,
 ) -> tuple[CanonicalPromotionReceipt, GyComparisonAdmission, dict[str, Any] | None]:
-    """Replay one synthetic scenario against a fresh deterministic N11 scope."""
-
-    risk_scope = confidence_risk_scope_for_problem(promotion_input.design_problem_binding)
-    with TemporaryDirectory(prefix=f"gy-n9-{scenario_id}-") as temp_dir:
-        state_root = Path(temp_dir)
-        session = ConfidenceLedgerSession._for_verification(
-            repo_root,
-            risk_scope=risk_scope,
-            artifact_store=FileSystemCAS(state_root / "cas"),
-            state_root=state_root / "state",
-        )
-        receipt = _run_canonical_promotion_sequence_for_verification(
-            promotion_input,
-            confidence_ledger_session=session,
-        )
-        admission = admit_canonical_promotion_receipt_for_comparison(
-            receipt,
-            repo_root=repo_root,
-            confidence_ledger_session=session,
-        )
-        witness = (
-            _live_om01_witness(repo_root, receipt=receipt, session=session)
-            if produce_om01_witness
-            else None
-        )
-        return receipt, admission, witness
+    """Replay one synthetic scenario using the current facade session class."""
+    return _contract_owner._run_with_isolated_confidence_ledger(
+        repo_root,
+        scenario_id=scenario_id,
+        promotion_input=promotion_input,
+        produce_om01_witness=produce_om01_witness,
+        bindings=_producer_bindings(),
+    )
 
 
-def _live_om01_witness(
-    repo_root: Path,
-    *,
-    receipt: CanonicalPromotionReceipt,
-    session: ConfidenceLedgerSession,
-) -> dict[str, Any]:
-    """Remove one decisive row and run the authority validator before session close."""
-
-    targets = [
-        row
-        for row in receipt.obligations
-        if row.obligation_role == "decisive_predicate"
-        and row.source_obligation_ref.endswith("#transport_wmr_hash_equals_receipt_wmr_hash")
-    ]
-    if len(targets) != 1:
-        raise ValueError("om01_decisive_obligation_target_denominator_mismatch")
-    target = targets[0]
-    obligations = tuple(
-        row
-        for row in receipt.obligations
-        if row.obligation_instance_id != target.obligation_instance_id
-    )
-    removed_count = len(receipt.obligations) - len(obligations)
-    class_rows = tuple(row for row in obligations if row.obligation_role == "class_gate")
-    class_total = tuple(row.obligation_class for row in class_rows) == tuple(
-        PromotionObligationClass
-    )
-    mutated = receipt.model_copy(
-        update={
-            "obligations": obligations,
-            "gate_outcome_hash": _gate_outcome_hash(obligations),
-        }
-    )
-    authority_issues = _validate_canonical_promotion_receipt_for_verification(
-        mutated,
-        repo_root=repo_root,
-        confidence_ledger_session=session,
-    )
-    expected_issue = {
-        "code": "decisive_obligation_omitted",
-        "obligation_instance_id": target.obligation_instance_id,
-    }
-    authority_red = authority_issues == (expected_issue,)
-    if removed_count != 1 or not class_total or not authority_red:
-        raise ValueError("om01_live_authority_witness_failed")
-    return {
-        "mutation_id": "om_01_decisive_obligation_omission",
-        "removed_obligation_role": target.obligation_role,
-        "removed_source_obligation_ref": target.source_obligation_ref,
-        "removed_obligation_instance_id": target.obligation_instance_id,
-        "removed_instance_count": removed_count,
-        "class_denominator_status": "green",
-        "class_denominator_count": len(class_rows),
-        "authority_status": "red",
-        "authority_issue_codes": [str(item["code"]) for item in authority_issues],
-        "authority_issues": list(authority_issues),
-        "verification_session_provenance": session.authority_provenance,
-    }
+_live_om01_witness = _contract_owner._live_om01_witness
 
 
 def build_payload(repo_root: Path) -> dict[str, Any]:
@@ -255,120 +318,11 @@ def build_payload(repo_root: Path) -> dict[str, Any]:
 def _build_payload_with_comparison_plan(
     repo_root: Path,
 ) -> tuple[dict[str, Any], GyComparisonProjectionPlan]:
-    """Build N9 plus the ephemeral owner-bound comparison plan."""
-
-    started = time.monotonic()
-    contract_input = _promotion_input()
-    (
-        contract_refusal,
-        contract_refusal_admission,
-        obligation_instance_mutation_witness,
-    ) = _run_with_isolated_confidence_ledger(
+    """Build N9 through the private producer while preserving facade injection seams."""
+    return _contract_owner._build_payload_with_comparison_plan(
         repo_root,
-        scenario_id="contract-lane-anytime-refusal",
-        promotion_input=contract_input,
-        produce_om01_witness=True,
+        bindings=_producer_bindings(),
     )
-    production_shadow, production_shadow_admission, _ = _run_with_isolated_confidence_ledger(
-        repo_root,
-        scenario_id="production-honest-shadow",
-        promotion_input=contract_input.model_copy(
-            update={
-                "candidate_summary": _summary(
-                    current_valid=False,
-                    grounding_status="grounded_shadow",
-                ),
-                "grounding_decision_certificate": None,
-                "credal_reference": None,
-            }
-        ),
-    )
-    non_promotable, non_promotable_admission, _ = _run_with_isolated_confidence_ledger(
-        repo_root,
-        scenario_id="non-promotable-contract-stamp",
-        promotion_input=contract_input,
-    )
-    payload: dict[str, Any] = {
-        "schema_version": _CONTRACT_SCHEMA_VERSION,
-        "synthetic": True,
-        "proof_input_strangle": _proof_input_strangle(
-            consumed=contract_input.grounding_decision_certificate,
-            reference=contract_input.credal_reference,
-        ),
-        "contract_id": "policyos.runtime.quality.canonical_n9_promotion_sequence",
-        "produced_by": "tools/quality/validation/check_layer3_gy_promotion_contract.py",
-        "source_modules": [
-            "src/polisyos/pdc/_impl/gy_waist.py",
-            "src/polisyos/pdc/_impl/layer2_design_search.py",
-            "src/polisyos/runtime/quality/promotion_sequence.py",
-            "src/polisyos/runtime/quality/confidence_ledger.py",
-            "architecture/production_quality/confidence_ledger.toml",
-            "src/polisyos/runtime/quality/generation_cycle.py",
-            "src/polisyos/runtime/quality/grounding_bind.py",
-            "src/polisyos/core/contracts/value_outer_set.py",
-            "src/polisyos/scientist/methods/search/judge_stack.py",
-            _CREDAL_REFERENCE_SOURCE,
-        ],
-        "pattern_pass": {
-            "relevant_ids": ["P05", "P10", "P14", "P15", "P27", "P28", "P29", "P32"],
-            "existing_anti_patterns_found": [
-                "Scientist champion registry could previously write promoted pointers beside PDC gates",
-                "G4 governed-promotion artifacts existed as a parallel promotion surface",
-            ],
-            "target_correct_pattern": (
-                "single N6/N9 sequence over Ring-2 waist, CGF/CG2, N8 value/calibration/"
-                "transport, authority meet, S6/S7/S8, G4 record refs, and the N11 "
-                "current-head confidence-ledger projection"
-            ),
-            "missing_capability_labels": ["surface_out_of_scope"],
-            "acceptance_signal": "frozen_receipt_validates_rederive_audit_and_source_flips_red",
-        },
-        "owner_inventory": {
-            "waist_trace": "src/polisyos/pdc/_impl/gy_waist.py",
-            "s6_s7_s8": "src/polisyos/pdc/_impl/layer2_design_search.py",
-            "n6_port": "src/polisyos/runtime/quality/generation_cycle.py",
-            "n8_value_receipt": "src/polisyos/runtime/quality/generation_cycle.py",
-            "cg2_promotability": "src/polisyos/runtime/quality/grounding_bind.py",
-            "n11_confidence_ledger": "src/polisyos/runtime/quality/confidence_ledger.py",
-            "scientist_champion_strangled": "src/polisyos/scientist/methods/search/judge_stack.py",
-        },
-        "obligation_denominator": _obligation_denominator(),
-        "obligation_instance_mutation_witness": obligation_instance_mutation_witness,
-        "scope_insufficient_promotion_policy": _scope_insufficient_promotion_policy(),
-        "contract_lane_anytime_refusal": contract_refusal.model_dump(mode="json"),
-        "production_honest_shadow": production_shadow.model_dump(mode="json"),
-        "non_promotable_contract_stamp": non_promotable.model_dump(mode="json"),
-        "strangle_receipt": LegacyPromotionStrangleReceipt.recompute(repo_root).model_dump(
-            mode="json"
-        ),
-        "compute_economics": {
-            "lane0_sequence_logic": (
-                "synthetic_contract_certificates_with_non_authority_n11_replay"
-            ),
-            "e1_cached_obligation_solves": True,
-            "routine_check": "canonical_owner_recomputation_and_exact_byte_comparison",
-            "cold_rederive_lane": "--rederive-audit",
-            "wall_time_recorded_by_validator": True,
-        },
-        "delta_caveat": CONDITIONAL_VALIDITY_CLAUSE,
-        "source_flip_mutation_harness": {
-            "mode": "--source-flip-mutations",
-            "mutation_ids": list(_SOURCE_FLIP_MUTATION_IDS),
-        },
-    }
-    plan = build_gy_comparison_projection_plan(
-        payload,
-        admissions=(
-            contract_refusal_admission,
-            production_shadow_admission,
-            non_promotable_admission,
-        ),
-    )
-    payload["behavioral_mutations"] = _behavioral_mutations(payload, plan)
-    payload["capture_wall_time_seconds"] = round(time.monotonic() - started, 6)
-    _set_comparison_identity(payload, plan)
-    payload["contract_content_hash"] = _contract_content_hash(payload)
-    return payload, plan
 
 
 def validate_payload(payload: dict[str, Any]) -> dict[str, Any]:
@@ -723,346 +677,70 @@ def build_contract_json_for_write(repo_root: Path) -> str:
     return json.dumps(payload, indent=2, sort_keys=True) + "\n"
 
 
-def run_source_flip_mutations(repo_root: Path) -> tuple[dict[str, Any], ...]:
-    """Temporarily remove source guards and require every probe to go red."""
-
-    cases = _source_flip_cases()
-    if tuple(case.mutation_id for case in cases) != _SOURCE_FLIP_MUTATION_IDS:
-        return (
-            {
-                "mutation_id": "source_flip_harness_denominator",
-                "result": "HARNESS_ERROR",
-                "proof": {
-                    "expected": list(_SOURCE_FLIP_MUTATION_IDS),
-                    "actual": [case.mutation_id for case in cases],
-                },
-            },
-        )
-    return tuple(_run_source_flip_case(repo_root, case) for case in cases)
+run_source_flip_mutations = _mutation_owner.run_source_flip_mutations
 
 
-def _receipt_from_payload(
-    payload: dict[str, Any],
-    key: str,
-    issues: list[dict[str, Any]],
-) -> CanonicalPromotionReceipt | None:
-    value = payload.get(key)
-    if not isinstance(value, dict):
-        issues.append({"code": f"{key}_missing"})
-        return None
-    try:
-        return parse_canonical_promotion_history_receipt(value)
-    except ValueError as exc:
-        issues.append({"code": f"{key}_invalid", "error": str(exc)})
-        return None
+_receipt_from_payload = _mutation_owner._receipt_from_payload
 
 
-def _validate_n11_projection(
-    receipt: CanonicalPromotionReceipt,
-    *,
-    receipt_key: str,
-    issues: list[dict[str, Any]],
-) -> None:
-    """Validate the exact narrow N11 projection carried by one N9 receipt."""
-
-    projection = receipt.confidence_ledger_projection
-    if projection.authority_provenance != "verification":
-        issues.append(
-            {
-                "code": "confidence_ledger_replay_provenance_drift",
-                "receipt_key": receipt_key,
-            }
-        )
-    expected_gate_hash = gy_content_hash(
-        [item.model_dump(mode="json") for item in receipt.obligations]
-    )
-    if receipt.gate_outcome_hash != expected_gate_hash:
-        issues.append(
-            {
-                "code": "gate_outcome_hash_drift",
-                "receipt_key": receipt_key,
-            }
-        )
-    expected_projection_hash = gy_content_hash(
-        projection.model_dump(mode="json", exclude={"projection_hash"})
-    )
-    if projection.projection_hash != expected_projection_hash:
-        issues.append(
-            {
-                "code": "confidence_ledger_projection_hash_drift",
-                "receipt_key": receipt_key,
-            }
-        )
-    if projection.conditionality_clause != CONDITIONAL_VALIDITY_CLAUSE:
-        issues.append(
-            {
-                "code": "confidence_ledger_conditionality_clause_drift",
-                "receipt_key": receipt_key,
-            }
-        )
-    if projection.maintained_assumptions != (
-        "obligation_completeness",
-        "validator_soundness",
-    ):
-        issues.append(
-            {
-                "code": "confidence_ledger_assumption_denominator_drift",
-                "receipt_key": receipt_key,
-            }
-        )
-    if (
-        receipt.risk_spend.caveat != PROMOTION_RISK_CONDITIONALITY_CAVEAT
-        or receipt.risk_spend.total_declared_delta != float(projection.total_spend.fraction)
-        or receipt.risk_spend.budget_delta != float(projection.budget_delta.fraction)
-        or receipt.risk_spend.within_budget is not projection.within_budget
-    ):
-        issues.append(
-            {
-                "code": "risk_spend_not_derived_from_confidence_ledger",
-                "receipt_key": receipt_key,
-            }
-        )
-    if projection.total_spend.numerator != 0 or not projection.within_budget:
-        issues.append(
-            {
-                "code": "fixed_time_refusal_spend_invalid",
-                "receipt_key": receipt_key,
-            }
-        )
-    rows = tuple(
-        row
-        for row in projection.promotion_rows
-        if row.obligation_class == PromotionObligationClass.CALIBRATION
-    )
-    if len(rows) != 1:
-        issues.append(
-            {
-                "code": "calibration_ledger_row_denominator_mismatch",
-                "receipt_key": receipt_key,
-                "actual": len(rows),
-            }
-        )
-        return
-    row = rows[0]
-    if (
-        row.instrument_id != "fixed_time_confidence_interval"
-        or row.execution_status != "refused"
-        or row.outcome != "preflight_refusal"
-        or row.anytime_valid
-        or row.eligible_for_promotion
-        or row.spend.numerator != 0
-    ):
-        issues.append(
-            {
-                "code": "fixed_time_calibration_not_fail_closed",
-                "receipt_key": receipt_key,
-            }
-        )
-    calibration = next(
-        (
-            item
-            for item in receipt.obligations
-            if item.obligation_class == PromotionObligationClass.CALIBRATION
-        ),
-        None,
-    )
-    spend = calibration.risk_spend if calibration is not None else None
-    if (
-        spend is None
-        or spend.n11_confidence_ledger_ref != row.check_id
-        or spend.certificate_ref != row.certificate_ref
-        or spend.instrument != row.instrument_id
-        or spend.declared_delta_spend != float(row.spend.fraction)
-    ):
-        issues.append(
-            {
-                "code": "calibration_obligation_ledger_binding_invalid",
-                "receipt_key": receipt_key,
-            }
-        )
+_validate_n11_projection = _mutation_owner._validate_n11_projection
 
 
 def _behavioral_mutations(
     payload: dict[str, Any],
     plan: GyComparisonProjectionPlan,
 ) -> list[dict[str, Any]]:
-    mutations = {
-        "ledger_projection_hand_edit": _mutate_ledger_projection,
-        "gate_outcome_drift": _mutate_gate_hash,
-        "fixed_time_refusal_laundered": _mutate_fixed_time_refusal,
-        "vacuous_scope_pass": _mutate_vacuous_scope_pass,
-        "risk_budget_ignored": _mutate_risk_budget,
-        "conditionality_clause_deleted": _mutate_conditionality_clause,
-        "strangle_drift": _mutate_strangle,
-    }
-    reports: list[dict[str, Any]] = []
-    for mutation_id, mutator in mutations.items():
-        mutated = copy.deepcopy(payload)
-        mutator(mutated)
-        report = validate_payload_without_mutation_check(mutated, plan)
-        reports.append(
-            {
-                "mutation_id": mutation_id,
-                "status": "red" if report["issues"] else "green",
-                "issue_codes": [str(issue.get("code")) for issue in report["issues"]],
-            }
-        )
-    return reports
+    """Run the complete behavioral mutation set with current facade callbacks."""
+    return _mutation_owner._behavioral_mutations(
+        payload,
+        plan,
+        callbacks=_mutation_callbacks(),
+    )
 
 
 def validate_payload_without_mutation_check(
     payload: dict[str, Any],
     plan: GyComparisonProjectionPlan,
 ) -> dict[str, Any]:
-    """Core payload check used by behavioral mutations to avoid recursion."""
-
-    stripped = copy.deepcopy(payload)
-    stripped["behavioral_mutations"] = [
-        {"mutation_id": item, "status": "red"} for item in _BEHAVIORAL_MUTATION_IDS
-    ]
-    try:
-        _set_comparison_identity(stripped, plan)
-    except ValueError as exc:
-        return {
-            "status": "fail",
-            "issues": [
-                {
-                    "code": "comparison_projection_rejected_mutation",
-                    "error": str(exc),
-                }
-            ],
-        }
-    stripped["contract_content_hash"] = _contract_content_hash(stripped)
-    return validate_payload(stripped)
-
-
-def _mutate_ledger_projection(payload: dict[str, Any]) -> None:
-    payload["contract_lane_anytime_refusal"]["confidence_ledger_projection"]["projection_hash"] = (
-        _hash("8")
+    """Validate a mutation without recursively re-running its mutation set."""
+    return _mutation_owner.validate_payload_without_mutation_check(
+        payload,
+        plan,
+        callbacks=_mutation_callbacks(),
     )
 
 
-def _mutate_gate_hash(payload: dict[str, Any]) -> None:
-    payload["contract_lane_anytime_refusal"]["gate_outcome_hash"] = _hash("7")
+_mutate_ledger_projection = _mutation_owner._mutate_ledger_projection
 
 
-def _mutate_fixed_time_refusal(payload: dict[str, Any]) -> None:
-    row = payload["contract_lane_anytime_refusal"]["confidence_ledger_projection"][
-        "promotion_rows"
-    ][0]
-    row["anytime_valid"] = True
-    row["eligible_for_promotion"] = True
+_mutate_gate_hash = _mutation_owner._mutate_gate_hash
 
 
-def _mutate_vacuous_scope_pass(payload: dict[str, Any]) -> None:
-    for obligation in payload["contract_lane_anytime_refusal"]["obligations"]:
-        if obligation["obligation_class"] == PromotionObligationClass.EFFECT.value:
-            obligation["status"] = "satisfied"
-            obligation["reason"] = None
-            obligation["semantic_scope"] = "scope_insufficient"
-            return
-    raise AssertionError("effect_scope_gap_missing")
+_mutate_fixed_time_refusal = _mutation_owner._mutate_fixed_time_refusal
 
 
-def _mutate_risk_budget(payload: dict[str, Any]) -> None:
-    payload["contract_lane_anytime_refusal"]["risk_spend"]["within_budget"] = False
+_mutate_vacuous_scope_pass = _mutation_owner._mutate_vacuous_scope_pass
 
 
-def _mutate_conditionality_clause(payload: dict[str, Any]) -> None:
-    del payload["contract_lane_anytime_refusal"]["confidence_ledger_projection"][
-        "conditionality_clause"
-    ]
+_mutate_risk_budget = _mutation_owner._mutate_risk_budget
 
 
-def _mutate_strangle(payload: dict[str, Any]) -> None:
-    payload["strangle_receipt"]["status"] = "drift"
-    payload["strangle_receipt"]["live_policy_champion_callers"] = [
-        "src/polisyos/scientist/methods/search/judge_stack.py:1648"
-    ]
+_mutate_conditionality_clause = _mutation_owner._mutate_conditionality_clause
 
 
-def _obligation_denominator() -> list[dict[str, Any]]:
-    owner_by_class = {
-        PromotionObligationClass.SYNTAX: ("gy_waist", "real_semantics"),
-        PromotionObligationClass.TYPE: ("n8_value_receipt", "real_semantics"),
-        PromotionObligationClass.SLOT: ("n8_transport_receipt", "real_semantics"),
-        PromotionObligationClass.PARAM: (
-            "g4_persisted_owner_record_resolution",
-            "real_semantics_record_resolution_only_g4_minting_strangled",
-        ),
-        PromotionObligationClass.COUPLING: ("n5_coupling_gate", "real_semantics"),
-        PromotionObligationClass.EFFECT: (
-            "gyk_entailment_owner_unwired",
-            "scope_insufficient",
-        ),
-        PromotionObligationClass.IDENTIFICATION: ("cgf_plus_cg2_promotability", "real_semantics"),
-        PromotionObligationClass.CALIBRATION: ("n8_s10_calibration_receipt", "real_semantics"),
-        PromotionObligationClass.MEASUREMENT: (
-            "measurement_rooted_owner_unwired",
-            "scope_insufficient",
-        ),
-        PromotionObligationClass.DATA: (
-            "l5_data_trust_typed_fields",
-            "real_semantics",
-        ),
-        PromotionObligationClass.IMPLEMENTATION: (
-            "s6_typed_blind_spot_posture",
-            "real_semantics",
-        ),
-        PromotionObligationClass.EQUILIBRIUM: ("n5_value_assumption_gate", "real_semantics"),
-        PromotionObligationClass.NORMATIVE: ("s7_mandate_delegation_gate", "real_semantics"),
-        PromotionObligationClass.EVAL_SAFETY: (
-            "gy_o0_eval_safety",
-            "data_only_not_required_scope_insufficient_for_pilot_deployment",
-        ),
-        PromotionObligationClass.VALUE: ("n8_value_plus_s8_value_posture", "real_semantics"),
-    }
-    return [
-        {
-            "obligation_class": item.value,
-            "owner": owner_by_class[item][0],
-            "semantic_scope": owner_by_class[item][1],
-        }
-        for item in PromotionObligationClass
-    ]
+_mutate_strangle = _mutation_owner._mutate_strangle
 
 
-def _scope_insufficient_promotion_policy() -> dict[str, str]:
-    """Return the frozen authority rule for unwired obligation owners."""
-
-    return {
-        "production": (
-            "Every scope_insufficient obligation is a typed refusal and prevents "
-            "authoritative promotion."
-        ),
-        "contract_testing": (
-            "A CG2-derived contract-testing lane may retain scope_insufficient obligations "
-            "only as unsatisfied, non-authoritative sequence coverage; consumer_promotable "
-            "remains false and no production authority is minted."
-        ),
-    }
+_obligation_denominator = _comparison_owner._obligation_denominator
 
 
-def _contract_content_hash(payload: dict[str, Any]) -> str:
-    stable = {
-        key: value for key, value in payload.items() if key not in _CONTENT_HASH_EXCLUDED_TOP_LEVEL
-    }
-    return gy_content_hash(stable)
+_scope_insufficient_promotion_policy = _comparison_owner._scope_insufficient_promotion_policy
 
 
-def _comparison_content_hash(
-    payload: dict[str, Any],
-    plan: GyComparisonProjectionPlan,
-) -> str:
-    stable = {
-        key: value
-        for key, value in payload.items()
-        if key not in _CONTENT_HASH_EXCLUDED_TOP_LEVEL | _COMPARISON_IDENTITY_FIELDS
-    }
-    return gy_comparison_content_hash(
-        stable,
-        comparison_plan=plan,
-    )
+_contract_content_hash = _comparison_owner._contract_content_hash
+
+
+_comparison_content_hash = _comparison_owner._comparison_content_hash
 
 
 def _reconcile_frozen_contract(
@@ -1070,545 +748,44 @@ def _reconcile_frozen_contract(
     live: dict[str, Any],
     plan: GyComparisonProjectionPlan,
 ) -> dict[str, Any]:
-    path = repo_root / OUTPUT_PATH
-    if not path.is_file():
-        return live
-    frozen = json.loads(path.read_text(encoding="utf-8"))
-    if frozen.get("contract_content_hash") != _contract_content_hash(frozen):
-        raise ValueError("promotion_legacy_contract_content_hash_drift")
-    if not _frozen_comparison_identity_admissible(frozen, plan):
-        raise _PromotionContractReconciliationDriftError(
-            "promotion_comparison_admission_manifest_drift",
-            details={
-                "stage": "frozen_identity",
-                "frozen_manifest": frozen.get("comparison_admission_manifest"),
-                "live_manifest": plan.manifest,
-                "frozen_comparison_identity": {
-                    field: frozen.get(field) for field in _COMPARISON_IDENTITY_FIELDS
-                },
-                "frozen_comparison_content_hash": frozen.get("comparison_content_hash"),
-            },
-        )
-    if frozen.get("comparison_admission_manifest") not in (None, plan.manifest):
-        v6_source_scope_reissue = _is_authorized_v6_source_scope_epoch_reissue(frozen, live, plan)
-        if v6_source_scope_reissue:
-            return live
-        v3_to_v6_reissue = _is_authorized_v3_to_v6_comparison_reissue(frozen, live, plan.manifest)
-        if not v3_to_v6_reissue:
-            receipt_keys = (
-                "contract_lane_anytime_refusal",
-                "production_honest_shadow",
-                "non_promotable_contract_stamp",
-            )
-            raise _PromotionContractReconciliationDriftError(
-                "promotion_comparison_admission_manifest_drift",
-                details={
-                    "stage": "unauthorized_manifest_epoch_transition",
-                    "frozen_manifest": frozen.get("comparison_admission_manifest"),
-                    "live_manifest": plan.manifest,
-                    "frozen_receipt_schema_versions": {
-                        key: (frozen.get(key) or {}).get("schema_version") for key in receipt_keys
-                    },
-                    "live_receipt_schema_versions": {
-                        key: (live.get(key) or {}).get("schema_version") for key in receipt_keys
-                    },
-                    "authorized_transition_predicates": {
-                        "v6_source_scope_reissue": v6_source_scope_reissue,
-                        "v3_to_v6_comparison_reissue": v3_to_v6_reissue,
-                    },
-                    "live_source_modules": live.get("source_modules", []),
-                },
-            )
-        return live
-    if _is_authorized_credal_input_epoch_reissue(frozen, live, plan):
-        return live
-    if _is_authorized_corr_input_epoch_reissue(frozen, live, plan):
-        return live
-    identity_fields = _COMPARISON_IDENTITY_FIELDS | {"contract_content_hash"}
-    frozen_body = {key: value for key, value in frozen.items() if key not in identity_fields}
-    live_body = {key: value for key, value in live.items() if key not in identity_fields}
-    reconciled = plan.preserve_admitted_blocks(frozen_body, live_body)
-    if not isinstance(reconciled, dict):  # pragma: no cover - mapping inputs
-        raise ValueError("promotion_contract_comparison_projection_invalid")
-    _set_comparison_identity(reconciled, plan)
-    reconciled["contract_content_hash"] = _contract_content_hash(reconciled)
-    return reconciled
-
-
-def _frozen_comparison_identity_admissible(
-    frozen: dict[str, Any],
-    live_plan: GyComparisonProjectionPlan,
-) -> bool:
-    """Accept only absent/current or self-validating registered comparison custody."""
-
-    manifest = frozen.get("comparison_admission_manifest")
-    if manifest in (None, live_plan.manifest):
-        return True
-    comparison_identity = (
-        frozen.get("comparison_projection_schema_version"),
-        frozen.get("comparison_rule_version"),
-    )
-    if comparison_identity not in {
-        (
-            GY_COMPARISON_PROJECTION_LEGACY_SCHEMA_VERSION,
-            GY_VERIFICATION_COMPARISON_LEGACY_RULE_VERSION,
-        ),
-        (
-            GY_COMPARISON_PROJECTION_SCHEMA_VERSION,
-            GY_VERIFICATION_COMPARISON_RULE_VERSION,
-        ),
-    }:
-        return False
-    try:
-        legacy_plan = build_gy_comparison_projection_plan_from_manifest(
-            frozen,
-            manifest=manifest,
-            owner_rule_registry=(canonical_promotion_verification_comparison_owner_rule_registry()),
-        )
-    except ValueError:
-        return False
-    return frozen.get("comparison_content_hash") == _comparison_content_hash(
-        frozen,
-        legacy_plan,
+    """Reconcile against current facade path and registered reissue callbacks."""
+    return _comparison_owner._reconcile_frozen_contract(
+        repo_root,
+        live,
+        plan,
+        callbacks=_comparison_callbacks(),
     )
 
 
-def _is_authorized_corr_input_epoch_reissue(
-    frozen: dict[str, Any],
-    live: dict[str, Any],
-    plan: GyComparisonProjectionPlan,
-) -> bool:
-    """Reissue only the governed CG2 input epoch and its measured dependencies.
-
-    Historical inputs are retired, never asserted to be equivalent to the new
-    producer output. Every other governing field remains under its typed owner.
-    """
-    if (
-        frozen.get("schema_version") != GY_PROMOTION_SEQUENCE_SCHEMA_VERSION
-        or live.get("schema_version") != _CONTRACT_SCHEMA_VERSION
-        or frozen.get("comparison_admission_manifest") != plan.manifest
-        or live.get("comparison_admission_manifest") != plan.manifest
-        or any(
-            frozen.get(field) != live.get(field)
-            for field in _COMPARISON_IDENTITY_FIELDS - {"comparison_content_hash"}
-        )
-        or frozen.get("comparison_content_hash") != _comparison_content_hash(frozen, plan)
-        or "proof_input_strangle" in frozen
-        or "synthetic" in frozen
-        or live.get("synthetic") is not True
-        or live.get("source_modules")
-        != [*frozen.get("source_modules", ()), _CREDAL_REFERENCE_SOURCE]
-    ):
-        return False
-    excluded = _COMPARISON_IDENTITY_FIELDS | _CONTENT_HASH_EXCLUDED_TOP_LEVEL
-    before = plan.project({key: value for key, value in frozen.items() if key not in excluded})
-    after = plan.project({key: value for key, value in live.items() if key not in excluded})
-    transitioned = False
-    try:
-        for entry in plan.entries:
-            old, new = before, after
-            old_record, new_record = frozen, live
-            for segment in entry.path:
-                old, new = old[segment], new[segment]
-                old_record, new_record = old_record[segment], new_record[segment]
-            previous = old["owner_projection"]["grounding_decision_certificate"]
-            current = new["owner_projection"]["grounding_decision_certificate"]
-            if previous is None and current is None:
-                if old != new:
-                    return False
-                continue
-            old_input = GroundingDecisionCertificate.model_validate(
-                old_record["owner_projection"]["grounding_decision_certificate"]
-            )
-            new_input = GroundingDecisionCertificate.model_validate(
-                new_record["owner_projection"]["grounding_decision_certificate"]
-            )
-            if (
-                old_input.schema_version != "policyos.runtime.grounding_decision_certificate.v1"
-                or new_input.schema_version != "policyos.runtime.grounding_decision_certificate.v2"
-                or old_input.authority_scope != "contract_testing"
-                or new_input.authority_scope != "contract_testing"
-                or old_input.production_promotable
-                or new_input.production_promotable
-                or old_input.content_hash != recompute_grounding_decision_content_hash(old_input)
-                or new_input.content_hash != recompute_grounding_decision_content_hash(new_input)
-                or old["cg2_resolution_reason"] != "non_production_anchor_scope"
-                or new["cg2_resolution_reason"] != "synthetic_input_cannot_grant_authority"
-            ):
-                return False
-            packet = _proof_input_strangle(consumed=new_input, reference=_credal_reference())
-            if not packet["default_flipped"] or live["proof_input_strangle"] != packet:
-                return False
-            old_reference = old["owner_projection"]["credal_reference"]
-            new_reference = new["owner_projection"]["credal_reference"]
-            if (
-                old_reference["schema_version"]
-                not in {
-                    "policyos.runtime.grounding_credal_reference.v1",
-                    "policyos.runtime.grounding_credal_reference.v2",
-                }
-                or new_reference["schema_version"]
-                != "policyos.runtime.grounding_credal_reference.v2"
-                or old_reference["reference_hash"] != old_input.reference_hash
-                or old_reference["reference_epoch"] != old_input.reference_epoch
-                or new_reference["reference_hash"] != new_input.reference_hash
-                or new_reference["reference_epoch"] != new_input.reference_epoch
-            ):
-                return False
-            old["owner_projection"]["grounding_decision_certificate"] = current
-            for field in ("schema_version", "reference_hash", "reference_epoch"):
-                old_reference[field] = new_reference[field]
-            old["cg2_resolution_reason"] = new["cg2_resolution_reason"]
-            for obligation in old["obligations"]:
-                obligation["evidence_refs"] = [
-                    new_input.certificate_id if ref == old_input.certificate_id else ref
-                    for ref in obligation["evidence_refs"]
-                ]
-            transitioned = True
-        before["schema_version"] = after["schema_version"]
-        before["synthetic"] = after["synthetic"]
-        before["proof_input_strangle"] = after["proof_input_strangle"]
-        before["source_modules"] = after["source_modules"]
-    except (AttributeError, KeyError, IndexError, TypeError, ValueError):
-        return False
-    return transitioned and before == after
+_frozen_comparison_identity_admissible = _comparison_owner._frozen_comparison_identity_admissible
 
 
-def _is_authorized_credal_input_epoch_reissue(
-    frozen: dict[str, Any],
-    live: dict[str, Any],
-    plan: GyComparisonProjectionPlan,
-) -> bool:
-    """Admit only the governed v1-to-v2 credal input transition after live replay.
-
-    Every receipt is projected by its existing typed owner. Only the explicit
-    nested input epoch may differ; all other governing receipt and envelope
-    values retain the ordinary comparison semantics. The returned live record
-    is newly owner-produced, never a restamp of the historical custody bytes.
-    """
-
-    if (
-        frozen.get("comparison_admission_manifest") != plan.manifest
-        or live.get("comparison_admission_manifest") != plan.manifest
-        or any(
-            frozen.get(field) != live.get(field)
-            for field in _COMPARISON_IDENTITY_FIELDS - {"comparison_content_hash"}
-        )
-        or frozen.get("comparison_content_hash") != _comparison_content_hash(frozen, plan)
-    ):
-        return False
-    identity_fields = _COMPARISON_IDENTITY_FIELDS | {"contract_content_hash"}
-    frozen_body = {key: value for key, value in frozen.items() if key not in identity_fields}
-    live_body = {key: value for key, value in live.items() if key not in identity_fields}
-    frozen_projection = plan.project(frozen_body)
-    live_projection = plan.project(live_body)
-    transitioned = False
-    try:
-        for entry in plan.entries:
-            previous: Any = frozen_body
-            current: Any = live_body
-            projected_previous: Any = frozen_projection
-            for segment in entry.path:
-                previous = previous[segment]
-                current = current[segment]
-                projected_previous = projected_previous[segment]
-            previous_receipt = entry.projector(previous)
-            current_receipt = entry.projector(current)
-            previous_reference = previous_receipt["owner_projection"]["credal_reference"]
-            current_reference = current_receipt["owner_projection"]["credal_reference"]
-            if previous_reference is None and current_reference is None:
-                if previous_receipt != current_receipt:
-                    return False
-                continue
-            if (
-                previous_reference["schema_version"]
-                != "policyos.runtime.grounding_credal_reference.v1"
-                or current_reference["schema_version"]
-                != "policyos.runtime.grounding_credal_reference.v2"
-            ):
-                return False
-            previous_reference["schema_version"] = current_reference["schema_version"]
-            if previous_receipt != current_receipt:
-                return False
-            projected_previous["owner_projection"]["credal_reference"]["schema_version"] = (
-                current_reference["schema_version"]
-            )
-            transitioned = True
-    except (KeyError, IndexError, TypeError, ValueError):
-        return False
-    return transitioned and frozen_projection == live_projection
+_is_authorized_corr_input_epoch_reissue = _comparison_owner._is_authorized_corr_input_epoch_reissue
 
 
-def _is_authorized_v3_to_v6_comparison_reissue(
-    frozen: dict[str, Any],
-    live: dict[str, Any],
-    live_plan_manifest: list[dict[str, str]],
-) -> bool:
-    """Recognize only the one frozen v3-receipt to live v6-receipt reissue."""
-
-    receipt_keys = (
-        "contract_lane_anytime_refusal",
-        "production_honest_shadow",
-        "non_promotable_contract_stamp",
-    )
-    expected_pointers = {f"/{key}" for key in receipt_keys}
-
-    def receipt_epochs(payload: dict[str, Any]) -> tuple[object, ...]:
-        return tuple(
-            payload.get(key, {}).get("schema_version")
-            if isinstance(payload.get(key), dict)
-            else None
-            for key in receipt_keys
-        )
-
-    frozen_manifest = frozen.get("comparison_admission_manifest")
-    live_manifest = live.get("comparison_admission_manifest")
-    if not isinstance(frozen_manifest, list) or not isinstance(live_manifest, list):
-        return False
-    if live_manifest != live_plan_manifest:
-        return False
-    if {row.get("json_pointer") for row in frozen_manifest if isinstance(row, dict)} != (
-        expected_pointers
-    ):
-        return False
-    if {row.get("json_pointer") for row in live_manifest if isinstance(row, dict)} != (
-        expected_pointers
-    ):
-        return False
-    return (
-        len(frozen_manifest) == len(receipt_keys)
-        and len(live_manifest) == len(receipt_keys)
-        and frozen.get("comparison_projection_schema_version")
-        == GY_COMPARISON_PROJECTION_SCHEMA_VERSION
-        and frozen.get("comparison_rule_version") == GY_VERIFICATION_COMPARISON_RULE_VERSION
-        and live.get("comparison_projection_schema_version")
-        == GY_COMPARISON_PROJECTION_SCHEMA_VERSION
-        and live.get("comparison_rule_version") == GY_VERIFICATION_COMPARISON_RULE_VERSION
-        and receipt_epochs(frozen) == (GY_PROMOTION_SEQUENCE_SCHEMA_VERSION,) * len(receipt_keys)
-        and receipt_epochs(live)
-        == ("policyos.policy_design_case.layer3_gy.n9_promotion.v6",) * len(receipt_keys)
-        and {row.get("owner_rule") for row in frozen_manifest if isinstance(row, dict)}
-        == {CANONICAL_PROMOTION_VERIFICATION_COMPARISON_HISTORY_RULE}
-        and {row.get("owner_rule") for row in live_manifest if isinstance(row, dict)}
-        == {CANONICAL_PROMOTION_VERIFICATION_COMPARISON_V6_HISTORY_RULE}
-    )
-
-
-_N9_V6_EPOCH = "policyos.policy_design_case.layer3_gy.n9_promotion.v6"
-_N9_V8_EPOCH = "policyos.policy_design_case.layer3_gy.n9_promotion.v8"
-_N9_V6_SCOPE_RULE = "polisyos.policy_design_case.layer3_gy.n9_obligation_scope.v3"
-_N9_V6_MEASUREMENT_OWNER = (
-    "polisyos.runtime.quality.data_forge_binding.MeasurementRootProducer.produce_from_catalog"
+_is_authorized_credal_input_epoch_reissue = (
+    _comparison_owner._is_authorized_credal_input_epoch_reissue
 )
 
 
-def _n9_v6_scope_hash(receipt: Any) -> str:
-    """Recompute the frozen v6 scope formula from its typed, complete owner input."""
-    owner = receipt.owner_projection
-    return gy_content_hash(
-        {
-            "rule_version": _N9_V6_SCOPE_RULE,
-            "promotion_rule_version": _N9_V6_EPOCH,
-            "design_problem_id": owner.design_problem_binding.design_problem_id,
-            "problem_content_hash": owner.design_problem_binding.problem_content_hash,
-            "candidate_id": owner.candidate_summary.candidate_id,
-            "candidate_content_hash": owner.candidate_summary.content_hash,
-            "operation_invocation_id": owner.operation_invocation_id,
-        }
-    )
+_is_authorized_v3_to_v6_comparison_reissue = (
+    _comparison_owner._is_authorized_v3_to_v6_comparison_reissue
+)
 
 
-def _translate_n9_semantic_ledger_epoch(value: dict[str, Any]) -> dict[str, Any]:
-    """Recompute hash descendants of one typed rule transition without dropping fields."""
-    from polisyos.runtime.quality import confidence_ledger as owner
-
-    previous = owner.N9PromotionSemanticLedgerProjection.model_validate(value)
-    if previous.risk_scope.rule_ref != _N9_V6_EPOCH:
-        raise ValueError("promotion_reissue_ledger_epoch_invalid")
-    scope = owner.ConfidenceRiskBudgetScope.model_validate(
-        {**previous.risk_scope.model_dump(mode="json"), "rule_ref": _N9_V8_EPOCH}
-    )
-    scoped = previous.model_copy(update={"risk_scope": scope, "scope_id": scope.scope_id})
-    root_hash = owner._content_hash(
-        owner._n9_semantic_ledger_root_values(
-            receipt=scoped,
-            risk_scope=scope,
-        )
-    )
-    translated_hashes = {previous.root_projection_hash: root_hash}
-    events = []
-    checks = {}
-    for event in previous.events:
-        check = event.check.model_dump(mode="json")
-        check["filtration_projection_hash"] = translated_hashes[
-            event.check.filtration_projection_hash
-        ]
-        check["claim_execution_projection_hash"] = (
-            owner._semantic_claim_execution_projection_hash_from_projection(
-                owner.ConfidenceLedgerSemanticCheck.model_validate(check)
-            )
-        )
-        check["check_projection_hash"] = owner._content_hash(
-            {key: item for key, item in check.items() if key != "check_projection_hash"}
-        )
-        values = {
-            **event.model_dump(mode="json"),
-            "check": check,
-            "parent_event_projection_hash": translated_hashes[event.parent_event_projection_hash],
-        }
-        values["event_projection_hash"] = owner._content_hash(
-            {key: item for key, item in values.items() if key != "event_projection_hash"}
-        )
-        translated = owner.ConfidenceLedgerSemanticEvent.model_validate(values)
-        translated_hashes[event.event_projection_hash] = translated.event_projection_hash
-        events.append(translated.model_dump(mode="json"))
-        checks[translated.check.request_key] = translated.check.model_dump(mode="json")
-    payload = {
-        **scoped.model_dump(mode="json"),
-        "root_projection_hash": root_hash,
-        "events": events,
-        "checks": [checks[key] for key in sorted(checks)],
-        "head_event_projection_hash": translated_hashes[previous.head_event_projection_hash],
-    }
-    payload["projection_hash"] = owner._content_hash(
-        {key: item for key, item in payload.items() if key != "projection_hash"}
-    )
-    return owner.N9PromotionSemanticLedgerProjection.model_validate(payload).model_dump(mode="json")
+_N9_V6_EPOCH = _comparison_owner._N9_V6_EPOCH
+_N9_V8_EPOCH = _comparison_owner._N9_V8_EPOCH
+_N9_V6_SCOPE_RULE = _comparison_owner._N9_V6_SCOPE_RULE
+_N9_V6_MEASUREMENT_OWNER = _comparison_owner._N9_V6_MEASUREMENT_OWNER
 
 
-def _translate_n9_v6_receipt_epoch(
-    value: dict[str, Any],
-) -> tuple[dict[str, Any], dict[str, tuple[str, str, str]]]:
-    """Translate only the verified v6 source/scope derivation into current comparison custody."""
-    from polisyos.pdc import PromotionObligationDraft, PromotionObligationRecord
-    from polisyos.runtime.quality import confidence_ledger as ledger_owner
-    from polisyos.runtime.quality import promotion_sequence as owner
+_n9_v6_scope_hash = _comparison_owner._n9_v6_scope_hash
 
-    previous = owner.parse_canonical_promotion_history_receipt(value)
-    if previous.historical_projection() != value:
-        raise ValueError("promotion_reissue_historical_receipt_incomplete")
-    if previous.schema_version != _N9_V6_EPOCH or previous.promoted or previous.consumer_promotable:
-        raise ValueError("promotion_reissue_receipt_epoch_or_authority_invalid")
-    historical_owner = previous.owner_projection
-    historical_summary = historical_owner.candidate_summary.model_dump(mode="json")
-    current_summary = owner.CandidateSummary.model_validate(
-        {
-            **historical_summary,
-            "source_content_hash": None,
-            "grounding_issue_codes": [],
-            "grounding_report_ref": None,
-        }
-    )
-    current_owner_payload = historical_owner.model_dump(mode="json")
-    current_owner_payload["schema_version"] = (
-        owner.CANONICAL_PROMOTION_OWNER_PROJECTION_SCHEMA_VERSION
-    )
-    current_owner_payload["candidate_summary"] = current_summary.model_dump(mode="json")
-    current_owner_payload.pop("projection_hash", None)
-    current_owner_payload["projection_hash"] = gy_content_hash(current_owner_payload)
-    current_owner = owner.CanonicalPromotionOwnerProjection.model_validate(current_owner_payload)
-    current_input = owner._input_from_owner_projection(current_owner, repo_root=None)
-    if current_input.schema_version != _N9_V8_EPOCH or current_input.producer_root_refs:
-        raise ValueError("promotion_reissue_requires_unbridged_contract_replay")
-    old_scope_hash = _n9_v6_scope_hash(previous)
-    old_drafts = [
-        PromotionObligationDraft.model_validate(
-            row.model_dump(
-                mode="json",
-                exclude=owner._PROMOTION_OBLIGATION_IDENTITY_FIELDS,
-            )
-        )
-        for row in previous.obligations
-        if row.obligation_role == "class_gate"
-    ]
-    new_drafts = []
-    for draft in old_drafts:
-        if draft.obligation_class == PromotionObligationClass.MEASUREMENT:
-            if draft.owner_ref != _N9_V6_MEASUREMENT_OWNER:
-                raise ValueError("promotion_reissue_measurement_source_invalid")
-            draft = draft.model_copy(update={"owner_ref": owner._MEASUREMENT_ROOT_OWNER_REF})
-        new_drafts.append(draft)
-    current_rows = owner._finalize_obligations(current_input, new_drafts)
-    if len(current_rows) != len(previous.obligations):
-        raise ValueError("promotion_reissue_obligation_identity_denominator_drift")
-    identity_map = {}
-    for old, current in zip(previous.obligations, current_rows, strict=True):
-        if (old.obligation_role, old.source_obligation_ref) != (
-            current.obligation_role,
-            current.source_obligation_ref,
-        ):
-            raise ValueError("promotion_reissue_obligation_order_drift")
-        old_draft = PromotionObligationDraft.model_validate(
-            old.model_dump(
-                mode="json",
-                exclude=owner._PROMOTION_OBLIGATION_IDENTITY_FIELDS,
-            )
-        )
-        if old.obligation_role == "class_gate":
-            source_ref, source_hash = owner._class_gate_source(old_draft)
-        else:
-            source_ref = current.source_obligation_ref
-            source_hash = current.source_obligation_content_hash
-            if source_ref == f"{owner.PROMOTION_SEQUENCE_REF}#effective_independence":
-                resolution = owner._evidence_resolution(None, "effective_independence")
-                source_hash = gy_content_hash(
-                    {
-                        "rule_version": _N9_V6_SCOPE_RULE,
-                        "source_obligation_ref": source_ref,
-                        "predicate_provenance": resolution.predicate_class,
-                        "capability_state": resolution.status,
-                        "owner_ref": owner._effective_independence_obligation(resolution).owner_ref,
-                    }
-                )
-            current_draft = PromotionObligationDraft.model_validate(
-                current.model_dump(
-                    mode="json",
-                    exclude=owner._PROMOTION_OBLIGATION_IDENTITY_FIELDS,
-                )
-            )
-            if old_draft != current_draft:
-                raise ValueError("promotion_reissue_decisive_predicate_drift")
-        expected_old = PromotionObligationRecord.from_draft(
-            old_draft,
-            obligation_role=old.obligation_role,
-            source_obligation_ref=source_ref,
-            source_obligation_content_hash=source_hash,
-            instance_scope_content_hash=old_scope_hash,
-        )
-        if old != expected_old:
-            raise ValueError("promotion_reissue_historical_obligation_derivation_invalid")
-        identity_map[old.obligation_instance_id] = (
-            current.obligation_instance_id,
-            old.source_obligation_ref,
-            old.obligation_role,
-        )
-    payload = previous.historical_projection()
-    payload["schema_version"] = _N9_V8_EPOCH
-    payload["owner_projection"] = current_owner.model_dump(mode="json")
-    payload["obligations"] = [row.model_dump(mode="json") for row in current_rows]
-    rules = payload["computed_authority_boundary"]["rule_version_refs"]
-    if _N9_V6_EPOCH not in rules:
-        raise ValueError("promotion_reissue_boundary_epoch_missing")
-    payload["computed_authority_boundary"]["rule_version_refs"] = [
-        _N9_V8_EPOCH if rule == _N9_V6_EPOCH else rule for rule in rules
-    ]
-    certificate = payload["confidence_ledger_projection"]
-    if certificate["risk_scope"]["rule_ref"] != _N9_V6_EPOCH:
-        raise ValueError("promotion_reissue_certificate_epoch_invalid")
-    certificate["risk_scope"]["rule_ref"] = _N9_V8_EPOCH
-    certificate["projection_hash"] = ledger_owner._content_hash(
-        {key: item for key, item in certificate.items() if key != "projection_hash"}
-    )
-    payload["confidence_ledger_semantic_projection"] = _translate_n9_semantic_ledger_epoch(
-        payload["confidence_ledger_semantic_projection"]
-    )
-    payload["gate_outcome_hash"] = owner._gate_outcome_hash(
-        current_rows,
-        open_world_gate=current_input.open_world_gate,
-        epoch_validity_projection=current_input.epoch_validity_projection,
-    )
-    current = owner.CanonicalPromotionReceipt.model_validate(payload)
-    return current.model_dump(mode="json"), identity_map
+
+_translate_n9_semantic_ledger_epoch = _comparison_owner._translate_n9_semantic_ledger_epoch
+
+
+_translate_n9_v6_receipt_epoch = _comparison_owner._translate_n9_v6_receipt_epoch
 
 
 def _is_authorized_v6_source_scope_epoch_reissue(
@@ -1616,939 +793,94 @@ def _is_authorized_v6_source_scope_epoch_reissue(
     live: dict[str, Any],
     plan: GyComparisonProjectionPlan,
 ) -> bool:
-    """Reconcile the entire admitted set through exact typed epoch derivations."""
-    if (
-        "comparison_admission_manifest" not in frozen
-        or not isinstance(frozen["comparison_admission_manifest"], list)
-        or live.get("comparison_admission_manifest") != plan.manifest
-    ):
-        return False
-    expected_manifest = [
-        {**entry, "owner_rule": CANONICAL_PROMOTION_VERIFICATION_COMPARISON_V6_HISTORY_RULE}
-        for entry in plan.manifest
-    ]
-    if frozen["comparison_admission_manifest"] != expected_manifest:
-        return False
-    if any(
-        frozen.get(field) != live.get(field)
-        for field in (
-            "comparison_projection_schema_version",
-            "comparison_rule_version",
-        )
-    ):
-        return False
-    try:
-        historical_plan = build_gy_comparison_projection_plan_from_manifest(
-            frozen,
-            manifest=frozen["comparison_admission_manifest"],
-            owner_rule_registry=canonical_promotion_verification_comparison_owner_rule_registry(),
-        )
-        if frozen.get("comparison_content_hash") != _comparison_content_hash(
-            frozen, historical_plan
-        ):
-            return False
-        # The earlier S3 input epoch is a separately governed transition. Keep
-        # its registered v6 owner and its exact predicate when composing it with
-        # this source/scope epoch; never normalize credal fields in the new one.
-        source = frozen
-        credal_transition = copy.deepcopy(frozen)
-        has_previous_credal = False
-        for entry in historical_plan.entries:
-            target: Any = credal_transition
-            for segment in entry.path:
-                target = target[segment]
-            reference = target["owner_projection"]["credal_reference"]
-            if reference is not None and reference["schema_version"] == (
-                "policyos.runtime.grounding_credal_reference.v1"
-            ):
-                reference["schema_version"] = "policyos.runtime.grounding_credal_reference.v2"
-                projection = target["owner_projection"]
-                projection["projection_hash"] = gy_content_hash(
-                    {key: item for key, item in projection.items() if key != "projection_hash"}
-                )
-                has_previous_credal = True
-        if has_previous_credal:
-            _set_comparison_identity(credal_transition, historical_plan)
-            credal_transition["contract_content_hash"] = _contract_content_hash(credal_transition)
-            if not _is_authorized_credal_input_epoch_reissue(
-                frozen, credal_transition, historical_plan
-            ):
-                return False
-            source = credal_transition
-        excluded = _CONTENT_HASH_EXCLUDED_TOP_LEVEL | _COMPARISON_IDENTITY_FIELDS
-        previous_body = {key: value for key, value in source.items() if key not in excluded}
-        current_body = {key: value for key, value in live.items() if key not in excluded}
-        translated_body = copy.deepcopy(previous_body)
-        current_projection = plan.project(current_body)
-        identity_map = {}
-        for entry in historical_plan.entries:
-            raw: Any = previous_body
-            target: Any = translated_body
-            for segment in entry.path[:-1]:
-                raw = raw[segment]
-                target = target[segment]
-            projected, identities = _translate_n9_v6_receipt_epoch(raw[entry.path[-1]])
-            target[entry.path[-1]] = projected
-            for before, after in identities.items():
-                if before in identity_map and identity_map[before] != after:
-                    return False
-                identity_map[before] = after
-        witness = translated_body["obligation_instance_mutation_witness"]
-        old_id = witness["removed_obligation_instance_id"]
-        new_id, source_ref, role = identity_map[old_id]
-        if (
-            witness["removed_source_obligation_ref"] != source_ref
-            or witness["removed_obligation_role"] != role
-            or witness["authority_issues"]
-            != [
-                {
-                    "code": "decisive_obligation_omitted",
-                    "obligation_instance_id": old_id,
-                }
-            ]
-        ):
-            return False
-        witness["removed_obligation_instance_id"] = new_id
-        witness["authority_issues"][0]["obligation_instance_id"] = new_id
-        # The registered comparison plan owns both typed receipt projection and
-        # its outer operational-time semantics. Apply it to the entire translated
-        # body, just as for the actual live producer, rather than inserting an
-        # already projected receipt after that outer pass has completed.
-        if plan.project(translated_body) == current_projection:
-            return True
-
-        # The stored v6 source/scope epoch and the live CG2 input epoch are two
-        # independently governed transitions from this same frozen base. First
-        # derive the complete v8 receipt/scope projection above; then present that
-        # exact intermediate to the existing CORR verifier. It may authorize only
-        # its typed certificate/reference, reason, source-module and strangle
-        # changes, while comparing the remaining full projected body. Neither
-        # transition can stand in for the other, and any unrelated drift stays red.
-        intermediate = copy.deepcopy(source)
-        intermediate.update(translated_body)
-        _set_comparison_identity(intermediate, plan)
-        intermediate["contract_content_hash"] = _contract_content_hash(intermediate)
-        return _is_authorized_corr_input_epoch_reissue(intermediate, live, plan)
-    except (KeyError, IndexError, TypeError, ValueError):
-        return False
-
-
-def _set_comparison_identity(
-    payload: dict[str, Any],
-    plan: GyComparisonProjectionPlan,
-) -> None:
-    payload["comparison_admission_manifest"] = plan.manifest
-    payload["comparison_projection_schema_version"] = GY_COMPARISON_PROJECTION_SCHEMA_VERSION
-    payload["comparison_rule_version"] = GY_VERIFICATION_COMPARISON_RULE_VERSION
-    payload["comparison_content_hash"] = _comparison_content_hash(payload, plan)
-
-
-def _comparison_identity_issues(payload: dict[str, Any]) -> list[dict[str, Any]]:
-    issues: list[dict[str, Any]] = []
-    if (
-        payload.get("comparison_projection_schema_version")
-        != GY_COMPARISON_PROJECTION_SCHEMA_VERSION
-    ):
-        issues.append({"code": "comparison_projection_schema_version_invalid"})
-    if payload.get("comparison_rule_version") != GY_VERIFICATION_COMPARISON_RULE_VERSION:
-        issues.append({"code": "comparison_rule_version_invalid"})
-    manifest = payload.get("comparison_admission_manifest")
-    try:
-        plan = build_gy_comparison_projection_plan_from_manifest(
-            payload,
-            manifest=manifest,
-            owner_rule_registry=(canonical_promotion_verification_comparison_owner_rule_registry()),
-        )
-    except ValueError as exc:
-        issues.append({"code": "comparison_admission_manifest_invalid", "error": str(exc)})
-    else:
-        if payload.get("comparison_content_hash") != _comparison_content_hash(payload, plan):
-            issues.append({"code": "comparison_content_hash_drift"})
-    return issues
-
-
-def _obligation_detail(
-    receipt: CanonicalPromotionReceipt,
-    obligation_class: PromotionObligationClass,
-) -> str:
-    for obligation in receipt.obligations:
-        if obligation.obligation_class == obligation_class:
-            return obligation.detail
-    return ""
-
-
-@dataclass(frozen=True)
-class _SourceFlipReplacement:
-    relative_path: str
-    old: str
-    new: str
-
-
-@dataclass(frozen=True)
-class _SourceFlipCase:
-    mutation_id: str
-    guard: str
-    replacements: tuple[_SourceFlipReplacement, ...]
-    probe_command: tuple[str, ...]
-
-
-def _run_source_flip_case(repo_root: Path, case: _SourceFlipCase) -> dict[str, Any]:
-    originals: dict[Path, str] = {}
-    try:
-        for replacement in case.replacements:
-            path = repo_root / replacement.relative_path
-            if path not in originals:
-                originals[path] = path.read_text(encoding="utf-8")
-            text = path.read_text(encoding="utf-8")
-            if replacement.old not in text:
-                return {
-                    "mutation_id": case.mutation_id,
-                    "result": "HARNESS_ERROR",
-                    "guard": case.guard,
-                    "proof": f"source guard not found in {replacement.relative_path}",
-                }
-            path.write_text(text.replace(replacement.old, replacement.new, 1), encoding="utf-8")
-        completed = subprocess.run(
-            case.probe_command,
-            cwd=repo_root,
-            text=True,
-            capture_output=True,
-            timeout=240,
-            check=False,
-        )
-        if completed.returncode != 0:
-            return {
-                "mutation_id": case.mutation_id,
-                "result": "RED",
-                "guard": case.guard,
-                "proof": {
-                    "command": list(case.probe_command),
-                    "exit_code": completed.returncode,
-                    "stdout_tail": _output_tail(completed.stdout),
-                    "stderr_tail": _output_tail(completed.stderr),
-                },
-            }
-        return {
-            "mutation_id": case.mutation_id,
-            "result": "GREEN_MUTATION_SURVIVED",
-            "guard": case.guard,
-            "proof": {
-                "command": list(case.probe_command),
-                "stdout_tail": _output_tail(completed.stdout),
-                "stderr_tail": _output_tail(completed.stderr),
-            },
-        }
-    except Exception as exc:  # pragma: no cover - surfaced as harness data.
-        return {
-            "mutation_id": case.mutation_id,
-            "result": "HARNESS_ERROR",
-            "guard": case.guard,
-            "proof": str(exc),
-        }
-    finally:
-        for path, text in originals.items():
-            path.write_text(text, encoding="utf-8")
-
-
-def _source_flip_cases() -> tuple[_SourceFlipCase, ...]:
-    test_file = "tests/unit/runtime/quality/test_promotion_sequence.py"
-    source = "src/polisyos/runtime/quality/promotion_sequence.py"
-    confidence_source = "src/polisyos/runtime/quality/confidence_ledger.py"
-    generation_source = "src/polisyos/runtime/quality/generation_cycle.py"
-    return (
-        _SourceFlipCase(
-            mutation_id="source_flip_no_self_promotion_guard",
-            guard="AuthorityDerivationTrace._reject_self_promotion",
-            replacements=(
-                _SourceFlipReplacement(
-                    relative_path="src/polisyos/pdc/_impl/gy_waist.py",
-                    old='        if self.transform_mismatch_disposition not in {"matched", "downgraded", "rejected"}:\n            raise ValueError("authority_transform hints cannot self-promote")',
-                    new='        if False and self.transform_mismatch_disposition not in {"matched", "downgraded", "rejected"}:\n            raise ValueError("authority_transform hints cannot self-promote")',
-                ),
-            ),
-            probe_command=_pytest_probe(
-                f"{test_file}::test_no_self_promotion_rejected_by_trace_guard"
-            ),
-        ),
-        _SourceFlipCase(
-            mutation_id="source_flip_non_anytime_preflight_guard",
-            guard="non-anytime-valid proof profiles must fail before execution",
-            replacements=(
-                _SourceFlipReplacement(
-                    relative_path=confidence_source,
-                    old='    if profile.proof_kernel_id == "ineligible_v1":',
-                    new='    if False and profile.proof_kernel_id == "ineligible_v1":',
-                ),
-                _SourceFlipReplacement(
-                    relative_path=confidence_source,
-                    old="    if not profile.deterministic and not profile.anytime_valid:",
-                    new="    if False and not profile.deterministic and not profile.anytime_valid:",
-                ),
-            ),
-            probe_command=_pytest_probe(
-                f"{test_file}::test_fixed_time_n8_calibration_is_ledger_refused_and_stays_shadow"
-            ),
-        ),
-        _SourceFlipCase(
-            mutation_id="source_flip_real_transport_refusal",
-            guard="N8 transport receipt must not be blocked",
-            replacements=(
-                _SourceFlipReplacement(
-                    relative_path=source,
-                    old='    if receipt.transport_receipt.status == "blocked":',
-                    new='    if False and receipt.transport_receipt.status == "blocked":',
-                ),
-            ),
-            probe_command=_pytest_probe(
-                f"{test_file}::test_untransportable_candidate_stays_shadow"
-            ),
-        ),
-        _SourceFlipCase(
-            mutation_id="source_flip_cg2_owner_call_removed",
-            guard="CG2 promotability must be resolved by the owner call",
-            replacements=(
-                _SourceFlipReplacement(
-                    relative_path=source,
-                    old="        resolution = resolver(certificate, reference)",
-                    new="        resolution = None",
-                ),
-            ),
-            probe_command=_pytest_probe(
-                f"{test_file}::test_fixed_time_n8_calibration_is_ledger_refused_and_stays_shadow"
-            ),
-        ),
-        _SourceFlipCase(
-            mutation_id="source_flip_g4_owner_resolution_removed",
-            guard="G4 record ref must dereference the persisted owner artifact",
-            replacements=(
-                _SourceFlipReplacement(
-                    relative_path=source,
-                    old='    return None, "governed_promotion_record_not_found"',
-                    new=(
-                        '    return {"promotion_record_id": record_ref, '
-                        '"promotion_state": "promotion_blocked"}, None'
-                    ),
-                ),
-            ),
-            probe_command=_pytest_probe(
-                f"{test_file}::test_forged_g4_ref_is_refused_by_owner_resolution"
-            ),
-        ),
-        _SourceFlipCase(
-            mutation_id="source_flip_timeout_to_favorable",
-            guard="missing EFFECT evidence stays unknown despite the legacy timeout flag",
-            replacements=(
-                _SourceFlipReplacement(
-                    relative_path=source,
-                    old=(
-                        "        gate_id=PromotionGateId.GYK_ENTAILMENT,\n"
-                        "        status=PromotionObligationStatus.UNKNOWN,\n"
-                        "        reason=PromotionFailClosedReason.UNKNOWN,"
-                    ),
-                    new=(
-                        "        gate_id=PromotionGateId.GYK_ENTAILMENT,\n"
-                        "        status=PromotionObligationStatus.SATISFIED,\n"
-                        "        reason=None,"
-                    ),
-                ),
-            ),
-            probe_command=_pytest_probe(
-                f"{test_file}::test_timeout_knob_cannot_decide_effect_or_fabricate_block"
-            ),
-        ),
-        _SourceFlipCase(
-            mutation_id="source_flip_lower_boundary_meet",
-            guard="authority meet keeps lower boundary",
-            replacements=(
-                _SourceFlipReplacement(
-                    relative_path=source,
-                    old=(
-                        '        value_grade = "advisory_admissible" '
-                        'if decision.promotable else "unsupported"'
-                    ),
-                    new=(
-                        '        value_grade = "decision_admissible" '
-                        'if decision.promotable else "unsupported"'
-                    ),
-                ),
-            ),
-            probe_command=_pytest_probe(
-                f"{test_file}::test_lower_boundary_wins_over_optimistic_declared_transform"
-            ),
-        ),
-        _SourceFlipCase(
-            mutation_id="source_flip_non_promotable_bind_stamp",
-            guard="CG2 owner-store non-promotable stamp",
-            replacements=(
-                _SourceFlipReplacement(
-                    relative_path=source,
-                    old="    return resolution.reason",
-                    new="    return None",
-                ),
-            ),
-            probe_command=_pytest_probe(
-                f"{test_file}::test_contract_testing_bind_receipt_is_intrinsically_non_promotable"
-            ),
-        ),
-        _SourceFlipCase(
-            mutation_id="source_flip_n6_ledger_revalidation_removed",
-            guard="N6 revalidates the typed N9/N11 receipt before DecisionFront",
-            replacements=(
-                _SourceFlipReplacement(
-                    relative_path=generation_source,
-                    old="    return promotion_receipt_allows_decision_front(",
-                    new="    return True or promotion_receipt_allows_decision_front(",
-                ),
-            ),
-            probe_command=_pytest_probe(
-                f"{test_file}::test_failed_obligation_cannot_be_relabelled_into_decision_front"
-            ),
-        ),
-        _SourceFlipCase(
-            mutation_id="source_flip_vacuous_scope_autopass",
-            guard="scope_insufficient cannot become satisfied in frozen receipt",
-            replacements=(
-                _SourceFlipReplacement(
-                    relative_path=source,
-                    old='            obligation.status == PromotionObligationStatus.SATISFIED\n            and obligation.semantic_scope == "scope_insufficient"',
-                    new='            False and obligation.status == PromotionObligationStatus.SATISFIED\n            and obligation.semantic_scope == "scope_insufficient"',
-                ),
-            ),
-            probe_command=_pytest_probe(
-                f"{test_file}::test_scope_insufficient_obligation_does_not_vacuously_pass"
-            ),
-        ),
-        _SourceFlipCase(
-            mutation_id="source_flip_scope_insufficient_authority_guard",
-            guard="scope-insufficient obligations cannot mint production authority",
-            replacements=(
-                _SourceFlipReplacement(
-                    relative_path=source,
-                    old=("        if (\n            self.promoted\n            and scope_gaps"),
-                    new=(
-                        "        if (\n"
-                        "            False\n"
-                        "            and self.promoted\n"
-                        "            and scope_gaps"
-                    ),
-                ),
-            ),
-            probe_command=_pytest_probe(
-                f"{test_file}::test_scope_insufficient_cannot_mint_production_authority"
-            ),
-        ),
-        _SourceFlipCase(
-            mutation_id="source_flip_invented_measurement_marker_reintroduced",
-            guard="measurement obligation cannot read a synthetic calibration-scope marker",
-            replacements=(
-                _SourceFlipReplacement(
-                    relative_path=source,
-                    old="    del receipt",
-                    new=(
-                        "    if receipt is not None and "
-                        'receipt.value_outer_set.calibration_scope.get("measurement_status"):\n'
-                        "        return _satisfied_obligation(\n"
-                        "            obligation_class=PromotionObligationClass.MEASUREMENT,\n"
-                        "            gate_id=PromotionGateId.N8_VALUE,\n"
-                        '            owner_ref="synthetic measurement marker",\n'
-                        '            detail="Synthetic marker was treated as measurement authority.",\n'
-                        "        )\n"
-                        "    del receipt"
-                    ),
-                ),
-            ),
-            probe_command=_pytest_probe(
-                f"{test_file}::test_invented_measurement_marker_does_not_supply_authority"
-            ),
-        ),
-        _SourceFlipCase(
-            mutation_id="source_flip_unseen_shape_panel_coupling",
-            guard="generic ValueGateReceipt consumption",
-            replacements=(
-                _SourceFlipReplacement(
-                    relative_path=source,
-                    old="    _assert_generic_value_receipt(receipt)",
-                    new="    _assert_panel_specific_value_receipt(receipt)",
-                ),
-            ),
-            probe_command=_pytest_probe(
-                f"{test_file}::test_unseen_non_panel_value_receipt_flows_unchanged"
-            ),
-        ),
-        _SourceFlipCase(
-            mutation_id="source_flip_live_champion_path",
-            guard="legacy champion path strangle",
-            replacements=(
-                _SourceFlipReplacement(
-                    relative_path=source,
-                    old="    return tuple(sorted(dict.fromkeys(callers)))",
-                    new='    return ("src/polisyos/scientist/methods/search/judge_stack.py:1648",)',
-                ),
-            ),
-            probe_command=_pytest_probe(
-                f"{test_file}::test_reintroduced_champion_path_turns_strangle_receipt_red"
-            ),
-        ),
-        _SourceFlipCase(
-            mutation_id="source_flip_confidence_projection_recompute_guard",
-            guard="N11 promotion projection must be recomputed from the current ledger head",
-            replacements=(
-                _SourceFlipReplacement(
-                    relative_path=source,
-                    old="        and receipt.confidence_ledger_projection != expected_projection",
-                    new=(
-                        "        and False\n"
-                        "        and receipt.confidence_ledger_projection != expected_projection"
-                    ),
-                ),
-            ),
-            probe_command=_pytest_probe(
-                f"{test_file}::test_hand_edited_confidence_projection_is_rejected"
-            ),
-        ),
-        _SourceFlipCase(
-            mutation_id="source_flip_ledger_bypass_guard",
-            guard="a satisfied probabilistic obligation must bind an eligible N11 row",
-            replacements=(
-                _SourceFlipReplacement(
-                    relative_path=source,
-                    old=(
-                        "        if (\n"
-                        "            obligation.status == PromotionObligationStatus.SATISFIED\n"
-                        "            and ledger_required\n"
-                        "            and not any("
-                    ),
-                    new=(
-                        "        if (\n"
-                        "            False\n"
-                        "            and obligation.status == PromotionObligationStatus.SATISFIED\n"
-                        "            and ledger_required\n"
-                        "            and not any("
-                    ),
-                ),
-            ),
-            probe_command=_pytest_probe(
-                f"{test_file}::test_probabilistic_certificate_bypassing_ledger_is_rejected"
-            ),
-        ),
+    """Apply the registered v6 source/scope reissue with current facade callbacks."""
+    return _comparison_owner._is_authorized_v6_source_scope_epoch_reissue(
+        frozen,
+        live,
+        plan,
+        callbacks=_comparison_callbacks(),
     )
 
 
-def _pytest_probe(*node_ids: str) -> tuple[str, ...]:
-    return ("python3", "-m", "pytest", *node_ids, "-q")
+_set_comparison_identity = _comparison_owner._set_comparison_identity
 
 
-def _output_tail(output: str, *, max_lines: int = 20) -> str:
-    lines = [line for line in output.splitlines() if line.strip()]
-    return "\n".join(lines[-max_lines:])
+_comparison_identity_issues = _comparison_owner._comparison_identity_issues
 
 
-def _promotion_input(**overrides: object) -> CanonicalPromotionInput:
-    reference, decision = _cg2_contract_bind()
-    kwargs: dict[str, Any] = {
-        "design_problem_binding": N9DesignProblemBinding(
-            design_problem_id="frozen_n9_contract",
-            problem_content_hash=gy_content_hash(
-                {
-                    "design_problem_id": "frozen_n9_contract",
-                    "schema_version": "policyos.runtime.design_problem.frozen-n9.v1",
-                }
-            ),
-            model_spec_ref=None,
-            problem_schema_version="policyos.runtime.design_problem.frozen-n9.v1",
-        ),
-        "candidate_summary": _summary(),
-        "value_receipt": _value_receipt(),
-        "grounding_decision_certificate": decision,
-        "credal_reference": reference,
-        "s6_blind_spot_posture": _s6_posture(),
-        "s7_delegation_posture": _s7_posture(),
-        "s8_value_posture": _s8_posture(),
-        "declared_authority_transform": {
-            "requested_evidence_kind": "transport",
-            "requested_decision_grade": "advisory_admissible",
-        },
-    }
-    kwargs.update(overrides)
-    return CanonicalPromotionInput(**kwargs)
+_obligation_detail = _comparison_owner._obligation_detail
 
 
-def _summary(
-    *,
-    current_valid: bool = True,
-    grounding_status: str = "current_valid",
-) -> CandidateSummary:
-    return CandidateSummary(
-        candidate_id="candidate_n9",
-        content_hash=_hash("2"),
-        cycle_index=0,
-        generation_channel="n4_owner",
-        proxy_score=0.2,
-        voi_estimate=0.1,
-        grounding_status=grounding_status,  # type: ignore[arg-type]
-        grounding_source="cgf_firewall",
-        grounding_disposition="shadow_bound",
-        grounding_score=0.95,
-        current_valid=current_valid,
-        value_status="value_ready",
-        value_decision_grade="high",
-        value_ref=_hash("3"),
-        front="research",
-        high_proxy=False,
-        low_grounding=False,
-    )
+_SourceFlipReplacement = _mutation_owner._SourceFlipReplacement
 
 
-def _value_receipt() -> ValueGateReceipt:
-    world_hash = _hash("4")
-    data_trust = DataTrust(
-        tier="unit",
-        trust_cap=1.0,
-        trust_multiplier=1.0,
-        promotion_floor=0.5,
-        authority_ref="data-trust://unit",
-    )
-    value_set = ValueOuterSet.interval_box(
-        coordinates=("welfare",),
-        lower=(1.0,),
-        upper=(1.0,),
-        identification_mode="point",
-        assumptions=(),
-        assumption_status="externally_supported",
-        calibration_scope={"scope": "unit"},
-        data_trust=data_trust,
-        world_model_record_ref=world_hash,
-        epoch="2026",
-        representation_status="certified",
-    )
-    return ValueGateReceipt(
-        candidate_id="candidate_n9",
-        evaluation_mode="simulate_only",
-        selected_method_fqn="causal.inference.did.standard@1",
-        method_selection_trace=("causal.inference.did.standard@1",),
-        identification_status=value_set.identification_status,
-        value_outer_set=value_set,
-        transport_receipt=ValueTransportReceipt(
-            status="direct",
-            world_model_record_id="wmr_n9",
-            world_model_record_content_hash=world_hash,
-            transport_result_ref="transport://unit",
-            transport_status="identified",
-            transport_mode="direct",
-            identification_engine="unit",
-        ),
-        calibration_receipt=ValueCalibrationReceipt(
-            status="pass",
-            forecast_tier="observable_calibrated",
-            calibration_record_ref="s10://unit",
-        ),
-        world_model_record_id="wmr_n9",
-        world_model_record_content_hash=world_hash,
-        value_ref=_hash("3"),
-        wall_time_ms=1.0,
-        wmr_cache_status="built",
-        k_world_ref_before=world_hash,
-        k_world_ref_after=world_hash,
-    )
+_SourceFlipCase = _mutation_owner._SourceFlipCase
 
 
-def _cg2_contract_bind() -> tuple[CredalReference, GroundingDecisionCertificate]:
-    reference = _credal_reference()
-    engine = GroundingRelationEngine(reference)
-    cg1 = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
-    decision = GroundingBindGate.for_contract_testing(
-        reference,
-        calibration_seed_anchor=True,
-    ).certificate_for(cg1)
-    return reference, decision
+_run_source_flip_case = _mutation_owner._run_source_flip_case
 
 
-def _proof_input_strangle(
-    *,
-    consumed: GroundingDecisionCertificate | None,
-    reference: CredalReference | None,
-) -> dict[str, Any]:
-    """Re-run the real binder; never accept post-production certificate authorship."""
-    if reference is None or consumed is None:
-        raise ValueError("proof_input_grounding_source_missing")
-    engine = GroundingRelationEngine(reference)
-    relation = engine.certificate_for(_pure_synonym_probe(engine), proposal_id="n9-cg2-bind")
-    recomputed = GroundingBindGate.for_contract_testing(
-        reference,
-        calibration_seed_anchor=True,
-    ).certificate_for(relation)
-    payload = {
-        "schema_version": "policyos.runtime.quality.n9_proof_input_strangle.v1",
-        "packet_type": "StrangleReceipt",
-        "synthetic": True,
-        "predicate_provenance": "recomputed",
-        "owner": "polisyos.runtime.quality.grounding_bind.GroundingBindGate",
-        "legacy_path": "post_production_cg2_certificate_rewrite",
-        "default_path": "unchanged_actual_cg2_producer_output",
-        "consumed_content_hash": consumed.content_hash,
-        "recomputed_content_hash": recomputed.content_hash,
-        "default_flipped": (
-            consumed.model_dump(mode="json") == recomputed.model_dump(mode="json")
-            and consumed.synthetic is True
-            and not consumed.production_promotable
-        ),
-    }
-    return {**payload, "content_hash": gy_content_hash(payload)}
+_source_flip_cases = _mutation_owner._source_flip_cases
 
 
-def _boundary() -> AuthorityBoundary:
-    return AuthorityBoundary(
-        boundary_id="n9.contract.boundary",
-        authoritative_for=["grounded_partial_admissible_policy_design"],
-        may_not_use_for=["production_deployment"],
-        source_authority="deterministic_producer",
-        posture="governed",
-        rule_version_refs=[GY_PROMOTION_SEQUENCE_SCHEMA_VERSION],
-        evidence_kind="measurement",
-        decision_grade="decision_admissible",
-    )
+_pytest_probe = _mutation_owner._pytest_probe
 
 
-def _s6_posture() -> Layer2S6BlindSpotPostureInput:
-    return Layer2S6BlindSpotPostureInput(
-        overall_posture="clear_fail_closed",
-        measurability_record_ref="s6://measure",
-        aggregation_validity_record_ref="s6://aggregation",
-        capacity_feasibility_record_ref="s6://capacity",
-        mandate_legitimacy_record_ref="s6://mandate",
-        strategic_response_record_ref="s6://strategic",
-        system_dynamics_handoff_required=False,
-        regime_reissue_required=False,
-        limitation_summary="S6 clear for N9 contract lane.",
-        false_clear_penalty=0.0,
-    )
+_output_tail = _mutation_owner._output_tail
 
 
-def _s7_posture() -> Layer2S7DelegationPostureInput:
-    now = datetime(2026, 7, 8, tzinfo=UTC)
-    return Layer2S7DelegationPostureInput(
-        delegation_contract_ref="s7://delegation",
-        decision_rights_matrix_ref="s7://rights",
-        human_decision_request_ref="s7://request",
-        human_decision_record_ref="s7://decision",
-        decision_class_id="governed_pilot",
-        required_role="policy_owner",
-        interaction_mode="recorded_decision",
-        disposition="recorded_valid_decision",
-        available_actions=["approve"],
-        decision_action_exercised="approve",
-        five_rights_requirement={"required": True},
-        five_rights_check={"status": "pass"},
-        value_stakes_impact="bounded",
-        attention_cost_rank=1,
-        responsibility_integrity_status="pass",
-        mandate_record_ref="s6://mandate",
-        s6_mandate_firewall_disposition="pass",
-        requested_at=now,
-        decided_at=now,
-        voi_rank=1,
-        authority_boundary=_boundary(),
-        governed_pilot_eligible=True,
-        limitation_summary="S7 valid governed-pilot decision.",
-    )
+_promotion_input = _input_owner._promotion_input
 
 
-def _s8_posture() -> Layer2S8ValuePostureInput:
-    return Layer2S8ValuePostureInput(
-        value_choice_provenance_ref="s8://value-choice",
-        authorized_value_schedule_ref="s8://schedule",
-        objective_function_provenance_ref="s8://objective",
-        pareto_archive_ref="s8://pareto",
-        value_tradeoff_disclosure_ref="s8://tradeoff",
-        mandate_record_ref="s6://mandate",
-        s6_mandate_firewall_disposition="pass",
-        ranking_mode="ranked_with_authorized_values",
-        disposition="authorized",
-        p20_firewall_status="pass",
-        p22_firewall_status="pass",
-        value_provenance_completeness=1.0,
-        value_authorization_decision_refs=["s8://decision"],
-        handoff_rows=[{"handoff": "s8"}],
-        limitation_summary="S8 authorized value posture.",
-        authority_boundary=_boundary(),
-    )
+_summary = _input_owner._summary
 
 
-def _credal_reference() -> CredalReference:
-    edges = [
-        _operator_edge("tax_relief_rate", minimum=0.0, maximum=0.5, unit="ratio"),
-        _target_edge("tax_relief_rate", "global.tax_rate"),
-        _lex_edge("tax_relief_statute", "tax_relief_rate"),
-        _operator_edge("budget_allocation_multiplier", minimum=0.0, maximum=2.0, unit="ratio"),
-        _target_edge("budget_allocation_multiplier", "government.balance"),
-        _lex_edge("budget_law", "budget_allocation_multiplier"),
-        _world_slot("global.tax_rate", unit="ratio"),
-        _world_slot("government.balance", unit="usd"),
-        _world_slot("household_cells.disposable_income", unit="usd"),
-        _world_slot("household_cells.transfer_intensity", unit="ratio"),
-        _policy_slot("tax_slot", "global.tax_rate"),
-        _policy_slot("budget_slot", "government.balance"),
-        _policy_slot("transfer_slot", "household_cells.transfer_intensity"),
-    ]
-    edges = [
-        replace(edge, provenance={**edge.provenance, "synthetic": True}).with_content_hash()
-        for edge in edges
-    ]
-    edge_index = {edge.key: edge for edge in edges}
-    component_versions = _component_versions(edge_index, world_model_record_hash="unit-wmr")
-    reference_hash = _reference_hash(
-        component_versions=component_versions,
-        edge_index=edge_index,
-        as_of="2026-06-29",
-        schema_version=CREDAL_REFERENCE_LEGACY_SCHEMA_VERSION,
-    )
-    return CredalReference(
-        schema_version=CREDAL_REFERENCE_LEGACY_SCHEMA_VERSION,
-        reference_epoch=f"kref:{reference_hash.removeprefix('sha256:')[:16]}",
-        reference_hash=reference_hash,
-        as_of="2026-06-29",
-        component_versions=component_versions,
-        essential_edges=edge_index,
-    )
+_value_receipt = _input_owner._value_receipt
 
 
-def _operator_edge(
-    op: str,
-    *,
-    minimum: float,
-    maximum: float,
-    unit: str,
-) -> CredalReferenceEdge:
-    return CredalReferenceEdge(
-        modality="L6_KNOB_OPERATOR",
-        edge_id=op,
-        status="confirmed",
-        admissible_completions=(
-            AdmissibleCompletion(
-                "fixed",
-                {
-                    "operator_kind": op,
-                    "parameter_domain": {
-                        "kind": "range",
-                        "max_value": maximum,
-                        "min_value": minimum,
-                        "unit": unit,
-                        "value_type": "float",
-                    },
-                },
-                "unit_test_operator",
-            ),
-        ),
-        provenance={"owner": "L6", "source": "unit"},
-    ).with_content_hash()
+_cg2_contract_bind = _input_owner._cg2_contract_bind
 
 
-def _target_edge(op: str, target: str) -> CredalReferenceEdge:
-    return CredalReferenceEdge(
-        modality="L6_KNOB_WORLD_SLOT",
-        edge_id=op,
-        status="confirmed",
-        admissible_completions=(
-            AdmissibleCompletion(
-                "fixed",
-                {
-                    "operator_kind": op,
-                    "target_world_slots": [target],
-                    "world_model_record_id": "unit-wmr",
-                },
-                "unit_test_target",
-            ),
-        ),
-        provenance={"owner": "L6", "source": "unit"},
-    ).with_content_hash()
+_proof_input_strangle = _input_owner._proof_input_strangle
 
 
-def _lex_edge(law_token: str, op: str) -> CredalReferenceEdge:
-    return CredalReferenceEdge(
-        modality="L6_LEX_INTERVENTION_MAP",
-        edge_id=law_token,
-        status="confirmed",
-        admissible_completions=(
-            AdmissibleCompletion(
-                "fixed",
-                {"law_token": law_token, "knob_id": op},
-                "unit_test_lex_map",
-            ),
-        ),
-        provenance={"owner": "L6", "source": "unit"},
-    ).with_content_hash()
+_boundary = _input_owner._boundary
 
 
-def _world_slot(slot: str, *, unit: str) -> CredalReferenceEdge:
-    return CredalReferenceEdge(
-        modality="WMR_WORLD_SLOT",
-        edge_id=slot,
-        status="confirmed",
-        admissible_completions=(
-            AdmissibleCompletion("fixed", {"world_slot": slot}, "unit_test_wmr_slot"),
-        ),
-        provenance={"owner": "WMR", "source": "unit"},
-        unit=unit,
-    ).with_content_hash()
+_s6_posture = _input_owner._s6_posture
 
 
-def _policy_slot(policy_slot: str, world_slot: str) -> CredalReferenceEdge:
-    return CredalReferenceEdge(
-        modality="WMR_POLICY_SLOT_MAP",
-        edge_id=f"{policy_slot}:{world_slot}",
-        status="confirmed",
-        admissible_completions=(
-            AdmissibleCompletion(
-                "fixed",
-                {"policy_slot": policy_slot, "world_slot": world_slot},
-                "unit_test_policy_slot",
-            ),
-        ),
-        provenance={"owner": "WMR", "source": "unit"},
-    ).with_content_hash()
+_s7_posture = _input_owner._s7_posture
 
 
-def _tax_atom(engine: GroundingRelationEngine) -> object:
-    return next(
-        item
-        for item in engine.reference_atoms
-        if item.signature.op == "tax_relief_rate" and "global.tax_rate" in item.signature.X_do
-    )
+_s8_posture = _input_owner._s8_posture
 
 
-def _pure_synonym_probe(engine: GroundingRelationEngine) -> dict[str, object]:
-    atom = _tax_atom(engine)
-    signature = atom.signature.model_dump(mode="json")
-    signature["op"] = "tax_credit_rate"
-    signature["effect_path"] = [
-        "tax_credit_rate",
-        *list(atom.signature.X_do),
-        *list(atom.signature.outcome),
-    ]
-    signature["modal_claims"] = {
-        "NL": {
-            "op": "tax_credit_rate",
-            "target": atom.signature.X_do[0],
-            "outcome": atom.signature.outcome[0],
-            "estimand": atom.signature.estimand,
-        },
-        "L6": {"knob": "tax_relief_rate"},
-        "do_AST": {"op": "tax_credit_rate", "target": atom.signature.X_do[0]},
-        "method": {
-            "treatment_op": "tax_credit_rate",
-            "treatment_target": atom.signature.X_do[0],
-            "outcome": atom.signature.outcome[0],
-            "estimand": atom.signature.estimand,
-        },
-    }
-    return {
-        "raw_text": "levy credit-rate alias for the exact same tax relief do-query.",
-        "signature": signature,
-    }
+_credal_reference = _input_owner._credal_reference
 
 
-def _hash(seed: str) -> str:
-    return "sha256:" + seed * 64
+_operator_edge = _input_owner._operator_edge
+
+
+_target_edge = _input_owner._target_edge
+
+
+_lex_edge = _input_owner._lex_edge
+
+
+_world_slot = _input_owner._world_slot
+
+
+_policy_slot = _input_owner._policy_slot
+
+
+_tax_atom = _input_owner._tax_atom
+
+
+_pure_synonym_probe = _input_owner._pure_synonym_probe
+
+
+_hash = _input_owner._hash
 
 
 def _repo_root() -> Path:

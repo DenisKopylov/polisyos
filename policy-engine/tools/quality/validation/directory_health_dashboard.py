@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Protocol
@@ -20,10 +20,11 @@ class DashboardDependencies:
 
     read_toml: Callable[[Path], dict[str, Any]]
     rel: Callable[[Path, Path], str]
-    tracked_files: Callable[[Path], list[str]]
-    ignored_files: Callable[[Path], list[str]]
-    walk_files: Callable[..., list[Path]]
-    walk_dirs: Callable[..., list[Path]]
+    tracked_files: Callable[[Path], Iterable[str]]
+    ignored_files: Callable[[Path], Iterable[str]]
+    walk_files: Callable[..., Iterable[Path]]
+    walk_dirs: Callable[..., Iterable[Path]]
+    child_directories: Callable[[Path], Iterable[Path]]
     path_matches_any: Callable[[str, list[str]], bool]
     collect_closure_findings: Callable[..., list[Any]]
     closure_counts: Callable[..., dict[str, int]]
@@ -50,9 +51,9 @@ def build_dashboard(
     dependencies: DashboardDependencies,
 ) -> dict[str, Any]:
     thresholds = contract.get("thresholds", {})
-    tracked = [
+    tracked = (
         path for path in dependencies.tracked_files(repo_root) if (repo_root / path).exists()
-    ]
+    )
     contracts = {
         str(item.get("path", "")): item for item in directory_contracts.get("contract", [])
     }
@@ -63,7 +64,8 @@ def build_dashboard(
     )
     covered_top_level_dirs = [root for root in actual_top_level_dirs if root in contracts]
     high_volume = dependencies.high_volume_subtrees(repo_root, thresholds)
-    documented_high_volume = [item for item in high_volume if item["documented"]]
+    documented_high_volume_count = sum(1 for item in high_volume if item["documented"])
+    non_product_python_roots = dependencies.non_product_python_root_inventory(repo_root)
     closure_findings = dependencies.collect_closure_findings(
         repo_root,
         contract,
@@ -86,11 +88,9 @@ def build_dashboard(
             len(covered_top_level_dirs), len(actual_top_level_dirs)
         ),
         "high_volume_subtree_documentation_coverage_percent": dependencies.percent(
-            len(documented_high_volume), len(high_volume)
+            documented_high_volume_count, len(high_volume)
         ),
-        "non_product_python_root_count": len(
-            dependencies.non_product_python_root_inventory(repo_root)
-        ),
+        "non_product_python_root_count": len(non_product_python_roots),
         "source_local_residue_count": local_residue_by_class.get(
             "ignored_source_docs_schemas_tests", 0
         ),
@@ -115,7 +115,7 @@ def build_dashboard(
             "missing_contract": sorted(set(actual_top_level_dirs) - set(covered_top_level_dirs)),
         },
         "high_volume_subtrees": high_volume,
-        "non_product_python_roots": dependencies.non_product_python_root_inventory(repo_root),
+        "non_product_python_roots": non_product_python_roots,
         "local_residue_by_class": local_residue_by_class,
         "empty_directories_outside_ignored_roots": empty_dirs,
         "asset_counts": asset_counts,
@@ -165,18 +165,18 @@ def local_residue_by_class(
 ) -> dict[str, int]:
     classes = dict(hygiene.get("classes", {}).get("counts", {}))
     residue_roots = {str(item).rstrip("/") for item in thresholds.get("source_residue_roots", [])}
-    ignored_source = {
+    source_residue = {
         dependencies.stable_residue_key(relative)
         for relative in dependencies.ignored_files(repo_root)
         if relative.split("/", 1)[0] in residue_roots and "__pycache__" not in Path(relative).parts
     }
-    residue_dirs = [
-        dependencies.rel(path, repo_root)
-        for root in residue_roots
-        for path in dependencies.walk_dirs(repo_root, root)
-        if path.name == ".DS_Store"
-    ]
-    classes["ignored_source_docs_schemas_tests"] = len(set(ignored_source).union(residue_dirs))
+    for root in residue_roots:
+        source_residue.update(
+            dependencies.rel(path, repo_root)
+            for path in dependencies.walk_dirs(repo_root, root)
+            if path.name == ".DS_Store"
+        )
+    classes["ignored_source_docs_schemas_tests"] = len(source_residue)
     return {key: int(value) for key, value in sorted(classes.items())}
 
 
@@ -224,9 +224,9 @@ def high_volume_subtrees(
 ) -> list[dict[str, Any]]:
     tracked_threshold = int(thresholds.get("high_volume_tracked_files", 20))
     child_threshold = int(thresholds.get("high_volume_child_directories", 10))
-    tracked = [
+    tracked = (
         path for path in dependencies.tracked_files(repo_root) if (repo_root / path).exists()
-    ]
+    )
     counts: dict[str, int] = {}
     for relative in tracked:
         parts = Path(relative).parts
@@ -238,7 +238,7 @@ def high_volume_subtrees(
         path = repo_root / subtree
         if not path.is_dir():
             continue
-        child_count = len([child for child in path.iterdir() if child.is_dir()])
+        child_count = sum(1 for _child in dependencies.child_directories(path))
         if file_count < tracked_threshold and child_count <= child_threshold:
             continue
         rows.append(
@@ -268,13 +268,21 @@ def non_product_python_root_inventory(
         path = repo_root / root
         if not path.exists():
             continue
-        init_files = sorted(dependencies.rel(item, repo_root) for item in path.rglob("__init__.py"))
+        init_file_count = 0
+        sample_init_files: list[str] = []
+        for item in path.rglob("__init__.py"):
+            relative = dependencies.rel(item, repo_root)
+            init_file_count += 1
+            sample_init_files.append(relative)
+            sample_init_files.sort()
+            if len(sample_init_files) > 10:
+                sample_init_files.pop()
         rows.append(
             {
                 "root": root,
                 "exists": path.exists(),
-                "init_file_count": len(init_files),
-                "sample_init_files": init_files[:10],
+                "init_file_count": init_file_count,
+                "sample_init_files": sample_init_files,
             }
         )
     return rows
@@ -289,10 +297,15 @@ def undocumented_frontend_subtrees(
         root = repo_root / str(frontend_root)
         if not root.exists():
             continue
-        for src_root in sorted(root.glob("*/src")):
-            for child in sorted(path for path in src_root.iterdir() if path.is_dir()):
-                files = dependencies.walk_files(repo_root, dependencies.rel(child, repo_root))
-                if len(files) < tracked_threshold:
+        for src_root in root.glob("*/src"):
+            for child in dependencies.child_directories(src_root):
+                file_count = sum(
+                    1
+                    for _path in dependencies.walk_files(
+                        repo_root, dependencies.rel(child, repo_root)
+                    )
+                )
+                if file_count < tracked_threshold:
                     continue
                 if not any((child / doc).exists() for doc in dependencies.doc_filenames):
                     rows.append(dependencies.rel(child, repo_root))
@@ -310,12 +323,12 @@ def max_directory_depth_by_root(
         parts = Path(relative).parts
         root = parts[0]
         depths[root] = max(depths.get(root, 0), len(parts))
-    return depths
+    return dict(sorted(depths.items()))
 
 
 def largest_subtrees_by_tracked_file_count(
     repo_root: Path,
-    tracked: list[str],
+    tracked: Iterable[str],
     thresholds: dict[str, Any],
 ) -> list[dict[str, Any]]:
     limit = int(thresholds.get("dashboard_largest_subtree_limit", 10))

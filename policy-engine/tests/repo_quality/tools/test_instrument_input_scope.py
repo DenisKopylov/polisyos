@@ -296,4 +296,4 @@ def test_directory_missing_contract_is_unrun(tmp_path: Path, capsys) -> None:
 
 def test_directory_git_failure_is_not_an_empty_inventory(tmp_path: Path) -> None:
     with pytest.raises(subprocess.CalledProcessError):
-        directory_health._tracked_files(tmp_path)
+        list(directory_health._tracked_files(tmp_path))

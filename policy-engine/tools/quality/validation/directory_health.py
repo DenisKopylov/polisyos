@@ -7,10 +7,10 @@ import argparse
 import ast
 import fnmatch
 import json
-import os
 import subprocess
 import sys
 import tomllib
+from collections.abc import Iterable, Iterator
 from dataclasses import dataclass
 from datetime import UTC, date, datetime
 from pathlib import Path
@@ -18,7 +18,11 @@ from typing import Any
 
 from tools.lib.fs import atomic_write_text
 from tools.lib.imports import repo_root_from
-from tools.quality.validation import directory_health_dashboard, directory_hygiene_assets
+from tools.quality.validation import (
+    directory_health_dashboard,
+    directory_health_inventory,
+    directory_hygiene_assets,
+)
 
 REPO_ROOT = repo_root_from(__file__)
 DEFAULT_CONTRACT = REPO_ROOT / "architecture" / "policies" / "directory_health.toml"
@@ -78,6 +82,10 @@ class Finding:
         }
 
 
+def _sort_findings_by_path(findings: list[Finding]) -> list[Finding]:
+    return sorted(findings, key=lambda finding: Path(finding.subject))
+
+
 def build_report(
     repo_root: Path = REPO_ROOT,
     *,
@@ -86,7 +94,8 @@ def build_report(
     repo_root = repo_root.resolve()
     contract_path = contract_path if contract_path.is_absolute() else repo_root / contract_path
     contract = _read_toml(contract_path)
-    _tracked_files(repo_root)  # A failed Git census must not become empty coverage.
+    for _ in _tracked_files(repo_root):
+        pass  # Exhaust the stream so a failed Git census cannot become empty coverage.
     directory_contracts = _read_toml(
         repo_root / "architecture" / "policies" / "directory_contracts.toml"
     )
@@ -296,46 +305,32 @@ def _rel(path: Path, repo_root: Path) -> str:
         return path.as_posix()
 
 
-def _git_lines(repo_root: Path, *args: str) -> list[str]:
-    completed = subprocess.run(  # noqa: S603
-        ["git", *args],  # noqa: S607
-        cwd=repo_root,
-        check=True,
-        capture_output=True,
-        text=True,
+def _git_lines(repo_root: Path, *args: str) -> Iterator[str]:
+    return directory_health_inventory.iter_git_paths(repo_root, *args)
+
+
+def _tracked_files(repo_root: Path) -> Iterator[str]:
+    return _git_lines(repo_root, "ls-files")
+
+
+def _ignored_files(repo_root: Path) -> Iterator[str]:
+    return _git_lines(repo_root, "ls-files", "-o", "-i", "--exclude-standard")
+
+
+def _walk_files(repo_root: Path, relative_root: str = ".") -> Iterator[Path]:
+    return directory_health_inventory.iter_files(
+        repo_root / relative_root, skip_dir_names=SKIP_DIR_NAMES
     )
-    return [line for line in completed.stdout.splitlines() if line.strip()]
 
 
-def _tracked_files(repo_root: Path) -> list[str]:
-    return sorted(_git_lines(repo_root, "ls-files"))
+def _walk_dirs(repo_root: Path, relative_root: str = ".") -> Iterator[Path]:
+    return directory_health_inventory.iter_directories(
+        repo_root / relative_root, skip_dir_names=SKIP_DIR_NAMES
+    )
 
 
-def _ignored_files(repo_root: Path) -> list[str]:
-    return sorted(_git_lines(repo_root, "ls-files", "-o", "-i", "--exclude-standard"))
-
-
-def _walk_files(repo_root: Path, relative_root: str = ".") -> list[Path]:
-    root = repo_root / relative_root
-    if not root.exists():
-        return []
-    files: list[Path] = []
-    for current, dirnames, filenames in os.walk(root):
-        dirnames[:] = [name for name in dirnames if name not in SKIP_DIR_NAMES]
-        for filename in filenames:
-            files.append(Path(current) / filename)
-    return sorted(files)
-
-
-def _walk_dirs(repo_root: Path, relative_root: str = ".") -> list[Path]:
-    root = repo_root / relative_root
-    if not root.exists():
-        return []
-    dirs: list[Path] = []
-    for current, dirnames, _filenames in os.walk(root):
-        dirnames[:] = [name for name in dirnames if name not in SKIP_DIR_NAMES]
-        dirs.append(Path(current))
-    return sorted(dirs)
+def _child_directories(root: Path) -> Iterator[Path]:
+    return directory_health_inventory.iter_child_directories(root)
 
 
 def _path_matches_pattern(relative: str, pattern: str) -> bool:
@@ -606,11 +601,12 @@ def _collect_closure_findings(
         )
 
     allowed_loose = {str(item) for item in thresholds.get("allowed_root_loose_files", [])}
+    loose_file_findings: list[Finding] = []
     for relative in _tracked_files(repo_root):
         if "/" in relative or not (repo_root / relative).exists():
             continue
         if relative not in allowed_loose:
-            findings.append(
+            loose_file_findings.append(
                 Finding(
                     "top-level-loose-file-allow-list",
                     "blocker",
@@ -618,6 +614,7 @@ def _collect_closure_findings(
                     "tracked root loose file is outside the allow-list",
                 )
             )
+    findings.extend(sorted(loose_file_findings, key=lambda finding: finding.subject))
 
     forbidden_roots = {
         path
@@ -626,12 +623,13 @@ def _collect_closure_findings(
         or item.get("owner") == "local"
         or item.get("status") == "local_only"
     }
+    lifecycle_findings: list[Finding] = []
     for relative in _tracked_files(repo_root):
         if not (repo_root / relative).exists():
             continue
         root = relative.split("/", 1)[0]
         if root in forbidden_roots:
-            findings.append(
+            lifecycle_findings.append(
                 Finding(
                     "forbidden-lifecycle-commits",
                     "blocker",
@@ -639,6 +637,7 @@ def _collect_closure_findings(
                     "tracked file lives under a directory lifecycle that forbids commits",
                 )
             )
+    findings.extend(sorted(lifecycle_findings, key=lambda finding: finding.subject))
 
     findings.extend(_non_product_init_findings(repo_root, thresholds))
     findings.extend(_product_import_findings(repo_root, contract))
@@ -673,7 +672,7 @@ def _non_product_init_findings(repo_root: Path, thresholds: dict[str, Any]) -> l
                     "__init__.py lives outside product and allowed non-product roots",
                 )
             )
-    return findings
+    return _sort_findings_by_path(findings)
 
 
 def _product_import_findings(repo_root: Path, contract: dict[str, Any]) -> list[Finding]:
@@ -723,7 +722,7 @@ def _product_import_findings(repo_root: Path, contract: dict[str, Any]) -> list[
                     )
                 )
                 break
-    return findings
+    return _sort_findings_by_path(findings)
 
 
 def _is_forbidden_product_import(module: str) -> bool:
@@ -753,7 +752,7 @@ def _data_only_test_findings(repo_root: Path, thresholds: dict[str, Any]) -> lis
                     "data-only directory contains a pytest-collectable test",
                 )
             )
-    return findings
+    return _sort_findings_by_path(findings)
 
 
 def _is_pytest_collectable(path: Path) -> bool:
@@ -788,7 +787,7 @@ def _frontend_fixture_findings(repo_root: Path, thresholds: dict[str, Any]) -> l
                     "frontend src fixture directory is not registered",
                 )
             )
-    return findings
+    return _sort_findings_by_path(findings)
 
 
 def _generated_api_findings(
@@ -817,7 +816,7 @@ def _generated_api_findings(
                     "generated API client or type file is outside registered generated paths",
                 )
             )
-    return findings
+    return _sort_findings_by_path(findings)
 
 
 def _looks_like_generated_api_output(relative: str) -> bool:
@@ -831,8 +830,9 @@ def _looks_like_generated_api_file(relative: str, path: Path) -> bool:
         return False
     if "api" not in {part.lower() for part in Path(relative).parts}:
         return False
-    text = path.read_text(encoding="utf-8", errors="ignore")[:1000]
-    return "GENERATED FILE" in text or "auto-generated by openapi-typescript" in text
+    with path.open(encoding="utf-8", errors="ignore") as stream:
+        header = stream.read(1000)
+    return "GENERATED FILE" in header or "auto-generated by openapi-typescript" in header
 
 
 def _empty_ui_component_findings(repo_root: Path, thresholds: dict[str, Any]) -> list[Finding]:
@@ -860,58 +860,61 @@ def _empty_ui_component_findings(repo_root: Path, thresholds: dict[str, Any]) ->
                     "UI component directory is empty",
                 )
             )
-    return findings
+    return _sort_findings_by_path(findings)
 
 
 def _feature_owner_findings(repo_root: Path, thresholds: dict[str, Any]) -> list[Finding]:
     threshold = int(thresholds.get("feature_module_file_threshold", 25))
     owner_files = {str(item) for item in thresholds.get("feature_owner_file_names", [])}
     findings: list[Finding] = []
-    for features_root in sorted(repo_root.glob("apps/*/src/features")) + sorted(
-        repo_root.glob("frontend/*/src/features")
-    ):
-        if not features_root.is_dir():
-            continue
-        for feature in sorted(path for path in features_root.iterdir() if path.is_dir()):
-            files = [
-                path
-                for path in _walk_files(repo_root, _rel(feature, repo_root))
-                if not _rel(path, repo_root).startswith("node_modules/")
-            ]
-            if len(files) <= threshold:
+    for pattern in ("apps/*/src/features", "frontend/*/src/features"):
+        for features_root in repo_root.glob(pattern):
+            if not features_root.is_dir():
                 continue
-            if not any((feature / filename).exists() for filename in owner_files):
-                findings.append(
-                    Finding(
-                        "feature-module-owner-threshold",
-                        "blocker",
-                        _rel(feature, repo_root),
-                        "feature module is over threshold without an owner document",
-                        f"files={len(files)} threshold={threshold}",
-                    )
+            for feature in _child_directories(features_root):
+                file_count = sum(
+                    1
+                    for path in _walk_files(repo_root, _rel(feature, repo_root))
+                    if not _rel(path, repo_root).startswith("node_modules/")
                 )
-    return findings
+                if file_count <= threshold:
+                    continue
+                if not any((feature / filename).exists() for filename in owner_files):
+                    findings.append(
+                        Finding(
+                            "feature-module-owner-threshold",
+                            "blocker",
+                            _rel(feature, repo_root),
+                            "feature module is over threshold without an owner document",
+                            f"files={file_count} threshold={threshold}",
+                        )
+                    )
+    return _sort_findings_by_path(findings)
 
 
 def _schema_pure_data_findings(repo_root: Path) -> list[Finding]:
     schema_root = repo_root / "schemas"
     if not schema_root.exists():
         return []
-    findings: list[Finding] = []
-    for path in sorted(item for item in schema_root.rglob("__pycache__") if item.is_dir()):
-        findings.append(
-            Finding(
-                "schema-only-root",
-                "blocker",
-                _rel(path, repo_root),
-                "top-level schemas/ must not contain Python code or cache residue",
+    pycache_findings: list[Finding] = []
+    for path in directory_health_inventory.iter_directories(
+        schema_root, skip_dir_names=frozenset()
+    ):
+        if path.name == "__pycache__":
+            pycache_findings.append(
+                Finding(
+                    "schema-only-root",
+                    "blocker",
+                    _rel(path, repo_root),
+                    "top-level schemas/ must not contain Python code or cache residue",
+                )
             )
-        )
-    for path in sorted(item for item in schema_root.rglob("*") if item.is_file()):
+    file_findings: list[Finding] = []
+    for path in directory_health_inventory.iter_files(schema_root, skip_dir_names=frozenset()):
         if "__pycache__" in path.parts:
             continue
         if path.name == "__init__.py" or path.suffix == ".py" or path.suffix in {".pyc", ".pyo"}:
-            findings.append(
+            file_findings.append(
                 Finding(
                     "schema-only-root",
                     "blocker",
@@ -920,7 +923,7 @@ def _schema_pure_data_findings(repo_root: Path) -> list[Finding]:
                 )
             )
         elif path.suffix not in SCHEMA_DATA_SUFFIXES:
-            findings.append(
+            file_findings.append(
                 Finding(
                     "schema-only-root",
                     "blocker",
@@ -931,7 +934,7 @@ def _schema_pure_data_findings(repo_root: Path) -> list[Finding]:
             )
         if path.suffix == ".py":
             for module in _schema_python_product_imports(path):
-                findings.append(
+                file_findings.append(
                     Finding(
                         "schema-only-root",
                         "blocker",
@@ -940,7 +943,7 @@ def _schema_pure_data_findings(repo_root: Path) -> list[Finding]:
                         module,
                     )
                 )
-    return findings
+    return _sort_findings_by_path(pycache_findings) + _sort_findings_by_path(file_findings)
 
 
 def _schema_python_product_imports(path: Path) -> list[str]:
@@ -974,9 +977,9 @@ def _phase_local_junk_findings(repo_root: Path, contract: dict[str, Any]) -> lis
     build_root = repo_root / "_build"
     if not build_root.exists():
         return findings
-    for directory in sorted(
-        path for path in build_root.glob(PHASE_LOCAL_JUNK_PATTERN) if path.is_dir()
-    ):
+    for directory in build_root.glob(PHASE_LOCAL_JUNK_PATTERN):
+        if not directory.is_dir():
+            continue
         relative = _rel(directory, repo_root)
         if _path_matches_any(relative, exception_patterns):
             continue
@@ -989,7 +992,7 @@ def _phase_local_junk_findings(repo_root: Path, contract: dict[str, Any]) -> lis
                 "scratch exception",
             )
         )
-    return findings
+    return _sort_findings_by_path(findings)
 
 
 def _build_dashboard(
@@ -1061,7 +1064,7 @@ def _max_directory_depth_by_root(repo_root: Path) -> dict[str, int]:
 
 def _largest_subtrees_by_tracked_file_count(
     repo_root: Path,
-    tracked: list[str],
+    tracked: Iterable[str],
     thresholds: dict[str, Any],
 ) -> list[dict[str, Any]]:
     return directory_health_dashboard.largest_subtrees_by_tracked_file_count(
@@ -1081,6 +1084,7 @@ def _dashboard_dependencies() -> directory_health_dashboard.DashboardDependencie
         ignored_files=_ignored_files,
         walk_files=_walk_files,
         walk_dirs=_walk_dirs,
+        child_directories=_child_directories,
         path_matches_any=_path_matches_any,
         collect_closure_findings=_collect_closure_findings,
         closure_counts=_closure_counts,

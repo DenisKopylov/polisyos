@@ -109,6 +109,7 @@ def test_dashboard_facade_uses_current_scanner_dependencies(
     for name in ("a.py", "b.py"):
         (source_root / name).write_text("pass\n", encoding="utf-8")
     tracked_roots: list[Path] = []
+    child_directory_roots: list[Path] = []
 
     def tracked_files(repo_root: Path) -> list[str]:
         tracked_roots.append(repo_root)
@@ -118,9 +119,14 @@ def test_dashboard_facade_uses_current_scanner_dependencies(
         assert relative_root == "."
         return [repo_root, source_root]
 
+    def child_directories(path: Path) -> list[Path]:
+        child_directory_roots.append(path)
+        return []
+
     monkeypatch.setattr(directory_health, "_tracked_files", tracked_files)
     monkeypatch.setattr(directory_health, "_ignored_files", lambda _root: [])
     monkeypatch.setattr(directory_health, "_walk_dirs", walk_dirs)
+    monkeypatch.setattr(directory_health, "_child_directories", child_directories)
     monkeypatch.setattr(
         directory_health,
         "_read_toml",
@@ -136,6 +142,7 @@ def test_dashboard_facade_uses_current_scanner_dependencies(
     )
 
     assert tracked_roots == [tmp_path, tmp_path]
+    assert child_directory_roots == [source_root]
     assert dashboard["top_level_directories"] == {
         "present": ["src"],
         "covered": ["src"],

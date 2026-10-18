@@ -7653,5 +7653,669 @@
     "G_acceptance": false,
     "closure_ids": [],
     "next_check": "Publish exact receipt bytes after readback; complete blocking composed fixes and full-ID evidence reconciliation; independent G adjudication remains required."
+  },
+  "coordination_epoch_20261018_three_native_owner_source_application": {
+    "slice_base": "8c2894753bd5ef00ed503b6aa0ecd8cb105988b2",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tools/quality/validation/directory_health.py": {
+        "preimage_sha256": "26d20ab8baf4428c641751bcc1ef433f8828e203336a7b805f4fb277c47e8dae",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-directory-health-streaming-author-20261018/postimages/policy-engine/tools/quality/validation/directory_health.py",
+        "postimage_sha256": "c5640503d8a7f42403f34fb3df39192aae077206d38c82cf8119cb2c75e916eb",
+        "operation": "write"
+      },
+      "policy-engine/tools/quality/validation/directory_health_dashboard.py": {
+        "preimage_sha256": "f940249e105fa9d11ccd6ca81a0fce65637f9b50f03731917a8fe56773bb0379",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-directory-health-streaming-author-20261018/postimages/policy-engine/tools/quality/validation/directory_health_dashboard.py",
+        "postimage_sha256": "20def931b33dbed96bdc6041a3970cd8b45e5105e6e7ba5ff974ee7407be7e77",
+        "operation": "write"
+      },
+      "policy-engine/tools/quality/validation/directory_hygiene_assets.py": {
+        "preimage_sha256": "1a7b5b49aae6fcd71cbbd98cd79c2bbc14d4ec499c0f6386e22e75e3b09ffe9b",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-directory-health-streaming-author-20261018/postimages/policy-engine/tools/quality/validation/directory_hygiene_assets.py",
+        "postimage_sha256": "595068ad7452bb2e3e8c89e3e3608421a47cd4b92edef5fe1b9d88ce17771e39",
+        "operation": "write"
+      },
+      "policy-engine/tools/quality/validation/directory_health_inventory.py": {
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-three-owner-source-application-plan-20261018/formatted-postimages/policy-engine/tools/quality/validation/directory_health_inventory.py",
+        "postimage_sha256": "579ff558611c736bde8be8faa449345b0c5401740a889f0b94f3600e1b9f9924",
+        "operation": "write"
+      },
+      "policy-engine/tests/repo_quality/tools/test_directory_health.py": {
+        "preimage_sha256": "53768ae499b6e4dde7e31d5b8d61705de3f6dd11906414acef8d297cac422d86",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-directory-health-streaming-author-20261018/postimages/policy-engine/tests/repo_quality/tools/test_directory_health.py",
+        "postimage_sha256": "65fbe27d26eed729fb9541c752e0cc15dc2576c38a32a842b4fa8562581b2ca2",
+        "operation": "write"
+      },
+      "policy-engine/tests/repo_quality/tools/test_directory_health_inventory.py": {
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-three-owner-source-application-plan-20261018/formatted-postimages/policy-engine/tests/repo_quality/tools/test_directory_health_inventory.py",
+        "postimage_sha256": "8e6b827183e81b2d6265fbf7710f0de405e63f9a3510d78e5c3da11eb6c2132b",
+        "operation": "write"
+      },
+      "policy-engine/tests/repo_quality/tools/test_directory_hygiene_assets.py": {
+        "preimage_sha256": "6e6eff43d9b1a769efa5c784ec0c8cabcbb51be4be3fa89b5a1ec140175ebdc8",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-three-owner-source-application-plan-20261018/formatted-postimages/policy-engine/tests/repo_quality/tools/test_directory_hygiene_assets.py",
+        "postimage_sha256": "6d889f7ff069c232ec11bb5206842e0db906d44028f6258cd0d979548686cbd6",
+        "operation": "write"
+      },
+      "policy-engine/tests/repo_quality/tools/test_instrument_input_scope.py": {
+        "preimage_sha256": "2ce275a0bc6d526daf07e748e6719b140a95a5cb4c34dc5e7d6021a1cb4d3488",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-directory-health-streaming-author-20261018/postimages/policy-engine/tests/repo_quality/tools/test_instrument_input_scope.py",
+        "postimage_sha256": "b7f375301a6063f336fd4a3f2c18ddcb327a3dcba43d8ee74eeb7788adee078d",
+        "operation": "write"
+      },
+      "policy-engine/tools/quality/validation/check_layer3_gy_promotion_contract.py": {
+        "preimage_sha256": "c6c008cbc858ac8157425df3681f636530c2d57df2b206d573bcef65f469c379",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-three-owner-source-application-plan-20261018/formatted-postimages/policy-engine/tools/quality/validation/check_layer3_gy_promotion_contract.py",
+        "postimage_sha256": "42eb1776a6aeea9a8968a257a97d96d9071b865c1cb5d403ecf2f26809ada961",
+        "operation": "write"
+      },
+      "policy-engine/tools/quality/validation/layer3_gy_n9_comparison_custody.py": {
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-n9-promotion-owner-author-20261018/postimages/tools/quality/validation/layer3_gy_n9_comparison_custody.py",
+        "postimage_sha256": "b3bcff1cf2c2e1eb5b235b6a24841d8e609b956409830403311472dd9a1788ae",
+        "operation": "write"
+      },
+      "policy-engine/tools/quality/validation/layer3_gy_n9_contract.py": {
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-n9-promotion-owner-author-20261018/postimages/tools/quality/validation/layer3_gy_n9_contract.py",
+        "postimage_sha256": "f7149101a1cc941c81338042d89c99534eecb2f88c2a825d562476cbe8f99740",
+        "operation": "write"
+      },
+      "policy-engine/tools/quality/validation/layer3_gy_n9_contract_inputs.py": {
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-n9-promotion-owner-author-20261018/postimages/tools/quality/validation/layer3_gy_n9_contract_inputs.py",
+        "postimage_sha256": "c446510ae6dc686690f5c2b273aebf515fb7e6d2a00f117e633b3f4d999a15ca",
+        "operation": "write"
+      },
+      "policy-engine/tools/quality/validation/layer3_gy_n9_promotion_mutations.py": {
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-three-owner-source-application-plan-20261018/formatted-postimages/policy-engine/tools/quality/validation/layer3_gy_n9_promotion_mutations.py",
+        "postimage_sha256": "3d8c43bc1938b33003e3ff7191595c011fa74262be6ebb77d97efa01ccfa87a2",
+        "operation": "write"
+      },
+      "policy-engine/tools/quality/validation/check_layer3_gy_openalex_artifacts.py": {
+        "preimage_sha256": "314d4aaacd5300987072461aef33ef2e78ebaab3929ffebddbb0db14210478a2",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-openalex-owner-author-20261018/candidate-postimages/tools/quality/validation/check_layer3_gy_openalex_artifacts.py",
+        "postimage_sha256": "6cda59e75f96d142b1ac3791fa9627d2ea4e69d40f63b8573c39a8f184fd54fb",
+        "operation": "write"
+      },
+      "policy-engine/tools/quality/validation/openalex_span_evidence.py": {
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-openalex-owner-author-20261018/candidate-postimages/tools/quality/validation/openalex_span_evidence.py",
+        "postimage_sha256": "70d5017df1388cbe99b88a1171af662f9c559b8d85de420cd372a432588a45f6",
+        "operation": "write"
+      },
+      "policy-engine/tests/repo_quality/tools/test_layer3_gy_openalex_artifacts.py": {
+        "preimage_sha256": "1c66a5b7b7e1ad5f90f0916f41ebcf9f78a6117ddf00cdb797a577e4e26a2b17",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-openalex-owner-author-20261018/candidate-postimages/tests/repo_quality/tools/test_layer3_gy_openalex_artifacts.py",
+        "postimage_sha256": "ddfa274e2caa40dcb0197e1367da228949bdb70e2153a314720f3c5d669eeb7a",
+        "operation": "write"
+      },
+      "policy-engine/architecture/packages/common.toml": {
+        "preimage_sha256": "21554cb90eb95bc33a5e6fc21b4d27944847843e01eb26e301fa0c54f1fb4549",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-package-mirror-contract-author-r3-20261018/candidate-postimages/policy-engine/architecture/packages/common.toml",
+        "postimage_sha256": "3560b7d1f2949bfd1322adb4a646482b563e89c6f0878556f08a3d2249a38195",
+        "operation": "write"
+      },
+      "policy-engine/architecture/packages/core.toml": {
+        "preimage_sha256": "3b13ac917e209fec27ca66af61f2fa07f2dbef5713041764ab6524e9fe2d6a4f",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-package-mirror-contract-author-r3-20261018/candidate-postimages/policy-engine/architecture/packages/core.toml",
+        "postimage_sha256": "adc89cfd43cc8b9d3ef3eb102e2e5fdbc7d3ab40fdf12469c90083db32c0246e",
+        "operation": "write"
+      },
+      "policy-engine/architecture/packages/data_forge.toml": {
+        "preimage_sha256": "dd17ff392e2d1ebe8126428234c8b06cba006d0f5332a8eb86161fdc5464206d",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-package-mirror-contract-author-r3-20261018/candidate-postimages/policy-engine/architecture/packages/data_forge.toml",
+        "postimage_sha256": "5512385088e9b0aef5b7fefa51f869ee6af587125c9b01aa5711213065cc1050",
+        "operation": "write"
+      },
+      "policy-engine/architecture/packages/ddm.toml": {
+        "preimage_sha256": "e7247f1d6a06b6b5fc5118441387d5bb6e64e55fff325fb36f98c407a8e6d669",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-package-mirror-contract-author-r3-20261018/candidate-postimages/policy-engine/architecture/packages/ddm.toml",
+        "postimage_sha256": "26b485cb075330780c3e61a226603f859ace85d6d931de59a278035a57e00806",
+        "operation": "write"
+      },
+      "policy-engine/architecture/packages/fabric.toml": {
+        "preimage_sha256": "3ccf899bff4d89c4dcb3cac8f8ab56c55293e62125b9e1ffe70514ba7b040d8c",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-package-mirror-contract-author-r3-20261018/candidate-postimages/policy-engine/architecture/packages/fabric.toml",
+        "postimage_sha256": "fe3187d5510d5b26f5717cd2a7daa2bbcc2be8b21f36ca93368787c0bceef04d",
+        "operation": "write"
+      },
+      "policy-engine/architecture/packages/foundry.toml": {
+        "preimage_sha256": "c74e54cb9dd3d2a1e7cc86738d76cd5afd824706e2971fdca5dd751ef598343a",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-package-mirror-contract-author-r3-20261018/candidate-postimages/policy-engine/architecture/packages/foundry.toml",
+        "postimage_sha256": "d66b1796d4a0d527949d2fa541fcb3b58c4c209fc60275eb123d7a72ece2771d",
+        "operation": "write"
+      },
+      "policy-engine/architecture/packages/ir.toml": {
+        "preimage_sha256": "8775952f7a6127f91c82e98457aa947e602aa33a4e97d5f38f8ff4e4ebe34d45",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-package-mirror-contract-author-r3-20261018/candidate-postimages/policy-engine/architecture/packages/ir.toml",
+        "postimage_sha256": "408c06d5be429baf1e723a8f07e009077f9d03e798c8b401970427f3352c3161",
+        "operation": "write"
+      },
+      "policy-engine/architecture/packages/lex.toml": {
+        "preimage_sha256": "22312f5f189f5d6482c8867c0ce979b915150a6307079ba399b243d2569bfae2",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-package-mirror-contract-author-r3-20261018/candidate-postimages/policy-engine/architecture/packages/lex.toml",
+        "postimage_sha256": "240a30a9d71357c438af28bd85830b5900cda1d9cad7aa8efb1e3dd031283e51",
+        "operation": "write"
+      },
+      "policy-engine/architecture/packages/scientist.toml": {
+        "preimage_sha256": "f082090e9ed5062cba24d79c980928d44a55ac94d676549f7c74f848e871342f",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-package-mirror-contract-author-r3-20261018/candidate-postimages/policy-engine/architecture/packages/scientist.toml",
+        "postimage_sha256": "3fc5f6559e608747843c89100e575ee1fcbb51eea23f0b4ebeb59617e0027489",
+        "operation": "write"
+      },
+      "policy-engine/tools/quality/validation/README.md": {
+        "preimage_sha256": "02526964ffb9b827d99268b98a84df1728869cc54253b6888d50f094ccb9c6ee",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-three-owner-source-application-plan-20261018/combined-postimages/policy-engine/tools/quality/validation/README.md",
+        "postimage_sha256": "b8682a96f54731785f027b3d62bc420a6b2d78be7cda43e62dcad929d394331e",
+        "operation": "write"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-three-owner-source-application-plan-20261018/source-application.json",
+      "sha256": "5ccaabf1514ed4c6df797c52e825a83496d9edbd7b65d22416b6b995246987b3"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-three-owner-source-application-plan-20261018/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/CONTRIBUTING.md",
+        "sha256": "e78f1bdb99a900f6426f9f451b7e9cbc0e21007eb12012eaf209d89c505f3a1f"
+      },
+      {
+        "path": "policy-engine/architecture/asset_placement.toml",
+        "sha256": "ab18cb19a2b4a660097dcafdbcf97002f4cd7dbe0dc75f1a28995827f9122c20"
+      },
+      {
+        "path": "policy-engine/architecture/generated_artifacts.toml",
+        "sha256": "a87a011c201cca86df2dd3945442bfa0016028a3812745c3250cca0e96dd5f56"
+      },
+      {
+        "path": "policy-engine/architecture/name_registry.toml",
+        "sha256": "9b98effe236c3798041f555f8c402b76cb4f85ad87f6dde4eba8e4752ef790c8"
+      },
+      {
+        "path": "policy-engine/architecture/packages/README.md",
+        "sha256": "b9997650511c3af3458c96c084235d05e2a6630fbd3486595590bd38a881e748"
+      },
+      {
+        "path": "policy-engine/architecture/packages/common.toml",
+        "sha256": "21554cb90eb95bc33a5e6fc21b4d27944847843e01eb26e301fa0c54f1fb4549"
+      },
+      {
+        "path": "policy-engine/architecture/packages/core.toml",
+        "sha256": "3b13ac917e209fec27ca66af61f2fa07f2dbef5713041764ab6524e9fe2d6a4f"
+      },
+      {
+        "path": "policy-engine/architecture/packages/data_forge.toml",
+        "sha256": "dd17ff392e2d1ebe8126428234c8b06cba006d0f5332a8eb86161fdc5464206d"
+      },
+      {
+        "path": "policy-engine/architecture/packages/ddm.toml",
+        "sha256": "e7247f1d6a06b6b5fc5118441387d5bb6e64e55fff325fb36f98c407a8e6d669"
+      },
+      {
+        "path": "policy-engine/architecture/packages/fabric.toml",
+        "sha256": "3ccf899bff4d89c4dcb3cac8f8ab56c55293e62125b9e1ffe70514ba7b040d8c"
+      },
+      {
+        "path": "policy-engine/architecture/packages/foundry.toml",
+        "sha256": "c74e54cb9dd3d2a1e7cc86738d76cd5afd824706e2971fdca5dd751ef598343a"
+      },
+      {
+        "path": "policy-engine/architecture/packages/ir.toml",
+        "sha256": "8775952f7a6127f91c82e98457aa947e602aa33a4e97d5f38f8ff4e4ebe34d45"
+      },
+      {
+        "path": "policy-engine/architecture/packages/lex.toml",
+        "sha256": "22312f5f189f5d6482c8867c0ce979b915150a6307079ba399b243d2569bfae2"
+      },
+      {
+        "path": "policy-engine/architecture/packages/runtime.toml",
+        "sha256": "634b1a927f456a17e003f0dff09696efad6478df380e733d05c2b0edd970af88"
+      },
+      {
+        "path": "policy-engine/architecture/packages/scientist.toml",
+        "sha256": "f082090e9ed5062cba24d79c980928d44a55ac94d676549f7c74f848e871342f"
+      },
+      {
+        "path": "policy-engine/architecture/policies/directory_health.toml",
+        "sha256": "76a09051dffb6206f05dcc589af76e2e01a079216664998667ce106d376f839f"
+      },
+      {
+        "path": "policy-engine/architecture/policy_design_case/layer3_gy_openalex_accuracy_report.json",
+        "sha256": "f0a638647aebc33e327c989b816529cc6b0f750f081dab533dc3611ad47f8c68"
+      },
+      {
+        "path": "policy-engine/architecture/policy_design_case/layer3_gy_openalex_accuracy_report_v2.json",
+        "sha256": "99a26d7ae63bb108b2e0149b3f3e95f20faf4d503f9c6f21d9f0b1f0d0807cde"
+      },
+      {
+        "path": "policy-engine/architecture/policy_design_case/layer3_gy_openalex_claim_span_gold.json",
+        "sha256": "56e1f255a8e8bcff2922bec9ab842c1a29b9e598385d551ae5920d50b24868ed"
+      },
+      {
+        "path": "policy-engine/architecture/policy_design_case/layer3_gy_openalex_provider_config.json",
+        "sha256": "1bd6906111bbc8f4610175b152d78adf7abc4b23d78cf751a359a9df8577fcaf"
+      },
+      {
+        "path": "policy-engine/architecture/policy_design_case/layer3_gy_openalex_skg_ingest_records.json",
+        "sha256": "c45e37e16c539787acaca9b44f0afed6fb3ed77b941f2ded78e40c3fa51239de"
+      },
+      {
+        "path": "policy-engine/architecture/policy_design_case/layer3_gy_openalex_skg_ingest_records_v2.json",
+        "sha256": "167ceb124628b5e690191f177cb4875e0a537e52fe906d183bef18835e2cd574"
+      },
+      {
+        "path": "policy-engine/architecture/public_surface/contract.toml",
+        "sha256": "16ebb15cbade1ee7bcc26a4413fa5be0f2b8560a262c04f876912a619a243b2b"
+      },
+      {
+        "path": "policy-engine/docs/reference/policy-design-case-failure-patterns.md",
+        "sha256": "1c34476fcc90801535e83455d9cb16509fde1ef4027730a63664d072c229f689"
+      },
+      {
+        "path": "policy-engine/docs/reference/public-surface.md",
+        "sha256": "888bf6c1733d3e569195603cef9468c6e5217815a03d0905dee9a35e3c3f3f4b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-directory-health-streaming-author-20261018/README-companion-snippet.md",
+        "sha256": "02e00ec630d32bdf357712320b7e2b36bb4e6e4fc2a129b9abf470f173f627e0"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-directory-health-streaming-author-20261018/candidate.json",
+        "sha256": "1989aa223d23967bb922524c6492f5487d59253307929f2cfd8017b2aa894f7b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-directory-health-streaming-author-20261018/mechanism.patch",
+        "sha256": "18d894158719fd864a4af2feac387bb13c49cd57e7a16bb123ddac3f6144c2a5"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-directory-health-streaming-author-20261018/synthetic-probe.json",
+        "sha256": "4f2966251548679da5013bcb8c4f4266ac09f60be3559aeed1260c09067acbfc"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-directory-health-streaming-independent-review-r1-20261018/review.json",
+        "sha256": "09afe6ee032efa491217465398c3921ba877019c0269ab1da50502dfe452b479"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-n9-promotion-owner-author-20261018/candidate.patch",
+        "sha256": "ab8082cf7a375fb2a2945ab2242460b26ac671b21fdd8f07f87643e14e98765a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-n9-promotion-owner-author-20261018/manifest.json",
+        "sha256": "1292554a4ca2e37375c9de4a92c194ce44e5bbeaa0ad37693f19d73cf7ebedee"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-n9-promotion-owner-author-20261018/proposed-README-current-head.md",
+        "sha256": "129eda82b06eb11055ba015521f6f30086b3833eeec0ab465e8c77165ad263c8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-n9-promotion-owner-author-20261018/verification.json",
+        "sha256": "4f812c93b27528a07efca3f8766e04c51afda4c6895ed8fd66c1df397eca41fe"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-n9-promotion-owner-independent-20261018/review.md",
+        "sha256": "5820a955f15e124b73db0f6ba8caa74808c2a744afb30604b1d017746cf7f1c2"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-openalex-owner-author-20261018/P40-and-removal-profile.md",
+        "sha256": "6e0e9226dd85956ab473cb733e2bb73cbf2637a2ff7a5d0f426fd6e3ee07f6be"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-openalex-owner-author-20261018/candidate-summary.json",
+        "sha256": "18bd805beed56c92d266388b5159af1dd3444a2f638c7c7ffdac27e3f028f277"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-openalex-owner-author-20261018/candidate.patch",
+        "sha256": "2d13ce0abf90810552122a388bc9adbfda9819bde5508b2d1ed377d05208262f"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-openalex-owner-author-20261018/postimage-hashes.json",
+        "sha256": "94f14eb8e603091226ed478b8fa6149ce6ad29797eb798e541e0024c65523f16"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-openalex-owner-author-20261018/preimage-hashes.json",
+        "sha256": "8791b27e4e935fe41828c47f517fd6917e56feb12d7837e7eff2f5a450d83476"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-openalex-owner-author-20261018/source-bindings.json",
+        "sha256": "419853eb1414dcafbc2563586e73950a7875b205957c27abfd99fbb42c94dd22"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-openalex-owner-author-20261018/static-review.json",
+        "sha256": "b79e2e18328b71110c6f2f4e2bd05264f837bc7bdc92a16c671651178ced2abc"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-openalex-owner-independent-20261018/review.json",
+        "sha256": "855edd8339a0b2b6aafb236aabec91a1ae87c3f2d1fa06418190af4d234e6847"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-package-mirror-contract-author-r3-20261018/README-proposal.md",
+        "sha256": "7d0cdd1175b3ba2f9f6251571e3e0178066ea18c466097143779ea42936f67a9"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-package-mirror-contract-author-r3-20261018/bounded-static-verification.json",
+        "sha256": "58c373182274f0eefbfe144a384990affb70a9b1934b3c2a8c6e167b15b87697"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-package-mirror-contract-author-r3-20261018/candidate.patch",
+        "sha256": "4b9a0597031ef353a2a790054de355df99dd9ef3ea09a95f4fa42fae5f0e1a17"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-package-mirror-contract-author-r3-20261018/packet-manifest.json",
+        "sha256": "3ef96d17ec7f2c35443e89d665c045f0fe878f39a0a05ddc70fb72e0c6fe7190"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-package-mirror-contract-author-r3-20261018/postimage-hashes.json",
+        "sha256": "966d74e6c0a0bb310b1c876d66f62f52acb38ca6629a39e72c1d1a34792769d1"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-package-mirror-contract-author-r3-20261018/preimage-hashes.json",
+        "sha256": "5066df0f582a1f8bd8e046a60d8bf6107226482d1b88d062d8b20946f0a8c2ee"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-package-mirror-contract-author-r3-20261018/routine-12-field-reconciliation.json",
+        "sha256": "e75aed78c68b313224547f7f559e7316d4bbd1e4736f862c0ed8fef84405e942"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-package-mirror-contract-author-r3-20261018/runtime-quality-route-g-choice.md",
+        "sha256": "151c0b166109d679a6217afb4f3ce5feeebeabe443c0c93cbb2ebbf1422ef85c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-package-mirror-contract-author-r3-20261018/source-input-hashes.json",
+        "sha256": "a4c8b188d162148717ec35a57cd8fc3895f2f2a4f9d366d20c9a070c012e0e53"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-package-mirror-routine-r3-independent-20261018/review.md",
+        "sha256": "210404bcbe7067ca1672a704a95caf3fa0a4a74c24ae3096de52e4e628bdeb5e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native166-ruff-source-application-r1-20261017/raw-alias-before-hashes.json",
+        "sha256": "f2bbab9c74ca918b4cd78fd3a7d6d468e206f13d67f7b93305c81ad1bf4cac31"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-three-owner-source-application-plan-20261018/package-toml-parse-preflight.json",
+        "sha256": "f122af27ec7dfbeb7b5f7c234015798813205ebf6b77e4dd6fcbc2ddb18d5232"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-three-owner-source-application-plan-20261018/ruff-final-postimages-preflight.json",
+        "sha256": "78ecb63574102990cb75c15da13ccd6d3a5c6a8f4ea425f480f92b4040ddfdae"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-three-owner-source-application-plan-20261018/ruff-format-delta-receipt.json",
+        "sha256": "b9a486ae3fda85a1bdb513fb282be0562bd73098bbdf24867c7919b9f50a675d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-three-owner-source-application-plan-20261018/ruff-format-delta.patch",
+        "sha256": "35ecfb17e90ae7bde578dabc7ef8354412907b9bb0ad2e1bda83237a0d2b456c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-three-owner-source-application-plan-20261018/ruff-stdin-preflight.json",
+        "sha256": "80518eca8401a3b7f73eea6cd408e5e209aeace1241395ed3d8b95f4f55f4c7c"
+      },
+      {
+        "path": "policy-engine/pyproject.toml",
+        "sha256": "2522afe7bbbe74b8df37dcf64cda247f244ef0ec073657bb5d9e1d7841b1efe7"
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-14-b31-source-projection-owner-bridge.toml",
+        "sha256": "a7f3bfc8175c6a472aabaa2be7066f9c2fa3573f2875fb04c6822fbfc65eeea9"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/academic/batch/article_extractor.py",
+        "sha256": "55f5305cabc313ac668e2e06772f0c272b6e65626e83d2d60dedaf3464edb76f"
+      },
+      {
+        "path": "policy-engine/src/polisyos/data_forge/domains/academic/knowledge/skg_store.py",
+        "sha256": "d10fe6a8388036f898cd44205c11b9a8961428c8559ba7ac0e64a1b0efccc5c5"
+      },
+      {
+        "path": "policy-engine/src/polisyos/ir/analytics/literature.py",
+        "sha256": "b73bff03ed73da4f5c128633ca4c30e61b251e7caa1e4bc2858db2ac57e9b6b1"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/README.md",
+        "sha256": "98889b88e9adb0cdddbd75dca9facbb7448cd43292e0627ff884c59f034b7dba"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/__init__.py",
+        "sha256": "9a186c21390e1c1282659a4afea846e49a1d53f6602789fa5004def977142287"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/README.md",
+        "sha256": "42355b4ad6a53e93813b424d93d1e9130ea35d1730958111e326801f0bfe9b7c"
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/quality/__init__.py",
+        "sha256": "a681fa6e4ee2d55b4fd272d7be711847c1ca7f0b574cc6c2a91d87ab87c8a2ab"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scholar/search/models.py",
+        "sha256": "6ae9e48fc070263f6613c0b3fb7a0e9a6f5c7074eae8c0d0116819d9eb36b7d2"
+      },
+      {
+        "path": "policy-engine/src/polisyos/scholar/search/providers.py",
+        "sha256": "78c94116a262e94553d2b5488fab31c6342c378f487a0ea4e547e94d29546275"
+      },
+      {
+        "path": "policy-engine/tests/fixtures/scholar/openalex/credit_guarantee_firm_survival.json",
+        "sha256": "765913058592a439ad91c1b93591756830ae782176b559359713cf72abe9018b"
+      },
+      {
+        "path": "policy-engine/tests/fixtures/scholar/openalex/minimum_wage_employment.json",
+        "sha256": "c99c3446c42177cd32cfc50a2399c02326bbc50fb130e5211ef042f44dd4b780"
+      },
+      {
+        "path": "policy-engine/tests/fixtures/scholar/openalex/no_hits.json",
+        "sha256": "bbd5bd8cce49b95696afff708cb1631d2a61ec35374f60245462cad3b0401038"
+      },
+      {
+        "path": "policy-engine/tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py",
+        "sha256": "2c95ba56ecf138dd4ead96ee4251cf452589f6f428d8c57da8b2c3fcb3b11661"
+      },
+      {
+        "path": "policy-engine/tests/repo_quality/architecture/test_repository_best_in_class_phase6_1_import_gate_conversion.py",
+        "sha256": "d0ba9af511840a6d70509fcc136fd876e1acaa48e39353d800011ee586a4af89"
+      },
+      {
+        "path": "policy-engine/tests/repo_quality/tools/test_directory_health.py",
+        "sha256": "53768ae499b6e4dde7e31d5b8d61705de3f6dd11906414acef8d297cac422d86"
+      },
+      {
+        "path": "policy-engine/tests/repo_quality/tools/test_directory_hygiene_assets.py",
+        "sha256": "6e6eff43d9b1a769efa5c784ec0c8cabcbb51be4be3fa89b5a1ec140175ebdc8"
+      },
+      {
+        "path": "policy-engine/tests/repo_quality/tools/test_governed_owner_history_independence.py",
+        "sha256": "16c74e81009a1c7dc441e5a9784405c02474d37e4936a1a4e45828e87d8e53f6"
+      },
+      {
+        "path": "policy-engine/tests/repo_quality/tools/test_instrument_input_scope.py",
+        "sha256": "2ce275a0bc6d526daf07e748e6719b140a95a5cb4c34dc5e7d6021a1cb4d3488"
+      },
+      {
+        "path": "policy-engine/tests/repo_quality/tools/test_layer3_gy_openalex_artifacts.py",
+        "sha256": "1c66a5b7b7e1ad5f90f0916f41ebcf9f78a6117ddf00cdb797a577e4e26a2b17"
+      },
+      {
+        "path": "policy-engine/tests/repo_quality/tools/test_layer3_gy_promotion_contract.py",
+        "sha256": "370b967abd57b49bb544f9cc23e594a367a41554b81852584dc5ac0a8f02c680"
+      },
+      {
+        "path": "policy-engine/tests/repo_quality/tools/test_layer3_gy_promotion_contract_verdict.py",
+        "sha256": "26910f1f1555c5d6c8256bf20ba9e33b7423f541e3a1060e0fc6dc2aecbfb109"
+      },
+      {
+        "path": "policy-engine/tests/repo_quality/tools/test_timing.py",
+        "sha256": "e21731653e5eb0a1335687de850cfd1ed73b9c879bf6facf1c64a52739a873df"
+      },
+      {
+        "path": "policy-engine/tests/unit/data_forge/domains/academic/knowledge/test_openalex_skg_ingest.py",
+        "sha256": "ed93796c7e6d3aca5291ef19092f174012f12449d6c827b2a03aa7bacd877f16"
+      },
+      {
+        "path": "policy-engine/tests/unit/ir/test_literature_openalex_grounding.py",
+        "sha256": "21b681a39f5608f274a345e5c05c036902191d922404e92079b2b847ee58d18b"
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/quality/test_promotion_sequence.py",
+        "sha256": "9924979b257a9a1ed041375aff3642a427122c2d18b6247e732adfb9f5e78a02"
+      },
+      {
+        "path": "policy-engine/tools/devx/architecture/guardrails.py",
+        "sha256": "e62a7410d62711ec2c6c187d783ede614bb8759e458c54d55bb97ca19a1d2d8c"
+      },
+      {
+        "path": "policy-engine/tools/lib/cache.py",
+        "sha256": "96b787ab64110c930db58f18dc60cfd20a7c899137fecb92fe8d6416801b87a1"
+      },
+      {
+        "path": "policy-engine/tools/lib/fs.py",
+        "sha256": "0ddf42f824ddfe55386f5d5d63b39cacfb53f73dad03d8d2158f19a6b9a15119"
+      },
+      {
+        "path": "policy-engine/tools/lib/timing.py",
+        "sha256": "4f8bac210fa4bd5b12526af3494a48596d0e3eacf01ca1e8d37c4ea2869b30c3"
+      },
+      {
+        "path": "policy-engine/tools/quality/validation/README.md",
+        "sha256": "02526964ffb9b827d99268b98a84df1728869cc54253b6888d50f094ccb9c6ee"
+      },
+      {
+        "path": "policy-engine/tools/quality/validation/architecture_report_only_contracts.py",
+        "sha256": "e6de2b42f97ee17259191c003bc0345e3b72a0923b7ba28930601dfd57bce01c"
+      },
+      {
+        "path": "policy-engine/tools/quality/validation/check_layer3_gy_generated_public_lifecycle_audit.py",
+        "sha256": "c038e9f95bf73757858acc5eccfc0613fcb1cd819930dd390e4b82c7d41ce5f5"
+      },
+      {
+        "path": "policy-engine/tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py",
+        "sha256": "64907b39fdf5d15f2c2de384ce00b4468c4036bc73323df90d110dea06c3ff6f"
+      },
+      {
+        "path": "policy-engine/tools/quality/validation/check_layer3_gy_openalex_artifacts.py",
+        "sha256": "314d4aaacd5300987072461aef33ef2e78ebaab3929ffebddbb0db14210478a2"
+      },
+      {
+        "path": "policy-engine/tools/quality/validation/check_layer3_gy_promotion_contract.py",
+        "sha256": "c6c008cbc858ac8157425df3681f636530c2d57df2b206d573bcef65f469c379"
+      },
+      {
+        "path": "policy-engine/tools/quality/validation/directory_health.py",
+        "sha256": "26d20ab8baf4428c641751bcc1ef433f8828e203336a7b805f4fb277c47e8dae"
+      },
+      {
+        "path": "policy-engine/tools/quality/validation/directory_health_dashboard.py",
+        "sha256": "f940249e105fa9d11ccd6ca81a0fce65637f9b50f03731917a8fe56773bb0379"
+      },
+      {
+        "path": "policy-engine/tools/quality/validation/directory_hygiene_assets.py",
+        "sha256": "1a7b5b49aae6fcd71cbbd98cd79c2bbc14d4ec499c0f6386e22e75e3b09ffe9b"
+      },
+      {
+        "path": "policy-engine/tools/quality/validation/package_import_size_ratchet.py",
+        "sha256": "cbdd75148067f17fd41b2331be708cc39bf21f8a3fb5bcab1311512a6387dacf"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-three-owner-source-application-plan-20261018/root-format-and-source-qualification-r1.json",
+        "sha256": "9df2bbb079b5332bf0824f4630db44c06a9468c84f34446700a71d6e8bba8687"
+      }
+    ],
+    "P40": {
+      "directory_health": {
+        "bucket": "Same resource-retention class widened across the full declared tracked/ignored/filesystem inventory quantity, not a leaf patch.",
+        "bounded_residual": "Returned rows/maps remain output-proportional; deep FD/iterator failure visible. Native resource attribution is not established."
+      },
+      "n9_promotion": {
+        "bucket": "Same oversized-validator class widened to the full selected N9 67-binding family.",
+        "bounded_residual": "Broader validator cohort is unassessed; 57/56 figures are historical, not current."
+      },
+      "openalex_evidence": {
+        "bucket": "Same oversized-validator class widened to the complete selected bounded recorded-provider/accuracy/candidate-SKG boundary.",
+        "bounded_residual": "Broader cohort denominator/remainder not assessed; no current 57/134,683 claim."
+      },
+      "package_mirror_r3": {
+        "bucket": "Same routine package-row mirror drift class as R2, covered here as nine TOMLs/twelve fields.",
+        "bounded_residual": "Runtime/quality parent-child route collision is a separate unresolved semantic class; wider current cohort is not counted."
+      },
+      "cross_slice_residual": "Do not claim closure of the full oversized-validator or package/public-surface cohorts. A complete current source-derived inventory and each owner/consumer decision would be the smallest closure mechanism; absent from this batch."
+    },
+    "bounded_proof": "All 26 source rows were read back at current pinned base; 19 preimages match and 7 targets are absent. All 23 R3 product input pins match. The full 21-file package-TOML overlay parses with 0 errors, and all 16 Python postimages pass canonical stdin Ruff. Exact author/review packets and path pins are included. Five format byte variants independently root-reviewed AST-identical; runtime/CLI/removal gates are unrun.",
+    "limitations": {
+      "readiness": "ROOT_REVIEWED_SOURCE_APPLICATION_READY; runtime grant remains separate",
+      "source_only": true,
+      "mechanism_path_budget": {
+        "count": 20,
+        "denominator": "11 Python owner files and 9 primary package TOMLs; measured footprint, not a new stopping cap",
+        "P39": "Five mandatory tests, one README, LEASES and delivery index are companions outside this count"
+      },
+      "mandatory_companions": {
+        "combined_README_paths": 1,
+        "root_managed_LEASES_and_delivery_index_paths": 2,
+        "planned_source_rows_including_README": 26,
+        "canonical_changed_paths_if_root_applies": 28,
+        "python_test_paths": 5
+      },
+      "path_class_counts": {
+        "python": 16,
+        "toml": 9,
+        "markdown_readme": 1,
+        "total_rows": 26,
+        "existing_preimages": 19,
+        "absent_targets": 7
+      },
+      "candidate_not_authority": "All author/peer decisions are source-review only. Python owners remain runtime-unrun. Package-mirror writer remains producer_missing / implemented_but_not_orchestrated; verification_missing. No G acceptance, formal closure, source-qualified CLI claim, or positive OpenAlex accuracy claim.",
+      "ruff": "For exact planned 16 Python postimages: 32 stdin Ruff commands (check + format-check each) passed with literal policy-engine/.venv/bin/python -B -m ruff. Original authored bytes had 16 checks pass and 5 format checks rc=1 with empty output; five AST-identical formatted variants are in RAW and remain unreviewed.",
+      "toml": "Complete tracked architecture/packages/*.toml denominator: 21 parsed by stdlib tomllib in candidate overlay (9 postimages + 12 unchanged), 0 errors. Syntax only.",
+      "resource_profiles": {
+        "directory_health": {
+          "process_tree_rss_bytes": 2147483648,
+          "wall_seconds": 600,
+          "minimum_free_disk_bytes": 1073741824,
+          "basis": "Independent-review bound; prior older-source run sampled 2734931968 bytes then controller-stopped at 2 GiB, rc 143; this is not OOM and the current candidate is unrun."
+        },
+        "n9_openalex_tests_and_cli": {
+          "process_tree_rss_bytes": 2684354560,
+          "wall_seconds": 600,
+          "minimum_free_disk_bytes": 1073741824,
+          "basis": "Proposed only; separate root run grant required."
+        },
+        "package_mirror_report": {
+          "process_tree_rss_bytes": 2684354560,
+          "wall_seconds": 600,
+          "minimum_free_disk_bytes": 1073741824,
+          "basis": "Proposed only; separate root run grant required."
+        }
+      },
+      "execution_hygiene": "No uv/sync. Literal venv Python, numerical threads1. Future pytest uses new persistent external task harness basetemp outside Git (workspace visualization/e02-test-state), cache/log/JUnit under attempt RAW; preserve all data. Nested RAW basetemp was proven to contaminate standalone-fixture Git discovery in the8070 wave.",
+      "source_qualification": "At actual post-application freeze, pin complete source closure, independently reconcile collection/execution provenance, exact selected node IDs, process rc and loaded module origin+content hashes. Requested but unloaded modules are not_exercised. CLI origins must be witnessed or labeled not_established.",
+      "current_source_preimages_match": true,
+      "current_source_preimage_rows": 26,
+      "current_source_absent_targets": 7,
+      "r3_product_pins_match": {
+        "count": 23,
+        "matched": 23
+      },
+      "no_product_source_environment_or_git_mutation_performed": true
+    },
+    "runtime": "UNRUN on adopted source",
+    "next_check": [
+      "Root reviews the exact five AST-identical Ruff-only byte deltas in the pinned RAW patch/receipt (changed-line counts 12, 7, 6, 180, 4); original peer reviews do not cover those additional bytes.",
+      "Root re-reads this 26-row plan and all input pins at current 8c289... base; source pins, 302 protected RAW aliases and full path budget are checked by the root-owned application process. Root alone applies.",
+      "After application, run canonical actual-tree Ruff on the 16 Python paths and a package-mirror report using the literal .venv Python command. Capture full JSON/status/exit; red is retained, never forced green.",
+      "Only with a separate root run grant, collect and execute the exact directory, N9, and OpenAlex selectors under a persistent bounded controller; derive node IDs/counts from collection at the frozen tree, not forecast.",
+      "Retain actual tests/CLI/resource/source pin/runtime-origin outputs. Execute P29 removal profiles in isolated RAW overlays. Do not infer source qualification or acceptance from source review, syntax, collection, empty stdout or rc alone."
+    ],
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

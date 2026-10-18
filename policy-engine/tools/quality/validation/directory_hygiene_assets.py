@@ -6,15 +6,16 @@ from __future__ import annotations
 import argparse
 import fnmatch
 import json
-import os
 import subprocess
 import sys
 import tomllib
+from collections.abc import Iterator
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 from tools.lib.imports import repo_root_from
+from tools.quality.validation import directory_health_inventory
 
 REPO_ROOT = repo_root_from(__file__)
 CONTRACT_PATH = Path("architecture/asset_placement.toml")
@@ -220,55 +221,30 @@ def _rel(path: Path, repo_root: Path) -> str:
         return path.as_posix()
 
 
-def _git_lines(repo_root: Path, *args: str) -> list[str]:
-    try:
-        completed = subprocess.run(
-            ["git", *args],
-            cwd=repo_root,
-            check=True,
-            capture_output=True,
-            text=True,
-        )
-    except (FileNotFoundError, subprocess.CalledProcessError):
-        return []
-    return [line for line in completed.stdout.splitlines() if line.strip()]
+def _git_lines(repo_root: Path, *args: str) -> Iterator[str]:
+    return directory_health_inventory.iter_git_paths(repo_root, *args)
 
 
-def _walk_files(root: Path, *, skip_dir_names: set[str] = SKIP_DIR_NAMES) -> list[Path]:
-    if not root.exists():
-        return []
-    files: list[Path] = []
-    for current, dirnames, filenames in os.walk(root):
-        dirnames[:] = [name for name in dirnames if name not in skip_dir_names]
-        for filename in filenames:
-            files.append(Path(current) / filename)
-    return sorted(files)
+def _walk_files(root: Path, *, skip_dir_names: set[str] = SKIP_DIR_NAMES) -> Iterator[Path]:
+    return directory_health_inventory.iter_files(root, skip_dir_names=skip_dir_names)
 
 
-def _walk_dirs(root: Path, *, skip_dir_names: set[str] = SKIP_DIR_NAMES) -> list[Path]:
-    if not root.exists():
-        return []
-    dirs: list[Path] = []
-    for current, dirnames, _filenames in os.walk(root):
-        dirnames[:] = [name for name in dirnames if name not in skip_dir_names]
-        dirs.append(Path(current))
-    return sorted(dirs)
+def _walk_dirs(root: Path, *, skip_dir_names: set[str] = SKIP_DIR_NAMES) -> Iterator[Path]:
+    return directory_health_inventory.iter_directories(root, skip_dir_names=skip_dir_names)
 
 
-def _source_adjacent_paths(repo_root: Path) -> list[Path]:
-    roots = [repo_root / root for root in SOURCE_ADJACENT_ROOTS if (repo_root / root).exists()]
-    paths: list[Path] = []
-    for root in roots:
-        paths.extend(_walk_files(root, skip_dir_names=RESIDUE_SKIP_DIR_NAMES))
-    return sorted(paths)
+def _source_adjacent_paths(repo_root: Path) -> Iterator[Path]:
+    for relative_root in SOURCE_ADJACENT_ROOTS:
+        root = repo_root / relative_root
+        if root.exists():
+            yield from _walk_files(root, skip_dir_names=RESIDUE_SKIP_DIR_NAMES)
 
 
-def _source_adjacent_dirs(repo_root: Path) -> list[Path]:
-    roots = [repo_root / root for root in SOURCE_ADJACENT_ROOTS if (repo_root / root).exists()]
-    dirs: list[Path] = []
-    for root in roots:
-        dirs.extend(_walk_dirs(root, skip_dir_names=RESIDUE_SKIP_DIR_NAMES))
-    return sorted(dirs)
+def _source_adjacent_dirs(repo_root: Path) -> Iterator[Path]:
+    for relative_root in SOURCE_ADJACENT_ROOTS:
+        root = repo_root / relative_root
+        if root.exists():
+            yield from _walk_dirs(root, skip_dir_names=RESIDUE_SKIP_DIR_NAMES)
 
 
 def _path_matches_root(relative: str, pattern: str) -> bool:
@@ -296,12 +272,12 @@ def _file_has_asset_hint(relative: str) -> bool:
     return any(token in lowered for token in ("fixture", "golden", "seed", "snapshot"))
 
 
-def _tracked_files(repo_root: Path) -> list[str]:
-    return sorted(_git_lines(repo_root, "ls-files"))
+def _tracked_files(repo_root: Path) -> Iterator[str]:
+    return _git_lines(repo_root, "ls-files")
 
 
-def _ignored_files(repo_root: Path) -> list[str]:
-    return sorted(_git_lines(repo_root, "ls-files", "-o", "-i", "--exclude-standard"))
+def _ignored_files(repo_root: Path) -> Iterator[str]:
+    return _git_lines(repo_root, "ls-files", "-o", "-i", "--exclude-standard")
 
 
 def _asset_classes(contract: dict[str, Any]) -> dict[str, dict[str, Any]]:
@@ -402,8 +378,6 @@ def _validate_contract(repo_root: Path, contract: dict[str, Any]) -> list[Findin
 
 
 def _collect_inventory(repo_root: Path, contract: dict[str, Any]) -> dict[str, Any]:
-    tracked = _tracked_files(repo_root)
-    ignored = _ignored_files(repo_root)
     classes = {
         "product_seed_assets": [],
         "test_fixtures": [],
@@ -415,29 +389,53 @@ def _collect_inventory(repo_root: Path, contract: dict[str, Any]) -> dict[str, A
         "ambiguous_fixture_directories": [],
     }
 
-    for relative in tracked:
-        if relative.startswith("src/polisyos/") and _file_has_asset_hint(relative):
-            classes["product_seed_assets"].append(relative)
-        if relative.startswith("tests/_data/") or (
-            relative.startswith("tests/") and "/fixtures/" in relative
-        ):
-            classes["test_fixtures"].append(relative)
-        if relative.startswith("tests/_golden/") or (
-            relative.startswith("tests/") and ("/golden/" in relative or "/snapshots/" in relative)
-        ):
-            classes["golden_records"].append(relative)
-        if relative.startswith("examples/"):
-            classes["examples_tutorial_assets"].append(relative)
+    tracked_classes = {
+        "product_seed_assets": [],
+        "test_fixtures": [],
+        "golden_records": [],
+        "examples_tutorial_assets": [],
+    }
+    try:
+        for relative in _tracked_files(repo_root):
+            if relative.startswith("src/polisyos/") and _file_has_asset_hint(relative):
+                tracked_classes["product_seed_assets"].append(relative)
+            if relative.startswith("tests/_data/") or (
+                relative.startswith("tests/") and "/fixtures/" in relative
+            ):
+                tracked_classes["test_fixtures"].append(relative)
+            if relative.startswith("tests/_golden/") or (
+                relative.startswith("tests/")
+                and ("/golden/" in relative or "/snapshots/" in relative)
+            ):
+                tracked_classes["golden_records"].append(relative)
+            if relative.startswith("examples/"):
+                tracked_classes["examples_tutorial_assets"].append(relative)
+    except (FileNotFoundError, subprocess.CalledProcessError):
+        tracked_classes = {key: [] for key in tracked_classes}
+    for key, values in tracked_classes.items():
+        classes[key].extend(values)
 
-    for relative in ignored:
-        if relative.startswith(".polisyos/reports/") or relative.startswith(".polisyos/audits/"):
-            classes["local_reports"].append(relative)
-        if relative.startswith("benchmarks/_reports/") or relative.startswith(
-            "_build/benchmark-results/"
-        ):
-            classes["generated_benchmark_reports"].append(relative)
-        if _is_under_source_adjacent_root(relative) and _is_source_adjacent_residue(relative):
-            classes["source_adjacent_residue"].append(relative)
+    ignored_classes = {
+        "local_reports": [],
+        "generated_benchmark_reports": [],
+        "source_adjacent_residue": [],
+    }
+    try:
+        for relative in _ignored_files(repo_root):
+            if relative.startswith(".polisyos/reports/") or relative.startswith(
+                ".polisyos/audits/"
+            ):
+                ignored_classes["local_reports"].append(relative)
+            if relative.startswith("benchmarks/_reports/") or relative.startswith(
+                "_build/benchmark-results/"
+            ):
+                ignored_classes["generated_benchmark_reports"].append(relative)
+            if _is_under_source_adjacent_root(relative) and _is_source_adjacent_residue(relative):
+                ignored_classes["source_adjacent_residue"].append(relative)
+    except (FileNotFoundError, subprocess.CalledProcessError):
+        ignored_classes = {key: [] for key in ignored_classes}
+    for key, values in ignored_classes.items():
+        classes[key].extend(values)
 
     for path in _source_adjacent_paths(repo_root):
         relative = _rel(path, repo_root)

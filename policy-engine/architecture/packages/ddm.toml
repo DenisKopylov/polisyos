@@ -47,7 +47,7 @@ import_boundary_report = "architecture/imports/reports.toml"
 
 [public_surface]
 classification = "internal"
-facade_mode = "eager_exports"
+facade_mode = "lazy_facade"
 registry_owner = "team-scientist"
 reference_doc = "docs/reference/public-surface.md"
 supported_entrypoints = ["polisyos.ddm"]

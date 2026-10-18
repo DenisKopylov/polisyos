@@ -148,11 +148,16 @@ registry_owner = "team-polisyos"
 reference_doc = "docs/reference/public-surface.md"
 supported_entrypoints = [
   "polisyos.scientist",
+  "polisyos.scientist.governance.continuous",
+  "polisyos.scientist.methods.backtesting",
   "polisyos.scientist.methods.research_dag",
+  "polisyos.scientist.orchestration.engine",
   "polisyos.scientist.replay",
+  "polisyos.scientist.replay.deterministic",
+  "polisyos.scientist.validation.policy_verified",
 ]
 major_subsystem = true
-notes = "Workflow orchestration facade for experiment execution and shared observability hooks."
+notes = "Workflow orchestration and policy-verified artifact facades, including typed legal retrieval status on candidate packs."
 
 [tests]
 status = "report_only"

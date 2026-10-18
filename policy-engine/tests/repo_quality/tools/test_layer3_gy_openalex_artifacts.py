@@ -55,6 +55,22 @@ def test_layer3_gy_openalex_accuracy_report_rejects_asserted_verifier_provenance
     assert {"code": "layer3_gy_openalex_accuracy_substantive_recompute_drift"} in issues
 
 
+def test_openalex_accuracy_owner_uses_active_population_callback(monkeypatch) -> None:
+    gate = check_layer3_gy_openalex_artifacts
+    observed = []
+
+    def injected_population(repo_root: Path):
+        observed.append(repo_root)
+        raise RuntimeError("active_population_callback")
+
+    import pytest
+
+    monkeypatch.setattr(gate, "_recorded_provider_population", injected_population)
+    with pytest.raises(RuntimeError, match="active_population_callback"):
+        gate._build_current_accuracy_payload(REPO_ROOT)
+    assert observed == [REPO_ROOT]
+
+
 def test_current_openalex_proof_enumerates_full_provider_population_and_withholds_accuracy() -> (
     None
 ):

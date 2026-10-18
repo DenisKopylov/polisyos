@@ -79,6 +79,8 @@ reference_doc = "docs/reference/public-surface.md"
 supported_entrypoints = [
   "polisyos.fabric",
   "polisyos.fabric.api",
+  "polisyos.fabric.connectors",
+  "polisyos.fabric.data_plane",
   "polisyos.fabric.world",
 ]
 major_subsystem = true

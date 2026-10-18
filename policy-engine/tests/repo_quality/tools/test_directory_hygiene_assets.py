@@ -2,8 +2,12 @@ from __future__ import annotations
 
 import json
 import os
+import subprocess
 import time
+from collections.abc import Iterator
 from pathlib import Path
+
+import pytest
 
 from tools.devx.workspace import clean_local_reports
 from tools.quality.validation import directory_hygiene_assets
@@ -110,3 +114,29 @@ def test_clean_local_reports_dry_run_and_apply_keep_audits_manual(tmp_path: Path
     assert not egg_info.exists()
     assert not ds_store.exists()
     assert not empty_fixture_raw.exists()
+
+
+def test_git_inventory_failure_discards_partial_staged_rows(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    def partial_then_fail(relative: str) -> Iterator[str]:
+        yield relative
+        raise subprocess.CalledProcessError(1, ["git", "ls-files"])
+
+    monkeypatch.setattr(
+        directory_hygiene_assets,
+        "_tracked_files",
+        lambda _root: partial_then_fail("src/polisyos/fixtures/partial.json"),
+    )
+    monkeypatch.setattr(
+        directory_hygiene_assets,
+        "_ignored_files",
+        lambda _root: partial_then_fail(".polisyos/reports/partial.json"),
+    )
+    monkeypatch.setattr(directory_hygiene_assets, "_source_adjacent_paths", lambda _root: iter(()))
+    monkeypatch.setattr(directory_hygiene_assets, "_source_adjacent_dirs", lambda _root: iter(()))
+
+    inventory = directory_hygiene_assets._collect_inventory(tmp_path, {})
+
+    assert inventory["classes"]["product_seed_assets"] == []
+    assert inventory["classes"]["local_reports"] == []

@@ -5,6 +5,8 @@ import tomllib
 from pathlib import Path
 from types import ModuleType
 
+import pytest
+
 REPO_ROOT = Path(__file__).resolve().parents[3]
 VALIDATION_SCRIPT = (
     REPO_ROOT / "tools" / "quality" / "validation" / "repository_structure_phase0.py"
@@ -98,3 +100,23 @@ def test_runtime_collision_inventory_includes_top_level_runtime_package() -> Non
     packages = {entry["package"] for entry in runtime_entry["packages"]}
 
     assert {"foundry", "runtime"}.issubset(packages)
+
+
+def test_inventory_uses_current_facade_walk_helper(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    validation = _load_validation_module()
+    product_root = tmp_path / "policy-engine"
+    core_package = product_root / "src" / "polisyos" / "core"
+    core_package.mkdir(parents=True)
+    (core_package / "__init__.py").write_text("", encoding="utf-8")
+    product_root.mkdir(exist_ok=True)
+    (product_root / "pyproject.toml").write_text(
+        "[project]\nname = 'inventory-fixture'\n", encoding="utf-8"
+    )
+
+    monkeypatch.setattr(validation, "_walk_dirs", lambda _root, _tracked_paths=None: [])
+
+    inventory = validation.collect_inventory(product_root)
+
+    assert inventory["empty_init_only_packages"] == []

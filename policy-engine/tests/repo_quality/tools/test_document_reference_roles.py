@@ -235,6 +235,28 @@ def test_live_or_unestablished_reference_roles_still_fail(
     assert OLD_DASHBOARD in findings[0].message
 
 
+def test_reference_scan_facade_preserves_injected_enumerator(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    selected = _write(tmp_path, "docs/selected.md", f"Current: {OLD_CLIENT}\n")
+    _write(tmp_path, "docs/unselected.md", f"Not in this input set: {OLD_DASHBOARD}\n")
+
+    def selected_paths(_repo_root: Path) -> tuple[Path, ...]:
+        return (selected,)
+
+    monkeypatch.setattr(lifecycle, "_iter_repository_files", selected_paths)
+    receipt: dict[str, object] = {}
+
+    findings = lifecycle.check_removed_stub_references(tmp_path, receipt=receipt)
+
+    assert [(finding.check, finding.path) for finding in findings] == [
+        ("removed_stub_reference", "docs/selected.md")
+    ]
+    denominator = receipt["denominator"]
+    assert denominator["tracked_path_count"] == 1
+    assert denominator["selected_path_count"] == 1
+
+
 def test_station_debris_cannot_enter_committed_reference_or_plan_denominator(
     tmp_path: Path,
 ) -> None:

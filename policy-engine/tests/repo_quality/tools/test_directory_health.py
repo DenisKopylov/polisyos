@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from tools.devx.workspace import clean_local_reports
 from tools.quality.validation import directory_health
 
@@ -95,3 +97,60 @@ def test_phase1_3_clean_local_reports_collects_phase_local_junk_roots(
     }
     assert "docs/archive/reports/reviewed.md" not in candidates
     assert "architecture/baselines/reviewed/summary.json" not in candidates
+
+
+def test_dashboard_facade_uses_current_scanner_dependencies(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    source_root = tmp_path / "src"
+    source_root.mkdir()
+    (source_root / "README.md").write_text("source docs\n", encoding="utf-8")
+    for name in ("a.py", "b.py"):
+        (source_root / name).write_text("pass\n", encoding="utf-8")
+    tracked_roots: list[Path] = []
+
+    def tracked_files(repo_root: Path) -> list[str]:
+        tracked_roots.append(repo_root)
+        return ["src/a.py", "src/b.py"]
+
+    def walk_dirs(repo_root: Path, relative_root: str = ".") -> list[Path]:
+        assert relative_root == "."
+        return [repo_root, source_root]
+
+    monkeypatch.setattr(directory_health, "_tracked_files", tracked_files)
+    monkeypatch.setattr(directory_health, "_ignored_files", lambda _root: [])
+    monkeypatch.setattr(directory_health, "_walk_dirs", walk_dirs)
+    monkeypatch.setattr(
+        directory_health,
+        "_read_toml",
+        lambda _path: {"non_product_python_root": []},
+    )
+    monkeypatch.setattr(directory_health, "_collect_closure_findings", lambda *_args: [])
+
+    dashboard = directory_health._build_dashboard(
+        tmp_path,
+        {"thresholds": {"high_volume_tracked_files": 1}},
+        {"contract": [{"path": "src"}]},
+        {"classes": {"counts": {"product_seed_assets": 2}}},
+    )
+
+    assert tracked_roots == [tmp_path, tmp_path]
+    assert dashboard["top_level_directories"] == {
+        "present": ["src"],
+        "covered": ["src"],
+        "missing_contract": [],
+    }
+    assert dashboard["high_volume_subtrees"] == [
+        {
+            "path": "src",
+            "tracked_file_count": 2,
+            "immediate_child_directory_count": 0,
+            "documented": True,
+        }
+    ]
+    assert dashboard["largest_subtrees_by_tracked_file_count"] == [
+        {"path": "src", "tracked_file_count": 2}
+    ]
+    assert dashboard["metrics"]["top_level_directory_contract_coverage_percent"] == 100.0
+    assert dashboard["metrics"]["product_asset_count"] == 2

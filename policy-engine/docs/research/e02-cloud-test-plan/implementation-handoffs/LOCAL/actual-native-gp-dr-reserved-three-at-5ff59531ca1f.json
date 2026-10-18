@@ -1,0 +1,170 @@
+{
+  "G_acceptance": false,
+  "P40": {
+    "status": "No failing cases in this bounded profile; no repair class or closure is inferred."
+  },
+  "closure_ids": [],
+  "deciding_outputs": [
+    {
+      "bytes": 20851,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-gp-dr-reserved-three-current-actual-20261018/actual-run/reconciliation.json",
+      "role": "complete three-case reconciliation and full artifact pointer set",
+      "sha256": "285ffb585fdaa2376b50974fb331fa6e137348898b832822ad26f2236a1d4733"
+    },
+    {
+      "bytes": 4612,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-gp-dr-reserved-three-current-actual-20261018/actual-run/command-results.json",
+      "role": "both command results",
+      "sha256": "b22d7dd3ee0664962afebb90a17f00ce2303c5d2b51a88b94fbf8cce4839d6de"
+    },
+    {
+      "bytes": 2765,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-gp-dr-reserved-three-current-actual-20261018/actual-run/postflight.json",
+      "role": "source byte/Git-mode/full-POSIX postflight",
+      "sha256": "2c2ed0cce3d3b0683e1fe1d61dc2b87ffe12773248cd221045fbf7a89a6c550a"
+    },
+    {
+      "bytes": 629,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-gp-dr-reserved-three-current-actual-20261018/actual-run/methodjob.xml",
+      "role": "two-case MethodJob JUnit",
+      "sha256": "5d46af2d0265987d2d786516a3841401c57b3dd9d08e389cab0e5196df4525f9"
+    },
+    {
+      "bytes": 432,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-gp-dr-reserved-three-current-actual-20261018/actual-run/native-gp.xml",
+      "role": "single-case native GP JUnit",
+      "sha256": "caca22662989abef663fcd75fc21058eadba6fffa4eb9f5ee0d49574b722cfbc"
+    },
+    {
+      "bytes": 801008,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-gp-dr-reserved-three-current-actual-20261018/actual-run/methodjob-provenance.json",
+      "role": "MethodJob runtime source provenance",
+      "sha256": "4de8569033de63e46c008d8c7129bb48a286165f03e72fc1fc881eef42a983b3"
+    },
+    {
+      "bytes": 805928,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-gp-dr-reserved-three-current-actual-20261018/actual-run/native-gp-provenance.json",
+      "role": "native GP runtime source provenance",
+      "sha256": "1e56f86a5e85e89fa21c1e7e5b392a692018c0ceb5bac299805795ef7c68b2cb"
+    }
+  ],
+  "execution": {
+    "aborted": false,
+    "command_count": 2,
+    "exact_command_results_ref": {
+      "bytes": 4612,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-gp-dr-reserved-three-current-actual-20261018/actual-run/command-results.json",
+      "role": "two complete pytest command records",
+      "sha256": "b22d7dd3ee0664962afebb90a17f00ce2303c5d2b51a88b94fbf8cce4839d6de"
+    },
+    "status": "completed_pass"
+  },
+  "identity": "native-gp-dr-reserved-three-selectors-at-5ff59531ca1f",
+  "inputs": [
+    {
+      "bytes": 12121,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-gp-dr-reserved-three-current-actual-20261018/request.json",
+      "role": "sealed two-selector request",
+      "sha256": "5e7bac2ea6e0fa4dd7219d7ba29132af111810dbb3773cc1fa79325e81623df4"
+    },
+    {
+      "bytes": 6311,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-gp-dr-reserved-three-current-actual-20261018/preflight.json",
+      "role": "preflight",
+      "sha256": "018063bb4872fe416b2fb551ff5f735f4386b84a3301c66969964fdb799de96a"
+    },
+    {
+      "bytes": 11119,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-gp-dr-reserved-three-current-actual-20261018/actual-binding.json",
+      "role": "actual command/source binding",
+      "sha256": "1994b4a82b7a947a1a39cdaffe1a216a53665a996c8223d8c876d14f182cd9df"
+    }
+  ],
+  "limits": [
+    "A pass for these three reserved selectors only; not global E02/backend closure.",
+    "Does not establish policy-effect or fiscal authority, installed-wheel/rebuilt-sdist behavior, or unselected native profiles.",
+    "This run is not merged with the separate red focused 29-module profile, even though both pin the same 5ff source frame."
+  ],
+  "next_check": "Keep this as a bounded reserved-profile witness; any broader native or installed-artifact claim requires its own exact invocation and source-bound evidence.",
+  "outcomes": {
+    "errors": 0,
+    "failed": 0,
+    "passed": 3,
+    "skipped": 0
+  },
+  "predicate_provenance": [
+    {
+      "basis": "Request, binding, freeze, and run reconciliation.",
+      "classification": "recomputed",
+      "predicate": "source frame identity"
+    },
+    {
+      "basis": "Three reconciliation case_results cross-checked against the two JUnit outputs.",
+      "classification": "independently_reconciled",
+      "predicate": "three selected outcomes"
+    },
+    {
+      "basis": "25,631 source pins, Git modes, and full POSIX mode digest before/after.",
+      "classification": "independently_reconciled",
+      "predicate": "source integrity"
+    },
+    {
+      "basis": "Explicit runtime_capability_boundary in the reconciliation.",
+      "classification": "not_established",
+      "predicate": "global E02 acceptance/closure"
+    }
+  ],
+  "property_vs_measurement": {
+    "divergent_case_or_boundary": "This bounded profile is not a whole-repository or capability-closure proof.",
+    "measured_by": "The exact invocation, captured output files, and source-frame-specific reconciliation referenced above.",
+    "property": "Three reserved source-bound native selectors: two MethodJob work/CAS/fresh-reader cases and one fitted native GP profile round-trip into same-context search."
+  },
+  "proposal_not_adjudicated": true,
+  "record_type": "actual_test_verification_receipt",
+  "scope": "Three reserved source-bound native selectors: two MethodJob work/CAS/fresh-reader cases and one fitted native GP profile round-trip into same-context search.",
+  "selection": {
+    "case_denominator_source": "actual-run/reconciliation.json case_results and two JUnit files",
+    "case_results": [
+      "tests/unit/scientist/methods/autotune/test_methodjob_execution_work_packets.py::test_native_gp_methodjob_search_warm_start_fresh_reads_source_work",
+      "tests/unit/scientist/methods/autotune/test_methodjob_execution_work_packets.py::test_native_source_bound_methodjob_direct_l4_matches_l3_to_l4",
+      "tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py::test_fitted_native_gp_profile_round_trips_into_same_context_search"
+    ],
+    "selected_cases": 3,
+    "whole_modules": 0
+  },
+  "source_frame": {
+    "branch": "refs/heads/codex/e02-unified-local-20261009",
+    "frame_scope": "Historical invocation-bound source frame; this is not a claim about later source commits or current HEAD.",
+    "head": "5ff59531ca1f98ff267ef70a376f58b58164470a",
+    "parents": [
+      "0284f1919a6d8cd112265bb96694fa320d8a2699"
+    ],
+    "tracked_status_at_invocation": "clean",
+    "tree": "f28abf527b7ec8403be0745ee3c25404d877a7c3"
+  },
+  "source_integrity": {
+    "full_posix_modes": {
+      "count": 25631,
+      "sha256_after": "a1ce8eefc764c67d03f24c262ad55f14f9390977445913bf639be4db4f48064c",
+      "sha256_before": "a1ce8eefc764c67d03f24c262ad55f14f9390977445913bf639be4db4f48064c",
+      "unchanged": true
+    },
+    "source_frame_unchanged": true,
+    "source_pins": {
+      "count": 25631,
+      "unchanged": true
+    },
+    "source_snapshot_ref": {
+      "bytes": 11075161,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r8-python-three-modules-actual-20261018/working-source-before.json",
+      "role": "full source pin map; 25,631 entries; cited, not copied",
+      "sha256": "bc29eb68ea29c8834a4b65e11762090cee6aa5f9d1787c72f114d7d7f6fc0954"
+    },
+    "source_snapshot_sha256": "bc29eb68ea29c8834a4b65e11762090cee6aa5f9d1787c72f114d7d7f6fc0954",
+    "tracked_git_modes": {
+      "count": 25630,
+      "unchanged": true
+    },
+    "tracked_porcelain_after": ""
+  }
+}

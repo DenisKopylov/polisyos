@@ -1,0 +1,201 @@
+{
+  "G_acceptance": false,
+  "P40": {
+    "basis_ref": {
+      "bytes": 6183,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-focused29-actual-independent-20261018/review.md",
+      "role": "independent P40 diagnosis",
+      "sha256": "c49ea276814e77cefaaef95e9578d75c45750bda16ffca2108609fc75cbf360a"
+    },
+    "bucket_rule": "P40 findings are separated by demonstrated property, not by test count.",
+    "findings": [
+      {
+        "bucket": "separate architecture-cycle class",
+        "finding": "Autotune/search import-graph SCC intersects the protected set (`cheap_stage`, `runtime`, `search.controller`, `search.stages`).",
+        "repair_direction": "Remove/resolve the actual intersecting graph cycle; do not fold it into FQN census or worker findings."
+      },
+      {
+        "bucket": "same broader FQN census-completeness class at the plain ast.Import syntax boundary",
+        "finding": "The FQN census fixture includes `import polisyos.foundry.domain.schema` in generated/tool.py, but no absolute-import hit is emitted.",
+        "repair_direction": "Cover the complete import-node mechanism and retain a valid positive control; do not patch this fixture path only."
+      },
+      {
+        "bucket": "one event-wait/lifecycle-coordination class with two awaited-event examples",
+        "finding": "Two blocking-worker lifecycle selectors time out on different awaited events (`entered` and `write_finished`).",
+        "repair_direction": "Resolve or bound the shared lifecycle invariant, not two per-test timeout edits."
+      }
+    ]
+  },
+  "closure_ids": [],
+  "deciding_outputs": [
+    {
+      "bytes": 17041,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-focused-search-transfer-worker-fqn-trust-composed-actual-20261018/actual-run/reconciliation.json",
+      "role": "complete actual reconciliation and artifact pointer set",
+      "sha256": "4882194d3ea7d282df523cccabcedba99d8b3963137e632ed3352e6839800801"
+    },
+    {
+      "bytes": 4323,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-focused-search-transfer-worker-fqn-trust-composed-actual-20261018/actual-run/command-result.json",
+      "role": "complete command result",
+      "sha256": "d4fb724bb743f0f987169adf113fc812c205e9d5b3de84ddd581e7008f37c178"
+    },
+    {
+      "bytes": 88772,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-focused-search-transfer-worker-fqn-trust-composed-actual-20261018/actual-run/pytest.xml",
+      "role": "complete JUnit denominator",
+      "sha256": "fc848502b0ec7db259c7a51af53c0f65e3dd61be42ad300f1a6f812ad92cbc14"
+    },
+    {
+      "bytes": 1725737,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-focused-search-transfer-worker-fqn-trust-composed-actual-20261018/actual-run/pytest-provenance.json",
+      "role": "full runtime-origin capture",
+      "sha256": "c1cff9be73d579e45e35e57b609b38e1013e11b3dfd4b81093c8cab5436474e7"
+    },
+    {
+      "bytes": 27487,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-focused-search-transfer-worker-fqn-trust-composed-actual-20261018/actual-run/pytest-29-whole-module-profile.stdout.txt",
+      "role": "full pytest stdout",
+      "sha256": "f220eac597eca8cf7318c650281f24306a14b5e0ef92d478a2840d34e7250ee7"
+    },
+    {
+      "bytes": 1186,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-focused-search-transfer-worker-fqn-trust-composed-actual-20261018/actual-run/postflight.json",
+      "role": "source/mode postflight",
+      "sha256": "090a104a4456fa53dbc3dadce7d710057986917efb6507cd89ac125a6ca143d6"
+    }
+  ],
+  "execution": {
+    "aborted": false,
+    "command_id": "pytest-29-whole-module-profile",
+    "exact_argv_and_environment_ref": {
+      "bytes": 4323,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-focused-search-transfer-worker-fqn-trust-composed-actual-20261018/actual-run/command-result.json",
+      "role": "exact argv, cwd, lifecycle, and return code",
+      "sha256": "d4fb724bb743f0f987169adf113fc812c205e9d5b3de84ddd581e7008f37c178"
+    },
+    "max_sampled_process_tree_rss_bytes": 2116370432,
+    "minimum_sampled_disk_free_bytes": 13142228992,
+    "process_group_gone": true,
+    "return_code": 1,
+    "sample_count": 262,
+    "status": "command_failed",
+    "wall_seconds": 143.44702208298258
+  },
+  "identity": "focused-29-whole-module-profile-at-5ff59531ca1f",
+  "inputs": [
+    {
+      "bytes": 17007,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-focused-search-transfer-worker-fqn-trust-composed-actual-20261018/request-v2.json",
+      "role": "sealed execution request",
+      "sha256": "0fa705dbf49c2554321652f6976ef57e7c27f9925a1339f05b9262e6b963f87d"
+    },
+    {
+      "bytes": 1507,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-focused-functional-freeze-5ff5953-20261018/freeze.json",
+      "role": "invocation source freeze",
+      "sha256": "b9fc5bed4da602bd4e8d43594be236197c0ebe3158bc4e18c9032163b17ea4cc"
+    },
+    {
+      "bytes": 1483,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-focused-functional-freeze-5ff5953-20261018/mode-field-interpretation-qualification.json",
+      "role": "mode-field interpretation qualification",
+      "sha256": "30cba4fe67c93d6d289ca21bd26a0d7283e9e0564b67af129ab7d58b76481d82"
+    },
+    {
+      "bytes": 8280,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-focused-search-transfer-worker-fqn-trust-composed-actual-20261018/actual-run/actual-binding.json",
+      "role": "actual runner binding",
+      "sha256": "72cdfd1d0588985dda36089c762b485e76d61cf691cefd8ca08678fafd87f676"
+    },
+    {
+      "bytes": 6183,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-focused29-actual-independent-20261018/review.md",
+      "role": "independent reconciliation and finding buckets",
+      "sha256": "c49ea276814e77cefaaef95e9578d75c45750bda16ffca2108609fc75cbf360a"
+    }
+  ],
+  "limits": [
+    "This is a red bounded 29-module result, not a complete backend run or formal acceptance.",
+    "Three native GP/DR selectors skipped here; their separate passing profile is a distinct receipt and does not turn this red profile green.",
+    "The independent review does not establish full-suite status or closure of B131/LA015."
+  ],
+  "next_check": "Repair/replay the architecture SCC, full FQN census syntax coverage, and shared blocking-worker lifecycle invariant from the exact owning slice base; after any source changes, bind a new run to the new source frame.",
+  "outcomes": {
+    "errors": 0,
+    "failed": 4,
+    "passed": 411,
+    "skipped": 3
+  },
+  "predicate_provenance": [
+    {
+      "basis": "Freeze + actual binding + commit/tree identity.",
+      "classification": "recomputed",
+      "predicate": "source frame identity"
+    },
+    {
+      "basis": "JUnit, reconciliation collected/executed sets, and independent review.",
+      "classification": "independently_reconciled",
+      "predicate": "case outcome denominator"
+    },
+    {
+      "basis": "1,747 runtime origin records rehashed to frozen source; zero mismatches.",
+      "classification": "independently_reconciled",
+      "predicate": "loaded module source origins"
+    },
+    {
+      "basis": "Out of scope for this selected profile.",
+      "classification": "not_established",
+      "predicate": "global E02 acceptance/closure"
+    }
+  ],
+  "property_vs_measurement": {
+    "divergent_case_or_boundary": "The selected profile itself is red: four failures and three reserved native skips. These outcomes do not prove or disprove unselected modules or global capability closure.",
+    "measured_by": "29 whole modules, complete JUnit, source map, runtime origin capture, and independent reconciliation.",
+    "property": "The selected joined Python property profile at the exact 5ff source frame."
+  },
+  "proposal_not_adjudicated": true,
+  "record_type": "actual_test_verification_receipt",
+  "scope": "The exact 29 complete Python test modules selected by request-v2, covering 418 uniquely collected/executed cases on the 5ff59531 source frame.",
+  "selection": {
+    "collected": 418,
+    "collected_set_equals_executed_set": true,
+    "executed": 418,
+    "selectors_and_nodeids": "See the exact invocation and complete JUnit/reconciliation artifacts; no sampled selector subset.",
+    "whole_modules": 29
+  },
+  "source_frame": {
+    "branch": "refs/heads/codex/e02-unified-local-20261009",
+    "frame_scope": "Historical invocation-bound source frame; this is not a claim about later source commits or current HEAD.",
+    "head": "5ff59531ca1f98ff267ef70a376f58b58164470a",
+    "parents": [
+      "0284f1919a6d8cd112265bb96694fa320d8a2699"
+    ],
+    "tracked_status_at_invocation": "clean",
+    "tree": "f28abf527b7ec8403be0745ee3c25404d877a7c3"
+  },
+  "source_integrity": {
+    "full_posix_mode_count": 25631,
+    "full_posix_mode_sha256_after": "8b715e0cc62f2eb7ded91acc2a32a0588157462614beaf33aa74acaefb04d6e0",
+    "full_posix_mode_sha256_before": "8b715e0cc62f2eb7ded91acc2a32a0588157462614beaf33aa74acaefb04d6e0",
+    "qualification": "This actual run has its own full-POSIX before/after witness. The separate qualification document explains that an earlier R8 Python `actual_modes` field meant Git-compatible type/executable normalization only; do not generalize that older field into full POSIX evidence.",
+    "runtime_origins": {
+      "captured": 1747,
+      "matched_frozen_source": 1747,
+      "mismatches": 0,
+      "pytest_plugin_autoload": "enabled"
+    },
+    "source_bytes_match": true,
+    "source_git_mode_count": 25631,
+    "source_git_modes_match": true,
+    "source_pin_count": 25631,
+    "source_snapshot_ref": {
+      "bytes": 11075161,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r8-python-three-modules-actual-20261018/working-source-before.json",
+      "role": "full captured source byte/mode map; 25,631 entries; cited, not copied",
+      "sha256": "bc29eb68ea29c8834a4b65e11762090cee6aa5f9d1787c72f114d7d7f6fc0954"
+    },
+    "source_snapshot_sha256": "bc29eb68ea29c8834a4b65e11762090cee6aa5f9d1787c72f114d7d7f6fc0954",
+    "tracked_porcelain_after": ""
+  }
+}

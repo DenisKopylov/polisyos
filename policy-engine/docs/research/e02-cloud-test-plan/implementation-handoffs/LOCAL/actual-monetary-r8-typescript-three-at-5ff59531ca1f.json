@@ -1,0 +1,232 @@
+{
+  "G_acceptance": false,
+  "P40": {
+    "basis_ref": {
+      "bytes": 14915,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r8-ts-two-fixture-independent-20261018/review.json",
+      "role": "independent P40 diagnosis and source-contract comparison",
+      "sha256": "ee38ec72932274b988024480ea14769a917dd7ccb2247602464f80bb9b47de27"
+    },
+    "bucket_rule": "P40 bucket classification follows the independent current-run review; the test count does not create separate failure classes.",
+    "findings": [
+      {
+        "bucket": "same fixture-shape class, second occurrence at deeper R8 slice",
+        "finding": "Two positive Zod response fixtures omit nested required `step.attempt`, so intended assertions fail before target behavior is exercised; the ownerless negative is partly vacuous.",
+        "repair_direction": "Use complete current response DTO fixtures; change only the field/predicate under test and keep positive/negative consumer controls."
+      }
+    ]
+  },
+  "closure_ids": [],
+  "deciding_outputs": [
+    {
+      "bytes": 20807,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r8-ts-composed-current-actual-20261018/result.json",
+      "role": "full actual supervisor result and limitations",
+      "sha256": "855ea531a563761ec2a189de6b0afe55850f582770806d1e5fce815f0e013456"
+    },
+    {
+      "bytes": 10813,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r8-ts-composed-current-actual-20261018/output-manifest.json",
+      "role": "complete 35-entry output hash manifest; no outputs copied",
+      "sha256": "347cbf79a7ebeed8a63386c6c015ed968133e3d0741557423ba7759fd7abe416"
+    },
+    {
+      "bytes": 1343,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r8-ts-composed-current-actual-20261018/vitest-whole-three.result.json",
+      "role": "Vitest command result",
+      "sha256": "68a3ff158f90f3e9470e3db7b82f8e619a9188d628635ef1fabe2fe1a984c960"
+    },
+    {
+      "bytes": 38949,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r8-ts-composed-current-actual-20261018/vitest.junit.xml",
+      "role": "complete 176-case JUnit",
+      "sha256": "7c0689f7036a5fc2f1f734f205033f195f878e1c52408c09a62d7f07de8370cc"
+    },
+    {
+      "bytes": 1205,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r8-ts-composed-current-actual-20261018/eslint-dashboard-scope.result.json",
+      "role": "ignored-path lint command result",
+      "sha256": "893d34af4be451ad87078308c583ee4782d6f0374b02b44e48d3a18f223ff892"
+    },
+    {
+      "bytes": 45,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r8-ts-composed-current-actual-20261018/eslint-dashboard-scope.stderr.txt",
+      "role": "45-byte ignored-file warning output",
+      "sha256": "99a3dfa8107e1f53d2ffb780a3dfb2d79c4ec1f2ba90a4173dc91308d07b536b"
+    }
+  ],
+  "execution": {
+    "commands": [
+      {
+        "id": "vitest-whole-three",
+        "reason": "Two assertion failures; see exact test IDs and diagnostic.",
+        "return_code": 1,
+        "status": "failed"
+      },
+      {
+        "errors": 0,
+        "id": "eslint-dashboard-scope",
+        "reason": "The generated src/api/types.ts path was ignored; --max-warnings=0 made the ignored-file warning nonzero, so this is not a successful lint receipt for that requested path.",
+        "return_code": 1,
+        "status": "nonreceipt_ignored_file_warning"
+      },
+      {
+        "id": "eslint-runtime-api-client",
+        "return_code": 0,
+        "status": "passed"
+      },
+      {
+        "id": "prettier-dashboard-scope",
+        "return_code": 0,
+        "status": "passed"
+      },
+      {
+        "id": "prettier-runtime-api-client",
+        "return_code": 0,
+        "status": "passed"
+      },
+      {
+        "id": "typecheck-runtime-dashboard",
+        "return_code": 0,
+        "status": "passed"
+      },
+      {
+        "id": "typecheck-runtime-api-client",
+        "return_code": 0,
+        "status": "passed"
+      },
+      {
+        "id": "typecheck-atlas-ui",
+        "return_code": 0,
+        "status": "passed"
+      }
+    ],
+    "retry_count": 0,
+    "sequential": true,
+    "source_integrity": "Before/after source frame unchanged; tracked-byte/Git-normalized-mode snapshot covers 25,630 paths and matches; venv pyvenv.cfg hash unchanged. This run does not provide a complete POSIX permission-mode witness.",
+    "status": "COMPLETED_WITH_COMMAND_FAILURES"
+  },
+  "identity": "monetary-r8-typescript-three-file-actual-at-5ff59531ca1f",
+  "inputs": [
+    {
+      "bytes": 30796,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r8-ts-composed-current-actual-20261018/execution-request.json",
+      "role": "exact command set and selected complete files",
+      "sha256": "51cfd6fa0ffff9a33347fbbeee595e0eee145c30298b6cd9024e03a8d8f9e34a"
+    },
+    {
+      "bytes": 356,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r8-ts-composed-current-actual-20261018/tracked-byte-mode-comparison.json",
+      "role": "tracked source snapshot comparison",
+      "sha256": "69db954beaf4cbb958e897ad509a6dcad7c904bbde8494293396fe59774aa10f"
+    },
+    {
+      "bytes": 1483,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-focused-functional-freeze-5ff5953-20261018/mode-field-interpretation-qualification.json",
+      "role": "mode-field scope qualification",
+      "sha256": "30cba4fe67c93d6d289ca21bd26a0d7283e9e0564b67af129ab7d58b76481d82"
+    },
+    {
+      "bytes": 14915,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r8-ts-two-fixture-independent-20261018/review.json",
+      "role": "independent failure diagnosis and P40 bucket",
+      "sha256": "ee38ec72932274b988024480ea14769a917dd7ccb2247602464f80bb9b47de27"
+    }
+  ],
+  "limits": [
+    "The two Vitest assertion failures remain actual red cases; no retry or source change occurred in this run.",
+    "The dashboard ESLint attempt is explicitly a nonreceipt for the ignored generated types path, not a pass and not evidence of a product lint defect.",
+    "No fresh OpenAPI generation chain, G acceptance, or closures are established.",
+    "The independent diagnosis applies only to the exact pinned response fixtures/consumer at this source frame; it does not establish that an alternate producer emits such incomplete wire data."
+  ],
+  "next_check": "Repair the complete finite fixture family with valid nested step.attempt values or a shared valid response fixture; preserve current-cost refusal, ownerless-current rejection, honest-unknown acceptance, and absent-details-scope default tests. If omission is intended on the wire, reconcile OpenAPI, generated response types, and Zod together before changing the contract.",
+  "outcomes": {
+    "errors": 0,
+    "failed": 2,
+    "passed": 174,
+    "skipped": 0,
+    "tests": 176
+  },
+  "predicate_provenance": [
+    {
+      "basis": "Execution request and before/after tree/HEAD match.",
+      "classification": "recomputed",
+      "predicate": "source frame identity"
+    },
+    {
+      "basis": "Complete JUnit plus independent review ee38….",
+      "classification": "independently_reconciled",
+      "predicate": "Vitest outcomes and fixture diagnosis"
+    },
+    {
+      "basis": "Captured before/after byte-mode comparison; no full POSIX mode map.",
+      "classification": "consumer_asserted",
+      "predicate": "tracked source bytes and Git modes"
+    },
+    {
+      "basis": "The requested generated type file was ignored by ESLint; exit 1 is a nonreceipt.",
+      "classification": "not_established",
+      "predicate": "generated-path ESLint coverage"
+    },
+    {
+      "basis": "No formal G review or closure evidence.",
+      "classification": "not_established",
+      "predicate": "G acceptance / closure"
+    }
+  ],
+  "property_vs_measurement": {
+    "divergent_case_or_boundary": "The two failing fixtures are not valid current response DTOs; the generated-type ESLint path was ignored. This does not prove production payload omission or fresh OpenAPI parity.",
+    "measured_by": "176-case Vitest/JUnit, exact source request, typechecks, format checks, and available lint results.",
+    "property": "Current dashboard/API-client monetary response consumer behavior in the three selected complete test files."
+  },
+  "proposal_not_adjudicated": true,
+  "record_type": "actual_test_verification_receipt",
+  "scope": "Three complete dashboard test files, plus scoped ESLint, Prettier, and typecheck commands across dashboard, runtime API client, and atlas-ui at the invocation-bound 5ff source frame.",
+  "selection": {
+    "outcomes_by_suite": [
+      {
+        "failed": 2,
+        "passed": 156,
+        "suite": "src/api/validators.test.ts",
+        "tests": 158
+      },
+      {
+        "failed": 0,
+        "passed": 9,
+        "suite": "src/features/runs/components/pipelinePanels.test.tsx",
+        "tests": 9
+      },
+      {
+        "failed": 0,
+        "passed": 9,
+        "suite": "src/shared/lib/domain/agents.test.ts",
+        "tests": 9
+      }
+    ],
+    "selected_test_files": [
+      "apps/runtime-dashboard/src/api/validators.test.ts",
+      "apps/runtime-dashboard/src/features/runs/components/pipelinePanels.test.tsx",
+      "apps/runtime-dashboard/src/shared/lib/domain/agents.test.ts"
+    ]
+  },
+  "source_frame": {
+    "branch": "refs/heads/codex/e02-unified-local-20261009",
+    "frame_scope": "Historical invocation-bound source frame; this is not a claim about later source commits or current HEAD.",
+    "head": "5ff59531ca1f98ff267ef70a376f58b58164470a",
+    "parents": [
+      "0284f1919a6d8cd112265bb96694fa320d8a2699"
+    ],
+    "tracked_status_at_invocation": "clean",
+    "tree": "f28abf527b7ec8403be0745ee3c25404d877a7c3"
+  },
+  "source_integrity": {
+    "mode_limit": "Tracked byte/mode snapshots use Git-compatible mode normalization; full POSIX mode stability is not established by this run. See mode-field qualification ref.",
+    "tracked_byte_mode_snapshot": {
+      "after_sha256": "41a91cc270137780c21ea6c099fd0e3bde1c82423077a068d9137697ca35469c",
+      "before_sha256": "41a91cc270137780c21ea6c099fd0e3bde1c82423077a068d9137697ca35469c",
+      "changed_paths": 0,
+      "paths": 25630
+    },
+    "venv_pyvenv_cfg_sha256_before_after": "1eaa0e4e4be4b02929ffdec9fc56fea39faecd1c3d04bf1edad29a62549c5046"
+  }
+}

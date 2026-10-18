@@ -1016,6 +1016,26 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/b108-cross-measurement-contract-r3-G-choice-20261018.json",
       "sha256": "acb13fd24d57a1be24e25d9c475e2d8f4d71d32a875996bbf0bdd89f812d50ae"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/actual-focused-29-modules-at-5ff59531ca1f.json",
+      "sha256": "e03fbe3a778f934edd75f365540a2b9fa8481d108f1d4a5b0d592c7a4a5897da"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/actual-native-gp-dr-reserved-three-at-5ff59531ca1f.json",
+      "sha256": "4742a73dab3f0e2ec198fb4556b2ae380a20da0bfb45de4de935e47313b182ca"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/actual-monetary-r8-typescript-three-at-5ff59531ca1f.json",
+      "sha256": "7088c8c5d57202f852cd528a458c80d0af9e4c7a039daaba1c80a98ae35b29a5"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/actual-monetary-r8-python-first-setup-error-at-5ff59531ca1f.json",
+      "sha256": "eff7f876476d591a90552dc3ec50014d40e6cf27eced4570f9adb6b6add8a9bc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/actual-monetary-r8-python-state-qualified-r2-at-5ff59531ca1f.json",
+      "sha256": "2d5ccea3ce99c9b10c7e4f407de5f1aa0c0c7b859e3176c1aab0d839ec4e7be6"
     }
   ],
   "canonical_denominator_recomputed": {

@@ -1,0 +1,261 @@
+{
+  "G_acceptance": false,
+  "P40": {
+    "bucket_rule": "P40: same owner-source / role-join class one level deeper. The producer/store and persisted progress align, but the consumer join rejects the legitimate complete outbox identity envelope. Do not split this into per-field or per-case repair rounds; widen the join mechanism to the producer contract.",
+    "findings": [
+      {
+        "basis": "Independent owner-scorecard source review and independent R9 source/test review; exact refs are in diagnosis_refs. The source review found the consumer whole-map comparison incompatible with the producer five-field envelope, while the scorecard reports only generic not-reconciled.",
+        "bucket": "same owner-source / role-join class one level deeper; product source-join consumer mismatch, not fixture-only",
+        "finding": "The corrected R2 actual observed serious_phase_barrier_owner_scope fail where the test expected pass. Independent review attributes the defect to the source join: the producer persists a legal five-field outbox identity envelope, while the consumer compares the envelope as though it were only the terminal-event/progress subset. The exact first runtime refusal branch was not separately instrumented."
+      }
+    ]
+  },
+  "closure_ids": [],
+  "deciding_outputs": [
+    {
+      "bytes": 28189,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r8-python-three-modules-state-qualified-actual-r2-20261018/result.json",
+      "role": "complete corrected result and outcome summary",
+      "sha256": "90db0980b8cf27dbe183b95ab77422b279553503222de6d49a0d3fbdf8946b5a"
+    },
+    {
+      "bytes": 28675,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r8-python-three-modules-state-qualified-actual-r2-20261018/pytest.xml",
+      "role": "complete 78-case JUnit",
+      "sha256": "c569c06cae35604245f2ed4da45b50b7e75b7d84b0ce1291c99963b8b04adc87"
+    },
+    {
+      "bytes": 14164,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r8-python-three-modules-state-qualified-actual-r2-20261018/pytest.stdout.txt",
+      "role": "full pytest stdout",
+      "sha256": "9448b76e4ef63056b938810279a0a75a8c8d0b1c318b88657b7986bac00d0ad6"
+    },
+    {
+      "bytes": 0,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r8-python-three-modules-state-qualified-actual-r2-20261018/pytest.stderr.txt",
+      "role": "full pytest stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1611608,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r8-python-three-modules-state-qualified-actual-r2-20261018/execution-provenance.json",
+      "role": "full runtime-origin capture",
+      "sha256": "814fd644446b3321b57f10c5c66030aa4fa503224ac458c190893eb985d59c4b"
+    },
+    {
+      "bytes": 1261,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r8-python-three-modules-state-qualified-actual-r2-20261018/controller-events.jsonl",
+      "role": "controller lifecycle",
+      "sha256": "967546aa9d7ff02900faf083964666090686f2a6f42050a1252465d896042567"
+    },
+    {
+      "bytes": 158872,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r8-python-three-modules-state-qualified-actual-r2-20261018/process-tree.jsonl",
+      "role": "process-tree capture",
+      "sha256": "8c0170acccf44a8a0ea29ab02ca3d98a92a7be3038bb52f289d19f21c05e8cae"
+    },
+    {
+      "bytes": 11075161,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r8-python-three-modules-state-qualified-actual-r2-20261018/working-source-before.json",
+      "role": "complete pre-run source pin map",
+      "sha256": "bc29eb68ea29c8834a4b65e11762090cee6aa5f9d1787c72f114d7d7f6fc0954"
+    },
+    {
+      "bytes": 11075161,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r8-python-three-modules-state-qualified-actual-r2-20261018/working-source-after.json",
+      "role": "complete post-run source pin map",
+      "sha256": "bc29eb68ea29c8834a4b65e11762090cee6aa5f9d1787c72f114d7d7f6fc0954"
+    }
+  ],
+  "execution": {
+    "aborted": false,
+    "command_id": "pytest",
+    "exact_argv_ref": {
+      "bytes": 8403,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r8-python-three-modules-state-qualified-actual-r2-20261018/request.json",
+      "role": "sealed corrected invocation and change from first attempt",
+      "sha256": "9bf5f365aa3ebd885d63d06527cd0a6a6b6e7793974e3dab21df3ff81a800305"
+    },
+    "external_state_dir": {
+      "mode": "0700",
+      "path_role": "unique profile-specific state directory; device/inode/mode/profile identity recorded in result"
+    },
+    "max_sampled_process_tree_rss_bytes": 1032404992,
+    "return_code": 1,
+    "sample_count": 73,
+    "status": "command_failed",
+    "wall_seconds": 39.92774487496354
+  },
+  "identity": "monetary-r8-python-three-modules-state-qualified-r2-at-5ff59531ca1f",
+  "inputs": [
+    {
+      "bytes": 8403,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r8-python-three-modules-state-qualified-actual-r2-20261018/request.json",
+      "role": "sealed corrected request and source frame",
+      "sha256": "9bf5f365aa3ebd885d63d06527cd0a6a6b6e7793974e3dab21df3ff81a800305"
+    },
+    {
+      "bytes": 8818,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r8-python-three-modules-state-qualified-actual-r2-20261018/run.py",
+      "role": "exact corrected runner artifact",
+      "sha256": "670aa100b83aec66960ef47626abec9aa813451686757a1e0b72d1044595c011"
+    },
+    {
+      "bytes": 1483,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-focused-functional-freeze-5ff5953-20261018/mode-field-interpretation-qualification.json",
+      "role": "explicit limit on Git-normalized mode fields",
+      "sha256": "30cba4fe67c93d6d289ca21bd26a0d7283e9e0564b67af129ab7d58b76481d82"
+    }
+  ],
+  "limits": [
+    "This remains the historical corrected R2 actual at commit 5ff59531ca1f98ff267ef70a376f58b58164470a: 77 passed, one assertion failed, zero setup errors; the independent diagnosis does not convert that outcome to green.",
+    "The run is a controlled producer/persisted-event profile; it does not establish live billing/currentness, exact HTTP-to-TypeScript joining, or a final composed freeze.",
+    "Runtime capture covers declared polisyos/tools namespaces, not every third-party import or pre-sitecustomize startup. Actual removal controls for this invocation remain UNRUN.",
+    "The independent source review establishes a product source-join mismatch, but the retained scorecard does not identify which internal join returned first; do not claim a unique first refusal branch.",
+    "The later source repair is applied in commit 786f44cdb0cda62df5c2a11e287d958d674bad21. Its source review passed within scope, but the repaired source runtime replay and product imports remain UNRUN.",
+    "Neither this actual nor the later source review establishes live billing, external currentness, or an independent institutional signature."
+  ],
+  "next_check": "Run a new source-bound replay of the three complete selected Python modules against the source containing commit 786f44cdb0cda62df5c2a11e287d958d674bad21 (or a later explicitly recorded source frame). Confirm the legitimate producer envelope allows the owner-scope gate to pass while the independent missing-requested-profile intent gate remains fail-closed, and require refusal for missing/changed envelope members, changed progress owner, and an unknown envelope key. Retain that result as a separate actual; this 5ff actual remains 77P/1F.",
+  "outcomes": {
+    "errors": 0,
+    "failed": 1,
+    "passed": 77,
+    "single_failure": "tests/unit/runtime/http/test_nl_pipeline_cost_projection.py::test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen; an assertion observed serious_phase_barrier_owner_scope status `fail` where the test expected `pass`.",
+    "skipped": 0
+  },
+  "predicate_provenance": [
+    {
+      "basis": "Corrected request/result invocation binding and commit/tree.",
+      "classification": "recomputed",
+      "predicate": "source frame identity"
+    },
+    {
+      "basis": "Complete JUnit confirms 78 total, 77 pass, one assertion failure, zero setup errors.",
+      "classification": "independently_reconciled",
+      "predicate": "case outcome denominator"
+    },
+    {
+      "basis": "1,735 declared-namespace origins matched; not all third-party or pre-sitecustomize imports.",
+      "classification": "consumer_asserted",
+      "predicate": "runtime module origins"
+    },
+    {
+      "basis": "Earlier mode-field qualification limits this runner field to Git-compatible mode normalization.",
+      "classification": "not_established",
+      "predicate": "full POSIX modes"
+    },
+    {
+      "basis": "Explicit false/empty closure fields and bounded profile.",
+      "classification": "not_established",
+      "predicate": "G acceptance / closure"
+    },
+    {
+      "basis": "Independent diagnosis review root-monetary-r8-owner-scorecard-join-independent-20261018/review.json@b96510b68692cd01384216ea7071eb9bf12b4e244704b1ae3f23cff543881854 classifies this as a product source-join consumer mismatch, not fixture-only.",
+      "classification": "independently_reconciled",
+      "predicate": "causal class of owner-scope failure"
+    },
+    {
+      "basis": "The retained scorecard exposes generic not-reconciled and does not separately instrument the first internal join that refused.",
+      "classification": "not_established",
+      "predicate": "exact first internal refusal branch"
+    }
+  ],
+  "prior_attempt": {
+    "outcome": "1 passed / 77 setup errors; preserved separately.",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r8-python-three-modules-actual-20261018/result.json",
+    "sha256": "ff853b5b73352a5a1c024e4632ba021d0094d25d59c2ca55f8e7755d87221a42"
+  },
+  "property_vs_measurement": {
+    "divergent_case_or_boundary": "A legitimate producer outbox contains the complete five-field identity envelope, while the consumer whole-map comparison treated the envelope as the smaller terminal-event/progress subset and rejected the owner join. The scorecard exposed only generic not-reconciled, so the exact first internal refusal is not established.",
+    "measured_by": "The historical 78-case JUnit and invocation result, declared-namespace origin and source-pin captures, plus independent source-level producer/consumer reconciliation; the later R9 source review is not a runtime result.",
+    "property": "Owner scope must be recomputed from the real producer, durable job row, terminal event/outbox, progress, Core-run binding, and fresh typed GET while keeping the separate requested-profile intent gate fail-closed."
+  },
+  "proposal_not_adjudicated": true,
+  "record_type": "actual_test_verification_receipt",
+  "scope": "Corrected single invocation of the same three complete canonical Python modules at the same committed source frame; the request explicitly creates and verifies the unique external state directory before pytest.",
+  "selection": {
+    "collected": 78,
+    "executed": 78,
+    "module_inputs": [
+      {
+        "path": "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py",
+        "sha256": "8ef64911929a466f05bd4042913dba274c4c371b0a6c4b53e3049a50953a6914"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_producer_events.py",
+        "sha256": "40205848aae53a79e782c336db3e9bcbfb32636d96ff06aea2dd481a93e35cee"
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py",
+        "sha256": "83985216fb9a4d073a9bc3f9120046c6dc44f145afed57343079421229461629"
+      }
+    ],
+    "whole_modules": 3
+  },
+  "source_frame": {
+    "branch": "refs/heads/codex/e02-unified-local-20261009",
+    "frame_scope": "Historical invocation-bound source frame; this is not a claim about later source commits or current HEAD.",
+    "head": "5ff59531ca1f98ff267ef70a376f58b58164470a",
+    "parents": [
+      "0284f1919a6d8cd112265bb96694fa320d8a2699"
+    ],
+    "tracked_status_at_invocation": "clean",
+    "tree": "f28abf527b7ec8403be0745ee3c25404d877a7c3"
+  },
+  "source_integrity": {
+    "mode_limit": "The 25,631-entry source capture includes repository tracked files plus policy-engine/.venv/pyvenv.cfg. The runner’s modes field records Git-compatible type/executable normalization; it does not establish full POSIX permission-bit stability. See the explicit mode-field interpretation qualification.",
+    "runtime_origins": {
+      "matched_regular_module_origins": 1735,
+      "mismatches": 0,
+      "observed": 1735
+    },
+    "source_bytes_and_captured_modes_unchanged": true,
+    "source_pin_count": 25631,
+    "source_snapshot_after": {
+      "bytes": 11075161,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r8-python-three-modules-state-qualified-actual-r2-20261018/working-source-after.json",
+      "role": "full post-run source map",
+      "sha256": "bc29eb68ea29c8834a4b65e11762090cee6aa5f9d1787c72f114d7d7f6fc0954"
+    },
+    "source_snapshot_before": {
+      "bytes": 11075161,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r8-python-three-modules-state-qualified-actual-r2-20261018/working-source-before.json",
+      "role": "full 25,631-entry pre-run source map",
+      "sha256": "bc29eb68ea29c8834a4b65e11762090cee6aa5f9d1787c72f114d7d7f6fc0954"
+    }
+  },
+  "diagnosis_refs": [
+    {
+      "bytes": 15774,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r8-owner-scorecard-join-independent-20261018/review.json",
+      "role": "independent diagnosis of the historical R2 failure and P40 bucket",
+      "sha256": "b96510b68692cd01384216ea7071eb9bf12b4e244704b1ae3f23cff543881854"
+    },
+    {
+      "bytes": 8453,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-outbox-envelope-r9-independent-20261018/review.json",
+      "role": "independent scoped review of the source candidate that repairs the identified join; not runtime validation",
+      "sha256": "5256ccf6dd98a915d079dda5506a79823246c017dacf93f2036d233bb9cf5e37"
+    }
+  ],
+  "subsequent_source_change": {
+    "commit": "786f44cdb0cda62df5c2a11e287d958d674bad21",
+    "parent": "5ff59531ca1f98ff267ef70a376f58b58164470a",
+    "tree": "40184b7436944940878742c9c5b2caf9923be964",
+    "subject": "fix(runtime): reconcile terminal outbox owner envelope with durable job",
+    "changed_paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py",
+      "policy-engine/src/polisyos/runtime/http/services/debug.py",
+      "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py"
+    ],
+    "r9_source_review_verdict": "GO_SCOPED_SOURCE_REVIEW",
+    "r9_candidate_patch": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-outbox-owner-envelope-join-r9-20261018/candidate.patch",
+      "sha256": "6289193727a2d2e5ab0a5d3c112910266d7cc181185c2798bea64d2eb8c82919"
+    },
+    "runtime_replay": "UNRUN",
+    "relation_to_historical_actual": "This is a later source implementation commit. It does not alter the invocation-bound 5ff source frame, replace the 77P/1F result, or establish runtime behavior of the repaired source."
+  }
+}

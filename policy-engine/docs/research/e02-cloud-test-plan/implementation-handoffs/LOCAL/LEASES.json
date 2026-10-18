@@ -13780,5 +13780,63 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-credal-helper-owner-companion-20261019": {
+    "slice_base": "445f897fac7a6c863a6e7cae017338f4d6bc3183",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/integration/runtime_quality/test_generic_credal_source_attempt_served.py": {
+        "operation": "write",
+        "preimage_sha256": "e02cea587c81942ea7af6688052074d5a4eaf940c7ce0381277d6b492ee58d40",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-credal-served-helper-owner-companion-20261018/postimages/policy-engine/tests/integration/runtime_quality/test_generic_credal_source_attempt_served.py",
+        "postimage_sha256": "c831a1e649c7dd13c05621c7eac370bc8d26e8692edbcc9551a998635b476117"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-credal-helper-reviewed-adoption-20261019/source-application.json",
+      "sha256": "2667261e78b2953427177b6e9a0696ebf125fec1ad1bfdd53e5d82f89c48b992"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-credal-helper-reviewed-adoption-20261019/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-credal-served-helper-owner-companion-20261018/manifest.json",
+        "sha256": "0ef8d27ad08cc2f80ae0c8a030b09d66f08af6647655a415dc25bbfc04055bea"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-credal-served-helper-owner-companion-20261018/candidate.patch",
+        "sha256": "fa93dfc0e7ee6b0dea981efd273fff134e4cf3ee26fd22dbfd906fae4105b89a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-credal-served-helper-owner-companion-20261018/consumer-census.json",
+        "sha256": "72b09808564b21197c4f2e7e4e295f4cc6e463815dffc85ea5f7529d752af5f7"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-credal-served-helper-owner-companion-20261018/static-verification.json",
+        "sha256": "b4efd904d2287d5d8edeb728fd83b94315496ee9c228ea14aaf8407ea1b25c6b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-credal-served-helper-owner-companion-20261018/decision.md",
+        "sha256": "4bb53bb1a40f3540b9d124adc73712eae0c1ac67efc0220f8ac392e7b68f7fb4"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-credal-served-helper-independent-20261019/review.md",
+        "sha256": "12a2c25eec48e6035d8fc059ee5cf166f0316d3744be0a1d501f8d3bfe89398e"
+      }
+    ],
+    "P40": "Same helper-extraction companion class; full tracked-test AST census removes the sole stale edge without a shim or new helper implementation.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Collection failure at 445 remains ERROR with no executed test bodies; this static repair is not runtime or capability acceptance.",
+      "Post-adoption full composed replay and source/profile qualification remain required.",
+      "G alone accepts code and adjudicates closures."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Fresh source freeze; collect and execute the complete rederived 99-module selection, inspect producer/artifact/bridge/consumer assertions and all FAIL/ERROR/SKIP outcomes.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

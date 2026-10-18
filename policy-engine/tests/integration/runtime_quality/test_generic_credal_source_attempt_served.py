@@ -10,7 +10,7 @@ from tests._helpers.controlled_candidate_profile import (
     _configured_procurement_profile,
     _current_compiler_problem,
 )
-from tests.integration.runtime_quality.test_generic_n4_child_profile_set_served import (
+from tests._helpers.generic_n4_served_replay import (
     _RECORDING_ID,
     REPO_ROOT,
     _generic_profile_for_selection,

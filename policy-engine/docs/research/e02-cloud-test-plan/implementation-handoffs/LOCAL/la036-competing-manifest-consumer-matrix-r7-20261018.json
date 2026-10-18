@@ -1,0 +1,892 @@
+{
+  "actual_execution": {
+    "generated_raw_bytes": 1274906,
+    "generated_raw_files": 33,
+    "process_tree_rss_limit_bytes": 1073741824,
+    "returncode": 0,
+    "runner_status": "completed",
+    "sample_count": 53,
+    "sample_interval_seconds": 0.2,
+    "sampled_process_tree_peak_rss_bytes": 988250112,
+    "short_lived_child_census": "not_established_by_periodic_ps_sampling",
+    "source_cas_unchanged": true,
+    "wall_seconds": 12.959554374916479
+  },
+  "artifact_and_manifest_views": {
+    "artifact_id": "sha256:cdfa7e8bb8469d7be4c07cf3b18509bafc8982941e9f360665bbfa2885f0936b",
+    "berl_feature_profile_and_algorithm_fields": {
+      "calibration_ref": null,
+      "causal_claim_made": false,
+      "effective_method_id": "kernel_shap",
+      "feature_dependence_profile": "marginal",
+      "requested_method_id": "kernel_shap"
+    },
+    "content_bytes": 3756,
+    "content_sha256_hex": "cdfa7e8bb8469d7be4c07cf3b18509bafc8982941e9f360665bbfa2885f0936b",
+    "core_export": {
+      "exported_artifacts": 1,
+      "missing_artifacts": [],
+      "missing_manifests": [],
+      "output_path": "transfer",
+      "requested_selector_count": 3,
+      "total_bytes": 7499
+    },
+    "core_import": {
+      "disposition_basis": "durable_owner_manifest_stage_intent",
+      "imported_artifacts": 1,
+      "imported_files": 4,
+      "integrity_verification_requested": true,
+      "integrity_verified_refs": [
+        {
+          "artifact_id": "sha256:cdfa7e8bb8469d7be4c07cf3b18509bafc8982941e9f360665bbfa2885f0936b",
+          "kind": "scientist.explanation_bundle",
+          "manifest_profile_sha256": "sha256:1c00b53423a603adf3d3af3e3ee024caa2dd7e2f9372b2de9a3cb0bf49d81a99",
+          "media_type": "application/json"
+        },
+        {
+          "artifact_id": "sha256:cdfa7e8bb8469d7be4c07cf3b18509bafc8982941e9f360665bbfa2885f0936b",
+          "kind": "scientist.explanation_bundle",
+          "manifest_profile_sha256": "sha256:6c60d51f9250d7d3c0d7c698888ff1e9ec72e64b331b73b31596807629624986",
+          "media_type": "application/json"
+        }
+      ],
+      "published_refs": [
+        {
+          "artifact_id": "sha256:cdfa7e8bb8469d7be4c07cf3b18509bafc8982941e9f360665bbfa2885f0936b",
+          "kind": "scientist.explanation_bundle",
+          "manifest_profile_sha256": "sha256:1c00b53423a603adf3d3af3e3ee024caa2dd7e2f9372b2de9a3cb0bf49d81a99",
+          "media_type": "application/json"
+        },
+        {
+          "artifact_id": "sha256:cdfa7e8bb8469d7be4c07cf3b18509bafc8982941e9f360665bbfa2885f0936b",
+          "kind": "scientist.explanation_bundle",
+          "manifest_profile_sha256": "sha256:6c60d51f9250d7d3c0d7c698888ff1e9ec72e64b331b73b31596807629624986",
+          "media_type": "application/json"
+        }
+      ],
+      "received_artifact_ids": [
+        "sha256:cdfa7e8bb8469d7be4c07cf3b18509bafc8982941e9f360665bbfa2885f0936b"
+      ],
+      "reused_refs": [],
+      "skipped_entries": [],
+      "target_default_content_id_matches": true,
+      "target_default_manifest_canon_ensure_ascii": false,
+      "target_default_manifest_profile_sha256": "sha256:1c00b53423a603adf3d3af3e3ee024caa2dd7e2f9372b2de9a3cb0bf49d81a99",
+      "total_bytes": 5723,
+      "verification_failed": []
+    },
+    "core_owner_typed_identity_equal": true,
+    "default_selector_observation": {
+      "default_manifest_canon_ensure_ascii": false,
+      "default_manifest_kind": "scientist.explanation_bundle",
+      "default_manifest_media_type": "application/json",
+      "default_manifest_profile_sha256": "sha256:1c00b53423a603adf3d3af3e3ee024caa2dd7e2f9372b2de9a3cb0bf49d81a99",
+      "default_profile_is_persisted_view": true
+    },
+    "distinction": "manifest_profile_sha256/canon metadata identify a CAS manifest view; feature_dependence_profile and requested/effective method describe BERL payload claims. These dimensions are retained separately and no law/profile authority is inferred.",
+    "manifest_views": [
+      {
+        "canon_ensure_ascii": false,
+        "core_profile_digest_matches": true,
+        "kind": "scientist.explanation_bundle",
+        "manifest_bytes_sha256": "249e3e644a94dddd845cb3e7c7e3bc388d4fea100ae230df9e7e4a9c8825e81d",
+        "media_type": "application/json",
+        "profile_selector": "sha256:1c00b53423a603adf3d3af3e3ee024caa2dd7e2f9372b2de9a3cb0bf49d81a99",
+        "same_typed_content_id": true,
+        "schema": {
+          "name": "https://polisyos.local/schemas/berl/explanation_bundle/1.0.0",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "canon_ensure_ascii": true,
+        "core_profile_digest_matches": true,
+        "kind": "scientist.explanation_bundle",
+        "manifest_bytes_sha256": "9108f69f086f6b0c95b3ff0de219a44aee16ce921875426e687f3f3866eeca4b",
+        "media_type": "application/json",
+        "profile_selector": "sha256:6c60d51f9250d7d3c0d7c698888ff1e9ec72e64b331b73b31596807629624986",
+        "same_typed_content_id": true,
+        "schema": {
+          "name": "https://polisyos.local/schemas/berl/explanation_bundle/1.0.0",
+          "version": "1.0.0"
+        }
+      }
+    ]
+  },
+  "bounded_claims_and_residual": {
+    "closures": [],
+    "demonstrated": [
+      "one real R4-produced BERL blob persisted with two same-content Core manifest profiles",
+      "Core export/import and fresh BERL readers preserved/selected explicit views; wrong selector refused",
+      "Phase-5 and Runtime readers separately exercised against the same harness-supplied ref for each case, with blocked/fail/not_established outcomes preserved"
+    ],
+    "formal_la036_closure": false,
+    "future_own_receipt_sha256": null,
+    "not_demonstrated": [
+      "complete LA-036 requested/effective implementation and fallback semantics across the alias set",
+      "Phase-5 persisted report to Runtime warrant-reader production bridge",
+      "propagation of Core-discovered omitted-selector profile into Phase-5 report lineage or Runtime record",
+      "HTTP/API/history, current-reference freshness, changed-profile reissue/invalidation, or universal consumer coverage",
+      "external law inputs, legal authority, calibration, causal effect, custody, publication eligibility, or production census"
+    ],
+    "residual_capability_labels": [
+      {
+        "label": "bridge_missing",
+        "scope": "LA-036 follow-up slice: Phase-5 persisted report/discovered-view binding into fresh Runtime warrant consumption is not established by R7."
+      },
+      {
+        "label": "surface_missing",
+        "scope": "HTTP/API/history/current-reference semantics were not exercised by this local CAS harness; this is not a repository-wide absence claim."
+      }
+    ],
+    "status": "not_closed"
+  },
+  "consumer_matrix": [
+    {
+      "direct_berl_imported_cas": {
+        "calibration_ref": null,
+        "causal_claim_made": false,
+        "comparison_metric_content_id_matches_artifact_id": false,
+        "effective_methods": [
+          "kernel_shap"
+        ],
+        "feature_dependence_profile": "marginal",
+        "outcome": "loaded",
+        "payload_sha256": "cdfa7e8bb8469d7be4c07cf3b18509bafc8982941e9f360665bbfa2885f0936b",
+        "refusal": null,
+        "requested_methods": [
+          "kernel_shap"
+        ],
+        "selected_manifest_canon_ensure_ascii": false,
+        "selected_manifest_profile_sha256": "sha256:1c00b53423a603adf3d3af3e3ee024caa2dd7e2f9372b2de9a3cb0bf49d81a99"
+      },
+      "direct_berl_source_cas": {
+        "calibration_ref": null,
+        "causal_claim_made": false,
+        "comparison_metric_content_id_matches_artifact_id": false,
+        "effective_methods": [
+          "kernel_shap"
+        ],
+        "feature_dependence_profile": "marginal",
+        "outcome": "loaded",
+        "payload_sha256": "cdfa7e8bb8469d7be4c07cf3b18509bafc8982941e9f360665bbfa2885f0936b",
+        "refusal": null,
+        "requested_methods": [
+          "kernel_shap"
+        ],
+        "selected_manifest_canon_ensure_ascii": false,
+        "selected_manifest_profile_sha256": "sha256:1c00b53423a603adf3d3af3e3ee024caa2dd7e2f9372b2de9a3cb0bf49d81a99"
+      },
+      "phase5_imported_cas": {
+        "failed_evidence_refs": [],
+        "loaded_evidence_refs": [
+          "sha256:cdfa7e8bb8469d7be4c07cf3b18509bafc8982941e9f360665bbfa2885f0936b"
+        ],
+        "outcome": "reported",
+        "persisted_report_artifact_id": "sha256:a2562a7d76367716f7dace701a296f015747a92ae64a184885b54e633eda65ef",
+        "publishable": false,
+        "readiness": "blocked",
+        "report_input_refs": [
+          {
+            "artifact_id": "sha256:cdfa7e8bb8469d7be4c07cf3b18509bafc8982941e9f360665bbfa2885f0936b",
+            "manifest_profile_sha256": "sha256:1c00b53423a603adf3d3af3e3ee024caa2dd7e2f9372b2de9a3cb0bf49d81a99",
+            "role": "artifact"
+          }
+        ],
+        "report_manifest_profile_sha256": "sha256:2bb22831391fae29d5a2bdfbb490fa348cdda595efa32d314bbb08e902359801",
+        "verdict": "blocked"
+      },
+      "runtime_warrant_reader_imported_cas": {
+        "diagnostic_source": "selected_cas_bundle",
+        "issue_codes": [
+          "policy_design_warrant_berl_threshold_failed",
+          "policy_design_warrant_berl_subject_context_not_established"
+        ],
+        "normalized_explanation_bundle_ref": {
+          "artifact_id": "sha256:cdfa7e8bb8469d7be4c07cf3b18509bafc8982941e9f360665bbfa2885f0936b",
+          "kind": "scientist.explanation_bundle",
+          "manifest_profile_sha256": "sha256:1c00b53423a603adf3d3af3e3ee024caa2dd7e2f9372b2de9a3cb0bf49d81a99",
+          "media_type": "application/json"
+        },
+        "outcome": "evaluated",
+        "subject_context_status": "not_established",
+        "threshold_status": "fail"
+      },
+      "same_harness_input_ref": {
+        "artifact_id": "sha256:cdfa7e8bb8469d7be4c07cf3b18509bafc8982941e9f360665bbfa2885f0936b",
+        "kind": "scientist.explanation_bundle",
+        "manifest_profile_sha256": "sha256:1c00b53423a603adf3d3af3e3ee024caa2dd7e2f9372b2de9a3cb0bf49d81a99",
+        "media_type": "application/json"
+      },
+      "selector_case": "explicit_base"
+    },
+    {
+      "direct_berl_imported_cas": {
+        "calibration_ref": null,
+        "causal_claim_made": false,
+        "comparison_metric_content_id_matches_artifact_id": false,
+        "effective_methods": [
+          "kernel_shap"
+        ],
+        "feature_dependence_profile": "marginal",
+        "outcome": "loaded",
+        "payload_sha256": "cdfa7e8bb8469d7be4c07cf3b18509bafc8982941e9f360665bbfa2885f0936b",
+        "refusal": null,
+        "requested_methods": [
+          "kernel_shap"
+        ],
+        "selected_manifest_canon_ensure_ascii": true,
+        "selected_manifest_profile_sha256": "sha256:6c60d51f9250d7d3c0d7c698888ff1e9ec72e64b331b73b31596807629624986"
+      },
+      "direct_berl_source_cas": {
+        "calibration_ref": null,
+        "causal_claim_made": false,
+        "comparison_metric_content_id_matches_artifact_id": false,
+        "effective_methods": [
+          "kernel_shap"
+        ],
+        "feature_dependence_profile": "marginal",
+        "outcome": "loaded",
+        "payload_sha256": "cdfa7e8bb8469d7be4c07cf3b18509bafc8982941e9f360665bbfa2885f0936b",
+        "refusal": null,
+        "requested_methods": [
+          "kernel_shap"
+        ],
+        "selected_manifest_canon_ensure_ascii": true,
+        "selected_manifest_profile_sha256": "sha256:6c60d51f9250d7d3c0d7c698888ff1e9ec72e64b331b73b31596807629624986"
+      },
+      "phase5_imported_cas": {
+        "failed_evidence_refs": [],
+        "loaded_evidence_refs": [
+          "sha256:cdfa7e8bb8469d7be4c07cf3b18509bafc8982941e9f360665bbfa2885f0936b"
+        ],
+        "outcome": "reported",
+        "persisted_report_artifact_id": "sha256:2dd79cae0daed2a4a4709c6590115b20a0d98c7df420a110d4ed1c015dc62158",
+        "publishable": false,
+        "readiness": "blocked",
+        "report_input_refs": [
+          {
+            "artifact_id": "sha256:cdfa7e8bb8469d7be4c07cf3b18509bafc8982941e9f360665bbfa2885f0936b",
+            "manifest_profile_sha256": "sha256:6c60d51f9250d7d3c0d7c698888ff1e9ec72e64b331b73b31596807629624986",
+            "role": "artifact"
+          }
+        ],
+        "report_manifest_profile_sha256": "sha256:5ab6371b90c9f8842891fceeefbefb9e62e534b254b0bcdeb8daa00086f2429d",
+        "verdict": "blocked"
+      },
+      "runtime_warrant_reader_imported_cas": {
+        "diagnostic_source": "selected_cas_bundle",
+        "issue_codes": [
+          "policy_design_warrant_berl_threshold_failed",
+          "policy_design_warrant_berl_subject_context_not_established"
+        ],
+        "normalized_explanation_bundle_ref": {
+          "artifact_id": "sha256:cdfa7e8bb8469d7be4c07cf3b18509bafc8982941e9f360665bbfa2885f0936b",
+          "kind": "scientist.explanation_bundle",
+          "manifest_profile_sha256": "sha256:6c60d51f9250d7d3c0d7c698888ff1e9ec72e64b331b73b31596807629624986",
+          "media_type": "application/json"
+        },
+        "outcome": "evaluated",
+        "subject_context_status": "not_established",
+        "threshold_status": "fail"
+      },
+      "same_harness_input_ref": {
+        "artifact_id": "sha256:cdfa7e8bb8469d7be4c07cf3b18509bafc8982941e9f360665bbfa2885f0936b",
+        "kind": "scientist.explanation_bundle",
+        "manifest_profile_sha256": "sha256:6c60d51f9250d7d3c0d7c698888ff1e9ec72e64b331b73b31596807629624986",
+        "media_type": "application/json"
+      },
+      "selector_case": "explicit_alternate"
+    },
+    {
+      "direct_berl_imported_cas": {
+        "calibration_ref": null,
+        "causal_claim_made": false,
+        "comparison_metric_content_id_matches_artifact_id": false,
+        "effective_methods": [
+          "kernel_shap"
+        ],
+        "feature_dependence_profile": "marginal",
+        "outcome": "loaded",
+        "payload_sha256": "cdfa7e8bb8469d7be4c07cf3b18509bafc8982941e9f360665bbfa2885f0936b",
+        "refusal": null,
+        "requested_methods": [
+          "kernel_shap"
+        ],
+        "selected_manifest_canon_ensure_ascii": false,
+        "selected_manifest_profile_sha256": null
+      },
+      "direct_berl_source_cas": {
+        "calibration_ref": null,
+        "causal_claim_made": false,
+        "comparison_metric_content_id_matches_artifact_id": false,
+        "effective_methods": [
+          "kernel_shap"
+        ],
+        "feature_dependence_profile": "marginal",
+        "outcome": "loaded",
+        "payload_sha256": "cdfa7e8bb8469d7be4c07cf3b18509bafc8982941e9f360665bbfa2885f0936b",
+        "refusal": null,
+        "requested_methods": [
+          "kernel_shap"
+        ],
+        "selected_manifest_canon_ensure_ascii": false,
+        "selected_manifest_profile_sha256": null
+      },
+      "phase5_imported_cas": {
+        "failed_evidence_refs": [],
+        "loaded_evidence_refs": [
+          "sha256:cdfa7e8bb8469d7be4c07cf3b18509bafc8982941e9f360665bbfa2885f0936b"
+        ],
+        "outcome": "reported",
+        "persisted_report_artifact_id": "sha256:00e3021d3c2f6dc07649a921061d802f790d189e89972949934d5d47eaa23be5",
+        "publishable": false,
+        "readiness": "blocked",
+        "report_input_refs": [
+          {
+            "artifact_id": "sha256:cdfa7e8bb8469d7be4c07cf3b18509bafc8982941e9f360665bbfa2885f0936b",
+            "role": "artifact"
+          }
+        ],
+        "report_manifest_profile_sha256": "sha256:4dd4d6ab328a05f6fc8f029e81d89ec2066bec20c274fe497c32642043de3f41",
+        "verdict": "blocked"
+      },
+      "runtime_warrant_reader_imported_cas": {
+        "diagnostic_source": "selected_cas_bundle",
+        "issue_codes": [
+          "policy_design_warrant_berl_threshold_failed",
+          "policy_design_warrant_berl_subject_context_not_established"
+        ],
+        "normalized_explanation_bundle_ref": {
+          "artifact_id": "sha256:cdfa7e8bb8469d7be4c07cf3b18509bafc8982941e9f360665bbfa2885f0936b",
+          "kind": "scientist.explanation_bundle",
+          "media_type": "application/json"
+        },
+        "outcome": "evaluated",
+        "subject_context_status": "not_established",
+        "threshold_status": "fail"
+      },
+      "same_harness_input_ref": {
+        "artifact_id": "sha256:cdfa7e8bb8469d7be4c07cf3b18509bafc8982941e9f360665bbfa2885f0936b",
+        "kind": "scientist.explanation_bundle",
+        "media_type": "application/json"
+      },
+      "selector_case": "omitted_selector"
+    },
+    {
+      "direct_berl_imported_cas": {
+        "calibration_ref": null,
+        "causal_claim_made": null,
+        "comparison_metric_content_id_matches_artifact_id": null,
+        "effective_methods": null,
+        "feature_dependence_profile": null,
+        "outcome": "refused",
+        "payload_sha256": null,
+        "refusal": {
+          "exception": "explanation_bundle_manifest_contract_mismatch",
+          "exception_type": "ValueError"
+        },
+        "requested_methods": null,
+        "selected_manifest_canon_ensure_ascii": null,
+        "selected_manifest_profile_sha256": null
+      },
+      "direct_berl_source_cas": {
+        "calibration_ref": null,
+        "causal_claim_made": null,
+        "comparison_metric_content_id_matches_artifact_id": null,
+        "effective_methods": null,
+        "feature_dependence_profile": null,
+        "outcome": "refused",
+        "payload_sha256": null,
+        "refusal": {
+          "exception": "explanation_bundle_manifest_contract_mismatch",
+          "exception_type": "ValueError"
+        },
+        "requested_methods": null,
+        "selected_manifest_canon_ensure_ascii": null,
+        "selected_manifest_profile_sha256": null
+      },
+      "phase5_imported_cas": {
+        "failed_evidence_refs": [
+          "sha256:cdfa7e8bb8469d7be4c07cf3b18509bafc8982941e9f360665bbfa2885f0936b (explanation_bundle_manifest_contract_mismatch)"
+        ],
+        "loaded_evidence_refs": [],
+        "outcome": "reported",
+        "persisted_report_artifact_id": "sha256:c166e9100cc3e63872b0b82894b8faaf42cba158181baad6dccfbc7571fcb6bd",
+        "publishable": false,
+        "readiness": "blocked",
+        "report_input_refs": [
+          {
+            "artifact_id": "sha256:cdfa7e8bb8469d7be4c07cf3b18509bafc8982941e9f360665bbfa2885f0936b",
+            "manifest_profile_sha256": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+            "role": "artifact"
+          }
+        ],
+        "report_manifest_profile_sha256": "sha256:c127c5a89fee89a697b75c487b0641d5e5d96408d391f0e8b5676558f383a647",
+        "verdict": "blocked"
+      },
+      "runtime_warrant_reader_imported_cas": {
+        "diagnostic_source": null,
+        "issue_codes": [
+          "policy_design_warrant_berl_bundle_unresolved",
+          "policy_design_warrant_berl_empirical_bounds_missing",
+          "policy_design_warrant_berl_local_infidelity_missing"
+        ],
+        "normalized_explanation_bundle_ref": {
+          "artifact_id": "sha256:cdfa7e8bb8469d7be4c07cf3b18509bafc8982941e9f360665bbfa2885f0936b",
+          "kind": "scientist.explanation_bundle",
+          "manifest_profile_sha256": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+          "media_type": "application/json"
+        },
+        "outcome": "evaluated",
+        "subject_context_status": "not_established",
+        "threshold_status": "fail"
+      },
+      "same_harness_input_ref": {
+        "artifact_id": "sha256:cdfa7e8bb8469d7be4c07cf3b18509bafc8982941e9f360665bbfa2885f0936b",
+        "kind": "scientist.explanation_bundle",
+        "manifest_profile_sha256": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+        "media_type": "application/json"
+      },
+      "selector_case": "wrong_nonexistent_selector"
+    }
+  ],
+  "consumer_relationship_and_profile_lineage": {
+    "bridge_finding": "The harness passes the same original ref to two independent consumer calls. It does not pass the persisted Phase-5 report or Phase-5-discovered default manifest profile into the Runtime warrant reader. In the omitted-selector row, the Phase-5 report input and Runtime normalized ref omit manifest_profile_sha256 although the Core default observation identifies the base profile. Therefore R7 is not evidence of a Phase-5-report-to-Runtime production bridge or resolved-profile lineage propagation.",
+    "phase5_route": {
+      "behavior": "calls run_phase5 with the selected ref, then loads the resulting validation report from the CAS and returns its report manifest/inputs",
+      "helper_path": "raw/resume-la036-competing-manifest-views-20261018/runner-r2.py:239-289",
+      "product_source": "src/polisyos/scientist/validation/phase5_preflight.py",
+      "profile_binding": "publication InputRef derives manifest_profile_sha256 from the caller-supplied ref; omitted input profile remains omitted in report_inputs even though Core default selection is separately observed as the base view"
+    },
+    "request_calls": "runner-r7-stage-aware.py builds one ref per selector and supplies that ref separately to phase5_route and runtime_route inside the same loop; runtime_route builds a new warrant reliability record from ref.model_dump_json and calls evaluate_warrant_berl_reliability with a fresh FileSystemCAS.",
+    "runtime_reader": {
+      "behavior": "build_berl_warrant_reliability_record serializes its own explanation_bundle_ref; evaluate_warrant_berl_reliability resolves that ref through its CAS store",
+      "helper_path": "raw/resume-la036-competing-manifest-views-20261018/runner-r2.py:290-344",
+      "product_source": "src/polisyos/runtime/quality/explanation_reliability.py"
+    }
+  },
+  "criterion_binding": {
+    "criterion": "LA-036. BERL: \u0440\u0430\u0437\u043d\u044b\u0435 method IDs \u0432\u0441\u0451 \u0435\u0449\u0451 \u043e\u0431\u043e\u0437\u043d\u0430\u0447\u0430\u044e\u0442 \u043e\u0434\u0438\u043d fallback-\u0432\u044b\u0447\u0438\u0441\u043b\u0438\u0442\u0435\u043b\u044c",
+    "original_acceptance_binding": [
+      "requested method versus actually executed implementation/profile and fallback/unsupported disposition",
+      "compatible aliases do not imply distinct implementations or independent evidence",
+      "unsupported conditional/tree requests are explicitly refused or honestly disclosed as fallback",
+      "preserve historical requested IDs, background semantics, parameters, provenance, and diagnostics without asserting ungrounded algorithm truth"
+    ],
+    "original_owner_scope": [
+      "src/polisyos/berl/service.py#default_adapters",
+      "src/polisyos/berl/service.py#ExplanationOrchestrator.explain/_build_disagreement",
+      "src/polisyos/berl/adapters/shap_kernel.py",
+      "src/polisyos/berl/adapters/shap_tree.py"
+    ],
+    "r7_relationship": "R7 is a bounded persistence/consumer slice related to the LA-036 artifact identity path. It verifies one already-produced kernel_shap bundle and competing CAS manifest views; it does not test the original multi-alias execution/disagreement criterion and does not close LA-036.",
+    "source_path": "docs/plans/active/agent-packages/PolicyOS_E02_Combined_Agent_Package/source/LA_r09_original.md:2103-2145,2226-2232",
+    "source_sha256": "2e13d05d40ab162dba6f1ed495865037bc08fc359a987e7a42c4d445a9b8d727"
+  },
+  "deciding_request": {
+    "exact_shell_command": "/usr/bin/env PYTHONPATH=src OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 VECLIB_MAXIMUM_THREADS=1 NUMEXPR_NUM_THREADS=1 CUDA_VISIBLE_DEVICES= HIP_VISIBLE_DEVICES= ROCR_VISIBLE_DEVICES= .venv/bin/python -B docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la036-competing-manifest-views-20261018/supervise-r4.py --request docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la036-competing-manifest-views-20261018/request-r7-competing-manifest-views-actual-r5.json > docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la036-competing-manifest-views-20261018/supervisor-r7-actual-r5.stdout.txt 2> docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la036-competing-manifest-views-20261018/supervisor-r7-actual-r5.stderr.txt",
+    "limits": {
+      "gpu_visible_devices": "none",
+      "install_or_sync": "none",
+      "maximum_generated_raw_bytes": 104857600,
+      "minimum_free_disk_bytes": 1073741824,
+      "network": "none",
+      "numerical_threads": 1,
+      "output": "assigned RAW only; immutable R4 producer CAS is read-only; imported consumer CAS and Phase-5 report remain under docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la036-competing-manifest-views-20261018/run-output-r7-actual-r5; all nine lifecycle roles are request-bound, pairwise disjoint, RAW-contained, symlink-free, and governed by the stage-aware output-role predicate; an existing optional monitor trace is preserved and never overwritten",
+      "process_tree_sample_interval_seconds": 0.2,
+      "pytest": "not run",
+      "runner_self_sample_interval_seconds": 0.05,
+      "runner_subprocess_calls_excluding_supervisor": "0 by static AST check; supervisor alone calls ps and launches the bounded runner",
+      "sampled_process_tree_rss_bytes": 1073741824,
+      "short_lived_child_origin_or_count": "not_established_by periodic process-tree sampling; runner and supervisor RUSAGE_CHILDREN are retained separately",
+      "wall_clock_seconds": 90
+    },
+    "raw_path": "raw/resume-la036-competing-manifest-views-20261018/request-r7-competing-manifest-views-actual-r5.json",
+    "sha256": "ccdd8c21a99d81b05bd673a12492ef6696ae725822f620c189be7c85984e93a7"
+  },
+  "decisive_raw_evidence_refs": [
+    {
+      "bytes": 90207,
+      "path": "environment-preflight-r6-record-schema-r2.json",
+      "sha256": "0c1dc25c6fe304e7386f61610e3ab425def9ff2586e45546cb5673f798b48d89"
+    },
+    {
+      "bytes": 6525,
+      "path": "postrun-cas-inventory-r4.json",
+      "sha256": "cced9955d722e60e8a97f73c6485e9cb4d48cb1c07b23b775d46f8b1c392b759"
+    },
+    {
+      "bytes": 5146,
+      "path": "postrun-r7-actual-r5-addendum.md",
+      "sha256": "f6efc1a9f137b24746e69bdf806eab0bff19d7522f2715df635cd334e9e53814"
+    },
+    {
+      "bytes": 101553,
+      "path": "process-tree-trace-r7-actual-r5.json",
+      "sha256": "f76f0cdc9d458e7d672461f6a6ae8c1567b029b6085cbb139835bcb7fd5ca1a9"
+    },
+    {
+      "bytes": 5966,
+      "path": "process-tree-trace-r7-smoke.json",
+      "sha256": "c6d16f43d36c643f7df79dd6887520c114f4c121b12401d87716180f80a4ff3a"
+    },
+    {
+      "bytes": 18253,
+      "path": "request-r4.json",
+      "sha256": "ea85a9aaf823c31ba7bd8de115e9ebb64e290798caf815b38e70e63243a0d53d"
+    },
+    {
+      "bytes": 13926,
+      "path": "request-r7-competing-manifest-views-actual-r5.json",
+      "sha256": "ccdd8c21a99d81b05bd673a12492ef6696ae725822f620c189be7c85984e93a7"
+    },
+    {
+      "bytes": 13917,
+      "path": "request-r7-supervised-schema-smoke.json",
+      "sha256": "4e07310405bea1b89cfc21b21a9410d3806837e9124f9c6104d85a601e7db6b1"
+    },
+    {
+      "bytes": 798581,
+      "path": "run-output-r4/run-result.json",
+      "sha256": "0e857e178377ccd38941609dcf925375af0d6b019707af5a7fb4433454f415fc"
+    },
+    {
+      "bytes": 187964,
+      "path": "run-output-r7-actual-r5/record-preflight-r6.json",
+      "sha256": "e542c69fa783b2429e03332790729377098833c2f92226c4b8e7ac3d90b39347"
+    },
+    {
+      "bytes": 937162,
+      "path": "run-output-r7-actual-r5/run-result.json",
+      "sha256": "6bc36e7a564569177241bc25e1eda3e1c78519ef6c918ea1d0068144f69dc584"
+    },
+    {
+      "bytes": 15568,
+      "path": "run-output-r7-actual-r5/source-pins-post-chain-r6.json",
+      "sha256": "f358950a265fd9ab5cdd7431cb86b68f770a00c204825d73a3d99d89be54fb70"
+    },
+    {
+      "bytes": 0,
+      "path": "runner-r7-actual-r5.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "runner-r7-actual-r5.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 0,
+      "path": "runner-r7-smoke.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 503,
+      "path": "runner-r7-smoke.stdout.txt",
+      "sha256": "7c005d7cb32e23ccdfce491411f9579dc879dd9cee79e4d4de250f39ccea0026"
+    },
+    {
+      "bytes": 97638,
+      "path": "runner-r7-stage-aware.py",
+      "sha256": "0c6d102c7873d8e2d26adef7cd46d40013a00ebcb2b59ea31a3ff72333369b1b"
+    },
+    {
+      "bytes": 88777,
+      "path": "schema-check-r7-actual-r5.json",
+      "sha256": "42bfa9649a6dc2e5540edb6d3444e3ca7fd7c05ee389c33ab4ae2eb0c87d276b"
+    },
+    {
+      "bytes": 88752,
+      "path": "schema-check-r7-smoke.json",
+      "sha256": "81953ab9f77cd0d3b2295bb15390e1e815a4c57bac38d21226b07e4dfd40c031"
+    },
+    {
+      "bytes": 0,
+      "path": "schema-preflight-r7-actual-r5.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 507,
+      "path": "schema-preflight-r7-actual-r5.stdout.txt",
+      "sha256": "11518a3ede187cb2c3fc7d5544e8f7ec2428ab874a9608965dd6560ff910271d"
+    },
+    {
+      "bytes": 16306,
+      "path": "supervise-r4.py",
+      "sha256": "8dc0c70759a6a3d8c8cddecdb5b0eb9d8352aa1e42e2ba640d1a17d0a228bf02"
+    },
+    {
+      "bytes": 0,
+      "path": "supervisor-r7-actual-r5.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 403,
+      "path": "supervisor-r7-actual-r5.stdout.txt",
+      "sha256": "2cdf36a80310c3e58e62b5f03e819f88bb444092dec170b7941f5f9d29d89065"
+    },
+    {
+      "bytes": 0,
+      "path": "supervisor-r7-smoke.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 329,
+      "path": "supervisor-r7-smoke.stdout.txt",
+      "sha256": "4e7f1dfe4c0af30e3bcd39b5dfba33c8d669f4e5385f253ad53c3fba9d64c29e"
+    },
+    {
+      "bytes": 20753,
+      "path": "supervisor-result-r7-actual-r5.json",
+      "sha256": "bf748fbd9f88ce15606e897330185169986b543ce12e3b173f43f60f25743b0f"
+    },
+    {
+      "bytes": 5768,
+      "path": "supervisor-result-r7-smoke.json",
+      "sha256": "f1889984ac600c6c8870725ce5eff550e8779a14b6259d6e7447ffdd00ff83e2"
+    }
+  ],
+  "error_control_property_table": {
+    "actual_role_preflight": {
+      "pairwise_role_checks": 36,
+      "passed": true,
+      "role_count": 9,
+      "stage": "supervised_actual_child_start"
+    },
+    "all_rejected_before_product_imports": true,
+    "cases": [
+      {
+        "control": "selected_view_0_missing_manifest_profile_sha256",
+        "mutated_input": "inventory.selected_views_recovered_from_persisted_view_names[0]: missing=['manifest_profile_sha256'] extra=[]",
+        "observed": "rejected before product imports",
+        "passed": true,
+        "property": "selected-view record must bind the exact manifest profile selector"
+      },
+      {
+        "control": "selected_view_0_extra_selector_alias",
+        "mutated_input": "inventory.selected_views_recovered_from_persisted_view_names[0]: missing=[] extra=['selector']",
+        "observed": "rejected before product imports",
+        "passed": true,
+        "property": "selected-view schema rejects an untyped selector alias"
+      },
+      {
+        "control": "selected_view_0_wrong_canon_boolean_type",
+        "mutated_input": "inventory.selected_views_recovered_from_persisted_view_names[0].canon_ensure_ascii: expected boolean",
+        "observed": "rejected before product imports",
+        "passed": true,
+        "property": "canonicalization option is a boolean, not a truthy substitute"
+      },
+      {
+        "control": "selected_view_1_missing_manifest_profile_sha256",
+        "mutated_input": "inventory.selected_views_recovered_from_persisted_view_names[1]: missing=['manifest_profile_sha256'] extra=[]",
+        "observed": "rejected before product imports",
+        "passed": true,
+        "property": "alternate selected-view record must bind its exact manifest profile selector"
+      },
+      {
+        "control": "selected_view_1_extra_selector_alias",
+        "mutated_input": "inventory.selected_views_recovered_from_persisted_view_names[1]: missing=[] extra=['selector']",
+        "observed": "rejected before product imports",
+        "passed": true,
+        "property": "alternate selected-view schema rejects an untyped selector alias"
+      },
+      {
+        "control": "selected_view_1_wrong_canon_boolean_type",
+        "mutated_input": "inventory.selected_views_recovered_from_persisted_view_names[1].canon_ensure_ascii: expected boolean",
+        "observed": "rejected before product imports",
+        "passed": true,
+        "property": "alternate canonicalization option is a boolean, not a truthy substitute"
+      },
+      {
+        "control": "manifest_row_0_missing_canon_ensure_ascii",
+        "mutated_input": "inventory.manifests[0].canon: missing=['ensure_ascii'] extra=[]",
+        "observed": "rejected before product imports",
+        "passed": true,
+        "property": "persisted manifest row carries canonicalization metadata used to distinguish views"
+      },
+      {
+        "control": "manifest_row_0_missing_schema_version",
+        "mutated_input": "inventory.manifests[0].schema: missing=['version'] extra=[]",
+        "observed": "rejected before product imports",
+        "passed": true,
+        "property": "manifest schema identity includes a version"
+      },
+      {
+        "control": "request_missing_source_cas_relative_path",
+        "mutated_input": "request: missing=['source_cas_relative_path'] extra=[]",
+        "observed": "rejected before product imports",
+        "passed": true,
+        "property": "request names the actual persisted source CAS through its typed field"
+      },
+      {
+        "control": "request_extra_legacy_selector_key",
+        "mutated_input": "request: missing=[] extra=['selector']",
+        "observed": "rejected before product imports",
+        "passed": true,
+        "property": "request schema rejects an ambiguous legacy selector key"
+      },
+      {
+        "control": "request_output_parent_traversal",
+        "mutated_input": "request.run_output_path: parent traversal is not allowed",
+        "observed": "rejected before product imports",
+        "passed": true,
+        "property": "generated output path stays within assigned RAW root"
+      },
+      {
+        "control": "output_role_alias_across_runner_and_supervisor",
+        "mutated_input": "output roles alias: runner_stdout == supervisor_stdout",
+        "observed": "rejected before product imports",
+        "passed": true,
+        "property": "stdout roles are disjoint across nested runner and supervisor"
+      },
+      {
+        "control": "output_role_symlink_to_environment_interpreter",
+        "mutated_input": "output role runner_stdout traverses a symlink component",
+        "observed": "rejected before product imports",
+        "passed": true,
+        "property": "output roles contain no symlink traversal to runtime inputs"
+      },
+      {
+        "control": "output_role_alias_to_pinned_runner_source",
+        "mutated_input": "output role supervisor_stderr aliases or contains/overlaps a read-only input",
+        "observed": "rejected before product imports",
+        "passed": true,
+        "property": "output roles cannot overwrite or overlap pinned read-only sources"
+      }
+    ],
+    "format": "la036-r7-stage-aware-falsifiers.v1",
+    "meaning": "Harness/request/output-role controls only; they do not substitute for product or policy semantic validation.",
+    "positive_nonempty_trace_control": {
+      "passed": true,
+      "stage": "supervised_schema_preflight",
+      "trace_bytes": 3208,
+      "trace_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la036-competing-manifest-views-20261018/process-tree-trace-r6-actual-r4.json",
+      "trace_sha256": "dafc209ae3cdab68b1d235b8f8c1b7117d85a24c3be64ad5d7a8ae1dda00f104"
+    }
+  },
+  "evidence_frame": {
+    "branch_at_request": "codex/e02-unified-local-20261009",
+    "environment": {
+      "install_or_sync": "none",
+      "installed_distribution_count": 253,
+      "module_spec_origin_count": 10,
+      "network": "none",
+      "preflight_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la036-competing-manifest-views-20261018/environment-preflight-r6-record-schema-r2.json",
+      "preflight_sha256": "0c1dc25c6fe304e7386f61610e3ab425def9ff2586e45546cb5673f798b48d89"
+    },
+    "head_at_request": "8070be6818010569ae0a3a492e83c0892fd80c68",
+    "source_pin_manifest_sha256": "b23be139c9a2fb66e43d92a15577eda396b069199fd0cf9a9d93bb4f53c34e0d",
+    "source_pins": {
+      "post_chain_all_match": true,
+      "post_chain_expected": 56,
+      "post_chain_full_record": "raw/resume-la036-competing-manifest-views-20261018/run-output-r7-actual-r5/source-pins-post-chain-r6.json",
+      "post_chain_matched": 56,
+      "pre_import_all_match": true,
+      "pre_import_expected": 56,
+      "pre_import_matched": 56
+    },
+    "tracked_status_sha256_at_request": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "tree_at_request": "6a96d4f92743516794976326f39f2a173b49b409"
+  },
+  "format": "policyos.la036.competing_manifest_consumer_matrix.v1",
+  "handoff_id": "LA-036-R7-COMPETING-MANIFEST-CONSUMER-MATRIX",
+  "identity_metric_caveat": {
+    "actual_loaded_module_origins_and_hashes": {
+      "polisyos.berl.persistence": {
+        "file": "src/polisyos/berl/persistence.py",
+        "sha256": "bde70868398ac5df9738f16593b832cb8aac840e0ef7f68fc4c03fe7e04d0e81"
+      },
+      "polisyos.core.artifacts.ids": {
+        "file": "src/polisyos/core/artifacts/ids.py",
+        "sha256": "96ab03d78510679bb9195ce79a58dd1559be8f7ccf1de2e6d10031c172ae07e6"
+      },
+      "polisyos.core.artifacts.manifest": {
+        "file": "src/polisyos/core/artifacts/manifest.py",
+        "sha256": "3ec97132a4a04c6152ed3456f75aae4d2fc6f35b0b8921a3a8f7cefcc426df3f"
+      },
+      "polisyos.ir.artifacts.contracts": {
+        "file": "src/polisyos/ir/artifacts/contracts.py",
+        "sha256": "67ed1ff4c3cf0fe4f46d4534d1656d256d1c5e5bf4db70d5a3523e3579c0d6f7"
+      },
+      "polisyos.ir.registry.refs": {
+        "file": "src/polisyos/ir/registry/refs.py",
+        "sha256": "bbac14368f7091bf8135f621999e9b702d711c31a95e87e7ceaa1bd963c8fe72"
+      }
+    },
+    "implementation_property_divergence": {
+      "interpretation": "These are separately declared Pydantic RootModel classes. Static source inspection makes class-sensitive model equality the likely reason this boolean is false even though the loaded bytes hash to the artifact ID and Core owner typed identity passes. Treat this result field as a harness proxy, not a payload mismatch finding. No run-result was rewritten and no product rerun was performed.",
+      "left_type": "polisyos.core.artifacts.ids.ArtifactID",
+      "property": "the BERL-loaded bytes have the same content identity as the selected persisted artifact reference",
+      "right_type": "polisyos.ir.artifacts.contracts.ArtifactID (ExplanationBundleRef through IR ArtifactRefModel)",
+      "runner_measures": "Core ArtifactID.from_sha256_hex(sha_bytes(content)) == ref.artifact_id",
+      "source_trace": [
+        "runner-r7-stage-aware.py:1535-1557 and :1888-1889",
+        "src/polisyos/core/artifacts/ids.py:14",
+        "src/polisyos/ir/artifacts/contracts.py:55",
+        "src/polisyos/ir/registry/refs.py:19-35 and :279"
+      ]
+    },
+    "observed_value": false,
+    "owner_typed_core_identity_check": true,
+    "payload_sha256_matches_expected_artifact_id_hex": true,
+    "repair_disposition": "recorded limitation only; no product source or sealed run output changed",
+    "result_field": "content_id_matches_artifact_id"
+  },
+  "next_discriminating_check": {
+    "do_not_invent": [
+      "law or refinement rules",
+      "calibration truth",
+      "causal effect",
+      "institutional authority/custody",
+      "mandatory selector policy absent an owner contract"
+    ],
+    "goal": "Trace and exercise the existing canonical Phase-5 report \u2192 current Runtime warrant consumer path and its HTTP/API/history reference-currentness surface, using one controlled same-content/two-manifest fixture.",
+    "sequence": [
+      "Find and bind the existing route/orchestrator and owner contracts before adding or requiring any field.",
+      "Persist a new test BERL artifact with requested/effective identity recorded; do not fabricate law, calibration, causal, or authority inputs.",
+      "Call Phase-5 through the canonical route with explicit base, alternate, omitted, and wrong selectors; retain persisted report refs and distinguish supplied versus resolved profile.",
+      "Reopen the persisted report in a fresh Runtime warrant reader through the actual bridge, not by injecting the same original ref into a second harness call.",
+      "Vary manifest selection/currentness while content bytes remain fixed; verify profile lineage, explicit refusal or declared limitation, report freshness/reissue behavior, and HTTP/API/history output against existing contracts.",
+      "Stop at the smallest demonstrated gap; report unsupported authority-grade inputs as bounded unknowns rather than blocking unrelated candidate-band work."
+    ]
+  },
+  "pattern_pass": {
+    "acceptance_signal": "A persisted report produced through the canonical workflow binds the resolved manifest profile; a fresh Runtime warrant reader receives that binding through the production bridge, preserves/revalidates it across currentness changes, and refuses or carries a typed limitation for wrong/missing selectors according to the existing owner contract; HTTP/API/history projection is verified separately.",
+    "observed_anti_patterns_or_risks": [
+      "P01/P02: producer artifact, separate readers, and a successful local harness are not proof that the production workflow bridges them.",
+      "P08: omitted caller selector differs from the Core-resolved default profile; the discovered view is not retained in these consumer references.",
+      "P32/P38: cross-class ArtifactID equality is a proxy metric; canonical payload bytes and owner-typed Core identity are the property witnesses.",
+      "P05/P10: blocked, fail, and not_established remain diagnostic outcomes; no authority or semantic adequacy upgrade is implied.",
+      "P40: preserve the comparison-class caveat as a bounded residual; do not patch each output row or rerun the expensive producer to force a green boolean."
+    ],
+    "register_path": "docs/reference/policy-design-case-failure-patterns.md",
+    "register_sha256": "1c34476fcc90801535e83455d9cb16509fde1ef4027730a63664d072c229f689",
+    "relevant_ids": [
+      "P01",
+      "P02",
+      "P05",
+      "P08",
+      "P10",
+      "P29",
+      "P32",
+      "P38",
+      "P40"
+    ],
+    "target_pattern": "Extend existing Core/IR/BERL/Phase5/Runtime owner paths with one resolved-view lineage bridge and currentness check only after its canonical workflow and contract are established; add negative semantic tests at the actual fresh consumer."
+  },
+  "postimage_prepared_not_applied": true,
+  "prior_seal_ref": {
+    "path": "raw/resume-la036-competing-manifest-views-20261018/postrun-r7-actual-r5-seal.json",
+    "sha256": "b11033f9dc0a2b72cd4fedf043dc6424bb1c7f6cb26aa0a42b543829189b423d"
+  },
+  "source_boundary": {
+    "berl": "Own requested/effective algorithm identity and fallback semantics at existing BERL service/adapters; do not infer algorithm truth from payload labels.",
+    "core_cas": "Own content identity, persisted manifest profiles, and export/import integrity.",
+    "integration_rule": "Reuse existing owner APIs and identify the canonical workflow/HTTP/history route before proposing any new bridge contract or mandatory selector.",
+    "ir": "Own typed reference representation; distinguish absent caller selector from selected manifest profile.",
+    "phase5": "Own validation preflight/report and report input lineage; R7 confirms report input lineage follows caller ref, not discovered default profile.",
+    "runtime": "Own separate warrant reliability record reader that resolves its own explanation_bundle_ref; R7 did not consume a Phase-5 report here."
+  },
+  "target_path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/la036-competing-manifest-consumer-matrix-r7-20261018.json"
+}

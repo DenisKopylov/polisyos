@@ -1,0 +1,300 @@
+{
+  "schema": "policyos.package_runtime_quality_route_g_choice.r3",
+  "packet_kind": "package_public_surface_route_semantics_decision_proposal",
+  "created_on": "2026-10-18",
+  "decision_status": "proposal_not_adjudicated",
+  "decision_authority": "root_and_current_package_row_owner_required",
+  "task_binding": {
+    "workstream": "E02 package source author; whole primary-source / consumer-projection contract join",
+    "original_criteria": [
+      "Reuse the existing package source, consumer mirror, and report-only checker before creating new registries or writers.",
+      "A child policy is a complete eight-field row and must be represented in the full primary-source denominator; a current consumer row alone is not authority to create it.",
+      "Preserve the real consumer classification and all authority, status, provenance, and time values; do not turn unresolved semantics into mirror cleanup.",
+      "Resolve the R2 parent/child route overlap as one coherent contract choice with a falsifier, not a per-child patch ladder."
+    ],
+    "blocking_finding": "R2 independent review: overlapping parent/child route policies make the child-route-subset rule semantically ambiguous; R3 residual #13 is polisyos.runtime.supported_entrypoints.",
+    "separation": "This packet addresses only route ownership/classification semantics. It does not adopt the R3 routine-12 candidate, the R1 writer, the R2 prototype, or a child-set policy change."
+  },
+  "question": "Does supported_entrypoints assign each route to the classification of exactly one public-surface row, or is it a package-wide route union that needs an explicit consumer precedence rule when parent and child rows overlap?",
+  "current_evidence": {
+    "denominator": {
+      "package_toml_files": 21,
+      "primary_package_contracts": 19,
+      "aggregate_public_surface_rows": 20,
+      "shared_name_rows": 57,
+      "unique_primary_parent_routes": 68,
+      "aggregate_route_assignments": 68,
+      "aggregate_unique_route_identities": 68,
+      "aggregate_duplicate_route_assignments": 0,
+      "basis": "The R2 independent stdlib census walks the complete architecture/packages/*.toml set and the current aggregate; it reports all 68 primary parent routes source-resolved. Counts are pinned below, not sampled."
+    },
+    "current_route_facts": {
+      "primary_parent_contract": "architecture/packages/runtime.toml declares polisyos.runtime public_stable and lists polisyos.runtime plus polisyos.runtime.quality.",
+      "current_aggregate_parent_row": "architecture/public_surface/contract.toml lists only polisyos.runtime on the polisyos.runtime public_stable row.",
+      "current_aggregate_child_row": "The separate polisyos.runtime.quality row lists its own route and classifies it public_experimental.",
+      "primary_child_row": "The current primary runtime contract has no complete child source row. The R1 candidate's proposed eight-field child row matches the current aggregate child row 8/8, but that candidate is not adopted and does not transfer row ownership.",
+      "consumer": "tools/devx/architecture/guardrails.py::build_public_surface_inventory emits an entrypoint record from each row's supported_entrypoints and carries that row's classification; it defines no duplicate collapse or precedence.",
+      "release_fragment": "The 2026-10-14 B31 source-projection fragment calls polisyos.runtime.quality public_experimental and keeps production_authority and value_promotion not_established."
+    },
+    "distinguishing_case": {
+      "route": "polisyos.runtime.quality",
+      "parent_row": {
+        "module": "polisyos.runtime",
+        "classification": "public_stable"
+      },
+      "child_row": {
+        "module": "polisyos.runtime.quality",
+        "classification": "public_experimental"
+      },
+      "current_aggregate": {
+        "assignments": 68,
+        "unique_routes": 68
+      },
+      "project_parent_source_and_child_row": {
+        "assignments": 69,
+        "unique_routes": 68,
+        "conflicting_assignments_for_route": 2
+      },
+      "consequence": "Preserving both row assignments gives the same route stable and experimental classifications. Selecting the stable parent silently promotes the child; selecting the child requires a precedence rule absent from the current source and consumer."
+    }
+  },
+  "alternatives": [
+    {
+      "id": "row_scoped_unique_route_assignment",
+      "recommendation": "recommended_proposal_subject_to_owner_decision",
+      "rule": "Each supported_entrypoints list contains only routes governed by that row's classification. A fully qualified route may occur in exactly one inventory row; duplicates are invalid and fail before the consumer yields an inventory. A child identity/descendant check and required-child-set-to-row bijection are separate checks; child routes are not required to be duplicated in the parent.",
+      "case_result_if_confirmed": {
+        "parent": {
+          "module": "polisyos.runtime",
+          "classification": "public_stable",
+          "routes": [
+            "polisyos.runtime"
+          ]
+        },
+        "child": {
+          "module": "polisyos.runtime.quality",
+          "classification": "public_experimental",
+          "routes": [
+            "polisyos.runtime.quality"
+          ]
+        }
+      },
+      "basis": "This matches the current aggregate's 68/68 unique route assignment and the consumer's row-carried classification. It adds validation for a contract already represented by current projections, without inventing precedence."
+    },
+    {
+      "id": "package_union_with_explicit_most_specific_precedence",
+      "recommendation": "viable_only_if_explicitly_chosen_and_implemented",
+      "rule": "Treat parent and child route lists as one package-wide union, allow repeated identities, and have the consumer assign a duplicated route to the most-specific row; define behavior for nested rows, siblings, and conflicting classifications.",
+      "case_result": "The child row must win for polisyos.runtime.quality to remain experimental.",
+      "impact": "Introduces consumer and projection semantics that do not exist today. Requires changes to inventory construction, generated reference output, the source/mirror checker, and behavior tests for nested/sibling and conflicting-classification cases."
+    },
+    {
+      "id": "parent_classification_wins",
+      "recommendation": "reject",
+      "reason": "Would classify polisyos.runtime.quality as public_stable, contradicting the current aggregate row, reference page, and B31 release fragment."
+    },
+    {
+      "id": "severity_or_declaration_order_wins",
+      "recommendation": "reject",
+      "reason": "The classifications are not a documented precedence lattice, and TOML order is not policy. Either choice would create unowned consumer semantics."
+    },
+    {
+      "id": "leave_disagreement_red",
+      "recommendation": "safe_interim_state_not_resolution",
+      "reason": "Avoids silent promotion while preserving the unresolved issue; it does not decide route scope or close the source/consumer contract gap."
+    }
+  ],
+  "recommended_migration_if_root_and_package_owner_accept": {
+    "source_changes": [
+      "In a separately authorized package-contract change, make the runtime parent route list contain polisyos.runtime only.",
+      "Add a complete owner-reviewed [[public_surface.subpackage]] row for polisyos.runtime.quality in architecture/packages/runtime.toml, including all eight contract fields and its own route list.",
+      "Keep the required-child set as an owner-declared source premise if G1 is accepted; obtain owner review of the complete set for all 19 primary contracts. Empty declarations require review and do not prove absence. Do not derive the set from current child rows or the name registry."
+    ],
+    "checker_and_consumer": [
+      "Extend the existing report-only package-mirror checker generically over all 19 primary contracts to require complete child rows, exact declared-set/row equality, and globally unique route identities; retain fail-closed behavior for malformed, missing, and extra rows.",
+      "Exercise the real inventory consumer. Under the recommended rule, no precedence or generated-output rewrite is needed for the current disjoint aggregate; assert one stable parent route and one experimental child route.",
+      "Integrate the check into the actual source collector used by writer and checker before claiming closure; the R2 monkeypatched prototype is not integration evidence."
+    ],
+    "projection_and_configuration": [
+      "For the recommended disjoint representation, keep architecture/public_surface/contract.toml and docs/reference/public-surface.md consistent with their current disjoint rows; regenerate only if the accepted source workflow requires it.",
+      "Keep architecture/generated_artifacts.toml and the current manual-mirror/generate-until-switched lifecycle unchanged. Do not register a new auto-writer in this decision packet.",
+      "Update architecture/packages/README.md only if the accepted source workflow changes its existing ownership instructions."
+    ],
+    "runtime_api": "No Python export, runtime implementation, or package API change is proposed. The change is to package route ownership and its architecture inventory validation/projection.",
+    "authority_and_time": "Preserve registry_owner=team-polisyos. B31 owner/version_owner=team-runtime-quality identifies that compatibility record, not a public-row ownership transfer. Preserve B31 date 2026-10-14, open status, public_surface_inventory_reviewed value, production_authority=not_established, and value_promotion=not_established. Do not renew, waive, or re-date a release criterion."
+  },
+  "falsifier_and_acceptance": {
+    "minimal_counterexample_fixture": "Use a complete runtime parent plus child source fixture where polisyos.runtime is public_stable and lists both routes, while polisyos.runtime.quality is separately public_experimental and lists its own route; keep the aggregate and consumer present.",
+    "required_negative_result_for_recommended_rule": "The integrated checker and actual inventory path must reject the repeated route identity before returning or writing an inventory. A green result that emits two classifications, picks one by order, or lets the stable parent absorb the child falsifies the rule/gate implementation.",
+    "positive_disjoint_result": "With parent routes [polisyos.runtime] and child routes [polisyos.runtime.quality], the real inventory emits each route once with the row's existing classification, and the child route is absent from the stable parent's route list.",
+    "orthogonal_completeness_probe": "Delete only the child source row while retaining its owner-declared required-set member, parent route, and aggregate child row. The actual writer/checker must fail and leave aggregate bytes unchanged. This is the R1/R2 child-completeness class and remains required independently of route uniqueness.",
+    "current_test_condition": "R2 identifies tests/repo_quality/architecture/test_repository_best_in_class_phase1_3_contracts.py::test_package_mirror_reconciles_every_source_and_preserves_declared_nested_entrypoint as the existing mirror test. After the separately reviewed routine-12 slice, retain the runtime parent route mismatch and missing primary child row as red residuals until this G choice and complete source representation are accepted; do not make the test green by dropping the child or widening the stable parent projection.",
+    "acceptance_signal": "Owner-approved source semantics; generic checker integrated into the actual collector; full 19-contract set reviewed; route-collision negative test and child-row removal probe fail closed; disjoint fixture passes through real inventory and reference projection; package-mirror check reports only legitimately resolved inputs. No formal closure is claimed by this proposal."
+  },
+  "mandatory_paths_for_a_later_authorized_slice": [
+    {
+      "path": "architecture/packages/runtime.toml",
+      "role": "primary runtime package and child-row schema/data; parent route and complete child source row"
+    },
+    {
+      "path": "tools/quality/validation/architecture_report_only_contracts.py",
+      "role": "existing package-mirror checker/source collector; generic child completeness and route uniqueness validation"
+    },
+    {
+      "path": "tests/repo_quality/architecture/test_repository_best_in_class_phase1_3_contracts.py",
+      "role": "integrated negative route-collision and child-row-removal tests"
+    },
+    {
+      "path": "tools/devx/architecture/guardrails.py",
+      "role": "actual inventory consumer; must be exercised, and changed only if explicit precedence is selected"
+    },
+    {
+      "path": "architecture/public_surface/contract.toml",
+      "role": "current aggregate consumer mirror; verify resulting row classifications and route ownership"
+    },
+    {
+      "path": "docs/reference/public-surface.md",
+      "role": "generated/public projection; verify child remains experimental"
+    },
+    {
+      "path": "architecture/generated_artifacts.toml",
+      "role": "existing lifecycle/config policy; preserve unless separately authorized workflow change is made"
+    },
+    {
+      "path": "architecture/packages/README.md",
+      "role": "primary-source and mirror ownership instructions"
+    },
+    {
+      "path": "src/polisyos/runtime/README.md",
+      "role": "parent route/export evidence to preserve"
+    },
+    {
+      "path": "src/polisyos/runtime/quality/README.md",
+      "role": "child row evidence; does not itself transfer package-row authority"
+    },
+    {
+      "path": "release-fragments/unreleased/2026-10-14-b31-source-projection-owner-bridge.toml",
+      "role": "preserve existing owner, status, review, authority, promotion, and date semantics; do not alter as a route fix"
+    }
+  ],
+  "routine_12_boundary": {
+    "independent_review_verdict": "GO for the exact 12-field routine slice as a RAW candidate only; not approval to adopt a writer, resolve G, or change the consumer.",
+    "independent_review_sha256": "210404bcbe7067ca1672a704a95caf3fa0a4a74c24ae3096de52e4e628bdeb5e",
+    "candidate_change_count": 12,
+    "candidate_file_count": 9,
+    "field_counts": {
+      "supported_entrypoints": 8,
+      "facade_mode": 1,
+      "notes": 3
+    },
+    "candidate_paths": [
+      "architecture/packages/common.toml",
+      "architecture/packages/core.toml",
+      "architecture/packages/data_forge.toml",
+      "architecture/packages/ddm.toml",
+      "architecture/packages/fabric.toml",
+      "architecture/packages/foundry.toml",
+      "architecture/packages/ir.toml",
+      "architecture/packages/lex.toml",
+      "architecture/packages/scientist.toml"
+    ],
+    "excluded_residual": "architecture/packages/runtime.toml: polisyos.runtime.supported_entrypoints, plus the absent complete primary child row. The 13th route finding is not part of the 12-field candidate.",
+    "candidate_artifact_refs": [
+      {
+        "path": "resume-package-mirror-contract-author-r3-20261018/routine-12-field-reconciliation.json",
+        "sha256": "e75aed78c68b313224547f7f559e7316d4bbd1e4736f862c0ed8fef84405e942"
+      },
+      {
+        "path": "resume-package-mirror-contract-author-r3-20261018/candidate.patch",
+        "sha256": "4b9a0597031ef353a2a790054de355df99dd9ef3ea09a95f4fa42fae5f0e1a17"
+      },
+      {
+        "path": "resume-package-mirror-contract-author-r3-20261018/postimage-hashes.json",
+        "sha256": "966d74e6c0a0bb310b1c876d66f62f52acb38ca6629a39e72c1d1a34792769d1"
+      },
+      {
+        "path": "resume-package-mirror-contract-author-r3-20261018/packet-manifest.json",
+        "sha256": "3ef96d17ec7f2c35443e89d665c045f0fe878f39a0a05ddc70fb72e0c6fe7190"
+      }
+    ],
+    "source_state": "Candidate postimages remain frozen RAW artifacts only. They are not applied, adopted, or used as a basis to infer route semantics."
+  },
+  "references": [
+    {
+      "path": "architecture/packages/runtime.toml",
+      "sha256": "634b1a927f456a17e003f0dff09696efad6478df380e733d05c2b0edd970af88",
+      "role": "pinned primary source"
+    },
+    {
+      "path": "architecture/public_surface/contract.toml",
+      "sha256": "16ebb15cbade1ee7bcc26a4413fa5be0f2b8560a262c04f876912a619a243b2b",
+      "role": "pinned aggregate rows"
+    },
+    {
+      "path": "docs/reference/public-surface.md",
+      "sha256": "888bf6c1733d3e569195603cef9468c6e5217815a03d0905dee9a35e3c3f3f4b",
+      "role": "pinned generated public projection"
+    },
+    {
+      "path": "tools/devx/architecture/guardrails.py",
+      "sha256": "e62a7410d62711ec2c6c187d783ede614bb8759e458c54d55bb97ca19a1d2d8c",
+      "role": "pinned actual inventory consumer"
+    },
+    {
+      "path": "tools/quality/validation/architecture_report_only_contracts.py",
+      "sha256": "e6de2b42f97ee17259191c003bc0345e3b72a0923b7ba28930601dfd57bce01c",
+      "role": "pinned existing mirror checker; not modified by this packet"
+    },
+    {
+      "path": "architecture/generated_artifacts.toml",
+      "sha256": "a87a011c201cca86df2dd3945442bfa0016028a3812745c3250cca0e96dd5f56",
+      "role": "pinned generated-artifact lifecycle"
+    },
+    {
+      "path": "architecture/packages/README.md",
+      "sha256": "b9997650511c3af3458c96c084235d05e2a6630fbd3486595590bd38a881e748",
+      "role": "pinned package source/mirror guidance"
+    },
+    {
+      "path": "release-fragments/unreleased/2026-10-14-b31-source-projection-owner-bridge.toml",
+      "sha256": "a7f3bfc8175c6a472aabaa2be7066f9c2fa3573f2875fb04c6822fbfc65eeea9",
+      "role": "pinned release fragment; status/authority/date remain untouched"
+    },
+    {
+      "path": "resume-package-mirror-contract-independent-r2-20261018/review.md",
+      "sha256": "1bb6cb1d341a0ce0be732554f8baa25b784bd39a45daf0a7ec61303268e57d41",
+      "role": "independent R2 HOLD and blocking semantic finding"
+    },
+    {
+      "path": "resume-package-mirror-contract-independent-r2-20261018/source-qualified-census.json",
+      "sha256": "681bbd9cfd0fd6b7586f9900abd51e9a9f1a943e9e504ef50c783cdd6a224722",
+      "role": "complete denominator and source-qualified counts"
+    },
+    {
+      "path": "resume-package-mirror-contract-author-r3-20261018/runtime-quality-route-g-choice.md",
+      "sha256": "151c0b166109d679a6217afb4f3ce5feeebeabe443c0c93cbb2ebbf1422ef85c",
+      "role": "R3 source-author analysis supporting this narrower proposal"
+    },
+    {
+      "path": "resume-package-mirror-routine-r3-independent-20261018/review.md",
+      "sha256": "210404bcbe7067ca1672a704a95caf3fa0a4a74c24ae3096de52e4e628bdeb5e",
+      "role": "exact R3 independent GO for 12-field candidate only"
+    },
+    {
+      "path": "resume-package-mirror-contract-author-r3-20261018/source-input-hashes.json",
+      "sha256": "a4c8b188d162148717ec35a57cd8fc3895f2f2a4f9d366d20c9a070c012e0e53",
+      "role": "R3 complete source-input pins and unchanged R2 input comparison"
+    }
+  ],
+  "pattern_pass": {
+    "ids": [
+      "P35",
+      "P37",
+      "P38",
+      "P40"
+    ],
+    "finding": "The denominator is complete; the child-set premise remains owner-declared; route classification is the actual divergent property; the route collision is distinct from the child-row completeness class.",
+    "capability_state": "proposal_only; integrated source writer/checker and behavioral consumer verification remain unproven",
+    "closure_claim": "none"
+  }
+}

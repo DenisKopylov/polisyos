@@ -1,0 +1,161 @@
+{
+  "schema": "policyos.e02.source_adoption_handoff.r1",
+  "record_type": "source_adoption_handoff",
+  "authority_status": "source_receipt_only; not formal G acceptance",
+  "scope": "Point-in-time source adoption record for commit 481c4345be0fd611e91e9110a10832fb507d0e4e. The next source/runtime wave is outside this handoff.",
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "base_commit": "8c2894753bd5ef00ed503b6aa0ecd8cb105988b2",
+    "base_tree": "0e59eeca7231904a5df0c828839f3f3c72d6ee88",
+    "applied_commit": "481c4345be0fd611e91e9110a10832fb507d0e4e",
+    "applied_tree": "9f18fef6d8ffe4e2513303128088bca329454719",
+    "parents": [
+      "8c2894753bd5ef00ed503b6aa0ecd8cb105988b2"
+    ],
+    "subject": "refactor(validation): compose streaming and typed native owners",
+    "remote_previous": "8c2894753bd5ef00ed503b6aa0ecd8cb105988b2",
+    "remote_commit": "481c4345be0fd611e91e9110a10832fb507d0e4e",
+    "remote_tree": "9f18fef6d8ffe4e2513303128088bca329454719",
+    "source_freeze": false,
+    "formal_G_acceptance": null,
+    "G_authored_or_pushed": false,
+    "closure_ids": [],
+    "deletions": 0
+  },
+  "footprint": {
+    "commit_changed_paths": 28,
+    "planned_source_rows": 26,
+    "mechanism_paths": {
+      "count": 20,
+      "python_owner_files": 11,
+      "primary_package_tomls": 9,
+      "classification": "11 Python owner files + 9 primary package TOMLs; mechanism count only"
+    },
+    "mandatory_companions_outside_mechanism_count": {
+      "tests": 5,
+      "README": 1,
+      "LEASES_and_delivery_index": 2,
+      "P39_note": "Five tests, one README, LEASES and delivery index are required companions outside the 20-path mechanism count."
+    },
+    "plan_preimages": {
+      "existing_match_at_plan_base": 19,
+      "absent_targets_at_plan_base": 7
+    },
+    "protected_RAW_aliases_unchanged": 302,
+    "deleted_paths_in_commit_request": {},
+    "full_changed_path_and_postimage_sha256_denominator": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-three-owner-source-application-plan-20261018/root-three-native-owner-source-application-20261018-readback.json",
+      "sha256": "8e33355577ebe00c327d37dcaeff90c801cb6164500e831e13e9329a32440387"
+    }
+  },
+  "change_boundary": {
+    "summary": "Three native owner extractions plus exact package-row alignment: directory-health scanning, selected N9 promotion owner family, bounded recorded-response OpenAlex evidence pipeline, and 12 routine fields across 9 primary package TOMLs.",
+    "preservation": "Public APIs and resources were retained except for the private iterable shape; package alignment changes 12 fields across 9 primary TOMLs. The approved plan states no authority, status, route-precedence, generated-identity, or positive accuracy claim is added.",
+    "runtime_quality_G_route": {
+      "status": "unresolved; no acceptance claimed",
+      "expected_receipt_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/package-runtime-quality-route-G-choice-r3-20261018.json",
+      "included_in_481c_changed_paths": false,
+      "sha256": null
+    }
+  },
+  "source_review": {
+    "prior_independent_slice_source_GOs": [
+      {
+        "slice": "directory_health",
+        "source_GO_scope": "GO_FOR_CONTROLLED_INTEGRATION; runtime HOLD_UNRUN",
+        "ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-directory-health-streaming-independent-review-r1-20261018/review.json",
+          "sha256": "09afe6ee032efa491217465398c3921ba877019c0269ab1da50502dfe452b479"
+        }
+      },
+      {
+        "slice": "n9_promotion",
+        "source_GO_scope": "GO exact 5-file source slice; runtime UNRUN",
+        "ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-n9-promotion-owner-independent-20261018/review.md",
+          "sha256": "5820a955f15e124b73db0f6ba8caa74808c2a744afb30604b1d017746cf7f1c2"
+        }
+      },
+      {
+        "slice": "openalex_evidence",
+        "source_GO_scope": "GO exact pinned patch only; runtime UNRUN",
+        "ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-openalex-owner-independent-20261018/review.json",
+          "sha256": "855edd8339a0b2b6aafb236aabec91a1ae87c3f2d1fa06418190af4d234e6847"
+        }
+      },
+      {
+        "slice": "package_mirror_r3",
+        "source_GO_scope": "GO exact 12-field, 9-TOML candidate only",
+        "ref": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-package-mirror-routine-r3-independent-20261018/review.md",
+          "sha256": "210404bcbe7067ca1672a704a95caf3fa0a4a74c24ae3096de52e4e628bdeb5e"
+        }
+      }
+    ],
+    "qualification_boundary": "These four source GOs apply only to their exact slices. They are not G acceptance and do not establish runtime, CLI, generated-byte, removal-probe, or capability closure.",
+    "residuals": {
+      "directory_health": "Runtime acceptance remains unrun; early Git iterator close does not surface child status, the Phase 2.9 report-only failure is not a completeness authority, and the earlier controller stop at an RSS boundary produced no JSON/Markdown decision output (not OOM). P41 remains not_established.",
+      "n9_promotion": "The selected quantity is the whole 67-binding N9 family; checker-reference union=50 is not a resolved N9-only set, and the broader oversized-validator remainder is unmeasured/currently unclaimed.",
+      "openalex_evidence": "Population is bounded complete recorded responses only, not global/live OpenAlex. Precision/recall remain None, accuracy is withheld, and adjudicator appointment is not_established.",
+      "package_mirror_r3": "The production writer/runtime/consumer is excluded and unverified (producer_missing / implemented_but_not_orchestrated; verification_missing); runtime parent-route versus runtime.quality child classification remains unresolved.",
+      "cross_slice": "No closure is claimed for the full oversized-validator or package/public-surface cohorts."
+    }
+  },
+  "verification_and_limits": {
+    "ruff": "Ruff check and format-check passed for the exact 16 planned Python postimages; 32 per-file check/format results are recorded by the source-application receipt.",
+    "toml": "Complete tracked architecture/packages/*.toml denominator: 21 files parsed (9 candidate postimages + 12 unchanged), zero parse errors; syntax only, not runtime/import verification.",
+    "format_delta": "Five approved Ruff-format-only byte variants were independently AST-equal ignoring locations; these checks establish syntax-tree equivalence for those deltas only.",
+    "adopted_source_runtime": "UNRUN: pytest/runtime, native CLI readback, generated-byte verification, and removal probes remain for the next scoped wave. Do not infer completion from the source GOs or pre-adoption Ruff/TOML checks.",
+    "P41": "No inherited-baseline classification is made by this handoff; not_established."
+  },
+  "pinned_refs": {
+    "final_root_approved_plan": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-three-owner-source-application-plan-20261018/source-application-plan-root-approved-r1.json",
+      "sha256": "b2c30385850551fa67f1b8e2947948ae4dd0d7a737cc08d3b5d1a6a332e2b0ff"
+    },
+    "source_application_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-three-owner-source-application-plan-20261018/source-application.json",
+      "sha256": "5ccaabf1514ed4c6df797c52e825a83496d9edbd7b65d22416b6b995246987b3"
+    },
+    "commit_request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-three-owner-source-application-plan-20261018/commit-request.json",
+      "sha256": "b06beca973abfecd9a367b8b6e619c7509f18cb911b03448b60b261495c67874"
+    },
+    "commit_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-three-owner-source-application-plan-20261018/root-three-native-owner-source-application-20261018-readback.json",
+      "sha256": "8e33355577ebe00c327d37dcaeff90c801cb6164500e831e13e9329a32440387"
+    },
+    "remote_push_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-candidate-push-481c4345be0f-20261015/remote-readback.json",
+      "sha256": "ccc25533a54bc2043cc09c2bb596550375356c9571e1b497836a09df32dd633b"
+    },
+    "ruff_format_delta_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-three-owner-source-application-plan-20261018/ruff-format-delta-receipt.json",
+      "sha256": "b9a486ae3fda85a1bdb513fb282be0562bd73098bbdf24867c7919b9f50a675d"
+    },
+    "package_toml_parse_preflight": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-three-owner-source-application-plan-20261018/package-toml-parse-preflight.json",
+      "sha256": "f122af27ec7dfbeb7b5f7c234015798813205ebf6b77e4dd6fcbc2ddb18d5232"
+    },
+    "root_format_source_qualification": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-three-owner-source-application-plan-20261018/root-format-and-source-qualification-r1.json",
+      "sha256": "9df2bbb079b5332bf0824f4630db44c06a9468c84f34446700a71d6e8bba8687"
+    },
+    "qualification_binding_note": {
+      "qualification_source_plan_sha256": "cd8227f72d61db64228cf2b109a617a414bbfa1679c751849759c89d97b4857a",
+      "bound_plan_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-three-owner-source-application-plan-20261018/source-application-plan.json",
+        "sha256": "cd8227f72d61db64228cf2b109a617a414bbfa1679c751849759c89d97b4857a"
+      },
+      "final_root_approved_plan_sha256": "b2c30385850551fa67f1b8e2947948ae4dd0d7a737cc08d3b5d1a6a332e2b0ff",
+      "note": "The qualification receipt names the preliminary source-application-plan.json SHA, not the final root-approved r1 plan SHA. Its five listed AST checks are the same exact format deltas retained in the final plan; the binding distinction is preserved here."
+    }
+  },
+  "next_state": {
+    "runtime_and_CLI_wave_required": true,
+    "runtime_quality_route_G_decision_required": true,
+    "no_future_receipt_sha256_embedded": true,
+    "no_formal_closures_proposed": true
+  }
+}

@@ -1,0 +1,1075 @@
+{
+  "schema": "policyos.e02.current_composed_wave_reconciliation.v1",
+  "record_type": "actual_wave_reconciliation_handoff_postimage",
+  "scope": "One root-authorized bounded focused wave; not final E02/global/native closeout and not G acceptance.",
+  "source_frame": {
+    "before": {
+      "branch": "refs/heads/codex/e02-unified-local-20261009",
+      "head": "8070be6818010569ae0a3a492e83c0892fd80c68",
+      "tree": "6a96d4f92743516794976326f39f2a173b49b409"
+    },
+    "after": {
+      "branch": "refs/heads/codex/e02-unified-local-20261009",
+      "head": "8070be6818010569ae0a3a492e83c0892fd80c68",
+      "tree": "6a96d4f92743516794976326f39f2a173b49b409"
+    },
+    "unchanged": true
+  },
+  "root_authorization": {
+    "freeze": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-current-composed-wave-plan-20261018/freeze.json",
+      "sha256": "e390bfebacf98358e2d3b484eb0023e0240b1f75ebcffa8f28bcefdc416bece8"
+    },
+    "grant": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-current-composed-wave-plan-20261018/root-grant.json",
+      "sha256": "27f336d2e8d867f0c25ba4c3edb599252a8a38262ada9c574582d1eb3272573d"
+    },
+    "grant_authorized": true,
+    "G_acceptance": false,
+    "closure_ids": [],
+    "request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-current-composed-wave-plan-20261018/request.json",
+      "sha256": "303df16f03e8f9413c32f75df1297e2ab557f1550d8a8aeb928e7a5085a545af"
+    }
+  },
+  "source_integrity": {
+    "pin_denominator": {
+      "additional_profile_paths": [
+        "policy-engine/.venv/pyvenv.cfg"
+      ],
+      "all_tracked_regular_files": 25524,
+      "total_pinned_paths": 25525,
+      "tracked_py": 7695,
+      "tracked_pyi": 5
+    },
+    "all_pins_maps_match_freeze_launch_before_after": true,
+    "all_pinned_paths_unchanged": true,
+    "pin_mismatch_count": 0,
+    "pin_maps_retained_in": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-current-composed-wave-plan-20261018/freeze.json",
+        "sha256": "e390bfebacf98358e2d3b484eb0023e0240b1f75ebcffa8f28bcefdc416bece8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-current-composed-wave-plan-20261018/actual-run/controller-result.json",
+        "sha256": "6261fe84d5931a095311fb7c50d47e02a544836fadb8b6b231f9cd4acf5c7d91"
+      }
+    ],
+    "tracked_status_before": "",
+    "tracked_status_after": "",
+    "source_frame_unchanged": true,
+    "preflight": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current-composed-freeze-preflight-20261018/preflight.json",
+      "sha256": "33d9ab2283014527453478e9f3d6f998294c86aa3c3f5d32093c113b8041658a"
+    },
+    "runtime_origins": {
+      "pytest_source_qualified": true,
+      "loaded_runtime_module_count": 1819,
+      "qualified_loaded_runtime_module_count": 1819,
+      "requested_module_count": 42,
+      "not_exercised_requested_modules": [],
+      "unqualified_modules": {},
+      "cli_origin_qualification": {
+        "command_ids": [
+          "docs_lifecycle",
+          "phase0_all",
+          "phase0_name_collision",
+          "phase0_empty_namespace"
+        ],
+        "reason": "No in-process origin observer is installed for CLI commands; their outputs and subprocess waits are retained without source-qualified claims.",
+        "source_qualified_cli_claim": false,
+        "status": "not_established"
+      }
+    },
+    "narrow_source_hold": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-current-composed-wave-plan-20261018/root-source-hold-release-r1.json",
+      "sha256": "c2209121047f4cb581d25b974cbb7d6493cf1d98325def382e41678f7a4506a0",
+      "released_by_root": true
+    }
+  },
+  "execution": {
+    "actual_run_dir": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-current-composed-wave-plan-20261018/actual-run",
+    "controller_complete": true,
+    "controller_status": "completed_with_test_or_junit_findings",
+    "outer_return_code": 1,
+    "outer_return_code_evidence": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-current-composed-wave-plan-20261018/root-source-hold-release-r1.json",
+      "sha256": "c2209121047f4cb581d25b974cbb7d6493cf1d98325def382e41678f7a4506a0",
+      "field": "root_outer_wait_exit_code"
+    },
+    "started_at": "2026-10-18T08:26:08.169081+00:00",
+    "finished_at": "2026-10-18T08:28:35.189931+00:00",
+    "wall_seconds_total": 146.95117933419533,
+    "all_scheduled_results_recorded": true,
+    "all_command_records_terminal": true,
+    "all_started_process_groups_gone": true,
+    "abort_reason": null,
+    "resource_limits": {
+      "minimum_free_disk_bytes": 1073741824,
+      "overall_wall_seconds": 600.0,
+      "sampled_process_tree_rss_bytes": 2684354560
+    },
+    "observed_peak_process_tree_rss_bytes": 1329201152,
+    "observed_min_free_disk_bytes": 19865534464,
+    "phase_waits": [
+      {
+        "id": "pytest-collection",
+        "status": "passed",
+        "return_code": 0,
+        "complete": true,
+        "process_group_gone": true,
+        "wall_seconds": 17.47586612496525,
+        "max_sampled_process_tree_rss_bytes": 1162903552,
+        "minimum_sampled_disk_free_bytes": 20237000704,
+        "sample_count": 32,
+        "stdout": "pytest-collection.stdout.txt",
+        "stderr": "pytest-collection.stderr.txt",
+        "argv": null,
+        "argv_retained_in": "phase-output.jsonl"
+      },
+      {
+        "id": "pytest",
+        "status": "command_failed",
+        "return_code": 1,
+        "complete": true,
+        "process_group_gone": true,
+        "wall_seconds": 105.51723883417435,
+        "max_sampled_process_tree_rss_bytes": 1329201152,
+        "minimum_sampled_disk_free_bytes": 19968299008,
+        "sample_count": 193,
+        "stdout": "pytest.stdout.txt",
+        "stderr": "pytest.stderr.txt",
+        "argv": null,
+        "argv_retained_in": "phase-output.jsonl"
+      },
+      {
+        "id": "docs_lifecycle",
+        "status": "command_failed",
+        "return_code": 2,
+        "complete": true,
+        "process_group_gone": true,
+        "wall_seconds": 11.158496583113447,
+        "max_sampled_process_tree_rss_bytes": 362987520,
+        "minimum_sampled_disk_free_bytes": 19949182976,
+        "sample_count": 20,
+        "stdout": "docs_lifecycle.stdout.txt",
+        "stderr": "docs_lifecycle.stderr.txt",
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "tools.cli",
+          "validation",
+          "check-docs-lifecycle"
+        ],
+        "argv_retained_in": "phase-output.jsonl"
+      },
+      {
+        "id": "phase0_all",
+        "status": "command_failed",
+        "return_code": 1,
+        "complete": true,
+        "process_group_gone": true,
+        "wall_seconds": 3.8352369170170277,
+        "max_sampled_process_tree_rss_bytes": 82575360,
+        "minimum_sampled_disk_free_bytes": 19870068736,
+        "sample_count": 7,
+        "stdout": "phase0_all.stdout.txt",
+        "stderr": "phase0_all.stderr.txt",
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "tools.quality.validation.repository_structure_phase0",
+          "gate",
+          "--gate",
+          "all",
+          "--mode",
+          "fail-closed",
+          "--json"
+        ],
+        "argv_retained_in": "phase-output.jsonl"
+      },
+      {
+        "id": "phase0_name_collision",
+        "status": "command_failed",
+        "return_code": 1,
+        "complete": true,
+        "process_group_gone": true,
+        "wall_seconds": 3.2861988749355078,
+        "max_sampled_process_tree_rss_bytes": 84099072,
+        "minimum_sampled_disk_free_bytes": 19869351936,
+        "sample_count": 6,
+        "stdout": "phase0_name_collision.stdout.txt",
+        "stderr": "phase0_name_collision.stderr.txt",
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "tools.quality.validation.repository_structure_phase0",
+          "gate",
+          "--gate",
+          "name_collision_gate",
+          "--mode",
+          "fail-closed",
+          "--json"
+        ],
+        "argv_retained_in": "phase-output.jsonl"
+      },
+      {
+        "id": "phase0_empty_namespace",
+        "status": "command_failed",
+        "return_code": 1,
+        "complete": true,
+        "process_group_gone": true,
+        "wall_seconds": 3.2739842077717185,
+        "max_sampled_process_tree_rss_bytes": 83984384,
+        "minimum_sampled_disk_free_bytes": 19865534464,
+        "sample_count": 6,
+        "stdout": "phase0_empty_namespace.stdout.txt",
+        "stderr": "phase0_empty_namespace.stderr.txt",
+        "argv": [
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "tools.quality.validation.repository_structure_phase0",
+          "gate",
+          "--gate",
+          "empty_namespace_gate",
+          "--mode",
+          "fail-closed",
+          "--json"
+        ],
+        "argv_retained_in": "phase-output.jsonl"
+      }
+    ]
+  },
+  "pytest": {
+    "python": {
+      "executable": "policy-engine/.venv/bin/python",
+      "version": "3.14.3",
+      "pytest": "9.0.2"
+    },
+    "plugin_autoload_preserved": true,
+    "environment_transition": "No uv command occurred in this wave; current literal .venv invocations did not run dependency synchronization.",
+    "selection": {
+      "requested_test_file_count": 17,
+      "actual_test_file_count": 17,
+      "explicit_selector_count": 12,
+      "whole_module_count": 11,
+      "empty_whole_modules": [],
+      "missing_explicit_selectors": [],
+      "collected_case_count": 253,
+      "whole_module_case_counts": {
+        "tests/repo_quality/architecture/test_owner_residual_exceptions.py": 2,
+        "tests/repo_quality/architecture/test_repository_structure_phase1c.py": 6,
+        "tests/repo_quality/tools/test_custody_markdown.py": 20,
+        "tests/repo_quality/tools/test_docs_review.py": 23,
+        "tests/repo_quality/tools/test_generate_adr_index.py": 17,
+        "tests/repo_quality/tools/test_honest_diagnostics_coverage.py": 10,
+        "tests/repo_quality/tools/test_production_quality_evidence_inventory.py": 26,
+        "tests/repo_quality/tools/test_trust_claim_posture.py": 73,
+        "tests/repo_quality/tools/test_trust_posture_measurement.py": 24,
+        "tests/unit/runtime/http/test_control_job_execution_intent.py": 33,
+        "tests/unit/runtime/http/test_nl_pipeline_cost_projection.py": 4
+      },
+      "actual_test_files": [
+        "tests/repo_quality/architecture/test_owner_residual_exceptions.py",
+        "tests/repo_quality/architecture/test_repository_best_in_class_phase1_3_contracts.py",
+        "tests/repo_quality/architecture/test_repository_structure_phase1c.py",
+        "tests/repo_quality/tools/test_architecture_phase3.py",
+        "tests/repo_quality/tools/test_custody_markdown.py",
+        "tests/repo_quality/tools/test_docs_lifecycle.py",
+        "tests/repo_quality/tools/test_docs_review.py",
+        "tests/repo_quality/tools/test_document_reference_roles.py",
+        "tests/repo_quality/tools/test_generate_adr_index.py",
+        "tests/repo_quality/tools/test_honest_diagnostics_coverage.py",
+        "tests/repo_quality/tools/test_production_quality_evidence_inventory.py",
+        "tests/repo_quality/tools/test_trust_claim_posture.py",
+        "tests/repo_quality/tools/test_trust_posture_measurement.py",
+        "tests/unit/data_forge/kernel/test_artifacts.py",
+        "tests/unit/runtime/http/test_control_job_execution_intent.py",
+        "tests/unit/runtime/http/test_nl_pipeline_cost_projection.py",
+        "tests/unit/runtime/http/test_nl_pipeline_materialization.py"
+      ],
+      "selected_nodeids": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-current-composed-wave-plan-20261018/actual-run/selected-nodeids.json",
+        "size_bytes": 39575,
+        "sha256": "ea0a0e90373b8395454315b4dc05ec878189555bfffa61f8cb9d441b2475721d"
+      }
+    },
+    "junit": {
+      "errors": 0,
+      "failures": 106,
+      "passed": 147,
+      "skipped": 0,
+      "tests": 253
+    },
+    "collection_return_code": 0,
+    "execution_return_code": 1,
+    "pytest_source_qualified": true,
+    "pytest_source_qualified_semantic_passed": false,
+    "per_file_outcomes": [
+      {
+        "test_file": "tests/repo_quality/architecture/test_owner_residual_exceptions.py",
+        "tests": 2,
+        "passed": 0,
+        "failed": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "test_file": "tests/repo_quality/architecture/test_repository_best_in_class_phase1_3_contracts.py",
+        "tests": 1,
+        "passed": 1,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "test_file": "tests/repo_quality/architecture/test_repository_structure_phase1c.py",
+        "tests": 6,
+        "passed": 5,
+        "failed": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "test_file": "tests/repo_quality/tools/test_architecture_phase3.py",
+        "tests": 1,
+        "passed": 1,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "test_file": "tests/repo_quality/tools/test_custody_markdown.py",
+        "tests": 20,
+        "passed": 8,
+        "failed": 12,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "test_file": "tests/repo_quality/tools/test_docs_lifecycle.py",
+        "tests": 2,
+        "passed": 0,
+        "failed": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "test_file": "tests/repo_quality/tools/test_docs_review.py",
+        "tests": 23,
+        "passed": 23,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "test_file": "tests/repo_quality/tools/test_document_reference_roles.py",
+        "tests": 9,
+        "passed": 7,
+        "failed": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "test_file": "tests/repo_quality/tools/test_generate_adr_index.py",
+        "tests": 17,
+        "passed": 11,
+        "failed": 6,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "test_file": "tests/repo_quality/tools/test_honest_diagnostics_coverage.py",
+        "tests": 10,
+        "passed": 7,
+        "failed": 3,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "test_file": "tests/repo_quality/tools/test_production_quality_evidence_inventory.py",
+        "tests": 26,
+        "passed": 24,
+        "failed": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "test_file": "tests/repo_quality/tools/test_trust_claim_posture.py",
+        "tests": 73,
+        "passed": 24,
+        "failed": 49,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "test_file": "tests/repo_quality/tools/test_trust_posture_measurement.py",
+        "tests": 24,
+        "passed": 0,
+        "failed": 24,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "test_file": "tests/unit/data_forge/kernel/test_artifacts.py",
+        "tests": 1,
+        "passed": 1,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "test_file": "tests/unit/runtime/http/test_control_job_execution_intent.py",
+        "tests": 33,
+        "passed": 32,
+        "failed": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "test_file": "tests/unit/runtime/http/test_nl_pipeline_cost_projection.py",
+        "tests": 4,
+        "passed": 2,
+        "failed": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "test_file": "tests/unit/runtime/http/test_nl_pipeline_materialization.py",
+        "tests": 1,
+        "passed": 1,
+        "failed": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ],
+    "failure_families": [
+      {
+        "family_id": "same_class_deeper_dependency_provider_consumer_contract",
+        "P40_bucket": "SAME_CLASS_DEEPER",
+        "P41_ownership": "not_established",
+        "count": 58,
+        "diagnostic_signatures": [
+          {
+            "signature": "AttributeError: 'dict' object has no attribute 'authority_field'",
+            "count": 23,
+            "nodeids": [
+              "tests/repo_quality/tools/test_trust_claim_posture.py::test_tokenizer_matches_ast_when_annotations_and_value_operators_share_a_statement[annotation-operator-is-not-value-semantics]",
+              "tests/repo_quality/tools/test_trust_claim_posture.py::test_tokenizer_matches_ast_when_annotations_and_value_operators_share_a_statement[bare-dict-annotation-control]",
+              "tests/repo_quality/tools/test_trust_claim_posture.py::test_tokenizer_matches_ast_when_annotations_and_value_operators_share_a_statement[value-set-union-remains-semantic]",
+              "tests/repo_quality/tools/test_trust_claim_posture.py::test_tokenizer_matches_ast_when_annotations_and_value_operators_share_a_statement[annotation-unary-operator-is-not-value-semantics]",
+              "tests/repo_quality/tools/test_trust_claim_posture.py::test_tokenizer_matches_ast_when_annotations_and_value_operators_share_a_statement[value-unary-operator-remains-semantic]",
+              "tests/repo_quality/tools/test_trust_claim_posture.py::test_all_declaration_forms_survive_and_ambiguity_never_invents_subject",
+              "tests/repo_quality/tools/test_trust_claim_posture.py::test_type_annotation_syntax_is_not_semantic_operator_evidence[pep604_union_annotation-dict[str, int | float]-carries_only]",
+              "tests/repo_quality/tools/test_trust_claim_posture.py::test_type_annotation_syntax_is_not_semantic_operator_evidence[bare_annotation-dict-carries_only]",
+              "tests/repo_quality/tools/test_trust_claim_posture.py::test_a_real_set_operation_still_reads_as_a_semantic_consumer",
+              "tests/repo_quality/tools/test_trust_posture_measurement.py::test_cli_discloses_actual_inputs_and_outside_selector_evidence_stays_unresolved[--check-sources-False]",
+              "tests/repo_quality/tools/test_trust_posture_measurement.py::test_cli_discloses_actual_inputs_and_outside_selector_evidence_stays_unresolved[--check-sources-True]",
+              "tests/repo_quality/tools/test_trust_posture_measurement.py::test_cli_discloses_actual_inputs_and_outside_selector_evidence_stays_unresolved[--write-False]",
+              "tests/repo_quality/tools/test_trust_posture_measurement.py::test_cli_discloses_actual_inputs_and_outside_selector_evidence_stays_unresolved[--write-True]",
+              "tests/repo_quality/tools/test_trust_posture_measurement.py::test_cli_discloses_actual_inputs_and_outside_selector_evidence_stays_unresolved[--check-False]",
+              "tests/repo_quality/tools/test_trust_posture_measurement.py::test_cli_discloses_actual_inputs_and_outside_selector_evidence_stays_unresolved[--check-True]",
+              "tests/repo_quality/tools/test_trust_posture_measurement.py::test_cli_discloses_actual_inputs_and_outside_selector_evidence_stays_unresolved[--corrupt-field-drift-check-False]",
+              "tests/repo_quality/tools/test_trust_posture_measurement.py::test_cli_discloses_actual_inputs_and_outside_selector_evidence_stays_unresolved[--corrupt-field-drift-check-True]",
+              "tests/repo_quality/tools/test_trust_posture_measurement.py::test_cli_missing_generated_target_is_determinate_drift_fail[False]",
+              "tests/repo_quality/tools/test_trust_posture_measurement.py::test_cli_missing_generated_target_is_determinate_drift_fail[True]",
+              "tests/repo_quality/tools/test_trust_posture_measurement.py::test_cli_unreadable_generated_target_is_unrun_not_drift_fail[False]",
+              "tests/repo_quality/tools/test_trust_posture_measurement.py::test_cli_unreadable_generated_target_is_unrun_not_drift_fail[True]",
+              "tests/repo_quality/tools/test_trust_posture_measurement.py::test_cli_rejects_same_byte_generated_target_symlink_escape_before_read[False]",
+              "tests/repo_quality/tools/test_trust_posture_measurement.py::test_cli_rejects_same_byte_generated_target_symlink_escape_before_read[True]"
+            ]
+          },
+          {
+            "signature": "AttributeError: 'dict' object has no attribute 'decode_string_token'",
+            "count": 16,
+            "nodeids": [
+              "tests/repo_quality/tools/test_trust_claim_posture.py::test_source_partition_matches_ast_and_tokenize_file_for_file",
+              "tests/repo_quality/tools/test_trust_claim_posture.py::test_literal_censuses_reconcile_for_both_complete_walks",
+              "tests/repo_quality/tools/test_trust_claim_posture.py::test_unrelated_source_change_does_not_stale_posture_receipt",
+              "tests/repo_quality/tools/test_trust_claim_posture.py::test_new_authority_producer_grows_register_without_register_edit",
+              "tests/repo_quality/tools/test_trust_claim_posture.py::test_producer_posture_metadata_is_strict_and_cannot_fabricate_support",
+              "tests/repo_quality/tools/test_trust_claim_posture.py::test_producer_posture_metadata_ast_tokenizer_disagreement_is_blocked",
+              "tests/repo_quality/tools/test_trust_claim_posture.py::test_strict_artifact_rejects_rebound_identity_anti_role_removal",
+              "tests/repo_quality/tools/test_trust_claim_posture.py::test_compiler_emits_fixed_semantic_rows_and_complete_projection_membership",
+              "tests/repo_quality/tools/test_trust_claim_posture.py::test_custody_row_bytes_are_recomputed_while_markers_stay_fixed",
+              "tests/repo_quality/tools/test_trust_claim_posture.py::test_marker_preserving_byte_mutation_and_unknown_verifier_fail_closed",
+              "tests/repo_quality/tools/test_trust_claim_posture.py::test_live_check_recomputes_denied_source_bytes_and_free_growth[literal_value]",
+              "tests/repo_quality/tools/test_trust_claim_posture.py::test_live_check_recomputes_denied_source_bytes_and_free_growth[new_occurrence]",
+              "tests/repo_quality/tools/test_trust_claim_posture.py::test_nonperformance_verifiers_cannot_mint_grounded_performance",
+              "tests/repo_quality/tools/test_trust_claim_posture.py::test_accessibility_frontmatter_is_strictly_bound_to_complete_body",
+              "tests/repo_quality/tools/test_trust_claim_posture.py::test_generator_is_byte_deterministic_and_scratch_bounded",
+              "tests/repo_quality/tools/test_trust_claim_posture.py::test_runtime_producer_evidence_binding_cannot_enter_posture_compiler"
+            ]
+          },
+          {
+            "signature": "TypeError: CustodyAppointment.__init__() got an unexpected keyword argument 'dependencies'",
+            "count": 12,
+            "nodeids": [
+              "tests/repo_quality/tools/test_custody_markdown.py::test_custody_compiler_and_strict_consumer_agree_without_rewriting_source[synthetic subject]",
+              "tests/repo_quality/tools/test_custody_markdown.py::test_custody_compiler_and_strict_consumer_agree_without_rewriting_source[`left|right`]",
+              "tests/repo_quality/tools/test_custody_markdown.py::test_custody_compiler_and_strict_consumer_agree_without_rewriting_source[left\\\\|right]",
+              "tests/repo_quality/tools/test_custody_markdown.py::test_custody_compiler_and_strict_consumer_agree_without_rewriting_source[``left`|right``]",
+              "tests/repo_quality/tools/test_custody_markdown.py::test_custody_compiler_and_strict_consumer_agree_without_rewriting_source[```left``|middle`|right```]",
+              "tests/repo_quality/tools/test_custody_markdown.py::test_custody_compiler_and_strict_consumer_agree_without_rewriting_source[````unmatched without a pipe]",
+              "tests/repo_quality/tools/test_custody_markdown.py::test_custody_compiler_and_strict_consumer_agree_without_rewriting_source[]",
+              "tests/repo_quality/tools/test_custody_markdown.py::test_custody_compiler_preserves_appointment_negatives[id]",
+              "tests/repo_quality/tools/test_custody_markdown.py::test_custody_compiler_preserves_appointment_negatives[duplicate_row]",
+              "tests/repo_quality/tools/test_custody_markdown.py::test_custody_compiler_rejects_malformed_duplicate_of_accepted_row[extra_cell]",
+              "tests/repo_quality/tools/test_custody_markdown.py::test_custody_compiler_rejects_malformed_duplicate_of_accepted_row[duplicate_id]",
+              "tests/repo_quality/tools/test_custody_markdown.py::test_custody_compiler_rejects_malformed_duplicate_of_accepted_row[contradictory_id]"
+            ]
+          },
+          {
+            "signature": "TypeError: validate_generated_family() missing 1 required keyword-only argument: 'dependencies'",
+            "count": 6,
+            "nodeids": [
+              "tests/repo_quality/tools/test_trust_claim_posture.py::test_generated_family_probe_and_narrow_reference_writer_are_scratch_bounded",
+              "tests/repo_quality/tools/test_trust_claim_posture.py::test_generated_family_probe_executes_the_declared_command",
+              "tests/repo_quality/tools/test_trust_claim_posture.py::test_generated_family_probe_contains_both_byte_inputs_before_read[expected]",
+              "tests/repo_quality/tools/test_trust_claim_posture.py::test_generated_family_probe_contains_both_byte_inputs_before_read[candidate]",
+              "tests/repo_quality/tools/test_trust_claim_posture.py::test_generated_family_probe_contains_both_byte_inputs_before_read[inside]",
+              "tests/repo_quality/tools/test_trust_claim_posture.py::test_generated_family_probe_contains_both_byte_inputs_before_read[command_failed]"
+            ]
+          },
+          {
+            "signature": "TypeError: _derive_page_result_rows() missing 1 required keyword-only argument: 'dependencies'",
+            "count": 1,
+            "nodeids": [
+              "tests/repo_quality/tools/test_trust_claim_posture.py::test_page_receipt_recomputes_all_five_files_and_rejects_authored_drift"
+            ]
+          }
+        ]
+      },
+      {
+        "family_id": "new_trust_cli_expected_status_or_count",
+        "P40_bucket": "NEW",
+        "P41_ownership": "not_established",
+        "count": 24,
+        "diagnostic_signatures": [
+          {
+            "signature": "assert 2 == 1",
+            "count": 14,
+            "nodeids": [
+              "tests/repo_quality/tools/test_trust_claim_posture.py::test_cli_transports_present_owner_predicate_failures[False-identity-DS11-IDENTITY-BOUNDARY-CONTRACT-docs/system-design-decisions/policyos-identity-and-custody-boundary.md]",
+              "tests/repo_quality/tools/test_trust_claim_posture.py::test_cli_transports_present_owner_predicate_failures[False-custody-DS11-CUSTODY-APPOINTMENT-CONTRACT-docs/plans/active/DEBT-REGISTER.md]",
+              "tests/repo_quality/tools/test_trust_claim_posture.py::test_cli_transports_present_owner_predicate_failures[False-accessibility-DS11-ACCESSIBILITY-CONTRACT-docs/compliance/A11Y_AUDIT_2026Q2.md]",
+              "tests/repo_quality/tools/test_trust_claim_posture.py::test_cli_transports_present_owner_predicate_failures[False-page_receipt-DS11-PAGE-A11Y-RECEIPT-CONTRACT-docs/plans/active/atlas-slices/receipts/ds11-page-a11y-base/receipt.json]",
+              "tests/repo_quality/tools/test_trust_claim_posture.py::test_cli_transports_present_owner_predicate_failures[False-generated_family-DS11-GENERATED-FAMILY-CONTRACT-architecture/generated_artifacts.toml]",
+              "tests/repo_quality/tools/test_trust_claim_posture.py::test_cli_transports_present_owner_predicate_failures[True-identity-DS11-IDENTITY-BOUNDARY-CONTRACT-docs/system-design-decisions/policyos-identity-and-custody-boundary.md]",
+              "tests/repo_quality/tools/test_trust_claim_posture.py::test_cli_transports_present_owner_predicate_failures[True-custody-DS11-CUSTODY-APPOINTMENT-CONTRACT-docs/plans/active/DEBT-REGISTER.md]",
+              "tests/repo_quality/tools/test_trust_claim_posture.py::test_cli_transports_present_owner_predicate_failures[True-accessibility-DS11-ACCESSIBILITY-CONTRACT-docs/compliance/A11Y_AUDIT_2026Q2.md]",
+              "tests/repo_quality/tools/test_trust_claim_posture.py::test_cli_transports_present_owner_predicate_failures[True-page_receipt-DS11-PAGE-A11Y-RECEIPT-CONTRACT-docs/plans/active/atlas-slices/receipts/ds11-page-a11y-base/receipt.json]",
+              "tests/repo_quality/tools/test_trust_claim_posture.py::test_cli_transports_present_owner_predicate_failures[True-generated_family-DS11-GENERATED-FAMILY-CONTRACT-architecture/generated_artifacts.toml]",
+              "tests/repo_quality/tools/test_trust_claim_posture.py::test_cli_fails_before_reading_page_receipt_member_escaping_its_root[False]",
+              "tests/repo_quality/tools/test_trust_claim_posture.py::test_cli_fails_before_reading_page_receipt_member_escaping_its_root[True]",
+              "tests/repo_quality/tools/test_trust_posture_measurement.py::test_cli_returns_fail_for_present_invalid_custody_contract[False]",
+              "tests/repo_quality/tools/test_trust_posture_measurement.py::test_cli_returns_fail_for_present_invalid_custody_contract[True]"
+            ]
+          },
+          {
+            "signature": "AssertionError: assert 2 == 0",
+            "count": 6,
+            "nodeids": [
+              "tests/repo_quality/tools/test_trust_claim_posture.py::test_c05_corruption_matrix_is_complete_semantic_and_scratch_bounded",
+              "tests/repo_quality/tools/test_trust_claim_posture.py::test_c02_cli_flags_default_date_and_repo_root_writer_work_in_scratch",
+              "tests/repo_quality/tools/test_trust_posture_measurement.py::test_cli_reads_whole_register_but_selects_only_appointed_ids[False]",
+              "tests/repo_quality/tools/test_trust_posture_measurement.py::test_cli_reads_whole_register_but_selects_only_appointed_ids[True]",
+              "tests/repo_quality/tools/test_trust_posture_measurement.py::test_cli_selected_source_growth_changes_receipt_and_fails_generated_drift[False]",
+              "tests/repo_quality/tools/test_trust_posture_measurement.py::test_cli_selected_source_growth_changes_receipt_and_fails_generated_drift[True]"
+            ]
+          },
+          {
+            "signature": "assert False",
+            "count": 4,
+            "nodeids": [
+              "tests/repo_quality/tools/test_trust_posture_measurement.py::test_cli_returns_unrun_for_missing_or_unreadable_custody_input[missing-False]",
+              "tests/repo_quality/tools/test_trust_posture_measurement.py::test_cli_returns_unrun_for_missing_or_unreadable_custody_input[missing-True]",
+              "tests/repo_quality/tools/test_trust_posture_measurement.py::test_cli_returns_unrun_for_missing_or_unreadable_custody_input[unreadable-False]",
+              "tests/repo_quality/tools/test_trust_posture_measurement.py::test_cli_returns_unrun_for_missing_or_unreadable_custody_input[unreadable-True]"
+            ]
+          }
+        ]
+      },
+      {
+        "family_id": "new_trust_evaluator_exports_missing",
+        "P40_bucket": "NEW",
+        "P41_ownership": "not_established",
+        "count": 2,
+        "diagnostic_signatures": [
+          {
+            "signature": "AttributeError: module 'tools.quality.validation.check_trust_claim_posture' has no attribute 'evaluate_accessibility_evidence'",
+            "count": 1,
+            "nodeids": [
+              "tests/repo_quality/tools/test_trust_claim_posture.py::test_internal_a11y_evidence_cannot_mint_external_certification"
+            ]
+          },
+          {
+            "signature": "AttributeError: module 'tools.quality.validation.check_trust_claim_posture' has no attribute 'evaluate_scope_assumption'",
+            "count": 1,
+            "nodeids": [
+              "tests/repo_quality/tools/test_trust_claim_posture.py::test_declared_scope_assumption_is_limitation_not_support"
+            ]
+          }
+        ]
+      },
+      {
+        "family_id": "new_honest_diagnostics_comparator_expectation",
+        "P40_bucket": "NEW",
+        "P41_ownership": "not_established",
+        "count": 4,
+        "diagnostic_signatures": [
+          {
+            "signature": "AssertionError: assert 'fail' == 'pass'",
+            "count": 4,
+            "nodeids": [
+              "tests/repo_quality/tools/test_honest_diagnostics_coverage.py::test_rebaseline_comparator_reports_missing_improved_regressed_and_denominator_changed",
+              "tests/repo_quality/tools/test_honest_diagnostics_coverage.py::test_rebaseline_comparator_allows_drop_only_with_denominator_change_and_log_entry",
+              "tests/repo_quality/tools/test_honest_diagnostics_coverage.py::test_rebaseline_comparator_reports_typed_no_prior_baseline",
+              "tests/repo_quality/tools/test_trust_claim_posture.py::test_runtime_registry_payload_is_rejected_as_source_adapter"
+            ]
+          }
+        ]
+      },
+      {
+        "family_id": "new_adr_index_coverage_and_relation_parsing",
+        "P40_bucket": "NEW",
+        "P41_ownership": "not_established",
+        "count": 6,
+        "diagnostic_signatures": [
+          {
+            "signature": "KeyError: '0001'",
+            "count": 4,
+            "nodeids": [
+              "tests/repo_quality/tools/test_generate_adr_index.py::test_entries_keep_superseded_by_direction_when_body_says_replaces",
+              "tests/repo_quality/tools/test_generate_adr_index.py::test_entries_read_explicit_supersedes_field",
+              "tests/repo_quality/tools/test_generate_adr_index.py::test_entries_read_explicit_relation_label_variants",
+              "tests/repo_quality/tools/test_generate_adr_index.py::test_entries_do_not_infer_relations_from_prose_without_a_relation_field"
+            ]
+          },
+          {
+            "signature": "AssertionError: assert {} == {'0001': 'acc...pproved', ...}",
+            "count": 1,
+            "nodeids": [
+              "tests/repo_quality/tools/test_generate_adr_index.py::test_entries_preserve_supported_status_forms_and_unknown_status"
+            ]
+          },
+          {
+            "signature": "Failed: DID NOT RAISE <class 'ValueError'>",
+            "count": 1,
+            "nodeids": [
+              "tests/repo_quality/tools/test_generate_adr_index.py::test_phase6_5_new_adr_files_require_an_index_topic_row"
+            ]
+          }
+        ]
+      },
+      {
+        "family_id": "new_docs_lifecycle_reference_scan",
+        "P40_bucket": "NEW",
+        "P41_ownership": "not_established",
+        "count": 4,
+        "diagnostic_signatures": [
+          {
+            "signature": "AssertionError: assert [] == ['reference_scan_ambiguous']",
+            "count": 2,
+            "nodeids": [
+              "tests/repo_quality/tools/test_document_reference_roles.py::test_empty_or_malformed_evidence_json_is_ambiguous_for_lifecycle[empty]",
+              "tests/repo_quality/tools/test_document_reference_roles.py::test_empty_or_malformed_evidence_json_is_ambiguous_for_lifecycle[malformed]"
+            ]
+          },
+          {
+            "signature": "AssertionError: assert [] == [LifecycleFin...pi-client`.')]",
+            "count": 1,
+            "nodeids": [
+              "tests/repo_quality/tools/test_docs_lifecycle.py::test_phase6_2_stale_removed_stub_references_are_rejected"
+            ]
+          },
+          {
+            "signature": "json.decoder.JSONDecodeError: Extra data: line 37 column 1 (char 2446)",
+            "count": 1,
+            "nodeids": [
+              "tests/repo_quality/tools/test_docs_lifecycle.py::test_main_marks_incomplete_reference_scan_unrun_and_keeps_findings"
+            ]
+          }
+        ]
+      },
+      {
+        "family_id": "new_owner_residual_exception_fixture",
+        "P40_bucket": "NEW",
+        "P41_ownership": "not_established",
+        "count": 2,
+        "diagnostic_signatures": [
+          {
+            "signature": "StopIteration",
+            "count": 2,
+            "nodeids": [
+              "tests/repo_quality/architecture/test_owner_residual_exceptions.py::test_expired_exception_preserves_real_finding_and_refusal",
+              "tests/repo_quality/architecture/test_owner_residual_exceptions.py::test_absent_and_wrong_scope_exceptions_do_not_suppress_real_finding"
+            ]
+          }
+        ]
+      },
+      {
+        "family_id": "new_phase1c_name_collision_inventory",
+        "P40_bucket": "NEW",
+        "P41_ownership": "not_established",
+        "count": 1,
+        "diagnostic_signatures": [
+          {
+            "signature": "AssertionError: assert [{'allowed_in...'error', ...}] == []",
+            "count": 1,
+            "nodeids": [
+              "tests/repo_quality/architecture/test_repository_structure_phase1c.py::test_phase1c_name_registry_covers_current_collisions"
+            ]
+          }
+        ]
+      },
+      {
+        "family_id": "new_production_quality_inventory_projection",
+        "P40_bucket": "NEW",
+        "P41_ownership": "not_established",
+        "count": 2,
+        "diagnostic_signatures": [
+          {
+            "signature": "KeyError: 'credit_program_enrollment'",
+            "count": 1,
+            "nodeids": [
+              "tests/repo_quality/tools/test_production_quality_evidence_inventory.py::test_cli_writes_capability_white_space_report_from_capability_index"
+            ]
+          },
+          {
+            "signature": "assert 'generated_at' not in '{\\n  \"mode\"... }\\n  ]\\n}\\n'",
+            "count": 1,
+            "nodeids": [
+              "tests/repo_quality/tools/test_production_quality_evidence_inventory.py::test_dump_json_is_stable_and_checked_in_baseline_is_current"
+            ]
+          }
+        ]
+      },
+      {
+        "family_id": "new_runtime_http_terminal_and_owner_scope",
+        "P40_bucket": "NEW",
+        "P41_ownership": "not_established",
+        "count": 3,
+        "diagnostic_signatures": [
+          {
+            "signature": "KeyError: 'execution_owner_binding'",
+            "count": 1,
+            "nodeids": [
+              "tests/unit/runtime/http/test_nl_pipeline_cost_projection.py::test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen"
+            ]
+          },
+          {
+            "signature": "assert None is not None",
+            "count": 1,
+            "nodeids": [
+              "tests/unit/runtime/http/test_control_job_execution_intent.py::test_simulate_only_served_worker_persists_computation_without_s8_or_publication"
+            ]
+          },
+          {
+            "signature": "polisyos.runtime.http.services.control.nl_pipeline.NaturalLanguagePipelineRefusalError: control_job_execution_scope_not_established:Runtime quality authority requires the live lease and creation-event scope.",
+            "count": 1,
+            "nodeids": [
+              "tests/unit/runtime/http/test_nl_pipeline_cost_projection.py::test_simulated_nl_producer_costs_settle_and_capture_four_origins"
+            ]
+          }
+        ]
+      }
+    ],
+    "historical_040ee7d3_five_failure_comparison": {
+      "old_junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-composed-actual-wave-040ee7d3-20261018/pytest.xml",
+        "size_bytes": 57964,
+        "sha256": "b9edbc109b4c2bbf8f608293a115085b5fc7b06a0ea08b66d82668ae7ae68ad6"
+      },
+      "comparison": [
+        {
+          "nodeid": "tests/unit/runtime/http/test_nl_pipeline_materialization.py::test_nl_pipeline_updates_control_job_progress",
+          "old_outcome": "failed",
+          "old_diagnostic": "polisyos.runtime.http.services.control_plane_store.ControlJobLeaseLostError: control job lease is not current for job_nl_progress",
+          "current_outcome": "passed",
+          "current_diagnostic": null,
+          "P41_ownership": "not_established"
+        },
+        {
+          "nodeid": "tests/unit/runtime/http/test_nl_pipeline_cost_projection.py::test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen",
+          "old_outcome": "failed",
+          "old_diagnostic": "KeyError: 'execution_owner_binding'",
+          "current_outcome": "failed",
+          "current_diagnostic": "KeyError: 'execution_owner_binding'",
+          "P41_ownership": "not_established"
+        },
+        {
+          "nodeid": "tests/unit/runtime/http/test_nl_pipeline_cost_projection.py::test_terminal_progress_carries_only_current_fenced_source_projections",
+          "old_outcome": "failed",
+          "old_diagnostic": "KeyError: 'policy_intent_envelope_ref'",
+          "current_outcome": "passed",
+          "current_diagnostic": null,
+          "P41_ownership": "not_established"
+        },
+        {
+          "nodeid": "tests/unit/data_forge/kernel/test_artifacts.py::test_kernel_json_loader_can_wrap_a_real_cas_read_error_with_cause",
+          "old_outcome": "failed",
+          "old_diagnostic": "AssertionError: Regex pattern did not match.",
+          "current_outcome": "passed",
+          "current_diagnostic": null,
+          "P41_ownership": "not_established"
+        },
+        {
+          "nodeid": "tests/repo_quality/architecture/test_repository_best_in_class_phase1_3_contracts.py::test_phase1_3_report_only_validator_scopes_package_mirror_property",
+          "old_outcome": "failed",
+          "old_diagnostic": "assert False",
+          "current_outcome": "passed",
+          "current_diagnostic": null,
+          "P41_ownership": "not_established"
+        }
+      ],
+      "ownership": "P41 not_established: no exact pre-slice base replay plus complete-input disjointness proof was performed for these findings."
+    }
+  },
+  "native_cli": {
+    "origin_qualification": "not_established; no in-process origin observer installed for CLI commands.",
+    "full_outputs": {
+      "docs_lifecycle.stdout.txt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-current-composed-wave-plan-20261018/actual-run/docs_lifecycle.stdout.txt",
+        "size_bytes": 7936994,
+        "sha256": "fedbe8258a9e11e009b837e0e893d4946263aae9f91b6389134c82b1556a98db"
+      },
+      "docs_lifecycle.stderr.txt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-current-composed-wave-plan-20261018/actual-run/docs_lifecycle.stderr.txt",
+        "size_bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "phase0_all.stdout.txt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-current-composed-wave-plan-20261018/actual-run/phase0_all.stdout.txt",
+        "size_bytes": 2272,
+        "sha256": "6b3f7c8994058b6f5b058860e499d47b19d3b8a07ee2d7602777bfb23ddd1a0e"
+      },
+      "phase0_all.stderr.txt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-current-composed-wave-plan-20261018/actual-run/phase0_all.stderr.txt",
+        "size_bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "phase0_name_collision.stdout.txt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-current-composed-wave-plan-20261018/actual-run/phase0_name_collision.stdout.txt",
+        "size_bytes": 1084,
+        "sha256": "ecc092a05f25d295d36551c317de47df1128d14acb2c82179cc2c28bce191896"
+      },
+      "phase0_name_collision.stderr.txt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-current-composed-wave-plan-20261018/actual-run/phase0_name_collision.stderr.txt",
+        "size_bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "phase0_empty_namespace.stdout.txt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-current-composed-wave-plan-20261018/actual-run/phase0_empty_namespace.stdout.txt",
+        "size_bytes": 623,
+        "sha256": "bcac5ccc12666c4c19a96dd79857d1c760c4b2f42e3a00d9c85d7ede0374f9a8"
+      },
+      "phase0_empty_namespace.stderr.txt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-current-composed-wave-plan-20261018/actual-run/phase0_empty_namespace.stderr.txt",
+        "size_bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    "interpretations": {
+      "docs_lifecycle": {
+        "return_code": 2,
+        "outcome": "command_failed; lifecycle reference-scan gate UNRUN because coverage is partial; other lifecycle checks ran.",
+        "tracked_paths": 25496,
+        "selected_paths": 25278,
+        "excluded_paths": 218,
+        "read_operations": 25278,
+        "scanned_text_path_count": 24333,
+        "ambiguous_inputs": 3,
+        "removed_stub_reference_findings": 10,
+        "reference_scan_unresolved_findings": 1160,
+        "reference_scan_ambiguous_findings": 3,
+        "stale_adr_index_findings": 1,
+        "stdout_lines": 178407,
+        "reference_status": "partial",
+        "selected_reference_scan_complete": false,
+        "opaque_format_counts": {
+          "ebml-container": 6,
+          "gzip": 807,
+          "png-image": 42,
+          "python-pickle": 3,
+          "sqlite-database": 2,
+          "sqlite-write-ahead-log": 2,
+          "xz": 62,
+          "zip-container": 18
+        }
+      },
+      "phase0_all": {
+        "return_code": 1,
+        "status": "FAILED",
+        "complete_verdict": true,
+        "finding_coverage": "complete",
+        "findings": [
+          "error: repeated config directory name unresolved in common (data_forge and fabric are allowed)",
+          "error: expired structure exception loose-root-lex-follow-up, sunset 2026-10-15",
+          "warning: common package has 7 top-level .py files, max 5",
+          "warning: generated/build output outside _build/: policy-engine/release",
+          "warning: generated/build output outside _build/: policy-engine/release-fragments"
+        ],
+        "pyproject_physical_lines": 289,
+        "pyproject_max_lines": 300
+      },
+      "phase0_name_collision": {
+        "return_code": 1,
+        "status": "FAILED",
+        "complete_verdict": true,
+        "finding_coverage": "complete",
+        "findings": [
+          "error: repeated config directory name unresolved in common",
+          "error: expired structure exception loose-root-lex-follow-up, sunset 2026-10-15"
+        ]
+      },
+      "phase0_empty_namespace": {
+        "return_code": 1,
+        "status": "FAILED",
+        "complete_verdict": true,
+        "finding_coverage": "complete",
+        "findings": [
+          "error: expired structure exception loose-root-lex-follow-up, sunset 2026-10-15"
+        ]
+      },
+      "phase0_overlap": "The expired exception repeats in all three gate outputs; the common/config collision is present in all and name-collision gates. These are overlapping observations, not independent defects."
+    }
+  },
+  "previous_wave_environment_corrigendum": {
+    "scope": "Separate earlier cfc6de2d three-owner wave; does not describe this 8070 composed wave.",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-three-owner-actual-cfc6de2d-20261018/environment-corrigendum-uv-cli-20261018.json",
+    "sha256": "1250cdbba0230edf1994a99f68feb92cbb299486b6f873d0fe23111350ad1ec2",
+    "observed": "That earlier wave ran a pytest collection ImportError before uv CLI commands; uv then reported uninstalling 2 and installing 2 packages. Package identities were not established in the corrigendum; no environment restore/reinstall is claimed."
+  },
+  "P40_P41_and_disposition": {
+    "P40": "Five exact signatures (58 cases) are bucketed SAME_CLASS_DEEPER around a dependency-provider/consumer API seam; this is a diagnostic family, not a proven single cause. The other 48 cases are grouped into nine NEW observed diagnostic buckets. Each bucket contains exact signature counts and all failing node IDs above.",
+    "P41": "All failure ownership is not_established. Neither current reds nor the five historical 040 reds are declared inherited or introduced by this task.",
+    "root_diagnosis_caveat": "Root separately reports Docs/ADR tmp_path Git-fixture contamination when pytest basetemp is nested in the checkout, with prior tests using out-of-checkout scratch. This reconciliation did not replay that behavior; treat it as a run-harness confound to address before making product-failure claims.",
+    "semantic_proposal": [
+      "Review the complete dependency-provider contract and every consuming call site together; avoid repairing the 58 seam failures one selector at a time.",
+      "Keep trust CLI count/status expectations and missing evaluator exports as distinct diagnostic classes until source review identifies a causal relation.",
+      "Resolve the Docs/ADR scratch Git-boundary confound before replaying those validators; retain their original expected failures as unclassified until that test-harness condition is controlled.",
+      "Review CLI phase0 findings and owner-bound runtime failures as separate decisions; the three phase0 runs overlap on the same underlying findings.",
+      "After root batches coherent source/fixture changes, rerun only changed modules/CLI commands with source pins refreshed and independent output/source-qualified receipts; no present result is a formal closure."
+    ],
+    "G_acceptance": false,
+    "closure_ids": []
+  },
+  "deciding_output_references": {
+    "controller-result.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-current-composed-wave-plan-20261018/actual-run/controller-result.json",
+      "size_bytes": 11541350,
+      "sha256": "6261fe84d5931a095311fb7c50d47e02a544836fadb8b6b231f9cd4acf5c7d91"
+    },
+    "controller-result.sha256": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-current-composed-wave-plan-20261018/actual-run/controller-result.sha256",
+      "size_bytes": 89,
+      "sha256": "14ff35150c2f5e1a6a1cafdda55bef140fffa41cf47640ad4035ebba4d9acbf4"
+    },
+    "controller-events.jsonl": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-current-composed-wave-plan-20261018/actual-run/controller-events.jsonl",
+      "size_bytes": 41846,
+      "sha256": "b0f17bbeedbabefd5b8bf8a861a760c1fb8cd58871b669c0860d57da5acb0f3c"
+    },
+    "phase-output.jsonl": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-current-composed-wave-plan-20261018/actual-run/phase-output.jsonl",
+      "size_bytes": 41566,
+      "sha256": "a9297a0f7aef187bdb243261d797e042a7455f6a1678050e64cf809e34d9fe73"
+    },
+    "process-tree.jsonl": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-current-composed-wave-plan-20261018/actual-run/process-tree.jsonl",
+      "size_bytes": 6947108,
+      "sha256": "f94343ef9a24005de505e58e1f8f9d5deb46a4a3550db395147c4db7d4d793ad"
+    },
+    "launch_started.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-current-composed-wave-plan-20261018/actual-run/launch_started.json",
+      "size_bytes": 4664498,
+      "sha256": "66133cf8dcbcaf9af6b0672b7e053f69ba931c25077f2f3ff5bd26f3970b9cc4"
+    },
+    "pytest-collection-provenance.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-current-composed-wave-plan-20261018/actual-run/pytest-collection-provenance.json",
+      "size_bytes": 1643642,
+      "sha256": "4ca882926aab42b77839cc707687d78dffcaf86004a6d012824180ac7c260d39"
+    },
+    "pytest-collection.stdout.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-current-composed-wave-plan-20261018/actual-run/pytest-collection.stdout.txt",
+      "size_bytes": 1057,
+      "sha256": "165adc2221eff73225ba606ba8d9692b0a04a8054d72aa9197bb0407d645dbf2"
+    },
+    "pytest-collection.stderr.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-current-composed-wave-plan-20261018/actual-run/pytest-collection.stderr.txt",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "selected-nodeids.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-current-composed-wave-plan-20261018/actual-run/selected-nodeids.json",
+      "size_bytes": 39575,
+      "sha256": "ea0a0e90373b8395454315b4dc05ec878189555bfffa61f8cb9d441b2475721d"
+    },
+    "pytest-provenance.json": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-current-composed-wave-plan-20261018/actual-run/pytest-provenance.json",
+      "size_bytes": 1774008,
+      "sha256": "24ab7a6ed57757ac7f332e63f83cf1f55bd883069425c912ee04a0ad0695cd4d"
+    },
+    "pytest.stdout.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-current-composed-wave-plan-20261018/actual-run/pytest.stdout.txt",
+      "size_bytes": 440401,
+      "sha256": "ae199cfc7c420a35862875344302eddd0da6b3d806d2527ffc39f8f83f9f0c42"
+    },
+    "pytest.stderr.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-current-composed-wave-plan-20261018/actual-run/pytest.stderr.txt",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "pytest.xml": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-current-composed-wave-plan-20261018/actual-run/pytest.xml",
+      "size_bytes": 439391,
+      "sha256": "3a50b67fa276748bbf4d70a9c0b53d965b00868d62cd9662e72ba4bc56b6914c"
+    },
+    "docs_lifecycle.stdout.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-current-composed-wave-plan-20261018/actual-run/docs_lifecycle.stdout.txt",
+      "size_bytes": 7936994,
+      "sha256": "fedbe8258a9e11e009b837e0e893d4946263aae9f91b6389134c82b1556a98db"
+    },
+    "docs_lifecycle.stderr.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-current-composed-wave-plan-20261018/actual-run/docs_lifecycle.stderr.txt",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "phase0_all.stdout.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-current-composed-wave-plan-20261018/actual-run/phase0_all.stdout.txt",
+      "size_bytes": 2272,
+      "sha256": "6b3f7c8994058b6f5b058860e499d47b19d3b8a07ee2d7602777bfb23ddd1a0e"
+    },
+    "phase0_all.stderr.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-current-composed-wave-plan-20261018/actual-run/phase0_all.stderr.txt",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "phase0_name_collision.stdout.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-current-composed-wave-plan-20261018/actual-run/phase0_name_collision.stdout.txt",
+      "size_bytes": 1084,
+      "sha256": "ecc092a05f25d295d36551c317de47df1128d14acb2c82179cc2c28bce191896"
+    },
+    "phase0_name_collision.stderr.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-current-composed-wave-plan-20261018/actual-run/phase0_name_collision.stderr.txt",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "phase0_empty_namespace.stdout.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-current-composed-wave-plan-20261018/actual-run/phase0_empty_namespace.stdout.txt",
+      "size_bytes": 623,
+      "sha256": "bcac5ccc12666c4c19a96dd79857d1c760c4b2f42e3a00d9c85d7ede0374f9a8"
+    },
+    "phase0_empty_namespace.stderr.txt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-current-composed-wave-plan-20261018/actual-run/phase0_empty_namespace.stderr.txt",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "detailed_reconciliation_report": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-composed-wave-8070-reconciliation-20261018/report.md"
+}

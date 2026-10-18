@@ -95,7 +95,7 @@
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
-      "sha256": "7e9822cad7f048b1be91461d7946373aa4691c86f5e1f73e2cc1bd2ab146428f",
+      "sha256": "1ab9c40889e143a644c9b68aff89bfe7d96b676ef0c04168e164ea24a118e9c0",
       "record_type": "current_coordination_snapshot",
       "previous_unqualified_digest": "1c2ae874ad7a12ac5c8ce69c580be992eef49a0ba58164893eff9a679a1ff9e5",
       "qualification": "Current LEASES bytes are pinned by this digest and the containing index commit. historical_original_source_commit names only the first recorded B194 snapshot; it is not the source of the current lease bytes. Source and native verification remain separately scoped.",
@@ -840,6 +840,22 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/root-la032-fullmodule-actual-221d-20261018.json",
       "sha256": "d9d01b3fe638b02e343b2e284c4468f3f276d75f80b0f52d2a150e7e89189b90"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/composed-wave-8070-actual-20261018.json",
+      "sha256": "11dcc205067157a18a43381c69526a40a381c47f99818937459cc013ad9ce6f6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/la036-competing-manifest-consumer-matrix-r7-20261018.json",
+      "sha256": "0218d64c74d7968639737c3f9d38ddbc4a9640901f7cdf8ef133d43b96e22524"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/package-runtime-quality-route-G-choice-r3-20261018.json",
+      "sha256": "6408610ee735c4c40caeaa89d15511981b1d3758f2e5d36aa54e8609096f3e1a"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native-owner-source-adoption-481c-20261018.json",
+      "sha256": "3170921ee05eb9b13dee79ab736eeb49f41251b379e50f6a8135dddcc558ee38"
     }
   ],
   "canonical_denominator_recomputed": {

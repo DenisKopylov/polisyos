@@ -8317,5 +8317,75 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "coordination_epoch_20261018_four_pending_receipts_after_481c": {
+    "slice_base": "481c4345be0fd611e91e9110a10832fb507d0e4e",
+    "canonical_writer": "root only; exact receipt adoption and tracker readback after the source hold is explicitly released",
+    "scope": "Receipt-only adoption of four pinned payloads. No product source changes. Preserve each payload time/source frame; do not rewrite the historical 040 cut, current occurrence/ID denominator, B198 history, or current-cut semantics.",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/composed-wave-8070-actual-20261018.json": {
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/composed-wave-8070-actual-20261018.json",
+        "postimage_sha256": "11dcc205067157a18a43381c69526a40a381c47f99818937459cc013ad9ce6f6",
+        "operation": "adopt_known_owner_postimage_without_overwrite"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/la036-competing-manifest-consumer-matrix-r7-20261018.json": {
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la036-matrix-receipt-prepare-20261018/postimage-la036-competing-manifest-consumer-matrix-r7-20261018.json",
+        "postimage_sha256": "0218d64c74d7968639737c3f9d38ddbc4a9640901f7cdf8ef133d43b96e22524",
+        "operation": "copy_exact_RAW_postimage_after_hold_release"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/package-runtime-quality-route-G-choice-r3-20261018.json": {
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/package-runtime-quality-route-G-choice-r3-20261018.json",
+        "postimage_sha256": "6408610ee735c4c40caeaa89d15511981b1d3758f2e5d36aa54e8609096f3e1a",
+        "operation": "copy_exact_RAW_postimage_after_hold_release"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native-owner-source-adoption-481c-20261018.json": {
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-owner-481c-handoff-prepare-20261018/native-owner-source-adoption-481c-20261018.json",
+        "postimage_sha256": "3170921ee05eb9b13dee79ab736eeb49f41251b379e50f6a8135dddcc558ee38",
+        "operation": "copy_exact_RAW_postimage_after_hold_release"
+      }
+    },
+    "mandatory_tracker_companions": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "operation": "append four exact path/hash refs and recalculate the existing LEASES.json digest ref only"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "operation": "append this coordination_epoch_20261018_four_pending_receipts_after_481c coordination entry only"
+      }
+    ],
+    "independent_review_refs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-current-two-receipts-independent-20261018/review.json",
+        "sha256": "d7ef97d03ea8db41fbad518d99e769249bfba5320e298809d2aa9cf4ab946656",
+        "scope": "GO for receipt adoption only; not G acceptance, closure, or failure ownership."
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-la036-profile-reader-property-r2-independent-20261018/review.md",
+        "sha256": "410d837a86dd3e2118fefdecdb1445f4db6057e9ca4e007b3d8b6c36c6e30686",
+        "scope": "GO for bounded receipt append only; not product approval, G decision, or LA-036 closure."
+      }
+    ],
+    "application_hold": {
+      "status": "active_during_preparation",
+      "precondition": "Do not apply any LOCAL receipt, LEASES, or index writes until root explicitly releases the 481c source hold; then recheck exact parent, tracked preimages, and target states."
+    },
+    "status_boundary": {
+      "G_acceptance": false,
+      "closure_ids": [],
+      "future_receipt_commit_sha": null,
+      "8070_actual": "Point-in-time 8070 run: 253 selected, 147 passed and 106 failed; controller completed with rc=1. P41 failure ownership remains not_established. CLI origins remain not_established and CLI commands are red.",
+      "la036_r7": "Bounded receipt only, not closed. Omitted selector resolves a persisted default view and is not absence of canonicalization metadata; Phase-5 report to Runtime production bridge is unestablished.",
+      "runtime_quality_route_G": "proposal_not_adjudicated; no G choice or route migration accepted.",
+      "source_adoption_481c": "The pinned 481c source handoff itself reports runtime/pytest, CLI, generated-byte, and removal checks UNRUN; this preparation does not read or assert later-wave results."
+    },
+    "index_reference_count_before": 202,
+    "index_reference_count_after_proposed_append": 206,
+    "source_profile_freeze": false,
+    "next_check": "After root releases the source hold, recheck branch parent 481c (or regenerate if it advanced), the three absent targets, exact known 8070 target bytes, and tracker preimage hashes. Apply exactly four receipts plus two tracker postimages; read back all six paths and confirm 206 index refs. Do not rewrite historical receipts or claim closures."
   }
 }

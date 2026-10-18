@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import errno
 import json
+import os
 import sys
+import tempfile
 from pathlib import Path
 
 import pytest
@@ -177,17 +179,62 @@ def test_external_temporary_base_does_not_fallback_from_malformed_value(
     assert sorted(path.name for path in tmp_path.iterdir()) == ["checkout"]
 
 
-def test_external_temporary_base_uses_default_only_when_unset(tmp_path: Path) -> None:
-    """An absent temp setting uses the canonical POSIX default without probing writes."""
-    checkout = tmp_path / "checkout"
-    checkout.mkdir()
-    try:
-        selected = runner.resolve_external_temporary_base(checkout, env={})
-    except runner.FilesystemWriteBoundaryUnavailableError as error:
-        pytest.skip(f"no POSIX temporary default: {error.backend}: {error}")
+def test_external_temporary_base_uses_default_only_when_unset(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """An absent temp setting selects the default across disjoint checkout roots."""
+    if os.name != "posix":
+        with pytest.raises(runner.FilesystemWriteBoundaryUnavailableError) as error:
+            runner.resolve_external_temporary_base(Path.cwd(), env={})
+        pytest.skip(f"no POSIX temporary default: {error.value.backend}: {error.value}")
 
-    assert selected.is_absolute()
-    assert selected.is_dir()
-    assert selected == selected.resolve(strict=True)
-    assert not selected.is_relative_to(checkout.resolve())
-    assert list(checkout.iterdir()) == []
+    default_base = Path("/tmp").resolve(strict=True)
+    external_parent = (default_base.parent / "var" / "tmp").resolve(strict=True)
+    assert external_parent != default_base
+    assert not external_parent.is_relative_to(default_base)
+    assert not default_base.is_relative_to(external_parent)
+
+    gettempdir_calls = 0
+
+    def unexpected_gettempdir() -> str:
+        nonlocal gettempdir_calls
+        gettempdir_calls += 1
+        raise AssertionError("default resolution must not probe tempfile.gettempdir")
+
+    monkeypatch.setattr(tempfile, "gettempdir", unexpected_gettempdir)
+    with tempfile.TemporaryDirectory(
+        prefix="polisyos-default-temp-checkout-",
+        dir=external_parent,
+    ) as external_root:
+        checkout = Path(external_root) / "checkout"
+        checkout.mkdir()
+        protected = checkout / "source.txt"
+        protected.write_text("protected\n", encoding="utf-8")
+
+        selected = runner.resolve_external_temporary_base(checkout, env={})
+
+        assert selected == default_base
+        assert selected.is_absolute()
+        assert selected.is_dir()
+        assert selected == selected.resolve(strict=True)
+        assert not selected.is_relative_to(checkout.resolve())
+        assert not checkout.resolve().is_relative_to(selected)
+        assert sorted(path.name for path in checkout.iterdir()) == ["source.txt"]
+        assert protected.read_text(encoding="utf-8") == "protected\n"
+
+    with tempfile.TemporaryDirectory(
+        prefix="polisyos-default-temp-ancestor-",
+        dir=default_base,
+    ) as default_root:
+        nested_checkout = Path(default_root) / "checkout"
+        nested_checkout.mkdir()
+        protected = nested_checkout / "source.txt"
+        protected.write_text("protected\n", encoding="utf-8")
+
+        with pytest.raises(ValueError, match="outside and not an ancestor"):
+            runner.resolve_external_temporary_base(nested_checkout, env={})
+
+        assert sorted(path.name for path in nested_checkout.iterdir()) == ["source.txt"]
+        assert protected.read_text(encoding="utf-8") == "protected\n"
+
+    assert gettempdir_calls == 0

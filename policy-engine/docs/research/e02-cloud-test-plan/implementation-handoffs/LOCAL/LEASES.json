@@ -12384,5 +12384,53 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "trust-external-temp-default-positive-disjoint-fixture-20261018": {
+    "slice_base": "866e6ed1b8405be4ce4b08d7bf565f5d76ed9a7f",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/unit/tools/test_runner.py": {
+        "operation": "modify",
+        "preimage_sha256": "abf1ef3053789f5e0fe3f0b96832002957a24f23c99d8624de1bfee588940d4d",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-default-temp-fixture-portability-r1-20261018/test_runner.postimage.py",
+        "postimage_sha256": "73bc54a18cd532559407fad73e72d32ea57c338f7fc316a805e6472a8ae0198e"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-portable-temp-fixture-current-adoption-20261018/source-application.json",
+      "sha256": "7ef84f0ccf4610a26907b26e11017c689f10b340d33b236e31f2e2047359c9ac"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-portable-temp-fixture-current-adoption-20261018/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-default-temp-fixture-portability-r1-20261018/candidate-manifest.json",
+        "sha256": "364200ffdd5b5a7e0b434a86b902eea8ee9ed0a3833577172f980656d2054271"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-trust-default-temp-fixture-independent-20261018/review.json",
+        "sha256": "aa04a3aa8236fdafbd29ea07353aedd909b0af055895783ff28da302537e8696"
+      }
+    ],
+    "P40": "Same isolated-fixture geometry class; actual platform guard preserved. Linux command binding is a separate held profile repaired via structured builder after canonical adoption.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Test-only change; Linux actual oldpreimage7P1F remainshistorical.",
+      "NarrowtestpeerGO; candidateoverlayLinuxrecipeHOLDbecausewrongpython-coperand/hash, not admitted bythissourcecommit.",
+      "No Trust15/nativeproject/Linuxdefault-profile or production currentness closure."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": {
+      "required": [
+        "Current whole Mac runner module",
+        "Fresh exact10-member current-source Linux bundle with structured argv builder and current archivehash",
+        "Independent freshLinuxprofile review then one actualrun preserving raw7P1Fhistory"
+      ]
+    },
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

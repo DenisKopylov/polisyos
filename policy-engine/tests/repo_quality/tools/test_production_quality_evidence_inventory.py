@@ -166,7 +166,10 @@ def test_dump_json_is_stable_and_checked_in_baseline_is_current() -> None:
     round_tripped = json.loads(dumped)
     assert round_tripped["schema_version"] == inventory.SCHEMA_VERSION
     assert round_tripped == payload
-    assert "generated_at" not in dumped
+    assert "generated_at" not in round_tripped
+    assert "runtime.security_assurance_report.generated_at" in {
+        str(row["field_path"]) for row in payload["quality_artifact_fields"]
+    }
 
     baseline = (
         REPO_ROOT / "architecture" / "baselines" / "production_quality" / "evidence_inventory.json"
@@ -211,7 +214,13 @@ def test_cli_writes_capability_white_space_report_from_capability_index(
     payload = json.loads(output.read_text(encoding="utf-8"))
     assert payload["schema_version"] == "policyos.capability_white_space_report.v1"
     assert payload["validation"]["status"] == "pass"
-    assert payload["groupings"]["by_construct"]["credit_program_enrollment"]["count"] >= 1
+
+    assert result.capability_index is not None
+    fixture_constructs = {node.construct_id for node in result.capability_index.white_space}
+    grouped_constructs = set(payload["groupings"]["by_construct"])
+    assert fixture_constructs
+    assert grouped_constructs == fixture_constructs
+    assert payload["summary"]["construct_count"] == len(fixture_constructs)
 
 
 def _literal_requests_from_tool_source() -> set[str]:

@@ -1118,7 +1118,21 @@
     },
     {
       "expected_ref": "quality_evidence/security_assurance_report.json",
-      "field_path": "runtime.security_assurance_report.findings",
+      "field_path": "runtime.security_assurance_report.assured_paths",
+      "owner_runtime_layer": "security_quality_gates",
+      "producer": "polisyos.core.security.quality_gates.build_security_assurance_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/security_assurance_report.json",
+      "field_path": "runtime.security_assurance_report.blockers",
+      "owner_runtime_layer": "security_quality_gates",
+      "producer": "polisyos.core.security.quality_gates.build_security_assurance_report",
+      "status": "runtime_emitted"
+    },
+    {
+      "expected_ref": "quality_evidence/security_assurance_report.json",
+      "field_path": "runtime.security_assurance_report.generated_at",
       "owner_runtime_layer": "security_quality_gates",
       "producer": "polisyos.core.security.quality_gates.build_security_assurance_report",
       "status": "runtime_emitted"
@@ -1147,13 +1161,6 @@
     {
       "expected_ref": "quality_evidence/security_assurance_report.json",
       "field_path": "runtime.security_assurance_report.status",
-      "owner_runtime_layer": "security_quality_gates",
-      "producer": "polisyos.core.security.quality_gates.build_security_assurance_report",
-      "status": "runtime_emitted"
-    },
-    {
-      "expected_ref": "quality_evidence/security_assurance_report.json",
-      "field_path": "runtime.security_assurance_report.surfaces",
       "owner_runtime_layer": "security_quality_gates",
       "producer": "polisyos.core.security.quality_gates.build_security_assurance_report",
       "status": "runtime_emitted"
@@ -2251,11 +2258,12 @@
     {
       "artifact_fields": [
         "schema_version",
+        "generated_at",
         "status",
         "security_assurance_report_ref",
-        "surfaces",
-        "findings",
-        "issues"
+        "assured_paths",
+        "issues",
+        "blockers"
       ],
       "expected_ref": "quality_evidence/security_assurance_report.json",
       "first_missing_producer": null,
@@ -3426,7 +3434,7 @@
   },
   "summary": {
     "missing_or_input_required_producers": [],
-    "quality_artifact_field_count": 263,
+    "quality_artifact_field_count": 264,
     "quality_report_count": 30,
     "quality_report_status_counts": {
       "fixture_input": 0,

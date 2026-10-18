@@ -9117,5 +9117,111 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "coordination_epoch_20261018_native_inventory_fixture_consumer_r2": {
+    "slice_base": "e157b785127999badc00d54d23f10bc1d6c2be68",
+    "canonical_writer": "root only, exact reviewed source plus AST-equal formatting qualification",
+    "mechanism_and_mandatory_companion_paths": [
+      {
+        "operation": "write",
+        "path": "policy-engine/architecture/baselines/production_quality/evidence_inventory.json",
+        "preimage_sha256": "690a07f3f51376854fdbd9f21b20f4dc27d01a01f334aa6a6d2822bdbc906d34",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-inventory-fixture-consumer-repair-r2-20261018/candidate/architecture/baselines/production_quality/evidence_inventory.json",
+        "postimage_sha256": "4811c59c256983b08cb31d852f1e557a9b5d0c1342b55e7033a8d487bf2e9868",
+        "role": "artifact_owner"
+      },
+      {
+        "operation": "write",
+        "path": "policy-engine/tests/repo_quality/tools/test_production_quality_evidence_inventory.py",
+        "preimage_sha256": "b8b6cd27de2ba647e4d693d425fd9ceda29996561d3ae5dd33cb2eca6ce2446d",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-inventory-r2-format-qualification-20261018/formatted-postimage-1.py",
+        "postimage_sha256": "e13707a0d524be874a683a68dc446eea76ce217cd4ee191ec6f7b71004e9f27e",
+        "role": "mandatory_semantic_test_companion"
+      },
+      {
+        "operation": "write",
+        "path": "policy-engine/tests/unit/runtime/quality/test_capability_white_space.py",
+        "preimage_sha256": "c092d77758c65308614c57c0a74630914cb7c5cfe353b9450183d84d868237a5",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-inventory-r2-format-qualification-20261018/formatted-postimage-2.py",
+        "postimage_sha256": "a6bd3f974abb34f3a4643b096cf38e1860e9697a0c9de11a48c75b2e01252142",
+        "role": "mandatory_semantic_test_companion"
+      }
+    ],
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-inventory-r2-format-qualification-20261018/qualified-source-application-r2.json",
+      "sha256": "d50060208cd7bdbe5c207d89027233fceff2005af907d07d4a8abc4089a9a545"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-inventory-fixture-consumer-repair-r2-20261018/manifest.json",
+        "sha256": "022ced383cbe060d91277844313ff31bed2a7e506ecf8498e05e099aa2aaa824"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-inventory-fixture-consumer-repair-r2-20261018/source-manifest.json",
+        "sha256": "b115d97042fb5a5ff83d48c1d1b0b316f0d3c8439072791ff0a15c86b0643d62"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-inventory-fixture-consumer-repair-r2-20261018/candidate.patch",
+        "sha256": "368080f668637116f7ff3cc2d752f229d97ce3dd948792edda546ca8f812bdd3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-inventory-fixture-consumer-repair-r2-20261018/producer-closure-decision.md",
+        "sha256": "9b25a6a5a7a6473258a72238aec77fbbc09b2b06d6e5ef540e328a5b115c511e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-inventory-fixture-consumer-repair-r2-20261018/verification.txt",
+        "sha256": "eb299dd4fd20d9c99fae1973f71174681b5470dc99b6aae0c5dc1bc7b28dc958"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-inventory-fixture-consumer-r2-independent-20261018/review.md",
+        "sha256": "cd83efdc26573e0eb8d56c083535e762e12fe9283c0982b1111ee91b0357d532"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-native-inventory-routine-independent-20261018/review.md",
+        "sha256": "92c24441d357b36b330677d13fe15a0124b609e3432b182f82f3b2148476638e"
+      }
+    ],
+    "P40": {
+      "bucket": "Same stale expected-output/P38 proxy class as the R1 sibling-consumer escape. R2 widens repair to the complete white-space consumer module and keeps route records candidate-only. The absent production route producer is a separately disclosed capability gap, not another fixture-test instance.",
+      "falsifier": "After adoption run the complete two modules and owner --check. The compiled-fixture report must match all four groupings and composite membership to compiler-produced nodes. Supplied credit candidates must reach existing report/resolver consumers without promotion; a simulation-only self-claim must remain rejected as evidence_mode_forbidden. A production route appearing without source-bound producer/admission evidence falsifies the claim.",
+      "selected_quantity": "The complete white-space consumer test module and inventory baseline contract; production route emission/admission remains outside this slice."
+    },
+    "limitations": {
+      "P39": {
+        "mechanism_paths": 0,
+        "mechanism_note": "No production/compiler/producer mechanism source is changed.",
+        "artifact_paths": 1,
+        "artifact_path": "policy-engine/architecture/baselines/production_quality/evidence_inventory.json",
+        "mandatory_companion_paths": 4,
+        "mandatory_companion_paths_detail": [
+          "policy-engine/tests/repo_quality/tools/test_production_quality_evidence_inventory.py",
+          "policy-engine/tests/unit/runtime/quality/test_capability_white_space.py",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json (root-managed)",
+          "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json (root-managed)"
+        ],
+        "readme_paths": 0,
+        "planned_source_rows": 3,
+        "canonical_paths_if_root_applies": 5,
+        "denominator": "One baseline artifact owner row plus two mandatory semantic-test companions; the root-managed LEASE and delivery index add two record paths. README was not in the reviewed patch and the peer requested no README companion."
+      },
+      "runtime": "UNRUN on canonical source; no runtime or production-route result inferred.",
+      "pytest": "not_run",
+      "owner_check": "not_run",
+      "G_acceptance": false,
+      "canonical_mutation_by_preparer": false,
+      "product_route_producer": "producer_missing",
+      "README": "not included; not required by the exact three-path peer-reviewed patch.",
+      "negative_controls": "Preserve ownerless, missing construct-validity-review, orphan-reference, generic gap reachability and simulation-only production-evidence rejection."
+    },
+    "runtime": "UNRUN",
+    "next_check": [
+      "Before application, root rereads the actual branch/head/tree, three source preimages and every reviewed input. If HEAD advances, requalify against the actual then-current commit only after repeating all pins; this plan does not predict a future SHA. Root helper must also see clean tracked/index diffs.",
+      "Root alone applies the three reviewed postimages and writes the automatic LEASE/index records; no README row is planned.",
+      "After adoption, run both complete modules: tests/repo_quality/tools/test_production_quality_evidence_inventory.py and tests/unit/runtime/quality/test_capability_white_space.py; then from policy-engine run `python -B -m tools.quality.validation.production_quality_evidence_inventory --check`. Preserve complete outputs, JUnit and resource receipts. This accepts only bounded baseline/consumer repair.",
+      "Keep Phase 6/G1 producer closure open. Assign the G decision owner before changing the production mechanism; prove source custody, compiler-input fingerprinting, persistence, consumer behavior and adversarial non-promotion for any future route producer."
+    ],
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

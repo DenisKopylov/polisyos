@@ -1,0 +1,226 @@
+{
+  "schema": "polisyos.e02.native_source_commit_receipt.v1",
+  "record_type": "implementation_commit_receipt",
+  "status": "source_committed_static_ruff_pass_runtime_unrun_at_adoption",
+  "proposal_not_adjudicated": true,
+  "source_commit": {
+    "sha": "1e28d6d7f2968d97486eaa709dccc459b80045ee",
+    "tree": "8d297f82b8da0bf0760b87ef02d521437eee767d",
+    "parents": [
+      "786f44cdb0cda62df5c2a11e287d958d674bad21"
+    ],
+    "subject": "fix(tooling): collect absolute import aliases in FQN census",
+    "branch_ref": "refs/heads/codex/e02-unified-local-20261009",
+    "reachable_from_preparation_head": true
+  },
+  "source_base": {
+    "sha": "786f44cdb0cda62df5c2a11e287d958d674bad21",
+    "tree": "40184b7436944940878742c9c5b2caf9923be964"
+  },
+  "changed_path_denominator": {
+    "total_git_changed_paths": 4,
+    "mechanism_paths": 1,
+    "mandatory_test_and_documentation_companions": 1,
+    "historical_lease_and_index_metadata": 2,
+    "mechanism_paths_excluding_mandatory_companions_and_coordination_metadata": [
+      "policy-engine/tools/quality/validation/schema_fqn_census.py"
+    ],
+    "mandatory_companion_paths_outside_mechanism_count": [
+      "policy-engine/tests/unit/remediation/test_dfk_01.py"
+    ],
+    "coordination_paths_outside_mechanism_count": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ]
+  },
+  "changed_paths": [
+    {
+      "change": "M",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "category": "coordination_metadata",
+      "role": "historical lease/index companion from this source commit",
+      "git_mode_at_commit": "100644",
+      "preimage_sha256_at_parent": "f218ab1d13bad16499ef86618fd60693607cf50a5a75913bbb4a3157e47a54ac",
+      "sha256_at_commit": "4cdbfbdb58f19e2b27f539cc44bcd47077d4ce6dfec372ab36ba9a33611c75b6",
+      "bytes_at_commit": 941973
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "category": "coordination_metadata",
+      "role": "historical lease/index companion from this source commit",
+      "git_mode_at_commit": "100644",
+      "preimage_sha256_at_parent": "d4ab3f7cfcd13561c2e84d73c450cde882a10a069c3aa50b7943ef595a0bc734",
+      "sha256_at_commit": "720e1f25ff5df87798ec41b5b07e78e0115a2a22794518c01e916031990d6b68",
+      "bytes_at_commit": 77110
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/tests/unit/remediation/test_dfk_01.py",
+      "category": "mandatory_test_companion",
+      "role": "changed test companion",
+      "git_mode_at_commit": "100644",
+      "preimage_sha256_at_parent": "931f2056831ba863fa867e1f445d8e21e9ca4193b4edd5d43508f2b99b2eb90f",
+      "sha256_at_commit": "567bc05871a819af7742b974e2b45fda853a0b2aa8600c5d278d2e8d373b4dad",
+      "bytes_at_commit": 76750
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/tools/quality/validation/schema_fqn_census.py",
+      "category": "mechanism",
+      "role": "source mechanism path",
+      "git_mode_at_commit": "100644",
+      "preimage_sha256_at_parent": "f555e43e2a82e2e6e6ad70b69882d6268dc6479e85183cf90a86387bae2e219e",
+      "sha256_at_commit": "c12cefb7dda1b82ef0f7e309421c5cbccc6804a3ab60bf27d1aa674f43df7e1a",
+      "bytes_at_commit": 53134
+    }
+  ],
+  "source_application": {
+    "status": "commit_readback_verified",
+    "identity": "root-fqn-static-import-r4-reviewed-adoption-20261018",
+    "lease_key": "root-fqn-static-import-r4-reviewed-adoption-20261018",
+    "source_application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fqn-static-import-r4-post-outbox-adoption-20261018/source-application.json",
+      "sha256": "0233bd28e003226733e27e3ab56f3bc71e4334da4cc8834f5ff21e089bf4d719",
+      "bytes": 6137
+    },
+    "adoption_plan": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fqn-static-import-r4-post-outbox-adoption-20261018/adoption-plan.json",
+      "sha256": "cdd6132ff50de28500f4dad2751ce9256f45207bc19c0a9a11dfe2ddbf431afe",
+      "bytes": 4513
+    },
+    "commit_request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fqn-static-import-r4-post-outbox-adoption-20261018/commit-request.json",
+      "sha256": "8ac9f9a7ed2d68d8fe86989fa4afc228de5cdd84c44d49d038ce02f1290c49e3",
+      "bytes": 1180
+    },
+    "commit_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fqn-static-import-r4-post-outbox-adoption-20261018/root-fqn-static-import-r4-reviewed-adoption-20261018-readback.json",
+      "sha256": "e0539076bae34050f3803dcc9c373509630dfcd52ed7f83cf9e67674f938fb2b",
+      "bytes": 1281
+    },
+    "reviewed_present_patch": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fqn-static-import-r4-post-outbox-adoption-20261018/reviewed-present-postimages.patch",
+      "sha256": "5c662333b63e9dd3ba366eba22b2d38cb266c8cbe90272f8e6d60dff6dac37bb"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fqn-static-import-r4-post-outbox-adoption-20261018/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "qualification": null,
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fqn-static-import-family-r4-20261018/manifest.json",
+        "sha256": "9f0f642ddc3448345790681185e47226152f090e3f5c3867afcebc8de11c4715"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fqn-static-import-family-r4-20261018/candidate.patch",
+        "sha256": "7e57f16292b6c96dc150ce89a64ca4b3146bc22a9ea448f265c4c710d2e403c1"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fqn-static-import-family-r4-20261018/decision.md",
+        "sha256": "bf732f84a9d1732fc6cfa6d9e87f03dcfdc7329b3bebba437c109128b61a6bf1"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fqn-static-import-r4-independent-20261018/review.md",
+        "sha256": "b96f5dce515fd3e60bfef9c30c0ae458f59e390ce48763e8c615af8f06cdfbff"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fqn-static-import-r4-reviewed-adoption-20261018/adoption-plan.json",
+        "sha256": "df921af6b5e88b9325e33ea0b2d99628262db9636f70ea2e715d4428dca56b1e"
+      }
+    ],
+    "source_pathset_matches_git_nonmetadata_paths": true,
+    "preimage_hashes_match_git_parent": true,
+    "postimage_hashes_match_git_commit": true,
+    "readback_matches_commit_sha_tree_parent_and_complete_path_set": true,
+    "source_freeze_at_application": false
+  },
+  "review_refs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fqn-static-import-family-r4-20261018/decision.md",
+      "sha256": "bf732f84a9d1732fc6cfa6d9e87f03dcfdc7329b3bebba437c109128b61a6bf1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fqn-static-import-r4-independent-20261018/review.md",
+      "sha256": "b96f5dce515fd3e60bfef9c30c0ae458f59e390ce48763e8c615af8f06cdfbff"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fqn-static-import-r4-reviewed-adoption-20261018/adoption-plan.json",
+      "sha256": "df921af6b5e88b9325e33ea0b2d99628262db9636f70ea2e715d4428dca56b1e"
+    }
+  ],
+  "property": "Selected Python AST import evidence must include both Import and ImportFrom with full imported paths, preserving the declared v3 selection and ignored-boundary semantics.",
+  "proposal_ids": [],
+  "P40": "New AST import producer class relative to Git completeness; generic handling covers every alias and retains complete ImportFrom processing.",
+  "static_quality": {
+    "status": "PASS",
+    "commands_and_output_refs": [
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tools/quality/validation/schema_fqn_census.py",
+          "policy-engine/tests/unit/remediation/test_dfk_01.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.04312604200094938,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fqn-static-import-r4-post-outbox-adoption-20261018/check.stdout.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fqn-static-import-r4-post-outbox-adoption-20261018/check.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tools/quality/validation/schema_fqn_census.py",
+          "policy-engine/tests/unit/remediation/test_dfk_01.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.03991154092364013,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fqn-static-import-r4-post-outbox-adoption-20261018/format.stdout.txt",
+          "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fqn-static-import-r4-post-outbox-adoption-20261018/format.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    ],
+    "note": "The source application file is authoritative for its exact Ruff argv and output references."
+  },
+  "runtime_status_at_source_adoption": "UNRUN on adopted canonical source; bounded candidate evidence is separately referenced",
+  "source_freeze_at_application": false,
+  "related_actual_profiles": [],
+  "limits": [
+    "Runtime remains UNRUN on adopted bytes until the combined replay.",
+    "No G acceptance or formal finding closure is claimed; exact review scope only."
+  ],
+  "next_check_at_adoption": "Run the whole DFK module and the supported guest-native Linux v3 CLI witness on the composed candidate.",
+  "G_acceptance": false,
+  "closure_ids": [],
+  "preparation_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "2b3febdbba8d33ab21aaff32f976b8c31ad183de",
+    "tree": "93554100f8dc966b7a6d6d9d869b6e1b03a9ca21"
+  }
+}

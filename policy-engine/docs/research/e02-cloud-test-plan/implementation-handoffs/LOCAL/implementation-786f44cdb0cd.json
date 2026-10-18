@@ -1,0 +1,334 @@
+{
+  "schema": "polisyos.e02.native_source_commit_receipt.v1",
+  "record_type": "implementation_commit_receipt",
+  "status": "source_committed_static_ruff_pass_runtime_unrun_at_adoption",
+  "proposal_not_adjudicated": true,
+  "source_commit": {
+    "sha": "786f44cdb0cda62df5c2a11e287d958d674bad21",
+    "tree": "40184b7436944940878742c9c5b2caf9923be964",
+    "parents": [
+      "5ff59531ca1f98ff267ef70a376f58b58164470a"
+    ],
+    "subject": "fix(runtime): reconcile terminal outbox owner envelope with durable job",
+    "branch_ref": "refs/heads/codex/e02-unified-local-20261009",
+    "reachable_from_preparation_head": true
+  },
+  "source_base": {
+    "sha": "5ff59531ca1f98ff267ef70a376f58b58164470a",
+    "tree": "f28abf527b7ec8403be0745ee3c25404d877a7c3"
+  },
+  "changed_path_denominator": {
+    "total_git_changed_paths": 5,
+    "mechanism_paths": 2,
+    "mandatory_test_and_documentation_companions": 1,
+    "historical_lease_and_index_metadata": 2,
+    "mechanism_paths_excluding_mandatory_companions_and_coordination_metadata": [
+      "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py",
+      "policy-engine/src/polisyos/runtime/http/services/debug.py"
+    ],
+    "mandatory_companion_paths_outside_mechanism_count": [
+      "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py"
+    ],
+    "coordination_paths_outside_mechanism_count": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ]
+  },
+  "changed_paths": [
+    {
+      "change": "M",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "category": "coordination_metadata",
+      "role": "historical lease/index companion from this source commit",
+      "git_mode_at_commit": "100644",
+      "preimage_sha256_at_parent": "ca5f7f35f48972169bef3183ff2e95d7cc57fc3f571e29e1cf1ddb8aa158ef10",
+      "sha256_at_commit": "f218ab1d13bad16499ef86618fd60693607cf50a5a75913bbb4a3157e47a54ac",
+      "bytes_at_commit": 938006
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "category": "coordination_metadata",
+      "role": "historical lease/index companion from this source commit",
+      "git_mode_at_commit": "100644",
+      "preimage_sha256_at_parent": "8c1ee6872a15918ae5d399287204585523045d5849ae85f4fa3d5a438162626e",
+      "sha256_at_commit": "d4ab3f7cfcd13561c2e84d73c450cde882a10a069c3aa50b7943ef595a0bc734",
+      "bytes_at_commit": 77110
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py",
+      "category": "mechanism",
+      "role": "source mechanism path",
+      "git_mode_at_commit": "100644",
+      "preimage_sha256_at_parent": "559e75176f818e1d12aac537439e87ec7867861b666eb265bd558c4fc6e0455c",
+      "sha256_at_commit": "1fde07e8786ac0e270dc624ee139fea840dc4e0b048997d7c5fdafab2e33f09b",
+      "bytes_at_commit": 323206
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/src/polisyos/runtime/http/services/debug.py",
+      "category": "mechanism",
+      "role": "source mechanism path",
+      "git_mode_at_commit": "100644",
+      "preimage_sha256_at_parent": "008e4728ffda8f1843873287285fa00995201b2b58f1c4b6548324e83f3f33c2",
+      "sha256_at_commit": "86b2c54819a49d36dc9af30833603ab4ad6c8b718c01fe0b6465ed2bd5468ea5",
+      "bytes_at_commit": 168576
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py",
+      "category": "mandatory_test_companion",
+      "role": "changed test companion",
+      "git_mode_at_commit": "100644",
+      "preimage_sha256_at_parent": "8ef64911929a466f05bd4042913dba274c4c371b0a6c4b53e3049a50953a6914",
+      "sha256_at_commit": "addcbe2f4e71aa8e1055f5383025d2e21876e6dbd72c67f77219cf3e3f58a95b",
+      "bytes_at_commit": 169314
+    }
+  ],
+  "source_application": {
+    "status": "commit_readback_verified",
+    "identity": "root-terminal-outbox-r9-reviewed-adoption-20261018",
+    "lease_key": "root-terminal-outbox-r9-reviewed-adoption-20261018",
+    "source_application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-outbox-r9-reviewed-adoption-20261018/source-application.json",
+      "sha256": "82909e3560d5b22656f36c1f43c9c51046d4996e5d05f47b623ca69607683b10",
+      "bytes": 6763
+    },
+    "adoption_plan": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-outbox-r9-reviewed-adoption-20261018/adoption-plan.json",
+      "sha256": "e64e9ad123385517b9dddb02c9949080767051579a9252b6c11450ec293f452c",
+      "bytes": 3880
+    },
+    "commit_request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-outbox-r9-reviewed-adoption-20261018/commit-request.json",
+      "sha256": "216b98c441fae3d562a94368577dae2cfeda7cb59e37ed3582a74a6d5b2897d5",
+      "bytes": 1352
+    },
+    "commit_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-outbox-r9-reviewed-adoption-20261018/root-terminal-outbox-r9-reviewed-adoption-20261018-readback.json",
+      "sha256": "4b37db2b11a6e714c22e1b2c8ef8496d8255736e32db32f7fc33d13deb4bc8cc",
+      "bytes": 1559
+    },
+    "reviewed_present_patch": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-outbox-r9-reviewed-adoption-20261018/reviewed-present-postimages.patch",
+      "sha256": "72223e0e715e3815ae31eef4bcfd01b573e9dd7c6005c46d13c3436f282dcd6f"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-outbox-r9-reviewed-adoption-20261018/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "qualification": null,
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-outbox-owner-envelope-join-r9-20261018/candidate-manifest.json",
+        "sha256": "1e69ae391ced86d294e922a44c73acffa451a217f4161017790308e256b351f3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-outbox-owner-envelope-join-r9-20261018/candidate.patch",
+        "sha256": "6289193727a2d2e5ab0a5d3c112910266d7cc181185c2798bea64d2eb8c82919"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-outbox-owner-envelope-join-r9-20261018/decision.md",
+        "sha256": "195974f9e437494f5b85864fa7a8ff03a5fe8534864d96b0e250806683cd3206"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-outbox-envelope-r9-independent-20261018/review.json",
+        "sha256": "5256ccf6dd98a915d079dda5506a79823246c017dacf93f2036d233bb9cf5e37"
+      }
+    ],
+    "source_pathset_matches_git_nonmetadata_paths": true,
+    "preimage_hashes_match_git_parent": true,
+    "postimage_hashes_match_git_commit": true,
+    "readback_matches_commit_sha_tree_parent_and_complete_path_set": true,
+    "source_freeze_at_application": false
+  },
+  "review_refs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-outbox-owner-envelope-join-r9-20261018/decision.md",
+      "sha256": "195974f9e437494f5b85864fa7a8ff03a5fe8534864d96b0e250806683cd3206"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-outbox-envelope-r9-independent-20261018/review.json",
+      "sha256": "5256ccf6dd98a915d079dda5506a79823246c017dacf93f2036d233bb9cf5e37"
+    }
+  ],
+  "property": "A completed durable ControlJob identity envelope, terminal event and progress must reconcile exactly in the owner scorecard; requested profile absence stays an independent intent refusal.",
+  "proposal_ids": [],
+  "P40": "Same owner-source and role-join class deeper; widened to shared typed producer projection plus full mapping equality with all envelope omissions, mismatches and extra-field controls.",
+  "static_quality": {
+    "status": "PASS",
+    "commands_and_output_refs": [
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py",
+          "policy-engine/src/polisyos/runtime/http/services/debug.py",
+          "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.050173416966572404,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-outbox-r9-reviewed-adoption-20261018/check.stdout.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-outbox-r9-reviewed-adoption-20261018/check.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/src/polisyos/runtime/http/services/control_plane_store.py",
+          "policy-engine/src/polisyos/runtime/http/services/debug.py",
+          "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.04558779206126928,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-outbox-r9-reviewed-adoption-20261018/format.stdout.txt",
+          "sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-terminal-outbox-r9-reviewed-adoption-20261018/format.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    ],
+    "note": "The source application file is authoritative for its exact Ruff argv and output references."
+  },
+  "runtime_status_at_source_adoption": "UNRUN on adopted canonical source; bounded candidate evidence is separately referenced",
+  "source_freeze_at_application": false,
+  "related_actual_profiles": [
+    {
+      "role": "later bounded actual profile with exact same committed owner/test path bytes; red result, not whole capability acceptance",
+      "source_frame": {
+        "branch": "codex/e02-unified-local-20261009",
+        "head": "03023644881f0fbd1908718385206e0833660eef",
+        "tree": "66dc573595dfad8a5622749b268c8513cb266c81"
+      },
+      "same_changed_test_bytes_confirmed": true,
+      "result": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r9-python-three-current-actual-20261018/result.json",
+        "sha256": "766a02790392d0cb99927285ab50da389c78f7e2f0b8c761577c0efcccb11d92",
+        "bytes": 45385
+      },
+      "pytest_stdout": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r9-python-three-current-actual-20261018/pytest.stdout.txt",
+        "sha256": "4029cfa5e2adcc439d9ecde17d9868852f12d8601bbdda158e5fabdfbac1466d",
+        "bytes": 23865
+      },
+      "pytest_stderr": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r9-python-three-current-actual-20261018/pytest.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "junit": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r9-python-three-current-actual-20261018/pytest.xml",
+        "sha256": "36e260e8d19b78cfbdabdfbbef7356ebd4a0a33234893ba7d60847b770fe2ee3",
+        "bytes": 38610
+      },
+      "selected_module_sha256": {
+        "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py": "addcbe2f4e71aa8e1055f5383025d2e21876e6dbd72c67f77219cf3e3f58a95b",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_producer_events.py": "40205848aae53a79e782c336db3e9bcbfb32636d96ff06aea2dd481a93e35cee",
+        "policy-engine/tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py": "83985216fb9a4d073a9bc3f9120046c6dc44f145afed57343079421229461629"
+      },
+      "cases": {
+        "cases": 78,
+        "errors": 0,
+        "failed": 1,
+        "passed": 77,
+        "skipped": 0
+      },
+      "command": {
+        "aborted_reason": null,
+        "argv": [
+          ".venv/bin/python",
+          "-B",
+          "-m",
+          "pytest",
+          "-p",
+          "e02_wave_capture",
+          "-q",
+          "--basetemp",
+          "/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/monetary-r9-python-three-20261018-01/pytest-temp",
+          "-o",
+          "cache_dir=/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/monetary-r9-python-three-20261018-01/pytest-cache",
+          "--junitxml",
+          "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r9-python-three-current-actual-20261018/pytest.xml",
+          "tests/unit/runtime/http/test_nl_pipeline_cost_projection.py",
+          "tests/unit/scientist/orchestration/engine/test_budget_ledger_producer_events.py",
+          "tests/unit/scientist/orchestration/engine/test_budget_ledger_settlement.py"
+        ],
+        "complete": true,
+        "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+        "disk_free_before_bytes": 11286847488,
+        "finished_at": "2026-10-18T18:23:22.670438+00:00",
+        "id": "pytest",
+        "max_sampled_process_tree_rss_bytes": 1134084096,
+        "minimum_sampled_disk_free_bytes": 11264753664,
+        "pid": 88607,
+        "process_group_gone": true,
+        "return_code": 1,
+        "sample_count": 70,
+        "started_at": "2026-10-18T18:22:44.679694+00:00",
+        "status": "command_failed",
+        "stderr_path": "pytest.stderr.txt",
+        "stdout_path": "pytest.stdout.txt",
+        "termination_signal": null,
+        "wall_seconds": 37.99065104103647,
+        "wall_total_before_seconds": 3.587501123547554e-05
+      },
+      "runtime_origins": {
+        "captured_product_namespace_module_count": 1737,
+        "matched_regular_module_origins": 1737,
+        "origin_mismatches": [],
+        "scope_limit": "Capture plugin covers polisyos/tools namespaces only; this does not attest all third-party imports or pre-sitecustomize interpreter startup.",
+        "unhashed_or_namespace_origins": 0
+      },
+      "run_property_result": {
+        "G_acceptance": false,
+        "junit_no_failures_errors_skips": false,
+        "origins_have_no_mismatch": true,
+        "process_complete": true,
+        "process_return_code": 1,
+        "semantic_chain_authority_or_live_currentness": "not_established",
+        "source_unchanged": true,
+        "whole_module_collection_valid": true
+      },
+      "observed_failure": "test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen expected control_job_source_reader_unavailable:get_job_terminal_source_event_record but received runtime_owner_source_service_graph_mismatch; the positive owner-join assertion is reached earlier in the case, but the case fails at the final mismatch.",
+      "limitations": [
+        "This is a three-module Python profile at commit 0302364, not a full system replay.",
+        "Runner explicitly says outbox semantic acceptance and tamper crosswalk are not established; closure_ids is empty."
+      ]
+    }
+  ],
+  "limits": [
+    "Runtime remains UNRUN on adopted bytes until the combined replay.",
+    "No G acceptance or formal finding closure is claimed; exact review scope only."
+  ],
+  "next_check_at_adoption": "Run all three monetary Python modules and actual HTTP owner-scorecard bridge after this source batch, preserving separate missing-intent refusal.",
+  "G_acceptance": false,
+  "closure_ids": [],
+  "preparation_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "2b3febdbba8d33ab21aaff32f976b8c31ad183de",
+    "tree": "93554100f8dc966b7a6d6d9d869b6e1b03a9ca21"
+  }
+}

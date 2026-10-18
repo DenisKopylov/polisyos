@@ -1,0 +1,272 @@
+{
+  "schema": "polisyos.e02.native_source_commit_receipt.v1",
+  "record_type": "implementation_commit_receipt",
+  "status": "source_committed_static_ruff_pass_runtime_unrun_at_adoption",
+  "proposal_not_adjudicated": true,
+  "source_commit": {
+    "sha": "3c08d808c3e9e3411f3b87cd9f77863240186939",
+    "tree": "3581098977671b2c8795b0a1356951f720173db9",
+    "parents": [
+      "3dcd55afc13d227b95c5e93640cac92dafe6cf0a"
+    ],
+    "subject": "fix(validation): bound schema FQN census scope and version receipt",
+    "branch_ref": "refs/heads/codex/e02-unified-local-20261009",
+    "reachable_from_preparation_head": true
+  },
+  "source_base": {
+    "sha": "3dcd55afc13d227b95c5e93640cac92dafe6cf0a",
+    "tree": "ffca9399d90d2dac2f2a407699e25c7f07915a89"
+  },
+  "changed_path_denominator": {
+    "total_git_changed_paths": 6,
+    "mechanism_paths": 1,
+    "mandatory_test_and_documentation_companions": 3,
+    "historical_lease_and_index_metadata": 2,
+    "mechanism_paths_excluding_mandatory_companions_and_coordination_metadata": [
+      "policy-engine/tools/quality/validation/schema_fqn_census.py"
+    ],
+    "mandatory_companion_paths_outside_mechanism_count": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/README.md",
+      "policy-engine/release-fragments/unreleased/2026-10-08-orch02-r2-c06-dfk-census.toml",
+      "policy-engine/tests/unit/remediation/test_dfk_01.py"
+    ],
+    "coordination_paths_outside_mechanism_count": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ]
+  },
+  "changed_paths": [
+    {
+      "change": "M",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "category": "coordination_metadata",
+      "role": "historical lease/index companion from this source commit",
+      "git_mode_at_commit": "100644",
+      "preimage_sha256_at_parent": "4d930d8694ad69d0a5fed550182b8a740237a51af907809a75cf7e616650a0c6",
+      "sha256_at_commit": "4466a4a3f0803e26b00241c888c25f00ab4180c1c89b8192cbdd367e53fab44d",
+      "bytes_at_commit": 906753
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "category": "coordination_metadata",
+      "role": "historical lease/index companion from this source commit",
+      "git_mode_at_commit": "100644",
+      "preimage_sha256_at_parent": "928d8b68fe0f2dbf332e49f2c44699459fa7f74a8113e675c4b9146a6e34a57b",
+      "sha256_at_commit": "66c9d162ab31525f4ed89c249c12d9e4e2d355e04bb6a719fcdf7e14b7667bac",
+      "bytes_at_commit": 77110
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/linux-profile/README.md",
+      "category": "documentation_or_release_companion",
+      "role": "changed documentation/release companion",
+      "git_mode_at_commit": "100644",
+      "preimage_sha256_at_parent": "71c3c192a9b232da5ac727d8e79e00c1c3d56c2197cd286dac258a47e6572d44",
+      "sha256_at_commit": "6a93259483720a03b1cde531bf949eaae26a4aeeb422e69129b617d8acf9014f",
+      "bytes_at_commit": 32788
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/release-fragments/unreleased/2026-10-08-orch02-r2-c06-dfk-census.toml",
+      "category": "documentation_or_release_companion",
+      "role": "changed documentation/release companion",
+      "git_mode_at_commit": "100644",
+      "preimage_sha256_at_parent": "dff924bd4dd28a2051dfc021c6540c00e26fa4a231ee609084c9163b0b701755",
+      "sha256_at_commit": "57ec23983b4369cf923dbce15180994be3cfaf717d632bc3e1625d99cc8817fd",
+      "bytes_at_commit": 2338
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/tests/unit/remediation/test_dfk_01.py",
+      "category": "mandatory_test_companion",
+      "role": "changed test companion",
+      "git_mode_at_commit": "100644",
+      "preimage_sha256_at_parent": "bc9fc9302f9b781243c7a5286fbabac890834b9b6c19b51d384ed26a1a6c1434",
+      "sha256_at_commit": "931f2056831ba863fa867e1f445d8e21e9ca4193b4edd5d43508f2b99b2eb90f",
+      "bytes_at_commit": 73948
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/tools/quality/validation/schema_fqn_census.py",
+      "category": "mechanism",
+      "role": "source mechanism path",
+      "git_mode_at_commit": "100644",
+      "preimage_sha256_at_parent": "c937a74a82e608801a6888680e30ac1d35b1d88020840523a78f465c716aabbb",
+      "sha256_at_commit": "f555e43e2a82e2e6e6ad70b69882d6268dc6479e85183cf90a86387bae2e219e",
+      "bytes_at_commit": 52457
+    }
+  ],
+  "source_application": {
+    "status": "commit_readback_verified",
+    "identity": "fqn-census-v3-complete-git-boundary-native-qualified-20261018",
+    "lease_key": "fqn-census-v3-complete-git-boundary-native-qualified-20261018",
+    "source_application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fqn-reviewed-native-qualified-adoption-20261018/source-application.json",
+      "sha256": "e222640999dda8d5dce3c2239b35cf69d42987630ea97b15e48d81a2d60a79cc",
+      "bytes": 8887
+    },
+    "adoption_plan": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fqn-reviewed-native-qualified-adoption-20261018/adoption-plan.json",
+      "sha256": "1a4b155f829b079c31458fa3edd98d06344dcf9d7f04ae0e430052251efeeec1",
+      "bytes": 6547
+    },
+    "commit_request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fqn-reviewed-native-qualified-adoption-20261018/commit-request.json",
+      "sha256": "773d5e629072ced70d60a6f48b124e090768ff29af8ca1ce0239ead3b51e90fc",
+      "bytes": 1529
+    },
+    "commit_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fqn-reviewed-native-qualified-adoption-20261018/fqn-census-v3-complete-git-boundary-native-qualified-20261018-readback.json",
+      "sha256": "6ab873fa2f8d979d8ceb758783d1870f1b4e96168d1abdbed6153b6adf42b214",
+      "bytes": 1824
+    },
+    "reviewed_present_patch": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fqn-reviewed-native-qualified-adoption-20261018/reviewed-present-postimages.patch",
+      "sha256": "46b8c086ea0b8c4909756b12ba324086acc4b55e525f6d84e1f0fcbd173b8b45"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fqn-reviewed-native-qualified-adoption-20261018/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "qualification": null,
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-schema-census-tracked-scope-repair-r2-20261018/manifest.json",
+        "sha256": "f04febcd54f6099804d03c29a1ca3ce1c79348e8174690d0b1b08bc4020c4543"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-schema-census-scope-r2-independent-20261018/review.md",
+        "sha256": "8d82157f1c744d2f1b00f3f6a8e319f112090ebcd9495b09889b34247e2991d8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-schema-census-scope-r2-independent-20261018/review-manifest.json",
+        "sha256": "e1278d5d735b9a3a1219691f109555d216120103477c335e9738ed2d4d2318b6"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r8-current-qualified-adoption-20261018/adoption-plan.json",
+        "sha256": "3c3521cd877aea6304e586ac51d73194cd246cead8e7f5364335d5d678dc476e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-schema-census-tracked-scope-repair-r2-20261018/decision.md",
+        "sha256": "5304637635686a42a9ae0c5eb3514a211790422c557662a8d10c330d571b30ee"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fqn-current-native-format-qualified-20261018/adoption-plan.json",
+        "sha256": "84a435d08437926478ebace4303dad5b0dee4084ca374e88201c2b00db4bba43"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fqn-current-native-format-qualified-20261018/manifest.json",
+        "sha256": "95bbf5bc6c19bc322dc52dc203499a95a9261824c0862a3c43ccfca674d27573"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fqn-native-format-delta-independent-20261018/review.md",
+        "sha256": "27cb558e8a9cfbe7d3836249bb0f4b4b10caf32a0b1df3775b95fab7792cc8e5"
+      }
+    ],
+    "source_pathset_matches_git_nonmetadata_paths": true,
+    "preimage_hashes_match_git_parent": true,
+    "postimage_hashes_match_git_commit": true,
+    "readback_matches_commit_sha_tree_parent_and_complete_path_set": true,
+    "source_freeze_at_application": false
+  },
+  "review_refs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-schema-census-scope-r2-independent-20261018/review.md",
+      "sha256": "8d82157f1c744d2f1b00f3f6a8e319f112090ebcd9495b09889b34247e2991d8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-schema-census-scope-r2-independent-20261018/review-manifest.json",
+      "sha256": "e1278d5d735b9a3a1219691f109555d216120103477c335e9738ed2d4d2318b6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-schema-census-tracked-scope-repair-r2-20261018/decision.md",
+      "sha256": "5304637635686a42a9ae0c5eb3514a211790422c557662a8d10c330d571b30ee"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fqn-native-format-delta-independent-20261018/review.md",
+      "sha256": "27cb558e8a9cfbe7d3836249bb0f4b4b10caf32a0b1df3775b95fab7792cc8e5"
+    }
+  ],
+  "property": "The census selector remains the exact tracked plus nonignored-untracked local text set; ignored inputs are not enumerated and remain unknown. Git enumeration is complete only when tracked, nonignored-untracked, status, and path-prefix subprocesses return zero and emit no stderr. The v3 receipt reports the ignored boundary honestly.",
+  "proposal_ids": [],
+  "P40": "The unused ignored-tree walk is a new performance/scope class. Successful Git with stderr is the same Git-enumeration completeness class widened over the complete four-boundary quantity. The formatter adds no semantic code delta beyond the R2 reviewed candidate; no per-command repair ladder is introduced.",
+  "static_quality": {
+    "status": "PASS",
+    "commands_and_output_refs": [
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tools/quality/validation/schema_fqn_census.py",
+          "policy-engine/tests/unit/remediation/test_dfk_01.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.06300991680473089,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fqn-reviewed-native-qualified-adoption-20261018/check.stdout.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fqn-reviewed-native-qualified-adoption-20261018/check.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tools/quality/validation/schema_fqn_census.py",
+          "policy-engine/tests/unit/remediation/test_dfk_01.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.046413040952757,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fqn-reviewed-native-qualified-adoption-20261018/format.stdout.txt",
+          "sha256": "3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fqn-reviewed-native-qualified-adoption-20261018/format.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    ],
+    "note": "The source application file is authoritative for its exact Ruff argv and output references."
+  },
+  "runtime_status_at_source_adoption": "UNRUN on adopted canonical source; bounded candidate evidence is separately referenced",
+  "source_freeze_at_application": false,
+  "related_actual_profiles": [],
+  "limits": [
+    "The four files are exact current preimages on the root-provided frozen HEAD/tree. The only delta from reviewed R2 is Ruff formatting of the Python collector/test postimages; R2 release/README companions are carried byte-identically.",
+    "No test, CLI, Linux guest, scanner, or broad consumer census ran in this packet.",
+    "External and installed consumers, ignored sources, and archive membership remain not_established; public migration is not claimed.",
+    "No P41 inherited-gate or disjointness claim."
+  ],
+  "next_check_at_adoption": {
+    "required": [
+      "On the exact adopted source, run the focused DFK test module and retain complete output.",
+      "Separately run the guest-native Linux CLI witness against a frozen v3 source; verify ignored-query absence and all captured subprocess bytes.",
+      "Keep external/installed caller census not_established until a complete source/installation denominator is supplied."
+    ]
+  },
+  "G_acceptance": false,
+  "closure_ids": [],
+  "preparation_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "2b3febdbba8d33ab21aaff32f976b8c31ad183de",
+    "tree": "93554100f8dc966b7a6d6d9d869b6e1b03a9ca21"
+  }
+}

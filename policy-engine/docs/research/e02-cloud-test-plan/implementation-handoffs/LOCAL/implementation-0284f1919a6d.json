@@ -1,0 +1,406 @@
+{
+  "schema": "polisyos.e02.native_source_commit_receipt.v1",
+  "record_type": "implementation_commit_receipt",
+  "status": "source_committed_static_ruff_pass_runtime_unrun_at_adoption",
+  "proposal_not_adjudicated": true,
+  "source_commit": {
+    "sha": "0284f1919a6d8cd112265bb96694fa320d8a2699",
+    "tree": "b1e89578823b6518c50317b939919034a0f5fc6d",
+    "parents": [
+      "c03688560f48a9e01db1429190b9a1a24a9354d2"
+    ],
+    "subject": "refactor(search): centralize lifecycle ownership behind compatibility facade",
+    "branch_ref": "refs/heads/codex/e02-unified-local-20261009",
+    "reachable_from_preparation_head": true
+  },
+  "source_base": {
+    "sha": "c03688560f48a9e01db1429190b9a1a24a9354d2",
+    "tree": "e32ebcdb4a0a5a4e920a4c3c53daf08c15576404"
+  },
+  "changed_path_denominator": {
+    "total_git_changed_paths": 10,
+    "mechanism_paths": 5,
+    "mandatory_test_and_documentation_companions": 3,
+    "historical_lease_and_index_metadata": 2,
+    "mechanism_paths_excluding_mandatory_companions_and_coordination_metadata": [
+      "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+      "policy-engine/src/polisyos/scientist/methods/search/adapters.py",
+      "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+      "policy-engine/src/polisyos/scientist/methods/search/lifecycle.py",
+      "policy-engine/src/polisyos/scientist/methods/search/service.py"
+    ],
+    "mandatory_companion_paths_outside_mechanism_count": [
+      "policy-engine/src/polisyos/scientist/methods/autotune/README.md",
+      "policy-engine/src/polisyos/scientist/methods/search/README.md",
+      "policy-engine/tests/unit/remediation/test_srv_03.py"
+    ],
+    "coordination_paths_outside_mechanism_count": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ]
+  },
+  "changed_paths": [
+    {
+      "change": "M",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "category": "coordination_metadata",
+      "role": "historical lease/index companion from this source commit",
+      "git_mode_at_commit": "100644",
+      "preimage_sha256_at_parent": "1f87122494ddad8febf802c343eb3ed1bcd1a3bcc959ec886e4fec3ea4f8a15b",
+      "sha256_at_commit": "9fa84195b4e176c3e3ad988ed6587819b8ff595479aec63d9b1b66a829226291",
+      "bytes_at_commit": 928136
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "category": "coordination_metadata",
+      "role": "historical lease/index companion from this source commit",
+      "git_mode_at_commit": "100644",
+      "preimage_sha256_at_parent": "2a5256381fcf6fd70bbd5d90f4d32b01b45a7813dd0120b3dd9d71d0c0829f22",
+      "sha256_at_commit": "93dd34a160216867a425a44c618e6c5826c00ab983cff29091d7af9a8735ec2c",
+      "bytes_at_commit": 77110
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/README.md",
+      "category": "documentation_or_release_companion",
+      "role": "changed documentation/release companion",
+      "git_mode_at_commit": "100644",
+      "preimage_sha256_at_parent": "0e7158b56ce528c6b740d801af01313dde5f11e95449805427ed3602baf43993",
+      "sha256_at_commit": "4d659700d8671ca689048dc582400bd723a973e2559e08f82b68a4356e113a5a",
+      "bytes_at_commit": 18934
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+      "category": "mechanism",
+      "role": "source mechanism path",
+      "git_mode_at_commit": "100644",
+      "preimage_sha256_at_parent": "e1130d8bcf2dd5b98f1213c9b60a47552bcb794cf939d5da27204b0e2b6574ae",
+      "sha256_at_commit": "04d6ea950525d1821f54c3d690a2faacfc380f2be3ada4ddea519cbabb5ec529",
+      "bytes_at_commit": 142241
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/README.md",
+      "category": "documentation_or_release_companion",
+      "role": "changed documentation/release companion",
+      "git_mode_at_commit": "100644",
+      "preimage_sha256_at_parent": "f25f4a458940de04e597e508e80721dde8eef83a842a633490f264b9541e40ad",
+      "sha256_at_commit": "155ccbff6ba2fac88a1023763efd5929396c46a25f9e08130fcbf899f5e5080b",
+      "bytes_at_commit": 24724
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/adapters.py",
+      "category": "mechanism",
+      "role": "source mechanism path",
+      "git_mode_at_commit": "100644",
+      "preimage_sha256_at_parent": "bae0c95acc30fbeaf3979d5d120f2cfdd461ba6c9e975d81f48056d0f816de81",
+      "sha256_at_commit": "8d65420ab390576bcd688180c76bed2fa4494f4d60bd2b0a5bddc182e52684e4",
+      "bytes_at_commit": 2111
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+      "category": "mechanism",
+      "role": "source mechanism path",
+      "git_mode_at_commit": "100644",
+      "preimage_sha256_at_parent": "bc21710da60390e28e3205a3fec1a5e8299647b52096f03909f0f4e470ebe727",
+      "sha256_at_commit": "56e0e133d3d88c2ec3f66fa9c149a371cc69e0e3bab2c24e528fe554c33fa609",
+      "bytes_at_commit": 64691
+    },
+    {
+      "change": "A",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/lifecycle.py",
+      "category": "mechanism",
+      "role": "source mechanism path",
+      "git_mode_at_commit": "100644",
+      "preimage_sha256_at_parent": null,
+      "sha256_at_commit": "bc6b54bcc46284fe1afe27752e97b934b99eb064038f8087fb8d5d93ea4363ca",
+      "bytes_at_commit": 51868
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/service.py",
+      "category": "mechanism",
+      "role": "source mechanism path",
+      "git_mode_at_commit": "100644",
+      "preimage_sha256_at_parent": "ea4fa583f31d7112b10297020357d48112882cb6a697e96a371211a6b56d0a43",
+      "sha256_at_commit": "0a73db6d8f92cf5e7f34738ada2ef2c3787f5ac272c0bdac6bf6530e982b104b",
+      "bytes_at_commit": 11501
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/tests/unit/remediation/test_srv_03.py",
+      "category": "mandatory_test_companion",
+      "role": "changed test companion",
+      "git_mode_at_commit": "100644",
+      "preimage_sha256_at_parent": "4fd055b99a32b330adb97cc34cca3ae826f38942c42af39df9d48d6efa21dc52",
+      "sha256_at_commit": "4d598b56a8d083a6fad3223d9726bf294b9932b11b46a4b82ce18123608ace2b",
+      "bytes_at_commit": 14120
+    }
+  ],
+  "source_application": {
+    "status": "commit_readback_verified",
+    "identity": "search-lifecycle-owner-la014-la015-native-qualified-20261018",
+    "lease_key": "search-lifecycle-owner-la014-la015-native-qualified-20261018",
+    "source_application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la014-la015-native-import-qualified-adoption-20261018/source-application.json",
+      "sha256": "45dcce8bed4532503a381dfe2a8df99b8072dc5a30999a799d8910934b623edb",
+      "bytes": 18238
+    },
+    "adoption_plan": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la014-la015-native-import-qualified-adoption-20261018/adoption-plan.json",
+      "sha256": "72116a7508183bbe0e3aabb020b1268675ca220cfbc2840c0bfaba030f21a396",
+      "bytes": 24712
+    },
+    "commit_request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la014-la015-native-import-qualified-adoption-20261018/commit-request.json",
+      "sha256": "9076c3483ce4a98858fbadfef3c02e2ddd990fd701339455e3246ecddd74034e",
+      "bytes": 2042
+    },
+    "commit_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la014-la015-native-import-qualified-adoption-20261018/search-lifecycle-owner-la014-la015-native-qualified-20261018-readback.json",
+      "sha256": "59f5b4cd17c1c6f9677e6cb33a3518553aa792e43a2c2120aac500ba3a033a45",
+      "bytes": 2568
+    },
+    "reviewed_present_patch": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la014-la015-post-b14-qualified-adoption-20261018/reviewed-present-postimages.patch",
+      "sha256": "9893aa618f48cc7f05273b21c26a139beefbdf0a77a1fc9b2ba65e1939c7c117"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la014-la015-post-b14-qualified-adoption-20261018/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "qualification": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la014-la015-native-import-qualified-adoption-20261018/qualification.json",
+      "sha256": "466a30977d76c03925687280e0dedcddf64d74004def73811c33b1c1a9c0165e"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la014-la015-search-service-lifecycle-r2-20261018/postimage-manifest.json",
+        "sha256": "64923b27648b18e6ce5d0469550a73a55b72d373c0c231bbd482a56311b2bcc2"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la014-la015-r2-independent-20261018/review.md",
+        "sha256": "845215a1057d97bfd9c440d9bc9f1bfe2d3bdb596ff664b6cf6d099890c17a24"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la014-la015-r2-independent-20261018/packet-seal.json",
+        "sha256": "5a282269aeb527474bab6c019a7041bc21f3dc00aacf57ce5f8a4669a8e0ee90"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la014-la015-search-service-lifecycle-r3-20261018/postimage-manifest.json",
+        "sha256": "2809b2e71f450776a55da2516b389911a46bda711d8a8b8b2f253ea7bbc6a507"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la014-la015-r3-test-independent-20261018/review.md",
+        "sha256": "86e478073f5a8544ea884421647ec36437b498a57f37c349099c1be2a4e9385b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la014-la015-r3-test-independent-20261018/packet-seal.json",
+        "sha256": "b6d9750047076949d45519f38904c5151f23d22b2ce9de8b5b883cc29fb3e037"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la014-la015-current-qualified-adoption-20261018/source-pins-qualified.json",
+        "sha256": "1c583b65f1807cd1e7afd26808b3553f379665807527203d2d7e090a90aca8d6"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la014-la015-current-qualified-adoption-20261018/validation/ruff-full-postimages.json",
+        "sha256": "f6b4b7040c452d45727ec5770764b1274920a44e1029fa61cfde71403f55ea35"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la014-la015-current-qualified-adoption-20261018/importer-census.json",
+        "sha256": "cc0c144b3e4d17a757079c68dc7500d6b77dbfb887345431d0585a7c40a64064"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la014-la015-current-qualified-adoption-20261018/adoption-plan.json",
+        "sha256": "17a76b782781b0960bde0eb6f05c3061d73dd0fc5e84291d06ba6b6c15f8ffaa"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la014-la015-post-b14-qualified-adoption-20261018/adoption-plan.json",
+        "sha256": "ea60a0daec81d5abd6eb9b0ecc7b034a1b78e917584818546ddc0e60105581e3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la014-la015-native-import-qualified-adoption-20261018/qualification.json",
+        "sha256": "466a30977d76c03925687280e0dedcddf64d74004def73811c33b1c1a9c0165e"
+      }
+    ],
+    "source_pathset_matches_git_nonmetadata_paths": true,
+    "preimage_hashes_match_git_parent": true,
+    "postimage_hashes_match_git_commit": true,
+    "readback_matches_commit_sha_tree_parent_and_complete_path_set": true,
+    "source_freeze_at_application": false
+  },
+  "review_refs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la014-la015-r2-independent-20261018/review.md",
+      "sha256": "845215a1057d97bfd9c440d9bc9f1bfe2d3bdb596ff664b6cf6d099890c17a24"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la014-la015-r3-test-independent-20261018/review.md",
+      "sha256": "86e478073f5a8544ea884421647ec36437b498a57f37c349099c1be2a4e9385b"
+    }
+  ],
+  "property": "One private _SearchLifecycleOwner holds SearchRunState and lifecycle transitions; SearchController remains the typed compatibility facade with known forwarding and monkeypatch seams; adapter ask/tell and the actual SearchLoopRunner use that same owner; promotion persists the selected candidate so a fresh FileSystemCAS/ChampionRegistry reader resolves the exact complete ArtifactRef payload while SearchController.__init__ and .run are poisoned.",
+  "proposal_ids": [
+    "LA-014#1",
+    "LA-015#1",
+    "LA-015#2"
+  ],
+  "P40": "Same lifecycle/runtime ownership class widened across all three distinct original occurrence records. R3 supplies the fresh-reader test discriminator omitted in R2; it is the same verification gap, not a new source class. Apply the complete eight changed-path mechanism, not a per-occurrence repair ladder. No criterion is closed.",
+  "static_quality": {
+    "status": "PASS",
+    "commands_and_output_refs": [
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+          "policy-engine/src/polisyos/scientist/methods/search/lifecycle.py",
+          "policy-engine/src/polisyos/scientist/methods/search/service.py",
+          "policy-engine/src/polisyos/scientist/methods/search/adapters.py",
+          "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+          "policy-engine/tests/unit/remediation/test_srv_03.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.12985241692513227,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la014-la015-native-import-qualified-adoption-20261018/check.stdout.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la014-la015-native-import-qualified-adoption-20261018/check.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+          "policy-engine/src/polisyos/scientist/methods/search/lifecycle.py",
+          "policy-engine/src/polisyos/scientist/methods/search/service.py",
+          "policy-engine/src/polisyos/scientist/methods/search/adapters.py",
+          "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+          "policy-engine/tests/unit/remediation/test_srv_03.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.05209408304654062,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la014-la015-native-import-qualified-adoption-20261018/format.stdout.txt",
+          "sha256": "ef7d13d02214e98ca902b05257cdbe6a8e84f3b4714508efdc19766460b54209"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-la014-la015-native-import-qualified-adoption-20261018/format.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    ],
+    "note": "The source application file is authoritative for its exact Ruff argv and output references."
+  },
+  "runtime_status_at_source_adoption": "UNRUN on adopted canonical source; bounded candidate evidence is separately referenced",
+  "source_freeze_at_application": false,
+  "related_actual_profiles": [],
+  "limits": [
+    "R2 independent source review is GO but explicitly HOLDs behavior; R3 independent review is GO for test design only and explicitly HOLDs unrun persistence/promotion behavior.",
+    "The full behavioral pytest profile, product imports, runtime execution, and resource measurements are unrun in this author task.",
+    "No formal G acceptance or criterion closure: closure_ids is empty and capability state remains verification_missing until fresh behavioral evidence is reviewed.",
+    "Qualification is pathwise to frozen HEAD/tree and the complete R2 manifest. It does not claim a clean worktree, global source freeze, or full native verification.",
+    "Four unchanged R2 companions are byte-identical to their declared pre/postimages and are not included in mechanism rows; required LEASE/index records are mandatory companions, not budgeted mechanism paths."
+  ],
+  "next_check_at_adoption": {
+    "G_acceptance": false,
+    "closure_ids": [],
+    "focused_command_profile": {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/unit/remediation/test_srv_01.py",
+        "tests/unit/remediation/test_srv_03.py",
+        "tests/unit/scientist/search/test_controller_api.py",
+        "tests/unit/scientist/search/strategies/test_controller_batch.py",
+        "tests/unit/scientist/search/test_contracts.py",
+        "tests/unit/scientist/search/test_sentinels.py",
+        "tests/unit/scientist/search/test_warm_start.py",
+        "tests/unit/scientist/search/test_search_loop.py::TestOptimizationFlow::test_search_finds_quadratic_minimum",
+        "tests/unit/scientist/search/test_search_loop.py::TestOptimizationFlow::test_search_respects_max_iterations",
+        "tests/unit/scientist/search/test_search_loop.py::TestOptimizationFlow::test_repeated_runs_are_fresh_and_returned_snapshots_stay_stable",
+        "tests/unit/scientist/search/test_search_loop.py::TestOptimizationFlow::test_cost_budget_snapshot_stops_after_owner_spend_and_is_reported",
+        "tests/unit/scientist/search/test_search_loop.py::TestOptimizationFlow::test_concurrent_runs_are_rejected_as_non_reentrant",
+        "tests/unit/scientist/search/test_search_loop.py::TestStoppingCriteria::test_max_iterations_stops_exactly",
+        "tests/unit/scientist/search/test_search_loop.py::TestStoppingCriteria::test_search_controller_preserves_best_through_nonfinite_plateau_history",
+        "tests/unit/scientist/search/test_search_loop.py::TestTwoStageFiltering::test_stage_a_rejection_skips_stage_b",
+        "tests/unit/scientist/search/test_search_loop.py::TestTwoStageFiltering::test_stage_a_approval_runs_stage_b",
+        "tests/unit/scientist/methods/autotune/test_registry_and_runner.py::test_search_loop_runner_promotes_and_runtime_loader_reads_champion",
+        "tests/repo_quality/architecture/test_autotune_search_scc_contracts.py"
+      ],
+      "cwd": "policy-engine/",
+      "purpose": "Core lifecycle parity, adapter ask/tell, warm/sentinel/empty/error/resume, stopping/budget, actual runner promotion, fresh CAS/registry reload under legacy-controller poison, and module dependency architecture check."
+    },
+    "full_direct_importer_profile": {
+      "argv": [
+        ".venv/bin/python",
+        "-B",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/integration/scientist/methods/autotune/test_methodjob_execution_work_packet_promotion_admission.py",
+        "tests/performance/test_scientist_runtime_paths.py",
+        "tests/unit/data_forge/domains/academic/batch/test_claim_adjudication_autotune.py",
+        "tests/unit/remediation/test_srv_01.py",
+        "tests/unit/remediation/test_srv_03.py",
+        "tests/unit/scientist/methods/autotune/test_bayesian_generator.py",
+        "tests/unit/scientist/methods/autotune/test_candidate_protocol.py",
+        "tests/unit/scientist/methods/autotune/test_methodjob_execution_work_packets.py",
+        "tests/unit/scientist/methods/autotune/test_registry_and_runner.py",
+        "tests/unit/scientist/methods/autotune/test_v5_search_pipeline.py",
+        "tests/unit/scientist/search/strategies/test_adapter.py",
+        "tests/unit/scientist/search/strategies/test_controller_batch.py",
+        "tests/unit/scientist/search/test_contracts.py",
+        "tests/unit/scientist/search/test_controller_api.py",
+        "tests/unit/scientist/search/test_diversity.py",
+        "tests/unit/scientist/search/test_phase_b_policy_runtime.py",
+        "tests/unit/scientist/search/test_portfolio_search.py",
+        "tests/unit/scientist/search/test_search_loop.py",
+        "tests/unit/scientist/search/test_sentinels.py",
+        "tests/unit/scientist/search/test_warm_start.py",
+        "tests/repo_quality/architecture/test_autotune_search_scc_contracts.py"
+      ],
+      "cwd": "policy-engine/",
+      "file_count": 21,
+      "purpose": "Whole static direct-importer file union (20 paths with candidate R3 test overlay) plus dynamic import-graph architecture test. Run in staged/resource-qualified batches if execution grant requires it; a core-only pass is not a full importer pass."
+    },
+    "required": [
+      "Root applies only the eight rows after its source-adopter guard rechecks HEAD 3dcd55afc13d227b95c5e93640cac92dafe6cf0a, path preimages, candidate postimage hashes, and all reviewed_inputs; root helper appends LEASES.json entry and updates candidate-component-delivery-index-20261015.json.",
+      "Ruff 0.14.10 full-file check and format are already PASS on all six changed Python candidate postimages using the current workspace-root config; root adopter should rerun against the applied canonical Python paths and retain outputs.",
+      "After root grants the execution wave, run the focused deciding pytest command and the full actual direct-importer file set in the stated source profile; retain complete stdout/stderr/exit/resource outputs, especially R3 fresh-reader poison test.",
+      "Requalify the final composed source frame and both owner records after the test wave; keep LA-014#1, LA-015#1, and LA-015#2 separately open until their source-bound acceptance is adjudicated."
+    ],
+    "source_freeze": false
+  },
+  "G_acceptance": false,
+  "closure_ids": [],
+  "preparation_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "2b3febdbba8d33ab21aaff32f976b8c31ad183de",
+    "tree": "93554100f8dc966b7a6d6d9d869b6e1b03a9ca21"
+  }
+}

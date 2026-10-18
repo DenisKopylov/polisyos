@@ -1,0 +1,269 @@
+{
+  "schema": "polisyos.e02.native_source_commit_receipt.v1",
+  "record_type": "implementation_commit_receipt",
+  "status": "source_committed_static_ruff_pass_runtime_unrun_at_adoption",
+  "proposal_not_adjudicated": true,
+  "source_commit": {
+    "sha": "c03688560f48a9e01db1429190b9a1a24a9354d2",
+    "tree": "e32ebcdb4a0a5a4e920a4c3c53daf08c15576404",
+    "parents": [
+      "3c08d808c3e9e3411f3b87cd9f77863240186939"
+    ],
+    "subject": "fix(async): honor worker completion time across delayed result delivery",
+    "branch_ref": "refs/heads/codex/e02-unified-local-20261009",
+    "reachable_from_preparation_head": true
+  },
+  "source_base": {
+    "sha": "3c08d808c3e9e3411f3b87cd9f77863240186939",
+    "tree": "3581098977671b2c8795b0a1356951f720173db9"
+  },
+  "changed_path_denominator": {
+    "total_git_changed_paths": 6,
+    "mechanism_paths": 1,
+    "mandatory_test_and_documentation_companions": 3,
+    "historical_lease_and_index_metadata": 2,
+    "mechanism_paths_excluding_mandatory_companions_and_coordination_metadata": [
+      "policy-engine/src/polisyos/common/async_tools/__init__.py"
+    ],
+    "mandatory_companion_paths_outside_mechanism_count": [
+      "policy-engine/src/polisyos/common/README.md",
+      "policy-engine/tests/unit/common/test_blocking_worker_completion.py",
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_blocking_worker_lifecycle.py"
+    ],
+    "coordination_paths_outside_mechanism_count": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ]
+  },
+  "changed_paths": [
+    {
+      "change": "M",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "category": "coordination_metadata",
+      "role": "historical lease/index companion from this source commit",
+      "git_mode_at_commit": "100644",
+      "preimage_sha256_at_parent": "4466a4a3f0803e26b00241c888c25f00ab4180c1c89b8192cbdd367e53fab44d",
+      "sha256_at_commit": "1f87122494ddad8febf802c343eb3ed1bcd1a3bcc959ec886e4fec3ea4f8a15b",
+      "bytes_at_commit": 912773
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "category": "coordination_metadata",
+      "role": "historical lease/index companion from this source commit",
+      "git_mode_at_commit": "100644",
+      "preimage_sha256_at_parent": "66c9d162ab31525f4ed89c249c12d9e4e2d355e04bb6a719fcdf7e14b7667bac",
+      "sha256_at_commit": "2a5256381fcf6fd70bbd5d90f4d32b01b45a7813dd0120b3dd9d71d0c0829f22",
+      "bytes_at_commit": 77110
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/src/polisyos/common/README.md",
+      "category": "documentation_or_release_companion",
+      "role": "changed documentation/release companion",
+      "git_mode_at_commit": "100644",
+      "preimage_sha256_at_parent": "2a4a0460cec3194f65ab0ddbf58e5917f7b929c0bea870fccfbb3dc5d2607edb",
+      "sha256_at_commit": "9baf6433685730223958295e0974d294c2081b1f990b90752fd102d3252d5911",
+      "bytes_at_commit": 10939
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/src/polisyos/common/async_tools/__init__.py",
+      "category": "mechanism",
+      "role": "source mechanism path",
+      "git_mode_at_commit": "100644",
+      "preimage_sha256_at_parent": "38515d63870380150597d6b6a7b56873cd30b020aa458767c2d8fa281ec9d80e",
+      "sha256_at_commit": "efe505d80776a6b957e869eaf07f99e9757417df630b000e1e8889d2da94926b",
+      "bytes_at_commit": 18848
+    },
+    {
+      "change": "A",
+      "path": "policy-engine/tests/unit/common/test_blocking_worker_completion.py",
+      "category": "mandatory_test_companion",
+      "role": "changed test companion",
+      "git_mode_at_commit": "100644",
+      "preimage_sha256_at_parent": null,
+      "sha256_at_commit": "b6d0439c04f5a3bc40415265062bcdc01cdba36d70147b3ea2e2953d5e75f05f",
+      "bytes_at_commit": 13396
+    },
+    {
+      "change": "A",
+      "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_blocking_worker_lifecycle.py",
+      "category": "mandatory_test_companion",
+      "role": "changed test companion",
+      "git_mode_at_commit": "100644",
+      "preimage_sha256_at_parent": null,
+      "sha256_at_commit": "1dc00e465f34446965c8dcab64b68ea7c8e707a9c5ceda4007f3b895a720fc80",
+      "bytes_at_commit": 8334
+    }
+  ],
+  "source_application": {
+    "status": "commit_readback_verified",
+    "identity": "blocking-worker-completion-receipt-b14-r4-native-qualified-20261018",
+    "lease_key": "blocking-worker-completion-receipt-b14-r4-native-qualified-20261018",
+    "source_application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-r4-native-import-qualified-20261018/source-application.json",
+      "sha256": "4005d6d5079a36fd21ae2a33703ecc9087d54b687ee61e1f81051d0da4c67859",
+      "bytes": 8444
+    },
+    "adoption_plan": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-r4-native-import-qualified-20261018/adoption-plan.json",
+      "sha256": "31eba2fc13f09d667742e83d52f74a014749f327aafe9b6a950957a0f6d52e7d",
+      "bytes": 6641
+    },
+    "commit_request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-r4-native-import-qualified-20261018/commit-request.json",
+      "sha256": "5f2a4fd1ec2c9d545c9e7092dfc0e70856afd7c4055cf504d866221d4d8c9c7c",
+      "bytes": 1497
+    },
+    "commit_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-r4-native-import-qualified-20261018/blocking-worker-completion-receipt-b14-r4-native-qualified-20261018-readback.json",
+      "sha256": "c2f13d3ba14e0c9b548a58fa1f66102d47552f6d634143094375e17c07bbdbf3",
+      "bytes": 1751
+    },
+    "reviewed_present_patch": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-r4-post-fqn-qualified-adoption-20261018/reviewed-present-postimages.patch",
+      "sha256": "67e5e17f3c47fa5bfc2858a619dd4c1ff24d864fb752a96d9d722a34891d0647"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-r4-post-fqn-qualified-adoption-20261018/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "qualification": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-r4-native-import-qualified-20261018/qualification.json",
+      "sha256": "95021a46a0e36a77e5638b2ad61562a4cbf9dd88643216fa98a091e86e56523e"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-blocking-worker-lifecycle-r4-20261018/manifest.json",
+        "sha256": "0c3853ae56a843ca0af9c733dd4664175429db7c6c186fe5a4a8f5ffadca4880"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-r4-independent-20261018/review.json",
+        "sha256": "6fcf6734213af70dc3bb16a71fc4d51e8d2bc26fb298ed99fb8025cb268f3961"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-r3-independent-20261018/review.json",
+        "sha256": "33e57866e1db91ca10217652f2ca773088c1aea74d257d37256a9f16cb305d5d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-blocking-worker-lifecycle-r4-20261018/decision.md",
+        "sha256": "bdac63a67687730043f5d17cd1ee7ff2a0d13f0085952ea434277d0c2729666e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-r4-current-qualified-adoption-20261018/adoption-plan.json",
+        "sha256": "50357abbd1204faffa67dc5056dae774de95d907ff3e332613b823eeaafad1b5"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-r4-post-fqn-qualified-adoption-20261018/adoption-plan.json",
+        "sha256": "34ac53ecf68b9b0d43e42a48f3be79f036b7a574497c3a243552334cf29886e3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-r4-native-import-qualified-20261018/qualification.json",
+        "sha256": "95021a46a0e36a77e5638b2ad61562a4cbf9dd88643216fa98a091e86e56523e"
+      }
+    ],
+    "source_pathset_matches_git_nonmetadata_paths": true,
+    "preimage_hashes_match_git_parent": true,
+    "postimage_hashes_match_git_commit": true,
+    "readback_matches_commit_sha_tree_parent_and_complete_path_set": true,
+    "source_freeze_at_application": false
+  },
+  "review_refs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-r4-independent-20261018/review.json",
+      "sha256": "6fcf6734213af70dc3bb16a71fc4d51e8d2bc26fb298ed99fb8025cb268f3961"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-r3-independent-20261018/review.json",
+      "sha256": "33e57866e1db91ca10217652f2ca773088c1aea74d257d37256a9f16cb305d5d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-blocking-worker-lifecycle-r4-20261018/decision.md",
+      "sha256": "bdac63a67687730043f5d17cd1ee7ff2a0d13f0085952ea434277d0c2729666e"
+    }
+  ],
+  "property": "Preserve physical worker completion time and original exception across delayed asyncio delivery, bounded by helper deadline, while preserving existing owner-side effect fences.",
+  "proposal_ids": [],
+  "P40": "Same worker-lifetime class widened to generic worker receipt; four-path bounded repair preserves all 63 caller migration denominator and records persistent CAS residue as residual. No callback-specific repair ladder.",
+  "static_quality": {
+    "status": "PASS",
+    "commands_and_output_refs": [
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/src/polisyos/common/async_tools/__init__.py",
+          "policy-engine/tests/unit/common/test_blocking_worker_completion.py",
+          "policy-engine/tests/unit/scientist/orchestration/engine/test_blocking_worker_lifecycle.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.042394124902784824,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-r4-native-import-qualified-20261018/check.stdout.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-r4-native-import-qualified-20261018/check.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/src/polisyos/common/async_tools/__init__.py",
+          "policy-engine/tests/unit/common/test_blocking_worker_completion.py",
+          "policy-engine/tests/unit/scientist/orchestration/engine/test_blocking_worker_lifecycle.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.044470583088696,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-r4-native-import-qualified-20261018/format.stdout.txt",
+          "sha256": "eee76f865de5a9f2456950f710ae5d5f9b5bd0ea02aa54f614c5eed6642a0bfd"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b14-r4-native-import-qualified-20261018/format.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    ],
+    "note": "The source application file is authoritative for its exact Ruff argv and output references."
+  },
+  "runtime_status_at_source_adoption": "UNRUN on adopted canonical source; bounded candidate evidence is separately referenced",
+  "source_freeze_at_application": false,
+  "related_actual_profiles": [],
+  "limits": [
+    "Four-path source peer GO; actual canonical helper and cache-consumer tests remain UNRUN.",
+    "Normal-return timestamp branch not established under standard scheduler; overdue-timeout test does not establish its removal falsifier.",
+    "No cancellation of running threads or global guarantee of absent persistent effects; orphan CAS bytes after refusal remain possible.",
+    "B14 formal proposal HOLD pending complete caller/ArtifactStore owner-deadline semantics G choice; closure_ids remain empty."
+  ],
+  "next_check_at_adoption": {
+    "required": [
+      "Whole helper and real cache lifecycle modules at new committed source with full source/origin freeze",
+      "Existing async_tools importer/cache tests and delayed success/error/timeout cases",
+      "G decision on caller-owned persistence commit/deadline contract for all 63 calls"
+    ]
+  },
+  "G_acceptance": false,
+  "closure_ids": [],
+  "preparation_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "2b3febdbba8d33ab21aaff32f976b8c31ad183de",
+    "tree": "93554100f8dc966b7a6d6d9d869b6e1b03a9ca21"
+  }
+}

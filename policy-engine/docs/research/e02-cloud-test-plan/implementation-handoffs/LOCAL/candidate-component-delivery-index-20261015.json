@@ -1036,6 +1036,42 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/actual-monetary-r8-python-state-qualified-r2-at-5ff59531ca1f.json",
       "sha256": "2d5ccea3ce99c9b10c7e4f407de5f1aa0c0c7b859e3176c1aab0d839ec4e7be6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-786f44cdb0cd.json",
+      "sha256": "501090ec481525e2d68572409c14d5f2a13ea95e6a9ab6fc0003f27192c0a0cb"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-1e28d6d7f296.json",
+      "sha256": "f039b38128fb23aecc87ddae515a20492aa21f141cb2aef181bd205f1779cb3e"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-3efed62b1039.json",
+      "sha256": "1933573989530afacacbd09edc0ef2f72a09c71ea668f836b728463a5e4a8af7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-03023644881f.json",
+      "sha256": "f28eec6a551eb135028f972945075e789155c29bee77225df83ca6ed5caa71b7"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-c03688560f48.json",
+      "sha256": "85c1e1e21efc0721efd0f9422e92a5e4812cfcd614b9260deb9194ffdd8a6104"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-0284f1919a6d.json",
+      "sha256": "02abb1ec574ce3f1430f69ae86db31c4741b7af6fa42d6be36c2de1413671ee9"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-5ff59531ca1f.json",
+      "sha256": "c84d3a4a375dd073e8e9caea2008b3136c535dff268c6f0d09366e7db8ff2d95"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-3dcd55afc13d.json",
+      "sha256": "c3851fe2424de426626b214a8185ef7d1ac94e476a6da797145ad7ed66e64faf"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-3c08d808c3e9.json",
+      "sha256": "cb22268ec2242123031ea19c9ae347f972b7b7472fd0562ff70bbf52d578a46f"
     }
   ],
   "canonical_denominator_recomputed": {

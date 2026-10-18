@@ -1,0 +1,347 @@
+{
+  "schema": "polisyos.e02.native_source_commit_receipt.v1",
+  "record_type": "implementation_commit_receipt",
+  "status": "source_committed_static_ruff_pass_runtime_unrun_at_adoption",
+  "proposal_not_adjudicated": true,
+  "source_commit": {
+    "sha": "3efed62b1039636e5852648b8b3d5c031f1f55c2",
+    "tree": "e6d01dffb7b991b5fab28901d6e738cb8573b2ba",
+    "parents": [
+      "aabfd1e0cef90132d459299c92247f02d10d9053"
+    ],
+    "subject": "refactor(search): remove lifecycle and source-verifier import cycles",
+    "branch_ref": "refs/heads/codex/e02-unified-local-20261009",
+    "reachable_from_preparation_head": true
+  },
+  "source_base": {
+    "sha": "aabfd1e0cef90132d459299c92247f02d10d9053",
+    "tree": "7de12d70a7575a4b8ba5655b90baecdfb04d4889"
+  },
+  "changed_path_denominator": {
+    "total_git_changed_paths": 13,
+    "mechanism_paths": 7,
+    "mandatory_test_and_documentation_companions": 4,
+    "historical_lease_and_index_metadata": 2,
+    "mechanism_paths_excluding_mandatory_companions_and_coordination_metadata": [
+      "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+      "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+      "policy-engine/src/polisyos/scientist/methods/autotune/source_profile_verification.py",
+      "policy-engine/src/polisyos/scientist/methods/search/contracts.py",
+      "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+      "policy-engine/src/polisyos/scientist/methods/search/lifecycle.py",
+      "policy-engine/src/polisyos/scientist/methods/search/lifecycle_support.py"
+    ],
+    "mandatory_companion_paths_outside_mechanism_count": [
+      "policy-engine/src/polisyos/scientist/methods/autotune/README.md",
+      "policy-engine/src/polisyos/scientist/methods/search/README.md",
+      "policy-engine/tests/repo_quality/architecture/test_autotune_search_scc_contracts.py",
+      "policy-engine/tests/unit/scientist/search/test_controller_api.py"
+    ],
+    "coordination_paths_outside_mechanism_count": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ]
+  },
+  "changed_paths": [
+    {
+      "change": "M",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "category": "coordination_metadata",
+      "role": "historical lease/index companion from this source commit",
+      "git_mode_at_commit": "100644",
+      "preimage_sha256_at_parent": "4cdbfbdb58f19e2b27f539cc44bcd47077d4ce6dfec372ab36ba9a33611c75b6",
+      "sha256_at_commit": "d7b769b6f40b46a81d52946a24c03c1f0f0ec1a90d19ee80e483fd7d561dbf37",
+      "bytes_at_commit": 951646
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "category": "coordination_metadata",
+      "role": "historical lease/index companion from this source commit",
+      "git_mode_at_commit": "100644",
+      "preimage_sha256_at_parent": "dbb8efcc9a36426add418f6a06dcb27a2e1044f3f73d495c2f64554bf0abadad",
+      "sha256_at_commit": "47ba01ca3085741abc85c0337cbc9822f9ae2a3dded3d1a96d86fe5db07e44fb",
+      "bytes_at_commit": 79056
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/README.md",
+      "category": "documentation_or_release_companion",
+      "role": "changed documentation/release companion",
+      "git_mode_at_commit": "100644",
+      "preimage_sha256_at_parent": "4d659700d8671ca689048dc582400bd723a973e2559e08f82b68a4356e113a5a",
+      "sha256_at_commit": "a26f95c35a2a4d5d51bd9945f231032f77c1cdfd11aef1792342d260040ea1d2",
+      "bytes_at_commit": 19264
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+      "category": "mechanism",
+      "role": "source mechanism path",
+      "git_mode_at_commit": "100644",
+      "preimage_sha256_at_parent": "897ea87510c147939b52c5643aa0c8ad230aa7454e1dba93024b9095e1d57003",
+      "sha256_at_commit": "160f882ecf22acd736416e72acf03fcfa0057a9f9229930a1f7e1a38380224ac",
+      "bytes_at_commit": 47978
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+      "category": "mechanism",
+      "role": "source mechanism path",
+      "git_mode_at_commit": "100644",
+      "preimage_sha256_at_parent": "04d6ea950525d1821f54c3d690a2faacfc380f2be3ada4ddea519cbabb5ec529",
+      "sha256_at_commit": "78cd1a47aaed5ff52a75768b2136fcab38be72292d2e22938b122a60700e8482",
+      "bytes_at_commit": 104469
+    },
+    {
+      "change": "A",
+      "path": "policy-engine/src/polisyos/scientist/methods/autotune/source_profile_verification.py",
+      "category": "mechanism",
+      "role": "source mechanism path",
+      "git_mode_at_commit": "100644",
+      "preimage_sha256_at_parent": null,
+      "sha256_at_commit": "d71767497360484e4e7b4d3076e702b15a9991cba613deaac95673a6aecf3e47",
+      "bytes_at_commit": 40040
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/README.md",
+      "category": "documentation_or_release_companion",
+      "role": "changed documentation/release companion",
+      "git_mode_at_commit": "100644",
+      "preimage_sha256_at_parent": "155ccbff6ba2fac88a1023763efd5929396c46a25f9e08130fcbf899f5e5080b",
+      "sha256_at_commit": "efae8bca433a6a5004b2c4288d100f81ff0909fc09242928b47f4a8dd1d50b0e",
+      "bytes_at_commit": 24802
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/contracts.py",
+      "category": "mechanism",
+      "role": "source mechanism path",
+      "git_mode_at_commit": "100644",
+      "preimage_sha256_at_parent": "ad88ef507754b35ec64ee306a6915268cdf4fca9bf50e458f567454ee07b1073",
+      "sha256_at_commit": "981d9426e68461319200b4f4dde4fd5db9ab567a39959884e6d84c5eab7722c2",
+      "bytes_at_commit": 19479
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+      "category": "mechanism",
+      "role": "source mechanism path",
+      "git_mode_at_commit": "100644",
+      "preimage_sha256_at_parent": "56e0e133d3d88c2ec3f66fa9c149a371cc69e0e3bab2c24e528fe554c33fa609",
+      "sha256_at_commit": "de5818a3d04c890c38d3c87504390e891e45efd92dbb3590ff6d2781fb2254f0",
+      "bytes_at_commit": 64314
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/lifecycle.py",
+      "category": "mechanism",
+      "role": "source mechanism path",
+      "git_mode_at_commit": "100644",
+      "preimage_sha256_at_parent": "bc6b54bcc46284fe1afe27752e97b934b99eb064038f8087fb8d5d93ea4363ca",
+      "sha256_at_commit": "e7303698c0363abca7179a1ebdb30d072241b83cd8b29c49ebfd649f11ed9e89",
+      "bytes_at_commit": 52335
+    },
+    {
+      "change": "A",
+      "path": "policy-engine/src/polisyos/scientist/methods/search/lifecycle_support.py",
+      "category": "mechanism",
+      "role": "source mechanism path",
+      "git_mode_at_commit": "100644",
+      "preimage_sha256_at_parent": null,
+      "sha256_at_commit": "8cbd3cc825e80b8947cdca7b14aaf3566d98319d8b9b1f53580b9633017ba6b3",
+      "bytes_at_commit": 1821
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/tests/repo_quality/architecture/test_autotune_search_scc_contracts.py",
+      "category": "mandatory_test_companion",
+      "role": "changed test companion",
+      "git_mode_at_commit": "100644",
+      "preimage_sha256_at_parent": "a455f8463efbfc2921049cf86cadb5ae3ae9ec669b4256ac4ad81e2b0a50424f",
+      "sha256_at_commit": "a8b9ceaae234c946e4b1e59820617cb0f5ff4813aa644ca6edaa9ea81f46c0cf",
+      "bytes_at_commit": 1396
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/tests/unit/scientist/search/test_controller_api.py",
+      "category": "mandatory_test_companion",
+      "role": "changed test companion",
+      "git_mode_at_commit": "100644",
+      "preimage_sha256_at_parent": "c09a00d0692c525ec2e592f3fd853743484d9569ba05364ca7a9db33ba2b8447",
+      "sha256_at_commit": "f5d791bc80fac626cce55d18da48b9462a6e7aa13ee69cdb5ba0b8bbb30bcfb0",
+      "bytes_at_commit": 2306
+    }
+  ],
+  "source_application": {
+    "status": "commit_readback_verified",
+    "identity": "root-search-scc-r4-reviewed-adoption-20261018",
+    "lease_key": "root-search-scc-r4-reviewed-adoption-20261018",
+    "source_application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-scc-r4-post-outbox-fqn-adoption-20261018/source-application.json",
+      "sha256": "4abf0e230b9e2252c5e346052c21494738660d8a802f315be42d8f8199677cf7",
+      "bytes": 12897
+    },
+    "adoption_plan": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-scc-r4-post-outbox-fqn-adoption-20261018/adoption-plan.json",
+      "sha256": "633256ad2db512ba3f8b8a9691063dccee43c3536c4cfa0e97666f87c96f91b4",
+      "bytes": 11424
+    },
+    "commit_request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-scc-r4-post-outbox-fqn-adoption-20261018/commit-request.json",
+      "sha256": "da16c4bbc9b10886e887bacce80b8ce0b4cb0bc445a231114300172e003528ab",
+      "bytes": 2512
+    },
+    "commit_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-scc-r4-post-outbox-fqn-adoption-20261018/root-search-scc-r4-reviewed-adoption-20261018-readback.json",
+      "sha256": "237551e6940199eb80ed569712e04905657e0bdf464e50c0b415f15918323e83",
+      "bytes": 3344
+    },
+    "reviewed_present_patch": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-scc-r4-post-outbox-fqn-adoption-20261018/reviewed-present-postimages.patch",
+      "sha256": "0092fbda006dd4fed1a87af1066741844c756f70f3d64e5c24e476e8da988cec"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-scc-r4-post-outbox-fqn-adoption-20261018/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "qualification": null,
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-lifecycle-scc-owner-repair-r4-20261018/candidate-manifest.json",
+        "sha256": "8f7d79e3f5a614be83d18ca0972bbe2e2ca25a0117429612b2fcb43a871a1c22"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-lifecycle-scc-owner-repair-r4-20261018/seal.json",
+        "sha256": "44000fdf0aee683c777d43d1636ee3def0fffbe39cea15f1fe57e09e12925473"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-lifecycle-scc-owner-repair-r4-20261018/candidate.patch",
+        "sha256": "0092fbda006dd4fed1a87af1066741844c756f70f3d64e5c24e476e8da988cec"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-lifecycle-scc-owner-repair-r4-20261018/handoff.md",
+        "sha256": "f7b5ebc1662adf8ebbf8b0d0b2ad76291a8e41a2f221f9c519fc19a658f127ec"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-lifecycle-scc-owner-repair-r4-20261018/validation/full-graph-overlay.json",
+        "sha256": "4d576d7b43580a50ffc5f60f6e90f8b1f0a4c5277243a35d8c811942cda95208"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-lifecycle-scc-owner-repair-r4-20261018/validation/ast-preservation.json",
+        "sha256": "63a07f88ce15e882a085da3cb8a0f99fba4626975405e2b58261d9f104ad752b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-scc-r4-independent-20261018/review.json",
+        "sha256": "49df13ad6e9d9e61664bda894186470eb841c42f335200b5887f78eca6e29b7c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-scc-r4-reviewed-adoption-20261018/adoption-plan.json",
+        "sha256": "7e57b83df65fef78c3a980c3fcf7b264c5888e15bfd24879dadd20fe13482708"
+      }
+    ],
+    "source_pathset_matches_git_nonmetadata_paths": true,
+    "preimage_hashes_match_git_parent": true,
+    "postimage_hashes_match_git_commit": true,
+    "readback_matches_commit_sha_tree_parent_and_complete_path_set": true,
+    "source_freeze_at_application": false
+  },
+  "review_refs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-scc-r4-independent-20261018/review.json",
+      "sha256": "49df13ad6e9d9e61664bda894186470eb841c42f335200b5887f78eca6e29b7c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-scc-r4-reviewed-adoption-20261018/adoption-plan.json",
+      "sha256": "7e57b83df65fef78c3a980c3fcf7b264c5888e15bfd24879dadd20fe13482708"
+    }
+  ],
+  "property": "Search and autotune must preserve current runtime contracts without an import SCC across any observed participating owner/facade module.",
+  "proposal_ids": [],
+  "P40": "Same ownership-extraction class widened to the complete observed seven-module SCC and independent backedge restoration falsifiers.",
+  "static_quality": {
+    "status": "PASS",
+    "commands_and_output_refs": [
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+          "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+          "policy-engine/src/polisyos/scientist/methods/search/contracts.py",
+          "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+          "policy-engine/src/polisyos/scientist/methods/search/lifecycle.py",
+          "policy-engine/tests/repo_quality/architecture/test_autotune_search_scc_contracts.py",
+          "policy-engine/tests/unit/scientist/search/test_controller_api.py",
+          "policy-engine/src/polisyos/scientist/methods/autotune/source_profile_verification.py",
+          "policy-engine/src/polisyos/scientist/methods/search/lifecycle_support.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.04321820801123977,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-scc-r4-post-outbox-fqn-adoption-20261018/check.stdout.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-scc-r4-post-outbox-fqn-adoption-20261018/check.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/src/polisyos/scientist/methods/autotune/runtime.py",
+          "policy-engine/src/polisyos/scientist/methods/autotune/bayesian_generator.py",
+          "policy-engine/src/polisyos/scientist/methods/search/contracts.py",
+          "policy-engine/src/polisyos/scientist/methods/search/controller.py",
+          "policy-engine/src/polisyos/scientist/methods/search/lifecycle.py",
+          "policy-engine/tests/repo_quality/architecture/test_autotune_search_scc_contracts.py",
+          "policy-engine/tests/unit/scientist/search/test_controller_api.py",
+          "policy-engine/src/polisyos/scientist/methods/autotune/source_profile_verification.py",
+          "policy-engine/src/polisyos/scientist/methods/search/lifecycle_support.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.039366082986816764,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-scc-r4-post-outbox-fqn-adoption-20261018/format.stdout.txt",
+          "sha256": "2ce9758b9f8abd876ec3e76c589e099e8b05377b1e7ea2331e81ee80f07bdff8"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-scc-r4-post-outbox-fqn-adoption-20261018/format.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    ],
+    "note": "The source application file is authoritative for its exact Ruff argv and output references."
+  },
+  "runtime_status_at_source_adoption": "UNRUN on adopted canonical source; bounded candidate evidence is separately referenced",
+  "source_freeze_at_application": false,
+  "related_actual_profiles": [],
+  "limits": [
+    "Runtime remains UNRUN on adopted bytes; independent source review is bounded and is not G acceptance.",
+    "OpenAPI generation, installed consumers and native whole-repository gates remain separate required checks."
+  ],
+  "next_check_at_adoption": "Freeze the composed candidate and replay the complete affected modules and all parser consumers with retained deciding outputs.",
+  "G_acceptance": false,
+  "closure_ids": [],
+  "preparation_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "2b3febdbba8d33ab21aaff32f976b8c31ad183de",
+    "tree": "93554100f8dc966b7a6d6d9d869b6e1b03a9ca21"
+  }
+}

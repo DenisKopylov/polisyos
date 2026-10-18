@@ -1,0 +1,207 @@
+{
+  "schema": "polisyos.e02.native_source_commit_receipt.v1",
+  "record_type": "implementation_commit_receipt",
+  "status": "source_committed_reviewed_runtime_unrun_at_adoption",
+  "proposal_not_adjudicated": true,
+  "source_commit": {
+    "sha": "5ff59531ca1f98ff267ef70a376f58b58164470a",
+    "tree": "f28abf527b7ec8403be0745ee3c25404d877a7c3",
+    "parents": [
+      "0284f1919a6d8cd112265bb96694fa320d8a2699"
+    ],
+    "subject": "fix(runtime-dashboard): keep malformed-owner fixture local to its test",
+    "branch_ref": "refs/heads/codex/e02-unified-local-20261009",
+    "reachable_from_preparation_head": true
+  },
+  "source_base": {
+    "sha": "0284f1919a6d8cd112265bb96694fa320d8a2699",
+    "tree": "b1e89578823b6518c50317b939919034a0f5fc6d"
+  },
+  "changed_path_denominator": {
+    "total_git_changed_paths": 3,
+    "mechanism_paths": 0,
+    "mandatory_test_and_documentation_companions": 1,
+    "historical_lease_and_index_metadata": 2,
+    "mechanism_paths_excluding_mandatory_companions_and_coordination_metadata": [],
+    "mandatory_companion_paths_outside_mechanism_count": [
+      "policy-engine/apps/runtime-dashboard/src/shared/lib/domain/agents.test.ts"
+    ],
+    "coordination_paths_outside_mechanism_count": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ]
+  },
+  "changed_paths": [
+    {
+      "change": "M",
+      "path": "policy-engine/apps/runtime-dashboard/src/shared/lib/domain/agents.test.ts",
+      "category": "mandatory_test_companion",
+      "role": "changed test companion",
+      "git_mode_at_commit": "100644",
+      "preimage_sha256_at_parent": "8195911f6f62355791d64dee5909fa4d0c6cc56631933b3453b5ef9e0e95f5a1",
+      "sha256_at_commit": "a434480545519d92fe4222268200ca7055bfcc44b494641238d33406aa4a5040",
+      "bytes_at_commit": 26891
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "category": "coordination_metadata",
+      "role": "historical lease/index companion from this source commit",
+      "git_mode_at_commit": "100644",
+      "preimage_sha256_at_parent": "9fa84195b4e176c3e3ad988ed6587819b8ff595479aec63d9b1b66a829226291",
+      "sha256_at_commit": "ca5f7f35f48972169bef3183ff2e95d7cc57fc3f571e29e1cf1ddb8aa158ef10",
+      "bytes_at_commit": 933567
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "category": "coordination_metadata",
+      "role": "historical lease/index companion from this source commit",
+      "git_mode_at_commit": "100644",
+      "preimage_sha256_at_parent": "93dd34a160216867a425a44c618e6c5826c00ab983cff29091d7af9a8735ec2c",
+      "sha256_at_commit": "8c1ee6872a15918ae5d399287204585523045d5849ae85f4fa3d5a438162626e",
+      "bytes_at_commit": 77110
+    }
+  ],
+  "source_application": {
+    "status": "commit_readback_verified",
+    "identity": "monetary-owner-revalidation-r8-test-scope-repair-20261018",
+    "lease_key": "monetary-owner-revalidation-r8-test-scope-repair-20261018",
+    "source_application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r8-test-scope-unique-lease-qualified-20261018/source-application.json",
+      "sha256": "86aa37f923cfdb9b9dbe8ac977c5fdbe43784932b7b01338ca769eeedf78640a",
+      "bytes": 5768
+    },
+    "adoption_plan": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r8-test-scope-unique-lease-qualified-20261018/adoption-plan.json",
+      "sha256": "b40c663757b0a19aa5d3d8a4175b0a0e95f67400a8b18a393b556398860d488d",
+      "bytes": 7736
+    },
+    "commit_request": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r8-test-scope-unique-lease-qualified-20261018/commit-request.json",
+      "sha256": "4d97ae1c24b9fdf6b5d767656f3487aac4b4b8484b047735ac1e672c921f4c10",
+      "bytes": 1095
+    },
+    "commit_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r8-test-scope-unique-lease-qualified-20261018/monetary-owner-revalidation-r8-test-scope-repair-20261018-readback.json",
+      "sha256": "a7f6ea26fa2aa5e6baeaa86acea42d079114a479cdb7930c8ce83ae6b85f6b8f",
+      "bytes": 1134
+    },
+    "reviewed_present_patch": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r8-test-scope-post-search-qualified-adoption-20261018/reviewed-present-postimages.patch",
+      "sha256": "ddfb6e63c60c400d35d6c37a399c316be7b422e5b7faee32441baf2bde53319d"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r8-test-scope-post-search-qualified-adoption-20261018/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "qualification": null,
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r8-ts-current-prepare-20261018/execution-request.json",
+        "sha256": "074928fa6044634a64f44f577cefc040095b6eb06f24817d9f39af96b0fb7780"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r8-ts-current-prepare-20261018/candidate-repair.patch",
+        "sha256": "cc0933e3e403095aceafaa4442b6d546b1e6c9b5d8121b78b2b81eeeff244bfe"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r8-test-scope-independent-20261018/review.md",
+        "sha256": "55931c10aa6eb5117504fd25151b498904f224fe17a45264e4d20b00b6d61ceb"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r8-current-qualified-adoption-20261018/adoption-plan.json",
+        "sha256": "3c3521cd877aea6304e586ac51d73194cd246cead8e7f5364335d5d678dc476e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-candidate-push-3dcd55a-20261018/push.stdout.txt",
+        "sha256": "270e1a433fda17f088b13599f725080aec4bbe61a4e7fb747365ef7846df1bfa"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-candidate-push-3dcd55a-20261018/failure-readback.json",
+        "sha256": "694dc0fc38777203644d4595cbbce54a0046810f53cb4e06c0754ddb0908ec54"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r8-test-scope-repair-20261018/adoption-plan.json",
+        "sha256": "5e648ffcd4569bbbd6bf946cdd036e27f2e3cb6f75429f865b7b01ae911c856d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r8-test-scope-post-search-qualified-adoption-20261018/adoption-plan.json",
+        "sha256": "d6154997fdad85dea297856d511c62f065c2cab2d5cc2b9b3c302b28487627b8"
+      }
+    ],
+    "source_pathset_matches_git_nonmetadata_paths": true,
+    "preimage_hashes_match_git_parent": true,
+    "postimage_hashes_match_git_commit": true,
+    "readback_matches_commit_sha_tree_parent_and_complete_path_set": true,
+    "source_freeze_at_application": false
+  },
+  "review_refs": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-monetary-r8-test-scope-independent-20261018/review.md",
+      "sha256": "55931c10aa6eb5117504fd25151b498904f224fe17a45264e4d20b00b6d61ceb"
+    }
+  ],
+  "property": "The malformed-owner refusal cases in the ownerless scalar/event projection test use that same test’s concrete scalar-and-ledger-event fixture, without depending on a binding local to a sibling test.",
+  "proposal_ids": [],
+  "P40": "NEW lexical-scope/compile-error class relative to the R7 runtime assertion failures. This is one test-local reference defect; the repair reuses the test’s complete existing fixture and does not widen runtime behavior.",
+  "static_quality": {
+    "status": "not_established",
+    "commands_and_output_refs": [],
+    "note": "The source application file is authoritative for its exact Ruff argv and output references."
+  },
+  "runtime_status_at_source_adoption": "UNRUN on adopted canonical source; bounded candidate evidence is separately referenced",
+  "source_freeze_at_application": false,
+  "related_actual_profiles": [
+    {
+      "role": "same-commit historical focused Python profile; it does not exercise the changed dashboard TypeScript test file",
+      "receipt": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/actual-focused-29-modules-at-5ff59531ca1f.json",
+        "sha256": "e03fbe3a778f934edd75f365540a2b9fa8481d108f1d4a5b0d592c7a4a5897da",
+        "bytes": 10705
+      },
+      "source_frame": {
+        "commit": "5ff59531ca1f98ff267ef70a376f58b58164470a",
+        "tree": "f28abf527b7ec8403be0745ee3c25404d877a7c3"
+      },
+      "result_summary": {
+        "cases": 418,
+        "passed": 411,
+        "failed": 4,
+        "skipped": 3,
+        "errors": 0,
+        "return_code": 1,
+        "complete": true,
+        "aborted": false
+      },
+      "failure_classification_ref": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-focused29-actual-independent-20261018/review.md",
+        "sha256": "c49ea276814e77cefaaef95e9578d75c45750bda16ffca2108609fc75cbf360a",
+        "bytes": 6183
+      },
+      "limits": [
+        "Selected profile was Python and excluded the changed agents.test.ts path; it cannot validate this test-only source change.",
+        "The run had unrelated SCC/FQN/lifecycle failures and is not an acceptance result."
+      ]
+    }
+  ],
+  "limits": [
+    "The candidate postimage is derived from the reviewed patch against the 3dcd55 source bytes. The current root frame observed during preparation is recorded only as a pathwise observation; it is not an application authorization.",
+    "Only the agents.test.ts test path is proposed. The other nine paths in the R8 source footprint are unchanged by this repair.",
+    "The 3dcd55 dashboard app typecheck failed at this reference; node/tools typecheck configurations were not reached. No new Vitest, lint, format, or typecheck run is claimed.",
+    "This test-source repair establishes neither G acceptance nor any closure."
+  ],
+  "next_check_at_adoption": {
+    "required": [
+      "Root requalifies the then-current full HEAD/tree and R8 footprint; verify the target preimage or issue a successor postimage if it has changed.",
+      "After controlled application and source readback, run the complete dashboard typecheck, the whole three-module Vitest profile, and the prepared lint/format checks under the authorized existing supervisor profile; retain complete outputs."
+    ]
+  },
+  "G_acceptance": false,
+  "closure_ids": [],
+  "preparation_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "2b3febdbba8d33ab21aaff32f976b8c31ad183de",
+    "tree": "93554100f8dc966b7a6d6d9d869b6e1b03a9ca21"
+  }
+}

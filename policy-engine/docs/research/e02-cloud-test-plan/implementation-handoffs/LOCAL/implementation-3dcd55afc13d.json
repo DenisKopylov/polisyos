@@ -1,0 +1,183 @@
+{
+  "schema": "polisyos.e02.native_source_commit_receipt.v1",
+  "record_type": "implementation_commit_receipt",
+  "status": "source_commit_frame_observed_application_unestablished",
+  "proposal_not_adjudicated": true,
+  "source_commit": {
+    "sha": "3dcd55afc13d227b95c5e93640cac92dafe6cf0a",
+    "tree": "ffca9399d90d2dac2f2a407699e25c7f07915a89",
+    "parents": [
+      "2c0aa24f75f7c8f3b080b24cecdd9f53dca9580f"
+    ],
+    "subject": "fix(runtime): reconcile child costs after verified owner revalidation",
+    "branch_ref": "refs/heads/codex/e02-unified-local-20261009",
+    "reachable_from_preparation_head": true
+  },
+  "source_base": {
+    "sha": "2c0aa24f75f7c8f3b080b24cecdd9f53dca9580f",
+    "tree": "173fed760ec67470049139c94996505a6c6ec1a8"
+  },
+  "changed_path_denominator": {
+    "total_git_changed_paths": 10,
+    "mechanism_paths": 4,
+    "mandatory_test_and_documentation_companions": 4,
+    "historical_lease_and_index_metadata": 2,
+    "mechanism_paths_excluding_mandatory_companions_and_coordination_metadata": [
+      "policy-engine/apps/runtime-dashboard/src/api/types.ts",
+      "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+      "policy-engine/packages/runtime-api-client/types.ts",
+      "policy-engine/src/polisyos/core/contracts/runtime.py"
+    ],
+    "mandatory_companion_paths_outside_mechanism_count": [
+      "policy-engine/apps/runtime-dashboard/src/api/validators.test.ts",
+      "policy-engine/apps/runtime-dashboard/src/features/runs/components/pipelinePanels.test.tsx",
+      "policy-engine/apps/runtime-dashboard/src/shared/lib/domain/agents.test.ts",
+      "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py"
+    ],
+    "coordination_paths_outside_mechanism_count": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ]
+  },
+  "changed_paths": [
+    {
+      "change": "M",
+      "path": "policy-engine/apps/runtime-dashboard/src/api/types.ts",
+      "category": "mechanism",
+      "role": "source mechanism path",
+      "git_mode_at_commit": "100644",
+      "preimage_sha256_at_parent": "861f42ae225e2f80e3582fa1a11cd4a4d121591186bf3c0231952234e2d5dc1b",
+      "sha256_at_commit": "71dca1f9ba7e2e379c90a48e167869bc769e5c3bc63e9628d2289a37230ae77a",
+      "bytes_at_commit": 901446
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/apps/runtime-dashboard/src/api/validators.test.ts",
+      "category": "mandatory_test_companion",
+      "role": "changed test companion",
+      "git_mode_at_commit": "100644",
+      "preimage_sha256_at_parent": "568f64be8151f05a918e2759dc5708cc7c8e0977c16ef3cfcbb2f204e3ef7c88",
+      "sha256_at_commit": "03a130f6ce9b841443a809d3a36aaa786f6070dbfa885f58860e1bc23b6d14db",
+      "bytes_at_commit": 145722
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/apps/runtime-dashboard/src/features/runs/components/pipelinePanels.test.tsx",
+      "category": "mandatory_test_companion",
+      "role": "changed test companion",
+      "git_mode_at_commit": "100644",
+      "preimage_sha256_at_parent": "e09a480da79c2a1b69b4898e71de41b71e2012393671f00cc4bcc1f7453a5b5e",
+      "sha256_at_commit": "c36c53215a179a0b1e1d004de628f1e4fcb4619cd1c3b50f22f17dce04780f9a",
+      "bytes_at_commit": 22853
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/apps/runtime-dashboard/src/shared/lib/domain/agents.test.ts",
+      "category": "mandatory_test_companion",
+      "role": "changed test companion",
+      "git_mode_at_commit": "100644",
+      "preimage_sha256_at_parent": "75393b7c44b2a8a9d53a5ba715122277c29a9708d674f64cb3b16832e1f1a479",
+      "sha256_at_commit": "8195911f6f62355791d64dee5909fa4d0c6cc56631933b3453b5ef9e0e95f5a1",
+      "bytes_at_commit": 26893
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "category": "coordination_metadata",
+      "role": "historical lease/index companion from this source commit",
+      "git_mode_at_commit": "100644",
+      "preimage_sha256_at_parent": "c8c775608c375e363609d3b7aafdf3ea2399d8e4446b7911aa293ccd76f2feb5",
+      "sha256_at_commit": "4d930d8694ad69d0a5fed550182b8a740237a51af907809a75cf7e616650a0c6",
+      "bytes_at_commit": 899894
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+      "category": "coordination_metadata",
+      "role": "historical lease/index companion from this source commit",
+      "git_mode_at_commit": "100644",
+      "preimage_sha256_at_parent": "38c4807b4c9c4c83801ef10d0ee257f3ba551cd72b9da5ca7fd35046b614db85",
+      "sha256_at_commit": "928d8b68fe0f2dbf332e49f2c44699459fa7f74a8113e675c4b9146a6e34a57b",
+      "bytes_at_commit": 77110
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+      "category": "mechanism",
+      "role": "source mechanism path",
+      "git_mode_at_commit": "100644",
+      "preimage_sha256_at_parent": "a94f1998e20ace162590872974597a731deb4a826e41348e6f1930f3d411c0f0",
+      "sha256_at_commit": "8ad15d5202c28c6595d7f9736f3d9f95994814798bfce760132b8d7a0fa0ae66",
+      "bytes_at_commit": 116472
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/packages/runtime-api-client/types.ts",
+      "category": "mechanism",
+      "role": "source mechanism path",
+      "git_mode_at_commit": "100644",
+      "preimage_sha256_at_parent": "d5d11ae65aa39d3b13ba1386a9dd1269ebc4eb61231d7613d1f2b025fe95a4c9",
+      "sha256_at_commit": "4f4fefd23860ee6b3f47f3dc0630eff907210d422b801a3a2ed38a906298f886",
+      "bytes_at_commit": 1078853
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/src/polisyos/core/contracts/runtime.py",
+      "category": "mechanism",
+      "role": "source mechanism path",
+      "git_mode_at_commit": "100644",
+      "preimage_sha256_at_parent": "b9e8d5faf9f0f905859f77d09f1a0cd192d0768103a8598dd7c0e75add6ed6ef",
+      "sha256_at_commit": "328d01caad11dd69226c6785548605fc4bd61b1e9c95de882879e8a7b47ad846",
+      "bytes_at_commit": 218853
+    },
+    {
+      "change": "M",
+      "path": "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py",
+      "category": "mandatory_test_companion",
+      "role": "changed test companion",
+      "git_mode_at_commit": "100644",
+      "preimage_sha256_at_parent": "9f394606ab5751a1f5d3b9d07a1751c44913497e398ab95f8bcf8f3e1f871b9a",
+      "sha256_at_commit": "8ef64911929a466f05bd4042913dba274c4c371b0a6c4b53e3049a50953a6914",
+      "bytes_at_commit": 165580
+    }
+  ],
+  "source_application": {
+    "status": "not_established",
+    "reason": "No source-application/readback packet for this exact commit was found; recorded failure-readback is not adoption evidence.",
+    "available_push_attempt_refs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-candidate-push-3dcd55a-20261018/push.stdout.txt",
+        "sha256": "270e1a433fda17f088b13599f725080aec4bbe61a4e7fb747365ef7846df1bfa",
+        "bytes": 915
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-candidate-push-3dcd55a-20261018/failure-readback.json",
+        "sha256": "694dc0fc38777203644d4595cbbce54a0046810f53cb4e06c0754ddb0908ec54",
+        "bytes": 612
+      }
+    ]
+  },
+  "review_refs": [],
+  "property": null,
+  "proposal_ids": [],
+  "P40": null,
+  "static_quality": {
+    "status": "not_established"
+  },
+  "runtime_status_at_source_adoption": "not_established",
+  "source_freeze_at_application": null,
+  "related_actual_profiles": [],
+  "limits": [
+    "Adoption/application/readback is not established for this commit. The Git object proves only its immutable commit frame.",
+    "No Ruff, runtime, or independent review result is attributed to this source commit.",
+    "No G acceptance or formal closure is claimed."
+  ],
+  "next_check_at_adoption": "Establish the exact source-application and commit-readback chain before treating this commit as an adopted implementation.",
+  "G_acceptance": false,
+  "closure_ids": [],
+  "preparation_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "2b3febdbba8d33ab21aaff32f976b8c31ad183de",
+    "tree": "93554100f8dc966b7a6d6d9d869b6e1b03a9ca21"
+  }
+}

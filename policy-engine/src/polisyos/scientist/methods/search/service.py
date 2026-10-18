@@ -1,9 +1,9 @@
 """Concrete native service driver for the legacy search lifecycle.
 
 The search contracts are intentionally small.  This module is the internal
-bridge that drives the existing controller-owned generation, evaluation, and
+bridge that drives the existing owner-owned generation, evaluation, and
 run-state transitions through that contract.  It is not a second search
-framework: the controller remains the owner of evaluation semantics and
+framework: the lifecycle owner owns evaluation semantics and
 ``SearchRunState`` remains the sole mutable run ledger.
 """
 
@@ -28,16 +28,16 @@ logger = common_logger.get_logger(__name__)
 
 
 class _NativeSearchServiceDriver:
-    """Drive one controller lifecycle through the native service boundary.
+    """Drive one search lifecycle through the native service boundary.
 
     The ask/tell methods are the concrete implementation of the existing
     ``SearchService`` protocol.  ``run_search`` uses the same methods' owner
-    seams and the controller's established evaluator path, so the autotune
+    seams and the owner's established evaluator path, so the autotune
     consumer no longer calls the legacy full-loop implementation directly.
     """
 
-    def __init__(self, controller: _NativeSearchControllerPort) -> None:
-        self.controller = controller
+    def __init__(self, lifecycle_owner: _NativeSearchControllerPort) -> None:
+        self.owner = lifecycle_owner
         self._pending_candidates: dict[str, dict[str, Any]] = {}
         self._completed_candidate_ids: set[str] = set()
         self._ask_iteration = 0
@@ -50,8 +50,8 @@ class _NativeSearchServiceDriver:
     ) -> list[CandidateProposal]:
         """Generate proposals and retain candidate-ID ownership for ``tell``."""
         del goal, search_space
-        self.controller._prepare_service_run()
-        payloads = self.controller._generate_candidates(
+        self.owner._prepare_service_run()
+        payloads = self.owner._generate_candidates(
             iteration=self._ask_iteration,
             initial_candidate=None,
             context=context,
@@ -94,7 +94,7 @@ class _NativeSearchServiceDriver:
         candidate_id: str,
         evaluation: EvaluationBundle,
     ) -> TellResult:
-        """Accept one previously asked evaluation through controller state."""
+        """Accept one previously asked evaluation through lifecycle-owner state."""
         if not isinstance(candidate_id, str) or not candidate_id:
             raise KeyError(candidate_id)
         if candidate_id in self._completed_candidate_ids:
@@ -104,7 +104,7 @@ class _NativeSearchServiceDriver:
 
         candidate = deepcopy(self._pending_candidates[candidate_id])
         stage_b_result = self._stage_b_result(evaluation)
-        self.controller._accept_tell(
+        self.owner._accept_tell(
             candidate=candidate,
             objective_value=float(evaluation.objective_value),
             objective_details=list(evaluation.objective_details),
@@ -116,11 +116,11 @@ class _NativeSearchServiceDriver:
 
         del self._pending_candidates[candidate_id]
         self._completed_candidate_ids.add(candidate_id)
-        return TellResult(**self.controller._service_tell_snapshot())
+        return TellResult(**self.owner._service_tell_snapshot())
 
     @staticmethod
     def _stage_b_result(evaluation: EvaluationBundle) -> dict[str, Any]:
-        """Build a controller-shaped result without changing typed payloads."""
+        """Build a service-shaped result without changing typed payloads."""
         stage_b_result = deepcopy(evaluation.stage_b_result or {})
         simulation_results = stage_b_result.get("simulation_results")
         if simulation_results is None:
@@ -158,7 +158,7 @@ class _NativeSearchServiceDriver:
         self._completed_candidate_ids.clear()
         self._ask_iteration = 0
 
-        run_lock = self.controller._run_lock
+        run_lock = self.owner._run_lock
         if not run_lock.acquire(blocking=False):
             raise RuntimeError("SearchController.run is not reentrant")
         try:
@@ -175,13 +175,13 @@ class _NativeSearchServiceDriver:
         initial_context: dict[str, Any],
         initial_candidate: dict[str, Any] | None,
     ) -> SearchResult:
-        start_time = self.controller._begin_native_run(initial_context)
+        start_time = self.owner._begin_native_run(initial_context)
         stopping_reason: str | None = None
         candidate_to_seed = initial_candidate
 
         while (
-            self.controller._run_state.evaluation_iterations
-            < self.controller._config.max_iterations_hard_limit
+            self.owner._run_state.evaluation_iterations
+            < self.owner._config.max_iterations_hard_limit
         ):
             stopping_reason = self._stopping_reason(initial_context)
             if stopping_reason is not None:
@@ -212,16 +212,16 @@ class _NativeSearchServiceDriver:
             if stopping_reason is not None:
                 break
 
-        return self.controller._finish_native_run(
+        return self.owner._finish_native_run(
             start_time=start_time,
             stopping_reason=stopping_reason,
         )
 
     def _stopping_reason(self, context: dict[str, Any]) -> str | None:
-        self.controller._refresh_budget_snapshot(context)
-        stop_check = self.controller._config.stopping.check(
-            [self.controller._to_history_dict(item) for item in self.controller._history],
-            self.controller._stopping_state(),
+        self.owner._refresh_budget_snapshot(context)
+        stop_check = self.owner._config.stopping.check(
+            [self.owner._to_history_dict(item) for item in self.owner._history],
+            self.owner._stopping_state(),
         )
         return stop_check.reason if stop_check.should_stop else None
 
@@ -232,33 +232,33 @@ class _NativeSearchServiceDriver:
         initial_candidate: dict[str, Any] | None,
     ) -> tuple[list[dict[str, Any]], bool, str | None]:
         generated = initial_candidate is None
-        batch = self.controller._generate_candidates(
-            iteration=self.controller._run_state.evaluation_iterations,
+        batch = self.owner._generate_candidates(
+            iteration=self.owner._run_state.evaluation_iterations,
             initial_candidate=initial_candidate,
             context=initial_context,
         )
         if not generated:
             return batch, False, None
 
-        self.controller._run_state.generation_attempts += 1
+        self.owner._run_state.generation_attempts += 1
         stopping_reason = self._stopping_reason(initial_context)
         return batch, True, stopping_reason
 
     def _handle_empty_generation(self) -> str | None:
-        self.controller._run_state.empty_generation_attempts += 1
+        self.owner._run_state.empty_generation_attempts += 1
         if (
-            self.controller._run_state.empty_generation_attempts
-            < self.controller._config.max_empty_generation_attempts
+            self.owner._run_state.empty_generation_attempts
+            < self.owner._config.max_empty_generation_attempts
         ):
             return None
-        self.controller._run_state.generation_transition = GenerationTransition.EXHAUSTED
+        self.owner._run_state.generation_transition = GenerationTransition.EXHAUSTED
         self._stop("generation_exhausted")
         return "generation_exhausted"
 
     def _mark_nonempty_generation(self) -> None:
-        if self.controller._run_state.empty_generation_attempts:
-            self.controller._run_state.generation_transition = GenerationTransition.TRANSIENT_EMPTY
-            self.controller._run_state.empty_generation_attempts = 0
+        if self.owner._run_state.empty_generation_attempts:
+            self.owner._run_state.generation_transition = GenerationTransition.TRANSIENT_EMPTY
+            self.owner._run_state.empty_generation_attempts = 0
 
     def _evaluate_batch(
         self,
@@ -269,17 +269,17 @@ class _NativeSearchServiceDriver:
     ) -> str | None:
         for candidate in batch:
             if (
-                self.controller._run_state.evaluation_iterations
-                >= self.controller._config.max_iterations_hard_limit
+                self.owner._run_state.evaluation_iterations
+                >= self.owner._config.max_iterations_hard_limit
             ):
                 break
-            transition = self.controller._evaluate_candidate(
+            transition = self.owner._evaluate_candidate(
                 candidate,
-                iteration=self.controller._run_state.evaluation_iterations,
+                iteration=self.owner._run_state.evaluation_iterations,
                 context=initial_context,
             )
-            self.controller._run_state.apply_evaluation_transition(transition)
-            self.controller._refresh_budget_snapshot(initial_context)
+            self.owner._run_state.apply_evaluation_transition(transition)
+            self.owner._refresh_budget_snapshot(initial_context)
 
             if transition.disposition is _EvaluationDisposition.SENTINEL and not generated:
                 self._stop("Initial sentinel evaluated")
@@ -292,7 +292,7 @@ class _NativeSearchServiceDriver:
         return None
 
     def _stop(self, reason: str) -> None:
-        self.controller._status = SearchStatus.STOPPED
+        self.owner._status = SearchStatus.STOPPED
         logger.info("Stopping: %s", reason)
 
 

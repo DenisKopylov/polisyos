@@ -10,7 +10,7 @@ views itself.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from polisyos.scientist.methods.search.contracts import CandidateProposal
 from polisyos.scientist.methods.search.funnel.orchestrator import (
@@ -20,9 +20,16 @@ from polisyos.scientist.methods.search.funnel.orchestrator import (
 )
 from polisyos.scientist.methods.search.service import _NativeSearchServiceDriver
 
+if TYPE_CHECKING:
+    from polisyos.scientist.methods.search.controller import SearchController
+
 
 class LegacySearchServiceAdapter(_NativeSearchServiceDriver):
-    """Compatibility name for the native ask/tell service driver."""
+    """Compatibility adapter over one controller's private lifecycle owner."""
+
+    def __init__(self, controller: SearchController) -> None:
+        self.controller = controller
+        super().__init__(controller._lifecycle_owner)
 
 
 @dataclass(slots=True)

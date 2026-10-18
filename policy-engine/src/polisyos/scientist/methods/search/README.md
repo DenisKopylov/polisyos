@@ -12,8 +12,9 @@ logic used by policy-design and promotion workflows.
 ## Where to Start
 
 - Root facade and lazy exports: [`__init__.py`](__init__.py)
-- Legacy ask/evaluate controller: [`controller.py`](controller.py)
-- Native internal service bridge: [`service.py`](service.py)
+- Legacy ask/evaluate compatibility facade: [`controller.py`](controller.py)
+- Private lifecycle owner: [`lifecycle.py`](lifecycle.py)
+- Native ask/tell service bridge: [`service.py`](service.py)
 - Shared contract/type leaf and evaluation primitives: [`contracts.py`](contracts.py), [`objective.py`](objective.py), [`stages.py`](stages.py), and [`stopping.py`](stopping.py)
 - Promotion funnel and rollout logic: [`funnel/`](funnel/), [`readiness.py`](readiness.py), and [`promotion_evidence.py`](promotion_evidence.py)
 - Strategy implementations: [`strategies/`](strategies/)
@@ -32,6 +33,14 @@ The contracts module is the import-safe type leaf for search DTOs, run/result
 records, transitions, and the native controller port. Compatibility imports
 retain historical controller/run-state class identities; concrete adapters and
 funnel implementations are not statically imported by this leaf.
+
+`_SearchLifecycleOwner` in `lifecycle.py` is the sole internal owner of search
+configuration, evaluation, mutable run state, and run flow. `SearchController`
+remains the historical typed forwarding facade, and `LegacySearchServiceAdapter`
+keeps its ask/tell interface while forwarding to that same owner.
+`SearchLoopRunner` constructs the owner directly, so autotune does not create a
+compatibility controller. The owner is internal and is not added to package
+exports; `SearchService` and all existing public exports stay unchanged.
 
 ## Pareto Basis Declaration
 

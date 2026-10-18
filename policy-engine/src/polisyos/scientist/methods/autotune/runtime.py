@@ -37,7 +37,6 @@ from polisyos.scientist.compute.job_spec import JobKey, JobSpec
 from polisyos.scientist.methods.search.contracts import SearchResult
 from polisyos.scientist.methods.search.controller import (
     SearchConfig,
-    SearchController,
     TracedLLMCandidateGenerator,
 )
 from polisyos.scientist.methods.search.objective import (
@@ -2740,7 +2739,10 @@ class SearchLoopRunner:
                     raise TypeError("candidate generator does not accept warm-start evaluations")
                 warm_start(warm_start_evaluations)
         objective = CompositeObjective([_AutotuneObjective(spec.promotion_policy)])
-        controller = SearchController(
+        from polisyos.scientist.methods.search.lifecycle import _SearchLifecycleOwner
+        from polisyos.scientist.methods.search.service import _NativeSearchServiceDriver
+
+        lifecycle_owner = _SearchLifecycleOwner(
             config=SearchConfig(
                 stopping=MaxIterations(max_iterations),
                 objective=objective,
@@ -2763,9 +2765,7 @@ class SearchLoopRunner:
             if isinstance(initial_candidate, BaseModel)
             else initial_candidate
         )
-        from polisyos.scientist.methods.search.service import _NativeSearchServiceDriver
-
-        driver = _NativeSearchServiceDriver(controller)
+        driver = _NativeSearchServiceDriver(lifecycle_owner)
         if producer_settlement_store is None:
             return driver.run_search(
                 initial_context=runtime_context,

@@ -25,7 +25,9 @@ from polisyos.scientist.methods.autotune.runtime import (
     SequenceCandidateGenerator,
 )
 from polisyos.scientist.methods.search.adapters import LegacySearchServiceAdapter
+from polisyos.scientist.methods.search.contracts import EvaluationBundle, SearchStatus
 from polisyos.scientist.methods.search.controller import SearchConfig, SearchController
+from polisyos.scientist.methods.search.lifecycle import _SearchLifecycleOwner
 from polisyos.scientist.methods.search.objective import (
     CompositeObjective,
     ObjectiveValue,
@@ -94,7 +96,14 @@ class _TraceBatchGenerator:
         raise AssertionError("the characterization must use the batch path")
 
 
-def test_current_controller_trace_preserves_warm_sentinel_empty_error_resume() -> None:
+@pytest.mark.parametrize(
+    "owner_type",
+    [SearchController, _SearchLifecycleOwner],
+    ids=["compatibility-facade", "native-owner"],
+)
+def test_current_controller_trace_preserves_warm_sentinel_empty_error_resume(
+    owner_type: type[SearchController] | type[_SearchLifecycleOwner],
+) -> None:
     """Freeze lifecycle, counters, and detached request context before cutover."""
     generator = _TraceBatchGenerator()
     evaluated: list[str] = []
@@ -113,7 +122,7 @@ def test_current_controller_trace_preserves_warm_sentinel_empty_error_resume() -
             "feedback": {"verdict": "APPROVE"},
         }
 
-    controller = SearchController(
+    controller = owner_type(
         config=SearchConfig(
             stopping=MaxIterations(2),
             objective=CompositeObjective([_CostObjective()]),
@@ -150,6 +159,42 @@ def test_current_controller_trace_preserves_warm_sentinel_empty_error_resume() -
     # Sentinel observations are counted separately and intentionally do not
     # enter the ordinary history visible to the next generator call.
     assert [state["history_length"] for state in generator.context_history] == [1, 1, 2]
+
+
+def test_lifecycle_owner_propagates_evaluator_exception_without_failed_transition() -> None:
+    """Preserve the current raise path without synthesizing a FAILED SearchResult."""
+
+    class _OneCandidate:
+        def generate(
+            self,
+            history: list[Any],
+            current_best: dict[str, Any] | None,
+            context: dict[str, Any],
+        ) -> dict[str, Any]:
+            del history, current_best, context
+            return {"candidate_id": "stage-b-failure", "cost": 1.0}
+
+    def fail_stage_b(candidate: dict[str, Any], context: dict[str, Any]) -> dict[str, Any]:
+        del candidate, context
+        raise RuntimeError("stage_b_failed")
+
+    owner = _SearchLifecycleOwner(
+        config=SearchConfig(
+            stopping=MaxIterations(1),
+            objective=CompositeObjective([_CostObjective()]),
+        ),
+        candidate_generator=_OneCandidate(),
+        stage_a_evaluator=lambda candidate, context: (0.0, True),
+        stage_b_evaluator=fail_stage_b,
+    )
+
+    with pytest.raises(RuntimeError, match="stage_b_failed"):
+        owner.run({"run_id": "srv03-stage-b-failure"})
+
+    assert owner._status is SearchStatus.RUNNING
+    assert owner._run_state.evaluation_iterations == 0
+    assert owner._run_lock.acquire(blocking=False)
+    owner._run_lock.release()
 
 
 class _RunnerMutation(MutationArtifact):
@@ -202,6 +247,31 @@ def test_native_service_rejects_explicit_falsy_candidate_id(candidate_id: object
 
     with pytest.raises(ValueError, match="explicit non-empty string"):
         service.ask(goal=None, search_space=None, context={})
+
+
+def test_legacy_ask_tell_adapter_shares_facade_lifecycle_owner() -> None:
+    """The compatibility adapter and facade observe one ask/tell run ledger."""
+    service = _identity_service("shared-owner")
+
+    assert service.owner is service.controller._lifecycle_owner
+    proposal = service.ask(goal=None, search_space=None, context={})[0]
+    result = service.tell(
+        proposal.candidate_id,
+        EvaluationBundle(
+            objective_value=1.0,
+            is_promising=True,
+            stage_a_passed=True,
+            stage_b_result={
+                "simulation_results": {"cost": 1.0},
+                "feedback": {"verdict": "APPROVE"},
+            },
+        ),
+    )
+
+    assert service.controller._run_state is service.owner._run_state
+    assert service.controller._run_state.evaluation_iterations == 1
+    assert result.history_length == 1
+    assert result.best_candidate == proposal.payload
 
 
 def test_native_service_preserves_negative_string_candidate_id() -> None:
@@ -257,11 +327,16 @@ def test_current_autotune_runner_characterizes_real_cas_consumer_path(
 ) -> None:
     """The autotune caller persists evaluated candidates and promotes the best one."""
 
-    def fail_legacy_controller_run(*args: Any, **kwargs: Any) -> None:
+    def fail_legacy_controller_run(*args: object, **kwargs: object) -> None:
         del args, kwargs
         raise AssertionError("autotune must use the native service driver")
 
+    def fail_legacy_controller_init(*args: object, **kwargs: object) -> None:
+        del args, kwargs
+        raise AssertionError("autotune must not construct the compatibility controller")
+
     monkeypatch.setattr(SearchController, "run", fail_legacy_controller_run)
+    monkeypatch.setattr(SearchController, "__init__", fail_legacy_controller_init)
 
     store = FileSystemCAS(tmp_path / "cas")
     registry = ChampionRegistry(root=tmp_path / "registry", store=store)
@@ -309,5 +384,14 @@ def test_current_autotune_runner_characterizes_real_cas_consumer_path(
     assert result.stage_b_evaluations == 3
     champion = registry.get("srv03-loop")
     assert champion is not None
-    promoted = load_model_artifact(store, champion.candidate_ref, _RunnerMutation)
-    assert promoted.value == 7
+    persisted_candidate_ref = champion.candidate_ref
+
+    fresh_store = FileSystemCAS(tmp_path / "cas")
+    fresh_registry = ChampionRegistry(root=tmp_path / "registry", store=fresh_store)
+    fresh_champion = fresh_registry.get("srv03-loop")
+    assert fresh_store is not store
+    assert fresh_champion is not None
+    assert fresh_champion.candidate_ref == persisted_candidate_ref
+
+    promoted = load_model_artifact(fresh_store, persisted_candidate_ref, _RunnerMutation)
+    assert promoted.model_dump(mode="json") == result.best_candidate

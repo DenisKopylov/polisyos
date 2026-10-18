@@ -261,3 +261,10 @@ appointment issuer, so external issuer authority and full production capability 
 `producer_missing`/`surface_out_of_scope`. Test signer and evaluator fixtures are local
 only. Native pytest, external issuer integration, and process-level B117 validation remain
 UNRUN; no closure is claimed for those paths.
+
+
+`SearchLoopRunner` uses the search package's private `lifecycle._SearchLifecycleOwner`
+directly for generation, evaluation, run state, and stopping. The public
+`SearchController` compatibility facade and the `SearchService` ask/tell
+contract remain available through their existing search-package paths; the
+private owner is not re-exported by the autotune facade.

@@ -64,7 +64,11 @@ RESOURCE_DIGEST = "sha256:9474372986dd62a9d754a235da9be00dcc68c344ce7935bf6f8a6a
 def _boundary(*, authoritative_for: str, source: str) -> AuthorityBoundary:
     return AuthorityBoundary(
         authoritative_for=[authoritative_for],
-        may_not_use_for=["claim_evidence", "publication_authority", "promotion_authority"],
+        may_not_use_for=[
+            "claim_evidence",
+            "publication_authority",
+            "promotion_authority",
+        ],
         source_authority=source,
         posture="governed",
         rule_version_refs=[AGENT_ACTION_AUTHORITY_RULE_VERSION],
@@ -512,7 +516,10 @@ class _ExternalTrust:
                     "acquisition-operator",
                     ["evidence.acquire", "runs.launch", "runs.review", "runs.view"],
                 ),
-                ("human-reviewer-1", ["runs.human_decisions.create", "runs.review", "runs.view"]),
+                (
+                    "human-reviewer-1",
+                    ["runs.human_decisions.create", "runs.review", "runs.view"],
+                ),
             )
         ]
         now = int(time.time())
@@ -544,7 +551,14 @@ class _ExternalTrust:
         self.jwks.close()
 
     def post(
-        self, client, path, body, *, route, subject="acquisition-operator", extra_headers=None
+        self,
+        client,
+        path,
+        body,
+        *,
+        route,
+        subject="acquisition-operator",
+        extra_headers=None,
     ):
         payload = json.dumps(body, separators=(",", ":"), ensure_ascii=False).encode()
         headers = {
@@ -670,7 +684,10 @@ def _key_config(tmp_path, trust):
         "private_key_path": str(tmp_path / "custody.pem"),
         "public_key_path": str(tmp_path / "custody.pub"),
         "verifier_epoch": "acquisition-served-epoch",
-        "provenance": {"source": "fixture_external_institution", "reference": "served-acquisition"},
+        "provenance": {
+            "source": "fixture_external_institution",
+            "reference": "served-acquisition",
+        },
         "revoked_key_ids": [],
         "trusted_producers": [
             {
@@ -692,7 +709,10 @@ def _key_config(tmp_path, trust):
                 "public_key_path": str(tmp_path / f"{name}.pub"),
                 "verifier_provenance_ref": "fixture://appointments",
             }
-            for field, name in (("admission_signer", "admission"), ("decision_signer", "source"))
+            for field, name in (
+                ("admission_signer", "admission"),
+                ("decision_signer", "source"),
+            )
         },
     }
     return signers, identities
@@ -716,43 +736,44 @@ def _produce_served_acquisition_history(
     from polisyos.runtime.http.services.control import (
         generation_cycle as generation_cycle_service,
     )
-    from polisyos.runtime.http.services.control import nl_pipeline as nl_pipeline_service
+    from polisyos.runtime.http.services.control import (
+        nl_pipeline as nl_pipeline_service,
+    )
     from polisyos.runtime.quality.authority_reconciliation import (
         reconcile_authority_ref,
     )
-    from polisyos.runtime.quality.candidate_simulation import CandidateSimulationN5InputV5
+    from polisyos.runtime.quality.candidate_simulation import (
+        CandidateSimulationN5InputV5,
+    )
     from polisyos.runtime.quality.cycle_substrate import cycle_job_profile_selection_ref
-    from polisyos.runtime.quality.generation_cycle import AcquisitionOverlayReentryReceipt
+    from polisyos.runtime.quality.generation_cycle import (
+        AcquisitionOverlayReentryReceipt,
+    )
     from polisyos.runtime.quality.generation_source import (
         GenerationSourceRepository,
         N4CandidateScenarioSourceRecordV3,
     )
     from tests._helpers import acquisition_chain
-    from tests._helpers.acquisition_human_decision import persist_signed, prepare_human_decision
+    from tests._helpers.acquisition_human_decision import (
+        persist_signed,
+        prepare_human_decision,
+    )
     from tests._helpers.acquisition_production import (
         install_fixture_wdi_cost_basis,
         intercepted_wdi_transport,
         resolve_completed_wdi_route,
     )
     from tests._helpers.controlled_candidate_profile import _current_compiler_problem
-    from tests._helpers.runtime_http import _DeterministicSpanSupportClient, _valid_intake_for_mode
+    from tests._helpers.runtime_http import (
+        _DeterministicSpanSupportClient,
+        _valid_intake_for_mode,
+    )
 
     served_n4_recording = acquisition_chain.load_served_wdi_generation_recording()
     served_n4_model_id = str(served_n4_recording["model_id"])
-    fiscal_nl_request = (
-        "For Ukraine (UKR) and a 2024 policy time, use 2024 data as of 2024-12-31. "
-        "Assess a fiscal candidate in which a budget-allocation multiplier increases "
-        "government.balance. The objective is to maximize the hypothetical global.tax_rate "
-        "outcome; measure it for a fiscal review by Ukrainian analysts. "
-        "All proposals remain candidate-only until independent evidence supports any measured effect."
-    )
-    fiscal_scope_source = (
-        "For Ukraine (UKR) and a 2024 policy time, use 2024 data as of 2024-12-31. "
-        "Assess a fiscal candidate in which a budget-allocation multiplier increases "
-        "government.balance. The objective is to maximize the hypothetical global.tax_rate "
-        "outcome; measure it for a fiscal review by Ukrainian analysts."
-    )
-    candidate_only_source = "All proposals remain candidate-only until independent evidence supports any measured effect."
+    fiscal_nl_request = acquisition_chain.SERVED_WDI_FISCAL_REQUEST
+    fiscal_scope_source = acquisition_chain.SERVED_WDI_FISCAL_SCOPE_SOURCE
+    candidate_only_source = acquisition_chain.SERVED_WDI_CANDIDATE_ONLY_SOURCE
 
     monkeypatch.setenv("POLISYOS_EXECUTION_PROFILE", "dev")
     monkeypatch.setenv("POLISYOS_CONTROL_WORKER_BACKEND", "external")
@@ -768,7 +789,10 @@ def _produce_served_acquisition_history(
         substrate_registry,
         "default_substrate_catalog_paths",
         lambda root: (
-            replace(default_catalog_paths(root), l1_dcat_path=catalog_root / "catalog.duckdb")
+            replace(
+                default_catalog_paths(root),
+                l1_dcat_path=catalog_root / "catalog.duckdb",
+            )
             if Path(root).resolve() == startup_root
             else default_catalog_paths(root)
         ),
@@ -799,100 +823,12 @@ def _produce_served_acquisition_history(
             candidate_simulation_model_declarations=tuple(candidate_model_declarations),
         )
 
-    def controlled_fiscal_problem(problem, *, raw_request):
-        from polisyos.runtime.quality.design_problem import (
-            _QualifiedOutcomeOfInterestV3,
-        )
-
-        payload = problem.model_dump(mode="json")
-        payload["schema_version"] = "policyos.runtime.design_problem.v3"
-        payload["problem_statement"] = (
-            "Assess a candidate-only fiscal scenario for Ukraine using 2024 data: "
-            "test a government-balance budget multiplier against the global tax-rate outcome."
-        )
-        payload["domain"] = "fiscal"
-        payload["nl_provenance"].update(
-            {
-                "raw_request": raw_request,
-                "source_surface": "runtime.control.nl_request",
-            }
-        )
-        payload["jurisdiction_time"].update(
-            {
-                "region": "UKR",
-                "valid_time": "2024",
-                "as_of": "2024-12-31",
-                "policy_time": "2024",
-                "data_time": "2024",
-            }
-        )
-        payload["objectives"][0].update(
-            {
-                "objective_id": "tax_rate",
-                "description": "Maximize the hypothetical global tax-rate outcome for fiscal review.",
-                "metric_id": "tax_rate",
-                "direction": "maximize",
-            }
-        )
-        payload["constraints"] = [
-            {
-                "constraint_id": "fiscal_request_scope",
-                "description": (
-                    "Keep the candidate within the requested Ukraine 2024 fiscal, "
-                    "government-balance, and global-tax-rate scope."
-                ),
-                "hard": True,
-                "admissibility_basis": "request_text",
-                "source_text": fiscal_scope_source,
-            },
-            {
-                "constraint_id": "no_authority_without_a",
-                "description": "N4 cannot promote or certify generated policy candidates.",
-                "hard": True,
-                "admissibility_basis": "request_text",
-                "source_text": candidate_only_source,
-            },
-        ]
-        payload["stakeholders"] = [
-            {
-                "stakeholder_id": "fiscal_analysts",
-                "name": "Ukrainian fiscal analysts",
-                "role": "reviewer",
-            }
-        ]
-        payload["outcome_of_interest"].update(
-            {
-                "target_variable": "global.tax_rate",
-                "metric_id": "tax_rate",
-                "estimand": (
-                    "Hypothetical effect of the government-balance multiplier on the global tax rate."
-                ),
-                "direction": "maximize",
-            }
-        )
-        payload["candidate_lever_space"] = {
-            "allowed_operator_kinds": ["budget_allocation_multiplier"],
-            "candidate_levers": [
-                {
-                    "lever_id": "fiscal_budget_multiplier",
-                    "operator_kind": "budget_allocation_multiplier",
-                    "instrument": "Budget allocation multiplier",
-                    "target_slot": "government.balance",
-                }
-            ],
-        }
-        problem = type(problem).model_validate(payload)
-        assert type(problem.outcome_of_interest) is _QualifiedOutcomeOfInterestV3
-        assert problem.nl_provenance.raw_request == raw_request
-        assert problem.nl_provenance.source_surface == "runtime.control.nl_request"
-        return problem
-
     base_compiler_problem = _current_compiler_problem(served_n4_recording)
     legacy_industrial_request = base_compiler_problem.nl_provenance.raw_request
     assert fiscal_scope_source in fiscal_nl_request
     assert candidate_only_source in fiscal_nl_request
     assert legacy_industrial_request != fiscal_nl_request
-    recorded_problem = controlled_fiscal_problem(
+    recorded_problem = acquisition_chain.controlled_served_wdi_problem(
         base_compiler_problem, raw_request=fiscal_nl_request
     )
     controlled_recording = acquisition_chain.controlled_served_wdi_generation_recording(
@@ -919,7 +855,9 @@ def _produce_served_acquisition_history(
         return problem
 
     monkeypatch.setattr(
-        generation_cycle_service, "build_design_problem_from_nl_request", run_real_compiler
+        generation_cycle_service,
+        "build_design_problem_from_nl_request",
+        run_real_compiler,
     )
     monkeypatch.setattr(
         nl_pipeline_service, "build_design_problem_from_nl_request", run_real_compiler
@@ -957,7 +895,10 @@ def _produce_served_acquisition_history(
             }
         )
         contract = contract.model_copy(
-            update={"mandate_owner_ref": identities["owner"], "action_envelopes": (envelope,)}
+            update={
+                "mandate_owner_ref": identities["owner"],
+                "action_envelopes": (envelope,),
+            }
         )
         context = {
             "control": control,
@@ -1275,7 +1216,9 @@ def _produce_served_acquisition_history(
             )
             cases.append(case)
             if candidate_generation_mode[0] and remove_acquired_n5_baseline:
-                from polisyos.runtime.quality.generation_cycle import JointSimulationPort
+                from polisyos.runtime.quality.generation_cycle import (
+                    JointSimulationPort,
+                )
 
                 original_build_candidate_request = (
                     JointSimulationPort._build_candidate_simulation_request
@@ -2370,7 +2313,9 @@ def _produce_served_acquisition_history(
                 }
             )
             unselected_only_input = seed_n5_input.model_copy(update={"profile": unselected_profile})
-            from polisyos.runtime.http.routes.runs import _selected_target_baseline_hashes
+            from polisyos.runtime.http.routes.runs import (
+                _selected_target_baseline_hashes,
+            )
 
             assert _selected_target_baseline_hashes(seed_n5_input, unselected_only_input) is None
             id_time_only_input = seed_n5_input.model_copy(
@@ -2901,7 +2846,8 @@ def _produce_served_acquisition_history(
             third_decision = authority.AgentActionAuthorityDecision.model_validate(
                 canon.from_canonical_bytes(
                     _within_fixture_owner(
-                        control._artifact_store.get_bytes, action_payload["decision_ref"]
+                        control._artifact_store.get_bytes,
+                        action_payload["decision_ref"],
                     )
                 )
             )

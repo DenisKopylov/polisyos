@@ -7,6 +7,7 @@ import dataclasses
 import json
 import math
 import uuid
+from collections.abc import Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal
@@ -869,23 +870,24 @@ async def prepare_generic_n4_served_replay(
     cell_id: str,
     recording_id: str = _RECORDING_ID,
     child_count: int = 2,
-    recording_mode: Literal["controlled_overlay", "original_second_capture"] = (
-        "controlled_overlay"
-    ),
+    recording_mode: Literal[
+        "controlled_overlay", "original_second_capture", "served_wdi_global_scalar"
+    ] = "controlled_overlay",
     runtime_api_context: Any | None = None,
     catalog_serving_source: CatalogServingSourcePaths | None = None,
+    runtime_hints_overlay: Mapping[str, object] | None = None,
     phase_callback: Any | None = None,
     candidate_scm_overrides_by_child_index: dict[int, dict[str, float]] | None = None,
 ) -> PreparedGenericN4ServedReplay:
     """Derive a source-bound N4 child family and all typed profiles for a served app.
 
-    Controlled-overlay mode retains the existing altered-fixture controls. Both
-    modes pass replay bytes through a separately identified current-schema test
-    parent whose complete lever set is resolved through the existing controlled
-    slot map. The original-second-capture mode leaves its pinned source bytes
-    unchanged and preserves all three dispositions under the min-three diversity
-    gate. Historical parent scope remains not established; neither mode establishes
-    institutional authority, authenticity, or currentness.
+    Controlled-overlay mode retains the existing altered-fixture controls. The
+    served-WDI mode reuses the existing fiscal candidate-only recording with one
+    global ``government.balance`` lever and a global ``global.tax_rate`` outcome.
+    The original-second-capture mode leaves its pinned source bytes unchanged and
+    preserves all three dispositions under the min-three diversity gate. Historical
+    parent scope remains not established; no mode establishes institutional
+    authority, authenticity, or currentness.
     """
     from polisyos.runtime.http.container import RuntimeContainerOverrides
     from polisyos.runtime.http.dependencies import build_runtime_api_context
@@ -926,6 +928,7 @@ async def prepare_generic_n4_served_replay(
     monkeypatch.setenv("OMP_NUM_THREADS", "1")
 
     source_recordings = n4_contract._load_recordings(REPO_ROOT)
+    recorded_problem_override = None
     if recording_mode == "original_second_capture":
         if recording_id != _RECORDING_ID or child_count != 2:
             raise ValueError("original_second_capture_selector_or_child_count_mismatch")
@@ -961,6 +964,23 @@ async def prepare_generic_n4_served_replay(
             )
         else:
             raise ValueError("controlled_n4_child_count_unsupported")
+    elif recording_mode == "served_wdi_global_scalar":
+        if recording_id != _RECORDING_ID or child_count != 1:
+            raise ValueError("served_wdi_global_scalar_selector_or_child_count_mismatch")
+        from tests._helpers import acquisition_chain
+
+        source_recording = acquisition_chain.load_served_wdi_generation_recording(REPO_ROOT)
+        if source_recording.get("design_problem_id") != recording_id:
+            raise RuntimeError("served_wdi_global_scalar_recording_identity_mismatch")
+        source_problem = _current_compiler_problem(source_recording)
+        recorded_problem_override = acquisition_chain.controlled_served_wdi_problem(
+            source_problem,
+            raw_request=acquisition_chain.SERVED_WDI_FISCAL_REQUEST,
+        )
+        recording = acquisition_chain.controlled_served_wdi_generation_recording(
+            source_recording,
+            outcome_variable=recorded_problem_override.outcome_of_interest.target_variable,
+        )
     else:
         raise ValueError("controlled_n4_recording_mode_unsupported")
     _bind_source_recorded_n4_retry_inputs(source_recording, monkeypatch)
@@ -978,9 +998,27 @@ async def prepare_generic_n4_served_replay(
         or recording.get("derived_from_content_hash") != source_recording_content_hash
     ):
         raise AssertionError("controlled_n4_recording_source_lineage_mismatch")
+    if recording_mode == "served_wdi_global_scalar" and (
+        recording.get("recording_source") != "synthetic_controlled_overlay_of_recorded_capture"
+        or recording.get("derived_from_recording_id") != source_recording_id
+        or recording.get("derived_from_content_hash") != source_recording_content_hash
+    ):
+        raise AssertionError("served_wdi_global_scalar_recording_source_lineage_mismatch")
     if recording_mode == "original_second_capture" and recording != source_recording_snapshot:
         raise AssertionError("original_second_capture_recording_was_mutated")
-    recorded_problem = _current_compiler_problem(recording)
+    recorded_problem = recorded_problem_override or _current_compiler_problem(recording)
+    if runtime_hints_overlay:
+        recorded_problem = recorded_problem.model_copy(
+            update={
+                "runtime_hints": {
+                    **recorded_problem.runtime_hints,
+                    **dict(runtime_hints_overlay),
+                }
+            }
+        )
+        recorded_problem = type(recorded_problem).model_validate(
+            recorded_problem.model_dump(mode="python")
+        )
     controlled_candidate_gateway.set_fixture(
         copy.deepcopy(recording) if recording_mode == "original_second_capture" else recording,
         problem=recorded_problem,
@@ -1003,6 +1041,23 @@ async def prepare_generic_n4_served_replay(
     selected_skg_version_id = selected_skg_source.version_id
     selected_skg_snapshot_ref = selected_skg_source.snapshot_ref
     source_identity_checkpoints = [_validate_controlled_skg_source(selected_skg_source).sha256]
+    profile_rule = {}
+    if recording_mode == "served_wdi_global_scalar":
+        from polisyos.ir.kernel import DEFAULT_SLOT_REGISTRY
+
+        balance_slot = DEFAULT_SLOT_REGISTRY.slots.get("government.balance")
+        if balance_slot is None or balance_slot.unit is None:
+            raise ValueError("served_wdi_global_scalar_balance_slot_unit_not_registered")
+        profile_rule = {
+            "rule_operator_kind": "budget_allocation_multiplier",
+            "rule_parameter_id": "multiplier",
+            "rule_target_world_slot": "government.balance",
+            "rule_unit_id": balance_slot.unit.unit_id,
+            "rule_minimum": 1,
+            "rule_maximum": 2,
+            "target_baseline": 0.0,
+            "outcome_baseline": 0.0,
+        }
     base_profile, base_declaration = _configured_procurement_profile(
         recorded_problem=recorded_problem,
         tmp_path=tmp_path,
@@ -1010,6 +1065,7 @@ async def prepare_generic_n4_served_replay(
         artifact_store=runtime_api_context.store,
         tenant_id=tenant_id,
         cell_id=cell_id,
+        **profile_rule,
     )
     base_wmr = base_profile.context_inputs.world_model_record
     if (

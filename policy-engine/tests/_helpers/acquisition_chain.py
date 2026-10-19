@@ -25,7 +25,9 @@ from polisyos.runtime.quality.acquisition_world_growth import (
 from polisyos.runtime.quality.semantic_epoch_qualification import (
     build_semantic_epoch_native_deployment,
 )
-from polisyos.runtime.quality.semantic_epoch_store import FileSemanticEpochHistoryRepository
+from polisyos.runtime.quality.semantic_epoch_store import (
+    FileSemanticEpochHistoryRepository,
+)
 from tests._helpers.acquisition_epoch_production import production_admission_inputs
 from tests._helpers.acquisition_production import (
     _ATTEMPT_ID,
@@ -42,6 +44,16 @@ from tests._helpers.semantic_epoch_native import (
 )
 
 _SERVED_WDI_N4_RECORDING_ID = "gy_n4_cgf_decisive_capture_1_20260704_092222_049411"
+SERVED_WDI_FISCAL_SCOPE_SOURCE = (
+    "For Ukraine (UKR) and a 2024 policy time, use 2024 data as of 2024-12-31. "
+    "Assess a fiscal candidate in which a budget-allocation multiplier increases "
+    "government.balance. The objective is to maximize the hypothetical global.tax_rate "
+    "outcome; measure it for a fiscal review by Ukrainian analysts."
+)
+SERVED_WDI_CANDIDATE_ONLY_SOURCE = (
+    "All proposals remain candidate-only until independent evidence supports any measured effect."
+)
+SERVED_WDI_FISCAL_REQUEST = f"{SERVED_WDI_FISCAL_SCOPE_SOURCE} {SERVED_WDI_CANDIDATE_ONLY_SOURCE}"
 
 
 def load_served_wdi_generation_recording(
@@ -124,6 +136,111 @@ def controlled_served_wdi_generation_recording(
     return controlled
 
 
+def controlled_served_wdi_problem(problem: Any, *, raw_request: str) -> Any:
+    """Build the existing served WDI fixture's candidate-only global scalar problem.
+
+    The only declared intervention is the captured budget-allocation multiplier
+    targeting ``government.balance``; its selected fixture outcome is
+    ``global.tax_rate``. Both are global scalar slots. This adapts the controlled
+    test parent and does not assert a grounded or authoritative effect.
+    """
+    from polisyos.runtime.quality.design_problem import _QualifiedOutcomeOfInterestV3
+
+    if (
+        type(raw_request) is not str
+        or SERVED_WDI_FISCAL_SCOPE_SOURCE not in raw_request
+        or SERVED_WDI_CANDIDATE_ONLY_SOURCE not in raw_request
+    ):
+        raise ValueError("served_wdi_fiscal_fixture_request_scope_mismatch")
+    model_dump = getattr(problem, "model_dump", None)
+    if not callable(model_dump):
+        raise TypeError("served_wdi_fiscal_fixture_problem_untyped")
+    payload = model_dump(mode="json")
+    if not isinstance(payload, dict):
+        raise TypeError("served_wdi_fiscal_fixture_problem_untyped")
+    payload["schema_version"] = "policyos.runtime.design_problem.v3"
+    payload["problem_statement"] = (
+        "Assess a candidate-only fiscal scenario for Ukraine using 2024 data: "
+        "test a government-balance budget multiplier against the global tax-rate outcome."
+    )
+    payload["domain"] = "fiscal"
+    payload["nl_provenance"].update(
+        {"raw_request": raw_request, "source_surface": "runtime.control.nl_request"}
+    )
+    payload["jurisdiction_time"].update(
+        {
+            "region": "UKR",
+            "valid_time": "2024",
+            "as_of": "2024-12-31",
+            "policy_time": "2024",
+            "data_time": "2024",
+        }
+    )
+    payload["objectives"][0].update(
+        {
+            "objective_id": "tax_rate",
+            "description": "Maximize the hypothetical global tax-rate outcome for fiscal review.",
+            "metric_id": "tax_rate",
+            "direction": "maximize",
+        }
+    )
+    payload["constraints"] = [
+        {
+            "constraint_id": "fiscal_request_scope",
+            "description": (
+                "Keep the candidate within the requested Ukraine 2024 fiscal, "
+                "government-balance, and global-tax-rate scope."
+            ),
+            "hard": True,
+            "admissibility_basis": "request_text",
+            "source_text": SERVED_WDI_FISCAL_SCOPE_SOURCE,
+        },
+        {
+            "constraint_id": "no_authority_without_a",
+            "description": "N4 cannot promote or certify generated policy candidates.",
+            "hard": True,
+            "admissibility_basis": "request_text",
+            "source_text": SERVED_WDI_CANDIDATE_ONLY_SOURCE,
+        },
+    ]
+    payload["stakeholders"] = [
+        {
+            "stakeholder_id": "fiscal_analysts",
+            "name": "Ukrainian fiscal analysts",
+            "role": "reviewer",
+        }
+    ]
+    payload["outcome_of_interest"].update(
+        {
+            "target_variable": "global.tax_rate",
+            "metric_id": "tax_rate",
+            "estimand": (
+                "Hypothetical effect of the government-balance multiplier on the global tax rate."
+            ),
+            "direction": "maximize",
+        }
+    )
+    payload["candidate_lever_space"] = {
+        "allowed_operator_kinds": ["budget_allocation_multiplier"],
+        "candidate_levers": [
+            {
+                "lever_id": "fiscal_budget_multiplier",
+                "operator_kind": "budget_allocation_multiplier",
+                "instrument": "Budget allocation multiplier",
+                "target_slot": "government.balance",
+            }
+        ],
+    }
+    result = type(problem).model_validate(payload)
+    if (
+        type(result.outcome_of_interest) is not _QualifiedOutcomeOfInterestV3
+        or result.nl_provenance.raw_request != raw_request
+        or result.nl_provenance.source_surface != "runtime.control.nl_request"
+    ):
+        raise ValueError("served_wdi_fiscal_fixture_problem_binding_mismatch")
+    return result
+
+
 def _retained_native_epoch_custodian(
     appointments: Sequence[object], *, store: FileSystemCAS
 ) -> NativeEpochFixtureCustodian | None:
@@ -164,7 +281,10 @@ def make_wdi_port_case(
         repo = tmp_path / "repo"
         entry = _entry()
         provision = _write_family_receipt(
-            repo, entry_id=entry.entry_id, attempt_id=_ATTEMPT_ID, receipt=_family_receipt()
+            repo,
+            entry_id=entry.entry_id,
+            attempt_id=_ATTEMPT_ID,
+            receipt=_family_receipt(),
         )
         authority, _ = _resolver(repo, authority_entry=entry, live_harness_receipts=(provision,))
         registry = read_api.catalog.AcquisitionAuthorityRegistry.model_validate_json(
@@ -301,7 +421,11 @@ def make_wdi_port_case(
         custodian = _retained_native_epoch_custodian(appointments, store=store)
         native = sign_native_epoch_scenario(
             SimpleNamespace(
-                store=store, prepared=prepared, query=prepared.query, history=history, service=None
+                store=store,
+                prepared=prepared,
+                query=prepared.query,
+                history=history,
+                service=None,
             ),
             tmp_path / "institution",
             custodian=custodian,

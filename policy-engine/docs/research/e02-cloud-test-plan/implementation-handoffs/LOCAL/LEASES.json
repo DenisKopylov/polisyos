@@ -25897,5 +25897,143 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "r3-served-global-scalar-and-run-index-refresh-v6-20261020": {
+    "slice_base": "3ddec75a9c9f6c9f82c69147a88dc0dbb4d3bd08",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/_helpers/generic_n4_served_replay.py": {
+        "operation": "write",
+        "preimage_sha256": "37f793e764fa060d227356564c09c21c280e283fca0eb541a02664f824eccf83",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r3-served-global-scalar-candidate-20261020-v6/postimages/generic_n4_served_replay.py",
+        "postimage_sha256": "724a2445dbb36f03dfdd11b48d04adbc6ebc173335a48564c97a27dc679dce90"
+      },
+      "policy-engine/tests/_helpers/runtime_http.py": {
+        "operation": "write",
+        "preimage_sha256": "002f424a236b7437972ee0e6b2ea212fc1e7f6a5c7bda5b70336a3036d04fec6",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r3-served-global-scalar-candidate-20261020-v6/postimages/runtime_http.py",
+        "postimage_sha256": "e3a7f789daca8b983f46eca92e6bc1cacde0234d88c794a5fd0ce4d9dab060a1"
+      },
+      "policy-engine/tests/_helpers/acquisition_chain.py": {
+        "operation": "write",
+        "preimage_sha256": "b25bd4dc0dab173dfdaa8be4820f2c43fd4917fff09ca6e4c5f0b62fb0e05598",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r3-served-global-scalar-candidate-20261020-v6/postimages/acquisition_chain.py",
+        "postimage_sha256": "cc74bbf7ec45ccc3eef129f20a6271cb1cd0eaf823392629770bf42a24aed614"
+      },
+      "policy-engine/tests/_helpers/acquisition_served_history.py": {
+        "operation": "write",
+        "preimage_sha256": "5800d778e62eb5b0537f0510de3b5c30a8db50774717fc4deab4cba6cb6427fe",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r3-served-global-scalar-candidate-20261020-v6/postimages/acquisition_served_history.py",
+        "postimage_sha256": "58b4652b7a97ed4df1f1b42c86ddb8fa82a8c77bd2cd08caf3f35e677c58495a"
+      },
+      "policy-engine/tests/integration/runtime_quality/test_n7_fabric_capture_served.py": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r3-served-global-scalar-candidate-20261020-v6/postimages/test_n7_fabric_capture_served.py",
+        "postimage_sha256": "edf7284ff9e429831b836087d6264b0d9197c0090cc871692e8e64739e832b91"
+      },
+      "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py": {
+        "operation": "write",
+        "preimage_sha256": "65a8c2973bea7672fad67e51d00d0848eb7217bc7c44c040c9f103ae4797b007",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r3-served-global-scalar-candidate-20261020-v6/postimages/test_nl_pipeline_cost_projection.py",
+        "postimage_sha256": "e5b311c9c80a2372fc1a93858dee3a2578a969cc5bb19fe0bd3d3bd07ce5f8a6"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/r3-run-index-cache-p40-corrigendum-20261020.json": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-r3-served-global-scalar-v6-adoption-20261020/classification-corrigendum.json",
+        "postimage_sha256": "4a889318a7889f28313cd875db973b2caf19febf6cca42c0c9ffa7de63482b25"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-r3-served-global-scalar-v6-adoption-20261020/source-application.json",
+      "sha256": "e4df4da17b1154cb80264b736828574e4c40c3c82bee509cda5f5c34a6056a7f"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-r3-served-global-scalar-v6-adoption-20261020/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/incidents/two-known-owned-test-edits-20261019/capture.json",
+        "sha256": "ef014c97ec1e6f3cd0052c8b6bbcc9d98a482e8abbf4f14db9c17eac1a34e370"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/observed-owned-test-changes.patch",
+        "sha256": "7f3ee384af15393df347155ae297bb43592610740c361501b11832be272e4444"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-source-additions-preservation-r4-logging-20261019/apply-and-commit.py",
+        "sha256": "f91d9cd620e1336fd0e6d956ec83b0fa30786fd96797f446528c1001eab2de35"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-preservation-r3-ancestor-independent-review-20261019/review-correction-v2.json",
+        "sha256": "144b901703f88e72c7b09aa2b1e3931affc5a61cf3ac00875a019a3eefa115eb"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r3-served-global-scalar-candidate-20261020-v6/manifest-v6.json",
+        "sha256": "8afc613a619784060835ea9c7bfe87b3f64772965dc16f979278a95b92522698"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r3-served-global-scalar-candidate-20261020-v6/patch-v6.diff",
+        "sha256": "edc760a8e735819f88246fa7d0a55322b9dc85f7ab921eb5ad57ff84af9e1679"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r3-n7-v6-independent-oracle-20261020/review-v1.json",
+        "sha256": "0544b06fdaa4f12f584cc21cfbeb331cc4b5df512589b85f755af31c3c971c91"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r3-v5-canonical-native-preflight-20261020/result.json",
+        "sha256": "40ecdaf19c37000b6438777d5fc60b5cc7667f23c1ea91675897d7f04f9dd81f"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-r3-served-global-scalar-v6-adoption-20261020/classification-corrigendum.json",
+        "sha256": "4a889318a7889f28313cd875db973b2caf19febf6cca42c0c9ffa7de63482b25"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py": "baab841019a411c004795a00d16969f182e3291973810d9cf80159cff68514de",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57"
+    },
+    "preserved_other_owned_provenance": {
+      "preparation": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      "source_application": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      }
+    },
+    "preserved_other_owned_tracked_paths": [
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py"
+    ],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "SAME RunIndex freshness class widened to deterministic prewarmed two-run TTL/cache and remove-refresh control; same controlled fixture profile-scope class widened to the existing all-global scalar fixture.",
+    "bounded_proof": "Independent V6 source GO; exact canonical Ruff/format/AST and patch checks. Prior V4 actual two cases failed and remain retained. Current V6 runtime remains UNRUN.",
+    "limitations": [
+      "Global scalar controlled fixture establishes no per-cell identity/vector-index mapping or V5 handoff by declaration.",
+      "The ordinary candidate POST is not evidence that N7 acquisition ran; the separate N7 route must show actual retrieval and persisted capture.",
+      "V5 formatter claim was wrong due empty pyproject Ruff context; V6 uses the canonical workspace config and removes unrelated format churn.",
+      "Cache classification correction is root-owned and appended without mutating frozen author/reviewer artifacts.",
+      "No production currentness, causal calibration, issuer authority, G acceptance or formal finding closure.",
+      "Two known-owned incomplete N7/B108 tracked tests remain preserved outside this commit."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run the real ordinary two-POST cache/fresh-GET/removal case and the separate N7 concrete acquisition/capture case under normal configuration on the composed candidate; N7 reissue still needs actual owner-issued V5 handoff and fresh N5 consumer.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

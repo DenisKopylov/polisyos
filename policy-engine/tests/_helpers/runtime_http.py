@@ -45,13 +45,17 @@ from polisyos.core.contracts.control import PromotionCandidate
 from polisyos.core.run.context import RunContext
 from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.core.trace.record import TraceRecord
-from polisyos.fabric.catalog.source_selection_audit import build_fabric_source_selection_trace
+from polisyos.fabric.catalog.source_selection_audit import (
+    build_fabric_source_selection_trace,
+)
 from polisyos.pdc import ArtifactRef as PDCArtifactRef
 from polisyos.runtime.http.app import create_runtime_api_app
 from polisyos.runtime.http.execution_policy import RuntimeExecutionPolicyResolver
 from polisyos.runtime.http.resilience import run_guarded_dependency_operation
 from polisyos.runtime.http.services.control import ControlPlaneService
-from polisyos.runtime.http.services.control_registry_providers import ControlRegistryProviders
+from polisyos.runtime.http.services.control_registry_providers import (
+    ControlRegistryProviders,
+)
 from polisyos.runtime.quality.evaluation_modes import resolve_evaluation_mode
 from polisyos.runtime.quality.evaluation_safety import EvaluationAttemptIntake
 
@@ -436,7 +440,9 @@ def _seed_fixture_producer_cost_events(
     from polisyos.scientist.orchestration.engine.budget_ledger import (
         BudgetLedgerProducerRunBinding,
     )
-    from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+    from polisyos.scientist.orchestration.engine.budget_middleware import (
+        BudgetMiddleware,
+    )
 
     if type(settlement_store) is not BudgetMiddleware:
         raise TypeError("fixture_producer_settlement_store_must_be_budget_middleware")
@@ -689,6 +695,7 @@ def submit_ordinary_nl_post(
     request: str = "Analyze a small-business liquidity support policy.",
     llm_model: str = "simulated-qwen",
     max_iterations: int = 1,
+    before_run_index_refresh: Callable[[Any, Any, str], None] | None = None,
 ) -> dict[str, object]:
     """Create and execute a real NL control job, returning its persisted owner."""
     from tests._helpers.control_worker import dispatch_one_control_job
@@ -741,6 +748,9 @@ def submit_ordinary_nl_post(
     if runtime_context is None:
         raise RuntimeError("ordinary NL runtime API context not bound")
     core_run_id = str(completed.progress["core_run_id"])
+    if before_run_index_refresh is not None:
+        before_run_index_refresh(completed, runtime_context.run_index, core_run_id)
+    runtime_context.run_index.refresh(force=True)
     run = runtime_context.run_index.get_run(core_run_id)
     if run is None:
         raise AssertionError("ordinary NL core run is absent from the persisted run index")
@@ -1456,7 +1466,11 @@ def build_runtime_api_env(
                 "governance": {
                     "verdict": "reject",
                     "issues": [
-                        {"code": "GOV001", "message": "Policy blocker", "severity": "blocker"}
+                        {
+                            "code": "GOV001",
+                            "message": "Policy blocker",
+                            "severity": "blocker",
+                        }
                     ],
                     "notes": ["fallback-governance"],
                 },
@@ -1508,7 +1522,10 @@ def build_runtime_api_env(
                         "timestamp": "2026-02-11T12:00:02Z",
                         "node": "formalize",
                         "action": "ir_generated",
-                        "details": {"summary": "Trinity bundle assembled", "attempt": 1},
+                        "details": {
+                            "summary": "Trinity bundle assembled",
+                            "attempt": 1,
+                        },
                     },
                     {
                         "timestamp": "2026-02-11T12:00:03Z",
@@ -1564,7 +1581,11 @@ def build_runtime_api_env(
                     "governance": {
                         "verdict": "reject",
                         "issues": [
-                            {"code": "GOV001", "message": "Policy blocker", "severity": "blocker"}
+                            {
+                                "code": "GOV001",
+                                "message": "Policy blocker",
+                                "severity": "blocker",
+                            }
                         ],
                         "notes": ["fallback-governance"],
                     },

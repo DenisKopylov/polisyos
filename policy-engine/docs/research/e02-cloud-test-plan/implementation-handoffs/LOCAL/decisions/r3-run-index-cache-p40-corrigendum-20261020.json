@@ -1,0 +1,20 @@
+{
+  "schema": "policyos.e02.author_classification_corrigendum.v1",
+  "subject": "R3 V6 RunIndex freshness cache control",
+  "candidate_manifest": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r3-served-global-scalar-candidate-20261020-v6/manifest-v6.json",
+    "sha256": "8afc613a619784060835ea9c7bfe87b3f64772965dc16f979278a95b92522698"
+  },
+  "independent_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/r3-n7-v6-independent-oracle-20261020/review-v1.json",
+    "sha256": "0544b06fdaa4f12f584cc21cfbeb331cc4b5df512589b85f755af31c3c971c91"
+  },
+  "prior_root_instruction": "Root incorrectly called the missing deterministic prewarm/removal proof a NEW verification gap in the V6 author task.",
+  "correct_P40_bucket": "SAME RunIndex freshness class, one level deeper than the V5 R3V5-01 finding.",
+  "widened_repair": "The two-run test holds the actual RunIndex clock within TTL, prewarms a real persisted first run, proves the completed sibling is missing from the unforced cache, then requires the helper forced refresh before exact run lookup. Removing that refresh leaves the real final lookup failing.",
+  "candidate_bytes_mutated": false,
+  "runtime": "UNRUN on this candidate",
+  "source_freeze": false,
+  "G_acceptance": false,
+  "closure_ids": []
+}

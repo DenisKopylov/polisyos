@@ -18,7 +18,10 @@ from polisyos.core.contracts.control import (
     ControlJobResponse,
     DataResolveRequest,
 )
-from polisyos.core.contracts.execution_plan import MethodCatalogSnapshot, MethodCatalogSnapshotRef
+from polisyos.core.contracts.execution_plan import (
+    MethodCatalogSnapshot,
+    MethodCatalogSnapshotRef,
+)
 from polisyos.core.llm.traced_client import TracedLLMClient
 from polisyos.fabric.retrieval import RetrievalService as _CanonicalRetrievalService
 from polisyos.runtime.http.execution_policy import RuntimeExecutionPolicyResolver
@@ -27,13 +30,17 @@ from polisyos.runtime.http.services.control.nl_pipeline import (
     NaturalLanguagePipelineRefusalError,
     _artifact_ref_from_ref_payload,
 )
-from polisyos.runtime.http.services.control_registry_providers import ControlRegistryProviders
+from polisyos.runtime.http.services.control_registry_providers import (
+    ControlRegistryProviders,
+)
 from polisyos.runtime.quality.substrate_registry import CatalogServingSourceSelection
 from polisyos.scientist.orchestration.llm.prompt_cache import (
     CachingLLMClient,
     InMemoryPromptCache,
 )
-from polisyos.scientist.orchestration.llm.simulated_gateway import SimulatedGatewayLLMClient
+from polisyos.scientist.orchestration.llm.simulated_gateway import (
+    SimulatedGatewayLLMClient,
+)
 from tests._helpers.control_worker import dispatch_one_control_job
 from tests._helpers.runtime_http import (
     build_runtime_api_env,
@@ -364,7 +371,9 @@ def test_simulated_nl_producer_costs_settle_and_capture_four_origins(
     from polisyos.fabric import retrieval as retrieval_module
     from polisyos.scientist.orchestration.engine.budget import BudgetState
     from polisyos.scientist.orchestration.engine.budget_ledger import FileBudgetLedger
-    from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+    from polisyos.scientist.orchestration.engine.budget_middleware import (
+        BudgetMiddleware,
+    )
 
     captured: dict[str, Any] = {}
     monetary_clients: list[_CancelCacheOwnerOnce] = []
@@ -468,7 +477,11 @@ def test_simulated_nl_producer_costs_settle_and_capture_four_origins(
     import hashlib
 
     from polisyos.core.artifacts import read_core_json_artifact
-    from polisyos.core.artifacts.manifest import ArtifactRef, ArtifactTenantContextInfo, SchemaInfo
+    from polisyos.core.artifacts.manifest import (
+        ArtifactRef,
+        ArtifactTenantContextInfo,
+        SchemaInfo,
+    )
     from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
     from polisyos.runtime.http.services.control import nl_pipeline as nl_pipeline_module
     from polisyos.runtime.http.services.control.artifacts import (
@@ -938,7 +951,9 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
         BudgetLedgerProducerRunBinding,
         FileBudgetLedger,
     )
-    from polisyos.scientist.orchestration.engine.budget_middleware import BudgetMiddleware
+    from polisyos.scientist.orchestration.engine.budget_middleware import (
+        BudgetMiddleware,
+    )
     from polisyos.scientist.orchestration.llm.gateway_client import GatewayLLMClient
 
     monkeypatch.setenv("POLISYOS_LLM_SIMULATION_MODE", "1")
@@ -999,13 +1014,6 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
         snapshot_root=catalog_snapshot_root,
         catalog_run_profile="prod_full",
     )
-    # Replace the constructor before Runtime builds the retrieval service.
-    # Patching only resolve/execute_fetch_plans after app creation leaves the
-    # already-created real instance outside the fake's instance receipt.
-    monkeypatch.setattr(
-        "polisyos.fabric.retrieval.RetrievalService",
-        _FakeRetrievalService,
-    )
     env = build_runtime_api_env(
         tmp_path,
         include_test_client=True,
@@ -1031,27 +1039,28 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
     client_context = cast("Any", env["client"])
     assert client_context is not None
     client_entered = False
-    monkeypatch.setattr(
-        "polisyos.fabric.retrieval.RetrievalService.resolve",
-        _FakeRetrievalService.resolve,
-    )
-    monkeypatch.setattr(
-        "polisyos.fabric.retrieval.RetrievalService.execute_fetch_plans",
-        _FakeRetrievalService.execute_fetch_plans,
-    )
     try:
         client_context.__enter__()
         client_entered = True
         client = client_context
-        previous_retrieval_count = len(_FakeRetrievalService.instances)
         ordinary_run = submit_ordinary_nl_post(env)
-        selected_retrievals = _FakeRetrievalService.instances[previous_retrieval_count:]
-        assert selected_retrievals
-        assert any(
-            run_profile == "prod_full"
-            for retrieval in selected_retrievals
-            for _requested_profile, run_profile in retrieval.resolve_profile_calls
+        from polisyos.runtime.http.services import run_index as run_index_module
+
+        monkeypatch.setattr(
+            run_index_module,
+            "time",
+            SimpleNamespace(monotonic=lambda: 100.0, perf_counter=lambda: 100.0),
         )
+        runtime_context = cast("Any", ordinary_run["runtime_context"])
+        run_index = runtime_context.run_index
+        run_index.refresh(force=True)
+        prewarmed_run = run_index.get_run(str(ordinary_run["run_id"]))
+        assert prewarmed_run.run_id == ordinary_run["run_id"]
+        ordinary_progress = ordinary_run["job"].progress
+        assert ordinary_progress["execution_intent_band"] == "candidate_only"
+        assert ordinary_progress["stage"] == "n4_proposal_only"
+        assert ordinary_progress["n5_status"] == "not_run"
+        assert ordinary_progress["n9_status"] == "not_run"
         job = ordinary_run["job"]
         job_id = str(ordinary_run["job_id"])
         creation_payload = ordinary_run["creation_payload"]
@@ -1133,7 +1142,9 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
             source_run_id: str | None = None,
             quality_evidence: dict[str, Any] | None = None,
         ) -> dict[str, Any]:
-            from tools.ops_runners.runtime.canary_evidence import _build_canary_scorecard
+            from tools.ops_runners.runtime.canary_evidence import (
+                _build_canary_scorecard,
+            )
 
             return _build_canary_scorecard(
                 owner_source_context=(app, client),
@@ -1290,7 +1301,10 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
         # A completed owner projection can carry the declared request omission,
         # but neither effective-profile barrier records nor an intent reconstructed
         # from that effective profile may turn the omission into authority.
-        from polisyos.runtime.quality.phase_barriers import PhaseBarrierId, PhaseBarrierRecord
+        from polisyos.runtime.quality.phase_barriers import (
+            PhaseBarrierId,
+            PhaseBarrierRecord,
+        )
 
         effective_profile = received_job.effective_execution_profile
         assert isinstance(effective_profile, str) and effective_profile
@@ -1386,9 +1400,29 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
         assert forged_source_gate["status"] == "fail"
         assert forged_source_gate["code"] == "phase_barrier_owner_scope_not_established"
 
+        stale_run_index_misses: list[str] = []
+
+        def _assert_completed_sibling_is_missing_before_refresh(
+            completed_job: Any, candidate_run_index: Any, core_run_id: str
+        ) -> None:
+            assert completed_job.state == "completed"
+            assert str(completed_job.progress["core_run_id"]) == core_run_id
+            assert candidate_run_index is run_index
+            assert core_run_id != str(ordinary_run["run_id"])
+            run_dir = candidate_run_index._core_runs_root / core_run_id
+            trace_path = run_dir / "trace.jsonl"
+            assert trace_path.is_file() and trace_path.stat().st_size > 0
+            with pytest.raises(KeyError):
+                candidate_run_index.get_run(core_run_id)
+            stale_run_index_misses.append(core_run_id)
+
         sibling_run = submit_ordinary_nl_post(
-            env, request="Compare a sibling liquidity-support execution."
+            env,
+            request="Compare a sibling liquidity-support execution.",
+            before_run_index_refresh=_assert_completed_sibling_is_missing_before_refresh,
         )
+        assert stale_run_index_misses == [str(sibling_run["run_id"])]
+        assert sibling_run["run"].run_id == sibling_run["run_id"]
         sibling_job_id = str(sibling_run["job_id"])
         sibling_record = control_store.get_job(sibling_job_id)
         sibling_outbox = control_store.get_job_completed_outbox_event(sibling_job_id)
@@ -1450,14 +1484,20 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
         }
         control_store._execute(
             "UPDATE control_outbox_events SET payload_json = ? WHERE event_id = ?",
-            (json.dumps(tampered_outbox_payload, sort_keys=True), completion_outbox.event_id),
+            (
+                json.dumps(tampered_outbox_payload, sort_keys=True),
+                completion_outbox.event_id,
+            ),
         )
         try:
             tampered_outbox_scorecard = _source_scorecard(received_payload)
         finally:
             control_store._execute(
                 "UPDATE control_outbox_events SET payload_json = ? WHERE event_id = ?",
-                (json.dumps(completion_outbox.payload, sort_keys=True), completion_outbox.event_id),
+                (
+                    json.dumps(completion_outbox.payload, sort_keys=True),
+                    completion_outbox.event_id,
+                ),
             )
         tampered_outbox_gate = next(
             gate
@@ -1517,17 +1557,26 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
 
         terminal_event = control_store.get_job_terminal_source_event_record(job_id)
         assert terminal_event is not None
-        tampered_event_payload = {**terminal_event.payload, "lease_owner": "worker-forged-in-event"}
+        tampered_event_payload = {
+            **terminal_event.payload,
+            "lease_owner": "worker-forged-in-event",
+        }
         control_store._execute(
             "UPDATE control_job_events SET payload_json = ? WHERE event_id = ?",
-            (json.dumps(tampered_event_payload, sort_keys=True), terminal_event.event_id),
+            (
+                json.dumps(tampered_event_payload, sort_keys=True),
+                terminal_event.event_id,
+            ),
         )
         try:
             tampered_event_scorecard = _source_scorecard(received_payload)
         finally:
             control_store._execute(
                 "UPDATE control_job_events SET payload_json = ? WHERE event_id = ?",
-                (json.dumps(terminal_event.payload, sort_keys=True), terminal_event.event_id),
+                (
+                    json.dumps(terminal_event.payload, sort_keys=True),
+                    terminal_event.event_id,
+                ),
             )
         tampered_event_gate = next(
             gate
@@ -1667,7 +1716,12 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
                                 "model": "provider-self-model",
                                 "provider": "provider-self-label",
                                 "choices": [
-                                    {"message": {"role": "assistant", "content": "retry completed"}}
+                                    {
+                                        "message": {
+                                            "role": "assistant",
+                                            "content": "retry completed",
+                                        }
+                                    }
                                 ],
                                 "usage": {
                                     "prompt_tokens": 3,
@@ -2284,7 +2338,12 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
                 ("estimated_cost_usd", 0.51, 1, "not_established"),
             }
             unassigned_scalars = {
-                (row.source_kind, row.model_variant_id, row.claimed_value_usd, row.scope)
+                (
+                    row.source_kind,
+                    row.model_variant_id,
+                    row.claimed_value_usd,
+                    row.scope,
+                )
                 for row in attempt_two_pipeline.unattributed_cost_scalars
             }
             assert (
@@ -2354,7 +2413,10 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
             GenerationCycleError,
         )
         from polisyos.scientist.methods.search.voi_scheduler import SimpleVOIScheduler
-        from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+        from polisyos.scientist.orchestration.engine.budget import (
+            BudgetLimit,
+            BudgetState,
+        )
 
         unknown_store = BudgetMiddleware(BudgetState(), ledger=FileBudgetLedger(ledger_path))
         unknown_provider = _MonetarySimulatedProvider("simulated-qwen")
@@ -2376,7 +2438,10 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
         )
 
         async def _run_unknown_origin_reuse() -> tuple[Any, Any]:
-            request = {"user": "R3 terminal-unknown origin cache reuse witness.", "temperature": 0}
+            request = {
+                "user": "R3 terminal-unknown origin cache reuse witness.",
+                "temperature": 0,
+            }
             with unknown_store.producer_run_binding_scope(binding, control_job_attempt=job.attempt):
                 physical = await unknown_client.generate(**request)
                 reuse = await unknown_client.generate(**request)
@@ -2466,7 +2531,9 @@ def test_terminal_progress_carries_only_current_fenced_source_projections(
         ControlJobLeaseLostError,
         ControlPlaneStore,
     )
-    from polisyos.runtime.quality.phase_barriers import _execution_owner_binding_from_admission
+    from polisyos.runtime.quality.phase_barriers import (
+        _execution_owner_binding_from_admission,
+    )
     from polisyos.runtime.quality.refs import RuntimeQualityAuthorityRefs
 
     store = ControlPlaneStore(backend="sqlite", sqlite_path=tmp_path / "owner-terminal.sqlite3")
@@ -2698,7 +2765,10 @@ def test_terminal_progress_carries_only_current_fenced_source_projections(
         ):
             store.complete_job(
                 job_id=failed.job_id,
-                progress={"phase": "terminal", "runtime_quality_refs": conflicting_refs},
+                progress={
+                    "phase": "terminal",
+                    "runtime_quality_refs": conflicting_refs,
+                },
             )
         with pytest.raises(
             ControlJobLeaseLostError,
@@ -3538,7 +3608,13 @@ def test_agent_pipeline_details_are_bounded_unestablished_claims(source: str) ->
     if source == "audit":
         expected_details = {"nested": nested_detail}
         steps = _agent_steps_from_audit_trail(
-            [{"node": "critic", "action": "approved", "details": {"nested": nested_detail}}],
+            [
+                {
+                    "node": "critic",
+                    "action": "approved",
+                    "details": {"nested": nested_detail},
+                }
+            ],
             sensitive_keys=(),
         )
     elif source == "timeline":
@@ -3618,7 +3694,13 @@ def test_agent_pipeline_scalar_adapters_refuse_malformed_amounts(
     def _build_steps() -> object:
         if source == "audit":
             return _agent_steps_from_audit_trail(
-                [{"node": "critic", "action": "approved", "details": {"cost_usd": invalid}}],
+                [
+                    {
+                        "node": "critic",
+                        "action": "approved",
+                        "details": {"cost_usd": invalid},
+                    }
+                ],
                 sensitive_keys=(),
             )
         if source == "timeline":
@@ -3824,7 +3906,11 @@ def test_agent_pipeline_projection_requires_explicit_root_owner_context() -> Non
     assert legacy_v13.cost_usd is None
     assert legacy_v13.reported_cost_usd is None
     assert legacy_v13.estimated_cost_usd is None
-    legacy_levels = [legacy_v13, legacy_v13.attempts[0], legacy_v13.attempts[0].steps[0]]
+    legacy_levels = [
+        legacy_v13,
+        legacy_v13.attempts[0],
+        legacy_v13.attempts[0].steps[0],
+    ]
     assert all(
         value is None
         for level in legacy_levels

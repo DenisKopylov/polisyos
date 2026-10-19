@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from polisyos.core import artifacts
+from polisyos.core import artifacts, canon
 
 
 def _reader_fixture(tmp_path: Path):
@@ -192,3 +192,145 @@ def test_complete_target_census_normalizes_unreadable_packet(tmp_path: Path, fai
         service.persist_epoch_impact_snapshot_for_targets(
             target_refs=(target,), requested_query_context_ref="sha256:" + "c" * 64
         )
+
+
+def test_reconciliation_inputs_preserve_each_manifest_selector() -> None:
+    """Receipt edges retain producer-selected views and preserve default selectors."""
+    from polisyos.runtime.quality import epoch_denominator_reconciliation as module
+
+    profile = "sha256:" + "a" * 64
+    refs = tuple(
+        artifacts.ArtifactRef(
+            artifact_id=artifacts.ArtifactID.model_validate("sha256:" + chr(ord("b") + index) * 64),
+            kind=f"test.input.{index}",
+            media_type="application/octet-stream",
+            manifest_profile_sha256=profile if index != 1 else None,
+        )
+        for index in range(3)
+    )
+    inputs = module._receipt_inputs(
+        transition_ref=refs[0],
+        snapshot_ref=refs[1],
+        provenance_ref=refs[2],
+    )
+    by_role = {row.role: row for row in inputs}
+    assert by_role["epoch_transition"].manifest_profile_sha256 == profile
+    assert by_role["decision_validity_epoch_impact_snapshot"].manifest_profile_sha256 is None
+    assert by_role["epoch_transition_verifier_provenance"].manifest_profile_sha256 == profile
+
+
+def test_reconciliation_receipt_round_trips_cas_selected_profiles_for_all_existing_edges(
+    tmp_path: Path,
+) -> None:
+    import polisyos.scientist.validation.decision_validity as decision_validity
+    from polisyos.core.contracts import DecisionValidityEpochImpactSnapshotHandle
+    from polisyos.runtime.quality import epoch_denominator_reconciliation as module
+    from polisyos.runtime.quality import epoch_validity_cascade as cascade
+    from polisyos.runtime.quality.epoch_denominator_reconciliation import (
+        EpochTransitionDenominatorReconciliationProducer,
+        EpochTransitionDenominatorReconciliationReader,
+    )
+    from tests.unit.scientist.validation.test_decision_validity_service import (
+        _runtime_reconciliation_fixture,
+    )
+
+    fixture = _runtime_reconciliation_fixture(tmp_path)
+    store = fixture.store
+
+    selected_transition = store.put_bytes(
+        store.get_bytes(fixture.transition_ref),
+        cascade._epoch_transition_artifact_write_options(),
+        return_selected_profile=True,
+    )
+    assert selected_transition.manifest_profile_sha256 is not None
+
+    snapshot_ref = fixture.snapshot.handle.snapshot_ref
+    selected_snapshot = store.put_bytes(
+        store.get_bytes(snapshot_ref),
+        artifacts.ArtifactWriteOptions(
+            kind=decision_validity._EPOCH_IMPACT_SNAPSHOT_KIND,
+            media_type=decision_validity._EPOCH_IMPACT_SNAPSHOT_MEDIA_TYPE,
+            schema=artifacts.SchemaInfo(
+                name=decision_validity._EPOCH_IMPACT_SNAPSHOT_SCHEMA,
+                version="1.0",
+            ),
+            canon=artifacts.CanonInfo.from_spec(decision_validity._EPOCH_IMPACT_SNAPSHOT_CANON),
+        ),
+        return_selected_profile=True,
+    )
+    assert selected_snapshot.manifest_profile_sha256 is not None
+    selected_snapshot_handle = DecisionValidityEpochImpactSnapshotHandle(
+        snapshot_ref=selected_snapshot,
+        snapshot_content_hash=fixture.snapshot.snapshot.snapshot_content_hash,
+    )
+
+    selected_provenance = store.put_bytes(
+        store.get_bytes(fixture.provenance),
+        artifacts.ArtifactWriteOptions(
+            kind="chronology.epoch_transition_verifier",
+            media_type="application/json",
+        ),
+        return_selected_profile=True,
+    )
+    assert selected_provenance.manifest_profile_sha256 is not None
+
+    producer = EpochTransitionDenominatorReconciliationProducer(
+        store=store,
+        verifier_provenance_ref=selected_provenance,
+    )
+    persisted = producer.produce_and_persist(
+        transition_artifact_ref=selected_transition,
+        scientist_snapshot_handle=selected_snapshot_handle,
+        requested_query_context_ref=fixture.query_ref,
+        authority_purpose="decision_validity_epoch_transition",
+    )
+    assert not isinstance(persisted, module.EpochDenominatorReconciliationNonReceipt)
+
+    receipt_manifest = store.get_manifest(persisted.handle.reconciliation_receipt_ref)
+    by_role = {row.role: row for row in receipt_manifest.inputs}
+    assert (
+        by_role["epoch_transition"].manifest_profile_sha256
+        == selected_transition.manifest_profile_sha256
+    )
+    assert (
+        by_role["decision_validity_epoch_impact_snapshot"].manifest_profile_sha256
+        == selected_snapshot.manifest_profile_sha256
+    )
+    assert (
+        by_role["epoch_transition_verifier_provenance"].manifest_profile_sha256
+        == selected_provenance.manifest_profile_sha256
+    )
+
+    reread = EpochTransitionDenominatorReconciliationReader(
+        store=store,
+        verifier_provenance_ref=selected_provenance,
+    ).resolve_exact(handle=persisted.handle)
+    assert reread == persisted
+
+
+def test_manifest_refinement_respects_default_and_selected_selectors(tmp_path: Path) -> None:
+    """A default selector may carry CAN; explicit selected selectors bind exact views."""
+    from polisyos.runtime.quality import epoch_denominator_reconciliation as module
+
+    store = artifacts.FileSystemCAS(tmp_path / "cas")
+    spec = canon.CanonSpec(forbid_floats=False)
+    payload = canon.to_canonical_bytes({"transition": "view"}, spec)
+    ref = store.put_bytes(
+        payload,
+        artifacts.ArtifactWriteOptions(
+            kind="test.transition_view",
+            media_type="application/json",
+            canon=artifacts.CanonInfo.from_spec(spec),
+        ),
+        return_selected_profile=True,
+    )
+    manifest = store.get_manifest(ref)
+    default_ref = artifacts.ArtifactRef(
+        artifact_id=ref.artifact_id,
+        kind=ref.kind,
+        media_type=ref.media_type,
+    )
+    wrong_ref = ref.model_copy(update={"manifest_profile_sha256": "sha256:" + "0" * 64})
+    assert module._manifest_matches_ref(manifest, ref)
+    assert module._manifest_matches_ref(manifest, default_ref)
+    assert not module._manifest_matches_ref(manifest, wrong_ref)

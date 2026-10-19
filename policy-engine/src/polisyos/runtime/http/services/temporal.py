@@ -40,6 +40,7 @@ from polisyos.runtime.quality.epoch_staleness_projection import (
 from polisyos.runtime.quality.epoch_validity_cascade import (
     EpochTransitionSigningAuthority,
     EpochTransitionSigningNonReceipt,
+    _epoch_transition_artifact_write_options,
 )
 from polisyos.scientist.governance.continuous import (
     GOVERNANCE_MONITOR_EVENT_KIND,
@@ -452,6 +453,7 @@ class TemporalService:
             )
         transition = self._transition_signing_authority.sign_transition(
             transition_bytes=b"",
+            write_options=_epoch_transition_artifact_write_options(),
             authority_purpose=query.domain.authority_purpose,
             requested_query_context_ref=requested_query_context_ref,
         )

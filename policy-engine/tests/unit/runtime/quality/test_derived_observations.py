@@ -479,6 +479,7 @@ print(json.dumps({
     "derived_input_profile": source_edge.manifest_profile_sha256,
     "certificate_input_profile": certificate_input.manifest_profile_sha256,
     "consumed": consumption.cache_verified,
+    "cache_hit": materialized.cache_hit,
     "certificate_source_profile": next(
         item.artifact.manifest_profile_sha256
         for item in materialized.certificate.recipe.inputs
@@ -511,6 +512,7 @@ print(json.dumps({
     assert fresh_read["certificate_input_profile"] == selected_source_ref.manifest_profile_sha256
     assert fresh_read["certificate_source_profile"] == selected_source_ref.manifest_profile_sha256
     assert fresh_read["consumed"] is True
+    assert fresh_read["cache_hit"] is False
 
 
 def test_selected_view_recipe_version_is_rejected_by_strict_legacy_reader(
@@ -543,7 +545,9 @@ def test_selected_view_recipe_version_is_rejected_by_strict_legacy_reader(
 
         schema_version: Literal["polisyos.runtime.derived_observations.v2"]
 
-    payload = derived_module._canonical_payload(store.get_bytes(persisted_ref))
+    payload = derived_module._canonical_payload(
+        store.get_bytes(persisted_ref), store=store, selector=persisted_ref
+    )
     with pytest.raises(ValidationError):
         LegacyRecipeTag.model_validate(payload)
 
@@ -555,7 +559,9 @@ def test_selected_view_recipe_version_is_rejected_by_strict_legacy_reader(
         derived_module._CERTIFICATE_SELECTED_VIEW_SCHEMA
     )
     certificate_payload = derived_module._canonical_payload(
-        store.get_bytes(materialized.certificate_artifact_ref)
+        store.get_bytes(materialized.certificate_artifact_ref),
+        store=store,
+        selector=materialized.certificate_artifact_ref,
     )
 
     class LegacyCertificateTag(BaseModel):
@@ -831,10 +837,16 @@ def test_read_only_certified_consumer_refuses_raw_certificate_profile_corruption
 ) -> None:
     root = tmp_path / "cas"
     store, refs, output_basis, _, _ = _case_inputs(root, "price_level_rebase")
+    selected_amount_ref = _selected_source_view(
+        store,
+        refs["amount"],
+        environment_tag="read-only-certificate-profile-corruption",
+    )
+    selected_refs = {**refs, "amount": selected_amount_ref}
     recipe = build_derivation_recipe(
         store,
         registry=_registry(),
-        input_refs=refs,
+        input_refs=selected_refs,
         output_variable_id=f"test.read.only.corrupt.{corruption}",
         output_basis=output_basis,
     )
@@ -1844,6 +1856,7 @@ def test_persisted_v1_certificate_is_recognized_and_typed_refused(tmp_path: Path
                 component="polisyos.runtime.quality.derived_observations",
                 version="1.0.0",
             ),
+            canon=artifacts.CanonInfo.from_spec(derived_module._CANON_SPEC),
         ),
     )
 
@@ -2010,10 +2023,7 @@ def _epoch_recompute_fixture(
     )
     transition_ref = store.put_bytes(
         epoch_cascade._canonical_bytes(transition),
-        artifacts.ArtifactWriteOptions(
-            kind="polisyos.epoch.validity_transition",
-            media_type="application/vnd.polisyos.chronology+json",
-        ),
+        epoch_cascade._epoch_transition_artifact_write_options(),
     )
     return _EpochRecomputeFixture(
         store=store,
@@ -2029,6 +2039,24 @@ def _epoch_recompute_fixture(
         query_ref=query_ref,
         purpose=purpose,
     )
+
+
+def test_epoch_recompute_refuses_transition_manifest_without_canon_profile(tmp_path: Path) -> None:
+    fixture = _epoch_recompute_fixture(tmp_path)
+    manifest_without_canon_ref = fixture.store.put_bytes(
+        fixture.store.get_bytes(fixture.transition_ref),
+        artifacts.ArtifactWriteOptions(
+            kind=epoch_cascade._TRANSITION_KIND,
+            media_type="application/vnd.polisyos.chronology+json",
+            schema=None,
+            canon=None,
+            inputs=None,
+        ),
+        return_selected_profile=True,
+    )
+    assert manifest_without_canon_ref.manifest_profile_sha256 is not None
+    with pytest.raises(ValueError, match="epoch transition artifact readback failed"):
+        derived_module._read_epoch_validity_transition(fixture.store, manifest_without_canon_ref)
 
 
 def _produce_epoch_recompute(
@@ -2078,6 +2106,52 @@ def _read_epoch_recompute(
     )
 
 
+def test_epoch_recompute_projection_refuses_transition_profile_change_after_receipt_replay(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.runtime.quality.epoch_staleness_projection import (
+        EpochInheritanceRecomputeProjectionReader,
+    )
+
+    fixture = _epoch_recompute_fixture(tmp_path)
+    _produce_epoch_recompute(fixture)
+    original_read = derived_module._read_epoch_validity_transition
+    profile_changed = False
+
+    def read_then_change_profile(
+        store: artifacts.FileSystemCAS,
+        transition_ref: artifacts.ArtifactRef,
+    ) -> epoch_cascade.EpochValidityTransitionArtifact:
+        nonlocal profile_changed
+        transition = original_read(store, transition_ref)
+        if transition_ref.artifact_id == fixture.transition_ref.artifact_id and not profile_changed:
+            manifest_path = store._manifest_path_for_ref(transition_ref.artifact_id, None)
+            manifest = store.get_manifest(transition_ref)
+            changed_manifest = manifest.model_copy(
+                update={"canon": artifacts.CanonInfo.from_spec(canon.CanonSpec(forbid_floats=True))}
+            )
+            manifest_path.write_text(changed_manifest.model_dump_json(), encoding="utf-8")
+            profile_changed = True
+        return transition
+
+    monkeypatch.setattr(
+        derived_module,
+        "_read_epoch_validity_transition",
+        read_then_change_profile,
+    )
+    reader = EpochInheritanceRecomputeProjectionReader(artifact_store=fixture.store)
+
+    with pytest.raises(DerivationRefusalError) as refusal:
+        reader.resolve(
+            requested_query_context_ref=fixture.query_ref,
+            authority_purpose=fixture.purpose,
+        )
+
+    assert profile_changed is True
+    assert refusal.value.code is DerivationRefusalCode.EPOCH_RECOMPUTE_DRIFT
+
+
 def test_epoch_inheritance_recompute_receipt_round_trips_exact_owner_graph(
     tmp_path: Path,
 ) -> None:
@@ -2096,7 +2170,11 @@ def test_epoch_inheritance_recompute_receipt_round_trips_exact_owner_graph(
     reread = _read_epoch_recompute(fixture, persisted.receipt_artifact_ref)
     raw = fixture.store.get_bytes(persisted.receipt_artifact_ref.artifact_id)
     manifest = fixture.store.get_manifest(persisted.receipt_artifact_ref.artifact_id)
-    payload = derived_module._canonical_payload(raw)
+    payload = derived_module._canonical_payload(
+        raw,
+        store=fixture.store,
+        selector=persisted.receipt_artifact_ref,
+    )
 
     assert reread == persisted
     assert persisted.receipt_content_hash == str(persisted.receipt_artifact_ref.artifact_id)
@@ -2135,7 +2213,9 @@ def test_epoch_recompute_receipt_preserves_selected_source_profile_on_fresh_read
     source_edge = next(item for item in receipt_manifest.inputs if item.role == "graph_edge_source")
     assert source_edge.manifest_profile_sha256 == source_profile
     payload = derived_module._canonical_payload(
-        fixture.store.get_bytes(persisted.receipt_artifact_ref)
+        fixture.store.get_bytes(persisted.receipt_artifact_ref),
+        store=fixture.store,
+        selector=persisted.receipt_artifact_ref,
     )
     assert payload["source_ref"]["manifest_profile_sha256"] == source_profile
     assert payload["schema_version"] == (

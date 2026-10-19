@@ -1,0 +1,29 @@
+id = "2026-10-19-e02-exact-cas-profile-composition"
+title = "Bind selected CAS views through derivation and transition readers"
+type = "fixed"
+component = "runtime-quality"
+owner = "team-runtime-quality"
+summary = "Derived cold writes retain CAS-selected inputs, and every epoch-transition consumer checks the typed CAN manifest contract on the exact bytes it reads."
+evidence = [
+  "src/polisyos/core/artifacts/signed_evidence.py",
+  "src/polisyos/runtime/quality/derived_observations.py",
+  "src/polisyos/runtime/quality/epoch_validity_cascade.py",
+  "src/polisyos/runtime/quality/epoch_deployment.py",
+  "src/polisyos/runtime/quality/epoch_denominator_reconciliation.py",
+  "src/polisyos/runtime/quality/epoch_staleness_projection.py",
+  "tests/unit/runtime/quality/test_derived_observations.py",
+  "tests/unit/runtime/quality/test_epoch_transition_origin.py",
+  "tests/unit/runtime/quality/test_epoch_transition_verification_properties.py",
+  "tests/unit/runtime/quality/test_epoch_staleness_projection.py",
+]
+
+compatibility = "Default-selector references remain valid and retain their existing meaning. Selected derivation references are returned by the actual write only when producer inputs select manifest views; all transition consumers recheck the typed CAN contract even on a later read. No public callable signature, persisted transition schema, or historical manifest is rewritten."
+change_class = "python-runtime-behavior"
+surface_classification = "public_stable: polisyos.core.FileSystemSignedArtifactEvidenceRepository exact selected-manifest readback; internal: runtime-quality derivation and epoch-transition production/consumption"
+migration = "No persisted-object migration is performed. Existing default refs remain profileless; transition consumers accept them only when the resolved manifest satisfies the existing typed content contract. Historical CAN-less transition manifests are refused by strict Core readers and must be reissued through the existing signer when a current transition is required."
+api = "SignedArtifactEvidenceRepository.persist_signed retains its existing signature. Exact signed-artifact reads check an explicit selector against the manifest digest; profileless refs remain profileless. Transition producers pass the existing typed kind, media, schema, CAN and empty-input options across the signing bridge, then read back and decode the exact signed manifest and bytes. Derivation outputs request a selected return only if an input ref has an explicit selected profile. Receipt input edges preserve producer refs, including their existing selector values."
+limitations = "The external signing institution remains the signer; this change verifies the exact bytes and the local typed CAN write contract and does not assert institutional authority beyond the existing verifier. Transition artifact inputs remain the existing inputs=None contract, so this change adds no upstream transition-lineage claim. consume_certified_derivation has internal epoch-recompute use and validation-tool consumers, but no product HTTP, API, dashboard, or publication orchestration is established by that caller set; its product surface remains out of scope. No G acceptance or closure is claimed."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = false
+migration_docs = []
+runbook_docs = []

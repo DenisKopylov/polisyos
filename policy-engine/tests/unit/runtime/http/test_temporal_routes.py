@@ -160,10 +160,7 @@ def _temporal_recompute_setup(
     )
     transition_ref = fixture.store.put_bytes(
         epoch_validity_runtime._canonical_bytes(transition),
-        ArtifactWriteOptions(
-            kind=derived_observations_runtime.EPOCH_VALIDITY_TRANSITION_KIND,
-            media_type="application/vnd.polisyos.chronology+json",
-        ),
+        epoch_validity_runtime._epoch_transition_artifact_write_options(),
     )
     rebound = replace(
         fixture,
@@ -469,10 +466,7 @@ def test_temporal_service_rejects_ambiguous_same_coordinate_recompute_receipts(
     )
     transition_ref = setup.fixture.store.put_bytes(
         epoch_validity_runtime._canonical_bytes(transition),
-        ArtifactWriteOptions(
-            kind=derived_observations_runtime.EPOCH_VALIDITY_TRANSITION_KIND,
-            media_type="application/vnd.polisyos.chronology+json",
-        ),
+        epoch_validity_runtime._epoch_transition_artifact_write_options(),
     )
     _produce_epoch_recompute(
         replace(

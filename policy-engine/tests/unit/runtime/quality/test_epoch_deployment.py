@@ -718,11 +718,12 @@ def test_configured_exchange_consumes_acceptance_retention_and_readback(tmp_path
 
 def test_configured_transition_signature_exchange_requires_exact_bytes(tmp_path: Path) -> None:
     config, _, profile_ref, statement, repository, signer = _profile_configuration(tmp_path)
+    write_options = artifacts.ArtifactWriteOptions(
+        kind="epoch.validity_transition", media_type="application/octet-stream"
+    )
     persisted = repository.persist_signed(
         blob_bytes=b"exact-transition",
-        write_options=artifacts.ArtifactWriteOptions(
-            kind="epoch.validity_transition", media_type="application/octet-stream"
-        ),
+        write_options=write_options,
         signer=signer,
         signing_profile_ref=profile_ref,
         signer_provenance_ref=_ref("transition-issuer"),
@@ -735,6 +736,7 @@ def test_configured_transition_signature_exchange_requires_exact_bytes(tmp_path:
     assert owner.has_transition_evidence_configuration
     evidence = owner.resolve_exact_signed_transition(
         transition_bytes=b"exact-transition",
+        write_options=write_options,
         authority_purpose=statement.authority_purpose,
         requested_query_context_ref=statement.requested_query_context_ref,
     )
@@ -742,6 +744,7 @@ def test_configured_transition_signature_exchange_requires_exact_bytes(tmp_path:
     with pytest.raises(ValueError):
         owner.resolve_exact_signed_transition(
             transition_bytes=b"candidate-different",
+            write_options=write_options,
             authority_purpose=statement.authority_purpose,
             requested_query_context_ref=statement.requested_query_context_ref,
         )

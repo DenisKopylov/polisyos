@@ -340,6 +340,7 @@ def configure_deployed_epoch_intake(
             self,
             *,
             transition_bytes: bytes,
+            write_options: artifacts.ArtifactWriteOptions,
             authority_purpose: str,
             requested_query_context_ref: str,
         ) -> (
@@ -349,6 +350,7 @@ def configure_deployed_epoch_intake(
             try:
                 return deployment.resolve_exact_signed_transition(
                     transition_bytes=transition_bytes,
+                    write_options=write_options,
                     authority_purpose=authority_purpose,
                     requested_query_context_ref=requested_query_context_ref,
                 ).persisted

@@ -35,6 +35,7 @@ from polisyos.runtime.quality.epoch_validity_cascade import (
     EpochDependencyGraph,
     EpochValidityTransitionArtifact,
     _canonical_bytes,
+    _epoch_transition_artifact_write_options,
     _semantic_hash,
     build_epoch_validity_transition,
     resolve_owner_target_dispositions,
@@ -570,10 +571,7 @@ def _runtime_reconciliation_fixture(
     )
     transition_ref = store.put_bytes(
         _canonical_bytes(transition),
-        ArtifactWriteOptions(
-            kind="polisyos.epoch.validity_transition",
-            media_type="application/vnd.polisyos.chronology+json",
-        ),
+        _epoch_transition_artifact_write_options(),
     )
     transition_raw_hash = (
         "sha256:" + hashlib.sha256(store.get_bytes(transition_ref.artifact_id)).hexdigest()
@@ -1441,10 +1439,7 @@ def test_epoch_denominator_reconciliation_receipt_refuses_distinct_member_sets(
     )
     transition_ref = store.put_bytes(
         _canonical_bytes(transition),
-        ArtifactWriteOptions(
-            kind="polisyos.epoch.validity_transition",
-            media_type="application/vnd.polisyos.chronology+json",
-        ),
+        _epoch_transition_artifact_write_options(),
     )
     transition_bytes = store.get_bytes(transition_ref.artifact_id)
     assert store.verify(transition_ref.artifact_id).ok
@@ -1678,10 +1673,7 @@ def test_epoch_denominator_reconciliation_receipt_bridges_both_owner_definitions
     )
     transition_ref = store.put_bytes(
         _canonical_bytes(transition),
-        ArtifactWriteOptions(
-            kind="polisyos.epoch.validity_transition",
-            media_type="application/vnd.polisyos.chronology+json",
-        ),
+        _epoch_transition_artifact_write_options(),
     )
     transition_bytes = store.get_bytes(transition_ref.artifact_id)
     transition_raw_hash = "sha256:" + hashlib.sha256(transition_bytes).hexdigest()

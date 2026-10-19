@@ -49,6 +49,8 @@ Digest = core_contracts.chronology.Digest
 
 _MEDIA_TYPE = "application/vnd.polisyos.chronology+json"
 _RUNTIME_CONTEXT_CANON = canon.CanonSpec(forbid_floats=False)
+_TRANSITION_KIND = "polisyos.epoch.validity_transition"
+_TRANSITION_CANON_INFO = artifacts.CanonInfo.from_spec(_RUNTIME_CONTEXT_CANON)
 _ADVISORY_EVENT_KIND = "polisyos.epoch.advisory_perturbation_event"
 _ADVISORY_EVENT_SCHEMA_NAME = "polisyos.runtime.AdvisoryPerturbationEvent"
 _ADVISORY_EVENT_SCHEMA_VERSION = "1.0"
@@ -75,6 +77,58 @@ def _canonical_bytes(value: BaseModel | Mapping[str, object]) -> bytes:
 
 def _raw_hash(payload: bytes) -> Digest:
     return f"sha256:{hashlib.sha256(payload).hexdigest()}"
+
+
+def _epoch_transition_artifact_write_options() -> ArtifactWriteOptions:
+    """Return the existing Core JSON contract for signed transition bytes."""
+
+    return artifacts.ArtifactWriteOptions(
+        kind=_TRANSITION_KIND,
+        media_type=_MEDIA_TYPE,
+        schema=None,
+        canon=_TRANSITION_CANON_INFO,
+        inputs=None,
+    )
+
+
+def _validate_epoch_transition_manifest(
+    *,
+    ref: ArtifactRef,
+    manifest: artifacts.ArtifactManifest,
+    raw: bytes,
+) -> None:
+    """Bind a transition ref to the exact current writer options and its content."""
+
+    options = _epoch_transition_artifact_write_options()
+    expected = artifacts.expected_artifact_manifest_for_write(
+        artifact_id=ref.artifact_id,
+        data=raw,
+        opts=options,
+        created_at=manifest.created_at,
+    )
+    if (
+        ref.kind != options.kind
+        or ref.media_type != options.media_type
+        or manifest != expected
+        or (
+            ref.manifest_profile_sha256 is not None
+            and ref.manifest_profile_sha256 != artifacts.artifact_manifest_profile_sha256(manifest)
+        )
+    ):
+        raise ValueError("epoch_transition_manifest_profile_mismatch")
+
+
+def _validate_epoch_transition_raw_manifest(
+    *,
+    ref: ArtifactRef,
+    raw_manifest_bytes: bytes,
+    raw: bytes,
+) -> artifacts.ArtifactManifest:
+    """Parse signed raw metadata and apply the shared transition invariant."""
+
+    manifest = artifacts.ArtifactManifest.model_validate_json(raw_manifest_bytes)
+    _validate_epoch_transition_manifest(ref=ref, manifest=manifest, raw=raw)
+    return manifest
 
 
 def _semantic_hash(domain: str, value: BaseModel | Mapping[str, object]) -> Digest:
@@ -316,8 +370,8 @@ def _read_model(
         expected_media_type = _MEDIA_TYPE
         expected_schema = None
         expected_canon = (
-            artifacts.CanonInfo.from_spec(_RUNTIME_CONTEXT_CANON)
-            if ref.manifest_profile_sha256 is not None
+            _TRANSITION_CANON_INFO
+            if kind == _TRANSITION_KIND or ref.manifest_profile_sha256 is not None
             else None
         )
     if ref.kind != expected_kind or ref.media_type != expected_media_type:
@@ -349,6 +403,8 @@ def _read_model(
         )
     ):
         raise ValueError("chronology_artifact_readback_mismatch")
+    if profile_record is None and kind == _TRANSITION_KIND:
+        _validate_epoch_transition_manifest(ref=ref, manifest=manifest, raw=raw)
     value = model.model_validate(load_core_json_artifact(store, ref, raw_payload_bytes=raw))
     if profile_record is not None and c4_canonical_bytes(profile_record, value) != raw:
         raise ValueError("chronology_artifact_canonical_profile_mismatch")
@@ -981,6 +1037,7 @@ class EpochTransitionSigningAuthority(Protocol):
         self,
         *,
         transition_bytes: bytes,
+        write_options: ArtifactWriteOptions,
         authority_purpose: str,
         requested_query_context_ref: Digest,
     ) -> (
@@ -995,10 +1052,11 @@ class NoEpochTransitionSigningAuthority:
         self,
         *,
         transition_bytes: bytes,
+        write_options: ArtifactWriteOptions,
         authority_purpose: str,
         requested_query_context_ref: Digest,
     ) -> EpochTransitionSigningNonReceipt:
-        del transition_bytes, authority_purpose, requested_query_context_ref
+        del transition_bytes, write_options, authority_purpose, requested_query_context_ref
         return EpochTransitionSigningNonReceipt(
             status="not_established",
             code="epoch_transition_signer_not_established",
@@ -1280,6 +1338,7 @@ class EpochValidityTransitionProducer:
         if type(self._signing_authority) is NoEpochTransitionSigningAuthority:
             return self._signing_authority.sign_transition(
                 transition_bytes=b"",
+                write_options=_epoch_transition_artifact_write_options(),
                 authority_purpose=authority_purpose,
                 requested_query_context_ref=requested_query_context_ref,
             )
@@ -1318,8 +1377,10 @@ class EpochValidityTransitionProducer:
             requested_query_context_ref=requested_query_context_ref,
             authority_purpose=authority_purpose,
         )
+        write_options = _epoch_transition_artifact_write_options()
         signed = self._signing_authority.sign_transition(
             transition_bytes=_canonical_bytes(transition),
+            write_options=write_options,
             authority_purpose=authority_purpose,
             requested_query_context_ref=requested_query_context_ref,
         )
@@ -1337,6 +1398,23 @@ class EpochValidityTransitionProducer:
             )
             if exact.persisted != signed or exact.blob_bytes != _canonical_bytes(transition):
                 raise ValueError("epoch transition exact evidence mismatch")
+            manifest = _validate_epoch_transition_raw_manifest(
+                ref=record.artifact_ref,
+                raw_manifest_bytes=exact.exact_manifest_bytes,
+                raw=exact.blob_bytes,
+            )
+            readback = EpochValidityTransitionArtifact.model_validate(
+                artifacts.decode_core_json_payload(
+                    exact.exact_manifest_bytes,
+                    exact.blob_bytes,
+                ).value
+            )
+            if (
+                manifest.artifact_id != record.artifact_ref.artifact_id
+                or readback != transition
+                or _canonical_bytes(readback) != exact.blob_bytes
+            ):
+                raise ValueError("epoch transition canonical readback mismatch")
         except (KeyError, OSError, TypeError, ValueError):
             return EpochTransitionSigningNonReceipt(
                 status="not_established",

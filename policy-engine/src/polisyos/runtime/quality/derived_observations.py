@@ -1918,15 +1918,15 @@ def _put_or_verify(
     artifact_id = artifacts.ArtifactID.from_sha256_hex(canon.content_hash(data))
     cache_hit = store.has(artifact_id)
     sorted_inputs = _sorted_input_refs(inputs)
+    has_selected_input_view = any(
+        item.manifest_profile_sha256 is not None for item in sorted_inputs
+    )
     _verify_input_refs(store, sorted_inputs, refusal_code=refusal_code)
     if cache_hit:
         default_ref = artifacts.ArtifactRef(
             artifact_id=artifact_id,
             kind=kind,
             media_type="application/json",
-        )
-        has_selected_input_view = any(
-            item.manifest_profile_sha256 is not None for item in sorted_inputs
         )
         if not has_selected_input_view:
             return (
@@ -1966,6 +1966,7 @@ def _put_or_verify(
                 inputs=sorted_inputs,
                 canon=artifacts.CanonInfo.from_spec(_CANON_SPEC),
             ),
+            return_selected_profile=has_selected_input_view,
         )
     except artifacts.ArtifactIntegrityError as exc:
         raise DerivationRefusalError(
@@ -1974,6 +1975,11 @@ def _put_or_verify(
         ) from exc
     if ref.artifact_id != artifact_id:
         raise DerivationRefusalError(refusal_code, "CAS returned a different identity")
+    if has_selected_input_view and ref.manifest_profile_sha256 is None:
+        raise DerivationRefusalError(
+            refusal_code,
+            "CAS omitted selected manifest profile for a selected input view",
+        )
     return (
         _verify_cached_artifact(
             store,
@@ -2273,15 +2279,15 @@ def _read_epoch_validity_transition(
 ) -> EpochValidityTransitionArtifact:
     from polisyos.runtime.quality import epoch_validity_cascade as epoch_cascade
 
-    if (
-        transition_ref.kind != EPOCH_VALIDITY_TRANSITION_KIND
-        or transition_ref.media_type != "application/vnd.polisyos.chronology+json"
-    ):
-        raise _epoch_recompute_refusal("epoch transition artifact profile mismatch")
     try:
         report = store.verify(transition_ref)
         raw = store.get_bytes(transition_ref)
         manifest = store.get_manifest(transition_ref)
+        epoch_cascade._validate_epoch_transition_manifest(
+            ref=transition_ref,
+            manifest=manifest,
+            raw=raw,
+        )
         transition = epoch_cascade.EpochValidityTransitionArtifact.model_validate(
             _canonical_payload(raw, store=store, selector=transition_ref)
         )
@@ -2290,9 +2296,6 @@ def _read_epoch_validity_transition(
     if (
         not report.ok
         or str(transition_ref.artifact_id) != f"sha256:{hashlib.sha256(raw).hexdigest()}"
-        or manifest.artifact_id != transition_ref.artifact_id
-        or manifest.kind != transition_ref.kind
-        or manifest.media_type != transition_ref.media_type
         or raw != epoch_cascade._canonical_bytes(transition)
     ):
         raise _epoch_recompute_refusal("epoch transition artifact readback failed")

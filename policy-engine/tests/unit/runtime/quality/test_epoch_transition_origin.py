@@ -179,17 +179,14 @@ def _producer_fixture(
     class Signing:
         retained = None
 
-        def sign_transition(self, *, transition_bytes, **kwargs):
+        def sign_transition(self, *, transition_bytes, write_options, **kwargs):
             if self.retained is not None:
                 exact = repository.read_exact(evidence_record_ref=self.retained.evidence_record_ref)
                 if exact.blob_bytes == transition_bytes:
                     return self.retained
             self.retained = repository.persist_signed(
                 blob_bytes=transition_bytes,
-                write_options=artifacts.ArtifactWriteOptions(
-                    kind="polisyos.epoch.validity_transition",
-                    media_type="application/vnd.polisyos.chronology+json",
-                ),
+                write_options=write_options,
                 signer=signer,
                 signing_profile_ref=profile,
                 signer_provenance_ref=_ref("signer-origin"),
@@ -240,6 +237,9 @@ def test_canonical_producer_persists_independently_readable_execution_origin(
     result = producer.produce_and_persist(**kwargs)
     assert isinstance(result, cascade.PersistedEpochValidityTransition)
     assert result.producer_identity_ref != result.signer_provenance_ref
+    assert result.transition_artifact_ref.manifest_profile_sha256 is None
+    transition_manifest = fixture.store.get_manifest(result.transition_artifact_ref)
+    assert transition_manifest.canon == cascade._TRANSITION_CANON_INFO
     origin = _read(owner, result)
     assert origin.previous_epoch_manifest_ref == fixture.previous_ref
     assert origin.current_epoch_production_receipt_ref == fixture.current_receipt.receipt_ref

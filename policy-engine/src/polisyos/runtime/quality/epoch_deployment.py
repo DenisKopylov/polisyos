@@ -403,6 +403,7 @@ class EpochDeployment:
         self,
         *,
         transition_bytes: bytes,
+        write_options: artifacts.ArtifactWriteOptions,
         authority_purpose: str,
         requested_query_context_ref: contract.Digest,
     ) -> contract.SignedArtifactEvidence:
@@ -417,6 +418,19 @@ class EpochDeployment:
                     evidence.persisted.record_bytes,
                     contract.SignedArtifactEvidenceRecord,
                 )
+                manifest = artifacts.ArtifactManifest.model_validate_json(
+                    evidence.exact_manifest_bytes
+                )
+                expected_manifest = artifacts.expected_artifact_manifest_for_write(
+                    artifact_id=record.artifact_ref.artifact_id,
+                    data=evidence.blob_bytes,
+                    opts=write_options,
+                    created_at=manifest.created_at,
+                )
+                if manifest != expected_manifest:
+                    raise ValueError(
+                        "signed transition manifest differs from producer write options"
+                    )
                 if not self.verify_transition_signature(
                     evidence=evidence,
                     signing_profile_ref=record.signing_profile_ref,

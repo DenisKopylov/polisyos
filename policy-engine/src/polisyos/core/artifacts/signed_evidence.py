@@ -13,9 +13,13 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 from polisyos.core import canon as core_canon
-from polisyos.core.artifacts import input_ref_from_artifact_ref
+from polisyos.core.artifacts import (
+    artifact_manifest_profile_sha256,
+    input_ref_from_artifact_ref,
+)
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import (
+    ArtifactManifest,
     ArtifactRef,
     CanonInfo,
     InputRef,
@@ -216,6 +220,18 @@ class FileSystemSignedArtifactEvidenceRepository:
         for expected, observed, role in checks:
             if expected != observed:
                 raise ValueError(f"{role} exact-byte identity mismatch")
+        manifest = ArtifactManifest.model_validate_json(manifest_bytes)
+        if (
+            manifest.artifact_id != record.artifact_ref.artifact_id
+            or manifest.kind != record.artifact_ref.kind
+            or manifest.media_type != record.artifact_ref.media_type
+            or (
+                record.artifact_ref.manifest_profile_sha256 is not None
+                and record.artifact_ref.manifest_profile_sha256
+                != artifact_manifest_profile_sha256(manifest)
+            )
+        ):
+            raise ValueError("signed artifact manifest differs from its recorded selector")
         return contract.SignedArtifactEvidence(
             persisted=contract.PersistedSignedArtifactEvidence(
                 evidence_record_ref=evidence_record_ref,

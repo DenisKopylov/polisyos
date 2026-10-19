@@ -59,6 +59,7 @@ from .epoch_validity_cascade import (
     EpochTransitionSigningNonReceipt,
     EpochValidityTransitionArtifact,
     TargetDispositionRow,
+    _read_model,
 )
 from .open_world_risk import (
     OpenWorldRiskProductionNonReceipt,
@@ -164,10 +165,14 @@ class EpochInheritanceRecomputeProjectionReader:
                 certificate_ref=receipt.certificate_artifact_ref,
             )
             try:
-                transition = validate_core_model_json_artifact(
-                    EpochValidityTransitionArtifact,
-                    self._artifact_store,
-                    receipt.transition_artifact_ref,
+                transition = cast(
+                    "EpochValidityTransitionArtifact",
+                    _read_model(
+                        store=self._artifact_store,
+                        ref=receipt.transition_artifact_ref,
+                        model=EpochValidityTransitionArtifact,
+                        kind="polisyos.epoch.validity_transition",
+                    ),
                 )
             except (OSError, TypeError, ValueError) as exc:
                 raise DerivationRefusalError(

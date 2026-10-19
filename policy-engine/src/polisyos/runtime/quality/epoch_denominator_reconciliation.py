@@ -26,6 +26,7 @@ from polisyos.runtime.quality.epoch_validity_cascade import (
     EpochDependencyDenominatorReceipt,
     EpochValidityTransitionArtifact,
     _epoch_dependency_target_refs,
+    _validate_epoch_transition_manifest,
     epoch_dependency_outer_denominator_ref,
 )
 from polisyos.runtime.quality.epoch_validity_cascade import (
@@ -36,7 +37,6 @@ ArtifactRef = artifacts.ArtifactRef
 ArtifactStore = artifacts.ArtifactStore
 
 _CHRONOLOGY_MEDIA_TYPE = "application/vnd.polisyos.chronology+json"
-_TRANSITION_KIND = "polisyos.epoch.validity_transition"
 _PROVENANCE_KIND = "chronology.epoch_transition_verifier"
 _SNAPSHOT_KIND = "scientist.decision_validity_epoch_impact_snapshot"
 _SNAPSHOT_MEDIA_TYPE = "application/json"
@@ -63,11 +63,26 @@ def _raw_digest(payload: bytes) -> str:
 
 
 def _manifest_ref(manifest: artifacts.ArtifactManifest) -> ArtifactRef:
+    """Keep an inventory-read default view profileless instead of inventing a selector."""
+
     return ArtifactRef(
         artifact_id=manifest.artifact_id,
         kind=manifest.kind,
         media_type=manifest.media_type,
-        manifest_profile_sha256=artifacts.artifact_manifest_profile_sha256(manifest),
+    )
+
+
+def _manifest_matches_ref(manifest: artifacts.ArtifactManifest, ref: ArtifactRef) -> bool:
+    """Compare observed metadata to a producer ref without inventing its selector."""
+
+    return (
+        manifest.artifact_id == ref.artifact_id
+        and manifest.kind == ref.kind
+        and manifest.media_type == ref.media_type
+        and (
+            ref.manifest_profile_sha256 is None
+            or ref.manifest_profile_sha256 == artifacts.artifact_manifest_profile_sha256(manifest)
+        )
     )
 
 
@@ -78,16 +93,13 @@ def _receipt_inputs(
     provenance_ref: ArtifactRef,
 ) -> list[artifacts.InputRef]:
     rows = [
-        artifacts.InputRef(
-            artifact_id=transition_ref.artifact_id,
-            role="epoch_transition",
-        ),
-        artifacts.InputRef(
-            artifact_id=snapshot_ref.artifact_id,
+        artifacts.input_ref_from_artifact_ref(transition_ref, role="epoch_transition"),
+        artifacts.input_ref_from_artifact_ref(
+            snapshot_ref,
             role="decision_validity_epoch_impact_snapshot",
         ),
-        artifacts.InputRef(
-            artifact_id=provenance_ref.artifact_id,
+        artifacts.input_ref_from_artifact_ref(
+            provenance_ref,
             role="epoch_transition_verifier_provenance",
         ),
     ]
@@ -105,16 +117,9 @@ def _read_transition_exact(
         manifest = store.get_manifest(ref)
         raw = store.get_bytes(ref)
         report = store.verify(ref)
-        if (
-            ref.kind != _TRANSITION_KIND
-            or ref.media_type != _CHRONOLOGY_MEDIA_TYPE
-            or _manifest_ref(manifest) != ref
-            or manifest.artifact_schema is not None
-            or manifest.canon is not None
-            or not report.ok
-            or _raw_digest(raw) != str(ref.artifact_id)
-        ):
-            raise ValueError("transition profile mismatch")
+        if not report.ok or _raw_digest(raw) != str(ref.artifact_id):
+            raise ValueError("transition content identity mismatch")
+        _validate_epoch_transition_manifest(ref=ref, manifest=manifest, raw=raw)
         transition = validate_core_model_json_artifact(
             EpochValidityTransitionArtifact, store, ref, raw_payload_bytes=raw
         )
@@ -153,7 +158,7 @@ def _read_snapshot_exact(
         if (
             ref.kind != _SNAPSHOT_KIND
             or ref.media_type != _SNAPSHOT_MEDIA_TYPE
-            or _manifest_ref(manifest) != ref
+            or not _manifest_matches_ref(manifest, ref)
             or manifest.artifact_schema
             != artifacts.SchemaInfo(name=_SNAPSHOT_SCHEMA, version="1.0")
             or manifest.canon != _CANON_INFO
@@ -184,7 +189,7 @@ def _read_target_exact(*, store: ArtifactStore, ref: ArtifactRef) -> None:
         raw = store.get_bytes(ref)
         report = store.verify(ref)
         if (
-            _manifest_ref(manifest) != ref
+            not _manifest_matches_ref(manifest, ref)
             or not report.ok
             or _raw_digest(raw) != str(ref.artifact_id)
         ):
@@ -207,7 +212,7 @@ def _verify_appointed_provenance(
         report = store.verify(receipt_ref)
         if (
             receipt_ref.kind != _PROVENANCE_KIND
-            or _manifest_ref(manifest) != receipt_ref
+            or not _manifest_matches_ref(manifest, receipt_ref)
             or not report.ok
             or _raw_digest(raw) != str(receipt_ref.artifact_id)
         ):
@@ -315,7 +320,7 @@ class EpochTransitionDenominatorReconciliationReader:
             if (
                 ref.kind != _RECONCILIATION_KIND
                 or ref.media_type != _CHRONOLOGY_MEDIA_TYPE
-                or _manifest_ref(manifest) != ref
+                or not _manifest_matches_ref(manifest, ref)
                 or manifest.artifact_schema
                 != artifacts.SchemaInfo(name=_RECONCILIATION_SCHEMA, version="1.0")
                 or manifest.canon != _CANON_INFO
@@ -437,13 +442,7 @@ class EpochTransitionDenominatorReconciliationReader:
                 if manifest.kind != _RECONCILIATION_KIND:
                     continue
                 parsed = EpochTransitionDenominatorReconciliationReceipt.model_validate(
-                    load_core_json_artifact(
-                        self._store,
-                        artifact_id,
-                        manifest_profile_sha256=artifacts.artifact_manifest_profile_sha256(
-                            manifest
-                        ),
-                    )
+                    load_core_json_artifact(self._store, artifact_id)
                 )
                 candidate = self.resolve_exact(
                     handle=EpochTransitionDenominatorReconciliationHandle(

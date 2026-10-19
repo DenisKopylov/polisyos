@@ -8,6 +8,7 @@ from pathlib import Path
 import pytest
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
+from polisyos.core import artifacts, canon
 from polisyos.core.artifacts import (
     ArtifactID,
     ArtifactRef,
@@ -185,3 +186,47 @@ def test_signed_evidence_keeps_the_exact_selected_manifest_view(tmp_path: Path) 
     verifier = Ed25519Verifier()
     verifier.add_trusted_key(key.public_key())
     assert store.verify_signature(record.artifact_ref, verifier).ok is True
+
+
+def test_signed_evidence_default_selector_retains_canon_profile(tmp_path: Path) -> None:
+    """A default selector may resolve a signed manifest with an explicit Core profile."""
+    from polisyos.core.artifacts.signed_evidence import (
+        FileSystemSignedArtifactEvidenceRepository,
+    )
+
+    store = FileSystemCAS(tmp_path / "cas")
+    repository = FileSystemSignedArtifactEvidenceRepository(store)
+    spec = canon.CanonSpec(forbid_floats=False)
+    payload_value = {"transition": "canonical"}
+    payload = canon.to_canonical_bytes(payload_value, spec)
+    options = ArtifactWriteOptions(
+        kind="fixture.core_json_transition",
+        media_type="application/json",
+        canon=artifacts.CanonInfo.from_spec(spec),
+        inputs=None,
+    )
+    persisted = repository.persist_signed(
+        blob_bytes=payload,
+        write_options=options,
+        signer=Ed25519Signer(Ed25519PrivateKey.generate()),
+        signing_profile_ref=_ref("core-json-signing-profile"),
+        signer_provenance_ref=_ref("core-json-signer-provenance"),
+    )
+    evidence = repository.read_exact(evidence_record_ref=persisted.evidence_record_ref)
+    from polisyos.core.contracts.chronology import SignedArtifactEvidenceRecord
+
+    framed_length = int.from_bytes(persisted.record_bytes[:8], "big")
+    record_payload = json.loads(persisted.record_bytes[8 : 8 + framed_length])
+    record = SignedArtifactEvidenceRecord.model_validate(record_payload)
+    assert record.artifact_ref.manifest_profile_sha256 is None
+    assert (
+        artifacts.ArtifactManifest.model_validate_json(evidence.exact_manifest_bytes).canon
+        == options.canon
+    )
+    assert (
+        artifacts.decode_core_json_payload(
+            evidence.exact_manifest_bytes,
+            evidence.blob_bytes,
+        ).value
+        == payload_value
+    )

@@ -451,6 +451,7 @@ def derive_d2_source_growth_backlog(
             claim_ref=f"connector-request-contract-claim:{identity}",
             scenario_requirement_refs=(receipt_ref,),
             missing_requirement_fields=(f"connector_request_lever:{missing_request_lever}",),
+            capability_requirement_resolutions=None,
             authority_level=AuthorityLevel.RESEARCH,
             mandatory_gate_state=MandatoryGateState.NONE,
             limitation_permitted=False,

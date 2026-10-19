@@ -17753,5 +17753,78 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root_can_n13b_four_carrier_presence_wire_r9_20261019": {
+    "slice_base": "a072c7a8f479f1612edec7f1a7bebaae75b25a4b",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/src/polisyos/runtime/quality/acquisition_planner.py": {
+        "operation": "write",
+        "preimage_sha256": "2072a3106a0a183976c2ec7a6dd9d157d3acc214a7742b0a6252828c362cccff",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-d2-identity-family-r9-20261019/postimages/policy-engine/src/polisyos/runtime/quality/acquisition_planner.py",
+        "postimage_sha256": "ec76d0a3b1f1551adc7c5db9e5917eb5bd228f95bbbee911ace478f207e1e118",
+        "P39_role": "presence-aware four-carrier mechanism"
+      },
+      "policy-engine/tools/quality/validation/demand_gap_projections.py": {
+        "operation": "write",
+        "preimage_sha256": "95dabf524e5a605118e26aea7ebb7e87709369969458a5c94239269d467a2af3",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-d2-identity-family-r9-20261019/postimages/policy-engine/tools/quality/validation/demand_gap_projections.py",
+        "postimage_sha256": "c54d7ff6f2061170a0f1e2e270ea4671a497ca2cf7ddba53fdf4f1f20250f1b3",
+        "P39_role": "mandatory producer/projection and semantic-test companion"
+      },
+      "policy-engine/tests/unit/runtime/quality/test_acquisition_planner.py": {
+        "operation": "write",
+        "preimage_sha256": "fee6fa0e37f079604f1ba917f3dbd9ec356eee7c63c585bb2c6dcf0e21daf535",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-d2-identity-family-r9-20261019/postimages/policy-engine/tests/unit/runtime/quality/test_acquisition_planner.py",
+        "postimage_sha256": "79baddfd252c4708d34ce223c929e509ba413593423b6af862b862fbbbde501f",
+        "P39_role": "mandatory producer/projection and semantic-test companion"
+      },
+      "policy-engine/tests/repo_quality/tools/test_layer3_gy_n13b_acquisition_contract.py": {
+        "operation": "write",
+        "preimage_sha256": "81fd54132cab1c1148722165d0a4895f3806d26edf4aa045faee93891504295c",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-d2-identity-family-r9-20261019/postimages/policy-engine/tests/repo_quality/tools/test_layer3_gy_n13b_acquisition_contract.py",
+        "postimage_sha256": "b98f36ec0ac15dc0336f2aadddad1ae6dd8a931922de8c85e78df5ab89e45377",
+        "P39_role": "mandatory producer/projection and semantic-test companion"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-n13b-r9-source-adoption-20261019/source-application.json",
+      "sha256": "27e635fb10941e637ab26f7d0d269716c1ca961d08d6d38517d4cc7a8328e4f4"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-n13b-r9-source-adoption-20261019/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-d2-identity-family-r9-20261019/candidate-manifest.json",
+        "sha256": "6527205ad9948e7e318a43992b03e70ab2a34383eecf0fbc58285b7d9c56a20f"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-n13b-d2-identity-family-r9-20261019/decision.md",
+        "sha256": "b8816997fa0e62fbcb23c16fcd3f4b142348ac2233ce3b343bfde344adb2d67e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-n13b-family-r9-independent-20261019/review.json",
+        "sha256": "8d46d10fddfe915f11f8b8f40067ebfd654564a96aed771b6729807772542f1c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-e02-wrap-serializer-schema-family-oracle-20261019/manifest.json",
+        "sha256": "d8be189dafe6940ecdcb9fb628d97367a70ee5b75afb30a540e303a4092776e2"
+      }
+    ],
+    "P40": "SAME_CLASS_DEEPER: widen presence/identity and schema preservation across all four actual carriers, shared helper and producer/reader companions; avoid per-fixture hash patches. Nested-schema residual is explicitly NOT_ESTABLISHED until actual schema/consumer check.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Current source actual whole-module and authentic historical V4/current V5 replays remain UNRUN after this adoption. Old V5 owner basis has9of12stale hashes and requires real owner regeneration, not manual fixture hash substitution.",
+      "Line-local ANN202 is limited to four Pydantic wrappers because return annotations erase serialization schema; typed shared helper remains. Independent Pydantic2.12.5 control establishes this framework constraint, not a native blanket waiver.",
+      "Nested CapabilityRequirementResolution serialization schema may remain generic under its existing dict[str,Any] wrapper; the item-ref guard does not establish nested typed schema. Current wrapped-family audit is separately pinned. Actual composed schema and concrete consumers must decide this residual; no typed nested-schema closure is proposed.",
+      "No rule/issuer/custody/currentness/refinement authority or formal G closure is created. Source freeze remains false."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run both complete changed owner test modules with actual source origins; authentic V4 reader then canonical owner regeneration/currentV5 check with corrupt-field controls, plus acquisition served-path consumers after composed source/profile freeze.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

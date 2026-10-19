@@ -157,6 +157,44 @@ def test_d2_source_growth_routes_every_carrier_lever_through_n7_without_fake_voi
     )
 
 
+def test_d2_source_growth_reader_distinguishes_absent_and_explicit_null_resolution() -> None:
+    from polisyos.fabric.data_plane import content_sha256
+    from tools.quality.validation.layer3_gy_n13b_acquisition_contract import (
+        D2SourceGrowthBacklog,
+        derive_d2_source_growth_backlog,
+    )
+
+    backlog = derive_d2_source_growth_backlog((_carrier_receipt_with_source_lever("17"),))
+    current_payload = json.loads(backlog.model_dump_json())
+    field = "capability_requirement_resolutions"
+    current_gap = current_payload["rows"][0]["requirement_gap"]
+    assert field in backlog.rows[0].requirement_gap.model_fields_set
+    assert current_gap[field] is None
+    current_reader = D2SourceGrowthBacklog.model_validate_json(backlog.model_dump_json())
+    assert current_reader.projection_sha256 == backlog.projection_sha256
+    assert current_reader.model_dump(mode="json") == current_payload
+
+    absent_payload = json.loads(backlog.model_dump_json())
+    absent_gap = absent_payload["rows"][0]["requirement_gap"]
+    absent_gap.pop(field)
+    row = absent_payload["rows"][0]
+    row["projection_sha256"] = content_sha256(
+        {key: value for key, value in row.items() if key != "projection_sha256"}
+    )
+    absent_payload["projection_sha256"] = content_sha256(
+        {key: value for key, value in absent_payload.items() if key != "projection_sha256"}
+    )
+    legacy_reader = D2SourceGrowthBacklog.model_validate(absent_payload)
+    legacy_gap = legacy_reader.rows[0].requirement_gap
+    assert field not in legacy_gap.model_fields_set
+    assert field not in legacy_reader.model_dump(mode="json")["rows"][0]["requirement_gap"]
+
+    explicit_null_laundering = json.loads(legacy_reader.model_dump_json())
+    explicit_null_laundering["rows"][0]["requirement_gap"][field] = None
+    with pytest.raises(ValidationError, match="connector-gap row identity drift"):
+        D2SourceGrowthBacklog.model_validate(explicit_null_laundering)
+
+
 @pytest.mark.parametrize("mutation", ["tamper", "drop", "duplicate", "reorder"])
 def test_d2_source_growth_rejects_decisive_denominator_mutations(mutation: str) -> None:
     from tools.quality.validation.layer3_gy_n13b_acquisition_contract import (

@@ -21,7 +21,15 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, Protocol, Self, cast
 from urllib.parse import unquote, urlparse
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    SerializerFunctionWrapHandler,
+    field_validator,
+    model_serializer,
+    model_validator,
+)
 
 from polisyos.common import serialization
 from polisyos.core import artifacts, canon
@@ -66,6 +74,23 @@ def _canonical_model_bytes(model: BaseModel) -> bytes:
         separators=(",", ":"),
         allow_nan=False,
     ).encode()
+
+
+def _serialize_capability_requirement_resolution_presence(
+    model: BaseModel, handler: SerializerFunctionWrapHandler
+) -> object:
+    """Preserve absence of the additive resolution field on older wire rows.
+
+    The carrier wrappers intentionally omit return annotations so Pydantic can
+    infer their JSON Schema from each model rather than collapsing it to object.
+    """
+
+    payload = handler(model)
+    if "capability_requirement_resolutions" not in model.model_fields_set and isinstance(
+        payload, dict
+    ):
+        payload.pop("capability_requirement_resolutions", None)
+    return payload
 
 
 def _seal_emission(model: BaseModel, registry: dict, context: object = None) -> None:
@@ -554,6 +579,13 @@ class AcquisitionGap(BaseModel):
     calibration_feedback_ref: str | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
 
+    # Omit the return type so Pydantic retains this carrier's JSON Schema.
+    @model_serializer(mode="wrap")
+    def _serialize_resolution_presence(  # noqa: ANN202
+        self, handler: SerializerFunctionWrapHandler
+    ):
+        return _serialize_capability_requirement_resolution_presence(self, handler)
+
     @field_validator("gap_id", "claim_ref")
     @classmethod
     def _strip_required_text(cls, value: str) -> str:
@@ -613,6 +645,13 @@ class AcquisitionRequirementGap(BaseModel):
     producer_output_ref: str | None = None
     calibration_feedback_ref: str | None = None
     metadata: dict[str, Any] = Field(default_factory=dict)
+
+    # Omit the return type so Pydantic retains this carrier's JSON Schema.
+    @model_serializer(mode="wrap")
+    def _serialize_resolution_presence(  # noqa: ANN202
+        self, handler: SerializerFunctionWrapHandler
+    ):
+        return _serialize_capability_requirement_resolution_presence(self, handler)
 
     @field_validator("requirement_gap_id", "compiled_requirement_ref", "claim_ref")
     @classmethod
@@ -888,6 +927,13 @@ class AcquisitionActionRecord(BaseModel):
     runtime_event_ref: str = Field(min_length=1)
     evidence_ref: str = Field(min_length=1)
     authority_boundary: dict[str, tuple[str, ...]] = Field(default_factory=dict)
+
+    # Omit the return type so Pydantic retains this carrier's JSON Schema.
+    @model_serializer(mode="wrap")
+    def _serialize_resolution_presence(  # noqa: ANN202
+        self, handler: SerializerFunctionWrapHandler
+    ):
+        return _serialize_capability_requirement_resolution_presence(self, handler)
 
     @model_validator(mode="after")
     def _validate_distinct_terminal_refs(self) -> AcquisitionActionRecord:
@@ -1266,6 +1312,13 @@ class AcquisitionReceipt(BaseModel):
     authority_boundary: dict[str, tuple[str, ...]]
     network_call_count: int = Field(default=0, ge=0)
     content_hash: str = ""
+
+    # Omit the return type so Pydantic retains this carrier's JSON Schema.
+    @model_serializer(mode="wrap")
+    def _serialize_resolution_presence(  # noqa: ANN202
+        self, handler: SerializerFunctionWrapHandler
+    ):
+        return _serialize_capability_requirement_resolution_presence(self, handler)
 
     @model_validator(mode="after")
     def _set_content_hash(self) -> AcquisitionReceipt:

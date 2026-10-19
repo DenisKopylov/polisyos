@@ -8,7 +8,7 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pytest
-from pydantic import ValidationError
+from pydantic import BaseModel, ValidationError
 
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.control import DataDiscoverRequest, DataResolveRequest
@@ -1844,6 +1844,75 @@ def test_n7_request_context_covers_all_declared_discovery_controls() -> None:
     assert context["availability_fields"] == {}
 
 
+def _assert_resolution_presence_round_trips(
+    model: BaseModel, resolution: CapabilityRequirementResolution
+) -> None:
+    field = "capability_requirement_resolutions"
+    model_type = type(model)
+    present_payload = model.model_dump(mode="json")
+    expected_resolution = resolution.model_dump(mode="json")
+    assert present_payload[field] == [expected_resolution]
+
+    absent_payload = present_payload.copy()
+    absent_payload.pop(field)
+    absent_payload.pop("content_hash", None)
+    absent = model_type.model_validate(absent_payload)
+    assert field not in absent.model_fields_set
+    assert field not in absent.model_dump(mode="json")
+
+    explicit_null_payload = absent.model_dump(mode="json")
+    explicit_null_payload[field] = None
+    explicit_null_payload.pop("content_hash", None)
+    explicit_null = model_type.model_validate(explicit_null_payload)
+    assert field in explicit_null.model_fields_set
+    assert explicit_null.model_dump(mode="json")[field] is None
+
+    non_null_payload = absent.model_dump(mode="json")
+    non_null_payload[field] = [expected_resolution]
+    non_null_payload.pop("content_hash", None)
+    non_null = model_type.model_validate(non_null_payload)
+    assert field in non_null.model_fields_set
+    assert non_null.model_dump(mode="json")[field] == [expected_resolution]
+
+
+def _assert_resolution_presence_schema(carrier: BaseModel) -> None:
+    model_type = type(carrier)
+    expected_properties = set(model_type.model_fields)
+    expected_required = {
+        name for name, field in model_type.model_fields.items() if field.is_required()
+    }
+
+    def schema_nodes(value: object) -> list[dict[str, object]]:
+        if isinstance(value, dict):
+            nodes = [value]
+            for child in value.values():
+                nodes.extend(schema_nodes(child))
+            return nodes
+        if isinstance(value, list):
+            return [node for child in value for node in schema_nodes(child)]
+        return []
+
+    for mode in ("validation", "serialization"):
+        schema = model_type.model_json_schema(mode=mode)
+        properties = schema.get("properties", {})
+        assert set(properties) == expected_properties
+        assert set(schema.get("required", ())) == expected_required
+
+        resolution_schema = properties["capability_requirement_resolutions"]
+        assert "default" in resolution_schema
+        assert resolution_schema["default"] is None
+        nodes = schema_nodes(resolution_schema)
+        assert any(node.get("type") == "null" for node in nodes)
+        array_nodes = [node for node in nodes if node.get("type") == "array"]
+        assert array_nodes
+        item_refs = [
+            node["$ref"] for node in schema_nodes(array_nodes[0].get("items", {})) if "$ref" in node
+        ]
+        assert item_refs
+        definitions = schema.get("$defs", {})
+        assert all(ref.rsplit("/", 1)[-1] in definitions for ref in item_refs)
+
+
 def test_n7_closed_loop_forwards_typed_resolution_and_request_limits_to_fabric_owner() -> None:
     spec = _compiled_requirement_specs()[0]
     resolution = CapabilityRequirementResolution.model_validate(
@@ -1880,7 +1949,7 @@ def test_n7_closed_loop_forwards_typed_resolution_and_request_limits_to_fabric_o
             return None
 
     gateway = _RecordingGateway()
-    run_acquisition_closed_loop(
+    receipt = run_acquisition_closed_loop(
         run_id="run-n7-forward-scope-context",
         acquisition_request={
             "cycle_index": 1,
@@ -1898,6 +1967,15 @@ def test_n7_closed_loop_forwards_typed_resolution_and_request_limits_to_fabric_o
     assert gateway.spec["capability_requirement_resolutions"] == [
         resolution.model_dump(mode="json")
     ]
+    requirement_gap = requirement_gaps_from_compiled_specs(
+        data_requirement_specs=(spec,),
+        capability_requirement_resolutions=(resolution,),
+    )[0]
+    acquisition_gap = requirement_gap.to_acquisition_gap()
+    action_record = receipt.planner_report.acquisition_records[0]
+    for carrier in (requirement_gap, acquisition_gap, action_record, receipt):
+        _assert_resolution_presence_round_trips(carrier, resolution)
+        _assert_resolution_presence_schema(carrier)
     assert gateway.spec["catalog_request_context"] == {
         "budget_fields": {"cost_budget_usd": 0},
         "availability_fields": {"availability_filters": []},

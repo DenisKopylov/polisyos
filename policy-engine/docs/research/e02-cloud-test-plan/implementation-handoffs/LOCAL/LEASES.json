@@ -23963,5 +23963,52 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "native-semantic-fixture-valid-identifiers-20261019": {
+    "slice_base": "e0462740b468781975ee385922ab0cea18a5d4f6",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/unit/fabric/connectors/contracts/test_schema_instance_accessors.py": {
+        "operation": "write",
+        "preimage_sha256": "855d6ff181e457bc8ab1086d2ed630c9823a37e3e042be59b9304676219932b9",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-mypy-schema-id-fixture-companion-20261019-r1/postimages/test_schema_instance_accessors.py",
+        "postimage_sha256": "9e980210ee823567055bd5c7d5cf8e9d9828365862810e08e2e6103a6942cafb"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-native-semantic-fixture-identifier-adoption-20261019/source-application.json",
+      "sha256": "7302481d5ba441911de08026aa692fdf4016a9dd1a7c20692cda5933462cf6c0"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-native-semantic-fixture-identifier-adoption-20261019/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-mypy-schema-id-fixture-companion-20261019-r1/manifest-v1.json",
+        "sha256": "5752b97a39008f487b3480cfd90f26a9bbb42575fc5d977c73c690b6555d29ec"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-mypy-schema-id-fixture-companion-independent-20261019/review-v1.json",
+        "sha256": "c1c68c7ad1d9c5e9bd9fe39421ef3575dcfe51abac655effbb3190a6986533e0"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "Same invalid-fixture-input class across the complete two literal identifier occurrences in the two selected modules; production patterns and assertions unchanged.",
+    "bounded_proof": "Actual two-module run46PASS1FAIL at invalidschema_id before assertions; independent review verifies both identifiers violate the same pattern, replacement admits both, exact two-literal diff and canonical Ruff/format pass.",
+    "limitations": [
+      "No candidate runtime pass yet; whole two modules require rerun.",
+      "Four actual MyPy schema/iterator override residuals remain explicit; fixture repair does not remove or reclassify those diagnostics."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run both complete semantic modules at committed source with full deciding output; no need repeat unchanged whole MyPy analysis without a material diagnostic/source change.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

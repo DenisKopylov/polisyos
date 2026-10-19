@@ -13,7 +13,7 @@ from polisyos.fabric.connectors.contracts import (
 
 def _schema() -> DataSchema:
     return DataSchema(
-        schema_id="test.native.override-retirement",
+        schema_id="test.native.override_retirement",
         version=SchemaVersion(1, 0, 0),
         fields=(FieldSpec(name="id", data_type=SchemaType.STRING, nullable=False),),
         primary_key=("id",),
@@ -26,7 +26,7 @@ def test_instance_schema_accessors_preserve_alias_and_wire_contract() -> None:
     models = (
         (
             ConnectorSchemaContract(
-                contract_id="test.native.override-retirement",
+                contract_id="test.native.override_retirement",
                 connector_id="test.native",
                 dataset_id="fixture",
                 schema=schema,

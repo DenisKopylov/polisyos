@@ -495,71 +495,316 @@ def _drop_array_row(path: Path, table: str, identity: str, value: str) -> None:
     raise AssertionError(f"array row not found: {table}.{identity}={value}")
 
 
-def test_package_mirror_reconciles_every_source_and_preserves_declared_nested_entrypoint(
-    tmp_path: Path,
-) -> None:
-    repo = _copy_package_mirror_fixture(tmp_path / "repo")
+def _package_contracts_by_module(
+    repo: Path,
+) -> dict[str, tuple[Path, dict[str, Any]]]:
     family = next(
         item
         for item in _read_toml(repo / "architecture/generated_artifacts.toml")["family"]
         if item["id"] == "architecture-package-contract-aggregates"
     )
     registered_outputs = set(family["outputs"])
-    contracts = {
-        path.stem: _read_toml(path)
-        for path in (repo / "architecture/packages").glob("*.toml")
-        if path.relative_to(repo).as_posix() not in registered_outputs
+    contracts: dict[str, tuple[Path, dict[str, Any]]] = {}
+    for path in sorted((repo / "architecture/packages").glob("*.toml")):
+        if path.relative_to(repo).as_posix() in registered_outputs:
+            continue
+        data = _read_toml(path)
+        module = data["package"]["module"]
+        if module in contracts:
+            raise AssertionError(f"duplicate source package module in fixture: {module}")
+        contracts[module] = (path, data)
+    return contracts
+
+
+def _public_surface_rows_by_module(repo: Path) -> dict[str, dict[str, Any]]:
+    rows = _read_toml(repo / "architecture/public_surface/contract.toml")["package"]
+    indexed: dict[str, dict[str, Any]] = {}
+    for row in rows:
+        module = row["module"]
+        if module in indexed:
+            raise AssertionError(f"duplicate public surface module in fixture: {module}")
+        indexed[module] = row
+    return indexed
+
+
+def _public_surface_projection_fields(repo: Path) -> set[str]:
+    contracts = _package_contracts_by_module(repo)
+    rows = _public_surface_rows_by_module(repo)
+    matched = [rows[module] for module in contracts.keys() & rows.keys()]
+    if not matched:
+        matched = list(rows.values())
+    if not matched:
+        raise AssertionError("fixture has no public surface row from which to derive fields")
+    return set().union(*(set(row) - {"module"} for row in matched))
+
+
+def _source_public_surface_value(data: dict[str, Any], projected_field: str) -> Any:
+    if projected_field == "owner":
+        return data["public_surface"]["registry_owner"]
+    if projected_field == "readme":
+        return data["layout"]["readme"]
+    for table in ("public_surface", "layout"):
+        if projected_field in data.get(table, {}):
+            return data[table][projected_field]
+    raise AssertionError(f"projection field has no source owner: {projected_field}")
+
+
+def _different_public_surface_value(module: str, field: str, source_value: Any) -> Any:
+    if type(source_value) is bool:
+        return not source_value
+    if type(source_value) is str:
+        return f"{source_value} [fixture drift]"
+    if type(source_value) is list and all(type(item) is str for item in source_value):
+        replacement = list(source_value)
+        marker = f"{module}.fixture-extra-entrypoint"
+        while marker in replacement:
+            marker += ".x"
+        replacement.append(marker)
+        return replacement
+    raise AssertionError(
+        f"cannot make a type-preserving drift for {field}: {type(source_value).__name__}"
+    )
+
+
+def _append_array_table_row(path: Path, table: str, values: dict[str, Any]) -> None:
+    lines = [f"[[{table}]]"]
+    lines.extend(
+        f"{field} = {json.dumps(value, ensure_ascii=False)}" for field, value in values.items()
+    )
+    existing = path.read_text(encoding="utf-8")
+    separator = "\n" if existing.endswith("\n") else "\n\n"
+    path.write_text(existing + separator + "\n".join(lines) + "\n", encoding="utf-8")
+
+
+def _write_public_surface_field(repo: Path, module: str, field: str, value: Any) -> None:
+    path = repo / "architecture/public_surface/contract.toml"
+    _replace_array_table_value(
+        path,
+        table="package",
+        identity="module",
+        value=module,
+        field=field,
+        replacement=f"{field} = {json.dumps(value, ensure_ascii=False)}",
+    )
+
+
+def _align_public_surface_projection_with_sources(
+    repo: Path, *, preserve_unmapped_rows: bool
+) -> None:
+    contracts = _package_contracts_by_module(repo)
+    path = repo / "architecture/public_surface/contract.toml"
+    rows = _public_surface_rows_by_module(repo)
+    fields = _public_surface_projection_fields(repo)
+    if not preserve_unmapped_rows:
+        for module in sorted(set(rows) - set(contracts)):
+            _drop_array_row(path, "package", "module", module)
+        rows = _public_surface_rows_by_module(repo)
+
+    for module, (_source_path, data) in sorted(contracts.items()):
+        if module not in rows:
+            values = {"module": module}
+            values.update({field: _source_public_surface_value(data, field) for field in fields})
+            _append_array_table_row(path, "package", values)
+            rows[module] = values
+            continue
+        for field in fields:
+            _write_public_surface_field(
+                repo, module, field, _source_public_surface_value(data, field)
+            )
+
+
+def _expected_public_surface_findings(
+    repo: Path,
+) -> tuple[list[tuple[str, str]], dict[str, dict[str, Any]]]:
+    contracts = _package_contracts_by_module(repo)
+    rows = _public_surface_rows_by_module(repo)
+    fields = _public_surface_projection_fields(repo)
+    expected: list[tuple[str, str]] = []
+    public_path = "architecture/public_surface/contract.toml"
+    source_modules = set(contracts)
+    row_modules = set(rows)
+    for _ in sorted(source_modules - row_modules):
+        expected.append((public_path, "public surface is missing a source-derived row"))
+
+    declared_entrypoints = {
+        entry
+        for _path, data in contracts.values()
+        for entry in data["public_surface"].get("supported_entrypoints", [])
+        if type(entry) is str and entry
     }
+    unmapped: dict[str, dict[str, Any]] = {}
+    for module in sorted(row_modules - source_modules):
+        row = rows[module]
+        expected.append((public_path, "public surface row has no complete source contract"))
+        unmapped[module] = {
+            "status": "not_established",
+            "parent_entrypoint_declared": module in declared_entrypoints,
+            "unverified_fields": sorted(field for field in row if field != "module"),
+        }
+
+    missing = object()
+    for module in sorted(source_modules & row_modules):
+        source_path, data = contracts[module]
+        row = rows[module]
+        for field in fields:
+            source_value = _source_public_surface_value(data, field)
+            projected_value = row.get(field, missing)
+            if source_value != projected_value:
+                expected.append(
+                    (source_path.relative_to(repo).as_posix(), f"public_surface.{field}")
+                )
+    return expected, unmapped
+
+
+def _assert_package_mirror_summary(
+    repo: Path, summary: dict[str, Any], expected_unmapped: dict[str, dict[str, Any]]
+) -> None:
+    family = next(
+        item
+        for item in _read_toml(repo / "architecture/generated_artifacts.toml")["family"]
+        if item["id"] == "architecture-package-contract-aggregates"
+    )
+    contracts = _package_contracts_by_module(repo)
+    primary = {
+        module: (path, data)
+        for module, (path, data) in contracts.items()
+        if data["package"].get("primary_contract") is True
+    }
+    expected_counts = {
+        "boundaries": len(_read_toml(repo / "architecture/packages/boundaries.toml")["package"]),
+        "public_surface": len(
+            _read_toml(repo / "architecture/public_surface/contract.toml")["package"]
+        ),
+        "layout": len(_read_toml(repo / "architecture/packages/layout.toml")["package"]),
+        "topology": len(_read_toml(repo / "architecture/tests/topology.toml")["package"]),
+    }
+    topology = _read_toml(repo / "architecture/tests/topology.toml")
+    topology_names = {row["name"] for row in topology["package"]}
+    exception_names = {row["name"] for row in topology["source_package_exception"]}
+    source_names = {data["package"]["name"] for _, data in primary.values()}
+    direct_names = source_names & topology_names
+    expected_dispositions = {
+        "direct": len(direct_names),
+        "explicit_source_exception": len((source_names - topology_names) & exception_names),
+        "nested_coverage": len(source_names - topology_names - exception_names),
+    }
+    assert summary["source_contract_file_count"] == len(contracts)
+    assert summary["primary_source_contract_count"] == len(primary)
+    assert summary["projection_row_counts"] == expected_counts
+    assert summary["registered_output_count"] == len(set(family["outputs"]))
+    assert summary["topology_source_dispositions"] == expected_dispositions
+    assert summary["primary_source_contract_count"] == sum(expected_dispositions.values())
+    assert summary["unmapped_public_surface_rows"] == expected_unmapped
+
+
+def test_package_mirror_reconciles_every_source_and_preserves_declared_nested_entrypoint(
+    tmp_path: Path,
+) -> None:
+    repo = _copy_package_mirror_fixture(tmp_path / "field-drift")
+    source_contracts = _package_contracts_by_module(repo)
+    initial_rows = _public_surface_rows_by_module(repo)
+    initial_unmapped = set(initial_rows) - set(source_contracts)
+    declared_entrypoints = {
+        entry
+        for _path, data in source_contracts.values()
+        for entry in data["public_surface"].get("supported_entrypoints", [])
+        if type(entry) is str and entry
+    }
+    assert "polisyos.runtime.quality" in initial_unmapped
+    assert "polisyos.runtime.quality" in declared_entrypoints
+
+    # Establish a clean control from source-owned values rather than freezing
+    # the current repository's mismatch count.
+    valid_repo = _copy_package_mirror_fixture(tmp_path / "valid")
+    _align_public_surface_projection_with_sources(valid_repo, preserve_unmapped_rows=False)
+    valid_findings, valid_summary = phase1_3._validate_package_mirror_projection(valid_repo)
+    valid_expected, valid_unmapped = _expected_public_surface_findings(valid_repo)
+    assert valid_expected == []
+    assert valid_findings == []
+    _assert_package_mirror_summary(valid_repo, valid_summary, valid_unmapped)
+
+    # Corrupt every field present on matched projection rows, for every source
+    # module. Mutations preserve the field's type so the validator must compare
+    # values, not merely reject malformed fixture syntax. The runtime child
+    # entrypoint stays present beside the added sibling entrypoint.
+    fields = _public_surface_projection_fields(repo)
+    for module, (_source_path, data) in sorted(source_contracts.items()):
+        for field in fields:
+            source_value = _source_public_surface_value(data, field)
+            replacement = _different_public_surface_value(module, field, source_value)
+            _write_public_surface_field(repo, module, field, replacement)
+
+    # Add an arbitrary sibling orphan with the real row shape. This verifies
+    # that refusal and not_established details follow the set join rather than
+    # one module-name exception.
+    rows = _public_surface_rows_by_module(repo)
+    used_modules = set(source_contracts) | set(rows) | declared_entrypoints
+    arbitrary_orphan = "polisyos.fixture.unowned"
+    while arbitrary_orphan in used_modules:
+        arbitrary_orphan += ".extra"
+    orphan_row = dict(rows[sorted(source_contracts)[0]])
+    orphan_row["module"] = arbitrary_orphan
+    _append_array_table_row(
+        repo / "architecture/public_surface/contract.toml", "package", orphan_row
+    )
+
     findings, summary = phase1_3._validate_package_mirror_projection(repo)
-    observed = {(item.subject, item.message.removesuffix(" drift")) for item in findings}
-    assert observed == {
-        ("architecture/packages/common.toml", "public_surface.supported_entrypoints"),
-        ("architecture/packages/core.toml", "public_surface.supported_entrypoints"),
-        ("architecture/packages/data_forge.toml", "public_surface.notes"),
-        ("architecture/packages/data_forge.toml", "public_surface.supported_entrypoints"),
-        ("architecture/packages/ddm.toml", "public_surface.facade_mode"),
-        ("architecture/packages/fabric.toml", "public_surface.supported_entrypoints"),
-        ("architecture/packages/foundry.toml", "public_surface.notes"),
-        ("architecture/packages/foundry.toml", "public_surface.supported_entrypoints"),
-        ("architecture/packages/ir.toml", "public_surface.supported_entrypoints"),
-        ("architecture/packages/lex.toml", "public_surface.supported_entrypoints"),
-        ("architecture/packages/runtime.toml", "public_surface.supported_entrypoints"),
-        ("architecture/packages/scientist.toml", "public_surface.notes"),
-        ("architecture/packages/scientist.toml", "public_surface.supported_entrypoints"),
+    expected, expected_unmapped = _expected_public_surface_findings(repo)
+    observed = [(item.subject, item.message.removesuffix(" drift")) for item in findings]
+    assert sorted(observed) == sorted(expected)
+    assert len(findings) == len(expected)
+    _assert_package_mirror_summary(repo, summary, expected_unmapped)
+    for module in initial_unmapped:
+        assert summary["unmapped_public_surface_rows"][module]["status"] == "not_established"
+        assert summary["unmapped_public_surface_rows"][module]["parent_entrypoint_declared"] is (
+            module in declared_entrypoints
+        )
+    assert summary["unmapped_public_surface_rows"][arbitrary_orphan]["status"] == "not_established"
+    assert (
+        summary["unmapped_public_surface_rows"][arbitrary_orphan]["parent_entrypoint_declared"]
+        is False
+    )
+
+    expected_every_field = {
+        (source_path.relative_to(repo).as_posix(), f"public_surface.{field}")
+        for source_path, _data in source_contracts.values()
+        for field in fields
+    }
+    assert expected_every_field <= set(observed)
+    assert len(expected_every_field) == len(source_contracts) * len(fields)
+
+    # The sibling test below this one separately probes missing rows; verify it
+    # remains a genuine independent control with this source-derived oracle.
+    missing_repo = _copy_package_mirror_fixture(tmp_path / "missing-source-row")
+    _align_public_surface_projection_with_sources(missing_repo, preserve_unmapped_rows=False)
+    removed_module = sorted(source_contracts)[0]
+    _drop_array_row(
+        missing_repo / "architecture/public_surface/contract.toml",
+        "package",
+        "module",
+        removed_module,
+    )
+    missing_findings, missing_summary = phase1_3._validate_package_mirror_projection(missing_repo)
+    missing_expected, missing_unmapped = _expected_public_surface_findings(missing_repo)
+    assert missing_expected == [
         (
             "architecture/public_surface/contract.toml",
-            "public surface row has no complete source contract",
-        ),
-    }
-    assert len(findings) == 14
-    assert (
-        summary["unmapped_public_surface_rows"]["polisyos.runtime.quality"]["status"]
-        == "not_established"
-    )
-    assert summary["source_contract_file_count"] == 19
-    assert summary["primary_source_contract_count"] == 19
-    assert summary["projection_row_counts"] == {
-        "boundaries": 19,
-        "public_surface": 20,
-        "layout": 6,
-        "topology": 13,
-    }
-    assert summary["primary_source_contract_count"] == sum(
-        summary["topology_source_dispositions"].values()
-    )
-    assert summary["topology_source_dispositions"] == {
-        "direct": 13,
-        "explicit_source_exception": 5,
-        "nested_coverage": 1,
-    }
+            "public surface is missing a source-derived row",
+        )
+    ]
+    assert sorted(
+        (item.subject, item.message.removesuffix(" drift")) for item in missing_findings
+    ) == sorted(missing_expected)
+    _assert_package_mirror_summary(missing_repo, missing_summary, missing_unmapped)
+
     expected_layout = {
-        contract["package"]["name"]: contract["layout"]["legacy_layout_status"]
-        for contract in contracts.values()
-        if contract["layout"].get("legacy_layout_mirror") == "architecture/packages/layout.toml"
+        data["package"]["name"]: data["layout"]["legacy_layout_status"]
+        for _path, data in source_contracts.values()
+        if data["layout"].get("legacy_layout_mirror") == "architecture/packages/layout.toml"
     }
     actual_layout = {
         row["name"]: row["current_status"]
-        for row in _read_toml(repo / "architecture/packages/layout.toml")["package"]
+        for row in _read_toml(missing_repo / "architecture/packages/layout.toml")["package"]
     }
     assert actual_layout == expected_layout
 

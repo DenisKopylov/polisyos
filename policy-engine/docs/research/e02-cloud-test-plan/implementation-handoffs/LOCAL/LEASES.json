@@ -17647,5 +17647,53 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root_native_package_projection_test_oracle_r5_20261019": {
+    "slice_base": "a81030454f8ec32191a1bda21d222424854a7f80",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/repo_quality/architecture/test_repository_best_in_class_phase1_3_contracts.py": {
+        "operation": "write",
+        "preimage_sha256": "5c92090bdaa48ce1e9a7fcf7b8e0105369763629e3823769980f3e0975010b79",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-facade-projection-test-oracle-repair-r5-20261019/candidate_test_repository_best_in_class_phase1_3_contracts.py",
+        "postimage_sha256": "07886cb04ad84d66c0f56635e83bea08f538ffd11ac1b8f2b6c30f0bd9f40e1b",
+        "category": "verification_mechanism",
+        "P39_role": "source-derived full-field package projection oracle and adverse fixtures"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-projection-oracle-r5-source-adoption-20261019/source-application.json",
+      "sha256": "ead2503a407290477ae1a054b659d4a6a07921ba188fa79423fe9aff8fae7eb4"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-projection-oracle-r5-source-adoption-20261019/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-facade-projection-test-oracle-repair-r5-20261019/manifest.json",
+        "sha256": "3df6a3b9ed813e91601d62048bf82d4ce872734398939cf4cda2e7df22b28ed2"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-facade-projection-oracle-r5-independent-20261019/manifest.json",
+        "sha256": "02e91c0f42d8bfd07f60b3673aceee9508e9deca7631c8322ec21263df025f8e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-facade-first-failure-fa919-actual-r3-20261019/fixture-discriminator.stdout.txt",
+        "sha256": "35b13c01c67f52c1ccd1d568f14501042b604423e930fd9f57d17b128a4f4e58"
+      }
+    ],
+    "P40": "SAME_CLASS_DEEPER: replace the frozen per-corpus expectation with one full source-derived independent projection oracle and whole-field falsifiers, rather than replacing one fixed count with another.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Canonical complete-module pytest remains UNRUN on the adopted source.",
+      "The 1c9 whole-characterization timeout and first-failure diagnostic remain historical red/incomplete evidence, not rewritten or called inherited.",
+      "This repairs the verification oracle and does not remove native module-size debt, change package source authority, or refresh the historical public API snapshot."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run complete native architecture contract owner test modules after the blocking batch, retain every actual failure/error/skip and the measured suite wall limit. Then run the full native SOTA owner profile after required generated families freeze.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

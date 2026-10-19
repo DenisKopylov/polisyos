@@ -157,7 +157,7 @@ const artifactRefSchema = z.object({
     .optional(),
 });
 
-const coreArtifactRefSchema = z
+export const coreArtifactRefSchema = z
   .object({
     artifact_id: z.string().regex(/^sha256:[0-9a-f]{64}$/),
     kind: z.string().min(1),

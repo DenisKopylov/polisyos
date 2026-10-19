@@ -1,6 +1,7 @@
 import { useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { useQuantityRuntimeBridge } from "./QuantityRuntimeBridge";
+import { projectSelectedArtifactRef } from "./selected-artifact-ref";
 import type {
   LineageBatchResponsePayload,
   LineageBatchSelector,
@@ -47,26 +48,10 @@ export function lineageSelectorsFromQuantities(
 export function selectedArtifactRef(
   value: unknown,
 ): SelectedArtifactRef | null {
-  if (!isRecord(value)) return null;
-  const artifactId = value.artifact_id;
-  const kind = value.kind;
-  const mediaType = value.media_type;
-  const profile = value.manifest_profile_sha256;
-  if (
-    typeof artifactId !== "string" ||
-    typeof kind !== "string" ||
-    typeof mediaType !== "string" ||
-    typeof profile !== "string" ||
-    !/^sha256:[0-9a-f]{64}$/.test(profile)
-  ) {
-    return null;
-  }
-  return {
-    artifact_id: artifactId,
-    kind,
-    media_type: mediaType,
-    manifest_profile_sha256: profile,
-  };
+  const projection = projectSelectedArtifactRef(value);
+  return projection.status === "candidate"
+    ? projection.selectedArtifactRef
+    : null;
 }
 
 export function lineageSelectorKey(selector: LineageBatchSelector): string {
@@ -477,10 +462,6 @@ function optionalIdentityValue(value: string | null | undefined): unknown[] {
   if (value === undefined) return ["omitted"];
   if (value === null) return ["null"];
   return ["value", value];
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
 }
 
 export function useLineageBatch(

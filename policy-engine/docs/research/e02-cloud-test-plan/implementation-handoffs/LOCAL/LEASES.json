@@ -26407,5 +26407,144 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "n11-api5-frontend-canonical-selected-artifact-ref-projection-r2-20261020": {
+    "slice_base": "f16ee2de662aa35cadab798e4d3127fca7fbc133",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/apps/runtime-dashboard/src/shared/ui/quantity/quantity.types.ts": {
+        "operation": "write",
+        "preimage_sha256": "7fc7370225337308c88ceee1527ef01646779dd681a8d0dbf1dd33689cb614a2",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-api5-frontend-consumer-type-companions-20261020/postimages-v2/apps/runtime-dashboard/src/shared/ui/quantity/quantity.types.ts",
+        "postimage_sha256": "6d971a72d79afa5618c9ef9ec9e0cc0a9f77a305928684a6ab6a0004ef364dd4"
+      },
+      "policy-engine/apps/runtime-dashboard/src/shared/ui/quantity/selected-artifact-ref.ts": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-api5-frontend-consumer-type-companions-20261020/postimages-v2/apps/runtime-dashboard/src/shared/ui/quantity/selected-artifact-ref.ts",
+        "postimage_sha256": "e1e2831a98f1ac4e3dc1a731fbe529119b57c6317005c90747eb749159329815"
+      },
+      "policy-engine/apps/runtime-dashboard/src/shared/ui/quantity/useLineageBatch.ts": {
+        "operation": "write",
+        "preimage_sha256": "a20962970ca4de2fc1e994b0e47147fa5110041505c95ee9e2b96ecce2e8c15a",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-api5-frontend-consumer-type-companions-20261020/postimages-v2/apps/runtime-dashboard/src/shared/ui/quantity/useLineageBatch.ts",
+        "postimage_sha256": "7f453495fd19b6a27ba57904782ce0badbabda6fe3cf32ac41e4f475a69ba41d"
+      },
+      "policy-engine/apps/runtime-dashboard/src/shared/ui/quantity/fabric-decision-data.ts": {
+        "operation": "write",
+        "preimage_sha256": "69b3369b345f4b9501788885feeb234c4644d0cbb373819d01409e28e892dbca",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-api5-frontend-consumer-type-companions-20261020/postimages-v2/apps/runtime-dashboard/src/shared/ui/quantity/fabric-decision-data.ts",
+        "postimage_sha256": "ccac96e7d106f25cdb179edbd9ec7e364d61206847ebabf9d556b0409ee95d4d"
+      },
+      "policy-engine/apps/runtime-dashboard/src/shared/ui/quantity/useLineage.test.tsx": {
+        "operation": "write",
+        "preimage_sha256": "5b3cad8e62aab20c52a1f74e7808ada51c98a75decf325ed04bbc5adbcd708e3",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-api5-frontend-consumer-type-companions-20261020/postimages-v2/apps/runtime-dashboard/src/shared/ui/quantity/useLineage.test.tsx",
+        "postimage_sha256": "5dff3d6060bd89890bfed15dc34848fb1835aa392d5d336c878be613d756bc47"
+      },
+      "policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/RunOverviewProfileLineageAdmission.integration.test.tsx": {
+        "operation": "write",
+        "preimage_sha256": "4808d9d14001221cfb05ca362bed2baad12dcab0ca02e0c11be7a4675424d938",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-api5-frontend-consumer-type-companions-20261020/postimages-v2/apps/runtime-dashboard/src/features/runs/routes/tabs/RunOverviewProfileLineageAdmission.integration.test.tsx",
+        "postimage_sha256": "d7669ca6a54666a4c67dde716adea20b5e243a389faabff45c5568dd4fb380c5"
+      },
+      "policy-engine/apps/runtime-dashboard/src/test/trustViewQueries.ts": {
+        "operation": "write",
+        "preimage_sha256": "cfbec3c67ab852848fbe4b6ecfa23aa9ef8bdae4b6f538a434a60073d69b6416",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-api5-frontend-consumer-type-companions-20261020/postimages-v2/apps/runtime-dashboard/src/test/trustViewQueries.ts",
+        "postimage_sha256": "252a29984c58bd93112d688104a63569049af7796b16c16a1b55b9f97c8f667a"
+      },
+      "policy-engine/apps/runtime-dashboard/src/api/validators.ts": {
+        "operation": "write",
+        "preimage_sha256": "980256d02bf0fcdbfd2830f1e35ac1e68f6ea0d5a58a7cc01bf20d4b8951e3e6",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-api5-frontend-consumer-type-companions-20261020/postimages-v2/apps/runtime-dashboard/src/api/validators.ts",
+        "postimage_sha256": "678cde2a7820518d5c17bbe9f8d6c6fd0669bf203fb9d394cc4a2fbc528e76b2"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-frontend-canonical-artifact-ref-r2-adoption-20261020/source-application.json",
+      "sha256": "169ca67d309cbeee2f78512eed7c9e76a253d2713014e48b95df2c1343efe2fd"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-frontend-canonical-artifact-ref-r2-adoption-20261020/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/incidents/two-known-owned-test-edits-20261019/capture.json",
+        "sha256": "ef014c97ec1e6f3cd0052c8b6bbcc9d98a482e8abbf4f14db9c17eac1a34e370"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/observed-owned-test-changes.patch",
+        "sha256": "7f3ee384af15393df347155ae297bb43592610740c361501b11832be272e4444"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-source-additions-preservation-r4-logging-20261019/apply-and-commit.py",
+        "sha256": "f91d9cd620e1336fd0e6d956ec83b0fa30786fd96797f446528c1001eab2de35"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-preservation-r3-ancestor-independent-review-20261019/review-correction-v2.json",
+        "sha256": "144b901703f88e72c7b09aa2b1e3931affc5a61cf3ac00875a019a3eefa115eb"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-api5-frontend-consumer-type-companions-20261020/manifest-v2.json",
+        "sha256": "0d3c6406f4d754545621b4c61d27ebc3dab6ad1e3a83aeac669da505827eb16a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-api5-frontend-consumer-type-companions-20261020/candidate-v2.patch",
+        "sha256": "e10fdf870d847827eebd90050cc32208438033c44ea463b53ae76b08e19f7b76"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/n11-api5-frontend-consumer-type-companions-20261020/validation-v2.json",
+        "sha256": "1f1a2daf1536f056ae7a571eaa277d66ca1f476105897e160bb122a9416b1112"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-consumer-r2-independent-qa-f16ee2de-20261020/review-v2.md",
+        "sha256": "07825da6541f5dc3e7f1d022c5e6d043b220384f474be5cee0d0fd89f8cc4906"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py": "baab841019a411c004795a00d16969f182e3291973810d9cf80159cff68514de",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57"
+    },
+    "preserved_other_owned_provenance": {
+      "preparation": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      "source_application": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      }
+    },
+    "preserved_other_owned_tracked_paths": [
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py"
+    ],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "Same P38 schema-versus-projection class; shared canonical schema reuse widens the mechanism to both consumers without per-field string patches.",
+    "bounded_proof": "Independent R2 source GO; all eight postimage and seven tracked preimage pins plus helper absence and patch applicability verified. Canonical topology ESLint, semantic TypeScript and Vitest remain pending.",
+    "limitations": [
+      "Shape candidate is not existence, profile binding, provenance, currentness or authority admission.",
+      "Profileless history remains informational with no selected-profile trust grant.",
+      "No generated API snapshot, OpenAPI schema content, server admission rule or lockfile is changed; existing validator export is reused.",
+      "Canonical N11 owner generation and API5 regeneration are still required before composed typecheck and the full consumer replay.",
+      "Two known-owned incomplete N7/B108 test edits remain byte-for-byte unchanged outside this commit."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run canonical physical-topology ESLint and focused whole seven-module Vitest cohort; regenerate genuine N11/API5 outputs, run all dashboard/client TypeScript configurations and actual GET/browser companions, then source-bound closeout.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

@@ -428,8 +428,14 @@ function mismatchedBatchResponse(
   } else if (mismatch === "origin") {
     mismatchedLineage.artifact_ref_provenance = "run_output_ref";
   } else {
+    const trustMetadata = lineage.trust_metadata;
+    if (trustMetadata == null) {
+      throw new Error(
+        "The verified profile fixture must include trust metadata",
+      );
+    }
     mismatchedLineage.trust_metadata = {
-      ...lineage.trust_metadata,
+      ...trustMetadata,
       temporal_scope: { ...temporalScope, branch: "other-branch" },
     };
   }

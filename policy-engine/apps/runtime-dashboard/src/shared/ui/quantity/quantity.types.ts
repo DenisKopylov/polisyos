@@ -1,4 +1,5 @@
 import type {
+  ArtifactRefOutput as RuntimeArtifactRef,
   CounterfactualMetric as RuntimeCounterfactualMetric,
   FabricDecisionData as RuntimeFabricDecisionData,
   FabricDecisionDataResponse as RuntimeFabricDecisionDataResponse,
@@ -27,8 +28,11 @@ export type LineageExportLinks = RuntimeLineageExportLinks;
 export type LineageExportPayload = RuntimeLineageExportResponse;
 export type LineageGraphEdge = RuntimeLineageGraphEdge;
 export type LineageGraphNode = RuntimeLineageGraphNode;
-export type LineageGraphView = RuntimeLineageGraphView & {
-  selected_artifact_ref?: SelectedArtifactRef | null;
+export type LineageGraphView = Omit<
+  RuntimeLineageGraphView,
+  "selected_artifact_ref"
+> & {
+  selected_artifact_ref?: RuntimeArtifactRef | null;
   profile_binding_status?: ProfileBindingStatus | null;
   artifact_ref_provenance?: ArtifactRefProvenance | null;
   source_run_id?: string | null;

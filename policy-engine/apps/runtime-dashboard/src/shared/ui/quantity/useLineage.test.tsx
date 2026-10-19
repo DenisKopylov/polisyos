@@ -24,6 +24,7 @@ import type {
   SelectedArtifactRef,
   TemporalRef,
 } from "./quantity.types";
+import { projectSelectedArtifactRef } from "./selected-artifact-ref";
 import { useLineage } from "./useLineage";
 import {
   alignLineageBatchResponses,
@@ -75,6 +76,52 @@ const selectorB: LineageBatchSelector = {
 
 afterEach(() => {
   vi.restoreAllMocks();
+});
+
+describe("selected artifact reference projection", () => {
+  it("keeps absent, profileless, malformed, and shaped references distinct", () => {
+    expect(projectSelectedArtifactRef(undefined)).toEqual({ status: "absent" });
+    expect(projectSelectedArtifactRef(null)).toEqual({ status: "absent" });
+    expect(
+      projectSelectedArtifactRef({
+        artifact_id: profileA.artifact_id,
+        kind: profileA.kind,
+        media_type: profileA.media_type,
+      }),
+    ).toEqual({ status: "profileless" });
+    expect(
+      projectSelectedArtifactRef({
+        ...profileA,
+        manifest_profile_sha256: null,
+      }),
+    ).toEqual({ status: "profileless" });
+    expect(
+      projectSelectedArtifactRef({
+        ...profileA,
+        manifest_profile_sha256: "not-a-profile-hash",
+      }),
+    ).toEqual({ status: "malformed" });
+    expect(projectSelectedArtifactRef(profileA)).toEqual({
+      status: "candidate",
+      selectedArtifactRef: profileA,
+    });
+  });
+
+  it("rejects references that fail the canonical artifact schema", () => {
+    const invalidReferences: unknown[] = [
+      { ...profileA, artifact_id: "not-a-sha256-id" },
+      { ...profileA, artifact_id: "" },
+      { ...profileA, kind: "" },
+      { ...profileA, media_type: "" },
+      { ...profileA, unexpected: "extra field" },
+    ];
+
+    for (const reference of invalidReferences) {
+      expect(projectSelectedArtifactRef(reference)).toEqual({
+        status: "malformed",
+      });
+    }
+  });
 });
 
 describe("lineage hooks", () => {
@@ -399,6 +446,39 @@ describe("lineage hooks", () => {
         temporalScope,
       }),
     ).toThrow(/unrequested or unbound item|selected profile/);
+  });
+
+  it("does not treat a malformed supplied profile as legacy absence", () => {
+    const legacy = lineageGraphFixture({
+      lineageId: selectorA.lineageId,
+      status: "verified",
+      freshness: "current",
+      profileBindingStatus: "not_established",
+      selectedArtifactRef: null,
+      artifactRefProvenance: null,
+      sourceRunId: null,
+      trustMetadata: null,
+    });
+    const malformed: LineageGraphView = {
+      ...legacy,
+      selected_artifact_ref: {
+        ...profileA,
+        manifest_profile_sha256: "not-a-profile-hash",
+      },
+    };
+    const response: LineageBatchResponsePayload = {
+      meta,
+      temporal_scope: temporalScope,
+      lineages: [malformed],
+    };
+
+    expect(() =>
+      alignLineageBatchResponses(
+        [{ lineageId: selectorA.lineageId }],
+        response,
+        { runId: "run-1", temporalScope },
+      ),
+    ).toThrow(/unrequested or unbound item/);
   });
 
   it("allows a legacy informational graph while refusing a trust grade", () => {

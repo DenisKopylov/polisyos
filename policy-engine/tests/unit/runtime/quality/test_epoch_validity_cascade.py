@@ -124,14 +124,13 @@ def _persist_epoch_manifest(
     store: artifacts.FileSystemCAS,
     manifest: SemanticEpochManifest,
 ) -> artifacts.ArtifactRef:
-    raw = contracts.chronology._frame_record(contracts.epoch.canonical_epoch_bytes(manifest))
-    return store.put_bytes(
-        raw,
-        artifacts.ArtifactWriteOptions(
-            kind="epoch.semantic_manifest",
-            media_type="application/vnd.polisyos.epoch+json",
-        ),
+    ref, _ = semantic_epoch_runtime._persist_model(
+        store=store,
+        value=manifest,
+        kind="epoch.semantic_manifest",
+        return_selected_profile=True,
     )
+    return ref
 
 
 def _epoch_history_entry(

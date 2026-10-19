@@ -2055,8 +2055,11 @@ def test_epoch_recompute_refuses_transition_manifest_without_canon_profile(tmp_p
         return_selected_profile=True,
     )
     assert manifest_without_canon_ref.manifest_profile_sha256 is not None
-    with pytest.raises(ValueError, match="epoch transition artifact readback failed"):
+    with pytest.raises(DerivationRefusalError) as refusal:
         derived_module._read_epoch_validity_transition(fixture.store, manifest_without_canon_ref)
+
+    assert refusal.value.code is DerivationRefusalCode.EPOCH_RECOMPUTE_DRIFT
+    assert refusal.value.detail == "epoch transition artifact readback failed"
 
 
 def _produce_epoch_recompute(

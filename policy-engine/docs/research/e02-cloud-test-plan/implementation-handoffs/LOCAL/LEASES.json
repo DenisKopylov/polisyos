@@ -22464,5 +22464,75 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "can-test-companions-root-adopted-20261019": {
+    "slice_base": "ef8b1f9a8358c0710a90a1338a8884b870360273",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/unit/runtime/quality/test_epoch_validity_cascade.py": {
+        "operation": "write",
+        "preimage_sha256": "7db5e6a4cfca96cfd962c0f473c30be38886fac4d8b8be3a531e813dfa2585fc",
+        "git_base_preimage_sha256": "7db5e6a4cfca96cfd962c0f473c30be38886fac4d8b8be3a531e813dfa2585fc",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/derived-profile-composition-runtime-author-20261019/postimages/policy-engine/tests/unit/runtime/quality/test_epoch_validity_cascade.py",
+        "postimage_sha256": "0457bdd73a5836b6be94f9527451c73328b96f0ba4973d601d5a2247db544406"
+      },
+      "policy-engine/tests/unit/runtime/quality/test_derived_observations.py": {
+        "operation": "write",
+        "preimage_sha256": "24451c7be22831d275b6d79c6189c2cc598a9bd549146ca30973f10312e0bf3b",
+        "git_base_preimage_sha256": "24451c7be22831d275b6d79c6189c2cc598a9bd549146ca30973f10312e0bf3b",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/derived-profile-composition-runtime-author-20261019/postimages/policy-engine/tests/unit/runtime/quality/test_derived_observations.py",
+        "postimage_sha256": "a20aeb1ced9b4140af0899528914d2b8d5a734ad2e62e6d850eee93c4b953e7c"
+      },
+      "policy-engine/tests/unit/runtime/http/test_temporal_routes.py": {
+        "operation": "write",
+        "preimage_sha256": "7b9d82e32feee96116566838c5c1212ddaec7eef61d02b348779fc1ab0a01254",
+        "git_base_preimage_sha256": "7b9d82e32feee96116566838c5c1212ddaec7eef61d02b348779fc1ab0a01254",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/derived-profile-composition-runtime-author-20261019/postimages/policy-engine/tests/unit/runtime/http/test_temporal_routes.py",
+        "postimage_sha256": "984bb0d63b8772456d8efb5198217845e90f9590f36310e74fb8e0180aa22655"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-four-source-batch-20261019/can-test-companions/source-application.json",
+      "sha256": "dab4a48eef2819b689884f5d13a704d696fab98b39106f5622b57d952aa24d15"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-four-source-batch-20261019/can-test-companions/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/derived-profile-composition-runtime-author-20261019/manifest.json",
+        "sha256": "9f4a6582c259862d3fba42432c63cbb7ef9a1adbecf0d3dfb2597287b540c173"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/derived-profile-composition-runtime-author-20261019/classification-v1.md",
+        "sha256": "e367a5ba7ea00b927cd02b3b60bd77ab79977e62715e10ff6c2f0581a4637a2a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/derived-profile-composition-runtime-author-20261019/tracked-census.txt",
+        "sha256": "3dbd2fde6a0ba0c28e24e4f50b9a09d9cc7a385e7e48910709aa9b08b4c94501"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/derived-profile-composition-independent-review-20261019/review-v1.json",
+        "sha256": "c7a9fd67873949f3cb92a7270d16e2905c5cf4b22cbe03b9cf18dcdc04aecdd3"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "Same identified mechanism class widened to its complete enumerated source/fixture/consumer quantity; preserve distinct unknown authority/profile facts and no per-case assertion ladder.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "353-case prior replay remains 342PASS/11FAIL; exact post-adoption 15 whole modules required. Genuine profileless history and selected-profile removal negatives retained.",
+      "No G acceptance, formal finding closure, publication or production currentness is claimed."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run full prior thirteen-module union plus test_epoch_validity_cascade and test_epoch_certificate_issuance; actual producer/CAS/refusal effects, zero ownership bypass.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

@@ -32,6 +32,7 @@ from polisyos.scientist.governance.continuous.monitors import (
     GOVERNANCE_MONITOR_EVENT_SCHEMA_NAME,
     GOVERNANCE_MONITOR_EVENT_SCHEMA_VERSION,
 )
+from tests._helpers.runtime_http import _runtime_api_tenant_scope
 from tests.unit.runtime.http.test_runtime_api_authz import (
     _AllowOPA,
     _build_secure_client,
@@ -239,7 +240,8 @@ def test_runtime_batches_quality_and_trust_refs_without_n_plus_one(runtime_api_e
     ctx = container.runtime_api_context
     run = ctx.run_index.get_run(runtime_api_env["core_run_id"])
 
-    decision_data, coverage = ctx.lineage.build_fabric_decision_data_for_run(run)
+    with _runtime_api_tenant_scope(runtime_api_env):
+        decision_data, coverage = ctx.lineage.build_fabric_decision_data_for_run(run)
     quality_refs = ctx.lineage.build_quality_refs_batch(decision_data)
     trust_refs = ctx.lineage.build_trust_refs_batch(decision_data)
 
@@ -271,14 +273,15 @@ def test_fabric_trust_metadata_is_stable_for_same_valid_time_and_different_tx_ti
         branch="main",
     )
 
-    early_data, _early_coverage = ctx.lineage.build_fabric_decision_data_for_run(
-        run,
-        temporal_scope=early_scope,
-    )
-    late_data, _late_coverage = ctx.lineage.build_fabric_decision_data_for_run(
-        run,
-        temporal_scope=late_scope,
-    )
+    with _runtime_api_tenant_scope(runtime_api_env):
+        early_data, _early_coverage = ctx.lineage.build_fabric_decision_data_for_run(
+            run,
+            temporal_scope=early_scope,
+        )
+        late_data, _late_coverage = ctx.lineage.build_fabric_decision_data_for_run(
+            run,
+            temporal_scope=late_scope,
+        )
     early_trust = ctx.lineage.build_trust_refs_batch(early_data)
     late_trust = ctx.lineage.build_trust_refs_batch(late_data)
 

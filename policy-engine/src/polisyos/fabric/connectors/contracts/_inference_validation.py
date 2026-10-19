@@ -362,11 +362,13 @@ def _coerce_boolean(series: pd.Series) -> pd.Series:
 class _DecimalSeriesApply(Protocol):
     """Typed view of ``Series.apply`` for a scalar Decimal mapper."""
 
+    # Decimal is outside the pandas-stubs SeriesDType bound; the result uses the
+    # default generic at this narrowly scoped pandas object-dtype boundary.
     def __call__(
         self,
         func: Callable[[object], Decimal | None],
         /,
-    ) -> pd.Series[object]: ...
+    ) -> pd.Series: ...
 
 
 def _coerce_decimal(value: object) -> Decimal | None:

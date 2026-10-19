@@ -6,7 +6,7 @@ import asyncio
 import inspect
 from _thread import RLock as RLockType
 from collections import OrderedDict
-from collections.abc import Awaitable, Callable, Mapping, Sequence
+from collections.abc import Awaitable, Callable, Sequence
 from concurrent.futures import Future
 from functools import wraps
 from types import MappingProxyType
@@ -99,7 +99,7 @@ class _RegistryLifecycleState(Protocol):
 
     _instance_lock: RLockType
     _connectors: GenericRegistry[str, ConnectorEntry]
-    _registered_owner_bindings: Mapping[int, _ConnectorRegistrationBinding]
+    _registered_owner_bindings: MappingProxyType[int, _ConnectorRegistrationBinding]
     _connection_pools: OrderedDict[tuple[str, str, int], ConnectionPool[SourceConnectorValue[Any]]]
     _pending_startup_cleanup: dict[int, tuple[str, ConnectionPool[SourceConnectorValue[Any]]]]
     _stream_owner_leases: dict[tuple[str, str, str], _StreamOwnerLease]
@@ -799,8 +799,13 @@ class RegistryLifecycleMixin:
                 reason=f"Invalid runtime connector owner: {exc}",
             ) from exc
 
-        connector_factory: Callable[[], SourceConnector[Any]] = factory or (
-            lambda cls=connector_class: cls()
+        def instantiate_registered_connector(
+            cls: type[SourceConnector[Any]] = connector_class,
+        ) -> SourceConnector[Any]:
+            return cls()
+
+        connector_factory: Callable[[], SourceConnector[Any]] = (
+            factory or instantiate_registered_connector
         )
 
         with self._instance_lock:

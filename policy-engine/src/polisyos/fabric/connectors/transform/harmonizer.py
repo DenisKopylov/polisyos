@@ -130,7 +130,7 @@ class CodeHarmonizationTransform(DataTransform):
             parameters={
                 "dimension": self.dimension,
                 "target_codelist": self.target_codelist,
-                "mapping_size": len(self.mapping),
+                "mapping_size": len(cast("dict[str, str]", self.mapping)),
                 "mapped_count": mapping_stats["mapped_count"],
                 "unmapped_count": mapping_stats["unmapped_count"],
                 "null_count": mapping_stats["null_count"],

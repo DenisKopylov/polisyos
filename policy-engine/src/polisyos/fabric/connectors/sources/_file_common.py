@@ -15,6 +15,7 @@ import aiohttp
 import pandas as pd
 
 from polisyos.core.canon import content_hash
+from polisyos.fabric.connectors.base import ConnectionConfig
 from polisyos.fabric.connectors.contracts import infer_schema
 from polisyos.fabric.connectors.http_limits import read_bounded_response_body
 from polisyos.ir.connectors import DataVersion, VersionStrategy
@@ -82,7 +83,7 @@ def infer_file_format(location: str, explicit_format: str | None = None) -> str:
     raise ValueError(f"Could not infer dataset format from location {location!r}")
 
 
-def parse_file_config(config) -> dict[str, str]:
+def parse_file_config(config: ConnectionConfig) -> dict[str, str]:
     headers = dict(config.headers)
     return {
         "format": headers.get("X-File-Format", ""),
@@ -92,7 +93,7 @@ def parse_file_config(config) -> dict[str, str]:
     }
 
 
-def _configured_max_bytes(config, *, prefixes: tuple[str, ...]) -> int:
+def _configured_max_bytes(config: ConnectionConfig, *, prefixes: tuple[str, ...]) -> int:
     headers = dict(config.headers)
     for prefix in prefixes:
         header_name = f"{prefix}MaxBytes"
@@ -122,7 +123,7 @@ def _ensure_byte_limit(size: int, *, max_bytes: int, location: str) -> None:
 
 
 async def read_location_bytes(
-    config, *, prefixes: tuple[str, ...] = ("X-File-",)
+    config: ConnectionConfig, *, prefixes: tuple[str, ...] = ("X-File-",)
 ) -> tuple[bytes, dict[str, str]]:
     """Read bytes from file/http(s) locations without eager heavy imports."""
 

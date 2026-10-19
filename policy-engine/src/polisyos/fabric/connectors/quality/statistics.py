@@ -6,11 +6,11 @@ import importlib
 import importlib.util
 import math
 from collections import Counter
-from collections.abc import Iterable, Mapping
+from collections.abc import Buffer, Iterable, Mapping
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal, Protocol, cast
+from typing import TYPE_CHECKING, Any, Literal, Protocol, SupportsFloat, SupportsIndex, cast
 
 import pandas as pd
 
@@ -29,17 +29,23 @@ from polisyos.fabric.numerics.finite import (
 )
 
 
-class _KSTestResult(Protocol):
-    """Fields consumed from SciPy's two-sample Kolmogorov–Smirnov result."""
+class _ScipyTestResult(Protocol):
+    """Fields consumed from SciPy statistical-test results."""
 
     statistic: float
     pvalue: float
 
 
 class _ScipyStatsAPI(Protocol):
-    """The SciPy statistics operation used by drift detection."""
+    """The SciPy operations used by drift detection."""
 
-    def ks_2samp(self, data1: pd.Series, data2: pd.Series, /) -> _KSTestResult: ...
+    def ks_2samp(self, data1: pd.Series, data2: pd.Series, /) -> _ScipyTestResult: ...
+
+    def chisquare(self, *, f_obs: list[int], f_exp: list[float]) -> _ScipyTestResult: ...
+
+
+def _load_scipy_stats_api() -> _ScipyStatsAPI:
+    return cast("_ScipyStatsAPI", importlib.import_module("scipy.stats"))
 
 
 class _IsolationForestEstimator(Protocol):
@@ -562,6 +568,22 @@ class QualityContractResult:
         }
 
 
+class _QualityTrendHistoryRow(Protocol):
+    """Required attributes read from attribute-backed quality history rows."""
+
+    @property
+    def dataset_id(self) -> object: ...
+
+    @property
+    def schema_id(self) -> object: ...
+
+    @property
+    def validated_at(self) -> datetime | str: ...
+
+    @property
+    def score(self) -> str | Buffer | SupportsFloat | SupportsIndex: ...
+
+
 @dataclass(frozen=True)
 class QualityTrendPoint:
     dataset_id: str
@@ -609,14 +631,13 @@ class QualityTrendPoint:
                 consistency_score=payload.get("consistency_score"),
                 tier=payload.get("tier"),
             )
+        row = cast("_QualityTrendHistoryRow", payload)
         return cls(
-            dataset_id=str(payload.dataset_id),
-            schema_id=str(payload.schema_id),
+            dataset_id=str(row.dataset_id),
+            schema_id=str(row.schema_id),
             source_id=getattr(payload, "source_id", None),
-            validated_at=parse_datetime_utc(
-                payload.validated_at, what="quality trend validated_at"
-            ),
-            score=float(payload.score),
+            validated_at=parse_datetime_utc(row.validated_at, what="quality trend validated_at"),
+            score=float(row.score),
             row_count=int(getattr(payload, "row_count", 0)),
             completeness_score=getattr(payload, "completeness_score", None),
             consistency_score=getattr(payload, "consistency_score", None),
@@ -702,8 +723,8 @@ def profile_dataframe(
         )
 
         quantiles: dict[str, float] = {}
-        min_value = None
-        max_value = None
+        min_value: object = None
+        max_value: object = None
         histogram: tuple[HistogramBin, ...] = ()
         if not numeric.empty:
             min_value = float(numeric.min())
@@ -858,7 +879,7 @@ def detect_anomalies(
 
 def _ks_drift(current: pd.Series, baseline: pd.Series) -> tuple[float, float]:
     if importlib.util.find_spec("scipy") is not None:
-        scipy_stats = cast("_ScipyStatsAPI", importlib.import_module("scipy.stats"))
+        scipy_stats = _load_scipy_stats_api()
 
         result = scipy_stats.ks_2samp(current, baseline)
         return float(result.statistic), float(result.pvalue)
@@ -918,14 +939,14 @@ def _categorical_drift(current: pd.Series, baseline: pd.Series) -> tuple[float, 
     )
 
     if importlib.util.find_spec("scipy") is not None:
-        from scipy.stats import chisquare
+        scipy_stats = _load_scipy_stats_api()
 
         expected_scaled = [max(1e-6, value * observed_total) for value in expected_dist]
         expected_total_scaled = sum(expected_scaled)
         if expected_total_scaled > 0:
             scale = observed_total / expected_total_scaled
             expected_scaled = [value * scale for value in expected_scaled]
-        result = chisquare(f_obs=observed, f_exp=expected_scaled)
+        result = scipy_stats.chisquare(f_obs=observed, f_exp=expected_scaled)
         return float(result.statistic), float(result.pvalue), float(tv_distance)
 
     return float(tv_distance), 1.0, float(tv_distance)

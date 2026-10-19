@@ -351,7 +351,7 @@ class MetricSearcher:
                 explanations.append("Supporting tokens: " + ", ".join(match.supporting_tokens))
             if lexical is not None and lexical.matched_alias:
                 explanations.append(f"Lexical hint preserved from alias '{lexical.matched_alias}'.")
-            vector_metadata = {
+            vector_metadata: dict[str, object] = {
                 "source": match.vector_metadata.source,
                 "schema_version": match.vector_metadata.schema_version,
                 "embedding_model": match.vector_metadata.embedding_model,

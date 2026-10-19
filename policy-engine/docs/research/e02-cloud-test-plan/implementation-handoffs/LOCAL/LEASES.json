@@ -16966,5 +16966,147 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root_native_32_internal_typing_20261019": {
+    "slice_base": "27e38aa0d4dc7f0c4d15a18a065cc0e3ad85aef4",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/src/polisyos/fabric/connectors/_registry_lifecycle.py": {
+        "operation": "write",
+        "preimage_sha256": "2a1a9d7b0b143762abfc3f5659b2d06a1a0c0f7b65a565db47327d16c2b2e82a",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-36-registry-state-candidate-20261019/postimages/src/polisyos/fabric/connectors/_registry_lifecycle.py",
+        "postimage_sha256": "56788f00936349f8061f6e418ab904cf243716382c89c8e0d3f6ef59d2240361",
+        "category": "mechanism",
+        "P39_role": "registry_state_and_factory_typing"
+      },
+      "policy-engine/src/polisyos/fabric/connectors/registry_core_parts.py": {
+        "operation": "write",
+        "preimage_sha256": "02920ff9b687ed3f347e33f6bd5f24bc352410cdb82548e15f1ecfcec540aca2",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-36-registry-state-candidate-20261019/postimages/src/polisyos/fabric/connectors/registry_core_parts.py",
+        "postimage_sha256": "341be758b4eefb17a00397e960088a400b56a48aa557dc03a867155e52638eed",
+        "category": "mechanism",
+        "P39_role": "registry_state_and_factory_typing"
+      },
+      "policy-engine/src/polisyos/fabric/connectors/sources/_file_common.py": {
+        "operation": "write",
+        "preimage_sha256": "086ed6ef8170ddb3f183cc372db8103b913c0329a31dc65395c5da6f456471b8",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-36-utility-dto-candidate-20261019/postimages/policy-engine/src/polisyos/fabric/connectors/sources/_file_common.py",
+        "postimage_sha256": "9e9207fa108dbaa2a5400c3e638d2f49cf738a2d970d825c597a820dac18a2da",
+        "category": "mechanism",
+        "P39_role": "utility_or_dto_runtime_boundary_typing"
+      },
+      "policy-engine/src/polisyos/fabric/connectors/types/_coercion_rules.py": {
+        "operation": "write",
+        "preimage_sha256": "f339dff930ad215e28d55210bb4252e6e01ac0f4e3fc1eded224bfd91451f641",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-36-utility-dto-candidate-20261019/postimages/policy-engine/src/polisyos/fabric/connectors/types/_coercion_rules.py",
+        "postimage_sha256": "4bda9d70f16e2e3e9bc3e815048b97d7ae4b49ccf6bd14e2f023abc52d5b9a83",
+        "category": "mechanism",
+        "P39_role": "utility_or_dto_runtime_boundary_typing"
+      },
+      "policy-engine/src/polisyos/fabric/connectors/contracts/_inference_validation.py": {
+        "operation": "write",
+        "preimage_sha256": "210fbd6eab9e6aa5f4f37c14bd147a6db0ddc6c64261e0eec1cb353223d97440",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-36-utility-dto-candidate-20261019/postimages/policy-engine/src/polisyos/fabric/connectors/contracts/_inference_validation.py",
+        "postimage_sha256": "f8390e3f8ecfd2a3c01f369257abf9c7fe038ba40774428ae269444c5ec2a931",
+        "category": "mechanism",
+        "P39_role": "utility_or_dto_runtime_boundary_typing"
+      },
+      "policy-engine/src/polisyos/fabric/connectors/resilience/__init__.py": {
+        "operation": "write",
+        "preimage_sha256": "dac3e01034c0f68e6e7dde7c067e93757890a3af54802a7a2b4506ecd83c93d6",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-36-utility-dto-candidate-20261019/postimages/policy-engine/src/polisyos/fabric/connectors/resilience/__init__.py",
+        "postimage_sha256": "aa627df94112dc8d636d229cfbfdeb93ce9777d1e1adaf6de7cd52f0217e7369",
+        "category": "mechanism",
+        "P39_role": "utility_or_dto_runtime_boundary_typing"
+      },
+      "policy-engine/src/polisyos/fabric/catalog/search.py": {
+        "operation": "write",
+        "preimage_sha256": "3ea21aa37876428778668d47e31154a938f10e4b0c2ebf182139c4a3ba4b624a",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-36-utility-dto-candidate-20261019/postimages/policy-engine/src/polisyos/fabric/catalog/search.py",
+        "postimage_sha256": "564f3e02464a2626d9819c203592c4d021efe17e77e11b0269022e76d5c3dc54",
+        "category": "mechanism",
+        "P39_role": "utility_or_dto_runtime_boundary_typing"
+      },
+      "policy-engine/src/polisyos/fabric/connectors/quality/statistics.py": {
+        "operation": "write",
+        "preimage_sha256": "0eb0bb3b7e72ce92b239ac06d532d3f408c7e4caa2d8d526b169aa2bc82882a1",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-36-numerical-boundaries-candidate-r2-20261019/postimages/statistics.py",
+        "postimage_sha256": "cfe5a518fc799e14bf9b5289d2cc7e19ed9e38e7180d072a5dd2ec82b49e066d",
+        "category": "mechanism",
+        "P39_role": "numeric_library_and_attribute_protocol_typing"
+      },
+      "policy-engine/src/polisyos/fabric/connectors/federation/resolver.py": {
+        "operation": "write",
+        "preimage_sha256": "8c96ba97a798c411a9a28789c438845a7fb63e17115923d389877b1130bace5f",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-36-numerical-boundaries-candidate-20261019/postimages/resolver.py",
+        "postimage_sha256": "93658eca6990c50eb6765293d9e79170a72799c63e6a5770f56f5e0f2c1c19f9",
+        "category": "mechanism",
+        "P39_role": "numeric_library_and_attribute_protocol_typing"
+      },
+      "policy-engine/src/polisyos/fabric/connectors/transform/harmonizer.py": {
+        "operation": "write",
+        "preimage_sha256": "9c402bfb1a1630c919530ed101e4d17e4c892f761f33c7a3e931bd6d20d444e4",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-36-numerical-boundaries-candidate-20261019/postimages/harmonizer.py",
+        "postimage_sha256": "e9912cb83a5102348e7a4658ea7e6878f2da54be14ba49ba577942ead01d1c7b",
+        "category": "mechanism",
+        "P39_role": "numeric_library_and_attribute_protocol_typing"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-32-internal-typing-adoption-20261019/source-application.json",
+      "sha256": "916e68869f4b426fa67d2d831cfccba8cb45df908f9576b6525cafba9e011d78"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-32-internal-typing-adoption-20261019/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-36-registry-state-candidate-20261019/manifest.json",
+        "sha256": "ef7ca4674e5ab2c2ddbf6572e1853f8680dd68b0b134d85c3dd7121fb55835fb"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-36-utility-dto-candidate-20261019/manifest.json",
+        "sha256": "6ce0c7ca97028bb7840bb75c417f46c43738ec96cc3999f984ead59bfbd2c660"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-36-numerical-boundaries-candidate-20261019/manifest.json",
+        "sha256": "b7c5edffa099974fff842bb82cec612205333a28a4d8085108132e48a46691bd"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-36-numerical-boundaries-candidate-r2-20261019/manifest.json",
+        "sha256": "c2ac81d3eb332c0edf4bc4addd585df1dbaec44efd8df208912e1f0ab71bdb54"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-36-registry-state-independent-20261019/manifest.json",
+        "sha256": "996fc47d515f48679144c12a6c74b932b300fa19f0a21bb60878eb4ad64c4010"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-36-utility-dto-independent-20261019/review.json",
+        "sha256": "656fd0fba626f1b254da2bbb114503b694e7db7b4a4d056284ca96465ef71fa7"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-36-numerical-boundaries-independent-20261019/manifest.json",
+        "sha256": "fff469940a37ca3feebd00e956f2f89eac41c6f93f0b13713b9008cb99de713e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-36-numerical-boundaries-r2-independent-20261019/manifest.json",
+        "sha256": "8f9d3d282f8fd51299a32b29fce8f0a2a9152a29f31dbd7a06876239d0629698"
+      }
+    ],
+    "P40": "SAME internal typed-boundary class; repair whole concrete state or complete constructor domain once, not per-call ignores. All three cohorts independently reviewed; numerical R2 delta independently approved for exact composition.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "32 diagnostic occurrences are repair targets, not claimed resolved until fresh actual 172-target MyPy.",
+      "Four incompatible public BaseModel/Mapping/schema diagnostics are held for a tracked explicit G contract decision; no public API semantics enacted here.",
+      "Runtime consumer tests remain UNRUN on these exact source bytes; previous test receipts are bounded historical evidence.",
+      "Decimal inference has no existing focused Decimal runtime test; no narrowed Decimal output claim.",
+      "SDK/source changed since old diagnostics; no inherited P41 or causal single-delta claim."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Fresh source/profile-qualified 172-target MyPy and actual whole importer/owner test modules after blocking composition freeze; preserve all FAIL/ERROR/SKIP/UNRUN.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

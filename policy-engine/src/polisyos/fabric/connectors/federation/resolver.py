@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import json
 import threading
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Protocol, cast
 
 import numpy as np
 import pandas as pd
@@ -29,6 +29,13 @@ from polisyos.fabric.numerics.finite import is_finite_number
 
 if TYPE_CHECKING:
     from datetime import datetime
+
+
+class _PandasIsna(Protocol):
+    """Callable surface of pandas.isna for heterogeneous runtime values."""
+
+    def __call__(self, value: object, /) -> object: ...
+
 
 logger = get_logger(__name__)
 
@@ -386,7 +393,7 @@ class ConflictResolver:
     @staticmethod
     def _is_null(value: object) -> bool:
         try:
-            missing = pd.isna(value)
+            missing = cast("_PandasIsna", pd.isna)(value)
         except Exception:
             return value is None
         return bool(missing)

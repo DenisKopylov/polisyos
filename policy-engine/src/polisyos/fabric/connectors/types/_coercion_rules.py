@@ -78,7 +78,7 @@ def _int_fits_in_float(value: int, float_bits: int) -> bool:
     float64 has 53 bits of mantissa (52 explicit + 1 implicit)
     """
     mantissa_bits: dict[int, int] = {16: 11, 32: 24, 64: 53}
-    max_exact = 2 ** mantissa_bits.get(float_bits, 53)
+    max_exact: int = 2 ** mantissa_bits.get(float_bits, 53)
     return abs(value) <= max_exact
 
 

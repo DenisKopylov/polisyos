@@ -260,7 +260,9 @@ class ConnectorRegistry(RegistryLifecycleMixin):
 
         Note: Use get_instance() instead of direct instantiation.
         """
-        self._registered_owner_bindings = MappingProxyType({})
+        self._registered_owner_bindings: MappingProxyType[int, _ConnectorRegistrationBinding] = (
+            MappingProxyType({})
+        )
         self._connectors = GenericRegistry[str, ConnectorEntry](
             key_fn=lambda entry: entry.fqid,
             indexers={

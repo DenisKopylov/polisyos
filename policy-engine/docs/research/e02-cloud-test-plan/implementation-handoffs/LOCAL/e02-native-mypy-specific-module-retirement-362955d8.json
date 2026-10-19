@@ -1,0 +1,248 @@
+{
+  "schema": "policyos.e02.source_leaf_receipt.v1",
+  "receipt_role": "RAW-only exact committed implementation leaf; indexed evidence, not self-acceptance, runtime qualification, G acceptance, or closure",
+  "slice": {
+    "id": "native-mypy-specific-module-retirement",
+    "branch": "codex/e02-unified-local-20261009",
+    "base": "e3985584b84767629d6eeefe8b032d46a3093b9f",
+    "base_tree": "eedc0f93f23fa8d40ffec9a32165d0066812a96a",
+    "candidate": "362955d833d0242575e65ab8ca5c6e2840947a12",
+    "tree": "05ea2c5710b7dc6ad663d8786057f0fa98b61752",
+    "parents": [
+      "e3985584b84767629d6eeefe8b032d46a3093b9f"
+    ],
+    "subject": "chore(e02): narrow Fabric and IR mypy suppression to four modules",
+    "committed_at": "2026-10-19T21:06:17+03:00",
+    "source_freeze": false
+  },
+  "source_cut": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "3a02d5dab8ed064cad4c269c5795624633776d7f",
+    "tree": "11c440c4a143c2a58f3a9ce6fdc7b59225ad277c",
+    "tracked_and_index_status": "clean at receipt creation",
+    "untracked_state": "present and not inventoried; no whole-worktree-clean claim",
+    "slice_is_ancestor_of_head": true
+  },
+  "identity": {
+    "work_item": "native-mypy-specific-module-retirement",
+    "lease_key": "native-mypy-specific-module-retirement-20261019",
+    "proposal_id": null,
+    "proposal_id_status": "no formal closure proposal in this leaf",
+    "proposal_status": "not adjudicated",
+    "G_acceptance": false,
+    "closure_ids": [],
+    "source_profile_freeze": false,
+    "production_profile": "not selected / not established",
+    "runtime": "UNRUN on adopted canonical source; config consistency check and Ruff checks are separate tooling evidence.",
+    "production_authority": false,
+    "external_currentness": false,
+    "published": false
+  },
+  "property": "Replace 172 whole-module MyPy ignore_errors entries with the four explicit demonstrated schema/mapping residual modules while preserving existing instance schema wire aliases and IR mapping behavior; generated.ini is produced by its canonical fragment renderer.",
+  "chain": null,
+  "controls": [
+    "canonical generated.ini fragment renderer and real tool-configs --check",
+    "four bounded suppression residuals retained; alias/mapping runtime behavior not exercised on adopted cut"
+  ],
+  "pattern_pass": "P29 canonical output check is source consistency, not behavioral proof; P32 preserve schema aliases/mapping behavior; P40 same BaseModel.schema and BaseModel/Mapping classes; P41 inherited not_established.",
+  "P40": "Same BaseModel.schema class across three Fabric modules and separate BaseModel/Mapping iteration class: retain four bounded residuals rather than build a new descriptor or suppress the whole package.",
+  "P41": {
+    "inherited": "not_established",
+    "why": "No complete exact-slice-base replay plus full denominator and zero-intersection proof is established by this source receipt."
+  },
+  "footprint": {
+    "denominator_source": "git diff-tree --no-commit-id --name-status -r --no-renames 362955d833d0242575e65ab8ca5c6e2840947a12",
+    "expected_paths_verified": 6,
+    "source_scope_paths": 4,
+    "metadata_companion_paths_outside_source_scope": 2,
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ],
+    "operation_counts": {
+      "A": 1,
+      "M": 5
+    },
+    "git_preimage_bytes_total_excluding_A": 1825111,
+    "postimage_bytes_total": 1818424,
+    "paths": [
+      {
+        "path": "policy-engine/architecture/tooling/mypy/generated.ini",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "ff299766ce41b1ff98cebc193187fdcd3b472f6b",
+          "sha256": "91ba8fb92c025a19e5ca15e2f7f9a0bf3fe900f227bb772d90016b96dec292f1",
+          "bytes": 36942
+        },
+        "post": {
+          "git_blob_oid": "527b5c9e8cd82febb3a1ebf7b37cb985b50212ba",
+          "sha256": "d58da5b568044f6156b50f49c4a08e08a773ff69bfae6d8f1dc2919f99e4b5ef",
+          "bytes": 30126
+        }
+      },
+      {
+        "path": "policy-engine/architecture/tooling/mypy/overrides/10-ir.ini",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "469d5b316576b3b9eb9bb0c4340b76d0986e547b",
+          "sha256": "4ca04a886d70b210a74f5705c126941ff5ec27d8e11b616f0ed521e2455872a5",
+          "bytes": 1682
+        },
+        "post": {
+          "git_blob_oid": "eaff308057247696d15c7a45351ba77c86ba396b",
+          "sha256": "eeaf5a1e8072bfe3c3bc1143f4e63dfadc356e94c56f64520c9512ed4fd5e195",
+          "bytes": 55
+        }
+      },
+      {
+        "path": "policy-engine/architecture/tooling/mypy/overrides/20-fabric.ini",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "b7b081e82730d31ad5321113476e624073174ede",
+          "sha256": "5d8e8e74726df629cbe12669fa5622d602bf685ead7dff887417441ce934bb53",
+          "bytes": 5365
+        },
+        "post": {
+          "git_blob_oid": "5ab9af12db4912e89514a5d7994fa77ffd654bd8",
+          "sha256": "96d3a012ace23da8d4af6352b23b8c0896010874cb3f5554e335e2dfd4d19590",
+          "bytes": 176
+        }
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "status": "M",
+        "source_scope_path": false,
+        "base": {
+          "git_blob_oid": "65a7fa11883966ef844969f4ecd9869b6c7e0a50",
+          "sha256": "1e5e2961bd99faa5e5a7cffd7f9031d3e9a49630adb84229d9e374054fea1455",
+          "bytes": 1669907
+        },
+        "post": {
+          "git_blob_oid": "8ec92e9eec1a1c55cadc0790e581ca6f1f8db42f",
+          "sha256": "a40d7c169a894a551ed84d36ed07831cc4d55889e4254efdfa9746a43c62744c",
+          "bytes": 1675458
+        }
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "status": "M",
+        "source_scope_path": false,
+        "base": {
+          "git_blob_oid": "a67157df8e5ceeeedcb145a2b7e2ca02200f2f0d",
+          "sha256": "062b65d69dd62483b33128a840c38839c167a34e5981410592425775671bf9a2",
+          "bytes": 111215
+        },
+        "post": {
+          "git_blob_oid": "140edd16fa932dfbcc192412b75e4e9710593bd9",
+          "sha256": "d7fef8abd20d592b1a0dbfb7175f72a49e157819cb8a2c937d179b3475108b0d",
+          "bytes": 111215
+        }
+      },
+      {
+        "path": "policy-engine/tests/unit/fabric/connectors/contracts/test_schema_instance_accessors.py",
+        "status": "A",
+        "source_scope_path": true,
+        "base": null,
+        "post": {
+          "git_blob_oid": "16fe6d6d279b525b1223046f24c656a4d69be35c",
+          "sha256": "855d6ff181e457bc8ab1086d2ed630c9823a37e3e042be59b9304676219932b9",
+          "bytes": 1394
+        }
+      }
+    ]
+  },
+  "proposal_fields": {
+    "identity": "native-mypy-specific-module-retirement",
+    "lease_key": "native-mypy-specific-module-retirement-20261019",
+    "proposal_id": null,
+    "proposal_id_status": "not adjudicated",
+    "source_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": [],
+    "source_profile_freeze": false,
+    "production_profile": "not selected / not established",
+    "runtime": "UNRUN on adopted canonical source; config consistency check and Ruff checks are separate tooling evidence.",
+    "production_authority": false,
+    "external_currentness": false,
+    "published": false
+  },
+  "evidence": {
+    "plan": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-mypy4-adoption-20261019/plan.json@sha256:5cc03730ece55f2c45dc0b9ea27e927ed571145a57041bb752550125ebf30982",
+    "source_application": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-mypy4-adoption-20261019/source-application.json@sha256:60ced25f177f3fa1a5a6fbd7c3e627b6af672aeb2ea0c35f78cd132d2b742f83",
+    "commit_request": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-mypy4-adoption-20261019/commit-request.json@sha256:af7948ad603e8c65573221b707e6f9bbe849b7bcb1f95be006416e4650d339a9",
+    "native_evidence": {
+      "implementation_readback": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-mypy4-adoption-20261019/implementation-readback.json@sha256:dffe5016fa0280ca261644ed5a465fecea41d7ded7bc10daa0987d757de22d36",
+      "native_commit_result": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-mypy4-adoption-20261019/native-commit-result.json@sha256:86fb116e24c831821573e52fb2671bc4dc67226f80c3a7d305fd833cec5d2c7f",
+      "native_commit_stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-mypy4-adoption-20261019/native-commit.stdout.txt@sha256:4452f869dd8b568222ae831f865e27c17063f18d1abdc0feba0b4506dcf8143f",
+      "native_commit_stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-mypy4-adoption-20261019/native-commit.stderr.txt@sha256:223d7127565bc34e1c49419a01865e80bd69e5c0f1ae8424a7f3bd10389d4c92"
+    },
+    "source_checks": [
+      {
+        "command": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tests/unit/fabric/connectors/contracts/test_schema_instance_accessors.py"
+        ],
+        "exit_code": 0,
+        "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-mypy4-adoption-20261019/check-native-role-0.stdout.txt@sha256:82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-mypy4-adoption-20261019/check-native-role-0.stderr.txt@sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "scope": "precommit source-candidate Ruff/format check only; not runtime evidence"
+      },
+      {
+        "command": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tests/unit/fabric/connectors/contracts/test_schema_instance_accessors.py"
+        ],
+        "exit_code": 0,
+        "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-mypy4-adoption-20261019/format-native-role-0.stdout.txt@sha256:fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50",
+        "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-mypy4-adoption-20261019/format-native-role-0.stderr.txt@sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "scope": "precommit source-candidate Ruff/format check only; not runtime evidence"
+      },
+      {
+        "command": "uv run --locked --no-sync --offline polisyos-tools workspace tool-configs --check",
+        "cwd": "policy-engine",
+        "source_frame": "e3985584b84767629d6eeefe8b032d46a3093b9f plus reviewed staged source changes, before commit",
+        "exit_code": 0,
+        "result": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-mypy4-adoption-20261019/tool-configs-check.json@sha256:a2d5fb846d7773c08bb6e18408b807cb91233f2251df4d5ae18de34d3444d669",
+        "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-mypy4-adoption-20261019/tool-configs-check.stdout.txt@sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-mypy4-adoption-20261019/tool-configs-check.stderr.txt@sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "scope": "not full MyPy and not post-adoption"
+      }
+    ],
+    "reviewed_input_index": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-mypy4-adoption-20261019/source-application.json@sha256:60ced25f177f3fa1a5a6fbd7c3e627b6af672aeb2ea0c35f78cd132d2b742f83",
+    "prior_source_cut_evidence": [],
+    "runtime_boundary": "No no-ignore 126 Fabric + 46 IR MyPy replay or alias/mapping behavior tests are recorded on this adopted commit. Native commit exit 0 is not runtime proof.",
+    "source_slice": "Four MyPy config/canonical-generator-test paths plus two mandatory metadata companions (6 Git paths)."
+  },
+  "limitations": [
+    "No global native green or full capability acceptance.",
+    "Current no-ignore 126 Fabric +46 IR replay and alias/mapping behavior tests are UNRUN.",
+    "Ruff removal on complete499 files yielded1511 diagnostics; no Ruff ignore retirement is included.",
+    "No exception sunset, issuer, waiver, baseline, scientific or public authority change."
+  ],
+  "next_check": "After application execute canonical workspace tool-configs --check before commit, then final-source full two API/mapping modules and exact 126+46 no-ignore MyPy denominator; retain four residual diagnostics and all native remaining debt.",
+  "authority": {
+    "production_authority": false,
+    "external_currentness": false,
+    "G_acceptance": false,
+    "closure_ids": [],
+    "published": false
+  }
+}

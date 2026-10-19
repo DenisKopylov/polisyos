@@ -1,0 +1,251 @@
+{
+  "schema": "policyos.e02.source_leaf_receipt.v1",
+  "receipt_role": "RAW source leaf; prepared for future tracked incorporation; not self-acceptance",
+  "slice": {
+    "id": "tcp-root-topology",
+    "branch": "codex/e02-unified-local-20261009",
+    "base": "06af9e4474733edef6f0bf26add733ded753c01e",
+    "base_tree": "bde0eaf83c333fd0a217f49678c76fdce8439233",
+    "candidate": "e73a8369115dab7dfc0ebcc4274918d246da5215",
+    "tree": "d562f6052d5b11fde75e3eece8368272cd9dc35a",
+    "parents": [
+      "06af9e4474733edef6f0bf26add733ded753c01e"
+    ],
+    "subject": "fix(e02): retain verified child profiles for pending recursive roots",
+    "committed_at": "2026-10-19T20:04:30+03:00",
+    "source_freeze": false
+  },
+  "source_cut": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "e73a8369115dab7dfc0ebcc4274918d246da5215",
+    "tree": "d562f6052d5b11fde75e3eece8368272cd9dc35a",
+    "tracked_and_index_status": "clean at receipt creation",
+    "untracked_state": "not claimed; no whole-worktree-clean assertion",
+    "slice_is_ancestor_of_head": true
+  },
+  "identity": {
+    "work_item": "tcp-root-topology-and-witness",
+    "lease_key": "tcp-root-topology-and-witness-root-adopted-20261019",
+    "proposal_id": null,
+    "proposal_id_status": "not_established in this source slice; the plan and lease name the work item but do not adjudicate a proposal ID",
+    "proposal_status": "not adjudicated by this source receipt",
+    "G_acceptance": false,
+    "closure_ids": [],
+    "source_profile_freeze": false,
+    "production_profile": "not selected / not established",
+    "runtime": "UNRUN on adopted canonical source; bounded candidate evidence is separately referenced",
+    "production_authority": false,
+    "external_currentness": false,
+    "published": false
+  },
+  "property": "Fresh GET projects verified child profile topology from the compiled root reference for both pending and completed roots, preserving exact source-derived child-set equality and execution/N5 meaning; real TCP witness retains POST/CAS/restart/fresh-GET and budget/sibling-failure controls.",
+  "chain": null,
+  "controls": [],
+  "pattern_pass": "P29 actual runtime/removal still required; P31 shared invariant; P32 content/source binding; P35 complete caller/footprint denominator; P37 no reader-minted authority; P40 class bucket; P41 inherited not_established.",
+  "P40": "Same identified mechanism class widened to its complete enumerated source/fixture/consumer quantity; preserve distinct unknown authority/profile facts and no per-case assertion ladder.",
+  "P41": {
+    "inherited": "not_established",
+    "why": "No slice-base replay plus complete denominator and zero-intersection proof is supplied by this receipt."
+  },
+  "footprint": {
+    "denominator_source": "git diff-tree --no-commit-id --name-status -r --no-renames e73a8369115dab7dfc0ebcc4274918d246da5215",
+    "expected_paths_verified": 5,
+    "source_scope_paths": 3,
+    "metadata_companion_paths_outside_source_scope": 2,
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ],
+    "raw_plan_review_and_output_receipts_are_not_committed_paths": true,
+    "operation_counts": {
+      "added": 0,
+      "modified": 5,
+      "deleted": 0
+    },
+    "preimage_bytes_total": 2140194,
+    "postimage_bytes_total": 2160965,
+    "bytes_delta": 20771,
+    "source_application_vs_committed_postimages": {
+      "mismatched_source_paths": 0,
+      "explanation": "Source application postimage hashes equal the committed Git blob hashes for every source-scope path."
+    },
+    "paths": [
+      {
+        "path": "policy-engine/docs/reference/api/runs.md",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "dd8e68bb19aa7405d0f2b487ce0b9be9b3a0f9bb",
+          "sha256": "66897653574e80b9c6ad0e8d80e665b372a4865566aabaeb37b43248ba2d8c86",
+          "bytes": 24506
+        },
+        "post": {
+          "git_blob_oid": "73ae0b94bde89357b9389954ed67185cc2d3be9a",
+          "sha256": "69876b5c719e8668a333ec5e0c47393683f0a460ec4888dfde8c8bc165aa8c99",
+          "bytes": 24704
+        },
+        "source_application_postimage_sha256": "69876b5c719e8668a333ec5e0c47393683f0a460ec4888dfde8c8bc165aa8c99",
+        "source_application_bytes_match_commit": true,
+        "format_only_evidence": null
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "status": "M",
+        "source_scope_path": false,
+        "base": {
+          "git_blob_oid": "8149afa83a1e1838190c816f2b4ba37c248ff022",
+          "sha256": "8caf5ce90e5bcfea8d01ff5ae8bbb60e3ea861d7d54f2cb03caff1ce5bb65725",
+          "bytes": 1645314
+        },
+        "post": {
+          "git_blob_oid": "de5910411c7a262895d15564c1a1725af3850cbf",
+          "sha256": "731ca93e5107de7bbe9b57565476a44dd4ae32c76f7641c5df7736e447ff950a",
+          "bytes": 1650636
+        },
+        "source_application_postimage_sha256": null,
+        "source_application_bytes_match_commit": null,
+        "format_only_evidence": null
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "status": "M",
+        "source_scope_path": false,
+        "base": {
+          "git_blob_oid": "e2f55af9cd2a60b25c14a977a4345d23a03b9ecb",
+          "sha256": "e1588873399b0023aba9b95115be9e59537b011d7c59b14f48665d389682afaf",
+          "bytes": 111215
+        },
+        "post": {
+          "git_blob_oid": "e9cd9fdf3f3675228025beb7ca44499f91e97cf0",
+          "sha256": "ffd874efb6d4688fe1e3581ecf6036a1f2bd43788073d8d7ac4163657806fe69",
+          "bytes": 111215
+        },
+        "source_application_postimage_sha256": null,
+        "source_application_bytes_match_commit": null,
+        "format_only_evidence": null
+      },
+      {
+        "path": "policy-engine/src/polisyos/runtime/http/routes/runs.py",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "678c909625dd4e24714aa6f853855d2e8860d7bc",
+          "sha256": "1c9d074718875c65280342021c987d08b3514874f296539084f0da084768798d",
+          "bytes": 228027
+        },
+        "post": {
+          "git_blob_oid": "75be57152635b32394c8575c25c9f0015851fbf0",
+          "sha256": "15d1d0eada1a4421106b4b538c4382866732a929c2a909ecb8e25fa39aceb4c6",
+          "bytes": 228696
+        },
+        "source_application_postimage_sha256": "15d1d0eada1a4421106b4b538c4382866732a929c2a909ecb8e25fa39aceb4c6",
+        "source_application_bytes_match_commit": true,
+        "format_only_evidence": null
+      },
+      {
+        "path": "policy-engine/tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "087e168e9037f2f5d77920d8cfeb0f1fe439d770",
+          "sha256": "237f62fea9908b35608ef6c9f388d230333f55c245a8c1d0a92f0af6092f4060",
+          "bytes": 131132
+        },
+        "post": {
+          "git_blob_oid": "922d5efc7906773e02a1a599b42cb348cbabd665",
+          "sha256": "ab05ae07e0ba2bd127e934129392ac702e456ff7269d34db2f163928fc0d7d21",
+          "bytes": 145714
+        },
+        "source_application_postimage_sha256": "ab05ae07e0ba2bd127e934129392ac702e456ff7269d34db2f163928fc0d7d21",
+        "source_application_bytes_match_commit": true,
+        "format_only_evidence": null
+      }
+    ]
+  },
+  "proposal_fields": {
+    "identity": "tcp-root-topology-and-witness",
+    "lease_key": "tcp-root-topology-and-witness-root-adopted-20261019",
+    "proposal_id": null,
+    "proposal_id_status": "not_established in source plan/lease",
+    "source_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": [],
+    "source_profile_freeze": false,
+    "production_profile": "not selected / not established",
+    "runtime": "UNRUN on adopted canonical source; bounded candidate evidence is separately referenced"
+  },
+  "evidence": {
+    "plan": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-four-source-batch-20261019/tcp-root-topology-and-witness/plan.json@sha256:89713cf1bd23e4a076f28ddf13e67fe708f327a7af368eab1fa1b17880dffec0",
+    "source_application": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-four-source-batch-20261019/tcp-root-topology-and-witness/source-application.json@sha256:d0b88efc269c889ad84b5704175db55ff8860d26028df11ba197b310d46baf8e",
+    "implementation_readback": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-four-source-batch-20261019/tcp-root-topology-and-witness/implementation-readback.json@sha256:06c2a03333222c9c39f17878f77d06954ead9d7259c78f7b05e3ba3070c8e935",
+    "commit_request": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-four-source-batch-20261019/tcp-root-topology-and-witness/commit-request.json@sha256:48af7c35aeeec7e62c84ee7a6b04227332567bf63b086c08ecd445b89673a110",
+    "native_commit_result": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-four-source-batch-20261019/tcp-root-topology-and-witness/native-commit-result.json@sha256:7acadd63f70650a1496411da6ad79c82076de0d2936d71f1e8bd93c4d0793e24",
+    "reviewed_inputs": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/tcp-checkpoint-root-topology-owner-author-20261019/source-projection-proposal.json@sha256:23c86e2b679246faa971b1cd7b1dae2a7a6cb2cfab10e4e6c2f15180ba1ef91b",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/tcp-checkpoint-root-topology-owner-author-20261019/source-proposal.patch@sha256:9a5fb8bc3aad0951e071c1cd38a6103540982208f6efe3f5f96ec577c7bc5f40",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/tcp-checkpoint-root-topology-independent-20261019/review.json@sha256:0550c19a5daa2e4b4b6dba5530784481ef6072e59cf90cc2b7486d9022dea08d",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/actual-serving-tcp-witness-independent-v3-20261019/review.json@sha256:5d5343b224ab719ffb13e82d4d251dcb1aecd7aec098376ed4e57ee5cd23a3b6"
+    ],
+    "source_checks": {
+      "applicability": "changed Python files",
+      "ruff_commands_and_outputs": [
+        {
+          "argv": [
+            "policy-engine/.venv/bin/python",
+            "-B",
+            "-m",
+            "ruff",
+            "check",
+            "--no-cache",
+            "--config",
+            "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+            "policy-engine/src/polisyos/runtime/http/routes/runs.py",
+            "policy-engine/tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py"
+          ],
+          "exit_code": 0,
+          "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-four-source-batch-20261019/tcp-root-topology-and-witness/check-native-role-0.stdout.txt@sha256:82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+          "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-four-source-batch-20261019/tcp-root-topology-and-witness/check-native-role-0.stderr.txt@sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "argv": [
+            "policy-engine/.venv/bin/python",
+            "-B",
+            "-m",
+            "ruff",
+            "format",
+            "--check",
+            "--no-cache",
+            "--config",
+            "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+            "policy-engine/src/polisyos/runtime/http/routes/runs.py",
+            "policy-engine/tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py"
+          ],
+          "exit_code": 0,
+          "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-four-source-batch-20261019/tcp-root-topology-and-witness/format-native-role-0.stdout.txt@sha256:3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938",
+          "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-four-source-batch-20261019/tcp-root-topology-and-witness/format-native-role-0.stderr.txt@sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    "native_commit_hook": {
+      "operation": "normal source commit; configured native commit hooks ran and returned the recorded result",
+      "exit_code": 0,
+      "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-four-source-batch-20261019/tcp-root-topology-and-witness/native-commit.stdout.txt@sha256:18c3341caed96bdfc8c016d75ceffb64673cf9ba96f8437dd30947ad650b297b",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-four-source-batch-20261019/tcp-root-topology-and-witness/native-commit.stderr.txt@sha256:c91b7ed75bb4f7461e6b0ddc2288904c98ce6e4d4d1e7e42ddcb3d61f5cd9bdf",
+      "output_authority": "hook output only; does not establish runtime semantics"
+    }
+  },
+  "limitations": [
+    "Actual served budget-stop and TCP/server/restart tests still UNRUN; static GO is not runtime acceptance. Public DTO/client shape unchanged. Long API-guide paragraph is nonblocking cosmetic debt after candidate review.",
+    "No G acceptance, formal finding closure, publication or production currentness is claimed.",
+    "Runtime and canonical semantic suite status are limited to the cited adoption records; this receipt makes no new runtime claim.",
+    "Native hook success and static source checks are not product runtime acceptance, source/profile freeze, G acceptance, or finding closure.",
+    "Proposal identifier and status remain not_established where the source plan/lease do not assign them."
+  ],
+  "next_check": "Run existing minimal served budget-stop selector and new TCP witness, then whole module under supported source/input profile; preserve response/refusal, N5 and direct-child completed/pending partition controls.",
+  "authority": {
+    "production_authority": false,
+    "external_currentness": false,
+    "G_acceptance": false,
+    "closure_ids": []
+  }
+}

@@ -1,0 +1,190 @@
+{
+  "schema": "policyos.e02.source_leaf_receipt.v1",
+  "receipt_role": "RAW source leaf; exact committed test and metadata footprint; not self-acceptance",
+  "slice": {
+    "id": "r3-r4-fixture-and-bounded-workload-tests",
+    "branch": "codex/e02-unified-local-20261009",
+    "base": "e9db2006c028400d6274dcaf4dfbf9d0548769c0",
+    "base_tree": "f65dd3507ce8adc0117af2e3854830beda77f510",
+    "candidate": "e3985584b84767629d6eeefe8b032d46a3093b9f",
+    "tree": "eedc0f93f23fa8d40ffec9a32165d0066812a96a",
+    "parents": [
+      "e9db2006c028400d6274dcaf4dfbf9d0548769c0"
+    ],
+    "subject": "test(e02): bind cost fixtures early and bound both workload barriers",
+    "committed_at": "2026-10-19T20:46:59+03:00",
+    "source_freeze": false
+  },
+  "source_cut": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "e3985584b84767629d6eeefe8b032d46a3093b9f",
+    "tree": "eedc0f93f23fa8d40ffec9a32165d0066812a96a",
+    "tracked_and_index_status": "clean at receipt creation",
+    "untracked_state": "not inventoried; no whole-worktree-clean claim",
+    "slice_is_ancestor_of_head": true
+  },
+  "identity": {
+    "work_item": "r3-r4-v4-fixture-and-bounded-workload-diagnostic",
+    "lease_key": "r3-r4-v4-fixture-and-bounded-workload-diagnostic-20261019",
+    "proposal_id": null,
+    "proposal_id_status": "not established by this source slice or plan",
+    "proposal_status": "not adjudicated",
+    "G_acceptance": false,
+    "closure_ids": [],
+    "source_profile_freeze": false,
+    "production_profile": "not selected / not established",
+    "runtime": "UNRUN on adopted e398 source; limited prior attempts are separately distinguished",
+    "production_authority": false,
+    "external_currentness": false,
+    "published": false
+  },
+  "property": "R3 selected retrieval constructor fixture matches real composition order; R4 matched-workload control preserves context transfer and reports early terminal owner/CAS boundaries under one bounded two-barrier waiter and unconditional sibling release.",
+  "chain": null,
+  "controls": [],
+  "pattern_pass": "P29 actual runtime/removal still required; P31 shared invariant; P32 content/identity binding; P35 complete two-test module denominator; P37 owner/ref predicates remain observed, not invented; P40 both barrier boundaries; P41 inherited not_established.",
+  "P40": "Same R4 early-terminal/barrier class widened across both event boundaries; exact contextvars semantics preserved. R3 narrow constructor setup correction preserves all ledger/reopen/API assertions.",
+  "P41": {
+    "inherited": "not_established",
+    "why": "No slice-base replay plus complete denominator and zero-intersection proof is supplied by this source receipt."
+  },
+  "footprint": {
+    "denominator_source": "git diff-tree --no-commit-id --name-status -r --no-renames e3985584b84767629d6eeefe8b032d46a3093b9f",
+    "expected_paths_verified": 4,
+    "source_scope_paths": 2,
+    "metadata_companion_paths_outside_source_scope": 2,
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ],
+    "operation_counts": {
+      "added": 0,
+      "modified": 4,
+      "deleted": 0
+    },
+    "git_preimage_bytes_total_excluding_A": 2048122,
+    "postimage_bytes_total": 2060361,
+    "paths": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "status": "M",
+        "source_scope_path": false,
+        "base": {
+          "git_blob_oid": "d0657a0fdb3885bdd2c789e339c16c3c2a975468",
+          "sha256": "1ca0977ec07c55f7423db055f6d7eb00461c6ff281766d3b8eeb54dabc1697f8",
+          "bytes": 1664970
+        },
+        "post": {
+          "git_blob_oid": "65a7fa11883966ef844969f4ecd9869b6c7e0a50",
+          "sha256": "1e5e2961bd99faa5e5a7cffd7f9031d3e9a49630adb84229d9e374054fea1455",
+          "bytes": 1669907
+        }
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "status": "M",
+        "source_scope_path": false,
+        "base": {
+          "git_blob_oid": "1eac5b8148e09a646998a021d74ddfee944a478f",
+          "sha256": "e2e44a5b6274f16020e01f664d3581673ce4462e2aeb7a7f2676a9e45df3fd08",
+          "bytes": 111215
+        },
+        "post": {
+          "git_blob_oid": "a67157df8e5ceeeedcb145a2b7e2ca02200f2f0d",
+          "sha256": "062b65d69dd62483b33128a840c38839c167a34e5981410592425775671bf9a2",
+          "bytes": 111215
+        }
+      },
+      {
+        "path": "policy-engine/tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "5e4ad7d78424d52dfa3dcdf4771cf1c664735fd3",
+          "sha256": "afcf1329b926098716729676d7f545cf1085e248d655258fd26fd0e95da1507f",
+          "bytes": 101330
+        },
+        "post": {
+          "git_blob_oid": "e5455ae558c2a66d20bef35095682e0466f7a9ee",
+          "sha256": "1ee3e0165f90c0f55d67166f09a67495a7039ea02651f802171764fd67a81b02",
+          "bytes": 108290
+        }
+      },
+      {
+        "path": "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "c5cf5ac5845c13ef5686be054aa439f90be3d938",
+          "sha256": "4f86650c271202e6c19a630cf5fea91a308b0a41694fdf742066623953606e45",
+          "bytes": 170607
+        },
+        "post": {
+          "git_blob_oid": "6171cb479bc365aadb8a086609f3b0dcda2f2b2f",
+          "sha256": "d65379d4db017fde767c3735648f88526b049aa8a50852d5fe26f2438d44edc3",
+          "bytes": 170949
+        }
+      }
+    ]
+  },
+  "proposal_fields": {
+    "identity": "r3-r4-v4-fixture-and-bounded-workload-diagnostic",
+    "lease_key": "r3-r4-v4-fixture-and-bounded-workload-diagnostic-20261019",
+    "proposal_id": null,
+    "proposal_id_status": "not established",
+    "source_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": [],
+    "source_profile_freeze": false,
+    "production_profile": "not selected / not established",
+    "runtime": "UNRUN on adopted e398 source",
+    "production_authority": false,
+    "external_currentness": false,
+    "published": false
+  },
+  "evidence": {
+    "plan": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-r3-r4-v4-adoption-20261019/plan.json@sha256:1a62fd3b47cf76536de5979edd8bffe94ad531da18e4cf66f001b2ffebc55a7b",
+    "source_application": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-r3-r4-v4-adoption-20261019/source-application.json@sha256:071f781ed7f0f4c1248a7b6fde236ed277e7f6d531e2176d4ef0e811aa74f5cf",
+    "implementation_readback": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-r3-r4-v4-adoption-20261019/implementation-readback.json@sha256:69f97785384bd0079f13a4192bfc3c613db08258d01411c6e5b6e342ad6b3311",
+    "commit_request": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-r3-r4-v4-adoption-20261019/commit-request.json@sha256:8802594d2ff90bb8450a6560ffd7a62778b98d9967042dbe47608b347a781cf3",
+    "native_commit_result": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-r3-r4-v4-adoption-20261019/native-commit-result.json@sha256:2c8a8be142800fe1623d6cdd842a8352adcb470c97e316f38e2e36dec0219dbf",
+    "native_commit_stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-r3-r4-v4-adoption-20261019/native-commit.stdout.txt@sha256:f31b9f8beeff0c20b43161382f549c1ec62496999e46ca3547e48676b0ae8723",
+    "native_commit_stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-r3-r4-v4-adoption-20261019/native-commit.stderr.txt@sha256:e30a763a417cd9161105b562d10d5f42da5fda12e5a26cbae11063cf5cdf9d93",
+    "source_checks": [
+      {
+        "command": "python -m ruff check --no-cache --config policy-engine/architecture/tooling/ruff/workspace_root.toml <two changed Python test files>",
+        "exit_code": 0,
+        "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-r3-r4-v4-adoption-20261019/check-native-role-0.stdout.txt@sha256:82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-r3-r4-v4-adoption-20261019/check-native-role-0.stderr.txt@sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "command": "python -m ruff format --check --no-cache --config policy-engine/architecture/tooling/ruff/workspace_root.toml <two changed Python test files>",
+        "exit_code": 0,
+        "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-r3-r4-v4-adoption-20261019/format-native-role-0.stdout.txt@sha256:3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938",
+        "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-r3-r4-v4-adoption-20261019/format-native-role-0.stderr.txt@sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "reviewed_inputs": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-r4-executable-witness-readiness-20261019/repair-batch-v4/manifest-v4.json@sha256:a9647c0f6611fbb1ea95e84e6755f99f973bab66d86e991af02cc20b191e13a1",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-r4-executable-witness-readiness-20261019/repair-batch-v4/repair-batch-v4.patch@sha256:6d1552e647a5c1ac8aa96b95572d1e9ad6457183b15fce21ded8dbdbb360f970",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-r4-executable-witness-readiness-20261019/repair-batch-v4-independent-review-20261019/review.json@sha256:7ed4d913f29e413e212e78a3e74cf4ebbf9f9b65bc886e76accbc430435f23cf",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-r3-r4-v4-adoption-20261019/owned-source-application-provenance.json@sha256:da9aa4ddc9021291d537ea9d8112ce20df6831cb52b43aaf959cf64fbc023104"
+    ],
+    "runtime_boundary": "No R3/R4 test module was run after this e398 commit. The plan records earlier bounded evidence (28 pass, 2 fail, 1 expected child skip) and a prior R4 owner/ref refusal; neither is an e398 runtime receipt.",
+    "source_slice": "Only the R3 and R4 pytest modules changed as source-scope paths; production implementation, DTO, schema, configuration, and workload denominator were not changed."
+  },
+  "limitations": [
+    "R4 actual removal previously never entered producer/submission/dispatch due owner/ref error; cause remains not_established until new source-bound diagnostic.",
+    "Cap1/cap2 baseline actual2jobs12foldspeaks1/2 on numpy/compat_linear_regression is bounded history, not native sklearn qualification.",
+    "No producer, guard, scientific contract, workload denominator, DTO/public API, authority/currentness or G closure is changed/claimed.",
+    "The new e398 source slice has only Ruff and formatting verification; its two changed tests remain UNRUN on adopted canonical source.",
+    "The earlier e73/e9 verification deltas in the separate packet do not exercise these R3/R4 modules."
+  ],
+  "next_check": "One complete2module actualreplay; R3durableledger/reopen/API mustexecute. R4 positives complete2jobs/12foldspeaks1/2, removal actualbothdispatches/2jobs/12foldspeak2; onrefusal capture realowner/ref predicate andretainFAIL.",
+  "authority": {
+    "production_authority": false,
+    "external_currentness": false,
+    "G_acceptance": false,
+    "closure_ids": [],
+    "published": false
+  }
+}

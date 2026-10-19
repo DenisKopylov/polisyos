@@ -1,0 +1,40 @@
+{
+  "schema": "policyos.e02.remote_branch_readback.v1",
+  "role": "read-only exact remote ref observation; does not publish or accept the local candidate",
+  "command": "git ls-remote origin refs/heads/codex/e02-unified-local-20261009 refs/heads/codex/e02-integration",
+  "stdout": "93d6aa62a8d236667fdf322a5fc17962523b185e\trefs/heads/codex/e02-integration\n5ebf230b8bb5dfb322eb47cfe0c53e8cba5ac65e\trefs/heads/codex/e02-unified-local-20261009\n",
+  "remote_refs": [
+    {
+      "ref": "refs/heads/codex/e02-unified-local-20261009",
+      "sha": "5ebf230b8bb5dfb322eb47cfe0c53e8cba5ac65e",
+      "tree": "32e457c88cf5fe001294aa292156b2a7887cba01",
+      "parents": [
+        "cd12b25c2f4c5a7c78e5681b1c24d6bd74819726"
+      ]
+    },
+    {
+      "ref": "refs/heads/codex/e02-integration",
+      "sha": "93d6aa62a8d236667fdf322a5fc17962523b185e",
+      "tree": "c3a38aecbab5af06c8aed1ae27d535c7e2dc8eca",
+      "parents": [
+        "78be3aff64185e2de24abe710523e14491e36ba6"
+      ]
+    }
+  ],
+  "local_source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "3a02d5dab8ed064cad4c269c5795624633776d7f",
+    "tree": "11c440c4a143c2a58f3a9ce6fdc7b59225ad277c",
+    "parents": [
+      "ac42e495f074e209b40d706d337cd851b228f89b"
+    ]
+  },
+  "relation": {
+    "published_candidate_sha": "5ebf230b8bb5dfb322eb47cfe0c53e8cba5ac65e",
+    "local_candidate_is_published": false,
+    "local_candidate_descends_from_remote_own_tip": true,
+    "G_ref_changed": false,
+    "G_acceptance": false,
+    "formal_G_closure_ids": []
+  }
+}

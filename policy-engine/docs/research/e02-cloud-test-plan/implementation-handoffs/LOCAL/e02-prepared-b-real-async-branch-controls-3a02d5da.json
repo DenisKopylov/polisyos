@@ -1,0 +1,218 @@
+{
+  "schema": "policyos.e02.source_leaf_receipt.v1",
+  "receipt_role": "RAW-only exact committed implementation leaf; indexed evidence, not self-acceptance, runtime qualification, G acceptance, or closure",
+  "slice": {
+    "id": "prepared-b-real-async-branch-and-importable-worker-controls",
+    "branch": "codex/e02-unified-local-20261009",
+    "base": "ac42e495f074e209b40d706d337cd851b228f89b",
+    "base_tree": "e28e2ef5eecf38e8d5bbe42b2ebdc3500fb7b4fb",
+    "candidate": "3a02d5dab8ed064cad4c269c5795624633776d7f",
+    "tree": "11c440c4a143c2a58f3a9ce6fdc7b59225ad277c",
+    "parents": [
+      "ac42e495f074e209b40d706d337cd851b228f89b"
+    ],
+    "subject": "test(e02): exercise branch isolation and Decimal controls through real workers",
+    "committed_at": "2026-10-19T21:09:36+03:00",
+    "source_freeze": false
+  },
+  "source_cut": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "3a02d5dab8ed064cad4c269c5795624633776d7f",
+    "tree": "11c440c4a143c2a58f3a9ce6fdc7b59225ad277c",
+    "tracked_and_index_status": "clean at receipt creation",
+    "untracked_state": "present and not inventoried; no whole-worktree-clean claim",
+    "slice_is_ancestor_of_head": true
+  },
+  "identity": {
+    "work_item": "prepared-b-real-async-branch-and-importable-worker-controls",
+    "lease_key": "prepared-b-real-async-branch-and-importable-worker-controls-20261019",
+    "proposal_id": null,
+    "proposal_id_status": "no formal closure proposal in this leaf",
+    "proposal_status": "not adjudicated",
+    "G_acceptance": false,
+    "closure_ids": [],
+    "source_profile_freeze": false,
+    "production_profile": "not selected / not established",
+    "runtime": "UNRUN on adopted canonical source; source-application explicitly records UNRUN.",
+    "production_authority": false,
+    "external_currentness": false,
+    "published": false
+  },
+  "property": "Real async branch isolation and spawned Decimal typed-refusal removal controls preserve separate journals, actual shared-list mutant observations, importable worker target and fresh typed CAS receiver.",
+  "chain": null,
+  "controls": [
+    "real async sibling branch-isolation observation and shared-state removal control",
+    "spawned worker importability and typed Decimal refusal/CAS removal control",
+    "post-adoption full8 and serialization importer execution still required"
+  ],
+  "pattern_pass": "P29 property/removal; P31 close shared branch isolation class; P32 typed refusal and exact CAS receiver; P40 branch-isolation and child-import classes; P41 inherited not_established.",
+  "P40": "Branch isolation: same class widened to actual async consumer path. Spawn importability: separate harness class. v4 is independently reviewed style-only delta of v3.",
+  "P41": {
+    "inherited": "not_established",
+    "why": "No complete exact-slice-base replay plus full denominator and zero-intersection proof is established by this source receipt."
+  },
+  "footprint": {
+    "denominator_source": "git diff-tree --no-commit-id --name-status -r --no-renames 3a02d5dab8ed064cad4c269c5795624633776d7f",
+    "expected_paths_verified": 4,
+    "source_scope_paths": 2,
+    "metadata_companion_paths_outside_source_scope": 2,
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ],
+    "operation_counts": {
+      "M": 4
+    },
+    "git_preimage_bytes_total_excluding_A": 1827282,
+    "postimage_bytes_total": 1836458,
+    "paths": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "status": "M",
+        "source_scope_path": false,
+        "base": {
+          "git_blob_oid": "665a25d054a19ec578e001efa95e3526ef71d89b",
+          "sha256": "ba782f5c33eea53230f940c192072156004cf2f0748a6320b31713086c97f390",
+          "bytes": 1683480
+        },
+        "post": {
+          "git_blob_oid": "2df170513becff5e1cc7e77d4da7eb594e593621",
+          "sha256": "b79c01566257fb173d72efd3f666f42787642cb24cec5754b0eb95170918542d",
+          "bytes": 1688346
+        }
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "status": "M",
+        "source_scope_path": false,
+        "base": {
+          "git_blob_oid": "3e7421597eafe56c16652125dd0a9ceabb37f012",
+          "sha256": "2d3f3f61c6bee7216f8002dbeaf9013f98872b5b8b16f0dfde2f00a842e007fb",
+          "bytes": 111215
+        },
+        "post": {
+          "git_blob_oid": "9d2073f9cc4923e08a5271ec20303041db117523",
+          "sha256": "96ae16b25316d2ff24a995dc50101b1165970d0430eff74015c29b1da63028a2",
+          "bytes": 111215
+        }
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/decimal_worker_transport.py",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "2d72c28919997a11f308c67347b5c8efeaeff448",
+          "sha256": "7be2e108d4019be16d023e64eaebed36bc30f22dac776cae0c05e2add1921ab4",
+          "bytes": 4794
+        },
+        "post": {
+          "git_blob_oid": "e1cde41cd30658bf7e4c8952ea872b6cf5ec4f75",
+          "sha256": "b702a642fc2f8dbd21030cd413cdf7f587aa4a10555ed34201572523c0ffdb79",
+          "bytes": 5361
+        }
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_prepared_b_removal_controls.py",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "c058e9ca86d488360fb05e07ca88739b6fcbf95b",
+          "sha256": "39e8c07b9626bbc7e086d7f807dbb9cfc688ccd33dd134f4170e7a84f836da09",
+          "bytes": 27793
+        },
+        "post": {
+          "git_blob_oid": "b7ef811472b6e5ab04ba1ef900659a74506860b2",
+          "sha256": "895ea350a8de8325646a8286b5afe222a2e68d09091fc206da12ed3c97f1537e",
+          "bytes": 31536
+        }
+      }
+    ]
+  },
+  "proposal_fields": {
+    "identity": "prepared-b-real-async-branch-and-importable-worker-controls",
+    "lease_key": "prepared-b-real-async-branch-and-importable-worker-controls-20261019",
+    "proposal_id": null,
+    "proposal_id_status": "not adjudicated",
+    "source_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": [],
+    "source_profile_freeze": false,
+    "production_profile": "not selected / not established",
+    "runtime": "UNRUN on adopted canonical source; source-application explicitly records UNRUN.",
+    "production_authority": false,
+    "external_currentness": false,
+    "published": false
+  },
+  "evidence": {
+    "plan": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-prepared-b-v4-adoption-20261019/plan.json@sha256:393e71bf08e6a748a898f33f34bc391a7092cdc24cde4a83248d79a8b750ceb3",
+    "source_application": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-prepared-b-v4-adoption-20261019/source-application.json@sha256:7165281092da8e2e817e99f07c82230a6834f2ffbe920b4accbc9eabb999c982",
+    "commit_request": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-prepared-b-v4-adoption-20261019/commit-request.json@sha256:be1ca5fc707fae235e5ac4fb451c895b800c4e80556b8fb8419188d39c3745ed",
+    "native_evidence": {
+      "implementation_readback": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-prepared-b-v4-adoption-20261019/implementation-readback.json@sha256:a547b124e0c0dcf6bbef365e72076967aa13a50f1c6e4952b9a6e2e245f0c761",
+      "native_commit_result": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-prepared-b-v4-adoption-20261019/native-commit-result.json@sha256:fc3f7b0838d042831056a547f8ff65c1127fcfdff7966ebed746d6bc96065710",
+      "native_commit_stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-prepared-b-v4-adoption-20261019/native-commit.stdout.txt@sha256:e0bea7aefcdc0121df2e58201cc7ececa002612ad3c13397250a128ae344bde0",
+      "native_commit_stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-prepared-b-v4-adoption-20261019/native-commit.stderr.txt@sha256:b465b67ef3aac10f61c6195ed4a8ab2b4fe645a26b2051893cc4a80ed20e04e6"
+    },
+    "source_checks": [
+      {
+        "command": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tests/unit/scientist/orchestration/engine/test_prepared_b_removal_controls.py",
+          "policy-engine/tests/unit/scientist/orchestration/engine/runner/decimal_worker_transport.py"
+        ],
+        "exit_code": 0,
+        "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-prepared-b-v4-adoption-20261019/check-native-role-0.stdout.txt@sha256:82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-prepared-b-v4-adoption-20261019/check-native-role-0.stderr.txt@sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "scope": "precommit source-candidate Ruff/format check only; not runtime evidence"
+      },
+      {
+        "command": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/tests/unit/scientist/orchestration/engine/test_prepared_b_removal_controls.py",
+          "policy-engine/tests/unit/scientist/orchestration/engine/runner/decimal_worker_transport.py"
+        ],
+        "exit_code": 0,
+        "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-prepared-b-v4-adoption-20261019/format-native-role-0.stdout.txt@sha256:3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938",
+        "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-prepared-b-v4-adoption-20261019/format-native-role-0.stderr.txt@sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "scope": "precommit source-candidate Ruff/format check only; not runtime evidence"
+      }
+    ],
+    "reviewed_input_index": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-prepared-b-v4-adoption-20261019/source-application.json@sha256:7165281092da8e2e817e99f07c82230a6834f2ffbe920b4accbc9eabb999c982",
+    "prior_source_cut_evidence": [
+      {
+        "purpose": "Prior e73 B8 full8 result 6 PASS/2 FAIL; not a result on 3a02.",
+        "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-leaf-receipts-addendum-20261019/verification-delta-e73-e9db-abi-r3r4-20261019.json@sha256:1534e2bf0c4e5897cea8dcdf824e0388e10c5b0c92543b226b49a676af93c92a"
+      }
+    ],
+    "runtime_boundary": "Prior e73 B8 full8 was 6 PASS/2 FAIL. This fixed test/helper slice has no post-adoption full8 run; the full8 module and test_serialization_e02.py importer remain required.",
+    "source_slice": "Two Prepared-B test/worker-helper paths plus two mandatory metadata companions (4 Git paths); no product implementation or scientific contract change."
+  },
+  "limitations": [
+    "Prior full8 actuale73 result6PASS2FAIL remains retained; repairedruntimeUNRUN.",
+    "No production code or scientific/authority/schema contract changed.",
+    "Helper importer census3104Pythonfiles is bound to e9; no current whole-tree or P41 inheritance claim."
+  ],
+  "next_check": "Full8 B8 module plus complete test_serialization_e02.py importer within composed PreparedB68-module replay; actual worker/caller/consumer and removal differences, full outputs and module-origin qualification required.",
+  "authority": {
+    "production_authority": false,
+    "external_currentness": false,
+    "G_acceptance": false,
+    "closure_ids": [],
+    "published": false
+  }
+}

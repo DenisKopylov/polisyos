@@ -1,0 +1,209 @@
+{
+  "schema": "policyos.e02.source_leaf_receipt.v1",
+  "receipt_role": "RAW source leaf; prepared for future tracked incorporation; not self-acceptance",
+  "slice": {
+    "id": "prepared-b-removal-controls",
+    "branch": "codex/e02-unified-local-20261009",
+    "base": "f1b9bb4c0340d10f6db75d06bdfcc8a35701f522",
+    "base_tree": "a5dfe69633cdb82e4afbf136edbd0cd95ffdc769",
+    "candidate": "06af9e4474733edef6f0bf26add733ded753c01e",
+    "tree": "bde0eaf83c333fd0a217f49678c76fdce8439233",
+    "parents": [
+      "f1b9bb4c0340d10f6db75d06bdfcc8a35701f522"
+    ],
+    "subject": "test(e02): add matched Prepared B execution and worker removal controls",
+    "committed_at": "2026-10-19T20:04:00+03:00",
+    "source_freeze": false
+  },
+  "source_cut": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "e73a8369115dab7dfc0ebcc4274918d246da5215",
+    "tree": "d562f6052d5b11fde75e3eece8368272cd9dc35a",
+    "tracked_and_index_status": "clean at receipt creation",
+    "untracked_state": "not claimed; no whole-worktree-clean assertion",
+    "slice_is_ancestor_of_head": true
+  },
+  "identity": {
+    "work_item": "prepared-b-removal-controls",
+    "lease_key": "prepared-b-removal-controls-root-adopted-20261019",
+    "proposal_id": null,
+    "proposal_id_status": "not_established in this source slice; the plan and lease name the work item but do not adjudicate a proposal ID",
+    "proposal_status": "not adjudicated by this source receipt",
+    "G_acceptance": false,
+    "closure_ids": [],
+    "source_profile_freeze": false,
+    "production_profile": "not selected / not established",
+    "runtime": "UNRUN on adopted canonical source; bounded candidate evidence is separately referenced",
+    "production_authority": false,
+    "external_currentness": false,
+    "published": false
+  },
+  "property": "Eight marker-preserving behavioral controls exercise the shared Prepared-B branch, merge, replay/cache, cancellation/publication and typed worker wire seams, with real producer/receiver effects.",
+  "chain": null,
+  "controls": [],
+  "pattern_pass": "P29 actual runtime/removal still required; P31 shared invariant; P32 content/source binding; P35 complete caller/footprint denominator; P37 no reader-minted authority; P40 class bucket; P41 inherited not_established.",
+  "P40": "Same identified mechanism class widened to its complete enumerated source/fixture/consumer quantity; preserve distinct unknown authority/profile facts and no per-case assertion ladder.",
+  "P41": {
+    "inherited": "not_established",
+    "why": "No slice-base replay plus complete denominator and zero-intersection proof is supplied by this receipt."
+  },
+  "footprint": {
+    "denominator_source": "git diff-tree --no-commit-id --name-status -r --no-renames 06af9e4474733edef6f0bf26add733ded753c01e",
+    "expected_paths_verified": 3,
+    "source_scope_paths": 1,
+    "metadata_companion_paths_outside_source_scope": 2,
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ],
+    "raw_plan_review_and_output_receipts_are_not_committed_paths": true,
+    "operation_counts": {
+      "added": 1,
+      "modified": 2,
+      "deleted": 0
+    },
+    "preimage_bytes_total": 1752730,
+    "postimage_bytes_total": 1784322,
+    "bytes_delta": 31592,
+    "source_application_vs_committed_postimages": {
+      "mismatched_source_paths": 0,
+      "explanation": "Source application postimage hashes equal the committed Git blob hashes for every source-scope path."
+    },
+    "paths": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "status": "M",
+        "source_scope_path": false,
+        "base": {
+          "git_blob_oid": "a47b76684b7136caba972fad800dd11cc68369e2",
+          "sha256": "055eda005db47f6a2e2dee04cc69025effe6e42790955e394a7d9d5037e8af75",
+          "bytes": 1641515
+        },
+        "post": {
+          "git_blob_oid": "8149afa83a1e1838190c816f2b4ba37c248ff022",
+          "sha256": "8caf5ce90e5bcfea8d01ff5ae8bbb60e3ea861d7d54f2cb03caff1ce5bb65725",
+          "bytes": 1645314
+        },
+        "source_application_postimage_sha256": null,
+        "source_application_bytes_match_commit": null,
+        "format_only_evidence": null
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "status": "M",
+        "source_scope_path": false,
+        "base": {
+          "git_blob_oid": "094e77364ec260e5f533e7ec27c533c270a76e93",
+          "sha256": "399b8ba1f7d30f01d94e1b0d19d00e9d81443139a72253236dc97604dfba26fa",
+          "bytes": 111215
+        },
+        "post": {
+          "git_blob_oid": "e2f55af9cd2a60b25c14a977a4345d23a03b9ecb",
+          "sha256": "e1588873399b0023aba9b95115be9e59537b011d7c59b14f48665d389682afaf",
+          "bytes": 111215
+        },
+        "source_application_postimage_sha256": null,
+        "source_application_bytes_match_commit": null,
+        "format_only_evidence": null
+      },
+      {
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/test_prepared_b_removal_controls.py",
+        "status": "A",
+        "source_scope_path": true,
+        "base": null,
+        "post": {
+          "git_blob_oid": "c058e9ca86d488360fb05e07ca88739b6fcbf95b",
+          "sha256": "39e8c07b9626bbc7e086d7f807dbb9cfc688ccd33dd134f4170e7a84f836da09",
+          "bytes": 27793
+        },
+        "source_application_postimage_sha256": "39e8c07b9626bbc7e086d7f807dbb9cfc688ccd33dd134f4170e7a84f836da09",
+        "source_application_bytes_match_commit": true,
+        "format_only_evidence": null
+      }
+    ]
+  },
+  "proposal_fields": {
+    "identity": "prepared-b-removal-controls",
+    "lease_key": "prepared-b-removal-controls-root-adopted-20261019",
+    "proposal_id": null,
+    "proposal_id_status": "not_established in source plan/lease",
+    "source_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": [],
+    "source_profile_freeze": false,
+    "production_profile": "not selected / not established",
+    "runtime": "UNRUN on adopted canonical source; bounded candidate evidence is separately referenced"
+  },
+  "evidence": {
+    "plan": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-four-source-batch-20261019/prepared-b-removal-controls/plan.json@sha256:32b8d0e7be251e303dc133d598352b6fd574b9626260d9fee6220736a3b3c0d3",
+    "source_application": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-four-source-batch-20261019/prepared-b-removal-controls/source-application.json@sha256:236b947b08cc661d04c4605a7561f6f51bbbdbb18b596f9d84c4640acc76f1d0",
+    "implementation_readback": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-four-source-batch-20261019/prepared-b-removal-controls/implementation-readback.json@sha256:13929ee11d70ed761767c2bad92687110655d866f33d4e1e5d07c1d3f8bd0e18",
+    "commit_request": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-four-source-batch-20261019/prepared-b-removal-controls/commit-request.json@sha256:f2abe4137f6604edbe637bb09c06a0f1a224eea7a64f15c93c31d1f5463e4546",
+    "native_commit_result": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-four-source-batch-20261019/prepared-b-removal-controls/native-commit-result.json@sha256:3554e3b99cb2ae2108d2cb99936062979f76e7799e6303e23dd24e2acbd118f6",
+    "reviewed_inputs": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-generic-removal-author-20261019-r2/manifest.json@sha256:2a19d885a408c95b62d742f17019d5de7941ad9d0ad09a88c199a2f6a578c51a",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-generic-removal-author-20261019-r2/proposed-test-module.patch@sha256:78cecf15cd53732fe2e95817a5cb8b9b6e50aab1be57c470760882cb3b7351af",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-generic-removal-independent-20261019/review.json@sha256:ad21e0ef6b9eaf4ed169e7d74d5e280a9cb17c07e1c115bd0eefc7558cc9eb0e",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-generic-removal-independent-r2-20261019/review-r2.json@sha256:eb016440e9bfb4a5643e58e66198d1d387fee87a55e633625e6f3c1d0f6743c3"
+    ],
+    "source_checks": {
+      "applicability": "changed Python files",
+      "ruff_commands_and_outputs": [
+        {
+          "argv": [
+            "policy-engine/.venv/bin/python",
+            "-B",
+            "-m",
+            "ruff",
+            "check",
+            "--no-cache",
+            "--config",
+            "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+            "policy-engine/tests/unit/scientist/orchestration/engine/test_prepared_b_removal_controls.py"
+          ],
+          "exit_code": 0,
+          "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-four-source-batch-20261019/prepared-b-removal-controls/check-native-role-0.stdout.txt@sha256:82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+          "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-four-source-batch-20261019/prepared-b-removal-controls/check-native-role-0.stderr.txt@sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "argv": [
+            "policy-engine/.venv/bin/python",
+            "-B",
+            "-m",
+            "ruff",
+            "format",
+            "--check",
+            "--no-cache",
+            "--config",
+            "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+            "policy-engine/tests/unit/scientist/orchestration/engine/test_prepared_b_removal_controls.py"
+          ],
+          "exit_code": 0,
+          "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-four-source-batch-20261019/prepared-b-removal-controls/format-native-role-0.stdout.txt@sha256:fd2299c9f1c6dc869070883e281051bfe93aacf66c1a3b0069f45b4aa410ca50",
+          "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-four-source-batch-20261019/prepared-b-removal-controls/format-native-role-0.stderr.txt@sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    "native_commit_hook": {
+      "operation": "normal source commit; configured native commit hooks ran and returned the recorded result",
+      "exit_code": 0,
+      "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-four-source-batch-20261019/prepared-b-removal-controls/native-commit.stdout.txt@sha256:8be9a31cbd5ec1fbcaf3a8945937f3ce0edef0ae9337689ae7ce15e31e25a31d",
+      "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-four-source-batch-20261019/prepared-b-removal-controls/native-commit.stderr.txt@sha256:262745a5a9ce1c70b567b62d9fc8f4c7d86fbba192f7c51a1c892cec352c161a",
+      "output_authority": "hook output only; does not establish runtime semantics"
+    }
+  },
+  "limitations": [
+    "New module never run; static design GO only. Defining baseline and all thirteen contours still require actual composed replay; 67-module existing union plus this module is 68. R448 completed-attempt reuse remains a separate G choice.",
+    "No G acceptance, formal finding closure, publication or production currentness is claimed.",
+    "Runtime and canonical semantic suite status are limited to the cited adoption records; this receipt makes no new runtime claim.",
+    "Native hook success and static source checks are not product runtime acceptance, source/profile freeze, G acceptance, or finding closure.",
+    "Proposal identifier and status remain not_established where the source plan/lease do not assign them."
+  ],
+  "next_check": "Run complete new module, then the full pinned 68-module union and conditional selected-view/producer-state/bound-import removal controls; no imported helper collected as ninth test.",
+  "authority": {
+    "production_authority": false,
+    "external_currentness": false,
+    "G_acceptance": false,
+    "closure_ids": []
+  }
+}

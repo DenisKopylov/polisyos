@@ -1,0 +1,268 @@
+{
+  "schema": "policyos.e02.source_leaf_receipt.v1",
+  "receipt_role": "RAW-only exact committed implementation leaf; indexed evidence, not self-acceptance, runtime qualification, G acceptance, or closure",
+  "slice": {
+    "id": "frontend-profile-lineage-whole-fixture-r3",
+    "branch": "codex/e02-unified-local-20261009",
+    "base": "362955d833d0242575e65ab8ca5c6e2840947a12",
+    "base_tree": "05ea2c5710b7dc6ad663d8786057f0fa98b61752",
+    "candidate": "ac42e495f074e209b40d706d337cd851b228f89b",
+    "tree": "e28e2ef5eecf38e8d5bbe42b2ebdc3500fb7b4fb",
+    "parents": [
+      "362955d833d0242575e65ab8ca5c6e2840947a12"
+    ],
+    "subject": "test(e02): align profile lineage fixtures with typed admission and trust views",
+    "committed_at": "2026-10-19T21:07:21+03:00",
+    "source_freeze": false
+  },
+  "source_cut": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "3a02d5dab8ed064cad4c269c5795624633776d7f",
+    "tree": "11c440c4a143c2a58f3a9ce6fdc7b59225ad277c",
+    "tracked_and_index_status": "clean at receipt creation",
+    "untracked_state": "present and not inventoried; no whole-worktree-clean claim",
+    "slice_is_ancestor_of_head": true
+  },
+  "identity": {
+    "work_item": "frontend-profile-lineage-whole-fixture-r3",
+    "lease_key": "frontend-profile-lineage-whole-fixture-r3-20261019",
+    "proposal_id": null,
+    "proposal_id_status": "no formal closure proposal in this leaf",
+    "proposal_status": "not adjudicated",
+    "G_acceptance": false,
+    "closure_ids": [],
+    "source_profile_freeze": false,
+    "production_profile": "not selected / not established",
+    "runtime": "UNRUN on adopted canonical source; source-application explicitly records UNRUN.",
+    "production_authority": false,
+    "external_currentness": false,
+    "published": false
+  },
+  "property": "Schema-backed shared profile-lineage fixtures and semantic Trust View queries exercise actual rejection ordering, selected run/profile/time/origin binding, cache refusals and quantity display without incorrectly promoting mocked lineage metadata to authority.",
+  "chain": null,
+  "controls": [
+    "shared typed profile-lineage fixture encodes run/profile/branch/time/origin",
+    "semantic Trust View queries cover rejection ordering, cache refusal, and quantity display",
+    "full24 module and typecheck on adopted cut remain unrun"
+  ],
+  "pattern_pass": "P05 trust admission; P08 temporal scope; P10 semantic sufficiency; P29 authored test still requires replay; P32 schema-backed fixtures do not grant authority; P40 whole fixture/oracle class; P41 inherited not_established.",
+  "P40": "Same fixture/oracle class widened across complete 24-module frontend scope; R3 removes two independent-review-confirmed unused imports without changing any of43 affected test titles or production code.",
+  "P41": {
+    "inherited": "not_established",
+    "why": "No complete exact-slice-base replay plus full denominator and zero-intersection proof is established by this source receipt."
+  },
+  "footprint": {
+    "denominator_source": "git diff-tree --no-commit-id --name-status -r --no-renames ac42e495f074e209b40d706d337cd851b228f89b",
+    "expected_paths_verified": 10,
+    "source_scope_paths": 8,
+    "metadata_companion_paths_outside_source_scope": 2,
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ],
+    "operation_counts": {
+      "A": 1,
+      "M": 9
+    },
+    "git_preimage_bytes_total_excluding_A": 1881408,
+    "postimage_bytes_total": 1892946,
+    "paths": [
+      {
+        "path": "policy-engine/apps/runtime-dashboard/src/api/hooks/useRunFabricDecisionData.test.tsx",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "bf9c2321b5558ca122d694645cd9fecc235b3ed0",
+          "sha256": "7286f522b8d767e6cfe2a40bb8568d90a8079a199de0bffa5a858d7935c8113f",
+          "bytes": 16526
+        },
+        "post": {
+          "git_blob_oid": "b54d538f2d0ec8e5b5f90f5d3b55170b4f696f97",
+          "sha256": "e4c57431f21cd81881726d5e176c5b36cd5d6772424f4bcf84cbb95bb99fd733",
+          "bytes": 16523
+        }
+      },
+      {
+        "path": "policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/RunOverviewProfileLineage.test.tsx",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "92ddc4bff78179950934114ec13d91e4d543f473",
+          "sha256": "9b1c65dbcf749210c3f4dbca91b96bea916186af799eefbd0ec03b399a8de91e",
+          "bytes": 14296
+        },
+        "post": {
+          "git_blob_oid": "67e3ac6b5e79e6e80a346cd094cb09e3b2b9aa98",
+          "sha256": "5218f4e08941dc186d259ed2f8d9b7115961978c952ffde2e835eb73125dd74b",
+          "bytes": 14631
+        }
+      },
+      {
+        "path": "policy-engine/apps/runtime-dashboard/src/features/runs/routes/tabs/RunOverviewProfileLineageAdmission.integration.test.tsx",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "fb0839aa67e3b54a446f528d5634f497cdaad316",
+          "sha256": "052ac3e021ae9bc997728a66e31b495fd79e6bb83364c9a7c9666e63570f1d59",
+          "bytes": 15630
+        },
+        "post": {
+          "git_blob_oid": "1f8ae89c47d8f7fa281f7b0d5ffb43447a54c71d",
+          "sha256": "4808d9d14001221cfb05ca362bed2baad12dcab0ca02e0c11be7a4675424d938",
+          "bytes": 15587
+        }
+      },
+      {
+        "path": "policy-engine/apps/runtime-dashboard/src/shared/ui/quantity/ProvenancePopover.test.tsx",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "3bf791cfd08ea28595486cf353d4368a42e6995d",
+          "sha256": "904b453d78d1f91c62db342cffcdc0108bf8f5728af9ac5d08470bd0418e33f6",
+          "bytes": 15749
+        },
+        "post": {
+          "git_blob_oid": "56fd5aa9be3efd8fb08b859e8da5b9875960b4cd",
+          "sha256": "3907df6ec982a9e67ddf0bc12c084230e0659c4191a83510edc06ef5947aab8c",
+          "bytes": 15550
+        }
+      },
+      {
+        "path": "policy-engine/apps/runtime-dashboard/src/shared/ui/quantity/Quantity.test.tsx",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "11961b82634ccce74b9e5d737afc569cf2ab5ae2",
+          "sha256": "e47e21256eaeb305ff5425c924f18c8115739ae4bdb6121e4c67b2a2103f7185",
+          "bytes": 8635
+        },
+        "post": {
+          "git_blob_oid": "66257fa91d18b3dabafda4e0a3dc13d2e2f72933",
+          "sha256": "e7a0fe50355fc08cd5b78d963cf87dcff0d8f784035142f36340817577eb39d3",
+          "bytes": 8567
+        }
+      },
+      {
+        "path": "policy-engine/apps/runtime-dashboard/src/shared/ui/quantity/useLineage.test.tsx",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "f5274c778668c59db0150b68c74feeb51913a003",
+          "sha256": "bd6b9e05a246cc58a1b7175172c64f4ec3d005b5674dc7058653810d8fe2e965",
+          "bytes": 20428
+        },
+        "post": {
+          "git_blob_oid": "d1335a47f0ab50a80d993701d03b194b943115cd",
+          "sha256": "5b3cad8e62aab20c52a1f74e7808ada51c98a75decf325ed04bbc5adbcd708e3",
+          "bytes": 20779
+        }
+      },
+      {
+        "path": "policy-engine/apps/runtime-dashboard/src/test/fixtures/profileLineageBatch.ts",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "2d96e0aa9572f60bde7f3e21a76a2b34a87095dd",
+          "sha256": "226eb92b96f20539ee8b5b0798cb1b94ec9537bfcc80cb64a139215692dfdb4b",
+          "bytes": 3471
+        },
+        "post": {
+          "git_blob_oid": "c9f923e807b24104ff42427f58acb465fe98c8f7",
+          "sha256": "bafb602d09110c8e84b8f01d86a6a7104873cc7d9a2615c3198065f891813a40",
+          "bytes": 6226
+        }
+      },
+      {
+        "path": "policy-engine/apps/runtime-dashboard/src/test/trustViewQueries.ts",
+        "status": "A",
+        "source_scope_path": true,
+        "base": null,
+        "post": {
+          "git_blob_oid": "ccde9dd2eb63fb8368f8c196cdce536f7db89aeb",
+          "sha256": "cfbec3c67ab852848fbe4b6ecfa23aa9ef8bdae4b6f538a434a60073d69b6416",
+          "bytes": 388
+        }
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "status": "M",
+        "source_scope_path": false,
+        "base": {
+          "git_blob_oid": "8ec92e9eec1a1c55cadc0790e581ca6f1f8db42f",
+          "sha256": "a40d7c169a894a551ed84d36ed07831cc4d55889e4254efdfa9746a43c62744c",
+          "bytes": 1675458
+        },
+        "post": {
+          "git_blob_oid": "665a25d054a19ec578e001efa95e3526ef71d89b",
+          "sha256": "ba782f5c33eea53230f940c192072156004cf2f0748a6320b31713086c97f390",
+          "bytes": 1683480
+        }
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "status": "M",
+        "source_scope_path": false,
+        "base": {
+          "git_blob_oid": "140edd16fa932dfbcc192412b75e4e9710593bd9",
+          "sha256": "d7fef8abd20d592b1a0dbfb7175f72a49e157819cb8a2c937d179b3475108b0d",
+          "bytes": 111215
+        },
+        "post": {
+          "git_blob_oid": "3e7421597eafe56c16652125dd0a9ceabb37f012",
+          "sha256": "2d3f3f61c6bee7216f8002dbeaf9013f98872b5b8b16f0dfde2f00a842e007fb",
+          "bytes": 111215
+        }
+      }
+    ]
+  },
+  "proposal_fields": {
+    "identity": "frontend-profile-lineage-whole-fixture-r3",
+    "lease_key": "frontend-profile-lineage-whole-fixture-r3-20261019",
+    "proposal_id": null,
+    "proposal_id_status": "not adjudicated",
+    "source_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": [],
+    "source_profile_freeze": false,
+    "production_profile": "not selected / not established",
+    "runtime": "UNRUN on adopted canonical source; source-application explicitly records UNRUN.",
+    "production_authority": false,
+    "external_currentness": false,
+    "published": false
+  },
+  "evidence": {
+    "plan": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-frontend-r3-adoption-20261019/plan.json@sha256:528573bebe6e044fa114eb253e94e4d6d79b518560bfb9bd669d2252fecf2fab",
+    "source_application": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-frontend-r3-adoption-20261019/source-application.json@sha256:55347d45da5bea305cb47c4e55b7adcc68f2fe521e0ef537fff45090e7e068b8",
+    "commit_request": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-frontend-r3-adoption-20261019/commit-request.json@sha256:9c98448fd5be4884c5b43217d50f2fb2b6eac1056c60a21b31d16c4559c6eec9",
+    "native_evidence": {
+      "implementation_readback": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-frontend-r3-adoption-20261019/implementation-readback.json@sha256:1b13b0b27f118673b3637dfdda6cb80d14446713454eeb4a57e9fde86e99e383",
+      "native_commit_result": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-frontend-r3-adoption-20261019/native-commit-result.json@sha256:7dc89ac442e32058d2f5411faee93f5a752f314a59b7e517b8f3a9a94437ba1b",
+      "native_commit_stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-frontend-r3-adoption-20261019/native-commit.stdout.txt@sha256:c25a1ea4efa9d4ab864ef16693b45fa8f3146f66b4b7b3507258fe67c00348cd",
+      "native_commit_stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-frontend-r3-adoption-20261019/native-commit.stderr.txt@sha256:3f65d7f0ee8da4e5e28203162c9155850e3f3956bba1abac2562e5ee21499c0c"
+    },
+    "source_checks": [],
+    "reviewed_input_index": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-frontend-r3-adoption-20261019/source-application.json@sha256:55347d45da5bea305cb47c4e55b7adcc68f2fe521e0ef537fff45090e7e068b8",
+    "prior_source_cut_evidence": [
+      {
+        "purpose": "Prior FE full24/typecheck on e73 source only, before ac42; not this candidate result.",
+        "ref": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/source-leaf-receipts-addendum-20261019/verification-delta-e73-e9db-abi-r3r4-20261019.json@sha256:1534e2bf0c4e5897cea8dcdf824e0388e10c5b0c92543b226b49a676af93c92a"
+      }
+    ],
+    "runtime_boundary": "The preceding FE full24/typecheck run is on e73 before FE R3 and MyPy4. Keep its 90/97, 7 failures, 9 TS diagnostics as prior cut only; replay on composed adopted source remains required.",
+    "source_slice": "Eight FE fixture/test/helper paths plus two mandatory metadata companions (10 Git paths); this slice does not change product implementation."
+  },
+  "limitations": [
+    "No runtime acceptance or formal finding closure.",
+    "Most recent whole24-module source-e73 run:90PASS7FAIL; wholeapp TypeScript9diagnostics, seven generatedAPI and two fixture diagnostics.",
+    "Configured lint of new helper mapped to existing typed fixture filename; canonical native hooks still required.",
+    "Seven generated API TypeScript diagnostics remain pending admitted N11 owner source; no manual generated edits or suppressed typechecks."
+  ],
+  "next_check": "Full24-module ordinary Vitest and wholeapp TypeScript once after composed upstream/generated freeze; retain all actual FAIL/ERROR/SKIP and profile/status removal controls.",
+  "authority": {
+    "production_authority": false,
+    "external_currentness": false,
+    "G_acceptance": false,
+    "closure_ids": [],
+    "published": false
+  }
+}

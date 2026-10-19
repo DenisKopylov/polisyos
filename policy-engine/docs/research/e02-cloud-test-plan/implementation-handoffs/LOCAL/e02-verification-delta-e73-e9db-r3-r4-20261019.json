@@ -1,0 +1,139 @@
+{
+  "schema": "policyos.e02.verification_delta.v1",
+  "role": "Compact evidence index. It keeps source-cut-specific outcomes distinct; it does not certify global E02 or G acceptance.",
+  "current_source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "e3985584b84767629d6eeefe8b032d46a3093b9f",
+    "tree": "eedc0f93f23fa8d40ffec9a32165d0066812a96a",
+    "tracked_diff_count": 0,
+    "staged_diff_count": 0,
+    "untracked": "present, not inventoried or claimed clean"
+  },
+  "authority": {
+    "source_freeze": false,
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": [],
+    "published": false
+  },
+  "checks": [
+    {
+      "id": "FE-R2-full24-at-e73",
+      "source_frame": {
+        "head": "e73a8369115dab7dfc0ebcc4274918d246da5215",
+        "tree": "d562f6052d5b11fde75e3eece8368272cd9dc35a"
+      },
+      "status": "FAIL: Vitest 90/97 pass, 7 fail; dashboard typecheck exit 2 with 9 TS diagnostics.",
+      "qualification": "Complete commands, source pin count 82; tracked source unchanged across run. JUnit denominator 97 cases, zero JUnit errors.",
+      "runtime_vs_bookkeeping": "Vitest failures are runtime component/integration assertions; typecheck diagnostics are compile/type failures. This is not a bookkeeping-only result and is not success.",
+      "failure_summary": [
+        "Selected-profile lineage response restored verified trust where test expected pending.",
+        "Profile-bound refusal/popover and temporal-scope rejection assertions disagree with actual query/response behavior.",
+        "RunOverview lineage UI tests observed ambiguous unknown buttons or missing unavailable details.",
+        "Nine TypeScript diagnostics span the validator test, admission integration fixture, Fabric decision data, and lineage hook/fixture fields."
+      ],
+      "evidence": {
+        "result": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-r2-full24-native-preparation-20261019/actual-e73a8369115d/result.json@sha256:51e3a05dc36f7eda3d9bcb4430b30d4d0f4ec836d033fcbcdce8748003c2085f",
+        "vitest_result": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-r2-full24-native-preparation-20261019/actual-e73a8369115d/vitest-result.json@sha256:4585e81e7298cb182ff2c9c607059010ca63938362a046a4b57f5781d2b4571b",
+        "vitest_stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-r2-full24-native-preparation-20261019/actual-e73a8369115d/vitest.stdout.txt@sha256:0536c227eced60f29106072d347fa1387a68eb274b3086080ef94b8b320cd3c1",
+        "vitest_stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-r2-full24-native-preparation-20261019/actual-e73a8369115d/vitest.stderr.txt@sha256:8cb92b35d28e0d615a56018d20b2ef9f0ace5e8ce70146da9887253a5873e24c",
+        "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-r2-full24-native-preparation-20261019/actual-e73a8369115d/vitest.junit.xml@sha256:2d96e40506c43f8468b0ba8b057dd059f00fb977c8bfba52e602d40f8b799dac",
+        "typecheck_result": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-r2-full24-native-preparation-20261019/actual-e73a8369115d/typecheck-result.json@sha256:150d5f7b255fcb10ada819c4462957f1a667820c06a3061644bfa03653f415b7",
+        "typecheck_stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-r2-full24-native-preparation-20261019/actual-e73a8369115d/typecheck.stdout.txt@sha256:601500a65fd8f7f26715c69f89062688a7c8a734e6d7e0d23930ea7628dc72ab",
+        "typecheck_stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-r2-full24-native-preparation-20261019/actual-e73a8369115d/typecheck.stderr.txt@sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "next_check": "Resolve the observed lineage trust/admission and query/fixture/type-contract mismatches; preserve the admitted positive and withheld-negative controls. Replay the same full24 module selection plus typecheck on the repaired composed source and inspect every original failure."
+    },
+    {
+      "id": "PREPARED-B-removal-controls-at-e73",
+      "source_frame": {
+        "head": "e73a8369115dab7dfc0ebcc4274918d246da5215",
+        "tree": "d562f6052d5b11fde75e3eece8368272cd9dc35a",
+        "parent": "06af9e4474733edef6f0bf26add733ded753c01e"
+      },
+      "status": "FAIL after qualified one-module run: 6/8 pass, 2 fail.",
+      "qualification": "One complete selected module, eight collected/executed/JUnit cases, no filters or out-of-scope tests, runtime origins valid and process group complete.",
+      "runtime_vs_bookkeeping": "Actual pytest runtime property failures. One unmutated branch-isolation positive observed no sibling; one spawned worker failed to unpickle with ModuleNotFoundError: engine and parent EOFError. Not a PASS and not an exit-only finding.",
+      "failure_summary": [
+        "test_branch_isolation_removal_leaks_to_real_parallel_sibling: positive case returned with no sibling observation.",
+        "test_typed_decimal_refusal_survives_actual_worker_and_marker_removal: child unpickle ModuleNotFoundError: engine; parent received EOFError."
+      ],
+      "evidence": {
+        "outcome_adjudication": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-removal-controls-a94-r8r2-e73-20261019/actual-run/outcome-adjudication.json@sha256:9c005870d483ba66093f6f566a703b6d9564f6309e16342718534e109f26c838",
+        "receipt_index": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-removal-controls-a94-r8r2-e73-20261019/actual-run/receipt-index.json@sha256:5ca99350c15c21051a9343ea9afaee9c261377cf7127558a6c0a6c6609bb4f50",
+        "result": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-removal-controls-a94-r8r2-e73-20261019/actual-run/result.json@sha256:ef0510761c582c6e185c677dbe0f65946ca7b92e3f54e8d0c79abec6dda24208",
+        "pytest_stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-removal-controls-a94-r8r2-e73-20261019/actual-run/pytest.stdout.txt@sha256:55266d2337683c7a471b7fe5dcd15189c1130b2f8cce18893ffb4de47ea4679c",
+        "pytest_stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-removal-controls-a94-r8r2-e73-20261019/actual-run/pytest.stderr.txt@sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-removal-controls-a94-r8r2-e73-20261019/actual-run/pytest.xml@sha256:336b898d6a9b092f9f8644bbd537b202b63d0476a4e1dc907f7326e03b9f30aa",
+        "runtime_origins": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-removal-controls-a94-r8r2-e73-20261019/actual-run/runtime-module-origins.json@sha256:e85e73d83d7413141b9bbb2b08c2f93e896b66efda8b13dc283c0dbae878623d"
+      },
+      "next_check": "Repair the positive sibling observation and supported child import context; rerun the complete eight-case module with both failure controls retained. Keep each property open until its own actual outcome is green."
+    },
+    {
+      "id": "CAN-profile-composition-15-modules-at-e9db",
+      "source_frame": {
+        "head": "e9db2006c028400d6274dcaf4dfbf9d0548769c0",
+        "tree": "f65dd3507ce8adc0117af2e3854830beda77f510",
+        "parent": "e73a8369115dab7dfc0ebcc4274918d246da5215"
+      },
+      "status": "FAIL: 381/386 pass; 5 fail, all in test_epoch_transition_origin.",
+      "qualification": "Exact 15 whole pytest modules, 386 collected/executed/JUnit cases, no filters or outside modules; source snapshot unchanged; 1792 captured product-namespace module origins, zero mismatches.",
+      "runtime_vs_bookkeeping": "Actual pytest runtime failures: tests expected PersistedEpochValidityTransition but the producer returned EpochTransitionSigningNonReceipt(status=not_established, code=epoch_transition_exact_evidence_unavailable). Cause remains unresolved; do not convert the returned refusal into a PASS or assume a fixture/environment cause.",
+      "failure_summary": [
+        "All five failure cases share the unresolved missing exact evidence result in epoch-transition origin production/readback."
+      ],
+      "evidence": {
+        "result": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/derived-profile-composition-runtime-can15-20261019/attempt-3/actual-run/result.json@sha256:ebfd31aef9aaa336ccbe2584ca72da8c6d3cd1fe80ce39d224a4f31f8b1c207f",
+        "pytest_stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/derived-profile-composition-runtime-can15-20261019/attempt-3/actual-run/pytest.stdout.txt@sha256:c9b42831c716967aad3fd4a1f0029d45fdc8914b448893db9ce45a089ddb8752",
+        "pytest_stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/derived-profile-composition-runtime-can15-20261019/attempt-3/actual-run/pytest.stderr.txt@sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "junit": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/derived-profile-composition-runtime-can15-20261019/attempt-3/actual-run/pytest.xml@sha256:06d57304dc08f3dcab50bc3e82de5311d3b02d087de53ec44debb939e4981938",
+        "runtime_origins": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/derived-profile-composition-runtime-can15-20261019/attempt-3/actual-run/runtime-module-origins.json@sha256:8a8b82c0dae9cfcb3a9fc381bd497ea86e0bfcfa8548c4a7e86dca6d00fd0304",
+        "source_before": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/derived-profile-composition-runtime-can15-20261019/attempt-3/actual-run/source-before-summary.json@sha256:7113739eb4a48b7f1a534b9e06497008dcc9c34a5d832876487612f2692b4455",
+        "source_after": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/derived-profile-composition-runtime-can15-20261019/attempt-3/actual-run/source-after-summary.json@sha256:89e851ec6565ead605a33b57a876581676328fa0c29be432ea9cc40619da2514"
+      },
+      "next_check": "Inspect exact producer/issuer inputs and the independent execution-origin evidence required for a persisted transition; use a minimal discriminating valid source-bound input, then rerun the five failing cases and the 15-module selection without weakening expected positives."
+    },
+    {
+      "id": "ABI-registered-generation-and-drift-at-e73-adopted-e9db",
+      "source_frame": {
+        "generation_check_copy_probe_head": "e73a8369115dab7dfc0ebcc4274918d246da5215",
+        "adoption_commit": "e9db2006c028400d6274dcaf4dfbf9d0548769c0",
+        "adoption_tree": "f65dd3507ce8adc0117af2e3854830beda77f510"
+      },
+      "status": "PASS for registered generation/check and behavioral copied-drift control; no runtime consumer claim.",
+      "qualification": "Full 106/106 registry generation and canonical --check passed. A copied 112-member output family with one corrupted CausalMethod enum value failed with the exact expected stale snapshot diagnostic. Exact 114 registered output denominator reconciled in the independent review.",
+      "runtime_vs_bookkeeping": "Generated-artifact/tooling verification (bookkeeping), not product runtime, installed-client compatibility, or public API acceptance.",
+      "evidence": {
+        "actual_owner_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-abi-reviewed-generated-adoption-20261019/actual-owner-receipt.json@sha256:4c19f1cf53a4d4c70e560972ae86ba2b8fc177d1a344f11cfc576c41db047642",
+        "independent_review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-abi-generated-adoption-independent-review-20261019/review.json@sha256:cce12a2d160fcbbeada29d995e07b59df988083ee28ff05b8ef9bb69d098717a",
+        "generation_stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-abi-reviewed-generated-adoption-20261019/generation.stdout.txt@sha256:9ccf7b752eb1be0553ba7016bf6e93583c8faca11eb3189d6b71c1ee9853a525",
+        "generation_stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-abi-reviewed-generated-adoption-20261019/generation.stderr.txt@sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "check_stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-abi-reviewed-generated-adoption-20261019/canonical_check.stdout.txt@sha256:a3822b983c3d2bead87be86d83767ae0ffc78ccae61b1505f603ecf3e36dce4d",
+        "check_stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-abi-reviewed-generated-adoption-20261019/canonical_check.stderr.txt@sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "copied_corrupt_stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-abi-reviewed-generated-adoption-20261019/copied_drift_check.stdout.txt@sha256:63e1bed2b8efab00115245a17b7fb7fafd16d105c863d5b3c57a24999ffa4f7a",
+        "copied_corrupt_stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-abi-reviewed-generated-adoption-20261019/copied_drift_check.stderr.txt@sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "next_check": "Resolve owner decisions for CausalMethod enum compatibility/version treatment and public-surface inventory; verify selected generated/installed consumers on the final source freeze. Re-run full generation/check after any relevant source delta."
+    },
+    {
+      "id": "R3-R4-test-leaf-at-e398",
+      "source_frame": {
+        "head": "e3985584b84767629d6eeefe8b032d46a3093b9f",
+        "tree": "eedc0f93f23fa8d40ffec9a32165d0066812a96a",
+        "parent": "e9db2006c028400d6274dcaf4dfbf9d0548769c0"
+      },
+      "status": "SOURCE CHECKS PASS; runtime UNRUN on the adopted e398 slice.",
+      "qualification": "Two changed Python test modules passed Ruff check and format --check; commit hook completed. The prior 28P/2F/1 expected child-skip history is bounded earlier evidence, not an e398 replay.",
+      "runtime_vs_bookkeeping": "Ruff and commit hooks are source bookkeeping/quality checks, not R3/R4 behavior evidence.",
+      "evidence": {
+        "source_application": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-r3-r4-v4-adoption-20261019/source-application.json@sha256:071f781ed7f0f4c1248a7b6fde236ed277e7f6d531e2176d4ef0e811aa74f5cf",
+        "plan": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-r3-r4-v4-adoption-20261019/plan.json@sha256:1a62fd3b47cf76536de5979edd8bffe94ad531da18e4cf66f001b2ffebc55a7b",
+        "ruff_check_stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-r3-r4-v4-adoption-20261019/check-native-role-0.stdout.txt@sha256:82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+        "ruff_format_stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-r3-r4-v4-adoption-20261019/format-native-role-0.stdout.txt@sha256:3bc53bf3e981a98a34a852e175bf9b77af841edea74fca595d9aedcbaf9a4938",
+        "implementation_readback": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-r3-r4-v4-adoption-20261019/implementation-readback.json@sha256:69f97785384bd0079f13a4192bfc3c613db08258d01411c6e5b6e342ad6b3311"
+      },
+      "next_check": "Run the complete two-module replay after e398. Verify R3 durable ledger/reopen/API; for R4 preserve complete two-job/12-fold positive and removal controls across both dispatches, and record the real owner/ref predicate if it refuses."
+    }
+  ],
+  "global_limit": "These checks are independently source-bound to their cited cuts but are not one composed replay, do not establish a final source freeze, and do not close IDs or establish G acceptance."
+}

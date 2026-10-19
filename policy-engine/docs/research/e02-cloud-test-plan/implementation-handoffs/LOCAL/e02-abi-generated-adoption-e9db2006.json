@@ -1,0 +1,419 @@
+{
+  "schema": "policyos.e02.source_leaf_receipt.v1",
+  "receipt_role": "RAW source leaf; exact committed implementation and generated-output evidence; not self-acceptance",
+  "slice": {
+    "id": "canonical-abi-generated-output-candidate",
+    "branch": "codex/e02-unified-local-20261009",
+    "base": "e73a8369115dab7dfc0ebcc4274918d246da5215",
+    "base_tree": "d562f6052d5b11fde75e3eece8368272cd9dc35a",
+    "candidate": "e9db2006c028400d6274dcaf4dfbf9d0548769c0",
+    "tree": "f65dd3507ce8adc0117af2e3854830beda77f510",
+    "parents": [
+      "e73a8369115dab7dfc0ebcc4274918d246da5215"
+    ],
+    "subject": "build(e02): refresh canonical ABI snapshots and record candidate enum compatibility",
+    "committed_at": "2026-10-19T20:35:13+03:00",
+    "source_freeze": false
+  },
+  "source_cut": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "e3985584b84767629d6eeefe8b032d46a3093b9f",
+    "tree": "eedc0f93f23fa8d40ffec9a32165d0066812a96a",
+    "tracked_and_index_status": "clean at receipt creation",
+    "untracked_state": "not inventoried; no whole-worktree-clean claim",
+    "slice_is_ancestor_of_head": true
+  },
+  "identity": {
+    "work_item": "canonical-abi-source-output-and-candidate-compatibility",
+    "lease_key": "canonical-abi-source-output-and-candidate-compatibility-20261019",
+    "proposal_id": "2026-10-19-causal-method-aipw-schema-candidate",
+    "proposal_id_status": "candidate artifact only; owner compatibility/version decision pending",
+    "proposal_status": "candidate_only/pending owner and G",
+    "G_acceptance": false,
+    "closure_ids": [],
+    "source_profile_freeze": false,
+    "production_profile": "not selected / not established",
+    "runtime": "Product runtime/installed consumer UNRUN; generator/check were executed as source-bound tooling on the e73 source cut.",
+    "production_authority": false,
+    "external_currentness": false,
+    "published": false
+  },
+  "property": "Refresh the registered ABI snapshots and generated schema references from the exact current IR source, preserving only candidate status for the existing CausalMethod.aipw value and retaining registered pre-existing Scientist outputs without claiming prior authorship.",
+  "chain": null,
+  "controls": [],
+  "pattern_pass": "P29 copied corruption check exercises recomputation; P32 exact bytes/source pins; P35 full 114-output denominator; P37 owner compatibility remains institutionally supplied; P38 source generation is not client compatibility; P40 full generated family; P41 current source frame is explicit.",
+  "P40": "Same generated-output composition class reviewed over all 114 registered output members; 13 changed paths plus two unchanged pre-existing untracked registered Scientist outputs. Do not split the shared generation family into per-file approvals.",
+  "P41": {
+    "inherited": "not_established",
+    "why": "This receipt records a source-generated adoption and explicit owner/G residuals; it does not adjudicate inherited gate status."
+  },
+  "footprint": {
+    "denominator_source": "git diff-tree --no-commit-id --name-status -r --no-renames e9db2006c028400d6274dcaf4dfbf9d0548769c0",
+    "expected_paths_verified": 18,
+    "source_scope_paths": 16,
+    "metadata_companion_paths_outside_source_scope": 2,
+    "mandatory_companions": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ],
+    "operation_counts": {
+      "added": 3,
+      "modified": 15,
+      "deleted": 0
+    },
+    "git_preimage_bytes_total_excluding_A": 3991210,
+    "postimage_bytes_total": 4044775,
+    "paths": [
+      {
+        "path": "policy-engine/docs/reference/ir/schema-catalog.md",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "4328bb13989a2380ca449e87cf4bf6f0e4937d62",
+          "sha256": "2204f68c0eb098ff52cfc6eb0462f953c6ce2e1eef1d5bf3fbb41fe983606b6b",
+          "bytes": 1664661
+        },
+        "post": {
+          "git_blob_oid": "4c3ec8014f83b28d341bebe55e442eb6604d7f1e",
+          "sha256": "845969bc19d3ffbd4b5dbb28eeb980521deb0166def02d781f9565c8bd26269c",
+          "bytes": 1677989
+        }
+      },
+      {
+        "path": "policy-engine/docs/reference/schemas.md",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "f88c3ec8fba11d82886107391a59c456193a1378",
+          "sha256": "6efbb868cd9a8e8c865fe1ee63aec56c938b060a3d3dbbe9e1eaa96421d7725b",
+          "bytes": 30656
+        },
+        "post": {
+          "git_blob_oid": "1660455534e4db63915e4a49d51d5687f16cb028",
+          "sha256": "1cbc55cba9de278c926378c2cb32833055d6b806d0be36a3f89b87ecbc68f393",
+          "bytes": 30655
+        }
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "status": "M",
+        "source_scope_path": false,
+        "base": {
+          "git_blob_oid": "de5910411c7a262895d15564c1a1725af3850cbf",
+          "sha256": "731ca93e5107de7bbe9b57565476a44dd4ae32c76f7641c5df7736e447ff950a",
+          "bytes": 1650636
+        },
+        "post": {
+          "git_blob_oid": "d0657a0fdb3885bdd2c789e339c16c3c2a975468",
+          "sha256": "1ca0977ec07c55f7423db055f6d7eb00461c6ff281766d3b8eeb54dabc1697f8",
+          "bytes": 1664970
+        }
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "status": "M",
+        "source_scope_path": false,
+        "base": {
+          "git_blob_oid": "e9cd9fdf3f3675228025beb7ca44499f91e97cf0",
+          "sha256": "ffd874efb6d4688fe1e3581ecf6036a1f2bd43788073d8d7ac4163657806fe69",
+          "bytes": 111215
+        },
+        "post": {
+          "git_blob_oid": "1eac5b8148e09a646998a021d74ddfee944a478f",
+          "sha256": "e2e44a5b6274f16020e01f664d3581673ce4462e2aeb7a7f2676a9e45df3fd08",
+          "bytes": 111215
+        }
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decisions/aipw-schema-candidate-20261019.toml",
+        "status": "A",
+        "source_scope_path": true,
+        "base": null,
+        "post": {
+          "git_blob_oid": "74f714a5ebc7b98ba275c726fe1287c122c949e4",
+          "sha256": "6cbfd959bd420d631b4e204bdbc28465cbd04ad9d5b55fb846615f3faa0dfd18",
+          "bytes": 2578
+        },
+        "candidate_source": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-abi-reviewed-generated-adoption-20261019/candidate-abi-compatibility-post-generation.toml",
+          "sha256": "6cbfd959bd420d631b4e204bdbc28465cbd04ad9d5b55fb846615f3faa0dfd18"
+        }
+      },
+      {
+        "path": "policy-engine/schemas/snapshots/ir/_manifest.json",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "7e5b2b9a169433907d8630b73a023a8de322c4ca",
+          "sha256": "d304496ecef5ff93ef7082416f98329e115fa2e123fe03375b4240c302adbf57",
+          "bytes": 54577
+        },
+        "post": {
+          "git_blob_oid": "fba7906259e8dbb29fa9f1ab49a93d52bf1fc6a1",
+          "sha256": "1851e3348e373a4d21178e921ac92e9465cc4b6bfdd6a205106045c24434347b",
+          "bytes": 54577
+        }
+      },
+      {
+        "path": "policy-engine/schemas/snapshots/ir/calibration_config.schema.json",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "d9e36ea1f6aebffd66604e738f9b1d5ef088b503",
+          "sha256": "58d09038b41c8491c488b6223dc272cbb6b33e7768afc4884dddbed99e216fb5",
+          "bytes": 28338
+        },
+        "post": {
+          "git_blob_oid": "ae5d3a453605f5155c828e62a55d3769cf322266",
+          "sha256": "ad816bb8bccea7eef58a7f1ab6fe46e432032b3320b0a3b26d229881b9a6733d",
+          "bytes": 26698
+        }
+      },
+      {
+        "path": "policy-engine/schemas/snapshots/ir/causal_effect_report.schema.json",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "e1612fc0a464751df41afd635c0664eb38766efc",
+          "sha256": "97c135d278a1ec77f0f6c105f30157ec065c3bd850f375fc499b127fa8638ddd",
+          "bytes": 44027
+        },
+        "post": {
+          "git_blob_oid": "56f8ab611912acd63613de9d6889248c7c827ba1",
+          "sha256": "86918949f665d3fcd95130d3d6619a8d20848b752db1e31c0e4870b22fe69b4b",
+          "bytes": 44043
+        }
+      },
+      {
+        "path": "policy-engine/schemas/snapshots/ir/hte_result.schema.json",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "88e230f0e4fe6297f4ca4fbd3fbfc7e4620a1c0e",
+          "sha256": "d18e513fce7540ee8c2e768a4c3f535cf5b31d880678357884acc41062f53575",
+          "bytes": 8819
+        },
+        "post": {
+          "git_blob_oid": "b28257d0f30b6d55c38408334f9e3c1d1df7c334",
+          "sha256": "61678133d7b406fa9420b20bac21976ed568fe28dec8d2dfc727c115a30459e8",
+          "bytes": 8835
+        }
+      },
+      {
+        "path": "policy-engine/schemas/snapshots/ir/model_spec.schema.json",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "dc757c681a724caefdf2ec76ff6044cbae8adab1",
+          "sha256": "3615ba4a99f756c856dcb64a3b7f0e17efae97d727b1f5fe143cdf3aba21fef4",
+          "bytes": 20942
+        },
+        "post": {
+          "git_blob_oid": "9cecd7ac588384b7befd5f1e26deccedbc1522ec",
+          "sha256": "365969cbcc85bf0986ae7498edf8fade2dc685f31373673a556ad300e9946e07",
+          "bytes": 20444
+        }
+      },
+      {
+        "path": "policy-engine/schemas/snapshots/ir/observation_panel.schema.json",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "411cc418ed69b4d6beef9d36966d7976de4289e2",
+          "sha256": "72bac763b6adb9aa02f3336f645fcd9a5b0974f4664a40fe4772d4068e9c4760",
+          "bytes": 9811
+        },
+        "post": {
+          "git_blob_oid": "dad94849a65d3e2cfe408dfb97639585d1b16791",
+          "sha256": "e4fb7375566d47e6d1861eb3df33422585cc04649beec2123a875c574ce4f078",
+          "bytes": 9683
+        }
+      },
+      {
+        "path": "policy-engine/schemas/snapshots/ir/observation_record.schema.json",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "269ee56b202a902e01887de3fe4984b35220c455",
+          "sha256": "3a8d142d075676196feb9993f5a961aafa373d4ccab56220543a6ef6bf74faed",
+          "bytes": 7835
+        },
+        "post": {
+          "git_blob_oid": "0144ce0dbd3c314759da3ef62694ba47336558f4",
+          "sha256": "c484ab2cce0e8c7f170c952c2786b085bb17ed16d4be14a21407511c7abb483d",
+          "bytes": 7707
+        }
+      },
+      {
+        "path": "policy-engine/schemas/snapshots/ir/policy_portfolio.schema.json",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "711731ff7400417a585965c36acf1b6053052d6e",
+          "sha256": "cbb91f0e189e05fd7200fca98aed500f7006779e2045ebc7e79deb89575d9a20",
+          "bytes": 97028
+        },
+        "post": {
+          "git_blob_oid": "798677ff60949a12824a19bd19e724138b6dd853",
+          "sha256": "bacb76e6c56770d7da3cf3997b901a0ad7de71835b64495ad34100cb66530855",
+          "bytes": 96671
+        }
+      },
+      {
+        "path": "policy-engine/schemas/snapshots/ir/policy_spec.schema.json",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "46c50902cc134bcad250598ff6c12177504fbd30",
+          "sha256": "66074cf62e3a363db30bd9d819a096f232be34ee74a4b70ff03bf434f4135064",
+          "bytes": 89987
+        },
+        "post": {
+          "git_blob_oid": "dd2684d1e2bfbba8da02dfbdc00ed2fcc5a958ad",
+          "sha256": "2d166e69db3af697d2de504861b637daa9d4f70f88966044dbd9dea4c0c02bc5",
+          "bytes": 89630
+        }
+      },
+      {
+        "path": "policy-engine/schemas/snapshots/ir/problem_frame.schema.json",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "989a02d6abd6796a8d4b01377bc83b972e2c4ce7",
+          "sha256": "96b467f7ab948d6d474c489c4ec18568881f437af0f2466dab3d5c5c77e435de",
+          "bytes": 31082
+        },
+        "post": {
+          "git_blob_oid": "b8b2367403384492ea38d41c5850f0c52c8609e6",
+          "sha256": "fe78e56fd6f1b97be18da5a809129b5740e603411ea4f83089c2c79ff4b5056f",
+          "bytes": 30637
+        }
+      },
+      {
+        "path": "policy-engine/schemas/snapshots/ir/trinity_bundle.schema.json",
+        "status": "M",
+        "source_scope_path": true,
+        "base": {
+          "git_blob_oid": "47031cd446c10a12cbc835773e33d4fcc0fd08ed",
+          "sha256": "769560eb1ce07457b3ef3caaf56030ce7ff775292c58f83b8499fada36b3a8d2",
+          "bytes": 141596
+        },
+        "post": {
+          "git_blob_oid": "7463cd7856b640ae46dcd6c44c0555f944ccc816",
+          "sha256": "30e2a17d710c72ebe61eb2a5e0ac927f04314d46b8ed193134feed0881189eb8",
+          "bytes": 140904
+        }
+      },
+      {
+        "path": "policy-engine/schemas/snapshots/scientist/_manifest.json",
+        "status": "A",
+        "source_scope_path": true,
+        "base": null,
+        "post": {
+          "git_blob_oid": "6f5f474a199d6606af55ad7ad6475601800c927c",
+          "sha256": "0c720ac07dc31aac78a0829d392c9f119ff3ef2a99bc4e9ef8d67c0a98247c17",
+          "bytes": 1208
+        },
+        "observed_filesystem_preimage": {
+          "git_state": "untracked at base; Git preimage absent",
+          "sha256": "0c720ac07dc31aac78a0829d392c9f119ff3ef2a99bc4e9ef8d67c0a98247c17",
+          "bytes": 1208,
+          "mode": "0600",
+          "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-abi-reviewed-generated-adoption-20261019/actual-owner-receipt.json@sha256:4c19f1cf53a4d4c70e560972ae86ba2b8fc177d1a344f11cfc576c41db047642"
+        }
+      },
+      {
+        "path": "policy-engine/schemas/snapshots/scientist/calibration_validation_bundle_v1_1.schema.json",
+        "status": "A",
+        "source_scope_path": true,
+        "base": null,
+        "post": {
+          "git_blob_oid": "a982560e827e185c9fc1e478620c3f1ba7a29074",
+          "sha256": "b03a0200afba65d0d5d0ef1f2c4e0f15635189574961036cc96569147e3008e2",
+          "bytes": 26331
+        },
+        "observed_filesystem_preimage": {
+          "git_state": "untracked at base; Git preimage absent",
+          "sha256": "b03a0200afba65d0d5d0ef1f2c4e0f15635189574961036cc96569147e3008e2",
+          "bytes": 26331,
+          "mode": "0600",
+          "receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-abi-reviewed-generated-adoption-20261019/actual-owner-receipt.json@sha256:4c19f1cf53a4d4c70e560972ae86ba2b8fc177d1a344f11cfc576c41db047642"
+        }
+      }
+    ]
+  },
+  "proposal_fields": {
+    "identity": "canonical-abi-source-output-and-candidate-compatibility",
+    "lease_key": "canonical-abi-source-output-and-candidate-compatibility-20261019",
+    "proposal_id": "2026-10-19-causal-method-aipw-schema-candidate",
+    "proposal_id_status": "candidate only; not owner-approved",
+    "source_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": [],
+    "source_profile_freeze": false,
+    "production_profile": "not selected / not established",
+    "runtime": "product runtime UNRUN",
+    "production_authority": false,
+    "external_currentness": false,
+    "published": false
+  },
+  "evidence": {
+    "plan": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-abi-reviewed-generated-adoption-20261019/plan.json@sha256:df75b556c3cdbbc2bc06b0fbd16bdba76a65d4a557df19faeae9fe27477779ff",
+    "post_generation_proposal": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-abi-reviewed-generated-adoption-20261019/post-generation-proposal.json@sha256:cda6b8581e33551e65cdd469f27c8c6a576ff7bcf5f4f7363eb215f651d701d4",
+    "owned_generator_provenance": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-abi-reviewed-generated-adoption-20261019/owned-generator-provenance.json@sha256:e787168a16e1a7d020a714df1e9f0d170bc9f721657aa84a16871b3248843cf7",
+    "actual_owner_receipt": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-abi-reviewed-generated-adoption-20261019/actual-owner-receipt.json@sha256:4c19f1cf53a4d4c70e560972ae86ba2b8fc177d1a344f11cfc576c41db047642",
+    "independent_delta_review": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-abi-generated-adoption-independent-review-20261019/review.json@sha256:cce12a2d160fcbbeada29d995e07b59df988083ee28ff05b8ef9bb69d098717a",
+    "implementation_readback": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-abi-reviewed-generated-adoption-20261019/implementation-readback.json@sha256:277b44e56208f691caf342035cd3a2164ab8c172b641f9c83d6ec498b8178c0a",
+    "commit_request": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-abi-reviewed-generated-adoption-20261019/commit-request.json@sha256:0b74bbd14c4c3fe3c206c6ad88facecccc628293c6bf5b09fde0c20eabe8d184",
+    "native_commit_result": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-abi-reviewed-generated-adoption-20261019/native-commit-result.json@sha256:559fbcd14f502fba02a6367cc799c41615a74435a09f4a478e53a948dcecbadf",
+    "native_commit_stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-abi-reviewed-generated-adoption-20261019/native-commit.stdout.txt@sha256:dd1e4c6ffaf925c1b08748b693c27492ba5292af2abba192d65f0ef5504a2c6c",
+    "native_commit_stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-abi-reviewed-generated-adoption-20261019/native-commit.stderr.txt@sha256:a7c75f73c7c0a15c2000876c0670bc53371a129c12072af2fb172b152a65dbd4",
+    "native_generator_commands": [
+      {
+        "command": "uv run --locked --no-sync --offline --extra ml polisyos-tools diagnostics gen-schema --cache-dir <e02-test-state>/e02-abi-owner-e73a836-v2-r2/gen-schema-cache",
+        "source_frame": "e73a8369115dab7dfc0ebcc4274918d246da5215",
+        "return_code": 0,
+        "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-abi-reviewed-generated-adoption-20261019/generation.stdout.txt@sha256:9ccf7b752eb1be0553ba7016bf6e93583c8faca11eb3189d6b71c1ee9853a525",
+        "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-abi-reviewed-generated-adoption-20261019/generation.stderr.txt@sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "command": "uv run --locked --no-sync --offline --extra ml polisyos-tools diagnostics gen-schema --check --cache-dir <e02-test-state>/e02-abi-owner-e73a836-v2-r2/gen-schema-cache",
+        "source_frame": "e73a8369115dab7dfc0ebcc4274918d246da5215",
+        "return_code": 0,
+        "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-abi-reviewed-generated-adoption-20261019/canonical_check.stdout.txt@sha256:a3822b983c3d2bead87be86d83767ae0ffc78ccae61b1505f603ecf3e36dce4d",
+        "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-abi-reviewed-generated-adoption-20261019/canonical_check.stderr.txt@sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "command": "same full --check against isolated copied 112-member output tree with one CausalMethod enum value corrupted",
+        "source_frame": "e73a8369115dab7dfc0ebcc4274918d246da5215",
+        "return_code": 1,
+        "expected_red": true,
+        "stdout": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-abi-reviewed-generated-adoption-20261019/copied_drift_check.stdout.txt@sha256:63e1bed2b8efab00115245a17b7fb7fafd16d105c863d5b3c57a24999ffa4f7a",
+        "stderr": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-abi-reviewed-generated-adoption-20261019/copied_drift_check.stderr.txt@sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "reviewed_inputs": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/abi-owner-gen-check-drift-e73a836-v2-r2-20261019/request-v2.json@sha256:9fd6ddd32608022dce3c1ec65084d3de37516f933df0627323d4d6fd4668addd",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/abi-owner-gen-check-drift-e73a836-v2-r2-20261019/driver-v2.py@sha256:7dd1beefbfac8ee5405059891a9f0e88459c4fe47a7015150ee97b98f3537704",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/abi-owner-gen-check-drift-e73a836-v2-r2-20261019/sandbox-v2.sb@sha256:94d46b42cb86eab8604bac3f12b3c4f1cffc20e683e2e9ba036f632c1a34826d",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/abi-owner-gen-check-drift-e73a836-v2-r2-20261019/source-pins-v2.json@sha256:336ea648a80ef8923e6c0ca3f6a39aa1ffac3ccd461be1d3960e128dc832130f",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/abi-owner-gen-check-drift-e73a836-v2-r2-20261019/output-baseline-v2.json@sha256:8573b25e1e4f826a2ada92ef58dc76513df6ebb1d0a6371b7c2254231c2de8ae"
+    ],
+    "generation_result": "106/106 registry generation and canonical check passed; copied corruption control failed on the exact expected stale snapshot path. This is tooling/generated-artifact evidence, not runtime-consumer evidence.",
+    "actual_adopted_postimages": "The exact 18 committed paths and blobs are enumerated in footprint.paths; generator receipt binds all output hashes. Two Scientist paths had Git-absent preimages but were pre-existing untracked files with identical before/after bytes."
+  },
+  "limitations": [
+    "The generated CausalMethod enum adds aipw while both snapshot schema_version defaults remain 1.0; compatibility for closed-enum consumers and version treatment remain pending owner decision.",
+    "The generated catalog inventory changes are source-derived but public_surface_inventory_reviewed=false in the candidate; this receipt is not public API approval.",
+    "No installed wheel/rebuilt-sdist or runtime consumer was executed; generated-check evidence is bookkeeping/tooling only.",
+    "No source/profile freeze, G acceptance, formal finding closure, publication, production authority, or external currentness is claimed."
+  ],
+  "next_check": "Obtain team-ir/team-polisyos owner decision on enum compatibility/version/migration and public-surface inventory; run selected generated/installed consumer checks on the frozen composed source. Re-run gen-schema/check after any generator/source delta.",
+  "authority": {
+    "production_authority": false,
+    "external_currentness": false,
+    "G_acceptance": false,
+    "closure_ids": [],
+    "published": false
+  }
+}

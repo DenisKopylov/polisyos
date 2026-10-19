@@ -22657,5 +22657,61 @@
     "source_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "prepared-b-removal-controls-root-adopted-20261019": {
+    "slice_base": "f1b9bb4c0340d10f6db75d06bdfcc8a35701f522",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/unit/scientist/orchestration/engine/test_prepared_b_removal_controls.py": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "git_base_preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-generic-removal-author-20261019-r2/test_prepared_b_removal_controls.py",
+        "postimage_sha256": "39e8c07b9626bbc7e086d7f807dbb9cfc688ccd33dd134f4170e7a84f836da09"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-four-source-batch-20261019/prepared-b-removal-controls/source-application.json",
+      "sha256": "236b947b08cc661d04c4605a7561f6f51bbbdbb18b596f9d84c4640acc76f1d0"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-four-source-batch-20261019/prepared-b-removal-controls/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-generic-removal-author-20261019-r2/manifest.json",
+        "sha256": "2a19d885a408c95b62d742f17019d5de7941ad9d0ad09a88c199a2f6a578c51a"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-generic-removal-author-20261019-r2/proposed-test-module.patch",
+        "sha256": "78cecf15cd53732fe2e95817a5cb8b9b6e50aab1be57c470760882cb3b7351af"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-generic-removal-independent-20261019/review.json",
+        "sha256": "ad21e0ef6b9eaf4ed169e7d74d5e280a9cb17c07e1c115bd0eefc7558cc9eb0e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/prepared-b-generic-removal-independent-r2-20261019/review-r2.json",
+        "sha256": "eb016440e9bfb4a5643e58e66198d1d387fee87a55e633625e6f3c1d0f6743c3"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "Same identified mechanism class widened to its complete enumerated source/fixture/consumer quantity; preserve distinct unknown authority/profile facts and no per-case assertion ladder.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "New module never run; static design GO only. Defining baseline and all thirteen contours still require actual composed replay; 67-module existing union plus this module is 68. R448 completed-attempt reuse remains a separate G choice.",
+      "No G acceptance, formal finding closure, publication or production currentness is claimed."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run complete new module, then the full pinned 68-module union and conditional selected-view/producer-state/bound-import removal controls; no imported helper collected as ninth test.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

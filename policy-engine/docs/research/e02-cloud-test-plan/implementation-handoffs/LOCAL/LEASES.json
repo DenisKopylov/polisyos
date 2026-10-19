@@ -23419,5 +23419,56 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "can21-collection-runtime-cas-test-companion-20261019": {
+    "slice_base": "53841a0e7effab8aef512198c33ccd3ae2dd0a86",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/unit/runtime/quality/test_promotion_sequence.py": {
+        "operation": "write",
+        "preimage_sha256": "e38b990cbb8cf4191c20600e3cc6eec3c062ce0d642981824d7e41cf9d68898c",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can21-collection-importtime-cas-fix-proposal-r2-20261019/postimage-test_promotion_sequence.py",
+        "postimage_sha256": "9a4413ea838dc0679baf3cf86f7916cb63d9b2f69baf38669d8661ebb50c022f"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-can21-collection-companion-adoption-20261019/source-application.json",
+      "sha256": "36507474074ba3c62601a114345290b7d70107bd1dffc5a6d4b7d8ad385f99d4"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-can21-collection-companion-adoption-20261019/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can21-collection-importtime-cas-fix-proposal-r2-20261019/manifest.json",
+        "sha256": "228982ce86f645593881efe7a160ad98adf416b646763e5f4731c640bd3b16c1"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can21-collection-importtime-cas-fix-proposal-r2-20261019/candidate.patch",
+        "sha256": "882d717e873c1e53a0feffd8f90b161d87487972495c6ad422ea4c425cba11a7"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/can21-collection-importtime-cas-independent-review-20261019/review-r2.json",
+        "sha256": "17f9c21189b6f6f99d91fd627221f1b437c803dead78b04b27ca0bf7de6a71f4"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "NEW class relative to selected-profile failures: import-time test fixture construction writes into repository scratch; complete21module AST census identifies only this eager constructor.",
+    "bounded_proof": "Independent source/delta GO, canonical Ruff and format pass, patch applies. No runtime or full collection success is claimed. Manifest target_worktree_diff true is corrected by independent exact clean-target readback.",
+    "limitations": [
+      "Test-only companion. No product implementation, authority, law, profile/history migration or sandbox access expansion.",
+      "CAN21 prior collection aborted before test bodies; actual full21module union and all origin/profileless controls remain required."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run complete21module union against the next composed source/input/profile/backend freeze with full collection, runtime provenance, signed origin and profileless refusal controls.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

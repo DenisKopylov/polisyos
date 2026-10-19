@@ -5807,23 +5807,31 @@ def test_verification_port_requires_loaded_repo_for_non_ledger_owners(
 
 
 @pytest.mark.parametrize(
-    ("kwarg", "value"),
+    ("kwarg", "value_factory"),
     [
-        ("confidence_ledger_session_factory", lambda _problem: _ledger_session()),
-        (
-            "confidence_ledger_artifact_store",
-            FileSystemCAS(REPO_ROOT / ".tmp" / "gy-n11-forbidden-cas"),
+        pytest.param(
+            "confidence_ledger_session_factory",
+            lambda _tmp_path: lambda _problem: _ledger_session(),
+            id="confidence_ledger_session_factory-<lambda>",
         ),
-        (
+        pytest.param(
+            "confidence_ledger_artifact_store",
+            lambda tmp_path: FileSystemCAS(tmp_path / "gy-n11-forbidden-cas"),
+            id="confidence_ledger_artifact_store-value1",
+        ),
+        pytest.param(
             "confidence_ledger_state_root",
-            REPO_ROOT / ".tmp" / "gy-n11-forbidden-state",
+            lambda tmp_path: tmp_path / "gy-n11-forbidden-state",
+            id="confidence_ledger_state_root-value2",
         ),
     ],
 )
 def test_n9_port_exposes_no_custom_ledger_namespace_injection(
+    tmp_path: Path,
     kwarg: str,
-    value: object,
+    value_factory: Callable[[Path], object],
 ) -> None:
+    value = value_factory(tmp_path)
     with pytest.raises(TypeError, match="unexpected keyword argument"):
         CanonicalN9PromotionPort(**{kwarg: value})  # type: ignore[arg-type]
 

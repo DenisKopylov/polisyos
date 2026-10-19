@@ -23052,5 +23052,80 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "native-mypy-specific-module-retirement-20261019": {
+    "slice_base": "e3985584b84767629d6eeefe8b032d46a3093b9f",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/architecture/tooling/mypy/overrides/10-ir.ini": {
+        "operation": "write",
+        "preimage_sha256": "4ca04a886d70b210a74f5705c126941ff5ec27d8e11b616f0ed521e2455872a5",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-mypy-4file-generated-companion-20261019-r1/postimages/policy-engine/architecture/tooling/mypy/overrides/10-ir.ini",
+        "postimage_sha256": "eeaf5a1e8072bfe3c3bc1143f4e63dfadc356e94c56f64520c9512ed4fd5e195"
+      },
+      "policy-engine/architecture/tooling/mypy/overrides/20-fabric.ini": {
+        "operation": "write",
+        "preimage_sha256": "5d8e8e74726df629cbe12669fa5622d602bf685ead7dff887417441ce934bb53",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-mypy-4file-generated-companion-20261019-r1/postimages/policy-engine/architecture/tooling/mypy/overrides/20-fabric.ini",
+        "postimage_sha256": "96d3a012ace23da8d4af6352b23b8c0896010874cb3f5554e335e2dfd4d19590"
+      },
+      "policy-engine/architecture/tooling/mypy/generated.ini": {
+        "operation": "write",
+        "preimage_sha256": "91ba8fb92c025a19e5ca15e2f7f9a0bf3fe900f227bb772d90016b96dec292f1",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-mypy-4file-generated-companion-20261019-r1/postimages/policy-engine/architecture/tooling/mypy/generated.ini",
+        "postimage_sha256": "d58da5b568044f6156b50f49c4a08e08a773ff69bfae6d8f1dc2919f99e4b5ef"
+      },
+      "policy-engine/tests/unit/fabric/connectors/contracts/test_schema_instance_accessors.py": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-mypy-4file-generated-companion-20261019-r1/postimages/policy-engine/tests/unit/fabric/connectors/contracts/test_schema_instance_accessors.py",
+        "postimage_sha256": "855d6ff181e457bc8ab1086d2ed630c9823a37e3e042be59b9304676219932b9"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-mypy4-adoption-20261019/source-application.json",
+      "sha256": "60ced25f177f3fa1a5a6fbd7c3e627b6af672aeb2ea0c35f78cd132d2b742f83"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-mypy4-adoption-20261019/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-mypy-4file-generated-companion-20261019-r1/candidate-manifest.json",
+        "sha256": "16d29b219799aae6f5685deb5aa8bb64b751a91a231b4a0dd7b2441d33235d9c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-mypy-4file-generated-companion-20261019-r1/mypy-four-file-native-candidate.patch",
+        "sha256": "98722c8b4b6dd4c83a22e6778d708c3979f1cac38cc36a53757865f81dd5d4c0"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-mypy-4file-independent-delta-review-20261019/review.json",
+        "sha256": "cc7b8ae02a5448a5ec11b4b67232fb4338b7885e5087bf921a4f1fd1495b9fea"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/native-retirement-independent-review-20261019/review.md",
+        "sha256": "52287b014878f88433041736eab235ff99bfc5b6d4867b23c3789c31969699ba"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "Same BaseModel.schema class across three Fabric modules and separate BaseModel/Mapping iteration class: retain four bounded residuals rather than build a new descriptor or suppress the whole package.",
+    "bounded_proof": "Independent exact four-file review including actual canonical in-memory renderer; previous 172-module no-ignore diagnostic is historical, current same-source replay remains required.",
+    "limitations": [
+      "No global native green or full capability acceptance.",
+      "Current no-ignore 126 Fabric +46 IR replay and alias/mapping behavior tests are UNRUN.",
+      "Ruff removal on complete499 files yielded1511 diagnostics; no Ruff ignore retirement is included.",
+      "No exception sunset, issuer, waiver, baseline, scientific or public authority change."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "After application execute canonical workspace tool-configs --check before commit, then final-source full two API/mapping modules and exact 126+46 no-ignore MyPy denominator; retain four residual diagnostics and all native remaining debt.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

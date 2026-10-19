@@ -21766,5 +21766,62 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "search-frozen-init-adopted-20261019": {
+    "slice_base": "feccd0cddef394129c66279aef17ea59167b94d0",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/src/polisyos/scientist/methods/search/controller.py": {
+        "preimage_sha256": "bce034775a50511505dfbbfd205b76bd787aa7e1c35f272e44269ac421ae0f0b",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-owner-stopping-frozen-init-r1-20261019/postimages/policy-engine/src/polisyos/scientist/methods/search/controller.py",
+        "postimage_sha256": "fb0645c3ee9b61a5f6f8dc65de8e1eff04406290aaf480bd5e45fcb9f85f8137",
+        "operation": "write",
+        "git_base_preimage_sha256": "bce034775a50511505dfbbfd205b76bd787aa7e1c35f272e44269ac421ae0f0b"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-three-reviewed-source-adoptions-20261019/search-frozen-init/source-application.json",
+      "sha256": "45a06c51adf04a870d5878a23114574326cb1f0acd8e1a915a268e8c1fe9cbd9"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-three-reviewed-source-adoptions-20261019/search-frozen-init/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-owner-stopping-frozen-init-r1-20261019/candidate-manifest.json",
+        "sha256": "82c971c3e8f1b2396d1d276a6293da0fc9a4ab06dbd632a99f5834a6c5928ef2"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-owner-stopping-frozen-init-r1-20261019/candidate.patch",
+        "sha256": "784a6603c076a8a0db074768f5a17ce4d89f00380817b4700269a38467bb0daa"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-search-frozen-init-oracle-20261019/addendum.md",
+        "sha256": "543d0a96382183fe34962a1df008fc476990d957bb5576bce6362da290f126c6"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-search-owner-stopping-frozen-init-canonical-context-supplement-20261019/result.json",
+        "sha256": "88ac171a30b5ac6c17d5980e544ce475ef849b1255ac7a8d93e20a9b424b32f9"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "NEW construction defect class in this repair queue; the shared failing boundary is the frozen dataclass custom initializer, not nine independent test cases.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "No broader rejected Search typing rewrite imported",
+      "Canonical runtime and composed whole23 replay pending; prior pre-fix 9 failures only establish reproduction",
+      "No closure or G acceptance"
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run existing three full Search modules through frozen composed batch and preserve all outputs",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

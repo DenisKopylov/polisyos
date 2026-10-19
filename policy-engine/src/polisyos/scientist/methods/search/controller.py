@@ -108,7 +108,7 @@ class _OwnerBudgetStopping(StoppingCriterion):
     """Fail closed unless one exact durable owner snapshot leaves budget."""
 
     def __init__(self, delegate: StoppingCriterion) -> None:
-        self._delegate = delegate
+        object.__setattr__(self, "_delegate", delegate)
 
     @property
     def name(self) -> str:

@@ -130,8 +130,9 @@ N4-derived child-profile-set, N5 input/execution, and result references that the
 read path could resolve and bind from the run's persisted history. Each child
 binding carries its source result and atom references, semantic selection key,
 context-job ref, selected profile ref, and an explicit historical-binding
-status. A sibling failure remains visible in `recursive_cycle_checkpoint`; it
-does not erase an independently replayed successful sibling observation.
+status. The source-bound child-profile roster is independent of whether the
+recursive root is complete or pending; per-child execution state remains
+in `recursive_cycle_checkpoint` and the N5 observations. A sibling failure remains visible in `recursive_cycle_checkpoint`; it does not erase an independently replayed successful sibling observation.
 
 This projection is candidate-only: `authority_purpose` is
 `cycle_input_candidate_only`, `publication_authority` is `false`, and

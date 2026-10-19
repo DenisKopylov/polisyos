@@ -22713,5 +22713,75 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "tcp-root-topology-and-witness-root-adopted-20261019": {
+    "slice_base": "06af9e4474733edef6f0bf26add733ded753c01e",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/src/polisyos/runtime/http/routes/runs.py": {
+        "operation": "write",
+        "preimage_sha256": "1c9d074718875c65280342021c987d08b3514874f296539084f0da084768798d",
+        "git_base_preimage_sha256": "1c9d074718875c65280342021c987d08b3514874f296539084f0da084768798d",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-four-source-batch-20261019/tcp-root-topology-and-witness/postimages/policy-engine/src/polisyos/runtime/http/routes/runs.py",
+        "postimage_sha256": "15d1d0eada1a4421106b4b538c4382866732a929c2a909ecb8e25fa39aceb4c6"
+      },
+      "policy-engine/tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py": {
+        "operation": "write",
+        "preimage_sha256": "237f62fea9908b35608ef6c9f388d230333f55c245a8c1d0a92f0af6092f4060",
+        "git_base_preimage_sha256": "237f62fea9908b35608ef6c9f388d230333f55c245a8c1d0a92f0af6092f4060",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-four-source-batch-20261019/tcp-root-topology-and-witness/postimages/policy-engine/tests/integration/runtime_quality/test_generic_n4_child_profile_set_served.py",
+        "postimage_sha256": "ab05ae07e0ba2bd127e934129392ac702e456ff7269d34db2f163928fc0d7d21"
+      },
+      "policy-engine/docs/reference/api/runs.md": {
+        "operation": "write",
+        "preimage_sha256": "66897653574e80b9c6ad0e8d80e665b372a4865566aabaeb37b43248ba2d8c86",
+        "git_base_preimage_sha256": "66897653574e80b9c6ad0e8d80e665b372a4865566aabaeb37b43248ba2d8c86",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-four-source-batch-20261019/tcp-root-topology-and-witness/postimages/policy-engine/docs/reference/api/runs.md",
+        "postimage_sha256": "69876b5c719e8668a333ec5e0c47393683f0a460ec4888dfde8c8bc165aa8c99"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-four-source-batch-20261019/tcp-root-topology-and-witness/source-application.json",
+      "sha256": "d0b88efc269c889ad84b5704175db55ff8860d26028df11ba197b310d46baf8e"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-four-source-batch-20261019/tcp-root-topology-and-witness/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/tcp-checkpoint-root-topology-owner-author-20261019/source-projection-proposal.json",
+        "sha256": "23c86e2b679246faa971b1cd7b1dae2a7a6cb2cfab10e4e6c2f15180ba1ef91b"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/tcp-checkpoint-root-topology-owner-author-20261019/source-proposal.patch",
+        "sha256": "9a5fb8bc3aad0951e071c1cd38a6103540982208f6efe3f5f96ec577c7bc5f40"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/tcp-checkpoint-root-topology-independent-20261019/review.json",
+        "sha256": "0550c19a5daa2e4b4b6dba5530784481ef6072e59cf90cc2b7486d9022dea08d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/actual-serving-tcp-witness-independent-v3-20261019/review.json",
+        "sha256": "5d5343b224ab719ffb13e82d4d251dcb1aecd7aec098376ed4e57ee5cd23a3b6"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "Same identified mechanism class widened to its complete enumerated source/fixture/consumer quantity; preserve distinct unknown authority/profile facts and no per-case assertion ladder.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Actual served budget-stop and TCP/server/restart tests still UNRUN; static GO is not runtime acceptance. Public DTO/client shape unchanged. Long API-guide paragraph is nonblocking cosmetic debt after candidate review.",
+      "No G acceptance, formal finding closure, publication or production currentness is claimed."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run existing minimal served budget-stop selector and new TCP witness, then whole module under supported source/input profile; preserve response/refusal, N5 and direct-child completed/pending partition controls.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

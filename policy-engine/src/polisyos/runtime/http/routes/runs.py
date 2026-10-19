@@ -7,11 +7,11 @@ import hashlib
 import json
 import os
 from collections import Counter
-from collections.abc import Mapping
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from time import monotonic
-from typing import TYPE_CHECKING, Annotated, Any, Literal, cast
+from typing import TYPE_CHECKING, Annotated, Any, Literal, Protocol, cast
 
 from pydantic import ValidationError
 
@@ -2383,6 +2383,30 @@ def _parent_joint_candidate_selection_projection(
     return candidate_selection_fields
 
 
+class _RecursiveCycleTopologyNode(Protocol):
+    """Expose graph topology independently from node execution state."""
+
+    node_ref: str
+    child_refs: tuple[str, ...]
+
+
+def _require_generic_recursive_root_child_denominator(
+    *,
+    nodes: Sequence[_RecursiveCycleTopologyNode],
+    root_node_ref: str,
+    expected_child_nodes: set[str],
+) -> None:
+    """Bind the compiled root topology to the source-derived N4 child set."""
+    root_node = next(
+        (node for node in nodes if node.node_ref == root_node_ref),
+        None,
+    )
+    if root_node is None:
+        raise ValueError("generic_recursive_graph_root_not_found")
+    if set(root_node.child_refs) != expected_child_nodes:
+        raise ValueError("generic_recursive_graph_source_denominator_mismatch")
+
+
 def _generic_cycle_simulation_refusal(
     *,
     run_id: str,
@@ -2795,13 +2819,11 @@ def _generic_cycle_simulation_projection(
         nodes = tuple(compiled.recursive_run.nodes)
         if len({node.node_ref for node in nodes}) != len(nodes):
             raise ValueError("generic_recursive_graph_duplicate_node")
-        root_node = next(
-            node
-            for node in nodes
-            if isinstance(node, RecursiveCycleNode) and node.node_ref == root_node_ref
+        _require_generic_recursive_root_child_denominator(
+            nodes=nodes,
+            root_node_ref=root_node_ref,
+            expected_child_nodes=expected_child_nodes,
         )
-        if set(root_node.child_refs) != expected_child_nodes:
-            raise ValueError("generic_recursive_graph_source_denominator_mismatch")
         resolved_child_bindings = tuple(
             RunGenericCycleSimulationChildProfileBinding(
                 node_ref=row.node_ref,

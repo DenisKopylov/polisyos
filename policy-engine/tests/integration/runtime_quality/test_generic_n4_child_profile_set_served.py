@@ -6,6 +6,8 @@ import json
 import os
 import shutil
 import uuid
+from collections.abc import Iterator
+from contextlib import contextmanager
 from dataclasses import replace
 from pathlib import Path
 from typing import Any
@@ -508,6 +510,9 @@ async def test_original_second_capture_serves_two_meaningful_children_through_fr
     from polisyos.core.security.tenant_context import tenant_scope
     from polisyos.pdc import gy_content_hash
     from polisyos.runtime.http.app import create_runtime_api_app
+    from polisyos.runtime.http.routes.runs import (
+        _require_generic_recursive_root_child_denominator,
+    )
     from polisyos.runtime.http.services.control import (
         generation_cycle as generation_cycle_service,
     )
@@ -524,7 +529,10 @@ async def test_original_second_capture_serves_two_meaningful_children_through_fr
     from polisyos.runtime.quality.intervention_atom_binding import (
         intervention_atom_content_hash,
     )
-    from polisyos.runtime.quality.recursive_generation_cycle import RecursiveGenerationCycleRun
+    from polisyos.runtime.quality.recursive_generation_cycle import (
+        RecursiveCycleNode,
+        RecursiveGenerationCycleRun,
+    )
     from tests._helpers.control_worker import dispatch_one_control_job
     from tests.unit.runtime.http.test_nl_pipeline_materialization import (
         _DeterministicSpanSupportClient,
@@ -905,7 +913,18 @@ async def test_original_second_capture_serves_two_meaningful_children_through_fr
         root_node = next(
             node for node in recursive_run.nodes if node.node_ref == recursive_run.root_node_ref
         )
+        assert isinstance(root_node, RecursiveCycleNode)
         assert set(root_node.child_refs) == expected_child_node_refs
+        # A graph-shaped complete root cannot replace the source-derived roster.
+        with pytest.raises(
+            ValueError,
+            match="generic_recursive_graph_source_denominator_mismatch",
+        ):
+            _require_generic_recursive_root_child_denominator(
+                nodes=recursive_run.nodes,
+                root_node_ref=recursive_run.root_node_ref,
+                expected_child_nodes=(expected_child_node_refs - {min(expected_child_node_refs)}),
+            )
         leaf_nodes = tuple(recursive_run.leaf_nodes)
         assert {node.node_ref for node in leaf_nodes} == expected_child_node_refs
         assert all(node.cycle_run is not None for node in leaf_nodes)
@@ -2140,6 +2159,9 @@ async def test_served_n6_uses_later_real_n4_spend_and_keeps_first_n5(
         CompiledRecursiveGenerationCycleRun,
     )
     from polisyos.runtime.quality.generation_cycle import GenerationCycleController
+    from polisyos.runtime.quality.recursive_generation_cycle import (
+        RecursiveCyclePendingNode,
+    )
     from polisyos.scientist.orchestration.engine.budget_ledger import (
         BudgetLedgerProducerRunBinding,
     )
@@ -2297,6 +2319,13 @@ async def test_served_n6_uses_later_real_n4_spend_and_keeps_first_n5(
                 kind="runtime.compiled_recursive_generation_cycle",
             )
         compiled = CompiledRecursiveGenerationCycleRun.model_validate(compiled_payload)
+        root_node = next(
+            node
+            for node in compiled.recursive_run.nodes
+            if node.node_ref == compiled.recursive_run.root_node_ref
+        )
+        assert isinstance(root_node, RecursiveCyclePendingNode)
+        assert set(root_node.child_refs) == child_refs
         assert len(compiled.nl_preflight_cost_events) == 1
         preflight_event = compiled.nl_preflight_cost_events[0]
         assert preflight_event.model == prepared.request_json["llm_model"]
@@ -2840,3 +2869,295 @@ async def test_served_generic_cycle_reissues_owner_context_for_second_n5(
         assert cycles[1].simulation.cycle_substrate_context_job_ref == ArtifactRef.model_validate(
             second["context_job_ref"]
         )
+
+
+@contextmanager
+def _serve_runtime_api_over_tcp(app: Any, *, port: int) -> Iterator[Any]:
+    """Serve one prepared runtime app on loopback and fully join its Uvicorn thread."""
+    import threading
+    import time
+
+    import httpx
+    import uvicorn
+
+    server = uvicorn.Server(
+        uvicorn.Config(
+            app,
+            host="127.0.0.1",
+            port=port,
+            access_log=False,
+            lifespan="on",
+            log_level="warning",
+        )
+    )
+    server_thread = threading.Thread(
+        target=server.run,
+        name=f"runtime-api-uvicorn-{port}",
+        daemon=True,
+    )
+    server_thread.start()
+    try:
+        startup_deadline = time.monotonic() + 30.0
+        while (
+            server_thread.is_alive() and not server.started and time.monotonic() < startup_deadline
+        ):
+            time.sleep(0.01)
+        if not server.started:
+            raise RuntimeError("runtime_api_uvicorn_start_failed")
+
+        with httpx.Client(
+            base_url=f"http://127.0.0.1:{port}",
+            timeout=httpx.Timeout(120.0, connect=10.0),
+        ) as client:
+            yield client
+    finally:
+        server.should_exit = True
+        server_thread.join(timeout=10.0)
+        if server_thread.is_alive():
+            server.force_exit = True
+            server_thread.join(timeout=10.0)
+        if server_thread.is_alive():
+            raise AssertionError("runtime_api_uvicorn_thread_did_not_stop")
+
+
+@pytest.mark.integration
+@pytest.mark.asyncio
+async def test_original_second_capture_tcp_reopens_partial_n5_after_sibling_failure(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    controlled_candidate_gateway: Any,
+    unused_tcp_port: int,
+) -> None:
+    """A controlled N4 sibling failure retains typed N5 through a fresh TCP reader."""
+    pytest.importorskip("httpx")
+    pytest.importorskip("uvicorn")
+
+    from polisyos.runtime.http.app import create_runtime_api_app
+    from polisyos.runtime.http.container import RuntimeContainerOverrides
+    from polisyos.runtime.http.dependencies import build_runtime_api_context
+    from polisyos.runtime.http.services.control import (
+        generation_cycle as generation_cycle_service,
+    )
+    from polisyos.runtime.quality.cycle_substrate import cycle_job_design_problem_ref
+    from tests._helpers.generic_n4_served_replay import (
+        prepare_generic_n4_served_replay,
+        run_n4_control_worker_and_get,
+    )
+    from tests.unit.runtime.http.test_nl_pipeline_materialization import (
+        _DeterministicSpanSupportClient,
+    )
+
+    prepared = await prepare_generic_n4_served_replay(
+        tmp_path=tmp_path,
+        controlled_candidate_gateway=controlled_candidate_gateway,
+        monkeypatch=monkeypatch,
+        tenant_id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        cell_id="cell-v2-original-n4-tcp",
+        recording_mode="original_second_capture",
+        child_count=2,
+    )
+    prepared = replace(prepared, request_json={**prepared.request_json, "max_iterations": 1})
+    assert prepared.source_recording_id == _ORIGINAL_SECOND_CAPTURE_RECORDING_ID
+    assert prepared.source_recording_content_hash == _ORIGINAL_SECOND_CAPTURE_CONTENT_HASH
+    assert len(prepared.children) == 2
+    assert len(prepared.generic_child_profiles) == 2
+    selected_profile_ids = {profile.profile_id for profile in prepared.generic_profiles}
+    assert prepared.app_kwargs["generic_cycle_simulation_profiles"] == prepared.generic_profiles
+    assert prepared.app_kwargs["generic_cycle_simulation_root_profile_id"] == (
+        prepared.root_profile.profile_id
+    )
+    assert {profile.profile_id for profile in prepared.generic_child_profiles} <= (
+        selected_profile_ids
+    )
+
+    original_compiler = generation_cycle_service.build_design_problem_from_nl_request
+
+    async def run_deterministic_compiler(**kwargs: Any) -> Any:
+        kwargs["span_support_client"] = _DeterministicSpanSupportClient()
+        return await original_compiler(**kwargs)
+
+    monkeypatch.setattr(
+        generation_cycle_service,
+        "build_design_problem_from_nl_request",
+        run_deterministic_compiler,
+    )
+    failure_code = "v6_controlled_second_n4_child_failure"
+    app = create_runtime_api_app(**prepared.app_kwargs)
+    with _serve_runtime_api_over_tcp(app, port=unused_tcp_port) as client:
+        receipt = await run_n4_control_worker_and_get(
+            client=client,
+            app=app,
+            prepared=prepared,
+            monkeypatch=monkeypatch,
+            expected_failure_code=failure_code,
+            exercise_projection_controls=False,
+        )
+        budget_receipt = await run_n4_budget_stop_worker_and_get(
+            client=client,
+            app=app,
+            prepared=prepared,
+        )
+
+    first_run = receipt.get_payload
+    first_projection = receipt.projection
+    assert receipt.accepted_payload["status"] == "accepted"
+    assert receipt.job_state == "completed"
+    assert first_run["status"] == "fail"
+    assert first_run["finished_at"] is not None
+    assert first_projection["artifact_status"] == "resolved"
+    assert first_projection["authority_purpose"] == "cycle_input_candidate_only"
+    assert first_projection["publication_authority"] is False
+    assert first_projection["currentness_status"] == "not_established"
+    assert first_projection["child_profile_status"] == "resolved"
+
+    expected_child_refs = {
+        "design-problem://" + cycle_job_design_problem_ref(child.problem).removeprefix("sha256:")
+        for child in prepared.children
+    }
+    child_bindings = first_projection["child_profile_bindings"]
+    child_rows_by_profile = {row["profile_id"]: row for row in child_bindings}
+    assert len(child_bindings) == 2
+    assert set(child_rows_by_profile) == {
+        profile.profile_id for profile in prepared.generic_child_profiles
+    }
+    assert {row["profile_selection_ref"] for row in child_bindings} == set(prepared.child_keys)
+    assert {row["node_ref"] for row in child_bindings} == expected_child_refs
+    assert all(row["currentness_status"] == "not_established" for row in child_bindings)
+
+    successful_rows = [
+        row for row in first_projection["n5_observations"] if row["status"] == "joint_simulated"
+    ]
+    assert len(successful_rows) == 1
+    successful = successful_rows[0]
+    assert successful["simulation_result_body_status"] == "resolved"
+    assert (
+        successful["simulation_result_ref"] == successful["simulation_result_body"]["artifact_ref"]
+    )
+    assert successful["simulation_result_body"]["authority_purpose"] == "cycle_input_candidate_only"
+    assert successful["simulation_result_body"]["candidate_status"] == "candidate_unverified"
+    assert successful["simulation_result_body"]["publication_authority"] is False
+    assert successful["simulation_result_body"]["currentness_status"] == "not_established"
+    assert receipt.n5_result_ref.model_dump(mode="json") == successful["simulation_result_ref"]
+    assert receipt.missing_result_ref_error_code == "joint_simulation_result_unavailable"
+
+    checkpoint = first_projection["recursive_cycle_checkpoint"]
+    assert checkpoint["status"] == "partial"
+    assert checkpoint["publication_authority"] is False
+    assert checkpoint["budget_stop_node_ref"] is None
+    assert len(checkpoint["failed_branches"]) == 1
+    failed_branch = checkpoint["failed_branches"][0]
+    assert failed_branch["error_code"] == failure_code
+    assert failed_branch["stage"] == "leaf_generation"
+    completed_children = set(checkpoint["completed_design_refs"]) & expected_child_refs
+    failed_children = {failed_branch["failed_branch_ref"]} & expected_child_refs
+    pending_children = set(checkpoint["pending_frontier"]) & expected_child_refs
+    assert len(completed_children) == 1
+    assert len(failed_children) == 1
+    assert not pending_children
+    assert completed_children | failed_children == expected_child_refs
+    assert not (completed_children & failed_children)
+    attempted_children = {
+        child_rows_by_profile[profile_id]["node_ref"]
+        for profile_id in receipt.child_attempt_profile_ids
+    }
+    assert attempted_children == completed_children | failed_children
+    assert child_rows_by_profile[receipt.child_attempt_profile_ids[-1]]["node_ref"] == (
+        next(iter(failed_children))
+    )
+
+    budget_first_run = budget_receipt.get_payload["run"]
+    budget_projection = budget_receipt.projection
+    assert budget_receipt.accepted_payload["status"] == "accepted"
+    assert budget_receipt.job_state == "completed"
+    assert budget_first_run["finished_at"] is not None
+    assert budget_projection["child_profile_status"] == "resolved"
+    assert budget_projection["publication_authority"] is False
+    assert budget_projection["currentness_status"] == "not_established"
+    assert len(budget_receipt.child_node_refs) == 2
+    budget_resolution = budget_receipt.job_status_payload["progress"]["recursive_budget_resolution"]
+    assert budget_resolution == {
+        "requested_max_iterations": 1,
+        "effective_max_iterations": 1,
+        "recursive_budget": {
+            "max_depth": 1,
+            "max_nodes": 3,
+            "min_cycles_per_leaf": 1,
+            "max_cycles_per_leaf": 1,
+        },
+        "clamp_reason": "none",
+        "requested_candidate_children": 2,
+        "effective_candidate_children": 2,
+        "child_budget_profile": "n4-source-complete-child-set.v1",
+    }
+    budget_checkpoint = budget_receipt.checkpoint
+    budget_stop_ref = budget_checkpoint["budget_stop_node_ref"]
+    assert budget_checkpoint["status"] == "partial"
+    assert budget_checkpoint["publication_authority"] is False
+    assert budget_checkpoint["root_n9_status"] == "not_run"
+    assert budget_checkpoint["failed_branches"] == []
+    assert budget_stop_ref in budget_receipt.child_node_refs
+    budget_child_refs = set(budget_receipt.child_node_refs)
+    completed_budget_child_refs = (
+        set(budget_checkpoint["completed_design_refs"]) & budget_child_refs
+    )
+    pending_budget_child_refs = set(budget_checkpoint["pending_frontier"]) & budget_child_refs
+    assert completed_budget_child_refs == {budget_stop_ref}
+    assert completed_budget_child_refs.isdisjoint(pending_budget_child_refs)
+    assert set(budget_checkpoint["pending_frontier"]) == (budget_child_refs - {budget_stop_ref})
+    assert budget_checkpoint["leaf_terminal_kinds"][budget_stop_ref] == "budget_exhausted"
+
+    reopened_context = build_runtime_api_context(
+        cas_root=prepared.cas_root,
+        core_runs_root=prepared.runtime_api_context.core_runs_root,
+    )
+    reopened_kwargs = dict(prepared.app_kwargs)
+    reopened_kwargs["container_overrides"] = RuntimeContainerOverrides(
+        runtime_api_context=reopened_context
+    )
+    reopened_app = create_runtime_api_app(**reopened_kwargs)
+    with _serve_runtime_api_over_tcp(reopened_app, port=unused_tcp_port) as reopened_client:
+        reopened_response = reopened_client.get(f"/api/v1/runs/{receipt.run_id}")
+        assert reopened_response.status_code == 200, reopened_response.text
+        reopened_run = reopened_response.json()["run"]
+        reopened_budget_response = reopened_client.get(f"/api/v1/runs/{budget_receipt.run_id}")
+        assert reopened_budget_response.status_code == 200, reopened_budget_response.text
+        reopened_budget_run = reopened_budget_response.json()["run"]
+        summary_response = reopened_client.get(
+            "/api/v1/runs",
+            params={"q": receipt.run_id},
+        )
+        assert summary_response.status_code == 200, summary_response.text
+        matching_summaries = [
+            row for row in summary_response.json()["runs"] if row["run_id"] == receipt.run_id
+        ]
+        budget_summary_response = reopened_client.get(
+            "/api/v1/runs",
+            params={"q": budget_receipt.run_id},
+        )
+        assert budget_summary_response.status_code == 200, budget_summary_response.text
+        matching_budget_summaries = [
+            row
+            for row in budget_summary_response.json()["runs"]
+            if row["run_id"] == budget_receipt.run_id
+        ]
+
+    assert reopened_run["status"] == first_run["status"]
+    assert reopened_run["finished_at"] == first_run["finished_at"]
+    reopened_projection = reopened_run["generic_cycle_simulation"]
+    assert reopened_projection["child_profile_bindings"] == child_bindings
+    assert reopened_projection["n5_observations"] == first_projection["n5_observations"]
+    assert reopened_projection["recursive_cycle_checkpoint"] == checkpoint
+    assert len(matching_summaries) == 1
+    assert matching_summaries[0]["status"] == "fail"
+    assert matching_summaries[0]["run_terminality"] == "terminal"
+    assert reopened_budget_run["status"] == budget_first_run["status"]
+    assert reopened_budget_run["finished_at"] == budget_first_run["finished_at"]
+    reopened_budget_projection = reopened_budget_run["generic_cycle_simulation"]
+    assert (
+        reopened_budget_projection["child_profile_bindings"]
+        == budget_projection["child_profile_bindings"]
+    )
+    assert reopened_budget_projection["recursive_cycle_checkpoint"] == budget_checkpoint
+    assert len(matching_budget_summaries) == 1
+    assert matching_budget_summaries[0]["status"] == budget_first_run["status"]
+    assert matching_budget_summaries[0]["run_terminality"] == "terminal"

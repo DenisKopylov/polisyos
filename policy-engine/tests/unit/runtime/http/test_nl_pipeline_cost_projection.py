@@ -903,6 +903,13 @@ def test_ordinary_nl_post_persists_and_serves_durable_cost_events_after_reopen(
         snapshot_root=catalog_snapshot_root,
         catalog_run_profile="prod_full",
     )
+    # Replace the constructor before Runtime builds the retrieval service.
+    # Patching only resolve/execute_fetch_plans after app creation leaves the
+    # already-created real instance outside the fake's instance receipt.
+    monkeypatch.setattr(
+        "polisyos.fabric.retrieval.RetrievalService",
+        _FakeRetrievalService,
+    )
     env = build_runtime_api_env(
         tmp_path,
         include_test_client=True,

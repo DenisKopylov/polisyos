@@ -22985,5 +22985,72 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "r3-r4-v4-fixture-and-bounded-workload-diagnostic-20261019": {
+    "slice_base": "e9db2006c028400d6274dcaf4dfbf9d0548769c0",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py": {
+        "operation": "write",
+        "preimage_sha256": "1ee3e0165f90c0f55d67166f09a67495a7039ea02651f802171764fd67a81b02",
+        "git_base_preimage_sha256": "afcf1329b926098716729676d7f545cf1085e248d655258fd26fd0e95da1507f",
+        "postimage_path": "policy-engine/tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py",
+        "postimage_sha256": "1ee3e0165f90c0f55d67166f09a67495a7039ea02651f802171764fd67a81b02"
+      },
+      "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py": {
+        "operation": "write",
+        "preimage_sha256": "d65379d4db017fde767c3735648f88526b049aa8a50852d5fe26f2438d44edc3",
+        "git_base_preimage_sha256": "4f86650c271202e6c19a630cf5fea91a308b0a41694fdf742066623953606e45",
+        "postimage_path": "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py",
+        "postimage_sha256": "d65379d4db017fde767c3735648f88526b049aa8a50852d5fe26f2438d44edc3"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-r3-r4-v4-adoption-20261019/source-application.json",
+      "sha256": "071f781ed7f0f4c1248a7b6fde236ed277e7f6d531e2176d4ef0e811aa74f5cf"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-r3-r4-v4-adoption-20261019/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-r4-executable-witness-readiness-20261019/repair-batch-v4/manifest-v4.json",
+        "sha256": "a9647c0f6611fbb1ea95e84e6755f99f973bab66d86e991af02cc20b191e13a1"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-r4-executable-witness-readiness-20261019/repair-batch-v4/repair-batch-v4.patch",
+        "sha256": "6d1552e647a5c1ac8aa96b95572d1e9ad6457183b15fce21ded8dbdbb360f970"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-r4-executable-witness-readiness-20261019/repair-batch-v4-independent-review-20261019/review.json",
+        "sha256": "7ed4d913f29e413e212e78a3e74cf4ebbf9f9b65bc886e76accbc430435f23cf"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-r3-r4-v4-adoption-20261019/owned-source-application-provenance.json",
+        "sha256": "da9aa4ddc9021291d537ea9d8112ce20df6831cb52b43aaf959cf64fbc023104"
+      }
+    ],
+    "owned_applied_provenance": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-r3-r4-v4-adoption-20261019/owned-source-application-provenance.json",
+      "sha256": "da9aa4ddc9021291d537ea9d8112ce20df6831cb52b43aaf959cf64fbc023104"
+    },
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "Same R4 early-terminal/barrier class widened across both event boundaries; exact contextvars semantics preserved. R3 narrow constructor setup correction preserves all ledger/reopen/API assertions.",
+    "bounded_proof": "Independent fullpostimage AST/Ruff/apply review; runtime remains separate. Prior2module replay28PASS2FAIL1expectedchildSKIP is not replaced by staticGO.",
+    "limitations": [
+      "R4 actual removal previously never entered producer/submission/dispatch due owner/ref error; cause remains not_established until new source-bound diagnostic.",
+      "Cap1/cap2 baseline actual2jobs12foldspeaks1/2 on numpy/compat_linear_regression is bounded history, not native sklearn qualification.",
+      "No producer, guard, scientific contract, workload denominator, DTO/public API, authority/currentness or G closure is changed/claimed."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "One complete2module actualreplay; R3durableledger/reopen/API mustexecute. R4 positives complete2jobs/12foldspeaks1/2, removal actualbothdispatches/2jobs/12foldspeak2; onrefusal capture realowner/ref predicate andretainFAIL.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

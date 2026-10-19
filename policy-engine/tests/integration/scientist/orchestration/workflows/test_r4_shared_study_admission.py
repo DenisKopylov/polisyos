@@ -870,8 +870,11 @@ def _run_child(
                         if submit_count == 2:
                             both_submitted.set()
                     if bypass:
+                        # Mirror the real SharedExecutor.submit context capture
+                        # while removing only its shared worker/admission boundary.
+                        bypass_context = contextvars.copy_context()
                         try:
-                            return func(*args, **kwargs)
+                            return bypass_context.run(func, *args, **kwargs)
                         finally:
                             with submission_lock:
                                 submit_active -= 1
@@ -1360,51 +1363,171 @@ def _run_child(
                             policy=policy,
                         )
                 futures_by_study: dict[int, Any] = {}
-                with ThreadPoolExecutor(max_workers=2) as control_threads:
-                    futures_by_study = {
-                        study_index: control_threads.submit(workers[study_index].dispatch_once)
-                        for study_index in range(2)
+                barrier_timeout_seconds = 60.0
+
+                def capture_barrier_receipt() -> dict[str, Any]:
+                    job_rows: list[dict[str, Any]] = []
+                    for study_index, launch in sorted(launches.items()):
+                        future = futures_by_study.get(study_index)
+                        future_done = future is not None and future.done()
+                        dispatch_result: Any = None
+                        future_error_type: str | None = None
+                        if future_done and future is not None:
+                            try:
+                                dispatch_result = future.result()
+                            except Exception as exc:
+                                future_error_type = type(exc).__name__
+                        launch_context = launch_context_by_study[study_index]
+                        with tenant_scope(
+                            None,
+                            tenant_id=_TENANT_IDS[study_index],
+                            cell_id=_CELL_IDS[study_index],
+                        ):
+                            terminal_job = services[study_index]._control_store.get_job(
+                                launch.job_id
+                            )
+                        progress = None if terminal_job is None else terminal_job.progress
+                        job_rows.append(
+                            {
+                                "study_index": study_index,
+                                "run_id": launch_context["run_id"],
+                                "job_id": launch.job_id,
+                                "future_done": future_done,
+                                "dispatch_result": dispatch_result,
+                                "future_error_type": future_error_type,
+                                "job_state": None if terminal_job is None else terminal_job.state,
+                                "job_error": (
+                                    None if terminal_job is None else terminal_job.error_message
+                                ),
+                                "terminal_phase": (
+                                    progress.get("phase") if isinstance(progress, Mapping) else None
+                                ),
+                            }
+                        )
+                    with producer_lock:
+                        producer_count = producer_entries
+                        method_count = method_backend_entries
+                    with submission_lock:
+                        submissions = submit_count
+                        active_submissions = submit_active
+                        peak_submissions = submit_peak
+                    with active_lock:
+                        observed_dispatches = [dict(row) for row in dispatch_rows]
+                        active_dispatches = dispatch_active
+                        peak_dispatches = dispatch_peak
+                    return {
+                        "capacity": capacity,
+                        "bypass": bypass,
+                        "jobs": job_rows,
+                        "run_experiment_entries": producer_count,
+                        "method_backend_entries": method_count,
+                        "submit_count": submissions,
+                        "submit_active": active_submissions,
+                        "submit_peak": peak_submissions,
+                        "dispatch_entries": len(observed_dispatches),
+                        "dispatch_active": active_dispatches,
+                        "dispatch_peak": peak_dispatches,
+                        "dispatches": observed_dispatches,
                     }
-                    pre_dispatch_release: dict[str, Any] | None = None
-                    if capacity > 1 or bypass:
-                        assert both_submitted.wait(timeout=60), (
-                            f"both competing studies did not submit to MethodBackend; "
-                            f"producer_entries={producer_entries}, "
-                            f"method_backend_entries={method_backend_entries}, "
-                            f"submissions={submit_count}, dispatches={dispatch_rows}"
-                        )
-                        with producer_lock:
-                            observed_producers = producer_entries
-                            observed_methods = method_backend_entries
-                        with submission_lock:
-                            observed_submissions = submit_count
-                        assert observed_producers == observed_methods == observed_submissions == 2
-                        assert both_dispatches_waiting.wait(timeout=60), (
-                            "both real MethodDispatcher calls did not reach the shared admission point"
-                        )
-                        with active_lock:
-                            observed_dispatches = len(dispatch_rows)
-                            observed_dispatch_active = dispatch_active
-                        pre_dispatch_release = {
-                            "run_experiment_entries": observed_producers,
-                            "method_backend_entries": observed_methods,
-                            "submit_count": observed_submissions,
-                            "dispatch_entries": observed_dispatches,
-                            "dispatch_active": observed_dispatch_active,
-                            "control_futures_done": [
-                                futures_by_study[study_index].done() for study_index in range(2)
-                            ],
-                        }
-                        assert observed_dispatches == observed_dispatch_active == 2
-                        assert pre_dispatch_release["control_futures_done"] == [
-                            False,
-                            False,
+
+                def fail_r4_barrier(boundary_name: str, reason: str) -> None:
+                    receipt = capture_barrier_receipt()
+                    emit_cas_diagnostic()
+                    raise AssertionError(
+                        f"R4 barrier {boundary_name!r} did not reach its held state: "
+                        f"{reason}; boundary_receipt={receipt}"
+                    )
+
+                def wait_for_r4_barrier(
+                    event: threading.Event,
+                    *,
+                    boundary_name: str,
+                ) -> None:
+                    deadline = time.monotonic() + barrier_timeout_seconds
+                    while True:
+                        if event.is_set():
+                            completed_indices = [
+                                study_index
+                                for study_index, future in futures_by_study.items()
+                                if future.done()
+                            ]
+                            if completed_indices:
+                                fail_r4_barrier(
+                                    boundary_name,
+                                    "a control future completed before the paired witness was released; "
+                                    f"completed_studies={completed_indices}",
+                                )
+                            return
+                        completed_indices = [
+                            study_index
+                            for study_index, future in futures_by_study.items()
+                            if future.done()
                         ]
+                        if completed_indices:
+                            fail_r4_barrier(
+                                boundary_name,
+                                "a control future completed before this barrier; "
+                                f"completed_studies={completed_indices}",
+                            )
+                        remaining = deadline - time.monotonic()
+                        if remaining <= 0:
+                            fail_r4_barrier(
+                                boundary_name,
+                                f"bounded wait expired after {barrier_timeout_seconds:.1f}s",
+                            )
+                        event.wait(timeout=min(0.05, remaining))
+
+                with ThreadPoolExecutor(max_workers=2) as control_threads:
+                    pre_dispatch_release: dict[str, Any] | None = None
+                    try:
+                        futures_by_study = {
+                            study_index: control_threads.submit(workers[study_index].dispatch_once)
+                            for study_index in range(2)
+                        }
+                        if capacity > 1 or bypass:
+                            wait_for_r4_barrier(
+                                both_submitted,
+                                boundary_name="both MethodBackend submissions",
+                            )
+                            with producer_lock:
+                                observed_producers = producer_entries
+                                observed_methods = method_backend_entries
+                            with submission_lock:
+                                observed_submissions = submit_count
+                            assert (
+                                observed_producers == observed_methods == observed_submissions == 2
+                            )
+                            wait_for_r4_barrier(
+                                both_dispatches_waiting,
+                                boundary_name="both real MethodDispatcher calls",
+                            )
+                            with active_lock:
+                                observed_dispatches = len(dispatch_rows)
+                                observed_dispatch_active = dispatch_active
+                            pre_dispatch_release = {
+                                "run_experiment_entries": observed_producers,
+                                "method_backend_entries": observed_methods,
+                                "submit_count": observed_submissions,
+                                "dispatch_entries": observed_dispatches,
+                                "dispatch_active": observed_dispatch_active,
+                                "control_futures_done": [
+                                    futures_by_study[study_index].done() for study_index in range(2)
+                                ],
+                            }
+                            assert observed_dispatches == observed_dispatch_active == 2
+                            assert pre_dispatch_release["control_futures_done"] == [
+                                False,
+                                False,
+                            ]
+                            release_dispatches.set()
+                        dispatched = [
+                            futures_by_study[study_index].result(timeout=120)
+                            for study_index in range(2)
+                        ]
+                    finally:
+                        # One cleanup boundary releases a sibling after either
+                        # wait, any post-wait assertion, or partial submission.
                         release_dispatches.set()
-                    dispatched = [
-                        futures_by_study[study_index].result(timeout=120)
-                        for study_index in range(2)
-                    ]
                 assert dispatched == [True, True]
 
                 terminal_jobs = []
@@ -1774,10 +1897,22 @@ def _invoke_child(
             "POLISYOS_R4_RECEIPT_DIR": str(receipt_directory),
         }
     )
+    child_benchmark_storage = receipt_directory / "benchmark-storage"
     command = [
         sys.executable,
         "-m",
         "pytest",
+        "-o",
+        f"cache_dir={receipt_directory / 'pytest-cache'}",
+        "-o",
+        f"log_file={receipt_directory / 'pytest.log'}",
+        "-o",
+        "tmp_path_retention_policy=all",
+        "-o",
+        "tmp_path_retention_count=1",
+        f"--benchmark-storage={child_benchmark_storage.as_uri()}",
+        "--basetemp",
+        str(receipt_directory / "pytest-tmp"),
         "-q",
         "-s",
         "tests/integration/scientist/orchestration/workflows/"

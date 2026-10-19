@@ -161,6 +161,49 @@ def test_runtime_api_env_builder_closes_worker_when_fixture_setup_raises(
     assert tuple(runtime_http_module._RUNTIME_API_ENVS) == registered_before
 
 
+def test_runtime_api_env_closes_published_client_when_registration_fails(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    import tests._helpers.runtime_http as runtime_http_module
+
+    real_test_client = runtime_http_module.TestClient
+    if real_test_client is None:
+        pytest.skip("FastAPI test client dependencies are not installed")
+
+    registered_before = tuple(runtime_http_module._RUNTIME_API_ENVS)
+    clients: list[Any] = []
+
+    class _TrackedClient:
+        def __init__(self, app: Any, **kwargs: Any) -> None:
+            self._client = real_test_client(app, **kwargs)
+            self.close_calls = 0
+
+        def close(self) -> None:
+            self.close_calls += 1
+            self._client.close()
+
+    def _build_tracked_client(app: Any, **kwargs: Any) -> _TrackedClient:
+        client = _TrackedClient(app, **kwargs)
+        clients.append(client)
+        return client
+
+    class _FailingRegistry(list[dict[str, object]]):
+        def append(self, _env: dict[str, object]) -> None:
+            raise RuntimeError("controlled_runtime_api_env_registration_failure")
+
+    failing_registry = _FailingRegistry(registered_before)
+    monkeypatch.setattr(runtime_http_module, "TestClient", _build_tracked_client)
+    monkeypatch.setattr(runtime_http_module, "_RUNTIME_API_ENVS", failing_registry)
+
+    with pytest.raises(RuntimeError, match="controlled_runtime_api_env_registration_failure"):
+        build_runtime_api_env(tmp_path, include_test_client=True)
+
+    assert len(clients) == 1
+    assert clients[0].close_calls == 1
+    assert tuple(failing_registry) == registered_before
+
+
 def _forbid_real_gateway_network(monkeypatch: pytest.MonkeyPatch) -> None:
     def _blocked_gateway_constructor(*_args: Any, **_kwargs: Any) -> None:
         raise AssertionError("simulated LLM test must not construct a real gateway client")

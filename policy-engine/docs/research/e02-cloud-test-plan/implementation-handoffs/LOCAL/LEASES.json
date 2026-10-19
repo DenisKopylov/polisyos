@@ -24103,5 +24103,116 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-reviewed-r3-r4-shared-fixture-repair-adoption-20261019": {
+    "slice_base": "d2926941e0f20e15f66e064142fbc4e2787ca9e7",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/_helpers/runtime_http.py": {
+        "operation": "write",
+        "preimage_sha256": "148f42719559b74c36e986d1e416f107b1eebf99235ca6c15b503e154d5e33f4",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-r4-shared-fixture-repair-20261019/postimages/tests/_helpers/runtime_http.py",
+        "postimage_sha256": "002f424a236b7437972ee0e6b2ea212fc1e7f6a5c7bda5b70336a3036d04fec6"
+      },
+      "policy-engine/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py": {
+        "operation": "write",
+        "preimage_sha256": "320abb553d14725dc6bd44fd7c5f6a00a0b88f753b1bf436caad689799445fcd",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-r4-shared-fixture-repair-20261019/postimages/tests/unit/runtime/http/test_nl_pipeline_cost_projection.py",
+        "postimage_sha256": "65a8c2973bea7672fad67e51d00d0848eb7217bc7c44c040c9f103ae4797b007"
+      },
+      "policy-engine/tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py": {
+        "operation": "write",
+        "preimage_sha256": "15c47c0fa4dcbbf3e2c91ef1eb709072e2ae598d937525b096fd493cd2c50760",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-r4-shared-fixture-repair-20261019/postimages/tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py",
+        "postimage_sha256": "9f947d706f2fbaa906d6e9813fbd3b6129c6b16a69feed85706fe5b34732263c"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-r3-r4-shared-fixture-repair-adoption-20261019/source-application.json",
+      "sha256": "964564f4fc089cacefc93ab7f6abb415ad76fc8d67320dd1d3fe6040b7427ab2"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-r3-r4-shared-fixture-repair-adoption-20261019/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/incidents/two-known-owned-test-edits-20261019/capture.json",
+        "sha256": "ef014c97ec1e6f3cd0052c8b6bbcc9d98a482e8abbf4f14db9c17eac1a34e370"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/observed-owned-test-changes.patch",
+        "sha256": "7f3ee384af15393df347155ae297bb43592610740c361501b11832be272e4444"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-source-additions-preservation-r4-logging-20261019/apply-and-commit.py",
+        "sha256": "f91d9cd620e1336fd0e6d956ec83b0fa30786fd96797f446528c1001eab2de35"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-source-additions-preservation-r4-logging-20261019/manifest.json",
+        "sha256": "933c09ebc36e436c862933a4a15e484bdf81f3b0d41008ed08ecf8dcd57b148e"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-preservation-r3-ancestor-independent-review-20261019/review-correction-v2.json",
+        "sha256": "144b901703f88e72c7b09aa2b1e3931affc5a61cf3ac00875a019a3eefa115eb"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-r4-shared-fixture-repair-20261019/manifest-v2.json",
+        "sha256": "aea72f397867f5490d0531648a1dfe1f12f56268feb9d411f3793e33576f843c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-r4-shared-fixture-repair-20261019/patch-v1.patch",
+        "sha256": "06b374a493b44cb8ceb828788b056d091ff95d7d411f0497ff8bd33adbbb0dc8"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-r4-shared-fixture-repair-20261019/verification-v1.json",
+        "sha256": "fe875f7a281d1395a61722ee9d80a8ffd2ac6866f26fa194712ea6585af2c8d1"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-r3-r4-shared-fixture-repair-20261019/independent-review-v1/review-v1.json",
+        "sha256": "fcf21528d041efbb5d841a780042afa0263bf00c79972462dc49a03e3d27f261"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py": "baab841019a411c004795a00d16969f182e3291973810d9cf80159cff68514de",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py": "ad4d6a23dc172ddb4179c14acb78c3f02fcc6b3feffef19393174e9f73558f57"
+    },
+    "preserved_other_owned_provenance": {
+      "preparation": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-preparation.json",
+        "sha256": "57c4e36f005d2bf91d570398bc9c328e71b2158d169f5169cc17b2f7a0b8e5d8"
+      },
+      "source_application": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-preservation-reconciliation-20261019/preservation-reconciliation.json",
+        "sha256": "07267c206acd5a3dc091dd385b087f5d9094744c1a1bd44ef856bae612fc8276"
+      }
+    },
+    "preserved_other_owned_tracked_paths": [
+      "policy-engine/tests/unit/runtime/quality/test_generation_cycle.py",
+      "policy-engine/tests/unit/scientist/search/funnel/test_orchestrator.py"
+    ],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "Same second-level fixture composition/resource-publication class; reuse complete seed graph and common runtime lifetime, without CAS/tenant/capacity guard weakening.",
+    "bounded_proof": "Independent source review GO fcf21528; native three-path lint/format/apply checks pass. Candidate full runtime remains UNRUN.",
+    "limitations": [
+      "All cap-1/cap-2, worker dispatch, ordinary POST/GET, 12-fold and removal claims require the complete fresh two-module replay.",
+      "Two known-owned incomplete N7/B108 test edits are preserved unchanged outside this commit; no whole-worktree clean claim.",
+      "Author candidate only: no source/input/backend freeze, G acceptance, integration publication or formal closure."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run both whole R3/R4 modules on the committed source with real clients/workers and exact existing adversarial controls.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

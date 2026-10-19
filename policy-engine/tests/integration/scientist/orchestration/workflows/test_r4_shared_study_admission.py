@@ -360,6 +360,7 @@ def _run_child(
     """Run the two-study native witness in one isolated Runtime process."""
     import importlib
 
+    import tests._helpers.runtime_http as runtime_http_module
     from polisyos.runtime.http.resilience import (
         BlockingDependencyGuard,
         GuardedDependencyProxy,
@@ -367,7 +368,11 @@ def _run_child(
     from polisyos.runtime.quality.workspace.foundry_consumption import (
         _method_evidence_semantics,
     )
-    from tests._helpers.runtime_http import build_runtime_api_env, close_runtime_api_env
+    from tests._helpers.runtime_http import (
+        build_runtime_api_env,
+        build_runtime_api_env_from_fixture_seed,
+        close_runtime_api_env,
+    )
 
     revision = f"r4-native-method-cap-{capacity}-v1"
     expected_profile = async_tools.SharedExecutorProfile(
@@ -497,15 +502,32 @@ def _run_child(
     try:
         with pytest.MonkeyPatch.context() as environment_patch:
             environment_patch.setenv("POLISYOS_CONTROL_SQLITE_PATH", str(control_store_path))
-            for _ in range(2):
+            app_kwargs = {
+                "process_worker_capacity": capacity,
+                "process_worker_profile_revision": revision,
+            }
+            envs.append(
+                build_runtime_api_env(
+                    runtime_root,
+                    include_test_client=True,
+                    app_kwargs=app_kwargs,
+                )
+            )
+
+            def _reject_duplicate_fixture_seed(*_args: Any, **_kwargs: Any) -> Any:
+                raise AssertionError("shared_fixture_seed_must_not_republish_CAS_artifacts")
+
+            with pytest.MonkeyPatch.context() as seed_reuse_patch:
+                seed_reuse_patch.setattr(
+                    runtime_http_module,
+                    "_put_json_raw",
+                    _reject_duplicate_fixture_seed,
+                )
                 envs.append(
-                    build_runtime_api_env(
-                        runtime_root,
+                    build_runtime_api_env_from_fixture_seed(
+                        envs[0],
                         include_test_client=True,
-                        app_kwargs={
-                            "process_worker_capacity": capacity,
-                            "process_worker_profile_revision": revision,
-                        },
+                        app_kwargs=app_kwargs,
                     )
                 )
     except BaseException:
@@ -517,6 +539,7 @@ def _run_child(
         apps = [env["app"] for env in envs]
         clients = [env["client"] for env in envs]
         assert all(client is not None for client in clients)
+        assert clients[0] is not clients[1]
         with ExitStack() as runtime_context:
             for client in clients:
                 runtime_context.enter_context(client)
@@ -549,8 +572,12 @@ def _run_child(
                         "proxy_object_id": id(guarded_store),
                     }
                 assert service._artifact_store is container.runtime_api_context.store
+            assert apps[0] is not apps[1]
+            assert containers[0] is not containers[1]
+            assert services[0] is not services[1]
             workers = [service._worker for service in services]
             assert all(worker is not None for worker in workers)
+            assert workers[0] is not workers[1]
             assert all(
                 worker._store is service._control_store
                 for worker, service in zip(workers, services, strict=True)
@@ -585,6 +612,12 @@ def _run_child(
             assert len({row["control_store_path"] for row in worker_runtime_bindings}) == 1
             assert len({row["runtime_cas_root"] for row in worker_runtime_bindings}) == 1
             assert len({row["artifact_store_root"] for row in worker_runtime_bindings}) == 1
+            assert envs[0]["child_artifact_id"] == envs[1]["child_artifact_id"]
+            assert envs[0]["secret_artifact_id"] == envs[1]["secret_artifact_id"]
+            assert envs[0]["cross_tenant_run_id"] == envs[1]["cross_tenant_run_id"]
+            assert envs[0]["tenant_a"] == envs[1]["tenant_a"]
+            assert envs[0]["tenant_b"] == envs[1]["tenant_b"]
+            assert envs[0]["cell_a"] == envs[1]["cell_a"]
             assert all(
                 row["worker_backend"] == "embedded"
                 and row["state_store_backend"] == "sqlite"

@@ -224,12 +224,13 @@ def _seed_staged_data_snapshot_closure(
     imported = replay_store.import_subgraph(export.output_path, verify_integrity=True)
     imported_selector_views = {_reference_view_key(ref) for ref in imported.imported_refs}
     verified_views = {_reference_view_key(ref) for ref in imported.integrity_verified_refs}
+    expected_imported_views = source_selector_views | expected_resolved_views
     if (
         not imported.integrity_verification_requested
         or imported.verification_failed
         or imported.skipped_entries
         or set(imported.received_artifact_ids) != expected_artifact_ids
-        or imported_selector_views != source_selector_views
+        or imported_selector_views != expected_imported_views
         or verified_views != expected_resolved_views
     ):
         raise ValueError("foundry_staged_intake_snapshot_import_incomplete")

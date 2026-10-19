@@ -1321,8 +1321,37 @@ def _staged_consumer(store, root, paths, snapshot_ref):
     return owner.FoundryMethodOutputConsumer(**kwargs)
 
 
+def _staged_snapshot_selector_contract(store, snapshot_ref, core_artifacts):
+    from polisyos.runtime.quality.workspace.scientist_node_adapters import (
+        _reference_closure,
+    )
+
+    source_closure = _reference_closure(store, snapshot_ref, "staged_data_snapshot_test_source")
+    source_refs = tuple(binding.artifact_ref for binding in source_closure)
+    source_selector_views = {core_artifacts.artifact_ref_identity_key(ref) for ref in source_refs}
+    expected_resolved_views = set()
+    for source_ref in source_refs:
+        manifest = store.get_manifest(source_ref)
+        resolved_ref = core_artifacts.ArtifactRef(
+            artifact_id=source_ref.artifact_id,
+            kind=manifest.kind,
+            media_type=manifest.media_type,
+            manifest_profile_sha256=core_artifacts.artifact_manifest_profile_sha256(manifest),
+        )
+        expected_resolved_views.add(core_artifacts.artifact_ref_identity_key(resolved_ref))
+    expected_artifact_ids = {view[0] for view in source_selector_views}
+    assert source_selector_views
+    assert all(view[3] is not None for view in expected_resolved_views)
+    return (
+        source_refs,
+        source_selector_views,
+        expected_resolved_views,
+        expected_artifact_ids,
+    )
+
+
 def test_staged_intake_real_owner_is_consumed_without_weakening_measurement(
-    recorded_panel_owner, tmp_path
+    recorded_panel_owner, tmp_path, monkeypatch
 ):
     from polisyos.core import artifacts as core_artifacts
     from polisyos.core.artifacts.manifest import InputRef
@@ -1340,8 +1369,48 @@ def test_staged_intake_real_owner_is_consumed_without_weakening_measurement(
     assert snapshot_ref.manifest_profile_sha256 is not None
     assert snapshot_edge.manifest_profile_sha256 is None
     assert snapshot_body.data_ref.manifest_profile_sha256 is None
+    (
+        source_refs,
+        source_selector_views,
+        expected_resolved_views,
+        expected_artifact_ids,
+    ) = _staged_snapshot_selector_contract(store, snapshot_ref, core_artifacts)
+    assert any(ref.manifest_profile_sha256 is None for ref in source_refs)
+    assert any(ref.manifest_profile_sha256 is not None for ref in source_refs)
+
+    original_import_subgraph = FileSystemCAS.import_subgraph
+    import_reports = []
+
+    def record_import_subgraph(replay_store, source, *, verify_integrity=False):
+        report = original_import_subgraph(
+            replay_store,
+            source,
+            verify_integrity=verify_integrity,
+        )
+        import_reports.append(report)
+        return report
+
+    monkeypatch.setattr(FileSystemCAS, "import_subgraph", record_import_subgraph)
     consumer = _staged_consumer(store, root, paths, snapshot_ref)
     result = _consume_case(store, bound, state, consumer=consumer)
+    assert len(import_reports) == 1
+    import_report = import_reports[0]
+    imported_selector_views = {
+        core_artifacts.artifact_ref_identity_key(ref) for ref in import_report.imported_refs
+    }
+    verified_views = {
+        core_artifacts.artifact_ref_identity_key(ref)
+        for ref in import_report.integrity_verified_refs
+    }
+    expected_imported_views = source_selector_views | expected_resolved_views
+    assert source_selector_views != expected_resolved_views
+    assert source_selector_views & expected_resolved_views
+    assert imported_selector_views == expected_imported_views
+    assert import_report.integrity_verification_requested
+    assert not import_report.verification_failed
+    assert not import_report.skipped_entries
+    assert set(import_report.received_artifact_ids) == expected_artifact_ids
+    assert verified_views == expected_resolved_views
     assert result.method_replay_verified
     assert result.authority_boundary.evidence_kind == "measurement"
     assert result.authority_boundary.decision_grade == "descriptive_only"
@@ -1441,6 +1510,123 @@ def test_staged_intake_real_owner_is_consumed_without_weakening_measurement(
                 assert (
                     core_artifacts.artifact_manifest_profile_sha256(verified_manifest) == selector
                 )
+
+
+@pytest.mark.parametrize(
+    "selector_mutation",
+    ["missing_requested", "missing_resolved", "foreign_profile"],
+)
+def test_staged_intake_rejects_import_selector_drift_when_other_report_fields_pass(
+    recorded_panel_owner, tmp_path, monkeypatch, selector_mutation
+):
+    from dataclasses import replace as dataclass_replace
+
+    from polisyos.core import artifacts as core_artifacts
+
+    store, bound, state, root, paths, snapshot_ref = _staged_method_case(
+        recorded_panel_owner, tmp_path
+    )
+    (
+        source_refs,
+        source_selector_views,
+        expected_resolved_views,
+        expected_artifact_ids,
+    ) = _staged_snapshot_selector_contract(store, snapshot_ref, core_artifacts)
+    expected_imported_views = source_selector_views | expected_resolved_views
+    profileless_refs = [ref for ref in source_refs if ref.manifest_profile_sha256 is None]
+    assert len(profileless_refs) == 1
+    profileless_ref = profileless_refs[0]
+    requested_key = core_artifacts.artifact_ref_identity_key(profileless_ref)
+    resolved_key = next(view for view in expected_resolved_views if view[:3] == requested_key[:3])
+    assert requested_key != resolved_key
+
+    foreign_ref = None
+    if selector_mutation == "foreign_profile":
+        foreign_ref = _different_profile_artifact_view(store, profileless_ref)
+        foreign_key = core_artifacts.artifact_ref_identity_key(foreign_ref)
+        assert foreign_ref.artifact_id == profileless_ref.artifact_id
+        assert store.get_bytes(foreign_ref) == store.get_bytes(profileless_ref)
+        assert foreign_key[:3] == requested_key[:3]
+        assert foreign_key not in expected_imported_views
+
+    actual_reports = []
+    mutated_reports = []
+    mutated_selector_views = []
+    original_import_subgraph = FileSystemCAS.import_subgraph
+
+    def mutate_imported_selectors(replay_store, source, *, verify_integrity=False):
+        report = original_import_subgraph(
+            replay_store,
+            source,
+            verify_integrity=verify_integrity,
+        )
+        actual_reports.append(report)
+        actual_selector_views = {
+            core_artifacts.artifact_ref_identity_key(ref) for ref in report.imported_refs
+        }
+        assert actual_selector_views == expected_imported_views
+
+        if selector_mutation == "missing_requested":
+            changed_refs = tuple(
+                ref
+                for ref in report.imported_refs
+                if core_artifacts.artifact_ref_identity_key(ref) != requested_key
+            )
+        elif selector_mutation == "missing_resolved":
+            changed_refs = tuple(
+                ref
+                for ref in report.imported_refs
+                if core_artifacts.artifact_ref_identity_key(ref) != resolved_key
+            )
+        else:
+            assert foreign_ref is not None
+            changed_refs = (*report.imported_refs, foreign_ref)
+
+        changed_report = dataclass_replace(report, imported_refs=changed_refs)
+        mutated_reports.append(changed_report)
+        mutated_selector_views.append(
+            {core_artifacts.artifact_ref_identity_key(ref) for ref in changed_report.imported_refs}
+        )
+        return changed_report
+
+    monkeypatch.setattr(
+        FileSystemCAS,
+        "import_subgraph",
+        mutate_imported_selectors,
+    )
+    consumer = _staged_consumer(store, root, paths, snapshot_ref)
+    with pytest.raises(
+        ValueError,
+        match="foundry_staged_intake_snapshot_import_incomplete",
+    ):
+        _consume_case(store, bound, state, consumer=consumer)
+
+    assert len(actual_reports) == 1
+    assert len(mutated_reports) == 1
+    report = actual_reports[0]
+    mutated_report = mutated_reports[0]
+    assert report.integrity_verification_requested
+    assert not report.verification_failed
+    assert not report.skipped_entries
+    assert set(report.received_artifact_ids) == expected_artifact_ids
+    verified_views = {
+        core_artifacts.artifact_ref_identity_key(ref) for ref in report.integrity_verified_refs
+    }
+    assert verified_views == expected_resolved_views
+    assert mutated_report.integrity_verification_requested
+    assert mutated_report.integrity_verified_refs == report.integrity_verified_refs
+    assert mutated_report.received_artifact_ids == report.received_artifact_ids
+    assert mutated_report.verification_failed == report.verification_failed
+    assert mutated_report.skipped_entries == report.skipped_entries
+
+    if selector_mutation == "missing_requested":
+        assert mutated_selector_views == [expected_imported_views - {requested_key}]
+    elif selector_mutation == "missing_resolved":
+        assert mutated_selector_views == [expected_imported_views - {resolved_key}]
+    else:
+        assert foreign_ref is not None
+        foreign_key = core_artifacts.artifact_ref_identity_key(foreign_ref)
+        assert mutated_selector_views == [expected_imported_views | {foreign_key}]
 
 
 def test_staged_intake_refuses_same_bytes_under_a_different_snapshot_profile(

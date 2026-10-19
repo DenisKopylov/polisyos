@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Any, Literal
+from typing import Any, ClassVar, Literal
 
 import pandas as pd
 import pytest
@@ -102,68 +102,121 @@ def build_real_fetch_owner(
     payload = {"value": rows}
     result_updates = {}
 
-    from polisyos.fabric.connectors.base import ConnectionHandle
+    from polisyos.fabric.connectors.base import BaseConnector, ConnectionHandle, HealthStatus
     from polisyos.fabric.connectors.registry import ConnectorRegistry
-    from polisyos.fabric.connectors.sources.file_tabular import FileTabularConnector
-    from polisyos.ir.connectors import FetchRequest
+    from polisyos.fabric.connectors.types import (
+        ValidationIssue,
+        ValidationResult,
+        ValidationSeverity,
+    )
+    from polisyos.ir.connectors import (
+        ConnectorCapability,
+        ConnectorMetadataSpec,
+        FetchRequest,
+        QualityTier,
+        TrustLevel,
+        capabilities_from_flags,
+    )
 
-    async def fetch_recorded(
-        _connector: FileTabularConnector,
-        handle: ConnectionHandle,
-        request: FetchRequest,
-    ) -> FetchResult[Any]:
-        del handle
-        requests.append(request)
-        data = payload["value"]
-        count = len(data)
-        return FetchResult(
-            data=data,
-            row_count=count,
-            schema_id="test.recorded.rows",
-            schema_version="1.0.0",
-            version=DataVersion(
-                strategy=VersionStrategy.TIMESTAMP,
-                value="recorded-v1",
-                timestamp=datetime(2026, 9, 8, tzinfo=UTC),
+    if providers_override is None:
+        if connector_id != "test.recorded":
+            raise ValueError("controlled_recorded_transport_requires_test_recorded_connector_id")
+        recorded_transport_url = "https://transport.invalid/recorded"
+
+        class RecordedFixtureConnector(BaseConnector[Any]):
+            """Test-only source that returns recorded rows through the real registry."""
+
+            connector_id: ClassVar[str] = "test.recorded"
+            capabilities: ClassVar[ConnectorCapability] = ConnectorCapability.FULL_FETCH
+            metadata: ClassVar[ConnectorMetadataSpec] = ConnectorMetadataSpec(
+                connector_id="recorded",
+                version="1.0.0",
+                namespace="test",
+                source_name="Recorded transport fixture",
+                source_organization="PolicyOS tests",
+                trust_level=TrustLevel.UNVERIFIED,
+                quality_tier=QualityTier.UNVERIFIED,
+                capabilities=capabilities_from_flags(ConnectorCapability.FULL_FETCH),
+                description="Deterministic test-only connector; no network transport is performed.",
+            )
+
+            @classmethod
+            def validate_config(cls, config: ConnectionConfig) -> ValidationResult:
+                if (
+                    config.url != recorded_transport_url
+                    or config.headers
+                    or config.auth_method is not None
+                    or config.auth_credentials
+                ):
+                    return ValidationResult.failure(
+                        ValidationIssue(
+                            severity=ValidationSeverity.ERROR,
+                            message="recorded fixture requires its exact unauthenticated endpoint",
+                            field="url",
+                            code="recorded_fixture_config_mismatch",
+                        )
+                    )
+                return ValidationResult.success()
+
+            async def connect(self, config: ConnectionConfig) -> ConnectionHandle:
+                validation = self.validate_config(config)
+                if not validation.valid:
+                    raise ValueError("invalid test.recorded connector config")
+                return self._create_handle(config)
+
+            async def disconnect(self, handle: ConnectionHandle) -> None:
+                del handle
+
+            async def health_check(self, handle: ConnectionHandle) -> HealthStatus:
+                del handle
+                return HealthStatus(healthy=True, message="recorded test transport is available")
+
+            async def fetch(
+                self,
+                handle: ConnectionHandle,
+                request: FetchRequest,
+            ) -> FetchResult[Any]:
+                del handle
+                requests.append(request)
+                data = payload["value"]
+                count = len(data)
+                return FetchResult(
+                    data=data,
+                    row_count=count,
+                    schema_id="test.recorded.rows",
+                    schema_version="1.0.0",
+                    version=DataVersion(
+                        strategy=VersionStrategy.TIMESTAMP,
+                        value="recorded-v1",
+                        timestamp=datetime(2026, 9, 8, tzinfo=UTC),
+                    ),
+                    fetched_at=datetime(2026, 9, 8, tzinfo=UTC),
+                    completeness=(
+                        0.0 if request.page_size and request.dataset_id in preview_reject else 1.0
+                    ),
+                    quality_flags=frozenset({"recorded-test-transport"}),
+                    total_count=count,
+                    bytes_transferred=421,
+                ).model_copy(update=result_updates)
+
+        registry = ConnectorRegistry()
+        registry.register(
+            RecordedFixtureConnector,
+            config=ConnectionConfig(url=recorded_transport_url),
+        )
+        providers = RetrievalProviders(
+            registry=registry,
+            profiles=SimpleNamespace(get=lambda _: None),
+            tracer=SimpleNamespace(start_as_current_span=lambda *args, **kwargs: nullcontext()),
+            metrics=SimpleNamespace(
+                record_fabric_query=lambda **kwargs: None,
+                record_fabric_connector_fetch=lambda **kwargs: None,
             ),
-            fetched_at=datetime(2026, 9, 8, tzinfo=UTC),
-            completeness=0.0 if request.page_size and request.dataset_id in preview_reject else 1.0,
-            quality_flags=frozenset({"recorded-test-transport"}),
-            total_count=count,
-            bytes_transferred=421,
-        ).model_copy(update=result_updates)
-
-    namespace, separator, short_id = connector_id.partition(".")
-    if not separator or not namespace or not short_id:
-        raise ValueError("test_connector_id_must_be_fully_qualified")
-    metadata = FileTabularConnector.metadata.model_copy(
-        update={"namespace": namespace, "connector_id": short_id}
-    )
-    recorded_connector = type(
-        "RecordedFixtureConnector",
-        (FileTabularConnector,),
-        {
-            "namespace": namespace,
-            "short_id": short_id,
-            "connector_id": connector_id,
-            "metadata": metadata,
-            "fetch": fetch_recorded,
-        },
-    )
-    registry = ConnectorRegistry()
-    registry.register(
-        recorded_connector,
-        config=ConnectionConfig(url="https://transport.invalid/recorded"),
-    )
-    providers = providers_override or RetrievalProviders(
-        registry=registry,
-        profiles=SimpleNamespace(get=lambda _: None),
-        tracer=SimpleNamespace(start_as_current_span=lambda *args, **kwargs: nullcontext()),
-        metrics=SimpleNamespace(
-            record_fabric_query=lambda **kwargs: None,
-            record_fabric_connector_fetch=lambda **kwargs: None,
-        ),
-    )
+        )
+    else:
+        # Use the supplied real connector registry directly. Do not register an
+        # unrelated FileTabular-derived placeholder as a side effect.
+        providers = providers_override
     plan = FetchPlan(
         plan_id="plan-primary",
         metric_id=metric_id,

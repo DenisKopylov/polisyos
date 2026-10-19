@@ -414,7 +414,7 @@ def _artifact_id_wire_text(
     """Extract canonical text from exact Core/IR ID roots or a plain wire ID."""
     _wire_depth(depth)
     from polisyos.core.artifacts import ArtifactID as CoreArtifactID
-    from polisyos.ir.artifacts import ArtifactID as IRArtifactID
+    from polisyos.ir import ArtifactID as IRArtifactID
 
     if type(value) is str and allow_plain_string:
         artifact_id = value

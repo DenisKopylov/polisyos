@@ -2,7 +2,10 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 import sys
+import weakref
 from datetime import UTC, datetime
 
 import pandas as pd
@@ -17,6 +20,7 @@ from polisyos.fabric.connectors.federation import (
     DataComposer,
     FederationError,
     MergeLogEntry,
+    MergeLogSummary,
 )
 from polisyos.fabric.connectors.federation.composer import MergeLogCollector
 from polisyos.fabric.connectors.federation.types import SourceMetadata
@@ -256,3 +260,376 @@ def test_overlay_prepares_each_secondary_once_and_skips_none_audit_entries(
         "second": [20, 21],
         "third": [30, 31],
     }
+
+
+def _federation_join_case(
+    left_values: list[int],
+) -> tuple[
+    pd.DataFrame,
+    pd.DataFrame,
+    SourceMetadata,
+    SourceMetadata,
+]:
+    """Build distinct left events that intentionally share one JOIN key."""
+    left = pd.DataFrame(
+        {
+            "key": [1] * len(left_values),
+            "event_id": [f"event-{index}" for index in range(len(left_values))],
+            "value": left_values,
+        }
+    )
+    right = pd.DataFrame({"key": [1], "value": [11]})
+    return (
+        left,
+        right,
+        _source_metadata("join_left", trust_level=TrustLevel.HIGH),
+        _source_metadata("join_right", trust_level=TrustLevel.MEDIUM),
+    )
+
+
+def _federation_join_request(
+    audit_level: AuditLevel,
+    *,
+    sample_size: int = 3,
+    max_entries: int = 3,
+    seed: str = "fed02-join-repeat-key",
+) -> CompositionRequest:
+    return _compose_request(
+        CompositionStrategy.JOIN,
+        audit_level=audit_level,
+        join_keys=["key"],
+        join_how="left",
+        join_validate="many_to_one",
+        audit_sample_size=sample_size,
+        audit_max_entries=max_entries,
+        audit_seed=seed,
+    )
+
+
+def _reference_join_sample_ids(
+    left: pd.DataFrame,
+    left_metadata: SourceMetadata,
+    right_metadata: SourceMetadata,
+    *,
+    seed: str,
+    cap: int,
+) -> list[str]:
+    """Independently rank source-row conflicts using the declared stable inputs."""
+    conflicts: list[tuple[int, int, str]] = []
+    right_values = {1: 11}
+    for ordinal, row in left.iterrows():
+        right_value = right_values[row["key"]]
+        if row["value"] == right_value:
+            continue
+        event_id = str(row["event_id"])
+        payload = {
+            "seed": seed,
+            "row_key": {"key": row["key"]},
+            "column": "value",
+            "source_a": left_metadata.connector_id,
+            "source_b": right_metadata.connector_id,
+            "policy": ConflictPolicy.TRUST_HIGHEST.value,
+        }
+        encoded = json.dumps(payload, sort_keys=True, default=str).encode("utf-8")
+        priority = int(hashlib.sha256(encoded).hexdigest(), 16)
+        conflicts.append((priority, int(ordinal), event_id))
+    return [
+        event_id for _, _, event_id in sorted(conflicts, key=lambda item: (item[0], item[1]))[:cap]
+    ]
+
+
+def _event_ids_from_distinct_join_logs(
+    entries: list[MergeLogEntry],
+    left: pd.DataFrame,
+) -> list[str]:
+    """Join sampled log values back to unique source event values in the fixture."""
+    event_by_value = dict(zip(left["value"].tolist(), left["event_id"].tolist(), strict=True))
+    return [str(event_by_value[entry.source_a_value]) for entry in entries]
+
+
+def test_join_summary_is_bounded_deterministic_and_preserves_full_counters(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The real JOIN owner handles repeated equal-priority sample keys."""
+    left, right, left_meta, right_meta = _federation_join_case([10, 12])
+    seed = "fed02-join-repeat-key"
+    expected_result = pd.DataFrame(
+        {"key": [1, 1], "event_id": ["event-0", "event-1"], "value": [10, 12]}
+    )
+    sampled_results: dict[int, tuple[pd.DataFrame, list[MergeLogEntry]]] = {}
+
+    for cap in (1, 3):
+        request = _federation_join_request(AuditLevel.SUMMARY, sample_size=cap, seed=seed)
+        composer = _composer()
+        live_references: list[weakref.ReferenceType[MergeLogEntry]] = []
+        live_counts: list[int] = []
+        heap_sizes: list[int] = []
+        original_record = MergeLogCollector.record
+
+        def record_and_count(
+            self: MergeLogCollector,
+            entry: MergeLogEntry,
+            *,
+            _original_record=original_record,
+            _live_references=live_references,
+            _live_counts=live_counts,
+            _heap_sizes=heap_sizes,
+        ) -> None:
+            _original_record(self, entry)
+            _live_references.append(weakref.ref(entry))
+            _live_counts.append(sum(reference() is not None for reference in _live_references))
+            _heap_sizes.append(len(self._sample_heap))
+
+        with monkeypatch.context() as scoped:
+            scoped.setattr(MergeLogCollector, "record", record_and_count)
+            result, merge_log = composer.compose(
+                sources=[(left, left_meta), (right, right_meta)],
+                strategy=CompositionStrategy.JOIN,
+                request=request,
+            )
+        summary = composer.get_last_merge_summary()
+        assert summary is not None
+        assert result.reset_index(drop=True).equals(expected_result)
+        assert summary.total_conflicts == 2
+        assert summary.by_column == {"value": 2}
+        assert summary.by_conflict_type == {"duplicate_column": 2}
+        assert summary.by_policy == {ConflictPolicy.TRUST_HIGHEST.value: 2}
+        assert summary.by_source_pair == {f"{left_meta.connector_id}->{right_meta.connector_id}": 2}
+        assert max(live_counts) <= cap + 1
+        assert max(heap_sizes) <= cap
+        assert len(merge_log) == min(cap, 2)
+        assert _event_ids_from_distinct_join_logs(merge_log, left) == (
+            _reference_join_sample_ids(
+                left,
+                left_meta,
+                right_meta,
+                seed=seed,
+                cap=cap,
+            )
+        )
+
+        repeated_composer = _composer()
+        repeated_result, repeated_log = repeated_composer.compose(
+            sources=[(left, left_meta), (right, right_meta)],
+            strategy=CompositionStrategy.JOIN,
+            request=request,
+        )
+        assert repeated_result.equals(result)
+        assert repeated_log == merge_log
+        sampled_results[cap] = (result, merge_log)
+
+    # Equal priorities are normal for repeated join keys. Distinct source events
+    # with an identical payload remain two conflict observations, not one.
+    duplicate_left, duplicate_right, duplicate_left_meta, duplicate_right_meta = (
+        _federation_join_case([10, 10])
+    )
+    duplicate_request = _federation_join_request(AuditLevel.SUMMARY, sample_size=3)
+    duplicate_composer = _composer()
+    duplicate_result, duplicate_log = duplicate_composer.compose(
+        sources=[
+            (duplicate_left, duplicate_left_meta),
+            (duplicate_right, duplicate_right_meta),
+        ],
+        strategy=CompositionStrategy.JOIN,
+        request=duplicate_request,
+    )
+    duplicate_summary = duplicate_composer.get_last_merge_summary()
+    assert duplicate_result["event_id"].tolist() == ["event-0", "event-1"]
+    assert duplicate_summary is not None
+    assert duplicate_summary.total_conflicts == 2
+    assert len(duplicate_log) == 2
+    assert duplicate_log[0] == duplicate_log[1]
+
+    # Audit modes alter detail retention only; the numeric result is identical
+    # for the same ordered inputs and request semantics.
+    full_composer = _composer()
+    full_result, full_log = full_composer.compose(
+        sources=[(left, left_meta), (right, right_meta)],
+        strategy=CompositionStrategy.JOIN,
+        request=_federation_join_request(AuditLevel.FULL, sample_size=3, max_entries=3),
+    )
+    full_summary = full_composer.get_last_merge_summary()
+    none_composer = _composer()
+    none_result, none_log = none_composer.compose(
+        sources=[(left, left_meta), (right, right_meta)],
+        strategy=CompositionStrategy.JOIN,
+        request=_federation_join_request(AuditLevel.NONE, sample_size=3, max_entries=3),
+    )
+    none_summary = none_composer.get_last_merge_summary()
+    pd.testing.assert_frame_equal(full_result, sampled_results[3][0])
+    pd.testing.assert_frame_equal(none_result, sampled_results[3][0])
+    assert full_summary is not None and full_summary.total_conflicts == 2
+    assert len(full_log) == 2
+    assert none_summary is not None and none_summary.total_conflicts == 0
+    assert none_log == []
+
+
+def _run_union_with_live_detail_census(
+    monkeypatch: pytest.MonkeyPatch,
+    *,
+    audit_level: AuditLevel,
+    retain_all_transiently: bool,
+) -> tuple[pd.DataFrame, list[MergeLogEntry], MergeLogSummary, list[int], int]:
+    """Count live detail objects while the real DataComposer._union is active."""
+    row_count = 80
+    source_a = pd.DataFrame({"id": range(row_count), "value": [10] * row_count})
+    source_b = pd.DataFrame({"id": range(row_count), "value": [11] * row_count})
+    metadata_a = _source_metadata("source_a")
+    metadata_b = _source_metadata("source_b", trust_level=TrustLevel.MEDIUM)
+    request = _compose_request(
+        CompositionStrategy.UNION,
+        audit_level=audit_level,
+        key_columns=["id"],
+        audit_sample_size=1,
+        audit_max_entries=1,
+        audit_seed="fed02-live-union-details",
+    )
+    references: list[weakref.ReferenceType[MergeLogEntry]] = []
+    live_counts: list[int] = []
+    transient_retention: list[MergeLogEntry] = []
+    original_record = MergeLogCollector.record
+
+    def record_and_count(self: MergeLogCollector, entry: MergeLogEntry) -> None:
+        original_record(self, entry)
+        references.append(weakref.ref(entry))
+        if retain_all_transiently:
+            # Negative control for the prior hidden local list: keep actual
+            # details alive without changing the collector's visible cap.
+            transient_retention.append(entry)
+        live_counts.append(sum(reference() is not None for reference in references))
+
+    monkeypatch.setattr(MergeLogCollector, "record", record_and_count)
+    composer = _composer()
+    result, merge_log = composer.compose(
+        sources=[(source_a, metadata_a), (source_b, metadata_b)],
+        strategy=CompositionStrategy.UNION,
+        request=request,
+    )
+    summary = composer.get_last_merge_summary()
+    assert summary is not None
+    return result, merge_log, summary, live_counts, len(transient_retention)
+
+
+@pytest.mark.parametrize("audit_level", [AuditLevel.SUMMARY, AuditLevel.FULL])
+def test_union_bounds_live_details_while_preserving_complete_conflict_counts(
+    monkeypatch: pytest.MonkeyPatch,
+    audit_level: AuditLevel,
+) -> None:
+    """An 80-conflict UNION retains only the configured detail sample/list."""
+    with monkeypatch.context() as scoped:
+        result, merge_log, summary, live_counts, transient_count = (
+            _run_union_with_live_detail_census(
+                scoped,
+                audit_level=audit_level,
+                retain_all_transiently=False,
+            )
+        )
+
+    assert len(result) == 80
+    assert result["value"].tolist() == [10] * 80
+    assert summary.total_conflicts == 80
+    assert summary.by_column == {"<row>": 80}
+    assert summary.by_conflict_type == {"overlap": 80}
+    assert summary.by_source_pair == {
+        f"{_source_metadata('source_a').connector_id}->"
+        f"{_source_metadata('source_b').connector_id}": 80
+    }
+    assert len(merge_log) == 1
+    if audit_level == AuditLevel.FULL:
+        assert summary.extra["audit_entries_retained"] == 1
+        assert summary.extra["audit_entries_dropped"] == 79
+    else:
+        assert summary.sample_entries == merge_log
+    assert max(live_counts) <= 2  # bounded collector record plus current resolver record
+    assert transient_count == 0
+
+    # Increasing the sample cap changes detail count but not complete counters.
+    wide_request = _compose_request(
+        CompositionStrategy.UNION,
+        audit_level=AuditLevel.SUMMARY,
+        key_columns=["id"],
+        audit_sample_size=3,
+        audit_max_entries=3,
+        audit_seed="fed02-live-union-details",
+    )
+    wide_composer = _composer()
+    _, wide_log = wide_composer.compose(
+        sources=[
+            (
+                pd.DataFrame({"id": range(80), "value": [10] * 80}),
+                _source_metadata("source_a"),
+            ),
+            (
+                pd.DataFrame({"id": range(80), "value": [11] * 80}),
+                _source_metadata("source_b", trust_level=TrustLevel.MEDIUM),
+            ),
+        ],
+        strategy=CompositionStrategy.UNION,
+        request=wide_request,
+    )
+    wide_summary = wide_composer.get_last_merge_summary()
+    assert wide_summary is not None
+    assert len(wide_log) == 3
+    assert wide_summary.total_conflicts == summary.total_conflicts
+    assert wide_summary.by_column == summary.by_column
+    assert wide_summary.by_source_pair == summary.by_source_pair
+
+
+def test_union_live_detail_census_detects_transient_retention_mutant(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The live-object oracle rejects hidden retention with capped visible output."""
+    with monkeypatch.context() as scoped:
+        result, merge_log, summary, live_counts, transient_count = (
+            _run_union_with_live_detail_census(
+                scoped,
+                audit_level=AuditLevel.SUMMARY,
+                retain_all_transiently=True,
+            )
+        )
+
+    assert len(result) == 80
+    assert len(merge_log) == 1
+    assert summary.total_conflicts == 80
+    assert transient_count == 80
+    assert max(live_counts) == 80
+
+
+def test_union_none_audit_never_passes_details_to_collector(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """NONE keeps the same UNION result without creating collector detail state."""
+    row_count = 80
+    source_a = pd.DataFrame({"id": range(row_count), "value": [10] * row_count})
+    source_b = pd.DataFrame({"id": range(row_count), "value": [11] * row_count})
+    request = _compose_request(
+        CompositionStrategy.UNION,
+        audit_level=AuditLevel.NONE,
+        key_columns=["id"],
+        audit_sample_size=1,
+        audit_max_entries=1,
+    )
+
+    def unexpected_detail(
+        self: MergeLogCollector,
+        entry: MergeLogEntry,
+    ) -> None:
+        del self, entry
+        pytest.fail("NONE audit passed a detail entry to the bounded collector")
+
+    monkeypatch.setattr(MergeLogCollector, "record", unexpected_detail)
+    result, merge_log = _composer().compose(
+        sources=[
+            (source_a, _source_metadata("source_a")),
+            (
+                source_b,
+                _source_metadata("source_b", trust_level=TrustLevel.MEDIUM),
+            ),
+        ],
+        strategy=CompositionStrategy.UNION,
+        request=request,
+    )
+
+    assert len(result) == row_count
+    assert result["value"].tolist() == [10] * row_count
+    assert merge_log == []

@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { createQueryHookHarness } from "@/test/queryHook";
 import {
   lineageBatchFixture,
-  profileLineageGraphFixture,
+  lineageGraphFixture,
 } from "@/test/fixtures/profileLineageBatch";
 
 import {
@@ -33,7 +33,9 @@ import {
   useLineageBatch,
 } from "./useLineageBatch";
 
-const meta: LineageResponsePayload["meta"] = {
+const meta: LineageResponsePayload["meta"] & {
+  source_kinds: "core_run"[];
+} = {
   generated_at: "2026-04-24T12:00:00Z",
   request_id: "req-lineage-hook",
   source_kinds: ["core_run"],
@@ -128,7 +130,10 @@ describe("lineage hooks", () => {
   it("keeps same-byte artifact views with different profiles as separate batch selectors", async () => {
     const bridge = runtimeBridge();
     vi.mocked(bridge.fetchLineageBatch).mockResolvedValue(
-      batchResponse([profileGraph(profileA), profileGraph(profileB)]),
+      batchResponse([
+        profileGraph(profileA, "verified"),
+        profileGraph(profileB, "verified"),
+      ]),
     );
 
     const harness = bridgeWrapper(bridge);
@@ -164,7 +169,7 @@ describe("lineage hooks", () => {
 
   it("shares the exact run/profile/time graph with a later provenance consumer", async () => {
     const bridge = runtimeBridge();
-    const graph = profileGraph(profileA);
+    const graph = profileGraph(profileA, "verified");
     vi.mocked(bridge.fetchLineageBatch).mockResolvedValue(
       batchResponse([graph]),
     );
@@ -201,7 +206,9 @@ describe("lineage hooks", () => {
   it("rejects an older cached graph after the shared identity fails revalidation", async () => {
     const bridge = runtimeBridge();
     vi.mocked(bridge.fetchLineageBatch)
-      .mockResolvedValueOnce(batchResponse([profileGraph(profileA)]))
+      .mockResolvedValueOnce(
+        batchResponse([profileGraph(profileA, "verified")]),
+      )
       .mockRejectedValueOnce(new Error("profile batch revalidation failed"));
 
     const harness = bridgeWrapper(bridge);
@@ -335,19 +342,16 @@ describe("lineage hooks", () => {
       artifactRefProvenance: null,
       sourceRunId: null,
     };
-    const legacyGraph = {
-      id: legacySelector.lineageId,
+    const legacyGraph = lineageGraphFixture({
+      lineageId: legacySelector.lineageId,
       status: "verified",
       freshness: "current",
-      profile_binding_status: "not_established",
-      selected_artifact_ref: null,
-      artifact_ref_provenance: null,
-      source_run_id: null,
-      trust_metadata: null,
-      nodes: [],
-      edges: [],
-      exports: { openlineage: "/openlineage", prov: "/prov" },
-    } as unknown as LineageGraphView;
+      profileBindingStatus: "not_established",
+      selectedArtifactRef: null,
+      artifactRefProvenance: null,
+      sourceRunId: null,
+      trustMetadata: null,
+    });
     vi.mocked(bridge.fetchLineageBatch).mockResolvedValue(
       batchResponse([legacyGraph], { responseScope: undefined }),
     );
@@ -375,7 +379,7 @@ describe("lineage hooks", () => {
   });
 
   it("rejects a same-id response carrying the sibling profile", () => {
-    const response = batchResponse([profileGraph(profileB)]);
+    const response = batchResponse([profileGraph(profileB, "verified")]);
     expect(() =>
       alignLineageBatchResponses([selectorA], response, {
         runId: "run-1",
@@ -385,18 +389,16 @@ describe("lineage hooks", () => {
   });
 
   it("allows a legacy informational graph while refusing a trust grade", () => {
-    const legacy = {
-      id: selectorA.lineageId,
+    const legacy = lineageGraphFixture({
+      lineageId: selectorA.lineageId,
       status: "verified",
       freshness: "current",
-      profile_binding_status: "not_established",
-      selected_artifact_ref: null,
-      artifact_ref_provenance: null,
-      source_run_id: null,
-      trust_metadata: null,
-      nodes: [],
-      edges: [],
-    } as unknown as LineageGraphView;
+      profileBindingStatus: "not_established",
+      selectedArtifactRef: null,
+      artifactRefProvenance: null,
+      sourceRunId: null,
+      trustMetadata: null,
+    });
     const response = batchResponse([legacy]);
 
     expect(
@@ -410,12 +412,16 @@ describe("lineage hooks", () => {
 
   it("does not cache a same-ID response that omits its selected-profile declaration", async () => {
     const bridge = runtimeBridge();
-    const undeclared = {
-      ...profileGraph(profileA),
-      selected_artifact_ref: null,
-      profile_binding_status: "not_established",
-      trust_metadata: null,
-    } as unknown as LineageGraphView;
+    const undeclared = lineageGraphFixture({
+      lineageId: selectorA.lineageId,
+      status: "verified",
+      freshness: "current",
+      selectedArtifactRef: null,
+      profileBindingStatus: "not_established",
+      artifactRefProvenance: null,
+      sourceRunId: null,
+      trustMetadata: null,
+    });
     vi.mocked(bridge.fetchLineageBatch).mockResolvedValue(
       batchResponse([undeclared]),
     );
@@ -440,7 +446,7 @@ describe("lineage hooks", () => {
   });
 
   it("requires every profile/run/origin/time selector member", () => {
-    const graph = profileGraph(profileA);
+    const graph = profileGraph(profileA, "verified");
     const response = batchResponse([graph]);
 
     expect(() =>
@@ -464,10 +470,10 @@ describe("lineage hooks", () => {
       }),
     ).toThrow(/unrequested or unbound item/);
 
-    const siblingOrigin = {
+    const siblingOrigin: LineageGraphView = {
       ...graph,
       artifact_ref_provenance: "run_output_ref",
-    } as unknown as LineageGraphView;
+    };
     expect(() =>
       alignLineageBatchResponses([selectorA], batchResponse([siblingOrigin]), {
         runId: "run-1",
@@ -477,7 +483,7 @@ describe("lineage hooks", () => {
   });
 
   it("keeps explicit null time distinct from omitted time and follows cursor changes", async () => {
-    const nullScopedGraph = profileGraph(profileA, null);
+    const nullScopedGraph = profileGraph(profileA, "verified");
     const nullScopedResponse = batchResponse([nullScopedGraph], {
       responseScope: null,
     });
@@ -499,7 +505,7 @@ describe("lineage hooks", () => {
     const secondScope = { ...temporalScope, branch: "cursor-next" };
     vi.mocked(bridge.fetchLineageBatch).mockImplementation(
       async (_selectors, _runId, scope) =>
-        batchResponse([profileGraph(profileA, scope)], {
+        batchResponse([profileGraph(profileA, "verified")], {
           responseScope: scope,
         }),
     );
@@ -546,10 +552,11 @@ describe("lineage hooks", () => {
   });
 
   it("rejects trust metadata from a different temporal scope without admission", async () => {
-    const wrongScope = profileGraph(profileA, {
-      ...temporalScope,
-      branch: "other-branch",
-    });
+    const wrongScope = profileGraph(
+      profileA,
+      "verified",
+      declaredTrustMetadata({ ...temporalScope, branch: "other-branch" }),
+    );
     const bridge = runtimeBridge();
     vi.mocked(bridge.fetchLineageBatch).mockResolvedValue(
       batchResponse([wrongScope]),
@@ -561,8 +568,8 @@ describe("lineage hooks", () => {
     );
 
     await waitFor(() => expect(result.current.isError).toBe(true));
-    expect(result.current.error?.message).toMatch(
-      /unrequested or unbound item/,
+    expect(result.current.error?.message).toBe(
+      "Lineage trust metadata has a different temporal scope",
     );
     expect(bridge.fetchLineageBatch).toHaveBeenCalledWith(
       [selectorA],
@@ -584,14 +591,34 @@ describe("lineage hooks", () => {
 
 function profileGraph(
   ref: SelectedArtifactRef,
-  trustScope: TemporalRef | null | undefined = temporalScope,
+  status: LineageGraphView["status"],
+  trustMetadata?: LineageGraphView["trust_metadata"],
 ): LineageGraphView {
-  return profileLineageGraphFixture({
+  return lineageGraphFixture({
+    lineageId: selectorA.lineageId,
+    status,
+    freshness: "current",
     selectedArtifactRef: ref,
+    profileBindingStatus: "verified",
     artifactRefProvenance: "reader_materialized",
     sourceRunId: "run-1",
-    trustTemporalScope: trustScope,
+    ...(trustMetadata === undefined ? {} : { trustMetadata }),
   });
+}
+
+function declaredTrustMetadata(
+  scope: TemporalRef | null | undefined,
+): NonNullable<LineageGraphView["trust_metadata"]> {
+  return {
+    hash: "sha256:selected-profile-lineage-fixture",
+    verification_status: "verified",
+    freshness: "current",
+    dispute_status: "none",
+    verified_by: "selected-profile-reader-fixture",
+    verified_at: "2026-04-15T12:00:00Z",
+    verification_method: "selected-profile-reader",
+    temporal_scope: scope,
+  };
 }
 
 function batchResponse(

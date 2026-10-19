@@ -8,8 +8,10 @@ import { RunOverviewProfileLineage } from "@/features/runs/routes/tabs/RunOvervi
 import {
   boundLineageQueryKey,
   profileBindingAdmissionQueryKey,
+  profileBindingIdentityKey,
 } from "@/shared/ui/quantity/useLineageBatch";
 import type {
+  LineageBatchResponsePayload,
   LineageBatchSelector,
   LineageGraphView,
   SelectedArtifactRef,
@@ -19,7 +21,7 @@ import { createQueryHookWrapper } from "@/test/queryHook";
 import { renderWithProviders } from "@/test/render";
 import {
   lineageBatchFixture,
-  profileLineageGraphFixture,
+  lineageGraphFixture,
 } from "@/test/fixtures/profileLineageBatch";
 import {
   mockRuntimeGetSuccess,
@@ -52,7 +54,9 @@ const selector: LineageBatchSelector = {
   artifactRefProvenance: "reader_materialized",
   sourceRunId: runId,
 };
-const meta = {
+const meta: LineageBatchResponsePayload["meta"] & {
+  source_kinds: "core_run"[];
+} = {
   generated_at: "2026-02-11T12:05:00.000Z",
   request_id: "req_fixture",
   source_kinds: ["core_run"],
@@ -63,6 +67,16 @@ const temporalScope: TemporalRef = {
   branch: "main",
   snapshot_id: "snapshot-a",
   scenario_id: "scenario-a",
+};
+const declaredTrustMetadata: NonNullable<LineageGraphView["trust_metadata"]> = {
+  hash: "sha256:abc",
+  verification_status: "verified",
+  freshness: "current",
+  dispute_status: "none",
+  verified_by: "selected-profile-reader-fixture",
+  verified_at: "2026-02-11T12:02:00.000Z",
+  verification_method: "selected-profile-reader",
+  temporal_scope: temporalScope,
 };
 const payload = {
   meta,
@@ -185,7 +199,14 @@ describe("useRunFabricDecisionData", () => {
     const user = userEvent.setup();
     window.history.replaceState(null, "", requestUrl);
     const getSpy = mockRuntimeGetSuccess(payload);
-    const postSpy = mockRuntimePostSuccess(batchPayload(profileGraph()));
+    const postSpy = mockRuntimePostSuccess(
+      batchPayload(
+        profileGraph({
+          status: "verified",
+          trustMetadata: declaredTrustMetadata,
+        }),
+      ),
+    );
 
     const { queryClient } = renderWithProviders(
       <RunOverviewProfileLineage runId={runId} />,
@@ -217,6 +238,7 @@ describe("useRunFabricDecisionData", () => {
       },
       params: { query: temporalScope },
     });
+    expect(postSpy).toHaveBeenCalledTimes(1);
     expect(
       queryClient.getQueryData(
         boundLineageQueryKey(selector, runId, temporalScope),
@@ -231,7 +253,13 @@ describe("useRunFabricDecisionData", () => {
       temporal_scope: temporalScope,
     });
 
-    await user.click(within(row).getByRole("button", { name: "verified" }));
+    const quantity = within(row).getByTestId("quantity");
+    expect(quantity).toHaveAttribute("data-lineage-status", "pending");
+    expect(quantity).toHaveAttribute("data-profile-binding-status", "verified");
+    await user.click(quantity);
+    expect(
+      await screen.findByTestId("popover-profile-binding-status"),
+    ).toHaveTextContent("verified");
     expect(
       await screen.findByTestId("trust-verification-status"),
     ).toHaveTextContent("verified");
@@ -241,7 +269,10 @@ describe("useRunFabricDecisionData", () => {
     window.history.replaceState(null, "", requestUrl);
     const getSpy = mockRuntimeGetSuccess(payload);
     const postSpy = mockRuntimePostSuccess(
-      batchPayload(profileGraph({ id: "lin_foreign" }), "lin_foreign"),
+      batchPayload(
+        profileGraph({ status: "verified", id: "lin_foreign" }),
+        "lin_foreign",
+      ),
     );
 
     const { queryClient } = renderWithProviders(
@@ -257,6 +288,7 @@ describe("useRunFabricDecisionData", () => {
       },
       params: { query: temporalScope },
     });
+    expect(postSpy).toHaveBeenCalledTimes(1);
     expect(getSpy).toHaveBeenCalledTimes(1);
     expect(getSpy).toHaveBeenCalledWith(
       "/api/v1/runs/{run_id}/fabric-decision-data",
@@ -268,6 +300,7 @@ describe("useRunFabricDecisionData", () => {
     window.history.replaceState(null, "", requestUrl);
     const getSpy = mockRuntimeGetSuccess(payload);
     const siblingGraph = profileGraph({
+      status: "verified",
       selectedArtifactRef: siblingArtifactRef,
     });
     const postSpy = mockRuntimePostSuccess(batchPayload(siblingGraph));
@@ -285,6 +318,7 @@ describe("useRunFabricDecisionData", () => {
       },
       params: { query: temporalScope },
     });
+    expect(postSpy).toHaveBeenCalledTimes(1);
     expect(getSpy).toHaveBeenCalledTimes(1);
     expect(getSpy).toHaveBeenCalledWith(
       "/api/v1/runs/{run_id}/fabric-decision-data",
@@ -295,14 +329,16 @@ describe("useRunFabricDecisionData", () => {
   it("does not cache a profile-bound trust grade when the response omits its declaration", async () => {
     window.history.replaceState(null, "", requestUrl);
     const getSpy = mockRuntimeGetSuccess(payload);
-    const undeclaredGraph = {
-      ...profileGraph(),
-      selected_artifact_ref: null,
-      profile_binding_status: "not_established",
-      artifact_ref_provenance: null,
-      source_run_id: null,
-      trust_metadata: null,
-    } as unknown as LineageGraphView;
+    const undeclaredGraph = lineageGraphFixture({
+      lineageId: selector.lineageId,
+      status: "verified",
+      freshness: "current",
+      selectedArtifactRef: null,
+      profileBindingStatus: "not_established",
+      artifactRefProvenance: null,
+      sourceRunId: null,
+      trustMetadata: null,
+    });
     const postSpy = mockRuntimePostSuccess(batchPayload(undeclaredGraph));
 
     const { queryClient } = renderWithProviders(
@@ -318,6 +354,7 @@ describe("useRunFabricDecisionData", () => {
       },
       params: { query: temporalScope },
     });
+    expect(postSpy).toHaveBeenCalledTimes(1);
     expect(getSpy).toHaveBeenCalledTimes(1);
     expect(getSpy).toHaveBeenCalledWith(
       "/api/v1/runs/{run_id}/fabric-decision-data",
@@ -326,16 +363,25 @@ describe("useRunFabricDecisionData", () => {
   });
 
   it("keeps trust absent when the exact profile response has no verification metadata", async () => {
+    const user = userEvent.setup();
     window.history.replaceState(null, "", requestUrl);
     const getSpy = mockRuntimeGetSuccess(payload);
-    mockRuntimePostSuccess(
-      batchPayload(profileGraph({ includeTrustMetadata: false })),
+    const postSpy = mockRuntimePostSuccess(
+      batchPayload(profileGraph({ status: "verified" })),
     );
 
-    renderWithProviders(<FabricDecisionQuantityPopover runId={runId} />);
+    renderWithProviders(<RunOverviewProfileLineage runId={runId} />);
+    const row = await screen.findByTestId("overview-decision-quantity");
+    await waitFor(() =>
+      expect(row).toHaveAttribute("data-profile-binding-status", "verified"),
+    );
+    const quantity = within(row).getByTestId("quantity");
+    expect(quantity).toHaveAttribute("data-lineage-status", "verified");
+    expect(quantity).toHaveAttribute("data-profile-binding-status", "verified");
+    await user.click(quantity);
 
     expect(
-      await screen.findByTestId("lineage-verification-status"),
+      await screen.findByTestId("popover-profile-binding-status"),
     ).toHaveTextContent("verified");
     expect(
       screen.queryByTestId("trust-verification-status"),
@@ -345,6 +391,15 @@ describe("useRunFabricDecisionData", () => {
       "/api/v1/runs/{run_id}/fabric-decision-data",
       expect.any(Object),
     );
+    expect(postSpy).toHaveBeenCalledWith("/api/v1/lineage/batch", {
+      body: {
+        lineage_ids: [selector.lineageId],
+        selected_artifact_refs: [selectedArtifactRef],
+        run_id: runId,
+      },
+      params: { query: temporalScope },
+    });
+    expect(postSpy).toHaveBeenCalledTimes(1);
   });
 
   it("uses all temporal dimensions in the Fabric decision data cache key", () => {
@@ -369,11 +424,15 @@ describe("useRunFabricDecisionData", () => {
 });
 
 async function expectSelectedProfileRefusal(queryClient: QueryClient) {
+  const batchQueryKey = [
+    "quantity-lineage-batch",
+    [profileBindingIdentityKey(selector, runId, temporalScope)],
+  ] as const;
   await waitFor(() => {
-    const [query] = queryClient.getQueryCache().findAll({
-      queryKey: ["quantity-lineage-batch"],
-    });
-    expect(query?.state.status).toBe("error");
+    expect(queryClient.getQueryState(batchQueryKey)?.status).toBe("error");
+  });
+  expect(queryClient.getQueryState(batchQueryKey)?.error).toMatchObject({
+    message: "Lineage batch response contains an unrequested or unbound item",
   });
   expect(
     queryClient.getQueryData(
@@ -393,8 +452,14 @@ async function expectSelectedProfileRefusal(queryClient: QueryClient) {
       "not_established",
     ),
   );
+  const quantity = within(row).getByTestId("quantity");
+  expect(quantity).toHaveAttribute("data-lineage-status", "verified");
+  expect(quantity).toHaveAttribute(
+    "data-profile-binding-status",
+    "not_established",
+  );
   const user = userEvent.setup();
-  await user.click(within(row).getByRole("button", { name: /100/ }));
+  await user.click(quantity);
   expect(
     await screen.findByTestId("popover-profile-binding-status"),
   ).toHaveTextContent("Profile binding not established");
@@ -403,20 +468,23 @@ async function expectSelectedProfileRefusal(queryClient: QueryClient) {
   ).not.toBeInTheDocument();
 }
 
-function profileGraph(
-  options: {
-    id?: string;
-    selectedArtifactRef?: SelectedArtifactRef;
-    includeTrustMetadata?: boolean;
-  } = {},
-): LineageGraphView {
-  return profileLineageGraphFixture({
+function profileGraph(options: {
+  status: LineageGraphView["status"];
+  id?: string;
+  selectedArtifactRef?: SelectedArtifactRef;
+  trustMetadata?: LineageGraphView["trust_metadata"];
+}): LineageGraphView {
+  return lineageGraphFixture({
     lineageId: options.id ?? selector.lineageId,
+    status: options.status,
+    freshness: "current",
     selectedArtifactRef: options.selectedArtifactRef ?? selectedArtifactRef,
+    profileBindingStatus: "verified",
     artifactRefProvenance: "reader_materialized",
     sourceRunId: runId,
-    trustTemporalScope: temporalScope,
-    includeTrustMetadata: options.includeTrustMetadata,
+    ...(options.trustMetadata === undefined
+      ? {}
+      : { trustMetadata: options.trustMetadata }),
   });
 }
 

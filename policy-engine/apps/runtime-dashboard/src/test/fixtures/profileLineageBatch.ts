@@ -10,56 +10,72 @@ import type {
   TemporalRef,
 } from "@/shared/ui/quantity/quantity.types";
 
-/** Build one schema-validated selected-profile reader response for consumer tests. */
-export function profileLineageGraphFixture(options: {
-  lineageId?: string;
-  selectedArtifactRef: SelectedArtifactRef;
-  artifactRefProvenance: ArtifactRefProvenance;
-  sourceRunId: string;
-  trustTemporalScope: TemporalRef | null | undefined;
-  includeTrustMetadata?: boolean;
+/** Build one schema-validated lineage graph for consumer tests. */
+export function lineageGraphFixture(options: {
+  lineageId: string;
+  status: LineageGraphView["status"];
+  freshness: LineageGraphView["freshness"];
+  hash?: string | null;
+  compactSummary?: LineageGraphView["compact_summary"];
+  nodes?: LineageGraphView["nodes"];
+  edges?: LineageGraphView["edges"];
+  metadata?: Record<string, unknown>;
+  selectedArtifactRef?: SelectedArtifactRef | null;
+  profileBindingStatus?: LineageGraphView["profile_binding_status"];
+  artifactRefProvenance?: ArtifactRefProvenance | null;
+  sourceRunId?: string | null;
+  trustMetadata?: LineageGraphView["trust_metadata"];
 }): LineageGraphView {
-  const lineageId =
-    options.lineageId ?? `artifact:${options.selectedArtifactRef.artifact_id}`;
-  const graph = lineageGraphViewSchema.parse({
-    id: lineageId,
-    status: "verified",
-    hash: "sha256:selected-profile-lineage-fixture",
-    freshness: "current",
-    selected_artifact_ref: options.selectedArtifactRef,
-    profile_binding_status: "verified",
-    artifact_ref_provenance: options.artifactRefProvenance,
-    source_run_id: options.sourceRunId,
+  const graph: Record<string, unknown> = {
+    id: options.lineageId,
+    status: options.status,
+    freshness: options.freshness,
     exports: {
-      openlineage: `/api/v1/lineage/${encodeURIComponent(lineageId)}/export/openlineage`,
-      prov: `/api/v1/lineage/${encodeURIComponent(lineageId)}/export/prov`,
+      openlineage: `/api/v1/lineage/${encodeURIComponent(options.lineageId)}/export/openlineage`,
+      prov: `/api/v1/lineage/${encodeURIComponent(options.lineageId)}/export/prov`,
     },
-    nodes: [],
-    edges: [],
-    trust_metadata:
-      options.includeTrustMetadata === false
-        ? null
-        : {
-            hash: "sha256:selected-profile-lineage-fixture",
-            verification_status: "verified",
-            freshness: "current",
-            dispute_status: "none",
-            verified_by: "selected-profile-reader-fixture",
-            verified_at: "2026-04-15T12:00:00Z",
-            verification_method: "selected-profile-reader",
-            temporal_scope: options.trustTemporalScope,
-          },
-  });
-  return graph as LineageGraphView;
+    nodes: options.nodes ?? [],
+    edges: options.edges ?? [],
+  };
+
+  if (Object.hasOwn(options, "hash")) graph.hash = options.hash;
+  if (Object.hasOwn(options, "compactSummary")) {
+    graph.compact_summary = options.compactSummary;
+  }
+  if (Object.hasOwn(options, "metadata")) graph.metadata = options.metadata;
+  if (Object.hasOwn(options, "selectedArtifactRef")) {
+    graph.selected_artifact_ref = options.selectedArtifactRef;
+  }
+  if (Object.hasOwn(options, "profileBindingStatus")) {
+    graph.profile_binding_status = options.profileBindingStatus;
+  }
+  if (Object.hasOwn(options, "artifactRefProvenance")) {
+    graph.artifact_ref_provenance = options.artifactRefProvenance;
+  }
+  if (Object.hasOwn(options, "sourceRunId")) {
+    graph.source_run_id = options.sourceRunId;
+  }
+  if (Object.hasOwn(options, "trustMetadata")) {
+    graph.trust_metadata = options.trustMetadata;
+  }
+
+  return lineageGraphViewSchema.parse(graph) as LineageGraphView;
 }
 
 /** Build a schema-validated batch reply with one explicit resolution per graph. */
+export type CompleteLineageBatchFixture = LineageBatchResponsePayload & {
+  lineages: LineageGraphView[];
+  lineage_resolutions: NonNullable<
+    LineageBatchResponsePayload["lineage_resolutions"]
+  >;
+};
+
 export function lineageBatchFixture(options: {
   meta: LineageBatchResponsePayload["meta"];
   responseTemporalScope: TemporalRef | null | undefined;
   lineages: readonly LineageGraphView[];
   requestedLineageIds?: readonly string[];
-}): LineageBatchResponsePayload {
+}): CompleteLineageBatchFixture {
   const requestedLineageIds =
     options.requestedLineageIds ??
     options.lineages.map((lineage) => lineage.id);
@@ -75,5 +91,5 @@ export function lineageBatchFixture(options: {
       resolved_lineage_id: lineage.id,
     })),
   });
-  return response as LineageBatchResponsePayload;
+  return response as CompleteLineageBatchFixture;
 }

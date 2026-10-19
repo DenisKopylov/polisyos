@@ -9,7 +9,7 @@ import {
 import { renderWithProviders } from "@/test/render";
 import {
   lineageBatchFixture,
-  profileLineageGraphFixture,
+  lineageGraphFixture,
 } from "@/test/fixtures/profileLineageBatch";
 
 import { ProvenancePopover } from "./ProvenancePopover";
@@ -22,7 +22,9 @@ import type {
   TemporalRef,
 } from "./quantity.types";
 
-const meta = {
+const meta: LineageBatchResponsePayload["meta"] & {
+  source_kinds: "core_run"[];
+} = {
   generated_at: "2026-04-24T12:00:00Z",
   request_id: "req-popover",
   source_kinds: ["core_run"],
@@ -54,11 +56,11 @@ const quantity: QuantityValue = {
   label: "Effect size",
 };
 
-const lineage: LineageGraphView = {
-  id: "artifact:sha256:fixture",
+const lineage: LineageGraphView = lineageGraphFixture({
+  lineageId: "artifact:sha256:fixture",
   status: "verified",
   freshness: "current",
-  compact_summary: [
+  compactSummary: [
     { kind: "source", label: "QES 2024 Q3", id: "n1" },
     { kind: "transform", label: "Winsorize", id: "n2" },
     { kind: "model", label: "DoubleML", id: "n3" },
@@ -73,11 +75,7 @@ const lineage: LineageGraphView = {
     },
   ],
   edges: [],
-  exports: {
-    openlineage: "/api/v1/lineage/artifact:sha256:fixture/export/openlineage",
-    prov: "/api/v1/lineage/artifact:sha256:fixture/export/prov",
-  },
-};
+});
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -129,8 +127,9 @@ describe("ProvenancePopover", () => {
     const profileQuantity = profileBoundQuantity({ temporalScope: null });
     const postSpy = mockRuntimePostSuccess(
       profileBatch(profileQuantity, {
+        status: "verified",
         temporal_scope: null,
-        trust_temporal_scope: null,
+        trustMetadata: declaredTrustMetadata(null),
       }),
     );
     window.history.replaceState(
@@ -167,16 +166,23 @@ describe("ProvenancePopover", () => {
     expect(screen.getByTestId("popover-source-run")).toHaveTextContent(
       "run-popover",
     );
-    expect(postSpy).toHaveBeenCalledWith(
-      "/api/v1/lineage/batch",
-      expect.objectContaining({
-        body: {
-          lineage_ids: [profileQuantity.lineage.id],
-          selected_artifact_refs: [profileQuantity.lineage.artifact_ref],
-          run_id: "run-popover",
+    expect(postSpy).toHaveBeenCalledWith("/api/v1/lineage/batch", {
+      body: {
+        lineage_ids: [profileQuantity.lineage.id],
+        selected_artifact_refs: [profileQuantity.lineage.artifact_ref],
+        run_id: "run-popover",
+      },
+      params: {
+        query: {
+          branch: undefined,
+          scenario_id: undefined,
+          snapshot_id: undefined,
+          tx_at: undefined,
+          valid_at: undefined,
         },
-      }),
-    );
+      },
+    });
+    expect(postSpy).toHaveBeenCalledTimes(1);
 
     await user.click(screen.getByRole("button", { name: /deep dive/i }));
     await screen.findByTestId("provenance-profile-context");
@@ -238,11 +244,12 @@ describe("ProvenancePopover", () => {
       temporalScope,
     });
     const response = profileBatch(profileQuantity, {
+      status: "verified",
       temporal_scope: temporalScope,
-      trust_temporal_scope: temporalScope,
+      trustMetadata: declaredTrustMetadata(temporalScope),
       response_origin: "run_output_ref",
     });
-    mockRuntimePostSuccess(response);
+    const postSpy = mockRuntimePostSuccess(response);
     window.history.replaceState(null, "", "/runs/run-popover?trust=expanded");
 
     const selector = {
@@ -266,6 +273,22 @@ describe("ProvenancePopover", () => {
     expect(
       await screen.findByText(/Unable to load full lineage/i),
     ).toBeVisible();
+    expect(postSpy).toHaveBeenCalledWith("/api/v1/lineage/batch", {
+      body: {
+        lineage_ids: [profileQuantity.lineage.id],
+        selected_artifact_refs: [profileQuantity.lineage.artifact_ref],
+        run_id: "run-popover",
+      },
+      params: {
+        query: {
+          branch: temporalScope.branch,
+          scenario_id: temporalScope.scenario_id,
+          snapshot_id: temporalScope.snapshot_id,
+          tx_at: temporalScope.tx_at,
+          valid_at: temporalScope.valid_at,
+        },
+      },
+    });
     const rejectedQueryKey = boundLineageQueryKey(
       selector,
       "run-popover",
@@ -274,6 +297,9 @@ describe("ProvenancePopover", () => {
     await waitFor(() =>
       expect(queryClient.getQueryState(rejectedQueryKey)?.status).toBe("error"),
     );
+    expect(queryClient.getQueryState(rejectedQueryKey)?.error).toMatchObject({
+      message: "Lineage batch response contains an unrequested or unbound item",
+    });
     expect(queryClient.getQueryData(rejectedQueryKey)).toBeUndefined();
     expect(
       screen.queryByTestId("trust-verification-status"),
@@ -339,8 +365,8 @@ describe("ProvenancePopover", () => {
     });
     const postSpy = mockRuntimePostSuccess(
       profileBatch(profileQuantity, {
+        status: "verified",
         temporal_scope: null,
-        trust_temporal_scope: null,
       }),
     );
     window.history.replaceState(null, "", "/runs/run-popover?trust=expanded");
@@ -427,8 +453,9 @@ const temporalScope: TemporalRef = {
 function profileBatch(
   value: QuantityValue,
   options: {
+    status: LineageGraphView["status"];
     temporal_scope: TemporalRef | null;
-    trust_temporal_scope: TemporalRef | null;
+    trustMetadata?: NonNullable<LineageGraphView["trust_metadata"]>;
     response_origin?: "run_output_ref" | "reader_materialized";
   },
 ): LineageBatchResponsePayload {
@@ -437,16 +464,36 @@ function profileBatch(
   if (!selectedRef || !sourceRunId) {
     throw new Error("Profile batch fixture requires its selected ref and run");
   }
-  const graph = profileLineageGraphFixture({
+  const graph = lineageGraphFixture({
     lineageId: value.lineage.id,
+    status: options.status,
+    freshness: "current",
     selectedArtifactRef: selectedRef,
+    profileBindingStatus: "verified",
     artifactRefProvenance: options.response_origin ?? "reader_materialized",
     sourceRunId,
-    trustTemporalScope: options.trust_temporal_scope,
+    ...(options.trustMetadata === undefined
+      ? {}
+      : { trustMetadata: options.trustMetadata }),
   });
   return lineageBatchFixture({
     meta,
     responseTemporalScope: options.temporal_scope,
     lineages: [graph],
   });
+}
+
+function declaredTrustMetadata(
+  temporal_scope: TemporalRef | null | undefined,
+): NonNullable<LineageGraphView["trust_metadata"]> {
+  return {
+    hash: "sha256:selected-profile-lineage-fixture",
+    verification_status: "verified",
+    freshness: "current",
+    dispute_status: "none",
+    verified_by: "selected-profile-reader-fixture",
+    verified_at: "2026-04-15T12:00:00Z",
+    verification_method: "selected-profile-reader",
+    temporal_scope,
+  };
 }

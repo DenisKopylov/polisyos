@@ -2,15 +2,20 @@ import { act, fireEvent, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+import { lineageGraphFixture } from "@/test/fixtures/profileLineageBatch";
 import { mockRuntimeGetSuccess } from "@/test/runtimeApi";
 import { renderWithProviders } from "@/test/render";
 import { TrustInspector } from "@/shared/ui/trust-view";
 
 import { Quantity } from "./Quantity";
 import { formatQuantityValue } from "./quantity-format";
-import type { LineageGraphView, QuantityValue } from "./quantity.types";
+import type {
+  LineageGraphView,
+  LineageResponsePayload,
+  QuantityValue,
+} from "./quantity.types";
 
-const meta = {
+const meta: LineageResponsePayload["meta"] = {
   generated_at: "2026-04-24T12:00:00Z",
   request_id: "req-quantity",
   source_kinds: ["core_run"],
@@ -45,12 +50,12 @@ const verifiedQuantity: QuantityValue = {
   label: "Effect size",
 };
 
-const lineage: LineageGraphView = {
-  id: "artifact:sha256:fixture",
+const lineage: LineageGraphView = lineageGraphFixture({
+  lineageId: "artifact:sha256:fixture",
   status: "verified",
   freshness: "current",
   hash: "sha256:abc",
-  compact_summary: [
+  compactSummary: [
     { kind: "source", label: "QES 2024 Q3", id: "n1" },
     { kind: "transform", label: "Winsorize", id: "n2" },
     { kind: "model", label: "DoubleML v2.1", id: "n3" },
@@ -65,11 +70,7 @@ const lineage: LineageGraphView = {
     },
   ],
   edges: [],
-  exports: {
-    openlineage: "/api/v1/lineage/artifact:sha256:fixture/export/openlineage",
-    prov: "/api/v1/lineage/artifact:sha256:fixture/export/prov",
-  },
-};
+});
 
 afterEach(() => {
   vi.useRealTimers();

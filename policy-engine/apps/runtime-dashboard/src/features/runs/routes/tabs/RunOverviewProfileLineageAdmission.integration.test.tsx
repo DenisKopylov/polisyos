@@ -9,27 +9,54 @@ import {
 } from "@/test/runtimeApi";
 import { TrustInspector } from "@/shared/ui/trust-view";
 import {
+  lineageBatchFixture,
+  lineageGraphFixture,
+} from "@/test/fixtures/profileLineageBatch";
+import {
   boundLineageQueryKey,
   profileBindingAdmissionQueryKey,
 } from "@/shared/ui/quantity/useLineageBatch";
-import type { LineageBatchSelector } from "@/shared/ui/quantity/quantity.types";
+import type {
+  LineageBatchResponsePayload,
+  LineageBatchSelector,
+  LineageGraphView,
+  SelectedArtifactRef,
+  TemporalRef,
+} from "@/shared/ui/quantity/quantity.types";
 
 import { RunOverviewProfileLineage } from "./RunOverviewProfileLineage";
 
 const runId = "run-profile-admission-integration";
 const artifactId = `sha256:${"a".repeat(64)}`;
-const selectedArtifactRef = {
+const selectedArtifactRef: SelectedArtifactRef = {
   artifact_id: artifactId,
   kind: "core.decision_packet",
   media_type: "application/json",
   manifest_profile_sha256: `sha256:${"b".repeat(64)}`,
 };
-const temporalScope = {
+const temporalScope: TemporalRef = {
   valid_at: "2026-04-15T12:00:00Z",
   tx_at: "2026-04-15T12:05:00Z",
   branch: "main",
   snapshot_id: null,
   scenario_id: null,
+};
+const meta: LineageBatchResponsePayload["meta"] & {
+  source_kinds: "core_run"[];
+} = {
+  generated_at: "2026-04-15T12:05:00Z",
+  request_id: "run-profile-admission-integration-lineage",
+  source_kinds: ["core_run"],
+};
+const declaredTrustMetadata: NonNullable<LineageGraphView["trust_metadata"]> = {
+  hash: "sha256:lineage-proof",
+  verification_status: "verified",
+  freshness: "current",
+  dispute_status: "none",
+  verified_by: "canonical-profile-reader",
+  verified_at: "2026-04-15T12:00:00Z",
+  verification_method: "selected-profile-reader",
+  temporal_scope: temporalScope,
 };
 const lineageId = `artifact:${artifactId}`;
 const selector: LineageBatchSelector = {
@@ -53,7 +80,7 @@ describe("run overview profile lineage admission", () => {
       `/runs/${runId}/overview?trust=expanded`,
     );
     mockRuntimeGetSuccess(fabricDecisionDataPayload());
-    const postSpy = mockRuntimePostSuccess(batchResponse());
+    const postSpy = mockRuntimePostSuccess(batchResponse("verified"));
     const { queryClient } = renderWithProviders(
       <>
         <RunOverviewProfileLineage runId={runId} />
@@ -65,20 +92,31 @@ describe("run overview profile lineage admission", () => {
     await waitFor(() =>
       expect(row).toHaveAttribute("data-profile-binding-status", "verified"),
     );
-    expect(within(row).getByRole("button", { name: "verified" })).toBeVisible();
-    expect(within(row).getByRole("button", { name: /sha256:/ })).toBeVisible();
+    const quantity = within(row).getByTestId("quantity");
+    expect(quantity).toHaveAttribute("data-lineage-status", "pending");
+    expect(quantity).toHaveAttribute("data-profile-binding-status", "verified");
+    await user.click(quantity);
+    expect(
+      await screen.findByTestId("popover-profile-binding-status"),
+    ).toHaveTextContent("verified");
+    expect(
+      await screen.findByTestId("trust-verification-status"),
+    ).toHaveTextContent("verified");
     expect(
       queryClient.getQueryData(
         boundLineageQueryKey(selector, runId, temporalScope),
       ),
     ).toMatchObject({ profileBindingGeneration: 1 });
 
-    const statusButton = within(row).getByRole("button", {
-      name: "verified",
-    });
+    const statusButton = screen.getByRole("button", { name: /unknown/i });
     await user.click(statusButton);
     expect(
       await screen.findByTestId("trust-inspector-profile-context"),
+    ).toBeVisible();
+    expect(
+      within(screen.getByRole("dialog")).getByText("Unknown", {
+        exact: true,
+      }),
     ).toBeVisible();
     expect(
       screen.getByTestId("trust-inspector-selected-artifact-ref"),
@@ -100,7 +138,7 @@ describe("run overview profile lineage admission", () => {
     ).toBeVisible();
 
     await user.click(screen.getByRole("button", { name: "Close" }));
-    const hashButton = within(row).getByRole("button", { name: /sha256:/ });
+    const hashButton = screen.getByRole("button", { name: /sha256:/i });
     await user.click(hashButton);
     expect(
       await screen.findByTestId("trust-inspector-profile-context"),
@@ -134,7 +172,7 @@ describe("run overview profile lineage admission", () => {
       `/runs/${runId}/overview?trust=expanded`,
     );
     mockRuntimeGetSuccess(fabricDecisionDataPayload());
-    const postSpy = mockRuntimePostSuccess(batchResponse());
+    const postSpy = mockRuntimePostSuccess(batchResponse("verified"));
     const { queryClient } = renderWithProviders(
       <>
         <RunOverviewProfileLineage runId={runId} />
@@ -146,6 +184,9 @@ describe("run overview profile lineage admission", () => {
     await waitFor(() =>
       expect(row).toHaveAttribute("data-profile-binding-status", "verified"),
     );
+    const quantity = within(row).getByTestId("quantity");
+    expect(quantity).toHaveAttribute("data-lineage-status", "pending");
+    expect(quantity).toHaveAttribute("data-profile-binding-status", "verified");
     const boundKey = boundLineageQueryKey(selector, runId, temporalScope);
     const cachedState = queryClient.getQueryState(boundKey);
     expect(cachedState?.dataUpdatedAt).toBeGreaterThan(0);
@@ -178,13 +219,23 @@ describe("run overview profile lineage admission", () => {
       profileBindingGeneration: 1,
     });
     expect(screen.getByText("120")).toBeVisible();
+    const quantityAfterRejection = within(row).getByTestId("quantity");
+    expect(quantityAfterRejection).toHaveAttribute(
+      "data-lineage-status",
+      "pending",
+    );
+    expect(quantityAfterRejection).toHaveAttribute(
+      "data-profile-binding-status",
+      "not_established",
+    );
+    expect(quantityAfterRejection).toBeVisible();
     expect(within(row).getAllByRole("button")).toHaveLength(1);
     expect(
       within(row).queryByRole("button", { name: /sha256:/ }),
     ).not.toBeInTheDocument();
     expect(screen.queryByTestId("trust-inspector-subject-id")).toBeNull();
 
-    await user.click(within(row).getByRole("button", { name: /120/ }));
+    await user.click(within(row).getByTestId("quantity"));
     expect(
       await screen.findByTestId("popover-profile-binding-status"),
     ).toHaveTextContent("Profile binding not established");
@@ -193,7 +244,7 @@ describe("run overview profile lineage admission", () => {
     expect(screen.queryByTestId("trust-inspector-subject-id")).toBeNull();
     expect(postSpy).toHaveBeenCalledTimes(2);
 
-    const recoveredResponse = batchResponse();
+    const recoveredResponse = batchResponse("verified");
     postSpy.mockResolvedValueOnce(runtimePostSuccess(recoveredResponse));
     await queryClient.refetchQueries({
       queryKey: ["quantity-lineage-batch"],
@@ -224,15 +275,22 @@ describe("run overview profile lineage admission", () => {
       await screen.findByTestId("trust-verification-status"),
     ).toHaveTextContent("verified");
 
-    const statusButton = within(row).getByRole("button", {
-      name: "verified",
-    });
+    const quantityAfterAdmission = within(row).getByTestId("quantity");
+    expect(quantityAfterAdmission).toHaveAttribute(
+      "data-lineage-status",
+      "pending",
+    );
+    expect(quantityAfterAdmission).toHaveAttribute(
+      "data-profile-binding-status",
+      "verified",
+    );
+    const statusButton = screen.getByRole("button", { name: /unknown/i });
     await user.click(statusButton);
     expect(
       await screen.findByTestId("trust-inspector-profile-context"),
     ).toBeVisible();
     expect(
-      within(screen.getByRole("dialog")).getByText("verified", {
+      within(screen.getByRole("dialog")).getByText("Unknown", {
         exact: true,
       }),
     ).toBeVisible();
@@ -273,7 +331,16 @@ describe("run overview profile lineage admission", () => {
       expect(queryClient.getQueryData(boundKey)).toMatchObject({
         profileBindingGeneration: 3,
       });
-      expect(within(row).getByRole("button", { name: /120/ })).toBeVisible();
+      const quantityAfterMismatch = within(row).getByTestId("quantity");
+      expect(quantityAfterMismatch).toHaveAttribute(
+        "data-lineage-status",
+        "pending",
+      );
+      expect(quantityAfterMismatch).toHaveAttribute(
+        "data-profile-binding-status",
+        "not_established",
+      );
+      expect(quantityAfterMismatch).toBeVisible();
       expect(within(row).getAllByRole("button")).toHaveLength(1);
       expect(
         within(row).queryByRole("button", { name: /sha256:/ }),
@@ -347,7 +414,7 @@ function runtimePostSuccess(data: unknown) {
 function mismatchedBatchResponse(
   mismatch: "profile" | "run" | "origin" | "time",
 ) {
-  const response = batchResponse();
+  const response = batchResponse("verified");
   const lineage = response.lineages[0];
   if (!lineage) {
     throw new Error("The profile admission fixture must contain one lineage");
@@ -371,50 +438,25 @@ function mismatchedBatchResponse(
   return { ...response, lineages: [mismatchedLineage] };
 }
 
-function batchResponse() {
-  return {
-    meta: {
-      generated_at: "2026-04-15T12:05:00Z",
-      request_id: "run-profile-admission-integration-lineage",
-      source_kinds: ["core_run"],
-    },
-    temporal_scope: temporalScope,
-    lineages: [
-      {
-        id: lineageId,
-        status: "verified",
-        hash: "sha256:lineage-proof",
-        freshness: "current",
-        compact_summary: [],
-        nodes: [],
-        edges: [],
-        root_artifact_refs: [],
-        selected_artifact_ref: selectedArtifactRef,
-        profile_binding_status: "verified",
-        artifact_ref_provenance: "reader_materialized",
-        source_run_id: runId,
-        exports: {
-          openlineage: `/api/v1/lineage/${encodeURIComponent(lineageId)}/export/openlineage`,
-          prov: `/api/v1/lineage/${encodeURIComponent(lineageId)}/export/prov`,
-        },
-        metadata: {},
-        trust_metadata: {
-          hash: "sha256:lineage-proof",
-          verification_status: "verified",
-          freshness: "current",
-          dispute_status: "none",
-          verified_by: "canonical-profile-reader",
-          verified_at: "2026-04-15T12:00:00Z",
-          verification_method: "selected-profile-reader",
-          temporal_scope: temporalScope,
-        },
-      },
-    ],
-    lineage_resolutions: [
-      {
-        requested_lineage_id: lineageId,
-        resolved_lineage_id: lineageId,
-      },
-    ],
-  };
+function batchResponse(status: LineageGraphView["status"]) {
+  const lineage = lineageGraphFixture({
+    lineageId,
+    status,
+    freshness: "current",
+    hash: "sha256:lineage-proof",
+    compactSummary: [],
+    metadata: {},
+    nodes: [],
+    edges: [],
+    selectedArtifactRef,
+    profileBindingStatus: "verified",
+    artifactRefProvenance: "reader_materialized",
+    sourceRunId: runId,
+    trustMetadata: declaredTrustMetadata,
+  });
+  return lineageBatchFixture({
+    meta,
+    responseTemporalScope: temporalScope,
+    lineages: [lineage],
+  });
 }

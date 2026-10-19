@@ -3,6 +3,10 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { renderWithProviders } from "@/test/render";
+import {
+  lineageBatchFixture,
+  lineageGraphFixture,
+} from "@/test/fixtures/profileLineageBatch";
 import { TrustInspector } from "@/shared/ui/trust-view";
 import {
   boundLineageQueryKey,
@@ -68,6 +72,23 @@ const quantity = {
 
 const verifiedBy = "CanonicalProfileReader@1";
 const trustScope = { ...temporalScope };
+const meta: LineageBatchResponsePayload["meta"] & {
+  source_kinds: "core_run"[];
+} = {
+  generated_at: "2026-04-15T12:05:00Z",
+  request_id: "run-profile-lineage-test",
+  source_kinds: ["core_run"],
+};
+const declaredTrustMetadata: NonNullable<LineageGraphView["trust_metadata"]> = {
+  hash: "sha256:selected-profile-lineage-fixture",
+  verification_status: "verified",
+  freshness: "current",
+  dispute_status: "none",
+  verified_by: verifiedBy,
+  verified_at: "2026-04-15T12:00:00Z",
+  verification_method: "selected-profile-reader",
+  temporal_scope: trustScope,
+};
 
 afterEach(() => {
   vi.clearAllMocks();
@@ -77,7 +98,7 @@ afterEach(() => {
 describe("RunOverviewProfileLineage", () => {
   it("feeds exact run/profile/time lineage into the displayed quantity and TrustInspector", async () => {
     const user = userEvent.setup();
-    const graph = profileGraph(selectedRef);
+    const graph = profileGraph(selectedRef, "verified", declaredTrustMetadata);
     configureQueries(graph);
     window.history.replaceState(
       null,
@@ -99,14 +120,27 @@ describe("RunOverviewProfileLineage", () => {
       "data-profile-binding-status",
       "verified",
     );
+    const quantityTrigger = within(quantityRow).getByTestId("quantity");
+    expect(quantityTrigger).toHaveAttribute("data-lineage-status", "pending");
+    expect(quantityTrigger).toHaveAttribute(
+      "data-profile-binding-status",
+      "verified",
+    );
+    await user.click(quantityTrigger);
     expect(
-      within(quantityRow).getByRole("button", { name: /120/ }),
-    ).toHaveAttribute("data-lineage-status", "pending");
-    const statusButton = within(quantityRow).getByRole("button", {
-      name: "verified",
-    });
+      await screen.findByTestId("popover-profile-binding-status"),
+    ).toHaveTextContent("verified");
+    expect(
+      await screen.findByTestId("trust-verification-status"),
+    ).toHaveTextContent("verified");
+    const statusButton = screen.getByRole("button", { name: /unknown/i });
     await user.click(statusButton);
     expect(await screen.findByRole("dialog")).toHaveTextContent(verifiedBy);
+    expect(
+      within(screen.getByRole("dialog")).getByText("Unknown", {
+        exact: true,
+      }),
+    ).toBeVisible();
     expect(screen.getByRole("dialog")).toHaveTextContent(
       "selected-profile-reader",
     );
@@ -130,9 +164,7 @@ describe("RunOverviewProfileLineage", () => {
     ).toHaveTextContent(JSON.stringify(temporalScope));
 
     await user.click(screen.getByRole("button", { name: "Close" }));
-    const hashButton = within(quantityRow).getByRole("button", {
-      name: /sha256:/,
-    });
+    const hashButton = screen.getByRole("button", { name: /sha256:/i });
     await user.click(hashButton);
     expect(await screen.findByRole("dialog")).toHaveTextContent(verifiedBy);
     expect(
@@ -162,9 +194,9 @@ describe("RunOverviewProfileLineage", () => {
   });
 
   it("suppresses cached bound trust when the current batch query is rejected", async () => {
-    configureQueries(profileGraph(selectedRef));
+    configureQueries(profileGraph(selectedRef, "verified"));
     mocks.useLineageBatch.mockReturnValue({
-      data: batchResponse(profileGraph(selectedRef)),
+      data: batchResponse(profileGraph(selectedRef, "verified")),
       error: new Error("profile binding refused"),
       isError: true,
       isLoading: false,
@@ -187,12 +219,13 @@ describe("RunOverviewProfileLineage", () => {
       "data-profile-binding-status",
       "not_established",
     );
-    expect(
-      within(quantityRow).getByRole("button", { name: /120/ }),
-    ).toHaveAttribute("data-lineage-status", "pending");
-    expect(
-      within(quantityRow).getByRole("button", { name: /120/ }),
-    ).toBeVisible();
+    const quantityTrigger = within(quantityRow).getByTestId("quantity");
+    expect(quantityTrigger).toHaveAttribute("data-lineage-status", "pending");
+    expect(quantityTrigger).toHaveAttribute(
+      "data-profile-binding-status",
+      "not_established",
+    );
+    expect(quantityTrigger).toBeVisible();
     expect(within(quantityRow).getAllByRole("button")).toHaveLength(1);
     expect(
       within(quantityRow).queryByRole("button", { name: /sha256:/ }),
@@ -273,12 +306,13 @@ describe("RunOverviewProfileLineage", () => {
       "data-profile-binding-status",
       "not_established",
     );
-    expect(
-      within(quantityRow).getByRole("button", { name: /120/ }),
-    ).toHaveAttribute("data-lineage-status", "verified");
-    expect(
-      within(quantityRow).getByRole("button", { name: /120/ }),
-    ).toBeVisible();
+    const quantityTrigger = within(quantityRow).getByTestId("quantity");
+    expect(quantityTrigger).toHaveAttribute("data-lineage-status", "verified");
+    expect(quantityTrigger).toHaveAttribute(
+      "data-profile-binding-status",
+      "not_established",
+    );
+    expect(quantityTrigger).toBeVisible();
     expect(screen.getByTestId("profile-binding-status")).toHaveTextContent(
       "Profile binding not established",
     );
@@ -291,7 +325,7 @@ describe("RunOverviewProfileLineage", () => {
       ...selectedRef,
       manifest_profile_sha256: `sha256:${"c".repeat(64)}`,
     };
-    configureQueries(profileGraph(siblingRef));
+    configureQueries(profileGraph(siblingRef, "verified"));
     window.history.replaceState(
       null,
       "",
@@ -311,12 +345,13 @@ describe("RunOverviewProfileLineage", () => {
       "data-profile-binding-status",
       "not_established",
     );
-    expect(
-      within(quantityRow).getByRole("button", { name: /120/ }),
-    ).toHaveAttribute("data-lineage-status", "pending");
-    expect(
-      within(quantityRow).getByRole("button", { name: /120/ }),
-    ).toBeVisible();
+    const quantityTrigger = within(quantityRow).getByTestId("quantity");
+    expect(quantityTrigger).toHaveAttribute("data-lineage-status", "pending");
+    expect(quantityTrigger).toHaveAttribute(
+      "data-profile-binding-status",
+      "not_established",
+    );
+    expect(quantityTrigger).toBeVisible();
     expect(screen.getByTestId("profile-binding-status")).toHaveTextContent(
       "Profile binding not established",
     );
@@ -345,45 +380,29 @@ function configureQueries(graph: LineageGraphView) {
   });
 }
 
-function profileGraph(ref: SelectedArtifactRef): LineageGraphView {
-  return {
-    id: `artifact:${artifactId}`,
-    status: "verified",
+function profileGraph(
+  ref: SelectedArtifactRef,
+  status: LineageGraphView["status"],
+  trustMetadata?: LineageGraphView["trust_metadata"],
+): LineageGraphView {
+  return lineageGraphFixture({
+    lineageId: `artifact:${artifactId}`,
+    status,
     freshness: "current",
-    selected_artifact_ref: ref,
-    profile_binding_status: "verified",
-    artifact_ref_provenance: "reader_materialized",
-    source_run_id: runId,
-    trust_metadata: {
-      verification_status: "verified",
-      freshness: "current",
-      dispute_status: "none",
-      verified_by: verifiedBy,
-      verified_at: "2026-04-15T12:00:00Z",
-      verification_method: "selected-profile-reader",
-      temporal_scope: trustScope,
-    },
-    nodes: [],
-    edges: [],
-  } as unknown as LineageGraphView;
+    selectedArtifactRef: ref,
+    profileBindingStatus: "verified",
+    artifactRefProvenance: "reader_materialized",
+    sourceRunId: runId,
+    ...(trustMetadata === undefined ? {} : { trustMetadata }),
+  });
 }
 
 function batchResponse(graph: LineageGraphView): LineageBatchResponsePayload {
-  return {
-    meta: {
-      generated_at: "2026-04-15T12:05:00Z",
-      request_id: "run-profile-lineage-test",
-      source_kinds: ["core_run"],
-    },
-    temporal_scope: temporalScope,
+  return lineageBatchFixture({
+    meta,
+    responseTemporalScope: temporalScope,
     lineages: [graph],
-    lineage_resolutions: [
-      {
-        requested_lineage_id: graph.id,
-        resolved_lineage_id: graph.id,
-      },
-    ],
-  } as unknown as LineageBatchResponsePayload;
+  });
 }
 
 function seedBoundAdmission(
@@ -420,16 +439,14 @@ function seedBoundAdmission(
 }
 
 function unestablishedGraph(lineageId: string): LineageGraphView {
-  return {
-    id: lineageId,
+  return lineageGraphFixture({
+    lineageId,
     status: "verified",
     freshness: "current",
-    selected_artifact_ref: null,
-    profile_binding_status: "not_established",
-    artifact_ref_provenance: null,
-    source_run_id: null,
-    trust_metadata: null,
-    nodes: [],
-    edges: [],
-  } as unknown as LineageGraphView;
+    selectedArtifactRef: null,
+    profileBindingStatus: "not_established",
+    artifactRefProvenance: null,
+    sourceRunId: null,
+    trustMetadata: null,
+  });
 }

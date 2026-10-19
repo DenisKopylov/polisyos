@@ -158,9 +158,15 @@ missing, duplicate, or substituted output refs make the result
 `repair_required` before the V2 proof artifacts are written.
 
 For a MeasurementRoot output, resolution reads the selected immutable Core
-manifest and payload. Unscoped writes must match the source-owned producer
-`PutOptions` over the exact stored bytes. Scoped writes additionally resolve
-the existing authority envelope and diagnostic event, bind them to the current
+manifest and payload. The persisted Core kind and producer component identify
+the owner; the shared BaseDataset schema is not sufficient because generic
+WorkspaceLoop fallback outputs use that same schema. PDC creator/root fields
+claiming MeasurementRoot are checked against the resolved Core owner. Generic
+profileless fallback outputs remain candidate/refusal results and emit no
+MeasurementRoot profile proof. A true MeasurementRoot with no selected profile
+remains a typed refusal. Unscoped writes must match the source-owned producer
+`PutOptions` over the exact stored bytes. Scoped writes additionally resolve the
+existing authority envelope and diagnostic event, bind them to the current
 run/job and selected CAS ref, and call the existing runtime identity verifier.
 The checker repeats this durable CAS resolution from the stored contract and
 proofs; it does not treat a profile string, producer label, or in-memory

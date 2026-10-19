@@ -746,10 +746,11 @@ def output_cas_manifest_profiles_from_contract(
         marker_claims_measurement_root = envelope_type == "BaseDataset" and (
             creator_component == _MEASUREMENT_ROOT_PRODUCER or bool(root_rows)
         )
-        measurement_root = envelope_type == "BaseDataset" and payload_schema_ref in {
+        schema_claims_measurement_root = envelope_type == "BaseDataset" and payload_schema_ref in {
             "policyos.policy_design_case.layer3_gy_loop.v1",
             "policyos.gy.fabric_measurement_root.v2",
         }
+        measurement_root = False
         if (
             envelope_type == "BaseDataset"
             and isinstance(payload_ref, str)
@@ -765,7 +766,7 @@ def output_cas_manifest_profiles_from_contract(
             except (AttributeError, OSError, TypeError, ValueError, RuntimeError) as exc:
                 if (
                     marker_claims_measurement_root
-                    or measurement_root
+                    or schema_claims_measurement_root
                     or profile is not None
                     or require_resolution
                 ):
@@ -774,18 +775,21 @@ def output_cas_manifest_profiles_from_contract(
                     ) from exc
             else:
                 persisted_producer = selected_manifest.producer
-                measurement_root = measurement_root or (
-                    selected_manifest.kind == _MEASUREMENT_ROOT_PAYLOAD_KIND
-                    or (
-                        persisted_producer is not None
-                        and persisted_producer.component == _MEASUREMENT_ROOT_PRODUCER
-                    )
+                measurement_root = selected_manifest.kind == _MEASUREMENT_ROOT_PAYLOAD_KIND or (
+                    persisted_producer is not None
+                    and persisted_producer.component == _MEASUREMENT_ROOT_PRODUCER
                 )
-        if marker_claims_measurement_root and not measurement_root and artifact_store is not None:
+        elif require_resolution and (
+            marker_claims_measurement_root or schema_claims_measurement_root or profile is not None
+        ):
+            raise OutputCASManifestProfileRefusalError(
+                "selected_output_profile_owner_manifest_unavailable"
+            )
+        if marker_claims_measurement_root and artifact_store is not None and not measurement_root:
             raise OutputCASManifestProfileRefusalError(
                 "measurement_root_producer_manifest_binding_mismatch"
             )
-        if measurement_root or marker_claims_measurement_root:
+        if measurement_root:
             if profile is None:
                 raise OutputCASManifestProfileRefusalError(
                     "measurement_root_selected_profile_missing"

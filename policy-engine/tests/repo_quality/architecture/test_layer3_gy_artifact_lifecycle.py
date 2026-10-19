@@ -3453,14 +3453,10 @@ def test_gy_j_history_guards_every_completed_predecessor_epoch(monkeypatch, hist
 def test_layer3_gy_selected_output_profile_chain_binds_fresh_get_projection(
     tmp_path: Path,
 ) -> None:
-    from polisyos.core.artifacts import (
-        FileSystemCAS,
-        ProducerInfo,
-        PutOptions,
-        SchemaInfo,
-        artifact_manifest_profile_sha256,
-    )
+    from polisyos.core.artifacts import FileSystemCAS
+    from polisyos.core.canon import CanonSpec
     from polisyos.pdc import ArtifactRef as PDCArtifactRef
+    from polisyos.runtime.quality.data_forge_binding import _measurement_root_put_options
     from tools.quality.validation.check_layer3_gy_loop_artifacts import (
         _selected_output_profile_chain_issues,
     )
@@ -3477,19 +3473,13 @@ def test_layer3_gy_selected_output_profile_chain_binds_fresh_get_projection(
     payload_schema_ref = "policyos.policy_design_case.layer3_gy_loop.v1"
     core_ref = store.put_json(
         payload,
-        PutOptions(
-            kind="policyos.gy.measurement_root_payload",
-            media_type="application/json",
-            schema=SchemaInfo(name=payload_schema_ref, version="v1"),
-            producer=ProducerInfo(
-                component=("polisyos.runtime.quality.data_forge_binding.MeasurementRootProducer"),
-                version="1.0.0",
-            ),
-            inputs=[],
-        ),
+        _measurement_root_put_options(fabric_fetch_ref=None),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
     payload_ref = str(core_ref.artifact_id)
-    profile = artifact_manifest_profile_sha256(store.get_manifest(core_ref.artifact_id))
+    profile = core_ref.manifest_profile_sha256
+    assert profile is not None
     envelope_ref = PDCArtifactRef.from_payload(
         artifact_id="base-selected-measurement",
         artifact_type="BaseDataset",

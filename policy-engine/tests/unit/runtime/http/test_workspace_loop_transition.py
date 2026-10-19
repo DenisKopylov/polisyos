@@ -8,6 +8,8 @@ from threading import Event, Thread, current_thread
 
 import pytest
 
+from polisyos.core.artifacts.manifest import ArtifactRef as CoreArtifactRef
+from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.contracts import ControlFailureEnvelope
 from polisyos.core.contracts.control import WorkflowRunRequest
 from polisyos.core.security.tenant_context import clear_tenant_context, tenant_scope
@@ -125,6 +127,46 @@ def _owner_bound_data_snapshot_ref(
         schema_name="polisyos.core.DataSnapshot",
         schema_version="0.2.0",
         inputs=[input_ref_from_artifact_ref(source_ref, role="data_ref")],
+    )
+
+
+def _data_snapshot_ref_for_source(
+    service: ControlPlaneService,
+    source_ref: CoreArtifactRef,
+    *,
+    tenant_id: str | None = None,
+    cell_id: str | None = None,
+) -> CoreArtifactRef:
+    """Wrap the unchanged source ref in the typed workflow input contract."""
+    from polisyos.core.artifacts.manifest import input_ref_from_artifact_ref
+    from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
+    from polisyos.core.canon import CanonSpec
+    from polisyos.core.contracts.fabric import DataSnapshot
+
+    snapshot = DataSnapshot(data_ref=source_ref)
+    inputs = [input_ref_from_artifact_ref(source_ref, role="data_ref")]
+    if tenant_id is not None and cell_id is not None:
+        return _put_tenant_owned_json_artifact(
+            service,
+            snapshot,
+            tenant_id=tenant_id,
+            cell_id=cell_id,
+            kind="fabric.data_snapshot",
+            schema_name="polisyos.core.DataSnapshot",
+            schema_version="0.2.0",
+            inputs=inputs,
+        )
+    if tenant_id is not None or cell_id is not None:
+        raise ValueError("data_snapshot_owner_scope_incomplete")
+    return service._artifact_store.put_json(  # noqa: SLF001
+        snapshot,
+        ArtifactWriteOptions(
+            kind="fabric.data_snapshot",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.core.DataSnapshot", version="0.2.0"),
+            inputs=inputs,
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
     )
 
 
@@ -755,14 +797,20 @@ def test_unclaimed_candidate_worker_carries_limitation_to_served_readback(
     # input. It does not waive HTTP authentication or tenant-owned CAS access,
     # and does not establish the R1 owner-bound N4 -> N5 -> S8 capability.
     with clear_tenant_context():
-        input_ref = service._put_json_artifact(  # noqa: SLF001
+        source_ref = service._put_json_artifact_ref(  # noqa: SLF001
             {"root": True, "candidate_input": "unclaimed-r14-control"},
             kind="test.unclaimed_candidate_input",
             schema_name="test.UnclaimedCandidateInput",
         )
+        snapshot_ref = _data_snapshot_ref_for_source(service, source_ref)
+        snapshot_manifest = service._artifact_store.get_manifest(snapshot_ref)  # noqa: SLF001
+        assert source_ref.kind == "test.unclaimed_candidate_input"
+        assert snapshot_manifest.kind == "fabric.data_snapshot"
+        assert snapshot_manifest.authority is None
+        assert snapshot_manifest.inputs[0].artifact_id == source_ref.artifact_id
         launch = service.launch_workflow_run(
             WorkflowRunRequest(
-                data_source={"data_snapshot_ref": input_ref},
+                data_source={"data_snapshot_ref": str(snapshot_ref.artifact_id)},
                 params={
                     "slice0_fixture_id": "ua_msme_credit_worldbank_measurement",
                     "tenant_id": "tenant-forged-payload",
@@ -1155,6 +1203,25 @@ def test_http_control_route_persists_production_and_replay_proofs(
         cell_id=admitted_cell,
         writer="test_http_control_route_persists_production_and_replay_proofs",
     )
+    from polisyos.core.artifacts import ArtifactID, profile_bound_ref
+
+    root_manifest = service._artifact_store.get_manifest(  # noqa: SLF001
+        ArtifactID(runtime_api_env["root_artifact_id"])
+    )
+    source_ref = profile_bound_ref(
+        service._artifact_store,  # noqa: SLF001
+        CoreArtifactRef(
+            artifact_id=root_manifest.artifact_id,
+            kind=root_manifest.kind,
+            media_type=root_manifest.media_type,
+        ),
+    )
+    snapshot_ref = _data_snapshot_ref_for_source(
+        service,
+        source_ref,
+        tenant_id=admitted_tenant,
+        cell_id=admitted_cell,
+    )
     stop_embedded_control_worker(service)
     headers = {
         "Authorization": f"Bearer {bearer}",
@@ -1164,7 +1231,7 @@ def test_http_control_route_persists_production_and_replay_proofs(
         "/api/v1/control/runs",
         json={
             "data_source": {
-                "data_snapshot_ref": runtime_api_env["root_artifact_id"],
+                "data_snapshot_ref": str(snapshot_ref.artifact_id),
             },
             "params": {
                 "slice0_fixture_id": "ua_msme_credit_worldbank_measurement",
@@ -1645,15 +1712,21 @@ def test_workspace_loop_non_authority_terminal_is_not_verifier_stamped(
         launch = _launch_owner_bound_workflow(runtime_api_env, request)
     else:
         with clear_tenant_context():
-            input_ref = service._put_json_artifact(  # noqa: SLF001
+            source_ref = service._put_json_artifact_ref(  # noqa: SLF001
                 {"candidate_input": f"non-authority-{terminal_kind}"},
                 kind="test.unclaimed_search_terminal_input",
                 schema_name="test.UnclaimedSearchTerminalInput",
             )
+            snapshot_ref = _data_snapshot_ref_for_source(service, source_ref)
+            snapshot_manifest = service._artifact_store.get_manifest(snapshot_ref)  # noqa: SLF001
+            assert source_ref.kind == "test.unclaimed_search_terminal_input"
+            assert snapshot_manifest.kind == "fabric.data_snapshot"
+            assert snapshot_manifest.authority is None
+            assert snapshot_manifest.inputs[0].artifact_id == source_ref.artifact_id
             request = request.model_copy(
                 update={
                     "data_source": request.data_source.model_copy(
-                        update={"data_snapshot_ref": input_ref}
+                        update={"data_snapshot_ref": str(snapshot_ref.artifact_id)}
                     )
                 }
             )

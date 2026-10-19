@@ -15,7 +15,6 @@ from polisyos.core.artifacts import (
     ProducerInfo,
     PutOptions,
     SchemaInfo,
-    artifact_manifest_profile_sha256,
 )
 from polisyos.runtime.http.services.temporal import (
     build_time_source_consistency_audit_projection,
@@ -862,6 +861,7 @@ def test_outcome_replay_binds_selected_output_profiles_and_preserves_v1_history(
     tmp_path: Path,
 ) -> None:
     from polisyos.core.artifacts import InputRef
+    from polisyos.core.canon import CanonSpec
     from polisyos.pdc import ArtifactRef as PDCArtifactRef
     from polisyos.runtime.quality.authority import (
         declared_output_envelopes_from_contract,
@@ -870,6 +870,7 @@ def test_outcome_replay_binds_selected_output_profiles_and_preserves_v1_history(
     )
     from polisyos.runtime.quality.data_forge_binding import (
         MeasurementRootBindingError,
+        _measurement_root_put_options,
         resolve_measurement_root_selected_profile,
     )
 
@@ -885,20 +886,12 @@ def test_outcome_replay_binds_selected_output_profiles_and_preserves_v1_history(
     payload_schema_ref = "policyos.policy_design_case.layer3_gy_loop.v1"
     core_ref = artifact_store.put_json(
         payload,
-        PutOptions(
-            kind="policyos.gy.measurement_root_payload",
-            media_type="application/json",
-            schema=SchemaInfo(name=payload_schema_ref, version="v1"),
-            producer=ProducerInfo(
-                component=("polisyos.runtime.quality.data_forge_binding.MeasurementRootProducer"),
-                version="1.0.0",
-            ),
-            inputs=[],
-        ),
+        _measurement_root_put_options(fabric_fetch_ref=None),
+        canon_spec=CanonSpec(forbid_floats=False),
+        return_selected_profile=True,
     )
-    manifest_profile_sha256 = artifact_manifest_profile_sha256(
-        artifact_store.get_manifest(core_ref.artifact_id)
-    )
+    manifest_profile_sha256 = core_ref.manifest_profile_sha256
+    assert manifest_profile_sha256 is not None
     artifact_id = str(core_ref.artifact_id)
     envelope_ref = PDCArtifactRef.from_payload(
         artifact_id="base-selected-view",
@@ -963,6 +956,76 @@ def test_outcome_replay_binds_selected_output_profiles_and_preserves_v1_history(
             manifest_profile_sha256=manifest_profile_sha256,
         )
     ]
+
+    fallback_payload = {
+        "fixture_id": "selected-view-fallback",
+        "catalog_binding_refs": [],
+        "connector_profile": None,
+        "producer_root_kind": "measurement",
+        "disposition": "missing_acquisition",
+        "measurement_rows": [],
+        "catalog_result": {},
+    }
+    fallback_core_ref = artifact_store.put_json(
+        fallback_payload,
+        PutOptions(
+            kind="policyos.gy.missing_acquisition_payload",
+            media_type="application/json",
+            schema=SchemaInfo(name=payload_schema_ref, version="v1"),
+            producer=ProducerInfo(
+                component="polisyos.runtime.quality.WorkspaceLoop",
+                version="1.0.0",
+            ),
+            inputs=[],
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    fallback_ref = PDCArtifactRef.from_payload(
+        artifact_id="base-selected-view-fallback",
+        artifact_type="BaseDataset",
+        payload=fallback_payload,
+        schema_ref=payload_schema_ref,
+        uri="gy://slice0/selected-view-fallback/base-dataset",
+        version="v1",
+    )
+    fallback_contract = {
+        "terminal_state": {"kind": "acquisition_required"},
+        "search_ledger": {"invocations": [], "events": []},
+        "incompleteness_record": {},
+        "output_artifacts": [fallback_ref.model_dump(mode="json")],
+        "artifact_envelopes": [
+            {
+                "ref": fallback_ref.model_dump(mode="json"),
+                "payload_ref": str(fallback_core_ref.artifact_id),
+                "payload_schema_ref": payload_schema_ref,
+                "payload_manifest_profile_sha256": None,
+                "created_by": {
+                    "kind": "producer",
+                    "component": "polisyos.runtime.quality.WorkspaceLoop",
+                },
+                "producer_roots": [],
+            }
+        ],
+    }
+    fallback_proof = build_outcome_replay_proof(
+        **{**arguments, "output_cas_refs": [str(fallback_core_ref.artifact_id)]},
+        search_exit_contract=fallback_contract,
+        artifact_store=artifact_store,
+    )
+    assert fallback_proof.output_cas_manifest_profiles == []
+
+    forged_fallback = deepcopy(fallback_contract)
+    forged_fallback["artifact_envelopes"][0]["created_by"]["component"] = (
+        "polisyos.runtime.quality.data_forge_binding.MeasurementRootProducer"
+    )
+    forged_fallback["artifact_envelopes"][0]["producer_roots"] = [root_ref.model_dump(mode="json")]
+    with pytest.raises(
+        OutputCASManifestProfileRefusalError,
+        match="measurement_root_producer_manifest_binding_mismatch",
+    ):
+        output_cas_manifest_profiles_from_contract(
+            forged_fallback, artifact_store=artifact_store, require_resolution=True
+        )
 
     alternate_core_ref = artifact_store.put_json(
         payload,

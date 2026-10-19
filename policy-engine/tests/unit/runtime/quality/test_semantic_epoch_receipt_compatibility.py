@@ -197,7 +197,7 @@ def test_production_receipt_preserves_producer_selected_or_default_manifest_view
         expected_media_type="application/vnd.polisyos.epoch-production-receipt+json",
     )
     assert "manifest_profile_sha256" not in default_statement["semantic_manifest_ref"]
-    assert store.get_manifest(default_receipt.receipt_ref).inputs == (
+    assert store.get_manifest(default_receipt.receipt_ref).inputs == list(
         epoch_contract._semantic_epoch_production_receipt_input_refs(
             semantic_epoch.SemanticEpochProductionReceipt.model_validate(default_statement)
         )

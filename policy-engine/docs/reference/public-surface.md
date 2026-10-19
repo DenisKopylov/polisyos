@@ -479,7 +479,7 @@ security
 - Candidate scope: `Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.`
 - Source evidence: 3 measured source reads; full path, byte-length, and SHA-256 receipts are in the companion inventory JSON.
 
-<details><summary>Source-declared candidates (92; native exports unproved)</summary>
+<details><summary>Source-declared candidates (101; native exports unproved)</summary>
 
 ```text
 AUTHORITY_ENVELOPE_ARTIFACT_KIND
@@ -518,6 +518,7 @@ CanonInfo
 CoreArtifactOwnerProfile
 CoreJSONArtifactStore
 CoreOwnedModelRead
+CoreToIRArtifactStoreAdapter
 DependencyEdge
 DependencyGraph
 DependencyNode
@@ -553,9 +554,11 @@ artifact_manifest_profile_projection
 artifact_manifest_profile_sha256
 artifact_ref_for_manifest
 artifact_ref_identity_key
+artifact_reference_parts
 build_artifact_store
 build_cas_integrity_report
 compute_key_id
+decode_core_json_payload
 ensure_async_artifact_store
 ensure_directory_durable
 ensure_ir_artifact_store
@@ -565,15 +568,21 @@ fsync_directory
 input_ref_from_artifact_ref
 load_core_json_artifact
 load_core_json_frame_records
+matches_artifact_store_protocol
+matches_runtime_protocol
+matches_runtime_protocol_definition
 profile_bound_ref
 read_core_json_artifact
 read_core_json_artifact_bytes
 read_core_manifest_profile
+require_return_selected_profile_writer
 resolve_authority_envelope_ref
 resolve_dependency_graph
 resolve_manifest_by_profile
 validate_core_model_json_artifact
 validate_owned_core_model_json_artifact
+validate_return_selected_profile
+with_ambient_ownership_enforcement_if_supported
 ```
 
 </details>

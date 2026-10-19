@@ -157,14 +157,19 @@ class _CASStorageAdmission(Protocol):
 
 
 def _validate_return_selected_profile(value: bool) -> bool:
-    """Reject truthy non-bools before a write can begin."""
+    """Reject non-bool values for the selected-profile write option."""
     if type(value) is not bool:
         raise TypeError("return_selected_profile must be a bool")
     return value
 
 
 def _require_return_selected_profile_writer(store: object, method_name: str) -> None:
-    """Refuse unsupported writer capabilities before any producer-side mutation."""
+    """Preflight the writer signature for the selected-profile keyword.
+
+    This checks that the named method accepts an explicit keyword parameter. It
+    does not verify that a write honored the option or returned a selected view.
+    Callers must inspect and validate the result from the actual write.
+    """
     method = getattr(store, method_name, None)
     if not callable(method):
         raise NotImplementedError("artifact_store_return_selected_profile_unsupported")
@@ -178,6 +183,11 @@ def _require_return_selected_profile_writer(store: object, method_name: str) -> 
         inspect.Parameter.KEYWORD_ONLY,
     ):
         raise NotImplementedError("artifact_store_return_selected_profile_unsupported")
+
+
+# Public package-facade aliases preserve one implementation for current callers.
+validate_return_selected_profile = _validate_return_selected_profile
+require_return_selected_profile_writer = _require_return_selected_profile_writer
 
 
 @runtime_checkable

@@ -18091,5 +18091,269 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root-core-artifact-intake-supported-owner-facade-20261019": {
+    "slice_base": "28be3206c60785231e07a7ceca713129306a14e3",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/src/polisyos/core/artifacts/protocol.py": {
+        "operation": "modify",
+        "preimage_sha256": "5c9f2ae0b6934464ca60bca7a18f809849c3e68db53710c200304095fbf8928c",
+        "git_base_preimage_sha256": "55b080c39f8b639140eb267f44daae6d816101153a34045d7041261701fcf665",
+        "postimage_path": "policy-engine/src/polisyos/core/artifacts/protocol.py",
+        "postimage_sha256": "5c9f2ae0b6934464ca60bca7a18f809849c3e68db53710c200304095fbf8928c"
+      },
+      "policy-engine/src/polisyos/core/artifacts/__init__.py": {
+        "operation": "modify",
+        "preimage_sha256": "d915ab894ce009dc0df064d5c5c269544b6e407d1f09e4289afdeded1695ac76",
+        "git_base_preimage_sha256": "853e4146e84072da9711743af49fdb6587411ed511c153c4f1bf1f1c06aaa597",
+        "postimage_path": "policy-engine/src/polisyos/core/artifacts/__init__.py",
+        "postimage_sha256": "d915ab894ce009dc0df064d5c5c269544b6e407d1f09e4289afdeded1695ac76"
+      },
+      "policy-engine/src/polisyos/core/artifacts/README.md": {
+        "operation": "modify",
+        "preimage_sha256": "682e004a77bdaf25ba15b20c6b7a60f61e131ed0d3ae19722b2cf6cda872a949",
+        "git_base_preimage_sha256": "96582cd045d1be271dee38dc3d21ff484428018f1b38317d6b0bf93451d35f8b",
+        "postimage_path": "policy-engine/src/polisyos/core/artifacts/README.md",
+        "postimage_sha256": "682e004a77bdaf25ba15b20c6b7a60f61e131ed0d3ae19722b2cf6cda872a949"
+      },
+      "policy-engine/tests/unit/core/artifacts/test_artifact_store_protocol.py": {
+        "operation": "modify",
+        "preimage_sha256": "410bf36643f015cba9481659fb9a7f25a54e2e3db0d2f721accd52e1345ff978",
+        "git_base_preimage_sha256": "917cf502951fabe9fc6dc1f0488b85b3f7227340ca427a5baf4cacc255432468",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-canonical-format-delta-20261019/test_artifact_store_protocol.py",
+        "postimage_sha256": "02db800f2a6cdd6ebf809efda8515e7727a8d6ab0eea260a4d097d51193a84a9"
+      },
+      "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py": {
+        "operation": "modify",
+        "preimage_sha256": "34a863bdc3101b995bf03524876e835f0c04bed85f69e441dd20ee51ec202339",
+        "git_base_preimage_sha256": "56d88b241197048a07ccf56e570afd13b2826146ad4afe45e6dc5b66ca051cbb",
+        "postimage_path": "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py",
+        "postimage_sha256": "34a863bdc3101b995bf03524876e835f0c04bed85f69e441dd20ee51ec202339"
+      },
+      "policy-engine/release-fragments/unreleased/2026-10-19-e02-core-artifact-intake-facade.toml": {
+        "operation": "add",
+        "preimage_sha256": "40fe5ffeea9e4e02fdd84a49fdf4314ec171b90c87f747d63c11448664ec87c5",
+        "git_base_preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-reviewed-complete-boundary-20261019/2026-10-19-e02-core-artifact-intake-facade.toml",
+        "postimage_sha256": "9240d02770e4dc38c48231296ddeac19397f361f5427595fc8b21185f5473f16"
+      },
+      "policy-engine/architecture/public_surface/inventory.json": {
+        "operation": "modify",
+        "preimage_sha256": "9b40b2bc6dcd54527733941ad83a9c6940ef295ee99af02680d8e69c51caa0f8",
+        "git_base_preimage_sha256": "e9ccd448d7201d2763789fee04cc6e8c06ff02615bbf7143aa9384d4f67eaa0f",
+        "postimage_path": "policy-engine/architecture/public_surface/inventory.json",
+        "postimage_sha256": "9b40b2bc6dcd54527733941ad83a9c6940ef295ee99af02680d8e69c51caa0f8"
+      },
+      "policy-engine/docs/reference/public-surface.md": {
+        "operation": "modify",
+        "preimage_sha256": "0ef1d0af325c78d81effc52315caeee00f984a043710c833a944e1372b7be166",
+        "git_base_preimage_sha256": "10613ceb66db7d9a597ed479c0010a5ea2fb8f2371dcf1c8da6cb3a706cc0ecf",
+        "postimage_path": "policy-engine/docs/reference/public-surface.md",
+        "postimage_sha256": "0ef1d0af325c78d81effc52315caeee00f984a043710c833a944e1372b7be166"
+      },
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/release-inventory-local-review-attestation-20261019-core-artifact-intake.json": {
+        "operation": "add",
+        "preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-reviewed-complete-boundary-r2-20261019/release-inventory-local-review-attestation-20261019-core-artifact-intake.json",
+        "postimage_sha256": "2264f666e279821e23521742cb527075569fee99babcd6011b80ed4bbd741c5d"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-reviewed-complete-boundary-r2-20261019/source-application.json",
+      "sha256": "ca08f69717d7f88084841cb74e1c4ff16e90a41a9f206f2c9e22e7891b3aa942"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-reviewed-complete-boundary-r2-20261019/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-intake-facade-route-author-r2-20261019/manifest.json",
+        "sha256": "0807fc8c2666ce54add6f12cf52cfa0e4f2dbc9a8608574df2c0485a0d2030f7"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-intake-facade-route-independent-20261019/review.json",
+        "sha256": "3472c4e645e5dbfb99000b888e56fbc2056d89b7c845a8d576f5865c14c1e338"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-adoption-and-owner-regeneration-20261019/source-application.json",
+        "sha256": "d458360e541b20a020338ddae67e12bb0e18bfa8b4000de827ced964d5452fe1"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-adoption-and-owner-regeneration-20261019/generation-readback.json",
+        "sha256": "3065dd2ca177ebc562aa3eb14975b13302cd6444da5fc06c561b7209286faec1"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-adoption-and-owner-regeneration-20261019/generation-result.json",
+        "sha256": "3b219d8251161f77151d217472d93625ac64f2c7ff543ff86062738e3b369250"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-surface-technical-review-20261019/review.json",
+        "sha256": "4c74fa7d4f02a5b40b02e7e374494edd4b999ece92610a8528639497c604da47"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-current-actual-20261019/result.json",
+        "sha256": "d0fa0eaf1fadacba5bae851fe9d0068c87abb6903af072c8d1b1155fdda33ea6"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-current-actual-20261019/pytest.xml",
+        "sha256": "cf079132264364d738539f6e3a6ae3a1baaacf21b97f16f40209de0d3bcd94bd"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-current-actual-20261019/pytest.stdout.txt",
+        "sha256": "da58f463f86032cdc05fd820e9fa0c19c43db284f103b33fc11f13386305f5de"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-current-actual-20261019/pytest.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-current-actual-20261019/runtime-module-origins.json",
+        "sha256": "661ae6ecdcecab3513fe39a70107b0a93a015b5d32a70e18837c7010a6d08385"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-frontend-lineage-r7-complete-source-generator-adoption-20261019/preparation.json",
+        "sha256": "fd400a37487ff6b9afd806734a222de4e50f0b3ff9781c510921ceb2f3914201"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-frontend-lineage-r7-complete-source-generator-adoption-20261019/source-applied.json",
+        "sha256": "e531b80218bfb3c37cd1e89460b05e105abc04d0bf053da28cf703adf0581646"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-frontend-lineage-r7-complete-source-generator-adoption-20261019/reviewed-source-docs.patch",
+        "sha256": "3e1095450b8c9a27902c4de06a95334a30153b2fff88b226b85ce14e69ab23fa"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-disjoint-adopter-prepare-r7-20261019/adopt_reviewed_postimages_known_owned_applied_r7.py",
+        "sha256": "a91e1c9900b683452dd22f8e0894b5cd644528521a7ae3fac104d25f55aec637"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-disjoint-adopter-r7-delta-independent-20261019/review.json",
+        "sha256": "fc7d1e8d79de87ad804f1a8667c8dc9dd78c86320fe114f805c050bd6e2c9624"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-public-surface-review-flag-semantics-20261019/semantics.json",
+        "sha256": "3d479831c353cd0db2091ea5ca6d00725d07be617acc0ed2d11f015965f27725"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/protocol.py",
+        "sha256": "5c9f2ae0b6934464ca60bca7a18f809849c3e68db53710c200304095fbf8928c"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/__init__.py",
+        "sha256": "d915ab894ce009dc0df064d5c5c269544b6e407d1f09e4289afdeded1695ac76"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/README.md",
+        "sha256": "682e004a77bdaf25ba15b20c6b7a60f61e131ed0d3ae19722b2cf6cda872a949"
+      },
+      {
+        "path": "policy-engine/tests/unit/core/artifacts/test_artifact_store_protocol.py",
+        "sha256": "410bf36643f015cba9481659fb9a7f25a54e2e3db0d2f721accd52e1345ff978"
+      },
+      {
+        "path": "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py",
+        "sha256": "34a863bdc3101b995bf03524876e835f0c04bed85f69e441dd20ee51ec202339"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-reviewed-complete-boundary-20261019/2026-10-19-e02-core-artifact-intake-facade.toml",
+        "sha256": "9240d02770e4dc38c48231296ddeac19397f361f5427595fc8b21185f5473f16"
+      },
+      {
+        "path": "policy-engine/architecture/public_surface/inventory.json",
+        "sha256": "9b40b2bc6dcd54527733941ad83a9c6940ef295ee99af02680d8e69c51caa0f8"
+      },
+      {
+        "path": "policy-engine/docs/reference/public-surface.md",
+        "sha256": "0ef1d0af325c78d81effc52315caeee00f984a043710c833a944e1372b7be166"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-reviewed-complete-boundary-20261019/release-inventory-local-review-attestation-20261019-core-artifact-intake.json",
+        "sha256": "de2baa8382f3861b3d81579fd88ab782da0099a71e77061411d4415f9cff17b7"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-canonical-format-delta-20261019/manifest.json",
+        "sha256": "20cca189bf29525222a17179f03f28df32e8764360775723ff62853a6236302d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-canonical-format-delta-20261019/test_artifact_store_protocol.py",
+        "sha256": "02db800f2a6cdd6ebf809efda8515e7727a8d6ab0eea260a4d097d51193a84a9"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-reviewed-complete-boundary-r2-20261019/release-inventory-local-review-attestation-20261019-core-artifact-intake.json",
+        "sha256": "2264f666e279821e23521742cb527075569fee99babcd6011b80ed4bbd741c5d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-reviewed-complete-boundary-20261019/canonical-context-preflight.json",
+        "sha256": "90f29939c99ca342baa648c1574ba5f68c0cd4e1349a23267ca9b1762f45700f"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-boundary-plan-independent-20261019/review.json",
+        "sha256": "724ee8140480c28cf06f649a86145e24e2b2c300d7798609b70199c6ef0885a7"
+      }
+    ],
+    "owned_applied_provenance": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-adoption-and-owner-regeneration-20261019/source-application.json",
+      "sha256": "d458360e541b20a020338ddae67e12bb0e18bfa8b4000de827ced964d5452fe1"
+    },
+    "preserved_other_owned_rows": {
+      "policy-engine/src/polisyos/core/contracts/runtime.py": "8b0d366eca1503e31cf556558b5167ff1b1111e924ef175d3a744a018f382e7d",
+      "policy-engine/src/polisyos/runtime/http/routes/lineage.py": "4d105d1725d3844ee7e715649c5269217116111404448ae3c0d9b050474ac453",
+      "policy-engine/tests/unit/runtime/http/test_lineage_routes.py": "141c33f919f2b5d8201267b5b034fb1423bf9a005c9c7239fd81d80a9cc3aae8",
+      "policy-engine/apps/runtime-dashboard/src/api/validators.ts": "f0420e6745e233dd15431c1c431cd20870b97b7e2c736cd47360945f7d073125",
+      "policy-engine/apps/runtime-dashboard/src/app/providers/QuantityRuntimeProvider.tsx": "6163eac2a953a43191c7ead23e039db6e2494e9da226425cbc88c4fd59c5c7e0",
+      "policy-engine/apps/runtime-dashboard/src/app/providers/QuantityRuntimeProvider.test.tsx": "c3e75fc348758c0edabf148989117547f36da50a2293b78467dbe669a54c3786",
+      "policy-engine/apps/runtime-dashboard/src/api/hooks/useRunLineage.ts": "d87c76c4d94ff7f784ac617b34482208605175f3d9656f56cfeca8b96ee6ef7b",
+      "policy-engine/apps/runtime-dashboard/src/api/hooks/artifactDebugLexQueries.test.tsx": "f4fb392e1fe94af0c5b3d9998dc5045020fcf9092fd7189b767280acf3be96a3",
+      "policy-engine/apps/runtime-dashboard/src/api/hooks/useRunFabricDecisionData.test.tsx": "fe81f5a4160c66b58211e0769d3754fe9fcf3de82cd04e17033b83f31fbe19d7",
+      "policy-engine/src/polisyos/runtime/http/openapi_contract.py": "bab74a2221dd7e2f9b8fced776389b4d330c5673f16e20962248056407d63989",
+      "policy-engine/tests/unit/runtime/http/test_runtime_api_contract_hardening.py": "ea183d74a5e3e8445f32d991881151dc4d9601c929be4ff2e4a50c90c10d832d",
+      "policy-engine/release-fragments/unreleased/2026-10-19-e02-lineage-batch-resolution.toml": "b22e592fa074748149f7b7584560d56b3a8516bd0feb25692d3681a45be13a24",
+      "policy-engine/docs/reference/api/migration-guide.md": "612fe009dd10ac110cd3c665c5e2fabb3ff0d06eb0d3d2f641dfa114ebbf91cc",
+      "policy-engine/docs/runbooks/migration-release-promotion.md": "c55226975e8451319810fdc369804c524c2f644ded048368797b3c09163a8f76"
+    },
+    "preserved_other_owned_provenance": {
+      "preparation": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-frontend-lineage-r7-complete-source-generator-adoption-20261019/preparation.json",
+        "sha256": "fd400a37487ff6b9afd806734a222de4e50f0b3ff9781c510921ceb2f3914201"
+      },
+      "source_application": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-frontend-lineage-r7-complete-source-generator-adoption-20261019/source-applied.json",
+        "sha256": "e531b80218bfb3c37cd1e89460b05e105abc04d0bf053da28cf703adf0581646"
+      }
+    },
+    "preserved_other_owned_tracked_paths": [
+      "policy-engine/apps/runtime-dashboard/src/api/hooks/artifactDebugLexQueries.test.tsx",
+      "policy-engine/apps/runtime-dashboard/src/api/hooks/useRunFabricDecisionData.test.tsx",
+      "policy-engine/apps/runtime-dashboard/src/api/hooks/useRunLineage.ts",
+      "policy-engine/apps/runtime-dashboard/src/api/validators.ts",
+      "policy-engine/apps/runtime-dashboard/src/app/providers/QuantityRuntimeProvider.test.tsx",
+      "policy-engine/apps/runtime-dashboard/src/app/providers/QuantityRuntimeProvider.tsx",
+      "policy-engine/docs/reference/api/migration-guide.md",
+      "policy-engine/docs/runbooks/migration-release-promotion.md",
+      "policy-engine/src/polisyos/core/contracts/runtime.py",
+      "policy-engine/src/polisyos/runtime/http/openapi_contract.py",
+      "policy-engine/src/polisyos/runtime/http/routes/lineage.py",
+      "policy-engine/tests/unit/runtime/http/test_lineage_routes.py",
+      "policy-engine/tests/unit/runtime/http/test_runtime_api_contract_hardening.py"
+    ],
+    "preserved_other_owned_untracked_paths": [
+      "policy-engine/release-fragments/unreleased/2026-10-19-e02-lineage-batch-resolution.toml"
+    ],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "Same private-owner-coupling class widened over the complete selected intake facade family. The signature-only predicate is not used as actual write/result or source authority proof.",
+    "bounded_proof": "Independent source and generated-delta review, real full owner modules 161/161 PASS; publication/native completeness and capability closure unclaimed.",
+    "limitations": [
+      "Inventory remains unresolved_exports, known_export_count=0, exports=[], complete_verdict=false.",
+      "Caller migration and original whole capabilities are not proved by this facade slice.",
+      "13-row native SOTA, installed consumers, full composed closeout and G adjudication remain separate.",
+      "Historical 161-case proof pins the preformat test companion; two canonical-format assert wraps have equal full-file AST and unchanged production source. No postformat runtime result is inferred."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Compose caller owner routes, then execute affected consumers, native SOTA and installed/rebuilt artifact chains on the final source/profile/input freeze; G independently reviews source and adjudicates individual findings.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

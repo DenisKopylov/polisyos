@@ -62,6 +62,17 @@ local Python API and adds no HTTP endpoint.
   import these from the artifacts facade; they do not copy the projection algorithm or
   import its private lifecycle owner. A profile selects a manifest view; it does not
   attest producer authority or currentness.
+- intake and capability helpers: `validate_return_selected_profile` accepts only a real bool,
+  and `require_return_selected_profile_writer` checks that a writer method declares the selected-
+  profile keyword. The latter is signature preflight only: callers must verify the actual write
+  result, and a missing selected profile remains a refusal. `matches_runtime_protocol` and
+  `matches_runtime_protocol_definition` check structural presence; `matches_artifact_store_protocol`
+  also checks a Core-to-IR adapter's actual owner for raw-manifest capability. These checks do not
+  establish content integrity, authority, or currentness. `CoreToIRArtifactStoreAdapter` is the
+  existing bridge for IR callers. `decode_core_json_payload` decodes supplied bytes but does not
+  read or verify a CAS artifact; `artifact_reference_parts` normalizes a selector but does not
+  resolve it; `with_ambient_ownership_enforcement_if_supported` may return the input store when no
+  hook is available and is not proof of tenant enforcement.
 - write-selected profile result: existing `put_bytes`/`put_json` methods accept the strict
   keyword `return_selected_profile=True` to return the exact profile computed and committed
   inside the write lease. The default stays profileless for a default view. Caching, cloud,

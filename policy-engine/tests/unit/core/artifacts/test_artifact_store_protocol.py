@@ -58,6 +58,52 @@ class TestArtifactStoreProtocol:
         assert artifacts.build_artifact_store is build_artifact_store
         assert {"ArtifactStoreConfig", "build_artifact_store"} <= set(artifacts.__all__)
 
+    def test_core_artifacts_facade_reexports_exact_intake_owners(self) -> None:
+        from polisyos.core import artifacts
+        from polisyos.core.artifacts import canonical_profile, ir_adapter, manifest, protocol
+        from polisyos.core.artifacts.backends import config
+
+        assert artifacts.require_return_selected_profile_writer is (
+            protocol._require_return_selected_profile_writer
+        )
+        assert artifacts.require_return_selected_profile_writer is (
+            protocol.require_return_selected_profile_writer
+        )
+        assert artifacts.validate_return_selected_profile is (
+            protocol._validate_return_selected_profile
+        )
+        assert (
+            artifacts.validate_return_selected_profile is protocol.validate_return_selected_profile
+        )
+        assert artifacts.matches_runtime_protocol is protocol.matches_runtime_protocol
+        assert artifacts.matches_runtime_protocol_definition is (
+            protocol.matches_runtime_protocol_definition
+        )
+        assert artifacts.CoreToIRArtifactStoreAdapter is ir_adapter.CoreToIRArtifactStoreAdapter
+        assert (
+            artifacts.matches_artifact_store_protocol is ir_adapter.matches_artifact_store_protocol
+        )
+        assert artifacts.decode_core_json_payload is canonical_profile.decode_core_json_payload
+        assert artifacts.artifact_reference_parts is manifest.artifact_reference_parts
+        assert (
+            artifacts.with_ambient_ownership_enforcement_if_supported
+            is config.with_ambient_ownership_enforcement_if_supported
+        )
+        assert {
+            "require_return_selected_profile_writer",
+            "validate_return_selected_profile",
+            "matches_runtime_protocol",
+            "matches_runtime_protocol_definition",
+            "matches_artifact_store_protocol",
+            "CoreToIRArtifactStoreAdapter",
+            "decode_core_json_payload",
+            "artifact_reference_parts",
+            "with_ambient_ownership_enforcement_if_supported",
+        } <= set(artifacts.__all__)
+        assert artifacts.validate_return_selected_profile(False) is False
+        with pytest.raises(TypeError, match="return_selected_profile must be a bool"):
+            artifacts.validate_return_selected_profile(1)  # type: ignore[arg-type]
+
     def test_core_artifacts_facade_exports_read_only_surface(self) -> None:
         from polisyos.core import artifacts
         from polisyos.core.artifacts.ownership import ArtifactReadOnlyUnavailableError

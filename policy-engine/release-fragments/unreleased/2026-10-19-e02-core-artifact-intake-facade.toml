@@ -1,0 +1,36 @@
+id = "2026-10-19-e02-core-artifact-intake-facade"
+title = "Expose Core artifact intake helpers"
+type = "added"
+component = "core"
+owner = "team-polisyos"
+summary = "Expose existing artifact-store preflight, structural matcher, adapter, selector, decoder, and optional ownership-hook operations through the supported core.artifacts facade."
+evidence = [
+  "src/polisyos/core/artifacts/protocol.py",
+  "src/polisyos/core/artifacts/__init__.py",
+  "src/polisyos/core/artifacts/README.md",
+  "tests/unit/core/artifacts/test_artifact_store_protocol.py",
+  "tests/unit/core/artifacts/test_ir_adapter.py",
+]
+compatibility = "Additive Python API on the already-supported polisyos.core.artifacts entrypoint. Facade names resolve to existing owner objects and lazy adapter/profile imports remain lazy. No persisted format, wire contract, or caller behavior changes."
+change_class = "python-public-api"
+surface_classification = "public_stable: polisyos.core.artifacts"
+migration = "No migration is required. Existing consumers may use the facade names when adopting the supported Core entrypoint."
+api = "Add exact facade aliases for strict selected-profile option validation and writer preflight, generic and adapter-aware structural matchers, CoreToIRArtifactStoreAdapter, decode_core_json_payload, artifact_reference_parts, and with_ambient_ownership_enforcement_if_supported."
+limitations = "Writer preflight checks only that a method exposes the keyword; the actual write result must still carry its selected manifest profile. Structural matching is not integrity, authority, or currentness proof. The optional ambient hook may return the original store. The regenerated inventory/docs were independently reviewed as source-declared candidates; native export completeness, publication and G acceptance remain unestablished."
+generated_client_compatibility = "not_applicable"
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "e02-core-artifact-intake-facade"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.core.artifacts"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "not_applicable"
+release_note = "Expose existing artifact intake and structural capability helpers through the supported core.artifacts facade."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = []
+runbook_docs = []

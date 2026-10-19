@@ -979,8 +979,8 @@
                 "path": "src/polisyos/core/artifacts/__init__.py",
                 "operation": "read_bytes",
                 "status": "read",
-                "bytes": 8880,
-                "sha256": "853e4146e84072da9711743af49fdb6587411ed511c153c4f1bf1f1c06aaa597"
+                "bytes": 9772,
+                "sha256": "d915ab894ce009dc0df064d5c5c269544b6e407d1f09e4289afdeded1695ac76"
               },
               {
                 "path": "src/polisyos/__init__.py",
@@ -1052,6 +1052,7 @@
               "CoreArtifactOwnerProfile",
               "CoreJSONArtifactStore",
               "CoreOwnedModelRead",
+              "CoreToIRArtifactStoreAdapter",
               "DependencyEdge",
               "DependencyGraph",
               "DependencyNode",
@@ -1087,9 +1088,11 @@
               "artifact_manifest_profile_sha256",
               "artifact_ref_for_manifest",
               "artifact_ref_identity_key",
+              "artifact_reference_parts",
               "build_artifact_store",
               "build_cas_integrity_report",
               "compute_key_id",
+              "decode_core_json_payload",
               "ensure_async_artifact_store",
               "ensure_directory_durable",
               "ensure_ir_artifact_store",
@@ -1099,15 +1102,21 @@
               "input_ref_from_artifact_ref",
               "load_core_json_artifact",
               "load_core_json_frame_records",
+              "matches_artifact_store_protocol",
+              "matches_runtime_protocol",
+              "matches_runtime_protocol_definition",
               "profile_bound_ref",
               "read_core_json_artifact",
               "read_core_json_artifact_bytes",
               "read_core_manifest_profile",
+              "require_return_selected_profile_writer",
               "resolve_authority_envelope_ref",
               "resolve_dependency_graph",
               "resolve_manifest_by_profile",
               "validate_core_model_json_artifact",
-              "validate_owned_core_model_json_artifact"
+              "validate_owned_core_model_json_artifact",
+              "validate_return_selected_profile",
+              "with_ambient_ownership_enforcement_if_supported"
             ],
             "candidate_scope": "Names in a finite source declaration before effect audit; not proved native exports, not included in known_export_count and not a completeness verdict.",
             "selector": "Declared __all__; literal sequences/mapping keys, named/imported declarations, concatenation and sorted/list/tuple. Every read local module is audited against a finite pure import-time declaration grammar; external imports, control/context statements, class construction, decorated/type-parameterized function headers and foreign attribute/subscript/operator/callback protocols remain unknown. Imported local dependencies and package initializers additionally require a passive-binding-only profile without callable definitions or dunder bindings other than the explicit __all__ declaration; imported names must have explicit owner bindings, never ambient builtin fallbacks. Plain selected-module function bodies are excluded. No module execution or runtime dispatch."

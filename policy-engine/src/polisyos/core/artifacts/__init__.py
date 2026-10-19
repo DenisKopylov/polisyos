@@ -24,7 +24,11 @@ from .async_store import (
     AsyncFileSystemArtifactStore,
     ensure_async_artifact_store,
 )
-from .backends.config import ArtifactStoreConfig, build_artifact_store
+from .backends.config import (
+    ArtifactStoreConfig,
+    build_artifact_store,
+    with_ambient_ownership_enforcement_if_supported,
+)
 from .cas_integrity_report import CASIntegrityReport, build_cas_integrity_report
 from .graph import (
     DependencyEdge,
@@ -50,6 +54,7 @@ from .manifest import (
     SchemaInfo,
     WarningRecord,
     artifact_ref_identity_key,
+    artifact_reference_parts,
     input_ref_from_artifact_ref,
 )
 from .manifest import (
@@ -80,8 +85,12 @@ from .protocol import (
     CoreJSONArtifactStore,
     RawManifestBytesReader,
     SignatureVerifyingArtifactStore,
+    matches_runtime_protocol,
+    matches_runtime_protocol_definition,
+    require_return_selected_profile_writer,
     resolve_authority_envelope_ref,
     resolve_manifest_by_profile,
+    validate_return_selected_profile,
 )
 from .protocol import (
     RootedArtifactStore as RootedArtifactStore,
@@ -119,12 +128,17 @@ if TYPE_CHECKING:
     from .canonical_profile import (
         aload_core_json_artifact,
         artifact_ref_for_manifest,
+        decode_core_json_payload,
         load_core_json_artifact,
         load_core_json_frame_records,
         read_core_json_artifact,
         read_core_json_artifact_bytes,
         read_core_manifest_profile,
         validate_core_model_json_artifact,
+    )
+    from .ir_adapter import (
+        CoreToIRArtifactStoreAdapter,
+        matches_artifact_store_protocol,
     )
     from .ir_adapter import ensure_ir_artifact_store as ensure_ir_artifact_store
     from .owned_json import (
@@ -136,13 +150,17 @@ if TYPE_CHECKING:
 
 def __getattr__(name: str) -> Any:
     """Resolve optional adapters and profile readers without package cycles."""
-    if name == "ensure_ir_artifact_store":
-        from .ir_adapter import ensure_ir_artifact_store
-
-        return ensure_ir_artifact_store
+    if name in {
+        "CoreToIRArtifactStoreAdapter",
+        "ensure_ir_artifact_store",
+        "matches_artifact_store_protocol",
+    }:
+        ir_adapter = import_module(".ir_adapter", __name__)
+        return getattr(ir_adapter, name)
     if name in {
         "aload_core_json_artifact",
         "artifact_ref_for_manifest",
+        "decode_core_json_payload",
         "load_core_json_artifact",
         "load_core_json_frame_records",
         "read_core_json_artifact",
@@ -240,6 +258,7 @@ __all__ = [
     "CoreArtifactOwnerProfile",
     "CoreJSONArtifactStore",
     "CoreOwnedModelRead",
+    "CoreToIRArtifactStoreAdapter",
     "DependencyEdge",
     "DependencyGraph",
     "DependencyNode",
@@ -275,9 +294,11 @@ __all__ = [
     "artifact_manifest_profile_sha256",
     "artifact_ref_for_manifest",
     "artifact_ref_identity_key",
+    "artifact_reference_parts",
     "build_artifact_store",
     "build_cas_integrity_report",
     "compute_key_id",
+    "decode_core_json_payload",
     "ensure_async_artifact_store",
     "ensure_directory_durable",
     "ensure_ir_artifact_store",
@@ -287,13 +308,19 @@ __all__ = [
     "input_ref_from_artifact_ref",
     "load_core_json_artifact",
     "load_core_json_frame_records",
+    "matches_artifact_store_protocol",
+    "matches_runtime_protocol",
+    "matches_runtime_protocol_definition",
     "profile_bound_ref",
     "read_core_json_artifact",
     "read_core_json_artifact_bytes",
     "read_core_manifest_profile",
+    "require_return_selected_profile_writer",
     "resolve_authority_envelope_ref",
     "resolve_dependency_graph",
     "resolve_manifest_by_profile",
     "validate_core_model_json_artifact",
     "validate_owned_core_model_json_artifact",
+    "validate_return_selected_profile",
+    "with_ambient_ownership_enforcement_if_supported",
 ]

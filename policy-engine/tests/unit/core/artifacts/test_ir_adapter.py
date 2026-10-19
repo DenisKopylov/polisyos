@@ -112,6 +112,40 @@ def test_ir_adapter_round_trips_backtest_report(tmp_path) -> None:
     assert loaded.n_scenarios == 0
 
 
+def test_adapter_refuses_writer_that_accepts_but_drops_selected_profile() -> None:
+    class ProfileDroppingStore:
+        def __init__(self) -> None:
+            self.calls: list[bool] = []
+
+        def put_bytes(
+            self,
+            _data: bytes,
+            opts: ArtifactWriteOptions,
+            *,
+            return_selected_profile: bool = False,
+        ) -> CoreArtifactRef:
+            self.calls.append(return_selected_profile)
+            return CoreArtifactRef(
+                artifact_id=CoreArtifactID.from_sha256_hex("c" * 64),
+                kind=opts.kind,
+                media_type=opts.media_type,
+            )
+
+    from polisyos.core import artifacts
+
+    store = ProfileDroppingStore()
+    adapter = artifacts.CoreToIRArtifactStoreAdapter(store)
+
+    with pytest.raises(ValueError, match="artifact_write_selected_profile_missing"):
+        adapter.put_bytes(
+            b"payload",
+            ArtifactWriteOptions(kind="test.selected-profile-drop", media_type="application/json"),
+            return_selected_profile=True,
+        )
+
+    assert store.calls == [True]
+
+
 def test_ensure_ir_artifact_store_preserves_existing_adapter(tmp_path) -> None:
     adapter = CoreToIRArtifactStoreAdapter(FileSystemCAS(tmp_path / ".polisyos"))
 

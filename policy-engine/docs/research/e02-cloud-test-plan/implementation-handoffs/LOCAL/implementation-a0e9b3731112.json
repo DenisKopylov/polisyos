@@ -1,0 +1,79 @@
+{
+  "schema": "policyos.e02.selected_substrate_confinement_implementation_receipt_candidate.v1",
+  "record_type": "implementation_commit_receipt_candidate",
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "slice_base": "063982645dd5a4d4fc6028d3857f7948dffd85bc",
+    "candidate": "a0e9b37311127880a1bc0a5c3733a3c167b6bbf2",
+    "tree": "0d7767a862ffc38e96109161c5db02ba3d9cc23e",
+    "parent": "063982645dd5a4d4fc6028d3857f7948dffd85bc",
+    "source_freeze": false,
+    "current_readback": "Exact candidate HEAD/tree and tracked-path bytes re-read; tracked-only status is clean. Untracked local RAW/work state is not represented as a clean whole-worktree claim."
+  },
+  "property": "On the selected split-root quality and Depth-N routes, the code checkout and read-only selected production_data_root remain distinct from caller-owned workspace outputs. The selected native DuckDB database, spill tree, .wal and future descendants are preflighted beneath the complete caller-workspace parent before SimulationDB construction and rechecked after writes. Omitting production_data_root preserves legacy code-root input and the single-root database path; write_world_snapshot temp_directory remains optional (Path | None = None).",
+  "source_scope": {
+    "mechanism_paths": 7,
+    "mandatory_test_and_helper_companions": 8,
+    "source_and_test_paths_total": 15,
+    "mandatory_delivery_metadata_records": 2,
+    "complete_path_count": 17,
+    "P39": "The mechanism cap counts the 7 implementation paths. The 8 required test/helper companions and the 2 required root delivery records are additional mandatory scope, not cap overflow.",
+    "complete_17_path_blob_and_mode_matrix": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-substrate-r7b-finalize-import-companion-20261019/selected-substrate-root-confinement-r7b-final-source-20261019-readback.json",
+      "sha256": "d0f3a9ac4139eca5a49527f2ce56356bf0fa35328ec1007d28fbdbeb47b8f0eb"
+    },
+    "source_application_and_48_reviewed_inputs": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-substrate-r7b-finalize-import-companion-20261019/source-application.json",
+      "sha256": "a28fd776e3afe99bc0b805412276b973a4f01c3d84092ee56aab3341be1cb65e"
+    },
+    "adoption_plan_and_48_reviewed_inputs": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-substrate-r7b-finalize-import-companion-20261019/plan.json",
+      "sha256": "edd39c3425c6e569a49459088caf5ee2f5b1d153b37eda4fe1b4bf07ed268c57"
+    },
+    "fresh_readback": "At receipt preparation, all 48 referenced inputs from each of the plan and application were rehashed, all 17 readback path bytes matched the readback SHA map, and all four controlling receipt files matched their sealed hashes.",
+    "finalization_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-substrate-r7b-finalize-import-companion-20261019/finalization-readback.json",
+      "sha256": "4d434ad16521f92516d0e399ae2d7efa1c3dd37b190f554a5571f58f4813c38f"
+    },
+    "finalization_facts": {
+      "source_paths": 15,
+      "mandatory_records": 2,
+      "all_expected_bytes_read_back": true,
+      "component_refs_verified": 278,
+      "final_native_ruff_exit_codes": [
+        0,
+        0
+      ]
+    }
+  },
+  "verification_boundary": {
+    "native_ruff": "PASS: final check and format-check each exited 0 over all 15 source/test paths; exact argv and output refs are retained in the source-application receipt.",
+    "initial_import_order_diagnostic": "One I001 in test_acq_01.py was retained as a separate import-only companion; non-import AST and import multiset were preserved. The original application record remains unchanged.",
+    "r7b_focused_three_case_test": "UNRUN: scalar .tmp, .wal, and unknown-future-sidecar refusal-before-writer/connection cases remain the decisive next test.",
+    "composed_runtime": "UNRUN.",
+    "finalizer": "The finalizer raised NameError only in its final print after application/LEASE/index/request writes. The independent finalization readback confirms the 15 source paths, two mandatory records, and final Ruff outputs; no reset or replay is claimed."
+  },
+  "P40": "Same selected-output-confinement class as earlier .tmp and .wal escapes. R7 widened the whole selected native DB parent and arbitrary current/future descendants; R7b corrected test-parameter extraction, not a new production sink. Bounded residuals remain path replacement/race, hard-link identity escape, and mount/remapping behavior.",
+  "decision_boundary": {
+    "capability_state": [
+      "verification_missing"
+    ],
+    "authority_or_currentness": "This source change establishes physical output confinement only. It does not establish input permission, issuer authenticity, production-data currentness, policy authority, or publication custody.",
+    "G_acceptance": false,
+    "closure_ids": []
+  },
+  "historical_navigation": {
+    "full291_source_975_navigation_only": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-full291-source-impact-975-provenance-r3-20261019/occurrence-navigation-975-provenance-r3.json",
+      "sha256": "d6ac31c241b2c2c2be9babc149508ba3898811c9f9051407310c1013b0a74f0c"
+    },
+    "limit": "This navigation is pinned to source 975 and is historical context only. No a0e9 source-impact census or transferred 975 outcome is claimed."
+  },
+  "supersedes_draft": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-a0e9b373-implementation-receipt-draft-20261019/implementation-a0e9b37311127880.json",
+    "sha256": "3d76cd6326e6cfdd51ad34f6da2d7292b51e96e669f852a472d0483489fa2ace",
+    "correction": "The prior draft incorrectly called the comparison shadow “975-based.” The actual R2 MyPy shadow comparison is based on source commit 72470bc9cf9734301cfb3b79984517f52b7a4157, as shown in the R2 analysis and result cited by the separate verification receipt. This new receipt corrects that label; the old bytes remain unchanged."
+  },
+  "retention": "No source or test payloads are copied into this receipt. Full path blobs, all 48 reviewed inputs, and deciding command outputs remain at their referenced RAW paths.",
+  "closure_ids": []
+}

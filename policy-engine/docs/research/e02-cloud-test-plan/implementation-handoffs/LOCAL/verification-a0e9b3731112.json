@@ -1,0 +1,201 @@
+{
+  "schema": "policyos.e02.selected_substrate_confinement_actual_verification_receipt_candidate.v1",
+  "record_type": "actual_verification_receipt_candidate",
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "a0e9b37311127880a1bc0a5c3733a3c167b6bbf2",
+    "tree": "0d7767a862ffc38e96109161c5db02ba3d9cc23e"
+  },
+  "source_application": {
+    "plan": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-substrate-r7b-finalize-import-companion-20261019/plan.json",
+      "sha256": "edd39c3425c6e569a49459088caf5ee2f5b1d153b37eda4fe1b4bf07ed268c57"
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-substrate-r7b-finalize-import-companion-20261019/source-application.json",
+      "sha256": "a28fd776e3afe99bc0b805412276b973a4f01c3d84092ee56aab3341be1cb65e"
+    },
+    "branch_blob_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-substrate-r7b-finalize-import-companion-20261019/selected-substrate-root-confinement-r7b-final-source-20261019-readback.json",
+      "sha256": "d0f3a9ac4139eca5a49527f2ce56356bf0fa35328ec1007d28fbdbeb47b8f0eb"
+    },
+    "finalization_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-substrate-r7b-finalize-import-companion-20261019/finalization-readback.json",
+      "sha256": "4d434ad16521f92516d0e399ae2d7efa1c3dd37b190f554a5571f58f4813c38f"
+    },
+    "verified_input_count_per_plan_and_application": 48,
+    "fresh_hash_reconciliation": "PASS: all referenced inputs and all 17 branch readback path bytes matched at preparation."
+  },
+  "selected_runtime_evidence": {
+    "bounded_scope": "One exact four-complete-module pytest invocation only; not the R7b focused test, not the composed DB/runtime path, and not full-native suite acceptance.",
+    "python": "3.14.3",
+    "pytest": "9.0.2",
+    "modules": [
+      "tests/unit/fabric/connectors/test_quality_system.py",
+      "tests/unit/fabric/test_fabric_observability.py",
+      "tests/unit/fabric/test_entity_resolution.py",
+      "tests/unit/fabric/test_concurrency_bounded_runtime_phase2.py"
+    ],
+    "outcome": {
+      "pytest_return_code": 0,
+      "tests": 44,
+      "passed": 44,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "wall_seconds": 4.909171334002167,
+      "max_sampled_process_tree_rss_bytes": 328761344,
+      "minimum_sampled_disk_free_bytes": 4931710976,
+      "process_group_gone": true
+    },
+    "source_and_identity": {
+      "before_after_snapshot_sha256": "2dfcc1f8b361db99a9c6034578398bf04113a28e577529b0c92d3cbcc158aab6",
+      "tracked_entry_count": 25675,
+      "origin_joins_verified": 434,
+      "requested_runtime_module_count": 32,
+      "all_434_origin_file_hashes_match": true,
+      "all_44_JUnit_case_ids_and_outcomes_reconcile": true
+    },
+    "installed_incompatible_distribution": {
+      "name": "presidio_analyzer",
+      "version": "2.2.360",
+      "requires_python": ">=3.9,<3.14",
+      "loaded_modules": [],
+      "inventory_errors": []
+    },
+    "qualification": "Independent bounded-run qualification only. This does not establish full-native/runtime compatibility or a product capability/G closure. Later SDK/profile changes do not retroactively qualify this run."
+  },
+  "immutable_original_reader_result": {
+    "status": "not_established_bounded_profile",
+    "path": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-current-canonical-bounded-fabric-pytest-runner-r5-20261019/runs/a0e9b3731112/actual-result.json",
+      "sha256": "918df3e8f7bf00a37e2f45b976f6d20d6227e663927ee65475e9cc2fbac7d29e"
+    },
+    "recorded_reader_issues": {
+      "junit_summary_key_mismatch": 1,
+      "runtime_origin_key_mismatch": 434
+    },
+    "handling": "The original R5 output remains byte-for-byte unchanged with its original not_established profile result. The separate reconciliation qualifies the retained raw run only."
+  },
+  "independent_four_module_reconciliation": {
+    "decision": "GO_INDEPENDENT_QUALIFICATION_FOR_THIS_EXACT_RUN_ONLY",
+    "review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-fabric4-r5-independent-reconciliation-20261019/review.json",
+      "sha256": "eef5301cbec56fceda8704bc8d35c33bc39d785c6743bc3df5281b4ac3f31630"
+    },
+    "review_manifest": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-fabric4-r5-independent-reconciliation-20261019/manifest.json",
+      "sha256": "a0cf9a102ae0179b468f2143843da410da45f0008f9fe734bc094a4019ae93f2"
+    },
+    "mechanism_finding": "The R5 reader used junit.cases/failed while the actual supervisor emits tests/failures. It also prefixed policy-engine/ twice on OWN-relative module paths, making all 434 source joins miss. Independent reconciliation joins exact OWN-relative paths, raw XML case identities, execution node IDs and exact current file bytes.",
+    "negative_controls": {
+      "drop_xml_case_keep_markers": "refused",
+      "change_xml_case_to_failure_keep_markers": "refused",
+      "corrupt_one_provenance_hash_keep_source_snapshot": "refused",
+      "duplicate_prefix_decoy_rejected": true
+    },
+    "preserved_original_status": true
+  },
+  "actual_run_inputs_and_full_outputs": {
+    "runner": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-current-canonical-bounded-fabric-pytest-runner-r5-20261019/run_once_r5.py",
+      "sha256": "eef95935bb60ac191a741ca8043aa88694c8d568af974ab82a29a1a899b51673"
+    },
+    "prelaunch_peer_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-current-canonical-bounded-fabric-pytest-runner-r5-20261019/independent-review-r5.json",
+      "sha256": "12d1dcb19f89ae59cbdefc13223e991a1ac838e07dffce874785d6c2411154c5"
+    },
+    "root_grant": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-current-canonical-bounded-fabric-pytest-runner-r5-20261019/root-grant.json",
+      "sha256": "2140fb0d0872fb54344153351305ea62bdd58dc57b9cbb7c7a7fc6b6b709c425"
+    },
+    "launch_binding": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric4-a0e9b373-execution-grant-20261019/launch-binding.json",
+      "sha256": "0d84bb6ebcb2050dedd835808ec7cef449bb813009fadfbfd2f95d7ba216bffd"
+    },
+    "actual_result_full_output_index": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-current-canonical-bounded-fabric-pytest-runner-r5-20261019/runs/a0e9b3731112/actual-result.json",
+      "sha256": "918df3e8f7bf00a37e2f45b976f6d20d6227e663927ee65475e9cc2fbac7d29e"
+    },
+    "execution_provenance_and_full_origin_rows": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-current-canonical-bounded-fabric-pytest-runner-r5-20261019/runs/a0e9b3731112/execution-provenance.json",
+      "sha256": "84a3cd064cc913e26ea4670979af301edc5c70c307cd9abbbc11d3a862693254"
+    },
+    "junit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-current-canonical-bounded-fabric-pytest-runner-r5-20261019/runs/a0e9b3731112/pytest.xml",
+      "sha256": "fd22923aa37f43eaa23c18efbea3c05e3cd9a65a5c02398bf27a513999d1e66f"
+    },
+    "stdout": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-current-canonical-bounded-fabric-pytest-runner-r5-20261019/runs/a0e9b3731112/pytest.stdout.txt",
+      "sha256": "57016df883baffa012c2ee3384a3046c3f246f764ad9177cc5c9ab3d0cd6c5ed"
+    },
+    "stderr": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-current-canonical-bounded-fabric-pytest-runner-r5-20261019/runs/a0e9b3731112/pytest.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "incompatible_import_audit": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-current-canonical-bounded-fabric-pytest-runner-r5-20261019/runs/a0e9b3731112/incompatible-import-audit.json",
+      "sha256": "9b8ce9de5ee84f4a8299ac1dc704f9f8d5ed3d51c17688f6822238c285b2150f"
+    },
+    "source_before_and_after": "Retained in the actual run directory and separately referenced from the actual result. Both are byte-identical; see the output manifest in actual_result_full_output_index."
+  },
+  "static_type_diagnostic": {
+    "status": "RED_NOT_NATIVE_GREEN",
+    "result": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-mypy-172-canonical-a0e9b37311127880a1bc0a5c3733a3c167b6bbf2-20261019/result.json",
+      "sha256": "29fb205a9f67fbed8a5659938170da68d95de3e952a2a5f2f720a8f3c5660ba4"
+    },
+    "diagnostic_index": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-mypy-172-canonical-a0e9b37311127880a1bc0a5c3733a3c167b6bbf2-20261019/diagnostic-index.json",
+      "sha256": "4fc5bc38c3c64a06acea1b3c1df3539a5a13f048ac7f8189c712d6d1b9e70f16"
+    },
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-mypy172-a0e9b373-diagnostic-reconciliation-independent-20261019/review.json",
+      "sha256": "d71c536ba73b099e18eb48118e291c3de5a0aae5c8e923511764c4bb605eb075"
+    },
+    "command_result": {
+      "return_code": 1,
+      "target_count": 172,
+      "error_occurrences": 122,
+      "diagnostic_signatures": 99,
+      "files_with_errors": 61,
+      "wall_seconds": 29.936590208904818,
+      "max_sampled_process_tree_rss_bytes": 1473560576,
+      "full_source_snapshot_equal": true,
+      "process_group_gone": true
+    },
+    "comparison_baseline": {
+      "commit": "72470bc9cf9734301cfb3b79984517f52b7a4157",
+      "tree": "3d3c1981b5078ebf80566b7f5720888433cf54f2",
+      "analysis": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-composed-mypy-172-shadow-r2-20261019/analysis.json",
+        "sha256": "4784a1f7429358c60273e2cbdfae718e4f339ccfd59fd429ad4afea427261911"
+      },
+      "result": {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-composed-mypy-172-shadow-r2-20261019/result.json",
+        "sha256": "ca7ed6c92b29e723b27135a4dc40dbd89179b90932c530a04b1e247bcbedf241"
+      },
+      "reported_comparison": {
+        "baseline_occurrences": 293,
+        "removed_occurrences": 176,
+        "added_occurrences": 5,
+        "P41_inherited": "not_established"
+      },
+      "limit": "Comparative diagnostic only; no source-causal attribution and no inherited-red classification."
+    }
+  },
+  "remaining_decisive_checks": {
+    "R7b_three_case_selected_output_confinement": "UNRUN",
+    "composed_selected_source_runtime": "UNRUN",
+    "full_native_runtime_compatibility": "HOLD",
+    "G_acceptance": false
+  },
+  "historical_navigation": {
+    "full291_source_975_only": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-full291-source-impact-975-provenance-r3-20261019/occurrence-navigation-975-provenance-r3.json",
+      "sha256": "d6ac31c241b2c2c2be9babc149508ba3898811c9f9051407310c1013b0a74f0c"
+    },
+    "a0e9_source_impact_claim": "none"
+  },
+  "closure_ids": []
+}

@@ -1,0 +1,102 @@
+{
+  "record_type": "unaccepted_narrow_decision_proposals_for_G",
+  "source_frame": {
+    "candidate": "a0e9b37311127880a1bc0a5c3733a3c167b6bbf2",
+    "tree": "0d7767a862ffc38e96109161c5db02ba3d9cc23e",
+    "branch": "codex/e02-unified-local-20261009",
+    "source_freeze": false
+  },
+  "authority": "Root authors research and prototypes only. G retains independent code acceptance, integration publication and formal adjudication. No public contract choice or new privacy authority is enacted by this packet.",
+  "decision_packets": [
+    {
+      "key": "native_public_model_contract_conflicts",
+      "inputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-public-model-override-decision-20261019/decision.md",
+          "sha256": "b99e5c667497ddab532e3de34a46095f93601f30f9877892fd86f6ac66c281ca"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-public-model-override-decision-20261019/source-pins.json",
+          "sha256": "77ec34db7c3ae3274ac968a705f837505a01e6f9975a93c5766de45c1761525f"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-public-schema-descriptor-prototype-20261019/manifest.json",
+          "sha256": "ad5fa815e6e05b3766ea00e3ab2d1c100145d8fc8c4c2bd4f789ff9b2467c1e4"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-public-schema-descriptor-prototype-20261019/decision.md",
+          "sha256": "5b63041bda6eb85e6af9f2cd08b67ff555f3b830e89b8c6804cd973c20797ae7"
+        }
+      ],
+      "property": "Retain typed artifact-ref mapping and all four documented instance .schema compatibility accessors without silently changing their validation/wire/identity behavior to satisfy a static checker.",
+      "observed_boundary": "ArtifactRefModel.__iter__ implements Mapping keys while BaseModel promises field/value pairs; one no-argument iterator cannot provide both at once. Three diagnosed .schema overrides have a fourth active SourceContract sibling.",
+      "recommendation": "Preserve the current public surface pending G review of a versioned source-API migration or an explicitly issuer-scoped bounded diagnostic decision. The dual-access descriptor alone does not resolve the inherited type conflict and is not adopted. Mapping iteration remains a separate public-API compatibility choice; no suppression or waiver is enacted.",
+      "alternatives_and_impacts": "Both iteration alternatives preserve serialized fields, profile hash and profileless-history behavior but change Python source-API identity or iteration; exact consumers/falsifiers/migration impacts are in the pinned packet. An ignore or new waiver would hide the conflict and is not proposed.",
+      "prototype_status": "Four stand-in schema models preserve dual instance/class runtime access, but MyPy1.19.1 rejects all four BaseModel.schema overrides with and without Pydantic plugin. This is not a type-clean repair or actual production-model proof; complete failed/successful outputs are retained in the pinned packet.",
+      "next_check": "G reviews the narrow source-API compatibility direction after the prototype. Execute actual ref normalization, dict/len/key access, strict model validation/dump, all four schema model aliases and content-hash controls before adopting any migration.",
+      "capability_boundary": [
+        "verification_missing"
+      ],
+      "P40": "One protocol-conflict class across the complete four-model schema family, separate from the single Mapping iteration conflict; safe SDMX and optional-year repairs proceed independently."
+    },
+    {
+      "key": "required_pii_scan_completion_profile_and_custody",
+      "inputs": [
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-presidio-init-profile-risk-20261019/outcome-candidate-r2/manifest-r2.json",
+          "sha256": "571bdec36bb2817f3be2915184f5759402d64ae46c27f089a155c494e9ff3b62"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-presidio-init-profile-risk-20261019/outcome-candidate-r2/decision-proposal-r2.md",
+          "sha256": "27f4d4a70fd22f3425bdd2f09ba3da01973dc17968fc61bd7518dd82d558819e"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-presidio-init-profile-risk-20261019/outcome-candidate-r2/prototype-check-r2-receipt.json",
+          "sha256": "d50d3674bc187efa465744020cf900565ddec5ec2ae85fbd7e2d0c939df3eac0"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-presidio-init-profile-risk-20261019/outcome-candidate-r2/model-artifact-pins-r2.json",
+          "sha256": "963fa345ab802061b3b744a8bb8c910193c575cb061d9b7bc948a85eb1bca31f"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-presidio-init-profile-risk-20261019/outcome-candidate-r2/test-plan-r2.md",
+          "sha256": "06a3c3b8f0c58e2c7f4b2ece3a585548d9a21c0cb640d16b968c6eedc3bc7612"
+        },
+        {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-presidio-init-profile-risk-20261019/outcome-candidate-r2/incident-reference-r2.json",
+          "sha256": "3d4bffba11345b3b6c57e69583186ecaab88989ce94df62baae113bc757afaf1"
+        }
+      ],
+      "property": "A required clean-zero PII result needs completed declared coverage bound to exact source/profile/config and verified at the consumer. A zero count or status string alone cannot prove a scan completed.",
+      "observed_boundary": "Construction/analysis failure, unsupported input, missing requested columns, sampling/truncation, malformed cache and unqualified legacy mappings can become zero or missing-warning under the current producer-to-governance path.",
+      "recommendation": "Reuse existing SecuritySettings requiredness and existing transport; add one typed source-bound outcome/coverage receipt and consumer verification. Preserve redacted failed/partial evidence and detections; block a required clean-zero claim when completion/coverage is unestablished. Preserve default full spaCy English profile, prohibit silent regex/NoOp fallback, deploy strict compatible readers before writers and leave legacy evidence unqualified.",
+      "G_choices": [
+        "Whether enabled failure persists a typed blocked result while preserving other candidate evidence or fails ingestion immediately.",
+        "Accepted named NLP profile and treatment of declared partial coverage; reduced profiles are not equivalent to default full NER.",
+        "Existing trusted artifact/verifier owner for source/profile/config/coverage/summary binding; consumer_asserted status cannot supply authority.",
+        "Consumer-first rollout and optional-history warning versus required-missing blocking; do not rewrite historical evidence."
+      ],
+      "alternatives_and_impacts": "Reuse, extension, candidate mechanism/test paths, migration sequence and profile provisioning costs are fully stated in the pinned packet. A blanket default status, counter-only gate, regex substitution, or automatic download during construction is not proposed.",
+      "prototype_status": "Six-case non-product eligibility prototype passed, proving only the proposed discriminator; real producer/CAS/cache/DataSnapshot/governance path remains UNRUN and unimplemented. Official default model artifact metadata is pinned but the ~400.7MB wheel is not downloaded or installed.",
+      "predicate_classification_at_admission": "not_established: no trusted complete-scan receipt is admitted by the present inline count summary. An implementation cannot mint an issuer/currentness fact.",
+      "next_check": "G reviews the narrow requiredness/profile/custody/rollout proposal, then implement the whole producer-to-persisted-artifact-to-consumer quantity and execute the full matrix including remove-scan/keep-status, forged status, changed input/profile, malformed cache and fail-after-positive controls; model smoke uses a pinned offline model with network denied.",
+      "capability_boundary": [
+        "artifact_missing",
+        "bridge_missing",
+        "verification_missing",
+        "semantic_test_missing"
+      ],
+      "P40": "Single scan-completeness class across all initialization/analysis/input/coverage/cache/legacy paths; no per-exception ladder.",
+      "observation_boundary": "Even a completed zero-detection scan is a bounded observation under its declared profile and coverage, never proof that PII is absent or that the detector is calibrated. No new privacy or issuer fact is created."
+    }
+  ],
+  "unblocked_parallel_work": "SDK Python compatibility, existing typed-owner repairs, selected output confinement runtime, canonical generator/resource/native/Linux/installed-consumer verification and original occurrence-specific engineering continue independently.",
+  "G_acceptance": false,
+  "closure_ids": [],
+  "proposal_outcomes": [],
+  "retention": "Only compact references are tracked; deciding outputs remain ignored RAW path@sha on this host. No production payload was scanned or copied.",
+  "draft_provenance": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-a0e9b373-decision-handoff-draft-20261019/native-contract-decision-proposals-a0e9b373.json",
+    "sha256": "5bc73eab93faf2e1458bc8c63062d4e9dd53d6159ea757c9166c464ecae438ed"
+  }
+}

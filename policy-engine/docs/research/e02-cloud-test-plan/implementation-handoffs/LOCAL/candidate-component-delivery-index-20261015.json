@@ -1144,6 +1144,18 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/occurrence-navigation-progress-975-20261019.json",
       "sha256": "0788f5af53f5f0ff7886212bd8a58650874d34fa5ecb69cec365461df63f5a55"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-a0e9b3731112.json",
+      "sha256": "3ccae15bc107262fb8b80e32f3fba00378c0034bd5854dd27efd8cb1fb31ffcc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/verification-a0e9b3731112.json",
+      "sha256": "64bc5846694c83b7dad174e7bc0bcf79761f35afabd72b23fa87bfb50f39c1de"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native-contract-decision-proposals-a0e9b373.json",
+      "sha256": "525979aa8b6375d5d6839a45b98cc8d781c504c2352120cd805d1449cd67f283"
     }
   ],
   "canonical_denominator_recomputed": {
@@ -1195,10 +1207,10 @@
   ],
   "retention": "Complete deciding outputs and removal controls are pinned by receipts under ignored LOCAL/raw on the candidate checkout. Tracked source is cited by path@sha/commit, not copied. Large RAW availability is local; no archive payload census or duplicate environment.",
   "latest_reconciled_source_cut": {
-    "head": "975bca19daba048fcaaf0cbff64c65aabdf1b9b8",
-    "tree": "a8695ce3f9ac1d39c30dbb0ecb71a59cf20fa69a",
+    "head": "a0e9b37311127880a1bc0a5c3733a3c167b6bbf2",
+    "tree": "0d7767a862ffc38e96109161c5db02ba3d9cc23e",
     "parents": [
-      "fe9b479f3ceba60d496a99af3b8ca5acb2a64af9"
+      "063982645dd5a4d4fc6028d3857f7948dffd85bc"
     ],
     "source_freeze": false,
     "tracked_source_clean_before_receipt_edit": true,
@@ -1214,6 +1226,10 @@
       {
         "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-975bca19daba.json",
         "sha256": "2ca30b54518176bba86feba5c322aa0d2c4bf151856dba15b69a84f8c1f0107c"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-a0e9b3731112.json",
+        "sha256": "3ccae15bc107262fb8b80e32f3fba00378c0034bd5854dd27efd8cb1fb31ffcc"
       }
     ],
     "occurrence_progress": {
@@ -1242,7 +1258,15 @@
       "sha256": "d57dbd2071647138a682e6d895d3e94bbdefaabdbb691dbf6232b922aade5817"
     },
     "G_acceptance": false,
-    "meaning": "86 source/test/package-documentation paths in three implementation commits since724; all291 occurrences retained. Changed-file Ruff passed. Current composed runtime/native/install/Linux acceptance remains unrun; dependency profile has a real Presidio/Python incompatibility. Historical baseline and Legal qualification corrections are explicit. No future own receipt SHA is asserted."
+    "meaning": "Selected split-root output confinement source is delivered at exact a0e9. The retained four-module invocation has44PASS with independent source/JUnit reconciliation; selected172-targetMyPy is RED122occurrences99signatures61files. Full native, selected N13 runtime, installed/rebuilt-sdist, Linux and composed acceptance remain UNRUN. The referenced complete291navigation is historical975only, not regenerated current closure evidence. No future receipt SHA or formal closure is asserted.",
+    "latest_actual_verification": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/verification-a0e9b3731112.json",
+      "sha256": "64bc5846694c83b7dad174e7bc0bcf79761f35afabd72b23fa87bfb50f39c1de"
+    },
+    "narrow_decision_proposals": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/native-contract-decision-proposals-a0e9b373.json",
+      "sha256": "525979aa8b6375d5d6839a45b98cc8d781c504c2352120cd805d1449cd67f283"
+    }
   },
   "next_check": "Finish independent reviews and root-controlled blocking fixes; freeze explicit source/profile/inputs, execute actual N4/V3 and composed/native/Linux/installed/browser/authentic consumers, then publish the full 291-occurrence proposal to independent G. No global closeout or formal closures are claimed."
 }

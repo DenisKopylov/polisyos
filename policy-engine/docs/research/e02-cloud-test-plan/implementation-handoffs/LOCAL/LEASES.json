@@ -16828,5 +16828,78 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root_native_stdlib_context_manager_import_20261019": {
+    "slice_base": "d7ad6b0b3c798ccc164794cb1dd174f780af7b5a",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/src/polisyos/fabric/connectors/sources/_file_common.py": {
+        "operation": "write",
+        "preimage_sha256": "ef3b53d93898fe3013ce37efa1a9428c94265567fffe2a3867401fb75332ddce",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-stdlib-import-runtime-repair-20261019/postimages/policy-engine/src/polisyos/fabric/connectors/sources/_file_common.py",
+        "postimage_sha256": "086ed6ef8170ddb3f183cc372db8103b913c0329a31dc65395c5da6f456471b8",
+        "category": "mechanism",
+        "P39_role": "runtime_import_and_matching_protocol_annotation"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-stdlib-import-repair-adoption-20261019/source-application.json",
+      "sha256": "4377376410f115a4fa1b73aefcdaaf95393096e004fee16dce6da8371916224a"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-stdlib-import-repair-adoption-20261019/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-stdlib-import-runtime-repair-20261019/candidate-manifest.json",
+        "sha256": "775cddf1b80fa82a84cb2c13d4c08147d27cd7d8c030bd6305b0366c195e89de"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-stdlib-import-runtime-repair-20261019/patch.diff",
+        "sha256": "4de98e63228858eefecd99f95b6bf1c7d24ce1560e0ea1aa55b2f357a57471eb"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-stdlib-import-runtime-repair-20261019/stdlib-import-audit.json",
+        "sha256": "f209ee23a3e6530a3a83123ad5102175a4545b7920afcea3e0ebafadadb72a31"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-stdlib-import-runtime-repair-20261019/stdlib-runtime-probe.json",
+        "sha256": "2aa777f154d57ff71cf68c724df255de47edb03d62bb993bdf04f41db56737f5"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-stdlib-import-runtime-repair-20261019/static-validation.json",
+        "sha256": "ca96d3d350649459e1aee75d5130c516df9978d4fba131b6bdfc6a7a10c185bd"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-n13-focused-bounded-pytest-runner-r6-20261019/runs/d7ad6b0b3c79/actual-result.json",
+        "sha256": "1ec458704356532e8966f0aaff1638621638e555c0d65c5a0325b2729dab7067"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/resume-n13-focused-bounded-pytest-runner-r6-20261019/runs/d7ad6b0b3c79/pytest.stdout.txt",
+        "sha256": "05a7e919952779540084ac4c3de24fc32bb21647c5480866f9def4a46e0a427d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-targeted-security-install-r5-actual-independent-20261019/manifest.json",
+        "sha256": "b85656d1841fedf247e2ae66105ef0861a43b2504f4f191a4135521b180d10db"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-stdlib-import-runtime-repair-independent-20261019/review.json",
+        "sha256": "7db4a1f58c45046ac6e7a939bb17801f8f382cfdff85c294d8fa8bb644a507b1"
+      }
+    ],
+    "P40": "Same typed-boundary runtime compatibility class one level deeper. Widened full59changed-file/stdlibruntimeimport audit rather than instance-only lookup; one failure found.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "R6two-module actualcollectionfailed beforebodyexecution; thisone-filefix requires fresh actualconsumers afteradoption.",
+      "Author wrong-cwd Ruff88-column formatting comparison is not a canonical formatter receipt. Rootproductcwd100-column Ruff check/format preflight passed; rootadoption retains complete deciding outputs.",
+      "No productruntime/fullnative/Gclosure claimed by staticstdlibfalsifier or sourceadoption.",
+      "PII/modelprofileandpublicmodelsemantics Gchoice remain independentlyheld."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "After sourcecommit runfresh172targetMyPy through reviewedpostSDKprofileadapter and actualwholeaffectedconsumer modules. Retain initialcollectionERROR and all fresh decidingoutputs.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

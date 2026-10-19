@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 import io
-from collections.abc import ContextManager, Mapping
+from collections.abc import Mapping
+from contextlib import AbstractContextManager
 from datetime import UTC, datetime
 from importlib import import_module
 from pathlib import Path
@@ -30,7 +31,7 @@ class _RemoteFileSystem(Protocol):
 class _FsspecAPI(Protocol):
     def get_fs_token_paths(self, url: str) -> tuple[_RemoteFileSystem, object, list[str]]: ...
 
-    def open(self, url: str, mode: str = "rb") -> ContextManager[_RemoteBinaryReader]: ...
+    def open(self, url: str, mode: str = "rb") -> AbstractContextManager[_RemoteBinaryReader]: ...
 
 
 def _load_fsspec() -> _FsspecAPI:

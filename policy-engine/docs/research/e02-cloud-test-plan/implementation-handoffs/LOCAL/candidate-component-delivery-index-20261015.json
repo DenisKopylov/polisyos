@@ -1255,6 +1255,18 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decision-public-api-historical-snapshot-erratum-20261019.json",
       "sha256": "42ec51ddc98af1dd0ba3761e77e48c286205c353abb46f54d28b2207a21d28cc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-c4d327ad-selected-intake-public-boundaries-20261019.json",
+      "sha256": "1db9209303ce93af18bda52273bdda38b2afabf45666df2f4d744541e0c835a0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-273f38697-core-artifact-intake-facade-20261019.json",
+      "sha256": "60dfbeb74eedbcb7d4384b14917d4499f2fb3ed0ff56325a79242874a8e8481f"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/verification-can-r9-full-owner-modules-28be-overlay-20261019.json",
+      "sha256": "81f2c65ceaf900678652ac991d3c035710e3f1cdc49783fce8d9bb40a8ba1aff"
     }
   ],
   "canonical_denominator_recomputed": {

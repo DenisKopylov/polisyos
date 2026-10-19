@@ -1,0 +1,632 @@
+{
+  "G_acceptance": false,
+  "closure_ids": [],
+  "decision": "Both selected modules were collected and executed completely; the run is red (10 failures). It supports no G acceptance, capability closure, or global E02 closeout.",
+  "environment_profile": {
+    "hypothesis": {
+      "database_path": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/_cache/hypothesis",
+      "database_type": "hypothesis.database.DirectoryBasedExampleDatabase",
+      "effective_path_ref": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-r9-two-full-owner-modules-current-r2-20261019/receipt/hypothesis-effective-path.json",
+        "sha256": "5c4a1a46e4b9081df6a6f13f1435bf43a9d81325c538b1f5942a06a50f51500b"
+      },
+      "observation_only": true,
+      "profile": "polisyos",
+      "selected_modules_have_hypothesis_decorators": false,
+      "version": "6.151.2"
+    },
+    "inherited_addopts": "",
+    "inherited_plugins": "",
+    "locked_versions": {
+      "hypothesis": "6.151.2",
+      "pydantic": "2.12.5",
+      "pytest": "9.0.2",
+      "pytest-benchmark": "5.2.3"
+    },
+    "plugin_autoload_disabled_by_inherited_setting": false,
+    "plugin_binding_count": 57,
+    "plugin_binding_errors": 0,
+    "production_data": {
+      "payload_read": false,
+      "repository_symlink": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/production_data",
+      "scratch_root": "/Users/deniskopylov/.codex/visualizations/2026/10/09/01a11f94-9b02-7943-a9a2-6c78929b5199/e02-test-state/can-r9-two-full-owner-modules-20261019-02/production-data",
+      "target": "/Users/deniskopylov/polisyos/policy-engine/production_data",
+      "write_denied": true
+    },
+    "pytest_config_sha256": "61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb",
+    "pytest_plugin_distributions": [
+      {
+        "distribution": "anyio",
+        "plugin_module": "anyio.pytest_plugin",
+        "version": "4.12.0"
+      },
+      {
+        "distribution": "hypothesis",
+        "plugin_module": "_hypothesis_pytestplugin",
+        "version": "6.151.2"
+      },
+      {
+        "distribution": "jaxtyping",
+        "plugin_module": "jaxtyping._pytest_plugin",
+        "version": "0.3.4"
+      },
+      {
+        "distribution": "langsmith",
+        "plugin_module": "langsmith.pytest_plugin",
+        "version": "0.6.0"
+      },
+      {
+        "distribution": "pytest-asyncio",
+        "plugin_module": "pytest_asyncio.plugin",
+        "version": "1.3.0"
+      },
+      {
+        "distribution": "pytest-benchmark",
+        "plugin_module": "pytest_benchmark.plugin",
+        "version": "5.2.3"
+      },
+      {
+        "distribution": "pytest-xdist",
+        "plugin_module": "xdist.looponfail",
+        "version": "3.8.0"
+      },
+      {
+        "distribution": "pytest-xdist",
+        "plugin_module": "xdist.plugin",
+        "version": "3.8.0"
+      }
+    ],
+    "pyvenv_cfg_sha256": "1eaa0e4e4be4b02929ffdec9fc56fea39faecd1c3d04bf1edad29a62549c5046",
+    "relevant_child_environment": {
+      "HF_HUB_OFFLINE": "1",
+      "POLISYOS_N7_LIVE_OWNER_LANE": "0",
+      "PYTEST_ADDOPTS": "",
+      "PYTEST_DISABLE_PLUGIN_AUTOLOAD": "",
+      "PYTEST_PLUGINS": "",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONHASHSEED": "0",
+      "PYTHONNOUSERSITE": "1",
+      "PYTHONPATH": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-q2-selection-observer-native-api-r8-20261018:/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-r9-two-full-owner-modules-current-prepare-20261019:/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src",
+      "TRANSFORMERS_OFFLINE": "1"
+    },
+    "runtime_origins": {
+      "captured_module_count": 1458,
+      "matched_regular_module_origins": 1458,
+      "mismatches": [],
+      "scope_limit": "Capture plugin covers polisyos/tools namespaces only; this does not attest all third-party imports or pre-sitecustomize interpreter startup.",
+      "unhashed_or_namespace_origins": 0
+    },
+    "uv_lock_sha256": "b1166585634919e552eecf21a56437552781a03f7f1d4a1a9d32db0430dbf009"
+  },
+  "execution": {
+    "finished_at": "2026-10-19T08:17:38.457005+00:00",
+    "limits": {
+      "minimum_free_disk_bytes": 1073741824,
+      "numeric_threads": 1,
+      "rlimit_as": false,
+      "sample_interval_seconds": 0.5,
+      "sampled_process_tree_rss_cap_bytes": 3221225472,
+      "wall_cap_seconds": 300,
+      "workers": 1
+    },
+    "peak_sampled_process_tree_rss_bytes": 1112440832,
+    "process_group_gone": true,
+    "pytest": {
+      "capture_plugins": [
+        "e02_wave_capture_r8",
+        "e02_hypothesis_path_capture"
+      ],
+      "collection_and_execution_complete": false,
+      "deselected_count": 0,
+      "junit_crosswalk_matches_collection": true,
+      "modules": [
+        "tests/unit/runtime/quality/test_acquisition_planner.py",
+        "tests/repo_quality/tools/test_layer3_gy_n13b_acquisition_contract.py"
+      ],
+      "version": "9.0.2"
+    },
+    "python": {
+      "executable": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+      "version": "3.14.3 (main, Feb 12 2026, 00:29:58) [Clang 21.1.4 ]"
+    },
+    "refs": {
+      "grant": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-r9-two-full-owner-modules-current-r2-20261019/grant.json",
+        "sha256": "55b4b6f8d1eacb20f7fe8e143b60fac6891766b6d53b75e196493d9ad9651de0"
+      },
+      "junit": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-r9-two-full-owner-modules-current-r2-20261019/receipt/pytest.xml",
+        "sha256": "7acdacb8676818b85191cdd14dd2e0032f3efc6246bd0c4fd14f1e15e8c16bed"
+      },
+      "provenance": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-r9-two-full-owner-modules-current-r2-20261019/receipt/execution-provenance.json",
+        "sha256": "59f66ca0b4b417b408badd102134c10efb34184b8cad8d873e297ce5552ac249"
+      },
+      "request": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-r9-two-full-owner-modules-current-r2-20261019/receipt/request.json",
+        "sha256": "3e7ea2c85398d5077d9a0c6b7738a47240ab9afdcb30c2c04378d2f5025195c4"
+      },
+      "result": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-r9-two-full-owner-modules-current-r2-20261019/receipt/result.json",
+        "sha256": "79847d27814f24c480f9ee247634b206085343b1d3bb10b4771f954b9e2e61d3"
+      },
+      "run_preparation": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-r9-two-full-owner-modules-current-prepare-20261019/preparation.json",
+        "sha256": "16dafe844c567ee9c2f7e0c13a837b19c5c687007a9593ee46dbc04f8aa90fd1"
+      },
+      "runner": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-r9-two-full-owner-modules-current-r2-20261019/direct-run-r2.py",
+        "sha256": "82dc6b02b732be81cd28766997272e0964a7afe390ea9110c369939997189c73"
+      },
+      "stderr": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-r9-two-full-owner-modules-current-r2-20261019/receipt/pytest.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-r9-two-full-owner-modules-current-r2-20261019/receipt/pytest.stdout.txt",
+        "sha256": "bacf02beaa154e9ca3ee5a7f646b6260fb21603777eab794a2e6d0c32200ed36"
+      }
+    },
+    "return_code": 1,
+    "started_at": "2026-10-19T08:17:00.827138+00:00",
+    "wall_seconds": 37.629795083077624
+  },
+  "failure_classification": {
+    "basis": "root read back every failing JUnit case and full deciding stdout; not just agent summary",
+    "correction": "The three CAS mutation-interception failures are not the one-plan refusal: the narrow execute_fetch_plans test wrapper refuses the execution_binding keyword before mutation. Three locator cases do refuse before the requested path at fabric_fetch_capture_requires_one_plan. Prior root/agent prose grouping all six under cardinality was wrong.",
+    "counts": {
+      "error": 0,
+      "failure": 10,
+      "pass": 110,
+      "skip": 1,
+      "testcases": 121
+    },
+    "erratum_ref": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-r9-r2-failure-classification-erratum-20261019/classification.json",
+      "sha256": "3fcf35028d2c4f6149af5323af52cd1bbe20ed18f5f2532bddc98e0b169ea21e"
+    },
+    "failed_cases": [
+      {
+        "nodeid": "tests.unit.runtime.quality.test_acquisition_planner::test_real_owner_gateway_capture_rejects_remote_effective_connector_before_execute",
+        "observed": "AssertionError: assert 'fabric_fetch_capture_remote_locator' in 'WARNING  polisyos.runtime.quality.acquisition_planner:acquisition_planner.py:1563 Fabric fetch capture refused: fabric_fetch_capture_requires_one_plan\\n'\n +  where 'WARNING  polisyos.runtime.quality.acquisition_planner:acquisition_planner.py:1563 Fabric fetch capture refused: fabric_fetch_capture_requires_one_plan\\n' = <_pytest.logging.LogCaptureFixture object at 0x12c2cba10>.text"
+      },
+      {
+        "nodeid": "tests.unit.runtime.quality.test_acquisition_planner::test_real_owner_gateway_capture_rejects_catalog_profile_locator_inconsistency[omitted-locator-selected-profile-mismatch]",
+        "observed": "AssertionError: assert 'fabric_fetch_capture_catalog_config_mismatch' in 'WARNING  polisyos.runtime.quality.acquisition_planner:acquisition_planner.py:1563 Fabric fetch capture refused: fabric_fetch_capture_requires_one_plan\\n'\n +  where 'WARNING  polisyos.runtime.quality.acquisition_planner:acquisition_planner.py:1563 Fabric fetch capture refused: fabric_fetch_capture_requires_one_plan\\n' = <_pytest.logging.LogCaptureFixture object at 0x12c613d90>.text"
+      },
+      {
+        "nodeid": "tests.unit.runtime.quality.test_acquisition_planner::test_real_owner_gateway_capture_rejects_relative_effective_config_before_cwd_fetch",
+        "observed": "AssertionError: assert 'fabric_fetch_capture_effective_config_relative' in 'WARNING  polisyos.runtime.quality.acquisition_planner:acquisition_planner.py:1563 Fabric fetch capture refused: fabric_fetch_capture_requires_one_plan\\n'\n +  where 'WARNING  polisyos.runtime.quality.acquisition_planner:acquisition_planner.py:1563 Fabric fetch capture refused: fabric_fetch_capture_requires_one_plan\\n' = <_pytest.logging.LogCaptureFixture object at 0x12c3eb360>.text"
+      },
+      {
+        "nodeid": "tests.unit.runtime.quality.test_acquisition_planner::test_real_owner_gateway_capture_fails_closed_for_invalid_cas_refs[tampered_receipt]",
+        "observed": "AssertionError: assert [] == ['tampered_receipt']\n  \n  Right contains one more item: 'tampered_receipt'\n  Use -v to get more diff"
+      },
+      {
+        "nodeid": "tests.unit.runtime.quality.test_acquisition_planner::test_real_owner_gateway_capture_fails_closed_for_invalid_cas_refs[missing_binding]",
+        "observed": "AssertionError: assert [] == ['missing_binding']\n  \n  Right contains one more item: 'missing_binding'\n  Use -v to get more diff"
+      },
+      {
+        "nodeid": "tests.unit.runtime.quality.test_acquisition_planner::test_real_owner_gateway_capture_fails_closed_for_invalid_cas_refs[tampered_binding]",
+        "observed": "AssertionError: assert [] == ['tampered_binding']\n  \n  Right contains one more item: 'tampered_binding'\n  Use -v to get more diff"
+      },
+      {
+        "nodeid": "tests.unit.runtime.quality.test_acquisition_planner::test_real_owner_gateway_capture_refuses_replaced_connector_registration[after_guard]",
+        "observed": "AttributeError: 'FileSystemCAS' object has no attribute 'close'"
+      },
+      {
+        "nodeid": "tests.unit.runtime.quality.test_acquisition_planner::test_real_owner_gateway_capture_refuses_replaced_connector_registration[between_preview_and_full]",
+        "observed": "AttributeError: 'FileSystemCAS' object has no attribute 'close'"
+      },
+      {
+        "nodeid": "tests.unit.runtime.quality.test_acquisition_planner::test_real_owner_gateway_capture_refuses_replaced_connector_registration[after_full_before_readback]",
+        "observed": "AttributeError: 'FileSystemCAS' object has no attribute 'close'"
+      },
+      {
+        "nodeid": "tests.repo_quality.tools.test_layer3_gy_n13b_acquisition_contract::test_derivation_projection_binds_one_recipe_two_consumers_and_cache_hit",
+        "observed": "PermissionError: [Errno 1] Operation not permitted: '/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/architecture/policy_design_case/layer3_gy_acquisition_cas/artifacts/ownership/transactions/root.lock'"
+      }
+    ],
+    "grouped_next_checks": [
+      {
+        "cases": [
+          "tests.unit.runtime.quality.test_acquisition_planner::test_real_owner_gateway_capture_rejects_remote_effective_connector_before_execute",
+          "tests.unit.runtime.quality.test_acquisition_planner::test_real_owner_gateway_capture_rejects_catalog_profile_locator_inconsistency[omitted-locator-selected-profile-mismatch]",
+          "tests.unit.runtime.quality.test_acquisition_planner::test_real_owner_gateway_capture_rejects_relative_effective_config_before_cwd_fetch"
+        ],
+        "class": "locator/control selection not reached",
+        "count": 3,
+        "observed": "The current setup returns fabric_fetch_capture_requires_one_plan before the intended locator/control error.",
+        "proposal_boundary": "Trace the real resolver/fixture to establish one valid plan before the negative condition; retain the one-plan guard."
+      },
+      {
+        "class": "test wrapper signature drift and vacuous mutation controls",
+        "failed_count": 3,
+        "proposal_boundary": "At the existing narrow test seam forward supported execution_binding; assert that all six CAS mutations execute. The failed cases are not locator-cardinality failures.",
+        "vacuous_pass_count": 3
+      },
+      {
+        "class": "nonexistent FileSystemCAS close cleanup",
+        "count": 3,
+        "observed": "Assertions are reached; teardown raises AttributeError because FileSystemCAS has no close method.",
+        "proposal_boundary": "Use the supported lifecycle cleanup or remove invalid test cleanup. Do not add a product close API only for test teardown."
+      },
+      {
+        "case": "tests.repo_quality.tools.test_layer3_gy_n13b_acquisition_contract::test_derivation_projection_binds_one_recipe_two_consumers_and_cache_hit",
+        "class": "canonical CAS fixture write denied by OS guard",
+        "count": 1,
+        "observed": "The fixture attempts to create the canonical root.lock under repository CAS state and receives PermissionError.",
+        "proposal_boundary": "Use an isolated temporary CAS root with the real CAS implementation; retain the canonical-state write guard."
+      }
+    ],
+    "next_run_gate": "After grouped fixture/wrapper repairs, rerun the complete two-module selection with current source/origin capture. Do not claim a selector-level pass closes the module replay.",
+    "three_vacuous_pass_siblings": [
+      "tests.unit.runtime.quality.test_acquisition_planner::test_real_owner_gateway_capture_fails_closed_for_invalid_cas_refs[missing_receipt]",
+      "tests.unit.runtime.quality.test_acquisition_planner::test_real_owner_gateway_capture_fails_closed_for_invalid_cas_refs[foreign_payload]",
+      "tests.unit.runtime.quality.test_acquisition_planner::test_real_owner_gateway_capture_fails_closed_for_invalid_cas_refs[foreign_binding]"
+    ]
+  },
+  "integrity": {
+    "hypothesis_cache": {
+      "after_ref": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-r9-two-full-owner-modules-current-r2-20261019/receipt/cache-after.json",
+        "sha256": "494d94b06326c06d71e8ac0c5fbb1662bc833c2c3f599d2768e1418fdd141ecf"
+      },
+      "before_ref": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-r9-two-full-owner-modules-current-r2-20261019/receipt/cache-before.json",
+        "sha256": "494d94b06326c06d71e8ac0c5fbb1662bc833c2c3f599d2768e1418fdd141ecf"
+      },
+      "changed_or_removed": [],
+      "cleanup_performed": false,
+      "new_files_preserved": [],
+      "preexisting_bytes": 1443320,
+      "preexisting_file_count": 1611,
+      "preserved": true
+    },
+    "production_payload_read": false,
+    "read_only_cas_file_count": 41,
+    "read_only_input_count": 62,
+    "read_only_input_hash_map_ref": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-r9-two-full-owner-modules-current-r2-20261019/receipt/request.json",
+      "sha256": "3e7ea2c85398d5077d9a0c6b7738a47240ab9afdcb30c2c04378d2f5025195c4"
+    },
+    "read_only_inputs_unchanged": true,
+    "requested_runtime_origins_match": true,
+    "source_maps_unchanged": true,
+    "tracked_source_entries": 25709,
+    "tracked_status_lines": 13
+  },
+  "p41_and_proposal_boundary": {
+    "7f90_boundary": "Those attempts targeted HEAD 7f90b08f51195c38d26fcf423a1715ed260ec836. R1 stopped before imports when RLIMIT_AS was refused; R2 was RSS-watchdog terminated before schema output. Neither supplies schema evidence for the R9 frame or justifies a product-contract change.",
+    "7f90_schema_probe_refs": {
+      "r1_attempt": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-r9-actual-schema-discriminator-7f90-20261019/attempt.txt",
+        "sha256": "890709bcc1efd1d991bd84482d2fd5ffb2744440a545a7e58d399eb06634d029"
+      },
+      "r2_attempt": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-r9-actual-schema-discriminator-7f90-20261019-R2/attempt.txt",
+        "sha256": "b3f8bd4e274ec4486b7056780299edc8f5d117ae41894238e561410680292173"
+      }
+    },
+    "next_work": "Apply only the four grouped test/fixture investigations above unless a fresh full replay reveals a concrete product behavior divergence.",
+    "overlay_vs_base_attribution": "No pre-overlay full-module replay establishes whether any test behavior predates or follows the R7 overlay. Keep that causal attribution not_established.",
+    "r1_is_not_inherited": "R1 failed before collection during pytest configuration because its log target /dev/null was denied by the OS; it collected and executed zero tests. This harness error does not explain or become the R2 test red.",
+    "r1_refs": {
+      "result": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-r9-two-full-owner-modules-current-actual-20261019/result.json",
+        "sha256": "9488473e3ede675fba44744e7c88d58b319f7ff9cf3a5fd95de84a209eb0270b"
+      },
+      "stdout": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-r9-two-full-owner-modules-current-actual-20261019/pytest.stdout.txt",
+        "sha256": "bbe57492a2d0e2c823338b7d8904cfc799f9ff5f029ede7c010e51495d41028d"
+      }
+    },
+    "r2_red": "Observed in the complete R2 run at HEAD 28be plus the declared R7 overlay; attribution for each failure is in the pinned erratum."
+  },
+  "prepared_on": "2026-10-19",
+  "record_kind": "historical_actual_run_handoff",
+  "references": {
+    "cache_after": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-r9-two-full-owner-modules-current-r2-20261019/receipt/cache-after.json",
+      "sha256": "494d94b06326c06d71e8ac0c5fbb1662bc833c2c3f599d2768e1418fdd141ecf"
+    },
+    "cache_before": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-r9-two-full-owner-modules-current-r2-20261019/receipt/cache-before.json",
+      "sha256": "494d94b06326c06d71e8ac0c5fbb1662bc833c2c3f599d2768e1418fdd141ecf"
+    },
+    "failure_erratum": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-r9-r2-failure-classification-erratum-20261019/classification.json",
+      "sha256": "3fcf35028d2c4f6149af5323af52cd1bbe20ed18f5f2532bddc98e0b169ea21e"
+    },
+    "grant": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-r9-two-full-owner-modules-current-r2-20261019/grant.json",
+      "sha256": "55b4b6f8d1eacb20f7fe8e143b60fac6891766b6d53b75e196493d9ad9651de0"
+    },
+    "hypothesis_path": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-r9-two-full-owner-modules-current-r2-20261019/receipt/hypothesis-effective-path.json",
+      "sha256": "5c4a1a46e4b9081df6a6f13f1435bf43a9d81325c538b1f5942a06a50f51500b"
+    },
+    "junit": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-r9-two-full-owner-modules-current-r2-20261019/receipt/pytest.xml",
+      "sha256": "7acdacb8676818b85191cdd14dd2e0032f3efc6246bd0c4fd14f1e15e8c16bed"
+    },
+    "provenance": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-r9-two-full-owner-modules-current-r2-20261019/receipt/execution-provenance.json",
+      "sha256": "59f66ca0b4b417b408badd102134c10efb34184b8cad8d873e297ce5552ac249"
+    },
+    "r1_result": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-r9-two-full-owner-modules-current-actual-20261019/result.json",
+      "sha256": "9488473e3ede675fba44744e7c88d58b319f7ff9cf3a5fd95de84a209eb0270b"
+    },
+    "r1_stdout": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-r9-two-full-owner-modules-current-actual-20261019/pytest.stdout.txt",
+      "sha256": "bbe57492a2d0e2c823338b7d8904cfc799f9ff5f029ede7c010e51495d41028d"
+    },
+    "r7_preparation": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-frontend-lineage-r7-complete-source-generator-adoption-20261019/preparation.json",
+      "sha256": "fd400a37487ff6b9afd806734a222de4e50f0b3ff9781c510921ceb2f3914201"
+    },
+    "r7_source_application": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-frontend-lineage-r7-complete-source-generator-adoption-20261019/source-applied.json",
+      "sha256": "e531b80218bfb3c37cd1e89460b05e105abc04d0bf053da28cf703adf0581646"
+    },
+    "request": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-r9-two-full-owner-modules-current-r2-20261019/receipt/request.json",
+      "sha256": "3e7ea2c85398d5077d9a0c6b7738a47240ab9afdcb30c2c04378d2f5025195c4"
+    },
+    "result": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-r9-two-full-owner-modules-current-r2-20261019/receipt/result.json",
+      "sha256": "79847d27814f24c480f9ee247634b206085343b1d3bb10b4771f954b9e2e61d3"
+    },
+    "run_preparation": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-r9-two-full-owner-modules-current-prepare-20261019/preparation.json",
+      "sha256": "16dafe844c567ee9c2f7e0c13a837b19c5c687007a9593ee46dbc04f8aa90fd1"
+    },
+    "runner": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-r9-two-full-owner-modules-current-r2-20261019/direct-run-r2.py",
+      "sha256": "82dc6b02b732be81cd28766997272e0964a7afe390ea9110c369939997189c73"
+    },
+    "schema_probe_r1": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-r9-actual-schema-discriminator-7f90-20261019/attempt.txt",
+      "sha256": "890709bcc1efd1d991bd84482d2fd5ffb2744440a545a7e58d399eb06634d029"
+    },
+    "schema_probe_r2": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-r9-actual-schema-discriminator-7f90-20261019-R2/attempt.txt",
+      "sha256": "b3f8bd4e274ec4486b7056780299edc8f5d117ae41894238e561410680292173"
+    },
+    "source_after": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-r9-two-full-owner-modules-current-r2-20261019/receipt/source-after.json",
+      "sha256": "f197f2e6fa7424d71649dcbfef276a48c5cd1b7b120e486b3f215d06eaec1699"
+    },
+    "source_before": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-r9-two-full-owner-modules-current-r2-20261019/receipt/source-before.json",
+      "sha256": "f197f2e6fa7424d71649dcbfef276a48c5cd1b7b120e486b3f215d06eaec1699"
+    },
+    "stderr": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-r9-two-full-owner-modules-current-r2-20261019/receipt/pytest.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stdout": {
+      "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-r9-two-full-owner-modules-current-r2-20261019/receipt/pytest.stdout.txt",
+      "sha256": "bacf02beaa154e9ca3ee5a7f646b6260fb21603777eab794a2e6d0c32200ed36"
+    }
+  },
+  "run_property_result": {
+    "G_acceptance": false,
+    "cache_preserved": true,
+    "global_E02_closeout": false,
+    "resource_supervisor_completed": true,
+    "runtime_origins_match": true,
+    "source_and_inputs_unchanged": true,
+    "whole_module_behavior_passed": false
+  },
+  "schema": "policyos.e02.can_r9.full_owner_module_historical_verification_handoff.v1",
+  "scope_and_outcomes": {
+    "collected": 121,
+    "complete_modules": [
+      "tests/unit/runtime/quality/test_acquisition_planner.py",
+      "tests/repo_quality/tools/test_layer3_gy_n13b_acquisition_contract.py"
+    ],
+    "executed": 121,
+    "expected_cloud_skip": {
+      "nodeid": "tests/unit/runtime/quality/test_acquisition_planner.py::test_n7_cloud_live_owner_lane_calls_openalex_and_reenters_same_cycle",
+      "reason": "cloud-gated N7 live owner lane; routine tests must not call the network"
+    },
+    "junit": {
+      "errors": 0,
+      "failed": 10,
+      "passed": 110,
+      "skipped": 1
+    },
+    "nodeid_inventory": "The complete 121-nodeid inventory and collection/JUnit crosswalk are in the pinned result and provenance artifacts; not duplicated here.",
+    "per_module": {
+      "tests.repo_quality.tools.test_layer3_gy_n13b_acquisition_contract": {
+        "errors": 0,
+        "failed": 1,
+        "passed": 19,
+        "skipped": 0
+      },
+      "tests.unit.runtime.quality.test_acquisition_planner": {
+        "errors": 0,
+        "failed": 9,
+        "passed": 91,
+        "skipped": 1
+      }
+    },
+    "required_semantic_tests": {
+      "tests/repo_quality/tools/test_layer3_gy_n13b_acquisition_contract.py::test_d2_source_growth_reader_distinguishes_absent_and_explicit_null_resolution": "passed",
+      "tests/unit/runtime/quality/test_acquisition_planner.py::test_n7_closed_loop_forwards_typed_resolution_and_request_limits_to_fabric_owner": "passed"
+    }
+  },
+  "source_identity": {
+    "all_source_maps_unchanged": true,
+    "branch": "codex/e02-unified-local-20261009",
+    "complete_source_snapshot_refs": {
+      "after": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-r9-two-full-owner-modules-current-r2-20261019/receipt/source-after.json",
+        "sha256": "f197f2e6fa7424d71649dcbfef276a48c5cd1b7b120e486b3f215d06eaec1699"
+      },
+      "before": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-r9-two-full-owner-modules-current-r2-20261019/receipt/source-before.json",
+        "sha256": "f197f2e6fa7424d71649dcbfef276a48c5cd1b7b120e486b3f215d06eaec1699"
+      }
+    },
+    "description": "Historical pre-Core frame: HEAD 28be3206 plus the exact 14-row R7 working-tree overlay below. Do not substitute a later Core overlay or the current checkout.",
+    "head": "28be3206c60785231e07a7ceca713129306a14e3",
+    "parent": "c4d327adadac7fdeae5add529183fe0b470c307d",
+    "r7_overlay": {
+      "actual_snapshot_join": {
+        "qualification": "13/13 tracked overlay rows match the R2 source-before map. The one untracked release fragment is pinned by the R7 preparation record, but not represented in the runner tracked-file source map; exact at-run bytes for that row are not independently joined by this run. Source freeze remains false.",
+        "tracked_dirty_status_lines": 13,
+        "tracked_overlay_rows": 13,
+        "tracked_rows_matching_declared_postimages": 13,
+        "tracked_snapshot_entries": 25709,
+        "untracked_overlay_rows_not_in_runner_snapshot": [
+          "policy-engine/release-fragments/unreleased/2026-10-19-e02-lineage-batch-resolution.toml"
+        ]
+      },
+      "application_ref": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-frontend-lineage-r7-complete-source-generator-adoption-20261019/source-applied.json",
+        "sha256": "e531b80218bfb3c37cd1e89460b05e105abc04d0bf053da28cf703adf0581646"
+      },
+      "application_state": {
+        "G_acceptance": false,
+        "closure_ids": [],
+        "generated_outputs": "PENDING OpenAPI/runtime-client/dashboard actual owner generation+check; no boundary commit until complete",
+        "reviewed_overlay_rows_applied": 14
+      },
+      "base": "c4d327adadac7fdeae5add529183fe0b470c307d",
+      "preparation_ref": {
+        "path": "docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-frontend-lineage-r7-complete-source-generator-adoption-20261019/preparation.json",
+        "sha256": "fd400a37487ff6b9afd806734a222de4e50f0b3ff9781c510921ceb2f3914201"
+      },
+      "rows": [
+        {
+          "operation": "write",
+          "path": "policy-engine/src/polisyos/core/contracts/runtime.py",
+          "postimage_sha256": "8b0d366eca1503e31cf556558b5167ff1b1111e924ef175d3a744a018f382e7d",
+          "preimage_sha256": "328d01caad11dd69226c6785548605fc4bd61b1e9c95de882879e8a7b47ad846"
+        },
+        {
+          "operation": "write",
+          "path": "policy-engine/src/polisyos/runtime/http/routes/lineage.py",
+          "postimage_sha256": "4d105d1725d3844ee7e715649c5269217116111404448ae3c0d9b050474ac453",
+          "preimage_sha256": "14858bafa5fb2a481b450d95b707008776fefead1bc5244c14c6c0f7f480977a"
+        },
+        {
+          "operation": "write",
+          "path": "policy-engine/tests/unit/runtime/http/test_lineage_routes.py",
+          "postimage_sha256": "141c33f919f2b5d8201267b5b034fb1423bf9a005c9c7239fd81d80a9cc3aae8",
+          "preimage_sha256": "74a76c8ebad1c2065dbe792d412c671bd7e314feeae5ad69de7bff09bb1cddf7"
+        },
+        {
+          "operation": "write",
+          "path": "policy-engine/apps/runtime-dashboard/src/api/validators.ts",
+          "postimage_sha256": "f0420e6745e233dd15431c1c431cd20870b97b7e2c736cd47360945f7d073125",
+          "preimage_sha256": "c094508a18a1361755eaa4706ca967fd7519f5d9046b660ed962e8f20c3b5546"
+        },
+        {
+          "operation": "write",
+          "path": "policy-engine/apps/runtime-dashboard/src/app/providers/QuantityRuntimeProvider.tsx",
+          "postimage_sha256": "6163eac2a953a43191c7ead23e039db6e2494e9da226425cbc88c4fd59c5c7e0",
+          "preimage_sha256": "e02c75f2da4fa22780191ca09fb555b742c45468199542565734f8dc3a95675d"
+        },
+        {
+          "operation": "write",
+          "path": "policy-engine/apps/runtime-dashboard/src/app/providers/QuantityRuntimeProvider.test.tsx",
+          "postimage_sha256": "c3e75fc348758c0edabf148989117547f36da50a2293b78467dbe669a54c3786",
+          "preimage_sha256": "cea2d64fc5defa3d23d29fe821bdd4308441b3f29fa7ecdec3f15ef53b4107e1"
+        },
+        {
+          "operation": "write",
+          "path": "policy-engine/apps/runtime-dashboard/src/api/hooks/useRunLineage.ts",
+          "postimage_sha256": "d87c76c4d94ff7f784ac617b34482208605175f3d9656f56cfeca8b96ee6ef7b",
+          "preimage_sha256": "d5683f0cfc7ab454b850a6de1f8e334d2c2273200977fd9e5be7c5adaa444996"
+        },
+        {
+          "operation": "write",
+          "path": "policy-engine/apps/runtime-dashboard/src/api/hooks/artifactDebugLexQueries.test.tsx",
+          "postimage_sha256": "f4fb392e1fe94af0c5b3d9998dc5045020fcf9092fd7189b767280acf3be96a3",
+          "preimage_sha256": "1c9ba974c8243655f1b9a1b607c92f4672f4815dae6956139b2ff5912589f491"
+        },
+        {
+          "operation": "write",
+          "path": "policy-engine/apps/runtime-dashboard/src/api/hooks/useRunFabricDecisionData.test.tsx",
+          "postimage_sha256": "fe81f5a4160c66b58211e0769d3754fe9fcf3de82cd04e17033b83f31fbe19d7",
+          "preimage_sha256": "3bd78644640a5f7f411b5b61b2cee52ef9b1d38a23264000d6cc667af9c24644"
+        },
+        {
+          "operation": "write",
+          "path": "policy-engine/src/polisyos/runtime/http/openapi_contract.py",
+          "postimage_sha256": "bab74a2221dd7e2f9b8fced776389b4d330c5673f16e20962248056407d63989",
+          "preimage_sha256": "2ec9d515f8f10c684b360993b07254f65e2d8d37757a6e8e8764d3f95ca7f697"
+        },
+        {
+          "operation": "write",
+          "path": "policy-engine/tests/unit/runtime/http/test_runtime_api_contract_hardening.py",
+          "postimage_sha256": "ea183d74a5e3e8445f32d991881151dc4d9601c929be4ff2e4a50c90c10d832d",
+          "preimage_sha256": "2b0e048f011778eef140a4086e8daad559e7e0e051247f83ecbbf7b949978d75"
+        },
+        {
+          "operation": "write",
+          "path": "policy-engine/release-fragments/unreleased/2026-10-19-e02-lineage-batch-resolution.toml",
+          "postimage_sha256": "b22e592fa074748149f7b7584560d56b3a8516bd0feb25692d3681a45be13a24",
+          "preimage_sha256": null
+        },
+        {
+          "operation": "write",
+          "path": "policy-engine/docs/reference/api/migration-guide.md",
+          "postimage_sha256": "612fe009dd10ac110cd3c665c5e2fabb3ff0d06eb0d3d2f641dfa114ebbf91cc",
+          "preimage_sha256": "7178a9ce52e50d2a355badfcd3006c06fc94b62590c4f872ed5e5fcb52d9e1e7"
+        },
+        {
+          "operation": "write",
+          "path": "policy-engine/docs/runbooks/migration-release-promotion.md",
+          "postimage_sha256": "c55226975e8451319810fdc369804c524c2f644ded048368797b3c09163a8f76",
+          "preimage_sha256": "b61f740c23f1955e9176690179be3ecdbcbffea21dc2e8adde53ae3e7e4bc393"
+        }
+      ]
+    },
+    "runtime_requested_module_origins": {
+      "polisyos.runtime.quality.acquisition_planner": {
+        "file_sha256": "ec76d0a3b1f1551adc7c5db9e5917eb5bd228f95bbbee911ace478f207e1e118",
+        "loaded": true,
+        "module_file": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/runtime/quality/acquisition_planner.py",
+        "namespace_search_locations": null,
+        "origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/runtime/quality/acquisition_planner.py",
+        "origin_resolution_error": null,
+        "resolved_origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/runtime/quality/acquisition_planner.py",
+        "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/src/polisyos/runtime/quality/acquisition_planner.py"
+      },
+      "tools.quality.validation.demand_gap_projections": {
+        "file_sha256": "c54d7ff6f2061170a0f1e2e270ea4671a497ca2cf7ddba53fdf4f1f20250f1b3",
+        "loaded": true,
+        "module_file": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tools/quality/validation/demand_gap_projections.py",
+        "namespace_search_locations": null,
+        "origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tools/quality/validation/demand_gap_projections.py",
+        "origin_resolution_error": null,
+        "resolved_origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tools/quality/validation/demand_gap_projections.py",
+        "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tools/quality/validation/demand_gap_projections.py"
+      },
+      "tools.quality.validation.layer3_gy_n13b_acquisition_contract": {
+        "file_sha256": "14e040adc06768a6fc08e354e6e8c5b3628ed2ad01fab69a0104d9e17e6af64f",
+        "loaded": true,
+        "module_file": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tools/quality/validation/layer3_gy_n13b_acquisition_contract.py",
+        "namespace_search_locations": null,
+        "origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tools/quality/validation/layer3_gy_n13b_acquisition_contract.py",
+        "origin_resolution_error": null,
+        "resolved_origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tools/quality/validation/layer3_gy_n13b_acquisition_contract.py",
+        "spec_origin": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/tools/quality/validation/layer3_gy_n13b_acquisition_contract.py"
+      }
+    },
+    "selected_r9_source_pins": {
+      "policy-engine/src/polisyos/runtime/quality/acquisition_planner.py": "ec76d0a3b1f1551adc7c5db9e5917eb5bd228f95bbbee911ace478f207e1e118",
+      "policy-engine/tests/repo_quality/tools/test_layer3_gy_n13b_acquisition_contract.py": "b98f36ec0ac15dc0336f2aadddad1ae6dd8a931922de8c85e78df5ab89e45377",
+      "policy-engine/tests/unit/runtime/quality/test_acquisition_planner.py": "79baddfd252c4708d34ce223c929e509ba413593423b6af862b862fbbbde501f",
+      "policy-engine/tools/quality/validation/demand_gap_projections.py": "c54d7ff6f2061170a0f1e2e270ea4671a497ca2cf7ddba53fdf4f1f20250f1b3"
+    },
+    "source_freeze": false,
+    "tree": "f142d98d7a0cec7ce076d900ed21f5293a7e65d6"
+  },
+  "status": "owner_replay_not_established"
+}

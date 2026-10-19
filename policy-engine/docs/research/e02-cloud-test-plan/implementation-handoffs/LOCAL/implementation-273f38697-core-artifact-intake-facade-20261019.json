@@ -1,0 +1,544 @@
+{
+  "G_acceptance": false,
+  "P39": {
+    "accounting": "The 2 mechanism paths are the facade module and its initializer. The 7 mandatory companions are two behavior tests, owner README, release fragment, generated public-surface inventory and docs, and row-scoped review attestation. LEASES and component index are the two required delivery metadata paths. All 11 committed paths are listed in full_footprint.",
+    "commit_path_count": 11,
+    "mandatory_companion_paths": 7,
+    "mechanism_paths": 2,
+    "required_delivery_metadata_paths": 2
+  },
+  "P40": {
+    "bucket": "bounded extension of the existing artifact-facade owner surface; no per-caller or duplicate implementation",
+    "evidence_boundary": "No API or source-logic defect was identified within the reviewed facade source route. Native completeness, installed callers, full composed closeout, and formal G adjudication remain out of scope / not established."
+  },
+  "adopter_provenance": {
+    "claim_limit": "This supports the bounded applied-overlay adoption mechanism; this receipt does not claim a new helper execution.",
+    "helper": {
+      "bytes": 17167,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-disjoint-adopter-prepare-r7-20261019/adopt_reviewed_postimages_known_owned_applied_r7.py",
+      "sha256": "a91e1c9900b683452dd22f8e0894b5cd644528521a7ae3fac104d25f55aec637"
+    },
+    "independent_delta_review": {
+      "bytes": 5851,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-disjoint-adopter-r7-delta-independent-20261019/review.json",
+      "sha256": "fc7d1e8d79de87ad804f1a8667c8dc9dd78c86320fe114f805c050bd6e2c9624"
+    }
+  },
+  "adoption_plan": {
+    "bytes": 19697,
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-reviewed-complete-boundary-r2-20261019/plan.json",
+    "sha256": "4f8a2d75eea44f52bbeaba066bcb87678adeda0b8339d41f2becdaa687cf229b"
+  },
+  "canonical_python_quality": {
+    "R1_preflight": {
+      "context": {
+        "bytes": 12921,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-reviewed-complete-boundary-20261019/canonical-context-preflight.json",
+        "sha256": "90f29939c99ca342baa648c1574ba5f68c0cd4e1349a23267ca9b1762f45700f"
+      },
+      "finding": "The format check for test_artifact_store_protocol.py returned 1 on two long assertion lines; the preflight records zero canonical source writes. R1 was not adopted as formatted."
+    },
+    "R2_format_delta": {
+      "AST_equivalent": true,
+      "canonical_mutations_during_preflight": 0,
+      "manifest": {
+        "bytes": 1105,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-canonical-format-delta-20261019/manifest.json",
+        "sha256": "20cca189bf29525222a17179f03f28df32e8764360775723ff62853a6236302d"
+      },
+      "postimage_is_commit_test_file": true,
+      "prior_candidate_preserved": true
+    },
+    "R2_native_ruff": {
+      "check_exit_code": 0,
+      "check_stderr": {
+        "bytes": 0,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-reviewed-complete-boundary-r2-20261019/check-native-role-0.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "check_stdout": {
+        "bytes": 19,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-reviewed-complete-boundary-r2-20261019/check-native-role-0.stdout.txt",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      "format_check_exit_code": 0,
+      "format_stderr": {
+        "bytes": 0,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-reviewed-complete-boundary-r2-20261019/format-native-role-0.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "format_stdout": {
+        "bytes": 26,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-reviewed-complete-boundary-r2-20261019/format-native-role-0.stdout.txt",
+        "sha256": "177f260a5645724013185e4b140c7045cc39e56c0c97b120f5cb23599f85f0de"
+      },
+      "scope": "All four changed Python files: protocol.py, __init__.py, test_artifact_store_protocol.py, test_ir_adapter.py. Direct canonical Ruff check and format check passed. The commit-hook FE skip is not counted as Python verification.",
+      "source_application": {
+        "bytes": 23869,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-reviewed-complete-boundary-r2-20261019/source-application.json",
+        "sha256": "ca08f69717d7f88084841cb74e1c4ff16e90a41a9f206f2c9e22e7891b3aa942"
+      }
+    }
+  },
+  "closure_ids": [],
+  "commit_request": {
+    "bytes": 3425,
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-reviewed-complete-boundary-r2-20261019/commit-request.json",
+    "sha256": "087d8dabfd1f4b47f73baef82a5317d3011dffcef772fc9bd2c44a7ecc0a52f2"
+  },
+  "created_on": "2026-10-19",
+  "formal_closure_status": "none; any follow-up G decision remains separately proposed and unadjudicated",
+  "full_footprint": {
+    "commit_paths_match_request_readback_and_git": true,
+    "mandatory_companion_paths": 7,
+    "mechanism_paths": 2,
+    "path_count": 11,
+    "paths": [
+      {
+        "bytes": 478455,
+        "git_mode": "100644",
+        "path": "policy-engine/architecture/public_surface/inventory.json",
+        "role": "mandatory_companion",
+        "sha256": "9b40b2bc6dcd54527733941ad83a9c6940ef295ee99af02680d8e69c51caa0f8"
+      },
+      {
+        "bytes": 197723,
+        "git_mode": "100644",
+        "path": "policy-engine/docs/reference/public-surface.md",
+        "role": "mandatory_companion",
+        "sha256": "0ef1d0af325c78d81effc52315caeee00f984a043710c833a944e1372b7be166"
+      },
+      {
+        "bytes": 1321492,
+        "git_mode": "100644",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "role": "required_delivery_metadata",
+        "sha256": "a709384398e3321eeeddb9b85d7e142e76a6545cb83140e1081baeceb08cf5d7"
+      },
+      {
+        "bytes": 107161,
+        "git_mode": "100644",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "role": "required_delivery_metadata",
+        "sha256": "7f9291346800f0b189f9ee41b8141c50499cb3eff26822ea5ddb2660b4f1033d"
+      },
+      {
+        "bytes": 4481,
+        "git_mode": "100644",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/release-inventory-local-review-attestation-20261019-core-artifact-intake.json",
+        "role": "mandatory_companion",
+        "sha256": "2264f666e279821e23521742cb527075569fee99babcd6011b80ed4bbd741c5d"
+      },
+      {
+        "bytes": 2429,
+        "git_mode": "100644",
+        "path": "policy-engine/release-fragments/unreleased/2026-10-19-e02-core-artifact-intake-facade.toml",
+        "role": "mandatory_companion",
+        "sha256": "9240d02770e4dc38c48231296ddeac19397f361f5427595fc8b21185f5473f16"
+      },
+      {
+        "bytes": 22425,
+        "git_mode": "100644",
+        "path": "policy-engine/src/polisyos/core/artifacts/README.md",
+        "role": "mandatory_companion",
+        "sha256": "682e004a77bdaf25ba15b20c6b7a60f61e131ed0d3ae19722b2cf6cda872a949"
+      },
+      {
+        "bytes": 9772,
+        "git_mode": "100644",
+        "path": "policy-engine/src/polisyos/core/artifacts/__init__.py",
+        "role": "mechanism",
+        "sha256": "d915ab894ce009dc0df064d5c5c269544b6e407d1f09e4289afdeded1695ac76"
+      },
+      {
+        "bytes": 18141,
+        "git_mode": "100644",
+        "path": "policy-engine/src/polisyos/core/artifacts/protocol.py",
+        "role": "mechanism",
+        "sha256": "5c9f2ae0b6934464ca60bca7a18f809849c3e68db53710c200304095fbf8928c"
+      },
+      {
+        "bytes": 45713,
+        "git_mode": "100644",
+        "path": "policy-engine/tests/unit/core/artifacts/test_artifact_store_protocol.py",
+        "role": "mandatory_companion",
+        "sha256": "02db800f2a6cdd6ebf809efda8515e7727a8d6ab0eea260a4d097d51193a84a9"
+      },
+      {
+        "bytes": 75448,
+        "git_mode": "100644",
+        "path": "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py",
+        "role": "mandatory_companion",
+        "sha256": "34a863bdc3101b995bf03524876e835f0c04bed85f69e441dd20ee51ec202339"
+      }
+    ],
+    "required_delivery_metadata_paths": 2
+  },
+  "generation": {
+    "candidate_count_delta": {
+      "added_source_declared_candidates": 9,
+      "base": 92,
+      "current": 101,
+      "removed": 0
+    },
+    "native_export_completeness": "not established; generated inventory explicitly remains unresolved_exports with known_export_count=0, exports=[], complete_verdict=false",
+    "readback": {
+      "bytes": 3686,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-adoption-and-owner-regeneration-20261019/generation-readback.json",
+      "sha256": "3065dd2ca177ebc562aa3eb14975b13302cd6444da5fc06c561b7209286faec1"
+    },
+    "result": {
+      "bytes": 1006,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-adoption-and-owner-regeneration-20261019/generation-result.json",
+      "sha256": "3b219d8251161f77151d217472d93625ac64f2c7ff543ff86062738e3b369250"
+    },
+    "review_marker_predicate": "consumer_asserted; marker validity does not authenticate reviewer appointment or exhaustive runtime exports.",
+    "source_application": {
+      "bytes": 4582,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-adoption-and-owner-regeneration-20261019/source-application.json",
+      "sha256": "d458360e541b20a020338ddae67e12bb0e18bfa8b4000de827ced964d5452fe1"
+    }
+  },
+  "independent_review": {
+    "boundary_and_attestation_review": {
+      "decision": "GO for root-only application of the exact pinned nine-row plan with the reviewed R7 helper; public release HOLD.",
+      "limits": "The row-scoped public_surface_inventory_reviewed marker is accepted only as a local technical-review record for one compatibility row. Team architecture approval, reviewer appointment, exhaustive native exports, publication approval, and G acceptance remain not_established.",
+      "reference": {
+        "bytes": 5911,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-boundary-plan-independent-20261019/review.json",
+        "sha256": "724ee8140480c28cf06f649a86145e24e2b2c300d7798609b70199c6ef0885a7"
+      }
+    },
+    "generated_surface_review": {
+      "decision": "GO scoped to regenerated inventory/docs and source-declared candidate delta; public release HOLD",
+      "limits": "Inventory remains unresolved_exports, known_export_count=0, exports=[], complete_verdict=false; source declarations do not establish exhaustive native runtime exports.",
+      "reference": {
+        "bytes": 7352,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-surface-technical-review-20261019/review.json",
+        "sha256": "4c74fa7d4f02a5b40b02e7e374494edd4b999ece92610a8528639497c604da47"
+      }
+    },
+    "source_review": {
+      "decision": "GO bounded to the six-path exact-owner facade source route",
+      "limits": "That review recorded runtime UNRUN and public release HOLD pending generated-surface review; it is not a review of the later format-only test delta.",
+      "reference": {
+        "bytes": 12705,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-intake-facade-route-independent-20261019/review.json",
+        "sha256": "3472c4e645e5dbfb99000b888e56fbc2056d89b7c845a8d576f5865c14c1e338"
+      }
+    }
+  },
+  "preserved_other_owned_overlay": {
+    "application_readback": {
+      "bytes": 893,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-frontend-lineage-r7-complete-source-generator-adoption-20261019/source-applied.json",
+      "sha256": "e531b80218bfb3c37cd1e89460b05e105abc04d0bf053da28cf703adf0581646"
+    },
+    "count": 14,
+    "included_in_core_commit": false,
+    "preparation": {
+      "bytes": 30522,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-frontend-lineage-r7-complete-source-generator-adoption-20261019/preparation.json",
+      "sha256": "fd400a37487ff6b9afd806734a222de4e50f0b3ff9781c510921ceb2f3914201"
+    },
+    "tracked": 13,
+    "unchanged_during_core_application": true,
+    "untracked": 1
+  },
+  "property": "Expose the existing selected-profile preflight and validation owners, structural protocol matchers, Core-to-IR adapter, profile decoder/selector, and optional ownership hook through the supported Core artifact facade without changing object identity or granting authority. Preserve actual post-write selected-profile refusal.",
+  "proposals": {
+    "G_acceptance_proposed": false,
+    "formal_closures": [],
+    "note": "Any future closure or release decision must be separately evidenced and adjudicated; this receipt is not that decision.",
+    "public_release_approval_proposed": false
+  },
+  "record_type": "source_implementation_receipt_candidate",
+  "reviewed_inputs": [
+    {
+      "bytes": 23869,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-reviewed-complete-boundary-r2-20261019/source-application.json",
+      "sha256": "ca08f69717d7f88084841cb74e1c4ff16e90a41a9f206f2c9e22e7891b3aa942"
+    },
+    {
+      "bytes": 19697,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-reviewed-complete-boundary-r2-20261019/plan.json",
+      "sha256": "4f8a2d75eea44f52bbeaba066bcb87678adeda0b8339d41f2becdaa687cf229b"
+    },
+    {
+      "bytes": 3425,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-reviewed-complete-boundary-r2-20261019/commit-request.json",
+      "sha256": "087d8dabfd1f4b47f73baef82a5317d3011dffcef772fc9bd2c44a7ecc0a52f2"
+    },
+    {
+      "bytes": 2910,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-reviewed-complete-boundary-r2-20261019/core-artifact-intake-supported-owner-facade-20261019-readback.json",
+      "sha256": "48bd7fe35ff6a95013ca01e0770a272ed61e99461c85dc4d54633af4cfb07fdb"
+    },
+    {
+      "bytes": 11181,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-intake-facade-route-author-r2-20261019/manifest.json",
+      "sha256": "0807fc8c2666ce54add6f12cf52cfa0e4f2dbc9a8608574df2c0485a0d2030f7"
+    },
+    {
+      "bytes": 12705,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-intake-facade-route-independent-20261019/review.json",
+      "sha256": "3472c4e645e5dbfb99000b888e56fbc2056d89b7c845a8d576f5865c14c1e338"
+    },
+    {
+      "bytes": 4582,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-adoption-and-owner-regeneration-20261019/source-application.json",
+      "sha256": "d458360e541b20a020338ddae67e12bb0e18bfa8b4000de827ced964d5452fe1"
+    },
+    {
+      "bytes": 3686,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-adoption-and-owner-regeneration-20261019/generation-readback.json",
+      "sha256": "3065dd2ca177ebc562aa3eb14975b13302cd6444da5fc06c561b7209286faec1"
+    },
+    {
+      "bytes": 1006,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-adoption-and-owner-regeneration-20261019/generation-result.json",
+      "sha256": "3b219d8251161f77151d217472d93625ac64f2c7ff543ff86062738e3b369250"
+    },
+    {
+      "bytes": 7352,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-surface-technical-review-20261019/review.json",
+      "sha256": "4c74fa7d4f02a5b40b02e7e374494edd4b999ece92610a8528639497c604da47"
+    },
+    {
+      "bytes": 5911,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-boundary-plan-independent-20261019/review.json",
+      "sha256": "724ee8140480c28cf06f649a86145e24e2b2c300d7798609b70199c6ef0885a7"
+    },
+    {
+      "bytes": 15289,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-public-surface-review-flag-semantics-20261019/semantics.json",
+      "sha256": "3d479831c353cd0db2091ea5ca6d00725d07be617acc0ed2d11f015965f27725"
+    },
+    {
+      "bytes": 91582,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-current-actual-20261019/result.json",
+      "sha256": "d0fa0eaf1fadacba5bae851fe9d0068c87abb6903af072c8d1b1155fdda33ea6"
+    },
+    {
+      "bytes": 28344,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-current-actual-20261019/pytest.xml",
+      "sha256": "cf079132264364d738539f6e3a6ae3a1baaacf21b97f16f40209de0d3bcd94bd"
+    },
+    {
+      "bytes": 260,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-current-actual-20261019/pytest.stdout.txt",
+      "sha256": "da58f463f86032cdc05fd820e9fa0c19c43db284f103b33fc11f13386305f5de"
+    },
+    {
+      "bytes": 0,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-current-actual-20261019/pytest.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 284766,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-current-actual-20261019/runtime-module-origins.json",
+      "sha256": "661ae6ecdcecab3513fe39a70107b0a93a015b5d32a70e18837c7010a6d08385"
+    },
+    {
+      "bytes": 19385768,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-current-actual-20261019/source-before.json",
+      "sha256": "3d727123d05b4be46e51409ac391d7a061f0b71c6a789319fc395d37ff963803"
+    },
+    {
+      "bytes": 19385768,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-current-actual-20261019/source-after.json",
+      "sha256": "3d727123d05b4be46e51409ac391d7a061f0b71c6a789319fc395d37ff963803"
+    },
+    {
+      "bytes": 1105,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-canonical-format-delta-20261019/manifest.json",
+      "sha256": "20cca189bf29525222a17179f03f28df32e8764360775723ff62853a6236302d"
+    },
+    {
+      "bytes": 19,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-reviewed-complete-boundary-r2-20261019/check-native-role-0.stdout.txt",
+      "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+    },
+    {
+      "bytes": 0,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-reviewed-complete-boundary-r2-20261019/check-native-role-0.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 26,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-reviewed-complete-boundary-r2-20261019/format-native-role-0.stdout.txt",
+      "sha256": "177f260a5645724013185e4b140c7045cc39e56c0c97b120f5cb23599f85f0de"
+    },
+    {
+      "bytes": 0,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-reviewed-complete-boundary-r2-20261019/format-native-role-0.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 12921,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-reviewed-complete-boundary-20261019/canonical-context-preflight.json",
+      "sha256": "90f29939c99ca342baa648c1574ba5f68c0cd4e1349a23267ca9b1762f45700f"
+    },
+    {
+      "bytes": 12969,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-reviewed-complete-boundary-r2-20261019/canonical-context-preflight.json",
+      "sha256": "1ffd18f6443b3882930e40b9aded7ba86b5ea220854c79a693843cff45b9e3a7"
+    },
+    {
+      "bytes": 0,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-reviewed-complete-boundary-r2-20261019/canonical-preflight-3-format.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 30522,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-frontend-lineage-r7-complete-source-generator-adoption-20261019/preparation.json",
+      "sha256": "fd400a37487ff6b9afd806734a222de4e50f0b3ff9781c510921ceb2f3914201"
+    },
+    {
+      "bytes": 893,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-frontend-lineage-r7-complete-source-generator-adoption-20261019/source-applied.json",
+      "sha256": "e531b80218bfb3c37cd1e89460b05e105abc04d0bf053da28cf703adf0581646"
+    },
+    {
+      "bytes": 17167,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-disjoint-adopter-prepare-r7-20261019/adopt_reviewed_postimages_known_owned_applied_r7.py",
+      "sha256": "a91e1c9900b683452dd22f8e0894b5cd644528521a7ae3fac104d25f55aec637"
+    },
+    {
+      "bytes": 5851,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-known-owned-disjoint-adopter-r7-delta-independent-20261019/review.json",
+      "sha256": "fc7d1e8d79de87ad804f1a8667c8dc9dd78c86320fe114f805c050bd6e2c9624"
+    }
+  ],
+  "runtime_evidence": {
+    "command_result": {
+      "cases": 161,
+      "collection_execution_junit_reconciled": true,
+      "errors": 0,
+      "exit_code": 0,
+      "failed": 0,
+      "origin_mismatches": 0,
+      "passed": 161,
+      "product_module_origins_matched": 91,
+      "selected_modules": 2,
+      "skipped": 0,
+      "status": "bounded_two_full_module_replay_pass",
+      "tracked_source_unchanged_during_run": true
+    },
+    "exact_test_byte_boundary": {
+      "final_test_artifact_store_protocol.py_sha256": "02db800f2a6cdd6ebf809efda8515e7727a8d6ab0eea260a4d097d51193a84a9",
+      "other_final_test_and_production_modules_match_run_inputs": true,
+      "relationship": "R2 formatter delta records full-file AST equivalence; no post-format pytest run is claimed.",
+      "test_artifact_store_protocol.py_run_input_sha256": "410bf36643f015cba9481659fb9a7f25a54e2e3db0d2f721accd52e1345ff978"
+    },
+    "kind": "historical candidate replay before canonical formatting; not a replay of the exact final test companion bytes",
+    "outputs": [
+      {
+        "bytes": 28344,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-current-actual-20261019/pytest.xml",
+        "sha256": "cf079132264364d738539f6e3a6ae3a1baaacf21b97f16f40209de0d3bcd94bd"
+      },
+      {
+        "bytes": 260,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-current-actual-20261019/pytest.stdout.txt",
+        "sha256": "da58f463f86032cdc05fd820e9fa0c19c43db284f103b33fc11f13386305f5de"
+      },
+      {
+        "bytes": 0,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-current-actual-20261019/pytest.stderr.txt",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "bytes": 284766,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-current-actual-20261019/runtime-module-origins.json",
+        "sha256": "661ae6ecdcecab3513fe39a70107b0a93a015b5d32a70e18837c7010a6d08385"
+      },
+      {
+        "bytes": 19385768,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-current-actual-20261019/source-before.json",
+        "sha256": "3d727123d05b4be46e51409ac391d7a061f0b71c6a789319fc395d37ff963803"
+      },
+      {
+        "bytes": 19385768,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-current-actual-20261019/source-after.json",
+        "sha256": "3d727123d05b4be46e51409ac391d7a061f0b71c6a789319fc395d37ff963803"
+      }
+    ],
+    "result": {
+      "bytes": 91582,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-current-actual-20261019/result.json",
+      "sha256": "d0fa0eaf1fadacba5bae851fe9d0068c87abb6903af072c8d1b1155fdda33ea6"
+    },
+    "tested_path_pins": [
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/protocol.py",
+        "same_bytes": true,
+        "sha256_at_run": "5c9f2ae0b6934464ca60bca7a18f809849c3e68db53710c200304095fbf8928c",
+        "sha256_in_commit": "5c9f2ae0b6934464ca60bca7a18f809849c3e68db53710c200304095fbf8928c"
+      },
+      {
+        "path": "policy-engine/src/polisyos/core/artifacts/__init__.py",
+        "same_bytes": true,
+        "sha256_at_run": "d915ab894ce009dc0df064d5c5c269544b6e407d1f09e4289afdeded1695ac76",
+        "sha256_in_commit": "d915ab894ce009dc0df064d5c5c269544b6e407d1f09e4289afdeded1695ac76"
+      },
+      {
+        "path": "policy-engine/tests/unit/core/artifacts/test_artifact_store_protocol.py",
+        "same_bytes": false,
+        "sha256_at_run": "410bf36643f015cba9481659fb9a7f25a54e2e3db0d2f721accd52e1345ff978",
+        "sha256_in_commit": "02db800f2a6cdd6ebf809efda8515e7727a8d6ab0eea260a4d097d51193a84a9"
+      },
+      {
+        "path": "policy-engine/tests/unit/core/artifacts/test_ir_adapter.py",
+        "same_bytes": true,
+        "sha256_at_run": "34a863bdc3101b995bf03524876e835f0c04bed85f69e441dd20ee51ec202339",
+        "sha256_in_commit": "34a863bdc3101b995bf03524876e835f0c04bed85f69e441dd20ee51ec202339"
+      }
+    ]
+  },
+  "source_application": {
+    "bytes": 23869,
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-reviewed-complete-boundary-r2-20261019/source-application.json",
+    "sha256": "ca08f69717d7f88084841cb74e1c4ff16e90a41a9f206f2c9e22e7891b3aa942"
+  },
+  "source_frame": {
+    "base_tree": "f142d98d7a0cec7ce076d900ed21f5293a7e65d6",
+    "branch": "codex/e02-unified-local-20261009",
+    "branch_at_test_run": "codex/e02-unified-local-20261009",
+    "branch_note": "Branch is copied from the pinned test run record; commit/tree/parent are independently bound to the immutable Git object. No current-HEAD claim is made.",
+    "commit": "273f386970f233811ae023926ae4fb3daa7673ea",
+    "commit_subject": "feat(e02): expose existing Core artifact intake owners",
+    "parents": [
+      "28be3206c60785231e07a7ceca713129306a14e3"
+    ],
+    "scope_note": "This receipt binds this immutable implementation commit. It makes no claim that the branch HEAD remains at this commit.",
+    "slice_base": "28be3206c60785231e07a7ceca713129306a14e3",
+    "source_commit_readback": {
+      "bytes": 2910,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-reviewed-complete-boundary-r2-20261019/core-artifact-intake-supported-owner-facade-20261019-readback.json",
+      "sha256": "48bd7fe35ff6a95013ca01e0770a272ed61e99461c85dc4d54633af4cfb07fdb"
+    },
+    "tree": "b62a317e4cc2f85d422df2b7e048a118c8f56bf3"
+  },
+  "status": "implementation committed and read back; source candidate independently reviewed; generated projection bounded-reviewed; runtime proof historical/pre-format; public release HOLD; no G closure claimed",
+  "supersedes": {
+    "bytes": 28596,
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-artifact-facade-273f-handoff-prepare-20261019/implementation-273f38697-core-artifact-intake-facade-20261019.json",
+    "reason": "Removes an unsupported observed-HEAD-at-receipt field and pins the exact four runtime input hashes against final commit bytes; no product evidence or source data changed.",
+    "sha256": "33321f0203b4405f57611d5d7e1af2df31d8ea85f32cbf1692499931dd8f7d2e"
+  },
+  "verification_boundary": {
+    "implementation_runtime": "Historical 161-case owner-module candidate replay, with the one test-format delta scoped by full-AST equivalence; no post-format rerun.",
+    "next_check": "Continue with the affected installed and caller consumers on the final frozen source/profile/input set; separately determine exhaustive runtime public exports; only then seek any formal G adjudication.",
+    "not_established": [
+      "native/exhaustive Core exports",
+      "caller migration completeness",
+      "installed artifact consumers",
+      "13-row native SOTA/full composed closeout",
+      "reviewer appointment or team architecture approval",
+      "publication/release approval",
+      "formal G acceptance",
+      "capability closure"
+    ]
+  }
+}

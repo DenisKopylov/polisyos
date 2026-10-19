@@ -1,0 +1,802 @@
+{
+  "closure_ids": [],
+  "created_on": "2026-10-19",
+  "deciding_outputs": {
+    "generator_stderr": {
+      "bytes": 0,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-imports-r5-source-generated-adoption-20261019/generator-run/public-surface-sync.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "generator_stdout": {
+      "bytes": 44,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-imports-r5-source-generated-adoption-20261019/generator-run/public-surface-sync.stdout.txt",
+      "sha256": "3a1c841e27e002f813b631ad3847f17a39a1b8e4dab8a007892ea06d0c5d83c8"
+    },
+    "guardrails_scoped_stderr": {
+      "bytes": 0,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-imports-r5-focused-static-gates-actual-20261019/guardrails-scoped.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "guardrails_scoped_stdout": {
+      "bytes": 332649,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-imports-r5-focused-static-gates-actual-20261019/guardrails-scoped.stdout.txt",
+      "sha256": "9164e8d8ab858f367e10260578df19d1339144ebdbc58ca8776ddc03b36df3aa"
+    },
+    "import_linter_stderr": {
+      "bytes": 0,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-imports-r5-focused-static-gates-actual-20261019/import-linter.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "import_linter_stdout": {
+      "bytes": 1335,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-imports-r5-focused-static-gates-actual-20261019/import-linter.stdout.txt",
+      "sha256": "ff86370706bd2f5714b1d151ce3c83600b1709e52db6ea1320296604ca93d276"
+    }
+  },
+  "decision_boundary": {
+    "G_acceptance": false,
+    "capability_state": [
+      "verification_missing"
+    ],
+    "closure_ids": [],
+    "legal_requirement_root": "Unappointed/ungoverned; source direction edges do not appoint an owner or establish external law.",
+    "proposal_id": "not_established",
+    "related_unreleased_api_change_ids": [
+      "e02-core-cas-read-only-public-api",
+      "e02-common-selected-artifact-reader-public-api"
+    ]
+  },
+  "environment_boundary": {
+    "loaded_runtime_origins": "Not captured for a product import/test run because no post-commit product runtime or pytest command was executed.",
+    "profile_source": {
+      "bytes": 3434,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-imports-r5-focused-static-gates-actual-20261019/receipt.json",
+      "sha256": "53435fc05dd1b032f6f1ab98e8100b2398b6a82c29c5030d2e0e1ef0ec6aa9de"
+    },
+    "tooling": "Observed commands used local policy-engine/.venv/bin/python and native Ruff configuration; no dependency installation or environment copy is represented here."
+  },
+  "implementation_boundary": {
+    "IR_selected_artifact_store": "IR parameter bundle selection remains on its typed ArtifactStore adapter. The selected profile resolves the exact manifest; validation checks kind, media type, schema identity/version and manifest-profile digest, and CAS bytes are read under the selected identity. The IR tests declare sibling-view, missing/unbound profile, wrong kind/media/schema, manifest recheck and selected-blob corruption cases. They were not run after this commit.",
+    "producer_and_persistence_chain": "Not established by this 17-path source slice. No real production producer-to-persisted-artifact-to-consumer execution or artifact-currentness/authority claim is made.",
+    "public_surface": "The source-derived inventory/reference pair includes the Common candidate entry and unresolved Core candidates. Two unreleased additive API fragments accompany the source. This commit does not add Core CAS implementation source or publish a release.",
+    "shared_common_reader": "read_optional_selected_artifact is owned/exported from supported polisyos.common.canonical_profile. It distinguishes no selector from selected-read refusal, carries a caller refusal code, and preserves unexpected internal exception identity. The private polisyos.common._selected_artifact_intake path re-exports the same callable for compatibility; it is not a second reader implementation.",
+    "wired_consumers": [
+      "polisyos.ir.analytics.simulation_proof_bridge",
+      "polisyos.runtime.http.services.control.nl_pipeline",
+      "polisyos.scientist.policy_design.phase3"
+    ]
+  },
+  "independent_review": {
+    "decision": "GO",
+    "decision_scope": "technical source-derived accuracy of this generated inventory/reference pair only",
+    "input_base_comparison_erratum": {
+      "bytes": 1166,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-common-generated-publicsurface-independent-20261019/source-input-base-comparison-erratum.md",
+      "sha256": "8cfa28645f2ef9be93c31ae93af364ddd35dd4c6c1040236dbfd3f5029109706"
+    },
+    "markdown_reference": {
+      "bytes": 4113,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-common-generated-publicsurface-independent-20261019/review.md",
+      "sha256": "c071bafb9bfbf1ca1cf6d9b872336dd9c4f0657370be8cdde050d454d5380947"
+    },
+    "not_established": [
+      "runtime export namespace/completeness",
+      "team-architecture owner approval",
+      "reviewer appointment/delegation",
+      "G acceptance/formal closure",
+      "behavioral correctness of newly added source helper"
+    ],
+    "projection_counts": {
+      "current_read_byte_rows": 211,
+      "entrypoints": 68,
+      "generated_artifact_families": 13,
+      "packages": 20
+    },
+    "reference": {
+      "bytes": 135305,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-common-generated-publicsurface-independent-20261019/review.json",
+      "sha256": "cb980bc97646c304c4f2a2e495875bbd80068ecd5914f472019c838f041ffe05"
+    },
+    "reviewer_identity_and_team_architecture_appointment": "not_established",
+    "runtime_export_boundary": "Runtime export namespace/completeness remains unresolved because source package initializers use importlib; no product imports or tests were run by this review. The Common helper is a generated candidate, not a verified runtime export."
+  },
+  "intended_handoff_target": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-c4d327ad-selected-intake-public-boundaries-20261019.json",
+  "pattern_review": {
+    "P01_P02": "Source wiring routes selected reads through supported owners, but no production producer → persisted artifact → orchestration → consumer execution was demonstrated in this slice.",
+    "P03": "Generated surface output is source-derived and reviewed; runtime facade exports remain unresolved.",
+    "P05_P14": "Local technical review is not team-owner authority or independent policy evidence; no legal/custody authority is inferred.",
+    "P29_P32": "Tests declare byte corruption, sibling-view and absent-vs-refusal controls. They were not run on c4d; the receipt does not promote declarations into runtime proof.",
+    "P37_P38": "The review marker predicate is consumer_asserted; its stale/unreviewed or unappointed-review divergence is named above.",
+    "P40": "Same selected-artifact intake/boundary class, widened across IR’s own typed store boundary, one supported Common reader, all three sibling consumers, CAS corruption controls, generated outputs and required release/attestation companions. Next check: full consumer test modules and exact native SOTA profile after a frozen source frame; do not instance-patch one import or infer whole-chain closure."
+  },
+  "property": "IR resolves exact selected manifest/profile/kind/media/schema and content bytes through its own typed ArtifactStore contract. Existing shared optional intake lives at supported Common canonical_profile with identity-preserving private compatibility re-export; all three foreign consumers use that existing public surface. Runtime allowed calibration/legal direction edges are explicit, without appointing unowned legal_requirement root. Real public-inventory owner projection and additive API release companions are included in this same boundary.",
+  "record_type": "source_implementation_receipt_candidate",
+  "retention": "No source payloads are copied into this receipt. The complete c4d candidate path/mode/blob/byte matrix is derived directly from Git objects at c4d and its slice base; current HEAD objects are shown separately. Complete stdout/stderr and review/application inputs remain at pinned RAW paths.",
+  "review_attestation": {
+    "P37_P38_divergent_case": "A release author sets true while generated inventory is stale/unreviewed or while a local technical reviewer lacks an evidenced team-architecture appointment; the marker checker still passes. Independent inventory drift checking is separate and does not authenticate owner action.",
+    "attestation_G_acceptance": false,
+    "closure_ids": [],
+    "implemented_predicate": "TOML bool true at a fragment root or row; it does not authenticate reviewer identity, inventory freshness, completed review or G acceptance.",
+    "integration_publication": false,
+    "marker_semantics_reference": {
+      "bytes": 15289,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-public-surface-review-flag-semantics-20261019/semantics.json",
+      "sha256": "3d479831c353cd0db2091ea5ca6d00725d07be617acc0ed2d11f015965f27725"
+    },
+    "public_surface_inventory_reviewed_marker": "consumer_asserted",
+    "reference": {
+      "bytes": 3635,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-imports-r5-complete-boundary-adoption-20261019/local-technical-review-attestation.json",
+      "sha256": "b21eb8b13a56f02e25cbb7d7ba316571908602cb55852129612066be133459b8"
+    }
+  },
+  "reviewed_inputs": [
+    {
+      "bytes": 12343,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-eight-import-violations-systemic-author-20261019/r5-final/candidate-source-pins-r5-final.json",
+      "sha256": "c219efb08183e04351cde1ad91f47eabbfb9e3010c4263e94662499f059c827f"
+    },
+    {
+      "bytes": 7678,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-eight-import-violations-systemic-author-20261019/r4/candidate-source-pins-r4.json",
+      "sha256": "7ba16ebd6092b3b95e727ce05cdbfb7ce57f55a681f8b567a1a637d79af9c1d4"
+    },
+    {
+      "bytes": 7059,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-eight-import-violations-systemic-author-20261019/r5-final/independent-review-r5-final-20261019.md",
+      "sha256": "7c7f8d47c1369cb1621b26df28d8038686be0fc575457856a5bbb9b2cee050a5"
+    },
+    {
+      "bytes": 4375,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-eight-imports-r4-independent-20261019.md",
+      "sha256": "3f8b05472ea47f4446d6ec2e90fb1fac86755037e8f57097d52c104790371d13"
+    },
+    {
+      "bytes": 8949,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-common-public-api-release-companions-prepare-20261019/manifest.json",
+      "sha256": "ecf4d1acd67f9d4d066209a5970077cdef70c467c2ffa4c2e15d41924fa523c6"
+    },
+    {
+      "bytes": 15289,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-public-surface-review-flag-semantics-20261019/semantics.json",
+      "sha256": "3d479831c353cd0db2091ea5ca6d00725d07be617acc0ed2d11f015965f27725"
+    },
+    {
+      "bytes": 135305,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-common-generated-publicsurface-independent-20261019/review.json",
+      "sha256": "cb980bc97646c304c4f2a2e495875bbd80068ecd5914f472019c838f041ffe05"
+    },
+    {
+      "bytes": 1166,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-common-generated-publicsurface-independent-20261019/source-input-base-comparison-erratum.md",
+      "sha256": "8cfa28645f2ef9be93c31ae93af364ddd35dd4c6c1040236dbfd3f5029109706"
+    },
+    {
+      "bytes": 1526,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-imports-r5-source-generated-adoption-20261019/generator-readback.json",
+      "sha256": "0a5d625d49b32676142d7fd3b8829e4eaa429567f68a7c57ae3febc05510ed1d"
+    },
+    {
+      "bytes": 3434,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-imports-r5-focused-static-gates-actual-20261019/receipt.json",
+      "sha256": "53435fc05dd1b032f6f1ab98e8100b2398b6a82c29c5030d2e0e1ef0ec6aa9de"
+    },
+    {
+      "bytes": 3635,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-imports-r5-complete-boundary-adoption-20261019/local-technical-review-attestation.json",
+      "sha256": "b21eb8b13a56f02e25cbb7d7ba316571908602cb55852129612066be133459b8"
+    },
+    {
+      "bytes": 44,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-imports-r5-source-generated-adoption-20261019/generator-run/public-surface-sync.stdout.txt",
+      "sha256": "3a1c841e27e002f813b631ad3847f17a39a1b8e4dab8a007892ea06d0c5d83c8"
+    },
+    {
+      "bytes": 0,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-imports-r5-source-generated-adoption-20261019/generator-run/public-surface-sync.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 1335,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-imports-r5-focused-static-gates-actual-20261019/import-linter.stdout.txt",
+      "sha256": "ff86370706bd2f5714b1d151ce3c83600b1709e52db6ea1320296604ca93d276"
+    },
+    {
+      "bytes": 0,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-imports-r5-focused-static-gates-actual-20261019/import-linter.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 332649,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-imports-r5-focused-static-gates-actual-20261019/guardrails-scoped.stdout.txt",
+      "sha256": "9164e8d8ab858f367e10260578df19d1339144ebdbc58ca8776ddc03b36df3aa"
+    },
+    {
+      "bytes": 0,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-imports-r5-focused-static-gates-actual-20261019/guardrails-scoped.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "schema": "policyos.e02.selected_artifact_boundary_implementation_receipt_candidate.v1",
+  "selection_identity": {
+    "artifact_ref_fields": [
+      "artifact_id",
+      "kind",
+      "media_type",
+      "manifest_profile_sha256"
+    ],
+    "backend_and_read_path": "The IR code consumes its ArtifactStore protocol through the existing IR adapter. The committed unit fixture uses FileSystemCAS and resolves manifest plus bytes under the typed selected ArtifactRef; this is a test backend, not a production backend or producer proof.",
+    "byte_falsifier": "The committed test mutates the selected CAS blob after reading its manifest, verifies the selected manifest view remains the same, then expects ArtifactIntegrityError to be wrapped as the selected-source ValueError during bundle persistence. This is a declared test control only; pytest was not run on c4d.",
+    "evidence_paths": [
+      "policy-engine/src/polisyos/ir/analytics/parameters.py",
+      "policy-engine/tests/unit/ir/test_context_adaptive_parameter_bundle_contract.py"
+    ],
+    "kind": "scientist.skg_source_snapshot",
+    "limits": "No actual production ArtifactID, runtime profile digest, producer event, persisted production artifact, currentness or authority is established by these unit fixtures.",
+    "media_type": "application/json",
+    "profile": "The selector must carry the exact non-null manifest_profile_sha256 of the selected view. The test uses two manifest views of the same ArtifactID (selected scientist.skg_source_snapshot and sibling other.snapshot) with different profile digests; the digest identifies manifest metadata and is not treated as a substitute for a byte read.",
+    "schema_name": "scientist.skg_source_snapshot",
+    "schema_version": "1.0",
+    "scope": "The typed selector contract of IR context-adaptive parameter bundle v1.1 for its optional SKG source input; not a global identity tuple for every Common helper consumer."
+  },
+  "source_application": {
+    "adoption_plan": {
+      "bytes": 17872,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-imports-r5-complete-boundary-adoption-20261019/plan.json",
+      "sha256": "908301283ec97eada48a5a8763b83bddd59d7cb9917488b7914833dcd10a708e"
+    },
+    "commit_request": {
+      "bytes": 3114,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-imports-r5-complete-boundary-adoption-20261019/commit-request.json",
+      "sha256": "c6e283ee150a268b47185982180919784f30da00582f95b3f6ace6b0e871fc53"
+    },
+    "generator_command_result": {
+      "bytes": 1824,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-imports-r5-source-generated-adoption-20261019/generator-command-result.json",
+      "sha256": "3bdc969a1bdd19a58939b3195d740c29433a39df54ce65080861d6e2917dee4f"
+    },
+    "generator_readback": {
+      "bytes": 1526,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-imports-r5-source-generated-adoption-20261019/generator-readback.json",
+      "sha256": "0a5d625d49b32676142d7fd3b8829e4eaa429567f68a7c57ae3febc05510ed1d"
+    },
+    "reviewed_source_patch": {
+      "bytes": 17613,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-imports-r5-source-generated-adoption-20261019/reviewed-source.patch",
+      "sha256": "1bbaab0629720c831a5f8b2887a8f610acd82a72e56d238a53bd4c576bcc9cea"
+    },
+    "source_application_readback": {
+      "bytes": 819,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-imports-r5-source-generated-adoption-20261019/source-applied.json",
+      "sha256": "5397172305e8b9dc6edadb86df34b58d1b276f1ef844ce45701aac0ec7c90a94"
+    },
+    "source_preparation": {
+      "bytes": 28882,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-imports-r5-source-generated-adoption-20261019/preparation.json",
+      "sha256": "981be44dac5451a1961b0b25acc7a9c0743154187a2349bd83cced00f621fdf5"
+    },
+    "trash_receipt": {
+      "bytes": 197,
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-imports-r5-complete-boundary-adoption-20261019/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    }
+  },
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "candidate": "c4d327adadac7fdeae5add529183fe0b470c307d",
+    "candidate_commit_readback": "The c4d commit/tree/path blobs are read from Git objects, not inferred from the later working-tree contents.",
+    "current_branch_context": {
+      "classification": "Known root-owned ordinary metadata-only successor; the LEASES/index candidate blobs are historical c4d versions and are pinned by Git object, not substituted with current HEAD versions.",
+      "decision_readback": {
+        "bytes": 3221,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-reviewed-historical-receipts-decision-adoption-r2-20261019/historical-receipts-and-public-api-decision-readback.json",
+        "sha256": "e3226a2e385a47395375c02aef442e7269bec06a79abd40bd991ba4509339651"
+      },
+      "head": "28be3206c60785231e07a7ceca713129306a14e3",
+      "known_parent": "c4d327adadac7fdeae5add529183fe0b470c307d",
+      "tree": "f142d98d7a0cec7ce076d900ed21f5293a7e65d6"
+    },
+    "parents": [
+      "5f697ddc1aaf70fae5fd856f4c63acb828fa4da9"
+    ],
+    "selected_path_status": "Each path records the current HEAD Git object separately; current worktree status is relative to HEAD 28be. A metadata-only successor means some c4d path postimages are not the current branch versions. No whole-worktree clean/freeze claim is made.",
+    "slice_base": "5f697ddc1aaf70fae5fd856f4c63acb828fa4da9",
+    "source_freeze": false,
+    "tree": "a870a5852fb8ad94ac689a1832dbaca06276f028"
+  },
+  "source_scope": {
+    "P39": "Seven mechanism paths are the architecture import policy and six source modules. Ten mandatory companions are two unit tests, one Common README, two generated public-surface outputs, two additive unreleased API fragments, one local technical-review attestation and two delivery records. Mandatory companions are outside the mechanism count.",
+    "categories": {
+      "architecture_import_policy": 1,
+      "delivery_metadata": 2,
+      "generated_public_surface_outputs": 2,
+      "local_review_attestation": 1,
+      "package_documentation": 1,
+      "source_modules": 6,
+      "unit_tests": 2,
+      "unreleased_api_fragments": 2
+    },
+    "commit_request_candidate_path_sha256_map_verified": true,
+    "complete_candidate_base_current_head_blob_and_status_matrix": [
+      {
+        "candidate_blob_matches_current_head": true,
+        "candidate_bytes": 3668,
+        "candidate_git_blob_oid": "3d5ed5cd0d8ae494b0ebb4d4063966da634744d4",
+        "candidate_git_mode": "100644",
+        "candidate_sha256": "a233241dd0b8999b8b124c775fbd0bcd3b9bf480e23cff8a0e5df98c2d9acafa",
+        "current_head_entry": {
+          "bytes": 3668,
+          "git_blob_oid": "3d5ed5cd0d8ae494b0ebb4d4063966da634744d4",
+          "mode": "100644",
+          "sha256": "a233241dd0b8999b8b124c775fbd0bcd3b9bf480e23cff8a0e5df98c2d9acafa"
+        },
+        "current_worktree_status": "clean_relative_to_current_head",
+        "operation": "modify",
+        "path": "policy-engine/architecture/imports/policy.toml",
+        "slice_base_preimage": {
+          "bytes": 3465,
+          "git_blob_oid": "3ba18adb3a7d69dafe7c87ee5686968de0994ad4",
+          "mode": "100644",
+          "sha256": "f1fd15ac0b8c66126570b51b04da6201f11bd3372ecd0826924bad06ca31637d"
+        }
+      },
+      {
+        "candidate_blob_matches_current_head": true,
+        "candidate_bytes": 478010,
+        "candidate_git_blob_oid": "32494b956165956e9c06efc821ad396ef34c0c2d",
+        "candidate_git_mode": "100644",
+        "candidate_sha256": "e9ccd448d7201d2763789fee04cc6e8c06ff02615bbf7143aa9384d4f67eaa0f",
+        "current_head_entry": {
+          "bytes": 478010,
+          "git_blob_oid": "32494b956165956e9c06efc821ad396ef34c0c2d",
+          "mode": "100644",
+          "sha256": "e9ccd448d7201d2763789fee04cc6e8c06ff02615bbf7143aa9384d4f67eaa0f"
+        },
+        "current_worktree_status": "clean_relative_to_current_head",
+        "operation": "modify",
+        "path": "policy-engine/architecture/public_surface/inventory.json",
+        "slice_base_preimage": {
+          "bytes": 473943,
+          "git_blob_oid": "8876bcb54d34171d9f40a41ce23bfeee7bc7c257",
+          "mode": "100644",
+          "sha256": "75274a04b38421580c9aae15d4fd4a1d299d1eb3e8040149c35782cb294e685f"
+        }
+      },
+      {
+        "candidate_blob_matches_current_head": true,
+        "candidate_bytes": 197430,
+        "candidate_git_blob_oid": "df5d4967714341c0981b2222822ddc40d2412597",
+        "candidate_git_mode": "100644",
+        "candidate_sha256": "10613ceb66db7d9a597ed479c0010a5ea2fb8f2371dcf1c8da6cb3a706cc0ecf",
+        "current_head_entry": {
+          "bytes": 197430,
+          "git_blob_oid": "df5d4967714341c0981b2222822ddc40d2412597",
+          "mode": "100644",
+          "sha256": "10613ceb66db7d9a597ed479c0010a5ea2fb8f2371dcf1c8da6cb3a706cc0ecf"
+        },
+        "current_worktree_status": "clean_relative_to_current_head",
+        "operation": "modify",
+        "path": "policy-engine/docs/reference/public-surface.md",
+        "slice_base_preimage": {
+          "bytes": 196337,
+          "git_blob_oid": "ee438108c5047d2e092599c6d9cce1b3e59fd087",
+          "mode": "100644",
+          "sha256": "888bf6c1733d3e569195603cef9468c6e5217815a03d0905dee9a35e3c3f3f4b"
+        }
+      },
+      {
+        "candidate_blob_matches_current_head": true,
+        "candidate_bytes": 1302071,
+        "candidate_git_blob_oid": "f98e4c6daf44cafb5f1923c516a265ef52df4dc2",
+        "candidate_git_mode": "100644",
+        "candidate_sha256": "87d5bb79af2956e8a574b0b91e5d21a381c6cadd454f2444325aa5b611f8a08f",
+        "current_head_entry": {
+          "bytes": 1302071,
+          "git_blob_oid": "f98e4c6daf44cafb5f1923c516a265ef52df4dc2",
+          "mode": "100644",
+          "sha256": "87d5bb79af2956e8a574b0b91e5d21a381c6cadd454f2444325aa5b611f8a08f"
+        },
+        "current_worktree_status": "clean_relative_to_current_head",
+        "operation": "modify",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "slice_base_preimage": {
+          "bytes": 1285458,
+          "git_blob_oid": "ddbbac2ced4defdc30ff5d2ae6b50af946dedd80",
+          "mode": "100644",
+          "sha256": "6c9ab835364a470d5fc955f84ca0def86d901bf451d88c2a481a0f62eda9de82"
+        }
+      },
+      {
+        "candidate_blob_matches_current_head": false,
+        "candidate_bytes": 105296,
+        "candidate_git_blob_oid": "cf26c1ee0700e93db447f215657f8a8c3e75d8cd",
+        "candidate_git_mode": "100644",
+        "candidate_sha256": "b201aae521f7d96ea617a224e8dd9103c9dac98a1cfeace655190fba70d04123",
+        "current_head_entry": {
+          "bytes": 107161,
+          "git_blob_oid": "bd8417b08e24bb036fb31528b3fcc0b490d1d2c6",
+          "mode": "100644",
+          "sha256": "f182fa6986c9350b945bd897aac61c30119ee474a641818bdecc0aeb4240fc98"
+        },
+        "current_worktree_status": "clean_relative_to_current_head",
+        "operation": "modify",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "slice_base_preimage": {
+          "bytes": 105296,
+          "git_blob_oid": "2afa9ca7b4f7669951570d4034ef2513f7de5502",
+          "mode": "100644",
+          "sha256": "1509a8ad6091cc7556f1bed6fa382840d1e7872e7a4f5325b407aea056520f80"
+        }
+      },
+      {
+        "candidate_blob_matches_current_head": true,
+        "candidate_bytes": 3635,
+        "candidate_git_blob_oid": "6d7ddc98d958b45aec1af0aa5f6f328150e3a146",
+        "candidate_git_mode": "100644",
+        "candidate_sha256": "b21eb8b13a56f02e25cbb7d7ba316571908602cb55852129612066be133459b8",
+        "current_head_entry": {
+          "bytes": 3635,
+          "git_blob_oid": "6d7ddc98d958b45aec1af0aa5f6f328150e3a146",
+          "mode": "100644",
+          "sha256": "b21eb8b13a56f02e25cbb7d7ba316571908602cb55852129612066be133459b8"
+        },
+        "current_worktree_status": "clean_relative_to_current_head",
+        "operation": "add",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/release-inventory-local-review-attestation-20261019-core-common.json",
+        "slice_base_preimage": null
+      },
+      {
+        "candidate_blob_matches_current_head": true,
+        "candidate_bytes": 3144,
+        "candidate_git_blob_oid": "ed6d073533e90d957ba7263975e5447c488faea4",
+        "candidate_git_mode": "100644",
+        "candidate_sha256": "f29bd3a5ea3e480088825e38ca4186aea0e2a792ce86a21478ebdc394a2a2980",
+        "current_head_entry": {
+          "bytes": 3144,
+          "git_blob_oid": "ed6d073533e90d957ba7263975e5447c488faea4",
+          "mode": "100644",
+          "sha256": "f29bd3a5ea3e480088825e38ca4186aea0e2a792ce86a21478ebdc394a2a2980"
+        },
+        "current_worktree_status": "clean_relative_to_current_head",
+        "operation": "add",
+        "path": "policy-engine/release-fragments/unreleased/2026-10-19-e02-common-selected-artifact-reader-api.toml",
+        "slice_base_preimage": null
+      },
+      {
+        "candidate_blob_matches_current_head": true,
+        "candidate_bytes": 2571,
+        "candidate_git_blob_oid": "761592a1129b21daa51327c68b1f08e8db4315ba",
+        "candidate_git_mode": "100644",
+        "candidate_sha256": "6cc13a376e63735d5378fe15c543e0269ec775ee26b726878785a42e5652a242",
+        "current_head_entry": {
+          "bytes": 2571,
+          "git_blob_oid": "761592a1129b21daa51327c68b1f08e8db4315ba",
+          "mode": "100644",
+          "sha256": "6cc13a376e63735d5378fe15c543e0269ec775ee26b726878785a42e5652a242"
+        },
+        "current_worktree_status": "clean_relative_to_current_head",
+        "operation": "add",
+        "path": "policy-engine/release-fragments/unreleased/2026-10-19-e02-core-cas-read-only-public-api.toml",
+        "slice_base_preimage": null
+      },
+      {
+        "candidate_blob_matches_current_head": true,
+        "candidate_bytes": 10786,
+        "candidate_git_blob_oid": "9731a08121810d4c50e46aaac4a5b0aaf6488629",
+        "candidate_git_mode": "100644",
+        "candidate_sha256": "202bd96e0f11c32b505f04a945329554724a34e8b1335a462183388ad6a4d31f",
+        "current_head_entry": {
+          "bytes": 10786,
+          "git_blob_oid": "9731a08121810d4c50e46aaac4a5b0aaf6488629",
+          "mode": "100644",
+          "sha256": "202bd96e0f11c32b505f04a945329554724a34e8b1335a462183388ad6a4d31f"
+        },
+        "current_worktree_status": "clean_relative_to_current_head",
+        "operation": "modify",
+        "path": "policy-engine/src/polisyos/common/README.md",
+        "slice_base_preimage": {
+          "bytes": 10939,
+          "git_blob_oid": "4bbb2206a20147d62866bfc98161d0e870e71b68",
+          "mode": "100644",
+          "sha256": "9baf6433685730223958295e0974d294c2081b1f990b90752fd102d3252d5911"
+        }
+      },
+      {
+        "candidate_blob_matches_current_head": true,
+        "candidate_bytes": 317,
+        "candidate_git_blob_oid": "3ac7af007231e25398d587f7b1d62e9fd031fd73",
+        "candidate_git_mode": "100644",
+        "candidate_sha256": "73d3f08349b0d6f995db3c6aa8f4fe5c94f46d30809a99742633486e08373ab6",
+        "current_head_entry": {
+          "bytes": 317,
+          "git_blob_oid": "3ac7af007231e25398d587f7b1d62e9fd031fd73",
+          "mode": "100644",
+          "sha256": "73d3f08349b0d6f995db3c6aa8f4fe5c94f46d30809a99742633486e08373ab6"
+        },
+        "current_worktree_status": "clean_relative_to_current_head",
+        "operation": "modify",
+        "path": "policy-engine/src/polisyos/common/_selected_artifact_intake.py",
+        "slice_base_preimage": {
+          "bytes": 1341,
+          "git_blob_oid": "a018c977489fcf311c6d17c2dacaf9b79ccd13e7",
+          "mode": "100644",
+          "sha256": "ae7db1ee9255d13dba678296a46befa7d478279ba07365d3a65b50bc3c746021"
+        }
+      },
+      {
+        "candidate_blob_matches_current_head": true,
+        "candidate_bytes": 13482,
+        "candidate_git_blob_oid": "0b457b3c49baba98b5c0bf0b7bc46766fafa8e52",
+        "candidate_git_mode": "100644",
+        "candidate_sha256": "ae5c4a431a91b290a4babf28a9a99f9675a8d7801d13524b39d453a613169bc6",
+        "current_head_entry": {
+          "bytes": 13482,
+          "git_blob_oid": "0b457b3c49baba98b5c0bf0b7bc46766fafa8e52",
+          "mode": "100644",
+          "sha256": "ae5c4a431a91b290a4babf28a9a99f9675a8d7801d13524b39d453a613169bc6"
+        },
+        "current_worktree_status": "clean_relative_to_current_head",
+        "operation": "modify",
+        "path": "policy-engine/src/polisyos/common/canonical_profile.py",
+        "slice_base_preimage": {
+          "bytes": 12387,
+          "git_blob_oid": "f2c03aac67d1d7236282875ca28a1025b74ae0fc",
+          "mode": "100644",
+          "sha256": "f06639a4f2bb772008721ae9b6ab1d8e881d6e2fb0218b9d2615ccfb3177216f"
+        }
+      },
+      {
+        "candidate_blob_matches_current_head": true,
+        "candidate_bytes": 9238,
+        "candidate_git_blob_oid": "098384d78f4beea0e549824b9d56316c8b934768",
+        "candidate_git_mode": "100644",
+        "candidate_sha256": "c27300d4a66516b0f582d64392f3b30dbec987c88094a90b68373e9a6cd981bd",
+        "current_head_entry": {
+          "bytes": 9238,
+          "git_blob_oid": "098384d78f4beea0e549824b9d56316c8b934768",
+          "mode": "100644",
+          "sha256": "c27300d4a66516b0f582d64392f3b30dbec987c88094a90b68373e9a6cd981bd"
+        },
+        "current_worktree_status": "clean_relative_to_current_head",
+        "operation": "modify",
+        "path": "policy-engine/src/polisyos/ir/analytics/parameters.py",
+        "slice_base_preimage": {
+          "bytes": 8999,
+          "git_blob_oid": "5cb76e43bc051e77d0f09a8ad1732520a506eb4a",
+          "mode": "100644",
+          "sha256": "c70cdc594ab8866f028ec32d9c9a262ad15d9f0f50f122b0668580278465a957"
+        }
+      },
+      {
+        "candidate_blob_matches_current_head": true,
+        "candidate_bytes": 38305,
+        "candidate_git_blob_oid": "20f4eb06530b572fe545ed4b6092796bf380cbae",
+        "candidate_git_mode": "100644",
+        "candidate_sha256": "0bc064bbec2d82397586b80f13dec9ed8ea346d4934503c4082dc96e9f7128a9",
+        "current_head_entry": {
+          "bytes": 38305,
+          "git_blob_oid": "20f4eb06530b572fe545ed4b6092796bf380cbae",
+          "mode": "100644",
+          "sha256": "0bc064bbec2d82397586b80f13dec9ed8ea346d4934503c4082dc96e9f7128a9"
+        },
+        "current_worktree_status": "clean_relative_to_current_head",
+        "operation": "modify",
+        "path": "policy-engine/src/polisyos/ir/analytics/simulation_proof_bridge.py",
+        "slice_base_preimage": {
+          "bytes": 38345,
+          "git_blob_oid": "9045f5a7bd67b6f6dced2bbad0d4da0a21a09557",
+          "mode": "100644",
+          "sha256": "46a202784523c8aecc1c53f2a8bab13f810374733703f29955bbb9af68e68536"
+        }
+      },
+      {
+        "candidate_blob_matches_current_head": true,
+        "candidate_bytes": 494373,
+        "candidate_git_blob_oid": "f982b500ee6b51dea2e85ca496d7470b8f17feca",
+        "candidate_git_mode": "100644",
+        "candidate_sha256": "60363a1a5cdea71c95f678311d7b7e18e0e8f74e066b726d50f08b8853f21e60",
+        "current_head_entry": {
+          "bytes": 494373,
+          "git_blob_oid": "f982b500ee6b51dea2e85ca496d7470b8f17feca",
+          "mode": "100644",
+          "sha256": "60363a1a5cdea71c95f678311d7b7e18e0e8f74e066b726d50f08b8853f21e60"
+        },
+        "current_worktree_status": "clean_relative_to_current_head",
+        "operation": "modify",
+        "path": "policy-engine/src/polisyos/runtime/http/services/control/nl_pipeline.py",
+        "slice_base_preimage": {
+          "bytes": 494413,
+          "git_blob_oid": "dce15b0019ec6dc52936a6f1c57b7be5244e6779",
+          "mode": "100644",
+          "sha256": "25c784506b5dfede484da0475a2137e25cfedb94d57c4b40c4fca1dc63e463a6"
+        }
+      },
+      {
+        "candidate_blob_matches_current_head": true,
+        "candidate_bytes": 45064,
+        "candidate_git_blob_oid": "b7737c9cf9aa5228549cb95f00face4c99b27ed2",
+        "candidate_git_mode": "100644",
+        "candidate_sha256": "322d21903ae6fff1be624ffd268141999e21affa6c7ec36817c4f7ff13a001b5",
+        "current_head_entry": {
+          "bytes": 45064,
+          "git_blob_oid": "b7737c9cf9aa5228549cb95f00face4c99b27ed2",
+          "mode": "100644",
+          "sha256": "322d21903ae6fff1be624ffd268141999e21affa6c7ec36817c4f7ff13a001b5"
+        },
+        "current_worktree_status": "clean_relative_to_current_head",
+        "operation": "modify",
+        "path": "policy-engine/src/polisyos/scientist/policy_design/phase3.py",
+        "slice_base_preimage": {
+          "bytes": 45104,
+          "git_blob_oid": "3eaa246674aae669abbb2cbe566dafd4534acd52",
+          "mode": "100644",
+          "sha256": "f8cb8adbae9de9865c74b4dd66b8232347254b9cca55a3575b5dd68d48b6d770"
+        }
+      },
+      {
+        "candidate_blob_matches_current_head": true,
+        "candidate_bytes": 2639,
+        "candidate_git_blob_oid": "cf8eb6b05c6ea681424f9651c2b372f071539d53",
+        "candidate_git_mode": "100644",
+        "candidate_sha256": "8e86b4922708ef30942fe9665e8fb60dde6c22f1035f42aeec78824cbfc13efb",
+        "current_head_entry": {
+          "bytes": 2639,
+          "git_blob_oid": "cf8eb6b05c6ea681424f9651c2b372f071539d53",
+          "mode": "100644",
+          "sha256": "8e86b4922708ef30942fe9665e8fb60dde6c22f1035f42aeec78824cbfc13efb"
+        },
+        "current_worktree_status": "clean_relative_to_current_head",
+        "operation": "modify",
+        "path": "policy-engine/tests/unit/common/test__selected_artifact_intake.py",
+        "slice_base_preimage": {
+          "bytes": 2336,
+          "git_blob_oid": "917b117f74423f07d7359feeca458eab95ce47e1",
+          "mode": "100644",
+          "sha256": "b0fddd645903f21c110d0825782ffbc11e480f4cd42d002105a02864f42ff333"
+        }
+      },
+      {
+        "candidate_blob_matches_current_head": true,
+        "candidate_bytes": 13585,
+        "candidate_git_blob_oid": "e7a0c14ef1361bed818b5164e1e63d969a3e7060",
+        "candidate_git_mode": "100644",
+        "candidate_sha256": "711d41704bb53cadf2aa1b06444aa00b632e9b44f4c57c8582f474a3c63d4f8a",
+        "current_head_entry": {
+          "bytes": 13585,
+          "git_blob_oid": "e7a0c14ef1361bed818b5164e1e63d969a3e7060",
+          "mode": "100644",
+          "sha256": "711d41704bb53cadf2aa1b06444aa00b632e9b44f4c57c8582f474a3c63d4f8a"
+        },
+        "current_worktree_status": "clean_relative_to_current_head",
+        "operation": "modify",
+        "path": "policy-engine/tests/unit/ir/test_context_adaptive_parameter_bundle_contract.py",
+        "slice_base_preimage": {
+          "bytes": 8977,
+          "git_blob_oid": "3d975f2b6e0c5d5413db735e3ddbe3707f6ead55",
+          "mode": "100644",
+          "sha256": "5bf8882cc829545f06a40b903878abefdfdf677cfebfd50fcbc7eb44eef2afca"
+        }
+      }
+    ],
+    "complete_path_count": 17,
+    "mandatory_test_document_generated_release_and_delivery_companions": 10,
+    "mechanism_paths": 7,
+    "plan_rows": 15,
+    "plan_rows_plus_mandatory_delivery_records_equal_candidate_delta": true
+  },
+  "supersedes_candidate": {
+    "correction": "R2 adds the exact IR selected SKG manifest identity contract from the committed constants and tests. R1 remains unchanged and its own facts are preserved.",
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-c4d-implementation-receipt-prepare-20261019/implementation-c4d327ad-selected-intake-public-boundaries-20261019.json",
+    "sha256": "96f0a9d9200e09fe5ba49edf1eefb7b898da8aa555cc5340876559010d2268bf"
+  },
+  "verification_boundary": {
+    "canonical_ruff_preflights": {
+      "complete_command_and_output_index": {
+        "bytes": 28882,
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-imports-r5-source-generated-adoption-20261019/preparation.json",
+        "sha256": "981be44dac5451a1961b0b25acc7a9c0743154187a2349bd83cced00f621fdf5"
+      },
+      "count": 16,
+      "exit_codes": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "profile": "Product .venv Python Ruff module with architecture/tooling/ruff/workspace_root.toml and canonical source paths; check and format-check ran over the captured source overlay before application."
+    },
+    "exact_13_row_native_SOTA_profile": "UNRUN.",
+    "focused_native_gates": [
+      {
+        "full_stdout_stderr": [
+          {
+            "bytes": 1335,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-imports-r5-focused-static-gates-actual-20261019/import-linter.stdout.txt",
+            "sha256": "ff86370706bd2f5714b1d151ce3c83600b1709e52db6ea1320296604ca93d276"
+          },
+          {
+            "bytes": 0,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-imports-r5-focused-static-gates-actual-20261019/import-linter.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        ],
+        "id": "import-linter",
+        "return_code": 0,
+        "scan_mode": "full",
+        "status": "passed",
+        "violation_populations": {
+          "lapsed_cover": 0,
+          "total": 0,
+          "unadjudicated": 0
+        }
+      },
+      {
+        "attribution": "No P41 inherited-red classification or baseline acceptance is made by this receipt.",
+        "full_stdout_stderr": [
+          {
+            "bytes": 332649,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-imports-r5-focused-static-gates-actual-20261019/guardrails-scoped.stdout.txt",
+            "sha256": "9164e8d8ab858f367e10260578df19d1339144ebdbc58ca8776ddc03b36df3aa"
+          },
+          {
+            "bytes": 0,
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-imports-r5-focused-static-gates-actual-20261019/guardrails-scoped.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          }
+        ],
+        "id": "guardrails-scoped",
+        "observed_failure": "Scoped architecture guardrails command exited 1 on deep-import baseline drift; baseline was not rewritten. Full output is retained.",
+        "return_code": 1,
+        "status": "command_failed"
+      }
+    ],
+    "full_runtime_and_release_publication": "UNRUN / not published.",
+    "product_tests_after_c4d": "UNRUN. The two unit test modules are present in the commit; source presence is not an execution result.",
+    "public_surface_owner_generation": {
+      "argv": [
+        "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine/.venv/bin/python",
+        "-B",
+        "tools/devx/architecture/guardrails.py",
+        "sync",
+        "--skip-deep-import-baseline"
+      ],
+      "changed_paths": [
+        "policy-engine/architecture/public_surface/inventory.json",
+        "policy-engine/docs/reference/public-surface.md"
+      ],
+      "complete": true,
+      "cwd": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos/policy-engine",
+      "full_stdout_stderr": [
+        {
+          "bytes": 44,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-imports-r5-source-generated-adoption-20261019/generator-run/public-surface-sync.stdout.txt",
+          "sha256": "3a1c841e27e002f813b631ad3847f17a39a1b8e4dab8a007892ea06d0c5d83c8"
+        },
+        {
+          "bytes": 0,
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-native-imports-r5-source-generated-adoption-20261019/generator-run/public-surface-sync.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "generated_artifacts_reference_unchanged": true,
+      "max_sampled_process_tree_rss_bytes": 154435584,
+      "return_code": 0,
+      "tracked_denominator": 25698,
+      "wall_seconds": 20.352411292027682
+    },
+    "runtime_consumer_and_removal_controls": "UNRUN on committed c4d. Source tests declare real-CAS sibling-view and corrupt-blob checks; this receipt does not claim those tests executed.",
+    "source_freeze": false
+  }
+}

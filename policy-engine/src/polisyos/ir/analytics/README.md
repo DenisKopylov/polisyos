@@ -50,6 +50,17 @@ claim. Caller-supplied population profiles remain request context; population-in
 that the existing `EstimandAST` cannot preserve remain typed limitations. It adds an allowed enum
 value to the capability contract without changing artifact structure or schema versions.
 
+## Literature CAS selectors
+
+`load_article_extraction_result()` and `load_literature_causal_prior()` normalize their
+input at the artifact-store boundary to the shared `ArtifactSelector` contract. A plain
+artifact-ID string, native `ArtifactID`, or exact single-field `RootModel[str]` is
+validated as a scalar ID and selects the default manifest view; other root-model shapes
+are refused. A complete artifact ref is normalized to a strict mapping that preserves
+its selected manifest-profile digest. The loaders verify the selected manifest kind,
+media type, and schema before reading the payload. This keeps legacy ID-only reads
+available without dropping a caller-supplied selected view.
+
 ## Causal report CAS persistence
 
 `persist_causal_effect_report` preserves historical default-reference behavior when `return_selected_profile` is omitted or `False`; the default view is profileless, while a write differing from that view may return its selected profile. Pass `True` when a downstream join must bind the exact profile selected by the report write; the typed helper returns that same-write CAS result and does not infer a profile from a later read. A non-boolean value is rejected, and stores without selected-profile write support fail closed. This option changes the reference returned to the caller, not the causal-report payload or schema.

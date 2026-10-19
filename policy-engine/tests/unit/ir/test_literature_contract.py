@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import pytest
-from pydantic import ValidationError
+from pydantic import RootModel, ValidationError
 
 from polisyos.core.artifacts import ensure_ir_artifact_store as _ensure_ir_artifact_store
 from polisyos.core.artifacts.manifest import SchemaInfo
@@ -36,6 +36,7 @@ from polisyos.ir.analytics.literature import (
     persist_article_extraction_result,
     persist_literature_causal_prior,
 )
+from polisyos.ir.artifacts.contracts import ArtifactID, ArtifactSelector
 
 
 def _minimal_parameter() -> EvidenceParameter:
@@ -364,6 +365,70 @@ def test_literature_prior_artifact_persist_load_roundtrip(tmp_path) -> None:
     assert loaded == prior
     assert loaded.edges[0].src == "x"
     assert loaded.metadata["topic"] == "labor"
+
+
+def test_literature_prior_loader_accepts_legacy_scalar_artifact_ids(tmp_path) -> None:
+    cas = FileSystemCAS(tmp_path / "cas")
+    store = _ensure_ir_artifact_store(cas)
+    prior = LiteratureCausalPrior(
+        edges=[
+            LiteratureEdgePrior(
+                src="x",
+                dst="y",
+                confidence=0.66,
+                evidence_strength=EvidenceStrength.OBSERVATIONAL,
+                article_refs=["W42"],
+            )
+        ],
+        metadata={"topic": "labor"},
+    )
+
+    selected_ref = persist_literature_causal_prior(store, prior)
+    scalar_id = str(selected_ref.artifact_id)
+    typed_id = ArtifactID.model_validate(scalar_id)
+    scalar_root = RootModel[str](root=scalar_id)
+
+    assert load_literature_causal_prior(store, scalar_id) == prior
+    assert load_literature_causal_prior(store, typed_id) == prior
+    assert load_literature_causal_prior(store, scalar_root) == prior
+
+
+def test_literature_loaders_reject_malformed_selectors_before_manifest_read(
+    tmp_path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    store = _ensure_ir_artifact_store(FileSystemCAS(tmp_path / "cas"))
+    valid_digest = "sha256:" + "0" * 64
+
+    class StringifyingSelector:
+        def __str__(self) -> str:
+            return valid_digest
+
+    malformed = (
+        RootModel[int].model_construct(root=valid_digest),
+        StringifyingSelector(),
+        {
+            "artifact_id": valid_digest,
+            "kind": "ir.literature_causal_prior",
+            "media_type": "application/json",
+            "unexpected": "present",
+        },
+        {
+            "artifact_id": valid_digest,
+            "kind": "ir.literature_causal_prior",
+            "media_type": "application/json",
+            "manifest_profile_sha256": "sha256:not-a-valid-profile",
+        },
+    )
+
+    def unexpected_manifest_read(_store: object, selector: ArtifactSelector) -> object:
+        raise AssertionError(f"malformed selector reached manifest read: {selector!r}")
+
+    monkeypatch.setattr(type(store), "get_manifest", unexpected_manifest_read)
+    for selector in malformed:
+        with pytest.raises((TypeError, ValueError)):
+            load_article_extraction_result(store, selector)  # type: ignore[arg-type]
+        with pytest.raises((TypeError, ValueError)):
+            load_literature_causal_prior(store, selector)  # type: ignore[arg-type]
 
 
 def test_literature_prior_loader_rejects_same_bytes_foreign_selected_view(tmp_path) -> None:

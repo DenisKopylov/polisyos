@@ -513,6 +513,81 @@ def _sha(path: Path) -> str:
     return "sha256:" + hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def bind_fixture_l1_catalog_source(repo_root: Path, baseline_path: Path) -> None:
+    """Bind a clean fixture root; leave partial or invalid owners for native refusal."""
+    from polisyos.runtime.quality.substrate_registry import (
+        DEFAULT_L1_DCAT_PATH,
+        DEFAULT_ROOT_MANIFEST_PATH,
+    )
+
+    root = repo_root.resolve(strict=True)
+    baseline_candidate = Path(baseline_path)
+    if not baseline_candidate.is_absolute():
+        baseline_candidate = root / baseline_candidate
+    baseline = baseline_candidate.resolve(strict=True)
+    if not baseline.is_file():
+        raise ValueError("fixture L1 catalog must resolve to a file")
+    try:
+        baseline.relative_to(root)
+    except ValueError as exc:
+        raise ValueError("fixture L1 catalog must remain under its selected repo root") from exc
+
+    l1_path = root / DEFAULT_L1_DCAT_PATH
+    manifest_path = root / DEFAULT_ROOT_MANIFEST_PATH
+    for owner_directory in (l1_path.parent, manifest_path.parent):
+        try:
+            owner_parts = owner_directory.relative_to(root).parts
+        except ValueError:
+            return
+        current = root
+        for part in owner_parts:
+            current = current / part
+            if current.is_symlink() or (current.exists() and not current.is_dir()):
+                return
+
+    expected_manifest = {
+        "schema_version": "1.0",
+        "kind": "policyos.production_data_root",
+        "fixture_catalog": {
+            "path": DEFAULT_L1_DCAT_PATH.as_posix(),
+            "sha256": hashlib.sha256(baseline.read_bytes()).hexdigest(),
+        },
+    }
+
+    manifest_present = manifest_path.exists() or manifest_path.is_symlink()
+    if manifest_present:
+        if manifest_path.is_symlink():
+            return
+        try:
+            existing_manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        except (OSError, UnicodeError, json.JSONDecodeError):
+            return
+        if existing_manifest != expected_manifest:
+            return
+
+    l1_present = l1_path.exists() or l1_path.is_symlink()
+    if l1_present:
+        if not l1_path.is_symlink():
+            return
+        try:
+            existing_l1 = l1_path.resolve(strict=True)
+        except OSError:
+            return
+        if existing_l1 != baseline:
+            return
+
+    if manifest_present or l1_present:
+        return
+
+    l1_path.parent.mkdir(parents=True, exist_ok=True)
+    l1_path.symlink_to(baseline)
+    manifest_path.parent.mkdir(parents=True, exist_ok=True)
+    manifest_path.write_text(
+        json.dumps(expected_manifest, sort_keys=True, separators=(",", ":")),
+        encoding="utf-8",
+    )
+
+
 def _write_l5(repo_root: Path) -> Path:
     path = repo_root / DEFAULT_L5_MEASUREMENT_REGISTRY
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -1199,6 +1274,7 @@ def _run(
         authority_entry=entry,
         live_harness_receipts=(receipt_provision,),
     )
+    bind_fixture_l1_catalog_source(authority.repo_root, authority.baseline_path)
     journal_path = tmp_path / "journal.jsonl"
     stub = _OrchestratedWorldBankStub(
         scenario=scenario,

@@ -1164,3 +1164,53 @@ def test_fetch_executor_local_config_remains_a_standalone_control(tmp_path):
         assert owner.service.artifact_store is owner.store
         assert owner.store.artifact_store_config() == configured_store
         assert owner.store.has(executed.fetch_receipt_ref)
+
+
+def test_persisted_fetch_replay_uses_one_atomic_current_profile_snapshot(tmp_path, monkeypatch):
+    from polisyos.fabric.connectors.sources.file_tabular import FileTabularConnector
+    from polisyos.fabric.retrieval.custody import resolve_persisted_fetch
+    from polisyos.fabric.retrieval.executor import FetchExecutor
+
+    with build_recorded_file_fetch_owner(
+        tmp_path, canonicalize_catalog_source=True, publish_current_catalog=True
+    ) as owner:
+        executed = _execute(owner)
+        assert executed.fetch_receipt_ref is not None
+        profile = owner.providers.profiles.get("recorded_file_local")
+        assert profile is not None
+        alternate_path = tmp_path / "replay-profile-replacement.csv"
+        alternate_path.write_bytes(owner.csv_path.read_bytes())
+        observed_urls: list[str] = []
+        original_fetch = FileTabularConnector.fetch
+
+        async def _record_fetch(connector, handle, request):
+            observed_urls.append(handle.config.url)
+            return await original_fetch(connector, handle, request)
+
+        monkeypatch.setattr(FileTabularConnector, "fetch", _record_fetch)
+        original_bind = FetchExecutor._bind_execution
+        profile_replaced = False
+
+        def _bind_then_replace(executor, plan):
+            nonlocal profile_replaced
+            binding = original_bind(executor, plan)
+            if executor._profiles is owner.providers.profiles and not profile_replaced:
+                owner.providers.profiles.register(
+                    profile.model_copy(update={"base_url": str(alternate_path)}),
+                    override=True,
+                )
+                profile_replaced = True
+            return binding
+
+        monkeypatch.setattr(FetchExecutor, "_bind_execution", _bind_then_replace)
+        resolved = resolve_persisted_fetch(
+            store=owner.store,
+            fetch_receipt_ref=executed.fetch_receipt_ref,
+            catalog=owner.graph,
+            providers=owner.providers,
+        )
+
+        assert profile_replaced
+        assert observed_urls == [str(owner.csv_path)]
+        assert resolved.source_agreement == "recomputed"
+        assert resolved.fetch_receipt_ref == executed.fetch_receipt_ref

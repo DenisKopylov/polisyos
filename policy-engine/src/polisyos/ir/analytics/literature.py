@@ -26,7 +26,13 @@ from polisyos.ir.analytics.causal_graph import (
     GraphType,
 )
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
-from polisyos.ir.artifacts.contracts import ArtifactID
+from polisyos.ir.artifacts.contracts import (
+    ArtifactID,
+    ArtifactSelector,
+    _is_string_root_model,
+    _normalize_scalar_artifact_id,
+    normalize_artifact_ref,
+)
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import LiteratureCausalPriorRef
 
@@ -2106,21 +2112,25 @@ _LITERATURE_PRIOR_SCHEMA_NAME = "ir.literature_causal_prior"
 _LITERATURE_PRIOR_SCHEMA_VERSION = "1.0"
 
 
-def _literature_artifact_selector(ref: object) -> object:
-    """Keep a complete artifact view intact while accepting legacy ID-only callers."""
-    if isinstance(ref, Mapping):
-        if {"artifact_id", "kind", "media_type"} <= set(ref):
-            return ref
-    elif all(hasattr(ref, field) for field in ("artifact_id", "kind", "media_type")):
-        return ref
+def _literature_artifact_selector(ref: ArtifactSelector) -> ArtifactSelector:
+    """Narrow legacy IDs and complete views to the canonical CAS selector type.
 
-    artifact_id = ref.artifact_id if hasattr(ref, "artifact_id") else ref
-    return artifact_id if isinstance(artifact_id, ArtifactID) else ArtifactID(str(artifact_id))
+    Args:
+        ref: An artifact ID, scalar-root model, or structural artifact view accepted
+            by the shared IR artifact-reference normalizer.
+
+    Returns:
+        The canonical scalar ID or a strict mapping that retains a selected manifest
+        profile when the caller supplied a complete artifact view.
+    """
+    if isinstance(ref, (ArtifactID, str)) or _is_string_root_model(ref):
+        return _normalize_scalar_artifact_id(ref)
+    return normalize_artifact_ref(ref)
 
 
 def _require_literature_artifact_abi(
     store: ArtifactStore,
-    selector: object,
+    selector: ArtifactSelector,
     *,
     kind: str,
     schema_name: str,
@@ -2158,7 +2168,9 @@ def persist_article_extraction_result(
     )
 
 
-def load_article_extraction_result(store: ArtifactStore, ref: object) -> ArticleExtractionResult:
+def load_article_extraction_result(
+    store: ArtifactStore, ref: ArtifactSelector
+) -> ArticleExtractionResult:
     """Load article extraction result."""
     selector = _literature_artifact_selector(ref)
     _require_literature_artifact_abi(
@@ -2194,7 +2206,7 @@ def persist_literature_causal_prior(
 
 def load_literature_causal_prior(
     store: ArtifactStore,
-    ref: LiteratureCausalPriorRef | object,
+    ref: ArtifactSelector,
 ) -> LiteratureCausalPrior:
     """Load literature causal prior."""
     selector = _literature_artifact_selector(ref)

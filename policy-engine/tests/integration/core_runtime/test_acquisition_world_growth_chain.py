@@ -1,6 +1,5 @@
 """Actual WDI/default executor and native owner chain through same-case re-entry."""
 
-import hashlib
 import json
 import uuid
 from decimal import Decimal
@@ -868,7 +867,6 @@ async def _admit_served_wdi_projection(
     from polisyos.data_forge.domains.catalog.knowledge.overlay import (
         CatalogAcquisitionOverlay,
     )
-    from polisyos.runtime.quality.substrate_registry import DEFAULT_L1_DCAT_PATH
     from tests._helpers import acquisition_chain, acquisition_production
 
     original_baseline = acquisition_production._baseline
@@ -906,25 +904,9 @@ async def _admit_served_wdi_projection(
                     for observation_id, year, value in base_observations
                 ],
             )
-        l1_path = repo_path / DEFAULT_L1_DCAT_PATH
-        l1_path.parent.mkdir(parents=True, exist_ok=True)
-        l1_path.symlink_to(baseline_path)
-        digest = hashlib.sha256(baseline_path.read_bytes()).hexdigest()
-        manifest_path = repo_path / "production_data" / "manifest.json"
-        manifest_path.write_text(
-            json.dumps(
-                {
-                    "schema_version": "1.0",
-                    "kind": "policyos.production_data_root",
-                    "fixture_catalog": {
-                        "path": DEFAULT_L1_DCAT_PATH.as_posix(),
-                        "sha256": digest,
-                    },
-                },
-                sort_keys=True,
-                separators=(",", ":"),
-            ),
-            encoding="utf-8",
+        acquisition_production.bind_fixture_l1_catalog_source(
+            repo_path,
+            baseline_path,
         )
         prepared_baselines.add(baseline_path.resolve())
         return baseline_path

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+from collections.abc import Callable, Mapping
 from dataclasses import replace
 from datetime import UTC, datetime
 from typing import Any
@@ -11,6 +12,7 @@ from pydantic import ValidationError
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, EnvInfo, InputRef, ProducerInfo
+from polisyos.core.artifacts.ownership import ArtifactOwnershipError
 from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.contracts.decision_validity import (
     DecisionBasisSection,
@@ -26,6 +28,7 @@ from polisyos.core.run import context as run_context_module
 from polisyos.core.run.context import RunContext
 from polisyos.core.run.manifest import RunManifest
 from polisyos.core.security.identity import PolicyOSRole
+from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.core.trace import RunTerminality
 from polisyos.core.trace.record import TraceRecord, TraceRefs
 from polisyos.core.trace.sink import JsonlTraceSink
@@ -38,6 +41,7 @@ from polisyos.runtime.http.services.predictive_calibration import (
 )
 from polisyos.runtime.http.services.run_index import RunIndexService
 from polisyos.scientist.validation.decision_validity import DecisionValidityService
+from tests._helpers.runtime_http import _runtime_api_tenant_scope
 from tests.unit.runtime.http.test_runtime_api_authz import (
     _AllowOPA,
     _build_secure_client,
@@ -46,6 +50,52 @@ from tests.unit.runtime.http.test_runtime_api_authz import (
     _fixture_bearer,
     _install_bound_test_step_up,
 )
+
+
+def _with_runtime_api_owner(
+    runtime_api_env: Mapping[str, object],
+    operation: Callable[..., Any],
+    /,
+    *args: Any,
+    **kwargs: Any,
+) -> Any:
+    """Run one direct owner-bound operation under the fixture's tenant and cell."""
+    with _runtime_api_tenant_scope(runtime_api_env):
+        return operation(*args, **kwargs)
+
+
+def test_direct_owner_bound_cas_write_requires_explicit_fixture_scope(runtime_api_env) -> None:
+    """A direct CAS lineage write requires its caller to select the real owner."""
+    ctx = runtime_api_env["app"].state.runtime_api_ctx
+    registry_ref = _with_runtime_api_owner(
+        runtime_api_env,
+        ctx.store.put_json,
+        {"registry": {}},
+        PutOptions(kind="core.registry.bundle", media_type="application/json"),
+    )
+    run_manifest = RunManifest(
+        run_id="R_direct_owner_scope_control",
+        registry_bundle=registry_ref,
+        status="running",
+        started_at=datetime.now(UTC).replace(microsecond=0),
+        tenant_id=runtime_api_env["tenant_a"],
+        cell_id=runtime_api_env["cell_a"],
+    )
+    write_options = run_context_module._run_manifest_write_options(run_manifest)
+
+    with pytest.raises(ArtifactOwnershipError, match="write input:registry_bundle"):
+        ctx.store.put_json(run_manifest, write_options)
+
+    manifest_ref = _with_runtime_api_owner(
+        runtime_api_env,
+        ctx.store.put_json,
+        run_manifest,
+        write_options,
+        return_selected_profile=True,
+    )
+    owner_store = ctx.store.for_tenant(runtime_api_env["tenant_a"], runtime_api_env["cell_a"])
+    assert manifest_ref.manifest_profile_sha256 is not None
+    assert _with_runtime_api_owner(runtime_api_env, owner_store.has, manifest_ref)
 
 
 def _read_first_sse_snapshot(client: Any, path: str) -> dict[str, Any]:
@@ -69,7 +119,7 @@ def test_run_index_generation_invalidates_cached_active_status(runtime_api_env) 
     context = runtime_api_env["client"].app.state.runtime_api_ctx
     run_index = context.run_index
     run_id = runtime_api_env["core_run_id"]
-    indexed = run_index.get_run(run_id)
+    indexed = _with_runtime_api_owner(runtime_api_env, run_index.get_run, run_id)
     assert indexed.decision_packet_ref is not None
     packet_ref = str(indexed.decision_packet_ref.artifact_id)
     service = DecisionValidityService(context.store)
@@ -86,7 +136,9 @@ def test_run_index_generation_invalidates_cached_active_status(runtime_api_env) 
             ]
         ),
     )
-    service.register_decision_packet(
+    _with_runtime_api_owner(
+        runtime_api_env,
+        service.register_decision_packet,
         packet_ref=packet_ref,
         envelope=envelope,
         baseline=DecisionValidityEvaluation(
@@ -95,13 +147,20 @@ def test_run_index_generation_invalidates_cached_active_status(runtime_api_env) 
             dependency_keys=envelope.dependency_keys(),
         ),
     )
-    assert run_index.get_run(run_id).summary.decision_validity_status == "active"
+    assert (
+        _with_runtime_api_owner(
+            runtime_api_env, run_index.get_run, run_id
+        ).summary.decision_validity_status
+        == "active"
+    )
     transition_ref = ArtifactRef(
         artifact_id=indexed.decision_packet_ref.artifact_id,
         kind="chronology.epoch_transition",
         media_type="application/vnd.polisyos.chronology+json",
     )
-    service._state.save_epoch_pending(
+    _with_runtime_api_owner(
+        runtime_api_env,
+        service._state.save_epoch_pending,
         EpochValidityPendingBatch(
             batch_id="epoch_batch_run_index_cache",
             transition_artifact_ref=transition_ref,
@@ -121,10 +180,10 @@ def test_run_index_generation_invalidates_cached_active_status(runtime_api_env) 
                     reason="epoch_batch_pending",
                 ),
             ),
-        )
+        ),
     )
 
-    refreshed = run_index.get_run(run_id)
+    refreshed = _with_runtime_api_owner(runtime_api_env, run_index.get_run, run_id)
     assert refreshed.summary.decision_validity_status == "stale"
     assert refreshed.details.decision_validity_status == "stale"
 
@@ -137,7 +196,7 @@ def test_runs_api_crash_restart_keeps_complete_pending_denominator_non_current(
     context = runtime_api_env["client"].app.state.runtime_api_ctx
     run_index = context.run_index
     run_id = runtime_api_env["core_run_id"]
-    indexed = run_index.get_run(run_id)
+    indexed = _with_runtime_api_owner(runtime_api_env, run_index.get_run, run_id)
     assert indexed.decision_packet_ref is not None
     packet_ref = str(indexed.decision_packet_ref.artifact_id)
     service = DecisionValidityService(context.store)
@@ -154,7 +213,9 @@ def test_runs_api_crash_restart_keeps_complete_pending_denominator_non_current(
             ]
         ),
     )
-    service.register_decision_packet(
+    _with_runtime_api_owner(
+        runtime_api_env,
+        service.register_decision_packet,
         packet_ref=packet_ref,
         envelope=envelope,
         baseline=DecisionValidityEvaluation(
@@ -168,7 +229,9 @@ def test_runs_api_crash_restart_keeps_complete_pending_denominator_non_current(
         kind="chronology.epoch_transition",
         media_type="application/vnd.polisyos.chronology+json",
     )
-    service._state.save_epoch_pending(
+    _with_runtime_api_owner(
+        runtime_api_env,
+        service._state.save_epoch_pending,
         EpochValidityPendingBatch(
             batch_id="epoch_batch_run_index_restart",
             transition_artifact_ref=transition_ref,
@@ -188,7 +251,7 @@ def test_runs_api_crash_restart_keeps_complete_pending_denominator_non_current(
                     reason="epoch_batch_pending_after_crash",
                 ),
             ),
-        )
+        ),
     )
 
     restarted = RunIndexService(
@@ -196,8 +259,8 @@ def test_runs_api_crash_restart_keeps_complete_pending_denominator_non_current(
         core_runs_root=run_index._core_runs_root,
         refresh_ttl_seconds=run_index._refresh_ttl_seconds,
     )
-    detail = restarted.get_run(run_id)
-    summaries, _ = restarted.list_runs(limit=200)
+    detail = _with_runtime_api_owner(runtime_api_env, restarted.get_run, run_id)
+    summaries, _ = _with_runtime_api_owner(runtime_api_env, restarted.list_runs, limit=200)
     summary = next(row for row in summaries if row.run_id == run_id)
     assert detail.details.decision_validity_status == "stale"
     assert detail.summary.decision_validity_status == "stale"
@@ -568,11 +631,15 @@ def test_run_terminality_is_producer_owned_and_novel_status_labels_stay_opaque(
     ctx = app.state.runtime_api_ctx
     store = ctx.store
     run_id = "R_terminality_novel_status"
-    registry_ref = store.put_json(
+    registry_ref = _with_runtime_api_owner(
+        runtime_api_env,
+        store.put_json,
         {"registry": {}},
         PutOptions(kind="core.registry.bundle", media_type="application/json"),
     )
-    run = RunContext.start(
+    run = _with_runtime_api_owner(
+        runtime_api_env,
+        RunContext.start,
         store=store,
         registry_bundle=registry_ref,
         run_id=run_id,
@@ -581,18 +648,20 @@ def test_run_terminality_is_producer_owned_and_novel_status_labels_stay_opaque(
         cell_id=runtime_api_env["cell_a"],
     )
 
-    ctx.run_index.refresh(force=True)
+    _with_runtime_api_owner(runtime_api_env, ctx.run_index.refresh, force=True)
     active = runtime_api_env["client"].get(f"/api/v1/runs?q={run_id}").json()["runs"][0]
     assert active["run_terminality"] == RunTerminality.NON_TERMINAL
 
     novel_status = "still_running_but_owner_finalized_v47"
-    run.finalize(status=novel_status)
-    ctx.run_index.refresh(force=True)
+    _with_runtime_api_owner(runtime_api_env, run.finalize, status=novel_status)
+    _with_runtime_api_owner(runtime_api_env, ctx.run_index.refresh, force=True)
     finalized = runtime_api_env["client"].get(f"/api/v1/runs?q={run_id}").json()["runs"][0]
 
     assert finalized["status"] == novel_status
     assert finalized["run_terminality"] == RunTerminality.TERMINAL
-    live_snapshot = runs_routes._build_run_live_payload(run_id, ctx)
+    live_snapshot = _with_runtime_api_owner(
+        runtime_api_env, runs_routes._build_run_live_payload, run_id, ctx
+    )
     assert live_snapshot.status == novel_status
     assert live_snapshot.run_terminality is RunTerminality.TERMINAL
 
@@ -685,12 +754,16 @@ def test_untrusted_lifecycle_transition_degrades_non_terminal_to_not_established
 ) -> None:
     ctx = runtime_api_env["app"].state.runtime_api_ctx
     run_id = "R_terminality_invalid_fact"
-    registry_ref = ctx.store.put_json(
+    registry_ref = _with_runtime_api_owner(
+        runtime_api_env,
+        ctx.store.put_json,
         {"registry": {}},
         PutOptions(kind="core.registry.bundle", media_type="application/json"),
     )
     run_dir = runtime_api_env["cas_root"] / "runs" / run_id
-    RunContext.start(
+    _with_runtime_api_owner(
+        runtime_api_env,
+        RunContext.start,
         store=ctx.store,
         registry_bundle=registry_ref,
         run_id=run_id,
@@ -710,7 +783,7 @@ def test_untrusted_lifecycle_transition_degrades_non_terminal_to_not_established
             + "\n"
         )
 
-    ctx.run_index.refresh(force=True)
+    _with_runtime_api_owner(runtime_api_env, ctx.run_index.refresh, force=True)
     projected = runtime_api_env["client"].get(f"/api/v1/runs?q={run_id}").json()["runs"][0]
 
     assert projected["run_terminality"] == RunTerminality.NOT_ESTABLISHED
@@ -737,12 +810,16 @@ def test_terminal_fact_requires_a_resolved_owner_manifest_ref(
 ) -> None:
     ctx = runtime_api_env["app"].state.runtime_api_ctx
     run_id = f"R_terminal_fact_{failure_kind}"
-    registry_ref = ctx.store.put_json(
+    registry_ref = _with_runtime_api_owner(
+        runtime_api_env,
+        ctx.store.put_json,
         {"registry": {}},
         PutOptions(kind="core.registry.bundle", media_type="application/json"),
     )
     run_dir = runtime_api_env["cas_root"] / "runs" / run_id
-    RunContext.start(
+    _with_runtime_api_owner(
+        runtime_api_env,
+        RunContext.start,
         store=ctx.store,
         registry_bundle=registry_ref,
         run_id=run_id,
@@ -792,7 +869,9 @@ def test_terminal_fact_requires_a_resolved_owner_manifest_ref(
                     ),
                 )
             elif failure_kind == "registry_lineage_mismatch":
-                substituted_registry = ctx.store.put_json(
+                substituted_registry = _with_runtime_api_owner(
+                    runtime_api_env,
+                    ctx.store.put_json,
                     {"registry": {"substituted": True}},
                     PutOptions(kind="core.registry.bundle", media_type="application/json"),
                 )
@@ -805,13 +884,15 @@ def test_terminal_fact_requires_a_resolved_owner_manifest_ref(
                         )
                     ],
                 )
-        ref = ctx.store.put_json(manifest, options)
+        ref = _with_runtime_api_owner(runtime_api_env, ctx.store.put_json, manifest, options)
         if failure_kind == "wrong_media_ref":
             ref = ref.model_copy(update={"media_type": "text/plain"})
         outputs = [ref]
         if failure_kind == "duplicate_manifest_refs":
             outputs.append(
-                ctx.store.put_json(
+                _with_runtime_api_owner(
+                    runtime_api_env,
+                    ctx.store.put_json,
                     {"not": "the owner manifest"},
                     PutOptions(kind="core.run_manifest", media_type="application/json"),
                 )
@@ -830,7 +911,7 @@ def test_terminal_fact_requires_a_resolved_owner_manifest_ref(
             + "\n"
         )
 
-    ctx.run_index.refresh(force=True)
+    _with_runtime_api_owner(runtime_api_env, ctx.run_index.refresh, force=True)
     projected = runtime_api_env["client"].get(f"/api/v1/runs?q={run_id}").json()["runs"][0]
 
     assert projected["run_terminality"] == RunTerminality.NOT_ESTABLISHED
@@ -840,12 +921,16 @@ def test_terminal_fact_requires_a_resolved_owner_manifest_ref(
 def test_terminal_fact_manifest_scope_must_match_started_owner(runtime_api_env) -> None:
     ctx = runtime_api_env["app"].state.runtime_api_ctx
     run_id = "R_terminal_manifest_scope_mismatch"
-    registry_ref = ctx.store.put_json(
+    registry_ref = _with_runtime_api_owner(
+        runtime_api_env,
+        ctx.store.put_json,
         {"registry": {}},
         PutOptions(kind="core.registry.bundle", media_type="application/json"),
     )
     run_dir = runtime_api_env["cas_root"] / "runs" / run_id
-    RunContext.start(
+    _with_runtime_api_owner(
+        runtime_api_env,
+        RunContext.start,
         store=ctx.store,
         registry_bundle=registry_ref,
         run_id=run_id,
@@ -853,19 +938,28 @@ def test_terminal_fact_manifest_scope_must_match_started_owner(runtime_api_env) 
         tenant_id=runtime_api_env["tenant_a"],
         cell_id=runtime_api_env["cell_a"],
     )
-    substituted_manifest = RunManifest(
-        run_id=run_id,
-        registry_bundle=registry_ref,
-        status="completed",
-        started_at=datetime.now(UTC).replace(microsecond=0),
-        finished_at=datetime.now(UTC).replace(microsecond=0),
-        tenant_id="tenant_substituted",
-        cell_id="cell_substituted",
-    )
-    manifest_ref = ctx.store.put_json(
-        substituted_manifest,
-        run_context_module._run_manifest_write_options(substituted_manifest),
-    )
+    with tenant_scope(
+        None,
+        tenant_id=runtime_api_env["tenant_b"],
+        cell_id=runtime_api_env["cell_a"],
+    ):
+        substituted_registry = ctx.store.put_json(
+            {"registry": {"substituted": True}},
+            PutOptions(kind="core.registry.bundle", media_type="application/json"),
+        )
+        substituted_manifest = RunManifest(
+            run_id=run_id,
+            registry_bundle=substituted_registry,
+            status="completed",
+            started_at=datetime.now(UTC).replace(microsecond=0),
+            finished_at=datetime.now(UTC).replace(microsecond=0),
+            tenant_id=runtime_api_env["tenant_b"],
+            cell_id=runtime_api_env["cell_a"],
+        )
+        manifest_ref = ctx.store.put_json(
+            substituted_manifest,
+            run_context_module._run_manifest_write_options(substituted_manifest),
+        )
     with (run_dir / "trace.jsonl").open("a", encoding="utf-8") as handle:
         handle.write(
             TraceRecord(
@@ -880,23 +974,28 @@ def test_terminal_fact_manifest_scope_must_match_started_owner(runtime_api_env) 
             + "\n"
         )
 
-    ctx.run_index.refresh(force=True)
-    projected = ctx.run_index.get_run(run_id).summary
+    _with_runtime_api_owner(runtime_api_env, ctx.run_index.refresh, force=True)
+    projected = _with_runtime_api_owner(runtime_api_env, ctx.run_index.get_run, run_id).summary
 
     assert projected.run_terminality is RunTerminality.NOT_ESTABLISHED
     assert projected.tenant_id == runtime_api_env["tenant_a"]
     assert projected.cell_id == runtime_api_env["cell_a"]
+    assert "core_run_manifest_load_failed:ValueError" in projected.warnings
 
 
 def test_terminal_fact_is_absorbing_against_a_later_non_terminal_fact(runtime_api_env) -> None:
     ctx = runtime_api_env["app"].state.runtime_api_ctx
     run_id = "R_terminality_regression"
-    registry_ref = ctx.store.put_json(
+    registry_ref = _with_runtime_api_owner(
+        runtime_api_env,
+        ctx.store.put_json,
         {"registry": {}},
         PutOptions(kind="core.registry.bundle", media_type="application/json"),
     )
     run_dir = runtime_api_env["cas_root"] / "runs" / run_id
-    run = RunContext.start(
+    run = _with_runtime_api_owner(
+        runtime_api_env,
+        RunContext.start,
         store=ctx.store,
         registry_bundle=registry_ref,
         run_id=run_id,
@@ -904,7 +1003,7 @@ def test_terminal_fact_is_absorbing_against_a_later_non_terminal_fact(runtime_ap
         tenant_id=runtime_api_env["tenant_a"],
         cell_id=runtime_api_env["cell_a"],
     )
-    run.finalize(status="completed")
+    _with_runtime_api_owner(runtime_api_env, run.finalize, status="completed")
     with (run_dir / "trace.jsonl").open("a", encoding="utf-8") as handle:
         handle.write(
             TraceRecord(
@@ -918,7 +1017,7 @@ def test_terminal_fact_is_absorbing_against_a_later_non_terminal_fact(runtime_ap
             + "\n"
         )
 
-    ctx.run_index.refresh(force=True)
+    _with_runtime_api_owner(runtime_api_env, ctx.run_index.refresh, force=True)
     projected = runtime_api_env["client"].get(f"/api/v1/runs?q={run_id}").json()["runs"][0]
 
     assert projected["run_terminality"] == RunTerminality.NOT_ESTABLISHED
@@ -928,12 +1027,16 @@ def test_terminal_fact_is_absorbing_against_a_later_non_terminal_fact(runtime_ap
 def test_foreign_finalize_journal_cannot_sign_or_clear_another_run(runtime_api_env) -> None:
     ctx = runtime_api_env["app"].state.runtime_api_ctx
     run_id = "R_terminality_journal_owner"
-    registry_ref = ctx.store.put_json(
+    registry_ref = _with_runtime_api_owner(
+        runtime_api_env,
+        ctx.store.put_json,
         {"registry": {}},
         PutOptions(kind="core.registry.bundle", media_type="application/json"),
     )
     run_dir = runtime_api_env["cas_root"] / "runs" / run_id
-    RunContext.start(
+    _with_runtime_api_owner(
+        runtime_api_env,
+        RunContext.start,
         store=ctx.store,
         registry_bundle=registry_ref,
         run_id=run_id,
@@ -959,7 +1062,7 @@ def test_foreign_finalize_journal_cannot_sign_or_clear_another_run(runtime_api_e
         encoding="utf-8",
     )
 
-    ctx.run_index.refresh(force=True)
+    _with_runtime_api_owner(runtime_api_env, ctx.run_index.refresh, force=True)
     projected = runtime_api_env["client"].get(f"/api/v1/runs?q={run_id}").json()["runs"][0]
 
     assert projected["run_terminality"] == RunTerminality.NON_TERMINAL
@@ -1017,12 +1120,16 @@ def test_finalize_recovery_refuses_journal_without_owner_start(runtime_api_env) 
 def test_finalize_recovery_refuses_same_run_with_substituted_scope(runtime_api_env) -> None:
     ctx = runtime_api_env["app"].state.runtime_api_ctx
     run_id = "R_terminality_journal_scope_owner"
-    registry_ref = ctx.store.put_json(
+    registry_ref = _with_runtime_api_owner(
+        runtime_api_env,
+        ctx.store.put_json,
         {"registry": {}},
         PutOptions(kind="core.registry.bundle", media_type="application/json"),
     )
     run_dir = runtime_api_env["cas_root"] / "runs" / run_id
-    RunContext.start(
+    _with_runtime_api_owner(
+        runtime_api_env,
+        RunContext.start,
         store=ctx.store,
         registry_bundle=registry_ref,
         run_id=run_id,
@@ -1048,7 +1155,9 @@ def test_finalize_recovery_refuses_same_run_with_substituted_scope(runtime_api_e
         encoding="utf-8",
     )
 
-    recovered = run_context_module.recover_pending_run_finalize(ctx.store, run_dir)
+    recovered = _with_runtime_api_owner(
+        runtime_api_env, run_context_module.recover_pending_run_finalize, ctx.store, run_dir
+    )
 
     assert recovered is None
     assert journal_path.exists()
@@ -1058,12 +1167,16 @@ def test_finalize_recovery_refuses_same_run_with_substituted_scope(runtime_api_e
 def test_finalize_recovery_refuses_ambiguous_started_owner(runtime_api_env) -> None:
     ctx = runtime_api_env["app"].state.runtime_api_ctx
     run_id = "R_terminality_journal_ambiguous_owner"
-    registry_ref = ctx.store.put_json(
+    registry_ref = _with_runtime_api_owner(
+        runtime_api_env,
+        ctx.store.put_json,
         {"registry": {}},
         PutOptions(kind="core.registry.bundle", media_type="application/json"),
     )
     run_dir = runtime_api_env["cas_root"] / "runs" / run_id
-    run = RunContext.start(
+    run = _with_runtime_api_owner(
+        runtime_api_env,
+        RunContext.start,
         store=ctx.store,
         registry_bundle=registry_ref,
         run_id=run_id,
@@ -1097,7 +1210,9 @@ def test_finalize_recovery_refuses_ambiguous_started_owner(runtime_api_env) -> N
         encoding="utf-8",
     )
 
-    recovered = run_context_module.recover_pending_run_finalize(ctx.store, run_dir)
+    recovered = _with_runtime_api_owner(
+        runtime_api_env, run_context_module.recover_pending_run_finalize, ctx.store, run_dir
+    )
 
     assert recovered is None
     assert journal_path.exists()
@@ -1111,12 +1226,16 @@ def test_finalize_recovery_refuses_invalid_journal_envelope(
 ) -> None:
     ctx = runtime_api_env["app"].state.runtime_api_ctx
     run_id = f"R_terminality_invalid_journal_{journal_kind}"
-    registry_ref = ctx.store.put_json(
+    registry_ref = _with_runtime_api_owner(
+        runtime_api_env,
+        ctx.store.put_json,
         {"registry": {}},
         PutOptions(kind="core.registry.bundle", media_type="application/json"),
     )
     run_dir = runtime_api_env["cas_root"] / "runs" / run_id
-    run = RunContext.start(
+    run = _with_runtime_api_owner(
+        runtime_api_env,
+        RunContext.start,
         store=ctx.store,
         registry_bundle=registry_ref,
         run_id=run_id,
@@ -1136,7 +1255,9 @@ def test_finalize_recovery_refuses_invalid_journal_envelope(
     journal_path = run_dir / ".finalize-journal.json"
     journal_path.write_text(json.dumps(payload), encoding="utf-8")
 
-    recovered = run_context_module.recover_pending_run_finalize(ctx.store, run_dir)
+    recovered = _with_runtime_api_owner(
+        runtime_api_env, run_context_module.recover_pending_run_finalize, ctx.store, run_dir
+    )
 
     assert recovered is None
     assert journal_path.exists()
@@ -1146,12 +1267,16 @@ def test_finalize_recovery_refuses_invalid_journal_envelope(
 def test_finalize_recovery_requires_exact_manifest_ref_metadata(runtime_api_env) -> None:
     ctx = runtime_api_env["app"].state.runtime_api_ctx
     run_id = "R_terminality_recovery_exact_ref"
-    registry_ref = ctx.store.put_json(
+    registry_ref = _with_runtime_api_owner(
+        runtime_api_env,
+        ctx.store.put_json,
         {"registry": {}},
         PutOptions(kind="core.registry.bundle", media_type="application/json"),
     )
     run_dir = runtime_api_env["cas_root"] / "runs" / run_id
-    run = RunContext.start(
+    run = _with_runtime_api_owner(
+        runtime_api_env,
+        RunContext.start,
         store=ctx.store,
         registry_bundle=registry_ref,
         run_id=run_id,
@@ -1162,7 +1287,9 @@ def test_finalize_recovery_requires_exact_manifest_ref_metadata(runtime_api_env)
     pending_manifest = run.run_manifest.model_copy(deep=True)
     pending_manifest.status = "completed"
     pending_manifest.finished_at = datetime.now(UTC).replace(microsecond=0)
-    manifest_ref = ctx.store.put_json(
+    manifest_ref = _with_runtime_api_owner(
+        runtime_api_env,
+        ctx.store.put_json,
         pending_manifest,
         run_context_module._run_manifest_write_options(pending_manifest),
     )
@@ -1192,7 +1319,9 @@ def test_finalize_recovery_requires_exact_manifest_ref_metadata(runtime_api_env)
         encoding="utf-8",
     )
 
-    recovered = run_context_module.recover_pending_run_finalize(ctx.store, run_dir)
+    recovered = _with_runtime_api_owner(
+        runtime_api_env, run_context_module.recover_pending_run_finalize, ctx.store, run_dir
+    )
 
     assert recovered == manifest_ref
     assert journal_path.exists() is False
@@ -1211,12 +1340,16 @@ def test_finalize_recovery_requires_exact_manifest_ref_metadata(runtime_api_env)
 def test_finalize_recovery_does_not_accept_ambiguous_manifest_outputs(runtime_api_env) -> None:
     ctx = runtime_api_env["app"].state.runtime_api_ctx
     run_id = "R_terminality_recovery_ambiguous_outputs"
-    registry_ref = ctx.store.put_json(
+    registry_ref = _with_runtime_api_owner(
+        runtime_api_env,
+        ctx.store.put_json,
         {"registry": {}},
         PutOptions(kind="core.registry.bundle", media_type="application/json"),
     )
     run_dir = runtime_api_env["cas_root"] / "runs" / run_id
-    run = RunContext.start(
+    run = _with_runtime_api_owner(
+        runtime_api_env,
+        RunContext.start,
         store=ctx.store,
         registry_bundle=registry_ref,
         run_id=run_id,
@@ -1227,11 +1360,15 @@ def test_finalize_recovery_does_not_accept_ambiguous_manifest_outputs(runtime_ap
     pending_manifest = run.run_manifest.model_copy(deep=True)
     pending_manifest.status = "completed"
     pending_manifest.finished_at = datetime.now(UTC).replace(microsecond=0)
-    manifest_ref = ctx.store.put_json(
+    manifest_ref = _with_runtime_api_owner(
+        runtime_api_env,
+        ctx.store.put_json,
         pending_manifest,
         run_context_module._run_manifest_write_options(pending_manifest),
     )
-    decoy_ref = ctx.store.put_json(
+    decoy_ref = _with_runtime_api_owner(
+        runtime_api_env,
+        ctx.store.put_json,
         {"not": "the recovered manifest"},
         PutOptions(kind="core.run_manifest", media_type="application/json"),
     )
@@ -1260,7 +1397,9 @@ def test_finalize_recovery_does_not_accept_ambiguous_manifest_outputs(runtime_ap
         encoding="utf-8",
     )
 
-    recovered = run_context_module.recover_pending_run_finalize(ctx.store, run_dir)
+    recovered = _with_runtime_api_owner(
+        runtime_api_env, run_context_module.recover_pending_run_finalize, ctx.store, run_dir
+    )
 
     assert recovered == manifest_ref
     assert journal_path.exists() is False
@@ -1276,12 +1415,16 @@ def test_finalize_recovery_does_not_accept_ambiguous_manifest_outputs(runtime_ap
 def test_cached_active_run_observes_journal_only_finalize_recovery(runtime_api_env) -> None:
     ctx = runtime_api_env["app"].state.runtime_api_ctx
     run_id = "R_terminality_cached_journal_recovery"
-    registry_ref = ctx.store.put_json(
+    registry_ref = _with_runtime_api_owner(
+        runtime_api_env,
+        ctx.store.put_json,
         {"registry": {}},
         PutOptions(kind="core.registry.bundle", media_type="application/json"),
     )
     run_dir = runtime_api_env["cas_root"] / "runs" / run_id
-    run = RunContext.start(
+    run = _with_runtime_api_owner(
+        runtime_api_env,
+        RunContext.start,
         store=ctx.store,
         registry_bundle=registry_ref,
         run_id=run_id,
@@ -1289,8 +1432,13 @@ def test_cached_active_run_observes_journal_only_finalize_recovery(runtime_api_e
         tenant_id=runtime_api_env["tenant_a"],
         cell_id=runtime_api_env["cell_a"],
     )
-    ctx.run_index.refresh(force=True)
-    assert ctx.run_index.get_run(run_id).summary.run_terminality is RunTerminality.NON_TERMINAL
+    _with_runtime_api_owner(runtime_api_env, ctx.run_index.refresh, force=True)
+    assert (
+        _with_runtime_api_owner(
+            runtime_api_env, ctx.run_index.get_run, run_id
+        ).summary.run_terminality
+        is RunTerminality.NON_TERMINAL
+    )
 
     pending_manifest = run.run_manifest.model_copy(deep=True)
     pending_manifest.status = "completed"
@@ -1306,10 +1454,15 @@ def test_cached_active_run_observes_journal_only_finalize_recovery(runtime_api_e
         encoding="utf-8",
     )
 
-    ctx.run_index.refresh(force=True)
+    _with_runtime_api_owner(runtime_api_env, ctx.run_index.refresh, force=True)
 
     assert journal_path.exists() is False
-    assert ctx.run_index.get_run(run_id).summary.run_terminality is RunTerminality.TERMINAL
+    assert (
+        _with_runtime_api_owner(
+            runtime_api_env, ctx.run_index.get_run, run_id
+        ).summary.run_terminality
+        is RunTerminality.TERMINAL
+    )
 
 
 def test_finalize_keeps_journal_when_required_local_trace_write_fails(
@@ -1321,12 +1474,16 @@ def test_finalize_keeps_journal_when_required_local_trace_write_fails(
     monkeypatch.delenv("POLISYOS_AUDIT_COLD_TIER_BUCKET", raising=False)
     ctx = runtime_api_env["app"].state.runtime_api_ctx
     run_id = "R_terminality_required_trace_failure"
-    registry_ref = ctx.store.put_json(
+    registry_ref = _with_runtime_api_owner(
+        runtime_api_env,
+        ctx.store.put_json,
         {"registry": {}},
         PutOptions(kind="core.registry.bundle", media_type="application/json"),
     )
     run_dir = runtime_api_env["cas_root"] / "runs" / run_id
-    run = RunContext.start(
+    run = _with_runtime_api_owner(
+        runtime_api_env,
+        RunContext.start,
         store=ctx.store,
         registry_bundle=registry_ref,
         run_id=run_id,
@@ -1344,7 +1501,7 @@ def test_finalize_keeps_journal_when_required_local_trace_write_fails(
     monkeypatch.setattr(JsonlTraceSink, "emit", _fail_terminal_write)
 
     with pytest.raises(OSError, match="required trace failure"):
-        run.finalize(status="completed")
+        _with_runtime_api_owner(runtime_api_env, run.finalize, status="completed")
 
     assert (run_dir / ".finalize-journal.json").exists()
     assert "RUN_FINALIZED" not in (run_dir / "trace.jsonl").read_text(encoding="utf-8")
@@ -1362,12 +1519,16 @@ def test_finalize_isolates_optional_audit_emit_and_close_failures(runtime_api_en
 
     ctx = runtime_api_env["app"].state.runtime_api_ctx
     run_id = "R_terminality_optional_audit_failure"
-    registry_ref = ctx.store.put_json(
+    registry_ref = _with_runtime_api_owner(
+        runtime_api_env,
+        ctx.store.put_json,
         {"registry": {}},
         PutOptions(kind="core.registry.bundle", media_type="application/json"),
     )
     run_dir = runtime_api_env["cas_root"] / "runs" / run_id
-    run = RunContext.start(
+    run = _with_runtime_api_owner(
+        runtime_api_env,
+        RunContext.start,
         store=ctx.store,
         registry_bundle=registry_ref,
         run_id=run_id,
@@ -1377,7 +1538,7 @@ def test_finalize_isolates_optional_audit_emit_and_close_failures(runtime_api_en
     )
     run._audit_sink = _FailingOptionalAuditSink()
 
-    manifest_ref = run.finalize(status="completed")
+    manifest_ref = _with_runtime_api_owner(runtime_api_env, run.finalize, status="completed")
 
     assert manifest_ref.kind == "core.run_manifest"
     assert (run_dir / ".finalize-journal.json").exists() is False
@@ -1393,12 +1554,16 @@ def test_finalize_isolates_optional_audit_emit_and_close_failures(runtime_api_en
 def test_recovery_rebinds_unlinked_terminal_event_to_its_manifest(runtime_api_env) -> None:
     ctx = runtime_api_env["app"].state.runtime_api_ctx
     run_id = "R_terminality_recovery_binding"
-    registry_ref = ctx.store.put_json(
+    registry_ref = _with_runtime_api_owner(
+        runtime_api_env,
+        ctx.store.put_json,
         {"registry": {}},
         PutOptions(kind="core.registry.bundle", media_type="application/json"),
     )
     run_dir = runtime_api_env["cas_root"] / "runs" / run_id
-    run = RunContext.start(
+    run = _with_runtime_api_owner(
+        runtime_api_env,
+        RunContext.start,
         store=ctx.store,
         registry_bundle=registry_ref,
         run_id=run_id,
@@ -1431,7 +1596,7 @@ def test_recovery_rebinds_unlinked_terminal_event_to_its_manifest(runtime_api_en
         encoding="utf-8",
     )
 
-    ctx.run_index.refresh(force=True)
+    _with_runtime_api_owner(runtime_api_env, ctx.run_index.refresh, force=True)
 
     assert journal_path.exists() is False
     finalized = [

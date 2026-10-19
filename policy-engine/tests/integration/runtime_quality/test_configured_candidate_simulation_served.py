@@ -2469,7 +2469,9 @@ def test_configured_child_intake_refuses_missing_complete_owner_before_n6(
                     model_name=result.model_id,
                     execution_intent="simulate_only",
                     compiler_gateway=None,
-                    budget_state=BudgetState(BudgetLimit(usd_limit=Decimal("1"))),
+                    budget_state=BudgetState(
+                        limits={"run": BudgetLimit(key="run", max_usd=Decimal("1"))}
+                    ),
                     recursive_budget=RecursiveCycleBudget(
                         **resolution.recursive_budget.model_dump()
                     ),

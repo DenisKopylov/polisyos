@@ -36,6 +36,7 @@ from polisyos.runtime.quality.workspace.loop import WorkspaceLoop, WorkspaceSear
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
 from tests._helpers.control_worker import dispatch_one_control_job
 from tests.unit.remediation.test_cyc_02 import (
+    _owner_selected_n5_case,
     _recursive_contract_testing_controller,
     _recursive_leaf_terminal,
     _recursive_parent_request,
@@ -505,6 +506,7 @@ def _cyc05_recursive_fixture_case(
     object,
     dict[str, object],
     object,
+    FileSystemCAS,
 ]:
     """Build one real fixture decomposition and its explicit recursive inputs."""
 
@@ -527,12 +529,19 @@ def _cyc05_recursive_fixture_case(
         parent_child_edges=((root, child_refs[0]), (root, child_refs[1])),
         rule_version_ref="repo://rules/cyc-05-recursive-fixture",
     )
-    parent_problem, context, _candidate = _cyc01_owner_bound_n5_case()
+    outer_n5_store = FileSystemCAS(tmp_path / "n5-runtime-store")
+    parent_problem, context, candidate = _owner_selected_n5_case(
+        tmp_path,
+        outer_n5_store,
+    )
     request = _recursive_parent_request(
         parent_ref=root,
         child_refs=child_refs,
         problem=parent_problem,
-        world_model_record=context.world_model_record,
+        candidate=candidate,
+        cycle_substrate_context=context,
+        artifact_store=outer_n5_store,
+        repo_root=REPO_ROOT,
     )
     # The leaf is candidate-only: production scope, default canonical N9 port,
     # no N9 runtime. The outer router remains contract-testing.
@@ -553,7 +562,7 @@ def _cyc05_recursive_fixture_case(
         child_refs[0]: _problem("cyc05_recursive_child_a"),
         child_refs[1]: _problem("cyc05_recursive_child_b"),
     }
-    return root, routed_children, graph, problems, request
+    return root, routed_children, graph, problems, request, outer_n5_store
 
 
 def _cyc05_recursive_budget() -> BudgetState:
@@ -570,6 +579,7 @@ async def _run_cyc05_recursive_case(
     problems: dict[str, object],
     request: object,
     subdesigns: tuple[SubDesignContract, ...],
+    outer_n5_store: FileSystemCAS,
 ) -> tuple[object, list[object], FileSystemCAS]:
     # Keep the validation root test-owned and deterministic.  The canonical
     # leaf validator requires a complete, parseable ``src/polisyos`` slice to
@@ -582,7 +592,6 @@ async def _run_cyc05_recursive_case(
         "def owner() -> None:\n    return None\n",
         encoding="utf-8",
     )
-    outer_n5_store = FileSystemCAS(tmp_path / "n5-runtime-store")
     controller = _recursive_contract_testing_controller(
         tmp_path,
         artifact_store=outer_n5_store,
@@ -621,7 +630,9 @@ async def test_workspace_fixture_children_flow_through_recursive_graph_and_n5(
 ) -> None:
     """Explicit WorkspaceLoop children retain identity through graph, N5 and composition."""
 
-    root, subdesigns, graph, problems, request = _cyc05_recursive_fixture_case(tmp_path)
+    root, subdesigns, graph, problems, request, outer_n5_store = _cyc05_recursive_fixture_case(
+        tmp_path
+    )
     result, calls, outer_n5_store = await _run_cyc05_recursive_case(
         tmp_path=tmp_path,
         root=root,
@@ -629,6 +640,7 @@ async def test_workspace_fixture_children_flow_through_recursive_graph_and_n5(
         problems=problems,
         request=request,
         subdesigns=subdesigns,
+        outer_n5_store=outer_n5_store,
     )
 
     child_refs = tuple(child.workspace_id for child in subdesigns)
@@ -731,7 +743,9 @@ async def test_recursive_parent_blocks_without_n5_or_composition_for_missing_inp
 ) -> None:
     """All three incomplete handoffs fail closed before N5 or composition."""
 
-    root, subdesigns, graph, problems, request = _cyc05_recursive_fixture_case(tmp_path)
+    root, subdesigns, graph, problems, request, outer_n5_store = _cyc05_recursive_fixture_case(
+        tmp_path
+    )
     if control == "missing_child":
         supplied = subdesigns[:1]
     elif control == "missing_coupling":
@@ -756,6 +770,7 @@ async def test_recursive_parent_blocks_without_n5_or_composition_for_missing_inp
         problems=problems,
         request=request,
         subdesigns=supplied,
+        outer_n5_store=outer_n5_store,
     )
     root_node = next(node for node in result.nodes if node.node_ref == root)
     assert calls == []
@@ -775,7 +790,9 @@ async def test_recursive_parent_blocks_without_n5_or_composition_for_missing_inp
 async def test_recursive_parent_blocks_for_wrong_parent_workspace_identity(tmp_path: Path) -> None:
     """A child exported under another parent cannot reach N5 or composition."""
 
-    root, subdesigns, graph, problems, request = _cyc05_recursive_fixture_case(tmp_path)
+    root, subdesigns, graph, problems, request, outer_n5_store = _cyc05_recursive_fixture_case(
+        tmp_path
+    )
     supplied = (
         subdesigns[0].model_copy(update={"parent_workspace_id": "design://wrong-parent"}),
         subdesigns[1],
@@ -788,6 +805,7 @@ async def test_recursive_parent_blocks_for_wrong_parent_workspace_identity(tmp_p
         problems=problems,
         request=request,
         subdesigns=supplied,
+        outer_n5_store=outer_n5_store,
     )
     root_node = next(node for node in result.nodes if node.node_ref == root)
     assert calls == []

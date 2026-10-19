@@ -2907,3 +2907,95 @@ class TestRegistryIntegration:
         assert not owner.is_alive()
         assert releaser is None or not releaser.is_alive()
         assert errors == []
+
+
+def test_captured_registration_refuses_override_before_get_and_keeps_unbound_lookup(
+    registry: ConnectorRegistry,
+    sample_config: ConnectionConfig,
+) -> None:
+    """A stale token refuses before the replacement factory; ordinary lookup stays live."""
+    original_calls: list[str] = []
+    replacement_calls: list[str] = []
+
+    def original_factory() -> MockConnectorA:
+        original_calls.append("original")
+        return MockConnectorA()
+
+    def replacement_factory() -> MockConnectorA:
+        replacement_calls.append("replacement")
+        return MockConnectorA()
+
+    registry.register(MockConnectorA, config=sample_config, factory=original_factory)
+    selected = registry._capture_registration_binding("mock_a")
+    registry.register(
+        MockConnectorA,
+        config=sample_config,
+        override=True,
+        factory=replacement_factory,
+    )
+
+    with pytest.raises(ConnectorConfigError, match="registration changed after capture"):
+        registry.get(
+            "mock_a",
+            enable_cache=False,
+            _registration_binding=selected,
+        )
+    assert original_calls == []
+    assert replacement_calls == []
+
+    current = registry.get("mock_a", enable_cache=False)
+    assert current.connector_id == "mock_a"
+    assert original_calls == []
+    assert replacement_calls == ["replacement"]
+
+
+def test_captured_registration_allows_same_entry_lazy_load_and_refuses_replaced_connection(
+    registry: ConnectorRegistry,
+    sample_config: ConnectionConfig,
+) -> None:
+    """The same registration may materialize lazily, but a replacement cannot take its pool."""
+    original_calls: list[str] = []
+    replacement_calls: list[str] = []
+
+    def original_factory() -> MockConnectorA:
+        original_calls.append("original")
+        return MockConnectorA()
+
+    def replacement_factory() -> MockConnectorA:
+        replacement_calls.append("replacement")
+        return MockConnectorA()
+
+    registry.register(MockConnectorA, config=sample_config, factory=original_factory)
+    selected = registry._capture_registration_binding("mock_a")
+    assert (
+        registry.get(
+            "mock_a",
+            enable_cache=False,
+            _registration_binding=selected,
+        ).connector_id
+        == "mock_a"
+    )
+    assert original_calls == ["original"]
+
+    registry.register(
+        MockConnectorA,
+        config=sample_config,
+        override=True,
+        factory=replacement_factory,
+    )
+
+    async def _exercise() -> None:
+        with pytest.raises(ConnectorConfigError, match="registration changed after capture"):
+            await registry.get_connection(
+                "mock_a",
+                sample_config,
+                _registration_binding=selected,
+            )
+        assert replacement_calls == []
+
+        handle = await registry.get_connection("mock_a", sample_config)
+        assert replacement_calls == ["replacement"]
+        await registry.release_connection("mock_a", handle)
+        await registry.shutdown_async()
+
+    asyncio.run(_exercise())

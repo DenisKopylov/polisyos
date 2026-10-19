@@ -116,14 +116,42 @@ def _registration_binding_for_entry(
     )
 
 
-def selected_connector_owner_id(
+def _same_registration_binding(
+    current: _ConnectorRegistrationBinding,
+    expected: _ConnectorRegistrationBinding,
+) -> bool:
+    """Compare stable identity while permitting same-entry lazy materialization."""
+    return (
+        current.entry is expected.entry
+        and current.runtime_connector_id == expected.runtime_connector_id
+        and current.connector_class is expected.connector_class
+        and current.factory is expected.factory
+        and current.registration_generation == expected.registration_generation
+    )
+
+
+def _require_expected_registration_binding(
     registry: ConnectorRegistry,
     entry: ConnectorEntry,
+    expected: _ConnectorRegistrationBinding | None,
+) -> _ConnectorRegistrationBinding:
+    """Require a captured registration to remain the exact live registry owner."""
+    current = _registration_binding_for_entry(registry, entry)
+    if expected is not None and not _same_registration_binding(current, expected):
+        raise ConnectorConfigError(
+            connector_id=entry.fqid,
+            reason="Connector registration changed after capture",
+        )
+    return current
+
+
+def _validated_registration_owner_id(
+    entry: ConnectorEntry,
+    binding: _ConnectorRegistrationBinding,
 ) -> str:
-    """Resolve the immutable runtime identity captured for this registration."""
+    """Validate the runtime owner from one already-captured registration."""
     from polisyos.fabric.connectors.base import validate_connector_owner_id
 
-    binding = _registration_binding_for_entry(registry, entry)
     try:
         return validate_connector_owner_id(binding.runtime_connector_id)
     except ValueError as exc:
@@ -131,6 +159,15 @@ def selected_connector_owner_id(
             connector_id=entry.fqid,
             reason="Connector entry has no valid registry-owned runtime owner",
         ) from exc
+
+
+def selected_connector_owner_id(
+    registry: ConnectorRegistry,
+    entry: ConnectorEntry,
+) -> str:
+    """Resolve the immutable runtime identity captured for this registration."""
+    binding = _registration_binding_for_entry(registry, entry)
+    return _validated_registration_owner_id(entry, binding)
 
 
 def require_selected_connector_owner(
@@ -356,6 +393,7 @@ class ConnectorRegistry(RegistryLifecycleMixin):
         version: str | None = None,
         *,
         enable_cache: bool = True,
+        _registration_binding: _ConnectorRegistrationBinding | None = None,
     ) -> SourceConnectorValue[Any]:
         """
         Get connector instance by ID.
@@ -385,11 +423,11 @@ class ConnectorRegistry(RegistryLifecycleMixin):
                 available=list(self._connectors.keys()),
             )
 
-        binding = _registration_binding_for_entry(self, entry)
+        binding = _require_expected_registration_binding(self, entry, _registration_binding)
 
         if binding.instance is None:
             with entry._instance_lock:
-                binding = _registration_binding_for_entry(self, entry)
+                binding = _require_expected_registration_binding(self, entry, _registration_binding)
                 if binding.instance is None:
                     selected_owner_id = binding.runtime_connector_id
                     admitted_instance = create_selected_connector(self, entry, selected_owner_id)
@@ -502,12 +540,42 @@ class ConnectorRegistry(RegistryLifecycleMixin):
         # All successful get() surfaces, including optional-wrapper fallbacks,
         # linearize here against the exact registration selected above.
         self._assert_current_registration(entry, binding)
+        if _registration_binding is not None:
+            self._require_registration_binding(connector_id, _registration_binding)
         return require_selected_connector_owner(
             entry,
             surface,
             selected_owner_id,
             source="connector surface",
         )
+
+    def _capture_registration_binding(
+        self,
+        connector_id: str,
+    ) -> _ConnectorRegistrationBinding:
+        """Capture the current exact registration without instantiating it."""
+        fqid = self._resolve_id(connector_id)
+        with self._instance_lock:
+            entry = self._connectors.get(fqid)
+        if entry is None:
+            raise ConnectorNotFoundError(connector_id)
+        return _registration_binding_for_entry(self, entry)
+
+    def _require_registration_binding(
+        self,
+        connector_id: str,
+        expected: _ConnectorRegistrationBinding,
+    ) -> _ConnectorRegistrationBinding:
+        """Require a captured exact registration to remain current."""
+        fqid = self._resolve_id(connector_id)
+        with self._instance_lock:
+            entry = self._connectors.get(fqid)
+        if entry is None:
+            raise ConnectorConfigError(
+                connector_id=connector_id,
+                reason="Captured connector registration is no longer registered",
+            )
+        return _require_expected_registration_binding(self, entry, expected)
 
     def get_metadata(self, connector_id: str) -> ConnectorMetadataSpec:
         """
@@ -898,10 +966,16 @@ class ConnectorRegistry(RegistryLifecycleMixin):
         self,
         connector_id: str,
         config: ConnectionConfig | None = None,
+        *,
+        _registration_binding: _ConnectorRegistrationBinding | None = None,
     ) -> ConnectionHandle:
         """Get a normally validated connection from the configured pool."""
 
-        pool, pool_key = await self._resolve_connection_pool(connector_id, config)
+        pool, pool_key = await self._resolve_connection_pool(
+            connector_id,
+            config,
+            _registration_binding=_registration_binding,
+        )
         handle = await pool.acquire()
         handle.set_state(_POOL_KEY_STATE_KEY, pool_key)
         return handle
@@ -929,6 +1003,8 @@ class ConnectorRegistry(RegistryLifecycleMixin):
         self,
         connector_id: str,
         config: ConnectionConfig | None,
+        *,
+        _registration_binding: _ConnectorRegistrationBinding | None = None,
     ) -> tuple[ConnectionPool[SourceConnectorValue[Any]], tuple[str, str, int]]:
         """Resolve or create the one pool owned for this connector/config/loop."""
 
@@ -937,11 +1013,17 @@ class ConnectorRegistry(RegistryLifecycleMixin):
         fqid = self._resolve_id(connector_id)
         with self._instance_lock:
             entry = self._connectors.get(fqid)
+            if entry is not None:
+                binding = _require_expected_registration_binding(self, entry, _registration_binding)
         if entry is None:
+            if _registration_binding is not None:
+                raise ConnectorConfigError(
+                    connector_id=connector_id,
+                    reason="Captured connector registration is no longer registered",
+                )
             raise ConnectorNotFoundError(connector_id)
 
-        binding = _registration_binding_for_entry(self, entry)
-        selected_owner_id = selected_connector_owner_id(self, entry)
+        selected_owner_id = _validated_registration_owner_id(entry, binding)
 
         effective_config = config or entry.default_config
         if effective_config is None:
@@ -956,6 +1038,20 @@ class ConnectorRegistry(RegistryLifecycleMixin):
             pool_scope = self._current_pool_scope_locked()
         pool_key = (fqid, registration_fingerprint, pool_scope)
         with self._instance_lock:
+            current_entry = self._connectors.get(fqid)
+            if current_entry is not entry:
+                raise ConnectorConfigError(
+                    connector_id=fqid,
+                    reason="Connector registration changed during pool selection",
+                )
+            current_binding = _require_expected_registration_binding(
+                self, entry, _registration_binding
+            )
+            if not _same_registration_binding(current_binding, binding):
+                raise ConnectorConfigError(
+                    connector_id=fqid,
+                    reason="Connector registration changed during pool selection",
+                )
             pool = self._get_connection_pool_locked(pool_key)
 
         if pool is None:
@@ -1005,6 +1101,20 @@ class ConnectorRegistry(RegistryLifecycleMixin):
             )
             evicted_pools: list[ConnectionPool[SourceConnectorValue[Any]]] = []
             with self._instance_lock:
+                current_entry = self._connectors.get(fqid)
+                if current_entry is not entry:
+                    raise ConnectorConfigError(
+                        connector_id=fqid,
+                        reason="Connector registration changed before pool admission",
+                    )
+                current_binding = _require_expected_registration_binding(
+                    self, entry, _registration_binding
+                )
+                if not _same_registration_binding(current_binding, binding):
+                    raise ConnectorConfigError(
+                        connector_id=fqid,
+                        reason="Connector registration changed before pool admission",
+                    )
                 pool = self._get_connection_pool_locked(pool_key)
                 if pool is None:
                     evicted_pools = self._store_connection_pool_locked(pool_key, new_pool)

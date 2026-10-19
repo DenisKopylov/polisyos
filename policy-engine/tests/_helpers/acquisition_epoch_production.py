@@ -14,7 +14,10 @@ from polisyos.core import artifacts, contracts
 from polisyos.data_forge import read_api
 from polisyos.runtime.quality import acquisition_executor, semantic_epoch, substrate_registry
 from polisyos.runtime.quality.semantic_epoch_store import FileSemanticEpochHistoryRepository
-from tests._helpers.acquisition_production import _run
+from tests._helpers.acquisition_production import (
+    _run,
+    bind_fixture_l1_catalog_source,
+)
 from tests._helpers.semantic_epoch_native import sign_native_epoch_scenario
 
 
@@ -29,6 +32,7 @@ def production_admission_inputs(
     """Prepare owner files and semantic selectors before a real port fetch."""
     del tmp_path
     root = authority.repo_root
+    bind_fixture_l1_catalog_source(root, authority.baseline_path)
     source_root = Path(__file__).resolve().parents[2]
     owner_paths = (
         Path("architecture/policy_design_case/layer3_gy_epoch_boundary_source_registry.json"),

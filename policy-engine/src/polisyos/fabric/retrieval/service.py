@@ -49,8 +49,11 @@ if TYPE_CHECKING:
         CatalogSourceRegistryEntry,
         CatalogSourceRegistrySpec,
     )
+    from polisyos.fabric.connectors._registry_models import _ConnectorRegistrationBinding
     from polisyos.fabric.connectors.profiles import SourceProfileRegistry
     from polisyos.fabric.connectors.registry import ConnectorRegistry
+
+    from .executor import _FetchExecutionBinding
 
 logger = get_logger(__name__)
 
@@ -949,6 +952,18 @@ class RetrievalService:
             warnings=result.warnings,
         )
 
+    def _bind_execution(
+        self,
+        plan: FetchPlan,
+        *,
+        registration_binding: _ConnectorRegistrationBinding | None = None,
+    ) -> _FetchExecutionBinding:
+        """Capture the executor-owned config and registry snapshot for one fetch plan."""
+        return self._executor._bind_execution(
+            plan,
+            registration_binding=registration_binding,
+        )
+
     def preview(self, plan: FetchPlan, *, allow_fallback: bool = True) -> ExecutePlanResult:
         return self._executor.preview(plan, allow_fallback=allow_fallback)
 
@@ -958,7 +973,10 @@ class RetrievalService:
         *,
         persist_payload: bool = False,
         allow_fallback: bool = True,
+        execution_binding: _FetchExecutionBinding | None = None,
     ) -> ExecuteOutcome:
+        if execution_binding is not None and len(plans) != 1:
+            raise ValueError("fabric_fetch_execution_binding_requires_one_plan")
         started = time.perf_counter()
         data_metrics: list[Any] = []
         previews: list[ExecutePlanResult] = []
@@ -974,6 +992,11 @@ class RetrievalService:
                     persist_payload=persist_payload,
                     allow_fallback=allow_fallback,
                     **({"dataset_catalog": self._dataset_catalog} if persist_payload else {}),
+                    **(
+                        {"execution_binding": execution_binding}
+                        if execution_binding is not None
+                        else {}
+                    ),
                 )
                 previews.append(outcome)
                 if outcome.fallback_used:

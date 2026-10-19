@@ -400,8 +400,12 @@ def resolve_persisted_fetch(
         )
         _validate_payload(result)
         try:
-            replayed = FetchExecutor(providers=providers).replay_fetch(
-                plan=receipt.used_plan, request=receipt.request
+            executor = FetchExecutor(providers=providers)
+            execution_binding = executor._bind_execution(receipt.used_plan)
+            replayed = executor.replay_fetch(
+                plan=receipt.used_plan,
+                request=receipt.request,
+                execution_binding=execution_binding,
             )
         except Exception as exc:
             raise FabricFetchCustodyError("fabric_fetch_source_unverifiable") from exc

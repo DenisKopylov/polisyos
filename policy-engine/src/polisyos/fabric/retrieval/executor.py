@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -18,6 +19,7 @@ from polisyos.core.contracts.control import (
     FetchPreview,
 )
 from polisyos.fabric._adapters.observability import FABRIC_TRACE_NAMES
+from polisyos.fabric.connectors._registry_errors import RegistryError
 from polisyos.fabric.connectors.profiles.resolver import resolve_connection_config
 from polisyos.ir.connectors import FetchRequest, FetchResult
 
@@ -27,6 +29,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
+    from polisyos.fabric.connectors._registry_models import _ConnectorRegistrationBinding
     from polisyos.fabric.connectors.base import ConnectionConfig
     from polisyos.fabric.connectors.profiles import SourceProfileRegistry
     from polisyos.fabric.connectors.registry import ConnectorRegistry
@@ -44,6 +47,30 @@ class ExecutePlanResult:
     fallback_used: bool
     payload_ref: core_artifacts.ArtifactRef | None = None
     fetch_receipt_ref: core_artifacts.ArtifactRef | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class _FetchExecutionBinding:
+    """Bind one exact plan to the effective config captured for its execution."""
+
+    owner: object
+    plan_fingerprint: str
+    connector_id: str
+    profile_id: str | None
+    connection_config: ConnectionConfig
+    config_fingerprint: str
+    registration_binding: _ConnectorRegistrationBinding
+
+
+def _fetch_plan_fingerprint(plan: FetchPlan) -> str:
+    canonical = json.dumps(
+        plan.model_dump(mode="json"),
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+        allow_nan=False,
+    )
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
 
 class FetchExecutor:
@@ -94,18 +121,109 @@ class FetchExecutor:
         """Return the exact store used for persisted fetch payloads and receipts."""
         return self._artifact_store
 
+    def _bind_execution(
+        self,
+        plan: FetchPlan,
+        *,
+        registration_binding: _ConnectorRegistrationBinding | None = None,
+    ) -> _FetchExecutionBinding:
+        """Capture effective config and exact registry owner for one fetch plan."""
+        checked = FetchPlan.model_validate(plan.model_dump(mode="python"))
+        selected_registration = registration_binding
+        try:
+            if selected_registration is None:
+                selected_registration = self._registry._capture_registration_binding(
+                    checked.connector_id
+                )
+            selected_registration = self._registry._require_registration_binding(
+                checked.connector_id,
+                selected_registration,
+            )
+        except RegistryError as exc:
+            raise ValueError("fabric_fetch_execution_registration_mismatch") from exc
+        config: ConnectionConfig | None = None
+        if checked.profile_id:
+            profile = next(
+                (
+                    candidate
+                    for candidate in self._profiles.snapshot_all()
+                    if candidate.profile_id == checked.profile_id
+                ),
+                None,
+            )
+            if profile is not None:
+                config = resolve_connection_config(profile)
+        if config is None:
+            config = self._registry.get_default_config(checked.connector_id)
+        if config is None:
+            raise ValueError(f"No connection profile/default config for '{checked.connector_id}'")
+        checked_config = cast("ConnectionConfig", config)
+        try:
+            selected_registration = self._registry._require_registration_binding(
+                checked.connector_id,
+                selected_registration,
+            )
+        except RegistryError as exc:
+            raise ValueError("fabric_fetch_execution_registration_mismatch") from exc
+        return _FetchExecutionBinding(
+            owner=self,
+            plan_fingerprint=_fetch_plan_fingerprint(checked),
+            connector_id=checked.connector_id,
+            profile_id=checked.profile_id,
+            connection_config=checked_config,
+            config_fingerprint=checked_config.cache_scope_fingerprint,
+            registration_binding=selected_registration,
+        )
+
+    def _validate_execution_binding(
+        self, plan: FetchPlan, binding: _FetchExecutionBinding
+    ) -> ConnectionConfig:
+        if (
+            not isinstance(binding, _FetchExecutionBinding)
+            or binding.owner is not self
+            or binding.connector_id != plan.connector_id
+            or binding.profile_id != plan.profile_id
+            or binding.plan_fingerprint != _fetch_plan_fingerprint(plan)
+        ):
+            raise ValueError("fabric_fetch_execution_binding_mismatch")
+        config = binding.connection_config
+        if binding.config_fingerprint != config.cache_scope_fingerprint:
+            raise ValueError("fabric_fetch_execution_config_binding_mismatch")
+        try:
+            self._registry._require_registration_binding(
+                binding.connector_id,
+                binding.registration_binding,
+            )
+        except RegistryError as exc:
+            raise ValueError("fabric_fetch_execution_registration_mismatch") from exc
+        return config
+
     def preview(self, plan: FetchPlan, *, allow_fallback: bool = True) -> ExecutePlanResult:
         result: ExecutePlanResult = run_coro_sync(
             self._preview_async(plan, allow_fallback=allow_fallback)
         )
         return result
 
-    def replay_fetch(self, *, plan: FetchPlan, request: FetchRequest) -> FetchResult[Any]:
+    def replay_fetch(
+        self,
+        *,
+        plan: FetchPlan,
+        request: FetchRequest,
+        execution_binding: _FetchExecutionBinding | None = None,
+    ) -> FetchResult[Any]:
         """Read the exact full request again through the actual connector owner."""
         checked = FetchPlan.model_validate(plan.model_dump(mode="python"))
         if request != _fetch_request(checked, page_size=None):
             raise ValueError("fabric_fetch_request_mismatch")
-        return run_coro_sync(self._fetch(plan=checked, page_size=None))
+        if execution_binding is not None:
+            self._validate_execution_binding(checked, execution_binding)
+        return run_coro_sync(
+            self._fetch(
+                plan=checked,
+                page_size=None,
+                execution_binding=execution_binding,
+            )
+        )
 
     def execute(
         self,
@@ -114,6 +232,7 @@ class FetchExecutor:
         persist_payload: bool = False,
         allow_fallback: bool = True,
         dataset_catalog: object | None = None,
+        execution_binding: _FetchExecutionBinding | None = None,
     ) -> ExecutePlanResult:
         result: ExecutePlanResult = run_coro_sync(
             self._execute_async(
@@ -121,6 +240,7 @@ class FetchExecutor:
                 persist_payload=persist_payload,
                 allow_fallback=allow_fallback,
                 dataset_catalog=dataset_catalog,
+                execution_binding=execution_binding,
             )
         )
         return result
@@ -149,15 +269,21 @@ class FetchExecutor:
         persist_payload: bool,
         allow_fallback: bool,
         dataset_catalog: object | None,
+        execution_binding: _FetchExecutionBinding | None,
     ) -> ExecutePlanResult:
-        preview = await self._fetch_preview(plan)
+        if execution_binding is not None:
+            self._validate_execution_binding(plan, execution_binding)
+        preview = await self._fetch_preview(plan, execution_binding=execution_binding)
         if not preview.coverage_ok and allow_fallback and plan.fallbacks:
+            if execution_binding is not None:
+                raise ValueError("fabric_fetch_execution_binding_fallback_not_supported")
             fallback_plan = self._fallback_to_plan(plan, plan.fallbacks[0])
             nested = await self._execute_async(
                 fallback_plan,
                 persist_payload=persist_payload,
                 allow_fallback=True,
                 dataset_catalog=dataset_catalog,
+                execution_binding=None,
             )
             return ExecutePlanResult(
                 preview=nested.preview,
@@ -182,6 +308,7 @@ class FetchExecutor:
         full_result = await self._fetch(
             plan=plan,
             page_size=None,
+            execution_binding=execution_binding,
         )
         sample_rows = _extract_rows(full_result.data, max_rows=5)
         payload_ref = fetch_receipt_ref = None
@@ -217,12 +344,18 @@ class FetchExecutor:
             fetch_receipt_ref=fetch_receipt_ref,
         )
 
-    async def _fetch_preview(self, plan: FetchPlan) -> FetchPreview:
+    async def _fetch_preview(
+        self,
+        plan: FetchPlan,
+        *,
+        execution_binding: _FetchExecutionBinding | None = None,
+    ) -> FetchPreview:
         started = datetime.now(UTC)
         try:
             result = await self._fetch(
                 plan=plan,
                 page_size=max(10, min(plan.max_preview_rows, 50)),
+                execution_binding=execution_binding,
             )
         except Exception as exc:
             elapsed_ms = int((datetime.now(UTC) - started).total_seconds() * 1000)
@@ -235,7 +368,7 @@ class FetchExecutor:
                 coverage_ok=False,
                 quality_min=plan.quality_min,
                 sample_rows=[],
-                schema={},
+                schema_payload={},
                 quality_flags=[],
                 message=str(exc),
                 latency_ms=max(0, elapsed_ms),
@@ -254,7 +387,7 @@ class FetchExecutor:
             coverage_ok=coverage_ok,
             quality_min=plan.quality_min,
             sample_rows=_extract_rows(result.data, max_rows=max(1, min(plan.max_preview_rows, 25))),
-            schema={
+            schema_payload={
                 "schema_id": result.schema_id,
                 "schema_version": result.schema_version,
             },
@@ -263,10 +396,39 @@ class FetchExecutor:
             latency_ms=max(0, elapsed_ms),
         )
 
-    async def _fetch(self, *, plan: FetchPlan, page_size: int | None) -> FetchResult[Any]:
-        connector = self._registry.get(plan.connector_id, enable_cache=False)
-        config = self._resolve_config(plan)
-        handle = await self._registry.get_connection(plan.connector_id, config)
+    async def _fetch(
+        self,
+        *,
+        plan: FetchPlan,
+        page_size: int | None,
+        execution_binding: _FetchExecutionBinding | None = None,
+    ) -> FetchResult[Any]:
+        if execution_binding is None:
+            connector = self._registry.get(plan.connector_id, enable_cache=False)
+            config = self._resolve_config(plan)
+            registration_binding = None
+        else:
+            config = self._validate_execution_binding(plan, execution_binding)
+            registration_binding = execution_binding.registration_binding
+            try:
+                connector = self._registry.get(
+                    plan.connector_id,
+                    enable_cache=False,
+                    _registration_binding=registration_binding,
+                )
+            except RegistryError as exc:
+                raise ValueError("fabric_fetch_execution_registration_mismatch") from exc
+        try:
+            if registration_binding is None:
+                handle = await self._registry.get_connection(plan.connector_id, config)
+            else:
+                handle = await self._registry.get_connection(
+                    plan.connector_id,
+                    config,
+                    _registration_binding=registration_binding,
+                )
+        except RegistryError as exc:
+            raise ValueError("fabric_fetch_execution_registration_mismatch") from exc
         started = datetime.now(UTC)
         try:
             request = _fetch_request(plan, page_size=page_size)

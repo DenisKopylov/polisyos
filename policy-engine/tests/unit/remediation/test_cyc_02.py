@@ -15,7 +15,7 @@ import pytest
 import polisyos.runtime.quality.generation_cycle as generation_cycle_module
 import polisyos.runtime.quality.recursive_generation_cycle as recursive_generation_cycle_module
 from polisyos.core.artifacts import ArtifactRef as CASArtifactRef
-from polisyos.core.artifacts import FileSystemCAS, PutOptions, SchemaInfo
+from polisyos.core.artifacts import FileSystemCAS, PutOptions, SchemaInfo, ensure_ir_artifact_store
 from polisyos.core.artifacts.backends.config import (
     with_ambient_ownership_enforcement_if_supported,
 )
@@ -34,7 +34,6 @@ from polisyos.runtime.http.errors import (
     RuntimeDependencyUnavailableError,
 )
 from polisyos.runtime.http.resilience import guard_runtime_cas
-from polisyos.runtime.quality.cycle_substrate import build_cycle_substrate_context
 from polisyos.runtime.quality.design_axes.coupling_composition import (
     CouplingEdge,
     build_coupling_graph,
@@ -52,10 +51,8 @@ from polisyos.runtime.quality.generation_cycle import (
     load_joint_simulation_result,
     simulation_evaluation_input_ref,
 )
-from polisyos.runtime.quality.intervention_atom_binding import (
-    intervention_atom_content_hash,
-)
 from polisyos.runtime.quality.joint_simulation_horizon import (
+    JOINT_SIMULATION_HORIZON_SCHEMA_VERSION,
     JointSimulationHorizonController,
 )
 from polisyos.runtime.quality.recursive_generation_cycle import (
@@ -69,11 +66,11 @@ from polisyos.runtime.quality.recursive_generation_cycle import (
 )
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
 from tests.unit.runtime.quality.test_generation_cycle import (
-    _cyc01_owner_bound_n5_case,
+    REPO_ROOT,
+    _owner_n5_case_with_selected_ncm_ref,
     _owner_program_graph_n5_witness,
     _problem,
 )
-from tests.unit.runtime.quality.test_joint_simulation_horizon import _request
 
 
 def test_legacy_recursive_v1_without_n5_cas_ref_reopens_without_new_evidence() -> None:
@@ -187,57 +184,26 @@ def _real_n5_observation(
     artifact_store: Any | None = None,
     without_runtime_store: bool = False,
     single_step_horizon: bool = False,
+    multi_step_horizon: bool = False,
 ):
-    """Run the canonical N5 producer through the real generation-cycle adapter."""
+    """Run the canonical N5 producer through the WMR-selected NCM request builder."""
 
-    store = (
-        None
-        if without_runtime_store
-        else artifact_store or FileSystemCAS(tmp_path / "n5-runtime-store")
-    )
+    if single_step_horizon and multi_step_horizon:
+        raise ValueError("N5 fixture cannot request both single- and multi-step horizons")
 
-    problem, context, candidate = _cyc01_owner_bound_n5_case()
-    request = _request(
-        record=context.world_model_record,
-        world_model_record_ref=context.world_model_record.world_model_record_id,
-    )
+    owns_fixture_store = artifact_store is None
+    fixture_store = artifact_store or FileSystemCAS(tmp_path / "n5-runtime-store")
+    store = None if without_runtime_store else fixture_store
+    runtime_hints: dict[str, Any] | None = None
     if single_step_horizon:
-        # This static request must not add a separate incomplete-horizon blocker.
-        request = request.model_copy(
-            update={"horizon": request.horizon.model_copy(update={"end": request.horizon.start})}
-        )
-    problem = problem.model_copy(
-        update={
-            "runtime_hints": {
-                **problem.runtime_hints,
-                "joint_simulation_request": request,
-            }
-        }
+        runtime_hints = {"joint_simulation_horizon": {"start": 0, "end": 0, "step": 1}}
+    elif multi_step_horizon:
+        runtime_hints = {"joint_simulation_horizon": {"start": 0, "end": 3, "step": 1}}
+    problem, context, candidate = _owner_selected_n5_case(
+        tmp_path,
+        fixture_store,
+        runtime_hints=runtime_hints,
     )
-    # The request is an operational hint, but adding it changes the problem
-    # envelope hash.  Rebuild only that envelope around the unchanged WMR and
-    # registry so the context remains honestly bound to the final problem.
-    context = build_cycle_substrate_context(
-        design_problem_ref=gy_content_hash(problem.model_dump(mode="json")),
-        domain=context.domain,
-        substrate_registry=context.substrate_registry,
-        selected_registry_entry_hashes=context.selected_registry_entry_hashes,
-        world_model_record=context.world_model_record,
-        intervention_substrate=context.intervention_substrate,
-        candidate_levers=context.candidate_levers,
-        transport_context=context.transport_context,
-        source_pack_content_hash=context.source_pack_content_hash,
-        substrate_input_content_hash=context.substrate_input_content_hash,
-    )
-    final_problem_ref = context.design_problem_ref
-    rebound_atoms = []
-    for atom in candidate.intervention_atoms:
-        rebound = atom.model_copy(update={"problem_frame_ref": final_problem_ref})
-        rebound_atoms.append(
-            rebound.model_copy(update={"content_hash": intervention_atom_content_hash(rebound)})
-        )
-    candidate.intervention_atoms = tuple(rebound_atoms)
-    candidate.atom = rebound_atoms[0]
     producer = JointSimulationHorizonController()
     produced_results: list[object] = []
 
@@ -247,16 +213,20 @@ def _real_n5_observation(
             produced_results.append(result)
             return result
 
-    observation = JointSimulationPort(
-        controller=_RecordingN5Controller(),
-        repo_root=tmp_path,
-        cycle_substrate_context=context,
-        artifact_store=store,
-    )(candidate=candidate, problem=problem, cycle_index=0)
+    with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+        observation = JointSimulationPort(
+            controller=_RecordingN5Controller(),
+            repo_root=tmp_path,
+            cycle_substrate_context=context,
+            artifact_store=store,
+        )(candidate=candidate, problem=problem, cycle_index=0)
     if without_runtime_store:
         assert observation.status == "simulation_blocked", observation.model_dump(mode="json")
-        assert observation.authority_blockers == ("n5_runtime_store_not_established",)
+        assert observation.authority_blockers == ("joint_simulation_ncm_store_not_established",)
         assert produced_results == []
+    elif multi_step_horizon:
+        assert observation.status == "simulation_blocked", observation.model_dump(mode="json")
+        assert len(produced_results) == 1
     else:
         assert observation.status == "joint_simulated", {
             "status": observation.status,
@@ -265,8 +235,45 @@ def _real_n5_observation(
         }
         assert "simulation_only_k_sim_not_world_evidence" in observation.authority_blockers
         assert len(produced_results) == 1
+        assert produced_results[0].trajectories
+        assert any(
+            item.engine_kind == "ncm_parallel_worlds" and item.decision == "selected"
+            for item in produced_results[0].engine_decisions
+        )
     produced_result = produced_results[0] if produced_results else None
+    if without_runtime_store and owns_fixture_store:
+        close_fixture_store = getattr(fixture_store, "close", None)
+        if callable(close_fixture_store):
+            close_fixture_store()
     return problem, context, candidate, observation, produced_result, store
+
+
+def _owner_selected_n5_case(
+    tmp_path: Path,
+    artifact_store: Any,
+    *,
+    runtime_hints: dict[str, Any] | None = None,
+) -> tuple[Any, Any, Any]:
+    """Build N5 inputs from a persisted NCM selected by the owner WMR."""
+
+    from polisyos.ir.analytics.ncm import persist_ncm_spec
+    from polisyos.runtime.quality.world_model_record import world_model_artifact_views
+    from tests.unit.runtime.quality.test_joint_simulation_horizon import _ncm_with_cross_term
+
+    with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+        selected_ref = persist_ncm_spec(
+            ensure_ir_artifact_store(artifact_store),
+            _ncm_with_cross_term(),
+        )
+    ncm_ref = CASArtifactRef.model_validate(selected_ref.model_dump(mode="python"))
+    problem, context, candidate = _owner_n5_case_with_selected_ncm_ref(
+        ncm_ref,
+        artifact_store=artifact_store,
+        tmp_path=tmp_path,
+        runtime_hints=runtime_hints,
+    )
+    assert world_model_artifact_views(context.world_model_record).ncm_refs == (ncm_ref,)
+    return problem, context, candidate
 
 
 class _RecursiveGenerationPort:
@@ -391,25 +398,20 @@ def _recursive_parent_request(
     parent_ref: str,
     child_refs: tuple[str, str],
     problem: object,
-    world_model_record: object,
+    candidate: object,
+    cycle_substrate_context: object,
+    artifact_store: Any,
+    repo_root: Path,
 ) -> object:
-    request = _request(
-        record=world_model_record,
-        world_model_record_ref=world_model_record.world_model_record_id,
-    )
-    problem_ref = gy_content_hash(problem.model_dump(mode="json"))
-    rebound_atoms = []
-    for atom in request.intervention_atoms:
-        rebound = atom.model_copy(update={"problem_frame_ref": problem_ref})
-        content_hash = intervention_atom_content_hash(rebound)
-        rebound_atoms.append(
-            rebound.model_copy(
-                update={
-                    "atom_id": f"atom_{content_hash.removeprefix('sha256:')[:16]}",
-                    "content_hash": content_hash,
-                }
-            )
+    with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
+        port = JointSimulationPort(
+            repo_root=repo_root,
+            cycle_substrate_context=cycle_substrate_context,
+            artifact_store=artifact_store,
         )
+        request = port._build_joint_simulation_request(candidate=candidate, problem=problem)
+    assert request.engine_plan[0].engine_kind == "ncm_parallel_worlds"
+    assert request.engine_plan[0].ncm_spec is not None
     graph = build_coupling_graph(
         design_ref=parent_ref,
         module_refs=child_refs,
@@ -428,9 +430,7 @@ def _recursive_parent_request(
         evidence_state="observed",
         rule_version_ref="repo://rules/cyc-02-recursive-cas",
     )
-    return request.model_copy(
-        update={"intervention_atoms": tuple(rebound_atoms), "coupling_graph": graph}
-    )
+    return request.model_copy(update={"coupling_graph": graph})
 
 
 def test_k_sim_limitation_remains_a_usable_simulation_input(tmp_path: Path) -> None:
@@ -444,6 +444,9 @@ def test_k_sim_limitation_remains_a_usable_simulation_input(tmp_path: Path) -> N
     assert set(simulation.authority_blockers) == {
         "simulation_only_k_sim_not_world_evidence",
         "simulation_effect_basis_not_established",
+        "standard_error_not_estimated",
+        "interaction_sampling_not_established",
+        "interaction_numeric_classification_unsupported",
     }
     assert simulation_evaluation_input_ref(simulation) is None
     input_ref = simulation_evaluation_input_ref(simulation, artifact_store=store)
@@ -451,6 +454,33 @@ def test_k_sim_limitation_remains_a_usable_simulation_input(tmp_path: Path) -> N
     assert input_ref is not None
     assert simulation.simulation_result_ref is not None
     assert input_ref.content_hash == str(simulation.simulation_result_ref.artifact_id)
+
+
+def test_static_ncm_refuses_multistep_horizon_without_trajectory(tmp_path: Path) -> None:
+    """A selected static NCM cannot be promoted into unsupported dynamic coverage."""
+
+    _problem, context, _candidate, simulation, result, store = _real_n5_observation(
+        tmp_path,
+        multi_step_horizon=True,
+    )
+
+    assert store is not None
+    assert simulation.status == "simulation_blocked"
+    assert "static_engine_temporal_capability" in simulation.authority_blockers
+    assert result is not None
+    assert result.horizon.start == 0
+    assert result.horizon.end == 3
+    assert result.trajectories == ()
+    assert result.receipt.trajectory_count == 0
+    assert result.world_model_record_content_hash == context.world_model_record.content_hash
+    static_ncm_decisions = tuple(
+        item for item in result.engine_decisions if item.engine_kind == "ncm_parallel_worlds"
+    )
+    assert len(static_ncm_decisions) == 1
+    assert static_ncm_decisions[0].decision == "unsupported"
+    assert static_ncm_decisions[0].reason == "static_engine_cannot_ground_dynamic_horizon"
+    assert "static_engine_temporal_capability" in static_ncm_decisions[0].blockers
+    assert simulation.simulation_result_ref is not None
 
 
 def test_n5_transient_store_failure_is_unavailable_not_integrity_invalid(
@@ -655,7 +685,7 @@ def test_program_graph_v2_blocker_removal_stays_out_of_eval_safety(
                 ),
             )
 
-        assert persisted.schema_version == "policyos.runtime.joint_simulation_horizon.v3"
+        assert persisted.schema_version == JOINT_SIMULATION_HORIZON_SCHEMA_VERSION
         selected_program_graph = tuple(
             decision
             for decision in persisted.engine_decisions
@@ -896,7 +926,11 @@ async def test_recursive_parent_keeps_n5_cas_reference(tmp_path: Path) -> None:
 
     root = "design://cyc-02/recursive-root"
     child_refs = ("design://cyc-02/recursive-a", "design://cyc-02/recursive-b")
-    parent_problem, context, _candidate = _cyc01_owner_bound_n5_case()
+    store = FileSystemCAS(tmp_path / "recursive-parent-store")
+    parent_problem, context, candidate = _owner_selected_n5_case(
+        tmp_path,
+        store,
+    )
     problems = {
         root: parent_problem,
         child_refs[0]: _problem("cyc02_recursive_a"),
@@ -912,9 +946,11 @@ async def test_recursive_parent_keeps_n5_cas_reference(tmp_path: Path) -> None:
         parent_ref=root,
         child_refs=child_refs,
         problem=parent_problem,
-        world_model_record=context.world_model_record,
+        candidate=candidate,
+        cycle_substrate_context=context,
+        artifact_store=store,
+        repo_root=REPO_ROOT,
     )
-    store = FileSystemCAS(tmp_path / "recursive-parent-store")
     controller = _recursive_contract_testing_controller(
         tmp_path,
         artifact_store=store,
@@ -977,7 +1013,11 @@ async def test_recursive_parent_without_store_refuses_before_n5_execution(
 
     root = "design://cyc-02/no-store-root"
     child_refs = ("design://cyc-02/no-store-a", "design://cyc-02/no-store-b")
-    parent_problem, context, _candidate = _cyc01_owner_bound_n5_case()
+    source_store = FileSystemCAS(tmp_path / "no-store-owner-inputs")
+    parent_problem, context, candidate = _owner_selected_n5_case(
+        tmp_path,
+        source_store,
+    )
     problems = {
         root: parent_problem,
         child_refs[0]: _problem("cyc02_no_store_a"),
@@ -993,8 +1033,12 @@ async def test_recursive_parent_without_store_refuses_before_n5_execution(
         parent_ref=root,
         child_refs=child_refs,
         problem=parent_problem,
-        world_model_record=context.world_model_record,
+        candidate=candidate,
+        cycle_substrate_context=context,
+        artifact_store=source_store,
+        repo_root=REPO_ROOT,
     )
+    source_store.close()
     controller = _recursive_contract_testing_controller(tmp_path)
 
     class _N5ControllerSentinel:
@@ -1056,7 +1100,7 @@ def test_n5_replay_uses_supplied_guarded_tenant_store(tmp_path: Path) -> None:
         )
     )
     try:
-        with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        with tenant_scope(None, tenant_id="tenant-n5-owner", cell_id="cell-n5-owner"):
             problem, context, candidate, simulation, _produced, supplied_store = (
                 _real_n5_observation(tmp_path, artifact_store=store)
             )
@@ -1090,7 +1134,7 @@ def test_n5_replay_uses_supplied_guarded_tenant_store(tmp_path: Path) -> None:
 
 
 def test_n5_does_not_execute_without_runtime_owned_store(tmp_path: Path) -> None:
-    """A valid request cannot execute if N5 cannot durably replay its result."""
+    """An owner-selected NCM cannot resolve when the N5 runtime store is absent."""
 
     _problem, _context, _candidate, simulation, _produced, store = _real_n5_observation(
         tmp_path,
@@ -1100,4 +1144,4 @@ def test_n5_does_not_execute_without_runtime_owned_store(tmp_path: Path) -> None
     assert store is None
     assert simulation.status == "simulation_blocked"
     assert simulation.simulation_result_ref is None
-    assert simulation.authority_blockers == ("n5_runtime_store_not_established",)
+    assert simulation.authority_blockers == ("joint_simulation_ncm_store_not_established",)

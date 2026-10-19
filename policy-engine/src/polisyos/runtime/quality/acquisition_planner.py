@@ -46,6 +46,7 @@ if TYPE_CHECKING:
     from polisyos.core.artifacts import ArtifactStore
     from polisyos.data_forge.read_api import academic
     from polisyos.data_forge.read_api.catalog import CatalogRunProfile
+    from polisyos.fabric.retrieval.executor import _FetchExecutionBinding
     from polisyos.runtime.quality.design_problem import DesignProblem
     from polisyos.runtime.quality.production_grounding_calibration import (
         ProductionCG2CalibrationSource,
@@ -1479,7 +1480,7 @@ class RealAcquisitionOwnerGateway:
                         profile_id=plan.profile_id,
                         filters=plan.filters,
                     )
-                    _validate_local_fabric_capture_route(
+                    execution_binding = _validate_local_fabric_capture_route(
                         service=service,
                         plan=plan,
                         binding=binding,
@@ -1490,12 +1491,14 @@ class RealAcquisitionOwnerGateway:
                         response.fetch_plans,
                         persist_payload=True,
                         allow_fallback=False,
+                        execution_binding=execution_binding,
                     )
                     captured_fetches = _captured_fabric_fetches(
                         plans=response.fetch_plans,
                         metrics=execution.data_context.metrics,
                         store=cast("ArtifactStore", service_store),
                         catalog=graph,
+                        execution_binding=execution_binding,
                     )
                 except (
                     AttributeError,
@@ -3029,11 +3032,12 @@ def _validate_local_fabric_capture_route(
     binding: Any,
     catalog: object,
     approved_root: Path,
-) -> None:
-    """Prove that the bounded capture plan is an actual local file route."""
+) -> _FetchExecutionBinding:
+    """Prove and bind the bounded capture plan to its effective local file config."""
 
     from polisyos.data_forge.read_api import catalog as catalog_read_api
     from polisyos.fabric.connectors import FileTabularConnector
+    from polisyos.fabric.retrieval.executor import _FetchExecutionBinding
     from polisyos.fabric.retrieval.service import RetrievalService
 
     if not isinstance(service, RetrievalService):
@@ -3076,16 +3080,26 @@ def _validate_local_fabric_capture_route(
     executor = getattr(service, "_executor", None)
     registry = getattr(executor, "_registry", None)
     get_entry = getattr(registry, "get_entry", None)
-    resolve_config = getattr(executor, "_resolve_config", None)
-    if not callable(get_entry) or not callable(resolve_config):
+    bind_execution = getattr(service, "_bind_execution", None)
+    if not callable(get_entry) or not callable(bind_execution):
         raise ValueError("fabric_fetch_capture_service_dependencies_missing")
-    entry = get_entry(plan.connector_id)
+    capture_registration = getattr(registry, "_capture_registration_binding", None)
+    if not callable(capture_registration):
+        raise ValueError("fabric_fetch_capture_registration_binding_missing")
+    registration_binding = capture_registration(plan.connector_id)
+    entry = registration_binding.entry
     if getattr(entry, "connector_class", None) is not FileTabularConnector:
         raise ValueError("fabric_fetch_capture_connector_registration_mismatch")
     instance = getattr(entry, "instance", None)
     if instance is not None and type(instance) is not FileTabularConnector:
         raise ValueError("fabric_fetch_capture_connector_instance_mismatch")
-    config = resolve_config(plan)
+    execution_binding = bind_execution(
+        plan,
+        registration_binding=registration_binding,
+    )
+    if not isinstance(execution_binding, _FetchExecutionBinding):
+        raise ValueError("fabric_fetch_capture_execution_binding_missing")
+    config = execution_binding.connection_config
     actual_path = _resolve_local_fabric_capture_path(
         getattr(config, "url", None), approved_root=approved_root, allow_relative=False
     )
@@ -3095,15 +3109,19 @@ def _validate_local_fabric_capture_route(
     connector_params = target.connector_params
     if not isinstance(connector_params, Mapping):
         raise ValueError("fabric_fetch_capture_connector_params_missing")
-    configured_locator = connector_params.get("url")
-    if configured_locator is None:
-        configured_locator = connector_params.get("path")
-    if configured_locator is not None:
+    for locator_key in ("url", "path"):
+        if locator_key not in connector_params:
+            continue
+        configured_locator = connector_params[locator_key]
+        if not isinstance(configured_locator, str) or not configured_locator.strip():
+            raise ValueError("fabric_fetch_capture_catalog_locator_malformed")
         configured_path = _resolve_local_fabric_capture_path(
             configured_locator, approved_root=approved_root
         )
         if configured_path != catalog_path:
             raise ValueError("fabric_fetch_capture_catalog_config_mismatch")
+
+    return execution_binding
 
 
 def _resolve_local_fabric_capture_path(
@@ -3149,6 +3167,7 @@ def _captured_fabric_fetches(
     metrics: Sequence[Any],
     store: ArtifactStore,
     catalog: object,
+    execution_binding: Any,
 ) -> list[dict[str, Any]]:
     """Validate and project executor-owned payload/receipt references.
 
@@ -3157,6 +3176,16 @@ def _captured_fabric_fetches(
     refuses an incomplete or foreign CAS chain before producing an owner
     artifact.
     """
+
+    from polisyos.fabric.retrieval.executor import FetchExecutor, _FetchExecutionBinding
+
+    if (
+        not isinstance(execution_binding, _FetchExecutionBinding)
+        or not isinstance(execution_binding.owner, FetchExecutor)
+        or len(plans) != 1
+    ):
+        raise ValueError("fabric_fetch_capture_execution_binding_missing")
+    execution_binding.owner._validate_execution_binding(plans[0], execution_binding)
 
     plans_by_id = {str(plan.plan_id): plan for plan in plans}
     if len(plans_by_id) != len(plans) or len(metrics) != len(plans):

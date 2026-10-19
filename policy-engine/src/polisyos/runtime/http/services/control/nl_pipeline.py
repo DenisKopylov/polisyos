@@ -13,7 +13,7 @@ from copy import deepcopy
 from datetime import UTC, datetime
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Literal, Protocol, Self, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Literal, NamedTuple, Protocol, Self, TypeVar, cast
 
 from pydantic import BaseModel, ConfigDict, model_validator
 
@@ -1611,12 +1611,23 @@ def _reconcile_materialization_input_basis(
     return existing_basis
 
 
+class _RuntimeQualityPublicationCandidate(NamedTuple):
+    """Persisted writer identity offered only as a fully checked replay candidate."""
+
+    generated_at: str
+    as_of_time: str
+    policy_intent_ref: str | None
+    production_data_manifest_ref: str | None
+    legal_snapshot_ref: str | None
+    semantic_binding_ref: str | None
+
+
 def _runtime_quality_publication_times(
     published_times: Mapping[str, tuple[str, str]],
     *,
     identity_key: str,
     requested_as_of_time: str | None,
-    persisted_times: tuple[str, str] | None,
+    persisted_times: _RuntimeQualityPublicationCandidate | None,
     now: datetime,
 ) -> tuple[str, str]:
     """Reuse publication times only for an already successful identical intent.
@@ -1626,9 +1637,9 @@ def _runtime_quality_publication_times(
     that writer returns successfully, so neither path bypasses reconciliation.
     """
     if persisted_times is not None and (
-        requested_as_of_time is None or persisted_times[1] == requested_as_of_time
+        requested_as_of_time is None or persisted_times.as_of_time == requested_as_of_time
     ):
-        return persisted_times
+        return persisted_times.generated_at, persisted_times.as_of_time
     existing = published_times.get(identity_key)
     if existing is not None:
         return existing
@@ -1637,42 +1648,245 @@ def _runtime_quality_publication_times(
     return generated_at, as_of_time
 
 
+def _runtime_quality_candidate_inputs_match(
+    *,
+    manifest_inputs: Sequence[InputRef],
+    envelope_input_refs: Sequence[str],
+    closure_input_refs: Sequence[str],
+    expected_inputs: Sequence[InputRef],
+) -> bool:
+    """Require the persisted manifest to preserve every typed input edge."""
+    expected = tuple(expected_inputs)
+    expected_ids = tuple(str(item.artifact_id) for item in expected)
+    return (
+        tuple(manifest_inputs) == expected
+        and tuple(envelope_input_refs) == expected_ids
+        and tuple(closure_input_refs) == expected_ids
+    )
+
+
 def _persisted_runtime_quality_publication_times(
     store: ArtifactStore,
     *,
     output_artifact_id: str,
     artifact_kind: str,
-    requested_as_of_time: str | None,
-) -> tuple[str, str] | None:
-    """Read candidate publication times from an existing CAS authority envelope.
+    expected_inputs: Sequence[InputRef],
+) -> _RuntimeQualityPublicationCandidate | None:
+    """Read a persisted writer identity as a candidate for exact-input replay.
 
-    The returned values are not trusted here: the caller passes them to the shared
-    writer, which reconciles the complete manifest, envelope, attestation, and event.
-    A request with an explicit different as-of time cannot reuse the old publication.
+    The shared writer remains the authority owner: it re-verifies the complete
+    manifest, envelope, attestation, and event against the freshly rebuilt context
+    before reusing this candidate. Input roles and manifest-profile pins are matched
+    here so a same-payload artifact with changed lineage cannot seed replay fields.
     """
     from polisyos.core.artifacts.ids import ArtifactID
     from polisyos.core.canon import from_canonical_bytes
     from polisyos.runtime.quality.authority import EvidenceAuthorityEnvelope
 
+    def _persisted_reference(value: object, *, field_name: str) -> str | None:
+        if value is None:
+            return None
+        if not isinstance(value, str) or not value or value.strip() != value:
+            raise ValueError(f"persisted authority field {field_name} is malformed")
+        artifact_id = ArtifactID.model_validate(value)
+        normalized = str(artifact_id)
+        if normalized != value:
+            raise ValueError(f"persisted authority field {field_name} is noncanonical")
+        return normalized
+
     try:
         output_id = ArtifactID.model_validate(output_artifact_id)
-        manifest = store.get_manifest(output_id)
-        authority = manifest.authority
-        if authority is None or manifest.kind != artifact_kind:
-            return None
-        envelope_id = ArtifactID.model_validate(authority.authority_envelope_ref)
-        envelope_payload = from_canonical_bytes(store.get_bytes(envelope_id))
-        envelope = EvidenceAuthorityEnvelope.model_validate(envelope_payload)
-    except (AttributeError, FileNotFoundError, OSError, RuntimeError, TypeError, ValueError):
+    except (TypeError, ValueError) as exc:
+        raise ValueError("runtime quality output identity is invalid") from exc
+    if not store.has(output_id):
         return None
-
+    try:
+        manifest = store.get_manifest(output_id)
+    except (AttributeError, FileNotFoundError, OSError, RuntimeError, TypeError, ValueError) as exc:
+        raise ValueError("existing authority identity mismatch") from exc
+    authority = manifest.authority
+    if authority is None:
+        return None
     if (
-        envelope.artifact_ref != output_artifact_id
-        or envelope.cas_ref != output_artifact_id
-        or (requested_as_of_time is not None and envelope.as_of_time != requested_as_of_time)
+        manifest.kind != artifact_kind
+        or authority.payload_sha256 != output_id.hex
+        or tuple(manifest.inputs) != tuple(expected_inputs)
     ):
         return None
-    return envelope.generated_at, envelope.as_of_time
+
+    try:
+        envelope_id = ArtifactID.model_validate(authority.authority_envelope_ref)
+        envelope_payload = from_canonical_bytes(store.get_bytes(envelope_id))
+        if not isinstance(envelope_payload, Mapping):
+            raise ValueError("authority envelope payload is not an object")
+        raw_closure = envelope_payload.get("same_input_closure")
+        if not isinstance(raw_closure, Mapping):
+            raise ValueError("authority envelope closure is not an object")
+        envelope = EvidenceAuthorityEnvelope.model_validate(envelope_payload)
+        closure = envelope.same_input_closure
+        if (
+            envelope.artifact_ref != str(output_id)
+            or envelope.cas_ref != str(output_id)
+            or envelope.artifact_kind != artifact_kind
+            or envelope.payload_sha256 != output_id.hex
+            or not _runtime_quality_candidate_inputs_match(
+                manifest_inputs=manifest.inputs,
+                envelope_input_refs=envelope.input_refs,
+                closure_input_refs=closure.evidence_input_refs,
+                expected_inputs=expected_inputs,
+            )
+        ):
+            return None
+        policy_intent_ref = _persisted_reference(
+            raw_closure.get("policy_intent_ref"),
+            field_name="same_input_closure.policy_intent_ref",
+        )
+        production_data_manifest_ref = _persisted_reference(
+            raw_closure.get("production_data_manifest_ref"),
+            field_name="same_input_closure.production_data_manifest_ref",
+        )
+        legal_snapshot_ref = _persisted_reference(
+            raw_closure.get("legal_snapshot_ref"),
+            field_name="same_input_closure.legal_snapshot_ref",
+        )
+        semantic_binding_ref = _persisted_reference(
+            envelope_payload.get("semantic_binding_ref"),
+            field_name="semantic_binding_ref",
+        )
+        if (
+            closure.policy_intent_ref != policy_intent_ref
+            or closure.production_data_manifest_ref != production_data_manifest_ref
+            or closure.legal_snapshot_ref != legal_snapshot_ref
+            or envelope.semantic_binding_ref != semantic_binding_ref
+        ):
+            raise ValueError("parsed authority references differ from their stored values")
+    except (AttributeError, FileNotFoundError, OSError, RuntimeError, TypeError, ValueError) as exc:
+        raise ValueError("existing authority identity mismatch") from exc
+
+    return _RuntimeQualityPublicationCandidate(
+        envelope.generated_at,
+        envelope.as_of_time,
+        policy_intent_ref,
+        production_data_manifest_ref,
+        legal_snapshot_ref,
+        semantic_binding_ref,
+    )
+
+
+def _validated_runtime_quality_reference(value: object, *, field_name: str) -> str:
+    """Validate one current reference without treating malformed presence as absent."""
+    from polisyos.core.artifacts.ids import ArtifactID
+
+    if not isinstance(value, str) or not value or value.strip() != value:
+        raise NaturalLanguagePipelineRefusalError(
+            "runtime_quality_identity_reference_invalid",
+            f"Runtime quality reference {field_name} is malformed.",
+        )
+    try:
+        artifact_id = ArtifactID.model_validate(value)
+    except (TypeError, ValueError) as exc:
+        raise NaturalLanguagePipelineRefusalError(
+            "runtime_quality_identity_reference_invalid",
+            f"Runtime quality reference {field_name} is malformed.",
+        ) from exc
+    normalized = str(artifact_id)
+    if normalized != value:
+        raise NaturalLanguagePipelineRefusalError(
+            "runtime_quality_identity_reference_invalid",
+            f"Runtime quality reference {field_name} is noncanonical.",
+        )
+    return normalized
+
+
+_RUNTIME_QUALITY_CLOSURE_REFERENCE_FIELDS = (
+    ("policy_intent_ref", "policy_intent_envelope_ref"),
+    ("production_data_manifest_ref", "production_data_quality_report_ref"),
+    ("legal_snapshot_ref", "normative_applicability_report_ref"),
+)
+
+
+def _runtime_quality_closure_reference_values(
+    runtime_quality_refs: Mapping[str, object],
+    *,
+    candidate: _RuntimeQualityPublicationCandidate | None,
+    output_artifact_id: str,
+    ref_key: str,
+) -> dict[str, str | None]:
+    """Select fresh closure pointers or match every replay pointer to its candidate."""
+    selected: dict[str, str | None] = {}
+    for closure_field, current_key in _RUNTIME_QUALITY_CLOSURE_REFERENCE_FIELDS:
+        current_value = (
+            _validated_runtime_quality_reference(
+                runtime_quality_refs[current_key],
+                field_name=current_key,
+            )
+            if current_key in runtime_quality_refs
+            else None
+        )
+        if candidate is None:
+            selected[closure_field] = current_value
+            continue
+        candidate_value = getattr(candidate, closure_field)
+        is_self_republication = current_value == output_artifact_id and ref_key == current_key
+        if current_value != candidate_value and not is_self_republication:
+            raise NaturalLanguagePipelineRefusalError(
+                "runtime_quality_same_input_identity_not_established",
+                f"Runtime quality closure reference {current_key} changed during replay.",
+            )
+        selected[closure_field] = candidate_value
+    return selected
+
+
+def _runtime_quality_semantic_binding_reference(
+    *,
+    report_payload: Mapping[str, Any] | None,
+    explicit_ref: object,
+    runtime_quality_refs: Mapping[str, object],
+    candidate: _RuntimeQualityPublicationCandidate | None,
+    output_artifact_id: str,
+    ref_key: str,
+) -> str | None:
+    """Resolve semantic binding while retaining all current-source consistency checks."""
+    current_refs: list[str] = []
+    if explicit_ref is not None:
+        current_refs.append(
+            _validated_runtime_quality_reference(
+                explicit_ref,
+                field_name="explicit semantic_binding_ref",
+            )
+        )
+    if report_payload is not None and "semantic_binding_ref" in report_payload:
+        current_refs.append(
+            _validated_runtime_quality_reference(
+                report_payload["semantic_binding_ref"],
+                field_name="report semantic_binding_ref",
+            )
+        )
+    map_key = "semantic_binding_ledger_ref"
+    if map_key in runtime_quality_refs:
+        current_refs.append(
+            _validated_runtime_quality_reference(
+                runtime_quality_refs[map_key],
+                field_name=map_key,
+            )
+        )
+    if candidate is None:
+        return current_refs[0] if current_refs else None
+
+    candidate_ref = candidate.semantic_binding_ref
+    for current_ref in current_refs:
+        is_self_republication = current_ref == output_artifact_id and ref_key == map_key
+        if current_ref != candidate_ref and not is_self_republication:
+            raise NaturalLanguagePipelineRefusalError(
+                "runtime_quality_same_input_identity_not_established",
+                "Runtime quality semantic binding reference changed during replay.",
+            )
+    if not current_refs and candidate_ref is not None:
+        raise NaturalLanguagePipelineRefusalError(
+            "runtime_quality_same_input_identity_not_established",
+            "Runtime quality semantic binding reference is absent during replay.",
+        )
+    return candidate_ref
 
 
 def _final_policy_claim_extraction_failure(
@@ -2636,15 +2850,19 @@ class NaturalLanguageRunMixin:
             def _runtime_quality_semantic_binding_ref(
                 *,
                 report_payload: Mapping[str, Any] | None = None,
-                explicit_ref: str | None = None,
+                explicit_ref: object = None,
+                candidate: _RuntimeQualityPublicationCandidate | None = None,
+                output_artifact_id: str,
+                ref_key: str,
             ) -> str | None:
-                if explicit_ref:
-                    return explicit_ref
-                if isinstance(report_payload, Mapping):
-                    payload_ref = _clean_runtime_text(report_payload.get("semantic_binding_ref"))
-                    if payload_ref:
-                        return payload_ref
-                return _clean_runtime_text(runtime_quality_refs.get("semantic_binding_ledger_ref"))
+                return _runtime_quality_semantic_binding_reference(
+                    report_payload=report_payload,
+                    explicit_ref=explicit_ref,
+                    runtime_quality_refs=runtime_quality_refs,
+                    candidate=candidate,
+                    output_artifact_id=output_artifact_id,
+                    ref_key=ref_key,
+                )
 
             def _runtime_quality_run_intent_binding() -> dict[str, Any] | None:
                 owner = runtime_quality_owner_binding
@@ -4261,23 +4479,18 @@ class NaturalLanguageRunMixin:
             def _runtime_quality_same_input_closure(
                 *,
                 input_refs: tuple[str, ...],
+                closure_refs: Mapping[str, str | None],
             ) -> dict[str, Any]:
-                """Carry actual source identities and refuse closure without typed policy time."""
+                """Rebuild owner identity around checked source pointers and current scope."""
 
                 owner = runtime_quality_owner_binding
                 if owner is None:
                     raise NaturalLanguagePipelineRefusalError(
                         "control_job_execution_scope_not_established"
                     )
-                policy_intent_ref = _clean_runtime_text(
-                    runtime_quality_refs.get("policy_intent_envelope_ref")
-                )
-                production_manifest_ref = _clean_runtime_text(
-                    runtime_quality_refs.get("production_data_quality_report_ref")
-                )
-                legal_snapshot_ref = _clean_runtime_text(
-                    runtime_quality_refs.get("normative_applicability_report_ref")
-                )
+                policy_intent_ref = closure_refs["policy_intent_ref"]
+                production_manifest_ref = closure_refs["production_data_manifest_ref"]
+                legal_snapshot_ref = closure_refs["legal_snapshot_ref"]
                 effective_mode_ref = f"runtime-mode:{_runtime_quality_profile()}"
                 return {
                     "closure_id": f"{owner['run_id']}:runtime_quality",
@@ -4369,8 +4582,29 @@ class NaturalLanguageRunMixin:
                     media_type=media_type,
                 )
                 requested_as_of_time = str(context.get("as_of") or "") or None
+                output_artifact_id = _runtime_quality_payload_sha256(authority_payload)
+                persisted_publication_candidate = _persisted_runtime_quality_publication_times(
+                    store,
+                    output_artifact_id=output_artifact_id,
+                    artifact_kind=artifact_kind,
+                    expected_inputs=write_options.inputs or [],
+                )
+                closure_refs = _runtime_quality_closure_reference_values(
+                    runtime_quality_refs,
+                    candidate=persisted_publication_candidate,
+                    output_artifact_id=output_artifact_id,
+                    ref_key=ref_key,
+                )
                 same_input_closure = _runtime_quality_same_input_closure(
                     input_refs=input_ref_values,
+                    closure_refs=closure_refs,
+                )
+                semantic_binding_identity_ref = _runtime_quality_semantic_binding_ref(
+                    report_payload=report_payload,
+                    explicit_ref=semantic_binding_ref,
+                    candidate=persisted_publication_candidate,
+                    output_artifact_id=output_artifact_id,
+                    ref_key=ref_key,
                 )
                 closure_is_closed = (
                     same_input_closure.get("status") == "closed"
@@ -4412,15 +4646,11 @@ class NaturalLanguageRunMixin:
                         else "blocking"
                     ),
                     "governance": _runtime_quality_governance_metadata(),
-                    "semantic_binding_ref": _runtime_quality_semantic_binding_ref(
-                        report_payload=report_payload,
-                        explicit_ref=semantic_binding_ref,
-                    ),
+                    "semantic_binding_ref": semantic_binding_identity_ref,
                 }
                 producer = write_options.producer
                 schema = write_options.schema
                 governance = write_options.governance
-                output_artifact_id = _runtime_quality_payload_sha256(authority_payload)
                 publication_identity_key = _runtime_quality_payload_sha256(
                     cast(
                         "Mapping[str, Any]",
@@ -4464,17 +4694,11 @@ class NaturalLanguageRunMixin:
                     )
                 )
                 attempt_time = datetime.now(UTC)
-                persisted_publication_times = _persisted_runtime_quality_publication_times(
-                    store,
-                    output_artifact_id=output_artifact_id,
-                    artifact_kind=artifact_kind,
-                    requested_as_of_time=requested_as_of_time,
-                )
                 generated_at, as_of_time = _runtime_quality_publication_times(
                     frozen_runtime_quality_publication_times,
                     identity_key=publication_identity_key,
                     requested_as_of_time=requested_as_of_time,
-                    persisted_times=persisted_publication_times,
+                    persisted_times=persisted_publication_candidate,
                     now=attempt_time,
                 )
                 authority_fields = {

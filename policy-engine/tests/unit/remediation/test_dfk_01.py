@@ -260,7 +260,7 @@ def test_dfk_01_census_binds_imports_strings_dynamic_loaders_and_exclusions(
     }
     _init_census_repository(tmp_path, files)
     untracked = tmp_path / "generated" / "descriptor.json"
-    untracked.parent.mkdir(parents=True)
+    untracked.parent.mkdir(parents=True, exist_ok=True)
     untracked.write_text(
         '{"module": "polisyos.data_forge.kernel.schemas.codegen"}\n', encoding="utf-8"
     )

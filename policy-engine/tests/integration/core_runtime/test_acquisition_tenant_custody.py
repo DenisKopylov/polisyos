@@ -179,28 +179,21 @@ async def test_control_service_serves_n7_through_runtime_store_with_tenant_custo
         _problem,
     )
 
-    stores = []
-
-    def build_owned_store(path: Path):
-        store = guard_runtime_cas(
-            artifacts.FileSystemCAS(path).with_ambient_ownership_enforcement()
-        )
-        stores.append(store)
-        request.addfinalizer(store.close)
-        return store
-
-    monkeypatch.setattr(control_fixture, "FileSystemCAS", build_owned_store)
-    foreign_stores = []
     runtime_store_path = tmp_path / ".polisyos"
+    runtime_store = guard_runtime_cas(
+        artifacts.FileSystemCAS(runtime_store_path).with_ambient_ownership_enforcement()
+    )
+    request.addfinalizer(runtime_store.close)
+    foreign_stores = []
     emitted_local_receipts = []
 
     with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
-        service = control_fixture._build_control_service(tmp_path)
+        service = control_fixture._build_control_service(tmp_path, artifact_store=runtime_store)
         try:
             store = service._artifact_store
             runtime = service._promotion_runtime
-            assert runtime.store is store
-            assert store in stores
+            assert store is runtime_store
+            assert runtime.store is runtime_store
 
             spec, _ = _n7_skg_spec_and_record()
             world = AcquisitionWorldSnapshot(

@@ -22,17 +22,21 @@ from polisyos.runtime.http.services.acquisition_action_service import (
     AcquisitionActionService,
     AcquisitionActionServiceError,
     AcquisitionOwnerExecutionResult,
+    _ValidatedAcquisitionMutation,
 )
 from polisyos.runtime.http.services.acquisition_surface_execution import (
     WorldBankWDIAcquisitionExecutionPort,
     build_production_world_bank_wdi_execution_port,
 )
+from polisyos.runtime.http.services.control.run_lifecycle import AcquisitionRouteLoopAuthoritySink
+from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
 from polisyos.runtime.quality import acquisition_executor as acquisition_executor_module
 from polisyos.runtime.quality.acquisition_executor import LiveAcquisitionExecutionError
 from polisyos.runtime.quality.acquisition_world_growth import (
     AcquisitionWorldGrowthBridge,
     AcquisitionWorldGrowthConfig,
 )
+from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
 from polisyos.runtime.quality.open_world_risk import PromotionRuntime
 from tests._helpers.acquisition_production import (
     _ATTEMPT_ID,
@@ -250,6 +254,11 @@ def test_production_factory_owns_authority_files_runtime_root_and_executor(
     )
 
 
+def _validated_mutation_result(closure: Any) -> _ValidatedAcquisitionMutation:
+    """Return the actual owner result shape while a test targets a later refusal."""
+    return _ValidatedAcquisitionMutation(closure=closure, job_id="test-acquisition-job")
+
+
 def _production_factory_context(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -279,6 +288,19 @@ def _production_factory_context(
         else artifact_store
     )
     promotion_runtime = PromotionRuntime(store=promotion_store)
+    control_store = ControlPlaneStore(
+        backend="sqlite",
+        sqlite_path=tmp_path / "control.sqlite3",
+    )
+    diagnostic_event_log = RuntimeDiagnosticEventLog(
+        store=control_store,
+        artifact_store=artifact_store,
+    )
+    acquisition_route_sink = AcquisitionRouteLoopAuthoritySink(
+        artifact_store=artifact_store,
+        event_log=diagnostic_event_log,
+        control_store=control_store,
+    )
     monkeypatch.setattr(
         acquisition_surface_execution_module,
         "__file__",
@@ -288,12 +310,11 @@ def _production_factory_context(
         _policy_resolver=SimpleNamespace(default_profile="production"),
         _cas_root=runtime_state_root,
         _artifact_store=artifact_store,
-        _diagnostic_event_log=object(),
+        _diagnostic_event_log=diagnostic_event_log,
         _promotion_runtime=promotion_runtime,
-        # This test double covers the pre-N5 store-binding seam only. It does not
-        # claim candidate-context admission or a fully composed ControlPlaneService.
         _cycle_substrate_context_admission_owner=None,
-        _control_store=None,
+        _control_store=control_store,
+        acquisition_route_sink=acquisition_route_sink,
     )
     return control_service, artifact_store, promotion_runtime
 
@@ -331,6 +352,8 @@ def test_production_factory_binds_world_growth_promotion_store(
     assert port._world_growth_bridge.artifact_store is artifact_store
     assert port._world_growth_bridge.promotion_runtime is promotion_runtime
     assert promotion_runtime.store is artifact_store
+    assert port._world_growth_bridge.control_store is control_service._control_store
+    assert port._world_growth_bridge.action_head_sink is control_service.acquisition_route_sink
 
 
 def test_bridge_resume_rechecks_mutated_promotion_store_before_reentry_effects(
@@ -351,6 +374,8 @@ def test_bridge_resume_rechecks_mutated_promotion_store_before_reentry_effects(
     assert bridge is not None
     assert bridge.artifact_store is artifact_store
     assert promotion_runtime.store is artifact_store
+    assert bridge.control_store is control_service._control_store
+    assert bridge.action_head_sink is control_service.acquisition_route_sink
 
     promotion_runtime.store = FileSystemCAS(tmp_path / "foreign-after-composition-cas")
     store_reads: list[str] = []
@@ -578,7 +603,11 @@ def test_fixture_port_stays_missing_and_public_route_refuses_before_provider(
     assert projection.authority_capability == "producer_missing"
     assert projection.execution_capability == "producer_missing"
     assert "non_fixture_n13b_owner_port:bridge_missing" in projection.external_nonclosures
-    monkeypatch.setattr(service, "_validated_mutation", lambda **_kwargs: closure)
+    monkeypatch.setattr(
+        service,
+        "_validated_mutation",
+        lambda **_kwargs: _validated_mutation_result(closure),
+    )
     with pytest.raises(AcquisitionActionServiceError) as exc_info:
         service.execute(
             tenant_id="tenant-a",
@@ -607,7 +636,11 @@ def test_missing_authority_owner_refuses_before_attempt_reservation(
     service._authority_provider = None
     service._execution_port = port
     service._production_execution_port = port
-    monkeypatch.setattr(service, "_validated_mutation", lambda **_kwargs: closure)
+    monkeypatch.setattr(
+        service,
+        "_validated_mutation",
+        lambda **_kwargs: _validated_mutation_result(closure),
+    )
 
     with pytest.raises(AcquisitionActionServiceError) as exc_info:
         service.execute(
@@ -667,7 +700,11 @@ def test_public_route_binding_gaps_refuse_before_authority_provider(
     )
     service._execution_port = port
     service._production_execution_port = port
-    monkeypatch.setattr(service, "_validated_mutation", lambda **_kwargs: closure)
+    monkeypatch.setattr(
+        service,
+        "_validated_mutation",
+        lambda **_kwargs: _validated_mutation_result(closure),
+    )
     request = SimpleNamespace(
         planner_report_hash="sha256:" + "7" * 64,
         replay_pins=SimpleNamespace(model_dump=lambda **_kwargs: {}),

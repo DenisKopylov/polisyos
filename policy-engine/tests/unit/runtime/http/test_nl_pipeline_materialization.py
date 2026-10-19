@@ -7,7 +7,10 @@ from datetime import UTC, datetime
 from decimal import Decimal
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
 
 import pytest
 
@@ -31,6 +34,10 @@ from polisyos.runtime.http.services.control.nl_pipeline import (
     _preflight_design_problem_model,
     _production_materialization_failure,
     _resolve_selected_materialization_ref,
+    _runtime_quality_candidate_inputs_match,
+    _runtime_quality_closure_reference_values,
+    _runtime_quality_semantic_binding_reference,
+    _RuntimeQualityPublicationCandidate,
     build_design_problem_from_nl_request,
     design_problem_compiler_source_semantics_invariant,
     design_problem_provider_constraint_schema,
@@ -318,6 +325,42 @@ def _prepare_running_scoped_control_job(
         worker_id=worker_id,
         attempt=leased.attempt,
     )
+
+
+def _run_nl_pipeline_with_live_admission(
+    service: ControlPlaneService,
+    pipeline: Any,
+    **kwargs: Any,
+) -> dict[str, Any]:
+    """Run a direct NL pipeline test through the real scoped-job fixture."""
+
+    run_id = kwargs.get("run_id")
+    context = kwargs.get("context")
+    if not isinstance(run_id, str) or not run_id.strip():
+        raise AssertionError("NL pipeline fixture requires an explicit run_id")
+    if not isinstance(context, dict):
+        raise AssertionError("NL pipeline fixture requires an explicit context")
+    if kwargs.get("control_job_id") is not None:
+        raise AssertionError("NL pipeline fixture owns control_job_id")
+    execution_profile = kwargs.get("execution_profile") or getattr(
+        getattr(service, "_policy_resolver", None),
+        "default_profile",
+        None,
+    )
+    if not isinstance(execution_profile, str) or not execution_profile.strip():
+        raise AssertionError("NL pipeline fixture requires an explicit effective profile")
+    job_id = f"job_test_{run_id}"
+    execution_fence = _prepare_running_scoped_control_job(
+        service._control_store,
+        job_id=job_id,
+        run_id=run_id,
+        effective_profile=execution_profile,
+        context=context,
+    )
+    kwargs["control_job_id"] = job_id
+    kwargs["execution_profile"] = execution_profile
+    with execution_fence:
+        return pipeline(**kwargs)
 
 
 class _FakeDesignProblemGateway:
@@ -1567,6 +1610,212 @@ def test_materialization_input_basis_keeps_frozen_generated_lineage_across_reiss
         )
 
 
+def test_runtime_quality_replay_candidate_requires_exact_typed_input_edges() -> None:
+    first = InputRef(
+        artifact_id="sha256:" + "1" * 64,
+        role="production_data_quality_report",
+        manifest_profile_sha256="sha256:" + "a" * 64,
+    )
+    second = InputRef(
+        artifact_id="sha256:" + "2" * 64,
+        role="data_snapshot",
+        manifest_profile_sha256="sha256:" + "b" * 64,
+    )
+    ids = (str(first.artifact_id), str(second.artifact_id))
+    assert _runtime_quality_candidate_inputs_match(
+        manifest_inputs=(first, second),
+        envelope_input_refs=ids,
+        closure_input_refs=ids,
+        expected_inputs=(first, second),
+    )
+
+    mutations = (
+        first.model_copy(update={"role": "normative_applicability_report"}),
+        first.model_copy(update={"manifest_profile_sha256": "sha256:" + "c" * 64}),
+    )
+    for changed in mutations:
+        assert not _runtime_quality_candidate_inputs_match(
+            manifest_inputs=(changed, second),
+            envelope_input_refs=ids,
+            closure_input_refs=ids,
+            expected_inputs=(first, second),
+        )
+    assert not _runtime_quality_candidate_inputs_match(
+        manifest_inputs=(second, first),
+        envelope_input_refs=ids,
+        closure_input_refs=ids,
+        expected_inputs=(first, second),
+    )
+    assert not _runtime_quality_candidate_inputs_match(
+        manifest_inputs=(first, second),
+        envelope_input_refs=ids,
+        closure_input_refs=(ids[1], ids[0]),
+        expected_inputs=(first, second),
+    )
+
+
+def test_runtime_quality_replay_closure_pointer_families_refuse_rebinding() -> None:
+    candidate = _RuntimeQualityPublicationCandidate(
+        "2026-10-19T00:00:00+00:00",
+        "2026-10-19",
+        "sha256:" + "1" * 64,
+        "sha256:" + "2" * 64,
+        "sha256:" + "3" * 64,
+        "sha256:" + "4" * 64,
+    )
+    output_id = "sha256:" + "f" * 64
+    current = {
+        "policy_intent_envelope_ref": candidate.policy_intent_ref,
+        "production_data_quality_report_ref": candidate.production_data_manifest_ref,
+        "normative_applicability_report_ref": candidate.legal_snapshot_ref,
+    }
+    expected = {
+        "policy_intent_ref": candidate.policy_intent_ref,
+        "production_data_manifest_ref": candidate.production_data_manifest_ref,
+        "legal_snapshot_ref": candidate.legal_snapshot_ref,
+    }
+    assert (
+        _runtime_quality_closure_reference_values(
+            current,
+            candidate=candidate,
+            output_artifact_id=output_id,
+            ref_key="decision_artifact_quality_report_ref",
+        )
+        == expected
+    )
+
+    for closure_field, current_key in (
+        ("policy_intent_ref", "policy_intent_envelope_ref"),
+        ("production_data_manifest_ref", "production_data_quality_report_ref"),
+        ("legal_snapshot_ref", "normative_applicability_report_ref"),
+    ):
+        rebound = dict(current)
+        rebound[current_key] = "sha256:" + "e" * 64
+        with pytest.raises(
+            NaturalLanguagePipelineRefusalError,
+            match="runtime_quality_same_input_identity_not_established",
+        ):
+            _runtime_quality_closure_reference_values(
+                rebound,
+                candidate=candidate,
+                output_artifact_id=output_id,
+                ref_key="decision_artifact_quality_report_ref",
+            )
+
+        self_republication = {**current, current_key: output_id}
+        assert (
+            _runtime_quality_closure_reference_values(
+                self_republication,
+                candidate=candidate,
+                output_artifact_id=output_id,
+                ref_key=current_key,
+            )[closure_field]
+            == expected[closure_field]
+        )
+        with pytest.raises(NaturalLanguagePipelineRefusalError):
+            _runtime_quality_closure_reference_values(
+                self_republication,
+                candidate=candidate,
+                output_artifact_id=output_id,
+                ref_key="another_report_ref",
+            )
+
+    for malformed in ("", None, [], {"artifact_id": output_id}):
+        with pytest.raises(
+            NaturalLanguagePipelineRefusalError,
+            match="runtime_quality_identity_reference_invalid",
+        ):
+            _runtime_quality_closure_reference_values(
+                {**current, "production_data_quality_report_ref": malformed},
+                candidate=candidate,
+                output_artifact_id=output_id,
+                ref_key="decision_artifact_quality_report_ref",
+            )
+    with pytest.raises(NaturalLanguagePipelineRefusalError):
+        _runtime_quality_closure_reference_values(
+            {},
+            candidate=candidate,
+            output_artifact_id=output_id,
+            ref_key="decision_artifact_quality_report_ref",
+        )
+
+
+def test_runtime_quality_replay_semantic_binding_refuses_rebound_sources() -> None:
+    candidate_ref = "sha256:" + "4" * 64
+    output_id = "sha256:" + "f" * 64
+    candidate = _RuntimeQualityPublicationCandidate(
+        "2026-10-19T00:00:00+00:00",
+        "2026-10-19",
+        None,
+        None,
+        None,
+        candidate_ref,
+    )
+    assert (
+        _runtime_quality_semantic_binding_reference(
+            report_payload={},
+            explicit_ref=None,
+            runtime_quality_refs={"semantic_binding_ledger_ref": candidate_ref},
+            candidate=candidate,
+            output_artifact_id=output_id,
+            ref_key="decision_artifact_quality_report_ref",
+        )
+        == candidate_ref
+    )
+
+    for sources in (
+        {"explicit_ref": "sha256:" + "5" * 64},
+        {"report_payload": {"semantic_binding_ref": "sha256:" + "5" * 64}},
+        {"runtime_quality_refs": {"semantic_binding_ledger_ref": "sha256:" + "5" * 64}},
+    ):
+        with pytest.raises(
+            NaturalLanguagePipelineRefusalError,
+            match="runtime_quality_same_input_identity_not_established",
+        ):
+            _runtime_quality_semantic_binding_reference(
+                report_payload=sources.get("report_payload", {}),
+                explicit_ref=sources.get("explicit_ref"),
+                runtime_quality_refs=sources.get("runtime_quality_refs", {}),
+                candidate=candidate,
+                output_artifact_id=output_id,
+                ref_key="decision_artifact_quality_report_ref",
+            )
+
+    assert (
+        _runtime_quality_semantic_binding_reference(
+            report_payload={},
+            explicit_ref=None,
+            runtime_quality_refs={"semantic_binding_ledger_ref": output_id},
+            candidate=candidate,
+            output_artifact_id=output_id,
+            ref_key="semantic_binding_ledger_ref",
+        )
+        == candidate_ref
+    )
+    with pytest.raises(NaturalLanguagePipelineRefusalError):
+        _runtime_quality_semantic_binding_reference(
+            report_payload={},
+            explicit_ref=None,
+            runtime_quality_refs={"semantic_binding_ledger_ref": output_id},
+            candidate=candidate,
+            output_artifact_id=output_id,
+            ref_key="decision_artifact_quality_report_ref",
+        )
+    for malformed in ("", None, [], {"ref": candidate_ref}):
+        with pytest.raises(
+            NaturalLanguagePipelineRefusalError,
+            match="runtime_quality_identity_reference_invalid",
+        ):
+            _runtime_quality_semantic_binding_reference(
+                report_payload={},
+                explicit_ref=None,
+                runtime_quality_refs={"semantic_binding_ledger_ref": malformed},
+                candidate=None,
+                output_artifact_id=output_id,
+                ref_key="semantic_binding_ledger_ref",
+            )
+
+
 def test_nl_pipeline_only_auto_attaches_default_production_data_for_serious_profiles(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
@@ -1707,7 +1956,9 @@ def test_nl_pipeline_records_metric_taxonomy_evidence_for_canonicalized_aliases(
     )
 
     try:
-        service._execute_nl_pipeline(
+        _run_nl_pipeline_with_live_admission(
+            service,
+            service._execute_nl_pipeline,
             run_id="R_nl_metric_taxonomy",
             nl_request="Evaluate a serious MSME policy with an aliased outcome.",
             context=_intent_context(
@@ -1937,7 +2188,9 @@ def test_nl_pipeline_materializes_data_snapshot_without_data_source(
     )
 
     def _run_contract_pipeline(run_id: str) -> dict[str, Any]:
-        return service._execute_nl_pipeline_for_contract_testing(
+        return _run_nl_pipeline_with_live_admission(
+            service,
+            service._execute_nl_pipeline_for_contract_testing,
             run_id=run_id,
             nl_request="test request",
             context=_intent_context(requested_authority_level="dev"),
@@ -2122,7 +2375,9 @@ def test_nl_pipeline_can_run_simulated_llm_without_mock_fallback(
     )
 
     try:
-        service._execute_nl_pipeline(
+        _run_nl_pipeline_with_live_admission(
+            service,
+            service._execute_nl_pipeline,
             run_id="R_nl_simulated_llm",
             nl_request="Розроби оптимальну політику підтримки МСП України у воєнний час.",
             context=_intent_context(requested_authority_level="dev"),
@@ -2186,7 +2441,8 @@ def test_serious_nl_pipeline_persists_normative_applicability_report_ref(
 ) -> None:
     captured: dict[str, Any] = {}
     authority_write_attempts: list[dict[str, Any]] = []
-    persisted_time_candidates: list[tuple[str | None, tuple[str, str] | None]] = []
+    persisted_time_candidates: list[tuple[str, Any | None]] = []
+    publication_time_selections: list[tuple[str | None, str | None, Any | None]] = []
     mutable_as_of = {"value": "2026-05-12"}
 
     class _MutableAsOf(str):
@@ -2208,6 +2464,9 @@ def test_serious_nl_pipeline_persists_normative_applicability_report_ref(
         _persisted_runtime_quality_publication_times as original_persisted_times,
     )
     from polisyos.runtime.http.services.control.nl_pipeline import (
+        _runtime_quality_publication_times as original_publication_times,
+    )
+    from polisyos.runtime.http.services.control.nl_pipeline import (
         write_runtime_authority_artifact as original_authority_writer,
     )
 
@@ -2216,17 +2475,42 @@ def test_serious_nl_pipeline_persists_normative_applicability_report_ref(
         *,
         output_artifact_id: str,
         artifact_kind: str,
-        requested_as_of_time: str | None,
-    ) -> tuple[str, str] | None:
+        expected_inputs: list[InputRef],
+    ) -> Any | None:
         result = original_persisted_times(
             store,
             output_artifact_id=output_artifact_id,
             artifact_kind=artifact_kind,
-            requested_as_of_time=requested_as_of_time,
+            expected_inputs=expected_inputs,
         )
         if artifact_kind == "runtime.production_data_quality_report":
-            persisted_time_candidates.append((requested_as_of_time, result))
+            persisted_time_candidates.append((artifact_kind, result))
         return result
+
+    def _capture_publication_times(
+        published_times: Mapping[str, tuple[str, str]],
+        *,
+        identity_key: str,
+        requested_as_of_time: str | None,
+        persisted_times: _RuntimeQualityPublicationCandidate | None,
+        now: datetime,
+    ) -> tuple[str, str]:
+        persisted_kind = next(
+            (
+                kind
+                for kind, candidate in reversed(persisted_time_candidates)
+                if candidate is persisted_times
+            ),
+            None,
+        )
+        publication_time_selections.append((persisted_kind, requested_as_of_time, persisted_times))
+        return original_publication_times(
+            published_times,
+            identity_key=identity_key,
+            requested_as_of_time=requested_as_of_time,
+            persisted_times=persisted_times,
+            now=now,
+        )
 
     def _capture_authority_write(
         store: Any,
@@ -2250,6 +2534,13 @@ def test_serious_nl_pipeline_persists_normative_applicability_report_ref(
                 }
                 for item in opts.inputs
             ],
+            "payload": payload if opts.kind == "runtime.production_data_quality_report" else None,
+            "opts": opts if opts.kind == "runtime.production_data_quality_report" else None,
+            "authority_fields": (
+                dict(authority_fields)
+                if opts.kind == "runtime.production_data_quality_report"
+                else None
+            ),
             "generated_at_argument": authority_fields.get("generated_at"),
             "as_of_time_argument": authority_fields.get("as_of_time"),
         }
@@ -2264,6 +2555,8 @@ def test_serious_nl_pipeline_persists_normative_applicability_report_ref(
         attempt["output_id"] = str(result.cas_ref.artifact_id)
         attempt["publication_generated_at"] = result.identity_context.generated_at
         attempt["publication_as_of_time"] = result.identity_context.as_of_time
+        if opts.kind == "runtime.production_data_quality_report":
+            attempt["writer_result"] = result
         if (
             change_as_of_on_retry
             and opts.kind == "runtime.production_data_quality_report"
@@ -2284,6 +2577,10 @@ def test_serious_nl_pipeline_persists_normative_applicability_report_ref(
     monkeypatch.setattr(
         "polisyos.runtime.http.services.control.nl_pipeline._persisted_runtime_quality_publication_times",
         _capture_persisted_times,
+    )
+    monkeypatch.setattr(
+        "polisyos.runtime.http.services.control.nl_pipeline._runtime_quality_publication_times",
+        _capture_publication_times,
     )
 
     def _capture_state(payload: dict[str, Any], **kwargs: Any) -> dict[str, Any]:
@@ -2414,6 +2711,101 @@ def test_serious_nl_pipeline_persists_normative_applicability_report_ref(
             production_quality_input_ids = {
                 str(item.artifact_id) for item in production_quality_manifest.inputs
             }
+
+            quality_attempt = next(
+                item
+                for item in reversed(authority_write_attempts)
+                if item["kind"] == "runtime.production_data_quality_report"
+                and item.get("writer_result") is not None
+            )
+            quality_payload = quality_attempt["payload"]
+            quality_opts = quality_attempt["opts"]
+            quality_fields = quality_attempt["authority_fields"]
+            exact_replay = original_authority_writer(
+                service._artifact_store,
+                service._diagnostic_event_log,
+                quality_payload,
+                quality_opts,
+                **quality_fields,
+            )
+            assert exact_replay.cas_ref == quality_attempt["writer_result"].cas_ref
+
+            foreign_job_fields = dict(quality_fields)
+            foreign_job_fields["job_id"] = "job_foreign_context"
+            closure = dict(foreign_job_fields["same_input_closure"])
+            closure["job_id"] = "job_foreign_context"
+            foreign_job_fields["same_input_closure"] = closure
+            with pytest.raises(ValueError, match="authority identity mismatch"):
+                original_authority_writer(
+                    service._artifact_store,
+                    service._diagnostic_event_log,
+                    quality_payload,
+                    quality_opts,
+                    **foreign_job_fields,
+                )
+
+            changed_profile_fields = dict(quality_fields)
+            changed_profile_fields["effective_execution_profile"] = "production"
+            changed_profile_fields["effective_mode_ref"] = "runtime-mode:production"
+            changed_profile_closure = dict(quality_fields["same_input_closure"])
+            changed_profile_closure["effective_mode_ref"] = "runtime-mode:production"
+            changed_profile_fields["same_input_closure"] = changed_profile_closure
+            with pytest.raises(ValueError, match="authority identity mismatch"):
+                original_authority_writer(
+                    service._artifact_store,
+                    service._diagnostic_event_log,
+                    quality_payload,
+                    quality_opts,
+                    **changed_profile_fields,
+                )
+
+            assert quality_opts.inputs
+            input_variants = (
+                quality_opts.inputs[0].model_copy(
+                    update={"role": quality_opts.inputs[0].role + ".rebound"}
+                ),
+                quality_opts.inputs[0].model_copy(
+                    update={"manifest_profile_sha256": "sha256:" + "d" * 64}
+                ),
+            )
+            for changed_input in input_variants:
+                changed_opts = replace(
+                    quality_opts,
+                    inputs=[changed_input, *quality_opts.inputs[1:]],
+                )
+                with pytest.raises(ValueError, match="authority identity mismatch"):
+                    original_authority_writer(
+                        service._artifact_store,
+                        service._diagnostic_event_log,
+                        quality_payload,
+                        changed_opts,
+                        **quality_fields,
+                    )
+
+            envelope_id = str(quality_attempt["writer_result"].authority_envelope_ref.artifact_id)
+            original_get_bytes = service._artifact_store.get_bytes
+
+            def _forged_persisted_envelope(ref: object) -> bytes:
+                payload_bytes = original_get_bytes(ref)
+                ref_value = getattr(ref, "artifact_id", ref)
+                if str(ref_value) != envelope_id:
+                    return payload_bytes
+                forged = from_canonical_bytes(payload_bytes)
+                forged_closure = dict(forged["same_input_closure"])
+                forged_closure["policy_intent_ref"] = "sha256:" + "e" * 64
+                forged["same_input_closure"] = forged_closure
+                return to_canonical_bytes(forged, CanonSpec(forbid_floats=False))
+
+            monkeypatch.setattr(service._artifact_store, "get_bytes", _forged_persisted_envelope)
+            with pytest.raises(ValueError, match="authority identity mismatch"):
+                original_authority_writer(
+                    service._artifact_store,
+                    service._diagnostic_event_log,
+                    quality_payload,
+                    quality_opts,
+                    **quality_fields,
+                )
+            monkeypatch.setattr(service._artifact_store, "get_bytes", original_get_bytes)
     finally:
         service.close()
 
@@ -2441,8 +2833,19 @@ def test_serious_nl_pipeline_persists_normative_applicability_report_ref(
         assert first_quality_attempt["as_of_time_argument"] == "2026-05-12"
         assert changed_as_of_attempt["as_of_time_argument"] == "2026-05-13"
         assert first_quality_attempt["publication_as_of_time"] == "2026-05-12"
-        assert persisted_time_candidates[0] == ("2026-05-12", None)
-        assert ("2026-05-13", None) in persisted_time_candidates
+        assert persisted_time_candidates[0] == ("runtime.production_data_quality_report", None)
+        quality_candidates = [
+            candidate
+            for kind, candidate in persisted_time_candidates
+            if kind == "runtime.production_data_quality_report" and candidate is not None
+        ]
+        assert any(
+            kind == "runtime.production_data_quality_report"
+            and requested == "2026-05-13"
+            and any(candidate is quality_candidate for quality_candidate in quality_candidates)
+            and candidate.as_of_time == "2026-05-12"
+            for kind, requested, candidate in publication_time_selections
+        )
         assert "publication_generated_at" not in changed_as_of_attempt
         assert "publication_as_of_time" not in changed_as_of_attempt
         assert (
@@ -2518,13 +2921,33 @@ def test_serious_nl_pipeline_persists_normative_applicability_report_ref(
         persisted_quality_envelope.generated_at == first_quality_attempt["publication_generated_at"]
     )
     assert persisted_quality_envelope.as_of_time == first_quality_attempt["publication_as_of_time"]
-    assert any(
+    persisted_candidate = next(
         candidate
-        == (
-            first_quality_attempt["publication_generated_at"],
-            first_quality_attempt["publication_as_of_time"],
-        )
-        for _requested_as_of, candidate in persisted_time_candidates
+        for _artifact_kind, candidate in persisted_time_candidates
+        if candidate is not None
+        and candidate.generated_at == persisted_quality_envelope.generated_at
+        and candidate.as_of_time == persisted_quality_envelope.as_of_time
+    )
+    assert (
+        persisted_candidate.policy_intent_ref
+        == persisted_quality_envelope.same_input_closure.policy_intent_ref
+    )
+    assert (
+        persisted_candidate.production_data_manifest_ref
+        == persisted_quality_envelope.same_input_closure.production_data_manifest_ref
+    )
+    assert (
+        persisted_candidate.legal_snapshot_ref
+        == persisted_quality_envelope.same_input_closure.legal_snapshot_ref
+    )
+    assert (
+        persisted_candidate.semantic_binding_ref == persisted_quality_envelope.semantic_binding_ref
+    )
+    assert any(
+        candidate is not None
+        and candidate.generated_at == first_quality_attempt["publication_generated_at"]
+        and candidate.as_of_time == first_quality_attempt["publication_as_of_time"]
+        for _artifact_kind, candidate in persisted_time_candidates
     )
     for retry_attempt in production_quality_attempts[1:]:
         assert retry_attempt["input_refs"] == first_quality_attempt["input_refs"]
@@ -2982,7 +3405,9 @@ def test_serious_nl_pipeline_materializes_policy_intent_before_scientist_workflo
     )
 
     try:
-        result = service._execute_nl_pipeline(
+        result = _run_nl_pipeline_with_live_admission(
+            service,
+            service._execute_nl_pipeline,
             run_id="R_policy_intent_materialized",
             nl_request="Evaluate Ukraine MSME wartime credit support.",
             context=context,
@@ -3120,7 +3545,9 @@ def test_serious_nl_pipeline_blocks_missing_jurisdiction_before_scientist_workfl
             PolicyDesignCaseAuthorityError,
             match="policy_intent_jurisdiction_missing",
         ):
-            service._execute_nl_pipeline(
+            _run_nl_pipeline_with_live_admission(
+                service,
+                service._execute_nl_pipeline,
                 run_id="R_policy_intent_missing_jurisdiction",
                 nl_request="Evaluate Ukraine MSME wartime credit support.",
                 context=context,
@@ -3889,7 +4316,9 @@ def test_nl_pipeline_passes_resolved_curated_dir_to_llm_data_need_extractor(
     )
 
     try:
-        service._execute_nl_pipeline(
+        _run_nl_pipeline_with_live_admission(
+            service,
+            service._execute_nl_pipeline,
             run_id="R_nl_curated_dir",
             nl_request="Evaluate an MSME policy.",
             context=_intent_context(requested_authority_level="dev"),
@@ -3960,7 +4389,9 @@ def test_nl_pipeline_simulated_multimodel_honors_run_budget_guard_without_networ
     )
 
     try:
-        service._execute_nl_pipeline(
+        _run_nl_pipeline_with_live_admission(
+            service,
+            service._execute_nl_pipeline,
             run_id="R_nl_simulated_multimodel_budget",
             nl_request="Compare deterministic simulated model variants for MSME support.",
             context=_intent_context(requested_authority_level="dev"),
@@ -4167,7 +4598,9 @@ def test_nl_pipeline_persists_multimodel_adjudication_and_keeps_unsupported_clai
     )
 
     try:
-        result = service._execute_nl_pipeline(
+        result = _run_nl_pipeline_with_live_admission(
+            service,
+            service._execute_nl_pipeline,
             run_id="R_nl_multimodel_adjudication",
             nl_request="Evaluate materially different MSME support recommendations.",
             context=_normative_context(),
@@ -4321,7 +4754,9 @@ def test_nl_pipeline_promotes_serious_causal_context_into_scientist_params(
     )
 
     try:
-        service._execute_nl_pipeline(
+        _run_nl_pipeline_with_live_admission(
+            service,
+            service._execute_nl_pipeline,
             run_id="R_nl_serious_context",
             nl_request="Evaluate a wartime MSME credit-guarantee policy for Ukraine.",
             context=_intent_context(
@@ -4473,6 +4908,7 @@ def test_nl_pipeline_reports_gateway_failure_when_mock_fallback_is_disallowed(
                 governance_constraints_payload=[],
                 expected_outputs_payload=[],
                 control_job_id=job_id,
+                execution_profile="research",
                 allow_mock_fallback=False,
             )
         record = service._control_store.get_job(job_id)
@@ -4542,7 +4978,9 @@ def test_nl_pipeline_surfaces_formalizer_schema_healing_in_variant_telemetry(
     )
 
     try:
-        service._execute_nl_pipeline(
+        _run_nl_pipeline_with_live_admission(
+            service,
+            service._execute_nl_pipeline,
             run_id="R_nl_schema_healing",
             nl_request="Evaluate an MSME policy with a simulated model.",
             context=_intent_context(requested_authority_level="dev"),
@@ -4654,6 +5092,7 @@ def test_nl_pipeline_promotes_formalizer_structured_schema_failure(
                 governance_constraints_payload=[],
                 expected_outputs_payload=[],
                 control_job_id=job_id,
+                execution_profile="research",
                 allow_mock_fallback=False,
             )
         record = service._control_store.get_job(job_id)
@@ -4727,7 +5166,9 @@ def test_nl_pipeline_propagates_scientist_workflow_failure(
 
     try:
         with pytest.raises(RuntimeError, match="scientist_workflow_failed:fail"):
-            service._execute_nl_pipeline(
+            _run_nl_pipeline_with_live_admission(
+                service,
+                service._execute_nl_pipeline,
                 run_id="R_nl_scientist_fail",
                 nl_request="Розроби оптимальну політику підтримки МСП України у воєнний час.",
                 context=_intent_context(requested_authority_level="dev"),
@@ -4938,6 +5379,86 @@ def test_nl_pipeline_updates_control_job_progress(
         "run_intent_binding_incomplete"
     )
     assert "phase_barrier_missing" in {gate["code"] for gate in gates}
+
+
+@pytest.mark.parametrize(
+    ("binding_mismatch", "call_run_id", "call_profile", "call_tenant_id"),
+    [
+        ("stale_lease", "R_nl_owner_binding", "research", "tenant-intent"),
+        ("wrong_run", "R_nl_foreign_run", "research", "tenant-intent"),
+        ("wrong_profile", "R_nl_owner_binding", "dev", "tenant-intent"),
+        ("wrong_scope", "R_nl_owner_binding", "research", "tenant-foreign"),
+    ],
+)
+def test_nl_pipeline_refuses_stale_or_mismatched_execution_owner(
+    binding_mismatch: str,
+    call_run_id: str,
+    call_profile: str,
+    call_tenant_id: str,
+    tmp_path: Path,
+) -> None:
+    """A live job must match the NL call's complete scope and owner identity."""
+
+    service = ControlPlaneService(
+        cas_root=tmp_path / "cas",
+        core_runs_root=tmp_path / "runs",
+        policy_resolver=RuntimeExecutionPolicyResolver(
+            default_profile="research",
+            worker_backend="external",
+            state_store_backend="sqlite",
+            sqlite_path=str(tmp_path / "control-owner-binding.sqlite3"),
+            postgres_dsn=None,
+        ),
+        registry_providers=_registry_providers(),
+    )
+    job_id = "job_nl_owner_binding"
+    execution_fence = _prepare_running_scoped_control_job(
+        service._control_store,
+        job_id=job_id,
+        run_id="R_nl_owner_binding",
+        effective_profile="research",
+        context=_intent_context(),
+    )
+    refusal: NaturalLanguagePipelineRefusalError | None = None
+    record = None
+    try:
+        with execution_fence:
+            if binding_mismatch == "stale_lease":
+                service._control_store.complete_job(
+                    job_id=job_id,
+                    progress={"phase": "completed"},
+                )
+            with pytest.raises(NaturalLanguagePipelineRefusalError) as exc_info:
+                service._execute_nl_pipeline(
+                    run_id=call_run_id,
+                    nl_request="Compare policy variants under the current admitted scope.",
+                    context=_intent_context(tenant_id=call_tenant_id),
+                    domain_hint="Ukraine wartime MSME support policy",
+                    data_source=None,
+                    max_iterations=1,
+                    llm_models=["simulated-qwen"],
+                    max_parallel_models=1,
+                    run_budget_usd=None,
+                    per_model_budget_usd=None,
+                    checkpoint_policy="strict",
+                    execution_plan_ref=None,
+                    execution_plan_payload=None,
+                    stop_criteria_payload={},
+                    governance_constraints_payload=[],
+                    expected_outputs_payload=[],
+                    control_job_id=job_id,
+                    execution_profile=call_profile,
+                )
+            refusal = exc_info.value
+            record = service._control_store.get_job(job_id)
+    finally:
+        service.close()
+
+    assert refusal is not None
+    assert refusal.code == "control_job_execution_scope_not_established"
+    assert record is not None
+    assert record.progress.get("execution_owner_binding") is None
+    assert record.progress.get("runtime_quality_refs") is None
 
 
 def test_nl_pipeline_refuses_legacy_job_without_admitted_execution_scope(
@@ -5490,10 +6011,14 @@ def test_nl_pipeline_selected_final_claims_faults_block_inline_fallback_or_propa
         }
         if selected_fault == "backend_outage":
             with pytest.raises(RuntimeDependencyUnavailableError) as exc_info:
-                service._execute_nl_pipeline(**kwargs)
+                _run_nl_pipeline_with_live_admission(
+                    service, service._execute_nl_pipeline, **kwargs
+                )
             outage = exc_info.value
         else:
-            result = service._execute_nl_pipeline(**kwargs)
+            result = _run_nl_pipeline_with_live_admission(
+                service, service._execute_nl_pipeline, **kwargs
+            )
             citation = from_canonical_bytes(
                 service._artifact_store.get_bytes(
                     ArtifactID(result["citation_faithfulness_report_ref"])
@@ -5993,7 +6518,9 @@ def test_nl_pipeline_carries_same_payload_variant_profiles_into_selected_citatio
         registry_providers=_registry_providers(),
     )
     try:
-        result = service._execute_nl_pipeline(
+        result = _run_nl_pipeline_with_live_admission(
+            service,
+            service._execute_nl_pipeline,
             run_id="R_nl_selected_claims_variant_profiles",
             nl_request="Compare two deterministic variants with the same policy claims.",
             context=_normative_context(),

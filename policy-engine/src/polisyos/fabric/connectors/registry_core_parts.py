@@ -7,13 +7,14 @@ import json
 import threading
 import weakref
 from collections import OrderedDict
-from collections.abc import Iterator, Mapping
+from collections.abc import Iterator
 from concurrent.futures import Future
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from types import MappingProxyType
 from typing import TYPE_CHECKING, Any, ClassVar, Literal
 
+from packaging.version import Version
 from packaging.version import parse as parse_version
 
 from polisyos.common.logger import get_logger
@@ -259,9 +260,7 @@ class ConnectorRegistry(RegistryLifecycleMixin):
 
         Note: Use get_instance() instead of direct instantiation.
         """
-        self._registered_owner_bindings: Mapping[int, _ConnectorRegistrationBinding] = (
-            MappingProxyType({})
-        )
+        self._registered_owner_bindings = MappingProxyType({})
         self._connectors = GenericRegistry[str, ConnectorEntry](
             key_fn=lambda entry: entry.fqid,
             indexers={
@@ -716,7 +715,7 @@ class ConnectorRegistry(RegistryLifecycleMixin):
     def _select_latest_version(self, candidates: list[str]) -> str:
         """Select the latest semver version from candidate FQIDs."""
 
-        def version_key(fqid: str):
+        def version_key(fqid: str) -> Version:
             if "@" not in fqid:
                 return parse_version("0")
             version = fqid.split("@", 1)[1]
@@ -794,7 +793,10 @@ class ConnectorRegistry(RegistryLifecycleMixin):
             if any(len(candidates) == 0 for candidates in candidate_sets):
                 return
             # Start from the smallest set to minimize intersection cost.
-            candidates = set(min(candidate_sets, key=len))
+            smallest_candidates: set[str] = min(
+                candidate_sets, key=lambda candidate_set: len(candidate_set)
+            )
+            candidates = set(smallest_candidates)
             for candidate_set in candidate_sets:
                 candidates &= candidate_set
                 if not candidates:

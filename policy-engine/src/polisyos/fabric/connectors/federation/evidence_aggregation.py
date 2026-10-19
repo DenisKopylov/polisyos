@@ -9,17 +9,13 @@ from __future__ import annotations
 
 import json
 from datetime import UTC, datetime
+from typing import TYPE_CHECKING
 
-from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import content_hash, to_canonical_bytes
 from polisyos.core.contracts.fabric import (
     EvidenceBundle,
     EvidenceStep,
     ProvenanceCoreRefModel,
-)
-from polisyos.fabric.connectors.federation.types import (
-    CompositionStrategy,
-    MergeLogEntry,
 )
 from polisyos.fabric.evidence import persist_provenance_graph
 from polisyos.fabric.numerics.finite import ensure_probability
@@ -33,6 +29,13 @@ from polisyos.fabric.provenance.core import (
     ProvenanceCoreRef,
     ProvenanceEntity,
 )
+
+if TYPE_CHECKING:
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.fabric.connectors.federation.types import (
+        CompositionStrategy,
+        MergeLogEntry,
+    )
 
 _DETERMINISTIC_TIMESTAMP = datetime(1970, 1, 1, tzinfo=UTC)
 
@@ -211,8 +214,8 @@ def _build_composite_provenance(
 
 
 def _aggregate_quality_indicators(
-    quality_dicts: list[dict[str, dict] | None],
-) -> dict[str, dict] | None:
+    quality_dicts: list[dict[str, dict[str, object]] | None],
+) -> dict[str, dict[str, object]] | None:
     """
     Aggregate quality indicators from multiple sources.
 
@@ -225,11 +228,11 @@ def _aggregate_quality_indicators(
     if not valid_dicts:
         return None
 
-    all_metrics = set()
+    all_metrics: set[str] = set()
     for d in valid_dicts:
         all_metrics.update(d.keys())
 
-    aggregated = {}
+    aggregated: dict[str, dict[str, object]] = {}
     for metric_name in all_metrics:
         metric_values = []
         for d in valid_dicts:

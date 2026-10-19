@@ -61,9 +61,13 @@ if TYPE_CHECKING:
 DataT = TypeVar("DataT")
 
 
+def _freeze_mapping(value: Mapping[str, Any]) -> Mapping[str, Any]:
+    return MappingProxyType({str(key): _freeze_nested(item) for key, item in value.items()})
+
+
 def _freeze_nested(value: Any) -> Any:
     if isinstance(value, Mapping):
-        return MappingProxyType({str(key): _freeze_nested(item) for key, item in value.items()})
+        return _freeze_mapping(value)
     if isinstance(value, list):
         return tuple(_freeze_nested(item) for item in value)
     if isinstance(value, tuple):
@@ -104,7 +108,7 @@ class ConnectionState:
 
     def snapshot(self) -> Mapping[str, Any]:
         with self._lock:
-            return _freeze_nested(self._data)
+            return _freeze_mapping(self._data)
 
 
 # ============================================================================
@@ -616,7 +620,7 @@ class BaseConnector(Generic[DataT]):
         self._check_capability(ConnectorCapability.CATALOG_BROWSE)
         self._ensure_overridden("list_datasets")
         if False:  # pragma: no cover
-            yield  # type: ignore
+            yield
 
     async def fetch_stream(
         self,
@@ -626,7 +630,7 @@ class BaseConnector(Generic[DataT]):
         self._check_capability(ConnectorCapability.STREAMING)
         self._ensure_overridden("fetch_stream")
         if False:  # pragma: no cover
-            yield  # type: ignore
+            yield
 
     async def check_freshness(
         self,

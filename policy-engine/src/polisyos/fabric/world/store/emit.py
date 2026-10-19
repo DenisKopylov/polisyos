@@ -3,6 +3,10 @@
 from __future__ import annotations
 
 from enum import Enum
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from polisyos.ir.loading.citations import CitationRef
 
 from polisyos.fabric.evidence.fact_writer import build_fact
 from polisyos.ir.loading.fact_log import Fact, FactLegal, FactProvenance
@@ -285,7 +289,7 @@ def _claim_label(claim: Claim) -> str:
     return base[: _MAX_CLAIM_LABEL_LEN - 3] + "..."
 
 
-def _resolve_doc_version_id(citation) -> str | None:
+def _resolve_doc_version_id(citation: CitationRef) -> str | None:
     if citation.doc.doc_version_id is not None:
         return citation.doc.doc_version_id
     if citation.doc.doc_version_ref is not None:

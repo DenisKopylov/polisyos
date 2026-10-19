@@ -30,6 +30,8 @@ from polisyos.fabric.connectors.base import (
 )
 
 if TYPE_CHECKING:
+    from types import TracebackType
+
     from polisyos.fabric.connectors.base import (
         ConnectionConfig,
         ConnectionHandle,
@@ -1158,7 +1160,12 @@ class ConnectionPool(Generic[ConnectorT]):
         """Async context manager entry."""
         return self
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: TracebackType | None,
+    ) -> None:
         """Async context manager exit - close all connections."""
         await self.close_all()
 
@@ -1172,7 +1179,12 @@ class ConnectionPool(Generic[ConnectorT]):
         async def __aenter__(self) -> ConnectionHandle:
             return self._handle
 
-        async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:
+        async def __aexit__(
+            self,
+            exc_type: type[BaseException] | None,
+            exc_val: BaseException | None,
+            exc_tb: TracebackType | None,
+        ) -> None:
             await self._pool.release(self._handle)
 
     async def connection(self) -> _ConnectionContext:

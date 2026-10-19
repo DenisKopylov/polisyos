@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections.abc import Iterable
 from dataclasses import dataclass
 from functools import lru_cache
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from polisyos.common.logger import get_logger
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
@@ -126,27 +126,30 @@ def _load_builtin_connectors() -> Iterable[type[SourceConnector[_Any]]]:
         )
         return ()
 
-    return (
-        WorldBankConnector,
-        WVSConnector,
-        EurostatConnector,
-        FileTabularConnector,
-        ObjectStorageConnector,
-        SQLQueryConnector,
-        GraphQLConnector,
-        GeoJSONConnector,
-        EventStreamConnector,
-        UKONSConnector,
-        SDMXSourceConnector,
-        CKANCatalogConnector,
-        CKANResourceConnector,
-        SocrataConnector,
-        OpendatasoftConnector,
-        SPARQLConnector,
-        RestJsonConnector,
-        WHOConnector,
-        UNPDConnector,
-        UNESCOUISConnector,
+    return cast(
+        "tuple[type[SourceConnector[_Any]], ...]",
+        (
+            WorldBankConnector,
+            WVSConnector,
+            EurostatConnector,
+            FileTabularConnector,
+            ObjectStorageConnector,
+            SQLQueryConnector,
+            GraphQLConnector,
+            GeoJSONConnector,
+            EventStreamConnector,
+            UKONSConnector,
+            SDMXSourceConnector,
+            CKANCatalogConnector,
+            CKANResourceConnector,
+            SocrataConnector,
+            OpendatasoftConnector,
+            SPARQLConnector,
+            RestJsonConnector,
+            WHOConnector,
+            UNPDConnector,
+            UNESCOUISConnector,
+        ),
     )
 
 

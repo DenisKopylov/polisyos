@@ -231,9 +231,10 @@ class WHOConnector(HTTPConnectorBase[pd.DataFrame]):
                 )
 
         year_values = [
-            safe_int(value) for value in filter_map.get("year", []) + filter_map.get("TimeDim", [])
+            year
+            for value in filter_map.get("year", []) + filter_map.get("TimeDim", [])
+            if (year := safe_int(value)) is not None
         ]
-        year_values = [value for value in year_values if value is not None]
         start_year = request.date_start.year if request.date_start is not None else None
         end_year = request.date_end.year if request.date_end is not None else None
         if year_values:

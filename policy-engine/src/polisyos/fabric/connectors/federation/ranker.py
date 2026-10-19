@@ -8,6 +8,7 @@ freshness, and latency to rank data sources for a given composition request.
 from __future__ import annotations
 
 from datetime import UTC, timedelta
+from typing import TYPE_CHECKING
 
 from polisyos.common.logger import get_logger
 from polisyos.core.evaluation import WeightedScorer
@@ -16,10 +17,12 @@ from polisyos.fabric.connectors.federation.types import (
     RankedSource,
     RankingWeights,
 )
-from polisyos.fabric.connectors.quality.report import DataQualityReport
 from polisyos.fabric.data_plane.temporal import utc_now
 from polisyos.fabric.numerics.finite import ensure_non_negative_finite, ensure_probability
 from polisyos.ir.connectors import ConnectorMetadataSpec, TrustLevel
+
+if TYPE_CHECKING:
+    from polisyos.fabric.connectors.quality.report import DataQualityReport
 
 logger = get_logger(__name__)
 
@@ -176,7 +179,7 @@ class SourceRanker:
         self,
         connector: ConnectorMetadataSpec,
         quality_report: DataQualityReport | None,
-        max_staleness,
+        max_staleness: timedelta | None,
     ) -> float:
         """Calculate freshness score (0.0-1.0) based on last update time."""
         last_updated = connector.last_updated
@@ -187,13 +190,13 @@ class SourceRanker:
             age_seconds = quality_report.freshness_status.data_age_seconds
             if age_seconds is not None:
                 try:
-                    age_seconds = ensure_non_negative_finite(
+                    validated_age_seconds = ensure_non_negative_finite(
                         age_seconds,
                         what="freshness data_age_seconds",
                     )
                 except ValueError:
                     return 0.5
-                last_updated = utc_now() - timedelta(seconds=age_seconds)
+                last_updated = utc_now() - timedelta(seconds=validated_age_seconds)
 
         if last_updated is None:
             return 0.5
@@ -235,7 +238,7 @@ class SourceRanker:
         self,
         connector: ConnectorMetadataSpec,
         quality_report: DataQualityReport | None,
-        max_staleness,
+        max_staleness: timedelta | None,
     ) -> bool:
         if max_staleness is None:
             return False

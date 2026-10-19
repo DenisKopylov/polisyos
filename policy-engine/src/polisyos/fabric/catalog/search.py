@@ -14,7 +14,7 @@ from polisyos.common.logger import logger
 
 from .binding import MetricBinding
 from .contract import DataContract
-from .semantic import SemanticCatalogIndex
+from .semantic import SemanticCatalogIndex, SemanticSearchMatch
 from .source_bindings import SourceBinding
 
 
@@ -329,7 +329,7 @@ class MetricSearcher:
     def _build_semantic_results(
         self,
         query_lower: str,
-        semantic_matches,
+        semantic_matches: list[SemanticSearchMatch],
         lexical_matches: Sequence[SearchResult],
     ) -> list[SearchResult]:
         lexical_by_metric = {item.contract.metric_id: item for item in lexical_matches}

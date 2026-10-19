@@ -36,8 +36,9 @@ from __future__ import annotations
 import asyncio
 import io
 import time
+from collections.abc import Mapping
 from datetime import UTC, datetime
-from typing import Any, ClassVar
+from typing import Any, ClassVar, TypedDict
 
 import aiohttp
 import pandas as pd
@@ -86,9 +87,9 @@ _DEFAULT_MAX_RESPONSE_BYTES = 50 * 1024 * 1024
 _DEFAULT_MAX_DECOMPRESSED_BYTES = 100 * 1024 * 1024
 
 
-def _positive_int_header(headers: dict[str, str] | Any, header_name: str, default: int) -> int:
+def _positive_int_header(headers: Mapping[str, str], header_name: str, default: int) -> int:
     raw = headers.get(header_name)
-    if raw in (None, ""):
+    if raw is None or raw == "":
         return default
     try:
         value = int(raw)
@@ -107,8 +108,17 @@ def _positive_int_header(headers: dict[str, str] | Any, header_name: str, defaul
     return value
 
 
-def _handle_state(handle: ConnectionHandle) -> dict[str, Any]:
-    state = handle.setdefault_state("static_csv", {})
+class _StaticCSVState(TypedDict):
+    """Mutable per-connection state owned by the static CSV connector."""
+
+    schema_by_dataset: dict[str, dict[str, Any]]
+    etag_by_dataset: dict[str, str | None]
+    last_modified_by_dataset: dict[str, str | None]
+    content_hash_by_dataset: dict[str, str | None]
+
+
+def _handle_state(handle: ConnectionHandle) -> _StaticCSVState:
+    state: _StaticCSVState = handle.setdefault_state("static_csv", {})
     state.setdefault("schema_by_dataset", {})
     state.setdefault("etag_by_dataset", {})
     state.setdefault("last_modified_by_dataset", {})

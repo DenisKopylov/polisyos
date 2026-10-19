@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import cast
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
@@ -23,7 +24,7 @@ from polisyos.ir.world.doc import DocMeta
 from .errors import ClaimValidationError
 
 
-def load_json_artifact(cas: FileSystemCAS, artifact_id: str) -> dict:
+def load_json_artifact(cas: FileSystemCAS, artifact_id: str) -> dict[str, object]:
     """Load json artifact."""
     from polisyos.core.artifacts import load_core_json_artifact
 
@@ -34,7 +35,7 @@ def load_json_artifact(cas: FileSystemCAS, artifact_id: str) -> dict:
         raise ClaimValidationError(f"failed to load artifact {artifact_id}: {exc}") from exc
     if not isinstance(payload, dict):
         raise ClaimValidationError(f"artifact {artifact_id} payload must be a JSON object")
-    return payload
+    return cast("dict[str, object]", payload)
 
 
 def load_doc_meta(cas: FileSystemCAS, artifact_id: str) -> DocMeta:
@@ -80,7 +81,7 @@ def claim_artifact_ids_by_claim_id(
 def persist_claim_set(
     *,
     cas: FileSystemCAS,
-    payload: dict,
+    payload: dict[str, object],
     kind: str,
     schema_name: str,
     schema_version: str,

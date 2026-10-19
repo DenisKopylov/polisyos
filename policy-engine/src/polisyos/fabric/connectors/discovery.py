@@ -24,7 +24,7 @@ from collections.abc import Iterator, Sequence
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from polisyos.common.logger import get_logger
 from polisyos.core.discovery import (
@@ -37,6 +37,7 @@ if TYPE_CHECKING:
     from typing import Any as _Any
 
     from polisyos.fabric.connectors.base import SourceConnector
+    from polisyos.ir.connectors import ConnectorMetadataSpec
 
 logger = get_logger(__name__)
 
@@ -486,11 +487,11 @@ class ConnectorDiscovery:
         """Get fully qualified ID from connector class."""
         metadata = getattr(connector_class, "metadata", None)
         if metadata is not None and hasattr(metadata, "fully_qualified_id"):
-            return metadata.fully_qualified_id
+            return cast("ConnectorMetadataSpec", metadata).fully_qualified_id
 
         # Fallback to connector_id
         connector_id = getattr(connector_class, "connector_id", "unknown")
-        return connector_id
+        return cast("str", connector_id)
 
     def _record_error_locked(self, error: DiscoveryError) -> None:
         self._errors.append(error)

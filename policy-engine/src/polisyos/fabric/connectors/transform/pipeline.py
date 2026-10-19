@@ -13,9 +13,7 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from enum import Enum
 from types import MappingProxyType
-from typing import Any
-
-import pandas as pd
+from typing import TYPE_CHECKING, Any
 
 from polisyos.core.observability import get_metrics, get_tracer
 from polisyos.core.pipeline import (
@@ -26,7 +24,12 @@ from polisyos.core.pipeline import (
     UnknownStageError,
 )
 from polisyos.fabric._adapters.observability import FABRIC_TRACE_NAMES
-from polisyos.fabric.connectors.contracts.schema import DataSchema
+
+if TYPE_CHECKING:
+    import pandas as pd
+
+    from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
+    from polisyos.fabric.connectors.contracts.schema import DataSchema
 
 __all__ = [
     "CompiledPipeline",
@@ -41,11 +44,11 @@ __all__ = [
 ]
 
 
-def _default_tracer():
+def _default_tracer() -> PolicyOSTracer:
     return get_tracer()
 
 
-def _default_metrics():
+def _default_metrics() -> MetricsRegistry:
     return get_metrics()
 
 
@@ -83,7 +86,7 @@ def _normalize_copy_policy(value: CopyPolicy | str | None) -> CopyPolicy:
     raise TransformError(f"Unknown copy policy: {value}")
 
 
-def _freeze_transform_metadata(value: Any) -> Any:
+def _freeze_transform_metadata(value: object) -> object:
     if isinstance(value, Mapping):
         return MappingProxyType(
             {str(key): _freeze_transform_metadata(item) for key, item in value.items()}
@@ -275,8 +278,8 @@ class TransformPipeline:
         self,
         *,
         auto_chain: bool = True,
-        tracer: Any | None = None,
-        metrics: Any | None = None,
+        tracer: PolicyOSTracer | None = None,
+        metrics: MetricsRegistry | None = None,
     ) -> None:
         self._stages: list[TransformStage] = []
         self._graph = CoreDagPipeline[TransformStage](auto_chain=False)

@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import math
+from collections.abc import Buffer
+from typing import SupportsFloat, SupportsIndex, cast
 
 __all__ = [
     "ensure_finite_float",
@@ -16,7 +18,7 @@ __all__ = [
 def ensure_finite_float(value: object, *, what: str) -> float:
     """Return ``value`` as a finite float or raise ``ValueError``."""
     try:
-        numeric = float(value)
+        numeric = float(cast("str | Buffer | SupportsFloat | SupportsIndex", value))
     except (TypeError, ValueError) as exc:
         raise ValueError(f"{what} must be a finite number") from exc
     if not math.isfinite(numeric):
@@ -52,6 +54,6 @@ def ensure_probability(value: object, *, what: str, clamp: bool = False) -> floa
 def is_finite_number(value: object) -> bool:
     """Return True when ``value`` can be interpreted as a finite float."""
     try:
-        return math.isfinite(float(value))
+        return math.isfinite(float(cast("str | Buffer | SupportsFloat | SupportsIndex", value)))
     except (TypeError, ValueError):
         return False

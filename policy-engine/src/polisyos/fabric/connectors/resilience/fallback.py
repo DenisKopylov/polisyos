@@ -82,12 +82,12 @@ def _callable_chain_contains(candidate: object, target: object) -> bool:
 
 
 def _callable_owner(func: Callable[..., Awaitable[Any]], args: tuple[Any, ...]) -> object | None:
-    bound_owner = getattr(func, "__self__", None)
+    bound_owner: object | None = getattr(func, "__self__", None)
     if bound_owner is not None:
         return bound_owner
     if not args:
         return None
-    candidate = args[0]
+    candidate: object = args[0]
     for owner_type in type(candidate).__mro__:
         if any(
             _callable_chain_contains(descriptor, func) for descriptor in vars(owner_type).values()
@@ -109,7 +109,7 @@ def _annotate_fallback[ResultT](result: ResultT, strategy: str) -> ResultT:
             info = ResilienceInfo(**data)
         else:
             info = ResilienceInfo(**update)
-        return cast("ResultT", result.model_copy(update={"resilience": info}))
+        return result.model_copy(update={"resilience": info})
     return result
 
 
@@ -121,13 +121,18 @@ def _fallback_diagnostic(strategy: str, error: Exception) -> dict[str, str]:
     }
 
 
+class _FallbackDiagnosticCarrier(Protocol):
+    fallback_errors: tuple[dict[str, str], ...]
+
+
 def _raise_with_fallback_diagnostics(
     primary_error: Exception,
     fallback_errors: list[dict[str, str]],
     *,
     cause: Exception | None = None,
 ) -> None:
-    primary_error.fallback_errors = tuple(fallback_errors)
+    diagnostic_error = cast("_FallbackDiagnosticCarrier", primary_error)
+    diagnostic_error.fallback_errors = tuple(fallback_errors)
     note = "Fallback failures: " + ", ".join(
         f"{item['strategy']}[{item['error_type']}]: {item['error_message']}"
         for item in fallback_errors
@@ -148,8 +153,8 @@ class FallbackStrategy[DataT](Protocol):
         self,
         error: Exception,
         func: Callable[..., Awaitable[DataT]],
-        *args: Any,
-        **kwargs: Any,
+        *args: object,
+        **kwargs: object,
     ) -> DataT | None: ...
 
 
@@ -160,8 +165,8 @@ class RaiseFallback[DataT]:
         self,
         error: Exception,
         func: Callable[..., Awaitable[DataT]],
-        *args: Any,
-        **kwargs: Any,
+        *args: object,
+        **kwargs: object,
     ) -> DataT | None:
         logger.debug(
             "Fallback: Raising original error",
@@ -181,8 +186,8 @@ class MockFallback[DataT]:
         self,
         error: Exception,
         func: Callable[..., Awaitable[DataT]],
-        *args: Any,
-        **kwargs: Any,
+        *args: object,
+        **kwargs: object,
     ) -> DataT | None:
         logger.warning(
             "Fallback: Using mock data",
@@ -225,7 +230,7 @@ class CacheFallback[DataT]:
 
     def __init__(
         self,
-        cache_store: Any | None = None,
+        cache_store: object | None = None,
         max_staleness_seconds: float | None = None,
     ) -> None:
         self.cache_store = cache_store
@@ -235,8 +240,8 @@ class CacheFallback[DataT]:
         self,
         error: Exception,
         func: Callable[..., Awaitable[DataT]],
-        *args: Any,
-        **kwargs: Any,
+        *args: object,
+        **kwargs: object,
     ) -> DataT | None:
         if self.cache_store is None:
             logger.debug("Cache fallback: No cache store configured")
@@ -271,15 +276,17 @@ class CacheFallback[DataT]:
 
         cached = None
         try:
-            if hasattr(self.cache_store, "get_any"):
-                cached = self.cache_store.get_any(
+            get_any_method = "get_any"
+            get_method = "get"
+            if hasattr(self.cache_store, get_any_method):
+                cached = getattr(self.cache_store, get_any_method)(
                     request,
                     connector_id=selected_intent.connector_id,
                     max_staleness_seconds=self.max_staleness_seconds,
                     source_config=source_config,
                 )
-            elif hasattr(self.cache_store, "get"):
-                cached = self.cache_store.get(
+            elif hasattr(self.cache_store, get_method):
+                cached = getattr(self.cache_store, get_method)(
                     request,
                     connector_id=selected_intent.connector_id,
                     source_config=source_config,
@@ -337,8 +344,8 @@ class FallbackChain[DataT]:
     async def execute(
         self,
         func: Callable[..., Awaitable[DataT]],
-        *args: Any,
-        **kwargs: Any,
+        *args: object,
+        **kwargs: object,
     ) -> DataT:
         with self._tracer.start_as_current_span(
             "connector.fallback.execute",
@@ -464,7 +471,7 @@ def with_fallback(
 
     def decorator(func: Callable[..., Awaitable[T]]) -> Callable[..., Awaitable[T]]:
         @wraps(func)
-        async def wrapper(*args: Any, **kwargs: Any) -> T:
+        async def wrapper(*args: object, **kwargs: object) -> T:
             return await chain.execute(func, *args, **kwargs)
 
         wrapper._fallback_chain = chain  # type: ignore[attr-defined]

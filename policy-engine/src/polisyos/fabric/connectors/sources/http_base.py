@@ -6,10 +6,10 @@ import asyncio
 import json
 import math
 import time
-from collections.abc import Callable, Mapping
+from collections.abc import Awaitable, Callable, Mapping
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, ClassVar, Generic, Protocol, TypeVar, cast
+from typing import Any, ClassVar, Protocol, TypeVar, cast
 
 import aiohttp
 
@@ -41,7 +41,10 @@ from polisyos.fabric.connectors.types import (
 )
 from polisyos.ir.connectors import QualityTier, ResilienceInfo
 
+# Retain this module alias so get_type_hints resolves postponed method annotations.
 DataT = TypeVar("DataT")
+_JsonRequestResult = tuple[Any, dict[str, str], bytes]
+_JsonRequestExecutor = Callable[..., Awaitable[_JsonRequestResult]]
 _RAW_HTTP_RESPONSE_OBSERVER_STATE_KEY = "_raw_http_response_observer"
 
 
@@ -219,7 +222,7 @@ class HTTPResilienceProfile:
     max_rows: int = 200_000
 
 
-class HTTPConnectorBase(BaseConnector[DataT], Generic[DataT]):
+class HTTPConnectorBase[DataT](BaseConnector[DataT]):
     """Shared runtime for HTTP/JSON connector implementations.
 
     Provides authenticated request execution, resilient retry / rate-limit
@@ -347,10 +350,10 @@ class HTTPConnectorBase(BaseConnector[DataT], Generic[DataT]):
             inherit_connection_config=False,
         )
 
-    def _json_executor(self, handle: ConnectionHandle) -> Callable[..., Any]:
+    def _json_executor(self, handle: ConnectionHandle) -> _JsonRequestExecutor:
         cached_key = handle.get_state(self._STATE_JSON_EXECUTOR_CONFIG_KEY)
         key = self._resilience_cache_key(handle)
-        cached = handle.get_state(self._STATE_JSON_EXECUTOR_KEY)
+        cached: _JsonRequestExecutor | None = handle.get_state(self._STATE_JSON_EXECUTOR_KEY)
         if cached is not None and cached_key == key:
             return cached
 
@@ -362,7 +365,7 @@ class HTTPConnectorBase(BaseConnector[DataT], Generic[DataT]):
             params: dict[str, str],
             connector_id: str,
             headers: dict[str, str] | None = None,
-        ) -> tuple[Any, dict[str, str], bytes]:
+        ) -> _JsonRequestResult:
             request_kwargs: dict[str, Any] = {
                 "params": params,
                 "connector_id": connector_id,

@@ -104,10 +104,10 @@ class _TenantQuotaAdmission:
 if TYPE_CHECKING:
     from collections.abc import Iterator, Sequence
 
+    from polisyos.core.artifacts import ExportReport, ImportReport
     from polisyos.core.artifacts.ids import ArtifactID
     from polisyos.core.artifacts.manifest import ArtifactManifest, ArtifactRef
     from polisyos.core.artifacts.protocol import ArtifactStore, _CASStorageMember
-    from polisyos.core.artifacts.store import ExportReport, ImportReport
     from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
     from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
     from polisyos.core.security import TenantQuotaLimits
@@ -332,7 +332,7 @@ class TenantScopedCAS:
         return self._cas.get_manifest(artifact_id)
 
     def iter_artifact_ids(self) -> list[ArtifactID]:
-        return cast("list[ArtifactID]", self._cas.iter_artifact_ids())
+        return self._cas.iter_artifact_ids()
 
     def export_subgraph(self, artifact_ids: list[ArtifactID], output_path: Path) -> ExportReport:
         return cast(
@@ -386,13 +386,10 @@ def resolve_cas_store(
 ) -> ArtifactStore | TenantScopedCAS:
     """Resolve either the shared CAS or an isolated tenant-specific namespace."""
     if tenant_id is None:
-        return cast(
-            "ArtifactStore",
-            build_artifact_store(
-                ArtifactStoreConfig(backend="filesystem", root=str(Path(root))),
-                metrics=metrics,
-                tracer=tracer,
-            ),
+        return build_artifact_store(
+            ArtifactStoreConfig(backend="filesystem", root=str(Path(root))),
+            metrics=metrics,
+            tracer=tracer,
         )
     return TenantScopedCAS(
         root,

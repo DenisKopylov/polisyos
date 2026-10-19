@@ -11,7 +11,7 @@ import threading
 from collections.abc import Awaitable, Callable, Mapping
 from dataclasses import dataclass
 from functools import wraps
-from typing import Any, TypeVar
+from typing import Any, TypeVar, cast
 
 from polisyos.common.logger import get_logger
 
@@ -68,9 +68,9 @@ class ResilienceConfig:
 
 
 def _build_fallback_chain(
-    spec: Any,
+    spec: object,
     *,
-    cache_store: Any | None = None,
+    cache_store: object | None = None,
     max_staleness_seconds: float | None = None,
 ) -> FallbackChain[Any] | None:
     if spec is None:
@@ -109,7 +109,7 @@ def _build_fallback_chain(
 def resolve_resilience_config(
     raw: ResilienceConfig | Mapping[str, Any] | None,
     *,
-    cache_store: Any | None = None,
+    cache_store: object | None = None,
 ) -> ResilienceConfig | None:
     """Normalize mapping-style resilience settings into a ``ResilienceConfig`` instance.
 
@@ -168,7 +168,7 @@ def resolve_resilience_config(
     )
 
 
-def _default_rate_limiter_id(
+def _default_rate_limiter_id[T](
     func: Callable[..., Awaitable[T]],
     args: tuple[Any, ...],
     kwargs: dict[str, Any],
@@ -213,11 +213,11 @@ def _default_rate_limiter_id(
     return base
 
 
-def apply_resilience(
+def apply_resilience[T](
     func: Callable[..., Awaitable[T]],
     *,
     config: ResilienceConfig | Mapping[str, Any] | None,
-    cache_store: Any | None = None,
+    cache_store: object | None = None,
 ) -> Callable[..., Awaitable[T]]:
     """
     Apply resilience wrappers to a fetch-like coroutine.
@@ -233,7 +233,7 @@ def apply_resilience(
     registry_lock = threading.Lock()
 
     @wraps(func)
-    async def wrapper(*args: Any, **kwargs: Any) -> T:
+    async def wrapper(*args: object, **kwargs: object) -> T:
         retry_policy = resolved.retry_policy
         rate_limit_rps = resolved.rate_limit_rps
         adaptive = resolved.adaptive_rate_limit
@@ -301,13 +301,13 @@ def apply_resilience(
                     ),
                 )
 
-        async def _rate_limited_call(*call_args: Any, **call_kwargs: Any) -> T:
+        async def _rate_limited_call(*call_args: object, **call_kwargs: object) -> T:
             limiter = _get_limiter()
             if limiter is not None:
                 await limiter.acquire()
             return await func(*call_args, **call_kwargs)
 
-        async def _retry_call(*call_args: Any, **call_kwargs: Any) -> T:
+        async def _retry_call(*call_args: object, **call_kwargs: object) -> T:
             if retry_policy is None:
                 return await _rate_limited_call(*call_args, **call_kwargs)
             return await retry_policy.execute(
@@ -316,7 +316,7 @@ def apply_resilience(
                 **call_kwargs,
             )
 
-        async def _circuit_call(*call_args: Any, **call_kwargs: Any) -> T:
+        async def _circuit_call(*call_args: object, **call_kwargs: object) -> T:
             breaker = _get_breaker()
             if breaker is None:
                 return await _retry_call(*call_args, **call_kwargs)
@@ -327,7 +327,10 @@ def apply_resilience(
             )
 
         if resolved.fallback_chain is not None:
-            return await resolved.fallback_chain.execute(
+            # Configuration stores heterogeneous strategies; bind the resolved chain to this
+            # invocation's result contract at the wrapper boundary.
+            fallback_chain = cast("FallbackChain[T]", resolved.fallback_chain)
+            return await fallback_chain.execute(
                 _circuit_call,
                 *args,
                 **kwargs,

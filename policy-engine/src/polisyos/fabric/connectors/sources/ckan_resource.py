@@ -16,7 +16,7 @@ import zipfile
 from collections.abc import AsyncIterator
 from datetime import UTC, datetime
 from pathlib import PurePosixPath
-from typing import Any, ClassVar
+from typing import Any, ClassVar, Literal
 from urllib.parse import urlparse
 
 import aiohttp
@@ -317,7 +317,7 @@ class CKANResourceConnector(HTTPConnectorBase[pd.DataFrame]):
 
     @staticmethod
     def _parse_spreadsheet(raw: bytes, fmt: str) -> pd.DataFrame:
-        engine_map = {
+        engine_map: dict[str, Literal["openpyxl", "xlrd", "odf"]] = {
             "xlsx": "openpyxl",
             "xls": "xlrd",
             "ods": "odf",

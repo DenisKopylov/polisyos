@@ -5,7 +5,7 @@ from __future__ import annotations
 import hashlib
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any
 
 from polisyos.common.logger import get_logger
 from polisyos.core.contracts.control import (
@@ -113,12 +113,9 @@ class FastLaneResolver:
     def refresh_search_index(self) -> list[str]:
         """Refresh lexical/semantic search state after binding or contract updates."""
 
-        return cast(
-            "list[str]",
-            self._searcher.refresh_semantic_index(
-                list(self._contracts),
-                bindings=self._bindings.all_bindings(),
-            ),
+        return self._searcher.refresh_semantic_index(
+            list(self._contracts),
+            bindings=self._bindings.all_bindings(),
         )
 
     def resolve(

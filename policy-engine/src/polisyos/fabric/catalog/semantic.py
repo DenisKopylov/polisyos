@@ -11,7 +11,7 @@ from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 from .contract import DataContract
 from .providers import resolve_catalog_providers
@@ -360,11 +360,13 @@ def _profile_capability_tokens(profile_payload: dict[str, object]) -> list[str]:
         if bool(profile_payload.get(key)):
             capability_bits.append(key.replace("_", " "))
     capability_bits.extend(
-        str(item) for item in profile_payload.get("tags", []) if str(item).strip()
+        str(item)
+        for item in cast("Iterable[object]", profile_payload.get("tags", []))
+        if str(item).strip()
     )
     capability_bits.extend(
         str(item)
-        for item in profile_payload.get("dataset_discovery_hints", [])
+        for item in cast("Iterable[object]", profile_payload.get("dataset_discovery_hints", []))
         if str(item).strip()
     )
     return capability_bits

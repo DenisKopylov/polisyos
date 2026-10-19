@@ -16,7 +16,7 @@ Target APIs (configurable via X-SDMX-* headers in ConnectionConfig):
 from __future__ import annotations
 
 import time
-from collections.abc import AsyncIterator, Iterable
+from collections.abc import AsyncIterator, Awaitable, Callable, Iterable
 from datetime import UTC, datetime
 from typing import Any, ClassVar
 
@@ -63,6 +63,9 @@ from polisyos.ir.connectors import (
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
+
+_SDMXHeadExecutor = Callable[..., Awaitable[dict[str, str]]]
 
 
 def _join_url(base: str, *parts: str) -> str:
@@ -267,8 +270,8 @@ class SDMXSourceConnector(HTTPConnectorBase[pd.DataFrame]):
     def _strip_internal_headers(headers: dict[str, str]) -> dict[str, str]:
         return {k: v for k, v in headers.items() if not k.startswith("X-SDMX-")}
 
+    @staticmethod
     def _build_auth_headers(
-        self,
         config_or_handle: ConnectionConfig | ConnectionHandle,
         headers: dict[str, str] | None = None,
     ) -> dict[str, str]:
@@ -277,7 +280,9 @@ class SDMXSourceConnector(HTTPConnectorBase[pd.DataFrame]):
             if isinstance(config_or_handle, ConnectionHandle)
             else config_or_handle
         )
-        request_headers = self._strip_internal_headers(dict(headers or config.headers))
+        request_headers = SDMXSourceConnector._strip_internal_headers(
+            dict(headers or config.headers)
+        )
         if config.auth_method == "bearer":
             token = config.auth_credentials.get("token", "")
             request_headers["Authorization"] = f"Bearer {token}"
@@ -783,10 +788,10 @@ class SDMXSourceConnector(HTTPConnectorBase[pd.DataFrame]):
             )
         return body, headers, raw
 
-    def _head_executor(self, handle: ConnectionHandle) -> Any:
+    def _head_executor(self, handle: ConnectionHandle) -> _SDMXHeadExecutor:
         cached_key = handle.get_state("_sdmx_head_executor_config")
         key = self._resilience_cache_key(handle)
-        cached = handle.get_state("_sdmx_head_executor")
+        cached: _SDMXHeadExecutor | None = handle.get_state("_sdmx_head_executor")
         if cached is not None and cached_key == key:
             return cached
 

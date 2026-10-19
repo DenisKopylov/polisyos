@@ -298,7 +298,7 @@ class SPARQLConnector(HTTPConnectorBase[pd.DataFrame]):
 
     @staticmethod
     def _resolve_query(handle: ConnectionHandle, request: FetchRequest) -> str:
-        templates = handle.get_state("sparql_templates", {})
+        templates: dict[str, str] = handle.get_state("sparql_templates", {})
         query = templates.get(request.dataset_id)
 
         if query is None:
@@ -325,9 +325,10 @@ class SPARQLConnector(HTTPConnectorBase[pd.DataFrame]):
         placeholders = list(_PLACEHOLDER_RE.finditer(query))
         if not placeholders:
             if filter_map:
-                unexpected = ", ".join(sorted(filter_map))
+                unexpected_filters = ", ".join(sorted(filter_map))
                 raise UnsafeFilterExpressionError(
-                    f"SPARQL template does not declare placeholders for filters: {unexpected}"
+                    "SPARQL template does not declare placeholders for filters: "
+                    f"{unexpected_filters}"
                 )
             return query
 

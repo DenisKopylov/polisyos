@@ -9,7 +9,7 @@ its contract definition has not changed since the binding was created.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -98,7 +98,7 @@ class MetricBinding:
             f"hash={self.contract_hash!r})"
         )
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str, object]:
         """Serialize to dictionary for JSON storage."""
 
         return {
@@ -111,16 +111,16 @@ class MetricBinding:
         }
 
     @classmethod
-    def from_dict(cls, data: dict) -> MetricBinding:
+    def from_dict(cls, data: dict[str, object]) -> MetricBinding:
         """Deserialize from dictionary."""
 
         return cls(
-            metric_id=data["metric_id"],
-            unit=data.get("unit"),
-            dtype=data["dtype"],
-            dimensions=tuple(data.get("dimensions", [])),
-            pii_tier=data.get("pii_tier", "none"),
-            contract_hash=data["contract_hash"],
+            metric_id=cast("str", data["metric_id"]),
+            unit=cast("str | None", data.get("unit")),
+            dtype=cast("str", data["dtype"]),
+            dimensions=tuple(cast("list[str]", data.get("dimensions", []))),
+            pii_tier=cast("str", data.get("pii_tier", "none")),
+            contract_hash=cast("str", data["contract_hash"]),
         )
 
 

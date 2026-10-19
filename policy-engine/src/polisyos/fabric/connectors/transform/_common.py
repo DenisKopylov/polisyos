@@ -3,11 +3,15 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from typing import Any
-
-import pandas as pd
+from typing import TYPE_CHECKING, Any
 
 from polisyos.core.observability import get_metrics
+
+if TYPE_CHECKING:
+    import pandas as pd
+
+    from polisyos.core.observability import MetricsRegistry
+
 from polisyos.fabric.connectors.transform.pipeline import (
     CopyPolicy,
     TransformContext,
@@ -22,7 +26,7 @@ __all__ = [
 ]
 
 
-def _default_metrics():
+def _default_metrics() -> MetricsRegistry:
     return get_metrics()
 
 
@@ -54,7 +58,7 @@ def build_lineage(
     output_data: pd.DataFrame,
     parameters: dict[str, Any],
     context: TransformContext | None = None,
-    metrics: Any | None = None,
+    metrics: MetricsRegistry | None = None,
 ) -> TransformLineage:
     """Construct standard TransformLineage object for a stage."""
     lineage = TransformLineage(

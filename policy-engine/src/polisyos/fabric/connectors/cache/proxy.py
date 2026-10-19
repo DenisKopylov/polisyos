@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import time
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from polisyos.common.logger import get_logger
 from polisyos.core.observability import get_metrics
@@ -142,10 +142,7 @@ class CachingConnectorProxy[DataT]:
         handle: ConnectionHandle,
         dataset_id: str,
     ) -> dict[str, Any]:
-        return cast(
-            "dict[str, Any]",
-            await self._connector.get_dataset_schema(handle, dataset_id),
-        )
+        return await self._connector.get_dataset_schema(handle, dataset_id)
 
     async def fetch(self, handle: ConnectionHandle, request: FetchRequest) -> FetchResult[DataT]:
         receipt = await self._fetch_with_receipt(

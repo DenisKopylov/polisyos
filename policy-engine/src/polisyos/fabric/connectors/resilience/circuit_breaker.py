@@ -19,7 +19,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from enum import Enum
 from functools import wraps
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, TypeVar
 from uuid import uuid4
 
 from opentelemetry import trace
@@ -538,8 +538,8 @@ class CircuitBreaker:
     async def execute(
         self,
         func: Callable[..., Awaitable[T]],
-        *args: Any,
-        **kwargs: Any,
+        *args: object,
+        **kwargs: object,
     ) -> T:
         """
         Execute function with circuit breaker protection.
@@ -705,17 +705,14 @@ def with_circuit_breaker(
         else:
             resolved_id = _default_circuit_id(func, args, kwargs)
 
-        return cast(
-            "CircuitBreaker",
-            breakers.get_or_create(
-                resolved_id,
-                lambda: CircuitBreaker(circuit_id=resolved_id, config=config),
-            ),
+        return breakers.get_or_create(
+            resolved_id,
+            lambda: CircuitBreaker(circuit_id=resolved_id, config=config),
         )
 
     def decorator(func: Callable[..., Awaitable[T]]) -> Callable[..., Awaitable[T]]:
         @wraps(func)
-        async def wrapper(*args: Any, **kwargs: Any) -> T:
+        async def wrapper(*args: object, **kwargs: object) -> T:
             breaker = _resolve_breaker(func, args, kwargs)
             return await breaker.execute(func, *args, **kwargs)
 

@@ -28,6 +28,8 @@ from polisyos.fabric.connectors.sources._file_common import (
 )
 from polisyos.fabric.connectors.types import (
     DatasetDescriptor,
+    FreshnessResult,
+    FreshnessStatus,
     ValidationIssue,
     ValidationResult,
     ValidationSeverity,
@@ -35,6 +37,7 @@ from polisyos.fabric.connectors.types import (
 from polisyos.ir.connectors import (
     ConnectorCapability,
     ConnectorMetadataSpec,
+    DataVersion,
     QualityTier,
     TrustLevel,
     capabilities_from_flags,
@@ -88,7 +91,7 @@ class FileTabularConnector(BaseConnector[Any]):
         self,
         *,
         handle: ConnectionHandle,
-        version,
+        version: DataVersion,
         format_name: str,
     ) -> dict[str, Any]:
         return {
@@ -101,7 +104,7 @@ class FileTabularConnector(BaseConnector[Any]):
         self,
         *,
         handle: ConnectionHandle,
-        version,
+        version: DataVersion,
         format_name: str,
     ) -> dict[str, Any]:
         return {
@@ -230,10 +233,8 @@ class FileTabularConnector(BaseConnector[Any]):
         self,
         handle: ConnectionHandle,
         dataset_id: str,
-        cached_version,
-    ):
-        from polisyos.fabric.connectors.types import FreshnessResult, FreshnessStatus
-
+        cached_version: DataVersion,
+    ) -> FreshnessResult:
         payload, headers = await read_location_bytes(handle.config, prefixes=self._HEADER_PREFIXES)
         current = content_version(
             data=payload,

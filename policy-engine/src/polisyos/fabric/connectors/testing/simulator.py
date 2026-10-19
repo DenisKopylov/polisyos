@@ -120,8 +120,8 @@ class SimulatorFixture:
                 kwargs[name] = data[name]
             elif field.default is not MISSING:
                 kwargs[name] = field.default
-            elif field.default_factory is not MISSING:  # type: ignore[comparison-overlap]
-                kwargs[name] = field.default_factory()  # type: ignore[misc]
+            elif field.default_factory is not MISSING:
+                kwargs[name] = field.default_factory()
             else:
                 raise KeyError(name)
         return cls(**kwargs)
@@ -166,7 +166,7 @@ def _normalize_params(params: Any) -> list[tuple[str, str]]:
     if isinstance(params, dict):
         iterable: Iterable[tuple[Any, Any]] = params.items()
     elif isinstance(params, (list, tuple)):
-        iterable = params  # type: ignore[assignment]
+        iterable = params
     else:
         # Fallback: treat as a single opaque value
         return [(str(params), "")]

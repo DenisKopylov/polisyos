@@ -8,9 +8,10 @@ dataclass that wrap SchemaInference for common use cases.
 from __future__ import annotations
 
 import re
+from collections.abc import Callable
 from dataclasses import dataclass
 from decimal import Decimal, InvalidOperation
-from typing import Any
+from typing import Any, Protocol, cast
 
 import pandas as pd
 
@@ -290,7 +291,9 @@ def coerce_dataframe_to_schema(
                         f"Column '{field.name}' has {count} non-finite values during coercion"
                     )
                     numeric = numeric.mask(non_finite, pd.NA)
-                df_work[field.name] = numeric.astype(field.data_type.to_pandas_dtype())
+                df_work[field.name] = numeric.astype(
+                    pd.api.types.pandas_dtype(field.data_type.to_pandas_dtype())
+                )
                 coerced_columns.append(field.name)
             elif field.data_type in (SchemaType.DATETIME, SchemaType.TIMESTAMP_TZ):
                 df_work[field.name] = pd.to_datetime(column_values, errors="coerce", utc=True)
@@ -308,7 +311,9 @@ def coerce_dataframe_to_schema(
                 df_work[field.name] = column_values.astype("string")
                 coerced_columns.append(field.name)
             elif field.data_type == SchemaType.DECIMAL:
-                df_work[field.name] = column_values.apply(_coerce_decimal)
+                # The apply stub's scalar alias omits Decimal; the runtime accepts it.
+                apply_decimal = cast("_DecimalSeriesApply", column_values.apply)
+                df_work[field.name] = apply_decimal(_coerce_decimal)
                 coerced_columns.append(field.name)
         except Exception as exc:  # pragma: no cover - defensive
             errors.append(f"Failed to coerce column '{field.name}': {exc}")
@@ -354,7 +359,17 @@ def _coerce_boolean(series: pd.Series) -> pd.Series:
     return series.map(_to_bool).astype("boolean")
 
 
-def _coerce_decimal(value: Any) -> Decimal | None:
+class _DecimalSeriesApply(Protocol):
+    """Typed view of ``Series.apply`` for a scalar Decimal mapper."""
+
+    def __call__(
+        self,
+        func: Callable[[object], Decimal | None],
+        /,
+    ) -> pd.Series[object]: ...
+
+
+def _coerce_decimal(value: object) -> Decimal | None:
     if value is None or (isinstance(value, float) and pd.isna(value)):
         return None
     if isinstance(value, Decimal):

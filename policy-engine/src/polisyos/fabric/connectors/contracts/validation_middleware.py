@@ -7,6 +7,7 @@ from __future__ import annotations
 import threading
 import time
 from collections import OrderedDict
+from collections.abc import AsyncIterator
 from datetime import datetime
 from typing import TYPE_CHECKING, Any, ClassVar, Generic, Literal, TypeVar
 
@@ -34,7 +35,7 @@ from .contract_registry import ContractRegistry
 from .inference import validate_dataframe_against_schema
 
 if TYPE_CHECKING:
-    from polisyos.fabric.connectors.types import FreshnessResult
+    from polisyos.fabric.connectors.types import DataChunk, DatasetDescriptor, FreshnessResult
     from polisyos.ir.connectors import DataVersion
 
 logger = get_logger(__name__)
@@ -141,7 +142,7 @@ class ContractValidatingProxy(Generic[DataT]):
     ) -> AsyncFetchLease | FetchResult[DataT]:
         return await self._connector.poll_async_fetch(handle, lease)
 
-    async def list_datasets(self, handle: ConnectionHandle):  # AsyncIterator[DatasetDescriptor]
+    async def list_datasets(self, handle: ConnectionHandle) -> AsyncIterator[DatasetDescriptor]:
         datasets = await resolve_async_iterator(self._connector.list_datasets(handle))
         async for dataset in datasets:
             yield dataset
@@ -150,7 +151,7 @@ class ContractValidatingProxy(Generic[DataT]):
         self,
         handle: ConnectionHandle,
         request: FetchRequest,
-    ):  # AsyncIterator[DataChunk[DataT]]
+    ) -> AsyncIterator[DataChunk[DataT]]:
         chunks = await resolve_async_iterator(self._connector.fetch_stream(handle, request))
         async for chunk in chunks:
             yield chunk

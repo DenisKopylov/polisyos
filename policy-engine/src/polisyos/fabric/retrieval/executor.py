@@ -6,7 +6,7 @@ import hashlib
 import json
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any
 
 from polisyos.common.async_tools import run_coro_sync
 from polisyos.common.logger import get_logger
@@ -101,6 +101,7 @@ class FetchExecutor:
         )
         if store_inputs > 1:
             raise ValueError("fabric_fetch_store_configuration_conflict")
+        self._artifact_store: ArtifactStore | None
         if artifact_store is not None:
             self._artifact_store = artifact_store
         elif artifact_store_config is not None:
@@ -157,7 +158,7 @@ class FetchExecutor:
             config = self._registry.get_default_config(checked.connector_id)
         if config is None:
             raise ValueError(f"No connection profile/default config for '{checked.connector_id}'")
-        checked_config = cast("ConnectionConfig", config)
+        checked_config = config
         try:
             selected_registration = self._registry._require_registration_binding(
                 checked.connector_id,
@@ -313,8 +314,12 @@ class FetchExecutor:
         sample_rows = _extract_rows(full_result.data, max_rows=5)
         payload_ref = fetch_receipt_ref = None
         if persist_payload:
-            from .custody import _persist_fetched_result
+            from .custody import FabricFetchCustodyError, _persist_fetched_result
 
+            if self._artifact_store is None:
+                raise FabricFetchCustodyError("fabric_fetch_store_missing")
+            if binding is None:
+                raise FabricFetchCustodyError("catalog_fetch_target_not_admitted")
             payload_ref, fetch_receipt_ref = _persist_fetched_result(
                 store=self._artifact_store,
                 plan=plan,
@@ -478,11 +483,11 @@ class FetchExecutor:
         if plan.profile_id:
             profile = self._profiles.get(plan.profile_id)
             if profile is not None:
-                return cast("ConnectionConfig", resolve_connection_config(profile))
+                return resolve_connection_config(profile)
         config = self._registry.get_default_config(plan.connector_id)
         if config is None:
             raise ValueError(f"No connection profile/default config for '{plan.connector_id}'")
-        return cast("ConnectionConfig", config)
+        return config
 
     @staticmethod
     def _fallback_to_plan(plan: FetchPlan, fallback: FetchPlanFallback) -> FetchPlan:

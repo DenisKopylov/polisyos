@@ -12,6 +12,7 @@ import sqlite3
 import threading
 from datetime import datetime
 from pathlib import Path
+from types import TracebackType
 from typing import Any, Protocol
 
 from polisyos.core.artifacts import ArtifactID
@@ -153,7 +154,12 @@ class CacheIndex:
         self._ensure_open()
         return self
 
-    def __exit__(self, exc_type, exc, tb) -> None:
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc: BaseException | None,
+        tb: TracebackType | None,
+    ) -> None:
         self.close()
 
     def get_entry(self, cache_key: str) -> CacheEntry | None:

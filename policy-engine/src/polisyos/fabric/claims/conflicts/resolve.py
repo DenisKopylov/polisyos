@@ -776,11 +776,11 @@ def resolve_conflicts(
     outputs: list[WorldObjectRef] = []
     for conflict_set_id in ordered_conflict_set_ids:
         outputs.append(WorldObjectRef(world_id=conflict_set_id))
-        artifact_id = updated_conflict_artifacts.get(
+        output_artifact_id = updated_conflict_artifacts.get(
             conflict_set_id, conflict_artifacts_by_id.get(conflict_set_id)
         )
-        if artifact_id is not None:
-            outputs.append(WorldObjectRef(artifact_id=artifact_id))
+        if output_artifact_id is not None:
+            outputs.append(WorldObjectRef(artifact_id=output_artifact_id))
     for artifact_id in sorted(set(resolution_artifact_ids)):
         outputs.append(WorldObjectRef(artifact_id=artifact_id))
     for artifact_id in sorted(set(uncertainty_envelope_artifact_ids)):

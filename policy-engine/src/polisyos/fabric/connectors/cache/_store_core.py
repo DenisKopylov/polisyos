@@ -12,7 +12,7 @@ import hashlib
 import json
 import threading
 import time
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts import (
@@ -758,14 +758,11 @@ class ConnectorCacheStore:
 
     def list_datasets(self) -> list[str]:
         self._ensure_open()
-        return cast("list[str]", self._index.list_datasets())
+        return self._index.list_datasets()
 
     def list_dataset_connectors(self) -> list[tuple[str | None, str]]:
         self._ensure_open()
-        return cast(
-            "list[tuple[str | None, str]]",
-            self._index.list_dataset_connectors(),
-        )
+        return self._index.list_dataset_connectors()
 
     def get_latest_metadata(self, dataset_id: str) -> CacheMetadata | None:
         self._ensure_open()

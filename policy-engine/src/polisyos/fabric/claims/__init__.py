@@ -2,28 +2,8 @@
 
 from __future__ import annotations
 
-try:
-    from .conflicts import (
-        ConflictDetectOptions,
-        ConflictDetectResult,
-        ConflictResolveOptions,
-        ConflictResolveResult,
-        detect_conflicts,
-        resolve_conflicts,
-    )
+from collections.abc import Callable
 
-    _CONFLICT_EXPORTS = (
-        ConflictDetectOptions,
-        ConflictDetectResult,
-        ConflictResolveOptions,
-        ConflictResolveResult,
-        detect_conflicts,
-        resolve_conflicts,
-    )
-    _CONFLICTS_AVAILABLE = True
-except ModuleNotFoundError:  # pragma: no cover - optional dependency path
-    _CONFLICT_EXPORTS = ()
-    _CONFLICTS_AVAILABLE = False
 from .errors import (
     ClaimNotReadyError,
     ClaimPipelineError,
@@ -40,6 +20,29 @@ from .types import (
     ClaimNormalizeOptions,
     ClaimNormalizeResult,
 )
+
+try:
+    from .conflicts import (
+        ConflictDetectOptions,
+        ConflictDetectResult,
+        ConflictResolveOptions,
+        ConflictResolveResult,
+        detect_conflicts,
+        resolve_conflicts,
+    )
+
+    _CONFLICT_EXPORTS: tuple[type[object] | Callable[..., object], ...] = (
+        ConflictDetectOptions,
+        ConflictDetectResult,
+        ConflictResolveOptions,
+        ConflictResolveResult,
+        detect_conflicts,
+        resolve_conflicts,
+    )
+    _CONFLICTS_AVAILABLE = True
+except ModuleNotFoundError:  # pragma: no cover - optional dependency path
+    _CONFLICT_EXPORTS = ()
+    _CONFLICTS_AVAILABLE = False
 
 __all__ = [
     "ChunkContext",

@@ -15,6 +15,7 @@ import threading
 from collections.abc import Iterator
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -455,7 +456,7 @@ class FileBackedSchemaRegistry(SchemaRegistry):
         return result
 
 
-def _atomic_write_json(path: Path, payload: dict) -> None:
+def _atomic_write_json(path: Path, payload: dict[str, Any]) -> None:
     def _validate_tmp(tmp_path: Path) -> None:
         data = json.loads(tmp_path.read_text(encoding="utf-8"))
         if data.get("registry_schema_version") != REGISTRY_SCHEMA_VERSION:

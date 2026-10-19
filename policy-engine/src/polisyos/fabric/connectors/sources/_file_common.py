@@ -3,8 +3,11 @@
 from __future__ import annotations
 
 import io
+from collections.abc import ContextManager, Mapping
 from datetime import UTC, datetime
+from importlib import import_module
 from pathlib import Path
+from typing import Protocol, SupportsIndex, SupportsInt, cast
 from urllib.parse import unquote, urlparse
 
 import aiohttp
@@ -14,6 +17,35 @@ from polisyos.core.canon import content_hash
 from polisyos.fabric.connectors.contracts import infer_schema
 from polisyos.fabric.connectors.http_limits import read_bounded_response_body
 from polisyos.ir.connectors import DataVersion, VersionStrategy
+
+
+class _RemoteBinaryReader(Protocol):
+    def read(self, size: int = -1) -> bytes: ...
+
+
+class _RemoteFileSystem(Protocol):
+    def info(self, path: str) -> Mapping[str, object]: ...
+
+
+class _FsspecAPI(Protocol):
+    def get_fs_token_paths(self, url: str) -> tuple[_RemoteFileSystem, object, list[str]]: ...
+
+    def open(self, url: str, mode: str = "rb") -> ContextManager[_RemoteBinaryReader]: ...
+
+
+def _load_fsspec() -> _FsspecAPI:
+    """Load the optional fsspec module through the narrow typed boundary."""
+
+    return cast("_FsspecAPI", import_module("fsspec"))
+
+
+def _remote_size_bytes(value: object) -> int:
+    """Convert an fsspec size value using the same integer conversions as ``int``."""
+
+    if isinstance(value, (str, bytes, bytearray, SupportsInt, SupportsIndex)):
+        return int(value)
+    raise TypeError(f"Remote file size does not support integer conversion: {type(value).__name__}")
+
 
 _DEFAULT_MAX_LOCATION_BYTES = 50 * 1024 * 1024
 
@@ -111,7 +143,7 @@ async def read_location_bytes(
         }
     if scheme in {"s3", "gs", "gcs", "az", "azure", "abfs", "adl"}:
         try:
-            import fsspec
+            fsspec = _load_fsspec()
         except ModuleNotFoundError as exc:  # pragma: no cover - optional dependency
             raise RuntimeError(
                 f"Reading {scheme}:// locations requires optional dependency 'fsspec'"
@@ -123,7 +155,7 @@ async def read_location_bytes(
             info = fs.info(paths[0])
             size = info.get("size") or info.get("Size")
             if size is not None:
-                _ensure_byte_limit(int(size), max_bytes=max_bytes, location=url)
+                _ensure_byte_limit(_remote_size_bytes(size), max_bytes=max_bytes, location=url)
             etag = info.get("etag") or info.get("ETag")
             modified = (
                 info.get("LastModified")

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable
+from typing import Any
 
 from polisyos.fabric.connectors.base import FetchRequest, FetchResult
 from polisyos.fabric.connectors.contracts import ContractRegistry
@@ -12,7 +13,7 @@ def make_schema_hash_provider(
     contract_registry: ContractRegistry,
     *,
     connector_id: str | None = None,
-) -> Callable[[FetchRequest, FetchResult], str | None]:
+) -> Callable[[FetchRequest, FetchResult[Any]], str | None]:
     """
     Build schema_hash provider for CachingConnectorProxy.
 
@@ -20,7 +21,7 @@ def make_schema_hash_provider(
     automatic cache invalidation when contracts evolve.
     """
 
-    def provider(request: FetchRequest, result: FetchResult) -> str | None:
+    def provider(request: FetchRequest, result: FetchResult[Any]) -> str | None:
         resolved_connector = connector_id or _connector_from_schema_id(result.schema_id)
         if not resolved_connector:
             return None

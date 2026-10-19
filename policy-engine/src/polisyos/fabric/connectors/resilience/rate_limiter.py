@@ -16,7 +16,7 @@ import time
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from functools import wraps
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from opentelemetry import trace
 from opentelemetry.trace import Status, StatusCode, Tracer
@@ -464,24 +464,21 @@ def with_rate_limit(
 
         def _get_limiter(args: tuple[Any, ...], kwargs: dict[str, Any]) -> RateLimiter:
             limiter_id = _default_limiter_id(args, kwargs)
-            return cast(
-                "RateLimiter",
-                limiters.get_or_create(
-                    limiter_id,
-                    lambda: (
-                        AdaptiveRateLimiter(
-                            initial_rate_rps=rate_limit_rps,
-                            config=RateLimiterConfig(rate_limit_rps=rate_limit_rps),
-                            limiter_id=limiter_id,
-                        )
-                        if adaptive
-                        else RateLimiter(rate_limit_rps=rate_limit_rps, limiter_id=limiter_id)
-                    ),
+            return limiters.get_or_create(
+                limiter_id,
+                lambda: (
+                    AdaptiveRateLimiter(
+                        initial_rate_rps=rate_limit_rps,
+                        config=RateLimiterConfig(rate_limit_rps=rate_limit_rps),
+                        limiter_id=limiter_id,
+                    )
+                    if adaptive
+                    else RateLimiter(rate_limit_rps=rate_limit_rps, limiter_id=limiter_id)
                 ),
             )
 
         @wraps(func)
-        async def wrapper(*args: Any, **kwargs: Any) -> T:
+        async def wrapper(*args: object, **kwargs: object) -> T:
             limiter = _get_limiter(args, kwargs)
             await limiter.acquire()
             return await func(*args, **kwargs)

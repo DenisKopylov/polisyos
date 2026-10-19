@@ -6,7 +6,7 @@ import asyncio
 import inspect
 from _thread import RLock as RLockType
 from collections import OrderedDict
-from collections.abc import Callable, Mapping, Sequence
+from collections.abc import Awaitable, Callable, Mapping, Sequence
 from concurrent.futures import Future
 from functools import wraps
 from types import MappingProxyType
@@ -799,7 +799,9 @@ class RegistryLifecycleMixin:
                 reason=f"Invalid runtime connector owner: {exc}",
             ) from exc
 
-        connector_factory = factory or (lambda cls=connector_class: cls())
+        connector_factory: Callable[[], SourceConnector[Any]] = factory or (
+            lambda cls=connector_class: cls()
+        )
 
         with self._instance_lock:
             previous_entry = self._connectors.get(fqid)
@@ -874,14 +876,14 @@ class RegistryLifecycleMixin:
         """
         if self._has_running_loop():
             try:
-                fqid = self._resolve_id(connector_id)
+                resolved_fqid = self._resolve_id(connector_id)
             except ConnectorNotFoundError:
                 return False
             with self._instance_lock:
-                has_pools = any(key[0] == fqid for key in self._connection_pools)
-                has_pending = bool(self._pending_pools_for_connector_locked(fqid))
+                has_pools = any(key[0] == resolved_fqid for key in self._connection_pools)
+                has_pending = bool(self._pending_pools_for_connector_locked(resolved_fqid))
                 has_stream_owners = any(
-                    lease.fqid == fqid for lease in self._stream_owner_leases.values()
+                    lease.fqid == resolved_fqid for lease in self._stream_owner_leases.values()
                 )
             if has_pools or has_pending or has_stream_owners:
                 raise RuntimeError(
@@ -1026,10 +1028,12 @@ class RegistryLifecycleMixin:
                 if getattr(connector, "_slo_request_wrapped", False):
                     return connector
                 original_fetch = connector.fetch
-                original_fetch_with_receipt = getattr(connector, "fetch_with_receipt", None)
+                original_fetch_with_receipt: Callable[..., Awaitable[object]] | None = getattr(
+                    connector, "fetch_with_receipt", None
+                )
 
                 @wraps(original_fetch)
-                async def _wrapped_fetch(*args: Any, **kwargs: Any):
+                async def _wrapped_fetch(*args: Any, **kwargs: Any) -> FetchResult[Any]:
                     try:
                         result = await original_fetch(*args, **kwargs)
                     except Exception:
@@ -1042,7 +1046,7 @@ class RegistryLifecycleMixin:
                 if callable(original_fetch_with_receipt):
 
                     @wraps(original_fetch_with_receipt)
-                    async def _wrapped_fetch_with_receipt(*args: Any, **kwargs: Any):
+                    async def _wrapped_fetch_with_receipt(*args: Any, **kwargs: Any) -> object:
                         try:
                             receipt_result = original_fetch_with_receipt(*args, **kwargs)
                             if not inspect.isawaitable(receipt_result):

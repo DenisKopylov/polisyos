@@ -8,6 +8,7 @@ vectorized pandas operations for performance.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import cast
 
 import pandas as pd
 
@@ -67,7 +68,8 @@ class CodeHarmonizationTransform(DataTransform):
         if self.dimension not in result.columns:
             raise TransformError(f"Dimension '{self.dimension}' not found in data")
 
-        if not self.mapping:
+        mapping = self.mapping
+        if not mapping:
             warning = (
                 f"No harmonization mapping configured for '{self.dimension}'; harmonization skipped"
             )
@@ -93,7 +95,7 @@ class CodeHarmonizationTransform(DataTransform):
         non_null = ~null_mask
         if non_null.any():
             mapped.loc[non_null] = series.loc[non_null].map(
-                lambda value: self.mapping.get(str(value), pd.NA)
+                lambda value: cast("dict[str, str]", self.mapping).get(str(value), pd.NA)
             )
         mapped.loc[null_mask] = series.loc[null_mask]
 

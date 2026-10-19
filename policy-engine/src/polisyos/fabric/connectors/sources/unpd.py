@@ -245,8 +245,9 @@ class UNPDConnector(HTTPConnectorBase[pd.DataFrame]):
             end = request.date_end.year if request.date_end is not None else start
             return start, end
         filter_map = {key: list(values) for key, values in request.filters}
-        years = [safe_int(value) for value in filter_map.get("year", [])]
-        years = [value for value in years if value is not None]
+        years = [
+            year for value in filter_map.get("year", []) if (year := safe_int(value)) is not None
+        ]
         if not years:
             return None, None
         return min(years), max(years)

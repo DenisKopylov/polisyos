@@ -67,7 +67,9 @@ _SOURCE_INTENT_KIND = "fabric.connector_cache.selected_source_intent"
 _SOURCE_INTENT_ROLE = "fabric.connector_cache.selected_source_intent"
 _SOURCE_INTENT_SCHEMA = "fabric.connector_cache.selected_source_intent"
 _SOURCE_INTENT_VERSION = "1.0"
-_SOURCE_INTENT_CONTRACT = "fabric.connector_cache.selected_source_intent.v1"
+_SOURCE_INTENT_CONTRACT: Literal["fabric.connector_cache.selected_source_intent.v1"] = (
+    "fabric.connector_cache.selected_source_intent.v1"
+)
 
 
 class CacheSourceIntent(BaseModel):

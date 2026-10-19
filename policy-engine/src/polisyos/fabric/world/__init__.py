@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import importlib.util as _importlib_util
+from collections.abc import Callable
 
 from polisyos.fabric.world.store import (
     SEGMENTS_INDEX_NAME,
@@ -49,6 +50,8 @@ from polisyos.fabric.world.write import (
     WorldSnapshotWriteRequest,
     write_world_snapshot,
 )
+
+_MATERIALIZE_EXPORTS: tuple[type[object] | Callable[..., object], ...]
 
 _DUCKDB_AVAILABLE = _importlib_util.find_spec("duckdb") is not None
 if _DUCKDB_AVAILABLE:

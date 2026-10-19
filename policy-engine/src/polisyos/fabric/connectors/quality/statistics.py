@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import importlib
 import importlib.util
 import math
 from collections import Counter
@@ -9,12 +10,17 @@ from collections.abc import Iterable, Mapping
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any, Literal, Protocol, cast
 
 import pandas as pd
 
 from polisyos.fabric.data_plane.tabular import require_dataframe
 from polisyos.fabric.data_plane.temporal import parse_datetime_utc, utc_now
+
+if TYPE_CHECKING:
+    import numpy as np
+    import numpy.typing as npt
+
 from polisyos.fabric.numerics.finite import (
     ensure_finite_float,
     ensure_non_negative_finite,
@@ -23,7 +29,40 @@ from polisyos.fabric.numerics.finite import (
 )
 
 
-def _jsonable_value(value: Any) -> Any:
+class _KSTestResult(Protocol):
+    """Fields consumed from SciPy's two-sample Kolmogorov–Smirnov result."""
+
+    statistic: float
+    pvalue: float
+
+
+class _ScipyStatsAPI(Protocol):
+    """The SciPy statistics operation used by drift detection."""
+
+    def ks_2samp(self, data1: pd.Series, data2: pd.Series, /) -> _KSTestResult: ...
+
+
+class _IsolationForestEstimator(Protocol):
+    """The estimator method and output used by anomaly detection."""
+
+    def fit_predict(self, data: pd.DataFrame, /) -> npt.NDArray[np.int_]: ...
+
+
+class _IsolationForestFactory(Protocol):
+    """Constructor contract used for the optional sklearn estimator."""
+
+    def __call__(
+        self, *, contamination: Literal["auto"], random_state: int
+    ) -> _IsolationForestEstimator: ...
+
+
+class _SklearnEnsembleAPI(Protocol):
+    """The sklearn ensemble entry point used by anomaly detection."""
+
+    IsolationForest: _IsolationForestFactory
+
+
+def _jsonable_value(value: object) -> object:
     if isinstance(value, datetime):
         return value.isoformat()
     if hasattr(value, "isoformat") and callable(value.isoformat):
@@ -68,7 +107,7 @@ def _series_type_stability(series: pd.Series, expected_kind: str | None = None) 
     return dominant / len(non_null)
 
 
-def _schema_expected_kind(schema: Any, column_name: str) -> str | None:
+def _schema_expected_kind(schema: object | None, column_name: str) -> str | None:
     get_field = getattr(schema, "get_field", None)
     if get_field is None:
         return None
@@ -553,7 +592,7 @@ class QualityTrendPoint:
             )
 
     @classmethod
-    def from_any(cls, payload: Any) -> QualityTrendPoint:
+    def from_any(cls, payload: object) -> QualityTrendPoint:
         if isinstance(payload, QualityTrendPoint):
             return payload
         if isinstance(payload, Mapping):
@@ -632,8 +671,8 @@ def build_quality_series_key(
 
 
 def profile_dataframe(
-    data: Any,
-    schema: Any | None = None,
+    data: object,
+    schema: object | None = None,
     *,
     max_top_values: int = 5,
     histogram_bins: int = 10,
@@ -704,7 +743,7 @@ def profile_dataframe(
 
 
 def detect_anomalies(
-    data: Any,
+    data: object,
     *,
     zscore_threshold: float = 3.0,
     mad_threshold: float = 3.5,
@@ -787,10 +826,10 @@ def detect_anomalies(
                 )
 
         if enable_isolation_forest and importlib.util.find_spec("sklearn") is not None:
-            from sklearn.ensemble import IsolationForest
+            ensemble = cast("_SklearnEnsembleAPI", importlib.import_module("sklearn.ensemble"))
 
             if len(series) >= 10:
-                model = IsolationForest(
+                model = ensemble.IsolationForest(
                     contamination="auto",
                     random_state=42,
                 )
@@ -819,9 +858,9 @@ def detect_anomalies(
 
 def _ks_drift(current: pd.Series, baseline: pd.Series) -> tuple[float, float]:
     if importlib.util.find_spec("scipy") is not None:
-        from scipy.stats import ks_2samp
+        scipy_stats = cast("_ScipyStatsAPI", importlib.import_module("scipy.stats"))
 
-        result = ks_2samp(current, baseline)
+        result = scipy_stats.ks_2samp(current, baseline)
         return float(result.statistic), float(result.pvalue)
 
     current_sorted = sorted(float(value) for value in current)
@@ -893,10 +932,10 @@ def _categorical_drift(current: pd.Series, baseline: pd.Series) -> tuple[float, 
 
 
 def detect_drift(
-    current_data: Any,
-    baseline_data: Any,
+    current_data: object,
+    baseline_data: object,
     *,
-    schema: Any | None = None,
+    schema: object | None = None,
     baseline_dataset_id: str | None = None,
     psi_bins: int = 10,
 ) -> DriftReport:
@@ -962,7 +1001,10 @@ def detect_drift(
                 statistic=chi_statistic,
                 p_value=chi_p_value,
                 drift_score=min(1.0, tv_distance),
-                message=f"chi_squared statistic={chi_statistic:.4f}, p={chi_p_value:.4f}, tv_distance={tv_distance:.4f}",
+                message=(
+                    f"chi_squared statistic={chi_statistic:.4f}, p={chi_p_value:.4f}, "
+                    f"tv_distance={tv_distance:.4f}"
+                ),
             )
         )
 

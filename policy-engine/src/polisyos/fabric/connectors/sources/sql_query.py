@@ -7,8 +7,11 @@ import sqlite3
 import time
 from collections.abc import AsyncIterator
 from datetime import UTC, datetime
-from typing import Any, ClassVar
+from typing import TYPE_CHECKING, Any, ClassVar
 from urllib.parse import urlparse
+
+if TYPE_CHECKING:
+    import duckdb
 
 from polisyos.core.canon import content_hash
 from polisyos.fabric.connectors.base import (
@@ -142,7 +145,10 @@ class SQLQueryConnector(BaseConnector[Any]):
         limit = f" LIMIT {int(request.page_size)}" if request.page_size else ""
         return f"SELECT * FROM {table}{limit}"
 
-    def _connect_db(self, config: ConnectionConfig):
+    def _connect_db(
+        self,
+        config: ConnectionConfig,
+    ) -> sqlite3.Connection | duckdb.DuckDBPyConnection:
         dialect = self._dialect(config)
         path = self._database_path(config)
         if dialect in {"", "sqlite"}:

@@ -42,7 +42,7 @@ from __future__ import annotations
 
 import asyncio
 import time
-from collections.abc import AsyncIterator, Iterable
+from collections.abc import AsyncIterator, Iterable, Mapping
 from datetime import UTC, datetime
 from typing import Any, ClassVar
 
@@ -94,9 +94,9 @@ _DEFAULT_MAX_JSON_BYTES = 10 * 1024 * 1024
 _DEFAULT_MAX_DECOMPRESSED_BYTES = 50 * 1024 * 1024
 
 
-def _positive_int_header(headers: dict[str, str] | Any, header_name: str, default: int) -> int:
+def _positive_int_header(headers: Mapping[str, str], header_name: str, default: int) -> int:
     raw = headers.get(header_name)
-    if raw in (None, ""):
+    if raw is None or raw == "":
         return default
     try:
         value = int(raw)
@@ -277,7 +277,7 @@ class SDMXConnector(BaseConnector[pd.DataFrame]):
         }
 
     @staticmethod
-    def _strip_internal_headers(headers: dict[str, str]) -> dict[str, str]:
+    def _strip_internal_headers(headers: Mapping[str, str]) -> dict[str, str]:
         return {k: v for k, v in headers.items() if not k.startswith("X-SDMX-")}
 
     def _build_auth_headers(self, config: ConnectionConfig) -> dict[str, str]:

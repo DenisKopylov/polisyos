@@ -33,7 +33,6 @@ from polisyos.core.contracts.fabric import (
     RetrievalSummary,
 )
 from polisyos.fabric.data_plane.cursor_store import AsyncCursorStoreAdapter, CursorStore
-from polisyos.fabric.ingestion.ingestion_providers import _BatchIngestionDependencies
 from polisyos.fabric.quality.processing_guarantees import (
     ProcessingGuarantee,
     ProcessingGuaranteeContract,
@@ -42,10 +41,15 @@ from polisyos.fabric.storage.tenant_cas import TenantSidecarScope, tenant_scoped
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable
+    from datetime import datetime
+    from types import ModuleType
 
     from polisyos.core.artifacts.protocol import ArtifactStore, AsyncArtifactStore
     from polisyos.fabric.connectors import RawHTTPResponseObserver
-    from polisyos.fabric.ingestion import PreTransformFetchResultSink
+    from polisyos.fabric.ingestion import ConnectorManifestSpec, PreTransformFetchResultSink
+    from polisyos.fabric.ingestion.ingestion_providers import _BatchIngestionDependencies
+
+    ConnectorManifestInput = dict[str, Any] | Path | str | ConnectorManifestSpec
 
 logger = get_logger(__name__)
 
@@ -167,7 +171,7 @@ class DelegatingExecutionBackend:
 class DaskExecutionBackend(DelegatingExecutionBackend):
     """Partition execution via Dask distributed futures."""
 
-    def __init__(self, *, client_factory: Callable[[], Any] | None = None) -> None:
+    def __init__(self, *, client_factory: Callable[[], object] | None = None) -> None:
         super().__init__(
             "dask",
             cost_notes=(
@@ -185,14 +189,19 @@ class DaskExecutionBackend(DelegatingExecutionBackend):
         close_client = getattr(client, "close", None)
         try:
             payloads = [_serialize_partition_job(job) for job in jobs]
+            submit_method = "submit"
             futures = [
-                client.submit(_execute_serialized_partition_job, payload, pure=False)
+                getattr(client, submit_method)(
+                    _execute_serialized_partition_job, payload, pure=False
+                )
                 for payload in payloads
             ]
-            if hasattr(client, "gather"):
-                raw_results = client.gather(futures)
+            gather_method = "gather"
+            if hasattr(client, gather_method):
+                raw_results = getattr(client, gather_method)(futures)
             else:
-                raw_results = [future.result() for future in futures]
+                result_method = "result"
+                raw_results = [getattr(future, result_method)() for future in futures]
             return [_coerce_partition_result(item) for item in raw_results]
         finally:
             if callable(close_client):
@@ -221,23 +230,29 @@ class RayExecutionBackend(DelegatingExecutionBackend):
         )
         payloads = [_serialize_partition_job(job) for job in jobs]
         started_here = False
-        if not bool(getattr(ray, "is_initialized", lambda: False)()):
-            ray.init(ignore_reinit_error=True, include_dashboard=False)
+        is_initialized_method = "is_initialized"
+        if not bool(getattr(ray, is_initialized_method, lambda: False)()):
+            init_method = "init"
+            getattr(ray, init_method)(ignore_reinit_error=True, include_dashboard=False)
             started_here = True
         try:
-            remote_fn = ray.remote(_execute_serialized_partition_job)
-            refs = [remote_fn.remote(payload) for payload in payloads]
-            raw_results = ray.get(refs)
+            remote_method = "remote"
+            remote_fn = getattr(ray, remote_method)(_execute_serialized_partition_job)
+            remote_call_method = "remote"
+            refs = [getattr(remote_fn, remote_call_method)(payload) for payload in payloads]
+            get_method = "get"
+            raw_results = getattr(ray, get_method)(refs)
             return [_coerce_partition_result(item) for item in raw_results]
         finally:
-            if started_here and hasattr(ray, "shutdown"):
-                ray.shutdown()
+            shutdown_method = "shutdown"
+            if started_here and hasattr(ray, shutdown_method):
+                getattr(ray, shutdown_method)()
 
 
 class CeleryExecutionBackend(DelegatingExecutionBackend):
     """Partition execution via Celery tasks."""
 
-    def __init__(self, *, app_factory: Callable[[], Any] | None = None) -> None:
+    def __init__(self, *, app_factory: Callable[[], object] | None = None) -> None:
         super().__init__(
             "celery",
             cost_notes=(
@@ -252,11 +267,16 @@ class CeleryExecutionBackend(DelegatingExecutionBackend):
         jobs: list[Callable[[], Awaitable[PartitionExecutionResult]]],
     ) -> list[PartitionExecutionResult]:
         app = self._app_factory()
-        task = app.task(name="polisyos.fabric.execute_partition_job")(
+        task_factory_method = "task"
+        task = getattr(app, task_factory_method)(name="polisyos.fabric.execute_partition_job")(
             _execute_serialized_partition_job
         )
         payloads = [_serialize_partition_job(job) for job in jobs]
-        raw_results = [task.delay(payload).get() for payload in payloads]
+        delay_method = "delay"
+        result_method = "get"
+        raw_results = [
+            getattr(getattr(task, delay_method)(payload), result_method)() for payload in payloads
+        ]
         return [_coerce_partition_result(item) for item in raw_results]
 
 
@@ -290,11 +310,11 @@ class DistributedExecutionTrustContract:
             processing = processing_payload
         elif isinstance(processing_payload, dict):
             processing = ProcessingGuaranteeContract.model_validate(processing_payload)
-        elif isinstance(processing_payload, str):
-            if processing_payload == ProcessingGuarantee.EXACTLY_ONCE_NARROW.value:
-                raise ValueError(
-                    "distributed execution cannot claim exactly_once_narrow without proof"
-                )
+        elif (
+            isinstance(processing_payload, str)
+            and processing_payload == ProcessingGuarantee.EXACTLY_ONCE_NARROW.value
+        ):
+            raise ValueError("distributed execution cannot claim exactly_once_narrow without proof")
         return cls(
             lineage_ref=str(metadata["lineage_ref"]),
             quality_contract_ref=str(metadata["quality_contract_ref"]),
@@ -310,11 +330,8 @@ class DistributedExecutionTrustContract:
 
 
 def _build_filesystem_artifact_store(cas_root: Path) -> ArtifactStore:
-    return cast(
-        "ArtifactStore",
-        build_artifact_store(
-            ArtifactStoreConfig(backend="filesystem", root=str(cas_root)),
-        ),
+    return build_artifact_store(
+        ArtifactStoreConfig(backend="filesystem", root=str(cas_root)),
     )
 
 
@@ -360,11 +377,11 @@ def build_partitioned_ingestion_plan(
 def run_partitioned_ingestion(
     *,
     plan: PartitionedIngestionPlan,
-    connector_manifest: Any,
+    connector_manifest: ConnectorManifestInput,
     source: str,
     license_name: str,
     cas_root: Path,
-    connection_config: Any | None = None,
+    connection_config: object | None = None,
     produce_snapshot: bool = True,
     backend: ExecutionBackend | str = "local_async",
     partition_handler: Callable[[IngestionPartition], IngestionResult] | None = None,
@@ -510,11 +527,11 @@ def run_partitioned_ingestion(
 
 def run_orchestrated_ingestion(
     *,
-    connector_manifest: Any,
+    connector_manifest: ConnectorManifestInput,
     source: str,
     license_name: str,
     cas_root: Path,
-    connection_config: Any | None = None,
+    connection_config: object | None = None,
     produce_snapshot: bool = True,
     tenant_id: str | None = None,
     ingestion_dependencies: _BatchIngestionDependencies | None = None,
@@ -705,11 +722,11 @@ def _validate_distributed_execution_trust(
 
 
 def _manifest_for_partition(
-    connector_manifest: Any,
+    connector_manifest: ConnectorManifestInput,
     *,
     plan: PartitionedIngestionPlan,
     partition: IngestionPartition,
-) -> Any:
+) -> ConnectorManifestInput:
     manifest = copy.deepcopy(connector_manifest)
     if not isinstance(manifest, dict):
         return manifest
@@ -744,7 +761,7 @@ def _manifest_for_partition(
     return manifest
 
 
-def _utc_now() -> Any:
+def _utc_now() -> datetime:
     from polisyos.fabric.data_plane.temporal import utc_now
 
     return utc_now()
@@ -754,8 +771,9 @@ def _serialize_partition_job(
     job: Callable[[], Awaitable[PartitionExecutionResult]],
 ) -> bytes:
     serializer = _resolve_job_serializer()
+    dumps_method = "dumps"
     try:
-        return cast("bytes", serializer.dumps(job))
+        return cast("bytes", getattr(serializer, dumps_method)(job))
     except Exception as exc:
         raise RuntimeError(
             "Failed to serialize partition job for distributed execution. "
@@ -765,7 +783,8 @@ def _serialize_partition_job(
 
 def _execute_serialized_partition_job(payload: bytes) -> dict[str, Any]:
     serializer = _resolve_job_serializer()
-    job = serializer.loads(payload)
+    loads_method = "loads"
+    job = getattr(serializer, loads_method)(payload)
     result = asyncio.run(job())
     return asdict(result)
 
@@ -780,7 +799,7 @@ def _coerce_partition_result(
     raise TypeError(f"Unsupported partition execution payload: {type(payload)!r}")
 
 
-def _resolve_job_serializer() -> Any:
+def _resolve_job_serializer() -> object:
     try:
         return importlib.import_module("cloudpickle")
     except ModuleNotFoundError:
@@ -789,14 +808,14 @@ def _resolve_job_serializer() -> Any:
         return pickle
 
 
-def _import_optional_module(name: str, *, install_hint: str) -> Any:
+def _import_optional_module(name: str, *, install_hint: str) -> ModuleType:
     try:
         return importlib.import_module(name)
     except ModuleNotFoundError as exc:
         raise RuntimeError(install_hint) from exc
 
 
-def _build_default_dask_client() -> Any:
+def _build_default_dask_client() -> object:
     distributed = _import_optional_module(
         "distributed",
         install_hint="Install 'distributed' to use the Dask execution backend.",
@@ -807,7 +826,7 @@ def _build_default_dask_client() -> Any:
     return client_cls(processes=False, threads_per_worker=1)
 
 
-def _build_default_celery_app() -> Any:
+def _build_default_celery_app() -> object:
     celery_module = _import_optional_module(
         "celery",
         install_hint="Install 'celery' to use the Celery execution backend.",

@@ -194,11 +194,11 @@ class ExploreLaneDiscovery:
     ) -> ConnectionConfig | None:
         default = self._registry.get_default_config(connector_id)
         if default is not None:
-            return cast("ConnectionConfig", default)
+            return default
         profiles = self._profiles.list_by_family(family)
         if not profiles:
             return None
-        return cast("ConnectionConfig", resolve_connection_config(profiles[0]))
+        return resolve_connection_config(profiles[0])
 
     def _default_profile_id(self, family: str) -> str | None:
         profiles = self._profiles.list_by_family(family)

@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import re
 import unicodedata
+from typing import cast
 
 import pandas as pd
 
@@ -240,7 +241,11 @@ class SchemaInference:
 
         # Use hint if provided, otherwise infer
         if name in hints.field_types or normalized_name in hints.field_types:
-            data_type = hints.field_types.get(name) or hints.field_types.get(normalized_name)
+            data_type = (
+                hints.field_types[name]
+                if name in hints.field_types
+                else hints.field_types[normalized_name]
+            )
             confidence = 1.0
         else:
             data_type, type_confidence = self._infer_data_type(series)
@@ -550,7 +555,7 @@ class SchemaInference:
 
             sorted_vals = col.dropna().sort_values()
             if len(sorted_vals) > 1:
-                diffs = sorted_vals.diff().dropna()
+                diffs = cast("pd.Series[pd.Timedelta]", sorted_vals.diff().dropna())
                 median_days = diffs.dt.days.median()
 
                 if median_days <= 1:

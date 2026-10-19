@@ -9,8 +9,7 @@ from __future__ import annotations
 
 import json
 import threading
-from datetime import datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 import pandas as pd
@@ -27,6 +26,9 @@ from polisyos.fabric.connectors.federation.types import (
     MergeLogEntry,
 )
 from polisyos.fabric.numerics.finite import is_finite_number
+
+if TYPE_CHECKING:
+    from datetime import datetime
 
 logger = get_logger(__name__)
 
@@ -304,10 +306,12 @@ class ConflictResolver:
         if not numeric_values:
             if context.request.strict_conflicts:
                 raise ConflictResolutionError(
-                    f"MEDIAN policy cannot handle non-numeric or non-finite data for column {context.column}"
+                    "MEDIAN policy cannot handle non-numeric or non-finite data for "
+                    f"column {context.column}"
                 )
             logger.warning(
-                "MEDIAN policy cannot handle non-numeric/non-finite data; falling back to TRUST_HIGHEST",
+                "MEDIAN policy cannot handle non-numeric/non-finite data; "
+                "falling back to TRUST_HIGHEST",
                 column=context.column,
             )
             return self._resolve_by_trust(candidates, context)
@@ -380,11 +384,12 @@ class ConflictResolver:
         return non_null if non_null else candidates
 
     @staticmethod
-    def _is_null(value: Any) -> bool:
+    def _is_null(value: object) -> bool:
         try:
-            return pd.isna(value)
+            missing = pd.isna(value)
         except Exception:
             return value is None
+        return bool(missing)
 
     def _order_for_first_available(
         self,

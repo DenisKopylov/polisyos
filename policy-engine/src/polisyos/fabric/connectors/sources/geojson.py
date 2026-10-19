@@ -6,7 +6,7 @@ import json
 import time
 from collections.abc import AsyncIterator
 from datetime import UTC, datetime
-from typing import Any, ClassVar
+from typing import Any, ClassVar, TypedDict
 
 from polisyos.fabric.connectors.base import (
     BaseConnector,
@@ -31,6 +31,16 @@ from polisyos.ir.connectors import (
     TrustLevel,
     capabilities_from_flags,
 )
+
+
+class _SpatialMetadata(TypedDict):
+    """Spatial lineage produced from one parsed GeoJSON feature collection."""
+
+    crs: str
+    geometry_types: tuple[str, ...]
+    feature_count: int
+    source_location: str
+    content_hash: str | None
 
 
 def _extract_crs(payload: dict[str, Any]) -> str:
@@ -134,7 +144,7 @@ class GeoJSONConnector(BaseConnector[Any]):
             etag=headers.get("ETag"),
             last_modified=headers.get("Last-Modified"),
         )
-        spatial_metadata = {
+        spatial_metadata: _SpatialMetadata = {
             "crs": _extract_crs(payload),
             "geometry_types": tuple(sorted(geometry_types)),
             "feature_count": len(rows),

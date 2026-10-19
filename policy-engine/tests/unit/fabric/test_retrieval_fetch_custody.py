@@ -630,6 +630,20 @@ def _exercise_worldbank_pool_protocol(owner) -> None:
     run_coro_sync(_exercise())
 
 
+def test_fetch_executor_refuses_persistence_without_catalog_binding(real_fetch_owner, monkeypatch):
+    owner = real_fetch_owner
+    before_artifact_ids = set(owner.store.iter_artifact_ids())
+    from polisyos.fabric.retrieval import custody
+
+    monkeypatch.setattr(custody, "_bind_plan", lambda *_args, **_kwargs: None)
+    with pytest.raises(custody.FabricFetchCustodyError) as error:
+        _execute(owner)
+
+    assert error.value.code == "catalog_fetch_target_not_admitted"
+    assert any(request.page_size is None for request in owner.requests)
+    assert set(owner.store.iter_artifact_ids()) == before_artifact_ids
+
+
 def test_persisted_fetch_carries_complete_payload_and_actual_catalog(real_fetch_owner):
     owner = real_fetch_owner
     executed = _execute(owner)

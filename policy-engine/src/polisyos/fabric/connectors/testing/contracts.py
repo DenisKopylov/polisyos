@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import re
 import string
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -161,7 +162,7 @@ def _apply_schema_dtypes(df: pd.DataFrame, schema: DataSchema) -> None:
             continue
 
         try:
-            df[fspec.name] = df[fspec.name].astype(dtype)
+            df[fspec.name] = df[fspec.name].astype(pd.api.types.pandas_dtype(dtype))
         except Exception:
             # Fall back to pandas' best effort if strict cast fails
             df[fspec.name] = df[fspec.name].astype("object")
@@ -169,7 +170,7 @@ def _apply_schema_dtypes(df: pd.DataFrame, schema: DataSchema) -> None:
 
 def _generate_column(fspec: FieldSpec, n: int, rng: Any) -> list[Any]:
     """Dispatch to the correct generator based on data_type."""
-    dispatch: dict[SchemaType, Any] = {
+    dispatch: dict[SchemaType, Callable[[], list[Any]]] = {
         SchemaType.INT8: lambda: _gen_int(fspec, n, rng, lo=-128, hi=127),
         SchemaType.INT16: lambda: _gen_int(fspec, n, rng, lo=-32768, hi=32767),
         SchemaType.INT32: lambda: _gen_int(fspec, n, rng, lo=-(2**31), hi=2**31 - 1),

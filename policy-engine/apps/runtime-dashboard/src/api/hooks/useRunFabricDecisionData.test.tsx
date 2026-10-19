@@ -1,9 +1,14 @@
-import { renderHook, screen, waitFor } from "@testing-library/react";
+import { renderHook, screen, waitFor, within } from "@testing-library/react";
+import type { QueryClient } from "@tanstack/react-query";
+import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { queryKeys } from "@/api/queryKeys";
-import { ProvenancePopover } from "@/shared/ui/quantity/ProvenancePopover";
-import { boundLineageQueryKey } from "@/shared/ui/quantity/useLineageBatch";
+import { RunOverviewProfileLineage } from "@/features/runs/routes/tabs/RunOverviewProfileLineage";
+import {
+  boundLineageQueryKey,
+  profileBindingAdmissionQueryKey,
+} from "@/shared/ui/quantity/useLineageBatch";
 import type {
   LineageBatchSelector,
   LineageGraphView,
@@ -12,6 +17,10 @@ import type {
 } from "@/shared/ui/quantity/quantity.types";
 import { createQueryHookWrapper } from "@/test/queryHook";
 import { renderWithProviders } from "@/test/render";
+import {
+  lineageBatchFixture,
+  profileLineageGraphFixture,
+} from "@/test/fixtures/profileLineageBatch";
 import {
   mockRuntimeGetSuccess,
   mockRuntimePostSuccess,
@@ -173,17 +182,28 @@ describe("useRunFabricDecisionData", () => {
   });
 
   it("joins displayed Fabric quantity to its exact run/profile/time batch graph", async () => {
+    const user = userEvent.setup();
     window.history.replaceState(null, "", requestUrl);
     const getSpy = mockRuntimeGetSuccess(payload);
     const postSpy = mockRuntimePostSuccess(batchPayload(profileGraph()));
 
     const { queryClient } = renderWithProviders(
-      <FabricDecisionQuantityPopover runId={runId} />,
+      <RunOverviewProfileLineage runId={runId} />,
     );
-
-    expect(
-      await screen.findByTestId("trust-verification-status"),
-    ).toHaveTextContent("verified");
+    const row = await screen.findByTestId("overview-decision-quantity");
+    await waitFor(() =>
+      expect(row).toHaveAttribute("data-profile-binding-status", "verified"),
+    );
+    expect(row).toHaveAttribute(
+      "data-selected-artifact-profile",
+      selectedArtifactRef.manifest_profile_sha256,
+    );
+    expect(row).toHaveAttribute("data-source-run-id", runId);
+    expect(row).toHaveAttribute("data-profile-origin", "reader_materialized");
+    expect(row).toHaveAttribute(
+      "data-profile-temporal-scope",
+      JSON.stringify(temporalScope),
+    );
     expect(getSpy).toHaveBeenCalledTimes(1);
     expect(getSpy).toHaveBeenCalledWith(
       "/api/v1/runs/{run_id}/fabric-decision-data",
@@ -205,10 +225,16 @@ describe("useRunFabricDecisionData", () => {
       lineage: {
         id: selector.lineageId,
         selected_artifact_ref: selectedArtifactRef,
+        artifact_ref_provenance: "reader_materialized",
         source_run_id: runId,
       },
       temporal_scope: temporalScope,
     });
+
+    await user.click(within(row).getByRole("button", { name: "verified" }));
+    expect(
+      await screen.findByTestId("trust-verification-status"),
+    ).toHaveTextContent("verified");
   });
 
   it("does not cache a batch graph for a different lineage ID", async () => {
@@ -219,24 +245,10 @@ describe("useRunFabricDecisionData", () => {
     );
 
     const { queryClient } = renderWithProviders(
-      <FabricDecisionQuantityPopover runId={runId} />,
+      <RunOverviewProfileLineage runId={runId} />,
     );
 
-    await waitFor(() => {
-      expect(
-        queryClient.getQueryState(
-          boundLineageQueryKey(selector, runId, temporalScope),
-        )?.status,
-      ).toBe("error");
-    });
-    expect(
-      screen.queryByTestId("trust-verification-status"),
-    ).not.toBeInTheDocument();
-    expect(getSpy).toHaveBeenCalledTimes(1);
-    expect(getSpy).toHaveBeenCalledWith(
-      "/api/v1/runs/{run_id}/fabric-decision-data",
-      expect.any(Object),
-    );
+    await expectSelectedProfileRefusal(queryClient);
     expect(postSpy).toHaveBeenCalledWith("/api/v1/lineage/batch", {
       body: {
         lineage_ids: [selector.lineageId],
@@ -245,6 +257,11 @@ describe("useRunFabricDecisionData", () => {
       },
       params: { query: temporalScope },
     });
+    expect(getSpy).toHaveBeenCalledTimes(1);
+    expect(getSpy).toHaveBeenCalledWith(
+      "/api/v1/runs/{run_id}/fabric-decision-data",
+      expect.any(Object),
+    );
   });
 
   it("does not cache trust for a same-ID graph carrying a sibling profile", async () => {
@@ -253,27 +270,21 @@ describe("useRunFabricDecisionData", () => {
     const siblingGraph = profileGraph({
       selectedArtifactRef: siblingArtifactRef,
     });
-    mockRuntimePostSuccess(batchPayload(siblingGraph));
+    const postSpy = mockRuntimePostSuccess(batchPayload(siblingGraph));
 
     const { queryClient } = renderWithProviders(
-      <FabricDecisionQuantityPopover runId={runId} />,
+      <RunOverviewProfileLineage runId={runId} />,
     );
 
-    await waitFor(() => {
-      expect(
-        queryClient.getQueryState(
-          boundLineageQueryKey(selector, runId, temporalScope),
-        )?.status,
-      ).toBe("error");
+    await expectSelectedProfileRefusal(queryClient);
+    expect(postSpy).toHaveBeenCalledWith("/api/v1/lineage/batch", {
+      body: {
+        lineage_ids: [selector.lineageId],
+        selected_artifact_refs: [selectedArtifactRef],
+        run_id: runId,
+      },
+      params: { query: temporalScope },
     });
-    expect(
-      screen.queryByTestId("trust-verification-status"),
-    ).not.toBeInTheDocument();
-    expect(
-      queryClient.getQueryData(
-        boundLineageQueryKey(selector, runId, temporalScope),
-      ),
-    ).toBeUndefined();
     expect(getSpy).toHaveBeenCalledTimes(1);
     expect(getSpy).toHaveBeenCalledWith(
       "/api/v1/runs/{run_id}/fabric-decision-data",
@@ -289,29 +300,24 @@ describe("useRunFabricDecisionData", () => {
       selected_artifact_ref: null,
       profile_binding_status: "not_established",
       artifact_ref_provenance: null,
+      source_run_id: null,
       trust_metadata: null,
     } as unknown as LineageGraphView;
-    mockRuntimePostSuccess(batchPayload(undeclaredGraph));
+    const postSpy = mockRuntimePostSuccess(batchPayload(undeclaredGraph));
 
     const { queryClient } = renderWithProviders(
-      <FabricDecisionQuantityPopover runId={runId} />,
+      <RunOverviewProfileLineage runId={runId} />,
     );
 
-    await waitFor(() => {
-      expect(
-        queryClient.getQueryState(
-          boundLineageQueryKey(selector, runId, temporalScope),
-        )?.status,
-      ).toBe("error");
+    await expectSelectedProfileRefusal(queryClient);
+    expect(postSpy).toHaveBeenCalledWith("/api/v1/lineage/batch", {
+      body: {
+        lineage_ids: [selector.lineageId],
+        selected_artifact_refs: [selectedArtifactRef],
+        run_id: runId,
+      },
+      params: { query: temporalScope },
     });
-    expect(
-      screen.queryByTestId("trust-verification-status"),
-    ).not.toBeInTheDocument();
-    expect(
-      queryClient.getQueryData(
-        boundLineageQueryKey(selector, runId, temporalScope),
-      ),
-    ).toBeUndefined();
     expect(getSpy).toHaveBeenCalledTimes(1);
     expect(getSpy).toHaveBeenCalledWith(
       "/api/v1/runs/{run_id}/fabric-decision-data",
@@ -362,22 +368,39 @@ describe("useRunFabricDecisionData", () => {
   });
 });
 
-function FabricDecisionQuantityPopover({ runId }: { runId: string }) {
-  const result = useRunFabricDecisionData(runId);
-  const quantity = result.data?.quantities[0];
-  if (!quantity) {
-    return null;
-  }
-  return (
-    <ProvenancePopover
-      quantity={quantity}
-      open
-      onOpenChange={() => undefined}
-      temporalScope={temporalScope}
-    >
-      <button type="button">Open quantity provenance</button>
-    </ProvenancePopover>
+async function expectSelectedProfileRefusal(queryClient: QueryClient) {
+  await waitFor(() => {
+    const [query] = queryClient.getQueryCache().findAll({
+      queryKey: ["quantity-lineage-batch"],
+    });
+    expect(query?.state.status).toBe("error");
+  });
+  expect(
+    queryClient.getQueryData(
+      profileBindingAdmissionQueryKey(selector, runId, temporalScope),
+    ),
+  ).toMatchObject({ outcome: "rejected" });
+  expect(
+    queryClient.getQueryData(
+      boundLineageQueryKey(selector, runId, temporalScope),
+    ),
+  ).toBeUndefined();
+
+  const row = screen.getByTestId("overview-decision-quantity");
+  await waitFor(() =>
+    expect(row).toHaveAttribute(
+      "data-profile-binding-status",
+      "not_established",
+    ),
   );
+  const user = userEvent.setup();
+  await user.click(within(row).getByRole("button", { name: /100/ }));
+  expect(
+    await screen.findByTestId("popover-profile-binding-status"),
+  ).toHaveTextContent("Profile binding not established");
+  expect(
+    screen.queryByTestId("trust-verification-status"),
+  ).not.toBeInTheDocument();
 }
 
 function profileGraph(
@@ -387,53 +410,24 @@ function profileGraph(
     includeTrustMetadata?: boolean;
   } = {},
 ): LineageGraphView {
-  const selectedRef = options.selectedArtifactRef ?? selectedArtifactRef;
-  const id = options.id ?? selector.lineageId;
-  return {
-    id,
-    status: "verified",
-    freshness: "current",
-    selected_artifact_ref: selectedRef,
-    profile_binding_status: "verified",
-    artifact_ref_provenance: "reader_materialized",
-    source_run_id: runId,
-    exports: {
-      openlineage: `/api/v1/lineage/${id}/export/openlineage`,
-      prov: `/api/v1/lineage/${id}/export/prov`,
-    },
-    ...(options.includeTrustMetadata === false
-      ? {}
-      : {
-          trust_metadata: {
-            hash: "sha256:lineage-proof",
-            verification_status: "verified",
-            verified_by: "runtime-verifier",
-            verified_at: "2026-02-11T11:59:00.000Z",
-            verification_method: "selected-profile-reader",
-            freshness: "current",
-            dispute_status: "none",
-            temporal_scope: temporalScope,
-          },
-        }),
-    compact_summary: [],
-    nodes: [],
-    edges: [],
-  } as unknown as LineageGraphView;
+  return profileLineageGraphFixture({
+    lineageId: options.id ?? selector.lineageId,
+    selectedArtifactRef: options.selectedArtifactRef ?? selectedArtifactRef,
+    artifactRefProvenance: "reader_materialized",
+    sourceRunId: runId,
+    trustTemporalScope: temporalScope,
+    includeTrustMetadata: options.includeTrustMetadata,
+  });
 }
 
 function batchPayload(
   graph: LineageGraphView,
   requestedLineageId = selector.lineageId,
 ) {
-  return {
+  return lineageBatchFixture({
     meta,
-    temporal_scope: temporalScope,
+    responseTemporalScope: temporalScope,
     lineages: [graph],
-    lineage_resolutions: [
-      {
-        requested_lineage_id: requestedLineageId,
-        resolved_lineage_id: graph.id,
-      },
-    ],
-  };
+    requestedLineageIds: [requestedLineageId],
+  });
 }

@@ -7,6 +7,10 @@ import {
   mockRuntimePostSuccess,
 } from "@/test/runtimeApi";
 import { renderWithProviders } from "@/test/render";
+import {
+  lineageBatchFixture,
+  profileLineageGraphFixture,
+} from "@/test/fixtures/profileLineageBatch";
 
 import { ProvenancePopover } from "./ProvenancePopover";
 import { boundLineageQueryKey } from "./useLineageBatch";
@@ -241,7 +245,14 @@ describe("ProvenancePopover", () => {
     mockRuntimePostSuccess(response);
     window.history.replaceState(null, "", "/runs/run-popover?trust=expanded");
 
-    renderWithProviders(
+    const selector = {
+      lineageId: profileQuantity.lineage.id,
+      selectedArtifactRef: profileQuantity.lineage
+        .artifact_ref as SelectedArtifactRef,
+      artifactRefProvenance: profileQuantity.lineage.artifact_ref_provenance,
+      sourceRunId: profileQuantity.lineage.source_run_id,
+    };
+    const { queryClient } = renderWithProviders(
       <ProvenancePopover
         quantity={profileQuantity}
         open
@@ -252,7 +263,18 @@ describe("ProvenancePopover", () => {
       </ProvenancePopover>,
     );
 
-    expect(await screen.findByText(/could not be loaded/i)).toBeVisible();
+    expect(
+      await screen.findByText(/Unable to load full lineage/i),
+    ).toBeVisible();
+    const rejectedQueryKey = boundLineageQueryKey(
+      selector,
+      "run-popover",
+      temporalScope,
+    );
+    await waitFor(() =>
+      expect(queryClient.getQueryState(rejectedQueryKey)?.status).toBe("error"),
+    );
+    expect(queryClient.getQueryData(rejectedQueryKey)).toBeUndefined();
     expect(
       screen.queryByTestId("trust-verification-status"),
     ).not.toBeInTheDocument();
@@ -410,37 +432,21 @@ function profileBatch(
     response_origin?: "run_output_ref" | "reader_materialized";
   },
 ): LineageBatchResponsePayload {
-  const selectedRef = value.lineage.artifact_ref as SelectedArtifactRef;
-  const origin = options.response_origin ?? "reader_materialized";
-  const graph = {
-    id: value.lineage.id,
-    status: "verified",
-    freshness: "current",
-    selected_artifact_ref: selectedRef,
-    profile_binding_status: "verified",
-    artifact_ref_provenance: origin,
-    source_run_id: "run-popover",
-    trust_metadata: {
-      verification_status: "verified",
-      freshness: "current",
-      dispute_status: "none",
-      verified_by: "selected-profile-reader",
-      verified_at: "2026-04-16T09:20:00Z",
-      verification_method: "selected-profile-reader",
-      temporal_scope: options.trust_temporal_scope,
-    },
-    nodes: [],
-    edges: [],
-  } as unknown as LineageGraphView;
-  return {
+  const selectedRef = value.lineage.artifact_ref;
+  const sourceRunId = value.lineage.source_run_id;
+  if (!selectedRef || !sourceRunId) {
+    throw new Error("Profile batch fixture requires its selected ref and run");
+  }
+  const graph = profileLineageGraphFixture({
+    lineageId: value.lineage.id,
+    selectedArtifactRef: selectedRef,
+    artifactRefProvenance: options.response_origin ?? "reader_materialized",
+    sourceRunId,
+    trustTemporalScope: options.trust_temporal_scope,
+  });
+  return lineageBatchFixture({
     meta,
-    temporal_scope: options.temporal_scope,
+    responseTemporalScope: options.temporal_scope,
     lineages: [graph],
-    lineage_resolutions: [
-      {
-        requested_lineage_id: value.lineage.id,
-        resolved_lineage_id: value.lineage.id,
-      },
-    ],
-  } as unknown as LineageBatchResponsePayload;
+  });
 }

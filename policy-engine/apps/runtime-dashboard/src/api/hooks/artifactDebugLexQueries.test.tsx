@@ -211,6 +211,14 @@ describe("artifact, debug, and lex query hooks", () => {
         endpoint: "/api/v1/artifacts/{artifact_id}/schema",
         hook: useArtifactSchemaHook,
         payload: artifactSchemaPayload,
+        expectedData: {
+          ...artifactSchemaPayload,
+          schema: {
+            ...artifactSchemaPayload.schema,
+            canon_read_status: "not_evaluated",
+            top_level_keys: [],
+          },
+        },
         queryKey: queryKeys.artifactSchema(artifactId),
       },
       {

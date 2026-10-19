@@ -22205,5 +22205,97 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "frontend-runtime-lineage-fixture-composition-adopted-20261019": {
+    "slice_base": "89fe2421b4ee908bba24a5a7cbe1e46a61dbbe56",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/apps/runtime-dashboard/src/api/hooks/artifactDebugLexQueries.test.tsx": {
+        "operation": "write",
+        "preimage_sha256": "8f5be3dc9ca37aa673fcc5d04ffe9b945da6e2684eac078d1f28143bab069f60",
+        "git_base_preimage_sha256": "8f5be3dc9ca37aa673fcc5d04ffe9b945da6e2684eac078d1f28143bab069f60",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-runtime-lineage-composition-20261019/postimages/policy-engine/apps/runtime-dashboard/src/api/hooks/artifactDebugLexQueries.test.tsx",
+        "postimage_sha256": "a6185b79a5ed34209c514070206b814901789ebe9c9ddd410e9691d252db6272"
+      },
+      "policy-engine/apps/runtime-dashboard/src/api/hooks/useRunFabricDecisionData.test.tsx": {
+        "operation": "write",
+        "preimage_sha256": "59cb4b7f620e3eb2de3b1c658458afe6030550b68235aafaedbe25f839d23e13",
+        "git_base_preimage_sha256": "59cb4b7f620e3eb2de3b1c658458afe6030550b68235aafaedbe25f839d23e13",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-runtime-lineage-composition-20261019/postimages/policy-engine/apps/runtime-dashboard/src/api/hooks/useRunFabricDecisionData.test.tsx",
+        "postimage_sha256": "598ea7c7b93fbeb9db9f5c981134c79b3d0ae1a3a16aeb3c5a94869f5e318e20"
+      },
+      "policy-engine/apps/runtime-dashboard/src/shared/ui/quantity/ProvenancePopover.test.tsx": {
+        "operation": "write",
+        "preimage_sha256": "f1532e43b73fbe16b58390efa1f2d1ebe3aa3a9d585cba1d1b8c19c2e2aaa884",
+        "git_base_preimage_sha256": "f1532e43b73fbe16b58390efa1f2d1ebe3aa3a9d585cba1d1b8c19c2e2aaa884",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-runtime-lineage-composition-20261019/postimages/policy-engine/apps/runtime-dashboard/src/shared/ui/quantity/ProvenancePopover.test.tsx",
+        "postimage_sha256": "27a819545c03325065ecba390a7abb2a7acdca3e543a323963cdfc690f13f0ba"
+      },
+      "policy-engine/apps/runtime-dashboard/src/shared/ui/quantity/Quantity.test.tsx": {
+        "operation": "write",
+        "preimage_sha256": "5c962a016790a1ebfa53ee8538829d24810f758cf17218ee77ccc462c61597e5",
+        "git_base_preimage_sha256": "5c962a016790a1ebfa53ee8538829d24810f758cf17218ee77ccc462c61597e5",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-runtime-lineage-composition-20261019/postimages/policy-engine/apps/runtime-dashboard/src/shared/ui/quantity/Quantity.test.tsx",
+        "postimage_sha256": "fc4a1a6cac20160de64887c42e82096848ad9e6432afb61194454a3ebb48a03d"
+      },
+      "policy-engine/apps/runtime-dashboard/src/shared/ui/quantity/useLineage.test.tsx": {
+        "operation": "write",
+        "preimage_sha256": "e833d6cfd8a8d187f3e7896859772dc1a70940940e103c525f0299ec8dfdc306",
+        "git_base_preimage_sha256": "e833d6cfd8a8d187f3e7896859772dc1a70940940e103c525f0299ec8dfdc306",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-runtime-lineage-composition-20261019/postimages/policy-engine/apps/runtime-dashboard/src/shared/ui/quantity/useLineage.test.tsx",
+        "postimage_sha256": "e682d5b285c44019f1160ee65ddc5ebc9d47a4184e154cf56f31b5e2d69659b0"
+      },
+      "policy-engine/apps/runtime-dashboard/src/test/fixtures/profileLineageBatch.ts": {
+        "operation": "write",
+        "preimage_sha256": null,
+        "git_base_preimage_sha256": null,
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-runtime-lineage-composition-20261019/postimages/policy-engine/apps/runtime-dashboard/src/test/fixtures/profileLineageBatch.ts",
+        "postimage_sha256": "08d71ff30941d5ebc43908e0446d570fd463e73c08e36055b493db7798c2a3e3"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-frontend-runtime-fixture-reviewed-adoption-20261019/source-application.json",
+      "sha256": "932ef4b838bd12bc5d00bee976d2438df3e57de5d5c9c341438f253dbceb4a3d"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-frontend-runtime-fixture-reviewed-adoption-20261019/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-runtime-lineage-composition-20261019/manifest.json",
+        "sha256": "3ab0d4e4163e561255fa40afa011aeb8d02db48d0f7195c660fc6857145dfde5"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-runtime-lineage-composition-20261019/repair.patch",
+        "sha256": "eccd7a9da6c981b78dd3fcb2dcce6a73e47ad460308d95d909d86b15c2ffddd7"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-runtime-lineage-composition-20261019/report.md",
+        "sha256": "d077dd2ae301027caed14907a8c7707cd47ba7ff82e27f11a215ad09ff596a77"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/frontend-runtime-lineage-independent-20261019/review.json",
+        "sha256": "f4e918bb95a141d15dac2a6c75fd7d5efc9535efe7e0e6a9811b048ec4ab4f54"
+      }
+    ],
+    "owned_applied_provenance": null,
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "Same fixture/receiver composition class widened once across all 11 observed failures with a shared schema-parsed fixture contract and actual route intake; no product guard weakened",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Candidate runtime and typecheck unrun until composed canonical validation",
+      "Positive admission integration test stays unchanged and must be included; no production authority/currentness or closure claims",
+      "Original 73PASS/11FAIL full19-module run remains exact pre-fix evidence; source and fixture changes require new composed deciding output"
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Run all complete quantity modules, direct hook/view modules, compare-math and unchanged admitted-positive integration module; then source-bound status-only removal with actual legacy GET evidence. Preserve generated DTO errors separately.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

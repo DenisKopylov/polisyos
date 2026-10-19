@@ -213,9 +213,13 @@ describe("Quantity", () => {
     await waitFor(() => expect(getSpy).toHaveBeenCalled());
   });
 
-  it("renders expanded Trust View metadata without fetching a different truth", async () => {
-    const user = userEvent.setup();
+  it("keeps embedded trust hidden until a selected-profile admission exists", () => {
     window.history.replaceState(null, "", "/runs/run-1?trust=expanded");
+    const getSpy = mockRuntimeGetSuccess({
+      meta,
+      temporal_scope: verifiedQuantity.time,
+      lineage,
+    });
     renderWithProviders(
       <>
         <Quantity
@@ -242,17 +246,18 @@ describe("Quantity", () => {
       </>,
     );
 
-    expect(screen.getByText(/sha256:abcdef01/)).toBeInTheDocument();
-    expect(screen.getByText("RiskReviewBot@2.0")).toBeInTheDocument();
-    expect(screen.getByText("lineage_hash_match")).toBeInTheDocument();
-
+    expect(screen.getByTestId("quantity")).toHaveTextContent("0.23");
+    expect(screen.getByTestId("quantity")).toHaveAttribute(
+      "data-lineage-status",
+      "verified",
+    );
+    expect(screen.queryByText(/sha256:abcdef01/)).not.toBeInTheDocument();
+    expect(screen.queryByText("RiskReviewBot@2.0")).not.toBeInTheDocument();
+    expect(screen.queryByText("lineage_hash_match")).not.toBeInTheDocument();
     expect(
-      screen.queryByRole("button", { name: "verified" }),
+      screen.queryByRole("dialog", { name: "Trust inspector" }),
     ).not.toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "Unknown" }));
-    expect(
-      screen.getByRole("dialog", { name: "Trust inspector" }),
-    ).toHaveTextContent("Effect size");
+    expect(getSpy).not.toHaveBeenCalled();
   });
 
   it("opens deep dive from the active popover keyboard path", async () => {

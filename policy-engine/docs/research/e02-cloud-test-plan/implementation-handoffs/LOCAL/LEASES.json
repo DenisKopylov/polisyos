@@ -22149,5 +22149,61 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "abi-output-registry-companion-adopted-20261019": {
+    "slice_base": "e0671f33cdddcbaa77c064f34b086fc6ec3bf9b9",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/architecture/generated_artifacts.toml": {
+        "operation": "write",
+        "preimage_sha256": "a751b830630d91ef1fc1bb7cb609326461f1a5d483bd4ca60abfb489db272020",
+        "git_base_preimage_sha256": "e1784ad5f62a46f6afa2a968e188dbef58cfb00bce18056976be5bd481a65b49",
+        "postimage_path": "policy-engine/architecture/generated_artifacts.toml",
+        "postimage_sha256": "a751b830630d91ef1fc1bb7cb609326461f1a5d483bd4ca60abfb489db272020"
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-abi-output-registry-owned-adoption-20261019/source-application.json",
+      "sha256": "f01b47e811bb3b8a7f0e55fc15bf9bbade752b8d7fcbcccde6d2a32fc1892843"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-abi-output-registry-owned-adoption-20261019/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/abi-output-registry-companion-independent-20261019/review.json",
+        "sha256": "dccfd7783b0e9c275e5ef7506605c00b5b2718f35e275254f83a696d1f01263f"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-abi-output-registry-owned-adoption-20261019/owned-source-provenance.json",
+        "sha256": "e1f3946ddc89e2c26e3452e8303f67e92ed9885ffd2d6667261a61af214e2db3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-abi-output-registry-owned-adoption-20261019/observed-owned-config.patch",
+        "sha256": "fd21cff5dc2e7f9b8c35a23dcf01e1d5a18415a3fbb64146de06728c97ce1c91"
+      }
+    ],
+    "owned_applied_provenance": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-abi-output-registry-owned-adoption-20261019/owned-source-provenance.json",
+      "sha256": "e1f3946ddc89e2c26e3452e8303f67e92ed9885ffd2d6667261a61af214e2db3"
+    },
+    "preserved_other_owned_rows": {},
+    "preserved_other_owned_provenance": null,
+    "preserved_other_owned_tracked_paths": [],
+    "preserved_other_owned_untracked_paths": [],
+    "preserved_other_owned_unchanged_before_after": true,
+    "P40": "NEW generated-output denominator omission; register the complete two-document writer set in its existing family once",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Actual full106-model check remains red: 11 snapshot and 2 reference output drift; generator not run by this adoption",
+      "No source freeze, owner review attestation, compatibility verdict or G acceptance",
+      "Known premature agent write preserved, independently reviewed, and adopted; no unknown-state repair"
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Regenerate full registered ABI family after CAN source repair, review semantic enum-widening companion, then check and corrupt-field drift control with private timing path",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

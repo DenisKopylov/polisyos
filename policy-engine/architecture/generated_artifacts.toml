@@ -661,6 +661,8 @@ stale_output_behavior = "fail"
 source_of_truth = "src/polisyos/schemas/abi_models/__init__.py + src/polisyos/schemas/abi_models/catalog.py + src/polisyos/** Pydantic/Enum contracts, including src/polisyos/scientist/governance/calibration_validation.py"
 outputs = [
   "schemas/snapshots/ir/",
+  "docs/reference/ir/schema-catalog.md",
+  "docs/reference/schemas.md",
   "schemas/snapshots/fabric/edge_kind.schema.json",
   "schemas/snapshots/fabric/node_kind.schema.json",
   "schemas/snapshots/fabric/_manifest.json",

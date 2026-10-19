@@ -1,0 +1,179 @@
+{
+  "schema": "policyos.g_decision_candidate.v1",
+  "candidate_id": "public-api-historical-snapshot-20261019",
+  "title": "How the June Phase 3A source snapshot relates to the current supported public API",
+  "status": "candidate_for_G_decision",
+  "formal_acceptance": false,
+  "closure_ids": [],
+  "date": "2026-10-19",
+  "source_frame": {
+    "current_worktree": "/Users/deniskopylov/.codex/worktrees/e02-unified-local-20261009/polisyos",
+    "current_head": "7f90b08f51195c38d26fcf423a1715ed260ec836",
+    "current_tree": "4b2747a49b2151f7b8e51d2a995c84b48738bf83",
+    "current_tracked_status": "clean; branch codex/e02-unified-local-20261009 is ahead of origin by 5 commits",
+    "audited_snapshot_frame": {
+      "head": "fa91983925a95c4428655c91d4601c5fd54b1345",
+      "tree": "8c8a93fc37e86c14656517f38716ae9eab47efc8",
+      "limitation": "The 2,647-versus-2,387 comparison is the pinned audit observation at this frame. This packet did not rerun the complete collector at current HEAD."
+    },
+    "pinned_audit_inputs": "All 19 paths listed in the audit manifest were rehashed at current HEAD and still match their supplied SHA-256 values. This confirms those files are unchanged; it does not claim a current full-source collector replay."
+  },
+  "decision_question": {
+    "owner": "team-architecture",
+    "release_owner_for_additive_core_api": "team-polisyos",
+    "question": "Should the existing June 14 Phase 3A snapshot remain the strict historical whole-source gate, should a separately ratified snapshot epoch replace it after dual-run migration, or should a new supported-entrypoint gate be introduced while retaining the June snapshot as migration evidence?",
+    "governance_boundary": "The additive Core CAS API release is a separate compatibility decision. It neither authorizes replacing the Phase 3A baseline nor proves that the historical snapshot is a complete model of supported public API."
+  },
+  "recommended_decision": {
+    "choice": "preserve_v1_now; handle_additive_core_api_separately; require_explicit_G_decision_before_any_global_gate_scope_or_baseline_change",
+    "rationale": [
+      "The accepted Phase 3A plan defines a fail-closed pre-decomposition snapshot and requires the gate green before Phase 5/6. Replacing its June baseline with current output would move the reference point across a broad, not-yet-owner-adjudicated delta.",
+      "The gate walks all source modules, including modules that the separate public-surface contract treats as internal unless listed. The current inventory cannot yet resolve the Core artifacts facade exports, so switching the historical gate to that inventory would substitute an incomplete source of truth.",
+      "The CAS feature is an additive API on an already supported public_stable entrypoint. It can follow the existing release-fragment and inventory-review path without rewriting the historical Phase 3A baseline."
+    ],
+    "immediate_effect": "Keep architecture/baselines/structure_remediation/public_surface_pre_decomp.json and the whole-source Phase 3A comparator byte-for-byte unchanged. Do not claim the gate green: the audit observed nonzero normalized snapshot differences, but the candidate audit did not execute pytest.",
+    "authority": "Only team-architecture can accept a change to the Phase 3A gate/baseline scope. team-polisyos owns the additive Core API release classification. The candidate author has no authority to ratify either decision.",
+    "time_and_status": "The baseline timestamp (2026-06-14T06:21:47.482093+00:00) is historical provenance, not an expiry, automatic renewal, or waiver. The current decision remains HOLD for global baseline/scope change; runtime tests and generators remain UNRUN in the supplied audit.",
+    "p41": "not_established: the exact pre-slice base was not replayed with a zero intersection against the full source-file denominator. Do not attribute the delta to inherited debt or to the additive CAS feature."
+  },
+  "decision_options": [
+    {
+      "id": "preserve_historical_v1",
+      "semantics": "Keep the June 14 v1 full-source baseline and fail-closed equality gate as the Phase 3A migration fence. Any proposed update must be an explicit, owner-reviewed successor; do not refresh the baseline as a side effect of this API addition.",
+      "benefit": "Preserves the accepted pre-decomposition record and the phase-entry control already named by the accepted plan.",
+      "cost_or_limit": "The recorded broad delta remains unresolved and the gate cannot be represented as green from this audit. This does not classify every difference as a supported public API change.",
+      "migration": "No global migration. Continue to retain the v1 artifact and review the full delta. Address the additive CAS surface through its own release fragment and reviewed inventory."
+    },
+    {
+      "id": "ratify_new_snapshot_epoch",
+      "semantics": "Define a separately versioned successor snapshot with an explicit, owner-approved property/schema and a baseline frozen from a reviewed candidate. Keep v1 readable and run both gates during a declared transition.",
+      "benefit": "Makes any new scope and newly represented fields explicit, rather than silently changing the meaning of the June artifact.",
+      "cost_or_limit": "Requires team-architecture to accept the new epoch and a complete baseline transition; the broad current delta cannot be wholesale blessed by choosing a new version. The v1 gate remains a phase criterion until the accepted migration says otherwise.",
+      "migration": "Specify schema and source boundary, freeze exact source and generator identities, review every delta, dual-run v1 and v2, then separately record when v1 ceases to be a blocking phase gate. Preserve v1 bytes as historical evidence."
+    },
+    {
+      "id": "introduce_supported_entrypoint_gate",
+      "semantics": "Keep the June v1 snapshot as a historical migration audit while adding a distinct gate whose scope follows the supported-entrypoint contract and whose export set is derived from a complete, fail-closed source of truth.",
+      "benefit": "Separates public compatibility from internal-module restructuring and can align the live gate with the stated internal-by-default rule.",
+      "cost_or_limit": "The current generated inventory is unresolved for polisyos.core.artifacts; its 89 candidate names (and any regenerated 92 source candidates) are not runtime-export proof. It cannot presently serve as the complete gate basis. Existing direct imports and external compatibility obligations still need owner review.",
+      "migration": "First make export resolution complete or explicitly fail closed on unresolved exports, prove supported-entrypoint coverage and negatives, run the new gate alongside v1, and obtain team-architecture approval before changing Phase 5/6 gate requirements. Do not treat this as acceptance of the historical delta."
+    }
+  ],
+  "observed_evidence": {
+    "historical_snapshot": {
+      "baseline_generated_at": "2026-06-14T06:21:47.482093+00:00",
+      "baseline_module_records": 2387,
+      "current_module_records_at_audit_frame": 2647,
+      "source_python_file_denominator_at_audit_frame": 2785,
+      "baseline_packages": 25,
+      "current_packages_at_audit_frame": 25,
+      "normalized_delta": {
+        "current_only_module_records": 318,
+        "baseline_only_module_records": 58,
+        "changed_common_module_records": 674
+      },
+      "normalization": "The comparator ignores generated_at and recognized v1 object-row source line coordinates; API-relevant fields remain compared.",
+      "interpretation": "Broad historical source-snapshot delta, not a measure of public API breakage by itself and not assigned to any owner by this packet."
+    },
+    "current_core_facade": {
+      "entrypoint": "polisyos.core.artifacts",
+      "contract_classification": "public_stable",
+      "package_owner": "team-polisyos",
+      "current_literal_all_count_at_audit_frame": 92,
+      "historical_module_all_count": 44,
+      "current_vs_historical_added_names": 48,
+      "feature_exports": [
+        "ArtifactReadOnlyUnavailableError",
+        "ArtifactReader",
+        "ReadOnlyFileSystemCAS"
+      ],
+      "feature_method": "FileSystemCAS.open_existing_read_only",
+      "removed_names": 0,
+      "scope_note": "Only three new __all__ names and the factory method are attributed to this feature in the supplied audit. The other 45 current-vs-historical names are not attributed here."
+    },
+    "generated_inventory": {
+      "current_declared_candidates": 89,
+      "row_state": "unresolved_exports",
+      "export_count": null,
+      "known_export_count": 0,
+      "resolver_limit": "The bounded parser stops at import importlib in polisyos.core.__init__.py.",
+      "meaning": "Candidate source names are not proof of runtime exports or completeness.",
+      "inventory_review_owner": "team-architecture"
+    },
+    "release_path": {
+      "precedent": "2026-10-11 B148 additive Python public API fragment",
+      "fragment_type": "added",
+      "change_class": "python-public-api",
+      "impact": "additive",
+      "surface": "public_stable: polisyos.core.artifacts",
+      "owner_and_version_owner": "team-polisyos",
+      "inventory_attestation": "Set public_surface_inventory_reviewed=true only after the registered inventory is regenerated or reviewed by the inventory owner.",
+      "state": "No release fragment or generated inventory update is produced by this decision candidate."
+    },
+    "verification": {
+      "historical_snapshot_test": "UNRUN in the supplied audit",
+      "CAS_runtime_tests": "UNRUN in the supplied audit",
+      "public_surface_generator": "UNRUN in the supplied audit",
+      "guardrail_generator_side_effect": "The Phase 3A decomposition_preflight.py generate path rewrites multiple artifacts; it is not a baseline-only operation.",
+      "bounded_inventory_command_for_additive_release": "uv run python tools/devx/architecture/guardrails.py sync --skip-deep-import-baseline",
+      "bounded_inventory_check": "uv run python tools/devx/architecture/guardrails.py check --skip-generated-checks"
+    }
+  },
+  "property_and_proxy": {
+    "property": "Preserve the explicitly accepted Phase 3A source-snapshot contract during decomposition, while separately deciding what constitutes the supported public API.",
+    "implementation": "validate_public_surface_snapshot() compares a normalized full-source collector result to public_surface_pre_decomp.json; it does not scope by supported entrypoints.",
+    "divergent_case": "An API-like definition in a source module absent from the supported-entrypoint contract changes the full-source snapshot even though that module is internal by the separate contract.",
+    "predicate_classification": {
+      "full_snapshot_equality": "recomputed at the static collector/comparator level; runtime test was not run in this audit",
+      "supported_export_completeness_from_inventory": "not_established because the Core artifacts inventory row is unresolved",
+      "ownership_of_the_318_added_58_removed_674_changed_records": "not_established"
+    }
+  },
+  "existing_prototype_and_falsifiers": {
+    "existing_v1_coordinate_prototype": "The accepted v1 normalization drops only valid source-line coordinates from recognized object rows. Existing focused tests show line shifts compare equal while changes to signatures, FQNs, object kind, bases, Pydantic marker, __all__, object membership, module line, or nested line metadata remain significant.",
+    "historical_gate_falsifier": "Keep __all__ and other markers unchanged while changing a supported function signature/FQN or removing its source object; the v1 comparator must fail. A line-only shift to the same definition remains the bounded positive control.",
+    "supported_entrypoint_gate_falsifier": "Add a public-looking symbol to an unlisted internal module while preserving declarations; the scoped public gate must not promote it. Then mutate a symbol from a supported entrypoint and require failure. If export resolution is unresolved or a candidate is missing, require a refusal rather than a green result.",
+    "additive_release_falsifier": "Keep the historical baseline bytes fixed and show the exact three new facade exports and factory method in the reviewed supported-entrypoint inventory and additive release fragment; unresolved inventory status cannot satisfy this check."
+  },
+  "original_criteria": {
+    "accepted_plan": "REPOSITORY_STRUCTURE_REMEDIATION_PLAN.md §14.6: snapshot __all__, public classes/functions/Pydantic models with signatures and FQNs; explicit snapshot refresh; Phase 5/6 baseline comparison must match only planned removals/renames.",
+    "phase_entry": "DECOMPOSITION_BLUEPRINT.md requires public_surface_snapshot_gate green before Phase 5/6 entry.",
+    "gate_row": "architecture/gates/structure_remediation.toml public_surface_snapshot_gate: team-architecture owner, fail_closed, pytest command, public_surface_pre_decomp.json evidence, target fail-closed phase 3A; index row maps to same source contract and command.",
+    "G_decision_task": "execution-prompts/unified-local-2026-10-09/TASKS.json Q0: evaluate exact original criterion against candidate-bound property/consumer/negative, invent no stronger scope, and keep G decision separate from source merge.",
+    "decision_rules": "DECISIONS.md requires specified semantics and explicit authority/compatibility/migration choices rather than a blanket approval request."
+  },
+  "pattern_pass": {
+    "ids": [
+      "P29",
+      "P32",
+      "P35",
+      "P37",
+      "P38",
+      "P41"
+    ],
+    "existing_antipatterns": [
+      "Treating generated candidate exports as runtime proof (P29/P32).",
+      "Using the broad source-snapshot delta as a proxy for supported-public-API drift (P38).",
+      "Claiming inherited ownership without exact-base replay and zero full-denominator intersection (P41)."
+    ],
+    "target_pattern": "Preserve the recorded historical fence until its owner ratifies a versioned migration; independently verify supported entrypoints and additive release claims from a complete, fail-closed source of truth.",
+    "capability_labels": [
+      "verification_missing: no current native run of the snapshot test in the supplied audit",
+      "verification_missing: export completeness is unresolved for the Core artifacts inventory row",
+      "surface_missing: the supplied public reference docs do not yet name the new CAS API, subject to the normal owner workflow"
+    ],
+    "acceptance_signal": "Named team-architecture decision on baseline/scope; then a source-frozen gate run with retained full output and falsifiers, plus separately reviewed inventory and release-fragment checks for the additive CAS API."
+  },
+  "migration_and_rollback": {
+    "preserve_original_baseline": "Never rewrite or discard the June 14 baseline as a side effect of API documentation or inventory synchronization.",
+    "additive_api": "Use the existing unreleased Python public-API fragment policy and B148 precedent. Review the exact inventory/doc output; the unresolved row must remain unresolved until completeness is proved.",
+    "global_gate_change": "Requires an owner-approved versioned decision, exact frozen source/generator/schema provenance, dual-run period, and explicit update of Phase 5/6 acceptance criteria. If that approval is absent or the new gate cannot prove completeness, retain v1 and do not claim closure.",
+    "rollback": "Before an approved gate transition, revert any new release fragment or scoped-gate proposal by a forward change; retain the v1 artifact and all original source histories. No source merge or formal closure is requested by this candidate."
+  },
+  "limits": [
+    "No generator, pytest, product import, baseline update, inventory update, release fragment, or canonical source change was performed for this decision packet.",
+    "The broad counts are the source-bound audit observation at fa91983925a95c4428655c91d4601c5fd54b1345, not a newly recomputed result at current HEAD.",
+    "The exact pre-slice base and a full-source input-intersection replay were not established; P41 remains not_established.",
+    "This is a decision candidate, not a closure, waiver, API ratification, source adoption, or authority grant."
+  ]
+}

@@ -1223,6 +1223,38 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/verification-93b-1c9.json",
       "sha256": "43c9b3fac5b53ead112e9f820fcd1c9c4e702db8caf0027e505400427336a210"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-a81030454f8e.json",
+      "sha256": "98f2c127a0876954e295939fc76cb25241cabc02c55e40a64a74d1f9c13c8bf6"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-b4e2c8bbae2b.json",
+      "sha256": "db9e7b805a306860b239ab477ad24309f132674ad5cf28ba4ed4debfb7209083"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-a072c7a8f479.json",
+      "sha256": "c7e9ee3d82cc79c919b3aabdac38ac8ed1f3c6ca0a4569cef5484ab32fcdbfac"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-5f697ddc1aaf.json",
+      "sha256": "063250c4a90fb8ff740321469a0323250777acf4d75897a188784fd3e5ce31a4"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-7f90b08f5119.json",
+      "sha256": "64df8f6806e85e9015f0350666122dafadaa9e6d78295abc0639d4adeee3a341"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/verification-fa919-b4e2-authentic-bounded-20261019.json",
+      "sha256": "f401eabec1a9de709a279d2b5ca08ebe45620e80de76f206f1cb4830663a57af"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decision-public-api-historical-snapshot-20261019.json",
+      "sha256": "a7c2ef8560391229e7928166a5de3db98e55d402a331f06fbd69cc83343aefe8"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/decision-public-api-historical-snapshot-erratum-20261019.json",
+      "sha256": "42ec51ddc98af1dd0ba3761e77e48c286205c353abb46f54d28b2207a21d28cc"
     }
   ],
   "canonical_denominator_recomputed": {

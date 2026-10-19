@@ -1,0 +1,128 @@
+{
+  "record_type": "source_implementation_receipt_candidate",
+  "created_on": "2026-10-19",
+  "status": "PROPOSAL_ONLY",
+  "G_acceptance": false,
+  "closure_ids": [],
+  "formal_G_acceptance": "not_adjudicated",
+  "source_freeze": false,
+  "property": "The package projection contract test derives the source module set, projected fields, and expected summary from all package contract files and compares every field. It must expose missing rows, every value drift, orphan rows, and summary/count inconsistencies without a frozen sample of today’s findings.",
+  "P39_budget": {
+    "committed_path_count": 3,
+    "semantic_test_mechanism_paths": 1,
+    "delivery_metadata_paths": 2
+  },
+  "P40_classification": "This is one set-derived test expansion. It avoids a fixed mismatch list and keeps field/source discovery derived from the complete fixture instead of repairing individual rows.",
+  "pattern_pass": {
+    "relevant": [
+      "P29",
+      "P35",
+      "P38",
+      "P39"
+    ],
+    "target": "Derive expected findings from the complete source/projection sets, then falsify all matched fields and exercise missing/orphan rows.",
+    "missing": "The modified repository-quality test itself has no post-commit run receipt in the supplied packet."
+  },
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "commit": "b4e2c8bbae2b3ee02eb297dcc30adbbfb81797fb",
+    "commit_subject": "test(e02): derive package projection checks from complete source contracts",
+    "tree": "6c950c053bd4624abf14788a90d001a3c9d6359d",
+    "parents": [
+      "a81030454f8ec32191a1bda21d222424854a7f80"
+    ],
+    "slice_base": "a81030454f8ec32191a1bda21d222424854a7f80",
+    "base_tree": "5e1f197cf7c6601e6e4b10e2d0cc435cb0d67bcd",
+    "observed_head_at_preparation": "5f697ddc1aaf70fae5fd856f4c63acb828fa4da9",
+    "observed_head_tree_at_preparation": "d1904d7e4b645ece2ba9b631a94fc13ff9fa9eaa",
+    "observed_branch_at_preparation": "codex/e02-unified-local-20261009",
+    "observed_head_is_source_freeze": false,
+    "source_application_or_git_readback": "Exact historical commit/tree/parent/path objects were re-read from Git. No global source freeze or later-head equivalence is asserted."
+  },
+  "source_scope": {
+    "source_and_test_paths": [
+      "policy-engine/tests/repo_quality/architecture/test_repository_best_in_class_phase1_3_contracts.py"
+    ],
+    "delivery_metadata_paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ],
+    "full_committed_path_count": 3,
+    "complete_commit_footprint": [
+      {
+        "status": "M",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "insertions": 48,
+        "deletions": 0,
+        "preimage": {
+          "mode": "100644",
+          "git_blob_oid": "62049a54d3a5dbdc3eb4b6db3559adc73f33b154",
+          "bytes": 1265289,
+          "sha256": "5675e89cfacf6a95775565f78f35b385a7d6e9a4dbcea8e0d34cb3210e0935d8"
+        },
+        "postimage": {
+          "mode": "100644",
+          "git_blob_oid": "4964fa3260ca1ae17e6f256be8e396447fef7d24",
+          "bytes": 1268925,
+          "sha256": "6a646fa64122a85756227f6889ffbc0a4a1880cabbc466095ab7b9c431150c47"
+        }
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "insertions": 1,
+        "deletions": 1,
+        "preimage": {
+          "mode": "100644",
+          "git_blob_oid": "9a56d575d0d71de2d0ca5e79bcb1b099cb47733f",
+          "bytes": 105296,
+          "sha256": "b6a3434dc8651a4faa53196d8c3006df0a00076e6ee2aed8a6f619e558cfdc94"
+        },
+        "postimage": {
+          "mode": "100644",
+          "git_blob_oid": "ed769d31d07382e04d972689057c7b4face1ec16",
+          "bytes": 105296,
+          "sha256": "372578f0f8d4cd624f4f0978661ef0cd2462fabe8531ddf3d377d55f529dac87"
+        }
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/tests/repo_quality/architecture/test_repository_best_in_class_phase1_3_contracts.py",
+        "insertions": 294,
+        "deletions": 49,
+        "preimage": {
+          "mode": "100644",
+          "git_blob_oid": "28cccd6e922a6dbe5505d0c3b549d7ed0591a8c4",
+          "bytes": 67777,
+          "sha256": "5c92090bdaa48ce1e9a7fcf7b8e0105369763629e3823769980f3e0975010b79"
+        },
+        "postimage": {
+          "mode": "100644",
+          "git_blob_oid": "7a3cdaf1e608bb2c6c7ac5f7894b7f8a5d94ace4",
+          "bytes": 78663,
+          "sha256": "07886cb04ad84d66c0f56635e83bea08f538ffd11ac1b8f2b6c30f0bd9f40e1b"
+        }
+      }
+    ]
+  },
+  "implementation_summary": "The package projection contract test derives the source module set, projected fields, and expected summary from all package contract files and compares every field. It must expose missing rows, every value drift, orphan rows, and summary/count inconsistencies without a frozen sample of today’s findings.",
+  "evidence": {
+    "source_application": null,
+    "source_application_note": "No separate source-application/peer-review packet for this exact commit was supplied. The full file postimage is the Git blob; its test body is not presented as executed.",
+    "reviewed_inputs": [],
+    "bounded_actual": null,
+    "source_freeze": false,
+    "input_profile_freeze": false,
+    "backend_profile_freeze": false,
+    "runtime_source_receipt": "UNRUN for the changed repo-quality module at this commit. The separate MaxBytes 39-case run does not include this file and is not evidence for this change."
+  },
+  "next_check": "Run the complete changed repo-quality test module against a frozen source frame; confirm the valid control, all dynamically derived field drifts, missing projection row, and arbitrary orphan controls fail/pass as intended, and reconcile full collected/executed/JUnit counts.",
+  "authority_and_currentness_boundary": {
+    "input_freeze": false,
+    "backend_freeze": false,
+    "runtime_source_freeze": false,
+    "institutional_authority": false,
+    "formal_closure": false,
+    "note": "These are implementation/source-boundary records. They do not establish policy authority, currentness, production evidence, or G acceptance."
+  }
+}

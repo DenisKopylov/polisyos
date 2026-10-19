@@ -1,0 +1,189 @@
+{
+  "record_type": "source_implementation_receipt_candidate",
+  "created_on": "2026-10-19",
+  "status": "PROPOSAL_ONLY",
+  "G_acceptance": false,
+  "closure_ids": [],
+  "formal_G_acceptance": "not_adjudicated",
+  "source_freeze": false,
+  "property": "A configured source byte limit distinguishes absence from malformed presence. An invalid present X-File-/X-GeoJSON-/X-Object-MaxBytes value must fail before URL resolution or opening, with established prefix precedence and accepted integer-string grammar preserved.",
+  "P39_budget": {
+    "committed_path_count": 4,
+    "mechanism_paths": 1,
+    "mandatory_behavioral_test_paths": 1,
+    "delivery_metadata_paths": 2
+  },
+  "P40_classification": "Single shared parser path covers every supplied prefix; malformed-present inputs fail closed rather than being treated as absent or falling through to a less-specific setting.",
+  "pattern_pass": {
+    "relevant": [
+      "P29",
+      "P35",
+      "P38",
+      "P39",
+      "P41"
+    ],
+    "target": "Use one shared parser for the complete caller prefix set; test absent, valid, malformed-present, precedence, and no-I/O rejection.",
+    "missing": "No source freeze or real external storage capability claim."
+  },
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "commit": "a81030454f8ec32191a1bda21d222424854a7f80",
+    "commit_subject": "fix(e02): refuse malformed present source byte limits",
+    "tree": "5e1f197cf7c6601e6e4b10e2d0cc435cb0d67bcd",
+    "parents": [
+      "f6fd6ab9a8cfbb65f3f597dfe4c5a3fae3cc0f80"
+    ],
+    "slice_base": "f6fd6ab9a8cfbb65f3f597dfe4c5a3fae3cc0f80",
+    "base_tree": "2fb71994d556cc2da39518b24098af6578cacece",
+    "observed_head_at_preparation": "5f697ddc1aaf70fae5fd856f4c63acb828fa4da9",
+    "observed_head_tree_at_preparation": "d1904d7e4b645ece2ba9b631a94fc13ff9fa9eaa",
+    "observed_branch_at_preparation": "codex/e02-unified-local-20261009",
+    "observed_head_is_source_freeze": false,
+    "source_application_or_git_readback": "Exact historical commit/tree/parent/path objects were re-read from Git. No global source freeze or later-head equivalence is asserted."
+  },
+  "source_scope": {
+    "source_and_test_paths": [
+      "policy-engine/src/polisyos/fabric/connectors/sources/_file_common.py",
+      "policy-engine/tests/unit/fabric/connectors/sources/test_file_common_fsspec.py"
+    ],
+    "delivery_metadata_paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ],
+    "full_committed_path_count": 4,
+    "complete_commit_footprint": [
+      {
+        "status": "M",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "insertions": 56,
+        "deletions": 0,
+        "preimage": {
+          "mode": "100644",
+          "git_blob_oid": "619bdd77b731fbec054bd2775998bb906f94ecfa",
+          "bytes": 1261219,
+          "sha256": "20521381e8ed249fac017955aa943429fa71dcc8cb03b9177e961322ea44ec16"
+        },
+        "postimage": {
+          "mode": "100644",
+          "git_blob_oid": "62049a54d3a5dbdc3eb4b6db3559adc73f33b154",
+          "bytes": 1265289,
+          "sha256": "5675e89cfacf6a95775565f78f35b385a7d6e9a4dbcea8e0d34cb3210e0935d8"
+        }
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "insertions": 1,
+        "deletions": 1,
+        "preimage": {
+          "mode": "100644",
+          "git_blob_oid": "17a7d4986b84d3112bcf2dc6c94c0a182d93e086",
+          "bytes": 105296,
+          "sha256": "30b29f6b52567f1791afa37114f979c31bb5723ee3e4adb1871cfdbf42f6b78f"
+        },
+        "postimage": {
+          "mode": "100644",
+          "git_blob_oid": "9a56d575d0d71de2d0ca5e79bcb1b099cb47733f",
+          "bytes": 105296,
+          "sha256": "b6a3434dc8651a4faa53196d8c3006df0a00076e6ee2aed8a6f619e558cfdc94"
+        }
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/src/polisyos/fabric/connectors/sources/_file_common.py",
+        "insertions": 5,
+        "deletions": 3,
+        "preimage": {
+          "mode": "100644",
+          "git_blob_oid": "ae996b7bce0fa8d517f8656bce81b88a20507bad",
+          "bytes": 9560,
+          "sha256": "9e9207fa108dbaa2a5400c3e638d2f49cf738a2d970d825c597a820dac18a2da"
+        },
+        "postimage": {
+          "mode": "100644",
+          "git_blob_oid": "2988c6fde4a91c20b82b3dba29eecc2d08d4baae",
+          "bytes": 9663,
+          "sha256": "5ef26d6c514367bee5a1939004bfb5ca73e638b61eb6346858c97bfa720384c8"
+        }
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/tests/unit/fabric/connectors/sources/test_file_common_fsspec.py",
+        "insertions": 152,
+        "deletions": 1,
+        "preimage": {
+          "mode": "100644",
+          "git_blob_oid": "bcba84ed5219b6b499a33b9c4aa5416a18e6fa8a",
+          "bytes": 4008,
+          "sha256": "cb4f55a4e3bfc41a92ba9e2c921cadc5a8cbcf49e1e9c4a7f7a2f1e528f66ff4"
+        },
+        "postimage": {
+          "mode": "100644",
+          "git_blob_oid": "299035466e395b688ee59853a2dfb0db3cce5bf0",
+          "bytes": 9071,
+          "sha256": "a437a7fdc63e3cbdbec43404b4071734450a3b6a3fbed3c6b4fadcf7b309678e"
+        }
+      }
+    ]
+  },
+  "implementation_summary": "A configured source byte limit distinguishes absence from malformed presence. An invalid present X-File-/X-GeoJSON-/X-Object-MaxBytes value must fail before URL resolution or opening, with established prefix precedence and accepted integer-string grammar preserved.",
+  "evidence": {
+    "source_application": null,
+    "source_application_note": "No separate source-application JSON was present in the named packet; the exact implementation and complete tracked footprint are derived from the immutable Git commit object.",
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-maxbytes39-b4e2-independent-20261019/manifest.json",
+        "sha256": "1b35621fa934945a74e4e666da538c8ef5a9a25e67bea1cd14a2b558411a120b",
+        "bytes": 7664
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-maxbytes39-b4e2-independent-20261019/review.json",
+        "sha256": "5ad413345bc4c78d900f9f63cc9ebcaf4383b895a91f55edae412c9195440102",
+        "bytes": 14358
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-maxbytes39-b4e2-independent-20261019/review.md",
+        "sha256": "de675fb9b50e3e6dc750e225cba11ec7ec84e0b25f49dfb60009f61be5daac27",
+        "bytes": 1849
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-maxbytes-two-owner-modules-b4e2-actual-20261019/result.json",
+        "sha256": "d7bf36ed111140818fdad6e8e5443696e6414f8500c8d4908d11e744f2e12060",
+        "bytes": 32083
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-maxbytes-two-owner-modules-b4e2-actual-20261019/pytest.xml",
+        "sha256": "133727919764ef6014beedb3881d89e5842a6050b7e77b6cc2d7f3cf94b6b1f8",
+        "bytes": 7303
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-maxbytes-two-owner-modules-b4e2-actual-20261019/pytest-two-owner-modules.stdout.txt",
+        "sha256": "07c2eef926162e0090994bc913805aa08a8b2cbb5b21d2c933b937a10300713f",
+        "bytes": 80
+      }
+    ],
+    "bounded_actual": {
+      "source_frame_head": "b4e2c8bbae2b3ee02eb297dcc30adbbfb81797fb",
+      "source_frame_tree": "6c950c053bd4624abf14788a90d001a3c9d6359d",
+      "result": "39 collected = 39 executed = 39 JUnit; 39 passed, zero failures/errors/skips across two whole modules. The changed _file_common.py source blob exactly matches a810304 and was not changed by b4e2.",
+      "scope": [
+        "tests/unit/fabric/connectors/sources/test_file_common_fsspec.py (27 cases)",
+        "tests/unit/fabric/connectors/sources/test_connector_family_expansion.py (12 cases)"
+      ],
+      "independent_review_decision": "GO_BOUNDED_ACTUAL for the retained run only; not a source-wide/SDK/production or formal-closure review."
+    },
+    "source_freeze": false,
+    "input_profile_freeze": false,
+    "backend_profile_freeze": false,
+    "runtime_source_receipt": "The 39-case bounded run is at b4e2 (a descendant); no replay on later combined source or external storage backend is claimed."
+  },
+  "next_check": "On a newly frozen source frame, run the two complete owner modules again and retain collection/execution/JUnit reconciliation. Keep malformed-present and prefix-fallback removal controls; for any external-storage claim, exercise the supported real backend separately with a frozen input/profile.",
+  "authority_and_currentness_boundary": {
+    "input_freeze": false,
+    "backend_freeze": false,
+    "runtime_source_freeze": false,
+    "institutional_authority": false,
+    "formal_closure": false,
+    "note": "These are implementation/source-boundary records. They do not establish policy authority, currentness, production evidence, or G acceptance."
+  }
+}

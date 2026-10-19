@@ -1,0 +1,185 @@
+{
+  "record_type": "source_implementation_receipt_candidate",
+  "created_on": "2026-10-19",
+  "status": "PROPOSAL_ONLY",
+  "G_acceptance": false,
+  "closure_ids": [],
+  "formal_G_acceptance": "not_adjudicated",
+  "source_freeze": false,
+  "property": "R4 cap profiles must agree on fold/result/evidence semantics and selected manifest/input profile while retaining each attempt’s real wall-time and validated estimated cost in its raw evidence. Compare via the existing Foundry semantic projection; only raw evidence reference and attempt cost attribution are volatile, while manifest profile and all other study-output fields remain compared. Same-byte evidence with a different input profile must still refuse.",
+  "P39_budget": {
+    "committed_path_count": 4,
+    "semantic_oracle_test_paths": 2,
+    "delivery_metadata_paths": 2
+  },
+  "P40_classification": "Same class, deeper: distinguish volatile attempt-cost-bearing artifact identity from stable semantic result and lineage. Keep profile equality and the generic default comparison over every other field; do not drop all cost or provenance checks.",
+  "pattern_pass": {
+    "relevant": [
+      "P10",
+      "P14",
+      "P29",
+      "P38",
+      "P39",
+      "P40",
+      "P41"
+    ],
+    "target": "Compare semantic evidence through existing consumer projection; preserve raw attempt-cost evidence and reject semantic/profile/provenance drift.",
+    "missing": "The adopted test source and the complete owner module have not been replayed; no current B56 execution or cost authority is established."
+  },
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "commit": "5f697ddc1aaf70fae5fd856f4c63acb828fa4da9",
+    "commit_subject": "test(e02): compare stable R4 evidence while retaining attempt costs",
+    "tree": "d1904d7e4b645ece2ba9b631a94fc13ff9fa9eaa",
+    "parents": [
+      "7f90b08f51195c38d26fcf423a1715ed260ec836"
+    ],
+    "slice_base": "7f90b08f51195c38d26fcf423a1715ed260ec836",
+    "base_tree": "4b2747a49b2151f7b8e51d2a995c84b48738bf83",
+    "observed_head_at_preparation": "5f697ddc1aaf70fae5fd856f4c63acb828fa4da9",
+    "observed_head_tree_at_preparation": "d1904d7e4b645ece2ba9b631a94fc13ff9fa9eaa",
+    "observed_branch_at_preparation": "codex/e02-unified-local-20261009",
+    "observed_head_is_source_freeze": false,
+    "source_application_or_git_readback": "Exact historical commit/tree/parent/path objects were re-read from Git. No global source freeze or later-head equivalence is asserted."
+  },
+  "source_scope": {
+    "source_and_test_paths": [
+      "policy-engine/tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py",
+      "policy-engine/tests/unit/runtime/quality/test_workspace_foundry_consumption.py"
+    ],
+    "delivery_metadata_paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ],
+    "full_committed_path_count": 4,
+    "complete_commit_footprint": [
+      {
+        "status": "M",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "insertions": 64,
+        "deletions": 0,
+        "preimage": {
+          "mode": "100644",
+          "git_blob_oid": "a5da8a474520b808b114d855a6a6cc47ed5a3996",
+          "bytes": 1279851,
+          "sha256": "82ccc00a4ddc9d33e0675e583d5c88fb587ff5e0f77052f4185c55716f53cc98"
+        },
+        "postimage": {
+          "mode": "100644",
+          "git_blob_oid": "ddbbac2ced4defdc30ff5d2ae6b50af946dedd80",
+          "bytes": 1285458,
+          "sha256": "6c9ab835364a470d5fc955f84ca0def86d901bf451d88c2a481a0f62eda9de82"
+        }
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "insertions": 1,
+        "deletions": 1,
+        "preimage": {
+          "mode": "100644",
+          "git_blob_oid": "4b3cfe54daf98d7d3ded1b07903c48ce687abf14",
+          "bytes": 105296,
+          "sha256": "bd6b12039e7d26b7938c62e363b992433a040df4c48bd1df59a741ace43fc18f"
+        },
+        "postimage": {
+          "mode": "100644",
+          "git_blob_oid": "2afa9ca7b4f7669951570d4034ef2513f7de5502",
+          "bytes": 105296,
+          "sha256": "1509a8ad6091cc7556f1bed6fa382840d1e7872e7a4f5325b407aea056520f80"
+        }
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/tests/integration/scientist/orchestration/workflows/test_r4_shared_study_admission.py",
+        "insertions": 78,
+        "deletions": 8,
+        "preimage": {
+          "mode": "100644",
+          "git_blob_oid": "f7487a83f6a1193e5d39d58c10d0e1ac1c1c7e0e",
+          "bytes": 98243,
+          "sha256": "52dd22108824b4f967de434acbb085a24f5c0cd3440d242655e398455691b200"
+        },
+        "postimage": {
+          "mode": "100644",
+          "git_blob_oid": "5e4ad7d78424d52dfa3dcdf4771cf1c664735fd3",
+          "bytes": 101330,
+          "sha256": "afcf1329b926098716729676d7f545cf1085e248d655258fd26fd0e95da1507f"
+        }
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/tests/unit/runtime/quality/test_workspace_foundry_consumption.py",
+        "insertions": 162,
+        "deletions": 24,
+        "preimage": {
+          "mode": "100644",
+          "git_blob_oid": "5f721d904ec3383fcec14a92fa19cc71daf83c7f",
+          "bytes": 66800,
+          "sha256": "10062275ebf8bfde35aee6c91e7b6c9e743b3e211780ffd5a6df31678a8e3779"
+        },
+        "postimage": {
+          "mode": "100644",
+          "git_blob_oid": "b4a18f3c6afa207572d3b1e5db1a703d88deb446",
+          "bytes": 70962,
+          "sha256": "ac5f5e2574b66e51863f4caad7a13190b615b66938f8bd5e806a8fd51beb5f85"
+        }
+      }
+    ]
+  },
+  "implementation_summary": "R4 cap profiles must agree on fold/result/evidence semantics and selected manifest/input profile while retaining each attempt’s real wall-time and validated estimated cost in its raw evidence. Compare via the existing Foundry semantic projection; only raw evidence reference and attempt cost attribution are volatile, while manifest profile and all other study-output fields remain compared. Same-byte evidence with a different input profile must still refuse.",
+  "evidence": {
+    "source_application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-semantic-oracle-r2e-native-format-adoption-20261019/source-application.json",
+      "sha256": "db14eb68af15d9924c49f9a4495854c64351e353155318944f3fbac75f996c69",
+      "bytes": 8387
+    },
+    "adoption_plan": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-semantic-oracle-r2e-native-format-adoption-20261019/plan.json",
+      "sha256": "3be8201a984bfe4d5baf271cdfbef23dc0d15d3d5ab1d629d7bb57a3275a672a",
+      "bytes": 5121
+    },
+    "source_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-semantic-oracle-r2e-native-format-adoption-20261019/r4-semantic-oracle-r2e-native-format-source-20261019-readback.json",
+      "sha256": "5325c1cc02ae6f65f8f25d3e7344e8116fb9b00bc9f855fbb0834c5b262c0058",
+      "bytes": 1423
+    },
+    "format_context_correction": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-semantic-oracle-r2e-native-format-adoption-20261019/format-context-correction.json",
+      "sha256": "831888172bc12a203a736567df4032e675d9521590c39163720b775e5f468e7c",
+      "bytes": 2910
+    },
+    "R2d_independent_review": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-cost-semantic-oracle-r2d-independent-20261019/review.md",
+        "sha256": "b955ec308f92da3b25d2a9ebbc78fb097f842fd57b6feb60dca02d06dfa0280f",
+        "bytes": 3091
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-cost-semantic-oracle-r2d-independent-20261019/review-erratum.json",
+        "sha256": "d83dcb4652183ef7e984e468f125d47bafc02c3e9ec78cfcc8af5ddb74208782",
+        "bytes": 513
+      }
+    ],
+    "prior_fa919_actual": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-r4-shared-two-studies-fa919-actual-20261019/run/result.json",
+      "sha256": "4c37cab4e4934b4a3bfac86ed784c0bf975ef48ea0541a06e106d0d59714a2ed",
+      "bytes": 65605
+    },
+    "format_boundary": "R2d workspace-root formatter preflight failed before any source mutation. R2e uses the native canonical context; full-file AST comparison records exact equivalence to the reviewed R2d semantics. Ruff check/format passed for both committed test files. These are static source/format checks only.",
+    "prior_actual_boundary": "The fa919 run attempted all three child profiles; it retained one test failure because cost-bearing raw evidence IDs differed. This predates adoption and does not establish a post-5f697 PASS. No failure is labeled inherited (the exact test files are the slice input).",
+    "runtime": "UNRUN on adopted source; no complete B56 workload, production throughput, causal calibration, or cost-settlement authority is established.",
+    "source_freeze": false,
+    "input_profile_freeze": false,
+    "backend_profile_freeze": false
+  },
+  "next_check": "On a frozen source frame, run the complete two-study R4 integration and owner consumer module. Preserve three child profiles, raw evidence/CAS refs, attempt timing/cost, and profile identity. Keep the profile-mismatch, changed seed/provenance, cost arithmetic, semantic-equality and removal probes; reconcile all outputs without dropping other fields.",
+  "authority_and_currentness_boundary": {
+    "input_freeze": false,
+    "backend_freeze": false,
+    "runtime_source_freeze": false,
+    "institutional_authority": false,
+    "formal_closure": false,
+    "note": "These are implementation/source-boundary records. They do not establish policy authority, currentness, production evidence, or G acceptance."
+  }
+}

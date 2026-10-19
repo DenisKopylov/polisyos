@@ -1,0 +1,303 @@
+{
+  "record_type": "source_implementation_receipt_candidate",
+  "created_on": "2026-10-19",
+  "status": "PROPOSAL_ONLY",
+  "G_acceptance": false,
+  "closure_ids": [],
+  "formal_G_acceptance": "not_adjudicated",
+  "source_freeze": false,
+  "property": "All four acquisition carriers preserve genuinely absent capability_requirement_resolutions separately from explicit null and typed non-null values; the D2 producer emits its intended explicit null and historical readers omit absent fields. Validation and serialization schema surfaces preserve carrier fields in both modes.",
+  "P39_budget": {
+    "committed_path_count": 6,
+    "mechanism_paths": 1,
+    "producer_projection_companion_paths": 1,
+    "mandatory_semantic_test_paths": 2,
+    "delivery_metadata_paths": 2
+  },
+  "P40_classification": "Same class, deeper: presence and schema semantics are applied to all four actual carriers with one typed helper and the producer/projection and semantic-test companions. Do not repair individual fixture hashes. Nested CapabilityRequirementResolution schema is separately NOT_ESTABLISHED.",
+  "pattern_pass": {
+    "relevant": [
+      "P07",
+      "P08",
+      "P10",
+      "P29",
+      "P35",
+      "P38",
+      "P39",
+      "P40",
+      "P41"
+    ],
+    "target": "Preserve absence/null/value across all carriers while preserving same-version identity and verifying actual validation/serialization schemas.",
+    "missing": "The four wrappers have not had a complete post-adoption module + authentic historical V4/current V5 replay."
+  },
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "commit": "7f90b08f51195c38d26fcf423a1715ed260ec836",
+    "commit_subject": "fix(e02): preserve acquisition field presence across historical wire readers",
+    "tree": "4b2747a49b2151f7b8e51d2a995c84b48738bf83",
+    "parents": [
+      "a072c7a8f479f1612edec7f1a7bebaae75b25a4b"
+    ],
+    "slice_base": "a072c7a8f479f1612edec7f1a7bebaae75b25a4b",
+    "base_tree": "130402d1df6115e12bd2ee0e4c81d9bd5f361642",
+    "observed_head_at_preparation": "5f697ddc1aaf70fae5fd856f4c63acb828fa4da9",
+    "observed_head_tree_at_preparation": "d1904d7e4b645ece2ba9b631a94fc13ff9fa9eaa",
+    "observed_branch_at_preparation": "codex/e02-unified-local-20261009",
+    "observed_head_is_source_freeze": false,
+    "source_application_or_git_readback": "Exact historical commit/tree/parent/path objects were re-read from Git. No global source freeze or later-head equivalence is asserted."
+  },
+  "source_scope": {
+    "source_and_test_paths": [
+      "policy-engine/src/polisyos/runtime/quality/acquisition_planner.py",
+      "policy-engine/tests/repo_quality/tools/test_layer3_gy_n13b_acquisition_contract.py",
+      "policy-engine/tests/unit/runtime/quality/test_acquisition_planner.py",
+      "policy-engine/tools/quality/validation/demand_gap_projections.py"
+    ],
+    "delivery_metadata_paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ],
+    "full_committed_path_count": 6,
+    "complete_commit_footprint": [
+      {
+        "status": "M",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "insertions": 73,
+        "deletions": 0,
+        "preimage": {
+          "mode": "100644",
+          "git_blob_oid": "cfa38c7e18d3c6b38552053cdbf6b4c03b0c8d19",
+          "bytes": 1273636,
+          "sha256": "c027add05ad358c981606b7f9e205c9c4260b91e0853ab12e35db9ae0ce9978a"
+        },
+        "postimage": {
+          "mode": "100644",
+          "git_blob_oid": "a5da8a474520b808b114d855a6a6cc47ed5a3996",
+          "bytes": 1279851,
+          "sha256": "82ccc00a4ddc9d33e0675e583d5c88fb587ff5e0f77052f4185c55716f53cc98"
+        }
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "insertions": 1,
+        "deletions": 1,
+        "preimage": {
+          "mode": "100644",
+          "git_blob_oid": "f982dc47416cd474e01172b0624a7249cebb0a62",
+          "bytes": 105296,
+          "sha256": "f1f687b623968916fbeffd0c4a920533823c3503dac7f5886a34684fa341f151"
+        },
+        "postimage": {
+          "mode": "100644",
+          "git_blob_oid": "4b3cfe54daf98d7d3ded1b07903c48ce687abf14",
+          "bytes": 105296,
+          "sha256": "bd6b12039e7d26b7938c62e363b992433a040df4c48bd1df59a741ace43fc18f"
+        }
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/src/polisyos/runtime/quality/acquisition_planner.py",
+        "insertions": 54,
+        "deletions": 1,
+        "preimage": {
+          "mode": "100644",
+          "git_blob_oid": "d8270cc465e74572bcf174d00a290c234533998d",
+          "bytes": 237706,
+          "sha256": "2072a3106a0a183976c2ec7a6dd9d157d3acc214a7742b0a6252828c362cccff"
+        },
+        "postimage": {
+          "mode": "100644",
+          "git_blob_oid": "44064771e2784ae3192243db6332e5b5104f0dad",
+          "bytes": 239645,
+          "sha256": "ec76d0a3b1f1551adc7c5db9e5917eb5bd228f95bbbee911ace478f207e1e118"
+        }
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/tests/repo_quality/tools/test_layer3_gy_n13b_acquisition_contract.py",
+        "insertions": 38,
+        "deletions": 0,
+        "preimage": {
+          "mode": "100644",
+          "git_blob_oid": "8d67155b222336045a30f202f1e057795fb61eed",
+          "bytes": 23243,
+          "sha256": "81fd54132cab1c1148722165d0a4895f3806d26edf4aa045faee93891504295c"
+        },
+        "postimage": {
+          "mode": "100644",
+          "git_blob_oid": "19f0a4d8af8dd30262eccb49e095e1ca5147f32d",
+          "bytes": 25207,
+          "sha256": "b98f36ec0ac15dc0336f2aadddad1ae6dd8a931922de8c85e78df5ab89e45377"
+        }
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/tests/unit/runtime/quality/test_acquisition_planner.py",
+        "insertions": 80,
+        "deletions": 2,
+        "preimage": {
+          "mode": "100644",
+          "git_blob_oid": "9abb39bf7567399497bc1f93b105889e71c8feac",
+          "bytes": 159911,
+          "sha256": "fee6fa0e37f079604f1ba917f3dbd9ec356eee7c63c585bb2c6dcf0e21daf535"
+        },
+        "postimage": {
+          "mode": "100644",
+          "git_blob_oid": "bf573873a540f0b597fbec93cb884a132df940e5",
+          "bytes": 163354,
+          "sha256": "79baddfd252c4708d34ce223c929e509ba413593423b6af862b862fbbbde501f"
+        }
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/tools/quality/validation/demand_gap_projections.py",
+        "insertions": 1,
+        "deletions": 0,
+        "preimage": {
+          "mode": "100644",
+          "git_blob_oid": "33c62aea36f507073b33e8c89c0260044816b87f",
+          "bytes": 26803,
+          "sha256": "95dabf524e5a605118e26aea7ebb7e87709369969458a5c94239269d467a2af3"
+        },
+        "postimage": {
+          "mode": "100644",
+          "git_blob_oid": "2d1c1203752e8b7dbff3cdda0eed4b6d433facd1",
+          "bytes": 26856,
+          "sha256": "c54d7ff6f2061170a0f1e2e270ea4671a497ca2cf7ddba53fdf4f1f20250f1b3"
+        }
+      }
+    ]
+  },
+  "implementation_summary": "All four acquisition carriers preserve genuinely absent capability_requirement_resolutions separately from explicit null and typed non-null values; the D2 producer emits its intended explicit null and historical readers omit absent fields. Validation and serialization schema surfaces preserve carrier fields in both modes.",
+  "evidence": {
+    "source_application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-n13b-r9-source-adoption-20261019/source-application.json",
+      "sha256": "27e635fb10941e637ab26f7d0d269716c1ca961d08d6d38517d4cc7a8328e4f4",
+      "bytes": 9142
+    },
+    "adoption_plan": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-n13b-r9-source-adoption-20261019/plan.json",
+      "sha256": "1c22164a405a2069b75bf69db0c215bcda4b4db5a13432c2789b9ef52a2e393f",
+      "bytes": 5727
+    },
+    "source_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-n13b-r9-source-adoption-20261019/can-n13b-r9-source-20261019-readback.json",
+      "sha256": "3f6476ba3b677734e26cc5323febfb99dfec6daf5588eb0319b415366c24685f",
+      "bytes": 1804
+    },
+    "independent_review": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-n13b-family-r9-independent-20261019/review.json",
+      "sha256": "8d46d10fddfe915f11f8b8f40067ebfd654564a96aed771b6729807772542f1c",
+      "bytes": 1655
+    },
+    "independent_review_markdown": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-n13b-family-r9-independent-20261019/review.md",
+      "sha256": "9990a4e530aa8548a31c221c3bc0bbb81ade9c51f0ad5596c145e203b344ae7a",
+      "bytes": 4671
+    },
+    "source_application_runtime": "UNRUN on adopted canonical source; source-only composition review, no source import or product test by peer.",
+    "schema_boundary": "Nested CapabilityRequirementResolution serialization schema remains NOT_ESTABLISHED; the item-ref guard does not prove nested typed schema.",
+    "source_freeze": false,
+    "input_profile_freeze": false,
+    "backend_profile_freeze": false,
+    "runtime_attempts": {
+      "source_boundary": "Both attempts were run against the exact 7f90 source frame; they are incomplete harness outcomes and establish no product schema result.",
+      "R1": {
+        "status": "ERROR_BEFORE_IMPORT",
+        "completed": false,
+        "product_imports_occurred": false,
+        "schema_result": "NOT_ESTABLISHED",
+        "failure": "macOS rejected setting RLIMIT_AS to 512 MiB because the process current virtual-address-space reservation exceeded that maximum; Python raised ValueError before product imports.",
+        "deciding_artifacts": [
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-r9-actual-schema-discriminator-7f90-20261019/attempt.txt",
+            "sha256": "890709bcc1efd1d991bd84482d2fd5ffb2744440a545a7e58d399eb06634d029",
+            "bytes": 1946
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-r9-actual-schema-discriminator-7f90-20261019/probe.py",
+            "sha256": "76bdbba1bf6fe3147263b474771ba6f85f92f1cfa5f4290e2fc531798cdb9f52",
+            "bytes": 8088
+          }
+        ],
+        "artifact_contents_reconciled": true
+      },
+      "R2": {
+        "status": "NOT_COMPLETED",
+        "completed": false,
+        "product_modules_import_attempted": true,
+        "import_completion_established": false,
+        "schema_result": "NOT_ESTABLISHED",
+        "command": "policy-engine/.venv/bin/python -B policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-r9-actual-schema-discriminator-7f90-20261019-R2/probe.py",
+        "watchdog": {
+          "reason": "rss-limit-exceeded",
+          "rss_limit_kib": 524288,
+          "max_sampled_process_rss_kib": 524688,
+          "overshoot_kib": 400,
+          "wall_seconds": 6,
+          "exit_code": 143,
+          "interpretation": "The sampled-RSS supervisor terminated the process. This is not an OOM finding and not a product failure; the probe produced no schema result."
+        },
+        "deciding_artifacts": [
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-r9-actual-schema-discriminator-7f90-20261019-R2/attempt.txt",
+            "sha256": "b3f8bd4e274ec4486b7056780299edc8f5d117ae41894238e561410680292173",
+            "bytes": 2015
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-r9-actual-schema-discriminator-7f90-20261019-R2/probe.py",
+            "sha256": "1dbf18fcb3b388d51b76d38a3452c4accfe4cd38e3961e8c2d4bc32f7afa4169",
+            "bytes": 8033
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-r9-actual-schema-discriminator-7f90-20261019-R2/run.sh",
+            "sha256": "cb00e77ecf569e147f0942a0b1156607babf705383db47febf8d3bd86a37b893",
+            "bytes": 1254
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-r9-actual-schema-discriminator-7f90-20261019-R2/run-status.txt",
+            "sha256": "2ba926abb8b42bfe40443d7221a0d37f6e458cd333a689f5bed616de33a01ad7",
+            "bytes": 310
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-r9-actual-schema-discriminator-7f90-20261019-R2/probe.stdout.json",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "bytes": 0
+          },
+          {
+            "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-r9-actual-schema-discriminator-7f90-20261019-R2/probe.stderr.txt",
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "bytes": 0
+          }
+        ],
+        "artifact_contents_reconciled": true
+      },
+      "separate_attempts": true,
+      "result": "No product schema or runtime behavior conclusion follows from either attempt; continue to mark the property UNRUN/NOT_ESTABLISHED after adoption."
+    },
+    "unpaired_attempt_note": "Superseded: the R1/R2 output references are now paired in this successor."
+  },
+  "next_check": "After a frozen source/environment/profile, run both complete changed test modules and the authentic V4/current V5 reader/writer consumer chain with absent/null/non-null cases. Independently inspect generated validation and serialization schemas for nested typed references; do not count a pre-import error or RSS-policy stop as a failing test or a pass.",
+  "authority_and_currentness_boundary": {
+    "input_freeze": false,
+    "backend_freeze": false,
+    "runtime_source_freeze": false,
+    "institutional_authority": false,
+    "formal_closure": false,
+    "note": "These are implementation/source-boundary records. They do not establish policy authority, currentness, production evidence, or G acceptance."
+  },
+  "successor_preparation_context": {
+    "observed_branch": "codex/e02-unified-local-20261009",
+    "observed_head": "c4d327adadac7fdeae5add529183fe0b470c307d",
+    "observed_tree": "a870a5852fb8ad94ac689a1832dbaca06276f028",
+    "meaning": "Historical CAN source target remains 7f90; this later HEAD is only the context in which the receipt supplement was prepared, not a source freeze."
+  },
+  "supersedes": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-five-current-source-boundary-receipts-prepare-20261019/implementation-7f90b08f5119.json",
+    "sha256": "c2c67513a905bf16fe05891e732f2937f8cc3b2ac8c2322f208e571ec397dc4d",
+    "reason": "Adds exact immutable R1 and R2 attempt path@SHA-256 references and classifies both as incomplete harness outcomes; no product/schema pass claim changes."
+  },
+  "output_target": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/implementation-7f90b08f5119.json",
+  "output_target_write_authorized": false
+}

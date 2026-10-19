@@ -1,0 +1,111 @@
+{
+  "schema": "policyos.e02.append_only_decision_erratum.v1",
+  "identity": "public-api-historical-snapshot-count-and-frame-erratum-20261019",
+  "status": "candidate_for_G_decision",
+  "original_packet": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-public-api-historical-snapshot-g-decision-20261019/decision-public-api-historical-snapshot-20261019.json",
+    "sha256": "a7c2ef8560391229e7928166a5de3db98e55d402a331f06fbd69cc83343aefe8"
+  },
+  "independent_review": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-public-api-snapshot-g-decision-independent-20261019/manifest.json",
+    "sha256": "2427891abbc99ccfe8ebba9ba3d938e1fd3ea40da6d20df74689ffe05211f005"
+  },
+  "original_nested_audit_manifest": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-public-api-snapshot-semantics-oracle-20261019/manifest.json",
+    "sha256": "db02ee253de4f0338233b82cae5b4ed6545a7420b65d88324a1bc1b27c61f682"
+  },
+  "source_frame": {
+    "head": "c4d327adadac7fdeae5add529183fe0b470c307d",
+    "tree": "a870a5852fb8ad94ac689a1832dbaca06276f028",
+    "parents": [
+      "5f697ddc1aaf70fae5fd856f4c63acb828fa4da9"
+    ],
+    "known_worktree_overlay": "14 reviewed frontend source/doc/release rows applied; mandatory owner generation pending; this erratum reads committed source only."
+  },
+  "corrections": [
+    {
+      "json_pointer": "/source_frame/pinned_audit_inputs",
+      "original_count": 19,
+      "correct_count": 20,
+      "denominator": "Every key of the pinned nested audit manifest inputs mapping; no sampled or search-index denominator.",
+      "effect": "Corrects the count only. Original individual input pins and original bytes are preserved."
+    },
+    {
+      "json_pointer": "/source_frame/current_head",
+      "scope": "The original 7f90 source frame and its clean status describe that historical observation, not the later candidate or this worktree."
+    },
+    {
+      "json_pointer": "/observed_evidence/generated_inventory",
+      "scope": "The original 89-candidate inventory belongs to the fa919 audit. At c4d the generated inventory declares 92 candidates, remains unresolved, has no proven exports, and is not runtime-export completeness evidence."
+    }
+  ],
+  "historical_audit_input_reconciliation_at_current_frame": {
+    "complete_input_keys": 20,
+    "matching_current_bytes": 18,
+    "changed_since_historical_audit": [
+      {
+        "path": "policy-engine/architecture/public_surface/inventory.json",
+        "historical_sha256": "75274a04b38421580c9aae15d4fd4a1d299d1eb3e8040149c35782cb294e685f",
+        "current_sha256": "e9ccd448d7201d2763789fee04cc6e8c06ff02615bbf7143aa9384d4f67eaa0f"
+      },
+      {
+        "path": "policy-engine/docs/reference/public-surface.md",
+        "historical_sha256": "888bf6c1733d3e569195603cef9468c6e5217815a03d0905dee9a35e3c3f3f4b",
+        "current_sha256": "10613ceb66db7d9a597ed479c0010a5ea2fb8f2371dcf1c8da6cb3a706cc0ecf"
+      }
+    ],
+    "interpretation": "Historical audit pins are not rewritten or represented as a current full collector replay."
+  },
+  "current_committed_inventory": {
+    "source": {
+      "path": "policy-engine/architecture/public_surface/inventory.json",
+      "sha256": "e9ccd448d7201d2763789fee04cc6e8c06ff02615bbf7143aa9384d4f67eaa0f"
+    },
+    "module": "polisyos.core.artifacts",
+    "declared_candidates": 92,
+    "complete": false,
+    "known_export_count": 0,
+    "exports_scope": "no names proven by the bounded parser; not an empty runtime namespace"
+  },
+  "additive_release_technical_review": {
+    "attestation": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/release-inventory-local-review-attestation-20261019-core-common.json",
+      "sha256": "b21eb8b13a56f02e25cbb7d7ba316571908602cb55852129612066be133459b8"
+    },
+    "fragments": [
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-19-e02-core-cas-read-only-public-api.toml",
+        "sha256": "6cc13a376e63735d5378fe15c543e0269ec775ee26b726878785a42e5652a242"
+      },
+      {
+        "path": "policy-engine/release-fragments/unreleased/2026-10-19-e02-common-selected-artifact-reader-api.toml",
+        "sha256": "f29bd3a5ea3e480088825e38ca4186aea0e2a792ce86a21478ebdc394a2a2980"
+      }
+    ],
+    "predicate_grade": "consumer_asserted technical review marker with source-bound independent review evidence",
+    "authority_limit": "Does not establish team-architecture approval, G acceptance, external consumer adoption, or publication."
+  },
+  "unchanged_decision": {
+    "recommendation": "Preserve historical June v1 baseline; treat additive Core/Common release independently; require explicit owner/G decision before any global gate-scope or baseline epoch change.",
+    "baseline": {
+      "path": "policy-engine/architecture/baselines/structure_remediation/public_surface_pre_decomp.json",
+      "sha256": "4d8b67ee939c769b8cd52b9cdae49597d040b9680304e63356b1c449b0eef589"
+    },
+    "current_full_snapshot_collector": "UNRUN",
+    "P41": "not_established",
+    "source_freeze": false
+  },
+  "pattern_pass": {
+    "ids": [
+      "P35",
+      "P36",
+      "P37",
+      "P41"
+    ],
+    "property": "Count the complete pinned input mapping and preserve historical vs current evidence frames without promoting technical review to owner authority.",
+    "acceptance_signal": "Independent delta review checks the full20-key count, exact historical/current references, unchanged baseline, and no closure or authority inflation."
+  },
+  "formal_acceptance": false,
+  "G_acceptance": false,
+  "closure_ids": []
+}

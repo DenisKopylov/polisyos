@@ -1,0 +1,161 @@
+{
+  "record_type": "source_implementation_receipt_candidate",
+  "created_on": "2026-10-19",
+  "status": "PROPOSAL_ONLY",
+  "G_acceptance": false,
+  "closure_ids": [],
+  "formal_G_acceptance": "not_adjudicated",
+  "source_freeze": false,
+  "property": "A branch_state-tracked ArtifactRef returned in NodeOutcome.artifacts must preserve its canonical public type, selected manifest profile, and journal sidecar across runner serialization/deserialization.",
+  "P39_budget": {
+    "committed_path_count": 3,
+    "mandatory_red_semantic_test_paths": 1,
+    "delivery_metadata_paths": 2
+  },
+  "P40_classification": "Same class, deeper: tracker-owned wrappers cross the existing exact-type wire boundary. The regression should lead to generic tracker-owned type restoration, not a callsite patch or broad serializer allowlist.",
+  "pattern_pass": {
+    "relevant": [
+      "P04",
+      "P05",
+      "P14",
+      "P29",
+      "P38",
+      "P39",
+      "P40",
+      "P41"
+    ],
+    "target": "Persist canonical typed identity/profile/journal through the real runner wire round trip and retain a removal/property control.",
+    "missing": "Production transport repair is absent; this commit contributes an intentionally red TDD test only."
+  },
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "commit": "a072c7a8f479f1612edec7f1a7bebaae75b25a4b",
+    "commit_subject": "test(e02): expose tracked artifact type loss on runner wire",
+    "tree": "130402d1df6115e12bd2ee0e4c81d9bd5f361642",
+    "parents": [
+      "b4e2c8bbae2b3ee02eb297dcc30adbbfb81797fb"
+    ],
+    "slice_base": "b4e2c8bbae2b3ee02eb297dcc30adbbfb81797fb",
+    "base_tree": "6c950c053bd4624abf14788a90d001a3c9d6359d",
+    "observed_head_at_preparation": "5f697ddc1aaf70fae5fd856f4c63acb828fa4da9",
+    "observed_head_tree_at_preparation": "d1904d7e4b645ece2ba9b631a94fc13ff9fa9eaa",
+    "observed_branch_at_preparation": "codex/e02-unified-local-20261009",
+    "observed_head_is_source_freeze": false,
+    "source_application_or_git_readback": "Exact historical commit/tree/parent/path objects were re-read from Git. No global source freeze or later-head equivalence is asserted."
+  },
+  "source_scope": {
+    "source_and_test_paths": [
+      "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization.py"
+    ],
+    "delivery_metadata_paths": [
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+      "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json"
+    ],
+    "full_committed_path_count": 3,
+    "complete_commit_footprint": [
+      {
+        "status": "M",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
+        "insertions": 58,
+        "deletions": 0,
+        "preimage": {
+          "mode": "100644",
+          "git_blob_oid": "4964fa3260ca1ae17e6f256be8e396447fef7d24",
+          "bytes": 1268925,
+          "sha256": "6a646fa64122a85756227f6889ffbc0a4a1880cabbc466095ab7b9c431150c47"
+        },
+        "postimage": {
+          "mode": "100644",
+          "git_blob_oid": "cfa38c7e18d3c6b38552053cdbf6b4c03b0c8d19",
+          "bytes": 1273636,
+          "sha256": "c027add05ad358c981606b7f9e205c9c4260b91e0853ab12e35db9ae0ce9978a"
+        }
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/candidate-component-delivery-index-20261015.json",
+        "insertions": 1,
+        "deletions": 1,
+        "preimage": {
+          "mode": "100644",
+          "git_blob_oid": "ed769d31d07382e04d972689057c7b4face1ec16",
+          "bytes": 105296,
+          "sha256": "372578f0f8d4cd624f4f0978661ef0cd2462fabe8531ddf3d377d55f529dac87"
+        },
+        "postimage": {
+          "mode": "100644",
+          "git_blob_oid": "f982dc47416cd474e01172b0624a7249cebb0a62",
+          "bytes": 105296,
+          "sha256": "f1f687b623968916fbeffd0c4a920533823c3503dac7f5886a34684fa341f151"
+        }
+      },
+      {
+        "status": "M",
+        "path": "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+        "insertions": 37,
+        "deletions": 0,
+        "preimage": {
+          "mode": "100644",
+          "git_blob_oid": "bf56f274be088c3f90f3903bce45e6152ed3d45b",
+          "bytes": 16281,
+          "sha256": "46e803f7a019ec5891cfdf278582159131cdf802fbf83479bbdf5dfc42476a18"
+        },
+        "postimage": {
+          "mode": "100644",
+          "git_blob_oid": "918c3ef3ae2121653723082ec8889d3417840e98",
+          "bytes": 18091,
+          "sha256": "ef07e8f06e61774efe5c295e02ab3d8bfa2abe94f3f67fe8d15f1158d7c6c53d"
+        }
+      }
+    ]
+  },
+  "implementation_summary": "A branch_state-tracked ArtifactRef returned in NodeOutcome.artifacts must preserve its canonical public type, selected manifest profile, and journal sidecar across runner serialization/deserialization.",
+  "evidence": {
+    "source_application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b13-owned-regression-adoption-20261019/source-application.json",
+      "sha256": "d532e4ce511aceb283d527b241e298115afee825de158958da5f2850442d91cc",
+      "bytes": 7510
+    },
+    "adoption_plan": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b13-owned-regression-adoption-20261019/plan.json",
+      "sha256": "622eea83cbe0ce37b69f9f5c854b6f85108b307038a3c2749128a958ecc5ff40",
+      "bytes": 4443
+    },
+    "source_readback": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b13-owned-regression-adoption-20261019/b13-journaled-wire-red-regression-20261019-readback.json",
+      "sha256": "0249a748fd0e24a5d8a66a339aaef94d0c03cb1f12e50e2b19feec0cca6c91be",
+      "bytes": 1145
+    },
+    "independent_review_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b13-journaled-wire-red-regression-independent-20261019/manifest.json",
+        "sha256": "5ceae3414b92d885d0d367be7eb30e074b6dd5140220a08db002150498243f11",
+        "bytes": 2914
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-owned-applied-regression-adopter-independent-20261019/review.json",
+        "sha256": "57651b1e628535838149d1c77e8c1340e9f9521fc8f0c6e769af9b2c327c938d",
+        "bytes": 3807
+      }
+    ],
+    "author_failure_output": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b13-exact-ref-wire-identity-repair-r1-20261019/targeted-red.stdout.txt",
+      "sha256": "4d4d187dfdade769975db8fd8252fd8d2ab68ae042b8fec3bae2132c5e0d1949",
+      "bytes": 5214
+    },
+    "actor_attribution": "The author ran the exact selected pytest and observed the failure `Unsupported model on runner wire: state_branching._JournaledArtifactRef`. The peer reviewed the retained output but did not run pytest. This is a deliberate red regression; no production fix or PASS is claimed.",
+    "source_freeze": false,
+    "input_profile_freeze": false,
+    "backend_profile_freeze": false,
+    "runtime_source_receipt": "The failure is from the author test output, not a replay of the committed source; adopted-source run is UNRUN."
+  },
+  "next_check": "Implement and independently review the generic tracker-to-wire restoration. Then run the full serialization/branch-state importer modules and adversarial profile/journal/type mutations on the composed frozen source.",
+  "authority_and_currentness_boundary": {
+    "input_freeze": false,
+    "backend_freeze": false,
+    "runtime_source_freeze": false,
+    "institutional_authority": false,
+    "formal_closure": false,
+    "note": "These are implementation/source-boundary records. They do not establish policy authority, currentness, production evidence, or G acceptance."
+  }
+}

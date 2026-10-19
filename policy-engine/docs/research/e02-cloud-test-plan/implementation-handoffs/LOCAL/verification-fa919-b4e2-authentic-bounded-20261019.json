@@ -1,0 +1,1010 @@
+{
+  "closure_ids": [],
+  "evidence": {
+    "cas_peer_review": {
+      "bytes": 9474,
+      "path_from_LOCAL_raw": "root-core-cas-os-witness-fa919-independent-20261019/review.json",
+      "sha256": "ffc7e18bf5f25ccc8e28050a36fa5337d88e0a46d2e90cc94788bead1df0e2f3"
+    },
+    "cas_prepare_stderr": {
+      "bytes": 0,
+      "path_from_LOCAL_raw": "root-core-cas-os-readonly-witness-prepare-r3-20261019/fa919-actual-run/prepare/core-cas-prepare.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "cas_prepare_stdout": {
+      "bytes": 12839,
+      "path_from_LOCAL_raw": "root-core-cas-os-readonly-witness-prepare-r3-20261019/fa919-actual-run/prepare/core-cas-prepare.stdout.txt",
+      "sha256": "0e4c037f2f027d4bad7a1f446b0e6a7717c3d01c5e5872a5d1d1d6f0310f528b"
+    },
+    "cas_readonly_stderr": {
+      "bytes": 0,
+      "path_from_LOCAL_raw": "root-core-cas-os-readonly-witness-prepare-r3-20261019/fa919-actual-run/readonly/core-cas-readonly.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "cas_readonly_stdout": {
+      "bytes": 12808,
+      "path_from_LOCAL_raw": "root-core-cas-os-readonly-witness-prepare-r3-20261019/fa919-actual-run/readonly/core-cas-readonly.stdout.txt",
+      "sha256": "e95168a04244c4180c8579b74ef319a981afc7a0439687865412e7c5abd297b8"
+    },
+    "cas_receipt": {
+      "bytes": 115766,
+      "path_from_LOCAL_raw": "root-core-cas-os-readonly-witness-prepare-r3-20261019/fa919-actual-run/receipt.json",
+      "sha256": "30a033a54e81e8d62e68ef69f5a26790a1a165a9fb1c4a6fb82ba79feebe9f87"
+    },
+    "cas_writable_stderr": {
+      "bytes": 0,
+      "path_from_LOCAL_raw": "root-core-cas-os-readonly-witness-prepare-r3-20261019/fa919-actual-run/writable-control/core-cas-writable-control.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "cas_writable_stdout": {
+      "bytes": 13728,
+      "path_from_LOCAL_raw": "root-core-cas-os-readonly-witness-prepare-r3-20261019/fa919-actual-run/writable-control/core-cas-writable-control.stdout.txt",
+      "sha256": "f687eabf3c7768eec94824ecaa1b0aa9640a8205e013972d68ecc36beb90ac08"
+    },
+    "dowhy_host_stderr": {
+      "bytes": 0,
+      "path_from_LOCAL_raw": "root-dowhy-linux-pure-worker-two-consumers-actual-20261019/run/host-supervised/linux-worker-pytest.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "dowhy_host_stdout": {
+      "bytes": 8086,
+      "path_from_LOCAL_raw": "root-dowhy-linux-pure-worker-two-consumers-actual-20261019/run/host-supervised/linux-worker-pytest.stdout.txt",
+      "sha256": "239370dc84788fc65f272cd49c150ef78f785e42d2386e7703cce53b5fb7703c"
+    },
+    "dowhy_junit": {
+      "bytes": 520,
+      "path_from_LOCAL_raw": "root-dowhy-linux-pure-worker-two-consumers-actual-20261019/run/remote-artifacts/junit.xml",
+      "sha256": "2a715ffea4b0a1e183e75fe56fb7c87d2a334117a27d0482140ebaba8aa1f4a7"
+    },
+    "dowhy_peer_review": {
+      "bytes": 1090,
+      "path_from_LOCAL_raw": "root-dowhy-linux-two-consumers-independent-20261019/review.json",
+      "sha256": "ed16f7c2bd335ff129353e4ca537c9a5b3bbbaee61e8405fc608459d51680de4"
+    },
+    "dowhy_profile_after": {
+      "bytes": 5125,
+      "path_from_LOCAL_raw": "root-dowhy-linux-pure-worker-two-consumers-actual-20261019/run/remote-artifacts/worker-profile-after.json",
+      "sha256": "1976d2a85b97953a49c27c3264430d14531a1ef9176c336bbb3d4363cdff1331"
+    },
+    "dowhy_profile_before": {
+      "bytes": 5125,
+      "path_from_LOCAL_raw": "root-dowhy-linux-pure-worker-two-consumers-actual-20261019/run/remote-artifacts/worker-profile-before.json",
+      "sha256": "1976d2a85b97953a49c27c3264430d14531a1ef9176c336bbb3d4363cdff1331"
+    },
+    "dowhy_receipt": {
+      "bytes": 16565,
+      "path_from_LOCAL_raw": "root-dowhy-linux-pure-worker-two-consumers-actual-20261019/receipt.json",
+      "sha256": "c5f7052d3873611d0971f71997531c0fb70a33228811889a862aad7ac61e9fc4"
+    },
+    "dowhy_remote_result": {
+      "bytes": 9032,
+      "path_from_LOCAL_raw": "root-dowhy-linux-pure-worker-two-consumers-actual-20261019/run/remote-artifacts/result.json",
+      "sha256": "08158817b8d1d33f4c295adbb01f5335dc8d1041dc392bf618ef7dbb88ae26c5"
+    },
+    "dowhy_remote_stderr": {
+      "bytes": 0,
+      "path_from_LOCAL_raw": "root-dowhy-linux-pure-worker-two-consumers-actual-20261019/run/remote-artifacts/pytest.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "dowhy_remote_stdout": {
+      "bytes": 3282,
+      "path_from_LOCAL_raw": "root-dowhy-linux-pure-worker-two-consumers-actual-20261019/run/remote-artifacts/pytest.stdout.txt",
+      "sha256": "eab183135bd54f161b078fc4648d117e179f2ce13da7e788a610ab9bf572f8dd"
+    },
+    "r15_admission_review": {
+      "bytes": 7972,
+      "path_from_LOCAL_raw": "root-linux-c7-r15-environment-chain-independent-review-20261019-01/review.json",
+      "sha256": "c0c403edc20134de96876599dba6cce0239729fad20ac89ed449074811de09b0"
+    },
+    "r15_gate_child": {
+      "bytes": 7629,
+      "path_from_LOCAL_raw": "root-linux-c7-r15-fa919-actual-20261019/worker-output/attempt/gate-child.json",
+      "sha256": "d10f8f6906e6b8fe850b4a09a0539f7d57aff00ea1aeab8a292929a88c52d5bf"
+    },
+    "r15_junit": {
+      "bytes": 639,
+      "path_from_LOCAL_raw": "root-linux-c7-r15-fa919-actual-20261019/worker-output/attempt/c7-junit.xml",
+      "sha256": "1a3bb26a3903f3e09ef44af74852d923198ea2da520eb29363be475c9c4b5a8d"
+    },
+    "r15_manifest": {
+      "bytes": 7494,
+      "path_from_LOCAL_raw": "root-linux-c7-r15-fa919-actual-20261019/execution-manifest.json",
+      "sha256": "c90c2c0cf73265b51db9aaf36bfadb5139d0aa600c4687d2d340481fa24968df"
+    },
+    "r15_monitor_stderr": {
+      "bytes": 0,
+      "path_from_LOCAL_raw": "root-linux-c7-r15-fa919-actual-20261019/worker-output/monitor/runner.stderr.bin",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "r15_monitor_stdout": {
+      "bytes": 0,
+      "path_from_LOCAL_raw": "root-linux-c7-r15-fa919-actual-20261019/worker-output/monitor/runner.stdout.bin",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "r15_monitor_summary": {
+      "bytes": 32472,
+      "path_from_LOCAL_raw": "root-linux-c7-r15-fa919-actual-20261019/worker-output/monitor/summary.json",
+      "sha256": "114ffc31be0ab8b308cbc5d71ce6d8a52023e1efc0f5f1375bf8cdb8c2dd737f"
+    },
+    "r15_phases": {
+      "bytes": 380019,
+      "path_from_LOCAL_raw": "root-linux-c7-r15-fa919-actual-20261019/worker-output/attempt/c7-test-phases.json",
+      "sha256": "36f37e8086628b37139cc03873e9c1d315420108811bc8c47924ac423c8eae65"
+    },
+    "r15_prelaunch_stderr": {
+      "bytes": 0,
+      "path_from_LOCAL_raw": "root-linux-c7-r15-fa919-actual-20261019/prelaunch-final.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "r15_prelaunch_stdout": {
+      "bytes": 2790,
+      "path_from_LOCAL_raw": "root-linux-c7-r15-fa919-actual-20261019/prelaunch-final.stdout.txt",
+      "sha256": "b98907bcec08c9acf31fb73cd07b1bd60c8206add58618ccd57d3947da82119b"
+    },
+    "r15_process_witness": {
+      "bytes": 652995,
+      "path_from_LOCAL_raw": "root-linux-c7-r15-fa919-actual-20261019/worker-output/attempt/process-witness.json",
+      "sha256": "5d9caffc847eb1052ece3d8b771300c06a25d7186380915f4a349965aeb5409c"
+    },
+    "r15_pytest_stderr": {
+      "bytes": 0,
+      "path_from_LOCAL_raw": "root-linux-c7-r15-fa919-actual-20261019/worker-output/attempt/ukops.stderr.bin",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "r15_pytest_stdout": {
+      "bytes": 1273,
+      "path_from_LOCAL_raw": "root-linux-c7-r15-fa919-actual-20261019/worker-output/attempt/ukops.stdout.bin",
+      "sha256": "1240007f9494c2bc30be6e57ffbcad6e1281c99b6e2d64f0dd99ac7de146ecf7"
+    },
+    "r15_reconciliation": {
+      "bytes": 12555,
+      "path_from_LOCAL_raw": "root-linux-c7-r15-fa919-actual-20261019/outcome-reconciliation-v2.json",
+      "sha256": "68fe8b8f1edde84bde8853024fc4c83614fcafeffb200e9d63af3a779c12d378"
+    },
+    "r15_transfer_manifest": {
+      "bytes": 3042,
+      "path_from_LOCAL_raw": "root-linux-c7-r15-fa919-actual-20261019/transfer-manifest.json",
+      "sha256": "9fd7e7aa8d6219f66e363bd8d4cfe5633074014f7f894303d3d22de2eb2239f8"
+    },
+    "r15_worker_readiness": {
+      "bytes": 13385,
+      "path_from_LOCAL_raw": "root-linux-worker-fa919-forward-r1-20261019/readiness.json",
+      "sha256": "a5bbf78b9c93762baa430a3df157a50c90e2e48ab9b9acd88cd5b9dd7144bb64"
+    },
+    "r4_analysis": {
+      "bytes": 26982,
+      "path_from_LOCAL_raw": "root-r4-shared-two-studies-fa919-actual-20261019/run/postrun-analysis.json",
+      "sha256": "c7c5483f8af2d1f158c7faa079ebf1c6e5f22674ce081b3044c117d9b062204d"
+    },
+    "r4_bridge_removal_stderr": {
+      "bytes": 0,
+      "path_from_LOCAL_raw": "root-r4-shared-two-studies-fa919-actual-20261019/profiles/cap-1-bridge-removal/cap-1-removal.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "r4_bridge_removal_stdout": {
+      "bytes": 10587197,
+      "path_from_LOCAL_raw": "root-r4-shared-two-studies-fa919-actual-20261019/profiles/cap-1-bridge-removal/cap-1-removal.stdout.txt",
+      "sha256": "f34f94a6418703762624fa71b9ea585f93dbeef1457f19930f8dc190c4ccff72"
+    },
+    "r4_cap1_stderr": {
+      "bytes": 0,
+      "path_from_LOCAL_raw": "root-r4-shared-two-studies-fa919-actual-20261019/profiles/cap-1-configured/cap-1-configured.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "r4_cap1_stdout": {
+      "bytes": 10595384,
+      "path_from_LOCAL_raw": "root-r4-shared-two-studies-fa919-actual-20261019/profiles/cap-1-configured/cap-1-configured.stdout.txt",
+      "sha256": "424b3dc028af6f251229c513904143e54c1eed31da4dfbe1b5e15223aaea1af4"
+    },
+    "r4_cap2_stderr": {
+      "bytes": 0,
+      "path_from_LOCAL_raw": "root-r4-shared-two-studies-fa919-actual-20261019/profiles/cap-2-configured/cap-2-configured.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "r4_cap2_stdout": {
+      "bytes": 10601010,
+      "path_from_LOCAL_raw": "root-r4-shared-two-studies-fa919-actual-20261019/profiles/cap-2-configured/cap-2-configured.stdout.txt",
+      "sha256": "8baefc57282712c4f1f4d75e4a460a3833afb1dd083b9a83818b25e686f17531"
+    },
+    "r4_junit": {
+      "bytes": 7501,
+      "path_from_LOCAL_raw": "root-r4-shared-two-studies-fa919-actual-20261019/run/parent.junit.xml",
+      "sha256": "26f611dfccf9300a92444d6e08c33f4c4c794079ec504fe918870ccee0422852"
+    },
+    "r4_parent_stderr": {
+      "bytes": 0,
+      "path_from_LOCAL_raw": "root-r4-shared-two-studies-fa919-actual-20261019/run/r4-parent-pytest.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "r4_parent_stdout": {
+      "bytes": 15786973,
+      "path_from_LOCAL_raw": "root-r4-shared-two-studies-fa919-actual-20261019/run/r4-parent-pytest.stdout.txt",
+      "sha256": "fe5459bc3d29c572d30e6818fd424108b9deb656316afbe337d2d0de1c98323d"
+    },
+    "r4_request": {
+      "bytes": 11713,
+      "path_from_LOCAL_raw": "root-r4-shared-two-studies-fa919-actual-20261019/run/request.json",
+      "sha256": "4b0539847a4537c58f2eb407bf17950bb59493cebb7a8b43a32dcaaa6b6b6493"
+    },
+    "r4_result": {
+      "bytes": 65605,
+      "path_from_LOCAL_raw": "root-r4-shared-two-studies-fa919-actual-20261019/run/result.json",
+      "sha256": "4c37cab4e4934b4a3bfac86ed784c0bf975ef48ea0541a06e106d0d59714a2ed"
+    },
+    "r4_source_after": {
+      "bytes": 19371227,
+      "path_from_LOCAL_raw": "root-r4-shared-two-studies-fa919-actual-20261019/run/source-after.json",
+      "sha256": "5f639119bf8479478f989494a3255760b81fce9b7ecf3b51c969a392ef7cc40d"
+    },
+    "r4_source_before": {
+      "bytes": 19371227,
+      "path_from_LOCAL_raw": "root-r4-shared-two-studies-fa919-actual-20261019/run/source-before.json",
+      "sha256": "5f639119bf8479478f989494a3255760b81fce9b7ecf3b51c969a392ef7cc40d"
+    },
+    "results_import_result": {
+      "bytes": 1477,
+      "path_from_LOCAL_raw": "root-results-import-check-fa919-20261019/result.json",
+      "sha256": "388a35db4a4c070073a637bb4cb856ae94c5f25337e1d39adc32b2b84ed9d75c"
+    },
+    "results_import_stderr": {
+      "bytes": 0,
+      "path_from_LOCAL_raw": "root-results-import-check-fa919-20261019/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "results_import_stdout": {
+      "bytes": 112,
+      "path_from_LOCAL_raw": "root-results-import-check-fa919-20261019/stdout.txt",
+      "sha256": "eca3d415ed25c7242d8b6d2eef89e0afa82fd983c1f3ebdac31271663110d0b4"
+    },
+    "sdk296_install_manifest": {
+      "bytes": 23453,
+      "path_from_LOCAL_raw": "root-native-targeted-security-install-r5-actual-d7ad6b0b-20261019/execution-manifest.json",
+      "sha256": "f57d82cd28a54843973d7382d7ab8f499991bc5af0df0cdc663a08799f138509"
+    },
+    "sdk296_profile_review": {
+      "bytes": 11830,
+      "path_from_LOCAL_raw": "root-native-mypy-post-sdk-profile-independent-20261019/review.json",
+      "sha256": "8f1358869553a383b770be7e739403c3e3fd2454f4264b4f0ac867d0d654d2a4"
+    },
+    "sota_import_result": {
+      "bytes": 1265,
+      "path_from_LOCAL_raw": "root-native-imports-command-registry-fa919-actual-20261019/attempt-r2/outputs/import-linter-result.json",
+      "sha256": "6e0c9c3876b12daced2d82fb9e7983dc06f4f1f868f5bffde158bee7468becbb"
+    },
+    "sota_import_stderr": {
+      "bytes": 0,
+      "path_from_LOCAL_raw": "root-native-imports-command-registry-fa919-actual-20261019/attempt-r2/outputs/import-linter.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "sota_import_stdout": {
+      "bytes": 3497,
+      "path_from_LOCAL_raw": "root-native-imports-command-registry-fa919-actual-20261019/attempt-r2/outputs/import-linter.stdout.txt",
+      "sha256": "4a88cb6b3d6b4c29e00e5a1b45bfe67ba8c1196913cc9bc9e8d69b14ad3f3e99"
+    },
+    "sota_registry_result": {
+      "bytes": 1118,
+      "path_from_LOCAL_raw": "root-native-imports-command-registry-fa919-actual-20261019/attempt-r2/outputs/command-registry-result.json",
+      "sha256": "d6898c5509012377311dda2f5576805cedc8c7df2ce88ef568f89da32457face"
+    },
+    "sota_registry_stderr": {
+      "bytes": 1759,
+      "path_from_LOCAL_raw": "root-native-imports-command-registry-fa919-actual-20261019/attempt-r2/outputs/command-registry.stderr.txt",
+      "sha256": "afca6976bf9abad3e667b6c2a324551d507fd8f8b478d882bc08de09382f8932"
+    },
+    "sota_registry_stdout": {
+      "bytes": 0,
+      "path_from_LOCAL_raw": "root-native-imports-command-registry-fa919-actual-20261019/attempt-r2/outputs/command-registry.stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "sota_route": {
+      "bytes": 47252,
+      "path_from_LOCAL_raw": "root-native-sota13-fa919-executable-routing-20261019/routing.json",
+      "sha256": "a6e8d0be1d0bf79d2762b9eb325fb90719d6f382ca4520859511a249e242c00c"
+    },
+    "sota_rows_complete_manifest": {
+      "bytes": 3774,
+      "path_from_LOCAL_raw": "root-native-imports-command-registry-fa919-actual-20261019/manifest-r2-complete.json",
+      "sha256": "7d240fb2430aeb7bb1d7a0bcb981c6468f82d8786c8c9a7b774fa002085f1b38"
+    },
+    "sota_rows_launch_result": {
+      "bytes": 3017,
+      "path_from_LOCAL_raw": "root-native-imports-command-registry-fa919-actual-20261019/attempt-r2/outputs/launch-result.json",
+      "sha256": "39f4aedfcf8adcfece247483c6b7682035451a8242ca07cd639cf2d14f90f8db"
+    },
+    "sota_rows_receipt": {
+      "bytes": 8144,
+      "path_from_LOCAL_raw": "root-native-imports-command-registry-fa919-actual-20261019/receipt.json",
+      "sha256": "960a82e5d96935347a21f31dcb0110d709ed926301be15d0092d7db9607ab8b5"
+    },
+    "v5_junit": {
+      "bytes": 802,
+      "path_from_LOCAL_raw": "root-v5-three-native-consumers-fa919-actual-r2-20261019/pytest.xml",
+      "sha256": "fdb63a3023e085e4a9921c8abcb8e547d8f910158fc5dd9e2f705ede214dac62"
+    },
+    "v5_peer_review": {
+      "bytes": 2652,
+      "path_from_LOCAL_raw": "root-v5-three-native-consumers-independent-20261019/review.json",
+      "sha256": "eb0af1b8b6c8ee2e6244026caf9b06ddd63a19a1f3330972a7f724515b7ebc46"
+    },
+    "v5_reconciliation": {
+      "bytes": 16233,
+      "path_from_LOCAL_raw": "root-v5-three-native-consumers-fa919-actual-r2-20261019/final-reconciliation.json",
+      "sha256": "6ec7e7e17e35a34497c6bebb9f61e1bd956dd10d48bcffa770d493c36e3c3222"
+    },
+    "v5_request": {
+      "bytes": 7466,
+      "path_from_LOCAL_raw": "root-v5-three-native-consumers-fa919-actual-r2-20261019/request.json",
+      "sha256": "5f39ffc0bc4ffa299d3fdbaed95764c330843ff3cc12a781ed1406c529116c2f"
+    },
+    "v5_result": {
+      "bytes": 2734,
+      "path_from_LOCAL_raw": "root-v5-three-native-consumers-fa919-actual-r2-20261019/result.json",
+      "sha256": "eb92d9899b12fa88f582ca811a052ba76e66523ab03e395cbbe2b48a2db46fd7"
+    },
+    "v5_runtime_origins": {
+      "bytes": 894,
+      "path_from_LOCAL_raw": "root-v5-three-native-consumers-fa919-actual-r2-20261019/runtime-origin-qualification.json",
+      "sha256": "f3a34014530f9191f6fed19d124dc9c3cbb07f90850edf637135c5b24c506584"
+    },
+    "v5_source_after_comparison": {
+      "bytes": 1050,
+      "path_from_LOCAL_raw": "root-v5-three-native-consumers-fa919-actual-r2-20261019/source-after-comparison.json",
+      "sha256": "82005d29679cdf563706f1e178d15e764bf60133b9e714dee2a0d9158ac846f9"
+    },
+    "v5_source_continuation": {
+      "bytes": 1139,
+      "path_from_LOCAL_raw": "root-v5-three-native-consumers-fa919-actual-r2-20261019/source-continuation-verification.json",
+      "sha256": "5b4ded5c796cee64fe01fc0d75f58a0fdd571bd42d76e9e53f4d10bc018192fd"
+    },
+    "v5_stderr": {
+      "bytes": 0,
+      "path_from_LOCAL_raw": "root-v5-three-native-consumers-fa919-actual-r2-20261019/pytest-execution.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "v5_stdout": {
+      "bytes": 2123,
+      "path_from_LOCAL_raw": "root-v5-three-native-consumers-fa919-actual-r2-20261019/pytest-execution.stdout.txt",
+      "sha256": "cc30813ffbe54e89fef1c4c479605f2312804ae8519784d43ac430d43d945e0f"
+    },
+    "v5_frame_erratum": {
+      "path_from_LOCAL_raw": "root-v5-three-native-consumers-independent-frame-erratum-20261019/tree-erratum.json",
+      "sha256": "2307d0c1f4dce6a0ab384f884a89f635e1a345b5e4bbbc361aebcfebd3feb0f7",
+      "bytes": 3194
+    },
+    "v5_r1_source_before": {
+      "path_from_LOCAL_raw": "root-v5-three-native-consumers-fa919-actual-20261019/source-before.json",
+      "sha256": "5f639119bf8479478f989494a3255760b81fce9b7ecf3b51c969a392ef7cc40d",
+      "bytes": 19371227
+    },
+    "v5_r1_source_after": {
+      "path_from_LOCAL_raw": "root-v5-three-native-consumers-fa919-actual-20261019/source-after.json",
+      "sha256": "5f639119bf8479478f989494a3255760b81fce9b7ecf3b51c969a392ef7cc40d",
+      "bytes": 19371227
+    },
+    "v5_r2_execution_provenance": {
+      "path_from_LOCAL_raw": "root-v5-three-native-consumers-fa919-actual-r2-20261019/execution-provenance.json",
+      "sha256": "055d878f7a9ac203a99b4b6148684af9c92591da02e2cf094ec248a1c22e4d59",
+      "bytes": 863198
+    },
+    "r15_independent_manifest": {
+      "path_from_LOCAL_raw": "root-linux-c7-r15-fa919-independent-20261019/manifest.json",
+      "sha256": "824fdb68ac822da344eb6cbded05186e5ff23ba24fb955792c63b28f1b980464",
+      "bytes": 6346
+    },
+    "r15_independent_review": {
+      "path_from_LOCAL_raw": "root-linux-c7-r15-fa919-independent-20261019/review.json",
+      "sha256": "67c442e7cede449341ded4a33f957d3ee5a2dffe1311b6fbf8d32b5551689621",
+      "bytes": 7637
+    },
+    "r15_independent_review_markdown": {
+      "path_from_LOCAL_raw": "root-linux-c7-r15-fa919-independent-20261019/review.md",
+      "sha256": "4013afd42ac9b9f198124f6d6f49f58710e11f98a63ac03f3c2cc91bd590b86c",
+      "bytes": 3745
+    },
+    "maxbytes_request": {
+      "path_from_LOCAL_raw": "root-maxbytes-two-owner-modules-b4e2-actual-20261019/request.json",
+      "sha256": "41709cd8a85670fb05fe99a8e59bea79dbc69ff88710e68f10feb694136cd9b8",
+      "bytes": 6395
+    },
+    "maxbytes_result": {
+      "path_from_LOCAL_raw": "root-maxbytes-two-owner-modules-b4e2-actual-20261019/result.json",
+      "sha256": "d7bf36ed111140818fdad6e8e5443696e6414f8500c8d4908d11e744f2e12060",
+      "bytes": 32083
+    },
+    "maxbytes_command_result": {
+      "path_from_LOCAL_raw": "root-maxbytes-two-owner-modules-b4e2-actual-20261019/command-result.json",
+      "sha256": "fea93c8ece6fa8e55912fdbac9e8c9ea8ff34242190a715c5dc20aacff0d807a",
+      "bytes": 1903
+    },
+    "maxbytes_source_comparison": {
+      "path_from_LOCAL_raw": "root-maxbytes-two-owner-modules-b4e2-actual-20261019/source-comparison.json",
+      "sha256": "17affeaa625227b4dccf9086982c69c4b23a665a0526e7744ca8a28acab3e21a",
+      "bytes": 552
+    },
+    "maxbytes_pytest_junit": {
+      "path_from_LOCAL_raw": "root-maxbytes-two-owner-modules-b4e2-actual-20261019/pytest.xml",
+      "sha256": "133727919764ef6014beedb3881d89e5842a6050b7e77b6cc2d7f3cf94b6b1f8",
+      "bytes": 7303
+    },
+    "maxbytes_pytest_stdout": {
+      "path_from_LOCAL_raw": "root-maxbytes-two-owner-modules-b4e2-actual-20261019/pytest-two-owner-modules.stdout.txt",
+      "sha256": "07c2eef926162e0090994bc913805aa08a8b2cbb5b21d2c933b937a10300713f",
+      "bytes": 80
+    },
+    "maxbytes_pytest_stderr": {
+      "path_from_LOCAL_raw": "root-maxbytes-two-owner-modules-b4e2-actual-20261019/pytest-two-owner-modules.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "maxbytes_runtime_origin_qualification": {
+      "path_from_LOCAL_raw": "root-maxbytes-two-owner-modules-b4e2-actual-20261019/runtime-origin-qualification.json",
+      "sha256": "ce7b6e99f79b88d81eaed89657ca7400e8926e7091a14fa843c43efe3f8ec9b2",
+      "bytes": 581
+    },
+    "maxbytes_provenance_qualification": {
+      "path_from_LOCAL_raw": "root-maxbytes-two-owner-modules-b4e2-actual-20261019/provenance-qualification.json",
+      "sha256": "380a0db5848ddcddc3085685a05328f4ac410a2a565990d5812167a4acaa92d7",
+      "bytes": 501
+    },
+    "maxbytes_execution_provenance": {
+      "path_from_LOCAL_raw": "root-maxbytes-two-owner-modules-b4e2-actual-20261019/execution-provenance.json",
+      "sha256": "e4f7e0413691dbd960dd984f87c29ec3f0df3f68ccec90fd1d4fcea36ab003fc",
+      "bytes": 424036
+    },
+    "maxbytes_source_before": {
+      "path_from_LOCAL_raw": "root-maxbytes-two-owner-modules-b4e2-actual-20261019/source-before.json",
+      "sha256": "0339d090e77527dcbef557bf861e1a113e9c77fa3f18dffbb79b87d2d5b6a2b8",
+      "bytes": 19375791
+    },
+    "maxbytes_source_after": {
+      "path_from_LOCAL_raw": "root-maxbytes-two-owner-modules-b4e2-actual-20261019/source-after.json",
+      "sha256": "0339d090e77527dcbef557bf861e1a113e9c77fa3f18dffbb79b87d2d5b6a2b8",
+      "bytes": 19375791
+    },
+    "maxbytes_independent_manifest": {
+      "path_from_LOCAL_raw": "root-maxbytes39-b4e2-independent-20261019/manifest.json",
+      "sha256": "1b35621fa934945a74e4e666da538c8ef5a9a25e67bea1cd14a2b558411a120b",
+      "bytes": 7664
+    },
+    "maxbytes_independent_review": {
+      "path_from_LOCAL_raw": "root-maxbytes39-b4e2-independent-20261019/review.json",
+      "sha256": "5ad413345bc4c78d900f9f63cc9ebcaf4383b895a91f55edae412c9195440102",
+      "bytes": 14358
+    },
+    "maxbytes_independent_review_markdown": {
+      "path_from_LOCAL_raw": "root-maxbytes39-b4e2-independent-20261019/review.md",
+      "sha256": "de675fb9b50e3e6dc750e225cba11ec7ec84e0b25f49dfb60009f61be5daac27",
+      "bytes": 1849
+    }
+  },
+  "observations": [
+    {
+      "class": "native V5 consumer tests",
+      "evidence_refs": [
+        "v5_request",
+        "v5_result",
+        "v5_reconciliation",
+        "v5_runtime_origins",
+        "v5_source_after_comparison",
+        "v5_source_continuation",
+        "v5_junit",
+        "v5_stdout",
+        "v5_stderr",
+        "v5_peer_review",
+        "v5_frame_erratum",
+        "v5_r1_source_before",
+        "v5_r1_source_after",
+        "v5_r2_execution_provenance"
+      ],
+      "finding": "A local execution-qualification reporter omitted .py while reconstructing pytest nodeids, but direct JUnit-to-request identity reconciliation matched all three cases. The actual result remains completed_with_findings.",
+      "id": "v5-native-three-test-run",
+      "limitations": [
+        "Three selected tests only.",
+        "No currentness, production authority, scientific admissibility, or universal V5 behavior claim."
+      ],
+      "result": {
+        "error": 0,
+        "executed": 3,
+        "fail": 0,
+        "junit_pass": 3,
+        "runner_rc": 0,
+        "runtime_origins_loaded_and_qualified": 873,
+        "skip": 0,
+        "source_tree_unchanged": true
+      },
+      "review": {
+        "applicability": "independently_reconciled_with_separate_frame_erratum",
+        "original_review_preserved": true,
+        "original_review_sha256": "eb0af1b8b6c8ee2e6244026caf9b06ddd63a19a1f3330972a7f724515b7ebc46",
+        "reason": "The original review retains its stale source_frame.tree token; the separate erratum binds fa919 to Git tree 8c8a93fc37e86c14656517f38716ae9eab47efc8 and reconciles all 25,692 snapshot entries plus 873 runtime origins. No rerun or rewrite of the original review occurred.",
+        "ref": "v5_peer_review",
+        "erratum_ref": "v5_frame_erratum",
+        "verdict": "go_scoped_actual_three_test_execution"
+      },
+      "status": "completed_with_findings; bounded actual tests passed"
+    },
+    {
+      "class": "separate Linux DoWhy worker candidate tests",
+      "evidence_refs": [
+        "dowhy_receipt",
+        "dowhy_remote_result",
+        "dowhy_junit",
+        "dowhy_remote_stdout",
+        "dowhy_remote_stderr",
+        "dowhy_profile_before",
+        "dowhy_profile_after",
+        "dowhy_host_stdout",
+        "dowhy_host_stderr",
+        "dowhy_peer_review"
+      ],
+      "id": "dowhy-two-consumer-candidate-run",
+      "limitations": [
+        "Candidate computation only.",
+        "No production data, causal admissibility, calibration, external currentness, or policy authority established."
+      ],
+      "result": {
+        "error": 0,
+        "executed": 2,
+        "fail": 0,
+        "installed_locked_distributions": 52,
+        "junit_pass": 2,
+        "profile_before_after_identical": true,
+        "skip": 0,
+        "worker_pytest_rc": 0
+      },
+      "review": {
+        "limitation": "No end-to-end external-input authority or producer custody; some direct child origins and kill/reap behavior were not exercised.",
+        "ref": "dowhy_peer_review",
+        "verdict": "GO_BOUNDED_CANDIDATE_ROUTE_ONLY"
+      },
+      "scope": "Synthetic linear identification/estimation compared with StatsModels plus genuine GCM mechanism-fit/residual/bootstrap path.",
+      "status": "candidate_tests_passed"
+    },
+    {
+      "class": "Linux C7/R15 runtime",
+      "evidence_refs": [
+        "r15_manifest",
+        "r15_reconciliation",
+        "r15_transfer_manifest",
+        "r15_worker_readiness",
+        "r15_gate_child",
+        "r15_junit",
+        "r15_phases",
+        "r15_process_witness",
+        "r15_monitor_summary",
+        "r15_pytest_stdout",
+        "r15_pytest_stderr",
+        "r15_monitor_stdout",
+        "r15_monitor_stderr",
+        "r15_prelaunch_stdout",
+        "r15_prelaunch_stderr",
+        "r15_admission_review",
+        "r15_independent_manifest",
+        "r15_independent_review",
+        "r15_independent_review_markdown"
+      ],
+      "id": "linux-c7-r15-fa919-run",
+      "limitations": [
+        "Synthetic C7 tests only.",
+        "No universal Linux/Docker command proof.",
+        "No R15 admission or repository-wide gate closure."
+      ],
+      "qualification_gap": "Docker CLI numeric wait status was not retained by the host launcher after Popen. The worker monitor and child runner report success, but the missing direct wait status prevents promoting this to an unqualified aggregate pass.",
+      "result": {
+        "monitor_pass": true,
+        "monitor_runner_rc": 0,
+        "peak_process_tree_rss_bytes": 2112409600,
+        "phases": 9,
+        "phases_passed": 9,
+        "process_tree_cap_bytes": 3221225472,
+        "pytest_cases": 3,
+        "pytest_fail": 0,
+        "pytest_pass": 3,
+        "termination_reason": null
+      },
+      "review": {
+        "admission": "HOLD",
+        "ref": "r15_admission_review",
+        "state": "admission-only / actual review pending"
+      },
+      "status": "positive bounded execution with host wait status unobserved; actual independent review pending",
+      "independent_review": {
+        "manifest_ref": "r15_independent_manifest",
+        "review_ref": "r15_independent_review",
+        "review_markdown_ref": "r15_independent_review_markdown",
+        "bounded_attempt": "GO",
+        "direct_host_docker_cli_numeric_wait_status": "not_established",
+        "overall_la029_closure": "not_established_out_of_scope",
+        "basis": "The independent review reconciles the current source frame, 1,081 copied output SHA entries, 3 JUnit cases, 9 passing phases, environment/process binding, and external monitor. The direct Docker CLI numeric completion status remains absent."
+      }
+    },
+    {
+      "class": "native R4 shared-study consumer integration",
+      "evidence_refs": [
+        "r4_request",
+        "r4_result",
+        "r4_analysis",
+        "r4_junit",
+        "r4_parent_stdout",
+        "r4_parent_stderr",
+        "r4_cap1_stdout",
+        "r4_cap1_stderr",
+        "r4_cap2_stdout",
+        "r4_cap2_stderr",
+        "r4_bridge_removal_stdout",
+        "r4_bridge_removal_stderr",
+        "r4_source_before",
+        "r4_source_after"
+      ],
+      "failure": "Cap-1/cap-2 study outputs differ only in embedded wall_time_ms and estimated_cost_usd inside content-addressed evidence; method_result_ref/result_ref match, but evidence_ref IDs diverge. Product owner must decide whether volatile cost fields are excluded from content addressing or a different semantic projection is compared.",
+      "id": "r4-shared-two-studies",
+      "limitations": [
+        "One selected synthetic integration test only.",
+        "No production capacity/roster authority, public HTTP admission, safety promotion, currentness, causal admissibility, or serial-reference equality."
+      ],
+      "result": {
+        "formal_acceptance": false,
+        "junit_error": 0,
+        "junit_fail": 1,
+        "junit_pass": 0,
+        "peak_process_tree_rss_bytes": 1727594496,
+        "process_group_gone": true,
+        "pytest_rc": 1,
+        "selected_tests": 1,
+        "source_unchanged": true,
+        "wall_seconds": 183.95991583308205
+      },
+      "status": "failed",
+      "subprofiles": [
+        {
+          "child_rc": 0,
+          "fold_count": 12,
+          "id": "cap-1-configured",
+          "status": "passed",
+          "study_count": 2
+        },
+        {
+          "child_rc": 0,
+          "fold_count": 12,
+          "id": "cap-2-configured",
+          "status": "passed",
+          "study_count": 2
+        },
+        {
+          "child_rc": 0,
+          "id": "cap-1-bridge-removal",
+          "status": "expected bridge-removal dispatch behavior observed"
+        }
+      ],
+      "wrapper": "The postrun wrapper reports observed process exit 2 because module-level except BaseException caught its own successful SystemExit(0) after writing result.json; this is separate from pytest rc=1."
+    },
+    {
+      "class": "Core CAS strict-readonly plus writable-removal-control witness",
+      "evidence_refs": [
+        "cas_receipt",
+        "cas_peer_review",
+        "cas_readonly_stdout",
+        "cas_readonly_stderr",
+        "cas_writable_stdout",
+        "cas_writable_stderr",
+        "cas_prepare_stdout",
+        "cas_prepare_stderr"
+      ],
+      "false_conjunct": "The runner compared staged_blob_sha256 (raw 64-hex digest) with the prefixed sha256:<hex> ArtifactID string. The independent review confirms it equals ArtifactID.hex; the other path/intent/status checks pass. This comparison error causes the partial transaction and aggregate failure.",
+      "id": "core-cas-readonly-os-witness",
+      "limitations": [
+        "One controlled fixture and local macOS sandbox witness.",
+        "Does not establish cross-platform filesystem behavior, production custody, or general CAS acceptance."
+      ],
+      "peer_review": {
+        "disposition": "single_runner_comparison_erratum_supported_aggregate_hold_preserved",
+        "ref": "cas_peer_review"
+      },
+      "result": {
+        "pending_intent_left": true,
+        "state_unchanged": true,
+        "strict_readonly_child_rc": 0,
+        "typed_ref_and_manifest_seen": true,
+        "writable_control_denied_errno": 1
+      },
+      "status": "aggregate HOLD; writable-removal control receipt failed"
+    },
+    {
+      "class": "results package import/navigation check",
+      "evidence_refs": [
+        "results_import_result",
+        "results_import_stdout",
+        "results_import_stderr"
+      ],
+      "id": "results-index-import-check",
+      "limitations": [
+        "Not a product test or SOTA gate.",
+        "No substantive result acceptance; transfer/navigation only."
+      ],
+      "result": {
+        "finding_ids": 282,
+        "product_closure": "not_established",
+        "raw_archives_received": 0,
+        "return_code": 0,
+        "route_rows": 2524,
+        "scope": "15 transferred UTF-8 texts and 2074 planned Python file/cut cells"
+      },
+      "status": "command returned 0; navigation/index evidence only"
+    },
+    {
+      "class": "canonical Repository SOTA rows executed on native local profile",
+      "denominator": {
+        "canonical_toml_gate_rows": 13,
+        "command_registry_row": "row 13",
+        "import_linter_row": "row 2",
+        "module_size_report_is_registry_gate": false
+      },
+      "evidence_refs": [
+        "sota_rows_receipt",
+        "sota_rows_complete_manifest",
+        "sota_rows_launch_result",
+        "sota_import_result",
+        "sota_import_stdout",
+        "sota_import_stderr",
+        "sota_registry_result",
+        "sota_registry_stdout",
+        "sota_registry_stderr",
+        "sota_route"
+      ],
+      "id": "repository-sota-two-native-rows",
+      "limitations": [
+        "Only two of 13 canonical rows executed here; neither passes.",
+        "No full SOTA command, generated-artifact suite, public-surface check, or repository gate closure."
+      ],
+      "rows": [
+        {
+          "finding_count": 8,
+          "finding_summary": "Eight unadjudicated architecture/import-boundary violations; complete stdout retained.",
+          "id": "import-linter",
+          "max_sampled_process_tree_rss_bytes": 127303680,
+          "return_code": 1,
+          "status": "failed",
+          "wall_seconds": 8.05796887492761
+        },
+        {
+          "finding_summary": "Generated docs drift: docs/reference/tools.md is missing the packaged-resource-contract validation command row.",
+          "id": "command-registry",
+          "max_sampled_process_tree_rss_bytes": 75366400,
+          "return_code": 1,
+          "status": "failed",
+          "wall_seconds": 2.1445860841777176
+        }
+      ],
+      "status": "both rows command_failed; 11 other SOTA rows remain UNRUN in this packet"
+    },
+    {
+      "id": "native-maxbytes-two-owner-modules-b4e2-run",
+      "class": "native connector max-bytes and connector-family whole-module run",
+      "status": "bounded actual run independently reviewed GO for exactly the two complete selected modules (39 cases).",
+      "source_frame": {
+        "branch": "codex/e02-unified-local-20261009",
+        "head": "b4e2c8bbae2b3ee02eb297dcc30adbbfb81797fb",
+        "tree": "6c950c053bd4624abf14788a90d001a3c9d6359d"
+      },
+      "evidence_refs": [
+        "maxbytes_request",
+        "maxbytes_result",
+        "maxbytes_command_result",
+        "maxbytes_source_comparison",
+        "maxbytes_pytest_junit",
+        "maxbytes_pytest_stdout",
+        "maxbytes_pytest_stderr",
+        "maxbytes_runtime_origin_qualification",
+        "maxbytes_provenance_qualification",
+        "maxbytes_execution_provenance",
+        "maxbytes_source_before",
+        "maxbytes_source_after",
+        "maxbytes_independent_manifest",
+        "maxbytes_independent_review",
+        "maxbytes_independent_review_markdown"
+      ],
+      "result": {
+        "collected": 39,
+        "executed": 39,
+        "junit_pass": 39,
+        "junit_fail": 0,
+        "junit_error": 0,
+        "pytest_rc": 0,
+        "runtime_origins_loaded_and_qualified": 365,
+        "source_unchanged": true,
+        "wall_seconds": 4.808254124829546,
+        "max_sampled_process_tree_rss_bytes": 316473344,
+        "sample_count": 9,
+        "sample_period_seconds": 0.5,
+        "rss_measurement": "Largest periodic process-tree sample, not a continuous peak measurement.",
+        "source_snapshot_entries": 25698,
+        "runtime_origins_blob_joined": 368
+      },
+      "limitations": [
+        "Exactly two complete selected test modules at the b4e2 source frame; no whole-Fabric or repository-wide conclusion.",
+        "Independent review reconciles 39 collected/executed/JUnit cases and 365 runtime origins for this run only.",
+        "Largest RSS figure is based on nine 0.5-second samples, not continuous peak measurement.",
+        "No SDK capability, production persistence, G acceptance, or 198 closure claim."
+      ],
+      "review_state": {
+        "state": "independently_reviewed_bounded_GO",
+        "review_ref": "maxbytes_independent_review",
+        "manifest_ref": "maxbytes_independent_manifest",
+        "tests_rerun_during_review": false
+      },
+      "independent_review": {
+        "decision": "GO_BOUNDED_ACTUAL",
+        "review_ref": "maxbytes_independent_review",
+        "manifest_ref": "maxbytes_independent_manifest",
+        "review_markdown_ref": "maxbytes_independent_review_markdown",
+        "reconciled_scope": {
+          "complete_selected_modules": 2,
+          "collected": 39,
+          "executed": 39,
+          "junit": 39,
+          "passed": 39,
+          "failed": 0,
+          "errors": 0,
+          "runtime_origins": 365,
+          "full_source_entries": 25698,
+          "source_map_mismatches": 0,
+          "loaded_origin_blob_joins": 368,
+          "content_hash_mismatches": 0,
+          "requested_runtime_modules": 5
+        },
+        "resource_reading": {
+          "max_sampled_process_tree_rss_bytes": 316473344,
+          "samples": 9,
+          "sample_period_seconds": 0.5,
+          "continuous_peak_claim": false
+        },
+        "p40_bucket": "Same bounded execution-receipt/provenance class; no second-class escape found. GO closes only bounded receipt reconciliation for this exact run.",
+        "nonclaims": [
+          "Not whole Fabric or whole repository.",
+          "Not SDK capability, production persistence, G acceptance, or 198 closures.",
+          "No retroactive claim beyond b4e2 source frame."
+        ]
+      }
+    }
+  ],
+  "overall_limits": [
+    "The exact fa919 source frame is historical; later source cuts require fresh slice-bound source/profile qualification.",
+    "Runtime profile facts are separate: local native Mac .venv, Linux C7 app worker (163 distributions), Linux DoWhy worker (52 distributions), and a separately recorded native SDK snapshot (296 distributions). They are not merged into one environment claim.",
+    "No policy law, authority, custody, calibration, production currentness, causal admissibility, or universal consumer behavior is established by this set of tests.",
+    "The evidence is mixed: scoped positive runs, one R4 test failure, a CAS aggregate HOLD, and two failing native repository-gate rows.",
+    "Repository-wide SOTA remains incomplete; full generated checks and remaining registry rows are unrun.",
+    "The V5 review-frame mismatch is reconciled by a separate immutable erratum; the original review remains unchanged. R15 has an independent scoped GO, but the host Docker CLI numeric wait and overall LA-029 closure remain not_established.",
+    "The b4e2 max-bytes run now has an independent GO for its exact 39-case/two-module scope; its RSS is periodic sampling, and whole-Fabric, SDK, production, and repository-wide claims remain out of scope."
+  ],
+  "prepared_at": "2026-10-19",
+  "profile_separation": [
+    {
+      "platform": "Native macOS / CPython 3.14.3 project .venv (exact per-run profile evidence remains in each request/receipt).",
+      "profile_id": "native-local-policy-engine-venv",
+      "run_binding": "Each row references its own request/receipt. The native SDK 296-distribution snapshot is separately pinned below and is not used to retroactively qualify earlier runs.",
+      "used_by": [
+        "V5 R2",
+        "R4",
+        "Core CAS OS witness",
+        "native SOTA command rows",
+        "results-import navigation check"
+      ]
+    },
+    {
+      "evidence_refs": [
+        "sdk296_install_manifest",
+        "sdk296_profile_review"
+      ],
+      "limitation": "A later profile snapshot is not proof that each earlier fa919 run used the same environment state.",
+      "platform": "Native local SDK profile; 296 installed distributions after a later locked install, with three recorded distribution changes.",
+      "profile_id": "native-sdk-296-snapshot",
+      "used_to_requalify_fa919_runs": false
+    },
+    {
+      "evidence_refs": [
+        "r15_worker_readiness",
+        "r15_transfer_manifest",
+        "r15_manifest"
+      ],
+      "platform": "Linux aarch64, CPython 3.14.0; /scratch/root-venv; 163 installed distributions; policy-engine distribution not installed, tests use the bound repository source tree.",
+      "profile_id": "linux-c7-app-worker-163",
+      "separate_from": [
+        "native-local-policy-engine-venv",
+        "DoWhy Linux worker"
+      ],
+      "used_by": [
+        "R15 C7 actual run"
+      ]
+    },
+    {
+      "evidence_refs": [
+        "dowhy_receipt",
+        "dowhy_profile_before",
+        "dowhy_profile_after"
+      ],
+      "platform": "Linux aarch64, CPython 3.12.12; /scratch/dowhy-venv; 52 installed distributions matching the qualified active lock closure.",
+      "profile_id": "linux-dowhy-worker-52",
+      "separate_from": [
+        "native-local-policy-engine-venv",
+        "Linux C7 app worker"
+      ],
+      "used_by": [
+        "DoWhy two-consumer candidate tests"
+      ]
+    },
+    {
+      "profile_id": "native-maxbytes-b4e2-run-profile",
+      "platform": "Native macOS, CPython 3.14.3, pytest 9.0.2 in the project .venv; pytest.ini SHA-256 61270205a9f573a090b3c051a4b78351e67308a49e21660dbf33e76186d799eb; default plugin autoload preserved.",
+      "run_binding": "Exact b4e2 request/result and independently reviewed profile in maxbytes_independent_review.",
+      "used_by": [
+        "39-case two-module max-bytes actual run"
+      ],
+      "separate_from": [
+        "historical fa919 source-frame runs",
+        "native-sdk-296-snapshot",
+        "linux-c7-app-worker-163",
+        "linux-dowhy-worker-52"
+      ],
+      "review_ref": "maxbytes_independent_review"
+    }
+  ],
+  "record_type": "bounded_actual_verification_handoff",
+  "schema": "policyos.e02.fa919_actual_consumer_verification.v3",
+  "scope": {
+    "claim_boundary": "This is a set of bounded run receipts, not a repository-wide verification, capability acceptance, or closure.",
+    "patterns": {
+      "P14": "Do not inflate independence: V5 original review bytes retain a stale tree token, while a separate erratum reconciles the full snapshot map and loaded origins to the actual fa919 tree; R15 peer review is scoped to one worker attempt.",
+      "P38": "CAS aggregate red is caused by comparing a raw 64-hex digest against the prefixed ArtifactID string; the peer review reconciles the type mismatch.",
+      "P41": "Every outcome remains bound to fa919; later source frames do not inherit it without a slice-bound replay."
+    },
+    "proposal_fields": {
+      "acceptance_authority": {
+        "state": "not_established",
+        "value": null
+      },
+      "proposal_id": {
+        "reason": "No original proposal identifier was supplied for this receipt task.",
+        "state": "not_established",
+        "value": null
+      },
+      "proposal_scope": {
+        "state": "bounded",
+        "value": "fa919 actual-run evidence listed in this packet"
+      }
+    },
+    "purpose": "Compact reconciliation of distinct actual consumer and repository-gate evidence recorded against fa919."
+  },
+  "source_frame": {
+    "branch": "codex/e02-unified-local-20261009",
+    "head": "fa91983925a95c4428655c91d4601c5fd54b1345",
+    "qualifier": "Historical actual-run frame; current OWN is a later source cut and was not used to rebind these results.",
+    "tree": "8c8a93fc37e86c14656517f38716ae9eab47efc8"
+  },
+  "supersedes": {
+    "path_from_LOCAL_raw": "root-fa919-actual-consumer-verification-successor-r2-20261019/verification.json",
+    "sha256": "23786ee501e86973a113a66ef0f8259a3e1c127fcf38bf89b85c29cde02b9b99",
+    "immutable": true
+  },
+  "git_frame_reconciliation": {
+    "method": "git rev-parse <commit>^{tree}",
+    "frames": [
+      {
+        "label": "fa919_historical_native_and_linux_c7_runs",
+        "head": "fa91983925a95c4428655c91d4601c5fd54b1345",
+        "expected_tree": "8c8a93fc37e86c14656517f38716ae9eab47efc8",
+        "git_tree": "8c8a93fc37e86c14656517f38716ae9eab47efc8",
+        "matches_expected": true
+      },
+      {
+        "label": "b4e2_maxbytes_two_module_run",
+        "head": "b4e2c8bbae2b3ee02eb297dcc30adbbfb81797fb",
+        "expected_tree": "6c950c053bd4624abf14788a90d001a3c9d6359d",
+        "git_tree": "6c950c053bd4624abf14788a90d001a3c9d6359d",
+        "matches_expected": true
+      }
+    ],
+    "all_execution_frames_match": true
+  },
+  "current_source_freeze": false,
+  "source_frame_qualification": "The fa919 and b4e2 execution frames are independently recomputed from Git commit objects. This packet does not claim the current checkout is frozen at either frame."
+}

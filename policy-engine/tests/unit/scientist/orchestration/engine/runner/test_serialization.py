@@ -88,6 +88,43 @@ class TestSerializeOutcome:
         assert restored.status == "ok"
         assert restored.state.run_id == "outcome-run"
 
+    def test_journaled_artifact_ref_round_trip_preserves_closed_wire_type_and_profile(
+        self,
+    ) -> None:
+        profile = f"sha256:{'a' * 64}"
+        source = ExperimentState(run_id="journaled-artifact-ref", artifacts_index={})
+        branch = branch_state(source, write_paths=("artifacts_index.bundle",))
+        original = ArtifactRef(
+            artifact_id=f"sha256:{'b' * 64}",
+            kind="ir.context_adaptive_parameter_bundle",
+            media_type="application/json",
+            manifest_profile_sha256=profile,
+        )
+        branch.state.artifacts_index["bundle"] = original
+        tracked = branch.state.artifacts_index["bundle"]
+
+        assert isinstance(tracked, ArtifactRef)
+        assert type(tracked) is not ArtifactRef
+        assert tracked.model_dump(
+            mode="python", by_alias=True, exclude_none=False
+        ) == original.model_dump(mode="python", by_alias=True, exclude_none=False)
+
+        restored = deserialize_outcome(
+            serialize_outcome(NodeOutcome(status="ok", state=branch.state, artifacts=[tracked]))
+        )
+
+        assert type(restored.artifacts[0]) is ArtifactRef
+        assert type(restored.state.artifacts_index["bundle"]) is ArtifactRef
+        assert restored.artifacts[0].model_dump(
+            mode="python", by_alias=True, exclude_none=False
+        ) == original.model_dump(mode="python", by_alias=True, exclude_none=False)
+        assert restored.artifacts[0].manifest_profile_sha256 == profile
+        journal = mutation_journal_for_state(restored.state)
+        assert journal is not None
+        mutation = next(row for row in journal.operations if row.path == "artifacts_index.bundle")
+        assert mutation.value_kind == "artifact_ref"
+        assert mutation.value["manifest_profile_sha256"] == profile
+
     def test_journaled_outcome_round_trip_preserves_same_value_and_delete_ops(self) -> None:
         source = ExperimentState(
             run_id="outcome-mutation-journal",

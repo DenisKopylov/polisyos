@@ -17695,5 +17695,63 @@
     "source_profile_freeze": false,
     "G_acceptance": false,
     "closure_ids": []
+  },
+  "root_b13_journaled_wire_authored_red_regression_20261019": {
+    "slice_base": "b4e2c8bbae2b3ee02eb297dcc30adbbfb81797fb",
+    "canonical_writer": "root only; reviewed present patch, retired exact originals through native Trash",
+    "mechanism_and_mandatory_companion_paths": {
+      "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization.py": {
+        "operation": "write",
+        "preimage_sha256": "dcf9c2d61cf269ac857dd7d863a47ca9c9f992c3032cf99c65a8d8a5c968f55a",
+        "git_base_preimage_sha256": "46e803f7a019ec5891cfdf278582159131cdf802fbf83479bbdf5dfc42476a18",
+        "postimage_path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b13-owned-regression-adoption-20261019/test_serialization.py",
+        "postimage_sha256": "ef07e8f06e61774efe5c295e02ab3d8bfa2abe94f3f67fe8d15f1158d7c6c53d",
+        "category": "semantic_regression_test",
+        "P39_role": "Mandatory generic tracking-to-wire regression; root formats only introduced method without changing AST."
+      }
+    },
+    "application": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b13-owned-regression-adoption-20261019/source-application.json",
+      "sha256": "d532e4ce511aceb283d527b241e298115afee825de158958da5f2850442d91cc"
+    },
+    "native_trash_receipt": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b13-owned-regression-adoption-20261019/native-trash-receipt.json",
+      "sha256": "057f81b6e161c37eaec854c352b59148420f1f1711163b9005834b723e193dcf"
+    },
+    "reviewed_inputs": [
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b13-owned-regression-provenance-20261019/provenance.json",
+        "sha256": "e338b9289d04bdd307156088eeee5b508fc1b0ecf26ded4c2ce3467c91ff10c3"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b13-journaled-wire-red-regression-independent-20261019/manifest.json",
+        "sha256": "5ceae3414b92d885d0d367be7eb30e074b6dd5140220a08db002150498243f11"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-owned-applied-regression-adopter-independent-20261019/review.json",
+        "sha256": "57651b1e628535838149d1c77e8c1340e9f9521fc8f0c6e769af9b2c327c938d"
+      },
+      {
+        "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b13-exact-ref-wire-identity-repair-r1-20261019/targeted-red.stdout.txt",
+        "sha256": "4d4d187dfdade769975db8fd8252fd8d2ab68ae042b8fec3bae2132c5e0d1949"
+      }
+    ],
+    "owned_applied_provenance": {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-b13-owned-regression-provenance-20261019/provenance.json",
+      "sha256": "e338b9289d04bdd307156088eeee5b508fc1b0ecf26ded4c2ce3467c91ff10c3"
+    },
+    "P40": "SAME_CLASS_DEEPER: owned tracking wrappers cross an existing exact-type closed wire boundary; fix the generic class through tracker-owned type restoration, not one ArtifactRef callsite or broader allowlist.",
+    "bounded_proof": "Independent candidate review and exact canonical Ruff; runtime qualification is separate.",
+    "limitations": [
+      "Author /root/hyg_scope_finish_author ran exact selected pytest: FAIL Unsupported model on runner wire: state_branching._JournaledArtifactRef. The independent peer reviewed that retained output and did not execute pytest; any peer root-run wording is an actor-label error.",
+      "The author mistakenly wrote this single test directly under a RAW-only lease, then explicitly confirmed ownership. Root preserves it, no restore/reset/stash/rebase/deletion. No production canonical path was written.",
+      "Ruff formatting of the introduced method is AST-equivalent to the tested draft. Full canonical Ruff check and format pass.",
+      "This is a deliberately red TDD regression boundary; no transport fix, B13 replay, capability closure, authority, native-green or global closeout is claimed. The author continues RAW-only generic source repair; root will apply with mandatory tests after independent review."
+    ],
+    "runtime": "UNRUN on adopted source",
+    "next_check": "Review/apply generic tracker-to-wire repair and sibling adversarial controls, then run complete serialization/branching importer modules and all defining prepared-B baseline plus13affectedcontours on the composed source freeze.",
+    "source_profile_freeze": false,
+    "G_acceptance": false,
+    "closure_ids": []
   }
 }

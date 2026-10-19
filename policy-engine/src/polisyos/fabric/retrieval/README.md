@@ -6,6 +6,13 @@ signals.
 
 ## Persisted fetch custody
 
+Fetch payloads and their JSON receipts/bindings are written through the artifact store's
+canonical JSON API using the declared core profile. JSON persistence is built from the byte
+snapshot captured before the CAS write, so a later mutation of connector-owned data cannot change
+the profiled object being stored. Arrow IPC payloads remain media-specific byte streams. Readers
+continue to require the declared profile; profileless historical JSON is not upgraded or treated
+as verified by this capture path.
+
 `execute_fetch_plans(..., persist_payload=True)` requires a real
 `DatasetCatalogGraph` and CAS. The actual chosen plan, including a fallback,
 must resolve through that graph. The executor persists the complete connector

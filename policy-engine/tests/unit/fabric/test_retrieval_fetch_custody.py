@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from types import SimpleNamespace
-from typing import Literal
+from typing import Any, Literal
 
 import pandas as pd
 import pytest
@@ -102,45 +102,61 @@ def build_real_fetch_owner(
     payload = {"value": rows}
     result_updates = {}
 
-    class Connector:
-        async def fetch(self, handle, request):
-            requests.append(request)
-            data = payload["value"]
-            count = len(data)
-            return FetchResult(
-                data=data,
-                row_count=count,
-                schema_id="test.recorded.rows",
-                schema_version="1.0.0",
-                version=DataVersion(
-                    strategy=VersionStrategy.TIMESTAMP,
-                    value="recorded-v1",
-                    timestamp=datetime(2026, 9, 8, tzinfo=UTC),
-                ),
-                fetched_at=datetime(2026, 9, 8, tzinfo=UTC),
-                completeness=0.0
-                if request.page_size and request.dataset_id in preview_reject
-                else 1.0,
-                quality_flags=frozenset({"recorded-test-transport"}),
-                total_count=count,
-                bytes_transferred=421,
-            ).model_copy(update=result_updates)
+    from polisyos.fabric.connectors.base import ConnectionHandle
+    from polisyos.fabric.connectors.registry import ConnectorRegistry
+    from polisyos.fabric.connectors.sources.file_tabular import FileTabularConnector
+    from polisyos.ir.connectors import FetchRequest
 
-    class Registry:
-        def get(self, connector_id, *, enable_cache=False):
-            return Connector()
+    async def fetch_recorded(
+        _connector: FileTabularConnector,
+        handle: ConnectionHandle,
+        request: FetchRequest,
+    ) -> FetchResult[Any]:
+        del handle
+        requests.append(request)
+        data = payload["value"]
+        count = len(data)
+        return FetchResult(
+            data=data,
+            row_count=count,
+            schema_id="test.recorded.rows",
+            schema_version="1.0.0",
+            version=DataVersion(
+                strategy=VersionStrategy.TIMESTAMP,
+                value="recorded-v1",
+                timestamp=datetime(2026, 9, 8, tzinfo=UTC),
+            ),
+            fetched_at=datetime(2026, 9, 8, tzinfo=UTC),
+            completeness=0.0 if request.page_size and request.dataset_id in preview_reject else 1.0,
+            quality_flags=frozenset({"recorded-test-transport"}),
+            total_count=count,
+            bytes_transferred=421,
+        ).model_copy(update=result_updates)
 
-        def get_default_config(self, connector_id):
-            return ConnectionConfig(url="https://transport.invalid/recorded")
-
-        async def get_connection(self, connector_id, config):
-            return object()
-
-        async def release_connection(self, connector_id, handle):
-            pass
-
+    namespace, separator, short_id = connector_id.partition(".")
+    if not separator or not namespace or not short_id:
+        raise ValueError("test_connector_id_must_be_fully_qualified")
+    metadata = FileTabularConnector.metadata.model_copy(
+        update={"namespace": namespace, "connector_id": short_id}
+    )
+    recorded_connector = type(
+        "RecordedFixtureConnector",
+        (FileTabularConnector,),
+        {
+            "namespace": namespace,
+            "short_id": short_id,
+            "connector_id": connector_id,
+            "metadata": metadata,
+            "fetch": fetch_recorded,
+        },
+    )
+    registry = ConnectorRegistry()
+    registry.register(
+        recorded_connector,
+        config=ConnectionConfig(url="https://transport.invalid/recorded"),
+    )
     providers = providers_override or RetrievalProviders(
-        registry=Registry(),
+        registry=registry,
         profiles=SimpleNamespace(get=lambda _: None),
         tracer=SimpleNamespace(start_as_current_span=lambda *args, **kwargs: nullcontext()),
         metrics=SimpleNamespace(
@@ -251,6 +267,7 @@ def build_recorded_file_fetch_owner(
     canonicalize_catalog_source=False,
     catalog_source_locator=None,
     catalog_connector_params=None,
+    profile_base_url=None,
     publish_current_catalog=False,
 ):
     """Run the actual registered FileTabularConnector against a local CSV.
@@ -265,10 +282,12 @@ def build_recorded_file_fetch_owner(
         DatasetRecord,
         DistributionRecord,
     )
+    from polisyos.fabric.connectors.base import ConnectionHandle
     from polisyos.fabric.connectors.profiles import SourceProfileRegistry
     from polisyos.fabric.connectors.profiles.models import SourceProfile
     from polisyos.fabric.connectors.registry import ConnectorRegistry
     from polisyos.fabric.connectors.sources.file_tabular import FileTabularConnector
+    from polisyos.ir.connectors import FetchRequest
 
     tmp_path.mkdir(parents=True, exist_ok=True)
     csv_path = tmp_path / "recorded.csv"
@@ -307,7 +326,11 @@ def build_recorded_file_fetch_owner(
                 display_name="Recorded local file fixture",
                 description="Controlled local-file profile with no excluded auth inputs",
                 connector_family="files",
-                base_url=str(catalog_locator or csv_path),
+                base_url=str(
+                    profile_base_url
+                    if profile_base_url is not None
+                    else catalog_locator or csv_path
+                ),
                 headers={},
                 auth_policy="none",
             )
@@ -344,8 +367,15 @@ def build_recorded_file_fetch_owner(
         )
         for name in ("primary", "fallback")
     ]
+    requests: list[FetchRequest] = []
+
+    class RecordingFileTabularConnector(FileTabularConnector):
+        async def fetch(self, handle: ConnectionHandle, request: FetchRequest) -> FetchResult[Any]:
+            requests.append(request)
+            return await super().fetch(handle, request)
+
     registry = ConnectorRegistry()
-    registry.register(FileTabularConnector, config=ConnectionConfig(url=str(csv_path)))
+    registry.register(RecordingFileTabularConnector, config=ConnectionConfig(url=str(csv_path)))
     providers = RetrievalProviders(
         registry=registry,
         profiles=profiles,
@@ -413,6 +443,8 @@ def build_recorded_file_fetch_owner(
             owner.csv_path = csv_path
             owner.frame = frame
             owner.rows = frame.to_dict(orient="records")
+            owner.requests = requests
+            owner.index_dir = publish_config.index_dir if publish_config is not None else tmp_path
             yield owner
 
 
@@ -947,20 +979,25 @@ def test_dataframe_payload_roundtrip_preserves_entire_table(real_fetch_owner):
     pd.testing.assert_frame_equal(resolved.result.data, frame)
 
 
-def _copy_artifact(store, original_ref, payload, *, inputs=None):
+def _copy_artifact(store, original_ref, payload, *, inputs=None, profiled=True):
+    from polisyos import canon
     from polisyos.core.artifacts import PutOptions
 
     manifest = store.get_manifest(original_ref.artifact_id)
-    return store.put_bytes(
-        payload,
-        PutOptions(
-            kind=manifest.kind,
-            media_type=manifest.media_type,
-            schema=manifest.artifact_schema,
-            producer=manifest.producer,
-            inputs=manifest.inputs if inputs is None else inputs,
-        ),
+    options = PutOptions(
+        kind=manifest.kind,
+        media_type=manifest.media_type,
+        schema=manifest.artifact_schema,
+        producer=manifest.producer,
+        inputs=manifest.inputs if inputs is None else inputs,
     )
+    if manifest.media_type == "application/json" and profiled:
+        return store.put_json(
+            canon.from_canonical_bytes(payload),
+            options,
+            canon_spec=canon.CanonSpec(forbid_floats=False, exclude_none=False),
+        )
+    return store.put_bytes(payload, options)
 
 
 @pytest.mark.parametrize("mutation", ["tail_value", "stable_metadata", "source_changed"])
@@ -1015,6 +1052,105 @@ def test_real_connector_readback_refuses_complete_counterfeit_chain(tmp_path, mu
                 ],
             )
         with pytest.raises(ValueError, match="source_changed"):
+            custody.resolve_persisted_fetch(
+                store=owner.store,
+                fetch_receipt_ref=receipt_ref,
+                catalog=owner.graph,
+                providers=owner.providers,
+            )
+
+
+def test_json_payload_storage_uses_the_encoded_snapshot_when_source_mutates(tmp_path, monkeypatch):
+    from polisyos.core import canon
+    from polisyos.fabric.retrieval import custody
+
+    with build_real_fetch_owner(tmp_path) as owner:
+        source_rows = [{"row_id": "captured-row", "value": 1.5}]
+        owner.payload["value"] = source_rows
+        encoded_snapshots: list[bytes] = []
+        mutated_data: list[Any] = []
+        original_encode = custody._encode_payload
+
+        def _encode_then_mutate(data):
+            encoded = original_encode(data)
+            if (
+                isinstance(data, list)
+                and data
+                and isinstance(data[0], dict)
+                and data[0].get("row_id") == "captured-row"
+            ):
+                assert encoded[1] == "application/json"
+                encoded_snapshots.append(encoded[0])
+                data[0]["value"] = 999.5
+                mutated_data.append(data)
+            return encoded
+
+        monkeypatch.setattr(custody, "_encode_payload", _encode_then_mutate)
+        executed = _execute(owner, owner.plan)
+        assert executed.fetch_receipt_ref is not None
+        assert len(encoded_snapshots) == 1
+        assert len(mutated_data) == 1
+        assert mutated_data[0][0]["value"] == 999.5
+
+        receipt = custody.FabricFetchReceipt.model_validate(
+            canon.from_canonical_bytes(
+                owner.store.get_bytes(executed.fetch_receipt_ref.artifact_id)
+            )
+        )
+        stored_payload = owner.store.get_bytes(receipt.result.data.artifact_id)
+        assert stored_payload == encoded_snapshots[0]
+        assert canon.from_canonical_bytes(stored_payload) == [
+            {"row_id": "captured-row", "value": 1.5}
+        ]
+
+
+def test_profileless_json_payload_is_not_reclassified_as_verified(tmp_path):
+    from polisyos.core import canon
+    from polisyos.core.artifacts import InputRef, PutOptions
+    from polisyos.fabric.retrieval import custody
+
+    with build_recorded_file_fetch_owner(tmp_path) as owner:
+        executed = _execute(owner, owner.plan)
+        assert executed.fetch_receipt_ref is not None
+        receipt = custody.FabricFetchReceipt.model_validate(
+            canon.from_canonical_bytes(
+                owner.store.get_bytes(executed.fetch_receipt_ref.artifact_id)
+            )
+        )
+        payload = owner.store.get_bytes(receipt.result.data.artifact_id)
+        manifest = owner.store.get_manifest(receipt.result.data.artifact_id)
+        profileless_payload = owner.store.put_bytes(
+            payload,
+            PutOptions(
+                kind=manifest.kind,
+                media_type=manifest.media_type,
+                schema=manifest.artifact_schema,
+                producer=manifest.producer,
+                inputs=[],
+            ),
+        )
+        receipt = receipt.model_copy(
+            update={"result": receipt.result.model_copy(update={"data": profileless_payload})}
+        )
+        receipt_ref = _copy_artifact(
+            owner.store,
+            executed.fetch_receipt_ref,
+            canon.to_canonical_bytes(
+                receipt.model_dump(mode="json"),
+                spec=canon.CanonSpec(forbid_floats=False, exclude_none=False),
+            ),
+            inputs=[
+                InputRef(artifact_id=profileless_payload.artifact_id, role="fetched_payload"),
+                InputRef(
+                    artifact_id=receipt.catalog_binding_ref.artifact_id,
+                    role="catalog_binding",
+                ),
+            ],
+        )
+
+        with pytest.raises(
+            custody.FabricFetchCustodyError, match="fabric_fetch_profile_unverified"
+        ):
             custody.resolve_persisted_fetch(
                 store=owner.store,
                 fetch_receipt_ref=receipt_ref,
@@ -1120,8 +1256,15 @@ def test_bulk_catalog_owner_returns_nothing_on_mid_read_source_change(
         return values
 
     monkeypatch.setattr(store, "resolve_metric_bindings", changed)
-    with pytest.raises(ValueError, match="catalog_fetch_source_changed"):
+    from polisyos.data_forge.domains.catalog.knowledge.derivation_catalog_selection import (
+        CatalogSelectionError,
+    )
+
+    with pytest.raises(CatalogSelectionError) as raised:
         owner.graph.bind_fetch_targets([_catalog_request(owner)])
+    assert raised.value.code == "catalog_read_session_stale"
+    assert raised.value.detail == "catalog_read_session_stale"
+    assert owner.graph_path.read_bytes().endswith(b"changed-after-read")
 
 
 def test_bulk_catalog_owner_data_only_growth_uses_same_single_admission(tmp_path):
@@ -1375,7 +1518,7 @@ def test_fetch_executor_local_config_remains_a_standalone_control(tmp_path):
 
 
 def test_persisted_fetch_replay_uses_one_atomic_current_profile_snapshot(tmp_path, monkeypatch):
-    from polisyos.fabric.connectors.sources.file_tabular import FileTabularConnector
+    from polisyos.fabric.connectors.sources import file_tabular
     from polisyos.fabric.retrieval.custody import resolve_persisted_fetch
     from polisyos.fabric.retrieval.executor import FetchExecutor
 
@@ -1389,13 +1532,13 @@ def test_persisted_fetch_replay_uses_one_atomic_current_profile_snapshot(tmp_pat
         alternate_path = tmp_path / "replay-profile-replacement.csv"
         alternate_path.write_bytes(owner.csv_path.read_bytes())
         observed_urls: list[str] = []
-        original_fetch = FileTabularConnector.fetch
+        original_read = file_tabular.read_location_bytes
 
-        async def _record_fetch(connector, handle, request):
-            observed_urls.append(handle.config.url)
-            return await original_fetch(connector, handle, request)
+        async def _record_read(config, *args, **kwargs):
+            observed_urls.append(config.url)
+            return await original_read(config, *args, **kwargs)
 
-        monkeypatch.setattr(FileTabularConnector, "fetch", _record_fetch)
+        monkeypatch.setattr(file_tabular, "read_location_bytes", _record_read)
         original_bind = FetchExecutor._bind_execution
         profile_replaced = False
 

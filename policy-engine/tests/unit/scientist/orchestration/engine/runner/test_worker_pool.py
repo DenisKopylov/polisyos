@@ -259,6 +259,69 @@ class TestLocalWorkerPool:
                 if not run._closed and not run._suspended:
                     run.suspend_for_resume()
 
+    def test_parent_receipt_maps_core_factory_type_refusal_to_legacy_error(self) -> None:
+        """Keep the legacy refusal only for the Core factory's exact type error."""
+        import logging
+        from typing import Any, cast
+
+        from polisyos.scientist.orchestration.engine.context import ExecutionContext
+        from polisyos.scientist.orchestration.engine.runner.local_pool import (
+            _prepare_parent_receipt,
+        )
+
+        parent = ExecutionContext(
+            store=cast("Any", object()),
+            run=cast("Any", object()),
+            logger=logging.getLogger("test.local_parent_receipt_type_refusal"),
+        )
+        with pytest.raises(ValueError, match="^worker_task_parent_run_not_active$"):
+            _prepare_parent_receipt(_make_task(), parent)
+
+    def test_parent_receipt_propagates_other_core_factory_errors_unchanged(
+        self,
+        monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """Do not translate lifecycle/owner errors or ValueError subclasses."""
+        import logging
+        from typing import Any, cast
+
+        from polisyos.core.run.worker_lifecycle import WorkerLifecycleCapability
+        from polisyos.scientist.orchestration.engine.context import ExecutionContext
+        from polisyos.scientist.orchestration.engine.runner.local_pool import (
+            _prepare_parent_receipt,
+        )
+
+        class LifecycleRefusal(ValueError):
+            pass
+
+        failures = (
+            ValueError("worker_lifecycle_parent_run_not_active"),
+            LifecycleRefusal("worker_lifecycle_core_run_required"),
+        )
+        parent = ExecutionContext(
+            store=cast("Any", object()),
+            run=cast("Any", object()),
+            logger=logging.getLogger("test.local_parent_receipt_factory_refusal"),
+        )
+        for failure in failures:
+
+            def reject_factory(
+                _cls: type[WorkerLifecycleCapability],
+                _run: Any,
+                *,
+                error: ValueError = failure,
+            ) -> WorkerLifecycleCapability:
+                raise error
+
+            monkeypatch.setattr(
+                WorkerLifecycleCapability,
+                "for_parent",
+                classmethod(reject_factory),
+            )
+            with pytest.raises(type(failure)) as caught:
+                _prepare_parent_receipt(_make_task(), parent)
+            assert caught.value is failure
+
     def test_scale_to_changes_capacity(self) -> None:
         from polisyos.scientist.orchestration.engine.runner.local_pool import LocalWorkerPool
 

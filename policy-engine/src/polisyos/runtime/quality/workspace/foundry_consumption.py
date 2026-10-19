@@ -21,7 +21,7 @@ from polisyos.core.artifacts.backends.config import (
 )
 from polisyos.core.artifacts.manifest import InputRef, ProducerInfo, SchemaInfo
 from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
-from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
+from polisyos.core.contracts import DataSnapshot, DataSnapshotRef
 from polisyos.data_requirement import (
     PolicyGrammarConceptSpineRefs,  # Pydantic resolves this field at runtime.
     UniversalAuthorityProfile,  # Pydantic resolves this field at runtime.

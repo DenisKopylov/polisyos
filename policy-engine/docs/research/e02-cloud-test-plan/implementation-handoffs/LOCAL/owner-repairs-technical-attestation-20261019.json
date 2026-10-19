@@ -1,0 +1,189 @@
+{
+  "record_type": "local_author_technical_source_review",
+  "slice_base": "238c715b392c9d0316eac79b46c754bbeac6d9ba",
+  "source_application": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current238-owner-repair-admission-20261019/source-application-final.json",
+    "sha256": "20b81fe82adcdd23edbfba00734bdffce8db70764b3db1feadcb6bba6d54c956"
+  },
+  "source_paths": [
+    "policy-engine/pyproject.toml",
+    "policy-engine/src/polisyos/fabric/retrieval/README.md",
+    "policy-engine/src/polisyos/fabric/retrieval/custody.py",
+    "policy-engine/src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/README.md",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/runner/local_pool.py",
+    "policy-engine/src/polisyos/scientist/orchestration/engine/runner/serialization.py",
+    "policy-engine/tests/repo_quality/tools/test_layer3_gy_n13b_acquisition_contract.py",
+    "policy-engine/tests/unit/core/test_supported_route_facade_identities.py",
+    "policy-engine/tests/unit/fabric/test_retrieval_fetch_custody.py",
+    "policy-engine/tests/unit/runtime/quality/test_acquisition_planner.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/runner/decimal_worker_transport.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_ray_runner.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+    "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_worker_pool.py",
+    "policy-engine/uv.lock"
+  ],
+  "source_path_count": 17,
+  "native_ruff": {
+    "changed_python_paths": 13,
+    "deciding_outputs": [
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/src/polisyos/scientist/orchestration/engine/runner/local_pool.py",
+          "policy-engine/tests/unit/scientist/orchestration/engine/runner/decimal_worker_transport.py",
+          "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_ray_runner.py",
+          "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+          "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_worker_pool.py",
+          "policy-engine/src/polisyos/fabric/retrieval/custody.py",
+          "policy-engine/tests/unit/fabric/test_retrieval_fetch_custody.py",
+          "policy-engine/tests/unit/runtime/quality/test_acquisition_planner.py",
+          "policy-engine/tests/repo_quality/tools/test_layer3_gy_n13b_acquisition_contract.py",
+          "policy-engine/src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "policy-engine/tests/unit/core/test_supported_route_facade_identities.py",
+          "policy-engine/src/polisyos/scientist/orchestration/engine/runner/serialization.py",
+          "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.046655874932184815,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current238-owner-repair-admission-20261019/check-native-role-0.stdout.txt",
+          "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current238-owner-repair-admission-20261019/check-native-role-0.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      },
+      {
+        "argv": [
+          "policy-engine/.venv/bin/python",
+          "-B",
+          "-m",
+          "ruff",
+          "format",
+          "--check",
+          "--no-cache",
+          "--config",
+          "policy-engine/architecture/tooling/ruff/workspace_root.toml",
+          "policy-engine/src/polisyos/scientist/orchestration/engine/runner/local_pool.py",
+          "policy-engine/tests/unit/scientist/orchestration/engine/runner/decimal_worker_transport.py",
+          "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_ray_runner.py",
+          "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization_e02.py",
+          "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_worker_pool.py",
+          "policy-engine/src/polisyos/fabric/retrieval/custody.py",
+          "policy-engine/tests/unit/fabric/test_retrieval_fetch_custody.py",
+          "policy-engine/tests/unit/runtime/quality/test_acquisition_planner.py",
+          "policy-engine/tests/repo_quality/tools/test_layer3_gy_n13b_acquisition_contract.py",
+          "policy-engine/src/polisyos/runtime/quality/workspace/foundry_consumption.py",
+          "policy-engine/tests/unit/core/test_supported_route_facade_identities.py",
+          "policy-engine/src/polisyos/scientist/orchestration/engine/runner/serialization.py",
+          "policy-engine/tests/unit/scientist/orchestration/engine/runner/test_serialization.py"
+        ],
+        "exit_code": 0,
+        "seconds": 0.04379916610196233,
+        "stdout": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current238-owner-repair-admission-20261019/format-native-role-0.stdout.txt",
+          "sha256": "04eb0d6e6734823dcd2b2b704729e976f683df7a8f334da7216520ef1cb319bf"
+        },
+        "stderr": {
+          "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current238-owner-repair-admission-20261019/format-native-role-0.stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      }
+    ],
+    "result": "PASS"
+  },
+  "lock_check": {
+    "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-owner-repair-lock-metadata-companion-20261019/native-check-result.json",
+    "sha256": "79c6a74706cd072864aea3d0af43b12ad22608373a49d0a377e4881d7a7bb533"
+  },
+  "independent_source_reviews": [
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-worker-lifecycle-parent-ancestry-r3-ruff-20261019/postimage-manifest.json",
+      "sha256": "6a92654230e0cbead51f61a71fc72ceda6fe1bf2579c0e515a3669d86f7984f2"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-worker-lifecycle-parent-ancestry-r2-independent-20261019/manifest.json",
+      "sha256": "fd964c59cc76b62bdb8faae012a73d46a6369290c41f946f92693a280a149b66"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-worker-lifecycle-parent-ancestry-r3-ruff-independent-20261019/manifest.json",
+      "sha256": "d488f8a2b16eda1e0e1439acf62c512dc566e877766e91ff2652971aa6918eb1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/worker-independent-fabric-r3-review-20261019/manifest.json",
+      "sha256": "b9be2b8ff359ab678e04eb773f3991a642d7d502b9a06f7d5c2dfc63b7303076"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-n13b-cas-readonly-fixture-independent-r3-20261019/review.json",
+      "sha256": "a30b385170ce0847a7ab52df40d419ce1b1b7a4c6b7c10f85dbcd8329b3a95fc"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current238-facade-companions-independent-20261019/review.json",
+      "sha256": "11139269dded474346458aa303aeed38b2c0b8660e82461e2cc7210abef31ec1"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-fabric-can-profile-route-repair-current238-r3-20261019/candidate-manifest-r3.json",
+      "sha256": "d62bf616f0892527d7078546edd6094fe238a49d8d99e949a5da6c871c6df74b"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-can-n13b-cas-readonly-fixture-author-r3-20261019/manifest.json",
+      "sha256": "d56f6f55ae768685aa297e36cc334bcc9a9c67df957a076946c859a4e37a4077"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current238-foundry-source-facade-import-companion-20261019/manifest.json",
+      "sha256": "4ec8dd367b2518f40177f190dedcce17e24039a8bc43bf6b1c4b270bdbe2f15c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-current238-core-facade-removal-control-companion-20261019/manifest.json",
+      "sha256": "5a1c252c84aa94001252ecee538ae3facff826ffa7b91c704f7764c8b3e6e47c"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-frontend-lineage-r7-complete-source-generator-adoption-20261019/preparation.json",
+      "sha256": "fd400a37487ff6b9afd806734a222de4e50f0b3ff9781c510921ceb2f3914201"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-frontend-lineage-r7-complete-source-generator-adoption-20261019/source-applied.json",
+      "sha256": "e531b80218bfb3c37cd1e89460b05e105abc04d0bf053da28cf703adf0581646"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-frontend-lineage-r7-complete-source-generator-adoption-20261019/reviewed-source-docs.patch",
+      "sha256": "3e1095450b8c9a27902c4de06a95334a30153b2fff88b226b85ce14e69ab23fa"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-b13-wire-owner-r4-20261019/manifest.json",
+      "sha256": "407d7757921e64995db2c77bae0cf8582a3026747677ac015442b0cf0ad6376d"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-core-b13-wire-owner-r4-independent-review-20261019/decision.md",
+      "sha256": "67a1004ef415864d5b4967eed87d5e2918ee63fa706a32961ee75ff11ba77c83"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-owner-repair-lock-metadata-companion-20261019/manifest.json",
+      "sha256": "c6ad65c181de5d8da6e43ceb9d9123048604db05590b17fc5a685f250d10d6f0"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-worker-lifecycle-psutil-lock-metadata-independent-20261019/manifest.json",
+      "sha256": "3ff4288cc834c30904733c1106d276b238a74c26a398f2aac3ca1f7ae43a8714"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/raw/root-owner-repair-lock-metadata-companion-20261019/native-check-result.json",
+      "sha256": "79c6a74706cd072864aea3d0af43b12ad22608373a49d0a377e4881d7a7bb533"
+    }
+  ],
+  "semantic_scope": "Canonical JSON bytes captured once and stored with actual Core profile; existing typed state/worker/Core facade contracts and physical ancestry controls; generic selected CAS fixture closure.",
+  "runtime": "UNRUN for this final source; historical reds and censored outcomes remain in verification-current238 aggregate, not converted to passes.",
+  "source_freeze": false,
+  "institutional_owner_approval": "not_established",
+  "G_acceptance": false,
+  "closure_ids": []
+}

@@ -4,10 +4,11 @@ from __future__ import annotations
 
 import json
 import os
-import subprocess
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
+
+import psutil
 
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.scientist.orchestration.engine.protocol import NodeOutcome, NodeSpec
@@ -56,12 +57,9 @@ class DecimalTransportNode:
                     if line.startswith("PPid:")
                 )
             else:
-                # macOS has no procfs; ps reports the same live OS relation.
-                ppid = int(
-                    subprocess.check_output(
-                        ["ps", "-o", "ppid=", "-p", str(cursor)], text=True
-                    ).strip()
-                )
+                # macOS has no procfs; use native process metadata without
+                # executing the privileged setuid /bin/ps utility.
+                ppid = psutil.Process(cursor).ppid()
             ancestry.append({"pid": cursor, "ppid": ppid})
             cursor = ppid
 

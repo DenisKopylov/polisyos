@@ -456,8 +456,6 @@ async def test_ray_refuses_production_claim_context_until_ports_are_transportabl
         SimpleNamespace(is_initialized=lambda: True, init=lambda **kwargs: None),
         raising=False,
     )
-    store = FileSystemCAS(tmp_path)
-    bundle = build_default_registry_bundle(store)
     run_id = "R_ray_production_context_held"
     workflow = _workflow()
     runner = RayWorkflowRunner(address="ray://unused", namespace="test")
@@ -473,6 +471,15 @@ async def test_ray_refuses_production_claim_context_until_ports_are_transportabl
         raising=False,
     )
     with tenant_scope(None, tenant_id="test-ray-tenant", cell_id=None):
+        store = FileSystemCAS(
+            tmp_path,
+            tenant_id="test-ray-tenant",
+            cell_id=None,
+        )
+        bundle = build_default_registry_bundle(
+            store,
+            return_selected_profile=True,
+        )
         ctx = build_execution_context(store, bundle.bundle_ref, run_id=run_id)
         try:
             with pytest.raises(ValueError, match="timeout_worker_unsupported_execution_context"):

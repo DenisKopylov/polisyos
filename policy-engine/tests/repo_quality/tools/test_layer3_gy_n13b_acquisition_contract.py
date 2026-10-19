@@ -338,6 +338,37 @@ def _copy_acceptance_case_cas_closure(
             if destination_path.is_symlink() or destination_path.read_bytes() != member_bytes:
                 raise AssertionError("isolated acceptance CAS copy changed member bytes")
 
+        if profile_sha256 is None and manifest.canon is not None:
+            selected_profile_sha256 = ManifestLifecycle.profile_sha256(manifest)
+            selected_manifest_relative_path = relative_dir / (
+                f"{digest}.view.{selected_profile_sha256.removeprefix('sha256:')}.manifest.json"
+            )
+            selected_manifest_source = CAS_ROOT / selected_manifest_relative_path
+            if selected_manifest_source.is_symlink() or not selected_manifest_source.is_file():
+                raise AssertionError(
+                    "canonical acceptance profile view is missing: "
+                    f"{selected_manifest_relative_path}"
+                )
+            selected_manifest_bytes = selected_manifest_source.read_bytes()
+            selected_manifest = ArtifactManifest.model_validate_json(selected_manifest_bytes)
+            if (
+                selected_manifest != manifest
+                or ManifestLifecycle.profile_sha256(selected_manifest) != selected_profile_sha256
+            ):
+                raise AssertionError(
+                    "canonical acceptance profile view does not match its default manifest"
+                )
+            selected_destination_path = destination_root / selected_manifest_relative_path
+            if selected_manifest_relative_path not in copied_members:
+                selected_destination_path.parent.mkdir(parents=True, exist_ok=True)
+                selected_destination_path.write_bytes(selected_manifest_bytes)
+                copied_members.add(selected_manifest_relative_path)
+            if (
+                selected_destination_path.is_symlink()
+                or selected_destination_path.read_bytes() != selected_manifest_bytes
+            ):
+                raise AssertionError("isolated acceptance profile view changed member bytes")
+
         pending_refs.extend(
             (str(input_ref.artifact_id), input_ref.manifest_profile_sha256)
             for input_ref in manifest.inputs

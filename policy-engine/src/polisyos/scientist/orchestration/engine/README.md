@@ -256,6 +256,38 @@ memo. Remote workers use that neutral representation and the existing closed
 wire model set; dynamic tracking classes are never transport identities. The
 original provider-held view stays guarded after completion.
 
+Outcome wire v2 always wraps the encoded outcome once. A mutation sidecar is
+added only when the guarded state subtree contains a real journal owner; a
+journal-shaped value in an error or another outcome field cannot select it.
+The root state journal wins, then an exact stored legacy owner takes priority
+over tracked owners. Repeated tracked references to one journal are collected
+once; absent a higher-priority owner, distinct tracked journals refuse.
+Descriptor-only owners are not read.
+Sidecar operations retain the closed `StateMutation` model wrapper. Typed Core
+and IR artifact-reference values use an untagged mapping with a canonical
+`artifact_id`, `kind`, `media_type`, and any present manifest profile; an
+absent profile stays omitted. Decoding reconstructs a journal from its
+operations and does not preserve the producer process journal identity or
+isolation metadata. Validated `ExperimentState` construction admits Core refs
+and the supported IR `ArtifactRefModel` family in both `inputs` and
+`artifacts_index`, projecting them to Core `ArtifactRef` values while retaining
+the selected kind, media type, and profile. The branch mutation owner also
+normalizes genuine IR refs written to `artifacts_index` before recording them.
+Reads through branched `inputs` and `artifacts_index` mappings are registered
+tracked views; `_owned_wire_model_origin` identifies the Core `ArtifactRef` and
+nested Core `ArtifactID` behind each view. Tests should assert those owner
+projections rather than concrete wrapper classes. Journal values follow the
+write input: the producer test assigns the constructor's plain Core `inputs`
+value, while an assignment from an already tracked branch read can retain its
+registered model view; the `artifacts_index` owner normalizes a genuine IR ref
+to Core before recording. Both forms in this journal sidecar emit the same
+untagged canonical reference mapping; the outcome state keeps its typed Core
+model wire projection.
+Producer tests therefore start from validated typed state; synthetic
+`StateMutation` codec tests are explicitly separate and do not imply that
+`params` or `causal_method_params` admit references, since those fields remain
+JSON-valued.
+
 This profile admits declared ordinary model fields and their finite container
 graph. Custom mutation/copy/construction hooks (including post-init), private or
 extra runtime model state, new undeclared model attributes, unsupported runtime

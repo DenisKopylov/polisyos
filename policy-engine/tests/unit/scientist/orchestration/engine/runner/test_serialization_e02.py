@@ -151,6 +151,8 @@ def test_real_worker_process_consumes_state_and_emits_exact_typed_outcome(backen
         chain = attempts[0]["ancestry"]
         assert chain[0] == {"pid": attempts[0]["pid"], "ppid": attempts[0]["ppid"]}
         assert all(left["ppid"] == right["pid"] for left, right in pairwise(chain))
+        assert len({entry["pid"] for entry in chain}) == len(chain)
+        assert chain[-1]["ppid"] == 0
         assert process.pid != os.getpid()
         if sys.platform == "darwin":
             # The untimed generic worker runs inside the fresh outer worker.

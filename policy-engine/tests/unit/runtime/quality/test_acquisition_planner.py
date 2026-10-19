@@ -2184,6 +2184,8 @@ def test_local_fabric_capture_path_boundary_matrix(
     accepted: bool,
     allow_relative: bool,
 ) -> None:
+    from polisyos.fabric.retrieval.service import _capture_locator_view
+
     approved_root = tmp_path / "approved"
     approved_root.mkdir()
     inside = approved_root / "inside.csv"
@@ -2206,17 +2208,18 @@ def test_local_fabric_capture_path_boundary_matrix(
         "remote_scheme": "https://remote.invalid/inside.csv",
         "non_file_scheme": "s3://bucket/inside.csv",
     }[case]
+    locator_view = _capture_locator_view(locator)
     if accepted:
         assert (
             acquisition_owner._resolve_local_fabric_capture_path(
-                locator, approved_root=approved_root, allow_relative=allow_relative
+                locator_view, approved_root=approved_root, allow_relative=allow_relative
             )
             == inside.resolve()
         )
     else:
         with pytest.raises(ValueError, match="fabric_fetch_capture_"):
             acquisition_owner._resolve_local_fabric_capture_path(
-                locator, approved_root=approved_root, allow_relative=allow_relative
+                locator_view, approved_root=approved_root, allow_relative=allow_relative
             )
 
 
@@ -2363,7 +2366,6 @@ def test_real_owner_gateway_capture_rejects_injected_foreign_store_before_resolv
     assert execute_calls == []
     assert runtime_store.iter_artifact_ids() == []
     assert foreign_store.iter_artifact_ids() == []
-    runtime_store.close()
 
 
 def test_real_owner_gateway_opt_in_captures_real_fetch_custody_without_world_growth(
@@ -2506,8 +2508,6 @@ def test_real_owner_gateway_opt_in_captures_real_fetch_custody_without_world_gro
         assert receipt.grown_world_added_slots == ()
         assert receipt.grown_world_after_ref == "world://before/fetch-capture"
 
-    runtime_store.close()
-
 
 def test_real_owner_gateway_capture_requires_explicit_local_service_without_remote_io(
     tmp_path: Path,
@@ -2609,6 +2609,14 @@ def test_real_owner_gateway_capture_requires_exactly_one_fetch_plan(
                         fetch_plans=[resolved.fetch_plans[0], extra],
                     )
 
+                def execute_persisted_fetch_capture(
+                    self, *args: object, **kwargs: object
+                ) -> object:
+                    del args, kwargs
+                    raise AssertionError(
+                        "invalid plan cardinality must fail before persisted capture"
+                    )
+
                 def execute_fetch_plans(self, *args: object, **kwargs: object) -> object:
                     del args, kwargs
                     raise AssertionError("invalid plan cardinality must fail before execute")
@@ -2649,6 +2657,7 @@ def test_real_owner_gateway_capture_requires_exactly_one_fetch_plan(
             is None
         )
         assert len(resolve_calls) == 1
+        assert owner.requests == []
 
 
 def test_real_owner_gateway_capture_rejects_remote_effective_connector_before_execute(
@@ -2694,7 +2703,7 @@ def test_real_owner_gateway_capture_rejects_remote_effective_connector_before_ex
             execute_calls.append((args, kwargs))
             raise AssertionError("remote capture must be refused before execution")
 
-        service.execute_fetch_plans = _network_execute_trap  # type: ignore[method-assign]
+        service.execute_persisted_fetch_capture = _network_execute_trap  # type: ignore[method-assign]
 
         base_spec = _compiled_requirement_specs()[0].model_dump(mode="json")
         base_spec.update(
@@ -2730,6 +2739,7 @@ def test_real_owner_gateway_capture_rejects_remote_effective_connector_before_ex
             is None
         )
         assert execute_calls == []
+        assert owner.requests == []
         assert "fabric_fetch_capture_remote_locator" in caplog.text
 
 
@@ -2737,33 +2747,24 @@ def test_real_owner_gateway_capture_uses_owner_bound_profile_route_without_catal
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    from typing import Any
-
     from polisyos.core import artifacts, canon
-    from polisyos.fabric.connectors.base import ConnectionHandle
-    from polisyos.fabric.connectors.sources.file_tabular import FileTabularConnector
+    from polisyos.fabric.connectors.sources import file_tabular
     from polisyos.fabric.retrieval.custody import FabricFetchReceipt, _decode_payload
     from polisyos.fabric.retrieval.service import RetrievalService
-    from polisyos.ir.connectors import FetchRequest, FetchResult
     from tests.unit.fabric.test_retrieval_fetch_custody import build_recorded_file_fetch_owner
 
     runtime_store = FileSystemCAS(tmp_path / "owner-bound-profile-route-cas")
     observed_urls: list[str] = []
+    alternate_path = tmp_path / "effective-profile-route.csv"
+    alternate_path.write_text("row_id,value\nprofile-route-b,909.5\n", encoding="utf-8")
     _install_recorded_file_catalog_supplier(monkeypatch)
     with build_recorded_file_fetch_owner(
         tmp_path,
         canonicalize_catalog_source=True,
         catalog_connector_params={},
+        profile_base_url=str(alternate_path),
         publish_current_catalog=True,
     ) as owner:
-        profile = owner.providers.profiles.get("recorded_file_local")
-        assert profile is not None
-        alternate_path = tmp_path / "effective-profile-route.csv"
-        alternate_path.write_text("row_id,value\nprofile-route-b,909.5\n", encoding="utf-8")
-        owner.providers.profiles.register(
-            profile.model_copy(update={"base_url": str(alternate_path)}),
-            override=True,
-        )
         assert owner.csv_path != alternate_path
         service = RetrievalService(
             curated_dir=tmp_path,
@@ -2771,17 +2772,13 @@ def test_real_owner_gateway_capture_uses_owner_bound_profile_route_without_catal
             dataset_catalog=owner.graph,
             providers=owner.providers,
         )
-        original_fetch = FileTabularConnector.fetch
+        original_read = file_tabular.read_location_bytes
 
-        async def _record_effective_route(
-            connector: FileTabularConnector,
-            handle: ConnectionHandle,
-            request: FetchRequest,
-        ) -> FetchResult[Any]:
-            observed_urls.append(handle.config.url)
-            return await original_fetch(connector, handle, request)
+        async def _record_effective_route(config, *args, **kwargs):
+            observed_urls.append(config.url)
+            return await original_read(config, *args, **kwargs)
 
-        monkeypatch.setattr(FileTabularConnector, "fetch", _record_effective_route)
+        monkeypatch.setattr(file_tabular, "read_location_bytes", _record_effective_route)
         base_spec = _compiled_requirement_specs()[0].model_dump(mode="json")
         base_spec.update(
             {
@@ -2832,8 +2829,6 @@ def test_real_owner_gateway_capture_uses_owner_bound_profile_route_without_catal
         assert captured_data["row_id"].tolist() == ["profile-route-b"]
         assert captured_data["value"].tolist() == [909.5]
 
-    runtime_store.close()
-
 
 def test_real_owner_gateway_capture_refuses_present_route_that_conflicts_with_profile_config(
     tmp_path: Path,
@@ -2844,6 +2839,8 @@ def test_real_owner_gateway_capture_refuses_present_route_that_conflicts_with_pr
     from tests.unit.fabric.test_retrieval_fetch_custody import build_recorded_file_fetch_owner
 
     runtime_store = FileSystemCAS(tmp_path / "conflicting-profile-route-cas")
+    alternate_path = tmp_path / "effective-profile-route.csv"
+    alternate_path.write_text("row_id,value\nprofile-route-b,909.5\n", encoding="utf-8")
     _install_recorded_file_catalog_supplier(monkeypatch)
     with build_recorded_file_fetch_owner(
         tmp_path,
@@ -2852,16 +2849,9 @@ def test_real_owner_gateway_capture_refuses_present_route_that_conflicts_with_pr
             "url": str(tmp_path / "recorded.csv"),
             "path": str(tmp_path / "recorded.csv"),
         },
+        profile_base_url=str(alternate_path),
         publish_current_catalog=True,
     ) as owner:
-        profile = owner.providers.profiles.get("recorded_file_local")
-        assert profile is not None
-        alternate_path = tmp_path / "effective-profile-route.csv"
-        alternate_path.write_text("row_id,value\nprofile-route-b,909.5\n", encoding="utf-8")
-        owner.providers.profiles.register(
-            profile.model_copy(update={"base_url": str(alternate_path)}),
-            override=True,
-        )
         service = RetrievalService(
             curated_dir=tmp_path,
             artifact_store=runtime_store,
@@ -2874,7 +2864,7 @@ def test_real_owner_gateway_capture_refuses_present_route_that_conflicts_with_pr
             execute_calls.append((args, kwargs))
             raise AssertionError("conflicting selected route must refuse before execution")
 
-        service.execute_fetch_plans = _execute_trap  # type: ignore[method-assign]
+        service.execute_persisted_fetch_capture = _execute_trap  # type: ignore[method-assign]
         base_spec = _compiled_requirement_specs()[0].model_dump(mode="json")
         base_spec.update(
             {
@@ -2909,10 +2899,9 @@ def test_real_owner_gateway_capture_refuses_present_route_that_conflicts_with_pr
             is None
         )
         assert execute_calls == []
+        assert owner.requests == []
         assert runtime_store.iter_artifact_ids() == []
         assert "fabric_fetch_capture_catalog_config_mismatch" in caplog.text
-
-    runtime_store.close()
 
 
 def test_real_owner_gateway_capture_refuses_present_null_url_even_with_path_alias(
@@ -2943,7 +2932,7 @@ def test_real_owner_gateway_capture_refuses_present_null_url_even_with_path_alia
             execute_calls.append((args, kwargs))
             raise AssertionError("a present malformed route must refuse before execution")
 
-        service.execute_fetch_plans = _execute_trap  # type: ignore[method-assign]
+        service.execute_persisted_fetch_capture = _execute_trap  # type: ignore[method-assign]
         base_spec = _compiled_requirement_specs()[0].model_dump(mode="json")
         base_spec.update(
             {
@@ -2978,10 +2967,9 @@ def test_real_owner_gateway_capture_refuses_present_null_url_even_with_path_alia
             is None
         )
         assert execute_calls == []
+        assert owner.requests == []
         assert runtime_store.iter_artifact_ids() == []
         assert "fabric_fetch_capture_catalog_locator_malformed" in caplog.text
-
-    runtime_store.close()
 
 
 @pytest.mark.parametrize(
@@ -3063,7 +3051,7 @@ def test_real_owner_gateway_capture_rejects_effective_route_resolved_differently
             execute_calls.append((args, kwargs))
             raise AssertionError("a route that resolves against CWD must fail before fetch")
 
-        service.execute_fetch_plans = _cwd_execute_trap  # type: ignore[method-assign]
+        service.execute_persisted_fetch_capture = _cwd_execute_trap  # type: ignore[method-assign]
         base_spec = _compiled_requirement_specs()[0].model_dump(mode="json")
         base_spec.update(
             {
@@ -3099,6 +3087,7 @@ def test_real_owner_gateway_capture_rejects_effective_route_resolved_differently
         )
         assert cwd_locator.is_file()
         assert execute_calls == []
+        assert owner.requests == []
         assert runtime_store.iter_artifact_ids() == []
         assert "fabric_fetch_capture_effective_config_relative" in caplog.text
 
@@ -3185,14 +3174,17 @@ def test_real_owner_gateway_capture_refuses_route_removed_after_preflight(
             is None
         )
         assert not route_path.exists()
+        assert owner.requests == []
         assert runtime_store.iter_artifact_ids() == []
-
-    runtime_store.close()
 
 
 @pytest.mark.parametrize(
-    ("route_key", "route_value"),
-    [("url", ""), ("url", " \t"), ("path", "")],
+    ("route_key", "route_value", "refusal_code"),
+    [
+        ("url", "", "fabric_fetch_capture_catalog_locator_malformed"),
+        ("url", " \t", "fabric_fetch_capture_local_path_unreadable"),
+        ("path", "", "fabric_fetch_capture_catalog_locator_malformed"),
+    ],
     ids=["blank-url", "whitespace-url", "blank-path"],
 )
 def test_real_owner_gateway_capture_rejects_blank_selected_route_before_fetch_or_cas(
@@ -3201,6 +3193,7 @@ def test_real_owner_gateway_capture_rejects_blank_selected_route_before_fetch_or
     caplog: pytest.LogCaptureFixture,
     route_key: str,
     route_value: str,
+    refusal_code: str,
 ) -> None:
     from polisyos.fabric.retrieval.service import RetrievalService
     from tests.unit.fabric.test_retrieval_fetch_custody import build_recorded_file_fetch_owner
@@ -3252,7 +3245,7 @@ def test_real_owner_gateway_capture_rejects_blank_selected_route_before_fetch_or
         assert artifact is None
         assert owner.requests == []
         assert runtime_store.iter_artifact_ids() == []
-        assert "fabric_fetch_capture_catalog_locator_malformed" in caplog.text
+        assert refusal_code in caplog.text
 
 
 def test_real_owner_gateway_capture_rejects_sibling_catalog_before_fetch_or_cas(
@@ -4414,8 +4407,6 @@ def test_real_owner_gateway_capture_uses_one_guarded_profile_snapshot(
         )
         assert captured_data["row_id"].tolist() == [f"r-{index}" for index in range(12)]
         assert captured_data["value"].tolist() == [index + 0.5 for index in range(12)]
-
-    runtime_store.close()
 
 
 @pytest.mark.parametrize(

@@ -114,7 +114,7 @@
     },
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/LEASES.json",
-      "sha256": "4e855f32e51cd72b746f2c87f630282543a4e49ee17f7236cc083fa9b438085f",
+      "sha256": "e95c7d27f534d6d8d2f65c61204274724188364393270161fe79685e29fd4877",
       "record_type": "current_coordination_snapshot",
       "previous_unqualified_digest": "1c2ae874ad7a12ac5c8ce69c580be992eef49a0ba58164893eff9a679a1ff9e5",
       "qualification": "Current LEASES bytes are pinned by this digest and the containing index commit. historical_original_source_commit names only the first recorded B194 snapshot; it is not the source of the current lease bytes. Source and native verification remain separately scoped.",
@@ -1283,6 +1283,10 @@
     {
       "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/source61-technical-attestation-20261019.json",
       "sha256": "52ed1c831c3499578d56f9bfa179357ea39002bf4135166bb928b3bfbac45866"
+    },
+    {
+      "path": "policy-engine/docs/research/e02-cloud-test-plan/implementation-handoffs/LOCAL/owner-repairs-technical-attestation-20261019.json",
+      "sha256": "a3aa3f81a319da6cd6fe65857b121f7ad56812d4098aea3de178dea430b1df9e"
     }
   ],
   "canonical_denominator_recomputed": {

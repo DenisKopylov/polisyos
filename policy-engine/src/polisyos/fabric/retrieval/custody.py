@@ -199,16 +199,16 @@ def _put_json(
     schema: str,
     inputs: list[core_artifacts.InputRef],
 ) -> core_artifacts.ArtifactRef:
-    return store.put_bytes(
-        canon.to_canonical_bytes(payload.model_dump(mode="json"), spec=_CANON),
+    return store.put_json(
+        payload.model_dump(mode="json"),
         core_artifacts.PutOptions(
             kind=kind,
             media_type=_JSON,
             schema=core_artifacts.SchemaInfo(name=schema, version=_SCHEMA_VERSION),
             producer=_PRODUCER,
             inputs=inputs,
-            canon=core_artifacts.CanonInfo.from_spec(_CANON),
         ),
+        canon_spec=_CANON,
     )
 
 
@@ -231,18 +231,22 @@ def _persist_fetched_result(
         payload, media_type, encoding = _encode_payload(result.data)
         # Rebuilding validates concrete metadata even if a connector used model_copy.
         metadata = result.model_dump(mode="json", exclude={"data"})
-        payload_ref = store.put_bytes(
-            payload,
-            core_artifacts.PutOptions(
-                kind=_PAYLOAD_KIND,
-                media_type=media_type,
-                schema=core_artifacts.SchemaInfo(
-                    name="polisyos.fabric.fetch_payload.v1", version=_SCHEMA_VERSION
-                ),
-                producer=_PRODUCER,
-                inputs=[],
+        payload_options = core_artifacts.PutOptions(
+            kind=_PAYLOAD_KIND,
+            media_type=media_type,
+            schema=core_artifacts.SchemaInfo(
+                name="polisyos.fabric.fetch_payload.v1", version=_SCHEMA_VERSION
             ),
+            producer=_PRODUCER,
+            inputs=[],
         )
+        if media_type == _JSON:
+            # Persist the exact object snapshot represented by the already
+            # encoded bytes; never serialize a second read of mutable connector data.
+            payload_snapshot = canon.from_canonical_bytes(payload)
+            payload_ref = store.put_json(payload_snapshot, payload_options, canon_spec=_CANON)
+        else:
+            payload_ref = store.put_bytes(payload, payload_options)
         binding_ref = _put_json(
             store,
             rebound,

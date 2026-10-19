@@ -11,12 +11,12 @@ from typing import Any
 import pytest
 from pydantic import BaseModel, model_serializer
 
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.skip_blockers import SkippedNodeBlocker
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
-from polisyos.ir.registry.refs import ArtifactRefModel, EvidenceBundleRef
+from polisyos.ir.registry import ArtifactRefModel, EvidenceBundleRef
 from polisyos.scientist.orchestration.engine.protocol import (
     NodeError,
     NodeEvent,
@@ -675,6 +675,25 @@ def _journaled_wire_payload(blob: bytes) -> dict[str, Any]:
     return payload
 
 
+def _journaled_wire_operation_payloads(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    """Read the closed StateMutation model payloads from a journal sidecar."""
+    encoded_operations = payload["state_mutations"]
+    assert isinstance(encoded_operations, list)
+    operation_payloads: list[dict[str, Any]] = []
+    for encoded in encoded_operations:
+        assert isinstance(encoded, dict)
+        assert encoded == {
+            "_type": "model",
+            "module": StateMutation.__module__,
+            "qualname": StateMutation.__qualname__,
+            "value": encoded.get("value"),
+        }
+        operation = encoded["value"]
+        assert isinstance(operation, dict)
+        operation_payloads.append(operation)
+    return operation_payloads
+
+
 def _roundtrip_journal(blob: bytes) -> StateMutationJournal:
     restored = deserialize_outcome(blob)
     journal = mutation_journal_for_state(restored.state)
@@ -708,7 +727,9 @@ def test_descriptor_only_legacy_owner_is_not_executed() -> None:
 
     outer = json.loads(serialize_outcome(NodeOutcome(status="ok", state=state)))
 
-    assert outer["value"]["wire_schema"] == "polisyos.scientist.outcome_wire.v2"
+    assert outer["wire_schema"] == "polisyos.scientist.outcome_wire.v2"
+    assert "state_mutations" not in outer["value"]
+    assert outer["value"]["state"]["params"]["owner"] == {"value": "descriptor-owner"}
     assert descriptor_owner.calls == 0
 
 
@@ -823,13 +844,38 @@ def test_one_shared_nested_tracker_journal_is_selected_once() -> None:
     second = tracked_state.params["second"]
     state = ExperimentState(run_id="shared-tracker-owner")
     object.__setattr__(state, "params", {"first": first, "second": second})
+    first.append("first-write")
+    second.append("second-write")
+    source_journal = mutation_journal_for_state(tracked_state)
+    assert source_journal is not None
+    assert first is not second
+    assert object.__getattribute__(first, "_mutation_journal") is source_journal
+    assert object.__getattribute__(second, "_mutation_journal") is source_journal
+    expected = [
+        ("params.first", "append", "json", "first-write"),
+        ("params.second", "append", "json", "second-write"),
+    ]
+    assert [
+        (row.path, row.operation, row.value_kind, row.value) for row in source_journal.operations
+    ] == expected
 
     blob = serialize_outcome(NodeOutcome(status="ok", state=state))
-
-    journal = _roundtrip_journal(blob)
-    assert first is not second
-    assert journal is mutation_journal_for_state(tracked_state)
-    assert journal.operations == []
+    payload = _journaled_wire_payload(blob)
+    operation_payloads = _journaled_wire_operation_payloads(payload)
+    assert [
+        (row["path"], row["operation"], row["value_kind"], row["value"])
+        for row in operation_payloads
+    ] == expected
+    restored = deserialize_outcome(blob)
+    restored_journal = mutation_journal_for_state(restored.state)
+    assert restored_journal is not None
+    assert restored_journal is not source_journal
+    assert [
+        (row.path, row.operation, row.value_kind, row.value) for row in restored_journal.operations
+    ] == expected
+    assert [
+        (row.path, row.operation, row.value_kind, row.value) for row in source_journal.operations
+    ] == expected
 
 
 def test_legacy_owner_after_tracked_owner_keeps_legacy_selection() -> None:
@@ -864,8 +910,9 @@ def test_owner_outside_state_subtree_does_not_select_journal() -> None:
 
     outer = json.loads(serialize_outcome(outcome))
 
-    assert outer["value"]["wire_schema"] == "polisyos.scientist.outcome_wire.v2"
+    assert outer["wire_schema"] == "polisyos.scientist.outcome_wire.v2"
     assert "state_mutations" not in outer["value"]
+    assert outer["value"]["error"]["details"]["owner"] == {"value": "outside"}
 
 
 def test_state_walk_refuses_invalid_journaled_state_after_complete_projection() -> None:
@@ -898,12 +945,35 @@ def test_journaled_state_validation_normalizes_before_wire_emission() -> None:
     restored = deserialize_outcome(serialize_outcome(NodeOutcome(status="ok", state=state)))
 
     assert isinstance(restored.state.inputs["source"], ArtifactRef)
-    assert restored.state.inputs["source"].artifact_id == "sha256:" + "a" * 64
+    assert restored.state.inputs["source"].artifact_id.root == "sha256:" + "a" * 64
+
+
+def test_artifact_type_facades_preserve_defining_owner_identity() -> None:
+    from polisyos.core.artifacts import ArtifactID as CoreArtifactID
+    from polisyos.core.artifacts import ArtifactRef as CoreArtifactRef
+    from polisyos.core.artifacts.ids import ArtifactID as DefiningCoreArtifactID
+    from polisyos.core.artifacts.manifest import ArtifactRef as DefiningCoreArtifactRef
+    from polisyos.ir import ArtifactID as RootIRArtifactID
+    from polisyos.ir.artifacts import ArtifactID as IRArtifactID
+    from polisyos.ir.artifacts.contracts import ArtifactID as DefiningIRArtifactID
+    from polisyos.ir.registry import ArtifactRefModel as IRArtifactRefModel
+    from polisyos.ir.registry import EvidenceBundleRef as IREvidenceBundleRef
+    from polisyos.ir.registry.refs import ArtifactRefModel as DefiningIRArtifactRefModel
+    from polisyos.ir.registry.refs import EvidenceBundleRef as DefiningIREvidenceBundleRef
+
+    assert CoreArtifactID is DefiningCoreArtifactID
+    assert CoreArtifactRef is DefiningCoreArtifactRef
+    assert IRArtifactID is DefiningIRArtifactID
+    assert RootIRArtifactID is IRArtifactID
+    assert IRArtifactRefModel is DefiningIRArtifactRefModel
+    assert IREvidenceBundleRef is DefiningIREvidenceBundleRef
+    assert IRArtifactID is not CoreArtifactID
 
 
 def test_artifact_ref_sidecar_accepts_typed_family_and_decoded_plain_mapping() -> None:
-    from polisyos.core.artifacts.ids import ArtifactID as CoreArtifactID
-    from polisyos.ir.artifacts.contracts import ArtifactID as IRArtifactID
+    """Exercise StateMutation sidecar encoding with synthetic operations outside state field validation."""
+    from polisyos.core.artifacts import ArtifactID as CoreArtifactID
+    from polisyos.ir.artifacts import ArtifactID as IRArtifactID
 
     typed_refs: list[ArtifactRefModel | ArtifactRef] = [
         ArtifactRef(
@@ -962,6 +1032,8 @@ def test_artifact_ref_sidecar_accepts_typed_family_and_decoded_plain_mapping() -
 
 
 def test_artifact_ref_sidecar_rejects_arbitrary_models_and_custom_id_stringification() -> None:
+    """Exercise the synthetic sidecar value codec rejection boundary directly."""
+
     class _UnexpectedRef(BaseModel):
         artifact_id: Any
         kind: str
@@ -1004,18 +1076,23 @@ def test_artifact_ref_sidecar_rejects_arbitrary_models_and_custom_id_stringifica
     assert trap.calls == 0
 
 
-def test_actual_core_and_ir_reference_producers_emit_canonical_untagged_ids() -> None:
-    from polisyos.core.artifacts.ids import ArtifactID as CoreArtifactID
-    from polisyos.ir.artifacts.contracts import ArtifactID as IRArtifactID
+def test_actual_core_and_ir_reference_producers_admit_and_emit_canonical_untagged_ids() -> None:
+    from polisyos.core.artifacts import ArtifactID as CoreArtifactID
+    from polisyos.ir.artifacts import ArtifactID as IRArtifactID
+    from polisyos.scientist.orchestration.engine.state_branching import (
+        _owned_wire_model_origin,
+    )
 
-    references: list[tuple[str, ArtifactRef | ArtifactRefModel]] = [
+    references: list[tuple[str, ArtifactRef | ArtifactRefModel, str]] = [
         (
             "sha256:" + "1" * 64,
             ArtifactRef(
                 artifact_id=CoreArtifactID("sha256:" + "1" * 64),
                 kind="test.core_ref",
                 media_type="application/json",
+                manifest_profile_sha256="sha256:" + "6" * 64,
             ),
+            "sha256:" + "6" * 64,
         ),
         (
             "sha256:" + "2" * 64,
@@ -1023,43 +1100,158 @@ def test_actual_core_and_ir_reference_producers_emit_canonical_untagged_ids() ->
                 artifact_id=IRArtifactID("sha256:" + "2" * 64),
                 kind="test.ir_ref",
                 media_type="application/json",
+                manifest_profile_sha256="sha256:" + "7" * 64,
             ),
+            "sha256:" + "7" * 64,
         ),
         (
             "sha256:" + "3" * 64,
-            EvidenceBundleRef(artifact_id=IRArtifactID("sha256:" + "3" * 64)),
+            EvidenceBundleRef(
+                artifact_id=IRArtifactID("sha256:" + "3" * 64),
+                manifest_profile_sha256="sha256:" + "8" * 64,
+            ),
+            "sha256:" + "8" * 64,
         ),
     ]
 
-    for index, (expected_id, reference) in enumerate(references):
-        state = branch_state(
-            ExperimentState(run_id=f"typed-ref-producer-{index}"),
-            write_paths=("params",),
-        ).state
-        state.params["ref"] = reference
-        del state.params["ref"]
-        journal = mutation_journal_for_state(state)
-        assert journal is not None
-        assert journal.operations[0].value_kind == "artifact_ref"
+    expected_operations = [
+        ("inputs.ref", "set", "artifact_ref", "missing", "missing"),
+        ("inputs.ref", "delete", "json", "present", "model"),
+        ("artifacts_index.ref", "set", "artifact_ref", "missing", "missing"),
+        ("artifacts_index.ref", "delete", "json", "present", "model"),
+    ]
 
-        blob = serialize_outcome(NodeOutcome(status="ok", state=state))
+    for index, (expected_id, reference, profile) in enumerate(references):
+        # These are validated constructor inputs. Pydantic admits the IR models
+        # and projects them to the declared Core ArtifactRef state-field type.
+        state = ExperimentState(
+            run_id=f"typed-ref-producer-{index}",
+            inputs={"admitted": reference},
+            artifacts_index={"admitted": reference},
+        )
+        admitted_input = state.inputs["admitted"]
+        admitted_index = state.artifacts_index["admitted"]
+        for admitted in (admitted_input, admitted_index):
+            assert type(admitted) is ArtifactRef
+            assert type(admitted.artifact_id) is CoreArtifactID
+            assert admitted.artifact_id.root == expected_id
+            assert admitted.kind == reference.kind
+            assert admitted.media_type == reference.media_type
+            assert admitted.manifest_profile_sha256 == profile
+
+        if isinstance(reference, ArtifactRefModel):
+            assert type(reference.artifact_id) is IRArtifactID
+            # Exercise the existing artifacts-index normalization owner with
+            # the genuine producer value. Inputs uses its validated Core value.
+            index_value: ArtifactRef | ArtifactRefModel = reference
+        else:
+            assert type(reference.artifact_id) is CoreArtifactID
+            index_value = admitted_index
+
+        def assert_registered_core_view(
+            value: ArtifactRef,
+            *,
+            expected_value_id: str,
+            expected_kind: str,
+            expected_media_type: str,
+            expected_profile: str,
+        ) -> None:
+            assert _owned_wire_model_origin(value) is ArtifactRef
+            assert _owned_wire_model_origin(value.artifact_id) is CoreArtifactID
+            assert value.artifact_id.root == expected_value_id
+            assert value.kind == expected_kind
+            assert value.media_type == expected_media_type
+            assert value.manifest_profile_sha256 == expected_profile
+
+        branch = branch_state(state, write_paths=("inputs", "artifacts_index")).state
+        branch.inputs["ref"] = admitted_input
+        tracked_input_value = branch.inputs["ref"]
+        assert_registered_core_view(
+            tracked_input_value,
+            expected_value_id=expected_id,
+            expected_kind=reference.kind,
+            expected_media_type=reference.media_type,
+            expected_profile=profile,
+        )
+        del branch.inputs["ref"]
+        branch.artifacts_index["ref"] = index_value
+        normalized_index_value = branch.artifacts_index["ref"]
+        assert_registered_core_view(
+            normalized_index_value,
+            expected_value_id=expected_id,
+            expected_kind=reference.kind,
+            expected_media_type=reference.media_type,
+            expected_profile=profile,
+        )
+        del branch.artifacts_index["ref"]
+
+        journal = mutation_journal_for_state(branch)
+        assert journal is not None
+        assert [
+            (row.path, row.operation, row.value_kind, row.target_presence, row.target_kind)
+            for row in journal.operations
+        ] == expected_operations
+        # The inputs write uses the untracked constructor projection; the
+        # artifacts-index owner normalizes the original IR producer before
+        # both paths record their plain Core snapshot.
+        for operation in (journal.operations[0], journal.operations[2]):
+            assert type(operation.value) is ArtifactRef
+            assert type(operation.value.artifact_id) is CoreArtifactID
+            assert operation.value.artifact_id.root == expected_id
+            assert operation.value.kind == reference.kind
+            assert operation.value.media_type == reference.media_type
+            assert operation.value.manifest_profile_sha256 == profile
+
+        blob = serialize_outcome(NodeOutcome(status="ok", state=branch))
         payload = _journaled_wire_payload(blob)
-        encoded_ref = payload["state_mutations"][0]["value"]
-        assert encoded_ref["artifact_id"] == expected_id
-        assert "_type" not in encoded_ref
+        operation_payloads = _journaled_wire_operation_payloads(payload)
+        assert len(operation_payloads) == 4
+        assert [
+            (
+                operation["path"],
+                operation["operation"],
+                operation["value_kind"],
+                operation["target_presence"],
+                operation["target_kind"],
+            )
+            for operation in operation_payloads
+        ] == expected_operations
+        expected_ref = {
+            "artifact_id": expected_id,
+            "kind": reference.kind,
+            "media_type": reference.media_type,
+            "manifest_profile_sha256": profile,
+        }
+        for operation in (operation_payloads[0], operation_payloads[2]):
+            assert operation["value"] == expected_ref
+            assert "_type" not in operation["value"]
 
         restored = deserialize_outcome(blob)
+        for restored_ref in (
+            restored.state.inputs["admitted"],
+            restored.state.artifacts_index["admitted"],
+        ):
+            assert type(restored_ref) is ArtifactRef
+            assert type(restored_ref.artifact_id) is CoreArtifactID
+            assert restored_ref.artifact_id.root == expected_id
+            assert restored_ref.kind == reference.kind
+            assert restored_ref.media_type == reference.media_type
+            assert restored_ref.manifest_profile_sha256 == profile
         restored_journal = mutation_journal_for_state(restored.state)
         assert restored_journal is not None
-        assert isinstance(restored_journal.operations[0].value, ArtifactRef)
-        assert restored_journal.operations[0].value.artifact_id == expected_id
+        assert [
+            (row.path, row.operation, row.value_kind, row.target_presence, row.target_kind)
+            for row in restored_journal.operations
+        ] == expected_operations
+        for operation in (restored_journal.operations[0], restored_journal.operations[2]):
+            assert type(operation.value) is dict
+            assert operation.value == expected_ref
 
 
 @pytest.mark.parametrize("id_kind", ["malformed", "custom"])
-def test_actual_ir_reference_producer_reaches_serializer_for_bad_id_roots(
-    id_kind: str,
-) -> None:
-    from polisyos.ir.artifacts.contracts import ArtifactID as IRArtifactID
+def test_synthetic_ir_reference_roots_are_rejected_by_sidecar_codec(id_kind: str) -> None:
+    """Keep malformed IR roots at the codec boundary, outside state admission."""
+    from polisyos.ir.artifacts import ArtifactID as IRArtifactID
 
     class _StringTrap:
         def __init__(self) -> None:
@@ -1073,28 +1265,25 @@ def test_actual_ir_reference_producer_reaches_serializer_for_bad_id_roots(
     trap = _StringTrap()
     if id_kind == "malformed":
         object.__setattr__(reference.artifact_id, "root", "SHA256:" + "6" * 64)
+        expected_error = "Artifact reference mutation ID must be canonical sha256 text"
+    else:
+        object.__setattr__(reference.artifact_id, "root", trap)
+        expected_error = "Artifact reference mutation ID root must be str"
 
     state = branch_state(
-        ExperimentState(run_id=f"actual-ir-ref-{id_kind}"),
+        ExperimentState(run_id=f"synthetic-ir-ref-{id_kind}"),
         write_paths=("params",),
     ).state
-    state.params["ref"] = reference
-    del state.params["ref"]
     journal = mutation_journal_for_state(state)
     assert journal is not None
-    assert journal.operations[0].value_kind == "artifact_ref"
-
-    if id_kind == "custom":
-        # Keep the producer path valid, then corrupt only its recorded wire value.
-        recorded_reference = journal.operations[0].value
-        assert type(recorded_reference) is EvidenceBundleRef
-        assert recorded_reference is not reference
-        assert type(recorded_reference.artifact_id) is IRArtifactID
-        assert recorded_reference.artifact_id == reference.artifact_id
-        object.__setattr__(recorded_reference, "artifact_id", trap)
-        expected_error = "Artifact reference mutation ID must be a canonical string"
-    else:
-        expected_error = "Artifact reference mutation ID must be canonical sha256 text"
+    journal.operations.append(
+        StateMutation(
+            path="params.synthetic_ref",
+            operation="set",
+            value=reference,
+            value_kind="artifact_ref",
+        )
+    )
 
     with pytest.raises(TypeError, match=expected_error):
         serialize_outcome(NodeOutcome(status="ok", state=state))
@@ -1102,12 +1291,12 @@ def test_actual_ir_reference_producer_reaches_serializer_for_bad_id_roots(
 
 
 def test_registered_tracked_model_inside_state_selects_its_journal() -> None:
-    from polisyos.core.artifacts.ids import ArtifactID
+    from polisyos.core.artifacts import ArtifactID
 
     profile = "sha256:" + "4" * 64
     source = ExperimentState(
         run_id="tracked-model-owner-source",
-        params={
+        inputs={
             "ref": ArtifactRef(
                 artifact_id=ArtifactID("sha256:" + "4" * 64),
                 kind="test.tracked_ref",
@@ -1116,24 +1305,33 @@ def test_registered_tracked_model_inside_state_selects_its_journal() -> None:
             )
         },
     )
-    branched = branch_state(source, write_paths=("params.ref.kind",)).state
-    tracked_ref = branched.params["ref"]
+    branched = branch_state(source, write_paths=("inputs.ref.kind",)).state
+    tracked_ref = branched.inputs["ref"]
     assert isinstance(tracked_ref, ArtifactRef)
     assert type(tracked_ref) is not ArtifactRef
     tracked_ref.kind = "test.tracked_ref.updated"
     source_journal = mutation_journal_for_state(branched)
     assert source_journal is not None
-    assert any(row.path == "params.ref.kind" for row in source_journal.operations)
+    assert any(row.path == "inputs.ref.kind" for row in source_journal.operations)
 
     state = ExperimentState(run_id="tracked-model-owner-consumer")
-    object.__setattr__(state, "params", {"ref": tracked_ref})
+    object.__setattr__(state, "inputs", {"ref": tracked_ref})
     blob = serialize_outcome(NodeOutcome(status="ok", state=state))
     payload = _journaled_wire_payload(blob)
+    operation_payloads = _journaled_wire_operation_payloads(payload)
     restored = deserialize_outcome(blob)
 
-    assert [row["path"] for row in payload["state_mutations"]] == ["params.ref.kind"]
-    assert payload["state_mutations"][0]["value"] == "test.tracked_ref.updated"
-    assert restored.state.params["ref"].manifest_profile_sha256 == profile
+    assert len(operation_payloads) == 1
+    assert (
+        operation_payloads[0]["path"],
+        operation_payloads[0]["operation"],
+        operation_payloads[0]["value_kind"],
+        operation_payloads[0]["value"],
+    ) == ("inputs.ref.kind", "set", "json", "test.tracked_ref.updated")
+    assert type(restored.state.inputs["ref"]) is ArtifactRef
+    assert restored.state.inputs["ref"].artifact_id.root == "sha256:" + "4" * 64
+    assert restored.state.inputs["ref"].kind == "test.tracked_ref.updated"
+    assert restored.state.inputs["ref"].manifest_profile_sha256 == profile
 
 
 class _CounterfeitJournal:

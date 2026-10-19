@@ -71,13 +71,16 @@ def test_core_contract_facade_exposes_supported_fabric_helpers_and_modules(
         getattr(contracts, role_name)
 
     owners = {"chronology": chronology, "epoch": epoch}
-    for name, owner in owners.items():
+    for name in owners:
         monkeypatch.delattr(contracts, name)
         monkeypatch.setattr(contracts, "_SUBMODULES", contracts._SUBMODULES - {name})
         assert name in contracts.__all__
         with pytest.raises(AttributeError):
             getattr(contracts, name)
 
-        # Python's from-list import can find a child module after the facade route is removed.
+        # A cached child module need not restore its removed package attribute.
+        # Returning the package from a from-list import proves no selected export.
         imported_package = __import__("polisyos.core.contracts", fromlist=[name])
-        assert getattr(imported_package, name) is owner
+        assert imported_package is contracts
+        with pytest.raises(AttributeError):
+            getattr(imported_package, name)

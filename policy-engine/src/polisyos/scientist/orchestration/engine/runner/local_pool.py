@@ -251,7 +251,6 @@ def _prepare_parent_receipt(
     parent_context: Any,
 ) -> _ParentReceiptBinding:
     """Validate and freeze the exact local worker dispatch against its parent."""
-    from polisyos.core.run.context import RunContext
     from polisyos.core.run.worker_lifecycle import WorkerLifecycleCapability
     from polisyos.scientist.orchestration.engine.context import ExecutionContext
     from polisyos.scientist.orchestration.engine.runner.serialization import (
@@ -267,12 +266,13 @@ def _prepare_parent_receipt(
     if type(task.context_meta) is not dict:
         raise ValueError("worker_task_parent_receipt_context_invalid")
     run = parent_context.run
-    if type(run) is not RunContext:
-        raise ValueError("worker_task_parent_run_not_active")
-    capability = WorkerLifecycleCapability.for_parent(run)
+    try:
+        capability = WorkerLifecycleCapability.for_parent(run)
+    except ValueError as exc:
+        if type(exc) is ValueError and exc.args == ("worker_lifecycle_core_run_required",):
+            raise ValueError("worker_task_parent_run_not_active") from exc
+        raise
     snapshot = capability.snapshot()
-    if snapshot.trace_path is None:
-        raise ValueError("worker_task_parent_run_not_active")
     try:
         state = deserialize_state(task.state_bytes)
     except (TypeError, ValueError) as exc:

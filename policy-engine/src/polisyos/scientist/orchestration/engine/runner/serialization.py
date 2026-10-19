@@ -391,7 +391,7 @@ def _wire_model_payload(
 def _artifact_ref_model_origin(value: BaseModel) -> type[BaseModel] | None:
     """Resolve a source-typed artifact reference, including exact tracked origins."""
     from polisyos.core.artifacts import ArtifactRef
-    from polisyos.ir.registry.refs import ArtifactRefModel
+    from polisyos.ir.registry import ArtifactRefModel
     from polisyos.scientist.orchestration.engine.state_branching import (
         _owned_wire_model_origin,
     )
@@ -413,8 +413,8 @@ def _artifact_id_wire_text(
 ) -> str:
     """Extract canonical text from exact Core/IR ID roots or a plain wire ID."""
     _wire_depth(depth)
-    from polisyos.core.artifacts.ids import ArtifactID as CoreArtifactID
-    from polisyos.ir.artifacts.contracts import ArtifactID as IRArtifactID
+    from polisyos.core.artifacts import ArtifactID as CoreArtifactID
+    from polisyos.ir.artifacts import ArtifactID as IRArtifactID
 
     if type(value) is str and allow_plain_string:
         artifact_id = value
